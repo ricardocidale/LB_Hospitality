@@ -15,6 +15,7 @@ export const globalAssumptions = pgTable("global_assumptions", {
   travelCostPerClient: real("travel_cost_per_client").notNull(),
   itLicensePerClient: real("it_license_per_client").notNull(),
   marketingRate: real("marketing_rate").notNull(),
+  commissionRate: real("commission_rate").notNull().default(0.05),
   miscOpsRate: real("misc_ops_rate").notNull(),
   officeLeaseStart: real("office_lease_start").notNull(),
   professionalServicesStart: real("professional_services_start").notNull(),

@@ -179,8 +179,8 @@ export default function PropertyEdit() {
             <CardTitle>Capital Structure</CardTitle>
             <CardDescription>Purchase and investment details</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <CardContent className="space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="space-y-2">
                 <Label>Purchase Price ($)</Label>
                 <Input 
@@ -209,23 +209,24 @@ export default function PropertyEdit() {
                   onChange={(e) => handleNumberChange("operatingReserve", parseMoneyInput(e.target.value).toString())} 
                 />
               </div>
-              <div className="space-y-3">
-                <Label>Type of Funding</Label>
-                <RadioGroup 
-                  value={draft.type} 
-                  onValueChange={(v) => handleChange("type", v)}
-                  className="flex gap-6"
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Full Equity" id="funding-equity" />
-                    <Label htmlFor="funding-equity" className="font-normal cursor-pointer">Full Equity</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Financed" id="funding-financed" />
-                    <Label htmlFor="funding-financed" className="font-normal cursor-pointer">Financed</Label>
-                  </div>
-                </RadioGroup>
-              </div>
+            </div>
+
+            <div className="space-y-3 pt-2">
+              <Label>Type of Funding</Label>
+              <RadioGroup 
+                value={draft.type} 
+                onValueChange={(v) => handleChange("type", v)}
+                className="flex gap-8"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="Full Equity" id="funding-equity" />
+                  <Label htmlFor="funding-equity" className="font-normal cursor-pointer">Full Equity</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="Financed" id="funding-financed" />
+                  <Label htmlFor="funding-financed" className="font-normal cursor-pointer">Financed</Label>
+                </div>
+              </RadioGroup>
             </div>
 
             {draft.type === "Financed" && (

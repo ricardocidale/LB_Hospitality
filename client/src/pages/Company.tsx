@@ -436,14 +436,48 @@ export default function Company() {
                         })}
                       </TableRow>
                     ))}
-                    <TableRow>
-                      <TableCell className="sticky left-0 bg-card pl-6">SAFE Funding</TableCell>
+                    <TableRow 
+                      className="cursor-pointer hover:bg-muted/20"
+                      onClick={() => toggleRow('cfSafe')}
+                    >
+                      <TableCell className="sticky left-0 bg-card flex items-center gap-2 pl-6">
+                        {expandedRows.has('cfSafe') ? (
+                          <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                        ) : (
+                          <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                        )}
+                        SAFE Funding
+                      </TableCell>
                       {Array.from({ length: 10 }, (_, y) => {
                         const yearData = financials.slice(y * 12, (y + 1) * 12);
                         const total = yearData.reduce((a, m) => a + m.safeFunding, 0);
                         return <TableCell key={y} className="text-right text-muted-foreground">{total > 0 ? formatMoney(total) : '-'}</TableCell>;
                       })}
                     </TableRow>
+                    {expandedRows.has('cfSafe') && (
+                      <>
+                        <TableRow className="bg-muted/10">
+                          <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">
+                            SAFE Tranche 1
+                          </TableCell>
+                          {Array.from({ length: 10 }, (_, y) => {
+                            const yearData = financials.slice(y * 12, (y + 1) * 12);
+                            const total = yearData.reduce((a, m) => a + m.safeFunding1, 0);
+                            return <TableCell key={y} className="text-right text-sm text-muted-foreground">{total > 0 ? formatMoney(total) : '-'}</TableCell>;
+                          })}
+                        </TableRow>
+                        <TableRow className="bg-muted/10">
+                          <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">
+                            SAFE Tranche 2
+                          </TableCell>
+                          {Array.from({ length: 10 }, (_, y) => {
+                            const yearData = financials.slice(y * 12, (y + 1) * 12);
+                            const total = yearData.reduce((a, m) => a + m.safeFunding2, 0);
+                            return <TableCell key={y} className="text-right text-sm text-muted-foreground">{total > 0 ? formatMoney(total) : '-'}</TableCell>;
+                          })}
+                        </TableRow>
+                      </>
+                    )}
 
                     <TableRow className="font-semibold bg-muted/20">
                       <TableCell className="sticky left-0 bg-muted/20">Cash Outflows</TableCell>

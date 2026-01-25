@@ -11,6 +11,7 @@ import { Link, useRoute, useLocation } from "wouter";
 import { useState, useEffect } from "react";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { Slider } from "@/components/ui/slider";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 function formatMoneyInput(value: number): string {
   return new Intl.NumberFormat('en-US').format(value);
@@ -266,15 +267,22 @@ export default function PropertyEdit() {
             {draft.type === "Full Equity" && (
               <div className="border-t pt-6">
                 <div className="space-y-4">
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     <Label>Will this property be refinanced?</Label>
-                    <Select value={draft.willRefinance || "No"} onValueChange={(v) => handleChange("willRefinance", v)}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="No">No</SelectItem>
-                        <SelectItem value="Yes">Yes</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <RadioGroup 
+                      value={draft.willRefinance || "No"} 
+                      onValueChange={(v) => handleChange("willRefinance", v)}
+                      className="flex gap-6"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="Yes" id="refinance-yes" />
+                        <Label htmlFor="refinance-yes" className="font-normal cursor-pointer">Yes</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="No" id="refinance-no" />
+                        <Label htmlFor="refinance-no" className="font-normal cursor-pointer">No</Label>
+                      </div>
+                    </RadioGroup>
                   </div>
 
                   {draft.willRefinance === "Yes" && (

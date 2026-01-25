@@ -1,7 +1,7 @@
 import Layout from "@/components/Layout";
 import { useProperty, useGlobalAssumptions } from "@/lib/api";
 import { generatePropertyProForma, formatMoney } from "@/lib/financialEngine";
-import { GlassCard } from "@/components/ui/glass-card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FinancialStatement } from "@/components/FinancialStatement";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, MapPin, Loader2 } from "lucide-react";
@@ -30,7 +30,7 @@ export default function PropertyDetail() {
     return (
       <Layout>
         <div className="flex flex-col items-center justify-center h-[60vh] text-center space-y-4">
-          <h2 className="text-2xl font-serif text-primary">Property Not Found</h2>
+          <h2 className="text-2xl font-serif font-bold">Property Not Found</h2>
           <Link href="/portfolio">
             <Button>Return to Portfolio</Button>
           </Link>
@@ -43,83 +43,91 @@ export default function PropertyDetail() {
 
   return (
     <Layout>
-      <div className="space-y-8 pb-12">
+      <div className="space-y-6">
         <div className="flex items-center justify-between">
-            <Link href="/portfolio">
-            <Button variant="ghost" className="pl-0 hover:bg-transparent hover:text-primary" data-testid="button-back">
-                <ArrowLeft className="w-4 h-4 mr-2" /> Back to Portfolio
+          <Link href="/portfolio">
+            <Button variant="ghost" className="pl-0">
+              <ArrowLeft className="w-4 h-4 mr-2" /> Back to Portfolio
             </Button>
-            </Link>
-            <Link href="/settings">
-                <Button variant="outline" size="sm" className="glass-input hover:bg-white/50" data-testid="link-settings">
-                    Edit Assumptions
-                </Button>
-            </Link>
+          </Link>
+          <Link href="/settings">
+            <Button variant="outline" size="sm">Edit Assumptions</Button>
+          </Link>
         </div>
 
-        {/* Hero Section */}
-        <div className="relative h-[300px] rounded-3xl overflow-hidden shadow-2xl">
-           <img src={property.imageUrl} className="w-full h-full object-cover" />
-           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-           <div className="absolute bottom-0 left-0 p-8 text-white">
-              <h1 className="text-4xl font-serif font-bold mb-2">{property.name}</h1>
-              <div className="flex items-center gap-4 text-white/80">
-                 <span className="flex items-center gap-1"><MapPin className="w-4 h-4" /> {property.location}</span>
-                 <span className="w-1 h-1 bg-white/50 rounded-full" />
-                 <span>{property.roomCount} Rooms</span>
-                 <span className="w-1 h-1 bg-white/50 rounded-full" />
-                 <Badge variant="outline" className="border-white/30 text-white hover:bg-white/10">{property.status}</Badge>
-              </div>
-           </div>
+        <div className="relative h-[280px] rounded-xl overflow-hidden">
+          <img src={property.imageUrl} className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+          <div className="absolute bottom-0 left-0 p-6 text-white">
+            <h1 className="text-3xl font-serif font-bold mb-2">{property.name}</h1>
+            <div className="flex items-center gap-4 text-white/80 text-sm">
+              <span className="flex items-center gap-1"><MapPin className="w-4 h-4" /> {property.location}</span>
+              <span>{property.roomCount} Rooms</span>
+              <Badge variant="outline" className="border-white/40 text-white">{property.status}</Badge>
+            </div>
+          </div>
         </div>
 
-        {/* Financial Highlights */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <GlassCard className="p-4 text-center">
-                <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Year 1 Revenue</p>
-                <p className="text-2xl font-serif font-bold text-primary" data-testid="text-y1-revenue">
-                    {formatMoney(financials.slice(0, 12).reduce((acc, m) => acc + m.revenueTotal, 0))}
-                </p>
-            </GlassCard>
-             <GlassCard className="p-4 text-center">
-                <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Year 1 NOI</p>
-                <p className="text-2xl font-serif font-bold text-foreground" data-testid="text-y1-noi">
-                    {formatMoney(financials.slice(0, 12).reduce((acc, m) => acc + m.noi, 0))}
-                </p>
-            </GlassCard>
-             <GlassCard className="p-4 text-center">
-                <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Stabilized ADR</p>
-                <p className="text-2xl font-serif font-bold text-foreground" data-testid="text-stabilized-adr">
-                    {formatMoney(financials[36].adr)}
-                </p>
-            </GlassCard>
-             <GlassCard className="p-4 text-center">
-                <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Cash on Cash (Y1)</p>
-                <p className="text-2xl font-serif font-bold text-accent-foreground" data-testid="text-coc">
-                    {((financials.slice(0, 12).reduce((acc, m) => acc + m.cashFlow, 0) / (property.purchasePrice * 0.25)) * 100).toFixed(1)}%
-                </p>
-            </GlassCard>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm text-muted-foreground">Year 1 Revenue</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold text-primary">
+                {formatMoney(financials.slice(0, 12).reduce((acc, m) => acc + m.revenueTotal, 0))}
+              </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm text-muted-foreground">Year 1 NOI</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold">
+                {formatMoney(financials.slice(0, 12).reduce((acc, m) => acc + m.noi, 0))}
+              </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm text-muted-foreground">Stabilized ADR</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold">{formatMoney(financials[35]?.adr || property.startAdr)}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm text-muted-foreground">Cash on Cash (Y1)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold text-accent">
+                {((financials.slice(0, 12).reduce((acc, m) => acc + m.cashFlow, 0) / (property.purchasePrice * 0.25)) * 100).toFixed(1)}%
+              </p>
+            </CardContent>
+          </Card>
         </div>
 
         <Tabs defaultValue="y1" className="w-full">
-            <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-serif font-bold">Pro Forma Financials</h3>
-                <TabsList className="bg-white/20 backdrop-blur-md">
-                    <TabsTrigger value="y1" data-testid="tab-y1">Year 1</TabsTrigger>
-                    <TabsTrigger value="y2" data-testid="tab-y2">Year 2</TabsTrigger>
-                    <TabsTrigger value="y3" data-testid="tab-y3">Year 3</TabsTrigger>
-                </TabsList>
-            </div>
-            
-            <TabsContent value="y1">
-                <FinancialStatement data={financials.slice(0, 12)} title="Year 1 Operations" />
-            </TabsContent>
-            <TabsContent value="y2">
-                <FinancialStatement data={financials.slice(12, 24)} title="Year 2 Operations" />
-            </TabsContent>
-            <TabsContent value="y3">
-                <FinancialStatement data={financials.slice(24, 36)} title="Year 3 Operations" />
-            </TabsContent>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-serif font-bold">Pro Forma Financials</h3>
+            <TabsList>
+              <TabsTrigger value="y1">Year 1</TabsTrigger>
+              <TabsTrigger value="y2">Year 2</TabsTrigger>
+              <TabsTrigger value="y3">Year 3</TabsTrigger>
+            </TabsList>
+          </div>
+          
+          <TabsContent value="y1">
+            <FinancialStatement data={financials.slice(0, 12)} title="Year 1 Operations" />
+          </TabsContent>
+          <TabsContent value="y2">
+            <FinancialStatement data={financials.slice(12, 24)} title="Year 2 Operations" />
+          </TabsContent>
+          <TabsContent value="y3">
+            <FinancialStatement data={financials.slice(24, 36)} title="Year 3 Operations" />
+          </TabsContent>
         </Tabs>
       </div>
     </Layout>

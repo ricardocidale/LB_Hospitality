@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import { LayoutDashboard, Building2, Briefcase, Settings2, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import logo from "@/assets/logo.jpeg";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
@@ -29,10 +30,15 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="p-6 border-b border-sidebar-border">
-          <h1 className="font-serif text-2xl font-bold text-white">
-            L+B <span className="text-sidebar-primary">Hospitality</span>
-          </h1>
-          <p className="text-xs text-sidebar-foreground/60 mt-1 uppercase tracking-widest">Investor Portal</p>
+          <div className="flex items-center gap-3">
+            <img src={logo} alt="L+B Hospitality" className="w-10 h-10 object-contain" />
+            <div>
+              <h1 className="font-serif text-xl font-bold text-white">
+                L+B <span className="text-sidebar-primary">Hospitality</span>
+              </h1>
+              <p className="text-xs text-sidebar-foreground/60 uppercase tracking-widest">Investor Portal</p>
+            </div>
+          </div>
         </div>
 
         <nav className="flex-1 p-4 space-y-1">
@@ -69,7 +75,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
       <main className="flex-1 flex flex-col min-w-0">
         <header className="lg:hidden h-16 border-b bg-card flex items-center justify-between px-4 sticky top-0 z-30">
-          <span className="font-serif font-bold text-lg">L+B Hospitality</span>
+          <div className="flex items-center gap-2">
+            <img src={logo} alt="L+B Hospitality" className="w-8 h-8 object-contain" />
+            <span className="font-serif font-bold text-lg">L+B Hospitality</span>
+          </div>
           <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)}>
             {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </Button>

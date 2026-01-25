@@ -1095,6 +1095,14 @@ function InvestmentAnalysis({
 }: InvestmentAnalysisProps) {
   const DEPRECIATION_YEARS = 27.5;
 
+  const getPropertyAcquisitionYear = (prop: any): number => {
+    const acqDate = new Date(prop.acquisitionDate);
+    const modelStart = new Date(global.modelStartDate);
+    const monthsDiff = (acqDate.getFullYear() - modelStart.getFullYear()) * 12 + 
+                       (acqDate.getMonth() - modelStart.getMonth());
+    return Math.floor(monthsDiff / 12);
+  };
+
   const getPropertyInvestment = (prop: any) => {
     const totalInvestment = prop.purchasePrice + prop.buildingImprovements + 
                             prop.preOpeningCosts + prop.operatingReserve;
@@ -1103,6 +1111,17 @@ function InvestmentAnalysis({
       return totalInvestment * (1 - ltv);
     }
     return totalInvestment;
+  };
+
+  const getEquityInvestmentForYear = (yearIndex: number): number => {
+    let total = 0;
+    properties.forEach(prop => {
+      const acqYear = getPropertyAcquisitionYear(prop);
+      if (acqYear === yearIndex) {
+        total += getPropertyInvestment(prop);
+      }
+    });
+    return total;
   };
 
   const getPropertyLoanAmount = (prop: any) => {
@@ -1303,15 +1322,17 @@ function InvestmentAnalysis({
   const getConsolidatedCashFlows = (): number[] => {
     const flows: number[] = [];
     
-    let totalInitialEquity = 0;
-    properties.forEach(prop => {
-      totalInitialEquity += getPropertyInvestment(prop);
-    });
-    flows.push(-totalInitialEquity);
+    const year0Investment = getEquityInvestmentForYear(0);
+    flows.push(-year0Investment);
     
     for (let y = 0; y < 10; y++) {
       const consolidated = getConsolidatedYearlyDetails(y);
       let yearCashFlow = consolidated.atcf;
+      
+      const yearInvestment = getEquityInvestmentForYear(y + 1);
+      if (yearInvestment > 0) {
+        yearCashFlow -= yearInvestment;
+      }
       
       properties.forEach((prop, idx) => {
         const refi = getPropertyRefinanceProceeds(prop, idx);
@@ -1397,22 +1418,41 @@ function InvestmentAnalysis({
                   ) : (
                     <ChevronRight className="w-4 h-4 text-muted-foreground" />
                   )}
-                  Initial Equity Investment
+                  Equity Investment
                 </TableCell>
-                <TableCell className="text-right text-destructive">({formatMoney(totalInitialEquity)})</TableCell>
-                {Array.from({ length: 10 }, (_, y) => (
-                  <TableCell key={y} className="text-right text-muted-foreground">-</TableCell>
-                ))}
+                {(() => {
+                  const year0Inv = getEquityInvestmentForYear(0);
+                  return (
+                    <TableCell className={`text-right ${year0Inv > 0 ? 'text-destructive' : 'text-muted-foreground'}`}>
+                      {year0Inv > 0 ? `(${formatMoney(year0Inv)})` : '-'}
+                    </TableCell>
+                  );
+                })()}
+                {Array.from({ length: 10 }, (_, y) => {
+                  const yearInv = getEquityInvestmentForYear(y + 1);
+                  return (
+                    <TableCell key={y} className={`text-right ${yearInv > 0 ? 'text-destructive' : 'text-muted-foreground'}`}>
+                      {yearInv > 0 ? `(${formatMoney(yearInv)})` : '-'}
+                    </TableCell>
+                  );
+                })}
               </TableRow>
-              {expandedRows.has('fcfEquity') && properties.map((prop, idx) => (
-                <TableRow key={prop.id} className="bg-muted/10">
-                  <TableCell className="sticky left-0 bg-muted/10 pl-8 text-sm text-muted-foreground">{prop.name}</TableCell>
-                  <TableCell className="text-right text-sm text-destructive">({formatMoney(getPropertyInvestment(prop))})</TableCell>
-                  {Array.from({ length: 10 }, (_, y) => (
-                    <TableCell key={y} className="text-right text-sm text-muted-foreground">-</TableCell>
-                  ))}
-                </TableRow>
-              ))}
+              {expandedRows.has('fcfEquity') && properties.map((prop) => {
+                const acqYear = getPropertyAcquisitionYear(prop);
+                return (
+                  <TableRow key={prop.id} className="bg-muted/10">
+                    <TableCell className="sticky left-0 bg-muted/10 pl-8 text-sm text-muted-foreground">{prop.name}</TableCell>
+                    <TableCell className={`text-right text-sm ${acqYear === 0 ? 'text-destructive' : 'text-muted-foreground'}`}>
+                      {acqYear === 0 ? `(${formatMoney(getPropertyInvestment(prop))})` : '-'}
+                    </TableCell>
+                    {Array.from({ length: 10 }, (_, y) => (
+                      <TableCell key={y} className={`text-right text-sm ${acqYear === y + 1 ? 'text-destructive' : 'text-muted-foreground'}`}>
+                        {acqYear === y + 1 ? `(${formatMoney(getPropertyInvestment(prop))})` : '-'}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                );
+              })}
 
               <TableRow 
                 className="cursor-pointer hover:bg-muted/20"

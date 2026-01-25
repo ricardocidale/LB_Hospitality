@@ -357,6 +357,20 @@ export default function Company() {
                         );
                       })}
                     </TableRow>
+                    <TableRow>
+                      <TableCell className="sticky left-0 bg-card italic text-muted-foreground">Net Margin</TableCell>
+                      {Array.from({ length: 10 }, (_, y) => {
+                        const yearData = financials.slice(y * 12, (y + 1) * 12);
+                        const netIncome = yearData.reduce((a, m) => a + m.netIncome, 0);
+                        const totalRevenue = yearData.reduce((a, m) => a + m.totalRevenue, 0);
+                        const margin = totalRevenue > 0 ? (netIncome / totalRevenue) * 100 : 0;
+                        return (
+                          <TableCell key={y} className={`text-right italic text-muted-foreground ${margin < 0 ? 'text-destructive' : ''}`}>
+                            {margin.toFixed(1)}%
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
                   </TableBody>
                 </Table>
               </CardContent>

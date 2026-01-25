@@ -85,21 +85,10 @@ export default function PropertyEdit() {
     );
   };
 
-  const isCostRateValid = () => Math.abs(getCostRateTotal() - 1.0) < 0.001;
-
   const handleSave = () => {
-    if (!isCostRateValid()) {
-      toast({ 
-        title: "Invalid Cost Rates", 
-        description: `Operating cost rates must total 100%. Current total: ${(getCostRateTotal() * 100).toFixed(1)}%`,
-        variant: "destructive"
-      });
-      return;
-    }
-    
     updateProperty.mutate({ id: propertyId, data: draft }, {
       onSuccess: () => {
-        toast({ title: "Saved", description: "Property variables updated successfully." });
+        toast({ title: "Saved", description: "Property assumptions updated successfully." });
         setLocation(`/property/${propertyId}`);
       }
     });
@@ -401,10 +390,10 @@ export default function PropertyEdit() {
           <CardHeader>
             <CardTitle className="flex items-center">
               Operating Cost Rates
-              <HelpTooltip text="These percentages represent the portion of revenue allocated to each expense category for this property. The total should equal 100% to properly distribute costs across all categories." />
+              <HelpTooltip text="These percentages represent the portion of revenue allocated to each expense category for this property." />
             </CardTitle>
             <CardDescription>
-              Expense allocation as percentage of revenue (must total 100%)
+              Expense allocation as percentage of revenue
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -421,22 +410,16 @@ export default function PropertyEdit() {
                 (draft.costRateIT ?? 0.02) +
                 (draft.costRateFFE ?? 0.04)
               );
-              const isValid = Math.abs(costRateTotal - 1.0) < 0.001;
               
               return (
                 <>
-                  <div className={`p-4 rounded-lg ${isValid ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
+                  <div className="p-4 rounded-lg bg-muted border">
                     <div className="flex justify-between items-center">
                       <span className="font-medium">Total Allocation:</span>
-                      <span className={`text-lg font-bold ${isValid ? 'text-green-700' : 'text-red-700'}`}>
+                      <span className="text-lg font-bold text-primary">
                         {(costRateTotal * 100).toFixed(1)}%
                       </span>
                     </div>
-                    {!isValid && (
-                      <p className="text-sm text-red-600 mt-1">
-                        Total must equal 100%. Currently {costRateTotal > 1 ? 'over' : 'under'} by {Math.abs((costRateTotal - 1) * 100).toFixed(1)}%
-                      </p>
-                    )}
                   </div>
                   
                   <div className="grid grid-cols-2 md:grid-cols-5 gap-4">

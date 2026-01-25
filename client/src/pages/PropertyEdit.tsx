@@ -1046,7 +1046,10 @@ export default function PropertyEdit() {
           <CardContent>
             <div className="max-w-md space-y-2">
               <div className="flex justify-between items-center">
-                <Label>Exit Capitalization Rate</Label>
+                <Label className="flex items-center">
+                  Exit Capitalization Rate
+                  <HelpTooltip text="The cap rate used to calculate exit value. Exit Value = Year 10 NOI ÷ Cap Rate. Lower cap rates result in higher valuations." />
+                </Label>
                 <EditableValue
                   value={(draft.exitCapRate ?? 0.085) * 100}
                   onChange={(val) => handleChange("exitCapRate", (val / 100).toString())}
@@ -1070,7 +1073,10 @@ export default function PropertyEdit() {
 
             <div className="max-w-md space-y-2 mt-6">
               <div className="flex justify-between items-center">
-                <Label>Tax Rate</Label>
+                <Label className="flex items-center">
+                  Tax Rate
+                  <HelpTooltip text="Corporate tax rate applied to positive operating cash flows to calculate after-tax free cash flow for IRR analysis." />
+                </Label>
                 <EditableValue
                   value={(draft.taxRate ?? 0.25) * 100}
                   onChange={(val) => handleChange("taxRate", (val / 100).toString())}
@@ -1087,9 +1093,6 @@ export default function PropertyEdit() {
                 max={50}
                 step={1}
               />
-              <p className="text-xs text-muted-foreground mt-2">
-                Applied to positive cash flows to calculate after-tax free cash flow for IRR analysis
-              </p>
             </div>
           </CardContent>
         </Card>

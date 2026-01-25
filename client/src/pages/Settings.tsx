@@ -109,10 +109,10 @@ export default function Settings() {
         </div>
 
         <Tabs defaultValue="management" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 max-w-xl">
-            <TabsTrigger value="management">Management Company</TabsTrigger>
-            <TabsTrigger value="portfolio">Property Portfolio</TabsTrigger>
-            <TabsTrigger value="macro">Macroeconomic</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-4 max-w-md">
+            <TabsTrigger value="management">Management</TabsTrigger>
+            <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
+            <TabsTrigger value="macro">Macro</TabsTrigger>
             <TabsTrigger value="other">Other</TabsTrigger>
           </TabsList>
 

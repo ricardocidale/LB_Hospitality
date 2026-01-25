@@ -1094,6 +1094,9 @@ function InvestmentAnalysis({
   toggleRow
 }: InvestmentAnalysisProps) {
   const DEPRECIATION_YEARS = 27.5;
+  
+  const modelStartYear = new Date(global.modelStartDate).getFullYear();
+  const getCalendarYear = (yearIndex: number) => modelStartYear + yearIndex;
 
   const getPropertyAcquisitionYear = (prop: any): number => {
     const acqDate = new Date(prop.acquisitionDate);
@@ -1401,9 +1404,9 @@ function InvestmentAnalysis({
             <TableHeader>
               <TableRow>
                 <TableHead className="sticky left-0 bg-card min-w-[200px]">Category</TableHead>
-                <TableHead className="text-right min-w-[110px]">Year 0</TableHead>
+                <TableHead className="text-right min-w-[110px]">{getCalendarYear(0)}</TableHead>
                 {Array.from({ length: 10 }, (_, i) => (
-                  <TableHead key={i} className="text-right min-w-[110px]">Year {i + 1}</TableHead>
+                  <TableHead key={i} className="text-right min-w-[110px]">{getCalendarYear(i + 1)}</TableHead>
                 ))}
               </TableRow>
             </TableHeader>

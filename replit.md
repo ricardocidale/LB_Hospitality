@@ -10,6 +10,24 @@ The system models both the management company (L+B Hospitality Co.) and individu
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes (January 2026)
+
+### Catering Levels in Global Assumptions
+- Added Full Service and Partial Service catering level rates to Global Assumptions
+- Event revenue rate: Full Service 50%, Partial Service 25% (as % of rooms revenue)
+- Event cost ratio: Full Service 92%, Partial Service 80% (as % of event revenue)
+- Property Assumptions page displays applicable catering rates based on selected level
+- Event revenue stream removed from property-level settings (now controlled by catering level)
+
+### Terminology
+- "Model Assumptions" renamed to "Global Assumptions" 
+- "Property Variables" renamed to "Property Assumptions"
+- Help tooltips added throughout for key financial concepts
+
+### Financial Model Updates
+- Catering level rates flow from Global Assumptions through to financial engine calculations
+- Event revenue and costs now use global catering level rates instead of hardcoded values
+
 ## System Architecture
 
 ### Frontend Architecture

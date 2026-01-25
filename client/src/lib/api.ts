@@ -20,6 +20,10 @@ export interface GlobalResponse {
   professionalServicesStart: number;
   techInfraStart: number;
   businessInsuranceStart: number;
+  fullCateringEventRevenue: number;
+  fullCateringEventCost: number;
+  partialCateringEventRevenue: number;
+  partialCateringEventCost: number;
   standardAcqPackage: {
     monthsToOps: number;
     purchasePrice: number;

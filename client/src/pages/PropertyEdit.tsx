@@ -550,7 +550,8 @@ export default function PropertyEdit() {
                 (draft.costRateInsurance ?? 0.02) +
                 (draft.costRateTaxes ?? 0.03) +
                 (draft.costRateIT ?? 0.02) +
-                (draft.costRateFFE ?? 0.04)
+                (draft.costRateFFE ?? 0.04) +
+                (draft.costRateOther ?? 0.05)
               );
               
               return (
@@ -692,6 +693,19 @@ export default function PropertyEdit() {
                         onValueChange={(vals: number[]) => handleChange("costRateFFE", (vals[0] / 100).toString())}
                         min={0}
                         max={15}
+                        step={1}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <Label className="text-sm">Other</Label>
+                        <span className="text-sm font-semibold text-primary">{((draft.costRateOther ?? 0.05) * 100).toFixed(0)}%</span>
+                      </div>
+                      <Slider 
+                        value={[(draft.costRateOther ?? 0.05) * 100]}
+                        onValueChange={(vals: number[]) => handleChange("costRateOther", (vals[0] / 100).toString())}
+                        min={0}
+                        max={25}
                         step={1}
                       />
                     </div>

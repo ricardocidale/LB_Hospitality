@@ -24,6 +24,7 @@ interface PropertyInput {
   costRateTaxes: number;
   costRateIT: number;
   costRateFFE: number;
+  costRateOther: number;
   // Revenue Streams
   revShareEvents: number;
   revShareFB: number;
@@ -77,6 +78,7 @@ export interface MonthlyFinancials {
   expenseInsurance: number;
   expenseTaxes: number;
   expenseUtilitiesFixed: number;
+  expenseOtherCosts: number;
   totalExpenses: number;
   gop: number;
   noi: number;
@@ -154,6 +156,7 @@ export function generatePropertyProForma(
     const costRateTaxes = property.costRateTaxes ?? 0.03;
     const costRateIT = property.costRateIT ?? 0.02;
     const costRateFFE = property.costRateFFE ?? 0.04;
+    const costRateOther = property.costRateOther ?? 0.05;
     
     const expenseRooms = revenueRooms * costRateRooms;
     
@@ -182,13 +185,14 @@ export function generatePropertyProForma(
     const expenseInsurance = revenueTotal * costRateInsurance;
     const expenseTaxes = revenueTotal * costRateTaxes;
     const expenseUtilitiesFixed = revenueTotal * (costRateUtilities * 0.4);
+    const expenseOtherCosts = revenueTotal * costRateOther;
     
     const feeBase = revenueTotal * global.baseManagementFee;
     
     const totalOperatingExpenses = 
       expenseRooms + expenseFB + expenseEvents + expenseOther + 
       expenseMarketing + expensePropertyOps + expenseUtilitiesVar + 
-      expenseAdmin + expenseIT + expenseInsurance + expenseTaxes + expenseUtilitiesFixed;
+      expenseAdmin + expenseIT + expenseInsurance + expenseTaxes + expenseUtilitiesFixed + expenseOtherCosts;
       
     const gop = revenueTotal - totalOperatingExpenses;
     const feeIncentive = Math.max(0, gop * global.incentiveManagementFee);
@@ -233,6 +237,7 @@ export function generatePropertyProForma(
       expenseInsurance,
       expenseTaxes,
       expenseUtilitiesFixed,
+      expenseOtherCosts,
       totalExpenses: totalOperatingExpenses + feeBase + feeIncentive + expenseFFE,
       gop,
       noi,

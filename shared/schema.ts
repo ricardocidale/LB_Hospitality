@@ -117,6 +117,7 @@ export const properties = pgTable("properties", {
   costRateTaxes: real("cost_rate_taxes").notNull().default(0.03),
   costRateIT: real("cost_rate_it").notNull().default(0.02),
   costRateFFE: real("cost_rate_ffe").notNull().default(0.04),
+  costRateOther: real("cost_rate_other").notNull().default(0.05),
   
   // Revenue Streams (as % of rooms revenue)
   revShareEvents: real("rev_share_events").notNull().default(0.43),

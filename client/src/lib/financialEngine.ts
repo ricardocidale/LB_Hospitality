@@ -291,6 +291,8 @@ export interface CompanyMonthlyFinancials {
   totalExpenses: number;
   netIncome: number;
   safeFunding: number;
+  safeFunding1: number;
+  safeFunding2: number;
   cashFlow: number;
 }
 
@@ -359,16 +361,18 @@ export function generateCompanyProForma(
     
     const netIncome = totalRevenue - totalExpenses;
     
-    let safeFunding = 0;
+    let safeFunding1 = 0;
+    let safeFunding2 = 0;
     if (currentDate.getFullYear() === tranche1Date.getFullYear() && 
         currentDate.getMonth() === tranche1Date.getMonth()) {
-      safeFunding += global.safeTranche1Amount ?? 225000;
+      safeFunding1 = global.safeTranche1Amount ?? 450000;
     }
     if (tranche2Date && 
         currentDate.getFullYear() === tranche2Date.getFullYear() && 
         currentDate.getMonth() === tranche2Date.getMonth()) {
-      safeFunding += global.safeTranche2Amount ?? 225000;
+      safeFunding2 = global.safeTranche2Amount ?? 450000;
     }
+    const safeFunding = safeFunding1 + safeFunding2;
     
     const cashFlow = netIncome + safeFunding;
     
@@ -392,6 +396,8 @@ export function generateCompanyProForma(
       totalExpenses,
       netIncome,
       safeFunding,
+      safeFunding1,
+      safeFunding2,
       cashFlow,
     });
   }

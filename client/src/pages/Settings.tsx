@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Save, Loader2 } from "lucide-react";
 import { useState } from "react";
+import { HelpTooltip } from "@/components/ui/help-tooltip";
 
 export default function Settings() {
   const { data: global, isLoading: globalLoading } = useGlobalAssumptions();
@@ -170,7 +171,10 @@ export default function Settings() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Base Cost Rates</CardTitle>
+                <CardTitle className="flex items-center">
+                  Base Cost Rates
+                  <HelpTooltip text="These are the standard operating cost percentages applied to all properties as a baseline. Each percentage represents a portion of total revenue allocated to that expense category. Individual properties can adjust these using their Property Cost Adjustments." />
+                </CardTitle>
                 <CardDescription>Standard operating cost percentages (as % of revenue)</CardDescription>
               </CardHeader>
               <CardContent className="grid grid-cols-1 md:grid-cols-4 gap-6">

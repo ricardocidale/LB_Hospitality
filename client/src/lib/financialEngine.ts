@@ -28,6 +28,9 @@ interface PropertyInput {
   revShareEvents: number;
   revShareFB: number;
   revShareOther: number;
+  // Catering mix (% of events using each catering level)
+  fullCateringPercent: number;
+  partialCateringPercent: number;
 }
 
 interface GlobalInput {
@@ -36,10 +39,11 @@ interface GlobalInput {
   baseManagementFee: number;
   incentiveManagementFee: number;
   marketingRate: number;
-  fullCateringEventRevenue?: number;
-  fullCateringEventCost?: number;
-  partialCateringEventRevenue?: number;
-  partialCateringEventCost?: number;
+  // Catering F&B boost factors
+  fullCateringFBBoost?: number;
+  fullCateringFBCost?: number;
+  partialCateringFBBoost?: number;
+  partialCateringFBCost?: number;
   debtAssumptions: {
     interestRate: number;
     amortizationYears: number;
@@ -119,14 +123,23 @@ export function generatePropertyProForma(
     const soldRooms = isOperational ? availableRooms * occupancy : 0;
     
     const revenueRooms = soldRooms * currentAdr;
-    // Event revenue now uses global catering level rates
-    const eventRevenueRate = property.cateringLevel === "Full"
-      ? (global.fullCateringEventRevenue ?? 0.50)
-      : (global.partialCateringEventRevenue ?? 0.25);
+    
+    // Events revenue is independent (configurable per property)
+    const revShareEvents = property.revShareEvents ?? DEFAULT_REV_SHARE_EVENTS;
     const revShareFB = property.revShareFB ?? DEFAULT_REV_SHARE_FB;
     const revShareOther = property.revShareOther ?? DEFAULT_REV_SHARE_OTHER;
-    const revenueEvents = revenueRooms * eventRevenueRate;
-    const revenueFB = revenueRooms * revShareFB;
+    const revenueEvents = revenueRooms * revShareEvents;
+    
+    // F&B revenue gets boosted by catering at events
+    // Formula: baseFB × (1 + fullBoost × fullCateringPct + partialBoost × partialCateringPct)
+    const fullCateringPct = property.fullCateringPercent ?? 0.40;
+    const partialCateringPct = property.partialCateringPercent ?? 0.30;
+    const fullBoost = global.fullCateringFBBoost ?? 0.50;
+    const partialBoost = global.partialCateringFBBoost ?? 0.25;
+    const baseFB = revenueRooms * revShareFB;
+    const cateringBoostMultiplier = 1 + (fullBoost * fullCateringPct) + (partialBoost * partialCateringPct);
+    const revenueFB = baseFB * cateringBoostMultiplier;
+    
     const revenueOther = revenueRooms * revShareOther;
     const revenueTotal = revenueRooms + revenueEvents + revenueFB + revenueOther;
     
@@ -143,14 +156,21 @@ export function generatePropertyProForma(
     const costRateFFE = property.costRateFFE ?? 0.04;
     
     const expenseRooms = revenueRooms * costRateRooms;
-    // Use global catering level rates for event costs
-    const eventCostRatio = property.cateringLevel === "Full" 
-      ? (global.fullCateringEventCost ?? 0.92) 
-      : (global.partialCateringEventCost ?? 0.80);
-    // F&B costs include a portion of event revenue (20%) at the catering cost ratio
-    const expenseFB = (revenueFB + (revenueEvents * 0.2)) * eventCostRatio;
-    // Event costs also use global catering cost ratio
-    const expenseEvents = revenueEvents * eventCostRatio;
+    
+    // F&B costs: base F&B costs + catering-related costs
+    // The additional F&B revenue from catering has higher cost ratios
+    const fullCostRatio = global.fullCateringFBCost ?? 0.92;
+    const partialCostRatio = global.partialCateringFBCost ?? 0.80;
+    const baseFBCost = baseFB * costRateFB;
+    const additionalFBRevenue = revenueFB - baseFB;
+    // Weight the cost ratio by the catering mix
+    const weightedCostRatio = fullCateringPct > 0 || partialCateringPct > 0
+      ? (fullCostRatio * fullCateringPct + partialCostRatio * partialCateringPct) / (fullCateringPct + partialCateringPct || 1)
+      : 0;
+    const expenseFB = baseFBCost + (additionalFBRevenue * weightedCostRatio);
+    
+    // Event costs are separate from catering (events are independent)
+    const expenseEvents = revenueEvents * 0.65;
     const expenseOther = revenueOther * 0.60;
     const expenseMarketing = revenueTotal * costRateMarketing;
     const expensePropertyOps = revenueTotal * costRatePropertyOps;

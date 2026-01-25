@@ -1,9 +1,42 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { Property, GlobalAssumptions, InsertProperty, UpdateProperty } from "@shared/schema";
+import type { Property, InsertProperty, UpdateProperty } from "@shared/schema";
 
 // --- TYPES ---
-type PropertyResponse = Property & { id: number };
-type GlobalResponse = GlobalAssumptions & { id: number };
+export type PropertyResponse = Property & { id: number };
+
+export interface GlobalResponse {
+  id: number;
+  modelStartDate: string;
+  inflationRate: number;
+  baseManagementFee: number;
+  incentiveManagementFee: number;
+  partnerSalary: number;
+  staffSalary: number;
+  travelCostPerClient: number;
+  itLicensePerClient: number;
+  marketingRate: number;
+  miscOpsRate: number;
+  officeLeaseStart: number;
+  professionalServicesStart: number;
+  techInfraStart: number;
+  businessInsuranceStart: number;
+  standardAcqPackage: {
+    monthsToOps: number;
+    purchasePrice: number;
+    preOpeningCosts: number;
+    operatingReserve: number;
+    buildingImprovements: number;
+  };
+  debtAssumptions: {
+    acqLTV: number;
+    refiLTV: number;
+    interestRate: number;
+    amortizationYears: number;
+    acqClosingCostRate: number;
+    refiClosingCostRate: number;
+  };
+  updatedAt: string;
+}
 
 // --- API FUNCTIONS ---
 

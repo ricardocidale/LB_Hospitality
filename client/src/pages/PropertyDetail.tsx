@@ -2,7 +2,8 @@ import Layout from "@/components/Layout";
 import { useProperty, useGlobalAssumptions } from "@/lib/api";
 import { generatePropertyProForma, formatMoney } from "@/lib/financialEngine";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FinancialStatement } from "@/components/FinancialStatement";
+import { YearlyIncomeStatement } from "@/components/YearlyIncomeStatement";
+import { YearlyCashFlowStatement } from "@/components/YearlyCashFlowStatement";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, MapPin, Loader2 } from "lucide-react";
 import { Link, useRoute } from "wouter";
@@ -40,6 +41,11 @@ export default function PropertyDetail() {
   }
 
   const financials = generatePropertyProForma(property, global, 60);
+  const year1Revenue = financials.slice(0, 12).reduce((acc, m) => acc + m.revenueTotal, 0);
+  const year1NOI = financials.slice(0, 12).reduce((acc, m) => acc + m.noi, 0);
+  const year1CashFlow = financials.slice(0, 12).reduce((acc, m) => acc + m.cashFlow, 0);
+  const totalInvestment = property.purchasePrice + property.buildingImprovements + property.preOpeningCosts + property.operatingReserve;
+  const equityInvested = property.type === "Financed" ? totalInvestment * 0.25 : totalInvestment;
 
   return (
     <Layout>
@@ -56,7 +62,7 @@ export default function PropertyDetail() {
         </div>
 
         <div className="relative h-[280px] rounded-xl overflow-hidden">
-          <img src={property.imageUrl} className="w-full h-full object-cover" />
+          <img src={property.imageUrl} alt={property.name} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
           <div className="absolute bottom-0 left-0 p-6 text-white">
             <h1 className="text-3xl font-serif font-bold mb-2">{property.name}</h1>
@@ -74,9 +80,7 @@ export default function PropertyDetail() {
               <CardTitle className="text-sm text-muted-foreground">Year 1 Revenue</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-bold text-primary">
-                {formatMoney(financials.slice(0, 12).reduce((acc, m) => acc + m.revenueTotal, 0))}
-              </p>
+              <p className="text-2xl font-bold text-primary">{formatMoney(year1Revenue)}</p>
             </CardContent>
           </Card>
           <Card>
@@ -84,17 +88,17 @@ export default function PropertyDetail() {
               <CardTitle className="text-sm text-muted-foreground">Year 1 NOI</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-bold">
-                {formatMoney(financials.slice(0, 12).reduce((acc, m) => acc + m.noi, 0))}
-              </p>
+              <p className="text-2xl font-bold">{formatMoney(year1NOI)}</p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-muted-foreground">Stabilized ADR</CardTitle>
+              <CardTitle className="text-sm text-muted-foreground">Year 1 Cash Flow</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-bold">{formatMoney(financials[35]?.adr || property.startAdr)}</p>
+              <p className={`text-2xl font-bold ${year1CashFlow < 0 ? 'text-destructive' : 'text-accent'}`}>
+                {formatMoney(year1CashFlow)}
+              </p>
             </CardContent>
           </Card>
           <Card>
@@ -103,30 +107,24 @@ export default function PropertyDetail() {
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-bold text-accent">
-                {((financials.slice(0, 12).reduce((acc, m) => acc + m.cashFlow, 0) / (property.purchasePrice * 0.25)) * 100).toFixed(1)}%
+                {equityInvested > 0 ? `${((year1CashFlow / equityInvested) * 100).toFixed(1)}%` : 'N/A'}
               </p>
             </CardContent>
           </Card>
         </div>
 
-        <Tabs defaultValue="y1" className="w-full">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-serif font-bold">Pro Forma Financials</h3>
-            <TabsList>
-              <TabsTrigger value="y1">Year 1</TabsTrigger>
-              <TabsTrigger value="y2">Year 2</TabsTrigger>
-              <TabsTrigger value="y3">Year 3</TabsTrigger>
-            </TabsList>
-          </div>
+        <Tabs defaultValue="income" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 max-w-md">
+            <TabsTrigger value="income">Income Statement</TabsTrigger>
+            <TabsTrigger value="cashflow">Cash Flows</TabsTrigger>
+          </TabsList>
           
-          <TabsContent value="y1">
-            <FinancialStatement data={financials.slice(0, 12)} title="Year 1 Operations" />
+          <TabsContent value="income" className="mt-6">
+            <YearlyIncomeStatement data={financials} years={5} />
           </TabsContent>
-          <TabsContent value="y2">
-            <FinancialStatement data={financials.slice(12, 24)} title="Year 2 Operations" />
-          </TabsContent>
-          <TabsContent value="y3">
-            <FinancialStatement data={financials.slice(24, 36)} title="Year 3 Operations" />
+          
+          <TabsContent value="cashflow" className="mt-6">
+            <YearlyCashFlowStatement data={financials} property={property} years={5} />
           </TabsContent>
         </Tabs>
       </div>

@@ -108,17 +108,14 @@ export default function Settings() {
           <p className="text-muted-foreground mt-1">Configure variables driving the financial model</p>
         </div>
 
-        <Tabs defaultValue="global" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 max-w-md">
-            <TabsTrigger value="global">Global Assumptions</TabsTrigger>
-            <TabsTrigger value="properties">Property Assumptions</TabsTrigger>
+        <Tabs defaultValue="management" className="w-full">
+          <TabsList className="grid w-full grid-cols-3 max-w-lg">
+            <TabsTrigger value="management">Management Company</TabsTrigger>
+            <TabsTrigger value="portfolio">Property Portfolio</TabsTrigger>
+            <TabsTrigger value="macro">Macroeconomic</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="global" className="space-y-6 mt-6">
-            <div className="mb-4">
-              <h3 className="text-lg font-semibold text-primary border-b pb-2">Management Company</h3>
-            </div>
-
+          <TabsContent value="management" className="space-y-6 mt-6">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
@@ -254,10 +251,13 @@ export default function Settings() {
               </CardContent>
             </Card>
 
-            <div className="mb-4 mt-8">
-              <h3 className="text-lg font-semibold text-primary border-b pb-2">Property Portfolio</h3>
-            </div>
-            
+            <Button onClick={handleSaveGlobal} disabled={!globalDraft || updateGlobal.isPending}>
+              {updateGlobal.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+              Save Changes
+            </Button>
+          </TabsContent>
+
+          <TabsContent value="portfolio" className="space-y-6 mt-6">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
@@ -464,10 +464,13 @@ export default function Settings() {
               </CardContent>
             </Card>
 
-            <div className="mb-4 mt-8">
-              <h3 className="text-lg font-semibold text-primary border-b pb-2">Macroeconomic</h3>
-            </div>
-            
+            <Button onClick={handleSaveGlobal} disabled={!globalDraft || updateGlobal.isPending}>
+              {updateGlobal.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+              Save Changes
+            </Button>
+          </TabsContent>
+
+          <TabsContent value="macro" className="space-y-6 mt-6">
             <Card>
               <CardHeader>
                 <CardTitle>Economic Assumptions</CardTitle>
@@ -496,90 +499,8 @@ export default function Settings() {
 
             <Button onClick={handleSaveGlobal} disabled={!globalDraft || updateGlobal.isPending}>
               {updateGlobal.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-              Save Global Changes
+              Save Changes
             </Button>
-          </TabsContent>
-
-          <TabsContent value="properties" className="space-y-6 mt-6">
-            {properties.map((property) => {
-              const draft = propertyDrafts[property.id] || {};
-              const current = { ...property, ...draft };
-              
-              return (
-                <Card key={property.id}>
-                  <CardHeader>
-                    <div className="flex items-center gap-4">
-                      <img src={property.imageUrl} className="w-14 h-14 rounded-lg object-cover" />
-                      <div>
-                        <CardTitle>{property.name}</CardTitle>
-                        <CardDescription>{property.location}</CardDescription>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="space-y-2">
-                        <Label>Start ADR ($)</Label>
-                        <Input 
-                          value={formatMoneyInput(current.startAdr)} 
-                          onChange={(e) => handlePropertyMoneyChange(property.id, "startAdr", e.target.value)}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>ADR Growth Rate (%)</Label>
-                        <Input 
-                          type="number" 
-                          step="0.1"
-                          value={(current.adrGrowthRate * 100).toFixed(1)} 
-                          onChange={(e) => handlePropertyChange(property.id, "adrGrowthRate", (parseFloat(e.target.value) / 100).toString())}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Max Occupancy (%)</Label>
-                        <Input 
-                          type="number" 
-                          step="1"
-                          value={(current.maxOccupancy * 100).toFixed(0)} 
-                          onChange={(e) => handlePropertyChange(property.id, "maxOccupancy", (parseFloat(e.target.value) / 100).toString())}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Purchase Price ($)</Label>
-                        <Input 
-                          value={formatMoneyInput(current.purchasePrice)} 
-                          onChange={(e) => handlePropertyMoneyChange(property.id, "purchasePrice", e.target.value)}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Improvement Budget ($)</Label>
-                        <Input 
-                          value={formatMoneyInput(current.buildingImprovements)} 
-                          onChange={(e) => handlePropertyMoneyChange(property.id, "buildingImprovements", e.target.value)}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Room Count</Label>
-                        <Input 
-                          type="number" 
-                          value={current.roomCount} 
-                          onChange={(e) => handlePropertyChange(property.id, "roomCount", e.target.value)}
-                        />
-                      </div>
-                    </div>
-                    
-                    <Button 
-                      onClick={() => handleSaveProperty(property.id)} 
-                      disabled={!propertyDrafts[property.id] || updateProperty.isPending}
-                      className="mt-4"
-                      size="sm"
-                    >
-                      {updateProperty.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-                      Save Changes
-                    </Button>
-                  </CardContent>
-                </Card>
-              );
-            })}
           </TabsContent>
         </Tabs>
       </div>

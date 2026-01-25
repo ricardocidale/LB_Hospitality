@@ -170,39 +170,81 @@ export default function Settings() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Property Cost Adjustments</CardTitle>
-                <CardDescription>Cost multipliers applied to all properties (1.0 = baseline, 0.8 = 20% lower costs, 1.2 = 20% higher costs)</CardDescription>
+                <CardTitle>Base Cost Rates</CardTitle>
+                <CardDescription>Standard operating cost percentages (as % of revenue)</CardDescription>
               </CardHeader>
-              <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <CardContent className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="space-y-2">
-                  <Label>Labor Cost Adjustment</Label>
+                  <Label>Rooms Dept (%)</Label>
                   <Input 
                     type="number" 
                     step="0.01" 
-                    value={currentGlobal.laborAdj ?? 1.0} 
-                    onChange={(e) => handleGlobalChange("laborAdj", e.target.value)}
+                    value={((currentGlobal.baseRoomsCostRate ?? 0.36) * 100).toFixed(1)} 
+                    onChange={(e) => handleGlobalChange("baseRoomsCostRate", (parseFloat(e.target.value) / 100).toString())}
                   />
-                  <p className="text-xs text-muted-foreground">Multiplies base 36% rooms dept cost</p>
                 </div>
                 <div className="space-y-2">
-                  <Label>Utilities Adjustment</Label>
+                  <Label>Utilities (%)</Label>
                   <Input 
                     type="number" 
                     step="0.01" 
-                    value={currentGlobal.utilitiesAdj ?? 1.0} 
-                    onChange={(e) => handleGlobalChange("utilitiesAdj", e.target.value)}
+                    value={((currentGlobal.baseUtilitiesRate ?? 0.05) * 100).toFixed(1)} 
+                    onChange={(e) => handleGlobalChange("baseUtilitiesRate", (parseFloat(e.target.value) / 100).toString())}
                   />
-                  <p className="text-xs text-muted-foreground">Multiplies 5% utility costs</p>
                 </div>
                 <div className="space-y-2">
-                  <Label>Property Tax Adjustment</Label>
+                  <Label>Property Tax (%)</Label>
                   <Input 
                     type="number" 
                     step="0.01" 
-                    value={currentGlobal.taxAdj ?? 1.0} 
-                    onChange={(e) => handleGlobalChange("taxAdj", e.target.value)}
+                    value={((currentGlobal.baseTaxRate ?? 0.03) * 100).toFixed(1)} 
+                    onChange={(e) => handleGlobalChange("baseTaxRate", (parseFloat(e.target.value) / 100).toString())}
                   />
-                  <p className="text-xs text-muted-foreground">Multiplies 3% tax rate</p>
+                </div>
+                <div className="space-y-2">
+                  <Label>Admin (%)</Label>
+                  <Input 
+                    type="number" 
+                    step="0.01" 
+                    value={((currentGlobal.baseAdminRate ?? 0.08) * 100).toFixed(1)} 
+                    onChange={(e) => handleGlobalChange("baseAdminRate", (parseFloat(e.target.value) / 100).toString())}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Property Ops (%)</Label>
+                  <Input 
+                    type="number" 
+                    step="0.01" 
+                    value={((currentGlobal.basePropertyOpsRate ?? 0.04) * 100).toFixed(1)} 
+                    onChange={(e) => handleGlobalChange("basePropertyOpsRate", (parseFloat(e.target.value) / 100).toString())}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Insurance (%)</Label>
+                  <Input 
+                    type="number" 
+                    step="0.01" 
+                    value={((currentGlobal.baseInsuranceRate ?? 0.02) * 100).toFixed(1)} 
+                    onChange={(e) => handleGlobalChange("baseInsuranceRate", (parseFloat(e.target.value) / 100).toString())}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>IT (%)</Label>
+                  <Input 
+                    type="number" 
+                    step="0.01" 
+                    value={((currentGlobal.baseITRate ?? 0.02) * 100).toFixed(1)} 
+                    onChange={(e) => handleGlobalChange("baseITRate", (parseFloat(e.target.value) / 100).toString())}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>FF&E Reserve (%)</Label>
+                  <Input 
+                    type="number" 
+                    step="0.01" 
+                    value={((currentGlobal.baseFFERate ?? 0.04) * 100).toFixed(1)} 
+                    onChange={(e) => handleGlobalChange("baseFFERate", (parseFloat(e.target.value) / 100).toString())}
+                  />
                 </div>
               </CardContent>
             </Card>

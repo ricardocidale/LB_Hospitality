@@ -676,12 +676,12 @@ export default function CompanyAssumptions() {
               <div className="flex justify-between items-center">
                 <Label>Company Tax Rate</Label>
                 <EditableValue
-                  value={(formData.companyTaxRate ?? global.companyTaxRate ?? 0.30) * 100}
-                  onChange={(v) => handleUpdate("companyTaxRate", v / 100)}
+                  value={formData.companyTaxRate ?? global.companyTaxRate ?? 0.30}
+                  onChange={(v) => handleUpdate("companyTaxRate", v)}
                   format="percent"
                   min={0}
-                  max={50}
-                  step={1}
+                  max={0.50}
+                  step={0.01}
                 />
               </div>
               <Slider

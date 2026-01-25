@@ -70,7 +70,33 @@ export default function PropertyEdit() {
     }
   };
 
+  const getCostRateTotal = () => {
+    return (
+      (draft?.costRateRooms ?? 0.36) +
+      (draft?.costRateFB ?? 0.15) +
+      (draft?.costRateAdmin ?? 0.08) +
+      (draft?.costRateMarketing ?? 0.05) +
+      (draft?.costRatePropertyOps ?? 0.04) +
+      (draft?.costRateUtilities ?? 0.05) +
+      (draft?.costRateInsurance ?? 0.02) +
+      (draft?.costRateTaxes ?? 0.03) +
+      (draft?.costRateIT ?? 0.02) +
+      (draft?.costRateFFE ?? 0.04)
+    );
+  };
+
+  const isCostRateValid = () => Math.abs(getCostRateTotal() - 1.0) < 0.001;
+
   const handleSave = () => {
+    if (!isCostRateValid()) {
+      toast({ 
+        title: "Invalid Cost Rates", 
+        description: `Operating cost rates must total 100%. Current total: ${(getCostRateTotal() * 100).toFixed(1)}%`,
+        variant: "destructive"
+      });
+      return;
+    }
+    
     updateProperty.mutate({ id: propertyId, data: draft }, {
       onSuccess: () => {
         toast({ title: "Saved", description: "Property variables updated successfully." });

@@ -66,10 +66,17 @@ export interface Property {
   type: "Full Equity" | "Financed";
   cateringLevel: "Partial" | "Full";
   
-  // Expense Adjustments (Multipliers)
-  laborAdj: number;
-  utilitiesAdj: number;
-  taxAdj: number;
+  // Operating Cost Rates (should sum to 100%)
+  costRateRooms: number;
+  costRateFB: number;
+  costRateAdmin: number;
+  costRateMarketing: number;
+  costRatePropertyOps: number;
+  costRateUtilities: number;
+  costRateInsurance: number;
+  costRateTaxes: number;
+  costRateIT: number;
+  costRateFFE: number;
 }
 
 // --- STORE STATE ---
@@ -141,9 +148,16 @@ const INITIAL_PROPERTIES: Property[] = [
     stabilizationMonths: 36,
     type: "Full Equity",
     cateringLevel: "Partial",
-    laborAdj: 1.0,
-    utilitiesAdj: 1.10,
-    taxAdj: 1.20
+    costRateRooms: 0.36,
+    costRateFB: 0.15,
+    costRateAdmin: 0.08,
+    costRateMarketing: 0.05,
+    costRatePropertyOps: 0.04,
+    costRateUtilities: 0.05,
+    costRateInsurance: 0.02,
+    costRateTaxes: 0.03,
+    costRateIT: 0.02,
+    costRateFFE: 0.04
   },
   {
     id: "prop-2",
@@ -168,9 +182,16 @@ const INITIAL_PROPERTIES: Property[] = [
     stabilizationMonths: 36,
     type: "Full Equity",
     cateringLevel: "Full",
-    laborAdj: 0.95,
-    utilitiesAdj: 1.0,
-    taxAdj: 0.90
+    costRateRooms: 0.36,
+    costRateFB: 0.15,
+    costRateAdmin: 0.08,
+    costRateMarketing: 0.05,
+    costRatePropertyOps: 0.04,
+    costRateUtilities: 0.05,
+    costRateInsurance: 0.02,
+    costRateTaxes: 0.03,
+    costRateIT: 0.02,
+    costRateFFE: 0.04
   },
   {
     id: "prop-3",
@@ -195,9 +216,16 @@ const INITIAL_PROPERTIES: Property[] = [
     stabilizationMonths: 36,
     type: "Full Equity",
     cateringLevel: "Partial",
-    laborAdj: 1.05,
-    utilitiesAdj: 1.15,
-    taxAdj: 1.00
+    costRateRooms: 0.36,
+    costRateFB: 0.15,
+    costRateAdmin: 0.08,
+    costRateMarketing: 0.05,
+    costRatePropertyOps: 0.04,
+    costRateUtilities: 0.05,
+    costRateInsurance: 0.02,
+    costRateTaxes: 0.03,
+    costRateIT: 0.02,
+    costRateFFE: 0.04
   },
   {
     id: "prop-4",
@@ -222,9 +250,16 @@ const INITIAL_PROPERTIES: Property[] = [
     stabilizationMonths: 36,
     type: "Financed",
     cateringLevel: "Full",
-    laborAdj: 0.65,
-    utilitiesAdj: 0.80,
-    taxAdj: 0.60
+    costRateRooms: 0.36,
+    costRateFB: 0.15,
+    costRateAdmin: 0.08,
+    costRateMarketing: 0.05,
+    costRatePropertyOps: 0.04,
+    costRateUtilities: 0.05,
+    costRateInsurance: 0.02,
+    costRateTaxes: 0.03,
+    costRateIT: 0.02,
+    costRateFFE: 0.04
   },
   {
     id: "prop-5",
@@ -249,9 +284,16 @@ const INITIAL_PROPERTIES: Property[] = [
     stabilizationMonths: 36,
     type: "Financed",
     cateringLevel: "Full",
-    laborAdj: 0.95,
-    utilitiesAdj: 1.0,
-    taxAdj: 0.95
+    costRateRooms: 0.36,
+    costRateFB: 0.15,
+    costRateAdmin: 0.08,
+    costRateMarketing: 0.05,
+    costRatePropertyOps: 0.04,
+    costRateUtilities: 0.05,
+    costRateInsurance: 0.02,
+    costRateTaxes: 0.03,
+    costRateIT: 0.02,
+    costRateFFE: 0.04
   }
 ];
 

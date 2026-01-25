@@ -82,6 +82,20 @@ export const properties = pgTable("properties", {
   type: text("type").notNull(),
   cateringLevel: text("catering_level").notNull(),
   
+  // Financing fields (for Financed type)
+  acquisitionLTV: real("acquisition_ltv"),
+  acquisitionInterestRate: real("acquisition_interest_rate"),
+  acquisitionTermYears: integer("acquisition_term_years"),
+  acquisitionClosingCostRate: real("acquisition_closing_cost_rate"),
+  
+  // Refinance fields (for Full Equity with refinance)
+  willRefinance: text("will_refinance"),
+  refinanceDate: text("refinance_date"),
+  refinanceLTV: real("refinance_ltv"),
+  refinanceInterestRate: real("refinance_interest_rate"),
+  refinanceTermYears: integer("refinance_term_years"),
+  refinanceClosingCostRate: real("refinance_closing_cost_rate"),
+  
   laborAdj: real("labor_adj").notNull(),
   utilitiesAdj: real("utilities_adj").notNull(),
   taxAdj: real("tax_adj").notNull(),

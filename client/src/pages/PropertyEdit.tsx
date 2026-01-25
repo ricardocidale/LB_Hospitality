@@ -160,55 +160,168 @@ export default function PropertyEdit() {
             <CardTitle>Capital Structure</CardTitle>
             <CardDescription>Purchase and investment details</CardDescription>
           </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label>Purchase Price ($)</Label>
-              <Input 
-                value={formatMoneyInput(draft.purchasePrice)} 
-                onChange={(e) => handleNumberChange("purchasePrice", parseMoneyInput(e.target.value).toString())} 
-              />
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label>Purchase Price ($)</Label>
+                <Input 
+                  value={formatMoneyInput(draft.purchasePrice)} 
+                  onChange={(e) => handleNumberChange("purchasePrice", parseMoneyInput(e.target.value).toString())} 
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Building Improvements ($)</Label>
+                <Input 
+                  value={formatMoneyInput(draft.buildingImprovements)} 
+                  onChange={(e) => handleNumberChange("buildingImprovements", parseMoneyInput(e.target.value).toString())} 
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Pre-Opening Costs ($)</Label>
+                <Input 
+                  value={formatMoneyInput(draft.preOpeningCosts)} 
+                  onChange={(e) => handleNumberChange("preOpeningCosts", parseMoneyInput(e.target.value).toString())} 
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Operating Reserve ($)</Label>
+                <Input 
+                  value={formatMoneyInput(draft.operatingReserve)} 
+                  onChange={(e) => handleNumberChange("operatingReserve", parseMoneyInput(e.target.value).toString())} 
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Financing Type</Label>
+                <Select value={draft.type} onValueChange={(v) => handleChange("type", v)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Full Equity">Full Equity</SelectItem>
+                    <SelectItem value="Financed">Financed</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Catering Level</Label>
+                <Select value={draft.cateringLevel} onValueChange={(v) => handleChange("cateringLevel", v)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Full">Full Service</SelectItem>
+                    <SelectItem value="Partial">Partial Service</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label>Building Improvements ($)</Label>
-              <Input 
-                value={formatMoneyInput(draft.buildingImprovements)} 
-                onChange={(e) => handleNumberChange("buildingImprovements", parseMoneyInput(e.target.value).toString())} 
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Pre-Opening Costs ($)</Label>
-              <Input 
-                value={formatMoneyInput(draft.preOpeningCosts)} 
-                onChange={(e) => handleNumberChange("preOpeningCosts", parseMoneyInput(e.target.value).toString())} 
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Operating Reserve ($)</Label>
-              <Input 
-                value={formatMoneyInput(draft.operatingReserve)} 
-                onChange={(e) => handleNumberChange("operatingReserve", parseMoneyInput(e.target.value).toString())} 
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Financing Type</Label>
-              <Select value={draft.type} onValueChange={(v) => handleChange("type", v)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Full Equity">Full Equity</SelectItem>
-                  <SelectItem value="Financed">Financed</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Catering Level</Label>
-              <Select value={draft.cateringLevel} onValueChange={(v) => handleChange("cateringLevel", v)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Full">Full Service</SelectItem>
-                  <SelectItem value="Partial">Partial Service</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+
+            {draft.type === "Financed" && (
+              <div className="border-t pt-6">
+                <h4 className="font-medium mb-4">Acquisition Financing</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label>Loan-to-Value (LTV) %</Label>
+                    <Input 
+                      type="number" 
+                      step="0.01"
+                      value={((draft.acquisitionLTV || 0.75) * 100).toFixed(0)} 
+                      onChange={(e) => handleNumberChange("acquisitionLTV", (parseFloat(e.target.value) / 100).toString())} 
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Interest Rate (%)</Label>
+                    <Input 
+                      type="number" 
+                      step="0.01"
+                      value={((draft.acquisitionInterestRate || 0.09) * 100).toFixed(2)} 
+                      onChange={(e) => handleNumberChange("acquisitionInterestRate", (parseFloat(e.target.value) / 100).toString())} 
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Loan Term (Years)</Label>
+                    <Input 
+                      type="number" 
+                      value={draft.acquisitionTermYears || 25} 
+                      onChange={(e) => handleNumberChange("acquisitionTermYears", e.target.value)} 
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Closing Costs (%)</Label>
+                    <Input 
+                      type="number" 
+                      step="0.01"
+                      value={((draft.acquisitionClosingCostRate || 0.02) * 100).toFixed(1)} 
+                      onChange={(e) => handleNumberChange("acquisitionClosingCostRate", (parseFloat(e.target.value) / 100).toString())} 
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {draft.type === "Full Equity" && (
+              <div className="border-t pt-6">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Will this property be refinanced?</Label>
+                    <Select value={draft.willRefinance || "No"} onValueChange={(v) => handleChange("willRefinance", v)}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="No">No</SelectItem>
+                        <SelectItem value="Yes">Yes</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {draft.willRefinance === "Yes" && (
+                    <div className="border-t pt-4">
+                      <h4 className="font-medium mb-4">Refinance Terms</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <Label>Refinance Date</Label>
+                          <Input 
+                            type="date" 
+                            value={draft.refinanceDate || ""} 
+                            onChange={(e) => handleChange("refinanceDate", e.target.value)} 
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Loan-to-Value (LTV) %</Label>
+                          <Input 
+                            type="number" 
+                            step="0.01"
+                            value={((draft.refinanceLTV || 0.75) * 100).toFixed(0)} 
+                            onChange={(e) => handleNumberChange("refinanceLTV", (parseFloat(e.target.value) / 100).toString())} 
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Interest Rate (%)</Label>
+                          <Input 
+                            type="number" 
+                            step="0.01"
+                            value={((draft.refinanceInterestRate || 0.09) * 100).toFixed(2)} 
+                            onChange={(e) => handleNumberChange("refinanceInterestRate", (parseFloat(e.target.value) / 100).toString())} 
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Loan Term (Years)</Label>
+                          <Input 
+                            type="number" 
+                            value={draft.refinanceTermYears || 25} 
+                            onChange={(e) => handleNumberChange("refinanceTermYears", e.target.value)} 
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Closing Costs (%)</Label>
+                          <Input 
+                            type="number" 
+                            step="0.01"
+                            value={((draft.refinanceClosingCostRate || 0.03) * 100).toFixed(1)} 
+                            onChange={(e) => handleNumberChange("refinanceClosingCostRate", (parseFloat(e.target.value) / 100).toString())} 
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 

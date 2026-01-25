@@ -50,6 +50,9 @@ export const insertGlobalAssumptionsSchema = createInsertSchema(globalAssumption
     amortizationYears: z.number(),
     refiLTV: z.number(),
     refiClosingCostRate: z.number(),
+    refiInterestRate: z.number().optional(),
+    refiAmortizationYears: z.number().optional(),
+    refiPeriodYears: z.number().optional(),
     acqLTV: z.number(),
     acqClosingCostRate: z.number()
   })

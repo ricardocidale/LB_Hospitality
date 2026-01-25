@@ -202,8 +202,11 @@ export default function Settings() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Debt & Financing</CardTitle>
-                <CardDescription>Standard loan terms for property acquisitions</CardDescription>
+                <CardTitle className="flex items-center">
+                  Acquisition Financing
+                  <HelpTooltip text="These are the default loan terms applied when acquiring a property with financing. LTV (Loan-to-Value) determines what percentage of the purchase price is financed vs. paid in equity. Interest Rate is the annual rate charged on the loan. Amortization is the period over which the loan is repaid." />
+                </CardTitle>
+                <CardDescription>Default loan terms for property acquisitions</CardDescription>
               </CardHeader>
               <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="space-y-3">
@@ -248,6 +251,86 @@ export default function Settings() {
                   <Slider 
                     value={[currentGlobal.debtAssumptions?.amortizationYears || 25]}
                     onValueChange={(vals) => handleNestedChange("debtAssumptions", "amortizationYears", vals[0].toString())}
+                    min={5}
+                    max={30}
+                    step={1}
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>5 yrs</span>
+                    <span>30 yrs</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  Refinancing
+                  <HelpTooltip text="Refinancing allows properties acquired with full equity to obtain debt later, or properties with existing debt to restructure their loans. The refinance period specifies when refinancing typically occurs after acquisition. Refinancing can return capital to investors while leveraging the property's appreciated value." />
+                </CardTitle>
+                <CardDescription>Default terms for refinancing properties</CardDescription>
+              </CardHeader>
+              <CardContent className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <Label>Period After Acquisition</Label>
+                    <span className="text-sm font-semibold text-primary">{currentGlobal.debtAssumptions?.refiPeriodYears || 3} years</span>
+                  </div>
+                  <Slider 
+                    value={[currentGlobal.debtAssumptions?.refiPeriodYears || 3]}
+                    onValueChange={(vals) => handleNestedChange("debtAssumptions", "refiPeriodYears", vals[0].toString())}
+                    min={1}
+                    max={10}
+                    step={1}
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>1 yr</span>
+                    <span>10 yrs</span>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <Label>Refinance LTV</Label>
+                    <span className="text-sm font-semibold text-primary">{((currentGlobal.debtAssumptions?.refiLTV || 0.65) * 100).toFixed(0)}%</span>
+                  </div>
+                  <Slider 
+                    value={[(currentGlobal.debtAssumptions?.refiLTV || 0.65) * 100]}
+                    onValueChange={(vals) => handleNestedChange("debtAssumptions", "refiLTV", (vals[0] / 100).toString())}
+                    min={0}
+                    max={80}
+                    step={5}
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>0%</span>
+                    <span>80%</span>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <Label>Interest Rate</Label>
+                    <span className="text-sm font-semibold text-primary">{((currentGlobal.debtAssumptions?.refiInterestRate || 0.065) * 100).toFixed(1)}%</span>
+                  </div>
+                  <Slider 
+                    value={[(currentGlobal.debtAssumptions?.refiInterestRate || 0.065) * 100]}
+                    onValueChange={(vals) => handleNestedChange("debtAssumptions", "refiInterestRate", (vals[0] / 100).toString())}
+                    min={0}
+                    max={15}
+                    step={0.25}
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>0%</span>
+                    <span>15%</span>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <Label>Amortization</Label>
+                    <span className="text-sm font-semibold text-primary">{currentGlobal.debtAssumptions?.refiAmortizationYears || 25} years</span>
+                  </div>
+                  <Slider 
+                    value={[currentGlobal.debtAssumptions?.refiAmortizationYears || 25]}
+                    onValueChange={(vals) => handleNestedChange("debtAssumptions", "refiAmortizationYears", vals[0].toString())}
                     min={5}
                     max={30}
                     step={1}

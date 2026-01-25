@@ -402,38 +402,72 @@ export default function Company() {
                         return <TableCell key={y} className="text-right">{formatMoney(revenue + safe)}</TableCell>;
                       })}
                     </TableRow>
-                    <TableRow 
-                      className="cursor-pointer hover:bg-muted/20"
-                      onClick={() => toggleRow('cfRevenue')}
-                    >
-                      <TableCell className="sticky left-0 bg-card flex items-center gap-2 pl-6">
-                        {expandedRows.has('cfRevenue') ? (
-                          <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                        ) : (
-                          <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                        )}
-                        Management Fee Revenue
-                      </TableCell>
+                    <TableRow>
+                      <TableCell className="sticky left-0 bg-card pl-6">Management Fee Revenue</TableCell>
                       {Array.from({ length: 10 }, (_, y) => {
                         const yearData = financials.slice(y * 12, (y + 1) * 12);
                         const total = yearData.reduce((a, m) => a + m.totalRevenue, 0);
                         return <TableCell key={y} className="text-right text-muted-foreground">{formatMoney(total)}</TableCell>;
                       })}
                     </TableRow>
-                    {expandedRows.has('cfRevenue') && properties.map((prop, idx) => (
-                      <TableRow key={`cf-${prop.id}`} className="bg-muted/10">
-                        <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">
+                    <TableRow 
+                      className="cursor-pointer hover:bg-muted/20"
+                      onClick={() => toggleRow('cfBaseFees')}
+                    >
+                      <TableCell className="sticky left-0 bg-card flex items-center gap-2 pl-10">
+                        {expandedRows.has('cfBaseFees') ? (
+                          <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                        ) : (
+                          <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                        )}
+                        Base Management Fees
+                      </TableCell>
+                      {Array.from({ length: 10 }, (_, y) => {
+                        const yearData = financials.slice(y * 12, (y + 1) * 12);
+                        const total = yearData.reduce((a, m) => a + m.baseFeeRevenue, 0);
+                        return <TableCell key={y} className="text-right text-muted-foreground">{formatMoney(total)}</TableCell>;
+                      })}
+                    </TableRow>
+                    {expandedRows.has('cfBaseFees') && properties.map((prop, idx) => (
+                      <TableRow key={`cfbase-${prop.id}`} className="bg-muted/10">
+                        <TableCell className="sticky left-0 bg-muted/10 pl-14 text-sm text-muted-foreground">
                           {prop.name}
                         </TableCell>
-                        {Array.from({ length: 10 }, (_, y) => {
-                          const baseFee = getPropertyYearlyBaseFee(idx, y);
-                          const incentiveFee = getPropertyYearlyIncentiveFee(idx, y);
-                          return (
-                            <TableCell key={y} className="text-right text-sm text-muted-foreground">
-                              {formatMoney(baseFee + incentiveFee)}
-                            </TableCell>
-                          );
-                        })}
+                        {Array.from({ length: 10 }, (_, y) => (
+                          <TableCell key={y} className="text-right text-sm text-muted-foreground">
+                            {formatMoney(getPropertyYearlyBaseFee(idx, y))}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))}
+                    <TableRow 
+                      className="cursor-pointer hover:bg-muted/20"
+                      onClick={() => toggleRow('cfIncentiveFees')}
+                    >
+                      <TableCell className="sticky left-0 bg-card flex items-center gap-2 pl-10">
+                        {expandedRows.has('cfIncentiveFees') ? (
+                          <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                        ) : (
+                          <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                        )}
+                        Incentive Fees
+                      </TableCell>
+                      {Array.from({ length: 10 }, (_, y) => {
+                        const yearData = financials.slice(y * 12, (y + 1) * 12);
+                        const total = yearData.reduce((a, m) => a + m.incentiveFeeRevenue, 0);
+                        return <TableCell key={y} className="text-right text-muted-foreground">{formatMoney(total)}</TableCell>;
+                      })}
+                    </TableRow>
+                    {expandedRows.has('cfIncentiveFees') && properties.map((prop, idx) => (
+                      <TableRow key={`cfinc-${prop.id}`} className="bg-muted/10">
+                        <TableCell className="sticky left-0 bg-muted/10 pl-14 text-sm text-muted-foreground">
+                          {prop.name}
+                        </TableCell>
+                        {Array.from({ length: 10 }, (_, y) => (
+                          <TableCell key={y} className="text-right text-sm text-muted-foreground">
+                            {formatMoney(getPropertyYearlyIncentiveFee(idx, y))}
+                          </TableCell>
+                        ))}
                       </TableRow>
                     ))}
                     <TableRow 

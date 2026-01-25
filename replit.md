@@ -46,12 +46,20 @@ Always format money as money (currency format with commas and appropriate precis
 - "Property Variables" renamed to "Property Assumptions"
 - Help tooltips added throughout for key financial concepts
 
-### Investment Analysis with Tax Rate
+### Investment Analysis with Proper Real Estate Accounting
 - Added Tax Rate field to each property (default 25%) in Property Assumptions
 - Added Company Tax Rate field (default 30%) in Company Assumptions
-- Free Cash Flow now calculated after-tax for IRR analysis
-- Tax applied only to positive operating cash flows
-- Investment Analysis tab shows after-tax cash flows with property tax rates displayed
+- Free Cash Flow follows proper real estate investment methodology:
+  - Depreciation: 27.5-year straight-line on building value (purchasePrice + buildingImprovements)
+  - Debt Service: Proper amortization with interest/principal separation
+  - Taxable Income: NOI - Interest Expense - Depreciation
+  - Tax Liability: Applied only to positive taxable income
+  - Before-Tax Cash Flow (BTCF): NOI - Debt Service
+  - After-Tax Cash Flow (ATCF): BTCF - Tax Liability
+- Expanded Investment Analysis display shows full FCF breakdown:
+  - NOI, Debt Service, BTCF, Depreciation, Interest, Taxable Income, Tax, ATCF
+  - Property-level ATCF with tax rates displayed
+- Outstanding loan balance tracked at each year for accurate exit value calculations
 - Property-Level IRR table includes Tax Rate column
 
 ### Financial Model Updates

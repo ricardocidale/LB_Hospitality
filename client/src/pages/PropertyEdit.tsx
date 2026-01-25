@@ -1,5 +1,5 @@
 import Layout from "@/components/Layout";
-import { useProperty, useUpdateProperty } from "@/lib/api";
+import { useProperty, useUpdateProperty, useGlobalAssumptions } from "@/lib/api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,6 +25,7 @@ export default function PropertyEdit() {
   const propertyId = params?.id ? parseInt(params.id) : 0;
   
   const { data: property, isLoading } = useProperty(propertyId);
+  const { data: globalAssumptions } = useGlobalAssumptions();
   const updateProperty = useUpdateProperty();
   const { toast } = useToast();
   
@@ -228,6 +229,26 @@ export default function PropertyEdit() {
                     <SelectItem value="Partial">Partial Service</SelectItem>
                   </SelectContent>
                 </Select>
+                {globalAssumptions && (
+                  <div className="mt-3 p-3 bg-muted rounded-lg text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Event Revenue Rate:</span>
+                      <span className="font-medium">
+                        {draft.cateringLevel === "Full" 
+                          ? ((globalAssumptions.fullCateringEventRevenue ?? 0.50) * 100).toFixed(0)
+                          : ((globalAssumptions.partialCateringEventRevenue ?? 0.25) * 100).toFixed(0)}% of rooms revenue
+                      </span>
+                    </div>
+                    <div className="flex justify-between mt-1">
+                      <span className="text-muted-foreground">Event Cost Ratio:</span>
+                      <span className="font-medium">
+                        {draft.cateringLevel === "Full" 
+                          ? ((globalAssumptions.fullCateringEventCost ?? 0.92) * 100).toFixed(0)
+                          : ((globalAssumptions.partialCateringEventCost ?? 0.80) * 100).toFixed(0)}% of event revenue
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 

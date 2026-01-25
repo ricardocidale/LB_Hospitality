@@ -101,58 +101,6 @@ export default function Company() {
           </Link>
         </div>
 
-        <section className="grid gap-4 md:grid-cols-4">
-          <Card className="bg-card shadow-sm">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Partners</CardTitle>
-            </CardHeader>
-            <CardContent className="flex items-center gap-3">
-              <div className="p-2 bg-primary/10 rounded-full">
-                <Users className="w-5 h-5 text-primary" />
-              </div>
-              <div className="text-2xl font-serif font-bold">3</div>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-card shadow-sm">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Staff FTEs</CardTitle>
-            </CardHeader>
-            <CardContent className="flex items-center gap-3">
-              <div className="p-2 bg-primary/10 rounded-full">
-                <Briefcase className="w-5 h-5 text-primary" />
-              </div>
-              <div className="text-2xl font-serif font-bold">{staffFTE}</div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card shadow-sm">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Y1 Revenue</CardTitle>
-            </CardHeader>
-            <CardContent className="flex items-center gap-3">
-              <div className="p-2 bg-primary/10 rounded-full">
-                <TrendingUp className="w-5 h-5 text-primary" />
-              </div>
-              <div className="text-2xl font-serif font-bold">{formatMoney(year1Revenue)}</div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card shadow-sm">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Y1 Net Income</CardTitle>
-            </CardHeader>
-            <CardContent className="flex items-center gap-3">
-              <div className="p-2 bg-primary/10 rounded-full">
-                <TrendingUp className="w-5 h-5 text-primary" />
-              </div>
-              <div className={`text-2xl font-serif font-bold ${year1NetIncome < 0 ? 'text-destructive' : ''}`}>
-                {formatMoney(year1NetIncome)}
-              </div>
-            </CardContent>
-          </Card>
-        </section>
-
         <Card>
           <CardHeader>
             <CardTitle>Management Company Performance (10-Year Projection)</CardTitle>

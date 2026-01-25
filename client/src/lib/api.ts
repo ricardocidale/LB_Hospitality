@@ -21,9 +21,7 @@ export interface GlobalResponse {
   techInfraStart: number;
   businessInsuranceStart: number;
   fullCateringFBBoost: number;
-  fullCateringFBCost: number;
   partialCateringFBBoost: number;
-  partialCateringFBCost: number;
   standardAcqPackage: {
     monthsToOps: number;
     purchasePrice: number;

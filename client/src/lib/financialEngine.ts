@@ -42,9 +42,7 @@ interface GlobalInput {
   marketingRate: number;
   // Catering F&B boost factors
   fullCateringFBBoost?: number;
-  fullCateringFBCost?: number;
   partialCateringFBBoost?: number;
-  partialCateringFBCost?: number;
   debtAssumptions: {
     interestRate: number;
     amortizationYears: number;
@@ -160,17 +158,8 @@ export function generatePropertyProForma(
     
     const expenseRooms = revenueRooms * costRateRooms;
     
-    // F&B costs: base F&B costs + catering-related costs
-    // The additional F&B revenue from catering has higher cost ratios
-    const fullCostRatio = global.fullCateringFBCost ?? 0.92;
-    const partialCostRatio = global.partialCateringFBCost ?? 0.80;
-    const baseFBCost = baseFB * costRateFB;
-    const additionalFBRevenue = revenueFB - baseFB;
-    // Weight the cost ratio by the catering mix
-    const weightedCostRatio = fullCateringPct > 0 || partialCateringPct > 0
-      ? (fullCostRatio * fullCateringPct + partialCostRatio * partialCateringPct) / (fullCateringPct + partialCateringPct || 1)
-      : 0;
-    const expenseFB = baseFBCost + (additionalFBRevenue * weightedCostRatio);
+    // F&B costs: apply costRateFB to all F&B revenue (including catering boost)
+    const expenseFB = revenueFB * costRateFB;
     
     // Event costs are separate from catering (events are independent)
     const expenseEvents = revenueEvents * 0.65;

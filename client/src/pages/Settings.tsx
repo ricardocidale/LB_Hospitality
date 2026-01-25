@@ -461,22 +461,6 @@ export default function Settings() {
                         step={5}
                       />
                     </div>
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-1">
-                          <Label>F&B Cost Ratio</Label>
-                          <HelpTooltip text="The cost of providing full catering service as a percentage of the additional F&B revenue generated. Higher values indicate lower margins." />
-                        </div>
-                        <span className="text-sm font-semibold text-primary">{((currentGlobal.fullCateringFBCost ?? 0.92) * 100).toFixed(0)}%</span>
-                      </div>
-                      <Slider 
-                        value={[(currentGlobal.fullCateringFBCost ?? 0.92) * 100]}
-                        onValueChange={(vals) => handleGlobalChange("fullCateringFBCost", (vals[0] / 100).toString())}
-                        min={50}
-                        max={100}
-                        step={1}
-                      />
-                    </div>
                   </div>
                   <div className="p-4 bg-muted rounded-lg space-y-4">
                     <h4 className="font-semibold text-sm">Partial Service Catering</h4>
@@ -494,22 +478,6 @@ export default function Settings() {
                         min={0}
                         max={100}
                         step={5}
-                      />
-                    </div>
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-1">
-                          <Label>F&B Cost Ratio</Label>
-                          <HelpTooltip text="The cost of providing partial catering service as a percentage of the additional F&B revenue. Typically lower than full service costs." />
-                        </div>
-                        <span className="text-sm font-semibold text-primary">{((currentGlobal.partialCateringFBCost ?? 0.80) * 100).toFixed(0)}%</span>
-                      </div>
-                      <Slider 
-                        value={[(currentGlobal.partialCateringFBCost ?? 0.80) * 100]}
-                        onValueChange={(vals) => handleGlobalChange("partialCateringFBCost", (vals[0] / 100).toString())}
-                        min={50}
-                        max={100}
-                        step={1}
                       />
                     </div>
                   </div>

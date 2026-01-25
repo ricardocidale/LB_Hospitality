@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Save, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { Slider } from "@/components/ui/slider";
 
 export default function Settings() {
   const { data: global, isLoading: globalLoading } = useGlobalAssumptions();
@@ -108,14 +109,22 @@ export default function Settings() {
                 <CardDescription>Market-wide economic factors affecting the model</CardDescription>
               </CardHeader>
               <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label>Annual Inflation Rate (%)</Label>
-                  <Input 
-                    type="number" 
-                    step="0.1" 
-                    value={(currentGlobal.inflationRate * 100).toFixed(1)} 
-                    onChange={(e) => handleGlobalChange("inflationRate", (parseFloat(e.target.value) / 100).toString())}
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <Label>Annual Inflation Rate</Label>
+                    <span className="text-sm font-semibold text-primary">{(currentGlobal.inflationRate * 100).toFixed(1)}%</span>
+                  </div>
+                  <Slider 
+                    value={[currentGlobal.inflationRate * 100]}
+                    onValueChange={(vals) => handleGlobalChange("inflationRate", (vals[0] / 100).toString())}
+                    min={0}
+                    max={10}
+                    step={0.1}
                   />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>0%</span>
+                    <span>10%</span>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -130,32 +139,56 @@ export default function Settings() {
                 <CardDescription>Fee structures for hotel management services</CardDescription>
               </CardHeader>
               <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="space-y-2">
-                  <Label>Base Management Fee (%)</Label>
-                  <Input 
-                    type="number" 
-                    step="0.1" 
-                    value={(currentGlobal.baseManagementFee * 100).toFixed(1)} 
-                    onChange={(e) => handleGlobalChange("baseManagementFee", (parseFloat(e.target.value) / 100).toString())}
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <Label>Base Management Fee</Label>
+                    <span className="text-sm font-semibold text-primary">{(currentGlobal.baseManagementFee * 100).toFixed(1)}%</span>
+                  </div>
+                  <Slider 
+                    value={[currentGlobal.baseManagementFee * 100]}
+                    onValueChange={(vals) => handleGlobalChange("baseManagementFee", (vals[0] / 100).toString())}
+                    min={0}
+                    max={10}
+                    step={0.1}
                   />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>0%</span>
+                    <span>10%</span>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label>Incentive Fee (% of GOP)</Label>
-                  <Input 
-                    type="number" 
-                    step="0.1" 
-                    value={(currentGlobal.incentiveManagementFee * 100).toFixed(1)} 
-                    onChange={(e) => handleGlobalChange("incentiveManagementFee", (parseFloat(e.target.value) / 100).toString())}
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <Label>Incentive Fee (% of GOP)</Label>
+                    <span className="text-sm font-semibold text-primary">{(currentGlobal.incentiveManagementFee * 100).toFixed(1)}%</span>
+                  </div>
+                  <Slider 
+                    value={[currentGlobal.incentiveManagementFee * 100]}
+                    onValueChange={(vals) => handleGlobalChange("incentiveManagementFee", (vals[0] / 100).toString())}
+                    min={0}
+                    max={20}
+                    step={0.5}
                   />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>0%</span>
+                    <span>20%</span>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label>Marketing Rate (%)</Label>
-                  <Input 
-                    type="number" 
-                    step="0.1" 
-                    value={(currentGlobal.marketingRate * 100).toFixed(1)} 
-                    onChange={(e) => handleGlobalChange("marketingRate", (parseFloat(e.target.value) / 100).toString())}
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <Label>Marketing Rate</Label>
+                    <span className="text-sm font-semibold text-primary">{(currentGlobal.marketingRate * 100).toFixed(1)}%</span>
+                  </div>
+                  <Slider 
+                    value={[currentGlobal.marketingRate * 100]}
+                    onValueChange={(vals) => handleGlobalChange("marketingRate", (vals[0] / 100).toString())}
+                    min={0}
+                    max={10}
+                    step={0.1}
                   />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>0%</span>
+                    <span>10%</span>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -170,22 +203,39 @@ export default function Settings() {
                 <CardDescription>Standard loan terms for property acquisitions</CardDescription>
               </CardHeader>
               <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label>Interest Rate (%)</Label>
-                  <Input 
-                    type="number" 
-                    step="0.1" 
-                    value={((currentGlobal.debtAssumptions?.interestRate || 0) * 100).toFixed(1)} 
-                    onChange={(e) => handleNestedChange("debtAssumptions", "interestRate", (parseFloat(e.target.value) / 100).toString())}
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <Label>Interest Rate</Label>
+                    <span className="text-sm font-semibold text-primary">{((currentGlobal.debtAssumptions?.interestRate || 0) * 100).toFixed(1)}%</span>
+                  </div>
+                  <Slider 
+                    value={[(currentGlobal.debtAssumptions?.interestRate || 0) * 100]}
+                    onValueChange={(vals) => handleNestedChange("debtAssumptions", "interestRate", (vals[0] / 100).toString())}
+                    min={0}
+                    max={15}
+                    step={0.25}
                   />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>0%</span>
+                    <span>15%</span>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label>Amortization (Years)</Label>
-                  <Input 
-                    type="number" 
-                    value={currentGlobal.debtAssumptions?.amortizationYears || 25} 
-                    onChange={(e) => handleNestedChange("debtAssumptions", "amortizationYears", e.target.value)}
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <Label>Amortization</Label>
+                    <span className="text-sm font-semibold text-primary">{currentGlobal.debtAssumptions?.amortizationYears || 25} years</span>
+                  </div>
+                  <Slider 
+                    value={[currentGlobal.debtAssumptions?.amortizationYears || 25]}
+                    onValueChange={(vals) => handleNestedChange("debtAssumptions", "amortizationYears", vals[0].toString())}
+                    min={5}
+                    max={30}
+                    step={1}
                   />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>5 yrs</span>
+                    <span>30 yrs</span>
+                  </div>
                 </div>
               </CardContent>
             </Card>

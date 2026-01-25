@@ -1093,14 +1093,86 @@ function InvestmentAnalysis({
   expandedRows,
   toggleRow
 }: InvestmentAnalysisProps) {
+  const DEPRECIATION_YEARS = 27.5;
+
   const getPropertyInvestment = (prop: any) => {
     const totalInvestment = prop.purchasePrice + prop.buildingImprovements + 
                             prop.preOpeningCosts + prop.operatingReserve;
     if (prop.type === "Financed") {
-      const ltv = prop.acquisitionLTV || 0.75;
+      const ltv = prop.acquisitionLTV || global.debtAssumptions.acqLTV || 0.75;
       return totalInvestment * (1 - ltv);
     }
     return totalInvestment;
+  };
+
+  const getPropertyLoanAmount = (prop: any) => {
+    if (prop.type !== "Financed") return 0;
+    const ltv = prop.acquisitionLTV || global.debtAssumptions.acqLTV || 0.75;
+    return (prop.purchasePrice + prop.buildingImprovements) * ltv;
+  };
+
+  const getAnnualDepreciation = (prop: any) => {
+    const depreciableBase = prop.purchasePrice + prop.buildingImprovements;
+    return depreciableBase / DEPRECIATION_YEARS;
+  };
+
+  const getDebtServiceDetails = (prop: any, yearIndex: number) => {
+    const loanAmount = getPropertyLoanAmount(prop);
+    if (loanAmount <= 0) return { debtService: 0, interestPortion: 0, principalPortion: 0 };
+
+    const annualRate = prop.acquisitionInterestRate || global.debtAssumptions.interestRate || 0.09;
+    const r = annualRate / 12;
+    const termYears = prop.acquisitionTermYears || global.debtAssumptions.amortizationYears || 25;
+    const n = termYears * 12;
+
+    if (r <= 0 || n <= 0) return { debtService: 0, interestPortion: 0, principalPortion: 0 };
+
+    const monthlyPayment = (loanAmount * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+    const annualDebtService = monthlyPayment * 12;
+
+    let remainingBalance = loanAmount;
+    let totalInterest = 0;
+    let totalPrincipal = 0;
+
+    const startMonth = yearIndex * 12;
+    const endMonth = startMonth + 12;
+
+    for (let m = 0; m < endMonth && m < n; m++) {
+      const interestPayment = remainingBalance * r;
+      const principalPayment = monthlyPayment - interestPayment;
+      
+      if (m >= startMonth) {
+        totalInterest += interestPayment;
+        totalPrincipal += principalPayment;
+      }
+      
+      remainingBalance -= principalPayment;
+    }
+
+    return { 
+      debtService: annualDebtService, 
+      interestPortion: totalInterest, 
+      principalPortion: totalPrincipal 
+    };
+  };
+
+  const getOutstandingLoanBalance = (prop: any, afterYear: number) => {
+    const loanAmount = getPropertyLoanAmount(prop);
+    if (loanAmount <= 0) return 0;
+
+    const annualRate = prop.acquisitionInterestRate || global.debtAssumptions.interestRate || 0.09;
+    const r = annualRate / 12;
+    const termYears = prop.acquisitionTermYears || global.debtAssumptions.amortizationYears || 25;
+    const n = termYears * 12;
+
+    if (r <= 0 || n <= 0) return 0;
+
+    const monthlyPayment = (loanAmount * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+    const monthsPaid = (afterYear + 1) * 12;
+    const paymentsRemaining = Math.max(0, n - monthsPaid);
+
+    if (paymentsRemaining <= 0) return 0;
+    return monthlyPayment * (1 - Math.pow(1 + r, -paymentsRemaining)) / r;
   };
 
   const getPropertyRefinanceProceeds = (prop: any, propIndex: number) => {
@@ -1114,22 +1186,20 @@ function InvestmentAnalysis({
     
     if (refiYear < 0 || refiYear >= 10) return { year: -1, proceeds: 0 };
     
-    const refiLTV = prop.refinanceLTV || 0.65;
-    const closingCostRate = prop.refinanceClosingCostRate || 0.02;
+    const refiLTV = prop.refinanceLTV || global.debtAssumptions.refiLTV || 0.65;
+    const closingCostRate = prop.refinanceClosingCostRate || global.debtAssumptions.refiClosingCostRate || 0.02;
     
     const { financials } = allPropertyFinancials[propIndex];
-    const year10Data = financials.slice(108, 120);
-    const stabilizedNOI = year10Data.reduce((a: number, m: any) => a + m.noi, 0);
+    const stabilizedData = financials.slice(refiYear * 12, (refiYear + 1) * 12);
+    const stabilizedNOI = stabilizedData.reduce((a: number, m: any) => a + m.noi, 0);
     const capRate = prop.exitCapRate || 0.085;
     const propertyValue = stabilizedNOI / capRate;
     
-    const loanAmount = propertyValue * refiLTV;
-    const closingCosts = loanAmount * closingCostRate;
+    const newLoanAmount = propertyValue * refiLTV;
+    const closingCosts = newLoanAmount * closingCostRate;
+    const existingDebt = getOutstandingLoanBalance(prop, refiYear - 1);
     
-    const existingDebt = prop.type === "Financed" ? 
-      (prop.purchasePrice + prop.buildingImprovements) * (prop.acquisitionLTV || 0.75) : 0;
-    
-    const netProceeds = loanAmount - closingCosts - existingDebt;
+    const netProceeds = newLoanAmount - closingCosts - existingDebt;
     
     return { year: refiYear, proceeds: Math.max(0, netProceeds) };
   };
@@ -1140,34 +1210,34 @@ function InvestmentAnalysis({
     const year10NOI = year10Data.reduce((a: number, m: any) => a + m.noi, 0);
     const capRate = prop.exitCapRate || 0.085;
     const grossValue = year10NOI / capRate;
-    
-    let outstandingDebt = 0;
-    if (prop.type === "Financed" || prop.willRefinance === "Yes") {
-      const r = (prop.refinanceInterestRate || prop.acquisitionInterestRate || global.debtAssumptions.interestRate) / 12;
-      const originalN = (prop.refinanceTermYears || prop.acquisitionTermYears || global.debtAssumptions.amortizationYears) * 12;
-      const loanAmount = prop.type === "Financed" ? 
-        (prop.purchasePrice + prop.buildingImprovements) * (prop.acquisitionLTV || 0.75) : 0;
-      
-      if (loanAmount > 0 && r > 0) {
-        const monthlyPayment = (loanAmount * r * Math.pow(1 + r, originalN)) / (Math.pow(1 + r, originalN) - 1);
-        const monthsPaid = 120;
-        const paymentsRemaining = Math.max(0, originalN - monthsPaid);
-        if (paymentsRemaining > 0) {
-          outstandingDebt = monthlyPayment * (1 - Math.pow(1 + r, -paymentsRemaining)) / r;
-        }
-      }
-    }
+    const outstandingDebt = getOutstandingLoanBalance(prop, 9);
     
     return grossValue - outstandingDebt;
   };
 
-  const getPropertyAfterTaxCashFlow = (prop: any, propIndex: number, yearIndex: number): number => {
-    const preTaxCashFlow = getPropertyYearly(propIndex, yearIndex).cashFlow;
+  const getPropertyYearlyDetails = (prop: any, propIndex: number, yearIndex: number) => {
+    const yearlyData = getPropertyYearly(propIndex, yearIndex);
+    const noi = yearlyData.noi || 0;
+    const { debtService, interestPortion, principalPortion } = getDebtServiceDetails(prop, yearIndex);
+    const depreciation = getAnnualDepreciation(prop);
     const taxRate = prop.taxRate || 0.25;
-    if (preTaxCashFlow > 0) {
-      return preTaxCashFlow * (1 - taxRate);
-    }
-    return preTaxCashFlow;
+
+    const btcf = noi - debtService;
+    const taxableIncome = noi - interestPortion - depreciation;
+    const taxLiability = taxableIncome > 0 ? taxableIncome * taxRate : 0;
+    const atcf = btcf - taxLiability;
+
+    return {
+      noi,
+      debtService,
+      interestPortion,
+      principalPortion,
+      depreciation,
+      btcf,
+      taxableIncome,
+      taxLiability,
+      atcf
+    };
   };
 
   const getPropertyCashFlows = (prop: any, propIndex: number): number[] => {
@@ -1179,7 +1249,8 @@ function InvestmentAnalysis({
     const refi = getPropertyRefinanceProceeds(prop, propIndex);
     
     for (let y = 0; y < 10; y++) {
-      let yearCashFlow = getPropertyAfterTaxCashFlow(prop, propIndex, y);
+      const details = getPropertyYearlyDetails(prop, propIndex, y);
+      let yearCashFlow = details.atcf;
       
       if (y === refi.year) {
         yearCashFlow += refi.proceeds;
@@ -1195,12 +1266,38 @@ function InvestmentAnalysis({
     return flows;
   };
 
-  const getConsolidatedAfterTaxCashFlow = (yearIndex: number): number => {
-    let total = 0;
+  const getConsolidatedYearlyDetails = (yearIndex: number) => {
+    let totalNOI = 0;
+    let totalDebtService = 0;
+    let totalInterest = 0;
+    let totalDepreciation = 0;
+    let totalBTCF = 0;
+    let totalTaxableIncome = 0;
+    let totalTax = 0;
+    let totalATCF = 0;
+
     properties.forEach((prop, idx) => {
-      total += getPropertyAfterTaxCashFlow(prop, idx, yearIndex);
+      const details = getPropertyYearlyDetails(prop, idx, yearIndex);
+      totalNOI += details.noi;
+      totalDebtService += details.debtService;
+      totalInterest += details.interestPortion;
+      totalDepreciation += details.depreciation;
+      totalBTCF += details.btcf;
+      totalTaxableIncome += details.taxableIncome;
+      totalTax += details.taxLiability;
+      totalATCF += details.atcf;
     });
-    return total;
+
+    return {
+      noi: totalNOI,
+      debtService: totalDebtService,
+      interestPortion: totalInterest,
+      depreciation: totalDepreciation,
+      btcf: totalBTCF,
+      taxableIncome: totalTaxableIncome,
+      taxLiability: totalTax,
+      atcf: totalATCF
+    };
   };
 
   const getConsolidatedCashFlows = (): number[] => {
@@ -1213,7 +1310,8 @@ function InvestmentAnalysis({
     flows.push(-totalInitialEquity);
     
     for (let y = 0; y < 10; y++) {
-      let yearCashFlow = getConsolidatedAfterTaxCashFlow(y);
+      const consolidated = getConsolidatedYearlyDetails(y);
+      let yearCashFlow = consolidated.atcf;
       
       properties.forEach((prop, idx) => {
         const refi = getPropertyRefinanceProceeds(prop, idx);
@@ -1330,31 +1428,105 @@ function InvestmentAnalysis({
                 </TableCell>
                 <TableCell className="text-right text-muted-foreground">-</TableCell>
                 {Array.from({ length: 10 }, (_, y) => {
-                  const cf = getConsolidatedAfterTaxCashFlow(y);
+                  const details = getConsolidatedYearlyDetails(y);
                   return (
-                    <TableCell key={y} className={`text-right ${cf < 0 ? 'text-destructive' : ''}`}>
-                      {formatMoney(cf)}
+                    <TableCell key={y} className={`text-right ${details.atcf < 0 ? 'text-destructive' : ''}`}>
+                      {formatMoney(details.atcf)}
                     </TableCell>
                   );
                 })}
               </TableRow>
-              {expandedRows.has('fcfOperating') && properties.map((prop, idx) => (
-                <TableRow key={prop.id} className="bg-muted/10">
-                  <TableCell className="sticky left-0 bg-muted/10 pl-8 text-sm text-muted-foreground">
-                    {prop.name}
-                    <span className="text-xs ml-2">({((prop.taxRate || 0.25) * 100).toFixed(0)}% tax)</span>
-                  </TableCell>
-                  <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
-                  {Array.from({ length: 10 }, (_, y) => {
-                    const cf = getPropertyAfterTaxCashFlow(prop, idx, y);
-                    return (
-                      <TableCell key={y} className={`text-right text-sm ${cf < 0 ? 'text-destructive' : 'text-muted-foreground'}`}>
-                        {formatMoney(cf)}
+              {expandedRows.has('fcfOperating') && (
+                <>
+                  <TableRow className="bg-muted/5">
+                    <TableCell className="sticky left-0 bg-muted/5 pl-8 text-sm text-muted-foreground">Net Operating Income (NOI)</TableCell>
+                    <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
+                    {Array.from({ length: 10 }, (_, y) => (
+                      <TableCell key={y} className="text-right text-sm text-muted-foreground">
+                        {formatMoney(getConsolidatedYearlyDetails(y).noi)}
                       </TableCell>
-                    );
-                  })}
-                </TableRow>
-              ))}
+                    ))}
+                  </TableRow>
+                  <TableRow className="bg-muted/5">
+                    <TableCell className="sticky left-0 bg-muted/5 pl-8 text-sm text-muted-foreground">Less: Debt Service</TableCell>
+                    <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
+                    {Array.from({ length: 10 }, (_, y) => {
+                      const ds = getConsolidatedYearlyDetails(y).debtService;
+                      return (
+                        <TableCell key={y} className="text-right text-sm text-destructive">
+                          {ds > 0 ? `(${formatMoney(ds)})` : '-'}
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                  <TableRow className="bg-muted/5">
+                    <TableCell className="sticky left-0 bg-muted/5 pl-8 text-sm text-muted-foreground">Before-Tax Cash Flow (BTCF)</TableCell>
+                    <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
+                    {Array.from({ length: 10 }, (_, y) => {
+                      const btcf = getConsolidatedYearlyDetails(y).btcf;
+                      return (
+                        <TableCell key={y} className={`text-right text-sm ${btcf < 0 ? 'text-destructive' : 'text-muted-foreground'}`}>
+                          {formatMoney(btcf)}
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                  <TableRow className="bg-muted/5">
+                    <TableCell className="sticky left-0 bg-muted/5 pl-8 text-sm text-muted-foreground">Depreciation (27.5 yr)</TableCell>
+                    <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
+                    {Array.from({ length: 10 }, (_, y) => (
+                      <TableCell key={y} className="text-right text-sm text-muted-foreground">
+                        {formatMoney(getConsolidatedYearlyDetails(y).depreciation)}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                  <TableRow className="bg-muted/5">
+                    <TableCell className="sticky left-0 bg-muted/5 pl-8 text-sm text-muted-foreground">Interest Expense</TableCell>
+                    <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
+                    {Array.from({ length: 10 }, (_, y) => (
+                      <TableCell key={y} className="text-right text-sm text-muted-foreground">
+                        {formatMoney(getConsolidatedYearlyDetails(y).interestPortion)}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                  <TableRow className="bg-muted/5">
+                    <TableCell className="sticky left-0 bg-muted/5 pl-8 text-sm text-muted-foreground">Taxable Income</TableCell>
+                    <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
+                    {Array.from({ length: 10 }, (_, y) => {
+                      const ti = getConsolidatedYearlyDetails(y).taxableIncome;
+                      return (
+                        <TableCell key={y} className={`text-right text-sm ${ti < 0 ? 'text-muted-foreground' : ''}`}>
+                          {formatMoney(ti)}
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                  <TableRow className="bg-muted/5">
+                    <TableCell className="sticky left-0 bg-muted/5 pl-8 text-sm text-muted-foreground">Less: Tax Liability</TableCell>
+                    <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
+                    {Array.from({ length: 10 }, (_, y) => {
+                      const tax = getConsolidatedYearlyDetails(y).taxLiability;
+                      return (
+                        <TableCell key={y} className="text-right text-sm text-destructive">
+                          {tax > 0 ? `(${formatMoney(tax)})` : '-'}
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                  <TableRow className="bg-muted/10 border-t">
+                    <TableCell className="sticky left-0 bg-muted/10 pl-8 text-sm font-medium">After-Tax Cash Flow (ATCF)</TableCell>
+                    <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
+                    {Array.from({ length: 10 }, (_, y) => {
+                      const atcf = getConsolidatedYearlyDetails(y).atcf;
+                      return (
+                        <TableCell key={y} className={`text-right text-sm font-medium ${atcf < 0 ? 'text-destructive' : ''}`}>
+                          {formatMoney(atcf)}
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                </>
+              )}
 
               <TableRow 
                 className="cursor-pointer hover:bg-muted/20"

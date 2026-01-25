@@ -399,38 +399,53 @@ export default function PropertyEdit() {
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-2">
-                <Label className="flex items-center gap-1">
-                  Events Revenue (%)
-                  <HelpTooltip text="Revenue from meetings, weddings, and other events as a percentage of rooms revenue. This is independent of catering." />
-                </Label>
-                <Input 
-                  type="number" 
-                  step="1" 
-                  value={((draft.revShareEvents ?? 0.43) * 100).toFixed(0)} 
-                  onChange={(e) => handleNumberChange("revShareEvents", (parseFloat(e.target.value) / 100).toString())} 
+                <div className="flex justify-between items-center">
+                  <Label className="flex items-center gap-1">
+                    Events
+                    <HelpTooltip text="Revenue from meetings, weddings, and other events as a percentage of rooms revenue." />
+                  </Label>
+                  <span className="text-sm font-semibold text-primary">{((draft.revShareEvents ?? 0.43) * 100).toFixed(0)}%</span>
+                </div>
+                <Slider 
+                  value={[(draft.revShareEvents ?? 0.43) * 100]}
+                  onValueChange={(vals: number[]) => handleChange("revShareEvents", (vals[0] / 100).toString())}
+                  min={0}
+                  max={100}
+                  step={5}
                 />
                 <p className="text-xs text-muted-foreground">Meetings, weddings, conferences</p>
               </div>
               <div className="space-y-2">
-                <Label className="flex items-center gap-1">
-                  F&B Revenue (%)
-                  <HelpTooltip text="Base food & beverage revenue as a percentage of rooms revenue. This gets boosted by catering at events (see catering mix below)." />
-                </Label>
-                <Input 
-                  type="number" 
-                  step="1" 
-                  value={((draft.revShareFB ?? 0.22) * 100).toFixed(0)} 
-                  onChange={(e) => handleNumberChange("revShareFB", (parseFloat(e.target.value) / 100).toString())} 
+                <div className="flex justify-between items-center">
+                  <Label className="flex items-center gap-1">
+                    F&B
+                    <HelpTooltip text="Base food & beverage revenue as a percentage of rooms revenue. This gets boosted by catering at events (see catering mix below)." />
+                  </Label>
+                  <span className="text-sm font-semibold text-primary">{((draft.revShareFB ?? 0.22) * 100).toFixed(0)}%</span>
+                </div>
+                <Slider 
+                  value={[(draft.revShareFB ?? 0.22) * 100]}
+                  onValueChange={(vals: number[]) => handleChange("revShareFB", (vals[0] / 100).toString())}
+                  min={0}
+                  max={100}
+                  step={5}
                 />
                 <p className="text-xs text-muted-foreground">Restaurant, bar, room service</p>
               </div>
               <div className="space-y-2">
-                <Label>Other Revenue (%)</Label>
-                <Input 
-                  type="number" 
-                  step="1" 
-                  value={((draft.revShareOther ?? 0.07) * 100).toFixed(0)} 
-                  onChange={(e) => handleNumberChange("revShareOther", (parseFloat(e.target.value) / 100).toString())} 
+                <div className="flex justify-between items-center">
+                  <Label className="flex items-center gap-1">
+                    Other
+                    <HelpTooltip text="Revenue from spa, parking, activities, and other ancillary services." />
+                  </Label>
+                  <span className="text-sm font-semibold text-primary">{((draft.revShareOther ?? 0.07) * 100).toFixed(0)}%</span>
+                </div>
+                <Slider 
+                  value={[(draft.revShareOther ?? 0.07) * 100]}
+                  onValueChange={(vals: number[]) => handleChange("revShareOther", (vals[0] / 100).toString())}
+                  min={0}
+                  max={100}
+                  step={5}
                 />
                 <p className="text-xs text-muted-foreground">Spa, parking, activities</p>
               </div>

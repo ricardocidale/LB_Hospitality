@@ -137,11 +137,11 @@ export default function Settings() {
               <CardHeader>
                 <CardTitle className="flex items-center">
                   Management Fees
-                  <HelpTooltip text="Base Management Fee: A percentage of total revenue paid to the management company for operating the property. Incentive Fee: An additional percentage of Gross Operating Profit (GOP) paid when the property performs well, aligning management incentives with profitability. Marketing Fee: A percentage of revenue allocated to brand marketing, advertising, and sales efforts to drive bookings." />
+                  <HelpTooltip text="Base Management Fee: A percentage of total revenue paid to the management company for operating the property. Incentive Fee: An additional percentage of Gross Operating Profit (GOP) paid when the property performs well, aligning management incentives with profitability. Marketing Fee: A percentage of revenue allocated to brand marketing, advertising, and sales efforts to drive bookings. Commissions: Sales commissions paid on bookings (OTAs, travel agents, etc.)." />
                 </CardTitle>
                 <CardDescription>Fee structures for hotel management services</CardDescription>
               </CardHeader>
-              <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <CardContent className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <Label>Base Management Fee</Label>
@@ -191,6 +191,23 @@ export default function Settings() {
                   <div className="flex justify-between text-xs text-muted-foreground">
                     <span>0%</span>
                     <span>10%</span>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <Label>Commissions</Label>
+                    <span className="text-sm font-semibold text-primary">{((currentGlobal.commissionRate || 0.05) * 100).toFixed(1)}%</span>
+                  </div>
+                  <Slider 
+                    value={[(currentGlobal.commissionRate || 0.05) * 100]}
+                    onValueChange={(vals) => handleGlobalChange("commissionRate", (vals[0] / 100).toString())}
+                    min={0}
+                    max={15}
+                    step={0.5}
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>0%</span>
+                    <span>15%</span>
                   </div>
                 </div>
               </CardContent>

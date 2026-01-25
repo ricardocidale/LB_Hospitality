@@ -135,7 +135,10 @@ export default function Settings() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Management Fees</CardTitle>
+                <CardTitle className="flex items-center">
+                  Management Fees
+                  <HelpTooltip text="Base Management Fee: A percentage of total revenue paid to the management company for operating the property. Incentive Fee: An additional percentage of Gross Operating Profit (GOP) paid when the property performs well, aligning management incentives with profitability. Marketing Fee: A percentage of revenue allocated to brand marketing, advertising, and sales efforts to drive bookings." />
+                </CardTitle>
                 <CardDescription>Fee structures for hotel management services</CardDescription>
               </CardHeader>
               <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -175,7 +178,7 @@ export default function Settings() {
                 </div>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <Label>Marketing Rate</Label>
+                    <Label>Marketing Fee</Label>
                     <span className="text-sm font-semibold text-primary">{(currentGlobal.marketingRate * 100).toFixed(1)}%</span>
                   </div>
                   <Slider 

@@ -148,11 +148,14 @@ export function YearlyCashFlowStatement({ data, property, years = 5 }: Props) {
             </TableRow>
             <TableRow>
               <TableCell className="pl-6">Cash on Cash Return</TableCell>
-              {yearlyData.map((y) => (
-                <TableCell key={y.year} className={cn("text-right font-medium", y.cashFlowFromOperations > 0 ? "text-accent" : "text-muted-foreground")}>
-                  {equityInvested > 0 ? `${((y.cashFlowFromOperations / equityInvested) * 100).toFixed(1)}%` : '-'}
-                </TableCell>
-              ))}
+              {yearlyData.map((y) => {
+                const cocReturn = equityInvested > 0 ? (y.cashFlowFromOperations / equityInvested) * 100 : 0;
+                return (
+                  <TableCell key={y.year} className={cn("text-right font-medium", cocReturn > 0 ? "text-accent" : "text-muted-foreground")}>
+                    {equityInvested > 0 ? `${cocReturn.toFixed(1)}%` : '-'}
+                  </TableCell>
+                );
+              })}
             </TableRow>
             <TableRow>
               <TableCell className="pl-6">Debt Service Coverage Ratio</TableCell>

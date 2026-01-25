@@ -106,7 +106,7 @@ export default function PropertyDetail() {
               <CardTitle className="text-sm text-muted-foreground">Cash on Cash (Y1)</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-bold text-accent">
+              <p className={`text-2xl font-bold ${year1CashFlow >= 0 ? 'text-accent' : 'text-destructive'}`}>
                 {equityInvested > 0 ? `${((year1CashFlow / equityInvested) * 100).toFixed(1)}%` : 'N/A'}
               </p>
             </CardContent>

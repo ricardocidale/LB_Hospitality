@@ -25,16 +25,6 @@ export const globalAssumptions = pgTable("global_assumptions", {
   standardAcqPackage: jsonb("standard_acq_package").notNull(),
   debtAssumptions: jsonb("debt_assumptions").notNull(),
   
-  // Base Cost Rates (percentages)
-  baseRoomsCostRate: real("base_rooms_cost_rate").notNull().default(0.36),
-  baseUtilitiesRate: real("base_utilities_rate").notNull().default(0.05),
-  baseTaxRate: real("base_tax_rate").notNull().default(0.03),
-  baseAdminRate: real("base_admin_rate").notNull().default(0.08),
-  basePropertyOpsRate: real("base_property_ops_rate").notNull().default(0.04),
-  baseInsuranceRate: real("base_insurance_rate").notNull().default(0.02),
-  baseITRate: real("base_it_rate").notNull().default(0.02),
-  baseFFERate: real("base_ffe_rate").notNull().default(0.04),
-  
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 

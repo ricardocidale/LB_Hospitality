@@ -10,6 +10,7 @@ import { ArrowLeft, Save, Loader2 } from "lucide-react";
 import { Link, useRoute, useLocation } from "wouter";
 import { useState, useEffect } from "react";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { Slider } from "@/components/ui/slider";
 
 function formatMoneyInput(value: number): string {
   return new Intl.NumberFormat('en-US').format(value);
@@ -219,33 +220,63 @@ export default function PropertyEdit() {
               </div>
               <div className="space-y-2">
                 <Label className="flex items-center">
-                  Catering Level
-                  <HelpTooltip text="Full Service: Property offers complete F&B operations including restaurant, bar, room service, and event catering. Partial Service: Limited F&B offerings such as breakfast only or grab-and-go options." />
+                  Event Catering Mix
+                  <HelpTooltip text="What percentage of events at this property require full vs partial catering. Full catering includes complete F&B service. Partial catering includes limited offerings like coffee and light refreshments. The remaining events require no catering." />
                 </Label>
-                <Select value={draft.cateringLevel} onValueChange={(v) => handleChange("cateringLevel", v)}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Full">Full Service</SelectItem>
-                    <SelectItem value="Partial">Partial Service</SelectItem>
-                  </SelectContent>
-                </Select>
-                {globalAssumptions && (
-                  <div className="mt-3 p-3 bg-muted rounded-lg text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Event Revenue Rate:</span>
-                      <span className="font-medium">
-                        {draft.cateringLevel === "Full" 
-                          ? ((globalAssumptions.fullCateringEventRevenue ?? 0.50) * 100).toFixed(0)
-                          : ((globalAssumptions.partialCateringEventRevenue ?? 0.25) * 100).toFixed(0)}% of rooms revenue
-                      </span>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-sm text-muted-foreground">Full Catering %</Label>
+                    <div className="flex items-center gap-2">
+                      <Slider 
+                        value={[(draft.fullCateringPercent ?? 0.40) * 100]}
+                        onValueChange={(vals) => handleChange("fullCateringPercent", (vals[0] / 100).toString())}
+                        min={0}
+                        max={100}
+                        step={5}
+                        className="flex-1"
+                      />
+                      <span className="text-sm font-medium w-12 text-right">{((draft.fullCateringPercent ?? 0.40) * 100).toFixed(0)}%</span>
                     </div>
-                    <div className="flex justify-between mt-1">
-                      <span className="text-muted-foreground">Event Cost Ratio:</span>
-                      <span className="font-medium">
-                        {draft.cateringLevel === "Full" 
-                          ? ((globalAssumptions.fullCateringEventCost ?? 0.92) * 100).toFixed(0)
-                          : ((globalAssumptions.partialCateringEventCost ?? 0.80) * 100).toFixed(0)}% of event revenue
-                      </span>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm text-muted-foreground">Partial Catering %</Label>
+                    <div className="flex items-center gap-2">
+                      <Slider 
+                        value={[(draft.partialCateringPercent ?? 0.30) * 100]}
+                        onValueChange={(vals) => handleChange("partialCateringPercent", (vals[0] / 100).toString())}
+                        min={0}
+                        max={100}
+                        step={5}
+                        className="flex-1"
+                      />
+                      <span className="text-sm font-medium w-12 text-right">{((draft.partialCateringPercent ?? 0.30) * 100).toFixed(0)}%</span>
+                    </div>
+                  </div>
+                </div>
+                {globalAssumptions && (
+                  <div className="mt-3 p-3 bg-muted rounded-lg text-sm space-y-2">
+                    <div className="text-muted-foreground text-xs">From Global Assumptions:</div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Full Catering F&B Boost:</span>
+                          <span className="font-medium">{((globalAssumptions.fullCateringFBBoost ?? 0.50) * 100).toFixed(0)}%</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Full Catering Cost:</span>
+                          <span className="font-medium">{((globalAssumptions.fullCateringFBCost ?? 0.92) * 100).toFixed(0)}%</span>
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Partial Catering F&B Boost:</span>
+                          <span className="font-medium">{((globalAssumptions.partialCateringFBBoost ?? 0.25) * 100).toFixed(0)}%</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Partial Catering Cost:</span>
+                          <span className="font-medium">{((globalAssumptions.partialCateringFBCost ?? 0.80) * 100).toFixed(0)}%</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}

@@ -370,6 +370,30 @@ export default function PropertyEdit() {
           </CardContent>
         </Card>
 
+        <Card>
+          <CardHeader>
+            <CardTitle>Property Cost Adjustments</CardTitle>
+            <CardDescription>Location-specific cost multipliers (1.0 = baseline, 0.8 = 20% lower, 1.2 = 20% higher)</CardDescription>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="space-y-2">
+              <Label>Labor Cost Adjustment</Label>
+              <Input type="number" step="0.01" value={draft.laborAdj} onChange={(e) => handleNumberChange("laborAdj", e.target.value)} />
+              <p className="text-xs text-muted-foreground">Multiplies rooms dept cost rate</p>
+            </div>
+            <div className="space-y-2">
+              <Label>Utilities Adjustment</Label>
+              <Input type="number" step="0.01" value={draft.utilitiesAdj} onChange={(e) => handleNumberChange("utilitiesAdj", e.target.value)} />
+              <p className="text-xs text-muted-foreground">Multiplies utilities rate</p>
+            </div>
+            <div className="space-y-2">
+              <Label>Property Tax Adjustment</Label>
+              <Input type="number" step="0.01" value={draft.taxAdj} onChange={(e) => handleNumberChange("taxAdj", e.target.value)} />
+              <p className="text-xs text-muted-foreground">Multiplies tax rate</p>
+            </div>
+          </CardContent>
+        </Card>
+
         <div className="flex justify-end pb-8">
           <Button onClick={handleSave} disabled={updateProperty.isPending} size="lg">
             {updateProperty.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}

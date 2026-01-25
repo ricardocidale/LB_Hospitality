@@ -107,25 +107,36 @@ export function generatePropertyProForma(
     const revenueOther = revenueRooms * REV_SHARE_OTHER;
     const revenueTotal = revenueRooms + revenueEvents + revenueFB + revenueOther;
     
-    const laborAdj = global.laborAdj ?? 1.0;
-    const utilitiesAdj = global.utilitiesAdj ?? 1.0;
-    const taxAdj = global.taxAdj ?? 1.0;
+    // Base rates from global settings
+    const baseRoomsCostRate = global.baseRoomsCostRate ?? 0.36;
+    const baseUtilitiesRate = global.baseUtilitiesRate ?? 0.05;
+    const baseTaxRate = global.baseTaxRate ?? 0.03;
+    const baseAdminRate = global.baseAdminRate ?? 0.08;
+    const basePropertyOpsRate = global.basePropertyOpsRate ?? 0.04;
+    const baseInsuranceRate = global.baseInsuranceRate ?? 0.02;
+    const baseITRate = global.baseITRate ?? 0.02;
+    const baseFFERate = global.baseFFERate ?? 0.04;
     
-    const expenseRooms = revenueRooms * 0.36 * laborAdj;
+    // Property-specific adjustments (multipliers)
+    const laborAdj = property.laborAdj ?? 1.0;
+    const utilitiesAdj = property.utilitiesAdj ?? 1.0;
+    const taxAdj = property.taxAdj ?? 1.0;
+    
+    const expenseRooms = revenueRooms * baseRoomsCostRate * laborAdj;
     const fbCostRatio = property.cateringLevel === "Full" ? 0.92 : 0.80;
     const expenseFB = (revenueFB + (revenueEvents * 0.2)) * fbCostRatio;
     const expenseEvents = revenueEvents * 0.25;
     const expenseOther = revenueOther * 0.60;
     const expenseMarketing = revenueTotal * global.marketingRate;
-    const expensePropertyOps = revenueTotal * 0.04;
-    const expenseUtilitiesVar = revenueTotal * 0.03 * utilitiesAdj;
-    const expenseFFE = revenueTotal * 0.04;
+    const expensePropertyOps = revenueTotal * basePropertyOpsRate;
+    const expenseUtilitiesVar = revenueTotal * (baseUtilitiesRate * 0.6) * utilitiesAdj;
+    const expenseFFE = revenueTotal * baseFFERate;
     
-    const expenseAdmin = revenueTotal * 0.08;
-    const expenseIT = revenueTotal * 0.02;
-    const expenseInsurance = revenueTotal * 0.02;
-    const expenseTaxes = revenueTotal * 0.03 * taxAdj;
-    const expenseUtilitiesFixed = revenueTotal * 0.02 * utilitiesAdj;
+    const expenseAdmin = revenueTotal * baseAdminRate;
+    const expenseIT = revenueTotal * baseITRate;
+    const expenseInsurance = revenueTotal * baseInsuranceRate;
+    const expenseTaxes = revenueTotal * baseTaxRate * taxAdj;
+    const expenseUtilitiesFixed = revenueTotal * (baseUtilitiesRate * 0.4) * utilitiesAdj;
     
     const feeBase = revenueTotal * global.baseManagementFee;
     

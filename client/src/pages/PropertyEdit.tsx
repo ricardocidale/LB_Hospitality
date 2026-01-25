@@ -33,7 +33,7 @@ function EditableValue({
   const inputRef = useRef<HTMLInputElement>(null);
 
   const displayValue = () => {
-    if (format === "percent") return `${value.toFixed(step < 1 ? 1 : 0)}%`;
+    if (format === "percent") return `${value.toFixed(1)}%`;
     if (format === "dollar") return `$${value.toLocaleString()}`;
     if (format === "months") return `${value} mo`;
     return value.toString();

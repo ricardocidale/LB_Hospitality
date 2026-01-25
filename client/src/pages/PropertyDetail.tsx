@@ -65,8 +65,8 @@ export default function PropertyDetail() {
               <ArrowLeft className="w-4 h-4 mr-2" /> Back to Portfolio
             </Button>
           </Link>
-          <Link href="/settings">
-            <Button variant="outline" size="sm">Edit Assumptions</Button>
+          <Link href={`/property/${propertyId}/edit`}>
+            <Button variant="outline" size="sm">Edit Variables</Button>
           </Link>
         </div>
 

@@ -1067,6 +1067,30 @@ export default function PropertyEdit() {
                 Exit Value = Year 10 NOI ÷ {((draft.exitCapRate ?? 0.085) * 100).toFixed(1)}% = <span className="font-medium">higher property valuation at lower cap rates</span>
               </p>
             </div>
+
+            <div className="max-w-md space-y-2 mt-6">
+              <div className="flex justify-between items-center">
+                <Label>Tax Rate</Label>
+                <EditableValue
+                  value={(draft.taxRate ?? 0.25) * 100}
+                  onChange={(val) => handleChange("taxRate", (val / 100).toString())}
+                  format="percent"
+                  min={0}
+                  max={50}
+                  step={1}
+                />
+              </div>
+              <Slider 
+                value={[(draft.taxRate ?? 0.25) * 100]}
+                onValueChange={(vals: number[]) => handleChange("taxRate", (vals[0] / 100).toString())}
+                min={0}
+                max={50}
+                step={1}
+              />
+              <p className="text-xs text-muted-foreground mt-2">
+                Applied to positive cash flows to calculate after-tax free cash flow for IRR analysis
+              </p>
+            </div>
           </CardContent>
         </Card>
 

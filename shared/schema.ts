@@ -148,6 +148,9 @@ export const properties = pgTable("properties", {
   // Exit Cap Rate (for property valuation)
   exitCapRate: real("exit_cap_rate").notNull().default(0.085),
   
+  // Tax Rate (for calculating after-tax free cash flow)
+  taxRate: real("tax_rate").notNull().default(0.25),
+  
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

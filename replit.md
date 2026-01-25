@@ -9,6 +9,12 @@ The system models both the management company (L+B Hospitality Co.) and individu
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+Always format money as money (currency format with commas and appropriate precision).
+
+### Partner Compensation Model
+- Starting: $20,000/month per partner ($240,000/year)
+- Annual escalation: inflation rate + 10%
+- Maximum cap: $30,000/month per partner
 
 ## Recent Changes (January 2026)
 

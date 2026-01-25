@@ -355,25 +355,28 @@ export default function CompanyAssumptions() {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label className="flex items-center">
-                    Partner Salary (Each)
-                    <HelpTooltip text="Annual base salary per partner (3 partners total)" />
+                    Partner Salary (Each, Year 1)
+                    <HelpTooltip text="Starting annual salary per partner (3 partners). Escalates at inflation + 10% per year, capped at $30K/month." />
                   </Label>
                   <EditableValue
                     value={formData.partnerSalary ?? global.partnerSalary}
                     onChange={(v) => handleUpdate("partnerSalary", v)}
                     format="dollar"
-                    min={50000}
-                    max={500000}
-                    step={5000}
+                    min={120000}
+                    max={360000}
+                    step={12000}
                   />
                 </div>
                 <Slider
                   value={[formData.partnerSalary ?? global.partnerSalary]}
                   onValueChange={([v]) => handleUpdate("partnerSalary", v)}
-                  min={50000}
-                  max={500000}
-                  step={5000}
+                  min={120000}
+                  max={360000}
+                  step={12000}
                 />
+                <p className="text-xs text-muted-foreground">
+                  {formatMoney((formData.partnerSalary ?? global.partnerSalary) / 12)}/month starting, max $30,000/month
+                </p>
               </div>
 
               <div className="space-y-3">

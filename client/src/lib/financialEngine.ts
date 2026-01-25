@@ -332,11 +332,17 @@ export function generateCompanyProForma(
     const incentiveFeeRevenue = totalPropertyGOP * global.incentiveManagementFee;
     const totalRevenue = baseFeeRevenue + incentiveFeeRevenue;
     
-    const partnerSalary = (global.partnerSalary ?? 150000);
+    const partnerMonthlyStart = (global.partnerSalary ?? 240000) / 12;
+    const partnerMonthlyMax = 30000;
+    const partnerEscalationRate = global.inflationRate + 0.10;
+    const partnerEscalatedMonthly = Math.min(
+      partnerMonthlyStart * Math.pow(1 + partnerEscalationRate, year),
+      partnerMonthlyMax
+    );
     const staffSalary = (global.staffSalary ?? 75000);
     const staffFTE = activePropertyCount <= 3 ? 2.5 : activePropertyCount <= 6 ? 4.5 : 7.0;
     
-    const partnerCompensation = (3 * partnerSalary * fixedCostFactor) / 12;
+    const partnerCompensation = 3 * partnerEscalatedMonthly;
     const staffCompensation = (staffFTE * staffSalary * fixedCostFactor) / 12;
     const officeLease = ((global.officeLeaseStart ?? 36000) * fixedCostFactor) / 12;
     const professionalServices = ((global.professionalServicesStart ?? 24000) * fixedCostFactor) / 12;

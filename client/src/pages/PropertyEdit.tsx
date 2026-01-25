@@ -218,69 +218,6 @@ export default function PropertyEdit() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2">
-                <Label className="flex items-center">
-                  Event Catering Mix
-                  <HelpTooltip text="What percentage of events at this property require full vs partial catering. Full catering includes complete F&B service. Partial catering includes limited offerings like coffee and light refreshments. The remaining events require no catering." />
-                </Label>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label className="text-sm text-muted-foreground">Full Catering %</Label>
-                    <div className="flex items-center gap-2">
-                      <Slider 
-                        value={[(draft.fullCateringPercent ?? 0.40) * 100]}
-                        onValueChange={(vals) => handleChange("fullCateringPercent", (vals[0] / 100).toString())}
-                        min={0}
-                        max={100}
-                        step={5}
-                        className="flex-1"
-                      />
-                      <span className="text-sm font-medium w-12 text-right">{((draft.fullCateringPercent ?? 0.40) * 100).toFixed(0)}%</span>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm text-muted-foreground">Partial Catering %</Label>
-                    <div className="flex items-center gap-2">
-                      <Slider 
-                        value={[(draft.partialCateringPercent ?? 0.30) * 100]}
-                        onValueChange={(vals) => handleChange("partialCateringPercent", (vals[0] / 100).toString())}
-                        min={0}
-                        max={100}
-                        step={5}
-                        className="flex-1"
-                      />
-                      <span className="text-sm font-medium w-12 text-right">{((draft.partialCateringPercent ?? 0.30) * 100).toFixed(0)}%</span>
-                    </div>
-                  </div>
-                </div>
-                {globalAssumptions && (
-                  <div className="mt-3 p-3 bg-muted rounded-lg text-sm space-y-2">
-                    <div className="text-muted-foreground text-xs">From Global Assumptions:</div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Full Catering F&B Boost:</span>
-                          <span className="font-medium">{((globalAssumptions.fullCateringFBBoost ?? 0.50) * 100).toFixed(0)}%</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Full Catering Cost:</span>
-                          <span className="font-medium">{((globalAssumptions.fullCateringFBCost ?? 0.92) * 100).toFixed(0)}%</span>
-                        </div>
-                      </div>
-                      <div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Partial Catering F&B Boost:</span>
-                          <span className="font-medium">{((globalAssumptions.partialCateringFBBoost ?? 0.25) * 100).toFixed(0)}%</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Partial Catering Cost:</span>
-                          <span className="font-medium">{((globalAssumptions.partialCateringFBCost ?? 0.80) * 100).toFixed(0)}%</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
             </div>
 
             {draft.type === "Financed" && (
@@ -445,32 +382,102 @@ export default function PropertyEdit() {
           <CardHeader>
             <CardTitle className="flex items-center">
               Revenue Streams
-              <HelpTooltip text="F&B covers restaurant and bar income. Other includes spa, parking, and ancillary services. Event revenue is determined by Catering Level in Acquisition & Financing section above." />
+              <HelpTooltip text="Configure how much additional revenue each stream generates as a percentage of rooms revenue. F&B revenue gets boosted based on what percentage of events require catering." />
             </CardTitle>
             <CardDescription>
-              Additional revenue as percentage of rooms revenue (Events revenue controlled by Catering Level)
+              Additional revenue as percentage of rooms revenue
             </CardDescription>
           </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label>F&B Revenue (%)</Label>
-              <Input 
-                type="number" 
-                step="1" 
-                value={((draft.revShareFB ?? 0.22) * 100).toFixed(0)} 
-                onChange={(e) => handleNumberChange("revShareFB", (parseFloat(e.target.value) / 100).toString())} 
-              />
-              <p className="text-xs text-muted-foreground">Restaurant, bar, room service</p>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="space-y-2">
+                <Label className="flex items-center gap-1">
+                  Events Revenue (%)
+                  <HelpTooltip text="Revenue from meetings, weddings, and other events as a percentage of rooms revenue. This is independent of catering." />
+                </Label>
+                <Input 
+                  type="number" 
+                  step="1" 
+                  value={((draft.revShareEvents ?? 0.43) * 100).toFixed(0)} 
+                  onChange={(e) => handleNumberChange("revShareEvents", (parseFloat(e.target.value) / 100).toString())} 
+                />
+                <p className="text-xs text-muted-foreground">Meetings, weddings, conferences</p>
+              </div>
+              <div className="space-y-2">
+                <Label className="flex items-center gap-1">
+                  F&B Revenue (%)
+                  <HelpTooltip text="Base food & beverage revenue as a percentage of rooms revenue. This gets boosted by catering at events (see catering mix below)." />
+                </Label>
+                <Input 
+                  type="number" 
+                  step="1" 
+                  value={((draft.revShareFB ?? 0.22) * 100).toFixed(0)} 
+                  onChange={(e) => handleNumberChange("revShareFB", (parseFloat(e.target.value) / 100).toString())} 
+                />
+                <p className="text-xs text-muted-foreground">Restaurant, bar, room service</p>
+              </div>
+              <div className="space-y-2">
+                <Label>Other Revenue (%)</Label>
+                <Input 
+                  type="number" 
+                  step="1" 
+                  value={((draft.revShareOther ?? 0.07) * 100).toFixed(0)} 
+                  onChange={(e) => handleNumberChange("revShareOther", (parseFloat(e.target.value) / 100).toString())} 
+                />
+                <p className="text-xs text-muted-foreground">Spa, parking, activities</p>
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label>Other Revenue (%)</Label>
-              <Input 
-                type="number" 
-                step="1" 
-                value={((draft.revShareOther ?? 0.07) * 100).toFixed(0)} 
-                onChange={(e) => handleNumberChange("revShareOther", (parseFloat(e.target.value) / 100).toString())} 
-              />
-              <p className="text-xs text-muted-foreground">Spa, parking, activities</p>
+            
+            <div className="border-t pt-4">
+              <Label className="flex items-center gap-1 mb-3">
+                Event Catering Mix
+                <HelpTooltip text="What percentage of events at this property require catering. Full catering provides complete F&B service and boosts F&B revenue more. Partial catering includes limited offerings. The remaining events require no catering." />
+              </Label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label className="text-sm text-muted-foreground">% of Events with Full Catering</Label>
+                  <div className="flex items-center gap-3">
+                    <Slider 
+                      value={[(draft.fullCateringPercent ?? 0.40) * 100]}
+                      onValueChange={(vals: number[]) => handleChange("fullCateringPercent", (vals[0] / 100).toString())}
+                      min={0}
+                      max={100}
+                      step={5}
+                      className="flex-1"
+                    />
+                    <span className="text-sm font-semibold text-primary w-12 text-right">{((draft.fullCateringPercent ?? 0.40) * 100).toFixed(0)}%</span>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm text-muted-foreground">% of Events with Partial Catering</Label>
+                  <div className="flex items-center gap-3">
+                    <Slider 
+                      value={[(draft.partialCateringPercent ?? 0.30) * 100]}
+                      onValueChange={(vals: number[]) => handleChange("partialCateringPercent", (vals[0] / 100).toString())}
+                      min={0}
+                      max={100}
+                      step={5}
+                      className="flex-1"
+                    />
+                    <span className="text-sm font-semibold text-primary w-12 text-right">{((draft.partialCateringPercent ?? 0.30) * 100).toFixed(0)}%</span>
+                  </div>
+                </div>
+              </div>
+              {globalAssumptions && (
+                <div className="mt-4 p-3 bg-muted rounded-lg text-sm">
+                  <div className="text-muted-foreground text-xs mb-2">F&B Boost Factors (from Global Assumptions):</div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Full Catering Boost:</span>
+                      <span className="font-medium">+{((globalAssumptions.fullCateringFBBoost ?? 0.50) * 100).toFixed(0)}% to F&B</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Partial Catering Boost:</span>
+                      <span className="font-medium">+{((globalAssumptions.partialCateringFBBoost ?? 0.25) * 100).toFixed(0)}% to F&B</span>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>

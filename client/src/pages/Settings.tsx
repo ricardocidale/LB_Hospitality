@@ -204,14 +204,14 @@ export default function Settings() {
               <CardHeader>
                 <CardTitle className="flex items-center">
                   Acquisition Financing
-                  <HelpTooltip text="These are the default loan terms applied when acquiring a property with financing. LTV (Loan-to-Value) determines what percentage of the purchase price is financed vs. paid in equity. Interest Rate is the annual rate charged on the loan. Amortization is the period over which the loan is repaid." />
+                  <HelpTooltip text="These are the default loan terms applied when acquiring a property with financing. LTV (Loan-to-Value) determines what percentage of the purchase price is financed vs. paid in equity. Interest Rate is the annual rate charged on the loan. Amortization is the period over which the loan is repaid. Closing Costs include lender fees, legal fees, and other transaction costs." />
                 </CardTitle>
                 <CardDescription>Default loan terms for property acquisitions</CardDescription>
               </CardHeader>
-              <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <CardContent className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <Label>Loan-to-Value (LTV)</Label>
+                    <Label>LTV</Label>
                     <span className="text-sm font-semibold text-primary">{((currentGlobal.debtAssumptions?.acqLTV || 0.65) * 100).toFixed(0)}%</span>
                   </div>
                   <Slider 
@@ -245,8 +245,8 @@ export default function Settings() {
                 </div>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <Label>Amortization</Label>
-                    <span className="text-sm font-semibold text-primary">{currentGlobal.debtAssumptions?.amortizationYears || 25} years</span>
+                    <Label>Term</Label>
+                    <span className="text-sm font-semibold text-primary">{currentGlobal.debtAssumptions?.amortizationYears || 25} yrs</span>
                   </div>
                   <Slider 
                     value={[currentGlobal.debtAssumptions?.amortizationYears || 25]}
@@ -260,6 +260,23 @@ export default function Settings() {
                     <span>30 yrs</span>
                   </div>
                 </div>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <Label>Closing Costs</Label>
+                    <span className="text-sm font-semibold text-primary">{((currentGlobal.debtAssumptions?.acqClosingCostRate || 0.02) * 100).toFixed(1)}%</span>
+                  </div>
+                  <Slider 
+                    value={[(currentGlobal.debtAssumptions?.acqClosingCostRate || 0.02) * 100]}
+                    onValueChange={(vals) => handleNestedChange("debtAssumptions", "acqClosingCostRate", (vals[0] / 100).toString())}
+                    min={0}
+                    max={5}
+                    step={0.25}
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>0%</span>
+                    <span>5%</span>
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
@@ -267,15 +284,15 @@ export default function Settings() {
               <CardHeader>
                 <CardTitle className="flex items-center">
                   Refinancing
-                  <HelpTooltip text="Refinancing allows properties acquired with full equity to obtain debt later, or properties with existing debt to restructure their loans. The refinance period specifies when refinancing typically occurs after acquisition. Refinancing can return capital to investors while leveraging the property's appreciated value." />
+                  <HelpTooltip text="Refinancing allows properties acquired with full equity to obtain debt later, or properties with existing debt to restructure their loans. The refinance period specifies when refinancing typically occurs after acquisition. Refinancing can return capital to investors while leveraging the property's appreciated value. Closing Costs include lender fees, legal fees, and other transaction costs." />
                 </CardTitle>
                 <CardDescription>Default terms for refinancing properties</CardDescription>
               </CardHeader>
-              <CardContent className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <CardContent className="grid grid-cols-1 md:grid-cols-5 gap-6">
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <Label>Period After Acquisition</Label>
-                    <span className="text-sm font-semibold text-primary">{currentGlobal.debtAssumptions?.refiPeriodYears || 3} years</span>
+                    <Label>Years After Acq.</Label>
+                    <span className="text-sm font-semibold text-primary">{currentGlobal.debtAssumptions?.refiPeriodYears || 3} yrs</span>
                   </div>
                   <Slider 
                     value={[currentGlobal.debtAssumptions?.refiPeriodYears || 3]}
@@ -285,13 +302,13 @@ export default function Settings() {
                     step={1}
                   />
                   <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>1 yr</span>
-                    <span>10 yrs</span>
+                    <span>1</span>
+                    <span>10</span>
                   </div>
                 </div>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <Label>Refinance LTV</Label>
+                    <Label>LTV</Label>
                     <span className="text-sm font-semibold text-primary">{((currentGlobal.debtAssumptions?.refiLTV || 0.65) * 100).toFixed(0)}%</span>
                   </div>
                   <Slider 
@@ -325,8 +342,8 @@ export default function Settings() {
                 </div>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <Label>Amortization</Label>
-                    <span className="text-sm font-semibold text-primary">{currentGlobal.debtAssumptions?.refiAmortizationYears || 25} years</span>
+                    <Label>Term</Label>
+                    <span className="text-sm font-semibold text-primary">{currentGlobal.debtAssumptions?.refiAmortizationYears || 25} yrs</span>
                   </div>
                   <Slider 
                     value={[currentGlobal.debtAssumptions?.refiAmortizationYears || 25]}
@@ -336,8 +353,25 @@ export default function Settings() {
                     step={1}
                   />
                   <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>5 yrs</span>
-                    <span>30 yrs</span>
+                    <span>5</span>
+                    <span>30</span>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <Label>Closing Costs</Label>
+                    <span className="text-sm font-semibold text-primary">{((currentGlobal.debtAssumptions?.refiClosingCostRate || 0.02) * 100).toFixed(1)}%</span>
+                  </div>
+                  <Slider 
+                    value={[(currentGlobal.debtAssumptions?.refiClosingCostRate || 0.02) * 100]}
+                    onValueChange={(vals) => handleNestedChange("debtAssumptions", "refiClosingCostRate", (vals[0] / 100).toString())}
+                    min={0}
+                    max={5}
+                    step={0.25}
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>0%</span>
+                    <span>5%</span>
                   </div>
                 </div>
               </CardContent>

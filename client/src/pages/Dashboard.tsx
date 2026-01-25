@@ -225,6 +225,7 @@ export default function Dashboard() {
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="income">Income Statement</TabsTrigger>
             <TabsTrigger value="cashflow">Cash Flow Statement</TabsTrigger>
+            <TabsTrigger value="investment">Investment Analysis</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
@@ -1025,8 +1026,474 @@ export default function Dashboard() {
               </CardContent>
             </Card>
           </TabsContent>
+
+          <TabsContent value="investment" className="mt-6 space-y-6">
+            <InvestmentAnalysis 
+              properties={properties} 
+              allPropertyFinancials={allPropertyFinancials}
+              getPropertyYearly={getPropertyYearly}
+              getYearlyConsolidated={getYearlyConsolidated}
+              global={global}
+              expandedRows={expandedRows}
+              toggleRow={toggleRow}
+            />
+          </TabsContent>
         </Tabs>
       </div>
     </Layout>
+  );
+}
+
+function calculateIRR(cashFlows: number[], guess: number = 0.1): number {
+  const maxIterations = 100;
+  const tolerance = 0.0001;
+  let rate = guess;
+
+  for (let i = 0; i < maxIterations; i++) {
+    let npv = 0;
+    let derivNpv = 0;
+
+    for (let t = 0; t < cashFlows.length; t++) {
+      const denominator = Math.pow(1 + rate, t);
+      npv += cashFlows[t] / denominator;
+      if (t > 0) {
+        derivNpv -= (t * cashFlows[t]) / Math.pow(1 + rate, t + 1);
+      }
+    }
+
+    if (Math.abs(npv) < tolerance) {
+      return rate;
+    }
+
+    if (derivNpv === 0) break;
+    rate = rate - npv / derivNpv;
+
+    if (rate < -1) rate = -0.99;
+  }
+
+  return rate;
+}
+
+interface InvestmentAnalysisProps {
+  properties: any[];
+  allPropertyFinancials: any[];
+  getPropertyYearly: (propIndex: number, yearIndex: number) => any;
+  getYearlyConsolidated: (yearIndex: number) => any;
+  global: any;
+  expandedRows: Set<string>;
+  toggleRow: (rowId: string) => void;
+}
+
+function InvestmentAnalysis({ 
+  properties, 
+  allPropertyFinancials, 
+  getPropertyYearly, 
+  getYearlyConsolidated,
+  global,
+  expandedRows,
+  toggleRow
+}: InvestmentAnalysisProps) {
+  const getPropertyInvestment = (prop: any) => {
+    const totalInvestment = prop.purchasePrice + prop.buildingImprovements + 
+                            prop.preOpeningCosts + prop.operatingReserve;
+    if (prop.type === "Financed") {
+      const ltv = prop.acquisitionLTV || 0.75;
+      return totalInvestment * (1 - ltv);
+    }
+    return totalInvestment;
+  };
+
+  const getPropertyRefinanceProceeds = (prop: any, propIndex: number) => {
+    if (prop.willRefinance !== "Yes") return { year: -1, proceeds: 0 };
+    
+    const refiDate = new Date(prop.refinanceDate);
+    const modelStart = new Date(global.modelStartDate);
+    const monthsDiff = (refiDate.getFullYear() - modelStart.getFullYear()) * 12 + 
+                       (refiDate.getMonth() - modelStart.getMonth());
+    const refiYear = Math.floor(monthsDiff / 12);
+    
+    if (refiYear < 0 || refiYear >= 10) return { year: -1, proceeds: 0 };
+    
+    const refiLTV = prop.refinanceLTV || 0.65;
+    const closingCostRate = prop.refinanceClosingCostRate || 0.02;
+    
+    const { financials } = allPropertyFinancials[propIndex];
+    const year10Data = financials.slice(108, 120);
+    const stabilizedNOI = year10Data.reduce((a: number, m: any) => a + m.noi, 0);
+    const capRate = prop.exitCapRate || 0.085;
+    const propertyValue = stabilizedNOI / capRate;
+    
+    const loanAmount = propertyValue * refiLTV;
+    const closingCosts = loanAmount * closingCostRate;
+    
+    const existingDebt = prop.type === "Financed" ? 
+      (prop.purchasePrice + prop.buildingImprovements) * (prop.acquisitionLTV || 0.75) : 0;
+    
+    const netProceeds = loanAmount - closingCosts - existingDebt;
+    
+    return { year: refiYear, proceeds: Math.max(0, netProceeds) };
+  };
+
+  const getPropertyExitValue = (prop: any, propIndex: number) => {
+    const { financials } = allPropertyFinancials[propIndex];
+    const year10Data = financials.slice(108, 120);
+    const year10NOI = year10Data.reduce((a: number, m: any) => a + m.noi, 0);
+    const capRate = prop.exitCapRate || 0.085;
+    const grossValue = year10NOI / capRate;
+    
+    let outstandingDebt = 0;
+    if (prop.type === "Financed" || prop.willRefinance === "Yes") {
+      const r = (prop.refinanceInterestRate || prop.acquisitionInterestRate || global.debtAssumptions.interestRate) / 12;
+      const originalN = (prop.refinanceTermYears || prop.acquisitionTermYears || global.debtAssumptions.amortizationYears) * 12;
+      const loanAmount = prop.type === "Financed" ? 
+        (prop.purchasePrice + prop.buildingImprovements) * (prop.acquisitionLTV || 0.75) : 0;
+      
+      if (loanAmount > 0 && r > 0) {
+        const monthlyPayment = (loanAmount * r * Math.pow(1 + r, originalN)) / (Math.pow(1 + r, originalN) - 1);
+        const monthsPaid = 120;
+        const paymentsRemaining = Math.max(0, originalN - monthsPaid);
+        if (paymentsRemaining > 0) {
+          outstandingDebt = monthlyPayment * (1 - Math.pow(1 + r, -paymentsRemaining)) / r;
+        }
+      }
+    }
+    
+    return grossValue - outstandingDebt;
+  };
+
+  const getPropertyCashFlows = (prop: any, propIndex: number): number[] => {
+    const flows: number[] = [];
+    
+    const initialEquity = -getPropertyInvestment(prop);
+    flows.push(initialEquity);
+    
+    const refi = getPropertyRefinanceProceeds(prop, propIndex);
+    
+    for (let y = 0; y < 10; y++) {
+      let yearCashFlow = getPropertyYearly(propIndex, y).cashFlow;
+      
+      if (y === refi.year) {
+        yearCashFlow += refi.proceeds;
+      }
+      
+      if (y === 9) {
+        yearCashFlow += getPropertyExitValue(prop, propIndex);
+      }
+      
+      flows.push(yearCashFlow);
+    }
+    
+    return flows;
+  };
+
+  const getConsolidatedCashFlows = (): number[] => {
+    const flows: number[] = [];
+    
+    let totalInitialEquity = 0;
+    properties.forEach(prop => {
+      totalInitialEquity += getPropertyInvestment(prop);
+    });
+    flows.push(-totalInitialEquity);
+    
+    for (let y = 0; y < 10; y++) {
+      let yearCashFlow = getYearlyConsolidated(y).cashFlow;
+      
+      properties.forEach((prop, idx) => {
+        const refi = getPropertyRefinanceProceeds(prop, idx);
+        if (y === refi.year) {
+          yearCashFlow += refi.proceeds;
+        }
+        
+        if (y === 9) {
+          yearCashFlow += getPropertyExitValue(prop, idx);
+        }
+      });
+      
+      flows.push(yearCashFlow);
+    }
+    
+    return flows;
+  };
+
+  const consolidatedFlows = getConsolidatedCashFlows();
+  const portfolioIRR = calculateIRR(consolidatedFlows);
+  
+  const totalInitialEquity = properties.reduce((sum, prop) => sum + getPropertyInvestment(prop), 0);
+  const totalExitValue = properties.reduce((sum, prop, idx) => sum + getPropertyExitValue(prop, idx), 0);
+
+  return (
+    <>
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Total Equity Investment</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{formatMoney(totalInitialEquity)}</div>
+            <p className="text-xs text-muted-foreground mt-1">Initial capital required</p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Exit Value (Year 10)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-accent">{formatMoney(totalExitValue)}</div>
+            <p className="text-xs text-muted-foreground mt-1">Net of outstanding debt</p>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-primary text-primary-foreground">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-primary-foreground/80">Portfolio IRR</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">{(portfolioIRR * 100).toFixed(1)}%</div>
+            <p className="text-xs text-primary-foreground/70 mt-1">10-year internal rate of return</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Free Cash Flow Analysis (10-Year)</CardTitle>
+          <p className="text-sm text-muted-foreground">Investor cash flows including distributions, refinancing proceeds, and exit values</p>
+        </CardHeader>
+        <CardContent className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="sticky left-0 bg-card min-w-[200px]">Category</TableHead>
+                <TableHead className="text-right min-w-[110px]">Year 0</TableHead>
+                {Array.from({ length: 10 }, (_, i) => (
+                  <TableHead key={i} className="text-right min-w-[110px]">Year {i + 1}</TableHead>
+                ))}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow 
+                className="font-semibold bg-muted/20 cursor-pointer hover:bg-muted/30"
+                onClick={() => toggleRow('fcfEquity')}
+              >
+                <TableCell className="sticky left-0 bg-muted/20 flex items-center gap-2">
+                  {expandedRows.has('fcfEquity') ? (
+                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                  )}
+                  Initial Equity Investment
+                </TableCell>
+                <TableCell className="text-right text-destructive">({formatMoney(totalInitialEquity)})</TableCell>
+                {Array.from({ length: 10 }, (_, y) => (
+                  <TableCell key={y} className="text-right text-muted-foreground">-</TableCell>
+                ))}
+              </TableRow>
+              {expandedRows.has('fcfEquity') && properties.map((prop, idx) => (
+                <TableRow key={prop.id} className="bg-muted/10">
+                  <TableCell className="sticky left-0 bg-muted/10 pl-8 text-sm text-muted-foreground">{prop.name}</TableCell>
+                  <TableCell className="text-right text-sm text-destructive">({formatMoney(getPropertyInvestment(prop))})</TableCell>
+                  {Array.from({ length: 10 }, (_, y) => (
+                    <TableCell key={y} className="text-right text-sm text-muted-foreground">-</TableCell>
+                  ))}
+                </TableRow>
+              ))}
+
+              <TableRow 
+                className="cursor-pointer hover:bg-muted/20"
+                onClick={() => toggleRow('fcfOperating')}
+              >
+                <TableCell className="sticky left-0 bg-card flex items-center gap-2">
+                  {expandedRows.has('fcfOperating') ? (
+                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                  )}
+                  Operating Cash Flow
+                </TableCell>
+                <TableCell className="text-right text-muted-foreground">-</TableCell>
+                {Array.from({ length: 10 }, (_, y) => {
+                  const cf = getYearlyConsolidated(y).cashFlow;
+                  return (
+                    <TableCell key={y} className={`text-right ${cf < 0 ? 'text-destructive' : ''}`}>
+                      {formatMoney(cf)}
+                    </TableCell>
+                  );
+                })}
+              </TableRow>
+              {expandedRows.has('fcfOperating') && properties.map((prop, idx) => (
+                <TableRow key={prop.id} className="bg-muted/10">
+                  <TableCell className="sticky left-0 bg-muted/10 pl-8 text-sm text-muted-foreground">{prop.name}</TableCell>
+                  <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
+                  {Array.from({ length: 10 }, (_, y) => {
+                    const cf = getPropertyYearly(idx, y).cashFlow;
+                    return (
+                      <TableCell key={y} className={`text-right text-sm ${cf < 0 ? 'text-destructive' : 'text-muted-foreground'}`}>
+                        {formatMoney(cf)}
+                      </TableCell>
+                    );
+                  })}
+                </TableRow>
+              ))}
+
+              <TableRow 
+                className="cursor-pointer hover:bg-muted/20"
+                onClick={() => toggleRow('fcfRefi')}
+              >
+                <TableCell className="sticky left-0 bg-card flex items-center gap-2">
+                  {expandedRows.has('fcfRefi') ? (
+                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                  )}
+                  Refinancing Proceeds
+                </TableCell>
+                <TableCell className="text-right text-muted-foreground">-</TableCell>
+                {Array.from({ length: 10 }, (_, y) => {
+                  let totalRefi = 0;
+                  properties.forEach((prop, idx) => {
+                    const refi = getPropertyRefinanceProceeds(prop, idx);
+                    if (y === refi.year) totalRefi += refi.proceeds;
+                  });
+                  return (
+                    <TableCell key={y} className={`text-right ${totalRefi > 0 ? 'text-accent font-medium' : 'text-muted-foreground'}`}>
+                      {totalRefi > 0 ? formatMoney(totalRefi) : '-'}
+                    </TableCell>
+                  );
+                })}
+              </TableRow>
+              {expandedRows.has('fcfRefi') && properties.filter(p => p.willRefinance === "Yes").map((prop, idx) => {
+                const propIdx = properties.findIndex(p => p.id === prop.id);
+                const refi = getPropertyRefinanceProceeds(prop, propIdx);
+                return (
+                  <TableRow key={prop.id} className="bg-muted/10">
+                    <TableCell className="sticky left-0 bg-muted/10 pl-8 text-sm text-muted-foreground">{prop.name}</TableCell>
+                    <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
+                    {Array.from({ length: 10 }, (_, y) => (
+                      <TableCell key={y} className={`text-right text-sm ${y === refi.year ? 'text-accent' : 'text-muted-foreground'}`}>
+                        {y === refi.year ? formatMoney(refi.proceeds) : '-'}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                );
+              })}
+
+              <TableRow 
+                className="font-semibold bg-accent/20 cursor-pointer hover:bg-accent/30"
+                onClick={() => toggleRow('fcfExit')}
+              >
+                <TableCell className="sticky left-0 bg-accent/20 flex items-center gap-2">
+                  {expandedRows.has('fcfExit') ? (
+                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                  )}
+                  Exit Proceeds (Year 10)
+                </TableCell>
+                <TableCell className="text-right text-muted-foreground">-</TableCell>
+                {Array.from({ length: 10 }, (_, y) => (
+                  <TableCell key={y} className={`text-right ${y === 9 ? 'text-accent font-bold' : 'text-muted-foreground'}`}>
+                    {y === 9 ? formatMoney(totalExitValue) : '-'}
+                  </TableCell>
+                ))}
+              </TableRow>
+              {expandedRows.has('fcfExit') && properties.map((prop, idx) => (
+                <TableRow key={prop.id} className="bg-muted/10">
+                  <TableCell className="sticky left-0 bg-muted/10 pl-8 text-sm text-muted-foreground">
+                    {prop.name} 
+                    <span className="text-xs ml-2">({((prop.exitCapRate || 0.085) * 100).toFixed(1)}% cap)</span>
+                  </TableCell>
+                  <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
+                  {Array.from({ length: 10 }, (_, y) => (
+                    <TableCell key={y} className={`text-right text-sm ${y === 9 ? 'text-accent' : 'text-muted-foreground'}`}>
+                      {y === 9 ? formatMoney(getPropertyExitValue(prop, idx)) : '-'}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+
+              <TableRow className="bg-primary/10 font-bold text-lg">
+                <TableCell className="sticky left-0 bg-primary/10">Net Cash Flow to Investors</TableCell>
+                {consolidatedFlows.map((cf, i) => (
+                  <TableCell key={i} className={`text-right ${cf < 0 ? 'text-destructive' : ''}`}>
+                    {formatMoney(cf)}
+                  </TableCell>
+                ))}
+              </TableRow>
+
+              <TableRow className="bg-muted/30">
+                <TableCell className="sticky left-0 bg-muted/30 font-semibold">Cumulative Cash Flow</TableCell>
+                {(() => {
+                  let cumulative = 0;
+                  return consolidatedFlows.map((cf, i) => {
+                    cumulative += cf;
+                    return (
+                      <TableCell key={i} className={`text-right font-medium ${cumulative < 0 ? 'text-destructive' : 'text-accent'}`}>
+                        {formatMoney(cumulative)}
+                      </TableCell>
+                    );
+                  });
+                })()}
+              </TableRow>
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Property-Level IRR Analysis</CardTitle>
+          <p className="text-sm text-muted-foreground">Individual property returns based on equity investment, cash flows, and exit value</p>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Property</TableHead>
+                <TableHead className="text-right">Equity Investment</TableHead>
+                <TableHead className="text-right">Exit Cap Rate</TableHead>
+                <TableHead className="text-right">Exit Value (Y10)</TableHead>
+                <TableHead className="text-right">Total Distributions</TableHead>
+                <TableHead className="text-right">Equity Multiple</TableHead>
+                <TableHead className="text-right">IRR</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {properties.map((prop, idx) => {
+                const equity = getPropertyInvestment(prop);
+                const exitValue = getPropertyExitValue(prop, idx);
+                const cashFlows = getPropertyCashFlows(prop, idx);
+                const irr = calculateIRR(cashFlows);
+                const totalDistributions = cashFlows.slice(1).reduce((a, b) => a + b, 0);
+                const equityMultiple = totalDistributions / equity;
+                
+                return (
+                  <TableRow key={prop.id}>
+                    <TableCell className="font-medium">{prop.name}</TableCell>
+                    <TableCell className="text-right">{formatMoney(equity)}</TableCell>
+                    <TableCell className="text-right">{((prop.exitCapRate || 0.085) * 100).toFixed(1)}%</TableCell>
+                    <TableCell className="text-right text-accent">{formatMoney(exitValue)}</TableCell>
+                    <TableCell className="text-right">{formatMoney(totalDistributions)}</TableCell>
+                    <TableCell className="text-right font-medium">{equityMultiple.toFixed(2)}x</TableCell>
+                    <TableCell className={`text-right font-bold ${irr > 0.15 ? 'text-accent' : irr > 0 ? 'text-primary' : 'text-destructive'}`}>
+                      {(irr * 100).toFixed(1)}%
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+              <TableRow className="bg-primary/10 font-bold">
+                <TableCell>Portfolio Total</TableCell>
+                <TableCell className="text-right">{formatMoney(totalInitialEquity)}</TableCell>
+                <TableCell className="text-right text-muted-foreground">-</TableCell>
+                <TableCell className="text-right text-accent">{formatMoney(totalExitValue)}</TableCell>
+                <TableCell className="text-right">{formatMoney(consolidatedFlows.slice(1).reduce((a, b) => a + b, 0))}</TableCell>
+                <TableCell className="text-right">{(consolidatedFlows.slice(1).reduce((a, b) => a + b, 0) / totalInitialEquity).toFixed(2)}x</TableCell>
+                <TableCell className="text-right text-primary">{(portfolioIRR * 100).toFixed(1)}%</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </>
   );
 }

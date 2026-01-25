@@ -13,9 +13,17 @@ interface PropertyInput {
   purchasePrice: number;
   type: string;
   cateringLevel: string;
-  laborAdj: number;
-  utilitiesAdj: number;
-  taxAdj: number;
+  // Operating Cost Rates (should sum to ~84% of revenue)
+  costRateRooms: number;
+  costRateFB: number;
+  costRateAdmin: number;
+  costRateMarketing: number;
+  costRatePropertyOps: number;
+  costRateUtilities: number;
+  costRateInsurance: number;
+  costRateTaxes: number;
+  costRateIT: number;
+  costRateFFE: number;
 }
 
 interface GlobalInput {
@@ -107,36 +115,33 @@ export function generatePropertyProForma(
     const revenueOther = revenueRooms * REV_SHARE_OTHER;
     const revenueTotal = revenueRooms + revenueEvents + revenueFB + revenueOther;
     
-    // Base rates from global settings
-    const baseRoomsCostRate = global.baseRoomsCostRate ?? 0.36;
-    const baseUtilitiesRate = global.baseUtilitiesRate ?? 0.05;
-    const baseTaxRate = global.baseTaxRate ?? 0.03;
-    const baseAdminRate = global.baseAdminRate ?? 0.08;
-    const basePropertyOpsRate = global.basePropertyOpsRate ?? 0.04;
-    const baseInsuranceRate = global.baseInsuranceRate ?? 0.02;
-    const baseITRate = global.baseITRate ?? 0.02;
-    const baseFFERate = global.baseFFERate ?? 0.04;
+    // Property-level cost rates
+    const costRateRooms = property.costRateRooms ?? 0.36;
+    const costRateFB = property.costRateFB ?? 0.15;
+    const costRateAdmin = property.costRateAdmin ?? 0.08;
+    const costRateMarketing = property.costRateMarketing ?? 0.05;
+    const costRatePropertyOps = property.costRatePropertyOps ?? 0.04;
+    const costRateUtilities = property.costRateUtilities ?? 0.05;
+    const costRateInsurance = property.costRateInsurance ?? 0.02;
+    const costRateTaxes = property.costRateTaxes ?? 0.03;
+    const costRateIT = property.costRateIT ?? 0.02;
+    const costRateFFE = property.costRateFFE ?? 0.04;
     
-    // Property-specific adjustments (multipliers)
-    const laborAdj = property.laborAdj ?? 1.0;
-    const utilitiesAdj = property.utilitiesAdj ?? 1.0;
-    const taxAdj = property.taxAdj ?? 1.0;
-    
-    const expenseRooms = revenueRooms * baseRoomsCostRate * laborAdj;
+    const expenseRooms = revenueRooms * costRateRooms;
     const fbCostRatio = property.cateringLevel === "Full" ? 0.92 : 0.80;
     const expenseFB = (revenueFB + (revenueEvents * 0.2)) * fbCostRatio;
     const expenseEvents = revenueEvents * 0.25;
     const expenseOther = revenueOther * 0.60;
-    const expenseMarketing = revenueTotal * global.marketingRate;
-    const expensePropertyOps = revenueTotal * basePropertyOpsRate;
-    const expenseUtilitiesVar = revenueTotal * (baseUtilitiesRate * 0.6) * utilitiesAdj;
-    const expenseFFE = revenueTotal * baseFFERate;
+    const expenseMarketing = revenueTotal * costRateMarketing;
+    const expensePropertyOps = revenueTotal * costRatePropertyOps;
+    const expenseUtilitiesVar = revenueTotal * (costRateUtilities * 0.6);
+    const expenseFFE = revenueTotal * costRateFFE;
     
-    const expenseAdmin = revenueTotal * baseAdminRate;
-    const expenseIT = revenueTotal * baseITRate;
-    const expenseInsurance = revenueTotal * baseInsuranceRate;
-    const expenseTaxes = revenueTotal * baseTaxRate * taxAdj;
-    const expenseUtilitiesFixed = revenueTotal * (baseUtilitiesRate * 0.4) * utilitiesAdj;
+    const expenseAdmin = revenueTotal * costRateAdmin;
+    const expenseIT = revenueTotal * costRateIT;
+    const expenseInsurance = revenueTotal * costRateInsurance;
+    const expenseTaxes = revenueTotal * costRateTaxes;
+    const expenseUtilitiesFixed = revenueTotal * (costRateUtilities * 0.4);
     
     const feeBase = revenueTotal * global.baseManagementFee;
     

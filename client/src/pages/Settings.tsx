@@ -205,7 +205,24 @@ export default function Settings() {
                 <CardTitle>Debt & Financing</CardTitle>
                 <CardDescription>Standard loan terms for property acquisitions</CardDescription>
               </CardHeader>
-              <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <Label>Loan-to-Value (LTV)</Label>
+                    <span className="text-sm font-semibold text-primary">{((currentGlobal.debtAssumptions?.acqLTV || 0.65) * 100).toFixed(0)}%</span>
+                  </div>
+                  <Slider 
+                    value={[(currentGlobal.debtAssumptions?.acqLTV || 0.65) * 100]}
+                    onValueChange={(vals) => handleNestedChange("debtAssumptions", "acqLTV", (vals[0] / 100).toString())}
+                    min={0}
+                    max={90}
+                    step={5}
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>0%</span>
+                    <span>90%</span>
+                  </div>
+                </div>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <Label>Interest Rate</Label>

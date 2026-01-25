@@ -137,11 +137,11 @@ export default function Settings() {
               <CardHeader>
                 <CardTitle className="flex items-center">
                   Management Fees
-                  <HelpTooltip text="Base Management Fee: A percentage of total revenue paid to the management company for operating the property. Incentive Fee: An additional percentage of Gross Operating Profit (GOP) paid when the property performs well, aligning management incentives with profitability. Marketing Fee: A percentage of revenue allocated to brand marketing, advertising, and sales efforts to drive bookings. Commissions: Sales commissions paid on bookings (OTAs, travel agents, etc.)." />
+                  <HelpTooltip text="Base Management Fee: A percentage of total revenue paid to the management company for operating the property. Incentive Fee: An additional percentage of Gross Operating Profit (GOP) paid when the property performs well, aligning management incentives with profitability. Marketing Fee: A percentage of revenue allocated to brand marketing, advertising, and sales efforts to drive bookings." />
                 </CardTitle>
                 <CardDescription>Fee structures for hotel management services</CardDescription>
               </CardHeader>
-              <CardContent className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <Label>Base Management Fee</Label>
@@ -193,29 +193,41 @@ export default function Settings() {
                     <span>10%</span>
                   </div>
                 </div>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <Label>Commissions</Label>
-                    <span className="text-sm font-semibold text-primary">{((currentGlobal.commissionRate || 0.05) * 100).toFixed(1)}%</span>
-                  </div>
-                  <Slider 
-                    value={[(currentGlobal.commissionRate || 0.05) * 100]}
-                    onValueChange={(vals) => handleGlobalChange("commissionRate", (vals[0] / 100).toString())}
-                    min={0}
-                    max={15}
-                    step={0.5}
-                  />
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>0%</span>
-                    <span>15%</span>
-                  </div>
-                </div>
               </CardContent>
             </Card>
 
             <div className="mb-4 mt-8">
               <h3 className="text-lg font-semibold text-primary border-b pb-2">Property Portfolio</h3>
             </div>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  Disposition
+                  <HelpTooltip text="When a property is sold, real estate commissions are paid to brokers/realtors who facilitate the transaction. This is typically a percentage of the sale price, split between buyer's and seller's agents." />
+                </CardTitle>
+                <CardDescription>Costs associated with property sales</CardDescription>
+              </CardHeader>
+              <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <Label>Real Estate Commission</Label>
+                    <span className="text-sm font-semibold text-primary">{((currentGlobal.commissionRate || 0.05) * 100).toFixed(1)}%</span>
+                  </div>
+                  <Slider 
+                    value={[(currentGlobal.commissionRate || 0.05) * 100]}
+                    onValueChange={(vals) => handleGlobalChange("commissionRate", (vals[0] / 100).toString())}
+                    min={0}
+                    max={10}
+                    step={0.5}
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>0%</span>
+                    <span>10%</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
             <Card>
               <CardHeader>

@@ -1138,7 +1138,65 @@ function InvestmentAnalysis({
     return depreciableBase / DEPRECIATION_YEARS;
   };
 
-  const getDebtServiceDetails = (prop: any, yearIndex: number) => {
+  const getRefiYear = (prop: any): number => {
+    if (prop.willRefinance !== "Yes") return -1;
+    const refiDate = new Date(prop.refinanceDate);
+    const modelStart = new Date(global.modelStartDate);
+    const monthsDiff = (refiDate.getFullYear() - modelStart.getFullYear()) * 12 + 
+                       (refiDate.getMonth() - modelStart.getMonth());
+    return Math.floor(monthsDiff / 12);
+  };
+
+  const getDebtServiceDetails = (prop: any, propIndex: number, yearIndex: number) => {
+    const refiYear = getRefiYear(prop);
+    const isPostRefi = refiYear >= 0 && refiYear < 10 && yearIndex >= refiYear;
+    
+    if (isPostRefi) {
+      const refiLTV = prop.refinanceLTV || global.debtAssumptions.refiLTV || 0.65;
+      const { financials } = allPropertyFinancials[propIndex];
+      const stabilizedData = financials.slice(refiYear * 12, (refiYear + 1) * 12);
+      const stabilizedNOI = stabilizedData.reduce((a: number, m: any) => a + m.noi, 0);
+      const capRate = prop.exitCapRate || 0.085;
+      const propertyValue = stabilizedNOI / capRate;
+      const refiLoanAmount = propertyValue * refiLTV;
+      
+      const annualRate = prop.refinanceInterestRate || global.debtAssumptions.interestRate || 0.09;
+      const r = annualRate / 12;
+      const termYears = prop.refinanceTermYears || global.debtAssumptions.amortizationYears || 25;
+      const n = termYears * 12;
+      
+      if (r <= 0 || n <= 0 || refiLoanAmount <= 0) return { debtService: 0, interestPortion: 0, principalPortion: 0 };
+      
+      const monthlyPayment = (refiLoanAmount * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+      const annualDebtService = monthlyPayment * 12;
+      
+      let remainingBalance = refiLoanAmount;
+      let totalInterest = 0;
+      let totalPrincipal = 0;
+      
+      const yearsSinceRefi = yearIndex - refiYear;
+      const startMonth = yearsSinceRefi * 12;
+      const endMonth = startMonth + 12;
+      
+      for (let m = 0; m < endMonth && m < n; m++) {
+        const interestPayment = remainingBalance * r;
+        const principalPayment = monthlyPayment - interestPayment;
+        
+        if (m >= startMonth) {
+          totalInterest += interestPayment;
+          totalPrincipal += principalPayment;
+        }
+        
+        remainingBalance -= principalPayment;
+      }
+      
+      return { 
+        debtService: annualDebtService, 
+        interestPortion: totalInterest, 
+        principalPortion: totalPrincipal 
+      };
+    }
+    
     const loanAmount = getPropertyLoanAmount(prop);
     if (loanAmount <= 0) return { debtService: 0, interestPortion: 0, principalPortion: 0 };
 
@@ -1226,13 +1284,63 @@ function InvestmentAnalysis({
     return { year: refiYear, proceeds: Math.max(0, netProceeds) };
   };
 
+  const getRefiLoanBalance = (prop: any, propIndex: number, afterYear: number): number => {
+    if (prop.willRefinance !== "Yes") return 0;
+    
+    const refiDate = new Date(prop.refinanceDate);
+    const modelStart = new Date(global.modelStartDate);
+    const monthsDiff = (refiDate.getFullYear() - modelStart.getFullYear()) * 12 + 
+                       (refiDate.getMonth() - modelStart.getMonth());
+    const refiYear = Math.floor(monthsDiff / 12);
+    
+    if (refiYear < 0 || refiYear >= 10 || afterYear < refiYear) return 0;
+    
+    const refiLTV = prop.refinanceLTV || global.debtAssumptions.refiLTV || 0.65;
+    const { financials } = allPropertyFinancials[propIndex];
+    const stabilizedData = financials.slice(refiYear * 12, (refiYear + 1) * 12);
+    const stabilizedNOI = stabilizedData.reduce((a: number, m: any) => a + m.noi, 0);
+    const capRate = prop.exitCapRate || 0.085;
+    const propertyValue = stabilizedNOI / capRate;
+    const refiLoanAmount = propertyValue * refiLTV;
+    
+    const annualRate = prop.refinanceInterestRate || global.debtAssumptions.interestRate || 0.09;
+    const r = annualRate / 12;
+    const termYears = prop.refinanceTermYears || global.debtAssumptions.amortizationYears || 25;
+    const n = termYears * 12;
+    
+    if (r <= 0 || n <= 0) return 0;
+    
+    const monthlyPayment = (refiLoanAmount * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+    const yearsSinceRefi = afterYear - refiYear + 1;
+    const monthsPaid = yearsSinceRefi * 12;
+    const paymentsRemaining = Math.max(0, n - monthsPaid);
+    
+    if (paymentsRemaining <= 0) return 0;
+    return monthlyPayment * (1 - Math.pow(1 + r, -paymentsRemaining)) / r;
+  };
+
+  const getTotalOutstandingDebt = (prop: any, propIndex: number, afterYear: number): number => {
+    if (prop.willRefinance === "Yes") {
+      const refiDate = new Date(prop.refinanceDate);
+      const modelStart = new Date(global.modelStartDate);
+      const monthsDiff = (refiDate.getFullYear() - modelStart.getFullYear()) * 12 + 
+                         (refiDate.getMonth() - modelStart.getMonth());
+      const refiYear = Math.floor(monthsDiff / 12);
+      
+      if (refiYear >= 0 && refiYear < 10 && afterYear >= refiYear) {
+        return getRefiLoanBalance(prop, propIndex, afterYear);
+      }
+    }
+    return getOutstandingLoanBalance(prop, afterYear);
+  };
+
   const getPropertyExitValue = (prop: any, propIndex: number) => {
     const { financials } = allPropertyFinancials[propIndex];
     const year10Data = financials.slice(108, 120);
     const year10NOI = year10Data.reduce((a: number, m: any) => a + m.noi, 0);
     const capRate = prop.exitCapRate || 0.085;
     const grossValue = year10NOI / capRate;
-    const outstandingDebt = getOutstandingLoanBalance(prop, 9);
+    const outstandingDebt = getTotalOutstandingDebt(prop, propIndex, 9);
     
     return grossValue - outstandingDebt;
   };
@@ -1240,7 +1348,7 @@ function InvestmentAnalysis({
   const getPropertyYearlyDetails = (prop: any, propIndex: number, yearIndex: number) => {
     const yearlyData = getPropertyYearly(propIndex, yearIndex);
     const noi = yearlyData.noi || 0;
-    const { debtService, interestPortion, principalPortion } = getDebtServiceDetails(prop, yearIndex);
+    const { debtService, interestPortion, principalPortion } = getDebtServiceDetails(prop, propIndex, yearIndex);
     const depreciation = getAnnualDepreciation(prop);
     const taxRate = prop.taxRate || 0.25;
 

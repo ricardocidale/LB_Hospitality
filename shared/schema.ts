@@ -48,6 +48,9 @@ export const globalAssumptions = pgTable("global_assumptions", {
   fullCateringFBBoost: real("full_catering_fb_boost").notNull().default(0.50),
   partialCateringFBBoost: real("partial_catering_fb_boost").notNull().default(0.25),
   
+  // Tax Rate (for calculating after-tax company cash flow)
+  companyTaxRate: real("company_tax_rate").notNull().default(0.30),
+  
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 

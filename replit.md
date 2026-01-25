@@ -48,6 +48,7 @@ Always format money as money (currency format with commas and appropriate precis
 
 ### Investment Analysis with Tax Rate
 - Added Tax Rate field to each property (default 25%) in Property Assumptions
+- Added Company Tax Rate field (default 30%) in Company Assumptions
 - Free Cash Flow now calculated after-tax for IRR analysis
 - Tax applied only to positive operating cash flows
 - Investment Analysis tab shows after-tax cash flows with property tax rates displayed

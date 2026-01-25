@@ -182,6 +182,78 @@ export default function Settings() {
               </CardContent>
             </Card>
 
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  Catering Levels
+                  <HelpTooltip text="Defines how catering level affects event revenue and costs. Full Service properties offer complete F&B operations with higher revenue potential but also higher costs. Partial Service has limited offerings with lower revenue but better margins." />
+                </CardTitle>
+                <CardDescription>Event revenue and cost rates by catering level (as % of rooms revenue)</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="p-4 bg-muted rounded-lg space-y-4">
+                    <h4 className="font-semibold text-sm">Full Service</h4>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <Label>Event Revenue</Label>
+                        <span className="text-sm font-semibold text-primary">{((currentGlobal.fullCateringEventRevenue ?? 0.50) * 100).toFixed(0)}%</span>
+                      </div>
+                      <Slider 
+                        value={[(currentGlobal.fullCateringEventRevenue ?? 0.50) * 100]}
+                        onValueChange={(vals) => handleGlobalChange("fullCateringEventRevenue", (vals[0] / 100).toString())}
+                        min={0}
+                        max={100}
+                        step={5}
+                      />
+                    </div>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <Label>Event Cost Ratio</Label>
+                        <span className="text-sm font-semibold text-primary">{((currentGlobal.fullCateringEventCost ?? 0.92) * 100).toFixed(0)}%</span>
+                      </div>
+                      <Slider 
+                        value={[(currentGlobal.fullCateringEventCost ?? 0.92) * 100]}
+                        onValueChange={(vals) => handleGlobalChange("fullCateringEventCost", (vals[0] / 100).toString())}
+                        min={50}
+                        max={100}
+                        step={1}
+                      />
+                    </div>
+                  </div>
+                  <div className="p-4 bg-muted rounded-lg space-y-4">
+                    <h4 className="font-semibold text-sm">Partial Service</h4>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <Label>Event Revenue</Label>
+                        <span className="text-sm font-semibold text-primary">{((currentGlobal.partialCateringEventRevenue ?? 0.25) * 100).toFixed(0)}%</span>
+                      </div>
+                      <Slider 
+                        value={[(currentGlobal.partialCateringEventRevenue ?? 0.25) * 100]}
+                        onValueChange={(vals) => handleGlobalChange("partialCateringEventRevenue", (vals[0] / 100).toString())}
+                        min={0}
+                        max={100}
+                        step={5}
+                      />
+                    </div>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <Label>Event Cost Ratio</Label>
+                        <span className="text-sm font-semibold text-primary">{((currentGlobal.partialCateringEventCost ?? 0.80) * 100).toFixed(0)}%</span>
+                      </div>
+                      <Slider 
+                        value={[(currentGlobal.partialCateringEventCost ?? 0.80) * 100]}
+                        onValueChange={(vals) => handleGlobalChange("partialCateringEventCost", (vals[0] / 100).toString())}
+                        min={50}
+                        max={100}
+                        step={1}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             <div className="mb-4 mt-8">
               <h3 className="text-lg font-semibold text-primary border-b pb-2">Property Portfolio</h3>
             </div>

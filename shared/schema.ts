@@ -25,6 +25,12 @@ export const globalAssumptions = pgTable("global_assumptions", {
   standardAcqPackage: jsonb("standard_acq_package").notNull(),
   debtAssumptions: jsonb("debt_assumptions").notNull(),
   
+  // Catering Level Rates (as % of rooms revenue)
+  fullCateringEventRevenue: real("full_catering_event_revenue").notNull().default(0.50),
+  fullCateringEventCost: real("full_catering_event_cost").notNull().default(0.92),
+  partialCateringEventRevenue: real("partial_catering_event_revenue").notNull().default(0.25),
+  partialCateringEventCost: real("partial_catering_event_cost").notNull().default(0.80),
+  
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 

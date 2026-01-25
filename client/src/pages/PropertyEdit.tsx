@@ -1036,11 +1036,11 @@ export default function PropertyEdit() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
-              Exit Cap Rate
-              <HelpTooltip text="The capitalization rate used to calculate the property's exit value. Exit Value = Year 10 NOI ÷ Cap Rate. A lower cap rate means a higher valuation." />
+              Other Assumptions
+              <HelpTooltip text="Additional assumptions for investment analysis including exit valuation and tax calculations" />
             </CardTitle>
             <CardDescription>
-              Used to determine property exit valuation
+              Exit valuation and tax rate assumptions
             </CardDescription>
           </CardHeader>
           <CardContent>

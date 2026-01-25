@@ -8,6 +8,7 @@ import Dashboard from "@/pages/Dashboard";
 import Company from "@/pages/Company";
 import Portfolio from "@/pages/Portfolio";
 import PropertyDetail from "@/pages/PropertyDetail";
+import PropertyEdit from "@/pages/PropertyEdit";
 import Settings from "@/pages/Settings";
 
 function Router() {
@@ -17,6 +18,7 @@ function Router() {
       <Route path="/company" component={Company} />
       <Route path="/portfolio" component={Portfolio} />
       <Route path="/property/:id" component={PropertyDetail} />
+      <Route path="/property/:id/edit" component={PropertyEdit} />
       <Route path="/settings" component={Settings} />
       <Route component={NotFound} />
     </Switch>

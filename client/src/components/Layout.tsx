@@ -12,7 +12,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { href: "/", label: "Dashboard", icon: LayoutDashboard },
     { href: "/portfolio", label: "Properties", icon: Building2 },
     { href: "/company", label: "Management Co.", icon: Briefcase },
-    { href: "/settings", label: "Model Inputs", icon: Settings2 },
+    { href: "/settings", label: "Model Assumptions", icon: Settings2 },
   ];
 
   return (

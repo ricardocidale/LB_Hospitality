@@ -209,15 +209,22 @@ export default function PropertyEdit() {
                   onChange={(e) => handleNumberChange("operatingReserve", parseMoneyInput(e.target.value).toString())} 
                 />
               </div>
-              <div className="space-y-2">
-                <Label>Financing Type</Label>
-                <Select value={draft.type} onValueChange={(v) => handleChange("type", v)}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Full Equity">Full Equity</SelectItem>
-                    <SelectItem value="Financed">Financed</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="space-y-3">
+                <Label>Type of Funding</Label>
+                <RadioGroup 
+                  value={draft.type} 
+                  onValueChange={(v) => handleChange("type", v)}
+                  className="flex gap-6"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Full Equity" id="funding-equity" />
+                    <Label htmlFor="funding-equity" className="font-normal cursor-pointer">Full Equity</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Financed" id="funding-financed" />
+                    <Label htmlFor="funding-financed" className="font-normal cursor-pointer">Financed</Label>
+                  </div>
+                </RadioGroup>
               </div>
             </div>
 

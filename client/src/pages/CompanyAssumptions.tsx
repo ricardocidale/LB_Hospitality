@@ -266,7 +266,7 @@ export default function CompanyAssumptions() {
                     onChange={(v) => handleUpdate("safeValuationCap", v)}
                     format="dollar"
                     min={100000}
-                    max={10000000}
+                    max={5000000}
                     step={100000}
                   />
                 </div>
@@ -274,7 +274,7 @@ export default function CompanyAssumptions() {
                   value={[formData.safeValuationCap ?? global.safeValuationCap]}
                   onValueChange={([v]) => handleUpdate("safeValuationCap", v)}
                   min={100000}
-                  max={10000000}
+                  max={5000000}
                   step={100000}
                 />
               </div>

@@ -35,10 +35,10 @@ async function seed() {
       acqLTV: 0.75,
       acqClosingCostRate: 0.02
     },
-    fullCateringEventRevenue: 0.50,
-    fullCateringEventCost: 0.92,
-    partialCateringEventRevenue: 0.25,
-    partialCateringEventCost: 0.80
+    fullCateringFBBoost: 0.50,
+    fullCateringFBCost: 0.92,
+    partialCateringFBBoost: 0.25,
+    partialCateringFBCost: 0.80
   });
 
   // Seed Properties

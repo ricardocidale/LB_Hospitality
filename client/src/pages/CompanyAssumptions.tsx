@@ -664,6 +664,40 @@ export default function CompanyAssumptions() {
           </Card>
         </div>
 
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              Tax Rate
+              <HelpTooltip text="Corporate tax rate applied to positive net income for after-tax cash flow calculations" />
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="max-w-md space-y-2">
+              <div className="flex justify-between items-center">
+                <Label>Company Tax Rate</Label>
+                <EditableValue
+                  value={(formData.companyTaxRate ?? global.companyTaxRate ?? 0.30) * 100}
+                  onChange={(v) => handleUpdate("companyTaxRate", v / 100)}
+                  format="percent"
+                  min={0}
+                  max={50}
+                  step={1}
+                />
+              </div>
+              <Slider
+                value={[(formData.companyTaxRate ?? global.companyTaxRate ?? 0.30) * 100]}
+                onValueChange={([v]) => handleUpdate("companyTaxRate", v / 100)}
+                min={0}
+                max={50}
+                step={1}
+              />
+              <p className="text-xs text-muted-foreground mt-2">
+                Applied to positive net income to calculate after-tax cash flow
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
         <Card className="bg-muted/30">
           <CardContent className="py-4">
             <p className="text-sm text-muted-foreground text-center">

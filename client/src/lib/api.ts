@@ -36,6 +36,8 @@ export interface GlobalResponse {
   commissionRate: number;
   fullCateringFBBoost: number;
   partialCateringFBBoost: number;
+  // Tax
+  companyTaxRate: number;
   standardAcqPackage: {
     monthsToOps: number;
     purchasePrice: number;

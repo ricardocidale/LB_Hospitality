@@ -242,11 +242,17 @@ export default function PropertyEdit() {
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label>Acquisition Date</Label>
+              <Label className="flex items-center">
+                Acquisition Date
+                <HelpTooltip text="The date when the property is purchased. Equity investment occurs on this date. Pre-opening costs and building improvements are incurred during the period between acquisition and operations start." />
+              </Label>
               <Input type="date" value={draft.acquisitionDate} onChange={(e) => handleChange("acquisitionDate", e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label>Operations Start Date</Label>
+              <Label className="flex items-center">
+                Operations Start Date
+                <HelpTooltip text="The date when the property begins operating and generating revenue. All revenues and operating expenses start on this date. The period between acquisition and operations start is used for renovations and pre-opening preparation." />
+              </Label>
               <Input type="date" value={draft.operationsStartDate} onChange={(e) => handleChange("operationsStartDate", e.target.value)} />
             </div>
           </CardContent>

@@ -193,7 +193,7 @@ export default function CompanyAssumptions() {
                       onChange={(v) => handleUpdate("safeTranche1Amount", v)}
                       format="dollar"
                       min={100000}
-                      max={2000000}
+                      max={1500000}
                       step={25000}
                     />
                   </div>
@@ -201,7 +201,7 @@ export default function CompanyAssumptions() {
                     value={[formData.safeTranche1Amount ?? global.safeTranche1Amount]}
                     onValueChange={([v]) => handleUpdate("safeTranche1Amount", v)}
                     min={100000}
-                    max={2000000}
+                    max={1500000}
                     step={25000}
                   />
                 </div>
@@ -225,7 +225,7 @@ export default function CompanyAssumptions() {
                       onChange={(v) => handleUpdate("safeTranche2Amount", v)}
                       format="dollar"
                       min={100000}
-                      max={2000000}
+                      max={1500000}
                       step={25000}
                     />
                   </div>
@@ -233,7 +233,7 @@ export default function CompanyAssumptions() {
                     value={[formData.safeTranche2Amount ?? global.safeTranche2Amount]}
                     onValueChange={([v]) => handleUpdate("safeTranche2Amount", v)}
                     min={100000}
-                    max={2000000}
+                    max={1500000}
                     step={25000}
                   />
                 </div>

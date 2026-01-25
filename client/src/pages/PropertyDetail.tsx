@@ -40,7 +40,7 @@ export default function PropertyDetail() {
     );
   }
 
-  const financials = generatePropertyProForma(property, global, 60);
+  const financials = generatePropertyProForma(property, global, 120);
   const year1Revenue = financials.slice(0, 12).reduce((acc, m) => acc + m.revenueTotal, 0);
   const year1NOI = financials.slice(0, 12).reduce((acc, m) => acc + m.noi, 0);
   const year1CashFlow = financials.slice(0, 12).reduce((acc, m) => acc + m.cashFlow, 0);
@@ -120,11 +120,11 @@ export default function PropertyDetail() {
           </TabsList>
           
           <TabsContent value="income" className="mt-6">
-            <YearlyIncomeStatement data={financials} years={5} />
+            <YearlyIncomeStatement data={financials} years={10} />
           </TabsContent>
           
           <TabsContent value="cashflow" className="mt-6">
-            <YearlyCashFlowStatement data={financials} property={property} years={5} />
+            <YearlyCashFlowStatement data={financials} property={property} years={10} />
           </TabsContent>
         </Tabs>
       </div>

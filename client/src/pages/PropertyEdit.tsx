@@ -121,7 +121,7 @@ export default function PropertyEdit() {
         </div>
 
         <div>
-          <h2 className="text-3xl font-serif font-bold text-foreground">Edit Property Variables</h2>
+          <h2 className="text-3xl font-serif font-bold text-foreground">Property Assumptions</h2>
           <p className="text-muted-foreground mt-1">{property.name}</p>
         </div>
 

@@ -423,6 +423,14 @@ export default function Company() {
                         return <TableCell key={y} className={`text-right ${total < 0 ? 'text-destructive' : ''}`}>{formatMoney(total)}</TableCell>;
                       })}
                     </TableRow>
+                    <TableRow>
+                      <TableCell className="sticky left-0 bg-card pl-6">SAFE Funding</TableCell>
+                      {Array.from({ length: 10 }, (_, y) => {
+                        const yearData = financials.slice(y * 12, (y + 1) * 12);
+                        const total = yearData.reduce((a, m) => a + m.safeFunding, 0);
+                        return <TableCell key={y} className="text-right text-muted-foreground">{total > 0 ? formatMoney(total) : '-'}</TableCell>;
+                      })}
+                    </TableRow>
                     <TableRow className="bg-primary/10 font-bold">
                       <TableCell className="sticky left-0 bg-primary/10">Cash Flow</TableCell>
                       {Array.from({ length: 10 }, (_, y) => {

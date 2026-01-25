@@ -37,9 +37,15 @@ interface PropertyInput {
 interface GlobalInput {
   modelStartDate: string;
   inflationRate: number;
+  fixedCostEscalationRate?: number;
   baseManagementFee: number;
   incentiveManagementFee: number;
   marketingRate: number;
+  // SAFE Funding
+  safeTranche1Amount?: number;
+  safeTranche1Date?: string;
+  safeTranche2Amount?: number;
+  safeTranche2Date?: string;
   // Management company cost parameters
   partnerSalary?: number;
   staffSalary?: number;
@@ -284,6 +290,7 @@ export interface CompanyMonthlyFinancials {
   miscOps: number;
   totalExpenses: number;
   netIncome: number;
+  safeFunding: number;
   cashFlow: number;
 }
 
@@ -295,13 +302,18 @@ export function generateCompanyProForma(
   const results: CompanyMonthlyFinancials[] = [];
   const startDate = new Date(global.modelStartDate);
   
+  const tranche1Date = global.safeTranche1Date ? new Date(global.safeTranche1Date) : new Date(global.modelStartDate);
+  const tranche2Date = global.safeTranche2Date ? new Date(global.safeTranche2Date) : null;
+  
   const propertyFinancials = properties.map(p => generatePropertyProForma(p, global, months));
   
   for (let m = 0; m < months; m++) {
     const currentDate = new Date(startDate);
     currentDate.setMonth(currentDate.getMonth() + m);
     const year = Math.floor(m / 12);
-    const inflationFactor = Math.pow(1 + global.inflationRate, year);
+    const fixedEscalationRate = global.fixedCostEscalationRate ?? global.inflationRate;
+    const fixedCostFactor = Math.pow(1 + fixedEscalationRate, year);
+    const variableCostFactor = Math.pow(1 + global.inflationRate, year);
     
     let totalPropertyRevenue = 0;
     let totalPropertyGOP = 0;
@@ -324,15 +336,15 @@ export function generateCompanyProForma(
     const staffSalary = (global.staffSalary ?? 75000);
     const staffFTE = activePropertyCount <= 3 ? 2.5 : activePropertyCount <= 6 ? 4.5 : 7.0;
     
-    const partnerCompensation = (3 * partnerSalary * inflationFactor) / 12;
-    const staffCompensation = (staffFTE * staffSalary * inflationFactor) / 12;
-    const officeLease = ((global.officeLeaseStart ?? 36000) * inflationFactor) / 12;
-    const professionalServices = ((global.professionalServicesStart ?? 24000) * inflationFactor) / 12;
-    const techInfrastructure = ((global.techInfraStart ?? 18000) * inflationFactor) / 12;
-    const businessInsurance = ((global.businessInsuranceStart ?? 12000) * inflationFactor) / 12;
+    const partnerCompensation = (3 * partnerSalary * fixedCostFactor) / 12;
+    const staffCompensation = (staffFTE * staffSalary * fixedCostFactor) / 12;
+    const officeLease = ((global.officeLeaseStart ?? 36000) * fixedCostFactor) / 12;
+    const professionalServices = ((global.professionalServicesStart ?? 24000) * fixedCostFactor) / 12;
+    const techInfrastructure = ((global.techInfraStart ?? 18000) * fixedCostFactor) / 12;
+    const businessInsurance = ((global.businessInsuranceStart ?? 12000) * fixedCostFactor) / 12;
     
-    const travelCosts = (activePropertyCount * (global.travelCostPerClient ?? 12000) * inflationFactor) / 12;
-    const itLicensing = (activePropertyCount * (global.itLicensePerClient ?? 24000) * inflationFactor) / 12;
+    const travelCosts = (activePropertyCount * (global.travelCostPerClient ?? 12000) * variableCostFactor) / 12;
+    const itLicensing = (activePropertyCount * (global.itLicensePerClient ?? 3000) * variableCostFactor) / 12;
     const marketing = totalRevenue * (global.marketingRate ?? 0.05);
     const miscOps = totalRevenue * (global.miscOpsRate ?? 0.03);
     
@@ -340,7 +352,19 @@ export function generateCompanyProForma(
       techInfrastructure + businessInsurance + travelCosts + itLicensing + marketing + miscOps;
     
     const netIncome = totalRevenue - totalExpenses;
-    const cashFlow = netIncome;
+    
+    let safeFunding = 0;
+    if (currentDate.getFullYear() === tranche1Date.getFullYear() && 
+        currentDate.getMonth() === tranche1Date.getMonth()) {
+      safeFunding += global.safeTranche1Amount ?? 225000;
+    }
+    if (tranche2Date && 
+        currentDate.getFullYear() === tranche2Date.getFullYear() && 
+        currentDate.getMonth() === tranche2Date.getMonth()) {
+      safeFunding += global.safeTranche2Amount ?? 225000;
+    }
+    
+    const cashFlow = netIncome + safeFunding;
     
     results.push({
       date: currentDate,
@@ -361,6 +385,7 @@ export function generateCompanyProForma(
       miscOps,
       totalExpenses,
       netIncome,
+      safeFunding,
       cashFlow,
     });
   }

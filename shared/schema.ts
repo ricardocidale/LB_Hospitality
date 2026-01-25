@@ -8,19 +8,38 @@ export const globalAssumptions = pgTable("global_assumptions", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   modelStartDate: text("model_start_date").notNull(),
   inflationRate: real("inflation_rate").notNull(),
+  fixedCostEscalationRate: real("fixed_cost_escalation_rate").notNull().default(0.03),
+  
+  // Revenue variables
   baseManagementFee: real("base_management_fee").notNull(),
   incentiveManagementFee: real("incentive_management_fee").notNull(),
+  
+  // SAFE Funding
+  safeTranche1Amount: real("safe_tranche1_amount").notNull().default(225000),
+  safeTranche1Date: text("safe_tranche1_date").notNull().default("2026-04-01"),
+  safeTranche2Amount: real("safe_tranche2_amount").notNull().default(225000),
+  safeTranche2Date: text("safe_tranche2_date").notNull().default("2027-04-01"),
+  safeValuationCap: real("safe_valuation_cap").notNull().default(2500000),
+  safeDiscountRate: real("safe_discount_rate").notNull().default(0.20),
+  
+  // Cost variables - Compensation
   partnerSalary: real("partner_salary").notNull(),
   staffSalary: real("staff_salary").notNull(),
-  travelCostPerClient: real("travel_cost_per_client").notNull(),
-  itLicensePerClient: real("it_license_per_client").notNull(),
-  marketingRate: real("marketing_rate").notNull(),
-  commissionRate: real("commission_rate").notNull().default(0.05),
-  miscOpsRate: real("misc_ops_rate").notNull(),
+  
+  // Cost variables - Fixed overhead
   officeLeaseStart: real("office_lease_start").notNull(),
   professionalServicesStart: real("professional_services_start").notNull(),
   techInfraStart: real("tech_infra_start").notNull(),
   businessInsuranceStart: real("business_insurance_start").notNull(),
+  
+  // Cost variables - Variable costs
+  travelCostPerClient: real("travel_cost_per_client").notNull(),
+  itLicensePerClient: real("it_license_per_client").notNull(),
+  marketingRate: real("marketing_rate").notNull(),
+  miscOpsRate: real("misc_ops_rate").notNull(),
+  
+  // Portfolio
+  commissionRate: real("commission_rate").notNull().default(0.05),
   
   standardAcqPackage: jsonb("standard_acq_package").notNull(),
   debtAssumptions: jsonb("debt_assumptions").notNull(),

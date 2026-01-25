@@ -8,18 +8,32 @@ export interface GlobalResponse {
   id: number;
   modelStartDate: string;
   inflationRate: number;
+  fixedCostEscalationRate: number;
+  // Revenue
   baseManagementFee: number;
   incentiveManagementFee: number;
+  // SAFE Funding
+  safeTranche1Amount: number;
+  safeTranche1Date: string;
+  safeTranche2Amount: number;
+  safeTranche2Date: string;
+  safeValuationCap: number;
+  safeDiscountRate: number;
+  // Compensation
   partnerSalary: number;
   staffSalary: number;
-  travelCostPerClient: number;
-  itLicensePerClient: number;
-  marketingRate: number;
-  miscOpsRate: number;
+  // Fixed overhead
   officeLeaseStart: number;
   professionalServicesStart: number;
   techInfraStart: number;
   businessInsuranceStart: number;
+  // Variable costs
+  travelCostPerClient: number;
+  itLicensePerClient: number;
+  marketingRate: number;
+  miscOpsRate: number;
+  // Portfolio
+  commissionRate: number;
   fullCateringFBBoost: number;
   partialCateringFBBoost: number;
   standardAcqPackage: {
@@ -36,6 +50,9 @@ export interface GlobalResponse {
     amortizationYears: number;
     acqClosingCostRate: number;
     refiClosingCostRate: number;
+    refiInterestRate?: number;
+    refiAmortizationYears?: number;
+    refiPeriodYears?: number;
   };
   updatedAt: string;
 }

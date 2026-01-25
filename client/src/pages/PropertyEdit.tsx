@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Save, Loader2 } from "lucide-react";
 import { Link, useRoute, useLocation } from "wouter";
 import { useState, useEffect } from "react";
+import { HelpTooltip } from "@/components/ui/help-tooltip";
 
 function formatMoneyInput(value: number): string {
   return new Intl.NumberFormat('en-US').format(value);
@@ -372,7 +373,10 @@ export default function PropertyEdit() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Property Cost Adjustments</CardTitle>
+            <CardTitle className="flex items-center">
+              Property Cost Adjustments
+              <HelpTooltip text="These multipliers adjust the global Base Cost Rates for this specific property's location. A value of 1.0 means no change from baseline. Values below 1.0 reduce costs (e.g., 0.8 = 20% lower), values above 1.0 increase costs (e.g., 1.2 = 20% higher)." />
+            </CardTitle>
             <CardDescription>Location-specific cost multipliers (1.0 = baseline, 0.8 = 20% lower, 1.2 = 20% higher)</CardDescription>
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">

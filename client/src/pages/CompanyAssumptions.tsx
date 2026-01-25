@@ -192,7 +192,7 @@ export default function CompanyAssumptions() {
                       value={formData.safeTranche1Amount ?? global.safeTranche1Amount}
                       onChange={(v) => handleUpdate("safeTranche1Amount", v)}
                       format="dollar"
-                      min={0}
+                      min={100000}
                       max={2000000}
                       step={25000}
                     />
@@ -200,7 +200,7 @@ export default function CompanyAssumptions() {
                   <Slider
                     value={[formData.safeTranche1Amount ?? global.safeTranche1Amount]}
                     onValueChange={([v]) => handleUpdate("safeTranche1Amount", v)}
-                    min={0}
+                    min={100000}
                     max={2000000}
                     step={25000}
                   />
@@ -224,7 +224,7 @@ export default function CompanyAssumptions() {
                       value={formData.safeTranche2Amount ?? global.safeTranche2Amount}
                       onChange={(v) => handleUpdate("safeTranche2Amount", v)}
                       format="dollar"
-                      min={0}
+                      min={100000}
                       max={2000000}
                       step={25000}
                     />
@@ -232,7 +232,7 @@ export default function CompanyAssumptions() {
                   <Slider
                     value={[formData.safeTranche2Amount ?? global.safeTranche2Amount]}
                     onValueChange={([v]) => handleUpdate("safeTranche2Amount", v)}
-                    min={0}
+                    min={100000}
                     max={2000000}
                     step={25000}
                   />
@@ -265,7 +265,7 @@ export default function CompanyAssumptions() {
                     value={formData.safeValuationCap ?? global.safeValuationCap}
                     onChange={(v) => handleUpdate("safeValuationCap", v)}
                     format="dollar"
-                    min={500000}
+                    min={100000}
                     max={10000000}
                     step={100000}
                   />
@@ -273,7 +273,7 @@ export default function CompanyAssumptions() {
                 <Slider
                   value={[formData.safeValuationCap ?? global.safeValuationCap]}
                   onValueChange={([v]) => handleUpdate("safeValuationCap", v)}
-                  min={500000}
+                  min={100000}
                   max={10000000}
                   step={100000}
                 />

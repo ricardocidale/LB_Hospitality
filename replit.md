@@ -46,6 +46,11 @@ Always format money as money (currency format with commas and appropriate precis
 - "Property Variables" renamed to "Property Assumptions"
 - Help tooltips added throughout for key financial concepts
 
+### Management Company Operations Start Date
+- Added configurable Operations Start Date field in Company Assumptions (default: June 2026)
+- Determines when the management company begins incurring costs (salaries, overhead)
+- Located in new "Company Setup" section at the top of Company Assumptions page
+
 ### Investment Analysis with Proper Real Estate Accounting
 - Added Tax Rate field to each property (default 25%) in Property Assumptions
 - Added Company Tax Rate field (default 30%) in Company Assumptions

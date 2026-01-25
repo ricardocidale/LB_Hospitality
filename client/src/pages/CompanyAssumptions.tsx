@@ -176,6 +176,31 @@ export default function CompanyAssumptions() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
+              Company Setup
+              <HelpTooltip text="When the management company begins operations and starts incurring costs" />
+            </CardTitle>
+            <CardDescription>Configure when the management company starts operations</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-4">
+              <Label className="flex items-center">
+                Operations Start Date
+                <HelpTooltip text="The date when the management company begins operations, starts paying salaries, and incurs overhead costs" />
+              </Label>
+              <Input
+                type="date"
+                value={formData.companyOpsStartDate ?? global.companyOpsStartDate ?? "2026-06-01"}
+                onChange={(e) => handleUpdate("companyOpsStartDate", e.target.value)}
+                className="max-w-40"
+                data-testid="input-company-ops-start-date"
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
               SAFE Funding
               <HelpTooltip text="Simple Agreement for Future Equity - initial capital to fund management company operations before fee revenue begins" />
             </CardTitle>

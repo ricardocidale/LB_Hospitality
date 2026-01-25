@@ -439,38 +439,61 @@ export default function PropertyEdit() {
             <div className="border-t pt-4">
               <Label className="flex items-center gap-1 mb-3">
                 Event Catering Mix
-                <HelpTooltip text="What percentage of events at this property require catering. Full catering provides complete F&B service and boosts F&B revenue more. Partial catering includes limited offerings. The remaining events require no catering." />
+                <HelpTooltip text="What percentage of events at this property require catering. Full catering provides complete F&B service and boosts F&B revenue more. Partial catering includes limited offerings. The remaining events require no catering. Total cannot exceed 100%." />
               </Label>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label className="text-sm text-muted-foreground">% of Events with Full Catering</Label>
-                  <div className="flex items-center gap-3">
-                    <Slider 
-                      value={[(draft.fullCateringPercent ?? 0.40) * 100]}
-                      onValueChange={(vals: number[]) => handleChange("fullCateringPercent", (vals[0] / 100).toString())}
-                      min={0}
-                      max={100}
-                      step={5}
-                      className="flex-1"
-                    />
-                    <span className="text-sm font-semibold text-primary w-12 text-right">{((draft.fullCateringPercent ?? 0.40) * 100).toFixed(0)}%</span>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm text-muted-foreground">% of Events with Partial Catering</Label>
-                  <div className="flex items-center gap-3">
-                    <Slider 
-                      value={[(draft.partialCateringPercent ?? 0.30) * 100]}
-                      onValueChange={(vals: number[]) => handleChange("partialCateringPercent", (vals[0] / 100).toString())}
-                      min={0}
-                      max={100}
-                      step={5}
-                      className="flex-1"
-                    />
-                    <span className="text-sm font-semibold text-primary w-12 text-right">{((draft.partialCateringPercent ?? 0.30) * 100).toFixed(0)}%</span>
-                  </div>
-                </div>
-              </div>
+              {(() => {
+                const fullPct = (draft.fullCateringPercent ?? 0.40) * 100;
+                const partialPct = (draft.partialCateringPercent ?? 0.30) * 100;
+                const totalPct = fullPct + partialPct;
+                const noCateringPct = Math.max(0, 100 - totalPct);
+                
+                return (
+                  <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <Label className="text-sm text-muted-foreground">% of Events with Full Catering</Label>
+                        <div className="flex items-center gap-3">
+                          <Slider 
+                            value={[fullPct]}
+                            onValueChange={(vals: number[]) => {
+                              const newFull = vals[0];
+                              const maxFull = 100 - partialPct;
+                              handleChange("fullCateringPercent", (Math.min(newFull, maxFull) / 100).toString());
+                            }}
+                            min={0}
+                            max={100 - partialPct}
+                            step={5}
+                            className="flex-1"
+                          />
+                          <span className="text-sm font-semibold text-primary w-12 text-right">{fullPct.toFixed(0)}%</span>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-sm text-muted-foreground">% of Events with Partial Catering</Label>
+                        <div className="flex items-center gap-3">
+                          <Slider 
+                            value={[partialPct]}
+                            onValueChange={(vals: number[]) => {
+                              const newPartial = vals[0];
+                              const maxPartial = 100 - fullPct;
+                              handleChange("partialCateringPercent", (Math.min(newPartial, maxPartial) / 100).toString());
+                            }}
+                            min={0}
+                            max={100 - fullPct}
+                            step={5}
+                            className="flex-1"
+                          />
+                          <span className="text-sm font-semibold text-primary w-12 text-right">{partialPct.toFixed(0)}%</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-3 p-2 bg-muted rounded text-sm flex justify-between items-center">
+                      <span className="text-muted-foreground">No catering required:</span>
+                      <span className="font-medium">{noCateringPct.toFixed(0)}% of events</span>
+                    </div>
+                  </>
+                );
+              })()}
               {globalAssumptions && (
                 <div className="mt-4 p-3 bg-muted rounded-lg text-sm">
                   <div className="text-muted-foreground text-xs mb-2">F&B Boost Factors (from Global Assumptions):</div>

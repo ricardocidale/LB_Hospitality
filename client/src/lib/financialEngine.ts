@@ -40,6 +40,16 @@ interface GlobalInput {
   baseManagementFee: number;
   incentiveManagementFee: number;
   marketingRate: number;
+  // Management company cost parameters
+  partnerSalary?: number;
+  staffSalary?: number;
+  officeLeaseStart?: number;
+  professionalServicesStart?: number;
+  techInfraStart?: number;
+  businessInsuranceStart?: number;
+  travelCostPerClient?: number;
+  itLicensePerClient?: number;
+  miscOpsRate?: number;
   // Catering F&B boost factors
   fullCateringFBBoost?: number;
   partialCateringFBBoost?: number;
@@ -253,4 +263,107 @@ export function formatPercent(amount: number) {
     minimumFractionDigits: 1,
     maximumFractionDigits: 1,
   }).format(amount);
+}
+
+export interface CompanyMonthlyFinancials {
+  date: Date;
+  monthIndex: number;
+  year: number;
+  baseFeeRevenue: number;
+  incentiveFeeRevenue: number;
+  totalRevenue: number;
+  partnerCompensation: number;
+  staffCompensation: number;
+  officeLease: number;
+  professionalServices: number;
+  techInfrastructure: number;
+  businessInsurance: number;
+  travelCosts: number;
+  itLicensing: number;
+  marketing: number;
+  miscOps: number;
+  totalExpenses: number;
+  netIncome: number;
+  cashFlow: number;
+}
+
+export function generateCompanyProForma(
+  properties: PropertyInput[],
+  global: GlobalInput,
+  months: number = 120
+): CompanyMonthlyFinancials[] {
+  const results: CompanyMonthlyFinancials[] = [];
+  const startDate = new Date(global.modelStartDate);
+  
+  const propertyFinancials = properties.map(p => generatePropertyProForma(p, global, months));
+  
+  for (let m = 0; m < months; m++) {
+    const currentDate = new Date(startDate);
+    currentDate.setMonth(currentDate.getMonth() + m);
+    const year = Math.floor(m / 12);
+    const inflationFactor = Math.pow(1 + global.inflationRate, year);
+    
+    let totalPropertyRevenue = 0;
+    let totalPropertyGOP = 0;
+    let activePropertyCount = 0;
+    
+    for (let i = 0; i < properties.length; i++) {
+      const pf = propertyFinancials[i];
+      if (m < pf.length) {
+        totalPropertyRevenue += pf[m].revenueTotal;
+        totalPropertyGOP += pf[m].gop;
+        if (pf[m].revenueTotal > 0) activePropertyCount++;
+      }
+    }
+    
+    const baseFeeRevenue = totalPropertyRevenue * global.baseManagementFee;
+    const incentiveFeeRevenue = totalPropertyGOP * global.incentiveManagementFee;
+    const totalRevenue = baseFeeRevenue + incentiveFeeRevenue;
+    
+    const partnerSalary = (global.partnerSalary ?? 150000);
+    const staffSalary = (global.staffSalary ?? 75000);
+    const staffFTE = activePropertyCount <= 3 ? 2.5 : activePropertyCount <= 6 ? 4.5 : 7.0;
+    
+    const partnerCompensation = (3 * partnerSalary * inflationFactor) / 12;
+    const staffCompensation = (staffFTE * staffSalary * inflationFactor) / 12;
+    const officeLease = ((global.officeLeaseStart ?? 36000) * inflationFactor) / 12;
+    const professionalServices = ((global.professionalServicesStart ?? 24000) * inflationFactor) / 12;
+    const techInfrastructure = ((global.techInfraStart ?? 18000) * inflationFactor) / 12;
+    const businessInsurance = ((global.businessInsuranceStart ?? 12000) * inflationFactor) / 12;
+    
+    const travelCosts = (activePropertyCount * (global.travelCostPerClient ?? 12000) * inflationFactor) / 12;
+    const itLicensing = (activePropertyCount * (global.itLicensePerClient ?? 24000) * inflationFactor) / 12;
+    const marketing = totalRevenue * (global.marketingRate ?? 0.05);
+    const miscOps = totalRevenue * (global.miscOpsRate ?? 0.03);
+    
+    const totalExpenses = partnerCompensation + staffCompensation + officeLease + professionalServices +
+      techInfrastructure + businessInsurance + travelCosts + itLicensing + marketing + miscOps;
+    
+    const netIncome = totalRevenue - totalExpenses;
+    const cashFlow = netIncome;
+    
+    results.push({
+      date: currentDate,
+      monthIndex: m,
+      year: year + 1,
+      baseFeeRevenue,
+      incentiveFeeRevenue,
+      totalRevenue,
+      partnerCompensation,
+      staffCompensation,
+      officeLease,
+      professionalServices,
+      techInfrastructure,
+      businessInsurance,
+      travelCosts,
+      itLicensing,
+      marketing,
+      miscOps,
+      totalExpenses,
+      netIncome,
+      cashFlow,
+    });
+  }
+  
+  return results;
 }

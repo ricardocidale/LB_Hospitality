@@ -1,184 +1,346 @@
 import Layout from "@/components/Layout";
-import { useStore, formatCurrency } from "@/lib/mockData";
+import { useProperties, useGlobalAssumptions } from "@/lib/api";
+import { generateCompanyProForma, formatMoney } from "@/lib/financialEngine";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Users, Briefcase, TrendingUp } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { Users, Briefcase, TrendingUp, Settings2, Loader2 } from "lucide-react";
+import { Link } from "wouter";
 
 export default function Company() {
-  const { companyStats } = useStore();
+  const { data: properties, isLoading: propertiesLoading } = useProperties();
+  const { data: global, isLoading: globalLoading } = useGlobalAssumptions();
 
-  const tranches = [
-    { name: "Tranche 1", amount: 225000, date: "April 1, 2026", status: "Active", purpose: "Initial operations, partner salaries" },
-    { name: "Tranche 2", amount: 225000, date: "April 1, 2027", status: "Scheduled", purpose: "Continued operations, staff expansion" },
-  ];
+  if (propertiesLoading || globalLoading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center h-[60vh]">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!properties || !global) {
+    return (
+      <Layout>
+        <div className="flex flex-col items-center justify-center h-[60vh] text-center space-y-4">
+          <h2 className="text-2xl font-serif font-bold">Data Not Available</h2>
+        </div>
+      </Layout>
+    );
+  }
+
+  const financials = generateCompanyProForma(properties, global, 120);
+  
+  const yearlyChartData = [];
+  for (let y = 0; y < 10; y++) {
+    const yearData = financials.slice(y * 12, (y + 1) * 12);
+    if (yearData.length === 0) continue;
+    yearlyChartData.push({
+      year: `Y${y + 1}`,
+      Revenue: yearData.reduce((a, m) => a + m.totalRevenue, 0),
+      Expenses: yearData.reduce((a, m) => a + m.totalExpenses, 0),
+      NetIncome: yearData.reduce((a, m) => a + m.netIncome, 0),
+    });
+  }
+
+  const activePropertyCount = properties.filter(p => p.status === "Operating").length;
+  const staffFTE = activePropertyCount <= 3 ? 2.5 : activePropertyCount <= 6 ? 4.5 : 7.0;
+  
+  const year1Financials = financials.slice(0, 12);
+  const year1Revenue = year1Financials.reduce((a, m) => a + m.totalRevenue, 0);
+  const year1NetIncome = year1Financials.reduce((a, m) => a + m.netIncome, 0);
 
   return (
     <Layout>
-      <div className="space-y-8 max-w-5xl mx-auto">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-3xl font-serif text-primary mb-2">L+B Hospitality Co.</h2>
+            <h2 className="text-3xl font-serif text-primary mb-1" style={{ fontFamily: "'Nunito', sans-serif" }}>L+B Hospitality Co.</h2>
             <p className="text-muted-foreground">Corporate Management Entity & Operations</p>
           </div>
-          <Badge variant="outline" className="text-base px-4 py-1 border-primary/20 bg-primary/5 text-primary">
-            Operating Year 1
-          </Badge>
+          <Link href="/company/assumptions">
+            <Button variant="outline" size="sm">
+              <Settings2 className="w-4 h-4 mr-2" />
+              Company Assumptions
+            </Button>
+          </Link>
         </div>
 
-        {/* Staffing Structure */}
-        <section className="grid gap-6 md:grid-cols-3">
-          <Card className="bg-card shadow-sm hover:border-primary/50 transition-colors">
+        <section className="grid gap-4 md:grid-cols-4">
+          <Card className="bg-card shadow-sm">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Leadership</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Partners</CardTitle>
             </CardHeader>
-            <CardContent className="flex items-center gap-4">
-              <div className="p-3 bg-primary/10 rounded-full">
-                <Users className="w-6 h-6 text-primary" />
+            <CardContent className="flex items-center gap-3">
+              <div className="p-2 bg-primary/10 rounded-full">
+                <Users className="w-5 h-5 text-primary" />
               </div>
-              <div>
-                <div className="text-3xl font-serif font-bold text-foreground">{companyStats.partners}</div>
-                <div className="text-sm text-muted-foreground">Partners</div>
-              </div>
+              <div className="text-2xl font-serif font-bold">3</div>
             </CardContent>
           </Card>
           
-          <Card className="bg-card shadow-sm hover:border-primary/50 transition-colors">
+          <Card className="bg-card shadow-sm">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Support Staff</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Staff FTEs</CardTitle>
             </CardHeader>
-            <CardContent className="flex items-center gap-4">
-              <div className="p-3 bg-primary/10 rounded-full">
-                <Briefcase className="w-6 h-6 text-primary" />
+            <CardContent className="flex items-center gap-3">
+              <div className="p-2 bg-primary/10 rounded-full">
+                <Briefcase className="w-5 h-5 text-primary" />
               </div>
-              <div>
-                <div className="text-3xl font-serif font-bold text-foreground">{companyStats.staffFTE}</div>
-                <div className="text-sm text-muted-foreground">Full-Time Equivalents</div>
-              </div>
+              <div className="text-2xl font-serif font-bold">{staffFTE}</div>
             </CardContent>
           </Card>
 
-          <Card className="bg-card shadow-sm hover:border-primary/50 transition-colors">
+          <Card className="bg-card shadow-sm">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Cash on Hand</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Y1 Revenue</CardTitle>
             </CardHeader>
-            <CardContent className="flex items-center gap-4">
-              <div className="p-3 bg-primary/10 rounded-full">
-                <TrendingUp className="w-6 h-6 text-primary" />
+            <CardContent className="flex items-center gap-3">
+              <div className="p-2 bg-primary/10 rounded-full">
+                <TrendingUp className="w-5 h-5 text-primary" />
               </div>
-              <div>
-                <div className="text-3xl font-serif font-bold text-foreground">{formatCurrency(companyStats.cashOnHand)}</div>
-                <div className="text-sm text-muted-foreground">SAFE Funding Available</div>
+              <div className="text-2xl font-serif font-bold">{formatMoney(year1Revenue)}</div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Y1 Net Income</CardTitle>
+            </CardHeader>
+            <CardContent className="flex items-center gap-3">
+              <div className="p-2 bg-primary/10 rounded-full">
+                <TrendingUp className="w-5 h-5 text-primary" />
+              </div>
+              <div className={`text-2xl font-serif font-bold ${year1NetIncome < 0 ? 'text-destructive' : ''}`}>
+                {formatMoney(year1NetIncome)}
               </div>
             </CardContent>
           </Card>
         </section>
 
-        {/* Funding Tranches */}
-        <section className="space-y-4">
-          <h3 className="text-xl font-serif font-semibold text-primary">Capital Structure & SAFE Funding</h3>
-          <Card className="shadow-sm">
-            <Table>
-              <TableHeader>
-                <TableRow className="hover:bg-transparent">
-                  <TableHead className="w-[150px]">Tranche</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Release Date</TableHead>
-                  <TableHead>Purpose</TableHead>
-                  <TableHead className="text-right">Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {tranches.map((t) => (
-                  <TableRow key={t.name} className="group hover:bg-muted/50">
-                    <TableCell className="font-medium font-serif text-primary group-hover:text-accent transition-colors">{t.name}</TableCell>
-                    <TableCell>{formatCurrency(t.amount)}</TableCell>
-                    <TableCell>{t.date}</TableCell>
-                    <TableCell className="text-muted-foreground">{t.purpose}</TableCell>
-                    <TableCell className="text-right">
-                      <Badge variant={t.status === "Active" ? "default" : "secondary"} className="font-normal">
-                        {t.status}
-                      </Badge>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </Card>
-        </section>
+        <Card>
+          <CardHeader>
+            <CardTitle>Management Company Performance (10-Year Projection)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={yearlyChartData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis 
+                    dataKey="year" 
+                    stroke="hsl(var(--muted-foreground))" 
+                    fontSize={12}
+                    tickLine={false}
+                  />
+                  <YAxis 
+                    stroke="hsl(var(--muted-foreground))" 
+                    fontSize={12}
+                    tickLine={false}
+                    tickFormatter={(value) => `$${(value / 1000000).toFixed(1)}M`}
+                  />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(var(--card))', 
+                      borderColor: 'hsl(var(--border))',
+                      borderRadius: '8px',
+                    }}
+                    formatter={(value: number) => [formatMoney(value), ""]}
+                  />
+                  <Legend />
+                  <Line 
+                    type="monotone" 
+                    dataKey="Revenue" 
+                    stroke="hsl(var(--primary))" 
+                    strokeWidth={2}
+                    dot={{ fill: 'hsl(var(--primary))' }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="Expenses" 
+                    stroke="hsl(var(--chart-3))" 
+                    strokeWidth={2}
+                    dot={{ fill: 'hsl(var(--chart-3))' }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="NetIncome" 
+                    stroke="hsl(var(--accent))" 
+                    strokeWidth={2}
+                    dot={{ fill: 'hsl(var(--accent))' }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
 
-        {/* Cost Structure */}
-        <section className="space-y-4">
-          <h3 className="text-xl font-serif font-semibold text-primary">Annual Fixed Cost Structure</h3>
-          <div className="grid gap-6 md:grid-cols-2">
-            <Card className="shadow-sm">
+        <Tabs defaultValue="income" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 max-w-md">
+            <TabsTrigger value="income">Income Statement</TabsTrigger>
+            <TabsTrigger value="cashflow">Cash Flows</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="income" className="mt-6">
+            <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Fixed Expenses</CardTitle>
+                <CardTitle>Yearly Income Statement</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center py-2 border-b border-border/50">
-                    <span className="text-muted-foreground">Partner Compensation (3x)</span>
-                    <span className="font-mono font-medium">{formatCurrency(450000)}</span>
-                  </div>
-                  <div className="flex justify-between items-center py-2 border-b border-border/50">
-                    <span className="text-muted-foreground">Office Lease & Overhead</span>
-                    <span className="font-mono font-medium">{formatCurrency(36000)}</span>
-                  </div>
-                  <div className="flex justify-between items-center py-2 border-b border-border/50">
-                    <span className="text-muted-foreground">Professional Services</span>
-                    <span className="font-mono font-medium">{formatCurrency(24000)}</span>
-                  </div>
-                  <div className="flex justify-between items-center py-2 border-b border-border/50">
-                    <span className="text-muted-foreground">Tech Infrastructure</span>
-                    <span className="font-mono font-medium">{formatCurrency(18000)}</span>
-                  </div>
-                  <div className="flex justify-between items-center pt-2">
-                    <span className="font-semibold text-primary">Total Fixed Costs</span>
-                    <span className="font-mono font-bold text-lg">{formatCurrency(540000)}</span>
-                  </div>
-                </div>
+              <CardContent className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="sticky left-0 bg-card">Category</TableHead>
+                      {Array.from({ length: 10 }, (_, i) => (
+                        <TableHead key={i} className="text-right min-w-[100px]">Year {i + 1}</TableHead>
+                      ))}
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow className="bg-muted/30 font-semibold">
+                      <TableCell className="sticky left-0 bg-muted/30">Revenue</TableCell>
+                      {Array.from({ length: 10 }, (_, y) => {
+                        const yearData = financials.slice(y * 12, (y + 1) * 12);
+                        const total = yearData.reduce((a, m) => a + m.totalRevenue, 0);
+                        return <TableCell key={y} className="text-right">{formatMoney(total)}</TableCell>;
+                      })}
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="sticky left-0 bg-card pl-6">Base Management Fees</TableCell>
+                      {Array.from({ length: 10 }, (_, y) => {
+                        const yearData = financials.slice(y * 12, (y + 1) * 12);
+                        const total = yearData.reduce((a, m) => a + m.baseFeeRevenue, 0);
+                        return <TableCell key={y} className="text-right text-muted-foreground">{formatMoney(total)}</TableCell>;
+                      })}
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="sticky left-0 bg-card pl-6">Incentive Fees</TableCell>
+                      {Array.from({ length: 10 }, (_, y) => {
+                        const yearData = financials.slice(y * 12, (y + 1) * 12);
+                        const total = yearData.reduce((a, m) => a + m.incentiveFeeRevenue, 0);
+                        return <TableCell key={y} className="text-right text-muted-foreground">{formatMoney(total)}</TableCell>;
+                      })}
+                    </TableRow>
+                    <TableRow className="bg-muted/30 font-semibold">
+                      <TableCell className="sticky left-0 bg-muted/30">Operating Expenses</TableCell>
+                      {Array.from({ length: 10 }, (_, y) => {
+                        const yearData = financials.slice(y * 12, (y + 1) * 12);
+                        const total = yearData.reduce((a, m) => a + m.totalExpenses, 0);
+                        return <TableCell key={y} className="text-right">{formatMoney(total)}</TableCell>;
+                      })}
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="sticky left-0 bg-card pl-6">Partner Compensation</TableCell>
+                      {Array.from({ length: 10 }, (_, y) => {
+                        const yearData = financials.slice(y * 12, (y + 1) * 12);
+                        const total = yearData.reduce((a, m) => a + m.partnerCompensation, 0);
+                        return <TableCell key={y} className="text-right text-muted-foreground">{formatMoney(total)}</TableCell>;
+                      })}
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="sticky left-0 bg-card pl-6">Staff Compensation</TableCell>
+                      {Array.from({ length: 10 }, (_, y) => {
+                        const yearData = financials.slice(y * 12, (y + 1) * 12);
+                        const total = yearData.reduce((a, m) => a + m.staffCompensation, 0);
+                        return <TableCell key={y} className="text-right text-muted-foreground">{formatMoney(total)}</TableCell>;
+                      })}
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="sticky left-0 bg-card pl-6">Office & Overhead</TableCell>
+                      {Array.from({ length: 10 }, (_, y) => {
+                        const yearData = financials.slice(y * 12, (y + 1) * 12);
+                        const total = yearData.reduce((a, m) => a + m.officeLease + m.professionalServices + m.techInfrastructure + m.businessInsurance, 0);
+                        return <TableCell key={y} className="text-right text-muted-foreground">{formatMoney(total)}</TableCell>;
+                      })}
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="sticky left-0 bg-card pl-6">Variable Costs</TableCell>
+                      {Array.from({ length: 10 }, (_, y) => {
+                        const yearData = financials.slice(y * 12, (y + 1) * 12);
+                        const total = yearData.reduce((a, m) => a + m.travelCosts + m.itLicensing + m.marketing + m.miscOps, 0);
+                        return <TableCell key={y} className="text-right text-muted-foreground">{formatMoney(total)}</TableCell>;
+                      })}
+                    </TableRow>
+                    <TableRow className="bg-primary/10 font-bold">
+                      <TableCell className="sticky left-0 bg-primary/10">Net Income</TableCell>
+                      {Array.from({ length: 10 }, (_, y) => {
+                        const yearData = financials.slice(y * 12, (y + 1) * 12);
+                        const total = yearData.reduce((a, m) => a + m.netIncome, 0);
+                        return (
+                          <TableCell key={y} className={`text-right ${total < 0 ? 'text-destructive' : ''}`}>
+                            {formatMoney(total)}
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
+                  </TableBody>
+                </Table>
               </CardContent>
             </Card>
-
-            <Card className="shadow-sm bg-muted/30">
+          </TabsContent>
+          
+          <TabsContent value="cashflow" className="mt-6">
+            <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Revenue Model</CardTitle>
+                <CardTitle>Yearly Cash Flow Statement</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  <div>
-                    <div className="flex justify-between mb-1">
-                      <span className="font-medium text-foreground">Base Management Fee</span>
-                      <span className="font-bold">4.0%</span>
-                    </div>
-                    <div className="w-full h-2 bg-border rounded-full overflow-hidden">
-                      <div className="h-full bg-primary w-[4%]"></div>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1">Applied to Gross Revenue</p>
-                  </div>
-                  
-                  <div>
-                    <div className="flex justify-between mb-1">
-                      <span className="font-medium text-foreground">Incentive Fee</span>
-                      <span className="font-bold">10.0%</span>
-                    </div>
-                    <div className="w-full h-2 bg-border rounded-full overflow-hidden">
-                      <div className="h-full bg-accent w-[10%]"></div>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1">Applied to Gross Operating Profit (GOP)</p>
-                  </div>
-
-                  <div className="p-4 bg-background rounded-lg border border-border mt-4">
-                    <p className="text-sm italic text-muted-foreground">
-                      "This structure aligns L+B's interests with property owners—L+B earns more when properties are more profitable."
-                    </p>
-                  </div>
-                </div>
+              <CardContent className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="sticky left-0 bg-card">Category</TableHead>
+                      {Array.from({ length: 10 }, (_, i) => (
+                        <TableHead key={i} className="text-right min-w-[100px]">Year {i + 1}</TableHead>
+                      ))}
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow className="font-semibold">
+                      <TableCell className="sticky left-0 bg-card">Net Income</TableCell>
+                      {Array.from({ length: 10 }, (_, y) => {
+                        const yearData = financials.slice(y * 12, (y + 1) * 12);
+                        const total = yearData.reduce((a, m) => a + m.netIncome, 0);
+                        return <TableCell key={y} className={`text-right ${total < 0 ? 'text-destructive' : ''}`}>{formatMoney(total)}</TableCell>;
+                      })}
+                    </TableRow>
+                    <TableRow className="bg-primary/10 font-bold">
+                      <TableCell className="sticky left-0 bg-primary/10">Cash Flow</TableCell>
+                      {Array.from({ length: 10 }, (_, y) => {
+                        const yearData = financials.slice(y * 12, (y + 1) * 12);
+                        const total = yearData.reduce((a, m) => a + m.cashFlow, 0);
+                        return (
+                          <TableCell key={y} className={`text-right ${total < 0 ? 'text-destructive' : ''}`}>
+                            {formatMoney(total)}
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
+                    <TableRow className="bg-muted/30 font-semibold">
+                      <TableCell className="sticky left-0 bg-muted/30">Cumulative Cash Flow</TableCell>
+                      {Array.from({ length: 10 }, (_, y) => {
+                        let cumulative = 0;
+                        for (let i = 0; i <= y; i++) {
+                          const yearData = financials.slice(i * 12, (i + 1) * 12);
+                          cumulative += yearData.reduce((a, m) => a + m.cashFlow, 0);
+                        }
+                        return (
+                          <TableCell key={y} className={`text-right ${cumulative < 0 ? 'text-destructive' : ''}`}>
+                            {formatMoney(cumulative)}
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
+                  </TableBody>
+                </Table>
               </CardContent>
             </Card>
-          </div>
-        </section>
+          </TabsContent>
+        </Tabs>
       </div>
     </Layout>
   );

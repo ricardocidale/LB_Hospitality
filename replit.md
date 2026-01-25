@@ -12,6 +12,22 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (January 2026)
 
+### SAFE Funding for Management Company
+- Added SAFE funding fields: two tranches with configurable amounts and dates
+- Tranche 1: $225,000 (April 2026), Tranche 2: $225,000 (April 2027)
+- SAFE valuation cap and discount rate fields included
+- SAFE funding appears as inflows in the cash flow statement (not as revenue)
+
+### Fixed Cost Escalation
+- Added separate fixed cost escalation rate (defaults to 3%)
+- Fixed costs (salaries, lease, services, insurance) escalate at fixedCostEscalationRate
+- Variable costs (travel, IT, marketing, misc ops) escalate at inflation rate
+
+### Company Assumptions Page Reorganization
+- Reorganized into clear sections: SAFE Funding, Revenue, Compensation, Fixed Overhead, Variable Costs
+- IT licensing default reduced to $3,000 (appropriate for B&B properties vs hotels)
+- Marketing rate at 5% of management fee revenue
+
 ### Catering Levels in Global Assumptions
 - Added Full Service and Partial Service catering level rates to Global Assumptions
 - Event revenue rate: Full Service 50%, Partial Service 25% (as % of rooms revenue)
@@ -27,6 +43,7 @@ Preferred communication style: Simple, everyday language.
 ### Financial Model Updates
 - Catering level rates flow from Global Assumptions through to financial engine calculations
 - Event revenue and costs now use global catering level rates instead of hardcoded values
+- SAFE funding inflows added to management company cash flow projections
 
 ## System Architecture
 

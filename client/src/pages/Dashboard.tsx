@@ -1161,6 +1161,15 @@ function InvestmentAnalysis({
     return grossValue - outstandingDebt;
   };
 
+  const getPropertyAfterTaxCashFlow = (prop: any, propIndex: number, yearIndex: number): number => {
+    const preTaxCashFlow = getPropertyYearly(propIndex, yearIndex).cashFlow;
+    const taxRate = prop.taxRate || 0.25;
+    if (preTaxCashFlow > 0) {
+      return preTaxCashFlow * (1 - taxRate);
+    }
+    return preTaxCashFlow;
+  };
+
   const getPropertyCashFlows = (prop: any, propIndex: number): number[] => {
     const flows: number[] = [];
     
@@ -1170,7 +1179,7 @@ function InvestmentAnalysis({
     const refi = getPropertyRefinanceProceeds(prop, propIndex);
     
     for (let y = 0; y < 10; y++) {
-      let yearCashFlow = getPropertyYearly(propIndex, y).cashFlow;
+      let yearCashFlow = getPropertyAfterTaxCashFlow(prop, propIndex, y);
       
       if (y === refi.year) {
         yearCashFlow += refi.proceeds;
@@ -1186,6 +1195,14 @@ function InvestmentAnalysis({
     return flows;
   };
 
+  const getConsolidatedAfterTaxCashFlow = (yearIndex: number): number => {
+    let total = 0;
+    properties.forEach((prop, idx) => {
+      total += getPropertyAfterTaxCashFlow(prop, idx, yearIndex);
+    });
+    return total;
+  };
+
   const getConsolidatedCashFlows = (): number[] => {
     const flows: number[] = [];
     
@@ -1196,7 +1213,7 @@ function InvestmentAnalysis({
     flows.push(-totalInitialEquity);
     
     for (let y = 0; y < 10; y++) {
-      let yearCashFlow = getYearlyConsolidated(y).cashFlow;
+      let yearCashFlow = getConsolidatedAfterTaxCashFlow(y);
       
       properties.forEach((prop, idx) => {
         const refi = getPropertyRefinanceProceeds(prop, idx);
@@ -1309,11 +1326,11 @@ function InvestmentAnalysis({
                   ) : (
                     <ChevronRight className="w-4 h-4 text-muted-foreground" />
                   )}
-                  Operating Cash Flow
+                  After-Tax Operating Cash Flow
                 </TableCell>
                 <TableCell className="text-right text-muted-foreground">-</TableCell>
                 {Array.from({ length: 10 }, (_, y) => {
-                  const cf = getYearlyConsolidated(y).cashFlow;
+                  const cf = getConsolidatedAfterTaxCashFlow(y);
                   return (
                     <TableCell key={y} className={`text-right ${cf < 0 ? 'text-destructive' : ''}`}>
                       {formatMoney(cf)}
@@ -1323,10 +1340,13 @@ function InvestmentAnalysis({
               </TableRow>
               {expandedRows.has('fcfOperating') && properties.map((prop, idx) => (
                 <TableRow key={prop.id} className="bg-muted/10">
-                  <TableCell className="sticky left-0 bg-muted/10 pl-8 text-sm text-muted-foreground">{prop.name}</TableCell>
+                  <TableCell className="sticky left-0 bg-muted/10 pl-8 text-sm text-muted-foreground">
+                    {prop.name}
+                    <span className="text-xs ml-2">({((prop.taxRate || 0.25) * 100).toFixed(0)}% tax)</span>
+                  </TableCell>
                   <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
                   {Array.from({ length: 10 }, (_, y) => {
-                    const cf = getPropertyYearly(idx, y).cashFlow;
+                    const cf = getPropertyAfterTaxCashFlow(prop, idx, y);
                     return (
                       <TableCell key={y} className={`text-right text-sm ${cf < 0 ? 'text-destructive' : 'text-muted-foreground'}`}>
                         {formatMoney(cf)}
@@ -1451,6 +1471,7 @@ function InvestmentAnalysis({
               <TableRow>
                 <TableHead>Property</TableHead>
                 <TableHead className="text-right">Equity Investment</TableHead>
+                <TableHead className="text-right">Tax Rate</TableHead>
                 <TableHead className="text-right">Exit Cap Rate</TableHead>
                 <TableHead className="text-right">Exit Value (Y10)</TableHead>
                 <TableHead className="text-right">Total Distributions</TableHead>
@@ -1471,6 +1492,7 @@ function InvestmentAnalysis({
                   <TableRow key={prop.id}>
                     <TableCell className="font-medium">{prop.name}</TableCell>
                     <TableCell className="text-right">{formatMoney(equity)}</TableCell>
+                    <TableCell className="text-right">{((prop.taxRate || 0.25) * 100).toFixed(0)}%</TableCell>
                     <TableCell className="text-right">{((prop.exitCapRate || 0.085) * 100).toFixed(1)}%</TableCell>
                     <TableCell className="text-right text-accent">{formatMoney(exitValue)}</TableCell>
                     <TableCell className="text-right">{formatMoney(totalDistributions)}</TableCell>
@@ -1484,6 +1506,7 @@ function InvestmentAnalysis({
               <TableRow className="bg-primary/10 font-bold">
                 <TableCell>Portfolio Total</TableCell>
                 <TableCell className="text-right">{formatMoney(totalInitialEquity)}</TableCell>
+                <TableCell className="text-right text-muted-foreground">-</TableCell>
                 <TableCell className="text-right text-muted-foreground">-</TableCell>
                 <TableCell className="text-right text-accent">{formatMoney(totalExitValue)}</TableCell>
                 <TableCell className="text-right">{formatMoney(consolidatedFlows.slice(1).reduce((a, b) => a + b, 0))}</TableCell>

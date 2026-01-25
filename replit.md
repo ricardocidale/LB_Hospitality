@@ -46,6 +46,13 @@ Always format money as money (currency format with commas and appropriate precis
 - "Property Variables" renamed to "Property Assumptions"
 - Help tooltips added throughout for key financial concepts
 
+### Investment Analysis with Tax Rate
+- Added Tax Rate field to each property (default 25%) in Property Assumptions
+- Free Cash Flow now calculated after-tax for IRR analysis
+- Tax applied only to positive operating cash flows
+- Investment Analysis tab shows after-tax cash flows with property tax rates displayed
+- Property-Level IRR table includes Tax Rate column
+
 ### Financial Model Updates
 - Catering level rates flow from Global Assumptions through to financial engine calculations
 - Event revenue and costs now use global catering level rates instead of hardcoded values

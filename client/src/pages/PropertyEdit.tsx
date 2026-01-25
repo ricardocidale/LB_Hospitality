@@ -370,27 +370,6 @@ export default function PropertyEdit() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Cost Adjustments</CardTitle>
-            <CardDescription>Location-specific cost multipliers (1.0 = baseline)</CardDescription>
-          </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="space-y-2">
-              <Label>Labor Cost Adjustment</Label>
-              <Input type="number" step="0.01" value={draft.laborAdj} onChange={(e) => handleNumberChange("laborAdj", e.target.value)} />
-            </div>
-            <div className="space-y-2">
-              <Label>Utilities Adjustment</Label>
-              <Input type="number" step="0.01" value={draft.utilitiesAdj} onChange={(e) => handleNumberChange("utilitiesAdj", e.target.value)} />
-            </div>
-            <div className="space-y-2">
-              <Label>Property Tax Adjustment</Label>
-              <Input type="number" step="0.01" value={draft.taxAdj} onChange={(e) => handleNumberChange("taxAdj", e.target.value)} />
-            </div>
-          </CardContent>
-        </Card>
-
         <div className="flex justify-end pb-8">
           <Button onClick={handleSave} disabled={updateProperty.isPending} size="lg">
             {updateProperty.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}

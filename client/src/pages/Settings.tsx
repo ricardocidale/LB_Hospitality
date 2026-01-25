@@ -168,6 +168,45 @@ export default function Settings() {
               </CardContent>
             </Card>
 
+            <Card>
+              <CardHeader>
+                <CardTitle>Property Cost Adjustments</CardTitle>
+                <CardDescription>Cost multipliers applied to all properties (1.0 = baseline, 0.8 = 20% lower costs, 1.2 = 20% higher costs)</CardDescription>
+              </CardHeader>
+              <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="space-y-2">
+                  <Label>Labor Cost Adjustment</Label>
+                  <Input 
+                    type="number" 
+                    step="0.01" 
+                    value={currentGlobal.laborAdj ?? 1.0} 
+                    onChange={(e) => handleGlobalChange("laborAdj", e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground">Multiplies base 36% rooms dept cost</p>
+                </div>
+                <div className="space-y-2">
+                  <Label>Utilities Adjustment</Label>
+                  <Input 
+                    type="number" 
+                    step="0.01" 
+                    value={currentGlobal.utilitiesAdj ?? 1.0} 
+                    onChange={(e) => handleGlobalChange("utilitiesAdj", e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground">Multiplies 5% utility costs</p>
+                </div>
+                <div className="space-y-2">
+                  <Label>Property Tax Adjustment</Label>
+                  <Input 
+                    type="number" 
+                    step="0.01" 
+                    value={currentGlobal.taxAdj ?? 1.0} 
+                    onChange={(e) => handleGlobalChange("taxAdj", e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground">Multiplies 3% tax rate</p>
+                </div>
+              </CardContent>
+            </Card>
+
             <Button onClick={handleSaveGlobal} disabled={!globalDraft || updateGlobal.isPending}>
               {updateGlobal.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
               Save Global Changes

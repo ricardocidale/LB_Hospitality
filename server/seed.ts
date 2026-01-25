@@ -19,7 +19,7 @@ async function seed() {
     safeValuationCap: 2500000,
     safeDiscountRate: 0.20,
     // Compensation
-    partnerSalary: 150000,
+    partnerSalary: 240000,
     staffSalary: 75000,
     // Fixed overhead
     officeLeaseStart: 36000,

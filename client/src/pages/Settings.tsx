@@ -100,36 +100,6 @@ export default function Settings() {
 
           <TabsContent value="global" className="space-y-6 mt-6">
             <div className="mb-4">
-              <h3 className="text-lg font-semibold text-primary border-b pb-2">Macroeconomic</h3>
-            </div>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>Economic Assumptions</CardTitle>
-                <CardDescription>Market-wide economic factors affecting the model</CardDescription>
-              </CardHeader>
-              <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <Label>Annual Inflation Rate</Label>
-                    <span className="text-sm font-semibold text-primary">{(currentGlobal.inflationRate * 100).toFixed(1)}%</span>
-                  </div>
-                  <Slider 
-                    value={[currentGlobal.inflationRate * 100]}
-                    onValueChange={(vals) => handleGlobalChange("inflationRate", (vals[0] / 100).toString())}
-                    min={0}
-                    max={10}
-                    step={0.1}
-                  />
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>0%</span>
-                    <span>10%</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <div className="mb-4 mt-8">
               <h3 className="text-lg font-semibold text-primary border-b pb-2">Management Company</h3>
             </div>
 
@@ -486,6 +456,36 @@ export default function Settings() {
                     value={((currentGlobal.baseFFERate ?? 0.04) * 100).toFixed(1)} 
                     onChange={(e) => handleGlobalChange("baseFFERate", (parseFloat(e.target.value) / 100).toString())}
                   />
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="mb-4 mt-8">
+              <h3 className="text-lg font-semibold text-primary border-b pb-2">Macroeconomic</h3>
+            </div>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle>Economic Assumptions</CardTitle>
+                <CardDescription>Market-wide economic factors affecting the model</CardDescription>
+              </CardHeader>
+              <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <Label>Annual Inflation Rate</Label>
+                    <span className="text-sm font-semibold text-primary">{(currentGlobal.inflationRate * 100).toFixed(1)}%</span>
+                  </div>
+                  <Slider 
+                    value={[currentGlobal.inflationRate * 100]}
+                    onValueChange={(vals) => handleGlobalChange("inflationRate", (vals[0] / 100).toString())}
+                    min={0}
+                    max={10}
+                    step={0.1}
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>0%</span>
+                    <span>10%</span>
+                  </div>
                 </div>
               </CardContent>
             </Card>

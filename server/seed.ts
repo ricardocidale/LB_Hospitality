@@ -70,7 +70,10 @@ async function seed() {
       costRateInsurance: 0.02,
       costRateTaxes: 0.03,
       costRateIT: 0.02,
-      costRateFFE: 0.04
+      costRateFFE: 0.04,
+      revShareEvents: 0.43,
+      revShareFB: 0.22,
+      revShareOther: 0.07
     },
     {
       name: "Eden Summit Lodge",
@@ -103,7 +106,10 @@ async function seed() {
       costRateInsurance: 0.02,
       costRateTaxes: 0.03,
       costRateIT: 0.02,
-      costRateFFE: 0.04
+      costRateFFE: 0.04,
+      revShareEvents: 0.43,
+      revShareFB: 0.22,
+      revShareOther: 0.07
     },
     {
       name: "Austin Hillside",
@@ -136,7 +142,10 @@ async function seed() {
       costRateInsurance: 0.02,
       costRateTaxes: 0.03,
       costRateIT: 0.02,
-      costRateFFE: 0.04
+      costRateFFE: 0.04,
+      revShareEvents: 0.43,
+      revShareFB: 0.22,
+      revShareOther: 0.07
     },
     {
       name: "Casa Medellín",
@@ -169,7 +178,10 @@ async function seed() {
       costRateInsurance: 0.02,
       costRateTaxes: 0.03,
       costRateIT: 0.02,
-      costRateFFE: 0.04
+      costRateFFE: 0.04,
+      revShareEvents: 0.43,
+      revShareFB: 0.22,
+      revShareOther: 0.07
     },
     {
       name: "Blue Ridge Manor",
@@ -202,7 +214,10 @@ async function seed() {
       costRateInsurance: 0.02,
       costRateTaxes: 0.03,
       costRateIT: 0.02,
-      costRateFFE: 0.04
+      costRateFFE: 0.04,
+      revShareEvents: 0.43,
+      revShareFB: 0.22,
+      revShareOther: 0.07
     }
   ]);
 

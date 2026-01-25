@@ -24,6 +24,10 @@ interface PropertyInput {
   costRateTaxes: number;
   costRateIT: number;
   costRateFFE: number;
+  // Revenue Streams
+  revShareEvents: number;
+  revShareFB: number;
+  revShareOther: number;
 }
 
 interface GlobalInput {
@@ -72,9 +76,10 @@ export interface MonthlyFinancials {
   cashFlow: number;
 }
 
-const REV_SHARE_EVENTS = 0.43;
-const REV_SHARE_FB = 0.22;
-const REV_SHARE_OTHER = 0.07;
+// Default revenue shares (now property-configurable)
+const DEFAULT_REV_SHARE_EVENTS = 0.43;
+const DEFAULT_REV_SHARE_FB = 0.22;
+const DEFAULT_REV_SHARE_OTHER = 0.07;
 
 export function generatePropertyProForma(
   property: PropertyInput, 
@@ -110,9 +115,12 @@ export function generatePropertyProForma(
     const soldRooms = isOperational ? availableRooms * occupancy : 0;
     
     const revenueRooms = soldRooms * currentAdr;
-    const revenueEvents = revenueRooms * REV_SHARE_EVENTS;
-    const revenueFB = revenueRooms * REV_SHARE_FB;
-    const revenueOther = revenueRooms * REV_SHARE_OTHER;
+    const revShareEvents = property.revShareEvents ?? DEFAULT_REV_SHARE_EVENTS;
+    const revShareFB = property.revShareFB ?? DEFAULT_REV_SHARE_FB;
+    const revShareOther = property.revShareOther ?? DEFAULT_REV_SHARE_OTHER;
+    const revenueEvents = revenueRooms * revShareEvents;
+    const revenueFB = revenueRooms * revShareFB;
+    const revenueOther = revenueRooms * revShareOther;
     const revenueTotal = revenueRooms + revenueEvents + revenueFB + revenueOther;
     
     // Property-level cost rates

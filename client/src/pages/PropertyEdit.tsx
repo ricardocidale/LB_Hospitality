@@ -389,6 +389,50 @@ export default function PropertyEdit() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
+              Revenue Streams
+              <HelpTooltip text="These percentages define additional revenue streams as a portion of rooms revenue. Events include meetings and private gatherings. F&B covers restaurant and bar income. Other includes spa, parking, and ancillary services." />
+            </CardTitle>
+            <CardDescription>
+              Additional revenue as percentage of rooms revenue
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="space-y-2">
+              <Label>Events Revenue (%)</Label>
+              <Input 
+                type="number" 
+                step="1" 
+                value={((draft.revShareEvents ?? 0.43) * 100).toFixed(0)} 
+                onChange={(e) => handleNumberChange("revShareEvents", (parseFloat(e.target.value) / 100).toString())} 
+              />
+              <p className="text-xs text-muted-foreground">Meetings, private events</p>
+            </div>
+            <div className="space-y-2">
+              <Label>F&B Revenue (%)</Label>
+              <Input 
+                type="number" 
+                step="1" 
+                value={((draft.revShareFB ?? 0.22) * 100).toFixed(0)} 
+                onChange={(e) => handleNumberChange("revShareFB", (parseFloat(e.target.value) / 100).toString())} 
+              />
+              <p className="text-xs text-muted-foreground">Restaurant, bar, room service</p>
+            </div>
+            <div className="space-y-2">
+              <Label>Other Revenue (%)</Label>
+              <Input 
+                type="number" 
+                step="1" 
+                value={((draft.revShareOther ?? 0.07) * 100).toFixed(0)} 
+                onChange={(e) => handleNumberChange("revShareOther", (parseFloat(e.target.value) / 100).toString())} 
+              />
+              <p className="text-xs text-muted-foreground">Spa, parking, activities</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
               Operating Cost Rates
               <HelpTooltip text="These percentages represent the portion of revenue allocated to each expense category for this property." />
             </CardTitle>

@@ -12,7 +12,7 @@ Preferred communication style: Simple, everyday language.
 Always format money as money (currency format with commas and appropriate precision).
 
 ### Partner Compensation Model
-- Starting: $20,000/month per partner ($240,000/year)
+- Starting: $15,000/month per partner ($180,000/year)
 - Annual escalation: inflation rate + 10%
 - Maximum cap: $30,000/month per partner
 

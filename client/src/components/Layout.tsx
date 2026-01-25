@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { LayoutDashboard, Building2, Briefcase, Settings2, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import logo from "@/assets/logo.jpeg";
+import logo from "@/assets/logo.png";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();

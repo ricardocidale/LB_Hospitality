@@ -108,83 +108,12 @@ export default function Settings() {
           <p className="text-muted-foreground mt-1">Configure variables driving the financial model</p>
         </div>
 
-        <Tabs defaultValue="management" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 max-w-md">
-            <TabsTrigger value="management">Management</TabsTrigger>
+        <Tabs defaultValue="portfolio" className="w-full">
+          <TabsList className="grid w-full grid-cols-3 max-w-md">
             <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
             <TabsTrigger value="macro">Macro</TabsTrigger>
             <TabsTrigger value="other">Other</TabsTrigger>
           </TabsList>
-
-          <TabsContent value="management" className="space-y-6 mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  Management Fees
-                  <HelpTooltip text="Base Management Fee: A percentage of total revenue paid to the management company for operating the property. Incentive Fee: An additional percentage of Gross Operating Profit (GOP) paid when the property performs well, aligning management incentives with profitability. Marketing Fee: A percentage of revenue allocated to brand marketing, advertising, and sales efforts to drive bookings." />
-                </CardTitle>
-                <CardDescription>Fee structures for hotel management services</CardDescription>
-              </CardHeader>
-              <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <Label>Base Management Fee</Label>
-                    <span className="text-sm font-semibold text-primary">{(currentGlobal.baseManagementFee * 100).toFixed(1)}%</span>
-                  </div>
-                  <Slider 
-                    value={[currentGlobal.baseManagementFee * 100]}
-                    onValueChange={(vals) => handleGlobalChange("baseManagementFee", (vals[0] / 100).toString())}
-                    min={0}
-                    max={10}
-                    step={0.1}
-                  />
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>0%</span>
-                    <span>10%</span>
-                  </div>
-                </div>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <Label>Incentive Fee (% of GOP)</Label>
-                    <span className="text-sm font-semibold text-primary">{(currentGlobal.incentiveManagementFee * 100).toFixed(1)}%</span>
-                  </div>
-                  <Slider 
-                    value={[currentGlobal.incentiveManagementFee * 100]}
-                    onValueChange={(vals) => handleGlobalChange("incentiveManagementFee", (vals[0] / 100).toString())}
-                    min={0}
-                    max={20}
-                    step={0.5}
-                  />
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>0%</span>
-                    <span>20%</span>
-                  </div>
-                </div>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <Label>Marketing Fee</Label>
-                    <span className="text-sm font-semibold text-primary">{(currentGlobal.marketingRate * 100).toFixed(1)}%</span>
-                  </div>
-                  <Slider 
-                    value={[currentGlobal.marketingRate * 100]}
-                    onValueChange={(vals) => handleGlobalChange("marketingRate", (vals[0] / 100).toString())}
-                    min={0}
-                    max={10}
-                    step={0.1}
-                  />
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>0%</span>
-                    <span>10%</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Button onClick={handleSaveGlobal} disabled={!globalDraft || updateGlobal.isPending}>
-              {updateGlobal.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-              Save Changes
-            </Button>
-          </TabsContent>
 
           <TabsContent value="portfolio" className="space-y-6 mt-6">
             <Card>

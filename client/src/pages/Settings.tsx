@@ -104,7 +104,7 @@ export default function Settings() {
     <Layout>
       <div className="space-y-6 max-w-4xl">
         <div>
-          <h2 className="text-3xl font-serif font-bold text-foreground">Model Assumptions</h2>
+          <h2 className="text-3xl font-serif font-bold text-foreground">Global Assumptions</h2>
           <p className="text-muted-foreground mt-1">Configure variables driving the financial model</p>
         </div>
 

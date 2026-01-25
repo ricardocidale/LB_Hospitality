@@ -362,23 +362,29 @@ export default function PropertyEdit() {
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label>Starting ADR ($)</Label>
-                <Input 
-                  value={formatMoneyInput(draft.startAdr)} 
-                  onChange={(e) => handleNumberChange("startAdr", parseMoneyInput(e.target.value).toString())} 
+                <div className="flex justify-between items-center">
+                  <Label>Starting ADR</Label>
+                  <span className="text-sm font-semibold text-primary">${draft.startAdr.toLocaleString()}</span>
+                </div>
+                <Slider 
+                  value={[draft.startAdr]}
+                  onValueChange={(vals: number[]) => handleChange("startAdr", vals[0].toString())}
+                  min={100}
+                  max={1200}
+                  step={10}
                 />
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <Label>ADR Annual Growth</Label>
-                  <span className="text-sm font-semibold text-primary">{(draft.adrGrowthRate * 100).toFixed(1)}%</span>
+                  <span className="text-sm font-semibold text-primary">{(draft.adrGrowthRate * 100).toFixed(0)}%</span>
                 </div>
                 <Slider 
                   value={[draft.adrGrowthRate * 100]}
                   onValueChange={(vals: number[]) => handleChange("adrGrowthRate", (vals[0] / 100).toString())}
                   min={0}
-                  max={15}
-                  step={0.1}
+                  max={50}
+                  step={1}
                 />
               </div>
             </div>

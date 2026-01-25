@@ -98,46 +98,23 @@ export default function Settings() {
           </TabsList>
 
           <TabsContent value="global" className="space-y-6 mt-6">
+            <div className="mb-4">
+              <h3 className="text-lg font-semibold text-primary border-b pb-2">Management Company</h3>
+            </div>
+            
             <Card>
               <CardHeader>
-                <CardTitle>Macroeconomic & Fees</CardTitle>
-                <CardDescription>Inflation and management fee structures</CardDescription>
+                <CardTitle>Macroeconomic Assumptions</CardTitle>
+                <CardDescription>Economic factors affecting the model</CardDescription>
               </CardHeader>
               <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <Label>Annual Inflation Rate</Label>
+                  <Label>Annual Inflation Rate (%)</Label>
                   <Input 
                     type="number" 
-                    step="0.001" 
-                    value={currentGlobal.inflationRate} 
-                    onChange={(e) => handleGlobalChange("inflationRate", e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Base Management Fee (%)</Label>
-                  <Input 
-                    type="number" 
-                    step="0.001" 
-                    value={currentGlobal.baseManagementFee} 
-                    onChange={(e) => handleGlobalChange("baseManagementFee", e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Incentive Fee (% of GOP)</Label>
-                  <Input 
-                    type="number" 
-                    step="0.001" 
-                    value={currentGlobal.incentiveManagementFee} 
-                    onChange={(e) => handleGlobalChange("incentiveManagementFee", e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Marketing Rate (%)</Label>
-                  <Input 
-                    type="number" 
-                    step="0.001" 
-                    value={currentGlobal.marketingRate} 
-                    onChange={(e) => handleGlobalChange("marketingRate", e.target.value)}
+                    step="0.1" 
+                    value={(currentGlobal.inflationRate * 100).toFixed(1)} 
+                    onChange={(e) => handleGlobalChange("inflationRate", (parseFloat(e.target.value) / 100).toString())}
                   />
                 </div>
               </CardContent>
@@ -145,24 +122,64 @@ export default function Settings() {
 
             <Card>
               <CardHeader>
+                <CardTitle>Management Fees</CardTitle>
+                <CardDescription>Fee structures for hotel management services</CardDescription>
+              </CardHeader>
+              <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="space-y-2">
+                  <Label>Base Management Fee (%)</Label>
+                  <Input 
+                    type="number" 
+                    step="0.1" 
+                    value={(currentGlobal.baseManagementFee * 100).toFixed(1)} 
+                    onChange={(e) => handleGlobalChange("baseManagementFee", (parseFloat(e.target.value) / 100).toString())}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Incentive Fee (% of GOP)</Label>
+                  <Input 
+                    type="number" 
+                    step="0.1" 
+                    value={(currentGlobal.incentiveManagementFee * 100).toFixed(1)} 
+                    onChange={(e) => handleGlobalChange("incentiveManagementFee", (parseFloat(e.target.value) / 100).toString())}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Marketing Rate (%)</Label>
+                  <Input 
+                    type="number" 
+                    step="0.1" 
+                    value={(currentGlobal.marketingRate * 100).toFixed(1)} 
+                    onChange={(e) => handleGlobalChange("marketingRate", (parseFloat(e.target.value) / 100).toString())}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="mb-4 mt-8">
+              <h3 className="text-lg font-semibold text-primary border-b pb-2">Property Portfolio</h3>
+            </div>
+
+            <Card>
+              <CardHeader>
                 <CardTitle>Debt & Financing</CardTitle>
-                <CardDescription>Standard loan terms for acquisitions</CardDescription>
+                <CardDescription>Standard loan terms for property acquisitions</CardDescription>
               </CardHeader>
               <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <Label>Interest Rate</Label>
+                  <Label>Interest Rate (%)</Label>
                   <Input 
                     type="number" 
-                    step="0.001" 
-                    value={currentGlobal.debtAssumptions.interestRate} 
-                    onChange={(e) => handleNestedChange("debtAssumptions", "interestRate", e.target.value)}
+                    step="0.1" 
+                    value={((currentGlobal.debtAssumptions?.interestRate || 0) * 100).toFixed(1)} 
+                    onChange={(e) => handleNestedChange("debtAssumptions", "interestRate", (parseFloat(e.target.value) / 100).toString())}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Amortization (Years)</Label>
                   <Input 
                     type="number" 
-                    value={currentGlobal.debtAssumptions.amortizationYears} 
+                    value={currentGlobal.debtAssumptions?.amortizationYears || 25} 
                     onChange={(e) => handleNestedChange("debtAssumptions", "amortizationYears", e.target.value)}
                   />
                 </div>

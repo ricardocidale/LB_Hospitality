@@ -111,7 +111,7 @@ export default function Settings() {
         <Tabs defaultValue="global" className="w-full">
           <TabsList className="grid w-full grid-cols-2 max-w-md">
             <TabsTrigger value="global">Global Assumptions</TabsTrigger>
-            <TabsTrigger value="properties">Property Variables</TabsTrigger>
+            <TabsTrigger value="properties">Property Assumptions</TabsTrigger>
           </TabsList>
 
           <TabsContent value="global" className="space-y-6 mt-6">

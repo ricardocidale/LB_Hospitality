@@ -66,7 +66,7 @@ export default function PropertyDetail() {
             </Button>
           </Link>
           <Link href={`/property/${propertyId}/edit`}>
-            <Button variant="outline" size="sm">Edit Variables</Button>
+            <Button variant="outline" size="sm">Property Assumptions</Button>
           </Link>
         </div>
 

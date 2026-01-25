@@ -564,106 +564,136 @@ export default function PropertyEdit() {
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
                     <div className="space-y-2">
-                      <Label>Rooms Dept</Label>
-                      <Input 
-                        type="number" 
-                        step="0.1" 
-                        value={((draft.costRateRooms ?? 0.36) * 100).toFixed(1)} 
-                        onChange={(e) => handleNumberChange("costRateRooms", (parseFloat(e.target.value) / 100).toString())} 
+                      <div className="flex justify-between items-center">
+                        <Label className="text-sm">Rooms Dept</Label>
+                        <span className="text-sm font-semibold text-primary">{((draft.costRateRooms ?? 0.36) * 100).toFixed(0)}%</span>
+                      </div>
+                      <Slider 
+                        value={[(draft.costRateRooms ?? 0.36) * 100]}
+                        onValueChange={(vals: number[]) => handleChange("costRateRooms", (vals[0] / 100).toString())}
+                        min={0}
+                        max={50}
+                        step={1}
                       />
-                      <span className="text-xs text-muted-foreground">%</span>
                     </div>
                     <div className="space-y-2">
-                      <Label>F&B</Label>
-                      <Input 
-                        type="number" 
-                        step="0.1" 
-                        value={((draft.costRateFB ?? 0.15) * 100).toFixed(1)} 
-                        onChange={(e) => handleNumberChange("costRateFB", (parseFloat(e.target.value) / 100).toString())} 
+                      <div className="flex justify-between items-center">
+                        <Label className="text-sm">F&B</Label>
+                        <span className="text-sm font-semibold text-primary">{((draft.costRateFB ?? 0.15) * 100).toFixed(0)}%</span>
+                      </div>
+                      <Slider 
+                        value={[(draft.costRateFB ?? 0.15) * 100]}
+                        onValueChange={(vals: number[]) => handleChange("costRateFB", (vals[0] / 100).toString())}
+                        min={0}
+                        max={50}
+                        step={1}
                       />
-                      <span className="text-xs text-muted-foreground">%</span>
                     </div>
                     <div className="space-y-2">
-                      <Label>Admin</Label>
-                      <Input 
-                        type="number" 
-                        step="0.1" 
-                        value={((draft.costRateAdmin ?? 0.08) * 100).toFixed(1)} 
-                        onChange={(e) => handleNumberChange("costRateAdmin", (parseFloat(e.target.value) / 100).toString())} 
+                      <div className="flex justify-between items-center">
+                        <Label className="text-sm">Admin</Label>
+                        <span className="text-sm font-semibold text-primary">{((draft.costRateAdmin ?? 0.08) * 100).toFixed(0)}%</span>
+                      </div>
+                      <Slider 
+                        value={[(draft.costRateAdmin ?? 0.08) * 100]}
+                        onValueChange={(vals: number[]) => handleChange("costRateAdmin", (vals[0] / 100).toString())}
+                        min={0}
+                        max={25}
+                        step={1}
                       />
-                      <span className="text-xs text-muted-foreground">%</span>
                     </div>
                     <div className="space-y-2">
-                      <Label>Marketing</Label>
-                      <Input 
-                        type="number" 
-                        step="0.1" 
-                        value={((draft.costRateMarketing ?? 0.05) * 100).toFixed(1)} 
-                        onChange={(e) => handleNumberChange("costRateMarketing", (parseFloat(e.target.value) / 100).toString())} 
+                      <div className="flex justify-between items-center">
+                        <Label className="text-sm">Marketing</Label>
+                        <span className="text-sm font-semibold text-primary">{((draft.costRateMarketing ?? 0.05) * 100).toFixed(0)}%</span>
+                      </div>
+                      <Slider 
+                        value={[(draft.costRateMarketing ?? 0.05) * 100]}
+                        onValueChange={(vals: number[]) => handleChange("costRateMarketing", (vals[0] / 100).toString())}
+                        min={0}
+                        max={25}
+                        step={1}
                       />
-                      <span className="text-xs text-muted-foreground">%</span>
                     </div>
                     <div className="space-y-2">
-                      <Label>Property Ops</Label>
-                      <Input 
-                        type="number" 
-                        step="0.1" 
-                        value={((draft.costRatePropertyOps ?? 0.04) * 100).toFixed(1)} 
-                        onChange={(e) => handleNumberChange("costRatePropertyOps", (parseFloat(e.target.value) / 100).toString())} 
+                      <div className="flex justify-between items-center">
+                        <Label className="text-sm">Property Ops</Label>
+                        <span className="text-sm font-semibold text-primary">{((draft.costRatePropertyOps ?? 0.04) * 100).toFixed(0)}%</span>
+                      </div>
+                      <Slider 
+                        value={[(draft.costRatePropertyOps ?? 0.04) * 100]}
+                        onValueChange={(vals: number[]) => handleChange("costRatePropertyOps", (vals[0] / 100).toString())}
+                        min={0}
+                        max={25}
+                        step={1}
                       />
-                      <span className="text-xs text-muted-foreground">%</span>
                     </div>
                     <div className="space-y-2">
-                      <Label>Utilities</Label>
-                      <Input 
-                        type="number" 
-                        step="0.1" 
-                        value={((draft.costRateUtilities ?? 0.05) * 100).toFixed(1)} 
-                        onChange={(e) => handleNumberChange("costRateUtilities", (parseFloat(e.target.value) / 100).toString())} 
+                      <div className="flex justify-between items-center">
+                        <Label className="text-sm">Utilities</Label>
+                        <span className="text-sm font-semibold text-primary">{((draft.costRateUtilities ?? 0.05) * 100).toFixed(0)}%</span>
+                      </div>
+                      <Slider 
+                        value={[(draft.costRateUtilities ?? 0.05) * 100]}
+                        onValueChange={(vals: number[]) => handleChange("costRateUtilities", (vals[0] / 100).toString())}
+                        min={0}
+                        max={25}
+                        step={1}
                       />
-                      <span className="text-xs text-muted-foreground">%</span>
                     </div>
                     <div className="space-y-2">
-                      <Label>Insurance</Label>
-                      <Input 
-                        type="number" 
-                        step="0.1" 
-                        value={((draft.costRateInsurance ?? 0.02) * 100).toFixed(1)} 
-                        onChange={(e) => handleNumberChange("costRateInsurance", (parseFloat(e.target.value) / 100).toString())} 
+                      <div className="flex justify-between items-center">
+                        <Label className="text-sm">Insurance</Label>
+                        <span className="text-sm font-semibold text-primary">{((draft.costRateInsurance ?? 0.02) * 100).toFixed(0)}%</span>
+                      </div>
+                      <Slider 
+                        value={[(draft.costRateInsurance ?? 0.02) * 100]}
+                        onValueChange={(vals: number[]) => handleChange("costRateInsurance", (vals[0] / 100).toString())}
+                        min={0}
+                        max={15}
+                        step={1}
                       />
-                      <span className="text-xs text-muted-foreground">%</span>
                     </div>
                     <div className="space-y-2">
-                      <Label>Taxes</Label>
-                      <Input 
-                        type="number" 
-                        step="0.1" 
-                        value={((draft.costRateTaxes ?? 0.03) * 100).toFixed(1)} 
-                        onChange={(e) => handleNumberChange("costRateTaxes", (parseFloat(e.target.value) / 100).toString())} 
+                      <div className="flex justify-between items-center">
+                        <Label className="text-sm">Taxes</Label>
+                        <span className="text-sm font-semibold text-primary">{((draft.costRateTaxes ?? 0.03) * 100).toFixed(0)}%</span>
+                      </div>
+                      <Slider 
+                        value={[(draft.costRateTaxes ?? 0.03) * 100]}
+                        onValueChange={(vals: number[]) => handleChange("costRateTaxes", (vals[0] / 100).toString())}
+                        min={0}
+                        max={15}
+                        step={1}
                       />
-                      <span className="text-xs text-muted-foreground">%</span>
                     </div>
                     <div className="space-y-2">
-                      <Label>IT</Label>
-                      <Input 
-                        type="number" 
-                        step="0.1" 
-                        value={((draft.costRateIT ?? 0.02) * 100).toFixed(1)} 
-                        onChange={(e) => handleNumberChange("costRateIT", (parseFloat(e.target.value) / 100).toString())} 
+                      <div className="flex justify-between items-center">
+                        <Label className="text-sm">IT</Label>
+                        <span className="text-sm font-semibold text-primary">{((draft.costRateIT ?? 0.02) * 100).toFixed(0)}%</span>
+                      </div>
+                      <Slider 
+                        value={[(draft.costRateIT ?? 0.02) * 100]}
+                        onValueChange={(vals: number[]) => handleChange("costRateIT", (vals[0] / 100).toString())}
+                        min={0}
+                        max={15}
+                        step={1}
                       />
-                      <span className="text-xs text-muted-foreground">%</span>
                     </div>
                     <div className="space-y-2">
-                      <Label>FF&E Reserve</Label>
-                      <Input 
-                        type="number" 
-                        step="0.1" 
-                        value={((draft.costRateFFE ?? 0.04) * 100).toFixed(1)} 
-                        onChange={(e) => handleNumberChange("costRateFFE", (parseFloat(e.target.value) / 100).toString())} 
+                      <div className="flex justify-between items-center">
+                        <Label className="text-sm">FF&E Reserve</Label>
+                        <span className="text-sm font-semibold text-primary">{((draft.costRateFFE ?? 0.04) * 100).toFixed(0)}%</span>
+                      </div>
+                      <Slider 
+                        value={[(draft.costRateFFE ?? 0.04) * 100]}
+                        onValueChange={(vals: number[]) => handleChange("costRateFFE", (vals[0] / 100).toString())}
+                        min={0}
+                        max={15}
+                        step={1}
                       />
-                      <span className="text-xs text-muted-foreground">%</span>
                     </div>
                   </div>
                 </>

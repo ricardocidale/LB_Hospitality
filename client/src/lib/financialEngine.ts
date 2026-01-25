@@ -304,8 +304,12 @@ export function generateCompanyProForma(
   const results: CompanyMonthlyFinancials[] = [];
   const startDate = new Date(global.modelStartDate);
   
-  const tranche1Date = global.safeTranche1Date ? new Date(global.safeTranche1Date) : new Date(global.modelStartDate);
-  const tranche2Date = global.safeTranche2Date ? new Date(global.safeTranche2Date) : null;
+  const parseDateString = (dateStr: string) => {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    return { year, month: month - 1, day };
+  };
+  const tranche1Parsed = global.safeTranche1Date ? parseDateString(global.safeTranche1Date) : parseDateString(global.modelStartDate);
+  const tranche2Parsed = global.safeTranche2Date ? parseDateString(global.safeTranche2Date) : null;
   
   const propertyFinancials = properties.map(p => generatePropertyProForma(p, global, months));
   
@@ -363,13 +367,13 @@ export function generateCompanyProForma(
     
     let safeFunding1 = 0;
     let safeFunding2 = 0;
-    if (currentDate.getFullYear() === tranche1Date.getFullYear() && 
-        currentDate.getMonth() === tranche1Date.getMonth()) {
+    if (currentDate.getFullYear() === tranche1Parsed.year && 
+        currentDate.getMonth() === tranche1Parsed.month) {
       safeFunding1 = global.safeTranche1Amount ?? 450000;
     }
-    if (tranche2Date && 
-        currentDate.getFullYear() === tranche2Date.getFullYear() && 
-        currentDate.getMonth() === tranche2Date.getMonth()) {
+    if (tranche2Parsed && 
+        currentDate.getFullYear() === tranche2Parsed.year && 
+        currentDate.getMonth() === tranche2Parsed.month) {
       safeFunding2 = global.safeTranche2Amount ?? 450000;
     }
     const safeFunding = safeFunding1 + safeFunding2;

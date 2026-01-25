@@ -1033,6 +1033,43 @@ export default function PropertyEdit() {
           </CardContent>
         </Card>
 
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              Exit Cap Rate
+              <HelpTooltip text="The capitalization rate used to calculate the property's exit value. Exit Value = Year 10 NOI ÷ Cap Rate. A lower cap rate means a higher valuation." />
+            </CardTitle>
+            <CardDescription>
+              Used to determine property exit valuation
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="max-w-md space-y-2">
+              <div className="flex justify-between items-center">
+                <Label>Exit Capitalization Rate</Label>
+                <EditableValue
+                  value={(draft.exitCapRate ?? 0.085) * 100}
+                  onChange={(val) => handleChange("exitCapRate", (val / 100).toString())}
+                  format="percent"
+                  min={1}
+                  max={10}
+                  step={0.1}
+                />
+              </div>
+              <Slider 
+                value={[(draft.exitCapRate ?? 0.085) * 100]}
+                onValueChange={(vals: number[]) => handleChange("exitCapRate", (vals[0] / 100).toString())}
+                min={1}
+                max={10}
+                step={0.1}
+              />
+              <p className="text-xs text-muted-foreground mt-2">
+                Exit Value = Year 10 NOI ÷ {((draft.exitCapRate ?? 0.085) * 100).toFixed(1)}% = <span className="font-medium">higher property valuation at lower cap rates</span>
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
         <div className="flex justify-end pb-8">
           <Button onClick={handleSave} disabled={updateProperty.isPending} size="lg">
             {updateProperty.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}

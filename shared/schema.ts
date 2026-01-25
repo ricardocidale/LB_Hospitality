@@ -128,6 +128,9 @@ export const properties = pgTable("properties", {
   fullCateringPercent: real("full_catering_percent").notNull().default(0.40),
   partialCateringPercent: real("partial_catering_percent").notNull().default(0.30),
   
+  // Exit Cap Rate (for property valuation)
+  exitCapRate: real("exit_cap_rate").notNull().default(0.085),
+  
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

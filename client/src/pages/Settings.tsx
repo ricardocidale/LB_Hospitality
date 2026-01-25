@@ -99,13 +99,13 @@ export default function Settings() {
 
           <TabsContent value="global" className="space-y-6 mt-6">
             <div className="mb-4">
-              <h3 className="text-lg font-semibold text-primary border-b pb-2">Management Company</h3>
+              <h3 className="text-lg font-semibold text-primary border-b pb-2">Macroeconomic</h3>
             </div>
             
             <Card>
               <CardHeader>
-                <CardTitle>Macroeconomic Assumptions</CardTitle>
-                <CardDescription>Economic factors affecting the model</CardDescription>
+                <CardTitle>Economic Assumptions</CardTitle>
+                <CardDescription>Market-wide economic factors affecting the model</CardDescription>
               </CardHeader>
               <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
@@ -119,6 +119,10 @@ export default function Settings() {
                 </div>
               </CardContent>
             </Card>
+
+            <div className="mb-4 mt-8">
+              <h3 className="text-lg font-semibold text-primary border-b pb-2">Management Company</h3>
+            </div>
 
             <Card>
               <CardHeader>

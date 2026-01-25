@@ -8,18 +8,29 @@ async function seed() {
   await db.insert(globalAssumptions).values({
     modelStartDate: "2026-04-01",
     inflationRate: 0.03,
+    fixedCostEscalationRate: 0.03,
     baseManagementFee: 0.04,
     incentiveManagementFee: 0.10,
+    // SAFE Funding
+    safeTranche1Amount: 225000,
+    safeTranche1Date: "2026-04-01",
+    safeTranche2Amount: 225000,
+    safeTranche2Date: "2027-04-01",
+    safeValuationCap: 2500000,
+    safeDiscountRate: 0.20,
+    // Compensation
     partnerSalary: 150000,
     staffSalary: 75000,
-    travelCostPerClient: 12000,
-    itLicensePerClient: 24000,
-    marketingRate: 0.05,
-    miscOpsRate: 0.03,
+    // Fixed overhead
     officeLeaseStart: 36000,
     professionalServicesStart: 24000,
     techInfraStart: 18000,
     businessInsuranceStart: 12000,
+    // Variable costs
+    travelCostPerClient: 12000,
+    itLicensePerClient: 3000,
+    marketingRate: 0.05,
+    miscOpsRate: 0.03,
     standardAcqPackage: {
       purchasePrice: 2300000,
       buildingImprovements: 800000,

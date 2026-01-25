@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import { useGlobalAssumptions, useUpdateGlobalAssumptions } from "@/lib/api";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ChevronLeft, Loader2, Save, HelpCircle } from "lucide-react";
@@ -71,7 +72,7 @@ function EditableValue({
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
         autoFocus
-        className="w-20 px-1 py-0.5 text-right font-semibold border rounded bg-background"
+        className="w-24 px-1 py-0.5 text-right font-semibold border rounded bg-background"
       />
     );
   }
@@ -172,11 +173,123 @@ export default function CompanyAssumptions() {
           </Button>
         </div>
 
-        <section className="grid gap-6 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              SAFE Funding
+              <HelpTooltip text="Simple Agreement for Future Equity - initial capital to fund management company operations before fee revenue begins" />
+            </CardTitle>
+            <CardDescription>Capital raised via SAFE in two tranches to support operations</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="p-4 bg-muted/30 rounded-lg space-y-4">
+                <h4 className="font-semibold">Tranche 1</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Amount</Label>
+                    <div className="flex items-center gap-2">
+                      <span className="text-muted-foreground">$</span>
+                      <Input
+                        type="number"
+                        value={formData.safeTranche1Amount ?? global.safeTranche1Amount}
+                        onChange={(e) => handleUpdate("safeTranche1Amount", parseFloat(e.target.value) || 0)}
+                        className="max-w-32"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Date</Label>
+                    <Input
+                      type="date"
+                      value={formData.safeTranche1Date ?? global.safeTranche1Date}
+                      onChange={(e) => handleUpdate("safeTranche1Date", e.target.value)}
+                      className="max-w-40"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="p-4 bg-muted/30 rounded-lg space-y-4">
+                <h4 className="font-semibold">Tranche 2</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Amount</Label>
+                    <div className="flex items-center gap-2">
+                      <span className="text-muted-foreground">$</span>
+                      <Input
+                        type="number"
+                        value={formData.safeTranche2Amount ?? global.safeTranche2Amount}
+                        onChange={(e) => handleUpdate("safeTranche2Amount", parseFloat(e.target.value) || 0)}
+                        className="max-w-32"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Date</Label>
+                    <Input
+                      type="date"
+                      value={formData.safeTranche2Date ?? global.safeTranche2Date}
+                      onChange={(e) => handleUpdate("safeTranche2Date", e.target.value)}
+                      className="max-w-40"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="mt-4 pt-4 border-t grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div>
+                <Label className="text-muted-foreground text-sm">Total SAFE Raise</Label>
+                <p className="font-semibold text-lg">
+                  {formatMoney((formData.safeTranche1Amount ?? global.safeTranche1Amount) + (formData.safeTranche2Amount ?? global.safeTranche2Amount))}
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label className="flex items-center">
+                  Valuation Cap
+                  <HelpTooltip text="Maximum company valuation for SAFE conversion" />
+                </Label>
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground">$</span>
+                  <Input
+                    type="number"
+                    value={formData.safeValuationCap ?? global.safeValuationCap}
+                    onChange={(e) => handleUpdate("safeValuationCap", parseFloat(e.target.value) || 0)}
+                    className="max-w-32"
+                  />
+                </div>
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label className="flex items-center">
+                    Discount Rate
+                    <HelpTooltip text="Discount on share price when SAFE converts to equity" />
+                  </Label>
+                  <EditableValue
+                    value={formData.safeDiscountRate ?? global.safeDiscountRate}
+                    onChange={(v) => handleUpdate("safeDiscountRate", v)}
+                    format="percent"
+                    min={0}
+                    max={0.5}
+                    step={0.05}
+                  />
+                </div>
+                <Slider
+                  value={[(formData.safeDiscountRate ?? global.safeDiscountRate) * 100]}
+                  onValueChange={([v]) => handleUpdate("safeDiscountRate", v / 100)}
+                  min={0}
+                  max={50}
+                  step={5}
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="grid gap-6 lg:grid-cols-2">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
-                Revenue Structure
+                Revenue
                 <HelpTooltip text="Management fees collected from each property in the portfolio" />
               </CardTitle>
             </CardHeader>
@@ -192,7 +305,7 @@ export default function CompanyAssumptions() {
                     onChange={(v) => handleUpdate("baseManagementFee", v)}
                     format="percent"
                     min={0}
-                    max={0.2}
+                    max={0.1}
                     step={0.005}
                   />
                 </div>
@@ -200,7 +313,7 @@ export default function CompanyAssumptions() {
                   value={[(formData.baseManagementFee ?? global.baseManagementFee) * 100]}
                   onValueChange={([v]) => handleUpdate("baseManagementFee", v / 100)}
                   min={0}
-                  max={20}
+                  max={10}
                   step={0.5}
                 />
               </div>
@@ -208,15 +321,15 @@ export default function CompanyAssumptions() {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label className="flex items-center">
-                    Incentive Management Fee
-                    <HelpTooltip text="Percentage of each property's Gross Operating Profit (GOP) collected annually" />
+                    Incentive Fee (% of GOP)
+                    <HelpTooltip text="Percentage of each property's Gross Operating Profit collected annually" />
                   </Label>
                   <EditableValue
                     value={formData.incentiveManagementFee ?? global.incentiveManagementFee}
                     onChange={(v) => handleUpdate("incentiveManagementFee", v)}
                     format="percent"
                     min={0}
-                    max={0.3}
+                    max={0.2}
                     step={0.01}
                   />
                 </div>
@@ -224,7 +337,7 @@ export default function CompanyAssumptions() {
                   value={[(formData.incentiveManagementFee ?? global.incentiveManagementFee) * 100]}
                   onValueChange={([v]) => handleUpdate("incentiveManagementFee", v / 100)}
                   min={0}
-                  max={30}
+                  max={20}
                   step={1}
                 />
               </div>
@@ -288,15 +401,41 @@ export default function CompanyAssumptions() {
               </div>
             </CardContent>
           </Card>
+        </div>
 
+        <div className="grid gap-6 lg:grid-cols-2">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
                 Fixed Overhead (Year 1)
-                <HelpTooltip text="Starting annual costs, escalate with inflation each year" />
+                <HelpTooltip text="Starting annual costs that escalate yearly at the fixed cost escalation rate" />
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label className="flex items-center">
+                    Fixed Cost Escalation Rate
+                    <HelpTooltip text="Annual percentage increase applied to all fixed costs" />
+                  </Label>
+                  <EditableValue
+                    value={formData.fixedCostEscalationRate ?? global.fixedCostEscalationRate}
+                    onChange={(v) => handleUpdate("fixedCostEscalationRate", v)}
+                    format="percent"
+                    min={0}
+                    max={0.1}
+                    step={0.005}
+                  />
+                </div>
+                <Slider
+                  value={[(formData.fixedCostEscalationRate ?? global.fixedCostEscalationRate) * 100]}
+                  onValueChange={([v]) => handleUpdate("fixedCostEscalationRate", v / 100)}
+                  min={0}
+                  max={10}
+                  step={0.5}
+                />
+              </div>
+
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label className="flex items-center">
@@ -431,23 +570,23 @@ export default function CompanyAssumptions() {
                 <div className="flex items-center justify-between">
                   <Label className="flex items-center">
                     IT/Licensing per Client
-                    <HelpTooltip text="PMS, revenue management, and software licenses per property" />
+                    <HelpTooltip text="PMS, revenue management, and software licenses per B&B property" />
                   </Label>
                   <EditableValue
                     value={formData.itLicensePerClient ?? global.itLicensePerClient}
                     onChange={(v) => handleUpdate("itLicensePerClient", v)}
                     format="dollar"
                     min={0}
-                    max={60000}
-                    step={1000}
+                    max={15000}
+                    step={500}
                   />
                 </div>
                 <Slider
                   value={[formData.itLicensePerClient ?? global.itLicensePerClient]}
                   onValueChange={([v]) => handleUpdate("itLicensePerClient", v)}
                   min={0}
-                  max={60000}
-                  step={1000}
+                  max={15000}
+                  step={500}
                 />
               </div>
 
@@ -462,7 +601,7 @@ export default function CompanyAssumptions() {
                     onChange={(v) => handleUpdate("marketingRate", v)}
                     format="percent"
                     min={0}
-                    max={0.2}
+                    max={0.15}
                     step={0.01}
                   />
                 </div>
@@ -470,7 +609,7 @@ export default function CompanyAssumptions() {
                   value={[(formData.marketingRate ?? global.marketingRate) * 100]}
                   onValueChange={([v]) => handleUpdate("marketingRate", v / 100)}
                   min={0}
-                  max={20}
+                  max={15}
                   step={1}
                 />
               </div>
@@ -486,7 +625,7 @@ export default function CompanyAssumptions() {
                     onChange={(v) => handleUpdate("miscOpsRate", v)}
                     format="percent"
                     min={0}
-                    max={0.15}
+                    max={0.1}
                     step={0.005}
                   />
                 </div>
@@ -494,18 +633,18 @@ export default function CompanyAssumptions() {
                   value={[(formData.miscOpsRate ?? global.miscOpsRate) * 100]}
                   onValueChange={([v]) => handleUpdate("miscOpsRate", v / 100)}
                   min={0}
-                  max={15}
+                  max={10}
                   step={0.5}
                 />
               </div>
             </CardContent>
           </Card>
-        </section>
+        </div>
 
         <Card className="bg-muted/30">
           <CardContent className="py-4">
             <p className="text-sm text-muted-foreground text-center">
-              All fixed overhead costs escalate annually with the inflation rate set in Global Assumptions.
+              All fixed overhead costs escalate annually at the fixed cost escalation rate ({formatPercent(formData.fixedCostEscalationRate ?? global.fixedCostEscalationRate)}).
               Staff FTE scales automatically: 2.5 (1-3 properties), 4.5 (4-6), 7.0 (7-10).
             </p>
           </CardContent>

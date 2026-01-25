@@ -185,54 +185,66 @@ export default function CompanyAssumptions() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="p-4 bg-muted/30 rounded-lg space-y-4">
                 <h4 className="font-semibold">Tranche 1</h4>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
                     <Label>Amount</Label>
-                    <div className="flex items-center gap-2">
-                      <span className="text-muted-foreground">$</span>
-                      <Input
-                        type="number"
-                        value={formData.safeTranche1Amount ?? global.safeTranche1Amount}
-                        onChange={(e) => handleUpdate("safeTranche1Amount", parseFloat(e.target.value) || 0)}
-                        className="max-w-32"
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Date</Label>
-                    <Input
-                      type="date"
-                      value={formData.safeTranche1Date ?? global.safeTranche1Date}
-                      onChange={(e) => handleUpdate("safeTranche1Date", e.target.value)}
-                      className="max-w-40"
+                    <EditableValue
+                      value={formData.safeTranche1Amount ?? global.safeTranche1Amount}
+                      onChange={(v) => handleUpdate("safeTranche1Amount", v)}
+                      format="dollar"
+                      min={0}
+                      max={2000000}
+                      step={25000}
                     />
                   </div>
+                  <Slider
+                    value={[formData.safeTranche1Amount ?? global.safeTranche1Amount]}
+                    onValueChange={([v]) => handleUpdate("safeTranche1Amount", v)}
+                    min={0}
+                    max={2000000}
+                    step={25000}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Date</Label>
+                  <Input
+                    type="date"
+                    value={formData.safeTranche1Date ?? global.safeTranche1Date}
+                    onChange={(e) => handleUpdate("safeTranche1Date", e.target.value)}
+                    className="max-w-40"
+                  />
                 </div>
               </div>
               <div className="p-4 bg-muted/30 rounded-lg space-y-4">
                 <h4 className="font-semibold">Tranche 2</h4>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
                     <Label>Amount</Label>
-                    <div className="flex items-center gap-2">
-                      <span className="text-muted-foreground">$</span>
-                      <Input
-                        type="number"
-                        value={formData.safeTranche2Amount ?? global.safeTranche2Amount}
-                        onChange={(e) => handleUpdate("safeTranche2Amount", parseFloat(e.target.value) || 0)}
-                        className="max-w-32"
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Date</Label>
-                    <Input
-                      type="date"
-                      value={formData.safeTranche2Date ?? global.safeTranche2Date}
-                      onChange={(e) => handleUpdate("safeTranche2Date", e.target.value)}
-                      className="max-w-40"
+                    <EditableValue
+                      value={formData.safeTranche2Amount ?? global.safeTranche2Amount}
+                      onChange={(v) => handleUpdate("safeTranche2Amount", v)}
+                      format="dollar"
+                      min={0}
+                      max={2000000}
+                      step={25000}
                     />
                   </div>
+                  <Slider
+                    value={[formData.safeTranche2Amount ?? global.safeTranche2Amount]}
+                    onValueChange={([v]) => handleUpdate("safeTranche2Amount", v)}
+                    min={0}
+                    max={2000000}
+                    step={25000}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Date</Label>
+                  <Input
+                    type="date"
+                    value={formData.safeTranche2Date ?? global.safeTranche2Date}
+                    onChange={(e) => handleUpdate("safeTranche2Date", e.target.value)}
+                    className="max-w-40"
+                  />
                 </div>
               </div>
             </div>

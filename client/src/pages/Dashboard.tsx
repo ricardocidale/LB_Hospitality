@@ -83,7 +83,7 @@ export default function Dashboard() {
             <CardContent>
               <div className="text-2xl font-bold text-primary">{formatMoney(portfolioTotalGOP)}</div>
               <p className="text-xs text-muted-foreground mt-1">
-                {((portfolioTotalGOP / portfolioTotalRevenue) * 100).toFixed(1)}% Operating Margin
+                {portfolioTotalRevenue > 0 ? `${((portfolioTotalGOP / portfolioTotalRevenue) * 100).toFixed(1)}%` : '0%'} Operating Margin
               </p>
             </CardContent>
           </Card>

@@ -25,11 +25,11 @@ export const globalAssumptions = pgTable("global_assumptions", {
   standardAcqPackage: jsonb("standard_acq_package").notNull(),
   debtAssumptions: jsonb("debt_assumptions").notNull(),
   
-  // Catering Level Rates (as % of rooms revenue)
-  fullCateringEventRevenue: real("full_catering_event_revenue").notNull().default(0.50),
-  fullCateringEventCost: real("full_catering_event_cost").notNull().default(0.92),
-  partialCateringEventRevenue: real("partial_catering_event_revenue").notNull().default(0.25),
-  partialCateringEventCost: real("partial_catering_event_cost").notNull().default(0.80),
+  // Catering Level F&B Boost Factors
+  fullCateringFBBoost: real("full_catering_fb_boost").notNull().default(0.50),
+  fullCateringFBCost: real("full_catering_fb_cost").notNull().default(0.92),
+  partialCateringFBBoost: real("partial_catering_fb_boost").notNull().default(0.25),
+  partialCateringFBCost: real("partial_catering_fb_cost").notNull().default(0.80),
   
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -122,6 +122,10 @@ export const properties = pgTable("properties", {
   revShareEvents: real("rev_share_events").notNull().default(0.43),
   revShareFB: real("rev_share_fb").notNull().default(0.22),
   revShareOther: real("rev_share_other").notNull().default(0.07),
+  
+  // Catering mix (% of events using each catering level)
+  fullCateringPercent: real("full_catering_percent").notNull().default(0.40),
+  partialCateringPercent: real("partial_catering_percent").notNull().default(0.30),
   
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),

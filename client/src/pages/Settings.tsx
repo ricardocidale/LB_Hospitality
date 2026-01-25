@@ -11,6 +11,14 @@ import { useState } from "react";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { Slider } from "@/components/ui/slider";
 
+function formatMoneyInput(value: number): string {
+  return new Intl.NumberFormat('en-US').format(value);
+}
+
+function parseMoneyInput(value: string): number {
+  return parseFloat(value.replace(/,/g, '')) || 0;
+}
+
 export default function Settings() {
   const { data: global, isLoading: globalLoading } = useGlobalAssumptions();
   const { data: properties, isLoading: propertiesLoading } = useProperties();
@@ -60,6 +68,14 @@ export default function Settings() {
         [id]: { ...(propertyDrafts[id] || {}), [key]: numValue }
       });
     }
+  };
+
+  const handlePropertyMoneyChange = (id: number, key: string, value: string) => {
+    const numValue = parseMoneyInput(value);
+    setPropertyDrafts({
+      ...propertyDrafts,
+      [id]: { ...(propertyDrafts[id] || {}), [key]: numValue }
+    });
   };
 
   const handleSaveGlobal = () => {
@@ -433,43 +449,40 @@ export default function Settings() {
                       <div className="space-y-2">
                         <Label>Start ADR ($)</Label>
                         <Input 
-                          type="number" 
-                          value={current.startAdr} 
-                          onChange={(e) => handlePropertyChange(property.id, "startAdr", e.target.value)}
+                          value={formatMoneyInput(current.startAdr)} 
+                          onChange={(e) => handlePropertyMoneyChange(property.id, "startAdr", e.target.value)}
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label>ADR Growth Rate</Label>
+                        <Label>ADR Growth Rate (%)</Label>
                         <Input 
                           type="number" 
-                          step="0.001"
-                          value={current.adrGrowthRate} 
-                          onChange={(e) => handlePropertyChange(property.id, "adrGrowthRate", e.target.value)}
+                          step="0.1"
+                          value={(current.adrGrowthRate * 100).toFixed(1)} 
+                          onChange={(e) => handlePropertyChange(property.id, "adrGrowthRate", (parseFloat(e.target.value) / 100).toString())}
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label>Max Occupancy</Label>
+                        <Label>Max Occupancy (%)</Label>
                         <Input 
                           type="number" 
-                          step="0.01"
-                          value={current.maxOccupancy} 
-                          onChange={(e) => handlePropertyChange(property.id, "maxOccupancy", e.target.value)}
+                          step="1"
+                          value={(current.maxOccupancy * 100).toFixed(0)} 
+                          onChange={(e) => handlePropertyChange(property.id, "maxOccupancy", (parseFloat(e.target.value) / 100).toString())}
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label>Purchase Price</Label>
+                        <Label>Purchase Price ($)</Label>
                         <Input 
-                          type="number" 
-                          value={current.purchasePrice} 
-                          onChange={(e) => handlePropertyChange(property.id, "purchasePrice", e.target.value)}
+                          value={formatMoneyInput(current.purchasePrice)} 
+                          onChange={(e) => handlePropertyMoneyChange(property.id, "purchasePrice", e.target.value)}
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label>Improvement Budget</Label>
+                        <Label>Improvement Budget ($)</Label>
                         <Input 
-                          type="number" 
-                          value={current.buildingImprovements} 
-                          onChange={(e) => handlePropertyChange(property.id, "buildingImprovements", e.target.value)}
+                          value={formatMoneyInput(current.buildingImprovements)} 
+                          onChange={(e) => handlePropertyMoneyChange(property.id, "buildingImprovements", e.target.value)}
                         />
                       </div>
                       <div className="space-y-2">

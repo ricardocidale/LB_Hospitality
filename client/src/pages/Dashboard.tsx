@@ -1525,6 +1525,30 @@ function InvestmentAnalysis({
                       );
                     })}
                   </TableRow>
+                  <TableRow className="bg-muted/10">
+                    <TableCell className="sticky left-0 bg-muted/10 pl-8 text-sm text-muted-foreground italic">By Property:</TableCell>
+                    <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
+                    {Array.from({ length: 10 }, (_, y) => (
+                      <TableCell key={y} className="text-right text-sm text-muted-foreground">-</TableCell>
+                    ))}
+                  </TableRow>
+                  {properties.map((prop, idx) => (
+                    <TableRow key={prop.id} className="bg-muted/5" data-testid={`fcf-property-${prop.id}`}>
+                      <TableCell className="sticky left-0 bg-muted/5 pl-12 text-sm text-muted-foreground">
+                        {prop.name}
+                        <span className="text-xs ml-2">({((prop.taxRate || 0.25) * 100).toFixed(0)}% tax)</span>
+                      </TableCell>
+                      <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
+                      {Array.from({ length: 10 }, (_, y) => {
+                        const details = getPropertyYearlyDetails(prop, idx, y);
+                        return (
+                          <TableCell key={y} className={`text-right text-sm ${details.atcf < 0 ? 'text-destructive' : 'text-muted-foreground'}`}>
+                            {formatMoney(details.atcf)}
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
+                  ))}
                 </>
               )}
 

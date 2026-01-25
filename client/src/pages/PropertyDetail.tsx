@@ -30,7 +30,7 @@ export default function PropertyDetail() {
     return (
       <Layout>
         <div className="flex flex-col items-center justify-center h-[60vh] text-center space-y-4">
-          <h2 className="text-xl font-bold">Property Not Found</h2>
+          <h2 className="text-2xl font-serif font-bold">Property Not Found</h2>
           <Link href="/portfolio">
             <Button>Return to Portfolio</Button>
           </Link>
@@ -46,65 +46,63 @@ export default function PropertyDetail() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <Link href="/portfolio">
-            <Button variant="ghost" className="text-muted-foreground hover:text-foreground pl-0">
-              <ArrowLeft className="w-4 h-4 mr-2" /> Back
+            <Button variant="ghost" className="pl-0">
+              <ArrowLeft className="w-4 h-4 mr-2" /> Back to Portfolio
             </Button>
           </Link>
           <Link href="/settings">
-            <Button variant="outline" size="sm" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground">
-              Edit Assumptions
-            </Button>
+            <Button variant="outline" size="sm">Edit Assumptions</Button>
           </Link>
         </div>
 
-        <div className="relative h-[200px] md:h-[260px] rounded-xl overflow-hidden">
+        <div className="relative h-[280px] rounded-xl overflow-hidden">
           <img src={property.imageUrl} className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
-          <div className="absolute bottom-0 left-0 p-5">
-            <h1 className="text-2xl md:text-3xl font-bold mb-1">{property.name}</h1>
-            <div className="flex items-center gap-3 text-muted-foreground text-sm">
-              <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {property.location}</span>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+          <div className="absolute bottom-0 left-0 p-6 text-white">
+            <h1 className="text-3xl font-serif font-bold mb-2">{property.name}</h1>
+            <div className="flex items-center gap-4 text-white/80 text-sm">
+              <span className="flex items-center gap-1"><MapPin className="w-4 h-4" /> {property.location}</span>
               <span>{property.roomCount} Rooms</span>
-              <Badge variant="outline" className="border-border">{property.status}</Badge>
+              <Badge variant="outline" className="border-white/40 text-white">{property.status}</Badge>
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <Card className="bg-card border-border">
-            <CardHeader className="pb-1 pt-3 px-4">
-              <CardTitle className="text-xs text-muted-foreground font-normal">Year 1 Revenue</CardTitle>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm text-muted-foreground">Year 1 Revenue</CardTitle>
             </CardHeader>
-            <CardContent className="px-4 pb-3">
-              <p className="text-xl font-bold text-primary">
+            <CardContent>
+              <p className="text-2xl font-bold text-primary">
                 {formatMoney(financials.slice(0, 12).reduce((acc, m) => acc + m.revenueTotal, 0))}
               </p>
             </CardContent>
           </Card>
-          <Card className="bg-card border-border">
-            <CardHeader className="pb-1 pt-3 px-4">
-              <CardTitle className="text-xs text-muted-foreground font-normal">Year 1 NOI</CardTitle>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm text-muted-foreground">Year 1 NOI</CardTitle>
             </CardHeader>
-            <CardContent className="px-4 pb-3">
-              <p className="text-xl font-bold">
+            <CardContent>
+              <p className="text-2xl font-bold">
                 {formatMoney(financials.slice(0, 12).reduce((acc, m) => acc + m.noi, 0))}
               </p>
             </CardContent>
           </Card>
-          <Card className="bg-card border-border">
-            <CardHeader className="pb-1 pt-3 px-4">
-              <CardTitle className="text-xs text-muted-foreground font-normal">Stabilized ADR</CardTitle>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm text-muted-foreground">Stabilized ADR</CardTitle>
             </CardHeader>
-            <CardContent className="px-4 pb-3">
-              <p className="text-xl font-bold">{formatMoney(financials[35]?.adr || property.startAdr)}</p>
+            <CardContent>
+              <p className="text-2xl font-bold">{formatMoney(financials[35]?.adr || property.startAdr)}</p>
             </CardContent>
           </Card>
-          <Card className="bg-card border-border">
-            <CardHeader className="pb-1 pt-3 px-4">
-              <CardTitle className="text-xs text-muted-foreground font-normal">Cash on Cash (Y1)</CardTitle>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm text-muted-foreground">Cash on Cash (Y1)</CardTitle>
             </CardHeader>
-            <CardContent className="px-4 pb-3">
-              <p className="text-xl font-bold text-primary">
+            <CardContent>
+              <p className="text-2xl font-bold text-accent">
                 {((financials.slice(0, 12).reduce((acc, m) => acc + m.cashFlow, 0) / (property.purchasePrice * 0.25)) * 100).toFixed(1)}%
               </p>
             </CardContent>
@@ -113,8 +111,8 @@ export default function PropertyDetail() {
 
         <Tabs defaultValue="y1" className="w-full">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold">Pro Forma Financials</h3>
-            <TabsList className="bg-secondary">
+            <h3 className="text-xl font-serif font-bold">Pro Forma Financials</h3>
+            <TabsList>
               <TabsTrigger value="y1">Year 1</TabsTrigger>
               <TabsTrigger value="y2">Year 2</TabsTrigger>
               <TabsTrigger value="y3">Year 3</TabsTrigger>

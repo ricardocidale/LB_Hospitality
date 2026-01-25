@@ -243,20 +243,28 @@ export default function CompanyAssumptions() {
                   {formatMoney((formData.safeTranche1Amount ?? global.safeTranche1Amount) + (formData.safeTranche2Amount ?? global.safeTranche2Amount))}
                 </p>
               </div>
-              <div className="space-y-2">
-                <Label className="flex items-center">
-                  Valuation Cap
-                  <HelpTooltip text="Maximum company valuation for SAFE conversion" />
-                </Label>
-                <div className="flex items-center gap-2">
-                  <span className="text-muted-foreground">$</span>
-                  <Input
-                    type="number"
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label className="flex items-center">
+                    Valuation Cap
+                    <HelpTooltip text="Maximum company valuation for SAFE conversion" />
+                  </Label>
+                  <EditableValue
                     value={formData.safeValuationCap ?? global.safeValuationCap}
-                    onChange={(e) => handleUpdate("safeValuationCap", parseFloat(e.target.value) || 0)}
-                    className="max-w-32"
+                    onChange={(v) => handleUpdate("safeValuationCap", v)}
+                    format="dollar"
+                    min={500000}
+                    max={10000000}
+                    step={100000}
                   />
                 </div>
+                <Slider
+                  value={[formData.safeValuationCap ?? global.safeValuationCap]}
+                  onValueChange={([v]) => handleUpdate("safeValuationCap", v)}
+                  min={500000}
+                  max={10000000}
+                  step={100000}
+                />
               </div>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">

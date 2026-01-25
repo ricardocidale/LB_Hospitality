@@ -217,7 +217,10 @@ export default function PropertyEdit() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Catering Level</Label>
+                <Label className="flex items-center">
+                  Catering Level
+                  <HelpTooltip text="Full Service: Property offers complete F&B operations including restaurant, bar, room service, and event catering. Partial Service: Limited F&B offerings such as breakfast only or grab-and-go options." />
+                </Label>
                 <Select value={draft.cateringLevel} onValueChange={(v) => handleChange("cateringLevel", v)}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>

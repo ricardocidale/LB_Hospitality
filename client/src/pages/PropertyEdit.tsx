@@ -358,37 +358,97 @@ export default function PropertyEdit() {
             <CardTitle>Revenue Assumptions</CardTitle>
             <CardDescription>ADR and occupancy projections</CardDescription>
           </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="space-y-2">
-              <Label>Starting ADR ($)</Label>
-              <Input 
-                value={formatMoneyInput(draft.startAdr)} 
-                onChange={(e) => handleNumberChange("startAdr", parseMoneyInput(e.target.value).toString())} 
-              />
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label>Starting ADR ($)</Label>
+                <Input 
+                  value={formatMoneyInput(draft.startAdr)} 
+                  onChange={(e) => handleNumberChange("startAdr", parseMoneyInput(e.target.value).toString())} 
+                />
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <Label>ADR Annual Growth</Label>
+                  <span className="text-sm font-semibold text-primary">{(draft.adrGrowthRate * 100).toFixed(1)}%</span>
+                </div>
+                <Slider 
+                  value={[draft.adrGrowthRate * 100]}
+                  onValueChange={(vals: number[]) => handleChange("adrGrowthRate", (vals[0] / 100).toString())}
+                  min={0}
+                  max={15}
+                  step={0.1}
+                />
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label>ADR Annual Growth (%)</Label>
-              <Input type="number" step="0.001" value={(draft.adrGrowthRate * 100).toFixed(1)} onChange={(e) => handleNumberChange("adrGrowthRate", (parseFloat(e.target.value) / 100).toString())} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <Label>Starting Occupancy</Label>
+                  <span className="text-sm font-semibold text-primary">{(draft.startOccupancy * 100).toFixed(0)}%</span>
+                </div>
+                <Slider 
+                  value={[draft.startOccupancy * 100]}
+                  onValueChange={(vals: number[]) => handleChange("startOccupancy", (vals[0] / 100).toString())}
+                  min={0}
+                  max={100}
+                  step={1}
+                />
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <Label>Max Occupancy</Label>
+                  <span className="text-sm font-semibold text-primary">{(draft.maxOccupancy * 100).toFixed(0)}%</span>
+                </div>
+                <Slider 
+                  value={[draft.maxOccupancy * 100]}
+                  onValueChange={(vals: number[]) => handleChange("maxOccupancy", (vals[0] / 100).toString())}
+                  min={0}
+                  max={100}
+                  step={1}
+                />
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label>Starting Occupancy (%)</Label>
-              <Input type="number" step="0.01" value={(draft.startOccupancy * 100).toFixed(0)} onChange={(e) => handleNumberChange("startOccupancy", (parseFloat(e.target.value) / 100).toString())} />
-            </div>
-            <div className="space-y-2">
-              <Label>Max Occupancy (%)</Label>
-              <Input type="number" step="0.01" value={(draft.maxOccupancy * 100).toFixed(0)} onChange={(e) => handleNumberChange("maxOccupancy", (parseFloat(e.target.value) / 100).toString())} />
-            </div>
-            <div className="space-y-2">
-              <Label>Occupancy Ramp (Months)</Label>
-              <Input type="number" value={draft.occupancyRampMonths} onChange={(e) => handleNumberChange("occupancyRampMonths", e.target.value)} />
-            </div>
-            <div className="space-y-2">
-              <Label>Occupancy Growth Step (%)</Label>
-              <Input type="number" step="0.01" value={(draft.occupancyGrowthStep * 100).toFixed(0)} onChange={(e) => handleNumberChange("occupancyGrowthStep", (parseFloat(e.target.value) / 100).toString())} />
-            </div>
-            <div className="space-y-2">
-              <Label>Stabilization Period (Months)</Label>
-              <Input type="number" value={draft.stabilizationMonths} onChange={(e) => handleNumberChange("stabilizationMonths", e.target.value)} />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <Label>Occupancy Ramp</Label>
+                  <span className="text-sm font-semibold text-primary">{draft.occupancyRampMonths} mo</span>
+                </div>
+                <Slider 
+                  value={[draft.occupancyRampMonths]}
+                  onValueChange={(vals: number[]) => handleChange("occupancyRampMonths", vals[0].toString())}
+                  min={0}
+                  max={36}
+                  step={1}
+                />
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <Label>Occupancy Growth Step</Label>
+                  <span className="text-sm font-semibold text-primary">{(draft.occupancyGrowthStep * 100).toFixed(0)}%</span>
+                </div>
+                <Slider 
+                  value={[draft.occupancyGrowthStep * 100]}
+                  onValueChange={(vals: number[]) => handleChange("occupancyGrowthStep", (vals[0] / 100).toString())}
+                  min={0}
+                  max={20}
+                  step={1}
+                />
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <Label>Stabilization Period</Label>
+                  <span className="text-sm font-semibold text-primary">{draft.stabilizationMonths} mo</span>
+                </div>
+                <Slider 
+                  value={[draft.stabilizationMonths]}
+                  onValueChange={(vals: number[]) => handleChange("stabilizationMonths", vals[0].toString())}
+                  min={0}
+                  max={36}
+                  step={1}
+                />
+              </div>
             </div>
           </CardContent>
         </Card>

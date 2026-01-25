@@ -60,7 +60,7 @@ export default function Company() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-3xl font-serif text-primary mb-1" style={{ fontFamily: "'Nunito', sans-serif" }}>L+B Hospitality Co.</h2>
+            <h2 className="text-3xl font-serif font-bold text-foreground mb-1">L+B Hospitality Co.</h2>
             <p className="text-muted-foreground">Corporate Management Entity & Operations</p>
           </div>
           <Link href="/company/assumptions">

@@ -154,7 +154,7 @@ export default function CompanyAssumptions() {
               </Button>
             </Link>
             <div>
-              <h2 className="text-3xl font-serif text-primary" style={{ fontFamily: "'Nunito', sans-serif" }}>
+              <h2 className="text-3xl font-serif font-bold text-foreground">
                 Company Assumptions
               </h2>
               <p className="text-muted-foreground">

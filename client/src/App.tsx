@@ -8,6 +8,7 @@ import Dashboard from "@/pages/Dashboard";
 import Company from "@/pages/Company";
 import Portfolio from "@/pages/Portfolio";
 import PropertyDetail from "@/pages/PropertyDetail";
+import Settings from "@/pages/Settings";
 
 function Router() {
   return (
@@ -16,6 +17,7 @@ function Router() {
       <Route path="/company" component={Company} />
       <Route path="/portfolio" component={Portfolio} />
       <Route path="/property/:id" component={PropertyDetail} />
+      <Route path="/settings" component={Settings} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -25,8 +27,8 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <Router />
         <Toaster />
+        <Router />
       </TooltipProvider>
     </QueryClientProvider>
   );

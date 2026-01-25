@@ -10,6 +10,14 @@ import { ArrowLeft, Save, Loader2 } from "lucide-react";
 import { Link, useRoute, useLocation } from "wouter";
 import { useState, useEffect } from "react";
 
+function formatMoneyInput(value: number): string {
+  return new Intl.NumberFormat('en-US').format(value);
+}
+
+function parseMoneyInput(value: string): number {
+  return parseFloat(value.replace(/,/g, '')) || 0;
+}
+
 export default function PropertyEdit() {
   const [, params] = useRoute("/property/:id/edit");
   const [, setLocation] = useLocation();
@@ -155,19 +163,31 @@ export default function PropertyEdit() {
           <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label>Purchase Price ($)</Label>
-              <Input type="number" value={draft.purchasePrice} onChange={(e) => handleNumberChange("purchasePrice", e.target.value)} />
+              <Input 
+                value={formatMoneyInput(draft.purchasePrice)} 
+                onChange={(e) => handleNumberChange("purchasePrice", parseMoneyInput(e.target.value).toString())} 
+              />
             </div>
             <div className="space-y-2">
               <Label>Building Improvements ($)</Label>
-              <Input type="number" value={draft.buildingImprovements} onChange={(e) => handleNumberChange("buildingImprovements", e.target.value)} />
+              <Input 
+                value={formatMoneyInput(draft.buildingImprovements)} 
+                onChange={(e) => handleNumberChange("buildingImprovements", parseMoneyInput(e.target.value).toString())} 
+              />
             </div>
             <div className="space-y-2">
               <Label>Pre-Opening Costs ($)</Label>
-              <Input type="number" value={draft.preOpeningCosts} onChange={(e) => handleNumberChange("preOpeningCosts", e.target.value)} />
+              <Input 
+                value={formatMoneyInput(draft.preOpeningCosts)} 
+                onChange={(e) => handleNumberChange("preOpeningCosts", parseMoneyInput(e.target.value).toString())} 
+              />
             </div>
             <div className="space-y-2">
               <Label>Operating Reserve ($)</Label>
-              <Input type="number" value={draft.operatingReserve} onChange={(e) => handleNumberChange("operatingReserve", e.target.value)} />
+              <Input 
+                value={formatMoneyInput(draft.operatingReserve)} 
+                onChange={(e) => handleNumberChange("operatingReserve", parseMoneyInput(e.target.value).toString())} 
+              />
             </div>
             <div className="space-y-2">
               <Label>Financing Type</Label>
@@ -200,7 +220,10 @@ export default function PropertyEdit() {
           <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="space-y-2">
               <Label>Starting ADR ($)</Label>
-              <Input type="number" value={draft.startAdr} onChange={(e) => handleNumberChange("startAdr", e.target.value)} />
+              <Input 
+                value={formatMoneyInput(draft.startAdr)} 
+                onChange={(e) => handleNumberChange("startAdr", parseMoneyInput(e.target.value).toString())} 
+              />
             </div>
             <div className="space-y-2">
               <Label>ADR Annual Growth (%)</Label>

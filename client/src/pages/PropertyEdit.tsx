@@ -374,27 +374,150 @@ export default function PropertyEdit() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
-              Property Cost Adjustments
-              <HelpTooltip text="These multipliers adjust the global Base Cost Rates for this specific property's location. A value of 1.0 means no change from baseline. Values below 1.0 reduce costs (e.g., 0.8 = 20% lower), values above 1.0 increase costs (e.g., 1.2 = 20% higher)." />
+              Operating Cost Rates
+              <HelpTooltip text="These percentages represent the portion of revenue allocated to each expense category for this property. The total should equal 100% to properly distribute costs across all categories." />
             </CardTitle>
-            <CardDescription>Location-specific cost multipliers (1.0 = baseline, 0.8 = 20% lower, 1.2 = 20% higher)</CardDescription>
+            <CardDescription>
+              Expense allocation as percentage of revenue (must total 100%)
+            </CardDescription>
           </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="space-y-2">
-              <Label>Labor Cost Adjustment</Label>
-              <Input type="number" step="0.01" value={draft.laborAdj} onChange={(e) => handleNumberChange("laborAdj", e.target.value)} />
-              <p className="text-xs text-muted-foreground">Multiplies rooms dept cost rate</p>
-            </div>
-            <div className="space-y-2">
-              <Label>Utilities Adjustment</Label>
-              <Input type="number" step="0.01" value={draft.utilitiesAdj} onChange={(e) => handleNumberChange("utilitiesAdj", e.target.value)} />
-              <p className="text-xs text-muted-foreground">Multiplies utilities rate</p>
-            </div>
-            <div className="space-y-2">
-              <Label>Property Tax Adjustment</Label>
-              <Input type="number" step="0.01" value={draft.taxAdj} onChange={(e) => handleNumberChange("taxAdj", e.target.value)} />
-              <p className="text-xs text-muted-foreground">Multiplies tax rate</p>
-            </div>
+          <CardContent className="space-y-6">
+            {(() => {
+              const costRateTotal = (
+                (draft.costRateRooms ?? 0.36) +
+                (draft.costRateFB ?? 0.15) +
+                (draft.costRateAdmin ?? 0.08) +
+                (draft.costRateMarketing ?? 0.05) +
+                (draft.costRatePropertyOps ?? 0.04) +
+                (draft.costRateUtilities ?? 0.05) +
+                (draft.costRateInsurance ?? 0.02) +
+                (draft.costRateTaxes ?? 0.03) +
+                (draft.costRateIT ?? 0.02) +
+                (draft.costRateFFE ?? 0.04)
+              );
+              const isValid = Math.abs(costRateTotal - 1.0) < 0.001;
+              
+              return (
+                <>
+                  <div className={`p-4 rounded-lg ${isValid ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium">Total Allocation:</span>
+                      <span className={`text-lg font-bold ${isValid ? 'text-green-700' : 'text-red-700'}`}>
+                        {(costRateTotal * 100).toFixed(1)}%
+                      </span>
+                    </div>
+                    {!isValid && (
+                      <p className="text-sm text-red-600 mt-1">
+                        Total must equal 100%. Currently {costRateTotal > 1 ? 'over' : 'under'} by {Math.abs((costRateTotal - 1) * 100).toFixed(1)}%
+                      </p>
+                    )}
+                  </div>
+                  
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <div className="space-y-2">
+                      <Label>Rooms Dept</Label>
+                      <Input 
+                        type="number" 
+                        step="0.1" 
+                        value={((draft.costRateRooms ?? 0.36) * 100).toFixed(1)} 
+                        onChange={(e) => handleNumberChange("costRateRooms", (parseFloat(e.target.value) / 100).toString())} 
+                      />
+                      <span className="text-xs text-muted-foreground">%</span>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>F&B</Label>
+                      <Input 
+                        type="number" 
+                        step="0.1" 
+                        value={((draft.costRateFB ?? 0.15) * 100).toFixed(1)} 
+                        onChange={(e) => handleNumberChange("costRateFB", (parseFloat(e.target.value) / 100).toString())} 
+                      />
+                      <span className="text-xs text-muted-foreground">%</span>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Admin</Label>
+                      <Input 
+                        type="number" 
+                        step="0.1" 
+                        value={((draft.costRateAdmin ?? 0.08) * 100).toFixed(1)} 
+                        onChange={(e) => handleNumberChange("costRateAdmin", (parseFloat(e.target.value) / 100).toString())} 
+                      />
+                      <span className="text-xs text-muted-foreground">%</span>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Marketing</Label>
+                      <Input 
+                        type="number" 
+                        step="0.1" 
+                        value={((draft.costRateMarketing ?? 0.05) * 100).toFixed(1)} 
+                        onChange={(e) => handleNumberChange("costRateMarketing", (parseFloat(e.target.value) / 100).toString())} 
+                      />
+                      <span className="text-xs text-muted-foreground">%</span>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Property Ops</Label>
+                      <Input 
+                        type="number" 
+                        step="0.1" 
+                        value={((draft.costRatePropertyOps ?? 0.04) * 100).toFixed(1)} 
+                        onChange={(e) => handleNumberChange("costRatePropertyOps", (parseFloat(e.target.value) / 100).toString())} 
+                      />
+                      <span className="text-xs text-muted-foreground">%</span>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Utilities</Label>
+                      <Input 
+                        type="number" 
+                        step="0.1" 
+                        value={((draft.costRateUtilities ?? 0.05) * 100).toFixed(1)} 
+                        onChange={(e) => handleNumberChange("costRateUtilities", (parseFloat(e.target.value) / 100).toString())} 
+                      />
+                      <span className="text-xs text-muted-foreground">%</span>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Insurance</Label>
+                      <Input 
+                        type="number" 
+                        step="0.1" 
+                        value={((draft.costRateInsurance ?? 0.02) * 100).toFixed(1)} 
+                        onChange={(e) => handleNumberChange("costRateInsurance", (parseFloat(e.target.value) / 100).toString())} 
+                      />
+                      <span className="text-xs text-muted-foreground">%</span>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Taxes</Label>
+                      <Input 
+                        type="number" 
+                        step="0.1" 
+                        value={((draft.costRateTaxes ?? 0.03) * 100).toFixed(1)} 
+                        onChange={(e) => handleNumberChange("costRateTaxes", (parseFloat(e.target.value) / 100).toString())} 
+                      />
+                      <span className="text-xs text-muted-foreground">%</span>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>IT</Label>
+                      <Input 
+                        type="number" 
+                        step="0.1" 
+                        value={((draft.costRateIT ?? 0.02) * 100).toFixed(1)} 
+                        onChange={(e) => handleNumberChange("costRateIT", (parseFloat(e.target.value) / 100).toString())} 
+                      />
+                      <span className="text-xs text-muted-foreground">%</span>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>FF&E Reserve</Label>
+                      <Input 
+                        type="number" 
+                        step="0.1" 
+                        value={((draft.costRateFFE ?? 0.04) * 100).toFixed(1)} 
+                        onChange={(e) => handleNumberChange("costRateFFE", (parseFloat(e.target.value) / 100).toString())} 
+                      />
+                      <span className="text-xs text-muted-foreground">%</span>
+                    </div>
+                  </div>
+                </>
+              );
+            })()}
           </CardContent>
         </Card>
 

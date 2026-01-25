@@ -1,17 +1,38 @@
 import Layout from "@/components/Layout";
-import { useStore } from "@/lib/store";
+import { useProperties, useGlobalAssumptions } from "@/lib/api";
 import { generatePropertyProForma, formatMoney } from "@/lib/financialEngine";
 import { GlassCard } from "@/components/ui/glass-card";
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, AreaChart, Area } from "recharts";
-import { ArrowUpRight, Building2, TrendingUp, Wallet, Users } from "lucide-react";
+import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
+import { ArrowUpRight, Building2, TrendingUp, Wallet, Users, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 
 export default function Dashboard() {
-  const { properties, global } = useStore();
+  const { data: properties, isLoading: propertiesLoading } = useProperties();
+  const { data: global, isLoading: globalLoading } = useGlobalAssumptions();
+
+  if (propertiesLoading || globalLoading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center h-[60vh]">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!properties || !global) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center h-[60vh]">
+          <p className="text-muted-foreground">No data available</p>
+        </div>
+      </Layout>
+    );
+  }
 
   // Aggregate Portfolio Data
   const allPropertyFinancials = properties.map(p => {
-    const financials = generatePropertyProForma(p, global, 12); // First year
+    const financials = generatePropertyProForma(p, global, 12);
     const year1Total = financials.reduce((acc, m) => ({
       revenue: acc.revenue + m.revenueTotal,
       gop: acc.gop + m.gop,
@@ -112,7 +133,7 @@ export default function Dashboard() {
                       fontSize={12} 
                       tickLine={false} 
                       axisLine={false}
-                      tickFormatter={(val) => val.split(" ")[0]} // Shorten names
+                      tickFormatter={(val) => val.split(" ")[0]}
                     />
                     <YAxis 
                       stroke="hsl(var(--muted-foreground))" 

@@ -1,5 +1,5 @@
 import Layout from "@/components/Layout";
-import { useStore } from "@/lib/store";
+import { useGlobalAssumptions, useUpdateGlobalAssumptions, useProperties, useUpdateProperty } from "@/lib/api";
 import { GlassCard } from "@/components/ui/glass-card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,32 +7,86 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Save } from "lucide-react";
+import { Save, Loader2 } from "lucide-react";
+import { useState } from "react";
 
 export default function Settings() {
-  const { global, updateGlobal, properties, updateProperty } = useStore();
+  const { data: global, isLoading: globalLoading } = useGlobalAssumptions();
+  const { data: properties, isLoading: propertiesLoading } = useProperties();
+  const updateGlobal = useUpdateGlobalAssumptions();
+  const updateProperty = useUpdateProperty();
   const { toast } = useToast();
 
-  // Simple handler for numeric inputs
-  const handleGlobalChange = (key: keyof typeof global, value: string) => {
+  const [globalDraft, setGlobalDraft] = useState<any>(null);
+  const [propertyDrafts, setPropertyDrafts] = useState<Record<number, any>>({});
+
+  if (globalLoading || propertiesLoading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center h-[60vh]">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!global || !properties) return null;
+
+  const currentGlobal = globalDraft || global;
+
+  const handleGlobalChange = (key: string, value: string) => {
     const numValue = parseFloat(value);
     if (!isNaN(numValue)) {
-       updateGlobal({ [key]: numValue });
+      setGlobalDraft({ ...currentGlobal, [key]: numValue });
     }
   };
 
-  const handlePropertyChange = (id: string, key: string, value: string) => {
-      const numValue = parseFloat(value);
-      if (!isNaN(numValue)) {
-          updateProperty(id, { [key]: numValue });
-      }
+  const handleNestedChange = (parent: string, key: string, value: string) => {
+    const numValue = parseFloat(value);
+    if (!isNaN(numValue)) {
+      setGlobalDraft({
+        ...currentGlobal,
+        [parent]: { ...currentGlobal[parent], [key]: numValue }
+      });
+    }
   };
 
-  const handleSave = () => {
-    toast({
-        title: "Models Updated",
-        description: "All financial projections have been recalculated based on new inputs.",
-    });
+  const handlePropertyChange = (id: number, key: string, value: string) => {
+    const numValue = parseFloat(value);
+    if (!isNaN(numValue)) {
+      setPropertyDrafts({
+        ...propertyDrafts,
+        [id]: { ...(propertyDrafts[id] || {}), [key]: numValue }
+      });
+    }
+  };
+
+  const handleSaveGlobal = () => {
+    if (globalDraft) {
+      updateGlobal.mutate(globalDraft, {
+        onSuccess: () => {
+          toast({
+            title: "Global Assumptions Updated",
+            description: "All financial projections have been recalculated.",
+          });
+          setGlobalDraft(null);
+        }
+      });
+    }
+  };
+
+  const handleSaveProperty = (id: number) => {
+    if (propertyDrafts[id]) {
+      updateProperty.mutate({ id, data: propertyDrafts[id] }, {
+        onSuccess: () => {
+          toast({
+            title: "Property Updated",
+            description: "Financial projections have been recalculated.",
+          });
+          setPropertyDrafts({ ...propertyDrafts, [id]: undefined });
+        }
+      });
+    }
   };
 
   return (
@@ -43,15 +97,12 @@ export default function Settings() {
                 <h2 className="text-3xl font-serif text-primary">Model Assumptions</h2>
                 <p className="text-muted-foreground">Global variables driving the financial engine.</p>
             </div>
-            <Button onClick={handleSave} className="gap-2">
-                <Save className="w-4 h-4" /> Save Changes
-            </Button>
         </div>
 
         <Tabs defaultValue="global" className="w-full">
           <TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
-            <TabsTrigger value="global">Global Assumptions</TabsTrigger>
-            <TabsTrigger value="properties">Property Variables</TabsTrigger>
+            <TabsTrigger value="global" data-testid="tab-global">Global Assumptions</TabsTrigger>
+            <TabsTrigger value="properties" data-testid="tab-properties">Property Variables</TabsTrigger>
           </TabsList>
 
           <TabsContent value="global" className="space-y-6 mt-6">
@@ -62,13 +113,14 @@ export default function Settings() {
                </CardHeader>
                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label>Annual Inflation Rate (Decimal)</Label>
+                    <Label>Annual Inflation Rate</Label>
                     <Input 
                         type="number" 
                         step="0.001" 
-                        value={global.inflationRate} 
+                        value={currentGlobal.inflationRate} 
                         onChange={(e) => handleGlobalChange("inflationRate", e.target.value)}
                         className="glass-input"
+                        data-testid="input-inflation"
                     />
                   </div>
                   <div className="space-y-2">
@@ -76,9 +128,10 @@ export default function Settings() {
                     <Input 
                         type="number" 
                         step="0.001" 
-                        value={global.baseManagementFee} 
+                        value={currentGlobal.baseManagementFee} 
                         onChange={(e) => handleGlobalChange("baseManagementFee", e.target.value)}
                         className="glass-input"
+                        data-testid="input-base-fee"
                     />
                   </div>
                   <div className="space-y-2">
@@ -86,11 +139,17 @@ export default function Settings() {
                     <Input 
                         type="number" 
                         step="0.001" 
-                        value={global.incentiveManagementFee} 
+                        value={currentGlobal.incentiveManagementFee} 
                         onChange={(e) => handleGlobalChange("incentiveManagementFee", e.target.value)}
                         className="glass-input"
+                        data-testid="input-incentive-fee"
                     />
                   </div>
+               </div>
+               <div className="mt-6">
+                  <Button onClick={handleSaveGlobal} className="gap-2" disabled={!globalDraft || updateGlobal.isPending} data-testid="button-save-global">
+                      {updateGlobal.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Save Changes
+                  </Button>
                </div>
             </GlassCard>
 
@@ -105,22 +164,20 @@ export default function Settings() {
                     <Input 
                         type="number" 
                         step="0.001" 
-                        value={global.debtAssumptions.interestRate} 
-                         onChange={(e) => updateGlobal({ 
-                            debtAssumptions: { ...global.debtAssumptions, interestRate: parseFloat(e.target.value) } 
-                        })}
+                        value={currentGlobal.debtAssumptions.interestRate} 
+                        onChange={(e) => handleNestedChange("debtAssumptions", "interestRate", e.target.value)}
                         className="glass-input"
+                        data-testid="input-interest-rate"
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Amortization (Years)</Label>
                     <Input 
                         type="number" 
-                        value={global.debtAssumptions.amortizationYears} 
-                         onChange={(e) => updateGlobal({ 
-                            debtAssumptions: { ...global.debtAssumptions, amortizationYears: parseFloat(e.target.value) } 
-                        })}
+                        value={currentGlobal.debtAssumptions.amortizationYears} 
+                        onChange={(e) => handleNestedChange("debtAssumptions", "amortizationYears", e.target.value)}
                         className="glass-input"
+                        data-testid="input-amortization"
                     />
                   </div>
                </div>
@@ -128,7 +185,11 @@ export default function Settings() {
           </TabsContent>
 
           <TabsContent value="properties" className="space-y-6 mt-6">
-            {properties.map((property) => (
+            {properties.map((property) => {
+              const draft = propertyDrafts[property.id] || {};
+              const current = { ...property, ...draft };
+              
+              return (
                 <GlassCard key={property.id} className="p-6">
                     <div className="flex items-center gap-4 mb-6 pb-4 border-b border-border/50">
                         <img src={property.imageUrl} className="w-16 h-16 rounded-lg object-cover" />
@@ -143,9 +204,10 @@ export default function Settings() {
                             <Label>Start ADR ($)</Label>
                             <Input 
                                 type="number" 
-                                value={property.startAdr} 
+                                value={current.startAdr} 
                                 onChange={(e) => handlePropertyChange(property.id, "startAdr", e.target.value)}
                                 className="glass-input"
+                                data-testid={`input-adr-${property.id}`}
                             />
                         </div>
                         <div className="space-y-2">
@@ -153,9 +215,10 @@ export default function Settings() {
                             <Input 
                                 type="number" 
                                 step="0.001"
-                                value={property.adrGrowthRate} 
+                                value={current.adrGrowthRate} 
                                 onChange={(e) => handlePropertyChange(property.id, "adrGrowthRate", e.target.value)}
                                 className="glass-input"
+                                data-testid={`input-growth-${property.id}`}
                             />
                         </div>
                          <div className="space-y-2">
@@ -163,32 +226,48 @@ export default function Settings() {
                             <Input 
                                 type="number" 
                                 step="0.01"
-                                value={property.maxOccupancy} 
+                                value={current.maxOccupancy} 
                                 onChange={(e) => handlePropertyChange(property.id, "maxOccupancy", e.target.value)}
                                 className="glass-input"
+                                data-testid={`input-occupancy-${property.id}`}
                             />
                         </div>
                          <div className="space-y-2">
                             <Label>Purchase Price</Label>
                             <Input 
                                 type="number" 
-                                value={property.purchasePrice} 
+                                value={current.purchasePrice} 
                                 onChange={(e) => handlePropertyChange(property.id, "purchasePrice", e.target.value)}
                                 className="glass-input"
+                                data-testid={`input-price-${property.id}`}
                             />
                         </div>
                          <div className="space-y-2">
                             <Label>Improvement Budget</Label>
                             <Input 
                                 type="number" 
-                                value={property.buildingImprovements} 
+                                value={current.buildingImprovements} 
                                 onChange={(e) => handlePropertyChange(property.id, "buildingImprovements", e.target.value)}
                                 className="glass-input"
+                                data-testid={`input-improvements-${property.id}`}
                             />
                         </div>
                     </div>
+                    
+                    <div className="mt-6">
+                      <Button 
+                        onClick={() => handleSaveProperty(property.id)} 
+                        className="gap-2" 
+                        disabled={!propertyDrafts[property.id] || updateProperty.isPending}
+                        data-testid={`button-save-property-${property.id}`}
+                      >
+                          {updateProperty.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} 
+                          Save Changes
+                      </Button>
+                    </div>
                 </GlassCard>
-            ))}
+              );
+            })}
           </TabsContent>
         </Tabs>
       </div>

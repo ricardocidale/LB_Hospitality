@@ -1,22 +1,44 @@
 import Layout from "@/components/Layout";
-import { useStore } from "@/lib/store";
+import { useProperty, useGlobalAssumptions } from "@/lib/api";
 import { generatePropertyProForma, formatMoney } from "@/lib/financialEngine";
 import { GlassCard } from "@/components/ui/glass-card";
 import { FinancialStatement } from "@/components/FinancialStatement";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, MapPin, Calendar, Activity } from "lucide-react";
+import { ArrowLeft, MapPin, Loader2 } from "lucide-react";
 import { Link, useRoute } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 export default function PropertyDetail() {
   const [, params] = useRoute("/property/:id");
-  const { properties, global } = useStore();
-  const property = properties.find(p => p.id === params?.id);
+  const propertyId = params?.id ? parseInt(params.id) : 0;
+  
+  const { data: property, isLoading: propertyLoading } = useProperty(propertyId);
+  const { data: global, isLoading: globalLoading } = useGlobalAssumptions();
 
-  if (!property) return null;
+  if (propertyLoading || globalLoading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center h-[60vh]">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      </Layout>
+    );
+  }
 
-  // Generate 60 months (5 years) of data
+  if (!property || !global) {
+    return (
+      <Layout>
+        <div className="flex flex-col items-center justify-center h-[60vh] text-center space-y-4">
+          <h2 className="text-2xl font-serif text-primary">Property Not Found</h2>
+          <Link href="/portfolio">
+            <Button>Return to Portfolio</Button>
+          </Link>
+        </div>
+      </Layout>
+    );
+  }
+
   const financials = generatePropertyProForma(property, global, 60);
 
   return (
@@ -24,12 +46,12 @@ export default function PropertyDetail() {
       <div className="space-y-8 pb-12">
         <div className="flex items-center justify-between">
             <Link href="/portfolio">
-            <Button variant="ghost" className="pl-0 hover:bg-transparent hover:text-primary">
+            <Button variant="ghost" className="pl-0 hover:bg-transparent hover:text-primary" data-testid="button-back">
                 <ArrowLeft className="w-4 h-4 mr-2" /> Back to Portfolio
             </Button>
             </Link>
             <Link href="/settings">
-                <Button variant="outline" size="sm" className="glass-input hover:bg-white/50">
+                <Button variant="outline" size="sm" className="glass-input hover:bg-white/50" data-testid="link-settings">
                     Edit Assumptions
                 </Button>
             </Link>
@@ -55,25 +77,25 @@ export default function PropertyDetail() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <GlassCard className="p-4 text-center">
                 <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Year 1 Revenue</p>
-                <p className="text-2xl font-serif font-bold text-primary">
+                <p className="text-2xl font-serif font-bold text-primary" data-testid="text-y1-revenue">
                     {formatMoney(financials.slice(0, 12).reduce((acc, m) => acc + m.revenueTotal, 0))}
                 </p>
             </GlassCard>
              <GlassCard className="p-4 text-center">
                 <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Year 1 NOI</p>
-                <p className="text-2xl font-serif font-bold text-foreground">
+                <p className="text-2xl font-serif font-bold text-foreground" data-testid="text-y1-noi">
                     {formatMoney(financials.slice(0, 12).reduce((acc, m) => acc + m.noi, 0))}
                 </p>
             </GlassCard>
              <GlassCard className="p-4 text-center">
                 <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Stabilized ADR</p>
-                <p className="text-2xl font-serif font-bold text-foreground">
+                <p className="text-2xl font-serif font-bold text-foreground" data-testid="text-stabilized-adr">
                     {formatMoney(financials[36].adr)}
                 </p>
             </GlassCard>
              <GlassCard className="p-4 text-center">
                 <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Cash on Cash (Y1)</p>
-                <p className="text-2xl font-serif font-bold text-accent-foreground">
+                <p className="text-2xl font-serif font-bold text-accent-foreground" data-testid="text-coc">
                     {((financials.slice(0, 12).reduce((acc, m) => acc + m.cashFlow, 0) / (property.purchasePrice * 0.25)) * 100).toFixed(1)}%
                 </p>
             </GlassCard>
@@ -83,9 +105,9 @@ export default function PropertyDetail() {
             <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-serif font-bold">Pro Forma Financials</h3>
                 <TabsList className="bg-white/20 backdrop-blur-md">
-                    <TabsTrigger value="y1">Year 1</TabsTrigger>
-                    <TabsTrigger value="y2">Year 2</TabsTrigger>
-                    <TabsTrigger value="y3">Year 3</TabsTrigger>
+                    <TabsTrigger value="y1" data-testid="tab-y1">Year 1</TabsTrigger>
+                    <TabsTrigger value="y2" data-testid="tab-y2">Year 2</TabsTrigger>
+                    <TabsTrigger value="y3" data-testid="tab-y3">Year 3</TabsTrigger>
                 </TabsList>
             </div>
             

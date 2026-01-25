@@ -1,0 +1,181 @@
+import { db } from "./db";
+import { globalAssumptions, properties } from "@shared/schema";
+
+async function seed() {
+  console.log("Seeding database...");
+
+  // Seed Global Assumptions
+  await db.insert(globalAssumptions).values({
+    modelStartDate: "2026-04-01",
+    inflationRate: 0.03,
+    baseManagementFee: 0.04,
+    incentiveManagementFee: 0.10,
+    partnerSalary: 150000,
+    staffSalary: 75000,
+    travelCostPerClient: 12000,
+    itLicensePerClient: 24000,
+    marketingRate: 0.05,
+    miscOpsRate: 0.03,
+    officeLeaseStart: 36000,
+    professionalServicesStart: 24000,
+    techInfraStart: 18000,
+    businessInsuranceStart: 12000,
+    standardAcqPackage: {
+      purchasePrice: 2300000,
+      buildingImprovements: 800000,
+      preOpeningCosts: 150000,
+      operatingReserve: 200000,
+      monthsToOps: 6
+    },
+    debtAssumptions: {
+      interestRate: 0.09,
+      amortizationYears: 25,
+      refiLTV: 0.75,
+      refiClosingCostRate: 0.03,
+      acqLTV: 0.75,
+      acqClosingCostRate: 0.02
+    }
+  });
+
+  // Seed Properties
+  await db.insert(properties).values([
+    {
+      name: "The Hudson Estate",
+      location: "Upstate New York",
+      market: "North America",
+      imageUrl: "/src/assets/property-ny.png",
+      status: "Development",
+      acquisitionDate: "2026-06-01",
+      operationsStartDate: "2026-12-01",
+      purchasePrice: 2300000,
+      buildingImprovements: 800000,
+      preOpeningCosts: 150000,
+      operatingReserve: 200000,
+      roomCount: 20,
+      startAdr: 275,
+      adrGrowthRate: 0.025,
+      startOccupancy: 0.60,
+      maxOccupancy: 0.90,
+      occupancyRampMonths: 6,
+      occupancyGrowthStep: 0.05,
+      stabilizationMonths: 36,
+      type: "Full Equity",
+      cateringLevel: "Partial",
+      laborAdj: 1.0,
+      utilitiesAdj: 1.10,
+      taxAdj: 1.20
+    },
+    {
+      name: "Eden Summit Lodge",
+      location: "Eden, Utah",
+      market: "North America",
+      imageUrl: "/src/assets/property-utah.png",
+      status: "Acquisition",
+      acquisitionDate: "2027-01-01",
+      operationsStartDate: "2027-07-01",
+      purchasePrice: 2300000,
+      buildingImprovements: 800000,
+      preOpeningCosts: 150000,
+      operatingReserve: 200000,
+      roomCount: 20,
+      startAdr: 325,
+      adrGrowthRate: 0.025,
+      startOccupancy: 0.60,
+      maxOccupancy: 0.90,
+      occupancyRampMonths: 6,
+      occupancyGrowthStep: 0.05,
+      stabilizationMonths: 36,
+      type: "Full Equity",
+      cateringLevel: "Full",
+      laborAdj: 0.95,
+      utilitiesAdj: 1.0,
+      taxAdj: 0.90
+    },
+    {
+      name: "Austin Hillside",
+      location: "Austin, Texas",
+      market: "North America",
+      imageUrl: "/src/assets/property-austin.png",
+      status: "Acquisition",
+      acquisitionDate: "2027-07-01",
+      operationsStartDate: "2028-01-01",
+      purchasePrice: 2300000,
+      buildingImprovements: 800000,
+      preOpeningCosts: 150000,
+      operatingReserve: 200000,
+      roomCount: 20,
+      startAdr: 225,
+      adrGrowthRate: 0.025,
+      startOccupancy: 0.60,
+      maxOccupancy: 0.90,
+      occupancyRampMonths: 6,
+      occupancyGrowthStep: 0.05,
+      stabilizationMonths: 36,
+      type: "Full Equity",
+      cateringLevel: "Partial",
+      laborAdj: 1.05,
+      utilitiesAdj: 1.15,
+      taxAdj: 1.00
+    },
+    {
+      name: "Casa Medellín",
+      location: "Medellín, Colombia",
+      market: "Latin America",
+      imageUrl: "/src/assets/property-medellin.png",
+      status: "Acquisition",
+      acquisitionDate: "2028-01-01",
+      operationsStartDate: "2028-07-01",
+      purchasePrice: 2300000,
+      buildingImprovements: 800000,
+      preOpeningCosts: 150000,
+      operatingReserve: 200000,
+      roomCount: 20,
+      startAdr: 150,
+      adrGrowthRate: 0.04,
+      startOccupancy: 0.60,
+      maxOccupancy: 0.90,
+      occupancyRampMonths: 6,
+      occupancyGrowthStep: 0.05,
+      stabilizationMonths: 36,
+      type: "Financed",
+      cateringLevel: "Full",
+      laborAdj: 0.65,
+      utilitiesAdj: 0.80,
+      taxAdj: 0.60
+    },
+    {
+      name: "Blue Ridge Manor",
+      location: "Asheville, North Carolina",
+      market: "North America",
+      imageUrl: "/src/assets/property-asheville.png",
+      status: "Acquisition",
+      acquisitionDate: "2028-01-01",
+      operationsStartDate: "2028-07-01",
+      purchasePrice: 2300000,
+      buildingImprovements: 800000,
+      preOpeningCosts: 150000,
+      operatingReserve: 200000,
+      roomCount: 20,
+      startAdr: 285,
+      adrGrowthRate: 0.025,
+      startOccupancy: 0.60,
+      maxOccupancy: 0.90,
+      occupancyRampMonths: 6,
+      occupancyGrowthStep: 0.05,
+      stabilizationMonths: 36,
+      type: "Financed",
+      cateringLevel: "Full",
+      laborAdj: 0.95,
+      utilitiesAdj: 1.0,
+      taxAdj: 0.95
+    }
+  ]);
+
+  console.log("Database seeded successfully!");
+  process.exit(0);
+}
+
+seed().catch((error) => {
+  console.error("Seed failed:", error);
+  process.exit(1);
+});

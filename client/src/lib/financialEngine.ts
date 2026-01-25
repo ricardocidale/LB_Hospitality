@@ -36,6 +36,10 @@ interface GlobalInput {
   baseManagementFee: number;
   incentiveManagementFee: number;
   marketingRate: number;
+  fullCateringEventRevenue?: number;
+  fullCateringEventCost?: number;
+  partialCateringEventRevenue?: number;
+  partialCateringEventCost?: number;
   debtAssumptions: {
     interestRate: number;
     amortizationYears: number;
@@ -115,10 +119,13 @@ export function generatePropertyProForma(
     const soldRooms = isOperational ? availableRooms * occupancy : 0;
     
     const revenueRooms = soldRooms * currentAdr;
-    const revShareEvents = property.revShareEvents ?? DEFAULT_REV_SHARE_EVENTS;
+    // Event revenue now uses global catering level rates
+    const eventRevenueRate = property.cateringLevel === "Full"
+      ? (global.fullCateringEventRevenue ?? 0.50)
+      : (global.partialCateringEventRevenue ?? 0.25);
     const revShareFB = property.revShareFB ?? DEFAULT_REV_SHARE_FB;
     const revShareOther = property.revShareOther ?? DEFAULT_REV_SHARE_OTHER;
-    const revenueEvents = revenueRooms * revShareEvents;
+    const revenueEvents = revenueRooms * eventRevenueRate;
     const revenueFB = revenueRooms * revShareFB;
     const revenueOther = revenueRooms * revShareOther;
     const revenueTotal = revenueRooms + revenueEvents + revenueFB + revenueOther;
@@ -136,9 +143,14 @@ export function generatePropertyProForma(
     const costRateFFE = property.costRateFFE ?? 0.04;
     
     const expenseRooms = revenueRooms * costRateRooms;
-    const fbCostRatio = property.cateringLevel === "Full" ? 0.92 : 0.80;
-    const expenseFB = (revenueFB + (revenueEvents * 0.2)) * fbCostRatio;
-    const expenseEvents = revenueEvents * 0.25;
+    // Use global catering level rates for event costs
+    const eventCostRatio = property.cateringLevel === "Full" 
+      ? (global.fullCateringEventCost ?? 0.92) 
+      : (global.partialCateringEventCost ?? 0.80);
+    // F&B costs include a portion of event revenue (20%) at the catering cost ratio
+    const expenseFB = (revenueFB + (revenueEvents * 0.2)) * eventCostRatio;
+    // Event costs also use global catering cost ratio
+    const expenseEvents = revenueEvents * eventCostRatio;
     const expenseOther = revenueOther * 0.60;
     const expenseMarketing = revenueTotal * costRateMarketing;
     const expensePropertyOps = revenueTotal * costRatePropertyOps;

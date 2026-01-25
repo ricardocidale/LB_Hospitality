@@ -414,23 +414,13 @@ export default function PropertyEdit() {
           <CardHeader>
             <CardTitle className="flex items-center">
               Revenue Streams
-              <HelpTooltip text="These percentages define additional revenue streams as a portion of rooms revenue. Events include meetings and private gatherings. F&B covers restaurant and bar income. Other includes spa, parking, and ancillary services." />
+              <HelpTooltip text="F&B covers restaurant and bar income. Other includes spa, parking, and ancillary services. Event revenue is determined by Catering Level in Acquisition & Financing section above." />
             </CardTitle>
             <CardDescription>
-              Additional revenue as percentage of rooms revenue
+              Additional revenue as percentage of rooms revenue (Events revenue controlled by Catering Level)
             </CardDescription>
           </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="space-y-2">
-              <Label>Events Revenue (%)</Label>
-              <Input 
-                type="number" 
-                step="1" 
-                value={((draft.revShareEvents ?? 0.43) * 100).toFixed(0)} 
-                onChange={(e) => handleNumberChange("revShareEvents", (parseFloat(e.target.value) / 100).toString())} 
-              />
-              <p className="text-xs text-muted-foreground">Meetings, private events</p>
-            </div>
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label>F&B Revenue (%)</Label>
               <Input 

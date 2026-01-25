@@ -36,9 +36,7 @@ async function seed() {
       acqClosingCostRate: 0.02
     },
     fullCateringFBBoost: 0.50,
-    fullCateringFBCost: 0.92,
-    partialCateringFBBoost: 0.25,
-    partialCateringFBCost: 0.80
+    partialCateringFBBoost: 0.25
   });
 
   // Seed Properties

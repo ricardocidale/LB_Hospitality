@@ -27,9 +27,7 @@ export const globalAssumptions = pgTable("global_assumptions", {
   
   // Catering Level F&B Boost Factors
   fullCateringFBBoost: real("full_catering_fb_boost").notNull().default(0.50),
-  fullCateringFBCost: real("full_catering_fb_cost").notNull().default(0.92),
   partialCateringFBBoost: real("partial_catering_fb_boost").notNull().default(0.25),
-  partialCateringFBCost: real("partial_catering_fb_cost").notNull().default(0.80),
   
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

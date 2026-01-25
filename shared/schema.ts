@@ -24,6 +24,11 @@ export const globalAssumptions = pgTable("global_assumptions", {
   standardAcqPackage: jsonb("standard_acq_package").notNull(),
   debtAssumptions: jsonb("debt_assumptions").notNull(),
   
+  // Property Cost Adjustments (multipliers: 1.0 = baseline)
+  laborAdj: real("labor_adj").notNull().default(1.0),
+  utilitiesAdj: real("utilities_adj").notNull().default(1.0),
+  taxAdj: real("tax_adj").notNull().default(1.0),
+  
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 

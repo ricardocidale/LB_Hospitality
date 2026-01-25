@@ -107,21 +107,25 @@ export function generatePropertyProForma(
     const revenueOther = revenueRooms * REV_SHARE_OTHER;
     const revenueTotal = revenueRooms + revenueEvents + revenueFB + revenueOther;
     
-    const expenseRooms = revenueRooms * 0.36 * property.laborAdj;
+    const laborAdj = global.laborAdj ?? 1.0;
+    const utilitiesAdj = global.utilitiesAdj ?? 1.0;
+    const taxAdj = global.taxAdj ?? 1.0;
+    
+    const expenseRooms = revenueRooms * 0.36 * laborAdj;
     const fbCostRatio = property.cateringLevel === "Full" ? 0.92 : 0.80;
     const expenseFB = (revenueFB + (revenueEvents * 0.2)) * fbCostRatio;
     const expenseEvents = revenueEvents * 0.25;
     const expenseOther = revenueOther * 0.60;
     const expenseMarketing = revenueTotal * global.marketingRate;
     const expensePropertyOps = revenueTotal * 0.04;
-    const expenseUtilitiesVar = revenueTotal * 0.03 * property.utilitiesAdj;
+    const expenseUtilitiesVar = revenueTotal * 0.03 * utilitiesAdj;
     const expenseFFE = revenueTotal * 0.04;
     
     const expenseAdmin = revenueTotal * 0.08;
     const expenseIT = revenueTotal * 0.02;
     const expenseInsurance = revenueTotal * 0.02;
-    const expenseTaxes = revenueTotal * 0.03 * property.taxAdj;
-    const expenseUtilitiesFixed = revenueTotal * 0.02 * property.utilitiesAdj;
+    const expenseTaxes = revenueTotal * 0.03 * taxAdj;
+    const expenseUtilitiesFixed = revenueTotal * 0.02 * utilitiesAdj;
     
     const feeBase = revenueTotal * global.baseManagementFee;
     

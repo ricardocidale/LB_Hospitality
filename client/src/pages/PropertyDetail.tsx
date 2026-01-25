@@ -9,6 +9,7 @@ import { ArrowLeft, MapPin, Loader2 } from "lucide-react";
 import { Link, useRoute } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 
 export default function PropertyDetail() {
   const [, params] = useRoute("/property/:id");
@@ -41,11 +42,19 @@ export default function PropertyDetail() {
   }
 
   const financials = generatePropertyProForma(property, global, 120);
-  const year1Revenue = financials.slice(0, 12).reduce((acc, m) => acc + m.revenueTotal, 0);
-  const year1NOI = financials.slice(0, 12).reduce((acc, m) => acc + m.noi, 0);
-  const year1CashFlow = financials.slice(0, 12).reduce((acc, m) => acc + m.cashFlow, 0);
-  const totalInvestment = property.purchasePrice + property.buildingImprovements + property.preOpeningCosts + property.operatingReserve;
-  const equityInvested = property.type === "Financed" ? totalInvestment * 0.25 : totalInvestment;
+  
+  const yearlyChartData = [];
+  for (let y = 0; y < 10; y++) {
+    const yearData = financials.slice(y * 12, (y + 1) * 12);
+    if (yearData.length === 0) continue;
+    yearlyChartData.push({
+      year: `Y${y + 1}`,
+      Revenue: yearData.reduce((a, m) => a + m.revenueTotal, 0),
+      GOP: yearData.reduce((a, m) => a + m.gop, 0),
+      NOI: yearData.reduce((a, m) => a + m.noi, 0),
+      CashFlow: yearData.reduce((a, m) => a + m.cashFlow, 0),
+    });
+  }
 
   return (
     <Layout>
@@ -74,44 +83,69 @@ export default function PropertyDetail() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-muted-foreground">Year 1 Revenue</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold text-primary">{formatMoney(year1Revenue)}</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-muted-foreground">Year 1 NOI</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold">{formatMoney(year1NOI)}</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-muted-foreground">Year 1 Cash Flow</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className={`text-2xl font-bold ${year1CashFlow < 0 ? 'text-destructive' : 'text-accent'}`}>
-                {formatMoney(year1CashFlow)}
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-muted-foreground">Cash on Cash (Y1)</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className={`text-2xl font-bold ${year1CashFlow >= 0 ? 'text-accent' : 'text-destructive'}`}>
-                {equityInvested > 0 ? `${((year1CashFlow / equityInvested) * 100).toFixed(1)}%` : 'N/A'}
-              </p>
-            </CardContent>
-          </Card>
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Key Performance Indicators (10-Year Projection)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={yearlyChartData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis 
+                    dataKey="year" 
+                    stroke="hsl(var(--muted-foreground))" 
+                    fontSize={12}
+                    tickLine={false}
+                  />
+                  <YAxis 
+                    stroke="hsl(var(--muted-foreground))" 
+                    fontSize={12}
+                    tickLine={false}
+                    tickFormatter={(value) => `$${(value / 1000000).toFixed(1)}M`}
+                  />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(var(--card))', 
+                      borderColor: 'hsl(var(--border))',
+                      borderRadius: '8px',
+                    }}
+                    formatter={(value: number) => [formatMoney(value), ""]}
+                  />
+                  <Legend />
+                  <Line 
+                    type="monotone" 
+                    dataKey="Revenue" 
+                    stroke="hsl(var(--primary))" 
+                    strokeWidth={2}
+                    dot={{ fill: 'hsl(var(--primary))' }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="GOP" 
+                    stroke="hsl(var(--chart-3))" 
+                    strokeWidth={2}
+                    dot={{ fill: 'hsl(var(--chart-3))' }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="NOI" 
+                    stroke="hsl(var(--chart-4))" 
+                    strokeWidth={2}
+                    dot={{ fill: 'hsl(var(--chart-4))' }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="CashFlow" 
+                    stroke="hsl(var(--accent))" 
+                    strokeWidth={2}
+                    dot={{ fill: 'hsl(var(--accent))' }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
 
         <Tabs defaultValue="income" className="w-full">
           <TabsList className="grid w-full grid-cols-2 max-w-md">

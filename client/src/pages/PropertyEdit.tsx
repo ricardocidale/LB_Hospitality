@@ -277,9 +277,14 @@ export default function PropertyEdit() {
                           <Label>Refinance Date</Label>
                           <Input 
                             type="date" 
-                            value={draft.refinanceDate || ""} 
+                            value={draft.refinanceDate || (() => {
+                              const opsDate = new Date(draft.operationsStartDate);
+                              opsDate.setFullYear(opsDate.getFullYear() + 3);
+                              return opsDate.toISOString().split('T')[0];
+                            })()} 
                             onChange={(e) => handleChange("refinanceDate", e.target.value)} 
                           />
+                          <p className="text-xs text-muted-foreground">Suggested: 3 years after operations start</p>
                         </div>
                         <div className="space-y-2">
                           <Label>Loan-to-Value (LTV) %</Label>

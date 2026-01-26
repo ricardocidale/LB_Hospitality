@@ -208,7 +208,7 @@ export default function PropertyDetail() {
       ["Base Management Fee", ...yearlyDetails.map(y => fmtNum(y.feeBase))],
       ["Incentive Management Fee", ...yearlyDetails.map(y => fmtNum(y.feeIncentive))],
       [{ content: "Total Operating Expenses", styles: { fontStyle: "bold" } }, ...yearlyDetails.map(y => ({ content: fmtNum(y.totalExpenses), styles: { fontStyle: "bold" } }))],
-      [{ content: "NET INCOME CALCULATION", colSpan: years + 1, styles: { fontStyle: "bold", fillColor: [230, 230, 230] } }],
+      [{ content: "NET INCOME", colSpan: years + 1, styles: { fontStyle: "bold", fillColor: [230, 230, 230] } }],
       [{ content: "Net Operating Income (NOI)", styles: { fontStyle: "bold" } }, ...cashFlowData.map(y => ({ content: fmtNum(y.noi), styles: { fontStyle: "bold" } }))],
       ["Less: Interest Expense", ...cashFlowData.map(y => fmtNum(-y.interestExpense))],
       ["Less: Depreciation", ...cashFlowData.map(y => fmtNum(-y.depreciation))],

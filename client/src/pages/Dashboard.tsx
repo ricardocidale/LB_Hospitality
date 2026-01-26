@@ -2856,7 +2856,7 @@ function InvestmentAnalysis({
                 <>
                   <TableRow className="bg-blue-50/30 dark:bg-blue-950/20">
                     <TableCell className="sticky left-0 bg-blue-50/30 dark:bg-blue-950/20 pl-8 text-sm font-medium text-muted-foreground" colSpan={1}>
-                      Cash Flow Calculation
+                      Cash Flow
                     </TableCell>
                     <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
                     {Array.from({ length: 10 }, (_, y) => (
@@ -2902,7 +2902,7 @@ function InvestmentAnalysis({
                   
                   <TableRow className="bg-amber-50/30 dark:bg-amber-950/20">
                     <TableCell className="sticky left-0 bg-amber-50/30 dark:bg-amber-950/20 pl-8 text-sm font-medium text-muted-foreground" colSpan={1}>
-                      Tax Calculation (GAAP)
+                      Tax (GAAP)
                     </TableCell>
                     <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
                     {Array.from({ length: 10 }, (_, y) => (

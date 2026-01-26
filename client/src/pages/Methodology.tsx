@@ -37,31 +37,46 @@ export default function Methodology() {
           </CardContent>
         </Card>
 
-        <Card className="border-amber-200 bg-amber-50/50">
-          <CardContent className="pt-6">
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
-                <Info className="w-5 h-5 text-amber-600" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-amber-900 mb-2">About Default Values</h3>
-                <p className="text-sm text-amber-800">
-                  The default values you see throughout this model are based on research into the 
-                  <strong> boutique hotel and bed & breakfast business model in North America</strong>. 
-                  These include typical expense ratios, occupancy ramp-up periods, ADR ranges, and 
-                  cap rates for this asset class.
-                </p>
-                <p className="text-sm text-amber-800 mt-2">
-                  <strong>You are encouraged to adjust any variable</strong> to match your specific 
-                  property, market conditions, or investment thesis. The model will automatically 
-                  recalculate all projections based on your inputs.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
         <Accordion type="multiple" className="space-y-4">
+          <AccordionItem value="defaults" className="border rounded-lg px-4">
+            <AccordionTrigger className="hover:no-underline">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                  <Info className="w-5 h-5 text-primary" />
+                </div>
+                <div className="text-left">
+                  <h3 className="font-semibold">Default Values & Assumptions</h3>
+                  <p className="text-sm text-muted-foreground">Where the default numbers come from</p>
+                </div>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="pt-4 pb-6 space-y-4">
+              <p className="text-sm text-muted-foreground">
+                The default values throughout this model are based on research into the 
+                <strong> boutique hotel and bed & breakfast business model in North America</strong>. 
+                These include typical expense ratios, occupancy ramp-up periods, ADR ranges, and 
+                cap rates for this asset class.
+              </p>
+              <p className="text-sm text-muted-foreground">
+                You are encouraged to adjust any variable to match your specific property, market 
+                conditions, or investment thesis. The model automatically recalculates all projections 
+                when you change any input.
+              </p>
+              <div className="bg-muted/50 rounded-lg p-4">
+                <h4 className="font-semibold mb-2">Key Default Assumptions</h4>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>• Inflation Rate: 3% annually</li>
+                  <li>• Management Base Fee: 5% of revenue</li>
+                  <li>• Management Incentive Fee: 15% of GOP</li>
+                  <li>• Loan-to-Value (LTV): 65%</li>
+                  <li>• Interest Rate: 7%</li>
+                  <li>• Loan Term: 25 years</li>
+                  <li>• Exit Cap Rate: 8.5%</li>
+                  <li>• FF&E Reserve: 4% of revenue</li>
+                </ul>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
           <AccordionItem value="revenue" className="border rounded-lg px-4">
             <AccordionTrigger className="hover:no-underline">
               <div className="flex items-center gap-3">

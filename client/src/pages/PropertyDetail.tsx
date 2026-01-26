@@ -41,6 +41,7 @@ export default function PropertyDetail() {
     );
   }
 
+  const modelStartYear = new Date(global.modelStartDate).getFullYear();
   const financials = generatePropertyProForma(property, global, 120);
   
   const yearlyChartData = [];
@@ -48,7 +49,7 @@ export default function PropertyDetail() {
     const yearData = financials.slice(y * 12, (y + 1) * 12);
     if (yearData.length === 0) continue;
     yearlyChartData.push({
-      year: `Y${y + 1}`,
+      year: String(modelStartYear + y),
       Revenue: yearData.reduce((a, m) => a + m.revenueTotal, 0),
       GOP: yearData.reduce((a, m) => a + m.gop, 0),
       NOI: yearData.reduce((a, m) => a + m.noi, 0),
@@ -154,11 +155,11 @@ export default function PropertyDetail() {
           </TabsList>
           
           <TabsContent value="income" className="mt-6">
-            <YearlyIncomeStatement data={financials} years={10} />
+            <YearlyIncomeStatement data={financials} years={10} startYear={modelStartYear} />
           </TabsContent>
           
           <TabsContent value="cashflow" className="mt-6">
-            <YearlyCashFlowStatement data={financials} property={property} years={10} />
+            <YearlyCashFlowStatement data={financials} property={property} years={10} startYear={modelStartYear} />
           </TabsContent>
         </Tabs>
       </div>

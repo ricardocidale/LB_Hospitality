@@ -11,11 +11,11 @@ interface PropertyInput {
   occupancyRampMonths: number;
   occupancyGrowthStep: number;
   purchasePrice: number;
-  buildingImprovements?: number;
+  buildingImprovements?: number | null;
   type: string;
   cateringLevel: string;
   // Financing
-  acquisitionLTV?: number;
+  acquisitionLTV?: number | null;
   // Operating Cost Rates (should sum to ~84% of revenue)
   costRateRooms: number;
   costRateFB: number;

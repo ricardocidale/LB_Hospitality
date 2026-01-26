@@ -47,6 +47,7 @@ export default function Company() {
     );
   }
 
+  const modelStartYear = new Date(global.modelStartDate).getFullYear();
   const financials = generateCompanyProForma(properties, global, 120);
   
   const propertyFinancials = properties.map(p => ({
@@ -59,7 +60,7 @@ export default function Company() {
     const yearData = financials.slice(y * 12, (y + 1) * 12);
     if (yearData.length === 0) continue;
     yearlyChartData.push({
-      year: `Y${y + 1}`,
+      year: String(modelStartYear + y),
       Revenue: yearData.reduce((a, m) => a + m.totalRevenue, 0),
       Expenses: yearData.reduce((a, m) => a + m.totalExpenses, 0),
       NetIncome: yearData.reduce((a, m) => a + m.netIncome, 0),

@@ -8,6 +8,7 @@ import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGri
 import { ArrowUpRight, Building2, TrendingUp, Wallet, Users, Loader2, ChevronRight, ChevronDown } from "lucide-react";
 import { format } from "date-fns";
 import { useState } from "react";
+import { HelpTooltip } from "@/components/ui/help-tooltip";
 
 export default function Dashboard() {
   const { data: properties, isLoading: propertiesLoading } = useProperties();
@@ -1471,36 +1472,79 @@ function InvestmentAnalysis({
   const totalInitialEquity = properties.reduce((sum, prop) => sum + getPropertyInvestment(prop), 0);
   const totalExitValue = properties.reduce((sum, prop, idx) => sum + getPropertyExitValue(prop, idx), 0);
 
+  const totalCashReturned = consolidatedFlows.slice(1).reduce((sum, cf) => sum + cf, 0);
+  const equityMultiple = totalInitialEquity > 0 ? totalCashReturned / totalInitialEquity : 0;
+  
+  const operatingCashFlows = consolidatedFlows.slice(1).map((cf, idx) => {
+    let exitValue = 0;
+    if (idx === 9) {
+      exitValue = properties.reduce((sum, prop, propIdx) => sum + getPropertyExitValue(prop, propIdx), 0);
+    }
+    return cf - exitValue;
+  });
+  const avgAnnualCashFlow = operatingCashFlows.reduce((sum, cf) => sum + cf, 0) / 10;
+  const cashOnCash = totalInitialEquity > 0 ? (avgAnnualCashFlow / totalInitialEquity) * 100 : 0;
+
   return (
     <>
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-5">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Equity Investment</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
+              Total Equity
+              <HelpTooltip text="Total initial capital required from investors across all properties, including purchase price, improvements, pre-opening costs, and operating reserves (net of any financing)." />
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{formatMoney(totalInitialEquity)}</div>
-            <p className="text-xs text-muted-foreground mt-1">Initial capital required</p>
           </CardContent>
         </Card>
         
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Exit Value ({modelStartYear + 9})</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
+              Exit Value ({modelStartYear + 9})
+              <HelpTooltip text="Projected sale value of all properties at Year 10, calculated as NOI ÷ Exit Cap Rate, minus any outstanding debt at time of sale." />
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-accent">{formatMoney(totalExitValue)}</div>
-            <p className="text-xs text-muted-foreground mt-1">Net of outstanding debt</p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
+              Equity Multiple
+              <HelpTooltip text="Total cash returned to investors divided by total equity invested. A 2.0x multiple means investors receive $2 back for every $1 invested." />
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{equityMultiple.toFixed(2)}x</div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
+              Avg Cash-on-Cash
+              <HelpTooltip text="Average annual operating cash flow (excluding exit proceeds) as a percentage of total equity invested. Measures the annual yield on invested capital." />
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{cashOnCash.toFixed(1)}%</div>
           </CardContent>
         </Card>
         
         <Card className="bg-primary text-primary-foreground">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-primary-foreground/80">Portfolio IRR</CardTitle>
+            <CardTitle className="text-sm font-medium text-primary-foreground/80 flex items-center">
+              Portfolio IRR
+              <HelpTooltip text="Internal Rate of Return - the annualized return that makes the net present value of all cash flows (investments, distributions, and exit) equal to zero. The gold standard metric for real estate investments." />
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">{(portfolioIRR * 100).toFixed(1)}%</div>
-            <p className="text-xs text-primary-foreground/70 mt-1">10-year internal rate of return</p>
           </CardContent>
         </Card>
       </div>

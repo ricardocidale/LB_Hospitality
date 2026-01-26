@@ -239,6 +239,74 @@ export default function Dashboard() {
     return depreciableBase / DEPRECIATION_YEARS;
   };
 
+  const getOutstandingAcqLoanBalance = (prop: any, afterYear: number) => {
+    const loanAmount = getPropertyLoanAmount(prop);
+    if (loanAmount <= 0) return 0;
+
+    const annualRate = prop.acquisitionInterestRate || global.debtAssumptions.interestRate || 0.09;
+    const r = annualRate / 12;
+    const termYears = prop.acquisitionTermYears || global.debtAssumptions.amortizationYears || 25;
+    const n = termYears * 12;
+
+    if (r <= 0 || n <= 0) return 0;
+
+    const monthlyPayment = (loanAmount * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+    const monthsPaid = (afterYear + 1) * 12;
+    const paymentsRemaining = Math.max(0, n - monthsPaid);
+
+    if (paymentsRemaining <= 0) return 0;
+    return monthlyPayment * (1 - Math.pow(1 + r, -paymentsRemaining)) / r;
+  };
+
+  const getRefiLoanBalanceForExit = (prop: any, propIndex: number, afterYear: number): number => {
+    if (prop.willRefinance !== "Yes") return 0;
+    
+    const refiDate = new Date(prop.refinanceDate);
+    const modelStart = new Date(global.modelStartDate);
+    const monthsDiff = (refiDate.getFullYear() - modelStart.getFullYear()) * 12 + 
+                       (refiDate.getMonth() - modelStart.getMonth());
+    const refiYear = Math.floor(monthsDiff / 12);
+    
+    if (refiYear < 0 || refiYear >= 10 || afterYear < refiYear) return 0;
+    
+    const refiLTV = prop.refinanceLTV || global.debtAssumptions.refiLTV || 0.65;
+    const { financials } = allPropertyFinancials[propIndex];
+    const stabilizedData = financials.slice(refiYear * 12, (refiYear + 1) * 12);
+    const stabilizedNOI = stabilizedData.reduce((a: number, m: any) => a + m.noi, 0);
+    const refiCapRate = prop.exitCapRate || 0.085;
+    const propertyValue = stabilizedNOI / refiCapRate;
+    const newLoanAmount = propertyValue * refiLTV;
+    
+    const annualRate = prop.refinanceInterestRate || global.debtAssumptions.interestRate || 0.09;
+    const r = annualRate / 12;
+    const termYears = prop.refinanceTermYears || global.debtAssumptions.amortizationYears || 25;
+    const n = termYears * 12;
+    
+    if (r <= 0 || n <= 0) return 0;
+    
+    const monthlyPayment = (newLoanAmount * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+    const monthsSinceRefi = (afterYear - refiYear + 1) * 12;
+    const paymentsRemaining = Math.max(0, n - monthsSinceRefi);
+    
+    if (paymentsRemaining <= 0) return 0;
+    return monthlyPayment * (1 - Math.pow(1 + r, -paymentsRemaining)) / r;
+  };
+
+  const getTotalDebtForExit = (prop: any, propIndex: number, afterYear: number): number => {
+    if (prop.willRefinance === "Yes") {
+      const refiDate = new Date(prop.refinanceDate);
+      const modelStart = new Date(global.modelStartDate);
+      const monthsDiff = (refiDate.getFullYear() - modelStart.getFullYear()) * 12 + 
+                         (refiDate.getMonth() - modelStart.getMonth());
+      const refiYear = Math.floor(monthsDiff / 12);
+      
+      if (refiYear >= 0 && refiYear < 10 && afterYear >= refiYear) {
+        return getRefiLoanBalanceForExit(prop, propIndex, afterYear);
+      }
+    }
+    return getOutstandingAcqLoanBalance(prop, afterYear);
+  };
+
   const getPropertyExitValue = (prop: any, propIndex: number) => {
     const { financials } = allPropertyFinancials[propIndex];
     const year10Data = financials.slice(108, 120);
@@ -249,23 +317,8 @@ export default function Dashboard() {
     const commission = grossValue * commissionRate;
     const netValue = grossValue - commission;
     
-    const loanAmount = getPropertyLoanAmount(prop);
-    if (loanAmount <= 0) return netValue;
-    
-    const annualRate = prop.acquisitionInterestRate || global.debtAssumptions.interestRate || 0.09;
-    const r = annualRate / 12;
-    const termYears = prop.acquisitionTermYears || global.debtAssumptions.amortizationYears || 25;
-    const n = termYears * 12;
-    const monthlyPayment = (loanAmount * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
-    
-    let remainingBalance = loanAmount;
-    for (let m = 0; m < 120 && m < n; m++) {
-      const interestPayment = remainingBalance * r;
-      const principalPayment = monthlyPayment - interestPayment;
-      remainingBalance -= principalPayment;
-    }
-    
-    return netValue - Math.max(0, remainingBalance);
+    const outstandingDebt = getTotalDebtForExit(prop, propIndex, 9);
+    return netValue - outstandingDebt;
   };
 
   const getPropertyYearlyDetails = (prop: any, propIndex: number, yearIndex: number) => {

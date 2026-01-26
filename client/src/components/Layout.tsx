@@ -62,7 +62,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
         <div className="p-6 border-t border-sidebar-border">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-sidebar-primary flex items-center justify-center text-white font-bold text-sm">
+            <div className="w-10 h-10 rounded-full bg-sidebar-primary flex items-center justify-center text-sidebar-primary-foreground font-bold text-sm">
               LB
             </div>
             <div>

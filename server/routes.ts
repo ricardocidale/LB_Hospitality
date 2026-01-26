@@ -140,6 +140,35 @@ export async function registerRoutes(
   // Register object storage routes for file uploads
   registerObjectStorageRoutes(app);
 
+  // --- FIX IMAGE URLS ENDPOINT ---
+  app.post("/api/fix-images", async (req, res) => {
+    try {
+      const imageMap: Record<string, string> = {
+        "The Hudson Estate": "/images/property-ny.png",
+        "Eden Summit Lodge": "/images/property-utah.png",
+        "Austin Hillside": "/images/property-austin.png",
+        "Casa Medellín": "/images/property-medellin.png",
+        "Blue Ridge Manor": "/images/property-asheville.png"
+      };
+      
+      const properties = await storage.getAllProperties();
+      let updated = 0;
+      
+      for (const prop of properties) {
+        const correctUrl = imageMap[prop.name];
+        if (correctUrl && prop.imageUrl !== correctUrl) {
+          await storage.updateProperty(prop.id, { imageUrl: correctUrl });
+          updated++;
+        }
+      }
+      
+      res.json({ success: true, updated });
+    } catch (error) {
+      console.error("Error fixing images:", error);
+      res.status(500).json({ error: "Failed to fix images" });
+    }
+  });
+
   // --- ONE-TIME SEED ENDPOINT ---
   // Visit /api/seed-production once to populate the database with initial data
   app.post("/api/seed-production", async (req, res) => {
@@ -205,7 +234,7 @@ export async function registerRoutes(
           name: "The Hudson Estate",
           location: "Upstate New York",
           market: "North America",
-          imageUrl: "/src/assets/property-ny.png",
+          imageUrl: "/images/property-ny.png",
           status: "Development",
           acquisitionDate: "2026-06-01",
           operationsStartDate: "2026-12-01",
@@ -248,7 +277,7 @@ export async function registerRoutes(
           name: "Eden Summit Lodge",
           location: "Eden, Utah",
           market: "North America",
-          imageUrl: "/src/assets/property-utah.png",
+          imageUrl: "/images/property-utah.png",
           status: "Acquisition",
           acquisitionDate: "2027-01-01",
           operationsStartDate: "2027-07-01",
@@ -291,7 +320,7 @@ export async function registerRoutes(
           name: "Austin Hillside",
           location: "Austin, Texas",
           market: "North America",
-          imageUrl: "/src/assets/property-austin.png",
+          imageUrl: "/images/property-austin.png",
           status: "Acquisition",
           acquisitionDate: "2027-04-01",
           operationsStartDate: "2028-01-01",
@@ -334,7 +363,7 @@ export async function registerRoutes(
           name: "Casa Medellín",
           location: "Medellín, Colombia",
           market: "Latin America",
-          imageUrl: "/src/assets/property-medellin.png",
+          imageUrl: "/images/property-medellin.png",
           status: "Acquisition",
           acquisitionDate: "2026-09-01",
           operationsStartDate: "2028-07-01",
@@ -375,7 +404,7 @@ export async function registerRoutes(
           name: "Blue Ridge Manor",
           location: "Asheville, North Carolina",
           market: "North America",
-          imageUrl: "/src/assets/property-asheville.png",
+          imageUrl: "/images/property-asheville.png",
           status: "Acquisition",
           acquisitionDate: "2027-07-01",
           operationsStartDate: "2028-07-01",

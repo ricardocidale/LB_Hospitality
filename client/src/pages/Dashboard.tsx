@@ -715,10 +715,9 @@ export default function Dashboard() {
           </TabsContent>
 
           <TabsContent value="cashflow" className="mt-6 space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Revenue & Operating Performance</CardTitle>
+            <Card>
+              <CardHeader>
+                <CardTitle>Revenue & Operating Performance</CardTitle>
                   <p className="text-sm text-muted-foreground">Revenue, Operating Costs, and NOI over 10 years</p>
                 </CardHeader>
                 <CardContent>
@@ -798,8 +797,7 @@ export default function Dashboard() {
                   </LineChart>
                 </ResponsiveContainer>
               </CardContent>
-              </Card>
-            </div>
+            </Card>
 
             <Card>
               <CardHeader>

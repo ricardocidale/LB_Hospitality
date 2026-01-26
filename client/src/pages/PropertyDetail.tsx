@@ -1,6 +1,6 @@
 import Layout from "@/components/Layout";
 import { useProperty, useGlobalAssumptions } from "@/lib/api";
-import { generatePropertyProForma, formatMoney } from "@/lib/financialEngine";
+import { generatePropertyProForma, formatMoney, getFiscalYearForModelYear } from "@/lib/financialEngine";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { YearlyIncomeStatement } from "@/components/YearlyIncomeStatement";
 import { YearlyCashFlowStatement } from "@/components/YearlyCashFlowStatement";
@@ -41,7 +41,8 @@ export default function PropertyDetail() {
     );
   }
 
-  const modelStartYear = new Date(global.modelStartDate).getFullYear();
+  const fiscalYearStartMonth = global.fiscalYearStartMonth ?? 1;
+  const getFiscalYear = (yearIndex: number) => getFiscalYearForModelYear(global.modelStartDate, fiscalYearStartMonth, yearIndex);
   const financials = generatePropertyProForma(property, global, 120);
   
   const yearlyChartData = [];
@@ -49,7 +50,7 @@ export default function PropertyDetail() {
     const yearData = financials.slice(y * 12, (y + 1) * 12);
     if (yearData.length === 0) continue;
     yearlyChartData.push({
-      year: String(modelStartYear + y),
+      year: String(getFiscalYear(y)),
       Revenue: yearData.reduce((a, m) => a + m.revenueTotal, 0),
       GOP: yearData.reduce((a, m) => a + m.gop, 0),
       NOI: yearData.reduce((a, m) => a + m.noi, 0),
@@ -155,11 +156,11 @@ export default function PropertyDetail() {
           </TabsList>
           
           <TabsContent value="income" className="mt-6">
-            <YearlyIncomeStatement data={financials} years={10} startYear={modelStartYear} />
+            <YearlyIncomeStatement data={financials} years={10} startYear={getFiscalYear(0)} />
           </TabsContent>
           
           <TabsContent value="cashflow" className="mt-6">
-            <YearlyCashFlowStatement data={financials} property={property} years={10} startYear={modelStartYear} />
+            <YearlyCashFlowStatement data={financials} property={property} years={10} startYear={getFiscalYear(0)} />
           </TabsContent>
         </Tabs>
       </div>

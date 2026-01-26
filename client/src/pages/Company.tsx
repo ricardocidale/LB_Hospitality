@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Layout from "@/components/Layout";
 import { useProperties, useGlobalAssumptions } from "@/lib/api";
-import { generateCompanyProForma, generatePropertyProForma, formatMoney } from "@/lib/financialEngine";
+import { generateCompanyProForma, generatePropertyProForma, formatMoney, getFiscalYearForModelYear } from "@/lib/financialEngine";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -51,7 +51,8 @@ export default function Company() {
     );
   }
 
-  const modelStartYear = new Date(global.modelStartDate).getFullYear();
+  const fiscalYearStartMonth = global.fiscalYearStartMonth ?? 1;
+  const getFiscalYear = (yearIndex: number) => getFiscalYearForModelYear(global.modelStartDate, fiscalYearStartMonth, yearIndex);
   const financials = generateCompanyProForma(properties, global, 120);
   
   const propertyFinancials = properties.map(p => ({
@@ -64,7 +65,7 @@ export default function Company() {
     const yearData = financials.slice(y * 12, (y + 1) * 12);
     if (yearData.length === 0) continue;
     yearlyChartData.push({
-      year: String(modelStartYear + y),
+      year: String(getFiscalYear(y)),
       Revenue: yearData.reduce((a, m) => a + m.totalRevenue, 0),
       Expenses: yearData.reduce((a, m) => a + m.totalExpenses, 0),
       NetIncome: yearData.reduce((a, m) => a + m.netIncome, 0),
@@ -90,7 +91,7 @@ export default function Company() {
     return yearData.reduce((a, m) => a + m.gop, 0) * global.incentiveManagementFee;
   };
 
-  const years = Array.from({ length: 10 }, (_, i) => modelStartYear + i);
+  const years = Array.from({ length: 10 }, (_, i) => getFiscalYear(i));
 
   const generateCompanyIncomeData = () => {
     const rows: { category: string; values: number[]; isHeader?: boolean; indent?: number }[] = [];
@@ -544,7 +545,7 @@ export default function Company() {
                     <TableRow>
                       <TableHead className="sticky left-0 bg-card">Category</TableHead>
                       {Array.from({ length: 10 }, (_, i) => (
-                        <TableHead key={i} className="text-right min-w-[100px]">{modelStartYear + i}</TableHead>
+                        <TableHead key={i} className="text-right min-w-[100px]">{getFiscalYear(i)}</TableHead>
                       ))}
                     </TableRow>
                   </TableHeader>
@@ -833,7 +834,7 @@ export default function Company() {
                     <TableRow>
                       <TableHead className="sticky left-0 bg-card">Category</TableHead>
                       {Array.from({ length: 10 }, (_, i) => (
-                        <TableHead key={i} className="text-right min-w-[100px]">{modelStartYear + i}</TableHead>
+                        <TableHead key={i} className="text-right min-w-[100px]">{getFiscalYear(i)}</TableHead>
                       ))}
                     </TableRow>
                   </TableHeader>
@@ -1163,7 +1164,7 @@ export default function Company() {
           <TabsContent value="balance" className="mt-6">
             <Card>
               <CardHeader>
-                <CardTitle>Balance Sheet - As of {modelStartYear + 9}</CardTitle>
+                <CardTitle>Balance Sheet - As of {getFiscalYear(9)}</CardTitle>
               </CardHeader>
               <CardContent>
                 {(() => {

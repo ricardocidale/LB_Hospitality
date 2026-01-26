@@ -1,6 +1,6 @@
 import Layout from "@/components/Layout";
 import { useProperties, useGlobalAssumptions } from "@/lib/api";
-import { generatePropertyProForma, formatMoney } from "@/lib/financialEngine";
+import { generatePropertyProForma, formatMoney, getFiscalYearForModelYear } from "@/lib/financialEngine";
 import { Money } from "@/components/Money";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -53,8 +53,8 @@ export default function Dashboard() {
     );
   }
 
-  const modelStartYear = new Date(global.modelStartDate).getFullYear();
-  const getCalendarYear = (yearIndex: number) => modelStartYear + yearIndex;
+  const fiscalYearStartMonth = global.fiscalYearStartMonth ?? 1;
+  const getFiscalYear = (yearIndex: number) => getFiscalYearForModelYear(global.modelStartDate, fiscalYearStartMonth, yearIndex);
 
   const allPropertyFinancials = properties.map(p => {
     const financials = generatePropertyProForma(p, global, 120);
@@ -352,7 +352,7 @@ export default function Dashboard() {
   const cashOnCash = totalInitialEquity > 0 ? (avgAnnualCashFlow / totalInitialEquity) * 100 : 0;
 
   const generateIncomeStatementData = () => {
-    const years = Array.from({ length: 10 }, (_, i) => getCalendarYear(i));
+    const years = Array.from({ length: 10 }, (_, i) => getFiscalYear(i));
     const rows: { category: string; values: number[]; isHeader?: boolean; indent?: number }[] = [];
     
     rows.push({ category: "Total Revenue", values: years.map((_, i) => getYearlyConsolidated(i).revenueTotal), isHeader: true });
@@ -481,7 +481,7 @@ export default function Dashboard() {
   };
 
   const generateCashFlowData = () => {
-    const years = Array.from({ length: 10 }, (_, i) => getCalendarYear(i));
+    const years = Array.from({ length: 10 }, (_, i) => getFiscalYear(i));
     const rows: { category: string; values: number[]; isHeader?: boolean; indent?: number; isNegative?: boolean }[] = [];
     
     rows.push({ category: "CASH INFLOWS (Revenue)", values: years.map((_, i) => getYearlyConsolidated(i).revenueTotal), isHeader: true });
@@ -680,7 +680,7 @@ export default function Dashboard() {
   };
 
   const generateBalanceSheetData = () => {
-    const years = Array.from({ length: 10 }, (_, i) => getCalendarYear(i));
+    const years = Array.from({ length: 10 }, (_, i) => getFiscalYear(i));
     const rows: { category: string; values: number[]; isHeader?: boolean; indent?: number; isNegative?: boolean }[] = [];
     
     const totalPropertyValue = properties.reduce((sum, p) => sum + p.purchasePrice + p.buildingImprovements, 0);
@@ -863,7 +863,7 @@ export default function Dashboard() {
   };
 
   const generateInvestmentAnalysisData = () => {
-    const years = ['Initial', ...Array.from({ length: 10 }, (_, i) => String(getCalendarYear(i)))];
+    const years = ['Initial', ...Array.from({ length: 10 }, (_, i) => String(getFiscalYear(i)))];
     const rows: { category: string; values: (number | string)[]; isHeader?: boolean; indent?: number; isNegative?: boolean }[] = [];
     
     const getEquityForYear = (yearIdx: number): number => {
@@ -1142,7 +1142,7 @@ export default function Dashboard() {
           </div>
           <div className="text-right">
             <p className="text-xs text-muted-foreground uppercase tracking-widest">Investment Period</p>
-            <p className="text-lg font-medium">{modelStartYear} - {modelStartYear + investmentHorizon}</p>
+            <p className="text-lg font-medium">{getFiscalYear(0)} - {getFiscalYear(investmentHorizon)}</p>
           </div>
         </div>
 
@@ -1194,7 +1194,7 @@ export default function Dashboard() {
                     <p className="text-2xl font-bold text-white">{formatMoney(totalInitialEquity)}</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-sm text-white/60 mb-1">Exit Value ({modelStartYear + 9})</p>
+                    <p className="text-sm text-white/60 mb-1">Exit Value ({getFiscalYear(9)})</p>
                     <p className="text-2xl font-bold text-emerald-400">{formatMoney(totalExitValue)}</p>
                   </div>
                   <div className="text-center">
@@ -1335,7 +1335,7 @@ export default function Dashboard() {
                     data={Array.from({ length: 10 }, (_, i) => {
                       const yearly = getYearlyConsolidated(i);
                       return {
-                        year: getCalendarYear(i),
+                        year: getFiscalYear(i),
                         Revenue: yearly.revenueTotal,
                         'Operating Expenses': yearly.totalExpenses,
                         NOI: yearly.noi
@@ -1377,7 +1377,7 @@ export default function Dashboard() {
                     <TableRow>
                       <TableHead className="sticky left-0 bg-card min-w-[200px]">Category</TableHead>
                       {Array.from({ length: 10 }, (_, i) => (
-                        <TableHead key={i} className="text-right min-w-[110px]">{getCalendarYear(i)}</TableHead>
+                        <TableHead key={i} className="text-right min-w-[110px]">{getFiscalYear(i)}</TableHead>
                       ))}
                     </TableRow>
                   </TableHeader>
@@ -1718,7 +1718,7 @@ export default function Dashboard() {
                       data={Array.from({ length: 10 }, (_, i) => {
                         const yearly = getYearlyConsolidated(i);
                         return {
-                          year: getCalendarYear(i),
+                          year: getFiscalYear(i),
                           Revenue: yearly.revenueTotal,
                           'Operating Costs': yearly.totalExpenses,
                           NOI: yearly.noi
@@ -1760,7 +1760,7 @@ export default function Dashboard() {
                     data={Array.from({ length: 10 }, (_, i) => {
                       const yearly = getYearlyConsolidated(i);
                       return {
-                        year: getCalendarYear(i),
+                        year: getFiscalYear(i),
                         NOI: yearly.noi,
                         'Debt Service': yearly.debtPayment,
                         'Net Cash Flow': yearly.cashFlow
@@ -1802,7 +1802,7 @@ export default function Dashboard() {
                     <TableRow>
                       <TableHead className="sticky left-0 bg-card min-w-[200px]">Category</TableHead>
                       {Array.from({ length: 10 }, (_, i) => (
-                        <TableHead key={i} className="text-right min-w-[110px]">{getCalendarYear(i)}</TableHead>
+                        <TableHead key={i} className="text-right min-w-[110px]">{getFiscalYear(i)}</TableHead>
                       ))}
                     </TableRow>
                   </TableHeader>
@@ -2242,8 +2242,8 @@ function InvestmentAnalysis({
 }: InvestmentAnalysisProps) {
   const DEPRECIATION_YEARS = 27.5;
   
-  const modelStartYear = new Date(global.modelStartDate).getFullYear();
-  const getCalendarYear = (yearIndex: number) => modelStartYear + yearIndex;
+  const fiscalYearStartMonth = global.fiscalYearStartMonth ?? 1;
+  const getFiscalYear = (yearIndex: number) => getFiscalYearForModelYear(global.modelStartDate, fiscalYearStartMonth, yearIndex);
 
   const getPropertyAcquisitionYear = (prop: any): number => {
     const acqDate = new Date(prop.acquisitionDate);
@@ -2646,8 +2646,8 @@ function InvestmentAnalysis({
         <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-primary-foreground/80 flex items-center">
-              Exit Value ({modelStartYear + 9})
-              <HelpTooltip text={`Projected sale value of all properties at ${getCalendarYear(10)}, calculated as NOI ÷ Exit Cap Rate, minus any outstanding debt at time of sale.`} light />
+              Exit Value ({getFiscalYear(9)})
+              <HelpTooltip text={`Projected sale value of all properties at ${getFiscalYear(10)}, calculated as NOI ÷ Exit Cap Rate, minus any outstanding debt at time of sale.`} light />
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -2702,9 +2702,9 @@ function InvestmentAnalysis({
             <TableHeader>
               <TableRow>
                 <TableHead className="sticky left-0 bg-card min-w-[200px]">Category</TableHead>
-                <TableHead className="text-right min-w-[110px]">{getCalendarYear(0)}</TableHead>
+                <TableHead className="text-right min-w-[110px]">{getFiscalYear(0)}</TableHead>
                 {Array.from({ length: 10 }, (_, i) => (
-                  <TableHead key={i} className="text-right min-w-[110px]">{getCalendarYear(i + 1)}</TableHead>
+                  <TableHead key={i} className="text-right min-w-[110px]">{getFiscalYear(i + 1)}</TableHead>
                 ))}
               </TableRow>
             </TableHeader>
@@ -2973,7 +2973,7 @@ function InvestmentAnalysis({
                   ) : (
                     <ChevronRight className="w-4 h-4 text-muted-foreground" />
                   )}
-                  Exit Proceeds ({getCalendarYear(10)})
+                  Exit Proceeds ({getFiscalYear(10)})
                 </TableCell>
                 <TableCell className="text-right text-muted-foreground">-</TableCell>
                 {Array.from({ length: 10 }, (_, y) => (
@@ -3038,7 +3038,7 @@ function InvestmentAnalysis({
                 <TableHead className="text-right">Equity Investment</TableHead>
                 <TableHead className="text-right">Tax Rate</TableHead>
                 <TableHead className="text-right">Exit Cap Rate</TableHead>
-                <TableHead className="text-right">Exit Value ({getCalendarYear(10)})</TableHead>
+                <TableHead className="text-right">Exit Value ({getFiscalYear(10)})</TableHead>
                 <TableHead className="text-right">Total Distributions</TableHead>
                 <TableHead className="text-right">Equity Multiple</TableHead>
                 <TableHead className="text-right">IRR</TableHead>

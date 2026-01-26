@@ -8,6 +8,7 @@ export interface GlobalResponse {
   id: number;
   modelStartDate: string;
   companyOpsStartDate: string;
+  fiscalYearStartMonth: number;
   inflationRate: number;
   fixedCostEscalationRate: number;
   // Revenue

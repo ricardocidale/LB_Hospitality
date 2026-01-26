@@ -715,11 +715,54 @@ export default function Dashboard() {
           </TabsContent>
 
           <TabsContent value="cashflow" className="mt-6 space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Portfolio Cash Flow Trends</CardTitle>
-                <p className="text-sm text-muted-foreground">NOI, Debt Service, and Net Cash Flow over 10 years</p>
-              </CardHeader>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Revenue & Operating Performance</CardTitle>
+                  <p className="text-sm text-muted-foreground">Revenue, Operating Costs, and NOI over 10 years</p>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <LineChart
+                      data={Array.from({ length: 10 }, (_, i) => {
+                        const yearly = getYearlyConsolidated(i);
+                        return {
+                          year: getCalendarYear(i),
+                          Revenue: yearly.revenueTotal,
+                          'Operating Costs': yearly.totalExpenses,
+                          NOI: yearly.noi
+                        };
+                      })}
+                      margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                      <XAxis dataKey="year" stroke="hsl(var(--muted-foreground))" />
+                      <YAxis 
+                        stroke="hsl(var(--muted-foreground))" 
+                        tickFormatter={(value) => `$${(value / 1000000).toFixed(1)}M`}
+                      />
+                      <Tooltip 
+                        formatter={(value: number) => formatMoney(value)}
+                        contentStyle={{ 
+                          backgroundColor: 'hsl(var(--card))', 
+                          border: '1px solid hsl(var(--border))',
+                          borderRadius: '8px'
+                        }}
+                      />
+                      <Legend />
+                      <Line type="monotone" dataKey="Revenue" stroke="#9FBCA4" strokeWidth={2} dot={{ fill: '#9FBCA4' }} />
+                      <Line type="monotone" dataKey="Operating Costs" stroke="#9575CD" strokeWidth={2} dot={{ fill: '#9575CD' }} />
+                      <Line type="monotone" dataKey="NOI" stroke="#257D41" strokeWidth={2} dot={{ fill: '#257D41' }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Cash Flow After Financing</CardTitle>
+                  <p className="text-sm text-muted-foreground">NOI, Debt Service, and Net Cash Flow over 10 years</p>
+                </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
                   <LineChart
@@ -755,7 +798,8 @@ export default function Dashboard() {
                   </LineChart>
                 </ResponsiveContainer>
               </CardContent>
-            </Card>
+              </Card>
+            </div>
 
             <Card>
               <CardHeader>

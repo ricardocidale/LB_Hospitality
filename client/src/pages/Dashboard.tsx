@@ -1639,55 +1639,55 @@ function InvestmentAnalysis({
   return (
     <>
       <div className="grid gap-4 md:grid-cols-5">
-        <Card>
+        <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
+            <CardTitle className="text-sm font-medium text-primary-foreground/80 flex items-center">
               Total Equity
-              <HelpTooltip text="Total initial capital required from investors across all properties, including purchase price, improvements, pre-opening costs, and operating reserves (net of any financing)." />
+              <HelpTooltip text="Total initial capital required from investors across all properties, including purchase price, improvements, pre-opening costs, and operating reserves (net of any financing)." light />
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatMoney(totalInitialEquity)}</div>
+            <div className="text-2xl font-bold text-primary-foreground">{formatMoney(totalInitialEquity)}</div>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
+            <CardTitle className="text-sm font-medium text-primary-foreground/80 flex items-center">
               Exit Value ({modelStartYear + 9})
-              <HelpTooltip text={`Projected sale value of all properties at ${getCalendarYear(10)}, calculated as NOI ÷ Exit Cap Rate, minus any outstanding debt at time of sale.`} />
+              <HelpTooltip text={`Projected sale value of all properties at ${getCalendarYear(10)}, calculated as NOI ÷ Exit Cap Rate, minus any outstanding debt at time of sale.`} light />
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-accent">{formatMoney(totalExitValue)}</div>
+            <div className="text-2xl font-bold text-primary-foreground">{formatMoney(totalExitValue)}</div>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
+            <CardTitle className="text-sm font-medium text-primary-foreground/80 flex items-center">
               Equity Multiple
-              <HelpTooltip text="Total cash returned to investors divided by total equity invested. A 2.0x multiple means investors receive $2 back for every $1 invested." />
+              <HelpTooltip text="Total cash returned to investors divided by total equity invested. A 2.0x multiple means investors receive $2 back for every $1 invested." light />
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{equityMultiple.toFixed(2)}x</div>
+            <div className="text-2xl font-bold text-primary-foreground">{equityMultiple.toFixed(2)}x</div>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
+            <CardTitle className="text-sm font-medium text-primary-foreground/80 flex items-center">
               Avg Cash-on-Cash
-              <HelpTooltip text="Average annual operating cash flow (excluding exit proceeds) as a percentage of total equity invested. Measures the annual yield on invested capital." />
+              <HelpTooltip text="Average annual operating cash flow (excluding exit proceeds) as a percentage of total equity invested. Measures the annual yield on invested capital." light />
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{cashOnCash.toFixed(1)}%</div>
+            <div className="text-2xl font-bold text-primary-foreground">{cashOnCash.toFixed(1)}%</div>
           </CardContent>
         </Card>
         
-        <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl text-primary-foreground border border-white/30 shadow-xl shadow-primary/20">
+        <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-primary-foreground/80 flex items-center">
               Portfolio IRR
@@ -1695,7 +1695,7 @@ function InvestmentAnalysis({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{(portfolioIRR * 100).toFixed(1)}%</div>
+            <div className="text-2xl font-bold text-primary-foreground">{(portfolioIRR * 100).toFixed(1)}%</div>
           </CardContent>
         </Card>
       </div>

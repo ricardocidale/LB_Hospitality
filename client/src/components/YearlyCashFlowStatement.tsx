@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { cn } from "@/lib/utils";
 import { Money } from "@/components/Money";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { AlertTriangle, CheckCircle } from "lucide-react";
 import { 
   LoanParams, 
   GlobalLoanParams,
@@ -11,6 +12,74 @@ import {
   calculatePropertyYearlyCashFlows,
   YearlyCashFlowResult
 } from "@/lib/loanCalculations";
+
+interface CashPositionAnalysis {
+  operatingReserve: number;
+  minCashPosition: number;
+  minCashMonth: number | null;
+  shortfall: number;
+  isAdequate: boolean;
+  suggestedReserve: number;
+}
+
+function analyzeMonthlyCashPosition(
+  data: MonthlyFinancials[],
+  operatingReserve: number
+): CashPositionAnalysis {
+  if (!data || data.length === 0) {
+    return {
+      operatingReserve,
+      minCashPosition: operatingReserve,
+      minCashMonth: null,
+      shortfall: 0,
+      isAdequate: true,
+      suggestedReserve: operatingReserve
+    };
+  }
+  
+  let cashPosition = operatingReserve;
+  let minCashPosition = operatingReserve;
+  let minCashMonth: number | null = null;
+  let hasActivity = false;
+  
+  for (let i = 0; i < data.length; i++) {
+    const month = data[i];
+    if (month.cashFlow === 0 && month.revenueTotal === 0 && month.debtPayment === 0) {
+      continue;
+    }
+    hasActivity = true;
+    cashPosition += month.cashFlow;
+    
+    if (cashPosition < minCashPosition) {
+      minCashPosition = cashPosition;
+      minCashMonth = i + 1;
+    }
+  }
+  
+  if (!hasActivity) {
+    return {
+      operatingReserve,
+      minCashPosition: operatingReserve,
+      minCashMonth: null,
+      shortfall: 0,
+      isAdequate: true,
+      suggestedReserve: operatingReserve
+    };
+  }
+  
+  const shortfall = minCashPosition < 0 ? Math.abs(minCashPosition) : 0;
+  const isAdequate = minCashPosition >= 0;
+  const suggestedReserve = isAdequate ? operatingReserve : operatingReserve + shortfall + 50000;
+  
+  return {
+    operatingReserve,
+    minCashPosition,
+    minCashMonth,
+    shortfall,
+    isAdequate,
+    suggestedReserve: Math.ceil(suggestedReserve / 10000) * 10000
+  };
+}
 
 interface Props {
   data: MonthlyFinancials[];
@@ -42,6 +111,13 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
   const loan = calculateLoanParams(property, global);
   const equityInvested = loan.equityInvested;
   
+  const operatingReserve = property.operatingReserve || 0;
+  const cashAnalysis = analyzeMonthlyCashPosition(data, operatingReserve);
+  
+  const formatMoney = (amount: number) => {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(amount);
+  };
+  
   return (
     <Card className="overflow-hidden">
       <CardHeader className="pb-2">
@@ -50,6 +126,38 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
           <HelpTooltip text="Shows the cash available to distribute to investors each year, including operating cash flow (after taxes), refinancing proceeds, and sale proceeds at exit." />
         </CardTitle>
         <p className="text-sm text-muted-foreground">Annual distributions, refinancing proceeds, and exit value</p>
+        
+        {!cashAnalysis.isAdequate ? (
+          <div data-testid="banner-equity-warning" className="mt-3 p-3 bg-destructive/10 border border-destructive/30 rounded-lg flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+            <div className="text-sm">
+              <p data-testid="text-equity-warning-title" className="font-semibold text-destructive">Additional Equity Investment Required</p>
+              <p className="text-muted-foreground mt-1">
+                The current Operating Reserve of <span data-testid="text-current-reserve">{formatMoney(operatingReserve)}</span> is insufficient. 
+                Monthly cash position drops to <span data-testid="text-min-cash-position">{formatMoney(cashAnalysis.minCashPosition)}</span>
+                {cashAnalysis.minCashMonth !== null && <> in month <span data-testid="text-min-cash-month">{cashAnalysis.minCashMonth}</span></>}.
+              </p>
+              <p className="text-muted-foreground mt-1">
+                <span className="font-medium">Suggested:</span> Increase Operating Reserve to at least{' '}
+                <span data-testid="text-suggested-reserve" className="font-semibold text-foreground">{formatMoney(cashAnalysis.suggestedReserve)}</span> in{' '}
+                <span className="font-medium text-primary">Property Assumptions → Capital & Acquisition</span>.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div data-testid="banner-cash-adequate" className="mt-3 p-3 bg-accent/10 border border-accent/30 rounded-lg flex items-start gap-3">
+            <CheckCircle className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
+            <div className="text-sm">
+              <p data-testid="text-cash-adequate-title" className="font-semibold text-accent">Cash Position Adequate</p>
+              <p className="text-muted-foreground mt-1">
+                The Operating Reserve of <span data-testid="text-current-reserve">{formatMoney(operatingReserve)}</span> covers all costs during ramp-up.
+                {cashAnalysis.minCashMonth !== null && (
+                  <> Minimum cash position: <span data-testid="text-min-cash-position">{formatMoney(cashAnalysis.minCashPosition)}</span> (month <span data-testid="text-min-cash-month">{cashAnalysis.minCashMonth}</span>).</>
+                )}
+              </p>
+            </div>
+          </div>
+        )}
       </CardHeader>
       <div className="overflow-x-auto">
         <Table>

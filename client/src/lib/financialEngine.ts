@@ -11,8 +11,11 @@ interface PropertyInput {
   occupancyRampMonths: number;
   occupancyGrowthStep: number;
   purchasePrice: number;
+  buildingImprovements?: number;
   type: string;
   cateringLevel: string;
+  // Financing
+  acquisitionLTV?: number;
   // Operating Cost Rates (should sum to ~84% of revenue)
   costRateRooms: number;
   costRateFB: number;
@@ -62,6 +65,7 @@ interface GlobalInput {
   debtAssumptions: {
     interestRate: number;
     amortizationYears: number;
+    acqLTV?: number;
   };
 }
 
@@ -96,7 +100,10 @@ export interface MonthlyFinancials {
   totalExpenses: number;
   gop: number;
   noi: number;
+  interestExpense: number;
+  principalPayment: number;
   debtPayment: number;
+  netIncome: number;
   cashFlow: number;
 }
 
@@ -204,15 +211,34 @@ export function generatePropertyProForma(
     const noi = gop - feeBase - feeIncentive - expenseFFE;
     
     let debtPayment = 0;
+    let interestExpense = 0;
+    let principalPayment = 0;
+    
     if (isOperational && property.type === "Financed") {
       const r = global.debtAssumptions.interestRate / 12;
       const n = global.debtAssumptions.amortizationYears * 12;
-      const loanAmount = property.purchasePrice * 0.75;
-      if (loanAmount > 0) {
-        debtPayment = (loanAmount * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+      const ltv = property.acquisitionLTV ?? global.debtAssumptions.acqLTV ?? 0.75;
+      const loanAmount = (property.purchasePrice + (property.buildingImprovements ?? 0)) * ltv;
+      
+      if (loanAmount > 0 && r > 0) {
+        const monthlyPayment = (loanAmount * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+        debtPayment = monthlyPayment;
+        
+        // Calculate remaining balance at this month to get accurate interest/principal split
+        let remainingBalance = loanAmount;
+        for (let m = 0; m < monthsSinceOps && m < n; m++) {
+          const monthInterest = remainingBalance * r;
+          const monthPrincipal = monthlyPayment - monthInterest;
+          remainingBalance -= monthPrincipal;
+        }
+        
+        // Current month's interest and principal
+        interestExpense = remainingBalance * r;
+        principalPayment = monthlyPayment - interestExpense;
       }
     }
 
+    const netIncome = noi - interestExpense;
     const cashFlow = noi - debtPayment;
 
     financials.push({
@@ -246,7 +272,10 @@ export function generatePropertyProForma(
       totalExpenses: totalOperatingExpenses + feeBase + feeIncentive + expenseFFE,
       gop,
       noi,
+      interestExpense,
+      principalPayment,
       debtPayment,
+      netIncome,
       cashFlow
     });
   }

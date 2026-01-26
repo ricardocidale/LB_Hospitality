@@ -82,6 +82,12 @@ Always format money as money (currency format with commas and appropriate precis
 
 ## Future Enhancements
 
+### Planned Features
+1. **User Authentication**: Login system with user profiles for investors and partners
+2. **Saved Scenarios**: Ability to save and compare different financial model scenarios
+3. **Role-Based Access**: Different views for LPs (Limited Partners) vs GPs (General Partners)
+
+### Financial Model Enhancements
 The current financial statements follow **GAAP-compliant Free Cash Flow methodology** (indirect method). For further enhancements, consider:
 
 1. **Land Value Separation**: Add a land value field to each property to exclude land from the depreciation base (GAAP requires land not be depreciated)

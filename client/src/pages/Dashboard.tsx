@@ -275,7 +275,7 @@ export default function Dashboard() {
                 </CardContent>
               </Card>
 
-              <Card className="bg-primary text-primary-foreground">
+              <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl text-primary-foreground border border-white/30 shadow-xl shadow-primary/20">
                 <CardHeader>
                   <CardTitle className="text-primary-foreground">Capital Stack</CardTitle>
                   <p className="text-sm text-primary-foreground/70">Equity vs Debt Distribution</p>
@@ -1536,7 +1536,7 @@ function InvestmentAnalysis({
           </CardContent>
         </Card>
         
-        <Card className="bg-primary text-primary-foreground">
+        <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl text-primary-foreground border border-white/30 shadow-xl shadow-primary/20">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-primary-foreground/80 flex items-center">
               Portfolio IRR

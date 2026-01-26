@@ -1822,10 +1822,10 @@ function InvestmentAnalysis({
               })}
 
               <TableRow 
-                className="font-semibold bg-accent/20 cursor-pointer hover:bg-accent/30"
+                className="cursor-pointer hover:bg-muted/30"
                 onClick={() => toggleRow('fcfExit')}
               >
-                <TableCell className="sticky left-0 bg-accent/20 flex items-center gap-2">
+                <TableCell className="sticky left-0 bg-card flex items-center gap-2">
                   {expandedRows.has('fcfExit') ? (
                     <ChevronDown className="w-4 h-4 text-muted-foreground" />
                   ) : (
@@ -1835,7 +1835,7 @@ function InvestmentAnalysis({
                 </TableCell>
                 <TableCell className="text-right text-muted-foreground">-</TableCell>
                 {Array.from({ length: 10 }, (_, y) => (
-                  <TableCell key={y} className={`text-right ${y === 9 ? 'text-accent font-bold' : 'text-muted-foreground'}`}>
+                  <TableCell key={y} className={`text-right ${y !== 9 ? 'text-muted-foreground' : ''}`}>
                     {y === 9 ? formatMoney(totalExitValue) : '-'}
                   </TableCell>
                 ))}

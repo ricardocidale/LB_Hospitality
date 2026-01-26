@@ -5,6 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 interface Props {
   data: MonthlyFinancials[];
   years?: number;
+  startYear?: number;
 }
 
 interface YearlyData {
@@ -68,7 +69,7 @@ function aggregateByYear(data: MonthlyFinancials[], years: number): YearlyData[]
   return result;
 }
 
-export function YearlyIncomeStatement({ data, years = 5 }: Props) {
+export function YearlyIncomeStatement({ data, years = 5, startYear = 2026 }: Props) {
   const yearlyData = aggregateByYear(data, years);
   
   return (
@@ -80,7 +81,7 @@ export function YearlyIncomeStatement({ data, years = 5 }: Props) {
               <TableHead className="w-[250px] font-bold">Income Statement</TableHead>
               {yearlyData.map((y) => (
                 <TableHead key={y.year} className="text-right min-w-[120px] font-bold">
-                  Year {y.year}
+                  {startYear + y.year - 1}
                 </TableHead>
               ))}
             </TableRow>

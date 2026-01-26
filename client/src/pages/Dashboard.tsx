@@ -46,6 +46,9 @@ export default function Dashboard() {
     );
   }
 
+  const modelStartYear = new Date(global.modelStartDate).getFullYear();
+  const getCalendarYear = (yearIndex: number) => modelStartYear + yearIndex;
+
   const allPropertyFinancials = properties.map(p => {
     const financials = generatePropertyProForma(p, global, 120);
     return { property: p, financials };

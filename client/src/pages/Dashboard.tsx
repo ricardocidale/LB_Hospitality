@@ -395,11 +395,27 @@ export default function Dashboard() {
     
     rows.push({ category: "Gross Operating Profit", values: years.map((_, i) => getYearlyConsolidated(i).gop), isHeader: true });
     
+    properties.forEach((prop, idx) => {
+      rows.push({ 
+        category: prop.name, 
+        values: years.map((_, i) => getPropertyYearly(idx, i).gop), 
+        indent: 1 
+      });
+    });
+    
     rows.push({ category: "Management Fees", values: years.map((_, i) => getYearlyConsolidated(i).feeBase + getYearlyConsolidated(i).feeIncentive), isHeader: true });
     rows.push({ category: "Base Fee", values: years.map((_, i) => getYearlyConsolidated(i).feeBase), indent: 1 });
     rows.push({ category: "Incentive Fee", values: years.map((_, i) => getYearlyConsolidated(i).feeIncentive), indent: 1 });
     
     rows.push({ category: "Net Operating Income", values: years.map((_, i) => getYearlyConsolidated(i).noi), isHeader: true });
+    
+    properties.forEach((prop, idx) => {
+      rows.push({ 
+        category: prop.name, 
+        values: years.map((_, i) => getPropertyYearly(idx, i).noi), 
+        indent: 1 
+      });
+    });
     
     return { years, rows };
   };

@@ -5,8 +5,7 @@ import { Money } from "@/components/Money";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
-import { ArrowUpRight, Building2, TrendingUp, Wallet, Users, Loader2, ChevronRight, ChevronDown } from "lucide-react";
+import { Loader2, ChevronRight, ChevronDown } from "lucide-react";
 import { format } from "date-fns";
 import { useState } from "react";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
@@ -152,11 +151,6 @@ export default function Dashboard() {
   const activeProperties = properties.filter(p => p.status === "Operational" || p.status === "Development").length;
   const managementFees = year1Data.feeBase + year1Data.feeIncentive;
 
-  const allPropertyChartData = properties.map((p, idx) => {
-    const yearData = getPropertyYearly(idx, 0);
-    return { name: p.name, revenue: yearData.revenueTotal, gop: yearData.gop };
-  });
-
   // Calculate comprehensive investment overview metrics
   const totalProperties = properties.length;
   const totalRooms = properties.reduce((sum, p) => sum + p.roomCount, 0);
@@ -211,97 +205,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Investment Opportunity Overview */}
-        <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
-          <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
-            <CardContent className="pt-4 pb-3">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Properties</p>
-              <p className="text-3xl font-bold text-accent mt-1">{totalProperties}</p>
-              <p className="text-xs text-muted-foreground mt-1">Boutique hotels</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
-            <CardContent className="pt-4 pb-3">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Total Rooms</p>
-              <p className="text-3xl font-bold text-accent mt-1">{totalRooms}</p>
-              <p className="text-xs text-muted-foreground mt-1">{avgRoomsPerProperty.toFixed(0)} avg per property</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
-            <CardContent className="pt-4 pb-3">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Total Investment</p>
-              <p className="text-3xl font-bold text-accent mt-1">{formatMoney(totalInvestment)}</p>
-              <p className="text-xs text-muted-foreground mt-1">All-in capital required</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
-            <CardContent className="pt-4 pb-3">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Avg Purchase Price</p>
-              <p className="text-3xl font-bold text-accent mt-1">{formatMoney(avgPurchasePrice)}</p>
-              <p className="text-xs text-muted-foreground mt-1">Per property</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
-            <CardContent className="pt-4 pb-3">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Avg Daily Rate</p>
-              <p className="text-3xl font-bold text-accent mt-1">{formatMoney(avgADR)}</p>
-              <p className="text-xs text-muted-foreground mt-1">Starting ADR</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
-            <CardContent className="pt-4 pb-3">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Hold Period</p>
-              <p className="text-3xl font-bold text-accent mt-1">{investmentHorizon} Years</p>
-              <p className="text-xs text-muted-foreground mt-1">Investment horizon</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* 10-Year Projections */}
-        <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
-          <Card>
-            <CardContent className="pt-4 pb-3">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">10-Year Revenue</p>
-              <p className="text-2xl font-bold mt-1">{formatMoney(total10YearRevenue)}</p>
-              <p className="text-xs text-muted-foreground mt-1">Cumulative projection</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-4 pb-3">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">10-Year NOI</p>
-              <p className="text-2xl font-bold text-primary mt-1">{formatMoney(total10YearNOI)}</p>
-              <p className="text-xs text-muted-foreground mt-1">Net Operating Income</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-4 pb-3">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Exit Value ({modelStartYear + 9})</p>
-              <p className="text-2xl font-bold text-accent mt-1">{formatMoney(projectedExitValue)}</p>
-              <p className="text-xs text-muted-foreground mt-1">@ {(avgExitCapRate * 100).toFixed(1)}% cap rate</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-4 pb-3">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Markets</p>
-              <p className="text-2xl font-bold mt-1">{Object.keys(marketCounts).length}</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                {Object.entries(marketCounts).map(([market, count]) => 
-                  `${market}: ${count}`
-                ).join(', ')}
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-
-        <Tabs defaultValue="overview" className="space-y-4">
+        <Tabs defaultValue="overview" className="space-y-6">
           <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="income">Income Statement</TabsTrigger>
@@ -310,83 +214,116 @@ export default function Dashboard() {
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
-            <div className="grid gap-6 lg:grid-cols-3">
-              <Card className="lg:col-span-2">
-                <CardHeader>
-                  <CardTitle>Property Performance ({modelStartYear})</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-[350px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={allPropertyChartData}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
-                        <XAxis 
-                          dataKey="name" 
-                          stroke="hsl(var(--muted-foreground))" 
-                          fontSize={12} 
-                          tickLine={false} 
-                          axisLine={false}
-                          tickFormatter={(val) => val.split(" ")[0]}
-                        />
-                        <YAxis 
-                          stroke="hsl(var(--muted-foreground))" 
-                          fontSize={12} 
-                          tickLine={false} 
-                          axisLine={false}
-                          tickFormatter={(value) => `$${(value / 1000000).toFixed(1)}M`}
-                        />
-                        <Tooltip 
-                          cursor={{ fill: 'hsl(var(--muted))' }}
-                          contentStyle={{ 
-                            backgroundColor: 'hsl(var(--card))', 
-                            borderColor: 'hsl(var(--border))',
-                            borderRadius: '8px',
-                          }}
-                          formatter={(value: number) => [formatMoney(value), ""]}
-                        />
-                        <Bar dataKey="revenue" name="Revenue" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-                        <Bar dataKey="gop" name="GOP" fill="hsl(var(--accent))" radius={[4, 4, 0, 0]} />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
+            {/* Portfolio Metrics - Row 1 */}
+            <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+              <Card>
+                <CardContent className="p-4">
+                  <p className="text-sm text-muted-foreground">Properties</p>
+                  <p className="text-2xl font-bold mt-1">{totalProperties}</p>
                 </CardContent>
               </Card>
 
-              <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl text-primary-foreground border border-white/30 shadow-xl shadow-primary/20">
-                <CardHeader>
-                  <CardTitle className="text-primary-foreground">Capital Stack</CardTitle>
-                  <p className="text-sm text-primary-foreground/70">Equity vs Debt Distribution</p>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div>
-                    <div className="flex justify-between mb-2 text-sm">
-                      <span>Total Project Cost</span>
-                      <span className="font-medium">{formatMoney(properties.reduce((acc, p) => acc + p.purchasePrice + p.buildingImprovements, 0))}</span>
-                    </div>
-                    <div className="w-full bg-primary-foreground/20 rounded-full h-2">
-                      <div className="bg-white h-full rounded-full w-full" />
-                    </div>
-                  </div>
+              <Card>
+                <CardContent className="p-4">
+                  <p className="text-sm text-muted-foreground">Total Rooms</p>
+                  <p className="text-2xl font-bold mt-1">{totalRooms}</p>
+                </CardContent>
+              </Card>
 
-                  <div>
-                    <div className="flex justify-between mb-2 text-sm">
-                      <span className="text-primary-foreground/80">Equity Required</span>
-                      <span className="font-medium">{formatMoney(16850000)}</span>
-                    </div>
-                    <div className="w-full bg-primary-foreground/20 rounded-full h-2">
-                      <div className="bg-white/70 h-full rounded-full w-[70%]" />
-                    </div>
-                  </div>
+              <Card>
+                <CardContent className="p-4">
+                  <p className="text-sm text-muted-foreground">Avg Rooms/Property</p>
+                  <p className="text-2xl font-bold mt-1">{avgRoomsPerProperty.toFixed(0)}</p>
+                </CardContent>
+              </Card>
 
-                  <div>
-                    <div className="flex justify-between mb-2 text-sm">
-                      <span className="text-primary-foreground/80">Debt Financing</span>
-                      <span className="font-medium">{formatMoney(4500000)}</span>
-                    </div>
-                    <div className="w-full bg-primary-foreground/20 rounded-full h-2">
-                      <div className="bg-white/40 h-full rounded-full w-[30%]" />
-                    </div>
-                  </div>
+              <Card>
+                <CardContent className="p-4">
+                  <p className="text-sm text-muted-foreground">Hold Period</p>
+                  <p className="text-2xl font-bold mt-1">{investmentHorizon} Years</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-4">
+                  <p className="text-sm text-muted-foreground">Markets</p>
+                  <p className="text-2xl font-bold mt-1">{Object.keys(marketCounts).length}</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Investment Metrics - Row 2 */}
+            <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+              <Card>
+                <CardContent className="p-4">
+                  <p className="text-sm text-muted-foreground">Total Investment</p>
+                  <p className="text-2xl font-bold mt-1">{formatMoney(totalInvestment)}</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-4">
+                  <p className="text-sm text-muted-foreground">Avg Purchase Price</p>
+                  <p className="text-2xl font-bold mt-1">{formatMoney(avgPurchasePrice)}</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-4">
+                  <p className="text-sm text-muted-foreground">Avg Daily Rate</p>
+                  <p className="text-2xl font-bold mt-1">{formatMoney(avgADR)}</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-4">
+                  <p className="text-sm text-muted-foreground">Avg Exit Cap Rate</p>
+                  <p className="text-2xl font-bold mt-1">{(avgExitCapRate * 100).toFixed(1)}%</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-4">
+                  <p className="text-sm text-muted-foreground">Exit Value ({modelStartYear + 9})</p>
+                  <p className="text-2xl font-bold mt-1">{formatMoney(projectedExitValue)}</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* 10-Year Projections - Row 3 */}
+            <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+              <Card>
+                <CardContent className="p-4">
+                  <p className="text-sm text-muted-foreground">10-Year Revenue</p>
+                  <p className="text-2xl font-bold mt-1">{formatMoney(total10YearRevenue)}</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-4">
+                  <p className="text-sm text-muted-foreground">10-Year NOI</p>
+                  <p className="text-2xl font-bold mt-1">{formatMoney(total10YearNOI)}</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-4">
+                  <p className="text-sm text-muted-foreground">10-Year Cash Flow</p>
+                  <p className="text-2xl font-bold mt-1">{formatMoney(total10YearCashFlow)}</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-4">
+                  <p className="text-sm text-muted-foreground">Year 1 Revenue</p>
+                  <p className="text-2xl font-bold mt-1">{formatMoney(portfolioTotalRevenue)}</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-4">
+                  <p className="text-sm text-muted-foreground">Year 1 GOP Margin</p>
+                  <p className="text-2xl font-bold mt-1">{portfolioTotalRevenue > 0 ? ((portfolioTotalGOP / portfolioTotalRevenue) * 100).toFixed(1) : '0'}%</p>
                 </CardContent>
               </Card>
             </div>

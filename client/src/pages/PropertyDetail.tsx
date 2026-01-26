@@ -300,7 +300,6 @@ export default function PropertyDetail() {
           </div>
           
           <TabsContent value="income" className="mt-6 space-y-6">
-            <YearlyIncomeStatement data={financials} years={10} startYear={getFiscalYear(0)} />
             <Card>
               <CardHeader>
                 <CardTitle>Income Statement Trends (10-Year Projection)</CardTitle>
@@ -360,17 +359,10 @@ export default function PropertyDetail() {
                 </div>
               </CardContent>
             </Card>
+            <YearlyIncomeStatement data={financials} years={10} startYear={getFiscalYear(0)} />
           </TabsContent>
           
           <TabsContent value="cashflow" className="mt-6 space-y-6">
-            <YearlyCashFlowStatement 
-              data={financials} 
-              property={property} 
-              global={global}
-              years={10} 
-              startYear={getFiscalYear(0)} 
-              defaultLTV={global.debtAssumptions?.acqLTV ?? 0.75}
-            />
             <Card>
               <CardHeader>
                 <CardTitle>Cash Flow Trends (10-Year Projection)</CardTitle>
@@ -438,6 +430,14 @@ export default function PropertyDetail() {
                 </div>
               </CardContent>
             </Card>
+            <YearlyCashFlowStatement 
+              data={financials} 
+              property={property} 
+              global={global}
+              years={10} 
+              startYear={getFiscalYear(0)} 
+              defaultLTV={global.debtAssumptions?.acqLTV ?? 0.75}
+            />
           </TabsContent>
         </Tabs>
       </div>

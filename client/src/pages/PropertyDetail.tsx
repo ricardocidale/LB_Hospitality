@@ -160,7 +160,13 @@ export default function PropertyDetail() {
           </TabsContent>
           
           <TabsContent value="cashflow" className="mt-6">
-            <YearlyCashFlowStatement data={financials} property={property} years={10} startYear={getFiscalYear(0)} />
+            <YearlyCashFlowStatement 
+              data={financials} 
+              property={property} 
+              years={10} 
+              startYear={getFiscalYear(0)} 
+              defaultLTV={global.debtAssumptions?.acqLTV ?? 0.75}
+            />
           </TabsContent>
         </Tabs>
       </div>

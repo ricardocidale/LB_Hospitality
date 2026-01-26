@@ -12,9 +12,11 @@ interface Props {
     preOpeningCosts: number;
     operatingReserve: number;
     type: string;
+    acquisitionLTV?: number | null;
   };
   years?: number;
   startYear?: number;
+  defaultLTV?: number;
 }
 
 interface YearlyCashFlow {
@@ -27,13 +29,14 @@ interface YearlyCashFlow {
   cumulativeCashFlow: number;
 }
 
-function aggregateCashFlowByYear(data: MonthlyFinancials[], property: Props['property'], years: number): YearlyCashFlow[] {
+function aggregateCashFlowByYear(data: MonthlyFinancials[], property: Props['property'], years: number, defaultLTV: number = 0.75): YearlyCashFlow[] {
   const result: YearlyCashFlow[] = [];
   let cumulative = 0;
   
   const totalInvestment = property.purchasePrice + property.buildingImprovements + 
                           property.preOpeningCosts + property.operatingReserve;
-  const equityInvested = property.type === "Financed" ? totalInvestment * 0.25 : totalInvestment;
+  const ltv = property.acquisitionLTV ?? defaultLTV;
+  const equityInvested = property.type === "Financed" ? totalInvestment * (1 - ltv) : totalInvestment;
   
   for (let y = 0; y < years; y++) {
     const yearData = data.slice(y * 12, (y + 1) * 12);
@@ -61,12 +64,13 @@ function aggregateCashFlowByYear(data: MonthlyFinancials[], property: Props['pro
   return result;
 }
 
-export function YearlyCashFlowStatement({ data, property, years = 5, startYear = 2026 }: Props) {
-  const yearlyData = aggregateCashFlowByYear(data, property, years);
+export function YearlyCashFlowStatement({ data, property, years = 5, startYear = 2026, defaultLTV = 0.75 }: Props) {
+  const yearlyData = aggregateCashFlowByYear(data, property, years, defaultLTV);
   
   const totalInvestment = property.purchasePrice + property.buildingImprovements + 
                           property.preOpeningCosts + property.operatingReserve;
-  const equityInvested = property.type === "Financed" ? totalInvestment * 0.25 : totalInvestment;
+  const ltv = property.acquisitionLTV ?? defaultLTV;
+  const equityInvested = property.type === "Financed" ? totalInvestment * (1 - ltv) : totalInvestment;
   
   return (
     <Card className="overflow-hidden">

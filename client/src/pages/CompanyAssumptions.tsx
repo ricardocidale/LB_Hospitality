@@ -399,35 +399,9 @@ export default function CompanyAssumptions() {
                 Compensation
                 <HelpTooltip text="Annual salaries for management company team members" />
               </CardTitle>
+              <CardDescription>Configure partner compensation and staff salaries over 10 years</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <Label className="flex items-center">
-                    Partner Salary (Each, {modelStartYear})
-                    <HelpTooltip text="Starting annual salary per partner (3 partners). Escalates at inflation + 10% per year, capped at $30K/month." />
-                  </Label>
-                  <EditableValue
-                    value={formData.partnerSalary ?? global.partnerSalary}
-                    onChange={(v) => handleUpdate("partnerSalary", v)}
-                    format="dollar"
-                    min={120000}
-                    max={360000}
-                    step={12000}
-                  />
-                </div>
-                <Slider
-                  value={[formData.partnerSalary ?? global.partnerSalary]}
-                  onValueChange={([v]) => handleUpdate("partnerSalary", v)}
-                  min={120000}
-                  max={360000}
-                  step={12000}
-                />
-                <p className="text-xs text-muted-foreground">
-                  {formatMoney((formData.partnerSalary ?? global.partnerSalary) / 12)}/month starting, max $30,000/month
-                </p>
-              </div>
-
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label className="flex items-center">
@@ -724,6 +698,73 @@ export default function CompanyAssumptions() {
                 Applied to positive net income to calculate after-tax cash flow
               </p>
             </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              Partner Compensation Schedule
+              <HelpTooltip text="Annual total partner compensation and partner count for each year. Individual partner compensation = Total ÷ Partner Count." />
+            </CardTitle>
+            <CardDescription>Configure total partner compensation and headcount by year</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left py-2 px-2 font-medium">Year</th>
+                    <th className="text-right py-2 px-2 font-medium">Total Partner Comp</th>
+                    <th className="text-center py-2 px-2 font-medium">Partner Count</th>
+                    <th className="text-right py-2 px-2 font-medium text-muted-foreground">Per Partner</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((year) => {
+                    const compKey = `partnerCompYear${year}` as keyof GlobalResponse;
+                    const countKey = `partnerCountYear${year}` as keyof GlobalResponse;
+                    const compValue = (formData[compKey] ?? global[compKey] ?? 540000) as number;
+                    const countValue = (formData[countKey] ?? global[countKey] ?? 3) as number;
+                    const perPartner = countValue > 0 ? compValue / countValue : 0;
+                    
+                    return (
+                      <tr key={year} className="border-b last:border-0">
+                        <td className="py-2 px-2 font-medium">Year {year} ({modelStartYear + year - 1})</td>
+                        <td className="py-2 px-2 text-right">
+                          <EditableValue
+                            value={compValue}
+                            onChange={(v) => handleUpdate(compKey, v)}
+                            format="dollar"
+                            min={0}
+                            max={2000000}
+                            step={10000}
+                          />
+                        </td>
+                        <td className="py-2 px-2 text-center">
+                          <select
+                            value={countValue}
+                            onChange={(e) => handleUpdate(countKey, parseInt(e.target.value) as any)}
+                            className="w-16 text-center border rounded px-2 py-1 bg-background"
+                            data-testid={`select-partner-count-year${year}`}
+                          >
+                            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+                              <option key={n} value={n}>{n}</option>
+                            ))}
+                          </select>
+                        </td>
+                        <td className="py-2 px-2 text-right text-muted-foreground">
+                          {formatMoney(perPartner)}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            <p className="text-xs text-muted-foreground mt-4">
+              Total Partner Comp is the annual budget for all partners. Per Partner shows individual compensation.
+            </p>
           </CardContent>
         </Card>
 

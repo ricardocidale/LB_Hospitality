@@ -469,7 +469,7 @@ export default function Portfolio() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {properties?.map((property) => (
+          {properties?.slice().sort((a, b) => new Date(a.acquisitionDate).getTime() - new Date(b.acquisitionDate).getTime()).map((property) => (
             <Card key={property.id} className="group overflow-hidden flex flex-col">
               <div className="relative aspect-[16/10] overflow-hidden">
                 <img 
@@ -481,7 +481,7 @@ export default function Portfolio() {
                   <Badge 
                     data-testid={`badge-type-${property.id}`}
                     variant={property.type === "Financed" ? "default" : "secondary"}
-                    className={property.type === "Financed" ? "bg-blue-600" : "bg-emerald-600 text-white"}
+                    className={property.type === "Financed" ? "bg-blue-600 text-white" : "bg-emerald-600 text-white"}
                   >
                     {property.type}
                   </Badge>

@@ -30,7 +30,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         "fixed lg:sticky top-0 left-0 z-50 h-screen w-64 bg-sidebar text-sidebar-foreground border-r border-sidebar-border transition-transform duration-300 lg:translate-x-0 flex flex-col",
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
       )}>
-        <div className="p-6 border-b border-sidebar-border">
+        <div className="p-6">
           <div className="flex items-center gap-3">
             <img src={logo} alt="L+B Hospitality" className="w-10 h-10 object-contain" />
             <div>
@@ -42,7 +42,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
 
-        <nav className="flex-1 p-4 space-y-1">
+        <div className="mx-4 mb-2">
+          <div className="h-px bg-[#9FBCA4]/40" />
+        </div>
+
+        <nav className="flex-1 p-4 pt-2 space-y-1">
           {navItems.map((item) => {
             const isActive = location === item.href;
             return (
@@ -61,17 +65,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           })}
         </nav>
 
-        <div className="p-6 border-t border-sidebar-border">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-sidebar-primary flex items-center justify-center text-sidebar-primary-foreground font-bold text-sm">
-              LB
-            </div>
-            <div>
-              <p className="text-sm font-medium text-white">Admin</p>
-              <p className="text-xs text-sidebar-foreground/60">Managing Partner</p>
-            </div>
-          </div>
-        </div>
       </aside>
 
       <main className="flex-1 flex flex-col min-w-0">

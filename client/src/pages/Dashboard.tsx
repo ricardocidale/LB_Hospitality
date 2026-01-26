@@ -5,17 +5,21 @@ import { Money } from "@/components/Money";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, ChevronRight, ChevronDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Loader2, ChevronRight, ChevronDown, FileDown, FileSpreadsheet } from "lucide-react";
 import { format } from "date-fns";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { ConsolidatedBalanceSheet } from "@/components/ConsolidatedBalanceSheet";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 export default function Dashboard() {
   const { data: properties, isLoading: propertiesLoading } = useProperties();
   const { data: global, isLoading: globalLoading } = useGlobalAssumptions();
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+  const [activeTab, setActiveTab] = useState("overview");
 
   const toggleRow = (rowId: string) => {
     setExpandedRows(prev => {
@@ -347,6 +351,119 @@ export default function Dashboard() {
   const avgAnnualCashFlow = operatingCashFlows.reduce((sum, cf) => sum + cf, 0) / 10;
   const cashOnCash = totalInitialEquity > 0 ? (avgAnnualCashFlow / totalInitialEquity) * 100 : 0;
 
+  const generateIncomeStatementData = useCallback(() => {
+    const years = Array.from({ length: 10 }, (_, i) => getCalendarYear(i));
+    const rows: { category: string; values: number[]; isHeader?: boolean; indent?: number }[] = [];
+    
+    rows.push({ category: "Total Revenue", values: years.map((_, i) => getYearlyConsolidated(i).revenueTotal), isHeader: true });
+    rows.push({ category: "Rooms Revenue", values: years.map((_, i) => getYearlyConsolidated(i).revenueRooms), indent: 1 });
+    rows.push({ category: "Events Revenue", values: years.map((_, i) => getYearlyConsolidated(i).revenueEvents), indent: 1 });
+    rows.push({ category: "F&B Revenue", values: years.map((_, i) => getYearlyConsolidated(i).revenueFB), indent: 1 });
+    rows.push({ category: "Other Revenue", values: years.map((_, i) => getYearlyConsolidated(i).revenueOther), indent: 1 });
+    
+    properties.forEach((prop, idx) => {
+      rows.push({ 
+        category: `  ${prop.name}`, 
+        values: years.map((_, i) => getPropertyYearly(idx, i).revenueTotal), 
+        indent: 2 
+      });
+    });
+    
+    rows.push({ 
+      category: "Operating Expenses", 
+      values: years.map((_, i) => {
+        const data = getYearlyConsolidated(i);
+        return data.expenseRooms + data.expenseFB + data.expenseEvents + data.expenseOther + 
+          data.expenseMarketing + data.expensePropertyOps + data.expenseUtilitiesVar + 
+          data.expenseAdmin + data.expenseIT + data.expenseInsurance + data.expenseTaxes + 
+          data.expenseUtilitiesFixed + data.expenseOtherCosts;
+      }), 
+      isHeader: true 
+    });
+    rows.push({ category: "Rooms Expense", values: years.map((_, i) => getYearlyConsolidated(i).expenseRooms), indent: 1 });
+    rows.push({ category: "F&B Expense", values: years.map((_, i) => getYearlyConsolidated(i).expenseFB), indent: 1 });
+    rows.push({ category: "Events Expense", values: years.map((_, i) => getYearlyConsolidated(i).expenseEvents), indent: 1 });
+    rows.push({ category: "Marketing", values: years.map((_, i) => getYearlyConsolidated(i).expenseMarketing), indent: 1 });
+    rows.push({ category: "Property Ops", values: years.map((_, i) => getYearlyConsolidated(i).expensePropertyOps), indent: 1 });
+    rows.push({ category: "Admin", values: years.map((_, i) => getYearlyConsolidated(i).expenseAdmin), indent: 1 });
+    rows.push({ category: "IT", values: years.map((_, i) => getYearlyConsolidated(i).expenseIT), indent: 1 });
+    rows.push({ category: "Insurance", values: years.map((_, i) => getYearlyConsolidated(i).expenseInsurance), indent: 1 });
+    rows.push({ category: "Taxes", values: years.map((_, i) => getYearlyConsolidated(i).expenseTaxes), indent: 1 });
+    rows.push({ category: "Utilities", values: years.map((_, i) => getYearlyConsolidated(i).expenseUtilitiesVar + getYearlyConsolidated(i).expenseUtilitiesFixed), indent: 1 });
+    rows.push({ category: "FF&E Reserve", values: years.map((_, i) => getYearlyConsolidated(i).expenseFFE), indent: 1 });
+    rows.push({ category: "Other Expenses", values: years.map((_, i) => getYearlyConsolidated(i).expenseOther + getYearlyConsolidated(i).expenseOtherCosts), indent: 1 });
+    
+    rows.push({ category: "Gross Operating Profit", values: years.map((_, i) => getYearlyConsolidated(i).gop), isHeader: true });
+    
+    rows.push({ category: "Management Fees", values: years.map((_, i) => getYearlyConsolidated(i).feeBase + getYearlyConsolidated(i).feeIncentive), isHeader: true });
+    rows.push({ category: "Base Fee", values: years.map((_, i) => getYearlyConsolidated(i).feeBase), indent: 1 });
+    rows.push({ category: "Incentive Fee", values: years.map((_, i) => getYearlyConsolidated(i).feeIncentive), indent: 1 });
+    
+    rows.push({ category: "Net Operating Income", values: years.map((_, i) => getYearlyConsolidated(i).noi), isHeader: true });
+    
+    return { years, rows };
+  }, [properties, getYearlyConsolidated, getPropertyYearly, getCalendarYear]);
+
+  const exportIncomeStatementToPDF = useCallback(() => {
+    const { years, rows } = generateIncomeStatementData();
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+    
+    doc.setFontSize(18);
+    doc.text("L+B Hospitality Group - Portfolio Income Statement", 14, 15);
+    doc.setFontSize(10);
+    doc.text(`10-Year Projection (${years[0]} - ${years[9]})`, 14, 22);
+    doc.text(`Generated: ${format(new Date(), 'MMM d, yyyy')}`, 14, 27);
+    
+    const tableData = rows.map(row => [
+      (row.indent ? '  '.repeat(row.indent) : '') + row.category,
+      ...row.values.map(v => formatMoney(v))
+    ]);
+    
+    autoTable(doc, {
+      head: [['Category', ...years.map(String)]],
+      body: tableData,
+      startY: 32,
+      styles: { fontSize: 8, cellPadding: 2 },
+      headStyles: { fillColor: [159, 188, 164], textColor: [0, 0, 0], fontStyle: 'bold' },
+      columnStyles: { 0: { cellWidth: 45 } },
+      didParseCell: (data) => {
+        if (data.section === 'body' && data.row.index !== undefined) {
+          const row = rows[data.row.index];
+          if (row?.isHeader) {
+            data.cell.styles.fontStyle = 'bold';
+            data.cell.styles.fillColor = [240, 240, 240];
+          }
+        }
+      }
+    });
+    
+    doc.save('income-statement.pdf');
+  }, [generateIncomeStatementData]);
+
+  const exportIncomeStatementToCSV = useCallback(() => {
+    const { years, rows } = generateIncomeStatementData();
+    
+    const headers = ['Category', ...years.map(String)];
+    const csvRows = [
+      headers.join(','),
+      ...rows.map(row => [
+        `"${(row.indent ? '  '.repeat(row.indent) : '') + row.category}"`,
+        ...row.values.map(v => v.toFixed(2))
+      ].join(','))
+    ];
+    
+    const csvContent = csvRows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'income-statement.csv';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }, [generateIncomeStatementData]);
+
   return (
     <Layout>
       <div className="space-y-8">
@@ -361,14 +478,41 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="income">Income Statement</TabsTrigger>
-            <TabsTrigger value="cashflow">Cash Flow Statement</TabsTrigger>
-            <TabsTrigger value="balance">Balance Sheet</TabsTrigger>
-            <TabsTrigger value="investment">Investment Analysis</TabsTrigger>
-          </TabsList>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <div className="flex items-center justify-between">
+            <TabsList>
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="income">Income Statement</TabsTrigger>
+              <TabsTrigger value="cashflow">Cash Flow Statement</TabsTrigger>
+              <TabsTrigger value="balance">Balance Sheet</TabsTrigger>
+              <TabsTrigger value="investment">Investment Analysis</TabsTrigger>
+            </TabsList>
+            
+            {activeTab === "income" && (
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={exportIncomeStatementToPDF}
+                  className="flex items-center gap-2"
+                  data-testid="button-export-pdf"
+                >
+                  <FileDown className="w-4 h-4" />
+                  Export PDF
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={exportIncomeStatementToCSV}
+                  className="flex items-center gap-2"
+                  data-testid="button-export-csv"
+                >
+                  <FileSpreadsheet className="w-4 h-4" />
+                  Export CSV
+                </Button>
+              </div>
+            )}
+          </div>
 
           <TabsContent value="overview" className="space-y-8">
             {/* Investment Returns - Hero Section */}

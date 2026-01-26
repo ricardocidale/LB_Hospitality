@@ -9,7 +9,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { Users, Briefcase, TrendingUp, Settings2, Loader2, ChevronRight, ChevronDown, FileDown } from "lucide-react";
 import { Link } from "wouter";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { format } from "date-fns";
@@ -451,22 +450,16 @@ export default function Company() {
               <TabsTrigger value="cashflow">Cash Flows</TabsTrigger>
               <TabsTrigger value="balance">Balance Sheet</TabsTrigger>
             </TabsList>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <FileDown className="w-4 h-4 mr-2" />
-                  Export
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => exportCompanyPDF(activeTab as 'income' | 'cashflow' | 'balance')}>
-                  Download PDF
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => exportCompanyCSV(activeTab as 'income' | 'cashflow' | 'balance')}>
-                  Download CSV
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => exportCompanyPDF(activeTab as 'income' | 'cashflow' | 'balance')}>
+                <FileDown className="w-4 h-4 mr-2" />
+                PDF
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => exportCompanyCSV(activeTab as 'income' | 'cashflow' | 'balance')}>
+                <FileDown className="w-4 h-4 mr-2" />
+                CSV
+              </Button>
+            </div>
           </div>
           
           <TabsContent value="income" className="mt-6">

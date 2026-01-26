@@ -24,60 +24,84 @@ export function ConsolidatedBalanceSheet({ properties, global, allProFormas, yea
   let totalDebtOutstanding = 0;
   let totalInitialEquity = 0;
   let totalRetainedEarnings = 0;
+  let totalCumulativeCashFlow = 0;
 
   properties.forEach((prop, idx) => {
     const proForma = allProFormas[idx]?.data || [];
+    const monthsToInclude = year * 12;
+    const relevantMonths = proForma.slice(0, monthsToInclude);
     
+    // Fixed Assets: Property basis (purchase price + improvements)
     const propertyBasis = prop.purchasePrice + prop.buildingImprovements;
     totalPropertyValue += propertyBasis;
     
+    // Accumulated Depreciation: 27.5-year straight-line on building value (GAAP for residential real estate)
     const annualDepreciation = propertyBasis / 27.5;
     totalAccumulatedDepreciation += annualDepreciation * Math.min(year, 10);
     
-    totalCashReserves += prop.operatingReserve || 0;
+    // Initial operating reserve
+    const operatingReserve = prop.operatingReserve || 0;
     
+    // Debt calculations
     const isFinanced = prop.type === 'Financed';
-    const ltv = prop.acquisitionLTV || 0;
-    const loanAmount = isFinanced ? (prop.purchasePrice + prop.buildingImprovements) * ltv : 0;
+    const debtDefaults = global.debtAssumptions as { acqLTV?: number; interestRate?: number; amortizationYears?: number } | null;
+    const ltv = prop.acquisitionLTV || debtDefaults?.acqLTV || 0;
+    const loanAmount = isFinanced ? propertyBasis * ltv : 0;
+    
+    let debtOutstanding = loanAmount;
+    let cumulativeInterest = 0;
+    let cumulativePrincipal = 0;
     
     if (loanAmount > 0 && isFinanced) {
-      const rate = (prop.acquisitionInterestRate || 0.065) / 12;
-      const term = (prop.acquisitionTermYears || 25) * 12;
+      const annualRate = prop.acquisitionInterestRate || debtDefaults?.interestRate || 0.065;
+      const rate = annualRate / 12;
+      const termYears = prop.acquisitionTermYears || debtDefaults?.amortizationYears || 25;
+      const term = termYears * 12;
       const monthlyPayment = loanAmount * (rate * Math.pow(1 + rate, term)) / (Math.pow(1 + rate, term) - 1);
       
       let balance = loanAmount;
-      const monthsElapsed = year * 12;
-      for (let m = 0; m < monthsElapsed && m < term; m++) {
+      for (let m = 0; m < monthsToInclude && m < term; m++) {
         const interestPayment = balance * rate;
         const principalPayment = monthlyPayment - interestPayment;
+        cumulativeInterest += interestPayment;
+        cumulativePrincipal += principalPayment;
         balance -= principalPayment;
       }
-      totalDebtOutstanding += Math.max(0, balance);
+      debtOutstanding = Math.max(0, balance);
     }
+    totalDebtOutstanding += debtOutstanding;
     
-    const equityInvested = prop.purchasePrice + prop.buildingImprovements + 
-                          (prop.preOpeningCosts || 0) + (prop.operatingReserve || 0) - loanAmount;
+    // Initial equity investment (what investors put in)
+    const equityInvested = propertyBasis + (prop.preOpeningCosts || 0) + operatingReserve - loanAmount;
     totalInitialEquity += equityInvested;
     
-    const yearlyNOI = proForma
-      .filter(m => {
-        const monthYear = new Date(m.date).getFullYear();
-        return monthYear <= modelStartYear + year;
-      })
-      .reduce((sum, m) => sum + m.noi, 0);
+    // GAAP Retained Earnings = Cumulative Net Income
+    // Net Income = NOI - Interest Expense - Depreciation - Income Taxes
+    const cumulativeNOI = relevantMonths.reduce((sum, m) => sum + m.noi, 0);
+    const cumulativeDepreciation = annualDepreciation * Math.min(year, 10);
+    const taxRate = prop.taxRate || 0.25;
     
-    const yearlyDebtPayment = proForma
-      .filter(m => {
-        const monthYear = new Date(m.date).getFullYear();
-        return monthYear <= modelStartYear + year;
-      })
-      .reduce((sum, m) => sum + m.debtPayment, 0);
+    // Taxable Income = NOI - Interest - Depreciation
+    const taxableIncome = cumulativeNOI - cumulativeInterest - cumulativeDepreciation;
+    const incomeTax = Math.max(0, taxableIncome) * taxRate;
     
-    totalRetainedEarnings += yearlyNOI - yearlyDebtPayment;
+    // Net Income (GAAP) = NOI - Interest - Depreciation - Tax
+    const netIncome = cumulativeNOI - cumulativeInterest - cumulativeDepreciation - incomeTax;
+    totalRetainedEarnings += netIncome;
+    
+    // Cash = Operating Reserve + Cumulative Cash Flow from Operations
+    // Cash Flow = NOI - Debt Service (principal + interest) - Taxes
+    const cumulativeDebtService = cumulativeInterest + cumulativePrincipal;
+    const cashFromOperations = cumulativeNOI - cumulativeDebtService - incomeTax;
+    totalCumulativeCashFlow += cashFromOperations;
+    totalCashReserves += operatingReserve;
   });
+  
+  // Total cash = initial reserves + cumulative cash from operations
+  const totalCash = totalCashReserves + totalCumulativeCashFlow;
 
   const netPropertyValue = totalPropertyValue - totalAccumulatedDepreciation;
-  const totalAssets = netPropertyValue + totalCashReserves;
+  const totalAssets = netPropertyValue + totalCash;
   const totalLiabilities = totalDebtOutstanding;
   const totalEquity = totalInitialEquity + totalRetainedEarnings;
 
@@ -105,12 +129,12 @@ export function ConsolidatedBalanceSheet({ properties, global, allProFormas, yea
               <TableCell></TableCell>
             </TableRow>
             <TableRow>
-              <TableCell className="pl-10">Cash & Operating Reserves</TableCell>
-              <TableCell className="text-right"><Money amount={totalCashReserves} /></TableCell>
+              <TableCell className="pl-10">Cash & Cash Equivalents</TableCell>
+              <TableCell className="text-right"><Money amount={totalCash} /></TableCell>
             </TableRow>
             <TableRow className="bg-primary/5">
               <TableCell className="pl-6 font-medium">Total Current Assets</TableCell>
-              <TableCell className="text-right font-medium"><Money amount={totalCashReserves} /></TableCell>
+              <TableCell className="text-right font-medium"><Money amount={totalCash} /></TableCell>
             </TableRow>
 
             <TableRow className="h-2 border-none"><TableCell colSpan={2}></TableCell></TableRow>

@@ -4,242 +4,72 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { cn } from "@/lib/utils";
 import { Money } from "@/components/Money";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { 
+  LoanParams, 
+  GlobalLoanParams,
+  calculateLoanParams,
+  calculateRefinanceParams,
+  calculateYearlyDebtService,
+  calculateExitValue,
+  getAcquisitionYear,
+  YearlyCashFlowResult
+} from "@/lib/loanCalculations";
 
 interface Props {
   data: MonthlyFinancials[];
-  property: {
-    purchasePrice: number;
-    buildingImprovements: number;
-    preOpeningCosts: number;
-    operatingReserve: number;
-    type: string;
-    acquisitionDate?: string;
-    taxRate?: number | null;
-    acquisitionLTV?: number | null;
-    acquisitionInterestRate?: number | null;
-    acquisitionTermYears?: number | null;
-    willRefinance?: string | null;
-    refinanceDate?: string | null;
-    refinanceLTV?: number | null;
-    refinanceInterestRate?: number | null;
-    refinanceTermYears?: number | null;
-    refinanceClosingCostRate?: number | null;
-    exitCapRate?: number | null;
-  };
-  global?: {
-    modelStartDate: string;
-    commissionRate?: number;
-    debtAssumptions?: {
-      acqLTV?: number;
-      interestRate?: number;
-      amortizationYears?: number;
-      refiLTV?: number;
-      refiClosingCostRate?: number;
-    };
-  };
+  property: LoanParams;
+  global?: GlobalLoanParams;
   years?: number;
   startYear?: number;
   defaultLTV?: number;
 }
 
-interface YearlyCashFlow {
-  year: number;
-  noi: number;
-  debtService: number;
-  interestExpense: number;
-  principalPayment: number;
-  depreciation: number;
-  btcf: number;
-  taxableIncome: number;
-  taxLiability: number;
-  atcf: number;
-  capitalExpenditures: number;
-  refinancingProceeds: number;
-  exitValue: number;
-  netCashFlowToInvestors: number;
-  cumulativeCashFlow: number;
-}
-
 function aggregateCashFlowByYear(
   data: MonthlyFinancials[], 
-  property: Props['property'], 
-  global: Props['global'],
-  years: number, 
-  defaultLTV: number = 0.75
-): YearlyCashFlow[] {
-  const result: YearlyCashFlow[] = [];
-  let cumulative = 0;
-  
-  const totalInvestment = property.purchasePrice + property.buildingImprovements + 
-                          property.preOpeningCosts + property.operatingReserve;
-  const ltv = property.acquisitionLTV ?? global?.debtAssumptions?.acqLTV ?? defaultLTV;
-  const loanAmount = property.type === "Financed" ? totalInvestment * ltv : 0;
-  const equityInvested = totalInvestment - loanAmount;
-  
-  const interestRate = property.acquisitionInterestRate ?? global?.debtAssumptions?.interestRate ?? 0.09;
-  const termYears = property.acquisitionTermYears ?? global?.debtAssumptions?.amortizationYears ?? 25;
-  const taxRate = property.taxRate ?? 0.25;
-  const commissionRate = global?.commissionRate ?? 0.05;
-  
-  const buildingValue = property.purchasePrice + property.buildingImprovements;
-  const annualDepreciation = buildingValue / 27.5;
-  
-  const monthlyRate = interestRate / 12;
-  const totalPayments = termYears * 12;
-  const monthlyPayment = loanAmount > 0 
-    ? (loanAmount * monthlyRate * Math.pow(1 + monthlyRate, totalPayments)) / (Math.pow(1 + monthlyRate, totalPayments) - 1)
-    : 0;
-  
-  const modelStart = new Date(global?.modelStartDate || '2026-04-01');
-  const acqDate = new Date(property.acquisitionDate || global?.modelStartDate || '2026-04-01');
-  const acqMonthsFromModelStart = Math.max(0, 
-    (acqDate.getFullYear() - modelStart.getFullYear()) * 12 + 
-    (acqDate.getMonth() - modelStart.getMonth())
-  );
-  
-  const getOutstandingBalance = (yearEnd: number): number => {
-    if (loanAmount === 0) return 0;
-    const endOfYearMonth = (yearEnd + 1) * 12;
-    const monthsPaid = Math.max(0, Math.min(endOfYearMonth - acqMonthsFromModelStart, totalPayments));
-    if (monthsPaid <= 0) return loanAmount;
-    const remainingPayments = totalPayments - monthsPaid;
-    if (remainingPayments <= 0) return 0;
-    return monthlyPayment * (1 - Math.pow(1 + monthlyRate, -remainingPayments)) / monthlyRate;
-  };
-  
-  const refiInterestRate = property.refinanceInterestRate ?? global?.debtAssumptions?.interestRate ?? 0.09;
-  const refiTermYears = property.refinanceTermYears ?? global?.debtAssumptions?.amortizationYears ?? 25;
-  const refiMonthlyRate = refiInterestRate / 12;
-  const refiTotalPayments = refiTermYears * 12;
-  
-  let refiYear = -1;
-  let refiProceeds = 0;
-  let refiLoanAmount = 0;
-  let refiMonthlyPayment = 0;
-  
-  if (property.willRefinance === "Yes" && property.refinanceDate && global?.modelStartDate) {
-    const refiDate = new Date(property.refinanceDate);
-    const monthsDiff = (refiDate.getFullYear() - modelStart.getFullYear()) * 12 + 
-                       (refiDate.getMonth() - modelStart.getMonth());
-    refiYear = Math.floor(monthsDiff / 12);
-    
-    if (refiYear >= 0 && refiYear < years) {
-      const refiLTV = property.refinanceLTV ?? global?.debtAssumptions?.refiLTV ?? 0.65;
-      const yearData = data.slice(refiYear * 12, (refiYear + 1) * 12);
-      const stabilizedNOI = yearData.reduce((a, m) => a + m.noi, 0);
-      const exitCapRate = property.exitCapRate ?? 0.085;
-      const propertyValue = stabilizedNOI / exitCapRate;
-      refiLoanAmount = propertyValue * refiLTV;
-      refiMonthlyPayment = (refiLoanAmount * refiMonthlyRate * Math.pow(1 + refiMonthlyRate, refiTotalPayments)) / 
-                           (Math.pow(1 + refiMonthlyRate, refiTotalPayments) - 1);
-      const closingCostRate = property.refinanceClosingCostRate ?? global?.debtAssumptions?.refiClosingCostRate ?? 0.03;
-      const closingCosts = refiLoanAmount * closingCostRate;
-      const existingDebt = getOutstandingBalance(refiYear - 1);
-      refiProceeds = Math.max(0, refiLoanAmount - closingCosts - existingDebt);
-    }
-  }
-  
-  const getRefiOutstandingBalance = (yearEnd: number): number => {
-    if (refiLoanAmount === 0 || refiYear < 0) return 0;
-    const yearsFromRefi = yearEnd - refiYear + 1;
-    if (yearsFromRefi < 0) return refiLoanAmount;
-    const monthsPaid = Math.min(yearsFromRefi * 12, refiTotalPayments);
-    if (monthsPaid <= 0) return refiLoanAmount;
-    const remainingPayments = refiTotalPayments - monthsPaid;
-    if (remainingPayments <= 0) return 0;
-    return refiMonthlyPayment * (1 - Math.pow(1 + refiMonthlyRate, -remainingPayments)) / refiMonthlyRate;
-  };
-  
+  property: LoanParams, 
+  global: GlobalLoanParams | undefined,
+  years: number
+): YearlyCashFlowResult[] {
+  const yearlyNOIData: number[] = [];
   for (let y = 0; y < years; y++) {
     const yearData = data.slice(y * 12, (y + 1) * 12);
-    if (yearData.length === 0) continue;
+    yearlyNOIData.push(yearData.reduce((a, m) => a + m.noi, 0));
+  }
+  
+  const loan = calculateLoanParams(property, global);
+  const refi = calculateRefinanceParams(property, global, loan, yearlyNOIData, years);
+  
+  const results: YearlyCashFlowResult[] = [];
+  let cumulative = 0;
+  const acquisitionYear = getAcquisitionYear(loan);
+  
+  for (let y = 0; y < years; y++) {
+    const noi = yearlyNOIData[y] || 0;
+    const debt = calculateYearlyDebtService(loan, refi, y);
     
-    const noi = yearData.reduce((a, m) => a + m.noi, 0);
-    
-    let yearlyDebtService = 0;
-    let yearlyInterest = 0;
-    let yearlyPrincipal = 0;
-    
-    const yearStartMonth = y * 12;
-    const yearEndMonth = (y + 1) * 12;
-    
-    if (refiYear >= 0 && y >= refiYear && refiLoanAmount > 0) {
-      const yearsFromRefi = y - refiYear;
-      const monthsFromRefi = yearsFromRefi * 12;
-      let refiBalance = refiLoanAmount;
-      for (let pm = 0; pm < monthsFromRefi; pm++) {
-        const interest = refiBalance * refiMonthlyRate;
-        const principal = refiMonthlyPayment - interest;
-        refiBalance -= principal;
-      }
-      
-      for (let m = 0; m < 12; m++) {
-        const interest = refiBalance * refiMonthlyRate;
-        const principal = refiMonthlyPayment - interest;
-        yearlyInterest += interest;
-        yearlyPrincipal += principal;
-        refiBalance -= principal;
-      }
-      yearlyDebtService = refiMonthlyPayment * 12;
-    } else if (loanAmount > 0) {
-      const loanPaymentsThisYear = Math.min(12, 
-        Math.max(0, Math.min(yearEndMonth, acqMonthsFromModelStart + totalPayments) - Math.max(yearStartMonth, acqMonthsFromModelStart))
-      );
-      
-      if (loanPaymentsThisYear > 0) {
-        const paymentsMadeBefore = Math.max(0, yearStartMonth - acqMonthsFromModelStart);
-        let remainingBalance = loanAmount;
-        for (let pm = 0; pm < paymentsMadeBefore; pm++) {
-          const interest = remainingBalance * monthlyRate;
-          const principal = monthlyPayment - interest;
-          remainingBalance -= principal;
-        }
-        
-        for (let m = 0; m < loanPaymentsThisYear; m++) {
-          const interestPayment = remainingBalance * monthlyRate;
-          const principalPayment = monthlyPayment - interestPayment;
-          yearlyInterest += interestPayment;
-          yearlyPrincipal += principalPayment;
-          remainingBalance -= principalPayment;
-        }
-        yearlyDebtService = monthlyPayment * loanPaymentsThisYear;
-      }
-    }
-    
-    const btcf = noi - yearlyDebtService;
-    const taxableIncome = noi - yearlyInterest - annualDepreciation;
-    const taxLiability = taxableIncome > 0 ? taxableIncome * taxRate : 0;
+    const btcf = noi - debt.debtService;
+    const taxableIncome = noi - debt.interestExpense - loan.annualDepreciation;
+    const taxLiability = taxableIncome > 0 ? taxableIncome * loan.taxRate : 0;
     const atcf = btcf - taxLiability;
     
-    const acquisitionYear = Math.floor(acqMonthsFromModelStart / 12);
-    const capex = y === acquisitionYear ? -equityInvested : 0;
-    const refiProceedsThisYear = y === refiYear ? refiProceeds : 0;
+    const capex = y === acquisitionYear ? -loan.equityInvested : 0;
+    const refiProceedsThisYear = y === refi.refiYear ? refi.refiProceeds : 0;
     
     let exitValue = 0;
     if (y === years - 1) {
-      const exitCapRate = property.exitCapRate ?? 0.085;
-      const grossValue = noi / exitCapRate;
-      const commission = grossValue * commissionRate;
-      let outstandingDebt = 0;
-      
-      if (refiYear >= 0 && refiLoanAmount > 0) {
-        outstandingDebt = getRefiOutstandingBalance(y);
-      } else if (loanAmount > 0) {
-        outstandingDebt = getOutstandingBalance(y);
-      }
-      exitValue = grossValue - commission - outstandingDebt;
+      exitValue = calculateExitValue(noi, loan, refi, y, property.exitCapRate);
     }
     
     const netCashFlowToInvestors = atcf + capex + refiProceedsThisYear + exitValue;
     cumulative += netCashFlowToInvestors;
     
-    result.push({
+    results.push({
       year: y + 1,
       noi,
-      debtService: yearlyDebtService,
-      interestExpense: yearlyInterest,
-      principalPayment: yearlyPrincipal,
-      depreciation: annualDepreciation,
+      debtService: debt.debtService,
+      interestExpense: debt.interestExpense,
+      principalPayment: debt.principalPayment,
+      depreciation: loan.annualDepreciation,
       btcf,
       taxableIncome,
       taxLiability,
@@ -252,17 +82,14 @@ function aggregateCashFlowByYear(
     });
   }
   
-  return result;
+  return results;
 }
 
-export function YearlyCashFlowStatement({ data, property, global, years = 10, startYear = 2026, defaultLTV = 0.75 }: Props) {
-  const yearlyData = aggregateCashFlowByYear(data, property, global, years, defaultLTV);
+export function YearlyCashFlowStatement({ data, property, global, years = 10, startYear = 2026 }: Props) {
+  const yearlyData = aggregateCashFlowByYear(data, property, global, years);
   
-  const totalInvestment = property.purchasePrice + property.buildingImprovements + 
-                          property.preOpeningCosts + property.operatingReserve;
-  const ltv = property.acquisitionLTV ?? global?.debtAssumptions?.acqLTV ?? defaultLTV;
-  const loanAmount = property.type === "Financed" ? totalInvestment * ltv : 0;
-  const equityInvested = totalInvestment - loanAmount;
+  const loan = calculateLoanParams(property, global);
+  const equityInvested = loan.equityInvested;
   
   return (
     <Card className="overflow-hidden">

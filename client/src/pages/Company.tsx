@@ -176,7 +176,7 @@ export default function Company() {
                     <TableRow>
                       <TableHead className="sticky left-0 bg-card">Category</TableHead>
                       {Array.from({ length: 10 }, (_, i) => (
-                        <TableHead key={i} className="text-right min-w-[100px]">Year {i + 1}</TableHead>
+                        <TableHead key={i} className="text-right min-w-[100px]">{modelStartYear + i}</TableHead>
                       ))}
                     </TableRow>
                   </TableHeader>
@@ -465,7 +465,7 @@ export default function Company() {
                     <TableRow>
                       <TableHead className="sticky left-0 bg-card">Category</TableHead>
                       {Array.from({ length: 10 }, (_, i) => (
-                        <TableHead key={i} className="text-right min-w-[100px]">Year {i + 1}</TableHead>
+                        <TableHead key={i} className="text-right min-w-[100px]">{modelStartYear + i}</TableHead>
                       ))}
                     </TableRow>
                   </TableHeader>

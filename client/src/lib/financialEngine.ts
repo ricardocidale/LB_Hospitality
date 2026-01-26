@@ -338,20 +338,24 @@ export function generateCompanyProForma(
   months: number = 120
 ): CompanyMonthlyFinancials[] {
   const results: CompanyMonthlyFinancials[] = [];
-  const startDate = new Date(global.modelStartDate);
   
   const parseDateString = (dateStr: string) => {
     const [year, month, day] = dateStr.split('-').map(Number);
     return { year, month: month - 1, day };
   };
-  const tranche1Parsed = global.safeTranche1Date ? parseDateString(global.safeTranche1Date) : parseDateString(global.modelStartDate);
+  
+  const startParsed = parseDateString(global.modelStartDate);
+  const tranche1Parsed = global.safeTranche1Date ? parseDateString(global.safeTranche1Date) : startParsed;
   const tranche2Parsed = global.safeTranche2Date ? parseDateString(global.safeTranche2Date) : null;
   
   const propertyFinancials = properties.map(p => generatePropertyProForma(p, global, months));
   
   for (let m = 0; m < months; m++) {
-    const currentDate = new Date(startDate);
-    currentDate.setMonth(currentDate.getMonth() + m);
+    // Calculate current year and month using parsed values to avoid timezone issues
+    const totalMonths = startParsed.month + m;
+    const currentYear = startParsed.year + Math.floor(totalMonths / 12);
+    const currentMonth = totalMonths % 12;
+    const currentDate = new Date(currentYear, currentMonth, 1);
     const year = Math.floor(m / 12);
     const fixedEscalationRate = global.fixedCostEscalationRate ?? global.inflationRate;
     const fixedCostFactor = Math.pow(1 + fixedEscalationRate, year);
@@ -403,13 +407,10 @@ export function generateCompanyProForma(
     
     let safeFunding1 = 0;
     let safeFunding2 = 0;
-    if (currentDate.getFullYear() === tranche1Parsed.year && 
-        currentDate.getMonth() === tranche1Parsed.month) {
+    if (currentYear === tranche1Parsed.year && currentMonth === tranche1Parsed.month) {
       safeFunding1 = global.safeTranche1Amount ?? 800000;
     }
-    if (tranche2Parsed && 
-        currentDate.getFullYear() === tranche2Parsed.year && 
-        currentDate.getMonth() === tranche2Parsed.month) {
+    if (tranche2Parsed && currentYear === tranche2Parsed.year && currentMonth === tranche2Parsed.month) {
       safeFunding2 = global.safeTranche2Amount ?? 800000;
     }
     const safeFunding = safeFunding1 + safeFunding2;

@@ -464,6 +464,257 @@ export default function Dashboard() {
     URL.revokeObjectURL(url);
   }, [generateIncomeStatementData]);
 
+  const generateCashFlowData = useCallback(() => {
+    const years = Array.from({ length: 10 }, (_, i) => getCalendarYear(i));
+    const rows: { category: string; values: number[]; isHeader?: boolean; indent?: number }[] = [];
+    
+    rows.push({ category: "Net Operating Income", values: years.map((_, i) => getYearlyConsolidated(i).noi), isHeader: true });
+    rows.push({ category: "Debt Service", values: years.map((_, i) => getYearlyConsolidated(i).debtPayment), isHeader: true });
+    rows.push({ category: "Net Cash Flow", values: years.map((_, i) => getYearlyConsolidated(i).cashFlow), isHeader: true });
+    
+    return { years, rows };
+  }, [getYearlyConsolidated, getCalendarYear]);
+
+  const exportCashFlowToPDF = useCallback(() => {
+    const { years, rows } = generateCashFlowData();
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+    
+    doc.setFontSize(18);
+    doc.text("L+B Hospitality Group - Cash Flow Statement", 14, 15);
+    doc.setFontSize(10);
+    doc.text(`10-Year Projection (${years[0]} - ${years[9]})`, 14, 22);
+    doc.text(`Generated: ${format(new Date(), 'MMM d, yyyy')}`, 14, 27);
+    
+    const tableData = rows.map(row => [
+      row.category,
+      ...row.values.map(v => formatMoney(v))
+    ]);
+    
+    autoTable(doc, {
+      head: [['Category', ...years.map(String)]],
+      body: tableData,
+      startY: 32,
+      styles: { fontSize: 8, cellPadding: 2 },
+      headStyles: { fillColor: [159, 188, 164], textColor: [0, 0, 0], fontStyle: 'bold' },
+      columnStyles: { 0: { cellWidth: 45 } },
+      didParseCell: (data) => {
+        if (data.section === 'body') {
+          data.cell.styles.fontStyle = 'bold';
+        }
+      }
+    });
+    
+    doc.save('cash-flow-statement.pdf');
+  }, [generateCashFlowData]);
+
+  const exportCashFlowToCSV = useCallback(() => {
+    const { years, rows } = generateCashFlowData();
+    const headers = ['Category', ...years.map(String)];
+    const csvRows = [
+      headers.join(','),
+      ...rows.map(row => [`"${row.category}"`, ...row.values.map(v => v.toFixed(2))].join(','))
+    ];
+    const csvContent = csvRows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'cash-flow-statement.csv';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }, [generateCashFlowData]);
+
+  const generateBalanceSheetData = useCallback(() => {
+    const years = Array.from({ length: 10 }, (_, i) => getCalendarYear(i));
+    const rows: { category: string; values: number[]; isHeader?: boolean; indent?: number }[] = [];
+    
+    const totalAssets = properties.reduce((sum, p) => sum + p.purchasePrice + p.buildingImprovements, 0);
+    const totalEquityInvested = properties.reduce((sum, p) => sum + p.purchasePrice + p.buildingImprovements + p.preOpeningCosts + p.operatingReserve, 0);
+    
+    rows.push({ category: "ASSETS", values: years.map(() => 0), isHeader: true });
+    rows.push({ category: "Property Assets", values: years.map(() => totalAssets), indent: 1 });
+    rows.push({ category: "Accumulated Depreciation", values: years.map((_, i) => -(totalAssets / 27.5) * (i + 1)), indent: 1 });
+    rows.push({ category: "Net Property Value", values: years.map((_, i) => totalAssets - (totalAssets / 27.5) * (i + 1)), indent: 1 });
+    
+    let cumulativeCashFlow = 0;
+    const cashValues = years.map((_, i) => {
+      cumulativeCashFlow += getYearlyConsolidated(i).cashFlow;
+      return properties.reduce((sum, p) => sum + p.operatingReserve, 0) + cumulativeCashFlow;
+    });
+    rows.push({ category: "Cash & Reserves", values: cashValues, indent: 1 });
+    rows.push({ category: "Total Assets", values: years.map((_, i) => totalAssets - (totalAssets / 27.5) * (i + 1) + cashValues[i]), isHeader: true });
+    
+    rows.push({ category: "LIABILITIES & EQUITY", values: years.map(() => 0), isHeader: true });
+    
+    let cumulativeRetainedEarnings = 0;
+    const retainedEarningsValues = years.map((_, i) => {
+      const noi = getYearlyConsolidated(i).noi;
+      const depreciation = totalAssets / 27.5;
+      cumulativeRetainedEarnings += noi - depreciation;
+      return cumulativeRetainedEarnings;
+    });
+    rows.push({ category: "Retained Earnings", values: retainedEarningsValues, indent: 1 });
+    rows.push({ category: "Contributed Capital", values: years.map(() => totalEquityInvested), indent: 1 });
+    rows.push({ category: "Total Equity", values: years.map((_, i) => totalEquityInvested + retainedEarningsValues[i]), isHeader: true });
+    
+    return { years, rows };
+  }, [properties, getYearlyConsolidated, getCalendarYear]);
+
+  const exportBalanceSheetToPDF = useCallback(() => {
+    const { years, rows } = generateBalanceSheetData();
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+    
+    doc.setFontSize(18);
+    doc.text("L+B Hospitality Group - Consolidated Balance Sheet", 14, 15);
+    doc.setFontSize(10);
+    doc.text(`10-Year Projection (${years[0]} - ${years[9]})`, 14, 22);
+    doc.text(`Generated: ${format(new Date(), 'MMM d, yyyy')}`, 14, 27);
+    
+    const tableData = rows.map(row => [
+      (row.indent ? '  '.repeat(row.indent) : '') + row.category,
+      ...row.values.map(v => v === 0 && row.isHeader ? '' : formatMoney(v))
+    ]);
+    
+    autoTable(doc, {
+      head: [['Category', ...years.map(String)]],
+      body: tableData,
+      startY: 32,
+      styles: { fontSize: 8, cellPadding: 2 },
+      headStyles: { fillColor: [159, 188, 164], textColor: [0, 0, 0], fontStyle: 'bold' },
+      columnStyles: { 0: { cellWidth: 45 } },
+      didParseCell: (data) => {
+        if (data.section === 'body' && data.row.index !== undefined) {
+          const row = rows[data.row.index];
+          if (row?.isHeader) {
+            data.cell.styles.fontStyle = 'bold';
+            data.cell.styles.fillColor = [240, 240, 240];
+          }
+        }
+      }
+    });
+    
+    doc.save('balance-sheet.pdf');
+  }, [generateBalanceSheetData]);
+
+  const exportBalanceSheetToCSV = useCallback(() => {
+    const { years, rows } = generateBalanceSheetData();
+    const headers = ['Category', ...years.map(String)];
+    const csvRows = [
+      headers.join(','),
+      ...rows.map(row => [
+        `"${(row.indent ? '  '.repeat(row.indent) : '') + row.category}"`,
+        ...row.values.map(v => v.toFixed(2))
+      ].join(','))
+    ];
+    const csvContent = csvRows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'balance-sheet.csv';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }, [generateBalanceSheetData]);
+
+  const generateInvestmentAnalysisData = useCallback(() => {
+    const years = ['Initial', ...Array.from({ length: 10 }, (_, i) => String(getCalendarYear(i)))];
+    const rows: { category: string; values: (number | string)[]; isHeader?: boolean; indent?: number }[] = [];
+    
+    rows.push({ category: "Equity Investment", values: [-totalInitialEquity, ...Array(10).fill('')], isHeader: true });
+    
+    const cashFlowValues = consolidatedFlows.map((cf, i) => i === 0 ? '' : cf);
+    rows.push({ category: "Annual Cash Flow", values: cashFlowValues, isHeader: true });
+    
+    rows.push({ category: "", values: Array(11).fill('') });
+    rows.push({ category: "INVESTMENT METRICS", values: Array(11).fill(''), isHeader: true });
+    rows.push({ category: "Total Equity Invested", values: [formatMoney(totalInitialEquity), ...Array(10).fill('')] });
+    rows.push({ category: "Total Exit Value", values: [...Array(10).fill(''), formatMoney(totalExitValue)] });
+    rows.push({ category: "Equity Multiple", values: [`${equityMultiple.toFixed(2)}x`, ...Array(10).fill('')] });
+    rows.push({ category: "Cash-on-Cash Return", values: [`${cashOnCash.toFixed(1)}%`, ...Array(10).fill('')] });
+    rows.push({ category: "Portfolio IRR", values: [`${(portfolioIRR * 100).toFixed(1)}%`, ...Array(10).fill('')], isHeader: true });
+    
+    return { years, rows };
+  }, [consolidatedFlows, totalInitialEquity, totalExitValue, equityMultiple, cashOnCash, portfolioIRR, getCalendarYear]);
+
+  const exportInvestmentAnalysisToPDF = useCallback(() => {
+    const { years, rows } = generateInvestmentAnalysisData();
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+    
+    doc.setFontSize(18);
+    doc.text("L+B Hospitality Group - Investment Analysis", 14, 15);
+    doc.setFontSize(10);
+    doc.text(`10-Year Projection`, 14, 22);
+    doc.text(`Generated: ${format(new Date(), 'MMM d, yyyy')}`, 14, 27);
+    
+    const tableData = rows.map(row => [
+      row.category,
+      ...row.values.map(v => typeof v === 'number' ? formatMoney(v) : v)
+    ]);
+    
+    autoTable(doc, {
+      head: [['Category', ...years]],
+      body: tableData,
+      startY: 32,
+      styles: { fontSize: 8, cellPadding: 2 },
+      headStyles: { fillColor: [159, 188, 164], textColor: [0, 0, 0], fontStyle: 'bold' },
+      columnStyles: { 0: { cellWidth: 45 } },
+      didParseCell: (data) => {
+        if (data.section === 'body' && data.row.index !== undefined) {
+          const row = rows[data.row.index];
+          if (row?.isHeader) {
+            data.cell.styles.fontStyle = 'bold';
+            data.cell.styles.fillColor = [240, 240, 240];
+          }
+        }
+      }
+    });
+    
+    doc.save('investment-analysis.pdf');
+  }, [generateInvestmentAnalysisData]);
+
+  const exportInvestmentAnalysisToCSV = useCallback(() => {
+    const { years, rows } = generateInvestmentAnalysisData();
+    const headers = ['Category', ...years];
+    const csvRows = [
+      headers.join(','),
+      ...rows.map(row => [
+        `"${row.category}"`,
+        ...row.values.map(v => typeof v === 'number' ? v.toFixed(2) : `"${v}"`)
+      ].join(','))
+    ];
+    const csvContent = csvRows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'investment-analysis.csv';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }, [generateInvestmentAnalysisData]);
+
+  const getExportFunctions = () => {
+    switch (activeTab) {
+      case 'income':
+        return { pdf: exportIncomeStatementToPDF, csv: exportIncomeStatementToCSV };
+      case 'cashflow':
+        return { pdf: exportCashFlowToPDF, csv: exportCashFlowToCSV };
+      case 'balance':
+        return { pdf: exportBalanceSheetToPDF, csv: exportBalanceSheetToCSV };
+      case 'investment':
+        return { pdf: exportInvestmentAnalysisToPDF, csv: exportInvestmentAnalysisToCSV };
+      default:
+        return null;
+    }
+  };
+
+  const exportFunctions = getExportFunctions();
+
   return (
     <Layout>
       <div className="space-y-8">
@@ -488,12 +739,12 @@ export default function Dashboard() {
               <TabsTrigger value="investment">Investment Analysis</TabsTrigger>
             </TabsList>
             
-            {activeTab === "income" && (
+            {exportFunctions && (
               <div className="flex gap-2">
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={exportIncomeStatementToPDF}
+                  onClick={exportFunctions.pdf}
                   className="flex items-center gap-2"
                   data-testid="button-export-pdf"
                 >
@@ -503,7 +754,7 @@ export default function Dashboard() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={exportIncomeStatementToCSV}
+                  onClick={exportFunctions.csv}
                   className="flex items-center gap-2"
                   data-testid="button-export-csv"
                 >

@@ -481,7 +481,7 @@ export default function Portfolio() {
                   <Badge 
                     data-testid={`badge-type-${property.id}`}
                     variant={property.type === "Financed" ? "default" : "secondary"}
-                    className={property.type === "Financed" ? "bg-blue-600 text-white" : "bg-emerald-600 text-white"}
+                    className={property.type === "Financed" ? "bg-[#257D41] text-white" : "bg-[#9FBCA4] text-[#3D3D3D]"}
                   >
                     {property.type}
                   </Badge>

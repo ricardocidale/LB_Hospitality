@@ -5,7 +5,7 @@
 
 @theme inline {
   --font-sans: 'Inter', sans-serif;
-  --font-serif: 'Georgia', serif;
+  --font-serif: 'EB Garamond', 'Georgia', serif;
 
   --radius-sm: 6px;
   --radius-md: 8px;
@@ -46,52 +46,52 @@
   --color-sidebar-ring: hsl(var(--sidebar-ring));
 }
 
-/* Clean Professional Light Theme */
+/* L+B Brand Theme - Primary Colors: #257D41, #9FBCA4, #FFF9F5 */
 :root {
-  --background: 0 0% 98%;
-  --foreground: 224 71% 4%;
+  --background: 30 100% 98%;
+  --foreground: 0 0% 24%;
 
   --card: 0 0% 100%;
-  --card-foreground: 224 71% 4%;
+  --card-foreground: 0 0% 24%;
 
   --popover: 0 0% 100%;
-  --popover-foreground: 224 71% 4%;
+  --popover-foreground: 0 0% 24%;
 
-  --primary: 131 18% 68%;
-  --primary-foreground: 224 71% 4%;
+  --primary: 145 55% 31%;
+  --primary-foreground: 0 0% 100%;
 
-  --secondary: 220 14% 96%;
-  --secondary-foreground: 220 9% 46%;
+  --secondary: 131 18% 68%;
+  --secondary-foreground: 0 0% 24%;
 
-  --muted: 220 14% 96%;
-  --muted-foreground: 220 9% 46%;
+  --muted: 30 20% 95%;
+  --muted-foreground: 0 0% 40%;
 
-  --accent: 139 54% 32%;
+  --accent: 145 55% 31%;
   --accent-foreground: 0 0% 100%;
 
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 100%;
 
-  --border: 220 13% 91%;
-  --input: 220 13% 91%;
-  --ring: 131 18% 68%;
+  --border: 30 15% 88%;
+  --input: 30 15% 88%;
+  --ring: 145 55% 31%;
 
   --radius: 0.5rem;
 
-  --chart-1: 131 18% 68%;
-  --chart-2: 139 54% 32%;
+  --chart-1: 145 55% 31%;
+  --chart-2: 131 18% 68%;
   --chart-3: 280 65% 60%;
   --chart-4: 32 95% 44%;
   --chart-5: 0 84% 60%;
 
-  --sidebar: 224 71% 4%;
-  --sidebar-foreground: 210 20% 98%;
-  --sidebar-primary: 131 18% 68%;
-  --sidebar-primary-foreground: 224 71% 4%;
-  --sidebar-accent: 217 33% 17%;
-  --sidebar-accent-foreground: 210 20% 98%;
-  --sidebar-border: 217 33% 17%;
-  --sidebar-ring: 131 18% 68%;
+  --sidebar: 0 0% 24%;
+  --sidebar-foreground: 30 100% 98%;
+  --sidebar-primary: 145 55% 31%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 0 0% 18%;
+  --sidebar-accent-foreground: 30 100% 98%;
+  --sidebar-border: 0 0% 18%;
+  --sidebar-ring: 145 55% 31%;
 }
 
 .dark {

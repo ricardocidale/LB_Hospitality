@@ -1055,9 +1055,10 @@ export default function Dashboard() {
       head: [['Category', ...years]],
       body: tableData,
       startY: 32,
-      styles: { fontSize: 6.5, cellPadding: 1.5 },
-      headStyles: { fillColor: [159, 188, 164], textColor: [0, 0, 0], fontStyle: 'bold' },
-      columnStyles: { 0: { cellWidth: 50 } },
+      styles: { fontSize: 5.5, cellPadding: 1 },
+      headStyles: { fillColor: [159, 188, 164], textColor: [0, 0, 0], fontStyle: 'bold', fontSize: 5.5 },
+      columnStyles: { 0: { cellWidth: 45 } },
+      margin: { left: 8, right: 8 },
       didParseCell: (data) => {
         if (data.section === 'body' && data.row.index !== undefined) {
           const row = rows[data.row.index];

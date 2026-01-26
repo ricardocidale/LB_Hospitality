@@ -51,19 +51,20 @@ Always format money as money (currency format with commas and appropriate precis
 - Determines when the management company begins incurring costs (salaries, overhead)
 - Located in new "Company Setup" section at the top of Company Assumptions page
 
-### Investment Analysis with Proper Real Estate Accounting
+### Investment Analysis with GAAP-Compliant Free Cash Flow
 - Added Tax Rate field to each property (default 25%) in Property Assumptions
 - Added Company Tax Rate field (default 30%) in Company Assumptions
-- Free Cash Flow follows proper real estate investment methodology:
-  - Depreciation: 27.5-year straight-line on building value (purchasePrice + buildingImprovements)
-  - Debt Service: Proper amortization with interest/principal separation
-  - Taxable Income: NOI - Interest Expense - Depreciation
-  - Tax Liability: Applied only to positive taxable income
+- **GAAP-Compliant Free Cash Flow Calculation (Indirect Method)**:
+  1. **Net Income** = NOI - Interest Expense - Depreciation - Income Tax
+  2. **Operating Cash Flow** = Net Income + Depreciation (add back non-cash expense)
+  3. **Working Capital Changes** = Changes in receivables, payables (currently minimal for stabilized properties)
+  4. **Cash from Operations** = Operating Cash Flow ± Working Capital Changes
+  5. **Free Cash Flow** = Cash from Operations - Principal Payments
+- **Legacy Real Estate Investment Analysis Fields** (for compatibility):
   - Before-Tax Cash Flow (BTCF): NOI - Debt Service
   - After-Tax Cash Flow (ATCF): BTCF - Tax Liability
-- Expanded Investment Analysis display shows full FCF breakdown:
-  - NOI, Debt Service, BTCF, Depreciation, Interest, Taxable Income, Tax, ATCF
-  - Property-level ATCF with tax rates displayed
+- Depreciation: 27.5-year straight-line on building value (purchasePrice + buildingImprovements)
+- Debt Service: Proper amortization with interest/principal separation
 - Outstanding loan balance tracked at each year for accurate exit value calculations
 - Property-Level IRR table includes Tax Rate column
 
@@ -78,17 +79,15 @@ Always format money as money (currency format with commas and appropriate precis
 - All financial statements, charts, and exports use fiscal year labels
 - Fiscal year is labeled by the year it starts (e.g., FY starting April 2026 = FY 2026)
 
-## Future Enhancements (GAAP Compliance)
+## Future Enhancements
 
-The current financial statements are **Pro Forma/Operating Statements** suitable for investor projections. If full GAAP compliance is needed in the future, consider:
+The current financial statements follow **GAAP-compliant Free Cash Flow methodology** (indirect method). For further enhancements, consider:
 
 1. **Land Value Separation**: Add a land value field to each property to exclude land from the depreciation base (GAAP requires land not be depreciated)
-2. **Cash Flow Statement Enhancement**: 
-   - Rename to "Pro Forma Cash Flow" for clarity, or
-   - Add working capital changes, income taxes, and capital expenditures sections for full GAAP compliance
+2. **Working Capital Modeling**: Currently set to zero for stabilized properties. Could be enhanced to model seasonal A/R and A/P fluctuations for more dynamic operations.
 3. **Balance Sheet Timing**: Align cash calculations with initial equity deployment timing for properties acquired at different dates
 
-Current calculations are mathematically correct and follow real estate investment analysis conventions.
+Current calculations follow both GAAP and real estate investment analysis conventions.
 
 ## System Architecture
 

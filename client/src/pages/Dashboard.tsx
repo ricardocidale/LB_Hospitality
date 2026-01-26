@@ -2764,7 +2764,7 @@ function InvestmentAnalysis({
                   ) : (
                     <ChevronRight className="w-4 h-4 text-muted-foreground" />
                   )}
-                  After-Tax Operating Cash Flow
+                  Free Cash Flow (Operating)
                 </TableCell>
                 <TableCell className="text-right text-muted-foreground">-</TableCell>
                 {Array.from({ length: 10 }, (_, y) => {
@@ -2881,7 +2881,7 @@ function InvestmentAnalysis({
                   
                   <TableRow className="bg-green-50/30 dark:bg-green-950/20 border-t">
                     <TableCell className="sticky left-0 bg-green-50/30 dark:bg-green-950/20 pl-8 text-sm font-medium">
-                      Free Cash Flow (BTCF - Tax)
+                      After-Tax Cash Flow
                     </TableCell>
                     <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
                     {Array.from({ length: 10 }, (_, y) => {

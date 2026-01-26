@@ -59,7 +59,8 @@ Always format money as money (currency format with commas and appropriate precis
   2. **Operating Cash Flow** = Net Income + Depreciation (add back non-cash expense)
   3. **Working Capital Changes** = Changes in receivables, payables (currently minimal for stabilized properties)
   4. **Cash from Operations** = Operating Cash Flow ± Working Capital Changes
-  5. **Free Cash Flow** = Cash from Operations - Principal Payments
+  5. **Free Cash Flow (FCF)** = Cash from Operations - Maintenance CapEx (FF&E reserves included in NOI)
+  6. **Free Cash Flow to Equity (FCFE)** = FCF - Principal Payments
 - **Legacy Real Estate Investment Analysis Fields** (for compatibility):
   - Before-Tax Cash Flow (BTCF): NOI - Debt Service
   - After-Tax Cash Flow (ATCF): BTCF - Tax Liability
@@ -86,6 +87,8 @@ The current financial statements follow **GAAP-compliant Free Cash Flow methodol
 1. **Land Value Separation**: Add a land value field to each property to exclude land from the depreciation base (GAAP requires land not be depreciated)
 2. **Working Capital Modeling**: Currently set to zero for stabilized properties. Could be enhanced to model seasonal A/R and A/P fluctuations for more dynamic operations.
 3. **Balance Sheet Timing**: Align cash calculations with initial equity deployment timing for properties acquired at different dates
+
+**Note on Maintenance CapEx**: For hospitality properties, FF&E (Furniture, Fixtures & Equipment) reserves are typically included in operating expenses within NOI (at 4% of revenue). This follows the Uniform System of Accounts for the Lodging Industry (USALI). Since maintenance capex is already reflected in NOI, no additional deduction is made in the FCF calculation.
 
 Current calculations follow both GAAP and real estate investment analysis conventions.
 

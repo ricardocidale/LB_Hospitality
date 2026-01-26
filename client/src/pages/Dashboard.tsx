@@ -2764,7 +2764,8 @@ function InvestmentAnalysis({
                   ) : (
                     <ChevronRight className="w-4 h-4 text-muted-foreground" />
                   )}
-                  Free Cash Flow (Operating)
+                  Free Cash Flow to Equity (FCFE)
+                  <HelpTooltip text="GAAP FCFE = Cash from Operations - Principal Payments. For hotels where FF&E reserves are included in NOI, this equals After-Tax Cash Flow (ATCF)." />
                 </TableCell>
                 <TableCell className="text-right text-muted-foreground">-</TableCell>
                 {Array.from({ length: 10 }, (_, y) => {

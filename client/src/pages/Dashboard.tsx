@@ -14,6 +14,16 @@ import { ConsolidatedBalanceSheet } from "@/components/ConsolidatedBalanceSheet"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { 
+  calculateLoanParams, 
+  calculateRefinanceParams, 
+  calculateYearlyDebtService, 
+  calculateExitValue,
+  getAcquisitionYear,
+  getOutstandingDebtAtYear,
+  LoanParams,
+  GlobalLoanParams
+} from "@/lib/loanCalculations";
 
 export default function Dashboard() {
   const { data: properties, isLoading: propertiesLoading } = useProperties();
@@ -196,25 +206,55 @@ export default function Dashboard() {
   // Investment horizon
   const investmentHorizon = 10;
 
-  // Investment Analysis calculations (duplicated from InvestmentAnalysis for Overview)
-  const DEPRECIATION_YEARS = 27.5;
-  
+  // Convert property data to LoanParams format for shared utilities
+  const toGlobalLoanParams = (): GlobalLoanParams => ({
+    modelStartDate: global.modelStartDate,
+    commissionRate: global.commissionRate,
+    debtAssumptions: global.debtAssumptions
+  });
+
+  const toLoanParams = (prop: any): LoanParams => ({
+    purchasePrice: prop.purchasePrice,
+    buildingImprovements: prop.buildingImprovements,
+    preOpeningCosts: prop.preOpeningCosts || 0,
+    operatingReserve: prop.operatingReserve || 0,
+    type: prop.type,
+    acquisitionDate: prop.acquisitionDate,
+    taxRate: prop.taxRate,
+    acquisitionLTV: prop.acquisitionLTV,
+    acquisitionInterestRate: prop.acquisitionInterestRate,
+    acquisitionTermYears: prop.acquisitionTermYears,
+    willRefinance: prop.willRefinance,
+    refinanceDate: prop.refinanceDate,
+    refinanceLTV: prop.refinanceLTV,
+    refinanceInterestRate: prop.refinanceInterestRate,
+    refinanceTermYears: prop.refinanceTermYears,
+    refinanceClosingCostRate: prop.refinanceClosingCostRate,
+    exitCapRate: prop.exitCapRate
+  });
+
+  const getPropertyYearlyNOI = (propIndex: number): number[] => {
+    const { financials } = allPropertyFinancials[propIndex];
+    const yearlyNOI: number[] = [];
+    for (let y = 0; y < 10; y++) {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      yearlyNOI.push(yearData.reduce((a: number, m: any) => a + m.noi, 0));
+    }
+    return yearlyNOI;
+  };
+
   const getPropertyAcquisitionYear = (prop: any): number => {
-    const acqDate = new Date(prop.acquisitionDate);
-    const modelStart = new Date(global.modelStartDate);
-    const monthsDiff = (acqDate.getFullYear() - modelStart.getFullYear()) * 12 + 
-                       (acqDate.getMonth() - modelStart.getMonth());
-    return Math.floor(monthsDiff / 12);
+    const loanParams = toLoanParams(prop);
+    const globalParams = toGlobalLoanParams();
+    const loan = calculateLoanParams(loanParams, globalParams);
+    return getAcquisitionYear(loan);
   };
 
   const getPropertyInvestment = (prop: any) => {
-    const investment = prop.purchasePrice + prop.buildingImprovements + 
-                            prop.preOpeningCosts + prop.operatingReserve;
-    if (prop.type === "Financed") {
-      const ltv = prop.acquisitionLTV || global.debtAssumptions.acqLTV || 0.75;
-      return investment * (1 - ltv);
-    }
-    return investment;
+    const loanParams = toLoanParams(prop);
+    const globalParams = toGlobalLoanParams();
+    const loan = calculateLoanParams(loanParams, globalParams);
+    return loan.equityInvested;
   };
 
   const getEquityInvestmentForYear = (yearIndex: number): number => {
@@ -228,157 +268,90 @@ export default function Dashboard() {
     return total;
   };
 
-  const getPropertyLoanAmount = (prop: any) => {
-    if (prop.type !== "Financed") return 0;
-    const ltv = prop.acquisitionLTV || global.debtAssumptions.acqLTV || 0.75;
-    return (prop.purchasePrice + prop.buildingImprovements) * ltv;
-  };
-
   const getAnnualDepreciation = (prop: any) => {
-    const depreciableBase = prop.purchasePrice + prop.buildingImprovements;
-    return depreciableBase / DEPRECIATION_YEARS;
-  };
-
-  const getOutstandingAcqLoanBalance = (prop: any, afterYear: number) => {
-    const loanAmount = getPropertyLoanAmount(prop);
-    if (loanAmount <= 0) return 0;
-
-    const annualRate = prop.acquisitionInterestRate || global.debtAssumptions.interestRate || 0.09;
-    const r = annualRate / 12;
-    const termYears = prop.acquisitionTermYears || global.debtAssumptions.amortizationYears || 25;
-    const n = termYears * 12;
-
-    if (r <= 0 || n <= 0) return 0;
-
-    // Calculate months since acquisition to end of target year
-    // Loan payments begin at acquisition date (property closing)
-    const modelStart = new Date(global.modelStartDate);
-    const acqDate = new Date(prop.acquisitionDate);
-    const acqMonthsFromModelStart = (acqDate.getFullYear() - modelStart.getFullYear()) * 12 + 
-                                     (acqDate.getMonth() - modelStart.getMonth());
-    const endOfYearMonth = (afterYear + 1) * 12;
-    
-    // If property hasn't been acquired yet, no loan exists yet
-    if (acqMonthsFromModelStart > endOfYearMonth) return 0;
-    
-    // Calculate payments made, capped at total loan term
-    const rawMonthsPaid = endOfYearMonth - Math.max(0, acqMonthsFromModelStart);
-    const monthsPaid = Math.min(Math.max(0, rawMonthsPaid), n);
-    
-    const monthlyPayment = (loanAmount * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
-    const paymentsRemaining = n - monthsPaid;
-
-    if (paymentsRemaining <= 0) return 0;
-    return monthlyPayment * (1 - Math.pow(1 + r, -paymentsRemaining)) / r;
-  };
-
-  const getRefiLoanBalanceForExit = (prop: any, propIndex: number, afterYear: number): number => {
-    if (prop.willRefinance !== "Yes") return 0;
-    
-    const refiDate = new Date(prop.refinanceDate);
-    const modelStart = new Date(global.modelStartDate);
-    const monthsDiff = (refiDate.getFullYear() - modelStart.getFullYear()) * 12 + 
-                       (refiDate.getMonth() - modelStart.getMonth());
-    const refiYear = Math.floor(monthsDiff / 12);
-    
-    if (refiYear < 0 || refiYear >= 10 || afterYear < refiYear) return 0;
-    
-    const refiLTV = prop.refinanceLTV || global.debtAssumptions.refiLTV || 0.65;
-    const { financials } = allPropertyFinancials[propIndex];
-    const stabilizedData = financials.slice(refiYear * 12, (refiYear + 1) * 12);
-    const stabilizedNOI = stabilizedData.reduce((a: number, m: any) => a + m.noi, 0);
-    const refiCapRate = prop.exitCapRate || 0.085;
-    const propertyValue = stabilizedNOI / refiCapRate;
-    const newLoanAmount = propertyValue * refiLTV;
-    
-    const annualRate = prop.refinanceInterestRate || global.debtAssumptions.interestRate || 0.09;
-    const r = annualRate / 12;
-    const termYears = prop.refinanceTermYears || global.debtAssumptions.amortizationYears || 25;
-    const n = termYears * 12;
-    
-    if (r <= 0 || n <= 0) return 0;
-    
-    const monthlyPayment = (newLoanAmount * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
-    const monthsSinceRefi = (afterYear - refiYear + 1) * 12;
-    const paymentsRemaining = Math.max(0, n - monthsSinceRefi);
-    
-    if (paymentsRemaining <= 0) return 0;
-    return monthlyPayment * (1 - Math.pow(1 + r, -paymentsRemaining)) / r;
-  };
-
-  const getTotalDebtForExit = (prop: any, propIndex: number, afterYear: number): number => {
-    if (prop.willRefinance === "Yes") {
-      const refiDate = new Date(prop.refinanceDate);
-      const modelStart = new Date(global.modelStartDate);
-      const monthsDiff = (refiDate.getFullYear() - modelStart.getFullYear()) * 12 + 
-                         (refiDate.getMonth() - modelStart.getMonth());
-      const refiYear = Math.floor(monthsDiff / 12);
-      
-      if (refiYear >= 0 && refiYear < 10 && afterYear >= refiYear) {
-        return getRefiLoanBalanceForExit(prop, propIndex, afterYear);
-      }
-    }
-    return getOutstandingAcqLoanBalance(prop, afterYear);
+    const loanParams = toLoanParams(prop);
+    const globalParams = toGlobalLoanParams();
+    const loan = calculateLoanParams(loanParams, globalParams);
+    return loan.annualDepreciation;
   };
 
   const getPropertyExitValue = (prop: any, propIndex: number) => {
-    const { financials } = allPropertyFinancials[propIndex];
-    const year10Data = financials.slice(108, 120);
-    const year10NOI = year10Data.reduce((a: number, m: any) => a + m.noi, 0);
-    const capRate = prop.exitCapRate || 0.085;
-    const grossValue = year10NOI / capRate;
-    const commissionRate = global.commissionRate || 0.05;
-    const commission = grossValue * commissionRate;
-    const netValue = grossValue - commission;
-    
-    const outstandingDebt = getTotalDebtForExit(prop, propIndex, 9);
-    return netValue - outstandingDebt;
+    const loanParams = toLoanParams(prop);
+    const globalParams = toGlobalLoanParams();
+    const yearlyNOI = getPropertyYearlyNOI(propIndex);
+    const loan = calculateLoanParams(loanParams, globalParams);
+    const refi = calculateRefinanceParams(loanParams, globalParams, loan, yearlyNOI, 10);
+    return calculateExitValue(yearlyNOI[9], loan, refi, 9, prop.exitCapRate);
   };
 
   const getPropertyYearlyDetails = (prop: any, propIndex: number, yearIndex: number) => {
-    const { financials } = allPropertyFinancials[propIndex];
-    const startMonth = yearIndex * 12;
-    const endMonth = startMonth + 12;
-    const yearData = financials.slice(startMonth, endMonth);
-    const noi = yearData.reduce((a: number, m: any) => a + m.noi, 0);
+    const loanParams = toLoanParams(prop);
+    const globalParams = toGlobalLoanParams();
+    const yearlyNOI = getPropertyYearlyNOI(propIndex);
+    const loan = calculateLoanParams(loanParams, globalParams);
+    const refi = calculateRefinanceParams(loanParams, globalParams, loan, yearlyNOI, 10);
     
-    const loanAmount = getPropertyLoanAmount(prop);
-    let debtService = 0, interestPortion = 0;
+    const noi = yearlyNOI[yearIndex];
+    const debt = calculateYearlyDebtService(loan, refi, yearIndex);
     
-    if (loanAmount > 0) {
-      const annualRate = prop.acquisitionInterestRate || global.debtAssumptions.interestRate || 0.09;
-      const r = annualRate / 12;
-      const termYears = prop.acquisitionTermYears || global.debtAssumptions.amortizationYears || 25;
-      const n = termYears * 12;
-      const monthlyPayment = (loanAmount * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
-      debtService = monthlyPayment * 12;
-      
-      let remainingBalance = loanAmount;
-      for (let m = 0; m < endMonth && m < n; m++) {
-        const interestPayment = remainingBalance * r;
-        const principalPayment = monthlyPayment - interestPayment;
-        if (m >= startMonth) interestPortion += interestPayment;
-        remainingBalance -= principalPayment;
-      }
-    }
-    
-    const depreciation = getAnnualDepreciation(prop);
-    const btcf = noi - debtService;
-    const taxableIncome = noi - interestPortion - depreciation;
-    const taxRate = prop.taxRate || 0.25;
-    const taxLiability = taxableIncome > 0 ? taxableIncome * taxRate : 0;
+    const btcf = noi - debt.debtService;
+    const taxableIncome = noi - debt.interestExpense - loan.annualDepreciation;
+    const taxLiability = taxableIncome > 0 ? taxableIncome * loan.taxRate : 0;
     const atcf = btcf - taxLiability;
     
-    return { noi, debtService, interestPortion, depreciation, btcf, taxableIncome, taxLiability, atcf };
+    return { 
+      noi, 
+      debtService: debt.debtService, 
+      interestPortion: debt.interestExpense, 
+      depreciation: loan.annualDepreciation, 
+      btcf, 
+      taxableIncome, 
+      taxLiability, 
+      atcf 
+    };
   };
 
   const getConsolidatedYearlyDetails = (yearIndex: number) => {
+    let totalNOI = 0;
+    let totalDebtService = 0;
+    let totalInterest = 0;
+    let totalDepreciation = 0;
+    let totalBTCF = 0;
+    let totalTaxableIncome = 0;
+    let totalTax = 0;
     let totalATCF = 0;
+
     properties.forEach((prop, idx) => {
       const details = getPropertyYearlyDetails(prop, idx, yearIndex);
+      totalNOI += details.noi;
+      totalDebtService += details.debtService;
+      totalInterest += details.interestPortion;
+      totalDepreciation += details.depreciation;
+      totalBTCF += details.btcf;
+      totalTaxableIncome += details.taxableIncome;
+      totalTax += details.taxLiability;
       totalATCF += details.atcf;
     });
-    return { atcf: totalATCF };
+
+    return {
+      noi: totalNOI,
+      debtService: totalDebtService,
+      interestPortion: totalInterest,
+      depreciation: totalDepreciation,
+      btcf: totalBTCF,
+      taxableIncome: totalTaxableIncome,
+      taxLiability: totalTax,
+      atcf: totalATCF
+    };
+  };
+
+  const getPropertyRefinanceProceeds = (prop: any, propIndex: number) => {
+    const loanParams = toLoanParams(prop);
+    const globalParams = toGlobalLoanParams();
+    const yearlyNOI = getPropertyYearlyNOI(propIndex);
+    const loan = calculateLoanParams(loanParams, globalParams);
+    const refi = calculateRefinanceParams(loanParams, globalParams, loan, yearlyNOI, 10);
+    return { year: refi.refiYear, proceeds: refi.refiProceeds };
   };
 
   const getConsolidatedCashFlows = (): number[] => {
@@ -393,14 +366,12 @@ export default function Dashboard() {
       const yearInvestment = getEquityInvestmentForYear(y + 1);
       if (yearInvestment > 0) yearCashFlow -= yearInvestment;
       
-      // Add refinancing proceeds for each property
       properties.forEach((prop, idx) => {
         const refi = getPropertyRefinanceProceeds(prop, idx);
         if (y === refi.year) {
           yearCashFlow += refi.proceeds;
         }
         
-        // Add exit value in final year
         if (y === 9) {
           yearCashFlow += getPropertyExitValue(prop, idx);
         }
@@ -409,34 +380,6 @@ export default function Dashboard() {
       flows.push(yearCashFlow);
     }
     return flows;
-  };
-  
-  // Helper to get refinancing proceeds for Overview section
-  const getPropertyRefinanceProceeds = (prop: any, propIndex: number) => {
-    if (prop.willRefinance !== "Yes") return { year: -1, proceeds: 0 };
-    
-    const refiDate = new Date(prop.refinanceDate);
-    const modelStart = new Date(global.modelStartDate);
-    const monthsDiff = (refiDate.getFullYear() - modelStart.getFullYear()) * 12 + 
-                       (refiDate.getMonth() - modelStart.getMonth());
-    const refiYear = Math.floor(monthsDiff / 12);
-    
-    if (refiYear < 0 || refiYear >= 10) return { year: -1, proceeds: 0 };
-    
-    const refiLTV = prop.refinanceLTV || global.debtAssumptions.refiLTV || 0.65;
-    const { financials } = allPropertyFinancials[propIndex];
-    const stabilizedData = financials.slice(refiYear * 12, (refiYear + 1) * 12);
-    const stabilizedNOI = stabilizedData.reduce((a: number, m: any) => a + m.noi, 0);
-    const refiCapRate = prop.exitCapRate || 0.085;
-    const propertyValue = stabilizedNOI / refiCapRate;
-    const newLoanAmount = propertyValue * refiLTV;
-    const closingCostRate = prop.refinanceClosingCostRate || global.debtAssumptions.refiClosingCostRate || 0.03;
-    const closingCosts = newLoanAmount * closingCostRate;
-    const existingDebt = getOutstandingAcqLoanBalance(prop, refiYear - 1);
-    
-    const netProceeds = newLoanAmount - closingCosts - existingDebt;
-    
-    return { year: refiYear, proceeds: Math.max(0, netProceeds) };
   };
 
   const consolidatedFlows = getConsolidatedCashFlows();
@@ -2665,90 +2608,24 @@ function InvestmentAnalysis({
     return flows;
   };
 
-  const getConsolidatedYearlyDetails = (yearIndex: number) => {
-    let totalNOI = 0;
-    let totalDebtService = 0;
-    let totalInterest = 0;
-    let totalDepreciation = 0;
-    let totalBTCF = 0;
-    let totalTaxableIncome = 0;
-    let totalTax = 0;
-    let totalATCF = 0;
-
-    properties.forEach((prop, idx) => {
-      const details = getPropertyYearlyDetails(prop, idx, yearIndex);
-      totalNOI += details.noi;
-      totalDebtService += details.debtService;
-      totalInterest += details.interestPortion;
-      totalDepreciation += details.depreciation;
-      totalBTCF += details.btcf;
-      totalTaxableIncome += details.taxableIncome;
-      totalTax += details.taxLiability;
-      totalATCF += details.atcf;
-    });
-
-    return {
-      noi: totalNOI,
-      debtService: totalDebtService,
-      interestPortion: totalInterest,
-      depreciation: totalDepreciation,
-      btcf: totalBTCF,
-      taxableIncome: totalTaxableIncome,
-      taxLiability: totalTax,
-      atcf: totalATCF
-    };
-  };
-
-  const getConsolidatedCashFlows = (): number[] => {
-    const flows: number[] = [];
-    
-    const year0Investment = getEquityInvestmentForYear(0);
-    flows.push(-year0Investment);
-    
-    for (let y = 0; y < 10; y++) {
-      const consolidated = getConsolidatedYearlyDetails(y);
-      let yearCashFlow = consolidated.atcf;
-      
-      const yearInvestment = getEquityInvestmentForYear(y + 1);
-      if (yearInvestment > 0) {
-        yearCashFlow -= yearInvestment;
-      }
-      
-      properties.forEach((prop, idx) => {
-        const refi = getPropertyRefinanceProceeds(prop, idx);
-        if (y === refi.year) {
-          yearCashFlow += refi.proceeds;
-        }
-        
-        if (y === 9) {
-          yearCashFlow += getPropertyExitValue(prop, idx);
-        }
-      });
-      
-      flows.push(yearCashFlow);
-    }
-    
-    return flows;
-  };
-
-  const consolidatedFlows = getConsolidatedCashFlows();
-  const portfolioIRR = calculateIRR(consolidatedFlows);
+  const consolidatedFlowsIA = getConsolidatedCashFlows();
+  const portfolioIRRIA = calculateIRR(consolidatedFlowsIA);
   
-  const totalInitialEquity = properties.reduce((sum, prop) => sum + getPropertyInvestment(prop), 0);
-  const totalExitValue = properties.reduce((sum, prop, idx) => sum + getPropertyExitValue(prop, idx), 0);
+  const totalInitialEquityIA = properties.reduce((sum, prop) => sum + getPropertyInvestment(prop), 0);
+  const totalExitValueIA = properties.reduce((sum, prop, idx) => sum + getPropertyExitValue(prop, idx), 0);
 
-  const totalCashReturned = consolidatedFlows.slice(1).reduce((sum, cf) => sum + cf, 0);
-  const equityMultiple = totalInitialEquity > 0 ? totalCashReturned / totalInitialEquity : 0;
+  const totalCashReturnedIA = consolidatedFlowsIA.slice(1).reduce((sum, cf) => sum + cf, 0);
+  const equityMultipleIA = totalInitialEquityIA > 0 ? totalCashReturnedIA / totalInitialEquityIA : 0;
   
-  const operatingCashFlows = consolidatedFlows.slice(1).map((cf, idx) => {
+  const operatingCashFlowsIA = consolidatedFlowsIA.slice(1).map((cf, idx) => {
     let exitValue = 0;
     if (idx === 9) {
       exitValue = properties.reduce((sum, prop, propIdx) => sum + getPropertyExitValue(prop, propIdx), 0);
     }
     return cf - exitValue;
   });
-  const avgAnnualCashFlow = operatingCashFlows.reduce((sum, cf) => sum + cf, 0) / 10;
-  const cashOnCash = totalInitialEquity > 0 ? (avgAnnualCashFlow / totalInitialEquity) * 100 : 0;
+  const avgAnnualCashFlowIA = operatingCashFlowsIA.reduce((sum, cf) => sum + cf, 0) / 10;
+  const cashOnCashIA = totalInitialEquityIA > 0 ? (avgAnnualCashFlowIA / totalInitialEquityIA) * 100 : 0;
 
   return (
     <>
@@ -2761,7 +2638,7 @@ function InvestmentAnalysis({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-primary-foreground">{formatMoney(totalInitialEquity)}</div>
+            <div className="text-2xl font-bold text-primary-foreground">{formatMoney(totalInitialEquityIA)}</div>
           </CardContent>
         </Card>
         
@@ -2773,7 +2650,7 @@ function InvestmentAnalysis({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-primary-foreground">{formatMoney(totalExitValue)}</div>
+            <div className="text-2xl font-bold text-primary-foreground">{formatMoney(totalExitValueIA)}</div>
           </CardContent>
         </Card>
         
@@ -2785,7 +2662,7 @@ function InvestmentAnalysis({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-primary-foreground">{equityMultiple.toFixed(2)}x</div>
+            <div className="text-2xl font-bold text-primary-foreground">{equityMultipleIA.toFixed(2)}x</div>
           </CardContent>
         </Card>
         
@@ -2797,7 +2674,7 @@ function InvestmentAnalysis({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-primary-foreground">{cashOnCash.toFixed(1)}%</div>
+            <div className="text-2xl font-bold text-primary-foreground">{cashOnCashIA.toFixed(1)}%</div>
           </CardContent>
         </Card>
         
@@ -2809,7 +2686,7 @@ function InvestmentAnalysis({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-primary-foreground">{(portfolioIRR * 100).toFixed(1)}%</div>
+            <div className="text-2xl font-bold text-primary-foreground">{(portfolioIRRIA * 100).toFixed(1)}%</div>
           </CardContent>
         </Card>
       </div>
@@ -3192,13 +3069,13 @@ function InvestmentAnalysis({
               })}
               <TableRow className="bg-primary/10 font-bold">
                 <TableCell>Portfolio Total</TableCell>
-                <TableCell className="text-right">{formatMoney(totalInitialEquity)}</TableCell>
+                <TableCell className="text-right">{formatMoney(totalInitialEquityIA)}</TableCell>
                 <TableCell className="text-right text-muted-foreground">-</TableCell>
                 <TableCell className="text-right text-muted-foreground">-</TableCell>
-                <TableCell className="text-right text-accent">{formatMoney(totalExitValue)}</TableCell>
-                <TableCell className="text-right">{formatMoney(consolidatedFlows.slice(1).reduce((a, b) => a + b, 0))}</TableCell>
-                <TableCell className="text-right">{(consolidatedFlows.slice(1).reduce((a, b) => a + b, 0) / totalInitialEquity).toFixed(2)}x</TableCell>
-                <TableCell className="text-right text-primary">{(portfolioIRR * 100).toFixed(1)}%</TableCell>
+                <TableCell className="text-right text-accent">{formatMoney(totalExitValueIA)}</TableCell>
+                <TableCell className="text-right">{formatMoney(consolidatedFlowsIA.slice(1).reduce((a, b) => a + b, 0))}</TableCell>
+                <TableCell className="text-right">{(consolidatedFlowsIA.slice(1).reduce((a, b) => a + b, 0) / totalInitialEquityIA).toFixed(2)}x</TableCell>
+                <TableCell className="text-right text-primary">{(portfolioIRRIA * 100).toFixed(1)}%</TableCell>
               </TableRow>
             </TableBody>
           </Table>

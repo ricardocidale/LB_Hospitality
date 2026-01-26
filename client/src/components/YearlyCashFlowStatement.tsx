@@ -239,7 +239,7 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
           <TableBody>
             {/* GAAP Net Income Section */}
             <TableRow className="bg-muted/30">
-              <TableCell colSpan={years + 1} className="font-bold text-primary">Net Income Calculation</TableCell>
+              <TableCell colSpan={years + 1} className="font-bold text-primary">Net Income</TableCell>
             </TableRow>
             
             {/* NOI - Expandable with Revenue Details */}

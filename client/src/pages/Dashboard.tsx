@@ -393,15 +393,50 @@ export default function Dashboard() {
       const yearInvestment = getEquityInvestmentForYear(y + 1);
       if (yearInvestment > 0) yearCashFlow -= yearInvestment;
       
-      if (y === 9) {
-        properties.forEach((prop, idx) => {
+      // Add refinancing proceeds for each property
+      properties.forEach((prop, idx) => {
+        const refi = getPropertyRefinanceProceeds(prop, idx);
+        if (y === refi.year) {
+          yearCashFlow += refi.proceeds;
+        }
+        
+        // Add exit value in final year
+        if (y === 9) {
           yearCashFlow += getPropertyExitValue(prop, idx);
-        });
-      }
+        }
+      });
       
       flows.push(yearCashFlow);
     }
     return flows;
+  };
+  
+  // Helper to get refinancing proceeds for Overview section
+  const getPropertyRefinanceProceeds = (prop: any, propIndex: number) => {
+    if (prop.willRefinance !== "Yes") return { year: -1, proceeds: 0 };
+    
+    const refiDate = new Date(prop.refinanceDate);
+    const modelStart = new Date(global.modelStartDate);
+    const monthsDiff = (refiDate.getFullYear() - modelStart.getFullYear()) * 12 + 
+                       (refiDate.getMonth() - modelStart.getMonth());
+    const refiYear = Math.floor(monthsDiff / 12);
+    
+    if (refiYear < 0 || refiYear >= 10) return { year: -1, proceeds: 0 };
+    
+    const refiLTV = prop.refinanceLTV || global.debtAssumptions.refiLTV || 0.65;
+    const { financials } = allPropertyFinancials[propIndex];
+    const stabilizedData = financials.slice(refiYear * 12, (refiYear + 1) * 12);
+    const stabilizedNOI = stabilizedData.reduce((a: number, m: any) => a + m.noi, 0);
+    const refiCapRate = prop.exitCapRate || 0.085;
+    const propertyValue = stabilizedNOI / refiCapRate;
+    const newLoanAmount = propertyValue * refiLTV;
+    const closingCostRate = prop.refinanceClosingCostRate || global.debtAssumptions.refiClosingCostRate || 0.03;
+    const closingCosts = newLoanAmount * closingCostRate;
+    const existingDebt = getOutstandingAcqLoanBalance(prop, refiYear - 1);
+    
+    const netProceeds = newLoanAmount - closingCosts - existingDebt;
+    
+    return { year: refiYear, proceeds: Math.max(0, netProceeds) };
   };
 
   const consolidatedFlows = getConsolidatedCashFlows();

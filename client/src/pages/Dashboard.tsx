@@ -209,6 +209,7 @@ export default function Dashboard() {
           <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="income">Income Statement</TabsTrigger>
+            <TabsTrigger value="balance">Balance Sheet</TabsTrigger>
             <TabsTrigger value="cashflow">Cash Flow Statement</TabsTrigger>
             <TabsTrigger value="investment">Investment Analysis</TabsTrigger>
           </TabsList>
@@ -668,6 +669,15 @@ export default function Dashboard() {
                 </Table>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="balance" className="mt-6">
+            <ConsolidatedBalanceSheet 
+              properties={properties} 
+              global={global} 
+              allProFormas={allPropertyFinancials.map(pf => ({ property: pf.property, data: pf.financials }))}
+              year={10}
+            />
           </TabsContent>
 
           <TabsContent value="cashflow" className="mt-6">
@@ -1895,15 +1905,6 @@ function InvestmentAnalysis({
           </Table>
         </CardContent>
       </Card>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <ConsolidatedBalanceSheet 
-          properties={properties} 
-          global={global} 
-          allProFormas={allPropertyFinancials.map(pf => ({ property: pf.property, data: pf.financials }))}
-          year={10}
-        />
-      </div>
 
       <Card>
         <CardHeader>

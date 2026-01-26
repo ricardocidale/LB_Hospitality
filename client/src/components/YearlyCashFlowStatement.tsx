@@ -69,13 +69,19 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
               <TableCell colSpan={years + 1} className="font-bold text-primary">Net Income Calculation</TableCell>
             </TableRow>
             <TableRow>
-              <TableCell className="pl-6 sticky left-0 bg-card">Net Operating Income (NOI)</TableCell>
+              <TableCell className="pl-6 sticky left-0 bg-card flex items-center gap-1">
+                Net Operating Income (NOI)
+                <HelpTooltip text="NOI = Total Revenue - Operating Expenses. The property's income before debt service, taxes, and depreciation." />
+              </TableCell>
               {yearlyData.map((y) => (
                 <TableCell key={y.year} className="text-right"><Money amount={y.noi} /></TableCell>
               ))}
             </TableRow>
             <TableRow>
-              <TableCell className="pl-6 sticky left-0 bg-card">Less: Interest Expense</TableCell>
+              <TableCell className="pl-6 sticky left-0 bg-card flex items-center gap-1">
+                Less: Interest Expense
+                <HelpTooltip text="The interest portion of debt payments. Tax-deductible expense that reduces taxable income." />
+              </TableCell>
               {yearlyData.map((y) => (
                 <TableCell key={y.year} className="text-right text-muted-foreground">
                   {y.interestExpense > 0 ? <Money amount={-y.interestExpense} /> : '-'}
@@ -94,7 +100,10 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
               ))}
             </TableRow>
             <TableRow>
-              <TableCell className="pl-6 sticky left-0 bg-card">Less: Income Tax ({((property.taxRate ?? 0.25) * 100).toFixed(0)}%)</TableCell>
+              <TableCell className="pl-6 sticky left-0 bg-card flex items-center gap-1">
+                Less: Income Tax ({((property.taxRate ?? 0.25) * 100).toFixed(0)}%)
+                <HelpTooltip text="Income tax on taxable income (NOI - Interest - Depreciation). Only applies when taxable income is positive." />
+              </TableCell>
               {yearlyData.map((y) => (
                 <TableCell key={y.year} className="text-right text-muted-foreground">
                   {y.taxLiability > 0 ? <Money amount={-y.taxLiability} /> : '-'}
@@ -159,7 +168,10 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
               ))}
             </TableRow>
             <TableRow className="bg-primary/5 font-medium">
-              <TableCell className="sticky left-0 bg-primary/5">Cash from Operations</TableCell>
+              <TableCell className="sticky left-0 bg-primary/5 flex items-center gap-1">
+                Cash from Operations (CFO)
+                <HelpTooltip text="CFO = Operating Cash Flow ± Working Capital Changes. The actual cash generated from property operations." />
+              </TableCell>
               {yearlyData.map((y) => (
                 <TableCell key={y.year} className="text-right"><Money amount={y.cashFromOperations} /></TableCell>
               ))}

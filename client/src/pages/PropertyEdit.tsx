@@ -147,6 +147,15 @@ export default function PropertyEdit() {
       return;
     }
     
+    if (file.size > 10 * 1024 * 1024) {
+      toast({
+        title: "File Too Large",
+        description: "Please select an image under 10MB.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setIsUploadingPhoto(true);
     await uploadFile(file);
     if (photoInputRef.current) {

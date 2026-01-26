@@ -232,7 +232,7 @@ export default function Dashboard() {
             <div className="grid gap-6 lg:grid-cols-3">
               <Card className="lg:col-span-2">
                 <CardHeader>
-                  <CardTitle>Property Performance (Year 1)</CardTitle>
+                  <CardTitle>Property Performance ({modelStartYear})</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="h-[350px]">
@@ -1483,7 +1483,7 @@ function InvestmentAnalysis({
         
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Exit Value (Year 10)</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Exit Value ({modelStartYear + 9})</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-accent">{formatMoney(totalExitValue)}</div>
@@ -1783,7 +1783,7 @@ function InvestmentAnalysis({
                   ) : (
                     <ChevronRight className="w-4 h-4 text-muted-foreground" />
                   )}
-                  Exit Proceeds (Year 10)
+                  Exit Proceeds ({getCalendarYear(10)})
                 </TableCell>
                 <TableCell className="text-right text-muted-foreground">-</TableCell>
                 {Array.from({ length: 10 }, (_, y) => (

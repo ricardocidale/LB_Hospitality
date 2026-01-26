@@ -243,7 +243,7 @@ export default function PropertyDetail() {
       startY: 28,
       theme: "grid",
       styles: { fontSize: 7, cellPadding: 1.5 },
-      headStyles: { fillColor: [159, 188, 164], textColor: [61, 61, 61], fontStyle: "bold", halign: 'right' },
+      headStyles: { fillColor: [159, 188, 164], textColor: [61, 61, 61], fontStyle: "bold", halign: 'center' },
       columnStyles: colStyles,
     });
 

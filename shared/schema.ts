@@ -24,8 +24,29 @@ export const globalAssumptions = pgTable("global_assumptions", {
   safeValuationCap: real("safe_valuation_cap").notNull().default(2500000),
   safeDiscountRate: real("safe_discount_rate").notNull().default(0.20),
   
-  // Cost variables - Compensation
-  partnerSalary: real("partner_salary").notNull(),
+  // Cost variables - Compensation (yearly partner compensation and count)
+  partnerCompYear1: real("partner_comp_year1").notNull().default(540000),
+  partnerCompYear2: real("partner_comp_year2").notNull().default(540000),
+  partnerCompYear3: real("partner_comp_year3").notNull().default(540000),
+  partnerCompYear4: real("partner_comp_year4").notNull().default(600000),
+  partnerCompYear5: real("partner_comp_year5").notNull().default(600000),
+  partnerCompYear6: real("partner_comp_year6").notNull().default(700000),
+  partnerCompYear7: real("partner_comp_year7").notNull().default(700000),
+  partnerCompYear8: real("partner_comp_year8").notNull().default(800000),
+  partnerCompYear9: real("partner_comp_year9").notNull().default(800000),
+  partnerCompYear10: real("partner_comp_year10").notNull().default(900000),
+  
+  partnerCountYear1: integer("partner_count_year1").notNull().default(3),
+  partnerCountYear2: integer("partner_count_year2").notNull().default(3),
+  partnerCountYear3: integer("partner_count_year3").notNull().default(3),
+  partnerCountYear4: integer("partner_count_year4").notNull().default(3),
+  partnerCountYear5: integer("partner_count_year5").notNull().default(3),
+  partnerCountYear6: integer("partner_count_year6").notNull().default(4),
+  partnerCountYear7: integer("partner_count_year7").notNull().default(4),
+  partnerCountYear8: integer("partner_count_year8").notNull().default(4),
+  partnerCountYear9: integer("partner_count_year9").notNull().default(4),
+  partnerCountYear10: integer("partner_count_year10").notNull().default(4),
+  
   staffSalary: real("staff_salary").notNull(),
   
   // Cost variables - Fixed overhead

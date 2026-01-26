@@ -477,6 +477,15 @@ export default function Portfolio() {
                   alt={property.name}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
+                <div className="absolute top-3 left-3">
+                  <Badge 
+                    data-testid={`badge-type-${property.id}`}
+                    variant={property.type === "Financed" ? "default" : "secondary"}
+                    className={property.type === "Financed" ? "bg-blue-600" : "bg-emerald-600 text-white"}
+                  >
+                    {property.type}
+                  </Badge>
+                </div>
                 <div className="absolute top-3 right-3">
                   <Badge variant={
                     property.status === "Operational" ? "default" :

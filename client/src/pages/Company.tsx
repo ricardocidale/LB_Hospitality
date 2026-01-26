@@ -7,13 +7,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
-import { Users, Briefcase, TrendingUp, Settings2, Loader2, ChevronRight, ChevronDown } from "lucide-react";
+import { Users, Briefcase, TrendingUp, Settings2, Loader2, ChevronRight, ChevronDown, FileDown } from "lucide-react";
 import { Link } from "wouter";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import { format } from "date-fns";
 
 export default function Company() {
   const { data: properties, isLoading: propertiesLoading } = useProperties();
   const { data: global, isLoading: globalLoading } = useGlobalAssumptions();
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+  const [activeTab, setActiveTab] = useState("income");
 
   const toggleRow = (rowId: string) => {
     setExpandedRows(prev => {
@@ -84,6 +89,286 @@ export default function Company() {
     const pf = propertyFinancials[propIdx].financials;
     const yearData = pf.slice(year * 12, (year + 1) * 12);
     return yearData.reduce((a, m) => a + m.gop, 0) * global.incentiveManagementFee;
+  };
+
+  const years = Array.from({ length: 10 }, (_, i) => modelStartYear + i);
+
+  const generateCompanyIncomeData = () => {
+    const rows: { category: string; values: number[]; isHeader?: boolean; indent?: number }[] = [];
+    
+    rows.push({ category: "Revenue", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return yearData.reduce((a, m) => a + m.totalRevenue, 0);
+    }), isHeader: true });
+    
+    rows.push({ category: "Base Management Fees", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return yearData.reduce((a, m) => a + m.baseFeeRevenue, 0);
+    }), indent: 1 });
+    
+    properties.forEach((prop, idx) => {
+      rows.push({ category: prop.name, values: years.map((_, y) => getPropertyYearlyBaseFee(idx, y)), indent: 2 });
+    });
+    
+    rows.push({ category: "Incentive Fees", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return yearData.reduce((a, m) => a + m.incentiveFeeRevenue, 0);
+    }), indent: 1 });
+    
+    properties.forEach((prop, idx) => {
+      rows.push({ category: prop.name, values: years.map((_, y) => getPropertyYearlyIncentiveFee(idx, y)), indent: 2 });
+    });
+    
+    rows.push({ category: "Operating Expenses", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return yearData.reduce((a, m) => a + m.totalExpenses, 0);
+    }), isHeader: true });
+    
+    rows.push({ category: "Partner Compensation", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return yearData.reduce((a, m) => a + m.partnerCompensation, 0);
+    }), indent: 1 });
+    
+    rows.push({ category: "Staff Salaries", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return yearData.reduce((a, m) => a + m.staffCompensation, 0);
+    }), indent: 1 });
+    
+    rows.push({ category: "Office Lease", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return yearData.reduce((a, m) => a + m.officeLease, 0);
+    }), indent: 1 });
+    
+    rows.push({ category: "Professional Services", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return yearData.reduce((a, m) => a + m.professionalServices, 0);
+    }), indent: 1 });
+    
+    rows.push({ category: "Insurance", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return yearData.reduce((a, m) => a + m.businessInsurance, 0);
+    }), indent: 1 });
+    
+    rows.push({ category: "Travel", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return yearData.reduce((a, m) => a + m.travelCosts, 0);
+    }), indent: 1 });
+    
+    rows.push({ category: "IT Licensing", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return yearData.reduce((a, m) => a + m.itLicensing, 0);
+    }), indent: 1 });
+    
+    rows.push({ category: "Marketing", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return yearData.reduce((a, m) => a + m.marketing, 0);
+    }), indent: 1 });
+    
+    rows.push({ category: "Misc Operations", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return yearData.reduce((a, m) => a + m.miscOps, 0);
+    }), indent: 1 });
+    
+    rows.push({ category: "Net Income", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return yearData.reduce((a, m) => a + m.netIncome, 0);
+    }), isHeader: true });
+    
+    return { years, rows };
+  };
+
+  const generateCompanyCashFlowData = () => {
+    const rows: { category: string; values: number[]; isHeader?: boolean; indent?: number }[] = [];
+    
+    rows.push({ category: "Cash Inflows", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return yearData.reduce((a, m) => a + m.totalRevenue + m.safeFunding, 0);
+    }), isHeader: true });
+    
+    rows.push({ category: "Management Fee Revenue", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return yearData.reduce((a, m) => a + m.totalRevenue, 0);
+    }), indent: 1 });
+    
+    rows.push({ category: "Base Management Fees", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return yearData.reduce((a, m) => a + m.baseFeeRevenue, 0);
+    }), indent: 2 });
+    
+    rows.push({ category: "Incentive Fees", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return yearData.reduce((a, m) => a + m.incentiveFeeRevenue, 0);
+    }), indent: 2 });
+    
+    rows.push({ category: "SAFE Funding", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return yearData.reduce((a, m) => a + m.safeFunding, 0);
+    }), indent: 1 });
+    
+    rows.push({ category: "Cash Outflows", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return -yearData.reduce((a, m) => a + m.totalExpenses, 0);
+    }), isHeader: true });
+    
+    rows.push({ category: "Partner Compensation", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return -yearData.reduce((a, m) => a + m.partnerCompensation, 0);
+    }), indent: 1 });
+    
+    rows.push({ category: "Staff Salaries", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return -yearData.reduce((a, m) => a + m.staffCompensation, 0);
+    }), indent: 1 });
+    
+    rows.push({ category: "Other Operating", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return -yearData.reduce((a, m) => a + m.officeLease + m.professionalServices + m.businessInsurance + m.travelCosts + m.itLicensing + m.marketing + m.miscOps, 0);
+    }), indent: 1 });
+    
+    rows.push({ category: "Net Cash Flow", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return yearData.reduce((a, m) => a + m.netIncome + m.safeFunding, 0);
+    }), isHeader: true });
+    
+    let cumCash = 0;
+    rows.push({ category: "Ending Cash Balance", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      cumCash += yearData.reduce((a, m) => a + m.netIncome + m.safeFunding, 0);
+      return cumCash;
+    }), isHeader: true });
+    
+    return { years, rows };
+  };
+
+  const generateCompanyBalanceData = () => {
+    const rows: { category: string; values: number[]; isHeader?: boolean; indent?: number }[] = [];
+    
+    let cumCash = 0;
+    const cashValues = years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      cumCash += yearData.reduce((a, m) => a + m.netIncome + m.safeFunding, 0);
+      return cumCash;
+    });
+    
+    let cumRetained = 0;
+    const retainedValues = years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      cumRetained += yearData.reduce((a, m) => a + m.netIncome, 0);
+      return cumRetained;
+    });
+    
+    let cumSafe = 0;
+    const safeValues = years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      cumSafe += yearData.reduce((a, m) => a + m.safeFunding, 0);
+      return cumSafe;
+    });
+    
+    rows.push({ category: "ASSETS", values: years.map(() => 0), isHeader: true });
+    rows.push({ category: "Cash & Cash Equivalents", values: cashValues, indent: 1 });
+    rows.push({ category: "TOTAL ASSETS", values: cashValues, isHeader: true });
+    
+    rows.push({ category: "LIABILITIES", values: years.map(() => 0), isHeader: true });
+    rows.push({ category: "SAFE Notes", values: safeValues, indent: 1 });
+    rows.push({ category: "TOTAL LIABILITIES", values: safeValues, isHeader: true });
+    
+    rows.push({ category: "EQUITY", values: years.map(() => 0), isHeader: true });
+    rows.push({ category: "Retained Earnings", values: retainedValues, indent: 1 });
+    rows.push({ category: "TOTAL EQUITY", values: retainedValues, isHeader: true });
+    
+    return { years, rows };
+  };
+
+  const exportCompanyPDF = (type: 'income' | 'cashflow' | 'balance') => {
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+    let data: { years: number[]; rows: any[] };
+    let title: string;
+    
+    switch (type) {
+      case 'income':
+        data = generateCompanyIncomeData();
+        title = 'Income Statement';
+        break;
+      case 'cashflow':
+        data = generateCompanyCashFlowData();
+        title = 'Cash Flow Statement';
+        break;
+      case 'balance':
+        data = generateCompanyBalanceData();
+        title = 'Balance Sheet';
+        break;
+    }
+    
+    doc.setFontSize(18);
+    doc.text(`L+B Hospitality Co. - ${title}`, 14, 15);
+    doc.setFontSize(10);
+    doc.text(`10-Year Projection (${data.years[0]} - ${data.years[9]})`, 14, 22);
+    doc.text(`Generated: ${format(new Date(), 'MMM d, yyyy')}`, 14, 27);
+    
+    const tableData = data.rows.map(row => [
+      (row.indent ? '  '.repeat(row.indent) : '') + row.category,
+      ...row.values.map((v: number) => {
+        if (v === 0 && row.isHeader && !row.category.includes('TOTAL')) return '';
+        if (v < 0) return `(${formatMoney(Math.abs(v))})`;
+        return formatMoney(v);
+      })
+    ]);
+    
+    autoTable(doc, {
+      head: [['Category', ...data.years.map(String)]],
+      body: tableData,
+      startY: 32,
+      styles: { fontSize: 7, cellPadding: 1.5 },
+      headStyles: { fillColor: [159, 188, 164], textColor: [0, 0, 0], fontStyle: 'bold' },
+      columnStyles: { 0: { cellWidth: 50 } },
+      didParseCell: (cellData) => {
+        if (cellData.section === 'body' && cellData.row.index !== undefined) {
+          const row = data.rows[cellData.row.index];
+          if (row?.isHeader) {
+            cellData.cell.styles.fontStyle = 'bold';
+            cellData.cell.styles.fillColor = [240, 240, 240];
+          }
+        }
+      }
+    });
+    
+    doc.save(`company-${type}.pdf`);
+  };
+
+  const exportCompanyCSV = (type: 'income' | 'cashflow' | 'balance') => {
+    let data: { years: number[]; rows: any[] };
+    
+    switch (type) {
+      case 'income':
+        data = generateCompanyIncomeData();
+        break;
+      case 'cashflow':
+        data = generateCompanyCashFlowData();
+        break;
+      case 'balance':
+        data = generateCompanyBalanceData();
+        break;
+    }
+    
+    const headers = ['Category', ...data.years.map(String)];
+    const csvRows = [
+      headers.join(','),
+      ...data.rows.map(row => [
+        `"${(row.indent ? '  '.repeat(row.indent) : '') + row.category}"`,
+        ...row.values.map((v: number) => v.toFixed(2))
+      ].join(','))
+    ];
+    
+    const csvContent = csvRows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `company-${type}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -159,12 +444,30 @@ export default function Company() {
           </CardContent>
         </Card>
 
-        <Tabs defaultValue="income" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 max-w-lg">
-            <TabsTrigger value="income">Income Statement</TabsTrigger>
-            <TabsTrigger value="cashflow">Cash Flows</TabsTrigger>
-            <TabsTrigger value="balance">Balance Sheet</TabsTrigger>
-          </TabsList>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <div className="flex items-center justify-between">
+            <TabsList className="grid w-full grid-cols-3 max-w-lg">
+              <TabsTrigger value="income">Income Statement</TabsTrigger>
+              <TabsTrigger value="cashflow">Cash Flows</TabsTrigger>
+              <TabsTrigger value="balance">Balance Sheet</TabsTrigger>
+            </TabsList>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <FileDown className="w-4 h-4 mr-2" />
+                  Export
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => exportCompanyPDF(activeTab as 'income' | 'cashflow' | 'balance')}>
+                  Download PDF
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => exportCompanyCSV(activeTab as 'income' | 'cashflow' | 'balance')}>
+                  Download CSV
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
           
           <TabsContent value="income" className="mt-6">
             <Card>

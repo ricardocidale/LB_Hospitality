@@ -284,12 +284,19 @@ export function generatePropertyProForma(
 }
 
 export function formatMoney(amount: number) {
-  return new Intl.NumberFormat('en-US', {
+  const isNegative = amount < 0;
+  const absAmount = Math.abs(amount);
+  const formatted = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(amount);
+  }).format(absAmount);
+  return isNegative ? `(${formatted})` : formatted;
+}
+
+export function isNegative(amount: number): boolean {
+  return amount < 0;
 }
 
 export function formatPercent(amount: number) {

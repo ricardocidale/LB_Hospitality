@@ -2618,6 +2618,71 @@ function InvestmentAnalysis({
     return flows;
   };
 
+  const getConsolidatedYearlyDetails = (yearIndex: number) => {
+    let totalNOI = 0;
+    let totalDebtService = 0;
+    let totalInterest = 0;
+    let totalPrincipal = 0;
+    let totalDepreciation = 0;
+    let totalBTCF = 0;
+    let totalTaxableIncome = 0;
+    let totalTaxLiability = 0;
+    let totalATCF = 0;
+
+    properties.forEach((prop, idx) => {
+      const details = getPropertyYearlyDetails(prop, idx, yearIndex);
+      totalNOI += details.noi;
+      totalDebtService += details.debtService;
+      totalInterest += details.interestPortion;
+      totalPrincipal += details.principalPortion;
+      totalDepreciation += details.depreciation;
+      totalBTCF += details.btcf;
+      totalTaxableIncome += details.taxableIncome;
+      totalTaxLiability += details.taxLiability;
+      totalATCF += details.atcf;
+    });
+
+    return {
+      noi: totalNOI,
+      debtService: totalDebtService,
+      interestPortion: totalInterest,
+      principalPortion: totalPrincipal,
+      depreciation: totalDepreciation,
+      btcf: totalBTCF,
+      taxableIncome: totalTaxableIncome,
+      taxLiability: totalTaxLiability,
+      atcf: totalATCF
+    };
+  };
+
+  const getConsolidatedCashFlows = (): number[] => {
+    const flows: number[] = [];
+    const year0Investment = getEquityInvestmentForYear(0);
+    flows.push(-year0Investment);
+    
+    for (let y = 0; y < 10; y++) {
+      const consolidated = getConsolidatedYearlyDetails(y);
+      let yearCashFlow = consolidated.atcf;
+      
+      const yearInvestment = getEquityInvestmentForYear(y + 1);
+      if (yearInvestment > 0) yearCashFlow -= yearInvestment;
+      
+      properties.forEach((prop, idx) => {
+        const refi = getPropertyRefinanceProceeds(prop, idx);
+        if (y === refi.year) {
+          yearCashFlow += refi.proceeds;
+        }
+        
+        if (y === 9) {
+          yearCashFlow += getPropertyExitValue(prop, idx);
+        }
+      });
+      
+      flows.push(yearCashFlow);
+    }
+    return flows;
+  };
+
   const consolidatedFlowsIA = getConsolidatedCashFlows();
   const portfolioIRRIA = calculateIRR(consolidatedFlowsIA);
   
@@ -2992,7 +3057,7 @@ function InvestmentAnalysis({
                 <TableCell className="text-right text-muted-foreground">-</TableCell>
                 {Array.from({ length: 10 }, (_, y) => (
                   <TableCell key={y} className={`text-right ${y !== 9 ? 'text-muted-foreground' : ''}`}>
-                    {y === 9 ? formatMoney(totalExitValue) : '-'}
+                    {y === 9 ? formatMoney(totalExitValueIA) : '-'}
                   </TableCell>
                 ))}
               </TableRow>

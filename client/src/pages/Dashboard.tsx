@@ -244,10 +244,13 @@ export default function Dashboard() {
     const year10Data = financials.slice(108, 120);
     const year10NOI = year10Data.reduce((a: number, m: any) => a + m.noi, 0);
     const capRate = prop.exitCapRate || 0.085;
-    const propertyValue = year10NOI / capRate;
+    const grossValue = year10NOI / capRate;
+    const commissionRate = global.commissionRate || 0.05;
+    const commission = grossValue * commissionRate;
+    const netValue = grossValue - commission;
     
     const loanAmount = getPropertyLoanAmount(prop);
-    if (loanAmount <= 0) return propertyValue;
+    if (loanAmount <= 0) return netValue;
     
     const annualRate = prop.acquisitionInterestRate || global.debtAssumptions.interestRate || 0.09;
     const r = annualRate / 12;
@@ -262,7 +265,7 @@ export default function Dashboard() {
       remainingBalance -= principalPayment;
     }
     
-    return propertyValue - Math.max(0, remainingBalance);
+    return netValue - Math.max(0, remainingBalance);
   };
 
   const getPropertyYearlyDetails = (prop: any, propIndex: number, yearIndex: number) => {
@@ -2487,9 +2490,12 @@ function InvestmentAnalysis({
     const year10NOI = year10Data.reduce((a: number, m: any) => a + m.noi, 0);
     const capRate = prop.exitCapRate || 0.085;
     const grossValue = year10NOI / capRate;
+    const commissionRate = global.commissionRate || 0.05;
+    const commission = grossValue * commissionRate;
+    const netValue = grossValue - commission;
     const outstandingDebt = getTotalOutstandingDebt(prop, propIndex, 9);
     
-    return grossValue - outstandingDebt;
+    return netValue - outstandingDebt;
   };
 
   const getPropertyYearlyDetails = (prop: any, propIndex: number, yearIndex: number) => {

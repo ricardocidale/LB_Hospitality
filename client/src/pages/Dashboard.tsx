@@ -174,7 +174,7 @@ export default function Dashboard() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Projected Revenue (Y1)</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Projected Revenue ({getCalendarYear(1)})</CardTitle>
               <Wallet className="w-4 h-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -214,7 +214,7 @@ export default function Dashboard() {
           
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Management Fees (Y1)</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Management Fees ({getCalendarYear(1)})</CardTitle>
               <Users className="w-4 h-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -1506,7 +1506,7 @@ function InvestmentAnalysis({
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
               Exit Value ({modelStartYear + 9})
-              <HelpTooltip text="Projected sale value of all properties at Year 10, calculated as NOI ÷ Exit Cap Rate, minus any outstanding debt at time of sale." />
+              <HelpTooltip text={`Projected sale value of all properties at ${getCalendarYear(10)}, calculated as NOI ÷ Exit Cap Rate, minus any outstanding debt at time of sale.`} />
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -1906,7 +1906,7 @@ function InvestmentAnalysis({
                 <TableHead className="text-right">Equity Investment</TableHead>
                 <TableHead className="text-right">Tax Rate</TableHead>
                 <TableHead className="text-right">Exit Cap Rate</TableHead>
-                <TableHead className="text-right">Exit Value (Y10)</TableHead>
+                <TableHead className="text-right">Exit Value ({getCalendarYear(10)})</TableHead>
                 <TableHead className="text-right">Total Distributions</TableHead>
                 <TableHead className="text-right">Equity Multiple</TableHead>
                 <TableHead className="text-right">IRR</TableHead>

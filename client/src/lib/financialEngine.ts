@@ -74,6 +74,7 @@ interface PropertyInput {
 
 interface GlobalInput {
   modelStartDate: string;
+  companyOpsStartDate?: string;
   fiscalYearStartMonth?: number; // 1 = January, 4 = April, etc.
   inflationRate: number;
   fixedCostEscalationRate?: number;
@@ -383,6 +384,7 @@ export function generateCompanyProForma(
   const startParsed = parseDateString(global.modelStartDate);
   const tranche1Parsed = global.safeTranche1Date ? parseDateString(global.safeTranche1Date) : startParsed;
   const tranche2Parsed = global.safeTranche2Date ? parseDateString(global.safeTranche2Date) : null;
+  const opsStartParsed = global.companyOpsStartDate ? parseDateString(global.companyOpsStartDate) : startParsed;
   
   const propertyFinancials = properties.map(p => generatePropertyProForma(p, global, months));
   
@@ -396,6 +398,10 @@ export function generateCompanyProForma(
     const fixedEscalationRate = global.fixedCostEscalationRate ?? global.inflationRate;
     const fixedCostFactor = Math.pow(1 + fixedEscalationRate, year);
     const variableCostFactor = Math.pow(1 + global.inflationRate, year);
+    
+    // Check if company has started operations
+    const opsStartDate = new Date(opsStartParsed.year, opsStartParsed.month, 1);
+    const hasStartedOps = currentDate >= opsStartDate;
     
     let totalPropertyRevenue = 0;
     let totalPropertyGOP = 0;
@@ -414,27 +420,41 @@ export function generateCompanyProForma(
     const incentiveFeeRevenue = totalPropertyGOP * global.incentiveManagementFee;
     const totalRevenue = baseFeeRevenue + incentiveFeeRevenue;
     
-    const partnerMonthlyStart = (global.partnerSalary ?? 240000) / 12;
-    const partnerMonthlyMax = 30000;
-    const partnerEscalationRate = global.inflationRate + 0.10;
-    const partnerEscalatedMonthly = Math.min(
-      partnerMonthlyStart * Math.pow(1 + partnerEscalationRate, year),
-      partnerMonthlyMax
-    );
-    const staffSalary = (global.staffSalary ?? 75000);
-    const staffFTE = activePropertyCount <= 3 ? 2.5 : activePropertyCount <= 6 ? 4.5 : 7.0;
+    // Only incur expenses after company operations start
+    let partnerCompensation = 0;
+    let staffCompensation = 0;
+    let officeLease = 0;
+    let professionalServices = 0;
+    let techInfrastructure = 0;
+    let businessInsurance = 0;
+    let travelCosts = 0;
+    let itLicensing = 0;
+    let marketing = 0;
+    let miscOps = 0;
     
-    const partnerCompensation = 3 * partnerEscalatedMonthly;
-    const staffCompensation = (staffFTE * staffSalary * fixedCostFactor) / 12;
-    const officeLease = ((global.officeLeaseStart ?? 36000) * fixedCostFactor) / 12;
-    const professionalServices = ((global.professionalServicesStart ?? 24000) * fixedCostFactor) / 12;
-    const techInfrastructure = ((global.techInfraStart ?? 18000) * fixedCostFactor) / 12;
-    const businessInsurance = ((global.businessInsuranceStart ?? 12000) * fixedCostFactor) / 12;
-    
-    const travelCosts = (activePropertyCount * (global.travelCostPerClient ?? 12000) * variableCostFactor) / 12;
-    const itLicensing = (activePropertyCount * (global.itLicensePerClient ?? 3000) * variableCostFactor) / 12;
-    const marketing = totalRevenue * (global.marketingRate ?? 0.05);
-    const miscOps = totalRevenue * (global.miscOpsRate ?? 0.03);
+    if (hasStartedOps) {
+      const partnerMonthlyStart = (global.partnerSalary ?? 240000) / 12;
+      const partnerMonthlyMax = 30000;
+      const partnerEscalationRate = global.inflationRate + 0.10;
+      const partnerEscalatedMonthly = Math.min(
+        partnerMonthlyStart * Math.pow(1 + partnerEscalationRate, year),
+        partnerMonthlyMax
+      );
+      const staffSalary = (global.staffSalary ?? 75000);
+      const staffFTE = activePropertyCount <= 3 ? 2.5 : activePropertyCount <= 6 ? 4.5 : 7.0;
+      
+      partnerCompensation = 3 * partnerEscalatedMonthly;
+      staffCompensation = (staffFTE * staffSalary * fixedCostFactor) / 12;
+      officeLease = ((global.officeLeaseStart ?? 36000) * fixedCostFactor) / 12;
+      professionalServices = ((global.professionalServicesStart ?? 24000) * fixedCostFactor) / 12;
+      techInfrastructure = ((global.techInfraStart ?? 18000) * fixedCostFactor) / 12;
+      businessInsurance = ((global.businessInsuranceStart ?? 12000) * fixedCostFactor) / 12;
+      
+      travelCosts = (activePropertyCount * (global.travelCostPerClient ?? 12000) * variableCostFactor) / 12;
+      itLicensing = (activePropertyCount * (global.itLicensePerClient ?? 3000) * variableCostFactor) / 12;
+      marketing = totalRevenue * (global.marketingRate ?? 0.05);
+      miscOps = totalRevenue * (global.miscOpsRate ?? 0.03);
+    }
     
     const totalExpenses = partnerCompensation + staffCompensation + officeLease + professionalServices +
       techInfrastructure + businessInsurance + travelCosts + itLicensing + marketing + miscOps;

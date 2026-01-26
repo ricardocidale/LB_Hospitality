@@ -7,11 +7,80 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
-import { Users, Briefcase, TrendingUp, Settings2, Loader2, ChevronRight, ChevronDown, FileDown } from "lucide-react";
+import { Users, Briefcase, TrendingUp, Settings2, Loader2, ChevronRight, ChevronDown, FileDown, AlertTriangle, CheckCircle } from "lucide-react";
 import { Link } from "wouter";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { format } from "date-fns";
+import { CompanyMonthlyFinancials } from "@/lib/financialEngine";
+
+interface CompanyCashAnalysis {
+  totalSafeFunding: number;
+  minCashPosition: number;
+  minCashMonth: number | null;
+  shortfall: number;
+  isAdequate: boolean;
+  suggestedAdditionalFunding: number;
+}
+
+function analyzeCompanyCashPosition(financials: CompanyMonthlyFinancials[]): CompanyCashAnalysis {
+  if (!financials || financials.length === 0) {
+    return {
+      totalSafeFunding: 0,
+      minCashPosition: 0,
+      minCashMonth: null,
+      shortfall: 0,
+      isAdequate: true,
+      suggestedAdditionalFunding: 0
+    };
+  }
+
+  let cashPosition = 0;
+  let minCashPosition = 0;
+  let minCashMonth: number | null = null;
+  let totalSafe = 0;
+  let hasActivity = false;
+
+  for (let i = 0; i < financials.length; i++) {
+    const month = financials[i];
+    totalSafe += month.safeFunding;
+    
+    if (month.netIncome !== 0 || month.safeFunding !== 0 || month.totalExpenses !== 0) {
+      hasActivity = true;
+    }
+    
+    cashPosition += month.netIncome + month.safeFunding;
+    
+    if (cashPosition < minCashPosition) {
+      minCashPosition = cashPosition;
+      minCashMonth = i + 1;
+    }
+  }
+
+  if (!hasActivity) {
+    return {
+      totalSafeFunding: 0,
+      minCashPosition: 0,
+      minCashMonth: null,
+      shortfall: 0,
+      isAdequate: true,
+      suggestedAdditionalFunding: 0
+    };
+  }
+
+  const shortfall = minCashPosition < 0 ? Math.abs(minCashPosition) : 0;
+  const isAdequate = minCashPosition >= 0;
+  const suggestedAdditionalFunding = isAdequate ? 0 : Math.ceil(shortfall / 50000) * 50000 + 100000;
+
+  return {
+    totalSafeFunding: totalSafe,
+    minCashPosition,
+    minCashMonth,
+    shortfall,
+    isAdequate,
+    suggestedAdditionalFunding
+  };
+}
 
 export default function Company() {
   const { data: properties, isLoading: propertiesLoading } = useProperties();
@@ -54,6 +123,8 @@ export default function Company() {
   const fiscalYearStartMonth = global.fiscalYearStartMonth ?? 1;
   const getFiscalYear = (yearIndex: number) => getFiscalYearForModelYear(global.modelStartDate, fiscalYearStartMonth, yearIndex);
   const financials = generateCompanyProForma(properties, global, 120);
+  
+  const cashAnalysis = analyzeCompanyCashPosition(financials);
   
   const propertyFinancials = properties.map(p => ({
     property: p,
@@ -514,6 +585,46 @@ export default function Company() {
             </div>
           </CardContent>
         </Card>
+
+        {!cashAnalysis.isAdequate ? (
+          <Card className="border-destructive/50 bg-destructive/5">
+            <CardContent className="pt-6">
+              <div data-testid="banner-company-cash-warning" className="flex items-start gap-3">
+                <AlertTriangle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+                <div className="text-sm">
+                  <p data-testid="text-company-cash-warning-title" className="font-semibold text-destructive">Additional Funding Required</p>
+                  <p className="text-muted-foreground mt-1">
+                    The current SAFE funding of <span className="font-medium">{formatMoney(cashAnalysis.totalSafeFunding)}</span> is insufficient to cover operating expenses.
+                    Monthly cash position drops to <span className="font-medium text-destructive">{formatMoney(cashAnalysis.minCashPosition)}</span>
+                    {cashAnalysis.minCashMonth !== null && <> in month <span className="font-medium">{cashAnalysis.minCashMonth}</span></>}.
+                  </p>
+                  <p className="text-muted-foreground mt-1">
+                    <span className="font-medium">Suggested:</span> Increase SAFE funding by at least{' '}
+                    <span className="font-semibold text-foreground">{formatMoney(cashAnalysis.suggestedAdditionalFunding)}</span> in{' '}
+                    <Link href="/company/assumptions" className="font-medium text-primary hover:underline">Company Assumptions → SAFE Funding</Link>.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="border-accent/50 bg-accent/5">
+            <CardContent className="pt-6">
+              <div data-testid="banner-company-cash-adequate" className="flex items-start gap-3">
+                <CheckCircle className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
+                <div className="text-sm">
+                  <p data-testid="text-company-cash-adequate-title" className="font-semibold text-accent">Cash Position Adequate</p>
+                  <p className="text-muted-foreground mt-1">
+                    The SAFE funding of <span className="font-medium">{formatMoney(cashAnalysis.totalSafeFunding)}</span> covers all operating costs.
+                    {cashAnalysis.minCashMonth !== null && (
+                      <> Minimum cash position: <span className="font-medium">{formatMoney(cashAnalysis.minCashPosition)}</span> (month {cashAnalysis.minCashMonth}).</>
+                    )}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div className="flex items-center justify-between">

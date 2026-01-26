@@ -216,114 +216,114 @@ export default function Dashboard() {
           <TabsContent value="overview" className="space-y-6">
             {/* Portfolio Metrics - Row 1 */}
             <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-              <Card>
+              <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20">
                 <CardContent className="p-4">
-                  <p className="text-sm text-muted-foreground">Properties</p>
-                  <p className="text-2xl font-bold mt-1">{totalProperties}</p>
+                  <p className="text-sm text-primary-foreground/80">Properties</p>
+                  <p className="text-2xl font-bold mt-1 text-primary-foreground">{totalProperties}</p>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20">
                 <CardContent className="p-4">
-                  <p className="text-sm text-muted-foreground">Total Rooms</p>
-                  <p className="text-2xl font-bold mt-1">{totalRooms}</p>
+                  <p className="text-sm text-primary-foreground/80">Total Rooms</p>
+                  <p className="text-2xl font-bold mt-1 text-primary-foreground">{totalRooms}</p>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20">
                 <CardContent className="p-4">
-                  <p className="text-sm text-muted-foreground">Avg Rooms/Property</p>
-                  <p className="text-2xl font-bold mt-1">{avgRoomsPerProperty.toFixed(0)}</p>
+                  <p className="text-sm text-primary-foreground/80">Avg Rooms/Property</p>
+                  <p className="text-2xl font-bold mt-1 text-primary-foreground">{avgRoomsPerProperty.toFixed(0)}</p>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20">
                 <CardContent className="p-4">
-                  <p className="text-sm text-muted-foreground">Hold Period</p>
-                  <p className="text-2xl font-bold mt-1">{investmentHorizon} Years</p>
+                  <p className="text-sm text-primary-foreground/80">Hold Period</p>
+                  <p className="text-2xl font-bold mt-1 text-primary-foreground">{investmentHorizon} Years</p>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20">
                 <CardContent className="p-4">
-                  <p className="text-sm text-muted-foreground">Markets</p>
-                  <p className="text-2xl font-bold mt-1">{Object.keys(marketCounts).length}</p>
+                  <p className="text-sm text-primary-foreground/80">Markets</p>
+                  <p className="text-2xl font-bold mt-1 text-primary-foreground">{Object.keys(marketCounts).length}</p>
                 </CardContent>
               </Card>
             </div>
 
             {/* Investment Metrics - Row 2 */}
             <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-              <Card>
+              <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20">
                 <CardContent className="p-4">
-                  <p className="text-sm text-muted-foreground">Total Investment</p>
-                  <p className="text-2xl font-bold mt-1">{formatMoney(totalInvestment)}</p>
+                  <p className="text-sm text-primary-foreground/80">Total Investment</p>
+                  <p className="text-2xl font-bold mt-1 text-primary-foreground">{formatMoney(totalInvestment)}</p>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20">
                 <CardContent className="p-4">
-                  <p className="text-sm text-muted-foreground">Avg Purchase Price</p>
-                  <p className="text-2xl font-bold mt-1">{formatMoney(avgPurchasePrice)}</p>
+                  <p className="text-sm text-primary-foreground/80">Avg Purchase Price</p>
+                  <p className="text-2xl font-bold mt-1 text-primary-foreground">{formatMoney(avgPurchasePrice)}</p>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20">
                 <CardContent className="p-4">
-                  <p className="text-sm text-muted-foreground">Avg Daily Rate</p>
-                  <p className="text-2xl font-bold mt-1">{formatMoney(avgADR)}</p>
+                  <p className="text-sm text-primary-foreground/80">Avg Daily Rate</p>
+                  <p className="text-2xl font-bold mt-1 text-primary-foreground">{formatMoney(avgADR)}</p>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20">
                 <CardContent className="p-4">
-                  <p className="text-sm text-muted-foreground">Avg Exit Cap Rate</p>
-                  <p className="text-2xl font-bold mt-1">{(avgExitCapRate * 100).toFixed(1)}%</p>
+                  <p className="text-sm text-primary-foreground/80">Avg Exit Cap Rate</p>
+                  <p className="text-2xl font-bold mt-1 text-primary-foreground">{(avgExitCapRate * 100).toFixed(1)}%</p>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20">
                 <CardContent className="p-4">
-                  <p className="text-sm text-muted-foreground">Exit Value ({modelStartYear + 9})</p>
-                  <p className="text-2xl font-bold mt-1">{formatMoney(projectedExitValue)}</p>
+                  <p className="text-sm text-primary-foreground/80">Exit Value ({modelStartYear + 9})</p>
+                  <p className="text-2xl font-bold mt-1 text-primary-foreground">{formatMoney(projectedExitValue)}</p>
                 </CardContent>
               </Card>
             </div>
 
             {/* 10-Year Projections - Row 3 */}
             <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-              <Card>
+              <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20">
                 <CardContent className="p-4">
-                  <p className="text-sm text-muted-foreground">10-Year Revenue</p>
-                  <p className="text-2xl font-bold mt-1">{formatMoney(total10YearRevenue)}</p>
+                  <p className="text-sm text-primary-foreground/80">10-Year Revenue</p>
+                  <p className="text-2xl font-bold mt-1 text-primary-foreground">{formatMoney(total10YearRevenue)}</p>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20">
                 <CardContent className="p-4">
-                  <p className="text-sm text-muted-foreground">10-Year NOI</p>
-                  <p className="text-2xl font-bold mt-1">{formatMoney(total10YearNOI)}</p>
+                  <p className="text-sm text-primary-foreground/80">10-Year NOI</p>
+                  <p className="text-2xl font-bold mt-1 text-primary-foreground">{formatMoney(total10YearNOI)}</p>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20">
                 <CardContent className="p-4">
-                  <p className="text-sm text-muted-foreground">10-Year Cash Flow</p>
-                  <p className="text-2xl font-bold mt-1">{formatMoney(total10YearCashFlow)}</p>
+                  <p className="text-sm text-primary-foreground/80">10-Year Cash Flow</p>
+                  <p className="text-2xl font-bold mt-1 text-primary-foreground">{formatMoney(total10YearCashFlow)}</p>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20">
                 <CardContent className="p-4">
-                  <p className="text-sm text-muted-foreground">Year 1 Revenue</p>
-                  <p className="text-2xl font-bold mt-1">{formatMoney(portfolioTotalRevenue)}</p>
+                  <p className="text-sm text-primary-foreground/80">Year 1 Revenue</p>
+                  <p className="text-2xl font-bold mt-1 text-primary-foreground">{formatMoney(portfolioTotalRevenue)}</p>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20">
                 <CardContent className="p-4">
-                  <p className="text-sm text-muted-foreground">Year 1 GOP Margin</p>
-                  <p className="text-2xl font-bold mt-1">{portfolioTotalRevenue > 0 ? ((portfolioTotalGOP / portfolioTotalRevenue) * 100).toFixed(1) : '0'}%</p>
+                  <p className="text-sm text-primary-foreground/80">Year 1 GOP Margin</p>
+                  <p className="text-2xl font-bold mt-1 text-primary-foreground">{portfolioTotalRevenue > 0 ? ((portfolioTotalGOP / portfolioTotalRevenue) * 100).toFixed(1) : '0'}%</p>
                 </CardContent>
               </Card>
             </div>

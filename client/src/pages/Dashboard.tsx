@@ -714,7 +714,49 @@ export default function Dashboard() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="cashflow" className="mt-6">
+          <TabsContent value="cashflow" className="mt-6 space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Portfolio Cash Flow Trends</CardTitle>
+                <p className="text-sm text-muted-foreground">NOI, Debt Service, and After-Tax Cash Flow over 10 years</p>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart
+                    data={Array.from({ length: 10 }, (_, i) => {
+                      const yearly = getYearlyConsolidated(i);
+                      return {
+                        year: getCalendarYear(i),
+                        NOI: yearly.noi,
+                        'Debt Service': yearly.debtService,
+                        'After-Tax Cash Flow': yearly.afterTaxCashFlow
+                      };
+                    })}
+                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis dataKey="year" stroke="hsl(var(--muted-foreground))" />
+                    <YAxis 
+                      stroke="hsl(var(--muted-foreground))" 
+                      tickFormatter={(value) => `$${(value / 1000000).toFixed(1)}M`}
+                    />
+                    <Tooltip 
+                      formatter={(value: number) => formatMoney(value)}
+                      contentStyle={{ 
+                        backgroundColor: 'hsl(var(--card))', 
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '8px'
+                      }}
+                    />
+                    <Legend />
+                    <Line type="monotone" dataKey="NOI" stroke="#9FBCA4" strokeWidth={2} dot={{ fill: '#9FBCA4' }} />
+                    <Line type="monotone" dataKey="Debt Service" stroke="#e57373" strokeWidth={2} dot={{ fill: '#e57373' }} />
+                    <Line type="monotone" dataKey="After-Tax Cash Flow" stroke="#257D41" strokeWidth={2} dot={{ fill: '#257D41' }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
             <Card>
               <CardHeader>
                 <CardTitle>Consolidated Portfolio Cash Flow Statement (10-Year)</CardTitle>
@@ -726,7 +768,7 @@ export default function Dashboard() {
                     <TableRow>
                       <TableHead className="sticky left-0 bg-card min-w-[200px]">Category</TableHead>
                       {Array.from({ length: 10 }, (_, i) => (
-                        <TableHead key={i} className="text-right min-w-[110px]">Year {i + 1}</TableHead>
+                        <TableHead key={i} className="text-right min-w-[110px]">{getCalendarYear(i)}</TableHead>
                       ))}
                     </TableRow>
                   </TableHeader>

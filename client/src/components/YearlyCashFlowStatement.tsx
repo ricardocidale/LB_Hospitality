@@ -1,7 +1,8 @@
-import { MonthlyFinancials, formatMoney } from "@/lib/financialEngine";
+import { MonthlyFinancials } from "@/lib/financialEngine";
 import { Card } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import { Money } from "@/components/Money";
 
 interface Props {
   data: MonthlyFinancials[];
@@ -88,22 +89,22 @@ export function YearlyCashFlowStatement({ data, property, years = 5, startYear =
             <TableRow>
               <TableCell className="pl-6">Net Operating Income</TableCell>
               {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right">{formatMoney(y.noi)}</TableCell>
+                <TableCell key={y.year} className="text-right"><Money amount={y.noi} /></TableCell>
               ))}
             </TableRow>
             <TableRow>
               <TableCell className="pl-6">Less: Debt Service</TableCell>
               {yearlyData.map((y) => (
                 <TableCell key={y.year} className="text-right text-muted-foreground">
-                  {y.debtService > 0 ? `(${formatMoney(y.debtService)})` : '-'}
+                  {y.debtService > 0 ? <Money amount={-y.debtService} /> : '-'}
                 </TableCell>
               ))}
             </TableRow>
             <TableRow className="bg-primary/10 font-bold">
               <TableCell>Net Cash from Operations</TableCell>
               {yearlyData.map((y) => (
-                <TableCell key={y.year} className={cn("text-right", y.cashFlowFromOperations < 0 ? "text-destructive" : "")}>
-                  {formatMoney(y.cashFlowFromOperations)}
+                <TableCell key={y.year} className="text-right">
+                  <Money amount={y.cashFlowFromOperations} />
                 </TableCell>
               ))}
             </TableRow>
@@ -117,7 +118,7 @@ export function YearlyCashFlowStatement({ data, property, years = 5, startYear =
               <TableCell className="pl-6">Initial Equity Investment</TableCell>
               {yearlyData.map((y) => (
                 <TableCell key={y.year} className="text-right text-muted-foreground">
-                  {y.capitalExpenditures < 0 ? `(${formatMoney(Math.abs(y.capitalExpenditures))})` : '-'}
+                  {y.capitalExpenditures < 0 ? <Money amount={y.capitalExpenditures} /> : '-'}
                 </TableCell>
               ))}
             </TableRow>
@@ -127,8 +128,8 @@ export function YearlyCashFlowStatement({ data, property, years = 5, startYear =
             <TableRow className="bg-accent/10 font-bold">
               <TableCell>Net Cash Flow</TableCell>
               {yearlyData.map((y) => (
-                <TableCell key={y.year} className={cn("text-right", y.netCashFlow < 0 ? "text-destructive" : "text-accent")}>
-                  {formatMoney(y.netCashFlow)}
+                <TableCell key={y.year} className={cn("text-right", y.netCashFlow >= 0 && "text-accent")}>
+                  <Money amount={y.netCashFlow} />
                 </TableCell>
               ))}
             </TableRow>
@@ -136,8 +137,8 @@ export function YearlyCashFlowStatement({ data, property, years = 5, startYear =
             <TableRow className="bg-gradient-to-r from-primary/80 via-primary/60 to-primary/40 backdrop-blur-sm font-bold text-primary-foreground shadow-sm">
               <TableCell>Cumulative Cash Flow</TableCell>
               {yearlyData.map((y) => (
-                <TableCell key={y.year} className={cn("text-right", y.cumulativeCashFlow < 0 ? "text-red-200" : "")}>
-                  {formatMoney(y.cumulativeCashFlow)}
+                <TableCell key={y.year} className="text-right">
+                  <Money amount={y.cumulativeCashFlow} className={y.cumulativeCashFlow < 0 ? "text-red-200" : ""} />
                 </TableCell>
               ))}
             </TableRow>

@@ -1,6 +1,7 @@
-import { MonthlyFinancials, formatMoney } from "@/lib/financialEngine";
+import { MonthlyFinancials } from "@/lib/financialEngine";
 import { Card } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Money } from "@/components/Money";
 
 interface Props {
   data: MonthlyFinancials[];
@@ -93,31 +94,31 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026 }: Pro
             <TableRow>
               <TableCell className="pl-6">Room Revenue</TableCell>
               {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right">{formatMoney(y.revenueRooms)}</TableCell>
+                <TableCell key={y.year} className="text-right"><Money amount={y.revenueRooms} /></TableCell>
               ))}
             </TableRow>
             <TableRow>
               <TableCell className="pl-6">Food & Beverage</TableCell>
               {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right">{formatMoney(y.revenueFB)}</TableCell>
+                <TableCell key={y.year} className="text-right"><Money amount={y.revenueFB} /></TableCell>
               ))}
             </TableRow>
             <TableRow>
               <TableCell className="pl-6">Events & Functions</TableCell>
               {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right">{formatMoney(y.revenueEvents)}</TableCell>
+                <TableCell key={y.year} className="text-right"><Money amount={y.revenueEvents} /></TableCell>
               ))}
             </TableRow>
             <TableRow>
               <TableCell className="pl-6">Other Revenue</TableCell>
               {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right">{formatMoney(y.revenueOther)}</TableCell>
+                <TableCell key={y.year} className="text-right"><Money amount={y.revenueOther} /></TableCell>
               ))}
             </TableRow>
             <TableRow className="bg-primary/10 font-bold">
               <TableCell>Total Revenue</TableCell>
               {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right text-primary">{formatMoney(y.revenueTotal)}</TableCell>
+                <TableCell key={y.year} className="text-right text-primary"><Money amount={y.revenueTotal} /></TableCell>
               ))}
             </TableRow>
 
@@ -129,67 +130,67 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026 }: Pro
             <TableRow>
               <TableCell className="pl-6">Rooms Department</TableCell>
               {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right">{formatMoney(y.expenseRooms)}</TableCell>
+                <TableCell key={y.year} className="text-right"><Money amount={y.expenseRooms} /></TableCell>
               ))}
             </TableRow>
             <TableRow>
               <TableCell className="pl-6">Food & Beverage</TableCell>
               {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right">{formatMoney(y.expenseFB)}</TableCell>
+                <TableCell key={y.year} className="text-right"><Money amount={y.expenseFB} /></TableCell>
               ))}
             </TableRow>
             <TableRow>
               <TableCell className="pl-6">Events & Functions</TableCell>
               {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right">{formatMoney(y.expenseEvents)}</TableCell>
+                <TableCell key={y.year} className="text-right"><Money amount={y.expenseEvents} /></TableCell>
               ))}
             </TableRow>
             <TableRow>
               <TableCell className="pl-6">Other Departments</TableCell>
               {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right">{formatMoney(y.expenseOther)}</TableCell>
+                <TableCell key={y.year} className="text-right"><Money amount={y.expenseOther} /></TableCell>
               ))}
             </TableRow>
             <TableRow>
               <TableCell className="pl-6">Sales & Marketing</TableCell>
               {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right">{formatMoney(y.expenseMarketing)}</TableCell>
+                <TableCell key={y.year} className="text-right"><Money amount={y.expenseMarketing} /></TableCell>
               ))}
             </TableRow>
             <TableRow>
               <TableCell className="pl-6">Property Operations</TableCell>
               {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right">{formatMoney(y.expensePropertyOps)}</TableCell>
+                <TableCell key={y.year} className="text-right"><Money amount={y.expensePropertyOps} /></TableCell>
               ))}
             </TableRow>
             <TableRow>
               <TableCell className="pl-6">Utilities</TableCell>
               {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right">{formatMoney(y.expenseUtilities)}</TableCell>
+                <TableCell key={y.year} className="text-right"><Money amount={y.expenseUtilities} /></TableCell>
               ))}
             </TableRow>
             <TableRow>
               <TableCell className="pl-6">Administrative & General</TableCell>
               {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right">{formatMoney(y.expenseAdmin)}</TableCell>
+                <TableCell key={y.year} className="text-right"><Money amount={y.expenseAdmin} /></TableCell>
               ))}
             </TableRow>
             <TableRow>
               <TableCell className="pl-6">IT & Technology</TableCell>
               {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right">{formatMoney(y.expenseIT)}</TableCell>
+                <TableCell key={y.year} className="text-right"><Money amount={y.expenseIT} /></TableCell>
               ))}
             </TableRow>
             <TableRow>
               <TableCell className="pl-6">Insurance</TableCell>
               {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right">{formatMoney(y.expenseInsurance)}</TableCell>
+                <TableCell key={y.year} className="text-right"><Money amount={y.expenseInsurance} /></TableCell>
               ))}
             </TableRow>
             <TableRow>
               <TableCell className="pl-6">Property Taxes</TableCell>
               {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right">{formatMoney(y.expenseTaxes)}</TableCell>
+                <TableCell key={y.year} className="text-right"><Money amount={y.expenseTaxes} /></TableCell>
               ))}
             </TableRow>
 
@@ -198,7 +199,7 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026 }: Pro
             <TableRow className="bg-accent/10 font-bold">
               <TableCell>Gross Operating Profit (GOP)</TableCell>
               {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right text-accent">{formatMoney(y.gop)}</TableCell>
+                <TableCell key={y.year} className="text-right text-accent"><Money amount={y.gop} /></TableCell>
               ))}
             </TableRow>
 
@@ -210,19 +211,19 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026 }: Pro
             <TableRow>
               <TableCell className="pl-6">Base Management Fee</TableCell>
               {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right">{formatMoney(y.feeBase)}</TableCell>
+                <TableCell key={y.year} className="text-right"><Money amount={y.feeBase} /></TableCell>
               ))}
             </TableRow>
             <TableRow>
               <TableCell className="pl-6">Incentive Management Fee</TableCell>
               {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right">{formatMoney(y.feeIncentive)}</TableCell>
+                <TableCell key={y.year} className="text-right"><Money amount={y.feeIncentive} /></TableCell>
               ))}
             </TableRow>
             <TableRow>
               <TableCell className="pl-6">FF&E Reserve</TableCell>
               {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right">{formatMoney(y.expenseFFE)}</TableCell>
+                <TableCell key={y.year} className="text-right"><Money amount={y.expenseFFE} /></TableCell>
               ))}
             </TableRow>
 
@@ -231,7 +232,7 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026 }: Pro
             <TableRow className="bg-gradient-to-r from-primary/80 via-primary/60 to-primary/40 backdrop-blur-sm font-bold text-primary-foreground text-lg shadow-sm">
               <TableCell>Net Operating Income (NOI)</TableCell>
               {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right">{formatMoney(y.noi)}</TableCell>
+                <TableCell key={y.year} className="text-right"><Money amount={y.noi} /></TableCell>
               ))}
             </TableRow>
           </TableBody>

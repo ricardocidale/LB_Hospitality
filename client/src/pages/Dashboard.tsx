@@ -1185,110 +1185,106 @@ export default function Dashboard() {
       doc.text("L+B Hospitality Group", 14, pageHeight - 10);
     };
 
-    // ===== PAGE 1: Cover / Overview =====
-    doc.setFontSize(24);
+    // ===== PAGE 1: Cover Page =====
+    // Header
+    doc.setFontSize(28);
     doc.setTextColor(37, 125, 65);
-    doc.text("L+B Hospitality Group", 14, 25);
+    doc.text("L+B Hospitality Group", pageWidth / 2, 30, { align: 'center' });
+    doc.setFontSize(20);
+    doc.setTextColor(61, 61, 61);
+    doc.text("Portfolio Investment Report", pageWidth / 2, 42, { align: 'center' });
+    doc.setFontSize(12);
+    doc.setTextColor(100);
+    doc.text(`10-Year Projection (${getFiscalYear(0)} - ${getFiscalYear(9)})`, pageWidth / 2, 52, { align: 'center' });
+    doc.text(`Generated: ${format(new Date(), 'MMMM d, yyyy')}`, pageWidth / 2, 60, { align: 'center' });
+
+    // Divider line
+    doc.setDrawColor(159, 188, 164);
+    doc.setLineWidth(0.5);
+    doc.line(14, 68, pageWidth - 14, 68);
+
+    // Key Metrics in a clean 3-column layout
+    const col1X = 25;
+    const col2X = 115;
+    const col3X = 205;
+    let metricY = 82;
+
+    // Helper function for metric blocks
+    const drawMetric = (x: number, y: number, label: string, value: string, isLarge: boolean = false) => {
+      doc.setFontSize(isLarge ? 22 : 18);
+      doc.setTextColor(37, 125, 65);
+      doc.text(value, x, y);
+      doc.setFontSize(9);
+      doc.setTextColor(100);
+      doc.text(label, x, y + 6);
+    };
+
+    // Row 1: Key Returns
+    drawMetric(col1X, metricY, "Total Equity Invested", formatMoney(totalInitialEquity));
+    drawMetric(col2X, metricY, "Exit Value (Year 10)", formatMoney(totalExitValue));
+    drawMetric(col3X, metricY, "Equity Multiple", `${equityMultiple.toFixed(2)}x`);
+
+    metricY += 25;
+
+    // Row 2: Performance
+    drawMetric(col1X, metricY, "Portfolio IRR", `${(portfolioIRR * 100).toFixed(1)}%`);
+    drawMetric(col2X, metricY, "Avg Cash-on-Cash", `${cashOnCash.toFixed(1)}%`);
+    drawMetric(col3X, metricY, "Properties", `${totalProperties} (${totalRooms} rooms)`);
+
+    metricY += 25;
+
+    // Row 3: 10-Year Totals
+    drawMetric(col1X, metricY, "10-Year Revenue", formatMoney(total10YearRevenue));
+    drawMetric(col2X, metricY, "10-Year NOI", formatMoney(total10YearNOI));
+    drawMetric(col3X, metricY, "10-Year Cash Flow", formatMoney(total10YearCashFlow));
+
+    metricY += 25;
+
+    // Row 4: Averages
+    drawMetric(col1X, metricY, "Total Investment", formatMoney(properties.reduce((sum, p) => sum + (p.purchasePrice || 0), 0)));
+    drawMetric(col2X, metricY, "Avg Purchase Price", formatMoney(avgPurchasePrice));
+    drawMetric(col3X, metricY, "Avg Starting ADR", formatMoney(avgADR));
+
+    // Footer for page 1
+    doc.setFontSize(8);
+    doc.setTextColor(128);
+    doc.text("Page 1", pageWidth - 20, pageHeight - 10);
+    doc.text("L+B Hospitality Group", 14, pageHeight - 10);
+
+    // ===== PAGE 2: Properties =====
+    doc.addPage();
     doc.setFontSize(18);
     doc.setTextColor(61, 61, 61);
-    doc.text("Portfolio Investment Report", 14, 35);
-    doc.setFontSize(10);
-    doc.setTextColor(100);
-    doc.text(`10-Year Projection (${getFiscalYear(0)} - ${getFiscalYear(9)})`, 14, 45);
-    doc.text(`Generated: ${format(new Date(), 'MMMM d, yyyy')}`, 14, 52);
-
-    // Investment Returns Summary
-    doc.setFontSize(14);
-    doc.setTextColor(61, 61, 61);
-    doc.text("Investment Returns Summary", 14, 70);
-
-    const overviewData = [
-      ["Total Equity Invested", formatMoney(totalInitialEquity)],
-      ["Exit Value (Year 10)", formatMoney(totalExitValue)],
-      ["Equity Multiple", `${equityMultiple.toFixed(2)}x`],
-      ["Average Cash-on-Cash", `${cashOnCash.toFixed(1)}%`],
-      ["Portfolio IRR", `${(portfolioIRR * 100).toFixed(1)}%`],
-    ];
-
-    autoTable(doc, {
-      body: overviewData,
-      startY: 75,
-      theme: 'plain',
-      styles: { fontSize: 11, cellPadding: 3 },
-      columnStyles: { 
-        0: { fontStyle: 'bold', cellWidth: 60 },
-        1: { halign: 'right', cellWidth: 50 }
-      },
-      didDrawPage: addFooter,
-    });
-
-    // Portfolio Composition & 10-Year Totals
-    doc.setFontSize(14);
-    doc.text("Portfolio Composition", 14, 115);
-
-    const portfolioData = [
-      ["Properties", `${totalProperties}`],
-      ["Total Rooms", `${totalRooms}`],
-      ["Total Investment", formatMoney(properties.reduce((sum, p) => sum + (p.purchasePrice || 0), 0))],
-      ["Avg Purchase Price", formatMoney(avgPurchasePrice)],
-      ["Avg Starting ADR", formatMoney(avgADR)],
-    ];
-
-    autoTable(doc, {
-      body: portfolioData,
-      startY: 120,
-      theme: 'plain',
-      styles: { fontSize: 11, cellPadding: 3 },
-      columnStyles: { 
-        0: { fontStyle: 'bold', cellWidth: 60 },
-        1: { halign: 'right', cellWidth: 50 }
-      },
-      didDrawPage: addFooter,
-    });
-
-    // 10-Year Projections
-    doc.setFontSize(14);
-    doc.text("10-Year Financial Projections", 14, 160);
-
-    const projectionData = [
-      ["Total Revenue (10-Year)", formatMoney(total10YearRevenue)],
-      ["Total NOI (10-Year)", formatMoney(total10YearNOI)],
-      ["Total Cash Flow (10-Year)", formatMoney(total10YearCashFlow)],
-      ["Year 10 Revenue", formatMoney(getYearlyConsolidated(9).revenueTotal)],
-      ["Year 10 NOI", formatMoney(getYearlyConsolidated(9).noi)],
-    ];
-
-    autoTable(doc, {
-      body: projectionData,
-      startY: 165,
-      theme: 'plain',
-      styles: { fontSize: 11, cellPadding: 3 },
-      columnStyles: { 
-        0: { fontStyle: 'bold', cellWidth: 60 },
-        1: { halign: 'right', cellWidth: 50 }
-      },
-      didDrawPage: addFooter,
-    });
-
-    // Property List
-    doc.setFontSize(14);
-    doc.text("Properties", 150, 70);
+    doc.text("Portfolio Properties", 14, 20);
 
     const propertyListData = properties.map(p => [
       p.name,
       p.location,
+      p.market || '-',
       `${p.roomCount}`,
-      p.type
+      p.type,
+      p.status,
+      formatMoney(p.purchasePrice || 0),
+      formatMoney(p.startAdr || 0)
     ]);
 
     autoTable(doc, {
-      head: [["Property", "Location", "Rooms", "Financing"]],
+      head: [["Property", "Location", "Market", "Rooms", "Financing", "Status", "Purchase Price", "Starting ADR"]],
       body: propertyListData,
-      startY: 75,
-      margin: { left: 150 },
-      theme: 'grid',
-      styles: { fontSize: 9, cellPadding: 2 },
+      startY: 28,
+      theme: 'striped',
+      styles: { fontSize: 10, cellPadding: 4 },
       headStyles: { fillColor: [159, 188, 164], textColor: [61, 61, 61], fontStyle: 'bold', halign: 'center' },
+      columnStyles: {
+        0: { cellWidth: 40 },
+        1: { cellWidth: 45 },
+        2: { cellWidth: 30 },
+        3: { halign: 'center', cellWidth: 20 },
+        4: { halign: 'center', cellWidth: 25 },
+        5: { halign: 'center', cellWidth: 28 },
+        6: { halign: 'right', cellWidth: 35 },
+        7: { halign: 'right', cellWidth: 30 }
+      },
       didDrawPage: addFooter,
     });
 

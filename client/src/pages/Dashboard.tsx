@@ -367,7 +367,7 @@ export default function Dashboard() {
                     />
                     <Legend />
                     <Line type="monotone" dataKey="Revenue" stroke="#9FBCA4" strokeWidth={2} dot={{ fill: '#9FBCA4' }} />
-                    <Line type="monotone" dataKey="Operating Expenses" stroke="#e57373" strokeWidth={2} dot={{ fill: '#e57373' }} />
+                    <Line type="monotone" dataKey="Operating Expenses" stroke="#9575CD" strokeWidth={2} dot={{ fill: '#9575CD' }} />
                     <Line type="monotone" dataKey="NOI" stroke="#257D41" strokeWidth={2} dot={{ fill: '#257D41' }} />
                   </LineChart>
                 </ResponsiveContainer>
@@ -718,7 +718,7 @@ export default function Dashboard() {
             <Card>
               <CardHeader>
                 <CardTitle>Portfolio Cash Flow Trends</CardTitle>
-                <p className="text-sm text-muted-foreground">NOI, Debt Service, and After-Tax Cash Flow over 10 years</p>
+                <p className="text-sm text-muted-foreground">NOI, Debt Service, and Net Cash Flow over 10 years</p>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
@@ -728,8 +728,8 @@ export default function Dashboard() {
                       return {
                         year: getCalendarYear(i),
                         NOI: yearly.noi,
-                        'Debt Service': yearly.debtService,
-                        'After-Tax Cash Flow': yearly.afterTaxCashFlow
+                        'Debt Service': yearly.debtPayment,
+                        'Net Cash Flow': yearly.cashFlow
                       };
                     })}
                     margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
@@ -750,8 +750,8 @@ export default function Dashboard() {
                     />
                     <Legend />
                     <Line type="monotone" dataKey="NOI" stroke="#9FBCA4" strokeWidth={2} dot={{ fill: '#9FBCA4' }} />
-                    <Line type="monotone" dataKey="Debt Service" stroke="#e57373" strokeWidth={2} dot={{ fill: '#e57373' }} />
-                    <Line type="monotone" dataKey="After-Tax Cash Flow" stroke="#257D41" strokeWidth={2} dot={{ fill: '#257D41' }} />
+                    <Line type="monotone" dataKey="Debt Service" stroke="#9575CD" strokeWidth={2} dot={{ fill: '#9575CD' }} />
+                    <Line type="monotone" dataKey="Net Cash Flow" stroke="#257D41" strokeWidth={2} dot={{ fill: '#257D41' }} />
                   </LineChart>
                 </ResponsiveContainer>
               </CardContent>

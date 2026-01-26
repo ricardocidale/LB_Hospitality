@@ -11,8 +11,8 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-           // @replit: no hover, and add primary border
-           "bg-primary text-primary-foreground border border-primary-border",
+           // @replit: no hover, and add primary border - liquidy ice style
+           "bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-sm text-primary-foreground border border-white/30 shadow-lg shadow-primary/20",
         destructive:
           "bg-destructive text-destructive-foreground shadow-sm border-destructive-border",
         outline:

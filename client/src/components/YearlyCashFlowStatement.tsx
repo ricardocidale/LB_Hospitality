@@ -133,7 +133,7 @@ export function YearlyCashFlowStatement({ data, property, years = 5, startYear =
               ))}
             </TableRow>
 
-            <TableRow className="bg-primary font-bold text-primary-foreground">
+            <TableRow className="bg-gradient-to-r from-primary/80 via-primary/60 to-primary/40 backdrop-blur-sm font-bold text-primary-foreground shadow-sm">
               <TableCell>Cumulative Cash Flow</TableCell>
               {yearlyData.map((y) => (
                 <TableCell key={y.year} className={cn("text-right", y.cumulativeCashFlow < 0 ? "text-red-200" : "")}>

@@ -665,36 +665,119 @@ export default function Dashboard() {
 
   const generateBalanceSheetData = () => {
     const years = Array.from({ length: 10 }, (_, i) => getCalendarYear(i));
-    const rows: { category: string; values: number[]; isHeader?: boolean; indent?: number }[] = [];
+    const rows: { category: string; values: number[]; isHeader?: boolean; indent?: number; isNegative?: boolean }[] = [];
     
-    const totalAssets = properties.reduce((sum, p) => sum + p.purchasePrice + p.buildingImprovements, 0);
-    const totalEquityInvested = properties.reduce((sum, p) => sum + p.purchasePrice + p.buildingImprovements + p.preOpeningCosts + p.operatingReserve, 0);
+    const totalPropertyValue = properties.reduce((sum, p) => sum + p.purchasePrice + p.buildingImprovements, 0);
+    const totalOperatingReserves = properties.reduce((sum, p) => sum + (p.operatingReserve || 0), 0);
+    
+    const getYearlyBalanceSheet = (yearIndex: number) => {
+      const monthsToInclude = (yearIndex + 1) * 12;
+      
+      let totalDebtOutstanding = 0;
+      let totalInitialEquity = 0;
+      let totalRetainedEarnings = 0;
+      let totalCumulativeCashFlow = 0;
+      
+      properties.forEach((prop, idx) => {
+        const proForma = allPropertyFinancials[idx]?.financials || [];
+        const relevantMonths = proForma.slice(0, monthsToInclude);
+        
+        const propertyBasis = prop.purchasePrice + prop.buildingImprovements;
+        const annualDepreciation = propertyBasis / 27.5;
+        
+        const isFinanced = prop.type === 'Financed';
+        const debtDefaults = global.debtAssumptions as { acqLTV?: number; interestRate?: number; amortizationYears?: number } | null;
+        const ltv = prop.acquisitionLTV || debtDefaults?.acqLTV || 0;
+        const loanAmount = isFinanced ? propertyBasis * ltv : 0;
+        
+        let debtOutstanding = loanAmount;
+        let cumulativeInterest = 0;
+        let cumulativePrincipal = 0;
+        
+        if (loanAmount > 0 && isFinanced) {
+          const annualRate = prop.acquisitionInterestRate || debtDefaults?.interestRate || 0.065;
+          const rate = annualRate / 12;
+          const termYears = prop.acquisitionTermYears || debtDefaults?.amortizationYears || 25;
+          const term = termYears * 12;
+          const monthlyPayment = loanAmount * (rate * Math.pow(1 + rate, term)) / (Math.pow(1 + rate, term) - 1);
+          
+          let balance = loanAmount;
+          for (let m = 0; m < monthsToInclude && m < term; m++) {
+            const interestPayment = balance * rate;
+            const principalPayment = monthlyPayment - interestPayment;
+            cumulativeInterest += interestPayment;
+            cumulativePrincipal += principalPayment;
+            balance -= principalPayment;
+          }
+          debtOutstanding = Math.max(0, balance);
+        }
+        totalDebtOutstanding += debtOutstanding;
+        
+        const equityInvested = propertyBasis + (prop.preOpeningCosts || 0) + (prop.operatingReserve || 0) - loanAmount;
+        totalInitialEquity += equityInvested;
+        
+        const cumulativeNOI = relevantMonths.reduce((sum, m) => sum + m.noi, 0);
+        const cumulativeDepreciation = annualDepreciation * Math.min(yearIndex + 1, 10);
+        const taxRate = prop.taxRate || 0.25;
+        const taxableIncome = cumulativeNOI - cumulativeInterest - cumulativeDepreciation;
+        const incomeTax = Math.max(0, taxableIncome) * taxRate;
+        const netIncome = cumulativeNOI - cumulativeInterest - cumulativeDepreciation - incomeTax;
+        totalRetainedEarnings += netIncome;
+        
+        const cumulativeDebtService = cumulativeInterest + cumulativePrincipal;
+        const cashFromOperations = cumulativeNOI - cumulativeDebtService - incomeTax;
+        totalCumulativeCashFlow += cashFromOperations;
+      });
+      
+      const accumulatedDepreciation = (totalPropertyValue / 27.5) * Math.min(yearIndex + 1, 10);
+      const totalCash = totalOperatingReserves + totalCumulativeCashFlow;
+      const netPropertyValue = totalPropertyValue - accumulatedDepreciation;
+      const totalAssets = netPropertyValue + totalCash;
+      const totalLiabilities = totalDebtOutstanding;
+      const totalEquity = totalInitialEquity + totalRetainedEarnings;
+      
+      return {
+        cash: totalCash,
+        totalCurrentAssets: totalCash,
+        propertyValue: totalPropertyValue,
+        accumulatedDepreciation: -accumulatedDepreciation,
+        netFixedAssets: netPropertyValue,
+        totalAssets,
+        mortgageNotesPayable: totalDebtOutstanding,
+        totalLiabilities,
+        paidInCapital: totalInitialEquity,
+        retainedEarnings: totalRetainedEarnings,
+        totalEquity
+      };
+    };
     
     rows.push({ category: "ASSETS", values: years.map(() => 0), isHeader: true });
-    rows.push({ category: "Property Assets", values: years.map(() => totalAssets), indent: 1 });
-    rows.push({ category: "Accumulated Depreciation", values: years.map((_, i) => -(totalAssets / 27.5) * (i + 1)), indent: 1 });
-    rows.push({ category: "Net Property Value", values: years.map((_, i) => totalAssets - (totalAssets / 27.5) * (i + 1)), indent: 1 });
+    rows.push({ category: "Current Assets", values: years.map(() => 0), indent: 1, isHeader: true });
+    rows.push({ category: "Cash & Cash Equivalents", values: years.map((_, i) => getYearlyBalanceSheet(i).cash), indent: 2 });
+    rows.push({ category: "Total Current Assets", values: years.map((_, i) => getYearlyBalanceSheet(i).totalCurrentAssets), indent: 1, isHeader: true });
+    rows.push({ category: "Fixed Assets", values: years.map(() => 0), indent: 1, isHeader: true });
+    rows.push({ category: "Property, Plant & Equipment", values: years.map((_, i) => getYearlyBalanceSheet(i).propertyValue), indent: 2 });
+    rows.push({ category: "Less: Accumulated Depreciation", values: years.map((_, i) => getYearlyBalanceSheet(i).accumulatedDepreciation), indent: 2, isNegative: true });
+    rows.push({ category: "Net Fixed Assets", values: years.map((_, i) => getYearlyBalanceSheet(i).netFixedAssets), indent: 1, isHeader: true });
+    rows.push({ category: "TOTAL ASSETS", values: years.map((_, i) => getYearlyBalanceSheet(i).totalAssets), isHeader: true });
     
-    let cumulativeCashFlow = 0;
-    const cashValues = years.map((_, i) => {
-      cumulativeCashFlow += getYearlyConsolidated(i).cashFlow;
-      return properties.reduce((sum, p) => sum + p.operatingReserve, 0) + cumulativeCashFlow;
-    });
-    rows.push({ category: "Cash & Reserves", values: cashValues, indent: 1 });
-    rows.push({ category: "Total Assets", values: years.map((_, i) => totalAssets - (totalAssets / 27.5) * (i + 1) + cashValues[i]), isHeader: true });
+    rows.push({ category: "", values: years.map(() => 0) });
+    rows.push({ category: "LIABILITIES", values: years.map(() => 0), isHeader: true });
+    rows.push({ category: "Long-Term Liabilities", values: years.map(() => 0), indent: 1, isHeader: true });
+    rows.push({ category: "Mortgage Notes Payable", values: years.map((_, i) => getYearlyBalanceSheet(i).mortgageNotesPayable), indent: 2 });
+    rows.push({ category: "TOTAL LIABILITIES", values: years.map((_, i) => getYearlyBalanceSheet(i).totalLiabilities), isHeader: true });
     
-    rows.push({ category: "LIABILITIES & EQUITY", values: years.map(() => 0), isHeader: true });
+    rows.push({ category: "", values: years.map(() => 0) });
+    rows.push({ category: "EQUITY", values: years.map(() => 0), isHeader: true });
+    rows.push({ category: "Paid-In Capital", values: years.map((_, i) => getYearlyBalanceSheet(i).paidInCapital), indent: 1 });
+    rows.push({ category: "Retained Earnings", values: years.map((_, i) => getYearlyBalanceSheet(i).retainedEarnings), indent: 1 });
+    rows.push({ category: "TOTAL EQUITY", values: years.map((_, i) => getYearlyBalanceSheet(i).totalEquity), isHeader: true });
     
-    let cumulativeRetainedEarnings = 0;
-    const retainedEarningsValues = years.map((_, i) => {
-      const noi = getYearlyConsolidated(i).noi;
-      const depreciation = totalAssets / 27.5;
-      cumulativeRetainedEarnings += noi - depreciation;
-      return cumulativeRetainedEarnings;
-    });
-    rows.push({ category: "Retained Earnings", values: retainedEarningsValues, indent: 1 });
-    rows.push({ category: "Contributed Capital", values: years.map(() => totalEquityInvested), indent: 1 });
-    rows.push({ category: "Total Equity", values: years.map((_, i) => totalEquityInvested + retainedEarningsValues[i]), isHeader: true });
+    rows.push({ category: "", values: years.map(() => 0) });
+    rows.push({ category: "TOTAL LIABILITIES & EQUITY", values: years.map((_, i) => {
+      const bs = getYearlyBalanceSheet(i);
+      return bs.totalLiabilities + bs.totalEquity;
+    }), isHeader: true });
     
     return { years, rows };
   };
@@ -711,22 +794,28 @@ export default function Dashboard() {
     
     const tableData = rows.map(row => [
       (row.indent ? '  '.repeat(row.indent) : '') + row.category,
-      ...row.values.map(v => v === 0 && row.isHeader ? '' : formatMoney(v))
+      ...row.values.map(v => {
+        if (row.category === '' || (v === 0 && row.isHeader && !row.category.includes('TOTAL'))) return '';
+        if (row.isNegative && v < 0) return `(${formatMoney(Math.abs(v))})`;
+        return formatMoney(v);
+      })
     ]);
     
     autoTable(doc, {
       head: [['Category', ...years.map(String)]],
       body: tableData,
       startY: 32,
-      styles: { fontSize: 8, cellPadding: 2 },
+      styles: { fontSize: 7, cellPadding: 1.5 },
       headStyles: { fillColor: [159, 188, 164], textColor: [0, 0, 0], fontStyle: 'bold' },
-      columnStyles: { 0: { cellWidth: 45 } },
+      columnStyles: { 0: { cellWidth: 55 } },
       didParseCell: (data) => {
         if (data.section === 'body' && data.row.index !== undefined) {
           const row = rows[data.row.index];
           if (row?.isHeader) {
             data.cell.styles.fontStyle = 'bold';
-            data.cell.styles.fillColor = [240, 240, 240];
+            if (row.category.includes('TOTAL') || row.category === 'ASSETS' || row.category === 'LIABILITIES' || row.category === 'EQUITY') {
+              data.cell.styles.fillColor = [240, 240, 240];
+            }
           }
         }
       }
@@ -740,7 +829,7 @@ export default function Dashboard() {
     const headers = ['Category', ...years.map(String)];
     const csvRows = [
       headers.join(','),
-      ...rows.map(row => [
+      ...rows.filter(row => row.category !== '').map(row => [
         `"${(row.indent ? '  '.repeat(row.indent) : '') + row.category}"`,
         ...row.values.map(v => v.toFixed(2))
       ].join(','))

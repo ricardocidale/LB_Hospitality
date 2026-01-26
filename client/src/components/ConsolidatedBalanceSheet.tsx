@@ -1,22 +1,22 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Money } from "@/components/Money";
-import { Property, GlobalAssumptions } from "@shared/schema";
-import { MonthlyFinancials } from "@/lib/financialEngine";
+import { Property } from "@shared/schema";
+import { MonthlyFinancials, getFiscalYearForModelYear } from "@/lib/financialEngine";
+import { GlobalResponse } from "@/lib/api";
 
 interface Props {
   properties: Property[];
-  global: GlobalAssumptions;
+  global: GlobalResponse;
   allProFormas: { property: Property; data: MonthlyFinancials[] }[];
   year: number;
 }
 
 export function ConsolidatedBalanceSheet({ properties, global, allProFormas, year }: Props) {
-  const modelStartYear = global.modelStartDate 
-    ? new Date(global.modelStartDate).getFullYear() 
-    : 2026;
-  
-  const displayYear = modelStartYear + year;
+  const fiscalYearStartMonth = global.fiscalYearStartMonth ?? 1;
+  const displayYear = global.modelStartDate 
+    ? getFiscalYearForModelYear(global.modelStartDate, fiscalYearStartMonth, year)
+    : 2026 + year;
   
   let totalPropertyValue = 0;
   let totalAccumulatedDepreciation = 0;

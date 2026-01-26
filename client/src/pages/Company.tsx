@@ -453,11 +453,11 @@ export default function Company() {
             <div className="flex gap-2">
               <Button variant="outline" size="sm" onClick={() => exportCompanyPDF(activeTab as 'income' | 'cashflow' | 'balance')}>
                 <FileDown className="w-4 h-4 mr-2" />
-                PDF
+                Export PDF
               </Button>
               <Button variant="outline" size="sm" onClick={() => exportCompanyCSV(activeTab as 'income' | 'cashflow' | 'balance')}>
                 <FileDown className="w-4 h-4 mr-2" />
-                CSV
+                Export CSV
               </Button>
             </div>
           </div>

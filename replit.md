@@ -72,6 +72,24 @@ Always format money as money (currency format with commas and appropriate precis
 - Event revenue and costs now use global catering level rates instead of hardcoded values
 - SAFE funding inflows added to management company cash flow projections
 
+### Configurable Fiscal Year
+- Added fiscalYearStartMonth field in Global Assumptions (Macro section)
+- Fiscal year can start in any month (default: January)
+- All financial statements, charts, and exports use fiscal year labels
+- Fiscal year is labeled by the year it starts (e.g., FY starting April 2026 = FY 2026)
+
+## Future Enhancements (GAAP Compliance)
+
+The current financial statements are **Pro Forma/Operating Statements** suitable for investor projections. If full GAAP compliance is needed in the future, consider:
+
+1. **Land Value Separation**: Add a land value field to each property to exclude land from the depreciation base (GAAP requires land not be depreciated)
+2. **Cash Flow Statement Enhancement**: 
+   - Rename to "Pro Forma Cash Flow" for clarity, or
+   - Add working capital changes, income taxes, and capital expenditures sections for full GAAP compliance
+3. **Balance Sheet Timing**: Align cash calculations with initial equity deployment timing for properties acquired at different dates
+
+Current calculations are mathematically correct and follow real estate investment analysis conventions.
+
 ## System Architecture
 
 ### Frontend Architecture

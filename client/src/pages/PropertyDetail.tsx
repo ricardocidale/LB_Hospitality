@@ -163,6 +163,7 @@ export default function PropertyDetail() {
             <YearlyCashFlowStatement 
               data={financials} 
               property={property} 
+              global={global}
               years={10} 
               startYear={getFiscalYear(0)} 
               defaultLTV={global.debtAssumptions?.acqLTV ?? 0.75}

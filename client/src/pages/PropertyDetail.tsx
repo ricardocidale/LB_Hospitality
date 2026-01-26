@@ -13,6 +13,8 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { calculateLoanParams, calculatePropertyYearlyCashFlows, LoanParams, GlobalLoanParams } from "@/lib/loanCalculations";
+import { PropertyPhotoUpload } from "@/components/PropertyPhotoUpload";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { useState } from "react";
 
@@ -20,9 +22,14 @@ export default function PropertyDetail() {
   const [, params] = useRoute("/property/:id");
   const propertyId = params?.id ? parseInt(params.id) : 0;
   const [activeTab, setActiveTab] = useState("income");
+  const queryClient = useQueryClient();
   
   const { data: property, isLoading: propertyLoading } = useProperty(propertyId);
   const { data: global, isLoading: globalLoading } = useGlobalAssumptions();
+  
+  const handlePhotoUploadComplete = () => {
+    queryClient.invalidateQueries({ queryKey: ["/api/properties", propertyId] });
+  };
 
   if (propertyLoading || globalLoading) {
     return (
@@ -265,8 +272,13 @@ export default function PropertyDetail() {
         </div>
 
         <div className="relative h-[280px] rounded-xl overflow-hidden">
-          <img src={property.imageUrl} alt={property.name} className="w-full h-full object-cover" />
+          <img src={property.imageUrl.startsWith("/objects/") ? property.imageUrl : property.imageUrl} alt={property.name} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+          <PropertyPhotoUpload 
+            propertyId={propertyId} 
+            currentImageUrl={property.imageUrl}
+            onUploadComplete={handlePhotoUploadComplete}
+          />
           <div className="absolute bottom-0 left-0 p-6 text-white">
             <h1 className="text-3xl font-serif font-bold mb-2">{property.name}</h1>
             <div className="flex items-center gap-4 text-white/80 text-sm">

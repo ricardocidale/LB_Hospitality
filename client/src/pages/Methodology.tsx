@@ -387,6 +387,16 @@ export default function Methodology() {
                 <p className="text-sm text-muted-foreground mt-2">
                   The exit cap rate defaults to 8.5% but can be customized per property. Lower cap rates result in higher valuations.
                 </p>
+                <div className="mt-3 p-3 bg-background rounded border-l-2 border-primary">
+                  <p className="text-sm text-muted-foreground">
+                    <strong>Why might exit value seem low?</strong> For financed properties, the outstanding 
+                    loan balance is deducted from the gross property value. After 10 years of a 25-year loan, 
+                    approximately 60-65% of the original loan remains. The total return to investors includes 
+                    annual cash flow distributions and any refinancing proceeds received throughout the holding 
+                    period—not just the exit value. This is why IRR and Equity Multiple are better measures of 
+                    overall investment performance.
+                  </p>
+                </div>
               </div>
 
               <div className="bg-muted/50 rounded-lg p-4">

@@ -1540,7 +1540,7 @@ function InvestmentAnalysis({
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-primary-foreground/80 flex items-center">
               Portfolio IRR
-              <HelpTooltip text="Internal Rate of Return - the annualized return that makes the net present value of all cash flows (investments, distributions, and exit) equal to zero. The gold standard metric for real estate investments." />
+              <HelpTooltip text="Internal Rate of Return - the annualized return that makes the net present value of all cash flows (investments, distributions, and exit) equal to zero. The gold standard metric for real estate investments." light />
             </CardTitle>
           </CardHeader>
           <CardContent>

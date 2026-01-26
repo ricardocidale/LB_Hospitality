@@ -3,16 +3,21 @@ import { useState } from "react";
 
 interface HelpTooltipProps {
   text: string;
+  light?: boolean;
 }
 
-export function HelpTooltip({ text }: HelpTooltipProps) {
+export function HelpTooltip({ text, light = false }: HelpTooltipProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div className="relative inline-block">
       <button
         type="button"
-        className="ml-2 text-primary/60 hover:text-primary transition-colors focus:outline-none"
+        className={`ml-2 transition-colors focus:outline-none ${
+          light 
+            ? "text-white/60 hover:text-white" 
+            : "text-primary/60 hover:text-primary"
+        }`}
         onMouseEnter={() => setIsOpen(true)}
         onMouseLeave={() => setIsOpen(false)}
         onClick={() => setIsOpen(!isOpen)}

@@ -10,6 +10,7 @@ import { ArrowUpRight, Building2, TrendingUp, Wallet, Users, Loader2, ChevronRig
 import { format } from "date-fns";
 import { useState } from "react";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { ConsolidatedBalanceSheet } from "@/components/ConsolidatedBalanceSheet";
 
 export default function Dashboard() {
   const { data: properties, isLoading: propertiesLoading } = useProperties();
@@ -1882,6 +1883,15 @@ function InvestmentAnalysis({
           </Table>
         </CardContent>
       </Card>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <ConsolidatedBalanceSheet 
+          properties={properties} 
+          global={global} 
+          allProFormas={allPropertyFinancials.map(pf => ({ property: pf.property, data: pf.financials }))}
+          year={10}
+        />
+      </div>
 
       <Card>
         <CardHeader>

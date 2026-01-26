@@ -2,7 +2,7 @@ import Layout from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
-import { Calculator, TrendingUp, Building2, DollarSign, PieChart, BarChart3, Wallet } from "lucide-react";
+import { Calculator, TrendingUp, Building2, DollarSign, PieChart, BarChart3, Wallet, Palette, Info } from "lucide-react";
 
 export default function Methodology() {
   return (
@@ -34,6 +34,30 @@ export default function Methodology() {
               <strong>indirect method for Free Cash Flow</strong> calculations, which is the industry 
               standard for real estate investment analysis.
             </p>
+          </CardContent>
+        </Card>
+
+        <Card className="border-amber-200 bg-amber-50/50">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
+                <Info className="w-5 h-5 text-amber-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-amber-900 mb-2">About Default Values</h3>
+                <p className="text-sm text-amber-800">
+                  The default values you see throughout this model are based on research into the 
+                  <strong> boutique hotel and bed & breakfast business model in North America</strong>. 
+                  These include typical expense ratios, occupancy ramp-up periods, ADR ranges, and 
+                  cap rates for this asset class.
+                </p>
+                <p className="text-sm text-amber-800 mt-2">
+                  <strong>You are encouraged to adjust any variable</strong> to match your specific 
+                  property, market conditions, or investment thesis. The model will automatically 
+                  recalculate all projections based on your inputs.
+                </p>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
@@ -432,6 +456,82 @@ export default function Methodology() {
             </AccordionContent>
           </AccordionItem>
         </Accordion>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Palette className="w-5 h-5 text-primary" />
+              Brand Identity & Design
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div>
+              <h4 className="font-semibold mb-3">Color Palette</h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="space-y-2">
+                  <div className="h-16 rounded-lg bg-[#9FBCA4] border" />
+                  <div className="text-center">
+                    <p className="text-sm font-medium">Sage Green</p>
+                    <p className="text-xs text-muted-foreground font-mono">#9FBCA4</p>
+                    <p className="text-xs text-muted-foreground">Primary</p>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="h-16 rounded-lg bg-[#257D41] border" />
+                  <div className="text-center">
+                    <p className="text-sm font-medium">Forest Green</p>
+                    <p className="text-xs text-muted-foreground font-mono">#257D41</p>
+                    <p className="text-xs text-muted-foreground">Secondary</p>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="h-16 rounded-lg bg-[#FFF9F5] border" />
+                  <div className="text-center">
+                    <p className="text-sm font-medium">Warm White</p>
+                    <p className="text-xs text-muted-foreground font-mono">#FFF9F5</p>
+                    <p className="text-xs text-muted-foreground">Background</p>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="h-16 rounded-lg bg-[#3D3D3D] border" />
+                  <div className="text-center">
+                    <p className="text-sm font-medium">Charcoal</p>
+                    <p className="text-xs text-muted-foreground font-mono">#3D3D3D</p>
+                    <p className="text-xs text-muted-foreground">Text</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="font-semibold mb-3">Typography</h4>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="bg-muted/50 rounded-lg p-4">
+                  <p className="font-serif text-2xl mb-2">EB Garamond</p>
+                  <p className="text-sm text-muted-foreground">
+                    Used for headings and display text. A classic serif typeface that conveys 
+                    elegance and sophistication appropriate for the hospitality industry.
+                  </p>
+                </div>
+                <div className="bg-muted/50 rounded-lg p-4">
+                  <p className="text-2xl mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>Inter</p>
+                  <p className="text-sm text-muted-foreground">
+                    Used for body text, data tables, and UI elements. A modern sans-serif 
+                    designed for optimal readability on screens.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-muted/50 rounded-lg p-4">
+              <p className="text-sm text-muted-foreground">
+                The L+B brand identity reflects the boutique hospitality experience: warm, refined, 
+                and approachable. The sage green palette evokes nature and tranquility, while the 
+                classic typography suggests timeless quality.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
 
         <Card className="bg-primary/5 border-primary/20">
           <CardContent className="pt-6">

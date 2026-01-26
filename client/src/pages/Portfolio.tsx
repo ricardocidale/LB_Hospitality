@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { InsertProperty } from "@shared/schema";
+import { useUpload } from "@/hooks/use-upload";
 
 export default function Portfolio() {
   const { data: properties, isLoading } = useProperties();
@@ -23,7 +24,29 @@ export default function Portfolio() {
   const { toast } = useToast();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  const { uploadFile } = useUpload({
+    onSuccess: (response) => {
+      setFormData(prev => ({ ...prev, imageUrl: response.objectPath }));
+      setImagePreview(response.objectPath);
+      toast({
+        title: "Photo Uploaded",
+        description: "Photo has been successfully uploaded.",
+      });
+      setIsUploadingPhoto(false);
+    },
+    onError: (error) => {
+      console.error("Upload failed:", error);
+      toast({
+        title: "Upload Failed",
+        description: "Failed to upload photo. Please try again.",
+        variant: "destructive",
+      });
+      setIsUploadingPhoto(false);
+    },
+  });
 
   const [formData, setFormData] = useState({
     name: "",
@@ -60,16 +83,32 @@ export default function Portfolio() {
     });
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64 = reader.result as string;
-        setImagePreview(base64);
-        setFormData(prev => ({ ...prev, imageUrl: base64 }));
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+    
+    if (!file.type.startsWith("image/")) {
+      toast({
+        title: "Invalid File",
+        description: "Please select an image file (JPEG, PNG, etc.)",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (file.size > 10 * 1024 * 1024) {
+      toast({
+        title: "File Too Large",
+        description: "Please select an image under 10MB.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setIsUploadingPhoto(true);
+    await uploadFile(file);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
   };
 
@@ -98,6 +137,7 @@ export default function Portfolio() {
       cateringLevel: "None",
     });
     setImagePreview(null);
+    setIsUploadingPhoto(false);
   };
 
   const handleSubmit = () => {
@@ -207,12 +247,21 @@ export default function Portfolio() {
                       </div>
                     ) : (
                       <div 
-                        className="w-full aspect-video rounded-lg border-2 border-dashed border-muted-foreground/25 flex flex-col items-center justify-center cursor-pointer hover:border-primary/50 transition-colors"
-                        onClick={() => fileInputRef.current?.click()}
+                        className={`w-full aspect-video rounded-lg border-2 border-dashed border-muted-foreground/25 flex flex-col items-center justify-center transition-colors ${isUploadingPhoto ? 'cursor-wait' : 'cursor-pointer hover:border-primary/50'}`}
+                        onClick={() => !isUploadingPhoto && fileInputRef.current?.click()}
                       >
-                        <Upload className="w-10 h-10 text-muted-foreground/50 mb-2" />
-                        <p className="text-sm text-muted-foreground">Click to upload property photo</p>
-                        <p className="text-xs text-muted-foreground/70 mt-1">JPG, PNG, WebP supported</p>
+                        {isUploadingPhoto ? (
+                          <>
+                            <Loader2 className="w-10 h-10 text-primary animate-spin mb-2" />
+                            <p className="text-sm text-muted-foreground">Uploading photo...</p>
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="w-10 h-10 text-muted-foreground/50 mb-2" />
+                            <p className="text-sm text-muted-foreground">Click to upload property photo</p>
+                            <p className="text-xs text-muted-foreground/70 mt-1">JPG, PNG, WebP supported</p>
+                          </>
+                        )}
                       </div>
                     )}
                     <input

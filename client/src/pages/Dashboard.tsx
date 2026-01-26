@@ -157,70 +157,145 @@ export default function Dashboard() {
     return { name: p.name, revenue: yearData.revenueTotal, gop: yearData.gop };
   });
 
+  // Calculate comprehensive investment overview metrics
+  const totalProperties = properties.length;
+  const totalRooms = properties.reduce((sum, p) => sum + p.roomCount, 0);
+  const totalPurchasePrice = properties.reduce((sum, p) => sum + p.purchasePrice, 0);
+  const totalBuildingImprovements = properties.reduce((sum, p) => sum + p.buildingImprovements, 0);
+  const totalPreOpeningCosts = properties.reduce((sum, p) => sum + (p.preOpeningCosts || 0), 0);
+  const totalOperatingReserve = properties.reduce((sum, p) => sum + (p.operatingReserve || 0), 0);
+  const totalInvestment = totalPurchasePrice + totalBuildingImprovements + totalPreOpeningCosts + totalOperatingReserve;
+  const avgPurchasePrice = totalPurchasePrice / totalProperties;
+  const avgRoomsPerProperty = totalRooms / totalProperties;
+  const avgADR = properties.reduce((sum, p) => sum + p.startAdr, 0) / totalProperties;
+  
+  // 10-year projections
+  let total10YearRevenue = 0;
+  let total10YearNOI = 0;
+  let total10YearCashFlow = 0;
+  for (let y = 0; y < 10; y++) {
+    const yearData = getYearlyConsolidated(y);
+    total10YearRevenue += yearData.revenueTotal;
+    total10YearNOI += yearData.noi;
+    total10YearCashFlow += yearData.cashFlow;
+  }
+  
+  // Calculate weighted average exit cap rate
+  const avgExitCapRate = properties.reduce((sum, p) => sum + (p.exitCapRate || 0.085), 0) / totalProperties;
+  
+  // Year 10 NOI for exit value calculation
+  const year10Data = getYearlyConsolidated(9);
+  const year10NOI = year10Data.noi;
+  const projectedExitValue = year10NOI / avgExitCapRate;
+  
+  // Geographic distribution
+  const marketCounts = properties.reduce((acc, p) => {
+    acc[p.market] = (acc[p.market] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+  
+  // Investment horizon
+  const investmentHorizon = 10;
+
   return (
     <Layout>
       <div className="space-y-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <h2 className="text-3xl font-serif font-bold text-foreground">Dashboard</h2>
-            <p className="text-muted-foreground mt-1">Portfolio overview & consolidated financial statements</p>
+            <h2 className="text-3xl font-serif font-bold text-foreground">Investment Overview</h2>
+            <p className="text-muted-foreground mt-1">L+B Hospitality Group - Boutique Hotel Portfolio</p>
           </div>
           <div className="text-right">
-            <p className="text-xs text-muted-foreground uppercase tracking-widest">Model Start</p>
-            <p className="text-lg font-medium">{format(new Date(global.modelStartDate), "MMMM yyyy")}</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-widest">Investment Period</p>
+            <p className="text-lg font-medium">{modelStartYear} - {modelStartYear + investmentHorizon}</p>
           </div>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {/* Investment Opportunity Overview */}
+        <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
+          <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+            <CardContent className="pt-4 pb-3">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Properties</p>
+              <p className="text-3xl font-bold text-accent mt-1">{totalProperties}</p>
+              <p className="text-xs text-muted-foreground mt-1">Boutique hotels</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+            <CardContent className="pt-4 pb-3">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Total Rooms</p>
+              <p className="text-3xl font-bold text-accent mt-1">{totalRooms}</p>
+              <p className="text-xs text-muted-foreground mt-1">{avgRoomsPerProperty.toFixed(0)} avg per property</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+            <CardContent className="pt-4 pb-3">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Total Investment</p>
+              <p className="text-3xl font-bold text-accent mt-1">{formatMoney(totalInvestment)}</p>
+              <p className="text-xs text-muted-foreground mt-1">All-in capital required</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+            <CardContent className="pt-4 pb-3">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Avg Purchase Price</p>
+              <p className="text-3xl font-bold text-accent mt-1">{formatMoney(avgPurchasePrice)}</p>
+              <p className="text-xs text-muted-foreground mt-1">Per property</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+            <CardContent className="pt-4 pb-3">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Avg Daily Rate</p>
+              <p className="text-3xl font-bold text-accent mt-1">{formatMoney(avgADR)}</p>
+              <p className="text-xs text-muted-foreground mt-1">Starting ADR</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+            <CardContent className="pt-4 pb-3">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Hold Period</p>
+              <p className="text-3xl font-bold text-accent mt-1">{investmentHorizon} Years</p>
+              <p className="text-xs text-muted-foreground mt-1">Investment horizon</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* 10-Year Projections */}
+        <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Projected Revenue ({getCalendarYear(1)})</CardTitle>
-              <Wallet className="w-4 h-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatMoney(portfolioTotalRevenue)}</div>
-              <p className="text-xs text-muted-foreground flex items-center mt-1">
-                <ArrowUpRight className="w-3 h-3 mr-1 text-accent" />
-                Across {properties.length} assets
-              </p>
+            <CardContent className="pt-4 pb-3">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">10-Year Revenue</p>
+              <p className="text-2xl font-bold mt-1">{formatMoney(total10YearRevenue)}</p>
+              <p className="text-xs text-muted-foreground mt-1">Cumulative projection</p>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Portfolio GOP</CardTitle>
-              <TrendingUp className="w-4 h-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-primary">{formatMoney(portfolioTotalGOP)}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {portfolioTotalRevenue > 0 ? `${((portfolioTotalGOP / portfolioTotalRevenue) * 100).toFixed(1)}%` : '0%'} Operating Margin
-              </p>
+            <CardContent className="pt-4 pb-3">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">10-Year NOI</p>
+              <p className="text-2xl font-bold text-primary mt-1">{formatMoney(total10YearNOI)}</p>
+              <p className="text-xs text-muted-foreground mt-1">Net Operating Income</p>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Active Properties</CardTitle>
-              <Building2 className="w-4 h-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{activeProperties}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                of {properties.length} in portfolio
-              </p>
+            <CardContent className="pt-4 pb-3">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Exit Value ({modelStartYear + 9})</p>
+              <p className="text-2xl font-bold text-accent mt-1">{formatMoney(projectedExitValue)}</p>
+              <p className="text-xs text-muted-foreground mt-1">@ {(avgExitCapRate * 100).toFixed(1)}% cap rate</p>
             </CardContent>
           </Card>
-          
+
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Management Fees ({getCalendarYear(1)})</CardTitle>
-              <Users className="w-4 h-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-accent">{formatMoney(managementFees)}</div>
+            <CardContent className="pt-4 pb-3">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Markets</p>
+              <p className="text-2xl font-bold mt-1">{Object.keys(marketCounts).length}</p>
               <p className="text-xs text-muted-foreground mt-1">
-                Paid to L+B Co.
+                {Object.entries(marketCounts).map(([market, count]) => 
+                  `${market}: ${count}`
+                ).join(', ')}
               </p>
             </CardContent>
           </Card>

@@ -86,8 +86,27 @@ interface GlobalInput {
   safeTranche1Date?: string;
   safeTranche2Amount?: number;
   safeTranche2Date?: string;
-  // Management company cost parameters
-  partnerSalary?: number;
+  // Management company cost parameters - yearly partner compensation and count
+  partnerCompYear1?: number;
+  partnerCompYear2?: number;
+  partnerCompYear3?: number;
+  partnerCompYear4?: number;
+  partnerCompYear5?: number;
+  partnerCompYear6?: number;
+  partnerCompYear7?: number;
+  partnerCompYear8?: number;
+  partnerCompYear9?: number;
+  partnerCompYear10?: number;
+  partnerCountYear1?: number;
+  partnerCountYear2?: number;
+  partnerCountYear3?: number;
+  partnerCountYear4?: number;
+  partnerCountYear5?: number;
+  partnerCountYear6?: number;
+  partnerCountYear7?: number;
+  partnerCountYear8?: number;
+  partnerCountYear9?: number;
+  partnerCountYear10?: number;
   staffSalary?: number;
   officeLeaseStart?: number;
   professionalServicesStart?: number;
@@ -433,17 +452,27 @@ export function generateCompanyProForma(
     let miscOps = 0;
     
     if (hasStartedOps) {
-      const partnerMonthlyStart = (global.partnerSalary ?? 240000) / 12;
-      const partnerMonthlyMax = 30000;
-      const partnerEscalationRate = global.inflationRate + 0.10;
-      const partnerEscalatedMonthly = Math.min(
-        partnerMonthlyStart * Math.pow(1 + partnerEscalationRate, year),
-        partnerMonthlyMax
-      );
+      // Use yearly partner compensation values (year is 0-indexed, so year 0 = Year 1)
+      const modelYear = year + 1; // year is 0-indexed, convert to 1-10
+      const yearlyPartnerComp = [
+        global.partnerCompYear1 ?? 540000,
+        global.partnerCompYear2 ?? 540000,
+        global.partnerCompYear3 ?? 540000,
+        global.partnerCompYear4 ?? 600000,
+        global.partnerCompYear5 ?? 600000,
+        global.partnerCompYear6 ?? 700000,
+        global.partnerCompYear7 ?? 700000,
+        global.partnerCompYear8 ?? 800000,
+        global.partnerCompYear9 ?? 800000,
+        global.partnerCompYear10 ?? 900000,
+      ];
+      const yearIndex = Math.min(modelYear - 1, 9); // Clamp to 0-9
+      const totalPartnerCompForYear = yearlyPartnerComp[yearIndex];
+      
       const staffSalary = (global.staffSalary ?? 75000);
       const staffFTE = activePropertyCount <= 3 ? 2.5 : activePropertyCount <= 6 ? 4.5 : 7.0;
       
-      partnerCompensation = 3 * partnerEscalatedMonthly;
+      partnerCompensation = totalPartnerCompForYear / 12;
       staffCompensation = (staffFTE * staffSalary * fixedCostFactor) / 12;
       officeLease = ((global.officeLeaseStart ?? 36000) * fixedCostFactor) / 12;
       professionalServices = ((global.professionalServicesStart ?? 24000) * fixedCostFactor) / 12;

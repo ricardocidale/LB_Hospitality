@@ -1,5 +1,40 @@
 import { addMonths, differenceInMonths, isBefore } from "date-fns";
 
+// Helper function to get fiscal year label for a given month in the model
+// modelStartDate: when the model starts (e.g., "2026-04-01")
+// fiscalYearStartMonth: 1 = January, 4 = April, etc.
+// monthIndex: 0-based index from model start
+export function getFiscalYearLabel(
+  modelStartDate: string,
+  fiscalYearStartMonth: number,
+  monthIndex: number
+): number {
+  const startDate = new Date(modelStartDate);
+  const currentDate = addMonths(startDate, monthIndex);
+  const currentMonth = currentDate.getMonth() + 1; // 1-12
+  const currentYear = currentDate.getFullYear();
+  
+  // Fiscal year is labeled by the year when it starts
+  // If fiscal year starts in January, then Jan-Dec 2026 = FY 2026
+  // If fiscal year starts in April, then Apr 2026 - Mar 2027 = FY 2026
+  if (currentMonth >= fiscalYearStartMonth) {
+    return currentYear;
+  } else {
+    return currentYear - 1;
+  }
+}
+
+// Get the fiscal year label for a model year index (0-9)
+export function getFiscalYearForModelYear(
+  modelStartDate: string,
+  fiscalYearStartMonth: number,
+  yearIndex: number
+): number {
+  // Use the first month of the model year to determine fiscal year
+  const firstMonthOfYear = yearIndex * 12;
+  return getFiscalYearLabel(modelStartDate, fiscalYearStartMonth, firstMonthOfYear);
+}
+
 // Types that match our database schema
 interface PropertyInput {
   operationsStartDate: string;
@@ -39,6 +74,7 @@ interface PropertyInput {
 
 interface GlobalInput {
   modelStartDate: string;
+  fiscalYearStartMonth?: number; // 1 = January, 4 = April, etc.
   inflationRate: number;
   fixedCostEscalationRate?: number;
   baseManagementFee: number;

@@ -1726,7 +1726,10 @@ export default function Dashboard() {
                     </TableRow>
 
                     <TableRow className="bg-primary/10 font-bold">
-                      <TableCell className="sticky left-0 bg-primary/10">Net Operating Income (NOI)</TableCell>
+                      <TableCell className="sticky left-0 bg-primary/10 flex items-center gap-1">
+                        Net Operating Income (NOI)
+                        <HelpTooltip text="NOI = Total Revenue - Operating Expenses. The property's income before debt service, taxes, and depreciation." />
+                      </TableCell>
                       {Array.from({ length: 10 }, (_, y) => {
                         const noi = getYearlyConsolidated(y).noi;
                         return (
@@ -2122,7 +2125,10 @@ export default function Dashboard() {
                     </TableRow>
 
                     <TableRow className="font-semibold bg-muted/20">
-                      <TableCell className="sticky left-0 bg-muted/20">Net Operating Income (NOI)</TableCell>
+                      <TableCell className="sticky left-0 bg-muted/20 flex items-center gap-1">
+                        Net Operating Income (NOI)
+                        <HelpTooltip text="NOI = Total Revenue - Operating Expenses. The property's income before debt service, taxes, and depreciation." />
+                      </TableCell>
                       {Array.from({ length: 10 }, (_, y) => {
                         const noi = getYearlyConsolidated(y).noi;
                         return (
@@ -2144,6 +2150,7 @@ export default function Dashboard() {
                           <ChevronRight className="w-4 h-4 text-muted-foreground" />
                         )}
                         Debt Service
+                        <HelpTooltip text="Total debt payment including principal and interest. Paid to lenders before distributions to investors." />
                       </TableCell>
                       {Array.from({ length: 10 }, (_, y) => {
                         const debt = getYearlyConsolidated(y).debtPayment;
@@ -2168,7 +2175,10 @@ export default function Dashboard() {
                     })}
 
                     <TableRow className="bg-primary/10 font-bold">
-                      <TableCell className="sticky left-0 bg-primary/10">Net Cash Flow</TableCell>
+                      <TableCell className="sticky left-0 bg-primary/10 flex items-center gap-1">
+                        Net Cash Flow
+                        <HelpTooltip text="Cash available after debt service. For unlevered properties, equals NOI." />
+                      </TableCell>
                       {Array.from({ length: 10 }, (_, y) => {
                         const cf = getYearlyConsolidated(y).cashFlow;
                         return (
@@ -2810,7 +2820,10 @@ function InvestmentAnalysis({
                     })}
                   </TableRow>
                   <TableRow className="bg-muted/5">
-                    <TableCell className="sticky left-0 bg-muted/5 pl-12 text-sm text-muted-foreground">= Before-Tax Cash Flow</TableCell>
+                    <TableCell className="sticky left-0 bg-muted/5 pl-12 text-sm text-muted-foreground flex items-center gap-1">
+                      = Before-Tax Cash Flow (BTCF)
+                      <HelpTooltip text="BTCF = NOI - Debt Service. Cash available before income taxes." />
+                    </TableCell>
                     <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
                     {Array.from({ length: 10 }, (_, y) => {
                       const btcf = getConsolidatedYearlyDetails(y).btcf;
@@ -2881,8 +2894,9 @@ function InvestmentAnalysis({
                   </TableRow>
                   
                   <TableRow className="bg-green-50/30 dark:bg-green-950/20 border-t">
-                    <TableCell className="sticky left-0 bg-green-50/30 dark:bg-green-950/20 pl-8 text-sm font-medium">
-                      After-Tax Cash Flow
+                    <TableCell className="sticky left-0 bg-green-50/30 dark:bg-green-950/20 pl-8 text-sm font-medium flex items-center gap-1">
+                      After-Tax Cash Flow (ATCF)
+                      <HelpTooltip text="ATCF = BTCF - Tax Liability. Cash available to investors after all taxes paid." />
                     </TableCell>
                     <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
                     {Array.from({ length: 10 }, (_, y) => {
@@ -3037,11 +3051,26 @@ function InvestmentAnalysis({
                 <TableHead>Property</TableHead>
                 <TableHead className="text-right">Equity Investment</TableHead>
                 <TableHead className="text-right">Tax Rate</TableHead>
-                <TableHead className="text-right">Exit Cap Rate</TableHead>
+                <TableHead className="text-right">
+                  <div className="flex items-center justify-end gap-1">
+                    Exit Cap Rate
+                    <HelpTooltip text="Capitalization rate used to value the property at sale. Lower cap rate = higher valuation." />
+                  </div>
+                </TableHead>
                 <TableHead className="text-right">Exit Value ({getFiscalYear(10)})</TableHead>
                 <TableHead className="text-right">Total Distributions</TableHead>
-                <TableHead className="text-right">Equity Multiple</TableHead>
-                <TableHead className="text-right">IRR</TableHead>
+                <TableHead className="text-right">
+                  <div className="flex items-center justify-end gap-1">
+                    Equity Multiple
+                    <HelpTooltip text="Total cash returned ÷ Equity invested. A 2.0x means $2 back for every $1 invested." />
+                  </div>
+                </TableHead>
+                <TableHead className="text-right">
+                  <div className="flex items-center justify-end gap-1">
+                    IRR
+                    <HelpTooltip text="Internal Rate of Return - the annualized return that makes NPV of all cash flows = 0." />
+                  </div>
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

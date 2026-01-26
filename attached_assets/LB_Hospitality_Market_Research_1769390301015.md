@@ -131,10 +131,10 @@ Typical owner's priority: 8% - 12% of invested capital
 
 ### L+B Selected Structure
 
-| Fee Component | Rate | Rationale |
-|---------------|------|-----------|
-| Base Management Fee | 4.0% | Higher end of range reflecting comprehensive full-service delivery (marketing, operations, finance, HR, IT) |
-| Incentive Fee | 10.0% of GOP | Standard industry rate, aligns interests with property profitability |
+| Fee Component | Research Recommendation | Model Default | Rationale |
+|---------------|------------------------|---------------|-----------|
+| Base Management Fee | 4.0% | **5.0%** | Higher end of range reflecting comprehensive full-service delivery (marketing, operations, finance, HR, IT). Model uses 5% to provide additional margin for boutique-scale operations. |
+| Incentive Fee | 10.0% of GOP | **15.0% of GOP** | Standard industry rate is 10%. Model uses 15% to better align operator interests with property performance and reward superior management. |
 
 **Comparison to Industry:**
 
@@ -143,7 +143,8 @@ Typical owner's priority: 8% - 12% of invested capital
 | Industry Low | 2.0% | 8% of GOP | ~4.8% of revenue |
 | Industry Typical | 3.0% | 10% of GOP | ~6.5% of revenue |
 | Industry High | 4.0% | 12% of GOP | ~8.2% of revenue |
-| **L+B Selected** | **4.0%** | **10% of GOP** | **~7.5% of revenue** |
+| L+B Research | 4.0% | 10% of GOP | ~7.5% of revenue |
+| **L+B Model Default** | **5.0%** | **15% of GOP** | **~10.3% of revenue** |
 
 ---
 
@@ -376,7 +377,7 @@ Refinance requirements:
 | F&B Cost (Full) | 92% of F&B Revenue | Full kitchen operations |
 | Event Cost | 25% of Event Venue Revenue | Non-F&B event costs |
 | A&G | 8% of Total Revenue | Back office, accounting |
-| Marketing | 4% of Total Revenue | OTA commissions, digital |
+| Marketing | 4% of Total Revenue (Model Default: 5%) | OTA commissions, digital. Model uses 5% to account for additional boutique brand-building costs. |
 | Property Ops | 4% of Total Revenue | Maintenance, repairs |
 | Utilities (Variable) | 3% of Total Revenue | Usage-driven |
 | Utilities (Fixed) | 2% of Total Revenue | Base load |
@@ -387,10 +388,10 @@ Refinance requirements:
 
 ### Management Fee Assumptions
 
-| Assumption | Value | Source/Rationale |
-|------------|-------|------------------|
-| Base Fee | 4.0% of Gross Revenue | High end of 2-4% range for full service |
-| Incentive Fee | 10.0% of GOP | Standard industry rate |
+| Assumption | Research Value | Model Default | Source/Rationale |
+|------------|----------------|---------------|------------------|
+| Base Fee | 4.0% of Gross Revenue | **5.0%** | High end of 2-4% range for full service. Model uses 5% for boutique-scale margin. |
+| Incentive Fee | 10.0% of GOP | **15.0%** | Standard industry rate is 10%. Model uses 15% for stronger performance alignment. |
 
 ### Capital Assumptions
 

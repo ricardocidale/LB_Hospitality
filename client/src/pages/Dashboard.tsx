@@ -366,7 +366,7 @@ export default function Dashboard() {
                       }}
                     />
                     <Legend />
-                    <Line type="monotone" dataKey="Revenue" stroke="#9FBCA4" strokeWidth={2} dot={{ fill: '#9FBCA4' }} />
+                    <Line type="monotone" dataKey="Revenue" stroke="#5C6BC0" strokeWidth={2} dot={{ fill: '#5C6BC0' }} />
                     <Line type="monotone" dataKey="Operating Expenses" stroke="#9575CD" strokeWidth={2} dot={{ fill: '#9575CD' }} />
                     <Line type="monotone" dataKey="NOI" stroke="#257D41" strokeWidth={2} dot={{ fill: '#257D41' }} />
                   </LineChart>
@@ -750,7 +750,7 @@ export default function Dashboard() {
                         }}
                       />
                       <Legend />
-                      <Line type="monotone" dataKey="Revenue" stroke="#9FBCA4" strokeWidth={2} dot={{ fill: '#9FBCA4' }} />
+                      <Line type="monotone" dataKey="Revenue" stroke="#5C6BC0" strokeWidth={2} dot={{ fill: '#5C6BC0' }} />
                       <Line type="monotone" dataKey="Operating Costs" stroke="#9575CD" strokeWidth={2} dot={{ fill: '#9575CD' }} />
                       <Line type="monotone" dataKey="NOI" stroke="#257D41" strokeWidth={2} dot={{ fill: '#257D41' }} />
                     </LineChart>
@@ -792,7 +792,7 @@ export default function Dashboard() {
                       }}
                     />
                     <Legend />
-                    <Line type="monotone" dataKey="NOI" stroke="#9FBCA4" strokeWidth={2} dot={{ fill: '#9FBCA4' }} />
+                    <Line type="monotone" dataKey="NOI" stroke="#5C6BC0" strokeWidth={2} dot={{ fill: '#5C6BC0' }} />
                     <Line type="monotone" dataKey="Debt Service" stroke="#9575CD" strokeWidth={2} dot={{ fill: '#9575CD' }} />
                     <Line type="monotone" dataKey="Net Cash Flow" stroke="#257D41" strokeWidth={2} dot={{ fill: '#257D41' }} />
                   </LineChart>

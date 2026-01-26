@@ -345,7 +345,7 @@ export default function Dashboard() {
                       return {
                         year: getCalendarYear(i),
                         Revenue: yearly.revenueTotal,
-                        'Operating Expenses': yearly.operatingExpenses,
+                        'Operating Expenses': yearly.totalExpenses,
                         NOI: yearly.noi
                       };
                     })}

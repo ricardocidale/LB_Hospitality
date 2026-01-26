@@ -306,18 +306,31 @@ export function getAcquisitionYear(loan: LoanCalculation): number {
 
 export interface YearlyCashFlowResult {
   year: number;
+  // Operating Performance
   noi: number;
-  debtService: number;
   interestExpense: number;
-  principalPayment: number;
   depreciation: number;
-  btcf: number;
-  taxableIncome: number;
+  // GAAP Net Income Calculation
+  netIncome: number;           // NOI - Interest - Depreciation - Tax
   taxLiability: number;
-  atcf: number;
+  // GAAP Operating Cash Flow (Indirect Method)
+  operatingCashFlow: number;   // Net Income + Depreciation (add back non-cash)
+  workingCapitalChange: number; // Changes in receivables, payables, etc.
+  cashFromOperations: number;  // OCF + Working Capital Changes
+  // Financing Activities
+  principalPayment: number;
+  debtService: number;
+  // Legacy fields for compatibility
+  btcf: number;                // NOI - Debt Service (Before-Tax Cash Flow)
+  taxableIncome: number;       // NOI - Interest - Depreciation
+  atcf: number;                // BTCF - Tax (After-Tax Cash Flow)
+  // GAAP Free Cash Flow
+  freeCashFlow: number;        // Cash from Operations - Principal Payments
+  // Capital Events
   capitalExpenditures: number;
   refinancingProceeds: number;
   exitValue: number;
+  // Net to Investors
   netCashFlowToInvestors: number;
   cumulativeCashFlow: number;
 }
@@ -338,12 +351,33 @@ export function calculatePropertyYearlyCashFlows(
   for (let y = 0; y < years; y++) {
     const noi = yearlyNOIData[y] || 0;
     const debt = calculateYearlyDebtService(loan, refi, y);
+    const depreciation = loan.annualDepreciation;
     
+    // Legacy real estate investment analysis calculations
     const btcf = noi - debt.debtService;
-    const taxableIncome = noi - debt.interestExpense - loan.annualDepreciation;
+    const taxableIncome = noi - debt.interestExpense - depreciation;
     const taxLiability = taxableIncome > 0 ? taxableIncome * loan.taxRate : 0;
     const atcf = btcf - taxLiability;
     
+    // GAAP-compliant calculations (Indirect Method)
+    // Step 1: Net Income = NOI - Interest - Depreciation - Taxes
+    const netIncome = noi - debt.interestExpense - depreciation - taxLiability;
+    
+    // Step 2: Operating Cash Flow = Net Income + Depreciation (add back non-cash expense)
+    const operatingCashFlow = netIncome + depreciation;
+    
+    // Step 3: Working Capital Changes (for stabilized properties, typically minimal)
+    // Can be expanded to include A/R, A/P changes if needed
+    const workingCapitalChange = 0;
+    
+    // Step 4: Cash from Operations = OCF +/- Working Capital Changes
+    const cashFromOperations = operatingCashFlow - workingCapitalChange;
+    
+    // Step 5: Free Cash Flow = Cash from Operations - Principal Payments
+    // Note: Principal is a financing activity, not operating
+    const freeCashFlow = cashFromOperations - debt.principalPayment;
+    
+    // Capital events
     const capex = y === acquisitionYear ? -loan.equityInvested : 0;
     const refiProceedsThisYear = y === refi.refiYear ? refi.refiProceeds : 0;
     
@@ -352,23 +386,34 @@ export function calculatePropertyYearlyCashFlows(
       exitValue = calculateExitValue(noi, loan, refi, y, property.exitCapRate);
     }
     
-    const netCashFlowToInvestors = atcf + capex + refiProceedsThisYear + exitValue;
+    // Net cash flow to investors = Free Cash Flow + Capital Events + Exit
+    const netCashFlowToInvestors = freeCashFlow + capex + refiProceedsThisYear + exitValue;
     cumulative += netCashFlowToInvestors;
     
     results.push({
       year: y + 1,
       noi,
-      debtService: debt.debtService,
       interestExpense: debt.interestExpense,
+      depreciation,
+      // GAAP fields
+      netIncome,
+      taxLiability,
+      operatingCashFlow,
+      workingCapitalChange,
+      cashFromOperations,
+      freeCashFlow,
+      // Financing
       principalPayment: debt.principalPayment,
-      depreciation: loan.annualDepreciation,
+      debtService: debt.debtService,
+      // Legacy fields
       btcf,
       taxableIncome,
-      taxLiability,
       atcf,
+      // Capital events
       capitalExpenditures: capex,
       refinancingProceeds: refiProceedsThisYear,
       exitValue,
+      // Net to investors
       netCashFlowToInvestors,
       cumulativeCashFlow: cumulative
     });

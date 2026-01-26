@@ -8,10 +8,7 @@ import {
   LoanParams, 
   GlobalLoanParams,
   calculateLoanParams,
-  calculateRefinanceParams,
-  calculateYearlyDebtService,
-  calculateExitValue,
-  getAcquisitionYear,
+  calculatePropertyYearlyCashFlows,
   YearlyCashFlowResult
 } from "@/lib/loanCalculations";
 
@@ -36,53 +33,7 @@ function aggregateCashFlowByYear(
     yearlyNOIData.push(yearData.reduce((a, m) => a + m.noi, 0));
   }
   
-  const loan = calculateLoanParams(property, global);
-  const refi = calculateRefinanceParams(property, global, loan, yearlyNOIData, years);
-  
-  const results: YearlyCashFlowResult[] = [];
-  let cumulative = 0;
-  const acquisitionYear = getAcquisitionYear(loan);
-  
-  for (let y = 0; y < years; y++) {
-    const noi = yearlyNOIData[y] || 0;
-    const debt = calculateYearlyDebtService(loan, refi, y);
-    
-    const btcf = noi - debt.debtService;
-    const taxableIncome = noi - debt.interestExpense - loan.annualDepreciation;
-    const taxLiability = taxableIncome > 0 ? taxableIncome * loan.taxRate : 0;
-    const atcf = btcf - taxLiability;
-    
-    const capex = y === acquisitionYear ? -loan.equityInvested : 0;
-    const refiProceedsThisYear = y === refi.refiYear ? refi.refiProceeds : 0;
-    
-    let exitValue = 0;
-    if (y === years - 1) {
-      exitValue = calculateExitValue(noi, loan, refi, y, property.exitCapRate);
-    }
-    
-    const netCashFlowToInvestors = atcf + capex + refiProceedsThisYear + exitValue;
-    cumulative += netCashFlowToInvestors;
-    
-    results.push({
-      year: y + 1,
-      noi,
-      debtService: debt.debtService,
-      interestExpense: debt.interestExpense,
-      principalPayment: debt.principalPayment,
-      depreciation: loan.annualDepreciation,
-      btcf,
-      taxableIncome,
-      taxLiability,
-      atcf,
-      capitalExpenditures: capex,
-      refinancingProceeds: refiProceedsThisYear,
-      exitValue,
-      netCashFlowToInvestors,
-      cumulativeCashFlow: cumulative,
-    });
-  }
-  
-  return results;
+  return calculatePropertyYearlyCashFlows(yearlyNOIData, property, global, years);
 }
 
 export function YearlyCashFlowStatement({ data, property, global, years = 10, startYear = 2026 }: Props) {
@@ -113,44 +64,14 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
             </TableRow>
           </TableHeader>
           <TableBody>
+            {/* GAAP Net Income Section */}
             <TableRow className="bg-muted/30">
-              <TableCell colSpan={years + 1} className="font-bold text-primary">Operating Cash Flow</TableCell>
+              <TableCell colSpan={years + 1} className="font-bold text-primary">Net Income Calculation</TableCell>
             </TableRow>
             <TableRow>
               <TableCell className="pl-6 sticky left-0 bg-card">Net Operating Income (NOI)</TableCell>
               {yearlyData.map((y) => (
                 <TableCell key={y.year} className="text-right"><Money amount={y.noi} /></TableCell>
-              ))}
-            </TableRow>
-            <TableRow>
-              <TableCell className="pl-6 sticky left-0 bg-card">Less: Debt Service</TableCell>
-              {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right text-muted-foreground">
-                  {y.debtService > 0 ? <Money amount={-y.debtService} /> : '-'}
-                </TableCell>
-              ))}
-            </TableRow>
-            <TableRow className="bg-primary/5 font-medium">
-              <TableCell className="sticky left-0 bg-primary/5 flex items-center gap-1">
-                Before-Tax Cash Flow (BTCF)
-                <HelpTooltip text="Cash remaining after paying debt service, before accounting for taxes. Also called 'Cash Flow Before Tax'." />
-              </TableCell>
-              {yearlyData.map((y) => (
-                <TableCell key={y.year} className={cn("text-right", y.btcf < 0 ? "text-destructive" : "")}>
-                  <Money amount={y.btcf} />
-                </TableCell>
-              ))}
-            </TableRow>
-
-            <TableRow className="h-3 border-none"><TableCell colSpan={years + 1}></TableCell></TableRow>
-
-            <TableRow className="bg-muted/30">
-              <TableCell colSpan={years + 1} className="font-bold text-primary">Tax Calculation</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="pl-6 sticky left-0 bg-card">NOI</TableCell>
-              {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right text-muted-foreground"><Money amount={y.noi} /></TableCell>
               ))}
             </TableRow>
             <TableRow>
@@ -173,32 +94,108 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
               ))}
             </TableRow>
             <TableRow>
-              <TableCell className="pl-6 sticky left-0 bg-card">Taxable Income</TableCell>
+              <TableCell className="pl-6 sticky left-0 bg-card">Less: Income Tax ({((property.taxRate ?? 0.25) * 100).toFixed(0)}%)</TableCell>
               {yearlyData.map((y) => (
-                <TableCell key={y.year} className={cn("text-right", y.taxableIncome < 0 ? "text-muted-foreground" : "")}>
-                  <Money amount={y.taxableIncome} />
+                <TableCell key={y.year} className="text-right text-muted-foreground">
+                  {y.taxLiability > 0 ? <Money amount={-y.taxLiability} /> : '-'}
                 </TableCell>
               ))}
             </TableRow>
-            <TableRow>
-              <TableCell className="pl-6 sticky left-0 bg-card">Tax Liability ({((property.taxRate ?? 0.25) * 100).toFixed(0)}%)</TableCell>
+            <TableRow className="bg-primary/5 font-medium">
+              <TableCell className="sticky left-0 bg-primary/5 flex items-center gap-1">
+                Net Income
+                <HelpTooltip text="GAAP Net Income = NOI - Interest Expense - Depreciation - Income Taxes" />
+              </TableCell>
               {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right text-destructive">
-                  {y.taxLiability > 0 ? <Money amount={-y.taxLiability} /> : '-'}
+                <TableCell key={y.year} className={cn("text-right", y.netIncome < 0 ? "text-destructive" : "")}>
+                  <Money amount={y.netIncome} />
                 </TableCell>
               ))}
             </TableRow>
 
             <TableRow className="h-3 border-none"><TableCell colSpan={years + 1}></TableCell></TableRow>
 
-            <TableRow className="bg-accent/10 font-bold">
-              <TableCell className="sticky left-0 bg-accent/10 flex items-center gap-1">
-                After-Tax Cash Flow (ATCF)
-                <HelpTooltip text="Cash available for distribution to investors each year from ongoing operations. This is the annual 'yield' on the investment." />
+            {/* GAAP Operating Cash Flow Section */}
+            <TableRow className="bg-muted/30">
+              <TableCell colSpan={years + 1} className="font-bold text-primary">Operating Cash Flow (Indirect Method)</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className="pl-6 sticky left-0 bg-card">Net Income</TableCell>
+              {yearlyData.map((y) => (
+                <TableCell key={y.year} className="text-right text-muted-foreground"><Money amount={y.netIncome} /></TableCell>
+              ))}
+            </TableRow>
+            <TableRow>
+              <TableCell className="pl-6 sticky left-0 bg-card flex items-center gap-1">
+                Add: Depreciation
+                <HelpTooltip text="Add back depreciation since it's a non-cash expense that reduced Net Income but didn't consume cash." />
               </TableCell>
               {yearlyData.map((y) => (
-                <TableCell key={y.year} className={cn("text-right", y.atcf >= 0 ? "text-accent" : "text-destructive")}>
-                  <Money amount={y.atcf} />
+                <TableCell key={y.year} className="text-right text-accent">
+                  <Money amount={y.depreciation} />
+                </TableCell>
+              ))}
+            </TableRow>
+            <TableRow className="bg-primary/5 font-medium">
+              <TableCell className="sticky left-0 bg-primary/5 flex items-center gap-1">
+                Operating Cash Flow
+                <HelpTooltip text="Cash generated from operations = Net Income + Non-cash expenses (Depreciation)" />
+              </TableCell>
+              {yearlyData.map((y) => (
+                <TableCell key={y.year} className={cn("text-right", y.operatingCashFlow < 0 ? "text-destructive" : "")}>
+                  <Money amount={y.operatingCashFlow} />
+                </TableCell>
+              ))}
+            </TableRow>
+            <TableRow>
+              <TableCell className="pl-6 sticky left-0 bg-card flex items-center gap-1">
+                Working Capital Changes
+                <HelpTooltip text="Changes in receivables, payables, and other current assets/liabilities. For stabilized properties, typically minimal." />
+              </TableCell>
+              {yearlyData.map((y) => (
+                <TableCell key={y.year} className="text-right text-muted-foreground">
+                  {y.workingCapitalChange !== 0 ? <Money amount={-y.workingCapitalChange} /> : '-'}
+                </TableCell>
+              ))}
+            </TableRow>
+            <TableRow className="bg-primary/5 font-medium">
+              <TableCell className="sticky left-0 bg-primary/5">Cash from Operations</TableCell>
+              {yearlyData.map((y) => (
+                <TableCell key={y.year} className="text-right"><Money amount={y.cashFromOperations} /></TableCell>
+              ))}
+            </TableRow>
+
+            <TableRow className="h-3 border-none"><TableCell colSpan={years + 1}></TableCell></TableRow>
+
+            {/* Free Cash Flow Section */}
+            <TableRow className="bg-muted/30">
+              <TableCell colSpan={years + 1} className="font-bold text-primary">Free Cash Flow</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className="pl-6 sticky left-0 bg-card">Cash from Operations</TableCell>
+              {yearlyData.map((y) => (
+                <TableCell key={y.year} className="text-right text-muted-foreground"><Money amount={y.cashFromOperations} /></TableCell>
+              ))}
+            </TableRow>
+            <TableRow>
+              <TableCell className="pl-6 sticky left-0 bg-card flex items-center gap-1">
+                Less: Principal Payments
+                <HelpTooltip text="Principal portion of debt service reduces cash available to investors (financing activity)." />
+              </TableCell>
+              {yearlyData.map((y) => (
+                <TableCell key={y.year} className="text-right text-muted-foreground">
+                  {y.principalPayment > 0 ? <Money amount={-y.principalPayment} /> : '-'}
+                </TableCell>
+              ))}
+            </TableRow>
+            <TableRow className="bg-accent/10 font-bold">
+              <TableCell className="sticky left-0 bg-accent/10 flex items-center gap-1">
+                Free Cash Flow
+                <HelpTooltip text="GAAP Free Cash Flow = Cash from Operations - Principal Payments. Cash available for distribution to investors." />
+              </TableCell>
+              {yearlyData.map((y) => (
+                <TableCell key={y.year} className={cn("text-right", y.freeCashFlow >= 0 ? "text-accent" : "text-destructive")}>
+                  <Money amount={y.freeCashFlow} />
                 </TableCell>
               ))}
             </TableRow>

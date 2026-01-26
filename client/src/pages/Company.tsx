@@ -160,9 +160,10 @@ export default function Company() {
         </Card>
 
         <Tabs defaultValue="income" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 max-w-md">
+          <TabsList className="grid w-full grid-cols-3 max-w-lg">
             <TabsTrigger value="income">Income Statement</TabsTrigger>
             <TabsTrigger value="cashflow">Cash Flows</TabsTrigger>
+            <TabsTrigger value="balance">Balance Sheet</TabsTrigger>
           </TabsList>
           
           <TabsContent value="income" className="mt-6">
@@ -788,6 +789,124 @@ export default function Company() {
                     </TableRow>
                   </TableBody>
                 </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="balance" className="mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Balance Sheet - As of {modelStartYear + 9}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {(() => {
+                  // Calculate cumulative values through Year 10
+                  const cumulativeNetIncome = financials.reduce((a, m) => a + m.netIncome, 0);
+                  
+                  // SAFE funding totals
+                  const safeTranche1 = global.safeTranche1Amount || 0;
+                  const safeTranche2 = global.safeTranche2Amount || 0;
+                  const totalSafeFunding = safeTranche1 + safeTranche2;
+                  
+                  // Cash = SAFE funding + cumulative net income (simplified - no distributions assumed)
+                  const cashBalance = totalSafeFunding + cumulativeNetIncome;
+                  
+                  // Total Assets
+                  const totalAssets = cashBalance;
+                  
+                  // Liabilities (SAFE notes are technically liability until conversion)
+                  const safeNotesPayable = totalSafeFunding;
+                  const totalLiabilities = safeNotesPayable;
+                  
+                  // Equity
+                  const retainedEarnings = cumulativeNetIncome;
+                  const totalEquity = retainedEarnings;
+                  
+                  // Total Liabilities + Equity should equal Total Assets
+                  const totalLiabilitiesAndEquity = totalLiabilities + totalEquity;
+
+                  return (
+                    <Table>
+                      <TableBody>
+                        {/* ASSETS */}
+                        <TableRow className="bg-muted/30 font-semibold">
+                          <TableCell colSpan={2} className="text-lg">ASSETS</TableCell>
+                        </TableRow>
+                        
+                        <TableRow className="bg-muted/20">
+                          <TableCell className="font-medium pl-4">Current Assets</TableCell>
+                          <TableCell></TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="pl-8">Cash & Cash Equivalents</TableCell>
+                          <TableCell className="text-right">{formatMoney(cashBalance)}</TableCell>
+                        </TableRow>
+                        <TableRow className="font-medium bg-muted/10">
+                          <TableCell className="pl-4">Total Current Assets</TableCell>
+                          <TableCell className="text-right">{formatMoney(cashBalance)}</TableCell>
+                        </TableRow>
+                        
+                        <TableRow className="font-semibold border-t-2">
+                          <TableCell>TOTAL ASSETS</TableCell>
+                          <TableCell className="text-right">{formatMoney(totalAssets)}</TableCell>
+                        </TableRow>
+
+                        {/* Spacer */}
+                        <TableRow><TableCell colSpan={2} className="h-4"></TableCell></TableRow>
+
+                        {/* LIABILITIES */}
+                        <TableRow className="bg-muted/30 font-semibold">
+                          <TableCell colSpan={2} className="text-lg">LIABILITIES</TableCell>
+                        </TableRow>
+                        
+                        <TableRow className="bg-muted/20">
+                          <TableCell className="font-medium pl-4">Long-Term Liabilities</TableCell>
+                          <TableCell></TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="pl-8">SAFE Notes Payable</TableCell>
+                          <TableCell className="text-right">{formatMoney(safeNotesPayable)}</TableCell>
+                        </TableRow>
+                        <TableRow className="font-medium bg-muted/10">
+                          <TableCell className="pl-4">Total Long-Term Liabilities</TableCell>
+                          <TableCell className="text-right">{formatMoney(totalLiabilities)}</TableCell>
+                        </TableRow>
+                        
+                        <TableRow className="font-semibold border-t">
+                          <TableCell>TOTAL LIABILITIES</TableCell>
+                          <TableCell className="text-right">{formatMoney(totalLiabilities)}</TableCell>
+                        </TableRow>
+
+                        {/* Spacer */}
+                        <TableRow><TableCell colSpan={2} className="h-4"></TableCell></TableRow>
+
+                        {/* EQUITY */}
+                        <TableRow className="bg-muted/30 font-semibold">
+                          <TableCell colSpan={2} className="text-lg">EQUITY</TableCell>
+                        </TableRow>
+                        
+                        <TableRow>
+                          <TableCell className="pl-4">Retained Earnings</TableCell>
+                          <TableCell className="text-right">{formatMoney(retainedEarnings)}</TableCell>
+                        </TableRow>
+                        
+                        <TableRow className="font-semibold border-t">
+                          <TableCell>TOTAL EQUITY</TableCell>
+                          <TableCell className="text-right">{formatMoney(totalEquity)}</TableCell>
+                        </TableRow>
+
+                        {/* Spacer */}
+                        <TableRow><TableCell colSpan={2} className="h-4"></TableCell></TableRow>
+
+                        {/* TOTAL */}
+                        <TableRow className="font-bold border-t-2 bg-primary/10">
+                          <TableCell>TOTAL LIABILITIES & EQUITY</TableCell>
+                          <TableCell className="text-right">{formatMoney(totalLiabilitiesAndEquity)}</TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  );
+                })()}
               </CardContent>
             </Card>
           </TabsContent>

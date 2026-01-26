@@ -50,10 +50,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <div className={cn(
                   "flex items-center gap-3 px-4 py-3 text-sm font-medium transition-all duration-200 rounded-lg cursor-pointer",
                   isActive 
-                    ? "bg-sidebar-accent text-white" 
-                    : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-white"
+                    ? "bg-[#257D41]/20 text-white border-l-4 border-[#257D41] ml-0 pl-3" 
+                    : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-white border-l-4 border-transparent"
                 )}>
-                  <item.icon className={cn("w-5 h-5", isActive ? "text-sidebar-primary" : "")} />
+                  <item.icon className={cn("w-5 h-5", isActive ? "text-[#9FBCA4]" : "")} />
                   {item.label}
                 </div>
               </Link>

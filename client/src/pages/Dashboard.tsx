@@ -250,9 +250,23 @@ export default function Dashboard() {
 
     if (r <= 0 || n <= 0) return 0;
 
+    // Calculate months since acquisition to end of target year
+    // Loan payments begin at acquisition date (property closing)
+    const modelStart = new Date(global.modelStartDate);
+    const acqDate = new Date(prop.acquisitionDate);
+    const acqMonthsFromModelStart = (acqDate.getFullYear() - modelStart.getFullYear()) * 12 + 
+                                     (acqDate.getMonth() - modelStart.getMonth());
+    const endOfYearMonth = (afterYear + 1) * 12;
+    
+    // If property hasn't been acquired yet, no loan exists yet
+    if (acqMonthsFromModelStart > endOfYearMonth) return 0;
+    
+    // Calculate payments made, capped at total loan term
+    const rawMonthsPaid = endOfYearMonth - Math.max(0, acqMonthsFromModelStart);
+    const monthsPaid = Math.min(Math.max(0, rawMonthsPaid), n);
+    
     const monthlyPayment = (loanAmount * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
-    const monthsPaid = (afterYear + 1) * 12;
-    const paymentsRemaining = Math.max(0, n - monthsPaid);
+    const paymentsRemaining = n - monthsPaid;
 
     if (paymentsRemaining <= 0) return 0;
     return monthlyPayment * (1 - Math.pow(1 + r, -paymentsRemaining)) / r;
@@ -2450,9 +2464,23 @@ function InvestmentAnalysis({
 
     if (r <= 0 || n <= 0) return 0;
 
+    // Calculate months since acquisition to end of target year
+    // Loan payments begin at acquisition date (property closing)
+    const modelStart = new Date(global.modelStartDate);
+    const acqDate = new Date(prop.acquisitionDate);
+    const acqMonthsFromModelStart = (acqDate.getFullYear() - modelStart.getFullYear()) * 12 + 
+                                     (acqDate.getMonth() - modelStart.getMonth());
+    const endOfYearMonth = (afterYear + 1) * 12;
+    
+    // If property hasn't been acquired yet, no loan exists yet
+    if (acqMonthsFromModelStart > endOfYearMonth) return 0;
+    
+    // Calculate payments made, capped at total loan term
+    const rawMonthsPaid = endOfYearMonth - Math.max(0, acqMonthsFromModelStart);
+    const monthsPaid = Math.min(Math.max(0, rawMonthsPaid), n);
+
     const monthlyPayment = (loanAmount * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
-    const monthsPaid = (afterYear + 1) * 12;
-    const paymentsRemaining = Math.max(0, n - monthsPaid);
+    const paymentsRemaining = n - monthsPaid;
 
     if (paymentsRemaining <= 0) return 0;
     return monthlyPayment * (1 - Math.pow(1 + r, -paymentsRemaining)) / r;

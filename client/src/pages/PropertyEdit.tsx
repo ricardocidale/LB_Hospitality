@@ -6,12 +6,13 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Save, Loader2 } from "lucide-react";
+import { ArrowLeft, Save, Loader2, Upload } from "lucide-react";
 import { Link, useRoute, useLocation } from "wouter";
 import { useState, useEffect, useRef } from "react";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { Slider } from "@/components/ui/slider";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useUpload } from "@/hooks/use-upload";
 
 function EditableValue({ 
   value, 
@@ -110,6 +111,48 @@ export default function PropertyEdit() {
   const { toast } = useToast();
   
   const [draft, setDraft] = useState<any>(null);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+  const photoInputRef = useRef<HTMLInputElement>(null);
+  
+  const { uploadFile } = useUpload({
+    onSuccess: (response) => {
+      handleChange("imageUrl", response.objectPath);
+      toast({
+        title: "Photo Uploaded",
+        description: "Property photo has been successfully uploaded.",
+      });
+      setIsUploadingPhoto(false);
+    },
+    onError: (error) => {
+      console.error("Upload failed:", error);
+      toast({
+        title: "Upload Failed",
+        description: "Failed to upload photo. Please try again.",
+        variant: "destructive",
+      });
+      setIsUploadingPhoto(false);
+    },
+  });
+  
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    if (!file.type.startsWith("image/")) {
+      toast({
+        title: "Invalid File",
+        description: "Please select an image file (JPEG, PNG, etc.)",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setIsUploadingPhoto(true);
+    await uploadFile(file);
+    if (photoInputRef.current) {
+      photoInputRef.current.value = "";
+    }
+  };
 
   useEffect(() => {
     if (property && !draft) {
@@ -219,8 +262,41 @@ export default function PropertyEdit() {
               <Input value={draft.market} onChange={(e) => handleChange("market", e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label>Image URL</Label>
-              <Input value={draft.imageUrl} onChange={(e) => handleChange("imageUrl", e.target.value)} />
+              <Label>Property Photo</Label>
+              <div className="flex gap-2">
+                <Input 
+                  value={draft.imageUrl} 
+                  onChange={(e) => handleChange("imageUrl", e.target.value)} 
+                  placeholder="Enter image URL or upload a photo"
+                  className="flex-1"
+                />
+                <input
+                  ref={photoInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoUpload}
+                  className="hidden"
+                  data-testid="input-edit-property-photo"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => photoInputRef.current?.click()}
+                  disabled={isUploadingPhoto}
+                  data-testid="button-upload-photo"
+                >
+                  {isUploadingPhoto ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Upload className="w-4 h-4" />
+                  )}
+                </Button>
+              </div>
+              {draft.imageUrl && (
+                <div className="mt-2 relative w-full h-32 rounded-md overflow-hidden border">
+                  <img src={draft.imageUrl} alt="Property preview" className="w-full h-full object-cover" />
+                </div>
+              )}
             </div>
             <div className="space-y-2">
               <Label>Status</Label>

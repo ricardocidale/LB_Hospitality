@@ -113,6 +113,10 @@ export default function CompanyAssumptions() {
     }
   }, [global]);
 
+  const modelStartYear = global?.modelStartDate 
+    ? new Date(global.modelStartDate).getFullYear() 
+    : 2026;
+
   if (isLoading || !global) {
     return (
       <Layout>
@@ -400,7 +404,7 @@ export default function CompanyAssumptions() {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label className="flex items-center">
-                    Partner Salary (Each, Year 1)
+                    Partner Salary (Each, {modelStartYear})
                     <HelpTooltip text="Starting annual salary per partner (3 partners). Escalates at inflation + 10% per year, capped at $30K/month." />
                   </Label>
                   <EditableValue
@@ -455,7 +459,7 @@ export default function CompanyAssumptions() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
-                Fixed Overhead (Year 1)
+                Fixed Overhead ({modelStartYear})
                 <HelpTooltip text="Starting annual costs that escalate yearly at the fixed cost escalation rate" />
               </CardTitle>
             </CardHeader>

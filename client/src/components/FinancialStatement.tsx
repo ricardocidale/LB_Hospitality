@@ -8,15 +8,16 @@ import { cn } from "@/lib/utils";
 interface FinancialStatementProps {
   data: MonthlyFinancials[];
   title: string;
+  startYear?: number;
 }
 
-export function FinancialStatement({ data, title }: FinancialStatementProps) {
+export function FinancialStatement({ data, title, startYear = 2026 }: FinancialStatementProps) {
   const first12Months = data.slice(0, 12);
   
   return (
     <GlassCard className="w-full overflow-hidden">
       <div className="p-6 border-b border-white/20">
-        <h3 className="text-xl font-serif font-semibold text-primary">{title} - Year 1 Pro Forma</h3>
+        <h3 className="text-xl font-serif font-semibold text-primary">{title} - {startYear} Pro Forma</h3>
       </div>
       <ScrollArea className="w-full whitespace-nowrap">
         <div className="p-0">
@@ -29,7 +30,7 @@ export function FinancialStatement({ data, title }: FinancialStatementProps) {
                     {format(m.date, "MMM yyyy")}
                   </TableHead>
                 ))}
-                <TableHead className="text-right font-bold bg-primary/10">Year 1 Total</TableHead>
+                <TableHead className="text-right font-bold bg-primary/10">{startYear} Total</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

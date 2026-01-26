@@ -117,6 +117,11 @@ export default function PropertyEdit() {
     }
   }, [property]);
 
+  const modelStartYear = globalAssumptions?.modelStartDate 
+    ? new Date(globalAssumptions.modelStartDate).getFullYear() 
+    : 2026;
+  const exitYear = modelStartYear + 9;
+
   if (isLoading) {
     return (
       <Layout>
@@ -1054,7 +1059,7 @@ export default function PropertyEdit() {
               <div className="flex justify-between items-center">
                 <Label className="flex items-center">
                   Exit Capitalization Rate
-                  <HelpTooltip text="The cap rate used to calculate exit value. Exit Value = Year 10 NOI ÷ Cap Rate. Lower cap rates result in higher valuations." />
+                  <HelpTooltip text={`The cap rate used to calculate exit value. Exit Value = ${exitYear} NOI ÷ Cap Rate. Lower cap rates result in higher valuations.`} />
                 </Label>
                 <EditableValue
                   value={(draft.exitCapRate ?? 0.085) * 100}
@@ -1073,7 +1078,7 @@ export default function PropertyEdit() {
                 step={0.1}
               />
               <p className="text-xs text-muted-foreground mt-2">
-                Exit Value = Year 10 NOI ÷ {((draft.exitCapRate ?? 0.085) * 100).toFixed(1)}% = <span className="font-medium">higher property valuation at lower cap rates</span>
+                Exit Value = {exitYear} NOI ÷ {((draft.exitCapRate ?? 0.085) * 100).toFixed(1)}% = <span className="font-medium">higher property valuation at lower cap rates</span>
               </p>
             </div>
 

@@ -34,7 +34,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <img src={logo} alt="L+B Hospitality" className="w-10 h-10 object-contain" />
             <div>
               <h1 className="text-xl font-extrabold text-white" style={{ fontFamily: "'Nunito', sans-serif" }}>
-                L+B <span className="text-sidebar-primary">Hospitality</span>
+                L+B <span style={{ color: '#9FBCA4' }}>Hospitality</span>
               </h1>
               <p className="text-xs text-sidebar-foreground/60 uppercase tracking-widest">Analytics</p>
             </div>
@@ -77,7 +77,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <header className="lg:hidden h-16 border-b bg-card flex items-center justify-between px-4 sticky top-0 z-30">
           <div className="flex items-center gap-2">
             <img src={logo} alt="L+B Hospitality" className="w-8 h-8 object-contain" />
-            <span className="font-extrabold text-lg" style={{ fontFamily: "'Nunito', sans-serif" }}>L+B Hospitality</span>
+            <span className="font-extrabold text-lg" style={{ fontFamily: "'Nunito', sans-serif" }}>L+B <span style={{ color: '#9FBCA4' }}>Hospitality</span></span>
           </div>
           <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)}>
             {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}

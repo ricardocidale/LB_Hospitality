@@ -10,6 +10,7 @@ import { Save, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { Slider } from "@/components/ui/slider";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 function formatMoneyInput(value: number): string {
   return new Intl.NumberFormat('en-US').format(value);
@@ -335,6 +336,34 @@ export default function Settings() {
                 <CardDescription>Market-wide economic factors affecting the model</CardDescription>
               </CardHeader>
               <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Label>Fiscal Year Start Month</Label>
+                    <HelpTooltip text="The month when the fiscal year begins. Financial statements will group data into fiscal years starting from this month." />
+                  </div>
+                  <Select
+                    value={String(currentGlobal.fiscalYearStartMonth ?? 1)}
+                    onValueChange={(val) => setGlobalDraft({ ...currentGlobal, fiscalYearStartMonth: parseInt(val) })}
+                  >
+                    <SelectTrigger data-testid="select-fiscal-year-month">
+                      <SelectValue placeholder="Select month" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">January</SelectItem>
+                      <SelectItem value="2">February</SelectItem>
+                      <SelectItem value="3">March</SelectItem>
+                      <SelectItem value="4">April</SelectItem>
+                      <SelectItem value="5">May</SelectItem>
+                      <SelectItem value="6">June</SelectItem>
+                      <SelectItem value="7">July</SelectItem>
+                      <SelectItem value="8">August</SelectItem>
+                      <SelectItem value="9">September</SelectItem>
+                      <SelectItem value="10">October</SelectItem>
+                      <SelectItem value="11">November</SelectItem>
+                      <SelectItem value="12">December</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <Label>Annual Inflation Rate</Label>

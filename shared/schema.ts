@@ -8,6 +8,7 @@ export const globalAssumptions = pgTable("global_assumptions", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   modelStartDate: text("model_start_date").notNull(),
   companyOpsStartDate: text("company_ops_start_date").notNull().default("2026-06-01"),
+  fiscalYearStartMonth: integer("fiscal_year_start_month").notNull().default(1), // 1 = January, 4 = April, etc.
   inflationRate: real("inflation_rate").notNull(),
   fixedCostEscalationRate: real("fixed_cost_escalation_rate").notNull().default(0.03),
   

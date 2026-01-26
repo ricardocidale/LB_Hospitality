@@ -1589,8 +1589,17 @@ function InvestmentAnalysis({
               </TableRow>
               {expandedRows.has('fcfOperating') && (
                 <>
+                  <TableRow className="bg-blue-50/30 dark:bg-blue-950/20">
+                    <TableCell className="sticky left-0 bg-blue-50/30 dark:bg-blue-950/20 pl-8 text-sm font-medium text-muted-foreground" colSpan={1}>
+                      Cash Flow Calculation
+                    </TableCell>
+                    <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
+                    {Array.from({ length: 10 }, (_, y) => (
+                      <TableCell key={y} className="text-right text-sm text-muted-foreground">-</TableCell>
+                    ))}
+                  </TableRow>
                   <TableRow className="bg-muted/5">
-                    <TableCell className="sticky left-0 bg-muted/5 pl-8 text-sm text-muted-foreground">Net Operating Income (NOI)</TableCell>
+                    <TableCell className="sticky left-0 bg-muted/5 pl-12 text-sm text-muted-foreground">Net Operating Income (NOI)</TableCell>
                     <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
                     {Array.from({ length: 10 }, (_, y) => (
                       <TableCell key={y} className="text-right text-sm text-muted-foreground">
@@ -1599,7 +1608,7 @@ function InvestmentAnalysis({
                     ))}
                   </TableRow>
                   <TableRow className="bg-muted/5">
-                    <TableCell className="sticky left-0 bg-muted/5 pl-8 text-sm text-muted-foreground">Less: Debt Service</TableCell>
+                    <TableCell className="sticky left-0 bg-muted/5 pl-12 text-sm text-muted-foreground">Less: Debt Service (P+I)</TableCell>
                     <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
                     {Array.from({ length: 10 }, (_, y) => {
                       const ds = getConsolidatedYearlyDetails(y).debtService;
@@ -1611,7 +1620,7 @@ function InvestmentAnalysis({
                     })}
                   </TableRow>
                   <TableRow className="bg-muted/5">
-                    <TableCell className="sticky left-0 bg-muted/5 pl-8 text-sm text-muted-foreground">Before-Tax Cash Flow (BTCF)</TableCell>
+                    <TableCell className="sticky left-0 bg-muted/5 pl-12 text-sm text-muted-foreground">= Before-Tax Cash Flow</TableCell>
                     <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
                     {Array.from({ length: 10 }, (_, y) => {
                       const btcf = getConsolidatedYearlyDetails(y).btcf;
@@ -1622,38 +1631,54 @@ function InvestmentAnalysis({
                       );
                     })}
                   </TableRow>
-                  <TableRow className="bg-muted/5">
-                    <TableCell className="sticky left-0 bg-muted/5 pl-8 text-sm text-muted-foreground">Depreciation (27.5 yr)</TableCell>
+                  
+                  <TableRow className="bg-amber-50/30 dark:bg-amber-950/20">
+                    <TableCell className="sticky left-0 bg-amber-50/30 dark:bg-amber-950/20 pl-8 text-sm font-medium text-muted-foreground" colSpan={1}>
+                      Tax Calculation (GAAP)
+                    </TableCell>
                     <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
                     {Array.from({ length: 10 }, (_, y) => (
-                      <TableCell key={y} className="text-right text-sm text-muted-foreground">
-                        {formatMoney(getConsolidatedYearlyDetails(y).depreciation)}
-                      </TableCell>
+                      <TableCell key={y} className="text-right text-sm text-muted-foreground">-</TableCell>
                     ))}
                   </TableRow>
                   <TableRow className="bg-muted/5">
-                    <TableCell className="sticky left-0 bg-muted/5 pl-8 text-sm text-muted-foreground">Interest Expense</TableCell>
+                    <TableCell className="sticky left-0 bg-muted/5 pl-12 text-sm text-muted-foreground">Less: Interest Expense</TableCell>
                     <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
-                    {Array.from({ length: 10 }, (_, y) => (
-                      <TableCell key={y} className="text-right text-sm text-muted-foreground">
-                        {formatMoney(getConsolidatedYearlyDetails(y).interestPortion)}
-                      </TableCell>
-                    ))}
+                    {Array.from({ length: 10 }, (_, y) => {
+                      const interest = getConsolidatedYearlyDetails(y).interestPortion;
+                      return (
+                        <TableCell key={y} className="text-right text-sm text-destructive">
+                          {interest > 0 ? `(${formatMoney(interest)})` : '-'}
+                        </TableCell>
+                      );
+                    })}
                   </TableRow>
                   <TableRow className="bg-muted/5">
-                    <TableCell className="sticky left-0 bg-muted/5 pl-8 text-sm text-muted-foreground">Taxable Income</TableCell>
+                    <TableCell className="sticky left-0 bg-muted/5 pl-12 text-sm text-muted-foreground">Less: Depreciation (non-cash)</TableCell>
+                    <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
+                    {Array.from({ length: 10 }, (_, y) => {
+                      const dep = getConsolidatedYearlyDetails(y).depreciation;
+                      return (
+                        <TableCell key={y} className="text-right text-sm text-destructive">
+                          {dep > 0 ? `(${formatMoney(dep)})` : '-'}
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                  <TableRow className="bg-muted/5">
+                    <TableCell className="sticky left-0 bg-muted/5 pl-12 text-sm text-muted-foreground">= Taxable Income (NOI-Int-Dep)</TableCell>
                     <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
                     {Array.from({ length: 10 }, (_, y) => {
                       const ti = getConsolidatedYearlyDetails(y).taxableIncome;
                       return (
-                        <TableCell key={y} className={`text-right text-sm ${ti < 0 ? 'text-muted-foreground' : ''}`}>
+                        <TableCell key={y} className={`text-right text-sm ${ti < 0 ? 'text-muted-foreground italic' : ''}`}>
                           {formatMoney(ti)}
                         </TableCell>
                       );
                     })}
                   </TableRow>
                   <TableRow className="bg-muted/5">
-                    <TableCell className="sticky left-0 bg-muted/5 pl-8 text-sm text-muted-foreground">Less: Tax Liability</TableCell>
+                    <TableCell className="sticky left-0 bg-muted/5 pl-12 text-sm text-muted-foreground">Tax Liability (if positive)</TableCell>
                     <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
                     {Array.from({ length: 10 }, (_, y) => {
                       const tax = getConsolidatedYearlyDetails(y).taxLiability;
@@ -1664,8 +1689,11 @@ function InvestmentAnalysis({
                       );
                     })}
                   </TableRow>
-                  <TableRow className="bg-muted/10 border-t">
-                    <TableCell className="sticky left-0 bg-muted/10 pl-8 text-sm font-medium">After-Tax Cash Flow (ATCF)</TableCell>
+                  
+                  <TableRow className="bg-green-50/30 dark:bg-green-950/20 border-t">
+                    <TableCell className="sticky left-0 bg-green-50/30 dark:bg-green-950/20 pl-8 text-sm font-medium">
+                      Free Cash Flow (BTCF - Tax)
+                    </TableCell>
                     <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
                     {Array.from({ length: 10 }, (_, y) => {
                       const atcf = getConsolidatedYearlyDetails(y).atcf;

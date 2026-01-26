@@ -1163,8 +1163,380 @@ export default function Dashboard() {
     URL.revokeObjectURL(url);
   };
 
+  // Comprehensive Overview Export - includes all financial statements
+  const exportOverviewToPDF = () => {
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+
+    // Calculate 10-year totals for comprehensive metrics
+    const total10YearRevenue = Array.from({ length: 10 }, (_, i) => getYearlyConsolidated(i).revenueTotal).reduce((a, b) => a + b, 0);
+    const total10YearNOI = Array.from({ length: 10 }, (_, i) => getYearlyConsolidated(i).noi).reduce((a, b) => a + b, 0);
+    const total10YearCashFlow = Array.from({ length: 10 }, (_, i) => getYearlyConsolidated(i).cashFlow).reduce((a, b) => a + b, 0);
+    const avgPurchasePrice = properties.length > 0 ? properties.reduce((sum, p) => sum + (p.purchasePrice || 0), 0) / properties.length : 0;
+    const avgADR = properties.length > 0 ? properties.reduce((sum, p) => sum + (p.startAdr || 0), 0) / properties.length : 0;
+
+    // Page footer function for didDrawPage hook
+    const addFooter = (data: any) => {
+      const pageNum = doc.getNumberOfPages();
+      doc.setFontSize(8);
+      doc.setTextColor(128);
+      doc.text(`Page ${pageNum}`, pageWidth - 20, pageHeight - 10);
+      doc.text("L+B Hospitality Group", 14, pageHeight - 10);
+    };
+
+    // ===== PAGE 1: Cover / Overview =====
+    doc.setFontSize(24);
+    doc.setTextColor(37, 125, 65);
+    doc.text("L+B Hospitality Group", 14, 25);
+    doc.setFontSize(18);
+    doc.setTextColor(61, 61, 61);
+    doc.text("Portfolio Investment Report", 14, 35);
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text(`10-Year Projection (${getFiscalYear(0)} - ${getFiscalYear(9)})`, 14, 45);
+    doc.text(`Generated: ${format(new Date(), 'MMMM d, yyyy')}`, 14, 52);
+
+    // Investment Returns Summary
+    doc.setFontSize(14);
+    doc.setTextColor(61, 61, 61);
+    doc.text("Investment Returns Summary", 14, 70);
+
+    const overviewData = [
+      ["Total Equity Invested", formatMoney(totalInitialEquity)],
+      ["Exit Value (Year 10)", formatMoney(totalExitValue)],
+      ["Equity Multiple", `${equityMultiple.toFixed(2)}x`],
+      ["Average Cash-on-Cash", `${cashOnCash.toFixed(1)}%`],
+      ["Portfolio IRR", `${(portfolioIRR * 100).toFixed(1)}%`],
+    ];
+
+    autoTable(doc, {
+      body: overviewData,
+      startY: 75,
+      theme: 'plain',
+      styles: { fontSize: 11, cellPadding: 3 },
+      columnStyles: { 
+        0: { fontStyle: 'bold', cellWidth: 60 },
+        1: { halign: 'right', cellWidth: 50 }
+      },
+      didDrawPage: addFooter,
+    });
+
+    // Portfolio Composition & 10-Year Totals
+    doc.setFontSize(14);
+    doc.text("Portfolio Composition", 14, 115);
+
+    const portfolioData = [
+      ["Properties", `${totalProperties}`],
+      ["Total Rooms", `${totalRooms}`],
+      ["Total Investment", formatMoney(properties.reduce((sum, p) => sum + (p.purchasePrice || 0), 0))],
+      ["Avg Purchase Price", formatMoney(avgPurchasePrice)],
+      ["Avg Starting ADR", formatMoney(avgADR)],
+    ];
+
+    autoTable(doc, {
+      body: portfolioData,
+      startY: 120,
+      theme: 'plain',
+      styles: { fontSize: 11, cellPadding: 3 },
+      columnStyles: { 
+        0: { fontStyle: 'bold', cellWidth: 60 },
+        1: { halign: 'right', cellWidth: 50 }
+      },
+      didDrawPage: addFooter,
+    });
+
+    // 10-Year Projections
+    doc.setFontSize(14);
+    doc.text("10-Year Financial Projections", 14, 160);
+
+    const projectionData = [
+      ["Total Revenue (10-Year)", formatMoney(total10YearRevenue)],
+      ["Total NOI (10-Year)", formatMoney(total10YearNOI)],
+      ["Total Cash Flow (10-Year)", formatMoney(total10YearCashFlow)],
+      ["Year 10 Revenue", formatMoney(getYearlyConsolidated(9).revenueTotal)],
+      ["Year 10 NOI", formatMoney(getYearlyConsolidated(9).noi)],
+    ];
+
+    autoTable(doc, {
+      body: projectionData,
+      startY: 165,
+      theme: 'plain',
+      styles: { fontSize: 11, cellPadding: 3 },
+      columnStyles: { 
+        0: { fontStyle: 'bold', cellWidth: 60 },
+        1: { halign: 'right', cellWidth: 50 }
+      },
+      didDrawPage: addFooter,
+    });
+
+    // Property List
+    doc.setFontSize(14);
+    doc.text("Properties", 150, 70);
+
+    const propertyListData = properties.map(p => [
+      p.name,
+      p.location,
+      `${p.roomCount}`,
+      p.type
+    ]);
+
+    autoTable(doc, {
+      head: [["Property", "Location", "Rooms", "Financing"]],
+      body: propertyListData,
+      startY: 75,
+      margin: { left: 150 },
+      theme: 'grid',
+      styles: { fontSize: 9, cellPadding: 2 },
+      headStyles: { fillColor: [159, 188, 164], textColor: [61, 61, 61], fontStyle: 'bold', halign: 'center' },
+      didDrawPage: addFooter,
+    });
+
+    doc.addPage();
+
+    // ===== PAGE 2: Income Statement =====
+    doc.setFontSize(16);
+    doc.setTextColor(61, 61, 61);
+    doc.text("Income Statement", 14, 15);
+    doc.setFontSize(10);
+    doc.text("Consolidated 10-Year Projection", 14, 22);
+
+    const { years: incomeYears, rows: incomeRows } = generateIncomeStatementData();
+    const incomeTableData = incomeRows.map(row => [
+      (row.indent ? '  '.repeat(row.indent) : '') + row.category,
+      ...row.values.map(v => formatMoney(v))
+    ]);
+
+    const colStylesNumeric: Record<number, any> = { 0: { cellWidth: 45, halign: 'left' } };
+    for (let i = 1; i <= 10; i++) colStylesNumeric[i] = { halign: 'right' };
+
+    autoTable(doc, {
+      head: [['Category', ...incomeYears.map(String)]],
+      body: incomeTableData,
+      startY: 27,
+      styles: { fontSize: 7, cellPadding: 1.5 },
+      headStyles: { fillColor: [159, 188, 164], textColor: [61, 61, 61], fontStyle: 'bold', halign: 'center' },
+      columnStyles: colStylesNumeric,
+      didParseCell: (data) => {
+        if (data.section === 'body' && data.row.index !== undefined) {
+          const row = incomeRows[data.row.index];
+          if (row?.isHeader) {
+            data.cell.styles.fontStyle = 'bold';
+            data.cell.styles.fillColor = [240, 240, 240];
+          }
+        }
+      },
+      didDrawPage: addFooter,
+    });
+
+    doc.addPage();
+
+    // ===== PAGE 3: Cash Flow Statement =====
+    doc.setFontSize(16);
+    doc.setTextColor(61, 61, 61);
+    doc.text("Cash Flow Statement", 14, 15);
+    doc.setFontSize(10);
+    doc.text("Consolidated 10-Year Projection", 14, 22);
+
+    const { years: cfYears, rows: cfRows } = generateCashFlowData();
+    const cfTableData = cfRows.map(row => [
+      (row.indent ? '  '.repeat(row.indent) : '') + row.category,
+      ...row.values.map(v => {
+        if (row.isNegative && v < 0) return `(${formatMoney(Math.abs(v))})`;
+        return formatMoney(v);
+      })
+    ]);
+
+    autoTable(doc, {
+      head: [['Category', ...cfYears.map(String)]],
+      body: cfTableData,
+      startY: 27,
+      styles: { fontSize: 6.5, cellPadding: 1 },
+      headStyles: { fillColor: [159, 188, 164], textColor: [61, 61, 61], fontStyle: 'bold', halign: 'center' },
+      columnStyles: colStylesNumeric,
+      didParseCell: (data) => {
+        if (data.section === 'body' && data.row.index !== undefined) {
+          const row = cfRows[data.row.index];
+          if (row?.isHeader) {
+            data.cell.styles.fontStyle = 'bold';
+            data.cell.styles.fillColor = [240, 240, 240];
+          }
+        }
+      },
+      didDrawPage: addFooter,
+    });
+
+    doc.addPage();
+
+    // ===== PAGE 4: Balance Sheet =====
+    doc.setFontSize(16);
+    doc.setTextColor(61, 61, 61);
+    doc.text("Balance Sheet", 14, 15);
+    doc.setFontSize(10);
+    doc.text("Consolidated 10-Year Projection", 14, 22);
+
+    const { years: bsYears, rows: bsRows } = generateBalanceSheetData();
+    const bsTableData = bsRows.map(row => [
+      (row.indent ? '  '.repeat(row.indent) : '') + row.category,
+      ...row.values.map(v => formatMoney(v))
+    ]);
+
+    autoTable(doc, {
+      head: [['Category', ...bsYears.map(String)]],
+      body: bsTableData,
+      startY: 27,
+      styles: { fontSize: 7, cellPadding: 1.5 },
+      headStyles: { fillColor: [159, 188, 164], textColor: [61, 61, 61], fontStyle: 'bold', halign: 'center' },
+      columnStyles: colStylesNumeric,
+      didParseCell: (data) => {
+        if (data.section === 'body' && data.row.index !== undefined) {
+          const row = bsRows[data.row.index];
+          if (row?.isHeader) {
+            data.cell.styles.fontStyle = 'bold';
+            data.cell.styles.fillColor = [240, 240, 240];
+          }
+        }
+      },
+      didDrawPage: addFooter,
+    });
+
+    doc.addPage();
+
+    // ===== PAGE 5: Investment Analysis =====
+    doc.setFontSize(16);
+    doc.setTextColor(61, 61, 61);
+    doc.text("Investment Analysis", 14, 15);
+    doc.setFontSize(10);
+    doc.text("Property-Level IRR and Cash Flows", 14, 22);
+
+    const { years: invYears, rows: invRows } = generateInvestmentAnalysisData();
+    const invTableData = invRows.map(row => [
+      (row.indent ? '  '.repeat(row.indent) : '') + row.category,
+      ...row.values.map(v => {
+        if (v === '' || v === '-') return v;
+        if (typeof v === 'number') {
+          if (v < 0) return `(${formatMoney(Math.abs(v))})`;
+          return formatMoney(v);
+        }
+        return v;
+      })
+    ]);
+
+    autoTable(doc, {
+      head: [['Category', ...invYears]],
+      body: invTableData,
+      startY: 27,
+      styles: { fontSize: 5.5, cellPadding: 1 },
+      headStyles: { fillColor: [159, 188, 164], textColor: [61, 61, 61], fontStyle: 'bold', fontSize: 5.5, halign: 'center' },
+      columnStyles: colStylesNumeric,
+      margin: { left: 8, right: 8 },
+      didParseCell: (data) => {
+        if (data.section === 'body' && data.row.index !== undefined) {
+          const row = invRows[data.row.index];
+          if (row?.isHeader) {
+            data.cell.styles.fontStyle = 'bold';
+            data.cell.styles.fillColor = [240, 240, 240];
+          }
+        }
+      },
+      didDrawPage: addFooter,
+    });
+
+    doc.save('LB-Hospitality-Portfolio-Report.pdf');
+  };
+
+  const exportOverviewToCSV = () => {
+    const years = Array.from({ length: 10 }, (_, i) => getFiscalYear(i));
+    let csvContent = "";
+
+    // Overview Section
+    csvContent += "L+B HOSPITALITY GROUP - PORTFOLIO INVESTMENT REPORT\n";
+    csvContent += `Generated: ${format(new Date(), 'MMMM d, yyyy')}\n`;
+    csvContent += `Investment Period: ${getFiscalYear(0)} - ${getFiscalYear(9)}\n\n`;
+
+    csvContent += "INVESTMENT RETURNS SUMMARY\n";
+    csvContent += `Total Equity Invested,${totalInitialEquity}\n`;
+    csvContent += `Exit Value (Year 10),${totalExitValue}\n`;
+    csvContent += `Equity Multiple,${equityMultiple.toFixed(2)}x\n`;
+    csvContent += `Average Cash-on-Cash,${cashOnCash.toFixed(1)}%\n`;
+    csvContent += `Portfolio IRR,${(portfolioIRR * 100).toFixed(1)}%\n\n`;
+
+    csvContent += "PORTFOLIO COMPOSITION\n";
+    csvContent += `Properties,${totalProperties}\n`;
+    csvContent += `Total Rooms,${totalRooms}\n`;
+    csvContent += `Total Investment,${properties.reduce((sum, p) => sum + (p.purchasePrice || 0), 0)}\n`;
+    csvContent += `Average Purchase Price,${properties.length > 0 ? properties.reduce((sum, p) => sum + (p.purchasePrice || 0), 0) / properties.length : 0}\n`;
+    csvContent += `Average Starting ADR,${properties.length > 0 ? properties.reduce((sum, p) => sum + (p.startAdr || 0), 0) / properties.length : 0}\n\n`;
+
+    csvContent += "10-YEAR FINANCIAL PROJECTIONS\n";
+    csvContent += `Total Revenue (10-Year),${Array.from({ length: 10 }, (_, i) => getYearlyConsolidated(i).revenueTotal).reduce((a, b) => a + b, 0)}\n`;
+    csvContent += `Total NOI (10-Year),${Array.from({ length: 10 }, (_, i) => getYearlyConsolidated(i).noi).reduce((a, b) => a + b, 0)}\n`;
+    csvContent += `Total Cash Flow (10-Year),${Array.from({ length: 10 }, (_, i) => getYearlyConsolidated(i).cashFlow).reduce((a, b) => a + b, 0)}\n`;
+    csvContent += `Year 10 Revenue,${getYearlyConsolidated(9).revenueTotal}\n`;
+    csvContent += `Year 10 NOI,${getYearlyConsolidated(9).noi}\n\n`;
+
+    csvContent += "PROPERTIES\n";
+    csvContent += "Name,Location,Rooms,Financing\n";
+    properties.forEach(p => {
+      csvContent += `"${p.name}","${p.location}",${p.roomCount},${p.type}\n`;
+    });
+    csvContent += "\n";
+
+    // Income Statement
+    csvContent += "INCOME STATEMENT\n";
+    const { years: incomeYears, rows: incomeRows } = generateIncomeStatementData();
+    csvContent += `Category,${incomeYears.join(',')}\n`;
+    incomeRows.forEach(row => {
+      csvContent += `"${(row.indent ? '  '.repeat(row.indent) : '') + row.category}",${row.values.join(',')}\n`;
+    });
+    csvContent += "\n";
+
+    // Cash Flow Statement
+    csvContent += "CASH FLOW STATEMENT\n";
+    const { years: cfYears, rows: cfRows } = generateCashFlowData();
+    csvContent += `Category,${cfYears.join(',')}\n`;
+    cfRows.forEach(row => {
+      csvContent += `"${(row.indent ? '  '.repeat(row.indent) : '') + row.category}",${row.values.join(',')}\n`;
+    });
+    csvContent += "\n";
+
+    // Balance Sheet
+    csvContent += "BALANCE SHEET\n";
+    const { years: bsYears, rows: bsRows } = generateBalanceSheetData();
+    csvContent += `Category,${bsYears.join(',')}\n`;
+    bsRows.forEach(row => {
+      csvContent += `"${(row.indent ? '  '.repeat(row.indent) : '') + row.category}",${row.values.join(',')}\n`;
+    });
+    csvContent += "\n";
+
+    // Investment Analysis
+    csvContent += "INVESTMENT ANALYSIS\n";
+    const { years: invYears, rows: invRows } = generateInvestmentAnalysisData();
+    csvContent += `Category,${invYears.join(',')}\n`;
+    invRows.filter(row => row.category !== '').forEach(row => {
+      const values = row.values.map(v => {
+        if (v === '' || v === '-') return '';
+        if (typeof v === 'number') return v;
+        return `"${v}"`;
+      });
+      csvContent += `"${(row.indent ? '  '.repeat(row.indent) : '') + row.category}",${values.join(',')}\n`;
+    });
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'LB-Hospitality-Portfolio-Report.csv';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   const getExportFunctions = () => {
     switch (activeTab) {
+      case 'overview':
+        return { pdf: exportOverviewToPDF, csv: exportOverviewToCSV };
       case 'income':
         return { pdf: exportIncomeStatementToPDF, csv: exportIncomeStatementToCSV };
       case 'cashflow':

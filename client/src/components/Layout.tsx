@@ -36,7 +36,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <h1 className="text-xl font-extrabold text-white" style={{ fontFamily: "'Nunito', sans-serif" }}>
                 L+B <span className="text-sidebar-primary">Hospitality</span>
               </h1>
-              <p className="text-xs text-sidebar-foreground/60 uppercase tracking-widest">Investor Portal</p>
+              <p className="text-xs text-sidebar-foreground/60 uppercase tracking-widest">Analytics</p>
             </div>
           </div>
         </div>

@@ -201,35 +201,98 @@ export default function Company() {
       return yearData.reduce((a, m) => a + m.baseFeeRevenue, 0);
     }), indent: 2 });
     
+    properties.forEach((prop, idx) => {
+      rows.push({ category: prop.name, values: years.map((_, y) => getPropertyYearlyBaseFee(idx, y)), indent: 3 });
+    });
+    
     rows.push({ category: "Incentive Fees", values: years.map((_, y) => {
       const yearData = financials.slice(y * 12, (y + 1) * 12);
       return yearData.reduce((a, m) => a + m.incentiveFeeRevenue, 0);
     }), indent: 2 });
+    
+    properties.forEach((prop, idx) => {
+      rows.push({ category: prop.name, values: years.map((_, y) => getPropertyYearlyIncentiveFee(idx, y)), indent: 3 });
+    });
     
     rows.push({ category: "SAFE Funding", values: years.map((_, y) => {
       const yearData = financials.slice(y * 12, (y + 1) * 12);
       return yearData.reduce((a, m) => a + m.safeFunding, 0);
     }), indent: 1 });
     
+    rows.push({ category: "SAFE Tranche 1", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return yearData.reduce((a, m) => a + m.safeFunding1, 0);
+    }), indent: 2 });
+    
+    rows.push({ category: "SAFE Tranche 2", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return yearData.reduce((a, m) => a + m.safeFunding2, 0);
+    }), indent: 2 });
+    
     rows.push({ category: "Cash Outflows", values: years.map((_, y) => {
       const yearData = financials.slice(y * 12, (y + 1) * 12);
       return -yearData.reduce((a, m) => a + m.totalExpenses, 0);
     }), isHeader: true });
     
+    rows.push({ category: "Compensation", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return -yearData.reduce((a, m) => a + m.partnerCompensation + m.staffCompensation, 0);
+    }), indent: 1 });
+    
     rows.push({ category: "Partner Compensation", values: years.map((_, y) => {
       const yearData = financials.slice(y * 12, (y + 1) * 12);
       return -yearData.reduce((a, m) => a + m.partnerCompensation, 0);
-    }), indent: 1 });
+    }), indent: 2 });
     
-    rows.push({ category: "Staff Salaries", values: years.map((_, y) => {
+    rows.push({ category: "Staff Compensation", values: years.map((_, y) => {
       const yearData = financials.slice(y * 12, (y + 1) * 12);
       return -yearData.reduce((a, m) => a + m.staffCompensation, 0);
+    }), indent: 2 });
+    
+    rows.push({ category: "Fixed Overhead", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return -yearData.reduce((a, m) => a + m.officeLease + m.professionalServices + m.businessInsurance, 0);
     }), indent: 1 });
     
-    rows.push({ category: "Other Operating", values: years.map((_, y) => {
+    rows.push({ category: "Office Lease", values: years.map((_, y) => {
       const yearData = financials.slice(y * 12, (y + 1) * 12);
-      return -yearData.reduce((a, m) => a + m.officeLease + m.professionalServices + m.businessInsurance + m.travelCosts + m.itLicensing + m.marketing + m.miscOps, 0);
+      return -yearData.reduce((a, m) => a + m.officeLease, 0);
+    }), indent: 2 });
+    
+    rows.push({ category: "Professional Services", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return -yearData.reduce((a, m) => a + m.professionalServices, 0);
+    }), indent: 2 });
+    
+    rows.push({ category: "Insurance", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return -yearData.reduce((a, m) => a + m.businessInsurance, 0);
+    }), indent: 2 });
+    
+    rows.push({ category: "Variable Costs", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return -yearData.reduce((a, m) => a + m.travelCosts + m.itLicensing + m.marketing + m.miscOps, 0);
     }), indent: 1 });
+    
+    rows.push({ category: "Travel", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return -yearData.reduce((a, m) => a + m.travelCosts, 0);
+    }), indent: 2 });
+    
+    rows.push({ category: "IT Licensing", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return -yearData.reduce((a, m) => a + m.itLicensing, 0);
+    }), indent: 2 });
+    
+    rows.push({ category: "Marketing", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return -yearData.reduce((a, m) => a + m.marketing, 0);
+    }), indent: 2 });
+    
+    rows.push({ category: "Misc Operations", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return -yearData.reduce((a, m) => a + m.miscOps, 0);
+    }), indent: 2 });
     
     rows.push({ category: "Net Cash Flow", values: years.map((_, y) => {
       const yearData = financials.slice(y * 12, (y + 1) * 12);

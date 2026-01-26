@@ -173,6 +173,13 @@ export default function Company() {
       return yearData.reduce((a, m) => a + m.netIncome, 0);
     }), isHeader: true });
     
+    rows.push({ category: "Net Margin (%)", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      const netIncome = yearData.reduce((a, m) => a + m.netIncome, 0);
+      const totalRevenue = yearData.reduce((a, m) => a + m.totalRevenue, 0);
+      return totalRevenue > 0 ? (netIncome / totalRevenue) * 100 : 0;
+    }), indent: 1 });
+    
     return { years, rows };
   };
 
@@ -307,6 +314,7 @@ export default function Company() {
     const tableData = data.rows.map(row => [
       (row.indent ? '  '.repeat(row.indent) : '') + row.category,
       ...row.values.map((v: number) => {
+        if (row.category.includes('%')) return `${v.toFixed(1)}%`;
         if (v === 0 && row.isHeader && !row.category.includes('TOTAL')) return '';
         if (v < 0) return `(${formatMoney(Math.abs(v))})`;
         return formatMoney(v);

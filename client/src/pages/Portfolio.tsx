@@ -230,7 +230,7 @@ export default function Portfolio() {
                   <h3 className="font-semibold text-lg border-b pb-2">Property Photo</h3>
                   <div className="flex flex-col items-center gap-4">
                     {imagePreview ? (
-                      <div className="relative w-full aspect-video rounded-lg overflow-hidden border">
+                      <div className="relative w-full aspect-[16/10] rounded-lg overflow-hidden border">
                         <img src={imagePreview} alt="Property preview" className="w-full h-full object-cover" />
                         <Button
                           variant="destructive"
@@ -247,7 +247,7 @@ export default function Portfolio() {
                       </div>
                     ) : (
                       <div 
-                        className={`w-full aspect-video rounded-lg border-2 border-dashed border-muted-foreground/25 flex flex-col items-center justify-center transition-colors ${isUploadingPhoto ? 'cursor-wait' : 'cursor-pointer hover:border-primary/50'}`}
+                        className={`w-full aspect-[16/10] rounded-lg border-2 border-dashed border-muted-foreground/25 flex flex-col items-center justify-center transition-colors ${isUploadingPhoto ? 'cursor-wait' : 'cursor-pointer hover:border-primary/50'}`}
                         onClick={() => !isUploadingPhoto && fileInputRef.current?.click()}
                       >
                         {isUploadingPhoto ? (
@@ -259,7 +259,7 @@ export default function Portfolio() {
                           <>
                             <Upload className="w-10 h-10 text-muted-foreground/50 mb-2" />
                             <p className="text-sm text-muted-foreground">Click to upload property photo</p>
-                            <p className="text-xs text-muted-foreground/70 mt-1">JPG, PNG, WebP supported</p>
+                            <p className="text-xs text-muted-foreground/70 mt-1">Photo will be cropped to fit card format</p>
                           </>
                         )}
                       </div>

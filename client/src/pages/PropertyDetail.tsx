@@ -231,14 +231,20 @@ export default function PropertyDetail() {
       [{ content: "Cumulative Cash Flow", styles: { fontStyle: "bold" } }, ...cashFlowData.map(y => ({ content: fmtNum(y.cumulativeCashFlow), styles: { fontStyle: "bold" } }))],
     ];
 
+    // Build column styles with right alignment for all numeric columns
+    const colStyles: Record<number, any> = { 0: { cellWidth: 45, halign: 'left' } };
+    for (let i = 1; i <= years; i++) {
+      colStyles[i] = { halign: 'right' };
+    }
+
     autoTable(doc, {
       head: headers,
       body: body as any,
       startY: 28,
       theme: "grid",
       styles: { fontSize: 7, cellPadding: 1.5 },
-      headStyles: { fillColor: [37, 125, 65], textColor: 255, fontStyle: "bold" },
-      columnStyles: { 0: { cellWidth: 45 } },
+      headStyles: { fillColor: [159, 188, 164], textColor: [61, 61, 61], fontStyle: "bold", halign: 'right' },
+      columnStyles: colStyles,
     });
 
     doc.save(`${property.name.replace(/\s+/g, '_')}_CashFlow.pdf`);

@@ -565,6 +565,140 @@ export default function Research() {
             </div>
           </CardContent>
         </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Sources & References</CardTitle>
+            <p className="text-sm text-muted-foreground">Industry research and data sources used in this analysis</p>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div>
+              <h4 className="font-semibold mb-3">ADR & Market Performance Data</h4>
+              <ul className="space-y-2 text-sm">
+                <li className="flex items-start gap-2">
+                  <span className="text-primary">•</span>
+                  <div>
+                    <a href="https://str.com/press-release/costar-te-maintain-growth-projections-first-us-hotel-forecast-2025" target="_blank" rel="noopener noreferrer" className="text-[#5C6BC0] hover:underline font-medium">STR/CoStar Tourism Economics</a>
+                    <span className="text-muted-foreground"> — U.S. Hotel Industry Forecasts 2024-2026</span>
+                  </div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary">•</span>
+                  <div>
+                    <a href="https://www.cbre.com/insights/reports/2025-global-hotel-outlook" target="_blank" rel="noopener noreferrer" className="text-[#5C6BC0] hover:underline font-medium">CBRE Hotels</a>
+                    <span className="text-muted-foreground"> — 2025 Global Hotel Outlook & Hotel Horizons Forecasts</span>
+                  </div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary">•</span>
+                  <div>
+                    <a href="https://www.pwc.com/us/en/industries/financial-services/asset-wealth-management/real-estate/emerging-trends-in-real-estate-pwc-uli/property-type-outlook/hospitality.html" target="_blank" rel="noopener noreferrer" className="text-[#5C6BC0] hover:underline font-medium">PwC Hospitality Directions</a>
+                    <span className="text-muted-foreground"> — U.S. Hotel Industry Outlook & ADR Forecasts</span>
+                  </div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary">•</span>
+                  <div>
+                    <a href="https://highland-group.net/reports/the-boutique-hotel-report-2025-copy/" target="_blank" rel="noopener noreferrer" className="text-[#5C6BC0] hover:underline font-medium">The Highland Group</a>
+                    <span className="text-muted-foreground"> — Boutique Hotel Report 2025 (10th Annual Edition)</span>
+                  </div>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-semibold mb-3">Management Fee Structure Research</h4>
+              <ul className="space-y-2 text-sm">
+                <li className="flex items-start gap-2">
+                  <span className="text-primary">•</span>
+                  <div>
+                    <a href="https://www.hvs.com/article/9912-a-new-approach-to-hotel-management-fees" target="_blank" rel="noopener noreferrer" className="text-[#5C6BC0] hover:underline font-medium">HVS (Hotel Valuation Services)</a>
+                    <span className="text-muted-foreground"> — A New Approach to Hotel Management Fees</span>
+                  </div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary">•</span>
+                  <div>
+                    <a href="https://hvs.com/PaidPublications/Samples/Excerpts_HVS%20Guide%20to%20Hotel%20Management%20Contracts%202020.pdf" target="_blank" rel="noopener noreferrer" className="text-[#5C6BC0] hover:underline font-medium">HVS Guide to Hotel Management Contracts</a>
+                    <span className="text-muted-foreground"> — Industry standard fee structures and terms</span>
+                  </div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary">•</span>
+                  <div>
+                    <a href="https://www.dlapiperintelligence.com/hotelmanagement" target="_blank" rel="noopener noreferrer" className="text-[#5C6BC0] hover:underline font-medium">DLA Piper Hotel Management Agreements</a>
+                    <span className="text-muted-foreground"> — Global Survey covering 27 jurisdictions</span>
+                  </div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary">•</span>
+                  <div>
+                    <a href="https://www.hospitalitynet.org/opinion/4128065.html" target="_blank" rel="noopener noreferrer" className="text-[#5C6BC0] hover:underline font-medium">HospitalityNet</a>
+                    <span className="text-muted-foreground"> — Owner's Priority: The Most Important Provision in Hotel Management Contracts</span>
+                  </div>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-semibold mb-3">Investment & Capitalization Rate Research</h4>
+              <ul className="space-y-2 text-sm">
+                <li className="flex items-start gap-2">
+                  <span className="text-primary">•</span>
+                  <div>
+                    <a href="https://www.cbre.com/insights/reports/2025-us-hotel-investor-intentions-survey" target="_blank" rel="noopener noreferrer" className="text-[#5C6BC0] hover:underline font-medium">CBRE U.S. Hotel Investor Intentions Survey</a>
+                    <span className="text-muted-foreground"> — Cap rates, investment trends, and market conditions</span>
+                  </div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary">•</span>
+                  <div>
+                    <a href="https://pip.cbrehotels.com/hotelhorizons" target="_blank" rel="noopener noreferrer" className="text-[#5C6BC0] hover:underline font-medium">CBRE Hotel Horizons</a>
+                    <span className="text-muted-foreground"> — 10-year forecasts for 65 U.S. markets</span>
+                  </div>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-semibold mb-3">Industry News & Analysis</h4>
+              <ul className="space-y-2 text-sm">
+                <li className="flex items-start gap-2">
+                  <span className="text-primary">•</span>
+                  <div>
+                    <a href="https://www.hotelmanagement.net" target="_blank" rel="noopener noreferrer" className="text-[#5C6BC0] hover:underline font-medium">Hotel Management</a>
+                    <span className="text-muted-foreground"> — Industry news, data trends, and market analysis</span>
+                  </div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary">•</span>
+                  <div>
+                    <a href="https://www.hoteldive.com" target="_blank" rel="noopener noreferrer" className="text-[#5C6BC0] hover:underline font-medium">Hotel Dive</a>
+                    <span className="text-muted-foreground"> — Hotel industry news and trends</span>
+                  </div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary">•</span>
+                  <div>
+                    <a href="https://www.businesstravelnews.com/Lodging" target="_blank" rel="noopener noreferrer" className="text-[#5C6BC0] hover:underline font-medium">Business Travel News - Lodging</a>
+                    <span className="text-muted-foreground"> — Hotel performance forecasts and industry updates</span>
+                  </div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary">•</span>
+                  <div>
+                    <a href="https://www.hospitalitynet.org" target="_blank" rel="noopener noreferrer" className="text-[#5C6BC0] hover:underline font-medium">Hospitality Net</a>
+                    <span className="text-muted-foreground"> — Global hospitality industry news and research</span>
+                  </div>
+                </li>
+              </ul>
+            </div>
+
+            <div className="bg-muted/30 p-4 rounded-lg border-l-4 border-primary">
+              <p className="text-sm"><strong>Note:</strong> Data and benchmarks in this document are based on publicly available industry research and are intended for financial modeling purposes. Actual market conditions may vary. Research data current as of Q1 2026.</p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </Layout>
   );

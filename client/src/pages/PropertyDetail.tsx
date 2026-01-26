@@ -14,9 +14,12 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { calculateLoanParams, calculatePropertyYearlyCashFlows, LoanParams, GlobalLoanParams } from "@/lib/loanCalculations";
 
+import { useState } from "react";
+
 export default function PropertyDetail() {
   const [, params] = useRoute("/property/:id");
   const propertyId = params?.id ? parseInt(params.id) : 0;
+  const [activeTab, setActiveTab] = useState("income");
   
   const { data: property, isLoading: propertyLoading } = useProperty(propertyId);
   const { data: global, isLoading: globalLoading } = useGlobalAssumptions();
@@ -268,71 +271,7 @@ export default function PropertyDetail() {
           </div>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Key Performance Indicators (10-Year Projection)</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={yearlyChartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis 
-                    dataKey="year" 
-                    stroke="hsl(var(--muted-foreground))" 
-                    fontSize={12}
-                    tickLine={false}
-                  />
-                  <YAxis 
-                    stroke="hsl(var(--muted-foreground))" 
-                    fontSize={12}
-                    tickLine={false}
-                    tickFormatter={(value) => `$${(value / 1000000).toFixed(1)}M`}
-                  />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(var(--card))', 
-                      borderColor: 'hsl(var(--border))',
-                      borderRadius: '8px',
-                    }}
-                    formatter={(value: number) => [formatMoney(value), ""]}
-                  />
-                  <Legend />
-                  <Line 
-                    type="monotone" 
-                    dataKey="Revenue" 
-                    stroke="#5C6BC0" 
-                    strokeWidth={2}
-                    dot={{ fill: '#5C6BC0' }}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="GOP" 
-                    stroke="hsl(var(--chart-3))" 
-                    strokeWidth={2}
-                    dot={{ fill: 'hsl(var(--chart-3))' }}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="NOI" 
-                    stroke="hsl(var(--chart-4))" 
-                    strokeWidth={2}
-                    dot={{ fill: 'hsl(var(--chart-4))' }}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="CashFlow" 
-                    stroke="hsl(var(--accent))" 
-                    strokeWidth={2}
-                    dot={{ fill: 'hsl(var(--accent))' }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Tabs defaultValue="income" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div className="flex items-center justify-between mb-4">
             <TabsList className="grid grid-cols-2 max-w-md">
               <TabsTrigger value="income">Income Statement</TabsTrigger>
@@ -360,11 +299,70 @@ export default function PropertyDetail() {
             </div>
           </div>
           
-          <TabsContent value="income" className="mt-6">
+          <TabsContent value="income" className="mt-6 space-y-6">
             <YearlyIncomeStatement data={financials} years={10} startYear={getFiscalYear(0)} />
+            <Card>
+              <CardHeader>
+                <CardTitle>Income Statement Trends (10-Year Projection)</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={yearlyChartData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                      <XAxis 
+                        dataKey="year" 
+                        stroke="hsl(var(--muted-foreground))" 
+                        fontSize={12}
+                        tickLine={false}
+                      />
+                      <YAxis 
+                        stroke="hsl(var(--muted-foreground))" 
+                        fontSize={12}
+                        tickLine={false}
+                        tickFormatter={(value) => `$${(value / 1000000).toFixed(1)}M`}
+                      />
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: 'hsl(var(--card))', 
+                          borderColor: 'hsl(var(--border))',
+                          borderRadius: '8px',
+                        }}
+                        formatter={(value: number) => [formatMoney(value), ""]}
+                      />
+                      <Legend />
+                      <Line 
+                        type="monotone" 
+                        dataKey="Revenue" 
+                        stroke="#5C6BC0" 
+                        strokeWidth={2}
+                        dot={{ fill: '#5C6BC0' }}
+                        name="Total Revenue"
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="GOP" 
+                        stroke="hsl(var(--chart-3))" 
+                        strokeWidth={2}
+                        dot={{ fill: 'hsl(var(--chart-3))' }}
+                        name="Gross Operating Profit"
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="NOI" 
+                        stroke="hsl(var(--chart-4))" 
+                        strokeWidth={2}
+                        dot={{ fill: 'hsl(var(--chart-4))' }}
+                        name="Net Operating Income"
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
           
-          <TabsContent value="cashflow" className="mt-6">
+          <TabsContent value="cashflow" className="mt-6 space-y-6">
             <YearlyCashFlowStatement 
               data={financials} 
               property={property} 
@@ -373,6 +371,73 @@ export default function PropertyDetail() {
               startYear={getFiscalYear(0)} 
               defaultLTV={global.debtAssumptions?.acqLTV ?? 0.75}
             />
+            <Card>
+              <CardHeader>
+                <CardTitle>Cash Flow Trends (10-Year Projection)</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={yearlyChartData.map((d, i) => {
+                      const cfData = getCashFlowData();
+                      return {
+                        ...d,
+                        FCF: cfData[i]?.freeCashFlow || 0,
+                        FCFE: cfData[i]?.freeCashFlowToEquity || 0,
+                        NetToInvestors: cfData[i]?.netCashFlowToInvestors || 0,
+                      };
+                    })}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                      <XAxis 
+                        dataKey="year" 
+                        stroke="hsl(var(--muted-foreground))" 
+                        fontSize={12}
+                        tickLine={false}
+                      />
+                      <YAxis 
+                        stroke="hsl(var(--muted-foreground))" 
+                        fontSize={12}
+                        tickLine={false}
+                        tickFormatter={(value) => `$${(value / 1000000).toFixed(1)}M`}
+                      />
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: 'hsl(var(--card))', 
+                          borderColor: 'hsl(var(--border))',
+                          borderRadius: '8px',
+                        }}
+                        formatter={(value: number) => [formatMoney(value), ""]}
+                      />
+                      <Legend />
+                      <Line 
+                        type="monotone" 
+                        dataKey="NOI" 
+                        stroke="hsl(var(--chart-4))" 
+                        strokeWidth={2}
+                        dot={{ fill: 'hsl(var(--chart-4))' }}
+                        name="Net Operating Income"
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="FCF" 
+                        stroke="#5C6BC0" 
+                        strokeWidth={2}
+                        dot={{ fill: '#5C6BC0' }}
+                        name="Free Cash Flow"
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="FCFE" 
+                        stroke="hsl(var(--accent))" 
+                        strokeWidth={2}
+                        dot={{ fill: 'hsl(var(--accent))' }}
+                        name="Free Cash Flow to Equity"
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>

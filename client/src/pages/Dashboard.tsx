@@ -192,6 +192,161 @@ export default function Dashboard() {
   // Investment horizon
   const investmentHorizon = 10;
 
+  // Investment Analysis calculations (duplicated from InvestmentAnalysis for Overview)
+  const DEPRECIATION_YEARS = 27.5;
+  
+  const getPropertyAcquisitionYear = (prop: any): number => {
+    const acqDate = new Date(prop.acquisitionDate);
+    const modelStart = new Date(global.modelStartDate);
+    const monthsDiff = (acqDate.getFullYear() - modelStart.getFullYear()) * 12 + 
+                       (acqDate.getMonth() - modelStart.getMonth());
+    return Math.floor(monthsDiff / 12);
+  };
+
+  const getPropertyInvestment = (prop: any) => {
+    const investment = prop.purchasePrice + prop.buildingImprovements + 
+                            prop.preOpeningCosts + prop.operatingReserve;
+    if (prop.type === "Financed") {
+      const ltv = prop.acquisitionLTV || global.debtAssumptions.acqLTV || 0.75;
+      return investment * (1 - ltv);
+    }
+    return investment;
+  };
+
+  const getEquityInvestmentForYear = (yearIndex: number): number => {
+    let total = 0;
+    properties.forEach(prop => {
+      const acqYear = getPropertyAcquisitionYear(prop);
+      if (acqYear === yearIndex) {
+        total += getPropertyInvestment(prop);
+      }
+    });
+    return total;
+  };
+
+  const getPropertyLoanAmount = (prop: any) => {
+    if (prop.type !== "Financed") return 0;
+    const ltv = prop.acquisitionLTV || global.debtAssumptions.acqLTV || 0.75;
+    return (prop.purchasePrice + prop.buildingImprovements) * ltv;
+  };
+
+  const getAnnualDepreciation = (prop: any) => {
+    const depreciableBase = prop.purchasePrice + prop.buildingImprovements;
+    return depreciableBase / DEPRECIATION_YEARS;
+  };
+
+  const getPropertyExitValue = (prop: any, propIndex: number) => {
+    const { financials } = allPropertyFinancials[propIndex];
+    const year10Data = financials.slice(108, 120);
+    const year10NOI = year10Data.reduce((a: number, m: any) => a + m.noi, 0);
+    const capRate = prop.exitCapRate || 0.085;
+    const propertyValue = year10NOI / capRate;
+    
+    const loanAmount = getPropertyLoanAmount(prop);
+    if (loanAmount <= 0) return propertyValue;
+    
+    const annualRate = prop.acquisitionInterestRate || global.debtAssumptions.interestRate || 0.09;
+    const r = annualRate / 12;
+    const termYears = prop.acquisitionTermYears || global.debtAssumptions.amortizationYears || 25;
+    const n = termYears * 12;
+    const monthlyPayment = (loanAmount * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+    
+    let remainingBalance = loanAmount;
+    for (let m = 0; m < 120 && m < n; m++) {
+      const interestPayment = remainingBalance * r;
+      const principalPayment = monthlyPayment - interestPayment;
+      remainingBalance -= principalPayment;
+    }
+    
+    return propertyValue - Math.max(0, remainingBalance);
+  };
+
+  const getPropertyYearlyDetails = (prop: any, propIndex: number, yearIndex: number) => {
+    const { financials } = allPropertyFinancials[propIndex];
+    const startMonth = yearIndex * 12;
+    const endMonth = startMonth + 12;
+    const yearData = financials.slice(startMonth, endMonth);
+    const noi = yearData.reduce((a: number, m: any) => a + m.noi, 0);
+    
+    const loanAmount = getPropertyLoanAmount(prop);
+    let debtService = 0, interestPortion = 0;
+    
+    if (loanAmount > 0) {
+      const annualRate = prop.acquisitionInterestRate || global.debtAssumptions.interestRate || 0.09;
+      const r = annualRate / 12;
+      const termYears = prop.acquisitionTermYears || global.debtAssumptions.amortizationYears || 25;
+      const n = termYears * 12;
+      const monthlyPayment = (loanAmount * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+      debtService = monthlyPayment * 12;
+      
+      let remainingBalance = loanAmount;
+      for (let m = 0; m < endMonth && m < n; m++) {
+        const interestPayment = remainingBalance * r;
+        const principalPayment = monthlyPayment - interestPayment;
+        if (m >= startMonth) interestPortion += interestPayment;
+        remainingBalance -= principalPayment;
+      }
+    }
+    
+    const depreciation = getAnnualDepreciation(prop);
+    const btcf = noi - debtService;
+    const taxableIncome = noi - interestPortion - depreciation;
+    const taxRate = prop.taxRate || 0.25;
+    const taxLiability = taxableIncome > 0 ? taxableIncome * taxRate : 0;
+    const atcf = btcf - taxLiability;
+    
+    return { noi, debtService, interestPortion, depreciation, btcf, taxableIncome, taxLiability, atcf };
+  };
+
+  const getConsolidatedYearlyDetails = (yearIndex: number) => {
+    let totalATCF = 0;
+    properties.forEach((prop, idx) => {
+      const details = getPropertyYearlyDetails(prop, idx, yearIndex);
+      totalATCF += details.atcf;
+    });
+    return { atcf: totalATCF };
+  };
+
+  const getConsolidatedCashFlows = (): number[] => {
+    const flows: number[] = [];
+    const year0Investment = getEquityInvestmentForYear(0);
+    flows.push(-year0Investment);
+    
+    for (let y = 0; y < 10; y++) {
+      const consolidated = getConsolidatedYearlyDetails(y);
+      let yearCashFlow = consolidated.atcf;
+      
+      const yearInvestment = getEquityInvestmentForYear(y + 1);
+      if (yearInvestment > 0) yearCashFlow -= yearInvestment;
+      
+      if (y === 9) {
+        properties.forEach((prop, idx) => {
+          yearCashFlow += getPropertyExitValue(prop, idx);
+        });
+      }
+      
+      flows.push(yearCashFlow);
+    }
+    return flows;
+  };
+
+  const consolidatedFlows = getConsolidatedCashFlows();
+  const portfolioIRR = calculateIRR(consolidatedFlows);
+  const totalInitialEquity = properties.reduce((sum, prop) => sum + getPropertyInvestment(prop), 0);
+  const totalExitValue = properties.reduce((sum, prop, idx) => sum + getPropertyExitValue(prop, idx), 0);
+  const totalCashReturned = consolidatedFlows.slice(1).reduce((sum, cf) => sum + cf, 0);
+  const equityMultiple = totalInitialEquity > 0 ? totalCashReturned / totalInitialEquity : 0;
+  
+  const operatingCashFlows = consolidatedFlows.slice(1).map((cf, idx) => {
+    let exitValue = 0;
+    if (idx === 9) {
+      exitValue = properties.reduce((sum, prop, propIdx) => sum + getPropertyExitValue(prop, propIdx), 0);
+    }
+    return cf - exitValue;
+  });
+  const avgAnnualCashFlow = operatingCashFlows.reduce((sum, cf) => sum + cf, 0) / 10;
+  const cashOnCash = totalInitialEquity > 0 ? (avgAnnualCashFlow / totalInitialEquity) * 100 : 0;
+
   return (
     <Layout>
       <div className="space-y-8">
@@ -215,119 +370,144 @@ export default function Dashboard() {
             <TabsTrigger value="investment">Investment Analysis</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview" className="space-y-6">
-            {/* Portfolio Metrics - Row 1 */}
-            <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-              <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20">
-                <CardContent className="p-4">
-                  <p className="text-sm text-primary-foreground/80">Properties</p>
-                  <p className="text-2xl font-bold mt-1 text-primary-foreground">{totalProperties}</p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20">
-                <CardContent className="p-4">
-                  <p className="text-sm text-primary-foreground/80">Total Rooms</p>
-                  <p className="text-2xl font-bold mt-1 text-primary-foreground">{totalRooms}</p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20">
-                <CardContent className="p-4">
-                  <p className="text-sm text-primary-foreground/80">Avg Rooms/Property</p>
-                  <p className="text-2xl font-bold mt-1 text-primary-foreground">{avgRoomsPerProperty.toFixed(0)}</p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20">
-                <CardContent className="p-4">
-                  <p className="text-sm text-primary-foreground/80">Hold Period</p>
-                  <p className="text-2xl font-bold mt-1 text-primary-foreground">{investmentHorizon} Years</p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20">
-                <CardContent className="p-4">
-                  <p className="text-sm text-primary-foreground/80">Markets</p>
-                  <p className="text-2xl font-bold mt-1 text-primary-foreground">{Object.keys(marketCounts).length}</p>
-                </CardContent>
-              </Card>
+          <TabsContent value="overview" className="space-y-8">
+            {/* Investment Returns - Hero Section */}
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1a365d] via-[#2d4a6f] to-[#1a365d] p-6 shadow-2xl">
+              <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PHBhdGggZD0iTTM2IDM0djItSDI0di0yaDEyek0zNiAyNHYySDI0di0yaDEyeiIvPjwvZz48L2c+PC9zdmc+')] opacity-50"></div>
+              <div className="relative">
+                <h3 className="text-lg font-medium text-white/70 mb-4">Investment Returns</h3>
+                <div className="grid gap-6 md:grid-cols-5">
+                  <div className="text-center">
+                    <p className="text-sm text-white/60 mb-1">Total Equity</p>
+                    <p className="text-2xl font-bold text-white">{formatMoney(totalInitialEquity)}</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-sm text-white/60 mb-1">Exit Value ({modelStartYear + 9})</p>
+                    <p className="text-2xl font-bold text-emerald-400">{formatMoney(totalExitValue)}</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-sm text-white/60 mb-1">Equity Multiple</p>
+                    <p className="text-2xl font-bold text-white">{equityMultiple.toFixed(2)}x</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-sm text-white/60 mb-1">Avg Cash-on-Cash</p>
+                    <p className="text-2xl font-bold text-white">{cashOnCash.toFixed(1)}%</p>
+                  </div>
+                  <div className="text-center bg-white/10 rounded-xl py-3 px-4 backdrop-blur">
+                    <p className="text-sm text-white/70 mb-1">Portfolio IRR</p>
+                    <p className="text-3xl font-bold text-amber-400">{(portfolioIRR * 100).toFixed(1)}%</p>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            {/* Investment Metrics - Row 2 */}
-            <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-              <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20">
-                <CardContent className="p-4">
-                  <p className="text-sm text-primary-foreground/80">Total Investment</p>
-                  <p className="text-2xl font-bold mt-1 text-primary-foreground">{formatMoney(totalInvestment)}</p>
-                </CardContent>
-              </Card>
+            {/* Portfolio Metrics */}
+            <div>
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">Portfolio Composition</h3>
+              <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+                <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20 hover:shadow-xl hover:scale-[1.02] transition-all">
+                  <CardContent className="p-4">
+                    <p className="text-sm text-primary-foreground/80">Properties</p>
+                    <p className="text-2xl font-bold mt-1 text-primary-foreground">{totalProperties}</p>
+                  </CardContent>
+                </Card>
 
-              <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20">
-                <CardContent className="p-4">
-                  <p className="text-sm text-primary-foreground/80">Avg Purchase Price</p>
-                  <p className="text-2xl font-bold mt-1 text-primary-foreground">{formatMoney(avgPurchasePrice)}</p>
-                </CardContent>
-              </Card>
+                <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20 hover:shadow-xl hover:scale-[1.02] transition-all">
+                  <CardContent className="p-4">
+                    <p className="text-sm text-primary-foreground/80">Total Rooms</p>
+                    <p className="text-2xl font-bold mt-1 text-primary-foreground">{totalRooms}</p>
+                  </CardContent>
+                </Card>
 
-              <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20">
-                <CardContent className="p-4">
-                  <p className="text-sm text-primary-foreground/80">Avg Daily Rate</p>
-                  <p className="text-2xl font-bold mt-1 text-primary-foreground">{formatMoney(avgADR)}</p>
-                </CardContent>
-              </Card>
+                <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20 hover:shadow-xl hover:scale-[1.02] transition-all">
+                  <CardContent className="p-4">
+                    <p className="text-sm text-primary-foreground/80">Avg Rooms/Property</p>
+                    <p className="text-2xl font-bold mt-1 text-primary-foreground">{avgRoomsPerProperty.toFixed(0)}</p>
+                  </CardContent>
+                </Card>
 
-              <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20">
-                <CardContent className="p-4">
-                  <p className="text-sm text-primary-foreground/80">Avg Exit Cap Rate</p>
-                  <p className="text-2xl font-bold mt-1 text-primary-foreground">{(avgExitCapRate * 100).toFixed(1)}%</p>
-                </CardContent>
-              </Card>
+                <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20 hover:shadow-xl hover:scale-[1.02] transition-all">
+                  <CardContent className="p-4">
+                    <p className="text-sm text-primary-foreground/80">Hold Period</p>
+                    <p className="text-2xl font-bold mt-1 text-primary-foreground">{investmentHorizon} Years</p>
+                  </CardContent>
+                </Card>
 
-              <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20">
-                <CardContent className="p-4">
-                  <p className="text-sm text-primary-foreground/80">Exit Value ({modelStartYear + 9})</p>
-                  <p className="text-2xl font-bold mt-1 text-primary-foreground">{formatMoney(projectedExitValue)}</p>
-                </CardContent>
-              </Card>
+                <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20 hover:shadow-xl hover:scale-[1.02] transition-all">
+                  <CardContent className="p-4">
+                    <p className="text-sm text-primary-foreground/80">Markets</p>
+                    <p className="text-2xl font-bold mt-1 text-primary-foreground">{Object.keys(marketCounts).length}</p>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
 
-            {/* 10-Year Projections - Row 3 */}
-            <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-              <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20">
-                <CardContent className="p-4">
-                  <p className="text-sm text-primary-foreground/80">10-Year Revenue</p>
-                  <p className="text-2xl font-bold mt-1 text-primary-foreground">{formatMoney(total10YearRevenue)}</p>
-                </CardContent>
-              </Card>
+            {/* Investment Metrics */}
+            <div>
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">Capital Structure</h3>
+              <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+                <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20 hover:shadow-xl hover:scale-[1.02] transition-all">
+                  <CardContent className="p-4">
+                    <p className="text-sm text-primary-foreground/80">Total Investment</p>
+                    <p className="text-2xl font-bold mt-1 text-primary-foreground">{formatMoney(totalInvestment)}</p>
+                  </CardContent>
+                </Card>
 
-              <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20">
-                <CardContent className="p-4">
-                  <p className="text-sm text-primary-foreground/80">10-Year NOI</p>
-                  <p className="text-2xl font-bold mt-1 text-primary-foreground">{formatMoney(total10YearNOI)}</p>
-                </CardContent>
-              </Card>
+                <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20 hover:shadow-xl hover:scale-[1.02] transition-all">
+                  <CardContent className="p-4">
+                    <p className="text-sm text-primary-foreground/80">Avg Purchase Price</p>
+                    <p className="text-2xl font-bold mt-1 text-primary-foreground">{formatMoney(avgPurchasePrice)}</p>
+                  </CardContent>
+                </Card>
 
-              <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20">
-                <CardContent className="p-4">
-                  <p className="text-sm text-primary-foreground/80">10-Year Cash Flow</p>
-                  <p className="text-2xl font-bold mt-1 text-primary-foreground">{formatMoney(total10YearCashFlow)}</p>
-                </CardContent>
-              </Card>
+                <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20 hover:shadow-xl hover:scale-[1.02] transition-all">
+                  <CardContent className="p-4">
+                    <p className="text-sm text-primary-foreground/80">Avg Daily Rate</p>
+                    <p className="text-2xl font-bold mt-1 text-primary-foreground">{formatMoney(avgADR)}</p>
+                  </CardContent>
+                </Card>
 
-              <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20">
-                <CardContent className="p-4">
-                  <p className="text-sm text-primary-foreground/80">Year 1 Revenue</p>
-                  <p className="text-2xl font-bold mt-1 text-primary-foreground">{formatMoney(portfolioTotalRevenue)}</p>
-                </CardContent>
-              </Card>
+                <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20 hover:shadow-xl hover:scale-[1.02] transition-all">
+                  <CardContent className="p-4">
+                    <p className="text-sm text-primary-foreground/80">Avg Exit Cap Rate</p>
+                    <p className="text-2xl font-bold mt-1 text-primary-foreground">{(avgExitCapRate * 100).toFixed(1)}%</p>
+                  </CardContent>
+                </Card>
 
-              <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20">
-                <CardContent className="p-4">
-                  <p className="text-sm text-primary-foreground/80">Year 1 GOP Margin</p>
-                  <p className="text-2xl font-bold mt-1 text-primary-foreground">{portfolioTotalRevenue > 0 ? ((portfolioTotalGOP / portfolioTotalRevenue) * 100).toFixed(1) : '0'}%</p>
-                </CardContent>
-              </Card>
+                <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20 hover:shadow-xl hover:scale-[1.02] transition-all">
+                  <CardContent className="p-4">
+                    <p className="text-sm text-primary-foreground/80">Projected Exit</p>
+                    <p className="text-2xl font-bold mt-1 text-primary-foreground">{formatMoney(projectedExitValue)}</p>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+
+            {/* 10-Year Projections */}
+            <div>
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">10-Year Projections</h3>
+              <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
+                <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20 hover:shadow-xl hover:scale-[1.02] transition-all">
+                  <CardContent className="p-5">
+                    <p className="text-sm text-primary-foreground/80">10-Year Revenue</p>
+                    <p className="text-3xl font-bold mt-2 text-primary-foreground">{formatMoney(total10YearRevenue)}</p>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20 hover:shadow-xl hover:scale-[1.02] transition-all">
+                  <CardContent className="p-5">
+                    <p className="text-sm text-primary-foreground/80">10-Year NOI</p>
+                    <p className="text-3xl font-bold mt-2 text-primary-foreground">{formatMoney(total10YearNOI)}</p>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20 hover:shadow-xl hover:scale-[1.02] transition-all">
+                  <CardContent className="p-5">
+                    <p className="text-sm text-primary-foreground/80">10-Year Cash Flow</p>
+                    <p className="text-3xl font-bold mt-2 text-primary-foreground">{formatMoney(total10YearCashFlow)}</p>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
           </TabsContent>
 

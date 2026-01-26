@@ -316,18 +316,21 @@ export interface YearlyCashFlowResult {
   // GAAP Operating Cash Flow (Indirect Method)
   operatingCashFlow: number;   // Net Income + Depreciation (add back non-cash)
   workingCapitalChange: number; // Changes in receivables, payables, etc.
-  cashFromOperations: number;  // OCF + Working Capital Changes
+  cashFromOperations: number;  // OCF ± Working Capital Changes
+  // GAAP Free Cash Flow (to the property)
+  maintenanceCapex: number;    // Ongoing capital expenditures (FF&E reserves, maintenance)
+  freeCashFlow: number;        // Cash from Operations - Maintenance CapEx
   // Financing Activities
   principalPayment: number;
   debtService: number;
+  // Free Cash Flow to Equity (after debt service)
+  freeCashFlowToEquity: number; // FCF - Principal Payments
   // Legacy fields for compatibility
   btcf: number;                // NOI - Debt Service (Before-Tax Cash Flow)
   taxableIncome: number;       // NOI - Interest - Depreciation
   atcf: number;                // BTCF - Tax (After-Tax Cash Flow)
-  // GAAP Free Cash Flow
-  freeCashFlow: number;        // Cash from Operations - Principal Payments
-  // Capital Events
-  capitalExpenditures: number;
+  // Capital Events (Investing/Financing)
+  capitalExpenditures: number; // Initial equity investment (negative in acquisition year)
   refinancingProceeds: number;
   exitValue: number;
   // Net to Investors
@@ -370,14 +373,20 @@ export function calculatePropertyYearlyCashFlows(
     // Can be expanded to include A/R, A/P changes if needed
     const workingCapitalChange = 0;
     
-    // Step 4: Cash from Operations = OCF +/- Working Capital Changes
+    // Step 4: Cash from Operations = OCF ± Working Capital Changes
     const cashFromOperations = operatingCashFlow - workingCapitalChange;
     
-    // Step 5: Free Cash Flow = Cash from Operations - Principal Payments
-    // Note: Principal is a financing activity, not operating
-    const freeCashFlow = cashFromOperations - debt.principalPayment;
+    // Step 5: GAAP Free Cash Flow = Cash from Operations - Maintenance CapEx
+    // Note: For hotels, FF&E reserves are already expensed in NOI, so maintenance capex is minimal
+    // This represents any additional capital expenditures not included in operating expenses
+    const maintenanceCapex = 0; // Already included in costRateFFE within NOI
+    const freeCashFlow = cashFromOperations - maintenanceCapex;
     
-    // Capital events
+    // Step 6: Free Cash Flow to Equity = FCF - Principal Payments
+    // Principal is a financing activity - cash used to repay debt reduces equity returns
+    const freeCashFlowToEquity = freeCashFlow - debt.principalPayment;
+    
+    // Capital events (Investing/Financing)
     const capex = y === acquisitionYear ? -loan.equityInvested : 0;
     const refiProceedsThisYear = y === refi.refiYear ? refi.refiProceeds : 0;
     
@@ -386,8 +395,8 @@ export function calculatePropertyYearlyCashFlows(
       exitValue = calculateExitValue(noi, loan, refi, y, property.exitCapRate);
     }
     
-    // Net cash flow to investors = Free Cash Flow + Capital Events + Exit
-    const netCashFlowToInvestors = freeCashFlow + capex + refiProceedsThisYear + exitValue;
+    // Net cash flow to investors = FCFE + Capital Events + Exit
+    const netCashFlowToInvestors = freeCashFlowToEquity + capex + refiProceedsThisYear + exitValue;
     cumulative += netCashFlowToInvestors;
     
     results.push({
@@ -401,10 +410,12 @@ export function calculatePropertyYearlyCashFlows(
       operatingCashFlow,
       workingCapitalChange,
       cashFromOperations,
+      maintenanceCapex,
       freeCashFlow,
       // Financing
       principalPayment: debt.principalPayment,
       debtService: debt.debtService,
+      freeCashFlowToEquity,
       // Legacy fields
       btcf,
       taxableIncome,

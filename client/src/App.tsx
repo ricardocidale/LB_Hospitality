@@ -11,6 +11,7 @@ import Portfolio from "@/pages/Portfolio";
 import PropertyDetail from "@/pages/PropertyDetail";
 import PropertyEdit from "@/pages/PropertyEdit";
 import Settings from "@/pages/Settings";
+import Methodology from "@/pages/Methodology";
 import Research from "@/pages/Research";
 
 function Router() {
@@ -23,6 +24,7 @@ function Router() {
       <Route path="/property/:id" component={PropertyDetail} />
       <Route path="/property/:id/edit" component={PropertyEdit} />
       <Route path="/settings" component={Settings} />
+      <Route path="/methodology" component={Methodology} />
       <Route path="/research" component={Research} />
       <Route component={NotFound} />
     </Switch>

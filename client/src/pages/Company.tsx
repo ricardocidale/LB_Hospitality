@@ -135,9 +135,9 @@ export default function Company() {
                   <Line 
                     type="monotone" 
                     dataKey="Revenue" 
-                    stroke="hsl(var(--primary))" 
+                    stroke="#5C6BC0" 
                     strokeWidth={2}
-                    dot={{ fill: 'hsl(var(--primary))' }}
+                    dot={{ fill: '#5C6BC0' }}
                   />
                   <Line 
                     type="monotone" 

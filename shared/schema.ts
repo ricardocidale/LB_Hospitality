@@ -16,10 +16,10 @@ export const globalAssumptions = pgTable("global_assumptions", {
   incentiveManagementFee: real("incentive_management_fee").notNull(),
   
   // SAFE Funding
-  safeTranche1Amount: real("safe_tranche1_amount").notNull().default(225000),
-  safeTranche1Date: text("safe_tranche1_date").notNull().default("2026-04-01"),
-  safeTranche2Amount: real("safe_tranche2_amount").notNull().default(225000),
-  safeTranche2Date: text("safe_tranche2_date").notNull().default("2027-04-01"),
+  safeTranche1Amount: real("safe_tranche1_amount").notNull().default(800000),
+  safeTranche1Date: text("safe_tranche1_date").notNull().default("2026-06-01"),
+  safeTranche2Amount: real("safe_tranche2_amount").notNull().default(800000),
+  safeTranche2Date: text("safe_tranche2_date").notNull().default("2026-12-01"),
   safeValuationCap: real("safe_valuation_cap").notNull().default(2500000),
   safeDiscountRate: real("safe_discount_rate").notNull().default(0.20),
   

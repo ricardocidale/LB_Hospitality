@@ -405,12 +405,12 @@ export function generateCompanyProForma(
     let safeFunding2 = 0;
     if (currentDate.getFullYear() === tranche1Parsed.year && 
         currentDate.getMonth() === tranche1Parsed.month) {
-      safeFunding1 = global.safeTranche1Amount ?? 450000;
+      safeFunding1 = global.safeTranche1Amount ?? 800000;
     }
     if (tranche2Parsed && 
         currentDate.getFullYear() === tranche2Parsed.year && 
         currentDate.getMonth() === tranche2Parsed.month) {
-      safeFunding2 = global.safeTranche2Amount ?? 450000;
+      safeFunding2 = global.safeTranche2Amount ?? 800000;
     }
     const safeFunding = safeFunding1 + safeFunding2;
     

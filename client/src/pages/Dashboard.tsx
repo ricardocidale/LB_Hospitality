@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Loader2, ChevronRight, ChevronDown, FileDown, FileSpreadsheet } from "lucide-react";
 import { format } from "date-fns";
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { ConsolidatedBalanceSheet } from "@/components/ConsolidatedBalanceSheet";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
@@ -351,7 +351,7 @@ export default function Dashboard() {
   const avgAnnualCashFlow = operatingCashFlows.reduce((sum, cf) => sum + cf, 0) / 10;
   const cashOnCash = totalInitialEquity > 0 ? (avgAnnualCashFlow / totalInitialEquity) * 100 : 0;
 
-  const generateIncomeStatementData = useCallback(() => {
+  const generateIncomeStatementData = () => {
     const years = Array.from({ length: 10 }, (_, i) => getCalendarYear(i));
     const rows: { category: string; values: number[]; isHeader?: boolean; indent?: number }[] = [];
     
@@ -402,9 +402,9 @@ export default function Dashboard() {
     rows.push({ category: "Net Operating Income", values: years.map((_, i) => getYearlyConsolidated(i).noi), isHeader: true });
     
     return { years, rows };
-  }, [properties, getYearlyConsolidated, getPropertyYearly, getCalendarYear]);
+  };
 
-  const exportIncomeStatementToPDF = useCallback(() => {
+  const exportIncomeStatementToPDF = () => {
     const { years, rows } = generateIncomeStatementData();
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
     
@@ -438,9 +438,9 @@ export default function Dashboard() {
     });
     
     doc.save('income-statement.pdf');
-  }, [generateIncomeStatementData]);
+  };
 
-  const exportIncomeStatementToCSV = useCallback(() => {
+  const exportIncomeStatementToCSV = () => {
     const { years, rows } = generateIncomeStatementData();
     
     const headers = ['Category', ...years.map(String)];
@@ -462,21 +462,105 @@ export default function Dashboard() {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-  }, [generateIncomeStatementData]);
+  };
 
-  const generateCashFlowData = useCallback(() => {
+  const generateCashFlowData = () => {
     const years = Array.from({ length: 10 }, (_, i) => getCalendarYear(i));
-    const rows: { category: string; values: number[]; isHeader?: boolean; indent?: number }[] = [];
+    const rows: { category: string; values: number[]; isHeader?: boolean; indent?: number; isNegative?: boolean }[] = [];
     
-    rows.push({ category: "Net Operating Income", values: years.map((_, i) => getYearlyConsolidated(i).noi), isHeader: true });
-    rows.push({ category: "Debt Service", values: years.map((_, i) => getYearlyConsolidated(i).debtPayment), isHeader: true });
-    rows.push({ category: "Net Cash Flow", values: years.map((_, i) => getYearlyConsolidated(i).cashFlow), isHeader: true });
+    rows.push({ category: "CASH INFLOWS (Revenue)", values: years.map((_, i) => getYearlyConsolidated(i).revenueTotal), isHeader: true });
+    rows.push({ category: "Rooms Revenue", values: years.map((_, i) => getYearlyConsolidated(i).revenueRooms), indent: 1 });
+    rows.push({ category: "Events Revenue", values: years.map((_, i) => getYearlyConsolidated(i).revenueEvents), indent: 1 });
+    rows.push({ category: "F&B Revenue", values: years.map((_, i) => getYearlyConsolidated(i).revenueFB), indent: 1 });
+    rows.push({ category: "Other Revenue", values: years.map((_, i) => getYearlyConsolidated(i).revenueOther), indent: 1 });
     
-    return { years, rows };
-  }, [getYearlyConsolidated, getCalendarYear]);
+    properties.forEach((prop, idx) => {
+      rows.push({ 
+        category: prop.name, 
+        values: years.map((_, i) => getPropertyYearly(idx, i).revenueTotal), 
+        indent: 2 
+      });
+    });
+    
+    rows.push({ 
+      category: "CASH OUTFLOWS (Operating)", 
+      values: years.map((_, i) => {
+        const data = getYearlyConsolidated(i);
+        return -(data.expenseRooms + data.expenseFB + data.expenseEvents + data.expenseOther + 
+          data.expenseMarketing + data.expensePropertyOps + data.expenseUtilitiesVar + 
+          data.expenseAdmin + data.expenseIT + data.expenseInsurance + data.expenseTaxes + 
+          data.expenseUtilitiesFixed + data.expenseOtherCosts);
+      }), 
+      isHeader: true,
+      isNegative: true
+    });
+    
+    rows.push({ category: "Direct Costs", values: years.map((_, i) => {
+      const d = getYearlyConsolidated(i);
+      return -(d.expenseRooms + d.expenseFB + d.expenseEvents + d.expenseOther);
+    }), indent: 1, isNegative: true });
+    rows.push({ category: "Rooms Expense", values: years.map((_, i) => -getYearlyConsolidated(i).expenseRooms), indent: 2, isNegative: true });
+    rows.push({ category: "F&B Expense", values: years.map((_, i) => -getYearlyConsolidated(i).expenseFB), indent: 2, isNegative: true });
+    rows.push({ category: "Events Expense", values: years.map((_, i) => -getYearlyConsolidated(i).expenseEvents), indent: 2, isNegative: true });
+    rows.push({ category: "Other Direct", values: years.map((_, i) => -getYearlyConsolidated(i).expenseOther), indent: 2, isNegative: true });
+    
+    rows.push({ category: "Overhead & Admin", values: years.map((_, i) => {
+      const d = getYearlyConsolidated(i);
+      return -(d.expenseAdmin + d.expenseMarketing + d.expensePropertyOps + d.expenseUtilitiesVar + 
+        d.expenseUtilitiesFixed + d.expenseIT + d.expenseInsurance + d.expenseTaxes + d.expenseOtherCosts);
+    }), indent: 1, isNegative: true });
+    rows.push({ category: "Admin & General", values: years.map((_, i) => -getYearlyConsolidated(i).expenseAdmin), indent: 2, isNegative: true });
+    rows.push({ category: "Marketing", values: years.map((_, i) => -getYearlyConsolidated(i).expenseMarketing), indent: 2, isNegative: true });
+    rows.push({ category: "Property Operations", values: years.map((_, i) => -getYearlyConsolidated(i).expensePropertyOps), indent: 2, isNegative: true });
+    rows.push({ category: "Utilities", values: years.map((_, i) => -(getYearlyConsolidated(i).expenseUtilitiesVar + getYearlyConsolidated(i).expenseUtilitiesFixed)), indent: 2, isNegative: true });
+    rows.push({ category: "IT Systems", values: years.map((_, i) => -getYearlyConsolidated(i).expenseIT), indent: 2, isNegative: true });
+    rows.push({ category: "Insurance", values: years.map((_, i) => -getYearlyConsolidated(i).expenseInsurance), indent: 2, isNegative: true });
+    rows.push({ category: "Property Taxes", values: years.map((_, i) => -getYearlyConsolidated(i).expenseTaxes), indent: 2, isNegative: true });
+    rows.push({ category: "Other Expenses", values: years.map((_, i) => -getYearlyConsolidated(i).expenseOtherCosts), indent: 2, isNegative: true });
+    
+    rows.push({ category: "GROSS OPERATING PROFIT (GOP)", values: years.map((_, i) => getYearlyConsolidated(i).gop), isHeader: true });
+    
+    rows.push({ category: "Management Fees (to L+B Co.)", values: years.map((_, i) => -(getYearlyConsolidated(i).feeBase + getYearlyConsolidated(i).feeIncentive)), isNegative: true });
+    rows.push({ category: `Base Fee (${(global.baseManagementFee * 100).toFixed(0)}% of Revenue)`, values: years.map((_, i) => -getYearlyConsolidated(i).feeBase), indent: 1, isNegative: true });
+    rows.push({ category: `Incentive Fee (${(global.incentiveManagementFee * 100).toFixed(0)}% of GOP)`, values: years.map((_, i) => -getYearlyConsolidated(i).feeIncentive), indent: 1, isNegative: true });
+    
+    rows.push({ category: "FF&E Reserve", values: years.map((_, i) => -getYearlyConsolidated(i).expenseFFE), isNegative: true });
+    
+    rows.push({ category: "NET OPERATING INCOME (NOI)", values: years.map((_, i) => getYearlyConsolidated(i).noi), isHeader: true });
+    
+    rows.push({ category: "Debt Service", values: years.map((_, i) => -getYearlyConsolidated(i).debtPayment), isNegative: true });
+    properties.filter(p => p.type === 'Financed').forEach((prop) => {
+      const propIdx = properties.findIndex(p => p.id === prop.id);
+      rows.push({ 
+        category: prop.name, 
+        values: years.map((_, i) => -getPropertyYearly(propIdx, i).debtPayment), 
+        indent: 1,
+        isNegative: true
+      });
+    });
+    
+    rows.push({ category: "NET CASH FLOW", values: years.map((_, i) => getYearlyConsolidated(i).cashFlow), isHeader: true });
+    
+    const graphData = {
+      revenuePerformance: years.map((_, i) => ({
+        year: years[i],
+        revenue: getYearlyConsolidated(i).revenueTotal,
+        opCosts: getYearlyConsolidated(i).totalExpenses,
+        noi: getYearlyConsolidated(i).noi
+      })),
+      cashFlowAfterFinancing: years.map((_, i) => ({
+        year: years[i],
+        noi: getYearlyConsolidated(i).noi,
+        debtService: getYearlyConsolidated(i).debtPayment,
+        netCashFlow: getYearlyConsolidated(i).cashFlow
+      }))
+    };
+    
+    return { years, rows, graphData };
+  };
 
-  const exportCashFlowToPDF = useCallback(() => {
-    const { years, rows } = generateCashFlowData();
+  const exportCashFlowToPDF = () => {
+    const { years, rows, graphData } = generateCashFlowData();
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
     
     doc.setFontSize(18);
@@ -486,33 +570,86 @@ export default function Dashboard() {
     doc.text(`Generated: ${format(new Date(), 'MMM d, yyyy')}`, 14, 27);
     
     const tableData = rows.map(row => [
-      row.category,
-      ...row.values.map(v => formatMoney(v))
+      (row.indent ? '  '.repeat(row.indent) : '') + row.category,
+      ...row.values.map(v => {
+        if (row.isNegative && v < 0) return `(${formatMoney(Math.abs(v))})`;
+        return formatMoney(v);
+      })
     ]);
     
     autoTable(doc, {
       head: [['Category', ...years.map(String)]],
       body: tableData,
       startY: 32,
-      styles: { fontSize: 8, cellPadding: 2 },
+      styles: { fontSize: 7, cellPadding: 1.5 },
       headStyles: { fillColor: [159, 188, 164], textColor: [0, 0, 0], fontStyle: 'bold' },
-      columnStyles: { 0: { cellWidth: 45 } },
+      columnStyles: { 0: { cellWidth: 50 } },
       didParseCell: (data) => {
-        if (data.section === 'body') {
-          data.cell.styles.fontStyle = 'bold';
+        if (data.section === 'body' && data.row.index !== undefined) {
+          const row = rows[data.row.index];
+          if (row?.isHeader) {
+            data.cell.styles.fontStyle = 'bold';
+            data.cell.styles.fillColor = [240, 240, 240];
+          }
         }
       }
     });
     
+    doc.addPage();
+    doc.setFontSize(14);
+    doc.text("Revenue & Operating Performance", 14, 15);
+    
+    autoTable(doc, {
+      head: [['Year', 'Revenue', 'Operating Costs', 'NOI']],
+      body: graphData.revenuePerformance.map(d => [
+        String(d.year),
+        formatMoney(d.revenue),
+        formatMoney(d.opCosts),
+        formatMoney(d.noi)
+      ]),
+      startY: 20,
+      styles: { fontSize: 9, cellPadding: 3 },
+      headStyles: { fillColor: [92, 107, 192], textColor: [255, 255, 255], fontStyle: 'bold' }
+    });
+    
+    const graphTableY = (doc as any).lastAutoTable.finalY + 15;
+    doc.setFontSize(14);
+    doc.text("Cash Flow After Financing", 14, graphTableY);
+    
+    autoTable(doc, {
+      head: [['Year', 'NOI', 'Debt Service', 'Net Cash Flow']],
+      body: graphData.cashFlowAfterFinancing.map(d => [
+        String(d.year),
+        formatMoney(d.noi),
+        d.debtService > 0 ? `(${formatMoney(d.debtService)})` : '-',
+        formatMoney(d.netCashFlow)
+      ]),
+      startY: graphTableY + 5,
+      styles: { fontSize: 9, cellPadding: 3 },
+      headStyles: { fillColor: [37, 125, 65], textColor: [255, 255, 255], fontStyle: 'bold' }
+    });
+    
     doc.save('cash-flow-statement.pdf');
-  }, [generateCashFlowData]);
+  };
 
-  const exportCashFlowToCSV = useCallback(() => {
-    const { years, rows } = generateCashFlowData();
+  const exportCashFlowToCSV = () => {
+    const { years, rows, graphData } = generateCashFlowData();
     const headers = ['Category', ...years.map(String)];
     const csvRows = [
       headers.join(','),
-      ...rows.map(row => [`"${row.category}"`, ...row.values.map(v => v.toFixed(2))].join(','))
+      ...rows.map(row => [
+        `"${(row.indent ? '  '.repeat(row.indent) : '') + row.category}"`,
+        ...row.values.map(v => v.toFixed(2))
+      ].join(',')),
+      '',
+      '',
+      'REVENUE & OPERATING PERFORMANCE',
+      ['Year', 'Revenue', 'Operating Costs', 'NOI'].join(','),
+      ...graphData.revenuePerformance.map(d => [d.year, d.revenue.toFixed(2), d.opCosts.toFixed(2), d.noi.toFixed(2)].join(',')),
+      '',
+      'CASH FLOW AFTER FINANCING',
+      ['Year', 'NOI', 'Debt Service', 'Net Cash Flow'].join(','),
+      ...graphData.cashFlowAfterFinancing.map(d => [d.year, d.noi.toFixed(2), d.debtService.toFixed(2), d.netCashFlow.toFixed(2)].join(','))
     ];
     const csvContent = csvRows.join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -524,9 +661,9 @@ export default function Dashboard() {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-  }, [generateCashFlowData]);
+  };
 
-  const generateBalanceSheetData = useCallback(() => {
+  const generateBalanceSheetData = () => {
     const years = Array.from({ length: 10 }, (_, i) => getCalendarYear(i));
     const rows: { category: string; values: number[]; isHeader?: boolean; indent?: number }[] = [];
     
@@ -560,9 +697,9 @@ export default function Dashboard() {
     rows.push({ category: "Total Equity", values: years.map((_, i) => totalEquityInvested + retainedEarningsValues[i]), isHeader: true });
     
     return { years, rows };
-  }, [properties, getYearlyConsolidated, getCalendarYear]);
+  };
 
-  const exportBalanceSheetToPDF = useCallback(() => {
+  const exportBalanceSheetToPDF = () => {
     const { years, rows } = generateBalanceSheetData();
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
     
@@ -596,9 +733,9 @@ export default function Dashboard() {
     });
     
     doc.save('balance-sheet.pdf');
-  }, [generateBalanceSheetData]);
+  };
 
-  const exportBalanceSheetToCSV = useCallback(() => {
+  const exportBalanceSheetToCSV = () => {
     const { years, rows } = generateBalanceSheetData();
     const headers = ['Category', ...years.map(String)];
     const csvRows = [
@@ -618,9 +755,9 @@ export default function Dashboard() {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-  }, [generateBalanceSheetData]);
+  };
 
-  const generateInvestmentAnalysisData = useCallback(() => {
+  const generateInvestmentAnalysisData = () => {
     const years = ['Initial', ...Array.from({ length: 10 }, (_, i) => String(getCalendarYear(i)))];
     const rows: { category: string; values: (number | string)[]; isHeader?: boolean; indent?: number }[] = [];
     
@@ -638,9 +775,9 @@ export default function Dashboard() {
     rows.push({ category: "Portfolio IRR", values: [`${(portfolioIRR * 100).toFixed(1)}%`, ...Array(10).fill('')], isHeader: true });
     
     return { years, rows };
-  }, [consolidatedFlows, totalInitialEquity, totalExitValue, equityMultiple, cashOnCash, portfolioIRR, getCalendarYear]);
+  };
 
-  const exportInvestmentAnalysisToPDF = useCallback(() => {
+  const exportInvestmentAnalysisToPDF = () => {
     const { years, rows } = generateInvestmentAnalysisData();
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
     
@@ -674,9 +811,9 @@ export default function Dashboard() {
     });
     
     doc.save('investment-analysis.pdf');
-  }, [generateInvestmentAnalysisData]);
+  };
 
-  const exportInvestmentAnalysisToCSV = useCallback(() => {
+  const exportInvestmentAnalysisToCSV = () => {
     const { years, rows } = generateInvestmentAnalysisData();
     const headers = ['Category', ...years];
     const csvRows = [
@@ -696,7 +833,7 @@ export default function Dashboard() {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-  }, [generateInvestmentAnalysisData]);
+  };
 
   const getExportFunctions = () => {
     switch (activeTab) {

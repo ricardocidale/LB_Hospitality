@@ -1855,7 +1855,7 @@ function InvestmentAnalysis({
                 </TableRow>
               ))}
 
-              <TableRow className="bg-primary/10 font-bold text-lg">
+              <TableRow className="bg-primary/10">
                 <TableCell className="sticky left-0 bg-primary/10">Net Cash Flow to Investors</TableCell>
                 {consolidatedFlows.map((cf, i) => (
                   <TableCell key={i} className={`text-right ${cf < 0 ? 'text-destructive' : ''}`}>

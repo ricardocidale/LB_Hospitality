@@ -2998,7 +2998,7 @@ function InvestmentAnalysis({
 
               <TableRow className="bg-primary/10">
                 <TableCell className="sticky left-0 bg-primary/10">Net Cash Flow to Investors</TableCell>
-                {consolidatedFlows.map((cf, i) => (
+                {consolidatedFlowsIA.map((cf, i) => (
                   <TableCell key={i} className={`text-right ${cf < 0 ? 'text-destructive' : ''}`}>
                     {formatMoney(cf)}
                   </TableCell>
@@ -3009,7 +3009,7 @@ function InvestmentAnalysis({
                 <TableCell className="sticky left-0 bg-muted/30 font-semibold">Cumulative Cash Flow</TableCell>
                 {(() => {
                   let cumulative = 0;
-                  return consolidatedFlows.map((cf, i) => {
+                  return consolidatedFlowsIA.map((cf, i) => {
                     cumulative += cf;
                     return (
                       <TableCell key={i} className={`text-right font-medium ${cumulative < 0 ? 'text-destructive' : 'text-accent'}`}>

@@ -848,12 +848,175 @@ export default function Dashboard() {
 
   const generateInvestmentAnalysisData = () => {
     const years = ['Initial', ...Array.from({ length: 10 }, (_, i) => String(getCalendarYear(i)))];
-    const rows: { category: string; values: (number | string)[]; isHeader?: boolean; indent?: number }[] = [];
+    const rows: { category: string; values: (number | string)[]; isHeader?: boolean; indent?: number; isNegative?: boolean }[] = [];
     
-    rows.push({ category: "Equity Investment", values: [-totalInitialEquity, ...Array(10).fill('')], isHeader: true });
+    const getEquityForYear = (yearIdx: number): number => {
+      let total = 0;
+      properties.forEach(prop => {
+        const acqDate = new Date(prop.acquisitionDate);
+        const modelStart = new Date(global.modelStartDate);
+        const monthsDiff = (acqDate.getFullYear() - modelStart.getFullYear()) * 12 + 
+                           (acqDate.getMonth() - modelStart.getMonth());
+        const acqYear = Math.floor(monthsDiff / 12);
+        if (acqYear === yearIdx) {
+          const totalInvestment = prop.purchasePrice + prop.buildingImprovements + 
+                                  prop.preOpeningCosts + prop.operatingReserve;
+          if (prop.type === "Financed") {
+            const ltv = prop.acquisitionLTV || (global.debtAssumptions as any)?.acqLTV || 0.75;
+            total += totalInvestment * (1 - ltv);
+          } else {
+            total += totalInvestment;
+          }
+        }
+      });
+      return total;
+    };
     
-    const cashFlowValues = consolidatedFlows.map((cf, i) => i === 0 ? '' : cf);
-    rows.push({ category: "Annual Cash Flow", values: cashFlowValues, isHeader: true });
+    const getYearDetails = (yearIdx: number) => {
+      let totalNOI = 0, totalDebtService = 0, totalInterest = 0, totalDepreciation = 0;
+      let totalBTCF = 0, totalTaxableIncome = 0, totalTax = 0, totalATCF = 0;
+      
+      properties.forEach((prop, idx) => {
+        const yearlyData = getPropertyYearly(idx, yearIdx);
+        const noi = yearlyData.noi || 0;
+        totalNOI += noi;
+        
+        const propertyBasis = prop.purchasePrice + prop.buildingImprovements;
+        const depreciation = propertyBasis / 27.5;
+        totalDepreciation += depreciation;
+        
+        if (prop.type === "Financed") {
+          const ltv = prop.acquisitionLTV || (global.debtAssumptions as any)?.acqLTV || 0.75;
+          const loanAmount = propertyBasis * ltv;
+          const annualRate = prop.acquisitionInterestRate || (global.debtAssumptions as any)?.interestRate || 0.09;
+          const r = annualRate / 12;
+          const termYears = prop.acquisitionTermYears || (global.debtAssumptions as any)?.amortizationYears || 25;
+          const n = termYears * 12;
+          
+          if (r > 0 && n > 0 && loanAmount > 0) {
+            const monthlyPayment = (loanAmount * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+            totalDebtService += monthlyPayment * 12;
+            
+            let balance = loanAmount;
+            let yearInterest = 0;
+            const startMonth = yearIdx * 12;
+            const endMonth = startMonth + 12;
+            for (let m = 0; m < endMonth && m < n; m++) {
+              const interestPayment = balance * r;
+              const principalPayment = monthlyPayment - interestPayment;
+              if (m >= startMonth) yearInterest += interestPayment;
+              balance -= principalPayment;
+            }
+            totalInterest += yearInterest;
+          }
+        }
+        
+        const taxRate = prop.taxRate || 0.25;
+        const btcf = noi - (prop.type === "Financed" ? getPropertyYearly(idx, yearIdx).debtPayment || 0 : 0);
+        totalBTCF += btcf;
+        
+        const taxableIncome = noi - totalInterest - depreciation;
+        totalTaxableIncome += taxableIncome;
+        const tax = taxableIncome > 0 ? taxableIncome * taxRate : 0;
+        totalTax += tax;
+        totalATCF += btcf - tax;
+      });
+      
+      return { noi: totalNOI, debtService: totalDebtService, interest: totalInterest, 
+               depreciation: totalDepreciation, btcf: totalBTCF, 
+               taxableIncome: totalTaxableIncome, tax: totalTax, atcf: totalATCF };
+    };
+    
+    rows.push({ category: "EQUITY INVESTMENT", values: [
+      -getEquityForYear(0),
+      ...Array.from({ length: 10 }, (_, i) => {
+        const eq = getEquityForYear(i + 1);
+        return eq > 0 ? -eq : '';
+      })
+    ], isHeader: true, isNegative: true });
+    
+    properties.forEach(prop => {
+      const acqDate = new Date(prop.acquisitionDate);
+      const modelStart = new Date(global.modelStartDate);
+      const monthsDiff = (acqDate.getFullYear() - modelStart.getFullYear()) * 12 + 
+                         (acqDate.getMonth() - modelStart.getMonth());
+      const acqYear = Math.floor(monthsDiff / 12);
+      const totalInvestment = prop.purchasePrice + prop.buildingImprovements + 
+                              prop.preOpeningCosts + prop.operatingReserve;
+      const investment = prop.type === "Financed" ? 
+        totalInvestment * (1 - (prop.acquisitionLTV || (global.debtAssumptions as any)?.acqLTV || 0.75)) : 
+        totalInvestment;
+      
+      const values: (number | string)[] = Array(11).fill('');
+      if (acqYear >= 0 && acqYear <= 10) {
+        values[acqYear] = -investment;
+      }
+      rows.push({ category: prop.name, values, indent: 1, isNegative: true });
+    });
+    
+    rows.push({ category: "", values: Array(11).fill('') });
+    rows.push({ category: "OPERATING CASH FLOW", values: Array(11).fill(''), isHeader: true });
+    
+    rows.push({ category: "Net Operating Income (NOI)", values: [
+      '-',
+      ...Array.from({ length: 10 }, (_, i) => getYearDetails(i).noi)
+    ], indent: 1 });
+    
+    rows.push({ category: "Less: Debt Service", values: [
+      '-',
+      ...Array.from({ length: 10 }, (_, i) => {
+        const ds = getYearDetails(i).debtService;
+        return ds > 0 ? -ds : '-';
+      })
+    ], indent: 1, isNegative: true });
+    
+    rows.push({ category: "Before-Tax Cash Flow", values: [
+      '-',
+      ...Array.from({ length: 10 }, (_, i) => getYearDetails(i).btcf)
+    ], indent: 1 });
+    
+    rows.push({ category: "", values: Array(11).fill('') });
+    rows.push({ category: "TAX CALCULATION", values: Array(11).fill(''), isHeader: true });
+    
+    rows.push({ category: "Less: Interest Expense", values: [
+      '-',
+      ...Array.from({ length: 10 }, (_, i) => {
+        const int = getYearDetails(i).interest;
+        return int > 0 ? -int : '-';
+      })
+    ], indent: 1, isNegative: true });
+    
+    rows.push({ category: "Less: Depreciation", values: [
+      '-',
+      ...Array.from({ length: 10 }, (_, i) => -getYearDetails(i).depreciation)
+    ], indent: 1, isNegative: true });
+    
+    rows.push({ category: "Taxable Income", values: [
+      '-',
+      ...Array.from({ length: 10 }, (_, i) => getYearDetails(i).taxableIncome)
+    ], indent: 1 });
+    
+    rows.push({ category: "Tax Liability", values: [
+      '-',
+      ...Array.from({ length: 10 }, (_, i) => {
+        const tax = getYearDetails(i).tax;
+        return tax > 0 ? -tax : '-';
+      })
+    ], indent: 1, isNegative: true });
+    
+    rows.push({ category: "", values: Array(11).fill('') });
+    rows.push({ category: "AFTER-TAX CASH FLOW (ATCF)", values: [
+      '-',
+      ...Array.from({ length: 10 }, (_, i) => getYearDetails(i).atcf)
+    ], isHeader: true });
+    
+    rows.push({ category: "Exit Value (Year 10)", values: [
+      ...Array(10).fill(''),
+      totalExitValue
+    ] });
+    
+    rows.push({ category: "", values: Array(11).fill('') });
+    rows.push({ category: "TOTAL CASH FLOW", values: consolidatedFlows.map((cf, i) => cf), isHeader: true });
     
     rows.push({ category: "", values: Array(11).fill('') });
     rows.push({ category: "INVESTMENT METRICS", values: Array(11).fill(''), isHeader: true });
@@ -877,17 +1040,24 @@ export default function Dashboard() {
     doc.text(`Generated: ${format(new Date(), 'MMM d, yyyy')}`, 14, 27);
     
     const tableData = rows.map(row => [
-      row.category,
-      ...row.values.map(v => typeof v === 'number' ? formatMoney(v) : v)
+      (row.indent ? '  '.repeat(row.indent) : '') + row.category,
+      ...row.values.map(v => {
+        if (v === '' || v === '-') return v;
+        if (typeof v === 'number') {
+          if (v < 0) return `(${formatMoney(Math.abs(v))})`;
+          return formatMoney(v);
+        }
+        return v;
+      })
     ]);
     
     autoTable(doc, {
       head: [['Category', ...years]],
       body: tableData,
       startY: 32,
-      styles: { fontSize: 8, cellPadding: 2 },
+      styles: { fontSize: 6.5, cellPadding: 1.5 },
       headStyles: { fillColor: [159, 188, 164], textColor: [0, 0, 0], fontStyle: 'bold' },
-      columnStyles: { 0: { cellWidth: 45 } },
+      columnStyles: { 0: { cellWidth: 50 } },
       didParseCell: (data) => {
         if (data.section === 'body' && data.row.index !== undefined) {
           const row = rows[data.row.index];
@@ -907,9 +1077,13 @@ export default function Dashboard() {
     const headers = ['Category', ...years];
     const csvRows = [
       headers.join(','),
-      ...rows.map(row => [
-        `"${row.category}"`,
-        ...row.values.map(v => typeof v === 'number' ? v.toFixed(2) : `"${v}"`)
+      ...rows.filter(row => row.category !== '').map(row => [
+        `"${(row.indent ? '  '.repeat(row.indent) : '') + row.category}"`,
+        ...row.values.map(v => {
+          if (v === '' || v === '-') return '';
+          if (typeof v === 'number') return v.toFixed(2);
+          return `"${v}"`;
+        })
       ].join(','))
     ];
     const csvContent = csvRows.join('\n');

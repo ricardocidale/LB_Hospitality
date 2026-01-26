@@ -763,7 +763,7 @@ export default function CompanyAssumptions() {
               </table>
             </div>
             <p className="text-xs text-muted-foreground mt-4">
-              Total Partner Comp is the annual budget for all partners. Per Partner shows individual compensation.
+              Total Partner Comp is the annual budget (12 months). Actual spending is automatically prorated for years with fewer operating months (e.g., if operations start mid-year). Per Partner = Total ÷ Count.
             </p>
           </CardContent>
         </Card>
@@ -771,8 +771,8 @@ export default function CompanyAssumptions() {
         <Card className="bg-muted/30">
           <CardContent className="py-4">
             <p className="text-sm text-muted-foreground text-center">
-              All fixed overhead costs escalate annually at the fixed cost escalation rate ({formatPercent(formData.fixedCostEscalationRate ?? global.fixedCostEscalationRate)}).
-              Staff FTE scales automatically: 2.5 (1-3 properties), 4.5 (4-6), 7.0 (7-10).
+              Fixed overhead escalates at {formatPercent(formData.fixedCostEscalationRate ?? global.fixedCostEscalationRate)}/year. Staff scales: 2.5 FTE (1-3 properties), 4.5 (4-6), 7.0 (7-10).
+              All costs begin at Operations Start Date and are prorated for partial years.
             </p>
           </CardContent>
         </Card>

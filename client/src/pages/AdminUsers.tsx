@@ -93,13 +93,23 @@ export default function AdminUsers() {
         const err = await res.json();
         throw new Error(err.error || "Failed to update password");
       }
-      return res.json();
+      return { id };
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       setPasswordDialogOpen(false);
       setSelectedUser(null);
       setNewPassword("");
-      toast({ title: "Password Updated", description: "User password has been changed." });
+      
+      const currentUserId = users?.find(u => u.role === "admin")?.id;
+      if (data.id === currentUserId) {
+        toast({ 
+          title: "Password Updated", 
+          description: "Your password was changed. Please log in again with your new password.",
+        });
+        queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
+      } else {
+        toast({ title: "Password Updated", description: "User password has been changed." });
+      }
     },
     onError: (error: Error) => {
       toast({ title: "Error", description: error.message, variant: "destructive" });

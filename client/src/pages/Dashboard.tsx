@@ -1599,92 +1599,50 @@ export default function Dashboard() {
           </div>
 
           <TabsContent value="overview" className="space-y-8">
-            {/* Investment Returns - Hero Section with Visual Gauges */}
-            <div className="relative overflow-hidden rounded-2xl bg-sidebar p-8 shadow-2xl">
-              <div className="absolute inset-0 opacity-30">
-                <div className="absolute top-10 right-10 w-64 h-64 rounded-full bg-[#9FBCA4] blur-3xl" />
-                <div className="absolute bottom-10 left-20 w-48 h-48 rounded-full bg-[#9FBCA4] blur-2xl" />
+            {/* Investment Returns - Hero Section */}
+            <div className="relative overflow-hidden rounded-2xl bg-[#9FBCA4] p-8 shadow-xl">
+              <div className="absolute inset-0 opacity-20">
+                <div className="absolute top-10 right-10 w-64 h-64 rounded-full bg-white blur-3xl" />
+                <div className="absolute bottom-10 left-20 w-48 h-48 rounded-full bg-[#257D41] blur-2xl" />
               </div>
               <div className="relative">
                 <div className="text-center mb-8">
                   <h2 className="text-2xl font-serif text-white mb-2">Investment Performance</h2>
-                  <p className="text-white/60">{investmentHorizon}-Year Hold Period | {totalProperties} Properties | {totalRooms} Rooms</p>
+                  <p className="text-white/70">{investmentHorizon}-Year Hold Period | {totalProperties} Properties | {totalRooms} Rooms</p>
                 </div>
                 
                 {/* Main IRR Display */}
                 <div className="flex flex-col items-center mb-10">
-                  <div className="relative">
-                    <svg className="w-48 h-48 transform -rotate-90" viewBox="0 0 100 100">
-                      <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="8" />
-                      <circle 
-                        cx="50" cy="50" r="42" fill="none" stroke="#9FBCA4" strokeWidth="8"
-                        strokeDasharray={`${Math.min(portfolioIRR * 100 * 2.64, 264)} 264`}
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                    <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="text-5xl font-bold text-white">{(portfolioIRR * 100).toFixed(1)}%</span>
-                      <span className="text-sm text-white/60 mt-1">Portfolio IRR</span>
-                    </div>
+                  <div className="bg-white/20 backdrop-blur rounded-2xl p-8 text-center">
+                    <span className="text-6xl font-bold text-white">{(portfolioIRR * 100).toFixed(1)}%</span>
+                    <p className="text-lg text-white/80 mt-2">Portfolio IRR</p>
                   </div>
                 </div>
 
                 {/* Key Metrics Row */}
-                <div className="grid gap-6 md:grid-cols-4 max-w-4xl mx-auto">
+                <div className="grid gap-4 md:grid-cols-4 max-w-4xl mx-auto">
                   {/* Equity Multiple */}
-                  <div className="bg-white/5 backdrop-blur rounded-xl p-5 text-center border border-white/10">
-                    <div className="relative mx-auto w-24 h-24 mb-3">
-                      <svg className="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
-                        <circle cx="50" cy="50" r="38" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="6" />
-                        <circle 
-                          cx="50" cy="50" r="38" fill="none" stroke="#60A5FA" strokeWidth="6"
-                          strokeDasharray={`${Math.min(equityMultiple * 60, 239)} 239`}
-                          strokeLinecap="round"
-                        />
-                      </svg>
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-2xl font-bold text-white">{equityMultiple.toFixed(2)}x</span>
-                      </div>
-                    </div>
-                    <p className="text-sm text-white/70">Equity Multiple</p>
-                    <p className="text-xs text-white/40 mt-1">Target: 2.0x+</p>
+                  <div className="bg-white/20 backdrop-blur rounded-xl p-6 text-center">
+                    <p className="text-4xl font-bold text-white mb-2">{equityMultiple.toFixed(2)}x</p>
+                    <p className="text-sm text-white/80">Equity Multiple</p>
                   </div>
 
                   {/* Cash-on-Cash */}
-                  <div className="bg-white/5 backdrop-blur rounded-xl p-5 text-center border border-white/10">
-                    <div className="relative mx-auto w-24 h-24 mb-3">
-                      <svg className="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
-                        <circle cx="50" cy="50" r="38" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="6" />
-                        <circle 
-                          cx="50" cy="50" r="38" fill="none" stroke="#34D399" strokeWidth="6"
-                          strokeDasharray={`${Math.min(cashOnCash * 12, 239)} 239`}
-                          strokeLinecap="round"
-                        />
-                      </svg>
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-2xl font-bold text-white">{cashOnCash.toFixed(1)}%</span>
-                      </div>
-                    </div>
-                    <p className="text-sm text-white/70">Cash-on-Cash</p>
-                    <p className="text-xs text-white/40 mt-1">Annual avg return</p>
+                  <div className="bg-white/20 backdrop-blur rounded-xl p-6 text-center">
+                    <p className="text-4xl font-bold text-white mb-2">{cashOnCash.toFixed(1)}%</p>
+                    <p className="text-sm text-white/80">Cash-on-Cash</p>
                   </div>
 
                   {/* Total Equity */}
-                  <div className="bg-white/5 backdrop-blur rounded-xl p-5 text-center border border-white/10">
-                    <div className="flex flex-col items-center justify-center h-24 mb-3">
-                      <span className="text-3xl font-bold text-white">{formatMoney(totalInitialEquity)}</span>
-                    </div>
-                    <p className="text-sm text-white/70">Equity Invested</p>
-                    <p className="text-xs text-white/40 mt-1">Total capital deployed</p>
+                  <div className="bg-white/20 backdrop-blur rounded-xl p-6 text-center">
+                    <p className="text-2xl font-bold text-white mb-2">{formatMoney(totalInitialEquity)}</p>
+                    <p className="text-sm text-white/80">Equity Invested</p>
                   </div>
 
                   {/* Exit Value */}
-                  <div className="bg-white/5 backdrop-blur rounded-xl p-5 text-center border border-white/10">
-                    <div className="flex flex-col items-center justify-center h-24 mb-3">
-                      <span className="text-3xl font-bold text-emerald-400">{formatMoney(totalExitValue)}</span>
-                    </div>
-                    <p className="text-sm text-white/70">Projected Exit</p>
-                    <p className="text-xs text-white/40 mt-1">Year {investmentHorizon} value</p>
+                  <div className="bg-white/20 backdrop-blur rounded-xl p-6 text-center">
+                    <p className="text-2xl font-bold text-white mb-2">{formatMoney(totalExitValue)}</p>
+                    <p className="text-sm text-white/80">Projected Exit</p>
                   </div>
                 </div>
               </div>

@@ -8,7 +8,7 @@ export interface GlassButtonProps extends React.ButtonHTMLAttributes<HTMLButtonE
 
 const GlassButton = React.forwardRef<HTMLButtonElement, GlassButtonProps>(
   ({ className, variant = "default", size = "default", children, ...props }, ref) => {
-    const baseClasses = "relative overflow-hidden font-medium transition-all duration-300 disabled:opacity-50 disabled:pointer-events-none rounded-xl";
+    const baseClasses = "relative overflow-hidden font-medium transition-all duration-300 disabled:opacity-70 disabled:pointer-events-none rounded-xl";
     
     const sizes = {
       default: "px-5 py-2.5 text-sm",
@@ -30,7 +30,7 @@ const GlassButton = React.forwardRef<HTMLButtonElement, GlassButtonProps>(
           {...props}
         >
           {/* Dark glass background - matching active sidebar items */}
-          <div className="absolute inset-0 bg-white/12 backdrop-blur-xl rounded-xl" />
+          <div className="absolute inset-0 bg-white/15 backdrop-blur-xl rounded-xl" />
           {/* Top edge shine line */}
           <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
           {/* Border */}

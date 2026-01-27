@@ -1848,7 +1848,7 @@ export default function Dashboard() {
                   <p className="text-sm text-white/50">Revenue, Operating Expenses, and NOI over 10 years</p>
                 </div>
                 
-                <div className="bg-white/10 backdrop-blur-2xl rounded-2xl p-6 border border-white/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
+                <div className="bg-white/8 backdrop-blur-2xl rounded-2xl p-6 border border-white/15 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
                   <ResponsiveContainer width="100%" height={300}>
                     <LineChart
                       data={Array.from({ length: 10 }, (_, i) => {
@@ -1862,12 +1862,14 @@ export default function Dashboard() {
                       })}
                       margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                     >
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                      <XAxis dataKey="year" stroke="rgba(255,255,255,0.5)" tick={{ fill: 'rgba(255,255,255,0.7)' }} />
+                      <CartesianGrid horizontal={true} vertical={false} stroke="rgba(255,255,255,0.08)" />
+                      <XAxis dataKey="year" stroke="transparent" tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 12 }} axisLine={false} tickLine={false} />
                       <YAxis 
-                        stroke="rgba(255,255,255,0.5)" 
-                        tick={{ fill: 'rgba(255,255,255,0.7)' }}
+                        stroke="transparent" 
+                        tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 12 }}
                         tickFormatter={(value) => `$${(value / 1000000).toFixed(1)}M`}
+                        axisLine={false}
+                        tickLine={false}
                       />
                       <Tooltip 
                         formatter={(value: number) => formatMoney(value)}
@@ -1881,9 +1883,9 @@ export default function Dashboard() {
                         labelStyle={{ color: 'rgba(255,255,255,0.7)' }}
                       />
                       <Legend wrapperStyle={{ color: 'rgba(255,255,255,0.8)' }} />
-                      <Line type="monotone" dataKey="Revenue" stroke="#60A5FA" strokeWidth={3} dot={{ fill: '#60A5FA', strokeWidth: 0, r: 4 }} activeDot={{ r: 6, fill: '#60A5FA' }} />
-                      <Line type="monotone" dataKey="Operating Expenses" stroke="#A78BFA" strokeWidth={3} dot={{ fill: '#A78BFA', strokeWidth: 0, r: 4 }} activeDot={{ r: 6, fill: '#A78BFA' }} />
-                      <Line type="monotone" dataKey="NOI" stroke="#9FBCA4" strokeWidth={3} dot={{ fill: '#9FBCA4', strokeWidth: 0, r: 4 }} activeDot={{ r: 6, fill: '#9FBCA4' }} />
+                      <Line type="natural" dataKey="Revenue" stroke="#B8D4BE" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#B8D4BE', stroke: '#fff', strokeWidth: 2 }} />
+                      <Line type="natural" dataKey="Operating Expenses" stroke="#E8E8E8" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#E8E8E8', stroke: '#fff', strokeWidth: 2 }} />
+                      <Line type="natural" dataKey="NOI" stroke="#4A9D5B" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#4A9D5B', stroke: '#fff', strokeWidth: 2 }} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
@@ -2262,12 +2264,14 @@ export default function Dashboard() {
                       })}
                       margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                     >
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                      <XAxis dataKey="year" stroke="rgba(255,255,255,0.5)" tick={{ fill: 'rgba(255,255,255,0.7)' }} />
+                      <CartesianGrid horizontal={true} vertical={false} stroke="rgba(255,255,255,0.08)" />
+                      <XAxis dataKey="year" stroke="transparent" tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 12 }} axisLine={false} tickLine={false} />
                       <YAxis 
-                        stroke="rgba(255,255,255,0.5)" 
-                        tick={{ fill: 'rgba(255,255,255,0.7)' }}
+                        stroke="transparent" 
+                        tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 12 }}
                         tickFormatter={(value) => `$${(value / 1000000).toFixed(1)}M`}
+                        axisLine={false}
+                        tickLine={false}
                       />
                       <Tooltip 
                         formatter={(value: number) => formatMoney(value)}
@@ -2280,9 +2284,9 @@ export default function Dashboard() {
                         labelStyle={{ color: 'rgba(255,255,255,0.7)' }}
                       />
                       <Legend wrapperStyle={{ color: 'rgba(255,255,255,0.8)' }} />
-                      <Line type="monotone" dataKey="Revenue" stroke="#60A5FA" strokeWidth={3} dot={{ fill: '#60A5FA', strokeWidth: 0, r: 4 }} />
-                      <Line type="monotone" dataKey="Operating Costs" stroke="#A78BFA" strokeWidth={3} dot={{ fill: '#A78BFA', strokeWidth: 0, r: 4 }} />
-                      <Line type="monotone" dataKey="NOI" stroke="#9FBCA4" strokeWidth={3} dot={{ fill: '#9FBCA4', strokeWidth: 0, r: 4 }} />
+                      <Line type="natural" dataKey="Revenue" stroke="#B8D4BE" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#B8D4BE', stroke: '#fff', strokeWidth: 2 }} />
+                      <Line type="natural" dataKey="Operating Costs" stroke="#E8E8E8" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#E8E8E8', stroke: '#fff', strokeWidth: 2 }} />
+                      <Line type="natural" dataKey="NOI" stroke="#4A9D5B" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#4A9D5B', stroke: '#fff', strokeWidth: 2 }} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
@@ -2303,7 +2307,7 @@ export default function Dashboard() {
                   <p className="text-sm text-white/50">NOI, Debt Service, and Net Cash Flow over 10 years</p>
                 </div>
                 
-                <div className="bg-white/10 backdrop-blur-2xl rounded-2xl p-6 border border-white/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
+                <div className="bg-white/8 backdrop-blur-2xl rounded-2xl p-6 border border-white/15 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
                   <ResponsiveContainer width="100%" height={300}>
                     <LineChart
                       data={Array.from({ length: 10 }, (_, i) => {
@@ -2317,12 +2321,14 @@ export default function Dashboard() {
                       })}
                       margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                     >
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                      <XAxis dataKey="year" stroke="rgba(255,255,255,0.5)" tick={{ fill: 'rgba(255,255,255,0.7)' }} />
+                      <CartesianGrid horizontal={true} vertical={false} stroke="rgba(255,255,255,0.08)" />
+                      <XAxis dataKey="year" stroke="transparent" tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 12 }} axisLine={false} tickLine={false} />
                       <YAxis 
-                        stroke="rgba(255,255,255,0.5)" 
-                        tick={{ fill: 'rgba(255,255,255,0.7)' }}
+                        stroke="transparent" 
+                        tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 12 }}
                         tickFormatter={(value) => `$${(value / 1000000).toFixed(1)}M`}
+                        axisLine={false}
+                        tickLine={false}
                       />
                       <Tooltip 
                         formatter={(value: number) => formatMoney(value)}
@@ -2335,9 +2341,9 @@ export default function Dashboard() {
                         labelStyle={{ color: 'rgba(255,255,255,0.7)' }}
                       />
                       <Legend wrapperStyle={{ color: 'rgba(255,255,255,0.8)' }} />
-                      <Line type="monotone" dataKey="NOI" stroke="#60A5FA" strokeWidth={3} dot={{ fill: '#60A5FA', strokeWidth: 0, r: 4 }} />
-                      <Line type="monotone" dataKey="Debt Service" stroke="#F472B6" strokeWidth={3} dot={{ fill: '#F472B6', strokeWidth: 0, r: 4 }} />
-                      <Line type="monotone" dataKey="Net Cash Flow" stroke="#34D399" strokeWidth={3} dot={{ fill: '#34D399', strokeWidth: 0, r: 4 }} />
+                      <Line type="natural" dataKey="NOI" stroke="#B8D4BE" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#B8D4BE', stroke: '#fff', strokeWidth: 2 }} />
+                      <Line type="natural" dataKey="Debt Service" stroke="#E8E8E8" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#E8E8E8', stroke: '#fff', strokeWidth: 2 }} />
+                      <Line type="natural" dataKey="Net Cash Flow" stroke="#4A9D5B" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#4A9D5B', stroke: '#fff', strokeWidth: 2 }} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>

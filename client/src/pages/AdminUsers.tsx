@@ -441,7 +441,7 @@ export default function AdminUsers() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
+                  <TableHead>Email / User ID</TableHead>
                   <TableHead>Company</TableHead>
                   <TableHead>Title</TableHead>
                   <TableHead>Role</TableHead>

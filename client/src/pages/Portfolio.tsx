@@ -203,21 +203,36 @@ export default function Portfolio() {
 
   return (
     <Layout>
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h2 className="text-3xl font-serif font-bold text-foreground">Property Portfolio</h2>
-            <p className="text-muted-foreground mt-1">Managed assets & developments</p>
+      <div className="space-y-8">
+        {/* Liquid Glass Header */}
+        <div className="relative overflow-hidden rounded-3xl p-8">
+          {/* Gradient Background */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e] via-[#3d5a6a] to-[#4a3d5e]" />
+          {/* Top Edge Sheen */}
+          <div className="absolute top-0 left-8 right-8 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+          {/* Floating Color Orbs */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute -top-12 -right-12 w-56 h-56 rounded-full bg-[#9FBCA4]/25 blur-3xl" />
+            <div className="absolute bottom-0 left-1/4 w-48 h-48 rounded-full bg-[#A78BFA]/20 blur-3xl" />
           </div>
           
-          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-            <DialogTrigger asChild>
-              <Button data-testid="button-add-property" className="bg-primary hover:bg-primary/90">
-                <Plus className="w-4 h-4 mr-2" />
-                Add Property
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="relative flex justify-between items-center">
+            <div>
+              <h2 className="text-3xl font-serif font-bold text-white">Property Portfolio</h2>
+              <p className="text-white/60 mt-1">Managed assets & developments</p>
+            </div>
+            
+            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+              <DialogTrigger asChild>
+                <Button 
+                  data-testid="button-add-property" 
+                  className="relative overflow-hidden bg-white/15 hover:bg-white/25 text-white border border-white/20 backdrop-blur-xl shadow-[0_0_20px_rgba(159,188,164,0.3)]"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Property
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle className="font-serif text-2xl">Add New Property</DialogTitle>
                 <DialogDescription>
@@ -515,93 +530,112 @@ export default function Portfolio() {
               </DialogFooter>
             </DialogContent>
           </Dialog>
+          </div>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {properties?.slice().sort((a, b) => new Date(a.acquisitionDate).getTime() - new Date(b.acquisitionDate).getTime()).map((property) => (
-            <Card key={property.id} className="group overflow-hidden flex flex-col">
-              <div className="relative aspect-[16/10] overflow-hidden">
-                <img 
-                  src={property.imageUrl} 
-                  alt={property.name}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-                <div className="absolute top-3 left-3">
-                  <Badge 
-                    data-testid={`badge-type-${property.id}`}
-                    variant={property.type === "Financed" ? "default" : "secondary"}
-                    className={property.type === "Financed" ? "bg-[#257D41] text-white" : "bg-[#9FBCA4] text-[#3D3D3D]"}
-                  >
-                    {property.type}
-                  </Badge>
+            <div key={property.id} className="group relative overflow-hidden rounded-2xl flex flex-col">
+              {/* Liquid Glass Card Background */}
+              <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e] via-[#3d5a6a] to-[#4a3d5e]" />
+              {/* Top Edge Sheen */}
+              <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-white/25 to-transparent" />
+              {/* Border */}
+              <div className="absolute inset-0 rounded-2xl border border-white/15" />
+              
+              <div className="relative">
+                <div className="relative aspect-[16/10] overflow-hidden rounded-t-2xl">
+                  <img 
+                    src={property.imageUrl} 
+                    alt={property.name}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  {/* Gradient overlay at bottom of image */}
+                  <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#2d4a5e] to-transparent" />
+                  <div className="absolute top-3 left-3">
+                    <span 
+                      data-testid={`badge-type-${property.id}`}
+                      className={`px-3 py-1 rounded-full text-xs font-medium backdrop-blur-xl ${
+                        property.type === "Financed" 
+                          ? "bg-[#257D41]/80 text-white border border-white/20" 
+                          : "bg-[#9FBCA4]/80 text-white border border-white/20"
+                      }`}
+                    >
+                      {property.type}
+                    </span>
+                  </div>
+                  <div className="absolute top-3 right-3">
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium backdrop-blur-xl border border-white/20 ${
+                      property.status === "Operational" ? "bg-emerald-500/80 text-white" :
+                      property.status === "Development" ? "bg-amber-500/80 text-white" : "bg-white/20 text-white"
+                    }`}>
+                      {property.status}
+                    </span>
+                  </div>
                 </div>
-                <div className="absolute top-3 right-3">
-                  <Badge variant={
-                    property.status === "Operational" ? "default" :
-                    property.status === "Development" ? "secondary" : "outline"
-                  }>
-                    {property.status}
-                  </Badge>
+                
+                <div className="p-5">
+                  <h3 className="font-serif text-xl font-bold text-white">{property.name}</h3>
+                  <div className="flex items-center text-white/60 text-sm mt-1">
+                    <MapPin className="w-3 h-3 mr-1" />
+                    {property.location}
+                  </div>
+                </div>
+                
+                <div className="px-5 pb-4 flex-1">
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div className="p-3 bg-white/10 backdrop-blur-xl rounded-xl border border-white/10">
+                      <p className="text-xs text-white/50 mb-1">Acquisition</p>
+                      <p className="font-semibold text-white">{formatMoney(property.purchasePrice)}</p>
+                    </div>
+                    <div className="p-3 bg-white/10 backdrop-blur-xl rounded-xl border border-white/10">
+                      <p className="text-xs text-white/50 mb-1">Capacity</p>
+                      <p className="font-semibold text-white flex items-center">
+                        <Bed className="w-3 h-3 mr-1" />
+                        {property.roomCount} Rooms
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="px-5 pb-5 pt-2 border-t border-white/10 flex justify-between items-center">
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="ghost" size="sm" className="text-white/50 hover:text-red-400 hover:bg-white/5">
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Property?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This will permanently remove {property.name} from the portfolio.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction 
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90" 
+                          onClick={() => handleDelete(property.id, property.name)}
+                        >
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+
+                  <Link href={`/property/${property.id}`}>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      className="text-white bg-white/10 hover:bg-white/20 border border-white/20"
+                    >
+                      View Details <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </Link>
                 </div>
               </div>
-              
-              <CardHeader className="pb-2">
-                <h3 className="font-serif text-xl font-bold">{property.name}</h3>
-                <div className="flex items-center text-muted-foreground text-sm">
-                  <MapPin className="w-3 h-3 mr-1" />
-                  {property.location}
-                </div>
-              </CardHeader>
-              
-              <CardContent className="flex-1 pb-4">
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div className="p-3 bg-muted rounded-lg">
-                    <p className="text-xs text-muted-foreground mb-1">Acquisition</p>
-                    <p className="font-semibold">{formatMoney(property.purchasePrice)}</p>
-                  </div>
-                  <div className="p-3 bg-muted rounded-lg">
-                    <p className="text-xs text-muted-foreground mb-1">Capacity</p>
-                    <p className="font-semibold flex items-center">
-                      <Bed className="w-3 h-3 mr-1" />
-                      {property.roomCount} Rooms
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-
-              <CardFooter className="border-t pt-4 flex justify-between items-center">
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-destructive">
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Delete Property?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This will permanently remove {property.name} from the portfolio.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction 
-                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90" 
-                        onClick={() => handleDelete(property.id, property.name)}
-                      >
-                        Delete
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-
-                <Link href={`/property/${property.id}`}>
-                  <Button variant="outline" size="sm">
-                    View Details <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
-                </Link>
-              </CardFooter>
-            </Card>
+            </div>
           ))}
         </div>
       </div>

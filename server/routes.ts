@@ -267,7 +267,17 @@ export async function registerRoutes(
         return res.status(404).json({ error: "User not found" });
       }
       
-      const updates: { name?: string; company?: string; title?: string } = {};
+      const updates: { email?: string; name?: string; company?: string; title?: string } = {};
+      if (validation.data.email !== undefined && existingUser.role !== "admin") {
+        const newEmail = sanitizeEmail(validation.data.email);
+        if (newEmail !== existingUser.email) {
+          const emailUser = await storage.getUserByEmail(newEmail);
+          if (emailUser && emailUser.id !== id) {
+            return res.status(400).json({ error: "Email already in use" });
+          }
+          updates.email = newEmail;
+        }
+      }
       if (validation.data.name !== undefined) updates.name = validation.data.name.trim();
       if (validation.data.company !== undefined) updates.company = validation.data.company.trim();
       if (validation.data.title !== undefined) updates.title = validation.data.title.trim();

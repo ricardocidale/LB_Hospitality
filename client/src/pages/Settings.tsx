@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Save, Loader2 } from "lucide-react";
 import { GlassButton } from "@/components/ui/glass-button";
+import { PageHeader } from "@/components/ui/page-header";
 import { useState } from "react";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { Slider } from "@/components/ui/slider";
@@ -105,24 +106,17 @@ export default function Settings() {
   return (
     <Layout>
       <div className="space-y-6 max-w-4xl">
-        {/* Light Glass Header */}
-        <div className="relative overflow-hidden rounded-3xl p-6">
-          <div className="absolute inset-0 bg-white/80 backdrop-blur-xl" />
-          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-[#9FBCA4]/20 blur-2xl" />
-          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/10 blur-xl" />
-          <div className="absolute inset-0 border border-[#9FBCA4]/20 rounded-3xl shadow-[0_8px_32px_rgba(159,188,164,0.15)]" />
-          
-          <div className="relative flex items-center justify-between">
-            <div>
-              <h2 className="text-3xl font-serif font-bold text-gray-900">Global Assumptions</h2>
-              <p className="text-gray-600 mt-1">Configure variables driving the financial model</p>
-            </div>
+        <PageHeader
+          title="Global Assumptions"
+          subtitle="Configure variables driving the financial model"
+          variant="light"
+          actions={
             <GlassButton variant="primary" onClick={handleSaveGlobal} disabled={!globalDraft || updateGlobal.isPending}>
               {updateGlobal.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               Save Changes
             </GlassButton>
-          </div>
-        </div>
+          }
+        />
 
         <Tabs defaultValue="portfolio" className="w-full">
           <TabsList className="grid w-full grid-cols-3 max-w-md">

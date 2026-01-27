@@ -53,6 +53,31 @@ Always format money as money (currency format with commas and appropriate precis
 - **Assumptions buttons**: Text "Assumptions" with Settings2 icon
 - **Consistent fluid glass effect**: All Save buttons have the same sage green glow effect across all pages
 
+### PageHeader Component Standard
+All pages must use the standardized PageHeader component with consistent height, fonts, and styling:
+
+```
+<PageHeader
+  title="Page Title"
+  subtitle="Page description"
+  variant="dark"  // or "light" for assumption pages
+  backLink="/back-route"  // optional
+  actions={<GlassButton>Action</GlassButton>}  // optional
+/>
+```
+
+**PageHeader properties**:
+- Fixed minimum height: min-h-[88px] for consistent sizing
+- Title: text-3xl font-serif font-bold
+- Subtitle: text-sm mt-1
+- Variant "dark": Dark glass gradient (from-[#2d4a5e] via-[#3d5a6a] to-[#3a5a5e]) for main app pages
+- Variant "light": White/80 backdrop-blur-xl with sage green accents for assumption pages
+- Actions slot for Save Changes buttons or other action buttons
+
+**Page variant assignments**:
+- **Dark variant**: Dashboard, Company, Portfolio, Property Detail, User Management
+- **Light variant**: Company Assumptions, Property Assumptions (PropertyEdit), Global Assumptions (Settings)
+
 ### GlassButton Primary Variant Standard
 All primary action buttons (Save, Submit, Confirm) must use:
 ```

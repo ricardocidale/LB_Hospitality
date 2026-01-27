@@ -516,17 +516,30 @@ export default function Company() {
   return (
     <Layout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-3xl font-serif font-bold text-foreground mb-1">L+B Hospitality Co.</h2>
-            <p className="text-muted-foreground">Corporate Management Entity & Operations</p>
+        {/* Page Header - Dark Theme */}
+        <div className="relative overflow-hidden rounded-2xl p-6">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e]/80 via-[#3d5a6a]/70 to-[#3a5a5e]/80" />
+          <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+          <div className="absolute inset-0 border border-white/10 rounded-2xl" />
+          
+          <div className="relative flex items-center justify-between">
+            <div>
+              <h2 className="text-3xl font-serif font-bold text-[#FFF9F5] mb-1">L+B Hospitality Co.</h2>
+              <p className="text-[#FFF9F5]/60">Corporate Management Entity & Operations</p>
+            </div>
+            <Link href="/company/assumptions">
+              <button className="relative overflow-hidden px-5 py-2.5 text-sm font-medium text-white rounded-xl transition-all duration-300 group/settings">
+                <div className="absolute inset-0 bg-white/10 backdrop-blur-xl rounded-xl" />
+                <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+                <div className="absolute inset-0 rounded-xl border border-white/20 group-hover/settings:border-white/40 transition-all duration-300" />
+                <div className="absolute inset-0 rounded-xl group-hover/settings:shadow-[0_0_20px_rgba(159,188,164,0.3)] transition-all duration-300" />
+                <span className="relative flex items-center">
+                  <Settings2 className="w-4 h-4 mr-2" />
+                  Company Assumptions
+                </span>
+              </button>
+            </Link>
           </div>
-          <Link href="/company/assumptions">
-            <Button variant="outline" size="sm">
-              <Settings2 className="w-4 h-4 mr-2" />
-              Company Assumptions
-            </Button>
-          </Link>
         </div>
 
         {/* Liquid Glass Chart Card - Dark Theme */}
@@ -643,12 +656,62 @@ export default function Company() {
         )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <div className="flex items-center justify-between">
-            <TabsList className="grid w-full grid-cols-3 max-w-lg">
-              <TabsTrigger value="income">Income Statement</TabsTrigger>
-              <TabsTrigger value="cashflow">Cash Flows</TabsTrigger>
-              <TabsTrigger value="balance">Balance Sheet</TabsTrigger>
-            </TabsList>
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
+            {/* Liquid Glass Tabs - Dark Theme */}
+            <div className="relative overflow-hidden rounded-2xl">
+              <div className="absolute inset-0 bg-gradient-to-r from-[#2d4a5e]/70 to-[#3a5a5e]/70 backdrop-blur-xl" />
+              <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+              <div className="absolute inset-0 rounded-2xl border border-white/15" />
+              <div className="relative flex flex-wrap gap-1 p-1.5">
+                <button
+                  onClick={() => setActiveTab("income")}
+                  className={`relative overflow-hidden px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 ${
+                    activeTab === "income" ? "text-[#FFF9F5]" : "text-[#FFF9F5]/60 hover:text-[#FFF9F5] hover:bg-white/5"
+                  }`}
+                >
+                  {activeTab === "income" && (
+                    <>
+                      <div className="absolute inset-0 bg-white/15 backdrop-blur-sm rounded-xl" />
+                      <div className="absolute inset-0 rounded-xl border border-white/25" />
+                      <div className="absolute top-0 left-1 right-1 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+                    </>
+                  )}
+                  <span className="relative">Income Statement</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab("cashflow")}
+                  className={`relative overflow-hidden px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 ${
+                    activeTab === "cashflow" ? "text-[#FFF9F5]" : "text-[#FFF9F5]/60 hover:text-[#FFF9F5] hover:bg-white/5"
+                  }`}
+                >
+                  {activeTab === "cashflow" && (
+                    <>
+                      <div className="absolute inset-0 bg-white/15 backdrop-blur-sm rounded-xl" />
+                      <div className="absolute inset-0 rounded-xl border border-white/25" />
+                      <div className="absolute top-0 left-1 right-1 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+                    </>
+                  )}
+                  <span className="relative">Cash Flows</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab("balance")}
+                  className={`relative overflow-hidden px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 ${
+                    activeTab === "balance" ? "text-[#FFF9F5]" : "text-[#FFF9F5]/60 hover:text-[#FFF9F5] hover:bg-white/5"
+                  }`}
+                >
+                  {activeTab === "balance" && (
+                    <>
+                      <div className="absolute inset-0 bg-white/15 backdrop-blur-sm rounded-xl" />
+                      <div className="absolute inset-0 rounded-xl border border-white/25" />
+                      <div className="absolute top-0 left-1 right-1 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+                    </>
+                  )}
+                  <span className="relative">Balance Sheet</span>
+                </button>
+              </div>
+            </div>
+            
+            {/* Export Buttons */}
             <div className="flex gap-2">
               <Button variant="outline" size="sm" onClick={() => exportCompanyPDF(activeTab as 'income' | 'cashflow' | 'balance')}>
                 <FileDown className="w-4 h-4 mr-2" />

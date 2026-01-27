@@ -16,6 +16,8 @@ const createUserSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
   name: z.string().max(100).optional(),
+  company: z.string().max(100).optional(),
+  title: z.string().max(100).optional(),
 });
 
 export async function registerRoutes(
@@ -95,7 +97,7 @@ export async function registerRoutes(
   app.get("/api/admin/users", requireAdmin, async (req, res) => {
     try {
       const users = await storage.getAllUsers();
-      res.json(users.map(u => ({ id: u.id, email: u.email, name: u.name, role: u.role, createdAt: u.createdAt })));
+      res.json(users.map(u => ({ id: u.id, email: u.email, name: u.name, company: u.company, title: u.title, role: u.role, createdAt: u.createdAt })));
     } catch (error) {
       console.error("Error fetching users:", error);
       res.status(500).json({ error: "Failed to fetch users" });
@@ -113,6 +115,8 @@ export async function registerRoutes(
       const email = sanitizeEmail(validation.data.email);
       const password = validation.data.password;
       const name = validation.data.name?.trim();
+      const company = validation.data.company?.trim();
+      const title = validation.data.title?.trim();
       
       const passwordCheck = validatePassword(password);
       if (!passwordCheck.valid) {
@@ -125,9 +129,9 @@ export async function registerRoutes(
       }
       
       const passwordHash = await hashPassword(password);
-      const user = await storage.createUser({ email, passwordHash, role: "user", name });
+      const user = await storage.createUser({ email, passwordHash, role: "user", name, company, title });
       
-      res.json({ id: user.id, email: user.email, name: user.name, role: user.role });
+      res.json({ id: user.id, email: user.email, name: user.name, company: user.company, title: user.title, role: user.role });
     } catch (error) {
       console.error("Error creating user:", error);
       res.status(500).json({ error: "Failed to create user" });

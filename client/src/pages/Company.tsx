@@ -665,40 +665,31 @@ export default function Company() {
           </div>
         </GlassCard>
 
+        {/* Cash Position Footnote */}
         {!cashAnalysis.isAdequate ? (
-          <GlassCard variant="warning" className="p-5">
-            <div className="flex items-start gap-3" data-testid="banner-company-cash-warning">
-              <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
-              <div className="text-sm">
-                <p data-testid="text-company-cash-warning-title" className="font-semibold text-red-400">Additional Funding Required</p>
-                <p className="text-[#FFF9F5]/70 mt-1">
-                  The current SAFE funding of <span className="font-medium text-[#FFF9F5]">{formatMoney(cashAnalysis.totalSafeFunding)}</span> is insufficient to cover operating expenses.
-                  Monthly cash position drops to <span className="font-medium text-red-400">{formatMoney(cashAnalysis.minCashPosition)}</span>
-                  {cashAnalysis.minCashMonth !== null && <> in month <span className="font-medium text-[#FFF9F5]">{cashAnalysis.minCashMonth}</span></>}.
-                </p>
-                <p className="text-[#FFF9F5]/70 mt-1">
-                  <span className="font-medium text-[#FFF9F5]">Suggested:</span> Increase SAFE funding by at least{' '}
-                  <span className="font-semibold text-[#FFF9F5]">{formatMoney(cashAnalysis.suggestedAdditionalFunding)}</span> in{' '}
-                  <Link href="/company/assumptions" className="font-medium text-[#9FBCA4] hover:underline">Company Assumptions → SAFE Funding</Link>.
-                </p>
-              </div>
-            </div>
-          </GlassCard>
+          <div className="flex items-start gap-2 text-sm text-gray-600 mt-2" data-testid="banner-company-cash-warning">
+            <AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+            <p>
+              <span data-testid="text-company-cash-warning-title" className="font-medium text-red-600">Additional Funding Required:</span>{' '}
+              The current SAFE funding of <span className="font-medium text-gray-900">{formatMoney(cashAnalysis.totalSafeFunding)}</span> is insufficient to cover operating expenses.
+              Monthly cash position drops to <span className="font-medium text-red-600">{formatMoney(cashAnalysis.minCashPosition)}</span>
+              {cashAnalysis.minCashMonth !== null && <> in month {cashAnalysis.minCashMonth}</>}.
+              {' '}Suggested: Increase SAFE funding by at least{' '}
+              <span className="font-medium text-gray-900">{formatMoney(cashAnalysis.suggestedAdditionalFunding)}</span> in{' '}
+              <Link href="/company/assumptions" className="font-medium text-[#257D41] hover:underline">Company Assumptions</Link>.
+            </p>
+          </div>
         ) : (
-          <GlassCard variant="success" className="p-5">
-            <div className="flex items-start gap-3" data-testid="banner-company-cash-adequate">
-              <CheckCircle className="w-5 h-5 text-[#9FBCA4] flex-shrink-0 mt-0.5" />
-              <div className="text-sm">
-                <p data-testid="text-company-cash-adequate-title" className="font-semibold text-[#9FBCA4]">Cash Position Adequate</p>
-                <p className="text-[#FFF9F5]/70 mt-1">
-                  The SAFE funding of <span className="font-medium text-[#FFF9F5]">{formatMoney(cashAnalysis.totalSafeFunding)}</span> covers all operating costs.
-                  {cashAnalysis.minCashMonth !== null && (
-                    <> Minimum cash position: <span className="font-medium text-[#FFF9F5]">{formatMoney(cashAnalysis.minCashPosition)}</span> (month {cashAnalysis.minCashMonth}).</>
-                  )}
-                </p>
-              </div>
-            </div>
-          </GlassCard>
+          <div className="flex items-start gap-2 text-sm text-gray-600 mt-2" data-testid="banner-company-cash-adequate">
+            <CheckCircle className="w-4 h-4 text-[#257D41] flex-shrink-0 mt-0.5" />
+            <p>
+              <span data-testid="text-company-cash-adequate-title" className="font-medium text-[#257D41]">Cash Position Adequate:</span>{' '}
+              The SAFE funding of <span className="font-medium text-gray-900">{formatMoney(cashAnalysis.totalSafeFunding)}</span> covers all operating costs.
+              {cashAnalysis.minCashMonth !== null && (
+                <> Minimum cash position: <span className="font-medium text-gray-900">{formatMoney(cashAnalysis.minCashPosition)}</span> (month {cashAnalysis.minCashMonth}).</>
+              )}
+            </p>
+          </div>
         )}
           
           <TabsContent value="income" className="mt-6">

@@ -301,8 +301,8 @@ export default function PropertyDetail() {
                   </button>
                 </Link>
                 <div>
-                  <h1 className="text-2xl font-serif font-bold text-white">{property.name}</h1>
-                  <div className="flex items-center gap-4 text-white/70 text-sm mt-1">
+                  <h1 className="text-2xl font-serif font-bold text-[#FFF9F5]">{property.name}</h1>
+                  <div className="flex items-center gap-4 text-[#FFF9F5]/70 text-sm mt-1">
                     <span className="flex items-center gap-1"><MapPin className="w-4 h-4" /> {property.location}</span>
                     <span>{property.roomCount} Rooms</span>
                     <span className="px-2 py-0.5 rounded-full bg-white/15 border border-white/25 text-white text-xs">

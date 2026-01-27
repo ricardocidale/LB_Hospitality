@@ -4,18 +4,18 @@ import { storage } from "./storage";
 import { insertGlobalAssumptionsSchema, insertPropertySchema, updatePropertySchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
-import { hashPassword, verifyPassword, generateSessionId, setSessionCookie, clearSessionCookie, getSessionExpiryDate, requireAuth, requireAdmin } from "./auth";
+import { hashPassword, verifyPassword, generateSessionId, setSessionCookie, clearSessionCookie, getSessionExpiryDate, requireAuth, requireAdmin, isRateLimited, recordLoginAttempt, sanitizeEmail, validatePassword } from "./auth";
 import { z } from "zod";
 
 const loginSchema = z.object({
-  email: z.string(),
-  password: z.string(),
+  email: z.string().min(1),
+  password: z.string().min(1),
 });
 
 const createUserSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(6),
-  name: z.string().optional(),
+  password: z.string().min(8),
+  name: z.string().max(100).optional(),
 });
 
 export async function registerRoutes(
@@ -26,22 +26,33 @@ export async function registerRoutes(
   
   app.post("/api/auth/login", async (req, res) => {
     try {
+      const clientIp = req.ip || req.socket.remoteAddress || "unknown";
+      
+      if (isRateLimited(clientIp)) {
+        return res.status(429).json({ error: "Too many login attempts. Please try again in 15 minutes." });
+      }
+      
       const validation = loginSchema.safeParse(req.body);
       if (!validation.success) {
         return res.status(400).json({ error: "Invalid request" });
       }
       
-      const { email, password } = validation.data;
+      const email = sanitizeEmail(validation.data.email);
+      const password = validation.data.password;
       const user = await storage.getUserByEmail(email);
       
       if (!user) {
+        recordLoginAttempt(clientIp, false);
         return res.status(401).json({ error: "Invalid credentials" });
       }
       
       const valid = await verifyPassword(password, user.passwordHash);
       if (!valid) {
+        recordLoginAttempt(clientIp, false);
         return res.status(401).json({ error: "Invalid credentials" });
       }
+      
+      recordLoginAttempt(clientIp, true);
       
       const sessionId = generateSessionId();
       const expiresAt = getSessionExpiryDate();
@@ -99,7 +110,14 @@ export async function registerRoutes(
         return res.status(400).json({ error: error.message });
       }
       
-      const { email, password, name } = validation.data;
+      const email = sanitizeEmail(validation.data.email);
+      const password = validation.data.password;
+      const name = validation.data.name?.trim();
+      
+      const passwordCheck = validatePassword(password);
+      if (!passwordCheck.valid) {
+        return res.status(400).json({ error: passwordCheck.message });
+      }
       
       const existing = await storage.getUserByEmail(email);
       if (existing) {

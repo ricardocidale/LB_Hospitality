@@ -1553,7 +1553,7 @@ export default function Dashboard() {
       <div className="space-y-6">
         {/* Page Header - Liquid Glass Style */}
         <div className="relative overflow-hidden rounded-2xl">
-          <div className="absolute inset-0 bg-gradient-to-r from-[#1e2a3a] via-[#2d3a4a] to-[#3a2a4a]" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#2d4a5e] via-[#3a5a5e] to-[#3d5a6a]" />
           <div className="absolute inset-0">
             <div className="absolute top-0 left-1/4 w-48 h-48 rounded-full bg-[#9FBCA4]/20 blur-3xl" />
             <div className="absolute bottom-0 right-1/4 w-40 h-40 rounded-full bg-[#9FBCA4]/15 blur-3xl" />
@@ -1764,7 +1764,7 @@ export default function Dashboard() {
 
             {/* Portfolio & Capital Summary - Liquid Glass Style */}
             <div className="relative overflow-hidden rounded-3xl p-6">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#2a3a4a] via-[#3a4a5a] to-[#4a3a5a]" />
+              <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e] via-[#3a5a5e] to-[#3d5a6a]" />
               <div className="absolute inset-0">
                 <div className="absolute top-0 right-1/3 w-56 h-56 rounded-full bg-[#60A5FA]/15 blur-3xl" />
                 <div className="absolute bottom-0 left-1/3 w-48 h-48 rounded-full bg-[#9FBCA4]/10 blur-3xl" />
@@ -2307,7 +2307,7 @@ export default function Dashboard() {
 
             {/* Liquid Glass Chart - Cash Flow After Financing */}
             <div className="relative overflow-hidden rounded-3xl p-6">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#3d4a5e] via-[#4a5a6a] to-[#5a3d5e]" />
+              <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e] via-[#3a5a5e] to-[#3d5a6a]" />
               <div className="absolute inset-0">
                 <div className="absolute top-0 right-1/3 w-72 h-72 rounded-full bg-[#9FBCA4]/20 blur-3xl" />
                 <div className="absolute bottom-0 left-1/3 w-64 h-64 rounded-full bg-[#9FBCA4]/15 blur-3xl" />

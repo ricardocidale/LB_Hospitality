@@ -3,11 +3,13 @@ import Layout from "@/components/Layout";
 import { useProperties, useGlobalAssumptions } from "@/lib/api";
 import { generateCompanyProForma, generatePropertyProForma, formatMoney, getFiscalYearForModelYear } from "@/lib/financialEngine";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { Users, Briefcase, TrendingUp, Settings2, Loader2, ChevronRight, ChevronDown, FileDown, AlertTriangle, CheckCircle } from "lucide-react";
 import { Link } from "wouter";
+import { GlassButton } from "@/components/ui/glass-button";
+import { PageHeader } from "@/components/ui/page-header";
+import { GlassCard } from "@/components/ui/glass-card";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { format } from "date-fns";
@@ -515,43 +517,23 @@ export default function Company() {
   return (
     <Layout>
       <div className="space-y-6">
-        {/* Page Header - Dark Theme */}
-        <div className="relative overflow-hidden rounded-2xl p-6">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e]/80 via-[#3d5a6a]/70 to-[#3a5a5e]/80" />
-          <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-          <div className="absolute inset-0 border border-white/10 rounded-2xl" />
-          
-          <div className="relative flex items-center justify-between">
-            <div>
-              <h2 className="text-3xl font-serif font-bold text-[#FFF9F5] mb-1">L+B Hospitality Co.</h2>
-              <p className="text-[#FFF9F5]/60">Corporate Management Entity & Operations</p>
-            </div>
+        {/* Page Header */}
+        <PageHeader
+          title="L+B Hospitality Co."
+          subtitle="Corporate Management Entity & Operations"
+          actions={
             <Link href="/company/assumptions">
-              <button className="relative overflow-hidden px-5 py-2.5 text-sm font-medium text-white rounded-xl transition-all duration-300 group/settings">
-                <div className="absolute inset-0 bg-white/10 backdrop-blur-xl rounded-xl" />
-                <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
-                <div className="absolute inset-0 rounded-xl border border-white/20 group-hover/settings:border-white/40 transition-all duration-300" />
-                <div className="absolute inset-0 rounded-xl group-hover/settings:shadow-[0_0_20px_rgba(159,188,164,0.3)] transition-all duration-300" />
-                <span className="relative flex items-center">
-                  <Settings2 className="w-4 h-4 mr-2" />
-                  Company Assumptions
-                </span>
-              </button>
+              <GlassButton variant="settings">
+                <Settings2 className="w-4 h-4" />
+                Company Assumptions
+              </GlassButton>
             </Link>
-          </div>
-        </div>
+          }
+        />
 
-        {/* Liquid Glass Chart Card - Dark Theme */}
-        <div className="relative overflow-hidden rounded-3xl p-6">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e] via-[#3a5a5e] to-[#3d5a6a]" />
-          <div className="absolute inset-0">
-            <div className="absolute top-0 left-1/4 w-72 h-72 rounded-full bg-[#9FBCA4]/20 blur-3xl" />
-            <div className="absolute bottom-0 right-1/4 w-64 h-64 rounded-full bg-[#9FBCA4]/15 blur-3xl" />
-          </div>
-          <div className="absolute top-0 left-6 right-6 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
-          <div className="absolute inset-0 rounded-3xl border border-white/15" />
-          
-          <div className="relative">
+        {/* Chart Card */}
+        <GlassCard variant="chart" className="rounded-3xl">
+          <div>
             <h3 className="text-lg font-semibold text-[#FFF9F5] mb-4">Management Company Performance (10-Year Projection)</h3>
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
@@ -612,14 +594,11 @@ export default function Company() {
               </ResponsiveContainer>
             </div>
           </div>
-        </div>
+        </GlassCard>
 
         {!cashAnalysis.isAdequate ? (
-          <div className="relative overflow-hidden rounded-2xl p-5">
-            <div className="absolute inset-0 bg-gradient-to-br from-red-900/30 via-[#3d5a6a]/50 to-[#3a5a5e]/60" />
-            <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-red-400/30 to-transparent" />
-            <div className="absolute inset-0 border border-red-500/30 rounded-2xl" />
-            <div className="relative flex items-start gap-3" data-testid="banner-company-cash-warning">
+          <GlassCard variant="warning" className="p-5">
+            <div className="flex items-start gap-3" data-testid="banner-company-cash-warning">
               <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
               <div className="text-sm">
                 <p data-testid="text-company-cash-warning-title" className="font-semibold text-red-400">Additional Funding Required</p>
@@ -635,13 +614,10 @@ export default function Company() {
                 </p>
               </div>
             </div>
-          </div>
+          </GlassCard>
         ) : (
-          <div className="relative overflow-hidden rounded-2xl p-5">
-            <div className="absolute inset-0 bg-gradient-to-br from-[#257D41]/20 via-[#3d5a6a]/50 to-[#3a5a5e]/60" />
-            <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-[#9FBCA4]/30 to-transparent" />
-            <div className="absolute inset-0 border border-[#9FBCA4]/30 rounded-2xl" />
-            <div className="relative flex items-start gap-3" data-testid="banner-company-cash-adequate">
+          <GlassCard variant="success" className="p-5">
+            <div className="flex items-start gap-3" data-testid="banner-company-cash-adequate">
               <CheckCircle className="w-5 h-5 text-[#9FBCA4] flex-shrink-0 mt-0.5" />
               <div className="text-sm">
                 <p data-testid="text-company-cash-adequate-title" className="font-semibold text-[#9FBCA4]">Cash Position Adequate</p>
@@ -653,7 +629,7 @@ export default function Company() {
                 </p>
               </div>
             </div>
-          </div>
+          </GlassCard>
         )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -714,24 +690,21 @@ export default function Company() {
             
             {/* Export Buttons */}
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => exportCompanyPDF(activeTab as 'income' | 'cashflow' | 'balance')}>
-                <FileDown className="w-4 h-4 mr-2" />
+              <GlassButton variant="ghost" size="sm" onClick={() => exportCompanyPDF(activeTab as 'income' | 'cashflow' | 'balance')}>
+                <FileDown className="w-4 h-4" />
                 Export PDF
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => exportCompanyCSV(activeTab as 'income' | 'cashflow' | 'balance')}>
-                <FileDown className="w-4 h-4 mr-2" />
+              </GlassButton>
+              <GlassButton variant="ghost" size="sm" onClick={() => exportCompanyCSV(activeTab as 'income' | 'cashflow' | 'balance')}>
+                <FileDown className="w-4 h-4" />
                 Export CSV
-              </Button>
+              </GlassButton>
             </div>
           </div>
           
           <TabsContent value="income" className="mt-6">
-            {/* Liquid Glass Card - Income Statement */}
-            <div className="relative overflow-hidden rounded-2xl p-6">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e]/80 via-[#3d5a6a]/70 to-[#3a5a5e]/80" />
-              <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-              <div className="absolute inset-0 border border-white/10 rounded-2xl" />
-              <div className="relative">
+            {/* Income Statement */}
+            <GlassCard>
+              <div>
                 <h3 className="text-lg font-semibold text-[#FFF9F5] mb-4">Yearly Income Statement</h3>
                 <div className="overflow-x-auto">
                 <Table>
@@ -1015,16 +988,13 @@ export default function Company() {
                 </Table>
                 </div>
               </div>
-            </div>
+            </GlassCard>
           </TabsContent>
           
           <TabsContent value="cashflow" className="mt-6">
-            {/* Liquid Glass Card - Cash Flow Statement */}
-            <div className="relative overflow-hidden rounded-2xl p-6">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e]/80 via-[#3d5a6a]/70 to-[#3a5a5e]/80" />
-              <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-              <div className="absolute inset-0 border border-white/10 rounded-2xl" />
-              <div className="relative">
+            {/* Cash Flow Statement */}
+            <GlassCard>
+              <div>
                 <h3 className="text-lg font-semibold text-[#FFF9F5] mb-4">Yearly Cash Flow Statement</h3>
                 <div className="overflow-x-auto">
                 <Table>
@@ -1357,16 +1327,13 @@ export default function Company() {
                 </Table>
                 </div>
               </div>
-            </div>
+            </GlassCard>
           </TabsContent>
 
           <TabsContent value="balance" className="mt-6">
-            {/* Liquid Glass Card - Balance Sheet */}
-            <div className="relative overflow-hidden rounded-2xl p-6">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e]/80 via-[#3d5a6a]/70 to-[#3a5a5e]/80" />
-              <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-              <div className="absolute inset-0 border border-white/10 rounded-2xl" />
-              <div className="relative">
+            {/* Balance Sheet */}
+            <GlassCard>
+              <div>
                 <h3 className="text-lg font-semibold text-[#FFF9F5] mb-4">Balance Sheet - As of {getFiscalYear(9)}</h3>
                 {(() => {
                   // Calculate cumulative values through Year 10
@@ -1477,7 +1444,7 @@ export default function Company() {
                   );
                 })()}
               </div>
-            </div>
+            </GlassCard>
           </TabsContent>
         </Tabs>
       </div>

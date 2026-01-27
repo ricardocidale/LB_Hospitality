@@ -1,16 +1,18 @@
 import { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import { useGlobalAssumptions, useUpdateGlobalAssumptions } from "@/lib/api";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { ChevronLeft, Loader2, Save, HelpCircle } from "lucide-react";
-import { Link, useLocation } from "wouter";
+import { Loader2, Save, HelpCircle } from "lucide-react";
+import { useLocation } from "wouter";
 import { formatPercent, formatMoney } from "@/lib/financialEngine";
 import { useToast } from "@/hooks/use-toast";
 import type { GlobalResponse } from "@/lib/api";
+import { GlassButton } from "@/components/ui/glass-button";
+import { PageHeader } from "@/components/ui/page-header";
+import { GlassCard } from "@/components/ui/glass-card";
 
 function EditableValue({
   value,
@@ -98,18 +100,6 @@ function HelpTooltip({ text }: { text: string }) {
   );
 }
 
-function GlassCard({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return (
-    <div className={`relative overflow-hidden rounded-2xl p-6 ${className}`}>
-      <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e]/80 via-[#3d5a6a]/70 to-[#3a5a5e]/80" />
-      <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-      <div className="absolute inset-0 border border-white/10 rounded-2xl" />
-      <div className="relative">
-        {children}
-      </div>
-    </div>
-  );
-}
 
 export default function CompanyAssumptions() {
   const [, setLocation] = useLocation();
@@ -163,37 +153,25 @@ export default function CompanyAssumptions() {
   return (
     <Layout>
       <div className="space-y-6">
-        <GlassCard>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Link href="/company">
-                <Button className="bg-white/10 hover:bg-white/20 text-[#FFF9F5] rounded-xl border border-white/15" size="icon">
-                  <ChevronLeft className="w-5 h-5" />
-                </Button>
-              </Link>
-              <div>
-                <h2 className="text-3xl font-serif font-bold text-[#FFF9F5]">
-                  Company Assumptions
-                </h2>
-                <p className="text-[#FFF9F5]/60">
-                  Configure L+B Hospitality Co. operating parameters
-                </p>
-              </div>
-            </div>
-            <Button 
+        <PageHeader
+          title="Company Assumptions"
+          subtitle="Configure L+B Hospitality Co. operating parameters"
+          backLink="/company"
+          actions={
+            <GlassButton 
+              variant="primary"
               onClick={handleSave} 
               disabled={updateMutation.isPending}
-              className="bg-[#9FBCA4]/80 hover:bg-[#9FBCA4] text-[#1a2f23]"
             >
               {updateMutation.isPending ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
-                <Save className="w-4 h-4 mr-2" />
+                <Save className="w-4 h-4" />
               )}
               Save Changes
-            </Button>
-          </div>
-        </GlassCard>
+            </GlassButton>
+          }
+        />
 
         <GlassCard>
           <div className="space-y-4">
@@ -786,19 +764,19 @@ export default function CompanyAssumptions() {
         </GlassCard>
 
         <div className="flex justify-end pb-8">
-          <Button 
-            onClick={handleSave} 
-            disabled={updateMutation.isPending} 
+          <GlassButton 
+            variant="primary"
             size="lg"
-            className="bg-[#9FBCA4]/80 hover:bg-[#9FBCA4] text-[#1a2f23]"
+            onClick={handleSave} 
+            disabled={updateMutation.isPending}
           >
             {updateMutation.isPending ? (
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
-              <Save className="w-4 h-4 mr-2" />
+              <Save className="w-4 h-4" />
             )}
             Save Changes
-          </Button>
+          </GlassButton>
         </div>
       </div>
     </Layout>

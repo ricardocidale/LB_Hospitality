@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
-import { Loader2, Plus, Trash2, Users } from "lucide-react";
+import { Loader2, Plus, Trash2, Users, Key } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface User {
@@ -22,6 +22,9 @@ export default function AdminUsers() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [newPassword, setNewPassword] = useState("");
   const [newUser, setNewUser] = useState({ email: "", password: "", name: "" });
 
   const { data: users, isLoading } = useQuery<User[]>({
@@ -78,6 +81,31 @@ export default function AdminUsers() {
     },
   });
 
+  const passwordMutation = useMutation({
+    mutationFn: async ({ id, password }: { id: number; password: string }) => {
+      const res = await fetch(`/api/admin/users/${id}/password`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+        credentials: "include",
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed to update password");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      setPasswordDialogOpen(false);
+      setSelectedUser(null);
+      setNewPassword("");
+      toast({ title: "Password Updated", description: "User password has been changed." });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+
   const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();
     createMutation.mutate({
@@ -85,6 +113,19 @@ export default function AdminUsers() {
       password: newUser.password,
       name: newUser.name || undefined,
     });
+  };
+
+  const handlePasswordChange = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (selectedUser) {
+      passwordMutation.mutate({ id: selectedUser.id, password: newPassword });
+    }
+  };
+
+  const openPasswordDialog = (user: User) => {
+    setSelectedUser(user);
+    setNewPassword("");
+    setPasswordDialogOpen(true);
   };
 
   if (isLoading) {
@@ -169,6 +210,41 @@ export default function AdminUsers() {
           </Dialog>
         </div>
 
+        <Dialog open={passwordDialogOpen} onOpenChange={setPasswordDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Change Password</DialogTitle>
+              <DialogDescription>
+                Set a new password for {selectedUser?.name || selectedUser?.email}
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handlePasswordChange} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="newPassword">New Password</Label>
+                <Input
+                  id="newPassword"
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Enter new password"
+                  required
+                  minLength={8}
+                  data-testid="input-new-password"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Min 8 characters with uppercase, lowercase, and number
+                </p>
+              </div>
+              <DialogFooter>
+                <Button type="submit" disabled={passwordMutation.isPending} data-testid="button-save-password">
+                  {passwordMutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                  Save Password
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+
         <Card>
           <CardHeader>
             <CardTitle>Registered Users</CardTitle>
@@ -182,7 +258,7 @@ export default function AdminUsers() {
                   <TableHead>Email</TableHead>
                   <TableHead>Role</TableHead>
                   <TableHead>Created</TableHead>
-                  <TableHead className="w-[80px]"></TableHead>
+                  <TableHead className="w-[100px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -193,17 +269,29 @@ export default function AdminUsers() {
                     <TableCell className="capitalize">{user.role}</TableCell>
                     <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
                     <TableCell>
-                      {user.role !== "admin" && (
+                      <div className="flex items-center gap-1">
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => deleteMutation.mutate(user.id)}
-                          disabled={deleteMutation.isPending}
-                          data-testid={`button-delete-user-${user.id}`}
+                          onClick={() => openPasswordDialog(user)}
+                          title="Change password"
+                          data-testid={`button-change-password-${user.id}`}
                         >
-                          <Trash2 className="w-4 h-4 text-destructive" />
+                          <Key className="w-4 h-4 text-muted-foreground" />
                         </Button>
-                      )}
+                        {user.role !== "admin" && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => deleteMutation.mutate(user.id)}
+                            disabled={deleteMutation.isPending}
+                            title="Delete user"
+                            data-testid={`button-delete-user-${user.id}`}
+                          >
+                            <Trash2 className="w-4 h-4 text-destructive" />
+                          </Button>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

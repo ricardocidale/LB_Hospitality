@@ -149,11 +149,14 @@ export default function AdminUsers() {
                     type="password"
                     value={newUser.password}
                     onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-                    placeholder="Min 6 characters"
+                    placeholder="Enter password"
                     required
-                    minLength={6}
+                    minLength={8}
                     data-testid="input-user-password"
                   />
+                  <p className="text-xs text-muted-foreground">
+                    Min 8 characters with uppercase, lowercase, and number
+                  </p>
                 </div>
                 <DialogFooter>
                   <Button type="submit" disabled={createMutation.isPending} data-testid="button-create-user">

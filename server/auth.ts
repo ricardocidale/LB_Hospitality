@@ -15,9 +15,65 @@ declare global {
 
 const SESSION_COOKIE = "session_id";
 const SESSION_DURATION_DAYS = 30;
+const BCRYPT_ROUNDS = 12;
+
+const loginAttempts = new Map<string, { count: number; lastAttempt: number }>();
+const MAX_LOGIN_ATTEMPTS = 5;
+const LOCKOUT_DURATION_MS = 15 * 60 * 1000;
+
+export function isRateLimited(identifier: string): boolean {
+  const now = Date.now();
+  const attempts = loginAttempts.get(identifier);
+  
+  if (!attempts) return false;
+  
+  if (now - attempts.lastAttempt > LOCKOUT_DURATION_MS) {
+    loginAttempts.delete(identifier);
+    return false;
+  }
+  
+  return attempts.count >= MAX_LOGIN_ATTEMPTS;
+}
+
+export function recordLoginAttempt(identifier: string, success: boolean) {
+  const now = Date.now();
+  
+  if (success) {
+    loginAttempts.delete(identifier);
+    return;
+  }
+  
+  const attempts = loginAttempts.get(identifier);
+  if (attempts) {
+    attempts.count++;
+    attempts.lastAttempt = now;
+  } else {
+    loginAttempts.set(identifier, { count: 1, lastAttempt: now });
+  }
+}
+
+export function validatePassword(password: string): { valid: boolean; message?: string } {
+  if (password.length < 8) {
+    return { valid: false, message: "Password must be at least 8 characters" };
+  }
+  if (!/[A-Z]/.test(password)) {
+    return { valid: false, message: "Password must contain at least one uppercase letter" };
+  }
+  if (!/[a-z]/.test(password)) {
+    return { valid: false, message: "Password must contain at least one lowercase letter" };
+  }
+  if (!/[0-9]/.test(password)) {
+    return { valid: false, message: "Password must contain at least one number" };
+  }
+  return { valid: true };
+}
+
+export function sanitizeEmail(email: string): string {
+  return email.toLowerCase().trim();
+}
 
 export async function hashPassword(password: string): Promise<string> {
-  return bcrypt.hash(password, 10);
+  return bcrypt.hash(password, BCRYPT_ROUNDS);
 }
 
 export async function verifyPassword(password: string, hash: string): Promise<boolean> {
@@ -87,13 +143,14 @@ export async function seedAdminUser() {
   const existingAdmin = await storage.getUserByEmail(adminEmail);
   
   if (!existingAdmin) {
-    const passwordHash = await hashPassword("admin123");
+    const defaultPassword = "Admin123!";
+    const passwordHash = await hashPassword(defaultPassword);
     await storage.createUser({
       email: adminEmail,
       passwordHash,
       role: "admin",
       name: "Administrator",
     });
-    console.log("Admin user created: admin / admin123");
+    console.log(`Admin user created: admin / ${defaultPassword}`);
   }
 }

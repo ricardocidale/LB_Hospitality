@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
-import { Loader2, Plus, Trash2, Users, Key } from "lucide-react";
+import { Loader2, Plus, Trash2, Users, Key, Save } from "lucide-react";
+import { GlassButton } from "@/components/ui/glass-button";
 import { useToast } from "@/hooks/use-toast";
 
 interface User {
@@ -246,10 +247,10 @@ export default function AdminUsers() {
                 </p>
               </div>
               <DialogFooter>
-                <Button type="submit" disabled={passwordMutation.isPending} data-testid="button-save-password">
-                  {passwordMutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                <GlassButton type="submit" variant="primary" disabled={passwordMutation.isPending} data-testid="button-save-password">
+                  {passwordMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                   Save Password
-                </Button>
+                </GlassButton>
               </DialogFooter>
             </form>
           </DialogContent>

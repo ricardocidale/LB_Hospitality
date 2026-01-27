@@ -442,6 +442,8 @@ export default function AdminUsers() {
                 <TableRow>
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
+                  <TableHead>Company</TableHead>
+                  <TableHead>Title</TableHead>
                   <TableHead>Role</TableHead>
                   <TableHead>Created</TableHead>
                   <TableHead className="w-[100px]">Actions</TableHead>
@@ -452,6 +454,8 @@ export default function AdminUsers() {
                   <TableRow key={user.id}>
                     <TableCell>{user.name || "-"}</TableCell>
                     <TableCell>{user.email}</TableCell>
+                    <TableCell>{user.company || "-"}</TableCell>
+                    <TableCell>{user.title || "-"}</TableCell>
                     <TableCell className="capitalize">{user.role}</TableCell>
                     <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
                     <TableCell>

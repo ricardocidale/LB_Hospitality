@@ -11,6 +11,48 @@ The system models both the management company (L+B Hospitality Co.) and individu
 Preferred communication style: Simple, everyday language.
 Always format money as money (currency format with commas and appropriate precision).
 
+## Design System
+
+### Color Palette
+- **Primary Sage Green**: #9FBCA4
+- **Secondary Green**: #257D41
+- **Warm Off-White**: #FFF9F5
+- **Coral Accent**: #F4795B (special elements only)
+- **Sidebar/Navigation Gradient**: from-[#2d4a5e] via-[#3d5a6a] to-[#3a5a5e]
+
+### Page Styling Rules
+
+#### Assumption Pages (Light Theme)
+- **Applies to**: Company Assumptions, Property Assumptions (PropertyEdit), Global Assumptions (Settings)
+- **Card backgrounds**: bg-white/80 backdrop-blur-xl with sage green accents
+- **Text colors**: text-gray-900 (headings), text-gray-700 (labels), text-gray-600 (descriptions)
+- **Input backgrounds**: bg-white border-[#9FBCA4]/30 text-gray-900
+- **Subtle glow orbs**: bg-[#9FBCA4]/10 blur-2xl and bg-[#9FBCA4]/5 blur-xl
+- **Card borders**: border-[#9FBCA4]/20 with shadow-[0_8px_32px_rgba(159,188,164,0.15)]
+
+#### Main App Pages (Dark Glass Theme)
+- **Applies to**: Dashboard, Company, Portfolio, Property Detail
+- **Card backgrounds**: Dark blue-gray gradient from-[#2d4a5e]/80 via-[#3d5a6a]/70 to-[#3a5a5e]/80
+- **Text colors**: text-[#FFF9F5] (headings), text-[#FFF9F5]/80 (labels), text-[#FFF9F5]/60 (descriptions)
+- **Input backgrounds**: bg-white/10 border-white/20 text-white
+- **Card borders**: border-white/10 with subtle white/20 highlights
+
+#### Financial Statement Tables (Light Theme)
+- **All pages**: Financial tables use light backgrounds for readability
+- **Table backgrounds**: bg-white, bg-gray-50, bg-gray-100
+- **Text colors**: text-gray-900, text-gray-700, text-gray-600
+- **Borders**: border-gray-200
+
+#### Navigation & Tabs
+- **Sidebar**: Dark glass gradient from-[#2d4a5e] via-[#3d5a6a] to-[#3a5a5e]
+- **Active menu items**: bg-white/12 backdrop-blur-xl with pure white text (text-white)
+- **Tabs**: Match sidebar gradient with white text for active state
+
+#### Buttons
+- **Save/Primary buttons**: Use GlassButton component with variant="primary"
+- **Assumptions buttons**: Text "Assumptions" with Settings2 icon
+- **Consistent fluid glass effect**: All Save buttons have the same sage green glow effect across all pages
+
 ### Partner Compensation Model
 - Starting: $15,000/month per partner ($180,000/year)
 - Annual escalation: inflation rate + 10%

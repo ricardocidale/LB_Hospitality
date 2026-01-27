@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
-import { Loader2, Plus, Trash2, Users, Key, Save, Eye, EyeOff } from "lucide-react";
+import { Loader2, Plus, Trash2, Users, Key, Save, Eye, EyeOff, Pencil } from "lucide-react";
 import { GlassButton } from "@/components/ui/glass-button";
 import { PageHeader } from "@/components/ui/page-header";
 import { useToast } from "@/hooks/use-toast";
@@ -27,9 +27,11 @@ export default function AdminUsers() {
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [newPassword, setNewPassword] = useState("");
   const [newUser, setNewUser] = useState({ email: "", password: "", name: "", company: "", title: "" });
+  const [editUser, setEditUser] = useState({ name: "", company: "", title: "" });
   const [showNewUserPassword, setShowNewUserPassword] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
 
@@ -122,13 +124,64 @@ export default function AdminUsers() {
     },
   });
 
+  const editMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: { name?: string; company?: string; title?: string } }) => {
+      const res = await fetch(`/api/admin/users/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+        credentials: "include",
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed to update user");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
+      setEditDialogOpen(false);
+      setSelectedUser(null);
+      toast({ title: "User Updated", description: "User information has been saved." });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+
   const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();
     createMutation.mutate({
       email: newUser.email,
       password: newUser.password,
       name: newUser.name || undefined,
+      company: newUser.company || undefined,
+      title: newUser.title || undefined,
     });
+  };
+
+  const handleEdit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (selectedUser) {
+      editMutation.mutate({
+        id: selectedUser.id,
+        data: {
+          name: editUser.name || undefined,
+          company: editUser.company || undefined,
+          title: editUser.title || undefined,
+        },
+      });
+    }
+  };
+
+  const openEditDialog = (user: User) => {
+    setSelectedUser(user);
+    setEditUser({
+      name: user.name || "",
+      company: user.company || "",
+      title: user.title || "",
+    });
+    setEditDialogOpen(true);
   };
 
   const handlePasswordChange = (e: React.FormEvent) => {
@@ -256,6 +309,55 @@ export default function AdminUsers() {
           }
         />
 
+        <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit User</DialogTitle>
+              <DialogDescription>
+                Update information for {selectedUser?.name || selectedUser?.email}
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleEdit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="editName">Name</Label>
+                <Input
+                  id="editName"
+                  value={editUser.name}
+                  onChange={(e) => setEditUser({ ...editUser, name: e.target.value })}
+                  placeholder="John Doe"
+                  data-testid="input-edit-user-name"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="editCompany">Company</Label>
+                <Input
+                  id="editCompany"
+                  value={editUser.company}
+                  onChange={(e) => setEditUser({ ...editUser, company: e.target.value })}
+                  placeholder="Acme Corp"
+                  data-testid="input-edit-user-company"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="editTitle">Title</Label>
+                <Input
+                  id="editTitle"
+                  value={editUser.title}
+                  onChange={(e) => setEditUser({ ...editUser, title: e.target.value })}
+                  placeholder="Investment Manager"
+                  data-testid="input-edit-user-title"
+                />
+              </div>
+              <DialogFooter>
+                <GlassButton type="submit" variant="primary" disabled={editMutation.isPending} data-testid="button-save-user-edit">
+                  {editMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  Save Changes
+                </GlassButton>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+
         <Dialog open={passwordDialogOpen} onOpenChange={setPasswordDialogOpen}>
           <DialogContent>
             <DialogHeader>
@@ -327,6 +429,15 @@ export default function AdminUsers() {
                     <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => openEditDialog(user)}
+                          title="Edit user"
+                          data-testid={`button-edit-user-${user.id}`}
+                        >
+                          <Pencil className="w-4 h-4 text-muted-foreground" />
+                        </Button>
                         <Button
                           variant="ghost"
                           size="icon"

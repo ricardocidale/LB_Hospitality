@@ -10,6 +10,7 @@ export interface IStorage {
   getAllUsers(): Promise<User[]>;
   deleteUser(id: number): Promise<void>;
   updateUserPassword(id: number, passwordHash: string): Promise<void>;
+  updateUserProfile(id: number, data: { name?: string; company?: string; title?: string }): Promise<User>;
   
   // Sessions
   createSession(userId: number, sessionId: string, expiresAt: Date): Promise<Session>;
@@ -61,6 +62,15 @@ export class DatabaseStorage implements IStorage {
   async updateUserPassword(id: number, passwordHash: string): Promise<void> {
     await db.update(users).set({ passwordHash, updatedAt: new Date() }).where(eq(users.id, id));
     await db.delete(sessions).where(eq(sessions.userId, id));
+  }
+
+  async updateUserProfile(id: number, data: { name?: string; company?: string; title?: string }): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(users.id, id))
+      .returning();
+    return user;
   }
 
   // Sessions

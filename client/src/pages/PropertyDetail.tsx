@@ -326,37 +326,39 @@ export default function PropertyDetail() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <div className="flex items-center justify-between mb-4">
-            {/* Liquid Glass Tabs */}
-            <div className="relative inline-flex p-1.5 rounded-2xl">
-              <div className="absolute inset-0 bg-black/5 backdrop-blur-xl rounded-2xl border border-white/20" />
-              <div className="relative flex gap-1">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
+            {/* Liquid Glass Tabs - Dark Theme */}
+            <div className="relative overflow-hidden rounded-2xl">
+              <div className="absolute inset-0 bg-gradient-to-r from-[#2d4a5e]/70 to-[#3a5a5e]/70 backdrop-blur-xl" />
+              <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+              <div className="absolute inset-0 rounded-2xl border border-white/15" />
+              <div className="relative flex flex-wrap gap-1 p-1.5">
                 <button
                   onClick={() => setActiveTab("income")}
-                  className={`relative overflow-hidden px-6 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 ${
-                    activeTab === "income" ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+                  className={`relative overflow-hidden px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 ${
+                    activeTab === "income" ? "text-[#FFF9F5]" : "text-[#FFF9F5]/60 hover:text-[#FFF9F5] hover:bg-white/5"
                   }`}
                 >
                   {activeTab === "income" && (
                     <>
-                      <div className="absolute inset-0 bg-white/80 backdrop-blur-xl rounded-xl" />
-                      <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-black/10 to-transparent" />
-                      <div className="absolute inset-0 rounded-xl border border-black/5" />
+                      <div className="absolute inset-0 bg-white/15 backdrop-blur-sm rounded-xl" />
+                      <div className="absolute inset-0 rounded-xl border border-white/25" />
+                      <div className="absolute top-0 left-1 right-1 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
                     </>
                   )}
                   <span className="relative">Income Statement</span>
                 </button>
                 <button
                   onClick={() => setActiveTab("cashflow")}
-                  className={`relative overflow-hidden px-6 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 ${
-                    activeTab === "cashflow" ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+                  className={`relative overflow-hidden px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 ${
+                    activeTab === "cashflow" ? "text-[#FFF9F5]" : "text-[#FFF9F5]/60 hover:text-[#FFF9F5] hover:bg-white/5"
                   }`}
                 >
                   {activeTab === "cashflow" && (
                     <>
-                      <div className="absolute inset-0 bg-white/80 backdrop-blur-xl rounded-xl" />
-                      <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-black/10 to-transparent" />
-                      <div className="absolute inset-0 rounded-xl border border-black/5" />
+                      <div className="absolute inset-0 bg-white/15 backdrop-blur-sm rounded-xl" />
+                      <div className="absolute inset-0 rounded-xl border border-white/25" />
+                      <div className="absolute top-0 left-1 right-1 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
                     </>
                   )}
                   <span className="relative">Cash Flows</span>
@@ -364,61 +366,57 @@ export default function PropertyDetail() {
               </div>
             </div>
             
-            {/* Liquid Glass Export Buttons */}
+            {/* Export Buttons */}
             <div className="flex gap-2">
-              <button 
-                data-testid="button-export-pdf"
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => exportCashFlowPDF()}
-                className="relative overflow-hidden px-4 py-2 text-sm font-medium rounded-xl transition-all duration-300 group/pdf"
+                className="flex items-center gap-2"
+                data-testid="button-export-pdf"
               >
-                <div className="absolute inset-0 bg-black/5 backdrop-blur-xl rounded-xl" />
-                <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-black/10 to-transparent" />
-                <div className="absolute inset-0 rounded-xl border border-black/10 group-hover/pdf:border-black/20 transition-all duration-300" />
-                <div className="absolute inset-0 rounded-xl group-hover/pdf:shadow-[0_0_20px_rgba(159,188,164,0.3)] transition-all duration-300" />
-                <span className="relative flex items-center text-foreground">
-                  <FileDown className="w-4 h-4 mr-2" />
-                  Export PDF
-                </span>
-              </button>
-              <button 
-                data-testid="button-export-csv"
+                <FileDown className="w-4 h-4" />
+                Export PDF
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => exportCashFlowCSV()}
-                className="relative overflow-hidden px-4 py-2 text-sm font-medium rounded-xl transition-all duration-300 group/csv"
+                className="flex items-center gap-2"
+                data-testid="button-export-csv"
               >
-                <div className="absolute inset-0 bg-black/5 backdrop-blur-xl rounded-xl" />
-                <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-black/10 to-transparent" />
-                <div className="absolute inset-0 rounded-xl border border-black/10 group-hover/csv:border-black/20 transition-all duration-300" />
-                <div className="absolute inset-0 rounded-xl group-hover/csv:shadow-[0_0_20px_rgba(159,188,164,0.3)] transition-all duration-300" />
-                <span className="relative flex items-center text-foreground">
-                  <FileSpreadsheet className="w-4 h-4 mr-2" />
-                  Export CSV
-                </span>
-              </button>
+                <FileSpreadsheet className="w-4 h-4" />
+                Export CSV
+              </Button>
             </div>
           </div>
           
           <TabsContent value="income" className="mt-6 space-y-6">
-            {/* Liquid Glass Chart Card */}
-            <div className="relative overflow-hidden rounded-2xl p-6">
-              <div className="absolute inset-0 bg-white/60 backdrop-blur-xl" />
-              <div className="absolute top-0 left-6 right-6 h-[1px] bg-gradient-to-r from-transparent via-black/10 to-transparent" />
-              <div className="absolute inset-0 rounded-2xl border border-black/5" />
+            {/* Liquid Glass Chart Card - Dark Theme */}
+            <div className="relative overflow-hidden rounded-3xl p-6">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e] via-[#3a5a5e] to-[#3d5a6a]" />
+              <div className="absolute inset-0">
+                <div className="absolute top-0 left-1/4 w-72 h-72 rounded-full bg-[#9FBCA4]/20 blur-3xl" />
+                <div className="absolute bottom-0 right-1/4 w-64 h-64 rounded-full bg-[#9FBCA4]/15 blur-3xl" />
+              </div>
+              <div className="absolute top-0 left-6 right-6 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+              <div className="absolute inset-0 rounded-3xl border border-white/15" />
               
               <div className="relative">
-                <h3 className="text-lg font-semibold mb-4">Income Statement Trends (10-Year Projection)</h3>
+                <h3 className="text-lg font-semibold text-[#FFF9F5] mb-4">Income Statement Trends (10-Year Projection)</h3>
                 <div className="h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={yearlyChartData}>
-                      <CartesianGrid strokeDasharray="0" stroke="hsl(var(--border))" vertical={false} strokeOpacity={0.5} />
+                      <CartesianGrid strokeDasharray="0" stroke="rgba(255,255,255,0.1)" vertical={false} strokeOpacity={0.5} />
                       <XAxis 
                         dataKey="year" 
-                        stroke="hsl(var(--muted-foreground))" 
+                        stroke="rgba(255,249,245,0.5)" 
                         fontSize={12}
                         tickLine={false}
                         axisLine={false}
                       />
                       <YAxis 
-                        stroke="hsl(var(--muted-foreground))" 
+                        stroke="rgba(255,249,245,0.5)" 
                         fontSize={12}
                         tickLine={false}
                         axisLine={false}
@@ -426,29 +424,33 @@ export default function PropertyDetail() {
                       />
                       <Tooltip 
                         contentStyle={{ 
-                          backgroundColor: 'rgba(255,255,255,0.9)', 
+                          backgroundColor: 'rgba(45,74,94,0.95)', 
                           backdropFilter: 'blur(8px)',
-                          borderColor: 'rgba(0,0,0,0.1)',
+                          borderColor: 'rgba(255,255,255,0.2)',
                           borderRadius: '12px',
-                          boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                          boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+                          color: '#FFF9F5',
                         }}
+                        labelStyle={{ color: '#FFF9F5' }}
                         formatter={(value: number) => [formatMoney(value), ""]}
                       />
-                      <Legend />
+                      <Legend wrapperStyle={{ color: '#FFF9F5' }} />
                       <Line 
                         type="natural" 
                         dataKey="Revenue" 
-                        stroke="#60A5FA" 
+                        stroke="#A78BFA" 
                         strokeWidth={2.5}
                         dot={false}
+                        activeDot={{ r: 5, fill: '#A78BFA', stroke: '#fff', strokeWidth: 2 }}
                         name="Total Revenue"
                       />
                       <Line 
                         type="natural" 
                         dataKey="GOP" 
-                        stroke="#A78BFA" 
+                        stroke="#60A5FA" 
                         strokeWidth={2.5}
                         dot={false}
+                        activeDot={{ r: 5, fill: '#60A5FA', stroke: '#fff', strokeWidth: 2 }}
                         name="Gross Operating Profit"
                       />
                       <Line 
@@ -457,6 +459,7 @@ export default function PropertyDetail() {
                         stroke="#9FBCA4" 
                         strokeWidth={2.5}
                         dot={false}
+                        activeDot={{ r: 5, fill: '#9FBCA4', stroke: '#fff', strokeWidth: 2 }}
                         name="Net Operating Income"
                       />
                     </LineChart>
@@ -468,14 +471,18 @@ export default function PropertyDetail() {
           </TabsContent>
           
           <TabsContent value="cashflow" className="mt-6 space-y-6">
-            {/* Liquid Glass Chart Card */}
-            <div className="relative overflow-hidden rounded-2xl p-6">
-              <div className="absolute inset-0 bg-white/60 backdrop-blur-xl" />
-              <div className="absolute top-0 left-6 right-6 h-[1px] bg-gradient-to-r from-transparent via-black/10 to-transparent" />
-              <div className="absolute inset-0 rounded-2xl border border-black/5" />
+            {/* Liquid Glass Chart Card - Dark Theme */}
+            <div className="relative overflow-hidden rounded-3xl p-6">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e] via-[#3a5a5e] to-[#3d5a6a]" />
+              <div className="absolute inset-0">
+                <div className="absolute top-0 right-1/3 w-72 h-72 rounded-full bg-[#9FBCA4]/20 blur-3xl" />
+                <div className="absolute bottom-0 left-1/3 w-64 h-64 rounded-full bg-[#9FBCA4]/15 blur-3xl" />
+              </div>
+              <div className="absolute top-0 left-6 right-6 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+              <div className="absolute inset-0 rounded-3xl border border-white/15" />
               
               <div className="relative">
-                <h3 className="text-lg font-semibold mb-4">Cash Flow Trends (10-Year Projection)</h3>
+                <h3 className="text-lg font-semibold text-[#FFF9F5] mb-4">Cash Flow Trends (10-Year Projection)</h3>
                 <div className="h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={yearlyChartData.map((d, i) => {
@@ -487,16 +494,16 @@ export default function PropertyDetail() {
                         NetToInvestors: cfData[i]?.netCashFlowToInvestors || 0,
                       };
                     })}>
-                      <CartesianGrid strokeDasharray="0" stroke="hsl(var(--border))" vertical={false} strokeOpacity={0.5} />
+                      <CartesianGrid strokeDasharray="0" stroke="rgba(255,255,255,0.1)" vertical={false} strokeOpacity={0.5} />
                       <XAxis 
                         dataKey="year" 
-                        stroke="hsl(var(--muted-foreground))" 
+                        stroke="rgba(255,249,245,0.5)" 
                         fontSize={12}
                         tickLine={false}
                         axisLine={false}
                       />
                       <YAxis 
-                        stroke="hsl(var(--muted-foreground))" 
+                        stroke="rgba(255,249,245,0.5)" 
                         fontSize={12}
                         tickLine={false}
                         axisLine={false}
@@ -504,21 +511,24 @@ export default function PropertyDetail() {
                       />
                       <Tooltip 
                         contentStyle={{ 
-                          backgroundColor: 'rgba(255,255,255,0.9)', 
+                          backgroundColor: 'rgba(45,74,94,0.95)', 
                           backdropFilter: 'blur(8px)',
-                          borderColor: 'rgba(0,0,0,0.1)',
+                          borderColor: 'rgba(255,255,255,0.2)',
                           borderRadius: '12px',
-                          boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                          boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+                          color: '#FFF9F5',
                         }}
+                        labelStyle={{ color: '#FFF9F5' }}
                         formatter={(value: number) => [formatMoney(value), ""]}
                       />
-                      <Legend />
+                      <Legend wrapperStyle={{ color: '#FFF9F5' }} />
                       <Line 
                         type="natural" 
                         dataKey="NOI" 
                         stroke="#9FBCA4" 
                         strokeWidth={2.5}
                         dot={false}
+                        activeDot={{ r: 5, fill: '#9FBCA4', stroke: '#fff', strokeWidth: 2 }}
                         name="Net Operating Income"
                       />
                       <Line 
@@ -527,6 +537,7 @@ export default function PropertyDetail() {
                         stroke="#60A5FA" 
                         strokeWidth={2.5}
                         dot={false}
+                        activeDot={{ r: 5, fill: '#60A5FA', stroke: '#fff', strokeWidth: 2 }}
                         name="Free Cash Flow"
                       />
                       <Line 
@@ -535,6 +546,7 @@ export default function PropertyDetail() {
                         stroke="#A78BFA" 
                         strokeWidth={2.5}
                         dot={false}
+                        activeDot={{ r: 5, fill: '#A78BFA', stroke: '#fff', strokeWidth: 2 }}
                         name="Free Cash Flow to Equity"
                       />
                     </LineChart>

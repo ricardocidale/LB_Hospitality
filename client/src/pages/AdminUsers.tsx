@@ -16,6 +16,8 @@ interface User {
   id: number;
   email: string;
   name: string | null;
+  company: string | null;
+  title: string | null;
   role: string;
   createdAt: string;
 }
@@ -27,7 +29,7 @@ export default function AdminUsers() {
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [newPassword, setNewPassword] = useState("");
-  const [newUser, setNewUser] = useState({ email: "", password: "", name: "" });
+  const [newUser, setNewUser] = useState({ email: "", password: "", name: "", company: "", title: "" });
   const [showNewUserPassword, setShowNewUserPassword] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
 
@@ -41,7 +43,7 @@ export default function AdminUsers() {
   });
 
   const createMutation = useMutation({
-    mutationFn: async (data: { email: string; password: string; name?: string }) => {
+    mutationFn: async (data: { email: string; password: string; name?: string; company?: string; title?: string }) => {
       const res = await fetch("/api/admin/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -57,7 +59,7 @@ export default function AdminUsers() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
       setDialogOpen(false);
-      setNewUser({ email: "", password: "", name: "" });
+      setNewUser({ email: "", password: "", name: "", company: "", title: "" });
       toast({ title: "User Created", description: "New user has been registered." });
     },
     onError: (error: Error) => {
@@ -181,6 +183,26 @@ export default function AdminUsers() {
                     onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
                     placeholder="John Doe"
                     data-testid="input-user-name"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="company">Company</Label>
+                  <Input
+                    id="company"
+                    value={newUser.company}
+                    onChange={(e) => setNewUser({ ...newUser, company: e.target.value })}
+                    placeholder="Acme Corp"
+                    data-testid="input-user-company"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="title">Title</Label>
+                  <Input
+                    id="title"
+                    value={newUser.title}
+                    onChange={(e) => setNewUser({ ...newUser, title: e.target.value })}
+                    placeholder="Investment Manager"
+                    data-testid="input-user-title"
                   />
                 </div>
                 <div className="space-y-2">

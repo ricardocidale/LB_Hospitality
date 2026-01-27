@@ -53,6 +53,24 @@ Always format money as money (currency format with commas and appropriate precis
 - **Assumptions buttons**: Text "Assumptions" with Settings2 icon
 - **Consistent fluid glass effect**: All Save buttons have the same sage green glow effect across all pages
 
+### GlassButton Primary Variant Standard
+All primary action buttons (Save, Submit, Confirm) must use:
+```
+<GlassButton variant="primary" onClick={handler} disabled={isPending}>
+  {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+  Save Changes
+</GlassButton>
+```
+
+**Primary variant styling (fluid glass effect)**:
+- Gradient background: from-[#9FBCA4] via-[#9FBCA4]/90 to-[#7da584]
+- Top shine highlight: white/60 gradient line
+- Border: border-[#9FBCA4]/60, hover: border-[#257D41]/60
+- Shadow: 0_4px_20px sage glow, hover: 0_0_30px enhanced glow
+- Text: dark green #1a2f23 for contrast
+- Always include icon (Save, Loader2 for pending state)
+- Rounded corners: rounded-xl
+
 ### Partner Compensation Model
 - Starting: $15,000/month per partner ($180,000/year)
 - Annual escalation: inflation rate + 10%

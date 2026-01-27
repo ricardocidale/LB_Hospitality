@@ -72,7 +72,7 @@ function EditableValue({
         onChange={(e) => setInputValue(e.target.value)}
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
-        className="w-16 text-sm font-semibold text-primary bg-transparent border-b border-primary outline-none text-right"
+        className="w-16 text-sm font-semibold text-[#9FBCA4] bg-transparent border-b border-[#9FBCA4] outline-none text-right"
         step={step}
         min={min}
         max={max}
@@ -84,7 +84,7 @@ function EditableValue({
   return (
     <span 
       onClick={handleClick}
-      className="text-sm font-semibold text-primary cursor-pointer hover:underline"
+      className="text-sm font-semibold text-[#9FBCA4] cursor-pointer hover:underline"
       title="Click to edit"
     >
       {displayValue()}
@@ -235,211 +235,266 @@ export default function PropertyEdit() {
   return (
     <Layout>
       <div className="space-y-6 max-w-4xl">
-        <div className="flex items-center justify-between">
-          <Link href={`/property/${propertyId}`}>
-            <Button variant="ghost" className="pl-0">
-              <ArrowLeft className="w-4 h-4 mr-2" /> Back to Property
-            </Button>
-          </Link>
-          <Button onClick={handleSave} disabled={updateProperty.isPending}>
-            {updateProperty.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-            Save Changes
-          </Button>
+        {/* Liquid Glass Header */}
+        <div className="relative overflow-hidden rounded-3xl p-8">
+          {/* Gradient Background */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e] via-[#3d5a6a] to-[#4a3d5e]" />
+          {/* Top Edge Sheen */}
+          <div className="absolute top-0 left-8 right-8 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+          {/* Floating Color Orbs */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute -top-12 -right-12 w-56 h-56 rounded-full bg-[#9FBCA4]/25 blur-3xl" />
+            <div className="absolute bottom-0 left-1/4 w-48 h-48 rounded-full bg-[#A78BFA]/20 blur-3xl" />
+          </div>
+          
+          <div className="relative flex justify-between items-center">
+            <div>
+              <Link href={`/property/${propertyId}`}>
+                <button className="relative overflow-hidden px-4 py-2 text-sm font-medium text-white rounded-xl transition-all duration-300 group/back mb-4">
+                  <div className="absolute inset-0 bg-white/12 backdrop-blur-xl rounded-xl" />
+                  <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+                  <div className="absolute inset-0 rounded-xl border border-white/25 group-hover/back:border-white/40 transition-all duration-300" />
+                  <div className="absolute inset-0 rounded-xl opacity-0 group-hover/back:opacity-100 shadow-[0_0_20px_rgba(159,188,164,0.3)] transition-all duration-300" />
+                  <span className="relative flex items-center"><ArrowLeft className="w-4 h-4 mr-2" />Back to Property</span>
+                </button>
+              </Link>
+              <h2 className="text-3xl font-serif font-bold text-white">Property Assumptions</h2>
+              <p className="text-white/60 mt-1">{property.name}</p>
+            </div>
+            
+            <button 
+              onClick={handleSave} 
+              disabled={updateProperty.isPending}
+              className="relative overflow-hidden px-5 py-2.5 text-sm font-medium text-white rounded-xl transition-all duration-300 group/save disabled:opacity-50"
+            >
+              <div className="absolute inset-0 bg-white/12 backdrop-blur-xl rounded-xl" />
+              <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+              <div className="absolute inset-0 rounded-xl border border-white/25 group-hover/save:border-white/40 transition-all duration-300" />
+              <div className="absolute inset-0 rounded-xl shadow-[0_0_20px_rgba(159,188,164,0.3)] group-hover/save:shadow-[0_0_30px_rgba(159,188,164,0.5)] transition-all duration-300" />
+              <span className="relative flex items-center">
+                {updateProperty.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+                Save Changes
+              </span>
+            </button>
+          </div>
         </div>
 
-        <div>
-          <h2 className="text-3xl font-serif font-bold text-foreground">Property Assumptions</h2>
-          <p className="text-muted-foreground mt-1">{property.name}</p>
-        </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Basic Information</CardTitle>
-            <CardDescription>Property identification and location details</CardDescription>
-          </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label>Property Name</Label>
-              <Input value={draft.name} onChange={(e) => handleChange("name", e.target.value)} />
+        {/* Glass Card - Basic Information */}
+        <div className="relative overflow-hidden rounded-2xl">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e]/80 via-[#3d5a6a]/70 to-[#4a3d5e]/80" />
+          <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+          <div className="absolute inset-0 border border-white/10 rounded-2xl" />
+          
+          <div className="relative p-6">
+            <div className="mb-6">
+              <h3 className="text-xl font-semibold text-white">Basic Information</h3>
+              <p className="text-white/60 text-sm">Property identification and location details</p>
             </div>
-            <div className="space-y-2">
-              <Label>Location</Label>
-              <Input value={draft.location} onChange={(e) => handleChange("location", e.target.value)} />
-            </div>
-            <div className="space-y-2">
-              <Label>Market</Label>
-              <Input value={draft.market} onChange={(e) => handleChange("market", e.target.value)} />
-            </div>
-            <div className="space-y-2">
-              <Label>Property Photo</Label>
-              <div className="flex gap-2">
-                <Input 
-                  value={draft.imageUrl} 
-                  onChange={(e) => handleChange("imageUrl", e.target.value)} 
-                  placeholder="Enter image URL or upload a photo"
-                  className="flex-1"
-                />
-                <input
-                  ref={photoInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handlePhotoUpload}
-                  className="hidden"
-                  data-testid="input-edit-property-photo"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => photoInputRef.current?.click()}
-                  disabled={isUploadingPhoto}
-                  data-testid="button-upload-photo"
-                >
-                  {isUploadingPhoto ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Upload className="w-4 h-4" />
-                  )}
-                </Button>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label className="text-white/80">Property Name</Label>
+                <Input value={draft.name} onChange={(e) => handleChange("name", e.target.value)} className="bg-white/10 border-white/20 text-white placeholder:text-white/40" />
               </div>
-              {draft.imageUrl && (
-                <div className="mt-2 relative w-full h-32 rounded-md overflow-hidden border">
-                  <img src={draft.imageUrl} alt="Property preview" className="w-full h-full object-cover" />
+              <div className="space-y-2">
+                <Label className="text-white/80">Location</Label>
+                <Input value={draft.location} onChange={(e) => handleChange("location", e.target.value)} className="bg-white/10 border-white/20 text-white placeholder:text-white/40" />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-white/80">Market</Label>
+                <Input value={draft.market} onChange={(e) => handleChange("market", e.target.value)} className="bg-white/10 border-white/20 text-white placeholder:text-white/40" />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-white/80">Property Photo</Label>
+                <div className="flex gap-2">
+                  <Input 
+                    value={draft.imageUrl} 
+                    onChange={(e) => handleChange("imageUrl", e.target.value)} 
+                    placeholder="Enter image URL or upload a photo"
+                    className="flex-1 bg-white/10 border-white/20 text-white placeholder:text-white/40"
+                  />
+                  <input
+                    ref={photoInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePhotoUpload}
+                    className="hidden"
+                    data-testid="input-edit-property-photo"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => photoInputRef.current?.click()}
+                    disabled={isUploadingPhoto}
+                    data-testid="button-upload-photo"
+                    className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                  >
+                    {isUploadingPhoto ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Upload className="w-4 h-4" />
+                    )}
+                  </Button>
                 </div>
-              )}
+                {draft.imageUrl && (
+                  <div className="mt-2 relative w-full h-32 rounded-md overflow-hidden border border-white/20">
+                    <img src={draft.imageUrl} alt="Property preview" className="w-full h-full object-cover" />
+                  </div>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label className="text-white/80">Status</Label>
+                <Select value={draft.status} onValueChange={(v) => handleChange("status", v)}>
+                  <SelectTrigger className="bg-white/10 border-white/20 text-white"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Acquisition">Acquisition</SelectItem>
+                    <SelectItem value="Development">Planned</SelectItem>
+                    <SelectItem value="Operational">Active</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-white/80">Room Count</Label>
+                <Input type="number" value={draft.roomCount} onChange={(e) => handleNumberChange("roomCount", e.target.value)} className="bg-white/10 border-white/20 text-white placeholder:text-white/40" />
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label>Status</Label>
-              <Select value={draft.status} onValueChange={(v) => handleChange("status", v)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Acquisition">Acquisition</SelectItem>
-                  <SelectItem value="Development">Development</SelectItem>
-                  <SelectItem value="Operational">Operational</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Room Count</Label>
-              <Input type="number" value={draft.roomCount} onChange={(e) => handleNumberChange("roomCount", e.target.value)} />
-            </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Timeline</CardTitle>
-            <CardDescription>Acquisition and operations schedule</CardDescription>
-          </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label className="flex items-center">
-                Acquisition Date
-                <HelpTooltip text="The date when the property is purchased. Equity investment occurs on this date. Pre-opening costs and building improvements are incurred during the period between acquisition and operations start." />
-              </Label>
-              <Input type="date" value={draft.acquisitionDate} onChange={(e) => handleChange("acquisitionDate", e.target.value)} />
+        {/* Glass Card - Timeline */}
+        <div className="relative overflow-hidden rounded-2xl">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e]/80 via-[#3d5a6a]/70 to-[#4a3d5e]/80" />
+          <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+          <div className="absolute inset-0 border border-white/10 rounded-2xl" />
+          
+          <div className="relative p-6">
+            <div className="mb-6">
+              <h3 className="text-xl font-semibold text-white">Timeline</h3>
+              <p className="text-white/60 text-sm">Acquisition and operations schedule</p>
             </div>
-            <div className="space-y-2">
-              <Label className="flex items-center">
-                Operations Start Date
-                <HelpTooltip text="The date when the property begins operating and generating revenue. All revenues and operating expenses start on this date. The period between acquisition and operations start is used for renovations and pre-opening preparation." />
-              </Label>
-              <Input type="date" value={draft.operationsStartDate} onChange={(e) => handleChange("operationsStartDate", e.target.value)} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label className="flex items-center text-white/80">
+                  Acquisition Date
+                  <HelpTooltip text="The date when the property is purchased. Equity investment occurs on this date. Pre-opening costs and building improvements are incurred during the period between acquisition and operations start." />
+                </Label>
+                <Input type="date" value={draft.acquisitionDate} onChange={(e) => handleChange("acquisitionDate", e.target.value)} className="bg-white/10 border-white/20 text-white [color-scheme:dark]" />
+              </div>
+              <div className="space-y-2">
+                <Label className="flex items-center text-white/80">
+                  Operations Start Date
+                  <HelpTooltip text="The date when the property begins operating and generating revenue. All revenues and operating expenses start on this date. The period between acquisition and operations start is used for renovations and pre-opening preparation." />
+                </Label>
+                <Input type="date" value={draft.operationsStartDate} onChange={(e) => handleChange("operationsStartDate", e.target.value)} className="bg-white/10 border-white/20 text-white [color-scheme:dark]" />
+              </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Capital Structure</CardTitle>
-            <CardDescription>Purchase and investment details</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-8">
+        {/* Glass Card - Capital Structure */}
+        <div className="relative overflow-hidden rounded-2xl">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e]/80 via-[#3d5a6a]/70 to-[#4a3d5e]/80" />
+          <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+          <div className="absolute inset-0 border border-white/10 rounded-2xl" />
+          
+          <div className="relative p-6 space-y-8">
+            <div>
+              <h3 className="text-xl font-semibold text-white">Capital Structure</h3>
+              <p className="text-white/60 text-sm">Purchase and investment details</p>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="space-y-2">
-                <Label>Purchase Price ($)</Label>
+                <Label className="text-white/80">Purchase Price ($)</Label>
                 <Input 
                   value={formatMoneyInput(draft.purchasePrice)} 
-                  onChange={(e) => handleNumberChange("purchasePrice", parseMoneyInput(e.target.value).toString())} 
+                  onChange={(e) => handleNumberChange("purchasePrice", parseMoneyInput(e.target.value).toString())}
+                  className="bg-white/10 border-white/20 text-white"
                 />
               </div>
               <div className="space-y-2">
-                <Label>Building Improvements ($)</Label>
+                <Label className="text-white/80">Building Improvements ($)</Label>
                 <Input 
                   value={formatMoneyInput(draft.buildingImprovements)} 
-                  onChange={(e) => handleNumberChange("buildingImprovements", parseMoneyInput(e.target.value).toString())} 
+                  onChange={(e) => handleNumberChange("buildingImprovements", parseMoneyInput(e.target.value).toString())}
+                  className="bg-white/10 border-white/20 text-white"
                 />
               </div>
               <div className="space-y-2">
-                <Label>Pre-Opening Costs ($)</Label>
+                <Label className="text-white/80">Pre-Opening Costs ($)</Label>
                 <Input 
                   value={formatMoneyInput(draft.preOpeningCosts)} 
-                  onChange={(e) => handleNumberChange("preOpeningCosts", parseMoneyInput(e.target.value).toString())} 
+                  onChange={(e) => handleNumberChange("preOpeningCosts", parseMoneyInput(e.target.value).toString())}
+                  className="bg-white/10 border-white/20 text-white"
                 />
               </div>
               <div className="space-y-2">
-                <Label>Operating Reserve ($)</Label>
+                <Label className="text-white/80">Operating Reserve ($)</Label>
                 <Input 
                   value={formatMoneyInput(draft.operatingReserve)} 
-                  onChange={(e) => handleNumberChange("operatingReserve", parseMoneyInput(e.target.value).toString())} 
+                  onChange={(e) => handleNumberChange("operatingReserve", parseMoneyInput(e.target.value).toString())}
+                  className="bg-white/10 border-white/20 text-white"
                 />
               </div>
             </div>
 
             <div className="space-y-3 pt-2">
-              <Label>Type of Funding</Label>
+              <Label className="text-white/80">Type of Funding</Label>
               <RadioGroup 
                 value={draft.type} 
                 onValueChange={(v) => handleChange("type", v)}
                 className="flex gap-8"
               >
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="Full Equity" id="funding-equity" />
-                  <Label htmlFor="funding-equity" className="font-normal cursor-pointer">Full Equity</Label>
+                  <RadioGroupItem value="Full Equity" id="funding-equity" className="border-white/40 text-white" />
+                  <Label htmlFor="funding-equity" className="font-normal cursor-pointer text-white/80">Full Equity</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="Financed" id="funding-financed" />
-                  <Label htmlFor="funding-financed" className="font-normal cursor-pointer">Financed</Label>
+                  <RadioGroupItem value="Financed" id="funding-financed" className="border-white/40 text-white" />
+                  <Label htmlFor="funding-financed" className="font-normal cursor-pointer text-white/80">Financed</Label>
                 </div>
               </RadioGroup>
             </div>
 
             {draft.type === "Financed" && (
-              <div className="border-t pt-6">
-                <h4 className="font-medium mb-4">Acquisition Financing</h4>
+              <div className="border-t border-white/10 pt-6">
+                <h4 className="font-medium mb-4 text-white">Acquisition Financing</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label>Loan-to-Value (LTV) %</Label>
+                    <Label className="text-white/80">Loan-to-Value (LTV) %</Label>
                     <Input 
                       type="number" 
                       step="0.01"
                       value={((draft.acquisitionLTV || 0.75) * 100).toFixed(0)} 
-                      onChange={(e) => handleNumberChange("acquisitionLTV", (parseFloat(e.target.value) / 100).toString())} 
+                      onChange={(e) => handleNumberChange("acquisitionLTV", (parseFloat(e.target.value) / 100).toString())}
+                      className="bg-white/10 border-white/20 text-white"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Interest Rate (%)</Label>
+                    <Label className="text-white/80">Interest Rate (%)</Label>
                     <Input 
                       type="number" 
                       step="0.01"
                       value={((draft.acquisitionInterestRate || 0.09) * 100).toFixed(2)} 
-                      onChange={(e) => handleNumberChange("acquisitionInterestRate", (parseFloat(e.target.value) / 100).toString())} 
+                      onChange={(e) => handleNumberChange("acquisitionInterestRate", (parseFloat(e.target.value) / 100).toString())}
+                      className="bg-white/10 border-white/20 text-white"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Loan Term (Years)</Label>
+                    <Label className="text-white/80">Loan Term (Years)</Label>
                     <Input 
                       type="number" 
                       value={draft.acquisitionTermYears || 25} 
-                      onChange={(e) => handleNumberChange("acquisitionTermYears", e.target.value)} 
+                      onChange={(e) => handleNumberChange("acquisitionTermYears", e.target.value)}
+                      className="bg-white/10 border-white/20 text-white"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Closing Costs (%)</Label>
+                    <Label className="text-white/80">Closing Costs (%)</Label>
                     <Input 
                       type="number" 
                       step="0.01"
                       value={((draft.acquisitionClosingCostRate || 0.02) * 100).toFixed(1)} 
-                      onChange={(e) => handleNumberChange("acquisitionClosingCostRate", (parseFloat(e.target.value) / 100).toString())} 
+                      onChange={(e) => handleNumberChange("acquisitionClosingCostRate", (parseFloat(e.target.value) / 100).toString())}
+                      className="bg-white/10 border-white/20 text-white"
                     />
                   </div>
                 </div>
@@ -447,32 +502,32 @@ export default function PropertyEdit() {
             )}
 
             {draft.type === "Full Equity" && (
-              <div className="border-t pt-6">
+              <div className="border-t border-white/10 pt-6">
                 <div className="space-y-4">
                   <div className="space-y-3">
-                    <Label>Will this property be refinanced?</Label>
+                    <Label className="text-white/80">Will this property be refinanced?</Label>
                     <RadioGroup 
                       value={draft.willRefinance || "No"} 
                       onValueChange={(v) => handleChange("willRefinance", v)}
                       className="flex gap-6"
                     >
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="Yes" id="refinance-yes" />
-                        <Label htmlFor="refinance-yes" className="font-normal cursor-pointer">Yes</Label>
+                        <RadioGroupItem value="Yes" id="refinance-yes" className="border-white/40 text-white" />
+                        <Label htmlFor="refinance-yes" className="font-normal cursor-pointer text-white/80">Yes</Label>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="No" id="refinance-no" />
-                        <Label htmlFor="refinance-no" className="font-normal cursor-pointer">No</Label>
+                        <RadioGroupItem value="No" id="refinance-no" className="border-white/40 text-white" />
+                        <Label htmlFor="refinance-no" className="font-normal cursor-pointer text-white/80">No</Label>
                       </div>
                     </RadioGroup>
                   </div>
 
                   {draft.willRefinance === "Yes" && (
-                    <div className="border-t pt-4">
-                      <h4 className="font-medium mb-4">Refinance Terms</h4>
+                    <div className="border-t border-white/10 pt-4">
+                      <h4 className="font-medium mb-4 text-white">Refinance Terms</h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
-                          <Label>Refinance Date</Label>
+                          <Label className="text-white/80">Refinance Date</Label>
                           <Input 
                             type="date" 
                             value={draft.refinanceDate || (() => {
@@ -480,43 +535,48 @@ export default function PropertyEdit() {
                               opsDate.setFullYear(opsDate.getFullYear() + 3);
                               return opsDate.toISOString().split('T')[0];
                             })()} 
-                            onChange={(e) => handleChange("refinanceDate", e.target.value)} 
+                            onChange={(e) => handleChange("refinanceDate", e.target.value)}
+                            className="bg-white/10 border-white/20 text-white [color-scheme:dark]"
                           />
-                          <p className="text-xs text-muted-foreground">Suggested: 3 years after operations start</p>
+                          <p className="text-xs text-white/50">Suggested: 3 years after operations start</p>
                         </div>
                         <div className="space-y-2">
-                          <Label>Loan-to-Value (LTV) %</Label>
+                          <Label className="text-white/80">Loan-to-Value (LTV) %</Label>
                           <Input 
                             type="number" 
                             step="0.01"
                             value={((draft.refinanceLTV || 0.75) * 100).toFixed(0)} 
-                            onChange={(e) => handleNumberChange("refinanceLTV", (parseFloat(e.target.value) / 100).toString())} 
+                            onChange={(e) => handleNumberChange("refinanceLTV", (parseFloat(e.target.value) / 100).toString())}
+                            className="bg-white/10 border-white/20 text-white"
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label>Interest Rate (%)</Label>
+                          <Label className="text-white/80">Interest Rate (%)</Label>
                           <Input 
                             type="number" 
                             step="0.01"
                             value={((draft.refinanceInterestRate || 0.09) * 100).toFixed(2)} 
-                            onChange={(e) => handleNumberChange("refinanceInterestRate", (parseFloat(e.target.value) / 100).toString())} 
+                            onChange={(e) => handleNumberChange("refinanceInterestRate", (parseFloat(e.target.value) / 100).toString())}
+                            className="bg-white/10 border-white/20 text-white"
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label>Loan Term (Years)</Label>
+                          <Label className="text-white/80">Loan Term (Years)</Label>
                           <Input 
                             type="number" 
                             value={draft.refinanceTermYears || 25} 
-                            onChange={(e) => handleNumberChange("refinanceTermYears", e.target.value)} 
+                            onChange={(e) => handleNumberChange("refinanceTermYears", e.target.value)}
+                            className="bg-white/10 border-white/20 text-white"
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label>Closing Costs (%)</Label>
+                          <Label className="text-white/80">Closing Costs (%)</Label>
                           <Input 
                             type="number" 
                             step="0.01"
                             value={((draft.refinanceClosingCostRate || 0.03) * 100).toFixed(1)} 
-                            onChange={(e) => handleNumberChange("refinanceClosingCostRate", (parseFloat(e.target.value) / 100).toString())} 
+                            onChange={(e) => handleNumberChange("refinanceClosingCostRate", (parseFloat(e.target.value) / 100).toString())}
+                            className="bg-white/10 border-white/20 text-white"
                           />
                         </div>
                       </div>
@@ -525,19 +585,24 @@ export default function PropertyEdit() {
                 </div>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Revenue Assumptions</CardTitle>
-            <CardDescription>ADR and occupancy projections</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
+        {/* Glass Card - Revenue Assumptions */}
+        <div className="relative overflow-hidden rounded-2xl">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e]/80 via-[#3d5a6a]/70 to-[#4a3d5e]/80" />
+          <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+          <div className="absolute inset-0 border border-white/10 rounded-2xl" />
+          
+          <div className="relative p-6 space-y-6">
+            <div>
+              <h3 className="text-xl font-semibold text-white">Revenue Assumptions</h3>
+              <p className="text-white/60 text-sm">ADR and occupancy projections</p>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label>Starting ADR</Label>
+                  <Label className="text-white/80">Starting ADR</Label>
                   <EditableValue
                     value={draft.startAdr}
                     onChange={(val) => handleChange("startAdr", val.toString())}
@@ -553,11 +618,12 @@ export default function PropertyEdit() {
                   min={100}
                   max={1200}
                   step={10}
+                  className="[&_[role=slider]]:bg-[#9FBCA4]"
                 />
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label>ADR Annual Growth</Label>
+                  <Label className="text-white/80">ADR Annual Growth</Label>
                   <EditableValue
                     value={draft.adrGrowthRate * 100}
                     onChange={(val) => handleChange("adrGrowthRate", (val / 100).toString())}
@@ -573,13 +639,14 @@ export default function PropertyEdit() {
                   min={0}
                   max={50}
                   step={1}
+                  className="[&_[role=slider]]:bg-[#9FBCA4]"
                 />
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label>Starting Occupancy</Label>
+                  <Label className="text-white/80">Starting Occupancy</Label>
                   <EditableValue
                     value={draft.startOccupancy * 100}
                     onChange={(val) => handleChange("startOccupancy", (val / 100).toString())}
@@ -595,11 +662,12 @@ export default function PropertyEdit() {
                   min={0}
                   max={100}
                   step={1}
+                  className="[&_[role=slider]]:bg-[#9FBCA4]"
                 />
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label>Max Occupancy</Label>
+                  <Label className="text-white/80">Max Occupancy</Label>
                   <EditableValue
                     value={draft.maxOccupancy * 100}
                     onChange={(val) => handleChange("maxOccupancy", (val / 100).toString())}
@@ -615,13 +683,14 @@ export default function PropertyEdit() {
                   min={0}
                   max={100}
                   step={1}
+                  className="[&_[role=slider]]:bg-[#9FBCA4]"
                 />
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label>Occupancy Ramp</Label>
+                  <Label className="text-white/80">Occupancy Ramp</Label>
                   <EditableValue
                     value={draft.occupancyRampMonths}
                     onChange={(val) => handleChange("occupancyRampMonths", val.toString())}
@@ -637,11 +706,12 @@ export default function PropertyEdit() {
                   min={0}
                   max={36}
                   step={1}
+                  className="[&_[role=slider]]:bg-[#9FBCA4]"
                 />
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label>Occupancy Growth Step</Label>
+                  <Label className="text-white/80">Occupancy Growth Step</Label>
                   <EditableValue
                     value={draft.occupancyGrowthStep * 100}
                     onChange={(val) => handleChange("occupancyGrowthStep", (val / 100).toString())}
@@ -657,11 +727,12 @@ export default function PropertyEdit() {
                   min={0}
                   max={20}
                   step={1}
+                  className="[&_[role=slider]]:bg-[#9FBCA4]"
                 />
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label>Stabilization Period</Label>
+                  <Label className="text-white/80">Stabilization Period</Label>
                   <EditableValue
                     value={draft.stabilizationMonths}
                     onChange={(val) => handleChange("stabilizationMonths", val.toString())}
@@ -677,27 +748,31 @@ export default function PropertyEdit() {
                   min={0}
                   max={36}
                   step={1}
+                  className="[&_[role=slider]]:bg-[#9FBCA4]"
                 />
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              Revenue Streams
-              <HelpTooltip text="Configure how much additional revenue each stream generates as a percentage of rooms revenue. F&B revenue gets boosted based on what percentage of events require catering." />
-            </CardTitle>
-            <CardDescription>
-              Additional revenue as percentage of rooms revenue
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
+        {/* Glass Card - Revenue Streams */}
+        <div className="relative overflow-hidden rounded-2xl">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e]/80 via-[#3d5a6a]/70 to-[#4a3d5e]/80" />
+          <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+          <div className="absolute inset-0 border border-white/10 rounded-2xl" />
+          
+          <div className="relative p-6 space-y-6">
+            <div>
+              <h3 className="text-xl font-semibold text-white flex items-center">
+                Revenue Streams
+                <HelpTooltip text="Configure how much additional revenue each stream generates as a percentage of rooms revenue. F&B revenue gets boosted based on what percentage of events require catering." />
+              </h3>
+              <p className="text-white/60 text-sm">Additional revenue as percentage of rooms revenue</p>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label className="flex items-center gap-1">
+                  <Label className="flex items-center gap-1 text-white/80">
                     Events
                     <HelpTooltip text="Revenue from meetings, weddings, and other events as a percentage of rooms revenue." />
                   </Label>
@@ -716,12 +791,13 @@ export default function PropertyEdit() {
                   min={0}
                   max={100}
                   step={5}
+                  className="[&_[role=slider]]:bg-[#9FBCA4]"
                 />
-                <p className="text-xs text-muted-foreground">Meetings, weddings, conferences</p>
+                <p className="text-xs text-white/50">Meetings, weddings, conferences</p>
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label className="flex items-center gap-1">
+                  <Label className="flex items-center gap-1 text-white/80">
                     F&B
                     <HelpTooltip text="Base food & beverage revenue as a percentage of rooms revenue. This gets boosted by catering at events (see catering mix below)." />
                   </Label>
@@ -740,12 +816,13 @@ export default function PropertyEdit() {
                   min={0}
                   max={100}
                   step={5}
+                  className="[&_[role=slider]]:bg-[#9FBCA4]"
                 />
-                <p className="text-xs text-muted-foreground">Restaurant, bar, room service</p>
+                <p className="text-xs text-white/50">Restaurant, bar, room service</p>
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label className="flex items-center gap-1">
+                  <Label className="flex items-center gap-1 text-white/80">
                     Other
                     <HelpTooltip text="Revenue from spa, parking, activities, and other ancillary services." />
                   </Label>
@@ -764,13 +841,14 @@ export default function PropertyEdit() {
                   min={0}
                   max={100}
                   step={5}
+                  className="[&_[role=slider]]:bg-[#9FBCA4]"
                 />
-                <p className="text-xs text-muted-foreground">Spa, parking, activities</p>
+                <p className="text-xs text-white/50">Spa, parking, activities</p>
               </div>
             </div>
             
-            <div className="border-t pt-4">
-              <Label className="flex items-center gap-1 mb-3">
+            <div className="border-t border-white/10 pt-4">
+              <Label className="flex items-center gap-1 mb-3 text-white/80">
                 Event Catering Mix
                 <HelpTooltip text="What percentage of events at this property require catering. Full catering provides complete F&B service and boosts F&B revenue more. Partial catering includes limited offerings. The remaining events require no catering. Total cannot exceed 100%." />
               </Label>
@@ -785,7 +863,7 @@ export default function PropertyEdit() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <div className="flex justify-between items-center">
-                          <Label className="text-sm text-muted-foreground">% of Events with Full Catering</Label>
+                          <Label className="text-sm text-white/60">% of Events with Full Catering</Label>
                           <EditableValue
                             value={fullPct}
                             onChange={(val) => {
@@ -808,11 +886,12 @@ export default function PropertyEdit() {
                           min={0}
                           max={100 - partialPct}
                           step={5}
+                          className="[&_[role=slider]]:bg-[#9FBCA4]"
                         />
                       </div>
                       <div className="space-y-2">
                         <div className="flex justify-between items-center">
-                          <Label className="text-sm text-muted-foreground">% of Events with Partial Catering</Label>
+                          <Label className="text-sm text-white/60">% of Events with Partial Catering</Label>
                           <EditableValue
                             value={partialPct}
                             onChange={(val) => {
@@ -835,34 +914,35 @@ export default function PropertyEdit() {
                           min={0}
                           max={100 - fullPct}
                           step={5}
+                          className="[&_[role=slider]]:bg-[#9FBCA4]"
                         />
                       </div>
                     </div>
-                    <div className="mt-3 p-2 bg-muted rounded text-sm flex justify-between items-center">
-                      <span className="text-muted-foreground">No catering required:</span>
-                      <span className="font-medium">{noCateringPct.toFixed(0)}% of events</span>
+                    <div className="mt-3 p-2 bg-white/10 rounded text-sm flex justify-between items-center">
+                      <span className="text-white/60">No catering required:</span>
+                      <span className="font-medium text-white">{noCateringPct.toFixed(0)}% of events</span>
                     </div>
                   </>
                 );
               })()}
               {globalAssumptions && (
-                <div className="mt-4 p-3 bg-muted rounded-lg text-sm">
-                  <div className="text-muted-foreground text-xs mb-2">F&B Boost Factors (from Global Assumptions):</div>
+                <div className="mt-4 p-3 bg-white/10 rounded-lg text-sm">
+                  <div className="text-white/50 text-xs mb-2">F&B Boost Factors (from Global Assumptions):</div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Full Catering Boost:</span>
-                      <span className="font-medium">+{((globalAssumptions.fullCateringFBBoost ?? 0.50) * 100).toFixed(0)}% to F&B</span>
+                      <span className="text-white/60">Full Catering Boost:</span>
+                      <span className="font-medium text-white">+{((globalAssumptions.fullCateringFBBoost ?? 0.50) * 100).toFixed(0)}% to F&B</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Partial Catering Boost:</span>
-                      <span className="font-medium">+{((globalAssumptions.partialCateringFBBoost ?? 0.25) * 100).toFixed(0)}% to F&B</span>
+                      <span className="text-white/60">Partial Catering Boost:</span>
+                      <span className="font-medium text-white">+{((globalAssumptions.partialCateringFBBoost ?? 0.25) * 100).toFixed(0)}% to F&B</span>
                     </div>
                   </div>
                 </div>
               )}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         <Card>
           <CardHeader>

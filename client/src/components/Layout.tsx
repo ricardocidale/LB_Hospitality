@@ -69,7 +69,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
           <nav className="flex-1 p-4 pt-2 space-y-1 overflow-y-auto">
             {navItems.map((item) => {
-              const isActive = location === item.href;
+              // Check for exact match or if we're on a sub-route
+              const isActive = location === item.href || 
+                (item.href === "/portfolio" && location.startsWith("/property")) ||
+                (item.href !== "/" && location.startsWith(item.href));
               return (
                 <Link key={item.href} href={item.href} onClick={() => setSidebarOpen(false)}>
                   <div className={cn(

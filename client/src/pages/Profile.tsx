@@ -74,7 +74,8 @@ export default function Profile() {
         <PageHeader
           title="My Profile"
           subtitle="Manage your account information"
-          action={
+          variant="dark"
+          actions={
             <SaveButton 
               onClick={handleSave} 
               disabled={updateMutation.isPending}

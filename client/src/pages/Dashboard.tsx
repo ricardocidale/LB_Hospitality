@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Loader2, ChevronRight, ChevronDown, FileDown, FileSpreadsheet } from "lucide-react";
+import { PageHeader } from "@/components/ui/page-header";
 import { format } from "date-fns";
 import { useState } from "react";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
@@ -1551,25 +1552,17 @@ export default function Dashboard() {
   return (
     <Layout>
       <div className="space-y-6">
-        {/* Page Header - Liquid Glass Style */}
-        <div className="relative overflow-hidden rounded-2xl">
-          <div className="absolute inset-0 bg-gradient-to-r from-[#2d4a5e] via-[#3a5a5e] to-[#3d5a6a]" />
-          <div className="absolute inset-0">
-            <div className="absolute top-0 left-1/4 w-48 h-48 rounded-full bg-[#9FBCA4]/20 blur-3xl" />
-            <div className="absolute bottom-0 right-1/4 w-40 h-40 rounded-full bg-[#9FBCA4]/15 blur-3xl" />
-          </div>
-          
-          <div className="relative px-8 py-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <h2 className="text-3xl font-serif font-bold text-[#FFF9F5]">Investment Overview</h2>
-              <p className="text-[#FFF9F5]/50 mt-1">L+B Hospitality Group - Boutique Hotel Portfolio</p>
-            </div>
+        <PageHeader
+          title="Investment Overview"
+          subtitle="L+B Hospitality Group - Boutique Hotel Portfolio"
+          variant="dark"
+          actions={
             <div className="bg-white/10 backdrop-blur-xl rounded-xl px-5 py-3 border border-white/20 text-center">
               <p className="text-xs text-[#FFF9F5]/50 uppercase tracking-widest">Investment Period</p>
               <p className="text-lg font-medium text-[#FFF9F5]">{getFiscalYear(0)} - {getFiscalYear(investmentHorizon - 1)}</p>
             </div>
-          </div>
-        </div>
+          }
+        />
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">

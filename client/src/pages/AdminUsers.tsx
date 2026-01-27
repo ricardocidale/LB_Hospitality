@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Loader2, Plus, Trash2, Users, Key, Save } from "lucide-react";
 import { GlassButton } from "@/components/ui/glass-button";
+import { PageHeader } from "@/components/ui/page-header";
 import { useToast } from "@/hooks/use-toast";
 
 interface User {
@@ -152,21 +153,19 @@ export default function AdminUsers() {
   return (
     <Layout>
       <div className="space-y-6 max-w-4xl">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-3xl font-serif font-bold text-foreground flex items-center gap-2">
-              <Users className="w-8 h-8" />
-              User Management
-            </h2>
-            <p className="text-muted-foreground mt-1">Register and manage portal users</p>
-          </div>
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogTrigger asChild>
-              <Button data-testid="button-add-user">
-                <Plus className="w-4 h-4 mr-2" /> Add User
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
+        <PageHeader
+          title="User Management"
+          subtitle="Register and manage portal users"
+          variant="dark"
+          actions={
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <DialogTrigger asChild>
+                <GlassButton data-testid="button-add-user">
+                  <Plus className="w-4 h-4" />
+                  Add User
+                </GlassButton>
+              </DialogTrigger>
+              <DialogContent>
               <DialogHeader>
                 <DialogTitle>Register New User</DialogTitle>
                 <DialogDescription>Create a new user account for the portal.</DialogDescription>
@@ -219,7 +218,8 @@ export default function AdminUsers() {
               </form>
             </DialogContent>
           </Dialog>
-        </div>
+          }
+        />
 
         <Dialog open={passwordDialogOpen} onOpenChange={setPasswordDialogOpen}>
           <DialogContent>

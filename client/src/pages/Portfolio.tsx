@@ -10,6 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Trash2, MapPin, Bed, ArrowRight, Loader2, Plus, Upload, X } from "lucide-react";
 import { Link } from "wouter";
+import { PageHeader } from "@/components/ui/page-header";
+import { GlassButton } from "@/components/ui/glass-button";
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -204,40 +206,17 @@ export default function Portfolio() {
   return (
     <Layout>
       <div className="space-y-8">
-        {/* Liquid Glass Header */}
-        <div className="relative overflow-hidden rounded-3xl p-8">
-          {/* Gradient Background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e] via-[#3d5a6a] to-[#3a5a5e]" />
-          {/* Top Edge Sheen */}
-          <div className="absolute top-0 left-8 right-8 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
-          {/* Floating Color Orbs */}
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute -top-12 -right-12 w-56 h-56 rounded-full bg-[#9FBCA4]/25 blur-3xl" />
-            <div className="absolute bottom-0 left-1/4 w-48 h-48 rounded-full bg-[#9FBCA4]/15 blur-3xl" />
-          </div>
-          
-          <div className="relative flex justify-between items-center">
-            <div>
-              <h2 className="text-3xl font-serif font-bold text-[#FFF9F5]">Property Portfolio</h2>
-              <p className="text-[#FFF9F5]/60 mt-1">Managed assets & developments</p>
-            </div>
-            
+        <PageHeader
+          title="Property Portfolio"
+          subtitle="Managed assets & developments"
+          variant="dark"
+          actions={
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
               <DialogTrigger asChild>
-                <button 
-                  data-testid="button-add-property" 
-                  className="relative overflow-hidden px-5 py-2.5 text-sm font-medium text-white rounded-xl transition-all duration-300 group/add"
-                >
-                  {/* Glass Background */}
-                  <div className="absolute inset-0 bg-white/12 backdrop-blur-xl rounded-xl" />
-                  {/* Top Edge Sheen */}
-                  <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
-                  {/* Border */}
-                  <div className="absolute inset-0 rounded-xl border border-white/25 group-hover/add:border-white/40 transition-all duration-300" />
-                  {/* Hover Glow */}
-                  <div className="absolute inset-0 rounded-xl shadow-[0_0_20px_rgba(159,188,164,0.3)] group-hover/add:shadow-[0_0_30px_rgba(159,188,164,0.5)] transition-all duration-300" />
-                  <span className="relative flex items-center"><Plus className="w-4 h-4 mr-2" />Add Property</span>
-                </button>
+                <GlassButton data-testid="button-add-property">
+                  <Plus className="w-4 h-4" />
+                  Add Property
+                </GlassButton>
               </DialogTrigger>
               <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
@@ -539,8 +518,8 @@ export default function Portfolio() {
               </DialogFooter>
             </DialogContent>
           </Dialog>
-          </div>
-        </div>
+          }
+        />
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {properties?.slice().sort((a, b) => new Date(a.acquisitionDate).getTime() - new Date(b.acquisitionDate).getTime()).map((property) => (

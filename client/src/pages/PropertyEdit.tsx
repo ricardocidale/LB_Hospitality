@@ -6,8 +6,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Save, Loader2, Upload } from "lucide-react";
+import { Save, Loader2, Upload } from "lucide-react";
 import { GlassButton } from "@/components/ui/glass-button";
+import { PageHeader } from "@/components/ui/page-header";
 import { Link, useRoute, useLocation } from "wouter";
 import { useState, useEffect, useRef } from "react";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
@@ -236,31 +237,12 @@ export default function PropertyEdit() {
   return (
     <Layout>
       <div className="space-y-6 max-w-4xl">
-        {/* Light Glass Header */}
-        <div className="relative overflow-hidden rounded-3xl p-8">
-          {/* Light Background with Glass Effect */}
-          <div className="absolute inset-0 bg-white/80 backdrop-blur-xl" />
-          {/* Floating Color Orbs */}
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute -top-12 -right-12 w-56 h-56 rounded-full bg-[#9FBCA4]/20 blur-3xl" />
-            <div className="absolute bottom-0 left-1/4 w-48 h-48 rounded-full bg-[#9FBCA4]/10 blur-3xl" />
-          </div>
-          <div className="absolute inset-0 border border-[#9FBCA4]/20 rounded-3xl shadow-[0_8px_32px_rgba(159,188,164,0.15)]" />
-          
-          <div className="relative flex justify-between items-center">
-            <div>
-              <Link href={`/property/${propertyId}`}>
-                <button className="relative overflow-hidden px-4 py-2 text-sm font-medium text-gray-700 rounded-xl transition-all duration-300 group/back mb-4">
-                  <div className="absolute inset-0 bg-[#9FBCA4]/10 backdrop-blur-xl rounded-xl" />
-                  <div className="absolute inset-0 rounded-xl border border-[#9FBCA4]/30 group-hover/back:border-[#9FBCA4]/50 transition-all duration-300" />
-                  <div className="absolute inset-0 rounded-xl opacity-0 group-hover/back:opacity-100 shadow-[0_0_20px_rgba(159,188,164,0.3)] transition-all duration-300" />
-                  <span className="relative flex items-center"><ArrowLeft className="w-4 h-4 mr-2" />Back to Property</span>
-                </button>
-              </Link>
-              <h2 className="text-3xl font-serif font-bold text-gray-900">Property Assumptions</h2>
-              <p className="text-gray-600 mt-1">{property.name}</p>
-            </div>
-            
+        <PageHeader
+          title="Property Assumptions"
+          subtitle={property.name}
+          variant="light"
+          backLink={`/property/${propertyId}`}
+          actions={
             <GlassButton 
               variant="primary"
               onClick={handleSave} 
@@ -269,8 +251,8 @@ export default function PropertyEdit() {
               {updateProperty.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               Save Changes
             </GlassButton>
-          </div>
-        </div>
+          }
+        />
 
         {/* Glass Card - Basic Information */}
         <div className="relative overflow-hidden rounded-2xl">

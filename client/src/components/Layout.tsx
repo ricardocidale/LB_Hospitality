@@ -15,6 +15,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { href: "/", label: "Dashboard", icon: LayoutDashboard },
     { href: "/portfolio", label: "Properties", icon: Building2 },
     { href: "/company", label: "Management Co.", icon: Briefcase },
+    { type: "divider" as const },
     { href: "/settings", label: "Global Assumptions", icon: Settings2 },
     { href: "/methodology", label: "Methodology", icon: FileText },
     { href: "/research", label: "Research", icon: BookOpen },
@@ -68,13 +69,22 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </div>
 
           <nav className="flex-1 p-4 pt-2 space-y-1 overflow-y-auto">
-            {navItems.map((item) => {
+            {navItems.map((item, index) => {
+              // Handle divider type
+              if ('type' in item && item.type === 'divider') {
+                return (
+                  <div key={`divider-${index}`} className="my-3 mx-2">
+                    <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                  </div>
+                );
+              }
+              
               // Check for exact match or if we're on a sub-route
               const isActive = location === item.href || 
                 (item.href === "/portfolio" && location.startsWith("/property")) ||
                 (item.href !== "/" && location.startsWith(item.href));
               return (
-                <Link key={item.href} href={item.href} onClick={() => setSidebarOpen(false)}>
+                <Link key={item.href} href={item.href!} onClick={() => setSidebarOpen(false)}>
                   <div className={cn(
                     "group relative flex items-center gap-3 px-4 py-3 text-sm font-medium transition-all duration-300 ease-out rounded-2xl cursor-pointer overflow-hidden",
                     isActive 

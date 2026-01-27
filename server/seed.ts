@@ -4,6 +4,8 @@ import { eq } from "drizzle-orm";
 import bcrypt from "bcrypt";
 
 async function seed() {
+  const forceReseed = process.argv.includes("--force");
+  
   console.log("Starting database seed...");
 
   // Check if data already exists
@@ -11,9 +13,16 @@ async function seed() {
   const existingProperties = await db.select().from(properties).limit(1);
 
   if (existingGlobal.length > 0 || existingProperties.length > 0) {
-    console.log("Database already has data. Skipping seed to prevent duplicates.");
-    console.log("To re-seed, first clear the existing data.");
-    return;
+    if (forceReseed) {
+      console.log("Force mode: Clearing existing data...");
+      await db.delete(properties);
+      await db.delete(globalAssumptions);
+      console.log("Existing data cleared.");
+    } else {
+      console.log("Database already has data. Skipping seed to prevent duplicates.");
+      console.log("To force re-seed, run: npx tsx server/seed.ts --force");
+      return;
+    }
   }
 
   // Seed admin user

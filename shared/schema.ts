@@ -153,7 +153,7 @@ export const properties = pgTable("properties", {
   costRateRooms: real("cost_rate_rooms").notNull().default(0.36),
   costRateFB: real("cost_rate_fb").notNull().default(0.15),
   costRateAdmin: real("cost_rate_admin").notNull().default(0.08),
-  costRateMarketing: real("cost_rate_marketing").notNull().default(0.05),
+  costRateMarketing: real("cost_rate_marketing").notNull().default(0.01),
   costRatePropertyOps: real("cost_rate_property_ops").notNull().default(0.04),
   costRateUtilities: real("cost_rate_utilities").notNull().default(0.05),
   costRateInsurance: real("cost_rate_insurance").notNull().default(0.02),

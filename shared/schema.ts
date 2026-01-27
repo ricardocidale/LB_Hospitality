@@ -41,11 +41,11 @@ export const globalAssumptions = pgTable("global_assumptions", {
   partnerCountYear3: integer("partner_count_year3").notNull().default(3),
   partnerCountYear4: integer("partner_count_year4").notNull().default(3),
   partnerCountYear5: integer("partner_count_year5").notNull().default(3),
-  partnerCountYear6: integer("partner_count_year6").notNull().default(4),
-  partnerCountYear7: integer("partner_count_year7").notNull().default(4),
-  partnerCountYear8: integer("partner_count_year8").notNull().default(4),
-  partnerCountYear9: integer("partner_count_year9").notNull().default(4),
-  partnerCountYear10: integer("partner_count_year10").notNull().default(4),
+  partnerCountYear6: integer("partner_count_year6").notNull().default(3),
+  partnerCountYear7: integer("partner_count_year7").notNull().default(3),
+  partnerCountYear8: integer("partner_count_year8").notNull().default(3),
+  partnerCountYear9: integer("partner_count_year9").notNull().default(3),
+  partnerCountYear10: integer("partner_count_year10").notNull().default(3),
   
   staffSalary: real("staff_salary").notNull(),
   
@@ -158,7 +158,7 @@ export const properties = pgTable("properties", {
   costRateUtilities: real("cost_rate_utilities").notNull().default(0.05),
   costRateInsurance: real("cost_rate_insurance").notNull().default(0.02),
   costRateTaxes: real("cost_rate_taxes").notNull().default(0.03),
-  costRateIT: real("cost_rate_it").notNull().default(0.02),
+  costRateIT: real("cost_rate_it").notNull().default(0.005),
   costRateFFE: real("cost_rate_ffe").notNull().default(0.04),
   costRateOther: real("cost_rate_other").notNull().default(0.05),
   

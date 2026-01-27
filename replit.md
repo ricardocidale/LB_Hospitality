@@ -49,20 +49,20 @@ Always format money as money (currency format with commas and appropriate precis
 - **Tabs**: Match sidebar gradient with white text for active state
 
 #### Buttons
-- **Save/Primary buttons**: Use GlassButton component with variant="primary"
+- **Save buttons**: Use the standardized SaveButton component for all save actions
 - **Assumptions buttons**: Text "Assumptions" with Settings2 icon
-- **Consistent fluid glass effect**: All Save buttons have the same sage green glow effect across all pages
+- **Consistent fluid glass effect**: All Save buttons have the same dark glass effect with bright white text
 
 ### PageHeader Component Standard
 All pages must use the standardized PageHeader component with consistent height, fonts, and styling:
 
-```
+```tsx
 <PageHeader
   title="Page Title"
   subtitle="Page description"
-  variant="dark"  // or "light" for assumption pages
+  variant="dark"
   backLink="/back-route"  // optional
-  actions={<GlassButton>Action</GlassButton>}  // optional
+  actions={<SaveButton onClick={handleSave} isPending={mutation.isPending} />}
 />
 ```
 
@@ -70,33 +70,38 @@ All pages must use the standardized PageHeader component with consistent height,
 - Fixed minimum height: min-h-[88px] for consistent sizing
 - Title: text-3xl font-serif font-bold
 - Subtitle: text-sm mt-1
-- Variant "dark": Dark glass gradient (from-[#2d4a5e] via-[#3d5a6a] to-[#3a5a5e]) for main app pages
-- Variant "light": White/80 backdrop-blur-xl with sage green accents for assumption pages
-- Actions slot for Save Changes buttons or other action buttons
+- Variant "dark": Dark glass gradient (from-[#2d4a5e] via-[#3d5a6a] to-[#3a5a5e]) for all pages
+- Actions slot for SaveButton or other action buttons
 
 **Page variant assignments**:
-- **Dark variant**: All pages use dark variant for consistent header styling (Dashboard, Company, Portfolio, Property Detail, User Management, Company Assumptions, Property Assumptions, Global Assumptions)
+- **Dark variant**: All pages use dark variant for consistent header styling
 
-### GlassButton Primary Variant Standard
-All primary action buttons (Save, Submit, Confirm) must use:
-```
-<GlassButton variant="primary" onClick={handler} disabled={isPending}>
-  {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-  Save Changes
-</GlassButton>
+### SaveButton Component Standard
+All save actions must use the standardized SaveButton component:
+```tsx
+import { SaveButton } from "@/components/ui/save-button";
+
+<SaveButton 
+  onClick={handleSave} 
+  disabled={!hasChanges}  // optional
+  isPending={mutation.isPending}
+>
+  Save Changes  // optional custom text
+</SaveButton>
 ```
 
-**Primary variant styling (fluid glass effect)**:
-- Dark glass background: bg-white/12 backdrop-blur-xl
+**SaveButton features**:
+- Automatically includes Save icon (or Loader2 when pending)
+- Dark glass background: bg-white/15 backdrop-blur-xl
+- **Bright white text (#FFFFFF)** that stays white even when disabled
 - Top shine highlight: white/40 gradient line
-- Border: border-white/25
-- Shadow: 0_0_20px sage glow (rgba(159,188,164,0.3))
-- Text: white font-medium (text-sm, 14px)
-- Always include icon (Save, Loader2 for pending state)
+- Border: border-white/25 (dimmed to /15 when disabled)
+- Sage green glow: shadow-[0_0_20px_rgba(159,188,164,0.3)]
+- Disabled state dims background only (not text)
 - Rounded corners: rounded-xl
-- Padding: px-5 py-2.5
+- Padding: px-5 py-2.5, text-sm font-medium
 
-**Button placement**: Save Changes buttons must be placed inside the PageHeader actions slot on all pages where they are present.
+**Button placement**: SaveButton must be placed inside the PageHeader actions slot on all pages.
 
 ### Partner Compensation Model
 - Starting: $15,000/month per partner ($180,000/year)

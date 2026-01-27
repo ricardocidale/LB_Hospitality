@@ -6,8 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Save, Loader2, Upload } from "lucide-react";
-import { GlassButton } from "@/components/ui/glass-button";
+import { Loader2, Upload } from "lucide-react";
+import { SaveButton } from "@/components/ui/save-button";
 import { PageHeader } from "@/components/ui/page-header";
 import { Link, useRoute, useLocation } from "wouter";
 import { useState, useEffect, useRef } from "react";
@@ -243,14 +243,10 @@ export default function PropertyEdit() {
           variant="dark"
           backLink={`/property/${propertyId}`}
           actions={
-            <GlassButton 
-              variant="primary"
+            <SaveButton 
               onClick={handleSave} 
-              disabled={updateProperty.isPending}
-            >
-              {updateProperty.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-              Save Changes
-            </GlassButton>
+              isPending={updateProperty.isPending} 
+            />
           }
         />
 
@@ -1264,10 +1260,12 @@ export default function PropertyEdit() {
         </div>
 
         <div className="flex justify-end pb-8">
-          <GlassButton variant="primary" onClick={handleSave} disabled={updateProperty.isPending}>
-            {updateProperty.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+          <SaveButton 
+            onClick={handleSave} 
+            isPending={updateProperty.isPending}
+          >
             Save All Changes
-          </GlassButton>
+          </SaveButton>
         </div>
       </div>
     </Layout>

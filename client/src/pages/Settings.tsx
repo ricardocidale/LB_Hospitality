@@ -6,8 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Save, Loader2 } from "lucide-react";
-import { GlassButton } from "@/components/ui/glass-button";
+import { Loader2 } from "lucide-react";
+import { SaveButton } from "@/components/ui/save-button";
 import { PageHeader } from "@/components/ui/page-header";
 import { useState } from "react";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
@@ -111,10 +111,11 @@ export default function Settings() {
           subtitle="Configure variables driving the financial model"
           variant="dark"
           actions={
-            <GlassButton variant="primary" onClick={handleSaveGlobal} disabled={!globalDraft || updateGlobal.isPending}>
-              {updateGlobal.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-              Save Changes
-            </GlassButton>
+            <SaveButton 
+              onClick={handleSaveGlobal} 
+              disabled={!globalDraft} 
+              isPending={updateGlobal.isPending} 
+            />
           }
         />
 
@@ -332,10 +333,11 @@ export default function Settings() {
               </CardContent>
             </Card>
 
-            <GlassButton variant="primary" onClick={handleSaveGlobal} disabled={!globalDraft || updateGlobal.isPending}>
-              {updateGlobal.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-              Save Changes
-            </GlassButton>
+            <SaveButton 
+              onClick={handleSaveGlobal} 
+              disabled={!globalDraft} 
+              isPending={updateGlobal.isPending} 
+            />
           </TabsContent>
 
           <TabsContent value="macro" className="space-y-6 mt-6">
@@ -393,10 +395,11 @@ export default function Settings() {
               </CardContent>
             </Card>
 
-            <GlassButton variant="primary" onClick={handleSaveGlobal} disabled={!globalDraft || updateGlobal.isPending}>
-              {updateGlobal.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-              Save Changes
-            </GlassButton>
+            <SaveButton 
+              onClick={handleSaveGlobal} 
+              disabled={!globalDraft} 
+              isPending={updateGlobal.isPending} 
+            />
           </TabsContent>
 
           <TabsContent value="other" className="space-y-6 mt-6">
@@ -452,10 +455,11 @@ export default function Settings() {
               </CardContent>
             </Card>
 
-            <GlassButton variant="primary" onClick={handleSaveGlobal} disabled={!globalDraft || updateGlobal.isPending}>
-              {updateGlobal.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-              Save Changes
-            </GlassButton>
+            <SaveButton 
+              onClick={handleSaveGlobal} 
+              disabled={!globalDraft} 
+              isPending={updateGlobal.isPending} 
+            />
           </TabsContent>
         </Tabs>
       </div>

@@ -96,6 +96,7 @@ export async function registerRoutes(
   
   const updateProfileSchema = z.object({
     name: z.string().max(100).optional(),
+    email: z.string().email().max(255).optional(),
     company: z.string().max(100).optional(),
     title: z.string().max(100).optional(),
   });
@@ -111,8 +112,18 @@ export async function registerRoutes(
         return res.status(400).json({ error: error.message });
       }
       
-      const updates: { name?: string; company?: string; title?: string } = {};
+      const updates: { name?: string; email?: string; company?: string; title?: string } = {};
       if (validation.data.name !== undefined) updates.name = validation.data.name.trim();
+      if (validation.data.email !== undefined) {
+        const newEmail = sanitizeEmail(validation.data.email);
+        if (newEmail !== req.user.email) {
+          const existingUser = await storage.getUserByEmail(newEmail);
+          if (existingUser && existingUser.id !== req.user.id) {
+            return res.status(400).json({ error: "Email already in use" });
+          }
+          updates.email = newEmail;
+        }
+      }
       if (validation.data.company !== undefined) updates.company = validation.data.company.trim();
       if (validation.data.title !== undefined) updates.title = validation.data.title.trim();
       
@@ -121,6 +132,42 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error updating profile:", error);
       res.status(500).json({ error: "Failed to update profile" });
+    }
+  });
+
+  const changePasswordSchema = z.object({
+    currentPassword: z.string().min(1),
+    newPassword: z.string().min(8).regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, "Password must contain uppercase, lowercase, and number"),
+  });
+
+  app.patch("/api/profile/password", async (req, res) => {
+    if (!req.user) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+    try {
+      const validation = changePasswordSchema.safeParse(req.body);
+      if (!validation.success) {
+        const error = fromZodError(validation.error);
+        return res.status(400).json({ error: error.message });
+      }
+
+      const user = await storage.getUser(req.user.id);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      const validPassword = await verifyPassword(validation.data.currentPassword, user.passwordHash);
+      if (!validPassword) {
+        return res.status(401).json({ error: "Current password is incorrect" });
+      }
+
+      const newPasswordHash = await hashPassword(validation.data.newPassword);
+      await storage.updateUserPassword(req.user.id, newPasswordHash);
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error changing password:", error);
+      res.status(500).json({ error: "Failed to change password" });
     }
   });
 

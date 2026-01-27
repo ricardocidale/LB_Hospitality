@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { YearlyIncomeStatement } from "@/components/YearlyIncomeStatement";
 import { YearlyCashFlowStatement } from "@/components/YearlyCashFlowStatement";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, MapPin, Loader2, FileDown, FileSpreadsheet } from "lucide-react";
+import { ArrowLeft, MapPin, Loader2, FileDown, FileSpreadsheet, Settings2 } from "lucide-react";
 import { Link, useRoute } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -313,12 +313,13 @@ export default function PropertyDetail() {
               </div>
               
               <Link href={`/property/${propertyId}/edit`}>
-                <button className="relative overflow-hidden px-4 py-2 text-sm font-medium text-white rounded-xl transition-all duration-300 group/edit">
+                <button className="relative overflow-hidden px-4 py-2 text-sm font-medium text-white rounded-xl transition-all duration-300 group/edit flex items-center gap-2">
                   <div className="absolute inset-0 bg-white/12 backdrop-blur-xl rounded-xl" />
                   <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
                   <div className="absolute inset-0 rounded-xl border border-white/25 group-hover/edit:border-white/40 transition-all duration-300" />
                   <div className="absolute inset-0 rounded-xl shadow-[0_0_20px_rgba(159,188,164,0.3)] group-hover/edit:shadow-[0_0_30px_rgba(159,188,164,0.5)] transition-all duration-300" />
-                  <span className="relative">Property Assumptions</span>
+                  <Settings2 className="relative w-4 h-4" />
+                  <span className="relative">Assumptions</span>
                 </button>
               </Link>
             </div>

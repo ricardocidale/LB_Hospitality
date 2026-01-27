@@ -525,7 +525,7 @@ export default function Company() {
             <Link href="/company/assumptions">
               <GlassButton variant="settings">
                 <Settings2 className="w-4 h-4" />
-                Company Assumptions
+                Assumptions
               </GlassButton>
             </Link>
           }

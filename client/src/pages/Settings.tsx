@@ -104,9 +104,15 @@ export default function Settings() {
   return (
     <Layout>
       <div className="space-y-6 max-w-4xl">
-        <div>
-          <h2 className="text-3xl font-serif font-bold text-foreground">Global Assumptions</h2>
-          <p className="text-muted-foreground mt-1">Configure variables driving the financial model</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-3xl font-serif font-bold text-foreground">Global Assumptions</h2>
+            <p className="text-muted-foreground mt-1">Configure variables driving the financial model</p>
+          </div>
+          <Button onClick={handleSaveGlobal} disabled={!globalDraft || updateGlobal.isPending}>
+            {updateGlobal.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+            Save Changes
+          </Button>
         </div>
 
         <Tabs defaultValue="portfolio" className="w-full">

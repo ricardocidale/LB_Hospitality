@@ -776,6 +776,17 @@ export default function CompanyAssumptions() {
             </p>
           </CardContent>
         </Card>
+
+        <div className="flex justify-end pb-8">
+          <Button onClick={handleSave} disabled={updateMutation.isPending} size="lg">
+            {updateMutation.isPending ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Save className="w-4 h-4 mr-2" />
+            )}
+            Save Changes
+          </Button>
+        </div>
       </div>
     </Layout>
   );

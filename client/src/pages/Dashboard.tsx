@@ -1611,66 +1611,30 @@ export default function Dashboard() {
               </div>
             </div>
             
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button
-                onClick={() => exportFunctions?.pdf?.()}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  padding: '10px 16px',
-                  backgroundColor: 'transparent',
-                  border: '1px solid rgba(255, 249, 245, 0.3)',
-                  borderRadius: '12px',
-                  color: '#FFF9F5',
-                  fontSize: '14px',
-                  fontWeight: 500,
-                  cursor: 'pointer',
-                  transition: 'all 0.2s'
-                }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)';
-                  e.currentTarget.style.borderColor = 'rgba(255, 249, 245, 0.5)';
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                  e.currentTarget.style.borderColor = 'rgba(255, 249, 245, 0.3)';
-                }}
-                data-testid="button-export-pdf"
-              >
-                <FileDown style={{ width: '16px', height: '16px' }} />
-                Export PDF
-              </button>
-              <button
-                onClick={() => exportFunctions?.csv?.()}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  padding: '10px 16px',
-                  backgroundColor: 'transparent',
-                  border: '1px solid rgba(255, 249, 245, 0.3)',
-                  borderRadius: '12px',
-                  color: '#FFF9F5',
-                  fontSize: '14px',
-                  fontWeight: 500,
-                  cursor: 'pointer',
-                  transition: 'all 0.2s'
-                }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)';
-                  e.currentTarget.style.borderColor = 'rgba(255, 249, 245, 0.5)';
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                  e.currentTarget.style.borderColor = 'rgba(255, 249, 245, 0.3)';
-                }}
-                data-testid="button-export-csv"
-              >
-                <FileSpreadsheet style={{ width: '16px', height: '16px' }} />
-                Export CSV
-              </button>
-            </div>
+            {exportFunctions && (
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={exportFunctions.pdf}
+                  className="flex items-center gap-2"
+                  data-testid="button-export-pdf"
+                >
+                  <FileDown className="w-4 h-4" />
+                  Export PDF
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={exportFunctions.csv}
+                  className="flex items-center gap-2"
+                  data-testid="button-export-csv"
+                >
+                  <FileSpreadsheet className="w-4 h-4" />
+                  Export CSV
+                </Button>
+              </div>
+            )}
           </div>
 
           <TabsContent value="overview" className="space-y-8">

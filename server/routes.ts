@@ -4,14 +4,145 @@ import { storage } from "./storage";
 import { insertGlobalAssumptionsSchema, insertPropertySchema, updatePropertySchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
+import { hashPassword, verifyPassword, generateSessionId, setSessionCookie, clearSessionCookie, getSessionExpiryDate, requireAuth, requireAdmin } from "./auth";
+import { z } from "zod";
+
+const loginSchema = z.object({
+  email: z.string(),
+  password: z.string(),
+});
+
+const createUserSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+  name: z.string().optional(),
+});
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
+  // --- AUTH ROUTES ---
+  
+  app.post("/api/auth/login", async (req, res) => {
+    try {
+      const validation = loginSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: "Invalid request" });
+      }
+      
+      const { email, password } = validation.data;
+      const user = await storage.getUserByEmail(email);
+      
+      if (!user) {
+        return res.status(401).json({ error: "Invalid credentials" });
+      }
+      
+      const valid = await verifyPassword(password, user.passwordHash);
+      if (!valid) {
+        return res.status(401).json({ error: "Invalid credentials" });
+      }
+      
+      const sessionId = generateSessionId();
+      const expiresAt = getSessionExpiryDate();
+      await storage.createSession(user.id, sessionId, expiresAt);
+      setSessionCookie(res, sessionId);
+      
+      res.json({ 
+        user: { id: user.id, email: user.email, name: user.name, role: user.role }
+      });
+    } catch (error) {
+      console.error("Login error:", error);
+      res.status(500).json({ error: "Login failed" });
+    }
+  });
+
+  app.post("/api/auth/logout", async (req, res) => {
+    try {
+      if (req.sessionId) {
+        await storage.deleteSession(req.sessionId);
+      }
+      clearSessionCookie(res);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Logout error:", error);
+      res.status(500).json({ error: "Logout failed" });
+    }
+  });
+
+  app.get("/api/auth/me", async (req, res) => {
+    if (!req.user) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+    res.json({ 
+      user: { id: req.user.id, email: req.user.email, name: req.user.name, role: req.user.role }
+    });
+  });
+
+  // --- ADMIN USER MANAGEMENT ROUTES ---
+  
+  app.get("/api/admin/users", requireAdmin, async (req, res) => {
+    try {
+      const users = await storage.getAllUsers();
+      res.json(users.map(u => ({ id: u.id, email: u.email, name: u.name, role: u.role, createdAt: u.createdAt })));
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      res.status(500).json({ error: "Failed to fetch users" });
+    }
+  });
+
+  app.post("/api/admin/users", requireAdmin, async (req, res) => {
+    try {
+      const validation = createUserSchema.safeParse(req.body);
+      if (!validation.success) {
+        const error = fromZodError(validation.error);
+        return res.status(400).json({ error: error.message });
+      }
+      
+      const { email, password, name } = validation.data;
+      
+      const existing = await storage.getUserByEmail(email);
+      if (existing) {
+        return res.status(400).json({ error: "User with this email already exists" });
+      }
+      
+      const passwordHash = await hashPassword(password);
+      const user = await storage.createUser({ email, passwordHash, role: "user", name });
+      
+      res.json({ id: user.id, email: user.email, name: user.name, role: user.role });
+    } catch (error) {
+      console.error("Error creating user:", error);
+      res.status(500).json({ error: "Failed to create user" });
+    }
+  });
+
+  app.delete("/api/admin/users/:id", requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid user ID" });
+      }
+      
+      const user = await storage.getUserById(id);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+      
+      if (user.role === "admin") {
+        return res.status(400).json({ error: "Cannot delete admin user" });
+      }
+      
+      await storage.deleteUser(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      res.status(500).json({ error: "Failed to delete user" });
+    }
+  });
+
   // --- GLOBAL ASSUMPTIONS ROUTES ---
   
-  app.get("/api/global-assumptions", async (req, res) => {
+  app.get("/api/global-assumptions", requireAuth, async (req, res) => {
     try {
       const data = await storage.getGlobalAssumptions();
       
@@ -45,7 +176,7 @@ export async function registerRoutes(
 
   // --- PROPERTIES ROUTES ---
   
-  app.get("/api/properties", async (req, res) => {
+  app.get("/api/properties", requireAuth, async (req, res) => {
     try {
       const data = await storage.getAllProperties();
       res.json(data);
@@ -55,7 +186,7 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/properties/:id", async (req, res) => {
+  app.get("/api/properties/:id", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       
@@ -76,7 +207,7 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/properties", async (req, res) => {
+  app.post("/api/properties", requireAuth, async (req, res) => {
     try {
       const validation = insertPropertySchema.safeParse(req.body);
       
@@ -93,7 +224,7 @@ export async function registerRoutes(
     }
   });
 
-  app.patch("/api/properties/:id", async (req, res) => {
+  app.patch("/api/properties/:id", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       
@@ -121,7 +252,7 @@ export async function registerRoutes(
     }
   });
 
-  app.delete("/api/properties/:id", async (req, res) => {
+  app.delete("/api/properties/:id", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       

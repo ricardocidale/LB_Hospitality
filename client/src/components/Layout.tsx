@@ -1,13 +1,15 @@
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Building2, Briefcase, Settings2, Menu, X, BookOpen, FileText } from "lucide-react";
+import { LayoutDashboard, Building2, Briefcase, Settings2, Menu, X, BookOpen, FileText, Users, LogOut } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/lib/auth";
 import logo from "@/assets/logo.png";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { user, isAdmin, logout } = useAuth();
 
   const navItems = [
     { href: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -16,6 +18,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { href: "/settings", label: "Global Assumptions", icon: Settings2 },
     { href: "/methodology", label: "Methodology", icon: FileText },
     { href: "/research", label: "Research", icon: BookOpen },
+    ...(isAdmin ? [{ href: "/admin/users", label: "User Management", icon: Users }] : []),
   ];
 
   return (
@@ -69,12 +72,21 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className="p-4 border-t border-[#9FBCA4]/20">
           <div className="flex items-center gap-3 px-2 py-2 rounded-lg bg-[#9FBCA4]/10">
             <div className="w-9 h-9 rounded-full bg-[#9FBCA4] flex items-center justify-center text-white font-bold text-sm">
-              LP
+              {user?.name ? user.name.charAt(0).toUpperCase() : user?.email?.charAt(0).toUpperCase() || "U"}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-white truncate">Limited Partner</p>
-              <p className="text-xs text-sidebar-foreground/60">Investor View</p>
+              <p className="text-sm font-medium text-white truncate">{user?.name || user?.email || "User"}</p>
+              <p className="text-xs text-sidebar-foreground/60 capitalize">{user?.role || "User"}</p>
             </div>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="text-sidebar-foreground/60 hover:text-white hover:bg-transparent"
+              onClick={() => logout()}
+              data-testid="button-logout"
+            >
+              <LogOut className="w-4 h-4" />
+            </Button>
           </div>
         </div>
       </aside>

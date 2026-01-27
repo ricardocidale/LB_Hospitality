@@ -1,14 +1,27 @@
-import { globalAssumptions, properties, type GlobalAssumptions, type Property, type InsertGlobalAssumptions, type InsertProperty, type UpdateProperty } from "@shared/schema";
+import { globalAssumptions, properties, users, sessions, type GlobalAssumptions, type Property, type InsertGlobalAssumptions, type InsertProperty, type UpdateProperty, type User, type InsertUser, type Session } from "@shared/schema";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, and, gt } from "drizzle-orm";
 
 export interface IStorage {
-  // Global Assumptions
-  getGlobalAssumptions(): Promise<GlobalAssumptions | undefined>;
-  upsertGlobalAssumptions(data: InsertGlobalAssumptions): Promise<GlobalAssumptions>;
+  // Users
+  getUserById(id: number): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+  createUser(data: InsertUser): Promise<User>;
+  getAllUsers(): Promise<User[]>;
+  deleteUser(id: number): Promise<void>;
   
-  // Properties
-  getAllProperties(): Promise<Property[]>;
+  // Sessions
+  createSession(userId: number, sessionId: string, expiresAt: Date): Promise<Session>;
+  getSession(sessionId: string): Promise<(Session & { user: User }) | undefined>;
+  deleteSession(sessionId: string): Promise<void>;
+  deleteUserSessions(userId: number): Promise<void>;
+  
+  // Global Assumptions (per user)
+  getGlobalAssumptions(userId?: number): Promise<GlobalAssumptions | undefined>;
+  upsertGlobalAssumptions(data: InsertGlobalAssumptions, userId?: number): Promise<GlobalAssumptions>;
+  
+  // Properties (per user)
+  getAllProperties(userId?: number): Promise<Property[]>;
   getProperty(id: number): Promise<Property | undefined>;
   createProperty(data: InsertProperty): Promise<Property>;
   updateProperty(id: number, data: UpdateProperty): Promise<Property | undefined>;
@@ -16,18 +29,76 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
+  // Users
+  async getUserById(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email.toLowerCase()));
+    return user || undefined;
+  }
+
+  async createUser(data: InsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values({ ...data, email: data.email.toLowerCase() })
+      .returning();
+    return user;
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    return await db.select().from(users).orderBy(users.createdAt);
+  }
+
+  async deleteUser(id: number): Promise<void> {
+    await db.delete(sessions).where(eq(sessions.userId, id));
+    await db.delete(users).where(eq(users.id, id));
+  }
+
+  // Sessions
+  async createSession(userId: number, sessionId: string, expiresAt: Date): Promise<Session> {
+    const [session] = await db
+      .insert(sessions)
+      .values({ id: sessionId, userId, expiresAt })
+      .returning();
+    return session;
+  }
+
+  async getSession(sessionId: string): Promise<(Session & { user: User }) | undefined> {
+    const [result] = await db
+      .select()
+      .from(sessions)
+      .innerJoin(users, eq(sessions.userId, users.id))
+      .where(and(eq(sessions.id, sessionId), gt(sessions.expiresAt, new Date())));
+    
+    if (!result) return undefined;
+    return { ...result.sessions, user: result.users };
+  }
+
+  async deleteSession(sessionId: string): Promise<void> {
+    await db.delete(sessions).where(eq(sessions.id, sessionId));
+  }
+
+  async deleteUserSessions(userId: number): Promise<void> {
+    await db.delete(sessions).where(eq(sessions.userId, userId));
+  }
+
   // Global Assumptions
-  async getGlobalAssumptions(): Promise<GlobalAssumptions | undefined> {
+  async getGlobalAssumptions(userId?: number): Promise<GlobalAssumptions | undefined> {
+    if (userId) {
+      const [result] = await db.select().from(globalAssumptions).where(eq(globalAssumptions.userId, userId)).limit(1);
+      return result || undefined;
+    }
     const [result] = await db.select().from(globalAssumptions).limit(1);
     return result || undefined;
   }
 
-  async upsertGlobalAssumptions(data: InsertGlobalAssumptions): Promise<GlobalAssumptions> {
-    // Check if exists
-    const existing = await this.getGlobalAssumptions();
+  async upsertGlobalAssumptions(data: InsertGlobalAssumptions, userId?: number): Promise<GlobalAssumptions> {
+    const existing = await this.getGlobalAssumptions(userId);
     
     if (existing) {
-      // Update
       const [updated] = await db
         .update(globalAssumptions)
         .set({ ...data, updatedAt: new Date() })
@@ -35,17 +106,19 @@ export class DatabaseStorage implements IStorage {
         .returning();
       return updated;
     } else {
-      // Insert
       const [inserted] = await db
         .insert(globalAssumptions)
-        .values(data)
+        .values({ ...data, userId })
         .returning();
       return inserted;
     }
   }
 
   // Properties
-  async getAllProperties(): Promise<Property[]> {
+  async getAllProperties(userId?: number): Promise<Property[]> {
+    if (userId) {
+      return await db.select().from(properties).where(eq(properties.userId, userId)).orderBy(properties.createdAt);
+    }
     return await db.select().from(properties).orderBy(properties.createdAt);
   }
 

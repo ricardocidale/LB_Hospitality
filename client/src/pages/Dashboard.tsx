@@ -1574,15 +1574,14 @@ export default function Dashboard() {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             {/* Liquid Glass Tabs */}
-            <div className="relative overflow-hidden rounded-2xl">
-              {/* Fluid glass background with brand colors */}
-              <div className="absolute inset-0 bg-gradient-to-r from-[#257D41]/80 via-[#9FBCA4]/70 to-[#257D41]/80 backdrop-blur-xl" />
-              <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent" />
+            <div className="relative overflow-hidden rounded-2xl shadow-lg">
+              {/* Solid dark green background for better readability */}
+              <div className="absolute inset-0 bg-gradient-to-r from-[#1a5c30] via-[#257D41] to-[#1a5c30]" />
+              <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent" />
               {/* Top highlight */}
-              <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-white/50 to-transparent" />
-              {/* Border glow */}
-              <div className="absolute inset-0 rounded-2xl border border-white/25" />
-              <div className="absolute inset-[1px] rounded-2xl border border-[#9FBCA4]/30" />
+              <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+              {/* Border */}
+              <div className="absolute inset-0 rounded-2xl border border-[#9FBCA4]/40" />
               <div className="relative flex flex-wrap gap-1 p-1.5">
                 {[
                   { value: 'overview', label: 'Overview' },
@@ -1594,21 +1593,20 @@ export default function Dashboard() {
                   <button
                     key={tab.value}
                     onClick={() => setActiveTab(tab.value)}
-                    className={`relative px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 overflow-hidden ${
+                    className={`relative px-4 py-2.5 text-sm font-semibold rounded-xl transition-all duration-300 overflow-hidden ${
                       activeTab === tab.value
-                        ? 'text-[#FFF9F5]'
-                        : 'text-[#FFF9F5]/70 hover:text-[#FFF9F5] hover:bg-white/10'
+                        ? 'text-white'
+                        : 'text-white/80 hover:text-white hover:bg-white/15'
                     }`}
                   >
                     {activeTab === tab.value && (
                       <>
-                        <div className="absolute inset-0 bg-gradient-to-b from-white/25 to-white/10 backdrop-blur-sm rounded-xl" />
-                        <div className="absolute inset-0 rounded-xl border border-white/30" />
+                        <div className="absolute inset-0 bg-[#9FBCA4]/40 backdrop-blur-sm rounded-xl" />
+                        <div className="absolute inset-0 rounded-xl border border-white/40" />
                         <div className="absolute top-0 left-1 right-1 h-[1px] bg-gradient-to-r from-transparent via-white/60 to-transparent" />
-                        <div className="absolute bottom-0 left-2 right-2 h-[2px] bg-[#FFF9F5]/40 rounded-full" />
                       </>
                     )}
-                    <span className="relative">{tab.label}</span>
+                    <span className="relative drop-shadow-sm">{tab.label}</span>
                   </button>
                 ))}
               </div>

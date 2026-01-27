@@ -37,8 +37,16 @@ const GlassButton = React.forwardRef<HTMLButtonElement, GlassButtonProps>(
           <div className="absolute inset-0 rounded-xl border border-white/25" />
           {/* Hover glow effect */}
           <div className="absolute inset-0 rounded-xl shadow-[0_0_20px_rgba(159,188,164,0.3)]" />
-          <span className="relative flex items-center justify-center gap-2 text-white [&>*]:text-white" style={{ color: '#FFFFFF' }}>
-            {children}
+          <span className="relative flex items-center justify-center gap-2" style={{ color: '#FFFFFF', fill: '#FFFFFF' }}>
+            {React.Children.map(children, child => {
+              if (React.isValidElement(child) && typeof child.type !== 'string') {
+                return React.cloneElement(child as React.ReactElement<any>, {
+                  style: { ...((child.props as any).style || {}), color: '#FFFFFF' },
+                  className: `${(child.props as any).className || ''} !text-white`
+                });
+              }
+              return child;
+            })}
           </span>
         </button>
       );

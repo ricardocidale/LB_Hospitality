@@ -5,12 +5,12 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Loader2, Save, HelpCircle } from "lucide-react";
+import { Loader2, HelpCircle } from "lucide-react";
 import { useLocation } from "wouter";
 import { formatPercent, formatMoney } from "@/lib/financialEngine";
 import { useToast } from "@/hooks/use-toast";
 import type { GlobalResponse } from "@/lib/api";
-import { GlassButton } from "@/components/ui/glass-button";
+import { SaveButton } from "@/components/ui/save-button";
 import { PageHeader } from "@/components/ui/page-header";
 import { GlassCard } from "@/components/ui/glass-card";
 
@@ -159,18 +159,10 @@ export default function CompanyAssumptions() {
           variant="dark"
           backLink="/company"
           actions={
-            <GlassButton 
-              variant="primary"
+            <SaveButton 
               onClick={handleSave} 
-              disabled={updateMutation.isPending}
-            >
-              {updateMutation.isPending ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Save className="w-4 h-4" />
-              )}
-              Save Changes
-            </GlassButton>
+              isPending={updateMutation.isPending} 
+            />
           }
         />
 

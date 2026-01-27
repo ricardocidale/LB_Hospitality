@@ -1695,9 +1695,9 @@ export default function Dashboard() {
                         <svg className="w-14 h-14" viewBox="0 0 100 100">
                           <defs>
                             <linearGradient id="smallTube3D_eq" x1="0%" y1="0%" x2="0%" y2="100%">
-                              <stop offset="0%" stopColor="#FFB89A" />
-                              <stop offset="40%" stopColor="#F4795B" />
-                              <stop offset="100%" stopColor="#E06545" />
+                              <stop offset="0%" stopColor="#93C5FD" />
+                              <stop offset="40%" stopColor="#60A5FA" />
+                              <stop offset="100%" stopColor="#3B82F6" />
                             </linearGradient>
                           </defs>
                           <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="6" />
@@ -1706,7 +1706,7 @@ export default function Dashboard() {
                             strokeDasharray={`${Math.min(equityMultiple * 63, 251)} 251`}
                             strokeLinecap="round"
                             transform="rotate(-90 50 50)"
-                            style={{ filter: 'drop-shadow(0 0 6px rgba(244,121,91,0.5))' }}
+                            style={{ filter: 'drop-shadow(0 0 6px rgba(96,165,250,0.5))' }}
                           />
                         </svg>
                         <div className="absolute inset-0 flex items-center justify-center">
@@ -1727,9 +1727,9 @@ export default function Dashboard() {
                         <svg className="w-14 h-14" viewBox="0 0 100 100">
                           <defs>
                             <linearGradient id="smallTube3D_coc" x1="0%" y1="0%" x2="0%" y2="100%">
-                              <stop offset="0%" stopColor="#FFB89A" />
-                              <stop offset="40%" stopColor="#F4795B" />
-                              <stop offset="100%" stopColor="#E06545" />
+                              <stop offset="0%" stopColor="#FDE68A" />
+                              <stop offset="40%" stopColor="#FBBF24" />
+                              <stop offset="100%" stopColor="#D97706" />
                             </linearGradient>
                           </defs>
                           <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="6" />
@@ -1738,7 +1738,7 @@ export default function Dashboard() {
                             strokeDasharray={`${Math.min(Math.max(cashOnCash, 0) * 12.5, 251)} 251`}
                             strokeLinecap="round"
                             transform="rotate(-90 50 50)"
-                            style={{ filter: 'drop-shadow(0 0 6px rgba(244,121,91,0.5))' }}
+                            style={{ filter: 'drop-shadow(0 0 6px rgba(251,191,36,0.5))' }}
                           />
                         </svg>
                         <div className="absolute inset-0 flex items-center justify-center">

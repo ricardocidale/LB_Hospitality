@@ -240,7 +240,7 @@ export default function PropertyEdit() {
         <PageHeader
           title="Property Assumptions"
           subtitle={property.name}
-          variant="light"
+          variant="dark"
           backLink={`/property/${propertyId}`}
           actions={
             <GlassButton 

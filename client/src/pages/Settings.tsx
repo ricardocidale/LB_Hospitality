@@ -109,7 +109,7 @@ export default function Settings() {
         <PageHeader
           title="Global Assumptions"
           subtitle="Configure variables driving the financial model"
-          variant="light"
+          variant="dark"
           actions={
             <GlassButton variant="primary" onClick={handleSaveGlobal} disabled={!globalDraft || updateGlobal.isPending}>
               {updateGlobal.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}

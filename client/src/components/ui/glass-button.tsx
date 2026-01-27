@@ -24,14 +24,19 @@ const GlassButton = React.forwardRef<HTMLButtonElement, GlassButtonProps>(
           className={cn(
             baseClasses,
             sizes[size],
-            "text-[#1a2f23] font-semibold border border-white/50 hover:border-white/70 shadow-[0_4px_20px_rgba(255,255,255,0.25)] hover:shadow-[0_0_30px_rgba(255,255,255,0.5)]",
+            "text-[#1a2f23] font-semibold border-2 border-white/60 hover:border-white/80 shadow-[0_4px_24px_rgba(255,255,255,0.35),inset_0_1px_0_rgba(255,255,255,0.9)] hover:shadow-[0_0_35px_rgba(255,255,255,0.6),inset_0_1px_0_rgba(255,255,255,1)]",
             className
           )}
           {...props}
         >
-          <div className="absolute inset-0 bg-white/90 backdrop-blur-xl rounded-xl" />
-          <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-white to-transparent" />
-          <div className="absolute bottom-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-white/50 to-transparent" />
+          {/* Main frosted glass background */}
+          <div className="absolute inset-0 bg-gradient-to-b from-white/95 via-white/85 to-white/75 backdrop-blur-xl rounded-xl" />
+          {/* Top shine highlight */}
+          <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-white to-transparent rounded-t-xl" />
+          {/* Inner top glow */}
+          <div className="absolute top-0 left-2 right-2 h-4 bg-gradient-to-b from-white/80 to-transparent rounded-t-xl" />
+          {/* Bottom reflection */}
+          <div className="absolute bottom-0 left-3 right-3 h-[1px] bg-gradient-to-r from-transparent via-white/60 to-transparent" />
           <span className="relative flex items-center justify-center gap-2">
             {children}
           </span>

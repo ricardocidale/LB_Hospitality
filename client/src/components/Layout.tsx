@@ -17,6 +17,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { href: "/company", label: "Management Co.", icon: Briefcase },
     { type: "divider" as const },
     { href: "/settings", label: "Global Assumptions", icon: Settings2 },
+    { type: "divider" as const },
     { href: "/methodology", label: "Methodology", icon: FileText },
     { href: "/research", label: "Research", icon: BookOpen },
     ...(isAdmin ? [{ href: "/admin/users", label: "User Management", icon: Users }] : []),

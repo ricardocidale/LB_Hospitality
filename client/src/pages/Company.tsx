@@ -545,7 +545,7 @@ export default function Company() {
                 <button
                   onClick={() => setActiveTab("income")}
                   className={`relative overflow-hidden px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 ${
-                    activeTab === "income" ? "text-[#FFF9F5]" : "text-[#FFF9F5]/60 hover:text-[#FFF9F5] hover:bg-white/10"
+                    activeTab === "income" ? "text-white" : "text-[#FFF9F5]/60 hover:text-white hover:bg-white/10"
                   }`}
                 >
                   {activeTab === "income" && (
@@ -560,7 +560,7 @@ export default function Company() {
                 <button
                   onClick={() => setActiveTab("cashflow")}
                   className={`relative overflow-hidden px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 ${
-                    activeTab === "cashflow" ? "text-[#FFF9F5]" : "text-[#FFF9F5]/60 hover:text-[#FFF9F5] hover:bg-white/10"
+                    activeTab === "cashflow" ? "text-white" : "text-[#FFF9F5]/60 hover:text-white hover:bg-white/10"
                   }`}
                 >
                   {activeTab === "cashflow" && (
@@ -575,7 +575,7 @@ export default function Company() {
                 <button
                   onClick={() => setActiveTab("balance")}
                   className={`relative overflow-hidden px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 ${
-                    activeTab === "balance" ? "text-[#FFF9F5]" : "text-[#FFF9F5]/60 hover:text-[#FFF9F5] hover:bg-white/10"
+                    activeTab === "balance" ? "text-white" : "text-[#FFF9F5]/60 hover:text-white hover:bg-white/10"
                   }`}
                 >
                   {activeTab === "balance" && (

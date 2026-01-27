@@ -78,8 +78,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   <div className={cn(
                     "group relative flex items-center gap-3 px-4 py-3 text-sm font-medium transition-all duration-300 ease-out rounded-2xl cursor-pointer overflow-hidden",
                     isActive 
-                      ? "text-[#FFF9F5]" 
-                      : "text-[#FFF9F5]/60 hover:text-[#FFF9F5]"
+                      ? "text-white" 
+                      : "text-[#FFF9F5]/60 hover:text-white"
                   )}>
                     {/* Frosted Glass Background for Active */}
                     {isActive && (
@@ -102,7 +102,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                         ? "bg-gradient-to-br from-[#9FBCA4] to-[#257D41] shadow-[0_0_16px_rgba(159,188,164,0.5)]" 
                         : "bg-white/5 group-hover:bg-white/10"
                     )}>
-                      <item.icon className={cn("w-4 h-4 transition-all duration-300", isActive ? "text-[#FFF9F5]" : "text-[#FFF9F5]/60 group-hover:text-[#FFF9F5]")} />
+                      <item.icon className={cn("w-4 h-4 transition-all duration-300", isActive ? "text-white" : "text-[#FFF9F5]/60 group-hover:text-white")} />
                     </div>
                     <span className="relative">{item.label}</span>
                   </div>
@@ -115,7 +115,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
             
             <button 
-              className="group relative w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-[#FFF9F5]/60 hover:text-[#FFF9F5] rounded-2xl transition-all duration-300 overflow-hidden"
+              className="group relative w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-[#FFF9F5]/60 hover:text-white rounded-2xl transition-all duration-300 overflow-hidden"
               onClick={() => logout()}
               data-testid="button-logout"
             >

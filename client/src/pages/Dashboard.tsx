@@ -1594,8 +1594,8 @@ export default function Dashboard() {
                     onClick={() => setActiveTab(tab.value)}
                     className={`relative px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 overflow-hidden ${
                       activeTab === tab.value
-                        ? 'text-[#FFF9F5]'
-                        : 'text-[#FFF9F5]/60 hover:text-[#FFF9F5] hover:bg-white/10'
+                        ? 'text-white'
+                        : 'text-[#FFF9F5]/60 hover:text-white hover:bg-white/10'
                     }`}
                   >
                     {activeTab === tab.value && (

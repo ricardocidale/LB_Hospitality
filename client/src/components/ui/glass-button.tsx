@@ -37,7 +37,7 @@ const GlassButton = React.forwardRef<HTMLButtonElement, GlassButtonProps>(
           <div className="absolute inset-0 rounded-xl border border-white/25" />
           {/* Hover glow effect */}
           <div className="absolute inset-0 rounded-xl shadow-[0_0_20px_rgba(159,188,164,0.3)]" />
-          <span className="relative flex items-center justify-center gap-2 text-white">
+          <span className="relative flex items-center justify-center gap-2 text-white [&>*]:text-white" style={{ color: '#FFFFFF' }}>
             {children}
           </span>
         </button>

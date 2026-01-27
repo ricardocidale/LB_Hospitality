@@ -87,11 +87,11 @@ All primary action buttons (Save, Submit, Confirm) must use:
 ```
 
 **Primary variant styling (fluid glass effect)**:
-- Gradient background: from-[#9FBCA4] via-[#9FBCA4]/90 to-[#7da584]
-- Top shine highlight: white/60 gradient line
-- Border: border-[#9FBCA4]/60, hover: border-[#257D41]/60
-- Shadow: 0_4px_20px sage glow, hover: 0_0_30px enhanced glow
-- Text: dark green #1a2f23 for contrast
+- Dark glass background: bg-white/12 backdrop-blur-xl
+- Top shine highlight: white/40 gradient line
+- Border: border-white/25
+- Shadow: 0_0_20px sage glow (rgba(159,188,164,0.3))
+- Text: white font-medium
 - Always include icon (Save, Loader2 for pending state)
 - Rounded corners: rounded-xl
 

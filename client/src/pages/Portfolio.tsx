@@ -218,8 +218,8 @@ export default function Portfolio() {
           
           <div className="relative flex justify-between items-center">
             <div>
-              <h2 className="text-3xl font-serif font-bold text-white">Property Portfolio</h2>
-              <p className="text-white/60 mt-1">Managed assets & developments</p>
+              <h2 className="text-3xl font-serif font-bold text-[#FFF9F5]">Property Portfolio</h2>
+              <p className="text-[#FFF9F5]/60 mt-1">Managed assets & developments</p>
             </div>
             
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
@@ -582,8 +582,8 @@ export default function Portfolio() {
                 </div>
                 
                 <div className="p-5">
-                  <h3 className="font-serif text-xl font-bold text-white">{property.name}</h3>
-                  <div className="flex items-center text-white/60 text-sm mt-1">
+                  <h3 className="font-serif text-xl font-bold text-[#FFF9F5]">{property.name}</h3>
+                  <div className="flex items-center text-[#FFF9F5]/60 text-sm mt-1">
                     <MapPin className="w-3 h-3 mr-1" />
                     {property.location}
                   </div>
@@ -592,11 +592,11 @@ export default function Portfolio() {
                 <div className="px-5 pb-4 flex-1">
                   <div className="grid grid-cols-2 gap-3 text-sm">
                     <div className="p-3 bg-white/10 backdrop-blur-xl rounded-xl border border-white/10">
-                      <p className="text-xs text-white/50 mb-1">Acquisition</p>
-                      <p className="font-semibold text-white">{formatMoney(property.purchasePrice)}</p>
+                      <p className="text-xs text-[#FFF9F5]/50 mb-1">Acquisition</p>
+                      <p className="font-semibold text-[#FFF9F5]">{formatMoney(property.purchasePrice)}</p>
                     </div>
                     <div className="p-3 bg-white/10 backdrop-blur-xl rounded-xl border border-white/10">
-                      <p className="text-xs text-white/50 mb-1">Capacity</p>
+                      <p className="text-xs text-[#FFF9F5]/50 mb-1">Capacity</p>
                       <p className="font-semibold text-white flex items-center">
                         <Bed className="w-3 h-3 mr-1" />
                         {property.roomCount} Rooms
@@ -608,7 +608,7 @@ export default function Portfolio() {
                 <div className="px-5 pb-5 pt-2 border-t border-white/10 flex justify-between items-center">
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <button className="relative overflow-hidden p-2 rounded-xl text-white/50 hover:text-red-400 transition-all duration-300 group/del">
+                      <button className="relative overflow-hidden p-2 rounded-xl text-[#FFF9F5]/50 hover:text-red-400 transition-all duration-300 group/del">
                         <div className="absolute inset-0 bg-white/0 group-hover/del:bg-white/5 rounded-xl transition-all duration-300" />
                         <Trash2 className="w-4 h-4 relative" />
                       </button>

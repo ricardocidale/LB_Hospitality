@@ -1561,12 +1561,12 @@ export default function Dashboard() {
           
           <div className="relative px-8 py-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <h2 className="text-3xl font-serif font-bold text-white">Investment Overview</h2>
-              <p className="text-white/50 mt-1">L+B Hospitality Group - Boutique Hotel Portfolio</p>
+              <h2 className="text-3xl font-serif font-bold text-[#FFF9F5]">Investment Overview</h2>
+              <p className="text-[#FFF9F5]/50 mt-1">L+B Hospitality Group - Boutique Hotel Portfolio</p>
             </div>
             <div className="bg-white/10 backdrop-blur-xl rounded-xl px-5 py-3 border border-white/20 text-center">
-              <p className="text-xs text-white/50 uppercase tracking-widest">Investment Period</p>
-              <p className="text-lg font-medium text-white">{getFiscalYear(0)} - {getFiscalYear(investmentHorizon - 1)}</p>
+              <p className="text-xs text-[#FFF9F5]/50 uppercase tracking-widest">Investment Period</p>
+              <p className="text-lg font-medium text-[#FFF9F5]">{getFiscalYear(0)} - {getFiscalYear(investmentHorizon - 1)}</p>
             </div>
           </div>
         </div>
@@ -1595,7 +1595,7 @@ export default function Dashboard() {
                     className={`relative px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 overflow-hidden ${
                       activeTab === tab.value
                         ? 'text-white'
-                        : 'text-white/60 hover:text-white hover:bg-white/5'
+                        : 'text-[#FFF9F5]/60 hover:text-white hover:bg-white/5'
                     }`}
                   >
                     {activeTab === tab.value && (
@@ -1650,7 +1650,7 @@ export default function Dashboard() {
               
               <div className="relative">
                 <div className="text-center mb-8">
-                  <p className="text-sm font-medium tracking-widest text-white/60 uppercase mb-2">Investment Performance</p>
+                  <p className="text-sm font-medium tracking-widest text-[#FFF9F5]/60 uppercase mb-2">Investment Performance</p>
                   <p className="text-white/40 text-sm">{investmentHorizon}-Year Hold | {totalProperties} Properties | {totalRooms} Rooms</p>
                 </div>
                 
@@ -1676,7 +1676,7 @@ export default function Dashboard() {
                       </svg>
                       <div className="absolute inset-0 flex flex-col items-center justify-center">
                         <span className="text-5xl font-bold text-white tracking-tight">{(portfolioIRR * 100).toFixed(1)}%</span>
-                        <span className="text-sm text-white/60 font-medium mt-2">Portfolio IRR</span>
+                        <span className="text-sm text-[#FFF9F5]/60 font-medium mt-2">Portfolio IRR</span>
                       </div>
                     </div>
                   </div>
@@ -1699,12 +1699,12 @@ export default function Dashboard() {
                           />
                         </svg>
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <span className="text-sm font-bold text-white">{equityMultiple.toFixed(1)}x</span>
+                          <span className="text-sm font-bold text-[#FFF9F5]">{equityMultiple.toFixed(1)}x</span>
                         </div>
                       </div>
                       <div>
-                        <p className="text-2xl font-bold text-white">{equityMultiple.toFixed(2)}x</p>
-                        <p className="text-sm text-white/50">Equity Multiple</p>
+                        <p className="text-2xl font-bold text-[#FFF9F5]">{equityMultiple.toFixed(2)}x</p>
+                        <p className="text-sm text-[#FFF9F5]/50">Equity Multiple</p>
                       </div>
                     </div>
                   </div>
@@ -1724,12 +1724,12 @@ export default function Dashboard() {
                           />
                         </svg>
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <span className="text-sm font-bold text-white">{cashOnCash.toFixed(0)}%</span>
+                          <span className="text-sm font-bold text-[#FFF9F5]">{cashOnCash.toFixed(0)}%</span>
                         </div>
                       </div>
                       <div>
-                        <p className="text-2xl font-bold text-white">{cashOnCash.toFixed(1)}%</p>
-                        <p className="text-sm text-white/50">Cash-on-Cash</p>
+                        <p className="text-2xl font-bold text-[#FFF9F5]">{cashOnCash.toFixed(1)}%</p>
+                        <p className="text-sm text-[#FFF9F5]/50">Cash-on-Cash</p>
                       </div>
                     </div>
                   </div>
@@ -1737,8 +1737,8 @@ export default function Dashboard() {
                   {/* Total Equity */}
                   <div className="bg-white/10 backdrop-blur-2xl rounded-2xl p-5 border border-white/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_10px_30px_rgba(0,0,0,0.15)] hover:bg-white/15 transition-all duration-300">
                     <div className="mb-2">
-                      <p className="text-2xl font-bold text-white">{formatMoney(totalInitialEquity)}</p>
-                      <p className="text-sm text-white/50">Equity Invested</p>
+                      <p className="text-2xl font-bold text-[#FFF9F5]">{formatMoney(totalInitialEquity)}</p>
+                      <p className="text-sm text-[#FFF9F5]/50">Equity Invested</p>
                     </div>
                     <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
                       <div className="h-full bg-gradient-to-r from-[#9FBCA4] to-[#257D41] rounded-full" style={{ width: '100%' }} />
@@ -1749,7 +1749,7 @@ export default function Dashboard() {
                   <div className="bg-white/10 backdrop-blur-2xl rounded-2xl p-5 border border-white/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_10px_30px_rgba(0,0,0,0.15)] hover:bg-white/15 transition-all duration-300">
                     <div className="mb-2">
                       <p className="text-2xl font-bold text-[#6EE7B7]">{formatMoney(totalExitValue)}</p>
-                      <p className="text-sm text-white/50">Projected Exit</p>
+                      <p className="text-sm text-[#FFF9F5]/50">Projected Exit</p>
                     </div>
                     <div className="flex items-center gap-1.5">
                       <svg className="w-4 h-4 text-[#6EE7B7]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1776,23 +1776,23 @@ export default function Dashboard() {
                   <h3 className="text-lg font-semibold text-white mb-4">Portfolio Composition</h3>
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-white/60">Properties</span>
-                      <span className="font-semibold text-white">{totalProperties}</span>
+                      <span className="text-sm text-[#FFF9F5]/60">Properties</span>
+                      <span className="font-semibold text-[#FFF9F5]">{totalProperties}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-white/60">Total Rooms</span>
-                      <span className="font-semibold text-white">{totalRooms}</span>
+                      <span className="text-sm text-[#FFF9F5]/60">Total Rooms</span>
+                      <span className="font-semibold text-[#FFF9F5]">{totalRooms}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-white/60">Avg Rooms/Property</span>
-                      <span className="font-semibold text-white">{avgRoomsPerProperty.toFixed(0)}</span>
+                      <span className="text-sm text-[#FFF9F5]/60">Avg Rooms/Property</span>
+                      <span className="font-semibold text-[#FFF9F5]">{avgRoomsPerProperty.toFixed(0)}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-white/60">Markets</span>
-                      <span className="font-semibold text-white">{Object.keys(marketCounts).length}</span>
+                      <span className="text-sm text-[#FFF9F5]/60">Markets</span>
+                      <span className="font-semibold text-[#FFF9F5]">{Object.keys(marketCounts).length}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-white/60">Avg Daily Rate</span>
+                      <span className="text-sm text-[#FFF9F5]/60">Avg Daily Rate</span>
                       <span className="font-semibold text-[#60A5FA]">{formatMoney(avgADR)}</span>
                     </div>
                   </div>
@@ -1803,23 +1803,23 @@ export default function Dashboard() {
                   <h3 className="text-lg font-semibold text-white mb-4">Capital Structure</h3>
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-white/60">Total Investment</span>
-                      <span className="font-semibold text-white">{formatMoney(totalInvestment)}</span>
+                      <span className="text-sm text-[#FFF9F5]/60">Total Investment</span>
+                      <span className="font-semibold text-[#FFF9F5]">{formatMoney(totalInvestment)}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-white/60">Avg Purchase Price</span>
-                      <span className="font-semibold text-white">{formatMoney(avgPurchasePrice)}</span>
+                      <span className="text-sm text-[#FFF9F5]/60">Avg Purchase Price</span>
+                      <span className="font-semibold text-[#FFF9F5]">{formatMoney(avgPurchasePrice)}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-white/60">Avg Exit Cap Rate</span>
+                      <span className="text-sm text-[#FFF9F5]/60">Avg Exit Cap Rate</span>
                       <span className="font-semibold text-[#FBBF24]">{(avgExitCapRate * 100).toFixed(1)}%</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-white/60">Hold Period</span>
-                      <span className="font-semibold text-white">{investmentHorizon} Years</span>
+                      <span className="text-sm text-[#FFF9F5]/60">Hold Period</span>
+                      <span className="font-semibold text-[#FFF9F5]">{investmentHorizon} Years</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-white/60">Projected Exit Value</span>
+                      <span className="text-sm text-[#FFF9F5]/60">Projected Exit Value</span>
                       <span className="font-semibold text-[#6EE7B7]">{formatMoney(projectedExitValue)}</span>
                     </div>
                   </div>
@@ -1829,16 +1829,16 @@ export default function Dashboard() {
               {/* 10-Year Totals Row */}
               <div className="relative mt-6 grid gap-4 md:grid-cols-3">
                 <div className="bg-white/5 backdrop-blur-xl rounded-xl p-4 border border-white/10 text-center">
-                  <p className="text-sm text-white/50 mb-1">10-Year Revenue</p>
-                  <p className="text-xl font-bold text-white">{formatMoney(total10YearRevenue)}</p>
+                  <p className="text-sm text-[#FFF9F5]/50 mb-1">10-Year Revenue</p>
+                  <p className="text-xl font-bold text-[#FFF9F5]">{formatMoney(total10YearRevenue)}</p>
                 </div>
                 <div className="bg-white/5 backdrop-blur-xl rounded-xl p-4 border border-white/10 text-center">
-                  <p className="text-sm text-white/50 mb-1">10-Year NOI</p>
-                  <p className="text-xl font-bold text-white">{formatMoney(total10YearNOI)}</p>
+                  <p className="text-sm text-[#FFF9F5]/50 mb-1">10-Year NOI</p>
+                  <p className="text-xl font-bold text-[#FFF9F5]">{formatMoney(total10YearNOI)}</p>
                 </div>
                 <div className="bg-white/5 backdrop-blur-xl rounded-xl p-4 border border-white/10 text-center">
-                  <p className="text-sm text-white/50 mb-1">10-Year Cash Flow</p>
-                  <p className="text-xl font-bold text-white">{formatMoney(total10YearCashFlow)}</p>
+                  <p className="text-sm text-[#FFF9F5]/50 mb-1">10-Year Cash Flow</p>
+                  <p className="text-xl font-bold text-[#FFF9F5]">{formatMoney(total10YearCashFlow)}</p>
                 </div>
               </div>
             </div>
@@ -1856,8 +1856,8 @@ export default function Dashboard() {
               
               <div className="relative">
                 <div className="mb-4">
-                  <h3 className="text-lg font-semibold text-white">Portfolio Income Trends</h3>
-                  <p className="text-sm text-white/50">Revenue, Operating Expenses, and NOI over 10 years</p>
+                  <h3 className="text-lg font-semibold text-[#FFF9F5]">Portfolio Income Trends</h3>
+                  <p className="text-sm text-[#FFF9F5]/50">Revenue, Operating Expenses, and NOI over 10 years</p>
                 </div>
                 
                 <div className="bg-white/8 backdrop-blur-2xl rounded-2xl p-6 border border-white/15 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
@@ -2258,8 +2258,8 @@ export default function Dashboard() {
               
               <div className="relative">
                 <div className="mb-4">
-                  <h3 className="text-lg font-semibold text-white">Revenue & Operating Performance</h3>
-                  <p className="text-sm text-white/50">Revenue, Operating Costs, and NOI over 10 years</p>
+                  <h3 className="text-lg font-semibold text-[#FFF9F5]">Revenue & Operating Performance</h3>
+                  <p className="text-sm text-[#FFF9F5]/50">Revenue, Operating Costs, and NOI over 10 years</p>
                 </div>
                 
                 <div className="bg-white/10 backdrop-blur-2xl rounded-2xl p-6 border border-white/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
@@ -2315,8 +2315,8 @@ export default function Dashboard() {
               
               <div className="relative">
                 <div className="mb-4">
-                  <h3 className="text-lg font-semibold text-white">Cash Flow After Financing</h3>
-                  <p className="text-sm text-white/50">NOI, Debt Service, and Net Cash Flow over 10 years</p>
+                  <h3 className="text-lg font-semibold text-[#FFF9F5]">Cash Flow After Financing</h3>
+                  <p className="text-sm text-[#FFF9F5]/50">NOI, Debt Service, and Net Cash Flow over 10 years</p>
                 </div>
                 
                 <div className="bg-white/8 backdrop-blur-2xl rounded-2xl p-6 border border-white/15 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
@@ -3238,7 +3238,7 @@ function InvestmentAnalysis({
               Total Equity
               <HelpTooltip text="Total initial capital required from investors across all properties, including purchase price, improvements, pre-opening costs, and operating reserves (net of any financing)." light />
             </p>
-            <div className="text-2xl font-bold text-white">{formatMoney(totalInitialEquityIA)}</div>
+            <div className="text-2xl font-bold text-[#FFF9F5]">{formatMoney(totalInitialEquityIA)}</div>
           </div>
           
           <div className="bg-white/10 backdrop-blur-2xl rounded-2xl p-5 border border-white/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">

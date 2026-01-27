@@ -55,10 +55,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <img src={logo} alt="L+B Hospitality" className="relative w-10 h-10 object-contain" />
               </div>
               <div>
-                <h1 className="text-xl font-extrabold text-white" style={{ fontFamily: "'Nunito', sans-serif" }}>
+                <h1 className="text-xl font-extrabold" style={{ fontFamily: "'Nunito', sans-serif", color: '#FFF9F5' }}>
                   L+B <span style={{ color: '#9FBCA4' }}>Hospitality</span>
                 </h1>
-                <p className="text-xs text-white/50 uppercase tracking-widest">Analytics</p>
+                <p className="text-xs uppercase tracking-widest" style={{ color: 'rgba(255, 249, 245, 0.5)' }}>Analytics</p>
               </div>
             </div>
           </div>
@@ -78,8 +78,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   <div className={cn(
                     "group relative flex items-center gap-3 px-4 py-3 text-sm font-medium transition-all duration-300 ease-out rounded-2xl cursor-pointer overflow-hidden",
                     isActive 
-                      ? "text-white" 
-                      : "text-white/60 hover:text-white"
+                      ? "text-[#FFF9F5]" 
+                      : "text-[#FFF9F5]/60 hover:text-[#FFF9F5]"
                   )}>
                     {/* Frosted Glass Background for Active */}
                     {isActive && (
@@ -102,7 +102,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                         ? "bg-gradient-to-br from-[#9FBCA4] to-[#257D41] shadow-[0_0_16px_rgba(159,188,164,0.5)]" 
                         : "bg-white/5 group-hover:bg-white/10"
                     )}>
-                      <item.icon className={cn("w-4 h-4 transition-all duration-300", isActive ? "text-white" : "text-white/60 group-hover:text-white")} />
+                      <item.icon className={cn("w-4 h-4 transition-all duration-300", isActive ? "text-[#FFF9F5]" : "text-[#FFF9F5]/60 group-hover:text-[#FFF9F5]")} />
                     </div>
                     <span className="relative">{item.label}</span>
                   </div>
@@ -115,7 +115,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
             
             <button 
-              className="group relative w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-white/60 hover:text-white rounded-2xl transition-all duration-300 overflow-hidden"
+              className="group relative w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-[#FFF9F5]/60 hover:text-[#FFF9F5] rounded-2xl transition-all duration-300 overflow-hidden"
               onClick={() => logout()}
               data-testid="button-logout"
             >
@@ -136,12 +136,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <div className="absolute inset-0 rounded-2xl border border-white/15" />
               {/* Content */}
               <div className="relative flex items-center gap-3 px-3 py-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#9FBCA4] to-[#257D41] flex items-center justify-center text-white font-bold text-sm shadow-[0_0_16px_rgba(159,188,164,0.4)]">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#9FBCA4] to-[#257D41] flex items-center justify-center text-[#FFF9F5] font-bold text-sm shadow-[0_0_16px_rgba(159,188,164,0.4)]">
                   {user?.name ? user.name.charAt(0).toUpperCase() : user?.email?.charAt(0).toUpperCase() || "U"}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-white truncate">{user?.name || user?.email || "User"}</p>
-                  <p className="text-xs text-white/50 capitalize">{user?.role || "User"}</p>
+                  <p className="text-sm font-medium text-[#FFF9F5] truncate">{user?.name || user?.email || "User"}</p>
+                  <p className="text-xs text-[#FFF9F5]/50 capitalize">{user?.role || "User"}</p>
                 </div>
               </div>
             </div>

@@ -91,9 +91,12 @@ All primary action buttons (Save, Submit, Confirm) must use:
 - Top shine highlight: white/40 gradient line
 - Border: border-white/25
 - Shadow: 0_0_20px sage glow (rgba(159,188,164,0.3))
-- Text: white font-medium
+- Text: white font-medium (text-sm, 14px)
 - Always include icon (Save, Loader2 for pending state)
 - Rounded corners: rounded-xl
+- Padding: px-5 py-2.5
+
+**Button placement**: Save Changes buttons must be placed inside the PageHeader actions slot on all pages where they are present.
 
 ### Partner Compensation Model
 - Starting: $15,000/month per partner ($180,000/year)

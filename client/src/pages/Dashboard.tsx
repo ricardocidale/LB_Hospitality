@@ -1550,27 +1550,54 @@ export default function Dashboard() {
 
   return (
     <Layout>
-      <div className="space-y-8">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div>
-            <h2 className="text-3xl font-serif font-bold text-foreground">Investment Overview</h2>
-            <p className="text-muted-foreground mt-1">L+B Hospitality Group - Boutique Hotel Portfolio</p>
+      <div className="space-y-6">
+        {/* Page Header - Liquid Glass Style */}
+        <div className="relative overflow-hidden rounded-2xl">
+          <div className="absolute inset-0 bg-gradient-to-r from-[#1e2a3a] via-[#2d3a4a] to-[#3a2a4a]" />
+          <div className="absolute inset-0">
+            <div className="absolute top-0 left-1/4 w-48 h-48 rounded-full bg-[#9FBCA4]/20 blur-3xl" />
+            <div className="absolute bottom-0 right-1/4 w-40 h-40 rounded-full bg-[#6366f1]/20 blur-3xl" />
           </div>
-          <div className="text-right">
-            <p className="text-xs text-muted-foreground uppercase tracking-widest">Investment Period</p>
-            <p className="text-lg font-medium">{getFiscalYear(0)} - {getFiscalYear(investmentHorizon)}</p>
+          
+          <div className="relative px-8 py-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h2 className="text-3xl font-serif font-bold text-white">Investment Overview</h2>
+              <p className="text-white/50 mt-1">L+B Hospitality Group - Boutique Hotel Portfolio</p>
+            </div>
+            <div className="bg-white/10 backdrop-blur-xl rounded-xl px-5 py-3 border border-white/20">
+              <p className="text-xs text-white/50 uppercase tracking-widest">Investment Period</p>
+              <p className="text-lg font-medium text-white">{getFiscalYear(0)} - {getFiscalYear(investmentHorizon)}</p>
+            </div>
           </div>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <div className="flex items-center justify-between">
-            <TabsList>
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="income">Income Statement</TabsTrigger>
-              <TabsTrigger value="cashflow">Cash Flow Statement</TabsTrigger>
-              <TabsTrigger value="balance">Balance Sheet</TabsTrigger>
-              <TabsTrigger value="investment">Investment Analysis</TabsTrigger>
-            </TabsList>
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            {/* Liquid Glass Tabs */}
+            <div className="relative overflow-hidden rounded-2xl">
+              <div className="absolute inset-0 bg-gradient-to-r from-[#2d4a5e]/80 to-[#4a3d5e]/80 backdrop-blur-xl" />
+              <div className="relative flex flex-wrap gap-1 p-1.5">
+                {[
+                  { value: 'overview', label: 'Overview' },
+                  { value: 'income', label: 'Income Statement' },
+                  { value: 'cashflow', label: 'Cash Flow' },
+                  { value: 'balance', label: 'Balance Sheet' },
+                  { value: 'investment', label: 'Investment Analysis' }
+                ].map((tab) => (
+                  <button
+                    key={tab.value}
+                    onClick={() => setActiveTab(tab.value)}
+                    className={`px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 ${
+                      activeTab === tab.value
+                        ? 'bg-white/20 text-white border border-white/30 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)]'
+                        : 'text-white/60 hover:text-white hover:bg-white/5'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+            </div>
             
             {exportFunctions && (
               <div className="flex gap-2">
@@ -1578,7 +1605,7 @@ export default function Dashboard() {
                   variant="outline"
                   size="sm"
                   onClick={exportFunctions.pdf}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 bg-white/5 border-white/20 text-foreground hover:bg-white/10"
                   data-testid="button-export-pdf"
                 >
                   <FileDown className="w-4 h-4" />
@@ -1588,7 +1615,7 @@ export default function Dashboard() {
                   variant="outline"
                   size="sm"
                   onClick={exportFunctions.csv}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 bg-white/5 border-white/20 text-foreground hover:bg-white/10"
                   data-testid="button-export-csv"
                 >
                   <FileSpreadsheet className="w-4 h-4" />
@@ -1723,90 +1750,86 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Portfolio & Capital Summary - Compact */}
-            <div className="grid gap-6 md:grid-cols-2">
-              {/* Portfolio Composition */}
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg">Portfolio Composition</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
+            {/* Portfolio & Capital Summary - Liquid Glass Style */}
+            <div className="relative overflow-hidden rounded-3xl p-6">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#2a3a4a] via-[#3a4a5a] to-[#4a3a5a]" />
+              <div className="absolute inset-0">
+                <div className="absolute top-0 right-1/3 w-56 h-56 rounded-full bg-[#60A5FA]/15 blur-3xl" />
+                <div className="absolute bottom-0 left-1/3 w-48 h-48 rounded-full bg-[#A78BFA]/15 blur-3xl" />
+              </div>
+              
+              <div className="relative grid gap-6 md:grid-cols-2">
+                {/* Portfolio Composition */}
+                <div className="bg-white/10 backdrop-blur-2xl rounded-2xl p-6 border border-white/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
+                  <h3 className="text-lg font-semibold text-white mb-4">Portfolio Composition</h3>
+                  <div className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">Properties</span>
-                      <span className="font-semibold">{totalProperties}</span>
+                      <span className="text-sm text-white/60">Properties</span>
+                      <span className="font-semibold text-white">{totalProperties}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">Total Rooms</span>
-                      <span className="font-semibold">{totalRooms}</span>
+                      <span className="text-sm text-white/60">Total Rooms</span>
+                      <span className="font-semibold text-white">{totalRooms}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">Avg Rooms/Property</span>
-                      <span className="font-semibold">{avgRoomsPerProperty.toFixed(0)}</span>
+                      <span className="text-sm text-white/60">Avg Rooms/Property</span>
+                      <span className="font-semibold text-white">{avgRoomsPerProperty.toFixed(0)}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">Markets</span>
-                      <span className="font-semibold">{Object.keys(marketCounts).length}</span>
+                      <span className="text-sm text-white/60">Markets</span>
+                      <span className="font-semibold text-white">{Object.keys(marketCounts).length}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">Avg Daily Rate</span>
-                      <span className="font-semibold">{formatMoney(avgADR)}</span>
+                      <span className="text-sm text-white/60">Avg Daily Rate</span>
+                      <span className="font-semibold text-[#60A5FA]">{formatMoney(avgADR)}</span>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Capital Structure */}
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg">Capital Structure</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">Total Investment</span>
-                      <span className="font-semibold">{formatMoney(totalInvestment)}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">Avg Purchase Price</span>
-                      <span className="font-semibold">{formatMoney(avgPurchasePrice)}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">Avg Exit Cap Rate</span>
-                      <span className="font-semibold">{(avgExitCapRate * 100).toFixed(1)}%</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">Hold Period</span>
-                      <span className="font-semibold">{investmentHorizon} Years</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">Projected Exit Value</span>
-                      <span className="font-semibold text-primary">{formatMoney(projectedExitValue)}</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* 10-Year Totals - Simplified Row */}
-            <Card className="bg-muted/30">
-              <CardContent className="py-4">
-                <div className="grid gap-4 md:grid-cols-3 text-center">
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">10-Year Revenue</p>
-                    <p className="text-xl font-bold">{formatMoney(total10YearRevenue)}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">10-Year NOI</p>
-                    <p className="text-xl font-bold">{formatMoney(total10YearNOI)}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">10-Year Cash Flow</p>
-                    <p className="text-xl font-bold">{formatMoney(total10YearCashFlow)}</p>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+
+                {/* Capital Structure */}
+                <div className="bg-white/10 backdrop-blur-2xl rounded-2xl p-6 border border-white/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
+                  <h3 className="text-lg font-semibold text-white mb-4">Capital Structure</h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-white/60">Total Investment</span>
+                      <span className="font-semibold text-white">{formatMoney(totalInvestment)}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-white/60">Avg Purchase Price</span>
+                      <span className="font-semibold text-white">{formatMoney(avgPurchasePrice)}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-white/60">Avg Exit Cap Rate</span>
+                      <span className="font-semibold text-[#FBBF24]">{(avgExitCapRate * 100).toFixed(1)}%</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-white/60">Hold Period</span>
+                      <span className="font-semibold text-white">{investmentHorizon} Years</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-white/60">Projected Exit Value</span>
+                      <span className="font-semibold text-[#6EE7B7]">{formatMoney(projectedExitValue)}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* 10-Year Totals Row */}
+              <div className="relative mt-6 grid gap-4 md:grid-cols-3">
+                <div className="bg-white/5 backdrop-blur-xl rounded-xl p-4 border border-white/10 text-center">
+                  <p className="text-sm text-white/50 mb-1">10-Year Revenue</p>
+                  <p className="text-xl font-bold text-white">{formatMoney(total10YearRevenue)}</p>
+                </div>
+                <div className="bg-white/5 backdrop-blur-xl rounded-xl p-4 border border-white/10 text-center">
+                  <p className="text-sm text-white/50 mb-1">10-Year NOI</p>
+                  <p className="text-xl font-bold text-white">{formatMoney(total10YearNOI)}</p>
+                </div>
+                <div className="bg-white/5 backdrop-blur-xl rounded-xl p-4 border border-white/10 text-center">
+                  <p className="text-sm text-white/50 mb-1">10-Year Cash Flow</p>
+                  <p className="text-xl font-bold text-white">{formatMoney(total10YearCashFlow)}</p>
+                </div>
+              </div>
+            </div>
           </TabsContent>
 
           <TabsContent value="income" className="mt-6 space-y-6">

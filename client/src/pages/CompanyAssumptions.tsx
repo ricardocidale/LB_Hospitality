@@ -191,7 +191,7 @@ export default function CompanyAssumptions() {
                 type="date"
                 value={formData.companyOpsStartDate ?? global.companyOpsStartDate ?? "2026-06-01"}
                 onChange={(e) => handleUpdate("companyOpsStartDate", e.target.value)}
-                className="max-w-40 bg-white/10 border-white/20 text-[#FFF9F5]"
+                className="max-w-40 bg-white/10 border-white/20 text-[#FFF9F5] [color-scheme:dark]"
                 data-testid="input-company-ops-start-date"
               />
             </div>
@@ -236,7 +236,7 @@ export default function CompanyAssumptions() {
                     type="date"
                     value={formData.safeTranche1Date ?? global.safeTranche1Date}
                     onChange={(e) => handleUpdate("safeTranche1Date", e.target.value)}
-                    className="max-w-40 bg-white/10 border-white/20 text-[#FFF9F5]"
+                    className="max-w-40 bg-white/10 border-white/20 text-[#FFF9F5] [color-scheme:dark]"
                   />
                 </div>
               </div>
@@ -268,7 +268,7 @@ export default function CompanyAssumptions() {
                     type="date"
                     value={formData.safeTranche2Date ?? global.safeTranche2Date}
                     onChange={(e) => handleUpdate("safeTranche2Date", e.target.value)}
-                    className="max-w-40 bg-white/10 border-white/20 text-[#FFF9F5]"
+                    className="max-w-40 bg-white/10 border-white/20 text-[#FFF9F5] [color-scheme:dark]"
                   />
                 </div>
               </div>

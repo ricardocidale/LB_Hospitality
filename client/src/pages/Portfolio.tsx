@@ -398,6 +398,7 @@ export default function Portfolio() {
                         data-testid="input-acquisition-date"
                         value={formData.acquisitionDate}
                         onChange={(e) => setFormData(prev => ({ ...prev, acquisitionDate: e.target.value }))}
+                        className="[color-scheme:dark]"
                       />
                     </div>
                     <div className="space-y-2">
@@ -408,6 +409,7 @@ export default function Portfolio() {
                         data-testid="input-operations-date"
                         value={formData.operationsStartDate}
                         onChange={(e) => setFormData(prev => ({ ...prev, operationsStartDate: e.target.value }))}
+                        className="[color-scheme:dark]"
                       />
                     </div>
                   </div>

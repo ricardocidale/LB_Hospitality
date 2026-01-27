@@ -1576,7 +1576,7 @@ export default function Dashboard() {
             {/* Liquid Glass Tabs */}
             <div className="relative overflow-hidden rounded-2xl">
               {/* Glass Background */}
-              <div className="absolute inset-0 bg-gradient-to-r from-[#2d4a5e]/70 to-[#4a3d5e]/70 backdrop-blur-xl" />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#2d4a5e]/70 to-[#3a5a5e]/70 backdrop-blur-xl" />
               {/* Top Edge Sheen */}
               <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
               {/* Border */}
@@ -1641,10 +1641,10 @@ export default function Dashboard() {
             {/* Investment Returns - Hero Section - Liquid Glass Design */}
             <div className="relative overflow-hidden rounded-3xl p-8">
               {/* Gradient Background */}
-              <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e] via-[#3d5a6a] to-[#4a3d5e]" />
+              <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e] via-[#3d5a6a] to-[#3a5a5e]" />
               <div className="absolute inset-0">
                 <div className="absolute top-0 right-1/4 w-96 h-96 rounded-full bg-[#9FBCA4]/30 blur-3xl" />
-                <div className="absolute bottom-0 left-1/4 w-80 h-80 rounded-full bg-[#7c6f9f]/40 blur-3xl" />
+                <div className="absolute bottom-0 left-1/4 w-80 h-80 rounded-full bg-[#9FBCA4]/30 blur-3xl" />
                 <div className="absolute top-1/3 right-0 w-64 h-64 rounded-full bg-[#5a8f9f]/30 blur-2xl" />
               </div>
               
@@ -1767,7 +1767,7 @@ export default function Dashboard() {
               <div className="absolute inset-0 bg-gradient-to-br from-[#2a3a4a] via-[#3a4a5a] to-[#4a3a5a]" />
               <div className="absolute inset-0">
                 <div className="absolute top-0 right-1/3 w-56 h-56 rounded-full bg-[#60A5FA]/15 blur-3xl" />
-                <div className="absolute bottom-0 left-1/3 w-48 h-48 rounded-full bg-[#A78BFA]/15 blur-3xl" />
+                <div className="absolute bottom-0 left-1/3 w-48 h-48 rounded-full bg-[#9FBCA4]/10 blur-3xl" />
               </div>
               
               <div className="relative grid gap-6 md:grid-cols-2">
@@ -1848,7 +1848,7 @@ export default function Dashboard() {
             {/* Liquid Glass Chart Container */}
             <div className="relative overflow-hidden rounded-3xl p-6">
               {/* Gradient Background */}
-              <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e] via-[#3d5a6a] to-[#4a3d5e]" />
+              <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e] via-[#3d5a6a] to-[#3a5a5e]" />
               <div className="absolute inset-0">
                 <div className="absolute top-0 right-1/4 w-72 h-72 rounded-full bg-[#9FBCA4]/20 blur-3xl" />
                 <div className="absolute bottom-0 left-1/3 w-64 h-64 rounded-full bg-[#6366f1]/20 blur-3xl" />
@@ -2250,7 +2250,7 @@ export default function Dashboard() {
           <TabsContent value="cashflow" className="mt-6 space-y-6">
             {/* Liquid Glass Chart - Revenue & Operating Performance */}
             <div className="relative overflow-hidden rounded-3xl p-6">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e] via-[#3d5a6a] to-[#4a3d5e]" />
+              <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e] via-[#3d5a6a] to-[#3a5a5e]" />
               <div className="absolute inset-0">
                 <div className="absolute top-0 left-1/4 w-72 h-72 rounded-full bg-[#60A5FA]/20 blur-3xl" />
                 <div className="absolute bottom-0 right-1/4 w-64 h-64 rounded-full bg-[#8b5cf6]/20 blur-3xl" />
@@ -3226,7 +3226,7 @@ function InvestmentAnalysis({
     <>
       {/* Investment Analysis - Liquid Glass Metrics */}
       <div className="relative overflow-hidden rounded-3xl p-6 mb-6">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e] via-[#3d5a6a] to-[#4a3d5e]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e] via-[#3d5a6a] to-[#3a5a5e]" />
         <div className="absolute inset-0">
           <div className="absolute top-0 left-1/4 w-72 h-72 rounded-full bg-[#9FBCA4]/20 blur-3xl" />
           <div className="absolute bottom-0 right-1/4 w-64 h-64 rounded-full bg-[#6366f1]/25 blur-3xl" />

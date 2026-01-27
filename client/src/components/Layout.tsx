@@ -35,16 +35,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         {/* Liquid Glass Background with Edge Sheen */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#2d4a5e] via-[#3d5a6a] to-[#4a3d5e]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#2d4a5e] via-[#3d5a6a] to-[#3a5a5e]" />
         {/* Glossy Edge Highlight - Right Side */}
         <div className="absolute top-0 right-0 bottom-0 w-[1px] bg-gradient-to-b from-white/30 via-white/10 to-white/20" />
         {/* Top Edge Sheen */}
         <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/25 to-transparent" />
-        {/* Floating Color Orbs */}
+        {/* Floating Color Orbs - Green palette */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-12 -left-12 w-56 h-56 rounded-full bg-[#9FBCA4]/20 blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
-          <div className="absolute top-1/3 -right-8 w-44 h-44 rounded-full bg-[#60A5FA]/15 blur-3xl animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
-          <div className="absolute bottom-1/4 left-1/3 w-52 h-52 rounded-full bg-[#A78BFA]/15 blur-3xl animate-pulse" style={{ animationDuration: '6s', animationDelay: '2s' }} />
+          <div className="absolute -top-12 -left-12 w-56 h-56 rounded-full bg-[#9FBCA4]/25 blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
+          <div className="absolute top-1/3 -right-8 w-44 h-44 rounded-full bg-[#9FBCA4]/15 blur-3xl animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
+          <div className="absolute bottom-1/4 left-1/3 w-52 h-52 rounded-full bg-[#257D41]/15 blur-3xl animate-pulse" style={{ animationDuration: '6s', animationDelay: '2s' }} />
         </div>
         
         <div className="relative flex flex-col h-full">
@@ -136,7 +136,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <div className="absolute inset-0 rounded-2xl border border-white/15" />
               {/* Content */}
               <div className="relative flex items-center gap-3 px-3 py-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#6366f1] to-[#8b5cf6] flex items-center justify-center text-white font-bold text-sm shadow-[0_0_16px_rgba(99,102,241,0.4)]">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#9FBCA4] to-[#257D41] flex items-center justify-center text-white font-bold text-sm shadow-[0_0_16px_rgba(159,188,164,0.4)]">
                   {user?.name ? user.name.charAt(0).toUpperCase() : user?.email?.charAt(0).toUpperCase() || "U"}
                 </div>
                 <div className="flex-1 min-w-0">

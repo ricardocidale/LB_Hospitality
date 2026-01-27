@@ -31,7 +31,7 @@ export default function AdminUsers() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [newPassword, setNewPassword] = useState("");
   const [newUser, setNewUser] = useState({ email: "", password: "", name: "", company: "", title: "" });
-  const [editUser, setEditUser] = useState({ name: "", company: "", title: "" });
+  const [editUser, setEditUser] = useState({ email: "", name: "", company: "", title: "" });
   const [showNewUserPassword, setShowNewUserPassword] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
 
@@ -125,7 +125,7 @@ export default function AdminUsers() {
   });
 
   const editMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: { name?: string; company?: string; title?: string } }) => {
+    mutationFn: async ({ id, data }: { id: number; data: { email?: string; name?: string; company?: string; title?: string } }) => {
       const res = await fetch(`/api/admin/users/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -163,9 +163,11 @@ export default function AdminUsers() {
   const handleEdit = (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedUser) {
+      const isAdmin = selectedUser.role === "admin";
       editMutation.mutate({
         id: selectedUser.id,
         data: {
+          ...(isAdmin ? {} : { email: editUser.email || undefined }),
           name: editUser.name || undefined,
           company: editUser.company || undefined,
           title: editUser.title || undefined,
@@ -177,6 +179,7 @@ export default function AdminUsers() {
   const openEditDialog = (user: User) => {
     setSelectedUser(user);
     setEditUser({
+      email: user.email || "",
       name: user.name || "",
       company: user.company || "",
       title: user.title || "",
@@ -318,6 +321,28 @@ export default function AdminUsers() {
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleEdit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="editEmail">Email (User ID)</Label>
+                {selectedUser?.role === "admin" ? (
+                  <Input
+                    id="editEmail"
+                    type="text"
+                    value="Admin"
+                    disabled
+                    className="bg-gray-100 text-gray-500 cursor-not-allowed"
+                    data-testid="input-edit-user-email"
+                  />
+                ) : (
+                  <Input
+                    id="editEmail"
+                    type="email"
+                    value={editUser.email}
+                    onChange={(e) => setEditUser({ ...editUser, email: e.target.value })}
+                    placeholder="user@example.com"
+                    data-testid="input-edit-user-email"
+                  />
+                )}
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="editName">Name</Label>
                 <Input

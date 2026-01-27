@@ -298,7 +298,7 @@ export default function PropertyEdit() {
                     onClick={() => photoInputRef.current?.click()}
                     disabled={isUploadingPhoto}
                     data-testid="button-upload-photo"
-                    className="bg-white border-[#9FBCA4]/30 text-white hover:bg-white/20"
+                    className="bg-[#9FBCA4]/20 border-[#9FBCA4]/30 text-gray-700 hover:bg-[#9FBCA4]/30"
                   >
                     {isUploadingPhoto ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -350,14 +350,14 @@ export default function PropertyEdit() {
                   Acquisition Date
                   <HelpTooltip text="The date when the property is purchased. Equity investment occurs on this date. Pre-opening costs and building improvements are incurred during the period between acquisition and operations start." />
                 </Label>
-                <Input type="date" value={draft.acquisitionDate} onChange={(e) => handleChange("acquisitionDate", e.target.value)} className="bg-white border-[#9FBCA4]/30 text-white [color-scheme:dark]" />
+                <Input type="date" value={draft.acquisitionDate} onChange={(e) => handleChange("acquisitionDate", e.target.value)} className="bg-white border-[#9FBCA4]/30 text-gray-900" />
               </div>
               <div className="space-y-2">
                 <Label className="flex items-center text-gray-700">
                   Operations Start Date
                   <HelpTooltip text="The date when the property begins operating and generating revenue. All revenues and operating expenses start on this date. The period between acquisition and operations start is used for renovations and pre-opening preparation." />
                 </Label>
-                <Input type="date" value={draft.operationsStartDate} onChange={(e) => handleChange("operationsStartDate", e.target.value)} className="bg-white border-[#9FBCA4]/30 text-white [color-scheme:dark]" />
+                <Input type="date" value={draft.operationsStartDate} onChange={(e) => handleChange("operationsStartDate", e.target.value)} className="bg-white border-[#9FBCA4]/30 text-gray-900" />
               </div>
             </div>
           </div>
@@ -381,7 +381,7 @@ export default function PropertyEdit() {
                 <Input 
                   value={formatMoneyInput(draft.purchasePrice)} 
                   onChange={(e) => handleNumberChange("purchasePrice", parseMoneyInput(e.target.value).toString())}
-                  className="bg-white border-[#9FBCA4]/30 text-white"
+                  className="bg-white border-[#9FBCA4]/30 text-gray-900"
                 />
               </div>
               <div className="space-y-2">
@@ -389,7 +389,7 @@ export default function PropertyEdit() {
                 <Input 
                   value={formatMoneyInput(draft.buildingImprovements)} 
                   onChange={(e) => handleNumberChange("buildingImprovements", parseMoneyInput(e.target.value).toString())}
-                  className="bg-white border-[#9FBCA4]/30 text-white"
+                  className="bg-white border-[#9FBCA4]/30 text-gray-900"
                 />
               </div>
               <div className="space-y-2">
@@ -397,7 +397,7 @@ export default function PropertyEdit() {
                 <Input 
                   value={formatMoneyInput(draft.preOpeningCosts)} 
                   onChange={(e) => handleNumberChange("preOpeningCosts", parseMoneyInput(e.target.value).toString())}
-                  className="bg-white border-[#9FBCA4]/30 text-white"
+                  className="bg-white border-[#9FBCA4]/30 text-gray-900"
                 />
               </div>
               <div className="space-y-2">
@@ -405,7 +405,7 @@ export default function PropertyEdit() {
                 <Input 
                   value={formatMoneyInput(draft.operatingReserve)} 
                   onChange={(e) => handleNumberChange("operatingReserve", parseMoneyInput(e.target.value).toString())}
-                  className="bg-white border-[#9FBCA4]/30 text-white"
+                  className="bg-white border-[#9FBCA4]/30 text-gray-900"
                 />
               </div>
             </div>
@@ -439,7 +439,7 @@ export default function PropertyEdit() {
                       step="0.01"
                       value={((draft.acquisitionLTV || 0.75) * 100).toFixed(0)} 
                       onChange={(e) => handleNumberChange("acquisitionLTV", (parseFloat(e.target.value) / 100).toString())}
-                      className="bg-white border-[#9FBCA4]/30 text-white"
+                      className="bg-white border-[#9FBCA4]/30 text-gray-900"
                     />
                   </div>
                   <div className="space-y-2">
@@ -449,7 +449,7 @@ export default function PropertyEdit() {
                       step="0.01"
                       value={((draft.acquisitionInterestRate || 0.09) * 100).toFixed(2)} 
                       onChange={(e) => handleNumberChange("acquisitionInterestRate", (parseFloat(e.target.value) / 100).toString())}
-                      className="bg-white border-[#9FBCA4]/30 text-white"
+                      className="bg-white border-[#9FBCA4]/30 text-gray-900"
                     />
                   </div>
                   <div className="space-y-2">
@@ -458,7 +458,7 @@ export default function PropertyEdit() {
                       type="number" 
                       value={draft.acquisitionTermYears || 25} 
                       onChange={(e) => handleNumberChange("acquisitionTermYears", e.target.value)}
-                      className="bg-white border-[#9FBCA4]/30 text-white"
+                      className="bg-white border-[#9FBCA4]/30 text-gray-900"
                     />
                   </div>
                   <div className="space-y-2">
@@ -468,7 +468,7 @@ export default function PropertyEdit() {
                       step="0.01"
                       value={((draft.acquisitionClosingCostRate || 0.02) * 100).toFixed(1)} 
                       onChange={(e) => handleNumberChange("acquisitionClosingCostRate", (parseFloat(e.target.value) / 100).toString())}
-                      className="bg-white border-[#9FBCA4]/30 text-white"
+                      className="bg-white border-[#9FBCA4]/30 text-gray-900"
                     />
                   </div>
                 </div>
@@ -510,7 +510,7 @@ export default function PropertyEdit() {
                               return opsDate.toISOString().split('T')[0];
                             })()} 
                             onChange={(e) => handleChange("refinanceDate", e.target.value)}
-                            className="bg-white border-[#9FBCA4]/30 text-white [color-scheme:dark]"
+                            className="bg-white border-[#9FBCA4]/30 text-gray-900"
                           />
                           <p className="text-xs text-gray-500">Suggested: 3 years after operations start</p>
                         </div>
@@ -521,7 +521,7 @@ export default function PropertyEdit() {
                             step="0.01"
                             value={((draft.refinanceLTV || 0.75) * 100).toFixed(0)} 
                             onChange={(e) => handleNumberChange("refinanceLTV", (parseFloat(e.target.value) / 100).toString())}
-                            className="bg-white border-[#9FBCA4]/30 text-white"
+                            className="bg-white border-[#9FBCA4]/30 text-gray-900"
                           />
                         </div>
                         <div className="space-y-2">
@@ -531,7 +531,7 @@ export default function PropertyEdit() {
                             step="0.01"
                             value={((draft.refinanceInterestRate || 0.09) * 100).toFixed(2)} 
                             onChange={(e) => handleNumberChange("refinanceInterestRate", (parseFloat(e.target.value) / 100).toString())}
-                            className="bg-white border-[#9FBCA4]/30 text-white"
+                            className="bg-white border-[#9FBCA4]/30 text-gray-900"
                           />
                         </div>
                         <div className="space-y-2">
@@ -540,7 +540,7 @@ export default function PropertyEdit() {
                             type="number" 
                             value={draft.refinanceTermYears || 25} 
                             onChange={(e) => handleNumberChange("refinanceTermYears", e.target.value)}
-                            className="bg-white border-[#9FBCA4]/30 text-white"
+                            className="bg-white border-[#9FBCA4]/30 text-gray-900"
                           />
                         </div>
                         <div className="space-y-2">
@@ -550,7 +550,7 @@ export default function PropertyEdit() {
                             step="0.01"
                             value={((draft.refinanceClosingCostRate || 0.03) * 100).toFixed(1)} 
                             onChange={(e) => handleNumberChange("refinanceClosingCostRate", (parseFloat(e.target.value) / 100).toString())}
-                            className="bg-white border-[#9FBCA4]/30 text-white"
+                            className="bg-white border-[#9FBCA4]/30 text-gray-900"
                           />
                         </div>
                       </div>

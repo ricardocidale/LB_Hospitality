@@ -456,10 +456,10 @@ export default function PropertyDetail() {
                       <Line 
                         type="natural" 
                         dataKey="NOI" 
-                        stroke="#9FBCA4" 
+                        stroke="#34D399" 
                         strokeWidth={2.5}
                         dot={false}
-                        activeDot={{ r: 5, fill: '#9FBCA4', stroke: '#fff', strokeWidth: 2 }}
+                        activeDot={{ r: 5, fill: '#34D399', stroke: '#fff', strokeWidth: 2 }}
                         name="Net Operating Income"
                       />
                     </LineChart>
@@ -525,10 +525,10 @@ export default function PropertyDetail() {
                       <Line 
                         type="natural" 
                         dataKey="NOI" 
-                        stroke="#9FBCA4" 
+                        stroke="#34D399" 
                         strokeWidth={2.5}
                         dot={false}
-                        activeDot={{ r: 5, fill: '#9FBCA4', stroke: '#fff', strokeWidth: 2 }}
+                        activeDot={{ r: 5, fill: '#34D399', stroke: '#fff', strokeWidth: 2 }}
                         name="Net Operating Income"
                       />
                       <Line 

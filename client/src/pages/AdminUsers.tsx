@@ -313,14 +313,22 @@ export default function AdminUsers() {
         />
 
         <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-          <DialogContent className="max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Edit User</DialogTitle>
-              <DialogDescription>
-                Update information for {selectedUser?.name || selectedUser?.email}
-              </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleEdit} className="space-y-4">
+          <DialogContent className="max-h-[90vh] overflow-y-auto p-0 gap-0">
+            <div className="relative bg-gradient-to-br from-[#2d4a5e] via-[#3d5a6a] to-[#3a5a5e] p-4 rounded-t-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <DialogTitle className="text-white text-lg font-semibold">Edit User</DialogTitle>
+                  <DialogDescription className="text-white/70 text-sm">
+                    Update information for {selectedUser?.name || selectedUser?.email}
+                  </DialogDescription>
+                </div>
+                <GlassButton type="submit" form="editUserForm" variant="primary" disabled={editMutation.isPending} data-testid="button-save-user-edit">
+                  {editMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  Save Changes
+                </GlassButton>
+              </div>
+            </div>
+            <form id="editUserForm" onSubmit={handleEdit} className="space-y-4 p-6">
               <div className="space-y-2">
                 <Label htmlFor="editEmail">Email (User ID)</Label>
                 {selectedUser?.role === "admin" ? (
@@ -373,12 +381,6 @@ export default function AdminUsers() {
                   data-testid="input-edit-user-title"
                 />
               </div>
-              <DialogFooter>
-                <GlassButton type="submit" variant="primary" disabled={editMutation.isPending} data-testid="button-save-user-edit">
-                  {editMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                  Save Changes
-                </GlassButton>
-              </DialogFooter>
             </form>
           </DialogContent>
         </Dialog>

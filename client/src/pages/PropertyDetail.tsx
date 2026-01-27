@@ -392,31 +392,31 @@ export default function PropertyDetail() {
           </div>
           
           <TabsContent value="income" className="mt-6 space-y-6">
-            {/* Liquid Glass Chart Card - Sage Theme */}
+            {/* Liquid Glass Chart Card - Dark Theme */}
             <div className="relative overflow-hidden rounded-3xl p-6">
-              <div className="absolute inset-0 bg-[#9FBCA4]" />
+              <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e] via-[#3a5a5e] to-[#3d5a6a]" />
               <div className="absolute inset-0">
-                <div className="absolute top-0 left-1/4 w-72 h-72 rounded-full bg-white/10 blur-3xl" />
-                <div className="absolute bottom-0 right-1/4 w-64 h-64 rounded-full bg-[#257D41]/15 blur-3xl" />
+                <div className="absolute top-0 left-1/4 w-72 h-72 rounded-full bg-[#9FBCA4]/20 blur-3xl" />
+                <div className="absolute bottom-0 right-1/4 w-64 h-64 rounded-full bg-[#9FBCA4]/15 blur-3xl" />
               </div>
-              <div className="absolute top-0 left-6 right-6 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
-              <div className="absolute inset-0 rounded-3xl border border-white/20" />
+              <div className="absolute top-0 left-6 right-6 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+              <div className="absolute inset-0 rounded-3xl border border-white/15" />
               
               <div className="relative">
-                <h3 className="text-lg font-semibold text-white mb-4">Income Statement Trends (10-Year Projection)</h3>
+                <h3 className="text-lg font-semibold text-[#FFF9F5] mb-4">Income Statement Trends (10-Year Projection)</h3>
                 <div className="h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={yearlyChartData}>
-                      <CartesianGrid strokeDasharray="0" stroke="rgba(255,255,255,0.2)" vertical={false} strokeOpacity={0.5} />
+                      <CartesianGrid strokeDasharray="0" stroke="rgba(255,255,255,0.1)" vertical={false} strokeOpacity={0.5} />
                       <XAxis 
                         dataKey="year" 
-                        stroke="rgba(255,255,255,0.7)" 
+                        stroke="rgba(255,249,245,0.5)" 
                         fontSize={12}
                         tickLine={false}
                         axisLine={false}
                       />
                       <YAxis 
-                        stroke="rgba(255,255,255,0.7)" 
+                        stroke="rgba(255,249,245,0.5)" 
                         fontSize={12}
                         tickLine={false}
                         axisLine={false}
@@ -424,7 +424,7 @@ export default function PropertyDetail() {
                       />
                       <Tooltip 
                         contentStyle={{ 
-                          backgroundColor: 'rgba(37,125,65,0.95)', 
+                          backgroundColor: 'rgba(45,74,94,0.95)', 
                           backdropFilter: 'blur(8px)',
                           borderColor: 'rgba(255,255,255,0.2)',
                           borderRadius: '12px',
@@ -471,18 +471,18 @@ export default function PropertyDetail() {
           </TabsContent>
           
           <TabsContent value="cashflow" className="mt-6 space-y-6">
-            {/* Liquid Glass Chart Card - Sage Theme */}
+            {/* Liquid Glass Chart Card - Dark Theme */}
             <div className="relative overflow-hidden rounded-3xl p-6">
-              <div className="absolute inset-0 bg-[#9FBCA4]" />
+              <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e] via-[#3a5a5e] to-[#3d5a6a]" />
               <div className="absolute inset-0">
-                <div className="absolute top-0 right-1/3 w-72 h-72 rounded-full bg-white/10 blur-3xl" />
-                <div className="absolute bottom-0 left-1/3 w-64 h-64 rounded-full bg-[#257D41]/15 blur-3xl" />
+                <div className="absolute top-0 right-1/3 w-72 h-72 rounded-full bg-[#9FBCA4]/20 blur-3xl" />
+                <div className="absolute bottom-0 left-1/3 w-64 h-64 rounded-full bg-[#9FBCA4]/15 blur-3xl" />
               </div>
-              <div className="absolute top-0 left-6 right-6 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
-              <div className="absolute inset-0 rounded-3xl border border-white/20" />
+              <div className="absolute top-0 left-6 right-6 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+              <div className="absolute inset-0 rounded-3xl border border-white/15" />
               
               <div className="relative">
-                <h3 className="text-lg font-semibold text-white mb-4">Cash Flow Trends (10-Year Projection)</h3>
+                <h3 className="text-lg font-semibold text-[#FFF9F5] mb-4">Cash Flow Trends (10-Year Projection)</h3>
                 <div className="h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={yearlyChartData.map((d, i) => {
@@ -494,16 +494,16 @@ export default function PropertyDetail() {
                         NetToInvestors: cfData[i]?.netCashFlowToInvestors || 0,
                       };
                     })}>
-                      <CartesianGrid strokeDasharray="0" stroke="rgba(255,255,255,0.2)" vertical={false} strokeOpacity={0.5} />
+                      <CartesianGrid strokeDasharray="0" stroke="rgba(255,255,255,0.1)" vertical={false} strokeOpacity={0.5} />
                       <XAxis 
                         dataKey="year" 
-                        stroke="rgba(255,255,255,0.7)" 
+                        stroke="rgba(255,249,245,0.5)" 
                         fontSize={12}
                         tickLine={false}
                         axisLine={false}
                       />
                       <YAxis 
-                        stroke="rgba(255,255,255,0.7)" 
+                        stroke="rgba(255,249,245,0.5)" 
                         fontSize={12}
                         tickLine={false}
                         axisLine={false}
@@ -511,7 +511,7 @@ export default function PropertyDetail() {
                       />
                       <Tooltip 
                         contentStyle={{ 
-                          backgroundColor: 'rgba(37,125,65,0.95)', 
+                          backgroundColor: 'rgba(45,74,94,0.95)', 
                           backdropFilter: 'blur(8px)',
                           borderColor: 'rgba(255,255,255,0.2)',
                           borderRadius: '12px',

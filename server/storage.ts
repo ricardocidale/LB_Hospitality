@@ -9,6 +9,7 @@ export interface IStorage {
   createUser(data: InsertUser): Promise<User>;
   getAllUsers(): Promise<User[]>;
   deleteUser(id: number): Promise<void>;
+  updateUserPassword(id: number, passwordHash: string): Promise<void>;
   
   // Sessions
   createSession(userId: number, sessionId: string, expiresAt: Date): Promise<Session>;
@@ -55,6 +56,11 @@ export class DatabaseStorage implements IStorage {
   async deleteUser(id: number): Promise<void> {
     await db.delete(sessions).where(eq(sessions.userId, id));
     await db.delete(users).where(eq(users.id, id));
+  }
+
+  async updateUserPassword(id: number, passwordHash: string): Promise<void> {
+    await db.update(users).set({ passwordHash, updatedAt: new Date() }).where(eq(users.id, id));
+    await db.delete(sessions).where(eq(sessions.userId, id));
   }
 
   // Sessions

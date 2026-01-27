@@ -529,62 +529,78 @@ export default function Company() {
           </Link>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Management Company Performance (10-Year Projection)</CardTitle>
-          </CardHeader>
-          <CardContent>
+        {/* Liquid Glass Chart Card - Dark Theme */}
+        <div className="relative overflow-hidden rounded-3xl p-6">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e] via-[#3a5a5e] to-[#3d5a6a]" />
+          <div className="absolute inset-0">
+            <div className="absolute top-0 left-1/4 w-72 h-72 rounded-full bg-[#9FBCA4]/20 blur-3xl" />
+            <div className="absolute bottom-0 right-1/4 w-64 h-64 rounded-full bg-[#9FBCA4]/15 blur-3xl" />
+          </div>
+          <div className="absolute top-0 left-6 right-6 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+          <div className="absolute inset-0 rounded-3xl border border-white/15" />
+          
+          <div className="relative">
+            <h3 className="text-lg font-semibold text-[#FFF9F5] mb-4">Management Company Performance (10-Year Projection)</h3>
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={yearlyChartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <CartesianGrid strokeDasharray="0" stroke="rgba(255,255,255,0.25)" vertical={false} />
                   <XAxis 
                     dataKey="year" 
-                    stroke="hsl(var(--muted-foreground))" 
+                    stroke="rgba(255,249,245,0.5)" 
                     fontSize={12}
                     tickLine={false}
+                    axisLine={false}
                   />
                   <YAxis 
-                    stroke="hsl(var(--muted-foreground))" 
+                    stroke="rgba(255,249,245,0.5)" 
                     fontSize={12}
                     tickLine={false}
+                    axisLine={false}
                     tickFormatter={(value) => `$${(value / 1000000).toFixed(1)}M`}
                   />
                   <Tooltip 
                     contentStyle={{ 
-                      backgroundColor: 'hsl(var(--card))', 
-                      borderColor: 'hsl(var(--border))',
-                      borderRadius: '8px',
+                      backgroundColor: 'rgba(45,74,94,0.95)', 
+                      backdropFilter: 'blur(8px)',
+                      borderColor: 'rgba(255,255,255,0.2)',
+                      borderRadius: '12px',
+                      boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+                      color: '#FFF9F5',
                     }}
+                    labelStyle={{ color: '#FFF9F5' }}
                     formatter={(value: number) => [formatMoney(value), ""]}
                   />
-                  <Legend />
+                  <Legend wrapperStyle={{ color: '#FFF9F5' }} />
                   <Line 
-                    type="monotone" 
+                    type="natural" 
                     dataKey="Revenue" 
-                    stroke="#5C6BC0" 
-                    strokeWidth={2}
-                    dot={{ fill: '#5C6BC0' }}
+                    stroke="#A78BFA" 
+                    strokeWidth={2.5}
+                    dot={false}
+                    activeDot={{ r: 5, fill: '#A78BFA', stroke: '#fff', strokeWidth: 2 }}
                   />
                   <Line 
-                    type="monotone" 
+                    type="natural" 
                     dataKey="Expenses" 
-                    stroke="hsl(var(--chart-3))" 
-                    strokeWidth={2}
-                    dot={{ fill: 'hsl(var(--chart-3))' }}
+                    stroke="#60A5FA" 
+                    strokeWidth={2.5}
+                    dot={false}
+                    activeDot={{ r: 5, fill: '#60A5FA', stroke: '#fff', strokeWidth: 2 }}
                   />
                   <Line 
-                    type="monotone" 
+                    type="natural" 
                     dataKey="NetIncome" 
-                    stroke="hsl(var(--accent))" 
-                    strokeWidth={2}
-                    dot={{ fill: 'hsl(var(--accent))' }}
+                    stroke="#34D399" 
+                    strokeWidth={2.5}
+                    dot={false}
+                    activeDot={{ r: 5, fill: '#34D399', stroke: '#fff', strokeWidth: 2 }}
                   />
                 </LineChart>
               </ResponsiveContainer>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {!cashAnalysis.isAdequate ? (
           <Card className="border-destructive/50 bg-destructive/5">

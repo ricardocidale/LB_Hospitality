@@ -1892,7 +1892,7 @@ export default function Dashboard() {
                       })}
                       margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                     >
-                      <CartesianGrid horizontal={true} vertical={false} stroke="rgba(255,255,255,0.08)" />
+                      <CartesianGrid horizontal={true} vertical={false} stroke="rgba(255,255,255,0.25)" />
                       <XAxis dataKey="year" stroke="transparent" tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 12 }} axisLine={false} tickLine={false} />
                       <YAxis 
                         stroke="transparent" 
@@ -2294,7 +2294,7 @@ export default function Dashboard() {
                       })}
                       margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                     >
-                      <CartesianGrid horizontal={true} vertical={false} stroke="rgba(255,255,255,0.08)" />
+                      <CartesianGrid horizontal={true} vertical={false} stroke="rgba(255,255,255,0.25)" />
                       <XAxis dataKey="year" stroke="transparent" tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 12 }} axisLine={false} tickLine={false} />
                       <YAxis 
                         stroke="transparent" 
@@ -2351,7 +2351,7 @@ export default function Dashboard() {
                       })}
                       margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                     >
-                      <CartesianGrid horizontal={true} vertical={false} stroke="rgba(255,255,255,0.08)" />
+                      <CartesianGrid horizontal={true} vertical={false} stroke="rgba(255,255,255,0.25)" />
                       <XAxis dataKey="year" stroke="transparent" tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 12 }} axisLine={false} tickLine={false} />
                       <YAxis 
                         stroke="transparent" 

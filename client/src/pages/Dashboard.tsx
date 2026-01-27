@@ -1660,12 +1660,11 @@ export default function Dashboard() {
                     <div className="relative">
                       <svg className="w-48 h-48" viewBox="0 0 200 200">
                         <defs>
-                          {/* 3D tubular gradient for #F4795B */}
+                          {/* 3D tubular gradient - lighter for #F4795B coral */}
                           <linearGradient id="irrTube3D" x1="0%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" stopColor="#FFA889" />
-                            <stop offset="25%" stopColor="#F4795B" />
-                            <stop offset="75%" stopColor="#C25A3A" />
-                            <stop offset="100%" stopColor="#8B3D28" />
+                            <stop offset="0%" stopColor="#FFB89A" />
+                            <stop offset="40%" stopColor="#F4795B" />
+                            <stop offset="100%" stopColor="#E06545" />
                           </linearGradient>
                         </defs>
                         {/* Background track */}
@@ -1676,7 +1675,7 @@ export default function Dashboard() {
                           strokeDasharray={`${Math.min(Math.max(portfolioIRR * 100, 0) * 5.03, 503)} 503`}
                           strokeLinecap="round"
                           transform="rotate(-90 100 100)"
-                          style={{ filter: 'drop-shadow(0 0 10px rgba(244,121,91,0.6))' }}
+                          style={{ filter: 'drop-shadow(0 0 10px rgba(244,121,91,0.5))' }}
                         />
                       </svg>
                       <div className="absolute inset-0 flex flex-col items-center justify-center">

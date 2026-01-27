@@ -1611,30 +1611,28 @@ export default function Dashboard() {
               </div>
             </div>
             
-            {exportFunctions && (
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={exportFunctions.pdf}
-                  className="flex items-center gap-2 bg-white/5 border-2 border-white/40 text-[#FFF9F5] hover:bg-white/10 hover:border-white/60 rounded-xl"
-                  data-testid="button-export-pdf"
-                >
-                  <FileDown className="w-4 h-4" />
-                  Export PDF
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={exportFunctions.csv}
-                  className="flex items-center gap-2 bg-white/5 border-2 border-white/40 text-[#FFF9F5] hover:bg-white/10 hover:border-white/60 rounded-xl"
-                  data-testid="button-export-csv"
-                >
-                  <FileSpreadsheet className="w-4 h-4" />
-                  Export CSV
-                </Button>
-              </div>
-            )}
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => exportFunctions?.pdf?.()}
+                className="flex items-center gap-2 bg-[#2d4a5e] border-2 border-[#FFF9F5]/50 text-[#FFF9F5] hover:bg-[#3a5a5e] hover:border-[#FFF9F5]/70 rounded-xl shadow-lg"
+                data-testid="button-export-pdf"
+              >
+                <FileDown className="w-4 h-4" />
+                Export PDF
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => exportFunctions?.csv?.()}
+                className="flex items-center gap-2 bg-[#2d4a5e] border-2 border-[#FFF9F5]/50 text-[#FFF9F5] hover:bg-[#3a5a5e] hover:border-[#FFF9F5]/70 rounded-xl shadow-lg"
+                data-testid="button-export-csv"
+              >
+                <FileSpreadsheet className="w-4 h-4" />
+                Export CSV
+              </Button>
+            </div>
           </div>
 
           <TabsContent value="overview" className="space-y-8">

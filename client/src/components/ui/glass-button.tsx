@@ -28,9 +28,12 @@ const GlassButton = React.forwardRef<HTMLButtonElement, GlassButtonProps>(
         hover:shadow-[0_0_20px_rgba(159,188,164,0.3)]
       `,
       primary: `
-        bg-[#9FBCA4]/80 hover:bg-[#9FBCA4] text-[#1a2f23] rounded-xl
-        border border-[#9FBCA4]/50
-        shadow-lg hover:shadow-[0_0_25px_rgba(159,188,164,0.4)]
+        text-[#1a2f23] rounded-xl
+        before:absolute before:inset-0 before:bg-gradient-to-br before:from-[#9FBCA4] before:via-[#9FBCA4]/90 before:to-[#7da584] before:rounded-xl
+        after:absolute after:top-0 after:left-2 after:right-2 after:h-[1px] after:bg-gradient-to-r after:from-transparent after:via-white/60 after:to-transparent
+        [&>*]:relative
+        border border-[#9FBCA4]/60 hover:border-[#257D41]/60
+        shadow-[0_4px_20px_rgba(159,188,164,0.3)] hover:shadow-[0_0_30px_rgba(159,188,164,0.5)]
       `,
       ghost: `
         bg-white/10 hover:bg-white/20 text-[#FFF9F5] rounded-xl

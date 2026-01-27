@@ -1,62 +1,107 @@
 import { db } from "./db";
-import { globalAssumptions, properties } from "@shared/schema";
+import { globalAssumptions, properties, users } from "@shared/schema";
+import { eq } from "drizzle-orm";
+import bcrypt from "bcrypt";
 
 async function seed() {
-  console.log("Seeding database...");
+  console.log("Starting database seed...");
 
-  // Seed Global Assumptions
+  // Check if data already exists
+  const existingGlobal = await db.select().from(globalAssumptions).limit(1);
+  const existingProperties = await db.select().from(properties).limit(1);
+
+  if (existingGlobal.length > 0 || existingProperties.length > 0) {
+    console.log("Database already has data. Skipping seed to prevent duplicates.");
+    console.log("To re-seed, first clear the existing data.");
+    return;
+  }
+
+  // Seed admin user
+  const existingAdmin = await db.select().from(users).where(eq(users.email, "admin")).limit(1);
+  if (existingAdmin.length === 0) {
+    const hashedPassword = await bcrypt.hash("admin123", 10);
+    await db.insert(users).values({
+      email: "admin",
+      password: hashedPassword,
+      name: "Administrator",
+      role: "admin",
+    });
+    console.log("Created admin user (email: admin, password: admin123)");
+  }
+
+  // Seed global assumptions with current development data
   await db.insert(globalAssumptions).values({
     modelStartDate: "2026-04-01",
+    companyOpsStartDate: "2026-06-01",
+    fiscalYearStartMonth: 1,
     inflationRate: 0.03,
     fixedCostEscalationRate: 0.03,
-    baseManagementFee: 0.04,
-    incentiveManagementFee: 0.10,
-    // SAFE Funding
-    safeTranche1Amount: 225000,
-    safeTranche1Date: "2026-04-01",
-    safeTranche2Amount: 225000,
+    baseManagementFee: 0.05,
+    incentiveManagementFee: 0.15,
+    safeTranche1Amount: 1000000,
+    safeTranche1Date: "2026-06-01",
+    safeTranche2Amount: 1000000,
     safeTranche2Date: "2027-04-01",
     safeValuationCap: 2500000,
-    safeDiscountRate: 0.20,
-    // Compensation
-    partnerSalary: 240000,
+    safeDiscountRate: 0.2,
+    partnerCompYear1: 540000,
+    partnerCompYear2: 540000,
+    partnerCompYear3: 540000,
+    partnerCompYear4: 600000,
+    partnerCompYear5: 600000,
+    partnerCompYear6: 700000,
+    partnerCompYear7: 700000,
+    partnerCompYear8: 800000,
+    partnerCompYear9: 800000,
+    partnerCompYear10: 900000,
+    partnerCountYear1: 3,
+    partnerCountYear2: 3,
+    partnerCountYear3: 3,
+    partnerCountYear4: 3,
+    partnerCountYear5: 3,
+    partnerCountYear6: 3,
+    partnerCountYear7: 3,
+    partnerCountYear8: 3,
+    partnerCountYear9: 3,
+    partnerCountYear10: 3,
     staffSalary: 75000,
-    // Fixed overhead
     officeLeaseStart: 36000,
     professionalServicesStart: 24000,
     techInfraStart: 18000,
     businessInsuranceStart: 12000,
-    // Variable costs
     travelCostPerClient: 12000,
     itLicensePerClient: 3000,
     marketingRate: 0.05,
     miscOpsRate: 0.03,
+    commissionRate: 0.06,
     standardAcqPackage: {
+      monthsToOps: 6,
       purchasePrice: 2300000,
-      buildingImprovements: 800000,
       preOpeningCosts: 150000,
       operatingReserve: 200000,
-      monthsToOps: 6
+      buildingImprovements: 800000,
     },
     debtAssumptions: {
+      acqLTV: 0.75,
+      refiLTV: 0.75,
       interestRate: 0.09,
       amortizationYears: 25,
-      refiLTV: 0.75,
+      acqClosingCostRate: 0.02,
       refiClosingCostRate: 0.03,
-      acqLTV: 0.75,
-      acqClosingCostRate: 0.02
     },
-    fullCateringFBBoost: 0.50,
-    partialCateringFBBoost: 0.25
+    fullCateringFBBoost: 0.5,
+    partialCateringFBBoost: 0.25,
+    companyTaxRate: 0.3,
   });
+  console.log("Seeded global assumptions");
 
-  // Seed Properties
+  // Seed properties with current development data
   await db.insert(properties).values([
     {
       name: "The Hudson Estate",
       location: "Upstate New York",
       market: "North America",
-      imageUrl: "/src/assets/property-ny.png",
+      imageUrl: "/images/property-ny.png",
       status: "Development",
       acquisitionDate: "2026-06-01",
       operationsStartDate: "2026-12-01",
@@ -65,34 +110,41 @@ async function seed() {
       preOpeningCosts: 150000,
       operatingReserve: 200000,
       roomCount: 20,
-      startAdr: 275,
+      startAdr: 330,
       adrGrowthRate: 0.025,
-      startOccupancy: 0.60,
-      maxOccupancy: 0.90,
+      startOccupancy: 0.6,
+      maxOccupancy: 0.9,
       occupancyRampMonths: 6,
       occupancyGrowthStep: 0.05,
       stabilizationMonths: 36,
       type: "Full Equity",
       cateringLevel: "Partial",
+      willRefinance: "Yes",
+      refinanceDate: "2029-12-01",
       costRateRooms: 0.36,
       costRateFB: 0.15,
       costRateAdmin: 0.08,
-      costRateMarketing: 0.05,
+      costRateMarketing: 0.01,
       costRatePropertyOps: 0.04,
       costRateUtilities: 0.05,
       costRateInsurance: 0.02,
       costRateTaxes: 0.03,
-      costRateIT: 0.02,
+      costRateIT: 0.005,
       costRateFFE: 0.04,
+      costRateOther: 0.05,
       revShareEvents: 0.43,
       revShareFB: 0.22,
-      revShareOther: 0.07
+      revShareOther: 0.07,
+      fullCateringPercent: 0.4,
+      partialCateringPercent: 0.3,
+      exitCapRate: 0.085,
+      taxRate: 0.25,
     },
     {
       name: "Eden Summit Lodge",
       location: "Eden, Utah",
       market: "North America",
-      imageUrl: "/src/assets/property-utah.png",
+      imageUrl: "/images/property-utah.png",
       status: "Acquisition",
       acquisitionDate: "2027-01-01",
       operationsStartDate: "2027-07-01",
@@ -101,82 +153,96 @@ async function seed() {
       preOpeningCosts: 150000,
       operatingReserve: 200000,
       roomCount: 20,
-      startAdr: 325,
+      startAdr: 390,
       adrGrowthRate: 0.025,
-      startOccupancy: 0.60,
-      maxOccupancy: 0.90,
+      startOccupancy: 0.6,
+      maxOccupancy: 0.9,
       occupancyRampMonths: 6,
       occupancyGrowthStep: 0.05,
       stabilizationMonths: 36,
       type: "Full Equity",
       cateringLevel: "Full",
+      willRefinance: "Yes",
+      refinanceDate: "2030-07-01",
       costRateRooms: 0.36,
       costRateFB: 0.15,
       costRateAdmin: 0.08,
-      costRateMarketing: 0.05,
+      costRateMarketing: 0.01,
       costRatePropertyOps: 0.04,
       costRateUtilities: 0.05,
       costRateInsurance: 0.02,
       costRateTaxes: 0.03,
-      costRateIT: 0.02,
+      costRateIT: 0.005,
       costRateFFE: 0.04,
+      costRateOther: 0.05,
       revShareEvents: 0.43,
       revShareFB: 0.22,
-      revShareOther: 0.07
+      revShareOther: 0.07,
+      fullCateringPercent: 0.4,
+      partialCateringPercent: 0.3,
+      exitCapRate: 0.085,
+      taxRate: 0.25,
     },
     {
       name: "Austin Hillside",
       location: "Austin, Texas",
       market: "North America",
-      imageUrl: "/src/assets/property-austin.png",
+      imageUrl: "/images/property-austin.png",
       status: "Acquisition",
-      acquisitionDate: "2027-07-01",
+      acquisitionDate: "2027-04-01",
       operationsStartDate: "2028-01-01",
       purchasePrice: 2300000,
       buildingImprovements: 800000,
       preOpeningCosts: 150000,
       operatingReserve: 200000,
       roomCount: 20,
-      startAdr: 225,
+      startAdr: 270,
       adrGrowthRate: 0.025,
-      startOccupancy: 0.60,
-      maxOccupancy: 0.90,
+      startOccupancy: 0.6,
+      maxOccupancy: 0.9,
       occupancyRampMonths: 6,
       occupancyGrowthStep: 0.05,
       stabilizationMonths: 36,
       type: "Full Equity",
       cateringLevel: "Partial",
+      willRefinance: "Yes",
+      refinanceDate: "2031-01-01",
       costRateRooms: 0.36,
       costRateFB: 0.15,
       costRateAdmin: 0.08,
-      costRateMarketing: 0.05,
+      costRateMarketing: 0.01,
       costRatePropertyOps: 0.04,
       costRateUtilities: 0.05,
       costRateInsurance: 0.02,
       costRateTaxes: 0.03,
-      costRateIT: 0.02,
+      costRateIT: 0.005,
       costRateFFE: 0.04,
+      costRateOther: 0.05,
       revShareEvents: 0.43,
       revShareFB: 0.22,
-      revShareOther: 0.07
+      revShareOther: 0.07,
+      fullCateringPercent: 0.4,
+      partialCateringPercent: 0.3,
+      exitCapRate: 0.085,
+      taxRate: 0.25,
     },
     {
       name: "Casa Medellín",
       location: "Medellín, Colombia",
       market: "Latin America",
-      imageUrl: "/src/assets/property-medellin.png",
+      imageUrl: "/images/property-medellin.png",
       status: "Acquisition",
-      acquisitionDate: "2028-01-01",
+      acquisitionDate: "2026-09-01",
       operationsStartDate: "2028-07-01",
-      purchasePrice: 2300000,
+      purchasePrice: 3500000,
       buildingImprovements: 800000,
       preOpeningCosts: 150000,
       operatingReserve: 200000,
-      roomCount: 20,
-      startAdr: 150,
+      roomCount: 30,
+      startAdr: 180,
       adrGrowthRate: 0.04,
-      startOccupancy: 0.60,
-      maxOccupancy: 0.90,
+      startOccupancy: 0.6,
+      maxOccupancy: 0.9,
       occupancyRampMonths: 6,
       occupancyGrowthStep: 0.05,
       stabilizationMonths: 36,
@@ -185,34 +251,39 @@ async function seed() {
       costRateRooms: 0.36,
       costRateFB: 0.15,
       costRateAdmin: 0.08,
-      costRateMarketing: 0.05,
+      costRateMarketing: 0.01,
       costRatePropertyOps: 0.04,
       costRateUtilities: 0.05,
       costRateInsurance: 0.02,
       costRateTaxes: 0.03,
-      costRateIT: 0.02,
+      costRateIT: 0.005,
       costRateFFE: 0.04,
+      costRateOther: 0.05,
       revShareEvents: 0.43,
       revShareFB: 0.22,
-      revShareOther: 0.07
+      revShareOther: 0.07,
+      fullCateringPercent: 0.4,
+      partialCateringPercent: 0.3,
+      exitCapRate: 0.085,
+      taxRate: 0.25,
     },
     {
       name: "Blue Ridge Manor",
       location: "Asheville, North Carolina",
       market: "North America",
-      imageUrl: "/src/assets/property-asheville.png",
+      imageUrl: "/images/property-asheville.png",
       status: "Acquisition",
-      acquisitionDate: "2028-01-01",
+      acquisitionDate: "2027-07-01",
       operationsStartDate: "2028-07-01",
-      purchasePrice: 2300000,
+      purchasePrice: 3500000,
       buildingImprovements: 800000,
       preOpeningCosts: 150000,
       operatingReserve: 200000,
-      roomCount: 20,
-      startAdr: 285,
+      roomCount: 30,
+      startAdr: 342,
       adrGrowthRate: 0.025,
-      startOccupancy: 0.60,
-      maxOccupancy: 0.90,
+      startOccupancy: 0.6,
+      maxOccupancy: 0.9,
       occupancyRampMonths: 6,
       occupancyGrowthStep: 0.05,
       stabilizationMonths: 36,
@@ -221,24 +292,31 @@ async function seed() {
       costRateRooms: 0.36,
       costRateFB: 0.15,
       costRateAdmin: 0.08,
-      costRateMarketing: 0.05,
+      costRateMarketing: 0.01,
       costRatePropertyOps: 0.04,
       costRateUtilities: 0.05,
       costRateInsurance: 0.02,
       costRateTaxes: 0.03,
-      costRateIT: 0.02,
+      costRateIT: 0.005,
       costRateFFE: 0.04,
+      costRateOther: 0.05,
       revShareEvents: 0.43,
       revShareFB: 0.22,
-      revShareOther: 0.07
-    }
+      revShareOther: 0.07,
+      fullCateringPercent: 0.4,
+      partialCateringPercent: 0.3,
+      exitCapRate: 0.085,
+      taxRate: 0.25,
+    },
   ]);
+  console.log("Seeded 5 properties");
 
-  console.log("Database seeded successfully!");
-  process.exit(0);
+  console.log("Database seed completed successfully!");
 }
 
-seed().catch((error) => {
-  console.error("Seed failed:", error);
-  process.exit(1);
-});
+seed()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error("Seed failed:", error);
+    process.exit(1);
+  });

@@ -75,8 +75,7 @@ All pages must use the standardized PageHeader component with consistent height,
 - Actions slot for Save Changes buttons or other action buttons
 
 **Page variant assignments**:
-- **Dark variant**: Dashboard, Company, Portfolio, Property Detail, User Management
-- **Light variant**: Company Assumptions, Property Assumptions (PropertyEdit), Global Assumptions (Settings)
+- **Dark variant**: All pages use dark variant for consistent header styling (Dashboard, Company, Portfolio, Property Detail, User Management, Company Assumptions, Property Assumptions, Global Assumptions)
 
 ### GlassButton Primary Variant Standard
 All primary action buttons (Save, Submit, Confirm) must use:

@@ -1810,47 +1810,62 @@ export default function Dashboard() {
           </TabsContent>
 
           <TabsContent value="income" className="mt-6 space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Portfolio Income Trends</CardTitle>
-                <p className="text-sm text-muted-foreground">Revenue, Operating Expenses, and NOI over 10 years</p>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart
-                    data={Array.from({ length: 10 }, (_, i) => {
-                      const yearly = getYearlyConsolidated(i);
-                      return {
-                        year: getFiscalYear(i),
-                        Revenue: yearly.revenueTotal,
-                        'Operating Expenses': yearly.totalExpenses,
-                        NOI: yearly.noi
-                      };
-                    })}
-                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis dataKey="year" stroke="hsl(var(--muted-foreground))" />
-                    <YAxis 
-                      stroke="hsl(var(--muted-foreground))" 
-                      tickFormatter={(value) => `$${(value / 1000000).toFixed(1)}M`}
-                    />
-                    <Tooltip 
-                      formatter={(value: number) => formatMoney(value)}
-                      contentStyle={{ 
-                        backgroundColor: 'hsl(var(--card))', 
-                        border: '1px solid hsl(var(--border))',
-                        borderRadius: '8px'
-                      }}
-                    />
-                    <Legend />
-                    <Line type="monotone" dataKey="Revenue" stroke="#5C6BC0" strokeWidth={2} dot={{ fill: '#5C6BC0' }} />
-                    <Line type="monotone" dataKey="Operating Expenses" stroke="#9575CD" strokeWidth={2} dot={{ fill: '#9575CD' }} />
-                    <Line type="monotone" dataKey="NOI" stroke="#257D41" strokeWidth={2} dot={{ fill: '#257D41' }} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
+            {/* Liquid Glass Chart Container */}
+            <div className="relative overflow-hidden rounded-3xl p-6">
+              {/* Gradient Background */}
+              <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e] via-[#3d5a6a] to-[#4a3d5e]" />
+              <div className="absolute inset-0">
+                <div className="absolute top-0 right-1/4 w-72 h-72 rounded-full bg-[#9FBCA4]/20 blur-3xl" />
+                <div className="absolute bottom-0 left-1/3 w-64 h-64 rounded-full bg-[#6366f1]/20 blur-3xl" />
+              </div>
+              
+              <div className="relative">
+                <div className="mb-4">
+                  <h3 className="text-lg font-semibold text-white">Portfolio Income Trends</h3>
+                  <p className="text-sm text-white/50">Revenue, Operating Expenses, and NOI over 10 years</p>
+                </div>
+                
+                <div className="bg-white/10 backdrop-blur-2xl rounded-2xl p-6 border border-white/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
+                  <ResponsiveContainer width="100%" height={300}>
+                    <LineChart
+                      data={Array.from({ length: 10 }, (_, i) => {
+                        const yearly = getYearlyConsolidated(i);
+                        return {
+                          year: getFiscalYear(i),
+                          Revenue: yearly.revenueTotal,
+                          'Operating Expenses': yearly.totalExpenses,
+                          NOI: yearly.noi
+                        };
+                      })}
+                      margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                      <XAxis dataKey="year" stroke="rgba(255,255,255,0.5)" tick={{ fill: 'rgba(255,255,255,0.7)' }} />
+                      <YAxis 
+                        stroke="rgba(255,255,255,0.5)" 
+                        tick={{ fill: 'rgba(255,255,255,0.7)' }}
+                        tickFormatter={(value) => `$${(value / 1000000).toFixed(1)}M`}
+                      />
+                      <Tooltip 
+                        formatter={(value: number) => formatMoney(value)}
+                        contentStyle={{ 
+                          backgroundColor: 'rgba(30, 42, 58, 0.95)', 
+                          border: '1px solid rgba(255,255,255,0.2)',
+                          borderRadius: '12px',
+                          backdropFilter: 'blur(12px)',
+                          color: '#fff'
+                        }}
+                        labelStyle={{ color: 'rgba(255,255,255,0.7)' }}
+                      />
+                      <Legend wrapperStyle={{ color: 'rgba(255,255,255,0.8)' }} />
+                      <Line type="monotone" dataKey="Revenue" stroke="#60A5FA" strokeWidth={3} dot={{ fill: '#60A5FA', strokeWidth: 0, r: 4 }} activeDot={{ r: 6, fill: '#60A5FA' }} />
+                      <Line type="monotone" dataKey="Operating Expenses" stroke="#A78BFA" strokeWidth={3} dot={{ fill: '#A78BFA', strokeWidth: 0, r: 4 }} activeDot={{ r: 6, fill: '#A78BFA' }} />
+                      <Line type="monotone" dataKey="NOI" stroke="#9FBCA4" strokeWidth={3} dot={{ fill: '#9FBCA4', strokeWidth: 0, r: 4 }} activeDot={{ r: 6, fill: '#9FBCA4' }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </div>
 
             <Card>
               <CardHeader>

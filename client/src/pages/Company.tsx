@@ -531,8 +531,77 @@ export default function Company() {
           }
         />
 
-        {/* Chart Card */}
-        <GlassCard variant="chart" className="rounded-3xl">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
+            {/* Liquid Glass Tabs - Dark Theme */}
+            <div className="relative overflow-hidden rounded-2xl">
+              <div className="absolute inset-0 bg-gradient-to-r from-[#2d4a5e]/70 to-[#3a5a5e]/70 backdrop-blur-xl" />
+              <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+              <div className="absolute inset-0 rounded-2xl border border-white/15" />
+              <div className="relative flex flex-wrap gap-1 p-1.5">
+                <button
+                  onClick={() => setActiveTab("income")}
+                  className={`relative overflow-hidden px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 ${
+                    activeTab === "income" ? "text-[#FFF9F5]" : "text-gray-600 hover:text-[#FFF9F5] hover:bg-gray-50"
+                  }`}
+                >
+                  {activeTab === "income" && (
+                    <>
+                      <div className="absolute inset-0 bg-white/15 backdrop-blur-sm rounded-xl" />
+                      <div className="absolute inset-0 rounded-xl border border-white/25" />
+                      <div className="absolute top-0 left-1 right-1 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+                    </>
+                  )}
+                  <span className="relative">Income Statement</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab("cashflow")}
+                  className={`relative overflow-hidden px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 ${
+                    activeTab === "cashflow" ? "text-[#FFF9F5]" : "text-gray-600 hover:text-[#FFF9F5] hover:bg-gray-50"
+                  }`}
+                >
+                  {activeTab === "cashflow" && (
+                    <>
+                      <div className="absolute inset-0 bg-white/15 backdrop-blur-sm rounded-xl" />
+                      <div className="absolute inset-0 rounded-xl border border-white/25" />
+                      <div className="absolute top-0 left-1 right-1 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+                    </>
+                  )}
+                  <span className="relative">Cash Flows</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab("balance")}
+                  className={`relative overflow-hidden px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 ${
+                    activeTab === "balance" ? "text-[#FFF9F5]" : "text-gray-600 hover:text-[#FFF9F5] hover:bg-gray-50"
+                  }`}
+                >
+                  {activeTab === "balance" && (
+                    <>
+                      <div className="absolute inset-0 bg-white/15 backdrop-blur-sm rounded-xl" />
+                      <div className="absolute inset-0 rounded-xl border border-white/25" />
+                      <div className="absolute top-0 left-1 right-1 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+                    </>
+                  )}
+                  <span className="relative">Balance Sheet</span>
+                </button>
+              </div>
+            </div>
+            
+            {/* Export Buttons */}
+            <div className="flex gap-2">
+              <GlassButton variant="ghost" size="sm" onClick={() => exportCompanyPDF(activeTab as 'income' | 'cashflow' | 'balance')}>
+                <FileDown className="w-4 h-4" />
+                Export PDF
+              </GlassButton>
+              <GlassButton variant="ghost" size="sm" onClick={() => exportCompanyCSV(activeTab as 'income' | 'cashflow' | 'balance')}>
+                <FileDown className="w-4 h-4" />
+                Export CSV
+              </GlassButton>
+            </div>
+          </div>
+
+          {/* Chart Card */}
+          <GlassCard variant="chart" className="rounded-3xl">
           <div>
             <h3 className="text-lg font-semibold text-[#FFF9F5] mb-4">Management Company Performance (10-Year Projection)</h3>
             <div className="h-[300px]">
@@ -631,75 +700,6 @@ export default function Company() {
             </div>
           </GlassCard>
         )}
-
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
-            {/* Liquid Glass Tabs - Dark Theme */}
-            <div className="relative overflow-hidden rounded-2xl">
-              <div className="absolute inset-0 bg-gradient-to-r from-[#2d4a5e]/70 to-[#3a5a5e]/70 backdrop-blur-xl" />
-              <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
-              <div className="absolute inset-0 rounded-2xl border border-white/15" />
-              <div className="relative flex flex-wrap gap-1 p-1.5">
-                <button
-                  onClick={() => setActiveTab("income")}
-                  className={`relative overflow-hidden px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 ${
-                    activeTab === "income" ? "text-[#FFF9F5]" : "text-gray-600 hover:text-[#FFF9F5] hover:bg-gray-50"
-                  }`}
-                >
-                  {activeTab === "income" && (
-                    <>
-                      <div className="absolute inset-0 bg-white/15 backdrop-blur-sm rounded-xl" />
-                      <div className="absolute inset-0 rounded-xl border border-white/25" />
-                      <div className="absolute top-0 left-1 right-1 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
-                    </>
-                  )}
-                  <span className="relative">Income Statement</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab("cashflow")}
-                  className={`relative overflow-hidden px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 ${
-                    activeTab === "cashflow" ? "text-[#FFF9F5]" : "text-gray-600 hover:text-[#FFF9F5] hover:bg-gray-50"
-                  }`}
-                >
-                  {activeTab === "cashflow" && (
-                    <>
-                      <div className="absolute inset-0 bg-white/15 backdrop-blur-sm rounded-xl" />
-                      <div className="absolute inset-0 rounded-xl border border-white/25" />
-                      <div className="absolute top-0 left-1 right-1 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
-                    </>
-                  )}
-                  <span className="relative">Cash Flows</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab("balance")}
-                  className={`relative overflow-hidden px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 ${
-                    activeTab === "balance" ? "text-[#FFF9F5]" : "text-gray-600 hover:text-[#FFF9F5] hover:bg-gray-50"
-                  }`}
-                >
-                  {activeTab === "balance" && (
-                    <>
-                      <div className="absolute inset-0 bg-white/15 backdrop-blur-sm rounded-xl" />
-                      <div className="absolute inset-0 rounded-xl border border-white/25" />
-                      <div className="absolute top-0 left-1 right-1 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
-                    </>
-                  )}
-                  <span className="relative">Balance Sheet</span>
-                </button>
-              </div>
-            </div>
-            
-            {/* Export Buttons */}
-            <div className="flex gap-2">
-              <GlassButton variant="ghost" size="sm" onClick={() => exportCompanyPDF(activeTab as 'income' | 'cashflow' | 'balance')}>
-                <FileDown className="w-4 h-4" />
-                Export PDF
-              </GlassButton>
-              <GlassButton variant="ghost" size="sm" onClick={() => exportCompanyCSV(activeTab as 'income' | 'cashflow' | 'balance')}>
-                <FileDown className="w-4 h-4" />
-                Export CSV
-              </GlassButton>
-            </div>
-          </div>
           
           <TabsContent value="income" className="mt-6">
             {/* Income Statement */}

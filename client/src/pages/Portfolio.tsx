@@ -337,8 +337,8 @@ export default function Portfolio() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="Development">Development</SelectItem>
-                          <SelectItem value="Operational">Operational</SelectItem>
+                          <SelectItem value="Development">Planned</SelectItem>
+                          <SelectItem value="Operational">Active</SelectItem>
                           <SelectItem value="Pipeline">Pipeline</SelectItem>
                         </SelectContent>
                       </Select>
@@ -576,7 +576,7 @@ export default function Portfolio() {
                       property.status === "Operational" ? "bg-emerald-500/80 text-white" :
                       property.status === "Development" ? "bg-amber-500/80 text-white" : "bg-white/20 text-white"
                     }`}>
-                      {property.status}
+                      {property.status === "Operational" ? "Active" : property.status === "Development" ? "Planned" : property.status}
                     </span>
                   </div>
                 </div>

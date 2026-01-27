@@ -1660,18 +1660,44 @@ export default function Dashboard() {
                     <div className="relative">
                       <svg className="w-48 h-48" viewBox="0 0 200 200">
                         <defs>
-                          <linearGradient id="irrGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stopColor="#9FBCA4" />
-                            <stop offset="100%" stopColor="#257D41" />
+                          {/* 3D Salmon gradient with depth */}
+                          <linearGradient id="irrGradient3D" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stopColor="#FFB4A2" />
+                            <stop offset="30%" stopColor="#E5989B" />
+                            <stop offset="70%" stopColor="#B5838D" />
+                            <stop offset="100%" stopColor="#8B5A5A" />
+                          </linearGradient>
+                          {/* Highlight gradient for 3D effect */}
+                          <linearGradient id="irrHighlight" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stopColor="#FFD6CC" stopOpacity="0.9" />
+                            <stop offset="50%" stopColor="#FFB4A2" stopOpacity="0.4" />
+                            <stop offset="100%" stopColor="transparent" stopOpacity="0" />
                           </linearGradient>
                         </defs>
-                        <circle cx="100" cy="100" r="80" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="10" />
+                        {/* Background track */}
+                        <circle cx="100" cy="100" r="80" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="14" />
+                        {/* Shadow layer for depth */}
                         <circle 
-                          cx="100" cy="100" r="80" fill="none" stroke="url(#irrGradient)" strokeWidth="10"
+                          cx="100" cy="100" r="80" fill="none" stroke="#6B4444" strokeWidth="14"
                           strokeDasharray={`${Math.min(Math.max(portfolioIRR * 100, 0) * 5.03, 503)} 503`}
                           strokeLinecap="round"
                           transform="rotate(-90 100 100)"
-                          style={{ filter: 'drop-shadow(0 0 12px rgba(159,188,164,0.6))' }}
+                          style={{ filter: 'blur(2px)' }}
+                        />
+                        {/* Main 3D salmon segment */}
+                        <circle 
+                          cx="100" cy="100" r="80" fill="none" stroke="url(#irrGradient3D)" strokeWidth="12"
+                          strokeDasharray={`${Math.min(Math.max(portfolioIRR * 100, 0) * 5.03, 503)} 503`}
+                          strokeLinecap="round"
+                          transform="rotate(-90 100 100)"
+                        />
+                        {/* Top highlight for 3D rounded effect */}
+                        <circle 
+                          cx="100" cy="100" r="82" fill="none" stroke="url(#irrHighlight)" strokeWidth="4"
+                          strokeDasharray={`${Math.min(Math.max(portfolioIRR * 100, 0) * 5.03, 503)} 503`}
+                          strokeLinecap="round"
+                          transform="rotate(-90 100 100)"
+                          style={{ filter: 'drop-shadow(0 0 8px rgba(255,180,162,0.5))' }}
                         />
                       </svg>
                       <div className="absolute inset-0 flex flex-col items-center justify-center">

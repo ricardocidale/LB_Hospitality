@@ -34,12 +34,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         "fixed lg:sticky top-0 left-0 z-50 h-screen w-64 transition-transform duration-300 lg:translate-x-0 flex flex-col overflow-hidden",
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
       )}>
-        {/* Liquid Glass Background */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#1e2a3a] via-[#243447] to-[#2a2a4a]" />
+        {/* Liquid Glass Background - Matching Main Content */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#2d4a5e] via-[#3d5a6a] to-[#4a3d5e]" />
         <div className="absolute inset-0">
-          <div className="absolute top-0 left-0 w-48 h-48 rounded-full bg-[#9FBCA4]/20 blur-3xl" />
-          <div className="absolute bottom-1/3 right-0 w-40 h-40 rounded-full bg-[#6366f1]/20 blur-3xl" />
-          <div className="absolute bottom-0 left-1/2 w-56 h-56 rounded-full bg-[#8b5cf6]/15 blur-3xl" />
+          <div className="absolute top-0 left-0 w-48 h-48 rounded-full bg-[#9FBCA4]/25 blur-3xl" />
+          <div className="absolute top-1/3 right-0 w-40 h-40 rounded-full bg-[#60A5FA]/20 blur-3xl" />
+          <div className="absolute bottom-1/4 left-1/2 w-48 h-48 rounded-full bg-[#A78BFA]/20 blur-3xl" />
         </div>
         
         <div className="relative flex flex-col h-full">

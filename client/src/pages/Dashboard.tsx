@@ -1575,7 +1575,12 @@ export default function Dashboard() {
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             {/* Liquid Glass Tabs */}
             <div className="relative overflow-hidden rounded-2xl">
-              <div className="absolute inset-0 bg-gradient-to-r from-[#2d4a5e]/80 to-[#4a3d5e]/80 backdrop-blur-xl" />
+              {/* Glass Background */}
+              <div className="absolute inset-0 bg-gradient-to-r from-[#2d4a5e]/70 to-[#4a3d5e]/70 backdrop-blur-xl" />
+              {/* Top Edge Sheen */}
+              <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+              {/* Border */}
+              <div className="absolute inset-0 rounded-2xl border border-white/15" />
               <div className="relative flex flex-wrap gap-1 p-1.5">
                 {[
                   { value: 'overview', label: 'Overview' },
@@ -1587,13 +1592,20 @@ export default function Dashboard() {
                   <button
                     key={tab.value}
                     onClick={() => setActiveTab(tab.value)}
-                    className={`px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 ${
+                    className={`relative px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 overflow-hidden ${
                       activeTab === tab.value
-                        ? 'bg-white/20 text-white border border-white/30 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)]'
+                        ? 'text-white'
                         : 'text-white/60 hover:text-white hover:bg-white/5'
                     }`}
                   >
-                    {tab.label}
+                    {activeTab === tab.value && (
+                      <>
+                        <div className="absolute inset-0 bg-white/15 backdrop-blur-sm rounded-xl" />
+                        <div className="absolute inset-0 rounded-xl border border-white/25" />
+                        <div className="absolute top-0 left-1 right-1 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+                      </>
+                    )}
+                    <span className="relative">{tab.label}</span>
                   </button>
                 ))}
               </div>

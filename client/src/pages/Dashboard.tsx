@@ -1599,126 +1599,125 @@ export default function Dashboard() {
           </div>
 
           <TabsContent value="overview" className="space-y-8">
-            {/* Investment Returns - Hero Section */}
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#1e3a2f] via-[#234436] to-[#1a2f26] p-8 shadow-2xl border border-[#3d5a4a]/30">
+            {/* Investment Returns - Hero Section - Liquid Glass Design */}
+            <div className="relative overflow-hidden rounded-3xl p-8">
+              {/* Gradient Background */}
+              <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e] via-[#3d5a6a] to-[#4a3d5e]" />
               <div className="absolute inset-0">
-                <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-[#9FBCA4]/20 blur-3xl" />
-                <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full bg-[#257D41]/15 blur-3xl" />
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full bg-[#9FBCA4]/10 blur-2xl" />
+                <div className="absolute top-0 right-1/4 w-96 h-96 rounded-full bg-[#9FBCA4]/30 blur-3xl" />
+                <div className="absolute bottom-0 left-1/4 w-80 h-80 rounded-full bg-[#7c6f9f]/40 blur-3xl" />
+                <div className="absolute top-1/3 right-0 w-64 h-64 rounded-full bg-[#5a8f9f]/30 blur-2xl" />
               </div>
+              
               <div className="relative">
                 <div className="text-center mb-8">
-                  <p className="text-sm font-medium tracking-widest text-[#9FBCA4] uppercase mb-2">Investment Performance</p>
-                  <p className="text-white/50 text-sm">{investmentHorizon}-Year Hold | {totalProperties} Properties | {totalRooms} Rooms</p>
+                  <p className="text-sm font-medium tracking-widest text-white/60 uppercase mb-2">Investment Performance</p>
+                  <p className="text-white/40 text-sm">{investmentHorizon}-Year Hold | {totalProperties} Properties | {totalRooms} Rooms</p>
                 </div>
                 
-                {/* Main IRR Display */}
+                {/* Main IRR Display - Frosted Glass */}
                 <div className="flex flex-col items-center mb-10">
-                  <div className="relative">
-                    <svg className="w-52 h-52" viewBox="0 0 200 200">
-                      <defs>
-                        <linearGradient id="irrGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                          <stop offset="0%" stopColor="#9FBCA4" />
-                          <stop offset="100%" stopColor="#257D41" />
-                        </linearGradient>
-                      </defs>
-                      <circle cx="100" cy="100" r="85" fill="none" stroke="rgba(159,188,164,0.15)" strokeWidth="12" />
-                      <circle 
-                        cx="100" cy="100" r="85" fill="none" stroke="url(#irrGradient)" strokeWidth="12"
-                        strokeDasharray={`${Math.min(Math.max(portfolioIRR * 100, 0) * 5.34, 534)} 534`}
-                        strokeLinecap="round"
-                        transform="rotate(-90 100 100)"
-                        style={{ filter: 'drop-shadow(0 0 8px rgba(159,188,164,0.5))' }}
-                      />
-                    </svg>
-                    <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="text-6xl font-bold text-white tracking-tight">{(portfolioIRR * 100).toFixed(1)}%</span>
-                      <span className="text-sm text-[#9FBCA4] font-medium mt-2">Portfolio IRR</span>
+                  <div className="relative bg-white/10 backdrop-blur-2xl rounded-[2rem] p-8 border border-white/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3),0_20px_40px_rgba(0,0,0,0.2)]">
+                    <div className="relative">
+                      <svg className="w-48 h-48" viewBox="0 0 200 200">
+                        <defs>
+                          <linearGradient id="irrGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor="#9FBCA4" />
+                            <stop offset="100%" stopColor="#257D41" />
+                          </linearGradient>
+                        </defs>
+                        <circle cx="100" cy="100" r="80" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="10" />
+                        <circle 
+                          cx="100" cy="100" r="80" fill="none" stroke="url(#irrGradient)" strokeWidth="10"
+                          strokeDasharray={`${Math.min(Math.max(portfolioIRR * 100, 0) * 5.03, 503)} 503`}
+                          strokeLinecap="round"
+                          transform="rotate(-90 100 100)"
+                          style={{ filter: 'drop-shadow(0 0 12px rgba(159,188,164,0.6))' }}
+                        />
+                      </svg>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center">
+                        <span className="text-5xl font-bold text-white tracking-tight">{(portfolioIRR * 100).toFixed(1)}%</span>
+                        <span className="text-sm text-white/60 font-medium mt-2">Portfolio IRR</span>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Key Metrics Grid */}
+                {/* Key Metrics Grid - Liquid Glass Cards */}
                 <div className="grid gap-4 md:grid-cols-4 max-w-5xl mx-auto">
                   {/* Equity Multiple */}
-                  <div className="group bg-white/[0.03] hover:bg-white/[0.06] backdrop-blur-xl rounded-2xl p-6 border border-white/[0.08] transition-all duration-300">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="relative w-16 h-16">
-                        <svg className="w-16 h-16" viewBox="0 0 100 100">
-                          <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(96,165,250,0.2)" strokeWidth="6" />
+                  <div className="bg-white/10 backdrop-blur-2xl rounded-2xl p-5 border border-white/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_10px_30px_rgba(0,0,0,0.15)] hover:bg-white/15 transition-all duration-300">
+                    <div className="flex items-center gap-4 mb-3">
+                      <div className="relative w-14 h-14 flex-shrink-0">
+                        <svg className="w-14 h-14" viewBox="0 0 100 100">
+                          <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="6" />
                           <circle 
-                            cx="50" cy="50" r="42" fill="none" stroke="#60A5FA" strokeWidth="6"
-                            strokeDasharray={`${Math.min(equityMultiple * 66, 264)} 264`}
+                            cx="50" cy="50" r="40" fill="none" stroke="#60A5FA" strokeWidth="6"
+                            strokeDasharray={`${Math.min(equityMultiple * 63, 251)} 251`}
                             strokeLinecap="round"
                             transform="rotate(-90 50 50)"
-                            style={{ filter: 'drop-shadow(0 0 4px rgba(96,165,250,0.5))' }}
+                            style={{ filter: 'drop-shadow(0 0 6px rgba(96,165,250,0.6))' }}
                           />
                         </svg>
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <span className="text-lg font-bold text-white">{equityMultiple.toFixed(1)}x</span>
+                          <span className="text-sm font-bold text-white">{equityMultiple.toFixed(1)}x</span>
                         </div>
                       </div>
-                      <div className="text-right">
+                      <div>
                         <p className="text-2xl font-bold text-white">{equityMultiple.toFixed(2)}x</p>
-                        <p className="text-xs text-white/40">target 2.0x+</p>
+                        <p className="text-sm text-white/50">Equity Multiple</p>
                       </div>
                     </div>
-                    <p className="text-sm font-medium text-white/70">Equity Multiple</p>
                   </div>
 
                   {/* Cash-on-Cash */}
-                  <div className="group bg-white/[0.03] hover:bg-white/[0.06] backdrop-blur-xl rounded-2xl p-6 border border-white/[0.08] transition-all duration-300">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="relative w-16 h-16">
-                        <svg className="w-16 h-16" viewBox="0 0 100 100">
-                          <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(251,191,36,0.2)" strokeWidth="6" />
+                  <div className="bg-white/10 backdrop-blur-2xl rounded-2xl p-5 border border-white/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_10px_30px_rgba(0,0,0,0.15)] hover:bg-white/15 transition-all duration-300">
+                    <div className="flex items-center gap-4 mb-3">
+                      <div className="relative w-14 h-14 flex-shrink-0">
+                        <svg className="w-14 h-14" viewBox="0 0 100 100">
+                          <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="6" />
                           <circle 
-                            cx="50" cy="50" r="42" fill="none" stroke="#FBBF24" strokeWidth="6"
-                            strokeDasharray={`${Math.min(Math.max(cashOnCash, 0) * 13.2, 264)} 264`}
+                            cx="50" cy="50" r="40" fill="none" stroke="#FBBF24" strokeWidth="6"
+                            strokeDasharray={`${Math.min(Math.max(cashOnCash, 0) * 12.5, 251)} 251`}
                             strokeLinecap="round"
                             transform="rotate(-90 50 50)"
-                            style={{ filter: 'drop-shadow(0 0 4px rgba(251,191,36,0.5))' }}
+                            style={{ filter: 'drop-shadow(0 0 6px rgba(251,191,36,0.6))' }}
                           />
                         </svg>
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <span className="text-lg font-bold text-white">{cashOnCash.toFixed(0)}%</span>
+                          <span className="text-sm font-bold text-white">{cashOnCash.toFixed(0)}%</span>
                         </div>
                       </div>
-                      <div className="text-right">
+                      <div>
                         <p className="text-2xl font-bold text-white">{cashOnCash.toFixed(1)}%</p>
-                        <p className="text-xs text-white/40">annual avg</p>
+                        <p className="text-sm text-white/50">Cash-on-Cash</p>
                       </div>
                     </div>
-                    <p className="text-sm font-medium text-white/70">Cash-on-Cash</p>
                   </div>
 
                   {/* Total Equity */}
-                  <div className="group bg-white/[0.03] hover:bg-white/[0.06] backdrop-blur-xl rounded-2xl p-6 border border-white/[0.08] transition-all duration-300">
-                    <div className="mb-4">
-                      <p className="text-3xl font-bold text-white mb-1">{formatMoney(totalInitialEquity)}</p>
-                      <div className="flex items-center gap-2">
-                        <div className="h-1.5 flex-1 bg-white/10 rounded-full overflow-hidden">
-                          <div className="h-full bg-[#9FBCA4] rounded-full" style={{ width: '100%' }} />
-                        </div>
-                      </div>
+                  <div className="bg-white/10 backdrop-blur-2xl rounded-2xl p-5 border border-white/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_10px_30px_rgba(0,0,0,0.15)] hover:bg-white/15 transition-all duration-300">
+                    <div className="mb-2">
+                      <p className="text-2xl font-bold text-white">{formatMoney(totalInitialEquity)}</p>
+                      <p className="text-sm text-white/50">Equity Invested</p>
                     </div>
-                    <p className="text-sm font-medium text-white/70">Equity Invested</p>
-                    <p className="text-xs text-white/40 mt-1">total capital deployed</p>
+                    <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-[#9FBCA4] to-[#257D41] rounded-full" style={{ width: '100%' }} />
+                    </div>
                   </div>
 
                   {/* Exit Value */}
-                  <div className="group bg-white/[0.03] hover:bg-white/[0.06] backdrop-blur-xl rounded-2xl p-6 border border-white/[0.08] transition-all duration-300">
-                    <div className="mb-4">
-                      <p className="text-3xl font-bold text-[#34D399] mb-1">{formatMoney(totalExitValue)}</p>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-[#34D399]">+{((totalExitValue / totalInitialEquity - 1) * 100).toFixed(0)}%</span>
-                        <svg className="w-4 h-4 text-[#34D399]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                        </svg>
-                      </div>
+                  <div className="bg-white/10 backdrop-blur-2xl rounded-2xl p-5 border border-white/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_10px_30px_rgba(0,0,0,0.15)] hover:bg-white/15 transition-all duration-300">
+                    <div className="mb-2">
+                      <p className="text-2xl font-bold text-[#6EE7B7]">{formatMoney(totalExitValue)}</p>
+                      <p className="text-sm text-white/50">Projected Exit</p>
                     </div>
-                    <p className="text-sm font-medium text-white/70">Projected Exit</p>
-                    <p className="text-xs text-white/40 mt-1">year {investmentHorizon} value</p>
+                    <div className="flex items-center gap-1.5">
+                      <svg className="w-4 h-4 text-[#6EE7B7]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                      </svg>
+                      <span className="text-sm font-medium text-[#6EE7B7]">+{((totalExitValue / totalInitialEquity - 1) * 100).toFixed(0)}% gain</span>
+                    </div>
                   </div>
                 </div>
               </div>

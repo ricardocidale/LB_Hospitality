@@ -1660,44 +1660,23 @@ export default function Dashboard() {
                     <div className="relative">
                       <svg className="w-48 h-48" viewBox="0 0 200 200">
                         <defs>
-                          {/* 3D Coral gradient with depth */}
-                          <linearGradient id="irrGradient3D" x1="0%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" stopColor="#FF9A7A" />
-                            <stop offset="30%" stopColor="#F4795B" />
-                            <stop offset="70%" stopColor="#D45A3C" />
-                            <stop offset="100%" stopColor="#A24028" />
-                          </linearGradient>
-                          {/* Highlight gradient for 3D effect */}
-                          <linearGradient id="irrHighlight" x1="0%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" stopColor="#FFBFA8" stopOpacity="0.9" />
-                            <stop offset="50%" stopColor="#F4795B" stopOpacity="0.4" />
-                            <stop offset="100%" stopColor="transparent" stopOpacity="0" />
+                          {/* 3D tubular gradient for #F4795B */}
+                          <linearGradient id="irrTube3D" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stopColor="#FFA889" />
+                            <stop offset="25%" stopColor="#F4795B" />
+                            <stop offset="75%" stopColor="#C25A3A" />
+                            <stop offset="100%" stopColor="#8B3D28" />
                           </linearGradient>
                         </defs>
                         {/* Background track */}
-                        <circle cx="100" cy="100" r="80" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="14" />
-                        {/* Shadow layer for depth */}
+                        <circle cx="100" cy="100" r="80" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="12" />
+                        {/* Main 3D segment with tubular gradient */}
                         <circle 
-                          cx="100" cy="100" r="80" fill="none" stroke="#8B3520" strokeWidth="14"
+                          cx="100" cy="100" r="80" fill="none" stroke="url(#irrTube3D)" strokeWidth="12"
                           strokeDasharray={`${Math.min(Math.max(portfolioIRR * 100, 0) * 5.03, 503)} 503`}
                           strokeLinecap="round"
                           transform="rotate(-90 100 100)"
-                          style={{ filter: 'blur(2px)' }}
-                        />
-                        {/* Main 3D coral segment */}
-                        <circle 
-                          cx="100" cy="100" r="80" fill="none" stroke="url(#irrGradient3D)" strokeWidth="12"
-                          strokeDasharray={`${Math.min(Math.max(portfolioIRR * 100, 0) * 5.03, 503)} 503`}
-                          strokeLinecap="round"
-                          transform="rotate(-90 100 100)"
-                        />
-                        {/* Top highlight for 3D rounded effect */}
-                        <circle 
-                          cx="100" cy="100" r="82" fill="none" stroke="url(#irrHighlight)" strokeWidth="4"
-                          strokeDasharray={`${Math.min(Math.max(portfolioIRR * 100, 0) * 5.03, 503)} 503`}
-                          strokeLinecap="round"
-                          transform="rotate(-90 100 100)"
-                          style={{ filter: 'drop-shadow(0 0 8px rgba(244,121,91,0.5))' }}
+                          style={{ filter: 'drop-shadow(0 0 10px rgba(244,121,91,0.6))' }}
                         />
                       </svg>
                       <div className="absolute inset-0 flex flex-col items-center justify-center">

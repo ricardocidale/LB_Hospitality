@@ -1,11 +1,44 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, real, integer, timestamp, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, real, integer, timestamp, jsonb, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
+
+// --- USERS TABLE ---
+export const users = pgTable("users", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  email: text("email").notNull().unique(),
+  passwordHash: text("password_hash").notNull(),
+  role: text("role").notNull().default("user"), // "admin" or "user"
+  name: text("name"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertUserSchema = createInsertSchema(users).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const selectUserSchema = createSelectSchema(users);
+
+export type User = typeof users.$inferSelect;
+export type InsertUser = z.infer<typeof insertUserSchema>;
+
+// --- SESSIONS TABLE ---
+export const sessions = pgTable("sessions", {
+  id: text("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type Session = typeof sessions.$inferSelect;
 
 // --- GLOBAL ASSUMPTIONS TABLE ---
 export const globalAssumptions = pgTable("global_assumptions", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  userId: integer("user_id").references(() => users.id),
   modelStartDate: text("model_start_date").notNull(),
   companyOpsStartDate: text("company_ops_start_date").notNull().default("2026-06-01"),
   fiscalYearStartMonth: integer("fiscal_year_start_month").notNull().default(1), // 1 = January, 4 = April, etc.
@@ -109,6 +142,7 @@ export type InsertGlobalAssumptions = z.infer<typeof insertGlobalAssumptionsSche
 // --- PROPERTIES TABLE ---
 export const properties = pgTable("properties", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  userId: integer("user_id").references(() => users.id),
   name: text("name").notNull(),
   location: text("location").notNull(),
   market: text("market").notNull(),

@@ -24,20 +24,22 @@ const GlassButton = React.forwardRef<HTMLButtonElement, GlassButtonProps>(
           className={cn(
             baseClasses,
             sizes[size],
-            "text-white font-semibold",
+            "text-[#1a3a20] font-semibold",
             className
           )}
           {...props}
         >
-          {/* Sage green gradient background matching active menu items */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[#9FBCA4] via-[#7da584] to-[#6b9973] rounded-xl" />
-          {/* Top shine highlight */}
-          <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-white/50 to-transparent" />
-          {/* Inner top glow for liquid effect */}
-          <div className="absolute top-0 left-0 right-0 h-6 bg-gradient-to-b from-white/25 to-transparent rounded-t-xl" />
-          {/* Border glow */}
-          <div className="absolute inset-0 rounded-xl border border-[#9FBCA4]/60 shadow-[0_0_20px_rgba(159,188,164,0.4),inset_0_1px_0_rgba(255,255,255,0.2)]" />
-          <span className="relative flex items-center justify-center gap-2 drop-shadow-sm">
+          {/* Base gradient - lighter at top, darker at bottom for depth */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#b8d4bc] via-[#9FBCA4] to-[#7da584] rounded-xl" />
+          {/* Strong top highlight - the key liquid ice shine */}
+          <div className="absolute top-0 left-0 right-0 h-1/2 bg-gradient-to-b from-white/40 via-white/20 to-transparent rounded-t-xl" />
+          {/* Top edge shine line */}
+          <div className="absolute top-[1px] left-3 right-3 h-[2px] bg-gradient-to-r from-white/20 via-white/60 to-white/20 rounded-full" />
+          {/* Subtle inner shadow for depth */}
+          <div className="absolute inset-0 rounded-xl shadow-[inset_0_-2px_4px_rgba(0,0,0,0.1),inset_0_2px_4px_rgba(255,255,255,0.3)]" />
+          {/* Outer glow */}
+          <div className="absolute inset-0 rounded-xl shadow-[0_2px_12px_rgba(159,188,164,0.5)]" />
+          <span className="relative flex items-center justify-center gap-2">
             {children}
           </span>
         </button>

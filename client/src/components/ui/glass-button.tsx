@@ -24,21 +24,19 @@ const GlassButton = React.forwardRef<HTMLButtonElement, GlassButtonProps>(
           className={cn(
             baseClasses,
             sizes[size],
-            "text-[#1a3a20] font-semibold",
+            "text-white font-medium",
             className
           )}
           {...props}
         >
-          {/* Base gradient - lighter at top, darker at bottom for depth */}
-          <div className="absolute inset-0 bg-gradient-to-b from-[#b8d4bc] via-[#9FBCA4] to-[#7da584] rounded-xl" />
-          {/* Strong top highlight - the key liquid ice shine */}
-          <div className="absolute top-0 left-0 right-0 h-1/2 bg-gradient-to-b from-white/40 via-white/20 to-transparent rounded-t-xl" />
+          {/* Dark glass background - matching active sidebar items */}
+          <div className="absolute inset-0 bg-white/12 backdrop-blur-xl rounded-xl" />
           {/* Top edge shine line */}
-          <div className="absolute top-[1px] left-3 right-3 h-[2px] bg-gradient-to-r from-white/20 via-white/60 to-white/20 rounded-full" />
-          {/* Subtle inner shadow for depth */}
-          <div className="absolute inset-0 rounded-xl shadow-[inset_0_-2px_4px_rgba(0,0,0,0.1),inset_0_2px_4px_rgba(255,255,255,0.3)]" />
-          {/* Outer glow */}
-          <div className="absolute inset-0 rounded-xl shadow-[0_2px_12px_rgba(159,188,164,0.5)]" />
+          <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+          {/* Border */}
+          <div className="absolute inset-0 rounded-xl border border-white/25" />
+          {/* Hover glow effect */}
+          <div className="absolute inset-0 rounded-xl shadow-[0_0_20px_rgba(159,188,164,0.3)]" />
           <span className="relative flex items-center justify-center gap-2">
             {children}
           </span>

@@ -282,13 +282,13 @@ export default function PropertyDetail() {
           {/* Liquid Glass Info Bar */}
           <div className="relative overflow-hidden p-6">
             {/* Gradient Background */}
-            <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e] via-[#3d5a6a] to-[#4a3d5e]" />
+            <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e] via-[#3d5a6a] to-[#3a5a5e]" />
             {/* Top Edge Sheen */}
             <div className="absolute top-0 left-8 right-8 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
             {/* Floating Color Orbs */}
             <div className="absolute inset-0 overflow-hidden">
               <div className="absolute -top-12 -right-12 w-56 h-56 rounded-full bg-[#9FBCA4]/25 blur-3xl" />
-              <div className="absolute bottom-0 left-1/4 w-48 h-48 rounded-full bg-[#A78BFA]/20 blur-3xl" />
+              <div className="absolute bottom-0 left-1/4 w-48 h-48 rounded-full bg-[#9FBCA4]/15 blur-3xl" />
             </div>
             
             <div className="relative flex items-center justify-between">

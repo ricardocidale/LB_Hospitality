@@ -91,7 +91,12 @@ export default function Profile() {
   });
 
   const handleSave = () => {
-    updateMutation.mutate(formData);
+    if (user?.role === "admin") {
+      const { email, ...rest } = formData;
+      updateMutation.mutate(rest);
+    } else {
+      updateMutation.mutate(formData);
+    }
   };
 
   const handlePasswordChange = (e: React.FormEvent) => {
@@ -150,16 +155,27 @@ export default function Profile() {
 
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-gray-700">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  placeholder="Enter your email"
-                  className="bg-white border-[#9FBCA4]/30 text-gray-900"
-                  data-testid="input-profile-email"
-                />
+                <Label htmlFor="email" className="text-gray-700">Email (User ID)</Label>
+                {user.role === "admin" ? (
+                  <Input
+                    id="email"
+                    type="text"
+                    value="Admin"
+                    disabled
+                    className="bg-gray-100 border-[#9FBCA4]/30 text-gray-500 cursor-not-allowed"
+                    data-testid="input-profile-email"
+                  />
+                ) : (
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    placeholder="Enter your email"
+                    className="bg-white border-[#9FBCA4]/30 text-gray-900"
+                    data-testid="input-profile-email"
+                  />
+                )}
               </div>
 
               <div className="space-y-2">

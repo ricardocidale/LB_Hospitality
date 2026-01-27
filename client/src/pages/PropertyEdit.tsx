@@ -259,8 +259,8 @@ export default function PropertyEdit() {
                   <span className="relative flex items-center"><ArrowLeft className="w-4 h-4 mr-2" />Back to Property</span>
                 </button>
               </Link>
-              <h2 className="text-3xl font-serif font-bold text-[#FFF9F5]">Property Assumptions</h2>
-              <p className="text-[#FFF9F5]/60 mt-1">{property.name}</p>
+              <h2 className="text-3xl font-serif font-bold text-gray-900">Property Assumptions</h2>
+              <p className="text-gray-600 mt-1">{property.name}</p>
             </div>
             
             <GlassButton 
@@ -282,30 +282,30 @@ export default function PropertyEdit() {
           
           <div className="relative p-6">
             <div className="mb-6">
-              <h3 className="text-xl font-semibold text-[#FFF9F5]">Basic Information</h3>
-              <p className="text-[#FFF9F5]/60 text-sm">Property identification and location details</p>
+              <h3 className="text-xl font-semibold text-gray-900">Basic Information</h3>
+              <p className="text-gray-600 text-sm">Property identification and location details</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label className="text-[#FFF9F5]/80">Property Name</Label>
-                <Input value={draft.name} onChange={(e) => handleChange("name", e.target.value)} className="bg-white/10 border-white/20 text-white placeholder:text-white/40" />
+                <Label className="text-gray-700">Property Name</Label>
+                <Input value={draft.name} onChange={(e) => handleChange("name", e.target.value)} className="bg-white border-[#9FBCA4]/30 text-gray-900 placeholder:text-gray-400" />
               </div>
               <div className="space-y-2">
-                <Label className="text-[#FFF9F5]/80">Location</Label>
-                <Input value={draft.location} onChange={(e) => handleChange("location", e.target.value)} className="bg-white/10 border-white/20 text-white placeholder:text-white/40" />
+                <Label className="text-gray-700">Location</Label>
+                <Input value={draft.location} onChange={(e) => handleChange("location", e.target.value)} className="bg-white border-[#9FBCA4]/30 text-gray-900 placeholder:text-gray-400" />
               </div>
               <div className="space-y-2">
-                <Label className="text-[#FFF9F5]/80">Market</Label>
-                <Input value={draft.market} onChange={(e) => handleChange("market", e.target.value)} className="bg-white/10 border-white/20 text-white placeholder:text-white/40" />
+                <Label className="text-gray-700">Market</Label>
+                <Input value={draft.market} onChange={(e) => handleChange("market", e.target.value)} className="bg-white border-[#9FBCA4]/30 text-gray-900 placeholder:text-gray-400" />
               </div>
               <div className="space-y-2">
-                <Label className="text-[#FFF9F5]/80">Property Photo</Label>
+                <Label className="text-gray-700">Property Photo</Label>
                 <div className="flex gap-2">
                   <Input 
                     value={draft.imageUrl} 
                     onChange={(e) => handleChange("imageUrl", e.target.value)} 
                     placeholder="Enter image URL or upload a photo"
-                    className="flex-1 bg-white/10 border-white/20 text-white placeholder:text-white/40"
+                    className="flex-1 bg-white border-[#9FBCA4]/30 text-gray-900 placeholder:text-gray-400"
                   />
                   <input
                     ref={photoInputRef}
@@ -321,7 +321,7 @@ export default function PropertyEdit() {
                     onClick={() => photoInputRef.current?.click()}
                     disabled={isUploadingPhoto}
                     data-testid="button-upload-photo"
-                    className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                    className="bg-white border-[#9FBCA4]/30 text-white hover:bg-white/20"
                   >
                     {isUploadingPhoto ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -337,9 +337,9 @@ export default function PropertyEdit() {
                 )}
               </div>
               <div className="space-y-2">
-                <Label className="text-[#FFF9F5]/80">Status</Label>
+                <Label className="text-gray-700">Status</Label>
                 <Select value={draft.status} onValueChange={(v) => handleChange("status", v)}>
-                  <SelectTrigger className="bg-white/10 border-white/20 text-[#FFF9F5]"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="bg-white border-[#9FBCA4]/30 text-gray-900"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Acquisition">Acquisition</SelectItem>
                     <SelectItem value="Development">Planned</SelectItem>
@@ -348,8 +348,8 @@ export default function PropertyEdit() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label className="text-[#FFF9F5]/80">Room Count</Label>
-                <Input type="number" value={draft.roomCount} onChange={(e) => handleNumberChange("roomCount", e.target.value)} className="bg-white/10 border-white/20 text-white placeholder:text-white/40" />
+                <Label className="text-gray-700">Room Count</Label>
+                <Input type="number" value={draft.roomCount} onChange={(e) => handleNumberChange("roomCount", e.target.value)} className="bg-white border-[#9FBCA4]/30 text-gray-900 placeholder:text-gray-400" />
               </div>
             </div>
           </div>
@@ -363,23 +363,23 @@ export default function PropertyEdit() {
           
           <div className="relative p-6">
             <div className="mb-6">
-              <h3 className="text-xl font-semibold text-[#FFF9F5]">Timeline</h3>
-              <p className="text-[#FFF9F5]/60 text-sm">Acquisition and operations schedule</p>
+              <h3 className="text-xl font-semibold text-gray-900">Timeline</h3>
+              <p className="text-gray-600 text-sm">Acquisition and operations schedule</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label className="flex items-center text-[#FFF9F5]/80">
+                <Label className="flex items-center text-gray-700">
                   Acquisition Date
                   <HelpTooltip text="The date when the property is purchased. Equity investment occurs on this date. Pre-opening costs and building improvements are incurred during the period between acquisition and operations start." />
                 </Label>
-                <Input type="date" value={draft.acquisitionDate} onChange={(e) => handleChange("acquisitionDate", e.target.value)} className="bg-white/10 border-white/20 text-white [color-scheme:dark]" />
+                <Input type="date" value={draft.acquisitionDate} onChange={(e) => handleChange("acquisitionDate", e.target.value)} className="bg-white border-[#9FBCA4]/30 text-white [color-scheme:dark]" />
               </div>
               <div className="space-y-2">
-                <Label className="flex items-center text-[#FFF9F5]/80">
+                <Label className="flex items-center text-gray-700">
                   Operations Start Date
                   <HelpTooltip text="The date when the property begins operating and generating revenue. All revenues and operating expenses start on this date. The period between acquisition and operations start is used for renovations and pre-opening preparation." />
                 </Label>
-                <Input type="date" value={draft.operationsStartDate} onChange={(e) => handleChange("operationsStartDate", e.target.value)} className="bg-white/10 border-white/20 text-white [color-scheme:dark]" />
+                <Input type="date" value={draft.operationsStartDate} onChange={(e) => handleChange("operationsStartDate", e.target.value)} className="bg-white border-[#9FBCA4]/30 text-white [color-scheme:dark]" />
               </div>
             </div>
           </div>
@@ -393,46 +393,46 @@ export default function PropertyEdit() {
           
           <div className="relative p-6 space-y-8">
             <div>
-              <h3 className="text-xl font-semibold text-[#FFF9F5]">Capital Structure</h3>
-              <p className="text-[#FFF9F5]/60 text-sm">Purchase and investment details</p>
+              <h3 className="text-xl font-semibold text-gray-900">Capital Structure</h3>
+              <p className="text-gray-600 text-sm">Purchase and investment details</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="space-y-2">
-                <Label className="text-[#FFF9F5]/80">Purchase Price ($)</Label>
+                <Label className="text-gray-700">Purchase Price ($)</Label>
                 <Input 
                   value={formatMoneyInput(draft.purchasePrice)} 
                   onChange={(e) => handleNumberChange("purchasePrice", parseMoneyInput(e.target.value).toString())}
-                  className="bg-white/10 border-white/20 text-white"
+                  className="bg-white border-[#9FBCA4]/30 text-white"
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-[#FFF9F5]/80">Building Improvements ($)</Label>
+                <Label className="text-gray-700">Building Improvements ($)</Label>
                 <Input 
                   value={formatMoneyInput(draft.buildingImprovements)} 
                   onChange={(e) => handleNumberChange("buildingImprovements", parseMoneyInput(e.target.value).toString())}
-                  className="bg-white/10 border-white/20 text-white"
+                  className="bg-white border-[#9FBCA4]/30 text-white"
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-[#FFF9F5]/80">Pre-Opening Costs ($)</Label>
+                <Label className="text-gray-700">Pre-Opening Costs ($)</Label>
                 <Input 
                   value={formatMoneyInput(draft.preOpeningCosts)} 
                   onChange={(e) => handleNumberChange("preOpeningCosts", parseMoneyInput(e.target.value).toString())}
-                  className="bg-white/10 border-white/20 text-white"
+                  className="bg-white border-[#9FBCA4]/30 text-white"
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-[#FFF9F5]/80">Operating Reserve ($)</Label>
+                <Label className="text-gray-700">Operating Reserve ($)</Label>
                 <Input 
                   value={formatMoneyInput(draft.operatingReserve)} 
                   onChange={(e) => handleNumberChange("operatingReserve", parseMoneyInput(e.target.value).toString())}
-                  className="bg-white/10 border-white/20 text-white"
+                  className="bg-white border-[#9FBCA4]/30 text-white"
                 />
               </div>
             </div>
 
             <div className="space-y-3 pt-2">
-              <Label className="text-[#FFF9F5]/80">Type of Funding</Label>
+              <Label className="text-gray-700">Type of Funding</Label>
               <RadioGroup 
                 value={draft.type} 
                 onValueChange={(v) => handleChange("type", v)}
@@ -440,56 +440,56 @@ export default function PropertyEdit() {
               >
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="Full Equity" id="funding-equity" className="border-white/40 text-white" />
-                  <Label htmlFor="funding-equity" className="font-normal cursor-pointer text-[#FFF9F5]/80">Full Equity</Label>
+                  <Label htmlFor="funding-equity" className="font-normal cursor-pointer text-gray-700">Full Equity</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="Financed" id="funding-financed" className="border-white/40 text-white" />
-                  <Label htmlFor="funding-financed" className="font-normal cursor-pointer text-[#FFF9F5]/80">Financed</Label>
+                  <Label htmlFor="funding-financed" className="font-normal cursor-pointer text-gray-700">Financed</Label>
                 </div>
               </RadioGroup>
             </div>
 
             {draft.type === "Financed" && (
               <div className="border-t border-white/10 pt-6">
-                <h4 className="font-medium mb-4 text-[#FFF9F5]">Acquisition Financing</h4>
+                <h4 className="font-medium mb-4 text-gray-900">Acquisition Financing</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label className="text-[#FFF9F5]/80">Loan-to-Value (LTV) %</Label>
+                    <Label className="text-gray-700">Loan-to-Value (LTV) %</Label>
                     <Input 
                       type="number" 
                       step="0.01"
                       value={((draft.acquisitionLTV || 0.75) * 100).toFixed(0)} 
                       onChange={(e) => handleNumberChange("acquisitionLTV", (parseFloat(e.target.value) / 100).toString())}
-                      className="bg-white/10 border-white/20 text-white"
+                      className="bg-white border-[#9FBCA4]/30 text-white"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-[#FFF9F5]/80">Interest Rate (%)</Label>
+                    <Label className="text-gray-700">Interest Rate (%)</Label>
                     <Input 
                       type="number" 
                       step="0.01"
                       value={((draft.acquisitionInterestRate || 0.09) * 100).toFixed(2)} 
                       onChange={(e) => handleNumberChange("acquisitionInterestRate", (parseFloat(e.target.value) / 100).toString())}
-                      className="bg-white/10 border-white/20 text-white"
+                      className="bg-white border-[#9FBCA4]/30 text-white"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-[#FFF9F5]/80">Loan Term (Years)</Label>
+                    <Label className="text-gray-700">Loan Term (Years)</Label>
                     <Input 
                       type="number" 
                       value={draft.acquisitionTermYears || 25} 
                       onChange={(e) => handleNumberChange("acquisitionTermYears", e.target.value)}
-                      className="bg-white/10 border-white/20 text-white"
+                      className="bg-white border-[#9FBCA4]/30 text-white"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-[#FFF9F5]/80">Closing Costs (%)</Label>
+                    <Label className="text-gray-700">Closing Costs (%)</Label>
                     <Input 
                       type="number" 
                       step="0.01"
                       value={((draft.acquisitionClosingCostRate || 0.02) * 100).toFixed(1)} 
                       onChange={(e) => handleNumberChange("acquisitionClosingCostRate", (parseFloat(e.target.value) / 100).toString())}
-                      className="bg-white/10 border-white/20 text-white"
+                      className="bg-white border-[#9FBCA4]/30 text-white"
                     />
                   </div>
                 </div>
@@ -500,7 +500,7 @@ export default function PropertyEdit() {
               <div className="border-t border-white/10 pt-6">
                 <div className="space-y-4">
                   <div className="space-y-3">
-                    <Label className="text-[#FFF9F5]/80">Will this property be refinanced?</Label>
+                    <Label className="text-gray-700">Will this property be refinanced?</Label>
                     <RadioGroup 
                       value={draft.willRefinance || "No"} 
                       onValueChange={(v) => handleChange("willRefinance", v)}
@@ -508,21 +508,21 @@ export default function PropertyEdit() {
                     >
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="Yes" id="refinance-yes" className="border-white/40 text-white" />
-                        <Label htmlFor="refinance-yes" className="font-normal cursor-pointer text-[#FFF9F5]/80">Yes</Label>
+                        <Label htmlFor="refinance-yes" className="font-normal cursor-pointer text-gray-700">Yes</Label>
                       </div>
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="No" id="refinance-no" className="border-white/40 text-white" />
-                        <Label htmlFor="refinance-no" className="font-normal cursor-pointer text-[#FFF9F5]/80">No</Label>
+                        <Label htmlFor="refinance-no" className="font-normal cursor-pointer text-gray-700">No</Label>
                       </div>
                     </RadioGroup>
                   </div>
 
                   {draft.willRefinance === "Yes" && (
                     <div className="border-t border-white/10 pt-4">
-                      <h4 className="font-medium mb-4 text-[#FFF9F5]">Refinance Terms</h4>
+                      <h4 className="font-medium mb-4 text-gray-900">Refinance Terms</h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
-                          <Label className="text-[#FFF9F5]/80">Refinance Date</Label>
+                          <Label className="text-gray-700">Refinance Date</Label>
                           <Input 
                             type="date" 
                             value={draft.refinanceDate || (() => {
@@ -531,47 +531,47 @@ export default function PropertyEdit() {
                               return opsDate.toISOString().split('T')[0];
                             })()} 
                             onChange={(e) => handleChange("refinanceDate", e.target.value)}
-                            className="bg-white/10 border-white/20 text-white [color-scheme:dark]"
+                            className="bg-white border-[#9FBCA4]/30 text-white [color-scheme:dark]"
                           />
-                          <p className="text-xs text-[#FFF9F5]/50">Suggested: 3 years after operations start</p>
+                          <p className="text-xs text-gray-500">Suggested: 3 years after operations start</p>
                         </div>
                         <div className="space-y-2">
-                          <Label className="text-[#FFF9F5]/80">Loan-to-Value (LTV) %</Label>
+                          <Label className="text-gray-700">Loan-to-Value (LTV) %</Label>
                           <Input 
                             type="number" 
                             step="0.01"
                             value={((draft.refinanceLTV || 0.75) * 100).toFixed(0)} 
                             onChange={(e) => handleNumberChange("refinanceLTV", (parseFloat(e.target.value) / 100).toString())}
-                            className="bg-white/10 border-white/20 text-white"
+                            className="bg-white border-[#9FBCA4]/30 text-white"
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label className="text-[#FFF9F5]/80">Interest Rate (%)</Label>
+                          <Label className="text-gray-700">Interest Rate (%)</Label>
                           <Input 
                             type="number" 
                             step="0.01"
                             value={((draft.refinanceInterestRate || 0.09) * 100).toFixed(2)} 
                             onChange={(e) => handleNumberChange("refinanceInterestRate", (parseFloat(e.target.value) / 100).toString())}
-                            className="bg-white/10 border-white/20 text-white"
+                            className="bg-white border-[#9FBCA4]/30 text-white"
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label className="text-[#FFF9F5]/80">Loan Term (Years)</Label>
+                          <Label className="text-gray-700">Loan Term (Years)</Label>
                           <Input 
                             type="number" 
                             value={draft.refinanceTermYears || 25} 
                             onChange={(e) => handleNumberChange("refinanceTermYears", e.target.value)}
-                            className="bg-white/10 border-white/20 text-white"
+                            className="bg-white border-[#9FBCA4]/30 text-white"
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label className="text-[#FFF9F5]/80">Closing Costs (%)</Label>
+                          <Label className="text-gray-700">Closing Costs (%)</Label>
                           <Input 
                             type="number" 
                             step="0.01"
                             value={((draft.refinanceClosingCostRate || 0.03) * 100).toFixed(1)} 
                             onChange={(e) => handleNumberChange("refinanceClosingCostRate", (parseFloat(e.target.value) / 100).toString())}
-                            className="bg-white/10 border-white/20 text-white"
+                            className="bg-white border-[#9FBCA4]/30 text-white"
                           />
                         </div>
                       </div>
@@ -591,13 +591,13 @@ export default function PropertyEdit() {
           
           <div className="relative p-6 space-y-6">
             <div>
-              <h3 className="text-xl font-semibold text-[#FFF9F5]">Revenue Assumptions</h3>
-              <p className="text-[#FFF9F5]/60 text-sm">ADR and occupancy projections</p>
+              <h3 className="text-xl font-semibold text-gray-900">Revenue Assumptions</h3>
+              <p className="text-gray-600 text-sm">ADR and occupancy projections</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label className="text-[#FFF9F5]/80">Starting ADR</Label>
+                  <Label className="text-gray-700">Starting ADR</Label>
                   <EditableValue
                     value={draft.startAdr}
                     onChange={(val) => handleChange("startAdr", val.toString())}
@@ -618,7 +618,7 @@ export default function PropertyEdit() {
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label className="text-[#FFF9F5]/80">ADR Annual Growth</Label>
+                  <Label className="text-gray-700">ADR Annual Growth</Label>
                   <EditableValue
                     value={draft.adrGrowthRate * 100}
                     onChange={(val) => handleChange("adrGrowthRate", (val / 100).toString())}
@@ -641,7 +641,7 @@ export default function PropertyEdit() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label className="text-[#FFF9F5]/80">Starting Occupancy</Label>
+                  <Label className="text-gray-700">Starting Occupancy</Label>
                   <EditableValue
                     value={draft.startOccupancy * 100}
                     onChange={(val) => handleChange("startOccupancy", (val / 100).toString())}
@@ -662,7 +662,7 @@ export default function PropertyEdit() {
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label className="text-[#FFF9F5]/80">Max Occupancy</Label>
+                  <Label className="text-gray-700">Max Occupancy</Label>
                   <EditableValue
                     value={draft.maxOccupancy * 100}
                     onChange={(val) => handleChange("maxOccupancy", (val / 100).toString())}
@@ -685,7 +685,7 @@ export default function PropertyEdit() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label className="text-[#FFF9F5]/80">Occupancy Ramp</Label>
+                  <Label className="text-gray-700">Occupancy Ramp</Label>
                   <EditableValue
                     value={draft.occupancyRampMonths}
                     onChange={(val) => handleChange("occupancyRampMonths", val.toString())}
@@ -706,7 +706,7 @@ export default function PropertyEdit() {
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label className="text-[#FFF9F5]/80">Occupancy Growth Step</Label>
+                  <Label className="text-gray-700">Occupancy Growth Step</Label>
                   <EditableValue
                     value={draft.occupancyGrowthStep * 100}
                     onChange={(val) => handleChange("occupancyGrowthStep", (val / 100).toString())}
@@ -727,7 +727,7 @@ export default function PropertyEdit() {
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label className="text-[#FFF9F5]/80">Stabilization Period</Label>
+                  <Label className="text-gray-700">Stabilization Period</Label>
                   <EditableValue
                     value={draft.stabilizationMonths}
                     onChange={(val) => handleChange("stabilizationMonths", val.toString())}
@@ -762,12 +762,12 @@ export default function PropertyEdit() {
                 Revenue Streams
                 <HelpTooltip text="Configure how much additional revenue each stream generates as a percentage of rooms revenue. F&B revenue gets boosted based on what percentage of events require catering." />
               </h3>
-              <p className="text-[#FFF9F5]/60 text-sm">Additional revenue as percentage of rooms revenue</p>
+              <p className="text-gray-600 text-sm">Additional revenue as percentage of rooms revenue</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label className="flex items-center gap-1 text-[#FFF9F5]/80">
+                  <Label className="flex items-center gap-1 text-gray-700">
                     Events
                     <HelpTooltip text="Revenue from meetings, weddings, and other events as a percentage of rooms revenue." />
                   </Label>
@@ -788,11 +788,11 @@ export default function PropertyEdit() {
                   step={5}
                   className="[&_[role=slider]]:bg-[#9FBCA4]"
                 />
-                <p className="text-xs text-[#FFF9F5]/50">Meetings, weddings, conferences</p>
+                <p className="text-xs text-gray-500">Meetings, weddings, conferences</p>
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label className="flex items-center gap-1 text-[#FFF9F5]/80">
+                  <Label className="flex items-center gap-1 text-gray-700">
                     F&B
                     <HelpTooltip text="Base food & beverage revenue as a percentage of rooms revenue. This gets boosted by catering at events (see catering mix below)." />
                   </Label>
@@ -813,11 +813,11 @@ export default function PropertyEdit() {
                   step={5}
                   className="[&_[role=slider]]:bg-[#9FBCA4]"
                 />
-                <p className="text-xs text-[#FFF9F5]/50">Restaurant, bar, room service</p>
+                <p className="text-xs text-gray-500">Restaurant, bar, room service</p>
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label className="flex items-center gap-1 text-[#FFF9F5]/80">
+                  <Label className="flex items-center gap-1 text-gray-700">
                     Other
                     <HelpTooltip text="Revenue from spa, parking, activities, and other ancillary services." />
                   </Label>
@@ -838,12 +838,12 @@ export default function PropertyEdit() {
                   step={5}
                   className="[&_[role=slider]]:bg-[#9FBCA4]"
                 />
-                <p className="text-xs text-[#FFF9F5]/50">Spa, parking, activities</p>
+                <p className="text-xs text-gray-500">Spa, parking, activities</p>
               </div>
             </div>
             
             <div className="border-t border-white/10 pt-4">
-              <Label className="flex items-center gap-1 mb-3 text-[#FFF9F5]/80">
+              <Label className="flex items-center gap-1 mb-3 text-gray-700">
                 Event Catering Mix
                 <HelpTooltip text="What percentage of events at this property require catering. Full catering provides complete F&B service and boosts F&B revenue more. Partial catering includes limited offerings. The remaining events require no catering. Total cannot exceed 100%." />
               </Label>
@@ -858,7 +858,7 @@ export default function PropertyEdit() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <div className="flex justify-between items-center">
-                          <Label className="text-sm text-[#FFF9F5]/60">% of Events with Full Catering</Label>
+                          <Label className="text-sm text-gray-600">% of Events with Full Catering</Label>
                           <EditableValue
                             value={fullPct}
                             onChange={(val) => {
@@ -886,7 +886,7 @@ export default function PropertyEdit() {
                       </div>
                       <div className="space-y-2">
                         <div className="flex justify-between items-center">
-                          <Label className="text-sm text-[#FFF9F5]/60">% of Events with Partial Catering</Label>
+                          <Label className="text-sm text-gray-600">% of Events with Partial Catering</Label>
                           <EditableValue
                             value={partialPct}
                             onChange={(val) => {
@@ -914,23 +914,23 @@ export default function PropertyEdit() {
                       </div>
                     </div>
                     <div className="mt-3 p-2 bg-white/10 rounded text-sm flex justify-between items-center">
-                      <span className="text-[#FFF9F5]/60">No catering required:</span>
-                      <span className="font-medium text-[#FFF9F5]">{noCateringPct.toFixed(0)}% of events</span>
+                      <span className="text-gray-600">No catering required:</span>
+                      <span className="font-medium text-gray-900">{noCateringPct.toFixed(0)}% of events</span>
                     </div>
                   </>
                 );
               })()}
               {globalAssumptions && (
                 <div className="mt-4 p-3 bg-white/10 rounded-lg text-sm">
-                  <div className="text-[#FFF9F5]/50 text-xs mb-2">F&B Boost Factors (from Global Assumptions):</div>
+                  <div className="text-gray-500 text-xs mb-2">F&B Boost Factors (from Global Assumptions):</div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="flex justify-between">
-                      <span className="text-[#FFF9F5]/60">Full Catering Boost:</span>
-                      <span className="font-medium text-[#FFF9F5]">+{((globalAssumptions.fullCateringFBBoost ?? 0.50) * 100).toFixed(0)}% to F&B</span>
+                      <span className="text-gray-600">Full Catering Boost:</span>
+                      <span className="font-medium text-gray-900">+{((globalAssumptions.fullCateringFBBoost ?? 0.50) * 100).toFixed(0)}% to F&B</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-[#FFF9F5]/60">Partial Catering Boost:</span>
-                      <span className="font-medium text-[#FFF9F5]">+{((globalAssumptions.partialCateringFBBoost ?? 0.25) * 100).toFixed(0)}% to F&B</span>
+                      <span className="text-gray-600">Partial Catering Boost:</span>
+                      <span className="font-medium text-gray-900">+{((globalAssumptions.partialCateringFBBoost ?? 0.25) * 100).toFixed(0)}% to F&B</span>
                     </div>
                   </div>
                 </div>
@@ -947,11 +947,11 @@ export default function PropertyEdit() {
           
           <div className="relative p-6">
             <div className="mb-6">
-              <h3 className="text-xl font-semibold text-[#FFF9F5] flex items-center">
+              <h3 className="text-xl font-semibold text-gray-900 flex items-center">
                 Operating Cost Rates
                 <HelpTooltip text="These percentages represent the portion of revenue allocated to each expense category for this property." />
               </h3>
-              <p className="text-[#FFF9F5]/60 text-sm">Expense allocation as percentage of revenue</p>
+              <p className="text-gray-600 text-sm">Expense allocation as percentage of revenue</p>
             </div>
             <div className="space-y-6">
             {(() => {
@@ -973,7 +973,7 @@ export default function PropertyEdit() {
                 <>
                   <div className="p-4 rounded-lg bg-white/10 border border-white/20">
                     <div className="flex justify-between items-center">
-                      <span className="font-medium text-[#FFF9F5]">Total Allocation:</span>
+                      <span className="font-medium text-gray-900">Total Allocation:</span>
                       <span className="text-lg font-bold text-[#9FBCA4]">
                         {(costRateTotal * 100).toFixed(1)}%
                       </span>
@@ -983,7 +983,7 @@ export default function PropertyEdit() {
                   <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <Label className="text-sm text-[#FFF9F5]/80">Rooms Dept</Label>
+                        <Label className="text-sm text-gray-700">Rooms Dept</Label>
                         <EditableValue
                           value={(draft.costRateRooms ?? 0.36) * 100}
                           onChange={(val) => handleChange("costRateRooms", (val / 100).toString())}
@@ -1003,7 +1003,7 @@ export default function PropertyEdit() {
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <Label className="text-sm text-[#FFF9F5]/80">F&B</Label>
+                        <Label className="text-sm text-gray-700">F&B</Label>
                         <EditableValue
                           value={(draft.costRateFB ?? 0.15) * 100}
                           onChange={(val) => handleChange("costRateFB", (val / 100).toString())}
@@ -1023,7 +1023,7 @@ export default function PropertyEdit() {
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <Label className="text-sm text-[#FFF9F5]/80">Admin</Label>
+                        <Label className="text-sm text-gray-700">Admin</Label>
                         <EditableValue
                           value={(draft.costRateAdmin ?? 0.08) * 100}
                           onChange={(val) => handleChange("costRateAdmin", (val / 100).toString())}
@@ -1043,7 +1043,7 @@ export default function PropertyEdit() {
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <Label className="text-sm text-[#FFF9F5]/80">Marketing</Label>
+                        <Label className="text-sm text-gray-700">Marketing</Label>
                         <EditableValue
                           value={(draft.costRateMarketing ?? 0.05) * 100}
                           onChange={(val) => handleChange("costRateMarketing", (val / 100).toString())}
@@ -1063,7 +1063,7 @@ export default function PropertyEdit() {
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <Label className="text-sm text-[#FFF9F5]/80">Property Ops</Label>
+                        <Label className="text-sm text-gray-700">Property Ops</Label>
                         <EditableValue
                           value={(draft.costRatePropertyOps ?? 0.04) * 100}
                           onChange={(val) => handleChange("costRatePropertyOps", (val / 100).toString())}
@@ -1083,7 +1083,7 @@ export default function PropertyEdit() {
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <Label className="text-sm text-[#FFF9F5]/80">Utilities</Label>
+                        <Label className="text-sm text-gray-700">Utilities</Label>
                         <EditableValue
                           value={(draft.costRateUtilities ?? 0.05) * 100}
                           onChange={(val) => handleChange("costRateUtilities", (val / 100).toString())}
@@ -1103,7 +1103,7 @@ export default function PropertyEdit() {
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <Label className="text-sm text-[#FFF9F5]/80">Insurance</Label>
+                        <Label className="text-sm text-gray-700">Insurance</Label>
                         <EditableValue
                           value={(draft.costRateInsurance ?? 0.02) * 100}
                           onChange={(val) => handleChange("costRateInsurance", (val / 100).toString())}
@@ -1123,7 +1123,7 @@ export default function PropertyEdit() {
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <Label className="text-sm text-[#FFF9F5]/80">Taxes</Label>
+                        <Label className="text-sm text-gray-700">Taxes</Label>
                         <EditableValue
                           value={(draft.costRateTaxes ?? 0.03) * 100}
                           onChange={(val) => handleChange("costRateTaxes", (val / 100).toString())}
@@ -1143,7 +1143,7 @@ export default function PropertyEdit() {
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <Label className="text-sm text-[#FFF9F5]/80">IT</Label>
+                        <Label className="text-sm text-gray-700">IT</Label>
                         <EditableValue
                           value={(draft.costRateIT ?? 0.02) * 100}
                           onChange={(val) => handleChange("costRateIT", (val / 100).toString())}
@@ -1163,7 +1163,7 @@ export default function PropertyEdit() {
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <Label className="text-sm text-[#FFF9F5]/80">FF&E Reserve</Label>
+                        <Label className="text-sm text-gray-700">FF&E Reserve</Label>
                         <EditableValue
                           value={(draft.costRateFFE ?? 0.04) * 100}
                           onChange={(val) => handleChange("costRateFFE", (val / 100).toString())}
@@ -1183,7 +1183,7 @@ export default function PropertyEdit() {
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <Label className="text-sm text-[#FFF9F5]/80">Other</Label>
+                        <Label className="text-sm text-gray-700">Other</Label>
                         <EditableValue
                           value={(draft.costRateOther ?? 0.05) * 100}
                           onChange={(val) => handleChange("costRateOther", (val / 100).toString())}
@@ -1217,15 +1217,15 @@ export default function PropertyEdit() {
           
           <div className="relative p-6">
             <div className="mb-6">
-              <h3 className="text-xl font-semibold text-[#FFF9F5] flex items-center">
+              <h3 className="text-xl font-semibold text-gray-900 flex items-center">
                 Other Assumptions
                 <HelpTooltip text="Additional assumptions for investment analysis including exit valuation and tax calculations" />
               </h3>
-              <p className="text-[#FFF9F5]/60 text-sm">Exit valuation and tax rate assumptions</p>
+              <p className="text-gray-600 text-sm">Exit valuation and tax rate assumptions</p>
             </div>
             <div className="max-w-md space-y-2">
               <div className="flex justify-between items-center">
-                <Label className="flex items-center text-[#FFF9F5]/80">
+                <Label className="flex items-center text-gray-700">
                   Exit Capitalization Rate
                   <HelpTooltip text={`The cap rate used to calculate exit value. Exit Value = ${exitYear} NOI ÷ Cap Rate. Lower cap rates result in higher valuations.`} />
                 </Label>
@@ -1245,14 +1245,14 @@ export default function PropertyEdit() {
                 max={10}
                 step={0.1}
               />
-              <p className="text-xs text-[#FFF9F5]/60 mt-2">
+              <p className="text-xs text-gray-600 mt-2">
                 Exit Value = {exitYear} NOI ÷ {((draft.exitCapRate ?? 0.085) * 100).toFixed(1)}% = <span className="font-medium">higher property valuation at lower cap rates</span>
               </p>
             </div>
 
             <div className="max-w-md space-y-2 mt-6">
               <div className="flex justify-between items-center">
-                <Label className="flex items-center text-[#FFF9F5]/80">
+                <Label className="flex items-center text-gray-700">
                   Tax Rate
                   <HelpTooltip text="Corporate tax rate applied to positive operating cash flows to calculate after-tax free cash flow for IRR analysis." />
                 </Label>

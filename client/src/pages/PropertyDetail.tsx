@@ -257,135 +257,225 @@ export default function PropertyDetail() {
     doc.save(`${property.name.replace(/\s+/g, '_')}_CashFlow.pdf`);
   };
 
+  const getStatusLabel = (status: string) => {
+    if (status === "Operational") return "Active";
+    if (status === "Development") return "Planned";
+    return status;
+  };
+
   return (
     <Layout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <Link href="/portfolio">
-            <Button variant="ghost" className="pl-0">
-              <ArrowLeft className="w-4 h-4 mr-2" /> Back to Portfolio
-            </Button>
-          </Link>
-          <Link href={`/property/${propertyId}/edit`}>
-            <Button variant="outline" size="sm">Property Assumptions</Button>
-          </Link>
-        </div>
-
-        <div className="relative h-[280px] rounded-xl overflow-hidden">
-          <img src={property.imageUrl.startsWith("/objects/") ? property.imageUrl : property.imageUrl} alt={property.name} className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-          <PropertyPhotoUpload 
-            propertyId={propertyId} 
-            currentImageUrl={property.imageUrl}
-            onUploadComplete={handlePhotoUploadComplete}
-          />
-          <div className="absolute bottom-0 left-0 p-6 text-white">
-            <h1 className="text-3xl font-serif font-bold mb-2">{property.name}</h1>
-            <div className="flex items-center gap-4 text-white/80 text-sm">
-              <span className="flex items-center gap-1"><MapPin className="w-4 h-4" /> {property.location}</span>
-              <span>{property.roomCount} Rooms</span>
-              <Badge variant="outline" className="border-white/40 text-white">{property.status}</Badge>
+        {/* Liquid Glass Header */}
+        <div className="relative overflow-hidden rounded-3xl">
+          {/* Property Image */}
+          <div className="relative h-[280px]">
+            <img src={property.imageUrl.startsWith("/objects/") ? property.imageUrl : property.imageUrl} alt={property.name} className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+            <PropertyPhotoUpload 
+              propertyId={propertyId} 
+              currentImageUrl={property.imageUrl}
+              onUploadComplete={handlePhotoUploadComplete}
+            />
+          </div>
+          
+          {/* Liquid Glass Info Bar */}
+          <div className="relative overflow-hidden p-6">
+            {/* Gradient Background */}
+            <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e] via-[#3d5a6a] to-[#4a3d5e]" />
+            {/* Top Edge Sheen */}
+            <div className="absolute top-0 left-8 right-8 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+            {/* Floating Color Orbs */}
+            <div className="absolute inset-0 overflow-hidden">
+              <div className="absolute -top-12 -right-12 w-56 h-56 rounded-full bg-[#9FBCA4]/25 blur-3xl" />
+              <div className="absolute bottom-0 left-1/4 w-48 h-48 rounded-full bg-[#A78BFA]/20 blur-3xl" />
+            </div>
+            
+            <div className="relative flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <Link href="/portfolio">
+                  <button className="relative overflow-hidden p-2 text-white rounded-xl transition-all duration-300 group/back">
+                    <div className="absolute inset-0 bg-white/10 backdrop-blur-xl rounded-xl" />
+                    <div className="absolute inset-0 rounded-xl border border-white/20 group-hover/back:border-white/40 transition-all duration-300" />
+                    <ArrowLeft className="relative w-5 h-5" />
+                  </button>
+                </Link>
+                <div>
+                  <h1 className="text-2xl font-serif font-bold text-white">{property.name}</h1>
+                  <div className="flex items-center gap-4 text-white/70 text-sm mt-1">
+                    <span className="flex items-center gap-1"><MapPin className="w-4 h-4" /> {property.location}</span>
+                    <span>{property.roomCount} Rooms</span>
+                    <span className="px-2 py-0.5 rounded-full bg-white/15 border border-white/25 text-white text-xs">
+                      {getStatusLabel(property.status)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              <Link href={`/property/${propertyId}/edit`}>
+                <button className="relative overflow-hidden px-4 py-2 text-sm font-medium text-white rounded-xl transition-all duration-300 group/edit">
+                  <div className="absolute inset-0 bg-white/12 backdrop-blur-xl rounded-xl" />
+                  <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+                  <div className="absolute inset-0 rounded-xl border border-white/25 group-hover/edit:border-white/40 transition-all duration-300" />
+                  <div className="absolute inset-0 rounded-xl shadow-[0_0_20px_rgba(159,188,164,0.3)] group-hover/edit:shadow-[0_0_30px_rgba(159,188,164,0.5)] transition-all duration-300" />
+                  <span className="relative">Property Assumptions</span>
+                </button>
+              </Link>
             </div>
           </div>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div className="flex items-center justify-between mb-4">
-            <TabsList className="grid grid-cols-2 max-w-md">
-              <TabsTrigger value="income">Income Statement</TabsTrigger>
-              <TabsTrigger value="cashflow">Cash Flows</TabsTrigger>
-            </TabsList>
+            {/* Liquid Glass Tabs */}
+            <div className="relative inline-flex p-1.5 rounded-2xl">
+              <div className="absolute inset-0 bg-black/5 backdrop-blur-xl rounded-2xl border border-white/20" />
+              <div className="relative flex gap-1">
+                <button
+                  onClick={() => setActiveTab("income")}
+                  className={`relative overflow-hidden px-6 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 ${
+                    activeTab === "income" ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {activeTab === "income" && (
+                    <>
+                      <div className="absolute inset-0 bg-white/80 backdrop-blur-xl rounded-xl" />
+                      <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-black/10 to-transparent" />
+                      <div className="absolute inset-0 rounded-xl border border-black/5" />
+                    </>
+                  )}
+                  <span className="relative">Income Statement</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab("cashflow")}
+                  className={`relative overflow-hidden px-6 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 ${
+                    activeTab === "cashflow" ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {activeTab === "cashflow" && (
+                    <>
+                      <div className="absolute inset-0 bg-white/80 backdrop-blur-xl rounded-xl" />
+                      <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-black/10 to-transparent" />
+                      <div className="absolute inset-0 rounded-xl border border-black/5" />
+                    </>
+                  )}
+                  <span className="relative">Cash Flows</span>
+                </button>
+              </div>
+            </div>
+            
+            {/* Liquid Glass Export Buttons */}
             <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <button 
                 data-testid="button-export-pdf"
                 onClick={() => exportCashFlowPDF()}
+                className="relative overflow-hidden px-4 py-2 text-sm font-medium rounded-xl transition-all duration-300 group/pdf"
               >
-                <FileDown className="w-4 h-4 mr-2" />
-                Export PDF
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm"
+                <div className="absolute inset-0 bg-black/5 backdrop-blur-xl rounded-xl" />
+                <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-black/10 to-transparent" />
+                <div className="absolute inset-0 rounded-xl border border-black/10 group-hover/pdf:border-black/20 transition-all duration-300" />
+                <div className="absolute inset-0 rounded-xl group-hover/pdf:shadow-[0_0_20px_rgba(159,188,164,0.3)] transition-all duration-300" />
+                <span className="relative flex items-center text-foreground">
+                  <FileDown className="w-4 h-4 mr-2" />
+                  Export PDF
+                </span>
+              </button>
+              <button 
                 data-testid="button-export-csv"
                 onClick={() => exportCashFlowCSV()}
+                className="relative overflow-hidden px-4 py-2 text-sm font-medium rounded-xl transition-all duration-300 group/csv"
               >
-                <FileSpreadsheet className="w-4 h-4 mr-2" />
-                Export CSV
-              </Button>
+                <div className="absolute inset-0 bg-black/5 backdrop-blur-xl rounded-xl" />
+                <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-black/10 to-transparent" />
+                <div className="absolute inset-0 rounded-xl border border-black/10 group-hover/csv:border-black/20 transition-all duration-300" />
+                <div className="absolute inset-0 rounded-xl group-hover/csv:shadow-[0_0_20px_rgba(159,188,164,0.3)] transition-all duration-300" />
+                <span className="relative flex items-center text-foreground">
+                  <FileSpreadsheet className="w-4 h-4 mr-2" />
+                  Export CSV
+                </span>
+              </button>
             </div>
           </div>
           
           <TabsContent value="income" className="mt-6 space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Income Statement Trends (10-Year Projection)</CardTitle>
-              </CardHeader>
-              <CardContent>
+            {/* Liquid Glass Chart Card */}
+            <div className="relative overflow-hidden rounded-2xl p-6">
+              <div className="absolute inset-0 bg-white/60 backdrop-blur-xl" />
+              <div className="absolute top-0 left-6 right-6 h-[1px] bg-gradient-to-r from-transparent via-black/10 to-transparent" />
+              <div className="absolute inset-0 rounded-2xl border border-black/5" />
+              
+              <div className="relative">
+                <h3 className="text-lg font-semibold mb-4">Income Statement Trends (10-Year Projection)</h3>
                 <div className="h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={yearlyChartData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                      <CartesianGrid strokeDasharray="0" stroke="hsl(var(--border))" vertical={false} strokeOpacity={0.5} />
                       <XAxis 
                         dataKey="year" 
                         stroke="hsl(var(--muted-foreground))" 
                         fontSize={12}
                         tickLine={false}
+                        axisLine={false}
                       />
                       <YAxis 
                         stroke="hsl(var(--muted-foreground))" 
                         fontSize={12}
                         tickLine={false}
+                        axisLine={false}
                         tickFormatter={(value) => `$${(value / 1000000).toFixed(1)}M`}
                       />
                       <Tooltip 
                         contentStyle={{ 
-                          backgroundColor: 'hsl(var(--card))', 
-                          borderColor: 'hsl(var(--border))',
-                          borderRadius: '8px',
+                          backgroundColor: 'rgba(255,255,255,0.9)', 
+                          backdropFilter: 'blur(8px)',
+                          borderColor: 'rgba(0,0,0,0.1)',
+                          borderRadius: '12px',
+                          boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
                         }}
                         formatter={(value: number) => [formatMoney(value), ""]}
                       />
                       <Legend />
                       <Line 
-                        type="monotone" 
+                        type="natural" 
                         dataKey="Revenue" 
-                        stroke="#5C6BC0" 
-                        strokeWidth={2}
-                        dot={{ fill: '#5C6BC0' }}
+                        stroke="#60A5FA" 
+                        strokeWidth={2.5}
+                        dot={false}
                         name="Total Revenue"
                       />
                       <Line 
-                        type="monotone" 
+                        type="natural" 
                         dataKey="GOP" 
-                        stroke="hsl(var(--chart-3))" 
-                        strokeWidth={2}
-                        dot={{ fill: 'hsl(var(--chart-3))' }}
+                        stroke="#A78BFA" 
+                        strokeWidth={2.5}
+                        dot={false}
                         name="Gross Operating Profit"
                       />
                       <Line 
-                        type="monotone" 
+                        type="natural" 
                         dataKey="NOI" 
-                        stroke="hsl(var(--chart-4))" 
-                        strokeWidth={2}
-                        dot={{ fill: 'hsl(var(--chart-4))' }}
+                        stroke="#9FBCA4" 
+                        strokeWidth={2.5}
+                        dot={false}
                         name="Net Operating Income"
                       />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
             <YearlyIncomeStatement data={financials} years={10} startYear={getFiscalYear(0)} />
           </TabsContent>
           
           <TabsContent value="cashflow" className="mt-6 space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Cash Flow Trends (10-Year Projection)</CardTitle>
-              </CardHeader>
-              <CardContent>
+            {/* Liquid Glass Chart Card */}
+            <div className="relative overflow-hidden rounded-2xl p-6">
+              <div className="absolute inset-0 bg-white/60 backdrop-blur-xl" />
+              <div className="absolute top-0 left-6 right-6 h-[1px] bg-gradient-to-r from-transparent via-black/10 to-transparent" />
+              <div className="absolute inset-0 rounded-2xl border border-black/5" />
+              
+              <div className="relative">
+                <h3 className="text-lg font-semibold mb-4">Cash Flow Trends (10-Year Projection)</h3>
                 <div className="h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={yearlyChartData.map((d, i) => {
@@ -397,57 +487,61 @@ export default function PropertyDetail() {
                         NetToInvestors: cfData[i]?.netCashFlowToInvestors || 0,
                       };
                     })}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                      <CartesianGrid strokeDasharray="0" stroke="hsl(var(--border))" vertical={false} strokeOpacity={0.5} />
                       <XAxis 
                         dataKey="year" 
                         stroke="hsl(var(--muted-foreground))" 
                         fontSize={12}
                         tickLine={false}
+                        axisLine={false}
                       />
                       <YAxis 
                         stroke="hsl(var(--muted-foreground))" 
                         fontSize={12}
                         tickLine={false}
+                        axisLine={false}
                         tickFormatter={(value) => `$${(value / 1000000).toFixed(1)}M`}
                       />
                       <Tooltip 
                         contentStyle={{ 
-                          backgroundColor: 'hsl(var(--card))', 
-                          borderColor: 'hsl(var(--border))',
-                          borderRadius: '8px',
+                          backgroundColor: 'rgba(255,255,255,0.9)', 
+                          backdropFilter: 'blur(8px)',
+                          borderColor: 'rgba(0,0,0,0.1)',
+                          borderRadius: '12px',
+                          boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
                         }}
                         formatter={(value: number) => [formatMoney(value), ""]}
                       />
                       <Legend />
                       <Line 
-                        type="monotone" 
+                        type="natural" 
                         dataKey="NOI" 
-                        stroke="hsl(var(--chart-4))" 
-                        strokeWidth={2}
-                        dot={{ fill: 'hsl(var(--chart-4))' }}
+                        stroke="#9FBCA4" 
+                        strokeWidth={2.5}
+                        dot={false}
                         name="Net Operating Income"
                       />
                       <Line 
-                        type="monotone" 
+                        type="natural" 
                         dataKey="FCF" 
-                        stroke="#5C6BC0" 
-                        strokeWidth={2}
-                        dot={{ fill: '#5C6BC0' }}
+                        stroke="#60A5FA" 
+                        strokeWidth={2.5}
+                        dot={false}
                         name="Free Cash Flow"
                       />
                       <Line 
-                        type="monotone" 
+                        type="natural" 
                         dataKey="FCFE" 
-                        stroke="hsl(var(--accent))" 
-                        strokeWidth={2}
-                        dot={{ fill: 'hsl(var(--accent))' }}
+                        stroke="#A78BFA" 
+                        strokeWidth={2.5}
+                        dot={false}
                         name="Free Cash Flow to Equity"
                       />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
             <YearlyCashFlowStatement 
               data={financials} 
               property={property} 

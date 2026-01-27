@@ -69,7 +69,17 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           })}
         </nav>
 
-        <div className="p-4 border-t border-[#9FBCA4]/20">
+        <div className="p-4 border-t border-[#9FBCA4]/20 space-y-3">
+          <Button 
+            variant="ghost" 
+            className="w-full justify-start gap-3 px-4 py-3 text-sm font-medium text-sidebar-foreground/70 hover:bg-[#9FBCA4]/10 hover:text-white"
+            onClick={() => logout()}
+            data-testid="button-logout"
+          >
+            <LogOut className="w-5 h-5" />
+            Sign Out
+          </Button>
+          
           <div className="flex items-center gap-3 px-2 py-2 rounded-lg bg-[#9FBCA4]/10">
             <div className="w-9 h-9 rounded-full bg-[#9FBCA4] flex items-center justify-center text-white font-bold text-sm">
               {user?.name ? user.name.charAt(0).toUpperCase() : user?.email?.charAt(0).toUpperCase() || "U"}
@@ -78,15 +88,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <p className="text-sm font-medium text-white truncate">{user?.name || user?.email || "User"}</p>
               <p className="text-xs text-sidebar-foreground/60 capitalize">{user?.role || "User"}</p>
             </div>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="text-sidebar-foreground/60 hover:text-white hover:bg-transparent"
-              onClick={() => logout()}
-              data-testid="button-logout"
-            >
-              <LogOut className="w-4 h-4" />
-            </Button>
           </div>
         </div>
       </aside>

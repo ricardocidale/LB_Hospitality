@@ -1575,12 +1575,14 @@ export default function Dashboard() {
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             {/* Liquid Glass Tabs */}
             <div className="relative overflow-hidden rounded-2xl">
-              {/* Glass Background */}
-              <div className="absolute inset-0 bg-gradient-to-r from-[#2d4a5e]/70 to-[#3a5a5e]/70 backdrop-blur-xl" />
-              {/* Top Edge Sheen */}
-              <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
-              {/* Border */}
-              <div className="absolute inset-0 rounded-2xl border border-white/15" />
+              {/* Fluid glass background with brand colors */}
+              <div className="absolute inset-0 bg-gradient-to-r from-[#257D41]/80 via-[#9FBCA4]/70 to-[#257D41]/80 backdrop-blur-xl" />
+              <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent" />
+              {/* Top highlight */}
+              <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-white/50 to-transparent" />
+              {/* Border glow */}
+              <div className="absolute inset-0 rounded-2xl border border-white/25" />
+              <div className="absolute inset-[1px] rounded-2xl border border-[#9FBCA4]/30" />
               <div className="relative flex flex-wrap gap-1 p-1.5">
                 {[
                   { value: 'overview', label: 'Overview' },
@@ -1594,15 +1596,16 @@ export default function Dashboard() {
                     onClick={() => setActiveTab(tab.value)}
                     className={`relative px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 overflow-hidden ${
                       activeTab === tab.value
-                        ? 'text-white'
-                        : 'text-[#FFF9F5]/60 hover:text-white hover:bg-white/5'
+                        ? 'text-[#FFF9F5]'
+                        : 'text-[#FFF9F5]/70 hover:text-[#FFF9F5] hover:bg-white/10'
                     }`}
                   >
                     {activeTab === tab.value && (
                       <>
-                        <div className="absolute inset-0 bg-white/15 backdrop-blur-sm rounded-xl" />
-                        <div className="absolute inset-0 rounded-xl border border-white/25" />
-                        <div className="absolute top-0 left-1 right-1 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-b from-white/25 to-white/10 backdrop-blur-sm rounded-xl" />
+                        <div className="absolute inset-0 rounded-xl border border-white/30" />
+                        <div className="absolute top-0 left-1 right-1 h-[1px] bg-gradient-to-r from-transparent via-white/60 to-transparent" />
+                        <div className="absolute bottom-0 left-2 right-2 h-[2px] bg-[#FFF9F5]/40 rounded-full" />
                       </>
                     )}
                     <span className="relative">{tab.label}</span>

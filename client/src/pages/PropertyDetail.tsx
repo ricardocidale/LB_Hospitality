@@ -327,23 +327,29 @@ export default function PropertyDetail() {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
-            {/* Liquid Glass Tabs - Dark Theme */}
+            {/* Liquid Glass Tabs - Brand Colors */}
             <div className="relative overflow-hidden rounded-2xl">
-              <div className="absolute inset-0 bg-gradient-to-r from-[#2d4a5e]/70 to-[#3a5a5e]/70 backdrop-blur-xl" />
-              <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
-              <div className="absolute inset-0 rounded-2xl border border-white/15" />
+              {/* Fluid glass background with brand colors */}
+              <div className="absolute inset-0 bg-gradient-to-r from-[#257D41]/80 via-[#9FBCA4]/70 to-[#257D41]/80 backdrop-blur-xl" />
+              <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent" />
+              {/* Top highlight */}
+              <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-white/50 to-transparent" />
+              {/* Border glow */}
+              <div className="absolute inset-0 rounded-2xl border border-white/25" />
+              <div className="absolute inset-[1px] rounded-2xl border border-[#9FBCA4]/30" />
               <div className="relative flex flex-wrap gap-1 p-1.5">
                 <button
                   onClick={() => setActiveTab("income")}
                   className={`relative overflow-hidden px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 ${
-                    activeTab === "income" ? "text-[#FFF9F5]" : "text-[#FFF9F5]/60 hover:text-[#FFF9F5] hover:bg-white/5"
+                    activeTab === "income" ? "text-[#FFF9F5]" : "text-[#FFF9F5]/70 hover:text-[#FFF9F5] hover:bg-white/10"
                   }`}
                 >
                   {activeTab === "income" && (
                     <>
-                      <div className="absolute inset-0 bg-white/15 backdrop-blur-sm rounded-xl" />
-                      <div className="absolute inset-0 rounded-xl border border-white/25" />
-                      <div className="absolute top-0 left-1 right-1 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-b from-white/25 to-white/10 backdrop-blur-sm rounded-xl" />
+                      <div className="absolute inset-0 rounded-xl border border-white/30" />
+                      <div className="absolute top-0 left-1 right-1 h-[1px] bg-gradient-to-r from-transparent via-white/60 to-transparent" />
+                      <div className="absolute bottom-0 left-2 right-2 h-[2px] bg-[#FFF9F5]/40 rounded-full" />
                     </>
                   )}
                   <span className="relative">Income Statement</span>
@@ -351,14 +357,15 @@ export default function PropertyDetail() {
                 <button
                   onClick={() => setActiveTab("cashflow")}
                   className={`relative overflow-hidden px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 ${
-                    activeTab === "cashflow" ? "text-[#FFF9F5]" : "text-[#FFF9F5]/60 hover:text-[#FFF9F5] hover:bg-white/5"
+                    activeTab === "cashflow" ? "text-[#FFF9F5]" : "text-[#FFF9F5]/70 hover:text-[#FFF9F5] hover:bg-white/10"
                   }`}
                 >
                   {activeTab === "cashflow" && (
                     <>
-                      <div className="absolute inset-0 bg-white/15 backdrop-blur-sm rounded-xl" />
-                      <div className="absolute inset-0 rounded-xl border border-white/25" />
-                      <div className="absolute top-0 left-1 right-1 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-b from-white/25 to-white/10 backdrop-blur-sm rounded-xl" />
+                      <div className="absolute inset-0 rounded-xl border border-white/30" />
+                      <div className="absolute top-0 left-1 right-1 h-[1px] bg-gradient-to-r from-transparent via-white/60 to-transparent" />
+                      <div className="absolute bottom-0 left-2 right-2 h-[2px] bg-[#FFF9F5]/40 rounded-full" />
                     </>
                   )}
                   <span className="relative">Cash Flows</span>

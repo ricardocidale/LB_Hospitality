@@ -944,17 +944,21 @@ export default function PropertyEdit() {
           </div>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              Operating Cost Rates
-              <HelpTooltip text="These percentages represent the portion of revenue allocated to each expense category for this property." />
-            </CardTitle>
-            <CardDescription>
-              Expense allocation as percentage of revenue
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
+        {/* Glass Card - Operating Cost Rates */}
+        <div className="relative overflow-hidden rounded-2xl">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e]/80 via-[#3d5a6a]/70 to-[#3a5a5e]/80" />
+          <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+          <div className="absolute inset-0 border border-white/10 rounded-2xl" />
+          
+          <div className="relative p-6">
+            <div className="mb-6">
+              <h3 className="text-xl font-semibold text-[#FFF9F5] flex items-center">
+                Operating Cost Rates
+                <HelpTooltip text="These percentages represent the portion of revenue allocated to each expense category for this property." />
+              </h3>
+              <p className="text-[#FFF9F5]/60 text-sm">Expense allocation as percentage of revenue</p>
+            </div>
+            <div className="space-y-6">
             {(() => {
               const costRateTotal = (
                 (draft.costRateRooms ?? 0.36) +
@@ -1206,20 +1210,24 @@ export default function PropertyEdit() {
                 </>
               );
             })()}
-          </CardContent>
-        </Card>
+            </div>
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              Other Assumptions
-              <HelpTooltip text="Additional assumptions for investment analysis including exit valuation and tax calculations" />
-            </CardTitle>
-            <CardDescription>
-              Exit valuation and tax rate assumptions
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+        {/* Glass Card - Other Assumptions */}
+        <div className="relative overflow-hidden rounded-2xl">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e]/80 via-[#3d5a6a]/70 to-[#3a5a5e]/80" />
+          <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+          <div className="absolute inset-0 border border-white/10 rounded-2xl" />
+          
+          <div className="relative p-6">
+            <div className="mb-6">
+              <h3 className="text-xl font-semibold text-[#FFF9F5] flex items-center">
+                Other Assumptions
+                <HelpTooltip text="Additional assumptions for investment analysis including exit valuation and tax calculations" />
+              </h3>
+              <p className="text-[#FFF9F5]/60 text-sm">Exit valuation and tax rate assumptions</p>
+            </div>
             <div className="max-w-md space-y-2">
               <div className="flex justify-between items-center">
                 <Label className="flex items-center">
@@ -1270,8 +1278,8 @@ export default function PropertyEdit() {
                 step={1}
               />
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         <div className="flex justify-end pb-8">
           <Button onClick={handleSave} disabled={updateProperty.isPending} size="lg">

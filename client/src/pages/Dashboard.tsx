@@ -1895,9 +1895,9 @@ export default function Dashboard() {
                         labelStyle={{ color: 'rgba(255,255,255,0.7)' }}
                       />
                       <Legend wrapperStyle={{ color: 'rgba(255,255,255,0.8)' }} />
-                      <Line type="natural" dataKey="Revenue" stroke="#B8D4BE" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#B8D4BE', stroke: '#fff', strokeWidth: 2 }} />
-                      <Line type="natural" dataKey="Operating Expenses" stroke="#E8E8E8" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#E8E8E8', stroke: '#fff', strokeWidth: 2 }} />
-                      <Line type="natural" dataKey="NOI" stroke="#4A9D5B" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#4A9D5B', stroke: '#fff', strokeWidth: 2 }} />
+                      <Line type="natural" dataKey="Revenue" stroke="#A78BFA" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#A78BFA', stroke: '#fff', strokeWidth: 2 }} />
+                      <Line type="natural" dataKey="Operating Expenses" stroke="#60A5FA" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#60A5FA', stroke: '#fff', strokeWidth: 2 }} />
+                      <Line type="natural" dataKey="NOI" stroke="#9FBCA4" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#9FBCA4', stroke: '#fff', strokeWidth: 2 }} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
@@ -2296,9 +2296,9 @@ export default function Dashboard() {
                         labelStyle={{ color: 'rgba(255,255,255,0.7)' }}
                       />
                       <Legend wrapperStyle={{ color: 'rgba(255,255,255,0.8)' }} />
-                      <Line type="natural" dataKey="Revenue" stroke="#B8D4BE" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#B8D4BE', stroke: '#fff', strokeWidth: 2 }} />
-                      <Line type="natural" dataKey="Operating Costs" stroke="#E8E8E8" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#E8E8E8', stroke: '#fff', strokeWidth: 2 }} />
-                      <Line type="natural" dataKey="NOI" stroke="#4A9D5B" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#4A9D5B', stroke: '#fff', strokeWidth: 2 }} />
+                      <Line type="natural" dataKey="Revenue" stroke="#A78BFA" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#A78BFA', stroke: '#fff', strokeWidth: 2 }} />
+                      <Line type="natural" dataKey="Operating Costs" stroke="#60A5FA" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#60A5FA', stroke: '#fff', strokeWidth: 2 }} />
+                      <Line type="natural" dataKey="NOI" stroke="#9FBCA4" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#9FBCA4', stroke: '#fff', strokeWidth: 2 }} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
@@ -2353,9 +2353,9 @@ export default function Dashboard() {
                         labelStyle={{ color: 'rgba(255,255,255,0.7)' }}
                       />
                       <Legend wrapperStyle={{ color: 'rgba(255,255,255,0.8)' }} />
-                      <Line type="natural" dataKey="NOI" stroke="#B8D4BE" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#B8D4BE', stroke: '#fff', strokeWidth: 2 }} />
-                      <Line type="natural" dataKey="Debt Service" stroke="#E8E8E8" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#E8E8E8', stroke: '#fff', strokeWidth: 2 }} />
-                      <Line type="natural" dataKey="Net Cash Flow" stroke="#4A9D5B" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#4A9D5B', stroke: '#fff', strokeWidth: 2 }} />
+                      <Line type="natural" dataKey="NOI" stroke="#A78BFA" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#A78BFA', stroke: '#fff', strokeWidth: 2 }} />
+                      <Line type="natural" dataKey="Debt Service" stroke="#F472B6" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#F472B6', stroke: '#fff', strokeWidth: 2 }} />
+                      <Line type="natural" dataKey="Net Cash Flow" stroke="#34D399" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#34D399', stroke: '#fff', strokeWidth: 2 }} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>

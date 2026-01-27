@@ -37,11 +37,11 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex">
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#1a3a2a] via-[#257D41] to-[#1a3a2a] relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
+      <div className="hidden lg:flex lg:w-1/2 bg-sidebar relative overflow-hidden">
+        <div className="absolute inset-0 opacity-20">
           <div className="absolute top-20 left-20 w-64 h-64 rounded-full bg-[#9FBCA4] blur-3xl" />
-          <div className="absolute bottom-40 right-20 w-96 h-96 rounded-full bg-[#257D41] blur-3xl" />
-          <div className="absolute top-1/2 left-1/3 w-48 h-48 rounded-full bg-white blur-2xl" />
+          <div className="absolute bottom-40 right-20 w-96 h-96 rounded-full bg-[#9FBCA4] blur-3xl" />
+          <div className="absolute top-1/2 left-1/3 w-48 h-48 rounded-full bg-[#9FBCA4] blur-2xl" />
         </div>
         
         <div className="relative z-10 flex flex-col justify-center px-12 lg:px-20">

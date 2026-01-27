@@ -2211,12 +2211,21 @@ export default function Dashboard() {
           </TabsContent>
 
           <TabsContent value="cashflow" className="mt-6 space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Revenue & Operating Performance</CardTitle>
-                  <p className="text-sm text-muted-foreground">Revenue, Operating Costs, and NOI over 10 years</p>
-                </CardHeader>
-                <CardContent>
+            {/* Liquid Glass Chart - Revenue & Operating Performance */}
+            <div className="relative overflow-hidden rounded-3xl p-6">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e] via-[#3d5a6a] to-[#4a3d5e]" />
+              <div className="absolute inset-0">
+                <div className="absolute top-0 left-1/4 w-72 h-72 rounded-full bg-[#60A5FA]/20 blur-3xl" />
+                <div className="absolute bottom-0 right-1/4 w-64 h-64 rounded-full bg-[#8b5cf6]/20 blur-3xl" />
+              </div>
+              
+              <div className="relative">
+                <div className="mb-4">
+                  <h3 className="text-lg font-semibold text-white">Revenue & Operating Performance</h3>
+                  <p className="text-sm text-white/50">Revenue, Operating Costs, and NOI over 10 years</p>
+                </div>
+                
+                <div className="bg-white/10 backdrop-blur-2xl rounded-2xl p-6 border border-white/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
                   <ResponsiveContainer width="100%" height={300}>
                     <LineChart
                       data={Array.from({ length: 10 }, (_, i) => {
@@ -2230,70 +2239,87 @@ export default function Dashboard() {
                       })}
                       margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                     >
-                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                      <XAxis dataKey="year" stroke="hsl(var(--muted-foreground))" />
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                      <XAxis dataKey="year" stroke="rgba(255,255,255,0.5)" tick={{ fill: 'rgba(255,255,255,0.7)' }} />
                       <YAxis 
-                        stroke="hsl(var(--muted-foreground))" 
+                        stroke="rgba(255,255,255,0.5)" 
+                        tick={{ fill: 'rgba(255,255,255,0.7)' }}
                         tickFormatter={(value) => `$${(value / 1000000).toFixed(1)}M`}
                       />
                       <Tooltip 
                         formatter={(value: number) => formatMoney(value)}
                         contentStyle={{ 
-                          backgroundColor: 'hsl(var(--card))', 
-                          border: '1px solid hsl(var(--border))',
-                          borderRadius: '8px'
+                          backgroundColor: 'rgba(30, 42, 58, 0.95)', 
+                          border: '1px solid rgba(255,255,255,0.2)',
+                          borderRadius: '12px',
+                          color: '#fff'
                         }}
+                        labelStyle={{ color: 'rgba(255,255,255,0.7)' }}
                       />
-                      <Legend />
-                      <Line type="monotone" dataKey="Revenue" stroke="#5C6BC0" strokeWidth={2} dot={{ fill: '#5C6BC0' }} />
-                      <Line type="monotone" dataKey="Operating Costs" stroke="#9575CD" strokeWidth={2} dot={{ fill: '#9575CD' }} />
-                      <Line type="monotone" dataKey="NOI" stroke="#257D41" strokeWidth={2} dot={{ fill: '#257D41' }} />
+                      <Legend wrapperStyle={{ color: 'rgba(255,255,255,0.8)' }} />
+                      <Line type="monotone" dataKey="Revenue" stroke="#60A5FA" strokeWidth={3} dot={{ fill: '#60A5FA', strokeWidth: 0, r: 4 }} />
+                      <Line type="monotone" dataKey="Operating Costs" stroke="#A78BFA" strokeWidth={3} dot={{ fill: '#A78BFA', strokeWidth: 0, r: 4 }} />
+                      <Line type="monotone" dataKey="NOI" stroke="#9FBCA4" strokeWidth={3} dot={{ fill: '#9FBCA4', strokeWidth: 0, r: 4 }} />
                     </LineChart>
                   </ResponsiveContainer>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
+            </div>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Cash Flow After Financing</CardTitle>
-                  <p className="text-sm text-muted-foreground">NOI, Debt Service, and Net Cash Flow over 10 years</p>
-                </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart
-                    data={Array.from({ length: 10 }, (_, i) => {
-                      const yearly = getYearlyConsolidated(i);
-                      return {
-                        year: getFiscalYear(i),
-                        NOI: yearly.noi,
-                        'Debt Service': yearly.debtPayment,
-                        'Net Cash Flow': yearly.cashFlow
-                      };
-                    })}
-                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis dataKey="year" stroke="hsl(var(--muted-foreground))" />
-                    <YAxis 
-                      stroke="hsl(var(--muted-foreground))" 
-                      tickFormatter={(value) => `$${(value / 1000000).toFixed(1)}M`}
-                    />
-                    <Tooltip 
-                      formatter={(value: number) => formatMoney(value)}
-                      contentStyle={{ 
-                        backgroundColor: 'hsl(var(--card))', 
-                        border: '1px solid hsl(var(--border))',
-                        borderRadius: '8px'
-                      }}
-                    />
-                    <Legend />
-                    <Line type="monotone" dataKey="NOI" stroke="#5C6BC0" strokeWidth={2} dot={{ fill: '#5C6BC0' }} />
-                    <Line type="monotone" dataKey="Debt Service" stroke="#9575CD" strokeWidth={2} dot={{ fill: '#9575CD' }} />
-                    <Line type="monotone" dataKey="Net Cash Flow" stroke="#257D41" strokeWidth={2} dot={{ fill: '#257D41' }} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
+            {/* Liquid Glass Chart - Cash Flow After Financing */}
+            <div className="relative overflow-hidden rounded-3xl p-6">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#3d4a5e] via-[#4a5a6a] to-[#5a3d5e]" />
+              <div className="absolute inset-0">
+                <div className="absolute top-0 right-1/3 w-72 h-72 rounded-full bg-[#9FBCA4]/20 blur-3xl" />
+                <div className="absolute bottom-0 left-1/3 w-64 h-64 rounded-full bg-[#6366f1]/20 blur-3xl" />
+              </div>
+              
+              <div className="relative">
+                <div className="mb-4">
+                  <h3 className="text-lg font-semibold text-white">Cash Flow After Financing</h3>
+                  <p className="text-sm text-white/50">NOI, Debt Service, and Net Cash Flow over 10 years</p>
+                </div>
+                
+                <div className="bg-white/10 backdrop-blur-2xl rounded-2xl p-6 border border-white/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
+                  <ResponsiveContainer width="100%" height={300}>
+                    <LineChart
+                      data={Array.from({ length: 10 }, (_, i) => {
+                        const yearly = getYearlyConsolidated(i);
+                        return {
+                          year: getFiscalYear(i),
+                          NOI: yearly.noi,
+                          'Debt Service': yearly.debtPayment,
+                          'Net Cash Flow': yearly.cashFlow
+                        };
+                      })}
+                      margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                      <XAxis dataKey="year" stroke="rgba(255,255,255,0.5)" tick={{ fill: 'rgba(255,255,255,0.7)' }} />
+                      <YAxis 
+                        stroke="rgba(255,255,255,0.5)" 
+                        tick={{ fill: 'rgba(255,255,255,0.7)' }}
+                        tickFormatter={(value) => `$${(value / 1000000).toFixed(1)}M`}
+                      />
+                      <Tooltip 
+                        formatter={(value: number) => formatMoney(value)}
+                        contentStyle={{ 
+                          backgroundColor: 'rgba(30, 42, 58, 0.95)', 
+                          border: '1px solid rgba(255,255,255,0.2)',
+                          borderRadius: '12px',
+                          color: '#fff'
+                        }}
+                        labelStyle={{ color: 'rgba(255,255,255,0.7)' }}
+                      />
+                      <Legend wrapperStyle={{ color: 'rgba(255,255,255,0.8)' }} />
+                      <Line type="monotone" dataKey="NOI" stroke="#60A5FA" strokeWidth={3} dot={{ fill: '#60A5FA', strokeWidth: 0, r: 4 }} />
+                      <Line type="monotone" dataKey="Debt Service" stroke="#F472B6" strokeWidth={3} dot={{ fill: '#F472B6', strokeWidth: 0, r: 4 }} />
+                      <Line type="monotone" dataKey="Net Cash Flow" stroke="#34D399" strokeWidth={3} dot={{ fill: '#34D399', strokeWidth: 0, r: 4 }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </div>
 
             <Card>
               <CardHeader>
@@ -3157,66 +3183,55 @@ function InvestmentAnalysis({
 
   return (
     <>
-      <div className="grid gap-4 md:grid-cols-5">
-        <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-primary-foreground/80 flex items-center">
+      {/* Investment Analysis - Liquid Glass Metrics */}
+      <div className="relative overflow-hidden rounded-3xl p-6 mb-6">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e] via-[#3d5a6a] to-[#4a3d5e]" />
+        <div className="absolute inset-0">
+          <div className="absolute top-0 left-1/4 w-72 h-72 rounded-full bg-[#9FBCA4]/20 blur-3xl" />
+          <div className="absolute bottom-0 right-1/4 w-64 h-64 rounded-full bg-[#6366f1]/25 blur-3xl" />
+        </div>
+        
+        <div className="relative grid gap-4 md:grid-cols-5">
+          <div className="bg-white/10 backdrop-blur-2xl rounded-2xl p-5 border border-white/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
+            <p className="text-sm font-medium text-white/70 flex items-center mb-2">
               Total Equity
               <HelpTooltip text="Total initial capital required from investors across all properties, including purchase price, improvements, pre-opening costs, and operating reserves (net of any financing)." light />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-primary-foreground">{formatMoney(totalInitialEquityIA)}</div>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-primary-foreground/80 flex items-center">
+            </p>
+            <div className="text-2xl font-bold text-white">{formatMoney(totalInitialEquityIA)}</div>
+          </div>
+          
+          <div className="bg-white/10 backdrop-blur-2xl rounded-2xl p-5 border border-white/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
+            <p className="text-sm font-medium text-white/70 flex items-center mb-2">
               Exit Value ({getFiscalYear(9)})
               <HelpTooltip text={`Projected sale value of all properties at ${getFiscalYear(10)}, calculated as NOI ÷ Exit Cap Rate, minus any outstanding debt at time of sale.`} light />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-primary-foreground">{formatMoney(totalExitValueIA)}</div>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-primary-foreground/80 flex items-center">
+            </p>
+            <div className="text-2xl font-bold text-[#6EE7B7]">{formatMoney(totalExitValueIA)}</div>
+          </div>
+          
+          <div className="bg-white/10 backdrop-blur-2xl rounded-2xl p-5 border border-white/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
+            <p className="text-sm font-medium text-white/70 flex items-center mb-2">
               Equity Multiple
               <HelpTooltip text="Total cash returned to investors divided by total equity invested. A 2.0x multiple means investors receive $2 back for every $1 invested." light />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-primary-foreground">{equityMultipleIA.toFixed(2)}x</div>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-primary-foreground/80 flex items-center">
+            </p>
+            <div className="text-2xl font-bold text-[#60A5FA]">{equityMultipleIA.toFixed(2)}x</div>
+          </div>
+          
+          <div className="bg-white/10 backdrop-blur-2xl rounded-2xl p-5 border border-white/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
+            <p className="text-sm font-medium text-white/70 flex items-center mb-2">
               Avg Cash-on-Cash
               <HelpTooltip text="Average annual operating cash flow (excluding exit proceeds) as a percentage of total equity invested. Measures the annual yield on invested capital." light />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-primary-foreground">{cashOnCashIA.toFixed(1)}%</div>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-gradient-to-br from-primary/90 via-primary/70 to-primary/50 backdrop-blur-xl border border-white/30 shadow-lg shadow-primary/20">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-primary-foreground/80 flex items-center">
+            </p>
+            <div className="text-2xl font-bold text-[#FBBF24]">{cashOnCashIA.toFixed(1)}%</div>
+          </div>
+          
+          <div className="bg-white/10 backdrop-blur-2xl rounded-2xl p-5 border border-white/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
+            <p className="text-sm font-medium text-white/70 flex items-center mb-2">
               Portfolio IRR
               <HelpTooltip text="Internal Rate of Return - the annualized return that makes the net present value of all cash flows (investments, distributions, and exit) equal to zero. The gold standard metric for real estate investments." light />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-primary-foreground">{(portfolioIRRIA * 100).toFixed(1)}%</div>
-          </CardContent>
-        </Card>
+            </p>
+            <div className="text-2xl font-bold text-[#9FBCA4]">{(portfolioIRRIA * 100).toFixed(1)}%</div>
+          </div>
+        </div>
       </div>
 
       <Card>

@@ -24,20 +24,20 @@ const GlassButton = React.forwardRef<HTMLButtonElement, GlassButtonProps>(
           className={cn(
             baseClasses,
             sizes[size],
-            "text-[#1a2f23] font-semibold border-2 border-white/60 hover:border-white/80 shadow-[0_4px_24px_rgba(255,255,255,0.35),inset_0_1px_0_rgba(255,255,255,0.9)] hover:shadow-[0_0_35px_rgba(255,255,255,0.6),inset_0_1px_0_rgba(255,255,255,1)]",
+            "text-white font-semibold",
             className
           )}
           {...props}
         >
-          {/* Main frosted glass background */}
-          <div className="absolute inset-0 bg-gradient-to-b from-white/95 via-white/85 to-white/75 backdrop-blur-xl rounded-xl" />
+          {/* Sage green gradient background matching active menu items */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#9FBCA4] via-[#7da584] to-[#6b9973] rounded-xl" />
           {/* Top shine highlight */}
-          <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-white to-transparent rounded-t-xl" />
-          {/* Inner top glow */}
-          <div className="absolute top-0 left-2 right-2 h-4 bg-gradient-to-b from-white/80 to-transparent rounded-t-xl" />
-          {/* Bottom reflection */}
-          <div className="absolute bottom-0 left-3 right-3 h-[1px] bg-gradient-to-r from-transparent via-white/60 to-transparent" />
-          <span className="relative flex items-center justify-center gap-2">
+          <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-white/50 to-transparent" />
+          {/* Inner top glow for liquid effect */}
+          <div className="absolute top-0 left-0 right-0 h-6 bg-gradient-to-b from-white/25 to-transparent rounded-t-xl" />
+          {/* Border glow */}
+          <div className="absolute inset-0 rounded-xl border border-[#9FBCA4]/60 shadow-[0_0_20px_rgba(159,188,164,0.4),inset_0_1px_0_rgba(255,255,255,0.2)]" />
+          <span className="relative flex items-center justify-center gap-2 drop-shadow-sm">
             {children}
           </span>
         </button>

@@ -236,25 +236,23 @@ export default function PropertyEdit() {
   return (
     <Layout>
       <div className="space-y-6 max-w-4xl">
-        {/* Liquid Glass Header */}
+        {/* Light Glass Header */}
         <div className="relative overflow-hidden rounded-3xl p-8">
-          {/* Gradient Background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e] via-[#3d5a6a] to-[#3a5a5e]" />
-          {/* Top Edge Sheen */}
-          <div className="absolute top-0 left-8 right-8 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+          {/* Light Background with Glass Effect */}
+          <div className="absolute inset-0 bg-white/80 backdrop-blur-xl" />
           {/* Floating Color Orbs */}
           <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute -top-12 -right-12 w-56 h-56 rounded-full bg-[#9FBCA4]/25 blur-3xl" />
-            <div className="absolute bottom-0 left-1/4 w-48 h-48 rounded-full bg-[#9FBCA4]/15 blur-3xl" />
+            <div className="absolute -top-12 -right-12 w-56 h-56 rounded-full bg-[#9FBCA4]/20 blur-3xl" />
+            <div className="absolute bottom-0 left-1/4 w-48 h-48 rounded-full bg-[#9FBCA4]/10 blur-3xl" />
           </div>
+          <div className="absolute inset-0 border border-[#9FBCA4]/20 rounded-3xl shadow-[0_8px_32px_rgba(159,188,164,0.15)]" />
           
           <div className="relative flex justify-between items-center">
             <div>
               <Link href={`/property/${propertyId}`}>
-                <button className="relative overflow-hidden px-4 py-2 text-sm font-medium text-white rounded-xl transition-all duration-300 group/back mb-4">
-                  <div className="absolute inset-0 bg-white/12 backdrop-blur-xl rounded-xl" />
-                  <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
-                  <div className="absolute inset-0 rounded-xl border border-white/25 group-hover/back:border-white/40 transition-all duration-300" />
+                <button className="relative overflow-hidden px-4 py-2 text-sm font-medium text-gray-700 rounded-xl transition-all duration-300 group/back mb-4">
+                  <div className="absolute inset-0 bg-[#9FBCA4]/10 backdrop-blur-xl rounded-xl" />
+                  <div className="absolute inset-0 rounded-xl border border-[#9FBCA4]/30 group-hover/back:border-[#9FBCA4]/50 transition-all duration-300" />
                   <div className="absolute inset-0 rounded-xl opacity-0 group-hover/back:opacity-100 shadow-[0_0_20px_rgba(159,188,164,0.3)] transition-all duration-300" />
                   <span className="relative flex items-center"><ArrowLeft className="w-4 h-4 mr-2" />Back to Property</span>
                 </button>
@@ -276,9 +274,10 @@ export default function PropertyEdit() {
 
         {/* Glass Card - Basic Information */}
         <div className="relative overflow-hidden rounded-2xl">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e]/80 via-[#3d5a6a]/70 to-[#3a5a5e]/80" />
-          <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-          <div className="absolute inset-0 border border-white/10 rounded-2xl" />
+          <div className="absolute inset-0 bg-white/80 backdrop-blur-xl" />
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-[#9FBCA4]/10 blur-2xl" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/5 blur-xl" />
+          <div className="absolute inset-0 border border-[#9FBCA4]/20 rounded-2xl shadow-[0_8px_32px_rgba(159,188,164,0.15)]" />
           
           <div className="relative p-6">
             <div className="mb-6">
@@ -357,9 +356,10 @@ export default function PropertyEdit() {
 
         {/* Glass Card - Timeline */}
         <div className="relative overflow-hidden rounded-2xl">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e]/80 via-[#3d5a6a]/70 to-[#3a5a5e]/80" />
-          <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-          <div className="absolute inset-0 border border-white/10 rounded-2xl" />
+          <div className="absolute inset-0 bg-white/80 backdrop-blur-xl" />
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-[#9FBCA4]/10 blur-2xl" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/5 blur-xl" />
+          <div className="absolute inset-0 border border-[#9FBCA4]/20 rounded-2xl shadow-[0_8px_32px_rgba(159,188,164,0.15)]" />
           
           <div className="relative p-6">
             <div className="mb-6">
@@ -387,9 +387,10 @@ export default function PropertyEdit() {
 
         {/* Glass Card - Capital Structure */}
         <div className="relative overflow-hidden rounded-2xl">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e]/80 via-[#3d5a6a]/70 to-[#3a5a5e]/80" />
-          <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-          <div className="absolute inset-0 border border-white/10 rounded-2xl" />
+          <div className="absolute inset-0 bg-white/80 backdrop-blur-xl" />
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-[#9FBCA4]/10 blur-2xl" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/5 blur-xl" />
+          <div className="absolute inset-0 border border-[#9FBCA4]/20 rounded-2xl shadow-[0_8px_32px_rgba(159,188,164,0.15)]" />
           
           <div className="relative p-6 space-y-8">
             <div>
@@ -585,9 +586,10 @@ export default function PropertyEdit() {
 
         {/* Glass Card - Revenue Assumptions */}
         <div className="relative overflow-hidden rounded-2xl">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e]/80 via-[#3d5a6a]/70 to-[#3a5a5e]/80" />
-          <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-          <div className="absolute inset-0 border border-white/10 rounded-2xl" />
+          <div className="absolute inset-0 bg-white/80 backdrop-blur-xl" />
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-[#9FBCA4]/10 blur-2xl" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/5 blur-xl" />
+          <div className="absolute inset-0 border border-[#9FBCA4]/20 rounded-2xl shadow-[0_8px_32px_rgba(159,188,164,0.15)]" />
           
           <div className="relative p-6 space-y-6">
             <div>
@@ -752,9 +754,10 @@ export default function PropertyEdit() {
 
         {/* Glass Card - Revenue Streams */}
         <div className="relative overflow-hidden rounded-2xl">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e]/80 via-[#3d5a6a]/70 to-[#3a5a5e]/80" />
-          <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-          <div className="absolute inset-0 border border-white/10 rounded-2xl" />
+          <div className="absolute inset-0 bg-white/80 backdrop-blur-xl" />
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-[#9FBCA4]/10 blur-2xl" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/5 blur-xl" />
+          <div className="absolute inset-0 border border-[#9FBCA4]/20 rounded-2xl shadow-[0_8px_32px_rgba(159,188,164,0.15)]" />
           
           <div className="relative p-6 space-y-6">
             <div>
@@ -941,9 +944,10 @@ export default function PropertyEdit() {
 
         {/* Glass Card - Operating Cost Rates */}
         <div className="relative overflow-hidden rounded-2xl">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e]/80 via-[#3d5a6a]/70 to-[#3a5a5e]/80" />
-          <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-          <div className="absolute inset-0 border border-white/10 rounded-2xl" />
+          <div className="absolute inset-0 bg-white/80 backdrop-blur-xl" />
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-[#9FBCA4]/10 blur-2xl" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/5 blur-xl" />
+          <div className="absolute inset-0 border border-[#9FBCA4]/20 rounded-2xl shadow-[0_8px_32px_rgba(159,188,164,0.15)]" />
           
           <div className="relative p-6">
             <div className="mb-6">
@@ -1211,9 +1215,10 @@ export default function PropertyEdit() {
 
         {/* Glass Card - Other Assumptions */}
         <div className="relative overflow-hidden rounded-2xl">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e]/80 via-[#3d5a6a]/70 to-[#3a5a5e]/80" />
-          <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-          <div className="absolute inset-0 border border-white/10 rounded-2xl" />
+          <div className="absolute inset-0 bg-white/80 backdrop-blur-xl" />
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-[#9FBCA4]/10 blur-2xl" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/5 blur-xl" />
+          <div className="absolute inset-0 border border-[#9FBCA4]/20 rounded-2xl shadow-[0_8px_32px_rgba(159,188,164,0.15)]" />
           
           <div className="relative p-6">
             <div className="mb-6">

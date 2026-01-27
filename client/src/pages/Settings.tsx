@@ -105,15 +105,23 @@ export default function Settings() {
   return (
     <Layout>
       <div className="space-y-6 max-w-4xl">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-3xl font-serif font-bold text-foreground">Global Assumptions</h2>
-            <p className="text-muted-foreground mt-1">Configure variables driving the financial model</p>
+        {/* Light Glass Header */}
+        <div className="relative overflow-hidden rounded-3xl p-6">
+          <div className="absolute inset-0 bg-white/80 backdrop-blur-xl" />
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-[#9FBCA4]/20 blur-2xl" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/10 blur-xl" />
+          <div className="absolute inset-0 border border-[#9FBCA4]/20 rounded-3xl shadow-[0_8px_32px_rgba(159,188,164,0.15)]" />
+          
+          <div className="relative flex items-center justify-between">
+            <div>
+              <h2 className="text-3xl font-serif font-bold text-gray-900">Global Assumptions</h2>
+              <p className="text-gray-600 mt-1">Configure variables driving the financial model</p>
+            </div>
+            <GlassButton variant="primary" onClick={handleSaveGlobal} disabled={!globalDraft || updateGlobal.isPending}>
+              {updateGlobal.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              Save Changes
+            </GlassButton>
           </div>
-          <GlassButton variant="primary" onClick={handleSaveGlobal} disabled={!globalDraft || updateGlobal.isPending}>
-            {updateGlobal.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            Save Changes
-          </GlassButton>
         </div>
 
         <Tabs defaultValue="portfolio" className="w-full">
@@ -124,7 +132,7 @@ export default function Settings() {
           </TabsList>
 
           <TabsContent value="portfolio" className="space-y-6 mt-6">
-            <Card>
+            <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
               <CardHeader>
                 <CardTitle className="flex items-center">
                   Disposition
@@ -153,7 +161,7 @@ export default function Settings() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
               <CardHeader>
                 <CardTitle className="flex items-center">
                   Acquisition Financing
@@ -233,7 +241,7 @@ export default function Settings() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
               <CardHeader>
                 <CardTitle className="flex items-center">
                   Refinancing
@@ -337,7 +345,7 @@ export default function Settings() {
           </TabsContent>
 
           <TabsContent value="macro" className="space-y-6 mt-6">
-            <Card>
+            <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
               <CardHeader>
                 <CardTitle>Economic Assumptions</CardTitle>
                 <CardDescription>Market-wide economic factors affecting the model</CardDescription>
@@ -398,7 +406,7 @@ export default function Settings() {
           </TabsContent>
 
           <TabsContent value="other" className="space-y-6 mt-6">
-            <Card>
+            <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
               <CardHeader>
                 <CardTitle className="flex items-center">
                   Catering Levels

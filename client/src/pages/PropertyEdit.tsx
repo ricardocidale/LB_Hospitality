@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Save, Loader2, Upload } from "lucide-react";
+import { GlassButton } from "@/components/ui/glass-button";
 import { Link, useRoute, useLocation } from "wouter";
 import { useState, useEffect, useRef } from "react";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
@@ -262,20 +263,14 @@ export default function PropertyEdit() {
               <p className="text-[#FFF9F5]/60 mt-1">{property.name}</p>
             </div>
             
-            <button 
+            <GlassButton 
+              variant="primary"
               onClick={handleSave} 
               disabled={updateProperty.isPending}
-              className="relative overflow-hidden px-5 py-2.5 text-sm font-medium text-white rounded-xl transition-all duration-300 group/save disabled:opacity-50"
             >
-              <div className="absolute inset-0 bg-white/12 backdrop-blur-xl rounded-xl" />
-              <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
-              <div className="absolute inset-0 rounded-xl border border-white/25 group-hover/save:border-white/40 transition-all duration-300" />
-              <div className="absolute inset-0 rounded-xl shadow-[0_0_20px_rgba(159,188,164,0.3)] group-hover/save:shadow-[0_0_30px_rgba(159,188,164,0.5)] transition-all duration-300" />
-              <span className="relative flex items-center">
-                {updateProperty.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-                Save Changes
-              </span>
-            </button>
+              {updateProperty.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              Save Changes
+            </GlassButton>
           </div>
         </div>
 
@@ -1282,10 +1277,10 @@ export default function PropertyEdit() {
         </div>
 
         <div className="flex justify-end pb-8">
-          <Button onClick={handleSave} disabled={updateProperty.isPending} size="lg">
-            {updateProperty.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+          <GlassButton variant="primary" onClick={handleSave} disabled={updateProperty.isPending}>
+            {updateProperty.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             Save All Changes
-          </Button>
+          </GlassButton>
         </div>
       </div>
     </Layout>

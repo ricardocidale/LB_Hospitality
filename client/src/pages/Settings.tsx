@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Save, Loader2 } from "lucide-react";
+import { GlassButton } from "@/components/ui/glass-button";
 import { useState } from "react";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { Slider } from "@/components/ui/slider";
@@ -109,10 +110,10 @@ export default function Settings() {
             <h2 className="text-3xl font-serif font-bold text-foreground">Global Assumptions</h2>
             <p className="text-muted-foreground mt-1">Configure variables driving the financial model</p>
           </div>
-          <Button onClick={handleSaveGlobal} disabled={!globalDraft || updateGlobal.isPending}>
-            {updateGlobal.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+          <GlassButton variant="primary" onClick={handleSaveGlobal} disabled={!globalDraft || updateGlobal.isPending}>
+            {updateGlobal.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             Save Changes
-          </Button>
+          </GlassButton>
         </div>
 
         <Tabs defaultValue="portfolio" className="w-full">
@@ -329,10 +330,10 @@ export default function Settings() {
               </CardContent>
             </Card>
 
-            <Button onClick={handleSaveGlobal} disabled={!globalDraft || updateGlobal.isPending}>
-              {updateGlobal.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+            <GlassButton variant="primary" onClick={handleSaveGlobal} disabled={!globalDraft || updateGlobal.isPending}>
+              {updateGlobal.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               Save Changes
-            </Button>
+            </GlassButton>
           </TabsContent>
 
           <TabsContent value="macro" className="space-y-6 mt-6">
@@ -390,10 +391,10 @@ export default function Settings() {
               </CardContent>
             </Card>
 
-            <Button onClick={handleSaveGlobal} disabled={!globalDraft || updateGlobal.isPending}>
-              {updateGlobal.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+            <GlassButton variant="primary" onClick={handleSaveGlobal} disabled={!globalDraft || updateGlobal.isPending}>
+              {updateGlobal.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               Save Changes
-            </Button>
+            </GlassButton>
           </TabsContent>
 
           <TabsContent value="other" className="space-y-6 mt-6">
@@ -449,10 +450,10 @@ export default function Settings() {
               </CardContent>
             </Card>
 
-            <Button onClick={handleSaveGlobal} disabled={!globalDraft || updateGlobal.isPending}>
-              {updateGlobal.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+            <GlassButton variant="primary" onClick={handleSaveGlobal} disabled={!globalDraft || updateGlobal.isPending}>
+              {updateGlobal.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               Save Changes
-            </Button>
+            </GlassButton>
           </TabsContent>
         </Tabs>
       </div>

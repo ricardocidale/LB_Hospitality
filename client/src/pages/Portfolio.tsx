@@ -224,13 +224,20 @@ export default function Portfolio() {
             
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
               <DialogTrigger asChild>
-                <Button 
+                <button 
                   data-testid="button-add-property" 
-                  className="relative overflow-hidden bg-white/15 hover:bg-white/25 text-white border border-white/20 backdrop-blur-xl shadow-[0_0_20px_rgba(159,188,164,0.3)]"
+                  className="relative overflow-hidden px-5 py-2.5 text-sm font-medium text-white rounded-xl transition-all duration-300 group/add"
                 >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Property
-                </Button>
+                  {/* Glass Background */}
+                  <div className="absolute inset-0 bg-white/12 backdrop-blur-xl rounded-xl" />
+                  {/* Top Edge Sheen */}
+                  <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+                  {/* Border */}
+                  <div className="absolute inset-0 rounded-xl border border-white/25 group-hover/add:border-white/40 transition-all duration-300" />
+                  {/* Hover Glow */}
+                  <div className="absolute inset-0 rounded-xl shadow-[0_0_20px_rgba(159,188,164,0.3)] group-hover/add:shadow-[0_0_30px_rgba(159,188,164,0.5)] transition-all duration-300" />
+                  <span className="relative flex items-center"><Plus className="w-4 h-4 mr-2" />Add Property</span>
+                </button>
               </DialogTrigger>
               <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
@@ -601,9 +608,10 @@ export default function Portfolio() {
                 <div className="px-5 pb-5 pt-2 border-t border-white/10 flex justify-between items-center">
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button variant="ghost" size="sm" className="text-white/50 hover:text-red-400 hover:bg-white/5">
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      <button className="relative overflow-hidden p-2 rounded-xl text-white/50 hover:text-red-400 transition-all duration-300 group/del">
+                        <div className="absolute inset-0 bg-white/0 group-hover/del:bg-white/5 rounded-xl transition-all duration-300" />
+                        <Trash2 className="w-4 h-4 relative" />
+                      </button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
@@ -625,13 +633,19 @@ export default function Portfolio() {
                   </AlertDialog>
 
                   <Link href={`/property/${property.id}`}>
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      className="text-white bg-white/10 hover:bg-white/20 border border-white/20"
+                    <button 
+                      className="relative overflow-hidden px-4 py-2 text-sm font-medium text-white rounded-xl transition-all duration-300 group/btn"
                     >
-                      View Details <ArrowRight className="w-4 h-4 ml-2" />
-                    </Button>
+                      {/* Glass Background */}
+                      <div className="absolute inset-0 bg-white/10 backdrop-blur-xl rounded-xl" />
+                      {/* Top Edge Sheen */}
+                      <div className="absolute top-0 left-1 right-1 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+                      {/* Border */}
+                      <div className="absolute inset-0 rounded-xl border border-white/20 group-hover/btn:border-white/40 transition-all duration-300" />
+                      {/* Hover Glow */}
+                      <div className="absolute inset-0 rounded-xl opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300 shadow-[0_0_20px_rgba(159,188,164,0.3)]" />
+                      <span className="relative flex items-center">View Details <ArrowRight className="w-4 h-4 ml-2" /></span>
+                    </button>
                   </Link>
                 </div>
               </div>

@@ -17,6 +17,7 @@ import Settings from "@/pages/Settings";
 import Methodology from "@/pages/Methodology";
 import Research from "@/pages/Research";
 import AdminUsers from "@/pages/AdminUsers";
+import Profile from "@/pages/Profile";
 
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
   const { user, isLoading } = useAuth();
@@ -103,6 +104,9 @@ function Router() {
       </Route>
       <Route path="/admin/users">
         <AdminRoute component={AdminUsers} />
+      </Route>
+      <Route path="/profile">
+        <ProtectedRoute component={Profile} />
       </Route>
       <Route component={NotFound} />
     </Switch>

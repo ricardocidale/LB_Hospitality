@@ -62,7 +62,7 @@ export async function registerRoutes(
       setSessionCookie(res, sessionId);
       
       res.json({ 
-        user: { id: user.id, email: user.email, name: user.name, role: user.role }
+        user: { id: user.id, email: user.email, name: user.name, company: user.company, title: user.title, role: user.role }
       });
     } catch (error) {
       console.error("Login error:", error);
@@ -88,8 +88,40 @@ export async function registerRoutes(
       return res.status(401).json({ error: "Not authenticated" });
     }
     res.json({ 
-      user: { id: req.user.id, email: req.user.email, name: req.user.name, role: req.user.role }
+      user: { id: req.user.id, email: req.user.email, name: req.user.name, company: req.user.company, title: req.user.title, role: req.user.role }
     });
+  });
+
+  // --- USER PROFILE ROUTES ---
+  
+  const updateProfileSchema = z.object({
+    name: z.string().max(100).optional(),
+    company: z.string().max(100).optional(),
+    title: z.string().max(100).optional(),
+  });
+
+  app.patch("/api/profile", async (req, res) => {
+    if (!req.user) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+    try {
+      const validation = updateProfileSchema.safeParse(req.body);
+      if (!validation.success) {
+        const error = fromZodError(validation.error);
+        return res.status(400).json({ error: error.message });
+      }
+      
+      const updates: { name?: string; company?: string; title?: string } = {};
+      if (validation.data.name !== undefined) updates.name = validation.data.name.trim();
+      if (validation.data.company !== undefined) updates.company = validation.data.company.trim();
+      if (validation.data.title !== undefined) updates.title = validation.data.title.trim();
+      
+      const user = await storage.updateUserProfile(req.user.id, updates);
+      res.json({ id: user.id, email: user.email, name: user.name, company: user.company, title: user.title, role: user.role });
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      res.status(500).json({ error: "Failed to update profile" });
+    }
   });
 
   // --- ADMIN USER MANAGEMENT ROUTES ---
@@ -167,6 +199,37 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error updating password:", error);
       res.status(500).json({ error: "Failed to update password" });
+    }
+  });
+
+  app.patch("/api/admin/users/:id", requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid user ID" });
+      }
+      
+      const validation = updateProfileSchema.safeParse(req.body);
+      if (!validation.success) {
+        const error = fromZodError(validation.error);
+        return res.status(400).json({ error: error.message });
+      }
+      
+      const existingUser = await storage.getUserById(id);
+      if (!existingUser) {
+        return res.status(404).json({ error: "User not found" });
+      }
+      
+      const updates: { name?: string; company?: string; title?: string } = {};
+      if (validation.data.name !== undefined) updates.name = validation.data.name.trim();
+      if (validation.data.company !== undefined) updates.company = validation.data.company.trim();
+      if (validation.data.title !== undefined) updates.title = validation.data.title.trim();
+      
+      const user = await storage.updateUserProfile(id, updates);
+      res.json({ id: user.id, email: user.email, name: user.name, company: user.company, title: user.title, role: user.role });
+    } catch (error) {
+      console.error("Error updating user:", error);
+      res.status(500).json({ error: "Failed to update user" });
     }
   });
 

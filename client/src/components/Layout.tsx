@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Building2, Briefcase, Settings2, Menu, X, BookOpen, FileText, Users, LogOut } from "lucide-react";
+import { LayoutDashboard, Building2, Briefcase, Settings2, Menu, X, BookOpen, FileText, Users, LogOut, UserCircle } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
@@ -21,6 +21,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { href: "/methodology", label: "Methodology", icon: FileText },
     { href: "/research", label: "Research", icon: BookOpen },
     ...(isAdmin ? [{ href: "/admin/users", label: "User Management", icon: Users }] : []),
+    { href: "/profile", label: "My Profile", icon: UserCircle },
   ];
 
   return (

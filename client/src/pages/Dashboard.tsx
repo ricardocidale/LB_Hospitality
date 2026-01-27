@@ -1556,7 +1556,7 @@ export default function Dashboard() {
           <div className="absolute inset-0 bg-gradient-to-r from-[#1e2a3a] via-[#2d3a4a] to-[#3a2a4a]" />
           <div className="absolute inset-0">
             <div className="absolute top-0 left-1/4 w-48 h-48 rounded-full bg-[#9FBCA4]/20 blur-3xl" />
-            <div className="absolute bottom-0 right-1/4 w-40 h-40 rounded-full bg-[#6366f1]/20 blur-3xl" />
+            <div className="absolute bottom-0 right-1/4 w-40 h-40 rounded-full bg-[#9FBCA4]/15 blur-3xl" />
           </div>
           
           <div className="relative px-8 py-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -1851,7 +1851,7 @@ export default function Dashboard() {
               <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e] via-[#3d5a6a] to-[#3a5a5e]" />
               <div className="absolute inset-0">
                 <div className="absolute top-0 right-1/4 w-72 h-72 rounded-full bg-[#9FBCA4]/20 blur-3xl" />
-                <div className="absolute bottom-0 left-1/3 w-64 h-64 rounded-full bg-[#6366f1]/20 blur-3xl" />
+                <div className="absolute bottom-0 left-1/3 w-64 h-64 rounded-full bg-[#9FBCA4]/15 blur-3xl" />
               </div>
               
               <div className="relative">
@@ -2253,7 +2253,7 @@ export default function Dashboard() {
               <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e] via-[#3d5a6a] to-[#3a5a5e]" />
               <div className="absolute inset-0">
                 <div className="absolute top-0 left-1/4 w-72 h-72 rounded-full bg-[#60A5FA]/20 blur-3xl" />
-                <div className="absolute bottom-0 right-1/4 w-64 h-64 rounded-full bg-[#8b5cf6]/20 blur-3xl" />
+                <div className="absolute bottom-0 right-1/4 w-64 h-64 rounded-full bg-[#257D41]/15 blur-3xl" />
               </div>
               
               <div className="relative">
@@ -2310,7 +2310,7 @@ export default function Dashboard() {
               <div className="absolute inset-0 bg-gradient-to-br from-[#3d4a5e] via-[#4a5a6a] to-[#5a3d5e]" />
               <div className="absolute inset-0">
                 <div className="absolute top-0 right-1/3 w-72 h-72 rounded-full bg-[#9FBCA4]/20 blur-3xl" />
-                <div className="absolute bottom-0 left-1/3 w-64 h-64 rounded-full bg-[#6366f1]/20 blur-3xl" />
+                <div className="absolute bottom-0 left-1/3 w-64 h-64 rounded-full bg-[#9FBCA4]/15 blur-3xl" />
               </div>
               
               <div className="relative">
@@ -3229,7 +3229,7 @@ function InvestmentAnalysis({
         <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e] via-[#3d5a6a] to-[#3a5a5e]" />
         <div className="absolute inset-0">
           <div className="absolute top-0 left-1/4 w-72 h-72 rounded-full bg-[#9FBCA4]/20 blur-3xl" />
-          <div className="absolute bottom-0 right-1/4 w-64 h-64 rounded-full bg-[#6366f1]/25 blur-3xl" />
+          <div className="absolute bottom-0 right-1/4 w-64 h-64 rounded-full bg-[#9FBCA4]/20 blur-3xl" />
         </div>
         
         <div className="relative grid gap-4 md:grid-cols-5">

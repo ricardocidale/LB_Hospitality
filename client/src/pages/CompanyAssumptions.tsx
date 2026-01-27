@@ -784,19 +784,11 @@ export default function CompanyAssumptions() {
         </div></div>
 
         <div className="flex justify-end pb-8">
-          <GlassButton 
-            variant="primary"
-            size="lg"
+          <SaveButton 
             onClick={handleSave} 
             disabled={updateMutation.isPending}
-          >
-            {updateMutation.isPending ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Save className="w-4 h-4" />
-            )}
-            Save Changes
-          </GlassButton>
+            isLoading={updateMutation.isPending}
+          />
         </div>
       </div>
     </Layout>

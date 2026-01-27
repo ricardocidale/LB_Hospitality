@@ -407,7 +407,7 @@ export default function PropertyDetail() {
                 <div className="h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={yearlyChartData}>
-                      <CartesianGrid strokeDasharray="0" stroke="rgba(255,255,255,0.1)" vertical={false} strokeOpacity={0.5} />
+                      <CartesianGrid strokeDasharray="0" stroke="rgba(255,255,255,0.25)" vertical={false} />
                       <XAxis 
                         dataKey="year" 
                         stroke="rgba(255,249,245,0.5)" 
@@ -494,7 +494,7 @@ export default function PropertyDetail() {
                         NetToInvestors: cfData[i]?.netCashFlowToInvestors || 0,
                       };
                     })}>
-                      <CartesianGrid strokeDasharray="0" stroke="rgba(255,255,255,0.1)" vertical={false} strokeOpacity={0.5} />
+                      <CartesianGrid strokeDasharray="0" stroke="rgba(255,255,255,0.25)" vertical={false} />
                       <XAxis 
                         dataKey="year" 
                         stroke="rgba(255,249,245,0.5)" 

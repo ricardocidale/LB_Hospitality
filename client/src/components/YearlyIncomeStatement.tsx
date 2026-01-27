@@ -229,10 +229,10 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026 }: Pro
 
             <TableRow className="h-2 border-none"><TableCell colSpan={years + 1}></TableCell></TableRow>
 
-            <TableRow className="bg-gradient-to-r from-primary/80 via-primary/60 to-primary/40 backdrop-blur-sm font-bold text-primary-foreground text-lg shadow-sm">
+            <TableRow className="bg-accent/10 font-bold">
               <TableCell>Net Operating Income (NOI)</TableCell>
               {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right"><Money amount={y.noi} /></TableCell>
+                <TableCell key={y.year} className="text-right text-accent"><Money amount={y.noi} /></TableCell>
               ))}
             </TableRow>
           </TableBody>

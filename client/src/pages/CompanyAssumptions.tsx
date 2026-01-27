@@ -156,6 +156,7 @@ export default function CompanyAssumptions() {
         <PageHeader
           title="Company Assumptions"
           subtitle="Configure L+B Hospitality Co. operating parameters"
+          variant="light"
           backLink="/company"
           actions={
             <GlassButton 

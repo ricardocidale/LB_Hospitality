@@ -1617,7 +1617,7 @@ export default function Dashboard() {
                   variant="outline"
                   size="sm"
                   onClick={exportFunctions.pdf}
-                  className="flex items-center gap-2 bg-white/5 border-white/20 text-foreground hover:bg-white/10"
+                  className="flex items-center gap-2 bg-white/5 border-2 border-white/40 text-[#FFF9F5] hover:bg-white/10 hover:border-white/60 rounded-xl"
                   data-testid="button-export-pdf"
                 >
                   <FileDown className="w-4 h-4" />
@@ -1627,7 +1627,7 @@ export default function Dashboard() {
                   variant="outline"
                   size="sm"
                   onClick={exportFunctions.csv}
-                  className="flex items-center gap-2 bg-white/5 border-white/20 text-foreground hover:bg-white/10"
+                  className="flex items-center gap-2 bg-white/5 border-2 border-white/40 text-[#FFF9F5] hover:bg-white/10 hover:border-white/60 rounded-xl"
                   data-testid="button-export-csv"
                 >
                   <FileSpreadsheet className="w-4 h-4" />

@@ -1616,7 +1616,7 @@ export default function Dashboard() {
                 variant="outline"
                 size="sm"
                 onClick={() => exportFunctions?.pdf?.()}
-                className="flex items-center gap-2 bg-[#2d4a5e] border-2 border-[#FFF9F5]/50 text-[#FFF9F5] hover:bg-[#3a5a5e] hover:border-[#FFF9F5]/70 rounded-xl shadow-lg"
+                className="flex items-center gap-2 bg-transparent border border-white/25 text-[#FFF9F5]/70 hover:text-[#FFF9F5] hover:bg-white/5 hover:border-white/40 rounded-xl px-4 py-2.5"
                 data-testid="button-export-pdf"
               >
                 <FileDown className="w-4 h-4" />
@@ -1626,7 +1626,7 @@ export default function Dashboard() {
                 variant="outline"
                 size="sm"
                 onClick={() => exportFunctions?.csv?.()}
-                className="flex items-center gap-2 bg-[#2d4a5e] border-2 border-[#FFF9F5]/50 text-[#FFF9F5] hover:bg-[#3a5a5e] hover:border-[#FFF9F5]/70 rounded-xl shadow-lg"
+                className="flex items-center gap-2 bg-transparent border border-white/25 text-[#FFF9F5]/70 hover:text-[#FFF9F5] hover:bg-white/5 hover:border-white/40 rounded-xl px-4 py-2.5"
                 data-testid="button-export-csv"
               >
                 <FileSpreadsheet className="w-4 h-4" />

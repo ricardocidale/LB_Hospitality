@@ -1564,9 +1564,9 @@ export default function Dashboard() {
               <h2 className="text-3xl font-serif font-bold text-white">Investment Overview</h2>
               <p className="text-white/50 mt-1">L+B Hospitality Group - Boutique Hotel Portfolio</p>
             </div>
-            <div className="bg-white/10 backdrop-blur-xl rounded-xl px-5 py-3 border border-white/20">
+            <div className="bg-white/10 backdrop-blur-xl rounded-xl px-5 py-3 border border-white/20 text-center">
               <p className="text-xs text-white/50 uppercase tracking-widest">Investment Period</p>
-              <p className="text-lg font-medium text-white">{getFiscalYear(0)} - {getFiscalYear(investmentHorizon)}</p>
+              <p className="text-lg font-medium text-white">{getFiscalYear(0)} - {getFiscalYear(investmentHorizon - 1)}</p>
             </div>
           </div>
         </div>

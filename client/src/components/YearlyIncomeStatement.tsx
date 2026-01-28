@@ -128,7 +128,7 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026 }: Pro
               <TableCell colSpan={years + 1} className="font-bold text-primary">Operating Expenses</TableCell>
             </TableRow>
             <TableRow>
-              <TableCell className="pl-6">Rooms Department</TableCell>
+              <TableCell className="pl-6">Housekeeping</TableCell>
               {yearlyData.map((y) => (
                 <TableCell key={y.year} className="text-right"><Money amount={y.expenseRooms} /></TableCell>
               ))}

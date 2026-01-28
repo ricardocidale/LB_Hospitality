@@ -965,7 +965,7 @@ export default function PropertyEdit() {
                   <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <Label className="text-sm text-gray-700">Rooms Dept</Label>
+                        <Label className="text-sm text-gray-700">Housekeeping</Label>
                         <EditableValue
                           value={(draft.costRateRooms ?? 0.36) * 100}
                           onChange={(val) => handleChange("costRateRooms", (val / 100).toString())}

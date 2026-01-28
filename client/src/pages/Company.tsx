@@ -672,7 +672,7 @@ export default function Company() {
             {/* Income Statement */}
             <div className="bg-white rounded-2xl p-6 shadow-sm border">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Yearly Income Statement</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Income Statement - {global?.companyName || "L+B Hospitality Co."}</h3>
                 <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
@@ -962,7 +962,7 @@ export default function Company() {
             {/* Cash Flow Statement */}
             <div className="bg-white rounded-2xl p-6 shadow-sm border">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Yearly Cash Flow Statement</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Cash Flow Statement - {global?.companyName || "L+B Hospitality Co."}</h3>
                 <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
@@ -1301,7 +1301,7 @@ export default function Company() {
             {/* Balance Sheet */}
             <div className="bg-white rounded-2xl p-6 shadow-sm border">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Balance Sheet - As of {getFiscalYear(9)}</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Balance Sheet - {global?.companyName || "L+B Hospitality Co."} (As of {getFiscalYear(9)})</h3>
                 {(() => {
                   // Calculate cumulative values through Year 10
                   const cumulativeNetIncome = financials.reduce((a, m) => a + m.netIncome, 0);

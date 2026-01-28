@@ -4,12 +4,17 @@ import { LayoutDashboard, Building2, Briefcase, Settings2, Menu, X, BookOpen, Fi
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
-import logo from "@/assets/logo.png";
+import { useGlobalAssumptions } from "@/lib/api";
+import defaultLogo from "@/assets/logo.png";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user, isAdmin, logout } = useAuth();
+  const { data: global } = useGlobalAssumptions();
+  
+  const companyName = global?.companyName ?? "L+B Hospitality";
+  const companyLogo = global?.companyLogo ?? defaultLogo;
 
   const navItems = [
     { href: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -56,11 +61,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <div className="flex items-center gap-3">
               <div className="relative">
                 <div className="absolute inset-0 bg-[#9FBCA4]/30 rounded-xl blur-md" />
-                <img src={logo} alt="L+B Hospitality" className="relative w-10 h-10 object-contain" />
+                <img src={companyLogo} alt={companyName} className="relative w-10 h-10 object-contain" />
               </div>
               <div>
                 <h1 className="text-xl font-extrabold" style={{ fontFamily: "'Nunito', sans-serif", color: '#FFF9F5' }}>
-                  L+B <span style={{ color: '#9FBCA4' }}>Hospitality</span>
+                  {companyName.split(' ')[0]} <span style={{ color: '#9FBCA4' }}>{companyName.split(' ').slice(1).join(' ') || 'Hospitality'}</span>
                 </h1>
                 <p className="text-xs uppercase tracking-widest" style={{ color: 'rgba(255, 249, 245, 0.5)' }}>Analytics</p>
               </div>
@@ -165,8 +170,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <main className="flex-1 flex flex-col min-w-0">
         <header className="lg:hidden h-16 border-b bg-card flex items-center justify-between px-4 sticky top-0 z-30">
           <div className="flex items-center gap-2">
-            <img src={logo} alt="L+B Hospitality" className="w-8 h-8 object-contain" />
-            <span className="font-extrabold text-lg" style={{ fontFamily: "'Nunito', sans-serif" }}>L+B <span style={{ color: '#9FBCA4' }}>Hospitality</span></span>
+            <img src={companyLogo} alt={companyName} className="w-8 h-8 object-contain" />
+            <span className="font-extrabold text-lg" style={{ fontFamily: "'Nunito', sans-serif" }}>{companyName.split(' ')[0]} <span style={{ color: '#9FBCA4' }}>{companyName.split(' ').slice(1).join(' ') || 'Hospitality'}</span></span>
           </div>
           <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)}>
             {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}

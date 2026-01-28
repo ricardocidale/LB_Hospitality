@@ -65,7 +65,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </div>
               <div>
                 <h1 className="text-xl font-extrabold" style={{ fontFamily: "'Nunito', sans-serif", color: '#FFF9F5' }}>
-                  {companyName.split(' ')[0]} <span style={{ color: '#9FBCA4' }}>{companyName.split(' ').slice(1).join(' ') || 'Hospitality'}</span>
+                  L+B <span style={{ color: '#9FBCA4' }}>Hospitality</span>
                 </h1>
                 <p className="text-xs uppercase tracking-widest" style={{ color: 'rgba(255, 249, 245, 0.5)' }}>Analytics</p>
               </div>
@@ -170,8 +170,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <main className="flex-1 flex flex-col min-w-0">
         <header className="lg:hidden h-16 border-b bg-card flex items-center justify-between px-4 sticky top-0 z-30">
           <div className="flex items-center gap-2">
-            <img src={companyLogo} alt={companyName} className="w-8 h-8 object-contain" />
-            <span className="font-extrabold text-lg" style={{ fontFamily: "'Nunito', sans-serif" }}>{companyName.split(' ')[0]} <span style={{ color: '#9FBCA4' }}>{companyName.split(' ').slice(1).join(' ') || 'Hospitality'}</span></span>
+            <img src={companyLogo} alt="L+B Hospitality" className="w-8 h-8 object-contain" />
+            <span className="font-extrabold text-lg" style={{ fontFamily: "'Nunito', sans-serif" }}>L+B <span style={{ color: '#9FBCA4' }}>Hospitality</span></span>
           </div>
           <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)}>
             {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}

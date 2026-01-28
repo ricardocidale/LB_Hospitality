@@ -442,7 +442,7 @@ export default function Company() {
     }
     
     doc.setFontSize(18);
-    doc.text(`L+B Hospitality Co. - ${title}`, 14, 15);
+    doc.text(`${global?.companyName || "L+B Hospitality Co."} - ${title}`, 14, 15);
     doc.setFontSize(10);
     doc.text(`10-Year Projection (${data.years[0]} - ${data.years[9]})`, 14, 22);
     doc.text(`Generated: ${format(new Date(), 'MMM d, yyyy')}`, 14, 27);
@@ -519,7 +519,7 @@ export default function Company() {
       <div className="space-y-6">
         {/* Page Header */}
         <PageHeader
-          title="L+B Hospitality Co."
+          title={global?.companyName || "L+B Hospitality Co."}
           subtitle="Corporate Management Entity & Operations"
           actions={
             <Link href="/company/assumptions">

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import { useGlobalAssumptions, useUpdateGlobalAssumptions } from "@/lib/api";
+import { useAuth } from "@/lib/auth";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
@@ -106,6 +107,8 @@ export default function CompanyAssumptions() {
   const { data: global, isLoading } = useGlobalAssumptions();
   const updateMutation = useUpdateGlobalAssumptions();
   const { toast } = useToast();
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
 
   const [formData, setFormData] = useState<Partial<GlobalResponse>>({});
 
@@ -155,7 +158,7 @@ export default function CompanyAssumptions() {
       <div className="space-y-6">
         <PageHeader
           title="Company Assumptions"
-          subtitle="Configure L+B Hospitality Co. operating parameters"
+          subtitle={`Configure ${global.companyName ?? "L+B Hospitality"} Co. operating parameters`}
           variant="dark"
           backLink="/company"
           actions={
@@ -175,20 +178,39 @@ export default function CompanyAssumptions() {
                 Company Setup
                 <HelpTooltip text="When the management company begins operations and starts incurring costs" />
               </h3>
-              <p className="text-gray-600 text-sm">Configure when the management company starts operations</p>
+              <p className="text-gray-600 text-sm">Configure the management company name and when it starts operations</p>
             </div>
-            <div className="flex items-center gap-4">
-              <Label className="flex items-center text-gray-700">
-                Operations Start Date
-                <HelpTooltip text="The date when the management company begins operations, starts paying salaries, and incurs overhead costs" />
-              </Label>
-              <Input
-                type="date"
-                value={formData.companyOpsStartDate ?? global.companyOpsStartDate ?? "2026-06-01"}
-                onChange={(e) => handleUpdate("companyOpsStartDate", e.target.value)}
-                className="max-w-40 bg-white border-[#9FBCA4]/30 text-gray-900"
-                data-testid="input-company-ops-start-date"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="flex flex-col gap-2">
+                <Label className="flex items-center text-gray-700">
+                  Company Name
+                  <HelpTooltip text="The name of the hospitality management company. Only administrators can change this." />
+                </Label>
+                <Input
+                  type="text"
+                  value={formData.companyName ?? global.companyName ?? "L+B Hospitality"}
+                  onChange={(e) => handleUpdate("companyName", e.target.value)}
+                  disabled={!isAdmin}
+                  className={`max-w-64 border-[#9FBCA4]/30 text-gray-900 ${!isAdmin ? 'bg-gray-100 cursor-not-allowed opacity-60' : 'bg-white'}`}
+                  data-testid="input-company-name"
+                />
+                {!isAdmin && (
+                  <p className="text-xs text-gray-500">Only administrators can change the company name</p>
+                )}
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label className="flex items-center text-gray-700">
+                  Operations Start Date
+                  <HelpTooltip text="The date when the management company begins operations, starts paying salaries, and incurs overhead costs" />
+                </Label>
+                <Input
+                  type="date"
+                  value={formData.companyOpsStartDate ?? global.companyOpsStartDate ?? "2026-06-01"}
+                  onChange={(e) => handleUpdate("companyOpsStartDate", e.target.value)}
+                  className="max-w-40 bg-white border-[#9FBCA4]/30 text-gray-900"
+                  data-testid="input-company-ops-start-date"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -786,8 +808,7 @@ export default function CompanyAssumptions() {
         <div className="flex justify-end pb-8">
           <SaveButton 
             onClick={handleSave} 
-            disabled={updateMutation.isPending}
-            isLoading={updateMutation.isPending}
+            isPending={updateMutation.isPending}
           />
         </div>
       </div>

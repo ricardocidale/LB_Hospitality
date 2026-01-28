@@ -44,6 +44,7 @@ export type Session = typeof sessions.$inferSelect;
 export const globalAssumptions = pgTable("global_assumptions", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   userId: integer("user_id").references(() => users.id),
+  companyName: text("company_name").notNull().default("L+B Hospitality"),
   modelStartDate: text("model_start_date").notNull(),
   companyOpsStartDate: text("company_ops_start_date").notNull().default("2026-06-01"),
   fiscalYearStartMonth: integer("fiscal_year_start_month").notNull().default(1), // 1 = January, 4 = April, etc.
@@ -136,6 +137,7 @@ export const insertGlobalAssumptionsSchema = createInsertSchema(globalAssumption
   })
 }).pick({
   userId: true,
+  companyName: true,
   modelStartDate: true,
   companyOpsStartDate: true,
   fiscalYearStartMonth: true,

@@ -304,7 +304,7 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
             {expanded.expenses && (
               <>
                 <TableRow className="bg-muted/10">
-                  <TableCell className="pl-12 sticky left-0 bg-muted/10 text-muted-foreground">Rooms Expense</TableCell>
+                  <TableCell className="pl-12 sticky left-0 bg-muted/10 text-muted-foreground">Housekeeping</TableCell>
                   {yearlyDetails.map((y, i) => (
                     <TableCell key={i} className="text-right text-muted-foreground"><Money amount={y.expenseRooms} /></TableCell>
                   ))}

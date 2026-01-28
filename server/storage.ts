@@ -45,7 +45,14 @@ export class DatabaseStorage implements IStorage {
   async createUser(data: InsertUser): Promise<User> {
     const [user] = await db
       .insert(users)
-      .values({ ...data, email: data.email.toLowerCase() })
+      .values({
+        email: data.email.toLowerCase(),
+        passwordHash: data.passwordHash,
+        role: data.role,
+        name: data.name,
+        company: data.company,
+        title: data.title,
+      })
       .returning();
     return user;
   }
@@ -124,7 +131,10 @@ export class DatabaseStorage implements IStorage {
     } else {
       const [inserted] = await db
         .insert(globalAssumptions)
-        .values({ ...data, userId })
+        .values({ 
+          ...data as typeof globalAssumptions.$inferInsert, 
+          userId 
+        })
         .returning();
       return inserted;
     }
@@ -146,7 +156,7 @@ export class DatabaseStorage implements IStorage {
   async createProperty(data: InsertProperty): Promise<Property> {
     const [property] = await db
       .insert(properties)
-      .values(data)
+      .values(data as typeof properties.$inferInsert)
       .returning();
     return property;
   }

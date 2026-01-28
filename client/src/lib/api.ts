@@ -7,6 +7,7 @@ export type PropertyResponse = Property & { id: number };
 export interface GlobalResponse {
   id: number;
   companyName: string;
+  companyLogo: string | null;
   modelStartDate: string;
   companyOpsStartDate: string;
   fiscalYearStartMonth: number;

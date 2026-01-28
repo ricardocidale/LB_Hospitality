@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Layout from "@/components/Layout";
 import { useGlobalAssumptions, useUpdateGlobalAssumptions } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Loader2, HelpCircle } from "lucide-react";
+import { Loader2, HelpCircle, Upload, X } from "lucide-react";
 import { useLocation } from "wouter";
 import { formatPercent, formatMoney } from "@/lib/financialEngine";
 import { useToast } from "@/hooks/use-toast";
@@ -14,6 +14,7 @@ import type { GlobalResponse } from "@/lib/api";
 import { SaveButton } from "@/components/ui/save-button";
 import { PageHeader } from "@/components/ui/page-header";
 import { GlassCard } from "@/components/ui/glass-card";
+import defaultLogo from "@/assets/logo.png";
 
 function EditableValue({
   value,
@@ -104,11 +105,13 @@ function HelpTooltip({ text }: { text: string }) {
 
 export default function CompanyAssumptions() {
   const [, setLocation] = useLocation();
-  const { data: global, isLoading } = useGlobalAssumptions();
+  const { data: global, isLoading, refetch } = useGlobalAssumptions();
   const updateMutation = useUpdateGlobalAssumptions();
   const { toast } = useToast();
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const [formData, setFormData] = useState<Partial<GlobalResponse>>({});
 
@@ -134,6 +137,87 @@ export default function CompanyAssumptions() {
 
   const handleUpdate = <K extends keyof GlobalResponse>(field: K, value: GlobalResponse[K]) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload an image file (PNG, JPG, etc.)",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      // Step 1: Get presigned URL
+      const urlRes = await fetch("/api/uploads/request-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: `company-logo-${Date.now()}.${file.name.split(".").pop()}`,
+          size: file.size,
+          contentType: file.type,
+        }),
+      });
+      
+      if (!urlRes.ok) throw new Error("Failed to get upload URL");
+      const { uploadURL, objectPath } = await urlRes.json();
+
+      // Step 2: Upload directly to storage
+      const uploadRes = await fetch(uploadURL, {
+        method: "PUT",
+        body: file,
+        headers: { "Content-Type": file.type },
+      });
+
+      if (!uploadRes.ok) throw new Error("Failed to upload file");
+
+      // Step 3: Update global assumptions with the new logo path
+      const logoUrl = `/api/objects/${objectPath}`;
+      await updateMutation.mutateAsync({ ...formData, companyLogo: logoUrl });
+      
+      toast({
+        title: "Logo uploaded",
+        description: "Company logo has been updated successfully.",
+      });
+      
+      refetch();
+    } catch (error) {
+      toast({
+        title: "Upload failed",
+        description: "Failed to upload logo. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
+  const handleRemoveLogo = async () => {
+    try {
+      await updateMutation.mutateAsync({ ...formData, companyLogo: null });
+      setFormData(prev => ({ ...prev, companyLogo: null }));
+      toast({
+        title: "Logo removed",
+        description: "Company logo has been reset to default.",
+      });
+      refetch();
+    } catch {
+      toast({
+        title: "Error",
+        description: "Failed to remove logo.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleSave = async () => {
@@ -180,7 +264,57 @@ export default function CompanyAssumptions() {
               </h3>
               <p className="text-gray-600 text-sm">Configure the management company name and when it starts operations</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="flex flex-col gap-2">
+                <Label className="flex items-center text-gray-700">
+                  Company Logo
+                  <HelpTooltip text="The company logo displayed in the navigation. Only administrators can change this." />
+                </Label>
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 rounded-lg border border-[#9FBCA4]/30 bg-white flex items-center justify-center overflow-hidden">
+                    <img 
+                      src={formData.companyLogo ?? global.companyLogo ?? defaultLogo} 
+                      alt="Company Logo" 
+                      className="w-12 h-12 object-contain"
+                    />
+                  </div>
+                  {isAdmin ? (
+                    <div className="flex flex-col gap-2">
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleLogoUpload}
+                        className="hidden"
+                        data-testid="input-logo-upload"
+                      />
+                      <button
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={isUploading}
+                        className="flex items-center gap-2 px-3 py-1.5 text-sm bg-[#9FBCA4]/20 hover:bg-[#9FBCA4]/30 text-gray-700 rounded-lg transition-colors disabled:opacity-50"
+                      >
+                        {isUploading ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Upload className="w-4 h-4" />
+                        )}
+                        {isUploading ? "Uploading..." : "Upload"}
+                      </button>
+                      {(formData.companyLogo || global.companyLogo) && (
+                        <button
+                          onClick={handleRemoveLogo}
+                          className="flex items-center gap-2 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        >
+                          <X className="w-4 h-4" />
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-gray-500">Only administrators can change the logo</p>
+                  )}
+                </div>
+              </div>
               <div className="flex flex-col gap-2">
                 <Label className="flex items-center text-gray-700">
                   Company Name

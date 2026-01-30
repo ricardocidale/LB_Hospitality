@@ -146,15 +146,16 @@ export function ConsolidatedBalanceSheet({ properties, global, allProFormas, yea
     const netIncome = cumulativeNOI - cumulativeInterest - cumulativeDepreciation - incomeTax;
     totalRetainedEarnings += netIncome;
     
-    // Cash = Operating Reserve + Cumulative Cash Flow from Operations + Refi Proceeds
-    // Cash Flow from Operations = NOI - Debt Service (principal + interest) - Taxes
+    // Cash Position = Operating Reserve + Cash from Operations + Financing Proceeds
+    // Cash from Operations = NOI - Debt Service (principal + interest) - Taxes
+    // Financing Proceeds = Refinancing cash-out (separate from operating activities per GAAP)
     const cumulativeDebtService = cumulativeInterest + cumulativePrincipal;
-    const cashFromOperations = cumulativeNOI - cumulativeDebtService - incomeTax + refiProceedsReceived;
-    totalCumulativeCashFlow += cashFromOperations;
+    const operatingCashFlow = cumulativeNOI - cumulativeDebtService - incomeTax;
+    totalCumulativeCashFlow += operatingCashFlow;
   });
   
-  // Total cash = initial reserves + cumulative cash from operations (includes refi proceeds)
-  const totalCash = totalCashReserves + totalCumulativeCashFlow;
+  // Total cash = initial reserves + operating cash flow + refinancing proceeds (financing activity)
+  const totalCash = totalCashReserves + totalCumulativeCashFlow + totalRefinanceProceeds;
 
   const netPropertyValue = totalPropertyValue - totalAccumulatedDepreciation;
   const totalAssets = netPropertyValue + totalCash;

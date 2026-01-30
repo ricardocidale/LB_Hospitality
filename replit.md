@@ -52,7 +52,8 @@ Always format money as money (currency format with commas and appropriate precis
 - **Cost Escalation**: Fixed costs escalate at a configurable rate (default 3%), while variable costs escalate at the inflation rate.
 - **Catering Levels**: Global assumptions define Full Service and Partial Service catering rates for event revenue and costs.
 - **Configurable Fiscal Year**: Financial statements and charts can align with any fiscal year start month.
-- **Key Data Models**: Global Assumptions (model-wide parameters) and Properties (individual asset details).
+- **Key Data Models**: Global Assumptions (model-wide parameters), Properties (individual asset details), and Scenarios (saved snapshots of assumptions and properties per user).
+- **Scenarios Feature**: Users can save their current configuration (global assumptions + all properties) as named scenarios, then load them later to restore that state. Each user has their own isolated scenarios.
 
 ## External Dependencies
 

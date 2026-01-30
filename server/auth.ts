@@ -164,7 +164,13 @@ async function createDefaultScenarioForUser(userId: number, userName: string) {
 export async function seedAdminUser() {
   // Seed admin user
   const adminEmail = "admin";
-  const defaultPassword = "admin123";
+  const defaultPassword = process.env.ADMIN_PASSWORD;
+  
+  if (!defaultPassword) {
+    console.warn("ADMIN_PASSWORD environment variable not set. Skipping admin user creation.");
+    return;
+  }
+  
   let adminUser = await storage.getUserByEmail(adminEmail);
   
   if (!adminUser) {
@@ -175,12 +181,12 @@ export async function seedAdminUser() {
       role: "admin",
       name: "Administrator",
     });
-    console.log(`Admin user created: admin / ${defaultPassword}`);
+    console.log(`Admin user created: admin`);
   } else {
     // Always update password to ensure it matches
     const passwordHash = await hashPassword(defaultPassword);
     await storage.updateUserPassword(adminUser.id, passwordHash);
-    console.log(`Admin user password reset: admin / ${defaultPassword}`);
+    console.log(`Admin user password reset: admin`);
   }
   
   // Create default scenario for admin
@@ -188,7 +194,13 @@ export async function seedAdminUser() {
 
   // Seed checker user
   const checkerEmail = "checker";
-  const checkerPassword = "checker123";
+  const checkerPassword = process.env.CHECKER_PASSWORD;
+  
+  if (!checkerPassword) {
+    console.warn("CHECKER_PASSWORD environment variable not set. Skipping checker user creation.");
+    return;
+  }
+  
   let checkerUser = await storage.getUserByEmail(checkerEmail);
   
   if (!checkerUser) {
@@ -199,12 +211,12 @@ export async function seedAdminUser() {
       role: "user",
       name: "Checker User",
     });
-    console.log(`Checker user created: checker / ${checkerPassword}`);
+    console.log(`Checker user created: checker`);
   } else {
     // Always update password to ensure it matches
     const passwordHash = await hashPassword(checkerPassword);
     await storage.updateUserPassword(checkerUser.id, passwordHash);
-    console.log(`Checker user password reset: checker / ${checkerPassword}`);
+    console.log(`Checker user password reset: checker`);
   }
   
   // Create default scenario for checker

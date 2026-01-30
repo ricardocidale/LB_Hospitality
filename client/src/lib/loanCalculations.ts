@@ -129,6 +129,10 @@ export function getAcquisitionOutstandingBalance(
 ): number {
   if (loan.loanAmount === 0) return 0;
   const endOfYearMonth = (yearEnd + 1) * 12;
+  
+  // No debt exists before acquisition
+  if (endOfYearMonth <= loan.acqMonthsFromModelStart) return 0;
+  
   const monthsPaid = Math.max(0, Math.min(endOfYearMonth - loan.acqMonthsFromModelStart, loan.totalPayments));
   if (monthsPaid <= 0) return loan.loanAmount;
   const remainingPayments = loan.totalPayments - monthsPaid;

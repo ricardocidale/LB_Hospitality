@@ -19,7 +19,7 @@ const BCRYPT_ROUNDS = 12;
 
 const loginAttempts = new Map<string, { count: number; lastAttempt: number }>();
 const MAX_LOGIN_ATTEMPTS = 5;
-const LOCKOUT_DURATION_MS = 15 * 60 * 1000;
+const LOCKOUT_DURATION_MS = 1 * 60 * 1000; // 1 minute lockout
 
 export function isRateLimited(identifier: string): boolean {
   const now = Date.now();

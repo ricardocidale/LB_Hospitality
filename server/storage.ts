@@ -1,4 +1,4 @@
-import { globalAssumptions, properties, users, sessions, type GlobalAssumptions, type Property, type InsertGlobalAssumptions, type InsertProperty, type UpdateProperty, type User, type InsertUser, type Session } from "@shared/schema";
+import { globalAssumptions, properties, users, sessions, scenarios, type GlobalAssumptions, type Property, type InsertGlobalAssumptions, type InsertProperty, type UpdateProperty, type User, type InsertUser, type Session, type Scenario, type InsertScenario, type UpdateScenario } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gt } from "drizzle-orm";
 
@@ -28,6 +28,13 @@ export interface IStorage {
   createProperty(data: InsertProperty): Promise<Property>;
   updateProperty(id: number, data: UpdateProperty): Promise<Property | undefined>;
   deleteProperty(id: number): Promise<void>;
+  
+  // Scenarios (per user)
+  getScenariosByUser(userId: number): Promise<Scenario[]>;
+  getScenario(id: number): Promise<Scenario | undefined>;
+  createScenario(data: InsertScenario): Promise<Scenario>;
+  updateScenario(id: number, data: UpdateScenario): Promise<Scenario | undefined>;
+  deleteScenario(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -172,6 +179,37 @@ export class DatabaseStorage implements IStorage {
 
   async deleteProperty(id: number): Promise<void> {
     await db.delete(properties).where(eq(properties.id, id));
+  }
+
+  // Scenarios
+  async getScenariosByUser(userId: number): Promise<Scenario[]> {
+    return await db.select().from(scenarios).where(eq(scenarios.userId, userId)).orderBy(scenarios.updatedAt);
+  }
+
+  async getScenario(id: number): Promise<Scenario | undefined> {
+    const [scenario] = await db.select().from(scenarios).where(eq(scenarios.id, id));
+    return scenario || undefined;
+  }
+
+  async createScenario(data: InsertScenario): Promise<Scenario> {
+    const [scenario] = await db
+      .insert(scenarios)
+      .values(data as typeof scenarios.$inferInsert)
+      .returning();
+    return scenario;
+  }
+
+  async updateScenario(id: number, data: UpdateScenario): Promise<Scenario | undefined> {
+    const [scenario] = await db
+      .update(scenarios)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(scenarios.id, id))
+      .returning();
+    return scenario || undefined;
+  }
+
+  async deleteScenario(id: number): Promise<void> {
+    await db.delete(scenarios).where(eq(scenarios.id, id));
   }
 }
 

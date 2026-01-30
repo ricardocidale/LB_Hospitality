@@ -138,15 +138,38 @@ export function getSessionExpiryDate(): Date {
   return new Date(Date.now() + SESSION_DURATION_DAYS * 24 * 60 * 60 * 1000);
 }
 
+async function createDefaultScenarioForUser(userId: number, userName: string) {
+  // Check if user already has a "Development" scenario
+  const existingScenarios = await storage.getScenariosByUser(userId);
+  const hasDefaultScenario = existingScenarios.some(s => s.name === "Development");
+  
+  if (!hasDefaultScenario) {
+    // Get current global assumptions and properties to save as default
+    const globalAssumptions = await storage.getGlobalAssumptions();
+    const properties = await storage.getAllProperties();
+    
+    if (globalAssumptions) {
+      await storage.createScenario({
+        userId,
+        name: "Development",
+        description: "Default development scenario with initial assumptions",
+        globalAssumptions: globalAssumptions as any,
+        properties: properties as any,
+      });
+      console.log(`Default "Development" scenario created for ${userName}`);
+    }
+  }
+}
+
 export async function seedAdminUser() {
   // Seed admin user
   const adminEmail = "admin";
   const defaultPassword = "admin123";
-  const existingAdmin = await storage.getUserByEmail(adminEmail);
+  let adminUser = await storage.getUserByEmail(adminEmail);
   
-  if (!existingAdmin) {
+  if (!adminUser) {
     const passwordHash = await hashPassword(defaultPassword);
-    await storage.createUser({
+    adminUser = await storage.createUser({
       email: adminEmail,
       passwordHash,
       role: "admin",
@@ -156,18 +179,21 @@ export async function seedAdminUser() {
   } else {
     // Always update password to ensure it matches
     const passwordHash = await hashPassword(defaultPassword);
-    await storage.updateUserPassword(existingAdmin.id, passwordHash);
+    await storage.updateUserPassword(adminUser.id, passwordHash);
     console.log(`Admin user password reset: admin / ${defaultPassword}`);
   }
+  
+  // Create default scenario for admin
+  await createDefaultScenarioForUser(adminUser.id, "admin");
 
   // Seed checker user
   const checkerEmail = "checker";
   const checkerPassword = "checker123";
-  const existingChecker = await storage.getUserByEmail(checkerEmail);
+  let checkerUser = await storage.getUserByEmail(checkerEmail);
   
-  if (!existingChecker) {
+  if (!checkerUser) {
     const passwordHash = await hashPassword(checkerPassword);
-    await storage.createUser({
+    checkerUser = await storage.createUser({
       email: checkerEmail,
       passwordHash,
       role: "user",
@@ -177,7 +203,10 @@ export async function seedAdminUser() {
   } else {
     // Always update password to ensure it matches
     const passwordHash = await hashPassword(checkerPassword);
-    await storage.updateUserPassword(existingChecker.id, passwordHash);
+    await storage.updateUserPassword(checkerUser.id, passwordHash);
     console.log(`Checker user password reset: checker / ${checkerPassword}`);
   }
+  
+  // Create default scenario for checker
+  await createDefaultScenarioForUser(checkerUser.id, "checker");
 }

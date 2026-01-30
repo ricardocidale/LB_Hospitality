@@ -189,3 +189,109 @@ export function useDeleteProperty() {
     },
   });
 }
+
+// --- SCENARIOS ---
+
+export interface ScenarioResponse {
+  id: number;
+  userId: number;
+  name: string;
+  description: string | null;
+  globalAssumptions: any;
+  properties: any[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+async function fetchScenarios(): Promise<ScenarioResponse[]> {
+  const res = await fetch("/api/scenarios");
+  if (!res.ok) throw new Error("Failed to fetch scenarios");
+  return res.json();
+}
+
+async function createScenario(data: { name: string; description?: string }): Promise<ScenarioResponse> {
+  const res = await fetch("/api/scenarios", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error("Failed to create scenario");
+  return res.json();
+}
+
+async function loadScenario(id: number): Promise<void> {
+  const res = await fetch(`/api/scenarios/${id}/load`, {
+    method: "POST",
+  });
+  if (!res.ok) throw new Error("Failed to load scenario");
+}
+
+async function updateScenario(id: number, data: { name?: string; description?: string }): Promise<ScenarioResponse> {
+  const res = await fetch(`/api/scenarios/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error("Failed to update scenario");
+  return res.json();
+}
+
+async function deleteScenario(id: number): Promise<void> {
+  const res = await fetch(`/api/scenarios/${id}`, {
+    method: "DELETE",
+  });
+  if (!res.ok) throw new Error("Failed to delete scenario");
+}
+
+export function useScenarios() {
+  return useQuery({
+    queryKey: ["scenarios"],
+    queryFn: fetchScenarios,
+  });
+}
+
+export function useCreateScenario() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: createScenario,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["scenarios"] });
+    },
+  });
+}
+
+export function useLoadScenario() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: loadScenario,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["globalAssumptions"] });
+      queryClient.invalidateQueries({ queryKey: ["properties"] });
+    },
+  });
+}
+
+export function useUpdateScenario() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: { name?: string; description?: string } }) => 
+      updateScenario(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["scenarios"] });
+    },
+  });
+}
+
+export function useDeleteScenario() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: deleteScenario,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["scenarios"] });
+    },
+  });
+}

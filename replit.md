@@ -45,8 +45,10 @@ Always format money as money (currency format with commas and appropriate precis
 ### Financial Engine & Logic
 - Generates monthly pro forma projections including revenue, operating expenses, management fees, debt service, NOI, and cash flow.
 - **GAAP-Compliant Free Cash Flow Calculation (Indirect Method)**: Incorporates Net Income, Operating Cash Flow, and Free Cash Flow to Equity (FCFE).
-- **Depreciation**: 27.5-year straight-line on building value.
+- **Depreciation**: 27.5-year straight-line on building value, starting from acquisition date.
 - **Debt Service**: Proper amortization with interest/principal separation.
+- **Acquisition Timing**: All balance sheet entries (assets, liabilities, equity) only appear after property acquisition date. Debt outstanding returns 0 before acquisition.
+- **Shared Loan Calculations**: `client/src/lib/loanCalculations.ts` provides consistent debt service, refinance, and outstanding balance calculations across all financial statements.
 - **Partner Compensation**: Starts at $15,000/month per partner, escalates annually at inflation + 10%, capped at $30,000/month.
 - **SAFE Funding**: Models two tranches with configurable amounts and dates, appearing as inflows in cash flow.
 - **Cost Escalation**: Fixed costs escalate at a configurable rate (default 3%), while variable costs escalate at the inflation rate.

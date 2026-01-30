@@ -788,9 +788,17 @@ export async function registerRoutes(
         return res.status(400).json({ error: "Scenario name is required" });
       }
       
-      // Get current assumptions and properties for this user
-      const assumptions = await storage.getGlobalAssumptions(userId);
-      const properties = await storage.getAllProperties(userId);
+      // Get current assumptions and properties for this user (fallback to shared if none)
+      let assumptions = await storage.getGlobalAssumptions(userId);
+      let properties = await storage.getAllProperties(userId);
+      
+      // If user has no specific data, try to get shared data (userId: null)
+      if (!assumptions) {
+        assumptions = await storage.getGlobalAssumptions();
+      }
+      if (properties.length === 0) {
+        properties = await storage.getAllProperties();
+      }
       
       if (!assumptions) {
         return res.status(400).json({ error: "No assumptions found to save" });

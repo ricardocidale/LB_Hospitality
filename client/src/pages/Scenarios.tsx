@@ -3,6 +3,7 @@ import { useScenarios, useCreateScenario, useLoadScenario, useUpdateScenario, us
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { GlassButton } from "@/components/ui/glass-button";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Save, FolderOpen, Pencil, Trash2, Plus, Clock, FileStack } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
@@ -122,14 +123,14 @@ export default function Scenarios() {
                   }
                 </CardDescription>
               </div>
-              <Button
+              <GlassButton
+                variant="primary"
                 onClick={() => setIsCreating(true)}
-                className="bg-[#257D41] hover:bg-[#1a5f30] text-white"
                 data-testid="button-new-scenario"
               >
-                <Plus className="w-4 h-4 mr-2" />
+                <Plus className="w-4 h-4" />
                 Save Current
-              </Button>
+              </GlassButton>
             </div>
           </CardHeader>
           
@@ -166,22 +167,19 @@ export default function Scenarios() {
                       </div>
                       
                       <div className="flex items-center gap-2 flex-shrink-0">
-                        <Button
-                          size="sm"
+                        <GlassButton
+                          variant="primary"
                           onClick={() => handleLoad(scenario.id, scenario.name)}
                           disabled={loadScenario.isPending}
-                          className="bg-[#9FBCA4] hover:bg-[#8aab8f] text-[#1a1a1a]"
                           data-testid={`button-load-scenario-${scenario.id}`}
                         >
                           {loadScenario.isPending ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
                           ) : (
-                            <>
-                              <FolderOpen className="w-4 h-4 mr-1" />
-                              Load
-                            </>
+                            <FolderOpen className="w-4 h-4" />
                           )}
-                        </Button>
+                          Load
+                        </GlassButton>
                         
                         <Button
                           size="sm"
@@ -267,19 +265,19 @@ export default function Scenarios() {
               <Button variant="outline" onClick={() => setIsCreating(false)}>
                 Cancel
               </Button>
-              <Button
+              <GlassButton
+                variant="primary"
                 onClick={handleCreate}
                 disabled={createScenario.isPending || !newScenarioName.trim()}
-                className="bg-[#257D41] hover:bg-[#1a5f30]"
                 data-testid="button-save-scenario"
               >
                 {createScenario.isPending ? (
-                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
-                  <Save className="w-4 h-4 mr-2" />
+                  <Save className="w-4 h-4" />
                 )}
                 Save Scenario
-              </Button>
+              </GlassButton>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -316,17 +314,19 @@ export default function Scenarios() {
               <Button variant="outline" onClick={() => setEditingScenario(null)}>
                 Cancel
               </Button>
-              <Button
+              <GlassButton
+                variant="primary"
                 onClick={handleUpdate}
                 disabled={updateScenario.isPending || !editingScenario?.name.trim()}
-                className="bg-[#257D41] hover:bg-[#1a5f30]"
                 data-testid="button-update-scenario"
               >
                 {updateScenario.isPending ? (
-                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                ) : null}
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Save className="w-4 h-4" />
+                )}
                 Update
-              </Button>
+              </GlassButton>
             </DialogFooter>
           </DialogContent>
         </Dialog>

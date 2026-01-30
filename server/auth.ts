@@ -141,10 +141,10 @@ export function getSessionExpiryDate(): Date {
 export async function seedAdminUser() {
   // Seed admin user
   const adminEmail = "admin";
+  const defaultPassword = "admin123";
   const existingAdmin = await storage.getUserByEmail(adminEmail);
   
   if (!existingAdmin) {
-    const defaultPassword = "admin123";
     const passwordHash = await hashPassword(defaultPassword);
     await storage.createUser({
       email: adminEmail,
@@ -153,14 +153,19 @@ export async function seedAdminUser() {
       name: "Administrator",
     });
     console.log(`Admin user created: admin / ${defaultPassword}`);
+  } else {
+    // Always update password to ensure it matches
+    const passwordHash = await hashPassword(defaultPassword);
+    await storage.updateUserPassword(existingAdmin.id, passwordHash);
+    console.log(`Admin user password reset: admin / ${defaultPassword}`);
   }
 
   // Seed checker user
   const checkerEmail = "checker";
+  const checkerPassword = "checker123";
   const existingChecker = await storage.getUserByEmail(checkerEmail);
   
   if (!existingChecker) {
-    const checkerPassword = "checker123";
     const passwordHash = await hashPassword(checkerPassword);
     await storage.createUser({
       email: checkerEmail,
@@ -169,5 +174,10 @@ export async function seedAdminUser() {
       name: "Checker User",
     });
     console.log(`Checker user created: checker / ${checkerPassword}`);
+  } else {
+    // Always update password to ensure it matches
+    const passwordHash = await hashPassword(checkerPassword);
+    await storage.updateUserPassword(existingChecker.id, passwordHash);
+    console.log(`Checker user password reset: checker / ${checkerPassword}`);
   }
 }

@@ -331,3 +331,34 @@ export const selectPropertySchema = createSelectSchema(properties);
 export type Property = typeof properties.$inferSelect;
 export type InsertProperty = z.infer<typeof insertPropertySchema>;
 export type UpdateProperty = z.infer<typeof updatePropertySchema>;
+
+// --- SCENARIOS TABLE ---
+export const scenarios = pgTable("scenarios", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  name: text("name").notNull(),
+  description: text("description"),
+  globalAssumptions: jsonb("global_assumptions").notNull(),
+  properties: jsonb("properties").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertScenarioSchema = createInsertSchema(scenarios).pick({
+  userId: true,
+  name: true,
+  description: true,
+  globalAssumptions: true,
+  properties: true,
+});
+
+export const updateScenarioSchema = z.object({
+  name: z.string().optional(),
+  description: z.string().nullable().optional(),
+});
+
+export const selectScenarioSchema = createSelectSchema(scenarios);
+
+export type Scenario = typeof scenarios.$inferSelect;
+export type InsertScenario = z.infer<typeof insertScenarioSchema>;
+export type UpdateScenario = z.infer<typeof updateScenarioSchema>;

@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, real, integer, timestamp, jsonb, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, real, integer, timestamp, jsonb, boolean, index } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -36,7 +36,9 @@ export const sessions = pgTable("sessions", {
   userId: integer("user_id").notNull().references(() => users.id),
   expiresAt: timestamp("expires_at").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+}, (table) => [
+  index("sessions_user_id_idx").on(table.userId),
+]);
 
 export type Session = typeof sessions.$inferSelect;
 
@@ -115,7 +117,9 @@ export const globalAssumptions = pgTable("global_assumptions", {
   companyTaxRate: real("company_tax_rate").notNull().default(0.30),
   
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => [
+  index("global_assumptions_user_id_idx").on(table.userId),
+]);
 
 export const insertGlobalAssumptionsSchema = createInsertSchema(globalAssumptions, {
   standardAcqPackage: z.object({
@@ -269,7 +273,9 @@ export const properties = pgTable("properties", {
   
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => [
+  index("properties_user_id_idx").on(table.userId),
+]);
 
 export const insertPropertySchema = createInsertSchema(properties).pick({
   userId: true,
@@ -342,7 +348,9 @@ export const scenarios = pgTable("scenarios", {
   properties: jsonb("properties").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => [
+  index("scenarios_user_id_idx").on(table.userId),
+]);
 
 export const insertScenarioSchema = createInsertSchema(scenarios).pick({
   userId: true,

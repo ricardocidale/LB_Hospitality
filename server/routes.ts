@@ -764,5 +764,137 @@ export async function registerRoutes(
     }
   });
 
+  // --- SCENARIOS ROUTES ---
+  
+  // Get all scenarios for current user
+  app.get("/api/scenarios", requireAuth, async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      const scenarios = await storage.getScenariosByUser(userId);
+      res.json(scenarios);
+    } catch (error) {
+      console.error("Error fetching scenarios:", error);
+      res.status(500).json({ error: "Failed to fetch scenarios" });
+    }
+  });
+
+  // Create new scenario (save current assumptions + properties)
+  app.post("/api/scenarios", requireAuth, async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      const { name, description } = req.body;
+      
+      if (!name || typeof name !== "string" || name.trim().length === 0) {
+        return res.status(400).json({ error: "Scenario name is required" });
+      }
+      
+      // Get current assumptions and properties for this user
+      const assumptions = await storage.getGlobalAssumptions(userId);
+      const properties = await storage.getAllProperties(userId);
+      
+      if (!assumptions) {
+        return res.status(400).json({ error: "No assumptions found to save" });
+      }
+      
+      const scenario = await storage.createScenario({
+        userId,
+        name: name.trim(),
+        description: description || null,
+        globalAssumptions: assumptions,
+        properties: properties,
+      });
+      
+      res.json(scenario);
+    } catch (error) {
+      console.error("Error creating scenario:", error);
+      res.status(500).json({ error: "Failed to create scenario" });
+    }
+  });
+
+  // Load scenario (restore assumptions + properties)
+  app.post("/api/scenarios/:id/load", requireAuth, async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      const scenarioId = parseInt(req.params.id);
+      
+      const scenario = await storage.getScenario(scenarioId);
+      if (!scenario) {
+        return res.status(404).json({ error: "Scenario not found" });
+      }
+      
+      if (scenario.userId !== userId) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+      
+      // Restore global assumptions
+      const savedAssumptions = scenario.globalAssumptions as any;
+      await storage.upsertGlobalAssumptions(savedAssumptions, userId);
+      
+      // Delete current properties and restore saved ones
+      const currentProperties = await storage.getAllProperties(userId);
+      for (const prop of currentProperties) {
+        await storage.deleteProperty(prop.id);
+      }
+      
+      const savedProperties = scenario.properties as any[];
+      for (const prop of savedProperties) {
+        const { id, createdAt, updatedAt, ...propData } = prop;
+        await storage.createProperty({ ...propData, userId });
+      }
+      
+      res.json({ success: true, message: "Scenario loaded successfully" });
+    } catch (error) {
+      console.error("Error loading scenario:", error);
+      res.status(500).json({ error: "Failed to load scenario" });
+    }
+  });
+
+  // Update scenario (rename)
+  app.patch("/api/scenarios/:id", requireAuth, async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      const scenarioId = parseInt(req.params.id);
+      const { name, description } = req.body;
+      
+      const scenario = await storage.getScenario(scenarioId);
+      if (!scenario) {
+        return res.status(404).json({ error: "Scenario not found" });
+      }
+      
+      if (scenario.userId !== userId) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+      
+      const updated = await storage.updateScenario(scenarioId, { name, description });
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating scenario:", error);
+      res.status(500).json({ error: "Failed to update scenario" });
+    }
+  });
+
+  // Delete scenario
+  app.delete("/api/scenarios/:id", requireAuth, async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      const scenarioId = parseInt(req.params.id);
+      
+      const scenario = await storage.getScenario(scenarioId);
+      if (!scenario) {
+        return res.status(404).json({ error: "Scenario not found" });
+      }
+      
+      if (scenario.userId !== userId) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+      
+      await storage.deleteScenario(scenarioId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting scenario:", error);
+      res.status(500).json({ error: "Failed to delete scenario" });
+    }
+  });
+
   return httpServer;
 }

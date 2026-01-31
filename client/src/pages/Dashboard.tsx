@@ -1810,17 +1810,19 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Portfolio & Capital Summary - Liquid Glass Style */}
-            <div className="relative overflow-hidden rounded-3xl p-6">
-              <div className="absolute inset-0 bg-[#FFF9F5]" />
+            {/* Portfolio & Capital Summary - Fluid Glass Style */}
+            <div className="relative overflow-hidden rounded-3xl p-6 border border-[#9FBCA4]/30 shadow-2xl">
+              {/* Sage Glass Background with Fluid Effect */}
+              <div className="absolute inset-0 bg-[#9FBCA4]/25 backdrop-blur-3xl" />
               <div className="absolute inset-0">
-                <div className="absolute top-0 right-1/3 w-56 h-56 rounded-full bg-[#9FBCA4]/10 blur-3xl" />
-                <div className="absolute bottom-0 left-1/3 w-48 h-48 rounded-full bg-[#9FBCA4]/8 blur-3xl" />
+                <div className="absolute top-0 right-1/3 w-56 h-56 rounded-full bg-[#257D41]/20 blur-3xl animate-pulse" style={{ animationDuration: '7s' }} />
+                <div className="absolute bottom-0 left-1/3 w-48 h-48 rounded-full bg-[#9FBCA4]/30 blur-3xl animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
+                <div className="absolute top-1/2 left-0 w-40 h-40 rounded-full bg-white/20 blur-2xl animate-pulse" style={{ animationDuration: '6s', animationDelay: '2s' }} />
               </div>
               
               <div className="relative grid gap-6 md:grid-cols-2">
                 {/* Portfolio Composition */}
-                <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-6 border border-[#9FBCA4]/30 shadow-lg shadow-black/10">
+                <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-6 border border-white/40 shadow-lg shadow-black/10">
                   <h3 className="text-lg font-semibold text-[#2d4a5e] mb-4 font-display">Portfolio Composition</h3>
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
@@ -1847,7 +1849,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* Capital Structure */}
-                <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-6 border border-[#9FBCA4]/30 shadow-lg shadow-black/10">
+                <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-6 border border-white/40 shadow-lg shadow-black/10">
                   <h3 className="text-lg font-semibold text-[#2d4a5e] mb-4 font-display">Capital Structure</h3>
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">

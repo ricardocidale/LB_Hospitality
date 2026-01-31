@@ -18,6 +18,7 @@ import Methodology from "@/pages/Methodology";
 import Research from "@/pages/Research";
 import AdminUsers from "@/pages/AdminUsers";
 import AdminLoginLogs from "@/pages/AdminLoginLogs";
+import AdminVerification from "@/pages/AdminVerification";
 import Profile from "@/pages/Profile";
 import Scenarios from "@/pages/Scenarios";
 
@@ -109,6 +110,9 @@ function Router() {
       </Route>
       <Route path="/admin/login-logs">
         <AdminRoute component={AdminLoginLogs} />
+      </Route>
+      <Route path="/admin/verification">
+        <AdminRoute component={AdminVerification} />
       </Route>
       <Route path="/profile">
         <ProtectedRoute component={Profile} />

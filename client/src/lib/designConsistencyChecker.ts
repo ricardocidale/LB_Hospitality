@@ -51,6 +51,18 @@ export const DESIGN_GUIDELINES = {
     pageHeader: "min-h",
     cardPadding: "p-6",
   },
+  charts: {
+    background: "white", // Always use white/light background
+    gradientColors: {
+      green: ["#257D41", "#34D399"], // Revenue, NOI
+      blue: ["#3B82F6", "#60A5FA"], // GOP, FCF
+      coral: ["#F4795B", "#FB923C"], // FCFE, secondary metrics
+    },
+    dataPoints: true, // Always show dots at data points
+    gridLines: "#E5E7EB", // Light gray grid
+    strokeWidth: 3,
+    dotRadius: 4,
+  },
 };
 
 // File patterns to check
@@ -322,6 +334,76 @@ export function checkFinancialFormatting(fileContents: Map<string, string>): Des
   return checks;
 }
 
+export function checkChartStyling(fileContents: Map<string, string>): DesignCheck[] {
+  const checks: DesignCheck[] = [];
+  
+  let chartsWithWhiteBg = 0;
+  let chartsWithGradients = 0;
+  let chartsWithDots = 0;
+  let totalChartFiles = 0;
+  const filesWithIssues: string[] = [];
+  
+  fileContents.forEach((content, file) => {
+    // Check files that contain Recharts components
+    if (content.includes("<LineChart") || content.includes("<AreaChart") || content.includes("<BarChart")) {
+      totalChartFiles++;
+      
+      // Check for white/light background on chart container
+      const hasWhiteBg = content.includes("bg-white") || 
+                         content.includes("backgroundColor: 'white'") ||
+                         content.includes("backgroundColor: '#fff");
+      if (hasWhiteBg) chartsWithWhiteBg++;
+      
+      // Check for gradient definitions in charts
+      const hasGradients = content.includes("<linearGradient") && 
+                          (content.includes("Gradient") || content.includes("gradient"));
+      if (hasGradients) chartsWithGradients++;
+      
+      // Check for data point dots on lines
+      const hasDots = content.includes("dot={{") || content.includes("dot={true}");
+      if (hasDots) chartsWithDots++;
+      
+      // Track files with missing requirements
+      if (!hasWhiteBg || !hasDots) {
+        const fileName = file.split("/").pop() || file;
+        if (!filesWithIssues.includes(fileName)) {
+          filesWithIssues.push(fileName);
+        }
+      }
+    }
+  });
+
+  // Only run checks if there are chart files
+  if (totalChartFiles > 0) {
+    checks.push({
+      category: "Charts",
+      rule: "Charts should have white/light background for readability",
+      status: chartsWithWhiteBg >= totalChartFiles ? "pass" : 
+              chartsWithWhiteBg >= totalChartFiles * 0.5 ? "warning" : "fail",
+      details: `${chartsWithWhiteBg}/${totalChartFiles} chart files use white background`,
+      affectedFiles: filesWithIssues.length > 0 ? filesWithIssues : undefined,
+    });
+
+    checks.push({
+      category: "Charts",
+      rule: "Chart lines should use colorful gradients (green, blue, coral)",
+      status: chartsWithGradients >= totalChartFiles * 0.5 ? "pass" : "warning",
+      details: `${chartsWithGradients}/${totalChartFiles} chart files use gradient colors`,
+    });
+
+    checks.push({
+      category: "Charts",
+      rule: "Chart lines must have visible data point dots",
+      status: chartsWithDots >= totalChartFiles ? "pass" : 
+              chartsWithDots >= totalChartFiles * 0.5 ? "warning" : "fail",
+      details: `${chartsWithDots}/${totalChartFiles} chart files have data point dots`,
+      affectedFiles: filesWithIssues.length > 0 ? filesWithIssues : undefined,
+    });
+  }
+
+  return checks;
+}
+
 export function runDesignConsistencyCheck(fileContents: Map<string, string>): DesignCheckResult {
   const allChecks: DesignCheck[] = [
     ...checkColorPalette(fileContents),
@@ -331,6 +413,7 @@ export function runDesignConsistencyCheck(fileContents: Map<string, string>): De
     ...checkDarkGlassTheme(fileContents),
     ...checkDataTestIds(fileContents),
     ...checkFinancialFormatting(fileContents),
+    ...checkChartStyling(fileContents),
   ];
 
   const passed = allChecks.filter(c => c.status === "pass").length;

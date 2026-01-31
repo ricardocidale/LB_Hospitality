@@ -42,6 +42,13 @@ Always format money as money (currency format with commas and appropriate precis
 - **Navigation & Tabs**: Dark glass gradient sidebar with white text for active items.
 - **Buttons**: Standardized `SaveButton` component with dark glass effect, bright white text, and a sage green glow.
 - **PageHeader Component**: Standardized `PageHeader` with fixed minimum height, `text-3xl` serif title, `text-sm` subtitle, and a dark glass variant across all pages.
+- **Charts**: All charts must follow these requirements:
+    - **White background** for readability (bg-white with shadow-lg and gray border)
+    - **Colorful gradient lines**: Green gradients (#257D41 to #34D399) for revenue/NOI, Blue gradients (#3B82F6 to #60A5FA) for GOP/FCF, Coral gradients (#F4795B to #FB923C) for FCFE/secondary metrics
+    - **Data point dots**: Every chart line must have visible dots at each data point (dot={{ fill: 'color', stroke: '#fff', strokeWidth: 2, r: 4 }})
+    - **Light gray grid**: Dashed grid lines (#E5E7EB) with no vertical lines
+    - **Line width**: strokeWidth of 3 for all chart lines
+    - Verified by Design Consistency Checker in Admin > Verification tab
 - **Admin Page**: Consolidated admin functionality in single `/admin` route with tabs for Users, Login Activity, and Verification. Replaces separate `/admin/users`, `/admin/login-logs`, `/admin/verification` routes.
 
 ### Financial Engine & Logic

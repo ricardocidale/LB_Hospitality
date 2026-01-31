@@ -603,70 +603,86 @@ export default function Company() {
             </div>
           </div>
 
-          {/* Chart Card */}
-          <GlassCard variant="chart" className="rounded-3xl">
-          <div>
-            <h3 className="text-lg font-display text-[#FFF9F5] mb-4">Management Company Performance (10-Year Projection)</h3>
-            <div className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={yearlyChartData}>
-                  <CartesianGrid strokeDasharray="0" stroke="rgba(255,255,255,0.25)" vertical={false} />
-                  <XAxis 
-                    dataKey="year" 
-                    stroke="rgba(255,249,245,0.5)" 
-                    fontSize={12}
-                    tickLine={false}
-                    axisLine={false}
-                  />
-                  <YAxis 
-                    stroke="rgba(255,249,245,0.5)" 
-                    fontSize={12}
-                    tickLine={false}
-                    axisLine={false}
-                    tickFormatter={(value) => `$${(value / 1000000).toFixed(1)}M`}
-                  />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'rgba(45,74,94,0.95)', 
-                      backdropFilter: 'blur(8px)',
-                      borderColor: 'rgba(255,255,255,0.2)',
-                      borderRadius: '12px',
-                      boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
-                      color: '#FFF9F5',
-                    }}
-                    labelStyle={{ color: '#FFF9F5' }}
-                    formatter={(value: number) => [formatMoney(value), ""]}
-                  />
-                  <Legend wrapperStyle={{ color: '#FFF9F5' }} />
-                  <Line 
-                    type="natural" 
-                    dataKey="Revenue" 
-                    stroke="#A78BFA" 
-                    strokeWidth={2.5}
-                    dot={false}
-                    activeDot={{ r: 5, fill: '#A78BFA', stroke: '#fff', strokeWidth: 2 }}
-                  />
-                  <Line 
-                    type="natural" 
-                    dataKey="Expenses" 
-                    stroke="#60A5FA" 
-                    strokeWidth={2.5}
-                    dot={false}
-                    activeDot={{ r: 5, fill: '#60A5FA', stroke: '#fff', strokeWidth: 2 }}
-                  />
-                  <Line 
-                    type="natural" 
-                    dataKey="NetIncome" 
-                    stroke="#34D399" 
-                    strokeWidth={2.5}
-                    dot={false}
-                    activeDot={{ r: 5, fill: '#34D399', stroke: '#fff', strokeWidth: 2 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+          {/* Chart Card - Light Theme */}
+          <div className="relative overflow-hidden rounded-3xl p-6 bg-white shadow-lg border border-gray-100">
+            <div className="relative">
+              <h3 className="text-lg font-display text-gray-900 mb-4">Management Company Performance (10-Year Projection)</h3>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={yearlyChartData}>
+                    <defs>
+                      <linearGradient id="companyRevenueGradient" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stopColor="#257D41" />
+                        <stop offset="100%" stopColor="#34D399" />
+                      </linearGradient>
+                      <linearGradient id="companyExpensesGradient" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stopColor="#3B82F6" />
+                        <stop offset="100%" stopColor="#60A5FA" />
+                      </linearGradient>
+                      <linearGradient id="companyNetIncomeGradient" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stopColor="#F4795B" />
+                        <stop offset="100%" stopColor="#FB923C" />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
+                    <XAxis 
+                      dataKey="year" 
+                      stroke="#6B7280" 
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={{ stroke: '#E5E7EB' }}
+                    />
+                    <YAxis 
+                      stroke="#6B7280" 
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={{ stroke: '#E5E7EB' }}
+                      tickFormatter={(value) => `$${(value / 1000000).toFixed(1)}M`}
+                    />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'white', 
+                        borderColor: '#E5E7EB',
+                        borderRadius: '12px',
+                        boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                        color: '#111827',
+                      }}
+                      labelStyle={{ color: '#374151', fontWeight: 600 }}
+                      formatter={(value: number) => [formatMoney(value), ""]}
+                    />
+                    <Legend 
+                      wrapperStyle={{ color: '#374151' }}
+                      iconType="circle"
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="Revenue" 
+                      stroke="url(#companyRevenueGradient)" 
+                      strokeWidth={3}
+                      dot={{ fill: '#257D41', stroke: '#fff', strokeWidth: 2, r: 4 }}
+                      activeDot={{ r: 6, fill: '#257D41', stroke: '#fff', strokeWidth: 2 }}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="Expenses" 
+                      stroke="url(#companyExpensesGradient)" 
+                      strokeWidth={3}
+                      dot={{ fill: '#3B82F6', stroke: '#fff', strokeWidth: 2, r: 4 }}
+                      activeDot={{ r: 6, fill: '#3B82F6', stroke: '#fff', strokeWidth: 2 }}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="NetIncome" 
+                      stroke="url(#companyNetIncomeGradient)" 
+                      strokeWidth={3}
+                      dot={{ fill: '#F4795B', stroke: '#fff', strokeWidth: 2, r: 4 }}
+                      activeDot={{ r: 6, fill: '#F4795B', stroke: '#fff', strokeWidth: 2 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           </div>
-        </GlassCard>
           
           <TabsContent value="income" className="mt-6">
             {/* Income Statement */}

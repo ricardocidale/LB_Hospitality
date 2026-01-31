@@ -396,74 +396,82 @@ export default function PropertyDetail() {
           </div>
           
           <TabsContent value="income" className="mt-6 space-y-6">
-            {/* Liquid Glass Chart Card - Dark Theme */}
-            <div className="relative overflow-hidden rounded-3xl p-6">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e] via-[#3a5a5e] to-[#3d5a6a]" />
-              <div className="absolute inset-0">
-                <div className="absolute top-0 left-1/4 w-72 h-72 rounded-full bg-[#9FBCA4]/20 blur-3xl" />
-                <div className="absolute bottom-0 right-1/4 w-64 h-64 rounded-full bg-[#9FBCA4]/15 blur-3xl" />
-              </div>
-              <div className="absolute top-0 left-6 right-6 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
-              <div className="absolute inset-0 rounded-3xl border border-white/15" />
-              
+            {/* Income Statement Chart Card - Light Theme */}
+            <div className="relative overflow-hidden rounded-3xl p-6 bg-white shadow-lg border border-gray-100">
               <div className="relative">
-                <h3 className="text-lg font-display text-[#FFF9F5] mb-4">Income Statement Trends (10-Year Projection)</h3>
+                <h3 className="text-lg font-display text-gray-900 mb-4">Income Statement Trends (10-Year Projection)</h3>
                 <div className="h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={yearlyChartData}>
-                      <CartesianGrid strokeDasharray="0" stroke="rgba(255,255,255,0.25)" vertical={false} />
+                      <defs>
+                        <linearGradient id="revenueGradient" x1="0" y1="0" x2="1" y2="0">
+                          <stop offset="0%" stopColor="#257D41" />
+                          <stop offset="100%" stopColor="#34D399" />
+                        </linearGradient>
+                        <linearGradient id="gopGradient" x1="0" y1="0" x2="1" y2="0">
+                          <stop offset="0%" stopColor="#3B82F6" />
+                          <stop offset="100%" stopColor="#60A5FA" />
+                        </linearGradient>
+                        <linearGradient id="noiGradient" x1="0" y1="0" x2="1" y2="0">
+                          <stop offset="0%" stopColor="#F4795B" />
+                          <stop offset="100%" stopColor="#FB923C" />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
                       <XAxis 
                         dataKey="year" 
-                        stroke="rgba(255,249,245,0.5)" 
+                        stroke="#6B7280" 
                         fontSize={12}
                         tickLine={false}
-                        axisLine={false}
+                        axisLine={{ stroke: '#E5E7EB' }}
                       />
                       <YAxis 
-                        stroke="rgba(255,249,245,0.5)" 
+                        stroke="#6B7280" 
                         fontSize={12}
                         tickLine={false}
-                        axisLine={false}
+                        axisLine={{ stroke: '#E5E7EB' }}
                         tickFormatter={(value) => `$${(value / 1000000).toFixed(1)}M`}
                       />
                       <Tooltip 
                         contentStyle={{ 
-                          backgroundColor: 'rgba(45,74,94,0.95)', 
-                          backdropFilter: 'blur(8px)',
-                          borderColor: 'rgba(255,255,255,0.2)',
+                          backgroundColor: 'white', 
+                          borderColor: '#E5E7EB',
                           borderRadius: '12px',
-                          boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
-                          color: '#FFF9F5',
+                          boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                          color: '#111827',
                         }}
-                        labelStyle={{ color: '#FFF9F5' }}
+                        labelStyle={{ color: '#374151', fontWeight: 600 }}
                         formatter={(value: number) => [formatMoney(value), ""]}
                       />
-                      <Legend wrapperStyle={{ color: '#FFF9F5' }} />
+                      <Legend 
+                        wrapperStyle={{ color: '#374151' }}
+                        iconType="circle"
+                      />
                       <Line 
-                        type="natural" 
+                        type="monotone" 
                         dataKey="Revenue" 
-                        stroke="#A78BFA" 
-                        strokeWidth={2.5}
-                        dot={false}
-                        activeDot={{ r: 5, fill: '#A78BFA', stroke: '#fff', strokeWidth: 2 }}
+                        stroke="url(#revenueGradient)" 
+                        strokeWidth={3}
+                        dot={{ fill: '#257D41', stroke: '#fff', strokeWidth: 2, r: 4 }}
+                        activeDot={{ r: 6, fill: '#257D41', stroke: '#fff', strokeWidth: 2 }}
                         name="Total Revenue"
                       />
                       <Line 
-                        type="natural" 
+                        type="monotone" 
                         dataKey="GOP" 
-                        stroke="#60A5FA" 
-                        strokeWidth={2.5}
-                        dot={false}
-                        activeDot={{ r: 5, fill: '#60A5FA', stroke: '#fff', strokeWidth: 2 }}
+                        stroke="url(#gopGradient)" 
+                        strokeWidth={3}
+                        dot={{ fill: '#3B82F6', stroke: '#fff', strokeWidth: 2, r: 4 }}
+                        activeDot={{ r: 6, fill: '#3B82F6', stroke: '#fff', strokeWidth: 2 }}
                         name="Gross Operating Profit"
                       />
                       <Line 
-                        type="natural" 
+                        type="monotone" 
                         dataKey="NOI" 
-                        stroke="#34D399" 
-                        strokeWidth={2.5}
-                        dot={false}
-                        activeDot={{ r: 5, fill: '#34D399', stroke: '#fff', strokeWidth: 2 }}
+                        stroke="url(#noiGradient)" 
+                        strokeWidth={3}
+                        dot={{ fill: '#F4795B', stroke: '#fff', strokeWidth: 2, r: 4 }}
+                        activeDot={{ r: 6, fill: '#F4795B', stroke: '#fff', strokeWidth: 2 }}
                         name="Net Operating Income"
                       />
                     </LineChart>
@@ -475,18 +483,10 @@ export default function PropertyDetail() {
           </TabsContent>
           
           <TabsContent value="cashflow" className="mt-6 space-y-6">
-            {/* Liquid Glass Chart Card - Dark Theme */}
-            <div className="relative overflow-hidden rounded-3xl p-6">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e] via-[#3a5a5e] to-[#3d5a6a]" />
-              <div className="absolute inset-0">
-                <div className="absolute top-0 right-1/3 w-72 h-72 rounded-full bg-[#9FBCA4]/20 blur-3xl" />
-                <div className="absolute bottom-0 left-1/3 w-64 h-64 rounded-full bg-[#9FBCA4]/15 blur-3xl" />
-              </div>
-              <div className="absolute top-0 left-6 right-6 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
-              <div className="absolute inset-0 rounded-3xl border border-white/15" />
-              
+            {/* Cash Flow Chart Card - Light Theme */}
+            <div className="relative overflow-hidden rounded-3xl p-6 bg-white shadow-lg border border-gray-100">
               <div className="relative">
-                <h3 className="text-lg font-display text-[#FFF9F5] mb-4">Cash Flow Trends (10-Year Projection)</h3>
+                <h3 className="text-lg font-display text-gray-900 mb-4">Cash Flow Trends (10-Year Projection)</h3>
                 <div className="h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={yearlyChartData.map((d, i) => {
@@ -498,59 +498,75 @@ export default function PropertyDetail() {
                         NetToInvestors: cfData[i]?.netCashFlowToInvestors || 0,
                       };
                     })}>
-                      <CartesianGrid strokeDasharray="0" stroke="rgba(255,255,255,0.25)" vertical={false} />
+                      <defs>
+                        <linearGradient id="noiCfGradient" x1="0" y1="0" x2="1" y2="0">
+                          <stop offset="0%" stopColor="#257D41" />
+                          <stop offset="100%" stopColor="#34D399" />
+                        </linearGradient>
+                        <linearGradient id="fcfGradient" x1="0" y1="0" x2="1" y2="0">
+                          <stop offset="0%" stopColor="#3B82F6" />
+                          <stop offset="100%" stopColor="#60A5FA" />
+                        </linearGradient>
+                        <linearGradient id="fcfeGradient" x1="0" y1="0" x2="1" y2="0">
+                          <stop offset="0%" stopColor="#F4795B" />
+                          <stop offset="100%" stopColor="#FB923C" />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
                       <XAxis 
                         dataKey="year" 
-                        stroke="rgba(255,249,245,0.5)" 
+                        stroke="#6B7280" 
                         fontSize={12}
                         tickLine={false}
-                        axisLine={false}
+                        axisLine={{ stroke: '#E5E7EB' }}
                       />
                       <YAxis 
-                        stroke="rgba(255,249,245,0.5)" 
+                        stroke="#6B7280" 
                         fontSize={12}
                         tickLine={false}
-                        axisLine={false}
+                        axisLine={{ stroke: '#E5E7EB' }}
                         tickFormatter={(value) => `$${(value / 1000000).toFixed(1)}M`}
                       />
                       <Tooltip 
                         contentStyle={{ 
-                          backgroundColor: 'rgba(45,74,94,0.95)', 
-                          backdropFilter: 'blur(8px)',
-                          borderColor: 'rgba(255,255,255,0.2)',
+                          backgroundColor: 'white', 
+                          borderColor: '#E5E7EB',
                           borderRadius: '12px',
-                          boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
-                          color: '#FFF9F5',
+                          boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                          color: '#111827',
                         }}
-                        labelStyle={{ color: '#FFF9F5' }}
+                        labelStyle={{ color: '#374151', fontWeight: 600 }}
                         formatter={(value: number) => [formatMoney(value), ""]}
                       />
-                      <Legend wrapperStyle={{ color: '#FFF9F5' }} />
+                      <Legend 
+                        wrapperStyle={{ color: '#374151' }}
+                        iconType="circle"
+                      />
                       <Line 
-                        type="natural" 
+                        type="monotone" 
                         dataKey="NOI" 
-                        stroke="#34D399" 
-                        strokeWidth={2.5}
-                        dot={false}
-                        activeDot={{ r: 5, fill: '#34D399', stroke: '#fff', strokeWidth: 2 }}
+                        stroke="url(#noiCfGradient)" 
+                        strokeWidth={3}
+                        dot={{ fill: '#257D41', stroke: '#fff', strokeWidth: 2, r: 4 }}
+                        activeDot={{ r: 6, fill: '#257D41', stroke: '#fff', strokeWidth: 2 }}
                         name="Net Operating Income"
                       />
                       <Line 
-                        type="natural" 
+                        type="monotone" 
                         dataKey="FCF" 
-                        stroke="#60A5FA" 
-                        strokeWidth={2.5}
-                        dot={false}
-                        activeDot={{ r: 5, fill: '#60A5FA', stroke: '#fff', strokeWidth: 2 }}
+                        stroke="url(#fcfGradient)" 
+                        strokeWidth={3}
+                        dot={{ fill: '#3B82F6', stroke: '#fff', strokeWidth: 2, r: 4 }}
+                        activeDot={{ r: 6, fill: '#3B82F6', stroke: '#fff', strokeWidth: 2 }}
                         name="Free Cash Flow"
                       />
                       <Line 
-                        type="natural" 
+                        type="monotone" 
                         dataKey="FCFE" 
-                        stroke="#A78BFA" 
-                        strokeWidth={2.5}
-                        dot={false}
-                        activeDot={{ r: 5, fill: '#A78BFA', stroke: '#fff', strokeWidth: 2 }}
+                        stroke="url(#fcfeGradient)" 
+                        strokeWidth={3}
+                        dot={{ fill: '#F4795B', stroke: '#fff', strokeWidth: 2, r: 4 }}
+                        activeDot={{ r: 6, fill: '#F4795B', stroke: '#fff', strokeWidth: 2 }}
                         name="Free Cash Flow to Equity"
                       />
                     </LineChart>

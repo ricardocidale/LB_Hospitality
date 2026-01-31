@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MonthlyFinancials } from "@/lib/financialEngine";
+import { MonthlyFinancials, formatMoney } from "@/lib/financialEngine";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
@@ -179,10 +179,7 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
   const operatingReserve = property.operatingReserve || 0;
   const cashAnalysis = analyzeMonthlyCashPosition(data, operatingReserve);
   
-  const formatMoney = (amount: number) => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(amount);
-  };
-  
+    
   const toggleSection = (section: string) => {
     setExpanded(prev => ({ ...prev, [section]: !prev[section] }));
   };

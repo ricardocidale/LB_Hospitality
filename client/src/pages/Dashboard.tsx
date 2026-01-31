@@ -1719,7 +1719,7 @@ export default function Dashboard() {
                 {/* Key Metrics Grid - Liquid Glass Cards */}
                 <div className="grid gap-4 md:grid-cols-4 max-w-5xl mx-auto">
                   {/* Equity Multiple */}
-                  <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-5 border border-[#9FBCA4]/30 shadow-lg shadow-black/10 hover:shadow-xl hover:shadow-[#9FBCA4]/20 transition-all duration-300">
+                  <div className="bg-[#9FBCA4]/20 backdrop-blur-xl rounded-2xl p-5 border border-[#9FBCA4]/40 shadow-lg shadow-black/10 hover:shadow-xl hover:bg-[#9FBCA4]/30 transition-all duration-300">
                     <div className="flex items-center gap-4 mb-3">
                       <div className="relative w-14 h-14 flex-shrink-0">
                         <svg className="w-14 h-14" viewBox="0 0 100 100">
@@ -1751,7 +1751,7 @@ export default function Dashboard() {
                   </div>
 
                   {/* Cash-on-Cash */}
-                  <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-5 border border-[#9FBCA4]/30 shadow-lg shadow-black/10 hover:shadow-xl hover:shadow-[#9FBCA4]/20 transition-all duration-300">
+                  <div className="bg-[#9FBCA4]/20 backdrop-blur-xl rounded-2xl p-5 border border-[#9FBCA4]/40 shadow-lg shadow-black/10 hover:shadow-xl hover:bg-[#9FBCA4]/30 transition-all duration-300">
                     <div className="flex items-center gap-4 mb-3">
                       <div className="relative w-14 h-14 flex-shrink-0">
                         <svg className="w-14 h-14" viewBox="0 0 100 100">
@@ -1783,7 +1783,7 @@ export default function Dashboard() {
                   </div>
 
                   {/* Total Equity */}
-                  <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-5 border border-[#9FBCA4]/30 shadow-lg shadow-black/10 hover:shadow-xl hover:shadow-[#9FBCA4]/20 transition-all duration-300">
+                  <div className="bg-[#9FBCA4]/20 backdrop-blur-xl rounded-2xl p-5 border border-[#9FBCA4]/40 shadow-lg shadow-black/10 hover:shadow-xl hover:bg-[#9FBCA4]/30 transition-all duration-300">
                     <div className="mb-2">
                       <p className="text-2xl font-bold text-[#2d4a5e] font-mono">{formatMoney(totalInitialEquity)}</p>
                       <p className="text-sm text-[#2d4a5e]/60 label-text">Equity Invested</p>
@@ -1794,7 +1794,7 @@ export default function Dashboard() {
                   </div>
 
                   {/* Exit Value */}
-                  <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-5 border border-[#9FBCA4]/30 shadow-lg shadow-black/10 hover:shadow-xl hover:shadow-[#9FBCA4]/20 transition-all duration-300">
+                  <div className="bg-[#9FBCA4]/20 backdrop-blur-xl rounded-2xl p-5 border border-[#9FBCA4]/40 shadow-lg shadow-black/10 hover:shadow-xl hover:bg-[#9FBCA4]/30 transition-all duration-300">
                     <div className="mb-2">
                       <p className="text-2xl font-bold text-[#059669] font-mono">{formatMoney(totalExitValue)}</p>
                       <p className="text-sm text-[#2d4a5e]/60 label-text">Projected Exit</p>

@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
+import domtoimage from 'dom-to-image-more';
 import Layout from "@/components/Layout";
 import { useProperties, useGlobalAssumptions } from "@/lib/api";
 import { generateCompanyProForma, generatePropertyProForma, formatMoney, getFiscalYearForModelYear } from "@/lib/financialEngine";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
-import { Users, Briefcase, TrendingUp, Settings2, Loader2, ChevronRight, ChevronDown, FileDown, AlertTriangle, CheckCircle } from "lucide-react";
+import { Users, Briefcase, TrendingUp, Settings2, Loader2, ChevronRight, ChevronDown, FileDown, ImageIcon, AlertTriangle, CheckCircle } from "lucide-react";
 import { Link } from "wouter";
 import { GlassButton } from "@/components/ui/glass-button";
 import { PageHeader } from "@/components/ui/page-header";
@@ -89,6 +90,7 @@ export default function Company() {
   const { data: global, isLoading: globalLoading } = useGlobalAssumptions();
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState("income");
+  const chartRef = useRef<HTMLDivElement>(null);
 
   const toggleRow = (rowId: string) => {
     setExpandedRows(prev => {
@@ -549,6 +551,30 @@ export default function Company() {
     URL.revokeObjectURL(url);
   };
 
+  const exportChartPNG = async () => {
+    if (!chartRef.current) return;
+    
+    try {
+      const dataUrl = await domtoimage.toPng(chartRef.current, {
+        bgcolor: '#ffffff',
+        quality: 1,
+        width: chartRef.current.offsetWidth * 2,
+        height: chartRef.current.offsetHeight * 2,
+        style: {
+          transform: 'scale(2)',
+          transformOrigin: 'top left',
+        }
+      });
+      
+      const link = document.createElement('a');
+      link.download = 'company-performance-chart.png';
+      link.href = dataUrl;
+      link.click();
+    } catch (error) {
+      console.error('Error exporting chart:', error);
+    }
+  };
+
   return (
     <Layout>
       <div className="space-y-6">
@@ -635,11 +661,15 @@ export default function Company() {
                 <FileDown className="w-4 h-4" />
                 Export CSV
               </GlassButton>
+              <GlassButton variant="ghost" size="sm" onClick={() => exportChartPNG()}>
+                <ImageIcon className="w-4 h-4" />
+                Export Chart
+              </GlassButton>
             </div>
           </div>
 
           {/* Chart Card - Light Theme */}
-          <div className="relative overflow-hidden rounded-3xl p-6 bg-white shadow-lg border border-gray-100">
+          <div ref={chartRef} className="relative overflow-hidden rounded-3xl p-6 bg-white shadow-lg border border-gray-100">
             <div className="relative">
               <h3 className="text-lg font-display text-gray-900 mb-4">Management Company Performance (10-Year Projection)</h3>
               <div className="h-[300px]">

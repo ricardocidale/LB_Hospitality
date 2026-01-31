@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { YearlyIncomeStatement } from "@/components/YearlyIncomeStatement";
 import { YearlyCashFlowStatement } from "@/components/YearlyCashFlowStatement";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, MapPin, Loader2, FileDown, FileSpreadsheet, Settings2 } from "lucide-react";
+import { ArrowLeft, MapPin, Loader2, FileDown, FileSpreadsheet, Settings2, ImageIcon } from "lucide-react";
+import domtoimage from 'dom-to-image-more';
 import { Link, useRoute } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -444,6 +445,34 @@ export default function PropertyDetail() {
               >
                 <FileSpreadsheet className="w-4 h-4" />
                 Export CSV
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={async () => {
+                  const chartContainer = activeTab === "cashflow" ? cashFlowChartRef.current : incomeChartRef.current;
+                  if (!chartContainer) return;
+                  try {
+                    const dataUrl = await domtoimage.toPng(chartContainer, {
+                      bgcolor: '#ffffff',
+                      quality: 1,
+                      width: chartContainer.offsetWidth * 2,
+                      height: chartContainer.offsetHeight * 2,
+                      style: { transform: 'scale(2)', transformOrigin: 'top left' }
+                    });
+                    const link = document.createElement('a');
+                    link.download = `${property.name.replace(/\s+/g, '_')}_chart.png`;
+                    link.href = dataUrl;
+                    link.click();
+                  } catch (error) {
+                    console.error('Error exporting chart:', error);
+                  }
+                }}
+                className="flex items-center gap-2"
+                data-testid="button-export-chart"
+              >
+                <ImageIcon className="w-4 h-4" />
+                Export Chart
               </Button>
             </div>
           </div>

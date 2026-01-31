@@ -1668,14 +1668,14 @@ export default function Dashboard() {
           </div>
 
           <TabsContent value="overview" className="space-y-8">
-            {/* Investment Returns - Hero Section - Liquid Glass Design */}
-            <div className="relative overflow-hidden rounded-3xl p-8">
-              {/* Gradient Background */}
-              <div className="absolute inset-0 bg-[#FFF9F5]" />
+            {/* Investment Returns - Hero Section - Fluid Glass Design */}
+            <div className="relative overflow-hidden rounded-3xl p-8 border border-[#9FBCA4]/30 shadow-2xl">
+              {/* Sage Glass Background with Fluid Effect */}
+              <div className="absolute inset-0 bg-[#9FBCA4]/25 backdrop-blur-3xl" />
               <div className="absolute inset-0">
-                <div className="absolute top-0 right-1/4 w-96 h-96 rounded-full bg-[#9FBCA4]/15 blur-3xl" />
-                <div className="absolute bottom-0 left-1/4 w-80 h-80 rounded-full bg-[#9FBCA4]/15 blur-3xl" />
-                <div className="absolute top-1/3 right-0 w-64 h-64 rounded-full bg-[#257D41]/10 blur-2xl" />
+                <div className="absolute top-0 right-1/4 w-96 h-96 rounded-full bg-[#257D41]/20 blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />
+                <div className="absolute bottom-0 left-1/4 w-80 h-80 rounded-full bg-[#9FBCA4]/30 blur-3xl animate-pulse" style={{ animationDuration: '6s', animationDelay: '2s' }} />
+                <div className="absolute top-1/3 right-0 w-64 h-64 rounded-full bg-white/20 blur-2xl animate-pulse" style={{ animationDuration: '7s', animationDelay: '1s' }} />
               </div>
               
               <div className="relative">
@@ -1719,7 +1719,7 @@ export default function Dashboard() {
                 {/* Key Metrics Grid - Liquid Glass Cards */}
                 <div className="grid gap-4 md:grid-cols-4 max-w-5xl mx-auto">
                   {/* Equity Multiple */}
-                  <div className="bg-[#9FBCA4]/20 backdrop-blur-xl rounded-2xl p-5 border border-[#9FBCA4]/40 shadow-lg shadow-black/10 hover:shadow-xl hover:bg-[#9FBCA4]/30 transition-all duration-300">
+                  <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-5 border border-white/40 shadow-lg shadow-black/10 hover:shadow-xl transition-all duration-300">
                     <div className="flex items-center gap-4 mb-3">
                       <div className="relative w-14 h-14 flex-shrink-0">
                         <svg className="w-14 h-14" viewBox="0 0 100 100">
@@ -1751,7 +1751,7 @@ export default function Dashboard() {
                   </div>
 
                   {/* Cash-on-Cash */}
-                  <div className="bg-[#9FBCA4]/20 backdrop-blur-xl rounded-2xl p-5 border border-[#9FBCA4]/40 shadow-lg shadow-black/10 hover:shadow-xl hover:bg-[#9FBCA4]/30 transition-all duration-300">
+                  <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-5 border border-white/40 shadow-lg shadow-black/10 hover:shadow-xl transition-all duration-300">
                     <div className="flex items-center gap-4 mb-3">
                       <div className="relative w-14 h-14 flex-shrink-0">
                         <svg className="w-14 h-14" viewBox="0 0 100 100">
@@ -1783,7 +1783,7 @@ export default function Dashboard() {
                   </div>
 
                   {/* Total Equity */}
-                  <div className="bg-[#9FBCA4]/20 backdrop-blur-xl rounded-2xl p-5 border border-[#9FBCA4]/40 shadow-lg shadow-black/10 hover:shadow-xl hover:bg-[#9FBCA4]/30 transition-all duration-300">
+                  <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-5 border border-white/40 shadow-lg shadow-black/10 hover:shadow-xl transition-all duration-300">
                     <div className="mb-2">
                       <p className="text-2xl font-bold text-[#2d4a5e] font-mono">{formatMoney(totalInitialEquity)}</p>
                       <p className="text-sm text-[#2d4a5e]/60 label-text">Equity Invested</p>
@@ -1794,7 +1794,7 @@ export default function Dashboard() {
                   </div>
 
                   {/* Exit Value */}
-                  <div className="bg-[#9FBCA4]/20 backdrop-blur-xl rounded-2xl p-5 border border-[#9FBCA4]/40 shadow-lg shadow-black/10 hover:shadow-xl hover:bg-[#9FBCA4]/30 transition-all duration-300">
+                  <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-5 border border-white/40 shadow-lg shadow-black/10 hover:shadow-xl transition-all duration-300">
                     <div className="mb-2">
                       <p className="text-2xl font-bold text-[#059669] font-mono">{formatMoney(totalExitValue)}</p>
                       <p className="text-sm text-[#2d4a5e]/60 label-text">Projected Exit</p>

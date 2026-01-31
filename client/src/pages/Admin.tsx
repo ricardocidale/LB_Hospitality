@@ -7,11 +7,25 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Plus, Trash2, Users, Key, Eye, EyeOff, Pencil, Clock, FileCheck, CheckCircle2, XCircle, AlertTriangle, PlayCircle } from "lucide-react";
+import { Loader2, Plus, Trash2, Users, Key, Eye, EyeOff, Pencil, Clock, FileCheck, CheckCircle2, XCircle, AlertTriangle, PlayCircle, Palette, ArrowLeft, Activity } from "lucide-react";
 import { GlassButton } from "@/components/ui/glass-button";
 import { PageHeader } from "@/components/ui/page-header";
 import { useToast } from "@/hooks/use-toast";
+
+interface DesignCheckResult {
+  timestamp: string;
+  totalChecks: number;
+  passed: number;
+  failed: number;
+  warnings: number;
+  overallStatus: "PASS" | "FAIL" | "WARNING";
+  checks: Array<{
+    category: string;
+    rule: string;
+    status: "pass" | "fail" | "warning";
+    details: string;
+  }>;
+}
 
 interface User {
   id: number;
@@ -44,10 +58,12 @@ interface VerificationResult {
   overallStatus: "PASS" | "FAIL" | "WARNING";
 }
 
+type AdminView = "dashboard" | "users" | "activity" | "verification" | "design";
+
 export default function Admin() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState("users");
+  const [currentView, setCurrentView] = useState<AdminView>("dashboard");
   
   const [dialogOpen, setDialogOpen] = useState(false);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
@@ -59,6 +75,7 @@ export default function Admin() {
   const [showNewUserPassword, setShowNewUserPassword] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [verificationResults, setVerificationResults] = useState<VerificationResult | null>(null);
+  const [designResults, setDesignResults] = useState<DesignCheckResult | null>(null);
 
   const { data: users, isLoading: usersLoading } = useQuery<User[]>({
     queryKey: ["admin", "users"],
@@ -77,6 +94,8 @@ export default function Admin() {
       return res.json();
     },
   });
+
+  const activeSessions = loginLogs?.filter(l => !l.logoutAt).length || 0;
 
   const createMutation = useMutation({
     mutationFn: async (data: { email: string; password: string; name?: string; company?: string; title?: string }) => {
@@ -181,6 +200,17 @@ export default function Admin() {
     },
   });
 
+  const runDesignCheck = useMutation({
+    mutationFn: async () => {
+      const res = await fetch("/api/admin/run-design-check", { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to run design check");
+      return res.json();
+    },
+    onSuccess: (data) => {
+      setDesignResults(data);
+    },
+  });
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
@@ -195,277 +225,510 @@ export default function Admin() {
     return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
   };
 
+  const renderDashboard = () => (
+    <div className="space-y-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card className="relative overflow-hidden bg-gradient-to-br from-[#2d4a5e]/90 via-[#3d5a6a]/90 to-[#3a5a5e]/90 backdrop-blur-xl border-white/10">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-[#9FBCA4]/20 flex items-center justify-center">
+                <Users className="w-6 h-6 text-[#9FBCA4]" />
+              </div>
+              <div>
+                <p className="text-3xl font-mono text-[#FFF9F5]">{users?.length || 0}</p>
+                <p className="text-sm text-white/60 label-text">Total Users</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="relative overflow-hidden bg-gradient-to-br from-[#2d4a5e]/90 via-[#3d5a6a]/90 to-[#3a5a5e]/90 backdrop-blur-xl border-white/10">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-[#257D41]/20 flex items-center justify-center">
+                <Activity className="w-6 h-6 text-[#9FBCA4]" />
+              </div>
+              <div>
+                <p className="text-3xl font-mono text-[#FFF9F5]">{activeSessions}</p>
+                <p className="text-sm text-white/60 label-text">Active Sessions</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="relative overflow-hidden bg-gradient-to-br from-[#2d4a5e]/90 via-[#3d5a6a]/90 to-[#3a5a5e]/90 backdrop-blur-xl border-white/10">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-[#9FBCA4]/20 flex items-center justify-center">
+                <Clock className="w-6 h-6 text-[#9FBCA4]" />
+              </div>
+              <div>
+                <p className="text-3xl font-mono text-[#FFF9F5]">{loginLogs?.length || 0}</p>
+                <p className="text-sm text-white/60 label-text">Login Records</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="relative overflow-hidden bg-gradient-to-br from-[#2d4a5e]/90 via-[#3d5a6a]/90 to-[#3a5a5e]/90 backdrop-blur-xl border-white/10">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-[#257D41]/20 flex items-center justify-center">
+                <FileCheck className="w-6 h-6 text-[#9FBCA4]" />
+              </div>
+              <div>
+                <p className="text-3xl font-mono text-[#FFF9F5]">2</p>
+                <p className="text-sm text-white/60 label-text">Verification Tools</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card className="relative overflow-hidden bg-gradient-to-br from-[#2d4a5e]/90 via-[#3d5a6a]/90 to-[#3a5a5e]/90 backdrop-blur-xl border-white/10 cursor-pointer hover:border-[#9FBCA4]/30 transition-colors" onClick={() => setCurrentView("users")} data-testid="card-users">
+          <CardContent className="p-8">
+            <div className="flex items-center gap-6">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#9FBCA4] to-[#257D41] flex items-center justify-center shadow-lg shadow-[#9FBCA4]/20">
+                <Users className="w-8 h-8 text-white" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-xl font-display text-[#FFF9F5] mb-1">User Management</h3>
+                <p className="text-white/60 label-text">Add, edit, and manage user accounts and permissions</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="relative overflow-hidden bg-gradient-to-br from-[#2d4a5e]/90 via-[#3d5a6a]/90 to-[#3a5a5e]/90 backdrop-blur-xl border-white/10 cursor-pointer hover:border-[#9FBCA4]/30 transition-colors" onClick={() => setCurrentView("activity")} data-testid="card-activity">
+          <CardContent className="p-8">
+            <div className="flex items-center gap-6">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#9FBCA4] to-[#257D41] flex items-center justify-center shadow-lg shadow-[#9FBCA4]/20">
+                <Clock className="w-8 h-8 text-white" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-xl font-display text-[#FFF9F5] mb-1">Login Activity</h3>
+                <p className="text-white/60 label-text">Monitor user sessions and login history</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="relative overflow-hidden bg-gradient-to-br from-[#2d4a5e]/90 via-[#3d5a6a]/90 to-[#3a5a5e]/90 backdrop-blur-xl border-white/10 cursor-pointer hover:border-[#9FBCA4]/30 transition-colors" onClick={() => setCurrentView("verification")} data-testid="card-verification">
+          <CardContent className="p-8">
+            <div className="flex items-center gap-6">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#9FBCA4] to-[#257D41] flex items-center justify-center shadow-lg shadow-[#9FBCA4]/20">
+                <FileCheck className="w-8 h-8 text-white" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-xl font-display text-[#FFF9F5] mb-1">Financial Verification</h3>
+                <p className="text-white/60 label-text">Run formula checks and GAAP compliance validation</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="relative overflow-hidden bg-gradient-to-br from-[#2d4a5e]/90 via-[#3d5a6a]/90 to-[#3a5a5e]/90 backdrop-blur-xl border-white/10 cursor-pointer hover:border-[#9FBCA4]/30 transition-colors" onClick={() => setCurrentView("design")} data-testid="card-design">
+          <CardContent className="p-8">
+            <div className="flex items-center gap-6">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#9FBCA4] to-[#257D41] flex items-center justify-center shadow-lg shadow-[#9FBCA4]/20">
+                <Palette className="w-8 h-8 text-white" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-xl font-display text-[#FFF9F5] mb-1">Design Consistency</h3>
+                <p className="text-white/60 label-text">Verify fonts, colors, and component standards across all pages</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+
+  const renderUsers = () => (
+    <Card className="relative overflow-hidden bg-gradient-to-br from-[#2d4a5e]/90 via-[#3d5a6a]/90 to-[#3a5a5e]/90 backdrop-blur-xl border-white/10">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-12 -left-12 w-48 h-48 rounded-full bg-[#9FBCA4]/15 blur-3xl" />
+        <div className="absolute bottom-0 right-0 w-64 h-64 rounded-full bg-[#257D41]/10 blur-3xl" />
+      </div>
+      
+      <CardHeader className="relative">
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="text-xl font-display text-[#FFF9F5]">User Management</CardTitle>
+            <CardDescription className="label-text text-white/60">
+              {users?.length || 0} registered users
+            </CardDescription>
+          </div>
+          <GlassButton variant="primary" onClick={() => setDialogOpen(true)} data-testid="button-add-user">
+            <Plus className="w-4 h-4" />
+            Add User
+          </GlassButton>
+        </div>
+      </CardHeader>
+      
+      <CardContent className="relative">
+        {usersLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin text-[#9FBCA4]" />
+          </div>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow className="border-white/10 hover:bg-transparent">
+                <TableHead className="text-white/60 font-display">User</TableHead>
+                <TableHead className="text-white/60 font-display">Role</TableHead>
+                <TableHead className="text-white/60 font-display">Created</TableHead>
+                <TableHead className="text-white/60 font-display text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {users?.map((user) => (
+                <TableRow key={user.id} className="border-white/10 hover:bg-white/5" data-testid={`row-user-${user.id}`}>
+                  <TableCell>
+                    <div className="text-[#FFF9F5] font-medium">{user.name || user.email}</div>
+                    {user.name && <div className="text-xs text-white/50">{user.email}</div>}
+                  </TableCell>
+                  <TableCell>
+                    <span className={`px-2 py-1 rounded text-xs font-medium ${user.role === 'admin' ? 'bg-[#257D41]/20 text-[#9FBCA4]' : 'bg-white/10 text-white/70'}`}>
+                      {user.role}
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-white/60 font-mono text-sm">{formatDate(user.createdAt)}</TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      <Button size="sm" variant="ghost" className="text-white/60 hover:text-white hover:bg-white/10"
+                        onClick={() => { setSelectedUser(user); setEditUser({ email: user.email, name: user.name || "", company: user.company || "", title: user.title || "" }); setEditDialogOpen(true); }}
+                        data-testid={`button-edit-user-${user.id}`}>
+                        <Pencil className="w-4 h-4" />
+                      </Button>
+                      <Button size="sm" variant="ghost" className="text-white/60 hover:text-white hover:bg-white/10"
+                        onClick={() => { setSelectedUser(user); setPasswordDialogOpen(true); }}
+                        data-testid={`button-password-user-${user.id}`}>
+                        <Key className="w-4 h-4" />
+                      </Button>
+                      {user.role !== 'admin' && (
+                        <Button size="sm" variant="ghost" className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                          onClick={() => deleteMutation.mutate(user.id)}
+                          data-testid={`button-delete-user-${user.id}`}>
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </CardContent>
+    </Card>
+  );
+
+  const renderActivity = () => (
+    <Card className="relative overflow-hidden bg-gradient-to-br from-[#2d4a5e]/90 via-[#3d5a6a]/90 to-[#3a5a5e]/90 backdrop-blur-xl border-white/10">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-12 -left-12 w-48 h-48 rounded-full bg-[#9FBCA4]/15 blur-3xl" />
+        <div className="absolute bottom-0 right-0 w-64 h-64 rounded-full bg-[#257D41]/10 blur-3xl" />
+      </div>
+      
+      <CardHeader className="relative">
+        <CardTitle className="text-xl font-display text-[#FFF9F5]">Login Activity</CardTitle>
+        <CardDescription className="label-text text-white/60">
+          {loginLogs?.length || 0} login records | {activeSessions} active sessions
+        </CardDescription>
+      </CardHeader>
+      
+      <CardContent className="relative">
+        {logsLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin text-[#9FBCA4]" />
+          </div>
+        ) : loginLogs?.length === 0 ? (
+          <div className="text-center py-12">
+            <Clock className="w-16 h-16 mx-auto text-white/30 mb-4" />
+            <p className="label-text text-white/60">No login activity recorded yet</p>
+          </div>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow className="border-white/10 hover:bg-transparent">
+                <TableHead className="text-white/60 font-display">User</TableHead>
+                <TableHead className="text-white/60 font-display">Login Time</TableHead>
+                <TableHead className="text-white/60 font-display">Logout Time</TableHead>
+                <TableHead className="text-white/60 font-display">Duration</TableHead>
+                <TableHead className="text-white/60 font-display">IP Address</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {loginLogs?.map((log) => (
+                <TableRow key={log.id} className="border-white/10 hover:bg-white/5" data-testid={`row-log-${log.id}`}>
+                  <TableCell>
+                    <div className="text-[#FFF9F5]">{log.userName || log.userEmail}</div>
+                    {log.userName && <div className="text-xs text-white/50">{log.userEmail}</div>}
+                  </TableCell>
+                  <TableCell className="text-white/80 font-mono text-sm">{formatDate(log.loginAt)}</TableCell>
+                  <TableCell className="text-white/80 font-mono text-sm">
+                    {log.logoutAt ? formatDate(log.logoutAt) : <span className="text-[#9FBCA4]">Active</span>}
+                  </TableCell>
+                  <TableCell className="font-mono text-sm">
+                    <span className={log.logoutAt ? "text-white/80" : "text-[#9FBCA4]"}>
+                      {calculateDuration(log.loginAt, log.logoutAt)}
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-white/60 font-mono text-sm">{log.ipAddress || "-"}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </CardContent>
+    </Card>
+  );
+
+  const renderVerification = () => (
+    <Card className="relative overflow-hidden bg-gradient-to-br from-[#2d4a5e]/90 via-[#3d5a6a]/90 to-[#3a5a5e]/90 backdrop-blur-xl border-white/10">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-12 -left-12 w-48 h-48 rounded-full bg-[#9FBCA4]/15 blur-3xl" />
+        <div className="absolute bottom-0 right-0 w-64 h-64 rounded-full bg-[#257D41]/10 blur-3xl" />
+      </div>
+      
+      <CardHeader className="relative">
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="text-xl font-display text-[#FFF9F5]">Financial Verification</CardTitle>
+            <CardDescription className="label-text text-white/60">
+              Run formula and GAAP compliance checks on all statements
+            </CardDescription>
+          </div>
+          <GlassButton variant="primary" onClick={() => runVerification.mutate()} disabled={runVerification.isPending} data-testid="button-run-verification">
+            {runVerification.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <PlayCircle className="w-4 h-4" />}
+            Run Verification
+          </GlassButton>
+        </div>
+      </CardHeader>
+      
+      <CardContent className="relative space-y-6">
+        {!verificationResults && !runVerification.isPending && (
+          <div className="text-center py-12">
+            <FileCheck className="w-16 h-16 mx-auto text-white/30 mb-4" />
+            <p className="label-text text-white/60">Click "Run Verification" to check all financial statements</p>
+          </div>
+        )}
+
+        {runVerification.isPending && (
+          <div className="text-center py-12">
+            <Loader2 className="w-16 h-16 mx-auto text-[#9FBCA4] animate-spin mb-4" />
+            <p className="label-text text-white/60">Running verification checks...</p>
+          </div>
+        )}
+
+        {verificationResults && (
+          <>
+            <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="font-display text-[#FFF9F5]">Verification Results</h3>
+                  <p className="text-xs text-white/40 font-mono mt-1">Run at: {formatDate(verificationResults.timestamp)}</p>
+                </div>
+                <div className={`flex items-center gap-2 px-4 py-2 rounded-lg ${
+                  verificationResults.overallStatus === "PASS" ? "bg-green-500/20 text-green-400" :
+                  verificationResults.overallStatus === "WARNING" ? "bg-yellow-500/20 text-yellow-400" :
+                  "bg-red-500/20 text-red-400"
+                }`}>
+                  {verificationResults.overallStatus === "PASS" ? <CheckCircle2 className="w-5 h-5" /> :
+                   verificationResults.overallStatus === "WARNING" ? <AlertTriangle className="w-5 h-5" /> :
+                   <XCircle className="w-5 h-5" />}
+                  <span className="font-display font-bold">{verificationResults.overallStatus}</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-5 gap-4 text-center">
+                <div className="p-3 rounded-lg bg-white/5">
+                  <div className="text-2xl font-mono text-[#FFF9F5]">{verificationResults.propertiesChecked}</div>
+                  <div className="text-xs text-white/40 label-text">Properties</div>
+                </div>
+                <div className="p-3 rounded-lg bg-white/5">
+                  <div className="text-2xl font-mono text-green-400">{verificationResults.formulaChecks.passed}</div>
+                  <div className="text-xs text-white/40 label-text">Property Checks</div>
+                </div>
+                <div className="p-3 rounded-lg bg-white/5">
+                  <div className="text-2xl font-mono text-green-400">{verificationResults.managementCompanyChecks?.passed || 0}</div>
+                  <div className="text-xs text-white/40 label-text">Mgmt Co Checks</div>
+                </div>
+                <div className="p-3 rounded-lg bg-white/5">
+                  <div className="text-2xl font-mono text-green-400">{verificationResults.consolidatedChecks?.passed || 0}</div>
+                  <div className="text-xs text-white/40 label-text">Consolidated</div>
+                </div>
+                <div className="p-3 rounded-lg bg-white/5">
+                  <div className="text-2xl font-mono text-green-400">{verificationResults.complianceChecks.passed}</div>
+                  <div className="text-xs text-white/40 label-text">GAAP Compliance</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-xl bg-[#257D41]/10 border border-[#257D41]/30">
+              <h4 className="font-display text-[#9FBCA4] mb-2">Key Standards Verified</h4>
+              <ul className="grid grid-cols-2 gap-2 text-sm text-white/70 label-text">
+                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#9FBCA4]" />ASC 470 - Interest vs Principal separation</li>
+                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#9FBCA4]" />ASC 230 - Cash Flow classification</li>
+                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#9FBCA4]" />ASC 606 - Revenue recognition</li>
+                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#9FBCA4]" />ASC 810 - Intercompany elimination</li>
+                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#9FBCA4]" />USALI - NOI/GOP methodology</li>
+                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#9FBCA4]" />STR/CBRE - ADR/RevPAR formulas</li>
+              </ul>
+            </div>
+          </>
+        )}
+      </CardContent>
+    </Card>
+  );
+
+  const renderDesign = () => (
+    <Card className="relative overflow-hidden bg-gradient-to-br from-[#2d4a5e]/90 via-[#3d5a6a]/90 to-[#3a5a5e]/90 backdrop-blur-xl border-white/10">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-12 -left-12 w-48 h-48 rounded-full bg-[#9FBCA4]/15 blur-3xl" />
+        <div className="absolute bottom-0 right-0 w-64 h-64 rounded-full bg-[#257D41]/10 blur-3xl" />
+      </div>
+      
+      <CardHeader className="relative">
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="text-xl font-display text-[#FFF9F5]">Design Consistency Verification</CardTitle>
+            <CardDescription className="label-text text-white/60">
+              Check fonts, typography, color palette, and component standards across all pages
+            </CardDescription>
+          </div>
+          <GlassButton variant="primary" onClick={() => runDesignCheck.mutate()} disabled={runDesignCheck.isPending} data-testid="button-run-design-check">
+            {runDesignCheck.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Palette className="w-4 h-4" />}
+            Run Design Check
+          </GlassButton>
+        </div>
+      </CardHeader>
+      
+      <CardContent className="relative space-y-6">
+        {!designResults && !runDesignCheck.isPending && (
+          <div className="text-center py-12">
+            <Palette className="w-16 h-16 mx-auto text-white/30 mb-4" />
+            <p className="label-text text-white/60">Click "Run Design Check" to verify design consistency</p>
+            <div className="mt-6 p-4 rounded-xl bg-white/5 border border-white/10 max-w-md mx-auto">
+              <h4 className="font-display text-[#9FBCA4] mb-3">What We Check</h4>
+              <ul className="text-sm text-white/70 label-text space-y-2 text-left">
+                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#9FBCA4]" />Color palette compliance (#257D41, #9FBCA4, #FFF9F5)</li>
+                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#9FBCA4]" />Typography standards (font-display, label-text, font-mono)</li>
+                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#9FBCA4]" />Button consistency (GlassButton usage)</li>
+                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#9FBCA4]" />Page header standardization</li>
+                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#9FBCA4]" />Dark glass theme implementation</li>
+                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#9FBCA4]" />Testing attributes (data-testid)</li>
+              </ul>
+            </div>
+          </div>
+        )}
+
+        {runDesignCheck.isPending && (
+          <div className="text-center py-12">
+            <Loader2 className="w-16 h-16 mx-auto text-[#9FBCA4] animate-spin mb-4" />
+            <p className="label-text text-white/60">Analyzing design consistency...</p>
+          </div>
+        )}
+
+        {designResults && (
+          <>
+            <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="font-display text-[#FFF9F5]">Design Check Results</h3>
+                  <p className="text-xs text-white/40 font-mono mt-1">Run at: {formatDate(designResults.timestamp)}</p>
+                </div>
+                <div className={`flex items-center gap-2 px-4 py-2 rounded-lg ${
+                  designResults.overallStatus === "PASS" ? "bg-green-500/20 text-green-400" :
+                  designResults.overallStatus === "WARNING" ? "bg-yellow-500/20 text-yellow-400" :
+                  "bg-red-500/20 text-red-400"
+                }`}>
+                  {designResults.overallStatus === "PASS" ? <CheckCircle2 className="w-5 h-5" /> :
+                   designResults.overallStatus === "WARNING" ? <AlertTriangle className="w-5 h-5" /> :
+                   <XCircle className="w-5 h-5" />}
+                  <span className="font-display font-bold">{designResults.overallStatus}</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-4 gap-4 text-center mb-6">
+                <div className="p-3 rounded-lg bg-white/5">
+                  <div className="text-2xl font-mono text-[#FFF9F5]">{designResults.totalChecks}</div>
+                  <div className="text-xs text-white/40 label-text">Total Checks</div>
+                </div>
+                <div className="p-3 rounded-lg bg-white/5">
+                  <div className="text-2xl font-mono text-green-400">{designResults.passed}</div>
+                  <div className="text-xs text-white/40 label-text">Passed</div>
+                </div>
+                <div className="p-3 rounded-lg bg-white/5">
+                  <div className="text-2xl font-mono text-yellow-400">{designResults.warnings}</div>
+                  <div className="text-xs text-white/40 label-text">Warnings</div>
+                </div>
+                <div className="p-3 rounded-lg bg-white/5">
+                  <div className="text-2xl font-mono text-red-400">{designResults.failed}</div>
+                  <div className="text-xs text-white/40 label-text">Failed</div>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {designResults.checks.map((check, i) => (
+                  <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-white/5">
+                    {check.status === "pass" ? <CheckCircle2 className="w-5 h-5 text-green-400" /> :
+                     check.status === "warning" ? <AlertTriangle className="w-5 h-5 text-yellow-400" /> :
+                     <XCircle className="w-5 h-5 text-red-400" />}
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs px-2 py-0.5 rounded bg-white/10 text-white/60">{check.category}</span>
+                        <span className="text-white/80 text-sm">{check.rule}</span>
+                      </div>
+                      <p className="text-xs text-white/50 mt-1">{check.details}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+      </CardContent>
+    </Card>
+  );
+
   return (
     <Layout>
       <div className="space-y-8">
-        <PageHeader 
-          title="Administration" 
-          subtitle="Manage users, monitor activity, and run system verification"
-          variant="dark"
-        />
+        <div className="flex items-center gap-4">
+          {currentView !== "dashboard" && (
+            <Button variant="ghost" onClick={() => setCurrentView("dashboard")} className="text-white/60 hover:text-white hover:bg-white/10" data-testid="button-back">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back
+            </Button>
+          )}
+          <PageHeader 
+            title={currentView === "dashboard" ? "Administration" : 
+                   currentView === "users" ? "User Management" :
+                   currentView === "activity" ? "Login Activity" :
+                   currentView === "verification" ? "Financial Verification" : "Design Consistency"}
+            subtitle={currentView === "dashboard" ? "Manage users, monitor activity, and run system verification" :
+                      currentView === "users" ? "Add, edit, and manage user accounts" :
+                      currentView === "activity" ? "Monitor user sessions and login history" :
+                      currentView === "verification" ? "Run formula and GAAP compliance checks" : "Check fonts, colors, and component standards"}
+            variant="dark"
+          />
+        </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="bg-white/5 border border-white/10 p-1">
-            <TabsTrigger value="users" className="data-[state=active]:bg-white/10 data-[state=active]:text-[#FFF9F5] text-white/60" data-testid="tab-users">
-              <Users className="w-4 h-4 mr-2" />
-              Users
-            </TabsTrigger>
-            <TabsTrigger value="activity" className="data-[state=active]:bg-white/10 data-[state=active]:text-[#FFF9F5] text-white/60" data-testid="tab-activity">
-              <Clock className="w-4 h-4 mr-2" />
-              Login Activity
-            </TabsTrigger>
-            <TabsTrigger value="verification" className="data-[state=active]:bg-white/10 data-[state=active]:text-[#FFF9F5] text-white/60" data-testid="tab-verification">
-              <FileCheck className="w-4 h-4 mr-2" />
-              Verification
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="users">
-            <Card className="relative overflow-hidden bg-gradient-to-br from-[#2d4a5e]/90 via-[#3d5a6a]/90 to-[#3a5a5e]/90 backdrop-blur-xl border-white/10">
-              <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute -top-12 -left-12 w-48 h-48 rounded-full bg-[#9FBCA4]/15 blur-3xl" />
-                <div className="absolute bottom-0 right-0 w-64 h-64 rounded-full bg-[#257D41]/10 blur-3xl" />
-              </div>
-              
-              <CardHeader className="relative">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="text-xl font-display text-[#FFF9F5]">User Management</CardTitle>
-                    <CardDescription className="label-text text-white/60">
-                      {users?.length || 0} registered users
-                    </CardDescription>
-                  </div>
-                  <GlassButton variant="primary" onClick={() => setDialogOpen(true)} data-testid="button-add-user">
-                    <Plus className="w-4 h-4" />
-                    Add User
-                  </GlassButton>
-                </div>
-              </CardHeader>
-              
-              <CardContent className="relative">
-                {usersLoading ? (
-                  <div className="flex items-center justify-center py-12">
-                    <Loader2 className="w-8 h-8 animate-spin text-[#9FBCA4]" />
-                  </div>
-                ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="border-white/10 hover:bg-transparent">
-                        <TableHead className="text-white/60 font-display">User</TableHead>
-                        <TableHead className="text-white/60 font-display">Role</TableHead>
-                        <TableHead className="text-white/60 font-display">Created</TableHead>
-                        <TableHead className="text-white/60 font-display text-right">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {users?.map((user) => (
-                        <TableRow key={user.id} className="border-white/10 hover:bg-white/5">
-                          <TableCell>
-                            <div className="text-[#FFF9F5] font-medium">{user.name || user.email}</div>
-                            {user.name && <div className="text-xs text-white/50">{user.email}</div>}
-                          </TableCell>
-                          <TableCell>
-                            <span className={`px-2 py-1 rounded text-xs font-medium ${user.role === 'admin' ? 'bg-[#257D41]/20 text-[#9FBCA4]' : 'bg-white/10 text-white/70'}`}>
-                              {user.role}
-                            </span>
-                          </TableCell>
-                          <TableCell className="text-white/60 font-mono text-sm">{formatDate(user.createdAt)}</TableCell>
-                          <TableCell className="text-right">
-                            <div className="flex items-center justify-end gap-2">
-                              <Button size="sm" variant="ghost" className="text-white/60 hover:text-white hover:bg-white/10"
-                                onClick={() => { setSelectedUser(user); setEditUser({ email: user.email, name: user.name || "", company: user.company || "", title: user.title || "" }); setEditDialogOpen(true); }}
-                                data-testid={`button-edit-user-${user.id}`}>
-                                <Pencil className="w-4 h-4" />
-                              </Button>
-                              <Button size="sm" variant="ghost" className="text-white/60 hover:text-white hover:bg-white/10"
-                                onClick={() => { setSelectedUser(user); setPasswordDialogOpen(true); }}
-                                data-testid={`button-password-user-${user.id}`}>
-                                <Key className="w-4 h-4" />
-                              </Button>
-                              {user.role !== 'admin' && (
-                                <Button size="sm" variant="ghost" className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
-                                  onClick={() => deleteMutation.mutate(user.id)}
-                                  data-testid={`button-delete-user-${user.id}`}>
-                                  <Trash2 className="w-4 h-4" />
-                                </Button>
-                              )}
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="activity">
-            <Card className="relative overflow-hidden bg-gradient-to-br from-[#2d4a5e]/90 via-[#3d5a6a]/90 to-[#3a5a5e]/90 backdrop-blur-xl border-white/10">
-              <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute -top-12 -left-12 w-48 h-48 rounded-full bg-[#9FBCA4]/15 blur-3xl" />
-                <div className="absolute bottom-0 right-0 w-64 h-64 rounded-full bg-[#257D41]/10 blur-3xl" />
-              </div>
-              
-              <CardHeader className="relative">
-                <CardTitle className="text-xl font-display text-[#FFF9F5]">Login Activity</CardTitle>
-                <CardDescription className="label-text text-white/60">
-                  {loginLogs?.length || 0} login records
-                </CardDescription>
-              </CardHeader>
-              
-              <CardContent className="relative">
-                {logsLoading ? (
-                  <div className="flex items-center justify-center py-12">
-                    <Loader2 className="w-8 h-8 animate-spin text-[#9FBCA4]" />
-                  </div>
-                ) : loginLogs?.length === 0 ? (
-                  <div className="text-center py-12">
-                    <Clock className="w-16 h-16 mx-auto text-white/30 mb-4" />
-                    <p className="label-text text-white/60">No login activity recorded yet</p>
-                  </div>
-                ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="border-white/10 hover:bg-transparent">
-                        <TableHead className="text-white/60 font-display">User</TableHead>
-                        <TableHead className="text-white/60 font-display">Login Time</TableHead>
-                        <TableHead className="text-white/60 font-display">Logout Time</TableHead>
-                        <TableHead className="text-white/60 font-display">Duration</TableHead>
-                        <TableHead className="text-white/60 font-display">IP Address</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {loginLogs?.map((log) => (
-                        <TableRow key={log.id} className="border-white/10 hover:bg-white/5">
-                          <TableCell>
-                            <div className="text-[#FFF9F5]">{log.userName || log.userEmail}</div>
-                            {log.userName && <div className="text-xs text-white/50">{log.userEmail}</div>}
-                          </TableCell>
-                          <TableCell className="text-white/80 font-mono text-sm">{formatDate(log.loginAt)}</TableCell>
-                          <TableCell className="text-white/80 font-mono text-sm">
-                            {log.logoutAt ? formatDate(log.logoutAt) : <span className="text-[#9FBCA4]">Active</span>}
-                          </TableCell>
-                          <TableCell className="font-mono text-sm">
-                            <span className={log.logoutAt ? "text-white/80" : "text-[#9FBCA4]"}>
-                              {calculateDuration(log.loginAt, log.logoutAt)}
-                            </span>
-                          </TableCell>
-                          <TableCell className="text-white/60 font-mono text-sm">{log.ipAddress || "-"}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="verification">
-            <Card className="relative overflow-hidden bg-gradient-to-br from-[#2d4a5e]/90 via-[#3d5a6a]/90 to-[#3a5a5e]/90 backdrop-blur-xl border-white/10">
-              <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute -top-12 -left-12 w-48 h-48 rounded-full bg-[#9FBCA4]/15 blur-3xl" />
-                <div className="absolute bottom-0 right-0 w-64 h-64 rounded-full bg-[#257D41]/10 blur-3xl" />
-              </div>
-              
-              <CardHeader className="relative">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="text-xl font-display text-[#FFF9F5]">Financial Verification</CardTitle>
-                    <CardDescription className="label-text text-white/60">
-                      Run formula and GAAP compliance checks on all statements
-                    </CardDescription>
-                  </div>
-                  <GlassButton variant="primary" onClick={() => runVerification.mutate()} disabled={runVerification.isPending} data-testid="button-run-verification">
-                    {runVerification.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <PlayCircle className="w-4 h-4" />}
-                    Run Verification
-                  </GlassButton>
-                </div>
-              </CardHeader>
-              
-              <CardContent className="relative space-y-6">
-                {!verificationResults && !runVerification.isPending && (
-                  <div className="text-center py-12">
-                    <FileCheck className="w-16 h-16 mx-auto text-white/30 mb-4" />
-                    <p className="label-text text-white/60">Click "Run Verification" to check all financial statements</p>
-                  </div>
-                )}
-
-                {runVerification.isPending && (
-                  <div className="text-center py-12">
-                    <Loader2 className="w-16 h-16 mx-auto text-[#9FBCA4] animate-spin mb-4" />
-                    <p className="label-text text-white/60">Running verification checks...</p>
-                  </div>
-                )}
-
-                {verificationResults && (
-                  <>
-                    <div className="p-4 rounded-xl bg-white/5 border border-white/10">
-                      <div className="flex items-center justify-between mb-4">
-                        <div>
-                          <h3 className="font-display text-[#FFF9F5]">Verification Results</h3>
-                          <p className="text-xs text-white/40 font-mono mt-1">Run at: {formatDate(verificationResults.timestamp)}</p>
-                        </div>
-                        <div className={`flex items-center gap-2 px-4 py-2 rounded-lg ${
-                          verificationResults.overallStatus === "PASS" ? "bg-green-500/20 text-green-400" :
-                          verificationResults.overallStatus === "WARNING" ? "bg-yellow-500/20 text-yellow-400" :
-                          "bg-red-500/20 text-red-400"
-                        }`}>
-                          {verificationResults.overallStatus === "PASS" ? <CheckCircle2 className="w-5 h-5" /> :
-                           verificationResults.overallStatus === "WARNING" ? <AlertTriangle className="w-5 h-5" /> :
-                           <XCircle className="w-5 h-5" />}
-                          <span className="font-display font-bold">{verificationResults.overallStatus}</span>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-5 gap-4 text-center">
-                        <div className="p-3 rounded-lg bg-white/5">
-                          <div className="text-2xl font-mono text-[#FFF9F5]">{verificationResults.propertiesChecked}</div>
-                          <div className="text-xs text-white/40 label-text">Properties</div>
-                        </div>
-                        <div className="p-3 rounded-lg bg-white/5">
-                          <div className="text-2xl font-mono text-green-400">{verificationResults.formulaChecks.passed}</div>
-                          <div className="text-xs text-white/40 label-text">Property Checks</div>
-                        </div>
-                        <div className="p-3 rounded-lg bg-white/5">
-                          <div className="text-2xl font-mono text-green-400">{verificationResults.managementCompanyChecks?.passed || 0}</div>
-                          <div className="text-xs text-white/40 label-text">Mgmt Co Checks</div>
-                        </div>
-                        <div className="p-3 rounded-lg bg-white/5">
-                          <div className="text-2xl font-mono text-green-400">{verificationResults.consolidatedChecks?.passed || 0}</div>
-                          <div className="text-xs text-white/40 label-text">Consolidated</div>
-                        </div>
-                        <div className="p-3 rounded-lg bg-white/5">
-                          <div className="text-2xl font-mono text-green-400">{verificationResults.complianceChecks.passed}</div>
-                          <div className="text-xs text-white/40 label-text">GAAP Compliance</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="p-4 rounded-xl bg-[#257D41]/10 border border-[#257D41]/30">
-                      <h4 className="font-display text-[#9FBCA4] mb-2">Key Standards Verified</h4>
-                      <ul className="grid grid-cols-2 gap-2 text-sm text-white/70 label-text">
-                        <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#9FBCA4]" />ASC 470 - Interest vs Principal separation</li>
-                        <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#9FBCA4]" />ASC 230 - Cash Flow classification</li>
-                        <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#9FBCA4]" />ASC 606 - Revenue recognition</li>
-                        <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#9FBCA4]" />ASC 810 - Intercompany elimination</li>
-                        <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#9FBCA4]" />USALI - NOI/GOP methodology</li>
-                        <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#9FBCA4]" />STR/CBRE - ADR/RevPAR formulas</li>
-                      </ul>
-                    </div>
-                  </>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+        {currentView === "dashboard" && renderDashboard()}
+        {currentView === "users" && renderUsers()}
+        {currentView === "activity" && renderActivity()}
+        {currentView === "verification" && renderVerification()}
+        {currentView === "design" && renderDesign()}
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="font-display">Add New User</DialogTitle>
-            <DialogDescription className="label-text">Create a new investor account</DialogDescription>
+            <DialogDescription className="label-text">Create a new user account</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">

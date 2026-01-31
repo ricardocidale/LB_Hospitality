@@ -88,12 +88,12 @@ export default function Login() {
               <h1 className="text-2xl font-display text-[#FFF9F5] mb-1">
                 L+B <span className="text-[#9FBCA4]">Hospitality</span>
               </h1>
-              <p className="text-xs text-white/40 uppercase tracking-[0.2em]">Investor Portal</p>
+              <p className="text-xs text-white/40 uppercase tracking-[0.2em]">Business Simulation</p>
             </div>
             
             <div className="mb-8 text-center">
               <h2 className="text-xl font-display text-[#FFF9F5] mb-2">Welcome Back</h2>
-              <p className="text-sm text-white/50 label-text">Sign in to access your dashboard</p>
+              <p className="text-sm text-white/50 label-text">Sign in to access the simulation portal</p>
             </div>
             
             <form onSubmit={handleSubmit} className="space-y-5">
@@ -154,7 +154,7 @@ export default function Login() {
         </div>
         
         <p className="text-center text-xs text-white/20 mt-6">
-          Secure investor portal for L+B Hospitality Group
+          Business simulation portal for L+B Hospitality Group
         </p>
       </div>
     </div>

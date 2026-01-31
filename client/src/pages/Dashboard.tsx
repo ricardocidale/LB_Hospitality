@@ -1878,15 +1878,15 @@ export default function Dashboard() {
               
               {/* 10-Year Totals Row */}
               <div className="relative mt-6 grid gap-4 md:grid-cols-3">
-                <div className="bg-white/40 backdrop-blur-xl rounded-xl p-4 border border-[#9FBCA4]/15 text-center">
+                <div className="bg-white/90 backdrop-blur-xl rounded-xl p-4 border border-white/40 shadow-lg shadow-black/10 text-center">
                   <p className="text-sm text-[#2d4a5e]/60 mb-1 label-text">10-Year Revenue</p>
                   <p className="text-xl font-bold text-[#2d4a5e] font-mono">{formatMoney(total10YearRevenue)}</p>
                 </div>
-                <div className="bg-white/40 backdrop-blur-xl rounded-xl p-4 border border-[#9FBCA4]/15 text-center">
+                <div className="bg-white/90 backdrop-blur-xl rounded-xl p-4 border border-white/40 shadow-lg shadow-black/10 text-center">
                   <p className="text-sm text-[#2d4a5e]/60 mb-1 label-text">10-Year NOI</p>
                   <p className="text-xl font-bold text-[#2d4a5e] font-mono">{formatMoney(total10YearNOI)}</p>
                 </div>
-                <div className="bg-white/40 backdrop-blur-xl rounded-xl p-4 border border-[#9FBCA4]/15 text-center">
+                <div className="bg-white/90 backdrop-blur-xl rounded-xl p-4 border border-white/40 shadow-lg shadow-black/10 text-center">
                   <p className="text-sm text-[#2d4a5e]/60 mb-1 label-text">10-Year Cash Flow</p>
                   <p className="text-xl font-bold text-[#2d4a5e] font-mono">{formatMoney(total10YearCashFlow)}</p>
                 </div>

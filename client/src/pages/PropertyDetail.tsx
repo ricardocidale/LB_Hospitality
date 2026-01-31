@@ -189,7 +189,7 @@ export default function PropertyDetail() {
 
     const headers = [["Line Item", ...Array.from({length: years}, (_, i) => `FY ${startYear + i}`)]];
     
-    const fmtNum = (n: number) => n === 0 ? "-" : n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+    const fmtNum = (n: number) => n === 0 ? "-" : formatMoney(n);
     
     const body = [
       [{ content: "REVENUE", colSpan: years + 1, styles: { fontStyle: "bold", fillColor: [230, 230, 230] } }],

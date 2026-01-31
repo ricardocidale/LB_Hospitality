@@ -59,6 +59,7 @@ export async function registerRoutes(
       const sessionId = generateSessionId();
       const expiresAt = getSessionExpiryDate();
       await storage.createSession(user.id, sessionId, expiresAt);
+      await storage.createLoginLog(user.id, sessionId, clientIp);
       setSessionCookie(res, sessionId);
       
       res.json({ 
@@ -73,6 +74,7 @@ export async function registerRoutes(
   // Admin auto-login (for development/demo convenience)
   app.post("/api/auth/admin-login", async (req, res) => {
     try {
+      const clientIp = req.ip || req.socket.remoteAddress || "unknown";
       const user = await storage.getUserByEmail("admin");
       if (!user) {
         return res.status(401).json({ error: "Admin user not found" });
@@ -91,6 +93,7 @@ export async function registerRoutes(
       const sessionId = generateSessionId();
       const expiresAt = getSessionExpiryDate();
       await storage.createSession(user.id, sessionId, expiresAt);
+      await storage.createLoginLog(user.id, sessionId, clientIp);
       setSessionCookie(res, sessionId);
       
       res.json({ 
@@ -105,6 +108,7 @@ export async function registerRoutes(
   app.post("/api/auth/logout", async (req, res) => {
     try {
       if (req.sessionId) {
+        await storage.updateLogoutTime(req.sessionId);
         await storage.deleteSession(req.sessionId);
       }
       clearSessionCookie(res);
@@ -343,6 +347,17 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error deleting user:", error);
       res.status(500).json({ error: "Failed to delete user" });
+    }
+  });
+  
+  // Get login logs (admin only)
+  app.get("/api/admin/login-logs", requireAdmin, async (req, res) => {
+    try {
+      const logs = await storage.getLoginLogs();
+      res.json(logs);
+    } catch (error) {
+      console.error("Error fetching login logs:", error);
+      res.status(500).json({ error: "Failed to fetch login logs" });
     }
   });
 

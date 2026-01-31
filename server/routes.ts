@@ -1502,5 +1502,79 @@ export async function registerRoutes(
     }
   });
 
+  // --- DESIGN THEMES ROUTES ---
+  
+  // Get all design themes
+  app.get("/api/admin/design-themes", requireAdmin, async (req, res) => {
+    try {
+      const themes = await storage.getAllDesignThemes();
+      res.json(themes);
+    } catch (error) {
+      console.error("Error fetching design themes:", error);
+      res.status(500).json({ error: "Failed to fetch design themes" });
+    }
+  });
+  
+  // Get active design theme
+  app.get("/api/admin/design-themes/active", async (req, res) => {
+    try {
+      const theme = await storage.getActiveDesignTheme();
+      res.json(theme || null);
+    } catch (error) {
+      console.error("Error fetching active design theme:", error);
+      res.status(500).json({ error: "Failed to fetch active design theme" });
+    }
+  });
+  
+  // Create design theme
+  app.post("/api/admin/design-themes", requireAdmin, async (req, res) => {
+    try {
+      const theme = await storage.createDesignTheme(req.body);
+      res.json(theme);
+    } catch (error) {
+      console.error("Error creating design theme:", error);
+      res.status(500).json({ error: "Failed to create design theme" });
+    }
+  });
+  
+  // Update design theme
+  app.patch("/api/admin/design-themes/:id", requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const theme = await storage.updateDesignTheme(id, req.body);
+      if (!theme) {
+        return res.status(404).json({ error: "Theme not found" });
+      }
+      res.json(theme);
+    } catch (error) {
+      console.error("Error updating design theme:", error);
+      res.status(500).json({ error: "Failed to update design theme" });
+    }
+  });
+  
+  // Delete design theme
+  app.delete("/api/admin/design-themes/:id", requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteDesignTheme(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting design theme:", error);
+      res.status(500).json({ error: "Failed to delete design theme" });
+    }
+  });
+  
+  // Set active design theme
+  app.post("/api/admin/design-themes/:id/activate", requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.setActiveDesignTheme(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error activating design theme:", error);
+      res.status(500).json({ error: "Failed to activate design theme" });
+    }
+  });
+
   return httpServer;
 }

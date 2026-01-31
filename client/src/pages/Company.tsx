@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Layout from "@/components/Layout";
 import { useProperties, useGlobalAssumptions } from "@/lib/api";
 import { generateCompanyProForma, generatePropertyProForma, formatMoney, getFiscalYearForModelYear } from "@/lib/financialEngine";
@@ -12,6 +12,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { GlassCard } from "@/components/ui/glass-card";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import html2canvas from "html2canvas";
 import { format } from "date-fns";
 import { CompanyMonthlyFinancials } from "@/lib/financialEngine";
 
@@ -88,6 +89,7 @@ export default function Company() {
   const { data: global, isLoading: globalLoading } = useGlobalAssumptions();
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState("income");
+  const chartRef = useRef<HTMLDivElement>(null);
 
   const toggleRow = (rowId: string) => {
     setExpandedRows(prev => {
@@ -421,7 +423,7 @@ export default function Company() {
     return { years, rows };
   };
 
-  const exportCompanyPDF = (type: 'income' | 'cashflow' | 'balance') => {
+  const exportCompanyPDF = async (type: 'income' | 'cashflow' | 'balance') => {
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
     let data: { years: number[]; rows: any[] };
     let title: string;
@@ -447,6 +449,26 @@ export default function Company() {
     doc.text(`10-Year Projection (${data.years[0]} - ${data.years[9]})`, 14, 22);
     doc.text(`Generated: ${format(new Date(), 'MMM d, yyyy')}`, 14, 27);
     
+    // Capture the chart as an image
+    let tableStartY = 32;
+    if (chartRef.current) {
+      try {
+        const canvas = await html2canvas(chartRef.current, {
+          backgroundColor: '#ffffff',
+          scale: 2,
+          logging: false,
+          useCORS: true,
+        });
+        const imgData = canvas.toDataURL('image/png');
+        const imgWidth = 267; // A4 landscape width - margins
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        doc.addImage(imgData, 'PNG', 14, tableStartY, imgWidth, Math.min(imgHeight, 80));
+        tableStartY = tableStartY + Math.min(imgHeight, 80) + 5;
+      } catch (error) {
+        console.error('Error capturing chart:', error);
+      }
+    }
+    
     const tableData = data.rows.map(row => [
       (row.indent ? '  '.repeat(row.indent) : '') + row.category,
       ...row.values.map((v: number) => {
@@ -460,7 +482,7 @@ export default function Company() {
     autoTable(doc, {
       head: [['Category', ...data.years.map(String)]],
       body: tableData,
-      startY: 32,
+      startY: tableStartY,
       styles: { fontSize: 7, cellPadding: 1.5 },
       headStyles: { fillColor: [159, 188, 164], textColor: [0, 0, 0], fontStyle: 'bold' },
       columnStyles: { 0: { cellWidth: 50 } },
@@ -604,7 +626,7 @@ export default function Company() {
           </div>
 
           {/* Chart Card - Light Theme */}
-          <div className="relative overflow-hidden rounded-3xl p-6 bg-white shadow-lg border border-gray-100">
+          <div ref={chartRef} className="relative overflow-hidden rounded-3xl p-6 bg-white shadow-lg border border-gray-100">
             <div className="relative">
               <h3 className="text-lg font-display text-gray-900 mb-4">Management Company Performance (10-Year Projection)</h3>
               <div className="h-[300px]">

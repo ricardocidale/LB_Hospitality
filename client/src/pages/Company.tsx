@@ -499,13 +499,25 @@ export default function Company() {
       })
     ]);
     
+    // Build column styles for proper alignment
+    const colStyles: Record<number, { halign?: string; cellWidth?: number }> = { 
+      0: { cellWidth: orientation === 'landscape' ? 50 : 40 } 
+    };
+    const numCols = data.years.length;
+    const availableWidth = orientation === 'landscape' ? 230 : 155;
+    const dataColWidth = availableWidth / numCols;
+    for (let i = 1; i <= numCols; i++) {
+      colStyles[i] = { halign: 'right', cellWidth: dataColWidth };
+    }
+    
     autoTable(doc, {
-      head: [['Category', ...data.years.map(String)]],
+      head: [['Category', ...data.years.map(y => `FY ${y}`)]],
       body: tableData,
       startY: tableStartY,
-      styles: { fontSize: 7, cellPadding: 1.5 },
-      headStyles: { fillColor: [159, 188, 164], textColor: [0, 0, 0], fontStyle: 'bold' },
-      columnStyles: { 0: { cellWidth: 50 } },
+      styles: { fontSize: orientation === 'landscape' ? 7 : 6, cellPadding: 1.2, overflow: 'linebreak' },
+      headStyles: { fillColor: [159, 188, 164], textColor: [0, 0, 0], fontStyle: 'bold', halign: 'center' },
+      columnStyles: colStyles,
+      tableWidth: 'auto',
       didParseCell: (cellData) => {
         if (cellData.section === 'body' && cellData.row.index !== undefined) {
           const row = data.rows[cellData.row.index];

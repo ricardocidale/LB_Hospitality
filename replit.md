@@ -33,7 +33,7 @@ Always format money as money (currency format with commas and appropriate precis
 - **Database**: PostgreSQL
 
 ### UI/UX Decisions
-- **Color Palette**: Primary Sage Green (#9FBCA4), Secondary Green (#257D41), Warm Off-White (#FFF9F5), Coral Accent (#F4795B), and a specific dark blue-gray gradient for navigation and dark-themed pages.
+- **Color Palette**: Primary Sage Green (#9FBCA4), Secondary Green (#257D41), Warm Off-White (#FFF9F5), Coral Accent (#F4795B), Black (#000000, #0a0a0f), and a specific dark blue-gray gradient (#2d4a5e, #3d5a6a, #3a5a5e) for navigation and dark-themed pages.
 - **Page Styling**:
     - **Login Page**: Centered glass dialog card on near-black (#0a0a0f) background with subtle sage green blur orbs. Clean, Swiss Modernist design.
     - **Assumption Pages (Light Theme)**: White/80 backdrop-blur-xl cards with sage green accents, gray text, and white input backgrounds.

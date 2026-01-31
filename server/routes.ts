@@ -690,7 +690,7 @@ export async function registerRoutes(
       
       // Check color palette
       const offBrandColors: string[] = [];
-      const approvedColors = ["#257D41", "#9FBCA4", "#FFF9F5", "#F4795B", "#0a0a0f", "#2d4a5e", "#3d5a6a", "#3a5a5e"];
+      const approvedColors = ["#257D41", "#9FBCA4", "#FFF9F5", "#F4795B", "#0a0a0f", "#000000", "#2d4a5e", "#3d5a6a", "#3a5a5e"];
       const colorRegex = /#[0-9A-Fa-f]{6}\b/g;
       
       fileContents.forEach((content) => {

@@ -601,25 +601,33 @@ export default function Admin() {
                 <h4 className="font-display text-white font-semibold mb-3">{property.name} <span className="text-white/50 font-normal text-sm">({property.type})</span></h4>
                 <div className="space-y-2">
                   {property.checks?.map((check: any, cIdx: number) => (
-                    <div key={cIdx} className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.03]">
-                      {check.passed ? <CheckCircle2 className="w-5 h-5 text-[#9FBCA4] shrink-0" /> : <XCircle className="w-5 h-5 text-red-400 shrink-0" />}
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="text-white/80 text-sm">{check.name}</span>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <HelpCircle className="w-3.5 h-3.5 text-white/40 hover:text-white/60 cursor-help" />
-                            </TooltipTrigger>
-                            <TooltipContent side="top" className="max-w-xs">
-                              <p>{check.description}</p>
-                            </TooltipContent>
-                          </Tooltip>
+                    <div key={cIdx} className="space-y-1">
+                      <div className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.03]">
+                        {check.passed ? <CheckCircle2 className="w-5 h-5 text-[#9FBCA4] shrink-0" /> : <XCircle className="w-5 h-5 text-red-400 shrink-0" />}
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-white/80 text-sm">{check.name}</span>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <HelpCircle className="w-3.5 h-3.5 text-white/40 hover:text-white/60 cursor-help" />
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="max-w-xs">
+                                <p>{check.description}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </div>
+                          <p className="text-xs text-white/50 mt-0.5">{check.description}</p>
                         </div>
-                        <p className="text-xs text-white/50 mt-0.5">{check.description}</p>
+                        <span className={`text-xs px-2 py-1 rounded ${check.passed ? 'bg-[#9FBCA4]/20 text-[#9FBCA4]' : 'bg-red-500/20 text-red-400'}`}>
+                          {check.passed ? 'PASS' : 'FAIL'}
+                        </span>
                       </div>
-                      <span className={`text-xs px-2 py-1 rounded ${check.passed ? 'bg-[#9FBCA4]/20 text-[#9FBCA4]' : 'bg-red-500/20 text-red-400'}`}>
-                        {check.passed ? 'PASS' : 'FAIL'}
-                      </span>
+                      {!check.passed && (
+                        <div className="ml-8 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
+                          <p className="text-xs text-red-300 font-medium">Diagnosis: {check.diagnosis || 'Formula mismatch detected in calculations'}</p>
+                          <p className="text-xs text-white/60 mt-1">Solution: {check.solution || 'Review property assumptions and verify formula inputs match expected values'}</p>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -632,25 +640,33 @@ export default function Admin() {
                 <h4 className="font-display text-white font-semibold mb-3">{entity.name} <span className="text-white/50 font-normal text-sm">({entity.type})</span></h4>
                 <div className="space-y-2">
                   {entity.checks?.map((check: any, cIdx: number) => (
-                    <div key={cIdx} className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.03]">
-                      {check.passed ? <CheckCircle2 className="w-5 h-5 text-[#9FBCA4] shrink-0" /> : <XCircle className="w-5 h-5 text-red-400 shrink-0" />}
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="text-white/80 text-sm">{check.name}</span>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <HelpCircle className="w-3.5 h-3.5 text-white/40 hover:text-white/60 cursor-help" />
-                            </TooltipTrigger>
-                            <TooltipContent side="top" className="max-w-xs">
-                              <p>{check.description}</p>
-                            </TooltipContent>
-                          </Tooltip>
+                    <div key={cIdx} className="space-y-1">
+                      <div className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.03]">
+                        {check.passed ? <CheckCircle2 className="w-5 h-5 text-[#9FBCA4] shrink-0" /> : <XCircle className="w-5 h-5 text-red-400 shrink-0" />}
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-white/80 text-sm">{check.name}</span>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <HelpCircle className="w-3.5 h-3.5 text-white/40 hover:text-white/60 cursor-help" />
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="max-w-xs">
+                                <p>{check.description}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </div>
+                          <p className="text-xs text-white/50 mt-0.5">{check.description}</p>
                         </div>
-                        <p className="text-xs text-white/50 mt-0.5">{check.description}</p>
+                        <span className={`text-xs px-2 py-1 rounded ${check.passed ? 'bg-[#9FBCA4]/20 text-[#9FBCA4]' : 'bg-red-500/20 text-red-400'}`}>
+                          {check.passed ? 'PASS' : 'FAIL'}
+                        </span>
                       </div>
-                      <span className={`text-xs px-2 py-1 rounded ${check.passed ? 'bg-[#9FBCA4]/20 text-[#9FBCA4]' : 'bg-red-500/20 text-red-400'}`}>
-                        {check.passed ? 'PASS' : 'FAIL'}
-                      </span>
+                      {!check.passed && (
+                        <div className="ml-8 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
+                          <p className="text-xs text-red-300 font-medium">Diagnosis: {check.diagnosis || 'Management company calculation error detected'}</p>
+                          <p className="text-xs text-white/60 mt-1">Solution: {check.solution || 'Verify management fee structures and revenue allocations'}</p>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -663,25 +679,33 @@ export default function Admin() {
                 <h4 className="font-display text-white font-semibold mb-3">{entity.name} <span className="text-white/50 font-normal text-sm">({entity.type})</span></h4>
                 <div className="space-y-2">
                   {entity.checks?.map((check: any, cIdx: number) => (
-                    <div key={cIdx} className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.03]">
-                      {check.passed ? <CheckCircle2 className="w-5 h-5 text-[#9FBCA4] shrink-0" /> : <XCircle className="w-5 h-5 text-red-400 shrink-0" />}
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="text-white/80 text-sm">{check.name}</span>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <HelpCircle className="w-3.5 h-3.5 text-white/40 hover:text-white/60 cursor-help" />
-                            </TooltipTrigger>
-                            <TooltipContent side="top" className="max-w-xs">
-                              <p>{check.description}</p>
-                            </TooltipContent>
-                          </Tooltip>
+                    <div key={cIdx} className="space-y-1">
+                      <div className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.03]">
+                        {check.passed ? <CheckCircle2 className="w-5 h-5 text-[#9FBCA4] shrink-0" /> : <XCircle className="w-5 h-5 text-red-400 shrink-0" />}
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-white/80 text-sm">{check.name}</span>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <HelpCircle className="w-3.5 h-3.5 text-white/40 hover:text-white/60 cursor-help" />
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="max-w-xs">
+                                <p>{check.description}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </div>
+                          <p className="text-xs text-white/50 mt-0.5">{check.description}</p>
                         </div>
-                        <p className="text-xs text-white/50 mt-0.5">{check.description}</p>
+                        <span className={`text-xs px-2 py-1 rounded ${check.passed ? 'bg-[#9FBCA4]/20 text-[#9FBCA4]' : 'bg-red-500/20 text-red-400'}`}>
+                          {check.passed ? 'PASS' : 'FAIL'}
+                        </span>
                       </div>
-                      <span className={`text-xs px-2 py-1 rounded ${check.passed ? 'bg-[#9FBCA4]/20 text-[#9FBCA4]' : 'bg-red-500/20 text-red-400'}`}>
-                        {check.passed ? 'PASS' : 'FAIL'}
-                      </span>
+                      {!check.passed && (
+                        <div className="ml-8 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
+                          <p className="text-xs text-red-300 font-medium">Diagnosis: {check.diagnosis || 'Consolidation mismatch between entities'}</p>
+                          <p className="text-xs text-white/60 mt-1">Solution: {check.solution || 'Review inter-company eliminations and ensure all entities are properly consolidated'}</p>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -693,26 +717,34 @@ export default function Admin() {
               <h4 className="font-display text-[#9FBCA4] font-semibold mb-3">GAAP Compliance Standards</h4>
               <div className="space-y-2">
                 {verificationResults.complianceChecks.details.map((check: any, cIdx: number) => (
-                  <div key={cIdx} className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.03]">
-                    {check.passed ? <CheckCircle2 className="w-5 h-5 text-[#9FBCA4] shrink-0" /> : <XCircle className="w-5 h-5 text-red-400 shrink-0" />}
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs px-2 py-0.5 rounded bg-white/10 text-white/60">{check.category}</span>
-                        <span className="text-white/80 text-sm">{check.rule}</span>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <HelpCircle className="w-3.5 h-3.5 text-white/40 hover:text-white/60 cursor-help" />
-                          </TooltipTrigger>
-                          <TooltipContent side="top" className="max-w-xs">
-                            <p>Scope: {check.scope}</p>
-                          </TooltipContent>
-                        </Tooltip>
+                  <div key={cIdx} className="space-y-1">
+                    <div className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.03]">
+                      {check.passed ? <CheckCircle2 className="w-5 h-5 text-[#9FBCA4] shrink-0" /> : <XCircle className="w-5 h-5 text-red-400 shrink-0" />}
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs px-2 py-0.5 rounded bg-white/10 text-white/60">{check.category}</span>
+                          <span className="text-white/80 text-sm">{check.rule}</span>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <HelpCircle className="w-3.5 h-3.5 text-white/40 hover:text-white/60 cursor-help" />
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="max-w-xs">
+                              <p>Scope: {check.scope}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
+                        <p className="text-xs text-white/50 mt-0.5">Scope: {check.scope}</p>
                       </div>
-                      <p className="text-xs text-white/50 mt-0.5">Scope: {check.scope}</p>
+                      <span className={`text-xs px-2 py-1 rounded ${check.passed ? 'bg-[#9FBCA4]/20 text-[#9FBCA4]' : 'bg-red-500/20 text-red-400'}`}>
+                        {check.passed ? 'PASS' : 'FAIL'}
+                      </span>
                     </div>
-                    <span className={`text-xs px-2 py-1 rounded ${check.passed ? 'bg-[#9FBCA4]/20 text-[#9FBCA4]' : 'bg-red-500/20 text-red-400'}`}>
-                      {check.passed ? 'PASS' : 'FAIL'}
-                    </span>
+                    {!check.passed && (
+                      <div className="ml-8 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
+                        <p className="text-xs text-red-300 font-medium">Diagnosis: {check.diagnosis || `Non-compliance with ${check.category} standard detected`}</p>
+                        <p className="text-xs text-white/60 mt-1">Solution: {check.solution || `Review ${check.scope} to ensure compliance with GAAP ${check.category} requirements`}</p>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -815,32 +847,46 @@ export default function Admin() {
 
               <div className="space-y-2">
                 {designResults.checks.map((check, i) => (
-                  <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.03]">
-                    {check.status === "pass" ? <CheckCircle2 className="w-5 h-5 text-[#9FBCA4] shrink-0" /> :
-                     check.status === "warning" ? <AlertTriangle className="w-5 h-5 text-yellow-400 shrink-0" /> :
-                     <XCircle className="w-5 h-5 text-red-400 shrink-0" />}
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs px-2 py-0.5 rounded bg-white/10 text-white/60">{check.category}</span>
-                        <span className="text-white/80 text-sm">{check.rule}</span>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <HelpCircle className="w-3.5 h-3.5 text-white/40 hover:text-white/60 cursor-help" />
-                          </TooltipTrigger>
-                          <TooltipContent side="top" className="max-w-xs">
-                            <p>{check.details}</p>
-                          </TooltipContent>
-                        </Tooltip>
+                  <div key={i} className="space-y-1">
+                    <div className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.03]">
+                      {check.status === "pass" ? <CheckCircle2 className="w-5 h-5 text-[#9FBCA4] shrink-0" /> :
+                       check.status === "warning" ? <AlertTriangle className="w-5 h-5 text-yellow-400 shrink-0" /> :
+                       <XCircle className="w-5 h-5 text-red-400 shrink-0" />}
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs px-2 py-0.5 rounded bg-white/10 text-white/60">{check.category}</span>
+                          <span className="text-white/80 text-sm">{check.rule}</span>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <HelpCircle className="w-3.5 h-3.5 text-white/40 hover:text-white/60 cursor-help" />
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="max-w-xs">
+                              <p>{check.details}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
+                        <p className="text-xs text-white/50 mt-0.5">{check.details}</p>
                       </div>
-                      <p className="text-xs text-white/50 mt-0.5">{check.details}</p>
+                      <span className={`text-xs px-2 py-1 rounded ${
+                        check.status === "pass" ? 'bg-[#9FBCA4]/20 text-[#9FBCA4]' : 
+                        check.status === "warning" ? 'bg-yellow-500/20 text-yellow-400' :
+                        'bg-red-500/20 text-red-400'
+                      }`}>
+                        {check.status === "pass" ? 'PASS' : check.status === "warning" ? 'WARNING' : 'FAIL'}
+                      </span>
                     </div>
-                    <span className={`text-xs px-2 py-1 rounded ${
-                      check.status === "pass" ? 'bg-[#9FBCA4]/20 text-[#9FBCA4]' : 
-                      check.status === "warning" ? 'bg-yellow-500/20 text-yellow-400' :
-                      'bg-red-500/20 text-red-400'
-                    }`}>
-                      {check.status === "pass" ? 'PASS' : check.status === "warning" ? 'WARNING' : 'FAIL'}
-                    </span>
+                    {check.status === "fail" && (
+                      <div className="ml-8 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
+                        <p className="text-xs text-red-300 font-medium">Diagnosis: {check.diagnosis || `Design standard violation in ${check.category}`}</p>
+                        <p className="text-xs text-white/60 mt-1">Solution: {check.solution || `Update component to follow ${check.category} design guidelines`}</p>
+                      </div>
+                    )}
+                    {check.status === "warning" && (
+                      <div className="ml-8 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
+                        <p className="text-xs text-yellow-300 font-medium">Diagnosis: {check.diagnosis || `Minor design inconsistency in ${check.category}`}</p>
+                        <p className="text-xs text-white/60 mt-1">Solution: {check.solution || `Consider updating to improve ${check.category} consistency`}</p>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

@@ -1,4 +1,4 @@
-import { globalAssumptions, properties, users, sessions, scenarios, loginLogs, type GlobalAssumptions, type Property, type InsertGlobalAssumptions, type InsertProperty, type UpdateProperty, type User, type InsertUser, type Session, type Scenario, type InsertScenario, type UpdateScenario, type LoginLog, type InsertLoginLog } from "@shared/schema";
+import { globalAssumptions, properties, users, sessions, scenarios, loginLogs, designThemes, type GlobalAssumptions, type Property, type InsertGlobalAssumptions, type InsertProperty, type UpdateProperty, type User, type InsertUser, type Session, type Scenario, type InsertScenario, type UpdateScenario, type LoginLog, type InsertLoginLog, type DesignTheme, type InsertDesignTheme } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gt, gte, desc } from "drizzle-orm";
 
@@ -40,6 +40,15 @@ export interface IStorage {
   createLoginLog(userId: number, sessionId: string, ipAddress?: string): Promise<LoginLog>;
   updateLogoutTime(sessionId: string): Promise<void>;
   getLoginLogs(): Promise<(LoginLog & { user: User })[]>;
+  
+  // Design Themes
+  getAllDesignThemes(): Promise<DesignTheme[]>;
+  getActiveDesignTheme(): Promise<DesignTheme | undefined>;
+  getDesignTheme(id: number): Promise<DesignTheme | undefined>;
+  createDesignTheme(data: InsertDesignTheme): Promise<DesignTheme>;
+  updateDesignTheme(id: number, data: Partial<InsertDesignTheme>): Promise<DesignTheme | undefined>;
+  deleteDesignTheme(id: number): Promise<void>;
+  setActiveDesignTheme(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -244,6 +253,54 @@ export class DatabaseStorage implements IStorage {
       .where(gte(loginLogs.loginAt, ninetyDaysAgo))
       .orderBy(desc(loginLogs.loginAt));
     return results.map(r => ({ ...r.login_logs, user: r.users }));
+  }
+  
+  // Design Themes
+  async getAllDesignThemes(): Promise<DesignTheme[]> {
+    return await db.select().from(designThemes).orderBy(designThemes.createdAt);
+  }
+  
+  async getActiveDesignTheme(): Promise<DesignTheme | undefined> {
+    const [theme] = await db.select().from(designThemes).where(eq(designThemes.isActive, true));
+    return theme || undefined;
+  }
+  
+  async getDesignTheme(id: number): Promise<DesignTheme | undefined> {
+    const [theme] = await db.select().from(designThemes).where(eq(designThemes.id, id));
+    return theme || undefined;
+  }
+  
+  async createDesignTheme(data: InsertDesignTheme): Promise<DesignTheme> {
+    const [theme] = await db
+      .insert(designThemes)
+      .values({
+        name: data.name,
+        description: data.description,
+        isActive: data.isActive || false,
+        colors: data.colors,
+      })
+      .returning();
+    return theme;
+  }
+  
+  async updateDesignTheme(id: number, data: Partial<InsertDesignTheme>): Promise<DesignTheme | undefined> {
+    const [theme] = await db
+      .update(designThemes)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(designThemes.id, id))
+      .returning();
+    return theme || undefined;
+  }
+  
+  async deleteDesignTheme(id: number): Promise<void> {
+    await db.delete(designThemes).where(eq(designThemes.id, id));
+  }
+  
+  async setActiveDesignTheme(id: number): Promise<void> {
+    // First deactivate all themes
+    await db.update(designThemes).set({ isActive: false });
+    // Then activate the selected one
+    await db.update(designThemes).set({ isActive: true }).where(eq(designThemes.id, id));
   }
 }
 

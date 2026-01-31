@@ -393,3 +393,36 @@ export const insertLoginLogSchema = createInsertSchema(loginLogs).omit({
 
 export type LoginLog = typeof loginLogs.$inferSelect;
 export type InsertLoginLog = z.infer<typeof insertLoginLogSchema>;
+
+// --- DESIGN THEMES TABLE ---
+export const designThemes = pgTable("design_themes", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  isActive: boolean("is_active").notNull().default(false),
+  colors: jsonb("colors").notNull().$type<DesignColor[]>(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export interface DesignColor {
+  rank: number;
+  name: string;
+  hexCode: string;
+  description: string;
+}
+
+export const insertDesignThemeSchema = z.object({
+  name: z.string(),
+  description: z.string(),
+  isActive: z.boolean().optional(),
+  colors: z.array(z.object({
+    rank: z.number(),
+    name: z.string(),
+    hexCode: z.string(),
+    description: z.string(),
+  })),
+});
+
+export type DesignTheme = typeof designThemes.$inferSelect;
+export type InsertDesignTheme = z.infer<typeof insertDesignThemeSchema>;

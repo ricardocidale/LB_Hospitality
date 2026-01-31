@@ -59,6 +59,23 @@ interface VerificationResult {
   overallStatus: "PASS" | "FAIL" | "WARNING";
 }
 
+interface DesignColor {
+  rank: number;
+  name: string;
+  hexCode: string;
+  description: string;
+}
+
+interface DesignTheme {
+  id: number;
+  name: string;
+  description: string;
+  isActive: boolean;
+  colors: DesignColor[];
+  createdAt: string;
+  updatedAt: string;
+}
+
 type AdminView = "dashboard" | "users" | "activity" | "verification" | "design";
 
 export default function Admin() {
@@ -77,6 +94,15 @@ export default function Admin() {
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [verificationResults, setVerificationResults] = useState<VerificationResult | null>(null);
   const [designResults, setDesignResults] = useState<DesignCheckResult | null>(null);
+  const [themeDialogOpen, setThemeDialogOpen] = useState(false);
+  const [editingTheme, setEditingTheme] = useState<DesignTheme | null>(null);
+  const [newTheme, setNewTheme] = useState<{ name: string; description: string; colors: DesignColor[] }>({
+    name: "",
+    description: "",
+    colors: [
+      { rank: 1, name: "", hexCode: "#000000", description: "" },
+    ],
+  });
 
   const { data: users, isLoading: usersLoading } = useQuery<User[]>({
     queryKey: ["admin", "users"],
@@ -97,6 +123,82 @@ export default function Admin() {
   });
 
   const activeSessions = loginLogs?.filter(l => !l.logoutAt).length || 0;
+
+  const { data: designThemes, isLoading: themesLoading } = useQuery<DesignTheme[]>({
+    queryKey: ["admin", "design-themes"],
+    queryFn: async () => {
+      const res = await fetch("/api/admin/design-themes", { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch design themes");
+      return res.json();
+    },
+  });
+
+  const createThemeMutation = useMutation({
+    mutationFn: async (data: { name: string; description: string; colors: DesignColor[] }) => {
+      const res = await fetch("/api/admin/design-themes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Failed to create theme");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "design-themes"] });
+      setThemeDialogOpen(false);
+      setNewTheme({ name: "", description: "", colors: [{ rank: 1, name: "", hexCode: "#000000", description: "" }] });
+      toast({ title: "Theme created successfully" });
+    },
+  });
+
+  const updateThemeMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: Partial<{ name: string; description: string; colors: DesignColor[] }> }) => {
+      const res = await fetch(`/api/admin/design-themes/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Failed to update theme");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "design-themes"] });
+      setEditingTheme(null);
+      toast({ title: "Theme updated successfully" });
+    },
+  });
+
+  const deleteThemeMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const res = await fetch(`/api/admin/design-themes/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Failed to delete theme");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "design-themes"] });
+      toast({ title: "Theme deleted successfully" });
+    },
+  });
+
+  const activateThemeMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const res = await fetch(`/api/admin/design-themes/${id}/activate`, {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Failed to activate theme");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "design-themes"] });
+      toast({ title: "Theme activated successfully" });
+    },
+  });
 
   const createMutation = useMutation({
     mutationFn: async (data: { email: string; password: string; name?: string; company?: string; title?: string }) => {
@@ -758,50 +860,136 @@ export default function Admin() {
   );
 
   const renderDesign = () => (
-    <Card className="relative overflow-hidden bg-white/80 backdrop-blur-xl border border-gray-200 shadow-2xl">
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-[#9FBCA4]/10 blur-[100px] animate-pulse" style={{ animationDuration: '4s' }} />
-        <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-[#257D41]/10 blur-[100px] animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
-      </div>
-      
-      <CardHeader className="relative">
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="text-xl font-display text-gray-900">Design Consistency Verification</CardTitle>
-            <CardDescription className="label-text text-gray-600">
-              Check fonts, typography, color palette, and component standards across all pages
-            </CardDescription>
-          </div>
-          <button 
-            onClick={() => runDesignCheck.mutate()} 
-            disabled={runDesignCheck.isPending} 
-            data-testid="button-run-design-check"
-            className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-[#257D41] bg-[#257D41]/10 text-[#257D41] font-semibold hover:bg-[#257D41]/20 transition-colors disabled:opacity-50"
-          >
-            {runDesignCheck.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Palette className="w-4 h-4" />}
-            Run Design Check
-          </button>
+    <div className="space-y-6">
+      {/* Design Themes Section */}
+      <Card className="relative overflow-hidden bg-white/80 backdrop-blur-xl border border-gray-200 shadow-2xl">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-[#9FBCA4]/10 blur-[100px] animate-pulse" style={{ animationDuration: '4s' }} />
+          <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-[#257D41]/10 blur-[100px] animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
         </div>
-      </CardHeader>
-      
-      <CardContent className="relative space-y-6">
-        {!designResults && !runDesignCheck.isPending && (
-          <div className="text-center py-12">
-            <Palette className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-            <p className="label-text text-gray-500">Click "Run Design Check" to verify design consistency</p>
-            <div className="mt-6 p-4 rounded-xl bg-gray-50 border border-gray-200 max-w-md mx-auto">
-              <h4 className="font-display text-[#257D41] mb-3">What We Check</h4>
-              <ul className="text-sm text-gray-600 label-text space-y-2 text-left">
-                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#257D41]" />Color palette compliance (#257D41, #9FBCA4, #FFF9F5)</li>
-                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#257D41]" />Typography standards (font-display, label-text, font-mono)</li>
-                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#257D41]" />Button consistency (GlassButton usage)</li>
-                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#257D41]" />Page header standardization</li>
-                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#257D41]" />Dark glass theme implementation</li>
-                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#257D41]" />Testing attributes (data-testid)</li>
-              </ul>
+        
+        <CardHeader className="relative">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-xl font-display text-gray-900">Design Themes</CardTitle>
+              <CardDescription className="label-text text-gray-600">
+                Define color palettes and design systems for your application
+              </CardDescription>
             </div>
+            <Button onClick={() => setThemeDialogOpen(true)} className="flex items-center gap-2 bg-[#257D41] hover:bg-[#1e6434]">
+              <Plus className="w-4 h-4" />
+              New Theme
+            </Button>
           </div>
-        )}
+        </CardHeader>
+        
+        <CardContent className="relative space-y-6">
+          {themesLoading ? (
+            <div className="text-center py-8">
+              <Loader2 className="w-8 h-8 mx-auto text-[#257D41] animate-spin" />
+            </div>
+          ) : designThemes && designThemes.length > 0 ? (
+            <div className="space-y-4">
+              {designThemes.map((theme) => (
+                <div key={theme.id} className={`p-5 rounded-2xl border-2 ${theme.isActive ? 'border-[#257D41] bg-[#9FBCA4]/10' : 'border-gray-200 bg-white'}`}>
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <div className="flex items-center gap-3">
+                        <h3 className="font-display text-lg text-gray-900 font-semibold">{theme.name}</h3>
+                        {theme.isActive && (
+                          <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-[#257D41] text-white">Active</span>
+                        )}
+                      </div>
+                      <p className="text-sm text-gray-600 mt-1 max-w-2xl">{theme.description}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {!theme.isActive && (
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          onClick={() => activateThemeMutation.mutate(theme.id)}
+                          className="text-[#257D41] border-[#257D41] hover:bg-[#257D41]/10"
+                        >
+                          Set Active
+                        </Button>
+                      )}
+                      <Button size="sm" variant="outline" onClick={() => setEditingTheme(theme)}>
+                        <Pencil className="w-4 h-4" />
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="text-red-600 border-red-300 hover:bg-red-50"
+                        onClick={() => deleteThemeMutation.mutate(theme.id)}
+                        disabled={theme.isActive}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  {/* Color Swatches */}
+                  <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+                    {theme.colors.sort((a, b) => a.rank - b.rank).map((color) => (
+                      <div key={color.rank} className="p-3 rounded-xl bg-gray-50 border border-gray-200">
+                        <div className="flex items-center gap-3 mb-2">
+                          <div 
+                            className="w-10 h-10 rounded-lg border border-gray-300 shadow-inner" 
+                            style={{ backgroundColor: color.hexCode }}
+                          />
+                          <div>
+                            <p className="font-medium text-sm text-gray-900">{color.name}</p>
+                            <p className="font-mono text-xs text-gray-500">{color.hexCode}</p>
+                          </div>
+                        </div>
+                        <p className="text-xs text-gray-600 line-clamp-2">{color.description}</p>
+                        <div className="mt-2 px-2 py-1 rounded text-xs font-medium text-center" style={{ backgroundColor: color.hexCode, color: parseInt(color.hexCode.slice(1), 16) > 0x888888 ? '#000' : '#fff' }}>
+                          Rank {color.rank}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <Palette className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+              <p className="label-text text-gray-500">No design themes yet. Create your first theme to define your color palette.</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Design Check Section */}
+      <Card className="relative overflow-hidden bg-white/80 backdrop-blur-xl border border-gray-200 shadow-2xl">
+        <CardHeader className="relative">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-xl font-display text-gray-900">Design Consistency Verification</CardTitle>
+              <CardDescription className="label-text text-gray-600">
+                Check fonts, typography, color palette, and component standards across all pages
+              </CardDescription>
+            </div>
+            <button 
+              onClick={() => runDesignCheck.mutate()} 
+              disabled={runDesignCheck.isPending} 
+              data-testid="button-run-design-check"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-[#257D41] bg-[#257D41]/10 text-[#257D41] font-semibold hover:bg-[#257D41]/20 transition-colors disabled:opacity-50"
+            >
+              {runDesignCheck.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Palette className="w-4 h-4" />}
+              Run Design Check
+            </button>
+          </div>
+        </CardHeader>
+        
+        <CardContent className="relative space-y-6">
+          {!designResults && !runDesignCheck.isPending && (
+            <div className="text-center py-8">
+              <Palette className="w-12 h-12 mx-auto text-gray-300 mb-3" />
+              <p className="label-text text-gray-500 text-sm">Click "Run Design Check" to verify design consistency</p>
+            </div>
+          )}
 
         {runDesignCheck.isPending && (
           <div className="text-center py-12">
@@ -899,6 +1087,7 @@ export default function Admin() {
         )}
       </CardContent>
     </Card>
+    </div>
   );
 
   return (
@@ -1009,6 +1198,153 @@ export default function Admin() {
               {editMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Pencil className="w-4 h-4" />}
               Save Changes
             </GlassButton>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Theme Create/Edit Dialog */}
+      <Dialog open={themeDialogOpen || !!editingTheme} onOpenChange={(open) => { if (!open) { setThemeDialogOpen(false); setEditingTheme(null); } }}>
+        <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{editingTheme ? "Edit Design Theme" : "Create Design Theme"}</DialogTitle>
+            <DialogDescription>
+              Define your design system colors and when to use them.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Theme Name</Label>
+              <Input
+                value={editingTheme ? editingTheme.name : newTheme.name}
+                onChange={(e) => editingTheme 
+                  ? setEditingTheme({ ...editingTheme, name: e.target.value })
+                  : setNewTheme({ ...newTheme, name: e.target.value })
+                }
+                placeholder="e.g., Fluid Glass"
+              />
+            </div>
+            <div>
+              <Label>Description</Label>
+              <textarea
+                className="w-full min-h-[80px] p-3 border rounded-lg text-sm resize-none"
+                value={editingTheme ? editingTheme.description : newTheme.description}
+                onChange={(e) => editingTheme
+                  ? setEditingTheme({ ...editingTheme, description: e.target.value })
+                  : setNewTheme({ ...newTheme, description: e.target.value })
+                }
+                placeholder="Describe the design philosophy and inspiration..."
+              />
+            </div>
+            
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <Label>Colors (up to 5)</Label>
+                {((editingTheme?.colors.length || 0) < 5 || (newTheme.colors.length < 5 && !editingTheme)) && (
+                  <Button 
+                    type="button" 
+                    size="sm" 
+                    variant="outline" 
+                    onClick={() => {
+                      const newColor = { rank: (editingTheme?.colors.length || newTheme.colors.length) + 1, name: "", hexCode: "#000000", description: "" };
+                      if (editingTheme) {
+                        setEditingTheme({ ...editingTheme, colors: [...editingTheme.colors, newColor] });
+                      } else {
+                        setNewTheme({ ...newTheme, colors: [...newTheme.colors, newColor] });
+                      }
+                    }}
+                  >
+                    <Plus className="w-3 h-3 mr-1" /> Add Color
+                  </Button>
+                )}
+              </div>
+              
+              <div className="space-y-3">
+                {(editingTheme ? editingTheme.colors : newTheme.colors).map((color, idx) => (
+                  <div key={idx} className="p-3 rounded-lg border bg-gray-50 space-y-2">
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-medium text-gray-500">#{color.rank}</span>
+                        <input
+                          type="color"
+                          value={color.hexCode}
+                          onChange={(e) => {
+                            const colors = editingTheme ? [...editingTheme.colors] : [...newTheme.colors];
+                            colors[idx] = { ...colors[idx], hexCode: e.target.value };
+                            if (editingTheme) setEditingTheme({ ...editingTheme, colors });
+                            else setNewTheme({ ...newTheme, colors });
+                          }}
+                          className="w-10 h-8 rounded border cursor-pointer"
+                        />
+                      </div>
+                      <Input
+                        value={color.name}
+                        onChange={(e) => {
+                          const colors = editingTheme ? [...editingTheme.colors] : [...newTheme.colors];
+                          colors[idx] = { ...colors[idx], name: e.target.value };
+                          if (editingTheme) setEditingTheme({ ...editingTheme, colors });
+                          else setNewTheme({ ...newTheme, colors });
+                        }}
+                        placeholder="Color name"
+                        className="flex-1"
+                      />
+                      <Input
+                        value={color.hexCode}
+                        onChange={(e) => {
+                          const colors = editingTheme ? [...editingTheme.colors] : [...newTheme.colors];
+                          colors[idx] = { ...colors[idx], hexCode: e.target.value };
+                          if (editingTheme) setEditingTheme({ ...editingTheme, colors });
+                          else setNewTheme({ ...newTheme, colors });
+                        }}
+                        className="w-24 font-mono text-xs"
+                      />
+                      <Button 
+                        type="button" 
+                        size="sm" 
+                        variant="ghost" 
+                        className="text-red-500 hover:text-red-700"
+                        onClick={() => {
+                          const colors = (editingTheme ? editingTheme.colors : newTheme.colors)
+                            .filter((_, i) => i !== idx)
+                            .map((c, i) => ({ ...c, rank: i + 1 }));
+                          if (editingTheme) setEditingTheme({ ...editingTheme, colors });
+                          else setNewTheme({ ...newTheme, colors });
+                        }}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    <Input
+                      value={color.description}
+                      onChange={(e) => {
+                        const colors = editingTheme ? [...editingTheme.colors] : [...newTheme.colors];
+                        colors[idx] = { ...colors[idx], description: e.target.value };
+                        if (editingTheme) setEditingTheme({ ...editingTheme, colors });
+                        else setNewTheme({ ...newTheme, colors });
+                      }}
+                      placeholder="When to use this color..."
+                      className="text-sm"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setThemeDialogOpen(false); setEditingTheme(null); }}>Cancel</Button>
+            <Button 
+              className="bg-[#257D41] hover:bg-[#1e6434]"
+              onClick={() => {
+                if (editingTheme) {
+                  updateThemeMutation.mutate({ id: editingTheme.id, data: { name: editingTheme.name, description: editingTheme.description, colors: editingTheme.colors } });
+                } else {
+                  createThemeMutation.mutate(newTheme);
+                }
+              }}
+              disabled={createThemeMutation.isPending || updateThemeMutation.isPending}
+            >
+              {(createThemeMutation.isPending || updateThemeMutation.isPending) ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+              {editingTheme ? "Save Changes" : "Create Theme"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

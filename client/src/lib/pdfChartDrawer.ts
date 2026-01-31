@@ -25,21 +25,22 @@ interface DrawChartOptions {
 export function drawLineChart(options: DrawChartOptions): void {
   const { doc, x, y, width, height, title, series, formatValue = (v) => `$${(v / 1000000).toFixed(1)}M` } = options;
   
-  // Draw background
-  doc.setFillColor(255, 255, 255);
+  // Draw subtle background
+  doc.setFillColor(252, 252, 253);
   doc.rect(x, y, width, height, 'F');
-  doc.setDrawColor(229, 231, 235);
+  doc.setDrawColor(240, 240, 242);
+  doc.setLineWidth(0.1);
   doc.rect(x, y, width, height, 'S');
   
-  // Draw title
-  doc.setFontSize(10);
-  doc.setTextColor(17, 24, 39);
-  doc.text(title, x + 5, y + 8);
+  // Draw title - lighter and smaller
+  doc.setFontSize(9);
+  doc.setTextColor(100, 100, 110);
+  doc.text(title, x + 5, y + 7);
   
-  const chartX = x + 25;
-  const chartY = y + 15;
-  const chartWidth = width - 35;
-  const chartHeight = height - 30;
+  const chartX = x + 22;
+  const chartY = y + 12;
+  const chartWidth = width - 30;
+  const chartHeight = height - 24;
   
   // Find min/max values
   let minVal = Infinity;
@@ -56,20 +57,20 @@ export function drawLineChart(options: DrawChartOptions): void {
   minVal = Math.max(0, minVal - range * 0.1);
   maxVal = maxVal + range * 0.1;
   
-  // Draw grid lines
-  doc.setDrawColor(229, 231, 235);
-  doc.setLineWidth(0.2);
-  const gridLines = 5;
+  // Draw light grid lines
+  doc.setDrawColor(235, 235, 240);
+  doc.setLineWidth(0.1);
+  const gridLines = 4;
   for (let i = 0; i <= gridLines; i++) {
     const gridY = chartY + chartHeight - (i / gridLines) * chartHeight;
-    doc.setLineDashPattern([1, 1], 0);
+    doc.setLineDashPattern([0.5, 1], 0);
     doc.line(chartX, gridY, chartX + chartWidth, gridY);
     
-    // Y-axis labels
+    // Y-axis labels - lighter
     const val = minVal + (i / gridLines) * (maxVal - minVal);
-    doc.setFontSize(6);
-    doc.setTextColor(107, 114, 128);
-    doc.text(formatValue(val), x + 2, gridY + 1);
+    doc.setFontSize(5);
+    doc.setTextColor(150, 150, 160);
+    doc.text(formatValue(val), x + 2, gridY + 0.8);
   }
   doc.setLineDashPattern([], 0);
   
@@ -78,17 +79,17 @@ export function drawLineChart(options: DrawChartOptions): void {
     const dataPoints = series[0].data.length;
     series[0].data.forEach((d, i) => {
       const pointX = chartX + (i / (dataPoints - 1)) * chartWidth;
-      doc.setFontSize(6);
-      doc.setTextColor(107, 114, 128);
-      doc.text(d.label, pointX - 3, chartY + chartHeight + 5);
+      doc.setFontSize(5);
+      doc.setTextColor(150, 150, 160);
+      doc.text(d.label, pointX - 2, chartY + chartHeight + 4);
     });
   }
   
-  // Draw lines for each series
+  // Draw lines for each series - thinner and smoother
   series.forEach((s) => {
     const [r, g, b] = hexToRgb(s.color);
     doc.setDrawColor(r, g, b);
-    doc.setLineWidth(0.8);
+    doc.setLineWidth(0.4);
     
     const dataPoints = s.data.length;
     let prevX = 0;
@@ -103,26 +104,26 @@ export function drawLineChart(options: DrawChartOptions): void {
         doc.line(prevX, prevY, pointX, pointY);
       }
       
-      // Draw dot
+      // Draw small dot
       doc.setFillColor(r, g, b);
-      doc.circle(pointX, pointY, 1, 'F');
+      doc.circle(pointX, pointY, 0.6, 'F');
       
       prevX = pointX;
       prevY = pointY;
     });
   });
   
-  // Draw legend
-  const legendY = y + height - 8;
-  let legendX = chartX;
-  series.forEach((s, i) => {
+  // Draw compact legend at bottom
+  const legendY = y + height - 3;
+  let legendX = chartX + 10;
+  doc.setFontSize(5);
+  series.forEach((s) => {
     const [r, g, b] = hexToRgb(s.color);
     doc.setFillColor(r, g, b);
-    doc.circle(legendX, legendY, 1.5, 'F');
-    doc.setFontSize(6);
-    doc.setTextColor(55, 65, 81);
-    doc.text(s.name, legendX + 3, legendY + 1);
-    legendX += 40;
+    doc.circle(legendX, legendY, 0.8, 'F');
+    doc.setTextColor(100, 100, 110);
+    doc.text(s.name, legendX + 2, legendY + 0.6);
+    legendX += 25;
   });
 }
 

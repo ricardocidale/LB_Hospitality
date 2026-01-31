@@ -618,12 +618,26 @@ export default function Company() {
           title={global?.companyName || "L+B Hospitality Co."}
           subtitle="Corporate Management Entity & Operations"
           actions={
-            <Link href="/company/assumptions">
-              <GlassButton variant="settings">
-                <Settings2 className="w-4 h-4" />
-                Assumptions
+            <div className="flex items-center gap-2">
+              <GlassButton variant="ghost" size="sm" onClick={() => { setExportType('pdf'); setExportDialogOpen(true); }}>
+                <FileDown className="w-4 h-4" />
+                PDF
               </GlassButton>
-            </Link>
+              <GlassButton variant="ghost" size="sm" onClick={() => exportCompanyCSV(activeTab as 'income' | 'cashflow' | 'balance')}>
+                <FileDown className="w-4 h-4" />
+                CSV
+              </GlassButton>
+              <GlassButton variant="ghost" size="sm" onClick={() => { setExportType('chart'); setExportDialogOpen(true); }}>
+                <ImageIcon className="w-4 h-4" />
+                Chart
+              </GlassButton>
+              <Link href="/company/assumptions">
+                <GlassButton variant="settings">
+                  <Settings2 className="w-4 h-4" />
+                  Assumptions
+                </GlassButton>
+              </Link>
+            </div>
           }
         />
 
@@ -686,36 +700,6 @@ export default function Company() {
               </div>
             </div>
             
-            {/* Export Buttons */}
-            <div className="flex gap-2">
-              <button
-                onClick={() => { setExportType('pdf'); setExportDialogOpen(true); }}
-                className="relative overflow-hidden px-3 py-2 text-sm font-medium text-white rounded-xl transition-all duration-300 group/btn flex items-center gap-2"
-              >
-                <div className="absolute inset-0 bg-white/10 backdrop-blur-xl rounded-xl" />
-                <div className="absolute inset-0 rounded-xl border border-white/20 group-hover/btn:border-white/40 transition-all" />
-                <FileDown className="relative w-4 h-4" />
-                <span className="relative">PDF</span>
-              </button>
-              <button
-                onClick={() => exportCompanyCSV(activeTab as 'income' | 'cashflow' | 'balance')}
-                className="relative overflow-hidden px-3 py-2 text-sm font-medium text-white rounded-xl transition-all duration-300 group/btn flex items-center gap-2"
-              >
-                <div className="absolute inset-0 bg-white/10 backdrop-blur-xl rounded-xl" />
-                <div className="absolute inset-0 rounded-xl border border-white/20 group-hover/btn:border-white/40 transition-all" />
-                <FileDown className="relative w-4 h-4" />
-                <span className="relative">CSV</span>
-              </button>
-              <button
-                onClick={() => { setExportType('chart'); setExportDialogOpen(true); }}
-                className="relative overflow-hidden px-3 py-2 text-sm font-medium text-white rounded-xl transition-all duration-300 group/btn flex items-center gap-2"
-              >
-                <div className="absolute inset-0 bg-white/10 backdrop-blur-xl rounded-xl" />
-                <div className="absolute inset-0 rounded-xl border border-white/20 group-hover/btn:border-white/40 transition-all" />
-                <ImageIcon className="relative w-4 h-4" />
-                <span className="relative">Chart</span>
-              </button>
-            </div>
           </div>
 
           {/* Chart Card - Light Theme */}

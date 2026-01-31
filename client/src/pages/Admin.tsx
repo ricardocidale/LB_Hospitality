@@ -7,9 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Loader2, Plus, Trash2, Users, Key, Eye, EyeOff, Pencil, Clock, FileCheck, CheckCircle2, XCircle, AlertTriangle, PlayCircle, Palette, ArrowLeft, Activity } from "lucide-react";
+import { Loader2, Plus, Trash2, Users, Key, Eye, EyeOff, Pencil, Clock, FileCheck, CheckCircle2, XCircle, AlertTriangle, PlayCircle, Palette, ArrowLeft, Activity, HelpCircle } from "lucide-react";
 import { GlassButton } from "@/components/ui/glass-button";
 import { PageHeader } from "@/components/ui/page-header";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 
 interface DesignCheckResult {
@@ -603,7 +604,17 @@ export default function Admin() {
                     <div key={cIdx} className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.03]">
                       {check.passed ? <CheckCircle2 className="w-5 h-5 text-[#9FBCA4] shrink-0" /> : <XCircle className="w-5 h-5 text-red-400 shrink-0" />}
                       <div className="flex-1">
-                        <span className="text-white/80 text-sm">{check.name}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-white/80 text-sm">{check.name}</span>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <HelpCircle className="w-3.5 h-3.5 text-white/40 hover:text-white/60 cursor-help" />
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="max-w-xs">
+                              <p>{check.description}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
                         <p className="text-xs text-white/50 mt-0.5">{check.description}</p>
                       </div>
                       <span className={`text-xs px-2 py-1 rounded ${check.passed ? 'bg-[#9FBCA4]/20 text-[#9FBCA4]' : 'bg-red-500/20 text-red-400'}`}>
@@ -624,7 +635,17 @@ export default function Admin() {
                     <div key={cIdx} className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.03]">
                       {check.passed ? <CheckCircle2 className="w-5 h-5 text-[#9FBCA4] shrink-0" /> : <XCircle className="w-5 h-5 text-red-400 shrink-0" />}
                       <div className="flex-1">
-                        <span className="text-white/80 text-sm">{check.name}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-white/80 text-sm">{check.name}</span>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <HelpCircle className="w-3.5 h-3.5 text-white/40 hover:text-white/60 cursor-help" />
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="max-w-xs">
+                              <p>{check.description}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
                         <p className="text-xs text-white/50 mt-0.5">{check.description}</p>
                       </div>
                       <span className={`text-xs px-2 py-1 rounded ${check.passed ? 'bg-[#9FBCA4]/20 text-[#9FBCA4]' : 'bg-red-500/20 text-red-400'}`}>
@@ -645,7 +666,17 @@ export default function Admin() {
                     <div key={cIdx} className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.03]">
                       {check.passed ? <CheckCircle2 className="w-5 h-5 text-[#9FBCA4] shrink-0" /> : <XCircle className="w-5 h-5 text-red-400 shrink-0" />}
                       <div className="flex-1">
-                        <span className="text-white/80 text-sm">{check.name}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-white/80 text-sm">{check.name}</span>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <HelpCircle className="w-3.5 h-3.5 text-white/40 hover:text-white/60 cursor-help" />
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="max-w-xs">
+                              <p>{check.description}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
                         <p className="text-xs text-white/50 mt-0.5">{check.description}</p>
                       </div>
                       <span className={`text-xs px-2 py-1 rounded ${check.passed ? 'bg-[#9FBCA4]/20 text-[#9FBCA4]' : 'bg-red-500/20 text-red-400'}`}>
@@ -668,6 +699,14 @@ export default function Admin() {
                       <div className="flex items-center gap-2">
                         <span className="text-xs px-2 py-0.5 rounded bg-white/10 text-white/60">{check.category}</span>
                         <span className="text-white/80 text-sm">{check.rule}</span>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <HelpCircle className="w-3.5 h-3.5 text-white/40 hover:text-white/60 cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="max-w-xs">
+                            <p>Scope: {check.scope}</p>
+                          </TooltipContent>
+                        </Tooltip>
                       </div>
                       <p className="text-xs text-white/50 mt-0.5">Scope: {check.scope}</p>
                     </div>
@@ -784,6 +823,14 @@ export default function Admin() {
                       <div className="flex items-center gap-2">
                         <span className="text-xs px-2 py-0.5 rounded bg-white/10 text-white/60">{check.category}</span>
                         <span className="text-white/80 text-sm">{check.rule}</span>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <HelpCircle className="w-3.5 h-3.5 text-white/40 hover:text-white/60 cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="max-w-xs">
+                            <p>{check.details}</p>
+                          </TooltipContent>
+                        </Tooltip>
                       </div>
                       <p className="text-xs text-white/50 mt-0.5">{check.details}</p>
                     </div>
@@ -805,15 +852,10 @@ export default function Admin() {
   );
 
   return (
+    <TooltipProvider>
     <Layout>
       <div className="space-y-8">
-        <div className="flex items-center gap-4">
-          {currentView !== "dashboard" && (
-            <Button variant="outline" onClick={() => setCurrentView("dashboard")} className="bg-[#0a0a0f]/90 text-white border-white/20 hover:bg-[#0a0a0f] hover:border-[#9FBCA4]/40" data-testid="button-back">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Dashboard
-            </Button>
-          )}
+        <div className="flex items-center justify-between gap-4">
           <PageHeader 
             title={currentView === "dashboard" ? "Administration" : 
                    currentView === "users" ? "User Management" :
@@ -825,6 +867,12 @@ export default function Admin() {
                       currentView === "verification" ? "Run formula and GAAP compliance checks" : "Check fonts, colors, and component standards"}
             variant="dark"
           />
+          {currentView !== "dashboard" && (
+            <GlassButton variant="primary" onClick={() => setCurrentView("dashboard")} data-testid="button-back">
+              <ArrowLeft className="w-4 h-4" />
+              Back to Dashboard
+            </GlassButton>
+          )}
         </div>
 
         {currentView === "dashboard" && renderDashboard()}
@@ -917,5 +965,6 @@ export default function Admin() {
         </DialogContent>
       </Dialog>
     </Layout>
+    </TooltipProvider>
   );
 }

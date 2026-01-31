@@ -809,9 +809,9 @@ export default function Admin() {
       <div className="space-y-8">
         <div className="flex items-center gap-4">
           {currentView !== "dashboard" && (
-            <Button variant="ghost" onClick={() => setCurrentView("dashboard")} className="text-white/60 hover:text-white hover:bg-white/10" data-testid="button-back">
+            <Button variant="outline" onClick={() => setCurrentView("dashboard")} className="bg-[#0a0a0f]/90 text-white border-white/20 hover:bg-[#0a0a0f] hover:border-[#9FBCA4]/40" data-testid="button-back">
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
+              Back to Dashboard
             </Button>
           )}
           <PageHeader 

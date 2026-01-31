@@ -161,6 +161,38 @@ export default function Dashboard() {
     };
   };
 
+  // Calculate weighted average ADR, Occupancy, and RevPAR for a given year
+  const getWeightedMetrics = (yearIndex: number) => {
+    const startMonth = yearIndex * 12;
+    const endMonth = startMonth + 12;
+    
+    let totalRoomNights = 0;
+    let weightedADRSum = 0;
+    let weightedOccSum = 0;
+    
+    properties.forEach((prop, idx) => {
+      const { financials } = allPropertyFinancials[idx];
+      const yearData = financials.slice(startMonth, endMonth);
+      const roomCount = prop.roomCount;
+      const daysInYear = 365;
+      const availableRoomNights = roomCount * daysInYear;
+      
+      // Average ADR and occupancy for this property this year
+      const avgADR = yearData.length > 0 ? yearData.reduce((a, m) => a + m.adr, 0) / yearData.length : 0;
+      const avgOcc = yearData.length > 0 ? yearData.reduce((a, m) => a + m.occupancy, 0) / yearData.length : 0;
+      
+      totalRoomNights += availableRoomNights;
+      weightedADRSum += avgADR * availableRoomNights;
+      weightedOccSum += avgOcc * availableRoomNights;
+    });
+    
+    const weightedADR = totalRoomNights > 0 ? weightedADRSum / totalRoomNights : 0;
+    const weightedOcc = totalRoomNights > 0 ? weightedOccSum / totalRoomNights : 0;
+    const revPAR = weightedADR * weightedOcc;
+    
+    return { weightedADR, weightedOcc, revPAR };
+  };
+
   const year1Data = getYearlyConsolidated(0);
   const portfolioTotalRevenue = year1Data.revenueTotal;
   const portfolioTotalGOP = year1Data.gop;
@@ -1949,6 +1981,24 @@ export default function Dashboard() {
                     </TableRow>
                     {expandedRows.has('revenue') && (
                       <>
+                        <TableRow className="bg-muted/5">
+                          <TableCell className="sticky left-0 bg-muted/5 pl-8 text-muted-foreground italic">Wtd Avg ADR</TableCell>
+                          {Array.from({ length: 10 }, (_, y) => (
+                            <TableCell key={y} className="text-right text-muted-foreground font-mono italic">{formatMoney(getWeightedMetrics(y).weightedADR)}</TableCell>
+                          ))}
+                        </TableRow>
+                        <TableRow className="bg-muted/5">
+                          <TableCell className="sticky left-0 bg-muted/5 pl-8 text-muted-foreground italic">Wtd Avg Occupancy</TableCell>
+                          {Array.from({ length: 10 }, (_, y) => (
+                            <TableCell key={y} className="text-right text-muted-foreground font-mono italic">{(getWeightedMetrics(y).weightedOcc * 100).toFixed(1)}%</TableCell>
+                          ))}
+                        </TableRow>
+                        <TableRow className="bg-muted/5">
+                          <TableCell className="sticky left-0 bg-muted/5 pl-8 text-muted-foreground italic">RevPAR</TableCell>
+                          {Array.from({ length: 10 }, (_, y) => (
+                            <TableCell key={y} className="text-right text-muted-foreground font-mono italic">{formatMoney(getWeightedMetrics(y).revPAR)}</TableCell>
+                          ))}
+                        </TableRow>
                         <TableRow>
                           <TableCell className="sticky left-0 bg-card pl-8 text-muted-foreground">Room Revenue</TableCell>
                           {Array.from({ length: 10 }, (_, y) => (

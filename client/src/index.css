@@ -161,28 +161,34 @@
     line-height: 1.5;
   }
 
-  /* Swiss Modernist Typography Scale */
-  h1 {
+  /* Swiss Modernist Typography Scale - Applied via utility classes */
+  /* Base headings inherit font-family to allow overrides */
+  h1, h2, h3, h4 {
+    font-weight: 600;
+  }
+  
+  /* Display heading utilities */
+  .heading-page {
     font-family: 'IBM Plex Sans', sans-serif;
     font-size: 30px;
     font-weight: 600;
     line-height: 1.2;
     letter-spacing: -0.02em;
   }
-  h2 {
+  .heading-section {
     font-family: 'IBM Plex Sans', sans-serif;
     font-size: 24px;
     font-weight: 600;
     line-height: 1.3;
     letter-spacing: -0.01em;
   }
-  h3 {
+  .heading-card {
     font-family: 'IBM Plex Sans', sans-serif;
     font-size: 18px;
     font-weight: 600;
     line-height: 1.4;
   }
-  h4 {
+  .heading-subsection {
     font-family: 'IBM Plex Sans', sans-serif;
     font-size: 16px;
     font-weight: 600;

@@ -15,6 +15,8 @@ import {
 } from "@/lib/loanCalculations";
 
 interface YearlyDetails {
+  soldRooms: number;
+  availableRooms: number;
   revenueRooms: number;
   revenueEvents: number;
   revenueFB: number;
@@ -44,6 +46,8 @@ function aggregateYearlyDetails(data: MonthlyFinancials[], years: number): Yearl
   for (let y = 0; y < years; y++) {
     const yearData = data.slice(y * 12, (y + 1) * 12);
     result.push({
+      soldRooms: yearData.reduce((a, m) => a + m.soldRooms, 0),
+      availableRooms: yearData.reduce((a, m) => a + m.availableRooms, 0),
       revenueRooms: yearData.reduce((a, m) => a + m.revenueRooms, 0),
       revenueEvents: yearData.reduce((a, m) => a + m.revenueEvents, 0),
       revenueFB: yearData.reduce((a, m) => a + m.revenueFB, 0),
@@ -259,6 +263,30 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
             </TableRow>
             {expanded.revenue && (
               <>
+                <TableRow className="bg-muted/5">
+                  <TableCell className="pl-16 sticky left-0 bg-muted/5 text-muted-foreground label-text">ADR</TableCell>
+                  {yearlyDetails.map((y, i) => (
+                    <TableCell key={i} className="text-right text-muted-foreground font-mono">
+                      <Money amount={y.soldRooms > 0 ? y.revenueRooms / y.soldRooms : 0} />
+                    </TableCell>
+                  ))}
+                </TableRow>
+                <TableRow className="bg-muted/5">
+                  <TableCell className="pl-16 sticky left-0 bg-muted/5 text-muted-foreground label-text">Occupancy</TableCell>
+                  {yearlyDetails.map((y, i) => (
+                    <TableCell key={i} className="text-right text-muted-foreground font-mono">
+                      {y.availableRooms > 0 ? ((y.soldRooms / y.availableRooms) * 100).toFixed(1) : 0}%
+                    </TableCell>
+                  ))}
+                </TableRow>
+                <TableRow className="bg-muted/5">
+                  <TableCell className="pl-16 sticky left-0 bg-muted/5 text-muted-foreground label-text">RevPAR</TableCell>
+                  {yearlyDetails.map((y, i) => (
+                    <TableCell key={i} className="text-right text-muted-foreground font-mono">
+                      <Money amount={y.availableRooms > 0 ? y.revenueRooms / y.availableRooms : 0} />
+                    </TableCell>
+                  ))}
+                </TableRow>
                 <TableRow className="bg-muted/10">
                   <TableCell className="pl-12 sticky left-0 bg-muted/10 text-muted-foreground">Room Revenue</TableCell>
                   {yearlyDetails.map((y, i) => (

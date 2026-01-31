@@ -11,6 +11,8 @@ interface Props {
 
 interface YearlyData {
   year: number;
+  soldRooms: number;
+  availableRooms: number;
   revenueRooms: number;
   revenueFB: number;
   revenueEvents: number;
@@ -43,6 +45,8 @@ function aggregateByYear(data: MonthlyFinancials[], years: number): YearlyData[]
     
     result.push({
       year: y + 1,
+      soldRooms: yearData.reduce((a, m) => a + m.soldRooms, 0),
+      availableRooms: yearData.reduce((a, m) => a + m.availableRooms, 0),
       revenueRooms: yearData.reduce((a, m) => a + m.revenueRooms, 0),
       revenueFB: yearData.reduce((a, m) => a + m.revenueFB, 0),
       revenueEvents: yearData.reduce((a, m) => a + m.revenueEvents, 0),
@@ -90,6 +94,30 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026 }: Pro
           <TableBody>
             <TableRow className="bg-muted/30">
               <TableCell colSpan={years + 1} className="font-bold text-primary">Revenue</TableCell>
+            </TableRow>
+            <TableRow className="bg-muted/5">
+              <TableCell className="pl-10 text-muted-foreground label-text">ADR</TableCell>
+              {yearlyData.map((y) => (
+                <TableCell key={y.year} className="text-right text-muted-foreground font-mono">
+                  <Money amount={y.soldRooms > 0 ? y.revenueRooms / y.soldRooms : 0} />
+                </TableCell>
+              ))}
+            </TableRow>
+            <TableRow className="bg-muted/5">
+              <TableCell className="pl-10 text-muted-foreground label-text">Occupancy</TableCell>
+              {yearlyData.map((y) => (
+                <TableCell key={y.year} className="text-right text-muted-foreground font-mono">
+                  {y.availableRooms > 0 ? ((y.soldRooms / y.availableRooms) * 100).toFixed(1) : 0}%
+                </TableCell>
+              ))}
+            </TableRow>
+            <TableRow className="bg-muted/5">
+              <TableCell className="pl-10 text-muted-foreground label-text">RevPAR</TableCell>
+              {yearlyData.map((y) => (
+                <TableCell key={y.year} className="text-right text-muted-foreground font-mono">
+                  <Money amount={y.availableRooms > 0 ? y.revenueRooms / y.availableRooms : 0} />
+                </TableCell>
+              ))}
             </TableRow>
             <TableRow>
               <TableCell className="pl-6">Room Revenue</TableCell>

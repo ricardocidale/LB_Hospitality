@@ -594,16 +594,89 @@ export default function Admin() {
               </div>
             </div>
 
+            {/* Property Formula Checks */}
+            {verificationResults.formulaChecks.details.map((property: any, pIdx: number) => (
+              <div key={pIdx} className="p-5 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-xl">
+                <h4 className="font-display text-white font-semibold mb-3">{property.name} <span className="text-white/50 font-normal text-sm">({property.type})</span></h4>
+                <div className="space-y-2">
+                  {property.checks?.map((check: any, cIdx: number) => (
+                    <div key={cIdx} className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.03]">
+                      {check.passed ? <CheckCircle2 className="w-5 h-5 text-[#9FBCA4] shrink-0" /> : <XCircle className="w-5 h-5 text-red-400 shrink-0" />}
+                      <div className="flex-1">
+                        <span className="text-white/80 text-sm">{check.name}</span>
+                        <p className="text-xs text-white/50 mt-0.5">{check.description}</p>
+                      </div>
+                      <span className={`text-xs px-2 py-1 rounded ${check.passed ? 'bg-[#9FBCA4]/20 text-[#9FBCA4]' : 'bg-red-500/20 text-red-400'}`}>
+                        {check.passed ? 'PASS' : 'FAIL'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+
+            {/* Management Company Checks */}
+            {verificationResults.managementCompanyChecks?.details?.map((entity: any, eIdx: number) => (
+              <div key={eIdx} className="p-5 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-xl">
+                <h4 className="font-display text-white font-semibold mb-3">{entity.name} <span className="text-white/50 font-normal text-sm">({entity.type})</span></h4>
+                <div className="space-y-2">
+                  {entity.checks?.map((check: any, cIdx: number) => (
+                    <div key={cIdx} className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.03]">
+                      {check.passed ? <CheckCircle2 className="w-5 h-5 text-[#9FBCA4] shrink-0" /> : <XCircle className="w-5 h-5 text-red-400 shrink-0" />}
+                      <div className="flex-1">
+                        <span className="text-white/80 text-sm">{check.name}</span>
+                        <p className="text-xs text-white/50 mt-0.5">{check.description}</p>
+                      </div>
+                      <span className={`text-xs px-2 py-1 rounded ${check.passed ? 'bg-[#9FBCA4]/20 text-[#9FBCA4]' : 'bg-red-500/20 text-red-400'}`}>
+                        {check.passed ? 'PASS' : 'FAIL'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+
+            {/* Consolidated Checks */}
+            {verificationResults.consolidatedChecks?.details?.map((entity: any, eIdx: number) => (
+              <div key={eIdx} className="p-5 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-xl">
+                <h4 className="font-display text-white font-semibold mb-3">{entity.name} <span className="text-white/50 font-normal text-sm">({entity.type})</span></h4>
+                <div className="space-y-2">
+                  {entity.checks?.map((check: any, cIdx: number) => (
+                    <div key={cIdx} className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.03]">
+                      {check.passed ? <CheckCircle2 className="w-5 h-5 text-[#9FBCA4] shrink-0" /> : <XCircle className="w-5 h-5 text-red-400 shrink-0" />}
+                      <div className="flex-1">
+                        <span className="text-white/80 text-sm">{check.name}</span>
+                        <p className="text-xs text-white/50 mt-0.5">{check.description}</p>
+                      </div>
+                      <span className={`text-xs px-2 py-1 rounded ${check.passed ? 'bg-[#9FBCA4]/20 text-[#9FBCA4]' : 'bg-red-500/20 text-red-400'}`}>
+                        {check.passed ? 'PASS' : 'FAIL'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+
+            {/* GAAP Compliance Checks */}
             <div className="p-5 rounded-2xl bg-[#257D41]/10 border border-[#257D41]/30 backdrop-blur-xl">
-              <h4 className="font-display text-[#9FBCA4] mb-2">Key Standards Verified</h4>
-              <ul className="grid grid-cols-2 gap-2 text-sm text-white/70 label-text">
-                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#9FBCA4]" />ASC 470 - Interest vs Principal separation</li>
-                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#9FBCA4]" />ASC 230 - Cash Flow classification</li>
-                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#9FBCA4]" />ASC 606 - Revenue recognition</li>
-                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#9FBCA4]" />ASC 810 - Intercompany elimination</li>
-                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#9FBCA4]" />USALI - NOI/GOP methodology</li>
-                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#9FBCA4]" />STR/CBRE - ADR/RevPAR formulas</li>
-              </ul>
+              <h4 className="font-display text-[#9FBCA4] font-semibold mb-3">GAAP Compliance Standards</h4>
+              <div className="space-y-2">
+                {verificationResults.complianceChecks.details.map((check: any, cIdx: number) => (
+                  <div key={cIdx} className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.03]">
+                    {check.passed ? <CheckCircle2 className="w-5 h-5 text-[#9FBCA4] shrink-0" /> : <XCircle className="w-5 h-5 text-red-400 shrink-0" />}
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs px-2 py-0.5 rounded bg-white/10 text-white/60">{check.category}</span>
+                        <span className="text-white/80 text-sm">{check.rule}</span>
+                      </div>
+                      <p className="text-xs text-white/50 mt-0.5">Scope: {check.scope}</p>
+                    </div>
+                    <span className={`text-xs px-2 py-1 rounded ${check.passed ? 'bg-[#9FBCA4]/20 text-[#9FBCA4]' : 'bg-red-500/20 text-red-400'}`}>
+                      {check.passed ? 'PASS' : 'FAIL'}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           </>
         )}
@@ -664,14 +737,14 @@ export default function Admin() {
 
         {designResults && (
           <>
-            <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+            <div className="p-5 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-xl shadow-lg">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h3 className="font-display text-[#FFF9F5]">Design Check Results</h3>
+                  <h3 className="font-display text-lg text-white font-semibold">Design Check Results</h3>
                   <p className="text-xs text-white/40 font-mono mt-1">Run at: {formatDate(designResults.timestamp)}</p>
                 </div>
-                <div className={`flex items-center gap-2 px-4 py-2 rounded-lg ${
-                  designResults.overallStatus === "PASS" ? "bg-green-500/20 text-green-400" :
+                <div className={`flex items-center gap-2 px-4 py-2 rounded-xl ${
+                  designResults.overallStatus === "PASS" ? "bg-[#9FBCA4]/20 text-[#9FBCA4]" :
                   designResults.overallStatus === "WARNING" ? "bg-yellow-500/20 text-yellow-400" :
                   "bg-red-500/20 text-red-400"
                 }`}>
@@ -683,37 +756,44 @@ export default function Admin() {
               </div>
 
               <div className="grid grid-cols-4 gap-4 text-center mb-6">
-                <div className="p-3 rounded-lg bg-white/5">
-                  <div className="text-2xl font-mono text-[#FFF9F5]">{designResults.totalChecks}</div>
-                  <div className="text-xs text-white/40 label-text">Total Checks</div>
+                <div className="p-4 rounded-xl bg-white/[0.03] border border-white/10 backdrop-blur-sm">
+                  <div className="text-3xl font-mono font-bold text-white">{designResults.totalChecks}</div>
+                  <div className="text-xs text-white/50 label-text mt-1">Total Checks</div>
                 </div>
-                <div className="p-3 rounded-lg bg-white/5">
-                  <div className="text-2xl font-mono text-green-400">{designResults.passed}</div>
-                  <div className="text-xs text-white/40 label-text">Passed</div>
+                <div className="p-4 rounded-xl bg-[#9FBCA4]/10 border border-[#9FBCA4]/20 backdrop-blur-sm">
+                  <div className="text-3xl font-mono font-bold text-[#9FBCA4]">{designResults.passed}</div>
+                  <div className="text-xs text-white/50 label-text mt-1">Passed</div>
                 </div>
-                <div className="p-3 rounded-lg bg-white/5">
-                  <div className="text-2xl font-mono text-yellow-400">{designResults.warnings}</div>
-                  <div className="text-xs text-white/40 label-text">Warnings</div>
+                <div className="p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/20 backdrop-blur-sm">
+                  <div className="text-3xl font-mono font-bold text-yellow-400">{designResults.warnings}</div>
+                  <div className="text-xs text-white/50 label-text mt-1">Warnings</div>
                 </div>
-                <div className="p-3 rounded-lg bg-white/5">
-                  <div className="text-2xl font-mono text-red-400">{designResults.failed}</div>
-                  <div className="text-xs text-white/40 label-text">Failed</div>
+                <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 backdrop-blur-sm">
+                  <div className="text-3xl font-mono font-bold text-red-400">{designResults.failed}</div>
+                  <div className="text-xs text-white/50 label-text mt-1">Failed</div>
                 </div>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {designResults.checks.map((check, i) => (
-                  <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-white/5">
-                    {check.status === "pass" ? <CheckCircle2 className="w-5 h-5 text-green-400" /> :
-                     check.status === "warning" ? <AlertTriangle className="w-5 h-5 text-yellow-400" /> :
-                     <XCircle className="w-5 h-5 text-red-400" />}
+                  <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.03]">
+                    {check.status === "pass" ? <CheckCircle2 className="w-5 h-5 text-[#9FBCA4] shrink-0" /> :
+                     check.status === "warning" ? <AlertTriangle className="w-5 h-5 text-yellow-400 shrink-0" /> :
+                     <XCircle className="w-5 h-5 text-red-400 shrink-0" />}
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
                         <span className="text-xs px-2 py-0.5 rounded bg-white/10 text-white/60">{check.category}</span>
                         <span className="text-white/80 text-sm">{check.rule}</span>
                       </div>
-                      <p className="text-xs text-white/50 mt-1">{check.details}</p>
+                      <p className="text-xs text-white/50 mt-0.5">{check.details}</p>
                     </div>
+                    <span className={`text-xs px-2 py-1 rounded ${
+                      check.status === "pass" ? 'bg-[#9FBCA4]/20 text-[#9FBCA4]' : 
+                      check.status === "warning" ? 'bg-yellow-500/20 text-yellow-400' :
+                      'bg-red-500/20 text-red-400'
+                    }`}>
+                      {check.status === "pass" ? 'PASS' : check.status === "warning" ? 'WARNING' : 'FAIL'}
+                    </span>
                   </div>
                 ))}
               </div>

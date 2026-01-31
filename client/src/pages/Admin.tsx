@@ -526,10 +526,15 @@ export default function Admin() {
               Run formula and GAAP compliance checks on all statements
             </CardDescription>
           </div>
-          <GlassButton variant="primary" onClick={() => runVerification.mutate()} disabled={runVerification.isPending} data-testid="button-run-verification">
+          <button 
+            onClick={() => runVerification.mutate()} 
+            disabled={runVerification.isPending} 
+            data-testid="button-run-verification"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-[#257D41] bg-[#257D41]/10 text-[#257D41] font-semibold hover:bg-[#257D41]/20 transition-colors disabled:opacity-50"
+          >
             {runVerification.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <PlayCircle className="w-4 h-4" />}
-            <span className="text-white" style={{ color: '#FFFFFF' }}>Run Verification</span>
-          </GlassButton>
+            Run Verification
+          </button>
         </div>
       </CardHeader>
       
@@ -767,10 +772,15 @@ export default function Admin() {
               Check fonts, typography, color palette, and component standards across all pages
             </CardDescription>
           </div>
-          <GlassButton variant="primary" onClick={() => runDesignCheck.mutate()} disabled={runDesignCheck.isPending} data-testid="button-run-design-check">
+          <button 
+            onClick={() => runDesignCheck.mutate()} 
+            disabled={runDesignCheck.isPending} 
+            data-testid="button-run-design-check"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-[#257D41] bg-[#257D41]/10 text-[#257D41] font-semibold hover:bg-[#257D41]/20 transition-colors disabled:opacity-50"
+          >
             {runDesignCheck.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Palette className="w-4 h-4" />}
-            <span className="text-white" style={{ color: '#FFFFFF' }}>Run Design Check</span>
-          </GlassButton>
+            Run Design Check
+          </button>
         </div>
       </CardHeader>
       
@@ -908,10 +918,14 @@ export default function Admin() {
             variant="dark"
           />
           {currentView !== "dashboard" && (
-            <GlassButton variant="primary" onClick={() => setCurrentView("dashboard")} data-testid="button-back">
-              <ArrowLeft className="w-4 h-4 text-white" style={{ color: '#FFFFFF' }} />
-              <span className="text-white" style={{ color: '#FFFFFF' }}>Back to Dashboard</span>
-            </GlassButton>
+            <button 
+              onClick={() => setCurrentView("dashboard")} 
+              data-testid="button-back"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-[#257D41] bg-[#257D41]/10 text-[#257D41] font-semibold hover:bg-[#257D41]/20 transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Dashboard
+            </button>
           )}
         </div>
 

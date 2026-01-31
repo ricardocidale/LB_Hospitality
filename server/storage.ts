@@ -1,6 +1,6 @@
 import { globalAssumptions, properties, users, sessions, scenarios, loginLogs, type GlobalAssumptions, type Property, type InsertGlobalAssumptions, type InsertProperty, type UpdateProperty, type User, type InsertUser, type Session, type Scenario, type InsertScenario, type UpdateScenario, type LoginLog, type InsertLoginLog } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, gt, desc } from "drizzle-orm";
+import { eq, and, gt, gte, desc } from "drizzle-orm";
 
 export interface IStorage {
   // Users
@@ -234,10 +234,14 @@ export class DatabaseStorage implements IStorage {
   }
   
   async getLoginLogs(): Promise<(LoginLog & { user: User })[]> {
+    const ninetyDaysAgo = new Date();
+    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+    
     const results = await db
       .select()
       .from(loginLogs)
       .innerJoin(users, eq(loginLogs.userId, users.id))
+      .where(gte(loginLogs.loginAt, ninetyDaysAgo))
       .orderBy(desc(loginLogs.loginAt));
     return results.map(r => ({ ...r.login_logs, user: r.users }));
   }

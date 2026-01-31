@@ -55,12 +55,12 @@ function PageHeader({ title, subtitle, backLink, actions, className, variant = "
           )}
           <div>
             <h2 className={cn(
-              "text-3xl font-serif font-bold",
+              "text-3xl font-display font-bold",
               isDark ? "text-[#FFF9F5]" : "text-gray-900"
             )}>{title}</h2>
             {subtitle && (
               <p className={cn(
-                "text-sm mt-1",
+                "text-sm mt-1 label-text",
                 isDark ? "text-[#FFF9F5]/60" : "text-gray-600"
               )}>{subtitle}</p>
             )}

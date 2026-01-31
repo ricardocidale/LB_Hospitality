@@ -1558,8 +1558,8 @@ export default function Dashboard() {
           variant="dark"
           actions={
             <div className="bg-white/10 backdrop-blur-xl rounded-xl px-5 py-3 border border-white/20 text-center">
-              <p className="text-xs text-[#FFF9F5]/50 uppercase tracking-widest">Investment Period</p>
-              <p className="text-lg font-medium text-[#FFF9F5]">{getFiscalYear(0)} - {getFiscalYear(investmentHorizon - 1)}</p>
+              <p className="text-xs text-[#FFF9F5]/50 uppercase tracking-widest label-text">Investment Period</p>
+              <p className="text-lg font-medium text-[#FFF9F5] font-mono">{getFiscalYear(0)} - {getFiscalYear(investmentHorizon - 1)}</p>
             </div>
           }
         />
@@ -1643,8 +1643,8 @@ export default function Dashboard() {
               
               <div className="relative">
                 <div className="text-center mb-8">
-                  <p className="text-sm font-medium tracking-widest text-[#FFF9F5]/60 uppercase mb-2">Investment Performance</p>
-                  <p className="text-white/40 text-sm">{investmentHorizon}-Year Hold | {totalProperties} Properties | {totalRooms} Rooms</p>
+                  <p className="text-sm font-medium tracking-widest text-[#FFF9F5]/60 uppercase mb-2 label-text">Investment Performance</p>
+                  <p className="text-white/40 text-sm label-text"><span className="font-mono">{investmentHorizon}</span>-Year Hold | <span className="font-mono">{totalProperties}</span> Properties | <span className="font-mono">{totalRooms}</span> Rooms</p>
                 </div>
                 
                 {/* Main IRR Display - Frosted Glass */}

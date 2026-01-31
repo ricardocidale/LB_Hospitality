@@ -1893,22 +1893,21 @@ export default function Dashboard() {
           </TabsContent>
 
           <TabsContent value="income" className="mt-6 space-y-6">
-            {/* Liquid Glass Chart Container */}
-            <div className="relative overflow-hidden rounded-3xl p-6">
-              {/* Gradient Background */}
+            {/* Chart Container */}
+            <Card className="relative overflow-hidden">
               <div className="absolute inset-0 bg-[#FFF9F5]" />
               <div className="absolute inset-0">
                 <div className="absolute top-0 right-1/4 w-72 h-72 rounded-full bg-[#9FBCA4]/10 blur-3xl" />
                 <div className="absolute bottom-0 left-1/3 w-64 h-64 rounded-full bg-[#9FBCA4]/8 blur-3xl" />
               </div>
               
-              <div className="relative">
-                <div className="mb-4">
-                  <h3 className="text-lg font-semibold text-[#2d4a5e] font-display">Portfolio Income Trends</h3>
-                  <p className="text-sm text-[#2d4a5e]/60 label-text">Revenue, Operating Expenses, and NOI over 10 years</p>
-                </div>
-                
-                <div className="bg-white/60 backdrop-blur-xl rounded-2xl p-6 border border-[#9FBCA4]/20 shadow-sm">
+              <CardHeader className="relative">
+                <CardTitle className="text-[#2d4a5e] font-display">Portfolio Income Trends</CardTitle>
+                <p className="text-sm text-[#2d4a5e]/60 label-text">Revenue, Operating Expenses, and NOI over 10 years</p>
+              </CardHeader>
+              
+              <CardContent className="relative">
+                <div className="bg-white/60 backdrop-blur-xl rounded-xl p-4 border border-[#9FBCA4]/20 shadow-sm">
                   <ResponsiveContainer width="100%" height={300}>
                     <LineChart
                       data={Array.from({ length: 10 }, (_, i) => {
@@ -1949,8 +1948,8 @@ export default function Dashboard() {
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
 
             <Card>
               <CardHeader>
@@ -2314,21 +2313,21 @@ export default function Dashboard() {
           </TabsContent>
 
           <TabsContent value="cashflow" className="mt-6 space-y-6">
-            {/* Liquid Glass Chart - Revenue & Operating Performance */}
-            <div className="relative overflow-hidden rounded-3xl p-6">
+            {/* Chart - Revenue & Operating Performance */}
+            <Card className="relative overflow-hidden">
               <div className="absolute inset-0 bg-[#FFF9F5]" />
               <div className="absolute inset-0">
                 <div className="absolute top-0 left-1/4 w-72 h-72 rounded-full bg-[#9FBCA4]/10 blur-3xl" />
                 <div className="absolute bottom-0 right-1/4 w-64 h-64 rounded-full bg-[#257D41]/8 blur-3xl" />
               </div>
               
-              <div className="relative">
-                <div className="mb-4">
-                  <h3 className="text-lg font-semibold text-[#2d4a5e] font-display">Revenue & Operating Performance</h3>
-                  <p className="text-sm text-[#2d4a5e]/60 label-text">Revenue, Operating Costs, and NOI over 10 years</p>
-                </div>
-                
-                <div className="bg-white/60 backdrop-blur-xl rounded-2xl p-6 border border-[#9FBCA4]/20 shadow-sm">
+              <CardHeader className="relative">
+                <CardTitle className="text-[#2d4a5e] font-display">Revenue & Operating Performance</CardTitle>
+                <p className="text-sm text-[#2d4a5e]/60 label-text">Revenue, Operating Costs, and NOI over 10 years</p>
+              </CardHeader>
+              
+              <CardContent className="relative">
+                <div className="bg-white/60 backdrop-blur-xl rounded-xl p-4 border border-[#9FBCA4]/20 shadow-sm">
                   <ResponsiveContainer width="100%" height={300}>
                     <LineChart
                       data={Array.from({ length: 10 }, (_, i) => {
@@ -2368,24 +2367,24 @@ export default function Dashboard() {
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
 
-            {/* Liquid Glass Chart - Cash Flow After Financing */}
-            <div className="relative overflow-hidden rounded-3xl p-6">
+            {/* Chart - Cash Flow After Financing */}
+            <Card className="relative overflow-hidden">
               <div className="absolute inset-0 bg-[#FFF9F5]" />
               <div className="absolute inset-0">
                 <div className="absolute top-0 right-1/3 w-72 h-72 rounded-full bg-[#9FBCA4]/10 blur-3xl" />
                 <div className="absolute bottom-0 left-1/3 w-64 h-64 rounded-full bg-[#9FBCA4]/8 blur-3xl" />
               </div>
               
-              <div className="relative">
-                <div className="mb-4">
-                  <h3 className="text-lg font-semibold text-[#2d4a5e] font-display">Cash Flow After Financing</h3>
-                  <p className="text-sm text-[#2d4a5e]/60 label-text">NOI, Debt Service, and Net Cash Flow over 10 years</p>
-                </div>
-                
-                <div className="bg-white/60 backdrop-blur-xl rounded-2xl p-6 border border-[#9FBCA4]/20 shadow-sm">
+              <CardHeader className="relative">
+                <CardTitle className="text-[#2d4a5e] font-display">Cash Flow After Financing</CardTitle>
+                <p className="text-sm text-[#2d4a5e]/60 label-text">NOI, Debt Service, and Net Cash Flow over 10 years</p>
+              </CardHeader>
+              
+              <CardContent className="relative">
+                <div className="bg-white/60 backdrop-blur-xl rounded-xl p-4 border border-[#9FBCA4]/20 shadow-sm">
                   <ResponsiveContainer width="100%" height={300}>
                     <LineChart
                       data={Array.from({ length: 10 }, (_, i) => {
@@ -2425,8 +2424,8 @@ export default function Dashboard() {
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
 
             <Card>
               <CardHeader>

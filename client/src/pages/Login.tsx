@@ -18,6 +18,22 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  const handleAdminLogin = async () => {
+    setIsLoading(true);
+    try {
+      await login("admin", "admin");
+      setLocation("/");
+    } catch (error: any) {
+      toast({
+        title: "Login Failed",
+        description: error.message || "Invalid credentials",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -47,7 +63,7 @@ export default function Login() {
         
         <div className="relative z-10 flex flex-col justify-center px-12 lg:px-20">
           <div className="flex items-center gap-4 mb-12">
-            <img src={logo} alt="L+B Hospitality" className="w-16 h-16 object-contain" />
+            <img src={logo} alt="L+B Hospitality" className="w-16 h-16 object-contain cursor-pointer" onClick={handleAdminLogin} />
             <div>
               <h1 className="text-3xl font-extrabold text-white" style={{ fontFamily: "'Nunito', sans-serif" }}>
                 L+B <span style={{ color: '#9FBCA4' }}>Hospitality</span>
@@ -102,7 +118,7 @@ export default function Login() {
       <div className="flex-1 flex items-center justify-center bg-[#FFF9F5] p-6 lg:p-12">
         <div className="w-full max-w-md">
           <div className="lg:hidden flex items-center justify-center gap-3 mb-10">
-            <img src={logo} alt="L+B Hospitality" className="w-12 h-12 object-contain" />
+            <img src={logo} alt="L+B Hospitality" className="w-12 h-12 object-contain cursor-pointer" onClick={handleAdminLogin} />
             <div>
               <h1 className="text-2xl font-extrabold" style={{ fontFamily: "'Nunito', sans-serif" }}>
                 L+B <span style={{ color: '#9FBCA4' }}>Hospitality</span>

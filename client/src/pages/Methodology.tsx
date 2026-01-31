@@ -9,7 +9,7 @@ export default function Methodology() {
     <Layout>
       <div className="space-y-8">
         <div>
-          <h1 className="text-3xl font-serif font-bold text-foreground">Methodology</h1>
+          <h1 className="text-3xl font-display font-bold text-foreground">Methodology</h1>
           <p className="text-muted-foreground mt-2">
             How we calculate financial projections, returns, and investment metrics
           </p>

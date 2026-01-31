@@ -17,7 +17,7 @@ export function FinancialStatement({ data, title, startYear = 2026 }: FinancialS
   return (
     <GlassCard className="w-full overflow-hidden">
       <div className="p-6 border-b border-white/20">
-        <h3 className="text-xl font-serif font-semibold text-primary">{title} - {startYear} Pro Forma</h3>
+        <h3 className="text-xl font-display font-semibold text-primary">{title} - {startYear} Pro Forma</h3>
       </div>
       <ScrollArea className="w-full whitespace-nowrap">
         <div className="p-0">
@@ -38,7 +38,7 @@ export function FinancialStatement({ data, title, startYear = 2026 }: FinancialS
               <TableRow className="bg-muted/30 border-white/20 font-medium">
                 <TableCell className="sticky left-0 bg-muted/80 backdrop-blur-md z-10 border-r border-white/20">Occupancy %</TableCell>
                 {first12Months.map((m, i) => (
-                  <TableCell key={i} className="text-right text-muted-foreground">{(m.occupancy * 100).toFixed(0)}%</TableCell>
+                  <TableCell key={i} className="text-right text-muted-foreground font-mono">{(m.occupancy * 100).toFixed(0)}%</TableCell>
                 ))}
                  <TableCell className="text-right font-bold">-</TableCell>
               </TableRow>
@@ -47,30 +47,30 @@ export function FinancialStatement({ data, title, startYear = 2026 }: FinancialS
               <TableRow className="hover:bg-primary/5 border-white/20">
                 <TableCell className="font-medium sticky left-0 bg-white/80 dark:bg-black/50 backdrop-blur-md z-10 border-r border-white/20">Room Revenue</TableCell>
                 {first12Months.map((m, i) => (
-                  <TableCell key={i} className="text-right">{formatMoney(m.revenueRooms)}</TableCell>
+                  <TableCell key={i} className="text-right font-mono">{formatMoney(m.revenueRooms)}</TableCell>
                 ))}
-                <TableCell className="text-right font-bold bg-primary/5">{formatMoney(first12Months.reduce((a, b) => a + b.revenueRooms, 0))}</TableCell>
+                <TableCell className="text-right font-bold bg-primary/5 font-mono">{formatMoney(first12Months.reduce((a, b) => a + b.revenueRooms, 0))}</TableCell>
               </TableRow>
               <TableRow className="hover:bg-primary/5 border-white/20">
                 <TableCell className="font-medium sticky left-0 bg-white/80 dark:bg-black/50 backdrop-blur-md z-10 border-r border-white/20">F&B Revenue</TableCell>
                 {first12Months.map((m, i) => (
-                  <TableCell key={i} className="text-right">{formatMoney(m.revenueFB)}</TableCell>
+                  <TableCell key={i} className="text-right font-mono">{formatMoney(m.revenueFB)}</TableCell>
                 ))}
-                <TableCell className="text-right font-bold bg-primary/5">{formatMoney(first12Months.reduce((a, b) => a + b.revenueFB, 0))}</TableCell>
+                <TableCell className="text-right font-bold bg-primary/5 font-mono">{formatMoney(first12Months.reduce((a, b) => a + b.revenueFB, 0))}</TableCell>
               </TableRow>
               <TableRow className="hover:bg-primary/5 border-white/20">
                 <TableCell className="font-medium sticky left-0 bg-white/80 dark:bg-black/50 backdrop-blur-md z-10 border-r border-white/20">Event Revenue</TableCell>
                 {first12Months.map((m, i) => (
-                  <TableCell key={i} className="text-right">{formatMoney(m.revenueEvents)}</TableCell>
+                  <TableCell key={i} className="text-right font-mono">{formatMoney(m.revenueEvents)}</TableCell>
                 ))}
-                <TableCell className="text-right font-bold bg-primary/5">{formatMoney(first12Months.reduce((a, b) => a + b.revenueEvents, 0))}</TableCell>
+                <TableCell className="text-right font-bold bg-primary/5 font-mono">{formatMoney(first12Months.reduce((a, b) => a + b.revenueEvents, 0))}</TableCell>
               </TableRow>
               <TableRow className="bg-primary/5 border-white/20 font-bold text-primary">
                 <TableCell className="sticky left-0 bg-primary/10 backdrop-blur-md z-10 border-r border-white/20">Total Revenue</TableCell>
                 {first12Months.map((m, i) => (
-                  <TableCell key={i} className="text-right">{formatMoney(m.revenueTotal)}</TableCell>
+                  <TableCell key={i} className="text-right font-mono">{formatMoney(m.revenueTotal)}</TableCell>
                 ))}
-                <TableCell className="text-right bg-primary/20">{formatMoney(first12Months.reduce((a, b) => a + b.revenueTotal, 0))}</TableCell>
+                <TableCell className="text-right bg-primary/20 font-mono">{formatMoney(first12Months.reduce((a, b) => a + b.revenueTotal, 0))}</TableCell>
               </TableRow>
 
               {/* SPACE */}
@@ -80,29 +80,29 @@ export function FinancialStatement({ data, title, startYear = 2026 }: FinancialS
               <TableRow className="bg-accent/10 border-white/20 font-bold">
                 <TableCell className="sticky left-0 bg-accent/20 backdrop-blur-md z-10 border-r border-white/20">Gross Operating Profit</TableCell>
                 {first12Months.map((m, i) => (
-                  <TableCell key={i} className="text-right">{formatMoney(m.gop)}</TableCell>
+                  <TableCell key={i} className="text-right font-mono">{formatMoney(m.gop)}</TableCell>
                 ))}
-                <TableCell className="text-right bg-accent/30">{formatMoney(first12Months.reduce((a, b) => a + b.gop, 0))}</TableCell>
+                <TableCell className="text-right bg-accent/30 font-mono">{formatMoney(first12Months.reduce((a, b) => a + b.gop, 0))}</TableCell>
               </TableRow>
 
               {/* NET INCOME */}
               <TableRow className="bg-primary/10 border-white/20 font-bold text-lg">
                 <TableCell className="sticky left-0 bg-primary/20 backdrop-blur-md z-10 border-r border-white/20">Net Operating Income</TableCell>
                 {first12Months.map((m, i) => (
-                  <TableCell key={i} className="text-right">{formatMoney(m.noi)}</TableCell>
+                  <TableCell key={i} className="text-right font-mono">{formatMoney(m.noi)}</TableCell>
                 ))}
-                <TableCell className="text-right bg-primary/30">{formatMoney(first12Months.reduce((a, b) => a + b.noi, 0))}</TableCell>
+                <TableCell className="text-right bg-primary/30 font-mono">{formatMoney(first12Months.reduce((a, b) => a + b.noi, 0))}</TableCell>
               </TableRow>
               
                {/* CASH FLOW */}
               <TableRow className="bg-green-500/10 border-white/20 font-bold text-lg">
                 <TableCell className="sticky left-0 bg-green-500/20 backdrop-blur-md z-10 border-r border-white/20">Cash Flow</TableCell>
                 {first12Months.map((m, i) => (
-                  <TableCell key={i} className={cn("text-right", m.cashFlow < 0 ? "text-destructive" : "text-green-700 dark:text-green-400")}>
+                  <TableCell key={i} className={cn("text-right font-mono", m.cashFlow < 0 ? "text-destructive" : "text-green-700 dark:text-green-400")}>
                     {formatMoney(m.cashFlow)}
                   </TableCell>
                 ))}
-                <TableCell className="text-right bg-green-500/30">{formatMoney(first12Months.reduce((a, b) => a + b.cashFlow, 0))}</TableCell>
+                <TableCell className="text-right bg-green-500/30 font-mono">{formatMoney(first12Months.reduce((a, b) => a + b.cashFlow, 0))}</TableCell>
               </TableRow>
 
             </TableBody>

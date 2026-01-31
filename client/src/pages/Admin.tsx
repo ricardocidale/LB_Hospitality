@@ -905,8 +905,7 @@ export default function Admin() {
     <TooltipProvider>
     <Layout>
       <div className="space-y-8">
-        <div className="flex items-center justify-between gap-4">
-          <PageHeader 
+        <PageHeader 
             title={currentView === "dashboard" ? "Administration" : 
                    currentView === "users" ? "User Management" :
                    currentView === "activity" ? "Login Activity" :
@@ -916,18 +915,13 @@ export default function Admin() {
                       currentView === "activity" ? "Monitor user sessions and login history" :
                       currentView === "verification" ? "Run formula and GAAP compliance checks" : "Check fonts, colors, and component standards"}
             variant="dark"
+            actions={currentView !== "dashboard" ? (
+              <GlassButton variant="primary" onClick={() => setCurrentView("dashboard")} data-testid="button-back">
+                <ArrowLeft className="w-4 h-4" />
+                Back to Dashboard
+              </GlassButton>
+            ) : undefined}
           />
-          {currentView !== "dashboard" && (
-            <button 
-              onClick={() => setCurrentView("dashboard")} 
-              data-testid="button-back"
-              className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-[#257D41] bg-[#257D41]/10 text-[#257D41] font-semibold hover:bg-[#257D41]/20 transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back to Dashboard
-            </button>
-          )}
-        </div>
 
         {currentView === "dashboard" && renderDashboard()}
         {currentView === "users" && renderUsers()}

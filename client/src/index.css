@@ -188,14 +188,26 @@
 }
 
 @layer components {
+  /* ===== Swiss Modernist Design System ===== */
+  
   /* Typography Utility Classes */
   .font-display {
     font-family: 'IBM Plex Sans', sans-serif;
+    font-weight: 600;
+  }
+  .font-body {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
   }
   .font-mono {
     font-family: 'JetBrains Mono', monospace;
   }
+  .font-mono-bold {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+  }
 
+  /* ===== Metric Typography ===== */
   /* Large Metric - 32px Semi-Bold */
   .metric-lg {
     font-family: 'JetBrains Mono', monospace;
@@ -228,6 +240,7 @@
     line-height: 1.4;
   }
 
+  /* ===== Text Typography ===== */
   /* Label Text - 13px Medium */
   .label-text {
     font-family: 'Inter', sans-serif;
@@ -244,11 +257,47 @@
     line-height: 1.4;
   }
 
-  /* Card Styles - 32px padding, consistent structure */
-  .card-metric {
-    padding: 32px;
+  /* Body Text - 14px Regular */
+  .body-text {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
   }
 
+  /* ===== Spacing Scale (8px grid) ===== */
+  .space-xs { gap: 4px; }
+  .space-sm { gap: 8px; }
+  .space-md { gap: 16px; }
+  .space-lg { gap: 24px; }
+  .space-xl { gap: 32px; }
+  .space-2xl { gap: 48px; }
+  .space-3xl { gap: 64px; }
+
+  .p-xs { padding: 4px; }
+  .p-sm { padding: 8px; }
+  .p-md { padding: 16px; }
+  .p-lg { padding: 24px; }
+  .p-xl { padding: 32px; }
+  .p-2xl { padding: 48px; }
+
+  /* ===== Card Styles ===== */
+  /* Swiss Modernist Card - 32px padding, consistent structure */
+  .card-metric {
+    padding: 32px;
+    border-radius: 12px;
+    border: 1px solid hsl(var(--border));
+    background: hsl(var(--card));
+  }
+  
+  .card-sm {
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid hsl(var(--border));
+    background: hsl(var(--card));
+  }
+
+  /* ===== Table Styles ===== */
   /* Table Header - Uppercase, tracking */
   .table-header {
     font-family: 'Inter', sans-serif;
@@ -256,10 +305,84 @@
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    padding: 12px 16px;
   }
 
-  /* Transition Timing */
+  /* Table Data Cell with Monospace Numbers */
+  .table-cell-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 400;
+    text-align: right;
+    padding: 16px;
+  }
+
+  /* Table Row Hover */
+  .table-row-hover:hover {
+    background-color: hsl(var(--muted) / 0.5);
+    transition: background-color 150ms ease;
+  }
+
+  /* ===== Form Controls ===== */
+  /* Input Field - 40px height, 12px horizontal padding */
+  .input-field {
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid hsl(var(--border));
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    transition: border-color 150ms ease;
+  }
+  .input-field:focus {
+    border-color: hsl(var(--ring));
+    outline: none;
+    box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2);
+  }
+
+  /* Button Base - 40px height, 14px Medium */
+  .btn-base {
+    height: 40px;
+    padding: 0 16px;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 150ms ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-sm {
+    height: 36px;
+    padding: 0 12px;
+    font-size: 13px;
+  }
+
+  /* ===== Slider Styles ===== */
+  .slider-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  /* ===== Badge Styles ===== */
+  .badge-pill {
+    height: 24px;
+    padding: 0 6px;
+    border-radius: 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  /* ===== Transition Timing ===== */
   .transition-fast {
+    transition: all 100ms ease-out;
+  }
+  .transition-base {
     transition: all 150ms ease;
   }
   .transition-normal {
@@ -267,5 +390,46 @@
   }
   .transition-slow {
     transition: all 300ms ease-in-out;
+  }
+
+  /* ===== Dialog/Modal Styles ===== */
+  .dialog-header-title {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 24px;
+    font-weight: 600;
+  }
+  .dialog-header-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+  }
+
+  /* ===== Chart Styles ===== */
+  .chart-axis-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+  }
+  .chart-legend {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .chart-tooltip {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    padding: 12px;
+    border-radius: 8px;
+  }
+
+  /* ===== Focus States ===== */
+  .focus-ring:focus {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+  .focus-ring:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
   }
 }

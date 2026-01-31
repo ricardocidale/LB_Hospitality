@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { captureChartAsImage } from "@/lib/chartExport";
+import { drawLineChart } from "@/lib/pdfChartDrawer";
 import { calculateLoanParams, calculatePropertyYearlyCashFlows, LoanParams, GlobalLoanParams } from "@/lib/loanCalculations";
 import { PropertyPhotoUpload } from "@/components/PropertyPhotoUpload";
 import { useQueryClient } from "@tanstack/react-query";
@@ -190,21 +190,54 @@ export default function PropertyDetail() {
     doc.setFontSize(10);
     doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 22);
     
-    // Capture the chart as an image - use whichever chart is visible
+    // Draw the chart directly in PDF
     let chartStartY = 28;
-    const chartContainer = activeTab === "cashflow" ? cashFlowChartRef.current : incomeChartRef.current;
-    if (chartContainer) {
-      try {
-        const imgData = await captureChartAsImage(chartContainer);
-        if (imgData) {
-          const imgWidth = 267;
-          const imgHeight = 60;
-          doc.addImage(imgData, 'PNG', 14, chartStartY, imgWidth, imgHeight);
-          chartStartY = chartStartY + imgHeight + 5;
+    if (yearlyChartData && yearlyChartData.length > 0) {
+      const chartSeries = activeTab === "cashflow" ? [
+        {
+          name: 'Revenue',
+          data: yearlyChartData.map(d => ({ label: d.year, value: d.Revenue })),
+          color: '#257D41'
+        },
+        {
+          name: 'NOI',
+          data: yearlyChartData.map(d => ({ label: d.year, value: d.NOI })),
+          color: '#3B82F6'
+        },
+        {
+          name: 'Cash Flow',
+          data: yearlyChartData.map(d => ({ label: d.year, value: d.CashFlow })),
+          color: '#F4795B'
         }
-      } catch (error) {
-        console.error('Error capturing chart:', error);
-      }
+      ] : [
+        {
+          name: 'Revenue',
+          data: yearlyChartData.map(d => ({ label: d.year, value: d.Revenue })),
+          color: '#257D41'
+        },
+        {
+          name: 'GOP',
+          data: yearlyChartData.map(d => ({ label: d.year, value: d.GOP })),
+          color: '#3B82F6'
+        },
+        {
+          name: 'NOI',
+          data: yearlyChartData.map(d => ({ label: d.year, value: d.NOI })),
+          color: '#F4795B'
+        }
+      ];
+      
+      drawLineChart({
+        doc,
+        x: 14,
+        y: chartStartY,
+        width: 267,
+        height: 55,
+        title: `${property.name} - Financial Performance`,
+        series: chartSeries
+      });
+      
+      chartStartY = chartStartY + 60;
     }
 
     const headers = [["Line Item", ...Array.from({length: years}, (_, i) => `FY ${startYear + i}`)]];

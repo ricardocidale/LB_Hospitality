@@ -47,18 +47,23 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         "fixed lg:sticky top-0 left-0 z-50 h-screen w-64 transition-all duration-500 ease-out lg:translate-x-0 flex flex-col overflow-hidden",
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
       )}>
-        {/* Liquid Glass Background with Edge Sheen */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#2d4a5e] via-[#3d5a6a] to-[#3a5a5e]" />
+        {/* Deep Black Glass Background */}
+        <div className="absolute inset-0 bg-[#0a0a0f]" />
+        {/* Subtle gradient overlay for depth */}
+        <div className="absolute inset-0 bg-gradient-to-b from-white/[0.03] via-transparent to-black/20" />
         {/* Glossy Edge Highlight - Right Side */}
-        <div className="absolute top-0 right-0 bottom-0 w-[1px] bg-gradient-to-b from-white/30 via-white/10 to-white/20" />
+        <div className="absolute top-0 right-0 bottom-0 w-[1px] bg-gradient-to-b from-[#9FBCA4]/40 via-white/10 to-[#9FBCA4]/30" />
         {/* Top Edge Sheen */}
-        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/25 to-transparent" />
-        {/* Floating Color Orbs - Green palette */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-12 -left-12 w-56 h-56 rounded-full bg-[#9FBCA4]/25 blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
-          <div className="absolute top-1/3 -right-8 w-44 h-44 rounded-full bg-[#9FBCA4]/15 blur-3xl animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
-          <div className="absolute bottom-1/4 left-1/3 w-52 h-52 rounded-full bg-[#257D41]/15 blur-3xl animate-pulse" style={{ animationDuration: '6s', animationDelay: '2s' }} />
+        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#9FBCA4]/30 to-transparent" />
+        {/* Floating Color Orbs - More visible on black */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-[#9FBCA4]/20 blur-[100px] animate-pulse" style={{ animationDuration: '4s' }} />
+          <div className="absolute top-1/3 -right-16 w-56 h-56 rounded-full bg-[#257D41]/25 blur-[80px] animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
+          <div className="absolute bottom-1/4 left-1/4 w-64 h-64 rounded-full bg-[#9FBCA4]/15 blur-[100px] animate-pulse" style={{ animationDuration: '6s', animationDelay: '2s' }} />
+          <div className="absolute -bottom-16 -right-16 w-48 h-48 rounded-full bg-[#257D41]/20 blur-[80px] animate-pulse" style={{ animationDuration: '7s', animationDelay: '0.5s' }} />
         </div>
+        {/* Inner glow effect */}
+        <div className="absolute inset-0 shadow-[inset_0_0_80px_rgba(159,188,164,0.08)]" />
         
         <div className="relative flex flex-col h-full">
           <div className="p-6">

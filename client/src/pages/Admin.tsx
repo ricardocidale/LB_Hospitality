@@ -228,57 +228,65 @@ export default function Admin() {
   const renderDashboard = () => (
     <div className="space-y-8">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="relative overflow-hidden bg-gradient-to-br from-[#2d4a5e]/90 via-[#3d5a6a]/90 to-[#3a5a5e]/90 backdrop-blur-xl border-white/10">
-          <CardContent className="p-6">
+        <Card className="group relative overflow-hidden bg-gradient-to-br from-[#1a2e3d]/95 via-[#243d4d]/95 to-[#1e3a42]/95 backdrop-blur-3xl border border-white/20 shadow-2xl shadow-black/40 hover:shadow-[#9FBCA4]/20 transition-all duration-500">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#9FBCA4]/10 via-transparent to-[#257D41]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="absolute -top-8 -right-8 w-32 h-32 bg-[#9FBCA4]/20 rounded-full blur-3xl" />
+          <CardContent className="relative p-6">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-[#9FBCA4]/20 flex items-center justify-center">
-                <Users className="w-6 h-6 text-[#9FBCA4]" />
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#9FBCA4]/30 to-[#257D41]/20 flex items-center justify-center border border-[#9FBCA4]/30 shadow-lg shadow-[#9FBCA4]/10">
+                <Users className="w-7 h-7 text-[#9FBCA4]" />
               </div>
               <div>
-                <p className="text-3xl font-mono text-[#FFF9F5]">{users?.length || 0}</p>
-                <p className="text-sm text-white/60 label-text">Total Users</p>
+                <p className="text-4xl font-mono font-bold text-white tracking-tight">{users?.length || 0}</p>
+                <p className="text-sm text-white/50 label-text mt-1">Total Users</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="relative overflow-hidden bg-gradient-to-br from-[#2d4a5e]/90 via-[#3d5a6a]/90 to-[#3a5a5e]/90 backdrop-blur-xl border-white/10">
-          <CardContent className="p-6">
+        <Card className="group relative overflow-hidden bg-gradient-to-br from-[#1a2e3d]/95 via-[#243d4d]/95 to-[#1e3a42]/95 backdrop-blur-3xl border border-white/20 shadow-2xl shadow-black/40 hover:shadow-[#257D41]/20 transition-all duration-500">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#257D41]/10 via-transparent to-[#9FBCA4]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-[#257D41]/20 rounded-full blur-3xl" />
+          <CardContent className="relative p-6">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-[#257D41]/20 flex items-center justify-center">
-                <Activity className="w-6 h-6 text-[#9FBCA4]" />
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#257D41]/30 to-[#9FBCA4]/20 flex items-center justify-center border border-[#257D41]/30 shadow-lg shadow-[#257D41]/10">
+                <Activity className="w-7 h-7 text-[#9FBCA4]" />
               </div>
               <div>
-                <p className="text-3xl font-mono text-[#FFF9F5]">{activeSessions}</p>
-                <p className="text-sm text-white/60 label-text">Active Sessions</p>
+                <p className="text-4xl font-mono font-bold text-white tracking-tight">{activeSessions}</p>
+                <p className="text-sm text-white/50 label-text mt-1">Active Sessions</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="relative overflow-hidden bg-gradient-to-br from-[#2d4a5e]/90 via-[#3d5a6a]/90 to-[#3a5a5e]/90 backdrop-blur-xl border-white/10">
-          <CardContent className="p-6">
+        <Card className="group relative overflow-hidden bg-gradient-to-br from-[#1a2e3d]/95 via-[#243d4d]/95 to-[#1e3a42]/95 backdrop-blur-3xl border border-white/20 shadow-2xl shadow-black/40 hover:shadow-[#9FBCA4]/20 transition-all duration-500">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#9FBCA4]/10 via-transparent to-[#257D41]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="absolute -top-8 -left-8 w-32 h-32 bg-[#9FBCA4]/15 rounded-full blur-3xl" />
+          <CardContent className="relative p-6">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-[#9FBCA4]/20 flex items-center justify-center">
-                <Clock className="w-6 h-6 text-[#9FBCA4]" />
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#9FBCA4]/30 to-[#257D41]/20 flex items-center justify-center border border-[#9FBCA4]/30 shadow-lg shadow-[#9FBCA4]/10">
+                <Clock className="w-7 h-7 text-[#9FBCA4]" />
               </div>
               <div>
-                <p className="text-3xl font-mono text-[#FFF9F5]">{loginLogs?.length || 0}</p>
-                <p className="text-sm text-white/60 label-text">Login Records</p>
+                <p className="text-4xl font-mono font-bold text-white tracking-tight">{loginLogs?.length || 0}</p>
+                <p className="text-sm text-white/50 label-text mt-1">Login Records</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="relative overflow-hidden bg-gradient-to-br from-[#2d4a5e]/90 via-[#3d5a6a]/90 to-[#3a5a5e]/90 backdrop-blur-xl border-white/10">
-          <CardContent className="p-6">
+        <Card className="group relative overflow-hidden bg-gradient-to-br from-[#1a2e3d]/95 via-[#243d4d]/95 to-[#1e3a42]/95 backdrop-blur-3xl border border-white/20 shadow-2xl shadow-black/40 hover:shadow-[#257D41]/20 transition-all duration-500">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#257D41]/10 via-transparent to-[#9FBCA4]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-[#257D41]/15 rounded-full blur-3xl" />
+          <CardContent className="relative p-6">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-[#257D41]/20 flex items-center justify-center">
-                <FileCheck className="w-6 h-6 text-[#9FBCA4]" />
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#257D41]/30 to-[#9FBCA4]/20 flex items-center justify-center border border-[#257D41]/30 shadow-lg shadow-[#257D41]/10">
+                <FileCheck className="w-7 h-7 text-[#9FBCA4]" />
               </div>
               <div>
-                <p className="text-3xl font-mono text-[#FFF9F5]">2</p>
-                <p className="text-sm text-white/60 label-text">Verification Tools</p>
+                <p className="text-4xl font-mono font-bold text-white tracking-tight">2</p>
+                <p className="text-sm text-white/50 label-text mt-1">Verification Tools</p>
               </div>
             </div>
           </CardContent>
@@ -286,57 +294,69 @@ export default function Admin() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="relative overflow-hidden bg-gradient-to-br from-[#2d4a5e]/90 via-[#3d5a6a]/90 to-[#3a5a5e]/90 backdrop-blur-xl border-white/10 cursor-pointer hover:border-[#9FBCA4]/30 transition-colors" onClick={() => setCurrentView("users")} data-testid="card-users">
-          <CardContent className="p-8">
+        <Card className="group relative overflow-hidden bg-gradient-to-br from-[#1a2e3d]/95 via-[#243d4d]/95 to-[#1e3a42]/95 backdrop-blur-3xl border border-white/20 shadow-2xl shadow-black/40 cursor-pointer hover:border-[#9FBCA4]/40 hover:shadow-[#9FBCA4]/20 transition-all duration-500" onClick={() => setCurrentView("users")} data-testid="card-users">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#9FBCA4]/10 via-transparent to-[#257D41]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="absolute -top-16 -right-16 w-48 h-48 bg-[#9FBCA4]/15 rounded-full blur-3xl group-hover:bg-[#9FBCA4]/25 transition-colors duration-500" />
+          <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-[#257D41]/10 rounded-full blur-3xl group-hover:bg-[#257D41]/20 transition-colors duration-500" />
+          <CardContent className="relative p-8">
             <div className="flex items-center gap-6">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#9FBCA4] to-[#257D41] flex items-center justify-center shadow-lg shadow-[#9FBCA4]/20">
-                <Users className="w-8 h-8 text-white" />
+              <div className="w-18 h-18 rounded-2xl bg-gradient-to-br from-[#9FBCA4] via-[#7aa88a] to-[#257D41] flex items-center justify-center shadow-xl shadow-[#9FBCA4]/30 border border-white/20" style={{ width: '72px', height: '72px' }}>
+                <Users className="w-9 h-9 text-white drop-shadow-lg" />
               </div>
               <div className="flex-1">
-                <h3 className="text-xl font-display text-[#FFF9F5] mb-1">User Management</h3>
-                <p className="text-white/60 label-text">Add, edit, and manage user accounts and permissions</p>
+                <h3 className="text-2xl font-display font-semibold text-white mb-2">User Management</h3>
+                <p className="text-white/50 label-text">Add, edit, and manage user accounts and permissions</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="relative overflow-hidden bg-gradient-to-br from-[#2d4a5e]/90 via-[#3d5a6a]/90 to-[#3a5a5e]/90 backdrop-blur-xl border-white/10 cursor-pointer hover:border-[#9FBCA4]/30 transition-colors" onClick={() => setCurrentView("activity")} data-testid="card-activity">
-          <CardContent className="p-8">
+        <Card className="group relative overflow-hidden bg-gradient-to-br from-[#1a2e3d]/95 via-[#243d4d]/95 to-[#1e3a42]/95 backdrop-blur-3xl border border-white/20 shadow-2xl shadow-black/40 cursor-pointer hover:border-[#9FBCA4]/40 hover:shadow-[#9FBCA4]/20 transition-all duration-500" onClick={() => setCurrentView("activity")} data-testid="card-activity">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#257D41]/10 via-transparent to-[#9FBCA4]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="absolute -top-16 -left-16 w-48 h-48 bg-[#257D41]/15 rounded-full blur-3xl group-hover:bg-[#257D41]/25 transition-colors duration-500" />
+          <div className="absolute -bottom-16 -right-16 w-48 h-48 bg-[#9FBCA4]/10 rounded-full blur-3xl group-hover:bg-[#9FBCA4]/20 transition-colors duration-500" />
+          <CardContent className="relative p-8">
             <div className="flex items-center gap-6">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#9FBCA4] to-[#257D41] flex items-center justify-center shadow-lg shadow-[#9FBCA4]/20">
-                <Clock className="w-8 h-8 text-white" />
+              <div className="w-18 h-18 rounded-2xl bg-gradient-to-br from-[#9FBCA4] via-[#7aa88a] to-[#257D41] flex items-center justify-center shadow-xl shadow-[#9FBCA4]/30 border border-white/20" style={{ width: '72px', height: '72px' }}>
+                <Clock className="w-9 h-9 text-white drop-shadow-lg" />
               </div>
               <div className="flex-1">
-                <h3 className="text-xl font-display text-[#FFF9F5] mb-1">Login Activity</h3>
-                <p className="text-white/60 label-text">Monitor user sessions and login history</p>
+                <h3 className="text-2xl font-display font-semibold text-white mb-2">Login Activity</h3>
+                <p className="text-white/50 label-text">Monitor user sessions and login history</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="relative overflow-hidden bg-gradient-to-br from-[#2d4a5e]/90 via-[#3d5a6a]/90 to-[#3a5a5e]/90 backdrop-blur-xl border-white/10 cursor-pointer hover:border-[#9FBCA4]/30 transition-colors" onClick={() => setCurrentView("verification")} data-testid="card-verification">
-          <CardContent className="p-8">
+        <Card className="group relative overflow-hidden bg-gradient-to-br from-[#1a2e3d]/95 via-[#243d4d]/95 to-[#1e3a42]/95 backdrop-blur-3xl border border-white/20 shadow-2xl shadow-black/40 cursor-pointer hover:border-[#9FBCA4]/40 hover:shadow-[#9FBCA4]/20 transition-all duration-500" onClick={() => setCurrentView("verification")} data-testid="card-verification">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#9FBCA4]/10 via-transparent to-[#257D41]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-[#9FBCA4]/15 rounded-full blur-3xl group-hover:bg-[#9FBCA4]/25 transition-colors duration-500" />
+          <div className="absolute -top-16 -right-16 w-48 h-48 bg-[#257D41]/10 rounded-full blur-3xl group-hover:bg-[#257D41]/20 transition-colors duration-500" />
+          <CardContent className="relative p-8">
             <div className="flex items-center gap-6">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#9FBCA4] to-[#257D41] flex items-center justify-center shadow-lg shadow-[#9FBCA4]/20">
-                <FileCheck className="w-8 h-8 text-white" />
+              <div className="w-18 h-18 rounded-2xl bg-gradient-to-br from-[#9FBCA4] via-[#7aa88a] to-[#257D41] flex items-center justify-center shadow-xl shadow-[#9FBCA4]/30 border border-white/20" style={{ width: '72px', height: '72px' }}>
+                <FileCheck className="w-9 h-9 text-white drop-shadow-lg" />
               </div>
               <div className="flex-1">
-                <h3 className="text-xl font-display text-[#FFF9F5] mb-1">Financial Verification</h3>
-                <p className="text-white/60 label-text">Run formula checks and GAAP compliance validation</p>
+                <h3 className="text-2xl font-display font-semibold text-white mb-2">Financial Verification</h3>
+                <p className="text-white/50 label-text">Run formula checks and GAAP compliance validation</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="relative overflow-hidden bg-gradient-to-br from-[#2d4a5e]/90 via-[#3d5a6a]/90 to-[#3a5a5e]/90 backdrop-blur-xl border-white/10 cursor-pointer hover:border-[#9FBCA4]/30 transition-colors" onClick={() => setCurrentView("design")} data-testid="card-design">
-          <CardContent className="p-8">
+        <Card className="group relative overflow-hidden bg-gradient-to-br from-[#1a2e3d]/95 via-[#243d4d]/95 to-[#1e3a42]/95 backdrop-blur-3xl border border-white/20 shadow-2xl shadow-black/40 cursor-pointer hover:border-[#9FBCA4]/40 hover:shadow-[#9FBCA4]/20 transition-all duration-500" onClick={() => setCurrentView("design")} data-testid="card-design">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#257D41]/10 via-transparent to-[#9FBCA4]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="absolute -top-16 -left-16 w-48 h-48 bg-[#257D41]/15 rounded-full blur-3xl group-hover:bg-[#257D41]/25 transition-colors duration-500" />
+          <div className="absolute -bottom-16 -right-16 w-48 h-48 bg-[#9FBCA4]/10 rounded-full blur-3xl group-hover:bg-[#9FBCA4]/20 transition-colors duration-500" />
+          <CardContent className="relative p-8">
             <div className="flex items-center gap-6">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#9FBCA4] to-[#257D41] flex items-center justify-center shadow-lg shadow-[#9FBCA4]/20">
-                <Palette className="w-8 h-8 text-white" />
+              <div className="w-18 h-18 rounded-2xl bg-gradient-to-br from-[#9FBCA4] via-[#7aa88a] to-[#257D41] flex items-center justify-center shadow-xl shadow-[#9FBCA4]/30 border border-white/20" style={{ width: '72px', height: '72px' }}>
+                <Palette className="w-9 h-9 text-white drop-shadow-lg" />
               </div>
               <div className="flex-1">
-                <h3 className="text-xl font-display text-[#FFF9F5] mb-1">Design Consistency</h3>
-                <p className="text-white/60 label-text">Verify fonts, colors, and component standards across all pages</p>
+                <h3 className="text-2xl font-display font-semibold text-white mb-2">Design Consistency</h3>
+                <p className="text-white/50 label-text">Verify fonts, colors, and component standards across all pages</p>
               </div>
             </div>
           </CardContent>
@@ -346,11 +366,13 @@ export default function Admin() {
   );
 
   const renderUsers = () => (
-    <Card className="relative overflow-hidden bg-gradient-to-br from-[#2d4a5e]/90 via-[#3d5a6a]/90 to-[#3a5a5e]/90 backdrop-blur-xl border-white/10">
+    <Card className="relative overflow-hidden bg-[#0a0a0f]/95 backdrop-blur-3xl border border-white/10 shadow-2xl shadow-black/50">
+      <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] via-transparent to-black/20" />
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-12 -left-12 w-48 h-48 rounded-full bg-[#9FBCA4]/15 blur-3xl" />
-        <div className="absolute bottom-0 right-0 w-64 h-64 rounded-full bg-[#257D41]/10 blur-3xl" />
+        <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-[#9FBCA4]/20 blur-[100px] animate-pulse" style={{ animationDuration: '4s' }} />
+        <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-[#257D41]/15 blur-[100px] animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
       </div>
+      <div className="absolute inset-0 shadow-[inset_0_0_100px_rgba(159,188,164,0.05)]" />
       
       <CardHeader className="relative">
         <div className="flex items-center justify-between">
@@ -426,11 +448,13 @@ export default function Admin() {
   );
 
   const renderActivity = () => (
-    <Card className="relative overflow-hidden bg-gradient-to-br from-[#2d4a5e]/90 via-[#3d5a6a]/90 to-[#3a5a5e]/90 backdrop-blur-xl border-white/10">
+    <Card className="relative overflow-hidden bg-[#0a0a0f]/95 backdrop-blur-3xl border border-white/10 shadow-2xl shadow-black/50">
+      <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] via-transparent to-black/20" />
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-12 -left-12 w-48 h-48 rounded-full bg-[#9FBCA4]/15 blur-3xl" />
-        <div className="absolute bottom-0 right-0 w-64 h-64 rounded-full bg-[#257D41]/10 blur-3xl" />
+        <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-[#9FBCA4]/20 blur-[100px] animate-pulse" style={{ animationDuration: '4s' }} />
+        <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-[#257D41]/15 blur-[100px] animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
       </div>
+      <div className="absolute inset-0 shadow-[inset_0_0_100px_rgba(159,188,164,0.05)]" />
       
       <CardHeader className="relative">
         <CardTitle className="text-xl font-display text-[#FFF9F5]">Login Activity</CardTitle>
@@ -487,11 +511,14 @@ export default function Admin() {
   );
 
   const renderVerification = () => (
-    <Card className="relative overflow-hidden bg-gradient-to-br from-[#2d4a5e]/90 via-[#3d5a6a]/90 to-[#3a5a5e]/90 backdrop-blur-xl border-white/10">
+    <Card className="relative overflow-hidden bg-[#0a0a0f]/95 backdrop-blur-3xl border border-white/10 shadow-2xl shadow-black/50">
+      <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] via-transparent to-black/20" />
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-12 -left-12 w-48 h-48 rounded-full bg-[#9FBCA4]/15 blur-3xl" />
-        <div className="absolute bottom-0 right-0 w-64 h-64 rounded-full bg-[#257D41]/10 blur-3xl" />
+        <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-[#9FBCA4]/20 blur-[100px] animate-pulse" style={{ animationDuration: '4s' }} />
+        <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-[#257D41]/15 blur-[100px] animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-[#9FBCA4]/10 blur-[120px]" />
       </div>
+      <div className="absolute inset-0 shadow-[inset_0_0_100px_rgba(159,188,164,0.05)]" />
       
       <CardHeader className="relative">
         <div className="flex items-center justify-between">
@@ -525,10 +552,10 @@ export default function Admin() {
 
         {verificationResults && (
           <>
-            <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+            <div className="p-5 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-xl shadow-lg">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h3 className="font-display text-[#FFF9F5]">Verification Results</h3>
+                  <h3 className="font-display text-lg text-white font-semibold">Verification Results</h3>
                   <p className="text-xs text-white/40 font-mono mt-1">Run at: {formatDate(verificationResults.timestamp)}</p>
                 </div>
                 <div className={`flex items-center gap-2 px-4 py-2 rounded-lg ${
@@ -544,30 +571,30 @@ export default function Admin() {
               </div>
 
               <div className="grid grid-cols-5 gap-4 text-center">
-                <div className="p-3 rounded-lg bg-white/5">
-                  <div className="text-2xl font-mono text-[#FFF9F5]">{verificationResults.propertiesChecked}</div>
-                  <div className="text-xs text-white/40 label-text">Properties</div>
+                <div className="p-4 rounded-xl bg-white/[0.03] border border-white/10 backdrop-blur-sm">
+                  <div className="text-3xl font-mono font-bold text-white">{verificationResults.propertiesChecked}</div>
+                  <div className="text-xs text-white/50 label-text mt-1">Properties</div>
                 </div>
-                <div className="p-3 rounded-lg bg-white/5">
-                  <div className="text-2xl font-mono text-green-400">{verificationResults.formulaChecks.passed}</div>
-                  <div className="text-xs text-white/40 label-text">Property Checks</div>
+                <div className="p-4 rounded-xl bg-[#9FBCA4]/10 border border-[#9FBCA4]/20 backdrop-blur-sm">
+                  <div className="text-3xl font-mono font-bold text-[#9FBCA4]">{verificationResults.formulaChecks.passed}</div>
+                  <div className="text-xs text-white/50 label-text mt-1">Property Checks</div>
                 </div>
-                <div className="p-3 rounded-lg bg-white/5">
-                  <div className="text-2xl font-mono text-green-400">{verificationResults.managementCompanyChecks?.passed || 0}</div>
-                  <div className="text-xs text-white/40 label-text">Mgmt Co Checks</div>
+                <div className="p-4 rounded-xl bg-[#9FBCA4]/10 border border-[#9FBCA4]/20 backdrop-blur-sm">
+                  <div className="text-3xl font-mono font-bold text-[#9FBCA4]">{verificationResults.managementCompanyChecks?.passed || 0}</div>
+                  <div className="text-xs text-white/50 label-text mt-1">Mgmt Co Checks</div>
                 </div>
-                <div className="p-3 rounded-lg bg-white/5">
-                  <div className="text-2xl font-mono text-green-400">{verificationResults.consolidatedChecks?.passed || 0}</div>
-                  <div className="text-xs text-white/40 label-text">Consolidated</div>
+                <div className="p-4 rounded-xl bg-[#9FBCA4]/10 border border-[#9FBCA4]/20 backdrop-blur-sm">
+                  <div className="text-3xl font-mono font-bold text-[#9FBCA4]">{verificationResults.consolidatedChecks?.passed || 0}</div>
+                  <div className="text-xs text-white/50 label-text mt-1">Consolidated</div>
                 </div>
-                <div className="p-3 rounded-lg bg-white/5">
-                  <div className="text-2xl font-mono text-green-400">{verificationResults.complianceChecks.passed}</div>
-                  <div className="text-xs text-white/40 label-text">GAAP Compliance</div>
+                <div className="p-4 rounded-xl bg-[#257D41]/10 border border-[#257D41]/20 backdrop-blur-sm">
+                  <div className="text-3xl font-mono font-bold text-[#9FBCA4]">{verificationResults.complianceChecks.passed}</div>
+                  <div className="text-xs text-white/50 label-text mt-1">GAAP Compliance</div>
                 </div>
               </div>
             </div>
 
-            <div className="p-4 rounded-xl bg-[#257D41]/10 border border-[#257D41]/30">
+            <div className="p-5 rounded-2xl bg-[#257D41]/10 border border-[#257D41]/30 backdrop-blur-xl">
               <h4 className="font-display text-[#9FBCA4] mb-2">Key Standards Verified</h4>
               <ul className="grid grid-cols-2 gap-2 text-sm text-white/70 label-text">
                 <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#9FBCA4]" />ASC 470 - Interest vs Principal separation</li>
@@ -585,11 +612,14 @@ export default function Admin() {
   );
 
   const renderDesign = () => (
-    <Card className="relative overflow-hidden bg-gradient-to-br from-[#2d4a5e]/90 via-[#3d5a6a]/90 to-[#3a5a5e]/90 backdrop-blur-xl border-white/10">
+    <Card className="relative overflow-hidden bg-[#0a0a0f]/95 backdrop-blur-3xl border border-white/10 shadow-2xl shadow-black/50">
+      <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] via-transparent to-black/20" />
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-12 -left-12 w-48 h-48 rounded-full bg-[#9FBCA4]/15 blur-3xl" />
-        <div className="absolute bottom-0 right-0 w-64 h-64 rounded-full bg-[#257D41]/10 blur-3xl" />
+        <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-[#9FBCA4]/20 blur-[100px] animate-pulse" style={{ animationDuration: '4s' }} />
+        <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-[#257D41]/15 blur-[100px] animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-[#9FBCA4]/10 blur-[120px]" />
       </div>
+      <div className="absolute inset-0 shadow-[inset_0_0_100px_rgba(159,188,164,0.05)]" />
       
       <CardHeader className="relative">
         <div className="flex items-center justify-between">

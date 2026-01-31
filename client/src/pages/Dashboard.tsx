@@ -525,10 +525,14 @@ export default function Dashboard() {
       head: [['Category', ...years.map(String)]],
       body: tableData,
       startY: 32,
-      styles: { fontSize: 8, cellPadding: 2 },
-      headStyles: { fillColor: [159, 188, 164], textColor: [0, 0, 0], fontStyle: 'bold' },
-      columnStyles: { 0: { cellWidth: 45 } },
+      styles: { fontSize: 8, cellPadding: 2, font: 'helvetica' },
+      headStyles: { fillColor: [159, 188, 164], textColor: [0, 0, 0], fontStyle: 'bold', font: 'helvetica' },
+      columnStyles: { 0: { cellWidth: 45, font: 'helvetica' } },
       didParseCell: (data) => {
+        // Use courier (monospace) for numeric columns
+        if (data.column.index > 0) {
+          data.cell.styles.font = 'courier';
+        }
         if (data.section === 'body' && data.row.index !== undefined) {
           const row = rows[data.row.index];
           if (row?.isHeader) {
@@ -683,10 +687,14 @@ export default function Dashboard() {
       head: [['Category', ...years.map(String)]],
       body: tableData,
       startY: 32,
-      styles: { fontSize: 7, cellPadding: 1.5 },
-      headStyles: { fillColor: [159, 188, 164], textColor: [0, 0, 0], fontStyle: 'bold' },
-      columnStyles: { 0: { cellWidth: 50 } },
+      styles: { fontSize: 7, cellPadding: 1.5, font: 'helvetica' },
+      headStyles: { fillColor: [159, 188, 164], textColor: [0, 0, 0], fontStyle: 'bold', font: 'helvetica' },
+      columnStyles: { 0: { cellWidth: 50, font: 'helvetica' } },
       didParseCell: (data) => {
+        // Use courier (monospace) for numeric columns
+        if (data.column.index > 0) {
+          data.cell.styles.font = 'courier';
+        }
         if (data.section === 'body' && data.row.index !== undefined) {
           const row = rows[data.row.index];
           if (row?.isHeader) {
@@ -710,8 +718,14 @@ export default function Dashboard() {
         formatMoney(d.noi)
       ]),
       startY: 20,
-      styles: { fontSize: 9, cellPadding: 3 },
-      headStyles: { fillColor: [92, 107, 192], textColor: [255, 255, 255], fontStyle: 'bold' }
+      styles: { fontSize: 9, cellPadding: 3, font: 'helvetica' },
+      headStyles: { fillColor: [92, 107, 192], textColor: [255, 255, 255], fontStyle: 'bold', font: 'helvetica' },
+      didParseCell: (data) => {
+        // Use courier (monospace) for numeric columns
+        if (data.column.index > 0) {
+          data.cell.styles.font = 'courier';
+        }
+      }
     });
     
     const graphTableY = (doc as any).lastAutoTable.finalY + 15;
@@ -727,8 +741,14 @@ export default function Dashboard() {
         formatMoney(d.netCashFlow)
       ]),
       startY: graphTableY + 5,
-      styles: { fontSize: 9, cellPadding: 3 },
-      headStyles: { fillColor: [37, 125, 65], textColor: [255, 255, 255], fontStyle: 'bold' }
+      styles: { fontSize: 9, cellPadding: 3, font: 'helvetica' },
+      headStyles: { fillColor: [37, 125, 65], textColor: [255, 255, 255], fontStyle: 'bold', font: 'helvetica' },
+      didParseCell: (data) => {
+        // Use courier (monospace) for numeric columns
+        if (data.column.index > 0) {
+          data.cell.styles.font = 'courier';
+        }
+      }
     });
     
     doc.save('cash-flow-statement.pdf');
@@ -907,10 +927,14 @@ export default function Dashboard() {
       head: [['Category', ...years.map(String)]],
       body: tableData,
       startY: 32,
-      styles: { fontSize: 7, cellPadding: 1.5 },
-      headStyles: { fillColor: [159, 188, 164], textColor: [0, 0, 0], fontStyle: 'bold' },
-      columnStyles: { 0: { cellWidth: 55 } },
+      styles: { fontSize: 7, cellPadding: 1.5, font: 'helvetica' },
+      headStyles: { fillColor: [159, 188, 164], textColor: [0, 0, 0], fontStyle: 'bold', font: 'helvetica' },
+      columnStyles: { 0: { cellWidth: 55, font: 'helvetica' } },
       didParseCell: (data) => {
+        // Use courier (monospace) for numeric columns
+        if (data.column.index > 0) {
+          data.cell.styles.font = 'courier';
+        }
         if (data.section === 'body' && data.row.index !== undefined) {
           const row = rows[data.row.index];
           if (row?.isHeader) {
@@ -1157,11 +1181,15 @@ export default function Dashboard() {
       head: [['Category', ...years]],
       body: tableData,
       startY: 32,
-      styles: { fontSize: 5.5, cellPadding: 1 },
-      headStyles: { fillColor: [159, 188, 164], textColor: [0, 0, 0], fontStyle: 'bold', fontSize: 5.5 },
-      columnStyles: { 0: { cellWidth: 45 } },
+      styles: { fontSize: 5.5, cellPadding: 1, font: 'helvetica' },
+      headStyles: { fillColor: [159, 188, 164], textColor: [0, 0, 0], fontStyle: 'bold', fontSize: 5.5, font: 'helvetica' },
+      columnStyles: { 0: { cellWidth: 45, font: 'helvetica' } },
       margin: { left: 8, right: 8 },
       didParseCell: (data) => {
+        // Use courier (monospace) for numeric columns
+        if (data.column.index > 0) {
+          data.cell.styles.font = 'courier';
+        }
         if (data.section === 'body' && data.row.index !== undefined) {
           const row = rows[data.row.index];
           if (row?.isHeader) {
@@ -1311,17 +1339,17 @@ export default function Dashboard() {
       body: propertyListData,
       startY: 28,
       theme: 'striped',
-      styles: { fontSize: 10, cellPadding: 4 },
-      headStyles: { fillColor: [159, 188, 164], textColor: [61, 61, 61], fontStyle: 'bold', halign: 'center' },
+      styles: { fontSize: 10, cellPadding: 4, font: 'helvetica' },
+      headStyles: { fillColor: [159, 188, 164], textColor: [61, 61, 61], fontStyle: 'bold', halign: 'center', font: 'helvetica' },
       columnStyles: {
-        0: { cellWidth: 40 },
-        1: { cellWidth: 45 },
-        2: { cellWidth: 30 },
-        3: { halign: 'center', cellWidth: 20 },
-        4: { halign: 'center', cellWidth: 25 },
-        5: { halign: 'center', cellWidth: 28 },
-        6: { halign: 'right', cellWidth: 35 },
-        7: { halign: 'right', cellWidth: 30 }
+        0: { cellWidth: 40, font: 'helvetica' },
+        1: { cellWidth: 45, font: 'helvetica' },
+        2: { cellWidth: 30, font: 'helvetica' },
+        3: { halign: 'center', cellWidth: 20, font: 'courier' },
+        4: { halign: 'center', cellWidth: 25, font: 'helvetica' },
+        5: { halign: 'center', cellWidth: 28, font: 'helvetica' },
+        6: { halign: 'right', cellWidth: 35, font: 'courier' },
+        7: { halign: 'right', cellWidth: 30, font: 'courier' }
       },
       didDrawPage: addFooter,
     });
@@ -1341,15 +1369,15 @@ export default function Dashboard() {
       ...row.values.map(v => formatMoney(v))
     ]);
 
-    const colStylesNumeric: Record<number, any> = { 0: { cellWidth: 45, halign: 'left' } };
-    for (let i = 1; i <= 10; i++) colStylesNumeric[i] = { halign: 'right' };
+    const colStylesNumeric: Record<number, any> = { 0: { cellWidth: 45, halign: 'left', font: 'helvetica' } };
+    for (let i = 1; i <= 10; i++) colStylesNumeric[i] = { halign: 'right', font: 'courier' };
 
     autoTable(doc, {
       head: [['Category', ...incomeYears.map(String)]],
       body: incomeTableData,
       startY: 27,
-      styles: { fontSize: 7, cellPadding: 1.5 },
-      headStyles: { fillColor: [159, 188, 164], textColor: [61, 61, 61], fontStyle: 'bold', halign: 'center' },
+      styles: { fontSize: 7, cellPadding: 1.5, font: 'helvetica' },
+      headStyles: { fillColor: [159, 188, 164], textColor: [61, 61, 61], fontStyle: 'bold', halign: 'center', font: 'helvetica' },
       columnStyles: colStylesNumeric,
       didParseCell: (data) => {
         if (data.section === 'body' && data.row.index !== undefined) {
@@ -1385,8 +1413,8 @@ export default function Dashboard() {
       head: [['Category', ...cfYears.map(String)]],
       body: cfTableData,
       startY: 27,
-      styles: { fontSize: 6.5, cellPadding: 1 },
-      headStyles: { fillColor: [159, 188, 164], textColor: [61, 61, 61], fontStyle: 'bold', halign: 'center' },
+      styles: { fontSize: 6.5, cellPadding: 1, font: 'helvetica' },
+      headStyles: { fillColor: [159, 188, 164], textColor: [61, 61, 61], fontStyle: 'bold', halign: 'center', font: 'helvetica' },
       columnStyles: colStylesNumeric,
       didParseCell: (data) => {
         if (data.section === 'body' && data.row.index !== undefined) {
@@ -1419,8 +1447,8 @@ export default function Dashboard() {
       head: [['Category', ...bsYears.map(String)]],
       body: bsTableData,
       startY: 27,
-      styles: { fontSize: 7, cellPadding: 1.5 },
-      headStyles: { fillColor: [159, 188, 164], textColor: [61, 61, 61], fontStyle: 'bold', halign: 'center' },
+      styles: { fontSize: 7, cellPadding: 1.5, font: 'helvetica' },
+      headStyles: { fillColor: [159, 188, 164], textColor: [61, 61, 61], fontStyle: 'bold', halign: 'center', font: 'helvetica' },
       columnStyles: colStylesNumeric,
       didParseCell: (data) => {
         if (data.section === 'body' && data.row.index !== undefined) {
@@ -1460,8 +1488,8 @@ export default function Dashboard() {
       head: [['Category', ...invYears]],
       body: invTableData,
       startY: 27,
-      styles: { fontSize: 5.5, cellPadding: 1 },
-      headStyles: { fillColor: [159, 188, 164], textColor: [61, 61, 61], fontStyle: 'bold', fontSize: 5.5, halign: 'center' },
+      styles: { fontSize: 5.5, cellPadding: 1, font: 'helvetica' },
+      headStyles: { fillColor: [159, 188, 164], textColor: [61, 61, 61], fontStyle: 'bold', fontSize: 5.5, halign: 'center', font: 'helvetica' },
       columnStyles: colStylesNumeric,
       margin: { left: 8, right: 8 },
       didParseCell: (data) => {

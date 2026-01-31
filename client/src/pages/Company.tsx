@@ -455,13 +455,10 @@ export default function Company() {
       try {
         const imgData = await captureChartAsImage(chartRef.current);
         if (imgData) {
-          const img = new Image();
-          img.src = imgData;
-          await new Promise(resolve => img.onload = resolve);
           const imgWidth = 267;
-          const imgHeight = (img.height * imgWidth) / img.width / 2;
-          doc.addImage(imgData, 'PNG', 14, tableStartY, imgWidth, Math.min(imgHeight, 70));
-          tableStartY = tableStartY + Math.min(imgHeight, 70) + 5;
+          const imgHeight = 60;
+          doc.addImage(imgData, 'PNG', 14, tableStartY, imgWidth, imgHeight);
+          tableStartY = tableStartY + imgHeight + 5;
         }
       } catch (error) {
         console.error('Error capturing chart:', error);

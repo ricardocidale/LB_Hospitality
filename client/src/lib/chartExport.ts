@@ -1,87 +1,62 @@
+import domtoimage from 'dom-to-image-more';
+
 export async function captureChartAsImage(containerRef: HTMLDivElement): Promise<string | null> {
   try {
-    const svg = containerRef.querySelector('svg');
-    if (!svg) {
-      console.warn('No SVG found in chart container');
+    const dataUrl = await domtoimage.toPng(containerRef, {
+      bgcolor: '#ffffff',
+      quality: 1,
+      width: containerRef.offsetWidth * 2,
+      height: containerRef.offsetHeight * 2,
+      style: {
+        transform: 'scale(2)',
+        transformOrigin: 'top left',
+      }
+    });
+    
+    return dataUrl;
+  } catch (error) {
+    console.error('Error capturing chart with dom-to-image:', error);
+    
+    // Fallback: try basic SVG serialization
+    try {
+      const svg = containerRef.querySelector('svg');
+      if (!svg) {
+        return null;
+      }
+      
+      const clonedSvg = svg.cloneNode(true) as SVGElement;
+      const rect = svg.getBoundingClientRect();
+      clonedSvg.setAttribute('width', String(rect.width));
+      clonedSvg.setAttribute('height', String(rect.height));
+      
+      const serializer = new XMLSerializer();
+      const svgString = serializer.serializeToString(clonedSvg);
+      const encodedData = btoa(unescape(encodeURIComponent(svgString)));
+      const dataUri = `data:image/svg+xml;base64,${encodedData}`;
+      
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = rect.width * 2;
+          canvas.height = rect.height * 2;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.scale(2, 2);
+            ctx.drawImage(img, 0, 0);
+            resolve(canvas.toDataURL('image/png'));
+          } else {
+            resolve(null);
+          }
+        };
+        img.onerror = () => resolve(null);
+        img.src = dataUri;
+      });
+    } catch (fallbackError) {
+      console.error('Fallback also failed:', fallbackError);
       return null;
     }
-
-    const clonedSvg = svg.cloneNode(true) as SVGElement;
-    
-    const rect = svg.getBoundingClientRect();
-    clonedSvg.setAttribute('width', String(rect.width));
-    clonedSvg.setAttribute('height', String(rect.height));
-    
-    const defs = clonedSvg.querySelector('defs');
-    if (defs) {
-      const gradients = defs.querySelectorAll('linearGradient, radialGradient');
-      gradients.forEach((gradient) => {
-        const id = gradient.getAttribute('id');
-        if (id) {
-          const elements = clonedSvg.querySelectorAll(`[stroke="url(#${id})"], [fill="url(#${id})"]`);
-          elements.forEach((el) => {
-            const stroke = el.getAttribute('stroke');
-            const fill = el.getAttribute('fill');
-            
-            if (stroke === `url(#${id})`) {
-              const stops = gradient.querySelectorAll('stop');
-              if (stops.length > 0) {
-                const color = stops[0].getAttribute('stop-color') || '#000';
-                el.setAttribute('stroke', color);
-              }
-            }
-            if (fill === `url(#${id})`) {
-              const stops = gradient.querySelectorAll('stop');
-              if (stops.length > 0) {
-                const color = stops[0].getAttribute('stop-color') || '#000';
-                el.setAttribute('fill', color);
-              }
-            }
-          });
-        }
-      });
-    }
-    
-    const serializer = new XMLSerializer();
-    const svgString = serializer.serializeToString(clonedSvg);
-    
-    const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
-    const url = URL.createObjectURL(svgBlob);
-    
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = rect.width * 2;
-        canvas.height = rect.height * 2;
-        
-        const ctx = canvas.getContext('2d');
-        if (!ctx) {
-          URL.revokeObjectURL(url);
-          reject(new Error('Could not get canvas context'));
-          return;
-        }
-        
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.scale(2, 2);
-        ctx.drawImage(img, 0, 0, rect.width, rect.height);
-        
-        URL.revokeObjectURL(url);
-        resolve(canvas.toDataURL('image/png'));
-      };
-      
-      img.onerror = (e) => {
-        URL.revokeObjectURL(url);
-        console.error('Image load error:', e);
-        reject(new Error('Failed to load SVG as image'));
-      };
-      
-      img.src = url;
-    });
-  } catch (error) {
-    console.error('Error capturing chart:', error);
-    return null;
   }
 }

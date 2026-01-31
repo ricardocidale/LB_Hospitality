@@ -512,26 +512,23 @@ export default function Admin() {
   );
 
   const renderVerification = () => (
-    <Card className="relative overflow-hidden bg-[#0a0a0f]/95 backdrop-blur-3xl border border-white/10 shadow-2xl shadow-black/50">
-      <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] via-transparent to-black/20" />
+    <Card className="relative overflow-hidden bg-white/80 backdrop-blur-xl border border-gray-200 shadow-2xl">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-[#9FBCA4]/20 blur-[100px] animate-pulse" style={{ animationDuration: '4s' }} />
-        <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-[#257D41]/15 blur-[100px] animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-[#9FBCA4]/10 blur-[120px]" />
+        <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-[#9FBCA4]/10 blur-[100px] animate-pulse" style={{ animationDuration: '4s' }} />
+        <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-[#257D41]/10 blur-[100px] animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
       </div>
-      <div className="absolute inset-0 shadow-[inset_0_0_100px_rgba(159,188,164,0.05)]" />
       
       <CardHeader className="relative">
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-xl font-display text-[#FFF9F5]">Financial Verification</CardTitle>
-            <CardDescription className="label-text text-white/60">
+            <CardTitle className="text-xl font-display text-gray-900">Financial Verification</CardTitle>
+            <CardDescription className="label-text text-gray-600">
               Run formula and GAAP compliance checks on all statements
             </CardDescription>
           </div>
           <GlassButton variant="primary" onClick={() => runVerification.mutate()} disabled={runVerification.isPending} data-testid="button-run-verification">
             {runVerification.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <PlayCircle className="w-4 h-4" />}
-            Run Verification
+            <span className="text-white" style={{ color: '#FFFFFF' }}>Run Verification</span>
           </GlassButton>
         </div>
       </CardHeader>
@@ -539,30 +536,30 @@ export default function Admin() {
       <CardContent className="relative space-y-6">
         {!verificationResults && !runVerification.isPending && (
           <div className="text-center py-12">
-            <FileCheck className="w-16 h-16 mx-auto text-white/30 mb-4" />
-            <p className="label-text text-white/60">Click "Run Verification" to check all financial statements</p>
+            <FileCheck className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+            <p className="label-text text-gray-500">Click "Run Verification" to check all financial statements</p>
           </div>
         )}
 
         {runVerification.isPending && (
           <div className="text-center py-12">
             <Loader2 className="w-16 h-16 mx-auto text-[#9FBCA4] animate-spin mb-4" />
-            <p className="label-text text-white/60">Running verification checks...</p>
+            <p className="label-text text-gray-500">Running verification checks...</p>
           </div>
         )}
 
         {verificationResults && (
           <>
-            <div className="p-5 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-xl shadow-lg">
+            <div className="p-5 rounded-2xl bg-gray-50 border border-gray-200 shadow-lg">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h3 className="font-display text-lg text-white font-semibold">Verification Results</h3>
-                  <p className="text-xs text-white/40 font-mono mt-1">Run at: {formatDate(verificationResults.timestamp)}</p>
+                  <h3 className="font-display text-lg text-gray-900 font-semibold">Verification Results</h3>
+                  <p className="text-xs text-gray-500 font-mono mt-1">Run at: {formatDate(verificationResults.timestamp)}</p>
                 </div>
                 <div className={`flex items-center gap-2 px-4 py-2 rounded-lg ${
-                  verificationResults.overallStatus === "PASS" ? "bg-green-500/20 text-green-400" :
-                  verificationResults.overallStatus === "WARNING" ? "bg-yellow-500/20 text-yellow-400" :
-                  "bg-red-500/20 text-red-400"
+                  verificationResults.overallStatus === "PASS" ? "bg-green-100 text-green-700" :
+                  verificationResults.overallStatus === "WARNING" ? "bg-yellow-100 text-yellow-700" :
+                  "bg-red-100 text-red-700"
                 }`}>
                   {verificationResults.overallStatus === "PASS" ? <CheckCircle2 className="w-5 h-5" /> :
                    verificationResults.overallStatus === "WARNING" ? <AlertTriangle className="w-5 h-5" /> :
@@ -572,60 +569,60 @@ export default function Admin() {
               </div>
 
               <div className="grid grid-cols-5 gap-4 text-center">
-                <div className="p-4 rounded-xl bg-white/[0.03] border border-white/10 backdrop-blur-sm">
-                  <div className="text-3xl font-mono font-bold text-white">{verificationResults.propertiesChecked}</div>
-                  <div className="text-xs text-white/50 label-text mt-1">Properties</div>
+                <div className="p-4 rounded-xl bg-white border border-gray-200 shadow-sm">
+                  <div className="text-3xl font-mono font-bold text-gray-900">{verificationResults.propertiesChecked}</div>
+                  <div className="text-xs text-gray-500 label-text mt-1">Properties</div>
                 </div>
-                <div className="p-4 rounded-xl bg-[#9FBCA4]/10 border border-[#9FBCA4]/20 backdrop-blur-sm">
-                  <div className="text-3xl font-mono font-bold text-[#9FBCA4]">{verificationResults.formulaChecks.passed}</div>
-                  <div className="text-xs text-white/50 label-text mt-1">Property Checks</div>
+                <div className="p-4 rounded-xl bg-[#9FBCA4]/10 border border-[#9FBCA4]/30 shadow-sm">
+                  <div className="text-3xl font-mono font-bold text-[#257D41]">{verificationResults.formulaChecks.passed}</div>
+                  <div className="text-xs text-gray-600 label-text mt-1">Property Checks</div>
                 </div>
-                <div className="p-4 rounded-xl bg-[#9FBCA4]/10 border border-[#9FBCA4]/20 backdrop-blur-sm">
-                  <div className="text-3xl font-mono font-bold text-[#9FBCA4]">{verificationResults.managementCompanyChecks?.passed || 0}</div>
-                  <div className="text-xs text-white/50 label-text mt-1">Mgmt Co Checks</div>
+                <div className="p-4 rounded-xl bg-[#9FBCA4]/10 border border-[#9FBCA4]/30 shadow-sm">
+                  <div className="text-3xl font-mono font-bold text-[#257D41]">{verificationResults.managementCompanyChecks?.passed || 0}</div>
+                  <div className="text-xs text-gray-600 label-text mt-1">Mgmt Co Checks</div>
                 </div>
-                <div className="p-4 rounded-xl bg-[#9FBCA4]/10 border border-[#9FBCA4]/20 backdrop-blur-sm">
-                  <div className="text-3xl font-mono font-bold text-[#9FBCA4]">{verificationResults.consolidatedChecks?.passed || 0}</div>
-                  <div className="text-xs text-white/50 label-text mt-1">Consolidated</div>
+                <div className="p-4 rounded-xl bg-[#9FBCA4]/10 border border-[#9FBCA4]/30 shadow-sm">
+                  <div className="text-3xl font-mono font-bold text-[#257D41]">{verificationResults.consolidatedChecks?.passed || 0}</div>
+                  <div className="text-xs text-gray-600 label-text mt-1">Consolidated</div>
                 </div>
-                <div className="p-4 rounded-xl bg-[#257D41]/10 border border-[#257D41]/20 backdrop-blur-sm">
-                  <div className="text-3xl font-mono font-bold text-[#9FBCA4]">{verificationResults.complianceChecks.passed}</div>
-                  <div className="text-xs text-white/50 label-text mt-1">GAAP Compliance</div>
+                <div className="p-4 rounded-xl bg-[#257D41]/10 border border-[#257D41]/30 shadow-sm">
+                  <div className="text-3xl font-mono font-bold text-[#257D41]">{verificationResults.complianceChecks.passed}</div>
+                  <div className="text-xs text-gray-600 label-text mt-1">GAAP Compliance</div>
                 </div>
               </div>
             </div>
 
             {/* Property Formula Checks */}
             {verificationResults.formulaChecks.details.map((property: any, pIdx: number) => (
-              <div key={pIdx} className="p-5 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-xl">
-                <h4 className="font-display text-white font-semibold mb-3">{property.name} <span className="text-white/50 font-normal text-sm">({property.type})</span></h4>
+              <div key={pIdx} className="p-5 rounded-2xl bg-gray-50 border border-gray-200">
+                <h4 className="font-display text-gray-900 font-semibold mb-3">{property.name} <span className="text-gray-500 font-normal text-sm">({property.type})</span></h4>
                 <div className="space-y-2">
                   {property.checks?.map((check: any, cIdx: number) => (
                     <div key={cIdx} className="space-y-1">
-                      <div className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.03]">
-                        {check.passed ? <CheckCircle2 className="w-5 h-5 text-[#9FBCA4] shrink-0" /> : <XCircle className="w-5 h-5 text-red-400 shrink-0" />}
+                      <div className="flex items-center gap-3 p-3 rounded-lg bg-white border border-gray-100">
+                        {check.passed ? <CheckCircle2 className="w-5 h-5 text-[#257D41] shrink-0" /> : <XCircle className="w-5 h-5 text-red-500 shrink-0" />}
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
-                            <span className="text-white/80 text-sm">{check.name}</span>
+                            <span className="text-gray-700 text-sm">{check.name}</span>
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <HelpCircle className="w-3.5 h-3.5 text-white/40 hover:text-white/60 cursor-help" />
+                                <HelpCircle className="w-3.5 h-3.5 text-gray-400 hover:text-gray-600 cursor-help" />
                               </TooltipTrigger>
                               <TooltipContent side="top" className="max-w-xs">
                                 <p>{check.description}</p>
                               </TooltipContent>
                             </Tooltip>
                           </div>
-                          <p className="text-xs text-white/50 mt-0.5">{check.description}</p>
+                          <p className="text-xs text-gray-500 mt-0.5">{check.description}</p>
                         </div>
-                        <span className={`text-xs px-2 py-1 rounded ${check.passed ? 'bg-[#9FBCA4]/20 text-[#9FBCA4]' : 'bg-red-500/20 text-red-400'}`}>
+                        <span className={`text-xs px-2 py-1 rounded ${check.passed ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                           {check.passed ? 'PASS' : 'FAIL'}
                         </span>
                       </div>
                       {!check.passed && (
-                        <div className="ml-8 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
-                          <p className="text-xs text-red-300 font-medium">Diagnosis: {check.diagnosis || 'Formula mismatch detected in calculations'}</p>
-                          <p className="text-xs text-white/60 mt-1">Solution: {check.solution || 'Review property assumptions and verify formula inputs match expected values'}</p>
+                        <div className="ml-8 p-3 rounded-lg bg-red-50 border border-red-200">
+                          <p className="text-xs text-red-700 font-medium">Diagnosis: {check.diagnosis || 'Formula mismatch detected in calculations'}</p>
+                          <p className="text-xs text-gray-600 mt-1">Solution: {check.solution || 'Review property assumptions and verify formula inputs match expected values'}</p>
                         </div>
                       )}
                     </div>
@@ -636,35 +633,35 @@ export default function Admin() {
 
             {/* Management Company Checks */}
             {verificationResults.managementCompanyChecks?.details?.map((entity: any, eIdx: number) => (
-              <div key={eIdx} className="p-5 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-xl">
-                <h4 className="font-display text-white font-semibold mb-3">{entity.name} <span className="text-white/50 font-normal text-sm">({entity.type})</span></h4>
+              <div key={eIdx} className="p-5 rounded-2xl bg-gray-50 border border-gray-200">
+                <h4 className="font-display text-gray-900 font-semibold mb-3">{entity.name} <span className="text-gray-500 font-normal text-sm">({entity.type})</span></h4>
                 <div className="space-y-2">
                   {entity.checks?.map((check: any, cIdx: number) => (
                     <div key={cIdx} className="space-y-1">
-                      <div className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.03]">
-                        {check.passed ? <CheckCircle2 className="w-5 h-5 text-[#9FBCA4] shrink-0" /> : <XCircle className="w-5 h-5 text-red-400 shrink-0" />}
+                      <div className="flex items-center gap-3 p-3 rounded-lg bg-white border border-gray-100">
+                        {check.passed ? <CheckCircle2 className="w-5 h-5 text-[#257D41] shrink-0" /> : <XCircle className="w-5 h-5 text-red-500 shrink-0" />}
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
-                            <span className="text-white/80 text-sm">{check.name}</span>
+                            <span className="text-gray-700 text-sm">{check.name}</span>
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <HelpCircle className="w-3.5 h-3.5 text-white/40 hover:text-white/60 cursor-help" />
+                                <HelpCircle className="w-3.5 h-3.5 text-gray-400 hover:text-gray-600 cursor-help" />
                               </TooltipTrigger>
                               <TooltipContent side="top" className="max-w-xs">
                                 <p>{check.description}</p>
                               </TooltipContent>
                             </Tooltip>
                           </div>
-                          <p className="text-xs text-white/50 mt-0.5">{check.description}</p>
+                          <p className="text-xs text-gray-500 mt-0.5">{check.description}</p>
                         </div>
-                        <span className={`text-xs px-2 py-1 rounded ${check.passed ? 'bg-[#9FBCA4]/20 text-[#9FBCA4]' : 'bg-red-500/20 text-red-400'}`}>
+                        <span className={`text-xs px-2 py-1 rounded ${check.passed ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                           {check.passed ? 'PASS' : 'FAIL'}
                         </span>
                       </div>
                       {!check.passed && (
-                        <div className="ml-8 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
-                          <p className="text-xs text-red-300 font-medium">Diagnosis: {check.diagnosis || 'Management company calculation error detected'}</p>
-                          <p className="text-xs text-white/60 mt-1">Solution: {check.solution || 'Verify management fee structures and revenue allocations'}</p>
+                        <div className="ml-8 p-3 rounded-lg bg-red-50 border border-red-200">
+                          <p className="text-xs text-red-700 font-medium">Diagnosis: {check.diagnosis || 'Management company calculation error detected'}</p>
+                          <p className="text-xs text-gray-600 mt-1">Solution: {check.solution || 'Verify management fee structures and revenue allocations'}</p>
                         </div>
                       )}
                     </div>
@@ -675,35 +672,35 @@ export default function Admin() {
 
             {/* Consolidated Checks */}
             {verificationResults.consolidatedChecks?.details?.map((entity: any, eIdx: number) => (
-              <div key={eIdx} className="p-5 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-xl">
-                <h4 className="font-display text-white font-semibold mb-3">{entity.name} <span className="text-white/50 font-normal text-sm">({entity.type})</span></h4>
+              <div key={eIdx} className="p-5 rounded-2xl bg-gray-50 border border-gray-200">
+                <h4 className="font-display text-gray-900 font-semibold mb-3">{entity.name} <span className="text-gray-500 font-normal text-sm">({entity.type})</span></h4>
                 <div className="space-y-2">
                   {entity.checks?.map((check: any, cIdx: number) => (
                     <div key={cIdx} className="space-y-1">
-                      <div className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.03]">
-                        {check.passed ? <CheckCircle2 className="w-5 h-5 text-[#9FBCA4] shrink-0" /> : <XCircle className="w-5 h-5 text-red-400 shrink-0" />}
+                      <div className="flex items-center gap-3 p-3 rounded-lg bg-white border border-gray-100">
+                        {check.passed ? <CheckCircle2 className="w-5 h-5 text-[#257D41] shrink-0" /> : <XCircle className="w-5 h-5 text-red-500 shrink-0" />}
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
-                            <span className="text-white/80 text-sm">{check.name}</span>
+                            <span className="text-gray-700 text-sm">{check.name}</span>
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <HelpCircle className="w-3.5 h-3.5 text-white/40 hover:text-white/60 cursor-help" />
+                                <HelpCircle className="w-3.5 h-3.5 text-gray-400 hover:text-gray-600 cursor-help" />
                               </TooltipTrigger>
                               <TooltipContent side="top" className="max-w-xs">
                                 <p>{check.description}</p>
                               </TooltipContent>
                             </Tooltip>
                           </div>
-                          <p className="text-xs text-white/50 mt-0.5">{check.description}</p>
+                          <p className="text-xs text-gray-500 mt-0.5">{check.description}</p>
                         </div>
-                        <span className={`text-xs px-2 py-1 rounded ${check.passed ? 'bg-[#9FBCA4]/20 text-[#9FBCA4]' : 'bg-red-500/20 text-red-400'}`}>
+                        <span className={`text-xs px-2 py-1 rounded ${check.passed ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                           {check.passed ? 'PASS' : 'FAIL'}
                         </span>
                       </div>
                       {!check.passed && (
-                        <div className="ml-8 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
-                          <p className="text-xs text-red-300 font-medium">Diagnosis: {check.diagnosis || 'Consolidation mismatch between entities'}</p>
-                          <p className="text-xs text-white/60 mt-1">Solution: {check.solution || 'Review inter-company eliminations and ensure all entities are properly consolidated'}</p>
+                        <div className="ml-8 p-3 rounded-lg bg-red-50 border border-red-200">
+                          <p className="text-xs text-red-700 font-medium">Diagnosis: {check.diagnosis || 'Consolidation mismatch between entities'}</p>
+                          <p className="text-xs text-gray-600 mt-1">Solution: {check.solution || 'Review inter-company eliminations and ensure all entities are properly consolidated'}</p>
                         </div>
                       )}
                     </div>
@@ -713,36 +710,36 @@ export default function Admin() {
             ))}
 
             {/* GAAP Compliance Checks */}
-            <div className="p-5 rounded-2xl bg-[#257D41]/10 border border-[#257D41]/30 backdrop-blur-xl">
-              <h4 className="font-display text-[#9FBCA4] font-semibold mb-3">GAAP Compliance Standards</h4>
+            <div className="p-5 rounded-2xl bg-[#257D41]/10 border border-[#257D41]/30">
+              <h4 className="font-display text-[#257D41] font-semibold mb-3">GAAP Compliance Standards</h4>
               <div className="space-y-2">
                 {verificationResults.complianceChecks.details.map((check: any, cIdx: number) => (
                   <div key={cIdx} className="space-y-1">
-                    <div className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.03]">
-                      {check.passed ? <CheckCircle2 className="w-5 h-5 text-[#9FBCA4] shrink-0" /> : <XCircle className="w-5 h-5 text-red-400 shrink-0" />}
+                    <div className="flex items-center gap-3 p-3 rounded-lg bg-white border border-gray-100">
+                      {check.passed ? <CheckCircle2 className="w-5 h-5 text-[#257D41] shrink-0" /> : <XCircle className="w-5 h-5 text-red-500 shrink-0" />}
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-xs px-2 py-0.5 rounded bg-white/10 text-white/60">{check.category}</span>
-                          <span className="text-white/80 text-sm">{check.rule}</span>
+                          <span className="text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">{check.category}</span>
+                          <span className="text-gray-700 text-sm">{check.rule}</span>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <HelpCircle className="w-3.5 h-3.5 text-white/40 hover:text-white/60 cursor-help" />
+                              <HelpCircle className="w-3.5 h-3.5 text-gray-400 hover:text-gray-600 cursor-help" />
                             </TooltipTrigger>
                             <TooltipContent side="top" className="max-w-xs">
                               <p>Scope: {check.scope}</p>
                             </TooltipContent>
                           </Tooltip>
                         </div>
-                        <p className="text-xs text-white/50 mt-0.5">Scope: {check.scope}</p>
+                        <p className="text-xs text-gray-500 mt-0.5">Scope: {check.scope}</p>
                       </div>
-                      <span className={`text-xs px-2 py-1 rounded ${check.passed ? 'bg-[#9FBCA4]/20 text-[#9FBCA4]' : 'bg-red-500/20 text-red-400'}`}>
+                      <span className={`text-xs px-2 py-1 rounded ${check.passed ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                         {check.passed ? 'PASS' : 'FAIL'}
                       </span>
                     </div>
                     {!check.passed && (
-                      <div className="ml-8 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
-                        <p className="text-xs text-red-300 font-medium">Diagnosis: {check.diagnosis || `Non-compliance with ${check.category} standard detected`}</p>
-                        <p className="text-xs text-white/60 mt-1">Solution: {check.solution || `Review ${check.scope} to ensure compliance with GAAP ${check.category} requirements`}</p>
+                      <div className="ml-8 p-3 rounded-lg bg-red-50 border border-red-200">
+                        <p className="text-xs text-red-700 font-medium">Diagnosis: {check.diagnosis || `Non-compliance with ${check.category} standard detected`}</p>
+                        <p className="text-xs text-gray-600 mt-1">Solution: {check.solution || `Review ${check.scope} to ensure compliance with GAAP ${check.category} requirements`}</p>
                       </div>
                     )}
                   </div>
@@ -756,26 +753,23 @@ export default function Admin() {
   );
 
   const renderDesign = () => (
-    <Card className="relative overflow-hidden bg-[#0a0a0f]/95 backdrop-blur-3xl border border-white/10 shadow-2xl shadow-black/50">
-      <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] via-transparent to-black/20" />
+    <Card className="relative overflow-hidden bg-white/80 backdrop-blur-xl border border-gray-200 shadow-2xl">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-[#9FBCA4]/20 blur-[100px] animate-pulse" style={{ animationDuration: '4s' }} />
-        <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-[#257D41]/15 blur-[100px] animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-[#9FBCA4]/10 blur-[120px]" />
+        <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-[#9FBCA4]/10 blur-[100px] animate-pulse" style={{ animationDuration: '4s' }} />
+        <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-[#257D41]/10 blur-[100px] animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
       </div>
-      <div className="absolute inset-0 shadow-[inset_0_0_100px_rgba(159,188,164,0.05)]" />
       
       <CardHeader className="relative">
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-xl font-display text-[#FFF9F5]">Design Consistency Verification</CardTitle>
-            <CardDescription className="label-text text-white/60">
+            <CardTitle className="text-xl font-display text-gray-900">Design Consistency Verification</CardTitle>
+            <CardDescription className="label-text text-gray-600">
               Check fonts, typography, color palette, and component standards across all pages
             </CardDescription>
           </div>
           <GlassButton variant="primary" onClick={() => runDesignCheck.mutate()} disabled={runDesignCheck.isPending} data-testid="button-run-design-check">
             {runDesignCheck.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Palette className="w-4 h-4" />}
-            Run Design Check
+            <span className="text-white" style={{ color: '#FFFFFF' }}>Run Design Check</span>
           </GlassButton>
         </div>
       </CardHeader>
@@ -783,17 +777,17 @@ export default function Admin() {
       <CardContent className="relative space-y-6">
         {!designResults && !runDesignCheck.isPending && (
           <div className="text-center py-12">
-            <Palette className="w-16 h-16 mx-auto text-white/30 mb-4" />
-            <p className="label-text text-white/60">Click "Run Design Check" to verify design consistency</p>
-            <div className="mt-6 p-4 rounded-xl bg-white/5 border border-white/10 max-w-md mx-auto">
-              <h4 className="font-display text-[#9FBCA4] mb-3">What We Check</h4>
-              <ul className="text-sm text-white/70 label-text space-y-2 text-left">
-                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#9FBCA4]" />Color palette compliance (#257D41, #9FBCA4, #FFF9F5)</li>
-                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#9FBCA4]" />Typography standards (font-display, label-text, font-mono)</li>
-                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#9FBCA4]" />Button consistency (GlassButton usage)</li>
-                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#9FBCA4]" />Page header standardization</li>
-                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#9FBCA4]" />Dark glass theme implementation</li>
-                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#9FBCA4]" />Testing attributes (data-testid)</li>
+            <Palette className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+            <p className="label-text text-gray-500">Click "Run Design Check" to verify design consistency</p>
+            <div className="mt-6 p-4 rounded-xl bg-gray-50 border border-gray-200 max-w-md mx-auto">
+              <h4 className="font-display text-[#257D41] mb-3">What We Check</h4>
+              <ul className="text-sm text-gray-600 label-text space-y-2 text-left">
+                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#257D41]" />Color palette compliance (#257D41, #9FBCA4, #FFF9F5)</li>
+                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#257D41]" />Typography standards (font-display, label-text, font-mono)</li>
+                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#257D41]" />Button consistency (GlassButton usage)</li>
+                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#257D41]" />Page header standardization</li>
+                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#257D41]" />Dark glass theme implementation</li>
+                <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#257D41]" />Testing attributes (data-testid)</li>
               </ul>
             </div>
           </div>
@@ -801,23 +795,23 @@ export default function Admin() {
 
         {runDesignCheck.isPending && (
           <div className="text-center py-12">
-            <Loader2 className="w-16 h-16 mx-auto text-[#9FBCA4] animate-spin mb-4" />
-            <p className="label-text text-white/60">Analyzing design consistency...</p>
+            <Loader2 className="w-16 h-16 mx-auto text-[#257D41] animate-spin mb-4" />
+            <p className="label-text text-gray-500">Analyzing design consistency...</p>
           </div>
         )}
 
         {designResults && (
           <>
-            <div className="p-5 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-xl shadow-lg">
+            <div className="p-5 rounded-2xl bg-gray-50 border border-gray-200 shadow-lg">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h3 className="font-display text-lg text-white font-semibold">Design Check Results</h3>
-                  <p className="text-xs text-white/40 font-mono mt-1">Run at: {formatDate(designResults.timestamp)}</p>
+                  <h3 className="font-display text-lg text-gray-900 font-semibold">Design Check Results</h3>
+                  <p className="text-xs text-gray-500 font-mono mt-1">Run at: {formatDate(designResults.timestamp)}</p>
                 </div>
                 <div className={`flex items-center gap-2 px-4 py-2 rounded-xl ${
-                  designResults.overallStatus === "PASS" ? "bg-[#9FBCA4]/20 text-[#9FBCA4]" :
-                  designResults.overallStatus === "WARNING" ? "bg-yellow-500/20 text-yellow-400" :
-                  "bg-red-500/20 text-red-400"
+                  designResults.overallStatus === "PASS" ? "bg-green-100 text-green-700" :
+                  designResults.overallStatus === "WARNING" ? "bg-yellow-100 text-yellow-700" :
+                  "bg-red-100 text-red-700"
                 }`}>
                   {designResults.overallStatus === "PASS" ? <CheckCircle2 className="w-5 h-5" /> :
                    designResults.overallStatus === "WARNING" ? <AlertTriangle className="w-5 h-5" /> :
@@ -827,64 +821,64 @@ export default function Admin() {
               </div>
 
               <div className="grid grid-cols-4 gap-4 text-center mb-6">
-                <div className="p-4 rounded-xl bg-white/[0.03] border border-white/10 backdrop-blur-sm">
-                  <div className="text-3xl font-mono font-bold text-white">{designResults.totalChecks}</div>
-                  <div className="text-xs text-white/50 label-text mt-1">Total Checks</div>
+                <div className="p-4 rounded-xl bg-white border border-gray-200 shadow-sm">
+                  <div className="text-3xl font-mono font-bold text-gray-900">{designResults.totalChecks}</div>
+                  <div className="text-xs text-gray-500 label-text mt-1">Total Checks</div>
                 </div>
-                <div className="p-4 rounded-xl bg-[#9FBCA4]/10 border border-[#9FBCA4]/20 backdrop-blur-sm">
-                  <div className="text-3xl font-mono font-bold text-[#9FBCA4]">{designResults.passed}</div>
-                  <div className="text-xs text-white/50 label-text mt-1">Passed</div>
+                <div className="p-4 rounded-xl bg-[#9FBCA4]/10 border border-[#9FBCA4]/30 shadow-sm">
+                  <div className="text-3xl font-mono font-bold text-[#257D41]">{designResults.passed}</div>
+                  <div className="text-xs text-gray-600 label-text mt-1">Passed</div>
                 </div>
-                <div className="p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/20 backdrop-blur-sm">
-                  <div className="text-3xl font-mono font-bold text-yellow-400">{designResults.warnings}</div>
-                  <div className="text-xs text-white/50 label-text mt-1">Warnings</div>
+                <div className="p-4 rounded-xl bg-yellow-50 border border-yellow-200 shadow-sm">
+                  <div className="text-3xl font-mono font-bold text-yellow-600">{designResults.warnings}</div>
+                  <div className="text-xs text-gray-600 label-text mt-1">Warnings</div>
                 </div>
-                <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 backdrop-blur-sm">
-                  <div className="text-3xl font-mono font-bold text-red-400">{designResults.failed}</div>
-                  <div className="text-xs text-white/50 label-text mt-1">Failed</div>
+                <div className="p-4 rounded-xl bg-red-50 border border-red-200 shadow-sm">
+                  <div className="text-3xl font-mono font-bold text-red-600">{designResults.failed}</div>
+                  <div className="text-xs text-gray-600 label-text mt-1">Failed</div>
                 </div>
               </div>
 
               <div className="space-y-2">
                 {designResults.checks.map((check, i) => (
                   <div key={i} className="space-y-1">
-                    <div className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.03]">
-                      {check.status === "pass" ? <CheckCircle2 className="w-5 h-5 text-[#9FBCA4] shrink-0" /> :
-                       check.status === "warning" ? <AlertTriangle className="w-5 h-5 text-yellow-400 shrink-0" /> :
-                       <XCircle className="w-5 h-5 text-red-400 shrink-0" />}
+                    <div className="flex items-center gap-3 p-3 rounded-lg bg-white border border-gray-100">
+                      {check.status === "pass" ? <CheckCircle2 className="w-5 h-5 text-[#257D41] shrink-0" /> :
+                       check.status === "warning" ? <AlertTriangle className="w-5 h-5 text-yellow-500 shrink-0" /> :
+                       <XCircle className="w-5 h-5 text-red-500 shrink-0" />}
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-xs px-2 py-0.5 rounded bg-white/10 text-white/60">{check.category}</span>
-                          <span className="text-white/80 text-sm">{check.rule}</span>
+                          <span className="text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">{check.category}</span>
+                          <span className="text-gray-700 text-sm">{check.rule}</span>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <HelpCircle className="w-3.5 h-3.5 text-white/40 hover:text-white/60 cursor-help" />
+                              <HelpCircle className="w-3.5 h-3.5 text-gray-400 hover:text-gray-600 cursor-help" />
                             </TooltipTrigger>
                             <TooltipContent side="top" className="max-w-xs">
                               <p>{check.details}</p>
                             </TooltipContent>
                           </Tooltip>
                         </div>
-                        <p className="text-xs text-white/50 mt-0.5">{check.details}</p>
+                        <p className="text-xs text-gray-500 mt-0.5">{check.details}</p>
                       </div>
                       <span className={`text-xs px-2 py-1 rounded ${
-                        check.status === "pass" ? 'bg-[#9FBCA4]/20 text-[#9FBCA4]' : 
-                        check.status === "warning" ? 'bg-yellow-500/20 text-yellow-400' :
-                        'bg-red-500/20 text-red-400'
+                        check.status === "pass" ? 'bg-green-100 text-green-700' : 
+                        check.status === "warning" ? 'bg-yellow-100 text-yellow-700' :
+                        'bg-red-100 text-red-700'
                       }`}>
                         {check.status === "pass" ? 'PASS' : check.status === "warning" ? 'WARNING' : 'FAIL'}
                       </span>
                     </div>
                     {check.status === "fail" && (
-                      <div className="ml-8 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
-                        <p className="text-xs text-red-300 font-medium">Diagnosis: {check.diagnosis || `Design standard violation in ${check.category}`}</p>
-                        <p className="text-xs text-white/60 mt-1">Solution: {check.solution || `Update component to follow ${check.category} design guidelines`}</p>
+                      <div className="ml-8 p-3 rounded-lg bg-red-50 border border-red-200">
+                        <p className="text-xs text-red-700 font-medium">Diagnosis: {check.diagnosis || `Design standard violation in ${check.category}`}</p>
+                        <p className="text-xs text-gray-600 mt-1">Solution: {check.solution || `Update component to follow ${check.category} design guidelines`}</p>
                       </div>
                     )}
                     {check.status === "warning" && (
-                      <div className="ml-8 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
-                        <p className="text-xs text-yellow-300 font-medium">Diagnosis: {check.diagnosis || `Minor design inconsistency in ${check.category}`}</p>
-                        <p className="text-xs text-white/60 mt-1">Solution: {check.solution || `Consider updating to improve ${check.category} consistency`}</p>
+                      <div className="ml-8 p-3 rounded-lg bg-yellow-50 border border-yellow-200">
+                        <p className="text-xs text-yellow-700 font-medium">Diagnosis: {check.diagnosis || `Minor design inconsistency in ${check.category}`}</p>
+                        <p className="text-xs text-gray-600 mt-1">Solution: {check.solution || `Consider updating to improve ${check.category} consistency`}</p>
                       </div>
                     )}
                   </div>

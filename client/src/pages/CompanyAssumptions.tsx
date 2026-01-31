@@ -355,11 +355,24 @@ export default function CompanyAssumptions() {
           <div className="relative">
           <div className="space-y-6">
             <div>
-              <h3 className="text-lg font-display text-gray-900 flex items-center">
-                SAFE Funding
-                <HelpTooltip text="Simple Agreement for Future Equity - initial capital to fund management company operations before fee revenue begins" />
-              </h3>
-              <p className="text-gray-600 text-sm label-text">Capital raised via SAFE in two tranches to support operations</p>
+              <div className="flex items-center gap-4 mb-2">
+                <h3 className="text-lg font-display text-gray-900 flex items-center">
+                  {formData.fundingSourceLabel ?? global.fundingSourceLabel ?? "SAFE"} Funding
+                  <HelpTooltip text="Initial capital to fund management company operations before fee revenue begins" />
+                </h3>
+              </div>
+              <div className="flex items-center gap-3 mb-3">
+                <Label className="text-gray-600 text-sm label-text whitespace-nowrap">Funding Source Name:</Label>
+                <Input
+                  type="text"
+                  value={formData.fundingSourceLabel ?? global.fundingSourceLabel ?? "SAFE"}
+                  onChange={(e) => handleUpdate("fundingSourceLabel", e.target.value)}
+                  placeholder="e.g., SAFE, Seed, Series A"
+                  className="max-w-48 bg-white border-[#9FBCA4]/30 text-gray-900"
+                />
+                <HelpTooltip text="Customize the name of your funding source (default: SAFE)" />
+              </div>
+              <p className="text-gray-600 text-sm label-text">Capital raised via {formData.fundingSourceLabel ?? global.fundingSourceLabel ?? "SAFE"} in two tranches to support operations</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="p-4 bg-[#9FBCA4]/10 rounded-lg space-y-4">
@@ -429,7 +442,7 @@ export default function CompanyAssumptions() {
             </div>
             <div className="mt-4 pt-4 border-t border-[#9FBCA4]/20 grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
-                <Label className="text-gray-600 text-sm label-text">Total SAFE Raise</Label>
+                <Label className="text-gray-600 text-sm label-text">Total {formData.fundingSourceLabel ?? global.fundingSourceLabel ?? "SAFE"} Raise</Label>
                 <p className="font-mono font-semibold text-lg text-gray-900">
                   {formatMoney((formData.safeTranche1Amount ?? global.safeTranche1Amount) + (formData.safeTranche2Amount ?? global.safeTranche2Amount))}
                 </p>

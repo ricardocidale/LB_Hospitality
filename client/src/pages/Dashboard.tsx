@@ -1986,19 +1986,19 @@ export default function Dashboard() {
                     {expandedRows.has('revenue') && (
                       <>
                         <TableRow className="bg-muted/5">
-                          <TableCell className="sticky left-0 bg-muted/5 pl-8 text-muted-foreground label-text">Wtd Avg ADR</TableCell>
+                          <TableCell className="sticky left-0 bg-muted/5 pl-12 text-muted-foreground label-text">Wtd Avg ADR</TableCell>
                           {Array.from({ length: 10 }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getWeightedMetrics(y).weightedADR)}</TableCell>
                           ))}
                         </TableRow>
                         <TableRow className="bg-muted/5">
-                          <TableCell className="sticky left-0 bg-muted/5 pl-8 text-muted-foreground label-text">Wtd Avg Occupancy</TableCell>
+                          <TableCell className="sticky left-0 bg-muted/5 pl-12 text-muted-foreground label-text">Wtd Avg Occupancy</TableCell>
                           {Array.from({ length: 10 }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground font-mono">{(getWeightedMetrics(y).weightedOcc * 100).toFixed(1)}%</TableCell>
                           ))}
                         </TableRow>
                         <TableRow className="bg-muted/5">
-                          <TableCell className="sticky left-0 bg-muted/5 pl-8 text-muted-foreground label-text">RevPAR</TableCell>
+                          <TableCell className="sticky left-0 bg-muted/5 pl-12 text-muted-foreground label-text">RevPAR</TableCell>
                           {Array.from({ length: 10 }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getWeightedMetrics(y).revPAR)}</TableCell>
                           ))}
@@ -2461,6 +2461,24 @@ export default function Dashboard() {
                     </TableRow>
                     {expandedRows.has('cfInflows') && (
                       <>
+                        <TableRow className="bg-muted/5">
+                          <TableCell className="sticky left-0 bg-muted/5 pl-12 text-muted-foreground label-text">Wtd Avg ADR</TableCell>
+                          {Array.from({ length: 10 }, (_, y) => (
+                            <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getWeightedMetrics(y).weightedADR)}</TableCell>
+                          ))}
+                        </TableRow>
+                        <TableRow className="bg-muted/5">
+                          <TableCell className="sticky left-0 bg-muted/5 pl-12 text-muted-foreground label-text">Wtd Avg Occupancy</TableCell>
+                          {Array.from({ length: 10 }, (_, y) => (
+                            <TableCell key={y} className="text-right text-muted-foreground font-mono">{(getWeightedMetrics(y).weightedOcc * 100).toFixed(1)}%</TableCell>
+                          ))}
+                        </TableRow>
+                        <TableRow className="bg-muted/5">
+                          <TableCell className="sticky left-0 bg-muted/5 pl-12 text-muted-foreground label-text">RevPAR</TableCell>
+                          {Array.from({ length: 10 }, (_, y) => (
+                            <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getWeightedMetrics(y).revPAR)}</TableCell>
+                          ))}
+                        </TableRow>
                         <TableRow>
                           <TableCell className="sticky left-0 bg-card pl-8 text-muted-foreground">Room Revenue</TableCell>
                           {Array.from({ length: 10 }, (_, y) => (

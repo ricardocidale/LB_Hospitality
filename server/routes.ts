@@ -70,6 +70,38 @@ export async function registerRoutes(
     }
   });
 
+  // Admin auto-login (for development/demo convenience)
+  app.post("/api/auth/admin-login", async (req, res) => {
+    try {
+      const user = await storage.getUserByEmail("admin");
+      if (!user) {
+        return res.status(401).json({ error: "Admin user not found" });
+      }
+      
+      const adminPassword = process.env.ADMIN_PASSWORD;
+      if (!adminPassword) {
+        return res.status(401).json({ error: "Admin password not configured" });
+      }
+      
+      const isValid = await verifyPassword(adminPassword, user.passwordHash);
+      if (!isValid) {
+        return res.status(401).json({ error: "Invalid admin credentials" });
+      }
+      
+      const sessionId = generateSessionId();
+      const expiresAt = getSessionExpiryDate();
+      await storage.createSession(user.id, sessionId, expiresAt);
+      setSessionCookie(res, sessionId);
+      
+      res.json({ 
+        user: { id: user.id, email: user.email, name: user.name, company: user.company, title: user.title, role: user.role }
+      });
+    } catch (error) {
+      console.error("Admin login error:", error);
+      res.status(500).json({ error: "Admin login failed" });
+    }
+  });
+
   app.post("/api/auth/logout", async (req, res) => {
     try {
       if (req.sessionId) {

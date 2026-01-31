@@ -21,8 +21,16 @@ export default function Login() {
   const handleAdminLogin = async () => {
     setIsLoading(true);
     try {
-      await login("admin", "admin");
-      setLocation("/");
+      const response = await fetch("/api/auth/admin-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Admin login failed");
+      }
+      window.location.href = "/";
     } catch (error: any) {
       toast({
         title: "Login Failed",

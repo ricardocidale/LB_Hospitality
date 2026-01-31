@@ -354,7 +354,17 @@ export async function registerRoutes(
   app.get("/api/admin/login-logs", requireAdmin, async (req, res) => {
     try {
       const logs = await storage.getLoginLogs();
-      res.json(logs);
+      const flattenedLogs = logs.map(log => ({
+        id: log.id,
+        userId: log.userId,
+        sessionId: log.sessionId,
+        loginAt: log.loginAt,
+        logoutAt: log.logoutAt,
+        ipAddress: log.ipAddress,
+        userEmail: log.user.email,
+        userName: log.user.name,
+      }));
+      res.json(flattenedLogs);
     } catch (error) {
       console.error("Error fetching login logs:", error);
       res.status(500).json({ error: "Failed to fetch login logs" });

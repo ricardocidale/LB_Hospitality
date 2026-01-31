@@ -405,8 +405,8 @@ export default function Dashboard() {
     const rows: { category: string; values: number[]; isHeader?: boolean; indent?: number }[] = [];
     
     rows.push({ category: "Total Revenue", values: years.map((_, i) => getYearlyConsolidated(i).revenueTotal), isHeader: true });
-    rows.push({ category: "Rooms Revenue", values: years.map((_, i) => getYearlyConsolidated(i).revenueRooms), indent: 1 });
-    rows.push({ category: "Events Revenue", values: years.map((_, i) => getYearlyConsolidated(i).revenueEvents), indent: 1 });
+    rows.push({ category: "Room Revenue", values: years.map((_, i) => getYearlyConsolidated(i).revenueRooms), indent: 1 });
+    rows.push({ category: "Event Revenue", values: years.map((_, i) => getYearlyConsolidated(i).revenueEvents), indent: 1 });
     rows.push({ category: "F&B Revenue", values: years.map((_, i) => getYearlyConsolidated(i).revenueFB), indent: 1 });
     rows.push({ category: "Other Revenue", values: years.map((_, i) => getYearlyConsolidated(i).revenueOther), indent: 1 });
     
@@ -429,9 +429,9 @@ export default function Dashboard() {
       }), 
       isHeader: true 
     });
-    rows.push({ category: "Rooms Expense", values: years.map((_, i) => getYearlyConsolidated(i).expenseRooms), indent: 1 });
+    rows.push({ category: "Room Expense", values: years.map((_, i) => getYearlyConsolidated(i).expenseRooms), indent: 1 });
     rows.push({ category: "F&B Expense", values: years.map((_, i) => getYearlyConsolidated(i).expenseFB), indent: 1 });
-    rows.push({ category: "Events Expense", values: years.map((_, i) => getYearlyConsolidated(i).expenseEvents), indent: 1 });
+    rows.push({ category: "Event Expense", values: years.map((_, i) => getYearlyConsolidated(i).expenseEvents), indent: 1 });
     rows.push({ category: "Marketing", values: years.map((_, i) => getYearlyConsolidated(i).expenseMarketing), indent: 1 });
     rows.push({ category: "Property Ops", values: years.map((_, i) => getYearlyConsolidated(i).expensePropertyOps), indent: 1 });
     rows.push({ category: "Admin", values: years.map((_, i) => getYearlyConsolidated(i).expenseAdmin), indent: 1 });
@@ -534,8 +534,8 @@ export default function Dashboard() {
     const rows: { category: string; values: number[]; isHeader?: boolean; indent?: number; isNegative?: boolean }[] = [];
     
     rows.push({ category: "CASH INFLOWS (Revenue)", values: years.map((_, i) => getYearlyConsolidated(i).revenueTotal), isHeader: true });
-    rows.push({ category: "Rooms Revenue", values: years.map((_, i) => getYearlyConsolidated(i).revenueRooms), indent: 1 });
-    rows.push({ category: "Events Revenue", values: years.map((_, i) => getYearlyConsolidated(i).revenueEvents), indent: 1 });
+    rows.push({ category: "Room Revenue", values: years.map((_, i) => getYearlyConsolidated(i).revenueRooms), indent: 1 });
+    rows.push({ category: "Event Revenue", values: years.map((_, i) => getYearlyConsolidated(i).revenueEvents), indent: 1 });
     rows.push({ category: "F&B Revenue", values: years.map((_, i) => getYearlyConsolidated(i).revenueFB), indent: 1 });
     rows.push({ category: "Other Revenue", values: years.map((_, i) => getYearlyConsolidated(i).revenueOther), indent: 1 });
     
@@ -564,9 +564,9 @@ export default function Dashboard() {
       const d = getYearlyConsolidated(i);
       return -(d.expenseRooms + d.expenseFB + d.expenseEvents + d.expenseOther);
     }), indent: 1, isNegative: true });
-    rows.push({ category: "Rooms Expense", values: years.map((_, i) => -getYearlyConsolidated(i).expenseRooms), indent: 2, isNegative: true });
+    rows.push({ category: "Room Expense", values: years.map((_, i) => -getYearlyConsolidated(i).expenseRooms), indent: 2, isNegative: true });
     rows.push({ category: "F&B Expense", values: years.map((_, i) => -getYearlyConsolidated(i).expenseFB), indent: 2, isNegative: true });
-    rows.push({ category: "Events Expense", values: years.map((_, i) => -getYearlyConsolidated(i).expenseEvents), indent: 2, isNegative: true });
+    rows.push({ category: "Event Expense", values: years.map((_, i) => -getYearlyConsolidated(i).expenseEvents), indent: 2, isNegative: true });
     rows.push({ category: "Other Direct", values: years.map((_, i) => -getYearlyConsolidated(i).expenseOther), indent: 2, isNegative: true });
     
     rows.push({ category: "Overhead & Admin", values: years.map((_, i) => {
@@ -1950,13 +1950,13 @@ export default function Dashboard() {
                     {expandedRows.has('revenue') && (
                       <>
                         <TableRow>
-                          <TableCell className="sticky left-0 bg-card pl-8 text-muted-foreground">Rooms Revenue</TableCell>
+                          <TableCell className="sticky left-0 bg-card pl-8 text-muted-foreground">Room Revenue</TableCell>
                           {Array.from({ length: 10 }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).revenueRooms)}</TableCell>
                           ))}
                         </TableRow>
                         <TableRow>
-                          <TableCell className="sticky left-0 bg-card pl-8 text-muted-foreground">Events Revenue</TableCell>
+                          <TableCell className="sticky left-0 bg-card pl-8 text-muted-foreground">Event Revenue</TableCell>
                           {Array.from({ length: 10 }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).revenueEvents)}</TableCell>
                           ))}
@@ -2047,7 +2047,7 @@ export default function Dashboard() {
                         {expandedRows.has('opexDirect') && (
                           <>
                             <TableRow className="bg-muted/10">
-                              <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Rooms Expense</TableCell>
+                              <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Room Expense</TableCell>
                               {Array.from({ length: 10 }, (_, y) => (
                                 <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).expenseRooms)}</TableCell>
                               ))}
@@ -2059,7 +2059,7 @@ export default function Dashboard() {
                               ))}
                             </TableRow>
                             <TableRow className="bg-muted/10">
-                              <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Events Expense</TableCell>
+                              <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Event Expense</TableCell>
                               {Array.from({ length: 10 }, (_, y) => (
                                 <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).expenseEvents)}</TableCell>
                               ))}
@@ -2408,13 +2408,13 @@ export default function Dashboard() {
                     {expandedRows.has('cfInflows') && (
                       <>
                         <TableRow>
-                          <TableCell className="sticky left-0 bg-card pl-8 text-muted-foreground">Rooms Revenue</TableCell>
+                          <TableCell className="sticky left-0 bg-card pl-8 text-muted-foreground">Room Revenue</TableCell>
                           {Array.from({ length: 10 }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).revenueRooms)}</TableCell>
                           ))}
                         </TableRow>
                         <TableRow>
-                          <TableCell className="sticky left-0 bg-card pl-8 text-muted-foreground">Events Revenue</TableCell>
+                          <TableCell className="sticky left-0 bg-card pl-8 text-muted-foreground">Event Revenue</TableCell>
                           {Array.from({ length: 10 }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).revenueEvents)}</TableCell>
                           ))}
@@ -2505,7 +2505,7 @@ export default function Dashboard() {
                         {expandedRows.has('cfDirect') && (
                           <>
                             <TableRow className="bg-muted/10">
-                              <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Rooms Expense</TableCell>
+                              <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Room Expense</TableCell>
                               {Array.from({ length: 10 }, (_, y) => (
                                 <TableCell key={y} className="text-right text-sm text-muted-foreground">({formatMoney(getYearlyConsolidated(y).expenseRooms)})</TableCell>
                               ))}
@@ -2517,7 +2517,7 @@ export default function Dashboard() {
                               ))}
                             </TableRow>
                             <TableRow className="bg-muted/10">
-                              <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Events Expense</TableCell>
+                              <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Event Expense</TableCell>
                               {Array.from({ length: 10 }, (_, y) => (
                                 <TableCell key={y} className="text-right text-sm text-muted-foreground">({formatMoney(getYearlyConsolidated(y).expenseEvents)})</TableCell>
                               ))}

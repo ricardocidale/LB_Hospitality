@@ -91,12 +91,12 @@ export default function Methodology() {
             </AccordionTrigger>
             <AccordionContent className="pt-4 pb-6 space-y-4">
               <div className="bg-muted/50 rounded-lg p-4">
-                <h4 className="font-semibold mb-2">Rooms Revenue</h4>
+                <h4 className="font-semibold mb-2">Room Revenue</h4>
                 <p className="text-sm text-muted-foreground mb-2">
                   The primary revenue driver for each property, calculated monthly:
                 </p>
                 <div className="bg-background rounded p-3 font-mono text-sm">
-                  Rooms Revenue = Room Count × ADR × Occupancy × Days in Month
+                  Room Revenue = Room Count × ADR × Occupancy × Days in Month
                 </div>
                 <ul className="mt-3 text-sm text-muted-foreground space-y-1">
                   <li>• <strong>ADR (Average Daily Rate)</strong>: Starts at the property's initial rate and grows annually at the ADR Growth Rate</li>
@@ -108,24 +108,24 @@ export default function Methodology() {
               <div className="bg-muted/50 rounded-lg p-4">
                 <h4 className="font-semibold mb-2">Food & Beverage Revenue</h4>
                 <p className="text-sm text-muted-foreground mb-2">
-                  Calculated as a percentage of rooms revenue:
+                  Calculated as a percentage of room revenue:
                 </p>
                 <div className="bg-background rounded p-3 font-mono text-sm">
-                  F&B Revenue = Rooms Revenue × F&B Rate (default 28%)
+                  F&B Revenue = Room Revenue × F&B Rate (default 28%)
                 </div>
               </div>
 
               <div className="bg-muted/50 rounded-lg p-4">
-                <h4 className="font-semibold mb-2">Events Revenue</h4>
+                <h4 className="font-semibold mb-2">Event Revenue</h4>
                 <p className="text-sm text-muted-foreground mb-2">
                   Based on the property's catering level setting:
                 </p>
                 <div className="bg-background rounded p-3 font-mono text-sm">
-                  Events Revenue = Rooms Revenue × Catering Level Rate
+                  Event Revenue = Room Revenue × Catering Level Rate
                 </div>
                 <ul className="mt-3 text-sm text-muted-foreground space-y-1">
-                  <li>• <strong>Full Service</strong>: 50% of rooms revenue</li>
-                  <li>• <strong>Partial Service</strong>: 25% of rooms revenue</li>
+                  <li>• <strong>Full Service</strong>: 50% of room revenue</li>
+                  <li>• <strong>Partial Service</strong>: 25% of room revenue</li>
                   <li>• <strong>None</strong>: No events revenue</li>
                 </ul>
               </div>
@@ -133,7 +133,7 @@ export default function Methodology() {
               <div className="bg-muted/50 rounded-lg p-4">
                 <h4 className="font-semibold mb-2">Other Revenue</h4>
                 <p className="text-sm text-muted-foreground">
-                  Includes spa, parking, retail, and miscellaneous income. Calculated as 7% of rooms revenue by default.
+                  Includes spa, parking, retail, and miscellaneous income. Calculated as 7% of room revenue by default.
                 </p>
               </div>
             </AccordionContent>
@@ -160,9 +160,9 @@ export default function Methodology() {
                 <div className="bg-muted/50 rounded-lg p-4">
                   <h4 className="font-semibold mb-2">Direct Costs</h4>
                   <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>• Rooms Expense: 36% of rooms revenue</li>
+                    <li>• Room Expense: 36% of room revenue</li>
                     <li>• F&B Expense: 15% of F&B revenue</li>
-                    <li>• Events Expense: Based on catering level (80-92%)</li>
+                    <li>• Event Expense: Based on catering level (80-92%)</li>
                   </ul>
                 </div>
 

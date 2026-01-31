@@ -260,13 +260,13 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
             {expanded.revenue && (
               <>
                 <TableRow className="bg-muted/10">
-                  <TableCell className="pl-12 sticky left-0 bg-muted/10 text-muted-foreground">Rooms Revenue</TableCell>
+                  <TableCell className="pl-12 sticky left-0 bg-muted/10 text-muted-foreground">Room Revenue</TableCell>
                   {yearlyDetails.map((y, i) => (
                     <TableCell key={i} className="text-right text-muted-foreground"><Money amount={y.revenueRooms} /></TableCell>
                   ))}
                 </TableRow>
                 <TableRow className="bg-muted/10">
-                  <TableCell className="pl-12 sticky left-0 bg-muted/10 text-muted-foreground">Events Revenue</TableCell>
+                  <TableCell className="pl-12 sticky left-0 bg-muted/10 text-muted-foreground">Event Revenue</TableCell>
                   {yearlyDetails.map((y, i) => (
                     <TableCell key={i} className="text-right text-muted-foreground"><Money amount={y.revenueEvents} /></TableCell>
                   ))}
@@ -316,7 +316,7 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
                   ))}
                 </TableRow>
                 <TableRow className="bg-muted/10">
-                  <TableCell className="pl-12 sticky left-0 bg-muted/10 text-muted-foreground">Events Expense</TableCell>
+                  <TableCell className="pl-12 sticky left-0 bg-muted/10 text-muted-foreground">Event Expense</TableCell>
                   {yearlyDetails.map((y, i) => (
                     <TableCell key={i} className="text-right text-muted-foreground"><Money amount={y.expenseEvents} /></TableCell>
                   ))}

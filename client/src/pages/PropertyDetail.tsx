@@ -12,17 +12,20 @@ import { Badge } from "@/components/ui/badge";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import html2canvas from "html2canvas";
 import { calculateLoanParams, calculatePropertyYearlyCashFlows, LoanParams, GlobalLoanParams } from "@/lib/loanCalculations";
 import { PropertyPhotoUpload } from "@/components/PropertyPhotoUpload";
 import { useQueryClient } from "@tanstack/react-query";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 export default function PropertyDetail() {
   const [, params] = useRoute("/property/:id");
   const propertyId = params?.id ? parseInt(params.id) : 0;
   const [activeTab, setActiveTab] = useState("income");
   const queryClient = useQueryClient();
+  const incomeChartRef = useRef<HTMLDivElement>(null);
+  const cashFlowChartRef = useRef<HTMLDivElement>(null);
   
   const { data: property, isLoading: propertyLoading } = useProperty(propertyId);
   const { data: global, isLoading: globalLoading } = useGlobalAssumptions();
@@ -177,7 +180,7 @@ export default function PropertyDetail() {
     link.click();
   };
 
-  const exportCashFlowPDF = () => {
+  const exportCashFlowPDF = async () => {
     const yearlyDetails = getYearlyDetails();
     const cashFlowData = getCashFlowData();
     const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
@@ -186,6 +189,27 @@ export default function PropertyDetail() {
     doc.text(`${property.name} - Cash Flow Statement`, 14, 15);
     doc.setFontSize(10);
     doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 22);
+    
+    // Capture the chart as an image - use whichever chart is visible
+    let chartStartY = 28;
+    const chartRef = activeTab === "cashflow" ? cashFlowChartRef.current : incomeChartRef.current;
+    if (chartRef) {
+      try {
+        const canvas = await html2canvas(chartRef, {
+          backgroundColor: '#ffffff',
+          scale: 2,
+          logging: false,
+          useCORS: true,
+        });
+        const imgData = canvas.toDataURL('image/png');
+        const imgWidth = 267; // A4 landscape width - margins
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        doc.addImage(imgData, 'PNG', 14, chartStartY, imgWidth, Math.min(imgHeight, 80));
+        chartStartY = chartStartY + Math.min(imgHeight, 80) + 5;
+      } catch (error) {
+        console.error('Error capturing chart:', error);
+      }
+    }
 
     const headers = [["Line Item", ...Array.from({length: years}, (_, i) => `FY ${startYear + i}`)]];
     
@@ -247,7 +271,7 @@ export default function PropertyDetail() {
     autoTable(doc, {
       head: headers,
       body: body as any,
-      startY: 28,
+      startY: chartStartY,
       theme: "grid",
       styles: { fontSize: 7, cellPadding: 1.5 },
       headStyles: { fillColor: [159, 188, 164], textColor: [61, 61, 61], fontStyle: "bold", halign: 'center' },
@@ -397,7 +421,7 @@ export default function PropertyDetail() {
           
           <TabsContent value="income" className="mt-6 space-y-6">
             {/* Income Statement Chart Card - Light Theme */}
-            <div className="relative overflow-hidden rounded-3xl p-6 bg-white shadow-lg border border-gray-100">
+            <div ref={incomeChartRef} className="relative overflow-hidden rounded-3xl p-6 bg-white shadow-lg border border-gray-100">
               <div className="relative">
                 <h3 className="text-lg font-display text-gray-900 mb-4">Income Statement Trends (10-Year Projection)</h3>
                 <div className="h-[300px]">
@@ -484,7 +508,7 @@ export default function PropertyDetail() {
           
           <TabsContent value="cashflow" className="mt-6 space-y-6">
             {/* Cash Flow Chart Card - Light Theme */}
-            <div className="relative overflow-hidden rounded-3xl p-6 bg-white shadow-lg border border-gray-100">
+            <div ref={cashFlowChartRef} className="relative overflow-hidden rounded-3xl p-6 bg-white shadow-lg border border-gray-100">
               <div className="relative">
                 <h3 className="text-lg font-display text-gray-900 mb-4">Cash Flow Trends (10-Year Projection)</h3>
                 <div className="h-[300px]">

@@ -78,189 +78,189 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026 }: Pro
   const yearlyData = aggregateByYear(data, years);
   
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden bg-white shadow-lg border border-gray-100">
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
-            <TableRow className="bg-muted/50">
-              <TableHead className="w-[250px] font-bold">Income Statement</TableHead>
+            <TableRow className="bg-gray-100">
+              <TableHead className="w-[250px] font-bold text-gray-900">Income Statement</TableHead>
               {yearlyData.map((y) => (
-                <TableHead key={y.year} className="text-right min-w-[120px] font-bold">
+                <TableHead key={y.year} className="text-right min-w-[120px] font-bold text-gray-900">
                   {startYear + y.year - 1}
                 </TableHead>
               ))}
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow className="bg-muted/30">
-              <TableCell colSpan={years + 1} className="font-bold text-primary">Revenue</TableCell>
+            <TableRow className="bg-gray-50">
+              <TableCell colSpan={years + 1} className="font-bold text-[#257D41]">Revenue</TableCell>
             </TableRow>
-            <TableRow className="bg-muted/5">
-              <TableCell className="pl-10 text-muted-foreground label-text">ADR</TableCell>
+            <TableRow className="bg-white">
+              <TableCell className="pl-10 text-gray-500 label-text">ADR</TableCell>
               {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right text-muted-foreground font-mono">
+                <TableCell key={y.year} className="text-right text-gray-500 font-mono">
                   <Money amount={y.soldRooms > 0 ? y.revenueRooms / y.soldRooms : 0} />
                 </TableCell>
               ))}
             </TableRow>
-            <TableRow className="bg-muted/5">
-              <TableCell className="pl-10 text-muted-foreground label-text">Occupancy</TableCell>
+            <TableRow className="bg-white">
+              <TableCell className="pl-10 text-gray-500 label-text">Occupancy</TableCell>
               {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right text-muted-foreground font-mono">
+                <TableCell key={y.year} className="text-right text-gray-500 font-mono">
                   {y.availableRooms > 0 ? ((y.soldRooms / y.availableRooms) * 100).toFixed(1) : 0}%
                 </TableCell>
               ))}
             </TableRow>
-            <TableRow className="bg-muted/5">
-              <TableCell className="pl-10 text-muted-foreground label-text">RevPAR</TableCell>
+            <TableRow className="bg-white">
+              <TableCell className="pl-10 text-gray-500 label-text">RevPAR</TableCell>
               {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right text-muted-foreground font-mono">
+                <TableCell key={y.year} className="text-right text-gray-500 font-mono">
                   <Money amount={y.availableRooms > 0 ? y.revenueRooms / y.availableRooms : 0} />
                 </TableCell>
               ))}
             </TableRow>
-            <TableRow>
-              <TableCell className="pl-6">Room Revenue</TableCell>
+            <TableRow className="bg-white">
+              <TableCell className="pl-6 text-gray-700">Room Revenue</TableCell>
               {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right"><Money amount={y.revenueRooms} /></TableCell>
+                <TableCell key={y.year} className="text-right text-gray-700"><Money amount={y.revenueRooms} /></TableCell>
               ))}
             </TableRow>
-            <TableRow>
-              <TableCell className="pl-6">Food & Beverage</TableCell>
+            <TableRow className="bg-white">
+              <TableCell className="pl-6 text-gray-700">Food & Beverage</TableCell>
               {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right"><Money amount={y.revenueFB} /></TableCell>
+                <TableCell key={y.year} className="text-right text-gray-700"><Money amount={y.revenueFB} /></TableCell>
               ))}
             </TableRow>
-            <TableRow>
-              <TableCell className="pl-6">Events & Functions</TableCell>
+            <TableRow className="bg-white">
+              <TableCell className="pl-6 text-gray-700">Events & Functions</TableCell>
               {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right"><Money amount={y.revenueEvents} /></TableCell>
+                <TableCell key={y.year} className="text-right text-gray-700"><Money amount={y.revenueEvents} /></TableCell>
               ))}
             </TableRow>
-            <TableRow>
-              <TableCell className="pl-6">Other Revenue</TableCell>
+            <TableRow className="bg-white">
+              <TableCell className="pl-6 text-gray-700">Other Revenue</TableCell>
               {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right"><Money amount={y.revenueOther} /></TableCell>
+                <TableCell key={y.year} className="text-right text-gray-700"><Money amount={y.revenueOther} /></TableCell>
               ))}
             </TableRow>
-            <TableRow className="bg-primary/10 font-bold">
-              <TableCell>Total Revenue</TableCell>
+            <TableRow className="bg-[#257D41]/10 font-bold">
+              <TableCell className="text-gray-900">Total Revenue</TableCell>
               {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right text-primary"><Money amount={y.revenueTotal} /></TableCell>
-              ))}
-            </TableRow>
-
-            <TableRow className="h-2 border-none"><TableCell colSpan={years + 1}></TableCell></TableRow>
-
-            <TableRow className="bg-muted/30">
-              <TableCell colSpan={years + 1} className="font-bold text-primary">Operating Expenses</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="pl-6">Housekeeping</TableCell>
-              {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right"><Money amount={y.expenseRooms} /></TableCell>
-              ))}
-            </TableRow>
-            <TableRow>
-              <TableCell className="pl-6">Food & Beverage</TableCell>
-              {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right"><Money amount={y.expenseFB} /></TableCell>
-              ))}
-            </TableRow>
-            <TableRow>
-              <TableCell className="pl-6">Events & Functions</TableCell>
-              {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right"><Money amount={y.expenseEvents} /></TableCell>
-              ))}
-            </TableRow>
-            <TableRow>
-              <TableCell className="pl-6">Other Departments</TableCell>
-              {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right"><Money amount={y.expenseOther} /></TableCell>
-              ))}
-            </TableRow>
-            <TableRow>
-              <TableCell className="pl-6">Sales & Marketing</TableCell>
-              {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right"><Money amount={y.expenseMarketing} /></TableCell>
-              ))}
-            </TableRow>
-            <TableRow>
-              <TableCell className="pl-6">Property Operations</TableCell>
-              {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right"><Money amount={y.expensePropertyOps} /></TableCell>
-              ))}
-            </TableRow>
-            <TableRow>
-              <TableCell className="pl-6">Utilities</TableCell>
-              {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right"><Money amount={y.expenseUtilities} /></TableCell>
-              ))}
-            </TableRow>
-            <TableRow>
-              <TableCell className="pl-6">Administrative & General</TableCell>
-              {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right"><Money amount={y.expenseAdmin} /></TableCell>
-              ))}
-            </TableRow>
-            <TableRow>
-              <TableCell className="pl-6">IT & Technology</TableCell>
-              {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right"><Money amount={y.expenseIT} /></TableCell>
-              ))}
-            </TableRow>
-            <TableRow>
-              <TableCell className="pl-6">Insurance</TableCell>
-              {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right"><Money amount={y.expenseInsurance} /></TableCell>
-              ))}
-            </TableRow>
-            <TableRow>
-              <TableCell className="pl-6">Property Taxes</TableCell>
-              {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right"><Money amount={y.expenseTaxes} /></TableCell>
+                <TableCell key={y.year} className="text-right text-[#257D41]"><Money amount={y.revenueTotal} /></TableCell>
               ))}
             </TableRow>
 
-            <TableRow className="h-2 border-none"><TableCell colSpan={years + 1}></TableCell></TableRow>
+            <TableRow className="h-2 border-none bg-white"><TableCell colSpan={years + 1}></TableCell></TableRow>
 
-            <TableRow className="bg-accent/10 font-bold">
-              <TableCell>Gross Operating Profit (GOP)</TableCell>
+            <TableRow className="bg-gray-50">
+              <TableCell colSpan={years + 1} className="font-bold text-[#257D41]">Operating Expenses</TableCell>
+            </TableRow>
+            <TableRow className="bg-white">
+              <TableCell className="pl-6 text-gray-700">Housekeeping</TableCell>
               {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right text-accent"><Money amount={y.gop} /></TableCell>
+                <TableCell key={y.year} className="text-right text-gray-700"><Money amount={y.expenseRooms} /></TableCell>
+              ))}
+            </TableRow>
+            <TableRow className="bg-white">
+              <TableCell className="pl-6 text-gray-700">Food & Beverage</TableCell>
+              {yearlyData.map((y) => (
+                <TableCell key={y.year} className="text-right text-gray-700"><Money amount={y.expenseFB} /></TableCell>
+              ))}
+            </TableRow>
+            <TableRow className="bg-white">
+              <TableCell className="pl-6 text-gray-700">Events & Functions</TableCell>
+              {yearlyData.map((y) => (
+                <TableCell key={y.year} className="text-right text-gray-700"><Money amount={y.expenseEvents} /></TableCell>
+              ))}
+            </TableRow>
+            <TableRow className="bg-white">
+              <TableCell className="pl-6 text-gray-700">Other Departments</TableCell>
+              {yearlyData.map((y) => (
+                <TableCell key={y.year} className="text-right text-gray-700"><Money amount={y.expenseOther} /></TableCell>
+              ))}
+            </TableRow>
+            <TableRow className="bg-white">
+              <TableCell className="pl-6 text-gray-700">Sales & Marketing</TableCell>
+              {yearlyData.map((y) => (
+                <TableCell key={y.year} className="text-right text-gray-700"><Money amount={y.expenseMarketing} /></TableCell>
+              ))}
+            </TableRow>
+            <TableRow className="bg-white">
+              <TableCell className="pl-6 text-gray-700">Property Operations</TableCell>
+              {yearlyData.map((y) => (
+                <TableCell key={y.year} className="text-right text-gray-700"><Money amount={y.expensePropertyOps} /></TableCell>
+              ))}
+            </TableRow>
+            <TableRow className="bg-white">
+              <TableCell className="pl-6 text-gray-700">Utilities</TableCell>
+              {yearlyData.map((y) => (
+                <TableCell key={y.year} className="text-right text-gray-700"><Money amount={y.expenseUtilities} /></TableCell>
+              ))}
+            </TableRow>
+            <TableRow className="bg-white">
+              <TableCell className="pl-6 text-gray-700">Administrative & General</TableCell>
+              {yearlyData.map((y) => (
+                <TableCell key={y.year} className="text-right text-gray-700"><Money amount={y.expenseAdmin} /></TableCell>
+              ))}
+            </TableRow>
+            <TableRow className="bg-white">
+              <TableCell className="pl-6 text-gray-700">IT & Technology</TableCell>
+              {yearlyData.map((y) => (
+                <TableCell key={y.year} className="text-right text-gray-700"><Money amount={y.expenseIT} /></TableCell>
+              ))}
+            </TableRow>
+            <TableRow className="bg-white">
+              <TableCell className="pl-6 text-gray-700">Insurance</TableCell>
+              {yearlyData.map((y) => (
+                <TableCell key={y.year} className="text-right text-gray-700"><Money amount={y.expenseInsurance} /></TableCell>
+              ))}
+            </TableRow>
+            <TableRow className="bg-white">
+              <TableCell className="pl-6 text-gray-700">Property Taxes</TableCell>
+              {yearlyData.map((y) => (
+                <TableCell key={y.year} className="text-right text-gray-700"><Money amount={y.expenseTaxes} /></TableCell>
               ))}
             </TableRow>
 
-            <TableRow className="h-2 border-none"><TableCell colSpan={years + 1}></TableCell></TableRow>
+            <TableRow className="h-2 border-none bg-white"><TableCell colSpan={years + 1}></TableCell></TableRow>
 
-            <TableRow className="bg-muted/30">
-              <TableCell colSpan={years + 1} className="font-bold text-primary">Non-Operating Expenses</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="pl-6">Base Management Fee</TableCell>
+            <TableRow className="bg-[#3B82F6]/10 font-bold">
+              <TableCell className="text-gray-900">Gross Operating Profit (GOP)</TableCell>
               {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right"><Money amount={y.feeBase} /></TableCell>
-              ))}
-            </TableRow>
-            <TableRow>
-              <TableCell className="pl-6">Incentive Management Fee</TableCell>
-              {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right"><Money amount={y.feeIncentive} /></TableCell>
-              ))}
-            </TableRow>
-            <TableRow>
-              <TableCell className="pl-6">FF&E Reserve</TableCell>
-              {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right"><Money amount={y.expenseFFE} /></TableCell>
+                <TableCell key={y.year} className="text-right text-[#3B82F6]"><Money amount={y.gop} /></TableCell>
               ))}
             </TableRow>
 
-            <TableRow className="h-2 border-none"><TableCell colSpan={years + 1}></TableCell></TableRow>
+            <TableRow className="h-2 border-none bg-white"><TableCell colSpan={years + 1}></TableCell></TableRow>
 
-            <TableRow className="bg-accent/10 font-bold">
-              <TableCell>Net Operating Income (NOI)</TableCell>
+            <TableRow className="bg-gray-50">
+              <TableCell colSpan={years + 1} className="font-bold text-[#257D41]">Non-Operating Expenses</TableCell>
+            </TableRow>
+            <TableRow className="bg-white">
+              <TableCell className="pl-6 text-gray-700">Base Management Fee</TableCell>
               {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right text-accent"><Money amount={y.noi} /></TableCell>
+                <TableCell key={y.year} className="text-right text-gray-700"><Money amount={y.feeBase} /></TableCell>
+              ))}
+            </TableRow>
+            <TableRow className="bg-white">
+              <TableCell className="pl-6 text-gray-700">Incentive Management Fee</TableCell>
+              {yearlyData.map((y) => (
+                <TableCell key={y.year} className="text-right text-gray-700"><Money amount={y.feeIncentive} /></TableCell>
+              ))}
+            </TableRow>
+            <TableRow className="bg-white">
+              <TableCell className="pl-6 text-gray-700">FF&E Reserve</TableCell>
+              {yearlyData.map((y) => (
+                <TableCell key={y.year} className="text-right text-gray-700"><Money amount={y.expenseFFE} /></TableCell>
+              ))}
+            </TableRow>
+
+            <TableRow className="h-2 border-none bg-white"><TableCell colSpan={years + 1}></TableCell></TableRow>
+
+            <TableRow className="bg-[#F4795B]/10 font-bold">
+              <TableCell className="text-gray-900">Net Operating Income (NOI)</TableCell>
+              {yearlyData.map((y) => (
+                <TableCell key={y.year} className="text-right text-[#F4795B]"><Money amount={y.noi} /></TableCell>
               ))}
             </TableRow>
           </TableBody>

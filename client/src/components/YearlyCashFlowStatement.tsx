@@ -185,13 +185,13 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
   };
   
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden bg-white shadow-lg border border-gray-100">
       <CardHeader className="pb-2">
-        <CardTitle className="flex items-center gap-2">
+        <CardTitle className="flex items-center gap-2 text-gray-900">
           Investor Cash Flows
           <HelpTooltip text="Shows the cash available to distribute to investors each year, including operating cash flow (after taxes), refinancing proceeds, and sale proceeds at exit." />
         </CardTitle>
-        <p className="text-sm text-muted-foreground">Annual distributions, refinancing proceeds, and exit value</p>
+        <p className="text-sm text-gray-500">Annual distributions, refinancing proceeds, and exit value</p>
         
         {!cashAnalysis.isAdequate ? (
           <div data-testid="banner-equity-warning" className="mt-3 p-3 bg-destructive/10 border border-destructive/30 rounded-lg flex items-start gap-3">
@@ -228,10 +228,10 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
-            <TableRow className="bg-muted/50">
-              <TableHead className="w-[280px] font-bold sticky left-0 bg-muted/50">Free Cash Flow Statement</TableHead>
+            <TableRow className="bg-gray-100">
+              <TableHead className="w-[280px] font-bold sticky left-0 bg-gray-100 text-gray-900">Free Cash Flow Statement</TableHead>
               {yearlyData.map((y) => (
-                <TableHead key={y.year} className="text-right min-w-[110px] font-bold">
+                <TableHead key={y.year} className="text-right min-w-[110px] font-bold text-gray-900">
                   FY {startYear + y.year - 1}
                 </TableHead>
               ))}
@@ -239,17 +239,17 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
           </TableHeader>
           <TableBody>
             {/* GAAP Net Income Section */}
-            <TableRow className="bg-muted/30">
-              <TableCell colSpan={years + 1} className="font-bold text-primary">Net Income</TableCell>
+            <TableRow className="bg-gray-50">
+              <TableCell colSpan={years + 1} className="font-bold text-[#257D41]">Net Income</TableCell>
             </TableRow>
             
             {/* NOI - Expandable with Revenue Details */}
             <TableRow 
               data-testid="row-noi-expandable"
-              className="cursor-pointer hover:bg-muted/20"
+              className="cursor-pointer hover:bg-gray-50"
               onClick={() => toggleSection('revenue')}
             >
-              <TableCell className="pl-6 sticky left-0 bg-card flex items-center gap-1">
+              <TableCell className="pl-6 sticky left-0 bg-white flex items-center gap-1">
                 {expanded.revenue ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                 <span className="ml-1">Total Revenue</span>
                 <HelpTooltip text="Click to expand revenue details: Rooms, Events, F&B, and Other income." />
@@ -260,50 +260,50 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
             </TableRow>
             {expanded.revenue && (
               <>
-                <TableRow className="bg-muted/5">
-                  <TableCell className="pl-16 sticky left-0 bg-muted/5 text-muted-foreground label-text">ADR</TableCell>
+                <TableRow className="bg-white">
+                  <TableCell className="pl-16 sticky left-0 bg-white text-muted-foreground label-text">ADR</TableCell>
                   {yearlyDetails.map((y, i) => (
                     <TableCell key={i} className="text-right text-muted-foreground font-mono">
                       <Money amount={y.soldRooms > 0 ? y.revenueRooms / y.soldRooms : 0} />
                     </TableCell>
                   ))}
                 </TableRow>
-                <TableRow className="bg-muted/5">
-                  <TableCell className="pl-16 sticky left-0 bg-muted/5 text-muted-foreground label-text">Occupancy</TableCell>
+                <TableRow className="bg-white">
+                  <TableCell className="pl-16 sticky left-0 bg-white text-muted-foreground label-text">Occupancy</TableCell>
                   {yearlyDetails.map((y, i) => (
                     <TableCell key={i} className="text-right text-muted-foreground font-mono">
                       {y.availableRooms > 0 ? ((y.soldRooms / y.availableRooms) * 100).toFixed(1) : 0}%
                     </TableCell>
                   ))}
                 </TableRow>
-                <TableRow className="bg-muted/5">
-                  <TableCell className="pl-16 sticky left-0 bg-muted/5 text-muted-foreground label-text">RevPAR</TableCell>
+                <TableRow className="bg-white">
+                  <TableCell className="pl-16 sticky left-0 bg-white text-muted-foreground label-text">RevPAR</TableCell>
                   {yearlyDetails.map((y, i) => (
                     <TableCell key={i} className="text-right text-muted-foreground font-mono">
                       <Money amount={y.availableRooms > 0 ? y.revenueRooms / y.availableRooms : 0} />
                     </TableCell>
                   ))}
                 </TableRow>
-                <TableRow className="bg-muted/10">
-                  <TableCell className="pl-12 sticky left-0 bg-muted/10 text-muted-foreground">Room Revenue</TableCell>
+                <TableRow className="bg-white">
+                  <TableCell className="pl-12 sticky left-0 bg-white text-muted-foreground">Room Revenue</TableCell>
                   {yearlyDetails.map((y, i) => (
                     <TableCell key={i} className="text-right text-muted-foreground"><Money amount={y.revenueRooms} /></TableCell>
                   ))}
                 </TableRow>
-                <TableRow className="bg-muted/10">
-                  <TableCell className="pl-12 sticky left-0 bg-muted/10 text-muted-foreground">Event Revenue</TableCell>
+                <TableRow className="bg-white">
+                  <TableCell className="pl-12 sticky left-0 bg-white text-muted-foreground">Event Revenue</TableCell>
                   {yearlyDetails.map((y, i) => (
                     <TableCell key={i} className="text-right text-muted-foreground"><Money amount={y.revenueEvents} /></TableCell>
                   ))}
                 </TableRow>
-                <TableRow className="bg-muted/10">
-                  <TableCell className="pl-12 sticky left-0 bg-muted/10 text-muted-foreground">F&B Revenue</TableCell>
+                <TableRow className="bg-white">
+                  <TableCell className="pl-12 sticky left-0 bg-white text-muted-foreground">F&B Revenue</TableCell>
                   {yearlyDetails.map((y, i) => (
                     <TableCell key={i} className="text-right text-muted-foreground"><Money amount={y.revenueFB} /></TableCell>
                   ))}
                 </TableRow>
-                <TableRow className="bg-muted/10">
-                  <TableCell className="pl-12 sticky left-0 bg-muted/10 text-muted-foreground">Other Revenue</TableCell>
+                <TableRow className="bg-white">
+                  <TableCell className="pl-12 sticky left-0 bg-white text-muted-foreground">Other Revenue</TableCell>
                   {yearlyDetails.map((y, i) => (
                     <TableCell key={i} className="text-right text-muted-foreground"><Money amount={y.revenueOther} /></TableCell>
                   ))}
@@ -314,10 +314,10 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
             {/* Operating Expenses - Expandable */}
             <TableRow 
               data-testid="row-expenses-expandable"
-              className="cursor-pointer hover:bg-muted/20"
+              className="cursor-pointer hover:bg-gray-50"
               onClick={() => toggleSection('expenses')}
             >
-              <TableCell className="pl-6 sticky left-0 bg-card flex items-center gap-1">
+              <TableCell className="pl-6 sticky left-0 bg-white flex items-center gap-1">
                 {expanded.expenses ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                 <span className="ml-1">Less: Operating Expenses</span>
                 <HelpTooltip text="Click to expand expense details: departmental costs, utilities, taxes, insurance, and management fees." />
@@ -328,92 +328,92 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
             </TableRow>
             {expanded.expenses && (
               <>
-                <TableRow className="bg-muted/10">
-                  <TableCell className="pl-12 sticky left-0 bg-muted/10 text-muted-foreground">Housekeeping</TableCell>
+                <TableRow className="bg-white">
+                  <TableCell className="pl-12 sticky left-0 bg-white text-muted-foreground">Housekeeping</TableCell>
                   {yearlyDetails.map((y, i) => (
                     <TableCell key={i} className="text-right text-muted-foreground"><Money amount={y.expenseRooms} /></TableCell>
                   ))}
                 </TableRow>
-                <TableRow className="bg-muted/10">
-                  <TableCell className="pl-12 sticky left-0 bg-muted/10 text-muted-foreground">F&B Expense</TableCell>
+                <TableRow className="bg-white">
+                  <TableCell className="pl-12 sticky left-0 bg-white text-muted-foreground">F&B Expense</TableCell>
                   {yearlyDetails.map((y, i) => (
                     <TableCell key={i} className="text-right text-muted-foreground"><Money amount={y.expenseFB} /></TableCell>
                   ))}
                 </TableRow>
-                <TableRow className="bg-muted/10">
-                  <TableCell className="pl-12 sticky left-0 bg-muted/10 text-muted-foreground">Event Expense</TableCell>
+                <TableRow className="bg-white">
+                  <TableCell className="pl-12 sticky left-0 bg-white text-muted-foreground">Event Expense</TableCell>
                   {yearlyDetails.map((y, i) => (
                     <TableCell key={i} className="text-right text-muted-foreground"><Money amount={y.expenseEvents} /></TableCell>
                   ))}
                 </TableRow>
-                <TableRow className="bg-muted/10">
-                  <TableCell className="pl-12 sticky left-0 bg-muted/10 text-muted-foreground">Marketing</TableCell>
+                <TableRow className="bg-white">
+                  <TableCell className="pl-12 sticky left-0 bg-white text-muted-foreground">Marketing</TableCell>
                   {yearlyDetails.map((y, i) => (
                     <TableCell key={i} className="text-right text-muted-foreground"><Money amount={y.expenseMarketing} /></TableCell>
                   ))}
                 </TableRow>
-                <TableRow className="bg-muted/10">
-                  <TableCell className="pl-12 sticky left-0 bg-muted/10 text-muted-foreground">Property Operations</TableCell>
+                <TableRow className="bg-white">
+                  <TableCell className="pl-12 sticky left-0 bg-white text-muted-foreground">Property Operations</TableCell>
                   {yearlyDetails.map((y, i) => (
                     <TableCell key={i} className="text-right text-muted-foreground"><Money amount={y.expensePropertyOps} /></TableCell>
                   ))}
                 </TableRow>
-                <TableRow className="bg-muted/10">
-                  <TableCell className="pl-12 sticky left-0 bg-muted/10 text-muted-foreground">Utilities (Variable)</TableCell>
+                <TableRow className="bg-white">
+                  <TableCell className="pl-12 sticky left-0 bg-white text-muted-foreground">Utilities (Variable)</TableCell>
                   {yearlyDetails.map((y, i) => (
                     <TableCell key={i} className="text-right text-muted-foreground"><Money amount={y.expenseUtilitiesVar} /></TableCell>
                   ))}
                 </TableRow>
-                <TableRow className="bg-muted/10">
-                  <TableCell className="pl-12 sticky left-0 bg-muted/10 text-muted-foreground">Utilities (Fixed)</TableCell>
+                <TableRow className="bg-white">
+                  <TableCell className="pl-12 sticky left-0 bg-white text-muted-foreground">Utilities (Fixed)</TableCell>
                   {yearlyDetails.map((y, i) => (
                     <TableCell key={i} className="text-right text-muted-foreground"><Money amount={y.expenseUtilitiesFixed} /></TableCell>
                   ))}
                 </TableRow>
-                <TableRow className="bg-muted/10">
-                  <TableCell className="pl-12 sticky left-0 bg-muted/10 text-muted-foreground">FF&E Reserve</TableCell>
+                <TableRow className="bg-white">
+                  <TableCell className="pl-12 sticky left-0 bg-white text-muted-foreground">FF&E Reserve</TableCell>
                   {yearlyDetails.map((y, i) => (
                     <TableCell key={i} className="text-right text-muted-foreground"><Money amount={y.expenseFFE} /></TableCell>
                   ))}
                 </TableRow>
-                <TableRow className="bg-muted/10">
-                  <TableCell className="pl-12 sticky left-0 bg-muted/10 text-muted-foreground">Administrative</TableCell>
+                <TableRow className="bg-white">
+                  <TableCell className="pl-12 sticky left-0 bg-white text-muted-foreground">Administrative</TableCell>
                   {yearlyDetails.map((y, i) => (
                     <TableCell key={i} className="text-right text-muted-foreground"><Money amount={y.expenseAdmin} /></TableCell>
                   ))}
                 </TableRow>
-                <TableRow className="bg-muted/10">
-                  <TableCell className="pl-12 sticky left-0 bg-muted/10 text-muted-foreground">IT Systems</TableCell>
+                <TableRow className="bg-white">
+                  <TableCell className="pl-12 sticky left-0 bg-white text-muted-foreground">IT Systems</TableCell>
                   {yearlyDetails.map((y, i) => (
                     <TableCell key={i} className="text-right text-muted-foreground"><Money amount={y.expenseIT} /></TableCell>
                   ))}
                 </TableRow>
-                <TableRow className="bg-muted/10">
-                  <TableCell className="pl-12 sticky left-0 bg-muted/10 text-muted-foreground">Insurance</TableCell>
+                <TableRow className="bg-white">
+                  <TableCell className="pl-12 sticky left-0 bg-white text-muted-foreground">Insurance</TableCell>
                   {yearlyDetails.map((y, i) => (
                     <TableCell key={i} className="text-right text-muted-foreground"><Money amount={y.expenseInsurance} /></TableCell>
                   ))}
                 </TableRow>
-                <TableRow className="bg-muted/10">
-                  <TableCell className="pl-12 sticky left-0 bg-muted/10 text-muted-foreground">Property Taxes</TableCell>
+                <TableRow className="bg-white">
+                  <TableCell className="pl-12 sticky left-0 bg-white text-muted-foreground">Property Taxes</TableCell>
                   {yearlyDetails.map((y, i) => (
                     <TableCell key={i} className="text-right text-muted-foreground"><Money amount={y.expenseTaxes} /></TableCell>
                   ))}
                 </TableRow>
-                <TableRow className="bg-muted/10">
-                  <TableCell className="pl-12 sticky left-0 bg-muted/10 text-muted-foreground">Other Expenses</TableCell>
+                <TableRow className="bg-white">
+                  <TableCell className="pl-12 sticky left-0 bg-white text-muted-foreground">Other Expenses</TableCell>
                   {yearlyDetails.map((y, i) => (
                     <TableCell key={i} className="text-right text-muted-foreground"><Money amount={y.expenseOther} /></TableCell>
                   ))}
                 </TableRow>
-                <TableRow className="bg-muted/10">
-                  <TableCell className="pl-12 sticky left-0 bg-muted/10 text-muted-foreground">Base Management Fee</TableCell>
+                <TableRow className="bg-white">
+                  <TableCell className="pl-12 sticky left-0 bg-white text-muted-foreground">Base Management Fee</TableCell>
                   {yearlyDetails.map((y, i) => (
                     <TableCell key={i} className="text-right text-muted-foreground"><Money amount={y.feeBase} /></TableCell>
                   ))}
                 </TableRow>
-                <TableRow className="bg-muted/10">
-                  <TableCell className="pl-12 sticky left-0 bg-muted/10 text-muted-foreground">Incentive Management Fee</TableCell>
+                <TableRow className="bg-white">
+                  <TableCell className="pl-12 sticky left-0 bg-white text-muted-foreground">Incentive Management Fee</TableCell>
                   {yearlyDetails.map((y, i) => (
                     <TableCell key={i} className="text-right text-muted-foreground"><Money amount={y.feeIncentive} /></TableCell>
                   ))}
@@ -432,7 +432,7 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
               ))}
             </TableRow>
             <TableRow>
-              <TableCell className="pl-6 sticky left-0 bg-card flex items-center gap-1">
+              <TableCell className="pl-6 sticky left-0 bg-white flex items-center gap-1">
                 Less: Interest Expense
                 <HelpTooltip text="The interest portion of debt payments. Tax-deductible expense that reduces taxable income." />
               </TableCell>
@@ -443,7 +443,7 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
               ))}
             </TableRow>
             <TableRow>
-              <TableCell className="pl-6 sticky left-0 bg-card flex items-center gap-1">
+              <TableCell className="pl-6 sticky left-0 bg-white flex items-center gap-1">
                 Less: Depreciation
                 <HelpTooltip text="Non-cash expense (27.5 year straight-line on building value). Reduces taxable income but not actual cash flow." />
               </TableCell>
@@ -454,7 +454,7 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
               ))}
             </TableRow>
             <TableRow>
-              <TableCell className="pl-6 sticky left-0 bg-card flex items-center gap-1">
+              <TableCell className="pl-6 sticky left-0 bg-white flex items-center gap-1">
                 Less: Income Tax ({((property.taxRate ?? 0.25) * 100).toFixed(0)}%)
                 <HelpTooltip text="Income tax on taxable income (NOI - Interest - Depreciation). Only applies when taxable income is positive." />
               </TableCell>
@@ -479,17 +479,17 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
             <TableRow className="h-3 border-none"><TableCell colSpan={years + 1}></TableCell></TableRow>
 
             {/* GAAP Operating Cash Flow Section */}
-            <TableRow className="bg-muted/30">
-              <TableCell colSpan={years + 1} className="font-bold text-primary">Operating Cash Flow (Indirect Method)</TableCell>
+            <TableRow className="bg-gray-50">
+              <TableCell colSpan={years + 1} className="font-bold text-[#257D41]">Operating Cash Flow (Indirect Method)</TableCell>
             </TableRow>
             <TableRow>
-              <TableCell className="pl-6 sticky left-0 bg-card">Net Income</TableCell>
+              <TableCell className="pl-6 sticky left-0 bg-white">Net Income</TableCell>
               {yearlyData.map((y) => (
                 <TableCell key={y.year} className="text-right text-muted-foreground"><Money amount={y.netIncome} /></TableCell>
               ))}
             </TableRow>
             <TableRow>
-              <TableCell className="pl-6 sticky left-0 bg-card flex items-center gap-1">
+              <TableCell className="pl-6 sticky left-0 bg-white flex items-center gap-1">
                 Add: Depreciation
                 <HelpTooltip text="Add back depreciation since it's a non-cash expense that reduced Net Income but didn't consume cash." />
               </TableCell>
@@ -511,7 +511,7 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
               ))}
             </TableRow>
             <TableRow>
-              <TableCell className="pl-6 sticky left-0 bg-card flex items-center gap-1">
+              <TableCell className="pl-6 sticky left-0 bg-white flex items-center gap-1">
                 Working Capital Changes
                 <HelpTooltip text="Changes in receivables, payables, and other current assets/liabilities. For stabilized properties, typically minimal." />
               </TableCell>
@@ -534,17 +534,17 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
             <TableRow className="h-3 border-none"><TableCell colSpan={years + 1}></TableCell></TableRow>
 
             {/* GAAP Free Cash Flow Section */}
-            <TableRow className="bg-muted/30">
-              <TableCell colSpan={years + 1} className="font-bold text-primary">Free Cash Flow (GAAP)</TableCell>
+            <TableRow className="bg-gray-50">
+              <TableCell colSpan={years + 1} className="font-bold text-[#257D41]">Free Cash Flow (GAAP)</TableCell>
             </TableRow>
             <TableRow>
-              <TableCell className="pl-6 sticky left-0 bg-card">Cash from Operations</TableCell>
+              <TableCell className="pl-6 sticky left-0 bg-white">Cash from Operations</TableCell>
               {yearlyData.map((y) => (
                 <TableCell key={y.year} className="text-right text-muted-foreground"><Money amount={y.cashFromOperations} /></TableCell>
               ))}
             </TableRow>
             <TableRow>
-              <TableCell className="pl-6 sticky left-0 bg-card flex items-center gap-1">
+              <TableCell className="pl-6 sticky left-0 bg-white flex items-center gap-1">
                 Less: Maintenance CapEx
                 <HelpTooltip text="Ongoing capital expenditures. For hotels, FF&E reserves (4% of revenue) are already included in NOI as an operating expense, so no additional maintenance capex is deducted here." />
               </TableCell>
@@ -566,7 +566,7 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
               ))}
             </TableRow>
             <TableRow>
-              <TableCell className="pl-6 sticky left-0 bg-card flex items-center gap-1">
+              <TableCell className="pl-6 sticky left-0 bg-white flex items-center gap-1">
                 Less: Principal Payments
                 <HelpTooltip text="Principal portion of debt service (financing activity). Reduces cash available to equity investors." />
               </TableCell>
@@ -590,11 +590,11 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
 
             <TableRow className="h-3 border-none"><TableCell colSpan={years + 1}></TableCell></TableRow>
 
-            <TableRow className="bg-muted/30">
-              <TableCell colSpan={years + 1} className="font-bold text-primary">Capital Events</TableCell>
+            <TableRow className="bg-gray-50">
+              <TableCell colSpan={years + 1} className="font-bold text-[#257D41]">Capital Events</TableCell>
             </TableRow>
             <TableRow>
-              <TableCell className="pl-6 sticky left-0 bg-card">Initial Equity Investment</TableCell>
+              <TableCell className="pl-6 sticky left-0 bg-white">Initial Equity Investment</TableCell>
               {yearlyData.map((y) => (
                 <TableCell key={y.year} className="text-right text-muted-foreground">
                   {y.capitalExpenditures < 0 ? <Money amount={y.capitalExpenditures} /> : '-'}
@@ -602,7 +602,7 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
               ))}
             </TableRow>
             <TableRow>
-              <TableCell className="pl-6 sticky left-0 bg-card flex items-center gap-1">
+              <TableCell className="pl-6 sticky left-0 bg-white flex items-center gap-1">
                 Refinancing Proceeds
                 <HelpTooltip text="Cash-out from refinancing when property value has increased. Net of closing costs and payoff of existing loan." />
               </TableCell>
@@ -613,7 +613,7 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
               ))}
             </TableRow>
             <TableRow>
-              <TableCell className="pl-6 sticky left-0 bg-card flex items-center gap-1">
+              <TableCell className="pl-6 sticky left-0 bg-white flex items-center gap-1">
                 Sale Proceeds (Net Exit Value)
                 <HelpTooltip text={`Property sale price minus ${((global?.commissionRate ?? 0.05) * 100).toFixed(0)}% commission and outstanding loan payoff. Calculated using Year 10 NOI and exit cap rate.`} />
               </TableCell>
@@ -638,8 +638,8 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
               ))}
             </TableRow>
 
-            <TableRow className="bg-muted/20">
-              <TableCell className="sticky left-0 bg-muted/20">Cumulative Cash Flow</TableCell>
+            <TableRow className="bg-gray-50">
+              <TableCell className="sticky left-0 bg-gray-50">Cumulative Cash Flow</TableCell>
               {yearlyData.map((y) => (
                 <TableCell key={y.year} className="text-right">
                   <Money amount={y.cumulativeCashFlow} className={y.cumulativeCashFlow < 0 ? "text-destructive" : "text-accent"} />
@@ -649,11 +649,11 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
 
             <TableRow className="h-3 border-none"><TableCell colSpan={years + 1}></TableCell></TableRow>
 
-            <TableRow className="bg-muted/30">
-              <TableCell colSpan={years + 1} className="font-bold text-primary">Key Metrics</TableCell>
+            <TableRow className="bg-gray-50">
+              <TableCell colSpan={years + 1} className="font-bold text-[#257D41]">Key Metrics</TableCell>
             </TableRow>
             <TableRow>
-              <TableCell className="pl-6 sticky left-0 bg-card flex items-center gap-1">
+              <TableCell className="pl-6 sticky left-0 bg-white flex items-center gap-1">
                 Cash-on-Cash Return
                 <HelpTooltip text="Annual ATCF divided by initial equity. Shows the cash yield on your investment each year." />
               </TableCell>
@@ -667,7 +667,7 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
               })}
             </TableRow>
             <TableRow>
-              <TableCell className="pl-6 sticky left-0 bg-card flex items-center gap-1">
+              <TableCell className="pl-6 sticky left-0 bg-white flex items-center gap-1">
                 Debt Service Coverage Ratio
                 <HelpTooltip text="NOI divided by debt service. Lenders typically require 1.25x minimum. Higher is better." />
               </TableCell>

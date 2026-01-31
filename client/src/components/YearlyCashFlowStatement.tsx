@@ -524,7 +524,7 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
                 <HelpTooltip text="Ongoing capital expenditures. For hotels, FF&E reserves (4% of revenue) are already included in NOI as an operating expense, so no additional maintenance capex is deducted here." />
               </TableCell>
               {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right text-muted-foreground italic">
+                <TableCell key={y.year} className="text-right text-muted-foreground">
                   {y.maintenanceCapex > 0 ? <Money amount={-y.maintenanceCapex} /> : 'incl. in NOI'}
                 </TableCell>
               ))}

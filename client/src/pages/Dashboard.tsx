@@ -2295,12 +2295,12 @@ export default function Dashboard() {
                       })}
                     </TableRow>
                     <TableRow>
-                      <TableCell className="sticky left-0 bg-card italic text-muted-foreground">NOI Margin</TableCell>
+                      <TableCell className="sticky left-0 bg-card text-muted-foreground">NOI Margin</TableCell>
                       {Array.from({ length: 10 }, (_, y) => {
                         const data = getYearlyConsolidated(y);
                         const margin = data.revenueTotal > 0 ? (data.noi / data.revenueTotal) * 100 : 0;
                         return (
-                          <TableCell key={y} className={`text-right italic text-muted-foreground ${margin < 0 ? 'text-destructive' : ''}`}>
+                          <TableCell key={y} className={`text-right text-muted-foreground ${margin < 0 ? 'text-destructive' : ''}`}>
                             {margin.toFixed(1)}%
                           </TableCell>
                         );
@@ -2777,7 +2777,7 @@ export default function Dashboard() {
                       className="cursor-pointer hover:bg-muted/10"
                       onClick={() => toggleRow('cfByProperty')}
                     >
-                      <TableCell className="sticky left-0 bg-card pl-6 flex items-center gap-2 text-muted-foreground italic">
+                      <TableCell className="sticky left-0 bg-card pl-6 flex items-center gap-2 text-muted-foreground">
                         {expandedRows.has('cfByProperty') ? (
                           <ChevronDown className="w-4 h-4" />
                         ) : (
@@ -3513,7 +3513,7 @@ function InvestmentAnalysis({
                     {Array.from({ length: 10 }, (_, y) => {
                       const ti = getConsolidatedYearlyDetails(y).taxableIncome;
                       return (
-                        <TableCell key={y} className={`text-right text-sm ${ti < 0 ? 'text-muted-foreground italic' : ''}`}>
+                        <TableCell key={y} className={`text-right text-sm ${ti < 0 ? 'text-muted-foreground' : ''}`}>
                           {formatMoney(ti)}
                         </TableCell>
                       );
@@ -3548,7 +3548,7 @@ function InvestmentAnalysis({
                     })}
                   </TableRow>
                   <TableRow className="bg-muted/10">
-                    <TableCell className="sticky left-0 bg-muted/10 pl-8 text-sm text-muted-foreground italic">By Property:</TableCell>
+                    <TableCell className="sticky left-0 bg-muted/10 pl-8 text-sm text-muted-foreground">By Property:</TableCell>
                     <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
                     {Array.from({ length: 10 }, (_, y) => (
                       <TableCell key={y} className="text-right text-sm text-muted-foreground">-</TableCell>

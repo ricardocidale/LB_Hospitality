@@ -61,7 +61,7 @@ export default function Research() {
             </div>
 
             <div className="bg-muted/30 p-4 rounded-lg border-l-4 border-primary">
-              <p className="text-sm italic">"Boutique hotels achieved higher average daily rate than most comparable-class U.S. hotels in 2024. All boutique segments in the report have slowed in rate growth over the past two years, but have also achieved their highest rates during that time."</p>
+              <p className="text-sm">"Boutique hotels achieved higher average daily rate than most comparable-class U.S. hotels in 2024. All boutique segments in the report have slowed in rate growth over the past two years, but have also achieved their highest rates during that time."</p>
               <p className="text-xs text-muted-foreground mt-2">— Highland Group, Boutique Hotel Report 2025</p>
             </div>
 
@@ -133,7 +133,7 @@ export default function Research() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="bg-muted/30 p-4 rounded-lg border-l-4 border-primary">
-              <p className="text-sm italic">"Hotel management companies are typically paid a base fee equal to 2.0% to 4.0% of total operating revenue—3.0% being the most common—plus an incentive, typically an incentive management fee (IMF)."</p>
+              <p className="text-sm">"Hotel management companies are typically paid a base fee equal to 2.0% to 4.0% of total operating revenue—3.0% being the most common—plus an incentive, typically an incentive management fee (IMF)."</p>
               <p className="text-xs text-muted-foreground mt-2">— HVS (Hotel Valuation Services)</p>
             </div>
 
@@ -236,7 +236,7 @@ export default function Research() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="bg-muted/30 p-4 rounded-lg border-l-4 border-primary">
-              <p className="text-sm italic">"Most advisors recommend keeping three to six months of operating expenses on hand."</p>
+              <p className="text-sm">"Most advisors recommend keeping three to six months of operating expenses on hand."</p>
             </div>
 
             <div>

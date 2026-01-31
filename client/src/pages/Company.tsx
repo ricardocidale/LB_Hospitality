@@ -12,7 +12,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { GlassCard } from "@/components/ui/glass-card";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import html2canvas from "html2canvas";
+import { captureChartAsImage } from "@/lib/chartExport";
 import { format } from "date-fns";
 import { CompanyMonthlyFinancials } from "@/lib/financialEngine";
 
@@ -453,17 +453,16 @@ export default function Company() {
     let tableStartY = 32;
     if (chartRef.current) {
       try {
-        const canvas = await html2canvas(chartRef.current, {
-          backgroundColor: '#ffffff',
-          scale: 2,
-          logging: false,
-          useCORS: true,
-        });
-        const imgData = canvas.toDataURL('image/png');
-        const imgWidth = 267; // A4 landscape width - margins
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        doc.addImage(imgData, 'PNG', 14, tableStartY, imgWidth, Math.min(imgHeight, 80));
-        tableStartY = tableStartY + Math.min(imgHeight, 80) + 5;
+        const imgData = await captureChartAsImage(chartRef.current);
+        if (imgData) {
+          const img = new Image();
+          img.src = imgData;
+          await new Promise(resolve => img.onload = resolve);
+          const imgWidth = 267;
+          const imgHeight = (img.height * imgWidth) / img.width / 2;
+          doc.addImage(imgData, 'PNG', 14, tableStartY, imgWidth, Math.min(imgHeight, 70));
+          tableStartY = tableStartY + Math.min(imgHeight, 70) + 5;
+        }
       } catch (error) {
         console.error('Error capturing chart:', error);
       }

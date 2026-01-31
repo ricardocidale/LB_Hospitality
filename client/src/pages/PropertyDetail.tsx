@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import html2canvas from "html2canvas";
+import { captureChartAsImage } from "@/lib/chartExport";
 import { calculateLoanParams, calculatePropertyYearlyCashFlows, LoanParams, GlobalLoanParams } from "@/lib/loanCalculations";
 import { PropertyPhotoUpload } from "@/components/PropertyPhotoUpload";
 import { useQueryClient } from "@tanstack/react-query";
@@ -192,20 +192,19 @@ export default function PropertyDetail() {
     
     // Capture the chart as an image - use whichever chart is visible
     let chartStartY = 28;
-    const chartRef = activeTab === "cashflow" ? cashFlowChartRef.current : incomeChartRef.current;
-    if (chartRef) {
+    const chartContainer = activeTab === "cashflow" ? cashFlowChartRef.current : incomeChartRef.current;
+    if (chartContainer) {
       try {
-        const canvas = await html2canvas(chartRef, {
-          backgroundColor: '#ffffff',
-          scale: 2,
-          logging: false,
-          useCORS: true,
-        });
-        const imgData = canvas.toDataURL('image/png');
-        const imgWidth = 267; // A4 landscape width - margins
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        doc.addImage(imgData, 'PNG', 14, chartStartY, imgWidth, Math.min(imgHeight, 80));
-        chartStartY = chartStartY + Math.min(imgHeight, 80) + 5;
+        const imgData = await captureChartAsImage(chartContainer);
+        if (imgData) {
+          const img = new Image();
+          img.src = imgData;
+          await new Promise(resolve => img.onload = resolve);
+          const imgWidth = 267;
+          const imgHeight = (img.height * imgWidth) / img.width / 2;
+          doc.addImage(imgData, 'PNG', 14, chartStartY, imgWidth, Math.min(imgHeight, 70));
+          chartStartY = chartStartY + Math.min(imgHeight, 70) + 5;
+        }
       } catch (error) {
         console.error('Error capturing chart:', error);
       }

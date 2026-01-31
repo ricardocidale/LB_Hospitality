@@ -9,7 +9,7 @@ export default function Research() {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-muted-foreground uppercase tracking-wider">Market Intelligence</p>
-            <h2 className="text-3xl font-serif font-bold text-foreground">Research & Assumptions</h2>
+            <h2 className="text-3xl font-display font-bold text-foreground">Research & Assumptions</h2>
           </div>
           <div className="text-sm text-muted-foreground">1Q26 | Confidential</div>
         </div>

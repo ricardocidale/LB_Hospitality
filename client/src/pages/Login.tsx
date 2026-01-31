@@ -56,7 +56,7 @@ export default function Login() {
             </div>
           </div>
           
-          <h2 className="text-4xl lg:text-5xl font-serif text-white mb-6 leading-tight">
+          <h2 className="text-4xl lg:text-5xl font-display text-white mb-6 leading-tight">
             Boutique Hotel <br />
             <span className="text-[#9FBCA4]">Investment Intelligence</span>
           </h2>
@@ -112,7 +112,7 @@ export default function Login() {
           </div>
           
           <div className="mb-8">
-            <h2 className="text-3xl font-serif text-[#257D41] mb-2">Welcome Back</h2>
+            <h2 className="text-3xl font-display text-[#257D41] mb-2">Welcome Back</h2>
             <p className="text-muted-foreground">Sign in to access your investor portal</p>
           </div>
           

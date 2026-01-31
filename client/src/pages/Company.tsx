@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import Layout from "@/components/Layout";
 import { useProperties, useGlobalAssumptions } from "@/lib/api";
 import { generateCompanyProForma, generatePropertyProForma, formatMoney, getFiscalYearForModelYear } from "@/lib/financialEngine";
@@ -12,7 +12,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { GlassCard } from "@/components/ui/glass-card";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { captureChartAsImage } from "@/lib/chartExport";
+import { drawLineChart } from "@/lib/pdfChartDrawer";
 import { format } from "date-fns";
 import { CompanyMonthlyFinancials } from "@/lib/financialEngine";
 
@@ -89,7 +89,6 @@ export default function Company() {
   const { data: global, isLoading: globalLoading } = useGlobalAssumptions();
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState("income");
-  const chartRef = useRef<HTMLDivElement>(null);
 
   const toggleRow = (rowId: string) => {
     setExpandedRows(prev => {
@@ -449,20 +448,38 @@ export default function Company() {
     doc.text(`10-Year Projection (${data.years[0]} - ${data.years[9]})`, 14, 22);
     doc.text(`Generated: ${format(new Date(), 'MMM d, yyyy')}`, 14, 27);
     
-    // Capture the chart as an image
+    // Draw the chart directly in PDF
     let tableStartY = 32;
-    if (chartRef.current) {
-      try {
-        const imgData = await captureChartAsImage(chartRef.current);
-        if (imgData) {
-          const imgWidth = 267;
-          const imgHeight = 60;
-          doc.addImage(imgData, 'PNG', 14, tableStartY, imgWidth, imgHeight);
-          tableStartY = tableStartY + imgHeight + 5;
+    if (yearlyChartData && yearlyChartData.length > 0) {
+      const chartSeries = [
+        {
+          name: 'Revenue',
+          data: yearlyChartData.map(d => ({ label: String(d.year), value: d.Revenue })),
+          color: '#257D41'
+        },
+        {
+          name: 'Expenses',
+          data: yearlyChartData.map(d => ({ label: String(d.year), value: d.Expenses })),
+          color: '#3B82F6'
+        },
+        {
+          name: 'Net Income',
+          data: yearlyChartData.map(d => ({ label: String(d.year), value: d.NetIncome })),
+          color: '#F4795B'
         }
-      } catch (error) {
-        console.error('Error capturing chart:', error);
-      }
+      ];
+      
+      drawLineChart({
+        doc,
+        x: 14,
+        y: tableStartY,
+        width: 267,
+        height: 55,
+        title: 'Management Company Performance (10-Year Projection)',
+        series: chartSeries
+      });
+      
+      tableStartY = tableStartY + 60;
     }
     
     const tableData = data.rows.map(row => [
@@ -622,7 +639,7 @@ export default function Company() {
           </div>
 
           {/* Chart Card - Light Theme */}
-          <div ref={chartRef} className="relative overflow-hidden rounded-3xl p-6 bg-white shadow-lg border border-gray-100">
+          <div className="relative overflow-hidden rounded-3xl p-6 bg-white shadow-lg border border-gray-100">
             <div className="relative">
               <h3 className="text-lg font-display text-gray-900 mb-4">Management Company Performance (10-Year Projection)</h3>
               <div className="h-[300px]">

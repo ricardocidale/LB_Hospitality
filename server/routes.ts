@@ -813,11 +813,39 @@ export async function registerRoutes(
 
   // --- SCENARIOS ROUTES ---
   
-  // Get all scenarios for current user
+  // Get all scenarios for current user (ensures Base scenario exists)
   app.get("/api/scenarios", requireAuth, async (req, res) => {
     try {
       const userId = req.user!.id;
-      const scenarios = await storage.getScenariosByUser(userId);
+      let scenarios = await storage.getScenariosByUser(userId);
+      
+      // Ensure Base scenario exists
+      const hasBase = scenarios.some(s => s.name === "Base");
+      if (!hasBase) {
+        // Create Base scenario with current assumptions and properties
+        let assumptions = await storage.getGlobalAssumptions(userId);
+        let properties = await storage.getAllProperties(userId);
+        
+        // Fallback to shared data if user has none
+        if (!assumptions) {
+          assumptions = await storage.getGlobalAssumptions();
+        }
+        if (properties.length === 0) {
+          properties = await storage.getAllProperties();
+        }
+        
+        if (assumptions) {
+          await storage.createScenario({
+            userId,
+            name: "Base",
+            description: "Default baseline scenario with initial assumptions",
+            globalAssumptions: assumptions,
+            properties: properties,
+          });
+          scenarios = await storage.getScenariosByUser(userId);
+        }
+      }
+      
       res.json(scenarios);
     } catch (error) {
       console.error("Error fetching scenarios:", error);
@@ -928,7 +956,7 @@ export async function registerRoutes(
     }
   });
 
-  // Delete scenario
+  // Delete scenario (cannot delete Base scenario)
   app.delete("/api/scenarios/:id", requireAuth, async (req, res) => {
     try {
       const userId = req.user!.id;
@@ -941,6 +969,10 @@ export async function registerRoutes(
       
       if (scenario.userId !== userId) {
         return res.status(403).json({ error: "Access denied" });
+      }
+      
+      if (scenario.name === "Base") {
+        return res.status(400).json({ error: "Cannot delete the Base scenario" });
       }
       
       await storage.deleteScenario(scenarioId);

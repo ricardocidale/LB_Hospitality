@@ -128,8 +128,8 @@ export default function Scenarios() {
                 onClick={() => setIsCreating(true)}
                 data-testid="button-new-scenario"
               >
-                <Plus className="w-4 h-4" />
-                Save Current
+                <Save className="w-4 h-4" />
+                Save As
               </GlassButton>
             </div>
           </CardHeader>
@@ -160,7 +160,7 @@ export default function Scenarios() {
                         <div className="flex items-center gap-4 mt-2 text-xs text-white/40">
                           <span className="flex items-center gap-1 font-mono">
                             <Clock className="w-3 h-3" />
-                            {formatDate(scenario.updatedAt)}
+                            Saved: {formatDate(scenario.updatedAt)}
                           </span>
                           <span className="font-mono">{(scenario.properties as any[])?.length || 0} properties</span>
                         </div>
@@ -195,35 +195,37 @@ export default function Scenarios() {
                           <Pencil className="w-4 h-4" />
                         </Button>
                         
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
-                              data-testid={`button-delete-scenario-${scenario.id}`}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle className="font-display">Delete Scenario</AlertDialogTitle>
-                              <AlertDialogDescription className="label-text">
-                                Are you sure you want to delete "{scenario.name}"? This action cannot be undone.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => handleDelete(scenario.id, scenario.name)}
-                                className="bg-red-600 hover:bg-red-700"
+                        {scenario.name !== "Base" && (
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                                data-testid={`button-delete-scenario-${scenario.id}`}
                               >
-                                Delete
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle className="font-display">Delete Scenario</AlertDialogTitle>
+                                <AlertDialogDescription className="label-text">
+                                  Are you sure you want to delete "{scenario.name}"? This action cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => handleDelete(scenario.id, scenario.name)}
+                                  className="bg-red-600 hover:bg-red-700"
+                                >
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        )}
                       </div>
                     </div>
                   </div>

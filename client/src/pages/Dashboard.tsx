@@ -162,33 +162,38 @@ export default function Dashboard() {
   };
 
   // Calculate weighted average ADR, Occupancy, and RevPAR for a given year
+  // ADR weighted by rooms sold, Occupancy weighted by available rooms, RevPAR = Room Revenue / Available Rooms
   const getWeightedMetrics = (yearIndex: number) => {
     const startMonth = yearIndex * 12;
     const endMonth = startMonth + 12;
     
-    let totalRoomNights = 0;
-    let weightedADRSum = 0;
-    let weightedOccSum = 0;
+    let totalAvailableRoomNights = 0;
+    let totalRoomsSold = 0;
+    let totalRoomRevenue = 0;
     
     properties.forEach((prop, idx) => {
       const { financials } = allPropertyFinancials[idx];
       const yearData = financials.slice(startMonth, endMonth);
       const roomCount = prop.roomCount;
-      const daysInYear = 365;
-      const availableRoomNights = roomCount * daysInYear;
       
-      // Average ADR and occupancy for this property this year
-      const avgADR = yearData.length > 0 ? yearData.reduce((a, m) => a + m.adr, 0) / yearData.length : 0;
-      const avgOcc = yearData.length > 0 ? yearData.reduce((a, m) => a + m.occupancy, 0) / yearData.length : 0;
-      
-      totalRoomNights += availableRoomNights;
-      weightedADRSum += avgADR * availableRoomNights;
-      weightedOccSum += avgOcc * availableRoomNights;
+      // Sum up monthly data for this property
+      yearData.forEach(month => {
+        const daysInMonth = 30; // Approximate
+        const availableRooms = roomCount * daysInMonth;
+        const roomsSold = availableRooms * month.occupancy;
+        
+        totalAvailableRoomNights += availableRooms;
+        totalRoomsSold += roomsSold;
+        totalRoomRevenue += month.revenueRooms;
+      });
     });
     
-    const weightedADR = totalRoomNights > 0 ? weightedADRSum / totalRoomNights : 0;
-    const weightedOcc = totalRoomNights > 0 ? weightedOccSum / totalRoomNights : 0;
-    const revPAR = weightedADR * weightedOcc;
+    // Weighted ADR = Total Room Revenue / Total Rooms Sold
+    const weightedADR = totalRoomsSold > 0 ? totalRoomRevenue / totalRoomsSold : 0;
+    // Weighted Occupancy = Total Rooms Sold / Total Available Room Nights
+    const weightedOcc = totalAvailableRoomNights > 0 ? totalRoomsSold / totalAvailableRoomNights : 0;
+    // RevPAR = Total Room Revenue / Total Available Room Nights (or ADR × Occupancy)
+    const revPAR = totalAvailableRoomNights > 0 ? totalRoomRevenue / totalAvailableRoomNights : 0;
     
     return { weightedADR, weightedOcc, revPAR };
   };

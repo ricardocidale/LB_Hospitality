@@ -869,8 +869,8 @@ export default function Admin() {
           />
           {currentView !== "dashboard" && (
             <GlassButton variant="primary" onClick={() => setCurrentView("dashboard")} data-testid="button-back">
-              <ArrowLeft className="w-4 h-4" />
-              Back to Dashboard
+              <ArrowLeft className="w-4 h-4 text-white" style={{ color: '#FFFFFF' }} />
+              <span className="text-white" style={{ color: '#FFFFFF' }}>Back to Dashboard</span>
             </GlassButton>
           )}
         </div>

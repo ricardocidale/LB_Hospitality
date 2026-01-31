@@ -115,8 +115,8 @@ export default function Scenarios() {
           <CardHeader className="relative">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-xl font-serif text-[#FFF9F5]">Saved Scenarios</CardTitle>
-                <CardDescription className="text-white/60">
+                <CardTitle className="text-xl font-display text-[#FFF9F5]">Saved Scenarios</CardTitle>
+                <CardDescription className="label-text text-white/60">
                   {scenarios?.length === 0 
                     ? "No scenarios saved yet. Save your current configuration to get started."
                     : `${scenarios?.length} scenario${scenarios?.length === 1 ? '' : 's'} saved`
@@ -138,8 +138,8 @@ export default function Scenarios() {
             {scenarios?.length === 0 ? (
               <div className="text-center py-12">
                 <FileStack className="w-16 h-16 mx-auto text-white/30 mb-4" />
-                <p className="text-white/60">No scenarios saved yet</p>
-                <p className="text-white/40 text-sm mt-1">
+                <p className="label-text text-white/60">No scenarios saved yet</p>
+                <p className="label-text text-white/40 mt-1">
                   Click "Save Current" to save your current assumptions and properties as a scenario
                 </p>
               </div>
@@ -153,16 +153,16 @@ export default function Scenarios() {
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-[#FFF9F5] truncate">{scenario.name}</h3>
+                        <h3 className="font-display text-[#FFF9F5] truncate">{scenario.name}</h3>
                         {scenario.description && (
-                          <p className="text-white/60 text-sm mt-1 line-clamp-2">{scenario.description}</p>
+                          <p className="label-text text-white/60 mt-1 line-clamp-2">{scenario.description}</p>
                         )}
                         <div className="flex items-center gap-4 mt-2 text-xs text-white/40">
-                          <span className="flex items-center gap-1">
+                          <span className="flex items-center gap-1 font-mono">
                             <Clock className="w-3 h-3" />
                             {formatDate(scenario.updatedAt)}
                           </span>
-                          <span>{(scenario.properties as any[])?.length || 0} properties</span>
+                          <span className="font-mono">{(scenario.properties as any[])?.length || 0} properties</span>
                         </div>
                       </div>
                       
@@ -208,8 +208,8 @@ export default function Scenarios() {
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>Delete Scenario</AlertDialogTitle>
-                              <AlertDialogDescription>
+                              <AlertDialogTitle className="font-display">Delete Scenario</AlertDialogTitle>
+                              <AlertDialogDescription className="label-text">
                                 Are you sure you want to delete "{scenario.name}"? This action cannot be undone.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
@@ -236,14 +236,14 @@ export default function Scenarios() {
         <Dialog open={isCreating} onOpenChange={setIsCreating}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Save Current Configuration</DialogTitle>
-              <DialogDescription>
+              <DialogTitle className="font-display">Save Current Configuration</DialogTitle>
+              <DialogDescription className="label-text">
                 Save your current assumptions and properties as a new scenario
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Scenario Name</label>
+                <label className="label-text">Scenario Name</label>
                 <Input
                   value={newScenarioName}
                   onChange={(e) => setNewScenarioName(e.target.value)}
@@ -252,7 +252,7 @@ export default function Scenarios() {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Description (optional)</label>
+                <label className="label-text">Description (optional)</label>
                 <Input
                   value={newScenarioDescription}
                   onChange={(e) => setNewScenarioDescription(e.target.value)}
@@ -285,14 +285,14 @@ export default function Scenarios() {
         <Dialog open={!!editingScenario} onOpenChange={(open) => !open && setEditingScenario(null)}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Edit Scenario</DialogTitle>
-              <DialogDescription>
+              <DialogTitle className="font-display">Edit Scenario</DialogTitle>
+              <DialogDescription className="label-text">
                 Update the name and description of this scenario
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Scenario Name</label>
+                <label className="label-text">Scenario Name</label>
                 <Input
                   value={editingScenario?.name || ""}
                   onChange={(e) => setEditingScenario(prev => prev ? { ...prev, name: e.target.value } : null)}
@@ -301,7 +301,7 @@ export default function Scenarios() {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Description (optional)</label>
+                <label className="label-text">Description (optional)</label>
                 <Input
                   value={editingScenario?.description || ""}
                   onChange={(e) => setEditingScenario(prev => prev ? { ...prev, description: e.target.value } : null)}

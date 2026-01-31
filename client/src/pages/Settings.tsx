@@ -198,17 +198,17 @@ export default function Settings() {
           <TabsContent value="portfolio" className="space-y-6 mt-6">
             <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
               <CardHeader>
-                <CardTitle className="flex items-center">
+                <CardTitle className="flex items-center font-display">
                   Disposition
                   <HelpTooltip text="When a property is sold, real estate commissions are paid to brokers/realtors who facilitate the transaction. This is typically a percentage of the sale price, split between buyer's and seller's agents." />
                 </CardTitle>
-                <CardDescription>Costs associated with property sales</CardDescription>
+                <CardDescription className="label-text">Costs associated with property sales</CardDescription>
               </CardHeader>
               <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <Label>Real Estate Commission</Label>
-                    <span className="text-sm font-semibold text-primary">{((currentGlobal.commissionRate || 0.05) * 100).toFixed(1)}%</span>
+                    <Label className="label-text">Real Estate Commission</Label>
+                    <span className="text-sm font-mono text-primary">{((currentGlobal.commissionRate || 0.05) * 100).toFixed(1)}%</span>
                   </div>
                   <Slider 
                     value={[(currentGlobal.commissionRate || 0.05) * 100]}
@@ -227,17 +227,17 @@ export default function Settings() {
 
             <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
               <CardHeader>
-                <CardTitle className="flex items-center">
+                <CardTitle className="flex items-center font-display">
                   Acquisition Financing
                   <HelpTooltip text="These are the default loan terms applied when acquiring a property with financing. LTV (Loan-to-Value) determines what percentage of the purchase price is financed vs. paid in equity. Interest Rate is the annual rate charged on the loan. Amortization is the period over which the loan is repaid. Closing Costs include lender fees, legal fees, and other transaction costs." />
                 </CardTitle>
-                <CardDescription>Default loan terms for property acquisitions</CardDescription>
+                <CardDescription className="label-text">Default loan terms for property acquisitions</CardDescription>
               </CardHeader>
               <CardContent className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <Label>LTV</Label>
-                    <span className="text-sm font-semibold text-primary">{((currentGlobal.debtAssumptions?.acqLTV || 0.65) * 100).toFixed(0)}%</span>
+                    <Label className="label-text">LTV</Label>
+                    <span className="text-sm font-mono text-primary">{((currentGlobal.debtAssumptions?.acqLTV || 0.65) * 100).toFixed(0)}%</span>
                   </div>
                   <Slider 
                     value={[(currentGlobal.debtAssumptions?.acqLTV || 0.65) * 100]}
@@ -253,8 +253,8 @@ export default function Settings() {
                 </div>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <Label>Interest Rate</Label>
-                    <span className="text-sm font-semibold text-primary">{((currentGlobal.debtAssumptions?.interestRate || 0) * 100).toFixed(1)}%</span>
+                    <Label className="label-text">Interest Rate</Label>
+                    <span className="text-sm font-mono text-primary">{((currentGlobal.debtAssumptions?.interestRate || 0) * 100).toFixed(1)}%</span>
                   </div>
                   <Slider 
                     value={[(currentGlobal.debtAssumptions?.interestRate || 0) * 100]}
@@ -263,15 +263,15 @@ export default function Settings() {
                     max={15}
                     step={0.25}
                   />
-                  <div className="flex justify-between text-xs text-muted-foreground">
+                  <div className="flex justify-between text-xs text-muted-foreground font-mono">
                     <span>0%</span>
                     <span>15%</span>
                   </div>
                 </div>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <Label>Term</Label>
-                    <span className="text-sm font-semibold text-primary">{currentGlobal.debtAssumptions?.amortizationYears || 25} yrs</span>
+                    <Label className="label-text">Term</Label>
+                    <span className="text-sm font-mono text-primary">{currentGlobal.debtAssumptions?.amortizationYears || 25} yrs</span>
                   </div>
                   <Slider 
                     value={[currentGlobal.debtAssumptions?.amortizationYears || 25]}
@@ -287,8 +287,8 @@ export default function Settings() {
                 </div>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <Label>Closing Costs</Label>
-                    <span className="text-sm font-semibold text-primary">{((currentGlobal.debtAssumptions?.acqClosingCostRate || 0.02) * 100).toFixed(1)}%</span>
+                    <Label className="label-text">Closing Costs</Label>
+                    <span className="text-sm font-mono text-primary">{((currentGlobal.debtAssumptions?.acqClosingCostRate || 0.02) * 100).toFixed(1)}%</span>
                   </div>
                   <Slider 
                     value={[(currentGlobal.debtAssumptions?.acqClosingCostRate || 0.02) * 100]}
@@ -297,7 +297,7 @@ export default function Settings() {
                     max={5}
                     step={0.25}
                   />
-                  <div className="flex justify-between text-xs text-muted-foreground">
+                  <div className="flex justify-between text-xs text-muted-foreground font-mono">
                     <span>0%</span>
                     <span>5%</span>
                   </div>
@@ -307,17 +307,17 @@ export default function Settings() {
 
             <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
               <CardHeader>
-                <CardTitle className="flex items-center">
+                <CardTitle className="flex items-center font-display">
                   Refinancing
                   <HelpTooltip text="Refinancing allows properties acquired with full equity to obtain debt later, or properties with existing debt to restructure their loans. The refinance period specifies when refinancing typically occurs after acquisition. Refinancing can return capital to investors while leveraging the property's appreciated value. Closing Costs include lender fees, legal fees, and other transaction costs." />
                 </CardTitle>
-                <CardDescription>Default terms for refinancing properties</CardDescription>
+                <CardDescription className="label-text">Default terms for refinancing properties</CardDescription>
               </CardHeader>
               <CardContent className="grid grid-cols-1 md:grid-cols-5 gap-6">
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <Label>Years After Acq.</Label>
-                    <span className="text-sm font-semibold text-primary">{currentGlobal.debtAssumptions?.refiPeriodYears || 3} yrs</span>
+                    <Label className="label-text">Years After Acq.</Label>
+                    <span className="text-sm font-mono text-primary">{currentGlobal.debtAssumptions?.refiPeriodYears || 3} yrs</span>
                   </div>
                   <Slider 
                     value={[currentGlobal.debtAssumptions?.refiPeriodYears || 3]}
@@ -333,8 +333,8 @@ export default function Settings() {
                 </div>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <Label>LTV</Label>
-                    <span className="text-sm font-semibold text-primary">{((currentGlobal.debtAssumptions?.refiLTV || 0.65) * 100).toFixed(0)}%</span>
+                    <Label className="label-text">LTV</Label>
+                    <span className="text-sm font-mono text-primary">{((currentGlobal.debtAssumptions?.refiLTV || 0.65) * 100).toFixed(0)}%</span>
                   </div>
                   <Slider 
                     value={[(currentGlobal.debtAssumptions?.refiLTV || 0.65) * 100]}
@@ -343,15 +343,15 @@ export default function Settings() {
                     max={80}
                     step={5}
                   />
-                  <div className="flex justify-between text-xs text-muted-foreground">
+                  <div className="flex justify-between text-xs text-muted-foreground font-mono">
                     <span>0%</span>
                     <span>80%</span>
                   </div>
                 </div>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <Label>Interest Rate</Label>
-                    <span className="text-sm font-semibold text-primary">{((currentGlobal.debtAssumptions?.refiInterestRate || 0.065) * 100).toFixed(1)}%</span>
+                    <Label className="label-text">Interest Rate</Label>
+                    <span className="text-sm font-mono text-primary">{((currentGlobal.debtAssumptions?.refiInterestRate || 0.065) * 100).toFixed(1)}%</span>
                   </div>
                   <Slider 
                     value={[(currentGlobal.debtAssumptions?.refiInterestRate || 0.065) * 100]}
@@ -367,8 +367,8 @@ export default function Settings() {
                 </div>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <Label>Term</Label>
-                    <span className="text-sm font-semibold text-primary">{currentGlobal.debtAssumptions?.refiAmortizationYears || 25} yrs</span>
+                    <Label className="label-text">Term</Label>
+                    <span className="text-sm font-mono text-primary">{currentGlobal.debtAssumptions?.refiAmortizationYears || 25} yrs</span>
                   </div>
                   <Slider 
                     value={[currentGlobal.debtAssumptions?.refiAmortizationYears || 25]}
@@ -377,15 +377,15 @@ export default function Settings() {
                     max={30}
                     step={1}
                   />
-                  <div className="flex justify-between text-xs text-muted-foreground">
+                  <div className="flex justify-between text-xs text-muted-foreground font-mono">
                     <span>5</span>
                     <span>30</span>
                   </div>
                 </div>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <Label>Closing Costs</Label>
-                    <span className="text-sm font-semibold text-primary">{((currentGlobal.debtAssumptions?.refiClosingCostRate || 0.02) * 100).toFixed(1)}%</span>
+                    <Label className="label-text">Closing Costs</Label>
+                    <span className="text-sm font-mono text-primary">{((currentGlobal.debtAssumptions?.refiClosingCostRate || 0.02) * 100).toFixed(1)}%</span>
                   </div>
                   <Slider 
                     value={[(currentGlobal.debtAssumptions?.refiClosingCostRate || 0.02) * 100]}
@@ -412,13 +412,13 @@ export default function Settings() {
           <TabsContent value="macro" className="space-y-6 mt-6">
             <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
               <CardHeader>
-                <CardTitle>Economic Assumptions</CardTitle>
-                <CardDescription>Market-wide economic factors affecting the model</CardDescription>
+                <CardTitle className="font-display">Economic Assumptions</CardTitle>
+                <CardDescription className="label-text">Market-wide economic factors affecting the model</CardDescription>
               </CardHeader>
               <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
-                    <Label>Fiscal Year Start Month</Label>
+                    <Label className="label-text">Fiscal Year Start Month</Label>
                     <HelpTooltip text="The month when the fiscal year begins. Financial statements will group data into fiscal years starting from this month." />
                   </div>
                   <Select
@@ -446,8 +446,8 @@ export default function Settings() {
                 </div>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <Label>Annual Inflation Rate</Label>
-                    <span className="text-sm font-semibold text-primary">{(currentGlobal.inflationRate * 100).toFixed(1)}%</span>
+                    <Label className="label-text">Annual Inflation Rate</Label>
+                    <span className="text-sm font-mono text-primary">{(currentGlobal.inflationRate * 100).toFixed(1)}%</span>
                   </div>
                   <Slider 
                     value={[currentGlobal.inflationRate * 100]}
@@ -474,17 +474,17 @@ export default function Settings() {
           <TabsContent value="other" className="space-y-6 mt-6">
             <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 font-display">
                   <Building2 className="w-5 h-5 text-[#9FBCA4]" />
                   Company Branding
                   <HelpTooltip text="Customize your company name and logo. These appear in the navigation sidebar throughout the application." />
                 </CardTitle>
-                <CardDescription>Set your company name and logo for the application branding.</CardDescription>
+                <CardDescription className="label-text">Set your company name and logo for the application branding.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="companyName">Hospitality Management Company Name</Label>
+                    <Label htmlFor="companyName" className="label-text">Hospitality Management Company Name</Label>
                     {isAdmin ? (
                       <Input
                         id="companyName"
@@ -502,7 +502,7 @@ export default function Settings() {
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label>Company Logo</Label>
+                    <Label className="label-text">Company Logo</Label>
                     <div className="flex items-center gap-4">
                       <div className="relative w-16 h-16 rounded-lg border-2 border-dashed border-[#9FBCA4]/40 flex items-center justify-center overflow-hidden bg-white">
                         <img 
@@ -562,23 +562,23 @@ export default function Settings() {
 
             <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
               <CardHeader>
-                <CardTitle className="flex items-center">
+                <CardTitle className="flex items-center font-display">
                   Catering Levels
                   <HelpTooltip text="Defines how catering level affects event revenue and costs. Full Service properties offer complete F&B operations with higher revenue potential but also higher costs. Partial Service has limited offerings with lower revenue but better margins." />
                 </CardTitle>
-                <CardDescription>Catering at events boosts F&B revenue. Define boost factors and associated costs by catering service level.</CardDescription>
+                <CardDescription className="label-text">Catering at events boosts F&B revenue. Define boost factors and associated costs by catering service level.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="p-4 bg-muted rounded-lg space-y-4">
-                    <h4 className="font-semibold text-sm">Full Service Catering</h4>
+                    <h4 className="font-display text-sm">Full Service Catering</h4>
                     <div className="space-y-3">
                       <div className="flex justify-between items-center">
                         <div className="flex items-center gap-1">
-                          <Label>F&B Revenue Boost</Label>
+                          <Label className="label-text">F&B Revenue Boost</Label>
                           <HelpTooltip text="When an event requires full catering, F&B revenue gets boosted by this percentage. For example, 50% means F&B revenue increases by half for full-catered events." />
                         </div>
-                        <span className="text-sm font-semibold text-primary">{((currentGlobal.fullCateringFBBoost ?? 0.50) * 100).toFixed(0)}%</span>
+                        <span className="text-sm font-mono text-primary">{((currentGlobal.fullCateringFBBoost ?? 0.50) * 100).toFixed(0)}%</span>
                       </div>
                       <Slider 
                         value={[(currentGlobal.fullCateringFBBoost ?? 0.50) * 100]}
@@ -590,14 +590,14 @@ export default function Settings() {
                     </div>
                   </div>
                   <div className="p-4 bg-muted rounded-lg space-y-4">
-                    <h4 className="font-semibold text-sm">Partial Service Catering</h4>
+                    <h4 className="font-display text-sm">Partial Service Catering</h4>
                     <div className="space-y-3">
                       <div className="flex justify-between items-center">
                         <div className="flex items-center gap-1">
-                          <Label>F&B Revenue Boost</Label>
+                          <Label className="label-text">F&B Revenue Boost</Label>
                           <HelpTooltip text="When an event requires partial catering, F&B revenue gets boosted by this percentage. Lower than full service since less catering is provided." />
                         </div>
-                        <span className="text-sm font-semibold text-primary">{((currentGlobal.partialCateringFBBoost ?? 0.25) * 100).toFixed(0)}%</span>
+                        <span className="text-sm font-mono text-primary">{((currentGlobal.partialCateringFBBoost ?? 0.25) * 100).toFixed(0)}%</span>
                       </div>
                       <Slider 
                         value={[(currentGlobal.partialCateringFBBoost ?? 0.25) * 100]}

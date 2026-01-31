@@ -45,7 +45,7 @@ export default function PropertyDetail() {
     return (
       <Layout>
         <div className="flex flex-col items-center justify-center h-[60vh] text-center space-y-4">
-          <h2 className="text-2xl font-serif font-bold">Property Not Found</h2>
+          <h2 className="text-2xl font-display">Property Not Found</h2>
           <Link href="/portfolio">
             <Button>Return to Portfolio</Button>
           </Link>
@@ -301,10 +301,10 @@ export default function PropertyDetail() {
                   </button>
                 </Link>
                 <div>
-                  <h1 className="text-2xl font-serif font-bold text-[#FFF9F5]">{property.name}</h1>
-                  <div className="flex items-center gap-4 text-[#FFF9F5]/70 text-sm mt-1">
+                  <h1 className="text-2xl font-display text-[#FFF9F5]">{property.name}</h1>
+                  <div className="flex items-center gap-4 text-[#FFF9F5]/70 text-sm mt-1 label-text">
                     <span className="flex items-center gap-1"><MapPin className="w-4 h-4" /> {property.location}</span>
-                    <span>{property.roomCount} Rooms</span>
+                    <span className="font-mono">{property.roomCount} Rooms</span>
                     <span className="px-2 py-0.5 rounded-full bg-white/15 border border-white/25 text-white text-xs">
                       {getStatusLabel(property.status)}
                     </span>
@@ -407,7 +407,7 @@ export default function PropertyDetail() {
               <div className="absolute inset-0 rounded-3xl border border-white/15" />
               
               <div className="relative">
-                <h3 className="text-lg font-semibold text-[#FFF9F5] mb-4">Income Statement Trends (10-Year Projection)</h3>
+                <h3 className="text-lg font-display text-[#FFF9F5] mb-4">Income Statement Trends (10-Year Projection)</h3>
                 <div className="h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={yearlyChartData}>
@@ -486,7 +486,7 @@ export default function PropertyDetail() {
               <div className="absolute inset-0 rounded-3xl border border-white/15" />
               
               <div className="relative">
-                <h3 className="text-lg font-semibold text-[#FFF9F5] mb-4">Cash Flow Trends (10-Year Projection)</h3>
+                <h3 className="text-lg font-display text-[#FFF9F5] mb-4">Cash Flow Trends (10-Year Projection)</h3>
                 <div className="h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={yearlyChartData.map((d, i) => {

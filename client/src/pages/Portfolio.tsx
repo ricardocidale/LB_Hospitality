@@ -220,15 +220,15 @@ export default function Portfolio() {
               </DialogTrigger>
               <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle className="font-serif text-2xl">Add New Property</DialogTitle>
-                <DialogDescription>
+                <DialogTitle className="font-display text-2xl">Add New Property</DialogTitle>
+                <DialogDescription className="label-text">
                   Enter the details for the new property in your portfolio.
                 </DialogDescription>
               </DialogHeader>
 
               <div className="grid gap-6 py-4">
                 <div className="space-y-4">
-                  <h3 className="font-semibold text-lg border-b pb-2">Property Photo</h3>
+                  <h3 className="font-display text-lg border-b pb-2">Property Photo</h3>
                   <div className="flex flex-col items-center gap-4">
                     {imagePreview ? (
                       <div className="relative w-full aspect-[16/10] rounded-lg overflow-hidden border">
@@ -277,7 +277,7 @@ export default function Portfolio() {
                 </div>
 
                 <div className="space-y-4">
-                  <h3 className="font-semibold text-lg border-b pb-2">Basic Information</h3>
+                  <h3 className="font-display text-lg border-b pb-2">Basic Information</h3>
                   <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
                       <Label htmlFor="name">Property Name</Label>
@@ -326,7 +326,7 @@ export default function Portfolio() {
                 </div>
 
                 <div className="space-y-4">
-                  <h3 className="font-semibold text-lg border-b pb-2">Property Details</h3>
+                  <h3 className="font-display text-lg border-b pb-2">Property Details</h3>
                   <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
                       <Label htmlFor="roomCount">Room Count</Label>
@@ -367,7 +367,7 @@ export default function Portfolio() {
                 </div>
 
                 <div className="space-y-4">
-                  <h3 className="font-semibold text-lg border-b pb-2">Timeline</h3>
+                  <h3 className="font-display text-lg border-b pb-2">Timeline</h3>
                   <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
                       <Label htmlFor="acquisitionDate">Acquisition Date</Label>
@@ -395,7 +395,7 @@ export default function Portfolio() {
                 </div>
 
                 <div className="space-y-4">
-                  <h3 className="font-semibold text-lg border-b pb-2">Financial Details</h3>
+                  <h3 className="font-display text-lg border-b pb-2">Financial Details</h3>
                   <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
                       <Label htmlFor="purchasePrice">Purchase Price</Label>
@@ -445,7 +445,7 @@ export default function Portfolio() {
                 </div>
 
                 <div className="space-y-4">
-                  <h3 className="font-semibold text-lg border-b pb-2">Revenue Assumptions</h3>
+                  <h3 className="font-display text-lg border-b pb-2">Revenue Assumptions</h3>
                   <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
                       <Label htmlFor="startAdr">Starting ADR ($)</Label>
@@ -543,7 +543,7 @@ export default function Portfolio() {
                   <div className="absolute top-3 left-3">
                     <span 
                       data-testid={`badge-type-${property.id}`}
-                      className={`px-3 py-1 rounded-full text-xs font-medium backdrop-blur-xl ${
+                      className={`px-3 py-1 rounded-full text-xs font-medium backdrop-blur-xl label-text ${
                         property.type === "Financed" 
                           ? "bg-[#257D41]/80 text-white border border-white/20" 
                           : "bg-[#9FBCA4]/80 text-white border border-white/20"
@@ -553,7 +553,7 @@ export default function Portfolio() {
                     </span>
                   </div>
                   <div className="absolute top-3 right-3">
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium backdrop-blur-xl border border-white/20 ${
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium backdrop-blur-xl border border-white/20 label-text ${
                       property.status === "Operational" ? "bg-emerald-500/80 text-white" :
                       property.status === "Development" ? "bg-amber-500/80 text-white" : "bg-white/20 text-white"
                     }`}>
@@ -563,8 +563,8 @@ export default function Portfolio() {
                 </div>
                 
                 <div className="p-5">
-                  <h3 className="font-serif text-xl font-bold text-[#FFF9F5]">{property.name}</h3>
-                  <div className="flex items-center text-[#FFF9F5]/60 text-sm mt-1">
+                  <h3 className="font-display text-xl text-[#FFF9F5]">{property.name}</h3>
+                  <div className="flex items-center text-[#FFF9F5]/60 text-sm mt-1 label-text">
                     <MapPin className="w-3 h-3 mr-1" />
                     {property.location}
                   </div>
@@ -573,14 +573,14 @@ export default function Portfolio() {
                 <div className="px-5 pb-4 flex-1">
                   <div className="grid grid-cols-2 gap-3 text-sm">
                     <div className="p-3 bg-white/10 backdrop-blur-xl rounded-xl border border-white/10">
-                      <p className="text-xs text-[#FFF9F5]/50 mb-1">Acquisition</p>
-                      <p className="font-semibold text-[#FFF9F5]">{formatMoney(property.purchasePrice)}</p>
+                      <p className="text-xs text-[#FFF9F5]/50 mb-1 label-text">Acquisition</p>
+                      <p className="font-mono font-semibold text-[#FFF9F5]">{formatMoney(property.purchasePrice)}</p>
                     </div>
                     <div className="p-3 bg-white/10 backdrop-blur-xl rounded-xl border border-white/10">
-                      <p className="text-xs text-[#FFF9F5]/50 mb-1">Capacity</p>
+                      <p className="text-xs text-[#FFF9F5]/50 mb-1 label-text">Capacity</p>
                       <p className="font-semibold text-white flex items-center">
                         <Bed className="w-3 h-3 mr-1" />
-                        {property.roomCount} Rooms
+                        <span className="font-mono">{property.roomCount}</span> <span className="label-text ml-1">Rooms</span>
                       </p>
                     </div>
                   </div>

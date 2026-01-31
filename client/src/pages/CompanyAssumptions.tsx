@@ -75,7 +75,7 @@ function EditableValue({
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
         autoFocus
-        className="w-24 px-1 py-0.5 text-right font-semibold border rounded bg-white border-[#9FBCA4]/40 text-gray-900"
+        className="w-24 px-1 py-0.5 text-right font-mono font-semibold border rounded bg-white border-[#9FBCA4]/40 text-gray-900"
       />
     );
   }
@@ -83,7 +83,7 @@ function EditableValue({
   return (
     <span
       onClick={handleEdit}
-      className="cursor-pointer hover:text-[#257D41] text-[#257D41] font-semibold"
+      className="cursor-pointer hover:text-[#257D41] text-[#257D41] font-mono font-semibold"
       title="Click to edit"
     >
       {displayValue()}
@@ -258,15 +258,15 @@ export default function CompanyAssumptions() {
           <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/5 blur-xl" />
           <div className="relative space-y-4">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+              <h3 className="text-lg font-display text-gray-900 flex items-center">
                 Company Setup
                 <HelpTooltip text="When the management company begins operations and starts incurring costs" />
               </h3>
-              <p className="text-gray-600 text-sm">Configure the management company name and when it starts operations</p>
+              <p className="text-gray-600 text-sm label-text">Configure the management company name and when it starts operations</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="flex flex-col gap-2">
-                <Label className="flex items-center text-gray-700">
+                <Label className="flex items-center text-gray-700 label-text">
                   Company Logo
                   <HelpTooltip text="The company logo displayed in the navigation. Only administrators can change this." />
                 </Label>
@@ -316,7 +316,7 @@ export default function CompanyAssumptions() {
                 </div>
               </div>
               <div className="flex flex-col gap-2">
-                <Label className="flex items-center text-gray-700">
+                <Label className="flex items-center text-gray-700 label-text">
                   Company Name
                   <HelpTooltip text="The name of the hospitality management company. Only administrators can change this." />
                 </Label>
@@ -333,7 +333,7 @@ export default function CompanyAssumptions() {
                 )}
               </div>
               <div className="flex flex-col gap-2">
-                <Label className="flex items-center text-gray-700">
+                <Label className="flex items-center text-gray-700 label-text">
                   Operations Start Date
                   <HelpTooltip text="The date when the management company begins operations, starts paying salaries, and incurs overhead costs" />
                 </Label>
@@ -355,18 +355,18 @@ export default function CompanyAssumptions() {
           <div className="relative">
           <div className="space-y-6">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+              <h3 className="text-lg font-display text-gray-900 flex items-center">
                 SAFE Funding
                 <HelpTooltip text="Simple Agreement for Future Equity - initial capital to fund management company operations before fee revenue begins" />
               </h3>
-              <p className="text-gray-600 text-sm">Capital raised via SAFE in two tranches to support operations</p>
+              <p className="text-gray-600 text-sm label-text">Capital raised via SAFE in two tranches to support operations</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="p-4 bg-[#9FBCA4]/10 rounded-lg space-y-4">
-                <h4 className="text-sm font-semibold text-gray-900">Tranche 1</h4>
+                <h4 className="text-sm font-display text-gray-900">Tranche 1</h4>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <Label className="text-gray-700">Amount</Label>
+                    <Label className="text-gray-700 label-text">Amount</Label>
                     <EditableValue
                       value={formData.safeTranche1Amount ?? global.safeTranche1Amount}
                       onChange={(v) => handleUpdate("safeTranche1Amount", v)}
@@ -385,7 +385,7 @@ export default function CompanyAssumptions() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-gray-700">Date</Label>
+                  <Label className="text-gray-700 label-text">Date</Label>
                   <Input
                     type="date"
                     value={formData.safeTranche1Date ?? global.safeTranche1Date}
@@ -395,10 +395,10 @@ export default function CompanyAssumptions() {
                 </div>
               </div>
               <div className="p-4 bg-[#9FBCA4]/10 rounded-lg space-y-4">
-                <h4 className="text-sm font-semibold text-gray-900">Tranche 2</h4>
+                <h4 className="text-sm font-display text-gray-900">Tranche 2</h4>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <Label className="text-gray-700">Amount</Label>
+                    <Label className="text-gray-700 label-text">Amount</Label>
                     <EditableValue
                       value={formData.safeTranche2Amount ?? global.safeTranche2Amount}
                       onChange={(v) => handleUpdate("safeTranche2Amount", v)}
@@ -417,7 +417,7 @@ export default function CompanyAssumptions() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-gray-700">Date</Label>
+                  <Label className="text-gray-700 label-text">Date</Label>
                   <Input
                     type="date"
                     value={formData.safeTranche2Date ?? global.safeTranche2Date}
@@ -429,14 +429,14 @@ export default function CompanyAssumptions() {
             </div>
             <div className="mt-4 pt-4 border-t border-[#9FBCA4]/20 grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
-                <Label className="text-gray-600 text-sm">Total SAFE Raise</Label>
-                <p className="font-semibold text-lg text-gray-900">
+                <Label className="text-gray-600 text-sm label-text">Total SAFE Raise</Label>
+                <p className="font-mono font-semibold text-lg text-gray-900">
                   {formatMoney((formData.safeTranche1Amount ?? global.safeTranche1Amount) + (formData.safeTranche2Amount ?? global.safeTranche2Amount))}
                 </p>
               </div>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <Label className="flex items-center text-gray-700">
+                  <Label className="flex items-center text-gray-700 label-text">
                     Valuation Cap
                     <HelpTooltip text="Maximum company valuation for SAFE conversion" />
                   </Label>
@@ -459,7 +459,7 @@ export default function CompanyAssumptions() {
               </div>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <Label className="flex items-center text-gray-700">
+                  <Label className="flex items-center text-gray-700 label-text">
                     Discount Rate
                     <HelpTooltip text="Discount on share price when SAFE converts to equity" />
                   </Label>
@@ -491,13 +491,13 @@ export default function CompanyAssumptions() {
           <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/5 blur-xl" />
           <div className="relative">
             <div className="space-y-6">
-              <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+              <h3 className="text-lg font-display text-gray-900 flex items-center">
                 Revenue
                 <HelpTooltip text="Management fees collected from each property in the portfolio" />
               </h3>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <Label className="flex items-center text-gray-700">
+                  <Label className="flex items-center text-gray-700 label-text">
                     Base Management Fee
                     <HelpTooltip text="Percentage of each property's gross revenue collected monthly" />
                   </Label>
@@ -521,7 +521,7 @@ export default function CompanyAssumptions() {
 
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <Label className="flex items-center text-gray-700">
+                  <Label className="flex items-center text-gray-700 label-text">
                     Incentive Fee (% of GOP)
                     <HelpTooltip text="Percentage of each property's Gross Operating Profit collected annually" />
                   </Label>
@@ -551,15 +551,15 @@ export default function CompanyAssumptions() {
           <div className="relative">
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                <h3 className="text-lg font-display text-gray-900 flex items-center">
                   Compensation
                   <HelpTooltip text="Annual salaries for management company team members" />
                 </h3>
-                <p className="text-gray-600 text-sm">Configure partner compensation and staff salaries over 10 years</p>
+                <p className="text-gray-600 text-sm label-text">Configure partner compensation and staff salaries over 10 years</p>
               </div>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <Label className="flex items-center text-gray-700">
+                  <Label className="flex items-center text-gray-700 label-text">
                     Staff Salary (Avg)
                     <HelpTooltip text="Average annual salary per staff FTE. Staffing scales: 2.5 FTE (1-3 properties), 4.5 FTE (4-6), 7 FTE (7-10)" />
                   </Label>
@@ -590,13 +590,13 @@ export default function CompanyAssumptions() {
           <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/5 blur-xl" />
           <div className="relative">
             <div className="space-y-6">
-              <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                Fixed Overhead ({modelStartYear})
+              <h3 className="text-lg font-display text-gray-900 flex items-center">
+                Fixed Overhead (<span className="font-mono">{modelStartYear}</span>)
                 <HelpTooltip text="Starting annual costs that escalate yearly at the fixed cost escalation rate" />
               </h3>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <Label className="flex items-center text-gray-700">
+                  <Label className="flex items-center text-gray-700 label-text">
                     Fixed Cost Escalation Rate
                     <HelpTooltip text="Annual percentage increase applied to all fixed costs" />
                   </Label>
@@ -620,7 +620,7 @@ export default function CompanyAssumptions() {
 
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <Label className="flex items-center text-gray-700">
+                  <Label className="flex items-center text-gray-700 label-text">
                     Office Lease
                     <HelpTooltip text="Annual rent for corporate office space" />
                   </Label>
@@ -644,7 +644,7 @@ export default function CompanyAssumptions() {
 
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <Label className="flex items-center text-gray-700">
+                  <Label className="flex items-center text-gray-700 label-text">
                     Professional Services
                     <HelpTooltip text="Legal, accounting, and consulting fees" />
                   </Label>
@@ -668,7 +668,7 @@ export default function CompanyAssumptions() {
 
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <Label className="flex items-center text-gray-700">
+                  <Label className="flex items-center text-gray-700 label-text">
                     Tech Infrastructure
                     <HelpTooltip text="Annual cloud hosting, software, and IT services" />
                   </Label>
@@ -692,7 +692,7 @@ export default function CompanyAssumptions() {
 
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <Label className="flex items-center text-gray-700">
+                  <Label className="flex items-center text-gray-700 label-text">
                     Business Insurance
                     <HelpTooltip text="E&O, liability, and other corporate insurance policies" />
                   </Label>
@@ -721,13 +721,13 @@ export default function CompanyAssumptions() {
           <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/5 blur-xl" />
           <div className="relative">
             <div className="space-y-6">
-              <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+              <h3 className="text-lg font-display text-gray-900 flex items-center">
                 Variable Costs
                 <HelpTooltip text="Costs that scale with property count or revenue" />
               </h3>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <Label className="flex items-center text-gray-700">
+                  <Label className="flex items-center text-gray-700 label-text">
                     Travel Cost per Client
                     <HelpTooltip text="Annual travel expense budget per managed property" />
                   </Label>
@@ -751,7 +751,7 @@ export default function CompanyAssumptions() {
 
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <Label className="flex items-center text-gray-700">
+                  <Label className="flex items-center text-gray-700 label-text">
                     IT/Licensing per Client
                     <HelpTooltip text="PMS, revenue management, and software licenses per B&B property" />
                   </Label>
@@ -775,7 +775,7 @@ export default function CompanyAssumptions() {
 
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <Label className="flex items-center text-gray-700">
+                  <Label className="flex items-center text-gray-700 label-text">
                     Marketing (% of Revenue)
                     <HelpTooltip text="Corporate marketing spend as percentage of management fee revenue" />
                   </Label>
@@ -799,7 +799,7 @@ export default function CompanyAssumptions() {
 
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <Label className="flex items-center text-gray-700">
+                  <Label className="flex items-center text-gray-700 label-text">
                     Misc Operations (% of Revenue)
                     <HelpTooltip text="General operating expenses as percentage of management fee revenue" />
                   </Label>
@@ -829,13 +829,13 @@ export default function CompanyAssumptions() {
           <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/5 blur-xl" />
           <div className="relative">
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+            <h3 className="text-lg font-display text-gray-900 flex items-center gap-2">
               Tax Rate
               <HelpTooltip text="Corporate tax rate applied to positive net income for after-tax cash flow calculations" />
             </h3>
             <div className="max-w-md space-y-2">
               <div className="flex justify-between items-center">
-                <Label className="text-gray-700">Company Tax Rate</Label>
+                <Label className="text-gray-700 label-text">Company Tax Rate</Label>
                 <EditableValue
                   value={formData.companyTaxRate ?? global.companyTaxRate ?? 0.30}
                   onChange={(v) => handleUpdate("companyTaxRate", v)}
@@ -865,20 +865,20 @@ export default function CompanyAssumptions() {
           <div className="relative">
           <div className="space-y-4">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+              <h3 className="text-lg font-display text-gray-900 flex items-center gap-2">
                 Partner Compensation Schedule
                 <HelpTooltip text="Annual total partner compensation and partner count for each year. Individual partner compensation = Total ÷ Partner Count." />
               </h3>
-              <p className="text-gray-600 text-sm">Configure total partner compensation and headcount by year</p>
+              <p className="text-gray-600 text-sm label-text">Configure total partner compensation and headcount by year</p>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-[#9FBCA4]/20">
-                    <th className="text-left py-2 px-2 font-medium text-gray-900">Year</th>
-                    <th className="text-right py-2 px-2 font-medium text-gray-900">Total Partner Comp</th>
-                    <th className="text-center py-2 px-2 font-medium text-gray-900">Partner Count</th>
-                    <th className="text-right py-2 px-2 font-medium text-gray-600">Per Partner</th>
+                    <th className="text-left py-2 px-2 font-display text-gray-900">Year</th>
+                    <th className="text-right py-2 px-2 font-display text-gray-900">Total Partner Comp</th>
+                    <th className="text-center py-2 px-2 font-display text-gray-900">Partner Count</th>
+                    <th className="text-right py-2 px-2 font-display text-gray-600">Per Partner</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -891,7 +891,7 @@ export default function CompanyAssumptions() {
                     
                     return (
                       <tr key={year} className="border-b border-[#9FBCA4]/20 last:border-0">
-                        <td className="py-2 px-2 font-medium text-gray-900">Year {year} ({modelStartYear + year - 1})</td>
+                        <td className="py-2 px-2 font-medium text-gray-900">Year {year} (<span className="font-mono">{modelStartYear + year - 1}</span>)</td>
                         <td className="py-2 px-2 text-right">
                           <EditableValue
                             value={compValue}
@@ -906,7 +906,7 @@ export default function CompanyAssumptions() {
                           <select
                             value={countValue}
                             onChange={(e) => handleUpdate(countKey, parseInt(e.target.value) as any)}
-                            className="w-16 text-center border rounded px-2 py-1 bg-white border-[#9FBCA4]/30 text-gray-900"
+                            className="w-16 text-center border rounded px-2 py-1 bg-white border-[#9FBCA4]/30 text-gray-900 font-mono"
                             data-testid={`select-partner-count-year${year}`}
                           >
                             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
@@ -914,7 +914,7 @@ export default function CompanyAssumptions() {
                             ))}
                           </select>
                         </td>
-                        <td className="py-2 px-2 text-right text-gray-600">
+                        <td className="py-2 px-2 text-right text-gray-600 font-mono">
                           {formatMoney(perPartner)}
                         </td>
                       </tr>
@@ -933,8 +933,8 @@ export default function CompanyAssumptions() {
           <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-[#9FBCA4]/10 blur-2xl" />
           <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/5 blur-xl" />
           <div className="relative">
-          <p className="text-sm text-gray-600 text-center">
-            Fixed overhead escalates at {formatPercent(formData.fixedCostEscalationRate ?? global.fixedCostEscalationRate)}/year. Staff scales: 2.5 FTE (1-3 properties), 4.5 (4-6), 7.0 (7-10).
+          <p className="text-sm text-gray-600 text-center label-text">
+            Fixed overhead escalates at <span className="font-mono">{formatPercent(formData.fixedCostEscalationRate ?? global.fixedCostEscalationRate)}</span>/year. Staff scales: <span className="font-mono">2.5</span> FTE (1-3 properties), <span className="font-mono">4.5</span> (4-6), <span className="font-mono">7.0</span> (7-10).
             All costs begin at Operations Start Date and are prorated for partial years.
           </p>
         </div></div>

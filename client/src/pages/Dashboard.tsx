@@ -1886,10 +1886,10 @@ export default function Dashboard() {
                       margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                     >
                       <CartesianGrid horizontal={true} vertical={false} stroke="rgba(255,255,255,0.25)" />
-                      <XAxis dataKey="year" stroke="transparent" tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 12 }} axisLine={false} tickLine={false} />
+                      <XAxis dataKey="year" stroke="transparent" tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 12, fontFamily: 'JetBrains Mono, monospace' }} axisLine={false} tickLine={false} />
                       <YAxis 
                         stroke="transparent" 
-                        tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 12 }}
+                        tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 12, fontFamily: 'JetBrains Mono, monospace' }}
                         tickFormatter={(value) => `$${(value / 1000000).toFixed(1)}M`}
                         axisLine={false}
                         tickLine={false}
@@ -1905,7 +1905,7 @@ export default function Dashboard() {
                         }}
                         labelStyle={{ color: 'rgba(255,255,255,0.7)' }}
                       />
-                      <Legend wrapperStyle={{ color: 'rgba(255,255,255,0.8)' }} />
+                      <Legend wrapperStyle={{ color: 'rgba(255,255,255,0.8)', fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 500 }} />
                       <Line type="natural" dataKey="Revenue" stroke="#A78BFA" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#A78BFA', stroke: '#fff', strokeWidth: 2 }} />
                       <Line type="natural" dataKey="Operating Expenses" stroke="#60A5FA" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#60A5FA', stroke: '#fff', strokeWidth: 2 }} />
                       <Line type="natural" dataKey="NOI" stroke="#9FBCA4" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#9FBCA4', stroke: '#fff', strokeWidth: 2 }} />
@@ -1926,7 +1926,7 @@ export default function Dashboard() {
                     <TableRow>
                       <TableHead className="sticky left-0 bg-card min-w-[200px]">Category</TableHead>
                       {Array.from({ length: 10 }, (_, i) => (
-                        <TableHead key={i} className="text-right min-w-[110px]">{getFiscalYear(i)}</TableHead>
+                        <TableHead key={i} className="text-right min-w-[110px] font-mono">{getFiscalYear(i)}</TableHead>
                       ))}
                     </TableRow>
                   </TableHeader>
@@ -1944,7 +1944,7 @@ export default function Dashboard() {
                         Total Revenue
                       </TableCell>
                       {Array.from({ length: 10 }, (_, y) => (
-                        <TableCell key={y} className="text-right">{formatMoney(getYearlyConsolidated(y).revenueTotal)}</TableCell>
+                        <TableCell key={y} className="text-right font-mono">{formatMoney(getYearlyConsolidated(y).revenueTotal)}</TableCell>
                       ))}
                     </TableRow>
                     {expandedRows.has('revenue') && (
@@ -1952,25 +1952,25 @@ export default function Dashboard() {
                         <TableRow>
                           <TableCell className="sticky left-0 bg-card pl-8 text-muted-foreground">Rooms Revenue</TableCell>
                           {Array.from({ length: 10 }, (_, y) => (
-                            <TableCell key={y} className="text-right text-muted-foreground">{formatMoney(getYearlyConsolidated(y).revenueRooms)}</TableCell>
+                            <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).revenueRooms)}</TableCell>
                           ))}
                         </TableRow>
                         <TableRow>
                           <TableCell className="sticky left-0 bg-card pl-8 text-muted-foreground">Events Revenue</TableCell>
                           {Array.from({ length: 10 }, (_, y) => (
-                            <TableCell key={y} className="text-right text-muted-foreground">{formatMoney(getYearlyConsolidated(y).revenueEvents)}</TableCell>
+                            <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).revenueEvents)}</TableCell>
                           ))}
                         </TableRow>
                         <TableRow>
                           <TableCell className="sticky left-0 bg-card pl-8 text-muted-foreground">F&B Revenue</TableCell>
                           {Array.from({ length: 10 }, (_, y) => (
-                            <TableCell key={y} className="text-right text-muted-foreground">{formatMoney(getYearlyConsolidated(y).revenueFB)}</TableCell>
+                            <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).revenueFB)}</TableCell>
                           ))}
                         </TableRow>
                         <TableRow>
                           <TableCell className="sticky left-0 bg-card pl-8 text-muted-foreground">Other Revenue</TableCell>
                           {Array.from({ length: 10 }, (_, y) => (
-                            <TableCell key={y} className="text-right text-muted-foreground">{formatMoney(getYearlyConsolidated(y).revenueOther)}</TableCell>
+                            <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).revenueOther)}</TableCell>
                           ))}
                         </TableRow>
                         <TableRow 
@@ -2020,7 +2020,7 @@ export default function Dashboard() {
                           data.expenseMarketing + data.expensePropertyOps + data.expenseUtilitiesVar + 
                           data.expenseAdmin + data.expenseIT + data.expenseInsurance + data.expenseTaxes + 
                           data.expenseUtilitiesFixed + data.expenseOtherCosts;
-                        return <TableCell key={y} className="text-right">{formatMoney(totalOpex)}</TableCell>;
+                        return <TableCell key={y} className="text-right font-mono">{formatMoney(totalOpex)}</TableCell>;
                       })}
                     </TableRow>
                     {expandedRows.has('opex') && (
@@ -2049,25 +2049,25 @@ export default function Dashboard() {
                             <TableRow className="bg-muted/10">
                               <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Rooms Expense</TableCell>
                               {Array.from({ length: 10 }, (_, y) => (
-                                <TableCell key={y} className="text-right text-sm text-muted-foreground">{formatMoney(getYearlyConsolidated(y).expenseRooms)}</TableCell>
+                                <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).expenseRooms)}</TableCell>
                               ))}
                             </TableRow>
                             <TableRow className="bg-muted/10">
                               <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">F&B Expense</TableCell>
                               {Array.from({ length: 10 }, (_, y) => (
-                                <TableCell key={y} className="text-right text-sm text-muted-foreground">{formatMoney(getYearlyConsolidated(y).expenseFB)}</TableCell>
+                                <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).expenseFB)}</TableCell>
                               ))}
                             </TableRow>
                             <TableRow className="bg-muted/10">
                               <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Events Expense</TableCell>
                               {Array.from({ length: 10 }, (_, y) => (
-                                <TableCell key={y} className="text-right text-sm text-muted-foreground">{formatMoney(getYearlyConsolidated(y).expenseEvents)}</TableCell>
+                                <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).expenseEvents)}</TableCell>
                               ))}
                             </TableRow>
                             <TableRow className="bg-muted/10">
                               <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Other Direct</TableCell>
                               {Array.from({ length: 10 }, (_, y) => (
-                                <TableCell key={y} className="text-right text-sm text-muted-foreground">{formatMoney(getYearlyConsolidated(y).expenseOther)}</TableCell>
+                                <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).expenseOther)}</TableCell>
                               ))}
                             </TableRow>
                           </>
@@ -2098,50 +2098,50 @@ export default function Dashboard() {
                             <TableRow className="bg-muted/10">
                               <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Admin & General</TableCell>
                               {Array.from({ length: 10 }, (_, y) => (
-                                <TableCell key={y} className="text-right text-sm text-muted-foreground">{formatMoney(getYearlyConsolidated(y).expenseAdmin)}</TableCell>
+                                <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).expenseAdmin)}</TableCell>
                               ))}
                             </TableRow>
                             <TableRow className="bg-muted/10">
                               <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Marketing</TableCell>
                               {Array.from({ length: 10 }, (_, y) => (
-                                <TableCell key={y} className="text-right text-sm text-muted-foreground">{formatMoney(getYearlyConsolidated(y).expenseMarketing)}</TableCell>
+                                <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).expenseMarketing)}</TableCell>
                               ))}
                             </TableRow>
                             <TableRow className="bg-muted/10">
                               <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Property Operations</TableCell>
                               {Array.from({ length: 10 }, (_, y) => (
-                                <TableCell key={y} className="text-right text-sm text-muted-foreground">{formatMoney(getYearlyConsolidated(y).expensePropertyOps)}</TableCell>
+                                <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).expensePropertyOps)}</TableCell>
                               ))}
                             </TableRow>
                             <TableRow className="bg-muted/10">
                               <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Utilities</TableCell>
                               {Array.from({ length: 10 }, (_, y) => {
                                 const data = getYearlyConsolidated(y);
-                                return <TableCell key={y} className="text-right text-sm text-muted-foreground">{formatMoney(data.expenseUtilitiesVar + data.expenseUtilitiesFixed)}</TableCell>;
+                                return <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(data.expenseUtilitiesVar + data.expenseUtilitiesFixed)}</TableCell>;
                               })}
                             </TableRow>
                             <TableRow className="bg-muted/10">
                               <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">IT Systems</TableCell>
                               {Array.from({ length: 10 }, (_, y) => (
-                                <TableCell key={y} className="text-right text-sm text-muted-foreground">{formatMoney(getYearlyConsolidated(y).expenseIT)}</TableCell>
+                                <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).expenseIT)}</TableCell>
                               ))}
                             </TableRow>
                             <TableRow className="bg-muted/10">
                               <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Insurance</TableCell>
                               {Array.from({ length: 10 }, (_, y) => (
-                                <TableCell key={y} className="text-right text-sm text-muted-foreground">{formatMoney(getYearlyConsolidated(y).expenseInsurance)}</TableCell>
+                                <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).expenseInsurance)}</TableCell>
                               ))}
                             </TableRow>
                             <TableRow className="bg-muted/10">
                               <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Property Taxes</TableCell>
                               {Array.from({ length: 10 }, (_, y) => (
-                                <TableCell key={y} className="text-right text-sm text-muted-foreground">{formatMoney(getYearlyConsolidated(y).expenseTaxes)}</TableCell>
+                                <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).expenseTaxes)}</TableCell>
                               ))}
                             </TableRow>
                             <TableRow className="bg-muted/10">
                               <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Other Expenses</TableCell>
                               {Array.from({ length: 10 }, (_, y) => (
-                                <TableCell key={y} className="text-right text-sm text-muted-foreground">{formatMoney(getYearlyConsolidated(y).expenseOtherCosts)}</TableCell>
+                                <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).expenseOtherCosts)}</TableCell>
                               ))}
                             </TableRow>
                           </>
@@ -2152,7 +2152,7 @@ export default function Dashboard() {
                     <TableRow className="bg-accent/20 font-semibold">
                       <TableCell className="sticky left-0 bg-accent/20">Gross Operating Profit (GOP)</TableCell>
                       {Array.from({ length: 10 }, (_, y) => (
-                        <TableCell key={y} className="text-right">{formatMoney(getYearlyConsolidated(y).gop)}</TableCell>
+                        <TableCell key={y} className="text-right font-mono">{formatMoney(getYearlyConsolidated(y).gop)}</TableCell>
                       ))}
                     </TableRow>
 
@@ -2170,7 +2170,7 @@ export default function Dashboard() {
                       </TableCell>
                       {Array.from({ length: 10 }, (_, y) => {
                         const data = getYearlyConsolidated(y);
-                        return <TableCell key={y} className="text-right">{formatMoney(data.feeBase + data.feeIncentive)}</TableCell>;
+                        return <TableCell key={y} className="text-right font-mono">{formatMoney(data.feeBase + data.feeIncentive)}</TableCell>;
                       })}
                     </TableRow>
                     {expandedRows.has('mgmtFees') && (
@@ -2178,13 +2178,13 @@ export default function Dashboard() {
                         <TableRow>
                           <TableCell className="sticky left-0 bg-card pl-8 text-muted-foreground">Base Fee ({(global.baseManagementFee * 100).toFixed(0)}% of Revenue)</TableCell>
                           {Array.from({ length: 10 }, (_, y) => (
-                            <TableCell key={y} className="text-right text-muted-foreground">{formatMoney(getYearlyConsolidated(y).feeBase)}</TableCell>
+                            <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).feeBase)}</TableCell>
                           ))}
                         </TableRow>
                         <TableRow>
                           <TableCell className="sticky left-0 bg-card pl-8 text-muted-foreground">Incentive Fee ({(global.incentiveManagementFee * 100).toFixed(0)}% of GOP)</TableCell>
                           {Array.from({ length: 10 }, (_, y) => (
-                            <TableCell key={y} className="text-right text-muted-foreground">{formatMoney(getYearlyConsolidated(y).feeIncentive)}</TableCell>
+                            <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).feeIncentive)}</TableCell>
                           ))}
                         </TableRow>
                         <TableRow 
@@ -2222,7 +2222,7 @@ export default function Dashboard() {
                     <TableRow>
                       <TableCell className="sticky left-0 bg-card">FF&E Reserve</TableCell>
                       {Array.from({ length: 10 }, (_, y) => (
-                        <TableCell key={y} className="text-right text-muted-foreground">{formatMoney(getYearlyConsolidated(y).expenseFFE)}</TableCell>
+                        <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).expenseFFE)}</TableCell>
                       ))}
                     </TableRow>
 
@@ -2288,10 +2288,10 @@ export default function Dashboard() {
                       margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                     >
                       <CartesianGrid horizontal={true} vertical={false} stroke="rgba(255,255,255,0.25)" />
-                      <XAxis dataKey="year" stroke="transparent" tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 12 }} axisLine={false} tickLine={false} />
+                      <XAxis dataKey="year" stroke="transparent" tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 12, fontFamily: 'JetBrains Mono, monospace' }} axisLine={false} tickLine={false} />
                       <YAxis 
                         stroke="transparent" 
-                        tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 12 }}
+                        tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 12, fontFamily: 'JetBrains Mono, monospace' }}
                         tickFormatter={(value) => `$${(value / 1000000).toFixed(1)}M`}
                         axisLine={false}
                         tickLine={false}
@@ -2306,7 +2306,7 @@ export default function Dashboard() {
                         }}
                         labelStyle={{ color: 'rgba(255,255,255,0.7)' }}
                       />
-                      <Legend wrapperStyle={{ color: 'rgba(255,255,255,0.8)' }} />
+                      <Legend wrapperStyle={{ color: 'rgba(255,255,255,0.8)', fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 500 }} />
                       <Line type="natural" dataKey="Revenue" stroke="#A78BFA" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#A78BFA', stroke: '#fff', strokeWidth: 2 }} />
                       <Line type="natural" dataKey="Operating Costs" stroke="#60A5FA" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#60A5FA', stroke: '#fff', strokeWidth: 2 }} />
                       <Line type="natural" dataKey="NOI" stroke="#9FBCA4" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#9FBCA4', stroke: '#fff', strokeWidth: 2 }} />
@@ -2345,10 +2345,10 @@ export default function Dashboard() {
                       margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                     >
                       <CartesianGrid horizontal={true} vertical={false} stroke="rgba(255,255,255,0.25)" />
-                      <XAxis dataKey="year" stroke="transparent" tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 12 }} axisLine={false} tickLine={false} />
+                      <XAxis dataKey="year" stroke="transparent" tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 12, fontFamily: 'JetBrains Mono, monospace' }} axisLine={false} tickLine={false} />
                       <YAxis 
                         stroke="transparent" 
-                        tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 12 }}
+                        tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 12, fontFamily: 'JetBrains Mono, monospace' }}
                         tickFormatter={(value) => `$${(value / 1000000).toFixed(1)}M`}
                         axisLine={false}
                         tickLine={false}
@@ -2363,7 +2363,7 @@ export default function Dashboard() {
                         }}
                         labelStyle={{ color: 'rgba(255,255,255,0.7)' }}
                       />
-                      <Legend wrapperStyle={{ color: 'rgba(255,255,255,0.8)' }} />
+                      <Legend wrapperStyle={{ color: 'rgba(255,255,255,0.8)', fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 500 }} />
                       <Line type="natural" dataKey="NOI" stroke="#A78BFA" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#A78BFA', stroke: '#fff', strokeWidth: 2 }} />
                       <Line type="natural" dataKey="Debt Service" stroke="#F472B6" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#F472B6', stroke: '#fff', strokeWidth: 2 }} />
                       <Line type="natural" dataKey="Net Cash Flow" stroke="#34D399" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#34D399', stroke: '#fff', strokeWidth: 2 }} />
@@ -2384,7 +2384,7 @@ export default function Dashboard() {
                     <TableRow>
                       <TableHead className="sticky left-0 bg-card min-w-[200px]">Category</TableHead>
                       {Array.from({ length: 10 }, (_, i) => (
-                        <TableHead key={i} className="text-right min-w-[110px]">{getFiscalYear(i)}</TableHead>
+                        <TableHead key={i} className="text-right min-w-[110px] font-mono">{getFiscalYear(i)}</TableHead>
                       ))}
                     </TableRow>
                   </TableHeader>
@@ -2402,7 +2402,7 @@ export default function Dashboard() {
                         Cash Inflows (Revenue)
                       </TableCell>
                       {Array.from({ length: 10 }, (_, y) => (
-                        <TableCell key={y} className="text-right">{formatMoney(getYearlyConsolidated(y).revenueTotal)}</TableCell>
+                        <TableCell key={y} className="text-right font-mono">{formatMoney(getYearlyConsolidated(y).revenueTotal)}</TableCell>
                       ))}
                     </TableRow>
                     {expandedRows.has('cfInflows') && (
@@ -2410,25 +2410,25 @@ export default function Dashboard() {
                         <TableRow>
                           <TableCell className="sticky left-0 bg-card pl-8 text-muted-foreground">Rooms Revenue</TableCell>
                           {Array.from({ length: 10 }, (_, y) => (
-                            <TableCell key={y} className="text-right text-muted-foreground">{formatMoney(getYearlyConsolidated(y).revenueRooms)}</TableCell>
+                            <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).revenueRooms)}</TableCell>
                           ))}
                         </TableRow>
                         <TableRow>
                           <TableCell className="sticky left-0 bg-card pl-8 text-muted-foreground">Events Revenue</TableCell>
                           {Array.from({ length: 10 }, (_, y) => (
-                            <TableCell key={y} className="text-right text-muted-foreground">{formatMoney(getYearlyConsolidated(y).revenueEvents)}</TableCell>
+                            <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).revenueEvents)}</TableCell>
                           ))}
                         </TableRow>
                         <TableRow>
                           <TableCell className="sticky left-0 bg-card pl-8 text-muted-foreground">F&B Revenue</TableCell>
                           {Array.from({ length: 10 }, (_, y) => (
-                            <TableCell key={y} className="text-right text-muted-foreground">{formatMoney(getYearlyConsolidated(y).revenueFB)}</TableCell>
+                            <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).revenueFB)}</TableCell>
                           ))}
                         </TableRow>
                         <TableRow>
                           <TableCell className="sticky left-0 bg-card pl-8 text-muted-foreground">Other Revenue</TableCell>
                           {Array.from({ length: 10 }, (_, y) => (
-                            <TableCell key={y} className="text-right text-muted-foreground">{formatMoney(getYearlyConsolidated(y).revenueOther)}</TableCell>
+                            <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).revenueOther)}</TableCell>
                           ))}
                         </TableRow>
                         <TableRow 
@@ -2610,7 +2610,7 @@ export default function Dashboard() {
                     <TableRow className="bg-accent/20 font-semibold">
                       <TableCell className="sticky left-0 bg-accent/20">Gross Operating Profit (GOP)</TableCell>
                       {Array.from({ length: 10 }, (_, y) => (
-                        <TableCell key={y} className="text-right">{formatMoney(getYearlyConsolidated(y).gop)}</TableCell>
+                        <TableCell key={y} className="text-right font-mono">{formatMoney(getYearlyConsolidated(y).gop)}</TableCell>
                       ))}
                     </TableRow>
 
@@ -3670,11 +3670,11 @@ function InvestmentAnalysis({
                 return (
                   <TableRow key={prop.id}>
                     <TableCell className="font-medium">{prop.name}</TableCell>
-                    <TableCell className="text-right">{formatMoney(equity)}</TableCell>
+                    <TableCell className="text-right font-mono">{formatMoney(equity)}</TableCell>
                     <TableCell className="text-right">{((prop.taxRate || 0.25) * 100).toFixed(0)}%</TableCell>
                     <TableCell className="text-right">{((prop.exitCapRate || 0.085) * 100).toFixed(1)}%</TableCell>
                     <TableCell className="text-right text-accent">{formatMoney(exitValue)}</TableCell>
-                    <TableCell className="text-right">{formatMoney(totalDistributions)}</TableCell>
+                    <TableCell className="text-right font-mono">{formatMoney(totalDistributions)}</TableCell>
                     <TableCell className="text-right font-medium">{equityMultiple.toFixed(2)}x</TableCell>
                     <TableCell className={`text-right font-bold ${irr > 0.15 ? 'text-accent' : irr > 0 ? 'text-primary' : 'text-destructive'}`}>
                       {(irr * 100).toFixed(1)}%
@@ -3684,11 +3684,11 @@ function InvestmentAnalysis({
               })}
               <TableRow className="bg-primary/10 font-bold">
                 <TableCell>Portfolio Total</TableCell>
-                <TableCell className="text-right">{formatMoney(totalInitialEquityIA)}</TableCell>
+                <TableCell className="text-right font-mono">{formatMoney(totalInitialEquityIA)}</TableCell>
                 <TableCell className="text-right text-muted-foreground">-</TableCell>
                 <TableCell className="text-right text-muted-foreground">-</TableCell>
                 <TableCell className="text-right text-accent">{formatMoney(totalExitValueIA)}</TableCell>
-                <TableCell className="text-right">{formatMoney(consolidatedFlowsIA.slice(1).reduce((a, b) => a + b, 0))}</TableCell>
+                <TableCell className="text-right font-mono">{formatMoney(consolidatedFlowsIA.slice(1).reduce((a, b) => a + b, 0))}</TableCell>
                 <TableCell className="text-right">{(consolidatedFlowsIA.slice(1).reduce((a, b) => a + b, 0) / totalInitialEquityIA).toFixed(2)}x</TableCell>
                 <TableCell className="text-right text-primary">{(portfolioIRRIA * 100).toFixed(1)}%</TableCell>
               </TableRow>

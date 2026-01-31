@@ -115,7 +115,7 @@ export default function Company() {
     return (
       <Layout>
         <div className="flex flex-col items-center justify-center h-[60vh] text-center space-y-4">
-          <h2 className="text-2xl font-serif font-bold">Data Not Available</h2>
+          <h2 className="text-2xl font-display">Data Not Available</h2>
         </div>
       </Layout>
     );
@@ -606,7 +606,7 @@ export default function Company() {
           {/* Chart Card */}
           <GlassCard variant="chart" className="rounded-3xl">
           <div>
-            <h3 className="text-lg font-semibold text-[#FFF9F5] mb-4">Management Company Performance (10-Year Projection)</h3>
+            <h3 className="text-lg font-display text-[#FFF9F5] mb-4">Management Company Performance (10-Year Projection)</h3>
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={yearlyChartData}>
@@ -672,7 +672,7 @@ export default function Company() {
             {/* Income Statement */}
             <div className="bg-white rounded-2xl p-6 shadow-sm border">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Income Statement - {global?.companyName || "L+B Hospitality Co."}</h3>
+                <h3 className="text-lg font-display text-gray-900 mb-4">Income Statement - {global?.companyName || "L+B Hospitality Co."}</h3>
                 <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
@@ -689,7 +689,7 @@ export default function Company() {
                       {Array.from({ length: 10 }, (_, y) => {
                         const yearData = financials.slice(y * 12, (y + 1) * 12);
                         const total = yearData.reduce((a, m) => a + m.totalRevenue, 0);
-                        return <TableCell key={y} className="text-right">{formatMoney(total)}</TableCell>;
+                        return <TableCell key={y} className="text-right font-mono">{formatMoney(total)}</TableCell>;
                       })}
                     </TableRow>
                     
@@ -708,7 +708,7 @@ export default function Company() {
                       {Array.from({ length: 10 }, (_, y) => {
                         const yearData = financials.slice(y * 12, (y + 1) * 12);
                         const total = yearData.reduce((a, m) => a + m.baseFeeRevenue, 0);
-                        return <TableCell key={y} className="text-right text-gray-600">{formatMoney(total)}</TableCell>;
+                        return <TableCell key={y} className="text-right text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
                       })}
                     </TableRow>
                     
@@ -718,7 +718,7 @@ export default function Company() {
                           {prop.name}
                         </TableCell>
                         {Array.from({ length: 10 }, (_, y) => (
-                          <TableCell key={y} className="text-right text-sm text-gray-600">
+                          <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">
                             {formatMoney(getPropertyYearlyBaseFee(idx, y))}
                           </TableCell>
                         ))}
@@ -740,7 +740,7 @@ export default function Company() {
                       {Array.from({ length: 10 }, (_, y) => {
                         const yearData = financials.slice(y * 12, (y + 1) * 12);
                         const total = yearData.reduce((a, m) => a + m.incentiveFeeRevenue, 0);
-                        return <TableCell key={y} className="text-right text-gray-600">{formatMoney(total)}</TableCell>;
+                        return <TableCell key={y} className="text-right text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
                       })}
                     </TableRow>
                     
@@ -750,7 +750,7 @@ export default function Company() {
                           {prop.name}
                         </TableCell>
                         {Array.from({ length: 10 }, (_, y) => (
-                          <TableCell key={y} className="text-right text-sm text-gray-600">
+                          <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">
                             {formatMoney(getPropertyYearlyIncentiveFee(idx, y))}
                           </TableCell>
                         ))}
@@ -772,7 +772,7 @@ export default function Company() {
                       {Array.from({ length: 10 }, (_, y) => {
                         const yearData = financials.slice(y * 12, (y + 1) * 12);
                         const total = yearData.reduce((a, m) => a + m.totalExpenses, 0);
-                        return <TableCell key={y} className="text-right">{formatMoney(total)}</TableCell>;
+                        return <TableCell key={y} className="text-right font-mono">{formatMoney(total)}</TableCell>;
                       })}
                     </TableRow>
                     {expandedRows.has('opex') && (
@@ -792,7 +792,7 @@ export default function Company() {
                           {Array.from({ length: 10 }, (_, y) => {
                             const yearData = financials.slice(y * 12, (y + 1) * 12);
                             const total = yearData.reduce((a, m) => a + m.partnerCompensation + m.staffCompensation, 0);
-                            return <TableCell key={y} className="text-right text-gray-600">{formatMoney(total)}</TableCell>;
+                            return <TableCell key={y} className="text-right text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
                           })}
                         </TableRow>
                         {expandedRows.has('opexComp') && (
@@ -802,7 +802,7 @@ export default function Company() {
                               {Array.from({ length: 10 }, (_, y) => {
                                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                                 const total = yearData.reduce((a, m) => a + m.partnerCompensation, 0);
-                                return <TableCell key={y} className="text-right text-sm text-gray-600">{formatMoney(total)}</TableCell>;
+                                return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
                               })}
                             </TableRow>
                             <TableRow className="bg-gray-50/50">
@@ -810,7 +810,7 @@ export default function Company() {
                               {Array.from({ length: 10 }, (_, y) => {
                                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                                 const total = yearData.reduce((a, m) => a + m.staffCompensation, 0);
-                                return <TableCell key={y} className="text-right text-sm text-gray-600">{formatMoney(total)}</TableCell>;
+                                return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
                               })}
                             </TableRow>
                           </>
@@ -830,7 +830,7 @@ export default function Company() {
                           {Array.from({ length: 10 }, (_, y) => {
                             const yearData = financials.slice(y * 12, (y + 1) * 12);
                             const total = yearData.reduce((a, m) => a + m.officeLease + m.professionalServices + m.techInfrastructure + m.businessInsurance, 0);
-                            return <TableCell key={y} className="text-right text-gray-600">{formatMoney(total)}</TableCell>;
+                            return <TableCell key={y} className="text-right text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
                           })}
                         </TableRow>
                         {expandedRows.has('opexFixed') && (
@@ -840,7 +840,7 @@ export default function Company() {
                               {Array.from({ length: 10 }, (_, y) => {
                                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                                 const total = yearData.reduce((a, m) => a + m.officeLease, 0);
-                                return <TableCell key={y} className="text-right text-sm text-gray-600">{formatMoney(total)}</TableCell>;
+                                return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
                               })}
                             </TableRow>
                             <TableRow className="bg-gray-50/50">
@@ -848,7 +848,7 @@ export default function Company() {
                               {Array.from({ length: 10 }, (_, y) => {
                                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                                 const total = yearData.reduce((a, m) => a + m.professionalServices, 0);
-                                return <TableCell key={y} className="text-right text-sm text-gray-600">{formatMoney(total)}</TableCell>;
+                                return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
                               })}
                             </TableRow>
                             <TableRow className="bg-gray-50/50">
@@ -856,7 +856,7 @@ export default function Company() {
                               {Array.from({ length: 10 }, (_, y) => {
                                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                                 const total = yearData.reduce((a, m) => a + m.techInfrastructure, 0);
-                                return <TableCell key={y} className="text-right text-sm text-gray-600">{formatMoney(total)}</TableCell>;
+                                return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
                               })}
                             </TableRow>
                             <TableRow className="bg-gray-50/50">
@@ -864,7 +864,7 @@ export default function Company() {
                               {Array.from({ length: 10 }, (_, y) => {
                                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                                 const total = yearData.reduce((a, m) => a + m.businessInsurance, 0);
-                                return <TableCell key={y} className="text-right text-sm text-gray-600">{formatMoney(total)}</TableCell>;
+                                return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
                               })}
                             </TableRow>
                           </>
@@ -884,7 +884,7 @@ export default function Company() {
                           {Array.from({ length: 10 }, (_, y) => {
                             const yearData = financials.slice(y * 12, (y + 1) * 12);
                             const total = yearData.reduce((a, m) => a + m.travelCosts + m.itLicensing + m.marketing + m.miscOps, 0);
-                            return <TableCell key={y} className="text-right text-gray-600">{formatMoney(total)}</TableCell>;
+                            return <TableCell key={y} className="text-right text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
                           })}
                         </TableRow>
                         {expandedRows.has('opexVar') && (
@@ -894,7 +894,7 @@ export default function Company() {
                               {Array.from({ length: 10 }, (_, y) => {
                                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                                 const total = yearData.reduce((a, m) => a + m.travelCosts, 0);
-                                return <TableCell key={y} className="text-right text-sm text-gray-600">{formatMoney(total)}</TableCell>;
+                                return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
                               })}
                             </TableRow>
                             <TableRow className="bg-gray-50/50">
@@ -902,7 +902,7 @@ export default function Company() {
                               {Array.from({ length: 10 }, (_, y) => {
                                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                                 const total = yearData.reduce((a, m) => a + m.itLicensing, 0);
-                                return <TableCell key={y} className="text-right text-sm text-gray-600">{formatMoney(total)}</TableCell>;
+                                return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
                               })}
                             </TableRow>
                             <TableRow className="bg-gray-50/50">
@@ -910,7 +910,7 @@ export default function Company() {
                               {Array.from({ length: 10 }, (_, y) => {
                                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                                 const total = yearData.reduce((a, m) => a + m.marketing, 0);
-                                return <TableCell key={y} className="text-right text-sm text-gray-600">{formatMoney(total)}</TableCell>;
+                                return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
                               })}
                             </TableRow>
                             <TableRow className="bg-gray-50/50">
@@ -918,7 +918,7 @@ export default function Company() {
                               {Array.from({ length: 10 }, (_, y) => {
                                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                                 const total = yearData.reduce((a, m) => a + m.miscOps, 0);
-                                return <TableCell key={y} className="text-right text-sm text-gray-600">{formatMoney(total)}</TableCell>;
+                                return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
                               })}
                             </TableRow>
                           </>
@@ -931,7 +931,7 @@ export default function Company() {
                         const yearData = financials.slice(y * 12, (y + 1) * 12);
                         const total = yearData.reduce((a, m) => a + m.netIncome, 0);
                         return (
-                          <TableCell key={y} className={`text-right ${total < 0 ? 'text-destructive' : ''}`}>
+                          <TableCell key={y} className={`text-right font-mono ${total < 0 ? 'text-destructive' : ''}`}>
                             {formatMoney(total)}
                           </TableCell>
                         );
@@ -945,7 +945,7 @@ export default function Company() {
                         const totalRevenue = yearData.reduce((a, m) => a + m.totalRevenue, 0);
                         const margin = totalRevenue > 0 ? (netIncome / totalRevenue) * 100 : 0;
                         return (
-                          <TableCell key={y} className={`text-right italic text-gray-600 ${margin < 0 ? 'text-destructive' : ''}`}>
+                          <TableCell key={y} className={`text-right italic text-gray-600 font-mono ${margin < 0 ? 'text-destructive' : ''}`}>
                             {margin.toFixed(1)}%
                           </TableCell>
                         );
@@ -962,7 +962,7 @@ export default function Company() {
             {/* Cash Flow Statement */}
             <div className="bg-white rounded-2xl p-6 shadow-sm border">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Cash Flow Statement - {global?.companyName || "L+B Hospitality Co."}</h3>
+                <h3 className="text-lg font-display text-gray-900 mb-4">Cash Flow Statement - {global?.companyName || "L+B Hospitality Co."}</h3>
                 <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
@@ -980,7 +980,7 @@ export default function Company() {
                         const yearData = financials.slice(y * 12, (y + 1) * 12);
                         const revenue = yearData.reduce((a, m) => a + m.totalRevenue, 0);
                         const safe = yearData.reduce((a, m) => a + m.safeFunding, 0);
-                        return <TableCell key={y} className="text-right">{formatMoney(revenue + safe)}</TableCell>;
+                        return <TableCell key={y} className="text-right font-mono">{formatMoney(revenue + safe)}</TableCell>;
                       })}
                     </TableRow>
                     <TableRow>
@@ -988,7 +988,7 @@ export default function Company() {
                       {Array.from({ length: 10 }, (_, y) => {
                         const yearData = financials.slice(y * 12, (y + 1) * 12);
                         const total = yearData.reduce((a, m) => a + m.totalRevenue, 0);
-                        return <TableCell key={y} className="text-right text-gray-600">{formatMoney(total)}</TableCell>;
+                        return <TableCell key={y} className="text-right text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
                       })}
                     </TableRow>
                     <TableRow 
@@ -1006,7 +1006,7 @@ export default function Company() {
                       {Array.from({ length: 10 }, (_, y) => {
                         const yearData = financials.slice(y * 12, (y + 1) * 12);
                         const total = yearData.reduce((a, m) => a + m.baseFeeRevenue, 0);
-                        return <TableCell key={y} className="text-right text-gray-600">{formatMoney(total)}</TableCell>;
+                        return <TableCell key={y} className="text-right text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
                       })}
                     </TableRow>
                     {expandedRows.has('cfBaseFees') && properties.map((prop, idx) => (
@@ -1015,7 +1015,7 @@ export default function Company() {
                           {prop.name}
                         </TableCell>
                         {Array.from({ length: 10 }, (_, y) => (
-                          <TableCell key={y} className="text-right text-sm text-gray-600">
+                          <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">
                             {formatMoney(getPropertyYearlyBaseFee(idx, y))}
                           </TableCell>
                         ))}
@@ -1036,7 +1036,7 @@ export default function Company() {
                       {Array.from({ length: 10 }, (_, y) => {
                         const yearData = financials.slice(y * 12, (y + 1) * 12);
                         const total = yearData.reduce((a, m) => a + m.incentiveFeeRevenue, 0);
-                        return <TableCell key={y} className="text-right text-gray-600">{formatMoney(total)}</TableCell>;
+                        return <TableCell key={y} className="text-right text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
                       })}
                     </TableRow>
                     {expandedRows.has('cfIncentiveFees') && properties.map((prop, idx) => (
@@ -1045,7 +1045,7 @@ export default function Company() {
                           {prop.name}
                         </TableCell>
                         {Array.from({ length: 10 }, (_, y) => (
-                          <TableCell key={y} className="text-right text-sm text-gray-600">
+                          <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">
                             {formatMoney(getPropertyYearlyIncentiveFee(idx, y))}
                           </TableCell>
                         ))}
@@ -1066,7 +1066,7 @@ export default function Company() {
                       {Array.from({ length: 10 }, (_, y) => {
                         const yearData = financials.slice(y * 12, (y + 1) * 12);
                         const total = yearData.reduce((a, m) => a + m.safeFunding, 0);
-                        return <TableCell key={y} className="text-right text-gray-600">{total > 0 ? formatMoney(total) : '-'}</TableCell>;
+                        return <TableCell key={y} className="text-right text-gray-600 font-mono">{total > 0 ? formatMoney(total) : '-'}</TableCell>;
                       })}
                     </TableRow>
                     {expandedRows.has('cfSafe') && (
@@ -1078,7 +1078,7 @@ export default function Company() {
                           {Array.from({ length: 10 }, (_, y) => {
                             const yearData = financials.slice(y * 12, (y + 1) * 12);
                             const total = yearData.reduce((a, m) => a + m.safeFunding1, 0);
-                            return <TableCell key={y} className="text-right text-sm text-gray-600">{total > 0 ? formatMoney(total) : '-'}</TableCell>;
+                            return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">{total > 0 ? formatMoney(total) : '-'}</TableCell>;
                           })}
                         </TableRow>
                         <TableRow className="bg-gray-50/50">
@@ -1088,7 +1088,7 @@ export default function Company() {
                           {Array.from({ length: 10 }, (_, y) => {
                             const yearData = financials.slice(y * 12, (y + 1) * 12);
                             const total = yearData.reduce((a, m) => a + m.safeFunding2, 0);
-                            return <TableCell key={y} className="text-right text-sm text-gray-600">{total > 0 ? formatMoney(total) : '-'}</TableCell>;
+                            return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">{total > 0 ? formatMoney(total) : '-'}</TableCell>;
                           })}
                         </TableRow>
                       </>
@@ -1109,7 +1109,7 @@ export default function Company() {
                       {Array.from({ length: 10 }, (_, y) => {
                         const yearData = financials.slice(y * 12, (y + 1) * 12);
                         const total = yearData.reduce((a, m) => a + m.totalExpenses, 0);
-                        return <TableCell key={y} className="text-right">({formatMoney(total)})</TableCell>;
+                        return <TableCell key={y} className="text-right font-mono">({formatMoney(total)})</TableCell>;
                       })}
                     </TableRow>
                     {expandedRows.has('cfOutflows') && (
@@ -1129,7 +1129,7 @@ export default function Company() {
                           {Array.from({ length: 10 }, (_, y) => {
                             const yearData = financials.slice(y * 12, (y + 1) * 12);
                             const total = yearData.reduce((a, m) => a + m.partnerCompensation + m.staffCompensation, 0);
-                            return <TableCell key={y} className="text-right text-gray-600">({formatMoney(total)})</TableCell>;
+                            return <TableCell key={y} className="text-right text-gray-600 font-mono">({formatMoney(total)})</TableCell>;
                           })}
                         </TableRow>
                         {expandedRows.has('cfComp') && (
@@ -1139,7 +1139,7 @@ export default function Company() {
                               {Array.from({ length: 10 }, (_, y) => {
                                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                                 const total = yearData.reduce((a, m) => a + m.partnerCompensation, 0);
-                                return <TableCell key={y} className="text-right text-sm text-gray-600">({formatMoney(total)})</TableCell>;
+                                return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">({formatMoney(total)})</TableCell>;
                               })}
                             </TableRow>
                             <TableRow className="bg-gray-50/50">
@@ -1147,7 +1147,7 @@ export default function Company() {
                               {Array.from({ length: 10 }, (_, y) => {
                                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                                 const total = yearData.reduce((a, m) => a + m.staffCompensation, 0);
-                                return <TableCell key={y} className="text-right text-sm text-gray-600">({formatMoney(total)})</TableCell>;
+                                return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">({formatMoney(total)})</TableCell>;
                               })}
                             </TableRow>
                           </>
@@ -1167,7 +1167,7 @@ export default function Company() {
                           {Array.from({ length: 10 }, (_, y) => {
                             const yearData = financials.slice(y * 12, (y + 1) * 12);
                             const total = yearData.reduce((a, m) => a + m.officeLease + m.professionalServices + m.techInfrastructure + m.businessInsurance, 0);
-                            return <TableCell key={y} className="text-right text-gray-600">({formatMoney(total)})</TableCell>;
+                            return <TableCell key={y} className="text-right text-gray-600 font-mono">({formatMoney(total)})</TableCell>;
                           })}
                         </TableRow>
                         {expandedRows.has('cfFixed') && (
@@ -1177,7 +1177,7 @@ export default function Company() {
                               {Array.from({ length: 10 }, (_, y) => {
                                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                                 const total = yearData.reduce((a, m) => a + m.officeLease, 0);
-                                return <TableCell key={y} className="text-right text-sm text-gray-600">({formatMoney(total)})</TableCell>;
+                                return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">({formatMoney(total)})</TableCell>;
                               })}
                             </TableRow>
                             <TableRow className="bg-gray-50/50">
@@ -1185,7 +1185,7 @@ export default function Company() {
                               {Array.from({ length: 10 }, (_, y) => {
                                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                                 const total = yearData.reduce((a, m) => a + m.professionalServices, 0);
-                                return <TableCell key={y} className="text-right text-sm text-gray-600">({formatMoney(total)})</TableCell>;
+                                return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">({formatMoney(total)})</TableCell>;
                               })}
                             </TableRow>
                             <TableRow className="bg-gray-50/50">
@@ -1193,7 +1193,7 @@ export default function Company() {
                               {Array.from({ length: 10 }, (_, y) => {
                                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                                 const total = yearData.reduce((a, m) => a + m.techInfrastructure, 0);
-                                return <TableCell key={y} className="text-right text-sm text-gray-600">({formatMoney(total)})</TableCell>;
+                                return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">({formatMoney(total)})</TableCell>;
                               })}
                             </TableRow>
                             <TableRow className="bg-gray-50/50">
@@ -1201,7 +1201,7 @@ export default function Company() {
                               {Array.from({ length: 10 }, (_, y) => {
                                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                                 const total = yearData.reduce((a, m) => a + m.businessInsurance, 0);
-                                return <TableCell key={y} className="text-right text-sm text-gray-600">({formatMoney(total)})</TableCell>;
+                                return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">({formatMoney(total)})</TableCell>;
                               })}
                             </TableRow>
                           </>
@@ -1221,7 +1221,7 @@ export default function Company() {
                           {Array.from({ length: 10 }, (_, y) => {
                             const yearData = financials.slice(y * 12, (y + 1) * 12);
                             const total = yearData.reduce((a, m) => a + m.travelCosts + m.itLicensing + m.marketing + m.miscOps, 0);
-                            return <TableCell key={y} className="text-right text-gray-600">({formatMoney(total)})</TableCell>;
+                            return <TableCell key={y} className="text-right text-gray-600 font-mono">({formatMoney(total)})</TableCell>;
                           })}
                         </TableRow>
                         {expandedRows.has('cfVar') && (
@@ -1231,7 +1231,7 @@ export default function Company() {
                               {Array.from({ length: 10 }, (_, y) => {
                                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                                 const total = yearData.reduce((a, m) => a + m.travelCosts, 0);
-                                return <TableCell key={y} className="text-right text-sm text-gray-600">({formatMoney(total)})</TableCell>;
+                                return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">({formatMoney(total)})</TableCell>;
                               })}
                             </TableRow>
                             <TableRow className="bg-gray-50/50">
@@ -1239,7 +1239,7 @@ export default function Company() {
                               {Array.from({ length: 10 }, (_, y) => {
                                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                                 const total = yearData.reduce((a, m) => a + m.itLicensing, 0);
-                                return <TableCell key={y} className="text-right text-sm text-gray-600">({formatMoney(total)})</TableCell>;
+                                return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">({formatMoney(total)})</TableCell>;
                               })}
                             </TableRow>
                             <TableRow className="bg-gray-50/50">
@@ -1247,7 +1247,7 @@ export default function Company() {
                               {Array.from({ length: 10 }, (_, y) => {
                                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                                 const total = yearData.reduce((a, m) => a + m.marketing, 0);
-                                return <TableCell key={y} className="text-right text-sm text-gray-600">({formatMoney(total)})</TableCell>;
+                                return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">({formatMoney(total)})</TableCell>;
                               })}
                             </TableRow>
                             <TableRow className="bg-gray-50/50">
@@ -1255,7 +1255,7 @@ export default function Company() {
                               {Array.from({ length: 10 }, (_, y) => {
                                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                                 const total = yearData.reduce((a, m) => a + m.miscOps, 0);
-                                return <TableCell key={y} className="text-right text-sm text-gray-600">({formatMoney(total)})</TableCell>;
+                                return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">({formatMoney(total)})</TableCell>;
                               })}
                             </TableRow>
                           </>
@@ -1269,7 +1269,7 @@ export default function Company() {
                         const yearData = financials.slice(y * 12, (y + 1) * 12);
                         const total = yearData.reduce((a, m) => a + m.cashFlow, 0);
                         return (
-                          <TableCell key={y} className={`text-right ${total < 0 ? 'text-destructive' : ''}`}>
+                          <TableCell key={y} className={`text-right font-mono ${total < 0 ? 'text-destructive' : ''}`}>
                             {formatMoney(total)}
                           </TableCell>
                         );
@@ -1284,7 +1284,7 @@ export default function Company() {
                           cumulative += yearData.reduce((a, m) => a + m.cashFlow, 0);
                         }
                         return (
-                          <TableCell key={y} className={`text-right ${cumulative < 0 ? 'text-destructive' : ''}`}>
+                          <TableCell key={y} className={`text-right font-mono ${cumulative < 0 ? 'text-destructive' : ''}`}>
                             {formatMoney(cumulative)}
                           </TableCell>
                         );
@@ -1301,7 +1301,7 @@ export default function Company() {
             {/* Balance Sheet */}
             <div className="bg-white rounded-2xl p-6 shadow-sm border">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Balance Sheet - {global?.companyName || "L+B Hospitality Co."} (As of {getFiscalYear(9)})</h3>
+                <h3 className="text-lg font-display text-gray-900 mb-4">Balance Sheet - {global?.companyName || "L+B Hospitality Co."} (As of {getFiscalYear(9)})</h3>
                 {(() => {
                   // Calculate cumulative values through Year 10
                   const cumulativeNetIncome = financials.reduce((a, m) => a + m.netIncome, 0);
@@ -1333,7 +1333,7 @@ export default function Company() {
                       <TableBody>
                         {/* ASSETS */}
                         <TableRow className="bg-gray-50 font-semibold">
-                          <TableCell colSpan={2} className="text-lg">ASSETS</TableCell>
+                          <TableCell colSpan={2} className="text-lg font-display">ASSETS</TableCell>
                         </TableRow>
                         
                         <TableRow className="bg-gray-50">
@@ -1342,16 +1342,16 @@ export default function Company() {
                         </TableRow>
                         <TableRow>
                           <TableCell className="pl-8">Cash & Cash Equivalents</TableCell>
-                          <TableCell className="text-right">{formatMoney(cashBalance)}</TableCell>
+                          <TableCell className="text-right font-mono">{formatMoney(cashBalance)}</TableCell>
                         </TableRow>
                         <TableRow className="font-medium bg-gray-50/50">
                           <TableCell className="pl-4">Total Current Assets</TableCell>
-                          <TableCell className="text-right">{formatMoney(cashBalance)}</TableCell>
+                          <TableCell className="text-right font-mono">{formatMoney(cashBalance)}</TableCell>
                         </TableRow>
                         
                         <TableRow className="font-semibold border-t-2">
                           <TableCell>TOTAL ASSETS</TableCell>
-                          <TableCell className="text-right">{formatMoney(totalAssets)}</TableCell>
+                          <TableCell className="text-right font-mono">{formatMoney(totalAssets)}</TableCell>
                         </TableRow>
 
                         {/* Spacer */}
@@ -1359,7 +1359,7 @@ export default function Company() {
 
                         {/* LIABILITIES */}
                         <TableRow className="bg-gray-50 font-semibold">
-                          <TableCell colSpan={2} className="text-lg">LIABILITIES</TableCell>
+                          <TableCell colSpan={2} className="text-lg font-display">LIABILITIES</TableCell>
                         </TableRow>
                         
                         <TableRow className="bg-gray-50">
@@ -1368,16 +1368,16 @@ export default function Company() {
                         </TableRow>
                         <TableRow>
                           <TableCell className="pl-8">SAFE Notes Payable</TableCell>
-                          <TableCell className="text-right">{formatMoney(safeNotesPayable)}</TableCell>
+                          <TableCell className="text-right font-mono">{formatMoney(safeNotesPayable)}</TableCell>
                         </TableRow>
                         <TableRow className="font-medium bg-gray-50/50">
                           <TableCell className="pl-4">Total Long-Term Liabilities</TableCell>
-                          <TableCell className="text-right">{formatMoney(totalLiabilities)}</TableCell>
+                          <TableCell className="text-right font-mono">{formatMoney(totalLiabilities)}</TableCell>
                         </TableRow>
                         
                         <TableRow className="font-semibold border-t">
                           <TableCell>TOTAL LIABILITIES</TableCell>
-                          <TableCell className="text-right">{formatMoney(totalLiabilities)}</TableCell>
+                          <TableCell className="text-right font-mono">{formatMoney(totalLiabilities)}</TableCell>
                         </TableRow>
 
                         {/* Spacer */}
@@ -1385,12 +1385,12 @@ export default function Company() {
 
                         {/* EQUITY */}
                         <TableRow className="bg-gray-50 font-semibold">
-                          <TableCell colSpan={2} className="text-lg">EQUITY</TableCell>
+                          <TableCell colSpan={2} className="text-lg font-display">EQUITY</TableCell>
                         </TableRow>
                         
                         <TableRow>
                           <TableCell className="pl-4">Retained Earnings</TableCell>
-                          <TableCell className="text-right">{formatMoney(retainedEarnings)}</TableCell>
+                          <TableCell className="text-right font-mono">{formatMoney(retainedEarnings)}</TableCell>
                         </TableRow>
                         
                         <TableRow className="font-semibold border-t">

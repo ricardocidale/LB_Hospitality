@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, real, integer, timestamp, jsonb, boolean, index } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, real, integer, timestamp, jsonb, boolean, index, serial } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -370,3 +370,25 @@ export const selectScenarioSchema = createSelectSchema(scenarios);
 export type Scenario = typeof scenarios.$inferSelect;
 export type InsertScenario = z.infer<typeof insertScenarioSchema>;
 export type UpdateScenario = z.infer<typeof updateScenarioSchema>;
+
+// --- LOGIN LOGS TABLE ---
+export const loginLogs = pgTable("login_logs", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  loginAt: timestamp("login_at").defaultNow().notNull(),
+  logoutAt: timestamp("logout_at"),
+  sessionId: text("session_id").notNull(),
+  ipAddress: text("ip_address"),
+}, (table) => [
+  index("login_logs_user_id_idx").on(table.userId),
+  index("login_logs_session_id_idx").on(table.sessionId),
+]);
+
+export const insertLoginLogSchema = createInsertSchema(loginLogs).omit({
+  id: true,
+  loginAt: true,
+  logoutAt: true,
+});
+
+export type LoginLog = typeof loginLogs.$inferSelect;
+export type InsertLoginLog = z.infer<typeof insertLoginLogSchema>;

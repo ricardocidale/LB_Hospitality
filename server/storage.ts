@@ -1,6 +1,6 @@
-import { globalAssumptions, properties, users, sessions, scenarios, type GlobalAssumptions, type Property, type InsertGlobalAssumptions, type InsertProperty, type UpdateProperty, type User, type InsertUser, type Session, type Scenario, type InsertScenario, type UpdateScenario } from "@shared/schema";
+import { globalAssumptions, properties, users, sessions, scenarios, loginLogs, type GlobalAssumptions, type Property, type InsertGlobalAssumptions, type InsertProperty, type UpdateProperty, type User, type InsertUser, type Session, type Scenario, type InsertScenario, type UpdateScenario, type LoginLog, type InsertLoginLog } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, gt } from "drizzle-orm";
+import { eq, and, gt, desc } from "drizzle-orm";
 
 export interface IStorage {
   // Users
@@ -35,6 +35,11 @@ export interface IStorage {
   createScenario(data: InsertScenario): Promise<Scenario>;
   updateScenario(id: number, data: UpdateScenario): Promise<Scenario | undefined>;
   deleteScenario(id: number): Promise<void>;
+  
+  // Login Logs
+  createLoginLog(userId: number, sessionId: string, ipAddress?: string): Promise<LoginLog>;
+  updateLogoutTime(sessionId: string): Promise<void>;
+  getLoginLogs(): Promise<(LoginLog & { user: User })[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -210,6 +215,31 @@ export class DatabaseStorage implements IStorage {
 
   async deleteScenario(id: number): Promise<void> {
     await db.delete(scenarios).where(eq(scenarios.id, id));
+  }
+  
+  // Login Logs
+  async createLoginLog(userId: number, sessionId: string, ipAddress?: string): Promise<LoginLog> {
+    const [log] = await db
+      .insert(loginLogs)
+      .values({ userId, sessionId, ipAddress })
+      .returning();
+    return log;
+  }
+  
+  async updateLogoutTime(sessionId: string): Promise<void> {
+    await db
+      .update(loginLogs)
+      .set({ logoutAt: new Date() })
+      .where(eq(loginLogs.sessionId, sessionId));
+  }
+  
+  async getLoginLogs(): Promise<(LoginLog & { user: User })[]> {
+    const results = await db
+      .select()
+      .from(loginLogs)
+      .innerJoin(users, eq(loginLogs.userId, users.id))
+      .orderBy(desc(loginLogs.loginAt));
+    return results.map(r => ({ ...r.login_logs, user: r.users }));
   }
 }
 

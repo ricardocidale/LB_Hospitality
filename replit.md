@@ -35,12 +35,14 @@ Always format money as money (currency format with commas and appropriate precis
 ### UI/UX Decisions
 - **Color Palette**: Primary Sage Green (#9FBCA4), Secondary Green (#257D41), Warm Off-White (#FFF9F5), Coral Accent (#F4795B), and a specific dark blue-gray gradient for navigation and dark-themed pages.
 - **Page Styling**:
+    - **Login Page**: Centered glass dialog card on near-black (#0a0a0f) background with subtle sage green blur orbs. Clean, Swiss Modernist design.
     - **Assumption Pages (Light Theme)**: White/80 backdrop-blur-xl cards with sage green accents, gray text, and white input backgrounds.
     - **Main App Pages (Dark Glass Theme)**: Dark blue-gray gradient cards with off-white text and semi-transparent white input backgrounds.
     - **Financial Statement Tables (Light Theme)**: Light backgrounds (white, gray-50, gray-100) with dark gray text.
 - **Navigation & Tabs**: Dark glass gradient sidebar with white text for active items.
 - **Buttons**: Standardized `SaveButton` component with dark glass effect, bright white text, and a sage green glow.
 - **PageHeader Component**: Standardized `PageHeader` with fixed minimum height, `text-3xl` serif title, `text-sm` subtitle, and a dark glass variant across all pages.
+- **Admin Page**: Consolidated admin functionality in single `/admin` route with tabs for Users, Login Activity, and Verification. Replaces separate `/admin/users`, `/admin/login-logs`, `/admin/verification` routes.
 
 ### Financial Engine & Logic
 - Generates monthly pro forma projections including revenue, operating expenses, management fees, debt service, NOI, and cash flow.

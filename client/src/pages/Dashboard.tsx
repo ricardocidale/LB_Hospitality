@@ -1686,7 +1686,7 @@ export default function Dashboard() {
                 
                 {/* Main IRR Display - Frosted Glass */}
                 <div className="flex flex-col items-center mb-10">
-                  <div className="relative bg-white/60 backdrop-blur-xl rounded-[2rem] p-8 border border-[#9FBCA4]/20 shadow-sm">
+                  <div className="relative bg-white/95 backdrop-blur-xl rounded-[2rem] p-8 border border-[#9FBCA4]/40 shadow-xl shadow-black/10">
                     <div className="relative">
                       <svg className="w-48 h-48" viewBox="0 0 200 200">
                         <defs>
@@ -1719,7 +1719,7 @@ export default function Dashboard() {
                 {/* Key Metrics Grid - Liquid Glass Cards */}
                 <div className="grid gap-4 md:grid-cols-4 max-w-5xl mx-auto">
                   {/* Equity Multiple */}
-                  <div className="bg-white/60 backdrop-blur-xl rounded-2xl p-5 border border-[#9FBCA4]/20 shadow-sm hover:bg-white/80 transition-all duration-300">
+                  <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-5 border border-[#9FBCA4]/30 shadow-lg shadow-black/10 hover:shadow-xl hover:shadow-[#9FBCA4]/20 transition-all duration-300">
                     <div className="flex items-center gap-4 mb-3">
                       <div className="relative w-14 h-14 flex-shrink-0">
                         <svg className="w-14 h-14" viewBox="0 0 100 100">
@@ -1751,7 +1751,7 @@ export default function Dashboard() {
                   </div>
 
                   {/* Cash-on-Cash */}
-                  <div className="bg-white/60 backdrop-blur-xl rounded-2xl p-5 border border-[#9FBCA4]/20 shadow-sm hover:bg-white/80 transition-all duration-300">
+                  <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-5 border border-[#9FBCA4]/30 shadow-lg shadow-black/10 hover:shadow-xl hover:shadow-[#9FBCA4]/20 transition-all duration-300">
                     <div className="flex items-center gap-4 mb-3">
                       <div className="relative w-14 h-14 flex-shrink-0">
                         <svg className="w-14 h-14" viewBox="0 0 100 100">
@@ -1783,7 +1783,7 @@ export default function Dashboard() {
                   </div>
 
                   {/* Total Equity */}
-                  <div className="bg-white/60 backdrop-blur-xl rounded-2xl p-5 border border-[#9FBCA4]/20 shadow-sm hover:bg-white/80 transition-all duration-300">
+                  <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-5 border border-[#9FBCA4]/30 shadow-lg shadow-black/10 hover:shadow-xl hover:shadow-[#9FBCA4]/20 transition-all duration-300">
                     <div className="mb-2">
                       <p className="text-2xl font-bold text-[#2d4a5e] font-mono">{formatMoney(totalInitialEquity)}</p>
                       <p className="text-sm text-[#2d4a5e]/60 label-text">Equity Invested</p>
@@ -1794,7 +1794,7 @@ export default function Dashboard() {
                   </div>
 
                   {/* Exit Value */}
-                  <div className="bg-white/60 backdrop-blur-xl rounded-2xl p-5 border border-[#9FBCA4]/20 shadow-sm hover:bg-white/80 transition-all duration-300">
+                  <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-5 border border-[#9FBCA4]/30 shadow-lg shadow-black/10 hover:shadow-xl hover:shadow-[#9FBCA4]/20 transition-all duration-300">
                     <div className="mb-2">
                       <p className="text-2xl font-bold text-[#059669] font-mono">{formatMoney(totalExitValue)}</p>
                       <p className="text-sm text-[#2d4a5e]/60 label-text">Projected Exit</p>
@@ -1820,7 +1820,7 @@ export default function Dashboard() {
               
               <div className="relative grid gap-6 md:grid-cols-2">
                 {/* Portfolio Composition */}
-                <div className="bg-white/60 backdrop-blur-xl rounded-2xl p-6 border border-[#9FBCA4]/20 shadow-sm">
+                <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-6 border border-[#9FBCA4]/30 shadow-lg shadow-black/10">
                   <h3 className="text-lg font-semibold text-[#2d4a5e] mb-4 font-display">Portfolio Composition</h3>
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
@@ -1847,7 +1847,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* Capital Structure */}
-                <div className="bg-white/60 backdrop-blur-xl rounded-2xl p-6 border border-[#9FBCA4]/20 shadow-sm">
+                <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-6 border border-[#9FBCA4]/30 shadow-lg shadow-black/10">
                   <h3 className="text-lg font-semibold text-[#2d4a5e] mb-4 font-display">Capital Structure</h3>
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
@@ -1907,7 +1907,7 @@ export default function Dashboard() {
               </CardHeader>
               
               <CardContent className="relative">
-                <div className="bg-white/60 backdrop-blur-xl rounded-xl p-4 border border-[#9FBCA4]/20 shadow-sm">
+                <div className="bg-white/90 backdrop-blur-xl rounded-xl p-4 border border-[#9FBCA4]/30 shadow-lg shadow-black/10">
                   <ResponsiveContainer width="100%" height={300}>
                     <LineChart
                       data={Array.from({ length: 10 }, (_, i) => {
@@ -2327,7 +2327,7 @@ export default function Dashboard() {
               </CardHeader>
               
               <CardContent className="relative">
-                <div className="bg-white/60 backdrop-blur-xl rounded-xl p-4 border border-[#9FBCA4]/20 shadow-sm">
+                <div className="bg-white/90 backdrop-blur-xl rounded-xl p-4 border border-[#9FBCA4]/30 shadow-lg shadow-black/10">
                   <ResponsiveContainer width="100%" height={300}>
                     <LineChart
                       data={Array.from({ length: 10 }, (_, i) => {
@@ -2384,7 +2384,7 @@ export default function Dashboard() {
               </CardHeader>
               
               <CardContent className="relative">
-                <div className="bg-white/60 backdrop-blur-xl rounded-xl p-4 border border-[#9FBCA4]/20 shadow-sm">
+                <div className="bg-white/90 backdrop-blur-xl rounded-xl p-4 border border-[#9FBCA4]/30 shadow-lg shadow-black/10">
                   <ResponsiveContainer width="100%" height={300}>
                     <LineChart
                       data={Array.from({ length: 10 }, (_, i) => {
@@ -3316,7 +3316,7 @@ function InvestmentAnalysis({
         </div>
         
         <div className="relative grid gap-4 md:grid-cols-5">
-          <div className="bg-white/60 backdrop-blur-xl rounded-2xl p-5 border border-[#9FBCA4]/20 shadow-sm">
+          <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-5 border border-[#9FBCA4]/30 shadow-lg shadow-black/10">
             <p className="text-sm font-medium text-[#2d4a5e]/70 flex items-center mb-2">
               Total Equity
               <HelpTooltip text="Total initial capital required from investors across all properties, including purchase price, improvements, pre-opening costs, and operating reserves (net of any financing)." />
@@ -3324,7 +3324,7 @@ function InvestmentAnalysis({
             <div className="text-2xl font-bold text-[#2d4a5e] font-mono">{formatMoney(totalInitialEquityIA)}</div>
           </div>
           
-          <div className="bg-white/60 backdrop-blur-xl rounded-2xl p-5 border border-[#9FBCA4]/20 shadow-sm">
+          <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-5 border border-[#9FBCA4]/30 shadow-lg shadow-black/10">
             <p className="text-sm font-medium text-[#2d4a5e]/70 flex items-center mb-2">
               Exit Value ({getFiscalYear(9)})
               <HelpTooltip text={`Projected sale value of all properties at ${getFiscalYear(10)}, calculated as NOI ÷ Exit Cap Rate, minus any outstanding debt at time of sale.`} />
@@ -3332,7 +3332,7 @@ function InvestmentAnalysis({
             <div className="text-2xl font-bold text-[#059669] font-mono">{formatMoney(totalExitValueIA)}</div>
           </div>
           
-          <div className="bg-white/60 backdrop-blur-xl rounded-2xl p-5 border border-[#9FBCA4]/20 shadow-sm">
+          <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-5 border border-[#9FBCA4]/30 shadow-lg shadow-black/10">
             <p className="text-sm font-medium text-[#2d4a5e]/70 flex items-center mb-2">
               Equity Multiple
               <HelpTooltip text="Total cash returned to investors divided by total equity invested. A 2.0x multiple means investors receive $2 back for every $1 invested." />
@@ -3340,7 +3340,7 @@ function InvestmentAnalysis({
             <div className="text-2xl font-bold text-[#2563EB] font-mono">{equityMultipleIA.toFixed(2)}x</div>
           </div>
           
-          <div className="bg-white/60 backdrop-blur-xl rounded-2xl p-5 border border-[#9FBCA4]/20 shadow-sm">
+          <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-5 border border-[#9FBCA4]/30 shadow-lg shadow-black/10">
             <p className="text-sm font-medium text-[#2d4a5e]/70 flex items-center mb-2">
               Avg Cash-on-Cash
               <HelpTooltip text="Average annual operating cash flow (excluding exit proceeds) as a percentage of total equity invested. Measures the annual yield on invested capital." />
@@ -3348,7 +3348,7 @@ function InvestmentAnalysis({
             <div className="text-2xl font-bold text-[#D97706] font-mono">{cashOnCashIA.toFixed(1)}%</div>
           </div>
           
-          <div className="bg-white/60 backdrop-blur-xl rounded-2xl p-5 border border-[#9FBCA4]/20 shadow-sm">
+          <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-5 border border-[#9FBCA4]/30 shadow-lg shadow-black/10">
             <p className="text-sm font-medium text-[#2d4a5e]/70 flex items-center mb-2">
               Portfolio IRR
               <HelpTooltip text="Internal Rate of Return - the annualized return that makes the net present value of all cash flows (investments, distributions, and exit) equal to zero. The gold standard metric for real estate investments." />

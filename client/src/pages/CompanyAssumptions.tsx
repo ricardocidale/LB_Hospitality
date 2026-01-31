@@ -357,7 +357,7 @@ export default function CompanyAssumptions() {
             <div>
               <div className="flex items-center gap-4 mb-2">
                 <h3 className="text-lg font-display text-gray-900 flex items-center">
-                  {formData.fundingSourceLabel ?? global.fundingSourceLabel ?? "SAFE"} Funding
+                  Funding
                   <HelpTooltip text="Initial capital to fund management company operations before fee revenue begins" />
                 </h3>
               </div>

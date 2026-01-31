@@ -1,8 +1,8 @@
-# L+B Hospitality Group - Investor Portal
+# L+B Hospitality Group - Business Simulation Portal
 
 ## Overview
 
-This project is an investor portal for L+B Hospitality Group, a boutique hotel management company. It provides financial modeling and portfolio management capabilities, including dashboard views, property portfolio management, financial pro forma generation, and configurable model inputs for hospitality assets across North America and Latin America. The system models both the management company and individual property SPVs, generating monthly and yearly financial statements, income statements, and cash flow projections. The core purpose is to offer a comprehensive financial overview and projection tool for hospitality investments.
+This project is a business simulation portal for L+B Hospitality Group, a boutique hotel management company. It provides financial modeling and portfolio management capabilities, including dashboard views, property portfolio management, financial pro forma generation, and configurable model inputs for hospitality assets across North America and Latin America. The system models both the management company and individual property SPVs, generating monthly and yearly financial statements, income statements, and cash flow projections. The core purpose is to offer a comprehensive financial simulation and projection tool for hospitality business planning.
 
 ## User Preferences
 

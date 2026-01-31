@@ -646,6 +646,240 @@ export async function registerRoutes(
     }
   });
 
+  // Run design consistency verification (admin only)
+  app.get("/api/admin/run-design-check", requireAdmin, async (req, res) => {
+    try {
+      const fs = await import('fs/promises');
+      const path = await import('path');
+      
+      const filesToCheck = [
+        "client/src/pages/Dashboard.tsx",
+        "client/src/pages/Login.tsx",
+        "client/src/pages/Admin.tsx",
+        "client/src/pages/Portfolio.tsx",
+        "client/src/pages/PropertyDetail.tsx",
+        "client/src/pages/PropertyEdit.tsx",
+        "client/src/pages/Company.tsx",
+        "client/src/pages/CompanyAssumptions.tsx",
+        "client/src/pages/Settings.tsx",
+        "client/src/pages/Profile.tsx",
+        "client/src/pages/Scenarios.tsx",
+        "client/src/pages/Methodology.tsx",
+        "client/src/pages/Research.tsx",
+        "client/src/components/Layout.tsx",
+        "client/src/components/YearlyIncomeStatement.tsx",
+        "client/src/components/YearlyCashFlowStatement.tsx",
+        "client/src/components/YearlyBalanceSheet.tsx",
+        "client/src/components/MonthlyProForma.tsx",
+        "client/src/components/ui/glass-button.tsx",
+        "client/src/components/ui/page-header.tsx",
+      ];
+      
+      const fileContents = new Map<string, string>();
+      
+      for (const filePath of filesToCheck) {
+        try {
+          const content = await fs.readFile(filePath, 'utf-8');
+          fileContents.set(filePath, content);
+        } catch (e) {
+          // File not found, skip
+        }
+      }
+      
+      const checks: Array<{category: string; rule: string; status: "pass" | "fail" | "warning"; details: string}> = [];
+      
+      // Check color palette
+      const offBrandColors: string[] = [];
+      const approvedColors = ["#257D41", "#9FBCA4", "#FFF9F5", "#F4795B", "#0a0a0f", "#2d4a5e", "#3d5a6a", "#3a5a5e"];
+      const colorRegex = /#[0-9A-Fa-f]{6}\b/g;
+      
+      fileContents.forEach((content) => {
+        const matches = content.match(colorRegex) || [];
+        matches.forEach(color => {
+          const normalized = color.toLowerCase();
+          if (!approvedColors.some(c => c.toLowerCase() === normalized) && 
+              !normalized.startsWith("#fff") && !normalized.startsWith("#000") &&
+              !normalized.startsWith("#f8") && !normalized.startsWith("#e5") &&
+              !normalized.startsWith("#d1") && !normalized.startsWith("#9ca") &&
+              !normalized.startsWith("#6b7") && !normalized.startsWith("#374") &&
+              !normalized.startsWith("#1f2") && !normalized.startsWith("#1a1")) {
+            if (!offBrandColors.includes(normalized)) {
+              offBrandColors.push(normalized);
+            }
+          }
+        });
+      });
+      
+      checks.push({
+        category: "Color Palette",
+        rule: "All colors should be from L+B brand palette",
+        status: offBrandColors.length === 0 ? "pass" : offBrandColors.length <= 3 ? "warning" : "fail",
+        details: offBrandColors.length === 0 
+          ? "All colors match brand palette"
+          : `Found ${offBrandColors.length} off-brand colors: ${offBrandColors.slice(0, 5).join(", ")}`,
+      });
+      
+      // Check typography
+      let fontDisplayUsage = 0;
+      let labelTextUsage = 0;
+      let fontMonoUsage = 0;
+      let italicUsage = 0;
+      
+      fileContents.forEach((content) => {
+        if (content.includes("font-display")) fontDisplayUsage++;
+        if (content.includes("label-text")) labelTextUsage++;
+        if (content.includes("font-mono")) fontMonoUsage++;
+        if (content.includes("italic") && !content.includes("no-italic")) italicUsage++;
+      });
+      
+      checks.push({
+        category: "Typography",
+        rule: "Headers should use font-display class",
+        status: fontDisplayUsage >= 5 ? "pass" : "warning",
+        details: `font-display found in ${fontDisplayUsage} files`,
+      });
+      
+      checks.push({
+        category: "Typography",
+        rule: "Body text should use label-text class",
+        status: labelTextUsage >= 3 ? "pass" : "warning",
+        details: `label-text found in ${labelTextUsage} files`,
+      });
+      
+      checks.push({
+        category: "Typography",
+        rule: "Numbers/currency should use font-mono class",
+        status: fontMonoUsage >= 5 ? "pass" : "warning",
+        details: `font-mono found in ${fontMonoUsage} files`,
+      });
+      
+      checks.push({
+        category: "Typography",
+        rule: "No italic text allowed",
+        status: italicUsage === 0 ? "pass" : "fail",
+        details: italicUsage === 0 ? "No italic usage found" : `Italic found in ${italicUsage} files`,
+      });
+      
+      // Check GlassButton usage
+      let glassButtonUsage = 0;
+      fileContents.forEach((content) => {
+        const matches = (content.match(/<GlassButton/g) || []).length;
+        glassButtonUsage += matches;
+      });
+      
+      checks.push({
+        category: "Buttons",
+        rule: "Primary actions should use GlassButton component",
+        status: glassButtonUsage >= 10 ? "pass" : glassButtonUsage >= 5 ? "warning" : "fail",
+        details: `GlassButton used ${glassButtonUsage} times`,
+      });
+      
+      // Check PageHeader usage
+      let pageHeaderUsage = 0;
+      fileContents.forEach((content, file) => {
+        if (file.includes("/pages/") && !file.includes("Login") && !file.includes("not-found")) {
+          if (content.includes("PageHeader") || content.includes("page-header")) {
+            pageHeaderUsage++;
+          }
+        }
+      });
+      
+      checks.push({
+        category: "Page Structure",
+        rule: "Pages should use standardized PageHeader component",
+        status: pageHeaderUsage >= 8 ? "pass" : pageHeaderUsage >= 5 ? "warning" : "fail",
+        details: `PageHeader used in ${pageHeaderUsage} pages`,
+      });
+      
+      // Check dark glass theme
+      let darkGradientUsage = 0;
+      let backdropBlurUsage = 0;
+      
+      fileContents.forEach((content) => {
+        if (content.includes("from-[#2d4a5e]") || content.includes("via-[#3d5a6a]") || content.includes("to-[#3a5a5e]")) {
+          darkGradientUsage++;
+        }
+        if (content.includes("backdrop-blur")) {
+          backdropBlurUsage++;
+        }
+      });
+      
+      checks.push({
+        category: "Theme",
+        rule: "Dark glass gradient should be consistent",
+        status: darkGradientUsage >= 3 ? "pass" : "warning",
+        details: `Dark glass gradient found in ${darkGradientUsage} files`,
+      });
+      
+      checks.push({
+        category: "Theme",
+        rule: "Backdrop blur should be used for glass effects",
+        status: backdropBlurUsage >= 5 ? "pass" : "warning",
+        details: `backdrop-blur found in ${backdropBlurUsage} files`,
+      });
+      
+      // Check data-testid
+      let filesWithTestIds = 0;
+      let filesWithInteractiveElements = 0;
+      
+      fileContents.forEach((content, file) => {
+        if (file.includes("/pages/") || file.includes("/components/")) {
+          const hasInteractive = content.includes("<Button") || content.includes("<Input") || content.includes("<GlassButton");
+          const hasTestIds = content.includes("data-testid");
+          
+          if (hasInteractive) {
+            filesWithInteractiveElements++;
+            if (hasTestIds) filesWithTestIds++;
+          }
+        }
+      });
+      
+      checks.push({
+        category: "Testing",
+        rule: "Interactive elements should have data-testid attributes",
+        status: filesWithTestIds >= filesWithInteractiveElements * 0.8 ? "pass" : 
+                filesWithTestIds >= filesWithInteractiveElements * 0.5 ? "warning" : "fail",
+        details: `${filesWithTestIds}/${filesWithInteractiveElements} files with interactive elements have data-testid`,
+      });
+      
+      // Check currency formatting
+      let currencyFormatUsage = 0;
+      fileContents.forEach((content) => {
+        if (content.includes("formatCurrency") || content.includes("toLocaleString")) {
+          currencyFormatUsage++;
+        }
+      });
+      
+      checks.push({
+        category: "Formatting",
+        rule: "Currency values should use consistent formatting",
+        status: currencyFormatUsage >= 5 ? "pass" : "warning",
+        details: `Currency formatting found in ${currencyFormatUsage} files`,
+      });
+      
+      const passed = checks.filter(c => c.status === "pass").length;
+      const failed = checks.filter(c => c.status === "fail").length;
+      const warnings = checks.filter(c => c.status === "warning").length;
+      
+      let overallStatus: "PASS" | "FAIL" | "WARNING" = "PASS";
+      if (failed > 0) overallStatus = "FAIL";
+      else if (warnings > 2) overallStatus = "WARNING";
+      
+      res.json({
+        timestamp: new Date().toISOString(),
+        totalChecks: checks.length,
+        passed,
+        failed,
+        warnings,
+        overallStatus,
+        checks,
+      });
+    } catch (error) {
+      console.error("Error running design check:", error);
+      res.status(500).json({ error: "Failed to run design check" });
+    }
+  });
+
   // --- GLOBAL ASSUMPTIONS ROUTES ---
   
   app.get("/api/global-assumptions", requireAuth, async (req, res) => {

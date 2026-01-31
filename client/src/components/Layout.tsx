@@ -71,7 +71,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <h1 className="text-xl font-extrabold" style={{ fontFamily: "'Nunito', sans-serif", color: '#FFF9F5' }}>
                   L+B <span style={{ color: '#9FBCA4' }}>Hospitality</span>
                 </h1>
-                <p className="text-xs uppercase tracking-widest" style={{ color: 'rgba(255, 249, 245, 0.5)' }}>Analytics</p>
+                <p className="text-xs uppercase tracking-widest" style={{ color: 'rgba(255, 249, 245, 0.5)' }}>Business Simulation</p>
               </div>
             </div>
           </div>

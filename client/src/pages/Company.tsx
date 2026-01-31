@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import domtoimage from 'dom-to-image-more';
+import { ExportDialog } from "@/components/ExportDialog";
 import Layout from "@/components/Layout";
 import { useProperties, useGlobalAssumptions } from "@/lib/api";
 import { generateCompanyProForma, generatePropertyProForma, formatMoney, getFiscalYearForModelYear } from "@/lib/financialEngine";
@@ -91,6 +92,8 @@ export default function Company() {
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState("income");
   const chartRef = useRef<HTMLDivElement>(null);
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
+  const [exportType, setExportType] = useState<'pdf' | 'chart'>('pdf');
 
   const toggleRow = (rowId: string) => {
     setExpandedRows(prev => {
@@ -424,8 +427,10 @@ export default function Company() {
     return { years, rows };
   };
 
-  const exportCompanyPDF = async (type: 'income' | 'cashflow' | 'balance') => {
-    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+  const exportCompanyPDF = async (type: 'income' | 'cashflow' | 'balance', orientation: 'landscape' | 'portrait' = 'landscape') => {
+    const doc = new jsPDF({ orientation, unit: 'mm', format: 'a4' });
+    const pageWidth = orientation === 'landscape' ? 297 : 210;
+    const chartWidth = pageWidth - 28;
     let data: { years: number[]; rows: any[] };
     let title: string;
     
@@ -475,7 +480,7 @@ export default function Company() {
         doc,
         x: 14,
         y: tableStartY,
-        width: 267,
+        width: chartWidth,
         height: 55,
         title: 'Management Company Performance (10-Year Projection)',
         series: chartSeries
@@ -551,32 +556,50 @@ export default function Company() {
     URL.revokeObjectURL(url);
   };
 
-  const exportChartPNG = async () => {
+  const exportChartPNG = async (orientation: 'landscape' | 'portrait' = 'landscape') => {
     if (!chartRef.current) return;
     
     try {
+      const scale = 2;
+      const width = orientation === 'landscape' ? 1200 : 800;
+      const height = orientation === 'landscape' ? 600 : 1000;
+      
       const dataUrl = await domtoimage.toPng(chartRef.current, {
         bgcolor: '#ffffff',
         quality: 1,
-        width: chartRef.current.offsetWidth * 2,
-        height: chartRef.current.offsetHeight * 2,
+        width: width,
+        height: height,
         style: {
-          transform: 'scale(2)',
+          transform: `scale(${scale})`,
           transformOrigin: 'top left',
         }
       });
       
       const link = document.createElement('a');
-      link.download = 'company-performance-chart.png';
+      link.download = `company-performance-chart-${orientation}.png`;
       link.href = dataUrl;
       link.click();
     } catch (error) {
       console.error('Error exporting chart:', error);
     }
   };
+  
+  const handleExport = (orientation: 'landscape' | 'portrait') => {
+    if (exportType === 'pdf') {
+      exportCompanyPDF(activeTab as 'income' | 'cashflow' | 'balance', orientation);
+    } else {
+      exportChartPNG(orientation);
+    }
+  };
 
   return (
     <Layout>
+      <ExportDialog
+        open={exportDialogOpen}
+        onClose={() => setExportDialogOpen(false)}
+        onExport={handleExport}
+        title={exportType === 'pdf' ? 'Export PDF' : 'Export Chart'}
+      />
       <div className="space-y-6">
         {/* Page Header */}
         <PageHeader
@@ -653,7 +676,7 @@ export default function Company() {
             
             {/* Export Buttons */}
             <div className="flex gap-2">
-              <GlassButton variant="ghost" size="sm" onClick={() => exportCompanyPDF(activeTab as 'income' | 'cashflow' | 'balance')}>
+              <GlassButton variant="ghost" size="sm" onClick={() => { setExportType('pdf'); setExportDialogOpen(true); }}>
                 <FileDown className="w-4 h-4" />
                 Export PDF
               </GlassButton>
@@ -661,7 +684,7 @@ export default function Company() {
                 <FileDown className="w-4 h-4" />
                 Export CSV
               </GlassButton>
-              <GlassButton variant="ghost" size="sm" onClick={() => exportChartPNG()}>
+              <GlassButton variant="ghost" size="sm" onClick={() => { setExportType('chart'); setExportDialogOpen(true); }}>
                 <ImageIcon className="w-4 h-4" />
                 Export Chart
               </GlassButton>

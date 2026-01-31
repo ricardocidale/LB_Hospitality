@@ -17,6 +17,7 @@ import { drawLineChart } from "@/lib/pdfChartDrawer";
 import { calculateLoanParams, calculatePropertyYearlyCashFlows, LoanParams, GlobalLoanParams } from "@/lib/loanCalculations";
 import { PropertyPhotoUpload } from "@/components/PropertyPhotoUpload";
 import { useQueryClient } from "@tanstack/react-query";
+import { ExportDialog } from "@/components/ExportDialog";
 
 import { useState, useRef } from "react";
 
@@ -27,6 +28,8 @@ export default function PropertyDetail() {
   const queryClient = useQueryClient();
   const incomeChartRef = useRef<HTMLDivElement>(null);
   const cashFlowChartRef = useRef<HTMLDivElement>(null);
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
+  const [exportType, setExportType] = useState<'pdf' | 'chart'>('pdf');
   
   const { data: property, isLoading: propertyLoading } = useProperty(propertyId);
   const { data: global, isLoading: globalLoading } = useGlobalAssumptions();
@@ -181,10 +184,12 @@ export default function PropertyDetail() {
     link.click();
   };
 
-  const exportCashFlowPDF = async () => {
+  const exportCashFlowPDF = async (orientation: 'landscape' | 'portrait' = 'landscape') => {
     const yearlyDetails = getYearlyDetails();
     const cashFlowData = getCashFlowData();
-    const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+    const doc = new jsPDF({ orientation, unit: "mm", format: "a4" });
+    const pageWidth = orientation === 'landscape' ? 297 : 210;
+    const chartWidth = pageWidth - 28;
     
     doc.setFontSize(16);
     doc.text(`${property.name} - Cash Flow Statement`, 14, 15);
@@ -232,7 +237,7 @@ export default function PropertyDetail() {
         doc,
         x: 14,
         y: chartStartY,
-        width: 267,
+        width: chartWidth,
         height: 55,
         title: `${property.name} - Financial Performance`,
         series: chartSeries
@@ -317,8 +322,45 @@ export default function PropertyDetail() {
     return status;
   };
 
+  const exportChartPNG = async (orientation: 'landscape' | 'portrait' = 'landscape') => {
+    const chartContainer = activeTab === "cashflow" ? cashFlowChartRef.current : incomeChartRef.current;
+    if (!chartContainer) return;
+    try {
+      const width = orientation === 'landscape' ? 1200 : 800;
+      const height = orientation === 'landscape' ? 600 : 1000;
+      
+      const dataUrl = await domtoimage.toPng(chartContainer, {
+        bgcolor: '#ffffff',
+        quality: 1,
+        width,
+        height,
+        style: { transform: 'scale(2)', transformOrigin: 'top left' }
+      });
+      const link = document.createElement('a');
+      link.download = `${property.name.replace(/\s+/g, '_')}_chart_${orientation}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (error) {
+      console.error('Error exporting chart:', error);
+    }
+  };
+
+  const handleExport = (orientation: 'landscape' | 'portrait') => {
+    if (exportType === 'pdf') {
+      exportCashFlowPDF(orientation);
+    } else {
+      exportChartPNG(orientation);
+    }
+  };
+
   return (
     <Layout>
+      <ExportDialog
+        open={exportDialogOpen}
+        onClose={() => setExportDialogOpen(false)}
+        onExport={handleExport}
+        title={exportType === 'pdf' ? 'Export PDF' : 'Export Chart'}
+      />
       <div className="space-y-6">
         {/* Liquid Glass Header */}
         <div className="relative overflow-hidden rounded-3xl">
@@ -429,7 +471,7 @@ export default function PropertyDetail() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => exportCashFlowPDF()}
+                onClick={() => { setExportType('pdf'); setExportDialogOpen(true); }}
                 className="flex items-center gap-2"
                 data-testid="button-export-pdf"
               >
@@ -449,25 +491,7 @@ export default function PropertyDetail() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={async () => {
-                  const chartContainer = activeTab === "cashflow" ? cashFlowChartRef.current : incomeChartRef.current;
-                  if (!chartContainer) return;
-                  try {
-                    const dataUrl = await domtoimage.toPng(chartContainer, {
-                      bgcolor: '#ffffff',
-                      quality: 1,
-                      width: chartContainer.offsetWidth * 2,
-                      height: chartContainer.offsetHeight * 2,
-                      style: { transform: 'scale(2)', transformOrigin: 'top left' }
-                    });
-                    const link = document.createElement('a');
-                    link.download = `${property.name.replace(/\s+/g, '_')}_chart.png`;
-                    link.href = dataUrl;
-                    link.click();
-                  } catch (error) {
-                    console.error('Error exporting chart:', error);
-                  }
-                }}
+                onClick={() => { setExportType('chart'); setExportDialogOpen(true); }}
                 className="flex items-center gap-2"
                 data-testid="button-export-chart"
               >

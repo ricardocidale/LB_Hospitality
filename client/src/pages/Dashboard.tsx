@@ -1942,9 +1942,9 @@ export default function Dashboard() {
                         labelStyle={{ color: '#2d4a5e' }}
                       />
                       <Legend wrapperStyle={{ color: '#2d4a5e', fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 500 }} />
-                      <Line type="natural" dataKey="Revenue" stroke="#7C3AED" strokeWidth={3} dot={false} activeDot={{ r: 5, fill: '#7C3AED', stroke: '#fff', strokeWidth: 2 }} />
-                      <Line type="natural" dataKey="Operating Expenses" stroke="#2563EB" strokeWidth={3} dot={false} activeDot={{ r: 5, fill: '#2563EB', stroke: '#fff', strokeWidth: 2 }} />
-                      <Line type="natural" dataKey="NOI" stroke="#257D41" strokeWidth={3} dot={false} activeDot={{ r: 5, fill: '#257D41', stroke: '#fff', strokeWidth: 2 }} />
+                      <Line type="natural" dataKey="Revenue" stroke="#7C3AED" strokeWidth={3} dot={{ r: 4, fill: '#7C3AED', stroke: '#fff', strokeWidth: 2 }} activeDot={{ r: 6, fill: '#7C3AED', stroke: '#fff', strokeWidth: 2 }} />
+                      <Line type="natural" dataKey="Operating Expenses" stroke="#2563EB" strokeWidth={3} dot={{ r: 4, fill: '#2563EB', stroke: '#fff', strokeWidth: 2 }} activeDot={{ r: 6, fill: '#2563EB', stroke: '#fff', strokeWidth: 2 }} />
+                      <Line type="natural" dataKey="NOI" stroke="#257D41" strokeWidth={3} dot={{ r: 4, fill: '#257D41', stroke: '#fff', strokeWidth: 2 }} activeDot={{ r: 6, fill: '#257D41', stroke: '#fff', strokeWidth: 2 }} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
@@ -2361,9 +2361,9 @@ export default function Dashboard() {
                         labelStyle={{ color: '#2d4a5e' }}
                       />
                       <Legend wrapperStyle={{ color: '#2d4a5e', fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 500 }} />
-                      <Line type="natural" dataKey="Revenue" stroke="#7C3AED" strokeWidth={3} dot={false} activeDot={{ r: 5, fill: '#7C3AED', stroke: '#fff', strokeWidth: 2 }} />
-                      <Line type="natural" dataKey="Operating Costs" stroke="#2563EB" strokeWidth={3} dot={false} activeDot={{ r: 5, fill: '#2563EB', stroke: '#fff', strokeWidth: 2 }} />
-                      <Line type="natural" dataKey="NOI" stroke="#257D41" strokeWidth={3} dot={false} activeDot={{ r: 5, fill: '#257D41', stroke: '#fff', strokeWidth: 2 }} />
+                      <Line type="natural" dataKey="Revenue" stroke="#7C3AED" strokeWidth={3} dot={{ r: 4, fill: '#7C3AED', stroke: '#fff', strokeWidth: 2 }} activeDot={{ r: 6, fill: '#7C3AED', stroke: '#fff', strokeWidth: 2 }} />
+                      <Line type="natural" dataKey="Operating Costs" stroke="#2563EB" strokeWidth={3} dot={{ r: 4, fill: '#2563EB', stroke: '#fff', strokeWidth: 2 }} activeDot={{ r: 6, fill: '#2563EB', stroke: '#fff', strokeWidth: 2 }} />
+                      <Line type="natural" dataKey="NOI" stroke="#257D41" strokeWidth={3} dot={{ r: 4, fill: '#257D41', stroke: '#fff', strokeWidth: 2 }} activeDot={{ r: 6, fill: '#257D41', stroke: '#fff', strokeWidth: 2 }} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
@@ -2418,9 +2418,9 @@ export default function Dashboard() {
                         labelStyle={{ color: '#2d4a5e' }}
                       />
                       <Legend wrapperStyle={{ color: '#2d4a5e', fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 500 }} />
-                      <Line type="natural" dataKey="NOI" stroke="#7C3AED" strokeWidth={3} dot={false} activeDot={{ r: 5, fill: '#7C3AED', stroke: '#fff', strokeWidth: 2 }} />
-                      <Line type="natural" dataKey="Debt Service" stroke="#DB2777" strokeWidth={3} dot={false} activeDot={{ r: 5, fill: '#DB2777', stroke: '#fff', strokeWidth: 2 }} />
-                      <Line type="natural" dataKey="Net Cash Flow" stroke="#059669" strokeWidth={3} dot={false} activeDot={{ r: 5, fill: '#059669', stroke: '#fff', strokeWidth: 2 }} />
+                      <Line type="natural" dataKey="NOI" stroke="#7C3AED" strokeWidth={3} dot={{ r: 4, fill: '#7C3AED', stroke: '#fff', strokeWidth: 2 }} activeDot={{ r: 6, fill: '#7C3AED', stroke: '#fff', strokeWidth: 2 }} />
+                      <Line type="natural" dataKey="Debt Service" stroke="#DB2777" strokeWidth={3} dot={{ r: 4, fill: '#DB2777', stroke: '#fff', strokeWidth: 2 }} activeDot={{ r: 6, fill: '#DB2777', stroke: '#fff', strokeWidth: 2 }} />
+                      <Line type="natural" dataKey="Net Cash Flow" stroke="#059669" strokeWidth={3} dot={{ r: 4, fill: '#059669', stroke: '#fff', strokeWidth: 2 }} activeDot={{ r: 6, fill: '#059669', stroke: '#fff', strokeWidth: 2 }} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>

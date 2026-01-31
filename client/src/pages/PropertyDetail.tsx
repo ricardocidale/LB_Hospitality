@@ -197,13 +197,10 @@ export default function PropertyDetail() {
       try {
         const imgData = await captureChartAsImage(chartContainer);
         if (imgData) {
-          const img = new Image();
-          img.src = imgData;
-          await new Promise(resolve => img.onload = resolve);
           const imgWidth = 267;
-          const imgHeight = (img.height * imgWidth) / img.width / 2;
-          doc.addImage(imgData, 'PNG', 14, chartStartY, imgWidth, Math.min(imgHeight, 70));
-          chartStartY = chartStartY + Math.min(imgHeight, 70) + 5;
+          const imgHeight = 60;
+          doc.addImage(imgData, 'PNG', 14, chartStartY, imgWidth, imgHeight);
+          chartStartY = chartStartY + imgHeight + 5;
         }
       } catch (error) {
         console.error('Error capturing chart:', error);

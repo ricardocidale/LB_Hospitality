@@ -1935,7 +1935,7 @@ export default function Dashboard() {
                       className="font-semibold bg-muted/20 cursor-pointer hover:bg-muted/30"
                       onClick={() => toggleRow('revenue')}
                     >
-                      <TableCell className="sticky left-0 bg-muted/20 flex items-center gap-2">
+                      <TableCell className="sticky left-0 bg-muted/20 flex items-center gap-2 label-text">
                         {expandedRows.has('revenue') ? (
                           <ChevronDown className="w-4 h-4 text-muted-foreground" />
                         ) : (
@@ -2006,7 +2006,7 @@ export default function Dashboard() {
                       className="font-semibold bg-muted/30 cursor-pointer hover:bg-muted/40"
                       onClick={() => toggleRow('opex')}
                     >
-                      <TableCell className="sticky left-0 bg-muted/30 flex items-center gap-2">
+                      <TableCell className="sticky left-0 bg-muted/30 flex items-center gap-2 label-text">
                         {expandedRows.has('opex') ? (
                           <ChevronDown className="w-4 h-4 text-muted-foreground" />
                         ) : (
@@ -2150,7 +2150,7 @@ export default function Dashboard() {
                     )}
 
                     <TableRow className="bg-accent/20 font-semibold">
-                      <TableCell className="sticky left-0 bg-accent/20">Gross Operating Profit (GOP)</TableCell>
+                      <TableCell className="sticky left-0 bg-accent/20 label-text">Gross Operating Profit (GOP)</TableCell>
                       {Array.from({ length: 10 }, (_, y) => (
                         <TableCell key={y} className="text-right font-mono">{formatMoney(getYearlyConsolidated(y).gop)}</TableCell>
                       ))}
@@ -2160,7 +2160,7 @@ export default function Dashboard() {
                       className="font-semibold bg-muted/30 cursor-pointer hover:bg-muted/40"
                       onClick={() => toggleRow('mgmtFees')}
                     >
-                      <TableCell className="sticky left-0 bg-muted/30 flex items-center gap-2">
+                      <TableCell className="sticky left-0 bg-muted/30 flex items-center gap-2 label-text">
                         {expandedRows.has('mgmtFees') ? (
                           <ChevronDown className="w-4 h-4 text-muted-foreground" />
                         ) : (
@@ -2227,7 +2227,7 @@ export default function Dashboard() {
                     </TableRow>
 
                     <TableRow className="bg-primary/10 font-bold">
-                      <TableCell className="sticky left-0 bg-primary/10 flex items-center gap-1">
+                      <TableCell className="sticky left-0 bg-primary/10 flex items-center gap-1 label-text">
                         Net Operating Income (NOI)
                         <HelpTooltip text="NOI = Total Revenue - Operating Expenses. The property's income before debt service, taxes, and depreciation." />
                       </TableCell>
@@ -2608,7 +2608,7 @@ export default function Dashboard() {
                     )}
 
                     <TableRow className="bg-accent/20 font-semibold">
-                      <TableCell className="sticky left-0 bg-accent/20">Gross Operating Profit (GOP)</TableCell>
+                      <TableCell className="sticky left-0 bg-accent/20 label-text">Gross Operating Profit (GOP)</TableCell>
                       {Array.from({ length: 10 }, (_, y) => (
                         <TableCell key={y} className="text-right font-mono">{formatMoney(getYearlyConsolidated(y).gop)}</TableCell>
                       ))}
@@ -2656,7 +2656,7 @@ export default function Dashboard() {
                     </TableRow>
 
                     <TableRow className="font-semibold bg-muted/20">
-                      <TableCell className="sticky left-0 bg-muted/20 flex items-center gap-1">
+                      <TableCell className="sticky left-0 bg-muted/20 flex items-center gap-1 label-text">
                         Net Operating Income (NOI)
                         <HelpTooltip text="NOI = Total Revenue - Operating Expenses. The property's income before debt service, taxes, and depreciation." />
                       </TableCell>

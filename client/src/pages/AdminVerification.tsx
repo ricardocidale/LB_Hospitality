@@ -7,22 +7,41 @@ import { Loader2, CheckCircle2, XCircle, AlertTriangle, PlayCircle, FileCheck } 
 import { PageHeader } from "@/components/ui/page-header";
 import { GlassButton } from "@/components/ui/glass-button";
 
+interface CheckItem {
+  name: string;
+  passed: boolean;
+  description: string;
+}
+
+interface EntityChecks {
+  name: string;
+  type?: string;
+  checks: CheckItem[];
+}
+
 interface VerificationResult {
   timestamp: string;
   propertiesChecked: number;
   formulaChecks: {
     passed: number;
     failed: number;
-    details: Array<{
-      name: string;
-      checks: Array<{ name: string; passed: boolean; description: string }>;
-    }>;
+    details: EntityChecks[];
   };
   complianceChecks: {
     passed: number;
     failed: number;
     criticalIssues: number;
-    details: Array<{ category: string; rule: string; passed: boolean }>;
+    details: Array<{ category: string; rule: string; passed: boolean; scope?: string }>;
+  };
+  managementCompanyChecks: {
+    passed: number;
+    failed: number;
+    details: EntityChecks[];
+  };
+  consolidatedChecks: {
+    passed: number;
+    failed: number;
+    details: EntityChecks[];
   };
   overallStatus: "PASS" | "FAIL" | "WARNING";
 }
@@ -138,18 +157,26 @@ export default function AdminVerification() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-4 text-center">
+                  <div className="grid grid-cols-5 gap-4 text-center">
                     <div className="p-3 rounded-lg bg-white/5">
                       <div className="text-2xl font-mono text-[#FFF9F5]">{results.propertiesChecked}</div>
-                      <div className="text-xs text-white/40 label-text">Properties Checked</div>
+                      <div className="text-xs text-white/40 label-text">Properties</div>
                     </div>
                     <div className="p-3 rounded-lg bg-white/5">
                       <div className="text-2xl font-mono text-green-400">{results.formulaChecks.passed}</div>
-                      <div className="text-xs text-white/40 label-text">Formula Checks Passed</div>
+                      <div className="text-xs text-white/40 label-text">Property Checks</div>
+                    </div>
+                    <div className="p-3 rounded-lg bg-white/5">
+                      <div className="text-2xl font-mono text-green-400">{results.managementCompanyChecks?.passed || 0}</div>
+                      <div className="text-xs text-white/40 label-text">Mgmt Co Checks</div>
+                    </div>
+                    <div className="p-3 rounded-lg bg-white/5">
+                      <div className="text-2xl font-mono text-green-400">{results.consolidatedChecks?.passed || 0}</div>
+                      <div className="text-xs text-white/40 label-text">Consolidated Checks</div>
                     </div>
                     <div className="p-3 rounded-lg bg-white/5">
                       <div className="text-2xl font-mono text-green-400">{results.complianceChecks.passed}</div>
-                      <div className="text-xs text-white/40 label-text">GAAP Checks Passed</div>
+                      <div className="text-xs text-white/40 label-text">GAAP Compliance</div>
                     </div>
                   </div>
                 </div>
@@ -195,6 +222,92 @@ export default function AdminVerification() {
                   </div>
                 </div>
 
+                {results.managementCompanyChecks?.details?.length > 0 && (
+                  <div>
+                    <h4 className="font-display text-[#FFF9F5] mb-3">Management Company Checks</h4>
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="border-white/10 hover:bg-transparent">
+                            <TableHead className="text-white/60 font-display">Entity</TableHead>
+                            <TableHead className="text-white/60 font-display">Check</TableHead>
+                            <TableHead className="text-white/60 font-display">Description</TableHead>
+                            <TableHead className="text-white/60 font-display text-center">Status</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {results.managementCompanyChecks.details.map((entity, ei) => (
+                            entity.checks.map((check, ci) => (
+                              <TableRow key={`mgmt-${ei}-${ci}`} className="border-white/10 hover:bg-white/5">
+                                {ci === 0 && (
+                                  <TableCell 
+                                    className="text-[#FFF9F5] font-medium"
+                                    rowSpan={entity.checks.length}
+                                  >
+                                    {entity.name}
+                                  </TableCell>
+                                )}
+                                <TableCell className="text-white/80">{check.name}</TableCell>
+                                <TableCell className="text-white/60 text-sm">{check.description}</TableCell>
+                                <TableCell className="text-center">
+                                  {check.passed ? (
+                                    <CheckCircle2 className="w-5 h-5 text-green-400 mx-auto" />
+                                  ) : (
+                                    <XCircle className="w-5 h-5 text-red-400 mx-auto" />
+                                  )}
+                                </TableCell>
+                              </TableRow>
+                            ))
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </div>
+                )}
+
+                {results.consolidatedChecks?.details?.length > 0 && (
+                  <div>
+                    <h4 className="font-display text-[#FFF9F5] mb-3">Consolidated Portfolio Checks</h4>
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="border-white/10 hover:bg-transparent">
+                            <TableHead className="text-white/60 font-display">Entity</TableHead>
+                            <TableHead className="text-white/60 font-display">Check</TableHead>
+                            <TableHead className="text-white/60 font-display">Description</TableHead>
+                            <TableHead className="text-white/60 font-display text-center">Status</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {results.consolidatedChecks.details.map((entity, ei) => (
+                            entity.checks.map((check, ci) => (
+                              <TableRow key={`cons-${ei}-${ci}`} className="border-white/10 hover:bg-white/5">
+                                {ci === 0 && (
+                                  <TableCell 
+                                    className="text-[#FFF9F5] font-medium"
+                                    rowSpan={entity.checks.length}
+                                  >
+                                    {entity.name}
+                                  </TableCell>
+                                )}
+                                <TableCell className="text-white/80">{check.name}</TableCell>
+                                <TableCell className="text-white/60 text-sm">{check.description}</TableCell>
+                                <TableCell className="text-center">
+                                  {check.passed ? (
+                                    <CheckCircle2 className="w-5 h-5 text-green-400 mx-auto" />
+                                  ) : (
+                                    <XCircle className="w-5 h-5 text-red-400 mx-auto" />
+                                  )}
+                                </TableCell>
+                              </TableRow>
+                            ))
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </div>
+                )}
+
                 <div>
                   <h4 className="font-display text-[#FFF9F5] mb-3">GAAP Compliance Checks</h4>
                   <div className="overflow-x-auto">
@@ -203,6 +316,7 @@ export default function AdminVerification() {
                         <TableRow className="border-white/10 hover:bg-transparent">
                           <TableHead className="text-white/60 font-display">Standard</TableHead>
                           <TableHead className="text-white/60 font-display">Rule</TableHead>
+                          <TableHead className="text-white/60 font-display">Scope</TableHead>
                           <TableHead className="text-white/60 font-display text-center">Status</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -211,6 +325,7 @@ export default function AdminVerification() {
                           <TableRow key={i} className="border-white/10 hover:bg-white/5">
                             <TableCell className="text-[#FFF9F5]">{check.category}</TableCell>
                             <TableCell className="text-white/80">{check.rule}</TableCell>
+                            <TableCell className="text-white/60 text-sm">{check.scope || "All"}</TableCell>
                             <TableCell className="text-center">
                               {check.passed ? (
                                 <CheckCircle2 className="w-5 h-5 text-green-400 mx-auto" />
@@ -226,7 +341,7 @@ export default function AdminVerification() {
                 </div>
 
                 <div className="p-4 rounded-xl bg-[#257D41]/10 border border-[#257D41]/30">
-                  <h4 className="font-display text-[#9FBCA4] mb-2">Key GAAP Standards Verified</h4>
+                  <h4 className="font-display text-[#9FBCA4] mb-2">Key Standards Verified</h4>
                   <ul className="grid grid-cols-2 gap-2 text-sm text-white/70 label-text">
                     <li className="flex items-center gap-2">
                       <CheckCircle2 className="w-4 h-4 text-[#9FBCA4]" />
@@ -246,7 +361,19 @@ export default function AdminVerification() {
                     </li>
                     <li className="flex items-center gap-2">
                       <CheckCircle2 className="w-4 h-4 text-[#9FBCA4]" />
-                      USALI Standard: NOI calculation methodology
+                      ASC 810 - Consolidation: Intercompany elimination
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-[#9FBCA4]" />
+                      USALI Standard: NOI/GOP calculation methodology
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-[#9FBCA4]" />
+                      STR/CBRE: ADR, Occupancy, RevPAR formulas
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-[#9FBCA4]" />
+                      Industry Practice: FF&E Reserve treatment
                     </li>
                   </ul>
                 </div>

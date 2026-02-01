@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Loader2, Plus, Trash2, Users, Key, Eye, EyeOff, Pencil, Clock, FileCheck, CheckCircle2, XCircle, AlertTriangle, PlayCircle, Palette, ArrowLeft, Activity, HelpCircle } from "lucide-react";
+import { Loader2, Plus, Trash2, Users, Key, Eye, EyeOff, Pencil, Clock, FileCheck, CheckCircle2, XCircle, AlertTriangle, PlayCircle, Palette, ArrowLeft, Activity, HelpCircle, SwatchBook } from "lucide-react";
 import { GlassButton } from "@/components/ui/glass-button";
 import { PageHeader } from "@/components/ui/page-header";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -76,7 +76,7 @@ interface DesignTheme {
   updatedAt: string;
 }
 
-type AdminView = "dashboard" | "users" | "activity" | "verification" | "design";
+type AdminView = "dashboard" | "users" | "activity" | "verification" | "design" | "themes";
 
 export default function Admin() {
   const { toast } = useToast();
@@ -460,6 +460,23 @@ export default function Admin() {
               <div className="flex-1">
                 <h3 className="text-2xl font-display font-semibold text-white mb-2">Design Consistency</h3>
                 <p className="text-white/50 label-text">Verify fonts, colors, and component standards across all pages</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="group relative overflow-hidden bg-gradient-to-br from-[#1a2e3d]/95 via-[#243d4d]/95 to-[#1e3a42]/95 backdrop-blur-3xl border border-white/20 shadow-2xl shadow-black/40 cursor-pointer hover:border-[#F4795B]/40 hover:shadow-[#F4795B]/20 transition-all duration-500" onClick={() => setCurrentView("themes")} data-testid="card-themes">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#F4795B]/10 via-transparent to-[#9FBCA4]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="absolute -top-16 -left-16 w-48 h-48 bg-[#F4795B]/15 rounded-full blur-3xl group-hover:bg-[#F4795B]/25 transition-colors duration-500" />
+          <div className="absolute -bottom-16 -right-16 w-48 h-48 bg-[#9FBCA4]/10 rounded-full blur-3xl group-hover:bg-[#9FBCA4]/20 transition-colors duration-500" />
+          <CardContent className="relative p-8">
+            <div className="flex items-center gap-6">
+              <div className="w-18 h-18 rounded-2xl bg-gradient-to-br from-[#F4795B] via-[#e86a4c] to-[#d45a3d] flex items-center justify-center shadow-xl shadow-[#F4795B]/30 border border-white/20" style={{ width: '72px', height: '72px' }}>
+                <SwatchBook className="w-9 h-9 text-white drop-shadow-lg" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-2xl font-display font-semibold text-white mb-2">Design Themes</h3>
+                <p className="text-white/50 label-text">Manage color palettes and design system definitions</p>
               </div>
             </div>
           </CardContent>
@@ -859,29 +876,27 @@ export default function Admin() {
     </Card>
   );
 
-  const renderDesign = () => (
-    <div className="space-y-6">
-      {/* Design Themes Section */}
-      <Card className="relative overflow-hidden bg-white/80 backdrop-blur-xl border border-gray-200 shadow-2xl">
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-[#9FBCA4]/10 blur-[100px] animate-pulse" style={{ animationDuration: '4s' }} />
-          <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-[#257D41]/10 blur-[100px] animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
-        </div>
-        
-        <CardHeader className="relative">
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-xl font-display text-gray-900">Design Themes</CardTitle>
-              <CardDescription className="label-text text-gray-600">
-                Define color palettes and design systems for your application
-              </CardDescription>
-            </div>
-            <Button onClick={() => setThemeDialogOpen(true)} className="flex items-center gap-2 bg-[#257D41] hover:bg-[#1e6434]">
-              <Plus className="w-4 h-4" />
-              New Theme
-            </Button>
+  const renderThemes = () => (
+    <Card className="relative overflow-hidden bg-white/80 backdrop-blur-xl border border-gray-200 shadow-2xl">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-[#9FBCA4]/10 blur-[100px] animate-pulse" style={{ animationDuration: '4s' }} />
+        <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-[#257D41]/10 blur-[100px] animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
+      </div>
+      
+      <CardHeader className="relative">
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="text-xl font-display text-gray-900">Design Themes</CardTitle>
+            <CardDescription className="label-text text-gray-600">
+              Define color palettes and design systems for your application
+            </CardDescription>
           </div>
-        </CardHeader>
+          <Button onClick={() => setThemeDialogOpen(true)} className="flex items-center gap-2 bg-[#257D41] hover:bg-[#1e6434]">
+            <Plus className="w-4 h-4" />
+            New Theme
+          </Button>
+        </div>
+      </CardHeader>
         
         <CardContent className="relative space-y-6">
           {themesLoading ? (
@@ -959,11 +974,16 @@ export default function Admin() {
             </div>
           )}
         </CardContent>
-      </Card>
+    </Card>
+  );
 
-      {/* Design Check Section */}
-      <Card className="relative overflow-hidden bg-white/80 backdrop-blur-xl border border-gray-200 shadow-2xl">
-        <CardHeader className="relative">
+  const renderDesign = () => (
+    <Card className="relative overflow-hidden bg-white/80 backdrop-blur-xl border border-gray-200 shadow-2xl">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-[#9FBCA4]/10 blur-[100px] animate-pulse" style={{ animationDuration: '4s' }} />
+        <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-[#257D41]/10 blur-[100px] animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
+      </div>
+      <CardHeader className="relative">
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-xl font-display text-gray-900">Design Consistency Verification</CardTitle>
@@ -1087,7 +1107,6 @@ export default function Admin() {
         )}
       </CardContent>
     </Card>
-    </div>
   );
 
   return (
@@ -1098,11 +1117,13 @@ export default function Admin() {
             title={currentView === "dashboard" ? "Administration" : 
                    currentView === "users" ? "User Management" :
                    currentView === "activity" ? "Login Activity" :
-                   currentView === "verification" ? "Financial Verification" : "Design Consistency"}
+                   currentView === "verification" ? "Financial Verification" : 
+                   currentView === "themes" ? "Design Themes" : "Design Consistency"}
             subtitle={currentView === "dashboard" ? "Manage users, monitor activity, and run system verification" :
                       currentView === "users" ? "Add, edit, and manage user accounts" :
                       currentView === "activity" ? "Monitor user sessions and login history" :
-                      currentView === "verification" ? "Run formula and GAAP compliance checks" : "Check fonts, colors, and component standards"}
+                      currentView === "verification" ? "Run formula and GAAP compliance checks" :
+                      currentView === "themes" ? "Manage color palettes and design systems" : "Check fonts, colors, and component standards"}
             variant="dark"
             actions={currentView !== "dashboard" ? (
               <GlassButton variant="primary" onClick={() => setCurrentView("dashboard")} data-testid="button-back">
@@ -1117,6 +1138,7 @@ export default function Admin() {
         {currentView === "activity" && renderActivity()}
         {currentView === "verification" && renderVerification()}
         {currentView === "design" && renderDesign()}
+        {currentView === "themes" && renderThemes()}
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>

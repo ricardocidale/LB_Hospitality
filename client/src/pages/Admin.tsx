@@ -466,13 +466,13 @@ export default function Admin() {
           </CardContent>
         </Card>
 
-        <Card className="group relative overflow-hidden bg-gradient-to-br from-[#1a2e3d]/95 via-[#243d4d]/95 to-[#1e3a42]/95 backdrop-blur-3xl border border-white/20 shadow-2xl shadow-black/40 cursor-pointer hover:border-[#F4795B]/40 hover:shadow-[#F4795B]/20 transition-all duration-500" onClick={() => setCurrentView("themes")} data-testid="card-themes">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#F4795B]/10 via-transparent to-[#9FBCA4]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          <div className="absolute -top-16 -left-16 w-48 h-48 bg-[#F4795B]/15 rounded-full blur-3xl group-hover:bg-[#F4795B]/25 transition-colors duration-500" />
+        <Card className="group relative overflow-hidden bg-gradient-to-br from-[#1a2e3d]/95 via-[#243d4d]/95 to-[#1e3a42]/95 backdrop-blur-3xl border border-white/20 shadow-2xl shadow-black/40 cursor-pointer hover:border-[#9FBCA4]/40 hover:shadow-[#9FBCA4]/20 transition-all duration-500" onClick={() => setCurrentView("themes")} data-testid="card-themes">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#257D41]/10 via-transparent to-[#9FBCA4]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="absolute -top-16 -left-16 w-48 h-48 bg-[#257D41]/15 rounded-full blur-3xl group-hover:bg-[#257D41]/25 transition-colors duration-500" />
           <div className="absolute -bottom-16 -right-16 w-48 h-48 bg-[#9FBCA4]/10 rounded-full blur-3xl group-hover:bg-[#9FBCA4]/20 transition-colors duration-500" />
           <CardContent className="relative p-8">
             <div className="flex items-center gap-6">
-              <div className="w-18 h-18 rounded-2xl bg-gradient-to-br from-[#F4795B] via-[#e86a4c] to-[#d45a3d] flex items-center justify-center shadow-xl shadow-[#F4795B]/30 border border-white/20" style={{ width: '72px', height: '72px' }}>
+              <div className="w-18 h-18 rounded-2xl bg-gradient-to-br from-[#9FBCA4] via-[#7aa88a] to-[#257D41] flex items-center justify-center shadow-xl shadow-[#9FBCA4]/30 border border-white/20" style={{ width: '72px', height: '72px' }}>
                 <SwatchBook className="w-9 h-9 text-white drop-shadow-lg" />
               </div>
               <div className="flex-1">
@@ -1090,14 +1090,14 @@ export default function Admin() {
                     </div>
                     {check.status === "fail" && (
                       <div className="ml-8 p-3 rounded-lg bg-red-50 border border-red-200">
-                        <p className="text-xs text-red-700 font-medium">Diagnosis: {check.diagnosis || `Design standard violation in ${check.category}`}</p>
-                        <p className="text-xs text-gray-600 mt-1">Solution: {check.solution || `Update component to follow ${check.category} design guidelines`}</p>
+                        <p className="text-xs text-red-700 font-medium">Diagnosis: Design standard violation in {check.category}</p>
+                        <p className="text-xs text-gray-600 mt-1">Solution: Update component to follow {check.category} design guidelines</p>
                       </div>
                     )}
                     {check.status === "warning" && (
                       <div className="ml-8 p-3 rounded-lg bg-yellow-50 border border-yellow-200">
-                        <p className="text-xs text-yellow-700 font-medium">Diagnosis: {check.diagnosis || `Minor design inconsistency in ${check.category}`}</p>
-                        <p className="text-xs text-gray-600 mt-1">Solution: {check.solution || `Consider updating to improve ${check.category} consistency`}</p>
+                        <p className="text-xs text-yellow-700 font-medium">Diagnosis: Minor design inconsistency in {check.category}</p>
+                        <p className="text-xs text-gray-600 mt-1">Solution: Consider updating to improve {check.category} consistency</p>
                       </div>
                     )}
                   </div>

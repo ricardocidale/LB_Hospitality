@@ -205,9 +205,16 @@ export function generatePropertyProForma(
   const loanTerm = global.debtAssumptions?.amortizationYears ?? 25;
   const monthlyRate = loanRate / 12;
   const totalPayments = loanTerm * 12;
-  const monthlyPayment = originalLoanAmount > 0 && monthlyRate > 0 
-    ? (originalLoanAmount * monthlyRate * Math.pow(1 + monthlyRate, totalPayments)) / (Math.pow(1 + monthlyRate, totalPayments) - 1)
-    : 0;
+  // Handle zero interest rate (straight-line principal reduction)
+  let monthlyPayment = 0;
+  if (originalLoanAmount > 0) {
+    if (monthlyRate === 0) {
+      monthlyPayment = originalLoanAmount / totalPayments;
+    } else {
+      monthlyPayment = (originalLoanAmount * monthlyRate * Math.pow(1 + monthlyRate, totalPayments)) / 
+                       (Math.pow(1 + monthlyRate, totalPayments) - 1);
+    }
+  }
     
   let cumulativeCash = 0; // Track cumulative cash for ending cash balance
   

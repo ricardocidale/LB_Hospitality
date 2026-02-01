@@ -38,6 +38,7 @@ export function getFiscalYearForModelYear(
 // Types that match our database schema
 interface PropertyInput {
   operationsStartDate: string;
+  acquisitionDate?: string; // For balance sheet timing - defaults to operationsStartDate
   roomCount: number;
   startAdr: number;
   adrGrowthRate: number;
@@ -168,6 +169,14 @@ export interface MonthlyFinancials {
   debtPayment: number;
   netIncome: number;
   cashFlow: number;
+  // Balance sheet fields for auditor verification
+  depreciationExpense: number;
+  propertyValue: number;
+  debtOutstanding: number;
+  // Cash flow statement fields for GAAP verification (ASC 230)
+  operatingCashFlow: number;
+  financingCashFlow: number;
+  endingCash: number;
 }
 
 // Default revenue shares (now property-configurable)
@@ -183,6 +192,24 @@ export function generatePropertyProForma(
   const financials: MonthlyFinancials[] = [];
   const modelStart = new Date(global.modelStartDate);
   const opsStart = new Date(property.operationsStartDate);
+  const acquisitionDate = property.acquisitionDate ? new Date(property.acquisitionDate) : opsStart;
+  
+  // Balance sheet calculations - for PwC-level verification
+  const buildingValue = property.purchasePrice + (property.buildingImprovements ?? 0);
+  const monthlyDepreciation = buildingValue / 27.5 / 12; // 27.5-year straight-line (IRS Publication 946)
+  
+  // Loan setup for debt outstanding tracking
+  const ltv = property.acquisitionLTV ?? global.debtAssumptions?.acqLTV ?? 0.75;
+  const originalLoanAmount = property.type === "Financed" ? buildingValue * ltv : 0;
+  const loanRate = global.debtAssumptions?.interestRate ?? 0.09;
+  const loanTerm = global.debtAssumptions?.amortizationYears ?? 25;
+  const monthlyRate = loanRate / 12;
+  const totalPayments = loanTerm * 12;
+  const monthlyPayment = originalLoanAmount > 0 && monthlyRate > 0 
+    ? (originalLoanAmount * monthlyRate * Math.pow(1 + monthlyRate, totalPayments)) / (Math.pow(1 + monthlyRate, totalPayments) - 1)
+    : 0;
+    
+  let cumulativeCash = 0; // Track cumulative cash for ending cash balance
   
   let currentAdr = property.startAdr;
   
@@ -280,24 +307,29 @@ export function generatePropertyProForma(
     let debtPayment = 0;
     let interestExpense = 0;
     let principalPayment = 0;
+    let debtOutstanding = 0;
+    
+    // Check if we're past acquisition date for balance sheet items
+    const isAcquired = !isBefore(currentDate, acquisitionDate);
+    const monthsSinceAcquisition = isAcquired ? differenceInMonths(currentDate, acquisitionDate) : 0;
     
     if (isOperational && property.type === "Financed") {
       const r = global.debtAssumptions.interestRate / 12;
       const n = global.debtAssumptions.amortizationYears * 12;
-      const ltv = property.acquisitionLTV ?? global.debtAssumptions.acqLTV ?? 0.75;
-      const loanAmount = (property.purchasePrice + (property.buildingImprovements ?? 0)) * ltv;
+      const loanAmount = originalLoanAmount;
       
       if (loanAmount > 0 && r > 0) {
-        const monthlyPayment = (loanAmount * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
         debtPayment = monthlyPayment;
         
         // Calculate remaining balance at this month to get accurate interest/principal split
         let remainingBalance = loanAmount;
-        for (let m = 0; m < monthsSinceOps && m < n; m++) {
+        for (let m = 0; m < monthsSinceAcquisition && m < n; m++) {
           const monthInterest = remainingBalance * r;
           const monthPrincipal = monthlyPayment - monthInterest;
-          remainingBalance -= monthPrincipal;
+          remainingBalance = Math.max(0, remainingBalance - monthPrincipal);
         }
+        
+        debtOutstanding = remainingBalance;
         
         // Current month's interest and principal
         interestExpense = remainingBalance * r;
@@ -307,6 +339,17 @@ export function generatePropertyProForma(
 
     const netIncome = noi - interestExpense;
     const cashFlow = noi - debtPayment;
+    
+    // Balance sheet: Property value = building value - accumulated depreciation (ASC 360)
+    const depreciationExpense = isAcquired ? monthlyDepreciation : 0;
+    const accumulatedDepreciation = isAcquired ? monthlyDepreciation * (monthsSinceAcquisition + 1) : 0;
+    const propertyValue = isAcquired ? buildingValue - accumulatedDepreciation : 0;
+    
+    // Cash flow statement per GAAP ASC 230 indirect method
+    const operatingCashFlow = netIncome + depreciationExpense; // Add back non-cash depreciation
+    const financingCashFlow = -principalPayment; // Principal repayment is financing activity
+    cumulativeCash += cashFlow;
+    const endingCash = cumulativeCash;
 
     financials.push({
       date: currentDate,
@@ -343,7 +386,15 @@ export function generatePropertyProForma(
       principalPayment,
       debtPayment,
       netIncome,
-      cashFlow
+      cashFlow,
+      // Balance sheet fields for PwC-level audit verification
+      depreciationExpense,
+      propertyValue,
+      debtOutstanding,
+      // Cash flow statement fields per GAAP ASC 230
+      operatingCashFlow,
+      financingCashFlow,
+      endingCash
     });
   }
   

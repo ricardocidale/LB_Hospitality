@@ -227,13 +227,12 @@ export default function Dashboard() {
     total10YearCashFlow += yearData.cashFlow;
   }
   
-  // Calculate weighted average exit cap rate
+  // Calculate weighted average exit cap rate (for display purposes)
   const avgExitCapRate = properties.reduce((sum, p) => sum + (p.exitCapRate || 0.085), 0) / totalProperties;
   
-  // Year 10 NOI for exit value calculation
+  // Year 10 NOI for reference
   const year10Data = getYearlyConsolidated(9);
   const year10NOI = year10Data.noi;
-  const projectedExitValue = year10NOI / avgExitCapRate;
   
   // Geographic distribution
   const marketCounts = properties.reduce((acc, p) => {
@@ -321,6 +320,11 @@ export default function Dashboard() {
     const refi = calculateRefinanceParams(loanParams, globalParams, loan, yearlyNOI, 10);
     return calculateExitValue(yearlyNOI[9], loan, refi, 9, prop.exitCapRate);
   };
+
+  // Calculate total portfolio exit value (net of commission and debt)
+  const projectedExitValue = properties.reduce((sum, prop, idx) => {
+    return sum + getPropertyExitValue(prop, idx);
+  }, 0);
 
   const getPropertyYearlyDetails = (prop: any, propIndex: number, yearIndex: number) => {
     const loanParams = toLoanParams(prop);

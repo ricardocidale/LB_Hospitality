@@ -482,6 +482,94 @@ export default function Methodology() {
             </AccordionContent>
           </AccordionItem>
 
+          <AccordionItem value="fixed-assumptions" className="border rounded-lg px-4 border-amber-200 bg-amber-50/30">
+            <AccordionTrigger className="hover:no-underline">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
+                  <Info className="w-5 h-5 text-amber-600" />
+                </div>
+                <div className="text-left">
+                  <h3 className="font-semibold">Fixed Assumptions (Not Configurable)</h3>
+                  <p className="text-sm text-muted-foreground">Hardcoded values built into the calculation engine</p>
+                </div>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="pt-4 pb-6 space-y-4">
+              <div className="p-4 bg-amber-100/50 rounded-lg border border-amber-200">
+                <p className="text-sm text-amber-800 font-medium">
+                  The following assumptions are built into the financial model and cannot be changed through the app interface. 
+                  These represent industry standards or regulatory requirements.
+                </p>
+              </div>
+
+              <div className="bg-muted/50 rounded-lg p-4">
+                <h4 className="font-semibold mb-2">Time & Calendar</h4>
+                <ul className="text-sm text-muted-foreground space-y-2">
+                  <li>• <strong>Days per Month</strong>: 30 days (simplified monthly calculations)</li>
+                  <li>• <strong>Months per Year</strong>: 12 months</li>
+                  <li>• <strong>Projection Period</strong>: 10 years (120 months)</li>
+                </ul>
+              </div>
+
+              <div className="bg-muted/50 rounded-lg p-4">
+                <h4 className="font-semibold mb-2">Depreciation & Taxes</h4>
+                <ul className="text-sm text-muted-foreground space-y-2">
+                  <li>• <strong>Depreciation Period</strong>: 27.5 years straight-line (IRS requirement for residential rental property)</li>
+                  <li>• <strong>Land Depreciation</strong>: None (land is not depreciated per IRS rules)</li>
+                  <li>• <strong>Depreciation Start</strong>: First month after acquisition date</li>
+                </ul>
+              </div>
+
+              <div className="bg-muted/50 rounded-lg p-4">
+                <h4 className="font-semibold mb-2">Expense Ratios (Applied to Revenue)</h4>
+                <ul className="text-sm text-muted-foreground space-y-2">
+                  <li>• <strong>Event Expense Rate</strong>: 65% of event revenue</li>
+                  <li>• <strong>Other Revenue Expense Rate</strong>: 60% of other revenue</li>
+                  <li>• <strong>Utilities Split</strong>: 60% variable (scales with revenue), 40% fixed</li>
+                </ul>
+              </div>
+
+              <div className="bg-muted/50 rounded-lg p-4">
+                <h4 className="font-semibold mb-2">Default Loan Parameters (Used if Not Specified)</h4>
+                <ul className="text-sm text-muted-foreground space-y-2">
+                  <li>• <strong>Default LTV</strong>: 75%</li>
+                  <li>• <strong>Default Interest Rate</strong>: 9%</li>
+                  <li>• <strong>Default Loan Term</strong>: 25 years</li>
+                  <li>• <strong>Default Refinance LTV</strong>: 65%</li>
+                  <li>• <strong>Default Refinance Closing Costs</strong>: 3%</li>
+                </ul>
+              </div>
+
+              <div className="bg-muted/50 rounded-lg p-4">
+                <h4 className="font-semibold mb-2">Exit & Sale Assumptions</h4>
+                <ul className="text-sm text-muted-foreground space-y-2">
+                  <li>• <strong>Default Exit Cap Rate</strong>: 8.5%</li>
+                  <li>• <strong>Sales Commission</strong>: 5% of gross sale price</li>
+                  <li>• <strong>Default Tax Rate</strong>: 25%</li>
+                </ul>
+              </div>
+
+              <div className="bg-muted/50 rounded-lg p-4">
+                <h4 className="font-semibold mb-2">Default Revenue Shares (If Not Set Per Property)</h4>
+                <ul className="text-sm text-muted-foreground space-y-2">
+                  <li>• <strong>Events Revenue</strong>: 43% of room revenue</li>
+                  <li>• <strong>F&B Revenue</strong>: 22% of room revenue (before catering boost)</li>
+                  <li>• <strong>Other Revenue</strong>: 7% of room revenue</li>
+                </ul>
+              </div>
+
+              <div className="bg-muted/50 rounded-lg p-4">
+                <h4 className="font-semibold mb-2">Catering F&B Boost (Default Values)</h4>
+                <ul className="text-sm text-muted-foreground space-y-2">
+                  <li>• <strong>Full Catering Mix</strong>: 40% of events</li>
+                  <li>• <strong>Partial Catering Mix</strong>: 30% of events</li>
+                  <li>• <strong>Full Catering F&B Boost</strong>: +50% to base F&B</li>
+                  <li>• <strong>Partial Catering F&B Boost</strong>: +25% to base F&B</li>
+                </ul>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
           <AccordionItem value="verification" className="border rounded-lg px-4">
             <AccordionTrigger className="hover:no-underline">
               <div className="flex items-center gap-3">

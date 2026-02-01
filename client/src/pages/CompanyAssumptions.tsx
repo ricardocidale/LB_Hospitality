@@ -876,6 +876,217 @@ export default function CompanyAssumptions() {
           <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-[#9FBCA4]/10 blur-2xl" />
           <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/5 blur-xl" />
           <div className="relative">
+          <div className="space-y-6">
+            <h3 className="text-lg font-display text-gray-900 flex items-center gap-2">
+              Exit & Sale Assumptions
+              <HelpTooltip text="Default values for property exit valuations and sale transactions" />
+            </h3>
+            
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="flex items-center text-gray-700 label-text">
+                  Default Exit Cap Rate
+                  <HelpTooltip text="Capitalization rate used for property valuation at exit. Higher cap rate = lower valuation." />
+                </Label>
+                <EditableValue
+                  value={formData.exitCapRate ?? global.exitCapRate ?? 0.085}
+                  onChange={(v) => handleUpdate("exitCapRate", v)}
+                  format="percent"
+                  min={0.04}
+                  max={0.15}
+                  step={0.005}
+                />
+              </div>
+              <Slider
+                value={[(formData.exitCapRate ?? global.exitCapRate ?? 0.085) * 100]}
+                onValueChange={([v]) => handleUpdate("exitCapRate", v / 100)}
+                min={4}
+                max={15}
+                step={0.5}
+              />
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="flex items-center text-gray-700 label-text">
+                  Sales Commission Rate
+                  <HelpTooltip text="Broker commission paid on property sales as percentage of gross sale price" />
+                </Label>
+                <EditableValue
+                  value={formData.salesCommissionRate ?? global.salesCommissionRate ?? 0.05}
+                  onChange={(v) => handleUpdate("salesCommissionRate", v)}
+                  format="percent"
+                  min={0}
+                  max={0.10}
+                  step={0.005}
+                />
+              </div>
+              <Slider
+                value={[(formData.salesCommissionRate ?? global.salesCommissionRate ?? 0.05) * 100]}
+                onValueChange={([v]) => handleUpdate("salesCommissionRate", v / 100)}
+                min={0}
+                max={10}
+                step={0.5}
+              />
+            </div>
+          </div>
+        </div></div>
+
+        <div className="relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-[#9FBCA4]/10 blur-2xl" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/5 blur-xl" />
+          <div className="relative">
+          <div className="space-y-6">
+            <h3 className="text-lg font-display text-gray-900 flex items-center gap-2">
+              Property Expense Rates
+              <HelpTooltip text="Default expense rates applied to specific revenue streams at the property level" />
+            </h3>
+            
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="flex items-center text-gray-700 label-text">
+                  Event Expense Rate
+                  <HelpTooltip text="Operating costs for events as percentage of event revenue (labor, setup, coordination)" />
+                </Label>
+                <EditableValue
+                  value={formData.eventExpenseRate ?? global.eventExpenseRate ?? 0.65}
+                  onChange={(v) => handleUpdate("eventExpenseRate", v)}
+                  format="percent"
+                  min={0.30}
+                  max={0.90}
+                  step={0.05}
+                />
+              </div>
+              <Slider
+                value={[(formData.eventExpenseRate ?? global.eventExpenseRate ?? 0.65) * 100]}
+                onValueChange={([v]) => handleUpdate("eventExpenseRate", v / 100)}
+                min={30}
+                max={90}
+                step={5}
+              />
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="flex items-center text-gray-700 label-text">
+                  Other Revenue Expense Rate
+                  <HelpTooltip text="Operating costs for other revenue (spa, parking, retail) as percentage of that revenue" />
+                </Label>
+                <EditableValue
+                  value={formData.otherExpenseRate ?? global.otherExpenseRate ?? 0.60}
+                  onChange={(v) => handleUpdate("otherExpenseRate", v)}
+                  format="percent"
+                  min={0.30}
+                  max={0.90}
+                  step={0.05}
+                />
+              </div>
+              <Slider
+                value={[(formData.otherExpenseRate ?? global.otherExpenseRate ?? 0.60) * 100]}
+                onValueChange={([v]) => handleUpdate("otherExpenseRate", v / 100)}
+                min={30}
+                max={90}
+                step={5}
+              />
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="flex items-center text-gray-700 label-text">
+                  Utilities Variable Split
+                  <HelpTooltip text="Percentage of utility costs that scale with revenue. Remaining portion is fixed overhead." />
+                </Label>
+                <EditableValue
+                  value={formData.utilitiesVariableSplit ?? global.utilitiesVariableSplit ?? 0.60}
+                  onChange={(v) => handleUpdate("utilitiesVariableSplit", v)}
+                  format="percent"
+                  min={0.20}
+                  max={0.80}
+                  step={0.05}
+                />
+              </div>
+              <Slider
+                value={[(formData.utilitiesVariableSplit ?? global.utilitiesVariableSplit ?? 0.60) * 100]}
+                onValueChange={([v]) => handleUpdate("utilitiesVariableSplit", v / 100)}
+                min={20}
+                max={80}
+                step={5}
+              />
+              <p className="text-xs text-gray-600 mt-2">
+                Variable utilities scale with revenue, fixed utilities remain constant regardless of occupancy
+              </p>
+            </div>
+          </div>
+        </div></div>
+
+        <div className="relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-[#9FBCA4]/10 blur-2xl" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/5 blur-xl" />
+          <div className="relative">
+          <div className="space-y-6">
+            <h3 className="text-lg font-display text-gray-900 flex items-center gap-2">
+              Catering F&B Boost Factors
+              <HelpTooltip text="How much catering at events boosts F&B revenue. Full catering adds more revenue than partial." />
+            </h3>
+            
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="flex items-center text-gray-700 label-text">
+                  Full Catering F&B Boost
+                  <HelpTooltip text="Additional F&B revenue multiplier when events use full in-house catering" />
+                </Label>
+                <EditableValue
+                  value={formData.fullCateringFBBoost ?? global.fullCateringFBBoost ?? 0.50}
+                  onChange={(v) => handleUpdate("fullCateringFBBoost", v)}
+                  format="percent"
+                  min={0}
+                  max={1.00}
+                  step={0.05}
+                />
+              </div>
+              <Slider
+                value={[(formData.fullCateringFBBoost ?? global.fullCateringFBBoost ?? 0.50) * 100]}
+                onValueChange={([v]) => handleUpdate("fullCateringFBBoost", v / 100)}
+                min={0}
+                max={100}
+                step={5}
+              />
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="flex items-center text-gray-700 label-text">
+                  Partial Catering F&B Boost
+                  <HelpTooltip text="Additional F&B revenue multiplier when events use partial in-house catering" />
+                </Label>
+                <EditableValue
+                  value={formData.partialCateringFBBoost ?? global.partialCateringFBBoost ?? 0.25}
+                  onChange={(v) => handleUpdate("partialCateringFBBoost", v)}
+                  format="percent"
+                  min={0}
+                  max={0.75}
+                  step={0.05}
+                />
+              </div>
+              <Slider
+                value={[(formData.partialCateringFBBoost ?? global.partialCateringFBBoost ?? 0.25) * 100]}
+                onValueChange={([v]) => handleUpdate("partialCateringFBBoost", v / 100)}
+                min={0}
+                max={75}
+                step={5}
+              />
+            </div>
+
+            <p className="text-xs text-gray-600 mt-2">
+              F&B revenue formula: Base F&B × (1 + Full Boost × Full Catering % + Partial Boost × Partial Catering %)
+            </p>
+          </div>
+        </div></div>
+
+        <div className="relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-[#9FBCA4]/10 blur-2xl" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/5 blur-xl" />
+          <div className="relative">
           <div className="space-y-4">
             <div>
               <h3 className="text-lg font-display text-gray-900 flex items-center gap-2">

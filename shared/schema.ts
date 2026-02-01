@@ -117,6 +117,15 @@ export const globalAssumptions = pgTable("global_assumptions", {
   // Tax Rate (for calculating after-tax company cash flow)
   companyTaxRate: real("company_tax_rate").notNull().default(0.30),
   
+  // Exit & Sale Assumptions (global defaults)
+  exitCapRate: real("exit_cap_rate").notNull().default(0.085),
+  salesCommissionRate: real("sales_commission_rate").notNull().default(0.05),
+  
+  // Expense Rates (applied to specific revenue streams)
+  eventExpenseRate: real("event_expense_rate").notNull().default(0.65),
+  otherExpenseRate: real("other_expense_rate").notNull().default(0.60),
+  utilitiesVariableSplit: real("utilities_variable_split").notNull().default(0.60),
+  
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => [
   index("global_assumptions_user_id_idx").on(table.userId),
@@ -193,6 +202,11 @@ export const insertGlobalAssumptionsSchema = createInsertSchema(globalAssumption
   fullCateringFBBoost: true,
   partialCateringFBBoost: true,
   companyTaxRate: true,
+  exitCapRate: true,
+  salesCommissionRate: true,
+  eventExpenseRate: true,
+  otherExpenseRate: true,
+  utilitiesVariableSplit: true,
 });
 
 export const selectGlobalAssumptionsSchema = createSelectSchema(globalAssumptions);

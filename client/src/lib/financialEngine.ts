@@ -118,6 +118,13 @@ interface GlobalInput {
   // Catering F&B boost factors
   fullCateringFBBoost?: number;
   partialCateringFBBoost?: number;
+  // Expense rates (configurable)
+  eventExpenseRate?: number;
+  otherExpenseRate?: number;
+  utilitiesVariableSplit?: number;
+  // Exit & Sale
+  exitCapRate?: number;
+  salesCommissionRate?: number;
   debtAssumptions: {
     interestRate: number;
     amortizationYears: number;
@@ -240,19 +247,23 @@ export function generatePropertyProForma(
     // F&B costs: apply costRateFB to all F&B revenue (including catering boost)
     const expenseFB = revenueFB * costRateFB;
     
-    // Event costs are separate from catering (events are independent)
-    const expenseEvents = revenueEvents * 0.65;
-    const expenseOther = revenueOther * 0.60;
+    // Event and Other expenses use configurable global rates
+    const eventExpenseRate = global.eventExpenseRate ?? 0.65;
+    const otherExpenseRate = global.otherExpenseRate ?? 0.60;
+    const utilitiesVariableSplit = global.utilitiesVariableSplit ?? 0.60;
+    
+    const expenseEvents = revenueEvents * eventExpenseRate;
+    const expenseOther = revenueOther * otherExpenseRate;
     const expenseMarketing = revenueTotal * costRateMarketing;
     const expensePropertyOps = revenueTotal * costRatePropertyOps;
-    const expenseUtilitiesVar = revenueTotal * (costRateUtilities * 0.6);
+    const expenseUtilitiesVar = revenueTotal * (costRateUtilities * utilitiesVariableSplit);
     const expenseFFE = revenueTotal * costRateFFE;
     
     const expenseAdmin = revenueTotal * costRateAdmin;
     const expenseIT = revenueTotal * costRateIT;
     const expenseInsurance = revenueTotal * costRateInsurance;
     const expenseTaxes = revenueTotal * costRateTaxes;
-    const expenseUtilitiesFixed = revenueTotal * (costRateUtilities * 0.4);
+    const expenseUtilitiesFixed = revenueTotal * (costRateUtilities * (1 - utilitiesVariableSplit));
     const expenseOtherCosts = revenueTotal * costRateOther;
     
     const feeBase = revenueTotal * global.baseManagementFee;

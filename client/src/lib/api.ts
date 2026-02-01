@@ -42,6 +42,15 @@ export interface GlobalResponse {
   partialCateringFBBoost: number;
   // Tax
   companyTaxRate: number;
+  // Exit & Sale Assumptions
+  exitCapRate: number;
+  salesCommissionRate: number;
+  // Property Expense Rates
+  eventExpenseRate: number;
+  otherExpenseRate: number;
+  utilitiesVariableSplit: number;
+  // Funding
+  fundingSourceLabel: string;
   standardAcqPackage: {
     monthsToOps: number;
     purchasePrice: number;

@@ -62,6 +62,8 @@ Always format money as money (currency format with commas and appropriate precis
 - **SAFE Funding**: Models two tranches with configurable amounts and dates, appearing as inflows in cash flow.
 - **Cost Escalation**: Fixed costs escalate at a configurable rate (default 3%), while variable costs escalate at the inflation rate.
 - **Catering Levels**: Global assumptions define Full Service and Partial Service catering rates for event revenue and costs.
+- **Configurable Expense Rates**: Event expense rate (default 65%), Other expense rate (default 60%), and Utilities variable/fixed split (default 60/40) are all configurable in Global Assumptions.
+- **Exit & Sale Assumptions**: Exit cap rate (default 8.5%) and sales commission rate (default 5%) are configurable at global level, with property-level overrides for exit cap rate and tax rate.
 - **Configurable Fiscal Year**: Financial statements and charts can align with any fiscal year start month.
 - **Key Data Models**: Global Assumptions (model-wide parameters), Properties (individual asset details), and Scenarios (saved snapshots of assumptions and properties per user).
 - **Scenarios Feature**: Users can save their current configuration (global assumptions + all properties) as named scenarios, then load them later to restore that state. Each user has their own isolated scenarios.

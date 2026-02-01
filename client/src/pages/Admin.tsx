@@ -12,6 +12,7 @@ import { GlassButton } from "@/components/ui/glass-button";
 import { PageHeader } from "@/components/ui/page-header";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
+import { ColorPicker } from "@/components/ui/color-picker";
 
 interface DesignCheckResult {
   timestamp: string;
@@ -1284,20 +1285,7 @@ export default function Admin() {
                 {(editingTheme ? editingTheme.colors : newTheme.colors).map((color, idx) => (
                   <div key={idx} className="p-3 rounded-lg border bg-gray-50 space-y-2">
                     <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-medium text-gray-500">#{color.rank}</span>
-                        <input
-                          type="color"
-                          value={color.hexCode}
-                          onChange={(e) => {
-                            const colors = editingTheme ? [...editingTheme.colors] : [...newTheme.colors];
-                            colors[idx] = { ...colors[idx], hexCode: e.target.value };
-                            if (editingTheme) setEditingTheme({ ...editingTheme, colors });
-                            else setNewTheme({ ...newTheme, colors });
-                          }}
-                          className="w-10 h-8 rounded border cursor-pointer"
-                        />
-                      </div>
+                      <span className="text-xs font-medium text-gray-500 w-6">#{color.rank}</span>
                       <Input
                         value={color.name}
                         onChange={(e) => {
@@ -1309,16 +1297,17 @@ export default function Admin() {
                         placeholder="Color name"
                         className="flex-1"
                       />
-                      <Input
-                        value={color.hexCode}
-                        onChange={(e) => {
-                          const colors = editingTheme ? [...editingTheme.colors] : [...newTheme.colors];
-                          colors[idx] = { ...colors[idx], hexCode: e.target.value };
-                          if (editingTheme) setEditingTheme({ ...editingTheme, colors });
-                          else setNewTheme({ ...newTheme, colors });
-                        }}
-                        className="w-24 font-mono text-xs"
-                      />
+                      <div className="w-40">
+                        <ColorPicker
+                          value={color.hexCode}
+                          onChange={(newColor) => {
+                            const colors = editingTheme ? [...editingTheme.colors] : [...newTheme.colors];
+                            colors[idx] = { ...colors[idx], hexCode: newColor };
+                            if (editingTheme) setEditingTheme({ ...editingTheme, colors });
+                            else setNewTheme({ ...newTheme, colors });
+                          }}
+                        />
+                      </div>
                       <Button 
                         type="button" 
                         size="sm" 

@@ -725,7 +725,7 @@ export function auditBalanceSheet(
   const findings: AuditFinding[] = [];
   
   const modelStart = new Date(global.modelStartDate);
-  const acqDate = new Date(property.acquisitionDate);
+  const acqDate = new Date(property.acquisitionDate || property.operationsStartDate);
   const acqMonthIndex = (acqDate.getFullYear() - modelStart.getFullYear()) * 12 + 
     (acqDate.getMonth() - modelStart.getMonth());
   
@@ -854,7 +854,7 @@ export function auditCashFlowReconciliation(
   const findings: AuditFinding[] = [];
   
   const modelStart = new Date(global.modelStartDate);
-  const acqDate = new Date(property.acquisitionDate);
+  const acqDate = new Date(property.acquisitionDate || property.operationsStartDate);
   const acqMonthIndex = (acqDate.getFullYear() - modelStart.getFullYear()) * 12 + 
     (acqDate.getMonth() - modelStart.getMonth());
   

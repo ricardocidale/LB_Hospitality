@@ -520,17 +520,17 @@ export default function Methodology() {
                 </ul>
               </div>
 
-              <div className="bg-muted/50 rounded-lg p-4">
-                <h4 className="font-semibold mb-2">Expense Ratios (Applied to Revenue)</h4>
-                <ul className="text-sm text-muted-foreground space-y-2">
-                  <li>• <strong>Event Expense Rate</strong>: 65% of event revenue</li>
-                  <li>• <strong>Other Revenue Expense Rate</strong>: 60% of other revenue</li>
-                  <li>• <strong>Utilities Split</strong>: 60% variable (scales with revenue), 40% fixed</li>
+              <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                <h4 className="font-semibold mb-2 text-green-800">Expense Ratios (Now Configurable in Global Assumptions)</h4>
+                <ul className="text-sm text-green-700 space-y-2">
+                  <li>• <strong>Event Expense Rate</strong>: Default 65% of event revenue <span className="text-green-600">(editable)</span></li>
+                  <li>• <strong>Other Revenue Expense Rate</strong>: Default 60% of other revenue <span className="text-green-600">(editable)</span></li>
+                  <li>• <strong>Utilities Split</strong>: Default 60% variable / 40% fixed <span className="text-green-600">(editable)</span></li>
                 </ul>
               </div>
 
               <div className="bg-muted/50 rounded-lg p-4">
-                <h4 className="font-semibold mb-2">Default Loan Parameters (Used if Not Specified)</h4>
+                <h4 className="font-semibold mb-2">Default Loan Parameters (Used if Not Specified at Property Level)</h4>
                 <ul className="text-sm text-muted-foreground space-y-2">
                   <li>• <strong>Default LTV</strong>: 75%</li>
                   <li>• <strong>Default Interest Rate</strong>: 9%</li>
@@ -538,33 +538,35 @@ export default function Methodology() {
                   <li>• <strong>Default Refinance LTV</strong>: 65%</li>
                   <li>• <strong>Default Refinance Closing Costs</strong>: 3%</li>
                 </ul>
+                <p className="text-xs text-muted-foreground mt-2">Override these at the property level in Property Assumptions.</p>
               </div>
 
-              <div className="bg-muted/50 rounded-lg p-4">
-                <h4 className="font-semibold mb-2">Exit & Sale Assumptions</h4>
-                <ul className="text-sm text-muted-foreground space-y-2">
-                  <li>• <strong>Default Exit Cap Rate</strong>: 8.5%</li>
-                  <li>• <strong>Sales Commission</strong>: 5% of gross sale price</li>
-                  <li>• <strong>Default Tax Rate</strong>: 25%</li>
+              <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                <h4 className="font-semibold mb-2 text-green-800">Exit & Sale Assumptions (Now Configurable)</h4>
+                <ul className="text-sm text-green-700 space-y-2">
+                  <li>• <strong>Exit Cap Rate</strong>: Default 8.5% <span className="text-green-600">(editable in Global & Property Assumptions)</span></li>
+                  <li>• <strong>Sales Commission</strong>: Default 5% of gross sale price <span className="text-green-600">(editable in Global Assumptions)</span></li>
+                  <li>• <strong>Tax Rate</strong>: Default 25% <span className="text-green-600">(editable at property level)</span></li>
                 </ul>
               </div>
 
-              <div className="bg-muted/50 rounded-lg p-4">
-                <h4 className="font-semibold mb-2">Default Revenue Shares (If Not Set Per Property)</h4>
-                <ul className="text-sm text-muted-foreground space-y-2">
-                  <li>• <strong>Events Revenue</strong>: 43% of room revenue</li>
-                  <li>• <strong>F&B Revenue</strong>: 22% of room revenue (before catering boost)</li>
-                  <li>• <strong>Other Revenue</strong>: 7% of room revenue</li>
+              <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                <h4 className="font-semibold mb-2 text-green-800">Revenue Shares (Configurable Per Property)</h4>
+                <ul className="text-sm text-green-700 space-y-2">
+                  <li>• <strong>Events Revenue</strong>: Default 43% of room revenue <span className="text-green-600">(editable per property)</span></li>
+                  <li>• <strong>F&B Revenue</strong>: Default 22% of room revenue <span className="text-green-600">(editable per property)</span></li>
+                  <li>• <strong>Other Revenue</strong>: Default 7% of room revenue <span className="text-green-600">(editable per property)</span></li>
                 </ul>
+                <p className="text-xs text-green-600 mt-2">Configure these in Property Assumptions under "Revenue Mix".</p>
               </div>
 
-              <div className="bg-muted/50 rounded-lg p-4">
-                <h4 className="font-semibold mb-2">Catering F&B Boost (Default Values)</h4>
-                <ul className="text-sm text-muted-foreground space-y-2">
-                  <li>• <strong>Full Catering Mix</strong>: 40% of events</li>
-                  <li>• <strong>Partial Catering Mix</strong>: 30% of events</li>
-                  <li>• <strong>Full Catering F&B Boost</strong>: +50% to base F&B</li>
-                  <li>• <strong>Partial Catering F&B Boost</strong>: +25% to base F&B</li>
+              <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                <h4 className="font-semibold mb-2 text-green-800">Catering F&B Boost (Configurable)</h4>
+                <ul className="text-sm text-green-700 space-y-2">
+                  <li>• <strong>Full Catering Mix</strong>: Default 40% of events <span className="text-green-600">(editable per property)</span></li>
+                  <li>• <strong>Partial Catering Mix</strong>: Default 30% of events <span className="text-green-600">(editable per property)</span></li>
+                  <li>• <strong>Full Catering F&B Boost</strong>: Default +50% to base F&B <span className="text-green-600">(editable in Global Assumptions)</span></li>
+                  <li>• <strong>Partial Catering F&B Boost</strong>: Default +25% to base F&B <span className="text-green-600">(editable in Global Assumptions)</span></li>
                 </ul>
               </div>
             </AccordionContent>

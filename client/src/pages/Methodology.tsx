@@ -96,12 +96,13 @@ export default function Methodology() {
                   The primary revenue driver for each property, calculated monthly:
                 </p>
                 <div className="bg-background rounded p-3 font-mono text-sm">
-                  Room Revenue = Room Count × ADR × Occupancy × Days in Month
+                  Room Revenue = Room Count × ADR × Occupancy × 30.5 days
                 </div>
                 <ul className="mt-3 text-sm text-muted-foreground space-y-1">
                   <li>• <strong>ADR (Average Daily Rate)</strong>: Starts at the property's initial rate and grows annually at the ADR Growth Rate</li>
                   <li>• <strong>Occupancy</strong>: Ramps up from starting occupancy to maximum occupancy over the stabilization period</li>
                   <li>• <strong>Room Count</strong>: Fixed number of rooms per property</li>
+                  <li>• <strong>Days in Month</strong>: Uses 30.5 days (365 ÷ 12 = 30.4167, rounded to 30.5) as the industry-standard average month length</li>
                 </ul>
               </div>
 
@@ -477,6 +478,72 @@ export default function Methodology() {
                   These appear as cash inflows in the cash flow statement but are not recorded as revenue. 
                   The funding provides working capital until the company becomes profitable from management fees.
                 </p>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="verification" className="border rounded-lg px-4">
+            <AccordionTrigger className="hover:no-underline">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-cyan-100 flex items-center justify-center">
+                  <Calculator className="w-5 h-5 text-cyan-600" />
+                </div>
+                <div className="text-left">
+                  <h3 className="font-semibold">Financial Verification & Audit</h3>
+                  <p className="text-sm text-muted-foreground">How we verify calculations for GAAP compliance</p>
+                </div>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="pt-4 pb-6 space-y-4">
+              <p className="text-sm text-muted-foreground">
+                The system includes a comprehensive <strong>PwC-level audit engine</strong> that independently 
+                recalculates all financial values and compares them against the primary financial engine. 
+                This ensures accuracy and GAAP compliance across all statements.
+              </p>
+
+              <div className="bg-muted/50 rounded-lg p-4">
+                <h4 className="font-semibold mb-2">Audit Sections</h4>
+                <ul className="text-sm text-muted-foreground space-y-2">
+                  <li>• <strong>Timing Rules (ASC 606)</strong>: Verifies no revenue or expenses before acquisition/operations start dates</li>
+                  <li>• <strong>Depreciation (ASC 360)</strong>: Verifies 27.5-year straight-line depreciation starting at acquisition</li>
+                  <li>• <strong>Loan Amortization (ASC 470)</strong>: Recalculates PMT formula, verifies interest/principal split each month</li>
+                  <li>• <strong>Income Statement</strong>: Verifies Revenue, GOP, NOI, and Net Income calculations</li>
+                  <li>• <strong>Balance Sheet (FASB Framework)</strong>: Verifies Assets = Liabilities + Equity for every period</li>
+                  <li>• <strong>Cash Flow Statement (ASC 230)</strong>: Verifies indirect method and Operating/Financing activity split</li>
+                  <li>• <strong>Management Fees</strong>: Verifies base and incentive fee calculations</li>
+                </ul>
+              </div>
+
+              <div className="bg-muted/50 rounded-lg p-4">
+                <h4 className="font-semibold mb-2">Key GAAP Rules Enforced</h4>
+                <ul className="text-sm text-muted-foreground space-y-2">
+                  <li>• <strong>ASC 470</strong>: Principal payments are NOT expenses - they reduce Net Income only for cash flow purposes, not on the income statement</li>
+                  <li>• <strong>ASC 230-10-45</strong>: Operating Cash Flow = Net Income + Depreciation (indirect method)</li>
+                  <li>• <strong>ASC 230-10-45-17</strong>: Interest expense is an operating activity; principal repayment is a financing activity</li>
+                  <li>• <strong>ASC 360-10</strong>: Property assets carried at cost minus accumulated depreciation</li>
+                </ul>
+              </div>
+
+              <div className="bg-muted/50 rounded-lg p-4">
+                <h4 className="font-semibold mb-2">Known-Value Test Cases</h4>
+                <p className="text-sm text-muted-foreground mb-2">
+                  The audit engine includes test cases with hand-calculated expected values to validate the calculation engine:
+                </p>
+                <div className="bg-background rounded p-3 font-mono text-sm space-y-1">
+                  <div>10 rooms × $100 ADR × 70% occupancy × 30.5 days = $21,350</div>
+                  <div>20 rooms × $150 ADR × 65% occupancy × 30.5 days = $59,475</div>
+                  <div>Depreciation: $1,200,000 ÷ 27.5 years = $43,636.36/year</div>
+                  <div>Loan PMT: $900,000 @ 9%/25yr = $7,549.94/month</div>
+                </div>
+              </div>
+
+              <div className="bg-muted/50 rounded-lg p-4">
+                <h4 className="font-semibold mb-2">Audit Opinions</h4>
+                <ul className="text-sm text-muted-foreground space-y-2">
+                  <li>• <strong>UNQUALIFIED</strong>: All calculations verified, no material or critical issues</li>
+                  <li>• <strong>QUALIFIED</strong>: Minor material issues found but overall statements are fairly presented</li>
+                  <li>• <strong>ADVERSE</strong>: Critical issues found that affect the reliability of the financial projections</li>
+                </ul>
               </div>
             </AccordionContent>
           </AccordionItem>

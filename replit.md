@@ -65,6 +65,21 @@ Always format money as money (currency format with commas and appropriate precis
 - **Configurable Fiscal Year**: Financial statements and charts can align with any fiscal year start month.
 - **Key Data Models**: Global Assumptions (model-wide parameters), Properties (individual asset details), and Scenarios (saved snapshots of assumptions and properties per user).
 - **Scenarios Feature**: Users can save their current configuration (global assumptions + all properties) as named scenarios, then load them later to restore that state. Each user has their own isolated scenarios.
+- **Room Revenue Calculation**: Uses 30.5 days per month (365/12 = 30.4167, rounded to 30.5) as the industry-standard average month length.
+
+### Financial Verification & Audit System
+- **Location**: `client/src/lib/financialAuditor.ts` and `client/src/lib/runVerification.ts`
+- **Purpose**: PwC-level independent verification of all financial calculations against GAAP standards
+- **Audit Sections**: Timing Rules, Depreciation, Loan Amortization, Income Statement, Balance Sheet, Cash Flow Statement, Management Fees
+- **GAAP References**: ASC 230 (Cash Flow), ASC 360 (Property Assets), ASC 470 (Debt), ASC 606 (Revenue Recognition), FASB Conceptual Framework
+- **Key Validations**:
+  - Depreciation: (Building Value / 27.5 / 12) monthly, starting at acquisition
+  - Loan PMT: Standard amortization formula with interest/principal split
+  - Balance Sheet: Assets = Liabilities + Equity for every period
+  - Cash Flow: Operating CF = Net Income + Depreciation (indirect method)
+  - Principal payments are financing activities, NOT income statement expenses (ASC 470)
+- **Known-Value Test Cases**: Validates calculations with hand-calculated expected values (e.g., 10 rooms × $100 × 70% × 30.5 = $21,350)
+- **Audit Opinions**: UNQUALIFIED (no issues), QUALIFIED (minor issues), ADVERSE (critical issues)
 
 ## External Dependencies
 

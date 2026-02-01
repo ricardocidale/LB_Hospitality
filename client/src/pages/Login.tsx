@@ -7,6 +7,7 @@ import { Loader2, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { GlassButton } from "@/components/ui/glass-button";
 import logo from "@/assets/logo.png";
+import hotelWatermark from "@/assets/hotel-watermark.svg";
 
 export default function Login() {
   const { login } = useAuth();
@@ -62,6 +63,30 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0a0a0f] relative overflow-hidden">
+      {/* Boutique Hotel Watermark Background */}
+      <div 
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: `url(${hotelWatermark})`,
+          backgroundSize: '800px 800px',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'repeat',
+          opacity: 0.4,
+        }}
+      />
+      <div 
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: `url(${hotelWatermark})`,
+          backgroundSize: '600px 600px',
+          backgroundPosition: '100px 100px',
+          backgroundRepeat: 'repeat',
+          opacity: 0.2,
+          transform: 'rotate(15deg) scale(1.2)',
+        }}
+      />
+      
+      {/* Ambient Glow Effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 -left-20 w-96 h-96 rounded-full bg-[#257D41]/10 blur-[120px]" />
         <div className="absolute bottom-1/4 -right-20 w-80 h-80 rounded-full bg-[#9FBCA4]/8 blur-[100px]" />

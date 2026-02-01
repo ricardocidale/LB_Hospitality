@@ -1312,123 +1312,143 @@ export default function Admin() {
               />
             </div>
             
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <Label className="flex items-center gap-2"><Droplets className="w-4 h-4 text-gray-500" />Colors (up to 5)</Label>
-                {((editingTheme?.colors.length || 0) < 5 || (newTheme.colors.length < 5 && !editingTheme)) && (
-                  <Button 
-                    type="button" 
-                    size="sm" 
-                    variant="outline" 
-                    onClick={() => {
-                      const newColor = { rank: (editingTheme?.colors.length || newTheme.colors.length) + 1, name: "", hexCode: "#000000", description: "" };
-                      if (editingTheme) {
-                        setEditingTheme({ ...editingTheme, colors: [...editingTheme.colors, newColor] });
-                      } else {
-                        setNewTheme({ ...newTheme, colors: [...newTheme.colors, newColor] });
-                      }
-                    }}
-                  >
-                    <Plus className="w-3 h-3 mr-1" /> Add Color
-                  </Button>
-                )}
+            {/* Palette Colors Section */}
+            <div className="p-4 rounded-lg border-2 border-[#9FBCA4]/50 bg-[#9FBCA4]/5">
+              <div className="flex items-center justify-between mb-3">
+                <Label className="flex items-center gap-2"><Palette className="w-4 h-4 text-[#257D41]" />Palette Colors</Label>
+                <Button 
+                  type="button" 
+                  size="sm" 
+                  variant="outline"
+                  className="border-[#257D41] text-[#257D41] hover:bg-[#257D41]/10"
+                  onClick={() => {
+                    const paletteColors = (editingTheme?.colors || newTheme.colors).filter(c => c.description?.startsWith('PALETTE:'));
+                    const newColor = { rank: paletteColors.length + 1, name: "", hexCode: "#9FBCA4", description: "PALETTE: " };
+                    if (editingTheme) {
+                      setEditingTheme({ ...editingTheme, colors: [...editingTheme.colors, newColor] });
+                    } else {
+                      setNewTheme({ ...newTheme, colors: [...newTheme.colors, newColor] });
+                    }
+                  }}
+                >
+                  <Plus className="w-3 h-3 mr-1" /> Add Palette Color
+                </Button>
               </div>
               
-              <div className="space-y-3">
-                {(editingTheme ? editingTheme.colors : newTheme.colors).map((color, idx) => {
-                  const colors = editingTheme ? editingTheme.colors : newTheme.colors;
-                  const moveUp = () => {
-                    if (idx === 0) return;
-                    const newColors = [...colors];
-                    [newColors[idx - 1], newColors[idx]] = [newColors[idx], newColors[idx - 1]];
-                    const reranked = newColors.map((c, i) => ({ ...c, rank: i + 1 }));
-                    if (editingTheme) setEditingTheme({ ...editingTheme, colors: reranked });
-                    else setNewTheme({ ...newTheme, colors: reranked });
-                  };
-                  const moveDown = () => {
-                    if (idx === colors.length - 1) return;
-                    const newColors = [...colors];
-                    [newColors[idx], newColors[idx + 1]] = [newColors[idx + 1], newColors[idx]];
-                    const reranked = newColors.map((c, i) => ({ ...c, rank: i + 1 }));
-                    if (editingTheme) setEditingTheme({ ...editingTheme, colors: reranked });
-                    else setNewTheme({ ...newTheme, colors: reranked });
-                  };
-                  return (
-                  <div key={idx} className="p-3 rounded-lg border bg-gray-50 space-y-2">
-                    <div className="flex items-center gap-2">
-                      <div className="flex flex-col gap-0.5">
-                        <button
-                          type="button"
-                          onClick={moveUp}
-                          disabled={idx === 0}
-                          className={`p-0.5 rounded hover:bg-gray-200 ${idx === 0 ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'}`}
-                          title="Move up"
-                        >
-                          <ChevronUp className="w-4 h-4 text-gray-500" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={moveDown}
-                          disabled={idx === colors.length - 1}
-                          className={`p-0.5 rounded hover:bg-gray-200 ${idx === colors.length - 1 ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'}`}
-                          title="Move down"
-                        >
-                          <ChevronDown className="w-4 h-4 text-gray-500" />
-                        </button>
+              <div className="space-y-2">
+                {(editingTheme ? editingTheme.colors : newTheme.colors)
+                  .map((color, originalIdx) => ({ color, originalIdx }))
+                  .filter(({ color }) => color.description?.startsWith('PALETTE:'))
+                  .map(({ color, originalIdx }, displayIdx, arr) => {
+                    const moveUp = () => {
+                      if (displayIdx === 0) return;
+                      const allColors = editingTheme ? [...editingTheme.colors] : [...newTheme.colors];
+                      const prevOriginalIdx = arr[displayIdx - 1].originalIdx;
+                      [allColors[prevOriginalIdx], allColors[originalIdx]] = [allColors[originalIdx], allColors[prevOriginalIdx]];
+                      if (editingTheme) setEditingTheme({ ...editingTheme, colors: allColors });
+                      else setNewTheme({ ...newTheme, colors: allColors });
+                    };
+                    const moveDown = () => {
+                      if (displayIdx === arr.length - 1) return;
+                      const allColors = editingTheme ? [...editingTheme.colors] : [...newTheme.colors];
+                      const nextOriginalIdx = arr[displayIdx + 1].originalIdx;
+                      [allColors[originalIdx], allColors[nextOriginalIdx]] = [allColors[nextOriginalIdx], allColors[originalIdx]];
+                      if (editingTheme) setEditingTheme({ ...editingTheme, colors: allColors });
+                      else setNewTheme({ ...newTheme, colors: allColors });
+                    };
+                    return (
+                    <div key={originalIdx} className="p-3 rounded-lg border bg-white space-y-2">
+                      <div className="flex items-center gap-2">
+                        <div className="flex flex-col gap-0.5">
+                          <button type="button" onClick={moveUp} disabled={displayIdx === 0} className={`p-0.5 rounded hover:bg-gray-200 ${displayIdx === 0 ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'}`}>
+                            <ChevronUp className="w-4 h-4 text-gray-500" />
+                          </button>
+                          <button type="button" onClick={moveDown} disabled={displayIdx === arr.length - 1} className={`p-0.5 rounded hover:bg-gray-200 ${displayIdx === arr.length - 1 ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'}`}>
+                            <ChevronDown className="w-4 h-4 text-gray-500" />
+                          </button>
+                        </div>
+                        <Input value={color.name} onChange={(e) => { const c = editingTheme ? [...editingTheme.colors] : [...newTheme.colors]; c[originalIdx] = { ...c[originalIdx], name: e.target.value }; if (editingTheme) setEditingTheme({ ...editingTheme, colors: c }); else setNewTheme({ ...newTheme, colors: c }); }} placeholder="Color name" className="flex-1" />
+                        <div className="w-36">
+                          <ColorPicker value={color.hexCode} onChange={(nc) => { const c = editingTheme ? [...editingTheme.colors] : [...newTheme.colors]; c[originalIdx] = { ...c[originalIdx], hexCode: nc }; if (editingTheme) setEditingTheme({ ...editingTheme, colors: c }); else setNewTheme({ ...newTheme, colors: c }); }} />
+                        </div>
+                        <Button type="button" size="sm" variant="ghost" className="text-red-500 hover:text-red-700" onClick={() => { const f = (editingTheme ? editingTheme.colors : newTheme.colors).filter((_, i) => i !== originalIdx); if (editingTheme) setEditingTheme({ ...editingTheme, colors: f }); else setNewTheme({ ...newTheme, colors: f }); }}>
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
                       </div>
-                      <span className="text-xs font-medium text-gray-500 w-5">#{color.rank}</span>
-                      <Input
-                        value={color.name}
-                        onChange={(e) => {
-                          const updatedColors = editingTheme ? [...editingTheme.colors] : [...newTheme.colors];
-                          updatedColors[idx] = { ...updatedColors[idx], name: e.target.value };
-                          if (editingTheme) setEditingTheme({ ...editingTheme, colors: updatedColors });
-                          else setNewTheme({ ...newTheme, colors: updatedColors });
-                        }}
-                        placeholder="Color name"
-                        className="flex-1"
-                      />
-                      <div className="w-40">
-                        <ColorPicker
-                          value={color.hexCode}
-                          onChange={(newColor) => {
-                            const updatedColors = editingTheme ? [...editingTheme.colors] : [...newTheme.colors];
-                            updatedColors[idx] = { ...updatedColors[idx], hexCode: newColor };
-                            if (editingTheme) setEditingTheme({ ...editingTheme, colors: updatedColors });
-                            else setNewTheme({ ...newTheme, colors: updatedColors });
-                          }}
-                        />
-                      </div>
-                      <Button 
-                        type="button" 
-                        size="sm" 
-                        variant="ghost" 
-                        className="text-red-500 hover:text-red-700"
-                        onClick={() => {
-                          const filtered = (editingTheme ? editingTheme.colors : newTheme.colors)
-                            .filter((_, i) => i !== idx)
-                            .map((c, i) => ({ ...c, rank: i + 1 }));
-                          if (editingTheme) setEditingTheme({ ...editingTheme, colors: filtered });
-                          else setNewTheme({ ...newTheme, colors: filtered });
-                        }}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      <Input value={color.description?.replace('PALETTE: ', '') || ''} onChange={(e) => { const c = editingTheme ? [...editingTheme.colors] : [...newTheme.colors]; c[originalIdx] = { ...c[originalIdx], description: 'PALETTE: ' + e.target.value }; if (editingTheme) setEditingTheme({ ...editingTheme, colors: c }); else setNewTheme({ ...newTheme, colors: c }); }} placeholder="Where to use this color..." className="text-sm" />
                     </div>
-                    <Input
-                      value={color.description}
-                      onChange={(e) => {
-                        const updatedColors = editingTheme ? [...editingTheme.colors] : [...newTheme.colors];
-                        updatedColors[idx] = { ...updatedColors[idx], description: e.target.value };
-                        if (editingTheme) setEditingTheme({ ...editingTheme, colors: updatedColors });
-                        else setNewTheme({ ...newTheme, colors: updatedColors });
-                      }}
-                      placeholder="When to use this color..."
-                      className="text-sm"
-                    />
-                  </div>
-                  );
-                })}
+                    );
+                  })}
+              </div>
+            </div>
+
+            {/* Chart Colors Section */}
+            <div className="p-4 rounded-lg border-2 border-[#3B82F6]/50 bg-[#3B82F6]/5">
+              <div className="flex items-center justify-between mb-3">
+                <Label className="flex items-center gap-2"><Activity className="w-4 h-4 text-[#3B82F6]" />Chart Colors</Label>
+                <Button 
+                  type="button" 
+                  size="sm" 
+                  variant="outline"
+                  className="border-[#3B82F6] text-[#3B82F6] hover:bg-[#3B82F6]/10"
+                  onClick={() => {
+                    const chartColors = (editingTheme?.colors || newTheme.colors).filter(c => c.description?.startsWith('CHART:'));
+                    const newColor = { rank: chartColors.length + 1, name: "", hexCode: "#3B82F6", description: "CHART: " };
+                    if (editingTheme) {
+                      setEditingTheme({ ...editingTheme, colors: [...editingTheme.colors, newColor] });
+                    } else {
+                      setNewTheme({ ...newTheme, colors: [...newTheme.colors, newColor] });
+                    }
+                  }}
+                >
+                  <Plus className="w-3 h-3 mr-1" /> Add Chart Color
+                </Button>
+              </div>
+              
+              <div className="space-y-2">
+                {(editingTheme ? editingTheme.colors : newTheme.colors)
+                  .map((color, originalIdx) => ({ color, originalIdx }))
+                  .filter(({ color }) => color.description?.startsWith('CHART:'))
+                  .map(({ color, originalIdx }, displayIdx, arr) => {
+                    const moveUp = () => {
+                      if (displayIdx === 0) return;
+                      const allColors = editingTheme ? [...editingTheme.colors] : [...newTheme.colors];
+                      const prevOriginalIdx = arr[displayIdx - 1].originalIdx;
+                      [allColors[prevOriginalIdx], allColors[originalIdx]] = [allColors[originalIdx], allColors[prevOriginalIdx]];
+                      if (editingTheme) setEditingTheme({ ...editingTheme, colors: allColors });
+                      else setNewTheme({ ...newTheme, colors: allColors });
+                    };
+                    const moveDown = () => {
+                      if (displayIdx === arr.length - 1) return;
+                      const allColors = editingTheme ? [...editingTheme.colors] : [...newTheme.colors];
+                      const nextOriginalIdx = arr[displayIdx + 1].originalIdx;
+                      [allColors[originalIdx], allColors[nextOriginalIdx]] = [allColors[nextOriginalIdx], allColors[originalIdx]];
+                      if (editingTheme) setEditingTheme({ ...editingTheme, colors: allColors });
+                      else setNewTheme({ ...newTheme, colors: allColors });
+                    };
+                    return (
+                    <div key={originalIdx} className="p-3 rounded-lg border bg-white space-y-2">
+                      <div className="flex items-center gap-2">
+                        <div className="flex flex-col gap-0.5">
+                          <button type="button" onClick={moveUp} disabled={displayIdx === 0} className={`p-0.5 rounded hover:bg-gray-200 ${displayIdx === 0 ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'}`}>
+                            <ChevronUp className="w-4 h-4 text-gray-500" />
+                          </button>
+                          <button type="button" onClick={moveDown} disabled={displayIdx === arr.length - 1} className={`p-0.5 rounded hover:bg-gray-200 ${displayIdx === arr.length - 1 ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'}`}>
+                            <ChevronDown className="w-4 h-4 text-gray-500" />
+                          </button>
+                        </div>
+                        <Input value={color.name} onChange={(e) => { const c = editingTheme ? [...editingTheme.colors] : [...newTheme.colors]; c[originalIdx] = { ...c[originalIdx], name: e.target.value }; if (editingTheme) setEditingTheme({ ...editingTheme, colors: c }); else setNewTheme({ ...newTheme, colors: c }); }} placeholder="Color name" className="flex-1" />
+                        <div className="w-36">
+                          <ColorPicker value={color.hexCode} onChange={(nc) => { const c = editingTheme ? [...editingTheme.colors] : [...newTheme.colors]; c[originalIdx] = { ...c[originalIdx], hexCode: nc }; if (editingTheme) setEditingTheme({ ...editingTheme, colors: c }); else setNewTheme({ ...newTheme, colors: c }); }} />
+                        </div>
+                        <Button type="button" size="sm" variant="ghost" className="text-red-500 hover:text-red-700" onClick={() => { const f = (editingTheme ? editingTheme.colors : newTheme.colors).filter((_, i) => i !== originalIdx); if (editingTheme) setEditingTheme({ ...editingTheme, colors: f }); else setNewTheme({ ...newTheme, colors: f }); }}>
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      <Input value={color.description?.replace('CHART: ', '') || ''} onChange={(e) => { const c = editingTheme ? [...editingTheme.colors] : [...newTheme.colors]; c[originalIdx] = { ...c[originalIdx], description: 'CHART: ' + e.target.value }; if (editingTheme) setEditingTheme({ ...editingTheme, colors: c }); else setNewTheme({ ...newTheme, colors: c }); }} placeholder="What this color represents in charts..." className="text-sm" />
+                    </div>
+                    );
+                  })}
               </div>
             </div>
           </div>

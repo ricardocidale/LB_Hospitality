@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Loader2, Plus, Trash2, Users, Key, Eye, EyeOff, Pencil, Clock, FileCheck, CheckCircle2, XCircle, AlertTriangle, PlayCircle, Palette, ArrowLeft, Activity, HelpCircle, SwatchBook, UserPlus, Shield, Mail, Calendar, LogIn, LogOut, Monitor, MapPin, Hash, Type, Droplets, LayoutGrid, Sparkles, Settings, CircleDot } from "lucide-react";
+import { Loader2, Plus, Trash2, Users, Key, Eye, EyeOff, Pencil, Clock, FileCheck, CheckCircle2, XCircle, AlertTriangle, PlayCircle, Palette, ArrowLeft, Activity, HelpCircle, SwatchBook, UserPlus, Shield, Mail, Calendar, LogIn, LogOut, Monitor, MapPin, Hash, Type, Droplets, LayoutGrid, Sparkles, Settings, CircleDot, GripVertical, ChevronUp, ChevronDown } from "lucide-react";
 import { GlassButton } from "@/components/ui/glass-button";
 import { PageHeader } from "@/components/ui/page-header";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -1282,17 +1282,55 @@ export default function Admin() {
               </div>
               
               <div className="space-y-3">
-                {(editingTheme ? editingTheme.colors : newTheme.colors).map((color, idx) => (
+                {(editingTheme ? editingTheme.colors : newTheme.colors).map((color, idx) => {
+                  const colors = editingTheme ? editingTheme.colors : newTheme.colors;
+                  const moveUp = () => {
+                    if (idx === 0) return;
+                    const newColors = [...colors];
+                    [newColors[idx - 1], newColors[idx]] = [newColors[idx], newColors[idx - 1]];
+                    const reranked = newColors.map((c, i) => ({ ...c, rank: i + 1 }));
+                    if (editingTheme) setEditingTheme({ ...editingTheme, colors: reranked });
+                    else setNewTheme({ ...newTheme, colors: reranked });
+                  };
+                  const moveDown = () => {
+                    if (idx === colors.length - 1) return;
+                    const newColors = [...colors];
+                    [newColors[idx], newColors[idx + 1]] = [newColors[idx + 1], newColors[idx]];
+                    const reranked = newColors.map((c, i) => ({ ...c, rank: i + 1 }));
+                    if (editingTheme) setEditingTheme({ ...editingTheme, colors: reranked });
+                    else setNewTheme({ ...newTheme, colors: reranked });
+                  };
+                  return (
                   <div key={idx} className="p-3 rounded-lg border bg-gray-50 space-y-2">
-                    <div className="flex items-center gap-3">
-                      <span className="text-xs font-medium text-gray-500 w-6">#{color.rank}</span>
+                    <div className="flex items-center gap-2">
+                      <div className="flex flex-col gap-0.5">
+                        <button
+                          type="button"
+                          onClick={moveUp}
+                          disabled={idx === 0}
+                          className={`p-0.5 rounded hover:bg-gray-200 ${idx === 0 ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'}`}
+                          title="Move up"
+                        >
+                          <ChevronUp className="w-4 h-4 text-gray-500" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={moveDown}
+                          disabled={idx === colors.length - 1}
+                          className={`p-0.5 rounded hover:bg-gray-200 ${idx === colors.length - 1 ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'}`}
+                          title="Move down"
+                        >
+                          <ChevronDown className="w-4 h-4 text-gray-500" />
+                        </button>
+                      </div>
+                      <span className="text-xs font-medium text-gray-500 w-5">#{color.rank}</span>
                       <Input
                         value={color.name}
                         onChange={(e) => {
-                          const colors = editingTheme ? [...editingTheme.colors] : [...newTheme.colors];
-                          colors[idx] = { ...colors[idx], name: e.target.value };
-                          if (editingTheme) setEditingTheme({ ...editingTheme, colors });
-                          else setNewTheme({ ...newTheme, colors });
+                          const updatedColors = editingTheme ? [...editingTheme.colors] : [...newTheme.colors];
+                          updatedColors[idx] = { ...updatedColors[idx], name: e.target.value };
+                          if (editingTheme) setEditingTheme({ ...editingTheme, colors: updatedColors });
+                          else setNewTheme({ ...newTheme, colors: updatedColors });
                         }}
                         placeholder="Color name"
                         className="flex-1"
@@ -1301,10 +1339,10 @@ export default function Admin() {
                         <ColorPicker
                           value={color.hexCode}
                           onChange={(newColor) => {
-                            const colors = editingTheme ? [...editingTheme.colors] : [...newTheme.colors];
-                            colors[idx] = { ...colors[idx], hexCode: newColor };
-                            if (editingTheme) setEditingTheme({ ...editingTheme, colors });
-                            else setNewTheme({ ...newTheme, colors });
+                            const updatedColors = editingTheme ? [...editingTheme.colors] : [...newTheme.colors];
+                            updatedColors[idx] = { ...updatedColors[idx], hexCode: newColor };
+                            if (editingTheme) setEditingTheme({ ...editingTheme, colors: updatedColors });
+                            else setNewTheme({ ...newTheme, colors: updatedColors });
                           }}
                         />
                       </div>
@@ -1314,11 +1352,11 @@ export default function Admin() {
                         variant="ghost" 
                         className="text-red-500 hover:text-red-700"
                         onClick={() => {
-                          const colors = (editingTheme ? editingTheme.colors : newTheme.colors)
+                          const filtered = (editingTheme ? editingTheme.colors : newTheme.colors)
                             .filter((_, i) => i !== idx)
                             .map((c, i) => ({ ...c, rank: i + 1 }));
-                          if (editingTheme) setEditingTheme({ ...editingTheme, colors });
-                          else setNewTheme({ ...newTheme, colors });
+                          if (editingTheme) setEditingTheme({ ...editingTheme, colors: filtered });
+                          else setNewTheme({ ...newTheme, colors: filtered });
                         }}
                       >
                         <Trash2 className="w-4 h-4" />
@@ -1327,16 +1365,17 @@ export default function Admin() {
                     <Input
                       value={color.description}
                       onChange={(e) => {
-                        const colors = editingTheme ? [...editingTheme.colors] : [...newTheme.colors];
-                        colors[idx] = { ...colors[idx], description: e.target.value };
-                        if (editingTheme) setEditingTheme({ ...editingTheme, colors });
-                        else setNewTheme({ ...newTheme, colors });
+                        const updatedColors = editingTheme ? [...editingTheme.colors] : [...newTheme.colors];
+                        updatedColors[idx] = { ...updatedColors[idx], description: e.target.value };
+                        if (editingTheme) setEditingTheme({ ...editingTheme, colors: updatedColors });
+                        else setNewTheme({ ...newTheme, colors: updatedColors });
                       }}
                       placeholder="When to use this color..."
                       className="text-sm"
                     />
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>

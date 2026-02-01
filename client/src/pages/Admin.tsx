@@ -944,27 +944,80 @@ export default function Admin() {
                     </div>
                   </div>
                   
-                  {/* Color Swatches */}
-                  <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
-                    {theme.colors.sort((a, b) => a.rank - b.rank).map((color) => (
-                      <div key={color.rank} className="p-3 rounded-xl bg-gray-50 border border-gray-200">
-                        <div className="flex items-center gap-3 mb-2">
-                          <div 
-                            className="w-10 h-10 rounded-lg border border-gray-300 shadow-inner" 
-                            style={{ backgroundColor: color.hexCode }}
-                          />
-                          <div>
-                            <p className="font-medium text-sm text-gray-900">{color.name}</p>
-                            <p className="font-mono text-xs text-gray-500">{color.hexCode}</p>
-                          </div>
-                        </div>
-                        <p className="text-xs text-gray-600 line-clamp-2">{color.description}</p>
-                        <div className="mt-2 px-2 py-1 rounded text-xs font-medium text-center" style={{ backgroundColor: color.hexCode, color: parseInt(color.hexCode.slice(1), 16) > 0x888888 ? '#000' : '#fff' }}>
-                          Rank {color.rank}
-                        </div>
+                  {/* Palette Colors */}
+                  {theme.colors.filter(c => c.description?.startsWith('PALETTE:')).length > 0 && (
+                    <div className="mb-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Palette className="w-4 h-4 text-[#257D41]" />
+                        <h4 className="font-display text-sm font-semibold text-gray-700">Palette Colors</h4>
                       </div>
-                    ))}
-                  </div>
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                        {theme.colors.filter(c => c.description?.startsWith('PALETTE:')).sort((a, b) => a.rank - b.rank).map((color, idx) => (
+                          <div key={`palette-${idx}`} className="p-3 rounded-xl bg-gray-50 border border-gray-200">
+                            <div className="flex items-center gap-3 mb-2">
+                              <div 
+                                className="w-10 h-10 rounded-lg border border-gray-300 shadow-inner" 
+                                style={{ backgroundColor: color.hexCode }}
+                              />
+                              <div>
+                                <p className="font-medium text-sm text-gray-900">{color.name}</p>
+                                <p className="font-mono text-xs text-gray-500">{color.hexCode}</p>
+                              </div>
+                            </div>
+                            <p className="text-xs text-gray-600 line-clamp-2">{color.description?.replace('PALETTE: ', '')}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Chart Colors */}
+                  {theme.colors.filter(c => c.description?.startsWith('CHART:')).length > 0 && (
+                    <div>
+                      <div className="flex items-center gap-2 mb-3">
+                        <Activity className="w-4 h-4 text-[#3B82F6]" />
+                        <h4 className="font-display text-sm font-semibold text-gray-700">Chart Colors</h4>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        {theme.colors.filter(c => c.description?.startsWith('CHART:')).sort((a, b) => a.rank - b.rank).map((color, idx) => (
+                          <div key={`chart-${idx}`} className="p-3 rounded-xl bg-blue-50 border border-blue-200">
+                            <div className="flex items-center gap-3 mb-2">
+                              <div 
+                                className="w-10 h-10 rounded-lg border border-gray-300 shadow-inner" 
+                                style={{ backgroundColor: color.hexCode }}
+                              />
+                              <div>
+                                <p className="font-medium text-sm text-gray-900">{color.name}</p>
+                                <p className="font-mono text-xs text-gray-500">{color.hexCode}</p>
+                              </div>
+                            </div>
+                            <p className="text-xs text-gray-600 line-clamp-2">{color.description?.replace('CHART: ', '')}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Legacy/Other Colors (no prefix) */}
+                  {theme.colors.filter(c => !c.description?.startsWith('PALETTE:') && !c.description?.startsWith('CHART:')).length > 0 && (
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+                      {theme.colors.filter(c => !c.description?.startsWith('PALETTE:') && !c.description?.startsWith('CHART:')).sort((a, b) => a.rank - b.rank).map((color, idx) => (
+                        <div key={`other-${idx}`} className="p-3 rounded-xl bg-gray-50 border border-gray-200">
+                          <div className="flex items-center gap-3 mb-2">
+                            <div 
+                              className="w-10 h-10 rounded-lg border border-gray-300 shadow-inner" 
+                              style={{ backgroundColor: color.hexCode }}
+                            />
+                            <div>
+                              <p className="font-medium text-sm text-gray-900">{color.name}</p>
+                              <p className="font-mono text-xs text-gray-500">{color.hexCode}</p>
+                            </div>
+                          </div>
+                          <p className="text-xs text-gray-600 line-clamp-2">{color.description}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

@@ -455,39 +455,8 @@ export default function Company() {
     doc.text(`10-Year Projection (${data.years[0]} - ${data.years[9]})`, 14, 22);
     doc.text(`Generated: ${format(new Date(), 'MMM d, yyyy')}`, 14, 27);
     
-    // Draw the chart directly in PDF
-    let tableStartY = 32;
-    if (yearlyChartData && yearlyChartData.length > 0) {
-      const chartSeries = [
-        {
-          name: 'Revenue',
-          data: yearlyChartData.map(d => ({ label: String(d.year), value: d.Revenue })),
-          color: '#257D41'
-        },
-        {
-          name: 'Expenses',
-          data: yearlyChartData.map(d => ({ label: String(d.year), value: d.Expenses })),
-          color: '#3B82F6'
-        },
-        {
-          name: 'Net Income',
-          data: yearlyChartData.map(d => ({ label: String(d.year), value: d.NetIncome })),
-          color: '#F4795B'
-        }
-      ];
-      
-      drawLineChart({
-        doc,
-        x: 14,
-        y: tableStartY,
-        width: chartWidth,
-        height: 55,
-        title: 'Management Company Performance (10-Year Projection)',
-        series: chartSeries
-      });
-      
-      tableStartY = tableStartY + 60;
-    }
+    // Table starts after header
+    const tableStartY = 32;
     
     const tableData = data.rows.map(row => [
       (row.indent ? '  '.repeat(row.indent) : '') + row.category,
@@ -528,6 +497,43 @@ export default function Company() {
         }
       }
     });
+    
+    // Add chart on separate page at the end
+    if (yearlyChartData && yearlyChartData.length > 0) {
+      doc.addPage();
+      doc.setFontSize(16);
+      doc.text(`${title} - Performance Chart`, 14, 15);
+      doc.setFontSize(10);
+      doc.text('10-Year Revenue, Expenses, and Net Income Trend', 14, 22);
+      
+      const chartSeries = [
+        {
+          name: 'Revenue',
+          data: yearlyChartData.map((d: any) => ({ label: String(d.year), value: d.Revenue })),
+          color: '#257D41'
+        },
+        {
+          name: 'Expenses',
+          data: yearlyChartData.map((d: any) => ({ label: String(d.year), value: d.Expenses })),
+          color: '#3B82F6'
+        },
+        {
+          name: 'Net Income',
+          data: yearlyChartData.map((d: any) => ({ label: String(d.year), value: d.NetIncome })),
+          color: '#F4795B'
+        }
+      ];
+      
+      drawLineChart({
+        doc,
+        x: 14,
+        y: 30,
+        width: chartWidth,
+        height: 150,
+        title: 'Management Company Performance (10-Year Projection)',
+        series: chartSeries
+      });
+    }
     
     doc.save(`company-${type}.pdf`);
   };

@@ -15,6 +15,7 @@ import { ConsolidatedBalanceSheet } from "@/components/ConsolidatedBalanceSheet"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { drawLineChart } from "@/lib/pdfChartDrawer";
 import { 
   calculateLoanParams, 
   calculateRefinanceParams, 
@@ -547,6 +548,42 @@ export default function Dashboard() {
       }
     });
     
+    // Add chart on separate page at the end
+    doc.addPage();
+    doc.setFontSize(16);
+    doc.text("Revenue & NOI Performance Chart", 14, 15);
+    doc.setFontSize(10);
+    doc.text("10-Year Revenue, Operating Expenses, and Net Operating Income Trend", 14, 22);
+    
+    const chartData = years.map((year, i) => {
+      const yearly = getYearlyConsolidated(i);
+      return { label: String(year), value: yearly.revenueTotal };
+    });
+    
+    const noiData = years.map((year, i) => {
+      const yearly = getYearlyConsolidated(i);
+      return { label: String(year), value: yearly.noi };
+    });
+    
+    const expenseData = years.map((year, i) => {
+      const yearly = getYearlyConsolidated(i);
+      return { label: String(year), value: yearly.totalExpenses };
+    });
+    
+    drawLineChart({
+      doc,
+      x: 14,
+      y: 30,
+      width: 269,
+      height: 150,
+      title: "Portfolio Revenue, Operating Expenses & NOI (10-Year Projection)",
+      series: [
+        { name: "Revenue", data: chartData, color: "#7C3AED" },
+        { name: "Operating Expenses", data: expenseData, color: "#2563EB" },
+        { name: "NOI", data: noiData, color: "#257D41" }
+      ]
+    });
+    
     doc.save('income-statement.pdf');
   };
 
@@ -755,6 +792,36 @@ export default function Dashboard() {
       }
     });
     
+    // Add cash flow chart on separate page at the end
+    doc.addPage();
+    doc.setFontSize(16);
+    doc.text("Cash Flow Performance Chart", 14, 15);
+    doc.setFontSize(10);
+    doc.text("10-Year NOI and Net Cash Flow After Financing", 14, 22);
+    
+    const noiChartData = graphData.cashFlowAfterFinancing.map(d => ({
+      label: String(d.year),
+      value: d.noi
+    }));
+    
+    const netCashChartData = graphData.cashFlowAfterFinancing.map(d => ({
+      label: String(d.year),
+      value: d.netCashFlow
+    }));
+    
+    drawLineChart({
+      doc,
+      x: 14,
+      y: 30,
+      width: 269,
+      height: 150,
+      title: "NOI vs Net Cash Flow (10-Year Projection)",
+      series: [
+        { name: "NOI", data: noiChartData, color: "#257D41" },
+        { name: "Net Cash Flow", data: netCashChartData, color: "#3B82F6" }
+      ]
+    });
+    
     doc.save('cash-flow-statement.pdf');
   };
 
@@ -949,6 +1016,42 @@ export default function Dashboard() {
           }
         }
       }
+    });
+    
+    // Add balance sheet chart on separate page at the end
+    doc.addPage();
+    doc.setFontSize(16);
+    doc.text("Balance Sheet Trend Chart", 14, 15);
+    doc.setFontSize(10);
+    doc.text("10-Year Assets, Liabilities, and Equity Growth", 14, 22);
+    
+    const assetsData = years.map((year, i) => {
+      const row = rows.find(r => r.category === 'TOTAL ASSETS');
+      return { label: String(year), value: row?.values[i] || 0 };
+    });
+    
+    const liabilitiesData = years.map((year, i) => {
+      const row = rows.find(r => r.category === 'TOTAL LIABILITIES');
+      return { label: String(year), value: row?.values[i] || 0 };
+    });
+    
+    const equityData = years.map((year, i) => {
+      const row = rows.find(r => r.category === 'TOTAL EQUITY');
+      return { label: String(year), value: row?.values[i] || 0 };
+    });
+    
+    drawLineChart({
+      doc,
+      x: 14,
+      y: 30,
+      width: 269,
+      height: 150,
+      title: "Balance Sheet Components (10-Year Projection)",
+      series: [
+        { name: "Total Assets", data: assetsData, color: "#257D41" },
+        { name: "Total Liabilities", data: liabilitiesData, color: "#F4795B" },
+        { name: "Total Equity", data: equityData, color: "#3B82F6" }
+      ]
     });
     
     doc.save('balance-sheet.pdf');
@@ -1202,6 +1305,37 @@ export default function Dashboard() {
           }
         }
       }
+    });
+    
+    // Add investment analysis charts on separate pages at the end
+    doc.addPage();
+    doc.setFontSize(16);
+    doc.text("Investment Returns Chart", 14, 15);
+    doc.setFontSize(10);
+    doc.text("10-Year Cash Flow to Investors and Cumulative Returns", 14, 22);
+    
+    const cashFlowData = consolidatedFlows.slice(1).map((cf, i) => ({
+      label: String(years[i]),
+      value: cf
+    }));
+    
+    let cumulative = consolidatedFlows[0];
+    const cumulativeData = consolidatedFlows.slice(1).map((cf, i) => {
+      cumulative += cf;
+      return { label: String(years[i]), value: cumulative };
+    });
+    
+    drawLineChart({
+      doc,
+      x: 14,
+      y: 30,
+      width: 269,
+      height: 150,
+      title: "Net Cash Flow to Investors (10-Year Projection)",
+      series: [
+        { name: "Annual Cash Flow", data: cashFlowData, color: "#257D41" },
+        { name: "Cumulative Cash Flow", data: cumulativeData, color: "#7C3AED" }
+      ]
     });
     
     doc.save('investment-analysis.pdf');

@@ -196,55 +196,8 @@ export default function PropertyDetail() {
     doc.setFontSize(10);
     doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 22);
     
-    // Draw the chart directly in PDF
-    let chartStartY = 28;
-    if (yearlyChartData && yearlyChartData.length > 0) {
-      const chartSeries = activeTab === "cashflow" ? [
-        {
-          name: 'Revenue',
-          data: yearlyChartData.map(d => ({ label: d.year, value: d.Revenue })),
-          color: '#257D41'
-        },
-        {
-          name: 'NOI',
-          data: yearlyChartData.map(d => ({ label: d.year, value: d.NOI })),
-          color: '#3B82F6'
-        },
-        {
-          name: 'Cash Flow',
-          data: yearlyChartData.map(d => ({ label: d.year, value: d.CashFlow })),
-          color: '#F4795B'
-        }
-      ] : [
-        {
-          name: 'Revenue',
-          data: yearlyChartData.map(d => ({ label: d.year, value: d.Revenue })),
-          color: '#257D41'
-        },
-        {
-          name: 'GOP',
-          data: yearlyChartData.map(d => ({ label: d.year, value: d.GOP })),
-          color: '#3B82F6'
-        },
-        {
-          name: 'NOI',
-          data: yearlyChartData.map(d => ({ label: d.year, value: d.NOI })),
-          color: '#F4795B'
-        }
-      ];
-      
-      drawLineChart({
-        doc,
-        x: 14,
-        y: chartStartY,
-        width: chartWidth,
-        height: 55,
-        title: `${property.name} - Financial Performance`,
-        series: chartSeries
-      });
-      
-      chartStartY = chartStartY + 60;
-    }
+    // Table starts after header
+    const chartStartY = 28;
 
     const headers = [["Line Item", ...Array.from({length: years}, (_, i) => `FY ${startYear + i}`)]];
     
@@ -312,6 +265,64 @@ export default function PropertyDetail() {
       headStyles: { fillColor: [159, 188, 164], textColor: [61, 61, 61], fontStyle: "bold", halign: 'center' },
       columnStyles: colStyles,
     });
+
+    // Add chart on separate page at the end
+    if (yearlyChartData && yearlyChartData.length > 0) {
+      doc.addPage();
+      doc.setFontSize(16);
+      doc.text(`${property.name} - Performance Chart`, 14, 15);
+      doc.setFontSize(10);
+      
+      // Choose chart series based on active tab
+      const chartSeries = activeTab === "cashflow" ? [
+        {
+          name: 'Revenue',
+          data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.Revenue })),
+          color: '#257D41'
+        },
+        {
+          name: 'NOI',
+          data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.NOI })),
+          color: '#3B82F6'
+        },
+        {
+          name: 'Cash Flow',
+          data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.CashFlow })),
+          color: '#F4795B'
+        }
+      ] : [
+        {
+          name: 'Revenue',
+          data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.Revenue })),
+          color: '#257D41'
+        },
+        {
+          name: 'GOP',
+          data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.GOP })),
+          color: '#3B82F6'
+        },
+        {
+          name: 'NOI',
+          data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.NOI })),
+          color: '#F4795B'
+        }
+      ];
+      
+      const chartTitle = activeTab === "cashflow" 
+        ? '10-Year Revenue, NOI, and Cash Flow Trend'
+        : '10-Year Revenue, GOP, and NOI Trend';
+      doc.text(chartTitle, 14, 22);
+      
+      drawLineChart({
+        doc,
+        x: 14,
+        y: 30,
+        width: chartWidth,
+        height: 150,
+        title: `${property.name} - Financial Performance (10-Year Projection)`,
+        series: chartSeries
+      });
+    }
 
     doc.save(`${property.name.replace(/\s+/g, '_')}_CashFlow.pdf`);
   };

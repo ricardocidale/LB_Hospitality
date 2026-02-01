@@ -137,6 +137,12 @@ export function getAcquisitionOutstandingBalance(
   if (monthsPaid <= 0) return loan.loanAmount;
   const remainingPayments = loan.totalPayments - monthsPaid;
   if (remainingPayments <= 0) return 0;
+  
+  // Handle zero interest rate (straight-line principal reduction)
+  if (loan.monthlyRate === 0) {
+    return loan.loanAmount - (loan.monthlyPayment * monthsPaid);
+  }
+  
   return loan.monthlyPayment * (1 - Math.pow(1 + loan.monthlyRate, -remainingPayments)) / loan.monthlyRate;
 }
 
@@ -214,6 +220,12 @@ export function getRefiOutstandingBalance(
   if (monthsPaid <= 0) return refi.refiLoanAmount;
   const remainingPayments = refi.refiTotalPayments - monthsPaid;
   if (remainingPayments <= 0) return 0;
+  
+  // Handle zero interest rate (straight-line principal reduction)
+  if (refi.refiMonthlyRate === 0) {
+    return refi.refiLoanAmount - (refi.refiMonthlyPayment * monthsPaid);
+  }
+  
   return refi.refiMonthlyPayment * (1 - Math.pow(1 + refi.refiMonthlyRate, -remainingPayments)) / refi.refiMonthlyRate;
 }
 

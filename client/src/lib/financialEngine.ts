@@ -231,7 +231,7 @@ export function generatePropertyProForma(
       );
     }
     
-    const daysInMonth = 30;
+    const daysInMonth = 30.5; // Industry standard: 365/12 = 30.4167, rounded to 30.5
     const availableRooms = property.roomCount * daysInMonth;
     const soldRooms = isOperational ? availableRooms * occupancy : 0;
     

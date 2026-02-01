@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Loader2, Plus, Trash2, Users, Key, Eye, EyeOff, Pencil, Clock, FileCheck, CheckCircle2, XCircle, AlertTriangle, PlayCircle, Palette, ArrowLeft, Activity, HelpCircle, SwatchBook } from "lucide-react";
+import { Loader2, Plus, Trash2, Users, Key, Eye, EyeOff, Pencil, Clock, FileCheck, CheckCircle2, XCircle, AlertTriangle, PlayCircle, Palette, ArrowLeft, Activity, HelpCircle, SwatchBook, UserPlus, Shield, Mail, Calendar, LogIn, LogOut, Monitor, MapPin, Hash, Type, Droplets, LayoutGrid, Sparkles, Settings, CircleDot } from "lucide-react";
 import { GlassButton } from "@/components/ui/glass-button";
 import { PageHeader } from "@/components/ui/page-header";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -504,7 +504,7 @@ export default function Admin() {
             </CardDescription>
           </div>
           <GlassButton variant="primary" onClick={() => setDialogOpen(true)} data-testid="button-add-user">
-            <Plus className="w-4 h-4" />
+            <UserPlus className="w-4 h-4" />
             Add User
           </GlassButton>
         </div>
@@ -519,10 +519,10 @@ export default function Admin() {
           <Table>
             <TableHeader>
               <TableRow className="border-white/10 hover:bg-transparent">
-                <TableHead className="text-white/60 font-display">User</TableHead>
-                <TableHead className="text-white/60 font-display">Role</TableHead>
-                <TableHead className="text-white/60 font-display">Created</TableHead>
-                <TableHead className="text-white/60 font-display text-right">Actions</TableHead>
+                <TableHead className="text-white/60 font-display"><div className="flex items-center gap-2"><Users className="w-4 h-4" />User</div></TableHead>
+                <TableHead className="text-white/60 font-display"><div className="flex items-center gap-2"><Shield className="w-4 h-4" />Role</div></TableHead>
+                <TableHead className="text-white/60 font-display"><div className="flex items-center gap-2"><Calendar className="w-4 h-4" />Created</div></TableHead>
+                <TableHead className="text-white/60 font-display text-right"><div className="flex items-center justify-end gap-2"><Settings className="w-4 h-4" />Actions</div></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -598,11 +598,11 @@ export default function Admin() {
           <Table>
             <TableHeader>
               <TableRow className="border-white/10 hover:bg-transparent">
-                <TableHead className="text-white/60 font-display">User</TableHead>
-                <TableHead className="text-white/60 font-display">Login Time</TableHead>
-                <TableHead className="text-white/60 font-display">Logout Time</TableHead>
-                <TableHead className="text-white/60 font-display">Duration</TableHead>
-                <TableHead className="text-white/60 font-display">IP Address</TableHead>
+                <TableHead className="text-white/60 font-display"><div className="flex items-center gap-2"><Users className="w-4 h-4" />User</div></TableHead>
+                <TableHead className="text-white/60 font-display"><div className="flex items-center gap-2"><LogIn className="w-4 h-4" />Login Time</div></TableHead>
+                <TableHead className="text-white/60 font-display"><div className="flex items-center gap-2"><LogOut className="w-4 h-4" />Logout Time</div></TableHead>
+                <TableHead className="text-white/60 font-display"><div className="flex items-center gap-2"><Clock className="w-4 h-4" />Duration</div></TableHead>
+                <TableHead className="text-white/60 font-display"><div className="flex items-center gap-2"><Monitor className="w-4 h-4" />IP Address</div></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -1150,11 +1150,11 @@ export default function Admin() {
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>Email</Label>
+              <Label className="flex items-center gap-2"><Mail className="w-4 h-4 text-gray-500" />Email</Label>
               <Input value={newUser.email} onChange={(e) => setNewUser({ ...newUser, email: e.target.value })} placeholder="user@example.com" data-testid="input-new-user-email" />
             </div>
             <div className="space-y-2">
-              <Label>Password</Label>
+              <Label className="flex items-center gap-2"><Key className="w-4 h-4 text-gray-500" />Password</Label>
               <div className="relative">
                 <Input type={showNewUserPassword ? "text" : "password"} value={newUser.password} onChange={(e) => setNewUser({ ...newUser, password: e.target.value })} placeholder="Secure password" data-testid="input-new-user-password" />
                 <button type="button" onClick={() => setShowNewUserPassword(!showNewUserPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500" data-testid="button-toggle-new-password">
@@ -1162,9 +1162,9 @@ export default function Admin() {
                 </button>
               </div>
             </div>
-            <div className="space-y-2"><Label>Name</Label><Input value={newUser.name} onChange={(e) => setNewUser({ ...newUser, name: e.target.value })} placeholder="Full name" data-testid="input-new-user-name" /></div>
-            <div className="space-y-2"><Label>Company</Label><Input value={newUser.company} onChange={(e) => setNewUser({ ...newUser, company: e.target.value })} placeholder="Company name" data-testid="input-new-user-company" /></div>
-            <div className="space-y-2"><Label>Title</Label><Input value={newUser.title} onChange={(e) => setNewUser({ ...newUser, title: e.target.value })} placeholder="Job title" data-testid="input-new-user-title" /></div>
+            <div className="space-y-2"><Label className="flex items-center gap-2"><Users className="w-4 h-4 text-gray-500" />Name</Label><Input value={newUser.name} onChange={(e) => setNewUser({ ...newUser, name: e.target.value })} placeholder="Full name" data-testid="input-new-user-name" /></div>
+            <div className="space-y-2"><Label className="flex items-center gap-2"><LayoutGrid className="w-4 h-4 text-gray-500" />Company</Label><Input value={newUser.company} onChange={(e) => setNewUser({ ...newUser, company: e.target.value })} placeholder="Company name" data-testid="input-new-user-company" /></div>
+            <div className="space-y-2"><Label className="flex items-center gap-2"><Shield className="w-4 h-4 text-gray-500" />Title</Label><Input value={newUser.title} onChange={(e) => setNewUser({ ...newUser, title: e.target.value })} placeholder="Job title" data-testid="input-new-user-title" /></div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)} data-testid="button-cancel-add-user">Cancel</Button>
@@ -1210,10 +1210,10 @@ export default function Admin() {
             <DialogDescription className="label-text">Update user information</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            <div className="space-y-2"><Label>Email</Label><Input value={editUser.email} onChange={(e) => setEditUser({ ...editUser, email: e.target.value })} data-testid="input-edit-email" /></div>
-            <div className="space-y-2"><Label>Name</Label><Input value={editUser.name} onChange={(e) => setEditUser({ ...editUser, name: e.target.value })} data-testid="input-edit-name" /></div>
-            <div className="space-y-2"><Label>Company</Label><Input value={editUser.company} onChange={(e) => setEditUser({ ...editUser, company: e.target.value })} data-testid="input-edit-company" /></div>
-            <div className="space-y-2"><Label>Title</Label><Input value={editUser.title} onChange={(e) => setEditUser({ ...editUser, title: e.target.value })} data-testid="input-edit-title" /></div>
+            <div className="space-y-2"><Label className="flex items-center gap-2"><Mail className="w-4 h-4 text-gray-500" />Email</Label><Input value={editUser.email} onChange={(e) => setEditUser({ ...editUser, email: e.target.value })} data-testid="input-edit-email" /></div>
+            <div className="space-y-2"><Label className="flex items-center gap-2"><Users className="w-4 h-4 text-gray-500" />Name</Label><Input value={editUser.name} onChange={(e) => setEditUser({ ...editUser, name: e.target.value })} data-testid="input-edit-name" /></div>
+            <div className="space-y-2"><Label className="flex items-center gap-2"><LayoutGrid className="w-4 h-4 text-gray-500" />Company</Label><Input value={editUser.company} onChange={(e) => setEditUser({ ...editUser, company: e.target.value })} data-testid="input-edit-company" /></div>
+            <div className="space-y-2"><Label className="flex items-center gap-2"><Shield className="w-4 h-4 text-gray-500" />Title</Label><Input value={editUser.title} onChange={(e) => setEditUser({ ...editUser, title: e.target.value })} data-testid="input-edit-title" /></div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditDialogOpen(false)} data-testid="button-cancel-edit">Cancel</Button>
@@ -1236,7 +1236,7 @@ export default function Admin() {
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label>Theme Name</Label>
+              <Label className="flex items-center gap-2 mb-1"><Sparkles className="w-4 h-4 text-gray-500" />Theme Name</Label>
               <Input
                 value={editingTheme ? editingTheme.name : newTheme.name}
                 onChange={(e) => editingTheme 
@@ -1247,7 +1247,7 @@ export default function Admin() {
               />
             </div>
             <div>
-              <Label>Description</Label>
+              <Label className="flex items-center gap-2 mb-1"><Type className="w-4 h-4 text-gray-500" />Description</Label>
               <textarea
                 className="w-full min-h-[80px] p-3 border rounded-lg text-sm resize-none"
                 value={editingTheme ? editingTheme.description : newTheme.description}
@@ -1261,7 +1261,7 @@ export default function Admin() {
             
             <div>
               <div className="flex items-center justify-between mb-2">
-                <Label>Colors (up to 5)</Label>
+                <Label className="flex items-center gap-2"><Droplets className="w-4 h-4 text-gray-500" />Colors (up to 5)</Label>
                 {((editingTheme?.colors.length || 0) < 5 || (newTheme.colors.length < 5 && !editingTheme)) && (
                   <Button 
                     type="button" 

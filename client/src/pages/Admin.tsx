@@ -7,12 +7,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Loader2, Plus, Trash2, Users, Key, Eye, EyeOff, Pencil, Clock, FileCheck, CheckCircle2, XCircle, AlertTriangle, PlayCircle, Palette, ArrowLeft, Activity, HelpCircle, SwatchBook, UserPlus, Shield, Mail, Calendar, LogIn, LogOut, Monitor, MapPin, Hash, Type, Droplets, LayoutGrid, Sparkles, Settings, CircleDot, GripVertical, ChevronUp, ChevronDown } from "lucide-react";
+import { Loader2, Plus, Trash2, Users, Key, Eye, EyeOff, Pencil, Clock, FileCheck, CheckCircle2, XCircle, AlertTriangle, PlayCircle, Palette, ArrowLeft, Activity, HelpCircle, SwatchBook, UserPlus, Shield, Mail, Calendar, LogIn, LogOut, Monitor, MapPin, Hash, Type, Droplets, LayoutGrid, Sparkles, Settings, CircleDot, GripVertical, ChevronUp, ChevronDown, FileText, Download } from "lucide-react";
 import { GlassButton } from "@/components/ui/glass-button";
 import { PageHeader } from "@/components/ui/page-header";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import { ColorPicker } from "@/components/ui/color-picker";
+import { runFullVerification, runKnownValueTests, VerificationResults } from "@/lib/runVerification";
+import { generatePropertyProForma } from "@/lib/financialEngine";
+import { AuditReport } from "@/lib/financialAuditor";
 
 interface DesignCheckResult {
   timestamp: string;
@@ -58,6 +61,10 @@ interface VerificationResult {
   managementCompanyChecks?: { passed: number; failed: number; details: any[] };
   consolidatedChecks?: { passed: number; failed: number; details: any[] };
   overallStatus: "PASS" | "FAIL" | "WARNING";
+  auditWorkpaper?: string;
+  auditReports?: AuditReport[];
+  auditOpinion?: "UNQUALIFIED" | "QUALIFIED" | "ADVERSE" | "DISCLAIMER";
+  knownValueTests?: { passed: boolean; results: string };
 }
 
 interface DesignColor {
@@ -295,13 +302,59 @@ export default function Admin() {
 
   const runVerification = useMutation({
     mutationFn: async () => {
-      const res = await fetch("/api/admin/run-verification", { credentials: "include" });
-      if (!res.ok) throw new Error("Failed to run verification");
-      return res.json();
+      const [propertiesRes, assumptionsRes] = await Promise.all([
+        fetch("/api/properties", { credentials: "include" }),
+        fetch("/api/global-assumptions", { credentials: "include" })
+      ]);
+      
+      if (!propertiesRes.ok) throw new Error("Failed to fetch properties");
+      if (!assumptionsRes.ok) throw new Error("Failed to fetch global assumptions");
+      
+      const properties = await propertiesRes.json();
+      const globalAssumptions = await assumptionsRes.json();
+      
+      const comprehensiveResults = runFullVerification(properties, globalAssumptions);
+      const knownValueTests = runKnownValueTests();
+      
+      const legacyRes = await fetch("/api/admin/run-verification", { credentials: "include" });
+      const legacyResults = legacyRes.ok ? await legacyRes.json() : null;
+      
+      return {
+        timestamp: new Date().toISOString(),
+        propertiesChecked: properties.length,
+        formulaChecks: {
+          passed: comprehensiveResults.summary.formulaChecksPassed,
+          failed: comprehensiveResults.summary.formulaChecksFailed,
+          details: legacyResults?.formulaChecks?.details || []
+        },
+        complianceChecks: {
+          passed: comprehensiveResults.summary.complianceChecksPassed,
+          failed: comprehensiveResults.summary.complianceChecksFailed,
+          criticalIssues: comprehensiveResults.summary.criticalIssues,
+          details: legacyResults?.complianceChecks?.details || []
+        },
+        managementCompanyChecks: legacyResults?.managementCompanyChecks,
+        consolidatedChecks: legacyResults?.consolidatedChecks,
+        overallStatus: comprehensiveResults.summary.overallStatus,
+        auditWorkpaper: comprehensiveResults.auditWorkpaper,
+        auditReports: comprehensiveResults.auditReports,
+        auditOpinion: comprehensiveResults.summary.auditOpinion,
+        knownValueTests
+      };
     },
     onSuccess: (data) => {
       setVerificationResults(data);
+      toast({
+        title: data.auditOpinion === "UNQUALIFIED" ? "Audit Complete - Unqualified Opinion" :
+               data.auditOpinion === "QUALIFIED" ? "Audit Complete - Qualified Opinion" :
+               "Audit Complete - Issues Found",
+        description: `Checked ${data.propertiesChecked} properties. ${data.complianceChecks.criticalIssues} critical issues found.`,
+        variant: data.auditOpinion === "UNQUALIFIED" ? "default" : "destructive"
+      });
     },
+    onError: (error: Error) => {
+      toast({ title: "Verification Failed", description: error.message, variant: "destructive" });
+    }
   });
 
   const runDesignCheck = useMutation({
@@ -716,6 +769,102 @@ export default function Admin() {
                 </div>
               </div>
             </div>
+
+            {/* Audit Opinion Card */}
+            {verificationResults.auditOpinion && (
+              <div className={`p-5 rounded-2xl border-2 ${
+                verificationResults.auditOpinion === "UNQUALIFIED" ? "bg-green-50 border-green-300" :
+                verificationResults.auditOpinion === "QUALIFIED" ? "bg-yellow-50 border-yellow-300" :
+                "bg-red-50 border-red-300"
+              }`}>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    {verificationResults.auditOpinion === "UNQUALIFIED" ? 
+                      <CheckCircle2 className="w-8 h-8 text-green-600" /> :
+                      verificationResults.auditOpinion === "QUALIFIED" ? 
+                      <AlertTriangle className="w-8 h-8 text-yellow-600" /> :
+                      <XCircle className="w-8 h-8 text-red-600" />
+                    }
+                    <div>
+                      <h3 className="font-display text-lg font-bold">Audit Opinion: {verificationResults.auditOpinion}</h3>
+                      <p className="text-sm text-gray-600">Independent Auditor's Report</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      if (verificationResults.auditWorkpaper) {
+                        const blob = new Blob([verificationResults.auditWorkpaper], { type: 'text/plain' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `audit-workpaper-${new Date().toISOString().slice(0,10)}.txt`;
+                        a.click();
+                        URL.revokeObjectURL(url);
+                      }
+                    }}
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 text-sm"
+                  >
+                    <Download className="w-4 h-4" />
+                    Download Workpaper
+                  </button>
+                </div>
+                <div className="grid grid-cols-4 gap-4 mb-4">
+                  <div className="text-center p-3 bg-white/60 rounded-lg">
+                    <div className="text-2xl font-mono font-bold">{verificationResults.auditReports?.reduce((sum, r) => sum + r.totalChecks, 0) || 0}</div>
+                    <div className="text-xs text-gray-600">Total Checks</div>
+                  </div>
+                  <div className="text-center p-3 bg-white/60 rounded-lg">
+                    <div className="text-2xl font-mono font-bold text-green-600">{verificationResults.auditReports?.reduce((sum, r) => sum + r.totalPassed, 0) || 0}</div>
+                    <div className="text-xs text-gray-600">Passed</div>
+                  </div>
+                  <div className="text-center p-3 bg-white/60 rounded-lg">
+                    <div className="text-2xl font-mono font-bold text-red-600">{verificationResults.complianceChecks.criticalIssues}</div>
+                    <div className="text-xs text-gray-600">Critical Issues</div>
+                  </div>
+                  <div className="text-center p-3 bg-white/60 rounded-lg">
+                    <div className="text-2xl font-mono font-bold text-yellow-600">{verificationResults.auditReports?.reduce((sum, r) => sum + r.materialIssues, 0) || 0}</div>
+                    <div className="text-xs text-gray-600">Material Issues</div>
+                  </div>
+                </div>
+                {verificationResults.auditReports?.map((report, rIdx) => (
+                  <div key={rIdx} className="mt-4 p-4 bg-white/80 rounded-lg border border-gray-200">
+                    <h4 className="font-display font-semibold text-gray-800 mb-2">{report.propertyName}</h4>
+                    <div className="space-y-2">
+                      {report.sections.map((section, sIdx) => (
+                        <div key={sIdx} className="flex items-center justify-between p-2 rounded bg-gray-50">
+                          <div className="flex items-center gap-2">
+                            {section.failed === 0 ? 
+                              <CheckCircle2 className="w-4 h-4 text-green-600" /> :
+                              section.materialIssues > 0 ?
+                              <XCircle className="w-4 h-4 text-red-600" /> :
+                              <AlertTriangle className="w-4 h-4 text-yellow-600" />
+                            }
+                            <span className="text-sm font-medium">{section.name}</span>
+                          </div>
+                          <span className="text-xs font-mono text-gray-600">{section.passed}/{section.findings.length} passed</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Known Value Test Results */}
+            {verificationResults.knownValueTests && (
+              <div className={`p-5 rounded-2xl border-2 ${verificationResults.knownValueTests.passed ? "bg-green-50 border-green-300" : "bg-red-50 border-red-300"}`}>
+                <div className="flex items-center gap-3 mb-3">
+                  {verificationResults.knownValueTests.passed ? 
+                    <CheckCircle2 className="w-6 h-6 text-green-600" /> :
+                    <XCircle className="w-6 h-6 text-red-600" />
+                  }
+                  <h3 className="font-display font-semibold">Known-Value Test Cases</h3>
+                </div>
+                <pre className="text-xs font-mono bg-white/80 p-4 rounded-lg overflow-x-auto whitespace-pre-wrap border border-gray-200">
+                  {verificationResults.knownValueTests.results}
+                </pre>
+              </div>
+            )}
 
             {/* Property Formula Checks */}
             {verificationResults.formulaChecks.details.map((property: any, pIdx: number) => (

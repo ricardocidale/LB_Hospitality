@@ -63,26 +63,15 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0a0a0f] relative overflow-hidden">
-      {/* Boutique Hotel Watermark Background */}
+      {/* Boutique Hotel Illustration Background */}
       <div 
-        className="absolute inset-0 pointer-events-none"
+        className="absolute inset-0 pointer-events-none flex items-center justify-center"
         style={{
           backgroundImage: `url(${hotelWatermark})`,
-          backgroundSize: '800px 800px',
+          backgroundSize: 'contain',
           backgroundPosition: 'center',
-          backgroundRepeat: 'repeat',
-          opacity: 0.4,
-        }}
-      />
-      <div 
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage: `url(${hotelWatermark})`,
-          backgroundSize: '600px 600px',
-          backgroundPosition: '100px 100px',
-          backgroundRepeat: 'repeat',
-          opacity: 0.2,
-          transform: 'rotate(15deg) scale(1.2)',
+          backgroundRepeat: 'no-repeat',
+          opacity: 0.12,
         }}
       />
       

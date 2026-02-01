@@ -53,7 +53,9 @@ function formatVariance(expected: number, actual: number): string {
 }
 
 function calculatePMT(principal: number, monthlyRate: number, totalPayments: number): number {
-  if (principal === 0 || monthlyRate === 0) return 0;
+  if (principal === 0) return 0;
+  // Handle zero interest rate (straight-line principal reduction)
+  if (monthlyRate === 0) return principal / totalPayments;
   return (principal * monthlyRate * Math.pow(1 + monthlyRate, totalPayments)) / 
          (Math.pow(1 + monthlyRate, totalPayments) - 1);
 }
@@ -737,7 +739,12 @@ export function auditBalanceSheet(
   const originalLoanAmount = property.type === "Financed" ? buildingValue * ltv : 0;
   const monthlyRate = (debtAssumptions?.interestRate || 0.09) / 12;
   const n = (debtAssumptions?.amortizationYears || 25) * 12;
-  const pmt = originalLoanAmount > 0 ? (originalLoanAmount * monthlyRate * Math.pow(1 + monthlyRate, n)) / (Math.pow(1 + monthlyRate, n) - 1) : 0;
+  // Handle zero interest rate (straight-line principal reduction)
+  const pmt = originalLoanAmount > 0 
+    ? (monthlyRate === 0 
+        ? originalLoanAmount / n 
+        : (originalLoanAmount * monthlyRate * Math.pow(1 + monthlyRate, n)) / (Math.pow(1 + monthlyRate, n) - 1))
+    : 0;
   
   let expectedCumulativeDepreciation = 0;
   let expectedCumulativePrincipal = 0;

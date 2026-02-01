@@ -7,7 +7,7 @@ import { Loader2, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { GlassButton } from "@/components/ui/glass-button";
 import logo from "@/assets/logo.png";
-import hotelGuests from "@/assets/hotel-guests.jpg";
+import hotelParty from "@/assets/hotel-party.jpg";
 
 export default function Login() {
   const { login } = useAuth();
@@ -63,16 +63,15 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0a0a0f] relative overflow-hidden">
-      {/* Life-like Hotel Guests Illustration Background */}
+      {/* Boutique Hotel Party Background */}
       <div 
         className="absolute inset-0 pointer-events-none"
         style={{
-          backgroundImage: `url(${hotelGuests})`,
+          backgroundImage: `url(${hotelParty})`,
           backgroundSize: 'cover',
-          backgroundPosition: 'center',
+          backgroundPosition: 'center top',
           backgroundRepeat: 'no-repeat',
-          opacity: 0.15,
-          filter: 'grayscale(30%)',
+          opacity: 0.2,
         }}
       />
       

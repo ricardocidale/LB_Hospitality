@@ -24,7 +24,13 @@ import {
   getAcquisitionYear,
   getOutstandingDebtAtYear,
   LoanParams,
-  GlobalLoanParams
+  GlobalLoanParams,
+  DEFAULT_LTV,
+  DEFAULT_INTEREST_RATE,
+  DEFAULT_TERM_YEARS,
+  DEFAULT_REFI_LTV,
+  DEFAULT_EXIT_CAP_RATE,
+  DEPRECIATION_YEARS
 } from "@/lib/loanCalculations";
 
 export default function Dashboard() {
@@ -876,7 +882,7 @@ export default function Dashboard() {
         const relevantMonths = proForma.slice(0, monthsToInclude);
         
         const propertyBasis = prop.purchasePrice + prop.buildingImprovements;
-        const annualDepreciation = propertyBasis / 27.5;
+        const annualDepreciation = propertyBasis / DEPRECIATION_YEARS;
         
         const isFinanced = prop.type === 'Financed';
         const debtDefaults = global.debtAssumptions as { acqLTV?: number; interestRate?: number; amortizationYears?: number } | null;
@@ -922,7 +928,7 @@ export default function Dashboard() {
         totalCumulativeCashFlow += cashFromOperations;
       });
       
-      const accumulatedDepreciation = (totalPropertyValue / 27.5) * Math.min(yearIndex + 1, 10);
+      const accumulatedDepreciation = (totalPropertyValue / DEPRECIATION_YEARS) * Math.min(yearIndex + 1, 10);
       const totalCash = totalOperatingReserves + totalCumulativeCashFlow;
       const netPropertyValue = totalPropertyValue - accumulatedDepreciation;
       const totalAssets = netPropertyValue + totalCash;
@@ -1115,15 +1121,15 @@ export default function Dashboard() {
         totalNOI += noi;
         
         const propertyBasis = prop.purchasePrice + prop.buildingImprovements;
-        const depreciation = propertyBasis / 27.5;
+        const depreciation = propertyBasis / DEPRECIATION_YEARS;
         totalDepreciation += depreciation;
         
         if (prop.type === "Financed") {
-          const ltv = prop.acquisitionLTV || (global.debtAssumptions as any)?.acqLTV || 0.75;
+          const ltv = prop.acquisitionLTV || (global.debtAssumptions as any)?.acqLTV || DEFAULT_LTV;
           const loanAmount = propertyBasis * ltv;
-          const annualRate = prop.acquisitionInterestRate || (global.debtAssumptions as any)?.interestRate || 0.09;
+          const annualRate = prop.acquisitionInterestRate || (global.debtAssumptions as any)?.interestRate || DEFAULT_INTEREST_RATE;
           const r = annualRate / 12;
-          const termYears = prop.acquisitionTermYears || (global.debtAssumptions as any)?.amortizationYears || 25;
+          const termYears = prop.acquisitionTermYears || (global.debtAssumptions as any)?.amortizationYears || DEFAULT_TERM_YEARS;
           const n = termYears * 12;
           
           if (r > 0 && n > 0 && loanAmount > 0) {
@@ -3086,7 +3092,7 @@ function InvestmentAnalysis({
     const totalInvestment = prop.purchasePrice + prop.buildingImprovements + 
                             prop.preOpeningCosts + prop.operatingReserve;
     if (prop.type === "Financed") {
-      const ltv = prop.acquisitionLTV || global.debtAssumptions.acqLTV || 0.75;
+      const ltv = prop.acquisitionLTV || global.debtAssumptions.acqLTV || DEFAULT_LTV;
       return totalInvestment * (1 - ltv);
     }
     return totalInvestment;
@@ -3105,7 +3111,7 @@ function InvestmentAnalysis({
 
   const getPropertyLoanAmount = (prop: any) => {
     if (prop.type !== "Financed") return 0;
-    const ltv = prop.acquisitionLTV || global.debtAssumptions.acqLTV || 0.75;
+    const ltv = prop.acquisitionLTV || global.debtAssumptions.acqLTV || DEFAULT_LTV;
     return (prop.purchasePrice + prop.buildingImprovements) * ltv;
   };
 
@@ -3128,17 +3134,17 @@ function InvestmentAnalysis({
     const isPostRefi = refiYear >= 0 && refiYear < 10 && yearIndex >= refiYear;
     
     if (isPostRefi) {
-      const refiLTV = prop.refinanceLTV || global.debtAssumptions.refiLTV || 0.65;
+      const refiLTV = prop.refinanceLTV || global.debtAssumptions.refiLTV || DEFAULT_REFI_LTV;
       const { financials } = allPropertyFinancials[propIndex];
       const stabilizedData = financials.slice(refiYear * 12, (refiYear + 1) * 12);
       const stabilizedNOI = stabilizedData.reduce((a: number, m: any) => a + m.noi, 0);
-      const capRate = prop.exitCapRate || 0.085;
+      const capRate = prop.exitCapRate || global.exitCapRate || DEFAULT_EXIT_CAP_RATE;
       const propertyValue = stabilizedNOI / capRate;
       const refiLoanAmount = propertyValue * refiLTV;
       
-      const annualRate = prop.refinanceInterestRate || global.debtAssumptions.interestRate || 0.09;
+      const annualRate = prop.refinanceInterestRate || global.debtAssumptions.interestRate || DEFAULT_INTEREST_RATE;
       const r = annualRate / 12;
-      const termYears = prop.refinanceTermYears || global.debtAssumptions.amortizationYears || 25;
+      const termYears = prop.refinanceTermYears || global.debtAssumptions.amortizationYears || DEFAULT_TERM_YEARS;
       const n = termYears * 12;
       
       if (r <= 0 || n <= 0 || refiLoanAmount <= 0) return { debtService: 0, interestPortion: 0, principalPortion: 0 };
@@ -3176,9 +3182,9 @@ function InvestmentAnalysis({
     const loanAmount = getPropertyLoanAmount(prop);
     if (loanAmount <= 0) return { debtService: 0, interestPortion: 0, principalPortion: 0 };
 
-    const annualRate = prop.acquisitionInterestRate || global.debtAssumptions.interestRate || 0.09;
+    const annualRate = prop.acquisitionInterestRate || global.debtAssumptions.interestRate || DEFAULT_INTEREST_RATE;
     const r = annualRate / 12;
-    const termYears = prop.acquisitionTermYears || global.debtAssumptions.amortizationYears || 25;
+    const termYears = prop.acquisitionTermYears || global.debtAssumptions.amortizationYears || DEFAULT_TERM_YEARS;
     const n = termYears * 12;
 
     if (r <= 0 || n <= 0) return { debtService: 0, interestPortion: 0, principalPortion: 0 };
@@ -3216,9 +3222,9 @@ function InvestmentAnalysis({
     const loanAmount = getPropertyLoanAmount(prop);
     if (loanAmount <= 0) return 0;
 
-    const annualRate = prop.acquisitionInterestRate || global.debtAssumptions.interestRate || 0.09;
+    const annualRate = prop.acquisitionInterestRate || global.debtAssumptions.interestRate || DEFAULT_INTEREST_RATE;
     const r = annualRate / 12;
-    const termYears = prop.acquisitionTermYears || global.debtAssumptions.amortizationYears || 25;
+    const termYears = prop.acquisitionTermYears || global.debtAssumptions.amortizationYears || DEFAULT_TERM_YEARS;
     const n = termYears * 12;
 
     if (r <= 0 || n <= 0) return 0;

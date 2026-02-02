@@ -83,6 +83,14 @@ Always format money as money (currency format with commas and appropriate precis
 - **Known-Value Test Cases**: Validates calculations with hand-calculated expected values (e.g., 10 rooms × $100 × 70% × 30.5 = $21,350)
 - **Audit Opinions**: UNQUALIFIED (no issues), QUALIFIED (minor issues), ADVERSE (critical issues)
 
+### Shared Constants Pattern
+- **Location**: `client/src/lib/constants.ts` is the single source of truth for all DEFAULT_* constants
+- **Re-exports**: `client/src/lib/loanCalculations.ts` re-exports constants for backwards compatibility
+- **Constants**: DEFAULT_LTV (0.75), DEFAULT_INTEREST_RATE (0.09), DEFAULT_TERM_YEARS (25), DEPRECIATION_YEARS (27.5), DEFAULT_EXIT_CAP_RATE (0.085), DEFAULT_TAX_RATE (0.25), DEFAULT_COMMISSION_RATE (0.05), DEFAULT_REFI_LTV (0.65), DEFAULT_REFI_CLOSING_COST_RATE (0.03)
+- **Fallback Pattern**: property-specific value → global value → DEFAULT constant
+- **Consumers**: financialEngine.ts, financialAuditor.ts, runVerification.ts, Dashboard.tsx, PropertyEdit.tsx, PropertyDetail.tsx
+- **Immutable Constants**: DEPRECIATION_YEARS (27.5) is IRS-mandated per Publication 946 / ASC 360; DAYS_PER_MONTH (30.5) is industry standard (365/12 rounded)
+
 ## External Dependencies
 
 - **Database**: PostgreSQL

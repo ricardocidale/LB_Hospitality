@@ -1,6 +1,6 @@
 import { globalAssumptions, properties, users, sessions, scenarios, loginLogs, designThemes, type GlobalAssumptions, type Property, type InsertGlobalAssumptions, type InsertProperty, type UpdateProperty, type User, type InsertUser, type Session, type Scenario, type InsertScenario, type UpdateScenario, type LoginLog, type InsertLoginLog, type DesignTheme, type InsertDesignTheme } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, gt, gte, desc } from "drizzle-orm";
+import { eq, and, gt, gte, desc, or, isNull } from "drizzle-orm";
 
 export interface IStorage {
   // Users
@@ -164,7 +164,10 @@ export class DatabaseStorage implements IStorage {
   // Properties
   async getAllProperties(userId?: number): Promise<Property[]> {
     if (userId) {
-      return await db.select().from(properties).where(eq(properties.userId, userId)).orderBy(properties.createdAt);
+      // Return properties belonging to the user OR shared properties (userId is null)
+      return await db.select().from(properties)
+        .where(or(eq(properties.userId, userId), isNull(properties.userId)))
+        .orderBy(properties.createdAt);
     }
     return await db.select().from(properties).orderBy(properties.createdAt);
   }

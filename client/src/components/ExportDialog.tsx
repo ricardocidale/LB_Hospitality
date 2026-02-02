@@ -40,7 +40,7 @@ export function ExportDialog({ open, onClose, onExport, title }: ExportDialogPro
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button onClick={handleExport}>Export</Button>
+          <Button variant="outline" onClick={handleExport}>Export</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

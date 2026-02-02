@@ -623,28 +623,6 @@ export default function Company() {
         <PageHeader
           title={global?.companyName || "L+B Hospitality Co."}
           subtitle="Corporate Management Entity & Operations"
-          actions={
-            <div className="flex items-center gap-2">
-              <GlassButton variant="ghost" size="sm" onClick={() => { setExportType('pdf'); setExportDialogOpen(true); }}>
-                <FileDown className="w-4 h-4" />
-                PDF
-              </GlassButton>
-              <GlassButton variant="ghost" size="sm" onClick={() => exportCompanyCSV(activeTab as 'income' | 'cashflow' | 'balance')}>
-                <FileDown className="w-4 h-4" />
-                CSV
-              </GlassButton>
-              <GlassButton variant="ghost" size="sm" onClick={() => { setExportType('chart'); setExportDialogOpen(true); }}>
-                <ImageIcon className="w-4 h-4" />
-                Chart
-              </GlassButton>
-              <Link href="/company/assumptions">
-                <GlassButton variant="settings">
-                  <Settings2 className="w-4 h-4" />
-                  Assumptions
-                </GlassButton>
-              </Link>
-            </div>
-          }
         />
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -706,6 +684,27 @@ export default function Company() {
               </div>
             </div>
             
+            {/* Export buttons aligned with tabs */}
+            <div className="flex items-center gap-2">
+              <GlassButton variant="ghost" size="sm" onClick={() => { setExportType('pdf'); setExportDialogOpen(true); }}>
+                <FileDown className="w-4 h-4" />
+                PDF
+              </GlassButton>
+              <GlassButton variant="ghost" size="sm" onClick={() => exportCompanyCSV(activeTab as 'income' | 'cashflow' | 'balance')}>
+                <FileDown className="w-4 h-4" />
+                CSV
+              </GlassButton>
+              <GlassButton variant="ghost" size="sm" onClick={() => { setExportType('chart'); setExportDialogOpen(true); }}>
+                <ImageIcon className="w-4 h-4" />
+                Chart
+              </GlassButton>
+              <Link href="/company/assumptions">
+                <GlassButton variant="settings">
+                  <Settings2 className="w-4 h-4" />
+                  Assumptions
+                </GlassButton>
+              </Link>
+            </div>
           </div>
 
           {/* Chart Card - Light Theme */}

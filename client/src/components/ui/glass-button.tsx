@@ -78,9 +78,8 @@ const GlassButton = React.forwardRef<HTMLButtonElement, GlassButtonProps>(
         border border-white/15 hover:border-white/25
       `,
       export: `
-        bg-white hover:bg-gray-50 text-gray-700
+        text-gray-700
         border border-gray-300 hover:border-gray-400
-        shadow-sm hover:shadow
       `,
     };
 
@@ -91,7 +90,7 @@ const GlassButton = React.forwardRef<HTMLButtonElement, GlassButtonProps>(
       <button
         ref={ref}
         className={cn(baseClasses, variants[variant], sizes[size], className)}
-        style={isExport ? { backgroundColor: '#ffffff' } : undefined}
+        style={isExport ? { backgroundColor: '#f5f5f5' } : undefined}
         {...props}
       >
         {showGlassBackground && (

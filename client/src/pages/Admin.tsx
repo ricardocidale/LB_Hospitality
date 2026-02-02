@@ -98,6 +98,7 @@ export default function Admin() {
   const [newPassword, setNewPassword] = useState("");
   const [newUser, setNewUser] = useState({ email: "", password: "", name: "", company: "", title: "" });
   const [editUser, setEditUser] = useState({ email: "", name: "", company: "", title: "" });
+  const [originalEmail, setOriginalEmail] = useState("");
   const [showNewUserPassword, setShowNewUserPassword] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [verificationResults, setVerificationResults] = useState<VerificationResult | null>(null);
@@ -594,7 +595,7 @@ export default function Admin() {
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Button size="sm" variant="ghost" className="text-white/60 hover:text-white hover:bg-white/10"
-                        onClick={() => { setSelectedUser(user); setEditUser({ email: user.email, name: user.name || "", company: user.company || "", title: user.title || "" }); setEditDialogOpen(true); }}
+                        onClick={() => { setSelectedUser(user); setOriginalEmail(user.email); setEditUser({ email: user.email, name: user.name || "", company: user.company || "", title: user.title || "" }); setEditDialogOpen(true); }}
                         data-testid={`button-edit-user-${user.id}`}>
                         <Pencil className="w-4 h-4" />
                       </Button>
@@ -1419,7 +1420,18 @@ export default function Admin() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditDialogOpen(false)} data-testid="button-cancel-edit">Cancel</Button>
-            <Button variant="outline" onClick={() => selectedUser && editMutation.mutate({ id: selectedUser.id, data: editUser })} disabled={editMutation.isPending} data-testid="button-save-user" className="flex items-center gap-2">
+            <Button variant="outline" onClick={() => {
+              if (!selectedUser) return;
+              const data: { email?: string; name?: string; company?: string; title?: string } = {
+                name: editUser.name,
+                company: editUser.company,
+                title: editUser.title,
+              };
+              if (editUser.email !== originalEmail) {
+                data.email = editUser.email;
+              }
+              editMutation.mutate({ id: selectedUser.id, data });
+            }} disabled={editMutation.isPending} data-testid="button-save-user" className="flex items-center gap-2">
               {editMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               Save
             </Button>

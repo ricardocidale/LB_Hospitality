@@ -41,6 +41,7 @@ export const DESIGN_GUIDELINES = {
     primaryClass: "GlassButton",
     darkGlassEffect: true,
     sageGlow: true,
+    exportStyle: "light with border", // white bg, dark text, gray border
   },
   pages: {
     loginBackground: "#0a0a0f",
@@ -404,6 +405,57 @@ export function checkChartStyling(fileContents: Map<string, string>): DesignChec
   return checks;
 }
 
+export function checkExportButtonStyling(fileContents: Map<string, string>): DesignCheck[] {
+  const checks: DesignCheck[] = [];
+  
+  let correctExportButtons = 0;
+  let incorrectExportButtons = 0;
+  const filesWithIssues: string[] = [];
+  
+  fileContents.forEach((content, file) => {
+    // Check for export buttons (PDF, CSV, Chart exports)
+    const hasExportButtons = content.includes("Export PDF") || 
+                             content.includes("Export CSV") || 
+                             content.includes("Export Chart");
+    
+    if (hasExportButtons) {
+      // Correct styling: Button variant="outline" OR GlassButton variant="export"
+      const hasCorrectStyle = content.includes('variant="outline"') || 
+                              content.includes('variant="export"');
+      
+      // Incorrect: using ghost/default variants for export buttons
+      const hasIncorrectGhost = content.includes('variant="ghost"') && 
+                                (content.includes("Export PDF") || content.includes("Export CSV"));
+      
+      if (hasCorrectStyle && !hasIncorrectGhost) {
+        correctExportButtons++;
+      } else {
+        incorrectExportButtons++;
+        const fileName = file.split("/").pop() || file;
+        if (!filesWithIssues.includes(fileName)) {
+          filesWithIssues.push(fileName);
+        }
+      }
+    }
+  });
+
+  const totalExportFiles = correctExportButtons + incorrectExportButtons;
+  
+  if (totalExportFiles > 0) {
+    checks.push({
+      category: "Export Buttons",
+      rule: "Export buttons must use light style (white bg, dark text, gray border)",
+      status: incorrectExportButtons === 0 ? "pass" : "fail",
+      details: incorrectExportButtons === 0 
+        ? `All ${totalExportFiles} files use correct export button styling`
+        : `${incorrectExportButtons}/${totalExportFiles} files have incorrect export button styling. Use Button variant="outline" or GlassButton variant="export"`,
+      affectedFiles: filesWithIssues.length > 0 ? filesWithIssues : undefined,
+    });
+  }
+
+  return checks;
+}
+
 export function runDesignConsistencyCheck(fileContents: Map<string, string>): DesignCheckResult {
   const allChecks: DesignCheck[] = [
     ...checkColorPalette(fileContents),
@@ -414,6 +466,7 @@ export function runDesignConsistencyCheck(fileContents: Map<string, string>): De
     ...checkDataTestIds(fileContents),
     ...checkFinancialFormatting(fileContents),
     ...checkChartStyling(fileContents),
+    ...checkExportButtonStyling(fileContents),
   ];
 
   const passed = allChecks.filter(c => c.status === "pass").length;

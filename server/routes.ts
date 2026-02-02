@@ -918,7 +918,8 @@ export async function registerRoutes(
   
   app.get("/api/properties", requireAuth, async (req, res) => {
     try {
-      const data = await storage.getAllProperties();
+      const userId = req.user!.id;
+      const data = await storage.getAllProperties(userId);
       res.json(data);
     } catch (error) {
       console.error("Error fetching properties:", error);

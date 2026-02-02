@@ -41,7 +41,7 @@ export const DESIGN_GUIDELINES = {
     primaryClass: "GlassButton",
     darkGlassEffect: true,
     sageGlow: true,
-    exportStyle: "light with border", // white bg, dark text, gray border
+    exportStyle: "neutral gray background (#f5f5f5), dark text, gray border"
   },
   pages: {
     loginBackground: "#0a0a0f",

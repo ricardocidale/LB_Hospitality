@@ -41,6 +41,7 @@ Always format money as money (currency format with commas and appropriate precis
     - **Financial Statement Tables (Light Theme)**: Light backgrounds (white, gray-50, gray-100) with dark gray text.
 - **Navigation & Tabs**: Dark glass gradient sidebar with white text for active items.
 - **Buttons**: Standardized `SaveButton` component with dark glass effect, bright white text, and a sage green glow.
+- **Export Buttons**: Use `GlassButton variant="export"` or `Button variant="outline"` for all export buttons (PDF, CSV, Chart). Style: neutral gray background (#f5f5f5), dark gray text, gray border. Must be aligned with tabs on financial pages, not in the title block.
 - **PageHeader Component**: Standardized `PageHeader` with fixed minimum height, `text-3xl` serif title, `text-sm` subtitle, and a dark glass variant across all pages.
 - **Charts**: All charts must follow these requirements:
     - **White background** for readability (bg-white with shadow-lg and gray border)

@@ -267,11 +267,12 @@ export default function Scenarios() {
               <Button variant="outline" onClick={() => setIsCreating(false)}>
                 Cancel
               </Button>
-              <GlassButton
-                variant="primary"
+              <Button
+                variant="outline"
                 onClick={handleCreate}
                 disabled={createScenario.isPending || !newScenarioName.trim()}
                 data-testid="button-save-scenario"
+                className="flex items-center gap-2"
               >
                 {createScenario.isPending ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -279,7 +280,7 @@ export default function Scenarios() {
                   <Save className="w-4 h-4" />
                 )}
                 Save Scenario
-              </GlassButton>
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -316,11 +317,12 @@ export default function Scenarios() {
               <Button variant="outline" onClick={() => setEditingScenario(null)}>
                 Cancel
               </Button>
-              <GlassButton
-                variant="primary"
+              <Button
+                variant="outline"
                 onClick={handleUpdate}
                 disabled={updateScenario.isPending || !editingScenario?.name.trim()}
                 data-testid="button-update-scenario"
+                className="flex items-center gap-2"
               >
                 {updateScenario.isPending ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -328,7 +330,7 @@ export default function Scenarios() {
                   <Save className="w-4 h-4" />
                 )}
                 Update
-              </GlassButton>
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>

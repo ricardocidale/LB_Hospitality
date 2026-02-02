@@ -499,18 +499,20 @@ export default function Portfolio() {
                   Cancel
                 </Button>
                 <Button 
+                  variant="outline"
                   data-testid="button-submit-property"
                   onClick={handleSubmit} 
                   disabled={createProperty.isPending}
+                  className="flex items-center gap-2"
                 >
                   {createProperty.isPending ? (
                     <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      <Loader2 className="w-4 h-4 animate-spin" />
                       Adding...
                     </>
                   ) : (
                     <>
-                      <Plus className="w-4 h-4 mr-2" />
+                      <Plus className="w-4 h-4" />
                       Add Property
                     </>
                   )}

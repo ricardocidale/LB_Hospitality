@@ -90,6 +90,9 @@ Always format money as money (currency format with commas and appropriate precis
 - **Fallback Pattern**: property-specific value → global value → DEFAULT constant
 - **Consumers**: financialEngine.ts, financialAuditor.ts, runVerification.ts, Dashboard.tsx, PropertyEdit.tsx, PropertyDetail.tsx
 - **Immutable Constants**: DEPRECIATION_YEARS (27.5) is IRS-mandated per Publication 946 / ASC 360; DAYS_PER_MONTH (30.5) is industry standard (365/12 rounded)
+- **Configurable Variables**: All user-adjustable values are stored in the database (globalAssumptions and properties tables) and editable through assumption pages:
+  - **Global Assumptions Page**: Inflation rate, fixed cost escalation, management fees, SAFE funding, partner compensation, staff salary, overhead costs, exit/sale assumptions, catering boosts, expense rates, debt assumptions
+  - **Property Edit Page**: Cost rates (rooms, F&B, admin, etc.), revenue shares (events, F&B, other), catering percentages, exit cap rate, tax rate, financing terms
 
 ## External Dependencies
 

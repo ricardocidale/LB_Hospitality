@@ -66,8 +66,8 @@ export interface YearlyDebtService {
   principalPayment: number;
 }
 
-// Re-export constants from shared module for backwards compatibility
-export { 
+// Import constants from shared module
+import { 
   DEFAULT_LTV, 
   DEFAULT_INTEREST_RATE, 
   DEFAULT_TERM_YEARS, 
@@ -79,6 +79,20 @@ export {
   DEFAULT_REFI_CLOSING_COST_RATE,
   DEFAULT_ACQ_CLOSING_COST_RATE 
 } from './constants';
+
+// Re-export constants for backwards compatibility
+export { 
+  DEFAULT_LTV, 
+  DEFAULT_INTEREST_RATE, 
+  DEFAULT_TERM_YEARS, 
+  DEFAULT_TAX_RATE, 
+  DEFAULT_COMMISSION_RATE, 
+  DEFAULT_EXIT_CAP_RATE, 
+  DEPRECIATION_YEARS, 
+  DEFAULT_REFI_LTV, 
+  DEFAULT_REFI_CLOSING_COST_RATE,
+  DEFAULT_ACQ_CLOSING_COST_RATE 
+};
 
 export function calculateLoanParams(
   property: LoanParams,

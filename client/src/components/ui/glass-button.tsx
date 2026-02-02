@@ -85,11 +85,13 @@ const GlassButton = React.forwardRef<HTMLButtonElement, GlassButtonProps>(
     };
 
     const showGlassBackground = variant === "default" || variant === "settings";
+    const isExport = variant === "export";
 
     return (
       <button
         ref={ref}
         className={cn(baseClasses, variants[variant], sizes[size], className)}
+        style={isExport ? { backgroundColor: '#ffffff' } : undefined}
         {...props}
       >
         {showGlassBackground && (
@@ -98,7 +100,7 @@ const GlassButton = React.forwardRef<HTMLButtonElement, GlassButtonProps>(
             <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
           </>
         )}
-        <span className="relative flex items-center justify-center gap-2">
+        <span className={cn("relative flex items-center justify-center gap-2", isExport && "text-gray-700")}>
           {children}
         </span>
       </button>

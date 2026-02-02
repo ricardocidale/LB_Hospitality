@@ -692,25 +692,20 @@ export default function Company() {
               </div>
             </div>
             
-            {/* Export buttons aligned with tabs - in dark glass container */}
-            <div className="relative overflow-hidden rounded-2xl">
-              <div className="absolute inset-0 bg-gradient-to-r from-[#2d4a5e] via-[#3d5a6a] to-[#3a5a5e]" />
-              <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-white/25 to-transparent" />
-              <div className="absolute inset-0 rounded-2xl border border-white/15" />
-              <div className="relative flex items-center gap-1 p-1.5">
-                <GlassButton variant="ghost" size="sm" onClick={() => { setExportType('pdf'); setExportDialogOpen(true); }}>
-                  <FileDown className="w-4 h-4" />
-                  PDF
-                </GlassButton>
-                <GlassButton variant="ghost" size="sm" onClick={() => exportCompanyCSV(activeTab as 'income' | 'cashflow' | 'balance')}>
-                  <FileDown className="w-4 h-4" />
-                  CSV
-                </GlassButton>
-                <GlassButton variant="ghost" size="sm" onClick={() => { setExportType('chart'); setExportDialogOpen(true); }}>
-                  <ImageIcon className="w-4 h-4" />
-                  Chart
-                </GlassButton>
-              </div>
+            {/* Export buttons - light style with border */}
+            <div className="flex items-center gap-2">
+              <GlassButton variant="export" size="sm" onClick={() => { setExportType('pdf'); setExportDialogOpen(true); }}>
+                <FileDown className="w-4 h-4" />
+                Export PDF
+              </GlassButton>
+              <GlassButton variant="export" size="sm" onClick={() => exportCompanyCSV(activeTab as 'income' | 'cashflow' | 'balance')}>
+                <FileDown className="w-4 h-4" />
+                Export CSV
+              </GlassButton>
+              <GlassButton variant="export" size="sm" onClick={() => { setExportType('chart'); setExportDialogOpen(true); }}>
+                <ImageIcon className="w-4 h-4" />
+                Export Chart
+              </GlassButton>
             </div>
           </div>
 

@@ -2,7 +2,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 export interface GlassButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "default" | "settings" | "primary" | "ghost" | "icon";
+  variant?: "default" | "settings" | "primary" | "ghost" | "icon" | "export";
   size?: "default" | "sm" | "lg" | "icon";
 }
 
@@ -76,6 +76,11 @@ const GlassButton = React.forwardRef<HTMLButtonElement, GlassButtonProps>(
       icon: `
         bg-white/10 hover:bg-white/20 text-[#FFF9F5]
         border border-white/15 hover:border-white/25
+      `,
+      export: `
+        bg-white hover:bg-gray-50 text-gray-700
+        border border-gray-300 hover:border-gray-400
+        shadow-sm hover:shadow
       `,
     };
 

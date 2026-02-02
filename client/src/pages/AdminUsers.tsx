@@ -32,6 +32,7 @@ export default function AdminUsers() {
   const [newPassword, setNewPassword] = useState("");
   const [newUser, setNewUser] = useState({ email: "", password: "", name: "", company: "", title: "" });
   const [editUser, setEditUser] = useState({ email: "", name: "", company: "", title: "" });
+  const [originalEmail, setOriginalEmail] = useState("");
   const [showNewUserPassword, setShowNewUserPassword] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
 
@@ -164,20 +165,22 @@ export default function AdminUsers() {
     e.preventDefault();
     if (selectedUser) {
       const isAdmin = selectedUser.role === "admin";
-      editMutation.mutate({
-        id: selectedUser.id,
-        data: {
-          ...(isAdmin ? {} : { email: editUser.email || undefined }),
-          name: editUser.name || undefined,
-          company: editUser.company || undefined,
-          title: editUser.title || undefined,
-        },
-      });
+      const data: { email?: string; name?: string; company?: string; title?: string } = {
+        name: editUser.name || undefined,
+        company: editUser.company || undefined,
+        title: editUser.title || undefined,
+      };
+      // Only include email if it changed and user is not admin
+      if (!isAdmin && editUser.email !== originalEmail) {
+        data.email = editUser.email || undefined;
+      }
+      editMutation.mutate({ id: selectedUser.id, data });
     }
   };
 
   const openEditDialog = (user: User) => {
     setSelectedUser(user);
+    setOriginalEmail(user.email);
     setEditUser({
       email: user.email || "",
       name: user.name || "",

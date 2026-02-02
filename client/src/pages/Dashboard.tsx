@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { GlassButton } from "@/components/ui/glass-button";
 import { Loader2, ChevronRight, ChevronDown, FileDown, FileSpreadsheet } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { format } from "date-fns";
@@ -1815,26 +1816,24 @@ export default function Dashboard() {
             
             {exportFunctions && (
               <div className="flex gap-2">
-                <Button
-                  variant="outline"
+                <GlassButton
+                  variant="export"
                   size="sm"
                   onClick={exportFunctions.pdf}
-                  className="flex items-center gap-2"
                   data-testid="button-export-pdf"
                 >
                   <FileDown className="w-4 h-4" />
                   Export PDF
-                </Button>
-                <Button
-                  variant="outline"
+                </GlassButton>
+                <GlassButton
+                  variant="export"
                   size="sm"
                   onClick={exportFunctions.csv}
-                  className="flex items-center gap-2"
                   data-testid="button-export-csv"
                 >
                   <FileSpreadsheet className="w-4 h-4" />
                   Export CSV
-                </Button>
+                </GlassButton>
               </div>
             )}
           </div>

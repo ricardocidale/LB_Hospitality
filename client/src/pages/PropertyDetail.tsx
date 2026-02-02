@@ -9,6 +9,7 @@ import { ArrowLeft, MapPin, Loader2, FileDown, FileSpreadsheet, Settings2, Image
 import domtoimage from 'dom-to-image-more';
 import { Link, useRoute } from "wouter";
 import { Button } from "@/components/ui/button";
+import { GlassButton } from "@/components/ui/glass-button";
 import { Badge } from "@/components/ui/badge";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import jsPDF from "jspdf";
@@ -479,36 +480,33 @@ export default function PropertyDetail() {
             
             {/* Export Buttons */}
             <div className="flex gap-2">
-              <Button
-                variant="outline"
+              <GlassButton
+                variant="export"
                 size="sm"
                 onClick={() => { setExportType('pdf'); setExportDialogOpen(true); }}
-                className="flex items-center gap-2"
                 data-testid="button-export-pdf"
               >
                 <FileDown className="w-4 h-4" />
                 Export PDF
-              </Button>
-              <Button
-                variant="outline"
+              </GlassButton>
+              <GlassButton
+                variant="export"
                 size="sm"
                 onClick={() => exportCashFlowCSV()}
-                className="flex items-center gap-2"
                 data-testid="button-export-csv"
               >
                 <FileSpreadsheet className="w-4 h-4" />
                 Export CSV
-              </Button>
-              <Button
-                variant="outline"
+              </GlassButton>
+              <GlassButton
+                variant="export"
                 size="sm"
                 onClick={() => { setExportType('chart'); setExportDialogOpen(true); }}
-                className="flex items-center gap-2"
                 data-testid="button-export-chart"
               >
                 <ImageIcon className="w-4 h-4" />
                 Export Chart
-              </Button>
+              </GlassButton>
             </div>
           </div>
           

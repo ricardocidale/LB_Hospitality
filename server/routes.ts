@@ -187,7 +187,7 @@ export async function registerRoutes(
         return res.status(400).json({ error: error.message });
       }
 
-      const user = await storage.getUser(req.user.id);
+      const user = await storage.getUserById(req.user.id);
       if (!user) {
         return res.status(404).json({ error: "User not found" });
       }
@@ -255,7 +255,7 @@ export async function registerRoutes(
 
   app.patch("/api/admin/users/:id/password", requireAdmin, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string);
       if (isNaN(id)) {
         return res.status(400).json({ error: "Invalid user ID" });
       }
@@ -287,7 +287,7 @@ export async function registerRoutes(
 
   app.patch("/api/admin/users/:id", requireAdmin, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string);
       if (isNaN(id)) {
         return res.status(400).json({ error: "Invalid user ID" });
       }
@@ -328,7 +328,7 @@ export async function registerRoutes(
 
   app.delete("/api/admin/users/:id", requireAdmin, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string);
       if (isNaN(id)) {
         return res.status(400).json({ error: "Invalid user ID" });
       }
@@ -928,7 +928,8 @@ export async function registerRoutes(
 
   app.get("/api/properties/:id", requireAuth, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string);
+      const userId = req.user!.id;
       
       if (isNaN(id)) {
         return res.status(400).json({ error: "Invalid property ID" });
@@ -938,6 +939,11 @@ export async function registerRoutes(
       
       if (!property) {
         return res.status(404).json({ error: "Property not found" });
+      }
+      
+      // Verify property belongs to user (or is shared - userId is null)
+      if (property.userId !== null && property.userId !== userId) {
+        return res.status(403).json({ error: "Access denied" });
       }
       
       res.json(property);
@@ -966,10 +972,20 @@ export async function registerRoutes(
 
   app.patch("/api/properties/:id", requireAuth, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string);
+      const userId = req.user!.id;
       
       if (isNaN(id)) {
         return res.status(400).json({ error: "Invalid property ID" });
+      }
+      
+      // Check ownership before updating
+      const existingProperty = await storage.getProperty(id);
+      if (!existingProperty) {
+        return res.status(404).json({ error: "Property not found" });
+      }
+      if (existingProperty.userId !== null && existingProperty.userId !== userId) {
+        return res.status(403).json({ error: "Access denied" });
       }
       
       const validation = updatePropertySchema.safeParse(req.body);
@@ -994,10 +1010,20 @@ export async function registerRoutes(
 
   app.delete("/api/properties/:id", requireAuth, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string);
+      const userId = req.user!.id;
       
       if (isNaN(id)) {
         return res.status(400).json({ error: "Invalid property ID" });
+      }
+      
+      // Check ownership before deleting
+      const existingProperty = await storage.getProperty(id);
+      if (!existingProperty) {
+        return res.status(404).json({ error: "Property not found" });
+      }
+      if (existingProperty.userId !== null && existingProperty.userId !== userId) {
+        return res.status(403).json({ error: "Access denied" });
       }
       
       await storage.deleteProperty(id);
@@ -1059,7 +1085,6 @@ export async function registerRoutes(
         inflationRate: 0.03,
         baseManagementFee: 0.05,
         incentiveManagementFee: 0.15,
-        partnerSalary: 180000,
         staffSalary: 75000,
         travelCostPerClient: 12000,
         itLicensePerClient: 24000,
@@ -1085,8 +1110,8 @@ export async function registerRoutes(
           refiClosingCostRate: 0.03
         },
         commissionRate: 0.06,
-        fullCateringFbBoost: 0.5,
-        partialCateringFbBoost: 0.25,
+        fullCateringFBBoost: 0.5,
+        partialCateringFBBoost: 0.25,
         fixedCostEscalationRate: 0.03,
         safeTranche1Amount: 800000,
         safeTranche1Date: "2026-06-01",
@@ -1417,7 +1442,7 @@ export async function registerRoutes(
   app.post("/api/scenarios/:id/load", requireAuth, async (req, res) => {
     try {
       const userId = req.user!.id;
-      const scenarioId = parseInt(req.params.id);
+      const scenarioId = parseInt(req.params.id as string);
       
       const scenario = await storage.getScenario(scenarioId);
       if (!scenario) {
@@ -1455,7 +1480,7 @@ export async function registerRoutes(
   app.patch("/api/scenarios/:id", requireAuth, async (req, res) => {
     try {
       const userId = req.user!.id;
-      const scenarioId = parseInt(req.params.id);
+      const scenarioId = parseInt(req.params.id as string);
       const { name, description } = req.body;
       
       const scenario = await storage.getScenario(scenarioId);
@@ -1479,7 +1504,7 @@ export async function registerRoutes(
   app.delete("/api/scenarios/:id", requireAuth, async (req, res) => {
     try {
       const userId = req.user!.id;
-      const scenarioId = parseInt(req.params.id);
+      const scenarioId = parseInt(req.params.id as string);
       
       const scenario = await storage.getScenario(scenarioId);
       if (!scenario) {
@@ -1540,7 +1565,7 @@ export async function registerRoutes(
   // Update design theme
   app.patch("/api/admin/design-themes/:id", requireAdmin, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string);
       const theme = await storage.updateDesignTheme(id, req.body);
       if (!theme) {
         return res.status(404).json({ error: "Theme not found" });
@@ -1555,7 +1580,7 @@ export async function registerRoutes(
   // Delete design theme
   app.delete("/api/admin/design-themes/:id", requireAdmin, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string);
       await storage.deleteDesignTheme(id);
       res.json({ success: true });
     } catch (error) {
@@ -1567,7 +1592,7 @@ export async function registerRoutes(
   // Set active design theme
   app.post("/api/admin/design-themes/:id/activate", requireAdmin, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string);
       await storage.setActiveDesignTheme(id);
       res.json({ success: true });
     } catch (error) {

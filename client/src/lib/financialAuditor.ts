@@ -1,5 +1,11 @@
 import { MonthlyFinancials } from "./financialEngine";
 import { addMonths, differenceInMonths, isBefore } from "date-fns";
+import { 
+  DEFAULT_LTV, 
+  DEFAULT_INTEREST_RATE, 
+  DEFAULT_TERM_YEARS, 
+  DEPRECIATION_YEARS 
+} from './constants';
 
 export interface AuditFinding {
   category: string;
@@ -38,7 +44,6 @@ export interface AuditReport {
 }
 
 const TOLERANCE = 0.01;
-const DEPRECIATION_YEARS = 27.5;
 
 function withinTolerance(expected: number, actual: number, tolerance: number = TOLERANCE): boolean {
   if (expected === 0 && actual === 0) return true;
@@ -203,10 +208,10 @@ export function auditLoanAmortization(
   }
   
   const totalInvestment = property.purchasePrice + property.buildingImprovements;
-  const ltv = property.acquisitionLTV || global.debtAssumptions?.acqLTV || 0.75;
+  const ltv = property.acquisitionLTV || global.debtAssumptions?.acqLTV || DEFAULT_LTV;
   const loanAmount = totalInvestment * ltv;
-  const interestRate = property.debtAssumptions?.interestRate || global.debtAssumptions.interestRate;
-  const termYears = property.debtAssumptions?.amortizationYears || global.debtAssumptions.amortizationYears;
+  const interestRate = property.debtAssumptions?.interestRate || global.debtAssumptions?.interestRate || DEFAULT_INTEREST_RATE;
+  const termYears = property.debtAssumptions?.amortizationYears || global.debtAssumptions?.amortizationYears || DEFAULT_TERM_YEARS;
   const monthlyRate = interestRate / 12;
   const totalPayments = termYears * 12;
   
@@ -732,13 +737,13 @@ export function auditBalanceSheet(
     (acqDate.getMonth() - modelStart.getMonth());
   
   const buildingValue = (property.purchasePrice || 0) + (property.buildingImprovements || 0);
-  const monthlyDepreciation = buildingValue / 27.5 / 12;
+  const monthlyDepreciation = buildingValue / DEPRECIATION_YEARS / 12;
   
   const debtAssumptions = property.debtAssumptions || global.debtAssumptions;
-  const ltv = property.acquisitionLTV || 0.75;
+  const ltv = property.acquisitionLTV || global.debtAssumptions?.acqLTV || DEFAULT_LTV;
   const originalLoanAmount = property.type === "Financed" ? buildingValue * ltv : 0;
-  const monthlyRate = (debtAssumptions?.interestRate || 0.09) / 12;
-  const n = (debtAssumptions?.amortizationYears || 25) * 12;
+  const monthlyRate = (debtAssumptions?.interestRate || global.debtAssumptions?.interestRate || DEFAULT_INTEREST_RATE) / 12;
+  const n = (debtAssumptions?.amortizationYears || global.debtAssumptions?.amortizationYears || DEFAULT_TERM_YEARS) * 12;
   // Handle zero interest rate (straight-line principal reduction)
   const pmt = originalLoanAmount > 0 
     ? (monthlyRate === 0 

@@ -1,5 +1,3 @@
-import { MonthlyFinancials } from "./financialEngine";
-
 export interface LoanParams {
   purchasePrice: number;
   buildingImprovements: number;
@@ -23,6 +21,9 @@ export interface LoanParams {
 export interface GlobalLoanParams {
   modelStartDate: string;
   commissionRate?: number;
+  salesCommissionRate?: number;
+  exitCapRate?: number;
+  companyTaxRate?: number;
   debtAssumptions?: {
     acqLTV?: number;
     interestRate?: number;
@@ -65,15 +66,18 @@ export interface YearlyDebtService {
   principalPayment: number;
 }
 
-const DEFAULT_LTV = 0.75;
-const DEFAULT_INTEREST_RATE = 0.09;
-const DEFAULT_TERM_YEARS = 25;
-const DEFAULT_TAX_RATE = 0.25;
-const DEFAULT_COMMISSION_RATE = 0.05;
-const DEFAULT_EXIT_CAP_RATE = 0.085;
-const DEPRECIATION_YEARS = 27.5;
-const DEFAULT_REFI_LTV = 0.65;
-const DEFAULT_REFI_CLOSING_COST_RATE = 0.03;
+// Re-export constants from shared module for backwards compatibility
+export { 
+  DEFAULT_LTV, 
+  DEFAULT_INTEREST_RATE, 
+  DEFAULT_TERM_YEARS, 
+  DEFAULT_TAX_RATE, 
+  DEFAULT_COMMISSION_RATE, 
+  DEFAULT_EXIT_CAP_RATE, 
+  DEPRECIATION_YEARS, 
+  DEFAULT_REFI_LTV, 
+  DEFAULT_REFI_CLOSING_COST_RATE 
+} from './constants';
 
 export function calculateLoanParams(
   property: LoanParams,
@@ -87,8 +91,8 @@ export function calculateLoanParams(
   
   const interestRate = property.acquisitionInterestRate ?? global?.debtAssumptions?.interestRate ?? DEFAULT_INTEREST_RATE;
   const termYears = property.acquisitionTermYears ?? global?.debtAssumptions?.amortizationYears ?? DEFAULT_TERM_YEARS;
-  const taxRate = property.taxRate ?? DEFAULT_TAX_RATE;
-  const commissionRate = global?.commissionRate ?? DEFAULT_COMMISSION_RATE;
+  const taxRate = property.taxRate ?? global?.companyTaxRate ?? DEFAULT_TAX_RATE;
+  const commissionRate = global?.salesCommissionRate ?? global?.commissionRate ?? DEFAULT_COMMISSION_RATE;
   
   const buildingValue = property.purchasePrice + property.buildingImprovements;
   const annualDepreciation = buildingValue / DEPRECIATION_YEARS;
@@ -195,7 +199,7 @@ export function calculateRefinanceParams(
   
   const refiLTV = property.refinanceLTV ?? global?.debtAssumptions?.refiLTV ?? DEFAULT_REFI_LTV;
   const stabilizedNOI = yearlyNOIData[refiYear] || 0;
-  const exitCapRate = property.exitCapRate ?? DEFAULT_EXIT_CAP_RATE;
+  const exitCapRate = property.exitCapRate ?? global?.exitCapRate ?? DEFAULT_EXIT_CAP_RATE;
   const propertyValue = stabilizedNOI / exitCapRate;
   const refiLoanAmount = propertyValue * refiLTV;
   

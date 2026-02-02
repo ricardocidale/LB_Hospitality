@@ -14,7 +14,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { drawLineChart } from "@/lib/pdfChartDrawer";
-import { calculateLoanParams, calculatePropertyYearlyCashFlows, LoanParams, GlobalLoanParams } from "@/lib/loanCalculations";
+import { calculateLoanParams, calculatePropertyYearlyCashFlows, LoanParams, GlobalLoanParams, DEFAULT_LTV } from "@/lib/loanCalculations";
 import { PropertyPhotoUpload } from "@/components/PropertyPhotoUpload";
 import { useQueryClient } from "@tanstack/react-query";
 import { ExportDialog } from "@/components/ExportDialog";
@@ -697,7 +697,7 @@ export default function PropertyDetail() {
               global={global}
               years={10} 
               startYear={getFiscalYear(0)} 
-              defaultLTV={global.debtAssumptions?.acqLTV ?? 0.75}
+              defaultLTV={global.debtAssumptions?.acqLTV ?? DEFAULT_LTV}
             />
           </TabsContent>
         </Tabs>

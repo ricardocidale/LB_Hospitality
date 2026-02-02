@@ -15,6 +15,12 @@ import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { Slider } from "@/components/ui/slider";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useUpload } from "@/hooks/use-upload";
+import { 
+  DEFAULT_LTV, 
+  DEFAULT_INTEREST_RATE, 
+  DEFAULT_TERM_YEARS,
+  DEFAULT_REFI_LTV
+} from "@/lib/loanCalculations";
 
 function EditableValue({ 
   value, 
@@ -437,7 +443,7 @@ export default function PropertyEdit() {
                     <Input 
                       type="number" 
                       step="0.01"
-                      value={((draft.acquisitionLTV || 0.75) * 100).toFixed(0)} 
+                      value={((draft.acquisitionLTV || DEFAULT_LTV) * 100).toFixed(0)} 
                       onChange={(e) => handleNumberChange("acquisitionLTV", (parseFloat(e.target.value) / 100).toString())}
                       className="bg-white border-[#9FBCA4]/30 text-gray-900"
                     />
@@ -447,7 +453,7 @@ export default function PropertyEdit() {
                     <Input 
                       type="number" 
                       step="0.01"
-                      value={((draft.acquisitionInterestRate || 0.09) * 100).toFixed(2)} 
+                      value={((draft.acquisitionInterestRate || DEFAULT_INTEREST_RATE) * 100).toFixed(2)} 
                       onChange={(e) => handleNumberChange("acquisitionInterestRate", (parseFloat(e.target.value) / 100).toString())}
                       className="bg-white border-[#9FBCA4]/30 text-gray-900"
                     />
@@ -456,7 +462,7 @@ export default function PropertyEdit() {
                     <Label className="label-text text-gray-700">Loan Term (Years)</Label>
                     <Input 
                       type="number" 
-                      value={draft.acquisitionTermYears || 25} 
+                      value={draft.acquisitionTermYears || DEFAULT_TERM_YEARS} 
                       onChange={(e) => handleNumberChange("acquisitionTermYears", e.target.value)}
                       className="bg-white border-[#9FBCA4]/30 text-gray-900"
                     />
@@ -519,7 +525,7 @@ export default function PropertyEdit() {
                           <Input 
                             type="number" 
                             step="0.01"
-                            value={((draft.refinanceLTV || 0.75) * 100).toFixed(0)} 
+                            value={((draft.refinanceLTV || DEFAULT_REFI_LTV) * 100).toFixed(0)} 
                             onChange={(e) => handleNumberChange("refinanceLTV", (parseFloat(e.target.value) / 100).toString())}
                             className="bg-white border-[#9FBCA4]/30 text-gray-900"
                           />
@@ -529,7 +535,7 @@ export default function PropertyEdit() {
                           <Input 
                             type="number" 
                             step="0.01"
-                            value={((draft.refinanceInterestRate || 0.09) * 100).toFixed(2)} 
+                            value={((draft.refinanceInterestRate || DEFAULT_INTEREST_RATE) * 100).toFixed(2)} 
                             onChange={(e) => handleNumberChange("refinanceInterestRate", (parseFloat(e.target.value) / 100).toString())}
                             className="bg-white border-[#9FBCA4]/30 text-gray-900"
                           />
@@ -538,7 +544,7 @@ export default function PropertyEdit() {
                           <Label className="label-text text-gray-700">Loan Term (Years)</Label>
                           <Input 
                             type="number" 
-                            value={draft.refinanceTermYears || 25} 
+                            value={draft.refinanceTermYears || DEFAULT_TERM_YEARS} 
                             onChange={(e) => handleNumberChange("refinanceTermYears", e.target.value)}
                             className="bg-white border-[#9FBCA4]/30 text-gray-900"
                           />

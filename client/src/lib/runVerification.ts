@@ -2,6 +2,13 @@ import { generatePropertyProForma, MonthlyFinancials } from "./financialEngine";
 import { checkPropertyFormulas, checkMetricFormulas, generateFormulaReport, FormulaCheckReport } from "./formulaChecker";
 import { checkGAAPCompliance, checkCashFlowStatement, generateComplianceReport, ComplianceReport } from "./gaapComplianceChecker";
 import { runFullAudit, generateAuditWorkpaper, AuditReport, PropertyAuditInput, GlobalAuditInput } from "./financialAuditor";
+import { 
+  DEFAULT_LTV, 
+  DEFAULT_INTEREST_RATE, 
+  DEFAULT_TERM_YEARS, 
+  DEPRECIATION_YEARS,
+  DAYS_PER_MONTH
+} from "./constants";
 
 export interface VerificationResults {
   formulaReport: string;
@@ -61,9 +68,9 @@ function convertToGlobalAuditInput(global: any): GlobalAuditInput {
     baseManagementFee: global.baseManagementFee,
     incentiveManagementFee: global.incentiveManagementFee,
     debtAssumptions: global.debtAssumptions || {
-      interestRate: 0.09,
-      amortizationYears: 25,
-      acqLTV: 0.75
+      interestRate: DEFAULT_INTEREST_RATE,
+      amortizationYears: DEFAULT_TERM_YEARS,
+      acqLTV: DEFAULT_LTV
     }
   };
 }
@@ -302,23 +309,22 @@ export function runKnownValueTests(): { passed: boolean; results: string } {
     const roomCount = testCase.property.roomCount || 0;
     const adr = testCase.property.startAdr || 0;
     const occupancy = testCase.property.startOccupancy || 0;
-    const daysInMonth = 30.5; // Industry standard: 365/12 ≈ 30.4167, rounded to 30.5
-    const calculatedRoomRevenue = roomCount * adr * occupancy * daysInMonth;
+    const calculatedRoomRevenue = roomCount * adr * occupancy * DAYS_PER_MONTH;
     const revenueMatch = Math.abs(calculatedRoomRevenue - testCase.expectedMonthlyRoomRevenue) < 1;
     
     output += `  Room Revenue: ${revenueMatch ? "✓" : "✗"}\n`;
-    output += `    Formula: ${roomCount} rooms × $${adr} ADR × ${(occupancy * 100).toFixed(0)}% × ${daysInMonth} days\n`;
+    output += `    Formula: ${roomCount} rooms × $${adr} ADR × ${(occupancy * 100).toFixed(0)}% × ${DAYS_PER_MONTH} days\n`;
     output += `    Expected: $${testCase.expectedMonthlyRoomRevenue.toLocaleString()}\n`;
     output += `    Calculated: $${calculatedRoomRevenue.toLocaleString()}\n`;
     if (!revenueMatch) allPassed = false;
     
     // Test depreciation calculation
     const buildingValue = (testCase.property.purchasePrice || 0) + (testCase.property.buildingImprovements || 0);
-    const calculatedDepreciation = buildingValue / 27.5;
+    const calculatedDepreciation = buildingValue / DEPRECIATION_YEARS;
     const depreciationMatch = Math.abs(calculatedDepreciation - testCase.expectedAnnualDepreciation) < 1;
     
     output += `\n  Depreciation: ${depreciationMatch ? "✓" : "✗"}\n`;
-    output += `    Formula: $${buildingValue.toLocaleString()} ÷ 27.5 years\n`;
+    output += `    Formula: $${buildingValue.toLocaleString()} ÷ ${DEPRECIATION_YEARS} years\n`;
     output += `    Expected: $${testCase.expectedAnnualDepreciation.toLocaleString()}\n`;
     output += `    Calculated: $${calculatedDepreciation.toLocaleString()}\n`;
     if (!depreciationMatch) allPassed = false;
@@ -326,10 +332,10 @@ export function runKnownValueTests(): { passed: boolean; results: string } {
     // Test loan payment calculation
     if (testCase.property.type === "Financed") {
       const totalInvestment = buildingValue;
-      const ltv = testCase.property.acquisitionLTV || 0.75;
+      const ltv = testCase.property.acquisitionLTV || DEFAULT_LTV;
       const loanAmount = totalInvestment * ltv;
-      const rate = 0.09 / 12; // 9% annual = 0.75% monthly
-      const n = 25 * 12; // 25 years = 300 months
+      const rate = DEFAULT_INTEREST_RATE / 12;
+      const n = DEFAULT_TERM_YEARS * 12;
       const calculatedPayment = loanAmount > 0 
         ? (loanAmount * rate * Math.pow(1 + rate, n)) / (Math.pow(1 + rate, n) - 1)
         : 0;

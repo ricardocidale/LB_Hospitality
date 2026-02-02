@@ -1,4 +1,40 @@
 import { addMonths, differenceInMonths, isBefore } from "date-fns";
+import { 
+  DEFAULT_LTV, 
+  DEFAULT_INTEREST_RATE, 
+  DEFAULT_TERM_YEARS, 
+  DEPRECIATION_YEARS,
+  DAYS_PER_MONTH,
+  DEFAULT_REV_SHARE_EVENTS,
+  DEFAULT_REV_SHARE_FB,
+  DEFAULT_REV_SHARE_OTHER,
+  DEFAULT_FULL_CATERING_PCT,
+  DEFAULT_PARTIAL_CATERING_PCT,
+  DEFAULT_FULL_CATERING_BOOST,
+  DEFAULT_PARTIAL_CATERING_BOOST,
+  DEFAULT_COST_RATE_ROOMS,
+  DEFAULT_COST_RATE_FB,
+  DEFAULT_COST_RATE_ADMIN,
+  DEFAULT_COST_RATE_MARKETING,
+  DEFAULT_COST_RATE_PROPERTY_OPS,
+  DEFAULT_COST_RATE_UTILITIES,
+  DEFAULT_COST_RATE_INSURANCE,
+  DEFAULT_COST_RATE_TAXES,
+  DEFAULT_COST_RATE_IT,
+  DEFAULT_COST_RATE_FFE,
+  DEFAULT_COST_RATE_OTHER,
+  DEFAULT_STAFF_SALARY,
+  DEFAULT_OFFICE_LEASE,
+  DEFAULT_PROFESSIONAL_SERVICES,
+  DEFAULT_TECH_INFRA,
+  DEFAULT_BUSINESS_INSURANCE,
+  DEFAULT_TRAVEL_PER_CLIENT,
+  DEFAULT_IT_LICENSE_PER_CLIENT,
+  DEFAULT_MARKETING_RATE,
+  DEFAULT_MISC_OPS_RATE,
+  DEFAULT_SAFE_TRANCHE,
+  DEFAULT_PARTNER_COMP
+} from './constants';
 
 // Helper function to get fiscal year label for a given month in the model
 // modelStartDate: when the model starts (e.g., "2026-04-01")
@@ -179,11 +215,6 @@ export interface MonthlyFinancials {
   endingCash: number;
 }
 
-// Default revenue shares (now property-configurable)
-const DEFAULT_REV_SHARE_EVENTS = 0.43;
-const DEFAULT_REV_SHARE_FB = 0.22;
-const DEFAULT_REV_SHARE_OTHER = 0.07;
-
 export function generatePropertyProForma(
   property: PropertyInput, 
   global: GlobalInput, 
@@ -196,13 +227,13 @@ export function generatePropertyProForma(
   
   // Balance sheet calculations - for PwC-level verification
   const buildingValue = property.purchasePrice + (property.buildingImprovements ?? 0);
-  const monthlyDepreciation = buildingValue / 27.5 / 12; // 27.5-year straight-line (IRS Publication 946)
+  const monthlyDepreciation = buildingValue / DEPRECIATION_YEARS / 12;
   
   // Loan setup for debt outstanding tracking
-  const ltv = property.acquisitionLTV ?? global.debtAssumptions?.acqLTV ?? 0.75;
+  const ltv = property.acquisitionLTV ?? global.debtAssumptions?.acqLTV ?? DEFAULT_LTV;
   const originalLoanAmount = property.type === "Financed" ? buildingValue * ltv : 0;
-  const loanRate = global.debtAssumptions?.interestRate ?? 0.09;
-  const loanTerm = global.debtAssumptions?.amortizationYears ?? 25;
+  const loanRate = global.debtAssumptions?.interestRate ?? DEFAULT_INTEREST_RATE;
+  const loanTerm = global.debtAssumptions?.amortizationYears ?? DEFAULT_TERM_YEARS;
   const monthlyRate = loanRate / 12;
   const totalPayments = loanTerm * 12;
   // Handle zero interest rate (straight-line principal reduction)
@@ -238,8 +269,7 @@ export function generatePropertyProForma(
       );
     }
     
-    const daysInMonth = 30.5; // Industry standard: 365/12 = 30.4167, rounded to 30.5
-    const availableRooms = property.roomCount * daysInMonth;
+    const availableRooms = property.roomCount * DAYS_PER_MONTH;
     const soldRooms = isOperational ? availableRooms * occupancy : 0;
     
     const revenueRooms = soldRooms * currentAdr;
@@ -252,10 +282,10 @@ export function generatePropertyProForma(
     
     // F&B revenue gets boosted by catering at events
     // Formula: baseFB × (1 + fullBoost × fullCateringPct + partialBoost × partialCateringPct)
-    const fullCateringPct = property.fullCateringPercent ?? 0.40;
-    const partialCateringPct = property.partialCateringPercent ?? 0.30;
-    const fullBoost = global.fullCateringFBBoost ?? 0.50;
-    const partialBoost = global.partialCateringFBBoost ?? 0.25;
+    const fullCateringPct = property.fullCateringPercent ?? DEFAULT_FULL_CATERING_PCT;
+    const partialCateringPct = property.partialCateringPercent ?? DEFAULT_PARTIAL_CATERING_PCT;
+    const fullBoost = global.fullCateringFBBoost ?? DEFAULT_FULL_CATERING_BOOST;
+    const partialBoost = global.partialCateringFBBoost ?? DEFAULT_PARTIAL_CATERING_BOOST;
     const baseFB = revenueRooms * revShareFB;
     const cateringBoostMultiplier = 1 + (fullBoost * fullCateringPct) + (partialBoost * partialCateringPct);
     const revenueFB = baseFB * cateringBoostMultiplier;
@@ -264,17 +294,17 @@ export function generatePropertyProForma(
     const revenueTotal = revenueRooms + revenueEvents + revenueFB + revenueOther;
     
     // Property-level cost rates
-    const costRateRooms = property.costRateRooms ?? 0.36;
-    const costRateFB = property.costRateFB ?? 0.15;
-    const costRateAdmin = property.costRateAdmin ?? 0.08;
-    const costRateMarketing = property.costRateMarketing ?? 0.05;
-    const costRatePropertyOps = property.costRatePropertyOps ?? 0.04;
-    const costRateUtilities = property.costRateUtilities ?? 0.05;
-    const costRateInsurance = property.costRateInsurance ?? 0.02;
-    const costRateTaxes = property.costRateTaxes ?? 0.03;
-    const costRateIT = property.costRateIT ?? 0.02;
-    const costRateFFE = property.costRateFFE ?? 0.04;
-    const costRateOther = property.costRateOther ?? 0.05;
+    const costRateRooms = property.costRateRooms ?? DEFAULT_COST_RATE_ROOMS;
+    const costRateFB = property.costRateFB ?? DEFAULT_COST_RATE_FB;
+    const costRateAdmin = property.costRateAdmin ?? DEFAULT_COST_RATE_ADMIN;
+    const costRateMarketing = property.costRateMarketing ?? DEFAULT_COST_RATE_MARKETING;
+    const costRatePropertyOps = property.costRatePropertyOps ?? DEFAULT_COST_RATE_PROPERTY_OPS;
+    const costRateUtilities = property.costRateUtilities ?? DEFAULT_COST_RATE_UTILITIES;
+    const costRateInsurance = property.costRateInsurance ?? DEFAULT_COST_RATE_INSURANCE;
+    const costRateTaxes = property.costRateTaxes ?? DEFAULT_COST_RATE_TAXES;
+    const costRateIT = property.costRateIT ?? DEFAULT_COST_RATE_IT;
+    const costRateFFE = property.costRateFFE ?? DEFAULT_COST_RATE_FFE;
+    const costRateOther = property.costRateOther ?? DEFAULT_COST_RATE_OTHER;
     
     const expenseRooms = revenueRooms * costRateRooms;
     
@@ -524,34 +554,34 @@ export function generateCompanyProForma(
       // Use yearly partner compensation values (year is 0-indexed, so year 0 = Year 1)
       const modelYear = year + 1; // year is 0-indexed, convert to 1-10
       const yearlyPartnerComp = [
-        global.partnerCompYear1 ?? 540000,
-        global.partnerCompYear2 ?? 540000,
-        global.partnerCompYear3 ?? 540000,
-        global.partnerCompYear4 ?? 600000,
-        global.partnerCompYear5 ?? 600000,
-        global.partnerCompYear6 ?? 700000,
-        global.partnerCompYear7 ?? 700000,
-        global.partnerCompYear8 ?? 800000,
-        global.partnerCompYear9 ?? 800000,
-        global.partnerCompYear10 ?? 900000,
+        global.partnerCompYear1 ?? DEFAULT_PARTNER_COMP[0],
+        global.partnerCompYear2 ?? DEFAULT_PARTNER_COMP[1],
+        global.partnerCompYear3 ?? DEFAULT_PARTNER_COMP[2],
+        global.partnerCompYear4 ?? DEFAULT_PARTNER_COMP[3],
+        global.partnerCompYear5 ?? DEFAULT_PARTNER_COMP[4],
+        global.partnerCompYear6 ?? DEFAULT_PARTNER_COMP[5],
+        global.partnerCompYear7 ?? DEFAULT_PARTNER_COMP[6],
+        global.partnerCompYear8 ?? DEFAULT_PARTNER_COMP[7],
+        global.partnerCompYear9 ?? DEFAULT_PARTNER_COMP[8],
+        global.partnerCompYear10 ?? DEFAULT_PARTNER_COMP[9],
       ];
       const yearIndex = Math.min(modelYear - 1, 9); // Clamp to 0-9
       const totalPartnerCompForYear = yearlyPartnerComp[yearIndex];
       
-      const staffSalary = (global.staffSalary ?? 75000);
+      const staffSalary = (global.staffSalary ?? DEFAULT_STAFF_SALARY);
       const staffFTE = activePropertyCount <= 3 ? 2.5 : activePropertyCount <= 6 ? 4.5 : 7.0;
       
       partnerCompensation = totalPartnerCompForYear / 12;
       staffCompensation = (staffFTE * staffSalary * fixedCostFactor) / 12;
-      officeLease = ((global.officeLeaseStart ?? 36000) * fixedCostFactor) / 12;
-      professionalServices = ((global.professionalServicesStart ?? 24000) * fixedCostFactor) / 12;
-      techInfrastructure = ((global.techInfraStart ?? 18000) * fixedCostFactor) / 12;
-      businessInsurance = ((global.businessInsuranceStart ?? 12000) * fixedCostFactor) / 12;
+      officeLease = ((global.officeLeaseStart ?? DEFAULT_OFFICE_LEASE) * fixedCostFactor) / 12;
+      professionalServices = ((global.professionalServicesStart ?? DEFAULT_PROFESSIONAL_SERVICES) * fixedCostFactor) / 12;
+      techInfrastructure = ((global.techInfraStart ?? DEFAULT_TECH_INFRA) * fixedCostFactor) / 12;
+      businessInsurance = ((global.businessInsuranceStart ?? DEFAULT_BUSINESS_INSURANCE) * fixedCostFactor) / 12;
       
-      travelCosts = (activePropertyCount * (global.travelCostPerClient ?? 12000) * variableCostFactor) / 12;
-      itLicensing = (activePropertyCount * (global.itLicensePerClient ?? 3000) * variableCostFactor) / 12;
-      marketing = totalRevenue * (global.marketingRate ?? 0.05);
-      miscOps = totalRevenue * (global.miscOpsRate ?? 0.03);
+      travelCosts = (activePropertyCount * (global.travelCostPerClient ?? DEFAULT_TRAVEL_PER_CLIENT) * variableCostFactor) / 12;
+      itLicensing = (activePropertyCount * (global.itLicensePerClient ?? DEFAULT_IT_LICENSE_PER_CLIENT) * variableCostFactor) / 12;
+      marketing = totalRevenue * (global.marketingRate ?? DEFAULT_MARKETING_RATE);
+      miscOps = totalRevenue * (global.miscOpsRate ?? DEFAULT_MISC_OPS_RATE);
     }
     
     const totalExpenses = partnerCompensation + staffCompensation + officeLease + professionalServices +
@@ -562,10 +592,10 @@ export function generateCompanyProForma(
     let safeFunding1 = 0;
     let safeFunding2 = 0;
     if (currentYear === tranche1Parsed.year && currentMonth === tranche1Parsed.month) {
-      safeFunding1 = global.safeTranche1Amount ?? 800000;
+      safeFunding1 = global.safeTranche1Amount ?? DEFAULT_SAFE_TRANCHE;
     }
     if (tranche2Parsed && currentYear === tranche2Parsed.year && currentMonth === tranche2Parsed.month) {
-      safeFunding2 = global.safeTranche2Amount ?? 800000;
+      safeFunding2 = global.safeTranche2Amount ?? DEFAULT_SAFE_TRANCHE;
     }
     const safeFunding = safeFunding1 + safeFunding2;
     

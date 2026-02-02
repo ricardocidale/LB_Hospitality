@@ -623,6 +623,14 @@ export default function Company() {
         <PageHeader
           title={global?.companyName || "L+B Hospitality Co."}
           subtitle="Corporate Management Entity & Operations"
+          actions={
+            <Link href="/company/assumptions">
+              <GlassButton variant="settings">
+                <Settings2 className="w-4 h-4" />
+                Assumptions
+              </GlassButton>
+            </Link>
+          }
         />
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -698,12 +706,6 @@ export default function Company() {
                 <ImageIcon className="w-4 h-4" />
                 Chart
               </GlassButton>
-              <Link href="/company/assumptions">
-                <GlassButton variant="settings">
-                  <Settings2 className="w-4 h-4" />
-                  Assumptions
-                </GlassButton>
-              </Link>
             </div>
           </div>
 

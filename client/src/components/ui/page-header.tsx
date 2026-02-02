@@ -17,26 +17,26 @@ function PageHeader({ title, subtitle, backLink, actions, className, variant = "
   const isDark = variant === "dark";
   
   return (
-    <div className={cn("relative overflow-hidden rounded-3xl p-6 min-h-[88px]", className)}>
+    <div className={cn("relative rounded-3xl p-6 min-h-[88px]", className)}>
       {/* Background based on variant */}
       {isDark ? (
         <>
-          <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e] via-[#3d5a6a] to-[#3a5a5e]" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e] via-[#3d5a6a] to-[#3a5a5e] rounded-3xl overflow-hidden" />
           <div className="absolute top-0 right-1/4 w-32 h-32 rounded-full bg-[#9FBCA4]/20 blur-2xl" />
           <div className="absolute bottom-0 left-1/4 w-24 h-24 rounded-full bg-[#9FBCA4]/15 blur-xl" />
           <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-white/25 to-transparent" />
-          <div className="absolute inset-0 border border-white/15 rounded-3xl" />
+          <div className="absolute inset-0 border border-white/15 rounded-3xl pointer-events-none" />
         </>
       ) : (
         <>
-          <div className="absolute inset-0 bg-white/80 backdrop-blur-xl" />
+          <div className="absolute inset-0 bg-white/80 backdrop-blur-xl rounded-3xl overflow-hidden" />
           <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-[#9FBCA4]/20 blur-2xl" />
           <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/10 blur-xl" />
-          <div className="absolute inset-0 border border-[#9FBCA4]/20 rounded-3xl shadow-[0_8px_32px_rgba(159,188,164,0.15)]" />
+          <div className="absolute inset-0 border border-[#9FBCA4]/20 rounded-3xl shadow-[0_8px_32px_rgba(159,188,164,0.15)] pointer-events-none" />
         </>
       )}
       
-      <div className="relative flex items-center justify-between">
+      <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
           {backLink && (
             <Link href={backLink}>
@@ -67,7 +67,7 @@ function PageHeader({ title, subtitle, backLink, actions, className, variant = "
           </div>
         </div>
         {actions && (
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 flex-shrink-0">
             {actions}
           </div>
         )}

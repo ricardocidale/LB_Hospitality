@@ -10,6 +10,7 @@ export const DEFAULT_COMMISSION_RATE = 0.05;
 export const DEFAULT_EXIT_CAP_RATE = 0.085;
 export const DEFAULT_REFI_LTV = 0.65;
 export const DEFAULT_REFI_CLOSING_COST_RATE = 0.03;
+export const DEFAULT_ACQ_CLOSING_COST_RATE = 0.02;
 
 // IRS-mandated depreciation period (Publication 946 / ASC 360)
 export const DEPRECIATION_YEARS = 27.5;

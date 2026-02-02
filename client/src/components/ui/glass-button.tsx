@@ -28,13 +28,9 @@ const GlassButton = React.forwardRef<HTMLButtonElement, GlassButtonProps>(
             "text-white font-medium",
             className
           )}
+          style={{ background: isDisabled ? '#4a5a6a' : 'linear-gradient(135deg, #2d4a5e 0%, #3d5a6a 50%, #3a5a5e 100%)' }}
           {...props}
         >
-          {/* Dark glass background - dims when disabled */}
-          <div className={cn(
-            "absolute inset-0 backdrop-blur-xl rounded-xl transition-opacity",
-            isDisabled ? "bg-white/8" : "bg-white/15"
-          )} />
           {/* Top edge shine line */}
           <div className={cn(
             "absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent transition-opacity",

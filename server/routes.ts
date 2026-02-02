@@ -371,6 +371,138 @@ export async function registerRoutes(
     }
   });
 
+  // --- PRODUCTION DATA SEEDING (one-time use) ---
+  app.post("/api/admin/seed-production", requireAdmin, async (req, res) => {
+    try {
+      const results = {
+        users: { created: 0, skipped: 0 },
+        globalAssumptions: { created: 0, skipped: 0 },
+        properties: { created: 0, skipped: 0 },
+        designThemes: { created: 0, skipped: 0 }
+      };
+
+      // Seed users (skip if already exist)
+      const usersToSeed = [
+        { email: "admin", passwordHash: "$2b$12$Pn7FR96mt7FWlXE4CVfCZ.J4amO5fnhrVpXa.fw6R.FpR.EJCYR.O", role: "admin" as const, name: "Ricardo Cidale", company: "Norfolk Group", title: "Partner" },
+        { email: "rosario@kitcapital.com", passwordHash: "$2b$12$2AtbFcvAfiT2mEYMIXPF0uvwZR764dP2HGtGsq1hfZLgFuYmJ7xaq", role: "user" as const, name: "Rosario David", company: "KIT Capital", title: "COO" },
+        { email: "checker", passwordHash: "$2b$12$2nybBrwP6J7IkfAhoyneDev.bO5U2KQIoRsM2txsp2gk7ofVQATMG", role: "user" as const, name: "Checker User" }
+      ];
+      
+      for (const userData of usersToSeed) {
+        const existing = await storage.getUserByEmail(userData.email);
+        if (!existing) {
+          await storage.createUser(userData);
+          results.users.created++;
+        } else {
+          results.users.skipped++;
+        }
+      }
+
+      // Seed global assumptions (skip if already exist)
+      const existingAssumptions = await storage.getGlobalAssumptions();
+      if (!existingAssumptions) {
+        await storage.upsertGlobalAssumptions({
+          modelStartDate: "2026-04-01",
+          inflationRate: 0.03,
+          baseManagementFee: 0.05,
+          incentiveManagementFee: 0.15,
+          staffSalary: 75000,
+          travelCostPerClient: 12000,
+          itLicensePerClient: 3000,
+          marketingRate: 0.05,
+          miscOpsRate: 0.03,
+          officeLeaseStart: 36000,
+          professionalServicesStart: 24000,
+          techInfraStart: 18000,
+          businessInsuranceStart: 12000,
+          standardAcqPackage: { monthsToOps: 6, purchasePrice: 2300000, preOpeningCosts: 150000, operatingReserve: 200000, buildingImprovements: 800000 },
+          debtAssumptions: { acqLTV: 0.75, refiLTV: 0.75, interestRate: 0.09, amortizationYears: 25, acqClosingCostRate: 0.02, refiClosingCostRate: 0.03 },
+          commissionRate: 0.06,
+          fullCateringFBBoost: 0.5,
+          partialCateringFBBoost: 0.25,
+          fixedCostEscalationRate: 0.03,
+          safeTranche1Amount: 750000,
+          safeTranche1Date: "2026-06-01",
+          safeTranche2Amount: 750000,
+          safeTranche2Date: "2027-04-01",
+          safeValuationCap: 2500000,
+          safeDiscountRate: 0.2,
+          companyTaxRate: 0.3,
+          companyOpsStartDate: "2026-06-01",
+          fiscalYearStartMonth: 1,
+          partnerCompYear1: 540000, partnerCompYear2: 540000, partnerCompYear3: 540000,
+          partnerCompYear4: 600000, partnerCompYear5: 600000, partnerCompYear6: 700000,
+          partnerCompYear7: 700000, partnerCompYear8: 800000, partnerCompYear9: 800000, partnerCompYear10: 900000,
+          partnerCountYear1: 3, partnerCountYear2: 3, partnerCountYear3: 3, partnerCountYear4: 3, partnerCountYear5: 3,
+          partnerCountYear6: 3, partnerCountYear7: 3, partnerCountYear8: 3, partnerCountYear9: 3, partnerCountYear10: 3,
+          companyName: "L+B Hospitality Company",
+          exitCapRate: 0.085,
+          salesCommissionRate: 0.05,
+          eventExpenseRate: 0.65,
+          otherExpenseRate: 0.6,
+          utilitiesVariableSplit: 0.6
+        });
+        results.globalAssumptions.created++;
+      } else {
+        results.globalAssumptions.skipped++;
+      }
+
+      // Seed properties (skip if already exist by name)
+      const propertiesToSeed = [
+        { name: "The Hudson Estate", location: "Upstate New York", market: "North America", imageUrl: "/images/property-ny.png", status: "Development", acquisitionDate: "2026-06-01", operationsStartDate: "2026-12-01", purchasePrice: 2300000, buildingImprovements: 800000, preOpeningCosts: 150000, operatingReserve: 200000, roomCount: 20, startAdr: 330, adrGrowthRate: 0.025, startOccupancy: 0.6, maxOccupancy: 0.9, occupancyRampMonths: 6, occupancyGrowthStep: 0.05, stabilizationMonths: 36, type: "Full Equity", cateringLevel: "Partial", costRateRooms: 0.36, costRateFB: 0.15, costRateAdmin: 0.08, costRateMarketing: 0.01, costRatePropertyOps: 0.04, costRateUtilities: 0.05, costRateInsurance: 0.02, costRateTaxes: 0.03, costRateIT: 0.005, costRateFFE: 0.04, revShareEvents: 0.43, revShareFB: 0.22, revShareOther: 0.07, fullCateringPercent: 0.4, partialCateringPercent: 0.3, costRateOther: 0.05, exitCapRate: 0.085, taxRate: 0.25, willRefinance: "Yes", refinanceDate: "2029-12-01" },
+        { name: "Eden Summit Lodge", location: "Eden, Utah", market: "North America", imageUrl: "/images/property-utah.png", status: "Acquisition", acquisitionDate: "2027-01-01", operationsStartDate: "2027-07-01", purchasePrice: 2300000, buildingImprovements: 800000, preOpeningCosts: 150000, operatingReserve: 200000, roomCount: 20, startAdr: 390, adrGrowthRate: 0.025, startOccupancy: 0.6, maxOccupancy: 0.9, occupancyRampMonths: 6, occupancyGrowthStep: 0.05, stabilizationMonths: 36, type: "Full Equity", cateringLevel: "Full", costRateRooms: 0.36, costRateFB: 0.15, costRateAdmin: 0.08, costRateMarketing: 0.01, costRatePropertyOps: 0.04, costRateUtilities: 0.05, costRateInsurance: 0.02, costRateTaxes: 0.03, costRateIT: 0.005, costRateFFE: 0.04, revShareEvents: 0.43, revShareFB: 0.22, revShareOther: 0.07, fullCateringPercent: 0.4, partialCateringPercent: 0.3, costRateOther: 0.05, exitCapRate: 0.085, taxRate: 0.25, willRefinance: "Yes", refinanceDate: "2030-07-01" },
+        { name: "Austin Hillside", location: "Austin, Texas", market: "North America", imageUrl: "/images/property-austin.png", status: "Acquisition", acquisitionDate: "2027-04-01", operationsStartDate: "2028-01-01", purchasePrice: 2300000, buildingImprovements: 800000, preOpeningCosts: 150000, operatingReserve: 200000, roomCount: 20, startAdr: 270, adrGrowthRate: 0.025, startOccupancy: 0.6, maxOccupancy: 0.9, occupancyRampMonths: 6, occupancyGrowthStep: 0.05, stabilizationMonths: 36, type: "Full Equity", cateringLevel: "Partial", costRateRooms: 0.36, costRateFB: 0.15, costRateAdmin: 0.08, costRateMarketing: 0.01, costRatePropertyOps: 0.04, costRateUtilities: 0.05, costRateInsurance: 0.02, costRateTaxes: 0.03, costRateIT: 0.005, costRateFFE: 0.04, revShareEvents: 0.43, revShareFB: 0.22, revShareOther: 0.07, fullCateringPercent: 0.4, partialCateringPercent: 0.3, costRateOther: 0.05, exitCapRate: 0.085, taxRate: 0.25, willRefinance: "Yes", refinanceDate: "2031-01-01" },
+        { name: "Casa Medellín", location: "Medellín, Colombia", market: "Latin America", imageUrl: "/images/property-medellin.png", status: "Acquisition", acquisitionDate: "2026-09-01", operationsStartDate: "2028-07-01", purchasePrice: 3500000, buildingImprovements: 800000, preOpeningCosts: 150000, operatingReserve: 200000, roomCount: 30, startAdr: 180, adrGrowthRate: 0.04, startOccupancy: 0.6, maxOccupancy: 0.9, occupancyRampMonths: 6, occupancyGrowthStep: 0.05, stabilizationMonths: 36, type: "Financed", cateringLevel: "Full", costRateRooms: 0.36, costRateFB: 0.15, costRateAdmin: 0.08, costRateMarketing: 0.01, costRatePropertyOps: 0.04, costRateUtilities: 0.05, costRateInsurance: 0.02, costRateTaxes: 0.03, costRateIT: 0.005, costRateFFE: 0.04, revShareEvents: 0.43, revShareFB: 0.22, revShareOther: 0.07, fullCateringPercent: 0.4, partialCateringPercent: 0.3, costRateOther: 0.05, exitCapRate: 0.085, taxRate: 0.25, acquisitionLTV: 0.75, acquisitionInterestRate: 0.09, acquisitionTermYears: 25, acquisitionClosingCostRate: 0.02 },
+        { name: "Blue Ridge Manor", location: "Asheville, North Carolina", market: "North America", imageUrl: "/images/property-asheville.png", status: "Acquisition", acquisitionDate: "2027-07-01", operationsStartDate: "2028-07-01", purchasePrice: 3500000, buildingImprovements: 800000, preOpeningCosts: 150000, operatingReserve: 200000, roomCount: 30, startAdr: 342, adrGrowthRate: 0.025, startOccupancy: 0.6, maxOccupancy: 0.9, occupancyRampMonths: 6, occupancyGrowthStep: 0.05, stabilizationMonths: 36, type: "Financed", cateringLevel: "Full", costRateRooms: 0.36, costRateFB: 0.15, costRateAdmin: 0.08, costRateMarketing: 0.01, costRatePropertyOps: 0.04, costRateUtilities: 0.05, costRateInsurance: 0.02, costRateTaxes: 0.03, costRateIT: 0.005, costRateFFE: 0.04, revShareEvents: 0.43, revShareFB: 0.22, revShareOther: 0.07, fullCateringPercent: 0.4, partialCateringPercent: 0.3, costRateOther: 0.05, exitCapRate: 0.085, taxRate: 0.25, acquisitionLTV: 0.75, acquisitionInterestRate: 0.09, acquisitionTermYears: 25, acquisitionClosingCostRate: 0.02 }
+      ];
+
+      const existingProperties = await storage.getAllProperties();
+      const existingNames = new Set(existingProperties.map(p => p.name));
+      
+      for (const propData of propertiesToSeed) {
+        if (!existingNames.has(propData.name)) {
+          await storage.createProperty(propData);
+          results.properties.created++;
+        } else {
+          results.properties.skipped++;
+        }
+      }
+
+      // Seed design theme (skip if already exists)
+      const existingThemes = await storage.getAllDesignThemes();
+      if (existingThemes.length === 0) {
+        await storage.createDesignTheme({
+          name: "Fluid Glass",
+          description: "Inspired by Apple's iOS design language, Fluid Glass creates a sense of depth and dimension through translucent layers, subtle gradients, and smooth animations.",
+          isActive: true,
+          colors: [
+            { name: "Sage Green", rank: 1, hexCode: "#9FBCA4", description: "PALETTE: Secondary accent for subtle highlights, card borders, and supporting visual elements." },
+            { name: "Deep Green", rank: 2, hexCode: "#257D41", description: "PALETTE: Primary brand color for main action buttons, active navigation items, and key highlights." },
+            { name: "Warm Cream", rank: 3, hexCode: "#FFF9F5", description: "PALETTE: Light background for page backgrounds, card surfaces, and warm accents." },
+            { name: "Deep Black", rank: 4, hexCode: "#0a0a0f", description: "PALETTE: Dark theme background for navigation sidebars, dark glass panels, and login screens." },
+            { name: "Salmon", rank: 5, hexCode: "#F4795B", description: "PALETTE: Accent color for warnings, notifications, and emphasis highlights." },
+            { name: "Yellow Gold", rank: 6, hexCode: "#F59E0B", description: "PALETTE: Accent color for highlights, badges, and attention-drawing elements." },
+            { name: "Chart Blue", rank: 1, hexCode: "#3B82F6", description: "CHART: Primary chart line color for revenue and key financial metrics." },
+            { name: "Chart Red", rank: 2, hexCode: "#EF4444", description: "CHART: Secondary chart line color for expenses and cost-related metrics." },
+            { name: "Chart Purple", rank: 3, hexCode: "#8B5CF6", description: "CHART: Tertiary chart line color for cash flow and profitability metrics." }
+          ]
+        });
+        results.designThemes.created++;
+      } else {
+        results.designThemes.skipped++;
+      }
+
+      res.json({
+        success: true,
+        message: "Production data seeding completed",
+        results
+      });
+    } catch (error) {
+      console.error("Error seeding production data:", error);
+      res.status(500).json({ error: "Failed to seed production data" });
+    }
+  });
+
   // --- VERIFICATION ROUTES ---
   
   // Run financial verification (admin only)

@@ -126,6 +126,18 @@ export const globalAssumptions = pgTable("global_assumptions", {
   otherExpenseRate: real("other_expense_rate").notNull().default(0.60),
   utilitiesVariableSplit: real("utilities_variable_split").notNull().default(0.60),
   
+  // Boutique Hotel Definition
+  boutiqueDefinition: jsonb("boutique_definition").notNull().default({
+    minRooms: 10,
+    maxRooms: 80,
+    hasFB: true,
+    hasEvents: true,
+    hasWellness: true,
+    minAdr: 150,
+    maxAdr: 600,
+    description: "Independently operated, design-forward properties with curated guest experiences, on-site F&B, event hosting, and wellness programming."
+  }),
+  
   // AI Research Settings
   preferredLlm: text("preferred_llm").notNull().default("gpt-4o"),
   
@@ -152,6 +164,16 @@ export const insertGlobalAssumptionsSchema = createInsertSchema(globalAssumption
     refiPeriodYears: z.number().optional(),
     acqLTV: z.number(),
     acqClosingCostRate: z.number()
+  }),
+  boutiqueDefinition: z.object({
+    minRooms: z.number(),
+    maxRooms: z.number(),
+    hasFB: z.boolean(),
+    hasEvents: z.boolean(),
+    hasWellness: z.boolean(),
+    minAdr: z.number(),
+    maxAdr: z.number(),
+    description: z.string()
   })
 }).pick({
   userId: true,
@@ -210,6 +232,7 @@ export const insertGlobalAssumptionsSchema = createInsertSchema(globalAssumption
   eventExpenseRate: true,
   otherExpenseRate: true,
   utilitiesVariableSplit: true,
+  boutiqueDefinition: true,
   preferredLlm: true,
 });
 

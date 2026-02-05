@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 import Layout from "@/components/Layout";
-import { useProperty, useMarketResearch } from "@/lib/api";
+import { useProperty, useMarketResearch, useGlobalAssumptions } from "@/lib/api";
 import { PageHeader } from "@/components/ui/page-header";
 import { GlassCard } from "@/components/ui/glass-card";
 import { GlassButton } from "@/components/ui/glass-button";
@@ -34,6 +34,7 @@ export default function PropertyMarketResearch() {
   const [, params] = useRoute("/property/:id/research");
   const propertyId = parseInt(params?.id || "0");
   const { data: property, isLoading: propertyLoading } = useProperty(propertyId);
+  const { data: global } = useGlobalAssumptions();
   const { data: research, isLoading: researchLoading } = useMarketResearch("property", propertyId);
   const [isGenerating, setIsGenerating] = useState(false);
   const [streamedContent, setStreamedContent] = useState("");
@@ -63,7 +64,8 @@ export default function PropertyMarketResearch() {
             maxOccupancy: property.maxOccupancy,
             cateringLevel: property.cateringLevel,
             type: property.type,
-          }
+          },
+          boutiqueDefinition: global?.boutiqueDefinition,
         }),
         signal: abortRef.current.signal,
       });
@@ -123,14 +125,15 @@ export default function PropertyMarketResearch() {
 
   const content = research?.content as any;
   const hasResearch = content && !content.rawResponse;
-  const googleMapsUrl = `https://www.google.com/maps/search/${encodeURIComponent(property.location + " " + property.market + " hotels")}`;
+  const adrValue = property.startAdr ? Math.round(property.startAdr) : null;
+  const googleMapsUrl = `https://www.google.com/maps/search/${encodeURIComponent(`boutique hotels near ${property.location}${adrValue ? ` $${adrValue} ADR` : ""}`)}`;
 
   return (
     <Layout>
       <div className="space-y-6">
         <PageHeader
           title={`Market Research: ${property.name}`}
-          subtitle={`${property.location} · ${property.market} · ${property.roomCount} rooms`}
+          subtitle={`${property.location} · ${property.market} · ${property.roomCount} rooms${adrValue ? ` · $${adrValue} ADR` : ""}`}
           variant="dark"
           backLink={`/property/${property.id}/edit`}
           actions={

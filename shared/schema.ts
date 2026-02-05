@@ -136,6 +136,11 @@ export const globalAssumptions = pgTable("global_assumptions", {
     minAdr: 150,
     maxAdr: 600,
     level: "luxury",
+    eventLocations: 2,
+    maxEventCapacity: 150,
+    acreage: 5,
+    privacyLevel: "high",
+    parkingSpaces: 50,
     description: "Independently operated, design-forward properties with curated guest experiences, on-site F&B, event hosting, and wellness programming."
   }),
   
@@ -175,6 +180,11 @@ export const insertGlobalAssumptionsSchema = createInsertSchema(globalAssumption
     minAdr: z.number(),
     maxAdr: z.number(),
     level: z.enum(["budget", "average", "luxury"]).optional().default("luxury"),
+    eventLocations: z.number().optional().default(2),
+    maxEventCapacity: z.number().optional().default(150),
+    acreage: z.number().optional().default(5),
+    privacyLevel: z.enum(["low", "moderate", "high"]).optional().default("high"),
+    parkingSpaces: z.number().optional().default(50),
     description: z.string()
   })
 }).pick({

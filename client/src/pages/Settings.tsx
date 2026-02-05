@@ -54,8 +54,10 @@ export default function Settings() {
 
   const handleGlobalChange = (key: string, value: string) => {
     const numValue = parseFloat(value);
-    if (!isNaN(numValue)) {
+    if (!isNaN(numValue) && key !== "preferredLlm" && key !== "companyName") {
       setGlobalDraft({ ...currentGlobal, [key]: numValue });
+    } else {
+      setGlobalDraft({ ...currentGlobal, [key]: value });
     }
   };
 
@@ -568,6 +570,37 @@ export default function Settings() {
                       )}
                     </div>
                   </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+              <CardHeader>
+                <CardTitle className="flex items-center font-display">
+                  AI Research Model
+                  <HelpTooltip text="Choose which AI model powers the market research feature. Different models have different strengths — OpenAI GPT models are great for structured data, Claude excels at reasoning, and Gemini offers fast analysis." />
+                </CardTitle>
+                <CardDescription className="label-text">Select the AI model used for generating market research reports.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 max-w-sm">
+                  <Label className="label-text">Preferred Model</Label>
+                  <Select
+                    value={currentGlobal.preferredLlm || "gpt-4o"}
+                    onValueChange={(value) => handleGlobalChange("preferredLlm", value)}
+                  >
+                    <SelectTrigger className="bg-white" data-testid="select-preferred-llm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="gpt-4o">OpenAI GPT-4o</SelectItem>
+                      <SelectItem value="gpt-4o-mini">OpenAI GPT-4o Mini</SelectItem>
+                      <SelectItem value="claude-sonnet-4-5">Claude Sonnet 4.5</SelectItem>
+                      <SelectItem value="claude-haiku-4-5">Claude Haiku 4.5</SelectItem>
+                      <SelectItem value="gemini-2.5-flash">Gemini 2.5 Flash</SelectItem>
+                      <SelectItem value="gemini-2.5-pro">Gemini 2.5 Pro</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </CardContent>
             </Card>

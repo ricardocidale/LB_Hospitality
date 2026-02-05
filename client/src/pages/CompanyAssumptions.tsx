@@ -6,8 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Loader2, HelpCircle, Upload, X } from "lucide-react";
-import { useLocation } from "wouter";
+import { Loader2, HelpCircle, Upload, X, BookOpen } from "lucide-react";
+import { Link, useLocation } from "wouter";
 import { formatPercent, formatMoney } from "@/lib/financialEngine";
 import { useToast } from "@/hooks/use-toast";
 import type { GlobalResponse } from "@/lib/api";
@@ -246,10 +246,21 @@ export default function CompanyAssumptions() {
           variant="dark"
           backLink="/company"
           actions={
-            <SaveButton 
-              onClick={handleSave} 
-              isPending={updateMutation.isPending} 
-            />
+            <div className="flex items-center gap-3">
+              <Link href="/company/research">
+                <button
+                  data-testid="button-company-research"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 text-white/90 hover:bg-white/20 transition-colors text-sm border border-white/15"
+                >
+                  <BookOpen className="w-4 h-4" />
+                  Standards Research
+                </button>
+              </Link>
+              <SaveButton 
+                onClick={handleSave} 
+                isPending={updateMutation.isPending} 
+              />
+            </div>
           }
         />
 

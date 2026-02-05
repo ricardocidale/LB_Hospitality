@@ -49,6 +49,8 @@ export interface GlobalResponse {
   eventExpenseRate: number;
   otherExpenseRate: number;
   utilitiesVariableSplit: number;
+  // AI Research
+  preferredLlm: string;
   // Funding
   fundingSourceLabel: string;
   standardAcqPackage: {
@@ -302,5 +304,35 @@ export function useDeleteScenario() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["scenarios"] });
     },
+  });
+}
+
+// --- MARKET RESEARCH ---
+
+export interface MarketResearchResponse {
+  id: number;
+  userId: number | null;
+  type: string;
+  propertyId: number | null;
+  title: string;
+  content: Record<string, any>;
+  llmModel: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+async function fetchResearch(type: string, propertyId?: number): Promise<MarketResearchResponse | null> {
+  const params = new URLSearchParams();
+  if (propertyId) params.set("propertyId", propertyId.toString());
+  const res = await fetch(`/api/research/${type}?${params.toString()}`);
+  if (!res.ok) throw new Error("Failed to fetch research");
+  return res.json();
+}
+
+export function useMarketResearch(type: string, propertyId?: number) {
+  return useQuery({
+    queryKey: ["research", type, propertyId],
+    queryFn: () => fetchResearch(type, propertyId),
+    enabled: !!type,
   });
 }

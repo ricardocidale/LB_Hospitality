@@ -1,4 +1,4 @@
-import { globalAssumptions, properties, users, sessions, scenarios, loginLogs, designThemes, type GlobalAssumptions, type Property, type InsertGlobalAssumptions, type InsertProperty, type UpdateProperty, type User, type InsertUser, type Session, type Scenario, type InsertScenario, type UpdateScenario, type LoginLog, type InsertLoginLog, type DesignTheme, type InsertDesignTheme } from "@shared/schema";
+import { globalAssumptions, properties, users, sessions, scenarios, loginLogs, designThemes, marketResearch, type GlobalAssumptions, type Property, type InsertGlobalAssumptions, type InsertProperty, type UpdateProperty, type User, type InsertUser, type Session, type Scenario, type InsertScenario, type UpdateScenario, type LoginLog, type InsertLoginLog, type DesignTheme, type InsertDesignTheme, type MarketResearch, type InsertMarketResearch } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gt, gte, desc, or, isNull } from "drizzle-orm";
 
@@ -49,6 +49,12 @@ export interface IStorage {
   updateDesignTheme(id: number, data: Partial<InsertDesignTheme>): Promise<DesignTheme | undefined>;
   deleteDesignTheme(id: number): Promise<void>;
   setActiveDesignTheme(id: number): Promise<void>;
+  
+  // Market Research
+  getMarketResearch(type: string, userId?: number, propertyId?: number): Promise<MarketResearch | undefined>;
+  getAllMarketResearch(userId?: number): Promise<MarketResearch[]>;
+  upsertMarketResearch(data: InsertMarketResearch): Promise<MarketResearch>;
+  deleteMarketResearch(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -304,6 +310,60 @@ export class DatabaseStorage implements IStorage {
     await db.update(designThemes).set({ isActive: false });
     // Then activate the selected one
     await db.update(designThemes).set({ isActive: true }).where(eq(designThemes.id, id));
+  }
+  
+  // Market Research
+  async getMarketResearch(type: string, userId?: number, propertyId?: number): Promise<MarketResearch | undefined> {
+    const conditions = [eq(marketResearch.type, type)];
+    if (userId) conditions.push(eq(marketResearch.userId, userId));
+    if (propertyId) conditions.push(eq(marketResearch.propertyId, propertyId));
+    
+    const [result] = await db.select().from(marketResearch)
+      .where(and(...conditions))
+      .orderBy(desc(marketResearch.updatedAt))
+      .limit(1);
+    return result || undefined;
+  }
+  
+  async getAllMarketResearch(userId?: number): Promise<MarketResearch[]> {
+    if (userId) {
+      return await db.select().from(marketResearch)
+        .where(or(eq(marketResearch.userId, userId), isNull(marketResearch.userId)))
+        .orderBy(desc(marketResearch.updatedAt));
+    }
+    return await db.select().from(marketResearch).orderBy(desc(marketResearch.updatedAt));
+  }
+  
+  async upsertMarketResearch(data: InsertMarketResearch): Promise<MarketResearch> {
+    const conditions = [eq(marketResearch.type, data.type!)];
+    if (data.userId) conditions.push(eq(marketResearch.userId, data.userId));
+    if (data.propertyId) conditions.push(eq(marketResearch.propertyId, data.propertyId));
+    
+    const [existing] = await db.select().from(marketResearch)
+      .where(and(...conditions))
+      .limit(1);
+    
+    if (existing) {
+      const [updated] = await db.update(marketResearch)
+        .set({ 
+          title: data.title, 
+          content: data.content, 
+          llmModel: data.llmModel,
+          updatedAt: new Date() 
+        })
+        .where(eq(marketResearch.id, existing.id))
+        .returning();
+      return updated;
+    } else {
+      const [inserted] = await db.insert(marketResearch)
+        .values(data as typeof marketResearch.$inferInsert)
+        .returning();
+      return inserted;
+    }
+  }
+  
+  async deleteMarketResearch(id: number): Promise<void> {
+    await db.delete(marketResearch).where(eq(marketResearch.id, id));
   }
 }
 

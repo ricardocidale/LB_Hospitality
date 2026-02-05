@@ -15,7 +15,9 @@ import PropertyDetail from "@/pages/PropertyDetail";
 import PropertyEdit from "@/pages/PropertyEdit";
 import Settings from "@/pages/Settings";
 import Methodology from "@/pages/Methodology";
-import Research from "@/pages/Research";
+import PropertyMarketResearch from "@/pages/PropertyMarketResearch";
+import CompanyResearch from "@/pages/CompanyResearch";
+import GlobalResearch from "@/pages/GlobalResearch";
 import Admin from "@/pages/Admin";
 import Profile from "@/pages/Profile";
 import Scenarios from "@/pages/Scenarios";
@@ -100,8 +102,14 @@ function Router() {
       <Route path="/methodology">
         <ProtectedRoute component={Methodology} />
       </Route>
-      <Route path="/research">
-        <ProtectedRoute component={Research} />
+      <Route path="/property/:id/research">
+        <ProtectedRoute component={PropertyMarketResearch} />
+      </Route>
+      <Route path="/company/research">
+        <ProtectedRoute component={CompanyResearch} />
+      </Route>
+      <Route path="/global/research">
+        <ProtectedRoute component={GlobalResearch} />
       </Route>
       <Route path="/admin">
         <AdminRoute component={Admin} />

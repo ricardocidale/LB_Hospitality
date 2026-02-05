@@ -6,6 +6,7 @@ import { fromZodError } from "zod-validation-error";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
 import { hashPassword, verifyPassword, generateSessionId, setSessionCookie, clearSessionCookie, getSessionExpiryDate, requireAuth, requireAdmin, isRateLimited, recordLoginAttempt, sanitizeEmail, validatePassword } from "./auth";
 import { z } from "zod";
+import OpenAI from "openai";
 
 const loginSchema = z.object({
   email: z.string().min(1),
@@ -1731,6 +1732,173 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error activating design theme:", error);
       res.status(500).json({ error: "Failed to activate design theme" });
+    }
+  });
+
+  // --- MARKET RESEARCH ROUTES ---
+  
+  app.get("/api/research/:type", requireAuth, async (req, res) => {
+    try {
+      const { type } = req.params;
+      const propertyId = req.query.propertyId ? parseInt(req.query.propertyId as string) : undefined;
+      const userId = (req as any).user?.id;
+      const research = await storage.getMarketResearch(type, userId, propertyId);
+      res.json(research || null);
+    } catch (error) {
+      console.error("Error fetching research:", error);
+      res.status(500).json({ error: "Failed to fetch research" });
+    }
+  });
+  
+  app.post("/api/research/generate", requireAuth, async (req, res) => {
+    try {
+      const { type, propertyId, propertyContext } = req.body;
+      const userId = (req as any).user?.id;
+      
+      const globalAssumptions = await storage.getGlobalAssumptions(userId);
+      const preferredModel = globalAssumptions?.preferredLlm || "gpt-4o";
+      
+      let systemPrompt = "";
+      let userPrompt = "";
+      
+      if (type === "property" && propertyContext) {
+        systemPrompt = `You are a hospitality industry market research analyst specializing in boutique hotels that focus on unique experiences like wellness retreats, corporate events, yoga, relationship retreats, and couples therapy. Provide data-driven analysis with specific numbers and industry sources. Format your response as a JSON object with these sections:
+{
+  "marketOverview": { "summary": "string", "keyMetrics": [{ "label": "string", "value": "string", "source": "string" }] },
+  "adrAnalysis": { "marketAverage": "string", "boutiqueRange": "string", "recommendedRange": "string", "rationale": "string", "comparables": [{ "name": "string", "adr": "string", "type": "string" }] },
+  "occupancyAnalysis": { "marketAverage": "string", "seasonalPattern": [{ "season": "string", "occupancy": "string", "notes": "string" }], "rampUpTimeline": "string" },
+  "eventDemand": { "corporateEvents": "string", "wellnessRetreats": "string", "weddingsPrivate": "string", "estimatedEventRevShare": "string", "keyDrivers": ["string"] },
+  "competitiveSet": [{ "name": "string", "rooms": "string", "adr": "string", "positioning": "string" }],
+  "risks": [{ "risk": "string", "mitigation": "string" }],
+  "sources": ["string"]
+}`;
+        userPrompt = `Analyze the market for this boutique hotel property:
+- Property: ${propertyContext.name}
+- Location: ${propertyContext.location}
+- Market: ${propertyContext.market}
+- Room Count: ${propertyContext.roomCount}
+- Current ADR: $${propertyContext.startAdr}
+- Target Occupancy: ${(propertyContext.maxOccupancy * 100).toFixed(0)}%
+- Catering Level: ${propertyContext.cateringLevel}
+- Property Type: ${propertyContext.type}
+
+Focus on: local market ADR benchmarks for boutique hotels, occupancy patterns and seasonality, corporate event and wellness retreat demand in this market, competitive landscape, and risks. Provide real, specific data points with sources where possible.`;
+      } else if (type === "company") {
+        systemPrompt = `You are a hospitality management consulting expert specializing in hotel management company structures, GAAP-compliant fee arrangements, and industry benchmarks. Focus on boutique hotel management companies that specialize in unique events (wellness retreats, corporate events, yoga retreats, relationship retreats). Format your response as a JSON object:
+{
+  "managementFees": {
+    "baseFee": { "industryRange": "string", "boutiqueRange": "string", "recommended": "string", "gaapReference": "string", "sources": [{ "source": "string", "data": "string" }] },
+    "incentiveFee": { "industryRange": "string", "commonBasis": "string", "recommended": "string", "gaapReference": "string", "sources": [{ "source": "string", "data": "string" }] }
+  },
+  "gaapStandards": [{ "standard": "string", "reference": "string", "application": "string" }],
+  "industryBenchmarks": {
+    "operatingExpenseRatios": [{ "category": "string", "range": "string", "source": "string" }],
+    "revenuePerRoom": { "economy": "string", "midscale": "string", "upscale": "string", "luxury": "string" }
+  },
+  "compensationBenchmarks": { "gm": "string", "director": "string", "manager": "string", "source": "string" },
+  "contractTerms": [{ "term": "string", "typical": "string", "notes": "string" }],
+  "sources": ["string"]
+}`;
+        userPrompt = `Provide comprehensive research on hotel management company fee structures, GAAP standards, and industry benchmarks for a boutique hotel management company focused on:
+1. Base management fee structures and industry norms (ASC 606 revenue recognition)
+2. Incentive management fee (IMF) structures and triggers
+3. GAAP-compliant fee recognition standards
+4. Operating expense ratios by department (USALI format)
+5. Management company compensation benchmarks
+6. Typical contract terms and duration
+Focus specifically on boutique hotels specializing in unique events like wellness retreats, corporate retreats, and experiential hospitality.`;
+      } else if (type === "global") {
+        systemPrompt = `You are a hospitality industry research analyst specializing in the boutique hotel segment, with emphasis on properties focused on unique events and experiences (wellness retreats, corporate events, yoga, relationship retreats, couples therapy). Provide comprehensive industry data with sources. Format your response as a JSON object:
+{
+  "industryOverview": { "marketSize": "string", "growthRate": "string", "boutiqueShare": "string", "keyTrends": ["string"] },
+  "eventHospitality": {
+    "wellnessRetreats": { "marketSize": "string", "growth": "string", "avgRevPerEvent": "string", "seasonality": "string" },
+    "corporateEvents": { "marketSize": "string", "growth": "string", "avgRevPerEvent": "string", "trends": ["string"] },
+    "yogaRetreats": { "marketSize": "string", "growth": "string", "demographics": "string" },
+    "relationshipRetreats": { "marketSize": "string", "growth": "string", "positioning": "string" }
+  },
+  "financialBenchmarks": {
+    "adrTrends": [{ "year": "string", "national": "string", "boutique": "string", "luxury": "string" }],
+    "occupancyTrends": [{ "year": "string", "national": "string", "boutique": "string" }],
+    "revparTrends": [{ "year": "string", "national": "string", "boutique": "string" }],
+    "capRates": [{ "segment": "string", "range": "string", "trend": "string" }]
+  },
+  "debtMarket": { "currentRates": "string", "ltvRange": "string", "terms": "string", "outlook": "string" },
+  "regulatoryEnvironment": ["string"],
+  "sources": ["string"]
+}`;
+        userPrompt = `Provide comprehensive boutique hotel industry research covering:
+1. Overall boutique hotel market size, growth, and trends
+2. Event-focused hospitality: wellness retreats, corporate events, yoga retreats, relationship/couples retreats market data
+3. Financial benchmarks: ADR, occupancy, RevPAR trends for boutique hotels
+4. Capitalization rates and investment returns
+5. Debt market conditions for hotel acquisitions
+6. Emerging trends in experiential hospitality
+Focus on North America and Latin America markets. Include specific data points, market sizes, growth rates, and cite sources.`;
+      } else {
+        return res.status(400).json({ error: "Invalid research type. Must be 'property', 'company', or 'global'." });
+      }
+      
+      const openai = new OpenAI({
+        apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
+        baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
+      });
+      
+      res.setHeader("Content-Type", "text/event-stream");
+      res.setHeader("Cache-Control", "no-cache");
+      res.setHeader("Connection", "keep-alive");
+      
+      const stream = await openai.chat.completions.create({
+        model: preferredModel,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt }
+        ],
+        stream: true,
+        max_completion_tokens: 4096,
+        response_format: { type: "json_object" },
+      });
+      
+      let fullResponse = "";
+      
+      for await (const chunk of stream) {
+        const content = chunk.choices[0]?.delta?.content || "";
+        if (content) {
+          fullResponse += content;
+          res.write(`data: ${JSON.stringify({ content })}\n\n`);
+        }
+      }
+      
+      let parsedContent: Record<string, any> = {};
+      try {
+        parsedContent = JSON.parse(fullResponse);
+      } catch {
+        parsedContent = { rawResponse: fullResponse };
+      }
+      
+      const title = type === "property" ? `Market Research: ${propertyContext?.name || "Property"}` :
+                     type === "company" ? "Management Company Research" :
+                     "Global Industry Research";
+      
+      const saved = await storage.upsertMarketResearch({
+        userId,
+        type,
+        propertyId: propertyId || null,
+        title,
+        content: parsedContent,
+        llmModel: preferredModel,
+      });
+      
+      res.write(`data: ${JSON.stringify({ done: true, researchId: saved.id })}\n\n`);
+      res.end();
+    } catch (error) {
+      console.error("Error generating research:", error);
+      if (res.headersSent) {
+        res.write(`data: ${JSON.stringify({ error: "Failed to generate research" })}\n\n`);
+        res.end();
+      } else {
+        res.status(500).json({ error: "Failed to generate research" });
+      }
     }
   });
 

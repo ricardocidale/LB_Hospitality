@@ -145,7 +145,7 @@ export const globalAssumptions = pgTable("global_assumptions", {
   }),
   
   // AI Research Settings
-  preferredLlm: text("preferred_llm").notNull().default("gpt-4o"),
+  preferredLlm: text("preferred_llm").notNull().default("claude-sonnet-4-5"),
   
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => [

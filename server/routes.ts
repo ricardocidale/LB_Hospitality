@@ -1758,7 +1758,7 @@ export async function registerRoutes(
       const userId = (req as any).user?.id;
       
       const globalAssumptions = await storage.getGlobalAssumptions(userId);
-      const preferredModel = globalAssumptions?.preferredLlm || "gpt-4o";
+      const preferredModel = globalAssumptions?.preferredLlm || "claude-sonnet-4-5";
       const boutiqueDef = clientBoutiqueDef || (globalAssumptions?.boutiqueDefinition as any) || {
         minRooms: 10, maxRooms: 80, hasFB: true, hasEvents: true, hasWellness: true, minAdr: 150, maxAdr: 600,
         level: "luxury", eventLocations: 2, maxEventCapacity: 150, acreage: 5, privacyLevel: "high", parkingSpaces: 50,

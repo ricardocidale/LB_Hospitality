@@ -3,6 +3,7 @@ import Layout from "@/components/Layout";
 import { useProperty, useMarketResearch } from "@/lib/api";
 import { PageHeader } from "@/components/ui/page-header";
 import { GlassCard } from "@/components/ui/glass-card";
+import { GlassButton } from "@/components/ui/glass-button";
 import { Loader2, RefreshCw, MapPin, TrendingUp, Building2, Calendar, Users, AlertTriangle, ExternalLink, BookOpen } from "lucide-react";
 import { useRoute } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
@@ -139,21 +140,22 @@ export default function PropertyMarketResearch() {
                 target="_blank"
                 rel="noopener noreferrer"
                 data-testid="link-google-maps"
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 text-white/90 hover:bg-white/20 transition-colors text-sm border border-white/15"
               >
-                <MapPin className="w-4 h-4" />
-                Google Maps
-                <ExternalLink className="w-3 h-3" />
+                <GlassButton variant="primary">
+                  <MapPin className="w-4 h-4" />
+                  Google Maps
+                  <ExternalLink className="w-3 h-3" />
+                </GlassButton>
               </a>
-              <button
+              <GlassButton
+                variant="primary"
                 onClick={generateResearch}
                 disabled={isGenerating}
                 data-testid="button-update-research"
-                className="flex items-center gap-2 px-4 py-2.5 rounded-lg border-2 border-[#257D41] bg-[#257D41]/10 text-[#9FBCA4] font-semibold hover:bg-[#257D41]/20 transition-colors disabled:opacity-50"
               >
                 {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
                 {isGenerating ? "Analyzing..." : "Update Research"}
-              </button>
+              </GlassButton>
             </div>
           }
         />

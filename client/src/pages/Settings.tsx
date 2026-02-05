@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Upload, X, Building2, BookOpen } from "lucide-react";
 import { Link } from "wouter";
 import { SaveButton } from "@/components/ui/save-button";
+import { GlassButton } from "@/components/ui/glass-button";
 import { PageHeader } from "@/components/ui/page-header";
 import { useState, useRef } from "react";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
@@ -185,13 +186,10 @@ export default function Settings() {
           actions={
             <div className="flex items-center gap-3">
               <Link href="/global/research">
-                <button
-                  data-testid="button-global-research"
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 text-white/90 hover:bg-white/20 transition-colors text-sm border border-white/15"
-                >
+                <GlassButton variant="primary" data-testid="button-global-research">
                   <BookOpen className="w-4 h-4" />
                   Industry Research
-                </button>
+                </GlassButton>
               </Link>
               <SaveButton 
                 onClick={handleSaveGlobal} 

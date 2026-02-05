@@ -7,6 +7,8 @@ import { registerObjectStorageRoutes } from "./replit_integrations/object_storag
 import { hashPassword, verifyPassword, generateSessionId, setSessionCookie, clearSessionCookie, getSessionExpiryDate, requireAuth, requireAdmin, isRateLimited, recordLoginAttempt, sanitizeEmail, validatePassword } from "./auth";
 import { z } from "zod";
 import OpenAI from "openai";
+import Anthropic from "@anthropic-ai/sdk";
+import { GoogleGenAI } from "@google/genai";
 
 const loginSchema = z.object({
   email: z.string().min(1),
@@ -1839,33 +1841,83 @@ Focus on North America and Latin America markets. Include specific data points, 
         return res.status(400).json({ error: "Invalid research type. Must be 'property', 'company', or 'global'." });
       }
       
-      const openai = new OpenAI({
-        apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
-        baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
-      });
-      
       res.setHeader("Content-Type", "text/event-stream");
       res.setHeader("Cache-Control", "no-cache");
       res.setHeader("Connection", "keep-alive");
       
-      const stream = await openai.chat.completions.create({
-        model: preferredModel,
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt }
-        ],
-        stream: true,
-        max_completion_tokens: 4096,
-        response_format: { type: "json_object" },
-      });
-      
       let fullResponse = "";
+      const isGeminiModel = preferredModel.startsWith("gemini");
+      const isClaudeModel = preferredModel.startsWith("claude");
       
-      for await (const chunk of stream) {
-        const content = chunk.choices[0]?.delta?.content || "";
-        if (content) {
-          fullResponse += content;
-          res.write(`data: ${JSON.stringify({ content })}\n\n`);
+      if (isGeminiModel) {
+        const gemini = new GoogleGenAI({
+          apiKey: process.env.AI_INTEGRATIONS_GEMINI_API_KEY,
+          httpOptions: {
+            apiVersion: "",
+            baseUrl: process.env.AI_INTEGRATIONS_GEMINI_BASE_URL,
+          },
+        });
+        
+        const combinedPrompt = `${systemPrompt}\n\n${userPrompt}`;
+        const stream = await gemini.models.generateContentStream({
+          model: preferredModel,
+          contents: combinedPrompt,
+        });
+        
+        for await (const chunk of stream) {
+          const content = chunk.text || "";
+          if (content) {
+            fullResponse += content;
+            res.write(`data: ${JSON.stringify({ content })}\n\n`);
+          }
+        }
+      } else if (isClaudeModel) {
+        const anthropic = new Anthropic({
+          apiKey: process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY,
+          baseURL: process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL,
+        });
+        
+        const stream = anthropic.messages.stream({
+          model: preferredModel,
+          max_tokens: 4096,
+          system: systemPrompt,
+          messages: [
+            { role: "user", content: userPrompt }
+          ],
+        });
+        
+        for await (const event of stream) {
+          if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
+            const content = event.delta.text;
+            if (content) {
+              fullResponse += content;
+              res.write(`data: ${JSON.stringify({ content })}\n\n`);
+            }
+          }
+        }
+      } else {
+        const openai = new OpenAI({
+          apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
+          baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
+        });
+        
+        const stream = await openai.chat.completions.create({
+          model: preferredModel,
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt }
+          ],
+          stream: true,
+          max_completion_tokens: 4096,
+          response_format: { type: "json_object" },
+        });
+        
+        for await (const chunk of stream) {
+          const content = chunk.choices[0]?.delta?.content || "";
+          if (content) {
+            fullResponse += content;
+            res.write(`data: ${JSON.stringify({ content })}\n\n`);
+          }
         }
       }
       

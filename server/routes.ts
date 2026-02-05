@@ -1761,7 +1761,7 @@ export async function registerRoutes(
       const preferredModel = globalAssumptions?.preferredLlm || "gpt-4o";
       const boutiqueDef = clientBoutiqueDef || (globalAssumptions?.boutiqueDefinition as any) || {
         minRooms: 10, maxRooms: 80, hasFB: true, hasEvents: true, hasWellness: true, minAdr: 150, maxAdr: 600,
-        level: "luxury",
+        level: "luxury", eventLocations: 2, maxEventCapacity: 150, acreage: 5, privacyLevel: "high", parkingSpaces: 50,
         description: "Independently operated, design-forward properties with curated guest experiences."
       };
       
@@ -1794,6 +1794,11 @@ Our definition of a boutique hotel: ${boutiqueDef.description}
 - Room range: ${boutiqueDef.minRooms}–${boutiqueDef.maxRooms} rooms
 - ADR range: $${boutiqueDef.minAdr}–$${boutiqueDef.maxAdr}
 - Features: ${[boutiqueDef.hasFB && "F&B operations", boutiqueDef.hasEvents && "event hosting", boutiqueDef.hasWellness && "wellness programming"].filter(Boolean).join(", ")}
+- Event locations on property: ${boutiqueDef.eventLocations ?? 2}
+- Max event capacity (guests + attendees): ${boutiqueDef.maxEventCapacity ?? 150} people
+- Property acreage: ${boutiqueDef.acreage ?? 5} acres
+- Privacy level: ${boutiqueDef.privacyLevel || "high"}
+- Parking spaces: ${boutiqueDef.parkingSpaces ?? 50}
 
 Focus on: local market ADR benchmarks for boutique hotels matching this profile, occupancy patterns and seasonality, corporate event and wellness retreat demand in this market, competitive landscape (only comparable boutique hotels), and risks. Provide real, specific data points with sources where possible.`;
       } else if (type === "company") {

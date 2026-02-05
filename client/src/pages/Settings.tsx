@@ -16,6 +16,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { useState, useRef } from "react";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { Slider } from "@/components/ui/slider";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/lib/auth";
 import defaultLogo from "@/assets/logo.png";
@@ -333,6 +334,28 @@ export default function Settings() {
                       data-testid="switch-boutique-wellness"
                     />
                   </div>
+                </div>
+                <div className="space-y-3">
+                  <Label className="label-text">Property Level</Label>
+                  <RadioGroup
+                    value={currentGlobal.boutiqueDefinition?.level ?? "luxury"}
+                    onValueChange={(val) => handleNestedChange("boutiqueDefinition", "level", val)}
+                    className="flex gap-6"
+                    data-testid="radio-boutique-level"
+                  >
+                    <div className="flex items-center gap-2">
+                      <RadioGroupItem value="budget" id="level-budget" data-testid="radio-boutique-level-budget" />
+                      <Label htmlFor="level-budget" className="label-text cursor-pointer">Budget</Label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <RadioGroupItem value="average" id="level-average" data-testid="radio-boutique-level-average" />
+                      <Label htmlFor="level-average" className="label-text cursor-pointer">Average</Label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <RadioGroupItem value="luxury" id="level-luxury" data-testid="radio-boutique-level-luxury" />
+                      <Label htmlFor="level-luxury" className="label-text cursor-pointer">Luxury</Label>
+                    </div>
+                  </RadioGroup>
                 </div>
                 <div className="space-y-2">
                   <Label className="label-text">Definition Summary</Label>

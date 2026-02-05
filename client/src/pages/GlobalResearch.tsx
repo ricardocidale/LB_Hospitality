@@ -3,6 +3,7 @@ import Layout from "@/components/Layout";
 import { useMarketResearch } from "@/lib/api";
 import { PageHeader } from "@/components/ui/page-header";
 import { GlassCard } from "@/components/ui/glass-card";
+import { GlassButton } from "@/components/ui/glass-button";
 import { Loader2, RefreshCw, Globe, TrendingUp, Hotel, DollarSign, Landmark, Sparkles, BookOpen } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
@@ -106,15 +107,15 @@ export default function GlobalResearch() {
           variant="dark"
           backLink="/settings"
           actions={
-            <button
+            <GlassButton
+              variant="primary"
               onClick={generateResearch}
               disabled={isGenerating}
               data-testid="button-update-research"
-              className="flex items-center gap-2 px-4 py-2.5 rounded-lg border-2 border-[#257D41] bg-[#257D41]/10 text-[#9FBCA4] font-semibold hover:bg-[#257D41]/20 transition-colors disabled:opacity-50"
             >
               {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
               {isGenerating ? "Analyzing..." : "Update Research"}
-            </button>
+            </GlassButton>
           }
         />
 

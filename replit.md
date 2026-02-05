@@ -40,7 +40,8 @@ Always format money as money (currency format with commas and appropriate precis
     - **Main App Pages (Dark Glass Theme)**: Dark blue-gray gradient cards with off-white text and semi-transparent white input backgrounds.
     - **Financial Statement Tables (Light Theme)**: Light backgrounds (white, gray-50, gray-100) with dark gray text.
 - **Navigation & Tabs**: Dark glass gradient sidebar with white text for active items.
-- **Buttons**: Standardized `SaveButton` component with dark glass effect, bright white text, and a sage green glow.
+- **Buttons on Dark Backgrounds**: ALL action buttons on dark backgrounds (PageHeaders, dark glass cards) MUST use `GlassButton variant="primary"` from `@/components/ui/glass-button`. This includes Save, Research navigation, Update Research, Google Maps links, and any other action buttons. Uses dark glass gradient (#2d4a5e → #3d5a6a → #3a5a5e), white text, top shine line, and sage green glow on hover. Never use raw `<button>` with ad-hoc `bg-white/10` classes for action buttons on dark backgrounds.
+- **SaveButton**: Convenience wrapper around `GlassButton variant="primary"` with save icon and loading state. Located at `@/components/ui/save-button`.
 - **Export Buttons**: Use `GlassButton variant="export"` or `Button variant="outline"` for all export buttons (PDF, CSV, Chart). Style: neutral gray background (#f5f5f5), dark gray text, gray border. Must be aligned with tabs on financial pages, not in the title block.
 - **PageHeader Component**: Standardized `PageHeader` with fixed minimum height, `text-3xl` serif title, `text-sm` subtitle, and a dark glass variant across all pages.
 - **Charts**: All charts must follow these requirements:

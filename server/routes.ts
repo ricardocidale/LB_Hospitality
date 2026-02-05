@@ -1754,11 +1754,15 @@ export async function registerRoutes(
   
   app.post("/api/research/generate", requireAuth, async (req, res) => {
     try {
-      const { type, propertyId, propertyContext } = req.body;
+      const { type, propertyId, propertyContext, boutiqueDefinition: clientBoutiqueDef } = req.body;
       const userId = (req as any).user?.id;
       
       const globalAssumptions = await storage.getGlobalAssumptions(userId);
       const preferredModel = globalAssumptions?.preferredLlm || "gpt-4o";
+      const boutiqueDef = clientBoutiqueDef || (globalAssumptions?.boutiqueDefinition as any) || {
+        minRooms: 10, maxRooms: 80, hasFB: true, hasEvents: true, hasWellness: true, minAdr: 150, maxAdr: 600,
+        description: "Independently operated, design-forward properties with curated guest experiences."
+      };
       
       let systemPrompt = "";
       let userPrompt = "";
@@ -1784,7 +1788,12 @@ export async function registerRoutes(
 - Catering Level: ${propertyContext.cateringLevel}
 - Property Type: ${propertyContext.type}
 
-Focus on: local market ADR benchmarks for boutique hotels, occupancy patterns and seasonality, corporate event and wellness retreat demand in this market, competitive landscape, and risks. Provide real, specific data points with sources where possible.`;
+Our definition of a boutique hotel: ${boutiqueDef.description}
+- Room range: ${boutiqueDef.minRooms}–${boutiqueDef.maxRooms} rooms
+- ADR range: $${boutiqueDef.minAdr}–$${boutiqueDef.maxAdr}
+- Features: ${[boutiqueDef.hasFB && "F&B operations", boutiqueDef.hasEvents && "event hosting", boutiqueDef.hasWellness && "wellness programming"].filter(Boolean).join(", ")}
+
+Focus on: local market ADR benchmarks for boutique hotels matching this profile, occupancy patterns and seasonality, corporate event and wellness retreat demand in this market, competitive landscape (only comparable boutique hotels), and risks. Provide real, specific data points with sources where possible.`;
       } else if (type === "company") {
         systemPrompt = `You are a hospitality management consulting expert specializing in hotel management company structures, GAAP-compliant fee arrangements, and industry benchmarks. Focus on boutique hotel management companies that specialize in unique events (wellness retreats, corporate events, yoga retreats, relationship retreats). Format your response as a JSON object:
 {

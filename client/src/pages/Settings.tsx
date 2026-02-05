@@ -6,7 +6,9 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Upload, X, Building2, BookOpen } from "lucide-react";
+import { Loader2, Upload, X, Building2, BookOpen, Hotel } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 import { Link } from "wouter";
 import { SaveButton } from "@/components/ui/save-button";
 import { GlassButton } from "@/components/ui/glass-button";
@@ -62,13 +64,25 @@ export default function Settings() {
     }
   };
 
-  const handleNestedChange = (parent: string, key: string, value: string) => {
-    const numValue = parseFloat(value);
-    if (!isNaN(numValue)) {
+  const handleNestedChange = (parent: string, key: string, value: string | boolean) => {
+    if (typeof value === "boolean") {
       setGlobalDraft({
         ...currentGlobal,
-        [parent]: { ...currentGlobal[parent], [key]: numValue }
+        [parent]: { ...(currentGlobal as any)[parent], [key]: value }
       });
+    } else {
+      const numValue = parseFloat(value);
+      if (!isNaN(numValue)) {
+        setGlobalDraft({
+          ...currentGlobal,
+          [parent]: { ...(currentGlobal as any)[parent], [key]: numValue }
+        });
+      } else {
+        setGlobalDraft({
+          ...currentGlobal,
+          [parent]: { ...(currentGlobal as any)[parent], [key]: value }
+        });
+      }
     }
   };
 
@@ -208,6 +222,131 @@ export default function Settings() {
           </TabsList>
 
           <TabsContent value="portfolio" className="space-y-6 mt-6">
+            <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 font-display">
+                  <Hotel className="w-5 h-5 text-[#9FBCA4]" />
+                  Boutique Hotel Definition
+                  <HelpTooltip text="Defines what this model considers a 'boutique hotel.' These parameters guide market research searches, comp set analysis, and financial benchmarks. Boutique hotels are independently operated, design-driven properties focused on curated experiences." />
+                </CardTitle>
+                <CardDescription className="label-text">Characterize the target property profile for the portfolio</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <Label className="label-text">Minimum Rooms</Label>
+                      <span className="text-sm font-mono text-primary">{currentGlobal.boutiqueDefinition?.minRooms ?? 10}</span>
+                    </div>
+                    <Slider
+                      value={[currentGlobal.boutiqueDefinition?.minRooms ?? 10]}
+                      onValueChange={(vals) => handleNestedChange("boutiqueDefinition", "minRooms", vals[0].toString())}
+                      min={5}
+                      max={50}
+                      step={5}
+                      data-testid="slider-boutique-min-rooms"
+                    />
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>5</span>
+                      <span>50</span>
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <Label className="label-text">Maximum Rooms</Label>
+                      <span className="text-sm font-mono text-primary">{currentGlobal.boutiqueDefinition?.maxRooms ?? 80}</span>
+                    </div>
+                    <Slider
+                      value={[currentGlobal.boutiqueDefinition?.maxRooms ?? 80]}
+                      onValueChange={(vals) => handleNestedChange("boutiqueDefinition", "maxRooms", vals[0].toString())}
+                      min={20}
+                      max={200}
+                      step={10}
+                      data-testid="slider-boutique-max-rooms"
+                    />
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>20</span>
+                      <span>200</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <Label className="label-text">Minimum ADR</Label>
+                      <span className="text-sm font-mono text-primary">${currentGlobal.boutiqueDefinition?.minAdr ?? 150}</span>
+                    </div>
+                    <Slider
+                      value={[currentGlobal.boutiqueDefinition?.minAdr ?? 150]}
+                      onValueChange={(vals) => handleNestedChange("boutiqueDefinition", "minAdr", vals[0].toString())}
+                      min={50}
+                      max={500}
+                      step={25}
+                      data-testid="slider-boutique-min-adr"
+                    />
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>$50</span>
+                      <span>$500</span>
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <Label className="label-text">Maximum ADR</Label>
+                      <span className="text-sm font-mono text-primary">${currentGlobal.boutiqueDefinition?.maxAdr ?? 600}</span>
+                    </div>
+                    <Slider
+                      value={[currentGlobal.boutiqueDefinition?.maxAdr ?? 600]}
+                      onValueChange={(vals) => handleNestedChange("boutiqueDefinition", "maxAdr", vals[0].toString())}
+                      min={200}
+                      max={1500}
+                      step={50}
+                      data-testid="slider-boutique-max-adr"
+                    />
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>$200</span>
+                      <span>$1,500</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                    <Label className="label-text">Food & Beverage (F&B)</Label>
+                    <Switch
+                      checked={currentGlobal.boutiqueDefinition?.hasFB ?? true}
+                      onCheckedChange={(checked) => handleNestedChange("boutiqueDefinition", "hasFB", checked)}
+                      data-testid="switch-boutique-fb"
+                    />
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                    <Label className="label-text">Event Hosting</Label>
+                    <Switch
+                      checked={currentGlobal.boutiqueDefinition?.hasEvents ?? true}
+                      onCheckedChange={(checked) => handleNestedChange("boutiqueDefinition", "hasEvents", checked)}
+                      data-testid="switch-boutique-events"
+                    />
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                    <Label className="label-text">Wellness Programming</Label>
+                    <Switch
+                      checked={currentGlobal.boutiqueDefinition?.hasWellness ?? true}
+                      onCheckedChange={(checked) => handleNestedChange("boutiqueDefinition", "hasWellness", checked)}
+                      data-testid="switch-boutique-wellness"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label className="label-text">Definition Summary</Label>
+                  <Textarea
+                    value={currentGlobal.boutiqueDefinition?.description ?? ""}
+                    onChange={(e) => handleNestedChange("boutiqueDefinition", "description", e.target.value)}
+                    rows={3}
+                    className="bg-white text-sm"
+                    data-testid="textarea-boutique-description"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
             <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
               <CardHeader>
                 <CardTitle className="flex items-center font-display">

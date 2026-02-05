@@ -1761,6 +1761,7 @@ export async function registerRoutes(
       const preferredModel = globalAssumptions?.preferredLlm || "gpt-4o";
       const boutiqueDef = clientBoutiqueDef || (globalAssumptions?.boutiqueDefinition as any) || {
         minRooms: 10, maxRooms: 80, hasFB: true, hasEvents: true, hasWellness: true, minAdr: 150, maxAdr: 600,
+        level: "luxury",
         description: "Independently operated, design-forward properties with curated guest experiences."
       };
       
@@ -1789,6 +1790,7 @@ export async function registerRoutes(
 - Property Type: ${propertyContext.type}
 
 Our definition of a boutique hotel: ${boutiqueDef.description}
+- Property level: ${boutiqueDef.level || "luxury"}
 - Room range: ${boutiqueDef.minRooms}–${boutiqueDef.maxRooms} rooms
 - ADR range: $${boutiqueDef.minAdr}–$${boutiqueDef.maxAdr}
 - Features: ${[boutiqueDef.hasFB && "F&B operations", boutiqueDef.hasEvents && "event hosting", boutiqueDef.hasWellness && "wellness programming"].filter(Boolean).join(", ")}

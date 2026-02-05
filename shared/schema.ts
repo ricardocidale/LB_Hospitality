@@ -135,6 +135,7 @@ export const globalAssumptions = pgTable("global_assumptions", {
     hasWellness: true,
     minAdr: 150,
     maxAdr: 600,
+    level: "luxury",
     description: "Independently operated, design-forward properties with curated guest experiences, on-site F&B, event hosting, and wellness programming."
   }),
   
@@ -173,6 +174,7 @@ export const insertGlobalAssumptionsSchema = createInsertSchema(globalAssumption
     hasWellness: z.boolean(),
     minAdr: z.number(),
     maxAdr: z.number(),
+    level: z.enum(["budget", "average", "luxury"]).optional().default("luxury"),
     description: z.string()
   })
 }).pick({

@@ -6,7 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Upload, X, Building2 } from "lucide-react";
+import { Loader2, Upload, X, Building2, BookOpen } from "lucide-react";
+import { Link } from "wouter";
 import { SaveButton } from "@/components/ui/save-button";
 import { PageHeader } from "@/components/ui/page-header";
 import { useState, useRef } from "react";
@@ -180,11 +181,22 @@ export default function Settings() {
           subtitle="Configure variables driving the financial model"
           variant="dark"
           actions={
-            <SaveButton 
-              onClick={handleSaveGlobal} 
-              disabled={!globalDraft} 
-              isPending={updateGlobal.isPending} 
-            />
+            <div className="flex items-center gap-3">
+              <Link href="/global/research">
+                <button
+                  data-testid="button-global-research"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 text-white/90 hover:bg-white/20 transition-colors text-sm border border-white/15"
+                >
+                  <BookOpen className="w-4 h-4" />
+                  Industry Research
+                </button>
+              </Link>
+              <SaveButton 
+                onClick={handleSaveGlobal} 
+                disabled={!globalDraft} 
+                isPending={updateGlobal.isPending} 
+              />
+            </div>
           }
         />
 

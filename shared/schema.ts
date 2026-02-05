@@ -126,6 +126,9 @@ export const globalAssumptions = pgTable("global_assumptions", {
   otherExpenseRate: real("other_expense_rate").notNull().default(0.60),
   utilitiesVariableSplit: real("utilities_variable_split").notNull().default(0.60),
   
+  // AI Research Settings
+  preferredLlm: text("preferred_llm").notNull().default("gpt-4o"),
+  
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => [
   index("global_assumptions_user_id_idx").on(table.userId),
@@ -207,6 +210,7 @@ export const insertGlobalAssumptionsSchema = createInsertSchema(globalAssumption
   eventExpenseRate: true,
   otherExpenseRate: true,
   utilitiesVariableSplit: true,
+  preferredLlm: true,
 });
 
 export const selectGlobalAssumptionsSchema = createSelectSchema(globalAssumptions);
@@ -443,3 +447,32 @@ export const insertDesignThemeSchema = z.object({
 
 export type DesignTheme = typeof designThemes.$inferSelect;
 export type InsertDesignTheme = z.infer<typeof insertDesignThemeSchema>;
+
+// --- MARKET RESEARCH TABLE ---
+export const marketResearch = pgTable("market_research", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  userId: integer("user_id").references(() => users.id),
+  type: text("type").notNull(), // "property", "company", "global"
+  propertyId: integer("property_id").references(() => properties.id),
+  title: text("title").notNull(),
+  content: jsonb("content").notNull().$type<Record<string, any>>(),
+  llmModel: text("llm_model"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => [
+  index("market_research_user_id_idx").on(table.userId),
+  index("market_research_type_idx").on(table.type),
+  index("market_research_property_id_idx").on(table.propertyId),
+]);
+
+export const insertMarketResearchSchema = createInsertSchema(marketResearch).pick({
+  userId: true,
+  type: true,
+  propertyId: true,
+  title: true,
+  content: true,
+  llmModel: true,
+});
+
+export type MarketResearch = typeof marketResearch.$inferSelect;
+export type InsertMarketResearch = z.infer<typeof insertMarketResearchSchema>;

@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Upload } from "lucide-react";
+import { Loader2, Upload, BookOpen } from "lucide-react";
 import { SaveButton } from "@/components/ui/save-button";
 import { PageHeader } from "@/components/ui/page-header";
 import { Link, useRoute, useLocation } from "wouter";
@@ -271,10 +271,21 @@ export default function PropertyEdit() {
           variant="dark"
           backLink={`/property/${propertyId}`}
           actions={
-            <SaveButton 
-              onClick={handleSave} 
-              isPending={updateProperty.isPending} 
-            />
+            <div className="flex items-center gap-3">
+              <Link href={`/property/${propertyId}/research`}>
+                <button
+                  data-testid="button-market-research"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 text-white/90 hover:bg-white/20 transition-colors text-sm border border-white/15"
+                >
+                  <BookOpen className="w-4 h-4" />
+                  Market Research
+                </button>
+              </Link>
+              <SaveButton 
+                onClick={handleSave} 
+                isPending={updateProperty.isPending} 
+              />
+            </div>
           }
         />
 

@@ -4,7 +4,7 @@ import { useProperty, useMarketResearch, useGlobalAssumptions } from "@/lib/api"
 import { PageHeader } from "@/components/ui/page-header";
 import { GlassCard } from "@/components/ui/glass-card";
 import { GlassButton } from "@/components/ui/glass-button";
-import { Loader2, RefreshCw, MapPin, TrendingUp, Building2, Calendar, Users, AlertTriangle, ExternalLink, BookOpen } from "lucide-react";
+import { Loader2, RefreshCw, MapPin, TrendingUp, Building2, Calendar, Users, AlertTriangle, ExternalLink, BookOpen, Target } from "lucide-react";
 import { useRoute } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
@@ -315,6 +315,48 @@ export default function PropertyMarketResearch() {
                           </li>
                         ))}
                       </ul>
+                    </div>
+                  )}
+                </div>
+              </GlassCard>
+            )}
+
+            {content.capRateAnalysis && (
+              <GlassCard>
+                <div className="p-6">
+                  <SectionHeader icon={Target} title="Cap Rate Analysis" />
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <MetricCard label="Market Range" value={content.capRateAnalysis.marketRange || "N/A"} />
+                    <MetricCard label="Boutique Range" value={content.capRateAnalysis.boutiqueRange || "N/A"} />
+                    <MetricCard label="Recommended Range" value={content.capRateAnalysis.recommendedRange || "N/A"} />
+                  </div>
+                  {content.capRateAnalysis.rationale && (
+                    <p className="text-sm text-white/70 mb-4" data-testid="text-cap-rate-rationale">
+                      {content.capRateAnalysis.rationale}
+                    </p>
+                  )}
+                  {content.capRateAnalysis.comparables && content.capRateAnalysis.comparables.length > 0 && (
+                    <div className="bg-white/5 rounded-lg overflow-hidden">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b border-white/10">
+                            <th className="text-left p-3 text-white/50 font-medium">Property</th>
+                            <th className="text-right p-3 text-white/50 font-medium">Cap Rate</th>
+                            <th className="text-right p-3 text-white/50 font-medium">Sale Year</th>
+                            <th className="text-left p-3 text-white/50 font-medium">Notes</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {content.capRateAnalysis.comparables.map((c: any, i: number) => (
+                            <tr key={i} className="border-b border-white/5" data-testid={`row-cap-rate-comp-${i}`}>
+                              <td className="p-3 text-white/80 font-medium">{c.name}</td>
+                              <td className="p-3 text-right text-[#9FBCA4] font-medium">{c.capRate}</td>
+                              <td className="p-3 text-right text-white/70">{c.saleYear}</td>
+                              <td className="p-3 text-white/60">{c.notes}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
                   )}
                 </div>

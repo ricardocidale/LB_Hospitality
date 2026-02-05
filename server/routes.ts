@@ -1775,6 +1775,7 @@ export async function registerRoutes(
   "adrAnalysis": { "marketAverage": "string", "boutiqueRange": "string", "recommendedRange": "string", "rationale": "string", "comparables": [{ "name": "string", "adr": "string", "type": "string" }] },
   "occupancyAnalysis": { "marketAverage": "string", "seasonalPattern": [{ "season": "string", "occupancy": "string", "notes": "string" }], "rampUpTimeline": "string" },
   "eventDemand": { "corporateEvents": "string", "wellnessRetreats": "string", "weddingsPrivate": "string", "estimatedEventRevShare": "string", "keyDrivers": ["string"] },
+  "capRateAnalysis": { "marketRange": "string", "boutiqueRange": "string", "recommendedRange": "string", "rationale": "string", "comparables": [{ "name": "string", "capRate": "string", "saleYear": "string", "notes": "string" }] },
   "competitiveSet": [{ "name": "string", "rooms": "string", "adr": "string", "positioning": "string" }],
   "risks": [{ "risk": "string", "mitigation": "string" }],
   "sources": ["string"]
@@ -1800,7 +1801,7 @@ Our definition of a boutique hotel: ${boutiqueDef.description}
 - Privacy level: ${boutiqueDef.privacyLevel || "high"}
 - Parking spaces: ${boutiqueDef.parkingSpaces ?? 50}
 
-Focus on: local market ADR benchmarks for boutique hotels matching this profile, occupancy patterns and seasonality, corporate event and wellness retreat demand in this market, competitive landscape (only comparable boutique hotels), and risks. Provide real, specific data points with sources where possible.`;
+Focus on: local market ADR benchmarks for boutique hotels matching this profile, occupancy patterns and seasonality, corporate event and wellness retreat demand in this market, cap rates for recent boutique hotel transactions in this market (provide a narrow recommended range for acquisition and exit cap rates), competitive landscape (only comparable boutique hotels), and risks. Provide real, specific data points with sources where possible.`;
       } else if (type === "company") {
         systemPrompt = `You are a hospitality management consulting expert specializing in hotel management company structures, GAAP-compliant fee arrangements, and industry benchmarks. Focus on boutique hotel management companies that specialize in unique events (wellness retreats, corporate events, yoga retreats, relationship retreats). Format your response as a JSON object:
 {

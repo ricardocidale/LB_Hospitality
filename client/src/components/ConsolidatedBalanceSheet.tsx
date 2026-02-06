@@ -5,32 +5,33 @@ import { Property } from "@shared/schema";
 import { MonthlyFinancials, getFiscalYearForModelYear } from "@/lib/financialEngine";
 import { GlobalResponse } from "@/lib/api";
 import {
-  calculateLoanParams,
-  calculateRefinanceParams,
-  getOutstandingDebtAtYear,
-  calculateYearlyDebtService,
-  LoanParams,
-  GlobalLoanParams,
-  DEFAULT_TAX_RATE,
+  DEFAULT_LTV,
   DEFAULT_LAND_VALUE_PERCENT,
   PROJECTION_YEARS,
   DEPRECIATION_YEARS
-} from "@/lib/loanCalculations";
+} from "@/lib/constants";
 
 interface Props {
   properties: Property[];
   global: GlobalResponse;
   allProFormas: { property: Property; data: MonthlyFinancials[] }[];
   year: number;
+  /** Optional: show a single property instead of consolidated */
+  propertyIndex?: number;
 }
 
-export function ConsolidatedBalanceSheet({ properties, global, allProFormas, year }: Props) {
+export function ConsolidatedBalanceSheet({ properties, global, allProFormas, year, propertyIndex }: Props) {
   const projectionYears = global?.projectionYears ?? PROJECTION_YEARS;
   const fiscalYearStartMonth = global.fiscalYearStartMonth ?? 1;
-  const displayYear = global.modelStartDate 
+  const displayYear = global.modelStartDate
     ? getFiscalYearForModelYear(global.modelStartDate, fiscalYearStartMonth, year)
     : 2026 + year;
-  
+
+  // If propertyIndex is provided, only show that property; otherwise show all
+  const propertiesToShow = propertyIndex !== undefined
+    ? [{ prop: properties[propertyIndex], idx: propertyIndex }]
+    : properties.map((prop, idx) => ({ prop, idx }));
+
   let totalPropertyValue = 0;
   let totalAccumulatedDepreciation = 0;
   let totalCashReserves = 0;
@@ -40,132 +41,76 @@ export function ConsolidatedBalanceSheet({ properties, global, allProFormas, yea
   let totalCumulativeCashFlow = 0;
   let totalRefinanceProceeds = 0;
 
-  properties.forEach((prop, idx) => {
+  propertiesToShow.forEach(({ prop, idx }) => {
     const proForma = allProFormas[idx]?.data || [];
     const monthsToInclude = year * 12;
     const relevantMonths = proForma.slice(0, monthsToInclude);
-    
-    // Convert property to LoanParams format for shared calculations
-    const loanParams: LoanParams = {
-      purchasePrice: prop.purchasePrice,
-      buildingImprovements: prop.buildingImprovements,
-      preOpeningCosts: prop.preOpeningCosts ?? 0,
-      operatingReserve: prop.operatingReserve ?? 0,
-      type: prop.type,
-      acquisitionDate: prop.acquisitionDate,
-      taxRate: prop.taxRate,
-      acquisitionLTV: prop.acquisitionLTV,
-      acquisitionInterestRate: prop.acquisitionInterestRate,
-      acquisitionTermYears: prop.acquisitionTermYears,
-      willRefinance: prop.willRefinance,
-      refinanceDate: prop.refinanceDate,
-      refinanceLTV: prop.refinanceLTV,
-      refinanceInterestRate: prop.refinanceInterestRate,
-      refinanceTermYears: prop.refinanceTermYears,
-      refinanceClosingCostRate: prop.refinanceClosingCostRate,
-      exitCapRate: prop.exitCapRate,
-    };
-    
-    const globalLoanParams: GlobalLoanParams = {
-      modelStartDate: global.modelStartDate,
-      commissionRate: global.commissionRate,
-      debtAssumptions: global.debtAssumptions as {
-        acqLTV?: number;
-        interestRate?: number;
-        amortizationYears?: number;
-        refiLTV?: number;
-        refiClosingCostRate?: number;
-      },
-    };
-    
-    // Use shared loan calculations for consistent debt handling
-    const loan = calculateLoanParams(loanParams, globalLoanParams);
-    
-    // Determine acquisition year (0-indexed from model start)
-    const acqYear = Math.floor(loan.acqMonthsFromModelStart / 12);
-    
+
+    // Determine acquisition year from dates (no loanCalculations dependency)
+    const modelStart = new Date(global.modelStartDate);
+    const acqDate = prop.acquisitionDate ? new Date(prop.acquisitionDate) : new Date(prop.operationsStartDate);
+    const acqMonthsFromModelStart = Math.max(0,
+      (acqDate.getFullYear() - modelStart.getFullYear()) * 12 +
+      (acqDate.getMonth() - modelStart.getMonth()));
+    const acqYear = Math.floor(acqMonthsFromModelStart / 12);
+
     // Property not yet acquired - skip all balance sheet entries
     if (year < acqYear) {
-      return; // No assets, liabilities, or equity before acquisition
+      return;
     }
-    
+
     // Fixed Assets: Full property value (land + building + improvements)
     const totalPropValue = prop.purchasePrice + prop.buildingImprovements;
     totalPropertyValue += totalPropValue;
-    
-    // Depreciable basis excludes land (land doesn't depreciate per IRS / ASC 360)
-    const landPct = prop.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT;
-    
-    // Get yearly NOI data for refinance calculations
-    const yearlyNOIData: number[] = [];
-    for (let y = 0; y < projectionYears; y++) {
-      const yearData = proForma.slice(y * 12, (y + 1) * 12);
-      yearlyNOIData.push(yearData.reduce((sum, m) => sum + m.noi, 0));
-    }
-    
-    // Calculate refinance parameters using shared module
-    const refi = calculateRefinanceParams(loanParams, globalLoanParams, loan, yearlyNOIData, projectionYears);
-    
-    // Use shared function to get debt outstanding at year-end (handles both acq and refi loans)
-    const debtOutstanding = getOutstandingDebtAtYear(loan, refi, year - 1);
-    totalDebtOutstanding += debtOutstanding;
-    
-    // Accumulated Depreciation: 27.5-year straight-line on building value (GAAP for residential real estate)
-    // Only depreciate from acquisition date; prorate first year for mid-year acquisitions (F-2 fix)
-    const annualDepreciation = loan.annualDepreciation;
-    const monthsOwnedInAcqYear = 12 - (loan.acqMonthsFromModelStart % 12);
-    const firstYearDep = annualDepreciation * (monthsOwnedInAcqYear / 12);
-    const fullYearsAfterAcq = Math.max(0, year - acqYear);
-    const accDepForProp = year >= acqYear
-      ? Math.min(firstYearDep + annualDepreciation * fullYearsAfterAcq,
-                 annualDepreciation * DEPRECIATION_YEARS)
-      : 0;
+
+    // Accumulated Depreciation: sum monthly depreciation from engine data
+    const accDepForProp = relevantMonths.reduce((sum, m) => sum + m.depreciationExpense, 0);
     totalAccumulatedDepreciation += accDepForProp;
-    
+
     // Initial operating reserve (only after acquisition)
     const operatingReserve = prop.operatingReserve ?? 0;
     totalCashReserves += operatingReserve;
-    
-    // Initial equity investment (what investors put in - only after acquisition)
-    totalInitialEquity += loan.equityInvested;
-    
-    // Calculate cumulative interest and principal using shared debt service calculation
+
+    // Equity invested: compute inline (no loanCalculations dependency)
+    const totalInvestment = prop.purchasePrice + prop.buildingImprovements +
+      (prop.preOpeningCosts ?? 0) + operatingReserve;
+    const totalPropVal = prop.purchasePrice + prop.buildingImprovements;
+    const ltv = prop.acquisitionLTV ?? (global.debtAssumptions as any)?.acqLTV ?? DEFAULT_LTV;
+    const loanAmount = prop.type === "Financed" ? totalPropVal * ltv : 0;
+    const equityInvested = totalInvestment - loanAmount;
+    totalInitialEquity += equityInvested;
+
+    // Debt outstanding: from last month of the year period (engine data)
+    const lastMonthIdx = monthsToInclude - 1;
+    const debtOutstanding = lastMonthIdx >= 0 && lastMonthIdx < proForma.length
+      ? proForma[lastMonthIdx].debtOutstanding
+      : 0;
+    totalDebtOutstanding += debtOutstanding;
+
+    // Cumulative interest and principal from engine monthly data
     let cumulativeInterest = 0;
     let cumulativePrincipal = 0;
     let refiProceedsReceived = 0;
-    
-    for (let y = 0; y < year; y++) {
-      const debtService = calculateYearlyDebtService(loan, refi, y);
-      cumulativeInterest += debtService.interestExpense;
-      cumulativePrincipal += debtService.principalPayment;
-      
-      // Track refinance proceeds in the year they occur
-      if (y === refi.refiYear && refi.refiProceeds > 0) {
-        refiProceedsReceived = refi.refiProceeds;
-      }
+
+    for (let m = 0; m < relevantMonths.length; m++) {
+      cumulativeInterest += relevantMonths[m].interestExpense;
+      cumulativePrincipal += relevantMonths[m].principalPayment;
+      refiProceedsReceived += relevantMonths[m].refinancingProceeds;
     }
     totalRefinanceProceeds += refiProceedsReceived;
-    
-    // GAAP Retained Earnings = Cumulative Net Income
-    // Use monthly engine values for consistency (F-1 fix: avoids cumulative vs monthly tax divergence)
-    const cumulativeNOI = relevantMonths.reduce((sum, m) => sum + m.noi, 0);
-    const cumulativeDepreciation = accDepForProp;
 
-    // Sum monthly taxes from engine (tax = 0 in loss months, per monthly engine)
-    const incomeTax = relevantMonths.reduce((sum, m) => sum + m.incomeTax, 0);
-
-    // Net Income = cumulative(NOI - Interest - Depreciation - Tax) from engine
+    // GAAP Retained Earnings = Cumulative Net Income from engine
     const netIncome = relevantMonths.reduce((sum, m) => sum + m.netIncome, 0);
     totalRetainedEarnings += netIncome;
-    
-    // Cash Position = Operating Reserve + Cash from Operations + Financing Proceeds
-    // Cash from Operations = NOI - Debt Service (principal + interest) - Taxes
-    // Financing Proceeds = Refinancing cash-out (separate from operating activities per GAAP)
+
+    // Cash Position = cumulative cash flow from engine (NOI - debt service - taxes)
+    const cumulativeNOI = relevantMonths.reduce((sum, m) => sum + m.noi, 0);
+    const incomeTax = relevantMonths.reduce((sum, m) => sum + m.incomeTax, 0);
     const cumulativeDebtService = cumulativeInterest + cumulativePrincipal;
     const operatingCashFlow = cumulativeNOI - cumulativeDebtService - incomeTax;
     totalCumulativeCashFlow += operatingCashFlow;
   });
-  
+
   // Total cash = initial reserves + operating cash flow + refinancing proceeds (financing activity)
   const totalCash = totalCashReserves + totalCumulativeCashFlow + totalRefinanceProceeds;
 
@@ -174,10 +119,14 @@ export function ConsolidatedBalanceSheet({ properties, global, allProFormas, yea
   const totalLiabilities = totalDebtOutstanding;
   const totalEquity = totalInitialEquity + totalRetainedEarnings;
 
+  const title = propertyIndex !== undefined
+    ? `Balance Sheet — ${properties[propertyIndex]?.name}`
+    : "Consolidated Balance Sheet";
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Consolidated Balance Sheet</CardTitle>
+        <CardTitle>{title}</CardTitle>
         <p className="text-sm text-muted-foreground">As of December 31, {displayYear}</p>
       </CardHeader>
       <CardContent>
@@ -192,7 +141,7 @@ export function ConsolidatedBalanceSheet({ properties, global, allProFormas, yea
             <TableRow className="bg-muted/30">
               <TableCell colSpan={2} className="font-bold text-accent">ASSETS</TableCell>
             </TableRow>
-            
+
             <TableRow>
               <TableCell className="pl-6 font-medium">Current Assets</TableCell>
               <TableCell></TableCell>
@@ -237,7 +186,7 @@ export function ConsolidatedBalanceSheet({ properties, global, allProFormas, yea
             <TableRow className="bg-muted/30">
               <TableCell colSpan={2} className="font-bold text-accent">LIABILITIES</TableCell>
             </TableRow>
-            
+
             <TableRow>
               <TableCell className="pl-6 font-medium">Long-Term Liabilities</TableCell>
               <TableCell></TableCell>
@@ -256,7 +205,7 @@ export function ConsolidatedBalanceSheet({ properties, global, allProFormas, yea
             <TableRow className="bg-muted/30">
               <TableCell colSpan={2} className="font-bold text-accent">EQUITY</TableCell>
             </TableRow>
-            
+
             <TableRow>
               <TableCell className="pl-6">Paid-In Capital</TableCell>
               <TableCell className="text-right"><Money amount={totalInitialEquity} /></TableCell>

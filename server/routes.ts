@@ -1882,5 +1882,53 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
+  // --- Saved Searches ---
+  app.get("/api/property-finder/saved-searches", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user!.id;
+      const searches = await storage.getSavedSearches(userId);
+      res.json(searches);
+    } catch (error) {
+      console.error("Get saved searches error:", error);
+      res.status(500).json({ error: "Failed to fetch saved searches" });
+    }
+  });
+
+  app.post("/api/property-finder/saved-searches", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user!.id;
+      const { name, location, priceMin, priceMax, bedsMin, lotSizeMin, propertyType } = req.body;
+      if (!name || !location) {
+        return res.status(400).json({ error: "Name and location are required" });
+      }
+      const search = await storage.addSavedSearch({
+        userId,
+        name,
+        location,
+        priceMin: priceMin || null,
+        priceMax: priceMax || null,
+        bedsMin: bedsMin || null,
+        lotSizeMin: lotSizeMin || null,
+        propertyType: propertyType || null,
+      });
+      res.json(search);
+    } catch (error) {
+      console.error("Save search error:", error);
+      res.status(500).json({ error: "Failed to save search" });
+    }
+  });
+
+  app.delete("/api/property-finder/saved-searches/:id", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user!.id;
+      const id = parseInt(req.params.id);
+      await storage.deleteSavedSearch(id, userId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Delete saved search error:", error);
+      res.status(500).json({ error: "Failed to delete saved search" });
+    }
+  });
+
   return httpServer;
 }

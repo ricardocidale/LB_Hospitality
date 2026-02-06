@@ -681,35 +681,55 @@ export default function Company() {
                 <>
                   <button
                     onClick={() => { setExportType('pdf'); setExportDialogOpen(true); }}
-                    className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-[#FFF9F5]/60 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all duration-300"
+                    className="group/btn relative overflow-hidden flex items-center gap-2 px-4 py-2.5 text-xs font-medium text-white rounded-2xl transition-all duration-300 ease-out"
                     data-testid="button-export-pdf"
                   >
-                    <FileDown className="w-3.5 h-3.5" />
-                    PDF
+                    <div className="absolute inset-0 bg-white/12 backdrop-blur-xl rounded-2xl" />
+                    <div className="absolute inset-0 rounded-2xl border border-white/20" />
+                    <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+                    <div className="absolute inset-0 rounded-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),0_4px_16px_rgba(0,0,0,0.2)]" />
+                    <div className="absolute inset-0 rounded-2xl opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300 bg-white/5" />
+                    <FileDown className="relative w-3.5 h-3.5" />
+                    <span className="relative">PDF</span>
                   </button>
                   <button
                     onClick={() => exportCompanyCSV(activeTab as 'income' | 'cashflow' | 'balance')}
-                    className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-[#FFF9F5]/60 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all duration-300"
+                    className="group/btn relative overflow-hidden flex items-center gap-2 px-4 py-2.5 text-xs font-medium text-white rounded-2xl transition-all duration-300 ease-out"
                     data-testid="button-export-csv"
                   >
-                    <FileDown className="w-3.5 h-3.5" />
-                    CSV
+                    <div className="absolute inset-0 bg-white/12 backdrop-blur-xl rounded-2xl" />
+                    <div className="absolute inset-0 rounded-2xl border border-white/20" />
+                    <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+                    <div className="absolute inset-0 rounded-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),0_4px_16px_rgba(0,0,0,0.2)]" />
+                    <div className="absolute inset-0 rounded-2xl opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300 bg-white/5" />
+                    <FileDown className="relative w-3.5 h-3.5" />
+                    <span className="relative">CSV</span>
                   </button>
                   <button
                     onClick={() => { setExportType('chart'); setExportDialogOpen(true); }}
-                    className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-[#FFF9F5]/60 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all duration-300"
+                    className="group/btn relative overflow-hidden flex items-center gap-2 px-4 py-2.5 text-xs font-medium text-white rounded-2xl transition-all duration-300 ease-out"
                     data-testid="button-export-chart"
                   >
-                    <ImageIcon className="w-3.5 h-3.5" />
-                    Chart
+                    <div className="absolute inset-0 bg-white/12 backdrop-blur-xl rounded-2xl" />
+                    <div className="absolute inset-0 rounded-2xl border border-white/20" />
+                    <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+                    <div className="absolute inset-0 rounded-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),0_4px_16px_rgba(0,0,0,0.2)]" />
+                    <div className="absolute inset-0 rounded-2xl opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300 bg-white/5" />
+                    <ImageIcon className="relative w-3.5 h-3.5" />
+                    <span className="relative">Chart</span>
                   </button>
                   <button
                     onClick={() => exportTablePNG()}
-                    className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-[#FFF9F5]/60 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all duration-300"
+                    className="group/btn relative overflow-hidden flex items-center gap-2 px-4 py-2.5 text-xs font-medium text-white rounded-2xl transition-all duration-300 ease-out"
                     data-testid="button-export-table-png"
                   >
-                    <ImageIcon className="w-3.5 h-3.5" />
-                    PNG
+                    <div className="absolute inset-0 bg-white/12 backdrop-blur-xl rounded-2xl" />
+                    <div className="absolute inset-0 rounded-2xl border border-white/20" />
+                    <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+                    <div className="absolute inset-0 rounded-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),0_4px_16px_rgba(0,0,0,0.2)]" />
+                    <div className="absolute inset-0 rounded-2xl opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300 bg-white/5" />
+                    <ImageIcon className="relative w-3.5 h-3.5" />
+                    <span className="relative">PNG</span>
                   </button>
                 </>
               }

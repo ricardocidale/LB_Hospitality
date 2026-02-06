@@ -3,7 +3,7 @@ import Layout from "@/components/Layout";
 import { useProperty, useMarketResearch, useGlobalAssumptions } from "@/lib/api";
 import { PageHeader } from "@/components/ui/page-header";
 import { GlassButton } from "@/components/ui/glass-button";
-import { Loader2, RefreshCw, MapPin, TrendingUp, Building2, Calendar, Users, AlertTriangle, ExternalLink, BookOpen, Target, Clock, Shield } from "lucide-react";
+import { Loader2, RefreshCw, MapPin, TrendingUp, Building2, Calendar, Users, AlertTriangle, ExternalLink, BookOpen, Target, Clock, Shield, Mountain } from "lucide-react";
 import { useRoute } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
@@ -18,6 +18,7 @@ const sectionColors = {
   risks: { accent: "#DC2626", bg: "bg-red-50", border: "border-red-200", iconBg: "bg-red-100", iconText: "text-red-700", badge: "bg-red-100 text-red-800" },
   sources: { accent: "#6B7280", bg: "bg-gray-50", border: "border-gray-200", iconBg: "bg-gray-100", iconText: "text-gray-600", badge: "bg-gray-100 text-gray-700" },
   stabilization: { accent: "#D97706", bg: "bg-amber-50", border: "border-amber-200", iconBg: "bg-amber-100", iconText: "text-amber-700", badge: "bg-amber-100 text-amber-800" },
+  landValue: { accent: "#78716C", bg: "bg-stone-50", border: "border-stone-200", iconBg: "bg-stone-100", iconText: "text-stone-700", badge: "bg-stone-100 text-stone-800" },
 };
 
 function MetricCard({ label, value, source, color }: { label: string; value: string; source?: string; color: typeof sectionColors.market }) {
@@ -428,6 +429,36 @@ export default function PropertyMarketResearch() {
                         ))}
                       </tbody>
                     </table>
+                  </div>
+                )}
+              </SectionCard>
+            )}
+
+            {content.landValueAllocation && (
+              <SectionCard icon={Mountain} title="Land Value Allocation" color={sectionColors.landValue}>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
+                  <MetricCard label="Recommended Land %" value={content.landValueAllocation.recommendedPercent || "N/A"} color={sectionColors.landValue} />
+                  <MetricCard label="Market Range" value={content.landValueAllocation.marketRange || "N/A"} color={sectionColors.landValue} />
+                  <MetricCard label="Assessment Method" value={content.landValueAllocation.assessmentMethod || "N/A"} color={sectionColors.landValue} />
+                </div>
+                {content.landValueAllocation.rationale && (
+                  <div className="bg-stone-50 rounded-xl p-4 border-l-4 border-stone-400 mb-5">
+                    <p className="text-sm text-gray-700 leading-relaxed">{content.landValueAllocation.rationale}</p>
+                  </div>
+                )}
+                {content.landValueAllocation.factors && content.landValueAllocation.factors.length > 0 && (
+                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                    <h4 className="text-sm font-semibold text-gray-700 mb-3">Key Factors</h4>
+                    <ul className="space-y-2">
+                      {content.landValueAllocation.factors.map((f: string, i: number) => (
+                        <li key={i} className="text-sm text-gray-600 flex items-start gap-2.5">
+                          <span className="flex-shrink-0 w-5 h-5 rounded-full bg-stone-100 flex items-center justify-center mt-0.5">
+                            <span className="text-xs font-bold text-stone-700">{i + 1}</span>
+                          </span>
+                          {f}
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 )}
               </SectionCard>

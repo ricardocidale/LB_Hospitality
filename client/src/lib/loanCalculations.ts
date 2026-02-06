@@ -1,6 +1,7 @@
 export interface LoanParams {
   purchasePrice: number;
   buildingImprovements: number;
+  landValuePercent?: number | null;
   preOpeningCosts: number;
   operatingReserve: number;
   type: string;
@@ -115,7 +116,9 @@ export function calculateLoanParams(
   const taxRate = property.taxRate ?? global?.companyTaxRate ?? DEFAULT_TAX_RATE;
   const commissionRate = global?.salesCommissionRate ?? global?.commissionRate ?? DEFAULT_COMMISSION_RATE;
   
-  const buildingValue = property.purchasePrice + property.buildingImprovements;
+  // Depreciable basis: land doesn't depreciate (IRS Publication 946 / ASC 360)
+  const landPct = property.landValuePercent ?? 0.25;
+  const buildingValue = property.purchasePrice * (1 - landPct) + property.buildingImprovements;
   const annualDepreciation = buildingValue / DEPRECIATION_YEARS;
   
   const monthlyRate = interestRate / 12;

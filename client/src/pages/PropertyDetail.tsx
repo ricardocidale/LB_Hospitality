@@ -29,8 +29,10 @@ export default function PropertyDetail() {
   const queryClient = useQueryClient();
   const incomeChartRef = useRef<HTMLDivElement>(null);
   const cashFlowChartRef = useRef<HTMLDivElement>(null);
+  const incomeTableRef = useRef<HTMLDivElement>(null);
+  const cashFlowTableRef = useRef<HTMLDivElement>(null);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
-  const [exportType, setExportType] = useState<'pdf' | 'chart'>('pdf');
+  const [exportType, setExportType] = useState<'pdf' | 'chart' | 'tablePng'>('pdf');
   
   const { data: property, isLoading: propertyLoading } = useProperty(propertyId);
   const { data: global, isLoading: globalLoading } = useGlobalAssumptions();
@@ -357,9 +359,32 @@ export default function PropertyDetail() {
     }
   };
 
+  const exportTablePNG = async (orientation: 'landscape' | 'portrait' = 'landscape') => {
+    const tableContainer = activeTab === "cashflow" ? cashFlowTableRef.current : incomeTableRef.current;
+    if (!tableContainer) return;
+    try {
+      const scale = 2;
+      const dataUrl = await domtoimage.toPng(tableContainer, {
+        bgcolor: '#ffffff',
+        quality: 1,
+        style: { transform: `scale(${scale})`, transformOrigin: 'top left' },
+        width: tableContainer.scrollWidth * scale,
+        height: tableContainer.scrollHeight * scale,
+      });
+      const link = document.createElement('a');
+      link.download = `${property.name.replace(/\s+/g, '_')}_${activeTab}_table.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (error) {
+      console.error('Error exporting table:', error);
+    }
+  };
+
   const handleExport = (orientation: 'landscape' | 'portrait') => {
     if (exportType === 'pdf') {
       exportCashFlowPDF(orientation);
+    } else if (exportType === 'tablePng') {
+      exportTablePNG(orientation);
     } else {
       exportChartPNG(orientation);
     }
@@ -371,7 +396,7 @@ export default function PropertyDetail() {
         open={exportDialogOpen}
         onClose={() => setExportDialogOpen(false)}
         onExport={handleExport}
-        title={exportType === 'pdf' ? 'Export PDF' : 'Export Chart'}
+        title={exportType === 'pdf' ? 'Export PDF' : exportType === 'tablePng' ? 'Export Table as PNG' : 'Export Chart'}
       />
       <div className="space-y-6">
         {/* Liquid Glass Header */}
@@ -507,6 +532,15 @@ export default function PropertyDetail() {
                 <ImageIcon className="w-4 h-4" />
                 Export Chart
               </GlassButton>
+              <GlassButton
+                variant="export"
+                size="sm"
+                onClick={() => { setExportType('tablePng'); setExportDialogOpen(true); }}
+                data-testid="button-export-table-png"
+              >
+                <ImageIcon className="w-4 h-4" />
+                Export PNG
+              </GlassButton>
             </div>
           </div>
           
@@ -594,7 +628,9 @@ export default function PropertyDetail() {
                 </div>
               </div>
             </div>
-            <YearlyIncomeStatement data={financials} years={10} startYear={getFiscalYear(0)} />
+            <div ref={incomeTableRef}>
+              <YearlyIncomeStatement data={financials} years={10} startYear={getFiscalYear(0)} />
+            </div>
           </TabsContent>
           
           <TabsContent value="cashflow" className="mt-6 space-y-6">
@@ -689,14 +725,16 @@ export default function PropertyDetail() {
                 </div>
               </div>
             </div>
-            <YearlyCashFlowStatement 
-              data={financials} 
-              property={property} 
-              global={global}
-              years={10} 
-              startYear={getFiscalYear(0)} 
-              defaultLTV={global.debtAssumptions?.acqLTV ?? DEFAULT_LTV}
-            />
+            <div ref={cashFlowTableRef}>
+              <YearlyCashFlowStatement 
+                data={financials} 
+                property={property} 
+                global={global}
+                years={10} 
+                startYear={getFiscalYear(0)} 
+                defaultLTV={global.debtAssumptions?.acqLTV ?? DEFAULT_LTV}
+              />
+            </div>
           </TabsContent>
         </Tabs>
       </div>

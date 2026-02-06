@@ -38,7 +38,7 @@ import {
   DEPRECIATION_YEARS,
   PROJECTION_YEARS,
 } from "@/lib/loanCalculations";
-import { DAYS_PER_MONTH } from "@/lib/constants";
+import { DAYS_PER_MONTH, IRR_HIGHLIGHT_THRESHOLD } from "@/lib/constants";
 
 export default function Dashboard() {
   const { data: properties, isLoading: propertiesLoading } = useProperties();
@@ -3933,7 +3933,7 @@ function InvestmentAnalysis({
                     <TableCell className="text-right text-accent">{formatMoney(exitValue)}</TableCell>
                     <TableCell className="text-right font-mono">{formatMoney(totalDistributions)}</TableCell>
                     <TableCell className="text-right font-medium">{equityMultiple.toFixed(2)}x</TableCell>
-                    <TableCell className={`text-right font-bold ${irr > 0.15 ? 'text-accent' : irr > 0 ? 'text-primary' : 'text-destructive'}`}>
+                    <TableCell className={`text-right font-bold ${irr > IRR_HIGHLIGHT_THRESHOLD ? 'text-accent' : irr > 0 ? 'text-primary' : 'text-destructive'}`}>
                       {(irr * 100).toFixed(1)}%
                     </TableCell>
                   </TableRow>

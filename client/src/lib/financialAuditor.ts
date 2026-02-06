@@ -4,7 +4,11 @@ import {
   DEFAULT_LTV, 
   DEFAULT_INTEREST_RATE, 
   DEFAULT_TERM_YEARS, 
-  DEPRECIATION_YEARS 
+  DEPRECIATION_YEARS,
+  AUDIT_VARIANCE_TOLERANCE,
+  AUDIT_DOLLAR_TOLERANCE,
+  AUDIT_VERIFICATION_WINDOW_MONTHS,
+  AUDIT_CRITICAL_ISSUE_THRESHOLD,
 } from './constants';
 
 export interface AuditFinding {
@@ -43,10 +47,10 @@ export interface AuditReport {
   opinionText: string;
 }
 
-const AUDIT_TOLERANCE_PCT = 0.01;
-const AUDIT_TOLERANCE_DOLLARS = 100;
-const AUDIT_SAMPLE_MONTHS = 24;
-const ADVERSE_CRITICAL_THRESHOLD = 3;
+const AUDIT_TOLERANCE_PCT = AUDIT_VARIANCE_TOLERANCE;
+const AUDIT_TOLERANCE_DOLLARS = AUDIT_DOLLAR_TOLERANCE;
+const AUDIT_SAMPLE_MONTHS = AUDIT_VERIFICATION_WINDOW_MONTHS;
+const ADVERSE_CRITICAL_THRESHOLD = AUDIT_CRITICAL_ISSUE_THRESHOLD;
 
 function withinTolerance(expected: number, actual: number, tolerance: number = AUDIT_TOLERANCE_PCT): boolean {
   if (expected === 0 && actual === 0) return true;

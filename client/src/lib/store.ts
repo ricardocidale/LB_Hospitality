@@ -9,7 +9,7 @@ export interface GlobalAssumptions {
   partnerSalary: number; // 150000
   staffSalary: number; // 75000
   travelCostPerClient: number; // 12000
-  itLicensePerClient: number; // 24000
+  itLicensePerClient: number; // 3000
   marketingRate: number; // 0.05
   miscOpsRate: number; // 0.03
   officeLeaseStart: number; // 36000
@@ -100,7 +100,7 @@ const INITIAL_GLOBAL: GlobalAssumptions = {
   partnerSalary: 150000,
   staffSalary: 75000,
   travelCostPerClient: 12000,
-  itLicensePerClient: 24000,
+  itLicensePerClient: 3000,
   marketingRate: 0.05,
   miscOpsRate: 0.03,
   officeLeaseStart: 36000,

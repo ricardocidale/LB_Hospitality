@@ -1,5 +1,5 @@
 import { db } from "./db";
-import { globalAssumptions, properties, users } from "@shared/schema";
+import { globalAssumptions, marketResearch, properties, users } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcrypt";
 
@@ -15,6 +15,7 @@ async function seed() {
   if (existingGlobal.length > 0 || existingProperties.length > 0) {
     if (forceReseed) {
       console.log("Force mode: Clearing existing data...");
+      await db.delete(marketResearch);
       await db.delete(properties);
       await db.delete(globalAssumptions);
       console.log("Existing data cleared.");
@@ -133,12 +134,12 @@ async function seed() {
       costRateRooms: 0.36,
       costRateFB: 0.15,
       costRateAdmin: 0.08,
-      costRateMarketing: 0.01,
+      costRateMarketing: 0.05,
       costRatePropertyOps: 0.04,
       costRateUtilities: 0.05,
       costRateInsurance: 0.02,
       costRateTaxes: 0.03,
-      costRateIT: 0.005,
+      costRateIT: 0.02,
       costRateFFE: 0.04,
       costRateOther: 0.05,
       revShareEvents: 0.43,
@@ -176,12 +177,12 @@ async function seed() {
       costRateRooms: 0.36,
       costRateFB: 0.15,
       costRateAdmin: 0.08,
-      costRateMarketing: 0.01,
+      costRateMarketing: 0.05,
       costRatePropertyOps: 0.04,
       costRateUtilities: 0.05,
       costRateInsurance: 0.02,
       costRateTaxes: 0.03,
-      costRateIT: 0.005,
+      costRateIT: 0.02,
       costRateFFE: 0.04,
       costRateOther: 0.05,
       revShareEvents: 0.43,
@@ -219,12 +220,12 @@ async function seed() {
       costRateRooms: 0.36,
       costRateFB: 0.15,
       costRateAdmin: 0.08,
-      costRateMarketing: 0.01,
+      costRateMarketing: 0.05,
       costRatePropertyOps: 0.04,
       costRateUtilities: 0.05,
       costRateInsurance: 0.02,
       costRateTaxes: 0.03,
-      costRateIT: 0.005,
+      costRateIT: 0.02,
       costRateFFE: 0.04,
       costRateOther: 0.05,
       revShareEvents: 0.43,
@@ -264,12 +265,12 @@ async function seed() {
       costRateRooms: 0.36,
       costRateFB: 0.15,
       costRateAdmin: 0.08,
-      costRateMarketing: 0.01,
+      costRateMarketing: 0.05,
       costRatePropertyOps: 0.04,
       costRateUtilities: 0.05,
       costRateInsurance: 0.02,
       costRateTaxes: 0.03,
-      costRateIT: 0.005,
+      costRateIT: 0.02,
       costRateFFE: 0.04,
       costRateOther: 0.05,
       revShareEvents: 0.43,
@@ -309,12 +310,12 @@ async function seed() {
       costRateRooms: 0.36,
       costRateFB: 0.15,
       costRateAdmin: 0.08,
-      costRateMarketing: 0.01,
+      costRateMarketing: 0.05,
       costRatePropertyOps: 0.04,
       costRateUtilities: 0.05,
       costRateInsurance: 0.02,
       costRateTaxes: 0.03,
-      costRateIT: 0.005,
+      costRateIT: 0.02,
       costRateFFE: 0.04,
       costRateOther: 0.05,
       revShareEvents: 0.43,
@@ -327,6 +328,441 @@ async function seed() {
     },
   ]);
   console.log("Seeded 5 properties");
+
+  const seededProperties = await db.select().from(properties);
+  const propertyMap: Record<string, number> = {};
+  for (const p of seededProperties) {
+    propertyMap[p.name] = p.id;
+  }
+
+  await db.insert(marketResearch).values([
+    {
+      userId: null,
+      type: "property",
+      propertyId: propertyMap["The Hudson Estate"],
+      title: "Market Research: The Hudson Estate",
+      llmModel: "seed-data",
+      content: {
+        marketOverview: {
+          summary: "The Hudson Valley luxury hospitality market has experienced significant growth driven by weekend tourism from New York City. The region has seen a 15% increase in boutique hotel development over the past three years, with strong demand from affluent NYC residents seeking accessible rural retreats. The area benefits from a growing farm-to-table culinary scene, expanding arts and culture programming, and proximity to the metro area.",
+          keyMetrics: [
+            { label: "Tourism Volume", value: "4.2M annual visitors to Hudson Valley region", source: "Hudson Valley Tourism Board, 2025" },
+            { label: "Hotel Supply", value: "32 boutique properties (under 50 rooms) within 30-mile radius", source: "STR Global, 2025" },
+            { label: "RevPAR", value: "$136.40 market average, $245+ for boutique segment", source: "STR Global, 2025" },
+            { label: "Market Growth", value: "8.2% YoY RevPAR growth in boutique segment", source: "CBRE Hotels Research, 2025" }
+          ]
+        },
+        adrAnalysis: {
+          marketAverage: "$220",
+          boutiqueRange: "$280–$380",
+          recommendedRange: "$310–$350",
+          rationale: "The Hudson Estate's 20-room boutique positioning with partial catering supports ADR in the upper-mid range of the boutique segment. The property's estate setting and proximity to NYC justify premium pricing above market average while remaining competitive with established luxury peers.",
+          comparables: [
+            { name: "Hasbrouck House", adr: "$295", type: "Boutique Inn" },
+            { name: "Hutton Brickyards", adr: "$350", type: "Luxury Boutique" },
+            { name: "Troutbeck", adr: "$425", type: "Luxury Estate" },
+            { name: "The Chatwal", adr: "$310", type: "Boutique Lodge" }
+          ]
+        },
+        occupancyAnalysis: {
+          marketAverage: "62%",
+          seasonalPattern: [
+            { season: "Summer (Jun–Aug)", occupancy: "80–85%", notes: "Peak season driven by NYC weekend getaways and outdoor activities" },
+            { season: "Fall (Sep–Nov)", occupancy: "85–90%", notes: "Highest demand period due to foliage tourism and harvest events" },
+            { season: "Winter (Dec–Feb)", occupancy: "40–50%", notes: "Trough season; holiday events and ski-adjacent demand provide a floor" },
+            { season: "Spring (Mar–May)", occupancy: "60–70%", notes: "Shoulder season with gradual ramp driven by wedding bookings" }
+          ],
+          rampUpTimeline: "Expect 18–24 months to reach stabilized occupancy of 75–80%, with initial occupancy around 55–60% in the first six months of operations."
+        },
+        eventDemand: {
+          corporateEvents: "Strong demand from NYC-based companies for executive retreats, off-site meetings, and team-building programs. The 2-hour drive from Manhattan makes it ideal for 1–2 night corporate bookings.",
+          wellnessRetreats: "Growing segment driven by wellness tourism trends. Weekend yoga retreats, meditation workshops, and detox programs attract high-value guests willing to pay premium rates.",
+          weddingsPrivate: "Significant demand for intimate weddings (50–100 guests) and private celebrations. The estate setting provides a compelling venue for upscale events.",
+          estimatedEventRevShare: "40–45% of total revenue from events and F&B combined",
+          keyDrivers: [
+            "Proximity to NYC metro area (2-hour drive, 8M+ potential guests)",
+            "Growing corporate retreat market post-pandemic",
+            "Hudson Valley's established reputation as a culinary and arts destination",
+            "Limited competition for high-end intimate event spaces in the region",
+            "Expanding wellness tourism trend among affluent demographics"
+          ]
+        },
+        capRateAnalysis: {
+          marketRange: "7.5%–9.5%",
+          boutiqueRange: "7.0%–8.5%",
+          recommendedRange: "7.5%–8.5%",
+          rationale: "Boutique hotels in established leisure markets typically trade at tighter cap rates due to premium ADR and strong RevPAR. The Hudson Valley's proximity to NYC provides a demand floor that reduces risk, supporting cap rates in the lower end of the range.",
+          comparables: [
+            { name: "Hasbrouck House", capRate: "8.2%", saleYear: "2023", notes: "18-room boutique inn, Hudson NY" },
+            { name: "Hutton Brickyards", capRate: "7.5%", saleYear: "2022", notes: "Luxury boutique resort, Kingston NY" },
+            { name: "Buttermilk Falls Inn", capRate: "8.8%", saleYear: "2024", notes: "Boutique inn with event space, Milton NY" },
+            { name: "Audrey's Farmhouse", capRate: "7.8%", saleYear: "2023", notes: "Boutique property, Wallkill NY" }
+          ]
+        },
+        competitiveSet: [
+          { name: "Hasbrouck House", rooms: "18", adr: "$295", positioning: "Boutique inn with restaurant, art-focused programming" },
+          { name: "Hutton Brickyards", rooms: "31", adr: "$350", positioning: "Luxury boutique resort on the Hudson River with glamping" },
+          { name: "Troutbeck", rooms: "37", adr: "$425", positioning: "Luxury country estate with spa, farm, and event spaces" },
+          { name: "The Chatwal", rooms: "12", adr: "$310", positioning: "Intimate boutique lodge with fine dining" }
+        ],
+        risks: [
+          { risk: "Seasonal revenue concentration", mitigation: "Develop winter programming (holiday packages, fireside retreats, cross-country ski partnerships) and corporate retreat packages to boost off-season occupancy to 50%+" },
+          { risk: "NYC accessibility disruptions", mitigation: "Diversify marketing to include Albany, Connecticut, and New Jersey markets; develop midweek corporate packages less dependent on weekend traffic" },
+          { risk: "Competition from new boutique openings", mitigation: "Differentiate through unique estate experience, curated programming, and loyalty/membership programs; secure early market positioning before new supply enters" },
+          { risk: "Staffing challenges in rural market", mitigation: "Offer competitive compensation with housing stipends, partner with local hospitality programs, and implement seasonal staffing models" }
+        ],
+        sources: [
+          "STR Global – Hudson Valley Hotel Performance Report, 2025",
+          "CBRE Hotels Research – Northeast Boutique Hotel Investment Outlook, 2025",
+          "HVS – Hudson Valley Lodging Market Analysis, 2024",
+          "PKF Hospitality Research – Boutique Hotel Trends Report, 2025",
+          "Hudson Valley Tourism Board – Annual Visitor Statistics, 2025",
+          "Highland Group – Boutique Hotel Cap Rate Survey, 2024"
+        ]
+      }
+    },
+    {
+      userId: null,
+      type: "property",
+      propertyId: propertyMap["Eden Summit Lodge"],
+      title: "Market Research: Eden Summit Lodge",
+      llmModel: "seed-data",
+      content: {
+        marketOverview: {
+          summary: "The Ogden Valley/Eden market in Utah is a rapidly growing ski and outdoor recreation destination anchored by Powder Mountain and Snowbasin resorts. The area has seen accelerated development following Powder Mountain's acquisition and master-plan community development. Year-round outdoor recreation including skiing, mountain biking, hiking, and fly fishing supports a dual-season demand profile, though winter remains the dominant revenue driver.",
+          keyMetrics: [
+            { label: "Tourism Volume", value: "1.8M annual skier visits to Ogden Valley resorts", source: "Utah Office of Tourism, 2025" },
+            { label: "Hotel Supply", value: "14 boutique/luxury properties within Ogden Valley corridor", source: "STR Global, 2025" },
+            { label: "RevPAR", value: "$169.00 market average, $310+ for luxury lodge segment", source: "STR Global, 2025" },
+            { label: "Market Growth", value: "12.5% YoY RevPAR growth driven by resort development", source: "CBRE Hotels Research, 2025" }
+          ]
+        },
+        adrAnalysis: {
+          marketAverage: "$260",
+          boutiqueRange: "$320–$450",
+          recommendedRange: "$370–$410",
+          rationale: "Eden Summit Lodge's full-catering luxury positioning in a supply-constrained ski market supports premium ADR. The property's proximity to Powder Mountain and Snowbasin, combined with full F&B capabilities, justifies pricing at the upper end of the boutique range.",
+          comparables: [
+            { name: "Snowpine Lodge", adr: "$420", type: "Ski-in/out Luxury" },
+            { name: "Hotel Park City", adr: "$380", type: "Boutique Resort" },
+            { name: "Waldorf Astoria Park City", adr: "$450", type: "Luxury" },
+            { name: "Blue Sky Ranch", adr: "$395", type: "Luxury Ranch" }
+          ]
+        },
+        occupancyAnalysis: {
+          marketAverage: "65%",
+          seasonalPattern: [
+            { season: "Ski Season (Dec–Mar)", occupancy: "85–95%", notes: "Peak season driven by skiing at Powder Mountain and Snowbasin; holiday weeks at 95%+" },
+            { season: "Summer (Jun–Sep)", occupancy: "70–80%", notes: "Growing segment with mountain biking, hiking, fly fishing, and event bookings" },
+            { season: "Fall (Oct–Nov)", occupancy: "45–55%", notes: "Shoulder season; fall colors and hunting provide moderate demand" },
+            { season: "Spring (Apr–May)", occupancy: "45–55%", notes: "Mud season with lowest demand; spring skiing in April provides some support" }
+          ],
+          rampUpTimeline: "Expect 12–18 months to reach stabilized occupancy of 78–82%, with strong initial demand during ski season (75%+) and gradual summer ramp over two seasons."
+        },
+        eventDemand: {
+          corporateEvents: "Strong demand from Salt Lake City corporate market (35-minute drive) for executive retreats, sales kickoffs, and team-building events. The mountain setting and full catering capabilities make it ideal for immersive multi-day programs.",
+          wellnessRetreats: "Significant opportunity for ski and wellness retreat packages combining outdoor activities with spa services, yoga, and mindfulness programming. Year-round demand potential.",
+          weddingsPrivate: "Growing mountain wedding market with demand for intimate ceremonies (40–80 guests) in scenic alpine settings. Summer and early fall are peak wedding seasons.",
+          estimatedEventRevShare: "42–48% of total revenue from events and F&B combined",
+          keyDrivers: [
+            "Salt Lake City corporate market within 45-minute drive (tech, finance, outdoor industry HQs)",
+            "Powder Mountain and Snowbasin resort proximity creating built-in demand",
+            "Utah's growing reputation as a luxury outdoor recreation destination",
+            "Limited luxury lodging supply in Eden/Ogden Valley vs. Park City",
+            "Year-round outdoor recreation supporting dual-season revenue model"
+          ]
+        },
+        capRateAnalysis: {
+          marketRange: "7.0%–9.0%",
+          boutiqueRange: "7.0%–8.0%",
+          recommendedRange: "7.0%–8.0%",
+          rationale: "Supply-constrained mountain resort markets with strong demand drivers command tighter cap rates. Eden's proximity to SLC and ongoing resort development at Powder Mountain provide additional value support compared to more remote mountain destinations.",
+          comparables: [
+            { name: "Snowpine Lodge", capRate: "7.2%", saleYear: "2022", notes: "Luxury ski lodge, Alta UT" },
+            { name: "Washington School House", capRate: "7.5%", saleYear: "2023", notes: "Boutique hotel, Park City UT" },
+            { name: "Blue Sky Ranch", capRate: "7.8%", saleYear: "2024", notes: "Luxury ranch resort, Wanship UT" },
+            { name: "Hotel Park City", capRate: "7.4%", saleYear: "2023", notes: "Boutique resort, Park City UT" }
+          ]
+        },
+        competitiveSet: [
+          { name: "Snowpine Lodge", rooms: "47", adr: "$420", positioning: "Ski-in/out luxury lodge at Alta with full-service spa and dining" },
+          { name: "Hotel Park City", rooms: "62", adr: "$380", positioning: "Boutique resort with golf, spa, and mountain activities" },
+          { name: "Waldorf Astoria Park City", rooms: "175", adr: "$450", positioning: "Full-service luxury resort with ski access and multiple restaurants" },
+          { name: "Blue Sky Ranch", rooms: "46", adr: "$395", positioning: "Luxury adventure ranch with horseback riding, fly fishing, and spa" }
+        ],
+        risks: [
+          { risk: "Extreme seasonality (ski-dependent revenue)", mitigation: "Invest in summer programming (mountain biking, fly fishing, wellness retreats) and corporate retreat packages to build 70%+ summer occupancy" },
+          { risk: "Climate change and snow variability", mitigation: "Partner with resorts that have robust snowmaking; diversify into non-snow winter activities (snowshoeing, winter wellness); develop year-round revenue streams" },
+          { risk: "Infrastructure limitations in Eden", mitigation: "Work with local authorities on road improvements; provide shuttle services to SLC airport; invest in on-site amenities to reduce need for off-property travel" },
+          { risk: "Competition from Park City luxury supply", mitigation: "Position as an authentic, intimate mountain experience vs. Park City's resort commercialization; emphasize exclusivity, privacy, and full-catering capabilities" }
+        ],
+        sources: [
+          "STR Global – Utah Mountain Resort Market Performance, 2025",
+          "CBRE Hotels Research – Mountain Resort Investment Outlook, 2025",
+          "HVS – Ogden Valley Lodging Market Feasibility Study, 2024",
+          "PKF Hospitality Research – Ski Resort Hotel Trends, 2025",
+          "Utah Office of Tourism – Annual Tourism Report, 2025",
+          "Highland Group – Mountain Resort Cap Rate Analysis, 2024"
+        ]
+      }
+    },
+    {
+      userId: null,
+      type: "property",
+      propertyId: propertyMap["Austin Hillside"],
+      title: "Market Research: Austin Hillside",
+      llmModel: "seed-data",
+      content: {
+        marketOverview: {
+          summary: "Austin's hospitality market continues to benefit from strong tech industry growth, a vibrant cultural scene, and major events like SXSW and ACL. The boutique hotel segment has seen rapid expansion but demand has kept pace, driven by the city's position as a top U.S. relocation destination. The Hill Country setting offers differentiation from downtown competitors, with growing demand for experiential stays that combine Austin's creative culture with natural surroundings.",
+          keyMetrics: [
+            { label: "Tourism Volume", value: "32.4M annual visitors to Austin metro area", source: "Austin Convention & Visitors Bureau, 2025" },
+            { label: "Hotel Supply", value: "48 boutique/lifestyle properties in metro Austin", source: "STR Global, 2025" },
+            { label: "RevPAR", value: "$112.50 market average, $198+ for boutique segment", source: "STR Global, 2025" },
+            { label: "Market Growth", value: "6.8% YoY RevPAR growth in boutique segment", source: "CBRE Hotels Research, 2025" }
+          ]
+        },
+        adrAnalysis: {
+          marketAverage: "$195",
+          boutiqueRange: "$220–$340",
+          recommendedRange: "$255–$285",
+          rationale: "Austin Hillside's 20-room boutique positioning with partial catering in the Hill Country supports mid-range boutique pricing. While below luxury peers like Hotel Saint Cecilia, the property's experiential positioning and tech-industry demand support healthy ADR growth potential.",
+          comparables: [
+            { name: "Hotel Saint Cecilia", adr: "$450", type: "Luxury Boutique" },
+            { name: "South Congress Hotel", adr: "$280", type: "Lifestyle" },
+            { name: "Hotel Magdalena", adr: "$310", type: "Boutique" },
+            { name: "Carpenter Hotel", adr: "$245", type: "Boutique" }
+          ]
+        },
+        occupancyAnalysis: {
+          marketAverage: "70%",
+          seasonalPattern: [
+            { season: "SXSW/ACL Periods (Mar, Oct)", occupancy: "95%+", notes: "Major event periods command premium rates and near-100% occupancy" },
+            { season: "Spring/Fall (Apr–May, Sep–Nov)", occupancy: "75–85%", notes: "Strong shoulder seasons with corporate travel and pleasant weather" },
+            { season: "Summer (Jun–Aug)", occupancy: "55–65%", notes: "Heat-driven dip in leisure travel; corporate demand provides a floor" },
+            { season: "Winter (Dec–Feb)", occupancy: "60–70%", notes: "Holiday events and New Year travel; corporate kickoffs in January" }
+          ],
+          rampUpTimeline: "Expect 12–18 months to reach stabilized occupancy of 72–76%, benefiting from Austin's strong year-round demand base and event calendar."
+        },
+        eventDemand: {
+          corporateEvents: "Exceptional demand from Austin's tech sector for executive retreats, product launches, and team offsites. Companies like Tesla, Apple, Google, and Meta drive consistent corporate event bookings year-round.",
+          wellnessRetreats: "Growing demand for tech-focused wellness retreats combining digital detox, outdoor activities, and mindfulness. Austin's health-conscious culture supports premium wellness programming.",
+          weddingsPrivate: "Strong demand for Hill Country weddings and private celebrations. Austin's music and culinary scene adds unique event programming opportunities.",
+          estimatedEventRevShare: "40–46% of total revenue from events and F&B combined",
+          keyDrivers: [
+            "Austin's booming tech industry driving corporate retreat demand (150+ tech company HQs)",
+            "SXSW, ACL, and Formula 1 creating peak demand periods with premium pricing power",
+            "Austin's position as #1 U.S. relocation destination driving new visitor demand",
+            "Growing wellness and experiential travel trends among tech demographics",
+            "Hill Country setting providing differentiation from downtown hotel competition"
+          ]
+        },
+        capRateAnalysis: {
+          marketRange: "7.0%–8.5%",
+          boutiqueRange: "7.0%–8.0%",
+          recommendedRange: "7.5%–8.5%",
+          rationale: "Austin's strong demand fundamentals and population growth support attractive cap rates for boutique properties, though recent supply additions have moderated compression. The Hill Country location may carry a slight premium vs. downtown due to lower barrier to entry but also less established demand pattern.",
+          comparables: [
+            { name: "Hotel Magdalena", capRate: "7.2%", saleYear: "2023", notes: "Boutique hotel, South Austin" },
+            { name: "Carpenter Hotel", capRate: "7.8%", saleYear: "2024", notes: "Boutique hotel, downtown Austin" },
+            { name: "Lone Star Court", capRate: "8.1%", saleYear: "2023", notes: "Boutique hotel, Domain area" },
+            { name: "Commodore Perry Estate", capRate: "7.5%", saleYear: "2022", notes: "Luxury boutique, Hyde Park" }
+          ]
+        },
+        competitiveSet: [
+          { name: "Hotel Saint Cecilia", rooms: "14", adr: "$450", positioning: "Ultra-luxury rock & roll boutique with celebrity cachet" },
+          { name: "South Congress Hotel", rooms: "83", adr: "$280", positioning: "Lifestyle hotel anchoring SoCo district with rooftop pool and restaurants" },
+          { name: "Hotel Magdalena", rooms: "89", adr: "$310", positioning: "Lake Austin boutique by Lake Flato architects with pool club" },
+          { name: "Carpenter Hotel", rooms: "93", adr: "$245", positioning: "Design-forward boutique in converted 1930s building" }
+        ],
+        risks: [
+          { risk: "Hotel construction boom creating oversupply", mitigation: "Differentiate through Hill Country experiential positioning vs. downtown commodity hotels; focus on high-value corporate and wellness segments less price-sensitive to new supply" },
+          { risk: "Seasonal event dependence (SXSW, ACL)", mitigation: "Build year-round corporate retreat pipeline and wellness programming; develop midweek packages targeting remote workers and digital nomads" },
+          { risk: "Extreme summer heat reducing leisure demand", mitigation: "Create indoor/evening-focused summer programming (culinary experiences, music events, spa packages); offer attractive summer corporate rates" },
+          { risk: "Tech industry cyclicality affecting corporate demand", mitigation: "Diversify client base across industries; target healthcare, government, and education sectors; develop leisure and wedding revenue streams" }
+        ],
+        sources: [
+          "STR Global – Austin Hotel Market Performance Report, 2025",
+          "CBRE Hotels Research – Texas Boutique Hotel Investment Report, 2025",
+          "HVS – Austin Lodging Market Overview, 2024",
+          "PKF Hospitality Research – Urban Boutique Hotel Performance Trends, 2025",
+          "Austin Convention & Visitors Bureau – Tourism Impact Study, 2025",
+          "Highland Group – Sun Belt Hotel Cap Rate Survey, 2024"
+        ]
+      }
+    },
+    {
+      userId: null,
+      type: "property",
+      propertyId: propertyMap["Casa Medellín"],
+      title: "Market Research: Casa Medellín",
+      llmModel: "seed-data",
+      content: {
+        marketOverview: {
+          summary: "Medellín has emerged as one of Latin America's most dynamic hospitality markets, driven by digital nomad migration, medical tourism, and the city's transformation into a global innovation hub. The El Poblado and Laureles neighborhoods anchor the luxury boutique segment, with international visitor arrivals growing 22% year-over-year. The city's spring-like climate, low cost of living, and improving infrastructure make it increasingly attractive for both short-stay tourism and extended-stay guests.",
+          keyMetrics: [
+            { label: "Tourism Volume", value: "1.4M international visitors to Medellín annually", source: "ProColombia Tourism Statistics, 2025" },
+            { label: "Hotel Supply", value: "22 boutique/lifestyle properties in El Poblado and Laureles", source: "STR Global LATAM, 2025" },
+            { label: "RevPAR", value: "$69.60 market average, $128+ for boutique segment (USD)", source: "STR Global LATAM, 2025" },
+            { label: "Market Growth", value: "18.3% YoY RevPAR growth in boutique segment (USD terms)", source: "CBRE Hotels Americas, 2025" }
+          ]
+        },
+        adrAnalysis: {
+          marketAverage: "$120",
+          boutiqueRange: "$140–$250",
+          recommendedRange: "$170–$195",
+          rationale: "Casa Medellín's 30-room full-catering positioning in the emerging luxury segment justifies mid-to-upper boutique pricing. The larger room count and full F&B capabilities support group bookings and events, while the market's rapid growth trajectory provides strong ADR growth potential in USD terms.",
+          comparables: [
+            { name: "The Charlee", adr: "$210", type: "Lifestyle Luxury" },
+            { name: "Click Clack", adr: "$185", type: "Boutique" },
+            { name: "Perlería Hotel", adr: "$165", type: "Boutique" },
+            { name: "Los Patios Hostal Boutique", adr: "$145", type: "Boutique" }
+          ]
+        },
+        occupancyAnalysis: {
+          marketAverage: "58%",
+          seasonalPattern: [
+            { season: "High Season (Dec–Mar)", occupancy: "75–85%", notes: "Peak tourism period with holiday travel, Feria de las Flores overflow, and North American winter escapes" },
+            { season: "Shoulder Season (Apr–May, Oct–Nov)", occupancy: "55–65%", notes: "Moderate demand with business travel and digital nomad arrivals" },
+            { season: "Mid-Year (Jun–Sep)", occupancy: "50–60%", notes: "Steady demand from digital nomads and medical tourism; local holiday weekends provide spikes" },
+            { season: "Feria de las Flores (Aug)", occupancy: "85–90%", notes: "Major festival period commands premium rates" }
+          ],
+          rampUpTimeline: "Expect 18–24 months to reach stabilized occupancy of 65–70%, with initial occupancy around 45–50% as the property builds reputation in the international market."
+        },
+        eventDemand: {
+          corporateEvents: "Emerging demand from international companies hosting Latin American team gatherings, remote work retreats, and innovation workshops. Medellín's tech ecosystem (Ruta N) drives local corporate event demand.",
+          wellnessRetreats: "Strong and growing demand for wellness retreats combining yoga, meditation, plant medicine ceremonies, and holistic health programming. The city's climate and natural surroundings support year-round wellness tourism.",
+          weddingsPrivate: "Growing destination wedding market for international couples seeking unique, affordable luxury. Colombian cultural events and family celebrations also drive private event bookings.",
+          estimatedEventRevShare: "38–44% of total revenue from events and F&B combined",
+          keyDrivers: [
+            "Digital nomad influx creating demand for extended-stay and co-working retreat experiences",
+            "Medical tourism market driving health-conscious travel to Medellín",
+            "Growing international recognition of Medellín as an innovation and culture hub",
+            "Favorable USD-to-COP exchange rate making luxury accessible to international guests",
+            "Year-round spring-like climate eliminating seasonal weather risk"
+          ]
+        },
+        capRateAnalysis: {
+          marketRange: "9.0%–11.0%",
+          boutiqueRange: "9.5%–11.0%",
+          recommendedRange: "9.5%–10.5%",
+          rationale: "Colombian hospitality assets trade at wider cap rates reflecting country risk, currency volatility, and emerging market premiums. However, Medellín's rapid tourism growth and improving infrastructure are compressing spreads vs. historical norms. Full-service boutique properties with international appeal command the tighter end of the range.",
+          comparables: [
+            { name: "The Charlee Hotel", capRate: "9.8%", saleYear: "2023", notes: "Lifestyle luxury hotel, El Poblado" },
+            { name: "Click Clack Medellín", capRate: "10.2%", saleYear: "2024", notes: "Boutique hotel, El Poblado" },
+            { name: "Hotel Dann Carlton", capRate: "10.5%", saleYear: "2023", notes: "Full-service hotel, El Poblado" },
+            { name: "Movich Hotels portfolio", capRate: "9.5%", saleYear: "2022", notes: "Boutique portfolio, multiple Colombian cities" }
+          ]
+        },
+        competitiveSet: [
+          { name: "The Charlee", rooms: "42", adr: "$210", positioning: "Lifestyle luxury rooftop scene with pool, restaurant, and nightlife" },
+          { name: "Click Clack", rooms: "60", adr: "$185", positioning: "Design-forward boutique with co-working spaces and rooftop bar" },
+          { name: "Perlería Hotel", rooms: "15", adr: "$165", positioning: "Intimate boutique with curated art collection and personalized service" },
+          { name: "Los Patios Hostal Boutique", rooms: "22", adr: "$145", positioning: "Colonial-style boutique with courtyard gardens and local cultural programming" }
+        ],
+        risks: [
+          { risk: "Political and regulatory risk in Colombia", mitigation: "Engage local legal counsel for compliance; structure ownership through appropriate corporate vehicles; maintain relationships with local government and tourism authorities" },
+          { risk: "Currency fluctuation (COP/USD)", mitigation: "Price rooms in USD for international guests; implement natural hedging through USD-denominated revenue streams; maintain operating reserves in hard currency" },
+          { risk: "Infrastructure and utility reliability", mitigation: "Invest in backup power systems, water treatment, and internet redundancy; build relationships with reliable local service providers" },
+          { risk: "Safety perception among international travelers", mitigation: "Implement robust security protocols; partner with reputable travel agencies and review platforms; invest in positive PR and influencer marketing to counter outdated perceptions" }
+        ],
+        sources: [
+          "STR Global LATAM – Colombia Hotel Performance Report, 2025",
+          "CBRE Hotels Americas – Latin America Boutique Hotel Investment Outlook, 2025",
+          "HVS – Medellín Lodging Market Assessment, 2024",
+          "ProColombia – International Tourism Statistics, 2025",
+          "JLL Hotels & Hospitality – Colombia Hospitality Market Overview, 2025",
+          "Highland Group – Emerging Market Hotel Cap Rate Survey, 2024"
+        ]
+      }
+    },
+    {
+      userId: null,
+      type: "property",
+      propertyId: propertyMap["Blue Ridge Manor"],
+      title: "Market Research: Blue Ridge Manor",
+      llmModel: "seed-data",
+      content: {
+        marketOverview: {
+          summary: "Asheville, North Carolina has established itself as one of the Southeast's premier arts, wellness, and culinary destinations. The Blue Ridge Mountains setting, combined with a thriving brewery and farm-to-table scene, attracts affluent visitors year-round with peak demand during fall foliage season. The boutique hotel segment has matured significantly, with strong demand from both leisure travelers and corporate retreat groups seeking mountain settings within driving distance of major Southeast metros.",
+          keyMetrics: [
+            { label: "Tourism Volume", value: "11.8M annual visitors to Buncombe County", source: "Explore Asheville Convention & Visitors Bureau, 2025" },
+            { label: "Hotel Supply", value: "38 boutique/independent properties within Asheville metro", source: "STR Global, 2025" },
+            { label: "RevPAR", value: "$140.70 market average, $258+ for boutique segment", source: "STR Global, 2025" },
+            { label: "Market Growth", value: "7.4% YoY RevPAR growth in boutique segment", source: "CBRE Hotels Research, 2025" }
+          ]
+        },
+        adrAnalysis: {
+          marketAverage: "$210",
+          boutiqueRange: "$275–$400",
+          recommendedRange: "$325–$360",
+          rationale: "Blue Ridge Manor's 30-room full-catering estate positioning in the Blue Ridge Mountains supports upper-mid boutique pricing. The larger room count enables group and event bookings at scale while the full F&B capability and mountain setting justify premium rates competitive with established luxury peers.",
+          comparables: [
+            { name: "The Omni Grove Park Inn", adr: "$350", type: "Historic Resort" },
+            { name: "Inn on Biltmore Estate", adr: "$395", type: "Luxury" },
+            { name: "Foundry Hotel", adr: "$320", type: "Boutique" },
+            { name: "Grand Bohemian Hotel", adr: "$305", type: "Boutique" }
+          ]
+        },
+        occupancyAnalysis: {
+          marketAverage: "67%",
+          seasonalPattern: [
+            { season: "Fall Foliage (Sep–Nov)", occupancy: "90–95%", notes: "Highest demand period driven by Blue Ridge Parkway foliage tourism; October commands highest rates" },
+            { season: "Summer (Jun–Aug)", occupancy: "75–85%", notes: "Strong family and leisure travel; music festivals and outdoor events drive demand" },
+            { season: "Spring (Mar–May)", occupancy: "65–75%", notes: "Growing season with wildflower tourism, wedding bookings, and corporate retreats" },
+            { season: "Winter (Dec–Feb)", occupancy: "45–55%", notes: "Holiday events and ski-adjacent demand from nearby slopes; wellness retreat programming provides a floor" }
+          ],
+          rampUpTimeline: "Expect 15–20 months to reach stabilized occupancy of 74–78%, with strong initial demand during fall season (80%+) and steady growth across other seasons."
+        },
+        eventDemand: {
+          corporateEvents: "Growing demand from Charlotte, Atlanta, and Raleigh-Durham corporate markets for executive retreats and team building in a mountain setting. The 2–3 hour drive from multiple major metros creates an accessible yet removed retreat environment.",
+          wellnessRetreats: "Asheville's established wellness community supports strong year-round demand for yoga retreats, meditation workshops, sound healing, and holistic health programming. The mountain setting and local wellness practitioners provide a deep talent pool.",
+          weddingsPrivate: "Exceptional demand for mountain weddings and destination celebrations. Asheville consistently ranks among the top U.S. wedding destinations, with demand for venues accommodating 60–120 guests in scenic settings.",
+          estimatedEventRevShare: "44–50% of total revenue from events and F&B combined",
+          keyDrivers: [
+            "Multiple major metro areas within 2–3 hour drive (Charlotte, Atlanta, Raleigh-Durham, Greenville)",
+            "Asheville's established reputation as a top U.S. wellness and culinary destination",
+            "Blue Ridge Parkway's status as the most-visited National Park Service site driving tourism",
+            "Growing corporate retreat market among Southeast tech and finance companies",
+            "Strong wedding destination market with year-round demand for mountain venues"
+          ]
+        },
+        capRateAnalysis: {
+          marketRange: "7.5%–9.0%",
+          boutiqueRange: "7.5%–8.5%",
+          recommendedRange: "7.5%–8.5%",
+          rationale: "Asheville's established tourism market, strong brand recognition, and diverse demand drivers support attractive cap rates for boutique properties. The market's maturity and proven performance reduce risk premiums compared to emerging destinations, though seasonal concentration adds a modest premium.",
+          comparables: [
+            { name: "Foundry Hotel", capRate: "7.8%", saleYear: "2023", notes: "Boutique hotel, downtown Asheville" },
+            { name: "Grand Bohemian Hotel", capRate: "7.5%", saleYear: "2022", notes: "Boutique hotel, Biltmore Village" },
+            { name: "The Restoration", capRate: "8.2%", saleYear: "2024", notes: "Boutique hotel, Charleston SC (comparable market)" },
+            { name: "Old Edwards Inn", capRate: "7.9%", saleYear: "2023", notes: "Luxury boutique, Highlands NC" }
+          ]
+        },
+        competitiveSet: [
+          { name: "The Omni Grove Park Inn", rooms: "510", adr: "$350", positioning: "Iconic historic resort with spa, golf, and Blue Ridge Mountain views" },
+          { name: "Inn on Biltmore Estate", rooms: "210", adr: "$395", positioning: "Luxury hotel within Biltmore Estate with exclusive estate access" },
+          { name: "Foundry Hotel", rooms: "87", adr: "$320", positioning: "Adaptive reuse boutique in Arts District with rooftop bar and local programming" },
+          { name: "Grand Bohemian Hotel", rooms: "104", adr: "$305", positioning: "Art-focused boutique in Biltmore Village with gallery, spa, and dining" }
+        ],
+        risks: [
+          { risk: "Seasonal concentration in fall foliage period", mitigation: "Develop four-season programming including winter wellness retreats, spring wildflower packages, and summer music/culinary events; target corporate retreat market for year-round bookings" },
+          { risk: "Short-term rental competition on platforms like Airbnb", mitigation: "Differentiate through full-service hospitality, curated experiences, and event capabilities that STRs cannot replicate; support local STR regulation efforts; emphasize service quality and consistency" },
+          { risk: "Limited commercial airlift to Asheville Regional Airport", mitigation: "Partner with ground transportation services from Charlotte and Greenville-Spartanburg airports; develop packages that include transfer services; market to drive-in markets within 3-hour radius" },
+          { risk: "Rising property costs in Asheville market", mitigation: "Lock in favorable acquisition terms early; implement efficiency-driven operations to maintain margins; explore phased renovation approach to manage capital expenditure" }
+        ],
+        sources: [
+          "STR Global – Asheville Hotel Market Performance Report, 2025",
+          "CBRE Hotels Research – Southeast Boutique Hotel Investment Outlook, 2025",
+          "HVS – Western North Carolina Lodging Market Analysis, 2024",
+          "PKF Hospitality Research – Mountain Resort Performance Trends, 2025",
+          "Explore Asheville Convention & Visitors Bureau – Tourism Economic Impact Study, 2025",
+          "Highland Group – Southeast Hotel Cap Rate Survey, 2024"
+        ]
+      }
+    }
+  ]);
+  console.log("Seeded market research for 5 properties");
 
   console.log("Database seed completed successfully!");
 }

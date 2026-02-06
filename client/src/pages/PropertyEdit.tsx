@@ -45,6 +45,9 @@ import {
   DEFAULT_TAX_RATE,
   DEFAULT_FULL_CATERING_BOOST,
   DEFAULT_PARTIAL_CATERING_BOOST,
+  PROJECTION_YEARS,
+  DEFAULT_MODEL_START_DATE,
+  DEFAULT_REFI_PERIOD_YEARS,
 } from "@/lib/constants";
 
 function EditableValue({ 
@@ -202,10 +205,11 @@ export default function PropertyEdit() {
     }
   }, [property]);
 
+  const projectionYears = globalAssumptions?.projectionYears ?? PROJECTION_YEARS;
   const modelStartYear = globalAssumptions?.modelStartDate 
     ? new Date(globalAssumptions.modelStartDate).getFullYear() 
-    : 2026;
-  const exitYear = modelStartYear + 9;
+    : new Date(DEFAULT_MODEL_START_DATE).getFullYear();
+  const exitYear = modelStartYear + projectionYears - 1;
 
   if (isLoading) {
     return (
@@ -544,14 +548,15 @@ export default function PropertyEdit() {
                           <Input 
                             type="date" 
                             value={draft.refinanceDate || (() => {
+                              const refiPeriod = globalAssumptions?.debtAssumptions?.refiPeriodYears ?? DEFAULT_REFI_PERIOD_YEARS;
                               const opsDate = new Date(draft.operationsStartDate);
-                              opsDate.setFullYear(opsDate.getFullYear() + 3);
+                              opsDate.setFullYear(opsDate.getFullYear() + refiPeriod);
                               return opsDate.toISOString().split('T')[0];
                             })()} 
                             onChange={(e) => handleChange("refinanceDate", e.target.value)}
                             className="bg-white border-[#9FBCA4]/30 text-gray-900"
                           />
-                          <p className="text-xs text-gray-500">Suggested: 3 years after operations start</p>
+                          <p className="text-xs text-gray-500">Suggested: {globalAssumptions?.debtAssumptions?.refiPeriodYears ?? DEFAULT_REFI_PERIOD_YEARS} years after operations start</p>
                         </div>
                         <div className="space-y-2">
                           <Label className="label-text text-gray-700">Loan-to-Value (LTV) %</Label>

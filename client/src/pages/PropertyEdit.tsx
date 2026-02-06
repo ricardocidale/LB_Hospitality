@@ -148,6 +148,7 @@ export default function PropertyEdit() {
   const { toast } = useToast();
   
   const [draft, setDraft] = useState<any>(null);
+  const [isDirty, setIsDirty] = useState(false);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const photoInputRef = useRef<HTMLInputElement>(null);
   
@@ -206,6 +207,15 @@ export default function PropertyEdit() {
     }
   }, [property]);
 
+  useEffect(() => {
+    if (!isDirty) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [isDirty]);
+
   const projectionYears = globalAssumptions?.projectionYears ?? PROJECTION_YEARS;
   const modelStartYear = globalAssumptions?.modelStartDate 
     ? new Date(globalAssumptions.modelStartDate).getFullYear() 
@@ -237,12 +247,14 @@ export default function PropertyEdit() {
 
   const handleChange = (key: string, value: string | number) => {
     setDraft({ ...draft, [key]: value });
+    setIsDirty(true);
   };
 
   const handleNumberChange = (key: string, value: string) => {
     const numValue = parseFloat(value);
     if (!isNaN(numValue)) {
       setDraft({ ...draft, [key]: numValue });
+      setIsDirty(true);
     }
   };
 
@@ -264,8 +276,12 @@ export default function PropertyEdit() {
   const handleSave = () => {
     updateProperty.mutate({ id: propertyId, data: draft }, {
       onSuccess: () => {
+        setIsDirty(false);
         toast({ title: "Saved", description: "Property assumptions updated successfully." });
         setLocation(`/property/${propertyId}`);
+      },
+      onError: () => {
+        toast({ title: "Error", description: "Failed to save property assumptions.", variant: "destructive" });
       }
     });
   };

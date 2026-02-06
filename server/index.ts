@@ -4,6 +4,7 @@ import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
 import { authMiddleware, requireAuth, seedAdminUser } from "./auth";
+import { storage } from "./storage";
 
 const app = express();
 const httpServer = createServer(app);
@@ -19,8 +20,8 @@ app.use(cookieParser());
 app.use((req, res, next) => {
   res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("X-Frame-Options", "DENY");
-  res.setHeader("X-XSS-Protection", "1; mode=block");
   res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+  res.setHeader("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self'");
   if (process.env.NODE_ENV === "production") {
     res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
   }
@@ -130,6 +131,16 @@ app.use((req, res, next) => {
     },
     () => {
       log(`serving on port ${port}`);
+
+      // Clean expired sessions every hour
+      setInterval(async () => {
+        try {
+          const count = await storage.deleteExpiredSessions();
+          if (count > 0) log(`Cleaned ${count} expired sessions`);
+        } catch (err) {
+          console.error("Session cleanup error:", err);
+        }
+      }, 60 * 60 * 1000);
     },
   );
 })();

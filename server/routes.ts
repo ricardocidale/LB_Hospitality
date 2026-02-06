@@ -36,7 +36,7 @@ export async function registerRoutes(
       const clientIp = req.ip || req.socket.remoteAddress || "unknown";
       
       if (isRateLimited(clientIp)) {
-        return res.status(429).json({ error: "Too many login attempts. Please try again in 15 minutes." });
+        return res.status(429).json({ error: "Too many login attempts. Please try again in 1 minute." });
       }
       
       const validation = loginSchema.safeParse(req.body);
@@ -1413,7 +1413,10 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     try {
       const userId = req.user!.id;
       const scenarioId = parseInt(req.params.id as string);
-      
+      if (isNaN(scenarioId)) {
+        return res.status(400).json({ error: "Invalid scenario ID" });
+      }
+
       const scenario = await storage.getScenario(scenarioId);
       if (!scenario) {
         return res.status(404).json({ error: "Scenario not found" });
@@ -1440,6 +1443,9 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     try {
       const userId = req.user!.id;
       const scenarioId = parseInt(req.params.id as string);
+      if (isNaN(scenarioId)) {
+        return res.status(400).json({ error: "Invalid scenario ID" });
+      }
 
       const validation = updateScenarioSchema.safeParse(req.body);
       if (!validation.success) {
@@ -1468,7 +1474,10 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     try {
       const userId = req.user!.id;
       const scenarioId = parseInt(req.params.id as string);
-      
+      if (isNaN(scenarioId)) {
+        return res.status(400).json({ error: "Invalid scenario ID" });
+      }
+
       const scenario = await storage.getScenario(scenarioId);
       if (!scenario) {
         return res.status(404).json({ error: "Scenario not found" });
@@ -1533,6 +1542,9 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
   app.patch("/api/admin/design-themes/:id", requireAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id as string);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid theme ID" });
+      }
       const validation = insertDesignThemeSchema.partial().safeParse(req.body);
       if (!validation.success) {
         return res.status(400).json({ error: fromZodError(validation.error).message });
@@ -1552,6 +1564,9 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
   app.delete("/api/admin/design-themes/:id", requireAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id as string);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid theme ID" });
+      }
       await storage.deleteDesignTheme(id);
       res.json({ success: true });
     } catch (error) {
@@ -1564,6 +1579,9 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
   app.post("/api/admin/design-themes/:id/activate", requireAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id as string);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid theme ID" });
+      }
       await storage.setActiveDesignTheme(id);
       res.json({ success: true });
     } catch (error) {
@@ -1865,6 +1883,9 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     try {
       const userId = req.user!.id;
       const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid property ID" });
+      }
       await storage.deleteProspectiveProperty(id, userId);
       res.json({ success: true });
     } catch (error) {
@@ -1877,6 +1898,9 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     try {
       const userId = req.user!.id;
       const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid property ID" });
+      }
       const { notes } = req.body;
       const updated = await storage.updateProspectivePropertyNotes(id, userId, notes || "");
       res.json(updated);
@@ -1926,6 +1950,9 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     try {
       const userId = req.user!.id;
       const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid search ID" });
+      }
       await storage.deleteSavedSearch(id, userId);
       res.json({ success: true });
     } catch (error) {

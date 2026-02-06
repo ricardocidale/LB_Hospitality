@@ -123,14 +123,16 @@ export default function PropertyDetail() {
     return result;
   };
 
-  const getCashFlowData = () => {
+  const cashFlowDataMemo = useMemo(() => {
     const yearlyNOIData = [];
     for (let y = 0; y < years; y++) {
       const yearData = financials.slice(y * 12, (y + 1) * 12);
       yearlyNOIData.push(yearData.reduce((a, m) => a + m.noi, 0));
     }
     return calculatePropertyYearlyCashFlows(yearlyNOIData, property as LoanParams, global as GlobalLoanParams, years);
-  };
+  }, [financials, property, global, years]);
+
+  const getCashFlowData = () => cashFlowDataMemo;
 
   const exportCashFlowCSV = () => {
     const yearlyDetails = getYearlyDetails();
@@ -222,6 +224,7 @@ export default function PropertyDetail() {
     link.setAttribute("href", url);
     link.setAttribute("download", `${property.name.replace(/\s+/g, '_')}_CashFlow.csv`);
     link.click();
+    URL.revokeObjectURL(url);
   };
 
   const exportCashFlowPDF = async (orientation: 'landscape' | 'portrait' = 'landscape') => {

@@ -53,18 +53,46 @@ interface LoginLog {
   userName: string | null;
 }
 
+interface CheckResult {
+  metric: string;
+  category: string;
+  gaapRef: string;
+  formula: string;
+  expected: number;
+  actual: number;
+  variance: number;
+  variancePct: number;
+  passed: boolean;
+  severity: "critical" | "material" | "minor" | "info";
+}
+
+interface PropertyCheckResults {
+  propertyName: string;
+  propertyType: string;
+  checks: CheckResult[];
+  passed: number;
+  failed: number;
+  criticalIssues: number;
+}
+
 interface VerificationResult {
   timestamp: string;
   propertiesChecked: number;
-  formulaChecks: { passed: number; failed: number; details: any[] };
-  complianceChecks: { passed: number; failed: number; criticalIssues: number; details: any[] };
-  managementCompanyChecks?: { passed: number; failed: number; details: any[] };
-  consolidatedChecks?: { passed: number; failed: number; details: any[] };
-  overallStatus: "PASS" | "FAIL" | "WARNING";
-  auditWorkpaper?: string;
-  auditReports?: AuditReport[];
-  auditOpinion?: "UNQUALIFIED" | "QUALIFIED" | "ADVERSE" | "DISCLAIMER";
-  knownValueTests?: { passed: boolean; results: string };
+  propertyResults: PropertyCheckResults[];
+  companyChecks: CheckResult[];
+  consolidatedChecks: CheckResult[];
+  summary: {
+    totalChecks: number;
+    totalPassed: number;
+    totalFailed: number;
+    criticalIssues: number;
+    materialIssues: number;
+    auditOpinion: "UNQUALIFIED" | "QUALIFIED" | "ADVERSE";
+    overallStatus: "PASS" | "FAIL" | "WARNING";
+  };
+  clientAuditWorkpaper?: string;
+  clientAuditReports?: AuditReport[];
+  clientKnownValueTests?: { passed: boolean; results: string };
 }
 
 interface DesignColor {
@@ -301,6 +329,9 @@ export default function Admin() {
     },
   });
 
+  const [aiReview, setAiReview] = useState<string>("");
+  const [aiReviewLoading, setAiReviewLoading] = useState(false);
+
   const runVerification = useMutation({
     mutationFn: async () => {
       const [propertiesRes, assumptionsRes] = await Promise.all([
@@ -317,46 +348,66 @@ export default function Admin() {
       const comprehensiveResults = runFullVerification(properties, globalAssumptions);
       const knownValueTests = runKnownValueTests();
       
-      const legacyRes = await fetch("/api/admin/run-verification", { credentials: "include" });
-      const legacyResults = legacyRes.ok ? await legacyRes.json() : null;
+      const serverRes = await fetch("/api/admin/run-verification", { credentials: "include" });
+      if (!serverRes.ok) throw new Error("Server verification failed");
+      const serverReport: VerificationResult = await serverRes.json();
       
       return {
-        timestamp: new Date().toISOString(),
-        propertiesChecked: properties.length,
-        formulaChecks: {
-          passed: comprehensiveResults.summary.formulaChecksPassed,
-          failed: comprehensiveResults.summary.formulaChecksFailed,
-          details: legacyResults?.formulaChecks?.details || []
-        },
-        complianceChecks: {
-          passed: comprehensiveResults.summary.complianceChecksPassed,
-          failed: comprehensiveResults.summary.complianceChecksFailed,
-          criticalIssues: comprehensiveResults.summary.criticalIssues,
-          details: legacyResults?.complianceChecks?.details || []
-        },
-        managementCompanyChecks: legacyResults?.managementCompanyChecks,
-        consolidatedChecks: legacyResults?.consolidatedChecks,
-        overallStatus: comprehensiveResults.summary.overallStatus,
-        auditWorkpaper: comprehensiveResults.auditWorkpaper,
-        auditReports: comprehensiveResults.auditReports,
-        auditOpinion: comprehensiveResults.summary.auditOpinion,
-        knownValueTests
+        ...serverReport,
+        clientAuditWorkpaper: comprehensiveResults.auditWorkpaper,
+        clientAuditReports: comprehensiveResults.auditReports,
+        clientKnownValueTests: knownValueTests,
       };
     },
     onSuccess: (data) => {
       setVerificationResults(data);
+      setAiReview("");
       toast({
-        title: data.auditOpinion === "UNQUALIFIED" ? "Audit Complete - Unqualified Opinion" :
-               data.auditOpinion === "QUALIFIED" ? "Audit Complete - Qualified Opinion" :
+        title: data.summary.auditOpinion === "UNQUALIFIED" ? "Audit Complete - Unqualified Opinion" :
+               data.summary.auditOpinion === "QUALIFIED" ? "Audit Complete - Qualified Opinion" :
                "Audit Complete - Issues Found",
-        description: `Checked ${data.propertiesChecked} properties. ${data.complianceChecks.criticalIssues} critical issues found.`,
-        variant: data.auditOpinion === "UNQUALIFIED" ? "default" : "destructive"
+        description: `${data.summary.totalChecks} checks run. ${data.summary.criticalIssues} critical issues.`,
+        variant: data.summary.auditOpinion === "UNQUALIFIED" ? "default" : "destructive"
       });
     },
     onError: (error: Error) => {
       toast({ title: "Verification Failed", description: error.message, variant: "destructive" });
     }
   });
+
+  const runAiVerification = async () => {
+    setAiReviewLoading(true);
+    setAiReview("");
+    try {
+      const res = await fetch("/api/admin/ai-verification", { method: "POST", credentials: "include" });
+      if (!res.ok) throw new Error("AI verification failed");
+      const reader = res.body?.getReader();
+      if (!reader) throw new Error("No response body");
+      const decoder = new TextDecoder();
+      let buffer = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            try {
+              const parsed = JSON.parse(line.slice(6));
+              if (parsed.content) {
+                setAiReview(prev => prev + parsed.content);
+              }
+            } catch {}
+          }
+        }
+      }
+    } catch (error: any) {
+      toast({ title: "AI Review Failed", description: error.message, variant: "destructive" });
+    } finally {
+      setAiReviewLoading(false);
+    }
+  };
 
   const runDesignCheck = useMutation({
     mutationFn: async () => {
@@ -685,6 +736,52 @@ export default function Admin() {
     </Card>
   );
 
+  const formatMoney = (n: number) => {
+    const isNeg = n < 0;
+    const abs = Math.abs(n);
+    const formatted = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(abs);
+    return isNeg ? `(${formatted})` : formatted;
+  };
+
+  const severityColor = (severity: string) => {
+    switch (severity) {
+      case "critical": return "bg-red-100 text-red-700";
+      case "material": return "bg-yellow-100 text-yellow-700";
+      case "minor": return "bg-blue-100 text-blue-700";
+      default: return "bg-gray-100 text-gray-600";
+    }
+  };
+
+  const renderCheckRow = (chk: CheckResult, idx: number) => (
+    <div key={idx} className="space-y-1">
+      <div className="flex items-center gap-3 p-3 rounded-lg bg-white border border-gray-100">
+        {chk.passed ? <CheckCircle2 className="w-5 h-5 text-[#257D41] shrink-0" /> : <XCircle className="w-5 h-5 text-red-500 shrink-0" />}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-gray-800 text-sm font-medium">{chk.metric}</span>
+            <span className={`text-[10px] px-1.5 py-0.5 rounded font-mono ${severityColor(chk.severity)}`}>{chk.severity.toUpperCase()}</span>
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#9FBCA4]/20 text-[#257D41] font-mono">{chk.gaapRef}</span>
+          </div>
+          <p className="text-xs text-gray-500 mt-0.5 font-mono">{chk.formula}</p>
+        </div>
+        <div className="text-right shrink-0 ml-2">
+          <span className={`text-xs px-2 py-1 rounded font-semibold ${chk.passed ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+            {chk.passed ? 'PASS' : 'FAIL'}
+          </span>
+        </div>
+      </div>
+      {!chk.passed && (
+        <div className="ml-8 p-3 rounded-lg bg-red-50 border border-red-200">
+          <div className="grid grid-cols-3 gap-4 text-xs">
+            <div><span className="text-gray-500">Expected:</span> <span className="font-mono font-semibold">{formatMoney(chk.expected)}</span></div>
+            <div><span className="text-gray-500">Actual:</span> <span className="font-mono font-semibold">{formatMoney(chk.actual)}</span></div>
+            <div><span className="text-gray-500">Variance:</span> <span className="font-mono font-semibold text-red-600">{formatMoney(chk.variance)} ({chk.variancePct.toFixed(2)}%)</span></div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
   const renderVerification = () => (
     <Card className="relative overflow-hidden bg-white/80 backdrop-blur-xl border border-gray-200 shadow-2xl">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -695,20 +792,33 @@ export default function Admin() {
       <CardHeader className="relative">
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-xl font-display text-gray-900">Financial Verification</CardTitle>
+            <CardTitle className="text-xl font-display text-gray-900">Independent Financial Verification</CardTitle>
             <CardDescription className="label-text text-gray-600">
-              Run formula and GAAP compliance checks on all statements
+              Server-side independent recalculation with GAAP variance analysis
             </CardDescription>
           </div>
-          <button 
-            onClick={() => runVerification.mutate()} 
-            disabled={runVerification.isPending} 
-            data-testid="button-run-verification"
-            className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-[#257D41] bg-[#257D41]/10 text-[#257D41] font-semibold hover:bg-[#257D41]/20 transition-colors disabled:opacity-50"
-          >
-            {runVerification.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <PlayCircle className="w-4 h-4" />}
-            Run Verification
-          </button>
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => runVerification.mutate()} 
+              disabled={runVerification.isPending} 
+              data-testid="button-run-verification"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-[#257D41] bg-[#257D41]/10 text-[#257D41] font-semibold hover:bg-[#257D41]/20 transition-colors disabled:opacity-50"
+            >
+              {runVerification.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <PlayCircle className="w-4 h-4" />}
+              Run Verification
+            </button>
+            {verificationResults && (
+              <button 
+                onClick={runAiVerification}
+                disabled={aiReviewLoading}
+                data-testid="button-ai-verification"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-[#F4795B] bg-[#F4795B]/10 text-[#F4795B] font-semibold hover:bg-[#F4795B]/20 transition-colors disabled:opacity-50"
+              >
+                {aiReviewLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                AI Review
+              </button>
+            )}
+          </div>
         </div>
       </CardHeader>
       
@@ -716,118 +826,164 @@ export default function Admin() {
         {!verificationResults && !runVerification.isPending && (
           <div className="text-center py-12">
             <FileCheck className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-            <p className="label-text text-gray-500">Click "Run Verification" to check all financial statements</p>
+            <p className="label-text text-gray-500">Click "Run Verification" to independently recalculate and verify all financial statements</p>
           </div>
         )}
 
         {runVerification.isPending && (
           <div className="text-center py-12">
             <Loader2 className="w-16 h-16 mx-auto text-[#9FBCA4] animate-spin mb-4" />
-            <p className="label-text text-gray-500">Running verification checks...</p>
+            <p className="label-text text-gray-500">Running independent recalculation...</p>
           </div>
         )}
 
         {verificationResults && (
           <>
-            <div className="p-5 rounded-2xl bg-gray-50 border border-gray-200 shadow-lg">
+            <div className={`p-5 rounded-2xl border-2 ${
+              verificationResults.summary.auditOpinion === "UNQUALIFIED" ? "bg-green-50 border-green-300" :
+              verificationResults.summary.auditOpinion === "QUALIFIED" ? "bg-yellow-50 border-yellow-300" :
+              "bg-red-50 border-red-300"
+            }`}>
               <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h3 className="font-display text-lg text-gray-900 font-semibold">Verification Results</h3>
-                  <p className="text-xs text-gray-500 font-mono mt-1">Run at: {formatDate(verificationResults.timestamp)}</p>
+                <div className="flex items-center gap-3">
+                  {verificationResults.summary.auditOpinion === "UNQUALIFIED" ? 
+                    <CheckCircle2 className="w-8 h-8 text-green-600" /> :
+                    verificationResults.summary.auditOpinion === "QUALIFIED" ? 
+                    <AlertTriangle className="w-8 h-8 text-yellow-600" /> :
+                    <XCircle className="w-8 h-8 text-red-600" />
+                  }
+                  <div>
+                    <h3 className="font-display text-lg font-bold">Audit Opinion: {verificationResults.summary.auditOpinion}</h3>
+                    <p className="text-sm text-gray-600">Independent Calculation Verification Report</p>
+                  </div>
                 </div>
                 <div className={`flex items-center gap-2 px-4 py-2 rounded-lg ${
-                  verificationResults.overallStatus === "PASS" ? "bg-green-100 text-green-700" :
-                  verificationResults.overallStatus === "WARNING" ? "bg-yellow-100 text-yellow-700" :
+                  verificationResults.summary.overallStatus === "PASS" ? "bg-green-100 text-green-700" :
+                  verificationResults.summary.overallStatus === "WARNING" ? "bg-yellow-100 text-yellow-700" :
                   "bg-red-100 text-red-700"
                 }`}>
-                  {verificationResults.overallStatus === "PASS" ? <CheckCircle2 className="w-5 h-5" /> :
-                   verificationResults.overallStatus === "WARNING" ? <AlertTriangle className="w-5 h-5" /> :
-                   <XCircle className="w-5 h-5" />}
-                  <span className="font-display font-bold">{verificationResults.overallStatus}</span>
+                  <span className="font-display font-bold">{verificationResults.summary.overallStatus}</span>
                 </div>
               </div>
 
               <div className="grid grid-cols-5 gap-4 text-center">
-                <div className="p-4 rounded-xl bg-white border border-gray-200 shadow-sm">
-                  <div className="text-3xl font-mono font-bold text-gray-900">{verificationResults.propertiesChecked}</div>
-                  <div className="text-xs text-gray-500 label-text mt-1">Properties</div>
+                <div className="p-4 rounded-xl bg-white/60 border border-gray-200 shadow-sm">
+                  <div className="text-3xl font-mono font-bold text-gray-900">{verificationResults.summary.totalChecks}</div>
+                  <div className="text-xs text-gray-500 label-text mt-1">Total Checks</div>
                 </div>
-                <div className="p-4 rounded-xl bg-[#9FBCA4]/10 border border-[#9FBCA4]/30 shadow-sm">
-                  <div className="text-3xl font-mono font-bold text-[#257D41]">{verificationResults.formulaChecks.passed}</div>
-                  <div className="text-xs text-gray-600 label-text mt-1">Property Checks</div>
+                <div className="p-4 rounded-xl bg-white/60 border border-gray-200 shadow-sm">
+                  <div className="text-3xl font-mono font-bold text-[#257D41]">{verificationResults.summary.totalPassed}</div>
+                  <div className="text-xs text-gray-600 label-text mt-1">Passed</div>
                 </div>
-                <div className="p-4 rounded-xl bg-[#9FBCA4]/10 border border-[#9FBCA4]/30 shadow-sm">
-                  <div className="text-3xl font-mono font-bold text-[#257D41]">{verificationResults.managementCompanyChecks?.passed || 0}</div>
-                  <div className="text-xs text-gray-600 label-text mt-1">Mgmt Co Checks</div>
+                <div className="p-4 rounded-xl bg-white/60 border border-gray-200 shadow-sm">
+                  <div className="text-3xl font-mono font-bold text-red-600">{verificationResults.summary.totalFailed}</div>
+                  <div className="text-xs text-gray-600 label-text mt-1">Failed</div>
                 </div>
-                <div className="p-4 rounded-xl bg-[#9FBCA4]/10 border border-[#9FBCA4]/30 shadow-sm">
-                  <div className="text-3xl font-mono font-bold text-[#257D41]">{verificationResults.consolidatedChecks?.passed || 0}</div>
-                  <div className="text-xs text-gray-600 label-text mt-1">Consolidated</div>
+                <div className="p-4 rounded-xl bg-white/60 border border-gray-200 shadow-sm">
+                  <div className="text-3xl font-mono font-bold text-red-600">{verificationResults.summary.criticalIssues}</div>
+                  <div className="text-xs text-gray-600 label-text mt-1">Critical</div>
                 </div>
-                <div className="p-4 rounded-xl bg-[#257D41]/10 border border-[#257D41]/30 shadow-sm">
-                  <div className="text-3xl font-mono font-bold text-[#257D41]">{verificationResults.complianceChecks.passed}</div>
-                  <div className="text-xs text-gray-600 label-text mt-1">GAAP Compliance</div>
+                <div className="p-4 rounded-xl bg-white/60 border border-gray-200 shadow-sm">
+                  <div className="text-3xl font-mono font-bold text-yellow-600">{verificationResults.summary.materialIssues}</div>
+                  <div className="text-xs text-gray-600 label-text mt-1">Material</div>
                 </div>
               </div>
+              <p className="text-xs text-gray-500 font-mono mt-3 text-right">Verified at: {formatDate(verificationResults.timestamp)}</p>
             </div>
 
-            {/* Audit Opinion Card */}
-            {verificationResults.auditOpinion && (
-              <div className={`p-5 rounded-2xl border-2 ${
-                verificationResults.auditOpinion === "UNQUALIFIED" ? "bg-green-50 border-green-300" :
-                verificationResults.auditOpinion === "QUALIFIED" ? "bg-yellow-50 border-yellow-300" :
-                "bg-red-50 border-red-300"
-              }`}>
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    {verificationResults.auditOpinion === "UNQUALIFIED" ? 
-                      <CheckCircle2 className="w-8 h-8 text-green-600" /> :
-                      verificationResults.auditOpinion === "QUALIFIED" ? 
-                      <AlertTriangle className="w-8 h-8 text-yellow-600" /> :
-                      <XCircle className="w-8 h-8 text-red-600" />
-                    }
-                    <div>
-                      <h3 className="font-display text-lg font-bold">Audit Opinion: {verificationResults.auditOpinion}</h3>
-                      <p className="text-sm text-gray-600">Independent Auditor's Report</p>
-                    </div>
+            {/* AI Review */}
+            {(aiReview || aiReviewLoading) && (
+              <div className="p-5 rounded-2xl bg-[#F4795B]/10 border border-[#F4795B]/30">
+                <div className="flex items-center gap-3 mb-3">
+                  <Sparkles className="w-6 h-6 text-[#F4795B]" />
+                  <h3 className="font-display font-semibold text-gray-900">AI Methodology Review</h3>
+                  {aiReviewLoading && <Loader2 className="w-4 h-4 animate-spin text-[#F4795B]" />}
+                </div>
+                <pre className="text-xs font-mono bg-white/80 p-4 rounded-lg overflow-x-auto whitespace-pre-wrap border border-gray-200 max-h-96 overflow-y-auto">
+                  {aiReview || "Analyzing verification results..."}
+                </pre>
+              </div>
+            )}
+
+            {/* Client-side Known Value Tests */}
+            {verificationResults.clientKnownValueTests && (
+              <div className={`p-5 rounded-2xl border-2 ${verificationResults.clientKnownValueTests.passed ? "bg-green-50 border-green-300" : "bg-red-50 border-red-300"}`}>
+                <div className="flex items-center gap-3 mb-3">
+                  {verificationResults.clientKnownValueTests.passed ? 
+                    <CheckCircle2 className="w-6 h-6 text-green-600" /> :
+                    <XCircle className="w-6 h-6 text-red-600" />
+                  }
+                  <h3 className="font-display font-semibold">Known-Value Test Cases</h3>
+                </div>
+                <pre className="text-xs font-mono bg-white/80 p-4 rounded-lg overflow-x-auto whitespace-pre-wrap border border-gray-200">
+                  {verificationResults.clientKnownValueTests.results}
+                </pre>
+              </div>
+            )}
+
+            {/* Property-Level Independent Checks */}
+            {verificationResults.propertyResults.map((property, pIdx) => (
+              <div key={pIdx} className="p-5 rounded-2xl bg-gray-50 border border-gray-200">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="font-display text-gray-900 font-semibold">
+                    {property.propertyName} <span className="text-gray-500 font-normal text-sm">({property.propertyType})</span>
+                  </h4>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-mono text-[#257D41] bg-green-50 px-2 py-1 rounded">{property.passed} passed</span>
+                    {property.failed > 0 && <span className="text-xs font-mono text-red-600 bg-red-50 px-2 py-1 rounded">{property.failed} failed</span>}
+                    {property.criticalIssues > 0 && <span className="text-xs font-mono text-red-700 bg-red-100 px-2 py-1 rounded">{property.criticalIssues} critical</span>}
                   </div>
-                  <button
-                    onClick={() => {
-                      if (verificationResults.auditWorkpaper) {
-                        const blob = new Blob([verificationResults.auditWorkpaper], { type: 'text/plain' });
+                </div>
+                <div className="space-y-2">
+                  {property.checks.map((chk, cIdx) => renderCheckRow(chk, cIdx))}
+                </div>
+              </div>
+            ))}
+
+            {/* Management Company Checks */}
+            {verificationResults.companyChecks.length > 0 && (
+              <div className="p-5 rounded-2xl bg-[#9FBCA4]/10 border border-[#9FBCA4]/30">
+                <h4 className="font-display text-[#257D41] font-semibold mb-3">Management Company Checks</h4>
+                <div className="space-y-2">
+                  {verificationResults.companyChecks.map((chk, cIdx) => renderCheckRow(chk, cIdx))}
+                </div>
+              </div>
+            )}
+
+            {/* Consolidated Portfolio Checks */}
+            {verificationResults.consolidatedChecks.length > 0 && (
+              <div className="p-5 rounded-2xl bg-[#257D41]/10 border border-[#257D41]/30">
+                <h4 className="font-display text-[#257D41] font-semibold mb-3">Consolidated Portfolio Checks</h4>
+                <div className="space-y-2">
+                  {verificationResults.consolidatedChecks.map((chk, cIdx) => renderCheckRow(chk, cIdx))}
+                </div>
+              </div>
+            )}
+
+            {/* Client-side Audit Reports */}
+            {verificationResults.clientAuditReports && verificationResults.clientAuditReports.length > 0 && (
+              <div className="p-5 rounded-2xl bg-gray-50 border border-gray-200">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="font-display text-gray-900 font-semibold">Client-Side Audit Reports</h4>
+                  {verificationResults.clientAuditWorkpaper && (
+                    <button
+                      onClick={() => {
+                        const blob = new Blob([verificationResults.clientAuditWorkpaper!], { type: 'text/plain' });
                         const url = URL.createObjectURL(blob);
                         const a = document.createElement('a');
                         a.href = url;
                         a.download = `audit-workpaper-${new Date().toISOString().slice(0,10)}.txt`;
                         a.click();
                         URL.revokeObjectURL(url);
-                      }
-                    }}
-                    className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 text-sm"
-                  >
-                    <Download className="w-4 h-4" />
-                    Download Workpaper
-                  </button>
+                      }}
+                      className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 text-sm"
+                    >
+                      <Download className="w-4 h-4" />
+                      Download Workpaper
+                    </button>
+                  )}
                 </div>
-                <div className="grid grid-cols-4 gap-4 mb-4">
-                  <div className="text-center p-3 bg-white/60 rounded-lg">
-                    <div className="text-2xl font-mono font-bold">{verificationResults.auditReports?.reduce((sum, r) => sum + r.totalChecks, 0) || 0}</div>
-                    <div className="text-xs text-gray-600">Total Checks</div>
-                  </div>
-                  <div className="text-center p-3 bg-white/60 rounded-lg">
-                    <div className="text-2xl font-mono font-bold text-green-600">{verificationResults.auditReports?.reduce((sum, r) => sum + r.totalPassed, 0) || 0}</div>
-                    <div className="text-xs text-gray-600">Passed</div>
-                  </div>
-                  <div className="text-center p-3 bg-white/60 rounded-lg">
-                    <div className="text-2xl font-mono font-bold text-red-600">{verificationResults.complianceChecks.criticalIssues}</div>
-                    <div className="text-xs text-gray-600">Critical Issues</div>
-                  </div>
-                  <div className="text-center p-3 bg-white/60 rounded-lg">
-                    <div className="text-2xl font-mono font-bold text-yellow-600">{verificationResults.auditReports?.reduce((sum, r) => sum + r.materialIssues, 0) || 0}</div>
-                    <div className="text-xs text-gray-600">Material Issues</div>
-                  </div>
-                </div>
-                {verificationResults.auditReports?.map((report, rIdx) => (
+                {verificationResults.clientAuditReports.map((report, rIdx) => (
                   <div key={rIdx} className="mt-4 p-4 bg-white/80 rounded-lg border border-gray-200">
                     <h4 className="font-display font-semibold text-gray-800 mb-2">{report.propertyName}</h4>
                     <div className="space-y-2">
@@ -850,177 +1006,6 @@ export default function Admin() {
                 ))}
               </div>
             )}
-
-            {/* Known Value Test Results */}
-            {verificationResults.knownValueTests && (
-              <div className={`p-5 rounded-2xl border-2 ${verificationResults.knownValueTests.passed ? "bg-green-50 border-green-300" : "bg-red-50 border-red-300"}`}>
-                <div className="flex items-center gap-3 mb-3">
-                  {verificationResults.knownValueTests.passed ? 
-                    <CheckCircle2 className="w-6 h-6 text-green-600" /> :
-                    <XCircle className="w-6 h-6 text-red-600" />
-                  }
-                  <h3 className="font-display font-semibold">Known-Value Test Cases</h3>
-                </div>
-                <pre className="text-xs font-mono bg-white/80 p-4 rounded-lg overflow-x-auto whitespace-pre-wrap border border-gray-200">
-                  {verificationResults.knownValueTests.results}
-                </pre>
-              </div>
-            )}
-
-            {/* Property Formula Checks */}
-            {verificationResults.formulaChecks.details.map((property: any, pIdx: number) => (
-              <div key={pIdx} className="p-5 rounded-2xl bg-gray-50 border border-gray-200">
-                <h4 className="font-display text-gray-900 font-semibold mb-3">{property.name} <span className="text-gray-500 font-normal text-sm">({property.type})</span></h4>
-                <div className="space-y-2">
-                  {property.checks?.map((check: any, cIdx: number) => (
-                    <div key={cIdx} className="space-y-1">
-                      <div className="flex items-center gap-3 p-3 rounded-lg bg-white border border-gray-100">
-                        {check.passed ? <CheckCircle2 className="w-5 h-5 text-[#257D41] shrink-0" /> : <XCircle className="w-5 h-5 text-red-500 shrink-0" />}
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <span className="text-gray-700 text-sm">{check.name}</span>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <HelpCircle className="w-3.5 h-3.5 text-gray-400 hover:text-gray-600 cursor-help" />
-                              </TooltipTrigger>
-                              <TooltipContent side="top" className="max-w-xs">
-                                <p>{check.description}</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </div>
-                          <p className="text-xs text-gray-500 mt-0.5">{check.description}</p>
-                        </div>
-                        <span className={`text-xs px-2 py-1 rounded ${check.passed ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                          {check.passed ? 'PASS' : 'FAIL'}
-                        </span>
-                      </div>
-                      {!check.passed && (
-                        <div className="ml-8 p-3 rounded-lg bg-red-50 border border-red-200">
-                          <p className="text-xs text-red-700 font-medium">Diagnosis: {check.diagnosis || 'Formula mismatch detected in calculations'}</p>
-                          <p className="text-xs text-gray-600 mt-1">Solution: {check.solution || 'Review property assumptions and verify formula inputs match expected values'}</p>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-
-            {/* Management Company Checks */}
-            {verificationResults.managementCompanyChecks?.details?.map((entity: any, eIdx: number) => (
-              <div key={eIdx} className="p-5 rounded-2xl bg-gray-50 border border-gray-200">
-                <h4 className="font-display text-gray-900 font-semibold mb-3">{entity.name} <span className="text-gray-500 font-normal text-sm">({entity.type})</span></h4>
-                <div className="space-y-2">
-                  {entity.checks?.map((check: any, cIdx: number) => (
-                    <div key={cIdx} className="space-y-1">
-                      <div className="flex items-center gap-3 p-3 rounded-lg bg-white border border-gray-100">
-                        {check.passed ? <CheckCircle2 className="w-5 h-5 text-[#257D41] shrink-0" /> : <XCircle className="w-5 h-5 text-red-500 shrink-0" />}
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <span className="text-gray-700 text-sm">{check.name}</span>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <HelpCircle className="w-3.5 h-3.5 text-gray-400 hover:text-gray-600 cursor-help" />
-                              </TooltipTrigger>
-                              <TooltipContent side="top" className="max-w-xs">
-                                <p>{check.description}</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </div>
-                          <p className="text-xs text-gray-500 mt-0.5">{check.description}</p>
-                        </div>
-                        <span className={`text-xs px-2 py-1 rounded ${check.passed ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                          {check.passed ? 'PASS' : 'FAIL'}
-                        </span>
-                      </div>
-                      {!check.passed && (
-                        <div className="ml-8 p-3 rounded-lg bg-red-50 border border-red-200">
-                          <p className="text-xs text-red-700 font-medium">Diagnosis: {check.diagnosis || 'Management company calculation error detected'}</p>
-                          <p className="text-xs text-gray-600 mt-1">Solution: {check.solution || 'Verify management fee structures and revenue allocations'}</p>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-
-            {/* Consolidated Checks */}
-            {verificationResults.consolidatedChecks?.details?.map((entity: any, eIdx: number) => (
-              <div key={eIdx} className="p-5 rounded-2xl bg-gray-50 border border-gray-200">
-                <h4 className="font-display text-gray-900 font-semibold mb-3">{entity.name} <span className="text-gray-500 font-normal text-sm">({entity.type})</span></h4>
-                <div className="space-y-2">
-                  {entity.checks?.map((check: any, cIdx: number) => (
-                    <div key={cIdx} className="space-y-1">
-                      <div className="flex items-center gap-3 p-3 rounded-lg bg-white border border-gray-100">
-                        {check.passed ? <CheckCircle2 className="w-5 h-5 text-[#257D41] shrink-0" /> : <XCircle className="w-5 h-5 text-red-500 shrink-0" />}
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <span className="text-gray-700 text-sm">{check.name}</span>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <HelpCircle className="w-3.5 h-3.5 text-gray-400 hover:text-gray-600 cursor-help" />
-                              </TooltipTrigger>
-                              <TooltipContent side="top" className="max-w-xs">
-                                <p>{check.description}</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </div>
-                          <p className="text-xs text-gray-500 mt-0.5">{check.description}</p>
-                        </div>
-                        <span className={`text-xs px-2 py-1 rounded ${check.passed ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                          {check.passed ? 'PASS' : 'FAIL'}
-                        </span>
-                      </div>
-                      {!check.passed && (
-                        <div className="ml-8 p-3 rounded-lg bg-red-50 border border-red-200">
-                          <p className="text-xs text-red-700 font-medium">Diagnosis: {check.diagnosis || 'Consolidation mismatch between entities'}</p>
-                          <p className="text-xs text-gray-600 mt-1">Solution: {check.solution || 'Review inter-company eliminations and ensure all entities are properly consolidated'}</p>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-
-            {/* GAAP Compliance Checks */}
-            <div className="p-5 rounded-2xl bg-[#257D41]/10 border border-[#257D41]/30">
-              <h4 className="font-display text-[#257D41] font-semibold mb-3">GAAP Compliance Standards</h4>
-              <div className="space-y-2">
-                {verificationResults.complianceChecks.details.map((check: any, cIdx: number) => (
-                  <div key={cIdx} className="space-y-1">
-                    <div className="flex items-center gap-3 p-3 rounded-lg bg-white border border-gray-100">
-                      {check.passed ? <CheckCircle2 className="w-5 h-5 text-[#257D41] shrink-0" /> : <XCircle className="w-5 h-5 text-red-500 shrink-0" />}
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">{check.category}</span>
-                          <span className="text-gray-700 text-sm">{check.rule}</span>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <HelpCircle className="w-3.5 h-3.5 text-gray-400 hover:text-gray-600 cursor-help" />
-                            </TooltipTrigger>
-                            <TooltipContent side="top" className="max-w-xs">
-                              <p>Scope: {check.scope}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </div>
-                        <p className="text-xs text-gray-500 mt-0.5">Scope: {check.scope}</p>
-                      </div>
-                      <span className={`text-xs px-2 py-1 rounded ${check.passed ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                        {check.passed ? 'PASS' : 'FAIL'}
-                      </span>
-                    </div>
-                    {!check.passed && (
-                      <div className="ml-8 p-3 rounded-lg bg-red-50 border border-red-200">
-                        <p className="text-xs text-red-700 font-medium">Diagnosis: {check.diagnosis || `Non-compliance with ${check.category} standard detected`}</p>
-                        <p className="text-xs text-gray-600 mt-1">Solution: {check.solution || `Review ${check.scope} to ensure compliance with GAAP ${check.category} requirements`}</p>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
           </>
         )}
       </CardContent>

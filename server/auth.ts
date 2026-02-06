@@ -121,6 +121,16 @@ export function requireAdmin(req: Request, res: Response, next: NextFunction) {
   next();
 }
 
+export function requireChecker(req: Request, res: Response, next: NextFunction) {
+  if (!req.user) {
+    return res.status(401).json({ error: "Authentication required" });
+  }
+  if (req.user.role !== "admin" && req.user.email !== "checker") {
+    return res.status(403).json({ error: "Checker or admin access required" });
+  }
+  next();
+}
+
 export function setSessionCookie(res: Response, sessionId: string) {
   res.cookie(SESSION_COOKIE, sessionId, {
     httpOnly: true,

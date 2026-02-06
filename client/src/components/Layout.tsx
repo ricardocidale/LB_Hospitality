@@ -23,7 +23,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { type: "divider" as const },
     { href: "/scenarios", label: "Scenarios", icon: FolderOpen },
     { type: "divider" as const },
-    { href: "/settings", label: "Global Assumptions", icon: Settings2 },
+    { href: "/settings", label: "Systemwide Assumptions", icon: Settings2 },
     { type: "divider" as const },
     { href: "/methodology", label: "Methodology", icon: FileText },
     { type: "divider" as const },

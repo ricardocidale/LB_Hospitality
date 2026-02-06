@@ -947,7 +947,7 @@ export default function PropertyEdit() {
               })()}
               {globalAssumptions && (
                 <div className="mt-4 p-3 bg-white/10 rounded-lg text-sm">
-                  <div className="text-gray-500 text-xs mb-2">F&B Boost Factors (from Global Assumptions):</div>
+                  <div className="text-gray-500 text-xs mb-2">F&B Boost Factors (from Systemwide Assumptions):</div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="flex justify-between">
                       <span className="text-gray-600">Full Catering Boost:</span>

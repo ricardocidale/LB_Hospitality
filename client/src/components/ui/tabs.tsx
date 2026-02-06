@@ -50,4 +50,73 @@ const TabsContent = React.forwardRef<
 ))
 TabsContent.displayName = TabsPrimitive.Content.displayName
 
-export { Tabs, TabsList, TabsTrigger, TabsContent }
+interface DarkGlassTabItem {
+  value: string;
+  label: string;
+  icon?: React.ComponentType<{ className?: string }>;
+}
+
+interface DarkGlassTabsProps {
+  tabs: DarkGlassTabItem[];
+  activeTab: string;
+  onTabChange: (value: string) => void;
+}
+
+function DarkGlassTabs({ tabs, activeTab, onTabChange }: DarkGlassTabsProps) {
+  return (
+    <div className="relative overflow-hidden rounded-2xl">
+      <div className="absolute inset-0 bg-[#0a0a0f]" />
+      <div className="absolute inset-0 bg-gradient-to-r from-white/[0.02] via-transparent to-white/[0.02]" />
+      <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#9FBCA4]/30 to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+      <div className="absolute inset-0 rounded-2xl border border-white/10" />
+      <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-2xl">
+        <div className="absolute -top-8 -left-8 w-32 h-32 rounded-full bg-[#9FBCA4]/15 blur-[50px]" />
+        <div className="absolute -bottom-8 -right-8 w-28 h-28 rounded-full bg-[#257D41]/15 blur-[40px]" />
+      </div>
+      <div className="absolute inset-0 shadow-[inset_0_0_40px_rgba(159,188,164,0.05)] rounded-2xl" />
+      <div className="relative flex flex-wrap gap-1 p-1.5">
+        {tabs.map((tab) => {
+          const isActive = activeTab === tab.value;
+          const Icon = tab.icon;
+          return (
+            <button
+              key={tab.value}
+              onClick={() => onTabChange(tab.value)}
+              className={`group relative overflow-hidden flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-2xl transition-all duration-300 ease-out ${
+                isActive ? "text-white" : "text-[#FFF9F5]/60 hover:text-white"
+              }`}
+              data-testid={`tab-${tab.value}`}
+            >
+              {isActive && (
+                <>
+                  <div className="absolute inset-0 bg-white/12 backdrop-blur-xl rounded-2xl" />
+                  <div className="absolute inset-0 rounded-2xl border border-white/20" />
+                  <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+                  <div className="absolute inset-0 rounded-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),0_4px_16px_rgba(0,0,0,0.2)]" />
+                </>
+              )}
+              {!isActive && (
+                <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-all duration-300 rounded-2xl" />
+              )}
+              {Icon && (
+                <div className={cn(
+                  "relative w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-300",
+                  isActive
+                    ? "bg-gradient-to-br from-[#9FBCA4] to-[#257D41] shadow-[0_0_16px_rgba(159,188,164,0.5)]"
+                    : "bg-white/5 group-hover:bg-white/10"
+                )}>
+                  <Icon className={cn("w-4 h-4 transition-all duration-300", isActive ? "text-white" : "text-[#FFF9F5]/60 group-hover:text-white")} />
+                </div>
+              )}
+              <span className="relative">{tab.label}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+export { Tabs, TabsList, TabsTrigger, TabsContent, DarkGlassTabs }
+export type { DarkGlassTabItem }

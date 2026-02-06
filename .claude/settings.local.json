@@ -9,7 +9,10 @@
       "Bash(git commit:*)",
       "Bash(git push:*)",
       "Bash(grep:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "WebSearch",
+      "WebFetch(domain:corporatefinanceinstitute.com)",
+      "WebFetch(domain:www.cfainstitute.org)"
     ]
   }
 }

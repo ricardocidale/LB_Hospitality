@@ -52,6 +52,24 @@ export function recordLoginAttempt(identifier: string, success: boolean) {
   }
 }
 
+// API rate limiting (per-user, for expensive operations like AI calls and external API)
+const apiRateLimits = new Map<string, { count: number; windowStart: number }>();
+const API_RATE_WINDOW_MS = 60 * 1000; // 1 minute sliding window
+
+export function isApiRateLimited(userId: number, endpoint: string, maxRequests: number): boolean {
+  const key = `${userId}:${endpoint}`;
+  const now = Date.now();
+  const record = apiRateLimits.get(key);
+
+  if (!record || now - record.windowStart > API_RATE_WINDOW_MS) {
+    apiRateLimits.set(key, { count: 1, windowStart: now });
+    return false;
+  }
+
+  record.count++;
+  return record.count > maxRequests;
+}
+
 export function validatePassword(password: string): { valid: boolean; message?: string } {
   if (password.length < 8) {
     return { valid: false, message: "Password must be at least 8 characters" };

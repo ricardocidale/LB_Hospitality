@@ -1,10 +1,10 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertGlobalAssumptionsSchema, insertPropertySchema, updatePropertySchema, insertDesignThemeSchema, updateScenarioSchema, insertProspectivePropertySchema } from "@shared/schema";
+import { insertGlobalAssumptionsSchema, insertPropertySchema, updatePropertySchema, insertDesignThemeSchema, updateScenarioSchema, insertProspectivePropertySchema, insertSavedSearchSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
-import { hashPassword, verifyPassword, generateSessionId, setSessionCookie, clearSessionCookie, getSessionExpiryDate, requireAuth, requireAdmin, requireChecker, isRateLimited, recordLoginAttempt, sanitizeEmail, validatePassword } from "./auth";
+import { hashPassword, verifyPassword, generateSessionId, setSessionCookie, clearSessionCookie, getSessionExpiryDate, requireAuth, requireAdmin, requireChecker, isRateLimited, recordLoginAttempt, sanitizeEmail, validatePassword, isApiRateLimited } from "./auth";
 import { z } from "zod";
 import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
@@ -24,6 +24,20 @@ const createUserSchema = z.object({
   company: z.string().max(100).optional(),
   title: z.string().max(100).optional(),
 });
+
+const createScenarioSchema = z.object({
+  name: z.string().min(1).max(200),
+  description: z.string().max(1000).nullable().optional(),
+});
+
+const researchGenerateSchema = z.object({
+  type: z.enum(["property", "company", "global"]),
+  propertyId: z.number().optional(),
+  propertyContext: z.record(z.any()).optional(),
+  boutiqueDefinition: z.record(z.any()).optional(),
+});
+
+const VALID_RESEARCH_TYPES = ["property", "company", "global"] as const;
 
 export async function registerRoutes(
   httpServer: Server,
@@ -1371,11 +1385,11 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
   app.post("/api/scenarios", requireAuth, async (req, res) => {
     try {
       const userId = req.user!.id;
-      const { name, description } = req.body;
-      
-      if (!name || typeof name !== "string" || name.trim().length === 0) {
-        return res.status(400).json({ error: "Scenario name is required" });
+      const validation = createScenarioSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: fromZodError(validation.error).message });
       }
+      const { name, description } = validation.data;
       
       // Get current assumptions and properties for this user (fallback to shared if none)
       let assumptions = await storage.getGlobalAssumptions(userId);
@@ -1595,6 +1609,9 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
   app.get("/api/research/:type", requireAuth, async (req, res) => {
     try {
       const { type } = req.params;
+      if (!VALID_RESEARCH_TYPES.includes(type as any)) {
+        return res.status(400).json({ error: "Invalid research type. Must be 'property', 'company', or 'global'." });
+      }
       let propertyId: number | undefined;
       if (req.query.propertyId) {
         propertyId = parseInt(req.query.propertyId as string);
@@ -1602,7 +1619,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
           return res.status(400).json({ error: "Invalid property ID" });
         }
       }
-      const userId = (req as any).user?.id;
+      const userId = req.user!.id;
       const research = await storage.getMarketResearch(type, userId, propertyId);
       res.json(research || null);
     } catch (error) {
@@ -1613,11 +1630,15 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
   
   app.post("/api/research/generate", requireAuth, async (req, res) => {
     try {
-      const { type, propertyId, propertyContext, boutiqueDefinition: clientBoutiqueDef } = req.body;
-      const userId = (req as any).user?.id;
-      
-      if (!["property", "company", "global"].includes(type)) {
-        return res.status(400).json({ error: "Invalid research type. Must be 'property', 'company', or 'global'." });
+      const validation = researchGenerateSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: fromZodError(validation.error).message });
+      }
+      const { type, propertyId, propertyContext, boutiqueDefinition: clientBoutiqueDef } = validation.data;
+      const userId = req.user!.id;
+
+      if (isApiRateLimited(userId, "research/generate", 10)) {
+        return res.status(429).json({ error: "Too many research requests. Please wait a minute." });
       }
       
       const globalAssumptions = await storage.getGlobalAssumptions(userId);
@@ -1753,6 +1774,10 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
   
   app.get("/api/property-finder/search", requireAuth, async (req: any, res) => {
     try {
+      const userId = req.user!.id;
+      if (isApiRateLimited(userId, "property-finder/search", 30)) {
+        return res.status(429).json({ error: "Too many search requests. Please wait a minute." });
+      }
       const apiKey = process.env.RAPIDAPI_KEY;
       if (!apiKey) {
         return res.status(400).json({ 
@@ -1938,20 +1963,11 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
   app.post("/api/property-finder/saved-searches", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user!.id;
-      const { name, location, priceMin, priceMax, bedsMin, lotSizeMin, propertyType } = req.body;
-      if (!name || !location) {
-        return res.status(400).json({ error: "Name and location are required" });
+      const validation = insertSavedSearchSchema.safeParse({ ...req.body, userId });
+      if (!validation.success) {
+        return res.status(400).json({ error: fromZodError(validation.error).message });
       }
-      const search = await storage.addSavedSearch({
-        userId,
-        name,
-        location,
-        priceMin: priceMin || null,
-        priceMax: priceMax || null,
-        bedsMin: bedsMin || null,
-        lotSizeMin: lotSizeMin || null,
-        propertyType: propertyType || null,
-      });
+      const search = await storage.addSavedSearch(validation.data);
       res.json(search);
     } catch (error) {
       console.error("Save search error:", error);

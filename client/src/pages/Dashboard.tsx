@@ -418,6 +418,25 @@ export default function Dashboard() {
     return flows;
   };
 
+  const getPropertyCashFlows = (prop: any, propIndex: number): number[] => {
+    const flows: number[] = [];
+    const initialEquity = -getPropertyInvestment(prop);
+    flows.push(initialEquity);
+    const refi = getPropertyRefinanceProceeds(prop, propIndex);
+    for (let y = 0; y < projectionYears; y++) {
+      const details = getPropertyYearlyDetails(prop, propIndex, y);
+      let yearCashFlow = details.atcf;
+      if (y === refi.year) {
+        yearCashFlow += refi.proceeds;
+      }
+      if (y === projectionYears - 1) {
+        yearCashFlow += getPropertyExitValue(prop, propIndex);
+      }
+      flows.push(yearCashFlow);
+    }
+    return flows;
+  };
+
   const consolidatedFlows = getConsolidatedCashFlows();
   const portfolioIRR = calculateIRR(consolidatedFlows);
   const totalInitialEquity = properties.reduce((sum, prop) => sum + getPropertyInvestment(prop), 0);
@@ -3171,31 +3190,7 @@ function InvestmentAnalysis({
     };
   };
 
-  const getPropertyCashFlows = (prop: any, propIndex: number): number[] => {
-    const flows: number[] = [];
-    
-    const initialEquity = -getPropertyInvestment(prop);
-    flows.push(initialEquity);
-    
-    const refi = getPropertyRefinanceProceeds(prop, propIndex);
-    
-    for (let y = 0; y < projectionYears; y++) {
-      const details = getPropertyYearlyDetails(prop, propIndex, y);
-      let yearCashFlow = details.atcf;
-      
-      if (y === refi.year) {
-        yearCashFlow += refi.proceeds;
-      }
-      
-      if (y === projectionYears - 1) {
-        yearCashFlow += getPropertyExitValue(prop, propIndex);
-      }
-      
-      flows.push(yearCashFlow);
-    }
-    
-    return flows;
-  };
+
 
   const getConsolidatedYearlyDetails = (yearIndex: number) => {
     let totalNOI = 0;

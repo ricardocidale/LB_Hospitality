@@ -30,6 +30,20 @@
 - Border: `border-[#9FBCA4]/20` with sage green shadow
 - Decorative sage green blur circles
 
+## Variant Assignment Rules
+
+| Page | Variant | Reason |
+|------|---------|--------|
+| Dashboard | `"dark"` (default) | Main app page |
+| PropertyDetail | `"dark"` (default) | Main app page |
+| PropertyEdit | `"dark"` (default) | Edit page |
+| Company | `"dark"` (default) | Main app page |
+| CompanyAssumptions | `"dark"` (default) | Settings page |
+| Admin | `"dark"` (default) | Admin page |
+| Scenarios | `"dark"` (default) | Main app page |
+| **PropertyFinder** | **`"light"`** | **Only page that uses light variant** |
+| All other pages | `"dark"` (default) | Default |
+
 ## Typography
 - Title: `text-3xl font-display font-bold` (Playfair Display serif)
 - Subtitle: `text-sm mt-1 label-text` (uppercase tracking-wider)
@@ -41,26 +55,45 @@
 - Flex row on `sm:` breakpoint, column on mobile
 - Actions right-aligned via `sm:justify-between`
 
-## Back Link
+## Back Navigation Pattern
+
 - Dark variant: renders `ChevronLeft` inside `<GlassButton variant="icon" size="icon">`
 - Light variant: renders custom styled back button with sage green tint
+- Use `backLink` for drill-down pages returning to a parent:
+  - PropertyDetail → Dashboard (`backLink="/"`)
+  - PropertyEdit → PropertyDetail (`backLink={`/property/${id}`}`)
+  - CompanyAssumptions → Company (`backLink="/company"`)
 
 ## Actions Slot
+
 - Use `GlassButton variant="primary"` for action buttons on dark headers
+- Use `SaveButton` for save operations (wraps `GlassButton variant="primary"`)
 - Use `GlassButton variant="export"` for export/download buttons
 - Actions wrap with `flex-wrap items-center gap-2`
+- On tabbed pages, exports go in `DarkGlassTabs rightContent` instead
 
 ## Usage Example
 
 ```tsx
 import { PageHeader } from "@/components/ui/page-header";
 import { GlassButton } from "@/components/ui/glass-button";
+import { SaveButton } from "@/components/ui/save-button";
 import { FileDown } from "lucide-react";
 
+// Standard dark page with back link and save
+<PageHeader
+  title="Property Details"
+  subtitle="Financial Analysis"
+  backLink="/"
+  actions={
+    <SaveButton onClick={handleSave} isPending={mutation.isPending} />
+  }
+/>
+
+// Page with export and action buttons
 <PageHeader
   title="Portfolio Overview"
   subtitle="Consolidated Financial Performance"
-  backLink="/dashboard"
   actions={
     <>
       <GlassButton variant="export" size="sm">
@@ -72,6 +105,13 @@ import { FileDown } from "lucide-react";
     </>
   }
 />
+
+// Light variant (PropertyFinder only)
+<PageHeader
+  variant="light"
+  title="Property Finder"
+  subtitle="Search Available Properties"
+/>
 ```
 
 ## Pages Using PageHeader
@@ -79,4 +119,8 @@ import { FileDown } from "lucide-react";
 - Company, CompanyAssumptions, CompanyResearch
 - Admin, AdminUsers, AdminLoginLogs
 - Portfolio, Settings, Profile, Scenarios, Methodology
-- GlobalResearch, Research
+- GlobalResearch, Research, PropertyFinder (light variant)
+
+## Related Skills
+- **button-system.md** — GlassButton variants used in actions slot
+- **tab-bar-system.md** — DarkGlassTabs (exports go there on tabbed pages, not in header)

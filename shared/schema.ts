@@ -418,6 +418,7 @@ export const scenarios = pgTable("scenarios", {
   description: text("description"),
   globalAssumptions: jsonb("global_assumptions").notNull(),
   properties: jsonb("properties").notNull(),
+  scenarioImages: jsonb("scenario_images"), // { [imageUrl: string]: { dataUri: string, contentType: string } }
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => [

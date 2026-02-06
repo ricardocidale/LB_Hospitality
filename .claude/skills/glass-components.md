@@ -4,6 +4,8 @@
 
 **Location:** `client/src/components/ui/glass-button.tsx`
 
+> For full variant reference, decision guide, and anti-patterns, see **`.claude/skills/button-system.md`**.
+
 ### Variants
 
 | Variant | Background | Text | Border | Use Case |
@@ -128,3 +130,12 @@ import { SaveButton } from "@/components/ui/save-button";
   Update Settings
 </SaveButton>
 ```
+
+---
+
+## Related Skills
+
+- **button-system.md** — Full GlassButton decision guide, anti-patterns, and variant reference
+- **tab-bar-system.md** — DarkGlassTabs component that uses glass-styled tab triggers
+- **export-controls.md** — ExportToolbar with GlassExportButton styling
+- **page-header.md** — PageHeader component that uses GlassButton for back navigation and actions

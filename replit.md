@@ -93,8 +93,10 @@ Always format money as money (currency format with commas and appropriate precis
 - **Consumers**: financialEngine.ts, financialAuditor.ts, runVerification.ts, Dashboard.tsx, PropertyEdit.tsx, PropertyDetail.tsx
 - **Immutable Constants**: DEPRECIATION_YEARS (27.5) is IRS-mandated per Publication 946 / ASC 360; DAYS_PER_MONTH (30.5) is industry standard (365/12 rounded)
 - **Configurable Variables**: All user-adjustable values are stored in the database (globalAssumptions and properties tables) and editable through assumption pages:
-  - **Global Assumptions Page**: Boutique hotel definition (room range, ADR range, F&B/events/wellness flags, description), inflation rate, fixed cost escalation, management fees, SAFE funding, partner compensation, staff salary, overhead costs, exit/sale assumptions, catering boosts, expense rates, debt assumptions
+  - **Global Assumptions Page**: Boutique hotel definition (room range, ADR range, F&B/events/wellness flags, description), inflation rate, fixed cost escalation, management fees, SAFE funding, partner compensation, staff salary, overhead costs, exit/sale assumptions, catering boosts, expense rates, debt assumptions, projection years (1-30, default 10), staffing tiers (3 tiers: max properties + FTE per tier)
   - **Property Edit Page**: Cost rates (rooms, F&B, admin, etc.), revenue shares (events, F&B, other), catering percentages, exit cap rate, tax rate, financing terms
+- **Dynamic Projection Period**: `projectionYears` is configurable in global assumptions (default 10). All consumers (Dashboard, PropertyDetail, Company, ConsolidatedBalanceSheet, runVerification, calculationChecker) use `global?.projectionYears ?? PROJECTION_YEARS` fallback pattern.
+- **Dynamic Staffing Tiers**: 3 configurable tiers (`staffTier1MaxProperties/Fte`, `staffTier2MaxProperties/Fte`, `staffTier3Fte`) in global assumptions, replacing hardcoded staffing model. Editable via Company Assumptions page.
 
 ## External Dependencies
 

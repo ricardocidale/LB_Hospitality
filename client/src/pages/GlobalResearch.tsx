@@ -2,30 +2,39 @@ import { useState, useRef, useCallback } from "react";
 import Layout from "@/components/Layout";
 import { useMarketResearch, useGlobalAssumptions } from "@/lib/api";
 import { PageHeader } from "@/components/ui/page-header";
-import { GlassCard } from "@/components/ui/glass-card";
-import { GlassButton } from "@/components/ui/glass-button";
 import { Loader2, RefreshCw, Globe, TrendingUp, Hotel, DollarSign, Landmark, Sparkles, BookOpen, ArrowLeft } from "lucide-react";
 import { useLocation } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 
-function MetricCard({ label, value, source }: { label: string; value: string; source?: string }) {
+const sectionColors = {
+  industry: { accent: "#257D41", bg: "bg-emerald-50", border: "border-emerald-200", iconBg: "bg-emerald-100", iconText: "text-emerald-700" },
+  events: { accent: "#D97706", bg: "bg-amber-50", border: "border-amber-200", iconBg: "bg-amber-100", iconText: "text-amber-700" },
+  financial: { accent: "#3B82F6", bg: "bg-blue-50", border: "border-blue-200", iconBg: "bg-blue-100", iconText: "text-blue-700" },
+  debt: { accent: "#0891B2", bg: "bg-cyan-50", border: "border-cyan-200", iconBg: "bg-cyan-100", iconText: "text-cyan-700" },
+  regulatory: { accent: "#DC2626", bg: "bg-red-50", border: "border-red-200", iconBg: "bg-red-100", iconText: "text-red-700" },
+  sources: { accent: "#6B7280", bg: "bg-gray-50", border: "border-gray-200", iconBg: "bg-gray-100", iconText: "text-gray-600" },
+};
+
+function MetricCard({ label, value, color }: { label: string; value: string; color: typeof sectionColors.industry }) {
   return (
-    <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-      <p className="text-xs text-white/50 uppercase tracking-wider mb-1">{label}</p>
-      <p className="text-lg font-semibold text-white">{value}</p>
-      {source && <p className="text-xs text-white/40 mt-1">{source}</p>}
+    <div className={`rounded-xl p-4 border ${color.border} ${color.bg}`}>
+      <p className="text-xs font-medium uppercase tracking-wider mb-1.5 text-gray-500">{label}</p>
+      <p className="text-base font-semibold text-gray-900">{value}</p>
     </div>
   );
 }
 
-function SectionHeader({ icon: Icon, title }: { icon: any; title: string }) {
+function SectionCard({ icon: Icon, title, color, children }: { icon: any; title: string; color: typeof sectionColors.industry; children: React.ReactNode }) {
   return (
-    <div className="flex items-center gap-3 mb-4">
-      <div className="w-8 h-8 rounded-lg bg-[#9FBCA4]/20 flex items-center justify-center">
-        <Icon className="w-4 h-4 text-[#9FBCA4]" />
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100" style={{ borderLeftWidth: 4, borderLeftColor: color.accent }}>
+        <div className={`w-9 h-9 rounded-lg ${color.iconBg} flex items-center justify-center`}>
+          <Icon className={`w-[18px] h-[18px] ${color.iconText}`} />
+        </div>
+        <h3 className="text-base font-semibold text-gray-900">{title}</h3>
       </div>
-      <h3 className="text-lg font-semibold text-white">{title}</h3>
+      <div className="p-6">{children}</div>
     </div>
   );
 }
@@ -107,288 +116,311 @@ export default function GlobalResearch() {
         <PageHeader
           title="Global Industry Research"
           subtitle={`${global?.propertyLabel || "Boutique hotel"} industry data, event hospitality trends, and financial benchmarks`}
-          variant="dark"
+          variant="light"
           backLink="/settings"
           actions={
             <div className="flex items-center gap-3">
-              <GlassButton
-                variant="ghost"
+              <button
                 onClick={() => setLocation("/settings")}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors"
                 data-testid="button-back"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Back
-              </GlassButton>
-              <GlassButton
-                variant="primary"
+              </button>
+              <button
                 onClick={generateResearch}
                 disabled={isGenerating}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-white text-sm font-medium transition-colors disabled:opacity-70"
+                style={isGenerating
+                  ? { background: 'linear-gradient(135deg, #F4795B 0%, #e0694e 50%, #d45a40 100%)' }
+                  : { backgroundColor: '#9FBCA4' }
+                }
                 data-testid="button-update-research"
-                style={isGenerating ? { background: 'linear-gradient(135deg, #F4795B 0%, #e0694e 50%, #d45a40 100%)', opacity: 1 } : undefined}
               >
                 {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
                 {isGenerating ? "Analyzing..." : "Update Research"}
-              </GlassButton>
+              </button>
             </div>
           }
         />
 
         {research?.updatedAt && (
-          <p className="text-xs text-white/40 text-right" data-testid="text-last-updated">
+          <p className="text-xs text-gray-400 text-right" data-testid="text-last-updated">
             Last updated: {format(new Date(research.updatedAt), "MMM d, yyyy h:mm a")}
             {research.llmModel && ` · Model: ${research.llmModel}`}
           </p>
         )}
 
         {isGenerating && (
-          <GlassCard>
-            <div className="p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <Loader2 className="w-5 h-5 animate-spin text-[#9FBCA4]" />
-                <p className="text-white/70 text-sm">Researching global {(global?.propertyLabel || "boutique hotel").toLowerCase()} industry data...</p>
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
+                <Loader2 className="w-4 h-4 animate-spin text-emerald-700" />
               </div>
-              {streamedContent && (
-                <pre className="text-xs text-white/50 whitespace-pre-wrap max-h-40 overflow-y-auto bg-white/5 rounded-lg p-3">
-                  {streamedContent.slice(0, 500)}...
-                </pre>
-              )}
+              <p className="text-gray-600 text-sm font-medium">Researching global {(global?.propertyLabel || "boutique hotel").toLowerCase()} industry data...</p>
             </div>
-          </GlassCard>
+            {streamedContent && (
+              <pre className="text-xs text-gray-500 whitespace-pre-wrap max-h-40 overflow-y-auto bg-gray-50 rounded-lg p-3 border border-gray-200">
+                {streamedContent.slice(0, 500)}...
+              </pre>
+            )}
+          </div>
         )}
 
         {!hasResearch && !isGenerating && (
-          <GlassCard>
-            <div className="p-12 text-center">
-              <BookOpen className="w-16 h-16 mx-auto text-white/20 mb-4" />
-              <h3 className="text-lg font-semibold text-white/70 mb-2">No Research Data Yet</h3>
-              <p className="text-sm text-white/50 mb-6">Click "Update Research" to generate AI-powered global industry analysis.</p>
-            </div>
-          </GlassCard>
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-12 text-center">
+            <BookOpen className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+            <h3 className="text-lg font-semibold text-gray-700 mb-2">No Research Data Yet</h3>
+            <p className="text-sm text-gray-500 mb-6">Click "Update Research" to generate AI-powered global industry analysis.</p>
+          </div>
         )}
 
         {hasResearch && !isGenerating && (
-          <>
+          <div className="space-y-5">
             {content.industryOverview && (
-              <GlassCard>
-                <div className="p-6">
-                  <SectionHeader icon={Globe} title="Industry Overview" />
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                    <MetricCard label="Market Size" value={content.industryOverview.marketSize || "N/A"} />
-                    <MetricCard label="Growth Rate" value={content.industryOverview.growthRate || "N/A"} />
-                    <MetricCard label="Boutique Share" value={content.industryOverview.boutiqueShare || "N/A"} />
-                  </div>
-                  {content.industryOverview.keyTrends && content.industryOverview.keyTrends.length > 0 && (
-                    <div className="bg-white/5 rounded-lg p-4">
-                      <h4 className="text-sm font-medium text-white/70 mb-2">Key Industry Trends</h4>
-                      <ul className="space-y-2">
-                        {content.industryOverview.keyTrends.map((t: string, i: number) => (
-                          <li key={i} className="text-sm text-white/60 flex items-start gap-2">
-                            <span className="text-[#9FBCA4] mt-0.5">·</span>
-                            {t}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+              <SectionCard icon={Globe} title="Industry Overview" color={sectionColors.industry}>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  <MetricCard label="Market Size" value={content.industryOverview.marketSize || "N/A"} color={sectionColors.industry} />
+                  <MetricCard label="Growth Rate" value={content.industryOverview.growthRate || "N/A"} color={sectionColors.industry} />
+                  <MetricCard label="Boutique Share" value={content.industryOverview.boutiqueShare || "N/A"} color={sectionColors.industry} />
                 </div>
-              </GlassCard>
+                {content.industryOverview.keyTrends && content.industryOverview.keyTrends.length > 0 && (
+                  <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
+                    <h4 className="text-sm font-medium text-gray-700 mb-2">Key Industry Trends</h4>
+                    <ul className="space-y-2">
+                      {content.industryOverview.keyTrends.map((t: string, i: number) => (
+                        <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
+                          <span className="text-[#9FBCA4] mt-0.5">·</span>
+                          {t}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </SectionCard>
             )}
 
             {content.eventHospitality && (
-              <GlassCard>
-                <div className="p-6">
-                  <SectionHeader icon={Sparkles} title="Event & Experience Hospitality" />
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {content.eventHospitality.wellnessRetreats && (
-                      <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                        <h4 className="text-sm font-semibold text-white/80 mb-3 flex items-center gap-2">
-                          <span className="text-lg">🧘</span> Wellness Retreats
-                        </h4>
-                        <div className="space-y-2 text-sm">
-                          <div className="flex justify-between"><span className="text-white/50">Market Size</span><span className="text-white/80">{content.eventHospitality.wellnessRetreats.marketSize}</span></div>
-                          <div className="flex justify-between"><span className="text-white/50">Growth</span><span className="text-[#9FBCA4]">{content.eventHospitality.wellnessRetreats.growth}</span></div>
-                          <div className="flex justify-between"><span className="text-white/50">Avg Rev/Event</span><span className="text-white/80">{content.eventHospitality.wellnessRetreats.avgRevPerEvent}</span></div>
-                          {content.eventHospitality.wellnessRetreats.seasonality && (
-                            <p className="text-xs text-white/40 mt-2">{content.eventHospitality.wellnessRetreats.seasonality}</p>
-                          )}
+              <SectionCard icon={Sparkles} title="Event & Experience Hospitality" color={sectionColors.events}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {content.eventHospitality.wellnessRetreats && (
+                    <div className="bg-gray-50 rounded-xl p-5 border border-gray-100">
+                      <h4 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                        <span className="text-lg">🧘</span> Wellness Retreats
+                      </h4>
+                      <div className="space-y-3 text-sm">
+                        <div>
+                          <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Market Size</p>
+                          <p className="text-gray-800 leading-relaxed">{content.eventHospitality.wellnessRetreats.marketSize}</p>
                         </div>
+                        <div>
+                          <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Growth</p>
+                          <p className="text-emerald-600 leading-relaxed">{content.eventHospitality.wellnessRetreats.growth}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Avg Rev/Event</p>
+                          <p className="text-gray-800 leading-relaxed">{content.eventHospitality.wellnessRetreats.avgRevPerEvent}</p>
+                        </div>
+                        {content.eventHospitality.wellnessRetreats.seasonality && (
+                          <div className="pt-2 border-t border-gray-100">
+                            <p className="text-xs text-gray-500 leading-relaxed">{content.eventHospitality.wellnessRetreats.seasonality}</p>
+                          </div>
+                        )}
                       </div>
-                    )}
-                    
-                    {content.eventHospitality.corporateEvents && (
-                      <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                        <h4 className="text-sm font-semibold text-white/80 mb-3 flex items-center gap-2">
-                          <span className="text-lg">🏢</span> Corporate Events
-                        </h4>
-                        <div className="space-y-2 text-sm">
-                          <div className="flex justify-between"><span className="text-white/50">Market Size</span><span className="text-white/80">{content.eventHospitality.corporateEvents.marketSize}</span></div>
-                          <div className="flex justify-between"><span className="text-white/50">Growth</span><span className="text-[#9FBCA4]">{content.eventHospitality.corporateEvents.growth}</span></div>
-                          <div className="flex justify-between"><span className="text-white/50">Avg Rev/Event</span><span className="text-white/80">{content.eventHospitality.corporateEvents.avgRevPerEvent}</span></div>
-                          {content.eventHospitality.corporateEvents.trends && (
-                            <div className="mt-2">
+                    </div>
+                  )}
+                  
+                  {content.eventHospitality.corporateEvents && (
+                    <div className="bg-gray-50 rounded-xl p-5 border border-gray-100">
+                      <h4 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                        <span className="text-lg">🏢</span> Corporate Events
+                      </h4>
+                      <div className="space-y-3 text-sm">
+                        <div>
+                          <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Market Size</p>
+                          <p className="text-gray-800 leading-relaxed">{content.eventHospitality.corporateEvents.marketSize}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Growth</p>
+                          <p className="text-emerald-600 leading-relaxed">{content.eventHospitality.corporateEvents.growth}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Avg Rev/Event</p>
+                          <p className="text-gray-800 leading-relaxed">{content.eventHospitality.corporateEvents.avgRevPerEvent}</p>
+                        </div>
+                        {content.eventHospitality.corporateEvents.trends && content.eventHospitality.corporateEvents.trends.length > 0 && (
+                          <div className="pt-2 border-t border-gray-100">
+                            <ul className="space-y-1">
                               {content.eventHospitality.corporateEvents.trends.map((t: string, i: number) => (
-                                <p key={i} className="text-xs text-white/40">· {t}</p>
+                                <li key={i} className="text-xs text-gray-500 flex items-start gap-1.5">
+                                  <span className="text-gray-400 mt-0.5">·</span>
+                                  <span className="leading-relaxed">{t}</span>
+                                </li>
                               ))}
-                            </div>
-                          )}
-                        </div>
+                            </ul>
+                          </div>
+                        )}
                       </div>
-                    )}
+                    </div>
+                  )}
 
-                    {content.eventHospitality.yogaRetreats && (
-                      <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                        <h4 className="text-sm font-semibold text-white/80 mb-3 flex items-center gap-2">
-                          <span className="text-lg">🧘‍♀️</span> Yoga Retreats
-                        </h4>
-                        <div className="space-y-2 text-sm">
-                          <div className="flex justify-between"><span className="text-white/50">Market Size</span><span className="text-white/80">{content.eventHospitality.yogaRetreats.marketSize}</span></div>
-                          <div className="flex justify-between"><span className="text-white/50">Growth</span><span className="text-[#9FBCA4]">{content.eventHospitality.yogaRetreats.growth}</span></div>
-                          {content.eventHospitality.yogaRetreats.demographics && (
-                            <p className="text-xs text-white/40 mt-2">{content.eventHospitality.yogaRetreats.demographics}</p>
-                          )}
+                  {content.eventHospitality.yogaRetreats && (
+                    <div className="bg-gray-50 rounded-xl p-5 border border-gray-100">
+                      <h4 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                        <span className="text-lg">🧘‍♀️</span> Yoga Retreats
+                      </h4>
+                      <div className="space-y-3 text-sm">
+                        <div>
+                          <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Market Size</p>
+                          <p className="text-gray-800 leading-relaxed">{content.eventHospitality.yogaRetreats.marketSize}</p>
                         </div>
+                        <div>
+                          <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Growth</p>
+                          <p className="text-emerald-600 leading-relaxed">{content.eventHospitality.yogaRetreats.growth}</p>
+                        </div>
+                        {content.eventHospitality.yogaRetreats.demographics && (
+                          <div className="pt-2 border-t border-gray-100">
+                            <p className="text-xs text-gray-500 leading-relaxed">{content.eventHospitality.yogaRetreats.demographics}</p>
+                          </div>
+                        )}
                       </div>
-                    )}
+                    </div>
+                  )}
 
-                    {content.eventHospitality.relationshipRetreats && (
-                      <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                        <h4 className="text-sm font-semibold text-white/80 mb-3 flex items-center gap-2">
-                          <span className="text-lg">💑</span> Relationship Retreats
-                        </h4>
-                        <div className="space-y-2 text-sm">
-                          <div className="flex justify-between"><span className="text-white/50">Market Size</span><span className="text-white/80">{content.eventHospitality.relationshipRetreats.marketSize}</span></div>
-                          <div className="flex justify-between"><span className="text-white/50">Growth</span><span className="text-[#9FBCA4]">{content.eventHospitality.relationshipRetreats.growth}</span></div>
-                          {content.eventHospitality.relationshipRetreats.positioning && (
-                            <p className="text-xs text-white/40 mt-2">{content.eventHospitality.relationshipRetreats.positioning}</p>
-                          )}
+                  {content.eventHospitality.relationshipRetreats && (
+                    <div className="bg-gray-50 rounded-xl p-5 border border-gray-100">
+                      <h4 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                        <span className="text-lg">💑</span> Relationship Retreats
+                      </h4>
+                      <div className="space-y-3 text-sm">
+                        <div>
+                          <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Market Size</p>
+                          <p className="text-gray-800 leading-relaxed">{content.eventHospitality.relationshipRetreats.marketSize}</p>
                         </div>
+                        <div>
+                          <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Growth</p>
+                          <p className="text-emerald-600 leading-relaxed">{content.eventHospitality.relationshipRetreats.growth}</p>
+                        </div>
+                        {content.eventHospitality.relationshipRetreats.positioning && (
+                          <div className="pt-2 border-t border-gray-100">
+                            <p className="text-xs text-gray-500 leading-relaxed">{content.eventHospitality.relationshipRetreats.positioning}</p>
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
-              </GlassCard>
+              </SectionCard>
             )}
 
             {content.financialBenchmarks && (
-              <GlassCard>
-                <div className="p-6">
-                  <SectionHeader icon={TrendingUp} title="Financial Benchmarks" />
-                  
-                  {content.financialBenchmarks.adrTrends && content.financialBenchmarks.adrTrends.length > 0 && (
-                    <div className="mb-6">
-                      <h4 className="text-sm font-medium text-white/70 mb-3">ADR Trends</h4>
-                      <div className="bg-white/5 rounded-lg overflow-hidden">
-                        <table className="w-full text-sm">
-                          <thead>
-                            <tr className="border-b border-white/10">
-                              <th className="text-left p-3 text-white/50 font-medium">Year</th>
-                              <th className="text-right p-3 text-white/50 font-medium">National</th>
-                              <th className="text-right p-3 text-white/50 font-medium">Boutique</th>
-                              <th className="text-right p-3 text-white/50 font-medium">Luxury</th>
+              <SectionCard icon={TrendingUp} title="Financial Benchmarks" color={sectionColors.financial}>
+                {content.financialBenchmarks.adrTrends && content.financialBenchmarks.adrTrends.length > 0 && (
+                  <div className="mb-6">
+                    <h4 className="text-sm font-medium text-gray-700 mb-3">ADR Trends</h4>
+                    <div className="bg-white rounded-lg border border-gray-100 overflow-hidden">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="bg-gray-50 border-b border-gray-200">
+                            <th className="text-left p-3 text-gray-500 font-medium">Year</th>
+                            <th className="text-right p-3 text-gray-500 font-medium">National</th>
+                            <th className="text-right p-3 text-gray-500 font-medium">Boutique</th>
+                            <th className="text-right p-3 text-gray-500 font-medium">Luxury</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {content.financialBenchmarks.adrTrends.map((r: any, i: number) => (
+                            <tr key={i} className="border-b border-gray-50">
+                              <td className="p-3 text-gray-800">{r.year}</td>
+                              <td className="p-3 text-right text-gray-800">{r.national}</td>
+                              <td className="p-3 text-right text-emerald-600 font-medium">{r.boutique}</td>
+                              <td className="p-3 text-right text-gray-800">{r.luxury}</td>
                             </tr>
-                          </thead>
-                          <tbody>
-                            {content.financialBenchmarks.adrTrends.map((r: any, i: number) => (
-                              <tr key={i} className="border-b border-white/5">
-                                <td className="p-3 text-white/80">{r.year}</td>
-                                <td className="p-3 text-right text-white/70">{r.national}</td>
-                                <td className="p-3 text-right text-[#9FBCA4] font-medium">{r.boutique}</td>
-                                <td className="p-3 text-right text-white/70">{r.luxury}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
-                  )}
+                  </div>
+                )}
 
-                  {content.financialBenchmarks.occupancyTrends && content.financialBenchmarks.occupancyTrends.length > 0 && (
-                    <div className="mb-6">
-                      <h4 className="text-sm font-medium text-white/70 mb-3">Occupancy Trends</h4>
-                      <div className="bg-white/5 rounded-lg overflow-hidden">
-                        <table className="w-full text-sm">
-                          <thead>
-                            <tr className="border-b border-white/10">
-                              <th className="text-left p-3 text-white/50 font-medium">Year</th>
-                              <th className="text-right p-3 text-white/50 font-medium">National</th>
-                              <th className="text-right p-3 text-white/50 font-medium">Boutique</th>
+                {content.financialBenchmarks.occupancyTrends && content.financialBenchmarks.occupancyTrends.length > 0 && (
+                  <div className="mb-6">
+                    <h4 className="text-sm font-medium text-gray-700 mb-3">Occupancy Trends</h4>
+                    <div className="bg-white rounded-lg border border-gray-100 overflow-hidden">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="bg-gray-50 border-b border-gray-200">
+                            <th className="text-left p-3 text-gray-500 font-medium">Year</th>
+                            <th className="text-right p-3 text-gray-500 font-medium">National</th>
+                            <th className="text-right p-3 text-gray-500 font-medium">Boutique</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {content.financialBenchmarks.occupancyTrends.map((r: any, i: number) => (
+                            <tr key={i} className="border-b border-gray-50">
+                              <td className="p-3 text-gray-800">{r.year}</td>
+                              <td className="p-3 text-right text-gray-800">{r.national}</td>
+                              <td className="p-3 text-right text-emerald-600 font-medium">{r.boutique}</td>
                             </tr>
-                          </thead>
-                          <tbody>
-                            {content.financialBenchmarks.occupancyTrends.map((r: any, i: number) => (
-                              <tr key={i} className="border-b border-white/5">
-                                <td className="p-3 text-white/80">{r.year}</td>
-                                <td className="p-3 text-right text-white/70">{r.national}</td>
-                                <td className="p-3 text-right text-[#9FBCA4] font-medium">{r.boutique}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
-                  )}
+                  </div>
+                )}
 
-                  {content.financialBenchmarks.capRates && content.financialBenchmarks.capRates.length > 0 && (
-                    <div>
-                      <h4 className="text-sm font-medium text-white/70 mb-3">Cap Rates by Segment</h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                        {content.financialBenchmarks.capRates.map((c: any, i: number) => (
-                          <div key={i} className="bg-white/5 rounded-lg p-3 border border-white/10">
-                            <p className="text-xs text-white/50">{c.segment}</p>
-                            <p className="text-sm text-white/80 font-medium">{c.range}</p>
-                            <p className="text-xs text-white/40">{c.trend}</p>
-                          </div>
-                        ))}
-                      </div>
+                {content.financialBenchmarks.capRates && content.financialBenchmarks.capRates.length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-700 mb-3">Cap Rates by Segment</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {content.financialBenchmarks.capRates.map((c: any, i: number) => (
+                        <div key={i} className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                          <p className="text-xs text-gray-500">{c.segment}</p>
+                          <p className="text-sm text-gray-800 font-medium">{c.range}</p>
+                          <p className="text-xs text-gray-400">{c.trend}</p>
+                        </div>
+                      ))}
                     </div>
-                  )}
-                </div>
-              </GlassCard>
+                  </div>
+                )}
+              </SectionCard>
             )}
 
             {content.debtMarket && (
-              <GlassCard>
-                <div className="p-6">
-                  <SectionHeader icon={Landmark} title="Debt Market Conditions" />
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-                    <MetricCard label="Current Rates" value={content.debtMarket.currentRates || "N/A"} />
-                    <MetricCard label="LTV Range" value={content.debtMarket.ltvRange || "N/A"} />
-                    <MetricCard label="Typical Terms" value={content.debtMarket.terms || "N/A"} />
-                    <MetricCard label="Outlook" value={content.debtMarket.outlook || "N/A"} />
-                  </div>
+              <SectionCard icon={Landmark} title="Debt Market Conditions" color={sectionColors.debt}>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <MetricCard label="Current Rates" value={content.debtMarket.currentRates || "N/A"} color={sectionColors.debt} />
+                  <MetricCard label="LTV Range" value={content.debtMarket.ltvRange || "N/A"} color={sectionColors.debt} />
+                  <MetricCard label="Typical Terms" value={content.debtMarket.terms || "N/A"} color={sectionColors.debt} />
+                  <MetricCard label="Outlook" value={content.debtMarket.outlook || "N/A"} color={sectionColors.debt} />
                 </div>
-              </GlassCard>
+              </SectionCard>
             )}
 
             {content.regulatoryEnvironment && content.regulatoryEnvironment.length > 0 && (
-              <GlassCard>
-                <div className="p-6">
-                  <SectionHeader icon={Hotel} title="Regulatory Environment" />
-                  <ul className="space-y-2">
-                    {content.regulatoryEnvironment.map((r: string, i: number) => (
-                      <li key={i} className="text-sm text-white/60 flex items-start gap-2 bg-white/5 rounded-lg p-3">
-                        <span className="text-[#9FBCA4] mt-0.5">·</span>
-                        {r}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </GlassCard>
+              <SectionCard icon={Hotel} title="Regulatory Environment" color={sectionColors.regulatory}>
+                <ul className="space-y-2">
+                  {content.regulatoryEnvironment.map((r: string, i: number) => (
+                    <li key={i} className="text-sm text-gray-600 flex items-start gap-2 bg-gray-50 rounded-lg p-3 border border-gray-100">
+                      <span className="text-[#9FBCA4] mt-0.5">·</span>
+                      {r}
+                    </li>
+                  ))}
+                </ul>
+              </SectionCard>
             )}
 
             {content.sources && content.sources.length > 0 && (
-              <GlassCard>
-                <div className="p-6">
-                  <SectionHeader icon={BookOpen} title="Sources" />
-                  <ul className="space-y-1">
-                    {content.sources.map((s: string, i: number) => (
-                      <li key={i} className="text-xs text-white/50">· {s}</li>
-                    ))}
-                  </ul>
-                </div>
-              </GlassCard>
+              <SectionCard icon={BookOpen} title="Sources" color={sectionColors.sources}>
+                <ul className="space-y-1">
+                  {content.sources.map((s: string, i: number) => (
+                    <li key={i} className="text-xs text-gray-500">· {s}</li>
+                  ))}
+                </ul>
+              </SectionCard>
             )}
-          </>
+          </div>
         )}
       </div>
     </Layout>

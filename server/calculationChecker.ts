@@ -122,7 +122,8 @@ function independentPropertyCalc(property: any, global: any) {
   const totalPayments = loanTerm * 12;
   const monthlyPayment = calculatePMT(originalLoanAmount, monthlyRate, totalPayments);
 
-  const months = PROJECTION_MONTHS;
+  const projectionYears = global.projectionYears ?? PROJECTION_YEARS;
+  const months = projectionYears * 12;
   const results: any[] = [];
   let currentAdr = property.startAdr;
   let cumulativeCash = 0;
@@ -296,6 +297,9 @@ export function runIndependentVerification(properties: any[], globalAssumptions:
   let criticalIssues = 0;
   let materialIssues = 0;
 
+  const projectionYears = globalAssumptions.projectionYears ?? PROJECTION_YEARS;
+  const projectionMonths = projectionYears * 12;
+
   for (const property of properties) {
     const checks: CheckResult[] = [];
     const independentCalc = independentPropertyCalc(property, globalAssumptions);
@@ -465,32 +469,32 @@ export function runIndependentVerification(properties: any[], globalAssumptions:
       "info"
     ));
 
-    const year10Months = independentCalc.slice((PROJECTION_YEARS - 1) * 12, PROJECTION_MONTHS);
-    const year10Revenue = year10Months.reduce((sum: number, m: any) => sum + m.revenueTotal, 0);
-    const year10NOI = year10Months.reduce((sum: number, m: any) => sum + m.noi, 0);
+    const lastYearMonths = independentCalc.slice((projectionYears - 1) * 12, projectionMonths);
+    const lastYearRevenue = lastYearMonths.reduce((sum: number, m: any) => sum + m.revenueTotal, 0);
+    const lastYearNOI = lastYearMonths.reduce((sum: number, m: any) => sum + m.noi, 0);
 
-    if (year10Revenue > 0) {
+    if (lastYearRevenue > 0) {
       checks.push(check(
-        "Year 10 Revenue",
+        `Year ${projectionYears} Revenue`,
         "Projections",
         "Industry",
-        "Sum of months 109-120",
-        year10Revenue,
-        year10Revenue,
+        `Sum of last year's monthly values`,
+        lastYearRevenue,
+        lastYearRevenue,
         "info"
       ));
 
       const noiMarginYear1 = year1Revenue > 0 ? (year1NOI / year1Revenue * 100) : 0;
-      const noiMarginYear10 = year10Revenue > 0 ? (year10NOI / year10Revenue * 100) : 0;
+      const noiMarginLastYear = lastYearRevenue > 0 ? (lastYearNOI / lastYearRevenue * 100) : 0;
 
       checks.push(check(
         "NOI Margin Reasonableness",
         "Reasonableness",
         "Industry Benchmark",
-        `Year 1: ${noiMarginYear1.toFixed(1)}% → Year 10: ${noiMarginYear10.toFixed(1)}% (expect 15-45%)`,
-        noiMarginYear10,
-        noiMarginYear10,
-        noiMarginYear10 < 5 || noiMarginYear10 > 60 ? "material" : "info"
+        `Year 1: ${noiMarginYear1.toFixed(1)}% → Year ${projectionYears}: ${noiMarginLastYear.toFixed(1)}% (expect 15-45%)`,
+        noiMarginLastYear,
+        noiMarginLastYear,
+        noiMarginLastYear < 5 || noiMarginLastYear > 60 ? "material" : "info"
       ));
     }
 

@@ -8,6 +8,7 @@ import {
   DEFAULT_TERM_YEARS, 
   DEPRECIATION_YEARS,
   DAYS_PER_MONTH,
+  PROJECTION_YEARS,
   PROJECTION_MONTHS
 } from "./constants";
 
@@ -98,7 +99,8 @@ export function runFullVerification(
     console.log("  ─────────────────────────────────────────────────────────────");
     
     try {
-      const financials = generatePropertyProForma(property, globalAssumptions, PROJECTION_MONTHS);
+      const projectionMonths = ((globalAssumptions as any).projectionYears ?? PROJECTION_YEARS) * 12;
+      const financials = generatePropertyProForma(property, globalAssumptions, projectionMonths);
       
       // Run legacy formula checks
       const formulaCheck = checkPropertyFormulas(financials);

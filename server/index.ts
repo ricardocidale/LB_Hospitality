@@ -3,7 +3,7 @@ import cookieParser from "cookie-parser";
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
-import { authMiddleware, seedAdminUser } from "./auth";
+import { authMiddleware, requireAuth, seedAdminUser } from "./auth";
 
 const app = express();
 const httpServer = createServer(app);
@@ -37,6 +37,21 @@ app.use(
 
 app.use(express.urlencoded({ extended: false }));
 app.use(authMiddleware);
+
+// Default-deny: require authentication on all /api/ routes unless explicitly public
+const PUBLIC_API_PATHS = new Set([
+  "/api/auth/login",
+  "/api/auth/admin-login",
+  "/api/auth/logout",
+  "/api/auth/me",
+  "/api/admin/design-themes/active",
+]);
+
+app.use((req: Request, res: Response, next: NextFunction) => {
+  if (!req.path.startsWith("/api")) return next();
+  if (PUBLIC_API_PATHS.has(req.path)) return next();
+  return requireAuth(req, res, next);
+});
 
 export function log(message: string, source = "express") {
   const formattedTime = new Date().toLocaleTimeString("en-US", {

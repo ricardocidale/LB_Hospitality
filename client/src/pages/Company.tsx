@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import domtoimage from 'dom-to-image-more';
 import { ExportDialog } from "@/components/ExportDialog";
 import Layout from "@/components/Layout";
@@ -134,14 +134,23 @@ export default function Company() {
   const projectionMonths = projectionYears * 12;
   const fiscalYearStartMonth = global.fiscalYearStartMonth ?? 1;
   const getFiscalYear = (yearIndex: number) => getFiscalYearForModelYear(global.modelStartDate, fiscalYearStartMonth, yearIndex);
-  const financials = generateCompanyProForma(properties, global, projectionMonths);
-  
-  const cashAnalysis = analyzeCompanyCashPosition(financials);
-  
-  const propertyFinancials = properties.map(p => ({
-    property: p,
-    financials: generatePropertyProForma(p, global, projectionMonths)
-  }));
+  const financials = useMemo(
+    () => generateCompanyProForma(properties, global, projectionMonths),
+    [properties, global, projectionMonths]
+  );
+
+  const cashAnalysis = useMemo(
+    () => analyzeCompanyCashPosition(financials),
+    [financials]
+  );
+
+  const propertyFinancials = useMemo(
+    () => properties.map(p => ({
+      property: p,
+      financials: generatePropertyProForma(p, global, projectionMonths)
+    })),
+    [properties, global, projectionMonths]
+  );
   
   const yearlyChartData = [];
   for (let y = 0; y < projectionYears; y++) {

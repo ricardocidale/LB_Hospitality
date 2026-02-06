@@ -504,7 +504,7 @@ export function auditIncomeStatement(
       });
     }
     
-    const expectedCashFlow = m.noi - m.debtPayment;
+    const expectedCashFlow = m.noi - m.debtPayment - (m.incomeTax || 0);
     const cashFlowMatch = withinTolerance(expectedCashFlow, m.cashFlow);
     
     if (!cashFlowMatch) {
@@ -794,7 +794,8 @@ export function auditBalanceSheet(
       expectedCumulativePrincipal = 0;
     }
     
-    const expectedPropertyValue = i >= acqMonthIndex ? depreciableBasis - expectedCumulativeDepreciation : 0;
+    const landValue = (property.purchasePrice || 0) * landPct;
+    const expectedPropertyValue = i >= acqMonthIndex ? landValue + depreciableBasis - expectedCumulativeDepreciation : 0;
     const expectedEquity = expectedPropertyValue - expectedDebtOutstanding;
     
     const actualPropertyValue = m.propertyValue || 0;

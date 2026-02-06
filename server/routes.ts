@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertGlobalAssumptionsSchema, insertPropertySchema, updatePropertySchema } from "@shared/schema";
+import { insertGlobalAssumptionsSchema, insertPropertySchema, updatePropertySchema, insertDesignThemeSchema, updateScenarioSchema, insertProspectivePropertySchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
 import { hashPassword, verifyPassword, generateSessionId, setSessionCookie, clearSessionCookie, getSessionExpiryDate, requireAuth, requireAdmin, requireChecker, isRateLimited, recordLoginAttempt, sanitizeEmail, validatePassword } from "./auth";
@@ -921,13 +921,13 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
   app.post("/api/properties", requireAuth, async (req, res) => {
     try {
       const validation = insertPropertySchema.safeParse(req.body);
-      
+
       if (!validation.success) {
         const error = fromZodError(validation.error);
         return res.status(400).json({ error: error.message });
       }
-      
-      const property = await storage.createProperty(validation.data);
+
+      const property = await storage.createProperty({ ...validation.data, userId: req.user!.id });
       res.status(201).json(property);
     } catch (error) {
       console.error("Error creating property:", error);
@@ -1423,21 +1423,10 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
         return res.status(403).json({ error: "Access denied" });
       }
       
-      // Restore global assumptions
+      // Restore assumptions and properties atomically in a transaction
       const savedAssumptions = scenario.globalAssumptions as any;
-      await storage.upsertGlobalAssumptions(savedAssumptions, userId);
-      
-      // Delete current properties and restore saved ones
-      const currentProperties = await storage.getAllProperties(userId);
-      for (const prop of currentProperties) {
-        await storage.deleteProperty(prop.id);
-      }
-      
       const savedProperties = scenario.properties as any[];
-      for (const prop of savedProperties) {
-        const { id, createdAt, updatedAt, ...propData } = prop;
-        await storage.createProperty({ ...propData, userId });
-      }
+      await storage.loadScenario(userId, savedAssumptions, savedProperties);
       
       res.json({ success: true, message: "Scenario loaded successfully" });
     } catch (error) {
@@ -1451,18 +1440,22 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     try {
       const userId = req.user!.id;
       const scenarioId = parseInt(req.params.id as string);
-      const { name, description } = req.body;
-      
+
+      const validation = updateScenarioSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: fromZodError(validation.error).message });
+      }
+
       const scenario = await storage.getScenario(scenarioId);
       if (!scenario) {
         return res.status(404).json({ error: "Scenario not found" });
       }
-      
+
       if (scenario.userId !== userId) {
         return res.status(403).json({ error: "Access denied" });
       }
-      
-      const updated = await storage.updateScenario(scenarioId, { name, description });
+
+      const updated = await storage.updateScenario(scenarioId, validation.data);
       res.json(updated);
     } catch (error) {
       console.error("Error updating scenario:", error);
@@ -1524,7 +1517,11 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
   // Create design theme
   app.post("/api/admin/design-themes", requireAdmin, async (req, res) => {
     try {
-      const theme = await storage.createDesignTheme(req.body);
+      const validation = insertDesignThemeSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: fromZodError(validation.error).message });
+      }
+      const theme = await storage.createDesignTheme(validation.data);
       res.json(theme);
     } catch (error) {
       console.error("Error creating design theme:", error);
@@ -1536,7 +1533,11 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
   app.patch("/api/admin/design-themes/:id", requireAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id as string);
-      const theme = await storage.updateDesignTheme(id, req.body);
+      const validation = insertDesignThemeSchema.partial().safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: fromZodError(validation.error).message });
+      }
+      const theme = await storage.updateDesignTheme(id, validation.data);
       if (!theme) {
         return res.status(404).json({ error: "Theme not found" });
       }
@@ -1848,8 +1849,11 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
   app.post("/api/property-finder/favorites", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user!.id;
-      const data = { ...req.body, userId };
-      const saved = await storage.addProspectiveProperty(data);
+      const validation = insertProspectivePropertySchema.safeParse({ ...req.body, userId });
+      if (!validation.success) {
+        return res.status(400).json({ error: fromZodError(validation.error).message });
+      }
+      const saved = await storage.addProspectiveProperty(validation.data);
       res.json(saved);
     } catch (error) {
       console.error("Save favorite error:", error);

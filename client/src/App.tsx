@@ -4,6 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/lib/auth";
+import { ErrorBoundary, FinancialErrorBoundary } from "@/components/ErrorBoundary";
 import { Loader2 } from "lucide-react";
 import NotFound from "@/pages/not-found";
 import Login from "@/pages/Login";
@@ -80,10 +81,14 @@ function Router() {
         {user ? <Redirect to="/" /> : <Login />}
       </Route>
       <Route path="/">
-        <ProtectedRoute component={Dashboard} />
+        <FinancialErrorBoundary>
+          <ProtectedRoute component={Dashboard} />
+        </FinancialErrorBoundary>
       </Route>
       <Route path="/company">
-        <ProtectedRoute component={Company} />
+        <FinancialErrorBoundary>
+          <ProtectedRoute component={Company} />
+        </FinancialErrorBoundary>
       </Route>
       <Route path="/company/assumptions">
         <ProtectedRoute component={CompanyAssumptions} />
@@ -92,7 +97,9 @@ function Router() {
         <ProtectedRoute component={Portfolio} />
       </Route>
       <Route path="/property/:id">
-        <ProtectedRoute component={PropertyDetail} />
+        <FinancialErrorBoundary>
+          <ProtectedRoute component={PropertyDetail} />
+        </FinancialErrorBoundary>
       </Route>
       <Route path="/property/:id/edit">
         <ProtectedRoute component={PropertyEdit} />
@@ -131,14 +138,16 @@ function Router() {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Router />
-        </TooltipProvider>
-      </AuthProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Router />
+          </TooltipProvider>
+        </AuthProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 

@@ -6,7 +6,7 @@ The `PropertyImagePicker` component provides a unified interface for setting a p
 
 ## Component
 
-**File**: `client/src/components/ui/property-image-picker.tsx`
+**File**: `client/src/features/property-images/PropertyImagePicker.tsx`
 
 ### Props
 
@@ -21,7 +21,7 @@ The `PropertyImagePicker` component provides a unified interface for setting a p
 ### Usage
 
 ```tsx
-import { PropertyImagePicker } from "@/components/ui/property-image-picker";
+import { PropertyImagePicker } from "@/features/property-images";
 
 // In a create dialog (dark variant is default)
 <PropertyImagePicker
@@ -43,7 +43,7 @@ import { PropertyImagePicker } from "@/components/ui/property-image-picker";
 
 ## Hook: `useGenerateImage`
 
-**File**: `client/src/hooks/use-generate-image.ts`
+**File**: `client/src/features/property-images/useGenerateImage.ts`
 
 Calls `POST /api/generate-property-image` which generates an image via OpenAI `gpt-image-1` and uploads it to object storage in one step.
 

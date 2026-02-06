@@ -146,10 +146,10 @@ export const globalAssumptions = pgTable("global_assumptions", {
     level: "luxury",
     eventLocations: 2,
     maxEventCapacity: 150,
-    acreage: 5,
+    acreage: 10,
     privacyLevel: "high",
     parkingSpaces: 50,
-    description: "Independently operated, design-forward properties with curated guest experiences, on-site F&B, event hosting, and wellness programming."
+    description: "Luxury boutique hotels on private estates of 10+ acres, catering to 100+ person exotic, unique, and corporate events in exclusive, secluded settings with full-service F&B, wellness programming, and curated guest experiences."
   }),
   
   // AI Research Settings

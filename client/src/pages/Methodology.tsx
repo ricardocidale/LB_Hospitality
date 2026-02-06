@@ -25,7 +25,7 @@ export default function Methodology() {
           <CardContent className="prose prose-sm max-w-none text-muted-foreground">
             <p>
               This financial model generates 10-year projections for a portfolio of hospitality properties. 
-              It uses a combination of <strong>Global Assumptions</strong> (market-wide parameters) and 
+              It uses a combination of <strong>Systemwide Assumptions</strong> (market-wide parameters) and 
               <strong>Property Assumptions</strong> (individual property details) to calculate revenues, 
               expenses, cash flows, and investment returns.
             </p>
@@ -521,7 +521,7 @@ export default function Methodology() {
               </div>
 
               <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                <h4 className="font-semibold mb-2 text-green-800">Expense Ratios (Now Configurable in Global Assumptions)</h4>
+                <h4 className="font-semibold mb-2 text-green-800">Expense Ratios (Now Configurable in Systemwide Assumptions)</h4>
                 <ul className="text-sm text-green-700 space-y-2">
                   <li>• <strong>Event Expense Rate</strong>: Default 65% of event revenue <span className="text-green-600">(editable)</span></li>
                   <li>• <strong>Other Revenue Expense Rate</strong>: Default 60% of other revenue <span className="text-green-600">(editable)</span></li>
@@ -544,8 +544,8 @@ export default function Methodology() {
               <div className="bg-green-50 rounded-lg p-4 border border-green-200">
                 <h4 className="font-semibold mb-2 text-green-800">Exit & Sale Assumptions (Now Configurable)</h4>
                 <ul className="text-sm text-green-700 space-y-2">
-                  <li>• <strong>Exit Cap Rate</strong>: Default 8.5% <span className="text-green-600">(editable in Global & Property Assumptions)</span></li>
-                  <li>• <strong>Sales Commission</strong>: Default 5% of gross sale price <span className="text-green-600">(editable in Global Assumptions)</span></li>
+                  <li>• <strong>Exit Cap Rate</strong>: Default 8.5% <span className="text-green-600">(editable in Systemwide & Property Assumptions)</span></li>
+                  <li>• <strong>Sales Commission</strong>: Default 5% of gross sale price <span className="text-green-600">(editable in Systemwide Assumptions)</span></li>
                   <li>• <strong>Tax Rate</strong>: Default 25% <span className="text-green-600">(editable at property level)</span></li>
                 </ul>
               </div>
@@ -565,8 +565,8 @@ export default function Methodology() {
                 <ul className="text-sm text-green-700 space-y-2">
                   <li>• <strong>Full Catering Mix</strong>: Default 40% of events <span className="text-green-600">(editable per property)</span></li>
                   <li>• <strong>Partial Catering Mix</strong>: Default 30% of events <span className="text-green-600">(editable per property)</span></li>
-                  <li>• <strong>Full Catering F&B Boost</strong>: Default +50% to base F&B <span className="text-green-600">(editable in Global Assumptions)</span></li>
-                  <li>• <strong>Partial Catering F&B Boost</strong>: Default +25% to base F&B <span className="text-green-600">(editable in Global Assumptions)</span></li>
+                  <li>• <strong>Full Catering F&B Boost</strong>: Default +50% to base F&B <span className="text-green-600">(editable in Systemwide Assumptions)</span></li>
+                  <li>• <strong>Partial Catering F&B Boost</strong>: Default +25% to base F&B <span className="text-green-600">(editable in Systemwide Assumptions)</span></li>
                 </ul>
               </div>
             </AccordionContent>
@@ -649,7 +649,7 @@ export default function Methodology() {
                 <h3 className="font-semibold text-lg mb-2">Questions About the Model?</h3>
                 <p className="text-sm text-muted-foreground">
                   This financial model uses industry-standard methodologies and follows GAAP accounting principles. 
-                  All assumptions can be customized in the Global Assumptions and Property Assumptions pages. 
+                  All assumptions can be customized in the Systemwide Assumptions and Property Assumptions pages. 
                   The model automatically recalculates all projections when you change any input.
                 </p>
               </div>

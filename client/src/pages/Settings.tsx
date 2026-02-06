@@ -3,10 +3,10 @@ import { useGlobalAssumptions, useUpdateGlobalAssumptions, useProperties, useUpd
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent, DarkGlassTabs } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Upload, X, Building2, BookOpen, Hotel } from "lucide-react";
+import { Loader2, Upload, X, Building2, BookOpen, Hotel, Globe, Sliders } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Link } from "wouter";
@@ -51,6 +51,7 @@ export default function Settings() {
   const [globalDraft, setGlobalDraft] = useState<any>(null);
   const [propertyDrafts, setPropertyDrafts] = useState<Record<number, any>>({});
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+  const [settingsTab, setSettingsTab] = useState("portfolio");
 
   if (globalLoading || propertiesLoading) {
     return (
@@ -119,7 +120,7 @@ export default function Settings() {
     if (globalDraft) {
       updateGlobal.mutate(globalDraft, {
         onSuccess: () => {
-          toast({ title: "Saved", description: "Global assumptions updated successfully." });
+          toast({ title: "Saved", description: "Systemwide assumptions updated successfully." });
           setGlobalDraft(null);
         }
       });
@@ -205,7 +206,7 @@ export default function Settings() {
     <Layout>
       <div className="space-y-6 max-w-4xl">
         <PageHeader
-          title="Global Assumptions"
+          title="Systemwide Assumptions"
           subtitle="Configure variables driving the financial model"
           variant="dark"
           actions={
@@ -225,12 +226,16 @@ export default function Settings() {
           }
         />
 
-        <Tabs defaultValue="portfolio" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 max-w-md">
-            <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
-            <TabsTrigger value="macro">Macro</TabsTrigger>
-            <TabsTrigger value="other">Other</TabsTrigger>
-          </TabsList>
+        <Tabs value={settingsTab} onValueChange={setSettingsTab} className="w-full">
+          <DarkGlassTabs
+            tabs={[
+              { value: 'portfolio', label: 'Portfolio', icon: Hotel },
+              { value: 'macro', label: 'Macro', icon: Globe },
+              { value: 'other', label: 'Other', icon: Sliders }
+            ]}
+            activeTab={settingsTab}
+            onTabChange={setSettingsTab}
+          />
 
           <TabsContent value="portfolio" className="space-y-6 mt-6">
             <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">

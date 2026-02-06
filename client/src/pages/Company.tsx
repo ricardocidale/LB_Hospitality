@@ -5,7 +5,8 @@ import Layout from "@/components/Layout";
 import { useProperties, useGlobalAssumptions } from "@/lib/api";
 import { generateCompanyProForma, generatePropertyProForma, formatMoney, getFiscalYearForModelYear } from "@/lib/financialEngine";
 import { PROJECTION_YEARS, STAFFING_TIERS, OPERATING_RESERVE_BUFFER, COMPANY_FUNDING_BUFFER } from "@/lib/constants";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent, DarkGlassTabs } from "@/components/ui/tabs";
+import { FileText, Banknote, Scale } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { Users, Briefcase, TrendingUp, Settings2, Loader2, ChevronRight, ChevronDown, FileDown, ImageIcon, AlertTriangle, CheckCircle } from "lucide-react";
@@ -668,62 +669,15 @@ export default function Company() {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
-            {/* Liquid Glass Tabs - Dark Theme */}
-            <div className="relative overflow-hidden rounded-2xl">
-              {/* Match sidebar gradient */}
-              <div className="absolute inset-0 bg-gradient-to-r from-[#2d4a5e] via-[#3d5a6a] to-[#3a5a5e]" />
-              {/* Top highlight like sidebar */}
-              <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-white/25 to-transparent" />
-              {/* Border like sidebar */}
-              <div className="absolute inset-0 rounded-2xl border border-white/15" />
-              <div className="relative flex flex-wrap gap-1 p-1.5">
-                <button
-                  onClick={() => setActiveTab("income")}
-                  className={`relative overflow-hidden px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 ${
-                    activeTab === "income" ? "text-white" : "text-[#FFF9F5]/60 hover:text-white hover:bg-white/10"
-                  }`}
-                >
-                  {activeTab === "income" && (
-                    <>
-                      <div className="absolute inset-0 bg-white/12 backdrop-blur-xl rounded-xl" />
-                      <div className="absolute inset-0 rounded-xl border border-white/20" />
-                      <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
-                    </>
-                  )}
-                  <span className="relative">Income Statement</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab("cashflow")}
-                  className={`relative overflow-hidden px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 ${
-                    activeTab === "cashflow" ? "text-white" : "text-[#FFF9F5]/60 hover:text-white hover:bg-white/10"
-                  }`}
-                >
-                  {activeTab === "cashflow" && (
-                    <>
-                      <div className="absolute inset-0 bg-white/12 backdrop-blur-xl rounded-xl" />
-                      <div className="absolute inset-0 rounded-xl border border-white/20" />
-                      <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
-                    </>
-                  )}
-                  <span className="relative">Cash Flows</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab("balance")}
-                  className={`relative overflow-hidden px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 ${
-                    activeTab === "balance" ? "text-white" : "text-[#FFF9F5]/60 hover:text-white hover:bg-white/10"
-                  }`}
-                >
-                  {activeTab === "balance" && (
-                    <>
-                      <div className="absolute inset-0 bg-white/12 backdrop-blur-xl rounded-xl" />
-                      <div className="absolute inset-0 rounded-xl border border-white/20" />
-                      <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
-                    </>
-                  )}
-                  <span className="relative">Balance Sheet</span>
-                </button>
-              </div>
-            </div>
+            <DarkGlassTabs
+              tabs={[
+                { value: 'income', label: 'Income Statement', icon: FileText },
+                { value: 'cashflow', label: 'Cash Flows', icon: Banknote },
+                { value: 'balance', label: 'Balance Sheet', icon: Scale }
+              ]}
+              activeTab={activeTab}
+              onTabChange={setActiveTab}
+            />
             
             {/* Export buttons - light style with border */}
             <div className="flex items-center gap-2">

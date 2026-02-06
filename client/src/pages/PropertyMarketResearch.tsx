@@ -2,30 +2,46 @@ import { useState, useRef, useCallback } from "react";
 import Layout from "@/components/Layout";
 import { useProperty, useMarketResearch, useGlobalAssumptions } from "@/lib/api";
 import { PageHeader } from "@/components/ui/page-header";
-import { GlassCard } from "@/components/ui/glass-card";
 import { GlassButton } from "@/components/ui/glass-button";
-import { Loader2, RefreshCw, MapPin, TrendingUp, Building2, Calendar, Users, AlertTriangle, ExternalLink, BookOpen, Target } from "lucide-react";
+import { Loader2, RefreshCw, MapPin, TrendingUp, Building2, Calendar, Users, AlertTriangle, ExternalLink, BookOpen, Target, Clock, Shield } from "lucide-react";
 import { useRoute } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 
-function MetricCard({ label, value, source }: { label: string; value: string; source?: string }) {
+const sectionColors = {
+  market: { accent: "#257D41", bg: "bg-emerald-50", border: "border-emerald-200", iconBg: "bg-emerald-100", iconText: "text-emerald-700", badge: "bg-emerald-100 text-emerald-800" },
+  adr: { accent: "#3B82F6", bg: "bg-blue-50", border: "border-blue-200", iconBg: "bg-blue-100", iconText: "text-blue-700", badge: "bg-blue-100 text-blue-800" },
+  occupancy: { accent: "#8B5CF6", bg: "bg-violet-50", border: "border-violet-200", iconBg: "bg-violet-100", iconText: "text-violet-700", badge: "bg-violet-100 text-violet-800" },
+  events: { accent: "#F4795B", bg: "bg-orange-50", border: "border-orange-200", iconBg: "bg-orange-100", iconText: "text-orange-700", badge: "bg-orange-100 text-orange-800" },
+  capRate: { accent: "#0891B2", bg: "bg-cyan-50", border: "border-cyan-200", iconBg: "bg-cyan-100", iconText: "text-cyan-700", badge: "bg-cyan-100 text-cyan-800" },
+  competitive: { accent: "#9FBCA4", bg: "bg-emerald-50/50", border: "border-[#9FBCA4]/30", iconBg: "bg-[#9FBCA4]/20", iconText: "text-[#257D41]", badge: "bg-[#9FBCA4]/20 text-[#257D41]" },
+  risks: { accent: "#DC2626", bg: "bg-red-50", border: "border-red-200", iconBg: "bg-red-100", iconText: "text-red-700", badge: "bg-red-100 text-red-800" },
+  sources: { accent: "#6B7280", bg: "bg-gray-50", border: "border-gray-200", iconBg: "bg-gray-100", iconText: "text-gray-600", badge: "bg-gray-100 text-gray-700" },
+  stabilization: { accent: "#D97706", bg: "bg-amber-50", border: "border-amber-200", iconBg: "bg-amber-100", iconText: "text-amber-700", badge: "bg-amber-100 text-amber-800" },
+};
+
+function MetricCard({ label, value, source, color }: { label: string; value: string; source?: string; color: typeof sectionColors.market }) {
   return (
-    <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-      <p className="text-xs text-white/50 uppercase tracking-wider mb-1">{label}</p>
-      <p className="text-lg font-semibold text-white">{value}</p>
-      {source && <p className="text-xs text-white/40 mt-1">{source}</p>}
+    <div className={`rounded-xl p-4 border ${color.border} ${color.bg}`}>
+      <p className="text-xs font-medium uppercase tracking-wider mb-1.5 text-gray-500">{label}</p>
+      <p className="text-base font-semibold text-gray-900">{value}</p>
+      {source && <p className="text-[11px] text-gray-400 mt-1.5 leading-tight">{source}</p>}
     </div>
   );
 }
 
-function SectionHeader({ icon: Icon, title }: { icon: any; title: string }) {
+function SectionCard({ icon: Icon, title, color, children }: { icon: any; title: string; color: typeof sectionColors.market; children: React.ReactNode }) {
   return (
-    <div className="flex items-center gap-3 mb-4">
-      <div className="w-8 h-8 rounded-lg bg-[#9FBCA4]/20 flex items-center justify-center">
-        <Icon className="w-4 h-4 text-[#9FBCA4]" />
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100" style={{ borderLeftWidth: 4, borderLeftColor: color.accent }}>
+        <div className={`w-9 h-9 rounded-lg ${color.iconBg} flex items-center justify-center`}>
+          <Icon className={`w-[18px] h-[18px] ${color.iconText}`} />
+        </div>
+        <h3 className="text-base font-semibold text-gray-900">{title}</h3>
       </div>
-      <h3 className="text-lg font-semibold text-white">{title}</h3>
+      <div className="p-6">
+        {children}
+      </div>
     </div>
   );
 }
@@ -103,7 +119,7 @@ export default function PropertyMarketResearch() {
     } finally {
       setIsGenerating(false);
     }
-  }, [property, propertyId, queryClient]);
+  }, [property, global, propertyId, queryClient]);
 
   if (propertyLoading || researchLoading) {
     return (
@@ -164,264 +180,319 @@ export default function PropertyMarketResearch() {
         />
 
         {research?.updatedAt && (
-          <p className="text-xs text-white/40 text-right" data-testid="text-last-updated">
-            Last updated: {format(new Date(research.updatedAt), "MMM d, yyyy h:mm a")}
-            {research.llmModel && ` · Model: ${research.llmModel}`}
-          </p>
+          <div className="flex items-center justify-end gap-2">
+            <span className="text-xs text-gray-400" data-testid="text-last-updated">
+              Last updated: {format(new Date(research.updatedAt), "MMM d, yyyy h:mm a")}
+              {research.llmModel && ` · Model: ${research.llmModel}`}
+            </span>
+          </div>
         )}
 
         {isGenerating && (
-          <GlassCard>
-            <div className="p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <Loader2 className="w-5 h-5 animate-spin text-[#9FBCA4]" />
-                <p className="text-white/70 text-sm">Analyzing market data for {property.name}...</p>
+          <div className="bg-white rounded-2xl shadow-sm border border-emerald-200 p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
+                <Loader2 className="w-4 h-4 animate-spin text-emerald-700" />
               </div>
-              {streamedContent && (
-                <pre className="text-xs text-white/50 whitespace-pre-wrap max-h-40 overflow-y-auto bg-white/5 rounded-lg p-3">
-                  {streamedContent.slice(0, 500)}...
-                </pre>
-              )}
+              <p className="text-gray-600 text-sm font-medium">Analyzing market data for {property.name}...</p>
             </div>
-          </GlassCard>
+            {streamedContent && (
+              <pre className="text-xs text-gray-500 whitespace-pre-wrap max-h-40 overflow-y-auto bg-gray-50 rounded-lg p-3 border border-gray-200">
+                {streamedContent.slice(0, 500)}...
+              </pre>
+            )}
+          </div>
         )}
 
         {!hasResearch && !isGenerating && (
-          <GlassCard>
-            <div className="p-12 text-center">
-              <BookOpen className="w-16 h-16 mx-auto text-white/20 mb-4" />
-              <h3 className="text-lg font-semibold text-white/70 mb-2">No Research Data Yet</h3>
-              <p className="text-sm text-white/50 mb-6">Click "Update Research" to generate AI-powered market analysis for this property.</p>
-            </div>
-          </GlassCard>
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-12 text-center">
+            <BookOpen className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+            <h3 className="text-lg font-semibold text-gray-700 mb-2">No Research Data Yet</h3>
+            <p className="text-sm text-gray-500 mb-6">Click "Update Research" to generate AI-powered market analysis for this property.</p>
+          </div>
         )}
 
         {hasResearch && !isGenerating && (
-          <>
+          <div className="space-y-5">
             {content.marketOverview && (
-              <GlassCard>
-                <div className="p-6">
-                  <SectionHeader icon={Building2} title="Market Overview" />
-                  <p className="text-sm text-white/70 mb-4">{content.marketOverview.summary}</p>
-                  {content.marketOverview.keyMetrics && (
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      {content.marketOverview.keyMetrics.map((m: any, i: number) => (
-                        <MetricCard key={i} label={m.label} value={m.value} source={m.source} />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </GlassCard>
+              <SectionCard icon={Building2} title="Market Overview" color={sectionColors.market}>
+                <p className="text-sm text-gray-700 leading-relaxed mb-5">{content.marketOverview.summary}</p>
+                {content.marketOverview.keyMetrics && (
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {content.marketOverview.keyMetrics.map((m: any, i: number) => (
+                      <MetricCard key={i} label={m.label} value={m.value} source={m.source} color={sectionColors.market} />
+                    ))}
+                  </div>
+                )}
+              </SectionCard>
+            )}
+
+            {content.stabilizationTimeline && (
+              <SectionCard icon={Clock} title="Stabilization Timeline" color={sectionColors.stabilization}>
+                <p className="text-sm text-gray-700 leading-relaxed mb-5">{content.stabilizationTimeline.summary}</p>
+                {content.stabilizationTimeline.phases && content.stabilizationTimeline.phases.length > 0 && (
+                  <div className="space-y-3">
+                    {content.stabilizationTimeline.phases.map((phase: any, i: number) => (
+                      <div key={i} className="flex gap-4 items-start">
+                        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-amber-100 border-2 border-amber-300 flex items-center justify-center">
+                          <span className="text-sm font-bold text-amber-800">{i + 1}</span>
+                        </div>
+                        <div className="flex-1 rounded-xl bg-amber-50 border border-amber-200 p-4">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-sm font-semibold text-gray-900">{phase.phase}</span>
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-amber-200 text-amber-800 font-medium">{phase.duration}</span>
+                          </div>
+                          <p className="text-sm text-gray-600">{phase.description}</p>
+                          {phase.occupancyTarget && (
+                            <p className="text-xs text-amber-700 mt-1 font-medium">Target Occupancy: {phase.occupancyTarget}</p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {content.stabilizationTimeline.totalMonths && (
+                  <div className="mt-4 rounded-xl bg-amber-100 border border-amber-300 p-4 text-center">
+                    <p className="text-xs text-amber-700 uppercase tracking-wider font-medium mb-1">Estimated Time to Stabilization</p>
+                    <p className="text-2xl font-bold text-amber-900">{content.stabilizationTimeline.totalMonths}</p>
+                  </div>
+                )}
+              </SectionCard>
             )}
 
             {content.adrAnalysis && (
-              <GlassCard>
-                <div className="p-6">
-                  <SectionHeader icon={TrendingUp} title="ADR Analysis" />
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                    <MetricCard label="Market Average ADR" value={content.adrAnalysis.marketAverage || "N/A"} />
-                    <MetricCard label="Boutique Range" value={content.adrAnalysis.boutiqueRange || "N/A"} />
-                    <MetricCard label="Recommended Range" value={content.adrAnalysis.recommendedRange || "N/A"} />
-                  </div>
-                  {content.adrAnalysis.rationale && (
-                    <p className="text-sm text-white/60 mb-4 bg-white/5 rounded-lg p-3 border-l-2 border-[#9FBCA4]/50">
-                      {content.adrAnalysis.rationale}
-                    </p>
-                  )}
-                  {content.adrAnalysis.comparables && content.adrAnalysis.comparables.length > 0 && (
-                    <div>
-                      <h4 className="text-sm font-medium text-white/70 mb-2">Comparable Properties</h4>
-                      <div className="bg-white/5 rounded-lg overflow-hidden">
-                        <table className="w-full text-sm">
-                          <thead>
-                            <tr className="border-b border-white/10">
-                              <th className="text-left p-3 text-white/50 font-medium">Property</th>
-                              <th className="text-right p-3 text-white/50 font-medium">ADR</th>
-                              <th className="text-left p-3 text-white/50 font-medium">Type</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {content.adrAnalysis.comparables.map((c: any, i: number) => (
-                              <tr key={i} className="border-b border-white/5">
-                                <td className="p-3 text-white/80">{c.name}</td>
-                                <td className="p-3 text-right text-[#9FBCA4] font-medium">{c.adr}</td>
-                                <td className="p-3 text-white/60">{c.type}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  )}
+              <SectionCard icon={TrendingUp} title="ADR Analysis" color={sectionColors.adr}>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
+                  <MetricCard label="Market Average ADR" value={content.adrAnalysis.marketAverage || "N/A"} color={sectionColors.adr} />
+                  <MetricCard label="Boutique Range" value={content.adrAnalysis.boutiqueRange || "N/A"} color={sectionColors.adr} />
+                  <MetricCard label="Recommended Range" value={content.adrAnalysis.recommendedRange || "N/A"} color={sectionColors.adr} />
                 </div>
-              </GlassCard>
-            )}
-
-            {content.occupancyAnalysis && (
-              <GlassCard>
-                <div className="p-6">
-                  <SectionHeader icon={Calendar} title="Occupancy Analysis" />
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <MetricCard label="Market Average" value={content.occupancyAnalysis.marketAverage || "N/A"} />
-                    <MetricCard label="Ramp-Up Timeline" value={content.occupancyAnalysis.rampUpTimeline || "N/A"} />
+                {content.adrAnalysis.rationale && (
+                  <div className="bg-blue-50 rounded-xl p-4 border-l-4 border-blue-400 mb-5">
+                    <p className="text-sm text-gray-700 leading-relaxed">{content.adrAnalysis.rationale}</p>
                   </div>
-                  {content.occupancyAnalysis.seasonalPattern && content.occupancyAnalysis.seasonalPattern.length > 0 && (
-                    <div>
-                      <h4 className="text-sm font-medium text-white/70 mb-2">Seasonal Pattern</h4>
-                      <div className="bg-white/5 rounded-lg overflow-hidden">
-                        <table className="w-full text-sm">
-                          <thead>
-                            <tr className="border-b border-white/10">
-                              <th className="text-left p-3 text-white/50 font-medium">Season</th>
-                              <th className="text-right p-3 text-white/50 font-medium">Occupancy</th>
-                              <th className="text-left p-3 text-white/50 font-medium">Notes</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {content.occupancyAnalysis.seasonalPattern.map((s: any, i: number) => (
-                              <tr key={i} className="border-b border-white/5">
-                                <td className="p-3 text-white/80">{s.season}</td>
-                                <td className="p-3 text-right text-[#9FBCA4] font-medium">{s.occupancy}</td>
-                                <td className="p-3 text-white/60">{s.notes}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </GlassCard>
-            )}
-
-            {content.eventDemand && (
-              <GlassCard>
-                <div className="p-6">
-                  <SectionHeader icon={Users} title="Event & Experience Demand" />
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-                    <MetricCard label="Corporate Events" value={content.eventDemand.corporateEvents || "N/A"} />
-                    <MetricCard label="Wellness Retreats" value={content.eventDemand.wellnessRetreats || "N/A"} />
-                    <MetricCard label="Weddings/Private" value={content.eventDemand.weddingsPrivate || "N/A"} />
-                    <MetricCard label="Est. Event Rev Share" value={content.eventDemand.estimatedEventRevShare || "N/A"} />
-                  </div>
-                  {content.eventDemand.keyDrivers && content.eventDemand.keyDrivers.length > 0 && (
-                    <div className="bg-white/5 rounded-lg p-4">
-                      <h4 className="text-sm font-medium text-white/70 mb-2">Key Demand Drivers</h4>
-                      <ul className="space-y-1">
-                        {content.eventDemand.keyDrivers.map((d: string, i: number) => (
-                          <li key={i} className="text-sm text-white/60 flex items-start gap-2">
-                            <span className="text-[#9FBCA4] mt-1">·</span>
-                            {d}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              </GlassCard>
-            )}
-
-            {content.capRateAnalysis && (
-              <GlassCard>
-                <div className="p-6">
-                  <SectionHeader icon={Target} title="Cap Rate Analysis" />
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                    <MetricCard label="Market Range" value={content.capRateAnalysis.marketRange || "N/A"} />
-                    <MetricCard label="Boutique Range" value={content.capRateAnalysis.boutiqueRange || "N/A"} />
-                    <MetricCard label="Recommended Range" value={content.capRateAnalysis.recommendedRange || "N/A"} />
-                  </div>
-                  {content.capRateAnalysis.rationale && (
-                    <p className="text-sm text-white/70 mb-4" data-testid="text-cap-rate-rationale">
-                      {content.capRateAnalysis.rationale}
-                    </p>
-                  )}
-                  {content.capRateAnalysis.comparables && content.capRateAnalysis.comparables.length > 0 && (
-                    <div className="bg-white/5 rounded-lg overflow-hidden">
+                )}
+                {content.adrAnalysis.comparables && content.adrAnalysis.comparables.length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-700 mb-3">Comparable Properties</h4>
+                    <div className="rounded-xl border border-gray-200 overflow-hidden">
                       <table className="w-full text-sm">
                         <thead>
-                          <tr className="border-b border-white/10">
-                            <th className="text-left p-3 text-white/50 font-medium">Property</th>
-                            <th className="text-right p-3 text-white/50 font-medium">Cap Rate</th>
-                            <th className="text-right p-3 text-white/50 font-medium">Sale Year</th>
-                            <th className="text-left p-3 text-white/50 font-medium">Notes</th>
+                          <tr className="bg-blue-50/80">
+                            <th className="text-left p-3 text-gray-600 font-semibold">Property</th>
+                            <th className="text-right p-3 text-gray-600 font-semibold">ADR</th>
+                            <th className="text-left p-3 text-gray-600 font-semibold">Type</th>
                           </tr>
                         </thead>
                         <tbody>
-                          {content.capRateAnalysis.comparables.map((c: any, i: number) => (
-                            <tr key={i} className="border-b border-white/5" data-testid={`row-cap-rate-comp-${i}`}>
-                              <td className="p-3 text-white/80 font-medium">{c.name}</td>
-                              <td className="p-3 text-right text-[#9FBCA4] font-medium">{c.capRate}</td>
-                              <td className="p-3 text-right text-white/70">{c.saleYear}</td>
-                              <td className="p-3 text-white/60">{c.notes}</td>
+                          {content.adrAnalysis.comparables.map((c: any, i: number) => (
+                            <tr key={i} className="border-t border-gray-100 hover:bg-blue-50/40 transition-colors">
+                              <td className="p-3 text-gray-800 font-medium">{c.name}</td>
+                              <td className="p-3 text-right font-semibold text-blue-700">{c.adr}</td>
+                              <td className="p-3 text-gray-500">{c.type}</td>
                             </tr>
                           ))}
                         </tbody>
                       </table>
                     </div>
-                  )}
-                </div>
-              </GlassCard>
+                  </div>
+                )}
+              </SectionCard>
             )}
 
-            {content.competitiveSet && content.competitiveSet.length > 0 && (
-              <GlassCard>
-                <div className="p-6">
-                  <SectionHeader icon={Building2} title="Competitive Set" />
-                  <div className="bg-white/5 rounded-lg overflow-hidden">
+            {content.occupancyAnalysis && (
+              <SectionCard icon={Calendar} title="Occupancy Analysis" color={sectionColors.occupancy}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
+                  <MetricCard label="Market Average" value={content.occupancyAnalysis.marketAverage || "N/A"} color={sectionColors.occupancy} />
+                  <MetricCard label="Ramp-Up Timeline" value={content.occupancyAnalysis.rampUpTimeline || "N/A"} color={sectionColors.occupancy} />
+                </div>
+                {content.occupancyAnalysis.seasonalPattern && content.occupancyAnalysis.seasonalPattern.length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-700 mb-3">Seasonal Pattern</h4>
+                    <div className="rounded-xl border border-gray-200 overflow-hidden">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="bg-violet-50/80">
+                            <th className="text-left p-3 text-gray-600 font-semibold">Season</th>
+                            <th className="text-right p-3 text-gray-600 font-semibold">Occupancy</th>
+                            <th className="text-left p-3 text-gray-600 font-semibold">Notes</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {content.occupancyAnalysis.seasonalPattern.map((s: any, i: number) => (
+                            <tr key={i} className="border-t border-gray-100 hover:bg-violet-50/40 transition-colors">
+                              <td className="p-3 text-gray-800 font-medium">{s.season}</td>
+                              <td className="p-3 text-right font-semibold text-violet-700">{s.occupancy}</td>
+                              <td className="p-3 text-gray-500">{s.notes}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+              </SectionCard>
+            )}
+
+            {content.eventDemand && (
+              <SectionCard icon={Users} title="Event & Experience Demand" color={sectionColors.events}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
+                  {content.eventDemand.corporateEvents && (
+                    <div className="rounded-xl border border-orange-200 bg-orange-50 p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-orange-200 text-orange-800 font-semibold uppercase tracking-wider">Corporate</span>
+                      </div>
+                      <p className="text-sm text-gray-700 leading-relaxed">{content.eventDemand.corporateEvents}</p>
+                    </div>
+                  )}
+                  {content.eventDemand.exoticEvents && (
+                    <div className="rounded-xl border border-rose-200 bg-rose-50 p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-rose-200 text-rose-800 font-semibold uppercase tracking-wider">Exotic & Unique</span>
+                      </div>
+                      <p className="text-sm text-gray-700 leading-relaxed">{content.eventDemand.exoticEvents}</p>
+                    </div>
+                  )}
+                  {content.eventDemand.wellnessRetreats && (
+                    <div className="rounded-xl border border-teal-200 bg-teal-50 p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-teal-200 text-teal-800 font-semibold uppercase tracking-wider">Wellness</span>
+                      </div>
+                      <p className="text-sm text-gray-700 leading-relaxed">{content.eventDemand.wellnessRetreats}</p>
+                    </div>
+                  )}
+                  {content.eventDemand.weddingsPrivate && (
+                    <div className="rounded-xl border border-pink-200 bg-pink-50 p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-pink-200 text-pink-800 font-semibold uppercase tracking-wider">Weddings & Private</span>
+                      </div>
+                      <p className="text-sm text-gray-700 leading-relaxed">{content.eventDemand.weddingsPrivate}</p>
+                    </div>
+                  )}
+                </div>
+                {content.eventDemand.estimatedEventRevShare && (
+                  <div className="rounded-xl bg-orange-100 border border-orange-300 p-3 text-center mb-5">
+                    <p className="text-xs text-orange-700 uppercase tracking-wider font-medium mb-0.5">Estimated Event Revenue Share</p>
+                    <p className="text-lg font-bold text-orange-900">{content.eventDemand.estimatedEventRevShare}</p>
+                  </div>
+                )}
+                {content.eventDemand.keyDrivers && content.eventDemand.keyDrivers.length > 0 && (
+                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                    <h4 className="text-sm font-semibold text-gray-700 mb-3">Key Demand Drivers</h4>
+                    <ul className="space-y-2">
+                      {content.eventDemand.keyDrivers.map((d: string, i: number) => (
+                        <li key={i} className="text-sm text-gray-600 flex items-start gap-2.5">
+                          <span className="flex-shrink-0 w-5 h-5 rounded-full bg-orange-100 flex items-center justify-center mt-0.5">
+                            <span className="text-xs font-bold text-orange-700">{i + 1}</span>
+                          </span>
+                          {d}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </SectionCard>
+            )}
+
+            {content.capRateAnalysis && (
+              <SectionCard icon={Target} title="Cap Rate Analysis" color={sectionColors.capRate}>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
+                  <MetricCard label="Market Range" value={content.capRateAnalysis.marketRange || "N/A"} color={sectionColors.capRate} />
+                  <MetricCard label="Boutique Range" value={content.capRateAnalysis.boutiqueRange || "N/A"} color={sectionColors.capRate} />
+                  <MetricCard label="Recommended Range" value={content.capRateAnalysis.recommendedRange || "N/A"} color={sectionColors.capRate} />
+                </div>
+                {content.capRateAnalysis.rationale && (
+                  <div className="bg-cyan-50 rounded-xl p-4 border-l-4 border-cyan-400 mb-5">
+                    <p className="text-sm text-gray-700 leading-relaxed" data-testid="text-cap-rate-rationale">{content.capRateAnalysis.rationale}</p>
+                  </div>
+                )}
+                {content.capRateAnalysis.comparables && content.capRateAnalysis.comparables.length > 0 && (
+                  <div className="rounded-xl border border-gray-200 overflow-hidden">
                     <table className="w-full text-sm">
                       <thead>
-                        <tr className="border-b border-white/10">
-                          <th className="text-left p-3 text-white/50 font-medium">Property</th>
-                          <th className="text-right p-3 text-white/50 font-medium">Rooms</th>
-                          <th className="text-right p-3 text-white/50 font-medium">ADR</th>
-                          <th className="text-left p-3 text-white/50 font-medium">Positioning</th>
+                        <tr className="bg-cyan-50/80">
+                          <th className="text-left p-3 text-gray-600 font-semibold">Property</th>
+                          <th className="text-right p-3 text-gray-600 font-semibold">Cap Rate</th>
+                          <th className="text-right p-3 text-gray-600 font-semibold">Sale Year</th>
+                          <th className="text-left p-3 text-gray-600 font-semibold">Notes</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {content.competitiveSet.map((c: any, i: number) => (
-                          <tr key={i} className="border-b border-white/5">
-                            <td className="p-3 text-white/80 font-medium">{c.name}</td>
-                            <td className="p-3 text-right text-white/70">{c.rooms}</td>
-                            <td className="p-3 text-right text-[#9FBCA4] font-medium">{c.adr}</td>
-                            <td className="p-3 text-white/60">{c.positioning}</td>
+                        {content.capRateAnalysis.comparables.map((c: any, i: number) => (
+                          <tr key={i} className="border-t border-gray-100 hover:bg-cyan-50/40 transition-colors" data-testid={`row-cap-rate-comp-${i}`}>
+                            <td className="p-3 text-gray-800 font-medium">{c.name}</td>
+                            <td className="p-3 text-right font-semibold text-cyan-700">{c.capRate}</td>
+                            <td className="p-3 text-right text-gray-500">{c.saleYear}</td>
+                            <td className="p-3 text-gray-500">{c.notes}</td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
                   </div>
+                )}
+              </SectionCard>
+            )}
+
+            {content.competitiveSet && content.competitiveSet.length > 0 && (
+              <SectionCard icon={Building2} title="Competitive Set" color={sectionColors.competitive}>
+                <div className="rounded-xl border border-gray-200 overflow-hidden">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-[#9FBCA4]/10">
+                        <th className="text-left p-3 text-gray-600 font-semibold">Property</th>
+                        <th className="text-right p-3 text-gray-600 font-semibold">Rooms</th>
+                        <th className="text-right p-3 text-gray-600 font-semibold">ADR</th>
+                        <th className="text-left p-3 text-gray-600 font-semibold">Positioning</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {content.competitiveSet.map((c: any, i: number) => (
+                        <tr key={i} className="border-t border-gray-100 hover:bg-emerald-50/40 transition-colors">
+                          <td className="p-3 text-gray-800 font-medium">{c.name}</td>
+                          <td className="p-3 text-right text-gray-600">{c.rooms}</td>
+                          <td className="p-3 text-right font-semibold text-emerald-700">{c.adr}</td>
+                          <td className="p-3 text-gray-500">{c.positioning}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
-              </GlassCard>
+              </SectionCard>
             )}
 
             {content.risks && content.risks.length > 0 && (
-              <GlassCard>
-                <div className="p-6">
-                  <SectionHeader icon={AlertTriangle} title="Risks & Mitigations" />
-                  <div className="space-y-3">
-                    {content.risks.map((r: any, i: number) => (
-                      <div key={i} className="bg-white/5 rounded-lg p-4 border border-white/10">
-                        <p className="text-sm text-white/80 font-medium mb-1">{r.risk}</p>
-                        <p className="text-xs text-white/50">{r.mitigation}</p>
+              <SectionCard icon={AlertTriangle} title="Risks & Mitigations" color={sectionColors.risks}>
+                <div className="space-y-3">
+                  {content.risks.map((r: any, i: number) => (
+                    <div key={i} className="rounded-xl overflow-hidden border border-gray-200">
+                      <div className="bg-red-50 px-4 py-3 border-b border-red-100">
+                        <div className="flex items-center gap-2">
+                          <Shield className="w-4 h-4 text-red-500" />
+                          <p className="text-sm text-gray-800 font-semibold">{r.risk}</p>
+                        </div>
                       </div>
-                    ))}
-                  </div>
+                      <div className="bg-white px-4 py-3">
+                        <p className="text-sm text-gray-600 leading-relaxed">{r.mitigation}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              </GlassCard>
+              </SectionCard>
             )}
 
             {content.sources && content.sources.length > 0 && (
-              <GlassCard>
-                <div className="p-6">
-                  <SectionHeader icon={BookOpen} title="Sources" />
-                  <ul className="space-y-1">
-                    {content.sources.map((s: string, i: number) => (
-                      <li key={i} className="text-xs text-white/50">· {s}</li>
-                    ))}
-                  </ul>
+              <SectionCard icon={BookOpen} title="Sources" color={sectionColors.sources}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  {content.sources.map((s: string, i: number) => (
+                    <div key={i} className="flex items-start gap-2 text-xs text-gray-500 bg-gray-50 rounded-lg p-2.5 border border-gray-100">
+                      <span className="text-gray-400 font-semibold">{i + 1}.</span>
+                      <span>{s}</span>
+                    </div>
+                  ))}
                 </div>
-              </GlassCard>
+              </SectionCard>
             )}
-          </>
+          </div>
         )}
       </div>
     </Layout>

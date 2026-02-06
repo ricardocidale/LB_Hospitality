@@ -4,11 +4,12 @@ import { storage } from "./storage";
 import { insertGlobalAssumptionsSchema, insertPropertySchema, updatePropertySchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
-import { hashPassword, verifyPassword, generateSessionId, setSessionCookie, clearSessionCookie, getSessionExpiryDate, requireAuth, requireAdmin, isRateLimited, recordLoginAttempt, sanitizeEmail, validatePassword } from "./auth";
+import { hashPassword, verifyPassword, generateSessionId, setSessionCookie, clearSessionCookie, getSessionExpiryDate, requireAuth, requireAdmin, requireChecker, isRateLimited, recordLoginAttempt, sanitizeEmail, validatePassword } from "./auth";
 import { z } from "zod";
 import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
 import { GoogleGenAI } from "@google/genai";
+import { runIndependentVerification, type VerificationReport } from "./calculationChecker";
 
 const loginSchema = z.object({
   email: z.string().min(1),
@@ -508,8 +509,8 @@ export async function registerRoutes(
 
   // --- VERIFICATION ROUTES ---
   
-  // Run financial verification (admin only)
-  app.get("/api/admin/run-verification", requireAdmin, async (req, res) => {
+  // Run independent financial verification (admin or checker)
+  app.get("/api/admin/run-verification", requireChecker, async (req, res) => {
     try {
       const globalAssumptions = await storage.getGlobalAssumptions();
       const properties = await storage.getAllProperties();
@@ -517,267 +518,89 @@ export async function registerRoutes(
       if (!globalAssumptions) {
         return res.status(400).json({ error: "No global assumptions found" });
       }
-      
-      // Build comprehensive verification results
-      const results = {
-        timestamp: new Date().toISOString(),
-        propertiesChecked: properties.length,
-        formulaChecks: { passed: 0, failed: 0, details: [] as any[] },
-        complianceChecks: { passed: 0, failed: 0, criticalIssues: 0, details: [] as any[] },
-        managementCompanyChecks: { passed: 0, failed: 0, details: [] as any[] },
-        consolidatedChecks: { passed: 0, failed: 0, details: [] as any[] },
-        overallStatus: "PASS" as "PASS" | "FAIL" | "WARNING"
-      };
-      
-      // ===== PROPERTY-LEVEL CHECKS =====
-      for (const property of properties) {
-        const propertyResult = {
-          name: property.name,
-          type: "Property SPV",
-          checks: [] as { name: string; passed: boolean; description: string }[]
-        };
-        
-        // Revenue Formulas
-        propertyResult.checks.push({
-          name: "Room Revenue Formula",
-          passed: true,
-          description: "Room Revenue = ADR × Sold Rooms"
-        });
-        propertyResult.checks.push({
-          name: "RevPAR Formula",
-          passed: true,
-          description: "RevPAR = Room Revenue ÷ Available Rooms = ADR × Occupancy"
-        });
-        propertyResult.checks.push({
-          name: "ADR Calculation",
-          passed: true,
-          description: "ADR = Room Revenue ÷ Rooms Sold"
-        });
-        propertyResult.checks.push({
-          name: "Occupancy Calculation",
-          passed: true,
-          description: "Occupancy = Rooms Sold ÷ Available Room Nights"
-        });
-        
-        // P&L Formulas
-        propertyResult.checks.push({
-          name: "GOP Calculation",
-          passed: true,
-          description: "GOP = Total Revenue - Operating Expenses"
-        });
-        propertyResult.checks.push({
-          name: "NOI Calculation",
-          passed: true,
-          description: "NOI = GOP - Management Fees - FF&E Reserve"
-        });
-        propertyResult.checks.push({
-          name: "Net Income (GAAP)",
-          passed: true,
-          description: "Net Income = NOI - Interest Expense (excludes principal)"
-        });
-        
-        // Cash Flow Formulas
-        propertyResult.checks.push({
-          name: "Cash Flow to Equity",
-          passed: true,
-          description: "Cash Flow = NOI - Total Debt Service (interest + principal)"
-        });
-        propertyResult.checks.push({
-          name: "Debt Service Calculation",
-          passed: true,
-          description: "Debt Service = Interest Payment + Principal Payment"
-        });
-        
-        // GAAP Compliance
-        propertyResult.checks.push({
-          name: "GAAP Interest Treatment",
-          passed: true,
-          description: "Only interest expense hits Income Statement"
-        });
-        propertyResult.checks.push({
-          name: "GAAP Principal Treatment",
-          passed: true,
-          description: "Principal repayment hits Cash Flow Statement only"
-        });
-        propertyResult.checks.push({
-          name: "Depreciation Period",
-          passed: true,
-          description: "27.5-year straight-line on building value per IRS"
-        });
-        
-        results.formulaChecks.details.push(propertyResult);
-        results.formulaChecks.passed += propertyResult.checks.filter(c => c.passed).length;
-        results.formulaChecks.failed += propertyResult.checks.filter(c => !c.passed).length;
-      }
-      
-      // ===== MANAGEMENT COMPANY CHECKS =====
-      const mgmtCoResult = {
-        name: globalAssumptions.companyName || "Management Company",
-        type: "Management Company",
-        checks: [] as { name: string; passed: boolean; description: string }[]
-      };
-      
-      // Revenue Formulas
-      mgmtCoResult.checks.push({
-        name: "Base Fee Revenue",
-        passed: true,
-        description: "Base Fee = Sum of Base Management Fees from all properties"
-      });
-      mgmtCoResult.checks.push({
-        name: "Incentive Fee Revenue",
-        passed: true,
-        description: "Incentive Fee = Sum of Incentive Fees from all properties"
-      });
-      mgmtCoResult.checks.push({
-        name: "Total Revenue",
-        passed: true,
-        description: "Total Revenue = Base Fees + Incentive Fees"
-      });
-      
-      // Expense Formulas
-      mgmtCoResult.checks.push({
-        name: "Partner Compensation",
-        passed: true,
-        description: "Partner Comp = Monthly rate × Partner count (with annual escalation)"
-      });
-      mgmtCoResult.checks.push({
-        name: "Staff Compensation",
-        passed: true,
-        description: "Staff Comp calculated per staffing model with inflation"
-      });
-      mgmtCoResult.checks.push({
-        name: "Operating Expenses",
-        passed: true,
-        description: "Total OpEx = Sum of all expense categories"
-      });
-      
-      // Cash Flow
-      mgmtCoResult.checks.push({
-        name: "Net Income",
-        passed: true,
-        description: "Net Income = Total Revenue - Total Expenses"
-      });
-      mgmtCoResult.checks.push({
-        name: "SAFE Funding",
-        passed: true,
-        description: "SAFE tranches recognized as cash inflows on funding dates"
-      });
-      mgmtCoResult.checks.push({
-        name: "Cash Flow",
-        passed: true,
-        description: "Cash Flow = Net Income + SAFE Funding"
-      });
-      
-      results.managementCompanyChecks.details.push(mgmtCoResult);
-      results.managementCompanyChecks.passed = mgmtCoResult.checks.filter(c => c.passed).length;
-      results.managementCompanyChecks.failed = mgmtCoResult.checks.filter(c => !c.passed).length;
-      
-      // ===== CONSOLIDATED PORTFOLIO CHECKS =====
-      const consolidatedResult = {
-        name: "Consolidated Portfolio",
-        type: "Consolidated",
-        checks: [] as { name: string; passed: boolean; description: string }[]
-      };
-      
-      // Weighted Metrics
-      consolidatedResult.checks.push({
-        name: "Weighted ADR",
-        passed: true,
-        description: "Weighted ADR = Total Room Revenue ÷ Total Rooms Sold (all properties)"
-      });
-      consolidatedResult.checks.push({
-        name: "Weighted Occupancy",
-        passed: true,
-        description: "Weighted Occupancy = Total Rooms Sold ÷ Total Available Room Nights"
-      });
-      consolidatedResult.checks.push({
-        name: "Weighted RevPAR",
-        passed: true,
-        description: "Weighted RevPAR = Total Room Revenue ÷ Total Available Room Nights"
-      });
-      
-      // Consolidated Revenue
-      consolidatedResult.checks.push({
-        name: "Consolidated Room Revenue",
-        passed: true,
-        description: "Consolidated Room Revenue = Sum of all property room revenues"
-      });
-      consolidatedResult.checks.push({
-        name: "Consolidated Total Revenue",
-        passed: true,
-        description: "Consolidated Revenue = Sum of all property total revenues"
-      });
-      
-      // Consolidated P&L
-      consolidatedResult.checks.push({
-        name: "Consolidated GOP",
-        passed: true,
-        description: "Consolidated GOP = Sum of all property GOPs"
-      });
-      consolidatedResult.checks.push({
-        name: "Consolidated NOI",
-        passed: true,
-        description: "Consolidated NOI = Sum of all property NOIs"
-      });
-      consolidatedResult.checks.push({
-        name: "Consolidated Net Income",
-        passed: true,
-        description: "Consolidated Net Income = Sum of all property Net Incomes"
-      });
-      
-      // Consolidated Cash Flow
-      consolidatedResult.checks.push({
-        name: "Consolidated Cash Flow",
-        passed: true,
-        description: "Consolidated Cash Flow = Sum of all property Cash Flows"
-      });
-      consolidatedResult.checks.push({
-        name: "Consolidated Debt Service",
-        passed: true,
-        description: "Consolidated Debt Service = Sum of all property Debt Services"
-      });
-      
-      // Intercompany Elimination
-      consolidatedResult.checks.push({
-        name: "Intercompany Elimination",
-        passed: true,
-        description: "Management fees eliminated in consolidated view (revenue = expense)"
-      });
-      
-      results.consolidatedChecks.details.push(consolidatedResult);
-      results.consolidatedChecks.passed = consolidatedResult.checks.filter(c => c.passed).length;
-      results.consolidatedChecks.failed = consolidatedResult.checks.filter(c => !c.passed).length;
-      
-      // ===== GAAP COMPLIANCE CHECKS =====
-      results.complianceChecks.details = [
-        { category: "ASC 470 - Debt", rule: "Interest/Principal Separation", passed: true, scope: "All Entities" },
-        { category: "ASC 230 - Cash Flows", rule: "Operating vs Financing Classification", passed: true, scope: "All Entities" },
-        { category: "ASC 606 - Revenue", rule: "Point-in-Time Recognition", passed: true, scope: "Properties" },
-        { category: "ASC 606 - Revenue", rule: "Management Fee Recognition", passed: true, scope: "Management Co" },
-        { category: "ASC 360 - Property", rule: "Depreciation Treatment", passed: true, scope: "Properties" },
-        { category: "ASC 810 - Consolidation", rule: "Intercompany Elimination", passed: true, scope: "Consolidated" },
-        { category: "USALI Standard", rule: "NOI Definition", passed: true, scope: "Properties" },
-        { category: "USALI Standard", rule: "GOP Definition", passed: true, scope: "Properties" },
-        { category: "Industry Practice", rule: "FF&E Reserve Treatment", passed: true, scope: "Properties" },
-        { category: "Industry Practice", rule: "RevPAR/ADR/Occupancy Formulas", passed: true, scope: "All Properties" }
-      ];
-      results.complianceChecks.passed = results.complianceChecks.details.filter((c: any) => c.passed).length;
-      results.complianceChecks.failed = results.complianceChecks.details.filter((c: any) => !c.passed).length;
-      
-      // Calculate overall status
-      const totalFailed = results.formulaChecks.failed + results.complianceChecks.failed + 
-                          results.managementCompanyChecks.failed + results.consolidatedChecks.failed;
-      
-      if (totalFailed > 0 || results.complianceChecks.criticalIssues > 0) {
-        results.overallStatus = "FAIL";
-      } else if (results.complianceChecks.failed > 0) {
-        results.overallStatus = "WARNING";
-      }
-      
-      res.json(results);
+
+      const report = runIndependentVerification(properties, globalAssumptions);
+      res.json(report);
     } catch (error) {
       console.error("Error running verification:", error);
       res.status(500).json({ error: "Failed to run verification" });
+    }
+  });
+
+  // AI-powered methodology review (admin or checker)
+  app.post("/api/admin/ai-verification", requireChecker, async (req, res) => {
+    try {
+      const globalAssumptions = await storage.getGlobalAssumptions();
+      const properties = await storage.getAllProperties();
+
+      if (!globalAssumptions) {
+        return res.status(400).json({ error: "No global assumptions found" });
+      }
+
+      const report = runIndependentVerification(properties, globalAssumptions);
+
+      const systemPrompt = `You are a PwC-level financial auditor specializing in hospitality real estate.
+Review the following independent verification report and provide:
+1. Overall assessment of financial model integrity
+2. Any methodology concerns (GAAP compliance, industry standards)
+3. Recommendations for improvement
+4. Specific areas needing attention
+
+Use GAAP references (ASC 230, ASC 360, ASC 470, ASC 606, USALI) where applicable.
+Be concise but thorough. Format as JSON with keys: overallAssessment, methodologyConcerns (array), recommendations (array), areasOfAttention (array), auditOpinionRationale (string).`;
+
+      const userPrompt = `Verification Report:
+${JSON.stringify(report, null, 2)}
+
+Properties analyzed: ${properties.map((p: any) => `${p.name} (${p.roomCount} rooms, ${p.type})`).join(', ')}
+Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(1)}%, Base fee ${(globalAssumptions.baseManagementFee * 100).toFixed(1)}%, Incentive fee ${(globalAssumptions.incentiveManagementFee * 100).toFixed(1)}%`;
+
+      res.setHeader("Content-Type", "text/event-stream");
+      res.setHeader("Cache-Control", "no-cache");
+      res.setHeader("Connection", "keep-alive");
+      res.flushHeaders();
+
+      let fullResponse = "";
+
+      const anthropic = new Anthropic({
+        apiKey: process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY,
+        baseURL: process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL,
+      });
+
+      const stream = anthropic.messages.stream({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 4096,
+        system: systemPrompt,
+        messages: [{ role: "user", content: userPrompt }],
+      });
+
+      for await (const event of stream) {
+        if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
+          const content = event.delta.text;
+          if (content) {
+            fullResponse += content;
+            res.write(`data: ${JSON.stringify({ content })}\n\n`);
+          }
+        }
+      }
+
+      let parsedReview: Record<string, any> = {};
+      try {
+        parsedReview = JSON.parse(fullResponse);
+      } catch {
+        parsedReview = { rawResponse: fullResponse };
+      }
+
+      res.write(`data: ${JSON.stringify({ done: true, review: parsedReview })}\n\n`);
+      res.end();
+    } catch (error) {
+      console.error("Error running AI verification:", error);
+      if (res.headersSent) {
+        res.write(`data: ${JSON.stringify({ error: "AI verification failed" })}\n\n`);
+        res.end();
+      } else {
+        res.status(500).json({ error: "Failed to run AI verification" });
+      }
     }
   });
 

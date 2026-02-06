@@ -27,8 +27,9 @@ export function checkGAAPCompliance(monthlyData: MonthlyFinancials[]): Complianc
   for (let i = 0; i < Math.min(12, monthlyData.length); i++) {
     const m = monthlyData[i];
     
-    // Check: Net Income should be NOI - Interest (not NOI - Total Debt Service)
-    const correctNetIncome = m.noi - m.interestExpense;
+    const depExp = m.depreciationExpense || 0;
+    const incomeTax = m.incomeTax || 0;
+    const correctNetIncome = m.noi - m.interestExpense - depExp - incomeTax;
     const incorrectNetIncome = m.noi - m.debtPayment;
     
     const isCorrect = Math.abs(m.netIncome - correctNetIncome) < 0.01;
@@ -38,21 +39,20 @@ export function checkGAAPCompliance(monthlyData: MonthlyFinancials[]): Complianc
       passed: isCorrect && !wouldBeIncorrect,
       category: "ASC 470 - Debt",
       rule: "Interest/Principal Separation",
-      description: `Month ${i + 1}: Only interest expense (${m.interestExpense.toFixed(0)}) should reduce Net Income, not principal (${m.principalPayment.toFixed(0)})`,
-      details: isCorrect ? "Net Income correctly excludes principal repayment" : "Principal may be incorrectly reducing Net Income",
+      description: `Month ${i + 1}: Net Income = NOI - Interest (${m.interestExpense.toFixed(0)}) - Depreciation (${depExp.toFixed(0)}) - Tax (${incomeTax.toFixed(0)})`,
+      details: isCorrect ? "Net Income correctly computed per GAAP (includes depreciation and tax)" : "Net Income calculation may be incorrect",
       severity: "critical"
     });
     
-    // Check: Cash Flow should include full debt service (interest + principal)
-    const expectedCashFlow = m.noi - m.debtPayment;
+    const expectedCashFlow = m.noi - m.debtPayment - incomeTax;
     const cashFlowCorrect = Math.abs(m.cashFlow - expectedCashFlow) < 0.01;
     
     results.push({
       passed: cashFlowCorrect,
       category: "ASC 230 - Cash Flows",
-      rule: "Debt Service in Cash Flow",
-      description: `Month ${i + 1}: Cash Flow should include full debt service (${m.debtPayment.toFixed(0)})`,
-      details: cashFlowCorrect ? "Cash flow correctly includes principal repayment" : "Principal may be missing from cash flow calculation",
+      rule: "Debt Service & Tax in Cash Flow",
+      description: `Month ${i + 1}: Cash Flow = NOI - Debt Service (${m.debtPayment.toFixed(0)}) - Tax (${incomeTax.toFixed(0)})`,
+      details: cashFlowCorrect ? "Cash flow correctly includes debt service and income tax" : "Cash flow calculation may be incorrect",
       severity: "critical"
     });
   }

@@ -48,8 +48,8 @@ export function ConsolidatedBalanceSheet({ properties, global, allProFormas, yea
     const loanParams: LoanParams = {
       purchasePrice: prop.purchasePrice,
       buildingImprovements: prop.buildingImprovements,
-      preOpeningCosts: prop.preOpeningCosts || 0,
-      operatingReserve: prop.operatingReserve || 0,
+      preOpeningCosts: prop.preOpeningCosts ?? 0,
+      operatingReserve: prop.operatingReserve ?? 0,
       type: prop.type,
       acquisitionDate: prop.acquisitionDate,
       taxRate: prop.taxRate,
@@ -84,14 +84,16 @@ export function ConsolidatedBalanceSheet({ properties, global, allProFormas, yea
     const acqYear = Math.floor(loan.acqMonthsFromModelStart / 12);
     
     // Property not yet acquired - skip all balance sheet entries
-    if (year <= acqYear) {
+    if (year < acqYear) {
       return; // No assets, liabilities, or equity before acquisition
     }
     
-    // Fixed Assets: Depreciable basis (land doesn't depreciate per IRS / ASC 360)
+    // Fixed Assets: Full property value (land + building + improvements)
+    const totalPropValue = prop.purchasePrice + prop.buildingImprovements;
+    totalPropertyValue += totalPropValue;
+    
+    // Depreciable basis excludes land (land doesn't depreciate per IRS / ASC 360)
     const landPct = prop.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT;
-    const propertyBasis = prop.purchasePrice * (1 - landPct) + prop.buildingImprovements;
-    totalPropertyValue += propertyBasis;
     
     // Get yearly NOI data for refinance calculations
     const yearlyNOIData: number[] = [];
@@ -114,7 +116,7 @@ export function ConsolidatedBalanceSheet({ properties, global, allProFormas, yea
     totalAccumulatedDepreciation += annualDepreciation * yearsDepreciated;
     
     // Initial operating reserve (only after acquisition)
-    const operatingReserve = prop.operatingReserve || 0;
+    const operatingReserve = prop.operatingReserve ?? 0;
     totalCashReserves += operatingReserve;
     
     // Initial equity investment (what investors put in - only after acquisition)
@@ -141,7 +143,7 @@ export function ConsolidatedBalanceSheet({ properties, global, allProFormas, yea
     // Net Income = NOI - Interest Expense - Depreciation - Income Taxes
     const cumulativeNOI = relevantMonths.reduce((sum, m) => sum + m.noi, 0);
     const cumulativeDepreciation = annualDepreciation * yearsDepreciated;
-    const taxRate = prop.taxRate || DEFAULT_TAX_RATE;
+    const taxRate = prop.taxRate ?? DEFAULT_TAX_RATE;
     
     // Taxable Income = NOI - Interest - Depreciation
     const taxableIncome = cumulativeNOI - cumulativeInterest - cumulativeDepreciation;

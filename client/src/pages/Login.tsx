@@ -77,21 +77,21 @@ export default function Login() {
       
       {/* Ambient Glow Effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 -left-20 w-96 h-96 rounded-full bg-[#D4AF37]/8 blur-[120px]" />
-        <div className="absolute bottom-1/4 -right-20 w-80 h-80 rounded-full bg-[#C5A55A]/6 blur-[100px]" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-[#1a1408]/50 blur-[80px]" />
+        <div className="absolute top-1/4 -left-20 w-96 h-96 rounded-full bg-[#A855F7]/10 blur-[120px]" />
+        <div className="absolute bottom-1/4 -right-20 w-80 h-80 rounded-full bg-[#C084FC]/8 blur-[100px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-[#1a0a2e]/50 blur-[80px]" />
       </div>
 
       <div className="relative z-10 w-full max-w-md mx-4">
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#FDF8E8]/20 via-[#F5EDCF]/15 to-[#E8DDB8]/18 backdrop-blur-2xl border border-[#D4AF37]/20 shadow-[0_0_40px_rgba(197,165,90,0.3),0_0_80px_rgba(197,165,90,0.15),0_8px_32px_rgba(0,0,0,0.3)]">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#F3E8FF]/22 via-[#E9D5FF]/18 to-[#D8B4FE]/15 backdrop-blur-2xl border border-[#C084FC]/25 shadow-[0_0_40px_rgba(168,85,247,0.35),0_0_80px_rgba(168,85,247,0.18),0_8px_32px_rgba(0,0,0,0.3)]">
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute -top-20 -right-20 w-48 h-48 rounded-full bg-[#D4AF37]/18 blur-3xl" />
-            <div className="absolute -bottom-10 -left-10 w-40 h-40 rounded-full bg-[#C5A55A]/14 blur-2xl" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full bg-[#D4AF37]/10 blur-3xl" />
+            <div className="absolute -top-20 -right-20 w-48 h-48 rounded-full bg-[#A855F7]/22 blur-3xl" />
+            <div className="absolute -bottom-10 -left-10 w-40 h-40 rounded-full bg-[#C084FC]/16 blur-2xl" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full bg-[#A855F7]/12 blur-3xl" />
           </div>
-          <div className="absolute inset-0 shadow-[inset_0_1px_1px_rgba(212,175,55,0.15)] rounded-2xl" />
+          <div className="absolute inset-0 shadow-[inset_0_1px_1px_rgba(168,85,247,0.18)] rounded-2xl" />
           
-          <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent" />
+          <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#C084FC]/40 to-transparent" />
           
           <div className="relative p-8 sm:p-10">
             <div className="flex flex-col items-center mb-8">
@@ -122,7 +122,7 @@ export default function Login() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
                   required
-                  className="h-12 bg-white/5 border-white/10 text-[#FFF9F5] placeholder:text-white/30 focus:border-[#D4AF37]/50 focus:ring-[#D4AF37]/20 transition-colors"
+                  className="h-12 bg-white/5 border-white/10 text-[#FFF9F5] placeholder:text-white/30 focus:border-[#A855F7]/50 focus:ring-[#A855F7]/20 transition-colors"
                   data-testid="input-email"
                 />
               </div>
@@ -137,7 +137,7 @@ export default function Login() {
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password"
                     required
-                    className="h-12 bg-white/5 border-white/10 text-[#FFF9F5] placeholder:text-white/30 focus:border-[#D4AF37]/50 focus:ring-[#D4AF37]/20 pr-12 transition-colors"
+                    className="h-12 bg-white/5 border-white/10 text-[#FFF9F5] placeholder:text-white/30 focus:border-[#A855F7]/50 focus:ring-[#A855F7]/20 pr-12 transition-colors"
                     data-testid="input-password"
                   />
                   <button

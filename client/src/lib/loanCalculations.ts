@@ -107,8 +107,9 @@ export function calculateLoanParams(
 ): LoanCalculation {
   const totalInvestment = property.purchasePrice + property.buildingImprovements + 
                           property.preOpeningCosts + property.operatingReserve;
+  const totalPropertyValue = property.purchasePrice + property.buildingImprovements;
   const ltv = property.acquisitionLTV ?? global?.debtAssumptions?.acqLTV ?? DEFAULT_LTV;
-  const loanAmount = property.type === "Financed" ? totalInvestment * ltv : 0;
+  const loanAmount = property.type === "Financed" ? totalPropertyValue * ltv : 0;
   const equityInvested = totalInvestment - loanAmount;
   
   const interestRate = property.acquisitionInterestRate ?? global?.debtAssumptions?.interestRate ?? DEFAULT_INTEREST_RATE;

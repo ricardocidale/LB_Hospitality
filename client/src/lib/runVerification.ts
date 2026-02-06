@@ -277,7 +277,7 @@ export const KNOWN_VALUE_TEST_CASES: TestCase[] = [
     },
     expectedMonthlyRoomRevenue: 21350, // 10 rooms × $100 ADR × 70% occ × 30.5 days (365/12)
     expectedAnnualDepreciation: 34545.45, // ($1,000,000 × 75% + $200,000) / 27.5 years — land excluded per ASC 360
-    expectedMonthlyPayment: 7549.94, // $900,000 @ 9% for 25 years using PMT formula
+    expectedMonthlyPayment: 7552.77, // $900,000 @ 9% for 25 years using PMT formula
   },
   {
     name: "All-Cash Acquisition Test",

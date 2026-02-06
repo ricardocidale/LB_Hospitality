@@ -29,6 +29,7 @@ interface YearlyData {
   expenseIT: number;
   expenseInsurance: number;
   expenseTaxes: number;
+  expenseOtherCosts: number;
   expenseFFE: number;
   feeBase: number;
   feeIncentive: number;
@@ -63,6 +64,7 @@ function aggregateByYear(data: MonthlyFinancials[], years: number): YearlyData[]
       expenseIT: yearData.reduce((a, m) => a + m.expenseIT, 0),
       expenseInsurance: yearData.reduce((a, m) => a + m.expenseInsurance, 0),
       expenseTaxes: yearData.reduce((a, m) => a + m.expenseTaxes, 0),
+      expenseOtherCosts: yearData.reduce((a, m) => a + m.expenseOtherCosts, 0),
       expenseFFE: yearData.reduce((a, m) => a + m.expenseFFE, 0),
       feeBase: yearData.reduce((a, m) => a + m.feeBase, 0),
       feeIncentive: yearData.reduce((a, m) => a + m.feeIncentive, 0),
@@ -219,6 +221,12 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026 }: Pro
               <TableCell className="pl-6 text-gray-700">Property Taxes</TableCell>
               {yearlyData.map((y) => (
                 <TableCell key={y.year} className="text-right text-gray-700"><Money amount={y.expenseTaxes} /></TableCell>
+              ))}
+            </TableRow>
+            <TableRow className="bg-white">
+              <TableCell className="pl-6 text-gray-700">Other Costs</TableCell>
+              {yearlyData.map((y) => (
+                <TableCell key={y.year} className="text-right text-gray-700"><Money amount={y.expenseOtherCosts} /></TableCell>
               ))}
             </TableRow>
 

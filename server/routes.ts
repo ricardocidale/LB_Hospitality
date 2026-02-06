@@ -1053,16 +1053,9 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
         return res.status(400).json({ error: "Prompt is required" });
       }
 
-      const MAX_IMAGE_BYTES = 1 * 1024 * 1024; // 1 MB
-
       // Dynamic import to avoid loading OpenAI client when not needed
       const { generateImageBuffer } = await import("./replit_integrations/image/client");
       const buffer = await generateImageBuffer(prompt, "1024x1024");
-
-      if (buffer.length > MAX_IMAGE_BYTES) {
-        console.log(`Generated image was ${(buffer.length / 1024).toFixed(0)} KB, exceeds 1 MB limit`);
-        return res.status(413).json({ error: `Generated image is ${(buffer.length / 1024 / 1024).toFixed(1)} MB, exceeds 1 MB limit` });
-      }
 
       // Upload generated image to object storage
       const objectStorageService = new ObjectStorageService();

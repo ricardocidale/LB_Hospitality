@@ -365,21 +365,31 @@ export default function Dashboard() {
     
     const noi = yearlyNOI[yearIndex];
     const debt = calculateYearlyDebtService(loan, refi, yearIndex);
-    
+
+    // Prorate depreciation in acquisition year (F-2 fix)
+    const acquisitionYear = getAcquisitionYear(loan);
+    let depreciation = 0;
+    if (yearIndex > acquisitionYear) {
+      depreciation = loan.annualDepreciation;
+    } else if (yearIndex === acquisitionYear) {
+      const monthsOwnedInYear = 12 - (loan.acqMonthsFromModelStart % 12);
+      depreciation = loan.annualDepreciation * (monthsOwnedInYear / 12);
+    }
+
     const btcf = noi - debt.debtService;
-    const taxableIncome = noi - debt.interestExpense - loan.annualDepreciation;
+    const taxableIncome = noi - debt.interestExpense - depreciation;
     const taxLiability = taxableIncome > 0 ? taxableIncome * loan.taxRate : 0;
     const atcf = btcf - taxLiability;
-    
-    return { 
-      noi, 
-      debtService: debt.debtService, 
-      interestPortion: debt.interestExpense, 
-      depreciation: loan.annualDepreciation, 
-      btcf, 
-      taxableIncome, 
-      taxLiability, 
-      atcf 
+
+    return {
+      noi,
+      debtService: debt.debtService,
+      interestPortion: debt.interestExpense,
+      depreciation,
+      btcf,
+      taxableIncome,
+      taxLiability,
+      atcf
     };
   };
 
@@ -951,15 +961,21 @@ export default function Dashboard() {
         const cumulativeNOI = relevantMonths.reduce((sum, m) => sum + m.noi, 0);
         const acqDate = new Date(prop.acquisitionDate || prop.operationsStartDate);
         const modelStartDate = new Date(global.modelStartDate);
-        const acqYearIndex = Math.floor(differenceInMonths(acqDate, modelStartDate) / 12);
-        const yearsDepreciated = Math.max(0, yearIndex + 1 - acqYearIndex);
-        const cumulativeDepreciation = annualDepreciation * Math.min(yearsDepreciated, DEPRECIATION_YEARS);
-        const taxRate = prop.taxRate ?? DEFAULT_TAX_RATE;
-        const taxableIncome = cumulativeNOI - cumulativeInterest - cumulativeDepreciation;
-        const incomeTax = Math.max(0, taxableIncome) * taxRate;
-        const netIncome = cumulativeNOI - cumulativeInterest - cumulativeDepreciation - incomeTax;
+        const acqMonthOffset = differenceInMonths(acqDate, modelStartDate);
+        const acqYearIndex = Math.floor(acqMonthOffset / 12);
+        // Prorate depreciation: partial first year, full subsequent years (F-2 fix)
+        const monthsOwnedInAcqYear = 12 - (acqMonthOffset % 12);
+        const firstYearDepreciation = annualDepreciation * (monthsOwnedInAcqYear / 12);
+        const fullYearsAfterAcq = Math.max(0, yearIndex - acqYearIndex);
+        const cumulativeDepreciation = yearIndex >= acqYearIndex
+          ? Math.min(firstYearDepreciation + annualDepreciation * fullYearsAfterAcq,
+                     annualDepreciation * DEPRECIATION_YEARS)
+          : 0;
+        // Use monthly engine values for tax and net income (F-1 fix: consistent with monthly engine)
+        const incomeTax = relevantMonths.reduce((sum: number, m: any) => sum + m.incomeTax, 0);
+        const netIncome = relevantMonths.reduce((sum: number, m: any) => sum + m.netIncome, 0);
         totalRetainedEarnings += netIncome;
-        
+
         const cumulativeDebtService = cumulativeInterest + cumulativePrincipal;
         const cashFromOperations = cumulativeNOI - cumulativeDebtService - incomeTax;
         totalCumulativeCashFlow += cashFromOperations;
@@ -3391,8 +3407,23 @@ function InvestmentAnalysis({
     const yearlyData = getPropertyYearly(propIndex, yearIndex);
     const noi = yearlyData.noi ?? 0;
     const { debtService, interestPortion, principalPortion } = getDebtServiceDetails(prop, propIndex, yearIndex);
-    const depreciation = getAnnualDepreciation(prop);
+    const fullAnnualDep = getAnnualDepreciation(prop);
     const taxRate = prop.taxRate ?? DEFAULT_TAX_RATE;
+
+    // Prorate depreciation in acquisition year (F-2 fix)
+    const acquisitionYear = getPropertyAcquisitionYear(prop);
+    const acqDate = new Date(prop.acquisitionDate);
+    const modelStart = new Date(global.modelStartDate);
+    const acqMonthsFromModelStart = Math.max(0,
+      (acqDate.getFullYear() - modelStart.getFullYear()) * 12 +
+      (acqDate.getMonth() - modelStart.getMonth()));
+    let depreciation = 0;
+    if (yearIndex > acquisitionYear) {
+      depreciation = fullAnnualDep;
+    } else if (yearIndex === acquisitionYear) {
+      const monthsOwnedInYear = 12 - (acqMonthsFromModelStart % 12);
+      depreciation = fullAnnualDep * (monthsOwnedInYear / 12);
+    }
 
     const btcf = noi - debtService;
     const taxableIncome = noi - interestPortion - depreciation;

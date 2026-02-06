@@ -419,8 +419,18 @@ export function calculatePropertyYearlyCashFlows(
   for (let y = 0; y < years; y++) {
     const noi = yearlyNOIData[y] || 0;
     const debt = calculateYearlyDebtService(loan, refi, y);
-    const depreciation = loan.annualDepreciation;
-    
+
+    // Prorate depreciation in the acquisition year for mid-year deals.
+    // Pre-acquisition: 0. Acquisition year: (monthsOwned / 12) × annual.
+    // Subsequent years: full annual amount.
+    let depreciation = 0;
+    if (y > acquisitionYear) {
+      depreciation = loan.annualDepreciation;
+    } else if (y === acquisitionYear) {
+      const monthsOwnedInYear = 12 - (loan.acqMonthsFromModelStart % 12);
+      depreciation = loan.annualDepreciation * (monthsOwnedInYear / 12);
+    }
+
     // Legacy real estate investment analysis calculations
     const btcf = noi - debt.debtService;
     const taxableIncome = noi - debt.interestExpense - depreciation;

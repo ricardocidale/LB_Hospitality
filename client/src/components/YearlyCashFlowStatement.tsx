@@ -11,7 +11,9 @@ import {
   GlobalLoanParams,
   calculateLoanParams,
   calculatePropertyYearlyCashFlows,
-  YearlyCashFlowResult
+  YearlyCashFlowResult,
+  DEFAULT_TAX_RATE,
+  DEFAULT_COMMISSION_RATE
 } from "@/lib/loanCalculations";
 
 interface YearlyDetails {
@@ -455,7 +457,7 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
             </TableRow>
             <TableRow>
               <TableCell className="pl-6 sticky left-0 bg-white flex items-center gap-1">
-                Less: Income Tax ({((property.taxRate ?? 0.25) * 100).toFixed(0)}%)
+                Less: Income Tax ({((property.taxRate ?? DEFAULT_TAX_RATE) * 100).toFixed(0)}%)
                 <HelpTooltip text="Income tax on taxable income (NOI - Interest - Depreciation). Only applies when taxable income is positive." />
               </TableCell>
               {yearlyData.map((y) => (
@@ -615,7 +617,7 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
             <TableRow>
               <TableCell className="pl-6 sticky left-0 bg-white flex items-center gap-1">
                 Sale Proceeds (Net Exit Value)
-                <HelpTooltip text={`Property sale price minus ${((global?.commissionRate ?? 0.05) * 100).toFixed(0)}% commission and outstanding loan payoff. Calculated using Year 10 NOI and exit cap rate.`} />
+                <HelpTooltip text={`Property sale price minus ${((global?.commissionRate ?? DEFAULT_COMMISSION_RATE) * 100).toFixed(0)}% commission and outstanding loan payoff. Calculated using Year 10 NOI and exit cap rate.`} />
               </TableCell>
               {yearlyData.map((y) => (
                 <TableCell key={y.year} className={cn("text-right", y.exitValue > 0 ? "text-accent font-bold" : "")}>

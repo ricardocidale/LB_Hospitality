@@ -10,7 +10,8 @@ import {
   getOutstandingDebtAtYear,
   calculateYearlyDebtService,
   LoanParams,
-  GlobalLoanParams
+  GlobalLoanParams,
+  DEFAULT_TAX_RATE
 } from "@/lib/loanCalculations";
 
 interface Props {
@@ -136,7 +137,7 @@ export function ConsolidatedBalanceSheet({ properties, global, allProFormas, yea
     // Net Income = NOI - Interest Expense - Depreciation - Income Taxes
     const cumulativeNOI = relevantMonths.reduce((sum, m) => sum + m.noi, 0);
     const cumulativeDepreciation = annualDepreciation * yearsDepreciated;
-    const taxRate = prop.taxRate || 0.25;
+    const taxRate = prop.taxRate || DEFAULT_TAX_RATE;
     
     // Taxable Income = NOI - Interest - Depreciation
     const taxableIncome = cumulativeNOI - cumulativeInterest - cumulativeDepreciation;

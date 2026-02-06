@@ -23,6 +23,19 @@ export const DEFAULT_REV_SHARE_EVENTS = 0.43;
 export const DEFAULT_REV_SHARE_FB = 0.22;
 export const DEFAULT_REV_SHARE_OTHER = 0.07;
 
+// Expense rate defaults (global-configurable)
+export const DEFAULT_EVENT_EXPENSE_RATE = 0.65;
+export const DEFAULT_OTHER_EXPENSE_RATE = 0.60;
+export const DEFAULT_UTILITIES_VARIABLE_SPLIT = 0.60;
+export const DEFAULT_COMPANY_TAX_RATE = 0.30;
+
+// Property defaults
+export const DEFAULT_ADR_GROWTH_RATE = 0.03;
+export const DEFAULT_START_OCCUPANCY = 0.55;
+export const DEFAULT_MAX_OCCUPANCY = 0.85;
+export const DEFAULT_OCCUPANCY_GROWTH_STEP = 0.05;
+export const DEFAULT_OCCUPANCY_RAMP_MONTHS = 6;
+
 // Catering defaults
 export const DEFAULT_FULL_CATERING_PCT = 0.40;
 export const DEFAULT_PARTIAL_CATERING_PCT = 0.30;

@@ -42,7 +42,9 @@ import {
   DEFAULT_COST_RATE_FFE,
   DEFAULT_COST_RATE_OTHER,
   DEFAULT_EXIT_CAP_RATE,
-  DEFAULT_TAX_RATE
+  DEFAULT_TAX_RATE,
+  DEFAULT_FULL_CATERING_BOOST,
+  DEFAULT_PARTIAL_CATERING_BOOST,
 } from "@/lib/constants";
 
 function EditableValue({ 
@@ -944,11 +946,11 @@ export default function PropertyEdit() {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="flex justify-between">
                       <span className="text-gray-600">Full Catering Boost:</span>
-                      <span className="font-medium text-gray-900">+{((globalAssumptions.fullCateringFBBoost ?? 0.50) * 100).toFixed(0)}% to F&B</span>
+                      <span className="font-medium text-gray-900">+{((globalAssumptions.fullCateringFBBoost ?? DEFAULT_FULL_CATERING_BOOST) * 100).toFixed(0)}% to F&B</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Partial Catering Boost:</span>
-                      <span className="font-medium text-gray-900">+{((globalAssumptions.partialCateringFBBoost ?? 0.25) * 100).toFixed(0)}% to F&B</span>
+                      <span className="font-medium text-gray-900">+{((globalAssumptions.partialCateringFBBoost ?? DEFAULT_PARTIAL_CATERING_BOOST) * 100).toFixed(0)}% to F&B</span>
                     </div>
                   </div>
                 </div>

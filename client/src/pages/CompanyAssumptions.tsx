@@ -16,6 +16,16 @@ import { GlassButton } from "@/components/ui/glass-button";
 import { PageHeader } from "@/components/ui/page-header";
 import { GlassCard } from "@/components/ui/glass-card";
 import defaultLogo from "@/assets/logo.png";
+import {
+  DEFAULT_COMPANY_TAX_RATE,
+  DEFAULT_EXIT_CAP_RATE,
+  DEFAULT_COMMISSION_RATE,
+  DEFAULT_EVENT_EXPENSE_RATE,
+  DEFAULT_OTHER_EXPENSE_RATE,
+  DEFAULT_UTILITIES_VARIABLE_SPLIT,
+  DEFAULT_FULL_CATERING_BOOST,
+  DEFAULT_PARTIAL_CATERING_BOOST,
+} from "@/lib/constants";
 
 function EditableValue({
   value,
@@ -859,7 +869,7 @@ export default function CompanyAssumptions() {
               <div className="flex justify-between items-center">
                 <Label className="text-gray-700 label-text">Company Tax Rate</Label>
                 <EditableValue
-                  value={formData.companyTaxRate ?? global.companyTaxRate ?? 0.30}
+                  value={formData.companyTaxRate ?? global.companyTaxRate ?? DEFAULT_COMPANY_TAX_RATE}
                   onChange={(v) => handleUpdate("companyTaxRate", v)}
                   format="percent"
                   min={0}
@@ -868,7 +878,7 @@ export default function CompanyAssumptions() {
                 />
               </div>
               <Slider
-                value={[(formData.companyTaxRate ?? global.companyTaxRate ?? 0.30) * 100]}
+                value={[(formData.companyTaxRate ?? global.companyTaxRate ?? DEFAULT_COMPANY_TAX_RATE) * 100]}
                 onValueChange={([v]) => handleUpdate("companyTaxRate", v / 100)}
                 min={0}
                 max={50}
@@ -898,7 +908,7 @@ export default function CompanyAssumptions() {
                   <HelpTooltip text="Capitalization rate used for property valuation at exit. Higher cap rate = lower valuation." />
                 </Label>
                 <EditableValue
-                  value={formData.exitCapRate ?? global.exitCapRate ?? 0.085}
+                  value={formData.exitCapRate ?? global.exitCapRate ?? DEFAULT_EXIT_CAP_RATE}
                   onChange={(v) => handleUpdate("exitCapRate", v)}
                   format="percent"
                   min={0.04}
@@ -907,7 +917,7 @@ export default function CompanyAssumptions() {
                 />
               </div>
               <Slider
-                value={[(formData.exitCapRate ?? global.exitCapRate ?? 0.085) * 100]}
+                value={[(formData.exitCapRate ?? global.exitCapRate ?? DEFAULT_EXIT_CAP_RATE) * 100]}
                 onValueChange={([v]) => handleUpdate("exitCapRate", v / 100)}
                 min={4}
                 max={15}
@@ -922,7 +932,7 @@ export default function CompanyAssumptions() {
                   <HelpTooltip text="Broker commission paid on property sales as percentage of gross sale price" />
                 </Label>
                 <EditableValue
-                  value={formData.salesCommissionRate ?? global.salesCommissionRate ?? 0.05}
+                  value={formData.salesCommissionRate ?? global.salesCommissionRate ?? DEFAULT_COMMISSION_RATE}
                   onChange={(v) => handleUpdate("salesCommissionRate", v)}
                   format="percent"
                   min={0}
@@ -931,7 +941,7 @@ export default function CompanyAssumptions() {
                 />
               </div>
               <Slider
-                value={[(formData.salesCommissionRate ?? global.salesCommissionRate ?? 0.05) * 100]}
+                value={[(formData.salesCommissionRate ?? global.salesCommissionRate ?? DEFAULT_COMMISSION_RATE) * 100]}
                 onValueChange={([v]) => handleUpdate("salesCommissionRate", v / 100)}
                 min={0}
                 max={10}
@@ -958,7 +968,7 @@ export default function CompanyAssumptions() {
                   <HelpTooltip text="Operating costs for events as percentage of event revenue (labor, setup, coordination)" />
                 </Label>
                 <EditableValue
-                  value={formData.eventExpenseRate ?? global.eventExpenseRate ?? 0.65}
+                  value={formData.eventExpenseRate ?? global.eventExpenseRate ?? DEFAULT_EVENT_EXPENSE_RATE}
                   onChange={(v) => handleUpdate("eventExpenseRate", v)}
                   format="percent"
                   min={0.30}
@@ -967,7 +977,7 @@ export default function CompanyAssumptions() {
                 />
               </div>
               <Slider
-                value={[(formData.eventExpenseRate ?? global.eventExpenseRate ?? 0.65) * 100]}
+                value={[(formData.eventExpenseRate ?? global.eventExpenseRate ?? DEFAULT_EVENT_EXPENSE_RATE) * 100]}
                 onValueChange={([v]) => handleUpdate("eventExpenseRate", v / 100)}
                 min={30}
                 max={90}
@@ -982,7 +992,7 @@ export default function CompanyAssumptions() {
                   <HelpTooltip text="Operating costs for other revenue (spa, parking, retail) as percentage of that revenue" />
                 </Label>
                 <EditableValue
-                  value={formData.otherExpenseRate ?? global.otherExpenseRate ?? 0.60}
+                  value={formData.otherExpenseRate ?? global.otherExpenseRate ?? DEFAULT_OTHER_EXPENSE_RATE}
                   onChange={(v) => handleUpdate("otherExpenseRate", v)}
                   format="percent"
                   min={0.30}
@@ -991,7 +1001,7 @@ export default function CompanyAssumptions() {
                 />
               </div>
               <Slider
-                value={[(formData.otherExpenseRate ?? global.otherExpenseRate ?? 0.60) * 100]}
+                value={[(formData.otherExpenseRate ?? global.otherExpenseRate ?? DEFAULT_OTHER_EXPENSE_RATE) * 100]}
                 onValueChange={([v]) => handleUpdate("otherExpenseRate", v / 100)}
                 min={30}
                 max={90}
@@ -1006,7 +1016,7 @@ export default function CompanyAssumptions() {
                   <HelpTooltip text="Percentage of utility costs that scale with revenue. Remaining portion is fixed overhead." />
                 </Label>
                 <EditableValue
-                  value={formData.utilitiesVariableSplit ?? global.utilitiesVariableSplit ?? 0.60}
+                  value={formData.utilitiesVariableSplit ?? global.utilitiesVariableSplit ?? DEFAULT_UTILITIES_VARIABLE_SPLIT}
                   onChange={(v) => handleUpdate("utilitiesVariableSplit", v)}
                   format="percent"
                   min={0.20}
@@ -1015,7 +1025,7 @@ export default function CompanyAssumptions() {
                 />
               </div>
               <Slider
-                value={[(formData.utilitiesVariableSplit ?? global.utilitiesVariableSplit ?? 0.60) * 100]}
+                value={[(formData.utilitiesVariableSplit ?? global.utilitiesVariableSplit ?? DEFAULT_UTILITIES_VARIABLE_SPLIT) * 100]}
                 onValueChange={([v]) => handleUpdate("utilitiesVariableSplit", v / 100)}
                 min={20}
                 max={80}
@@ -1045,7 +1055,7 @@ export default function CompanyAssumptions() {
                   <HelpTooltip text="Additional F&B revenue multiplier when events use full in-house catering" />
                 </Label>
                 <EditableValue
-                  value={formData.fullCateringFBBoost ?? global.fullCateringFBBoost ?? 0.50}
+                  value={formData.fullCateringFBBoost ?? global.fullCateringFBBoost ?? DEFAULT_FULL_CATERING_BOOST}
                   onChange={(v) => handleUpdate("fullCateringFBBoost", v)}
                   format="percent"
                   min={0}
@@ -1054,7 +1064,7 @@ export default function CompanyAssumptions() {
                 />
               </div>
               <Slider
-                value={[(formData.fullCateringFBBoost ?? global.fullCateringFBBoost ?? 0.50) * 100]}
+                value={[(formData.fullCateringFBBoost ?? global.fullCateringFBBoost ?? DEFAULT_FULL_CATERING_BOOST) * 100]}
                 onValueChange={([v]) => handleUpdate("fullCateringFBBoost", v / 100)}
                 min={0}
                 max={100}
@@ -1069,7 +1079,7 @@ export default function CompanyAssumptions() {
                   <HelpTooltip text="Additional F&B revenue multiplier when events use partial in-house catering" />
                 </Label>
                 <EditableValue
-                  value={formData.partialCateringFBBoost ?? global.partialCateringFBBoost ?? 0.25}
+                  value={formData.partialCateringFBBoost ?? global.partialCateringFBBoost ?? DEFAULT_PARTIAL_CATERING_BOOST}
                   onChange={(v) => handleUpdate("partialCateringFBBoost", v)}
                   format="percent"
                   min={0}
@@ -1078,7 +1088,7 @@ export default function CompanyAssumptions() {
                 />
               </div>
               <Slider
-                value={[(formData.partialCateringFBBoost ?? global.partialCateringFBBoost ?? 0.25) * 100]}
+                value={[(formData.partialCateringFBBoost ?? global.partialCateringFBBoost ?? DEFAULT_PARTIAL_CATERING_BOOST) * 100]}
                 onValueChange={([v]) => handleUpdate("partialCateringFBBoost", v / 100)}
                 min={0}
                 max={75}

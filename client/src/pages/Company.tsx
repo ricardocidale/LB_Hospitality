@@ -668,7 +668,7 @@ export default function Company() {
         />
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
+          <div className="mb-6">
             <DarkGlassTabs
               tabs={[
                 { value: 'income', label: 'Income Statement', icon: FileText },
@@ -677,27 +677,43 @@ export default function Company() {
               ]}
               activeTab={activeTab}
               onTabChange={setActiveTab}
+              rightContent={
+                <>
+                  <button
+                    onClick={() => { setExportType('pdf'); setExportDialogOpen(true); }}
+                    className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-[#FFF9F5]/60 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all duration-300"
+                    data-testid="button-export-pdf"
+                  >
+                    <FileDown className="w-3.5 h-3.5" />
+                    PDF
+                  </button>
+                  <button
+                    onClick={() => exportCompanyCSV(activeTab as 'income' | 'cashflow' | 'balance')}
+                    className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-[#FFF9F5]/60 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all duration-300"
+                    data-testid="button-export-csv"
+                  >
+                    <FileDown className="w-3.5 h-3.5" />
+                    CSV
+                  </button>
+                  <button
+                    onClick={() => { setExportType('chart'); setExportDialogOpen(true); }}
+                    className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-[#FFF9F5]/60 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all duration-300"
+                    data-testid="button-export-chart"
+                  >
+                    <ImageIcon className="w-3.5 h-3.5" />
+                    Chart
+                  </button>
+                  <button
+                    onClick={() => exportTablePNG()}
+                    className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-[#FFF9F5]/60 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all duration-300"
+                    data-testid="button-export-table-png"
+                  >
+                    <ImageIcon className="w-3.5 h-3.5" />
+                    PNG
+                  </button>
+                </>
+              }
             />
-            
-            {/* Export buttons - light style with border */}
-            <div className="flex items-center gap-2">
-              <GlassButton variant="export" size="sm" onClick={() => { setExportType('pdf'); setExportDialogOpen(true); }}>
-                <FileDown className="w-4 h-4" />
-                Export PDF
-              </GlassButton>
-              <GlassButton variant="export" size="sm" onClick={() => exportCompanyCSV(activeTab as 'income' | 'cashflow' | 'balance')}>
-                <FileDown className="w-4 h-4" />
-                Export CSV
-              </GlassButton>
-              <GlassButton variant="export" size="sm" onClick={() => { setExportType('chart'); setExportDialogOpen(true); }}>
-                <ImageIcon className="w-4 h-4" />
-                Export Chart
-              </GlassButton>
-              <GlassButton variant="export" size="sm" onClick={() => exportTablePNG()} data-testid="button-export-table-png">
-                <ImageIcon className="w-4 h-4" />
-                Export PNG
-              </GlassButton>
-            </div>
           </div>
 
           {/* Chart Card - Light Theme */}

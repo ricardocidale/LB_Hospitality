@@ -288,8 +288,21 @@ export function generatePropertyProForma(
   }
     
   let cumulativeCash = 0; // Track cumulative cash for ending cash balance
-  
+
   const baseAdr = property.startAdr;
+
+  // Base monthly revenue for fixed cost anchoring (F-8: fixed costs escalate independently of revenue growth)
+  // Uses starting ADR and starting occupancy to establish Year 1 fixed cost dollar amounts
+  const baseMonthlyRoomRev = property.roomCount * DAYS_PER_MONTH * baseAdr * property.startOccupancy;
+  const revShareEvents = property.revShareEvents ?? DEFAULT_REV_SHARE_EVENTS;
+  const revShareFB = property.revShareFB ?? DEFAULT_REV_SHARE_FB;
+  const revShareOther = property.revShareOther ?? DEFAULT_REV_SHARE_OTHER;
+  const fullCateringPct = property.fullCateringPercent ?? DEFAULT_FULL_CATERING_PCT;
+  const partialCateringPct = property.partialCateringPercent ?? DEFAULT_PARTIAL_CATERING_PCT;
+  const fullBoost = global.fullCateringFBBoost ?? DEFAULT_FULL_CATERING_BOOST;
+  const partialBoost = global.partialCateringFBBoost ?? DEFAULT_PARTIAL_CATERING_BOOST;
+  const cateringBoostMultiplier = 1 + (fullBoost * fullCateringPct) + (partialBoost * partialCateringPct);
+  const baseMonthlyTotalRev = baseMonthlyRoomRev * (1 + revShareEvents + revShareFB * cateringBoostMultiplier + revShareOther);
   
   for (let i = 0; i < months; i++) {
     const currentDate = addMonths(modelStart, i);
@@ -298,6 +311,9 @@ export function generatePropertyProForma(
     
     const opsYear = Math.floor(monthsSinceOps / 12);
     const currentAdr = baseAdr * Math.pow(1 + property.adrGrowthRate, opsYear);
+    // Fixed cost escalation: compound annually from operations start (F-8 fix)
+    const fixedEscalationRate = global.fixedCostEscalationRate ?? global.inflationRate;
+    const fixedCostFactor = Math.pow(1 + fixedEscalationRate, opsYear);
 
     let occupancy = 0;
     if (isOperational) {

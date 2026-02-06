@@ -83,15 +83,15 @@ export default function Login() {
       </div>
 
       <div className="relative z-10 w-full max-w-md mx-4">
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#00b4d8]/25 via-[#0096c7]/18 to-[#0077b6]/22 backdrop-blur-2xl border border-cyan-300/20 shadow-2xl shadow-cyan-900/40">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#00e5ff]/20 via-[#00bcd4]/14 to-[#0097a7]/18 backdrop-blur-2xl border border-[#80deea]/25 shadow-2xl shadow-[#006064]/50">
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute -top-20 -right-20 w-48 h-48 rounded-full bg-cyan-400/15 blur-3xl" />
-            <div className="absolute -bottom-10 -left-10 w-40 h-40 rounded-full bg-teal-400/10 blur-2xl" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full bg-cyan-500/10 blur-3xl" />
+            <div className="absolute -top-20 -right-20 w-48 h-48 rounded-full bg-[#4dd0e1]/20 blur-3xl" />
+            <div className="absolute -bottom-10 -left-10 w-40 h-40 rounded-full bg-[#26c6da]/12 blur-2xl" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full bg-[#00bcd4]/12 blur-3xl" />
           </div>
-          <div className="absolute inset-0 shadow-[inset_0_1px_1px_rgba(103,232,249,0.15)] rounded-2xl" />
+          <div className="absolute inset-0 shadow-[inset_0_1px_1px_rgba(128,222,234,0.2)] rounded-2xl" />
           
-          <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-300/30 to-transparent" />
+          <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#80deea]/40 to-transparent" />
           
           <div className="relative p-8 sm:p-10">
             <div className="flex flex-col items-center mb-8">

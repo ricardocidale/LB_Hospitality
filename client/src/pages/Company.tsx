@@ -110,6 +110,52 @@ export default function Company() {
     });
   };
 
+  const projectionYears = global?.projectionYears ?? PROJECTION_YEARS;
+  const projectionMonths = projectionYears * 12;
+
+  const financials = useMemo(
+    () => {
+      if (!properties || !global) return [];
+      return generateCompanyProForma(properties, global, projectionMonths);
+    },
+    [properties, global, projectionMonths]
+  );
+
+  const cashAnalysis = useMemo(
+    () => analyzeCompanyCashPosition(financials),
+    [financials]
+  );
+
+  const propertyFinancials = useMemo(
+    () => {
+      if (!properties || !global) return [];
+      return properties.map(p => ({
+        property: p,
+        financials: generatePropertyProForma(p, global, projectionMonths)
+      }));
+    },
+    [properties, global, projectionMonths]
+  );
+  
+  const fiscalYearStartMonth = global?.fiscalYearStartMonth ?? 1;
+  const getFiscalYear = (yearIndex: number) => global ? getFiscalYearForModelYear(global.modelStartDate, fiscalYearStartMonth, yearIndex) : yearIndex + 1;
+
+  const yearlyChartData = useMemo(() => {
+    if (!financials.length || !global) return [];
+    const data = [];
+    for (let y = 0; y < projectionYears; y++) {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      if (yearData.length === 0) continue;
+      data.push({
+        year: String(getFiscalYear(y)),
+        Revenue: yearData.reduce((a, m) => a + m.totalRevenue, 0),
+        Expenses: yearData.reduce((a, m) => a + m.totalExpenses, 0),
+        NetIncome: yearData.reduce((a, m) => a + m.netIncome, 0),
+      });
+    }
+    return data;
+  }, [financials, projectionYears, global]);
+
   if (propertiesLoading || globalLoading) {
     return (
       <Layout>
@@ -129,43 +175,6 @@ export default function Company() {
       </Layout>
     );
   }
-
-  const projectionYears = global?.projectionYears ?? PROJECTION_YEARS;
-  const projectionMonths = projectionYears * 12;
-  const fiscalYearStartMonth = global.fiscalYearStartMonth ?? 1;
-  const getFiscalYear = (yearIndex: number) => getFiscalYearForModelYear(global.modelStartDate, fiscalYearStartMonth, yearIndex);
-  const financials = useMemo(
-    () => generateCompanyProForma(properties, global, projectionMonths),
-    [properties, global, projectionMonths]
-  );
-
-  const cashAnalysis = useMemo(
-    () => analyzeCompanyCashPosition(financials),
-    [financials]
-  );
-
-  const propertyFinancials = useMemo(
-    () => properties.map(p => ({
-      property: p,
-      financials: generatePropertyProForma(p, global, projectionMonths)
-    })),
-    [properties, global, projectionMonths]
-  );
-  
-  const yearlyChartData = useMemo(() => {
-    const data = [];
-    for (let y = 0; y < projectionYears; y++) {
-      const yearData = financials.slice(y * 12, (y + 1) * 12);
-      if (yearData.length === 0) continue;
-      data.push({
-        year: String(getFiscalYear(y)),
-        Revenue: yearData.reduce((a, m) => a + m.totalRevenue, 0),
-        Expenses: yearData.reduce((a, m) => a + m.totalExpenses, 0),
-        NetIncome: yearData.reduce((a, m) => a + m.netIncome, 0),
-      });
-    }
-    return data;
-  }, [financials, projectionYears]);
 
   const activePropertyCount = properties.filter(p => p.status === "Operational").length;
   const tier1Max = global?.staffTier1MaxProperties ?? STAFFING_TIERS[0].maxProperties;
@@ -249,6 +258,11 @@ export default function Company() {
     rows.push({ category: "Insurance", values: years.map((_, y) => {
       const yearData = financials.slice(y * 12, (y + 1) * 12);
       return yearData.reduce((a, m) => a + m.businessInsurance, 0);
+    }), indent: 1 });
+    
+    rows.push({ category: "Tech Infrastructure", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return yearData.reduce((a, m) => a + m.techInfrastructure, 0);
     }), indent: 1 });
     
     rows.push({ category: "Travel", values: years.map((_, y) => {

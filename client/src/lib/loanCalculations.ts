@@ -221,7 +221,7 @@ export function calculateRefinanceParams(
   const refiLTV = property.refinanceLTV ?? global?.debtAssumptions?.refiLTV ?? DEFAULT_REFI_LTV;
   const stabilizedNOI = yearlyNOIData[refiYear] || 0;
   const exitCapRate = property.exitCapRate ?? global?.exitCapRate ?? DEFAULT_EXIT_CAP_RATE;
-  const propertyValue = stabilizedNOI / exitCapRate;
+  const propertyValue = exitCapRate > 0 ? stabilizedNOI / exitCapRate : 0;
   const refiLoanAmount = propertyValue * refiLTV;
   
   // Handle zero interest rate (straight-line principal reduction)
@@ -302,7 +302,7 @@ export function calculateYearlyDebtService(
     for (let pm = 0; pm < monthsFromRefi; pm++) {
       const interest = refiBalance * refi.refiMonthlyRate;
       const principal = refi.refiMonthlyPayment - interest;
-      refiBalance -= principal;
+      refiBalance = Math.max(0, refiBalance - principal);
     }
     
     for (let m = 0; m < 12; m++) {
@@ -310,7 +310,7 @@ export function calculateYearlyDebtService(
       const principal = refi.refiMonthlyPayment - interest;
       yearlyInterest += interest;
       yearlyPrincipal += principal;
-      refiBalance -= principal;
+      refiBalance = Math.max(0, refiBalance - principal);
     }
     yearlyDebtService = refi.refiMonthlyPayment * 12;
   } else if (loan.loanAmount > 0) {
@@ -324,7 +324,7 @@ export function calculateYearlyDebtService(
       for (let pm = 0; pm < paymentsMadeBefore; pm++) {
         const interest = remainingBalance * loan.monthlyRate;
         const principal = loan.monthlyPayment - interest;
-        remainingBalance -= principal;
+        remainingBalance = Math.max(0, remainingBalance - principal);
       }
       
       for (let m = 0; m < loanPaymentsThisYear; m++) {
@@ -332,7 +332,7 @@ export function calculateYearlyDebtService(
         const principalPayment = loan.monthlyPayment - interestPayment;
         yearlyInterest += interestPayment;
         yearlyPrincipal += principalPayment;
-        remainingBalance -= principalPayment;
+        remainingBalance = Math.max(0, remainingBalance - principalPayment);
       }
       yearlyDebtService = loan.monthlyPayment * loanPaymentsThisYear;
     }
@@ -353,7 +353,7 @@ export function calculateExitValue(
   exitCapRate?: number | null
 ): number {
   const capRate = exitCapRate ?? DEFAULT_EXIT_CAP_RATE;
-  const grossValue = noi / capRate;
+  const grossValue = capRate > 0 ? noi / capRate : 0;
   const commission = grossValue * loan.commissionRate;
   const outstandingDebt = getOutstandingDebtAtYear(loan, refi, year);
   return grossValue - commission - outstandingDebt;

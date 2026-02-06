@@ -688,7 +688,7 @@ export function auditManagementFees(
       });
     }
     
-    const expectedIncentiveFee = m.noi > 0 ? (m.noi + m.feeIncentive) * global.incentiveManagementFee : 0;
+    const expectedIncentiveFee = m.gop > 0 ? Math.max(0, m.gop * global.incentiveManagementFee) : 0;
     if (m.feeIncentive < 0) {
       findings.push({
         category: "Management Fees",
@@ -740,8 +740,7 @@ export function auditBalanceSheet(
   
   const modelStart = new Date(global.modelStartDate);
   const acqDate = new Date(property.acquisitionDate || property.operationsStartDate);
-  const acqMonthIndex = (acqDate.getFullYear() - modelStart.getFullYear()) * 12 + 
-    (acqDate.getMonth() - modelStart.getMonth());
+  const acqMonthIndex = differenceInMonths(acqDate, modelStart);
   
   const buildingValue = (property.purchasePrice || 0) + (property.buildingImprovements || 0);
   const monthlyDepreciation = buildingValue / DEPRECIATION_YEARS / 12;
@@ -874,8 +873,7 @@ export function auditCashFlowReconciliation(
   
   const modelStart = new Date(global.modelStartDate);
   const acqDate = new Date(property.acquisitionDate || property.operationsStartDate);
-  const acqMonthIndex = (acqDate.getFullYear() - modelStart.getFullYear()) * 12 + 
-    (acqDate.getMonth() - modelStart.getMonth());
+  const acqMonthIndex = differenceInMonths(acqDate, modelStart);
   
   let cumulativeCashFlow = 0;
   

@@ -342,7 +342,7 @@ export default function Company() {
     
     rows.push({ category: "Fixed Overhead", values: years.map((_, y) => {
       const yearData = financials.slice(y * 12, (y + 1) * 12);
-      return -yearData.reduce((a, m) => a + m.officeLease + m.professionalServices + m.businessInsurance, 0);
+      return -yearData.reduce((a, m) => a + m.officeLease + m.professionalServices + m.techInfrastructure + m.businessInsurance, 0);
     }), indent: 1 });
     
     rows.push({ category: "Office Lease", values: years.map((_, y) => {

@@ -14,257 +14,332 @@ import {
   useSaveFavorite,
   useDeleteFavorite,
   useUpdateFavoriteNotes,
+  useSavedSearches,
+  useCreateSavedSearch,
+  useDeleteSavedSearch,
   type PropertyFinderSearchParams,
   type PropertyFinderResult,
   type SavedProspectiveProperty,
+  type SavedSearchData,
 } from "@/lib/api";
 import {
   Search, Heart, HeartOff, ExternalLink, Bed, Bath, Ruler, Trees,
   MapPin, Loader2, AlertCircle, Building2, StickyNote, X, ChevronLeft, ChevronRight,
+  Bookmark, BookmarkX, Play, Save, Trash2, Image,
 } from "lucide-react";
 
-function PropertyCard({
-  property,
-  isSaved,
-  savedId,
+function PropertyTypeLabel(type: string | null): string {
+  if (!type) return "";
+  const map: Record<string, string> = {
+    single_family: "Single Family",
+    multi_family: "Multi-Family",
+    farm: "Farm / Ranch",
+    land: "Land",
+  };
+  return map[type] || type;
+}
+
+function PropertyResultsTable({
+  results,
+  savedExternalIds,
+  favorites,
   onSave,
   onRemove,
   isSaving,
 }: {
-  property: PropertyFinderResult;
-  isSaved: boolean;
-  savedId?: number;
-  onSave: () => void;
-  onRemove: () => void;
+  results: PropertyFinderResult[];
+  savedExternalIds: Set<string>;
+  favorites: SavedProspectiveProperty[];
+  onSave: (property: PropertyFinderResult) => void;
+  onRemove: (id: number) => void;
   isSaving: boolean;
 }) {
+  const [expandedImage, setExpandedImage] = useState<string | null>(null);
+
   return (
-    <div
-      className="relative rounded-2xl overflow-hidden group"
-      data-testid={`card-property-${property.externalId}`}
-    >
+    <div className="relative rounded-2xl overflow-hidden" data-testid="table-search-results">
       <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e] via-[#3d5a6a] to-[#3a5a5e] rounded-2xl" />
       <div className="absolute inset-0 bg-white/[0.03] rounded-2xl" />
       <div className="absolute inset-0 rounded-2xl border border-white/10" />
+      <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
-      <div className="relative">
-        {property.imageUrl ? (
-          <div className="h-48 overflow-hidden">
-            <img
-              src={property.imageUrl}
-              alt={property.address}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#2d4a5e] via-transparent to-transparent" />
-          </div>
-        ) : (
-          <div className="h-48 flex items-center justify-center bg-white/5">
-            <Building2 className="w-12 h-12 text-white/20" />
-          </div>
-        )}
-
-        <button
-          onClick={isSaved ? onRemove : onSave}
-          disabled={isSaving}
-          className="absolute top-3 right-3 p-2 rounded-full bg-black/40 backdrop-blur-sm border border-white/20 hover:bg-black/60 transition-all"
-          data-testid={`btn-favorite-${property.externalId}`}
-        >
-          {isSaving ? (
-            <Loader2 className="w-4 h-4 text-white animate-spin" />
-          ) : isSaved ? (
-            <Heart className="w-4 h-4 text-[#F4795B] fill-[#F4795B]" />
-          ) : (
-            <Heart className="w-4 h-4 text-white/70 hover:text-[#F4795B]" />
-          )}
-        </button>
-      </div>
-
-      <div className="relative p-4 space-y-3">
-        {property.price && (
-          <p className="text-xl font-bold text-[#FFF9F5]" data-testid={`text-price-${property.externalId}`}>
-            {formatMoney(property.price)}
-          </p>
-        )}
-
-        <div className="flex items-start gap-2">
-          <MapPin className="w-4 h-4 text-[#9FBCA4] mt-0.5 flex-shrink-0" />
-          <p className="text-sm text-white/80 leading-snug" data-testid={`text-address-${property.externalId}`}>
-            {property.address}
-          </p>
-        </div>
-
-        <div className="flex flex-wrap gap-3 text-xs text-white/60">
-          {property.beds && (
-            <span className="flex items-center gap-1" data-testid={`text-beds-${property.externalId}`}>
-              <Bed className="w-3.5 h-3.5" /> {property.beds} bed
-            </span>
-          )}
-          {property.baths && (
-            <span className="flex items-center gap-1" data-testid={`text-baths-${property.externalId}`}>
-              <Bath className="w-3.5 h-3.5" /> {property.baths} bath
-            </span>
-          )}
-          {property.sqft && (
-            <span className="flex items-center gap-1" data-testid={`text-sqft-${property.externalId}`}>
-              <Ruler className="w-3.5 h-3.5" /> {property.sqft.toLocaleString()} sqft
-            </span>
-          )}
-          {property.lotSizeAcres && (
-            <span className="flex items-center gap-1 text-[#9FBCA4]" data-testid={`text-acres-${property.externalId}`}>
-              <Trees className="w-3.5 h-3.5" /> {property.lotSizeAcres} acres
-            </span>
-          )}
-        </div>
-
-        {property.propertyType && (
-          <span className="inline-block px-2 py-0.5 rounded-full text-xs bg-white/10 text-white/50 border border-white/10">
-            {property.propertyType}
-          </span>
-        )}
-
-        {property.listingUrl && (
-          <a
-            href={property.listingUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1.5 text-xs text-[#9FBCA4] hover:text-[#9FBCA4]/80 transition-colors"
-            data-testid={`link-listing-${property.externalId}`}
-          >
-            <ExternalLink className="w-3.5 h-3.5" /> View Full Listing
-          </a>
-        )}
+      <div className="relative max-h-[560px] overflow-y-auto">
+        <table className="w-full text-sm">
+          <thead className="sticky top-0 z-10">
+            <tr className="bg-[#2d4a5e]/95 backdrop-blur-sm border-b border-white/10">
+              <th className="text-left text-white/50 text-xs font-medium px-4 py-3 w-10"></th>
+              <th className="text-left text-white/50 text-xs font-medium px-4 py-3">Property</th>
+              <th className="text-right text-white/50 text-xs font-medium px-4 py-3">Price</th>
+              <th className="text-center text-white/50 text-xs font-medium px-4 py-3">Beds</th>
+              <th className="text-center text-white/50 text-xs font-medium px-4 py-3">Baths</th>
+              <th className="text-right text-white/50 text-xs font-medium px-4 py-3">Sq Ft</th>
+              <th className="text-right text-white/50 text-xs font-medium px-4 py-3">Lot (Acres)</th>
+              <th className="text-center text-white/50 text-xs font-medium px-4 py-3">Type</th>
+              <th className="text-center text-white/50 text-xs font-medium px-4 py-3 w-24">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {results.map((property, idx) => {
+              const isSaved = savedExternalIds.has(property.externalId);
+              const savedProp = favorites.find((f) => f.externalId === property.externalId);
+              return (
+                <tr
+                  key={property.externalId}
+                  className={`border-b border-white/5 hover:bg-white/5 transition-colors ${idx % 2 === 0 ? "bg-white/[0.02]" : ""}`}
+                  data-testid={`row-property-${property.externalId}`}
+                >
+                  <td className="px-4 py-3">
+                    {property.imageUrl ? (
+                      <button
+                        onClick={() => setExpandedImage(expandedImage === property.externalId ? null : property.externalId)}
+                        className="p-1 rounded hover:bg-white/10 transition-colors"
+                        data-testid={`btn-image-${property.externalId}`}
+                      >
+                        <Image className="w-4 h-4 text-[#9FBCA4]" />
+                      </button>
+                    ) : (
+                      <Building2 className="w-4 h-4 text-white/20" />
+                    )}
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex flex-col gap-0.5">
+                      <div className="flex items-start gap-1.5">
+                        <MapPin className="w-3.5 h-3.5 text-[#9FBCA4] mt-0.5 flex-shrink-0" />
+                        <span className="text-white/90 text-sm leading-snug" data-testid={`text-address-${property.externalId}`}>
+                          {property.address}
+                        </span>
+                      </div>
+                      {expandedImage === property.externalId && property.imageUrl && (
+                        <div className="mt-2 rounded-lg overflow-hidden max-w-[200px]">
+                          <img
+                            src={property.imageUrl}
+                            alt={property.address}
+                            className="w-full h-auto rounded-lg"
+                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <span className="text-[#FFF9F5] font-semibold" data-testid={`text-price-${property.externalId}`}>
+                      {property.price ? formatMoney(property.price) : "—"}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-center text-white/70" data-testid={`text-beds-${property.externalId}`}>
+                    {property.beds ?? "—"}
+                  </td>
+                  <td className="px-4 py-3 text-center text-white/70" data-testid={`text-baths-${property.externalId}`}>
+                    {property.baths ?? "—"}
+                  </td>
+                  <td className="px-4 py-3 text-right text-white/70" data-testid={`text-sqft-${property.externalId}`}>
+                    {property.sqft ? property.sqft.toLocaleString() : "—"}
+                  </td>
+                  <td className="px-4 py-3 text-right" data-testid={`text-acres-${property.externalId}`}>
+                    {property.lotSizeAcres ? (
+                      <span className="text-[#9FBCA4] font-medium">{property.lotSizeAcres}</span>
+                    ) : (
+                      <span className="text-white/40">—</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    {property.propertyType ? (
+                      <span className="inline-block px-2 py-0.5 rounded-full text-xs bg-white/10 text-white/50 border border-white/10">
+                        {PropertyTypeLabel(property.propertyType)}
+                      </span>
+                    ) : (
+                      <span className="text-white/40">—</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center justify-center gap-1">
+                      <button
+                        onClick={isSaved && savedProp ? () => onRemove(savedProp.id) : () => onSave(property)}
+                        disabled={isSaving}
+                        className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
+                        title={isSaved ? "Remove from saved" : "Save property"}
+                        data-testid={`btn-favorite-${property.externalId}`}
+                      >
+                        {isSaving ? (
+                          <Loader2 className="w-4 h-4 text-white animate-spin" />
+                        ) : isSaved ? (
+                          <Heart className="w-4 h-4 text-[#F4795B] fill-[#F4795B]" />
+                        ) : (
+                          <Heart className="w-4 h-4 text-white/40 hover:text-[#F4795B]" />
+                        )}
+                      </button>
+                      {property.listingUrl && (
+                        <a
+                          href={property.listingUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
+                          title="View listing"
+                          data-testid={`link-listing-${property.externalId}`}
+                        >
+                          <ExternalLink className="w-4 h-4 text-[#9FBCA4]" />
+                        </a>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
     </div>
   );
 }
 
-function SavedPropertyCard({
-  property,
+function SavedPropertiesTable({
+  favorites,
   onRemove,
   onUpdateNotes,
   isRemoving,
 }: {
-  property: SavedProspectiveProperty;
-  onRemove: () => void;
-  onUpdateNotes: (notes: string) => void;
+  favorites: SavedProspectiveProperty[];
+  onRemove: (id: number) => void;
+  onUpdateNotes: (id: number, notes: string) => void;
   isRemoving: boolean;
 }) {
-  const [showNotes, setShowNotes] = useState(false);
-  const [notesText, setNotesText] = useState(property.notes || "");
+  const [editingNotesId, setEditingNotesId] = useState<number | null>(null);
+  const [notesText, setNotesText] = useState("");
+
+  const startEditing = (prop: SavedProspectiveProperty) => {
+    setEditingNotesId(prop.id);
+    setNotesText(prop.notes || "");
+  };
+
+  const saveNotes = (id: number) => {
+    onUpdateNotes(id, notesText);
+    setEditingNotesId(null);
+  };
 
   return (
-    <div
-      className="relative rounded-2xl overflow-hidden"
-      data-testid={`card-saved-${property.id}`}
-    >
+    <div className="relative rounded-2xl overflow-hidden" data-testid="table-saved-properties">
       <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e] via-[#3d5a6a] to-[#3a5a5e] rounded-2xl" />
       <div className="absolute inset-0 bg-white/[0.03] rounded-2xl" />
       <div className="absolute inset-0 rounded-2xl border border-white/10" />
+      <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
-      <div className="relative">
-        {property.imageUrl ? (
-          <div className="h-40 overflow-hidden">
-            <img
-              src={property.imageUrl}
-              alt={property.address}
-              className="w-full h-full object-cover"
-              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#2d4a5e] via-transparent to-transparent" />
-          </div>
-        ) : (
-          <div className="h-40 flex items-center justify-center bg-white/5">
-            <Building2 className="w-10 h-10 text-white/20" />
-          </div>
-        )}
-
-        <div className="absolute top-3 right-3 flex gap-2">
-          <button
-            onClick={() => setShowNotes(!showNotes)}
-            className="p-2 rounded-full bg-black/40 backdrop-blur-sm border border-white/20 hover:bg-black/60 transition-all"
-            data-testid={`btn-notes-${property.id}`}
-          >
-            <StickyNote className="w-4 h-4 text-white/70" />
-          </button>
-          <button
-            onClick={onRemove}
-            disabled={isRemoving}
-            className="p-2 rounded-full bg-black/40 backdrop-blur-sm border border-white/20 hover:bg-red-900/60 transition-all"
-            data-testid={`btn-remove-saved-${property.id}`}
-          >
-            {isRemoving ? (
-              <Loader2 className="w-4 h-4 text-white animate-spin" />
-            ) : (
-              <HeartOff className="w-4 h-4 text-[#F4795B]" />
-            )}
-          </button>
-        </div>
-      </div>
-
-      <div className="relative p-4 space-y-3">
-        {property.price && (
-          <p className="text-lg font-bold text-[#FFF9F5]">{formatMoney(property.price)}</p>
-        )}
-
-        <div className="flex items-start gap-2">
-          <MapPin className="w-4 h-4 text-[#9FBCA4] mt-0.5 flex-shrink-0" />
-          <p className="text-sm text-white/80 leading-snug">{property.address}</p>
-        </div>
-
-        <div className="flex flex-wrap gap-3 text-xs text-white/60">
-          {property.beds && (
-            <span className="flex items-center gap-1"><Bed className="w-3.5 h-3.5" /> {property.beds} bed</span>
-          )}
-          {property.baths && (
-            <span className="flex items-center gap-1"><Bath className="w-3.5 h-3.5" /> {property.baths} bath</span>
-          )}
-          {property.sqft && (
-            <span className="flex items-center gap-1"><Ruler className="w-3.5 h-3.5" /> {property.sqft.toLocaleString()} sqft</span>
-          )}
-          {property.lotSizeAcres && (
-            <span className="flex items-center gap-1 text-[#9FBCA4]"><Trees className="w-3.5 h-3.5" /> {property.lotSizeAcres} acres</span>
-          )}
-        </div>
-
-        {showNotes && (
-          <div className="space-y-2">
-            <textarea
-              value={notesText}
-              onChange={(e) => setNotesText(e.target.value)}
-              placeholder="Add notes about this property..."
-              className="w-full h-20 p-2 rounded-lg bg-white/10 border border-white/15 text-white/90 text-sm placeholder-white/30 resize-none focus:outline-none focus:border-[#9FBCA4]/40"
-              data-testid={`input-notes-${property.id}`}
-            />
-            <GlassButton
-              variant="primary"
-              size="sm"
-              onClick={() => onUpdateNotes(notesText)}
-              data-testid={`btn-save-notes-${property.id}`}
-            >
-              Save Notes
-            </GlassButton>
-          </div>
-        )}
-
-        {!showNotes && property.notes && (
-          <p className="text-xs text-white/40 italic truncate">{property.notes}</p>
-        )}
-
-        {property.listingUrl && (
-          <a
-            href={property.listingUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1.5 text-xs text-[#9FBCA4] hover:text-[#9FBCA4]/80 transition-colors"
-          >
-            <ExternalLink className="w-3.5 h-3.5" /> View Full Listing
-          </a>
-        )}
-
-        <p className="text-[10px] text-white/30">
-          Saved {new Date(property.savedAt).toLocaleDateString()}
-        </p>
+      <div className="relative max-h-[560px] overflow-y-auto">
+        <table className="w-full text-sm">
+          <thead className="sticky top-0 z-10">
+            <tr className="bg-[#2d4a5e]/95 backdrop-blur-sm border-b border-white/10">
+              <th className="text-left text-white/50 text-xs font-medium px-4 py-3">Property</th>
+              <th className="text-right text-white/50 text-xs font-medium px-4 py-3">Price</th>
+              <th className="text-center text-white/50 text-xs font-medium px-4 py-3">Beds</th>
+              <th className="text-center text-white/50 text-xs font-medium px-4 py-3">Baths</th>
+              <th className="text-right text-white/50 text-xs font-medium px-4 py-3">Sq Ft</th>
+              <th className="text-right text-white/50 text-xs font-medium px-4 py-3">Lot (Acres)</th>
+              <th className="text-left text-white/50 text-xs font-medium px-4 py-3">Notes</th>
+              <th className="text-center text-white/50 text-xs font-medium px-4 py-3">Saved</th>
+              <th className="text-center text-white/50 text-xs font-medium px-4 py-3 w-24">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {favorites.map((property, idx) => (
+              <tr
+                key={property.id}
+                className={`border-b border-white/5 hover:bg-white/5 transition-colors ${idx % 2 === 0 ? "bg-white/[0.02]" : ""}`}
+                data-testid={`row-saved-${property.id}`}
+              >
+                <td className="px-4 py-3">
+                  <div className="flex items-start gap-1.5">
+                    <MapPin className="w-3.5 h-3.5 text-[#9FBCA4] mt-0.5 flex-shrink-0" />
+                    <span className="text-white/90 text-sm leading-snug">{property.address}</span>
+                  </div>
+                </td>
+                <td className="px-4 py-3 text-right">
+                  <span className="text-[#FFF9F5] font-semibold">
+                    {property.price ? formatMoney(property.price) : "—"}
+                  </span>
+                </td>
+                <td className="px-4 py-3 text-center text-white/70">{property.beds ?? "—"}</td>
+                <td className="px-4 py-3 text-center text-white/70">{property.baths ?? "—"}</td>
+                <td className="px-4 py-3 text-right text-white/70">
+                  {property.sqft ? property.sqft.toLocaleString() : "—"}
+                </td>
+                <td className="px-4 py-3 text-right">
+                  {property.lotSizeAcres ? (
+                    <span className="text-[#9FBCA4] font-medium">{property.lotSizeAcres}</span>
+                  ) : (
+                    <span className="text-white/40">—</span>
+                  )}
+                </td>
+                <td className="px-4 py-3 max-w-[200px]">
+                  {editingNotesId === property.id ? (
+                    <div className="flex items-center gap-1">
+                      <input
+                        value={notesText}
+                        onChange={(e) => setNotesText(e.target.value)}
+                        className="w-full px-2 py-1 rounded bg-white/10 border border-white/15 text-white/90 text-xs focus:outline-none focus:border-[#9FBCA4]/40"
+                        placeholder="Add notes..."
+                        data-testid={`input-notes-${property.id}`}
+                        onKeyDown={(e) => e.key === "Enter" && saveNotes(property.id)}
+                      />
+                      <button
+                        onClick={() => saveNotes(property.id)}
+                        className="p-1 rounded hover:bg-white/10 text-[#9FBCA4]"
+                        data-testid={`btn-save-notes-${property.id}`}
+                      >
+                        <Save className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => setEditingNotesId(null)}
+                        className="p-1 rounded hover:bg-white/10 text-white/40"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => startEditing(property)}
+                      className="text-xs text-white/40 hover:text-white/70 truncate block w-full text-left"
+                      title={property.notes || "Click to add notes"}
+                      data-testid={`btn-edit-notes-${property.id}`}
+                    >
+                      {property.notes || <span className="italic">Add notes...</span>}
+                    </button>
+                  )}
+                </td>
+                <td className="px-4 py-3 text-center text-white/40 text-xs">
+                  {new Date(property.savedAt).toLocaleDateString()}
+                </td>
+                <td className="px-4 py-3">
+                  <div className="flex items-center justify-center gap-1">
+                    {property.listingUrl && (
+                      <a
+                        href={property.listingUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
+                        title="View listing"
+                        data-testid={`link-saved-listing-${property.id}`}
+                      >
+                        <ExternalLink className="w-4 h-4 text-[#9FBCA4]" />
+                      </a>
+                    )}
+                    <button
+                      onClick={() => onRemove(property.id)}
+                      disabled={isRemoving}
+                      className="p-1.5 rounded-lg hover:bg-red-900/30 transition-colors"
+                      title="Remove property"
+                      data-testid={`btn-remove-saved-${property.id}`}
+                    >
+                      {isRemoving ? (
+                        <Loader2 className="w-4 h-4 text-white animate-spin" />
+                      ) : (
+                        <Trash2 className="w-4 h-4 text-[#F4795B]/70 hover:text-[#F4795B]" />
+                      )}
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
@@ -273,7 +348,7 @@ function SavedPropertyCard({
 export default function PropertyFinder() {
   const { data: global } = useGlobalAssumptions();
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState<"search" | "saved">("search");
+  const [activeTab, setActiveTab] = useState<"search" | "savedSearches" | "saved">("search");
   const [searchParams, setSearchParams] = useState<PropertyFinderSearchParams | null>(null);
   const [formData, setFormData] = useState({
     location: "",
@@ -283,12 +358,17 @@ export default function PropertyFinder() {
     lotSizeMin: "1",
     propertyType: "any",
   });
+  const [saveSearchName, setSaveSearchName] = useState("");
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
 
   const { data: searchData, isLoading: isSearching, error: searchError } = usePropertySearch(searchParams);
   const { data: favorites = [], isLoading: isFavoritesLoading } = useProspectiveFavorites();
+  const { data: savedSearches = [], isLoading: isSavedSearchesLoading } = useSavedSearches();
   const saveFavorite = useSaveFavorite();
   const deleteFavorite = useDeleteFavorite();
   const updateNotes = useUpdateFavoriteNotes();
+  const createSavedSearch = useCreateSavedSearch();
+  const deleteSavedSearch = useDeleteSavedSearch();
 
   const savedExternalIds = new Set(favorites.map((f) => f.externalId));
 
@@ -335,6 +415,61 @@ export default function PropertyFinder() {
     });
   };
 
+  const handleSaveSearch = () => {
+    if (!saveSearchName.trim()) {
+      toast({ title: "Name required", description: "Give your search a name to save it.", variant: "destructive" });
+      return;
+    }
+    if (!formData.location.trim()) {
+      toast({ title: "Location required", description: "Enter a location before saving the search.", variant: "destructive" });
+      return;
+    }
+    createSavedSearch.mutate({
+      name: saveSearchName.trim(),
+      location: formData.location.trim(),
+      priceMin: formData.priceMin || undefined,
+      priceMax: formData.priceMax || undefined,
+      bedsMin: formData.bedsMin || undefined,
+      lotSizeMin: formData.lotSizeMin || undefined,
+      propertyType: formData.propertyType !== "any" ? formData.propertyType : undefined,
+    }, {
+      onSuccess: () => {
+        toast({ title: "Search saved", description: `"${saveSearchName}" has been saved.` });
+        setSaveSearchName("");
+        setShowSaveDialog(false);
+      },
+      onError: () => toast({ title: "Error", description: "Failed to save search.", variant: "destructive" }),
+    });
+  };
+
+  const handleLoadSearch = (search: SavedSearchData) => {
+    setFormData({
+      location: search.location,
+      priceMin: search.priceMin || "",
+      priceMax: search.priceMax || "",
+      bedsMin: search.bedsMin || "",
+      lotSizeMin: search.lotSizeMin || "1",
+      propertyType: search.propertyType || "any",
+    });
+    setSearchParams({
+      location: search.location,
+      priceMin: search.priceMin || undefined,
+      priceMax: search.priceMax || undefined,
+      bedsMin: search.bedsMin || undefined,
+      lotSizeMin: search.lotSizeMin || undefined,
+      propertyType: search.propertyType || undefined,
+    });
+    setActiveTab("search");
+    toast({ title: "Search loaded", description: `Running "${search.name}" search...` });
+  };
+
+  const handleDeleteSearch = (id: number) => {
+    deleteSavedSearch.mutate(id, {
+      onSuccess: () => toast({ title: "Deleted", description: "Saved search removed." }),
+      onError: () => toast({ title: "Error", description: "Failed to delete search.", variant: "destructive" }),
+    });
+  };
+
   const isNoApiKey = searchError?.message?.includes("RapidAPI key not configured");
 
   return (
@@ -360,6 +495,19 @@ export default function PropertyFinder() {
             </span>
           </button>
           <button
+            onClick={() => setActiveTab("savedSearches")}
+            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+              activeTab === "savedSearches"
+                ? "bg-[#9FBCA4]/20 text-[#9FBCA4] border border-[#9FBCA4]/30"
+                : "text-gray-500 hover:text-gray-700 border border-transparent"
+            }`}
+            data-testid="tab-saved-searches"
+          >
+            <span className="flex items-center gap-2">
+              <Bookmark className="w-4 h-4" /> Saved Searches ({savedSearches.length})
+            </span>
+          </button>
+          <button
             onClick={() => setActiveTab("saved")}
             className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
               activeTab === "saved"
@@ -369,7 +517,7 @@ export default function PropertyFinder() {
             data-testid="tab-saved"
           >
             <span className="flex items-center gap-2">
-              <Heart className="w-4 h-4" /> Saved ({favorites.length})
+              <Heart className="w-4 h-4" /> Saved Properties ({favorites.length})
             </span>
           </button>
         </div>
@@ -466,7 +614,51 @@ export default function PropertyFinder() {
                     </div>
                   </div>
 
-                  <div className="flex justify-end">
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      {formData.location.trim() && (
+                        <>
+                          {showSaveDialog ? (
+                            <div className="flex items-center gap-2">
+                              <Input
+                                value={saveSearchName}
+                                onChange={(e) => setSaveSearchName(e.target.value)}
+                                placeholder="Search name..."
+                                className="bg-white/10 border-white/15 text-white placeholder-white/30 focus:border-[#9FBCA4]/40 w-48 h-9 text-sm"
+                                data-testid="input-search-name"
+                                onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleSaveSearch())}
+                              />
+                              <GlassButton
+                                variant="primary"
+                                size="sm"
+                                type="button"
+                                onClick={handleSaveSearch}
+                                disabled={createSavedSearch.isPending}
+                                data-testid="btn-confirm-save-search"
+                              >
+                                {createSavedSearch.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+                              </GlassButton>
+                              <button
+                                type="button"
+                                onClick={() => { setShowSaveDialog(false); setSaveSearchName(""); }}
+                                className="p-1.5 rounded-lg hover:bg-white/10 text-white/40"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => setShowSaveDialog(true)}
+                              className="flex items-center gap-1.5 text-xs text-white/40 hover:text-[#9FBCA4] transition-colors"
+                              data-testid="btn-save-search"
+                            >
+                              <Bookmark className="w-3.5 h-3.5" /> Save This Search
+                            </button>
+                          )}
+                        </>
+                      )}
+                    </div>
                     <GlassButton
                       variant="primary"
                       type="submit"
@@ -557,23 +749,14 @@ export default function PropertyFinder() {
                     </div>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                    {searchData.results.map((property) => {
-                      const isSaved = savedExternalIds.has(property.externalId);
-                      const savedProp = favorites.find((f) => f.externalId === property.externalId);
-                      return (
-                        <PropertyCard
-                          key={property.externalId}
-                          property={property}
-                          isSaved={isSaved}
-                          savedId={savedProp?.id}
-                          onSave={() => handleSave(property)}
-                          onRemove={() => savedProp && handleRemove(savedProp.id)}
-                          isSaving={saveFavorite.isPending || deleteFavorite.isPending}
-                        />
-                      );
-                    })}
-                  </div>
+                  <PropertyResultsTable
+                    results={searchData.results}
+                    savedExternalIds={savedExternalIds}
+                    favorites={favorites}
+                    onSave={handleSave}
+                    onRemove={handleRemove}
+                    isSaving={saveFavorite.isPending || deleteFavorite.isPending}
+                  />
                 )}
               </div>
             )}
@@ -592,6 +775,133 @@ export default function PropertyFinder() {
                       Enter a location above to find large homes and estates with {(global?.propertyLabel || "boutique hotel").toLowerCase()} conversion potential.
                     </p>
                   </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === "savedSearches" && (
+          <div className="space-y-4">
+            {isSavedSearchesLoading ? (
+              <div className="flex justify-center py-16">
+                <Loader2 className="w-8 h-8 animate-spin text-[#9FBCA4]" />
+              </div>
+            ) : savedSearches.length === 0 ? (
+              <div className="relative rounded-2xl p-16 text-center">
+                <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e] via-[#3d5a6a] to-[#3a5a5e] rounded-2xl opacity-50" />
+                <div className="absolute inset-0 rounded-2xl border border-white/5" />
+                <div className="relative space-y-4">
+                  <div className="w-16 h-16 rounded-full bg-[#9FBCA4]/10 flex items-center justify-center mx-auto">
+                    <Bookmark className="w-8 h-8 text-[#9FBCA4]/40" />
+                  </div>
+                  <div>
+                    <p className="text-gray-400 font-medium">No Saved Searches</p>
+                    <p className="text-gray-500 text-sm mt-1">
+                      Save a search from the Search tab to quickly re-run it later.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="relative rounded-2xl overflow-hidden" data-testid="table-saved-searches">
+                <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e] via-[#3d5a6a] to-[#3a5a5e] rounded-2xl" />
+                <div className="absolute inset-0 bg-white/[0.03] rounded-2xl" />
+                <div className="absolute inset-0 rounded-2xl border border-white/10" />
+                <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+
+                <div className="relative max-h-[560px] overflow-y-auto">
+                  <table className="w-full text-sm">
+                    <thead className="sticky top-0 z-10">
+                      <tr className="bg-[#2d4a5e]/95 backdrop-blur-sm border-b border-white/10">
+                        <th className="text-left text-white/50 text-xs font-medium px-4 py-3">Name</th>
+                        <th className="text-left text-white/50 text-xs font-medium px-4 py-3">Location</th>
+                        <th className="text-right text-white/50 text-xs font-medium px-4 py-3">Price Range</th>
+                        <th className="text-center text-white/50 text-xs font-medium px-4 py-3">Min Beds</th>
+                        <th className="text-right text-white/50 text-xs font-medium px-4 py-3">Min Lot (Acres)</th>
+                        <th className="text-center text-white/50 text-xs font-medium px-4 py-3">Type</th>
+                        <th className="text-center text-white/50 text-xs font-medium px-4 py-3">Saved</th>
+                        <th className="text-center text-white/50 text-xs font-medium px-4 py-3 w-28">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {savedSearches.map((search, idx) => (
+                        <tr
+                          key={search.id}
+                          className={`border-b border-white/5 hover:bg-white/5 transition-colors ${idx % 2 === 0 ? "bg-white/[0.02]" : ""}`}
+                          data-testid={`row-saved-search-${search.id}`}
+                        >
+                          <td className="px-4 py-3">
+                            <span className="text-white/90 font-medium">{search.name}</span>
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-1.5">
+                              <MapPin className="w-3.5 h-3.5 text-[#9FBCA4] flex-shrink-0" />
+                              <span className="text-white/70">{search.location}</span>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 text-right text-white/70">
+                            {search.priceMin || search.priceMax ? (
+                              <>
+                                {search.priceMin ? `$${Number(search.priceMin).toLocaleString()}` : "Any"}
+                                {" — "}
+                                {search.priceMax ? `$${Number(search.priceMax).toLocaleString()}` : "Any"}
+                              </>
+                            ) : (
+                              <span className="text-white/30">Any</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 text-center text-white/70">
+                            {search.bedsMin || <span className="text-white/30">Any</span>}
+                          </td>
+                          <td className="px-4 py-3 text-right text-white/70">
+                            {search.lotSizeMin ? (
+                              <span className="text-[#9FBCA4]">{search.lotSizeMin}</span>
+                            ) : (
+                              <span className="text-white/30">Any</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 text-center">
+                            {search.propertyType ? (
+                              <span className="inline-block px-2 py-0.5 rounded-full text-xs bg-white/10 text-white/50 border border-white/10">
+                                {PropertyTypeLabel(search.propertyType)}
+                              </span>
+                            ) : (
+                              <span className="text-white/30">Any</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 text-center text-white/40 text-xs">
+                            {new Date(search.savedAt).toLocaleDateString()}
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex items-center justify-center gap-1">
+                              <GlassButton
+                                variant="primary"
+                                size="sm"
+                                onClick={() => handleLoadSearch(search)}
+                                data-testid={`btn-run-search-${search.id}`}
+                              >
+                                <Play className="w-3.5 h-3.5" /> Run
+                              </GlassButton>
+                              <button
+                                onClick={() => handleDeleteSearch(search.id)}
+                                disabled={deleteSavedSearch.isPending}
+                                className="p-1.5 rounded-lg hover:bg-red-900/30 transition-colors"
+                                title="Delete search"
+                                data-testid={`btn-delete-search-${search.id}`}
+                              >
+                                {deleteSavedSearch.isPending ? (
+                                  <Loader2 className="w-4 h-4 text-white animate-spin" />
+                                ) : (
+                                  <Trash2 className="w-4 h-4 text-[#F4795B]/70 hover:text-[#F4795B]" />
+                                )}
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             )}
@@ -621,17 +931,12 @@ export default function PropertyFinder() {
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {favorites.map((property) => (
-                  <SavedPropertyCard
-                    key={property.id}
-                    property={property}
-                    onRemove={() => handleRemove(property.id)}
-                    onUpdateNotes={(notes) => handleUpdateNotes(property.id, notes)}
-                    isRemoving={deleteFavorite.isPending}
-                  />
-                ))}
-              </div>
+              <SavedPropertiesTable
+                favorites={favorites}
+                onRemove={handleRemove}
+                onUpdateNotes={handleUpdateNotes}
+                isRemoving={deleteFavorite.isPending}
+              />
             )}
           </div>
         )}

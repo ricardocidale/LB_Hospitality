@@ -33,7 +33,10 @@ import {
   DEFAULT_MARKETING_RATE,
   DEFAULT_MISC_OPS_RATE,
   DEFAULT_SAFE_TRANCHE,
-  DEFAULT_PARTNER_COMP
+  DEFAULT_PARTNER_COMP,
+  DEFAULT_EVENT_EXPENSE_RATE,
+  DEFAULT_OTHER_EXPENSE_RATE,
+  DEFAULT_UTILITIES_VARIABLE_SPLIT
 } from './constants';
 
 // Helper function to get fiscal year label for a given month in the model
@@ -312,9 +315,9 @@ export function generatePropertyProForma(
     const expenseFB = revenueFB * costRateFB;
     
     // Event and Other expenses use configurable global rates
-    const eventExpenseRate = global.eventExpenseRate ?? 0.65;
-    const otherExpenseRate = global.otherExpenseRate ?? 0.60;
-    const utilitiesVariableSplit = global.utilitiesVariableSplit ?? 0.60;
+    const eventExpenseRate = global.eventExpenseRate ?? DEFAULT_EVENT_EXPENSE_RATE;
+    const otherExpenseRate = global.otherExpenseRate ?? DEFAULT_OTHER_EXPENSE_RATE;
+    const utilitiesVariableSplit = global.utilitiesVariableSplit ?? DEFAULT_UTILITIES_VARIABLE_SPLIT;
     
     const expenseEvents = revenueEvents * eventExpenseRate;
     const expenseOther = revenueOther * otherExpenseRate;

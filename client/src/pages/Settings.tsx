@@ -18,6 +18,16 @@ import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { Slider } from "@/components/ui/slider";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  DEFAULT_COMMISSION_RATE,
+  DEFAULT_LTV,
+  DEFAULT_ACQ_CLOSING_COST_RATE,
+  DEFAULT_REFI_LTV,
+  DEFAULT_INTEREST_RATE,
+  DEFAULT_REFI_CLOSING_COST_RATE,
+  DEFAULT_FULL_CATERING_BOOST,
+  DEFAULT_PARTIAL_CATERING_BOOST,
+} from "@/lib/constants";
 import { useAuth } from "@/lib/auth";
 import defaultLogo from "@/assets/logo.png";
 
@@ -482,10 +492,10 @@ export default function Settings() {
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <Label className="label-text">Real Estate Commission</Label>
-                    <span className="text-sm font-mono text-primary">{((currentGlobal.commissionRate || 0.05) * 100).toFixed(1)}%</span>
+                    <span className="text-sm font-mono text-primary">{((currentGlobal.commissionRate || DEFAULT_COMMISSION_RATE) * 100).toFixed(1)}%</span>
                   </div>
                   <Slider 
-                    value={[(currentGlobal.commissionRate || 0.05) * 100]}
+                    value={[(currentGlobal.commissionRate || DEFAULT_COMMISSION_RATE) * 100]}
                     onValueChange={(vals) => handleGlobalChange("commissionRate", (vals[0] / 100).toString())}
                     min={0}
                     max={10}
@@ -511,10 +521,10 @@ export default function Settings() {
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <Label className="label-text">LTV</Label>
-                    <span className="text-sm font-mono text-primary">{((currentGlobal.debtAssumptions?.acqLTV || 0.65) * 100).toFixed(0)}%</span>
+                    <span className="text-sm font-mono text-primary">{((currentGlobal.debtAssumptions?.acqLTV || DEFAULT_LTV) * 100).toFixed(0)}%</span>
                   </div>
                   <Slider 
-                    value={[(currentGlobal.debtAssumptions?.acqLTV || 0.65) * 100]}
+                    value={[(currentGlobal.debtAssumptions?.acqLTV || DEFAULT_LTV) * 100]}
                     onValueChange={(vals) => handleNestedChange("debtAssumptions", "acqLTV", (vals[0] / 100).toString())}
                     min={0}
                     max={90}
@@ -562,10 +572,10 @@ export default function Settings() {
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <Label className="label-text">Closing Costs</Label>
-                    <span className="text-sm font-mono text-primary">{((currentGlobal.debtAssumptions?.acqClosingCostRate || 0.02) * 100).toFixed(1)}%</span>
+                    <span className="text-sm font-mono text-primary">{((currentGlobal.debtAssumptions?.acqClosingCostRate || DEFAULT_ACQ_CLOSING_COST_RATE) * 100).toFixed(1)}%</span>
                   </div>
                   <Slider 
-                    value={[(currentGlobal.debtAssumptions?.acqClosingCostRate || 0.02) * 100]}
+                    value={[(currentGlobal.debtAssumptions?.acqClosingCostRate || DEFAULT_ACQ_CLOSING_COST_RATE) * 100]}
                     onValueChange={(vals) => handleNestedChange("debtAssumptions", "acqClosingCostRate", (vals[0] / 100).toString())}
                     min={0}
                     max={5}
@@ -608,10 +618,10 @@ export default function Settings() {
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <Label className="label-text">LTV</Label>
-                    <span className="text-sm font-mono text-primary">{((currentGlobal.debtAssumptions?.refiLTV || 0.65) * 100).toFixed(0)}%</span>
+                    <span className="text-sm font-mono text-primary">{((currentGlobal.debtAssumptions?.refiLTV || DEFAULT_REFI_LTV) * 100).toFixed(0)}%</span>
                   </div>
                   <Slider 
-                    value={[(currentGlobal.debtAssumptions?.refiLTV || 0.65) * 100]}
+                    value={[(currentGlobal.debtAssumptions?.refiLTV || DEFAULT_REFI_LTV) * 100]}
                     onValueChange={(vals) => handleNestedChange("debtAssumptions", "refiLTV", (vals[0] / 100).toString())}
                     min={0}
                     max={80}
@@ -625,10 +635,10 @@ export default function Settings() {
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <Label className="label-text">Interest Rate</Label>
-                    <span className="text-sm font-mono text-primary">{((currentGlobal.debtAssumptions?.refiInterestRate || 0.065) * 100).toFixed(1)}%</span>
+                    <span className="text-sm font-mono text-primary">{((currentGlobal.debtAssumptions?.refiInterestRate || DEFAULT_INTEREST_RATE) * 100).toFixed(1)}%</span>
                   </div>
                   <Slider 
-                    value={[(currentGlobal.debtAssumptions?.refiInterestRate || 0.065) * 100]}
+                    value={[(currentGlobal.debtAssumptions?.refiInterestRate || DEFAULT_INTEREST_RATE) * 100]}
                     onValueChange={(vals) => handleNestedChange("debtAssumptions", "refiInterestRate", (vals[0] / 100).toString())}
                     min={0}
                     max={15}
@@ -659,10 +669,10 @@ export default function Settings() {
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <Label className="label-text">Closing Costs</Label>
-                    <span className="text-sm font-mono text-primary">{((currentGlobal.debtAssumptions?.refiClosingCostRate || 0.02) * 100).toFixed(1)}%</span>
+                    <span className="text-sm font-mono text-primary">{((currentGlobal.debtAssumptions?.refiClosingCostRate || DEFAULT_REFI_CLOSING_COST_RATE) * 100).toFixed(1)}%</span>
                   </div>
                   <Slider 
-                    value={[(currentGlobal.debtAssumptions?.refiClosingCostRate || 0.02) * 100]}
+                    value={[(currentGlobal.debtAssumptions?.refiClosingCostRate || DEFAULT_REFI_CLOSING_COST_RATE) * 100]}
                     onValueChange={(vals) => handleNestedChange("debtAssumptions", "refiClosingCostRate", (vals[0] / 100).toString())}
                     min={0}
                     max={5}
@@ -883,10 +893,10 @@ export default function Settings() {
                           <Label className="label-text">F&B Revenue Boost</Label>
                           <HelpTooltip text="When an event requires full catering, F&B revenue gets boosted by this percentage. For example, 50% means F&B revenue increases by half for full-catered events." />
                         </div>
-                        <span className="text-sm font-mono text-primary">{((currentGlobal.fullCateringFBBoost ?? 0.50) * 100).toFixed(0)}%</span>
+                        <span className="text-sm font-mono text-primary">{((currentGlobal.fullCateringFBBoost ?? DEFAULT_FULL_CATERING_BOOST) * 100).toFixed(0)}%</span>
                       </div>
                       <Slider 
-                        value={[(currentGlobal.fullCateringFBBoost ?? 0.50) * 100]}
+                        value={[(currentGlobal.fullCateringFBBoost ?? DEFAULT_FULL_CATERING_BOOST) * 100]}
                         onValueChange={(vals) => handleGlobalChange("fullCateringFBBoost", (vals[0] / 100).toString())}
                         min={0}
                         max={100}
@@ -902,10 +912,10 @@ export default function Settings() {
                           <Label className="label-text">F&B Revenue Boost</Label>
                           <HelpTooltip text="When an event requires partial catering, F&B revenue gets boosted by this percentage. Lower than full service since less catering is provided." />
                         </div>
-                        <span className="text-sm font-mono text-primary">{((currentGlobal.partialCateringFBBoost ?? 0.25) * 100).toFixed(0)}%</span>
+                        <span className="text-sm font-mono text-primary">{((currentGlobal.partialCateringFBBoost ?? DEFAULT_PARTIAL_CATERING_BOOST) * 100).toFixed(0)}%</span>
                       </div>
                       <Slider 
-                        value={[(currentGlobal.partialCateringFBBoost ?? 0.25) * 100]}
+                        value={[(currentGlobal.partialCateringFBBoost ?? DEFAULT_PARTIAL_CATERING_BOOST) * 100]}
                         onValueChange={(vals) => handleGlobalChange("partialCateringFBBoost", (vals[0] / 100).toString())}
                         min={0}
                         max={100}

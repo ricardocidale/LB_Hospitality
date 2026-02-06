@@ -31,6 +31,10 @@ import {
   DEFAULT_TERM_YEARS,
   DEFAULT_REFI_LTV,
   DEFAULT_EXIT_CAP_RATE,
+  DEFAULT_COMMISSION_RATE,
+  DEFAULT_TAX_RATE,
+  DEFAULT_REFI_CLOSING_COST_RATE,
+  DEFAULT_ACQ_CLOSING_COST_RATE,
   DEPRECIATION_YEARS
 } from "@/lib/loanCalculations";
 
@@ -236,7 +240,7 @@ export default function Dashboard() {
   }
   
   // Calculate weighted average exit cap rate (for display purposes)
-  const avgExitCapRate = properties.reduce((sum, p) => sum + (p.exitCapRate || 0.085), 0) / totalProperties;
+  const avgExitCapRate = properties.reduce((sum, p) => sum + (p.exitCapRate || DEFAULT_EXIT_CAP_RATE), 0) / totalProperties;
   
   // Year 10 NOI for reference
   const year10Data = getYearlyConsolidated(9);
@@ -895,9 +899,9 @@ export default function Dashboard() {
         let cumulativePrincipal = 0;
         
         if (loanAmount > 0 && isFinanced) {
-          const annualRate = prop.acquisitionInterestRate || debtDefaults?.interestRate || 0.065;
+          const annualRate = prop.acquisitionInterestRate || debtDefaults?.interestRate || DEFAULT_INTEREST_RATE;
           const rate = annualRate / 12;
-          const termYears = prop.acquisitionTermYears || debtDefaults?.amortizationYears || 25;
+          const termYears = prop.acquisitionTermYears || debtDefaults?.amortizationYears || DEFAULT_TERM_YEARS;
           const term = termYears * 12;
           const monthlyPayment = loanAmount * (rate * Math.pow(1 + rate, term)) / (Math.pow(1 + rate, term) - 1);
           
@@ -918,7 +922,7 @@ export default function Dashboard() {
         
         const cumulativeNOI = relevantMonths.reduce((sum, m) => sum + m.noi, 0);
         const cumulativeDepreciation = annualDepreciation * Math.min(yearIndex + 1, 10);
-        const taxRate = prop.taxRate || 0.25;
+        const taxRate = prop.taxRate || DEFAULT_TAX_RATE;
         const taxableIncome = cumulativeNOI - cumulativeInterest - cumulativeDepreciation;
         const incomeTax = Math.max(0, taxableIncome) * taxRate;
         const netIncome = cumulativeNOI - cumulativeInterest - cumulativeDepreciation - incomeTax;
@@ -1102,7 +1106,7 @@ export default function Dashboard() {
           const totalInvestment = prop.purchasePrice + prop.buildingImprovements + 
                                   prop.preOpeningCosts + prop.operatingReserve;
           if (prop.type === "Financed") {
-            const ltv = prop.acquisitionLTV || (global.debtAssumptions as any)?.acqLTV || 0.75;
+            const ltv = prop.acquisitionLTV || (global.debtAssumptions as any)?.acqLTV || DEFAULT_LTV;
             total += totalInvestment * (1 - ltv);
           } else {
             total += totalInvestment;
@@ -1151,7 +1155,7 @@ export default function Dashboard() {
           }
         }
         
-        const taxRate = prop.taxRate || 0.25;
+        const taxRate = prop.taxRate || DEFAULT_TAX_RATE;
         const btcf = noi - (prop.type === "Financed" ? getPropertyYearly(idx, yearIdx).debtPayment || 0 : 0);
         totalBTCF += btcf;
         
@@ -1184,7 +1188,7 @@ export default function Dashboard() {
       const totalInvestment = prop.purchasePrice + prop.buildingImprovements + 
                               prop.preOpeningCosts + prop.operatingReserve;
       const investment = prop.type === "Financed" ? 
-        totalInvestment * (1 - (prop.acquisitionLTV || (global.debtAssumptions as any)?.acqLTV || 0.75)) : 
+        totalInvestment * (1 - (prop.acquisitionLTV || (global.debtAssumptions as any)?.acqLTV || DEFAULT_LTV)) : 
         totalInvestment;
       
       const values: (number | string)[] = Array(11).fill('');
@@ -3261,13 +3265,13 @@ function InvestmentAnalysis({
     
     if (refiYear < 0 || refiYear >= 10) return { year: -1, proceeds: 0 };
     
-    const refiLTV = prop.refinanceLTV || global.debtAssumptions.refiLTV || 0.65;
-    const closingCostRate = prop.refinanceClosingCostRate || global.debtAssumptions.refiClosingCostRate || 0.02;
+    const refiLTV = prop.refinanceLTV || global.debtAssumptions.refiLTV || DEFAULT_REFI_LTV;
+    const closingCostRate = prop.refinanceClosingCostRate || global.debtAssumptions.refiClosingCostRate || DEFAULT_REFI_CLOSING_COST_RATE;
     
     const { financials } = allPropertyFinancials[propIndex];
     const stabilizedData = financials.slice(refiYear * 12, (refiYear + 1) * 12);
     const stabilizedNOI = stabilizedData.reduce((a: number, m: any) => a + m.noi, 0);
-    const capRate = prop.exitCapRate || 0.085;
+    const capRate = prop.exitCapRate || DEFAULT_EXIT_CAP_RATE;
     const propertyValue = stabilizedNOI / capRate;
     
     const newLoanAmount = propertyValue * refiLTV;
@@ -3290,17 +3294,17 @@ function InvestmentAnalysis({
     
     if (refiYear < 0 || refiYear >= 10 || afterYear < refiYear) return 0;
     
-    const refiLTV = prop.refinanceLTV || global.debtAssumptions.refiLTV || 0.65;
+    const refiLTV = prop.refinanceLTV || global.debtAssumptions.refiLTV || DEFAULT_REFI_LTV;
     const { financials } = allPropertyFinancials[propIndex];
     const stabilizedData = financials.slice(refiYear * 12, (refiYear + 1) * 12);
     const stabilizedNOI = stabilizedData.reduce((a: number, m: any) => a + m.noi, 0);
-    const capRate = prop.exitCapRate || 0.085;
+    const capRate = prop.exitCapRate || DEFAULT_EXIT_CAP_RATE;
     const propertyValue = stabilizedNOI / capRate;
     const refiLoanAmount = propertyValue * refiLTV;
     
-    const annualRate = prop.refinanceInterestRate || global.debtAssumptions.interestRate || 0.09;
+    const annualRate = prop.refinanceInterestRate || global.debtAssumptions.interestRate || DEFAULT_INTEREST_RATE;
     const r = annualRate / 12;
-    const termYears = prop.refinanceTermYears || global.debtAssumptions.amortizationYears || 25;
+    const termYears = prop.refinanceTermYears || global.debtAssumptions.amortizationYears || DEFAULT_TERM_YEARS;
     const n = termYears * 12;
     
     if (r <= 0 || n <= 0) return 0;
@@ -3333,9 +3337,9 @@ function InvestmentAnalysis({
     const { financials } = allPropertyFinancials[propIndex];
     const year10Data = financials.slice(108, 120);
     const year10NOI = year10Data.reduce((a: number, m: any) => a + m.noi, 0);
-    const capRate = prop.exitCapRate || 0.085;
+    const capRate = prop.exitCapRate || DEFAULT_EXIT_CAP_RATE;
     const grossValue = year10NOI / capRate;
-    const commissionRate = global.commissionRate || 0.05;
+    const commissionRate = global.commissionRate || DEFAULT_COMMISSION_RATE;
     const commission = grossValue * commissionRate;
     const netValue = grossValue - commission;
     const outstandingDebt = getTotalOutstandingDebt(prop, propIndex, 9);
@@ -3348,7 +3352,7 @@ function InvestmentAnalysis({
     const noi = yearlyData.noi || 0;
     const { debtService, interestPortion, principalPortion } = getDebtServiceDetails(prop, propIndex, yearIndex);
     const depreciation = getAnnualDepreciation(prop);
-    const taxRate = prop.taxRate || 0.25;
+    const taxRate = prop.taxRate || DEFAULT_TAX_RATE;
 
     const btcf = noi - debtService;
     const taxableIncome = noi - interestPortion - depreciation;
@@ -3749,7 +3753,7 @@ function InvestmentAnalysis({
                     <TableRow key={prop.id} className="bg-muted/5" data-testid={`fcf-property-${prop.id}`}>
                       <TableCell className="sticky left-0 bg-muted/5 pl-12 text-sm text-muted-foreground">
                         {prop.name}
-                        <span className="text-xs ml-2">({((prop.taxRate || 0.25) * 100).toFixed(0)}% tax)</span>
+                        <span className="text-xs ml-2">({((prop.taxRate || DEFAULT_TAX_RATE) * 100).toFixed(0)}% tax)</span>
                       </TableCell>
                       <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
                       {Array.from({ length: 10 }, (_, y) => {
@@ -3830,7 +3834,7 @@ function InvestmentAnalysis({
                 <TableRow key={prop.id} className="bg-muted/10">
                   <TableCell className="sticky left-0 bg-muted/10 pl-8 text-sm text-muted-foreground">
                     {prop.name} 
-                    <span className="text-xs ml-2">({((prop.exitCapRate || 0.085) * 100).toFixed(1)}% cap)</span>
+                    <span className="text-xs ml-2">({((prop.exitCapRate || DEFAULT_EXIT_CAP_RATE) * 100).toFixed(1)}% cap)</span>
                   </TableCell>
                   <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
                   {Array.from({ length: 10 }, (_, y) => (
@@ -3916,8 +3920,8 @@ function InvestmentAnalysis({
                   <TableRow key={prop.id}>
                     <TableCell className="font-medium">{prop.name}</TableCell>
                     <TableCell className="text-right font-mono">{formatMoney(equity)}</TableCell>
-                    <TableCell className="text-right">{((prop.taxRate || 0.25) * 100).toFixed(0)}%</TableCell>
-                    <TableCell className="text-right">{((prop.exitCapRate || 0.085) * 100).toFixed(1)}%</TableCell>
+                    <TableCell className="text-right">{((prop.taxRate || DEFAULT_TAX_RATE) * 100).toFixed(0)}%</TableCell>
+                    <TableCell className="text-right">{((prop.exitCapRate || DEFAULT_EXIT_CAP_RATE) * 100).toFixed(1)}%</TableCell>
                     <TableCell className="text-right text-accent">{formatMoney(exitValue)}</TableCell>
                     <TableCell className="text-right font-mono">{formatMoney(totalDistributions)}</TableCell>
                     <TableCell className="text-right font-medium">{equityMultiple.toFixed(2)}x</TableCell>

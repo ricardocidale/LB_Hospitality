@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import Layout from "@/components/Layout";
 import { useProperty, useGlobalAssumptions } from "@/lib/api";
 import { generatePropertyProForma, formatMoney, getFiscalYearForModelYear } from "@/lib/financialEngine";
@@ -69,8 +70,11 @@ export default function PropertyDetail() {
   const projectionMonths = projectionYears * 12;
   const fiscalYearStartMonth = global.fiscalYearStartMonth ?? 1;
   const getFiscalYear = (yearIndex: number) => getFiscalYearForModelYear(global.modelStartDate, fiscalYearStartMonth, yearIndex);
-  const financials = generatePropertyProForma(property, global, projectionMonths);
-  
+  const financials = useMemo(
+    () => generatePropertyProForma(property, global, projectionMonths),
+    [property, global, projectionMonths]
+  );
+
   const yearlyChartData = [];
   for (let y = 0; y < projectionYears; y++) {
     const yearData = financials.slice(y * 12, (y + 1) * 12);

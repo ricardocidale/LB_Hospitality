@@ -35,6 +35,7 @@ export interface IStorage {
   createScenario(data: InsertScenario): Promise<Scenario>;
   updateScenario(id: number, data: UpdateScenario): Promise<Scenario | undefined>;
   deleteScenario(id: number): Promise<void>;
+  loadScenario(userId: number, savedAssumptions: any, savedProperties: any[]): Promise<void>;
   
   // Login Logs
   createLoginLog(userId: number, sessionId: string, ipAddress?: string): Promise<LoginLog>;
@@ -245,7 +246,32 @@ export class DatabaseStorage implements IStorage {
   async deleteScenario(id: number): Promise<void> {
     await db.delete(scenarios).where(eq(scenarios.id, id));
   }
-  
+
+  async loadScenario(userId: number, savedAssumptions: any, savedProperties: any[]): Promise<void> {
+    await db.transaction(async (tx) => {
+      // Restore global assumptions
+      const existing = await tx.select().from(globalAssumptions)
+        .where(eq(globalAssumptions.userId, userId));
+      if (existing.length > 0) {
+        await tx.update(globalAssumptions).set(savedAssumptions)
+          .where(eq(globalAssumptions.userId, userId));
+      } else {
+        await tx.insert(globalAssumptions).values({ ...savedAssumptions, userId });
+      }
+
+      // Delete current properties atomically, then restore saved ones
+      const currentProps = await tx.select().from(properties)
+        .where(or(eq(properties.userId, userId), isNull(properties.userId)));
+      for (const prop of currentProps) {
+        await tx.delete(properties).where(eq(properties.id, prop.id));
+      }
+      for (const prop of savedProperties) {
+        const { id, createdAt, updatedAt, ...propData } = prop;
+        await tx.insert(properties).values({ ...propData, userId });
+      }
+    });
+  }
+
   // Login Logs
   async createLoginLog(userId: number, sessionId: string, ipAddress?: string): Promise<LoginLog> {
     const [log] = await db
@@ -317,10 +343,11 @@ export class DatabaseStorage implements IStorage {
   }
   
   async setActiveDesignTheme(id: number): Promise<void> {
-    // First deactivate all themes
-    await db.update(designThemes).set({ isActive: false });
-    // Then activate the selected one
-    await db.update(designThemes).set({ isActive: true }).where(eq(designThemes.id, id));
+    await db.transaction(async (tx) => {
+      // Deactivate all themes, then activate the selected one
+      await tx.update(designThemes).set({ isActive: false });
+      await tx.update(designThemes).set({ isActive: true }).where(eq(designThemes.id, id));
+    });
   }
   
   // Market Research

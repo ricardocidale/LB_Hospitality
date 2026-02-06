@@ -11,7 +11,7 @@ import { GlassButton } from "@/components/ui/glass-button";
 import { Loader2, ChevronRight, ChevronDown, FileDown, FileSpreadsheet } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { format, differenceInMonths } from "date-fns";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { ConsolidatedBalanceSheet } from "@/components/ConsolidatedBalanceSheet";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
@@ -85,78 +85,83 @@ export default function Dashboard() {
   const fiscalYearStartMonth = global.fiscalYearStartMonth ?? 1;
   const getFiscalYear = (yearIndex: number) => getFiscalYearForModelYear(global.modelStartDate, fiscalYearStartMonth, yearIndex);
 
-  const allPropertyFinancials = properties.map(p => {
+  const allPropertyFinancials = useMemo(() => properties.map(p => {
     const financials = generatePropertyProForma(p, global, projectionMonths);
     return { property: p, financials };
-  });
+  }), [properties, global, projectionMonths]);
 
-  const getYearlyConsolidated = (yearIndex: number) => {
-    const startMonth = yearIndex * 12;
-    const endMonth = startMonth + 12;
-    
-    let totals = {
-      revenueRooms: 0,
-      revenueEvents: 0,
-      revenueFB: 0,
-      revenueOther: 0,
-      revenueTotal: 0,
-      expenseRooms: 0,
-      expenseFB: 0,
-      expenseEvents: 0,
-      expenseOther: 0,
-      expenseMarketing: 0,
-      expensePropertyOps: 0,
-      expenseUtilitiesVar: 0,
-      expenseFFE: 0,
-      expenseAdmin: 0,
-      expenseIT: 0,
-      expenseInsurance: 0,
-      expenseTaxes: 0,
-      expenseUtilitiesFixed: 0,
-      expenseOtherCosts: 0,
-      feeBase: 0,
-      feeIncentive: 0,
-      totalExpenses: 0,
-      gop: 0,
-      noi: 0,
-      debtPayment: 0,
-      cashFlow: 0
-    };
+  // Pre-compute all yearly consolidated data once (instead of on-demand per row per year)
+  const yearlyConsolidatedCache = useMemo(() => {
+    return Array.from({ length: projectionYears }, (_, yearIndex) => {
+      const startMonth = yearIndex * 12;
+      const endMonth = startMonth + 12;
 
-    allPropertyFinancials.forEach(({ financials }) => {
-      const yearData = financials.slice(startMonth, endMonth);
-      yearData.forEach(m => {
-        totals.revenueRooms += m.revenueRooms;
-        totals.revenueEvents += m.revenueEvents;
-        totals.revenueFB += m.revenueFB;
-        totals.revenueOther += m.revenueOther;
-        totals.revenueTotal += m.revenueTotal;
-        totals.expenseRooms += m.expenseRooms;
-        totals.expenseFB += m.expenseFB;
-        totals.expenseEvents += m.expenseEvents;
-        totals.expenseOther += m.expenseOther;
-        totals.expenseMarketing += m.expenseMarketing;
-        totals.expensePropertyOps += m.expensePropertyOps;
-        totals.expenseUtilitiesVar += m.expenseUtilitiesVar;
-        totals.expenseFFE += m.expenseFFE;
-        totals.expenseAdmin += m.expenseAdmin;
-        totals.expenseIT += m.expenseIT;
-        totals.expenseInsurance += m.expenseInsurance;
-        totals.expenseTaxes += m.expenseTaxes;
-        totals.expenseUtilitiesFixed += m.expenseUtilitiesFixed;
-        totals.expenseOtherCosts += m.expenseOtherCosts;
-        totals.feeBase += m.feeBase;
-        totals.feeIncentive += m.feeIncentive;
-        totals.totalExpenses += m.totalExpenses;
-        totals.gop += m.gop;
-        totals.noi += m.noi;
-        totals.debtPayment += m.debtPayment;
-        totals.cashFlow += m.cashFlow;
+      let totals = {
+        revenueRooms: 0,
+        revenueEvents: 0,
+        revenueFB: 0,
+        revenueOther: 0,
+        revenueTotal: 0,
+        expenseRooms: 0,
+        expenseFB: 0,
+        expenseEvents: 0,
+        expenseOther: 0,
+        expenseMarketing: 0,
+        expensePropertyOps: 0,
+        expenseUtilitiesVar: 0,
+        expenseFFE: 0,
+        expenseAdmin: 0,
+        expenseIT: 0,
+        expenseInsurance: 0,
+        expenseTaxes: 0,
+        expenseUtilitiesFixed: 0,
+        expenseOtherCosts: 0,
+        feeBase: 0,
+        feeIncentive: 0,
+        totalExpenses: 0,
+        gop: 0,
+        noi: 0,
+        debtPayment: 0,
+        cashFlow: 0
+      };
+
+      allPropertyFinancials.forEach(({ financials }) => {
+        const yearData = financials.slice(startMonth, endMonth);
+        yearData.forEach(m => {
+          totals.revenueRooms += m.revenueRooms;
+          totals.revenueEvents += m.revenueEvents;
+          totals.revenueFB += m.revenueFB;
+          totals.revenueOther += m.revenueOther;
+          totals.revenueTotal += m.revenueTotal;
+          totals.expenseRooms += m.expenseRooms;
+          totals.expenseFB += m.expenseFB;
+          totals.expenseEvents += m.expenseEvents;
+          totals.expenseOther += m.expenseOther;
+          totals.expenseMarketing += m.expenseMarketing;
+          totals.expensePropertyOps += m.expensePropertyOps;
+          totals.expenseUtilitiesVar += m.expenseUtilitiesVar;
+          totals.expenseFFE += m.expenseFFE;
+          totals.expenseAdmin += m.expenseAdmin;
+          totals.expenseIT += m.expenseIT;
+          totals.expenseInsurance += m.expenseInsurance;
+          totals.expenseTaxes += m.expenseTaxes;
+          totals.expenseUtilitiesFixed += m.expenseUtilitiesFixed;
+          totals.expenseOtherCosts += m.expenseOtherCosts;
+          totals.feeBase += m.feeBase;
+          totals.feeIncentive += m.feeIncentive;
+          totals.totalExpenses += m.totalExpenses;
+          totals.gop += m.gop;
+          totals.noi += m.noi;
+          totals.debtPayment += m.debtPayment;
+          totals.cashFlow += m.cashFlow;
+        });
       });
-    });
 
-    return totals;
-  };
+      return totals;
+    });
+  }, [allPropertyFinancials, projectionYears]);
+
+  const getYearlyConsolidated = (yearIndex: number) => yearlyConsolidatedCache[yearIndex];
 
   const getPropertyYearly = (propIndex: number, yearIndex: number) => {
     const startMonth = yearIndex * 12;
@@ -250,8 +255,8 @@ export default function Dashboard() {
   // Calculate weighted average exit cap rate (for display purposes)
   const avgExitCapRate = properties.reduce((sum, p) => sum + (p.exitCapRate ?? DEFAULT_EXIT_CAP_RATE), 0) / totalProperties;
   
-  // Year 10 NOI for reference
-  const year10Data = getYearlyConsolidated(9);
+  // Final year NOI for reference
+  const year10Data = getYearlyConsolidated(projectionYears - 1);
   const year10NOI = year10Data.noi;
   
   // Geographic distribution
@@ -545,7 +550,7 @@ export default function Dashboard() {
     doc.setFontSize(18);
     doc.text("L+B Hospitality Group - Portfolio Income Statement", 14, 15);
     doc.setFontSize(10);
-    doc.text(`10-Year Projection (${years[0]} - ${years[9]})`, 14, 22);
+    doc.text(`${projectionYears}-Year Projection (${years[0]} - ${years[projectionYears - 1]})`, 14, 22);
     doc.text(`Generated: ${format(new Date(), 'MMM d, yyyy')}`, 14, 27);
     
     const tableData = rows.map(row => [
@@ -580,7 +585,7 @@ export default function Dashboard() {
     doc.setFontSize(16);
     doc.text("Revenue & NOI Performance Chart", 14, 15);
     doc.setFontSize(10);
-    doc.text("10-Year Revenue, Operating Expenses, and Net Operating Income Trend", 14, 22);
+    doc.text(`${projectionYears}-Year Revenue, Operating Expenses, and Net Operating Income Trend`, 14, 22);
     
     const chartData = years.map((year, i) => {
       const yearly = getYearlyConsolidated(i);
@@ -603,7 +608,7 @@ export default function Dashboard() {
       y: 30,
       width: 269,
       height: 150,
-      title: "Portfolio Revenue, Operating Expenses & NOI (10-Year Projection)",
+      title: `Portfolio Revenue, Operating Expenses & NOI (${projectionYears}-Year Projection)`,
       series: [
         { name: "Revenue", data: chartData, color: "#7C3AED" },
         { name: "Operating Expenses", data: expenseData, color: "#2563EB" },
@@ -740,7 +745,7 @@ export default function Dashboard() {
     doc.setFontSize(18);
     doc.text("L+B Hospitality Group - Cash Flow Statement", 14, 15);
     doc.setFontSize(10);
-    doc.text(`10-Year Projection (${years[0]} - ${years[9]})`, 14, 22);
+    doc.text(`${projectionYears}-Year Projection (${years[0]} - ${years[projectionYears - 1]})`, 14, 22);
     doc.text(`Generated: ${format(new Date(), 'MMM d, yyyy')}`, 14, 27);
     
     const tableData = rows.map(row => [
@@ -824,7 +829,7 @@ export default function Dashboard() {
     doc.setFontSize(16);
     doc.text("Cash Flow Performance Chart", 14, 15);
     doc.setFontSize(10);
-    doc.text("10-Year NOI and Net Cash Flow After Financing", 14, 22);
+    doc.text(`${projectionYears}-Year NOI and Net Cash Flow After Financing`, 14, 22);
     
     const noiChartData = graphData.cashFlowAfterFinancing.map(d => ({
       label: String(d.year),
@@ -842,7 +847,7 @@ export default function Dashboard() {
       y: 30,
       width: 269,
       height: 150,
-      title: "NOI vs Net Cash Flow (10-Year Projection)",
+      title: `NOI vs Net Cash Flow (${projectionYears}-Year Projection)`,
       series: [
         { name: "NOI", data: noiChartData, color: "#257D41" },
         { name: "Net Cash Flow", data: netCashChartData, color: "#3B82F6" }
@@ -1017,7 +1022,7 @@ export default function Dashboard() {
     doc.setFontSize(18);
     doc.text("L+B Hospitality Group - Consolidated Balance Sheet", 14, 15);
     doc.setFontSize(10);
-    doc.text(`10-Year Projection (${years[0]} - ${years[9]})`, 14, 22);
+    doc.text(`${projectionYears}-Year Projection (${years[0]} - ${years[projectionYears - 1]})`, 14, 22);
     doc.text(`Generated: ${format(new Date(), 'MMM d, yyyy')}`, 14, 27);
     
     const tableData = rows.map(row => [
@@ -1058,7 +1063,7 @@ export default function Dashboard() {
     doc.setFontSize(16);
     doc.text("Balance Sheet Trend Chart", 14, 15);
     doc.setFontSize(10);
-    doc.text("10-Year Assets, Liabilities, and Equity Growth", 14, 22);
+    doc.text(`${projectionYears}-Year Assets, Liabilities, and Equity Growth`, 14, 22);
     
     const assetsData = years.map((year, i) => {
       const row = rows.find(r => r.category === 'TOTAL ASSETS');
@@ -1081,7 +1086,7 @@ export default function Dashboard() {
       y: 30,
       width: 269,
       height: 150,
-      title: "Balance Sheet Components (10-Year Projection)",
+      title: `Balance Sheet Components (${projectionYears}-Year Projection)`,
       series: [
         { name: "Total Assets", data: assetsData, color: "#257D41" },
         { name: "Total Liabilities", data: liabilitiesData, color: "#F4795B" },
@@ -1156,6 +1161,7 @@ export default function Dashboard() {
         const depreciation = depreciableBasis2 / DEPRECIATION_YEARS;
         totalDepreciation += depreciation;
         
+        let yearInterest = 0;
         if (prop.type === "Financed") {
           const totalPropVal = prop.purchasePrice + prop.buildingImprovements;
           const ltv = prop.acquisitionLTV ?? (global.debtAssumptions as any)?.acqLTV ?? DEFAULT_LTV;
@@ -1164,13 +1170,12 @@ export default function Dashboard() {
           const r = annualRate / 12;
           const termYears = prop.acquisitionTermYears ?? (global.debtAssumptions as any)?.amortizationYears ?? DEFAULT_TERM_YEARS;
           const n = termYears * 12;
-          
+
           if (r > 0 && n > 0 && loanAmount > 0) {
             const monthlyPayment = (loanAmount * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
             totalDebtService += monthlyPayment * 12;
-            
+
             let balance = loanAmount;
-            let yearInterest = 0;
             const startMonth = yearIdx * 12;
             const endMonth = startMonth + 12;
             for (let m = 0; m < endMonth && m < n; m++) {
@@ -1182,11 +1187,11 @@ export default function Dashboard() {
             totalInterest += yearInterest;
           }
         }
-        
+
         const taxRate = prop.taxRate ?? DEFAULT_TAX_RATE;
         const btcf = noi - (prop.type === "Financed" ? getPropertyYearly(idx, yearIdx).debtPayment ?? 0 : 0);
         totalBTCF += btcf;
-        
+
         const taxableIncome = noi - yearInterest - depreciation;
         totalTaxableIncome += taxableIncome;
         const tax = taxableIncome > 0 ? taxableIncome * taxRate : 0;
@@ -1220,15 +1225,15 @@ export default function Dashboard() {
         totalInvestment - propertyValue * (prop.acquisitionLTV ?? (global.debtAssumptions as any)?.acqLTV ?? DEFAULT_LTV) : 
         totalInvestment;
       
-      const values: (number | string)[] = Array(11).fill('');
+      const values: (number | string)[] = Array(projectionYears + 1).fill('');
       if (acqYear >= 0 && acqYear <= projectionYears) {
         values[acqYear] = -investment;
       }
       rows.push({ category: prop.name, values, indent: 1, isNegative: true });
     });
     
-    rows.push({ category: "", values: Array(11).fill('') });
-    rows.push({ category: "OPERATING CASH FLOW", values: Array(11).fill(''), isHeader: true });
+    rows.push({ category: "", values: Array(projectionYears + 1).fill('') });
+    rows.push({ category: "OPERATING CASH FLOW", values: Array(projectionYears + 1).fill(''), isHeader: true });
     
     rows.push({ category: "Net Operating Income (NOI)", values: [
       '-',
@@ -1248,8 +1253,8 @@ export default function Dashboard() {
       ...Array.from({ length: projectionYears }, (_, i) => getYearDetails(i).btcf)
     ], indent: 1 });
     
-    rows.push({ category: "", values: Array(11).fill('') });
-    rows.push({ category: "TAX CALCULATION", values: Array(11).fill(''), isHeader: true });
+    rows.push({ category: "", values: Array(projectionYears + 1).fill('') });
+    rows.push({ category: "TAX CALCULATION", values: Array(projectionYears + 1).fill(''), isHeader: true });
     
     rows.push({ category: "Less: Interest Expense", values: [
       '-',
@@ -1277,22 +1282,22 @@ export default function Dashboard() {
       })
     ], indent: 1, isNegative: true });
     
-    rows.push({ category: "", values: Array(11).fill('') });
+    rows.push({ category: "", values: Array(projectionYears + 1).fill('') });
     rows.push({ category: "AFTER-TAX CASH FLOW (ATCF)", values: [
       '-',
       ...Array.from({ length: projectionYears }, (_, i) => getYearDetails(i).atcf)
     ], isHeader: true });
     
-    rows.push({ category: "Exit Value (Year 10)", values: [
+    rows.push({ category: `Exit Value (Year ${projectionYears})`, values: [
       ...Array(projectionYears).fill(''),
       totalExitValue
     ] });
     
-    rows.push({ category: "", values: Array(11).fill('') });
+    rows.push({ category: "", values: Array(projectionYears + 1).fill('') });
     rows.push({ category: "TOTAL CASH FLOW", values: consolidatedFlows.map((cf, i) => cf), isHeader: true });
     
-    rows.push({ category: "", values: Array(11).fill('') });
-    rows.push({ category: "INVESTMENT METRICS", values: Array(11).fill(''), isHeader: true });
+    rows.push({ category: "", values: Array(projectionYears + 1).fill('') });
+    rows.push({ category: "INVESTMENT METRICS", values: Array(projectionYears + 1).fill(''), isHeader: true });
     rows.push({ category: "Total Equity Invested", values: [formatMoney(totalInitialEquity), ...Array(projectionYears).fill('')] });
     rows.push({ category: "Total Exit Value", values: [...Array(projectionYears).fill(''), formatMoney(totalExitValue)] });
     rows.push({ category: "Equity Multiple", values: [`${equityMultiple.toFixed(2)}x`, ...Array(projectionYears).fill('')] });
@@ -1309,7 +1314,7 @@ export default function Dashboard() {
     doc.setFontSize(18);
     doc.text("L+B Hospitality Group - Investment Analysis", 14, 15);
     doc.setFontSize(10);
-    doc.text(`10-Year Projection`, 14, 22);
+    doc.text(`${projectionYears}-Year Projection`, 14, 22);
     doc.text(`Generated: ${format(new Date(), 'MMM d, yyyy')}`, 14, 27);
     
     const tableData = rows.map(row => [
@@ -1352,7 +1357,7 @@ export default function Dashboard() {
     doc.setFontSize(16);
     doc.text("Investment Returns Chart", 14, 15);
     doc.setFontSize(10);
-    doc.text("10-Year Cash Flow to Investors and Cumulative Returns", 14, 22);
+    doc.text(`${projectionYears}-Year Cash Flow to Investors and Cumulative Returns`, 14, 22);
     
     const cashFlowData = consolidatedFlows.slice(1).map((cf, i) => ({
       label: String(years[i]),
@@ -1371,7 +1376,7 @@ export default function Dashboard() {
       y: 30,
       width: 269,
       height: 150,
-      title: "Net Cash Flow to Investors (10-Year Projection)",
+      title: `Net Cash Flow to Investors (${projectionYears}-Year Projection)`,
       series: [
         { name: "Annual Cash Flow", data: cashFlowData, color: "#257D41" },
         { name: "Cumulative Cash Flow", data: cumulativeData, color: "#7C3AED" }
@@ -1440,7 +1445,7 @@ export default function Dashboard() {
     doc.text("Portfolio Investment Report", pageWidth / 2, 42, { align: 'center' });
     doc.setFontSize(12);
     doc.setTextColor(100);
-    doc.text(`10-Year Projection (${getFiscalYear(0)} - ${getFiscalYear(9)})`, pageWidth / 2, 52, { align: 'center' });
+    doc.text(`${projectionYears}-Year Projection (${getFiscalYear(0)} - ${getFiscalYear(projectionYears - 1)})`, pageWidth / 2, 52, { align: 'center' });
     doc.text(`Generated: ${format(new Date(), 'MMMM d, yyyy')}`, pageWidth / 2, 60, { align: 'center' });
 
     // Divider line
@@ -1466,7 +1471,7 @@ export default function Dashboard() {
 
     // Row 1: Key Returns
     drawMetric(col1X, metricY, "Total Equity Invested", formatMoney(totalInitialEquity));
-    drawMetric(col2X, metricY, "Exit Value (Year 10)", formatMoney(totalExitValue));
+    drawMetric(col2X, metricY, `Exit Value (Year ${projectionYears})`, formatMoney(totalExitValue));
     drawMetric(col3X, metricY, "Equity Multiple", `${equityMultiple.toFixed(2)}x`);
 
     metricY += 25;
@@ -1478,10 +1483,10 @@ export default function Dashboard() {
 
     metricY += 25;
 
-    // Row 3: 10-Year Totals
-    drawMetric(col1X, metricY, "10-Year Revenue", formatMoney(total10YearRevenue));
-    drawMetric(col2X, metricY, "10-Year NOI", formatMoney(total10YearNOI));
-    drawMetric(col3X, metricY, "10-Year Cash Flow", formatMoney(total10YearCashFlow));
+    // Row 3: Projection Totals
+    drawMetric(col1X, metricY, `${projectionYears}-Year Revenue`, formatMoney(total10YearRevenue));
+    drawMetric(col2X, metricY, `${projectionYears}-Year NOI`, formatMoney(total10YearNOI));
+    drawMetric(col3X, metricY, `${projectionYears}-Year Cash Flow`, formatMoney(total10YearCashFlow));
 
     metricY += 25;
 
@@ -1540,7 +1545,7 @@ export default function Dashboard() {
     doc.setTextColor(61, 61, 61);
     doc.text("Income Statement", 14, 15);
     doc.setFontSize(10);
-    doc.text("Consolidated 10-Year Projection", 14, 22);
+    doc.text(`Consolidated ${projectionYears}-Year Projection`, 14, 22);
 
     const { years: incomeYears, rows: incomeRows } = generateIncomeStatementData();
     const incomeTableData = incomeRows.map(row => [
@@ -1577,7 +1582,7 @@ export default function Dashboard() {
     doc.setTextColor(61, 61, 61);
     doc.text("Cash Flow Statement", 14, 15);
     doc.setFontSize(10);
-    doc.text("Consolidated 10-Year Projection", 14, 22);
+    doc.text(`Consolidated ${projectionYears}-Year Projection`, 14, 22);
 
     const { years: cfYears, rows: cfRows } = generateCashFlowData();
     const cfTableData = cfRows.map(row => [
@@ -1614,7 +1619,7 @@ export default function Dashboard() {
     doc.setTextColor(61, 61, 61);
     doc.text("Balance Sheet", 14, 15);
     doc.setFontSize(10);
-    doc.text("Consolidated 10-Year Projection", 14, 22);
+    doc.text(`Consolidated ${projectionYears}-Year Projection`, 14, 22);
 
     const { years: bsYears, rows: bsRows } = generateBalanceSheetData();
     const bsTableData = bsRows.map(row => [
@@ -1693,11 +1698,11 @@ export default function Dashboard() {
     // Overview Section
     csvContent += "L+B HOSPITALITY GROUP - PORTFOLIO INVESTMENT REPORT\n";
     csvContent += `Generated: ${format(new Date(), 'MMMM d, yyyy')}\n`;
-    csvContent += `Investment Period: ${getFiscalYear(0)} - ${getFiscalYear(9)}\n\n`;
+    csvContent += `Investment Period: ${getFiscalYear(0)} - ${getFiscalYear(projectionYears - 1)}\n\n`;
 
     csvContent += "INVESTMENT RETURNS SUMMARY\n";
     csvContent += `Total Equity Invested,${totalInitialEquity}\n`;
-    csvContent += `Exit Value (Year 10),${totalExitValue}\n`;
+    csvContent += `Exit Value (Year ${projectionYears}),${totalExitValue}\n`;
     csvContent += `Equity Multiple,${equityMultiple.toFixed(2)}x\n`;
     csvContent += `Average Cash-on-Cash,${cashOnCash.toFixed(1)}%\n`;
     csvContent += `Portfolio IRR,${(portfolioIRR * 100).toFixed(1)}%\n\n`;
@@ -1710,11 +1715,11 @@ export default function Dashboard() {
     csvContent += `Average Starting ADR,${properties.length > 0 ? properties.reduce((sum, p) => sum + (p.startAdr ?? 0), 0) / properties.length : 0}\n\n`;
 
     csvContent += "10-YEAR FINANCIAL PROJECTIONS\n";
-    csvContent += `Total Revenue (10-Year),${Array.from({ length: projectionYears }, (_, i) => getYearlyConsolidated(i).revenueTotal).reduce((a, b) => a + b, 0)}\n`;
-    csvContent += `Total NOI (10-Year),${Array.from({ length: projectionYears }, (_, i) => getYearlyConsolidated(i).noi).reduce((a, b) => a + b, 0)}\n`;
-    csvContent += `Total Cash Flow (10-Year),${Array.from({ length: projectionYears }, (_, i) => getYearlyConsolidated(i).cashFlow).reduce((a, b) => a + b, 0)}\n`;
-    csvContent += `Year 10 Revenue,${getYearlyConsolidated(9).revenueTotal}\n`;
-    csvContent += `Year 10 NOI,${getYearlyConsolidated(9).noi}\n\n`;
+    csvContent += `Total Revenue (${projectionYears}-Year),${Array.from({ length: projectionYears }, (_, i) => getYearlyConsolidated(i).revenueTotal).reduce((a, b) => a + b, 0)}\n`;
+    csvContent += `Total NOI (${projectionYears}-Year),${Array.from({ length: projectionYears }, (_, i) => getYearlyConsolidated(i).noi).reduce((a, b) => a + b, 0)}\n`;
+    csvContent += `Total Cash Flow (${projectionYears}-Year),${Array.from({ length: projectionYears }, (_, i) => getYearlyConsolidated(i).cashFlow).reduce((a, b) => a + b, 0)}\n`;
+    csvContent += `Year ${projectionYears} Revenue,${getYearlyConsolidated(projectionYears - 1).revenueTotal}\n`;
+    csvContent += `Year ${projectionYears} NOI,${getYearlyConsolidated(projectionYears - 1).noi}\n\n`;
 
     csvContent += "PROPERTIES\n";
     csvContent += "Name,Location,Rooms,Financing\n";
@@ -2060,18 +2065,18 @@ export default function Dashboard() {
                 </div>
               </div>
               
-              {/* 10-Year Totals Row */}
+              {/* Projection Totals Row */}
               <div className="relative mt-6 grid gap-4 md:grid-cols-3">
                 <div className="bg-white/90 backdrop-blur-xl rounded-xl p-4 border border-white/40 shadow-lg shadow-black/10 text-center">
-                  <p className="text-sm text-[#2d4a5e]/60 mb-1 label-text">10-Year Revenue</p>
+                  <p className="text-sm text-[#2d4a5e]/60 mb-1 label-text">{projectionYears}-Year Revenue</p>
                   <p className="text-xl font-bold text-[#2d4a5e] font-mono">{formatMoney(total10YearRevenue)}</p>
                 </div>
                 <div className="bg-white/90 backdrop-blur-xl rounded-xl p-4 border border-white/40 shadow-lg shadow-black/10 text-center">
-                  <p className="text-sm text-[#2d4a5e]/60 mb-1 label-text">10-Year NOI</p>
+                  <p className="text-sm text-[#2d4a5e]/60 mb-1 label-text">{projectionYears}-Year NOI</p>
                   <p className="text-xl font-bold text-[#2d4a5e] font-mono">{formatMoney(total10YearNOI)}</p>
                 </div>
                 <div className="bg-white/90 backdrop-blur-xl rounded-xl p-4 border border-white/40 shadow-lg shadow-black/10 text-center">
-                  <p className="text-sm text-[#2d4a5e]/60 mb-1 label-text">10-Year Cash Flow</p>
+                  <p className="text-sm text-[#2d4a5e]/60 mb-1 label-text">{projectionYears}-Year Cash Flow</p>
                   <p className="text-xl font-bold text-[#2d4a5e] font-mono">{formatMoney(total10YearCashFlow)}</p>
                 </div>
               </div>
@@ -2139,7 +2144,7 @@ export default function Dashboard() {
 
             <Card>
               <CardHeader>
-                <CardTitle className="font-display">Consolidated Portfolio Income Statement (10-Year)</CardTitle>
+                <CardTitle className="font-display">Consolidated Portfolio Income Statement ({projectionYears}-Year)</CardTitle>
                 <p className="text-sm text-muted-foreground label-text">All properties combined - management fees shown as expenses paid to L+B Co.</p>
               </CardHeader>
               <CardContent className="overflow-x-auto">
@@ -2615,7 +2620,7 @@ export default function Dashboard() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Consolidated Portfolio Cash Flow Statement (10-Year)</CardTitle>
+                <CardTitle>Consolidated Portfolio Cash Flow Statement ({projectionYears}-Year)</CardTitle>
                 <p className="text-sm text-muted-foreground">All properties combined - shows cash available after debt service</p>
               </CardHeader>
               <CardContent className="overflow-x-auto">
@@ -3534,7 +3539,7 @@ function InvestmentAnalysis({
           
           <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-5 border border-[#9FBCA4]/30 shadow-lg shadow-black/10">
             <p className="text-sm font-medium text-[#2d4a5e]/70 flex items-center mb-2">
-              Exit Value ({getFiscalYear(9)})
+              Exit Value ({getFiscalYear(projectionYears - 1)})
               <HelpTooltip text={`Projected sale value of all properties at ${getFiscalYear(10)}, calculated as NOI ÷ Exit Cap Rate, minus any outstanding debt at time of sale.`} />
             </p>
             <div className="text-2xl font-bold text-[#059669] font-mono">{formatMoney(totalExitValueIA)}</div>
@@ -3568,7 +3573,7 @@ function InvestmentAnalysis({
 
       <Card>
         <CardHeader>
-          <CardTitle>Free Cash Flow Analysis (10-Year)</CardTitle>
+          <CardTitle>Free Cash Flow Analysis ({projectionYears}-Year)</CardTitle>
           <p className="text-sm text-muted-foreground">Investor cash flows including distributions, refinancing proceeds, and exit values</p>
         </CardHeader>
         <CardContent className="overflow-x-auto">

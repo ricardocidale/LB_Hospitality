@@ -148,7 +148,8 @@ function independentPropertyCalc(property: any, global: any) {
 
     let occupancy = 0;
     if (isOperational) {
-      const rampSteps = Math.floor(monthsSinceOps / property.occupancyRampMonths);
+      const rampMonths = property.occupancyRampMonths || 6;
+      const rampSteps = Math.floor(monthsSinceOps / rampMonths);
       occupancy = Math.min(
         property.maxOccupancy,
         property.startOccupancy + (rampSteps * property.occupancyGrowthStep)
@@ -229,7 +230,7 @@ function independentPropertyCalc(property: any, global: any) {
         (currentDate.getMonth() - acquisitionDate.getMonth());
     }
 
-    if (isAcquired && property.type === "Financed" && originalLoanAmount > 0 && monthlyRate > 0) {
+    if (isAcquired && property.type === "Financed" && originalLoanAmount > 0) {
       debtPayment = monthlyPayment;
       let remainingBalance = originalLoanAmount;
       for (let m = 0; m < monthsSinceAcquisition && m < totalPayments; m++) {
@@ -244,11 +245,11 @@ function independentPropertyCalc(property: any, global: any) {
 
     const depreciationExpense = isAcquired ? monthlyDepreciation : 0;
     const taxableIncome = noi - interestExpense - depreciationExpense;
-    const incomeTax = taxableIncome > 0 ? taxableIncome * (property.taxRate ?? 0.21) : 0;
+    const incomeTax = taxableIncome > 0 ? taxableIncome * (property.taxRate ?? 0.25) : 0;
     const netIncome = noi - interestExpense - depreciationExpense - incomeTax;
     const cashFlow = noi - debtPayment - incomeTax;
 
-    const accumulatedDepreciation = isAcquired ? monthlyDepreciation * (monthsSinceAcquisition + 1) : 0;
+    const accumulatedDepreciation = isAcquired ? Math.min(monthlyDepreciation * (monthsSinceAcquisition + 1), depreciableBasis) : 0;
     const propertyValue = isAcquired ? landValue + depreciableBasis - accumulatedDepreciation : 0;
 
     const operatingCashFlow = netIncome + depreciationExpense;
@@ -378,7 +379,7 @@ export function runIndependentVerification(properties: any[], globalAssumptions:
         "P&L",
         "ASC 470 / ASC 360",
         "NOI - Interest - Depreciation - Income Tax",
-        m.noi - m.interestExpense - m.depreciationExpense - (Math.max(0, m.noi - m.interestExpense - m.depreciationExpense) * (property.taxRate ?? 0.21)),
+        m.noi - m.interestExpense - m.depreciationExpense - (Math.max(0, m.noi - m.interestExpense - m.depreciationExpense) * (property.taxRate ?? 0.25)),
         m.netIncome,
         "critical"
       ));
@@ -388,7 +389,7 @@ export function runIndependentVerification(properties: any[], globalAssumptions:
         "Cash Flow",
         "ASC 230",
         "NOI - Total Debt Payment (interest + principal) - Income Tax",
-        m.noi - m.debtPayment - (Math.max(0, m.noi - m.interestExpense - m.depreciationExpense) * (property.taxRate ?? 0.21)),
+        m.noi - m.debtPayment - (Math.max(0, m.noi - m.interestExpense - m.depreciationExpense) * (property.taxRate ?? 0.25)),
         m.cashFlow,
         "critical"
       ));

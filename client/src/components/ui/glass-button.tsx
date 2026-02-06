@@ -28,7 +28,7 @@ const GlassButton = React.forwardRef<HTMLButtonElement, GlassButtonProps>(
             "text-white font-medium",
             className
           )}
-          style={{ background: isDisabled ? '#4a5a6a' : 'linear-gradient(135deg, #2d4a5e 0%, #3d5a6a 50%, #3a5a5e 100%)' }}
+          style={{ background: isDisabled ? 'linear-gradient(135deg, #F4795B 0%, #e0694e 50%, #d45a40 100%)' : 'linear-gradient(135deg, #2d4a5e 0%, #3d5a6a 50%, #3a5a5e 100%)' }}
           {...props}
         >
           {/* Top edge shine line */}

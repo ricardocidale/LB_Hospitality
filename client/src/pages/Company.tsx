@@ -464,7 +464,7 @@ export default function Company() {
     doc.setFontSize(18);
     doc.text(`${global?.companyName || "L+B Hospitality Co."} - ${title}`, 14, 15);
     doc.setFontSize(10);
-    doc.text(`10-Year Projection (${data.years[0]} - ${data.years[9]})`, 14, 22);
+    doc.text(`${projectionYears}-Year Projection (${data.years[0]} - ${data.years[data.years.length - 1]})`, 14, 22);
     doc.text(`Generated: ${format(new Date(), 'MMM d, yyyy')}`, 14, 27);
     
     // Table starts after header
@@ -516,7 +516,7 @@ export default function Company() {
       doc.setFontSize(16);
       doc.text(`${title} - Performance Chart`, 14, 15);
       doc.setFontSize(10);
-      doc.text('10-Year Revenue, Expenses, and Net Income Trend', 14, 22);
+      doc.text(`${projectionYears}-Year Revenue, Expenses, and Net Income Trend`, 14, 22);
       
       const chartSeries = [
         {
@@ -542,7 +542,7 @@ export default function Company() {
         y: 30,
         width: chartWidth,
         height: 150,
-        title: 'Management Company Performance (10-Year Projection)',
+        title: `Management Company Performance (${projectionYears}-Year Projection)`,
         series: chartSeries
       });
     }
@@ -739,7 +739,7 @@ export default function Company() {
           {/* Chart Card - Light Theme */}
           <div ref={chartRef} className="relative overflow-hidden rounded-3xl p-6 bg-white shadow-lg border border-gray-100">
             <div className="relative">
-              <h3 className="text-lg font-display text-gray-900 mb-4">Management Company Performance (10-Year Projection)</h3>
+              <h3 className="text-lg font-display text-gray-900 mb-4">Management Company Performance ({projectionYears}-Year Projection)</h3>
               <div className="h-[300px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={yearlyChartData}>
@@ -827,7 +827,7 @@ export default function Company() {
                   <TableHeader>
                     <TableRow className="border-gray-200">
                       <TableHead className="sticky left-0 bg-gray-50 text-gray-700">Category</TableHead>
-                      {Array.from({ length: 10 }, (_, i) => (
+                      {Array.from({ length: projectionYears }, (_, i) => (
                         <TableHead key={i} className="text-right min-w-[100px] text-gray-700">{getFiscalYear(i)}</TableHead>
                       ))}
                     </TableRow>
@@ -835,7 +835,7 @@ export default function Company() {
                   <TableBody>
                     <TableRow className="bg-gray-50 font-semibold border-gray-200">
                       <TableCell className="sticky left-0 bg-gray-50 text-gray-900">Revenue</TableCell>
-                      {Array.from({ length: 10 }, (_, y) => {
+                      {Array.from({ length: projectionYears }, (_, y) => {
                         const yearData = financials.slice(y * 12, (y + 1) * 12);
                         const total = yearData.reduce((a, m) => a + m.totalRevenue, 0);
                         return <TableCell key={y} className="text-right font-mono">{formatMoney(total)}</TableCell>;
@@ -854,7 +854,7 @@ export default function Company() {
                         )}
                         Base Management Fees
                       </TableCell>
-                      {Array.from({ length: 10 }, (_, y) => {
+                      {Array.from({ length: projectionYears }, (_, y) => {
                         const yearData = financials.slice(y * 12, (y + 1) * 12);
                         const total = yearData.reduce((a, m) => a + m.baseFeeRevenue, 0);
                         return <TableCell key={y} className="text-right text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
@@ -866,7 +866,7 @@ export default function Company() {
                         <TableCell className="sticky left-0 bg-gray-50/50 pl-12 text-sm text-gray-600">
                           {prop.name}
                         </TableCell>
-                        {Array.from({ length: 10 }, (_, y) => (
+                        {Array.from({ length: projectionYears }, (_, y) => (
                           <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">
                             {formatMoney(getPropertyYearlyBaseFee(idx, y))}
                           </TableCell>
@@ -886,7 +886,7 @@ export default function Company() {
                         )}
                         Incentive Fees
                       </TableCell>
-                      {Array.from({ length: 10 }, (_, y) => {
+                      {Array.from({ length: projectionYears }, (_, y) => {
                         const yearData = financials.slice(y * 12, (y + 1) * 12);
                         const total = yearData.reduce((a, m) => a + m.incentiveFeeRevenue, 0);
                         return <TableCell key={y} className="text-right text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
@@ -898,7 +898,7 @@ export default function Company() {
                         <TableCell className="sticky left-0 bg-gray-50/50 pl-12 text-sm text-gray-600">
                           {prop.name}
                         </TableCell>
-                        {Array.from({ length: 10 }, (_, y) => (
+                        {Array.from({ length: projectionYears }, (_, y) => (
                           <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">
                             {formatMoney(getPropertyYearlyIncentiveFee(idx, y))}
                           </TableCell>
@@ -918,7 +918,7 @@ export default function Company() {
                         )}
                         Operating Expenses
                       </TableCell>
-                      {Array.from({ length: 10 }, (_, y) => {
+                      {Array.from({ length: projectionYears }, (_, y) => {
                         const yearData = financials.slice(y * 12, (y + 1) * 12);
                         const total = yearData.reduce((a, m) => a + m.totalExpenses, 0);
                         return <TableCell key={y} className="text-right font-mono">{formatMoney(total)}</TableCell>;
@@ -938,7 +938,7 @@ export default function Company() {
                             )}
                             Compensation
                           </TableCell>
-                          {Array.from({ length: 10 }, (_, y) => {
+                          {Array.from({ length: projectionYears }, (_, y) => {
                             const yearData = financials.slice(y * 12, (y + 1) * 12);
                             const total = yearData.reduce((a, m) => a + m.partnerCompensation + m.staffCompensation, 0);
                             return <TableCell key={y} className="text-right text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
@@ -948,7 +948,7 @@ export default function Company() {
                           <>
                             <TableRow className="bg-gray-50/50">
                               <TableCell className="sticky left-0 bg-gray-50/50 pl-12 text-sm text-gray-600">Partner Compensation</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => {
+                              {Array.from({ length: projectionYears }, (_, y) => {
                                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                                 const total = yearData.reduce((a, m) => a + m.partnerCompensation, 0);
                                 return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
@@ -956,7 +956,7 @@ export default function Company() {
                             </TableRow>
                             <TableRow className="bg-gray-50/50">
                               <TableCell className="sticky left-0 bg-gray-50/50 pl-12 text-sm text-gray-600">Staff Compensation</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => {
+                              {Array.from({ length: projectionYears }, (_, y) => {
                                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                                 const total = yearData.reduce((a, m) => a + m.staffCompensation, 0);
                                 return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
@@ -976,7 +976,7 @@ export default function Company() {
                             )}
                             Fixed Overhead
                           </TableCell>
-                          {Array.from({ length: 10 }, (_, y) => {
+                          {Array.from({ length: projectionYears }, (_, y) => {
                             const yearData = financials.slice(y * 12, (y + 1) * 12);
                             const total = yearData.reduce((a, m) => a + m.officeLease + m.professionalServices + m.techInfrastructure + m.businessInsurance, 0);
                             return <TableCell key={y} className="text-right text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
@@ -986,7 +986,7 @@ export default function Company() {
                           <>
                             <TableRow className="bg-gray-50/50">
                               <TableCell className="sticky left-0 bg-gray-50/50 pl-12 text-sm text-gray-600">Office Lease</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => {
+                              {Array.from({ length: projectionYears }, (_, y) => {
                                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                                 const total = yearData.reduce((a, m) => a + m.officeLease, 0);
                                 return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
@@ -994,7 +994,7 @@ export default function Company() {
                             </TableRow>
                             <TableRow className="bg-gray-50/50">
                               <TableCell className="sticky left-0 bg-gray-50/50 pl-12 text-sm text-gray-600">Professional Services</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => {
+                              {Array.from({ length: projectionYears }, (_, y) => {
                                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                                 const total = yearData.reduce((a, m) => a + m.professionalServices, 0);
                                 return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
@@ -1002,7 +1002,7 @@ export default function Company() {
                             </TableRow>
                             <TableRow className="bg-gray-50/50">
                               <TableCell className="sticky left-0 bg-gray-50/50 pl-12 text-sm text-gray-600">Tech Infrastructure</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => {
+                              {Array.from({ length: projectionYears }, (_, y) => {
                                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                                 const total = yearData.reduce((a, m) => a + m.techInfrastructure, 0);
                                 return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
@@ -1010,7 +1010,7 @@ export default function Company() {
                             </TableRow>
                             <TableRow className="bg-gray-50/50">
                               <TableCell className="sticky left-0 bg-gray-50/50 pl-12 text-sm text-gray-600">Business Insurance</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => {
+                              {Array.from({ length: projectionYears }, (_, y) => {
                                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                                 const total = yearData.reduce((a, m) => a + m.businessInsurance, 0);
                                 return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
@@ -1030,7 +1030,7 @@ export default function Company() {
                             )}
                             Variable Costs
                           </TableCell>
-                          {Array.from({ length: 10 }, (_, y) => {
+                          {Array.from({ length: projectionYears }, (_, y) => {
                             const yearData = financials.slice(y * 12, (y + 1) * 12);
                             const total = yearData.reduce((a, m) => a + m.travelCosts + m.itLicensing + m.marketing + m.miscOps, 0);
                             return <TableCell key={y} className="text-right text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
@@ -1040,7 +1040,7 @@ export default function Company() {
                           <>
                             <TableRow className="bg-gray-50/50">
                               <TableCell className="sticky left-0 bg-gray-50/50 pl-12 text-sm text-gray-600">Travel Costs</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => {
+                              {Array.from({ length: projectionYears }, (_, y) => {
                                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                                 const total = yearData.reduce((a, m) => a + m.travelCosts, 0);
                                 return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
@@ -1048,7 +1048,7 @@ export default function Company() {
                             </TableRow>
                             <TableRow className="bg-gray-50/50">
                               <TableCell className="sticky left-0 bg-gray-50/50 pl-12 text-sm text-gray-600">IT Licensing</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => {
+                              {Array.from({ length: projectionYears }, (_, y) => {
                                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                                 const total = yearData.reduce((a, m) => a + m.itLicensing, 0);
                                 return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
@@ -1056,7 +1056,7 @@ export default function Company() {
                             </TableRow>
                             <TableRow className="bg-gray-50/50">
                               <TableCell className="sticky left-0 bg-gray-50/50 pl-12 text-sm text-gray-600">Marketing</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => {
+                              {Array.from({ length: projectionYears }, (_, y) => {
                                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                                 const total = yearData.reduce((a, m) => a + m.marketing, 0);
                                 return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
@@ -1064,7 +1064,7 @@ export default function Company() {
                             </TableRow>
                             <TableRow className="bg-gray-50/50">
                               <TableCell className="sticky left-0 bg-gray-50/50 pl-12 text-sm text-gray-600">Misc Operations</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => {
+                              {Array.from({ length: projectionYears }, (_, y) => {
                                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                                 const total = yearData.reduce((a, m) => a + m.miscOps, 0);
                                 return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
@@ -1076,7 +1076,7 @@ export default function Company() {
                     )}
                     <TableRow className="bg-primary/10 font-bold">
                       <TableCell className="sticky left-0 bg-primary/10">Net Income</TableCell>
-                      {Array.from({ length: 10 }, (_, y) => {
+                      {Array.from({ length: projectionYears }, (_, y) => {
                         const yearData = financials.slice(y * 12, (y + 1) * 12);
                         const total = yearData.reduce((a, m) => a + m.netIncome, 0);
                         return (
@@ -1088,7 +1088,7 @@ export default function Company() {
                     </TableRow>
                     <TableRow>
                       <TableCell className="sticky left-0 bg-white text-gray-600">Net Margin</TableCell>
-                      {Array.from({ length: 10 }, (_, y) => {
+                      {Array.from({ length: projectionYears }, (_, y) => {
                         const yearData = financials.slice(y * 12, (y + 1) * 12);
                         const netIncome = yearData.reduce((a, m) => a + m.netIncome, 0);
                         const totalRevenue = yearData.reduce((a, m) => a + m.totalRevenue, 0);
@@ -1117,7 +1117,7 @@ export default function Company() {
                   <TableHeader>
                     <TableRow className="border-gray-200">
                       <TableHead className="sticky left-0 bg-gray-50 text-gray-700">Category</TableHead>
-                      {Array.from({ length: 10 }, (_, i) => (
+                      {Array.from({ length: projectionYears }, (_, i) => (
                         <TableHead key={i} className="text-right min-w-[100px]">{getFiscalYear(i)}</TableHead>
                       ))}
                     </TableRow>
@@ -1125,7 +1125,7 @@ export default function Company() {
                   <TableBody>
                     <TableRow className="font-semibold bg-gray-50">
                       <TableCell className="sticky left-0 bg-gray-50">Cash Inflows</TableCell>
-                      {Array.from({ length: 10 }, (_, y) => {
+                      {Array.from({ length: projectionYears }, (_, y) => {
                         const yearData = financials.slice(y * 12, (y + 1) * 12);
                         const revenue = yearData.reduce((a, m) => a + m.totalRevenue, 0);
                         const safe = yearData.reduce((a, m) => a + m.safeFunding, 0);
@@ -1134,7 +1134,7 @@ export default function Company() {
                     </TableRow>
                     <TableRow>
                       <TableCell className="sticky left-0 bg-white pl-6">Management Fee Revenue</TableCell>
-                      {Array.from({ length: 10 }, (_, y) => {
+                      {Array.from({ length: projectionYears }, (_, y) => {
                         const yearData = financials.slice(y * 12, (y + 1) * 12);
                         const total = yearData.reduce((a, m) => a + m.totalRevenue, 0);
                         return <TableCell key={y} className="text-right text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
@@ -1152,7 +1152,7 @@ export default function Company() {
                         )}
                         Base Management Fees
                       </TableCell>
-                      {Array.from({ length: 10 }, (_, y) => {
+                      {Array.from({ length: projectionYears }, (_, y) => {
                         const yearData = financials.slice(y * 12, (y + 1) * 12);
                         const total = yearData.reduce((a, m) => a + m.baseFeeRevenue, 0);
                         return <TableCell key={y} className="text-right text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
@@ -1163,7 +1163,7 @@ export default function Company() {
                         <TableCell className="sticky left-0 bg-gray-50/50 pl-14 text-sm text-gray-600">
                           {prop.name}
                         </TableCell>
-                        {Array.from({ length: 10 }, (_, y) => (
+                        {Array.from({ length: projectionYears }, (_, y) => (
                           <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">
                             {formatMoney(getPropertyYearlyBaseFee(idx, y))}
                           </TableCell>
@@ -1182,7 +1182,7 @@ export default function Company() {
                         )}
                         Incentive Fees
                       </TableCell>
-                      {Array.from({ length: 10 }, (_, y) => {
+                      {Array.from({ length: projectionYears }, (_, y) => {
                         const yearData = financials.slice(y * 12, (y + 1) * 12);
                         const total = yearData.reduce((a, m) => a + m.incentiveFeeRevenue, 0);
                         return <TableCell key={y} className="text-right text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
@@ -1193,7 +1193,7 @@ export default function Company() {
                         <TableCell className="sticky left-0 bg-gray-50/50 pl-14 text-sm text-gray-600">
                           {prop.name}
                         </TableCell>
-                        {Array.from({ length: 10 }, (_, y) => (
+                        {Array.from({ length: projectionYears }, (_, y) => (
                           <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">
                             {formatMoney(getPropertyYearlyIncentiveFee(idx, y))}
                           </TableCell>
@@ -1212,7 +1212,7 @@ export default function Company() {
                         )}
                         SAFE Funding
                       </TableCell>
-                      {Array.from({ length: 10 }, (_, y) => {
+                      {Array.from({ length: projectionYears }, (_, y) => {
                         const yearData = financials.slice(y * 12, (y + 1) * 12);
                         const total = yearData.reduce((a, m) => a + m.safeFunding, 0);
                         return <TableCell key={y} className="text-right text-gray-600 font-mono">{total > 0 ? formatMoney(total) : '-'}</TableCell>;
@@ -1224,7 +1224,7 @@ export default function Company() {
                           <TableCell className="sticky left-0 bg-gray-50/50 pl-12 text-sm text-gray-600">
                             SAFE Tranche 1
                           </TableCell>
-                          {Array.from({ length: 10 }, (_, y) => {
+                          {Array.from({ length: projectionYears }, (_, y) => {
                             const yearData = financials.slice(y * 12, (y + 1) * 12);
                             const total = yearData.reduce((a, m) => a + m.safeFunding1, 0);
                             return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">{total > 0 ? formatMoney(total) : '-'}</TableCell>;
@@ -1234,7 +1234,7 @@ export default function Company() {
                           <TableCell className="sticky left-0 bg-gray-50/50 pl-12 text-sm text-gray-600">
                             SAFE Tranche 2
                           </TableCell>
-                          {Array.from({ length: 10 }, (_, y) => {
+                          {Array.from({ length: projectionYears }, (_, y) => {
                             const yearData = financials.slice(y * 12, (y + 1) * 12);
                             const total = yearData.reduce((a, m) => a + m.safeFunding2, 0);
                             return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">{total > 0 ? formatMoney(total) : '-'}</TableCell>;
@@ -1255,7 +1255,7 @@ export default function Company() {
                         )}
                         Cash Outflows
                       </TableCell>
-                      {Array.from({ length: 10 }, (_, y) => {
+                      {Array.from({ length: projectionYears }, (_, y) => {
                         const yearData = financials.slice(y * 12, (y + 1) * 12);
                         const total = yearData.reduce((a, m) => a + m.totalExpenses, 0);
                         return <TableCell key={y} className="text-right font-mono">({formatMoney(total)})</TableCell>;
@@ -1275,7 +1275,7 @@ export default function Company() {
                             )}
                             Compensation
                           </TableCell>
-                          {Array.from({ length: 10 }, (_, y) => {
+                          {Array.from({ length: projectionYears }, (_, y) => {
                             const yearData = financials.slice(y * 12, (y + 1) * 12);
                             const total = yearData.reduce((a, m) => a + m.partnerCompensation + m.staffCompensation, 0);
                             return <TableCell key={y} className="text-right text-gray-600 font-mono">({formatMoney(total)})</TableCell>;
@@ -1285,7 +1285,7 @@ export default function Company() {
                           <>
                             <TableRow className="bg-gray-50/50">
                               <TableCell className="sticky left-0 bg-gray-50/50 pl-12 text-sm text-gray-600">Partner Compensation</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => {
+                              {Array.from({ length: projectionYears }, (_, y) => {
                                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                                 const total = yearData.reduce((a, m) => a + m.partnerCompensation, 0);
                                 return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">({formatMoney(total)})</TableCell>;
@@ -1293,7 +1293,7 @@ export default function Company() {
                             </TableRow>
                             <TableRow className="bg-gray-50/50">
                               <TableCell className="sticky left-0 bg-gray-50/50 pl-12 text-sm text-gray-600">Staff Compensation</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => {
+                              {Array.from({ length: projectionYears }, (_, y) => {
                                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                                 const total = yearData.reduce((a, m) => a + m.staffCompensation, 0);
                                 return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">({formatMoney(total)})</TableCell>;
@@ -1313,7 +1313,7 @@ export default function Company() {
                             )}
                             Fixed Overhead
                           </TableCell>
-                          {Array.from({ length: 10 }, (_, y) => {
+                          {Array.from({ length: projectionYears }, (_, y) => {
                             const yearData = financials.slice(y * 12, (y + 1) * 12);
                             const total = yearData.reduce((a, m) => a + m.officeLease + m.professionalServices + m.techInfrastructure + m.businessInsurance, 0);
                             return <TableCell key={y} className="text-right text-gray-600 font-mono">({formatMoney(total)})</TableCell>;
@@ -1323,7 +1323,7 @@ export default function Company() {
                           <>
                             <TableRow className="bg-gray-50/50">
                               <TableCell className="sticky left-0 bg-gray-50/50 pl-12 text-sm text-gray-600">Office Lease</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => {
+                              {Array.from({ length: projectionYears }, (_, y) => {
                                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                                 const total = yearData.reduce((a, m) => a + m.officeLease, 0);
                                 return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">({formatMoney(total)})</TableCell>;
@@ -1331,7 +1331,7 @@ export default function Company() {
                             </TableRow>
                             <TableRow className="bg-gray-50/50">
                               <TableCell className="sticky left-0 bg-gray-50/50 pl-12 text-sm text-gray-600">Professional Services</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => {
+                              {Array.from({ length: projectionYears }, (_, y) => {
                                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                                 const total = yearData.reduce((a, m) => a + m.professionalServices, 0);
                                 return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">({formatMoney(total)})</TableCell>;
@@ -1339,7 +1339,7 @@ export default function Company() {
                             </TableRow>
                             <TableRow className="bg-gray-50/50">
                               <TableCell className="sticky left-0 bg-gray-50/50 pl-12 text-sm text-gray-600">Tech Infrastructure</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => {
+                              {Array.from({ length: projectionYears }, (_, y) => {
                                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                                 const total = yearData.reduce((a, m) => a + m.techInfrastructure, 0);
                                 return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">({formatMoney(total)})</TableCell>;
@@ -1347,7 +1347,7 @@ export default function Company() {
                             </TableRow>
                             <TableRow className="bg-gray-50/50">
                               <TableCell className="sticky left-0 bg-gray-50/50 pl-12 text-sm text-gray-600">Business Insurance</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => {
+                              {Array.from({ length: projectionYears }, (_, y) => {
                                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                                 const total = yearData.reduce((a, m) => a + m.businessInsurance, 0);
                                 return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">({formatMoney(total)})</TableCell>;
@@ -1367,7 +1367,7 @@ export default function Company() {
                             )}
                             Variable Costs
                           </TableCell>
-                          {Array.from({ length: 10 }, (_, y) => {
+                          {Array.from({ length: projectionYears }, (_, y) => {
                             const yearData = financials.slice(y * 12, (y + 1) * 12);
                             const total = yearData.reduce((a, m) => a + m.travelCosts + m.itLicensing + m.marketing + m.miscOps, 0);
                             return <TableCell key={y} className="text-right text-gray-600 font-mono">({formatMoney(total)})</TableCell>;
@@ -1377,7 +1377,7 @@ export default function Company() {
                           <>
                             <TableRow className="bg-gray-50/50">
                               <TableCell className="sticky left-0 bg-gray-50/50 pl-12 text-sm text-gray-600">Travel Costs</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => {
+                              {Array.from({ length: projectionYears }, (_, y) => {
                                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                                 const total = yearData.reduce((a, m) => a + m.travelCosts, 0);
                                 return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">({formatMoney(total)})</TableCell>;
@@ -1385,7 +1385,7 @@ export default function Company() {
                             </TableRow>
                             <TableRow className="bg-gray-50/50">
                               <TableCell className="sticky left-0 bg-gray-50/50 pl-12 text-sm text-gray-600">IT Licensing</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => {
+                              {Array.from({ length: projectionYears }, (_, y) => {
                                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                                 const total = yearData.reduce((a, m) => a + m.itLicensing, 0);
                                 return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">({formatMoney(total)})</TableCell>;
@@ -1393,7 +1393,7 @@ export default function Company() {
                             </TableRow>
                             <TableRow className="bg-gray-50/50">
                               <TableCell className="sticky left-0 bg-gray-50/50 pl-12 text-sm text-gray-600">Marketing</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => {
+                              {Array.from({ length: projectionYears }, (_, y) => {
                                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                                 const total = yearData.reduce((a, m) => a + m.marketing, 0);
                                 return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">({formatMoney(total)})</TableCell>;
@@ -1401,7 +1401,7 @@ export default function Company() {
                             </TableRow>
                             <TableRow className="bg-gray-50/50">
                               <TableCell className="sticky left-0 bg-gray-50/50 pl-12 text-sm text-gray-600">Misc Operations</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => {
+                              {Array.from({ length: projectionYears }, (_, y) => {
                                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                                 const total = yearData.reduce((a, m) => a + m.miscOps, 0);
                                 return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">({formatMoney(total)})</TableCell>;
@@ -1414,7 +1414,7 @@ export default function Company() {
 
                     <TableRow className="bg-primary/10 font-bold">
                       <TableCell className="sticky left-0 bg-primary/10">Net Cash Flow</TableCell>
-                      {Array.from({ length: 10 }, (_, y) => {
+                      {Array.from({ length: projectionYears }, (_, y) => {
                         const yearData = financials.slice(y * 12, (y + 1) * 12);
                         const total = yearData.reduce((a, m) => a + m.cashFlow, 0);
                         return (
@@ -1426,7 +1426,7 @@ export default function Company() {
                     </TableRow>
                     <TableRow className="bg-gray-50 font-semibold">
                       <TableCell className="sticky left-0 bg-gray-50">Cumulative Cash</TableCell>
-                      {Array.from({ length: 10 }, (_, y) => {
+                      {Array.from({ length: projectionYears }, (_, y) => {
                         let cumulative = 0;
                         for (let i = 0; i <= y; i++) {
                           const yearData = financials.slice(i * 12, (i + 1) * 12);

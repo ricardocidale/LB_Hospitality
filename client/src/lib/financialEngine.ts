@@ -39,7 +39,8 @@ import {
   DEFAULT_UTILITIES_VARIABLE_SPLIT,
   PROJECTION_MONTHS,
   STAFFING_TIERS,
-  DEFAULT_LAND_VALUE_PERCENT
+  DEFAULT_LAND_VALUE_PERCENT,
+  DEFAULT_TAX_RATE
 } from './constants';
 
 // Helper function to get fiscal year label for a given month in the model
@@ -95,6 +96,9 @@ interface PropertyInput {
   cateringLevel: string;
   // Financing
   acquisitionLTV?: number | null;
+  acquisitionInterestRate?: number | null;
+  acquisitionTermYears?: number | null;
+  taxRate?: number | null;
   // Operating Cost Rates (should sum to ~84% of revenue)
   costRateRooms: number;
   costRateFB: number;
@@ -218,6 +222,7 @@ export interface MonthlyFinancials {
   principalPayment: number;
   debtPayment: number;
   netIncome: number;
+  incomeTax: number;
   cashFlow: number;
   // Balance sheet fields for auditor verification
   depreciationExpense: number;
@@ -251,8 +256,9 @@ export function generatePropertyProForma(
   const totalPropertyValue = property.purchasePrice + (property.buildingImprovements ?? 0);
   const ltv = property.acquisitionLTV ?? global.debtAssumptions?.acqLTV ?? DEFAULT_LTV;
   const originalLoanAmount = property.type === "Financed" ? totalPropertyValue * ltv : 0;
-  const loanRate = global.debtAssumptions?.interestRate ?? DEFAULT_INTEREST_RATE;
-  const loanTerm = global.debtAssumptions?.amortizationYears ?? DEFAULT_TERM_YEARS;
+  const loanRate = property.acquisitionInterestRate ?? global.debtAssumptions?.interestRate ?? DEFAULT_INTEREST_RATE;
+  const loanTerm = property.acquisitionTermYears ?? global.debtAssumptions?.amortizationYears ?? DEFAULT_TERM_YEARS;
+  const taxRate = property.taxRate ?? DEFAULT_TAX_RATE;
   const monthlyRate = loanRate / 12;
   const totalPayments = loanTerm * 12;
   // Handle zero interest rate (straight-line principal reduction)
@@ -369,9 +375,9 @@ export function generatePropertyProForma(
     const isAcquired = !isBefore(currentDate, acquisitionDate);
     const monthsSinceAcquisition = isAcquired ? differenceInMonths(currentDate, acquisitionDate) : 0;
     
-    if (isOperational && property.type === "Financed") {
-      const r = global.debtAssumptions.interestRate / 12;
-      const n = global.debtAssumptions.amortizationYears * 12;
+    if (isAcquired && property.type === "Financed") {
+      const r = loanRate / 12;
+      const n = loanTerm * 12;
       const loanAmount = originalLoanAmount;
       
       if (loanAmount > 0) {
@@ -398,18 +404,25 @@ export function generatePropertyProForma(
       }
     }
 
-    const netIncome = noi - interestExpense;
-    const cashFlow = noi - debtPayment;
-    
     // Balance sheet: Property value = land + (building - accumulated depreciation) per ASC 360
     const landValue = property.purchasePrice * landPct;
     const depreciationExpense = isAcquired ? monthlyDepreciation : 0;
     const accumulatedDepreciation = isAcquired ? Math.min(monthlyDepreciation * (monthsSinceAcquisition + 1), buildingValue) : 0;
     const propertyValue = isAcquired ? landValue + buildingValue - accumulatedDepreciation : 0;
+
+    // GAAP Net Income = NOI - Interest - Depreciation - Income Tax
+    const taxableIncome = noi - interestExpense - depreciationExpense;
+    const incomeTax = taxableIncome > 0 ? taxableIncome * taxRate : 0;
+    const netIncome = noi - interestExpense - depreciationExpense - incomeTax;
+    
+    // Cash flow = actual cash movement (NOI - full debt service - taxes)
+    const cashFlow = noi - debtPayment - incomeTax;
     
     // Cash flow statement per GAAP ASC 230 indirect method
-    const operatingCashFlow = netIncome + depreciationExpense; // Add back non-cash depreciation
-    const financingCashFlow = -principalPayment; // Principal repayment is financing activity
+    // Operating CF = Net Income + Depreciation (add back non-cash expense)
+    // This reconciles: OCF + FCF = (NI + Dep) + (-Principal) = NOI - Interest - Tax - Principal = cashFlow
+    const operatingCashFlow = netIncome + depreciationExpense;
+    const financingCashFlow = -principalPayment;
     cumulativeCash += cashFlow;
     const endingCash = cumulativeCash;
 
@@ -448,6 +461,7 @@ export function generatePropertyProForma(
       principalPayment,
       debtPayment,
       netIncome,
+      incomeTax,
       cashFlow,
       // Balance sheet fields for PwC-level audit verification
       depreciationExpense,
@@ -560,7 +574,7 @@ export function generateCompanyProForma(
     }
     
     const baseFeeRevenue = totalPropertyRevenue * global.baseManagementFee;
-    const incentiveFeeRevenue = totalPropertyGOP * global.incentiveManagementFee;
+    const incentiveFeeRevenue = Math.max(0, totalPropertyGOP * global.incentiveManagementFee);
     const totalRevenue = baseFeeRevenue + incentiveFeeRevenue;
     
     // Only incur expenses after company operations start

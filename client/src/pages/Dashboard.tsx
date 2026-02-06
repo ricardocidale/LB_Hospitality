@@ -227,8 +227,8 @@ export default function Dashboard() {
   const totalRooms = properties.reduce((sum, p) => sum + p.roomCount, 0);
   const totalPurchasePrice = properties.reduce((sum, p) => sum + p.purchasePrice, 0);
   const totalBuildingImprovements = properties.reduce((sum, p) => sum + p.buildingImprovements, 0);
-  const totalPreOpeningCosts = properties.reduce((sum, p) => sum + (p.preOpeningCosts || 0), 0);
-  const totalOperatingReserve = properties.reduce((sum, p) => sum + (p.operatingReserve || 0), 0);
+  const totalPreOpeningCosts = properties.reduce((sum, p) => sum + (p.preOpeningCosts ?? 0), 0);
+  const totalOperatingReserve = properties.reduce((sum, p) => sum + (p.operatingReserve ?? 0), 0);
   const totalInvestment = totalPurchasePrice + totalBuildingImprovements + totalPreOpeningCosts + totalOperatingReserve;
   const avgPurchasePrice = totalPurchasePrice / totalProperties;
   const avgRoomsPerProperty = totalRooms / totalProperties;
@@ -248,7 +248,7 @@ export default function Dashboard() {
   }
   
   // Calculate weighted average exit cap rate (for display purposes)
-  const avgExitCapRate = properties.reduce((sum, p) => sum + (p.exitCapRate || DEFAULT_EXIT_CAP_RATE), 0) / totalProperties;
+  const avgExitCapRate = properties.reduce((sum, p) => sum + (p.exitCapRate ?? DEFAULT_EXIT_CAP_RATE), 0) / totalProperties;
   
   // Year 10 NOI for reference
   const year10Data = getYearlyConsolidated(9);
@@ -273,14 +273,15 @@ export default function Dashboard() {
   const toLoanParams = (prop: any): LoanParams => ({
     purchasePrice: prop.purchasePrice,
     buildingImprovements: prop.buildingImprovements,
-    preOpeningCosts: prop.preOpeningCosts || 0,
-    operatingReserve: prop.operatingReserve || 0,
+    preOpeningCosts: prop.preOpeningCosts ?? 0,
+    operatingReserve: prop.operatingReserve ?? 0,
     type: prop.type,
     acquisitionDate: prop.acquisitionDate,
     taxRate: prop.taxRate,
     acquisitionLTV: prop.acquisitionLTV,
     acquisitionInterestRate: prop.acquisitionInterestRate,
     acquisitionTermYears: prop.acquisitionTermYears,
+    landValuePercent: prop.landValuePercent,
     willRefinance: prop.willRefinance,
     refinanceDate: prop.refinanceDate,
     refinanceLTV: prop.refinanceLTV,
@@ -880,7 +881,7 @@ export default function Dashboard() {
     const rows: { category: string; values: number[]; isHeader?: boolean; indent?: number; isNegative?: boolean }[] = [];
     
     const totalPropertyValue = properties.reduce((sum, p) => sum + p.purchasePrice + p.buildingImprovements, 0);
-    const totalOperatingReserves = properties.reduce((sum, p) => sum + (p.operatingReserve || 0), 0);
+    const totalOperatingReserves = properties.reduce((sum, p) => sum + (p.operatingReserve ?? 0), 0);
     
     const getYearlyBalanceSheet = (yearIndex: number) => {
       const monthsToInclude = (yearIndex + 1) * 12;
@@ -902,7 +903,7 @@ export default function Dashboard() {
         
         const isFinanced = prop.type === 'Financed';
         const debtDefaults = global.debtAssumptions as { acqLTV?: number; interestRate?: number; amortizationYears?: number } | null;
-        const ltv = prop.acquisitionLTV || debtDefaults?.acqLTV || 0;
+        const ltv = prop.acquisitionLTV ?? debtDefaults?.acqLTV ?? 0;
         const loanAmount = isFinanced ? totalPropertyValue * ltv : 0;
         
         let debtOutstanding = loanAmount;
@@ -910,9 +911,9 @@ export default function Dashboard() {
         let cumulativePrincipal = 0;
         
         if (loanAmount > 0 && isFinanced) {
-          const annualRate = prop.acquisitionInterestRate || debtDefaults?.interestRate || DEFAULT_INTEREST_RATE;
+          const annualRate = prop.acquisitionInterestRate ?? debtDefaults?.interestRate ?? DEFAULT_INTEREST_RATE;
           const rate = annualRate / 12;
-          const termYears = prop.acquisitionTermYears || debtDefaults?.amortizationYears || DEFAULT_TERM_YEARS;
+          const termYears = prop.acquisitionTermYears ?? debtDefaults?.amortizationYears ?? DEFAULT_TERM_YEARS;
           const term = termYears * 12;
           const monthlyPayment = loanAmount * (rate * Math.pow(1 + rate, term)) / (Math.pow(1 + rate, term) - 1);
           
@@ -928,7 +929,7 @@ export default function Dashboard() {
         }
         totalDebtOutstanding += debtOutstanding;
         
-        const equityInvested = totalPropertyValue + (prop.preOpeningCosts || 0) + (prop.operatingReserve || 0) - loanAmount;
+        const equityInvested = totalPropertyValue + (prop.preOpeningCosts ?? 0) + (prop.operatingReserve ?? 0) - loanAmount;
         totalInitialEquity += equityInvested;
         
         const cumulativeNOI = relevantMonths.reduce((sum, m) => sum + m.noi, 0);
@@ -937,7 +938,7 @@ export default function Dashboard() {
         const acqYearIndex = Math.floor(differenceInMonths(acqDate, modelStartDate) / 12);
         const yearsDepreciated = Math.max(0, yearIndex + 1 - acqYearIndex);
         const cumulativeDepreciation = annualDepreciation * Math.min(yearsDepreciated, DEPRECIATION_YEARS);
-        const taxRate = prop.taxRate || DEFAULT_TAX_RATE;
+        const taxRate = prop.taxRate ?? DEFAULT_TAX_RATE;
         const taxableIncome = cumulativeNOI - cumulativeInterest - cumulativeDepreciation;
         const incomeTax = Math.max(0, taxableIncome) * taxRate;
         const netIncome = cumulativeNOI - cumulativeInterest - cumulativeDepreciation - incomeTax;
@@ -1054,17 +1055,17 @@ export default function Dashboard() {
     
     const assetsData = years.map((year, i) => {
       const row = rows.find(r => r.category === 'TOTAL ASSETS');
-      return { label: String(year), value: row?.values[i] || 0 };
+      return { label: String(year), value: row?.values[i] ?? 0 };
     });
     
     const liabilitiesData = years.map((year, i) => {
       const row = rows.find(r => r.category === 'TOTAL LIABILITIES');
-      return { label: String(year), value: row?.values[i] || 0 };
+      return { label: String(year), value: row?.values[i] ?? 0 };
     });
     
     const equityData = years.map((year, i) => {
       const row = rows.find(r => r.category === 'TOTAL EQUITY');
-      return { label: String(year), value: row?.values[i] || 0 };
+      return { label: String(year), value: row?.values[i] ?? 0 };
     });
     
     drawLineChart({
@@ -1122,8 +1123,10 @@ export default function Dashboard() {
           const totalInvestment = prop.purchasePrice + prop.buildingImprovements + 
                                   prop.preOpeningCosts + prop.operatingReserve;
           if (prop.type === "Financed") {
-            const ltv = prop.acquisitionLTV || (global.debtAssumptions as any)?.acqLTV || DEFAULT_LTV;
-            total += totalInvestment * (1 - ltv);
+            const propertyValue = prop.purchasePrice + prop.buildingImprovements;
+            const ltv = prop.acquisitionLTV ?? (global.debtAssumptions as any)?.acqLTV ?? DEFAULT_LTV;
+            const loanAmount = propertyValue * ltv;
+            total += totalInvestment - loanAmount;
           } else {
             total += totalInvestment;
           }
@@ -1138,7 +1141,7 @@ export default function Dashboard() {
       
       properties.forEach((prop, idx) => {
         const yearlyData = getPropertyYearly(idx, yearIdx);
-        const noi = yearlyData.noi || 0;
+        const noi = yearlyData.noi ?? 0;
         totalNOI += noi;
         
         const landPct2 = prop.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT;
@@ -1148,11 +1151,11 @@ export default function Dashboard() {
         
         if (prop.type === "Financed") {
           const totalPropVal = prop.purchasePrice + prop.buildingImprovements;
-          const ltv = prop.acquisitionLTV || (global.debtAssumptions as any)?.acqLTV || DEFAULT_LTV;
+          const ltv = prop.acquisitionLTV ?? (global.debtAssumptions as any)?.acqLTV ?? DEFAULT_LTV;
           const loanAmount = totalPropVal * ltv;
-          const annualRate = prop.acquisitionInterestRate || (global.debtAssumptions as any)?.interestRate || DEFAULT_INTEREST_RATE;
+          const annualRate = prop.acquisitionInterestRate ?? (global.debtAssumptions as any)?.interestRate ?? DEFAULT_INTEREST_RATE;
           const r = annualRate / 12;
-          const termYears = prop.acquisitionTermYears || (global.debtAssumptions as any)?.amortizationYears || DEFAULT_TERM_YEARS;
+          const termYears = prop.acquisitionTermYears ?? (global.debtAssumptions as any)?.amortizationYears ?? DEFAULT_TERM_YEARS;
           const n = termYears * 12;
           
           if (r > 0 && n > 0 && loanAmount > 0) {
@@ -1173,11 +1176,11 @@ export default function Dashboard() {
           }
         }
         
-        const taxRate = prop.taxRate || DEFAULT_TAX_RATE;
-        const btcf = noi - (prop.type === "Financed" ? getPropertyYearly(idx, yearIdx).debtPayment || 0 : 0);
+        const taxRate = prop.taxRate ?? DEFAULT_TAX_RATE;
+        const btcf = noi - (prop.type === "Financed" ? getPropertyYearly(idx, yearIdx).debtPayment ?? 0 : 0);
         totalBTCF += btcf;
         
-        const taxableIncome = noi - totalInterest - depreciation;
+        const taxableIncome = noi - yearInterest - depreciation;
         totalTaxableIncome += taxableIncome;
         const tax = taxableIncome > 0 ? taxableIncome * taxRate : 0;
         totalTax += tax;
@@ -1205,8 +1208,9 @@ export default function Dashboard() {
       const acqYear = Math.floor(monthsDiff / 12);
       const totalInvestment = prop.purchasePrice + prop.buildingImprovements + 
                               prop.preOpeningCosts + prop.operatingReserve;
+      const propertyValue = prop.purchasePrice + prop.buildingImprovements;
       const investment = prop.type === "Financed" ? 
-        totalInvestment * (1 - (prop.acquisitionLTV || (global.debtAssumptions as any)?.acqLTV || DEFAULT_LTV)) : 
+        totalInvestment - propertyValue * (prop.acquisitionLTV ?? (global.debtAssumptions as any)?.acqLTV ?? DEFAULT_LTV) : 
         totalInvestment;
       
       const values: (number | string)[] = Array(11).fill('');
@@ -1406,9 +1410,9 @@ export default function Dashboard() {
     const total10YearRevenue = Array.from({ length: projectionYears }, (_, i) => getYearlyConsolidated(i).revenueTotal).reduce((a, b) => a + b, 0);
     const total10YearNOI = Array.from({ length: projectionYears }, (_, i) => getYearlyConsolidated(i).noi).reduce((a, b) => a + b, 0);
     const total10YearCashFlow = Array.from({ length: projectionYears }, (_, i) => getYearlyConsolidated(i).cashFlow).reduce((a, b) => a + b, 0);
-    const avgPurchasePrice = properties.length > 0 ? properties.reduce((sum, p) => sum + (p.purchasePrice || 0), 0) / properties.length : 0;
-    const pdfTotalRooms = properties.reduce((sum, p) => sum + (p.roomCount || 0), 0);
-    const avgADR = pdfTotalRooms > 0 ? properties.reduce((sum, p) => sum + (p.startAdr || 0) * (p.roomCount || 0), 0) / pdfTotalRooms : 0;
+    const avgPurchasePrice = properties.length > 0 ? properties.reduce((sum, p) => sum + (p.purchasePrice ?? 0), 0) / properties.length : 0;
+    const pdfTotalRooms = properties.reduce((sum, p) => sum + (p.roomCount ?? 0), 0);
+    const avgADR = pdfTotalRooms > 0 ? properties.reduce((sum, p) => sum + (p.startAdr ?? 0) * (p.roomCount ?? 0), 0) / pdfTotalRooms : 0;
 
     // Page footer function for didDrawPage hook
     const addFooter = (data: any) => {
@@ -1475,7 +1479,7 @@ export default function Dashboard() {
     metricY += 25;
 
     // Row 4: Averages
-    drawMetric(col1X, metricY, "Total Investment", formatMoney(properties.reduce((sum, p) => sum + (p.purchasePrice || 0), 0)));
+    drawMetric(col1X, metricY, "Total Investment", formatMoney(properties.reduce((sum, p) => sum + (p.purchasePrice ?? 0), 0)));
     drawMetric(col2X, metricY, "Avg Purchase Price", formatMoney(avgPurchasePrice));
     drawMetric(col3X, metricY, "Avg Starting ADR", formatMoney(avgADR));
 
@@ -1498,8 +1502,8 @@ export default function Dashboard() {
       `${p.roomCount}`,
       p.type,
       p.status,
-      formatMoney(p.purchasePrice || 0),
-      formatMoney(p.startAdr || 0)
+      formatMoney(p.purchasePrice ?? 0),
+      formatMoney(p.startAdr ?? 0)
     ]);
 
     autoTable(doc, {
@@ -1694,9 +1698,9 @@ export default function Dashboard() {
     csvContent += "PORTFOLIO COMPOSITION\n";
     csvContent += `Properties,${totalProperties}\n`;
     csvContent += `Total Rooms,${totalRooms}\n`;
-    csvContent += `Total Investment,${properties.reduce((sum, p) => sum + (p.purchasePrice || 0), 0)}\n`;
-    csvContent += `Average Purchase Price,${properties.length > 0 ? properties.reduce((sum, p) => sum + (p.purchasePrice || 0), 0) / properties.length : 0}\n`;
-    csvContent += `Average Starting ADR,${properties.length > 0 ? properties.reduce((sum, p) => sum + (p.startAdr || 0), 0) / properties.length : 0}\n\n`;
+    csvContent += `Total Investment,${properties.reduce((sum, p) => sum + (p.purchasePrice ?? 0), 0)}\n`;
+    csvContent += `Average Purchase Price,${properties.length > 0 ? properties.reduce((sum, p) => sum + (p.purchasePrice ?? 0), 0) / properties.length : 0}\n`;
+    csvContent += `Average Starting ADR,${properties.length > 0 ? properties.reduce((sum, p) => sum + (p.startAdr ?? 0), 0) / properties.length : 0}\n\n`;
 
     csvContent += "10-YEAR FINANCIAL PROJECTIONS\n";
     csvContent += `Total Revenue (10-Year),${Array.from({ length: projectionYears }, (_, i) => getYearlyConsolidated(i).revenueTotal).reduce((a, b) => a + b, 0)}\n`;
@@ -3096,8 +3100,10 @@ function InvestmentAnalysis({
     const totalInvestment = prop.purchasePrice + prop.buildingImprovements + 
                             prop.preOpeningCosts + prop.operatingReserve;
     if (prop.type === "Financed") {
-      const ltv = prop.acquisitionLTV || global.debtAssumptions.acqLTV || DEFAULT_LTV;
-      return totalInvestment * (1 - ltv);
+      const propertyValue = prop.purchasePrice + prop.buildingImprovements;
+      const ltv = prop.acquisitionLTV ?? global.debtAssumptions.acqLTV ?? DEFAULT_LTV;
+      const loanAmount = propertyValue * ltv;
+      return totalInvestment - loanAmount;
     }
     return totalInvestment;
   };
@@ -3115,7 +3121,7 @@ function InvestmentAnalysis({
 
   const getPropertyLoanAmount = (prop: any) => {
     if (prop.type !== "Financed") return 0;
-    const ltv = prop.acquisitionLTV || global.debtAssumptions.acqLTV || DEFAULT_LTV;
+    const ltv = prop.acquisitionLTV ?? global.debtAssumptions.acqLTV ?? DEFAULT_LTV;
     return (prop.purchasePrice + prop.buildingImprovements) * ltv;
   };
 
@@ -3139,17 +3145,17 @@ function InvestmentAnalysis({
     const isPostRefi = refiYear >= 0 && refiYear < projectionYears && yearIndex >= refiYear;
     
     if (isPostRefi) {
-      const refiLTV = prop.refinanceLTV || global.debtAssumptions.refiLTV || DEFAULT_REFI_LTV;
+      const refiLTV = prop.refinanceLTV ?? global.debtAssumptions.refiLTV ?? DEFAULT_REFI_LTV;
       const { financials } = allPropertyFinancials[propIndex];
       const stabilizedData = financials.slice(refiYear * 12, (refiYear + 1) * 12);
       const stabilizedNOI = stabilizedData.reduce((a: number, m: any) => a + m.noi, 0);
-      const capRate = prop.exitCapRate || global.exitCapRate || DEFAULT_EXIT_CAP_RATE;
+      const capRate = prop.exitCapRate ?? global.exitCapRate ?? DEFAULT_EXIT_CAP_RATE;
       const propertyValue = stabilizedNOI / capRate;
       const refiLoanAmount = propertyValue * refiLTV;
       
-      const annualRate = prop.refinanceInterestRate || global.debtAssumptions.interestRate || DEFAULT_INTEREST_RATE;
+      const annualRate = prop.refinanceInterestRate ?? global.debtAssumptions.interestRate ?? DEFAULT_INTEREST_RATE;
       const r = annualRate / 12;
-      const termYears = prop.refinanceTermYears || global.debtAssumptions.amortizationYears || DEFAULT_TERM_YEARS;
+      const termYears = prop.refinanceTermYears ?? global.debtAssumptions.amortizationYears ?? DEFAULT_TERM_YEARS;
       const n = termYears * 12;
       
       if (r <= 0 || n <= 0 || refiLoanAmount <= 0) return { debtService: 0, interestPortion: 0, principalPortion: 0 };
@@ -3187,9 +3193,9 @@ function InvestmentAnalysis({
     const loanAmount = getPropertyLoanAmount(prop);
     if (loanAmount <= 0) return { debtService: 0, interestPortion: 0, principalPortion: 0 };
 
-    const annualRate = prop.acquisitionInterestRate || global.debtAssumptions.interestRate || DEFAULT_INTEREST_RATE;
+    const annualRate = prop.acquisitionInterestRate ?? global.debtAssumptions.interestRate ?? DEFAULT_INTEREST_RATE;
     const r = annualRate / 12;
-    const termYears = prop.acquisitionTermYears || global.debtAssumptions.amortizationYears || DEFAULT_TERM_YEARS;
+    const termYears = prop.acquisitionTermYears ?? global.debtAssumptions.amortizationYears ?? DEFAULT_TERM_YEARS;
     const n = termYears * 12;
 
     if (r <= 0 || n <= 0) return { debtService: 0, interestPortion: 0, principalPortion: 0 };
@@ -3227,9 +3233,9 @@ function InvestmentAnalysis({
     const loanAmount = getPropertyLoanAmount(prop);
     if (loanAmount <= 0) return 0;
 
-    const annualRate = prop.acquisitionInterestRate || global.debtAssumptions.interestRate || DEFAULT_INTEREST_RATE;
+    const annualRate = prop.acquisitionInterestRate ?? global.debtAssumptions.interestRate ?? DEFAULT_INTEREST_RATE;
     const r = annualRate / 12;
-    const termYears = prop.acquisitionTermYears || global.debtAssumptions.amortizationYears || DEFAULT_TERM_YEARS;
+    const termYears = prop.acquisitionTermYears ?? global.debtAssumptions.amortizationYears ?? DEFAULT_TERM_YEARS;
     const n = termYears * 12;
 
     if (r <= 0 || n <= 0) return 0;
@@ -3267,13 +3273,13 @@ function InvestmentAnalysis({
     
     if (refiYear < 0 || refiYear >= projectionYears) return { year: -1, proceeds: 0 };
     
-    const refiLTV = prop.refinanceLTV || global.debtAssumptions.refiLTV || DEFAULT_REFI_LTV;
-    const closingCostRate = prop.refinanceClosingCostRate || global.debtAssumptions.refiClosingCostRate || DEFAULT_REFI_CLOSING_COST_RATE;
+    const refiLTV = prop.refinanceLTV ?? global.debtAssumptions.refiLTV ?? DEFAULT_REFI_LTV;
+    const closingCostRate = prop.refinanceClosingCostRate ?? global.debtAssumptions.refiClosingCostRate ?? DEFAULT_REFI_CLOSING_COST_RATE;
     
     const { financials } = allPropertyFinancials[propIndex];
     const stabilizedData = financials.slice(refiYear * 12, (refiYear + 1) * 12);
     const stabilizedNOI = stabilizedData.reduce((a: number, m: any) => a + m.noi, 0);
-    const capRate = prop.exitCapRate || DEFAULT_EXIT_CAP_RATE;
+    const capRate = prop.exitCapRate ?? DEFAULT_EXIT_CAP_RATE;
     const propertyValue = stabilizedNOI / capRate;
     
     const newLoanAmount = propertyValue * refiLTV;
@@ -3296,17 +3302,17 @@ function InvestmentAnalysis({
     
     if (refiYear < 0 || refiYear >= projectionYears || afterYear < refiYear) return 0;
     
-    const refiLTV = prop.refinanceLTV || global.debtAssumptions.refiLTV || DEFAULT_REFI_LTV;
+    const refiLTV = prop.refinanceLTV ?? global.debtAssumptions.refiLTV ?? DEFAULT_REFI_LTV;
     const { financials } = allPropertyFinancials[propIndex];
     const stabilizedData = financials.slice(refiYear * 12, (refiYear + 1) * 12);
     const stabilizedNOI = stabilizedData.reduce((a: number, m: any) => a + m.noi, 0);
-    const capRate = prop.exitCapRate || DEFAULT_EXIT_CAP_RATE;
+    const capRate = prop.exitCapRate ?? DEFAULT_EXIT_CAP_RATE;
     const propertyValue = stabilizedNOI / capRate;
     const refiLoanAmount = propertyValue * refiLTV;
     
-    const annualRate = prop.refinanceInterestRate || global.debtAssumptions.interestRate || DEFAULT_INTEREST_RATE;
+    const annualRate = prop.refinanceInterestRate ?? global.debtAssumptions.interestRate ?? DEFAULT_INTEREST_RATE;
     const r = annualRate / 12;
-    const termYears = prop.refinanceTermYears || global.debtAssumptions.amortizationYears || DEFAULT_TERM_YEARS;
+    const termYears = prop.refinanceTermYears ?? global.debtAssumptions.amortizationYears ?? DEFAULT_TERM_YEARS;
     const n = termYears * 12;
     
     if (r <= 0 || n <= 0) return 0;
@@ -3339,9 +3345,9 @@ function InvestmentAnalysis({
     const { financials } = allPropertyFinancials[propIndex];
     const year10Data = financials.slice((projectionYears - 1) * 12, projectionYears * 12);
     const year10NOI = year10Data.reduce((a: number, m: any) => a + m.noi, 0);
-    const capRate = prop.exitCapRate || DEFAULT_EXIT_CAP_RATE;
+    const capRate = prop.exitCapRate ?? DEFAULT_EXIT_CAP_RATE;
     const grossValue = year10NOI / capRate;
-    const commissionRate = global.commissionRate || DEFAULT_COMMISSION_RATE;
+    const commissionRate = global.commissionRate ?? DEFAULT_COMMISSION_RATE;
     const commission = grossValue * commissionRate;
     const netValue = grossValue - commission;
     const outstandingDebt = getTotalOutstandingDebt(prop, propIndex, 9);
@@ -3351,10 +3357,10 @@ function InvestmentAnalysis({
 
   const getPropertyYearlyDetails = (prop: any, propIndex: number, yearIndex: number) => {
     const yearlyData = getPropertyYearly(propIndex, yearIndex);
-    const noi = yearlyData.noi || 0;
+    const noi = yearlyData.noi ?? 0;
     const { debtService, interestPortion, principalPortion } = getDebtServiceDetails(prop, propIndex, yearIndex);
     const depreciation = getAnnualDepreciation(prop);
-    const taxRate = prop.taxRate || DEFAULT_TAX_RATE;
+    const taxRate = prop.taxRate ?? DEFAULT_TAX_RATE;
 
     const btcf = noi - debtService;
     const taxableIncome = noi - interestPortion - depreciation;
@@ -3755,7 +3761,7 @@ function InvestmentAnalysis({
                     <TableRow key={prop.id} className="bg-muted/5" data-testid={`fcf-property-${prop.id}`}>
                       <TableCell className="sticky left-0 bg-muted/5 pl-12 text-sm text-muted-foreground">
                         {prop.name}
-                        <span className="text-xs ml-2">({((prop.taxRate || DEFAULT_TAX_RATE) * 100).toFixed(0)}% tax)</span>
+                        <span className="text-xs ml-2">({((prop.taxRate ?? DEFAULT_TAX_RATE) * 100).toFixed(0)}% tax)</span>
                       </TableCell>
                       <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
@@ -3836,7 +3842,7 @@ function InvestmentAnalysis({
                 <TableRow key={prop.id} className="bg-muted/10">
                   <TableCell className="sticky left-0 bg-muted/10 pl-8 text-sm text-muted-foreground">
                     {prop.name} 
-                    <span className="text-xs ml-2">({((prop.exitCapRate || DEFAULT_EXIT_CAP_RATE) * 100).toFixed(1)}% cap)</span>
+                    <span className="text-xs ml-2">({((prop.exitCapRate ?? DEFAULT_EXIT_CAP_RATE) * 100).toFixed(1)}% cap)</span>
                   </TableCell>
                   <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
                   {Array.from({ length: projectionYears }, (_, y) => (
@@ -3922,8 +3928,8 @@ function InvestmentAnalysis({
                   <TableRow key={prop.id}>
                     <TableCell className="font-medium">{prop.name}</TableCell>
                     <TableCell className="text-right font-mono">{formatMoney(equity)}</TableCell>
-                    <TableCell className="text-right">{((prop.taxRate || DEFAULT_TAX_RATE) * 100).toFixed(0)}%</TableCell>
-                    <TableCell className="text-right">{((prop.exitCapRate || DEFAULT_EXIT_CAP_RATE) * 100).toFixed(1)}%</TableCell>
+                    <TableCell className="text-right">{((prop.taxRate ?? DEFAULT_TAX_RATE) * 100).toFixed(0)}%</TableCell>
+                    <TableCell className="text-right">{((prop.exitCapRate ?? DEFAULT_EXIT_CAP_RATE) * 100).toFixed(1)}%</TableCell>
                     <TableCell className="text-right text-accent">{formatMoney(exitValue)}</TableCell>
                     <TableCell className="text-right font-mono">{formatMoney(totalDistributions)}</TableCell>
                     <TableCell className="text-right font-medium">{equityMultiple.toFixed(2)}x</TableCell>

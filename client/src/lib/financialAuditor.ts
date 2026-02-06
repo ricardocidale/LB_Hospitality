@@ -467,20 +467,23 @@ export function auditIncomeStatement(
       });
     }
     
-    const expectedNetIncome = m.noi - m.interestExpense;
+    const depExp = m.depreciationExpense || 0;
+    const taxableForAudit = m.noi - m.interestExpense - depExp;
+    const expectedTax = taxableForAudit > 0 ? taxableForAudit * (m.incomeTax > 0 && taxableForAudit > 0 ? m.incomeTax / taxableForAudit : 0.25) : 0;
+    const expectedNetIncome = m.noi - m.interestExpense - depExp - (m.incomeTax || 0);
     const netIncomeMatch = withinTolerance(expectedNetIncome, m.netIncome);
     
     if (!netIncomeMatch) {
       findings.push({
         category: "Income Statement",
         rule: "Net Income Calculation (GAAP)",
-        gaapReference: "ASC 470 - Principal NOT in Income Statement",
+        gaapReference: "ASC 470/ASC 360 - Net Income = NOI - Interest - Depreciation - Tax",
         severity: "critical",
         passed: false,
         expected: expectedNetIncome.toFixed(2),
         actual: m.netIncome.toFixed(2),
         variance: formatVariance(expectedNetIncome, m.netIncome),
-        recommendation: `Month ${i + 1}: Net Income = NOI - Interest (NOT principal, per GAAP)`,
+        recommendation: `Month ${i + 1}: Net Income = NOI - Interest - Depreciation - Income Tax (GAAP)`,
         workpaperRef: `WP-IS-NI-M${i + 1}`
       });
     }

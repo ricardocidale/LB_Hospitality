@@ -106,22 +106,24 @@ export function checkPropertyFormulas(monthlyData: MonthlyFinancials[]): Formula
       actual: m.debtPayment.toFixed(2)
     });
     
-    // 6. Net Income = NOI - Interest Expense (GAAP: principal does NOT hit income statement)
-    const expectedNetIncome = m.noi - m.interestExpense;
+    // 6. Net Income = NOI - Interest - Depreciation - Tax (GAAP)
+    const depExp = m.depreciationExpense || 0;
+    const incomeTax = m.incomeTax || 0;
+    const expectedNetIncome = m.noi - m.interestExpense - depExp - incomeTax;
     results.push({
       passed: withinTolerance(expectedNetIncome, m.netIncome),
       name: `${monthLabel}: Net Income Formula`,
-      description: "Net Income = NOI - Interest Expense (excludes principal per GAAP)",
+      description: "Net Income = NOI - Interest - Depreciation - Income Tax (GAAP)",
       expected: expectedNetIncome.toFixed(2),
       actual: m.netIncome.toFixed(2)
     });
     
-    // 7. Cash Flow = NOI - Debt Payment (includes principal)
-    const expectedCashFlow = m.noi - m.debtPayment;
+    // 7. Cash Flow = NOI - Debt Payment - Tax (includes principal and tax)
+    const expectedCashFlow = m.noi - m.debtPayment - incomeTax;
     results.push({
       passed: withinTolerance(expectedCashFlow, m.cashFlow),
       name: `${monthLabel}: Cash Flow Formula`,
-      description: "Cash Flow = NOI - Total Debt Service (interest + principal)",
+      description: "Cash Flow = NOI - Total Debt Service - Income Tax",
       expected: expectedCashFlow.toFixed(2),
       actual: m.cashFlow.toFixed(2)
     });

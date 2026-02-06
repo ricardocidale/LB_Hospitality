@@ -578,3 +578,33 @@ export const insertProspectivePropertySchema = z.object({
 
 export type ProspectiveProperty = typeof prospectiveProperties.$inferSelect;
 export type InsertProspectiveProperty = z.infer<typeof insertProspectivePropertySchema>;
+
+// --- SAVED SEARCHES TABLE ---
+export const savedSearches = pgTable("saved_searches", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  name: text("name").notNull(),
+  location: text("location").notNull(),
+  priceMin: text("price_min"),
+  priceMax: text("price_max"),
+  bedsMin: text("beds_min"),
+  lotSizeMin: text("lot_size_min"),
+  propertyType: text("property_type"),
+  savedAt: timestamp("saved_at").defaultNow().notNull(),
+}, (table) => [
+  index("saved_searches_user_id_idx").on(table.userId),
+]);
+
+export const insertSavedSearchSchema = z.object({
+  userId: z.number(),
+  name: z.string().min(1),
+  location: z.string().min(1),
+  priceMin: z.string().nullable().optional(),
+  priceMax: z.string().nullable().optional(),
+  bedsMin: z.string().nullable().optional(),
+  lotSizeMin: z.string().nullable().optional(),
+  propertyType: z.string().nullable().optional(),
+});
+
+export type SavedSearch = typeof savedSearches.$inferSelect;
+export type InsertSavedSearch = z.infer<typeof insertSavedSearchSchema>;

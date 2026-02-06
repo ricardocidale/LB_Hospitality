@@ -431,6 +431,7 @@ export const insertScenarioSchema = createInsertSchema(scenarios).pick({
   description: true,
   globalAssumptions: true,
   properties: true,
+  scenarioImages: true,
 });
 
 export const updateScenarioSchema = z.object({

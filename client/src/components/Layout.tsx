@@ -22,16 +22,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { href: "/company", label: "Management Co.", icon: Briefcase },
     { type: "divider" as const },
     { href: "/property-finder", label: "Property Finder", icon: SearchCheck },
-    { href: "/scenarios", label: "Scenarios", icon: FolderOpen },
     { type: "divider" as const },
     { href: "/settings", label: "Systemwide Assumptions", icon: Settings2 },
     { type: "divider" as const },
-    { href: "/methodology", label: "Methodology", icon: FileText },
-    { type: "divider" as const },
     { href: "/profile", label: "My Profile", icon: UserCircle },
+    { href: "/scenarios", label: "My Scenarios", icon: FolderOpen },
+    { type: "divider" as const },
     ...(isAdmin ? [
       { href: "/admin", label: "Administration", icon: Shield },
     ] : []),
+    { href: "/methodology", label: "Methodology", icon: FileText },
   ];
 
   return (

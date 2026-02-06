@@ -83,13 +83,15 @@ export default function Login() {
       </div>
 
       <div className="relative z-10 w-full max-w-md mx-4">
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-white/[0.08] to-white/[0.02] backdrop-blur-xl border border-white/10 shadow-2xl shadow-black/40">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-white/[0.14] via-white/[0.08] to-white/[0.04] backdrop-blur-2xl border border-white/20 shadow-2xl shadow-black/40">
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute -top-20 -right-20 w-40 h-40 rounded-full bg-[#9FBCA4]/10 blur-3xl" />
-            <div className="absolute -bottom-10 -left-10 w-32 h-32 rounded-full bg-[#257D41]/10 blur-2xl" />
+            <div className="absolute -top-20 -right-20 w-48 h-48 rounded-full bg-white/10 blur-3xl" />
+            <div className="absolute -bottom-10 -left-10 w-40 h-40 rounded-full bg-white/8 blur-2xl" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full bg-[#9FBCA4]/8 blur-3xl" />
           </div>
+          <div className="absolute inset-0 shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] rounded-2xl" />
           
-          <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+          <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
           
           <div className="relative p-8 sm:p-10">
             <div className="flex flex-col items-center mb-8">

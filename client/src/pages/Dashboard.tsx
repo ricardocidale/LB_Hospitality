@@ -1785,42 +1785,37 @@ export default function Dashboard() {
         />
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-            <DarkGlassTabs
-              tabs={[
-                { value: 'overview', label: 'Overview', icon: LayoutDashboard },
-                { value: 'income', label: 'Income Statement', icon: FileText },
-                { value: 'cashflow', label: 'Cash Flow', icon: Banknote },
-                { value: 'balance', label: 'Balance Sheet', icon: Scale },
-                { value: 'investment', label: 'Investment Analysis', icon: TrendingUpIcon }
-              ]}
-              activeTab={activeTab}
-              onTabChange={setActiveTab}
-            />
-            
-            {exportFunctions && (
-              <div className="flex gap-2">
-                <GlassButton
-                  variant="export"
-                  size="sm"
+          <DarkGlassTabs
+            tabs={[
+              { value: 'overview', label: 'Overview', icon: LayoutDashboard },
+              { value: 'income', label: 'Income Statement', icon: FileText },
+              { value: 'cashflow', label: 'Cash Flow', icon: Banknote },
+              { value: 'balance', label: 'Balance Sheet', icon: Scale },
+              { value: 'investment', label: 'Investment Analysis', icon: TrendingUpIcon }
+            ]}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            rightContent={exportFunctions && (
+              <>
+                <button
                   onClick={exportFunctions.pdf}
+                  className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-[#FFF9F5]/60 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all duration-300"
                   data-testid="button-export-pdf"
                 >
-                  <FileDown className="w-4 h-4" />
-                  Export PDF
-                </GlassButton>
-                <GlassButton
-                  variant="export"
-                  size="sm"
+                  <FileDown className="w-3.5 h-3.5" />
+                  PDF
+                </button>
+                <button
                   onClick={exportFunctions.csv}
+                  className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-[#FFF9F5]/60 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all duration-300"
                   data-testid="button-export-csv"
                 >
-                  <FileSpreadsheet className="w-4 h-4" />
-                  Export CSV
-                </GlassButton>
-              </div>
+                  <FileSpreadsheet className="w-3.5 h-3.5" />
+                  CSV
+                </button>
+              </>
             )}
-          </div>
+          />
 
           <TabsContent value="overview" className="space-y-8">
             {/* Investment Returns - Hero Section - Fluid Glass Design */}

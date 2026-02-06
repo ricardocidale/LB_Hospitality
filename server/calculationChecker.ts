@@ -1,3 +1,5 @@
+const PROJECTION_YEARS = 10;
+const PROJECTION_MONTHS = PROJECTION_YEARS * 12;
 const DEPRECIATION_YEARS = 27.5;
 const DAYS_PER_MONTH = 30.5;
 const DEFAULT_LTV = 0.75;
@@ -120,7 +122,7 @@ function independentPropertyCalc(property: any, global: any) {
   const totalPayments = loanTerm * 12;
   const monthlyPayment = calculatePMT(originalLoanAmount, monthlyRate, totalPayments);
 
-  const months = 120;
+  const months = PROJECTION_MONTHS;
   const results: any[] = [];
   let currentAdr = property.startAdr;
   let cumulativeCash = 0;
@@ -463,7 +465,7 @@ export function runIndependentVerification(properties: any[], globalAssumptions:
       "info"
     ));
 
-    const year10Months = independentCalc.slice(108, 120);
+    const year10Months = independentCalc.slice((PROJECTION_YEARS - 1) * 12, PROJECTION_MONTHS);
     const year10Revenue = year10Months.reduce((sum: number, m: any) => sum + m.revenueTotal, 0);
     const year10NOI = year10Months.reduce((sum: number, m: any) => sum + m.noi, 0);
 

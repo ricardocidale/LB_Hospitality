@@ -67,5 +67,28 @@ export const DEFAULT_MARKETING_RATE = 0.05;
 export const DEFAULT_MISC_OPS_RATE = 0.03;
 export const DEFAULT_SAFE_TRANCHE = 800000;
 
+// Projection period
+export const PROJECTION_YEARS = 10;
+export const PROJECTION_MONTHS = PROJECTION_YEARS * 12; // 120
+
+// Default model start date fallback
+export const DEFAULT_MODEL_START_DATE = '2026-04-01';
+
+// Staffing model thresholds
+export const STAFFING_TIERS = [
+  { maxProperties: 3, fte: 2.5 },
+  { maxProperties: 6, fte: 4.5 },
+  { maxProperties: Infinity, fte: 7.0 },
+];
+export function getStaffFTE(propertyCount: number): number {
+  const tier = STAFFING_TIERS.find(t => propertyCount <= t.maxProperties);
+  return tier ? tier.fte : STAFFING_TIERS[STAFFING_TIERS.length - 1].fte;
+}
+
+// Operating reserve / funding buffer constants
+export const OPERATING_RESERVE_BUFFER = 50000;
+export const COMPANY_FUNDING_BUFFER = 100000;
+export const RESERVE_ROUNDING_INCREMENT = 10000;
+
 // Partner compensation defaults (indexed by year 1-10)
 export const DEFAULT_PARTNER_COMP = [540000, 540000, 540000, 600000, 600000, 700000, 700000, 800000, 800000, 900000];

@@ -36,7 +36,9 @@ import {
   DEFAULT_PARTNER_COMP,
   DEFAULT_EVENT_EXPENSE_RATE,
   DEFAULT_OTHER_EXPENSE_RATE,
-  DEFAULT_UTILITIES_VARIABLE_SPLIT
+  DEFAULT_UTILITIES_VARIABLE_SPLIT,
+  PROJECTION_MONTHS,
+  getStaffFTE
 } from './constants';
 
 // Helper function to get fiscal year label for a given month in the model
@@ -221,7 +223,7 @@ export interface MonthlyFinancials {
 export function generatePropertyProForma(
   property: PropertyInput, 
   global: GlobalInput, 
-  months: number = 60
+  months: number = PROJECTION_MONTHS
 ): MonthlyFinancials[] {
   const financials: MonthlyFinancials[] = [];
   const modelStart = new Date(global.modelStartDate);
@@ -493,7 +495,7 @@ export interface CompanyMonthlyFinancials {
 export function generateCompanyProForma(
   properties: PropertyInput[],
   global: GlobalInput,
-  months: number = 120
+  months: number = PROJECTION_MONTHS
 ): CompanyMonthlyFinancials[] {
   const results: CompanyMonthlyFinancials[] = [];
   
@@ -572,7 +574,7 @@ export function generateCompanyProForma(
       const totalPartnerCompForYear = yearlyPartnerComp[yearIndex];
       
       const staffSalary = (global.staffSalary ?? DEFAULT_STAFF_SALARY);
-      const staffFTE = activePropertyCount <= 3 ? 2.5 : activePropertyCount <= 6 ? 4.5 : 7.0;
+      const staffFTE = getStaffFTE(activePropertyCount);
       
       partnerCompensation = totalPartnerCompForYear / 12;
       staffCompensation = (staffFTE * staffSalary * fixedCostFactor) / 12;

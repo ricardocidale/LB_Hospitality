@@ -4,6 +4,7 @@ import { ExportDialog } from "@/components/ExportDialog";
 import Layout from "@/components/Layout";
 import { useProperties, useGlobalAssumptions } from "@/lib/api";
 import { generateCompanyProForma, generatePropertyProForma, formatMoney, getFiscalYearForModelYear } from "@/lib/financialEngine";
+import { PROJECTION_YEARS, PROJECTION_MONTHS, getStaffFTE, OPERATING_RESERVE_BUFFER, COMPANY_FUNDING_BUFFER } from "@/lib/constants";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
@@ -74,7 +75,7 @@ function analyzeCompanyCashPosition(financials: CompanyMonthlyFinancials[]): Com
 
   const shortfall = minCashPosition < 0 ? Math.abs(minCashPosition) : 0;
   const isAdequate = minCashPosition >= 0;
-  const suggestedAdditionalFunding = isAdequate ? 0 : Math.ceil(shortfall / 50000) * 50000 + 100000;
+  const suggestedAdditionalFunding = isAdequate ? 0 : Math.ceil(shortfall / OPERATING_RESERVE_BUFFER) * OPERATING_RESERVE_BUFFER + COMPANY_FUNDING_BUFFER;
 
   return {
     totalSafeFunding: totalSafe,
@@ -130,17 +131,17 @@ export default function Company() {
 
   const fiscalYearStartMonth = global.fiscalYearStartMonth ?? 1;
   const getFiscalYear = (yearIndex: number) => getFiscalYearForModelYear(global.modelStartDate, fiscalYearStartMonth, yearIndex);
-  const financials = generateCompanyProForma(properties, global, 120);
+  const financials = generateCompanyProForma(properties, global, PROJECTION_MONTHS);
   
   const cashAnalysis = analyzeCompanyCashPosition(financials);
   
   const propertyFinancials = properties.map(p => ({
     property: p,
-    financials: generatePropertyProForma(p, global, 120)
+    financials: generatePropertyProForma(p, global, PROJECTION_MONTHS)
   }));
   
   const yearlyChartData = [];
-  for (let y = 0; y < 10; y++) {
+  for (let y = 0; y < PROJECTION_YEARS; y++) {
     const yearData = financials.slice(y * 12, (y + 1) * 12);
     if (yearData.length === 0) continue;
     yearlyChartData.push({
@@ -152,7 +153,7 @@ export default function Company() {
   }
 
   const activePropertyCount = properties.filter(p => p.status === "Operating").length;
-  const staffFTE = activePropertyCount <= 3 ? 2.5 : activePropertyCount <= 6 ? 4.5 : 7.0;
+  const staffFTE = getStaffFTE(activePropertyCount);
   
   const year1Financials = financials.slice(0, 12);
   const year1Revenue = year1Financials.reduce((a, m) => a + m.totalRevenue, 0);

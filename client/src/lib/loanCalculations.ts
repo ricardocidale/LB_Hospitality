@@ -77,7 +77,10 @@ import {
   DEPRECIATION_YEARS, 
   DEFAULT_REFI_LTV, 
   DEFAULT_REFI_CLOSING_COST_RATE,
-  DEFAULT_ACQ_CLOSING_COST_RATE 
+  DEFAULT_ACQ_CLOSING_COST_RATE,
+  PROJECTION_YEARS,
+  PROJECTION_MONTHS,
+  DEFAULT_MODEL_START_DATE
 } from './constants';
 
 // Re-export constants for backwards compatibility
@@ -91,7 +94,10 @@ export {
   DEPRECIATION_YEARS, 
   DEFAULT_REFI_LTV, 
   DEFAULT_REFI_CLOSING_COST_RATE,
-  DEFAULT_ACQ_CLOSING_COST_RATE 
+  DEFAULT_ACQ_CLOSING_COST_RATE,
+  PROJECTION_YEARS,
+  PROJECTION_MONTHS,
+  DEFAULT_MODEL_START_DATE
 };
 
 export function calculateLoanParams(
@@ -128,8 +134,8 @@ export function calculateLoanParams(
     }
   }
   
-  const modelStart = new Date(global?.modelStartDate || '2026-04-01');
-  const acqDate = new Date(property.acquisitionDate || global?.modelStartDate || '2026-04-01');
+  const modelStart = new Date(global?.modelStartDate || DEFAULT_MODEL_START_DATE);
+  const acqDate = new Date(property.acquisitionDate || global?.modelStartDate || DEFAULT_MODEL_START_DATE);
   const acqMonthsFromModelStart = Math.max(0, 
     (acqDate.getFullYear() - modelStart.getFullYear()) * 12 + 
     (acqDate.getMonth() - modelStart.getMonth())

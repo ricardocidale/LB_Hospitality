@@ -15,6 +15,7 @@ import {
   DEFAULT_TAX_RATE,
   DEFAULT_COMMISSION_RATE
 } from "@/lib/loanCalculations";
+import { OPERATING_RESERVE_BUFFER, RESERVE_ROUNDING_INCREMENT } from "@/lib/constants";
 
 interface YearlyDetails {
   soldRooms: number;
@@ -133,7 +134,7 @@ function analyzeMonthlyCashPosition(
   
   const shortfall = minCashPosition < 0 ? Math.abs(minCashPosition) : 0;
   const isAdequate = minCashPosition >= 0;
-  const suggestedReserve = isAdequate ? operatingReserve : operatingReserve + shortfall + 50000;
+  const suggestedReserve = isAdequate ? operatingReserve : operatingReserve + shortfall + OPERATING_RESERVE_BUFFER;
   
   return {
     operatingReserve,
@@ -141,7 +142,7 @@ function analyzeMonthlyCashPosition(
     minCashMonth,
     shortfall,
     isAdequate,
-    suggestedReserve: Math.ceil(suggestedReserve / 10000) * 10000
+    suggestedReserve: Math.ceil(suggestedReserve / RESERVE_ROUNDING_INCREMENT) * RESERVE_ROUNDING_INCREMENT
   };
 }
 

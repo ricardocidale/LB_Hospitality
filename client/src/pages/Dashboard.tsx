@@ -1798,22 +1798,20 @@ export default function Dashboard() {
                   <p className="text-[#2d4a5e]/50 text-sm label-text"><span className="font-mono">{investmentHorizon}</span>-Year Hold | <span className="font-mono">{totalProperties}</span> Properties | <span className="font-mono">{totalRooms}</span> Rooms</p>
                 </div>
                 
-                {/* Main IRR Display - Frosted Glass */}
-                <div className="flex flex-col items-center mb-10">
+                {/* Main IRR Display + Property IRR Bar Chart - Side by Side */}
+                <div className="flex flex-col md:flex-row items-center justify-center gap-8 mb-10">
+                  {/* Portfolio IRR Meter */}
                   <div className="relative bg-white/95 backdrop-blur-xl rounded-[2rem] p-8 border border-[#9FBCA4]/40 shadow-xl shadow-black/10">
                     <div className="relative">
                       <svg className="w-48 h-48" viewBox="0 0 200 200">
                         <defs>
-                          {/* 3D tubular gradient - lighter for #F4795B coral */}
                           <linearGradient id="irrTube3D" x1="0%" y1="0%" x2="0%" y2="100%">
                             <stop offset="0%" stopColor="#FFB89A" />
                             <stop offset="40%" stopColor="#F4795B" />
                             <stop offset="100%" stopColor="#E06545" />
                           </linearGradient>
                         </defs>
-                        {/* Background track */}
                         <circle cx="100" cy="100" r="80" fill="none" stroke="rgba(45,74,94,0.1)" strokeWidth="12" />
-                        {/* Main 3D segment with tubular gradient */}
                         <circle 
                           cx="100" cy="100" r="80" fill="none" stroke="url(#irrTube3D)" strokeWidth="12"
                           strokeDasharray={`${Math.min(Math.max(portfolioIRR * 100, 0) * 5.03, 503)} 503`}
@@ -1827,6 +1825,53 @@ export default function Dashboard() {
                         <span className="text-sm text-[#2d4a5e]/60 font-medium mt-2 label-text">Portfolio IRR</span>
                       </div>
                     </div>
+                  </div>
+
+                  {/* Property IRR Comparison Bar Chart */}
+                  <div className="bg-white/95 backdrop-blur-xl rounded-[2rem] p-6 border border-[#9FBCA4]/40 shadow-xl shadow-black/10 min-w-[340px]" data-testid="chart-property-irr-comparison">
+                    <p className="text-xs font-medium tracking-widest text-[#2d4a5e]/60 uppercase mb-3 text-center label-text">Property IRR Comparison</p>
+                    <ResponsiveContainer width="100%" height={200}>
+                      <BarChart
+                        data={properties.map((prop, idx) => {
+                          const cashFlows = getPropertyCashFlows(prop, idx);
+                          const irr = calculateIRR(cashFlows);
+                          return {
+                            name: prop.name.length > 15 ? prop.name.substring(0, 13) + '…' : prop.name,
+                            fullName: prop.name,
+                            irr: parseFloat((irr * 100).toFixed(1)),
+                          };
+                        })}
+                        margin={{ top: 5, right: 10, left: 0, bottom: 40 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(45,74,94,0.1)" vertical={false} />
+                        <XAxis
+                          dataKey="name"
+                          tick={{ fontSize: 10, fill: '#6b7280' }}
+                          angle={-25}
+                          textAnchor="end"
+                          height={50}
+                        />
+                        <YAxis
+                          tickFormatter={(v: number) => `${v}%`}
+                          tick={{ fontSize: 10, fill: '#6b7280' }}
+                          domain={[0, 'auto']}
+                          width={45}
+                        />
+                        <Tooltip
+                          formatter={(value: number) => [`${value.toFixed(1)}%`, 'IRR']}
+                          labelFormatter={(label: string, payload: any[]) => payload?.[0]?.payload?.fullName || label}
+                          contentStyle={{ borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 12 }}
+                        />
+                        <Bar dataKey="irr" radius={[4, 4, 0, 0]} maxBarSize={40}>
+                          {properties.map((prop, idx) => {
+                            const cashFlows = getPropertyCashFlows(prop, idx);
+                            const irr = calculateIRR(cashFlows);
+                            const color = irr > IRR_HIGHLIGHT_THRESHOLD ? '#9FBCA4' : irr > 0 ? '#2d4a5e' : '#ef4444';
+                            return <Cell key={prop.id} fill={color} />;
+                          })}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
                   </div>
                 </div>
 
@@ -3703,55 +3748,6 @@ function InvestmentAnalysis({
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Property IRR Comparison</CardTitle>
-          <p className="text-sm text-muted-foreground">Side-by-side comparison of individual property internal rates of return</p>
-        </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={360}>
-            <BarChart
-              data={properties.map((prop, idx) => {
-                const cashFlows = getPropertyCashFlows(prop, idx);
-                const irr = calculateIRR(cashFlows);
-                return {
-                  name: prop.name.length > 20 ? prop.name.substring(0, 18) + '…' : prop.name,
-                  fullName: prop.name,
-                  irr: parseFloat((irr * 100).toFixed(1)),
-                };
-              })}
-              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
-              <XAxis
-                dataKey="name"
-                tick={{ fontSize: 12, fill: '#6b7280' }}
-                angle={-25}
-                textAnchor="end"
-                height={70}
-              />
-              <YAxis
-                tickFormatter={(v: number) => `${v}%`}
-                tick={{ fontSize: 12, fill: '#6b7280' }}
-                domain={[0, 'auto']}
-              />
-              <Tooltip
-                formatter={(value: number) => [`${value.toFixed(1)}%`, 'IRR']}
-                labelFormatter={(label: string, payload: any[]) => payload?.[0]?.payload?.fullName || label}
-                contentStyle={{ borderRadius: 8, border: '1px solid #e5e7eb' }}
-              />
-              <Bar dataKey="irr" radius={[6, 6, 0, 0]} maxBarSize={60}>
-                {properties.map((prop, idx) => {
-                  const cashFlows = getPropertyCashFlows(prop, idx);
-                  const irr = calculateIRR(cashFlows);
-                  const color = irr > IRR_HIGHLIGHT_THRESHOLD ? '#9FBCA4' : irr > 0 ? '#2d4a5e' : '#ef4444';
-                  return <Cell key={prop.id} fill={color} />;
-                })}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
     </>
   );
 }

@@ -527,3 +527,52 @@ export const insertMarketResearchSchema = createInsertSchema(marketResearch).pic
 
 export type MarketResearch = typeof marketResearch.$inferSelect;
 export type InsertMarketResearch = z.infer<typeof insertMarketResearchSchema>;
+
+// --- PROSPECTIVE PROPERTIES TABLE ---
+export const prospectiveProperties = pgTable("prospective_properties", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  externalId: text("external_id").notNull(),
+  source: text("source").notNull().default("realty-in-us"),
+  address: text("address").notNull(),
+  city: text("city"),
+  state: text("state"),
+  zipCode: text("zip_code"),
+  price: real("price"),
+  beds: integer("beds"),
+  baths: real("baths"),
+  sqft: real("sqft"),
+  lotSizeAcres: real("lot_size_acres"),
+  propertyType: text("property_type"),
+  imageUrl: text("image_url"),
+  listingUrl: text("listing_url"),
+  notes: text("notes"),
+  rawData: jsonb("raw_data").$type<Record<string, any>>(),
+  savedAt: timestamp("saved_at").defaultNow().notNull(),
+}, (table) => [
+  index("prospective_props_user_id_idx").on(table.userId),
+  index("prospective_props_external_id_idx").on(table.externalId),
+]);
+
+export const insertProspectivePropertySchema = z.object({
+  userId: z.number(),
+  externalId: z.string(),
+  source: z.string().optional(),
+  address: z.string(),
+  city: z.string().nullable().optional(),
+  state: z.string().nullable().optional(),
+  zipCode: z.string().nullable().optional(),
+  price: z.number().nullable().optional(),
+  beds: z.number().nullable().optional(),
+  baths: z.number().nullable().optional(),
+  sqft: z.number().nullable().optional(),
+  lotSizeAcres: z.number().nullable().optional(),
+  propertyType: z.string().nullable().optional(),
+  imageUrl: z.string().nullable().optional(),
+  listingUrl: z.string().nullable().optional(),
+  notes: z.string().nullable().optional(),
+  rawData: z.record(z.any()).nullable().optional(),
+});
+
+export type ProspectiveProperty = typeof prospectiveProperties.$inferSelect;
+export type InsertProspectiveProperty = z.infer<typeof insertProspectivePropertySchema>;

@@ -1,0 +1,141 @@
+# Tab-Bar System
+
+**Component**: `DarkGlassTabs` (`client/src/components/ui/tabs.tsx`)
+
+## Overview
+
+Filing-system style dark glass tabs used on multi-view pages. The `rightContent` slot is the standard location for export controls via `ExportToolbar`.
+
+## DarkGlassTabs Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `tabs` | `DarkGlassTabItem[]` | Array of `{ value: string, label: string, icon?: ComponentType }` |
+| `activeTab` | `string` | Currently active tab value |
+| `onTabChange` | `(value: string) => void` | Tab change handler |
+| `rightContent` | `ReactNode` | Right-aligned slot — use for `ExportToolbar` |
+
+## DarkGlassTabItem
+
+```typescript
+interface DarkGlassTabItem {
+  value: string;       // Unique tab identifier
+  label: string;       // Display label
+  icon?: ComponentType<{ className?: string }>;  // Optional lucide icon
+}
+```
+
+## Wiring Pattern
+
+### Step 1: State setup
+
+```tsx
+const [activeTab, setActiveTab] = useState("income");
+```
+
+### Step 2: Define tabs
+
+```tsx
+const tabs: DarkGlassTabItem[] = [
+  { value: "income", label: "Income Statement", icon: DollarSign },
+  { value: "balance", label: "Balance Sheet", icon: Scale },
+  { value: "cashflow", label: "Cash Flow", icon: TrendingUp },
+];
+```
+
+### Step 3: Wire exports into rightContent
+
+```tsx
+import { ExportToolbar, pdfAction, excelAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
+
+<DarkGlassTabs
+  tabs={tabs}
+  activeTab={activeTab}
+  onTabChange={setActiveTab}
+  rightContent={
+    <ExportToolbar
+      actions={[
+        pdfAction(() => handleExportPdf(activeTab)),
+        excelAction(() => handleExportExcel(activeTab)),
+        pngAction(() => handleExportPng(activeTab)),
+      ]}
+    />
+  }
+/>
+```
+
+### Step 4: Render tab content
+
+```tsx
+{activeTab === "income" && <IncomeStatementTable data={...} />}
+{activeTab === "balance" && <BalanceSheetTable data={...} />}
+{activeTab === "cashflow" && <CashFlowTable data={...} />}
+```
+
+## Full Copy-Paste Example
+
+```tsx
+import { useState } from "react";
+import { DarkGlassTabs, type DarkGlassTabItem } from "@/components/ui/tabs";
+import { ExportToolbar, pdfAction, excelAction, pngAction } from "@/components/ui/export-toolbar";
+import { DollarSign, Scale, TrendingUp } from "lucide-react";
+
+const tabs: DarkGlassTabItem[] = [
+  { value: "income", label: "Income Statement", icon: DollarSign },
+  { value: "balance", label: "Balance Sheet", icon: Scale },
+  { value: "cashflow", label: "Cash Flow", icon: TrendingUp },
+];
+
+function FinancialPage() {
+  const [activeTab, setActiveTab] = useState("income");
+
+  const handlePdf = () => { /* PDF export logic */ };
+  const handleExcel = () => { /* Excel export logic */ };
+  const handlePng = () => { /* PNG export logic */ };
+
+  return (
+    <div>
+      <DarkGlassTabs
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        rightContent={
+          <ExportToolbar
+            actions={[
+              pdfAction(handlePdf),
+              excelAction(handleExcel),
+              pngAction(handlePng),
+            ]}
+          />
+        }
+      />
+
+      {activeTab === "income" && <div>Income content...</div>}
+      {activeTab === "balance" && <div>Balance content...</div>}
+      {activeTab === "cashflow" && <div>Cash flow content...</div>}
+    </div>
+  );
+}
+```
+
+## Rules
+
+- Use `DarkGlassTabs` on all dark-themed pages with multiple views
+- Standard shadcn `Tabs`/`TabsList`/`TabsTrigger` should NOT be used on dark pages
+- Export controls always go in `rightContent`, never in page header or body
+- Each tab button has `data-testid={`tab-${tab.value}`}`
+- Active tab shows glass morphism effect with white border and shine line
+
+## Visual Structure
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  [Tab 1*] [Tab 2] [Tab 3]              [PDF] [XLS] [PNG] │
+│  *(active tab has glass highlight)      (rightContent)   │
+└─────────────────────────────────────────────────────────┘
+```
+
+## Related Skills
+
+- **export-controls.md** — ExportToolbar and export format implementations
+- **button-system.md** — GlassButton used inside tab triggers

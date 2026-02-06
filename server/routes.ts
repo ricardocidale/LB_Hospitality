@@ -1045,6 +1045,40 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
   // Register object storage routes for file uploads
   registerObjectStorageRoutes(app);
 
+  // --- AI IMAGE GENERATION + UPLOAD ---
+  app.post("/api/generate-property-image", requireAuth, async (req, res) => {
+    try {
+      const { prompt } = req.body;
+      if (!prompt || typeof prompt !== "string") {
+        return res.status(400).json({ error: "Prompt is required" });
+      }
+
+      // Dynamic import to avoid loading OpenAI client when not needed
+      const { generateImageBuffer } = await import("./replit_integrations/image/client");
+      const buffer = await generateImageBuffer(prompt, "1024x1024");
+
+      // Upload generated image to object storage
+      const objectStorageService = new ObjectStorageService();
+      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
+      const objectPath = objectStorageService.normalizeObjectEntityPath(uploadURL);
+
+      const uploadResponse = await fetch(uploadURL, {
+        method: "PUT",
+        body: buffer,
+        headers: { "Content-Type": "image/png" },
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error("Failed to upload generated image to storage");
+      }
+
+      res.json({ objectPath });
+    } catch (error: any) {
+      console.error("Error generating property image:", error);
+      res.status(500).json({ error: error.message || "Failed to generate image" });
+    }
+  });
+
   // --- FIX IMAGE URLS ENDPOINT ---
   app.post("/api/fix-images", async (req, res) => {
     try {

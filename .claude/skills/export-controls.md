@@ -110,15 +110,14 @@ async function handleExportPng() {
 ### Chart PDF Export (pdfChartDrawer)
 
 ```tsx
-import { drawChartToPdf } from "@/lib/pdfChartDrawer";
+import { drawLineChart } from "@/lib/exports";
 
-function handleExportChart() {
-  drawChartToPdf({
-    title: "Revenue Trend",
-    chartRef: chartContainerRef,
-    orientation: "landscape",
-  });
-}
+// Draw chart onto existing jsPDF document
+drawLineChart({
+  doc, x: 10, y: 10, width: 270, height: 120,
+  title: "Revenue Trend",
+  series: [{ name: "Revenue", data: yearlyData, color: "#2E7D32" }],
+});
 ```
 
 ## ExportDialog (Orientation Selection)
@@ -161,3 +160,6 @@ import { DarkGlassTabs } from "@/components/ui/tabs";
 
 - **tab-bar-system.md** — DarkGlassTabs rightContent slot for export placement
 - **button-system.md** — GlassButton export variant styling
+- **exports/excel-export.md** — Excel workbook formatting and generation
+- **exports/pdf-chart-export.md** — PDF chart rendering with jsPDF
+- **exports/png-export.md** — PNG table/chart capture with dom-to-image

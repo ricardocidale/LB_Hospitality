@@ -1,6 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import cookieParser from "cookie-parser";
 import { registerRoutes } from "./routes";
+import { registerImageRoutes } from "./replit_integrations/image";
 import { serveStatic } from "./static";
 import { createServer } from "http";
 import { authMiddleware, requireAuth, seedAdminUser } from "./auth";
@@ -93,6 +94,7 @@ app.use((req, res, next) => {
 
 (async () => {
   await seedAdminUser();
+  registerImageRoutes(app);
   await registerRoutes(httpServer, app);
 
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {

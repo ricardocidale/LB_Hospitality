@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Upload, BookOpen } from "lucide-react";
+import { Loader2, BookOpen } from "lucide-react";
 import { SaveButton } from "@/components/ui/save-button";
 import { GlassButton } from "@/components/ui/glass-button";
 import { PageHeader } from "@/components/ui/page-header";
@@ -15,7 +15,7 @@ import { useState, useEffect, useRef } from "react";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { Slider } from "@/components/ui/slider";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { useUpload } from "@/hooks/use-upload";
+import { PropertyImagePicker } from "@/features/property-images";
 import { 
   DEFAULT_LTV, 
   DEFAULT_INTEREST_RATE, 
@@ -149,57 +149,6 @@ export default function PropertyEdit() {
   
   const [draft, setDraft] = useState<any>(null);
   const [isDirty, setIsDirty] = useState(false);
-  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
-  const photoInputRef = useRef<HTMLInputElement>(null);
-  
-  const { uploadFile } = useUpload({
-    onSuccess: (response) => {
-      handleChange("imageUrl", response.objectPath);
-      toast({
-        title: "Photo Uploaded",
-        description: "Property photo has been successfully uploaded.",
-      });
-      setIsUploadingPhoto(false);
-    },
-    onError: (error) => {
-      console.error("Upload failed:", error);
-      toast({
-        title: "Upload Failed",
-        description: "Failed to upload photo. Please try again.",
-        variant: "destructive",
-      });
-      setIsUploadingPhoto(false);
-    },
-  });
-  
-  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    
-    if (!file.type.startsWith("image/")) {
-      toast({
-        title: "Invalid File",
-        description: "Please select an image file (JPEG, PNG, etc.)",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    if (file.size > 10 * 1024 * 1024) {
-      toast({
-        title: "File Too Large",
-        description: "Please select an image under 10MB.",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    setIsUploadingPhoto(true);
-    await uploadFile(file);
-    if (photoInputRef.current) {
-      photoInputRef.current.value = "";
-    }
-  };
 
   useEffect(() => {
     if (property && !draft) {
@@ -335,43 +284,15 @@ export default function PropertyEdit() {
                 <Label className="label-text text-gray-700">Market</Label>
                 <Input value={draft.market} onChange={(e) => handleChange("market", e.target.value)} className="bg-white border-[#9FBCA4]/30 text-gray-900 placeholder:text-gray-400" />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2 md:col-span-2">
                 <Label className="label-text text-gray-700">Property Photo</Label>
-                <div className="flex gap-2">
-                  <Input 
-                    value={draft.imageUrl} 
-                    onChange={(e) => handleChange("imageUrl", e.target.value)} 
-                    placeholder="Enter image URL or upload a photo"
-                    className="flex-1 bg-white border-[#9FBCA4]/30 text-gray-900 placeholder:text-gray-400"
-                  />
-                  <input
-                    ref={photoInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handlePhotoUpload}
-                    className="hidden"
-                    data-testid="input-edit-property-photo"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => photoInputRef.current?.click()}
-                    disabled={isUploadingPhoto}
-                    data-testid="button-upload-photo"
-                    className="bg-[#9FBCA4]/20 border-[#9FBCA4]/30 text-gray-700 hover:bg-[#9FBCA4]/30"
-                  >
-                    {isUploadingPhoto ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <Upload className="w-4 h-4" />
-                    )}
-                  </Button>
-                </div>
-                {draft.imageUrl && (
-                  <div className="mt-2 relative w-full h-32 rounded-md overflow-hidden border border-white/20">
-                    <img src={draft.imageUrl} alt="Property preview" className="w-full h-full object-cover" />
-                  </div>
-                )}
+                <PropertyImagePicker
+                  imageUrl={draft.imageUrl}
+                  onImageChange={(url) => handleChange("imageUrl", url)}
+                  propertyName={draft.name}
+                  location={draft.location}
+                  variant="light"
+                />
               </div>
               <div className="space-y-2">
                 <Label className="label-text text-gray-700">Status</Label>

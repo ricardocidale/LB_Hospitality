@@ -4,7 +4,7 @@ import { ExportDialog } from "@/components/ExportDialog";
 import Layout from "@/components/Layout";
 import { useProperties, useGlobalAssumptions } from "@/lib/api";
 import { generateCompanyProForma, generatePropertyProForma, formatMoney, getFiscalYearForModelYear } from "@/lib/financialEngine";
-import { PROJECTION_YEARS, PROJECTION_MONTHS, getStaffFTE, OPERATING_RESERVE_BUFFER, COMPANY_FUNDING_BUFFER } from "@/lib/constants";
+import { PROJECTION_YEARS, PROJECTION_MONTHS, STAFFING_TIERS, OPERATING_RESERVE_BUFFER, COMPANY_FUNDING_BUFFER } from "@/lib/constants";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
@@ -129,19 +129,21 @@ export default function Company() {
     );
   }
 
+  const projectionYears = global?.projectionYears ?? PROJECTION_YEARS;
+  const projectionMonths = projectionYears * 12;
   const fiscalYearStartMonth = global.fiscalYearStartMonth ?? 1;
   const getFiscalYear = (yearIndex: number) => getFiscalYearForModelYear(global.modelStartDate, fiscalYearStartMonth, yearIndex);
-  const financials = generateCompanyProForma(properties, global, PROJECTION_MONTHS);
+  const financials = generateCompanyProForma(properties, global, projectionMonths);
   
   const cashAnalysis = analyzeCompanyCashPosition(financials);
   
   const propertyFinancials = properties.map(p => ({
     property: p,
-    financials: generatePropertyProForma(p, global, PROJECTION_MONTHS)
+    financials: generatePropertyProForma(p, global, projectionMonths)
   }));
   
   const yearlyChartData = [];
-  for (let y = 0; y < PROJECTION_YEARS; y++) {
+  for (let y = 0; y < projectionYears; y++) {
     const yearData = financials.slice(y * 12, (y + 1) * 12);
     if (yearData.length === 0) continue;
     yearlyChartData.push({
@@ -153,7 +155,14 @@ export default function Company() {
   }
 
   const activePropertyCount = properties.filter(p => p.status === "Operating").length;
-  const staffFTE = getStaffFTE(activePropertyCount);
+  const tier1Max = global?.staffTier1MaxProperties ?? STAFFING_TIERS[0].maxProperties;
+  const tier1Fte = global?.staffTier1Fte ?? STAFFING_TIERS[0].fte;
+  const tier2Max = global?.staffTier2MaxProperties ?? STAFFING_TIERS[1].maxProperties;
+  const tier2Fte = global?.staffTier2Fte ?? STAFFING_TIERS[1].fte;
+  const tier3Fte = global?.staffTier3Fte ?? STAFFING_TIERS[2].fte;
+  const staffFTE = activePropertyCount <= tier1Max ? tier1Fte
+    : activePropertyCount <= tier2Max ? tier2Fte
+    : tier3Fte;
   
   const year1Financials = financials.slice(0, 12);
   const year1Revenue = year1Financials.reduce((a, m) => a + m.totalRevenue, 0);

@@ -64,12 +64,14 @@ export default function PropertyDetail() {
     );
   }
 
+  const projectionYears = global?.projectionYears ?? PROJECTION_YEARS;
+  const projectionMonths = projectionYears * 12;
   const fiscalYearStartMonth = global.fiscalYearStartMonth ?? 1;
   const getFiscalYear = (yearIndex: number) => getFiscalYearForModelYear(global.modelStartDate, fiscalYearStartMonth, yearIndex);
-  const financials = generatePropertyProForma(property, global, PROJECTION_MONTHS);
+  const financials = generatePropertyProForma(property, global, projectionMonths);
   
   const yearlyChartData = [];
-  for (let y = 0; y < PROJECTION_YEARS; y++) {
+  for (let y = 0; y < projectionYears; y++) {
     const yearData = financials.slice(y * 12, (y + 1) * 12);
     if (yearData.length === 0) continue;
     yearlyChartData.push({
@@ -81,7 +83,7 @@ export default function PropertyDetail() {
     });
   }
 
-  const years = PROJECTION_YEARS;
+  const years = projectionYears;
   const startYear = getFiscalYear(0);
   
   const getYearlyDetails = () => {

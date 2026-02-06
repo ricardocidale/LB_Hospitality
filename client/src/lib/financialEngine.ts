@@ -38,7 +38,7 @@ import {
   DEFAULT_OTHER_EXPENSE_RATE,
   DEFAULT_UTILITIES_VARIABLE_SPLIT,
   PROJECTION_MONTHS,
-  getStaffFTE
+  STAFFING_TIERS
 } from './constants';
 
 // Helper function to get fiscal year label for a given month in the model
@@ -116,6 +116,7 @@ interface PropertyInput {
 
 interface GlobalInput {
   modelStartDate: string;
+  projectionYears?: number;
   companyOpsStartDate?: string;
   fiscalYearStartMonth?: number; // 1 = January, 4 = April, etc.
   inflationRate: number;
@@ -128,6 +129,12 @@ interface GlobalInput {
   safeTranche1Date?: string;
   safeTranche2Amount?: number;
   safeTranche2Date?: string;
+  // Staffing tiers
+  staffTier1MaxProperties?: number;
+  staffTier1Fte?: number;
+  staffTier2MaxProperties?: number;
+  staffTier2Fte?: number;
+  staffTier3Fte?: number;
   // Management company cost parameters - yearly partner compensation and count
   partnerCompYear1?: number;
   partnerCompYear2?: number;
@@ -574,7 +581,14 @@ export function generateCompanyProForma(
       const totalPartnerCompForYear = yearlyPartnerComp[yearIndex];
       
       const staffSalary = (global.staffSalary ?? DEFAULT_STAFF_SALARY);
-      const staffFTE = getStaffFTE(activePropertyCount);
+      const tier1Max = global.staffTier1MaxProperties ?? STAFFING_TIERS[0].maxProperties;
+      const tier1Fte = global.staffTier1Fte ?? STAFFING_TIERS[0].fte;
+      const tier2Max = global.staffTier2MaxProperties ?? STAFFING_TIERS[1].maxProperties;
+      const tier2Fte = global.staffTier2Fte ?? STAFFING_TIERS[1].fte;
+      const tier3Fte = global.staffTier3Fte ?? STAFFING_TIERS[2].fte;
+      const staffFTE = activePropertyCount <= tier1Max ? tier1Fte
+        : activePropertyCount <= tier2Max ? tier2Fte
+        : tier3Fte;
       
       partnerCompensation = totalPartnerCompForYear / 12;
       staffCompensation = (staffFTE * staffSalary * fixedCostFactor) / 12;

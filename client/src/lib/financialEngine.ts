@@ -89,6 +89,7 @@ interface PropertyInput {
   occupancyGrowthStep: number;
   purchasePrice: number;
   buildingImprovements?: number | null;
+  landValuePercent?: number | null;
   type: string;
   cateringLevel: string;
   // Financing
@@ -238,12 +239,17 @@ export function generatePropertyProForma(
   const acquisitionDate = property.acquisitionDate ? new Date(property.acquisitionDate) : opsStart;
   
   // Balance sheet calculations - for PwC-level verification
-  const buildingValue = property.purchasePrice + (property.buildingImprovements ?? 0);
+  // Depreciable basis: land doesn't depreciate (IRS Publication 946 / ASC 360)
+  // depreciableBasis = purchasePrice × (1 - landValuePercent) + buildingImprovements
+  const landPct = property.landValuePercent ?? 0.25;
+  const buildingValue = property.purchasePrice * (1 - landPct) + (property.buildingImprovements ?? 0);
   const monthlyDepreciation = buildingValue / DEPRECIATION_YEARS / 12;
   
   // Loan setup for debt outstanding tracking
+  // Loan is based on total property value (including land), NOT depreciable basis
+  const totalPropertyValue = property.purchasePrice + (property.buildingImprovements ?? 0);
   const ltv = property.acquisitionLTV ?? global.debtAssumptions?.acqLTV ?? DEFAULT_LTV;
-  const originalLoanAmount = property.type === "Financed" ? buildingValue * ltv : 0;
+  const originalLoanAmount = property.type === "Financed" ? totalPropertyValue * ltv : 0;
   const loanRate = global.debtAssumptions?.interestRate ?? DEFAULT_INTEREST_RATE;
   const loanTerm = global.debtAssumptions?.amortizationYears ?? DEFAULT_TERM_YEARS;
   const monthlyRate = loanRate / 12;

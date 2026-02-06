@@ -56,7 +56,8 @@ Always format money as money (currency format with commas and appropriate precis
 ### Financial Engine & Logic
 - Generates monthly pro forma projections including revenue, operating expenses, management fees, debt service, NOI, and cash flow.
 - **GAAP-Compliant Free Cash Flow Calculation (Indirect Method)**: Incorporates Net Income, Operating Cash Flow, and Free Cash Flow to Equity (FCFE).
-- **Depreciation**: 27.5-year straight-line on building value, starting from acquisition date.
+- **Depreciation**: 27.5-year straight-line on depreciable basis (purchase price × (1 - landValuePercent) + building improvements), starting from acquisition date. Land does not depreciate per IRS Publication 946.
+- **Land Value Allocation**: Configurable per property (default 25%, range 5-60%). Determines the portion of purchase price allocated to land (non-depreciable) vs. building (depreciable). Research-backed values seeded for each property based on local market data.
 - **Debt Service**: Proper amortization with interest/principal separation.
 - **Acquisition Timing**: All balance sheet entries (assets, liabilities, equity) only appear after property acquisition date. Debt outstanding returns 0 before acquisition.
 - **Shared Loan Calculations**: `client/src/lib/loanCalculations.ts` provides consistent debt service, refinance, and outstanding balance calculations across all financial statements.
@@ -77,7 +78,7 @@ Always format money as money (currency format with commas and appropriate precis
 - **Audit Sections**: Timing Rules, Depreciation, Loan Amortization, Income Statement, Balance Sheet, Cash Flow Statement, Management Fees
 - **GAAP References**: ASC 230 (Cash Flow), ASC 360 (Property Assets), ASC 470 (Debt), ASC 606 (Revenue Recognition), FASB Conceptual Framework
 - **Key Validations**:
-  - Depreciation: (Building Value / 27.5 / 12) monthly, starting at acquisition
+  - Depreciation: (Depreciable Basis / 27.5 / 12) monthly, starting at acquisition. Depreciable basis = purchasePrice × (1 - landValuePercent) + buildingImprovements
   - Loan PMT: Standard amortization formula with interest/principal split
   - Balance Sheet: Assets = Liabilities + Equity for every period
   - Cash Flow: Operating CF = Net Income + Depreciation (indirect method)
@@ -103,11 +104,11 @@ Always format money as money (currency format with commas and appropriate precis
   - **Research skills**: `property-market-research.md` (property-level analysis guided by boutique definition), `company-research.md` (management company benchmarks), `global-research.md` (industry overview)
   - **UI skills**: `page-header.md` (PageHeader component patterns), `glass-components.md` (GlassButton/GlassCard/SaveButton), `financial-statements.md` (Income Statement, Cash Flow, Balance Sheet rendering rules per GAAP), `charts.md` (Recharts styling patterns)
 - **Tools** (`.claude/tools/`): JSON files defining Claude tool-use function schemas for property research. Claude calls these tools to gather analysis dimensions, then synthesizes findings.
-  - `analyze-market.json`, `analyze-adr.json`, `analyze-occupancy.json`, `analyze-event-demand.json`, `analyze-cap-rates.json`, `analyze-competitive-set.json`
+  - `analyze-market.json`, `analyze-adr.json`, `analyze-occupancy.json`, `analyze-event-demand.json`, `analyze-cap-rates.json`, `analyze-competitive-set.json`, `analyze-land-value.json`
 - **Orchestration** (`server/aiResearch.ts`): Loads skills/tools from disk, handles Claude tool-use loop (up to 10 iterations), tool handlers return contextual guidance prompts (not external data) so Claude uses its knowledge for analysis.
   - For Claude models: Uses tool-use pattern with `generateResearchWithToolsStream()`
   - For Gemini/OpenAI: Falls back to skill-loaded prompts without tool-use
-- **Research output schema**: `marketOverview`, `adrAnalysis`, `occupancyAnalysis`, `eventDemand`, `capRateAnalysis`, `competitiveSet`, `risks`, `sources`
+- **Research output schema**: `marketOverview`, `adrAnalysis`, `occupancyAnalysis`, `eventDemand`, `capRateAnalysis`, `competitiveSet`, `landValueAllocation`, `risks`, `sources`
 - **Seed data**: All 5 properties have pre-seeded research with `llmModel: "seed-data"` for immediate display without AI generation
 
 ## External Dependencies

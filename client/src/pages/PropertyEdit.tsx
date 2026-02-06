@@ -436,6 +436,29 @@ export default function PropertyEdit() {
                 />
               </div>
               <div className="space-y-2">
+                <Label className="label-text text-gray-700 flex items-center">
+                  Land Value (%)
+                  <HelpTooltip text="Percentage of the purchase price allocated to land. Land does not depreciate under IRS rules (Publication 946). Only the building portion is depreciated over 27.5 years. Typical land allocation ranges from 15-40% depending on location and property type." />
+                </Label>
+                <div className="flex items-center gap-3">
+                  <Slider
+                    data-testid="slider-land-value-percent"
+                    value={[(draft.landValuePercent ?? 0.25) * 100]}
+                    onValueChange={(vals: number[]) => handleNumberChange("landValuePercent", (vals[0] / 100).toString())}
+                    min={5}
+                    max={60}
+                    step={1}
+                    className="flex-1"
+                  />
+                  <span className="text-sm font-medium text-gray-700 w-12 text-right" data-testid="text-land-value-percent">
+                    {((draft.landValuePercent ?? 0.25) * 100).toFixed(0)}%
+                  </span>
+                </div>
+                <p className="text-xs text-gray-500">
+                  Depreciable basis: ${((draft.purchasePrice * (1 - (draft.landValuePercent ?? 0.25))) + draft.buildingImprovements).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                </p>
+              </div>
+              <div className="space-y-2">
                 <Label className="label-text text-gray-700">Pre-Opening Costs ($)</Label>
                 <Input 
                   value={formatMoneyInput(draft.preOpeningCosts)} 

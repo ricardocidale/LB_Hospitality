@@ -895,13 +895,15 @@ export default function Dashboard() {
         const proForma = allPropertyFinancials[idx]?.financials || [];
         const relevantMonths = proForma.slice(0, monthsToInclude);
         
-        const propertyBasis = prop.purchasePrice + prop.buildingImprovements;
-        const annualDepreciation = propertyBasis / DEPRECIATION_YEARS;
+        const totalPropertyValue = prop.purchasePrice + prop.buildingImprovements;
+        const landPct = prop.landValuePercent ?? 0.25;
+        const depreciableBasis = prop.purchasePrice * (1 - landPct) + prop.buildingImprovements;
+        const annualDepreciation = depreciableBasis / DEPRECIATION_YEARS;
         
         const isFinanced = prop.type === 'Financed';
         const debtDefaults = global.debtAssumptions as { acqLTV?: number; interestRate?: number; amortizationYears?: number } | null;
         const ltv = prop.acquisitionLTV || debtDefaults?.acqLTV || 0;
-        const loanAmount = isFinanced ? propertyBasis * ltv : 0;
+        const loanAmount = isFinanced ? totalPropertyValue * ltv : 0;
         
         let debtOutstanding = loanAmount;
         let cumulativeInterest = 0;
@@ -1139,13 +1141,15 @@ export default function Dashboard() {
         const noi = yearlyData.noi || 0;
         totalNOI += noi;
         
-        const propertyBasis = prop.purchasePrice + prop.buildingImprovements;
-        const depreciation = propertyBasis / DEPRECIATION_YEARS;
+        const landPct2 = prop.landValuePercent ?? 0.25;
+        const depreciableBasis2 = prop.purchasePrice * (1 - landPct2) + prop.buildingImprovements;
+        const depreciation = depreciableBasis2 / DEPRECIATION_YEARS;
         totalDepreciation += depreciation;
         
         if (prop.type === "Financed") {
+          const totalPropVal = prop.purchasePrice + prop.buildingImprovements;
           const ltv = prop.acquisitionLTV || (global.debtAssumptions as any)?.acqLTV || DEFAULT_LTV;
-          const loanAmount = propertyBasis * ltv;
+          const loanAmount = totalPropVal * ltv;
           const annualRate = prop.acquisitionInterestRate || (global.debtAssumptions as any)?.interestRate || DEFAULT_INTEREST_RATE;
           const r = annualRate / 12;
           const termYears = prop.acquisitionTermYears || (global.debtAssumptions as any)?.amortizationYears || DEFAULT_TERM_YEARS;
@@ -3116,7 +3120,8 @@ function InvestmentAnalysis({
   };
 
   const getAnnualDepreciation = (prop: any) => {
-    const depreciableBase = prop.purchasePrice + prop.buildingImprovements;
+    const landPct = prop.landValuePercent ?? 0.25;
+    const depreciableBase = prop.purchasePrice * (1 - landPct) + prop.buildingImprovements;
     return depreciableBase / DEPRECIATION_YEARS;
   };
 

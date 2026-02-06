@@ -85,6 +85,7 @@ export interface PropertyAuditInput {
   occupancyGrowthStep: number;
   purchasePrice: number;
   buildingImprovements: number;
+  landValuePercent?: number;
   type: string;
   acquisitionLTV?: number;
   debtAssumptions?: {
@@ -126,9 +127,11 @@ export function auditDepreciation(
 ): AuditSection {
   const findings: AuditFinding[] = [];
   
-  const buildingValue = property.purchasePrice + property.buildingImprovements;
-  const expectedMonthlyDep = buildingValue / DEPRECIATION_YEARS / 12;
-  const expectedAnnualDep = buildingValue / DEPRECIATION_YEARS;
+  // Depreciable basis: land doesn't depreciate (IRS Publication 946 / ASC 360)
+  const landPct = property.landValuePercent ?? 0.25;
+  const depreciableBasis = property.purchasePrice * (1 - landPct) + property.buildingImprovements;
+  const expectedMonthlyDep = depreciableBasis / DEPRECIATION_YEARS / 12;
+  const expectedAnnualDep = depreciableBasis / DEPRECIATION_YEARS;
   
   const modelStart = new Date(global.modelStartDate);
   const acquisitionDate = new Date(property.acquisitionDate || property.operationsStartDate);
@@ -140,7 +143,7 @@ export function auditDepreciation(
     gaapReference: "IRS Publication 946 / ASC 360-10",
     severity: "critical",
     passed: true,
-    expected: `Building: $${buildingValue.toLocaleString()}`,
+    expected: `Depreciable Basis: $${depreciableBasis.toLocaleString()} (${((1 - landPct) * 100).toFixed(0)}% of purchase + improvements)`,
     actual: `Monthly: $${expectedMonthlyDep.toFixed(2)}`,
     variance: `Annual: $${expectedAnnualDep.toFixed(2)}`,
     recommendation: "Verify depreciation uses 27.5-year schedule for residential rental property",
@@ -742,12 +745,16 @@ export function auditBalanceSheet(
   const acqDate = new Date(property.acquisitionDate || property.operationsStartDate);
   const acqMonthIndex = differenceInMonths(acqDate, modelStart);
   
-  const buildingValue = (property.purchasePrice || 0) + (property.buildingImprovements || 0);
-  const monthlyDepreciation = buildingValue / DEPRECIATION_YEARS / 12;
+  // Depreciable basis: land doesn't depreciate (IRS Publication 946 / ASC 360)
+  const landPct = property.landValuePercent ?? 0.25;
+  const depreciableBasis = (property.purchasePrice || 0) * (1 - landPct) + (property.buildingImprovements || 0);
+  const monthlyDepreciation = depreciableBasis / DEPRECIATION_YEARS / 12;
   
+  // Loan is based on total property value (including land)
+  const totalPropertyValue = (property.purchasePrice || 0) + (property.buildingImprovements || 0);
   const debtAssumptions = property.debtAssumptions || global.debtAssumptions;
   const ltv = property.acquisitionLTV || global.debtAssumptions?.acqLTV || DEFAULT_LTV;
-  const originalLoanAmount = property.type === "Financed" ? buildingValue * ltv : 0;
+  const originalLoanAmount = property.type === "Financed" ? totalPropertyValue * ltv : 0;
   const monthlyRate = (debtAssumptions?.interestRate || global.debtAssumptions?.interestRate || DEFAULT_INTEREST_RATE) / 12;
   const n = (debtAssumptions?.amortizationYears || global.debtAssumptions?.amortizationYears || DEFAULT_TERM_YEARS) * 12;
   // Handle zero interest rate (straight-line principal reduction)
@@ -783,7 +790,7 @@ export function auditBalanceSheet(
       expectedCumulativePrincipal = 0;
     }
     
-    const expectedPropertyValue = i >= acqMonthIndex ? buildingValue - expectedCumulativeDepreciation : 0;
+    const expectedPropertyValue = i >= acqMonthIndex ? depreciableBasis - expectedCumulativeDepreciation : 0;
     const expectedEquity = expectedPropertyValue - expectedDebtOutstanding;
     
     const actualPropertyValue = m.propertyValue || 0;
@@ -793,14 +800,14 @@ export function auditBalanceSheet(
     if (i >= acqMonthIndex && Math.abs(expectedPropertyValue - actualPropertyValue) > AUDIT_TOLERANCE_DOLLARS) {
       findings.push({
         category: "Balance Sheet",
-        rule: "Property Asset = Acquisition Cost - Accumulated Depreciation",
+        rule: "Property Asset = Depreciable Basis - Accumulated Depreciation",
         gaapReference: "ASC 360-10",
         severity: "material",
         passed: false,
         expected: expectedPropertyValue.toFixed(2),
         actual: actualPropertyValue.toFixed(2),
         variance: formatVariance(expectedPropertyValue, actualPropertyValue),
-        recommendation: `Month ${i + 1}: Expected = $${buildingValue.toLocaleString()} - $${expectedCumulativeDepreciation.toLocaleString()} accumulated depreciation`,
+        recommendation: `Month ${i + 1}: Expected = $${depreciableBasis.toLocaleString()} - $${expectedCumulativeDepreciation.toLocaleString()} accumulated depreciation`,
         workpaperRef: `WP-BS-ASSET-M${i + 1}`
       });
     }

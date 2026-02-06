@@ -27,7 +27,8 @@ Key definition attributes to consider:
 4. **Event Demand**: Call `analyze_event_demand` for corporate, wellness, and private event demand
 5. **Cap Rate Analysis**: Call `analyze_cap_rates` for investment return benchmarks
 6. **Competitive Set**: Call `analyze_competitive_set` for comparable properties
-7. **Risk Assessment**: After gathering all data, synthesize risks and mitigations
+7. **Land Value Allocation**: Call `analyze_land_value` to determine land vs. building value split for depreciation
+8. **Risk Assessment**: After gathering all data, synthesize risks and mitigations
 
 ## Output Requirements
 
@@ -66,6 +67,13 @@ After calling all tools, synthesize the results into a single JSON object with t
     "comparables": [{ "name": "string", "capRate": "X.X%", "saleYear": "YYYY", "notes": "string" }]
   },
   "competitiveSet": [{ "name": "string", "rooms": "XX", "adr": "$XXX", "positioning": "string" }],
+  "landValueAllocation": {
+    "recommendedPercent": "XX%",
+    "marketRange": "XX% - XX%",
+    "assessmentMethod": "string (e.g., 'County tax assessor ratio', 'Comparable sales analysis')",
+    "rationale": "Why this land value percentage is appropriate for this property and market",
+    "factors": ["factor 1", "factor 2", "factor 3"]
+  },
   "risks": [{ "risk": "string", "mitigation": "string" }],
   "sources": ["Source 1", "Source 2"]
 }

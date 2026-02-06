@@ -87,8 +87,9 @@ export function ConsolidatedBalanceSheet({ properties, global, allProFormas, yea
       return; // No assets, liabilities, or equity before acquisition
     }
     
-    // Fixed Assets: Property basis (purchase price + improvements)
-    const propertyBasis = prop.purchasePrice + prop.buildingImprovements;
+    // Fixed Assets: Depreciable basis (land doesn't depreciate per IRS / ASC 360)
+    const landPct = prop.landValuePercent ?? 0.25;
+    const propertyBasis = prop.purchasePrice * (1 - landPct) + prop.buildingImprovements;
     totalPropertyValue += propertyBasis;
     
     // Get yearly NOI data for refinance calculations

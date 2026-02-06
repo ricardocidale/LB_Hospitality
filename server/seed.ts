@@ -405,6 +405,19 @@ async function seed() {
           { name: "Troutbeck", rooms: "37", adr: "$425", positioning: "Luxury country estate with spa, farm, and event spaces" },
           { name: "The Chatwal", rooms: "12", adr: "$310", positioning: "Intimate boutique lodge with fine dining" }
         ],
+        landValueAllocation: {
+          recommendedPercent: "30%",
+          marketRange: "25% - 35%",
+          assessmentMethod: "County tax assessor ratio and comparable rural estate sales",
+          rationale: "The Hudson Estate's 15-acre rural setting in the Hudson Valley commands moderate land values due to proximity to NYC (2 hours) and the region's growing popularity as a luxury leisure destination. Rural estates in Ulster/Dutchess counties typically show 25-35% land allocation, with the higher end reflecting premium waterfront or scenic parcels. At 30%, the allocation reflects the property's desirable but not ultra-premium rural location, balancing substantial acreage value against significant building and improvement investments.",
+          factors: [
+            "15-acre rural estate with mature landscaping and scenic views commands premium land values relative to smaller parcels in the Hudson Valley",
+            "Ulster/Dutchess County tax assessor records show average land-to-improvement ratios of 28-33% for hospitality properties in the region",
+            "Comparable rural estate sales in the Hudson Valley (2022-2024) show land allocations ranging from 25% to 38% depending on acreage and waterfront access",
+            "Property's distance from NYC (2 hours) places it in a secondary market tier, supporting moderate rather than high land allocation",
+            "Significant building improvements and renovation costs reduce the relative share attributable to land"
+          ]
+        },
         risks: [
           { risk: "Seasonal revenue concentration", mitigation: "Develop winter programming (holiday packages, fireside retreats, cross-country ski partnerships) and corporate retreat packages to boost off-season occupancy to 50%+" },
           { risk: "NYC accessibility disruptions", mitigation: "Diversify marketing to include Albany, Connecticut, and New Jersey markets; develop midweek corporate packages less dependent on weekend traffic" },
@@ -490,6 +503,19 @@ async function seed() {
           { name: "Waldorf Astoria Park City", rooms: "175", adr: "$450", positioning: "Full-service luxury resort with ski access and multiple restaurants" },
           { name: "Blue Sky Ranch", rooms: "46", adr: "$395", positioning: "Luxury adventure ranch with horseback riding, fly fishing, and spa" }
         ],
+        landValueAllocation: {
+          recommendedPercent: "25%",
+          marketRange: "20% - 30%",
+          assessmentMethod: "Comparable mountain resort sales and Summit County assessor data",
+          rationale: "Eden Summit Lodge's mountain setting near Powder Mountain places it in a market where land values are significant but tempered by terrain challenges and limited development potential on steep slopes. Mountain resort properties in northern Utah typically allocate 20-30% to land, with ski-adjacent parcels commanding higher ratios. At 25%, the allocation reflects the property's 12-acre mountain site with valuable ski proximity but acknowledges that building construction costs in mountain environments are substantially higher than flatland, reducing the land's proportional share.",
+          factors: [
+            "Mountain terrain with limited buildable area reduces per-acre land value compared to flat resort parcels, despite ski area proximity",
+            "Summit County assessor records show average land allocations of 22-28% for hospitality properties in the Ogden Valley area",
+            "Comparable mountain resort transactions (Snowpine Lodge, Blue Sky Ranch) show land allocations of 20-28% depending on ski access and elevation",
+            "Higher-than-average construction costs for mountain building (foundation, access roads, snow load engineering) increase the building-to-land ratio",
+            "Growing demand for non-Park City mountain experiences is increasing land values in the Eden/Huntsville corridor"
+          ]
+        },
         risks: [
           { risk: "Extreme seasonality (ski-dependent revenue)", mitigation: "Invest in summer programming (mountain biking, fly fishing, wellness retreats) and corporate retreat packages to build 70%+ summer occupancy" },
           { risk: "Climate change and snow variability", mitigation: "Partner with resorts that have robust snowmaking; diversify into non-snow winter activities (snowshoeing, winter wellness); develop year-round revenue streams" },
@@ -575,6 +601,19 @@ async function seed() {
           { name: "Hotel Magdalena", rooms: "89", adr: "$310", positioning: "Lake Austin boutique by Lake Flato architects with pool club" },
           { name: "Carpenter Hotel", rooms: "93", adr: "$245", positioning: "Design-forward boutique in converted 1930s building" }
         ],
+        landValueAllocation: {
+          recommendedPercent: "35%",
+          marketRange: "30% - 40%",
+          assessmentMethod: "Travis County Appraisal District records and comparable Hill Country sales",
+          rationale: "Austin Hillside's location in the Texas Hill Country west of downtown Austin places it in one of the highest land-value growth markets in the United States. Travis County has seen land values appreciate 40-60% since 2020, driven by tech industry growth and population influx. The property's 10-acre Hill Country setting commands premium per-acre pricing due to views, privacy, and proximity to both downtown Austin and the Hill Country wine/dining corridor. At 35%, the allocation reflects Austin's elevated land costs while acknowledging substantial building and improvement investments needed for boutique hospitality conversion.",
+          factors: [
+            "Travis County Appraisal District data shows land-to-improvement ratios of 32-40% for commercial hospitality properties in west Austin/Hill Country",
+            "Austin land values have appreciated dramatically (40-60% since 2020), increasing the land component relative to building improvements",
+            "10-acre Hill Country parcels with views and privacy command $150,000-$250,000 per acre in the Lake Travis/Bee Cave corridor",
+            "Proximity to downtown Austin (20 minutes) and Hill Country attractions creates dual-market land premium",
+            "High land allocation reduces depreciable basis but reflects accurate market conditions per IRS guidelines"
+          ]
+        },
         risks: [
           { risk: "Hotel construction boom creating oversupply", mitigation: "Differentiate through Hill Country experiential positioning vs. downtown commodity hotels; focus on high-value corporate and wellness segments less price-sensitive to new supply" },
           { risk: "Seasonal event dependence (SXSW, ACL)", mitigation: "Build year-round corporate retreat pipeline and wellness programming; develop midweek packages targeting remote workers and digital nomads" },
@@ -660,6 +699,19 @@ async function seed() {
           { name: "Perlería Hotel", rooms: "15", adr: "$165", positioning: "Intimate boutique with curated art collection and personalized service" },
           { name: "Los Patios Hostal Boutique", rooms: "22", adr: "$145", positioning: "Colonial-style boutique with courtyard gardens and local cultural programming" }
         ],
+        landValueAllocation: {
+          recommendedPercent: "20%",
+          marketRange: "15% - 25%",
+          assessmentMethod: "Colombian cadastral records (catastro) and comparable El Poblado property sales",
+          rationale: "Casa Medellín's location in the El Poblado district of Medellín represents a market where land costs are significantly lower relative to total investment compared to US markets. Colombian land values in upscale urban neighborhoods like El Poblado are moderate by international standards, while building costs for luxury hospitality conversions are disproportionately high due to imported materials, specialized labor, and international design standards. At 20%, the allocation reflects Medellín's favorable land-to-building economics while acknowledging that El Poblado commands premium pricing within the Colombian market.",
+          factors: [
+            "Colombian cadastral (catastro) valuations in El Poblado show land-to-total ratios of 18-25% for commercial hospitality properties",
+            "Building renovation and luxury conversion costs in Colombia are disproportionately high relative to land, as materials and specialized finishes are often imported",
+            "El Poblado land values have appreciated significantly (20-30% since 2022) but remain well below comparable US urban markets",
+            "International investment in Medellín hospitality has increased building standards and costs, further reducing the land proportion",
+            "Lower land allocation increases depreciable basis, improving tax efficiency for the foreign investment structure"
+          ]
+        },
         risks: [
           { risk: "Political and regulatory risk in Colombia", mitigation: "Engage local legal counsel for compliance; structure ownership through appropriate corporate vehicles; maintain relationships with local government and tourism authorities" },
           { risk: "Currency fluctuation (COP/USD)", mitigation: "Price rooms in USD for international guests; implement natural hedging through USD-denominated revenue streams; maintain operating reserves in hard currency" },
@@ -745,6 +797,19 @@ async function seed() {
           { name: "Foundry Hotel", rooms: "87", adr: "$320", positioning: "Adaptive reuse boutique in Arts District with rooftop bar and local programming" },
           { name: "Grand Bohemian Hotel", rooms: "104", adr: "$305", positioning: "Art-focused boutique in Biltmore Village with gallery, spa, and dining" }
         ],
+        landValueAllocation: {
+          recommendedPercent: "28%",
+          marketRange: "22% - 32%",
+          assessmentMethod: "Buncombe County tax assessor records and comparable Blue Ridge estate sales",
+          rationale: "Blue Ridge Manor's 18-acre mountain estate setting near Asheville sits in a market where land values have steadily appreciated due to the region's growing tourism economy and limited supply of large estate parcels. Buncombe County land-to-improvement ratios for hospitality properties average 24-30%, with larger acreage parcels trending higher. At 28%, the allocation reflects the property's substantial acreage and scenic Blue Ridge Mountain setting while recognizing that building improvements for a full-service boutique hotel represent the majority of total value.",
+          factors: [
+            "Buncombe County tax assessor records show land allocations of 24-30% for commercial hospitality properties in the greater Asheville area",
+            "18-acre mountain estate parcels with views and privacy are increasingly scarce, commanding premium per-acre pricing of $80,000-$120,000",
+            "Comparable Blue Ridge estate sales (Old Edwards Inn, Highlands NC; Blackberry Farm, TN) show land allocations of 25-32%",
+            "Asheville's growing tourism market has driven 15-20% land value appreciation since 2021, supporting a higher land allocation",
+            "Property's distance from downtown Asheville (30 minutes) moderates land values compared to in-town hospitality properties"
+          ]
+        },
         risks: [
           { risk: "Seasonal concentration in fall foliage period", mitigation: "Develop four-season programming including winter wellness retreats, spring wildflower packages, and summer music/culinary events; target corporate retreat market for year-round bookings" },
           { risk: "Short-term rental competition on platforms like Airbnb", mitigation: "Differentiate through full-service hospitality, curated experiences, and event capabilities that STRs cannot replicate; support local STR regulation efforts; emphasize service quality and consistency" },

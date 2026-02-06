@@ -10,6 +10,7 @@ import {
   AUDIT_DOLLAR_TOLERANCE,
   AUDIT_VERIFICATION_WINDOW_MONTHS,
   AUDIT_CRITICAL_ISSUE_THRESHOLD,
+  DEFAULT_TAX_RATE,
 } from './constants';
 
 export interface AuditFinding {
@@ -87,6 +88,7 @@ export interface PropertyAuditInput {
   purchasePrice: number;
   buildingImprovements: number;
   landValuePercent?: number;
+  taxRate?: number;
   type: string;
   acquisitionLTV?: number;
   debtAssumptions?: {
@@ -269,28 +271,45 @@ export function auditLoanAmortization(
     return { name: "Loan Amortization Audit", description: "Verify loan payment calculations", findings, passed: 1, failed: 0, materialIssues: 0 };
   }
   
+  // For Full Equity properties that refinance, there's no original loan
+  const isOriginallyFinanced = property.type === "Financed";
   const totalInvestment = property.purchasePrice + property.buildingImprovements;
   const ltv = property.acquisitionLTV || global.debtAssumptions?.acqLTV || DEFAULT_LTV;
-  const loanAmount = totalInvestment * ltv;
+  const loanAmount = isOriginallyFinanced ? totalInvestment * ltv : 0;
   const interestRate = property.debtAssumptions?.interestRate || global.debtAssumptions?.interestRate || DEFAULT_INTEREST_RATE;
   const termYears = property.debtAssumptions?.amortizationYears || global.debtAssumptions?.amortizationYears || DEFAULT_TERM_YEARS;
-  let currentMonthlyRate = interestRate / 12;
-  let currentTotalPayments = termYears * 12;
+  let currentMonthlyRate = isOriginallyFinanced ? interestRate / 12 : 0;
+  let currentTotalPayments = isOriginallyFinanced ? termYears * 12 : 0;
 
   let currentMonthlyPayment = calculatePMT(loanAmount, currentMonthlyRate, currentTotalPayments);
 
-  findings.push({
-    category: "Loan Amortization",
-    rule: "PMT Formula Verification",
-    gaapReference: "Standard Amortization",
-    severity: "critical",
-    passed: true,
-    expected: `Loan: $${loanAmount.toLocaleString()} @ ${(interestRate * 100).toFixed(2)}% for ${termYears} yrs`,
-    actual: `Monthly Payment: $${currentMonthlyPayment.toFixed(2)}`,
-    variance: "N/A",
-    recommendation: "Verify PMT = P × r × (1+r)^n / ((1+r)^n - 1)",
-    workpaperRef: "WP-LOAN-002"
-  });
+  if (isOriginallyFinanced) {
+    findings.push({
+      category: "Loan Amortization",
+      rule: "PMT Formula Verification",
+      gaapReference: "Standard Amortization",
+      severity: "critical",
+      passed: true,
+      expected: `Loan: $${loanAmount.toLocaleString()} @ ${(interestRate * 100).toFixed(2)}% for ${termYears} yrs`,
+      actual: `Monthly Payment: $${currentMonthlyPayment.toFixed(2)}`,
+      variance: "N/A",
+      recommendation: "Verify PMT = P × r × (1+r)^n / ((1+r)^n - 1)",
+      workpaperRef: "WP-LOAN-002"
+    });
+  } else {
+    findings.push({
+      category: "Loan Amortization",
+      rule: "Full Equity with Refinance",
+      gaapReference: "ASC 470",
+      severity: "info",
+      passed: true,
+      expected: "No original debt",
+      actual: "Debt begins at refinance date",
+      variance: "N/A",
+      recommendation: "Full equity acquisition - debt service validated from refinance date forward",
+      workpaperRef: "WP-LOAN-001"
+    });
+  }
 
   const modelStart = new Date(global.modelStartDate);
   const acquisitionDate = new Date(property.acquisitionDate || property.operationsStartDate);
@@ -327,7 +346,10 @@ export function auditLoanAmortization(
     }
   }
 
-  const startMonth = Math.max(0, acqMonthIndex);
+  // For Full Equity + refi, start sampling from the refi month (no debt before that)
+  const startMonth = (!isOriginallyFinanced && refiMonthIndex >= 0)
+    ? refiMonthIndex
+    : Math.max(0, acqMonthIndex);
   for (let i = startMonth; i < Math.min(startMonth + AUDIT_SAMPLE_MONTHS, monthlyData.length); i++) {
     const m = monthlyData[i];
 
@@ -427,6 +449,9 @@ export function auditLoanAmortization(
     }
 
     runningBalance -= expectedPrincipal;
+    if (m.debtOutstanding !== undefined && m.debtOutstanding > 0) {
+      runningBalance = m.debtOutstanding;
+    }
     totalInterestPaid += expectedInterest;
     totalPrincipalPaid += expectedPrincipal;
   }
@@ -558,8 +583,9 @@ export function auditIncomeStatement(
     
     const depExp = m.depreciationExpense || 0;
     const taxableForAudit = m.noi - m.interestExpense - depExp;
-    const expectedTax = taxableForAudit > 0 ? taxableForAudit * (m.incomeTax > 0 && taxableForAudit > 0 ? m.incomeTax / taxableForAudit : 0.25) : 0;
-    const expectedNetIncome = m.noi - m.interestExpense - depExp - (m.incomeTax || 0);
+    const taxRate = property.taxRate ?? DEFAULT_TAX_RATE;
+    const expectedTax = taxableForAudit > 0 ? taxableForAudit * taxRate : 0;
+    const expectedNetIncome = m.noi - m.interestExpense - depExp - expectedTax;
     const netIncomeMatch = withinTolerance(expectedNetIncome, m.netIncome);
     
     if (!netIncomeMatch) {
@@ -870,18 +896,18 @@ export function auditBalanceSheet(
   let failedEquity = 0;
   let totalChecked = 0;
 
+  let cumulativeDepreciation = 0;
+
   for (let i = 0; i < monthlyData.length; i++) {
     const m = monthlyData[i];
 
     if (i < acqMonthIndex) continue;
     totalChecked++;
 
-    const monthsAfterAcquisition = i - acqMonthIndex + 1;
-    const expectedCumulativeDepreciation = Math.min(monthlyDepreciation * monthsAfterAcquisition, depreciableBasis);
-    const expectedPropertyValue = landValue + depreciableBasis - expectedCumulativeDepreciation;
+    cumulativeDepreciation += (m.depreciationExpense || 0);
+    const expectedPropertyValue = landValue + depreciableBasis - cumulativeDepreciation;
 
     const actualPropertyValue = m.propertyValue || 0;
-    const actualDebtOutstanding = m.debtOutstanding || 0;
 
     if (Math.abs(expectedPropertyValue - actualPropertyValue) > AUDIT_TOLERANCE_DOLLARS) {
       failedPropertyValue++;
@@ -895,20 +921,15 @@ export function auditBalanceSheet(
           expected: expectedPropertyValue.toFixed(2),
           actual: actualPropertyValue.toFixed(2),
           variance: formatVariance(expectedPropertyValue, actualPropertyValue),
-          recommendation: `Month ${i + 1}: Expected = $${landValue.toLocaleString()} + $${depreciableBasis.toLocaleString()} - $${expectedCumulativeDepreciation.toFixed(0)} acc. depreciation`,
+          recommendation: `Month ${i + 1}: Expected = $${landValue.toLocaleString()} + $${depreciableBasis.toLocaleString()} - $${cumulativeDepreciation.toFixed(0)} acc. depreciation`,
           workpaperRef: `WP-BS-ASSET-M${i + 1}`
         });
       }
     }
 
-    // Validate the accounting equation: Equity = Assets - Liabilities
-    // Use the engine's own property value and debt outstanding (which correctly handles refinancing)
-    const actualEquity = actualPropertyValue - actualDebtOutstanding;
-
     // Cross-check: Operating CF + Financing CF should explain monthly cash movement
     const expectedNetCF = (m.operatingCashFlow || 0) + (m.financingCashFlow || 0);
     const actualCF = m.cashFlow || 0;
-    // Allow for refinancing proceeds in financing CF
     if (Math.abs(expectedNetCF - actualCF) > AUDIT_TOLERANCE_DOLLARS) {
       failedEquity++;
       if (failedEquity <= 3) {

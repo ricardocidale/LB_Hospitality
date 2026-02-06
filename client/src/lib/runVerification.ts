@@ -44,6 +44,7 @@ function convertToAuditInput(property: any): PropertyAuditInput {
     purchasePrice: property.purchasePrice,
     buildingImprovements: property.buildingImprovements || 0,
     landValuePercent: property.landValuePercent,
+    taxRate: property.taxRate,
     type: property.type,
     acquisitionLTV: property.acquisitionLTV,
     debtAssumptions: property.debtAssumptions,

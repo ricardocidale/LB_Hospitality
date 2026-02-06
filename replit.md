@@ -38,6 +38,31 @@ Always format money as money (currency format with commas and appropriate precis
 - **Charts**: Standardized with white backgrounds, colorful gradient lines (green for revenue, blue for GOP, coral for FCFE), data point dots, and light gray dashed grids.
 - **Admin Interface**: Consolidated into a single `/admin` route with tab-based navigation for users, login activity, and verification.
 
+### Business Model & Entity Structure
+- **Two-Entity Architecture**: The platform models two financially linked but independently operated entities:
+    1. **Hospitality Management Company** — A standalone business with its own Income Statement, Cash Flow, Balance Sheet, and FCF-based IRR. Provides centralized services (operations, marketing, administration) to all properties. Revenue comes from management/service fees charged to properties.
+    2. **Property Portfolio** — Each property is modeled as its own independent SPV with its own P&L, Cash Flow, Balance Sheet, FCF, and IRR. The system also produces aggregated financials for all properties combined and combined FCF/IRR for the full portfolio.
+- **Fee Linkage**: Management fees appear as revenue for the Management Company and as expenses for each property.
+- **Capital Structure**:
+    - Properties can be acquired using 100% equity (cash purchase) or debt financing + equity.
+    - Early properties may be purchased fully in cash and later refinanced after a defined period (e.g., 3 years).
+    - Equity investors are repaid through: Free Cash Flow distributions, Refinancing proceeds, and Exit proceeds.
+    - Management Company receives capital from private equity via SAFE funding in scheduled or conditional tranches.
+- **Assumptions Framework**: Two tiers:
+    - **Property-level**: Revenue drivers, operating costs, financing structure, acquisition date, refinance timing, exit cap rate.
+    - **App-wide (global)**: Management fee structures, inflation/escalation rates, shared cost growth, tax/macro parameters.
+- **Dynamic Behavior**: Users can add/remove properties, modify any assumptions, and instantly recalculate all financial statements and returns.
+
+### Mandatory Business Rules (Constraints)
+1. **Management Company Funding Gate**: Operations of the Management Company cannot begin before funding is received. If assumptions indicate operations before funding, the system must block the scenario and flag it as invalid.
+2. **Property Activation Gate**: A property cannot begin operating before it is purchased and funding is in place (either equity or financing). If the operating start date precedes acquisition or funding, the system must block the scenario.
+3. **No Negative Cash Rule**: Cash balances for each property, the Management Company, and the aggregated portfolio must never be negative. If any projected cash balance goes below zero, the system must flag a funding shortfall and require increased funding, earlier funding, or assumption adjustments. FCF distributions and refinancing paybacks must not cause negative cash balances.
+4. **Debt-Free at Exit**: At exit (end of projection period), all properties must be debt-free. Outstanding loan balances are repaid from gross sale proceeds before calculating net proceeds to equity.
+5. **No Over-Distribution Rule**: FCF distributions and refinancing proceeds returned to investors must not exceed available cash. The system must not distribute cash to the point that any property ends up with a negative cash balance.
+
+### System Goal
+To simulate a scalable hospitality platform where individual assets can be analyzed independently, the management company operates as a profit center, capital flows realistically over time, and returns can be evaluated at asset level, company level, and portfolio level — while enforcing real-world financial constraints.
+
 ### Financial Engine
 - Generates monthly pro forma projections covering revenue, operating expenses, management fees, debt service, NOI, and cash flow.
 - **GAAP-Compliant Calculations**: Uses an indirect method for Free Cash Flow (ASC 230), adheres to ASC 360 for depreciation, and ASC 470 for debt.

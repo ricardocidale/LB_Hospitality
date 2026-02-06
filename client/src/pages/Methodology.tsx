@@ -2,7 +2,7 @@ import Layout from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
-import { Calculator, TrendingUp, Building2, DollarSign, PieChart, BarChart3, Wallet, Info, Layers, ArrowRightLeft, BookOpen } from "lucide-react";
+import { Calculator, TrendingUp, Building2, DollarSign, PieChart, BarChart3, Wallet, Info, Layers, ArrowRightLeft, BookOpen, ShieldCheck, Banknote, RefreshCw } from "lucide-react";
 
 export default function Methodology() {
   return (
@@ -112,6 +112,265 @@ export default function Methodology() {
                   that provide working capital until management fee revenue is sufficient to cover operating expenses.
                   SAFE funding appears as cash inflows but is <strong>not</strong> recorded as revenue — it represents
                   future equity, not income.
+                </p>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="business-rules" className="border rounded-lg px-4 border-red-200 bg-red-50/30">
+            <AccordionTrigger className="hover:no-underline">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+                  <ShieldCheck className="w-5 h-5 text-red-600" />
+                </div>
+                <div className="text-left">
+                  <h3 className="font-semibold">Business Rules & Constraints</h3>
+                  <p className="text-sm text-muted-foreground">Mandatory financial gates and safety checks</p>
+                </div>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="pt-4 pb-6 space-y-4">
+              <p className="text-sm text-muted-foreground">
+                The system enforces mandatory business rules that reflect real-world financial constraints.
+                These rules cannot be overridden — if any are violated, the system flags the scenario as invalid
+                and requires assumption adjustments before proceeding.
+              </p>
+
+              <div className="bg-red-50 rounded-lg p-4 border border-red-200">
+                <h4 className="font-semibold mb-2 text-red-800">1. Management Company Funding Gate</h4>
+                <p className="text-sm text-red-700">
+                  Operations of the Management Company cannot begin before funding is received. The company requires 
+                  SAFE funding tranches to cover startup costs (staff, office, professional services) before management 
+                  fee revenue begins flowing from properties.
+                </p>
+                <p className="text-sm text-red-700 mt-2">
+                  If assumptions indicate operations before funding, the system blocks the scenario and flags it as invalid.
+                </p>
+              </div>
+
+              <div className="bg-red-50 rounded-lg p-4 border border-red-200">
+                <h4 className="font-semibold mb-2 text-red-800">2. Property Activation Gate</h4>
+                <p className="text-sm text-red-700">
+                  A property cannot begin operating before it is purchased and funding is in place — whether that's 
+                  100% equity (cash purchase) or debt financing plus equity. Revenue and operating expenses only begin 
+                  after the acquisition date and operations start date.
+                </p>
+                <p className="text-sm text-red-700 mt-2">
+                  If the operating start date precedes acquisition or funding, the system blocks the scenario.
+                </p>
+              </div>
+
+              <div className="bg-red-50 rounded-lg p-4 border border-red-200">
+                <h4 className="font-semibold mb-2 text-red-800">3. No Negative Cash Rule</h4>
+                <p className="text-sm text-red-700">
+                  Cash balances for each property, the Management Company, and the aggregated portfolio must never 
+                  be negative. This ensures realistic capital planning and prevents scenarios where entities spend 
+                  money they don't have.
+                </p>
+                <p className="text-sm text-red-700 mt-2">
+                  If any projected cash balance goes below zero, the system flags a funding shortfall and requires 
+                  increased funding, earlier funding, or assumption adjustments.
+                </p>
+              </div>
+
+              <div className="bg-red-50 rounded-lg p-4 border border-red-200">
+                <h4 className="font-semibold mb-2 text-red-800">4. Debt-Free at Exit</h4>
+                <p className="text-sm text-red-700">
+                  At exit (end of the projection period), all properties must be debt-free. Outstanding loan balances 
+                  are repaid from gross sale proceeds before calculating net proceeds to equity. The exit waterfall is:
+                </p>
+                <div className="bg-white/50 rounded p-2 font-mono text-xs mt-2 text-red-700">
+                  <div>Gross Sale Value = Final Year NOI / Exit Cap Rate</div>
+                  <div>Less: Sales Commission</div>
+                  <div>Less: Outstanding Debt Balance (must be fully repaid)</div>
+                  <div>= Net Proceeds to Equity</div>
+                </div>
+              </div>
+
+              <div className="bg-red-50 rounded-lg p-4 border border-red-200">
+                <h4 className="font-semibold mb-2 text-red-800">5. No Over-Distribution Rule</h4>
+                <p className="text-sm text-red-700">
+                  FCF distributions and refinancing proceeds returned to investors must not exceed available cash. 
+                  The system must not distribute cash to the point that any property ends up with a negative cash 
+                  balance. This ensures that repayment of principal and investor distributions are always funded 
+                  by actual available cash.
+                </p>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="capital-lifecycle" className="border rounded-lg px-4">
+            <AccordionTrigger className="hover:no-underline">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
+                  <Banknote className="w-5 h-5 text-emerald-600" />
+                </div>
+                <div className="text-left">
+                  <h3 className="font-semibold">Capital Structure & Investor Returns</h3>
+                  <p className="text-sm text-muted-foreground">How capital flows in and how investors get paid back</p>
+                </div>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="pt-4 pb-6 space-y-4">
+              <p className="text-sm text-muted-foreground">
+                The platform models realistic capital flows for both the management company and each property, 
+                tracking how money enters the system and how investors receive returns over time.
+              </p>
+
+              <div className="bg-muted/50 rounded-lg p-4">
+                <h4 className="font-semibold mb-2">Property Capital Structure</h4>
+                <p className="text-sm text-muted-foreground mb-3">
+                  Each property can be acquired using one of two capital structures:
+                </p>
+                <div className="grid gap-3 md:grid-cols-2">
+                  <div className="bg-background rounded-lg p-3">
+                    <h5 className="font-semibold text-sm mb-1">100% Equity (Cash Purchase)</h5>
+                    <ul className="text-xs text-muted-foreground space-y-1">
+                      <li>&#8226; No debt, fully funded by equity investors</li>
+                      <li>&#8226; No interest expense or principal payments</li>
+                      <li>&#8226; May be refinanced later (e.g., after 3 years)</li>
+                      <li>&#8226; Refinancing creates leverage and returns cash to investors</li>
+                    </ul>
+                  </div>
+                  <div className="bg-background rounded-lg p-3">
+                    <h5 className="font-semibold text-sm mb-1">Debt Financing + Equity</h5>
+                    <ul className="text-xs text-muted-foreground space-y-1">
+                      <li>&#8226; Loan based on LTV ratio (default 75%)</li>
+                      <li>&#8226; Monthly debt service (interest + principal)</li>
+                      <li>&#8226; Equity covers remainder of project cost</li>
+                      <li>&#8226; Can also refinance at new terms</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-muted/50 rounded-lg p-4">
+                <h4 className="font-semibold mb-2">How Equity Investors Are Repaid</h4>
+                <p className="text-sm text-muted-foreground mb-3">
+                  Investors receive returns through three channels over the life of the investment:
+                </p>
+                <div className="bg-background rounded p-3 font-mono text-sm space-y-2">
+                  <div><strong>1. Free Cash Flow Distributions</strong></div>
+                  <div className="pl-4 text-xs">Annual FCFE distributed to investors throughout the holding period</div>
+                  <div className="mt-2"><strong>2. Refinancing Proceeds</strong></div>
+                  <div className="pl-4 text-xs">Net cash from refinancing (new loan - old balance - closing costs)</div>
+                  <div className="mt-2"><strong>3. Exit / Sale Proceeds</strong></div>
+                  <div className="pl-4 text-xs">Net sale value at end of projection (gross value - commission - debt)</div>
+                </div>
+                <p className="text-sm text-muted-foreground mt-3">
+                  Total return = Sum of all three channels. This is what drives the IRR, equity multiple, and 
+                  cash-on-cash return metrics shown in the dashboard.
+                </p>
+              </div>
+
+              <div className="bg-muted/50 rounded-lg p-4">
+                <h4 className="font-semibold mb-2">Management Company Funding</h4>
+                <p className="text-sm text-muted-foreground">
+                  The management company receives capital from private equity through <strong>SAFE (Simple Agreement 
+                  for Future Equity)</strong> tranches — scheduled or conditional funding rounds that provide working 
+                  capital until management fee revenue covers operating expenses. SAFE funding is recorded as a cash 
+                  inflow but is <strong>not</strong> revenue — it represents future equity, not income.
+                </p>
+              </div>
+
+              <div className="bg-muted/50 rounded-lg p-4">
+                <h4 className="font-semibold mb-2">Assumptions Framework</h4>
+                <p className="text-sm text-muted-foreground mb-3">
+                  Financial projections are driven by two tiers of configurable assumptions:
+                </p>
+                <div className="grid gap-3 md:grid-cols-2">
+                  <div className="bg-background rounded-lg p-3">
+                    <h5 className="font-semibold text-sm mb-1">Property-Level Assumptions</h5>
+                    <ul className="text-xs text-muted-foreground space-y-1">
+                      <li>&#8226; Revenue drivers (ADR, occupancy, rooms)</li>
+                      <li>&#8226; Operating costs and expense ratios</li>
+                      <li>&#8226; Financing structure (LTV, rate, term)</li>
+                      <li>&#8226; Acquisition date and operations start</li>
+                      <li>&#8226; Refinance timing and terms</li>
+                      <li>&#8226; Exit cap rate</li>
+                    </ul>
+                  </div>
+                  <div className="bg-background rounded-lg p-3">
+                    <h5 className="font-semibold text-sm mb-1">App-Wide (Global) Assumptions</h5>
+                    <ul className="text-xs text-muted-foreground space-y-1">
+                      <li>&#8226; Management fee structures</li>
+                      <li>&#8226; Inflation and escalation rates</li>
+                      <li>&#8226; Shared cost growth rates</li>
+                      <li>&#8226; Tax and macro parameters</li>
+                      <li>&#8226; SAFE funding schedule</li>
+                      <li>&#8226; Partner compensation</li>
+                    </ul>
+                  </div>
+                </div>
+                <p className="text-sm text-muted-foreground mt-3">
+                  Global assumptions apply across all properties and the management company. Property-level 
+                  assumptions override globals where applicable (e.g., a property's own exit cap rate takes 
+                  precedence over the system default).
+                </p>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="dynamic-behavior" className="border rounded-lg px-4">
+            <AccordionTrigger className="hover:no-underline">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                  <RefreshCw className="w-5 h-5 text-blue-600" />
+                </div>
+                <div className="text-left">
+                  <h3 className="font-semibold">Dynamic Behavior & System Goals</h3>
+                  <p className="text-sm text-muted-foreground">Real-time recalculation and multi-level analysis</p>
+                </div>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="pt-4 pb-6 space-y-4">
+              <div className="bg-muted/50 rounded-lg p-4">
+                <h4 className="font-semibold mb-2">Dynamic Recalculation</h4>
+                <p className="text-sm text-muted-foreground">
+                  The financial model recalculates all projections instantly when any assumption changes. Users can:
+                </p>
+                <ul className="text-sm text-muted-foreground space-y-1 mt-2">
+                  <li>&#8226; Add or remove properties at any time</li>
+                  <li>&#8226; Modify any property-level or global assumption</li>
+                  <li>&#8226; Change capital structures, timing, or exit parameters</li>
+                  <li>&#8226; See updated financial statements, returns, and audit results immediately</li>
+                </ul>
+              </div>
+
+              <div className="bg-muted/50 rounded-lg p-4">
+                <h4 className="font-semibold mb-2">Multi-Level Analysis</h4>
+                <p className="text-sm text-muted-foreground">
+                  Returns and financial performance can be evaluated at three levels:
+                </p>
+                <div className="grid gap-3 md:grid-cols-3 mt-3">
+                  <div className="bg-background rounded-lg p-3 text-center">
+                    <h5 className="font-semibold text-sm">Asset Level</h5>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Individual property P&L, cash flow, balance sheet, IRR, and equity multiple
+                    </p>
+                  </div>
+                  <div className="bg-background rounded-lg p-3 text-center">
+                    <h5 className="font-semibold text-sm">Company Level</h5>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Management company financials, profitability, and FCF-based IRR
+                    </p>
+                  </div>
+                  <div className="bg-background rounded-lg p-3 text-center">
+                    <h5 className="font-semibold text-sm">Portfolio Level</h5>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Consolidated property financials, combined FCF, and portfolio-wide IRR
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-primary/10 rounded-lg p-4 border border-primary/20">
+                <h4 className="font-semibold mb-2">System Goal</h4>
+                <p className="text-sm text-muted-foreground">
+                  To simulate a scalable hospitality platform where individual assets can be analyzed independently, 
+                  the management company operates as a profit center, capital flows realistically over time, and 
+                  returns can be evaluated at asset, company, and portfolio levels — while enforcing real-world 
+                  financial constraints.
                 </p>
               </div>
             </AccordionContent>

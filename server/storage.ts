@@ -315,7 +315,7 @@ export class DatabaseStorage implements IStorage {
   // Market Research
   async getMarketResearch(type: string, userId?: number, propertyId?: number): Promise<MarketResearch | undefined> {
     const conditions = [eq(marketResearch.type, type)];
-    if (userId) conditions.push(eq(marketResearch.userId, userId));
+    if (userId) conditions.push(or(eq(marketResearch.userId, userId), isNull(marketResearch.userId))!);
     if (propertyId) conditions.push(eq(marketResearch.propertyId, propertyId));
     
     const [result] = await db.select().from(marketResearch)

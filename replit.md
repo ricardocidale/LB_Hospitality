@@ -98,6 +98,18 @@ Always format money as money (currency format with commas and appropriate precis
 - **Dynamic Projection Period**: `projectionYears` is configurable in global assumptions (default 10). All consumers (Dashboard, PropertyDetail, Company, ConsolidatedBalanceSheet, runVerification, calculationChecker) use `global?.projectionYears ?? PROJECTION_YEARS` fallback pattern.
 - **Dynamic Staffing Tiers**: 3 configurable tiers (`staffTier1MaxProperties/Fte`, `staffTier2MaxProperties/Fte`, `staffTier3Fte`) in global assumptions, replacing hardcoded staffing model. Editable via Company Assumptions page.
 
+### AI Research Architecture (Skills & Tools)
+- **Skills** (`.claude/skills/`): Markdown files that provide system-level instructions guiding Claude's analysis methodology. Loaded at runtime as system prompts.
+  - **Research skills**: `property-market-research.md` (property-level analysis guided by boutique definition), `company-research.md` (management company benchmarks), `global-research.md` (industry overview)
+  - **UI skills**: `page-header.md` (PageHeader component patterns), `glass-components.md` (GlassButton/GlassCard/SaveButton), `financial-statements.md` (Income Statement, Cash Flow, Balance Sheet rendering rules per GAAP), `charts.md` (Recharts styling patterns)
+- **Tools** (`.claude/tools/`): JSON files defining Claude tool-use function schemas for property research. Claude calls these tools to gather analysis dimensions, then synthesizes findings.
+  - `analyze-market.json`, `analyze-adr.json`, `analyze-occupancy.json`, `analyze-event-demand.json`, `analyze-cap-rates.json`, `analyze-competitive-set.json`
+- **Orchestration** (`server/aiResearch.ts`): Loads skills/tools from disk, handles Claude tool-use loop (up to 10 iterations), tool handlers return contextual guidance prompts (not external data) so Claude uses its knowledge for analysis.
+  - For Claude models: Uses tool-use pattern with `generateResearchWithToolsStream()`
+  - For Gemini/OpenAI: Falls back to skill-loaded prompts without tool-use
+- **Research output schema**: `marketOverview`, `adrAnalysis`, `occupancyAnalysis`, `eventDemand`, `capRateAnalysis`, `competitiveSet`, `risks`, `sources`
+- **Seed data**: All 5 properties have pre-seeded research with `llmModel: "seed-data"` for immediate display without AI generation
+
 ## External Dependencies
 
 - **Database**: PostgreSQL

@@ -8,7 +8,8 @@ import { YearlyCashFlowStatement } from "@/components/YearlyCashFlowStatement";
 import { ConsolidatedBalanceSheet } from "@/components/ConsolidatedBalanceSheet";
 import { Tabs, TabsContent, DarkGlassTabs } from "@/components/ui/tabs";
 import { FileText, Banknote, Scale } from "lucide-react";
-import { ArrowLeft, MapPin, Loader2, FileDown, FileSpreadsheet, Settings2, ImageIcon, Sheet } from "lucide-react";
+import { ArrowLeft, MapPin, Loader2, Settings2, Sheet } from "lucide-react";
+import { ExportMenu, pdfAction, excelAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
 import {
   exportPropertyIncomeStatement,
   exportPropertyCashFlow,
@@ -568,60 +569,14 @@ export default function PropertyDetail() {
               activeTab={activeTab}
               onTabChange={setActiveTab}
               rightContent={
-                <>
-                  <button
-                    onClick={() => { setExportType('pdf'); setExportDialogOpen(true); }}
-                    className="group/btn relative overflow-hidden flex items-center gap-2 px-4 py-2.5 text-xs font-medium text-white rounded-2xl transition-all duration-300 ease-out"
-                    data-testid="button-export-pdf"
-                  >
-                    <div className="absolute inset-0 bg-white/12 backdrop-blur-xl rounded-2xl" />
-                    <div className="absolute inset-0 rounded-2xl border border-white/20" />
-                    <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
-                    <div className="absolute inset-0 rounded-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),0_4px_16px_rgba(0,0,0,0.2)]" />
-                    <div className="absolute inset-0 rounded-2xl opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300 bg-white/5" />
-                    <FileDown className="relative w-3.5 h-3.5" />
-                    <span className="relative">PDF</span>
-                  </button>
-                  <button
-                    onClick={() => handleExcelExport()}
-                    className="group/btn relative overflow-hidden flex items-center gap-2 px-4 py-2.5 text-xs font-medium text-white rounded-2xl transition-all duration-300 ease-out"
-                    data-testid="button-export-excel"
-                  >
-                    <div className="absolute inset-0 bg-white/12 backdrop-blur-xl rounded-2xl" />
-                    <div className="absolute inset-0 rounded-2xl border border-white/20" />
-                    <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
-                    <div className="absolute inset-0 rounded-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),0_4px_16px_rgba(0,0,0,0.2)]" />
-                    <div className="absolute inset-0 rounded-2xl opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300 bg-white/5" />
-                    <FileSpreadsheet className="relative w-3.5 h-3.5" />
-                    <span className="relative">Excel</span>
-                  </button>
-                  <button
-                    onClick={() => { setExportType('chart'); setExportDialogOpen(true); }}
-                    className="group/btn relative overflow-hidden flex items-center gap-2 px-4 py-2.5 text-xs font-medium text-white rounded-2xl transition-all duration-300 ease-out"
-                    data-testid="button-export-chart"
-                  >
-                    <div className="absolute inset-0 bg-white/12 backdrop-blur-xl rounded-2xl" />
-                    <div className="absolute inset-0 rounded-2xl border border-white/20" />
-                    <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
-                    <div className="absolute inset-0 rounded-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),0_4px_16px_rgba(0,0,0,0.2)]" />
-                    <div className="absolute inset-0 rounded-2xl opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300 bg-white/5" />
-                    <ImageIcon className="relative w-3.5 h-3.5" />
-                    <span className="relative">Chart</span>
-                  </button>
-                  <button
-                    onClick={() => exportTablePNG()}
-                    className="group/btn relative overflow-hidden flex items-center gap-2 px-4 py-2.5 text-xs font-medium text-white rounded-2xl transition-all duration-300 ease-out"
-                    data-testid="button-export-table-png"
-                  >
-                    <div className="absolute inset-0 bg-white/12 backdrop-blur-xl rounded-2xl" />
-                    <div className="absolute inset-0 rounded-2xl border border-white/20" />
-                    <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
-                    <div className="absolute inset-0 rounded-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),0_4px_16px_rgba(0,0,0,0.2)]" />
-                    <div className="absolute inset-0 rounded-2xl opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300 bg-white/5" />
-                    <ImageIcon className="relative w-3.5 h-3.5" />
-                    <span className="relative">PNG</span>
-                  </button>
-                </>
+                <ExportMenu
+                  actions={[
+                    pdfAction(() => { setExportType('pdf'); setExportDialogOpen(true); }),
+                    excelAction(() => handleExcelExport()),
+                    chartAction(() => { setExportType('chart'); setExportDialogOpen(true); }),
+                    pngAction(() => exportTablePNG()),
+                  ]}
+                />
               }
             />
           </div>

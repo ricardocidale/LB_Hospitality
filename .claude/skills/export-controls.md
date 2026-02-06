@@ -1,10 +1,12 @@
-# Export Controls
+# Export Controls (Superseded)
 
-**Component**: `ExportToolbar` (`client/src/components/ui/export-toolbar.tsx`)
+> **Note**: This skill is superseded by `.claude/skills/exports/SKILL.md` which documents the unified `ExportMenu` dropdown system. This file is kept for reference only.
+
+**Component**: `ExportMenu` (`client/src/components/ui/export-toolbar.tsx`)
 
 ## Overview
 
-Standardized export button toolbar for financial pages. Provides PDF, Excel, PNG, and Chart export actions with consistent styling.
+Unified export dropdown button for financial pages. Single "Export" button opens a dropdown menu with PDF, Excel, PNG, and Chart format options.
 
 ## ExportToolbar Props
 

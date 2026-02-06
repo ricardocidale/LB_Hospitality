@@ -8,7 +8,8 @@ import { LayoutDashboard, FileText, Banknote, Scale, TrendingUp as TrendingUpIco
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { GlassButton } from "@/components/ui/glass-button";
-import { Loader2, ChevronRight, ChevronDown, FileDown, FileSpreadsheet } from "lucide-react";
+import { Loader2, ChevronRight, ChevronDown } from "lucide-react";
+import { ExportMenu, pdfAction, csvAction } from "@/components/ui/export-toolbar";
 import { PageHeader } from "@/components/ui/page-header";
 import { format, differenceInMonths } from "date-fns";
 import { useState, useMemo } from "react";
@@ -1769,34 +1770,12 @@ export default function Dashboard() {
             activeTab={activeTab}
             onTabChange={setActiveTab}
             rightContent={exportFunctions && (
-              <>
-                <button
-                  onClick={exportFunctions.pdf}
-                  className="group/btn relative overflow-hidden flex items-center gap-2 px-4 py-2.5 text-xs font-medium text-white rounded-2xl transition-all duration-300 ease-out"
-                  data-testid="button-export-pdf"
-                >
-                  <div className="absolute inset-0 bg-white/12 backdrop-blur-xl rounded-2xl" />
-                  <div className="absolute inset-0 rounded-2xl border border-white/20" />
-                  <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
-                  <div className="absolute inset-0 rounded-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),0_4px_16px_rgba(0,0,0,0.2)]" />
-                  <div className="absolute inset-0 rounded-2xl opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300 bg-white/5" />
-                  <FileDown className="relative w-3.5 h-3.5" />
-                  <span className="relative">PDF</span>
-                </button>
-                <button
-                  onClick={exportFunctions.csv}
-                  className="group/btn relative overflow-hidden flex items-center gap-2 px-4 py-2.5 text-xs font-medium text-white rounded-2xl transition-all duration-300 ease-out"
-                  data-testid="button-export-csv"
-                >
-                  <div className="absolute inset-0 bg-white/12 backdrop-blur-xl rounded-2xl" />
-                  <div className="absolute inset-0 rounded-2xl border border-white/20" />
-                  <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
-                  <div className="absolute inset-0 rounded-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),0_4px_16px_rgba(0,0,0,0.2)]" />
-                  <div className="absolute inset-0 rounded-2xl opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300 bg-white/5" />
-                  <FileSpreadsheet className="relative w-3.5 h-3.5" />
-                  <span className="relative">CSV</span>
-                </button>
-              </>
+              <ExportMenu
+                actions={[
+                  pdfAction(exportFunctions.pdf),
+                  csvAction(exportFunctions.csv),
+                ]}
+              />
             )}
           />
 

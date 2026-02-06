@@ -1,4 +1,4 @@
-import { globalAssumptions, properties, users, sessions, scenarios, loginLogs, designThemes, marketResearch, prospectiveProperties, type GlobalAssumptions, type Property, type InsertGlobalAssumptions, type InsertProperty, type UpdateProperty, type User, type InsertUser, type Session, type Scenario, type InsertScenario, type UpdateScenario, type LoginLog, type InsertLoginLog, type DesignTheme, type InsertDesignTheme, type MarketResearch, type InsertMarketResearch, type ProspectiveProperty, type InsertProspectiveProperty } from "@shared/schema";
+import { globalAssumptions, properties, users, sessions, scenarios, loginLogs, designThemes, marketResearch, prospectiveProperties, savedSearches, type GlobalAssumptions, type Property, type InsertGlobalAssumptions, type InsertProperty, type UpdateProperty, type User, type InsertUser, type Session, type Scenario, type InsertScenario, type UpdateScenario, type LoginLog, type InsertLoginLog, type DesignTheme, type InsertDesignTheme, type MarketResearch, type InsertMarketResearch, type ProspectiveProperty, type InsertProspectiveProperty, type SavedSearch, type InsertSavedSearch } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gt, gte, desc, or, isNull } from "drizzle-orm";
 
@@ -61,6 +61,11 @@ export interface IStorage {
   addProspectiveProperty(data: InsertProspectiveProperty): Promise<ProspectiveProperty>;
   deleteProspectiveProperty(id: number, userId: number): Promise<void>;
   updateProspectivePropertyNotes(id: number, userId: number, notes: string): Promise<ProspectiveProperty | undefined>;
+
+  // Saved Searches
+  getSavedSearches(userId: number): Promise<SavedSearch[]>;
+  addSavedSearch(data: InsertSavedSearch): Promise<SavedSearch>;
+  deleteSavedSearch(id: number, userId: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -408,6 +413,25 @@ export class DatabaseStorage implements IStorage {
       .where(and(eq(prospectiveProperties.id, id), eq(prospectiveProperties.userId, userId)))
       .returning();
     return prop || undefined;
+  }
+
+  // Saved Searches
+  async getSavedSearches(userId: number): Promise<SavedSearch[]> {
+    return await db.select().from(savedSearches)
+      .where(eq(savedSearches.userId, userId))
+      .orderBy(desc(savedSearches.savedAt));
+  }
+
+  async addSavedSearch(data: InsertSavedSearch): Promise<SavedSearch> {
+    const [search] = await db.insert(savedSearches)
+      .values(data as typeof savedSearches.$inferInsert)
+      .returning();
+    return search;
+  }
+
+  async deleteSavedSearch(id: number, userId: number): Promise<void> {
+    await db.delete(savedSearches)
+      .where(and(eq(savedSearches.id, id), eq(savedSearches.userId, userId)));
   }
 }
 

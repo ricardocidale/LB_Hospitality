@@ -11,6 +11,8 @@ import {
   GlobalLoanParams,
   calculateLoanParams,
   calculatePropertyYearlyCashFlows,
+  calculateRefinanceParams,
+  getAcquisitionYear,
   YearlyCashFlowResult,
   DEFAULT_TAX_RATE,
   DEFAULT_COMMISSION_RATE
@@ -42,6 +44,8 @@ interface YearlyDetails {
   feeIncentive: number;
   totalExpenses: number;
   gop: number;
+  interestExpense: number;
+  incomeTax: number;
 }
 
 function aggregateYearlyDetails(data: MonthlyFinancials[], years: number): YearlyDetails[] {
@@ -73,6 +77,8 @@ function aggregateYearlyDetails(data: MonthlyFinancials[], years: number): Yearl
       feeIncentive: yearData.reduce((a, m) => a + m.feeIncentive, 0),
       totalExpenses: yearData.reduce((a, m) => a + m.totalExpenses, 0),
       gop: yearData.reduce((a, m) => a + m.gop, 0),
+      interestExpense: yearData.reduce((a, m) => a + m.interestExpense, 0),
+      incomeTax: yearData.reduce((a, m) => a + m.incomeTax, 0),
     });
   }
   return result;
@@ -170,6 +176,98 @@ function aggregateCashFlowByYear(
   return calculatePropertyYearlyCashFlows(yearlyNOIData, property, global, years);
 }
 
+const ICE_BLUE = "#E8F4FD";
+const ICE_BLUE_DARK = "#D0EAFB";
+const SECTION_HEADER_BG = `bg-[${ICE_BLUE}]`;
+
+function SectionHeader({ label, colSpan, tooltip }: { label: string; colSpan: number; tooltip?: string }) {
+  return (
+    <TableRow style={{ backgroundColor: ICE_BLUE }}>
+      <TableCell colSpan={colSpan} className="font-bold text-gray-800 py-2">
+        <span className="flex items-center gap-1.5">
+          {label}
+          {tooltip && <HelpTooltip text={tooltip} />}
+        </span>
+      </TableCell>
+    </TableRow>
+  );
+}
+
+function SubtotalRow({ label, values, tooltip, positive }: { label: string; values: number[]; tooltip?: string; positive?: boolean }) {
+  return (
+    <TableRow style={{ backgroundColor: ICE_BLUE_DARK }} className="font-semibold">
+      <TableCell className="sticky left-0 py-1.5" style={{ backgroundColor: ICE_BLUE_DARK }}>
+        <span className="flex items-center gap-1">
+          {label}
+          {tooltip && <HelpTooltip text={tooltip} />}
+        </span>
+      </TableCell>
+      {values.map((v, i) => (
+        <TableCell key={i} className={cn("text-right py-1.5", v < 0 ? "text-destructive" : positive ? "text-accent" : "")}>
+          <Money amount={v} />
+        </TableCell>
+      ))}
+    </TableRow>
+  );
+}
+
+function LineItem({ label, values, indent, tooltip, showZero, negate }: { 
+  label: string; values: number[]; indent?: boolean; tooltip?: string; showZero?: boolean; negate?: boolean 
+}) {
+  return (
+    <TableRow>
+      <TableCell className={cn("sticky left-0 bg-white py-1", indent ? "pl-10" : "pl-6")}>
+        <span className="flex items-center gap-1">
+          {label}
+          {tooltip && <HelpTooltip text={tooltip} />}
+        </span>
+      </TableCell>
+      {values.map((v, i) => {
+        const displayVal = negate ? -v : v;
+        return (
+          <TableCell key={i} className="text-right text-muted-foreground py-1">
+            {v === 0 && !showZero ? '-' : <Money amount={displayVal} />}
+          </TableCell>
+        );
+      })}
+    </TableRow>
+  );
+}
+
+function ExpandableLineItem({ label, values, tooltip, children, expanded, onToggle, negate }: { 
+  label: string; values: number[]; tooltip?: string; children: React.ReactNode; expanded: boolean; onToggle: () => void; negate?: boolean 
+}) {
+  return (
+    <>
+      <TableRow 
+        className="cursor-pointer hover:bg-gray-50"
+        onClick={onToggle}
+      >
+        <TableCell className="pl-6 sticky left-0 bg-white py-1">
+          <span className="flex items-center gap-1">
+            {expanded ? <ChevronDown className="w-4 h-4 flex-shrink-0" /> : <ChevronRight className="w-4 h-4 flex-shrink-0" />}
+            <span className="ml-1">{label}</span>
+            {tooltip && <HelpTooltip text={tooltip} />}
+          </span>
+        </TableCell>
+        {values.map((v, i) => {
+          const displayVal = negate ? -v : v;
+          return (
+            <TableCell key={i} className="text-right font-medium py-1">
+              <Money amount={displayVal} />
+            </TableCell>
+          );
+        })}
+      </TableRow>
+      {expanded && children}
+    </>
+  );
+}
+
+function SpacerRow({ colSpan }: { colSpan: number }) {
+  return <TableRow className="h-2 border-none"><TableCell colSpan={colSpan}></TableCell></TableRow>;
+}
+
 export function YearlyCashFlowStatement({ data, property, global, years = 10, startYear = 2026 }: Props) {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   
@@ -178,23 +276,63 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
   
   const loan = calculateLoanParams(property, global);
   const equityInvested = loan.equityInvested;
+  const acquisitionYear = getAcquisitionYear(loan);
+  
+  const yearlyNOIData: number[] = [];
+  for (let y = 0; y < years; y++) {
+    const yearData = data.slice(y * 12, (y + 1) * 12);
+    yearlyNOIData.push(yearData.reduce((a, m) => a + m.noi, 0));
+  }
+  const refi = calculateRefinanceParams(property, global, loan, yearlyNOIData, years);
   
   const operatingReserve = property.operatingReserve || 0;
   const cashAnalysis = analyzeMonthlyCashPosition(data, operatingReserve);
   
-    
   const toggleSection = (section: string) => {
     setExpanded(prev => ({ ...prev, [section]: !prev[section] }));
   };
+  
+  const colSpan = years + 1;
+  
+  const totalPropertyCost = property.purchasePrice + (property.buildingImprovements ?? 0) + property.preOpeningCosts;
+  
+  const cashFromOperations = yearlyDetails.map((yd, i) => {
+    return yd.totalRevenue - (yd.totalExpenses - yd.expenseFFE) - yd.interestExpense - yd.incomeTax;
+  });
+  
+  const cashFromInvesting = yearlyData.map((cf, i) => {
+    const ffe = yearlyDetails[i].expenseFFE;
+    const acqCost = i === acquisitionYear ? totalPropertyCost : 0;
+    return -acqCost - ffe;
+  });
+  
+  const cashFromFinancing = yearlyData.map((cf, i) => {
+    const eqContrib = i === acquisitionYear ? equityInvested : 0;
+    const loanProceeds = i === acquisitionYear && loan.loanAmount > 0 ? loan.loanAmount : 0;
+    const refiProceeds = i === refi.refiYear ? refi.refiProceeds : 0;
+    const exitVal = cf.exitValue;
+    return eqContrib + loanProceeds - cf.principalPayment + refiProceeds + exitVal;
+  });
+  
+  const netChangeCash = cashFromOperations.map((cfo, i) => cfo + cashFromInvesting[i] + cashFromFinancing[i]);
+  
+  const openingCash: number[] = [];
+  const closingCash: number[] = [];
+  let runningCash = 0;
+  for (let i = 0; i < years; i++) {
+    openingCash.push(runningCash);
+    runningCash += netChangeCash[i];
+    closingCash.push(runningCash);
+  }
   
   return (
     <Card className="overflow-hidden bg-white shadow-lg border border-gray-100">
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2 text-gray-900">
-          Investor Cash Flows
-          <HelpTooltip text="Shows the cash available to distribute to investors each year, including operating cash flow (after taxes), refinancing proceeds, and sale proceeds at exit." />
+          Cash Flow Statement
+          <HelpTooltip text="Direct-method cash flow statement showing actual cash receipts and payments organized by Operating, Investing, and Financing activities. Includes beginning/ending cash balance tie-out." />
         </CardTitle>
-        <p className="text-sm text-gray-500">Annual distributions, refinancing proceeds, and exit value</p>
+        <p className="text-sm text-gray-500">Operating, investing, and financing cash flows with balance tie-out</p>
         
         {!cashAnalysis.isAdequate ? (
           <div data-testid="banner-equity-warning" className="mt-3 p-3 bg-destructive/10 border border-destructive/30 rounded-lg flex items-start gap-3">
@@ -209,7 +347,7 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
               <p className="text-muted-foreground mt-1">
                 <span className="font-medium">Suggested:</span> Increase Operating Reserve to at least{' '}
                 <span data-testid="text-suggested-reserve" className="font-semibold text-foreground">{formatMoney(cashAnalysis.suggestedReserve)}</span> in{' '}
-                <span className="font-medium text-primary">Property Assumptions → Capital & Acquisition</span>.
+                <span className="font-medium text-primary">Property Assumptions &rarr; Capital & Acquisition</span>.
               </p>
             </div>
           </div>
@@ -232,7 +370,7 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
         <Table>
           <TableHeader>
             <TableRow className="bg-gray-100">
-              <TableHead className="w-[280px] font-bold sticky left-0 bg-gray-100 text-gray-900">Free Cash Flow Statement</TableHead>
+              <TableHead className="w-[280px] font-bold sticky left-0 bg-gray-100 text-gray-900">Cash Flow Statement</TableHead>
               {yearlyData.map((y) => (
                 <TableHead key={y.year} className="text-right min-w-[110px] font-bold text-gray-900">
                   FY {startYear + y.year - 1}
@@ -241,441 +379,306 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
             </TableRow>
           </TableHeader>
           <TableBody>
-            {/* GAAP Net Income Section */}
-            <TableRow className="bg-gray-50">
-              <TableCell colSpan={years + 1} className="font-bold text-[#257D41]">Net Income</TableCell>
-            </TableRow>
+            {/* ═══ OPERATING CASH FLOW ═══ */}
+            <SectionHeader 
+              label="Operating Cash Flow" 
+              colSpan={colSpan}
+              tooltip="Cash generated from day-to-day property operations. Shows actual cash received from guests and paid to vendors/staff."
+            />
             
-            {/* NOI - Expandable with Revenue Details */}
-            <TableRow 
-              data-testid="row-noi-expandable"
-              className="cursor-pointer hover:bg-gray-50"
-              onClick={() => toggleSection('revenue')}
+            {/* Cash Received - Revenue (expandable) */}
+            <ExpandableLineItem
+              label="Cash Received from Guests & Clients"
+              values={yearlyDetails.map(y => y.totalRevenue)}
+              tooltip="Click to expand: Room revenue, event & venue income, food & beverage, and other revenue streams."
+              expanded={!!expanded.revenue}
+              onToggle={() => toggleSection('revenue')}
             >
-              <TableCell className="pl-6 sticky left-0 bg-white flex items-center gap-1">
-                {expanded.revenue ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-                <span className="ml-1">Total Revenue</span>
-                <HelpTooltip text="Click to expand revenue details: Rooms, Events, F&B, and Other income." />
-              </TableCell>
-              {yearlyDetails.map((y, i) => (
-                <TableCell key={i} className="text-right font-medium"><Money amount={y.totalRevenue} /></TableCell>
-              ))}
-            </TableRow>
-            {expanded.revenue && (
-              <>
-                <TableRow className="bg-white">
-                  <TableCell className="pl-16 sticky left-0 bg-white text-muted-foreground label-text">ADR</TableCell>
-                  {yearlyDetails.map((y, i) => (
-                    <TableCell key={i} className="text-right text-muted-foreground font-mono">
-                      <Money amount={y.soldRooms > 0 ? y.revenueRooms / y.soldRooms : 0} />
-                    </TableCell>
-                  ))}
-                </TableRow>
-                <TableRow className="bg-white">
-                  <TableCell className="pl-16 sticky left-0 bg-white text-muted-foreground label-text">Occupancy</TableCell>
-                  {yearlyDetails.map((y, i) => (
-                    <TableCell key={i} className="text-right text-muted-foreground font-mono">
-                      {y.availableRooms > 0 ? ((y.soldRooms / y.availableRooms) * 100).toFixed(1) : 0}%
-                    </TableCell>
-                  ))}
-                </TableRow>
-                <TableRow className="bg-white">
-                  <TableCell className="pl-16 sticky left-0 bg-white text-muted-foreground label-text">RevPAR</TableCell>
-                  {yearlyDetails.map((y, i) => (
-                    <TableCell key={i} className="text-right text-muted-foreground font-mono">
-                      <Money amount={y.availableRooms > 0 ? y.revenueRooms / y.availableRooms : 0} />
-                    </TableCell>
-                  ))}
-                </TableRow>
-                <TableRow className="bg-white">
-                  <TableCell className="pl-12 sticky left-0 bg-white text-muted-foreground">Room Revenue</TableCell>
-                  {yearlyDetails.map((y, i) => (
-                    <TableCell key={i} className="text-right text-muted-foreground"><Money amount={y.revenueRooms} /></TableCell>
-                  ))}
-                </TableRow>
-                <TableRow className="bg-white">
-                  <TableCell className="pl-12 sticky left-0 bg-white text-muted-foreground">Event Revenue</TableCell>
-                  {yearlyDetails.map((y, i) => (
-                    <TableCell key={i} className="text-right text-muted-foreground"><Money amount={y.revenueEvents} /></TableCell>
-                  ))}
-                </TableRow>
-                <TableRow className="bg-white">
-                  <TableCell className="pl-12 sticky left-0 bg-white text-muted-foreground">F&B Revenue</TableCell>
-                  {yearlyDetails.map((y, i) => (
-                    <TableCell key={i} className="text-right text-muted-foreground"><Money amount={y.revenueFB} /></TableCell>
-                  ))}
-                </TableRow>
-                <TableRow className="bg-white">
-                  <TableCell className="pl-12 sticky left-0 bg-white text-muted-foreground">Other Revenue</TableCell>
-                  {yearlyDetails.map((y, i) => (
-                    <TableCell key={i} className="text-right text-muted-foreground"><Money amount={y.revenueOther} /></TableCell>
-                  ))}
-                </TableRow>
-              </>
-            )}
+              <LineItem label="ADR" values={yearlyDetails.map(y => y.soldRooms > 0 ? y.revenueRooms / y.soldRooms : 0)} indent />
+              <TableRow>
+                <TableCell className="pl-10 sticky left-0 bg-white py-1 text-muted-foreground">Occupancy</TableCell>
+                {yearlyDetails.map((y, i) => (
+                  <TableCell key={i} className="text-right text-muted-foreground py-1 font-mono">
+                    {y.availableRooms > 0 ? ((y.soldRooms / y.availableRooms) * 100).toFixed(1) : 0}%
+                  </TableCell>
+                ))}
+              </TableRow>
+              <TableRow>
+                <TableCell className="pl-10 sticky left-0 bg-white py-1 text-muted-foreground">RevPAR</TableCell>
+                {yearlyDetails.map((y, i) => (
+                  <TableCell key={i} className="text-right text-muted-foreground py-1 font-mono">
+                    <Money amount={y.availableRooms > 0 ? y.revenueRooms / y.availableRooms : 0} />
+                  </TableCell>
+                ))}
+              </TableRow>
+              <LineItem label="Guest Room Revenue" values={yearlyDetails.map(y => y.revenueRooms)} indent />
+              <LineItem label="Event & Venue Revenue" values={yearlyDetails.map(y => y.revenueEvents)} indent />
+              <LineItem label="Food & Beverage Revenue" values={yearlyDetails.map(y => y.revenueFB)} indent />
+              <LineItem label="Other Revenue (Spa/Experiences)" values={yearlyDetails.map(y => y.revenueOther)} indent />
+            </ExpandableLineItem>
             
-            {/* Operating Expenses - Expandable */}
-            <TableRow 
-              data-testid="row-expenses-expandable"
-              className="cursor-pointer hover:bg-gray-50"
-              onClick={() => toggleSection('expenses')}
+            {/* Cash Paid - Operating Expenses (expandable) */}
+            <ExpandableLineItem
+              label="Cash Paid for Operating Expenses"
+              values={yearlyDetails.map(y => y.totalExpenses - y.expenseFFE)}
+              tooltip="Click to expand: Departmental costs, utilities, taxes, insurance, and management fees. Excludes FF&E (shown in Investing)."
+              expanded={!!expanded.expenses}
+              onToggle={() => toggleSection('expenses')}
+              negate
             >
-              <TableCell className="pl-6 sticky left-0 bg-white flex items-center gap-1">
-                {expanded.expenses ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-                <span className="ml-1">Less: Operating Expenses</span>
-                <HelpTooltip text="Click to expand expense details: departmental costs, utilities, taxes, insurance, and management fees." />
-              </TableCell>
-              {yearlyDetails.map((y, i) => (
-                <TableCell key={i} className="text-right text-muted-foreground"><Money amount={-y.totalExpenses} /></TableCell>
-              ))}
-            </TableRow>
-            {expanded.expenses && (
-              <>
-                <TableRow className="bg-white">
-                  <TableCell className="pl-12 sticky left-0 bg-white text-muted-foreground">Housekeeping</TableCell>
-                  {yearlyDetails.map((y, i) => (
-                    <TableCell key={i} className="text-right text-muted-foreground"><Money amount={y.expenseRooms} /></TableCell>
-                  ))}
-                </TableRow>
-                <TableRow className="bg-white">
-                  <TableCell className="pl-12 sticky left-0 bg-white text-muted-foreground">F&B Expense</TableCell>
-                  {yearlyDetails.map((y, i) => (
-                    <TableCell key={i} className="text-right text-muted-foreground"><Money amount={y.expenseFB} /></TableCell>
-                  ))}
-                </TableRow>
-                <TableRow className="bg-white">
-                  <TableCell className="pl-12 sticky left-0 bg-white text-muted-foreground">Event Expense</TableCell>
-                  {yearlyDetails.map((y, i) => (
-                    <TableCell key={i} className="text-right text-muted-foreground"><Money amount={y.expenseEvents} /></TableCell>
-                  ))}
-                </TableRow>
-                <TableRow className="bg-white">
-                  <TableCell className="pl-12 sticky left-0 bg-white text-muted-foreground">Marketing</TableCell>
-                  {yearlyDetails.map((y, i) => (
-                    <TableCell key={i} className="text-right text-muted-foreground"><Money amount={y.expenseMarketing} /></TableCell>
-                  ))}
-                </TableRow>
-                <TableRow className="bg-white">
-                  <TableCell className="pl-12 sticky left-0 bg-white text-muted-foreground">Property Operations</TableCell>
-                  {yearlyDetails.map((y, i) => (
-                    <TableCell key={i} className="text-right text-muted-foreground"><Money amount={y.expensePropertyOps} /></TableCell>
-                  ))}
-                </TableRow>
-                <TableRow className="bg-white">
-                  <TableCell className="pl-12 sticky left-0 bg-white text-muted-foreground">Utilities (Variable)</TableCell>
-                  {yearlyDetails.map((y, i) => (
-                    <TableCell key={i} className="text-right text-muted-foreground"><Money amount={y.expenseUtilitiesVar} /></TableCell>
-                  ))}
-                </TableRow>
-                <TableRow className="bg-white">
-                  <TableCell className="pl-12 sticky left-0 bg-white text-muted-foreground">Utilities (Fixed)</TableCell>
-                  {yearlyDetails.map((y, i) => (
-                    <TableCell key={i} className="text-right text-muted-foreground"><Money amount={y.expenseUtilitiesFixed} /></TableCell>
-                  ))}
-                </TableRow>
-                <TableRow className="bg-white">
-                  <TableCell className="pl-12 sticky left-0 bg-white text-muted-foreground">FF&E Reserve</TableCell>
-                  {yearlyDetails.map((y, i) => (
-                    <TableCell key={i} className="text-right text-muted-foreground"><Money amount={y.expenseFFE} /></TableCell>
-                  ))}
-                </TableRow>
-                <TableRow className="bg-white">
-                  <TableCell className="pl-12 sticky left-0 bg-white text-muted-foreground">Administrative</TableCell>
-                  {yearlyDetails.map((y, i) => (
-                    <TableCell key={i} className="text-right text-muted-foreground"><Money amount={y.expenseAdmin} /></TableCell>
-                  ))}
-                </TableRow>
-                <TableRow className="bg-white">
-                  <TableCell className="pl-12 sticky left-0 bg-white text-muted-foreground">IT Systems</TableCell>
-                  {yearlyDetails.map((y, i) => (
-                    <TableCell key={i} className="text-right text-muted-foreground"><Money amount={y.expenseIT} /></TableCell>
-                  ))}
-                </TableRow>
-                <TableRow className="bg-white">
-                  <TableCell className="pl-12 sticky left-0 bg-white text-muted-foreground">Insurance</TableCell>
-                  {yearlyDetails.map((y, i) => (
-                    <TableCell key={i} className="text-right text-muted-foreground"><Money amount={y.expenseInsurance} /></TableCell>
-                  ))}
-                </TableRow>
-                <TableRow className="bg-white">
-                  <TableCell className="pl-12 sticky left-0 bg-white text-muted-foreground">Property Taxes</TableCell>
-                  {yearlyDetails.map((y, i) => (
-                    <TableCell key={i} className="text-right text-muted-foreground"><Money amount={y.expenseTaxes} /></TableCell>
-                  ))}
-                </TableRow>
-                <TableRow className="bg-white">
-                  <TableCell className="pl-12 sticky left-0 bg-white text-muted-foreground">Other Expenses</TableCell>
-                  {yearlyDetails.map((y, i) => (
-                    <TableCell key={i} className="text-right text-muted-foreground"><Money amount={y.expenseOther} /></TableCell>
-                  ))}
-                </TableRow>
-                <TableRow className="bg-white">
-                  <TableCell className="pl-12 sticky left-0 bg-white text-muted-foreground">Base Management Fee</TableCell>
-                  {yearlyDetails.map((y, i) => (
-                    <TableCell key={i} className="text-right text-muted-foreground"><Money amount={y.feeBase} /></TableCell>
-                  ))}
-                </TableRow>
-                <TableRow className="bg-white">
-                  <TableCell className="pl-12 sticky left-0 bg-white text-muted-foreground">Incentive Management Fee</TableCell>
-                  {yearlyDetails.map((y, i) => (
-                    <TableCell key={i} className="text-right text-muted-foreground"><Money amount={y.feeIncentive} /></TableCell>
-                  ))}
-                </TableRow>
-              </>
-            )}
+              <LineItem label="Housekeeping & Room Operations" values={yearlyDetails.map(y => y.expenseRooms)} indent />
+              <LineItem label="Food & Beverage Costs" values={yearlyDetails.map(y => y.expenseFB)} indent />
+              <LineItem label="Event Operations" values={yearlyDetails.map(y => y.expenseEvents)} indent />
+              <LineItem label="Marketing & Platform Fees" values={yearlyDetails.map(y => y.expenseMarketing)} indent />
+              <LineItem label="Property Operations & Maintenance" values={yearlyDetails.map(y => y.expensePropertyOps)} indent />
+              <LineItem label="Utilities (Variable)" values={yearlyDetails.map(y => y.expenseUtilitiesVar)} indent />
+              <LineItem label="Utilities (Fixed)" values={yearlyDetails.map(y => y.expenseUtilitiesFixed)} indent />
+              <LineItem label="Insurance" values={yearlyDetails.map(y => y.expenseInsurance)} indent />
+              <LineItem label="Property Taxes" values={yearlyDetails.map(y => y.expenseTaxes)} indent />
+              <LineItem label="Administrative & Compliance" values={yearlyDetails.map(y => y.expenseAdmin)} indent />
+              <LineItem label="IT Systems" values={yearlyDetails.map(y => y.expenseIT)} indent />
+              <LineItem label="Other Operating Costs" values={yearlyDetails.map(y => y.expenseOther)} indent />
+              <LineItem label="Base Management Fee" values={yearlyDetails.map(y => y.feeBase)} indent />
+              <LineItem label="Incentive Management Fee" values={yearlyDetails.map(y => y.feeIncentive)} indent />
+            </ExpandableLineItem>
             
-            {/* NOI Summary Row */}
-            <TableRow className="bg-primary/5 font-medium">
-              <TableCell className="pl-6 sticky left-0 bg-primary/5 flex items-center gap-1">
-                Net Operating Income (NOI)
-                <HelpTooltip text="NOI = Total Revenue - Operating Expenses. The property's income before debt service, taxes, and depreciation." />
-              </TableCell>
-              {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right"><Money amount={y.noi} /></TableCell>
-              ))}
-            </TableRow>
-            <TableRow>
-              <TableCell className="pl-6 sticky left-0 bg-white flex items-center gap-1">
-                Less: Interest Expense
-                <HelpTooltip text="The interest portion of debt payments. Tax-deductible expense that reduces taxable income." />
-              </TableCell>
-              {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right text-muted-foreground">
-                  {y.interestExpense > 0 ? <Money amount={-y.interestExpense} /> : '-'}
-                </TableCell>
-              ))}
-            </TableRow>
-            <TableRow>
-              <TableCell className="pl-6 sticky left-0 bg-white flex items-center gap-1">
-                Less: Depreciation
-                <HelpTooltip text="Non-cash expense (27.5 year straight-line on building value). Reduces taxable income but not actual cash flow." />
-              </TableCell>
-              {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right text-muted-foreground">
-                  <Money amount={-y.depreciation} />
-                </TableCell>
-              ))}
-            </TableRow>
-            <TableRow>
-              <TableCell className="pl-6 sticky left-0 bg-white flex items-center gap-1">
-                Less: Income Tax ({((property.taxRate ?? DEFAULT_TAX_RATE) * 100).toFixed(0)}%)
-                <HelpTooltip text="Income tax on taxable income (NOI - Interest - Depreciation). Only applies when taxable income is positive." />
-              </TableCell>
-              {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right text-muted-foreground">
-                  {y.taxLiability > 0 ? <Money amount={-y.taxLiability} /> : '-'}
-                </TableCell>
-              ))}
-            </TableRow>
-            <TableRow className="bg-primary/5 font-medium">
-              <TableCell className="sticky left-0 bg-primary/5 flex items-center gap-1">
-                Net Income
-                <HelpTooltip text="GAAP Net Income = NOI - Interest Expense - Depreciation - Income Taxes" />
-              </TableCell>
-              {yearlyData.map((y) => (
-                <TableCell key={y.year} className={cn("text-right", y.netIncome < 0 ? "text-destructive" : "")}>
-                  <Money amount={y.netIncome} />
-                </TableCell>
-              ))}
-            </TableRow>
+            {/* Interest Paid */}
+            <LineItem 
+              label="Less: Interest Paid" 
+              values={yearlyData.map(y => y.interestExpense)} 
+              negate
+              tooltip="Interest portion of debt service payments. Classified as operating under ASC 230."
+            />
+            
+            {/* Income Tax Paid */}
+            <LineItem 
+              label="Less: Income Taxes Paid" 
+              values={yearlyData.map(y => y.taxLiability)} 
+              negate
+              tooltip="Income tax on taxable income (NOI - Interest - Depreciation). Only when taxable income is positive."
+            />
+            
+            {/* ═ Cash from Operations Subtotal ═ */}
+            <SubtotalRow 
+              label="Cash from Operations" 
+              values={cashFromOperations}
+              tooltip="Total cash generated from property operations = Revenue - Operating Expenses - Interest - Taxes."
+            />
 
-            <TableRow className="h-3 border-none"><TableCell colSpan={years + 1}></TableCell></TableRow>
+            <SpacerRow colSpan={colSpan} />
 
-            {/* GAAP Operating Cash Flow Section */}
-            <TableRow className="bg-gray-50">
-              <TableCell colSpan={years + 1} className="font-bold text-[#257D41]">Operating Cash Flow (Indirect Method)</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="pl-6 sticky left-0 bg-white">Net Income</TableCell>
-              {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right text-muted-foreground"><Money amount={y.netIncome} /></TableCell>
-              ))}
-            </TableRow>
-            <TableRow>
-              <TableCell className="pl-6 sticky left-0 bg-white flex items-center gap-1">
-                Add: Depreciation
-                <HelpTooltip text="Add back depreciation since it's a non-cash expense that reduced Net Income but didn't consume cash." />
-              </TableCell>
-              {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right text-accent">
-                  <Money amount={y.depreciation} />
-                </TableCell>
-              ))}
-            </TableRow>
-            <TableRow className="bg-primary/5 font-medium">
-              <TableCell className="sticky left-0 bg-primary/5 flex items-center gap-1">
-                Operating Cash Flow
-                <HelpTooltip text="Cash generated from operations = Net Income + Non-cash expenses (Depreciation)" />
-              </TableCell>
-              {yearlyData.map((y) => (
-                <TableCell key={y.year} className={cn("text-right", y.operatingCashFlow < 0 ? "text-destructive" : "")}>
-                  <Money amount={y.operatingCashFlow} />
-                </TableCell>
-              ))}
-            </TableRow>
-            <TableRow>
-              <TableCell className="pl-6 sticky left-0 bg-white flex items-center gap-1">
-                Working Capital Changes
-                <HelpTooltip text="Changes in receivables, payables, and other current assets/liabilities. For stabilized properties, typically minimal." />
-              </TableCell>
-              {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right text-muted-foreground">
-                  {y.workingCapitalChange !== 0 ? <Money amount={-y.workingCapitalChange} /> : '-'}
-                </TableCell>
-              ))}
-            </TableRow>
-            <TableRow className="bg-primary/5 font-medium">
-              <TableCell className="sticky left-0 bg-primary/5 flex items-center gap-1">
-                Cash from Operations (CFO)
-                <HelpTooltip text="CFO = Operating Cash Flow ± Working Capital Changes. The actual cash generated from property operations." />
-              </TableCell>
-              {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right"><Money amount={y.cashFromOperations} /></TableCell>
-              ))}
-            </TableRow>
+            {/* ═══ INVESTING CASH FLOW ═══ */}
+            <SectionHeader 
+              label="Investing Cash Flow" 
+              colSpan={colSpan}
+              tooltip="Cash spent on property acquisition, renovation, and capital improvements."
+            />
+            
+            <LineItem 
+              label="Property Acquisition" 
+              values={yearlyData.map((_, i) => i === acquisitionYear ? totalPropertyCost : 0)} 
+              negate
+              tooltip="Total property cost in acquisition year (purchase price + building improvements + pre-opening costs)."
+            />
+            
+            <LineItem 
+              label="FF&E Reserve / Capital Improvements" 
+              values={yearlyDetails.map(y => y.expenseFFE)} 
+              negate
+              tooltip="Furniture, fixtures & equipment reserve. Reclassified from operating to investing as a capital expenditure."
+            />
+            
+            {/* ═ Cash from Investing Subtotal ═ */}
+            <SubtotalRow 
+              label="Cash from Investing" 
+              values={cashFromInvesting}
+              tooltip="Net cash used for capital investments = -(Acquisition + FF&E)."
+            />
 
-            <TableRow className="h-3 border-none"><TableCell colSpan={years + 1}></TableCell></TableRow>
+            <SpacerRow colSpan={colSpan} />
 
-            {/* GAAP Free Cash Flow Section */}
-            <TableRow className="bg-gray-50">
-              <TableCell colSpan={years + 1} className="font-bold text-[#257D41]">Free Cash Flow (GAAP)</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="pl-6 sticky left-0 bg-white">Cash from Operations</TableCell>
-              {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right text-muted-foreground"><Money amount={y.cashFromOperations} /></TableCell>
-              ))}
-            </TableRow>
-            <TableRow>
-              <TableCell className="pl-6 sticky left-0 bg-white flex items-center gap-1">
-                Less: Maintenance CapEx
-                <HelpTooltip text="Ongoing capital expenditures. For hotels, FF&E reserves (4% of revenue) are already included in NOI as an operating expense, so no additional maintenance capex is deducted here." />
-              </TableCell>
-              {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right text-muted-foreground">
-                  {y.maintenanceCapex > 0 ? <Money amount={-y.maintenanceCapex} /> : 'incl. in NOI'}
-                </TableCell>
-              ))}
-            </TableRow>
-            <TableRow className="bg-primary/5 font-medium">
-              <TableCell className="sticky left-0 bg-primary/5 flex items-center gap-1">
-                Free Cash Flow (FCF)
-                <HelpTooltip text="GAAP Free Cash Flow = Cash from Operations - Maintenance CapEx. Cash generated by the property before debt repayment." />
-              </TableCell>
-              {yearlyData.map((y) => (
-                <TableCell key={y.year} className={cn("text-right", y.freeCashFlow >= 0 ? "" : "text-destructive")}>
-                  <Money amount={y.freeCashFlow} />
-                </TableCell>
-              ))}
-            </TableRow>
-            <TableRow>
-              <TableCell className="pl-6 sticky left-0 bg-white flex items-center gap-1">
-                Less: Principal Payments
-                <HelpTooltip text="Principal portion of debt service (financing activity). Reduces cash available to equity investors." />
-              </TableCell>
-              {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right text-muted-foreground">
-                  {y.principalPayment > 0 ? <Money amount={-y.principalPayment} /> : '-'}
-                </TableCell>
-              ))}
-            </TableRow>
-            <TableRow className="bg-accent/10 font-bold">
-              <TableCell className="sticky left-0 bg-accent/10 flex items-center gap-1">
-                Free Cash Flow to Equity (FCFE)
-                <HelpTooltip text="Free Cash Flow to Equity = FCF - Principal Payments. Cash available for distribution to investors after debt service." />
-              </TableCell>
-              {yearlyData.map((y) => (
-                <TableCell key={y.year} className={cn("text-right", y.freeCashFlowToEquity >= 0 ? "text-accent" : "text-destructive")}>
-                  <Money amount={y.freeCashFlowToEquity} />
-                </TableCell>
-              ))}
-            </TableRow>
+            {/* ═══ FINANCING CASH FLOW ═══ */}
+            <SectionHeader 
+              label="Financing Cash Flow" 
+              colSpan={colSpan}
+              tooltip="Cash from equity contributions, debt financing, and capital returns."
+            />
+            
+            <LineItem 
+              label="Equity Contribution" 
+              values={yearlyData.map((_, i) => i === acquisitionYear ? equityInvested : 0)} 
+              showZero={false}
+              tooltip="Initial equity invested by owners/investors, including operating reserve."
+            />
+            
+            <LineItem 
+              label="Loan Proceeds" 
+              values={yearlyData.map((_, i) => i === acquisitionYear && loan.loanAmount > 0 ? loan.loanAmount : 0)} 
+              showZero={false}
+              tooltip="Mortgage proceeds received at acquisition."
+            />
+            
+            <LineItem 
+              label="Less: Principal Repayments" 
+              values={yearlyData.map(y => y.principalPayment)} 
+              negate
+              tooltip="Principal portion of debt service. Reduces outstanding loan balance."
+            />
+            
+            <LineItem 
+              label="Refinancing Proceeds" 
+              values={yearlyData.map(y => y.refinancingProceeds)} 
+              showZero={false}
+              tooltip="Net cash-out from refinancing, after closing costs and payoff of existing loan."
+            />
+            
+            <LineItem 
+              label="Sale Proceeds (Net Exit Value)" 
+              values={yearlyData.map(y => y.exitValue)} 
+              showZero={false}
+              tooltip={`Property sale price minus ${((global?.commissionRate ?? DEFAULT_COMMISSION_RATE) * 100).toFixed(0)}% commission and outstanding loan payoff.`}
+            />
+            
+            {/* ═ Cash from Financing Subtotal ═ */}
+            <SubtotalRow 
+              label="Cash from Financing" 
+              values={cashFromFinancing}
+              tooltip="Net cash from financing = Equity + Loan Proceeds - Principal + Refinancing + Sale Proceeds."
+            />
 
-            <TableRow className="h-3 border-none"><TableCell colSpan={years + 1}></TableCell></TableRow>
+            <SpacerRow colSpan={colSpan} />
 
-            <TableRow className="bg-gray-50">
-              <TableCell colSpan={years + 1} className="font-bold text-[#257D41]">Capital Events</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="pl-6 sticky left-0 bg-white">Initial Equity Investment</TableCell>
-              {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right text-muted-foreground">
-                  {y.capitalExpenditures < 0 ? <Money amount={y.capitalExpenditures} /> : '-'}
-                </TableCell>
-              ))}
-            </TableRow>
-            <TableRow>
-              <TableCell className="pl-6 sticky left-0 bg-white flex items-center gap-1">
-                Refinancing Proceeds
-                <HelpTooltip text="Cash-out from refinancing when property value has increased. Net of closing costs and payoff of existing loan." />
-              </TableCell>
-              {yearlyData.map((y) => (
-                <TableCell key={y.year} className={cn("text-right", y.refinancingProceeds > 0 ? "text-accent" : "")}>
-                  {y.refinancingProceeds > 0 ? <Money amount={y.refinancingProceeds} /> : '-'}
-                </TableCell>
-              ))}
-            </TableRow>
-            <TableRow>
-              <TableCell className="pl-6 sticky left-0 bg-white flex items-center gap-1">
-                Sale Proceeds (Net Exit Value)
-                <HelpTooltip text={`Property sale price minus ${((global?.commissionRate ?? DEFAULT_COMMISSION_RATE) * 100).toFixed(0)}% commission and outstanding loan payoff. Calculated using Year 10 NOI and exit cap rate.`} />
-              </TableCell>
-              {yearlyData.map((y) => (
-                <TableCell key={y.year} className={cn("text-right", y.exitValue > 0 ? "text-accent font-bold" : "")}>
-                  {y.exitValue > 0 ? <Money amount={y.exitValue} /> : '-'}
-                </TableCell>
-              ))}
-            </TableRow>
-
-            <TableRow className="h-3 border-none"><TableCell colSpan={years + 1}></TableCell></TableRow>
-
+            {/* ═══ NET CHANGE & BALANCES ═══ */}
             <TableRow className="bg-gradient-to-r from-primary/80 via-primary/60 to-primary/40 backdrop-blur-sm font-bold text-primary-foreground shadow-sm">
-              <TableCell className="sticky left-0 bg-primary/70 flex items-center gap-1">
-                Net Cash Flow to Investors
-                <HelpTooltip text="Total cash distributed to investors including annual operating returns, refinancing proceeds, and sale proceeds. This is the basis for IRR calculations." light />
+              <TableCell className="sticky left-0 bg-primary/70 py-1.5">
+                <span className="flex items-center gap-1">
+                  Net Increase (Decrease) in Cash
+                  <HelpTooltip text="CFO + CFI + CFF = Net change in cash position for the year." light />
+                </span>
               </TableCell>
-              {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right">
-                  <Money amount={y.netCashFlowToInvestors} className={y.netCashFlowToInvestors < 0 ? "text-red-200" : ""} />
+              {netChangeCash.map((v, i) => (
+                <TableCell key={i} className="text-right py-1.5">
+                  <Money amount={v} className={v < 0 ? "text-red-200" : ""} />
                 </TableCell>
               ))}
             </TableRow>
-
-            <TableRow className="bg-gray-50">
-              <TableCell className="sticky left-0 bg-gray-50">Cumulative Cash Flow</TableCell>
-              {yearlyData.map((y) => (
-                <TableCell key={y.year} className="text-right">
-                  <Money amount={y.cumulativeCashFlow} className={y.cumulativeCashFlow < 0 ? "text-destructive" : "text-accent"} />
-                </TableCell>
-              ))}
-            </TableRow>
-
-            <TableRow className="h-3 border-none"><TableCell colSpan={years + 1}></TableCell></TableRow>
-
-            <TableRow className="bg-gray-50">
-              <TableCell colSpan={years + 1} className="font-bold text-[#257D41]">Key Metrics</TableCell>
-            </TableRow>
+            
             <TableRow>
-              <TableCell className="pl-6 sticky left-0 bg-white flex items-center gap-1">
-                Cash-on-Cash Return
-                <HelpTooltip text="Annual ATCF divided by initial equity. Shows the cash yield on your investment each year." />
+              <TableCell className="pl-6 sticky left-0 bg-white py-1">Opening Cash Balance</TableCell>
+              {openingCash.map((v, i) => (
+                <TableCell key={i} className="text-right text-muted-foreground py-1"><Money amount={v} /></TableCell>
+              ))}
+            </TableRow>
+            
+            <TableRow className="font-semibold border-t-2 border-gray-300">
+              <TableCell className="pl-6 sticky left-0 bg-white py-1.5">
+                <span className="flex items-center gap-1">
+                  Closing Cash Balance
+                  <HelpTooltip text="Opening balance + Net change in cash. This should match the Balance Sheet cash position." />
+                </span>
               </TableCell>
-              {yearlyData.map((y) => {
+              {closingCash.map((v, i) => (
+                <TableCell key={i} className={cn("text-right py-1.5", v < 0 ? "text-destructive" : "text-accent")}>
+                  <Money amount={v} />
+                </TableCell>
+              ))}
+            </TableRow>
+
+            <SpacerRow colSpan={colSpan} />
+
+            {/* ═══ FREE CASH FLOW ═══ */}
+            <SectionHeader 
+              label="Free Cash Flow" 
+              colSpan={colSpan}
+              tooltip="Cash from Operations minus capital expenditures. Shows cash available before debt repayment."
+            />
+            
+            <TableRow>
+              <TableCell className="pl-6 sticky left-0 bg-white py-1">Cash from Operations</TableCell>
+              {cashFromOperations.map((v, i) => (
+                <TableCell key={i} className="text-right text-muted-foreground py-1"><Money amount={v} /></TableCell>
+              ))}
+            </TableRow>
+            
+            <LineItem 
+              label="Less: Capital Expenditures (FF&E)" 
+              values={yearlyDetails.map(y => y.expenseFFE)} 
+              negate
+              tooltip="FF&E reserve deducted from CFO to arrive at Free Cash Flow."
+            />
+            
+            <TableRow className="bg-accent/10 font-bold">
+              <TableCell className="sticky left-0 bg-accent/10 py-1.5">
+                <span className="flex items-center gap-1">
+                  Free Cash Flow (FCF)
+                  <HelpTooltip text="FCF = Cash from Operations - Capital Expenditures. Cash available to service debt and distribute to investors." />
+                </span>
+              </TableCell>
+              {cashFromOperations.map((cfo, i) => {
+                const val = cfo - yearlyDetails[i].expenseFFE;
+                return (
+                  <TableCell key={i} className={cn("text-right py-1.5", val >= 0 ? "text-accent" : "text-destructive")}>
+                    <Money amount={val} />
+                  </TableCell>
+                );
+              })}
+            </TableRow>
+            
+            <LineItem 
+              label="Less: Principal Payments" 
+              values={yearlyData.map(y => y.principalPayment)} 
+              negate
+              tooltip="Principal portion of debt service. Reduces cash available to equity investors."
+            />
+            
+            <TableRow className="bg-accent/10 font-bold">
+              <TableCell className="sticky left-0 bg-accent/10 py-1.5">
+                <span className="flex items-center gap-1">
+                  Free Cash Flow to Equity (FCFE)
+                  <HelpTooltip text="FCFE = FCF - Principal Payments. Cash available for distribution to investors after all obligations." />
+                </span>
+              </TableCell>
+              {yearlyData.map((cf, i) => {
+                const localFcf = cashFromOperations[i] - yearlyDetails[i].expenseFFE;
+                const fcfe = localFcf - cf.principalPayment;
+                return (
+                  <TableCell key={i} className={cn("text-right py-1.5", fcfe >= 0 ? "text-accent" : "text-destructive")}>
+                    <Money amount={fcfe} />
+                  </TableCell>
+                );
+              })}
+            </TableRow>
+
+            <SpacerRow colSpan={colSpan} />
+
+            {/* ═══ KEY METRICS ═══ */}
+            <SectionHeader label="Key Metrics" colSpan={colSpan} />
+            
+            <TableRow>
+              <TableCell className="pl-6 sticky left-0 bg-white py-1">
+                <span className="flex items-center gap-1">
+                  Cash-on-Cash Return
+                  <HelpTooltip text="Annual after-tax cash flow divided by initial equity. Shows the cash yield on your investment each year." />
+                </span>
+              </TableCell>
+              {yearlyData.map((y, i) => {
                 const cocReturn = equityInvested > 0 ? (y.atcf / equityInvested) * 100 : 0;
                 return (
-                  <TableCell key={y.year} className={cn("text-right font-medium", cocReturn > 0 ? "text-accent" : "text-muted-foreground")}>
+                  <TableCell key={i} className={cn("text-right font-medium py-1", cocReturn > 0 ? "text-accent" : "text-muted-foreground")}>
                     {equityInvested > 0 ? `${cocReturn.toFixed(1)}%` : '-'}
                   </TableCell>
                 );
               })}
             </TableRow>
             <TableRow>
-              <TableCell className="pl-6 sticky left-0 bg-white flex items-center gap-1">
-                Debt Service Coverage Ratio
-                <HelpTooltip text="NOI divided by debt service. Lenders typically require 1.25x minimum. Higher is better." />
+              <TableCell className="pl-6 sticky left-0 bg-white py-1">
+                <span className="flex items-center gap-1">
+                  Debt Service Coverage Ratio
+                  <HelpTooltip text="NOI divided by debt service. Lenders typically require 1.25x minimum. Higher is better." />
+                </span>
               </TableCell>
-              {yearlyData.map((y) => (
-                <TableCell key={y.year} className={cn("text-right font-medium", y.debtService > 0 && y.noi / y.debtService < 1.25 ? "text-destructive" : "")}>
+              {yearlyData.map((y, i) => (
+                <TableCell key={i} className={cn("text-right font-medium py-1", y.debtService > 0 && y.noi / y.debtService < 1.25 ? "text-destructive" : "")}>
                   {y.debtService > 0 ? `${(y.noi / y.debtService).toFixed(2)}x` : 'N/A'}
                 </TableCell>
               ))}

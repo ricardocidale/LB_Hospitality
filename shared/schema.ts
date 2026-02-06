@@ -282,6 +282,7 @@ export const properties = pgTable("properties", {
   
   purchasePrice: real("purchase_price").notNull(),
   buildingImprovements: real("building_improvements").notNull(),
+  landValuePercent: real("land_value_percent").notNull().default(0.25),
   preOpeningCosts: real("pre_opening_costs").notNull(),
   operatingReserve: real("operating_reserve").notNull(),
   
@@ -356,6 +357,7 @@ export const insertPropertySchema = createInsertSchema(properties).pick({
   operationsStartDate: true,
   purchasePrice: true,
   buildingImprovements: true,
+  landValuePercent: true,
   preOpeningCosts: true,
   operatingReserve: true,
   roomCount: true,

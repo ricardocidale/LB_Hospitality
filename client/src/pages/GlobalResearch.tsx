@@ -4,7 +4,8 @@ import { useMarketResearch } from "@/lib/api";
 import { PageHeader } from "@/components/ui/page-header";
 import { GlassCard } from "@/components/ui/glass-card";
 import { GlassButton } from "@/components/ui/glass-button";
-import { Loader2, RefreshCw, Globe, TrendingUp, Hotel, DollarSign, Landmark, Sparkles, BookOpen } from "lucide-react";
+import { Loader2, RefreshCw, Globe, TrendingUp, Hotel, DollarSign, Landmark, Sparkles, BookOpen, ArrowLeft } from "lucide-react";
+import { useLocation } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 
@@ -31,6 +32,7 @@ function SectionHeader({ icon: Icon, title }: { icon: any; title: string }) {
 
 export default function GlobalResearch() {
   const { data: research, isLoading } = useMarketResearch("global");
+  const [, setLocation] = useLocation();
   const [isGenerating, setIsGenerating] = useState(false);
   const [streamedContent, setStreamedContent] = useState("");
   const queryClient = useQueryClient();
@@ -107,15 +109,25 @@ export default function GlobalResearch() {
           variant="dark"
           backLink="/settings"
           actions={
-            <GlassButton
-              variant="primary"
-              onClick={generateResearch}
-              disabled={isGenerating}
-              data-testid="button-update-research"
-            >
-              {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
-              {isGenerating ? "Analyzing..." : "Update Research"}
-            </GlassButton>
+            <div className="flex items-center gap-3">
+              <GlassButton
+                variant="ghost"
+                onClick={() => setLocation("/settings")}
+                data-testid="button-back"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Back
+              </GlassButton>
+              <GlassButton
+                variant="primary"
+                onClick={generateResearch}
+                disabled={isGenerating}
+                data-testid="button-update-research"
+              >
+                {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                {isGenerating ? "Analyzing..." : "Update Research"}
+              </GlassButton>
+            </div>
           }
         />
 

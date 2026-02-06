@@ -3,8 +3,8 @@ import Layout from "@/components/Layout";
 import { useProperty, useMarketResearch, useGlobalAssumptions } from "@/lib/api";
 import { PageHeader } from "@/components/ui/page-header";
 import { GlassButton } from "@/components/ui/glass-button";
-import { Loader2, RefreshCw, MapPin, TrendingUp, Building2, Calendar, Users, AlertTriangle, ExternalLink, BookOpen, Target, Clock, Shield, Mountain } from "lucide-react";
-import { useRoute } from "wouter";
+import { Loader2, RefreshCw, MapPin, TrendingUp, Building2, Calendar, Users, AlertTriangle, ExternalLink, BookOpen, Target, Clock, Shield, Mountain, ArrowLeft } from "lucide-react";
+import { useRoute, useLocation } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 
@@ -53,6 +53,7 @@ export default function PropertyMarketResearch() {
   const { data: property, isLoading: propertyLoading } = useProperty(propertyId);
   const { data: global } = useGlobalAssumptions();
   const { data: research, isLoading: researchLoading } = useMarketResearch("property", propertyId);
+  const [, setLocation] = useLocation();
   const [isGenerating, setIsGenerating] = useState(false);
   const [streamedContent, setStreamedContent] = useState("");
   const queryClient = useQueryClient();
@@ -155,6 +156,14 @@ export default function PropertyMarketResearch() {
           backLink={`/property/${property.id}/edit`}
           actions={
             <div className="flex items-center gap-3">
+              <GlassButton
+                variant="ghost"
+                onClick={() => setLocation(`/property/${property.id}/edit`)}
+                data-testid="button-back"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Back
+              </GlassButton>
               <a
                 href={googleMapsUrl}
                 target="_blank"

@@ -2,18 +2,18 @@
 
 ## Design Philosophy
 
-Swiss Modernist design principles with L+B brand colors. Clean typography, generous whitespace, glass-morphism effects, and data-dense financial tables.
+Swiss Modernist design principles with L+B brand colors. Clean typography, generous whitespace, glass-morphism effects, and data-dense financial tables. Every page must use the shared component library — no inline/ad-hoc styling for buttons, headers, tabs, or exports.
 
 ## Color Palette
 
 | Name | Hex | Usage |
 |------|-----|-------|
-| Primary Sage Green | `#9FBCA4` | Accents, borders, decorative elements |
-| Secondary Green | `#257D41` | Chart lines (revenue/NOI), active states |
-| Warm Off-White | `#FFF9F5` | Background tint |
+| Primary Sage Green | `#9FBCA4` | Accents, borders, decorative blur orbs, tab shine |
+| Secondary Green | `#257D41` | Chart lines (revenue/NOI), active icon gradients |
+| Warm Off-White | `#FFF9F5` | Background tint, text on dark surfaces |
 | Coral Accent | `#F4795B` | Chart lines (FCFE/secondary), alerts |
-| Black | `#000000`, `#0a0a0f` | Text, dark backgrounds |
-| Dark Blue-Gray Gradient | `#2d4a5e → #3d5a6a → #3a5a5e` | Navigation, dark cards, buttons |
+| Black | `#000000`, `#0a0a0f` | Text, dark backgrounds, tab bar base |
+| Dark Blue-Gray Gradient | `#2d4a5e → #3d5a6a → #3a5a5e` | PageHeader, GlassButton primary, navigation |
 
 ## Page Themes
 
@@ -41,43 +41,174 @@ Swiss Modernist design principles with L+B brand colors. Clean typography, gener
 - Dark gray text for readability
 - Alternating row colors for data density
 
-## Component Standards
+---
 
-### PageHeader
-Standardized header component used on all pages:
-- Fixed minimum height
-- `text-3xl` serif title (Playfair Display)
-- `text-sm` subtitle
-- Dark glass variant (`variant="dark"`)
-- Optional back link and action buttons
+## Hero Headers
 
-### Buttons
+**Component**: `PageHeader` (`client/src/components/ui/page-header.tsx`)
 
-**Action buttons on dark backgrounds** (most common):
+Every page MUST use `PageHeader`. No ad-hoc header markup.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `title` | `string` | required | Page title (Playfair Display serif) |
+| `subtitle` | `string` | optional | Uppercase tracking-wider subtitle |
+| `backLink` | `string` | optional | URL for back navigation chevron |
+| `actions` | `ReactNode` | optional | Right-aligned action buttons slot |
+| `variant` | `"dark" \| "light"` | `"dark"` | Visual variant |
+
+### Variant Rules
+- **Default (`"dark"`)**: Used on all pages (Dashboard, PropertyDetail, Company, Admin, etc.)
+- **`"light"`**: Used only on `PropertyFinder` page
+
+### Back Navigation Pattern
+- `backLink` renders a `<GlassButton variant="icon" size="icon">` with `ChevronLeft` icon
+- Use for drill-down pages that return to a parent (PropertyDetail → Dashboard, PropertyEdit → PropertyDetail)
+
+### Actions Slot
+- Use `GlassButton variant="primary"` for action buttons
+- Use `SaveButton` for save operations
+- Use `GlassButton variant="export"` for export/download buttons
+- Actions wrap with `flex-wrap items-center gap-2`
+
+---
+
+## Button System
+
+**Component**: `GlassButton` (`client/src/components/ui/glass-button.tsx`)
+
+**RULE**: All buttons MUST use `GlassButton`. No raw `<button>` elements with inline glass/gradient styling anywhere in the codebase.
+
+### Variants
+
+| Variant | Background | Text | Use Case |
+|---------|-----------|------|----------|
+| `primary` | Dark glass gradient (`#2d4a5e → #3d5a6a → #3a5a5e`) | White | **Main action buttons on dark backgrounds** |
+| `export` | Transparent → `bg-gray-100/50` on hover | `text-gray-600` | PDF/Excel/PNG/Chart export buttons |
+| `ghost` | `bg-white/10` → `bg-white/20` on hover | `text-[#FFF9F5]` | Secondary/subtle actions |
+| `icon` | `bg-white/10` → `bg-white/20` on hover | `text-[#FFF9F5]` | Icon-only buttons (back arrows, close) |
+| `default` | `bg-white/10 backdrop-blur-xl` | `text-[#FFF9F5]` | General buttons on dark backgrounds |
+
+### Sizes
+
+| Size | Classes |
+|------|---------|
+| `default` | `px-5 py-2.5 text-sm` |
+| `sm` | `px-4 py-2 text-xs` |
+| `lg` | `px-6 py-3 text-base` |
+| `icon` | `p-2.5` |
+
+### Primary Variant Details
+- Top shine line: `h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent`
+- Hover glow: `shadow-[0_0_20px_rgba(159,188,164,0.3)]` (sage green)
+- Disabled: flat `#4a5a6a` background, reduced shine opacity
+
+### SaveButton Wrapper
+
+**Component**: `SaveButton` (`client/src/components/ui/save-button.tsx`)
+
+Convenience wrapper around `GlassButton variant="primary"` with:
+- Save icon (lucide `Save`) → spinning `Loader2` when `isPending`
+- `data-testid="button-save-changes"`
+- Props: `onClick`, `disabled`, `isPending`, `children` (default: "Save Changes")
+
+### Anti-Patterns (NEVER do this)
 ```tsx
-<GlassButton variant="primary">Save Changes</GlassButton>
-```
-- Dark glass gradient (`#2d4a5e → #3d5a6a → #3a5a5e`)
-- White text
-- Top shine line effect
-- Sage green glow on hover
-- **MUST** use `GlassButton variant="primary"` - never raw `<button>` with ad-hoc classes
+// BAD - inline glass styling
+<button className="bg-gradient-to-br from-[#2d4a5e] ...">Save</button>
 
-**Save buttons** (convenience wrapper):
+// GOOD
+<GlassButton variant="primary">Save</GlassButton>
+```
+
+---
+
+## Tab-Bar System
+
+**Component**: `DarkGlassTabs` (`client/src/components/ui/tabs.tsx`)
+
+Filing-system style tabs for multi-view pages. Used on pages with dark glass theme.
+
+### Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `tabs` | `DarkGlassTabItem[]` | Tab definitions (`value`, `label`, `icon?`) |
+| `activeTab` | `string` | Currently active tab value |
+| `onTabChange` | `(value: string) => void` | Tab change handler |
+| `rightContent` | `ReactNode` | **Right-aligned slot for export controls** |
+
+### Usage Pattern
 ```tsx
-<SaveButton onClick={handleSave} isPending={mutation.isPending} />
+<DarkGlassTabs
+  tabs={[
+    { value: "income", label: "Income Statement", icon: DollarSign },
+    { value: "balance", label: "Balance Sheet", icon: Scale },
+  ]}
+  activeTab={activeTab}
+  onTabChange={setActiveTab}
+  rightContent={
+    <ExportToolbar actions={[pdfAction(handlePdf), excelAction(handleExcel)]} />
+  }
+/>
 ```
-- Wraps `GlassButton variant="primary"` with save icon and loading state
 
-**Export buttons** (PDF, CSV, Chart):
-```tsx
-<GlassButton variant="export">Export PDF</GlassButton>
-```
-- Neutral gray background (`#f5f5f5`)
-- Dark gray text, gray border
-- Aligned with tabs on financial pages, not in the title block
+### Rules
+- Use `DarkGlassTabs` on all dark-themed pages with multiple views
+- Standard `Tabs`/`TabsList`/`TabsTrigger` (shadcn) should NOT be used on dark pages — use `DarkGlassTabs` instead
+- Export controls always go in `rightContent`, never in the page header
 
-### Charts
+---
+
+## Export Controls
+
+**Component**: `ExportToolbar` (`client/src/components/ui/export-toolbar.tsx`)
+
+### Variants
+- `"glass"` (default): White/transparent buttons with backdrop blur for dark backgrounds
+- `"light"`: Gray bordered buttons for light backgrounds
+
+### Helper Functions
+
+| Function | Creates | Icon |
+|----------|---------|------|
+| `pdfAction(onClick)` | PDF export button | `FileDown` |
+| `excelAction(onClick)` | Excel export button | `FileSpreadsheet` |
+| `chartAction(onClick)` | Chart PDF export button | `ImageIcon` |
+| `pngAction(onClick)` | PNG screenshot export button | `ImageIcon` |
+
+### Supported Export Formats
+- **PDF**: via `jsPDF` + `jspdf-autotable` — table-based financial statements
+- **Excel (XLSX)**: via `xlsx` library — spreadsheet exports
+- **PNG**: via `dom-to-image-more` — screenshot of DOM element
+- **Chart PDF**: via custom `pdfChartDrawer` — Recharts chart to PDF
+- **PPTX**: Not yet implemented
+
+### Placement Rules
+- Export controls go in `DarkGlassTabs` `rightContent` slot on tabbed pages
+- On non-tabbed pages, use `ExportToolbar` in `PageHeader` actions slot
+- Never place export buttons in the page body or floating
+
+---
+
+## Navigation Controls
+
+### Save / Back / Assumptions Pattern
+
+Financial pages follow a consistent navigation pattern:
+
+1. **Save**: `SaveButton` in `PageHeader` actions slot for persisting edits
+2. **Back**: `PageHeader backLink` prop with `ChevronLeft` icon for returning to parent
+3. **Assumptions**: `GlassButton variant="primary"` linking to the assumptions edit page
+
+### Standard Navigation Flows
+- Dashboard → PropertyDetail → PropertyEdit (back to PropertyDetail)
+- Dashboard → Company → CompanyAssumptions (back to Company)
+- Admin tabs: Users / Login Activity / Verification (in-page tab switching)
+
+---
+
+## Charts
 
 All Recharts visualizations follow these rules:
 
@@ -93,10 +224,7 @@ All Recharts visualizations follow these rules:
 4. **Light gray dashed grid**: `#E5E7EB`, no vertical lines
 5. **Line width**: `strokeWidth={3}`
 
-### Navigation
-- Dark glass gradient sidebar
-- White text for active items
-- Sage green accent for active indicator
+---
 
 ## Typography
 
@@ -108,12 +236,19 @@ All Recharts visualizations follow these rules:
 | Data values | Inter (mono) | 600 | text-sm |
 | Body text | Inter | 400 | text-base |
 
+---
+
+## Navigation Sidebar
+- Dark glass gradient background
+- White text for active items
+- Sage green accent for active indicator
+
 ## Admin Page
 
 Consolidated admin functionality in single `/admin` route with tabs:
-- **Users** - User management (CRUD)
-- **Login Activity** - Authentication audit log
-- **Verification** - Financial verification runner and results
+- **Users** — User management (CRUD)
+- **Login Activity** — Authentication audit log
+- **Verification** — Financial verification runner and results
 
 ## Data Test IDs
 
@@ -121,3 +256,11 @@ All interactive elements must have `data-testid` attributes:
 - Interactive: `{action}-{target}` (e.g., `button-submit`, `input-email`)
 - Display: `{type}-{content}` (e.g., `text-username`, `status-payment`)
 - Dynamic: append unique ID (e.g., `card-property-${id}`)
+
+## Related Skills
+
+- **`.claude/skills/button-system.md`** — Full GlassButton variant reference and usage patterns
+- **`.claude/skills/tab-bar-system.md`** — DarkGlassTabs + ExportToolbar wiring pattern
+- **`.claude/skills/export-controls.md`** — Export format implementations and helper functions
+- **`.claude/skills/page-header.md`** — PageHeader component reference and variant rules
+- **`.claude/skills/glass-components.md`** — GlassCard, GlassButton, SaveButton component specs

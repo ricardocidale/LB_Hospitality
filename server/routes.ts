@@ -1046,7 +1046,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
         incentiveManagementFee: 0.15,
         staffSalary: 75000,
         travelCostPerClient: 12000,
-        itLicensePerClient: 24000,
+        itLicensePerClient: 3000,
         marketingRate: 0.05,
         miscOpsRate: 0.03,
         officeLeaseStart: 36000,

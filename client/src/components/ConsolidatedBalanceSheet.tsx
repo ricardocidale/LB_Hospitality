@@ -11,7 +11,8 @@ import {
   calculateYearlyDebtService,
   LoanParams,
   GlobalLoanParams,
-  DEFAULT_TAX_RATE
+  DEFAULT_TAX_RATE,
+  PROJECTION_YEARS
 } from "@/lib/loanCalculations";
 
 interface Props {
@@ -91,13 +92,13 @@ export function ConsolidatedBalanceSheet({ properties, global, allProFormas, yea
     
     // Get yearly NOI data for refinance calculations
     const yearlyNOIData: number[] = [];
-    for (let y = 0; y < 10; y++) {
+    for (let y = 0; y < PROJECTION_YEARS; y++) {
       const yearData = proForma.slice(y * 12, (y + 1) * 12);
       yearlyNOIData.push(yearData.reduce((sum, m) => sum + m.noi, 0));
     }
     
     // Calculate refinance parameters using shared module
-    const refi = calculateRefinanceParams(loanParams, globalLoanParams, loan, yearlyNOIData, 10);
+    const refi = calculateRefinanceParams(loanParams, globalLoanParams, loan, yearlyNOIData, PROJECTION_YEARS);
     
     // Use shared function to get debt outstanding at year-end (handles both acq and refi loans)
     const debtOutstanding = getOutstandingDebtAtYear(loan, refi, year - 1);
@@ -105,7 +106,7 @@ export function ConsolidatedBalanceSheet({ properties, global, allProFormas, yea
     
     // Accumulated Depreciation: 27.5-year straight-line on building value (GAAP for residential real estate)
     // Only depreciate from acquisition date
-    const yearsDepreciated = Math.max(0, Math.min(year - acqYear, 10));
+    const yearsDepreciated = Math.max(0, Math.min(year - acqYear, PROJECTION_YEARS));
     const annualDepreciation = loan.annualDepreciation;
     totalAccumulatedDepreciation += annualDepreciation * yearsDepreciated;
     

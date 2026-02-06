@@ -7,7 +7,8 @@ import {
   DEFAULT_INTEREST_RATE, 
   DEFAULT_TERM_YEARS, 
   DEPRECIATION_YEARS,
-  DAYS_PER_MONTH
+  DAYS_PER_MONTH,
+  PROJECTION_MONTHS
 } from "./constants";
 
 export interface VerificationResults {
@@ -97,7 +98,7 @@ export function runFullVerification(
     console.log("  ─────────────────────────────────────────────────────────────");
     
     try {
-      const financials = generatePropertyProForma(property, globalAssumptions, 120);
+      const financials = generatePropertyProForma(property, globalAssumptions, PROJECTION_MONTHS);
       
       // Run legacy formula checks
       const formulaCheck = checkPropertyFormulas(financials);

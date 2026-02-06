@@ -43,9 +43,12 @@ export interface AuditReport {
   opinionText: string;
 }
 
-const TOLERANCE = 0.01;
+const AUDIT_TOLERANCE_PCT = 0.01;
+const AUDIT_TOLERANCE_DOLLARS = 100;
+const AUDIT_SAMPLE_MONTHS = 24;
+const ADVERSE_CRITICAL_THRESHOLD = 3;
 
-function withinTolerance(expected: number, actual: number, tolerance: number = TOLERANCE): boolean {
+function withinTolerance(expected: number, actual: number, tolerance: number = AUDIT_TOLERANCE_PCT): boolean {
   if (expected === 0 && actual === 0) return true;
   if (expected === 0) return Math.abs(actual) < tolerance;
   return Math.abs((expected - actual) / expected) < tolerance;
@@ -257,7 +260,7 @@ export function auditLoanAmortization(
   }
   
   const startMonth = Math.max(0, acqMonthIndex);
-  for (let i = startMonth; i < Math.min(startMonth + 24, monthlyData.length); i++) {
+  for (let i = startMonth; i < Math.min(startMonth + AUDIT_SAMPLE_MONTHS, monthlyData.length); i++) {
     const m = monthlyData[i];
     const expectedInterest = runningBalance * monthlyRate;
     const expectedPrincipal = expectedMonthlyPayment - expectedInterest;
@@ -656,7 +659,7 @@ export function auditManagementFees(
   const modelStart = new Date(global.modelStartDate);
   const opsStart = new Date(property.operationsStartDate);
   
-  for (let i = 0; i < Math.min(24, monthlyData.length); i++) {
+  for (let i = 0; i < Math.min(AUDIT_SAMPLE_MONTHS, monthlyData.length); i++) {
     const m = monthlyData[i];
     const currentDate = addMonths(modelStart, i);
     const isOperational = !isBefore(currentDate, opsStart);
@@ -784,7 +787,7 @@ export function auditBalanceSheet(
     const actualDebtOutstanding = m.debtOutstanding || 0;
     const actualEquity = actualPropertyValue - actualDebtOutstanding;
     
-    if (i >= acqMonthIndex && Math.abs(expectedPropertyValue - actualPropertyValue) > 100) {
+    if (i >= acqMonthIndex && Math.abs(expectedPropertyValue - actualPropertyValue) > AUDIT_TOLERANCE_DOLLARS) {
       findings.push({
         category: "Balance Sheet",
         rule: "Property Asset = Acquisition Cost - Accumulated Depreciation",
@@ -799,7 +802,7 @@ export function auditBalanceSheet(
       });
     }
     
-    if (i >= acqMonthIndex && property.type === "Financed" && Math.abs(expectedDebtOutstanding - actualDebtOutstanding) > 100) {
+    if (i >= acqMonthIndex && property.type === "Financed" && Math.abs(expectedDebtOutstanding - actualDebtOutstanding) > AUDIT_TOLERANCE_DOLLARS) {
       findings.push({
         category: "Balance Sheet",
         rule: "Debt Outstanding = Original Loan - Cumulative Principal",
@@ -814,7 +817,7 @@ export function auditBalanceSheet(
       });
     }
     
-    if (i >= acqMonthIndex && Math.abs(expectedEquity - actualEquity) > 100) {
+    if (i >= acqMonthIndex && Math.abs(expectedEquity - actualEquity) > AUDIT_TOLERANCE_DOLLARS) {
       findings.push({
         category: "Balance Sheet",
         rule: "Equity = Assets - Liabilities (Accounting Equation)",
@@ -887,7 +890,7 @@ export function auditCashFlowReconciliation(
     const expectedNetCF = expectedOperatingCF + expectedFinancingCF;
     const actualCashFlow = m.cashFlow || 0;
     
-    if (Math.abs(expectedNetCF - actualCashFlow) > 100) {
+    if (Math.abs(expectedNetCF - actualCashFlow) > AUDIT_TOLERANCE_DOLLARS) {
       findings.push({
         category: "Cash Flow Statement",
         rule: "Net Cash Flow = Operating CF + Financing CF",
@@ -924,7 +927,7 @@ export function auditCashFlowReconciliation(
     const expectedEndingCash = cumulativeCashFlow;
     const actualEndingCash = m.endingCash;
     
-    if (actualEndingCash !== undefined && Math.abs(expectedEndingCash - actualEndingCash) > 100) {
+    if (actualEndingCash !== undefined && Math.abs(expectedEndingCash - actualEndingCash) > AUDIT_TOLERANCE_DOLLARS) {
       findings.push({
         category: "Cash Flow Statement",
         rule: "Ending Cash = Cumulative Net Cash Flows",
@@ -940,7 +943,7 @@ export function auditCashFlowReconciliation(
     }
     
     const actualOperatingCF = m.operatingCashFlow;
-    if (actualOperatingCF !== undefined && Math.abs(expectedOperatingCF - actualOperatingCF) > 100) {
+    if (actualOperatingCF !== undefined && Math.abs(expectedOperatingCF - actualOperatingCF) > AUDIT_TOLERANCE_DOLLARS) {
       findings.push({
         category: "Cash Flow Statement",
         rule: "Operating CF = Net Income + Depreciation (Indirect Method)",
@@ -956,7 +959,7 @@ export function auditCashFlowReconciliation(
     }
     
     const actualFinancingCF = m.financingCashFlow;
-    if (actualFinancingCF !== undefined && Math.abs(expectedFinancingCF - actualFinancingCF) > 100) {
+    if (actualFinancingCF !== undefined && Math.abs(expectedFinancingCF - actualFinancingCF) > AUDIT_TOLERANCE_DOLLARS) {
       findings.push({
         category: "Cash Flow Statement",
         rule: "Financing CF = -Principal (Debt Repayment)",
@@ -1032,7 +1035,7 @@ export function runFullAudit(
   } else if (criticalIssues === 0 && materialIssues > 0) {
     opinion = "QUALIFIED";
     opinionText = `In our opinion, except for the ${materialIssues} material issue(s) noted in this report, the financial projections present fairly the expected financial position. Management should address the noted exceptions.`;
-  } else if (criticalIssues > 0 && criticalIssues <= 3) {
+  } else if (criticalIssues > 0 && criticalIssues <= ADVERSE_CRITICAL_THRESHOLD) {
     opinion = "QUALIFIED";
     opinionText = `In our opinion, except for the ${criticalIssues} critical and ${materialIssues} material issue(s) noted, the financial projections require adjustment before they can be considered materially correct.`;
   } else {

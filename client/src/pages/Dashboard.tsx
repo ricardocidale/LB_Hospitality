@@ -35,8 +35,11 @@ import {
   DEFAULT_TAX_RATE,
   DEFAULT_REFI_CLOSING_COST_RATE,
   DEFAULT_ACQ_CLOSING_COST_RATE,
-  DEPRECIATION_YEARS
+  DEPRECIATION_YEARS,
+  PROJECTION_YEARS,
+  PROJECTION_MONTHS
 } from "@/lib/loanCalculations";
+import { DAYS_PER_MONTH } from "@/lib/constants";
 
 export default function Dashboard() {
   const { data: properties, isLoading: propertiesLoading } = useProperties();
@@ -80,7 +83,7 @@ export default function Dashboard() {
   const getFiscalYear = (yearIndex: number) => getFiscalYearForModelYear(global.modelStartDate, fiscalYearStartMonth, yearIndex);
 
   const allPropertyFinancials = properties.map(p => {
-    const financials = generatePropertyProForma(p, global, 120);
+    const financials = generatePropertyProForma(p, global, PROJECTION_MONTHS);
     return { property: p, financials };
   });
 
@@ -190,7 +193,7 @@ export default function Dashboard() {
       
       // Sum up monthly data for this property
       yearData.forEach(month => {
-        const daysInMonth = 30; // Approximate
+        const daysInMonth = DAYS_PER_MONTH;
         const availableRooms = roomCount * daysInMonth;
         const roomsSold = availableRooms * month.occupancy;
         
@@ -232,7 +235,7 @@ export default function Dashboard() {
   let total10YearRevenue = 0;
   let total10YearNOI = 0;
   let total10YearCashFlow = 0;
-  for (let y = 0; y < 10; y++) {
+  for (let y = 0; y < PROJECTION_YEARS; y++) {
     const yearData = getYearlyConsolidated(y);
     total10YearRevenue += yearData.revenueTotal;
     total10YearNOI += yearData.noi;
@@ -253,7 +256,7 @@ export default function Dashboard() {
   }, {} as Record<string, number>);
   
   // Investment horizon
-  const investmentHorizon = 10;
+  const investmentHorizon = PROJECTION_YEARS;
 
   // Convert property data to LoanParams format for shared utilities
   const toGlobalLoanParams = (): GlobalLoanParams => ({
@@ -285,7 +288,7 @@ export default function Dashboard() {
   const getPropertyYearlyNOI = (propIndex: number): number[] => {
     const { financials } = allPropertyFinancials[propIndex];
     const yearlyNOI: number[] = [];
-    for (let y = 0; y < 10; y++) {
+    for (let y = 0; y < PROJECTION_YEARS; y++) {
       const yearData = financials.slice(y * 12, (y + 1) * 12);
       yearlyNOI.push(yearData.reduce((a: number, m: any) => a + m.noi, 0));
     }
@@ -413,7 +416,7 @@ export default function Dashboard() {
     const year0Investment = getEquityInvestmentForYear(0);
     flows.push(-year0Investment);
     
-    for (let y = 0; y < 10; y++) {
+    for (let y = 0; y < PROJECTION_YEARS; y++) {
       const consolidated = getConsolidatedYearlyDetails(y);
       let yearCashFlow = consolidated.atcf;
       
@@ -450,11 +453,11 @@ export default function Dashboard() {
     }
     return cf - exitValue;
   });
-  const avgAnnualCashFlow = operatingCashFlows.reduce((sum, cf) => sum + cf, 0) / 10;
+  const avgAnnualCashFlow = operatingCashFlows.reduce((sum, cf) => sum + cf, 0) / PROJECTION_YEARS;
   const cashOnCash = totalInitialEquity > 0 ? (avgAnnualCashFlow / totalInitialEquity) * 100 : 0;
 
   const generateIncomeStatementData = () => {
-    const years = Array.from({ length: 10 }, (_, i) => getFiscalYear(i));
+    const years = Array.from({ length: PROJECTION_YEARS }, (_, i) => getFiscalYear(i));
     const rows: { category: string; values: number[]; isHeader?: boolean; indent?: number }[] = [];
     
     rows.push({ category: "Total Revenue", values: years.map((_, i) => getYearlyConsolidated(i).revenueTotal), isHeader: true });
@@ -623,7 +626,7 @@ export default function Dashboard() {
   };
 
   const generateCashFlowData = () => {
-    const years = Array.from({ length: 10 }, (_, i) => getFiscalYear(i));
+    const years = Array.from({ length: PROJECTION_YEARS }, (_, i) => getFiscalYear(i));
     const rows: { category: string; values: number[]; isHeader?: boolean; indent?: number; isNegative?: boolean }[] = [];
     
     rows.push({ category: "CASH INFLOWS (Revenue)", values: years.map((_, i) => getYearlyConsolidated(i).revenueTotal), isHeader: true });
@@ -868,7 +871,7 @@ export default function Dashboard() {
   };
 
   const generateBalanceSheetData = () => {
-    const years = Array.from({ length: 10 }, (_, i) => getFiscalYear(i));
+    const years = Array.from({ length: PROJECTION_YEARS }, (_, i) => getFiscalYear(i));
     const rows: { category: string; values: number[]; isHeader?: boolean; indent?: number; isNegative?: boolean }[] = [];
     
     const totalPropertyValue = properties.reduce((sum, p) => sum + p.purchasePrice + p.buildingImprovements, 0);
@@ -921,7 +924,7 @@ export default function Dashboard() {
         totalInitialEquity += equityInvested;
         
         const cumulativeNOI = relevantMonths.reduce((sum, m) => sum + m.noi, 0);
-        const cumulativeDepreciation = annualDepreciation * Math.min(yearIndex + 1, 10);
+        const cumulativeDepreciation = annualDepreciation * Math.min(yearIndex + 1, PROJECTION_YEARS);
         const taxRate = prop.taxRate || DEFAULT_TAX_RATE;
         const taxableIncome = cumulativeNOI - cumulativeInterest - cumulativeDepreciation;
         const incomeTax = Math.max(0, taxableIncome) * taxRate;
@@ -933,7 +936,7 @@ export default function Dashboard() {
         totalCumulativeCashFlow += cashFromOperations;
       });
       
-      const accumulatedDepreciation = (totalPropertyValue / DEPRECIATION_YEARS) * Math.min(yearIndex + 1, 10);
+      const accumulatedDepreciation = (totalPropertyValue / DEPRECIATION_YEARS) * Math.min(yearIndex + 1, PROJECTION_YEARS);
       const totalCash = totalOperatingReserves + totalCumulativeCashFlow;
       const netPropertyValue = totalPropertyValue - accumulatedDepreciation;
       const totalAssets = netPropertyValue + totalCash;
@@ -1091,7 +1094,7 @@ export default function Dashboard() {
   };
 
   const generateInvestmentAnalysisData = () => {
-    const years = ['Initial', ...Array.from({ length: 10 }, (_, i) => String(getFiscalYear(i)))];
+    const years = ['Initial', ...Array.from({ length: PROJECTION_YEARS }, (_, i) => String(getFiscalYear(i)))];
     const rows: { category: string; values: (number | string)[]; isHeader?: boolean; indent?: number; isNegative?: boolean }[] = [];
     
     const getEquityForYear = (yearIdx: number): number => {
@@ -1173,7 +1176,7 @@ export default function Dashboard() {
     
     rows.push({ category: "EQUITY INVESTMENT", values: [
       -getEquityForYear(0),
-      ...Array.from({ length: 10 }, (_, i) => {
+      ...Array.from({ length: PROJECTION_YEARS }, (_, i) => {
         const eq = getEquityForYear(i + 1);
         return eq > 0 ? -eq : '';
       })
@@ -1192,7 +1195,7 @@ export default function Dashboard() {
         totalInvestment;
       
       const values: (number | string)[] = Array(11).fill('');
-      if (acqYear >= 0 && acqYear <= 10) {
+      if (acqYear >= 0 && acqYear <= PROJECTION_YEARS) {
         values[acqYear] = -investment;
       }
       rows.push({ category: prop.name, values, indent: 1, isNegative: true });
@@ -1203,12 +1206,12 @@ export default function Dashboard() {
     
     rows.push({ category: "Net Operating Income (NOI)", values: [
       '-',
-      ...Array.from({ length: 10 }, (_, i) => getYearDetails(i).noi)
+      ...Array.from({ length: PROJECTION_YEARS }, (_, i) => getYearDetails(i).noi)
     ], indent: 1 });
     
     rows.push({ category: "Less: Debt Service", values: [
       '-',
-      ...Array.from({ length: 10 }, (_, i) => {
+      ...Array.from({ length: PROJECTION_YEARS }, (_, i) => {
         const ds = getYearDetails(i).debtService;
         return ds > 0 ? -ds : '-';
       })
@@ -1216,7 +1219,7 @@ export default function Dashboard() {
     
     rows.push({ category: "Before-Tax Cash Flow", values: [
       '-',
-      ...Array.from({ length: 10 }, (_, i) => getYearDetails(i).btcf)
+      ...Array.from({ length: PROJECTION_YEARS }, (_, i) => getYearDetails(i).btcf)
     ], indent: 1 });
     
     rows.push({ category: "", values: Array(11).fill('') });
@@ -1224,7 +1227,7 @@ export default function Dashboard() {
     
     rows.push({ category: "Less: Interest Expense", values: [
       '-',
-      ...Array.from({ length: 10 }, (_, i) => {
+      ...Array.from({ length: PROJECTION_YEARS }, (_, i) => {
         const int = getYearDetails(i).interest;
         return int > 0 ? -int : '-';
       })
@@ -1232,17 +1235,17 @@ export default function Dashboard() {
     
     rows.push({ category: "Less: Depreciation", values: [
       '-',
-      ...Array.from({ length: 10 }, (_, i) => -getYearDetails(i).depreciation)
+      ...Array.from({ length: PROJECTION_YEARS }, (_, i) => -getYearDetails(i).depreciation)
     ], indent: 1, isNegative: true });
     
     rows.push({ category: "Taxable Income", values: [
       '-',
-      ...Array.from({ length: 10 }, (_, i) => getYearDetails(i).taxableIncome)
+      ...Array.from({ length: PROJECTION_YEARS }, (_, i) => getYearDetails(i).taxableIncome)
     ], indent: 1 });
     
     rows.push({ category: "Tax Liability", values: [
       '-',
-      ...Array.from({ length: 10 }, (_, i) => {
+      ...Array.from({ length: PROJECTION_YEARS }, (_, i) => {
         const tax = getYearDetails(i).tax;
         return tax > 0 ? -tax : '-';
       })
@@ -1251,11 +1254,11 @@ export default function Dashboard() {
     rows.push({ category: "", values: Array(11).fill('') });
     rows.push({ category: "AFTER-TAX CASH FLOW (ATCF)", values: [
       '-',
-      ...Array.from({ length: 10 }, (_, i) => getYearDetails(i).atcf)
+      ...Array.from({ length: PROJECTION_YEARS }, (_, i) => getYearDetails(i).atcf)
     ], isHeader: true });
     
     rows.push({ category: "Exit Value (Year 10)", values: [
-      ...Array(10).fill(''),
+      ...Array(PROJECTION_YEARS).fill(''),
       totalExitValue
     ] });
     
@@ -1264,11 +1267,11 @@ export default function Dashboard() {
     
     rows.push({ category: "", values: Array(11).fill('') });
     rows.push({ category: "INVESTMENT METRICS", values: Array(11).fill(''), isHeader: true });
-    rows.push({ category: "Total Equity Invested", values: [formatMoney(totalInitialEquity), ...Array(10).fill('')] });
-    rows.push({ category: "Total Exit Value", values: [...Array(10).fill(''), formatMoney(totalExitValue)] });
-    rows.push({ category: "Equity Multiple", values: [`${equityMultiple.toFixed(2)}x`, ...Array(10).fill('')] });
-    rows.push({ category: "Cash-on-Cash Return", values: [`${cashOnCash.toFixed(1)}%`, ...Array(10).fill('')] });
-    rows.push({ category: "Portfolio IRR", values: [`${(portfolioIRR * 100).toFixed(1)}%`, ...Array(10).fill('')], isHeader: true });
+    rows.push({ category: "Total Equity Invested", values: [formatMoney(totalInitialEquity), ...Array(PROJECTION_YEARS).fill('')] });
+    rows.push({ category: "Total Exit Value", values: [...Array(PROJECTION_YEARS).fill(''), formatMoney(totalExitValue)] });
+    rows.push({ category: "Equity Multiple", values: [`${equityMultiple.toFixed(2)}x`, ...Array(PROJECTION_YEARS).fill('')] });
+    rows.push({ category: "Cash-on-Cash Return", values: [`${cashOnCash.toFixed(1)}%`, ...Array(PROJECTION_YEARS).fill('')] });
+    rows.push({ category: "Portfolio IRR", values: [`${(portfolioIRR * 100).toFixed(1)}%`, ...Array(PROJECTION_YEARS).fill('')], isHeader: true });
     
     return { years, rows };
   };
@@ -1385,9 +1388,9 @@ export default function Dashboard() {
     const pageHeight = doc.internal.pageSize.getHeight();
 
     // Calculate 10-year totals for comprehensive metrics
-    const total10YearRevenue = Array.from({ length: 10 }, (_, i) => getYearlyConsolidated(i).revenueTotal).reduce((a, b) => a + b, 0);
-    const total10YearNOI = Array.from({ length: 10 }, (_, i) => getYearlyConsolidated(i).noi).reduce((a, b) => a + b, 0);
-    const total10YearCashFlow = Array.from({ length: 10 }, (_, i) => getYearlyConsolidated(i).cashFlow).reduce((a, b) => a + b, 0);
+    const total10YearRevenue = Array.from({ length: PROJECTION_YEARS }, (_, i) => getYearlyConsolidated(i).revenueTotal).reduce((a, b) => a + b, 0);
+    const total10YearNOI = Array.from({ length: PROJECTION_YEARS }, (_, i) => getYearlyConsolidated(i).noi).reduce((a, b) => a + b, 0);
+    const total10YearCashFlow = Array.from({ length: PROJECTION_YEARS }, (_, i) => getYearlyConsolidated(i).cashFlow).reduce((a, b) => a + b, 0);
     const avgPurchasePrice = properties.length > 0 ? properties.reduce((sum, p) => sum + (p.purchasePrice || 0), 0) / properties.length : 0;
     const avgADR = properties.length > 0 ? properties.reduce((sum, p) => sum + (p.startAdr || 0), 0) / properties.length : 0;
 
@@ -1657,7 +1660,7 @@ export default function Dashboard() {
   };
 
   const exportOverviewToCSV = () => {
-    const years = Array.from({ length: 10 }, (_, i) => getFiscalYear(i));
+    const years = Array.from({ length: PROJECTION_YEARS }, (_, i) => getFiscalYear(i));
     let csvContent = "";
 
     // Overview Section
@@ -1680,9 +1683,9 @@ export default function Dashboard() {
     csvContent += `Average Starting ADR,${properties.length > 0 ? properties.reduce((sum, p) => sum + (p.startAdr || 0), 0) / properties.length : 0}\n\n`;
 
     csvContent += "10-YEAR FINANCIAL PROJECTIONS\n";
-    csvContent += `Total Revenue (10-Year),${Array.from({ length: 10 }, (_, i) => getYearlyConsolidated(i).revenueTotal).reduce((a, b) => a + b, 0)}\n`;
-    csvContent += `Total NOI (10-Year),${Array.from({ length: 10 }, (_, i) => getYearlyConsolidated(i).noi).reduce((a, b) => a + b, 0)}\n`;
-    csvContent += `Total Cash Flow (10-Year),${Array.from({ length: 10 }, (_, i) => getYearlyConsolidated(i).cashFlow).reduce((a, b) => a + b, 0)}\n`;
+    csvContent += `Total Revenue (10-Year),${Array.from({ length: PROJECTION_YEARS }, (_, i) => getYearlyConsolidated(i).revenueTotal).reduce((a, b) => a + b, 0)}\n`;
+    csvContent += `Total NOI (10-Year),${Array.from({ length: PROJECTION_YEARS }, (_, i) => getYearlyConsolidated(i).noi).reduce((a, b) => a + b, 0)}\n`;
+    csvContent += `Total Cash Flow (10-Year),${Array.from({ length: PROJECTION_YEARS }, (_, i) => getYearlyConsolidated(i).cashFlow).reduce((a, b) => a + b, 0)}\n`;
     csvContent += `Year 10 Revenue,${getYearlyConsolidated(9).revenueTotal}\n`;
     csvContent += `Year 10 NOI,${getYearlyConsolidated(9).noi}\n\n`;
 
@@ -2087,7 +2090,7 @@ export default function Dashboard() {
                 <div className="bg-white/90 backdrop-blur-xl rounded-xl p-4 border border-[#9FBCA4]/30 shadow-lg shadow-black/10">
                   <ResponsiveContainer width="100%" height={300}>
                     <LineChart
-                      data={Array.from({ length: 10 }, (_, i) => {
+                      data={Array.from({ length: PROJECTION_YEARS }, (_, i) => {
                         const yearly = getYearlyConsolidated(i);
                         return {
                           year: getFiscalYear(i),
@@ -2138,7 +2141,7 @@ export default function Dashboard() {
                   <TableHeader>
                     <TableRow>
                       <TableHead className="sticky left-0 bg-card min-w-[200px]">Category</TableHead>
-                      {Array.from({ length: 10 }, (_, i) => (
+                      {Array.from({ length: PROJECTION_YEARS }, (_, i) => (
                         <TableHead key={i} className="text-right min-w-[110px] font-mono">{getFiscalYear(i)}</TableHead>
                       ))}
                     </TableRow>
@@ -2156,7 +2159,7 @@ export default function Dashboard() {
                         )}
                         Total Revenue
                       </TableCell>
-                      {Array.from({ length: 10 }, (_, y) => (
+                      {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                         <TableCell key={y} className="text-right font-mono">{formatMoney(getYearlyConsolidated(y).revenueTotal)}</TableCell>
                       ))}
                     </TableRow>
@@ -2164,43 +2167,43 @@ export default function Dashboard() {
                       <>
                         <TableRow className="bg-muted/5">
                           <TableCell className="sticky left-0 bg-muted/5 pl-12 text-muted-foreground label-text">Wtd Avg ADR</TableCell>
-                          {Array.from({ length: 10 }, (_, y) => (
+                          {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getWeightedMetrics(y).weightedADR)}</TableCell>
                           ))}
                         </TableRow>
                         <TableRow className="bg-muted/5">
                           <TableCell className="sticky left-0 bg-muted/5 pl-12 text-muted-foreground label-text">Wtd Avg Occupancy</TableCell>
-                          {Array.from({ length: 10 }, (_, y) => (
+                          {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground font-mono">{(getWeightedMetrics(y).weightedOcc * 100).toFixed(1)}%</TableCell>
                           ))}
                         </TableRow>
                         <TableRow className="bg-muted/5">
                           <TableCell className="sticky left-0 bg-muted/5 pl-12 text-muted-foreground label-text">RevPAR</TableCell>
-                          {Array.from({ length: 10 }, (_, y) => (
+                          {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getWeightedMetrics(y).revPAR)}</TableCell>
                           ))}
                         </TableRow>
                         <TableRow>
                           <TableCell className="sticky left-0 bg-card pl-8 text-muted-foreground">Room Revenue</TableCell>
-                          {Array.from({ length: 10 }, (_, y) => (
+                          {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).revenueRooms)}</TableCell>
                           ))}
                         </TableRow>
                         <TableRow>
                           <TableCell className="sticky left-0 bg-card pl-8 text-muted-foreground">Event Revenue</TableCell>
-                          {Array.from({ length: 10 }, (_, y) => (
+                          {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).revenueEvents)}</TableCell>
                           ))}
                         </TableRow>
                         <TableRow>
                           <TableCell className="sticky left-0 bg-card pl-8 text-muted-foreground">F&B Revenue</TableCell>
-                          {Array.from({ length: 10 }, (_, y) => (
+                          {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).revenueFB)}</TableCell>
                           ))}
                         </TableRow>
                         <TableRow>
                           <TableCell className="sticky left-0 bg-card pl-8 text-muted-foreground">Other Revenue</TableCell>
-                          {Array.from({ length: 10 }, (_, y) => (
+                          {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).revenueOther)}</TableCell>
                           ))}
                         </TableRow>
@@ -2216,14 +2219,14 @@ export default function Dashboard() {
                             )}
                             By Property
                           </TableCell>
-                          {Array.from({ length: 10 }, (_, y) => (
+                          {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground">-</TableCell>
                           ))}
                         </TableRow>
                         {expandedRows.has('revenueByProperty') && properties.map((prop, idx) => (
                           <TableRow key={prop.id} className="bg-muted/10">
                             <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">{prop.name}</TableCell>
-                            {Array.from({ length: 10 }, (_, y) => (
+                            {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                               <TableCell key={y} className="text-right text-sm text-muted-foreground">
                                 {formatMoney(getPropertyYearly(idx, y).revenueTotal)}
                               </TableCell>
@@ -2245,7 +2248,7 @@ export default function Dashboard() {
                         )}
                         Operating Expenses
                       </TableCell>
-                      {Array.from({ length: 10 }, (_, y) => {
+                      {Array.from({ length: PROJECTION_YEARS }, (_, y) => {
                         const data = getYearlyConsolidated(y);
                         const totalOpex = data.expenseRooms + data.expenseFB + data.expenseEvents + data.expenseOther + 
                           data.expenseMarketing + data.expensePropertyOps + data.expenseUtilitiesVar + 
@@ -2268,7 +2271,7 @@ export default function Dashboard() {
                             )}
                             Direct Costs
                           </TableCell>
-                          {Array.from({ length: 10 }, (_, y) => {
+                          {Array.from({ length: PROJECTION_YEARS }, (_, y) => {
                             const data = getYearlyConsolidated(y);
                             return <TableCell key={y} className="text-right text-muted-foreground">
                               {formatMoney(data.expenseRooms + data.expenseFB + data.expenseEvents + data.expenseOther)}
@@ -2279,25 +2282,25 @@ export default function Dashboard() {
                           <>
                             <TableRow className="bg-muted/10">
                               <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Room Expense</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => (
+                              {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                                 <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).expenseRooms)}</TableCell>
                               ))}
                             </TableRow>
                             <TableRow className="bg-muted/10">
                               <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">F&B Expense</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => (
+                              {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                                 <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).expenseFB)}</TableCell>
                               ))}
                             </TableRow>
                             <TableRow className="bg-muted/10">
                               <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Event Expense</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => (
+                              {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                                 <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).expenseEvents)}</TableCell>
                               ))}
                             </TableRow>
                             <TableRow className="bg-muted/10">
                               <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Other Direct</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => (
+                              {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                                 <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).expenseOther)}</TableCell>
                               ))}
                             </TableRow>
@@ -2315,7 +2318,7 @@ export default function Dashboard() {
                             )}
                             Overhead & Admin
                           </TableCell>
-                          {Array.from({ length: 10 }, (_, y) => {
+                          {Array.from({ length: PROJECTION_YEARS }, (_, y) => {
                             const data = getYearlyConsolidated(y);
                             return <TableCell key={y} className="text-right text-muted-foreground">
                               {formatMoney(data.expenseAdmin + data.expenseMarketing + data.expensePropertyOps + 
@@ -2328,50 +2331,50 @@ export default function Dashboard() {
                           <>
                             <TableRow className="bg-muted/10">
                               <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Admin & General</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => (
+                              {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                                 <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).expenseAdmin)}</TableCell>
                               ))}
                             </TableRow>
                             <TableRow className="bg-muted/10">
                               <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Marketing</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => (
+                              {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                                 <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).expenseMarketing)}</TableCell>
                               ))}
                             </TableRow>
                             <TableRow className="bg-muted/10">
                               <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Property Operations</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => (
+                              {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                                 <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).expensePropertyOps)}</TableCell>
                               ))}
                             </TableRow>
                             <TableRow className="bg-muted/10">
                               <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Utilities</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => {
+                              {Array.from({ length: PROJECTION_YEARS }, (_, y) => {
                                 const data = getYearlyConsolidated(y);
                                 return <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(data.expenseUtilitiesVar + data.expenseUtilitiesFixed)}</TableCell>;
                               })}
                             </TableRow>
                             <TableRow className="bg-muted/10">
                               <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">IT Systems</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => (
+                              {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                                 <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).expenseIT)}</TableCell>
                               ))}
                             </TableRow>
                             <TableRow className="bg-muted/10">
                               <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Insurance</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => (
+                              {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                                 <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).expenseInsurance)}</TableCell>
                               ))}
                             </TableRow>
                             <TableRow className="bg-muted/10">
                               <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Property Taxes</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => (
+                              {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                                 <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).expenseTaxes)}</TableCell>
                               ))}
                             </TableRow>
                             <TableRow className="bg-muted/10">
                               <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Other Expenses</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => (
+                              {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                                 <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).expenseOtherCosts)}</TableCell>
                               ))}
                             </TableRow>
@@ -2382,7 +2385,7 @@ export default function Dashboard() {
 
                     <TableRow className="bg-accent/20 font-semibold">
                       <TableCell className="sticky left-0 bg-accent/20 label-text">Gross Operating Profit (GOP)</TableCell>
-                      {Array.from({ length: 10 }, (_, y) => (
+                      {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                         <TableCell key={y} className="text-right font-mono">{formatMoney(getYearlyConsolidated(y).gop)}</TableCell>
                       ))}
                     </TableRow>
@@ -2399,7 +2402,7 @@ export default function Dashboard() {
                         )}
                         Management Fees (to L+B Co.)
                       </TableCell>
-                      {Array.from({ length: 10 }, (_, y) => {
+                      {Array.from({ length: PROJECTION_YEARS }, (_, y) => {
                         const data = getYearlyConsolidated(y);
                         return <TableCell key={y} className="text-right font-mono">{formatMoney(data.feeBase + data.feeIncentive)}</TableCell>;
                       })}
@@ -2408,13 +2411,13 @@ export default function Dashboard() {
                       <>
                         <TableRow>
                           <TableCell className="sticky left-0 bg-card pl-8 text-muted-foreground">Base Fee ({(global.baseManagementFee * 100).toFixed(0)}% of Revenue)</TableCell>
-                          {Array.from({ length: 10 }, (_, y) => (
+                          {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).feeBase)}</TableCell>
                           ))}
                         </TableRow>
                         <TableRow>
                           <TableCell className="sticky left-0 bg-card pl-8 text-muted-foreground">Incentive Fee ({(global.incentiveManagementFee * 100).toFixed(0)}% of GOP)</TableCell>
-                          {Array.from({ length: 10 }, (_, y) => (
+                          {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).feeIncentive)}</TableCell>
                           ))}
                         </TableRow>
@@ -2430,14 +2433,14 @@ export default function Dashboard() {
                             )}
                             By Property
                           </TableCell>
-                          {Array.from({ length: 10 }, (_, y) => (
+                          {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground">-</TableCell>
                           ))}
                         </TableRow>
                         {expandedRows.has('mgmtFeesByProperty') && properties.map((prop, idx) => (
                           <TableRow key={prop.id} className="bg-muted/10">
                             <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">{prop.name}</TableCell>
-                            {Array.from({ length: 10 }, (_, y) => {
+                            {Array.from({ length: PROJECTION_YEARS }, (_, y) => {
                               const propData = getPropertyYearly(idx, y);
                               return (
                                 <TableCell key={y} className="text-right text-sm text-muted-foreground">
@@ -2452,7 +2455,7 @@ export default function Dashboard() {
 
                     <TableRow>
                       <TableCell className="sticky left-0 bg-card">FF&E Reserve</TableCell>
-                      {Array.from({ length: 10 }, (_, y) => (
+                      {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                         <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).expenseFFE)}</TableCell>
                       ))}
                     </TableRow>
@@ -2462,7 +2465,7 @@ export default function Dashboard() {
                         Net Operating Income (NOI)
                         <HelpTooltip text="NOI = Total Revenue - Operating Expenses. The property's income before debt service, taxes, and depreciation." />
                       </TableCell>
-                      {Array.from({ length: 10 }, (_, y) => {
+                      {Array.from({ length: PROJECTION_YEARS }, (_, y) => {
                         const noi = getYearlyConsolidated(y).noi;
                         return (
                           <TableCell key={y} className={`text-right ${noi < 0 ? 'text-destructive' : ''}`}>
@@ -2473,7 +2476,7 @@ export default function Dashboard() {
                     </TableRow>
                     <TableRow>
                       <TableCell className="sticky left-0 bg-card text-muted-foreground">NOI Margin</TableCell>
-                      {Array.from({ length: 10 }, (_, y) => {
+                      {Array.from({ length: PROJECTION_YEARS }, (_, y) => {
                         const data = getYearlyConsolidated(y);
                         const margin = data.revenueTotal > 0 ? (data.noi / data.revenueTotal) * 100 : 0;
                         return (
@@ -2507,7 +2510,7 @@ export default function Dashboard() {
                 <div className="bg-white/90 backdrop-blur-xl rounded-xl p-4 border border-[#9FBCA4]/30 shadow-lg shadow-black/10">
                   <ResponsiveContainer width="100%" height={300}>
                     <LineChart
-                      data={Array.from({ length: 10 }, (_, i) => {
+                      data={Array.from({ length: PROJECTION_YEARS }, (_, i) => {
                         const yearly = getYearlyConsolidated(i);
                         return {
                           year: getFiscalYear(i),
@@ -2564,7 +2567,7 @@ export default function Dashboard() {
                 <div className="bg-white/90 backdrop-blur-xl rounded-xl p-4 border border-[#9FBCA4]/30 shadow-lg shadow-black/10">
                   <ResponsiveContainer width="100%" height={300}>
                     <LineChart
-                      data={Array.from({ length: 10 }, (_, i) => {
+                      data={Array.from({ length: PROJECTION_YEARS }, (_, i) => {
                         const yearly = getYearlyConsolidated(i);
                         return {
                           year: getFiscalYear(i),
@@ -2614,7 +2617,7 @@ export default function Dashboard() {
                   <TableHeader>
                     <TableRow>
                       <TableHead className="sticky left-0 bg-card min-w-[200px]">Category</TableHead>
-                      {Array.from({ length: 10 }, (_, i) => (
+                      {Array.from({ length: PROJECTION_YEARS }, (_, i) => (
                         <TableHead key={i} className="text-right min-w-[110px] font-mono">{getFiscalYear(i)}</TableHead>
                       ))}
                     </TableRow>
@@ -2632,7 +2635,7 @@ export default function Dashboard() {
                         )}
                         Cash Inflows (Revenue)
                       </TableCell>
-                      {Array.from({ length: 10 }, (_, y) => (
+                      {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                         <TableCell key={y} className="text-right font-mono">{formatMoney(getYearlyConsolidated(y).revenueTotal)}</TableCell>
                       ))}
                     </TableRow>
@@ -2640,43 +2643,43 @@ export default function Dashboard() {
                       <>
                         <TableRow className="bg-muted/5">
                           <TableCell className="sticky left-0 bg-muted/5 pl-12 text-muted-foreground label-text">Wtd Avg ADR</TableCell>
-                          {Array.from({ length: 10 }, (_, y) => (
+                          {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getWeightedMetrics(y).weightedADR)}</TableCell>
                           ))}
                         </TableRow>
                         <TableRow className="bg-muted/5">
                           <TableCell className="sticky left-0 bg-muted/5 pl-12 text-muted-foreground label-text">Wtd Avg Occupancy</TableCell>
-                          {Array.from({ length: 10 }, (_, y) => (
+                          {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground font-mono">{(getWeightedMetrics(y).weightedOcc * 100).toFixed(1)}%</TableCell>
                           ))}
                         </TableRow>
                         <TableRow className="bg-muted/5">
                           <TableCell className="sticky left-0 bg-muted/5 pl-12 text-muted-foreground label-text">RevPAR</TableCell>
-                          {Array.from({ length: 10 }, (_, y) => (
+                          {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getWeightedMetrics(y).revPAR)}</TableCell>
                           ))}
                         </TableRow>
                         <TableRow>
                           <TableCell className="sticky left-0 bg-card pl-8 text-muted-foreground">Room Revenue</TableCell>
-                          {Array.from({ length: 10 }, (_, y) => (
+                          {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).revenueRooms)}</TableCell>
                           ))}
                         </TableRow>
                         <TableRow>
                           <TableCell className="sticky left-0 bg-card pl-8 text-muted-foreground">Event Revenue</TableCell>
-                          {Array.from({ length: 10 }, (_, y) => (
+                          {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).revenueEvents)}</TableCell>
                           ))}
                         </TableRow>
                         <TableRow>
                           <TableCell className="sticky left-0 bg-card pl-8 text-muted-foreground">F&B Revenue</TableCell>
-                          {Array.from({ length: 10 }, (_, y) => (
+                          {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).revenueFB)}</TableCell>
                           ))}
                         </TableRow>
                         <TableRow>
                           <TableCell className="sticky left-0 bg-card pl-8 text-muted-foreground">Other Revenue</TableCell>
-                          {Array.from({ length: 10 }, (_, y) => (
+                          {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).revenueOther)}</TableCell>
                           ))}
                         </TableRow>
@@ -2692,14 +2695,14 @@ export default function Dashboard() {
                             )}
                             By Property
                           </TableCell>
-                          {Array.from({ length: 10 }, (_, y) => (
+                          {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground">-</TableCell>
                           ))}
                         </TableRow>
                         {expandedRows.has('cfInflowsByProperty') && properties.map((prop, idx) => (
                           <TableRow key={prop.id} className="bg-muted/10">
                             <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">{prop.name}</TableCell>
-                            {Array.from({ length: 10 }, (_, y) => (
+                            {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                               <TableCell key={y} className="text-right text-sm text-muted-foreground">
                                 {formatMoney(getPropertyYearly(idx, y).revenueTotal)}
                               </TableCell>
@@ -2721,7 +2724,7 @@ export default function Dashboard() {
                         )}
                         Cash Outflows (Operating)
                       </TableCell>
-                      {Array.from({ length: 10 }, (_, y) => {
+                      {Array.from({ length: PROJECTION_YEARS }, (_, y) => {
                         const data = getYearlyConsolidated(y);
                         const totalOpex = data.expenseRooms + data.expenseFB + data.expenseEvents + data.expenseOther + 
                           data.expenseMarketing + data.expensePropertyOps + data.expenseUtilitiesVar + 
@@ -2744,7 +2747,7 @@ export default function Dashboard() {
                             )}
                             Direct Costs
                           </TableCell>
-                          {Array.from({ length: 10 }, (_, y) => {
+                          {Array.from({ length: PROJECTION_YEARS }, (_, y) => {
                             const data = getYearlyConsolidated(y);
                             return <TableCell key={y} className="text-right text-muted-foreground">
                               ({formatMoney(data.expenseRooms + data.expenseFB + data.expenseEvents + data.expenseOther)})
@@ -2755,25 +2758,25 @@ export default function Dashboard() {
                           <>
                             <TableRow className="bg-muted/10">
                               <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Room Expense</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => (
+                              {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                                 <TableCell key={y} className="text-right text-sm text-muted-foreground">({formatMoney(getYearlyConsolidated(y).expenseRooms)})</TableCell>
                               ))}
                             </TableRow>
                             <TableRow className="bg-muted/10">
                               <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">F&B Expense</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => (
+                              {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                                 <TableCell key={y} className="text-right text-sm text-muted-foreground">({formatMoney(getYearlyConsolidated(y).expenseFB)})</TableCell>
                               ))}
                             </TableRow>
                             <TableRow className="bg-muted/10">
                               <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Event Expense</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => (
+                              {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                                 <TableCell key={y} className="text-right text-sm text-muted-foreground">({formatMoney(getYearlyConsolidated(y).expenseEvents)})</TableCell>
                               ))}
                             </TableRow>
                             <TableRow className="bg-muted/10">
                               <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Other Direct</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => (
+                              {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                                 <TableCell key={y} className="text-right text-sm text-muted-foreground">({formatMoney(getYearlyConsolidated(y).expenseOther)})</TableCell>
                               ))}
                             </TableRow>
@@ -2791,7 +2794,7 @@ export default function Dashboard() {
                             )}
                             Overhead & Admin
                           </TableCell>
-                          {Array.from({ length: 10 }, (_, y) => {
+                          {Array.from({ length: PROJECTION_YEARS }, (_, y) => {
                             const data = getYearlyConsolidated(y);
                             return <TableCell key={y} className="text-right text-muted-foreground">
                               ({formatMoney(data.expenseAdmin + data.expenseMarketing + data.expensePropertyOps + 
@@ -2804,50 +2807,50 @@ export default function Dashboard() {
                           <>
                             <TableRow className="bg-muted/10">
                               <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Admin & General</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => (
+                              {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                                 <TableCell key={y} className="text-right text-sm text-muted-foreground">({formatMoney(getYearlyConsolidated(y).expenseAdmin)})</TableCell>
                               ))}
                             </TableRow>
                             <TableRow className="bg-muted/10">
                               <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Marketing</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => (
+                              {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                                 <TableCell key={y} className="text-right text-sm text-muted-foreground">({formatMoney(getYearlyConsolidated(y).expenseMarketing)})</TableCell>
                               ))}
                             </TableRow>
                             <TableRow className="bg-muted/10">
                               <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Property Operations</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => (
+                              {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                                 <TableCell key={y} className="text-right text-sm text-muted-foreground">({formatMoney(getYearlyConsolidated(y).expensePropertyOps)})</TableCell>
                               ))}
                             </TableRow>
                             <TableRow className="bg-muted/10">
                               <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Utilities</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => {
+                              {Array.from({ length: PROJECTION_YEARS }, (_, y) => {
                                 const data = getYearlyConsolidated(y);
                                 return <TableCell key={y} className="text-right text-sm text-muted-foreground">({formatMoney(data.expenseUtilitiesVar + data.expenseUtilitiesFixed)})</TableCell>;
                               })}
                             </TableRow>
                             <TableRow className="bg-muted/10">
                               <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">IT Systems</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => (
+                              {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                                 <TableCell key={y} className="text-right text-sm text-muted-foreground">({formatMoney(getYearlyConsolidated(y).expenseIT)})</TableCell>
                               ))}
                             </TableRow>
                             <TableRow className="bg-muted/10">
                               <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Insurance</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => (
+                              {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                                 <TableCell key={y} className="text-right text-sm text-muted-foreground">({formatMoney(getYearlyConsolidated(y).expenseInsurance)})</TableCell>
                               ))}
                             </TableRow>
                             <TableRow className="bg-muted/10">
                               <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Property Taxes</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => (
+                              {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                                 <TableCell key={y} className="text-right text-sm text-muted-foreground">({formatMoney(getYearlyConsolidated(y).expenseTaxes)})</TableCell>
                               ))}
                             </TableRow>
                             <TableRow className="bg-muted/10">
                               <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Other Expenses</TableCell>
-                              {Array.from({ length: 10 }, (_, y) => (
+                              {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                                 <TableCell key={y} className="text-right text-sm text-muted-foreground">({formatMoney(getYearlyConsolidated(y).expenseOtherCosts)})</TableCell>
                               ))}
                             </TableRow>
@@ -2858,7 +2861,7 @@ export default function Dashboard() {
 
                     <TableRow className="bg-accent/20 font-semibold">
                       <TableCell className="sticky left-0 bg-accent/20 label-text">Gross Operating Profit (GOP)</TableCell>
-                      {Array.from({ length: 10 }, (_, y) => (
+                      {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                         <TableCell key={y} className="text-right font-mono">{formatMoney(getYearlyConsolidated(y).gop)}</TableCell>
                       ))}
                     </TableRow>
@@ -2875,7 +2878,7 @@ export default function Dashboard() {
                         )}
                         Management Fees (to L+B Co.)
                       </TableCell>
-                      {Array.from({ length: 10 }, (_, y) => {
+                      {Array.from({ length: PROJECTION_YEARS }, (_, y) => {
                         const data = getYearlyConsolidated(y);
                         return <TableCell key={y} className="text-right text-muted-foreground">({formatMoney(data.feeBase + data.feeIncentive)})</TableCell>;
                       })}
@@ -2884,13 +2887,13 @@ export default function Dashboard() {
                       <>
                         <TableRow className="bg-muted/10">
                           <TableCell className="sticky left-0 bg-muted/10 pl-8 text-sm text-muted-foreground">Base Fee ({(global.baseManagementFee * 100).toFixed(0)}% of Revenue)</TableCell>
-                          {Array.from({ length: 10 }, (_, y) => (
+                          {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                             <TableCell key={y} className="text-right text-sm text-muted-foreground">({formatMoney(getYearlyConsolidated(y).feeBase)})</TableCell>
                           ))}
                         </TableRow>
                         <TableRow className="bg-muted/10">
                           <TableCell className="sticky left-0 bg-muted/10 pl-8 text-sm text-muted-foreground">Incentive Fee ({(global.incentiveManagementFee * 100).toFixed(0)}% of GOP)</TableCell>
-                          {Array.from({ length: 10 }, (_, y) => (
+                          {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                             <TableCell key={y} className="text-right text-sm text-muted-foreground">({formatMoney(getYearlyConsolidated(y).feeIncentive)})</TableCell>
                           ))}
                         </TableRow>
@@ -2899,7 +2902,7 @@ export default function Dashboard() {
 
                     <TableRow>
                       <TableCell className="sticky left-0 bg-card">FF&E Reserve</TableCell>
-                      {Array.from({ length: 10 }, (_, y) => (
+                      {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                         <TableCell key={y} className="text-right text-muted-foreground">({formatMoney(getYearlyConsolidated(y).expenseFFE)})</TableCell>
                       ))}
                     </TableRow>
@@ -2909,7 +2912,7 @@ export default function Dashboard() {
                         Net Operating Income (NOI)
                         <HelpTooltip text="NOI = Total Revenue - Operating Expenses. The property's income before debt service, taxes, and depreciation." />
                       </TableCell>
-                      {Array.from({ length: 10 }, (_, y) => {
+                      {Array.from({ length: PROJECTION_YEARS }, (_, y) => {
                         const noi = getYearlyConsolidated(y).noi;
                         return (
                           <TableCell key={y} className={`text-right ${noi < 0 ? 'text-destructive' : ''}`}>
@@ -2932,7 +2935,7 @@ export default function Dashboard() {
                         Debt Service
                         <HelpTooltip text="Total debt payment including principal and interest. Paid to lenders before distributions to investors." />
                       </TableCell>
-                      {Array.from({ length: 10 }, (_, y) => {
+                      {Array.from({ length: PROJECTION_YEARS }, (_, y) => {
                         const debt = getYearlyConsolidated(y).debtPayment;
                         return <TableCell key={y} className="text-right text-muted-foreground">{debt > 0 ? `(${formatMoney(debt)})` : '-'}</TableCell>;
                       })}
@@ -2942,7 +2945,7 @@ export default function Dashboard() {
                       return (
                         <TableRow key={prop.id} className="bg-muted/10">
                           <TableCell className="sticky left-0 bg-muted/10 pl-8 text-sm text-muted-foreground">{prop.name}</TableCell>
-                          {Array.from({ length: 10 }, (_, y) => {
+                          {Array.from({ length: PROJECTION_YEARS }, (_, y) => {
                             const debt = getPropertyYearly(propIdx, y).debtPayment;
                             return (
                               <TableCell key={y} className="text-right text-sm text-muted-foreground">
@@ -2959,7 +2962,7 @@ export default function Dashboard() {
                         Net Cash Flow
                         <HelpTooltip text="Cash available after debt service. For unlevered properties, equals NOI." />
                       </TableCell>
-                      {Array.from({ length: 10 }, (_, y) => {
+                      {Array.from({ length: PROJECTION_YEARS }, (_, y) => {
                         const cf = getYearlyConsolidated(y).cashFlow;
                         return (
                           <TableCell key={y} className={`text-right ${cf < 0 ? 'text-destructive' : ''}`}>
@@ -2980,14 +2983,14 @@ export default function Dashboard() {
                         )}
                         By Property
                       </TableCell>
-                      {Array.from({ length: 10 }, (_, y) => (
+                      {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                         <TableCell key={y} className="text-right text-muted-foreground">-</TableCell>
                       ))}
                     </TableRow>
                     {expandedRows.has('cfByProperty') && properties.map((prop, idx) => (
                       <TableRow key={prop.id} className="bg-muted/10">
                         <TableCell className="sticky left-0 bg-muted/10 pl-10 text-sm text-muted-foreground">{prop.name}</TableCell>
-                        {Array.from({ length: 10 }, (_, y) => {
+                        {Array.from({ length: PROJECTION_YEARS }, (_, y) => {
                           const cf = getPropertyYearly(idx, y).cashFlow;
                           return (
                             <TableCell key={y} className={`text-right text-sm ${cf < 0 ? 'text-destructive' : 'text-muted-foreground'}`}>
@@ -3134,7 +3137,7 @@ function InvestmentAnalysis({
 
   const getDebtServiceDetails = (prop: any, propIndex: number, yearIndex: number) => {
     const refiYear = getRefiYear(prop);
-    const isPostRefi = refiYear >= 0 && refiYear < 10 && yearIndex >= refiYear;
+    const isPostRefi = refiYear >= 0 && refiYear < PROJECTION_YEARS && yearIndex >= refiYear;
     
     if (isPostRefi) {
       const refiLTV = prop.refinanceLTV || global.debtAssumptions.refiLTV || DEFAULT_REFI_LTV;
@@ -3263,7 +3266,7 @@ function InvestmentAnalysis({
                        (refiDate.getMonth() - modelStart.getMonth());
     const refiYear = Math.floor(monthsDiff / 12);
     
-    if (refiYear < 0 || refiYear >= 10) return { year: -1, proceeds: 0 };
+    if (refiYear < 0 || refiYear >= PROJECTION_YEARS) return { year: -1, proceeds: 0 };
     
     const refiLTV = prop.refinanceLTV || global.debtAssumptions.refiLTV || DEFAULT_REFI_LTV;
     const closingCostRate = prop.refinanceClosingCostRate || global.debtAssumptions.refiClosingCostRate || DEFAULT_REFI_CLOSING_COST_RATE;
@@ -3292,7 +3295,7 @@ function InvestmentAnalysis({
                        (refiDate.getMonth() - modelStart.getMonth());
     const refiYear = Math.floor(monthsDiff / 12);
     
-    if (refiYear < 0 || refiYear >= 10 || afterYear < refiYear) return 0;
+    if (refiYear < 0 || refiYear >= PROJECTION_YEARS || afterYear < refiYear) return 0;
     
     const refiLTV = prop.refinanceLTV || global.debtAssumptions.refiLTV || DEFAULT_REFI_LTV;
     const { financials } = allPropertyFinancials[propIndex];
@@ -3326,7 +3329,7 @@ function InvestmentAnalysis({
                          (refiDate.getMonth() - modelStart.getMonth());
       const refiYear = Math.floor(monthsDiff / 12);
       
-      if (refiYear >= 0 && refiYear < 10 && afterYear >= refiYear) {
+      if (refiYear >= 0 && refiYear < PROJECTION_YEARS && afterYear >= refiYear) {
         return getRefiLoanBalance(prop, propIndex, afterYear);
       }
     }
@@ -3335,7 +3338,7 @@ function InvestmentAnalysis({
 
   const getPropertyExitValue = (prop: any, propIndex: number) => {
     const { financials } = allPropertyFinancials[propIndex];
-    const year10Data = financials.slice(108, 120);
+    const year10Data = financials.slice((PROJECTION_YEARS - 1) * 12, PROJECTION_YEARS * 12);
     const year10NOI = year10Data.reduce((a: number, m: any) => a + m.noi, 0);
     const capRate = prop.exitCapRate || DEFAULT_EXIT_CAP_RATE;
     const grossValue = year10NOI / capRate;
@@ -3380,7 +3383,7 @@ function InvestmentAnalysis({
     
     const refi = getPropertyRefinanceProceeds(prop, propIndex);
     
-    for (let y = 0; y < 10; y++) {
+    for (let y = 0; y < PROJECTION_YEARS; y++) {
       const details = getPropertyYearlyDetails(prop, propIndex, y);
       let yearCashFlow = details.atcf;
       
@@ -3440,7 +3443,7 @@ function InvestmentAnalysis({
     const year0Investment = getEquityInvestmentForYear(0);
     flows.push(-year0Investment);
     
-    for (let y = 0; y < 10; y++) {
+    for (let y = 0; y < PROJECTION_YEARS; y++) {
       const consolidated = getConsolidatedYearlyDetails(y);
       let yearCashFlow = consolidated.atcf;
       
@@ -3479,7 +3482,7 @@ function InvestmentAnalysis({
     }
     return cf - exitValue;
   });
-  const avgAnnualCashFlowIA = operatingCashFlowsIA.reduce((sum, cf) => sum + cf, 0) / 10;
+  const avgAnnualCashFlowIA = operatingCashFlowsIA.reduce((sum, cf) => sum + cf, 0) / PROJECTION_YEARS;
   const cashOnCashIA = totalInitialEquityIA > 0 ? (avgAnnualCashFlowIA / totalInitialEquityIA) * 100 : 0;
 
   return (
@@ -3546,7 +3549,7 @@ function InvestmentAnalysis({
               <TableRow>
                 <TableHead className="sticky left-0 bg-card min-w-[200px]">Category</TableHead>
                 <TableHead className="text-right min-w-[110px]">{getFiscalYear(0)}</TableHead>
-                {Array.from({ length: 10 }, (_, i) => (
+                {Array.from({ length: PROJECTION_YEARS }, (_, i) => (
                   <TableHead key={i} className="text-right min-w-[110px]">{getFiscalYear(i + 1)}</TableHead>
                 ))}
               </TableRow>
@@ -3572,7 +3575,7 @@ function InvestmentAnalysis({
                     </TableCell>
                   );
                 })()}
-                {Array.from({ length: 10 }, (_, y) => {
+                {Array.from({ length: PROJECTION_YEARS }, (_, y) => {
                   const yearInv = getEquityInvestmentForYear(y + 1);
                   return (
                     <TableCell key={y} className={`text-right ${yearInv > 0 ? 'text-destructive' : 'text-muted-foreground'}`}>
@@ -3589,7 +3592,7 @@ function InvestmentAnalysis({
                     <TableCell className={`text-right text-sm ${acqYear === 0 ? 'text-destructive' : 'text-muted-foreground'}`}>
                       {acqYear === 0 ? `(${formatMoney(getPropertyInvestment(prop))})` : '-'}
                     </TableCell>
-                    {Array.from({ length: 10 }, (_, y) => (
+                    {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                       <TableCell key={y} className={`text-right text-sm ${acqYear === y + 1 ? 'text-destructive' : 'text-muted-foreground'}`}>
                         {acqYear === y + 1 ? `(${formatMoney(getPropertyInvestment(prop))})` : '-'}
                       </TableCell>
@@ -3612,7 +3615,7 @@ function InvestmentAnalysis({
                   <HelpTooltip text="GAAP FCFE = Cash from Operations - Principal Payments. For hotels where FF&E reserves are included in NOI, this equals After-Tax Cash Flow (ATCF)." />
                 </TableCell>
                 <TableCell className="text-right text-muted-foreground">-</TableCell>
-                {Array.from({ length: 10 }, (_, y) => {
+                {Array.from({ length: PROJECTION_YEARS }, (_, y) => {
                   const details = getConsolidatedYearlyDetails(y);
                   return (
                     <TableCell key={y} className={`text-right ${details.atcf < 0 ? 'text-destructive' : ''}`}>
@@ -3628,14 +3631,14 @@ function InvestmentAnalysis({
                       Cash Flow
                     </TableCell>
                     <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
-                    {Array.from({ length: 10 }, (_, y) => (
+                    {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                       <TableCell key={y} className="text-right text-sm text-muted-foreground">-</TableCell>
                     ))}
                   </TableRow>
                   <TableRow className="bg-muted/5">
                     <TableCell className="sticky left-0 bg-muted/5 pl-12 text-sm text-muted-foreground">Net Operating Income (NOI)</TableCell>
                     <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
-                    {Array.from({ length: 10 }, (_, y) => (
+                    {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                       <TableCell key={y} className="text-right text-sm text-muted-foreground">
                         {formatMoney(getConsolidatedYearlyDetails(y).noi)}
                       </TableCell>
@@ -3644,7 +3647,7 @@ function InvestmentAnalysis({
                   <TableRow className="bg-muted/5">
                     <TableCell className="sticky left-0 bg-muted/5 pl-12 text-sm text-muted-foreground">Less: Debt Service (P+I)</TableCell>
                     <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
-                    {Array.from({ length: 10 }, (_, y) => {
+                    {Array.from({ length: PROJECTION_YEARS }, (_, y) => {
                       const ds = getConsolidatedYearlyDetails(y).debtService;
                       return (
                         <TableCell key={y} className="text-right text-sm text-destructive">
@@ -3659,7 +3662,7 @@ function InvestmentAnalysis({
                       <HelpTooltip text="BTCF = NOI - Debt Service. Cash available before income taxes." />
                     </TableCell>
                     <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
-                    {Array.from({ length: 10 }, (_, y) => {
+                    {Array.from({ length: PROJECTION_YEARS }, (_, y) => {
                       const btcf = getConsolidatedYearlyDetails(y).btcf;
                       return (
                         <TableCell key={y} className={`text-right text-sm ${btcf < 0 ? 'text-destructive' : 'text-muted-foreground'}`}>
@@ -3674,14 +3677,14 @@ function InvestmentAnalysis({
                       Tax (GAAP)
                     </TableCell>
                     <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
-                    {Array.from({ length: 10 }, (_, y) => (
+                    {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                       <TableCell key={y} className="text-right text-sm text-muted-foreground">-</TableCell>
                     ))}
                   </TableRow>
                   <TableRow className="bg-muted/5">
                     <TableCell className="sticky left-0 bg-muted/5 pl-12 text-sm text-muted-foreground">Less: Interest Expense</TableCell>
                     <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
-                    {Array.from({ length: 10 }, (_, y) => {
+                    {Array.from({ length: PROJECTION_YEARS }, (_, y) => {
                       const interest = getConsolidatedYearlyDetails(y).interestPortion;
                       return (
                         <TableCell key={y} className="text-right text-sm text-destructive">
@@ -3693,7 +3696,7 @@ function InvestmentAnalysis({
                   <TableRow className="bg-muted/5">
                     <TableCell className="sticky left-0 bg-muted/5 pl-12 text-sm text-muted-foreground">Less: Depreciation (non-cash)</TableCell>
                     <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
-                    {Array.from({ length: 10 }, (_, y) => {
+                    {Array.from({ length: PROJECTION_YEARS }, (_, y) => {
                       const dep = getConsolidatedYearlyDetails(y).depreciation;
                       return (
                         <TableCell key={y} className="text-right text-sm text-destructive">
@@ -3705,7 +3708,7 @@ function InvestmentAnalysis({
                   <TableRow className="bg-muted/5">
                     <TableCell className="sticky left-0 bg-muted/5 pl-12 text-sm text-muted-foreground">= Taxable Income (NOI-Int-Dep)</TableCell>
                     <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
-                    {Array.from({ length: 10 }, (_, y) => {
+                    {Array.from({ length: PROJECTION_YEARS }, (_, y) => {
                       const ti = getConsolidatedYearlyDetails(y).taxableIncome;
                       return (
                         <TableCell key={y} className={`text-right text-sm ${ti < 0 ? 'text-muted-foreground' : ''}`}>
@@ -3717,7 +3720,7 @@ function InvestmentAnalysis({
                   <TableRow className="bg-muted/5">
                     <TableCell className="sticky left-0 bg-muted/5 pl-12 text-sm text-muted-foreground">Tax Liability (if positive)</TableCell>
                     <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
-                    {Array.from({ length: 10 }, (_, y) => {
+                    {Array.from({ length: PROJECTION_YEARS }, (_, y) => {
                       const tax = getConsolidatedYearlyDetails(y).taxLiability;
                       return (
                         <TableCell key={y} className="text-right text-sm text-destructive">
@@ -3733,7 +3736,7 @@ function InvestmentAnalysis({
                       <HelpTooltip text="ATCF = BTCF - Tax Liability. Cash available to investors after all taxes paid." />
                     </TableCell>
                     <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
-                    {Array.from({ length: 10 }, (_, y) => {
+                    {Array.from({ length: PROJECTION_YEARS }, (_, y) => {
                       const atcf = getConsolidatedYearlyDetails(y).atcf;
                       return (
                         <TableCell key={y} className={`text-right text-sm font-medium ${atcf < 0 ? 'text-destructive' : ''}`}>
@@ -3745,7 +3748,7 @@ function InvestmentAnalysis({
                   <TableRow className="bg-muted/10">
                     <TableCell className="sticky left-0 bg-muted/10 pl-8 text-sm text-muted-foreground">By Property:</TableCell>
                     <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
-                    {Array.from({ length: 10 }, (_, y) => (
+                    {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                       <TableCell key={y} className="text-right text-sm text-muted-foreground">-</TableCell>
                     ))}
                   </TableRow>
@@ -3756,7 +3759,7 @@ function InvestmentAnalysis({
                         <span className="text-xs ml-2">({((prop.taxRate || DEFAULT_TAX_RATE) * 100).toFixed(0)}% tax)</span>
                       </TableCell>
                       <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
-                      {Array.from({ length: 10 }, (_, y) => {
+                      {Array.from({ length: PROJECTION_YEARS }, (_, y) => {
                         const details = getPropertyYearlyDetails(prop, idx, y);
                         return (
                           <TableCell key={y} className={`text-right text-sm ${details.atcf < 0 ? 'text-destructive' : 'text-muted-foreground'}`}>
@@ -3782,7 +3785,7 @@ function InvestmentAnalysis({
                   Refinancing Proceeds
                 </TableCell>
                 <TableCell className="text-right text-muted-foreground">-</TableCell>
-                {Array.from({ length: 10 }, (_, y) => {
+                {Array.from({ length: PROJECTION_YEARS }, (_, y) => {
                   let totalRefi = 0;
                   properties.forEach((prop, idx) => {
                     const refi = getPropertyRefinanceProceeds(prop, idx);
@@ -3802,7 +3805,7 @@ function InvestmentAnalysis({
                   <TableRow key={prop.id} className="bg-muted/10">
                     <TableCell className="sticky left-0 bg-muted/10 pl-8 text-sm text-muted-foreground">{prop.name}</TableCell>
                     <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
-                    {Array.from({ length: 10 }, (_, y) => (
+                    {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                       <TableCell key={y} className={`text-right text-sm ${y === refi.year ? 'text-accent' : 'text-muted-foreground'}`}>
                         {y === refi.year ? formatMoney(refi.proceeds) : '-'}
                       </TableCell>
@@ -3824,7 +3827,7 @@ function InvestmentAnalysis({
                   Exit Proceeds ({getFiscalYear(10)})
                 </TableCell>
                 <TableCell className="text-right text-muted-foreground">-</TableCell>
-                {Array.from({ length: 10 }, (_, y) => (
+                {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                   <TableCell key={y} className={`text-right ${y !== 9 ? 'text-muted-foreground' : ''}`}>
                     {y === 9 ? formatMoney(totalExitValueIA) : '-'}
                   </TableCell>
@@ -3837,7 +3840,7 @@ function InvestmentAnalysis({
                     <span className="text-xs ml-2">({((prop.exitCapRate || DEFAULT_EXIT_CAP_RATE) * 100).toFixed(1)}% cap)</span>
                   </TableCell>
                   <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
-                  {Array.from({ length: 10 }, (_, y) => (
+                  {Array.from({ length: PROJECTION_YEARS }, (_, y) => (
                     <TableCell key={y} className={`text-right text-sm ${y === 9 ? 'text-accent' : 'text-muted-foreground'}`}>
                       {y === 9 ? formatMoney(getPropertyExitValue(prop, idx)) : '-'}
                     </TableCell>

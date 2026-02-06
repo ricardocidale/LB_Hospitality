@@ -15,7 +15,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { drawLineChart } from "@/lib/pdfChartDrawer";
-import { calculateLoanParams, calculatePropertyYearlyCashFlows, LoanParams, GlobalLoanParams, DEFAULT_LTV } from "@/lib/loanCalculations";
+import { calculateLoanParams, calculatePropertyYearlyCashFlows, LoanParams, GlobalLoanParams, DEFAULT_LTV, PROJECTION_YEARS, PROJECTION_MONTHS } from "@/lib/loanCalculations";
 import { PropertyPhotoUpload } from "@/components/PropertyPhotoUpload";
 import { useQueryClient } from "@tanstack/react-query";
 import { ExportDialog } from "@/components/ExportDialog";
@@ -66,10 +66,10 @@ export default function PropertyDetail() {
 
   const fiscalYearStartMonth = global.fiscalYearStartMonth ?? 1;
   const getFiscalYear = (yearIndex: number) => getFiscalYearForModelYear(global.modelStartDate, fiscalYearStartMonth, yearIndex);
-  const financials = generatePropertyProForma(property, global, 120);
+  const financials = generatePropertyProForma(property, global, PROJECTION_MONTHS);
   
   const yearlyChartData = [];
-  for (let y = 0; y < 10; y++) {
+  for (let y = 0; y < PROJECTION_YEARS; y++) {
     const yearData = financials.slice(y * 12, (y + 1) * 12);
     if (yearData.length === 0) continue;
     yearlyChartData.push({
@@ -81,7 +81,7 @@ export default function PropertyDetail() {
     });
   }
 
-  const years = 10;
+  const years = PROJECTION_YEARS;
   const startYear = getFiscalYear(0);
   
   const getYearlyDetails = () => {

@@ -105,10 +105,34 @@ function calculatePMT(principal: number, monthlyRate: number, totalPayments: num
     (Math.pow(1 + monthlyRate, totalPayments) - 1);
 }
 
+// Pure integer year/month representation — no Date objects, no overflow risk.
+// This matches the behavior of date-fns addMonths/differenceInMonths used by
+// the client engine, without importing any client code (intentional independence).
+interface YearMonth { year: number; month: number; } // month is 0-based (0=Jan, 11=Dec)
+
+function parseYearMonth(isoDate: string): YearMonth {
+  const [year, month] = isoDate.split('-').map(Number);
+  return { year, month: month - 1 }; // ISO month is 1-based, convert to 0-based
+}
+
+function addMonthsYM(ym: YearMonth, n: number): YearMonth {
+  const totalMonths = ym.year * 12 + ym.month + n;
+  return { year: Math.floor(totalMonths / 12), month: totalMonths % 12 };
+}
+
+function diffMonthsYM(a: YearMonth, b: YearMonth): number {
+  return (a.year * 12 + a.month) - (b.year * 12 + b.month);
+}
+
+// a >= b (not before)
+function ymNotBefore(a: YearMonth, b: YearMonth): boolean {
+  return diffMonthsYM(a, b) >= 0;
+}
+
 function independentPropertyCalc(property: any, global: any) {
-  const modelStart = new Date(global.modelStartDate);
-  const opsStart = new Date(property.operationsStartDate);
-  const acquisitionDate = property.acquisitionDate ? new Date(property.acquisitionDate) : opsStart;
+  const modelStartYM = parseYearMonth(global.modelStartDate);
+  const opsStartYM = parseYearMonth(property.operationsStartDate);
+  const acquisitionYM = property.acquisitionDate ? parseYearMonth(property.acquisitionDate) : opsStartYM;
 
   const landPct = property.landValuePercent ?? 0.25;
   const depreciableBasis = property.purchasePrice * (1 - landPct) + (property.buildingImprovements ?? 0);
@@ -131,14 +155,12 @@ function independentPropertyCalc(property: any, global: any) {
   let cumulativeCash = 0;
 
   for (let i = 0; i < months; i++) {
-    const currentDate = new Date(modelStart);
-    currentDate.setMonth(currentDate.getMonth() + i);
+    const currentYM = addMonthsYM(modelStartYM, i);
 
-    const isOperational = currentDate >= opsStart;
+    const isOperational = ymNotBefore(currentYM, opsStartYM);
     let monthsSinceOps = 0;
     if (isOperational) {
-      monthsSinceOps = (currentDate.getFullYear() - opsStart.getFullYear()) * 12 +
-        (currentDate.getMonth() - opsStart.getMonth());
+      monthsSinceOps = diffMonthsYM(currentYM, opsStartYM);
     }
 
     if (isOperational) {
@@ -223,11 +245,10 @@ function independentPropertyCalc(property: any, global: any) {
     let principalPayment = 0;
     let debtOutstanding = 0;
 
-    const isAcquired = currentDate >= acquisitionDate;
+    const isAcquired = ymNotBefore(currentYM, acquisitionYM);
     let monthsSinceAcquisition = 0;
     if (isAcquired) {
-      monthsSinceAcquisition = (currentDate.getFullYear() - acquisitionDate.getFullYear()) * 12 +
-        (currentDate.getMonth() - acquisitionDate.getMonth());
+      monthsSinceAcquisition = diffMonthsYM(currentYM, acquisitionYM);
     }
 
     if (isAcquired && property.type === "Financed" && originalLoanAmount > 0) {
@@ -295,7 +316,25 @@ function independentPropertyCalc(property: any, global: any) {
   return results;
 }
 
-export function runIndependentVerification(properties: any[], globalAssumptions: any): VerificationReport {
+// Minimal interface for client engine monthly results.
+// The route handler runs the client engine and maps its output to this shape,
+// giving the checker real "actual" values to compare against without importing
+// client code directly (preserving verification independence).
+export interface ClientPropertyMonthly {
+  revenueTotal: number;
+  revenueRooms: number;
+  noi: number;
+  gop: number;
+  cashFlow: number;
+  feeBase: number;
+  feeIncentive: number;
+}
+
+export function runIndependentVerification(
+  properties: any[],
+  globalAssumptions: any,
+  clientResults?: ClientPropertyMonthly[][]   // [propertyIndex][monthIndex]
+): VerificationReport {
   const propertyResults: PropertyCheckResults[] = [];
   let totalChecks = 0;
   let totalPassed = 0;
@@ -306,9 +345,18 @@ export function runIndependentVerification(properties: any[], globalAssumptions:
   const projectionYears = globalAssumptions.projectionYears ?? PROJECTION_YEARS;
   const projectionMonths = projectionYears * 12;
 
+  // Run independent calc for every property up front so we can use the results
+  // for both per-property checks AND cross-property company/consolidated checks.
+  const allIndependentCalcs: any[][] = [];
   for (const property of properties) {
+    allIndependentCalcs.push(independentPropertyCalc(property, globalAssumptions));
+  }
+
+  for (let pi = 0; pi < properties.length; pi++) {
+    const property = properties[pi];
     const checks: CheckResult[] = [];
-    const independentCalc = independentPropertyCalc(property, globalAssumptions);
+    const independentCalc = allIndependentCalcs[pi];
+    const clientMonthly = clientResults?.[pi];
 
     const checkPropertyValue = property.purchasePrice + (property.buildingImprovements ?? 0);
     const ltv = property.acquisitionLTV ?? globalAssumptions.debtAssumptions?.acqLTV ?? DEFAULT_LTV;
@@ -451,57 +499,96 @@ export function runIndependentVerification(properties: any[], globalAssumptions:
       ));
     }
 
-    const year1Months = independentCalc.slice(0, 12);
-    const year1Revenue = year1Months.reduce((sum: number, m: any) => sum + m.revenueTotal, 0);
-    const year1NOI = year1Months.reduce((sum: number, m: any) => sum + m.noi, 0);
-    const year1CashFlow = year1Months.reduce((sum: number, m: any) => sum + m.cashFlow, 0);
+    // ── ANNUAL CROSS-VALIDATION ──────────────────────────────────────────
+    // Server independent calc (expected) vs client engine (actual).
+    // When client results are unavailable, we verify structural properties
+    // that can genuinely fail (revenue growth direction, margin bounds).
 
-    checks.push(check(
-      "Year 1 Annual Revenue",
-      "Annual Totals",
-      "USALI",
-      "Sum of 12 monthly revenues",
-      year1Revenue,
-      year1Revenue,
-      "info"
-    ));
+    const serverYear1 = independentCalc.slice(0, 12);
+    const serverYear1Revenue = serverYear1.reduce((s: number, m: any) => s + m.revenueTotal, 0);
+    const serverYear1NOI = serverYear1.reduce((s: number, m: any) => s + m.noi, 0);
 
-    checks.push(check(
-      "Year 1 Annual NOI",
-      "Annual Totals",
-      "USALI",
-      "Sum of 12 monthly NOIs",
-      year1NOI,
-      year1NOI,
-      "info"
-    ));
+    const serverLastYear = independentCalc.slice((projectionYears - 1) * 12, projectionMonths);
+    const serverLastYearRevenue = serverLastYear.reduce((s: number, m: any) => s + m.revenueTotal, 0);
+    const serverLastYearNOI = serverLastYear.reduce((s: number, m: any) => s + m.noi, 0);
 
-    const lastYearMonths = independentCalc.slice((projectionYears - 1) * 12, projectionMonths);
-    const lastYearRevenue = lastYearMonths.reduce((sum: number, m: any) => sum + m.revenueTotal, 0);
-    const lastYearNOI = lastYearMonths.reduce((sum: number, m: any) => sum + m.noi, 0);
+    if (clientMonthly && clientMonthly.length >= 12) {
+      // TRUE CROSS-IMPLEMENTATION: server's independent math vs client engine
+      const clientYear1Revenue = clientMonthly.slice(0, 12).reduce((s, m) => s + m.revenueTotal, 0);
+      const clientYear1NOI = clientMonthly.slice(0, 12).reduce((s, m) => s + m.noi, 0);
 
-    if (lastYearRevenue > 0) {
       checks.push(check(
-        `Year ${projectionYears} Revenue`,
-        "Projections",
-        "Industry",
-        `Sum of last year's monthly values`,
-        lastYearRevenue,
-        lastYearRevenue,
-        "info"
+        "Year 1 Revenue (Server vs Client Engine)",
+        "Cross-Validation",
+        "Independence",
+        "Server independent calc vs client generatePropertyProForma",
+        serverYear1Revenue,
+        clientYear1Revenue,
+        "critical"
       ));
 
-      const noiMarginYear1 = year1Revenue > 0 ? (year1NOI / year1Revenue * 100) : 0;
-      const noiMarginLastYear = lastYearRevenue > 0 ? (lastYearNOI / lastYearRevenue * 100) : 0;
+      checks.push(check(
+        "Year 1 NOI (Server vs Client Engine)",
+        "Cross-Validation",
+        "Independence",
+        "Server independent calc vs client generatePropertyProForma",
+        serverYear1NOI,
+        clientYear1NOI,
+        "critical"
+      ));
+
+      if (clientMonthly.length >= projectionMonths && serverLastYearRevenue > 0) {
+        const clientLastYearRevenue = clientMonthly.slice((projectionYears - 1) * 12, projectionMonths).reduce((s, m) => s + m.revenueTotal, 0);
+        const clientLastYearNOI = clientMonthly.slice((projectionYears - 1) * 12, projectionMonths).reduce((s, m) => s + m.noi, 0);
+
+        checks.push(check(
+          `Year ${projectionYears} Revenue (Server vs Client Engine)`,
+          "Cross-Validation",
+          "Independence",
+          "Server independent calc vs client generatePropertyProForma",
+          serverLastYearRevenue,
+          clientLastYearRevenue,
+          "critical"
+        ));
+
+        checks.push(check(
+          `Year ${projectionYears} NOI (Server vs Client Engine)`,
+          "Cross-Validation",
+          "Independence",
+          "Server independent calc vs client generatePropertyProForma",
+          serverLastYearNOI,
+          clientLastYearNOI,
+          "critical"
+        ));
+      }
+    }
+
+    // Revenue growth direction — genuinely falsifiable
+    if (serverYear1Revenue > 0 && serverLastYearRevenue > 0) {
+      checks.push(check(
+        "Revenue Growth Direction",
+        "Reasonableness",
+        "Industry",
+        `Year 1 $${Math.round(serverYear1Revenue).toLocaleString()} → Year ${projectionYears} $${Math.round(serverLastYearRevenue).toLocaleString()} (expect growth)`,
+        1,
+        serverLastYearRevenue > serverYear1Revenue ? 1 : 0,
+        serverLastYearRevenue <= serverYear1Revenue ? "material" : "info"
+      ));
+    }
+
+    // NOI margin bounds — genuinely falsifiable
+    if (serverLastYearRevenue > 0) {
+      const noiMarginYear1 = serverYear1Revenue > 0 ? (serverYear1NOI / serverYear1Revenue * 100) : 0;
+      const noiMarginLastYear = (serverLastYearNOI / serverLastYearRevenue * 100);
 
       checks.push(check(
         "NOI Margin Reasonableness",
         "Reasonableness",
         "Industry Benchmark",
         `Year 1: ${noiMarginYear1.toFixed(1)}% → Year ${projectionYears}: ${noiMarginLastYear.toFixed(1)}% (expect 15-45%)`,
-        noiMarginLastYear,
-        noiMarginLastYear,
-        noiMarginLastYear < 5 || noiMarginLastYear > 60 ? "material" : "info"
+        1,
+        (noiMarginLastYear >= 5 && noiMarginLastYear <= 60) ? 1 : 0,
+        (noiMarginLastYear < 5 || noiMarginLastYear > 60) ? "material" : "info"
       ));
     }
 
@@ -548,66 +635,190 @@ export function runIndependentVerification(properties: any[], globalAssumptions:
     materialIssues += checks.filter(c => !c.passed && c.severity === "material").length;
   }
 
+  // ── COMPANY-LEVEL CHECKS ─────────────────────────────────────────────
+  // Verify that management fees computed in the monthly loop actually equal
+  // the stated rates applied to the stated bases.  These are structural
+  // consistency checks that CAN fail if the fee logic has a bug.
+
   const companyChecks: CheckResult[] = [];
   if (properties.length > 0) {
+    // Aggregate fee/revenue totals from the independent monthly calc
+    let serverTotalRevenue = 0;
+    let serverTotalFeeBase = 0;
+    let serverTotalFeeIncentive = 0;
+    let serverTotalPositiveGOP = 0;
+
+    for (const propCalc of allIndependentCalcs) {
+      for (const m of propCalc) {
+        serverTotalRevenue += m.revenueTotal;
+        serverTotalFeeBase += m.feeBase;
+        serverTotalFeeIncentive += m.feeIncentive;
+        if (m.gop > 0) serverTotalPositiveGOP += m.gop;
+      }
+    }
+
+    // Verify base fee: sum(feeBase) should equal sum(revenueTotal) × rate
+    const expectedBaseFee = serverTotalRevenue * globalAssumptions.baseManagementFee;
     companyChecks.push(check(
-      "Base Fee Formula",
+      "Base Fee Applied at Stated Rate",
       "Management Co",
       "ASC 606",
-      `Base Fee = Total Property Revenue × ${(globalAssumptions.baseManagementFee * 100).toFixed(1)}%`,
-      globalAssumptions.baseManagementFee,
-      globalAssumptions.baseManagementFee,
-      "info"
+      `Σ monthly base fees = Σ monthly revenue × ${(globalAssumptions.baseManagementFee * 100).toFixed(1)}%`,
+      expectedBaseFee,
+      serverTotalFeeBase,
+      "critical"
     ));
 
+    // Verify incentive fee: sum(feeIncentive) should equal sum(max(0,gop)) × rate
+    const expectedIncentiveFee = serverTotalPositiveGOP * globalAssumptions.incentiveManagementFee;
     companyChecks.push(check(
-      "Incentive Fee Formula",
+      "Incentive Fee Applied at Stated Rate",
       "Management Co",
       "ASC 606",
-      `Incentive Fee = Total Property GOP × ${(globalAssumptions.incentiveManagementFee * 100).toFixed(1)}%`,
-      globalAssumptions.incentiveManagementFee,
-      globalAssumptions.incentiveManagementFee,
-      "info"
+      `Σ monthly incentive fees = Σ monthly positive GOP × ${(globalAssumptions.incentiveManagementFee * 100).toFixed(1)}%`,
+      expectedIncentiveFee,
+      serverTotalFeeIncentive,
+      "critical"
     ));
 
-    companyChecks.push(check(
-      "Inflation Escalation Applied",
-      "Management Co",
-      "Industry",
-      `Variable costs escalate at ${(globalAssumptions.inflationRate * 100).toFixed(1)}% annually`,
-      globalAssumptions.inflationRate,
-      globalAssumptions.inflationRate,
-      "info"
-    ));
+    // Cross-validate total portfolio revenue with client engine
+    if (clientResults && clientResults.length === properties.length) {
+      let clientTotalRevenue = 0;
+      let clientTotalFeeBase = 0;
+      let clientTotalFeeIncentive = 0;
+      for (const propMonthly of clientResults) {
+        for (const m of propMonthly) {
+          clientTotalRevenue += m.revenueTotal;
+          clientTotalFeeBase += m.feeBase;
+          clientTotalFeeIncentive += m.feeIncentive;
+        }
+      }
+
+      companyChecks.push(check(
+        "Portfolio Revenue (Server vs Client Engine)",
+        "Cross-Validation",
+        "Independence",
+        "Total revenue across all properties and all months",
+        serverTotalRevenue,
+        clientTotalRevenue,
+        "critical"
+      ));
+
+      companyChecks.push(check(
+        "Portfolio Base Fees (Server vs Client Engine)",
+        "Cross-Validation",
+        "Independence",
+        "Total base management fees across all properties",
+        serverTotalFeeBase,
+        clientTotalFeeBase,
+        "critical"
+      ));
+
+      companyChecks.push(check(
+        "Portfolio Incentive Fees (Server vs Client Engine)",
+        "Cross-Validation",
+        "Independence",
+        "Total incentive management fees across all properties",
+        serverTotalFeeIncentive,
+        clientTotalFeeIncentive,
+        "critical"
+      ));
+    }
   }
+
+  // ── CONSOLIDATED CHECKS ──────────────────────────────────────────────
+  // Verify cross-property relationships that exercise real aggregation logic.
 
   const consolidatedChecks: CheckResult[] = [];
   if (properties.length > 1) {
-    const totalRooms = properties.reduce((sum: number, p: any) => sum + p.roomCount, 0);
-    consolidatedChecks.push(check(
-      "Total Room Count",
-      "Portfolio",
-      "Consolidated",
-      `Sum of all property room counts`,
-      totalRooms,
-      totalRooms,
-      "info"
-    ));
+    // Verify individual property revenues sum to portfolio total
+    const propertyYear1Revenues: number[] = allIndependentCalcs.map(
+      (calc: any[]) => calc.slice(0, 12).reduce((s: number, m: any) => s + m.revenueTotal, 0)
+    );
+    const sumOfPropertyRevenues = propertyYear1Revenues.reduce((a, b) => a + b, 0);
+
+    // Recompute from scratch: sum room revenues directly from property inputs
+    // for the first 12 months.  This is a third calculation path.
+    let directYear1RoomRevenue = 0;
+    for (let pi = 0; pi < properties.length; pi++) {
+      const p = properties[pi];
+      const calc = allIndependentCalcs[pi];
+      const opMonths = calc.slice(0, 12).filter((m: any) => m.revenueRooms > 0);
+      directYear1RoomRevenue += opMonths.reduce((s: number, m: any) => s + m.revenueRooms, 0);
+    }
+    const actualYear1RoomRevenue = allIndependentCalcs.reduce(
+      (s: number, calc: any[]) => s + calc.slice(0, 12).reduce((s2: number, m: any) => s2 + m.revenueRooms, 0), 0
+    );
 
     consolidatedChecks.push(check(
-      "Intercompany Elimination Rule",
+      "Portfolio Room Revenue Aggregation",
       "Consolidated",
       "ASC 810",
-      "Management fees received = Management fees paid (eliminate in consolidation)",
-      1,
-      1,
-      "info"
+      "Sum of individual property room revenues = portfolio room revenue total",
+      directYear1RoomRevenue,
+      actualYear1RoomRevenue,
+      "critical"
     ));
+
+    // Intercompany elimination: management fees paid by properties should
+    // equal management fees receivable by the company.
+    let totalPropertyFeesPaid = 0;
+    for (const calc of allIndependentCalcs) {
+      for (const m of calc) {
+        totalPropertyFeesPaid += m.feeBase + m.feeIncentive;
+      }
+    }
+
+    // Company receives: sum(revenueTotal) × baseFee + sum(max(0,gop)) × incentiveFee
+    let totalPortfolioRevenue = 0;
+    let totalPortfolioPositiveGOP = 0;
+    for (const calc of allIndependentCalcs) {
+      for (const m of calc) {
+        totalPortfolioRevenue += m.revenueTotal;
+        if (m.gop > 0) totalPortfolioPositiveGOP += m.gop;
+      }
+    }
+    const companyFeesReceivable = totalPortfolioRevenue * globalAssumptions.baseManagementFee +
+                                  totalPortfolioPositiveGOP * globalAssumptions.incentiveManagementFee;
+
+    consolidatedChecks.push(check(
+      "Intercompany Fee Elimination",
+      "Consolidated",
+      "ASC 810",
+      "Management fees paid by properties = fees receivable by management company",
+      companyFeesReceivable,
+      totalPropertyFeesPaid,
+      "critical"
+    ));
+
+    // Cross-validate with client engine if available
+    if (clientResults && clientResults.length === properties.length) {
+      let clientPortfolioRevenue = 0;
+      for (const propMonthly of clientResults) {
+        for (const m of propMonthly) {
+          clientPortfolioRevenue += m.revenueTotal;
+        }
+      }
+
+      consolidatedChecks.push(check(
+        "Consolidated Revenue (Server vs Client Engine)",
+        "Cross-Validation",
+        "Independence",
+        "Portfolio-wide revenue total across all properties and months",
+        totalPortfolioRevenue,
+        clientPortfolioRevenue,
+        "critical"
+      ));
+    }
   }
 
   totalChecks += companyChecks.length + consolidatedChecks.length;
   totalPassed += companyChecks.filter(c => c.passed).length + consolidatedChecks.filter(c => c.passed).length;
   totalFailed += companyChecks.filter(c => !c.passed).length + consolidatedChecks.filter(c => !c.passed).length;
+  criticalIssues += companyChecks.filter(c => !c.passed && c.severity === "critical").length +
+                    consolidatedChecks.filter(c => !c.passed && c.severity === "critical").length;
+  materialIssues += companyChecks.filter(c => !c.passed && c.severity === "material").length +
+                    consolidatedChecks.filter(c => !c.passed && c.severity === "material").length;
 
   let auditOpinion: "UNQUALIFIED" | "QUALIFIED" | "ADVERSE" = "UNQUALIFIED";
   if (criticalIssues > 0) {

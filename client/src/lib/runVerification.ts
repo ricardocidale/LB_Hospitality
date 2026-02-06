@@ -2,13 +2,14 @@ import { generatePropertyProForma, MonthlyFinancials } from "./financialEngine";
 import { checkPropertyFormulas, checkMetricFormulas, generateFormulaReport, FormulaCheckReport } from "./formulaChecker";
 import { checkGAAPCompliance, checkCashFlowStatement, generateComplianceReport, ComplianceReport } from "./gaapComplianceChecker";
 import { runFullAudit, generateAuditWorkpaper, AuditReport, PropertyAuditInput, GlobalAuditInput } from "./financialAuditor";
-import { 
-  DEFAULT_LTV, 
-  DEFAULT_INTEREST_RATE, 
-  DEFAULT_TERM_YEARS, 
+import {
+  DEFAULT_LTV,
+  DEFAULT_INTEREST_RATE,
+  DEFAULT_TERM_YEARS,
   DEPRECIATION_YEARS,
   DAYS_PER_MONTH,
   PROJECTION_YEARS,
+  DEFAULT_LAND_VALUE_PERCENT,
 } from "./constants";
 
 export interface VerificationResults {
@@ -275,7 +276,7 @@ export const KNOWN_VALUE_TEST_CASES: TestCase[] = [
       acquisitionLTV: 0.75,
     },
     expectedMonthlyRoomRevenue: 21350, // 10 rooms × $100 ADR × 70% occ × 30.5 days (365/12)
-    expectedAnnualDepreciation: 43636.36, // $1,200,000 / 27.5 years
+    expectedAnnualDepreciation: 34545.45, // ($1,000,000 × 75% + $200,000) / 27.5 years — land excluded per ASC 360
     expectedMonthlyPayment: 7549.94, // $900,000 @ 9% for 25 years using PMT formula
   },
   {
@@ -290,7 +291,7 @@ export const KNOWN_VALUE_TEST_CASES: TestCase[] = [
       type: "All Cash",
     },
     expectedMonthlyRoomRevenue: 59475, // 20 rooms × $150 ADR × 65% occ × 30.5 days (365/12)
-    expectedAnnualDepreciation: 90909.09, // $2,500,000 / 27.5 years
+    expectedAnnualDepreciation: 72727.27, // ($2,000,000 × 75% + $500,000) / 27.5 years — land excluded per ASC 360
     expectedMonthlyPayment: 0, // All cash = no debt
   }
 ];
@@ -320,20 +321,21 @@ export function runKnownValueTests(): { passed: boolean; results: string } {
     output += `    Calculated: $${calculatedRoomRevenue.toLocaleString()}\n`;
     if (!revenueMatch) allPassed = false;
     
-    // Test depreciation calculation
-    const buildingValue = (testCase.property.purchasePrice || 0) + (testCase.property.buildingImprovements || 0);
-    const calculatedDepreciation = buildingValue / DEPRECIATION_YEARS;
+    // Test depreciation calculation — land is non-depreciable per IRS Pub 946 / ASC 360
+    const landPct = testCase.property.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT;
+    const depreciableBasis = (testCase.property.purchasePrice || 0) * (1 - landPct) + (testCase.property.buildingImprovements || 0);
+    const calculatedDepreciation = depreciableBasis / DEPRECIATION_YEARS;
     const depreciationMatch = Math.abs(calculatedDepreciation - testCase.expectedAnnualDepreciation) < 1;
-    
+
     output += `\n  Depreciation: ${depreciationMatch ? "✓" : "✗"}\n`;
-    output += `    Formula: $${buildingValue.toLocaleString()} ÷ ${DEPRECIATION_YEARS} years\n`;
+    output += `    Formula: $${depreciableBasis.toLocaleString()} depreciable basis ÷ ${DEPRECIATION_YEARS} years\n`;
     output += `    Expected: $${testCase.expectedAnnualDepreciation.toLocaleString()}\n`;
     output += `    Calculated: $${calculatedDepreciation.toLocaleString()}\n`;
     if (!depreciationMatch) allPassed = false;
     
     // Test loan payment calculation
     if (testCase.property.type === "Financed") {
-      const totalInvestment = buildingValue;
+      const totalInvestment = (testCase.property.purchasePrice || 0) + (testCase.property.buildingImprovements || 0);
       const ltv = testCase.property.acquisitionLTV || DEFAULT_LTV;
       const loanAmount = totalInvestment * ltv;
       const rate = DEFAULT_INTEREST_RATE / 12;

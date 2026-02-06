@@ -9,7 +9,8 @@ import { z } from "zod";
 import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
 import { GoogleGenAI } from "@google/genai";
-import { runIndependentVerification, type VerificationReport } from "./calculationChecker";
+import { runIndependentVerification, type VerificationReport, type ClientPropertyMonthly } from "./calculationChecker";
+import { generatePropertyProForma } from "../client/src/lib/financialEngine";
 import { generateResearchWithToolsStream, loadSkill, buildUserPrompt, type ResearchParams } from "./aiResearch";
 
 const loginSchema = z.object({
@@ -534,12 +535,27 @@ export async function registerRoutes(
     try {
       const globalAssumptions = await storage.getGlobalAssumptions();
       const properties = await storage.getAllProperties();
-      
+
       if (!globalAssumptions) {
         return res.status(400).json({ error: "No global assumptions found" });
       }
 
-      const report = runIndependentVerification(properties, globalAssumptions);
+      // Run the client engine for each property to get "actual" values
+      // for cross-implementation verification against the independent checker.
+      const clientResults: ClientPropertyMonthly[][] = properties.map((property: any) => {
+        const months = generatePropertyProForma(property, globalAssumptions as any);
+        return months.map((m: any) => ({
+          revenueTotal: m.revenueTotal,
+          revenueRooms: m.revenueRooms,
+          noi: m.noi,
+          gop: m.gop,
+          cashFlow: m.cashFlow,
+          feeBase: m.feeBase,
+          feeIncentive: m.feeIncentive,
+        }));
+      });
+
+      const report = runIndependentVerification(properties, globalAssumptions, clientResults);
       res.json(report);
     } catch (error) {
       console.error("Error running verification:", error);
@@ -557,7 +573,20 @@ export async function registerRoutes(
         return res.status(400).json({ error: "No global assumptions found" });
       }
 
-      const report = runIndependentVerification(properties, globalAssumptions);
+      const clientResults: ClientPropertyMonthly[][] = properties.map((property: any) => {
+        const months = generatePropertyProForma(property, globalAssumptions as any);
+        return months.map((m: any) => ({
+          revenueTotal: m.revenueTotal,
+          revenueRooms: m.revenueRooms,
+          noi: m.noi,
+          gop: m.gop,
+          cashFlow: m.cashFlow,
+          feeBase: m.feeBase,
+          feeIncentive: m.feeIncentive,
+        }));
+      });
+
+      const report = runIndependentVerification(properties, globalAssumptions, clientResults);
 
       const systemPrompt = `You are a PwC-level financial auditor specializing in hospitality real estate.
 Review the following independent verification report and provide:

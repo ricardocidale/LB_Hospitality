@@ -85,10 +85,13 @@ RESTful endpoints organized by domain:
 
 ### Authentication
 - Session-based auth with bcrypt password hashing
+- Sessions stored in PostgreSQL `sessions` table (id, userId, expiresAt)
 - Cookie-based session management
-- Role-based access: `admin`, `user`, `checker`
-- Rate limiting on login attempts
-- IP tracking for login history
+- Two database roles: `admin` (full access) and `user` (standard access)
+- Checker access: `requireChecker` middleware grants verification endpoint access to `admin` role OR email `"checker"` (checker user has role `"user"` in the database)
+- Rate limiting on login attempts (by IP address)
+- IP tracking for login history (`login_logs` table)
+- Admin and checker users auto-created/updated on every server start via `seedAdminUser()` in `server/auth.ts`
 
 ## Data Flow
 

@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-A financial modeling and portfolio management portal for L+B Hospitality Group, a boutique hotel management company. The system generates monthly/yearly pro forma projections, income statements, balance sheets, and cash flow statements for hospitality assets across North America and Latin America. Includes PwC-level independent financial verification against GAAP standards and AI-powered market research.
+A financial modeling and portfolio management portal for L+B Hospitality Group, a boutique hotel management company. The system generates monthly/yearly pro forma projections, income statements, balance sheets, and cash flow statements for hospitality assets across North America and Latin America. Includes independent financial verification against GAAP standards (ASC 230, 360, 470, 606) and AI-powered market research.
 
 ## Tech Stack
 
@@ -51,7 +51,7 @@ server/seed.ts                 # Database seeding script
 - Room revenue uses 30.5 days/month (365/12 rounded) - industry standard, not configurable
 - Balance sheet entries only appear after property acquisition date
 - Principal payments are financing activities, NOT income statement expenses (ASC 470)
-- The `checker` user has special access to verification endpoints
+- The `checker` user has role "user" but gets verification access via email check in `requireChecker` middleware
 - Seeding is idempotent - it skips if data already exists
 
 ## Environment Variables

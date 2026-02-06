@@ -50,8 +50,16 @@ Used as fallbacks when no user-configured value exists:
 | `DEFAULT_COMMISSION_RATE` | 0.05 (5%) | Sales commission on property sale |
 | `DEFAULT_REFI_LTV` | 0.65 (65%) | Refinance loan-to-value ratio |
 | `DEFAULT_REFI_CLOSING_COST_RATE` | 0.03 (3%) | Refinance closing costs |
-| `DEFAULT_ACQ_CLOSING_COST_RATE` | 0.03 (3%) | Acquisition closing costs |
-| `DEFAULT_COMPANY_TAX_RATE` | 0.25 (25%) | Company-level tax rate |
+| `DEFAULT_ACQ_CLOSING_COST_RATE` | 0.02 (2%) | Acquisition closing costs |
+| `DEFAULT_COMPANY_TAX_RATE` | 0.30 (30%) | Company-level tax rate |
+
+### Default Revenue Share Constants
+
+| Constant | Value | Description |
+|----------|-------|-------------|
+| `DEFAULT_REV_SHARE_EVENTS` | 0.43 (43%) | Event revenue as % of room revenue |
+| `DEFAULT_REV_SHARE_FB` | 0.22 (22%) | F&B revenue as % of room revenue |
+| `DEFAULT_REV_SHARE_OTHER` | 0.07 (7%) | Other revenue as % of room revenue |
 
 ### Default Operational Constants
 
@@ -62,6 +70,49 @@ Used as fallbacks when no user-configured value exists:
 | `DEFAULT_UTILITIES_VARIABLE_SPLIT` | 0.60 (60%) | Utilities: % that is variable vs fixed |
 | `DEFAULT_FULL_CATERING_BOOST` | 0.50 (50%) | Revenue boost for full-service catering |
 | `DEFAULT_PARTIAL_CATERING_BOOST` | 0.25 (25%) | Revenue boost for partial catering |
+| `DEFAULT_FULL_CATERING_PCT` | 0.40 (40%) | Full-service catering percentage |
+| `DEFAULT_PARTIAL_CATERING_PCT` | 0.30 (30%) | Partial-service catering percentage |
+
+### Default Property Constants
+
+| Constant | Value | Description |
+|----------|-------|-------------|
+| `DEFAULT_ADR_GROWTH_RATE` | 0.03 (3%) | Annual ADR growth |
+| `DEFAULT_START_OCCUPANCY` | 0.55 (55%) | Starting occupancy rate |
+| `DEFAULT_MAX_OCCUPANCY` | 0.85 (85%) | Maximum occupancy rate |
+| `DEFAULT_OCCUPANCY_GROWTH_STEP` | 0.05 (5%) | Occupancy growth increment |
+| `DEFAULT_OCCUPANCY_RAMP_MONTHS` | 6 | Months to ramp up occupancy |
+
+### Default Cost Rate Constants (USALI Standard Allocations)
+
+| Constant | Value | Description |
+|----------|-------|-------------|
+| `DEFAULT_COST_RATE_ROOMS` | 0.36 (36%) | Room department costs |
+| `DEFAULT_COST_RATE_FB` | 0.15 (15%) | F&B department costs |
+| `DEFAULT_COST_RATE_ADMIN` | 0.08 (8%) | Administrative costs |
+| `DEFAULT_COST_RATE_MARKETING` | 0.05 (5%) | Marketing costs |
+| `DEFAULT_COST_RATE_PROPERTY_OPS` | 0.04 (4%) | Property operations |
+| `DEFAULT_COST_RATE_UTILITIES` | 0.05 (5%) | Utilities costs |
+| `DEFAULT_COST_RATE_INSURANCE` | 0.02 (2%) | Insurance costs |
+| `DEFAULT_COST_RATE_TAXES` | 0.03 (3%) | Property taxes |
+| `DEFAULT_COST_RATE_IT` | 0.02 (2%) | IT costs |
+| `DEFAULT_COST_RATE_FFE` | 0.04 (4%) | FF&E reserve |
+| `DEFAULT_COST_RATE_OTHER` | 0.05 (5%) | Other costs |
+
+### Default Company Cost Constants
+
+| Constant | Value | Description |
+|----------|-------|-------------|
+| `DEFAULT_STAFF_SALARY` | $75,000 | Average annual staff salary |
+| `DEFAULT_OFFICE_LEASE` | $36,000 | Annual office lease cost |
+| `DEFAULT_PROFESSIONAL_SERVICES` | $24,000 | Annual professional services |
+| `DEFAULT_TECH_INFRA` | $18,000 | Annual tech infrastructure |
+| `DEFAULT_BUSINESS_INSURANCE` | $12,000 | Annual business insurance |
+| `DEFAULT_TRAVEL_PER_CLIENT` | $12,000 | Annual travel per client |
+| `DEFAULT_IT_LICENSE_PER_CLIENT` | $3,000 | Annual IT licenses per client |
+| `DEFAULT_MARKETING_RATE` | 0.05 (5%) | Marketing as % of revenue |
+| `DEFAULT_MISC_OPS_RATE` | 0.03 (3%) | Miscellaneous ops as % of revenue |
+| `DEFAULT_SAFE_TRANCHE` | $800,000 | Default SAFE funding tranche |
 
 ### Projection & Model Constants
 

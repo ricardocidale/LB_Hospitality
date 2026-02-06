@@ -1885,6 +1885,45 @@ export default function Dashboard() {
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
+
+                  {/* Property Investment Bar Chart */}
+                  <div className="bg-white/95 backdrop-blur-xl rounded-[2rem] p-6 border border-[#9FBCA4]/40 shadow-xl shadow-black/10 min-w-[340px]" data-testid="chart-property-investment">
+                    <p className="text-xs font-medium tracking-widest text-[#2d4a5e]/60 uppercase mb-3 text-center label-text">Equity Investment by Property</p>
+                    <ResponsiveContainer width="100%" height={200}>
+                      <BarChart
+                        data={properties.map((prop) => {
+                          const investment = getPropertyInvestment(prop);
+                          return {
+                            name: prop.name.length > 15 ? prop.name.substring(0, 13) + '…' : prop.name,
+                            fullName: prop.name,
+                            investment: Math.round(investment),
+                          };
+                        })}
+                        margin={{ top: 5, right: 10, left: 0, bottom: 40 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(45,74,94,0.1)" vertical={false} />
+                        <XAxis
+                          dataKey="name"
+                          tick={{ fontSize: 10, fill: '#6b7280' }}
+                          angle={-25}
+                          textAnchor="end"
+                          height={50}
+                        />
+                        <YAxis
+                          tickFormatter={(v: number) => v >= 1000000 ? `$${(v / 1000000).toFixed(1)}M` : `$${(v / 1000).toFixed(0)}K`}
+                          tick={{ fontSize: 10, fill: '#6b7280' }}
+                          domain={[0, 'auto']}
+                          width={55}
+                        />
+                        <Tooltip
+                          formatter={(value: number) => [`$${value.toLocaleString()}`, 'Equity Invested']}
+                          labelFormatter={(label: string, payload: any[]) => payload?.[0]?.payload?.fullName || label}
+                          contentStyle={{ borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 12 }}
+                        />
+                        <Bar dataKey="investment" radius={[4, 4, 0, 0]} maxBarSize={40} fill="#F59E0B" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
                 </div>
 
                 {/* Key Metrics Grid - Liquid Glass Cards */}

@@ -1,6 +1,44 @@
-node_modules
-dist
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment & secrets
+.env
+.env.local
+.env.production
+.env.*.local
+
+# OS files
 .DS_Store
+Thumbs.db
+
+# IDE & editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+
+# Server generated public files
 server/public
+
+# Vite temporary files
 vite.config.ts.*
+
+# Archives
 *.tar.gz
+
+# Reference assets (design files, screenshots, not production code)
+attached_assets/
+
+# Python
+.pythonlibs/
+__pycache__/
+
+# Cache
+.cache/

@@ -83,12 +83,11 @@ function FinancialChart({
     >
       <div className="relative">
         {title && (
-          <h3 className="text-lg font-display text-gray-900 mb-1">{title}</h3>
+          <h3 className="text-lg font-display text-gray-900 mb-4">{title}</h3>
         )}
         {subtitle && (
-          <p className="text-sm text-gray-500 mb-4">{subtitle}</p>
+          <p className="text-sm text-gray-500 mb-4 -mt-3">{subtitle}</p>
         )}
-        {!subtitle && title && <div className="mb-4" />}
         <div style={{ height }}>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={data}>

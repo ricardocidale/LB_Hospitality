@@ -8,8 +8,9 @@ import { PROJECTION_YEARS, STAFFING_TIERS, OPERATING_RESERVE_BUFFER, COMPANY_FUN
 import { Tabs, TabsContent, DarkGlassTabs } from "@/components/ui/tabs";
 import { FileText, Banknote, Scale } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { Users, Briefcase, TrendingUp, Settings2, Loader2, ChevronRight, ChevronDown, FileDown, FileSpreadsheet, ImageIcon, AlertTriangle, CheckCircle } from "lucide-react";
+import { FinancialChart } from "@/components/ui/financial-chart";
+import { ExportToolbar, pdfAction, excelAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
 import { exportCompanyIncomeStatement, exportCompanyCashFlow, exportCompanyBalanceSheet } from "@/lib/excelExport";
 import { Link } from "wouter";
 import { GlassButton } from "@/components/ui/glass-button";
@@ -723,144 +724,26 @@ export default function Company() {
               activeTab={activeTab}
               onTabChange={setActiveTab}
               rightContent={
-                <>
-                  <button
-                    onClick={() => { setExportType('pdf'); setExportDialogOpen(true); }}
-                    className="group/btn relative overflow-hidden flex items-center gap-2 px-4 py-2.5 text-xs font-medium text-white rounded-2xl transition-all duration-300 ease-out"
-                    data-testid="button-export-pdf"
-                  >
-                    <div className="absolute inset-0 bg-white/12 backdrop-blur-xl rounded-2xl" />
-                    <div className="absolute inset-0 rounded-2xl border border-white/20" />
-                    <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
-                    <div className="absolute inset-0 rounded-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),0_4px_16px_rgba(0,0,0,0.2)]" />
-                    <div className="absolute inset-0 rounded-2xl opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300 bg-white/5" />
-                    <FileDown className="relative w-3.5 h-3.5" />
-                    <span className="relative">PDF</span>
-                  </button>
-                  <button
-                    onClick={() => handleExcelExport()}
-                    className="group/btn relative overflow-hidden flex items-center gap-2 px-4 py-2.5 text-xs font-medium text-white rounded-2xl transition-all duration-300 ease-out"
-                    data-testid="button-export-excel"
-                  >
-                    <div className="absolute inset-0 bg-white/12 backdrop-blur-xl rounded-2xl" />
-                    <div className="absolute inset-0 rounded-2xl border border-white/20" />
-                    <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
-                    <div className="absolute inset-0 rounded-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),0_4px_16px_rgba(0,0,0,0.2)]" />
-                    <div className="absolute inset-0 rounded-2xl opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300 bg-white/5" />
-                    <FileSpreadsheet className="relative w-3.5 h-3.5" />
-                    <span className="relative">Excel</span>
-                  </button>
-                  <button
-                    onClick={() => { setExportType('chart'); setExportDialogOpen(true); }}
-                    className="group/btn relative overflow-hidden flex items-center gap-2 px-4 py-2.5 text-xs font-medium text-white rounded-2xl transition-all duration-300 ease-out"
-                    data-testid="button-export-chart"
-                  >
-                    <div className="absolute inset-0 bg-white/12 backdrop-blur-xl rounded-2xl" />
-                    <div className="absolute inset-0 rounded-2xl border border-white/20" />
-                    <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
-                    <div className="absolute inset-0 rounded-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),0_4px_16px_rgba(0,0,0,0.2)]" />
-                    <div className="absolute inset-0 rounded-2xl opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300 bg-white/5" />
-                    <ImageIcon className="relative w-3.5 h-3.5" />
-                    <span className="relative">Chart</span>
-                  </button>
-                  <button
-                    onClick={() => exportTablePNG()}
-                    className="group/btn relative overflow-hidden flex items-center gap-2 px-4 py-2.5 text-xs font-medium text-white rounded-2xl transition-all duration-300 ease-out"
-                    data-testid="button-export-table-png"
-                  >
-                    <div className="absolute inset-0 bg-white/12 backdrop-blur-xl rounded-2xl" />
-                    <div className="absolute inset-0 rounded-2xl border border-white/20" />
-                    <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
-                    <div className="absolute inset-0 rounded-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),0_4px_16px_rgba(0,0,0,0.2)]" />
-                    <div className="absolute inset-0 rounded-2xl opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300 bg-white/5" />
-                    <ImageIcon className="relative w-3.5 h-3.5" />
-                    <span className="relative">PNG</span>
-                  </button>
-                </>
+                <ExportToolbar
+                  variant="glass"
+                  actions={[
+                    pdfAction(() => { setExportType('pdf'); setExportDialogOpen(true); }),
+                    excelAction(() => handleExcelExport()),
+                    chartAction(() => { setExportType('chart'); setExportDialogOpen(true); }),
+                    pngAction(() => exportTablePNG()),
+                  ]}
+                />
               }
             />
           </div>
 
-          {/* Chart Card - Light Theme */}
-          <div ref={chartRef} className="relative overflow-hidden rounded-3xl p-6 bg-white shadow-lg border border-gray-100">
-            <div className="relative">
-              <h3 className="text-lg font-display text-gray-900 mb-4">Management Company Performance ({projectionYears}-Year Projection)</h3>
-              <div className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={yearlyChartData}>
-                    <defs>
-                      <linearGradient id="companyRevenueGradient" x1="0" y1="0" x2="1" y2="0">
-                        <stop offset="0%" stopColor="#257D41" />
-                        <stop offset="100%" stopColor="#34D399" />
-                      </linearGradient>
-                      <linearGradient id="companyExpensesGradient" x1="0" y1="0" x2="1" y2="0">
-                        <stop offset="0%" stopColor="#3B82F6" />
-                        <stop offset="100%" stopColor="#60A5FA" />
-                      </linearGradient>
-                      <linearGradient id="companyNetIncomeGradient" x1="0" y1="0" x2="1" y2="0">
-                        <stop offset="0%" stopColor="#F4795B" />
-                        <stop offset="100%" stopColor="#FB923C" />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
-                    <XAxis 
-                      dataKey="year" 
-                      stroke="#6B7280" 
-                      fontSize={12}
-                      tickLine={false}
-                      axisLine={{ stroke: '#E5E7EB' }}
-                    />
-                    <YAxis 
-                      stroke="#6B7280" 
-                      fontSize={12}
-                      tickLine={false}
-                      axisLine={{ stroke: '#E5E7EB' }}
-                      tickFormatter={(value) => `$${(value / 1000000).toFixed(1)}M`}
-                    />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: 'white', 
-                        borderColor: '#E5E7EB',
-                        borderRadius: '12px',
-                        boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-                        color: '#111827',
-                      }}
-                      labelStyle={{ color: '#374151', fontWeight: 600 }}
-                      formatter={(value: number) => [formatMoney(value), ""]}
-                    />
-                    <Legend 
-                      wrapperStyle={{ color: '#374151' }}
-                      iconType="circle"
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="Revenue" 
-                      stroke="url(#companyRevenueGradient)" 
-                      strokeWidth={3}
-                      dot={{ fill: '#257D41', stroke: '#fff', strokeWidth: 2, r: 4 }}
-                      activeDot={{ r: 6, fill: '#257D41', stroke: '#fff', strokeWidth: 2 }}
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="Expenses" 
-                      stroke="url(#companyExpensesGradient)" 
-                      strokeWidth={3}
-                      dot={{ fill: '#3B82F6', stroke: '#fff', strokeWidth: 2, r: 4 }}
-                      activeDot={{ r: 6, fill: '#3B82F6', stroke: '#fff', strokeWidth: 2 }}
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="NetIncome" 
-                      stroke="url(#companyNetIncomeGradient)" 
-                      strokeWidth={3}
-                      dot={{ fill: '#F4795B', stroke: '#fff', strokeWidth: 2, r: 4 }}
-                      activeDot={{ r: 6, fill: '#F4795B', stroke: '#fff', strokeWidth: 2 }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-          </div>
+          <FinancialChart
+            data={yearlyChartData}
+            series={["revenue", "expenses", "netIncome"]}
+            title={`Management Company Performance (${projectionYears}-Year Projection)`}
+            chartRef={chartRef}
+            id="company"
+          />
           
           <TabsContent value="income" className="mt-6">
             {/* Income Statement */}

@@ -92,12 +92,12 @@ function chartAction(onClick: () => void): ExportAction {
   };
 }
 
-function pngAction(onClick: () => void): ExportAction {
+function pngAction(onClick: () => void, testId?: string): ExportAction {
   return {
     label: "PNG",
     icon: <ImageIcon className="w-3.5 h-3.5" />,
     onClick,
-    testId: "button-export-png",
+    testId: testId || "button-export-table-png",
   };
 }
 

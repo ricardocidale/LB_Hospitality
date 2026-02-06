@@ -34,7 +34,8 @@ Always format money as money (currency format with commas and appropriate precis
 ### UI/UX Design Principles
 - **Color Palette**: Sage Green, Secondary Green, Warm Off-White, Coral Accent, Black, and a dark blue-gray gradient for navigation.
 - **Theming**: A blend of light-themed assumption pages and dark glass-themed main application pages.
-- **Component Standardization**: `GlassButton` for actions on dark backgrounds, `SaveButton` for saving, `PageHeader` for consistent page titles.
+- **Component Standardization**: `GlassButton` for actions on dark backgrounds, `SaveButton` for saving, `PageHeader` for consistent page titles. Reusable library: `FinancialChart` (preset series), `FinancialTable` (sticky columns, section grouping), `ExportToolbar` (glass/light export buttons), `StatCard` (glass/light/sage KPI cards), `ContentPanel` (light/dark section wrappers).
+- **Design System Skill**: Full documentation at `~/.agents/skills/design-system/SKILL.md` covering color palette, typography, theme modes, component catalog with usage examples.
 - **Charts**: Standardized with white backgrounds, colorful gradient lines (green for revenue, blue for GOP, coral for FCFE), data point dots, and light gray dashed grids.
 - **Admin Interface**: Consolidated into a single `/admin` route with tab-based navigation for users, login activity, and verification.
 

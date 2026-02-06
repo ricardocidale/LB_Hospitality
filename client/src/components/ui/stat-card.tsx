@@ -14,7 +14,7 @@ export interface StatCardProps {
   "data-testid"?: string;
 }
 
-function formatStatValue(value: string | number, format?: string): string {
+function formatStatValue(value: string | number, format?: "money" | "percent" | "number" | "text"): string {
   if (typeof value === "string") return value;
   switch (format) {
     case "money":

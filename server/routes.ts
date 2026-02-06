@@ -10,6 +10,7 @@ import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
 import { GoogleGenAI } from "@google/genai";
 import { runIndependentVerification, type VerificationReport } from "./calculationChecker";
+import { generateResearchWithToolsStream, loadSkill, buildUserPrompt, type ResearchParams } from "./aiResearch";
 
 const loginSchema = z.object({
   email: z.string().min(1),
@@ -1590,6 +1591,10 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       const { type, propertyId, propertyContext, boutiqueDefinition: clientBoutiqueDef } = req.body;
       const userId = (req as any).user?.id;
       
+      if (!["property", "company", "global"].includes(type)) {
+        return res.status(400).json({ error: "Invalid research type. Must be 'property', 'company', or 'global'." });
+      }
+      
       const globalAssumptions = await storage.getGlobalAssumptions(userId);
       const preferredModel = globalAssumptions?.preferredLlm || "claude-sonnet-4-5";
       const boutiqueDef = clientBoutiqueDef || (globalAssumptions?.boutiqueDefinition as any) || {
@@ -1598,98 +1603,11 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
         description: "Independently operated, design-forward properties with curated guest experiences."
       };
       
-      let systemPrompt = "";
-      let userPrompt = "";
-      
-      if (type === "property" && propertyContext) {
-        systemPrompt = `You are a hospitality industry market research analyst specializing in boutique hotels that focus on unique experiences like wellness retreats, corporate events, yoga, relationship retreats, and couples therapy. Provide data-driven analysis with specific numbers and industry sources. Format your response as a JSON object with these sections:
-{
-  "marketOverview": { "summary": "string", "keyMetrics": [{ "label": "string", "value": "string", "source": "string" }] },
-  "adrAnalysis": { "marketAverage": "string", "boutiqueRange": "string", "recommendedRange": "string", "rationale": "string", "comparables": [{ "name": "string", "adr": "string", "type": "string" }] },
-  "occupancyAnalysis": { "marketAverage": "string", "seasonalPattern": [{ "season": "string", "occupancy": "string", "notes": "string" }], "rampUpTimeline": "string" },
-  "eventDemand": { "corporateEvents": "string", "wellnessRetreats": "string", "weddingsPrivate": "string", "estimatedEventRevShare": "string", "keyDrivers": ["string"] },
-  "capRateAnalysis": { "marketRange": "string", "boutiqueRange": "string", "recommendedRange": "string", "rationale": "string", "comparables": [{ "name": "string", "capRate": "string", "saleYear": "string", "notes": "string" }] },
-  "competitiveSet": [{ "name": "string", "rooms": "string", "adr": "string", "positioning": "string" }],
-  "risks": [{ "risk": "string", "mitigation": "string" }],
-  "sources": ["string"]
-}`;
-        userPrompt = `Analyze the market for this boutique hotel property:
-- Property: ${propertyContext.name}
-- Location: ${propertyContext.location}
-- Market: ${propertyContext.market}
-- Room Count: ${propertyContext.roomCount}
-- Current ADR: $${propertyContext.startAdr}
-- Target Occupancy: ${(propertyContext.maxOccupancy * 100).toFixed(0)}%
-- Catering Level: ${propertyContext.cateringLevel}
-- Property Type: ${propertyContext.type}
-
-Our definition of a boutique hotel: ${boutiqueDef.description}
-- Property level: ${boutiqueDef.level || "luxury"}
-- Room range: ${boutiqueDef.minRooms}–${boutiqueDef.maxRooms} rooms
-- ADR range: $${boutiqueDef.minAdr}–$${boutiqueDef.maxAdr}
-- Features: ${[boutiqueDef.hasFB && "F&B operations", boutiqueDef.hasEvents && "event hosting", boutiqueDef.hasWellness && "wellness programming"].filter(Boolean).join(", ")}
-- Event locations on property: ${boutiqueDef.eventLocations ?? 2}
-- Max event capacity (guests + attendees): ${boutiqueDef.maxEventCapacity ?? 150} people
-- Property acreage: ${boutiqueDef.acreage ?? 5} acres
-- Privacy level: ${boutiqueDef.privacyLevel || "high"}
-- Parking spaces: ${boutiqueDef.parkingSpaces ?? 50}
-
-Focus on: local market ADR benchmarks for boutique hotels matching this profile, occupancy patterns and seasonality, corporate event and wellness retreat demand in this market, cap rates for recent boutique hotel transactions in this market (provide a narrow recommended range for acquisition and exit cap rates), competitive landscape (only comparable boutique hotels), and risks. Provide real, specific data points with sources where possible.`;
-      } else if (type === "company") {
-        systemPrompt = `You are a hospitality management consulting expert specializing in hotel management company structures, GAAP-compliant fee arrangements, and industry benchmarks. Focus on boutique hotel management companies that specialize in unique events (wellness retreats, corporate events, yoga retreats, relationship retreats). Format your response as a JSON object:
-{
-  "managementFees": {
-    "baseFee": { "industryRange": "string", "boutiqueRange": "string", "recommended": "string", "gaapReference": "string", "sources": [{ "source": "string", "data": "string" }] },
-    "incentiveFee": { "industryRange": "string", "commonBasis": "string", "recommended": "string", "gaapReference": "string", "sources": [{ "source": "string", "data": "string" }] }
-  },
-  "gaapStandards": [{ "standard": "string", "reference": "string", "application": "string" }],
-  "industryBenchmarks": {
-    "operatingExpenseRatios": [{ "category": "string", "range": "string", "source": "string" }],
-    "revenuePerRoom": { "economy": "string", "midscale": "string", "upscale": "string", "luxury": "string" }
-  },
-  "compensationBenchmarks": { "gm": "string", "director": "string", "manager": "string", "source": "string" },
-  "contractTerms": [{ "term": "string", "typical": "string", "notes": "string" }],
-  "sources": ["string"]
-}`;
-        userPrompt = `Provide comprehensive research on hotel management company fee structures, GAAP standards, and industry benchmarks for a boutique hotel management company focused on:
-1. Base management fee structures and industry norms (ASC 606 revenue recognition)
-2. Incentive management fee (IMF) structures and triggers
-3. GAAP-compliant fee recognition standards
-4. Operating expense ratios by department (USALI format)
-5. Management company compensation benchmarks
-6. Typical contract terms and duration
-Focus specifically on boutique hotels specializing in unique events like wellness retreats, corporate retreats, and experiential hospitality.`;
-      } else if (type === "global") {
-        systemPrompt = `You are a hospitality industry research analyst specializing in the boutique hotel segment, with emphasis on properties focused on unique events and experiences (wellness retreats, corporate events, yoga, relationship retreats, couples therapy). Provide comprehensive industry data with sources. Format your response as a JSON object:
-{
-  "industryOverview": { "marketSize": "string", "growthRate": "string", "boutiqueShare": "string", "keyTrends": ["string"] },
-  "eventHospitality": {
-    "wellnessRetreats": { "marketSize": "string", "growth": "string", "avgRevPerEvent": "string", "seasonality": "string" },
-    "corporateEvents": { "marketSize": "string", "growth": "string", "avgRevPerEvent": "string", "trends": ["string"] },
-    "yogaRetreats": { "marketSize": "string", "growth": "string", "demographics": "string" },
-    "relationshipRetreats": { "marketSize": "string", "growth": "string", "positioning": "string" }
-  },
-  "financialBenchmarks": {
-    "adrTrends": [{ "year": "string", "national": "string", "boutique": "string", "luxury": "string" }],
-    "occupancyTrends": [{ "year": "string", "national": "string", "boutique": "string" }],
-    "revparTrends": [{ "year": "string", "national": "string", "boutique": "string" }],
-    "capRates": [{ "segment": "string", "range": "string", "trend": "string" }]
-  },
-  "debtMarket": { "currentRates": "string", "ltvRange": "string", "terms": "string", "outlook": "string" },
-  "regulatoryEnvironment": ["string"],
-  "sources": ["string"]
-}`;
-        userPrompt = `Provide comprehensive boutique hotel industry research covering:
-1. Overall boutique hotel market size, growth, and trends
-2. Event-focused hospitality: wellness retreats, corporate events, yoga retreats, relationship/couples retreats market data
-3. Financial benchmarks: ADR, occupancy, RevPAR trends for boutique hotels
-4. Capitalization rates and investment returns
-5. Debt market conditions for hotel acquisitions
-6. Emerging trends in experiential hospitality
-Focus on North America and Latin America markets. Include specific data points, market sizes, growth rates, and cite sources.`;
-      } else {
-        return res.status(400).json({ error: "Invalid research type. Must be 'property', 'company', or 'global'." });
-      }
+      const researchParams: ResearchParams = {
+        type: type as "property" | "company" | "global",
+        propertyContext,
+        boutiqueDefinition: boutiqueDef,
+      };
       
       res.setHeader("Content-Type", "text/event-stream");
       res.setHeader("Cache-Control", "no-cache");
@@ -1699,7 +1617,22 @@ Focus on North America and Latin America markets. Include specific data points, 
       const isGeminiModel = preferredModel.startsWith("gemini");
       const isClaudeModel = preferredModel.startsWith("claude");
       
-      if (isGeminiModel) {
+      if (isClaudeModel) {
+        const anthropic = new Anthropic({
+          apiKey: process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY,
+          baseURL: process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL,
+        });
+        
+        for await (const chunk of generateResearchWithToolsStream(researchParams, anthropic, preferredModel)) {
+          if (chunk.type === "content" && chunk.data) {
+            fullResponse += chunk.data;
+            res.write(`data: ${JSON.stringify({ content: chunk.data })}\n\n`);
+          }
+        }
+      } else if (isGeminiModel) {
+        const systemPrompt = loadSkill(type);
+        const userPrompt = buildUserPrompt(researchParams);
+        
         const gemini = new GoogleGenAI({
           apiKey: process.env.AI_INTEGRATIONS_GEMINI_API_KEY,
           httpOptions: {
@@ -1721,31 +1654,10 @@ Focus on North America and Latin America markets. Include specific data points, 
             res.write(`data: ${JSON.stringify({ content })}\n\n`);
           }
         }
-      } else if (isClaudeModel) {
-        const anthropic = new Anthropic({
-          apiKey: process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY,
-          baseURL: process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL,
-        });
-        
-        const stream = anthropic.messages.stream({
-          model: preferredModel,
-          max_tokens: 4096,
-          system: systemPrompt,
-          messages: [
-            { role: "user", content: userPrompt }
-          ],
-        });
-        
-        for await (const event of stream) {
-          if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
-            const content = event.delta.text;
-            if (content) {
-              fullResponse += content;
-              res.write(`data: ${JSON.stringify({ content })}\n\n`);
-            }
-          }
-        }
       } else {
+        const systemPrompt = loadSkill(type);
+        const userPrompt = buildUserPrompt(researchParams);
+        
         const openai = new OpenAI({
           apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
           baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
@@ -1773,7 +1685,14 @@ Focus on North America and Latin America markets. Include specific data points, 
       
       let parsedContent: Record<string, any> = {};
       try {
-        parsedContent = JSON.parse(fullResponse);
+        const jsonMatch = fullResponse.match(/```json\s*([\s\S]*?)\s*```/) || 
+                          fullResponse.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          const jsonStr = jsonMatch[1] || jsonMatch[0];
+          parsedContent = JSON.parse(jsonStr);
+        } else {
+          parsedContent = { rawResponse: fullResponse };
+        }
       } catch {
         parsedContent = { rawResponse: fullResponse };
       }

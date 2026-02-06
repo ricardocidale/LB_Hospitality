@@ -42,7 +42,11 @@ const SKILL_FILES: Record<string, string> = {
 
 // Load a skill file content
 function loadSkill(type: string): string {
-  const skillPath = join(process.cwd(), ".claude", "skills", SKILL_FILES[type]);
+  const skillFile = SKILL_FILES[type];
+  if (!skillFile) {
+    throw new Error(`Unknown research type: ${type}. Must be 'property', 'company', or 'global'.`);
+  }
+  const skillPath = join(process.cwd(), ".claude", "skills", skillFile);
   return readFileSync(skillPath, "utf-8");
 }
 
@@ -69,8 +73,10 @@ function handleToolCall(name: string, input: Record<string, any>): string {
       return `Provide market overview analysis for ${input.location} (${input.market_region}). Property type: ${input.property_type}, ${input.room_count} rooms. Include tourism volume, hotel supply metrics, demand trends, RevPAR data, and market positioning for boutique hotels in this specific location. Use your knowledge of this market to provide specific, data-backed metrics with industry sources.`;
     case "analyze_adr":
       return `Provide ADR analysis for ${input.location}. Current/target ADR: $${input.current_adr}, ${input.room_count} rooms, ${input.property_level} positioning. Has F&B: ${input.has_fb ?? "unknown"}, Events: ${input.has_events ?? "unknown"}, Wellness: ${input.has_wellness ?? "unknown"}. Include market average ADR, boutique hotel ADR range, at least 4 comparable property ADRs, and a recommended ADR range with rationale.`;
-    case "analyze_occupancy":
-      return `Provide occupancy analysis for ${input.location}. ${input.room_count} rooms, target ${(input.target_occupancy * 100).toFixed(0)}% stabilized occupancy, ${input.property_level} positioning, catering: ${input.catering_level || "unknown"}. Include market average occupancy, seasonal patterns (4 seasons with rates and notes), and expected ramp-up timeline.`;
+    case "analyze_occupancy": {
+      const targetOcc = typeof input.target_occupancy === "number" ? (input.target_occupancy * 100).toFixed(0) : "70";
+      return `Provide occupancy analysis for ${input.location}. ${input.room_count || 20} rooms, target ${targetOcc}% stabilized occupancy, ${input.property_level || "luxury"} positioning, catering: ${input.catering_level || "unknown"}. Include market average occupancy, seasonal patterns (4 seasons with rates and notes), and expected ramp-up timeline.`;
+    }
     case "analyze_event_demand":
       return `Provide event demand analysis for ${input.location}. ${input.event_locations || 2} event spaces, max capacity ${input.max_event_capacity || 150} guests. Wellness: ${input.has_wellness ?? true}, F&B: ${input.has_fb ?? true}, Privacy: ${input.privacy_level || "high"}, Acreage: ${input.acreage || 5}. Include corporate event demand, wellness retreat potential, wedding/private event demand, estimated event revenue share, and key demand drivers.`;
     case "analyze_cap_rates":

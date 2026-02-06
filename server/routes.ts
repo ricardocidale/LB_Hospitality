@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertGlobalAssumptionsSchema, insertPropertySchema, updatePropertySchema, insertDesignThemeSchema, updateScenarioSchema, insertProspectivePropertySchema, insertSavedSearchSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
-import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
+import { registerObjectStorageRoutes, ObjectStorageService, ObjectNotFoundError } from "./replit_integrations/object_storage";
 import { hashPassword, verifyPassword, generateSessionId, setSessionCookie, clearSessionCookie, getSessionExpiryDate, requireAuth, requireAdmin, requireChecker, isRateLimited, recordLoginAttempt, sanitizeEmail, validatePassword, isApiRateLimited } from "./auth";
 import { z } from "zod";
 import OpenAI from "openai";
@@ -1411,12 +1411,35 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
         }
         
         if (assumptions) {
+          // Capture images for Base scenario
+          const baseImages: Record<string, { dataUri: string; contentType: string }> = {};
+          const objService = new ObjectStorageService();
+          const baseImageUrls: string[] = [];
+          for (const prop of properties) {
+            if (prop.imageUrl && prop.imageUrl.startsWith("/objects/")) {
+              baseImageUrls.push(prop.imageUrl);
+            }
+          }
+          if (assumptions.companyLogo && assumptions.companyLogo.startsWith("/objects/")) {
+            baseImageUrls.push(assumptions.companyLogo);
+          }
+          for (const url of baseImageUrls) {
+            try {
+              const file = await objService.getObjectEntityFile(url);
+              const [metadata] = await file.getMetadata();
+              const ct = (metadata.contentType as string) || "image/png";
+              const [buf] = await file.download();
+              baseImages[url] = { dataUri: `data:${ct};base64,${buf.toString("base64")}`, contentType: ct };
+            } catch { /* skip missing images */ }
+          }
+
           await storage.createScenario({
             userId,
             name: "Base",
             description: "Default baseline scenario with initial assumptions",
             globalAssumptions: assumptions,
             properties: properties,
+            scenarioImages: Object.keys(baseImages).length > 0 ? baseImages : undefined,
           });
           scenarios = await storage.getScenariosByUser(userId);
         }
@@ -1429,7 +1452,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
-  // Create new scenario (save current assumptions + properties)
+  // Create new scenario (save current assumptions + properties + images)
   app.post("/api/scenarios", requireAuth, async (req, res) => {
     try {
       const userId = req.user!.id;
@@ -1438,11 +1461,11 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
         return res.status(400).json({ error: fromZodError(validation.error).message });
       }
       const { name, description } = validation.data;
-      
+
       // Get current assumptions and properties for this user (fallback to shared if none)
       let assumptions = await storage.getGlobalAssumptions(userId);
       let properties = await storage.getAllProperties(userId);
-      
+
       // If user has no specific data, try to get shared data (userId: null)
       if (!assumptions) {
         assumptions = await storage.getGlobalAssumptions();
@@ -1450,19 +1473,50 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       if (properties.length === 0) {
         properties = await storage.getAllProperties();
       }
-      
+
       if (!assumptions) {
         return res.status(400).json({ error: "No assumptions found to save" });
       }
-      
+
+      // Capture images from object storage as base64 for scenario persistence
+      const scenarioImages: Record<string, { dataUri: string; contentType: string }> = {};
+      const objectStorageService = new ObjectStorageService();
+
+      // Collect all image URLs that reference object storage
+      const imageUrls: string[] = [];
+      for (const prop of properties) {
+        if (prop.imageUrl && prop.imageUrl.startsWith("/objects/")) {
+          imageUrls.push(prop.imageUrl);
+        }
+      }
+      if (assumptions.companyLogo && assumptions.companyLogo.startsWith("/objects/")) {
+        imageUrls.push(assumptions.companyLogo);
+      }
+
+      // Read each image from object storage and encode as base64
+      for (const url of imageUrls) {
+        try {
+          const file = await objectStorageService.getObjectEntityFile(url);
+          const [metadata] = await file.getMetadata();
+          const contentType = (metadata.contentType as string) || "image/png";
+          const [buffer] = await file.download();
+          const base64 = buffer.toString("base64");
+          scenarioImages[url] = { dataUri: `data:${contentType};base64,${base64}`, contentType };
+        } catch (err) {
+          // Image not found in object storage — skip (may be a static image or already gone)
+          console.warn(`Scenario save: could not capture image ${url}:`, err instanceof Error ? err.message : err);
+        }
+      }
+
       const scenario = await storage.createScenario({
         userId,
         name: name.trim(),
         description: description || null,
         globalAssumptions: assumptions,
         properties: properties,
+        scenarioImages: Object.keys(scenarioImages).length > 0 ? scenarioImages : undefined,
       });
-      
+
       res.json(scenario);
     } catch (error) {
       console.error("Error creating scenario:", error);
@@ -1470,7 +1524,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
-  // Load scenario (restore assumptions + properties)
+  // Load scenario (restore assumptions + properties + images)
   app.post("/api/scenarios/:id/load", requireAuth, async (req, res) => {
     try {
       const userId = req.user!.id;
@@ -1483,16 +1537,56 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       if (!scenario) {
         return res.status(404).json({ error: "Scenario not found" });
       }
-      
+
       if (scenario.userId !== userId) {
         return res.status(403).json({ error: "Access denied" });
       }
-      
+
+      // Restore images from snapshot if they no longer exist in object storage
+      const savedImages = (scenario.scenarioImages as Record<string, { dataUri: string; contentType: string }>) || {};
+      if (Object.keys(savedImages).length > 0) {
+        const objectStorageService = new ObjectStorageService();
+        for (const [url, imageData] of Object.entries(savedImages)) {
+          try {
+            // Check if the image still exists
+            await objectStorageService.getObjectEntityFile(url);
+          } catch (err) {
+            if (err instanceof ObjectNotFoundError) {
+              // Image is gone — re-upload from saved base64 data
+              try {
+                // Extract the object path from the URL (e.g., /objects/uploads/uuid -> uploads/uuid)
+                const entityId = url.replace(/^\/objects\//, "");
+                let entityDir = objectStorageService.getPrivateObjectDir();
+                if (!entityDir.endsWith("/")) entityDir += "/";
+                const fullPath = `${entityDir}${entityId}`;
+
+                // Parse bucket/object path
+                const pathParts = fullPath.startsWith("/") ? fullPath.split("/") : `/${fullPath}`.split("/");
+                const bucketName = pathParts[1];
+                const objectName = pathParts.slice(2).join("/");
+
+                // Decode base64 and upload
+                const base64Data = imageData.dataUri.replace(/^data:[^;]+;base64,/, "");
+                const buffer = Buffer.from(base64Data, "base64");
+
+                const { objectStorageClient } = await import("./replit_integrations/object_storage/objectStorage");
+                const bucket = objectStorageClient.bucket(bucketName);
+                const file = bucket.file(objectName);
+                await file.save(buffer, { contentType: imageData.contentType });
+                console.log(`Scenario load: restored image ${url}`);
+              } catch (uploadErr) {
+                console.warn(`Scenario load: failed to restore image ${url}:`, uploadErr instanceof Error ? uploadErr.message : uploadErr);
+              }
+            }
+          }
+        }
+      }
+
       // Restore assumptions and properties atomically in a transaction
       const savedAssumptions = scenario.globalAssumptions as any;
       const savedProperties = scenario.properties as any[];
       await storage.loadScenario(userId, savedAssumptions, savedProperties);
-      
+
       res.json({ success: true, message: "Scenario loaded successfully" });
     } catch (error) {
       console.error("Error loading scenario:", error);

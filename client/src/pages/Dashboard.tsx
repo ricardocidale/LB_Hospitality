@@ -14,7 +14,7 @@ import { format, differenceInMonths } from "date-fns";
 import { useState, useMemo } from "react";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { ConsolidatedBalanceSheet } from "@/components/ConsolidatedBalanceSheet";
-import { LineChart, Line, BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { drawLineChart } from "@/lib/pdfChartDrawer";
@@ -1881,14 +1881,7 @@ export default function Dashboard() {
                           labelFormatter={(label: string, payload: any[]) => payload?.[0]?.payload?.fullName || label}
                           contentStyle={{ borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 12 }}
                         />
-                        <Bar dataKey="irr" radius={[4, 4, 0, 0]} maxBarSize={40}>
-                          {properties.map((prop, idx) => {
-                            const cashFlows = getPropertyCashFlows(prop, idx);
-                            const irr = calculateIRR(cashFlows);
-                            const color = irr > IRR_HIGHLIGHT_THRESHOLD ? '#9FBCA4' : irr > 0 ? '#2d4a5e' : '#ef4444';
-                            return <Cell key={prop.id} fill={color} />;
-                          })}
-                        </Bar>
+                        <Bar dataKey="irr" radius={[4, 4, 0, 0]} maxBarSize={40} fill="#3B82F6" />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>

@@ -367,22 +367,27 @@ export function generatePropertyProForma(
       const n = global.debtAssumptions.amortizationYears * 12;
       const loanAmount = originalLoanAmount;
       
-      if (loanAmount > 0 && r > 0) {
+      if (loanAmount > 0) {
         debtPayment = monthlyPayment;
         
-        // Calculate remaining balance at this month to get accurate interest/principal split
-        let remainingBalance = loanAmount;
-        for (let m = 0; m < monthsSinceAcquisition && m < n; m++) {
-          const monthInterest = remainingBalance * r;
-          const monthPrincipal = monthlyPayment - monthInterest;
-          remainingBalance = Math.max(0, remainingBalance - monthPrincipal);
+        if (r === 0) {
+          const straightLinePrincipal = loanAmount / n;
+          const monthsPaidSoFar = Math.min(monthsSinceAcquisition, n);
+          debtOutstanding = Math.max(0, loanAmount - straightLinePrincipal * monthsPaidSoFar);
+          interestExpense = 0;
+          principalPayment = monthsSinceAcquisition < n ? straightLinePrincipal : 0;
+        } else {
+          let remainingBalance = loanAmount;
+          for (let m = 0; m < monthsSinceAcquisition && m < n; m++) {
+            const monthInterest = remainingBalance * r;
+            const monthPrincipal = monthlyPayment - monthInterest;
+            remainingBalance = Math.max(0, remainingBalance - monthPrincipal);
+          }
+          
+          debtOutstanding = remainingBalance;
+          interestExpense = remainingBalance * r;
+          principalPayment = monthlyPayment - interestExpense;
         }
-        
-        debtOutstanding = remainingBalance;
-        
-        // Current month's interest and principal
-        interestExpense = remainingBalance * r;
-        principalPayment = monthlyPayment - interestExpense;
       }
     }
 
@@ -391,7 +396,7 @@ export function generatePropertyProForma(
     
     // Balance sheet: Property value = building value - accumulated depreciation (ASC 360)
     const depreciationExpense = isAcquired ? monthlyDepreciation : 0;
-    const accumulatedDepreciation = isAcquired ? monthlyDepreciation * (monthsSinceAcquisition + 1) : 0;
+    const accumulatedDepreciation = isAcquired ? Math.min(monthlyDepreciation * (monthsSinceAcquisition + 1), buildingValue) : 0;
     const propertyValue = isAcquired ? buildingValue - accumulatedDepreciation : 0;
     
     // Cash flow statement per GAAP ASC 230 indirect method

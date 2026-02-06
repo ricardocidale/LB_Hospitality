@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { GlassButton } from "@/components/ui/glass-button";
 import { Loader2, ChevronRight, ChevronDown, FileDown, FileSpreadsheet } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
-import { format } from "date-fns";
+import { format, differenceInMonths } from "date-fns";
 import { useState } from "react";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { ConsolidatedBalanceSheet } from "@/components/ConsolidatedBalanceSheet";
@@ -232,7 +232,9 @@ export default function Dashboard() {
   const totalInvestment = totalPurchasePrice + totalBuildingImprovements + totalPreOpeningCosts + totalOperatingReserve;
   const avgPurchasePrice = totalPurchasePrice / totalProperties;
   const avgRoomsPerProperty = totalRooms / totalProperties;
-  const avgADR = properties.reduce((sum, p) => sum + p.startAdr, 0) / totalProperties;
+  const avgADR = totalRooms > 0 
+    ? properties.reduce((sum, p) => sum + p.startAdr * p.roomCount, 0) / totalRooms
+    : 0;
   
   // 10-year projections
   let total10YearRevenue = 0;
@@ -335,8 +337,8 @@ export default function Dashboard() {
     const globalParams = toGlobalLoanParams();
     const yearlyNOI = getPropertyYearlyNOI(propIndex);
     const loan = calculateLoanParams(loanParams, globalParams);
-    const refi = calculateRefinanceParams(loanParams, globalParams, loan, yearlyNOI, 10);
-    return calculateExitValue(yearlyNOI[9], loan, refi, 9, prop.exitCapRate);
+    const refi = calculateRefinanceParams(loanParams, globalParams, loan, yearlyNOI, projectionYears);
+    return calculateExitValue(yearlyNOI[projectionYears - 1], loan, refi, projectionYears - 1, prop.exitCapRate);
   };
 
   // Calculate total portfolio exit value (net of commission and debt)
@@ -349,7 +351,7 @@ export default function Dashboard() {
     const globalParams = toGlobalLoanParams();
     const yearlyNOI = getPropertyYearlyNOI(propIndex);
     const loan = calculateLoanParams(loanParams, globalParams);
-    const refi = calculateRefinanceParams(loanParams, globalParams, loan, yearlyNOI, 10);
+    const refi = calculateRefinanceParams(loanParams, globalParams, loan, yearlyNOI, projectionYears);
     
     const noi = yearlyNOI[yearIndex];
     const debt = calculateYearlyDebtService(loan, refi, yearIndex);
@@ -410,7 +412,7 @@ export default function Dashboard() {
     const globalParams = toGlobalLoanParams();
     const yearlyNOI = getPropertyYearlyNOI(propIndex);
     const loan = calculateLoanParams(loanParams, globalParams);
-    const refi = calculateRefinanceParams(loanParams, globalParams, loan, yearlyNOI, 10);
+    const refi = calculateRefinanceParams(loanParams, globalParams, loan, yearlyNOI, projectionYears);
     return { year: refi.refiYear, proceeds: refi.refiProceeds };
   };
 
@@ -432,7 +434,7 @@ export default function Dashboard() {
           yearCashFlow += refi.proceeds;
         }
         
-        if (y === 9) {
+        if (y === projectionYears - 1) {
           yearCashFlow += getPropertyExitValue(prop, idx);
         }
       });
@@ -451,7 +453,7 @@ export default function Dashboard() {
   
   const operatingCashFlows = consolidatedFlows.slice(1).map((cf, idx) => {
     let exitValue = 0;
-    if (idx === 9) {
+    if (idx === projectionYears - 1) {
       exitValue = properties.reduce((sum, prop, propIdx) => sum + getPropertyExitValue(prop, propIdx), 0);
     }
     return cf - exitValue;
@@ -887,6 +889,7 @@ export default function Dashboard() {
       let totalInitialEquity = 0;
       let totalRetainedEarnings = 0;
       let totalCumulativeCashFlow = 0;
+      let totalAccumDepreciation = 0;
       
       properties.forEach((prop, idx) => {
         const proForma = allPropertyFinancials[idx]?.financials || [];
@@ -927,7 +930,11 @@ export default function Dashboard() {
         totalInitialEquity += equityInvested;
         
         const cumulativeNOI = relevantMonths.reduce((sum, m) => sum + m.noi, 0);
-        const cumulativeDepreciation = annualDepreciation * Math.min(yearIndex + 1, projectionYears);
+        const acqDate = new Date(prop.acquisitionDate || prop.operationsStartDate);
+        const modelStartDate = new Date(global.modelStartDate);
+        const acqYearIndex = Math.floor(differenceInMonths(acqDate, modelStartDate) / 12);
+        const yearsDepreciated = Math.max(0, yearIndex + 1 - acqYearIndex);
+        const cumulativeDepreciation = annualDepreciation * Math.min(yearsDepreciated, DEPRECIATION_YEARS);
         const taxRate = prop.taxRate || DEFAULT_TAX_RATE;
         const taxableIncome = cumulativeNOI - cumulativeInterest - cumulativeDepreciation;
         const incomeTax = Math.max(0, taxableIncome) * taxRate;
@@ -937,9 +944,10 @@ export default function Dashboard() {
         const cumulativeDebtService = cumulativeInterest + cumulativePrincipal;
         const cashFromOperations = cumulativeNOI - cumulativeDebtService - incomeTax;
         totalCumulativeCashFlow += cashFromOperations;
+        totalAccumDepreciation += cumulativeDepreciation;
       });
       
-      const accumulatedDepreciation = (totalPropertyValue / DEPRECIATION_YEARS) * Math.min(yearIndex + 1, projectionYears);
+      const accumulatedDepreciation = totalAccumDepreciation;
       const totalCash = totalOperatingReserves + totalCumulativeCashFlow;
       const netPropertyValue = totalPropertyValue - accumulatedDepreciation;
       const totalAssets = netPropertyValue + totalCash;
@@ -1395,7 +1403,8 @@ export default function Dashboard() {
     const total10YearNOI = Array.from({ length: projectionYears }, (_, i) => getYearlyConsolidated(i).noi).reduce((a, b) => a + b, 0);
     const total10YearCashFlow = Array.from({ length: projectionYears }, (_, i) => getYearlyConsolidated(i).cashFlow).reduce((a, b) => a + b, 0);
     const avgPurchasePrice = properties.length > 0 ? properties.reduce((sum, p) => sum + (p.purchasePrice || 0), 0) / properties.length : 0;
-    const avgADR = properties.length > 0 ? properties.reduce((sum, p) => sum + (p.startAdr || 0), 0) / properties.length : 0;
+    const pdfTotalRooms = properties.reduce((sum, p) => sum + (p.roomCount || 0), 0);
+    const avgADR = pdfTotalRooms > 0 ? properties.reduce((sum, p) => sum + (p.startAdr || 0) * (p.roomCount || 0), 0) / pdfTotalRooms : 0;
 
     // Page footer function for didDrawPage hook
     const addFooter = (data: any) => {
@@ -2993,7 +3002,7 @@ export default function Dashboard() {
               properties={properties} 
               global={global} 
               allProFormas={allPropertyFinancials.map(pf => ({ property: pf.property, data: pf.financials }))}
-              year={10}
+              year={projectionYears}
             />
           </TabsContent>
 
@@ -3376,7 +3385,7 @@ function InvestmentAnalysis({
         yearCashFlow += refi.proceeds;
       }
       
-      if (y === 9) {
+      if (y === projectionYears - 1) {
         yearCashFlow += getPropertyExitValue(prop, propIndex);
       }
       
@@ -3441,7 +3450,7 @@ function InvestmentAnalysis({
           yearCashFlow += refi.proceeds;
         }
         
-        if (y === 9) {
+        if (y === projectionYears - 1) {
           yearCashFlow += getPropertyExitValue(prop, idx);
         }
       });
@@ -3462,7 +3471,7 @@ function InvestmentAnalysis({
   
   const operatingCashFlowsIA = consolidatedFlowsIA.slice(1).map((cf, idx) => {
     let exitValue = 0;
-    if (idx === 9) {
+    if (idx === projectionYears - 1) {
       exitValue = properties.reduce((sum, prop, propIdx) => sum + getPropertyExitValue(prop, propIdx), 0);
     }
     return cf - exitValue;
@@ -3813,8 +3822,8 @@ function InvestmentAnalysis({
                 </TableCell>
                 <TableCell className="text-right text-muted-foreground">-</TableCell>
                 {Array.from({ length: projectionYears }, (_, y) => (
-                  <TableCell key={y} className={`text-right ${y !== 9 ? 'text-muted-foreground' : ''}`}>
-                    {y === 9 ? formatMoney(totalExitValueIA) : '-'}
+                  <TableCell key={y} className={`text-right ${y !== projectionYears - 1 ? 'text-muted-foreground' : ''}`}>
+                    {y === projectionYears - 1 ? formatMoney(totalExitValueIA) : '-'}
                   </TableCell>
                 ))}
               </TableRow>
@@ -3826,8 +3835,8 @@ function InvestmentAnalysis({
                   </TableCell>
                   <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
                   {Array.from({ length: projectionYears }, (_, y) => (
-                    <TableCell key={y} className={`text-right text-sm ${y === 9 ? 'text-accent' : 'text-muted-foreground'}`}>
-                      {y === 9 ? formatMoney(getPropertyExitValue(prop, idx)) : '-'}
+                    <TableCell key={y} className={`text-right text-sm ${y === projectionYears - 1 ? 'text-accent' : 'text-muted-foreground'}`}>
+                      {y === projectionYears - 1 ? formatMoney(getPropertyExitValue(prop, idx)) : '-'}
                     </TableCell>
                   ))}
                 </TableRow>

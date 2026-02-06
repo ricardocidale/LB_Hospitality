@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import Layout from "@/components/Layout";
 import { useProperties, useDeleteProperty, useCreateProperty, useGlobalAssumptions } from "@/lib/api";
 import { formatMoney } from "@/lib/financialEngine";
@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Trash2, MapPin, Bed, ArrowRight, Loader2, Plus, Upload, X } from "lucide-react";
+import { Trash2, MapPin, Bed, ArrowRight, Loader2, Plus } from "lucide-react";
 import { Link } from "wouter";
 import { PageHeader } from "@/components/ui/page-header";
 import { GlassButton } from "@/components/ui/glass-button";
@@ -44,7 +44,7 @@ import {
   DEFAULT_START_ADR,
   DEFAULT_STABILIZATION_MONTHS,
 } from "@/lib/constants";
-import { useUpload } from "@/hooks/use-upload";
+import { PropertyImagePicker } from "@/features/property-images";
 
 export default function Portfolio() {
   const { data: properties, isLoading } = useProperties();
@@ -53,30 +53,6 @@ export default function Portfolio() {
   const createProperty = useCreateProperty();
   const { toast } = useToast();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  
-  const { uploadFile } = useUpload({
-    onSuccess: (response) => {
-      setFormData(prev => ({ ...prev, imageUrl: response.objectPath }));
-      setImagePreview(response.objectPath);
-      toast({
-        title: "Photo Uploaded",
-        description: "Photo has been successfully uploaded.",
-      });
-      setIsUploadingPhoto(false);
-    },
-    onError: (error) => {
-      console.error("Upload failed:", error);
-      toast({
-        title: "Upload Failed",
-        description: "Failed to upload photo. Please try again.",
-        variant: "destructive",
-      });
-      setIsUploadingPhoto(false);
-    },
-  });
 
   const [formData, setFormData] = useState({
     name: "",
@@ -113,35 +89,6 @@ export default function Portfolio() {
     });
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    
-    if (!file.type.startsWith("image/")) {
-      toast({
-        title: "Invalid File",
-        description: "Please select an image file (JPEG, PNG, etc.)",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    if (file.size > 10 * 1024 * 1024) {
-      toast({
-        title: "File Too Large",
-        description: "Please select an image under 10MB.",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    setIsUploadingPhoto(true);
-    await uploadFile(file);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  };
-
   const resetForm = () => {
     setFormData({
       name: "",
@@ -166,8 +113,6 @@ export default function Portfolio() {
       type: "Full Equity",
       cateringLevel: "None",
     });
-    setImagePreview(null);
-    setIsUploadingPhoto(false);
   };
 
   const handleSubmit = () => {
@@ -257,51 +202,12 @@ export default function Portfolio() {
               <div className="grid gap-6 py-4">
                 <div className="space-y-4">
                   <h3 className="font-display text-lg border-b pb-2">Property Photo</h3>
-                  <div className="flex flex-col items-center gap-4">
-                    {imagePreview ? (
-                      <div className="relative w-full aspect-[16/10] rounded-lg overflow-hidden border">
-                        <img src={imagePreview} alt="Property preview" className="w-full h-full object-cover" />
-                        <Button
-                          variant="destructive"
-                          size="icon"
-                          className="absolute top-2 right-2"
-                          onClick={() => {
-                            setImagePreview(null);
-                            setFormData(prev => ({ ...prev, imageUrl: "" }));
-                            if (fileInputRef.current) fileInputRef.current.value = "";
-                          }}
-                        >
-                          <X className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    ) : (
-                      <div 
-                        className={`w-full aspect-[16/10] rounded-lg border-2 border-dashed border-muted-foreground/25 flex flex-col items-center justify-center transition-colors ${isUploadingPhoto ? 'cursor-wait' : 'cursor-pointer hover:border-primary/50'}`}
-                        onClick={() => !isUploadingPhoto && fileInputRef.current?.click()}
-                      >
-                        {isUploadingPhoto ? (
-                          <>
-                            <Loader2 className="w-10 h-10 text-primary animate-spin mb-2" />
-                            <p className="text-sm text-muted-foreground">Uploading photo...</p>
-                          </>
-                        ) : (
-                          <>
-                            <Upload className="w-10 h-10 text-muted-foreground/50 mb-2" />
-                            <p className="text-sm text-muted-foreground">Click to upload property photo</p>
-                            <p className="text-xs text-muted-foreground/70 mt-1">Photo will be cropped to fit card format</p>
-                          </>
-                        )}
-                      </div>
-                    )}
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleImageUpload}
-                      data-testid="input-property-image"
-                    />
-                  </div>
+                  <PropertyImagePicker
+                    imageUrl={formData.imageUrl}
+                    onImageChange={(url) => setFormData(prev => ({ ...prev, imageUrl: url }))}
+                    propertyName={formData.name}
+                    location={formData.location}
+                  />
                 </div>
 
                 <div className="space-y-4">

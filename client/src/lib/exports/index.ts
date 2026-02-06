@@ -6,4 +6,12 @@ export {
   exportCompanyCashFlow,
   exportCompanyBalanceSheet,
   exportFullPropertyWorkbook,
-} from "./exports/excelExport";
+} from "./excelExport";
+
+export { drawLineChart } from "./pdfChartDrawer";
+
+export {
+  exportTablePNG,
+  exportChartPNG,
+  captureChartAsImage,
+} from "./pngExport";

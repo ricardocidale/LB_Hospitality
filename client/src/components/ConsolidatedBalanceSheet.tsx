@@ -12,6 +12,7 @@ import {
   LoanParams,
   GlobalLoanParams,
   DEFAULT_TAX_RATE,
+  DEFAULT_LAND_VALUE_PERCENT,
   PROJECTION_YEARS
 } from "@/lib/loanCalculations";
 
@@ -88,7 +89,7 @@ export function ConsolidatedBalanceSheet({ properties, global, allProFormas, yea
     }
     
     // Fixed Assets: Depreciable basis (land doesn't depreciate per IRS / ASC 360)
-    const landPct = prop.landValuePercent ?? 0.25;
+    const landPct = prop.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT;
     const propertyBasis = prop.purchasePrice * (1 - landPct) + prop.buildingImprovements;
     totalPropertyValue += propertyBasis;
     

@@ -79,6 +79,7 @@ import {
   DEFAULT_REFI_LTV, 
   DEFAULT_REFI_CLOSING_COST_RATE,
   DEFAULT_ACQ_CLOSING_COST_RATE,
+  DEFAULT_LAND_VALUE_PERCENT,
   PROJECTION_YEARS,
   PROJECTION_MONTHS,
   DEFAULT_MODEL_START_DATE
@@ -96,6 +97,7 @@ export {
   DEFAULT_REFI_LTV, 
   DEFAULT_REFI_CLOSING_COST_RATE,
   DEFAULT_ACQ_CLOSING_COST_RATE,
+  DEFAULT_LAND_VALUE_PERCENT,
   PROJECTION_YEARS,
   PROJECTION_MONTHS,
   DEFAULT_MODEL_START_DATE
@@ -118,7 +120,7 @@ export function calculateLoanParams(
   const commissionRate = global?.salesCommissionRate ?? global?.commissionRate ?? DEFAULT_COMMISSION_RATE;
   
   // Depreciable basis: land doesn't depreciate (IRS Publication 946 / ASC 360)
-  const landPct = property.landValuePercent ?? 0.25;
+  const landPct = property.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT;
   const buildingValue = property.purchasePrice * (1 - landPct) + property.buildingImprovements;
   const annualDepreciation = buildingValue / DEPRECIATION_YEARS;
   

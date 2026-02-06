@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Building2, Briefcase, Settings2, Menu, X, FileText, Shield, LogOut, UserCircle, FolderOpen } from "lucide-react";
+import { LayoutDashboard, Building2, Briefcase, Settings2, Menu, X, FileText, Shield, LogOut, UserCircle, FolderOpen, SearchCheck } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
@@ -21,6 +21,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { href: "/portfolio", label: "Properties", icon: Building2 },
     { href: "/company", label: "Management Co.", icon: Briefcase },
     { type: "divider" as const },
+    { href: "/property-finder", label: "Property Finder", icon: SearchCheck },
     { href: "/scenarios", label: "Scenarios", icon: FolderOpen },
     { type: "divider" as const },
     { href: "/settings", label: "Systemwide Assumptions", icon: Settings2 },

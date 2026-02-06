@@ -1723,5 +1723,163 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
+  // --- PROPERTY FINDER ROUTES ---
+  
+  app.get("/api/property-finder/search", requireAuth, async (req: any, res) => {
+    try {
+      const apiKey = process.env.RAPIDAPI_KEY;
+      if (!apiKey) {
+        return res.status(400).json({ 
+          error: "no_api_key",
+          message: "RapidAPI key not configured. Add your RAPIDAPI_KEY in the Secrets tab to enable property search." 
+        });
+      }
+      
+      const { location, priceMin, priceMax, bedsMin, lotSizeMin, propertyType, offset: searchOffset } = req.query;
+      
+      if (!location) {
+        return res.status(400).json({ error: "Location is required" });
+      }
+
+      const searchUrl = "https://realty-in-us.p.rapidapi.com/properties/v3/list";
+      
+      const filters: any[] = [];
+      
+      if (priceMin || priceMax) {
+        const priceFilter: any = { type: "sold" };
+        if (priceMin) priceFilter.min = parseInt(priceMin as string);
+        if (priceMax) priceFilter.max = parseInt(priceMax as string);
+        filters.push(priceFilter);
+      }
+
+      const payload: any = {
+        limit: 20,
+        offset: parseInt(searchOffset as string) || 0,
+        status: ["for_sale"],
+        sort: { direction: "desc", field: "list_date" },
+      };
+
+      if (/^\d{5}$/.test(location as string)) {
+        payload.postal_code = location;
+      } else {
+        const parts = (location as string).split(",").map((s: string) => s.trim());
+        if (parts.length >= 2) {
+          payload.city = parts[0];
+          payload.state_code = parts[1].toUpperCase().substring(0, 2);
+        } else {
+          payload.city = location;
+        }
+      }
+
+      const listPrice: any = {};
+      if (priceMin) listPrice.min = parseInt(priceMin as string);
+      if (priceMax) listPrice.max = parseInt(priceMax as string);
+      if (Object.keys(listPrice).length > 0) {
+        payload.list_price = listPrice;
+      }
+
+      if (bedsMin) {
+        payload.beds_min = parseInt(bedsMin as string);
+      }
+
+      if (lotSizeMin) {
+        payload.lot_sqft_min = Math.round(parseFloat(lotSizeMin as string) * 43560);
+      }
+
+      if (propertyType && propertyType !== "any") {
+        payload.type = [propertyType as string];
+      }
+
+      const response = await fetch(searchUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-RapidAPI-Key": apiKey,
+          "X-RapidAPI-Host": "realty-in-us.p.rapidapi.com",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("RapidAPI error:", response.status, errorText);
+        return res.status(response.status).json({ error: "Property search failed. Check your API key." });
+      }
+
+      const data = await response.json();
+      const results = data?.data?.home_search?.results || [];
+      const totalCount = data?.data?.home_search?.total || 0;
+
+      const normalized = results.map((r: any) => ({
+        externalId: r.property_id || r.listing_id || String(Math.random()),
+        address: [r.location?.address?.line, r.location?.address?.city, r.location?.address?.state_code].filter(Boolean).join(", "),
+        city: r.location?.address?.city || null,
+        state: r.location?.address?.state_code || null,
+        zipCode: r.location?.address?.postal_code || null,
+        price: r.list_price || null,
+        beds: r.description?.beds || null,
+        baths: r.description?.baths || null,
+        sqft: r.description?.sqft || null,
+        lotSizeAcres: r.description?.lot_sqft ? Math.round((r.description.lot_sqft / 43560) * 100) / 100 : null,
+        propertyType: r.description?.type || null,
+        imageUrl: r.primary_photo?.href || null,
+        listingUrl: r.href ? `https://www.realtor.com${r.href}` : null,
+      }));
+
+      res.json({ results: normalized, total: totalCount, offset: parseInt(searchOffset as string) || 0 });
+    } catch (error) {
+      console.error("Property search error:", error);
+      res.status(500).json({ error: "Property search failed" });
+    }
+  });
+
+  app.get("/api/property-finder/favorites", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user!.id;
+      const favorites = await storage.getProspectiveProperties(userId);
+      res.json(favorites);
+    } catch (error) {
+      console.error("Get favorites error:", error);
+      res.status(500).json({ error: "Failed to load saved properties" });
+    }
+  });
+
+  app.post("/api/property-finder/favorites", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user!.id;
+      const data = { ...req.body, userId };
+      const saved = await storage.addProspectiveProperty(data);
+      res.json(saved);
+    } catch (error) {
+      console.error("Save favorite error:", error);
+      res.status(500).json({ error: "Failed to save property" });
+    }
+  });
+
+  app.delete("/api/property-finder/favorites/:id", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user!.id;
+      const id = parseInt(req.params.id);
+      await storage.deleteProspectiveProperty(id, userId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Delete favorite error:", error);
+      res.status(500).json({ error: "Failed to remove property" });
+    }
+  });
+
+  app.patch("/api/property-finder/favorites/:id/notes", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user!.id;
+      const id = parseInt(req.params.id);
+      const { notes } = req.body;
+      const updated = await storage.updateProspectivePropertyNotes(id, userId, notes || "");
+      res.json(updated);
+    } catch (error) {
+      console.error("Update notes error:", error);
+      res.status(500).json({ error: "Failed to update notes" });
+    }
+  });
+
   return httpServer;
 }

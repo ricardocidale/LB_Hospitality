@@ -336,3 +336,135 @@ export function useMarketResearch(type: string, propertyId?: number) {
     enabled: !!type,
   });
 }
+
+// --- PROPERTY FINDER ---
+
+export interface PropertyFinderResult {
+  externalId: string;
+  address: string;
+  city: string | null;
+  state: string | null;
+  zipCode: string | null;
+  price: number | null;
+  beds: number | null;
+  baths: number | null;
+  sqft: number | null;
+  lotSizeAcres: number | null;
+  propertyType: string | null;
+  imageUrl: string | null;
+  listingUrl: string | null;
+}
+
+export interface PropertyFinderSearchResponse {
+  results: PropertyFinderResult[];
+  total: number;
+  offset: number;
+}
+
+export interface SavedProspectiveProperty extends PropertyFinderResult {
+  id: number;
+  userId: number;
+  source: string;
+  notes: string | null;
+  savedAt: string;
+}
+
+export interface PropertyFinderSearchParams {
+  location: string;
+  priceMin?: string;
+  priceMax?: string;
+  bedsMin?: string;
+  lotSizeMin?: string;
+  propertyType?: string;
+  offset?: string;
+}
+
+async function searchProperties(params: PropertyFinderSearchParams): Promise<PropertyFinderSearchResponse> {
+  const searchParams = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value) searchParams.set(key, value);
+  });
+  const res = await fetch(`/api/property-finder/search?${searchParams.toString()}`);
+  if (!res.ok) {
+    const data = await res.json();
+    throw new Error(data.message || data.error || "Search failed");
+  }
+  return res.json();
+}
+
+async function fetchFavorites(): Promise<SavedProspectiveProperty[]> {
+  const res = await fetch("/api/property-finder/favorites");
+  if (!res.ok) throw new Error("Failed to fetch saved properties");
+  return res.json();
+}
+
+async function saveFavorite(data: PropertyFinderResult): Promise<SavedProspectiveProperty> {
+  const res = await fetch("/api/property-finder/favorites", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error("Failed to save property");
+  return res.json();
+}
+
+async function deleteFavorite(id: number): Promise<void> {
+  const res = await fetch(`/api/property-finder/favorites/${id}`, { method: "DELETE" });
+  if (!res.ok) throw new Error("Failed to remove property");
+}
+
+async function updateFavoriteNotes({ id, notes }: { id: number; notes: string }): Promise<SavedProspectiveProperty> {
+  const res = await fetch(`/api/property-finder/favorites/${id}/notes`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ notes }),
+  });
+  if (!res.ok) throw new Error("Failed to update notes");
+  return res.json();
+}
+
+export function usePropertySearch(params: PropertyFinderSearchParams | null) {
+  return useQuery({
+    queryKey: ["propertySearch", params],
+    queryFn: () => searchProperties(params!),
+    enabled: !!params?.location,
+    retry: false,
+  });
+}
+
+export function useProspectiveFavorites() {
+  return useQuery({
+    queryKey: ["prospectiveFavorites"],
+    queryFn: fetchFavorites,
+  });
+}
+
+export function useSaveFavorite() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: saveFavorite,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["prospectiveFavorites"] });
+    },
+  });
+}
+
+export function useDeleteFavorite() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: deleteFavorite,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["prospectiveFavorites"] });
+    },
+  });
+}
+
+export function useUpdateFavoriteNotes() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updateFavoriteNotes,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["prospectiveFavorites"] });
+    },
+  });
+}

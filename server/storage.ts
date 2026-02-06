@@ -1,4 +1,4 @@
-import { globalAssumptions, properties, users, sessions, scenarios, loginLogs, designThemes, marketResearch, type GlobalAssumptions, type Property, type InsertGlobalAssumptions, type InsertProperty, type UpdateProperty, type User, type InsertUser, type Session, type Scenario, type InsertScenario, type UpdateScenario, type LoginLog, type InsertLoginLog, type DesignTheme, type InsertDesignTheme, type MarketResearch, type InsertMarketResearch } from "@shared/schema";
+import { globalAssumptions, properties, users, sessions, scenarios, loginLogs, designThemes, marketResearch, prospectiveProperties, type GlobalAssumptions, type Property, type InsertGlobalAssumptions, type InsertProperty, type UpdateProperty, type User, type InsertUser, type Session, type Scenario, type InsertScenario, type UpdateScenario, type LoginLog, type InsertLoginLog, type DesignTheme, type InsertDesignTheme, type MarketResearch, type InsertMarketResearch, type ProspectiveProperty, type InsertProspectiveProperty } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gt, gte, desc, or, isNull } from "drizzle-orm";
 
@@ -55,6 +55,12 @@ export interface IStorage {
   getAllMarketResearch(userId?: number): Promise<MarketResearch[]>;
   upsertMarketResearch(data: InsertMarketResearch): Promise<MarketResearch>;
   deleteMarketResearch(id: number): Promise<void>;
+  
+  // Prospective Properties
+  getProspectiveProperties(userId: number): Promise<ProspectiveProperty[]>;
+  addProspectiveProperty(data: InsertProspectiveProperty): Promise<ProspectiveProperty>;
+  deleteProspectiveProperty(id: number, userId: number): Promise<void>;
+  updateProspectivePropertyNotes(id: number, userId: number, notes: string): Promise<ProspectiveProperty | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -364,6 +370,44 @@ export class DatabaseStorage implements IStorage {
   
   async deleteMarketResearch(id: number): Promise<void> {
     await db.delete(marketResearch).where(eq(marketResearch.id, id));
+  }
+  
+  // Prospective Properties
+  async getProspectiveProperties(userId: number): Promise<ProspectiveProperty[]> {
+    return await db.select().from(prospectiveProperties)
+      .where(eq(prospectiveProperties.userId, userId))
+      .orderBy(desc(prospectiveProperties.savedAt));
+  }
+  
+  async addProspectiveProperty(data: InsertProspectiveProperty): Promise<ProspectiveProperty> {
+    const existing = await db.select().from(prospectiveProperties)
+      .where(and(
+        eq(prospectiveProperties.userId, data.userId),
+        eq(prospectiveProperties.externalId, data.externalId)
+      ))
+      .limit(1);
+    
+    if (existing.length > 0) {
+      return existing[0];
+    }
+    
+    const [prop] = await db.insert(prospectiveProperties)
+      .values(data as typeof prospectiveProperties.$inferInsert)
+      .returning();
+    return prop;
+  }
+  
+  async deleteProspectiveProperty(id: number, userId: number): Promise<void> {
+    await db.delete(prospectiveProperties)
+      .where(and(eq(prospectiveProperties.id, id), eq(prospectiveProperties.userId, userId)));
+  }
+  
+  async updateProspectivePropertyNotes(id: number, userId: number, notes: string): Promise<ProspectiveProperty | undefined> {
+    const [prop] = await db.update(prospectiveProperties)
+      .set({ notes })
+      .where(and(eq(prospectiveProperties.id, id), eq(prospectiveProperties.userId, userId)))
+      .returning();
+    return prop || undefined;
   }
 }
 

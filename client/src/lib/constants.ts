@@ -12,6 +12,9 @@ export const DEFAULT_REFI_LTV = 0.65;
 export const DEFAULT_REFI_CLOSING_COST_RATE = 0.03;
 export const DEFAULT_ACQ_CLOSING_COST_RATE = 0.02;
 
+// Default land value percentage (IRS Publication 946 — non-depreciable)
+export const DEFAULT_LAND_VALUE_PERCENT = 0.25;
+
 // IRS-mandated depreciation period (Publication 946 / ASC 360)
 export const DEPRECIATION_YEARS = 27.5;
 

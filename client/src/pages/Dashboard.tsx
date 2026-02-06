@@ -39,7 +39,7 @@ import {
   DEPRECIATION_YEARS,
   PROJECTION_YEARS,
 } from "@/lib/loanCalculations";
-import { DAYS_PER_MONTH, IRR_HIGHLIGHT_THRESHOLD } from "@/lib/constants";
+import { DAYS_PER_MONTH, IRR_HIGHLIGHT_THRESHOLD, DEFAULT_LAND_VALUE_PERCENT } from "@/lib/constants";
 
 export default function Dashboard() {
   const { data: properties, isLoading: propertiesLoading } = useProperties();
@@ -896,7 +896,7 @@ export default function Dashboard() {
         const relevantMonths = proForma.slice(0, monthsToInclude);
         
         const totalPropertyValue = prop.purchasePrice + prop.buildingImprovements;
-        const landPct = prop.landValuePercent ?? 0.25;
+        const landPct = prop.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT;
         const depreciableBasis = prop.purchasePrice * (1 - landPct) + prop.buildingImprovements;
         const annualDepreciation = depreciableBasis / DEPRECIATION_YEARS;
         
@@ -928,7 +928,7 @@ export default function Dashboard() {
         }
         totalDebtOutstanding += debtOutstanding;
         
-        const equityInvested = propertyBasis + (prop.preOpeningCosts || 0) + (prop.operatingReserve || 0) - loanAmount;
+        const equityInvested = totalPropertyValue + (prop.preOpeningCosts || 0) + (prop.operatingReserve || 0) - loanAmount;
         totalInitialEquity += equityInvested;
         
         const cumulativeNOI = relevantMonths.reduce((sum, m) => sum + m.noi, 0);
@@ -1141,7 +1141,7 @@ export default function Dashboard() {
         const noi = yearlyData.noi || 0;
         totalNOI += noi;
         
-        const landPct2 = prop.landValuePercent ?? 0.25;
+        const landPct2 = prop.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT;
         const depreciableBasis2 = prop.purchasePrice * (1 - landPct2) + prop.buildingImprovements;
         const depreciation = depreciableBasis2 / DEPRECIATION_YEARS;
         totalDepreciation += depreciation;
@@ -3120,7 +3120,7 @@ function InvestmentAnalysis({
   };
 
   const getAnnualDepreciation = (prop: any) => {
-    const landPct = prop.landValuePercent ?? 0.25;
+    const landPct = prop.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT;
     const depreciableBase = prop.purchasePrice * (1 - landPct) + prop.buildingImprovements;
     return depreciableBase / DEPRECIATION_YEARS;
   };

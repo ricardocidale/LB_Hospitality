@@ -21,6 +21,7 @@ import GlobalResearch from "@/pages/GlobalResearch";
 import Admin from "@/pages/Admin";
 import Profile from "@/pages/Profile";
 import Scenarios from "@/pages/Scenarios";
+import PropertyFinder from "@/pages/PropertyFinder";
 
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
   const { user, isLoading } = useAuth();
@@ -119,6 +120,9 @@ function Router() {
       </Route>
       <Route path="/scenarios">
         <ProtectedRoute component={Scenarios} />
+      </Route>
+      <Route path="/property-finder">
+        <ProtectedRoute component={PropertyFinder} />
       </Route>
       <Route component={NotFound} />
     </Switch>

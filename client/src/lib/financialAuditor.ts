@@ -5,6 +5,7 @@ import {
   DEFAULT_INTEREST_RATE, 
   DEFAULT_TERM_YEARS, 
   DEPRECIATION_YEARS,
+  DEFAULT_LAND_VALUE_PERCENT,
   AUDIT_VARIANCE_TOLERANCE,
   AUDIT_DOLLAR_TOLERANCE,
   AUDIT_VERIFICATION_WINDOW_MONTHS,
@@ -128,7 +129,7 @@ export function auditDepreciation(
   const findings: AuditFinding[] = [];
   
   // Depreciable basis: land doesn't depreciate (IRS Publication 946 / ASC 360)
-  const landPct = property.landValuePercent ?? 0.25;
+  const landPct = property.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT;
   const depreciableBasis = property.purchasePrice * (1 - landPct) + property.buildingImprovements;
   const expectedMonthlyDep = depreciableBasis / DEPRECIATION_YEARS / 12;
   const expectedAnnualDep = depreciableBasis / DEPRECIATION_YEARS;
@@ -746,7 +747,7 @@ export function auditBalanceSheet(
   const acqMonthIndex = differenceInMonths(acqDate, modelStart);
   
   // Depreciable basis: land doesn't depreciate (IRS Publication 946 / ASC 360)
-  const landPct = property.landValuePercent ?? 0.25;
+  const landPct = property.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT;
   const depreciableBasis = (property.purchasePrice || 0) * (1 - landPct) + (property.buildingImprovements || 0);
   const monthlyDepreciation = depreciableBasis / DEPRECIATION_YEARS / 12;
   

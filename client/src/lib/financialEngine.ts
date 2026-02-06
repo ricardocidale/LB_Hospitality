@@ -38,7 +38,8 @@ import {
   DEFAULT_OTHER_EXPENSE_RATE,
   DEFAULT_UTILITIES_VARIABLE_SPLIT,
   PROJECTION_MONTHS,
-  STAFFING_TIERS
+  STAFFING_TIERS,
+  DEFAULT_LAND_VALUE_PERCENT
 } from './constants';
 
 // Helper function to get fiscal year label for a given month in the model
@@ -241,7 +242,7 @@ export function generatePropertyProForma(
   // Balance sheet calculations - for PwC-level verification
   // Depreciable basis: land doesn't depreciate (IRS Publication 946 / ASC 360)
   // depreciableBasis = purchasePrice × (1 - landValuePercent) + buildingImprovements
-  const landPct = property.landValuePercent ?? 0.25;
+  const landPct = property.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT;
   const buildingValue = property.purchasePrice * (1 - landPct) + (property.buildingImprovements ?? 0);
   const monthlyDepreciation = buildingValue / DEPRECIATION_YEARS / 12;
   
@@ -279,7 +280,8 @@ export function generatePropertyProForma(
 
     let occupancy = 0;
     if (isOperational) {
-      const rampSteps = Math.floor(monthsSinceOps / property.occupancyRampMonths);
+      const rampMonths = property.occupancyRampMonths || 6;
+      const rampSteps = Math.floor(monthsSinceOps / rampMonths);
       occupancy = Math.min(
         property.maxOccupancy, 
         property.startOccupancy + (rampSteps * property.occupancyGrowthStep)
@@ -399,10 +401,11 @@ export function generatePropertyProForma(
     const netIncome = noi - interestExpense;
     const cashFlow = noi - debtPayment;
     
-    // Balance sheet: Property value = building value - accumulated depreciation (ASC 360)
+    // Balance sheet: Property value = land + (building - accumulated depreciation) per ASC 360
+    const landValue = property.purchasePrice * landPct;
     const depreciationExpense = isAcquired ? monthlyDepreciation : 0;
     const accumulatedDepreciation = isAcquired ? Math.min(monthlyDepreciation * (monthsSinceAcquisition + 1), buildingValue) : 0;
-    const propertyValue = isAcquired ? buildingValue - accumulatedDepreciation : 0;
+    const propertyValue = isAcquired ? landValue + buildingValue - accumulatedDepreciation : 0;
     
     // Cash flow statement per GAAP ASC 230 indirect method
     const operatingCashFlow = netIncome + depreciationExpense; // Add back non-cash depreciation

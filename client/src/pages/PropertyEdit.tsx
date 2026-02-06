@@ -22,7 +22,8 @@ import {
   DEFAULT_TERM_YEARS,
   DEFAULT_REFI_LTV,
   DEFAULT_ACQ_CLOSING_COST_RATE,
-  DEFAULT_REFI_CLOSING_COST_RATE
+  DEFAULT_REFI_CLOSING_COST_RATE,
+  DEFAULT_LAND_VALUE_PERCENT
 } from "@/lib/loanCalculations";
 import {
   DEFAULT_REV_SHARE_EVENTS,
@@ -443,7 +444,7 @@ export default function PropertyEdit() {
                 <div className="flex items-center gap-3">
                   <Slider
                     data-testid="slider-land-value-percent"
-                    value={[(draft.landValuePercent ?? 0.25) * 100]}
+                    value={[(draft.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT) * 100]}
                     onValueChange={(vals: number[]) => handleNumberChange("landValuePercent", (vals[0] / 100).toString())}
                     min={5}
                     max={60}
@@ -451,11 +452,11 @@ export default function PropertyEdit() {
                     className="flex-1"
                   />
                   <span className="text-sm font-medium text-gray-700 w-12 text-right" data-testid="text-land-value-percent">
-                    {((draft.landValuePercent ?? 0.25) * 100).toFixed(0)}%
+                    {((draft.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT) * 100).toFixed(0)}%
                   </span>
                 </div>
                 <p className="text-xs text-gray-500">
-                  Depreciable basis: ${((draft.purchasePrice * (1 - (draft.landValuePercent ?? 0.25))) + draft.buildingImprovements).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                  Depreciable basis: ${((draft.purchasePrice * (1 - (draft.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT))) + draft.buildingImprovements).toLocaleString(undefined, { maximumFractionDigits: 0 })}
                 </p>
               </div>
               <div className="space-y-2">

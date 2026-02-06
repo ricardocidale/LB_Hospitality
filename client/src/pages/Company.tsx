@@ -729,7 +729,7 @@ export default function Company() {
                 <ImageIcon className="w-4 h-4" />
                 Export Chart
               </GlassButton>
-              <GlassButton variant="export" size="sm" onClick={() => { setExportType('tablePng'); setExportDialogOpen(true); }} data-testid="button-export-table-png">
+              <GlassButton variant="export" size="sm" onClick={() => exportTablePNG()} data-testid="button-export-table-png">
                 <ImageIcon className="w-4 h-4" />
                 Export PNG
               </GlassButton>

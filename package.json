@@ -1,6 +1,7 @@
 {
-  "name": "rest-express",
+  "name": "lb-hospitality-portal",
   "version": "1.0.0",
+  "description": "L+B Hospitality Group - Business Simulation Portal. Financial modeling, pro forma projections, and portfolio management for boutique hospitality assets.",
   "type": "module",
   "license": "MIT",
   "scripts": {

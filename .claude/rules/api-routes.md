@@ -151,6 +151,12 @@ All routes under `/api/auth/` handle user authentication.
 | `POST` | `/api/uploads/request-url` | User | Get presigned upload URL for object storage |
 | `GET` | `/api/objects/*` | None | Serve uploaded files from object storage |
 
+## Utility
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| `POST` | `/api/fix-images` | None | Utility endpoint to fix property image URLs |
+
 ## One-Time Seeding
 
 | Method | Path | Auth | Description |
@@ -161,9 +167,10 @@ All routes under `/api/auth/` handle user authentication.
 
 | Role | Access Level |
 |------|-------------|
-| `admin` | Full access to all endpoints including user management |
+| `admin` | Full access to all endpoints including user management and verification |
 | `user` | Standard access to properties, assumptions, scenarios, research |
-| `checker` | User access + verification endpoints (`run-verification`, `ai-verification`) |
+
+**Checker Access**: The `requireChecker` middleware grants verification endpoint access to users with `role === "admin"` OR `email === "checker"`. The checker user has role `"user"` in the database — checker is identified by email, not by a separate role.
 
 ## Error Responses
 

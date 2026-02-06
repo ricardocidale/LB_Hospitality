@@ -2,7 +2,7 @@
 
 ## Overview
 
-The verification system provides PwC-level independent verification of all financial calculations against GAAP standards. It operates at two levels: client-side formula and compliance checking, and server-side independent recalculation.
+The verification system provides independent verification of all financial calculations against GAAP standards. It operates at two levels: client-side formula and compliance checking, and server-side independent recalculation.
 
 ## Architecture
 
@@ -76,7 +76,7 @@ A completely independent recalculation engine that does NOT import from the clie
 
 **Key Design Principle**: The server-side checker reimplements all financial math from scratch, using only the raw property data and global assumptions as inputs. If both the client engine and server checker produce the same results, we have high confidence in accuracy.
 
-**What It Checks** (89 checks per property set):
+**What It Checks** (dynamic count based on properties — approximately 18 checks per property plus company and consolidated checks):
 
 | Category | Check | GAAP Reference |
 |----------|-------|----------------|
@@ -98,15 +98,16 @@ A completely independent recalculation engine that does NOT import from the clie
 
 ```typescript
 interface CheckResult {
-  name: string;           // "Room Revenue (First Operational Month)"
+  metric: string;         // "Room Revenue (First Operational Month)"
   category: string;       // "Revenue"
-  gaapReference: string;  // "ASC 606"
-  methodology: string;    // "10 rooms × $330 ADR × 70% occ × 30.5 days"
+  gaapRef: string;        // "ASC 606"
+  formula: string;        // "10 rooms × $330 ADR × 70% occ × 30.5 days"
   expected: number;       // 70,455
   actual: number;         // 70,455
+  variance: number;       // absolute difference
+  variancePct: number;    // percentage difference
   passed: boolean;        // true
-  severity: string;       // "critical" | "material" | "info"
-  variance: number;       // 0.00 (percentage)
+  severity: "critical" | "material" | "minor" | "info";
 }
 ```
 
@@ -120,7 +121,9 @@ Based on check results, the system issues one of three opinions:
 | **QUALIFIED** | 0 critical, some material issues | Minor discrepancies found |
 | **ADVERSE** | Any critical issues | Significant errors requiring attention |
 
-**Tolerance**: 1% variance allowed for rounding differences. Variances above 1% are flagged as failures.
+**Overall Status**: Separate from audit opinion, uses `"PASS"`, `"FAIL"`, or `"WARNING"` with the same thresholds (critical → FAIL, material → WARNING).
+
+**Tolerance**: 1% variance allowed for floating point comparison differences (`TOLERANCE = 0.01`). The `withinTolerance()` function compares expected vs actual values.
 
 ## AI-Powered Verification
 
@@ -158,4 +161,4 @@ curl -b cookies.txt /api/admin/run-verification
 ```
 
 ### Expected Results
-When properly configured, all 89 checks should pass with an **UNQUALIFIED** audit opinion. Any failures indicate a calculation discrepancy between the client-side engine and the independent server-side checker.
+When properly configured, all checks should pass with an **UNQUALIFIED** audit opinion. The total check count varies based on the number of properties (approximately 18 per property, plus company and consolidated checks). Any failures indicate a calculation discrepancy between the client-side engine and the independent server-side checker.

@@ -8,20 +8,21 @@ The database schema is defined in `shared/schema.ts` using Drizzle ORM. All tabl
 
 | Table | Purpose | Key Fields |
 |-------|---------|------------|
-| `users` | User accounts and roles | email, passwordHash, role (admin/user), name, company, title |
+| `users` | User accounts and roles | email, passwordHash, role (admin/user), name, company, title, createdAt, updatedAt |
+| `sessions` | Active user sessions | id (text PK), userId (FK), expiresAt, createdAt |
 | `global_assumptions` | Model-wide financial parameters | inflationRate, managementFees, SAFE funding, partner comp, staffing tiers, projectionYears |
 | `properties` | Individual hotel assets | name, location, purchasePrice, roomCount, ADR, occupancy, cost rates, revenue shares |
 | `scenarios` | Saved configuration snapshots | name, userId, globalAssumptionsSnapshot (JSON), propertiesSnapshot (JSON) |
 | `login_logs` | Authentication audit trail | userId, email, ipAddress, success, timestamp |
 | `market_research` | AI-generated research cache | type (property/company/global), content (JSON), propertyId, userId |
-| `design_themes` | UI color theme definitions | name, colors (JSON array), isActive |
+| `design_themes` | UI color theme definitions | name, colors (JSON array of DesignColor), isActive |
 
 ### Schema Conventions
-- Primary keys use `integer().primaryKey().generatedAlwaysAsIdentity()`
+- Most primary keys use `integer().primaryKey().generatedAlwaysAsIdentity()` (exception: `sessions` uses `text` PK)
 - Foreign keys reference parent tables with `.references(() => table.id)`
-- Date fields stored as `text` in ISO format (not timestamp) for portability
+- Temporal fields: `users`, `sessions`, and some tables use `timestamp` type for createdAt/updatedAt/expiresAt; property dates (acquisitionDate, operationsStartDate) use `text` in ISO format
 - Financial rates stored as decimals (e.g., 0.03 for 3%)
-- JSON fields use `jsonb` type with TypeScript type assertions
+- JSON fields use `jsonb` type with TypeScript type assertions (e.g., `DesignColor[]` for themes, JSON for scenario snapshots)
 
 ## Seeding System
 
@@ -40,22 +41,28 @@ Server starts
     ▼
 seedAdminUser() in server/auth.ts
     │
-    ├── Check if "admin" user exists
-    │   ├── No  → Create with ADMIN_PASSWORD env var
-    │   └── Yes → Update password hash to match ADMIN_PASSWORD
+    ├── Check ADMIN_PASSWORD env var
+    │   ├── Not set → Skip admin creation (warn to console)
+    │   └── Set → Check if "admin" user exists
+    │       ├── No  → Create with role "admin"
+    │       └── Yes → Update password hash to match env var
     │
-    ├── Check if "checker" user exists
-    │   ├── No  → Create with CHECKER_PASSWORD env var
-    │   └── Yes → Update password hash to match CHECKER_PASSWORD
+    ├── Check CHECKER_PASSWORD env var
+    │   ├── Not set → Skip checker creation (warn to console)
+    │   └── Set → Check if "checker" user exists
+    │       ├── No  → Create with role "user" (not "admin")
+    │       └── Yes → Update password hash to match env var
     │
     └── Ensure both users have a "Base" scenario
 ```
+
+**Important**: The checker user has role `"user"` in the database, NOT a special "checker" role. Checker access is determined by the `requireChecker` middleware in `server/auth.ts`, which grants verification access to users with `role === "admin"` OR `email === "checker"`.
 
 **Environment Variables Required**:
 - `ADMIN_PASSWORD` - Sets the admin user's password
 - `CHECKER_PASSWORD` - Sets the checker user's password
 
-If these env vars are not set, user creation is skipped with a warning.
+If these env vars are not set, the respective user creation is skipped with a console warning.
 
 ### 2. Development Seeding Script
 
@@ -71,19 +78,20 @@ npx tsx server/seed.ts
 Check if global_assumptions or properties exist
     │
     ├── Data exists + no --force flag → Skip (prevent duplicates)
-    ├── Data exists + --force flag → Delete all, then re-seed
+    ├── Data exists + --force flag → Delete properties & global_assumptions, then re-seed
     └── No data → Seed everything
         │
-        ├── Create admin user (email: "admin", password: "admin123")
+        ├── Create admin user (email: "admin", password: "admin123") if not exists
         ├── Seed global assumptions (model start: 2026-04-01)
-        └── Seed sample properties:
-            ├── The Hudson Estate (Upstate NY, 20 rooms, $330 ADR)
-            ├── Hacienda Luna (Riviera Maya, 30 rooms, $280 ADR)
-            ├── The Pines (Vermont, 15 rooms, $250 ADR)
-            └── Casa Montaña (San Miguel de Allende, 25 rooms, $180 ADR)
+        └── Seed 5 sample properties:
+            ├── The Hudson Estate (Upstate NY, 20 rooms, $330 ADR, Full Equity)
+            ├── Eden Summit Lodge (Eden, Utah, 20 rooms, $390 ADR, Full Equity)
+            ├── Austin Hillside (Austin, Texas, 20 rooms, $270 ADR, Full Equity)
+            ├── Casa Medellín (Medellín, Colombia, 30 rooms, $180 ADR, Financed)
+            └── Blue Ridge Manor (Asheville, NC, 30 rooms, $342 ADR, Financed)
 ```
 
-**Important**: The dev seed script uses a hardcoded password ("admin123"). In production, the automatic seeding (mechanism #1) overrides this with the `ADMIN_PASSWORD` environment variable on every server restart.
+**Important**: The dev seed script uses a hardcoded password ("admin123") and inserts the admin user directly into the database. In production, the automatic seeding (mechanism #1) overrides the password with the `ADMIN_PASSWORD` environment variable on every server restart. The `--force` flag only deletes properties and global_assumptions, not users.
 
 ### 3. Production Seeding Endpoints
 
@@ -99,26 +107,24 @@ Authorization: Admin role required
 
 Seeds users, global assumptions, properties, and design themes. Skips any category where data already exists.
 
-**Seeded Users**:
+**Seeded Users** (skips if email already exists):
 | Email | Role | Name | Company |
 |-------|------|------|---------|
 | admin | admin | Ricardo Cidale | Norfolk Group |
 | rosario@kitcapital.com | user | Rosario David | KIT Capital |
 | checker | user | Checker User | - |
-| sante@norfolk.com | admin | Sante Cidale | Norfolk Group |
 
-**Seeded Properties**:
+**Seeded Properties** (skips if name already exists):
 | Name | Location | Rooms | ADR | Type |
 |------|----------|-------|-----|------|
 | The Hudson Estate | Upstate New York | 20 | $330 | Full Equity |
-| Hacienda Luna | Riviera Maya, Mexico | 30 | $280 | Financed |
-| The Pines | Vermont | 15 | $250 | Full Equity |
-| Casa Montaña | San Miguel de Allende | 25 | $180 | Full Equity |
+| Eden Summit Lodge | Eden, Utah | 20 | $390 | Full Equity |
+| Austin Hillside | Austin, Texas | 20 | $270 | Full Equity |
+| Casa Medellín | Medellín, Colombia | 30 | $180 | Financed |
+| Blue Ridge Manor | Asheville, NC | 30 | $342 | Financed |
 
-**Design Themes Seeded**:
-- Sage & Stone (default active) - sage green primary palette
-- Ocean Depth - deep navy and teal palette
-- Desert Rose - warm terracotta palette
+**Design Theme Seeded** (skips if any themes exist):
+- Fluid Glass (active) - Apple-inspired translucent design with sage green, deep green, cream, and black
 
 #### b) One-Time Public Seed Endpoint
 ```

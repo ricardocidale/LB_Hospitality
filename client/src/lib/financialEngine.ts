@@ -302,7 +302,10 @@ export function generatePropertyProForma(
   const fullBoost = global.fullCateringFBBoost ?? DEFAULT_FULL_CATERING_BOOST;
   const partialBoost = global.partialCateringFBBoost ?? DEFAULT_PARTIAL_CATERING_BOOST;
   const cateringBoostMultiplier = 1 + (fullBoost * fullCateringPct) + (partialBoost * partialCateringPct);
-  const baseMonthlyTotalRev = baseMonthlyRoomRev * (1 + revShareEvents + revShareFB * cateringBoostMultiplier + revShareOther);
+  const baseMonthlyEventsRev = baseMonthlyRoomRev * revShareEvents;
+  const baseMonthlyFBRev = baseMonthlyRoomRev * revShareFB * cateringBoostMultiplier;
+  const baseMonthlyOtherRev = baseMonthlyRoomRev * revShareOther;
+  const baseMonthlyTotalRev = baseMonthlyRoomRev + baseMonthlyEventsRev + baseMonthlyFBRev + baseMonthlyOtherRev;
   
   for (let i = 0; i < months; i++) {
     const currentDate = addMonths(modelStart, i);

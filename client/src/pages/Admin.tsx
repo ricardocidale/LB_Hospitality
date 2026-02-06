@@ -411,6 +411,193 @@ export default function Admin() {
     }
   };
 
+  const exportVerificationPDF = () => {
+    if (!verificationResults) return;
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    let y = 20;
+
+    // Title
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(18);
+    doc.text("Independent Financial Verification Report", pageWidth / 2, y, { align: "center" });
+    y += 8;
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text(`L+B Hospitality Company | ${new Date(verificationResults.timestamp).toLocaleDateString()}`, pageWidth / 2, y, { align: "center" });
+    y += 12;
+
+    // Audit Opinion banner
+    const opinion = verificationResults.summary.auditOpinion;
+    const status = verificationResults.summary.overallStatus;
+    doc.setFillColor(opinion === "UNQUALIFIED" ? 34 : opinion === "QUALIFIED" ? 200 : 220,
+                     opinion === "UNQUALIFIED" ? 125 : opinion === "QUALIFIED" ? 180 : 50,
+                     opinion === "UNQUALIFIED" ? 65 : opinion === "QUALIFIED" ? 30 : 50);
+    doc.rect(14, y, pageWidth - 28, 12, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.text(`Audit Opinion: ${opinion} | Overall Status: ${status}`, pageWidth / 2, y + 8, { align: "center" });
+    doc.setTextColor(0, 0, 0);
+    y += 18;
+
+    // Summary stats
+    const s = verificationResults.summary;
+    autoTable(doc, {
+      startY: y,
+      head: [["Total Checks", "Passed", "Failed", "Critical Issues", "Material Issues"]],
+      body: [[s.totalChecks, s.totalPassed, s.totalFailed, s.criticalIssues, s.materialIssues]],
+      theme: "grid",
+      headStyles: { fillColor: [45, 74, 94], fontSize: 9 },
+      bodyStyles: { halign: "center", fontSize: 10, fontStyle: "bold" },
+      margin: { left: 14, right: 14 },
+    });
+    y = (doc as any).lastAutoTable.finalY + 8;
+
+    // Known-value tests
+    if (verificationResults.clientKnownValueTests) {
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.text("Known-Value Test Cases", 14, y);
+      y += 5;
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(7);
+      const testLines = verificationResults.clientKnownValueTests.results.split("\n");
+      for (const line of testLines) {
+        if (y > doc.internal.pageSize.getHeight() - 20) { doc.addPage(); y = 20; }
+        doc.text(line, 14, y);
+        y += 3.5;
+      }
+      y += 5;
+    }
+
+    // Server-side property checks
+    for (const propResult of verificationResults.propertyResults) {
+      if (y > doc.internal.pageSize.getHeight() - 40) { doc.addPage(); y = 20; }
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.text(`${propResult.propertyName} (${propResult.propertyType})`, 14, y);
+      y += 2;
+
+      const rows = propResult.checks.map(c => [
+        c.passed ? "PASS" : "FAIL",
+        c.severity.toUpperCase(),
+        c.gaapRef,
+        c.metric,
+        c.formula.length > 50 ? c.formula.slice(0, 50) + "..." : c.formula,
+      ]);
+
+      autoTable(doc, {
+        startY: y,
+        head: [["Status", "Severity", "GAAP Ref", "Metric", "Formula"]],
+        body: rows,
+        theme: "striped",
+        headStyles: { fillColor: [45, 74, 94], fontSize: 7 },
+        bodyStyles: { fontSize: 6.5 },
+        columnStyles: {
+          0: { cellWidth: 14, halign: "center", fontStyle: "bold" },
+          1: { cellWidth: 18 },
+          2: { cellWidth: 22 },
+          3: { cellWidth: 45 },
+        },
+        didParseCell: (data: any) => {
+          if (data.column.index === 0 && data.cell.raw === "PASS") {
+            data.cell.styles.textColor = [34, 125, 65];
+          } else if (data.column.index === 0 && data.cell.raw === "FAIL") {
+            data.cell.styles.textColor = [220, 50, 50];
+          }
+        },
+        margin: { left: 14, right: 14 },
+      });
+      y = (doc as any).lastAutoTable.finalY + 6;
+    }
+
+    // Company checks
+    if (verificationResults.companyChecks.length > 0) {
+      if (y > doc.internal.pageSize.getHeight() - 40) { doc.addPage(); y = 20; }
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.text("Management Company Checks", 14, y);
+      y += 2;
+      const rows = verificationResults.companyChecks.map(c => [
+        c.passed ? "PASS" : "FAIL", c.severity.toUpperCase(), c.gaapRef, c.metric, c.formula.length > 50 ? c.formula.slice(0, 50) + "..." : c.formula
+      ]);
+      autoTable(doc, {
+        startY: y, head: [["Status", "Severity", "GAAP Ref", "Metric", "Formula"]], body: rows, theme: "striped",
+        headStyles: { fillColor: [45, 74, 94], fontSize: 7 }, bodyStyles: { fontSize: 6.5 },
+        columnStyles: { 0: { cellWidth: 14, halign: "center", fontStyle: "bold" }, 1: { cellWidth: 18 }, 2: { cellWidth: 22 }, 3: { cellWidth: 45 } },
+        didParseCell: (data: any) => {
+          if (data.column.index === 0 && data.cell.raw === "PASS") data.cell.styles.textColor = [34, 125, 65];
+          else if (data.column.index === 0 && data.cell.raw === "FAIL") data.cell.styles.textColor = [220, 50, 50];
+        },
+        margin: { left: 14, right: 14 },
+      });
+      y = (doc as any).lastAutoTable.finalY + 6;
+    }
+
+    // Consolidated checks
+    if (verificationResults.consolidatedChecks.length > 0) {
+      if (y > doc.internal.pageSize.getHeight() - 40) { doc.addPage(); y = 20; }
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.text("Consolidated Portfolio Checks", 14, y);
+      y += 2;
+      const rows = verificationResults.consolidatedChecks.map(c => [
+        c.passed ? "PASS" : "FAIL", c.severity.toUpperCase(), c.gaapRef, c.metric, c.formula.length > 50 ? c.formula.slice(0, 50) + "..." : c.formula
+      ]);
+      autoTable(doc, {
+        startY: y, head: [["Status", "Severity", "GAAP Ref", "Metric", "Formula"]], body: rows, theme: "striped",
+        headStyles: { fillColor: [45, 74, 94], fontSize: 7 }, bodyStyles: { fontSize: 6.5 },
+        columnStyles: { 0: { cellWidth: 14, halign: "center", fontStyle: "bold" }, 1: { cellWidth: 18 }, 2: { cellWidth: 22 }, 3: { cellWidth: 45 } },
+        didParseCell: (data: any) => {
+          if (data.column.index === 0 && data.cell.raw === "PASS") data.cell.styles.textColor = [34, 125, 65];
+          else if (data.column.index === 0 && data.cell.raw === "FAIL") data.cell.styles.textColor = [220, 50, 50];
+        },
+        margin: { left: 14, right: 14 },
+      });
+      y = (doc as any).lastAutoTable.finalY + 6;
+    }
+
+    // Client-side audit summary
+    if (verificationResults.clientAuditReports && verificationResults.clientAuditReports.length > 0) {
+      if (y > doc.internal.pageSize.getHeight() - 40) { doc.addPage(); y = 20; }
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.text("Client-Side GAAP Audit Summary", 14, y);
+      y += 5;
+      const rows = verificationResults.clientAuditReports.flatMap(report =>
+        report.sections.map(sec => [
+          report.propertyName,
+          sec.name,
+          `${sec.passed}/${sec.passed + sec.failed}`,
+          sec.failed === 0 ? "PASS" : sec.materialIssues > 0 ? "FAIL" : "WARNING",
+        ])
+      );
+      autoTable(doc, {
+        startY: y, head: [["Property", "Audit Section", "Checks", "Status"]], body: rows, theme: "striped",
+        headStyles: { fillColor: [45, 74, 94], fontSize: 8 }, bodyStyles: { fontSize: 7 },
+        didParseCell: (data: any) => {
+          if (data.column.index === 3 && data.cell.raw === "PASS") data.cell.styles.textColor = [34, 125, 65];
+          else if (data.column.index === 3 && data.cell.raw === "FAIL") data.cell.styles.textColor = [220, 50, 50];
+          else if (data.column.index === 3 && data.cell.raw === "WARNING") data.cell.styles.textColor = [200, 150, 0];
+        },
+        margin: { left: 14, right: 14 },
+      });
+      y = (doc as any).lastAutoTable.finalY + 6;
+    }
+
+    // Footer
+    const pageCount = doc.getNumberOfPages();
+    for (let p = 1; p <= pageCount; p++) {
+      doc.setPage(p);
+      doc.setFontSize(7);
+      doc.setFont("helvetica", "normal");
+      doc.text(`L+B Hospitality - Verification Report | Page ${p} of ${pageCount}`, pageWidth / 2, doc.internal.pageSize.getHeight() - 8, { align: "center" });
+    }
+
+    doc.save(`verification-report-${new Date().toISOString().slice(0, 10)}.pdf`);
+  };
+
   const runDesignCheck = useMutation({
     mutationFn: async () => {
       const res = await fetch("/api/admin/run-design-check", { credentials: "include" });
@@ -761,7 +948,9 @@ export default function Admin() {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-gray-800 text-sm font-medium">{chk.metric}</span>
-            <span className={`text-[10px] px-1.5 py-0.5 rounded font-mono ${severityColor(chk.severity)}`}>{chk.severity.toUpperCase()}</span>
+            {!chk.passed && (
+              <span className={`text-[10px] px-1.5 py-0.5 rounded font-mono ${severityColor(chk.severity)}`}>{chk.severity.toUpperCase()}</span>
+            )}
             <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#9FBCA4]/20 text-[#257D41] font-mono">{chk.gaapRef}</span>
           </div>
           <p className="text-xs text-gray-500 mt-0.5 font-mono">{chk.formula}</p>
@@ -810,15 +999,25 @@ export default function Admin() {
               Run Verification
             </button>
             {verificationResults && (
-              <button 
-                onClick={runAiVerification}
-                disabled={aiReviewLoading}
-                data-testid="button-ai-verification"
-                className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-[#F4795B] bg-[#F4795B]/10 text-[#F4795B] font-semibold hover:bg-[#F4795B]/20 transition-colors disabled:opacity-50"
-              >
-                {aiReviewLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                AI Review
-              </button>
+              <>
+                <button
+                  onClick={runAiVerification}
+                  disabled={aiReviewLoading}
+                  data-testid="button-ai-verification"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-[#F4795B] bg-[#F4795B]/10 text-[#F4795B] font-semibold hover:bg-[#F4795B]/20 transition-colors disabled:opacity-50"
+                >
+                  {aiReviewLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                  AI Review
+                </button>
+                <button
+                  onClick={exportVerificationPDF}
+                  data-testid="button-export-verification-pdf"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-gray-400 bg-gray-100 text-gray-700 font-semibold hover:bg-gray-200 transition-colors"
+                >
+                  <FileDown className="w-4 h-4" />
+                  Export PDF
+                </button>
+              </>
             )}
           </div>
         </div>

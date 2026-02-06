@@ -5,8 +5,9 @@ import { generatePropertyProForma, formatMoney, getFiscalYearForModelYear } from
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { YearlyIncomeStatement } from "@/components/YearlyIncomeStatement";
 import { YearlyCashFlowStatement } from "@/components/YearlyCashFlowStatement";
+import { ConsolidatedBalanceSheet } from "@/components/ConsolidatedBalanceSheet";
 import { Tabs, TabsContent, DarkGlassTabs } from "@/components/ui/tabs";
-import { FileText, Banknote } from "lucide-react";
+import { FileText, Banknote, Scale } from "lucide-react";
 import { ArrowLeft, MapPin, Loader2, FileDown, FileSpreadsheet, Settings2, ImageIcon } from "lucide-react";
 import domtoimage from 'dom-to-image-more';
 import { Link, useRoute } from "wouter";
@@ -522,7 +523,8 @@ export default function PropertyDetail() {
             <DarkGlassTabs
               tabs={[
                 { value: 'income', label: 'Income Statement', icon: FileText },
-                { value: 'cashflow', label: 'Cash Flows', icon: Banknote }
+                { value: 'cashflow', label: 'Cash Flows', icon: Banknote },
+                { value: 'balance', label: 'Balance Sheet', icon: Scale }
               ]}
               activeTab={activeTab}
               onTabChange={setActiveTab}
@@ -776,6 +778,16 @@ export default function PropertyDetail() {
                 defaultLTV={global.debtAssumptions?.acqLTV ?? DEFAULT_LTV}
               />
             </div>
+          </TabsContent>
+
+          <TabsContent value="balance" className="mt-6">
+            <ConsolidatedBalanceSheet
+              properties={[property]}
+              global={global}
+              allProFormas={[{ property, data: financials }]}
+              year={projectionYears}
+              propertyIndex={0}
+            />
           </TabsContent>
         </Tabs>
       </div>

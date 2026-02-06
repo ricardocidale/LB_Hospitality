@@ -27,6 +27,10 @@ npm-debug.log*
 # Server generated public files
 server/public
 
+# Duplicate image locations (canonical: client/public/images/)
+public/images/
+client/src/assets/property-*.png
+
 # Vite temporary files
 vite.config.ts.*
 

@@ -96,7 +96,9 @@ function analyzeProperty(prop) {
   const roomsRevenue = roomNights * year10ADR;
   
   // Estimate total revenue with F&B and events (rough estimate)
-  const totalRevenue = roomsRevenue * 1.5; // Assume 50% additional from F&B/events
+  // Revenue multiplier accounts for ~43% events + ~22% F&B + ~7% other revenue shares
+  const ESTIMATED_REVENUE_MULTIPLIER = 1.5;
+  const totalRevenue = roomsRevenue * ESTIMATED_REVENUE_MULTIPLIER;
   
   // Operating expenses (sum of cost rates)
   const totalCostRate = 0.36 + 0.15 + 0.08 + 0.05 + 0.04 + 0.05 + 0.02 + 0.03 + 0.02 + 0.04 + 0.05;

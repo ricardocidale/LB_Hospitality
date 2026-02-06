@@ -140,7 +140,12 @@ Used as fallbacks when no user-configured value exists:
 
 These are now configurable via global assumptions (`staffTier1MaxProperties`, `staffTier1Fte`, etc.)
 
-### Partner Compensation Defaults
+### Partner Defaults
+
+| Constant | Value | Description |
+|----------|-------|-------------|
+| `DEFAULT_PARTNER_COUNT` | 3 | Default number of partners per year |
+| `DEFAULT_REFI_PERIOD_YEARS` | 3 | Default refinance period (years after ops start) |
 
 ```typescript
 DEFAULT_PARTNER_COMP = [
@@ -151,6 +156,16 @@ DEFAULT_PARTNER_COMP = [
   900000                    // Year 10
 ]
 ```
+
+### Presentation & Audit Thresholds
+
+| Constant | Value | Description |
+|----------|-------|-------------|
+| `IRR_HIGHLIGHT_THRESHOLD` | 0.15 (15%) | IRR above this shows as accent color |
+| `AUDIT_VARIANCE_TOLERANCE` | 0.01 (1%) | Max % variance before audit finding |
+| `AUDIT_DOLLAR_TOLERANCE` | $100 | Max dollar variance before audit finding |
+| `AUDIT_VERIFICATION_WINDOW_MONTHS` | 24 | Months of data to sample for audit |
+| `AUDIT_CRITICAL_ISSUE_THRESHOLD` | 3 | Critical issues before ADVERSE opinion |
 
 ## Consumers
 

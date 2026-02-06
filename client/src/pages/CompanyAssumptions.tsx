@@ -26,6 +26,10 @@ import {
   DEFAULT_FULL_CATERING_BOOST,
   DEFAULT_PARTIAL_CATERING_BOOST,
   PROJECTION_YEARS,
+  DEFAULT_MODEL_START_DATE,
+  DEFAULT_PARTNER_COMP,
+  DEFAULT_PARTNER_COUNT,
+  STAFFING_TIERS,
 } from "@/lib/constants";
 
 function EditableValue({
@@ -135,7 +139,7 @@ export default function CompanyAssumptions() {
 
   const modelStartYear = global?.modelStartDate 
     ? new Date(global.modelStartDate).getFullYear() 
-    : 2026;
+    : new Date(DEFAULT_MODEL_START_DATE).getFullYear();
 
   if (isLoading || !global) {
     return (
@@ -1221,8 +1225,8 @@ export default function CompanyAssumptions() {
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((year) => {
                     const compKey = `partnerCompYear${year}` as keyof GlobalResponse;
                     const countKey = `partnerCountYear${year}` as keyof GlobalResponse;
-                    const compValue = (formData[compKey] ?? global[compKey] ?? 540000) as number;
-                    const countValue = (formData[countKey] ?? global[countKey] ?? 3) as number;
+                    const compValue = (formData[compKey] ?? global[compKey] ?? DEFAULT_PARTNER_COMP[year - 1]) as number;
+                    const countValue = (formData[countKey] ?? global[countKey] ?? DEFAULT_PARTNER_COUNT) as number;
                     const perPartner = countValue > 0 ? compValue / countValue : 0;
                     
                     return (
@@ -1270,7 +1274,7 @@ export default function CompanyAssumptions() {
           <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/5 blur-xl" />
           <div className="relative">
           <p className="text-sm text-gray-600 text-center label-text">
-            Fixed overhead escalates at <span className="font-mono">{formatPercent(formData.fixedCostEscalationRate ?? global.fixedCostEscalationRate)}</span>/year. Staff scales: <span className="font-mono">2.5</span> FTE (1-3 properties), <span className="font-mono">4.5</span> (4-6), <span className="font-mono">7.0</span> (7-10).
+            Fixed overhead escalates at <span className="font-mono">{formatPercent(formData.fixedCostEscalationRate ?? global.fixedCostEscalationRate)}</span>/year. Staff scales: <span className="font-mono">{formData.staffTier1Fte ?? global.staffTier1Fte ?? STAFFING_TIERS[0].fte}</span> FTE (1-{formData.staffTier1MaxProperties ?? global.staffTier1MaxProperties ?? STAFFING_TIERS[0].maxProperties} properties), <span className="font-mono">{formData.staffTier2Fte ?? global.staffTier2Fte ?? STAFFING_TIERS[1].fte}</span> ({(formData.staffTier1MaxProperties ?? global.staffTier1MaxProperties ?? STAFFING_TIERS[0].maxProperties) + 1}-{formData.staffTier2MaxProperties ?? global.staffTier2MaxProperties ?? STAFFING_TIERS[1].maxProperties}), <span className="font-mono">{formData.staffTier3Fte ?? global.staffTier3Fte ?? STAFFING_TIERS[2].fte}</span> ({(formData.staffTier2MaxProperties ?? global.staffTier2MaxProperties ?? STAFFING_TIERS[1].maxProperties) + 1}+).
             All costs begin at Operations Start Date and are prorated for partial years.
           </p>
         </div></div>

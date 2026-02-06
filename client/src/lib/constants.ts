@@ -30,11 +30,14 @@ export const DEFAULT_UTILITIES_VARIABLE_SPLIT = 0.60;
 export const DEFAULT_COMPANY_TAX_RATE = 0.30;
 
 // Property defaults
+export const DEFAULT_ROOM_COUNT = 10;
+export const DEFAULT_START_ADR = 250;
 export const DEFAULT_ADR_GROWTH_RATE = 0.03;
 export const DEFAULT_START_OCCUPANCY = 0.55;
 export const DEFAULT_MAX_OCCUPANCY = 0.85;
 export const DEFAULT_OCCUPANCY_GROWTH_STEP = 0.05;
 export const DEFAULT_OCCUPANCY_RAMP_MONTHS = 6;
+export const DEFAULT_STABILIZATION_MONTHS = 24;
 
 // Catering defaults
 export const DEFAULT_FULL_CATERING_PCT = 0.40;
@@ -90,5 +93,18 @@ export const OPERATING_RESERVE_BUFFER = 50000;
 export const COMPANY_FUNDING_BUFFER = 100000;
 export const RESERVE_ROUNDING_INCREMENT = 10000;
 
-// Partner compensation defaults (indexed by year 1-10)
+// Partner defaults
+export const DEFAULT_PARTNER_COUNT = 3;
 export const DEFAULT_PARTNER_COMP = [540000, 540000, 540000, 600000, 600000, 700000, 700000, 800000, 800000, 900000];
+
+// Refinance default period (years after operations start)
+export const DEFAULT_REFI_PERIOD_YEARS = 3;
+
+// Presentation thresholds (conditional formatting)
+export const IRR_HIGHLIGHT_THRESHOLD = 0.15;
+
+// Auditor verification thresholds
+export const AUDIT_VARIANCE_TOLERANCE = 0.01;
+export const AUDIT_DOLLAR_TOLERANCE = 100;
+export const AUDIT_VERIFICATION_WINDOW_MONTHS = 24;
+export const AUDIT_CRITICAL_ISSUE_THRESHOLD = 3;

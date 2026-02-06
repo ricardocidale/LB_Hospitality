@@ -32,7 +32,7 @@ async function seed() {
     const hashedPassword = await bcrypt.hash("admin123", 10);
     await db.insert(users).values({
       email: "admin",
-      password: hashedPassword,
+      passwordHash: hashedPassword,
       name: "Administrator",
       role: "admin",
     });
@@ -102,6 +102,12 @@ async function seed() {
     fullCateringFBBoost: 0.5,
     partialCateringFBBoost: 0.25,
     companyTaxRate: 0.3,
+    companyName: "L+B Hospitality Company",
+    exitCapRate: 0.085,
+    salesCommissionRate: 0.05,
+    eventExpenseRate: 0.65,
+    otherExpenseRate: 0.6,
+    utilitiesVariableSplit: 0.6,
   });
   console.log("Seeded global assumptions");
 

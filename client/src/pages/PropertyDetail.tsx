@@ -8,7 +8,13 @@ import { YearlyCashFlowStatement } from "@/components/YearlyCashFlowStatement";
 import { ConsolidatedBalanceSheet } from "@/components/ConsolidatedBalanceSheet";
 import { Tabs, TabsContent, DarkGlassTabs } from "@/components/ui/tabs";
 import { FileText, Banknote, Scale } from "lucide-react";
-import { ArrowLeft, MapPin, Loader2, FileDown, FileSpreadsheet, Settings2, ImageIcon } from "lucide-react";
+import { ArrowLeft, MapPin, Loader2, FileDown, FileSpreadsheet, Settings2, ImageIcon, Sheet } from "lucide-react";
+import {
+  exportPropertyIncomeStatement,
+  exportPropertyCashFlow,
+  exportPropertyBalanceSheet,
+  exportFullPropertyWorkbook,
+} from "@/lib/excelExport";
 import domtoimage from 'dom-to-image-more';
 import { Link, useRoute } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -229,6 +235,39 @@ export default function PropertyDetail() {
     link.setAttribute("download", `${property.name.replace(/\s+/g, '_')}_CashFlow.csv`);
     link.click();
     URL.revokeObjectURL(url);
+  };
+
+  const handleExcelExport = () => {
+    if (activeTab === "income") {
+      exportPropertyIncomeStatement(
+        financials,
+        property.name,
+        projectionYears,
+        global.modelStartDate,
+        fiscalYearStartMonth
+      );
+    } else if (activeTab === "cashflow") {
+      exportPropertyCashFlow(
+        financials,
+        property as unknown as LoanParams,
+        global as unknown as GlobalLoanParams,
+        property.name,
+        projectionYears,
+        global.modelStartDate,
+        fiscalYearStartMonth
+      );
+    } else if (activeTab === "balance") {
+      exportPropertyBalanceSheet(
+        [property] as unknown as LoanParams[],
+        global,
+        [{ property: property as unknown as LoanParams, data: financials }],
+        projectionYears,
+        global.modelStartDate,
+        fiscalYearStartMonth,
+        property.name,
+        0
+      );
+    }
   };
 
   const exportCashFlowPDF = async (orientation: 'landscape' | 'portrait' = 'landscape') => {
@@ -544,9 +583,9 @@ export default function PropertyDetail() {
                     <span className="relative">PDF</span>
                   </button>
                   <button
-                    onClick={() => exportCashFlowCSV()}
+                    onClick={() => handleExcelExport()}
                     className="group/btn relative overflow-hidden flex items-center gap-2 px-4 py-2.5 text-xs font-medium text-white rounded-2xl transition-all duration-300 ease-out"
-                    data-testid="button-export-csv"
+                    data-testid="button-export-excel"
                   >
                     <div className="absolute inset-0 bg-white/12 backdrop-blur-xl rounded-2xl" />
                     <div className="absolute inset-0 rounded-2xl border border-white/20" />
@@ -554,7 +593,7 @@ export default function PropertyDetail() {
                     <div className="absolute inset-0 rounded-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),0_4px_16px_rgba(0,0,0,0.2)]" />
                     <div className="absolute inset-0 rounded-2xl opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300 bg-white/5" />
                     <FileSpreadsheet className="relative w-3.5 h-3.5" />
-                    <span className="relative">CSV</span>
+                    <span className="relative">Excel</span>
                   </button>
                   <button
                     onClick={() => { setExportType('chart'); setExportDialogOpen(true); }}

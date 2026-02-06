@@ -241,16 +241,16 @@ export default function Dashboard() {
     ? properties.reduce((sum, p) => sum + p.startAdr * p.roomCount, 0) / totalRooms
     : 0;
   
-  // 10-year projections
-  let total10YearRevenue = 0;
-  let total10YearNOI = 0;
-  let total10YearCashFlow = 0;
-  for (let y = 0; y < projectionYears; y++) {
-    const yearData = getYearlyConsolidated(y);
-    total10YearRevenue += yearData.revenueTotal;
-    total10YearNOI += yearData.noi;
-    total10YearCashFlow += yearData.cashFlow;
-  }
+  const { totalProjectionRevenue, totalProjectionNOI, totalProjectionCashFlow } = useMemo(() => {
+    let rev = 0, noi = 0, cf = 0;
+    for (let y = 0; y < projectionYears; y++) {
+      const yearData = yearlyConsolidatedCache[y];
+      rev += yearData.revenueTotal;
+      noi += yearData.noi;
+      cf += yearData.cashFlow;
+    }
+    return { totalProjectionRevenue: rev, totalProjectionNOI: noi, totalProjectionCashFlow: cf };
+  }, [yearlyConsolidatedCache, projectionYears]);
   
   // Calculate weighted average exit cap rate (for display purposes)
   const avgExitCapRate = properties.reduce((sum, p) => sum + (p.exitCapRate ?? DEFAULT_EXIT_CAP_RATE), 0) / totalProperties;
@@ -1484,9 +1484,9 @@ export default function Dashboard() {
     metricY += 25;
 
     // Row 3: Projection Totals
-    drawMetric(col1X, metricY, `${projectionYears}-Year Revenue`, formatMoney(total10YearRevenue));
-    drawMetric(col2X, metricY, `${projectionYears}-Year NOI`, formatMoney(total10YearNOI));
-    drawMetric(col3X, metricY, `${projectionYears}-Year Cash Flow`, formatMoney(total10YearCashFlow));
+    drawMetric(col1X, metricY, `${projectionYears}-Year Revenue`, formatMoney(totalProjectionRevenue));
+    drawMetric(col2X, metricY, `${projectionYears}-Year NOI`, formatMoney(totalProjectionNOI));
+    drawMetric(col3X, metricY, `${projectionYears}-Year Cash Flow`, formatMoney(totalProjectionCashFlow));
 
     metricY += 25;
 
@@ -2069,15 +2069,15 @@ export default function Dashboard() {
               <div className="relative mt-6 grid gap-4 md:grid-cols-3">
                 <div className="bg-white/90 backdrop-blur-xl rounded-xl p-4 border border-white/40 shadow-lg shadow-black/10 text-center">
                   <p className="text-sm text-[#2d4a5e]/60 mb-1 label-text">{projectionYears}-Year Revenue</p>
-                  <p className="text-xl font-bold text-[#2d4a5e] font-mono">{formatMoney(total10YearRevenue)}</p>
+                  <p className="text-xl font-bold text-[#2d4a5e] font-mono">{formatMoney(totalProjectionRevenue)}</p>
                 </div>
                 <div className="bg-white/90 backdrop-blur-xl rounded-xl p-4 border border-white/40 shadow-lg shadow-black/10 text-center">
                   <p className="text-sm text-[#2d4a5e]/60 mb-1 label-text">{projectionYears}-Year NOI</p>
-                  <p className="text-xl font-bold text-[#2d4a5e] font-mono">{formatMoney(total10YearNOI)}</p>
+                  <p className="text-xl font-bold text-[#2d4a5e] font-mono">{formatMoney(totalProjectionNOI)}</p>
                 </div>
                 <div className="bg-white/90 backdrop-blur-xl rounded-xl p-4 border border-white/40 shadow-lg shadow-black/10 text-center">
                   <p className="text-sm text-[#2d4a5e]/60 mb-1 label-text">{projectionYears}-Year Cash Flow</p>
-                  <p className="text-xl font-bold text-[#2d4a5e] font-mono">{formatMoney(total10YearCashFlow)}</p>
+                  <p className="text-xl font-bold text-[#2d4a5e] font-mono">{formatMoney(totalProjectionCashFlow)}</p>
                 </div>
               </div>
             </div>

@@ -44,6 +44,17 @@ server/seed.ts                 # Database seeding script
 - Schema changes require both `shared/schema.ts` update and SQL migration
 - Never expose API keys or secrets in client code
 
+## Mandatory Business Rules
+
+These are non-negotiable constraints — see `.claude/rules/financial-engine.md` for full details:
+
+- **Income Statement: Interest only, never principal** — Net Income = NOI - Interest - Depreciation - Tax. Principal is a financing activity (ASC 470), not an expense
+- **Debt-free at exit** — All outstanding debt is repaid from gross sale proceeds at end of projection. Exit = Gross Value - Commission - Outstanding Debt
+- **No negative cash** — Cash balances for each property, the management company, and the portfolio must never go negative
+- **No over-distribution** — FCF distributions and refinancing proceeds must not be distributed to the point that any entity's cash goes negative
+- **Capital sources on separate lines** — Equity (cash infusion), loan proceeds, and refinancing proceeds must always appear as separate line items in all reports (UI, PDF, CSV)
+- **Funding gates** — Management company cannot operate before SAFE funding; properties cannot operate before acquisition/funding
+
 ## Common Gotchas
 
 - `PROJECTION_YEARS` and `PROJECTION_MONTHS` are fallback defaults only; always prefer dynamic values from global assumptions

@@ -92,6 +92,42 @@ Month N
     └── Cash = Cumulative cash flow
 ```
 
+## Mandatory Business Rules
+
+These rules are non-negotiable constraints enforced across the entire financial model:
+
+### 1. Income Statement Shows Interest Only — Never Principal
+- Net Income = NOI - Interest Expense - Depreciation - Income Tax
+- Principal repayment is a **financing activity** (ASC 470), NOT an income statement expense
+- Principal reduces cash but does NOT reduce net income
+- On the cash flow statement: interest is operating; principal is financing
+
+### 2. Debt-Free at Exit
+- At the end of the projection period, all properties are assumed sold
+- Outstanding loan balances are fully repaid from gross sale proceeds
+- Exit waterfall: Gross Value - Commission - Outstanding Debt = Net Proceeds to Equity
+- No property may carry debt beyond the projection period
+
+### 3. No Over-Distribution / No Negative Cash
+- Cash balances for each property, the management company, and the portfolio must never go negative
+- FCF distributions to investors must not exceed available cash
+- Refinancing proceeds returned to investors must not cause negative cash balances
+- If any projected cash balance goes below zero → funding shortfall flagged
+
+### 4. Capital Structure Presentation in Reports
+- Equity (cash infusion), loan proceeds, and refinancing proceeds must appear as **separate line items**
+- Never lump equity and debt/refi together in reports, cash flow statements, or balance sheets
+- Each source of capital has different risk characteristics and must be distinguishable
+- This applies to all output: UI tables, PDF exports, CSV exports
+
+### 5. Management Company Funding Gate
+- Operations cannot begin before SAFE funding is received
+- If assumptions indicate operations before funding → scenario blocked
+
+### 6. Property Activation Gate
+- Properties cannot operate before acquisition and funding
+- Revenue and expenses only begin after acquisition date and operations start date
+
 ## Key Financial Rules
 
 ### Revenue Calculation

@@ -1,14 +1,16 @@
-# Excel Export Skill
+# Excel Export Sub-Skill
 
-**Implementation**: `client/src/lib/exports/excelExport.ts`
+**File**: `client/src/lib/exports/excelExport.ts`
+**Library**: `xlsx` (SheetJS)
+**Parent**: [SKILL.md](./SKILL.md)
 
 ## Overview
 
-Generates formatted Excel workbooks (.xlsx) for financial statements using the SheetJS (xlsx) library. All numeric cells receive proper number formatting (currency with commas, percentage, decimal).
+Generates formatted Excel workbooks (.xlsx) for financial statements. All numeric cells receive proper number formatting (currency with commas, percentages, decimals). Section headers and total rows are bolded automatically.
 
 ## Exported Functions
 
-### Property-Level Exports
+### Property-Level
 
 | Function | Description | Sheet Name |
 |----------|-------------|------------|
@@ -17,43 +19,34 @@ Generates formatted Excel workbooks (.xlsx) for financial statements using the S
 | `exportPropertyBalanceSheet` | Assets, liabilities, equity with yearly columns | "Balance Sheet" |
 | `exportFullPropertyWorkbook` | Combined Income Statement + Cash Flow in single workbook | Multiple sheets |
 
-### Company-Level Exports
+### Company-Level
 
 | Function | Description | Sheet Name |
 |----------|-------------|------------|
-| `exportCompanyIncomeStatement` | Management fees, expenses, net income, SAFE funding | "Company Income Statement" |
+| `exportCompanyIncomeStatement` | Management fees, expenses, net income | "Company Income Statement" |
 | `exportCompanyCashFlow` | Cash inflows/outflows with cumulative totals | "Company Cash Flow" |
-| `exportCompanyBalanceSheet` | SAFE notes, retained earnings, point-in-time snapshot | "Company Balance Sheet" |
+| `exportCompanyBalanceSheet` | SAFE notes, retained earnings | "Company Balance Sheet" |
 
 ## Number Formatting
 
 Applied automatically via `applyCurrencyFormat()`:
-- **Currency**: `#,##0` for all monetary values (revenue, expenses, cash flows)
-- **Decimal**: `#,##0.00` for ADR and RevPAR
-- **Percentage**: `0.0` for occupancy rates
-- **Bold styling**: Section headers (ALL CAPS) and total/summary rows
 
-## Usage Pattern
+| Format | Pattern | Applied to |
+|--------|---------|------------|
+| Currency | `#,##0` | All monetary values |
+| Decimal | `#,##0.00` | ADR, RevPAR |
+| Percentage | `0.0"%"` | Occupancy rates |
 
-```typescript
-import {
-  exportPropertyIncomeStatement,
-  exportCompanyIncomeStatement,
-  exportFullPropertyWorkbook,
-} from "@/lib/exports";
+## Usage
+
+```ts
+import { exportPropertyIncomeStatement, exportCompanyIncomeStatement } from "@/lib/exports";
 
 exportPropertyIncomeStatement(proFormaData, "Property Name", years, modelStartDate, fiscalYearStartMonth);
 ```
 
-## Dependencies
+## Integration with ExportMenu
 
-- `xlsx` (SheetJS)
-- `../financialEngine` (MonthlyFinancials, CompanyMonthlyFinancials, getFiscalYearForModelYear)
-- `../loanCalculations` (LoanParams, GlobalLoanParams, calculateLoanParams)
-- `../constants` (PROJECTION_YEARS, DEFAULT_EXIT_CAP_RATE)
-
-## Related Skills
-
-- **export-controls.md** — ExportToolbar component for button placement
-- **pdf-chart-export.md** — PDF chart rendering companion
-- **png-export.md** — PNG table/chart capture companion
+```tsx
+excelAction(() => exportPropertyIncomeStatement(data, name, years, startDate, fyMonth))
+```

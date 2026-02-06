@@ -137,5 +137,5 @@ import { SaveButton } from "@/components/ui/save-button";
 
 - **button-system.md** — Full GlassButton decision guide, anti-patterns, and variant reference
 - **tab-bar-system.md** — DarkGlassTabs component that uses glass-styled tab triggers
-- **export-controls.md** — ExportToolbar with GlassExportButton styling
+- **exports/SKILL.md** — ExportMenu component and export format implementations
 - **page-header.md** — PageHeader component that uses GlassButton for back navigation and actions

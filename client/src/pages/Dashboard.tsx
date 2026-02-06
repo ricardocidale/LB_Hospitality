@@ -9,16 +9,19 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { GlassButton } from "@/components/ui/glass-button";
 import { Loader2, ChevronRight, ChevronDown } from "lucide-react";
-import { ExportMenu, pdfAction, csvAction } from "@/components/ui/export-toolbar";
+import { ExportMenu, pdfAction, csvAction, excelAction, pptxAction, pngAction } from "@/components/ui/export-toolbar";
 import { PageHeader } from "@/components/ui/page-header";
 import { format, differenceInMonths } from "date-fns";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { ConsolidatedBalanceSheet } from "@/components/ConsolidatedBalanceSheet";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { drawLineChart } from "@/lib/pdfChartDrawer";
+import * as XLSX from "xlsx";
+import { exportPortfolioPPTX } from "@/lib/exports/pptxExport";
+import { exportTablePNG } from "@/lib/exports/pngExport";
 import {
   DEFAULT_LTV,
   DEFAULT_EXIT_CAP_RATE,
@@ -36,6 +39,7 @@ export default function Dashboard() {
   const { data: global, isLoading: globalLoading } = useGlobalAssumptions();
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState("overview");
+  const tabContentRef = useRef<HTMLDivElement>(null);
 
   const toggleRow = (rowId: string) => {
     setExpandedRows(prev => {
@@ -1724,21 +1728,91 @@ export default function Dashboard() {
     URL.revokeObjectURL(url);
   };
 
-  const getExportFunctions = () => {
-    switch (activeTab) {
-      case 'overview':
-        return { pdf: exportOverviewToPDF, csv: exportOverviewToCSV };
-      case 'income':
-        return { pdf: exportIncomeStatementToPDF, csv: exportIncomeStatementToCSV };
-      case 'cashflow':
-        return { pdf: exportCashFlowToPDF, csv: exportCashFlowToCSV };
-      case 'balance':
-        return { pdf: exportBalanceSheetToPDF, csv: exportBalanceSheetToCSV };
-      case 'investment':
-        return { pdf: exportInvestmentAnalysisToPDF, csv: exportInvestmentAnalysisToCSV };
-      default:
-        return null;
+  const exportToExcel = () => {
+    const wb = XLSX.utils.book_new();
+
+    const addSheet = (name: string, genData: () => { years: (string | number)[]; rows: { category: string; values: (string | number)[]; indent?: number }[] }) => {
+      const { years, rows } = genData();
+      const headers = ["", ...years.map(String)];
+      const dataRows = rows.map(row => [
+        (row.indent ? "  ".repeat(row.indent) : "") + row.category,
+        ...row.values,
+      ]);
+      const ws = XLSX.utils.aoa_to_sheet([headers, ...dataRows]);
+      ws["!cols"] = [{ wch: 30 }, ...years.map(() => ({ wch: 16 }))];
+      XLSX.utils.book_append_sheet(wb, ws, name);
+    };
+
+    addSheet("Income Statement", generateIncomeStatementData);
+    addSheet("Cash Flow", generateCashFlowData);
+    addSheet("Balance Sheet", generateBalanceSheetData);
+    addSheet("Investment Analysis", generateInvestmentAnalysisData);
+
+    XLSX.writeFile(wb, "LB-Hospitality-Portfolio-Report.xlsx");
+  };
+
+  const exportToPPTX = () => {
+    const incomeData = generateIncomeStatementData();
+    const cashFlowData = generateCashFlowData();
+    const balanceSheetData = generateBalanceSheetData();
+    const investmentData = generateInvestmentAnalysisData();
+
+    exportPortfolioPPTX({
+      projectionYears,
+      getFiscalYear,
+      totalInitialEquity,
+      totalExitValue,
+      equityMultiple,
+      portfolioIRR,
+      cashOnCash,
+      totalProperties,
+      totalRooms,
+      totalProjectionRevenue,
+      totalProjectionNOI,
+      totalProjectionCashFlow,
+      incomeData: { years: incomeData.years.map(String), rows: incomeData.rows },
+      cashFlowData: { years: cashFlowData.years.map(String), rows: cashFlowData.rows },
+      balanceSheetData: { years: balanceSheetData.years.map(String), rows: balanceSheetData.rows },
+      investmentData: { years: investmentData.years.map(String), rows: investmentData.rows },
+    });
+  };
+
+  const exportCurrentTabPNG = async () => {
+    if (tabContentRef.current) {
+      await exportTablePNG({
+        element: tabContentRef.current,
+        filename: `LB-Portfolio-${activeTab}.png`,
+        scale: 2,
+      });
     }
+  };
+
+  const getExportFunctions = () => {
+    return {
+      pdf: (() => {
+        switch (activeTab) {
+          case 'overview': return exportOverviewToPDF;
+          case 'income': return exportIncomeStatementToPDF;
+          case 'cashflow': return exportCashFlowToPDF;
+          case 'balance': return exportBalanceSheetToPDF;
+          case 'investment': return exportInvestmentAnalysisToPDF;
+          default: return exportOverviewToPDF;
+        }
+      })(),
+      csv: (() => {
+        switch (activeTab) {
+          case 'overview': return exportOverviewToCSV;
+          case 'income': return exportIncomeStatementToCSV;
+          case 'cashflow': return exportCashFlowToCSV;
+          case 'balance': return exportBalanceSheetToCSV;
+          case 'investment': return exportInvestmentAnalysisToCSV;
+          default: return exportOverviewToCSV;
+        }
+      })(),
+      excel: exportToExcel,
+      pptx: exportToPPTX,
+      png: exportCurrentTabPNG,
+    };
   };
 
   const exportFunctions = getExportFunctions();
@@ -1769,17 +1843,20 @@ export default function Dashboard() {
             ]}
             activeTab={activeTab}
             onTabChange={setActiveTab}
-            rightContent={exportFunctions && (
+            rightContent={
               <ExportMenu
                 actions={[
                   pdfAction(exportFunctions.pdf),
+                  excelAction(exportFunctions.excel),
                   csvAction(exportFunctions.csv),
+                  pptxAction(exportFunctions.pptx),
+                  pngAction(exportFunctions.png),
                 ]}
               />
-            )}
+            }
           />
 
-          <TabsContent value="overview" className="space-y-8">
+          <TabsContent value="overview" className="space-y-8" ref={tabContentRef}>
             {/* Investment Returns - Hero Section - Fluid Glass Design */}
             <div className="relative overflow-hidden rounded-3xl p-8 border border-[#9FBCA4]/30 shadow-2xl">
               {/* Sage Glass Background with Fluid Effect */}

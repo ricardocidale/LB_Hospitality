@@ -1,18 +1,18 @@
-# PDF Chart Export Skill
+# PDF Chart Export Sub-Skill
 
-**Implementation**: `client/src/lib/exports/pdfChartDrawer.ts`
+**File**: `client/src/lib/exports/pdfChartDrawer.ts`
+**Library**: `jspdf`
+**Parent**: [SKILL.md](./SKILL.md)
 
 ## Overview
 
-Renders professional line charts directly into jsPDF documents with centered titles, visible axis labels, colored data point dots, dashed grid lines, and centered legends with color indicators.
+Renders professional line charts directly into jsPDF documents. Features: centered titles, colored lines with data point dots, dashed grid lines, formatted Y-axis labels, centered legend with color indicators.
 
-## Exported Functions
+## Exported Function
 
 ### `drawLineChart(options: DrawChartOptions)`
 
 Draws a multi-series line chart onto an existing jsPDF document at specified coordinates.
-
-## DrawChartOptions Interface
 
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
@@ -27,44 +27,32 @@ Draws a multi-series line chart onto an existing jsPDF document at specified coo
 
 ## ChartSeries Interface
 
-```typescript
+```ts
 interface ChartSeries {
   name: string;      // Legend label
-  data: ChartData[]; // Array of {label, value}
+  data: ChartData[]; // Array of { label: string, value: number }
   color: string;     // Hex color (#RRGGBB)
 }
 ```
 
-## Visual Features
+## Standard Chart Colors
 
-- White background with subtle border
-- Centered bold title in dark blue-gray
-- Dashed gray grid lines (5 horizontal)
-- Y-axis labels formatted with `formatValue`
-- X-axis labels from data point labels
-- Colored line segments with filled dots at data points
-- Centered legend with colored rectangle indicators
-
-## Standard Colors
-
-| Series | Hex | Usage |
-|--------|-----|-------|
-| Revenue | `#2E7D32` | Green gradient |
-| GOP | `#1565C0` | Blue gradient |
+| Series | Hex | Visual |
+|--------|-----|--------|
+| Revenue | `#2E7D32` | Green |
+| GOP | `#1565C0` | Blue |
 | NOI | `#7B1FA2` | Purple |
 | FCFE | `#D84315` | Coral |
 
-## Usage Pattern
+## Usage
 
-```typescript
+```ts
 import jsPDF from "jspdf";
 import { drawLineChart } from "@/lib/exports";
 
 const doc = new jsPDF({ orientation: "landscape" });
 drawLineChart({
-  doc,
-  x: 10, y: 10,
-  width: 270, height: 120,
+  doc, x: 10, y: 10, width: 270, height: 120,
   title: "Revenue & NOI Trend",
   series: [
     { name: "Revenue", data: yearlyRevenue, color: "#2E7D32" },
@@ -74,12 +62,10 @@ drawLineChart({
 doc.save("charts.pdf");
 ```
 
-## Dependencies
+## Integration with ExportMenu
 
-- `jspdf`
+PDF exports typically use the `ExportDialog` for orientation selection:
 
-## Related Skills
-
-- **excel-export.md** — Excel workbook export companion
-- **png-export.md** — PNG capture companion
-- **export-controls.md** — ExportToolbar button placement
+```tsx
+pdfAction(() => { setExportType('pdf'); setExportDialogOpen(true); })
+```

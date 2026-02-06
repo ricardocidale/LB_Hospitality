@@ -65,9 +65,9 @@ interface DarkGlassTabsProps {
 
 function DarkGlassTabs({ tabs, activeTab, onTabChange, rightContent }: DarkGlassTabsProps) {
   return (
-    <div className="relative overflow-hidden rounded-2xl w-full">
-      <div className="absolute inset-0 bg-[#0a0a0f]" />
-      <div className="absolute inset-0 bg-gradient-to-r from-white/[0.02] via-transparent to-white/[0.02]" />
+    <div className="relative rounded-2xl w-full">
+      <div className="absolute inset-0 bg-[#0a0a0f] rounded-2xl" />
+      <div className="absolute inset-0 bg-gradient-to-r from-white/[0.02] via-transparent to-white/[0.02] rounded-2xl" />
       <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#9FBCA4]/30 to-transparent" />
       <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       <div className="absolute inset-0 rounded-2xl border border-white/10" />

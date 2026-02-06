@@ -23,6 +23,7 @@ import Admin from "@/pages/Admin";
 import Profile from "@/pages/Profile";
 import Scenarios from "@/pages/Scenarios";
 import PropertyFinder from "@/pages/PropertyFinder";
+import SensitivityAnalysis from "@/pages/SensitivityAnalysis";
 
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
   const { user, isLoading } = useAuth();
@@ -130,6 +131,11 @@ function Router() {
       </Route>
       <Route path="/property-finder">
         <ProtectedRoute component={PropertyFinder} />
+      </Route>
+      <Route path="/sensitivity">
+        <FinancialErrorBoundary>
+          <ProtectedRoute component={SensitivityAnalysis} />
+        </FinancialErrorBoundary>
       </Route>
       <Route component={NotFound} />
     </Switch>

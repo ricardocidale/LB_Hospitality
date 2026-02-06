@@ -4,7 +4,7 @@
 
 ## Overview
 
-Filing-system style dark glass tabs used on multi-view pages. The `rightContent` slot is the standard location for export controls via `ExportToolbar`.
+Filing-system style dark glass tabs used on multi-view pages. The `rightContent` slot is the standard location for export controls via `ExportMenu`.
 
 ## DarkGlassTabs Props
 
@@ -13,7 +13,7 @@ Filing-system style dark glass tabs used on multi-view pages. The `rightContent`
 | `tabs` | `DarkGlassTabItem[]` | Array of `{ value: string, label: string, icon?: ComponentType }` |
 | `activeTab` | `string` | Currently active tab value |
 | `onTabChange` | `(value: string) => void` | Tab change handler |
-| `rightContent` | `ReactNode` | Right-aligned slot — use for `ExportToolbar` |
+| `rightContent` | `ReactNode` | Right-aligned slot — use for `ExportMenu` |
 
 ## DarkGlassTabItem
 
@@ -46,17 +46,20 @@ const tabs: DarkGlassTabItem[] = [
 ### Step 3: Wire exports into rightContent
 
 ```tsx
-import { ExportToolbar, pdfAction, excelAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
+import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
 
 <DarkGlassTabs
   tabs={tabs}
   activeTab={activeTab}
   onTabChange={setActiveTab}
   rightContent={
-    <ExportToolbar
+    <ExportMenu
       actions={[
         pdfAction(() => handleExportPdf(activeTab)),
         excelAction(() => handleExportExcel(activeTab)),
+        csvAction(() => handleExportCsv(activeTab)),
+        pptxAction(() => handleExportPptx()),
+        chartAction(() => handleExportChart()),
         pngAction(() => handleExportPng(activeTab)),
       ]}
     />
@@ -77,7 +80,7 @@ import { ExportToolbar, pdfAction, excelAction, chartAction, pngAction } from "@
 ```tsx
 import { useState } from "react";
 import { DarkGlassTabs, type DarkGlassTabItem } from "@/components/ui/tabs";
-import { ExportToolbar, pdfAction, excelAction, pngAction } from "@/components/ui/export-toolbar";
+import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
 import { DollarSign, Scale, TrendingUp } from "lucide-react";
 
 const tabs: DarkGlassTabItem[] = [
@@ -91,7 +94,10 @@ function FinancialPage() {
 
   const handlePdf = () => { /* PDF export logic */ };
   const handleExcel = () => { /* Excel export logic */ };
-  const handlePng = () => { /* PNG export logic */ };
+  const handleCsv = () => { /* CSV export logic */ };
+  const handlePptx = () => { /* PPTX export logic */ };
+  const handleChart = () => { /* Chart PNG logic */ };
+  const handlePng = () => { /* Table PNG logic */ };
 
   return (
     <div>
@@ -100,10 +106,13 @@ function FinancialPage() {
         activeTab={activeTab}
         onTabChange={setActiveTab}
         rightContent={
-          <ExportToolbar
+          <ExportMenu
             actions={[
               pdfAction(handlePdf),
               excelAction(handleExcel),
+              csvAction(handleCsv),
+              pptxAction(handlePptx),
+              chartAction(handleChart),
               pngAction(handlePng),
             ]}
           />
@@ -129,13 +138,13 @@ function FinancialPage() {
 ## Visual Structure
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│  [Tab 1*] [Tab 2] [Tab 3]              [PDF] [XLS] [PNG] │
-│  *(active tab has glass highlight)      (rightContent)   │
-└─────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────┐
+│  [Tab 1*] [Tab 2] [Tab 3]                    [Export ▾] │
+│  *(active tab has glass highlight)         (rightContent)│
+└──────────────────────────────────────────────────────────┘
 ```
 
 ## Related Skills
 
-- **export-controls.md** — ExportToolbar and export format implementations
+- **exports/SKILL.md** — ExportMenu component and export format implementations
 - **button-system.md** — GlassButton used inside tab triggers

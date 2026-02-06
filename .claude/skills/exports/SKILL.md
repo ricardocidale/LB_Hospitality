@@ -1,79 +1,330 @@
-# Export System
+# Export System — Reusable Component Skill
 
-## Overview
+## Purpose
 
-Unified export system for financial statements and charts. A single **Export** dropdown button provides access to all export formats: PDF, Excel, CSV, Chart (PNG), and Table (PNG).
+`ExportMenu` is the standard reusable export component for every data page in the application. It provides a single "Export" dropdown button offering up to six download formats. This skill documents the component, the underlying export utilities, and the step-by-step methodology for wiring exports into any new or existing page.
 
-## Architecture
+---
 
-```
-Component Layer:    ExportMenu (dropdown button)
-                        ↓
-Action Helpers:     pdfAction, excelAction, csvAction, chartAction, pngAction
-                        ↓
-Implementation:     client/src/lib/exports/
-                    ├── excelExport.ts    → XLSX workbooks with number formatting
-                    ├── pdfChartDrawer.ts → jsPDF line chart rendering
-                    ├── pngExport.ts      → DOM-to-image table/chart capture
-                    └── index.ts          → Barrel re-exports
-```
-
-## ExportMenu Component
-
-**File**: `client/src/components/ui/export-toolbar.tsx`
-
-Single "Export" button with a dropdown menu listing available formats. Replaces the previous multi-button toolbar.
-
-### Props
-
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `actions` | `ExportAction[]` | required | Array of export format actions |
-| `className` | `string` | optional | Additional CSS classes |
-| `variant` | `"glass" \| "light"` | `"glass"` | Visual variant |
-
-### Variants
-
-- **Glass** (default): Dark translucent dropdown with backdrop blur, for dark backgrounds
-- **Light**: White dropdown with gray borders, for light backgrounds
-
-### Usage
+## Quick Start (Adding Exports to a New Page)
 
 ```tsx
-import { ExportMenu, pdfAction, excelAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
+import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
 
 <ExportMenu
   actions={[
     pdfAction(() => handlePdf()),
     excelAction(() => handleExcel()),
+    csvAction(() => handleCsv()),
+    pptxAction(() => handlePptx()),
     chartAction(() => handleChart()),
-    pngAction(() => handlePng()),
+    pngAction(() => handleTablePng()),
   ]}
 />
 ```
 
-### Placement
+**Placement rules:**
+- Tabbed pages → `DarkGlassTabs` `rightContent` slot
+- Non-tabbed pages → `PageHeader` `actions` slot
 
-1. **Tabbed pages**: Place in `DarkGlassTabs` `rightContent` slot
-2. **Non-tabbed pages**: Place in `PageHeader` `actions` slot
+---
 
-## Sub-Skills (Implementation Details)
+## Architecture
 
-| Sub-Skill | File | Purpose |
-|-----------|------|---------|
-| [excel-export.md](./excel-export.md) | `excelExport.ts` | XLSX workbook generation with currency/percent formatting |
-| [pdf-chart-export.md](./pdf-chart-export.md) | `pdfChartDrawer.ts` | Professional line charts rendered into jsPDF documents |
-| [png-export.md](./png-export.md) | `pngExport.ts` | DOM capture with accordion collapse and border cleanup |
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Page Component (Dashboard, PropertyDetail, Company, etc.)      │
+│                                                                 │
+│  1. Generate structured data:                                   │
+│     { years: string[], rows: SlideTableRow[] }                  │
+│                                                                 │
+│  2. Create handler functions for each format                    │
+│                                                                 │
+│  3. Wire handlers to ExportMenu via action helpers              │
+└──────────────────────────┬──────────────────────────────────────┘
+                           │
+              ┌────────────▼────────────┐
+              │      ExportMenu         │
+              │  (dropdown component)   │
+              │                         │
+              │  Action Helpers:        │
+              │  pdfAction(fn)          │
+              │  excelAction(fn)        │
+              │  csvAction(fn)          │
+              │  pptxAction(fn)         │
+              │  chartAction(fn)        │
+              │  pngAction(fn)          │
+              └────────────┬────────────┘
+                           │
+              ┌────────────▼────────────┐
+              │  Export Utilities        │
+              │  client/src/lib/exports/ │
+              │                         │
+              │  excelExport.ts    XLSX  │
+              │  pptxExport.ts     PPTX  │
+              │  pdfChartDrawer.ts PDF   │
+              │  pngExport.ts      PNG   │
+              │  index.ts (barrel)       │
+              └─────────────────────────┘
+```
+
+---
+
+## ExportMenu Component
+
+**File**: `client/src/components/ui/export-toolbar.tsx`
+
+### Interface
+
+```ts
+interface ExportAction {
+  label: string;
+  icon?: React.ReactNode;
+  onClick: () => void;
+  testId?: string;
+}
+
+interface ExportMenuProps {
+  actions: ExportAction[];
+  className?: string;
+  variant?: "glass" | "light";
+}
+```
+
+### Variants
+
+| Variant | When to use | Visual |
+|---------|-------------|--------|
+| `"glass"` (default) | Dark-themed pages (Dashboard, PropertyDetail, Company) | White text, backdrop blur, translucent navy dropdown |
+| `"light"` | Light-themed pages (assumptions, research) | Gray text, white dropdown, gray borders |
+
+### Action Helpers
+
+Each returns a pre-configured `ExportAction` with the correct icon and `data-testid`:
+
+| Helper | Label | Icon | Test ID |
+|--------|-------|------|---------|
+| `pdfAction(fn)` | PDF | `FileDown` | `button-export-pdf` |
+| `excelAction(fn)` | Excel | `FileSpreadsheet` | `button-export-excel` |
+| `csvAction(fn)` | CSV | `FileSpreadsheet` | `button-export-csv` |
+| `pptxAction(fn)` | PowerPoint | `Presentation` | `button-export-pptx` |
+| `chartAction(fn)` | Chart as Image | `FileBarChart` | `button-export-chart` |
+| `pngAction(fn)` | Table as PNG | `ImageIcon` | `button-export-table-png` |
+
+### Accessibility
+
+- Click-outside dismissal via `mousedown` listener
+- Escape key closes the dropdown
+- All items have `data-testid` attributes
+
+---
+
+## Export Formats
+
+### 1. Excel (XLSX)
+
+**Utility**: `client/src/lib/exports/excelExport.ts`
+**Library**: `xlsx` (SheetJS)
+**Detail**: [excel-export.md](./excel-export.md)
+
+Generates formatted workbooks with currency formatting (`#,##0`), percentage formatting, bold section headers, and configurable column widths. Separate functions for property-level, company-level, and portfolio-level workbooks.
+
+### 2. PowerPoint (PPTX)
+
+**Utility**: `client/src/lib/exports/pptxExport.ts`
+**Library**: `pptxgenjs`
+**Detail**: [pptx-export.md](./pptx-export.md)
+
+Branded presentations with L+B colors (sage green headers, dark navy title slides, metric cards). Three export scopes: `exportPortfolioPPTX`, `exportPropertyPPTX`, `exportCompanyPPTX`. Auto-paginates tables when projection years exceed 5.
+
+### 3. PDF (Charts + Tables)
+
+**Utility**: `client/src/lib/exports/pdfChartDrawer.ts`
+**Library**: `jspdf` + `jspdf-autotable`
+**Detail**: [pdf-chart-export.md](./pdf-chart-export.md)
+
+Renders line charts directly into jsPDF with colored series, data point dots, dashed grids, and centered legends. Used in combination with `autoTable` for full financial statement PDFs.
+
+### 4. PNG (DOM Capture)
+
+**Utility**: `client/src/lib/exports/pngExport.ts`
+**Library**: `dom-to-image-more`
+**Detail**: [png-export.md](./png-export.md)
+
+Captures table or chart DOM elements at 2x resolution. Auto-collapses accordion rows for clean table captures. Includes SVG serialization fallback.
+
+### 5. CSV
+
+**Pattern**: Inline per page (no shared utility)
+
+CSV export is lightweight enough to implement directly in the page component:
+
+```ts
+const exportCSV = (data: { years: string[], rows: any[] }, filename: string) => {
+  const headers = ['Category', ...data.years];
+  const csvRows = [
+    headers.join(','),
+    ...data.rows.map(row => [
+      `"${(row.indent ? '  '.repeat(row.indent) : '') + row.category}"`,
+      ...row.values.map((v: number) => v.toFixed(2))
+    ].join(','))
+  ];
+  const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+};
+```
+
+---
+
+## Page Coverage Matrix
+
+| Page | PDF | Excel | CSV | PowerPoint | Chart PNG | Table PNG |
+|------|-----|-------|-----|------------|-----------|-----------|
+| Dashboard | Per-tab + overview | Multi-sheet workbook | Per-tab + full | Portfolio slides | Tab capture | Tab capture |
+| PropertyDetail | Income + Cash Flow | Per-statement | Cash Flow | Property slides | Chart capture | Table capture |
+| Company | Per-statement | Per-statement | Per-statement | Company slides | Chart capture | Table capture |
+| SensitivityAnalysis | Tornado + table | Scenario data | Scenario data | Scenario slides | — | — |
+
+---
+
+## Step-by-Step: Wiring Exports into a New Page
+
+### Step 1 — Generate structured data
+
+Create functions that return the standard data shape:
+
+```ts
+interface ExportData {
+  years: string[];
+  rows: {
+    category: string;
+    values: (string | number)[];
+    indent?: number;
+    isBold?: boolean;
+    isHeader?: boolean;
+  }[];
+}
+```
+
+### Step 2 — Create format handlers
+
+```ts
+const handleExcel = () => {
+  const data = generateMyData();
+  // Use shared utility or build workbook inline
+  exportMyWorkbook(data);
+};
+
+const handlePptx = () => {
+  const data = generateMyData();
+  exportMyPPTX({ years: data.years.map(String), rows: data.rows });
+};
+
+const handleCsv = () => {
+  const data = generateMyData();
+  exportCSV(data, 'my-report.csv');
+};
+
+const handlePdf = () => {
+  setExportType('pdf');
+  setExportDialogOpen(true); // Opens orientation picker
+};
+
+const handleTablePng = () => {
+  if (!tableRef.current) return;
+  exportTablePNG({ element: tableRef.current, filename: 'my-table.png' });
+};
+
+const handleChartPng = () => {
+  setExportType('chart');
+  setExportDialogOpen(true);
+};
+```
+
+### Step 3 — Wire into ExportMenu
+
+```tsx
+<DarkGlassTabs
+  tabs={myTabs}
+  activeTab={activeTab}
+  onTabChange={setActiveTab}
+  rightContent={
+    <ExportMenu
+      actions={[
+        pdfAction(() => handlePdf()),
+        excelAction(() => handleExcel()),
+        csvAction(() => handleCsv()),
+        pptxAction(() => handlePptx()),
+        chartAction(() => handleChartPng()),
+        pngAction(() => handleTablePng()),
+      ]}
+    />
+  }
+/>
+```
+
+### Step 4 — Add ExportDialog for orientation-dependent formats
+
+```tsx
+import { ExportDialog } from "@/components/ui/export-dialog";
+
+<ExportDialog
+  open={exportDialogOpen}
+  onClose={() => setExportDialogOpen(false)}
+  onExport={(orientation) => handleExport(orientation)}
+  title="Export PDF"
+/>
+```
+
+---
+
+## Branding Constants
+
+All exports use consistent L+B branding:
+
+| Token | Hex | Usage |
+|-------|-----|-------|
+| Sage Green | `#9FBCA4` | Divider lines, card borders, PPTX header backgrounds |
+| Dark Green | `#257D41` | Metric values, section titles, chart revenue line |
+| Dark Text | `#3D3D3D` | Table body text |
+| Warm Off-White | `#FFF9F5` | Title slide text, light backgrounds |
+| Dark Navy | `#1a2a3a` | PPTX title slide background |
+
+---
+
+## Dependencies
+
+| Package | Purpose | Import |
+|---------|---------|--------|
+| `xlsx` | Excel workbook generation | `import * as XLSX from "xlsx"` |
+| `pptxgenjs` | PowerPoint slide generation | `import pptxgen from "pptxgenjs"` |
+| `jspdf` | PDF document creation | `import jsPDF from "jspdf"` |
+| `jspdf-autotable` | PDF table rendering | `import autoTable from "jspdf-autotable"` |
+| `dom-to-image-more` | DOM-to-PNG capture | `import domtoimage from "dom-to-image-more"` |
+
+---
 
 ## Backward Compatibility
 
-Legacy import paths still work via re-export files:
-- `@/lib/excelExport` → re-exports from `@/lib/exports/excelExport`
-- `@/lib/pdfChartDrawer` → re-exports from `@/lib/exports/pdfChartDrawer`
-- `@/lib/chartExport` → re-exports from `@/lib/exports/pngExport`
+Legacy import paths still work via re-export shim files:
+- `@/lib/excelExport` → `@/lib/exports/excelExport`
+- `@/lib/pdfChartDrawer` → `@/lib/exports/pdfChartDrawer`
+- `@/lib/chartExport` → `@/lib/exports/pngExport`
 
-## Related Skills
+---
 
-- **export-controls.md** — Legacy skill (now superseded by this SKILL.md)
-- **tab-bar-system.md** — DarkGlassTabs rightContent slot
-- **button-system.md** — GlassButton styling reference
+## Related Skills & Rules
+
+| Resource | Path | What it covers |
+|----------|------|----------------|
+| UI Design Rules | `.claude/rules/ui-design.md` | Color palette, component library, page themes |
+| Tab Bar System | `.claude/skills/tab-bar-system.md` | DarkGlassTabs `rightContent` slot |
+| Button System | `.claude/skills/button-system.md` | GlassButton variants including `export` |
+| Page Header | `.claude/skills/page-header.md` | PageHeader `actions` slot |

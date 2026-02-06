@@ -333,25 +333,13 @@ export function generatePropertyProForma(
     
     const revenueRooms = soldRooms * currentAdr;
     
-    // Events revenue is independent (configurable per property)
-    const revShareEvents = property.revShareEvents ?? DEFAULT_REV_SHARE_EVENTS;
-    const revShareFB = property.revShareFB ?? DEFAULT_REV_SHARE_FB;
-    const revShareOther = property.revShareOther ?? DEFAULT_REV_SHARE_OTHER;
+    // Revenue streams (shares and catering factors computed outside loop)
     const revenueEvents = revenueRooms * revShareEvents;
-    
-    // F&B revenue gets boosted by catering at events
-    // Formula: baseFB × (1 + fullBoost × fullCateringPct + partialBoost × partialCateringPct)
-    const fullCateringPct = property.fullCateringPercent ?? DEFAULT_FULL_CATERING_PCT;
-    const partialCateringPct = property.partialCateringPercent ?? DEFAULT_PARTIAL_CATERING_PCT;
-    const fullBoost = global.fullCateringFBBoost ?? DEFAULT_FULL_CATERING_BOOST;
-    const partialBoost = global.partialCateringFBBoost ?? DEFAULT_PARTIAL_CATERING_BOOST;
     const baseFB = revenueRooms * revShareFB;
-    const cateringBoostMultiplier = 1 + (fullBoost * fullCateringPct) + (partialBoost * partialCateringPct);
     const revenueFB = baseFB * cateringBoostMultiplier;
-    
     const revenueOther = revenueRooms * revShareOther;
     const revenueTotal = revenueRooms + revenueEvents + revenueFB + revenueOther;
-    
+
     // Property-level cost rates
     const costRateRooms = property.costRateRooms ?? DEFAULT_COST_RATE_ROOMS;
     const costRateFB = property.costRateFB ?? DEFAULT_COST_RATE_FB;
@@ -364,30 +352,29 @@ export function generatePropertyProForma(
     const costRateIT = property.costRateIT ?? DEFAULT_COST_RATE_IT;
     const costRateFFE = property.costRateFFE ?? DEFAULT_COST_RATE_FFE;
     const costRateOther = property.costRateOther ?? DEFAULT_COST_RATE_OTHER;
-    
-    const expenseRooms = revenueRooms * costRateRooms;
-    
-    // F&B costs: apply costRateFB to all F&B revenue (including catering boost)
-    const expenseFB = revenueFB * costRateFB;
-    
-    // Event and Other expenses use configurable global rates
     const eventExpenseRate = global.eventExpenseRate ?? DEFAULT_EVENT_EXPENSE_RATE;
     const otherExpenseRate = global.otherExpenseRate ?? DEFAULT_OTHER_EXPENSE_RATE;
     const utilitiesVariableSplit = global.utilitiesVariableSplit ?? DEFAULT_UTILITIES_VARIABLE_SPLIT;
-    
+
+    // VARIABLE costs: scale with current revenue (grow naturally with ADR/occupancy)
+    const expenseRooms = revenueRooms * costRateRooms;
+    const expenseFB = revenueFB * costRateFB;
     const expenseEvents = revenueEvents * eventExpenseRate;
     const expenseOther = revenueOther * otherExpenseRate;
     const expenseMarketing = revenueTotal * costRateMarketing;
-    const expensePropertyOps = revenueTotal * costRatePropertyOps;
     const expenseUtilitiesVar = revenueTotal * (costRateUtilities * utilitiesVariableSplit);
     const expenseFFE = revenueTotal * costRateFFE;
-    
-    const expenseAdmin = revenueTotal * costRateAdmin;
-    const expenseIT = revenueTotal * costRateIT;
-    const expenseInsurance = revenueTotal * costRateInsurance;
-    const expenseTaxes = revenueTotal * costRateTaxes;
-    const expenseUtilitiesFixed = revenueTotal * (costRateUtilities * (1 - utilitiesVariableSplit));
-    const expenseOtherCosts = revenueTotal * costRateOther;
+
+    // FIXED costs: base dollar amount (from Year 1 revenue level) × annual escalation (F-8 fix)
+    // Per USALI, admin, property ops, insurance, taxes, IT, fixed utilities, and other overhead
+    // are dollar-based line items that escalate at fixedCostEscalationRate, not revenue-based.
+    const expenseAdmin = baseMonthlyTotalRev * costRateAdmin * fixedCostFactor;
+    const expensePropertyOps = baseMonthlyTotalRev * costRatePropertyOps * fixedCostFactor;
+    const expenseIT = baseMonthlyTotalRev * costRateIT * fixedCostFactor;
+    const expenseInsurance = baseMonthlyTotalRev * costRateInsurance * fixedCostFactor;
+    const expenseTaxes = baseMonthlyTotalRev * costRateTaxes * fixedCostFactor;
+    const expenseUtilitiesFixed = baseMonthlyTotalRev * (costRateUtilities * (1 - utilitiesVariableSplit)) * fixedCostFactor;
+    const expenseOtherCosts = baseMonthlyTotalRev * costRateOther * fixedCostFactor;
     
     const feeBase = revenueTotal * global.baseManagementFee;
     

@@ -154,6 +154,19 @@ function independentPropertyCalc(property: any, global: any) {
   let currentAdr = property.startAdr;
   let cumulativeCash = 0;
 
+  // Base monthly revenue for fixed cost anchoring (F-8: matches client engine)
+  const revShareEvents_base = property.revShareEvents ?? DEFAULT_REV_SHARE_EVENTS;
+  const revShareFB_base = property.revShareFB ?? DEFAULT_REV_SHARE_FB;
+  const revShareOther_base = property.revShareOther ?? DEFAULT_REV_SHARE_OTHER;
+  const fullCateringPct_base = property.fullCateringPercent ?? DEFAULT_FULL_CATERING_PCT;
+  const partialCateringPct_base = property.partialCateringPercent ?? DEFAULT_PARTIAL_CATERING_PCT;
+  const fullBoost_base = global.fullCateringFBBoost ?? DEFAULT_FULL_CATERING_BOOST;
+  const partialBoost_base = global.partialCateringFBBoost ?? DEFAULT_PARTIAL_CATERING_BOOST;
+  const cateringBoostMult_base = 1 + (fullBoost_base * fullCateringPct_base) + (partialBoost_base * partialCateringPct_base);
+  const baseMonthlyRoomRev = property.roomCount * DAYS_PER_MONTH * property.startAdr * property.startOccupancy;
+  const baseMonthlyTotalRev = baseMonthlyRoomRev + baseMonthlyRoomRev * revShareEvents_base
+    + baseMonthlyRoomRev * revShareFB_base * cateringBoostMult_base + baseMonthlyRoomRev * revShareOther_base;
+
   for (let i = 0; i < months; i++) {
     const currentYM = addMonthsYM(modelStartYM, i);
 
@@ -163,10 +176,13 @@ function independentPropertyCalc(property: any, global: any) {
       monthsSinceOps = diffMonthsYM(currentYM, opsStartYM);
     }
 
+    const opsYear = Math.floor(monthsSinceOps / 12);
     if (isOperational) {
-      const opsYear = Math.floor(monthsSinceOps / 12);
       currentAdr = property.startAdr * Math.pow(1 + property.adrGrowthRate, opsYear);
     }
+    // Fixed cost escalation (F-8 fix)
+    const fixedEscalationRate = global.fixedCostEscalationRate ?? global.inflationRate;
+    const fixedCostFactor = Math.pow(1 + fixedEscalationRate, opsYear);
 
     let occupancy = 0;
     if (isOperational) {
@@ -217,18 +233,20 @@ function independentPropertyCalc(property: any, global: any) {
     const otherExpenseRate = global.otherExpenseRate ?? DEFAULT_OTHER_EXPENSE_RATE;
     const utilitiesVariableSplit = global.utilitiesVariableSplit ?? DEFAULT_UTILITIES_VARIABLE_SPLIT;
 
+    // Variable costs: scale with current revenue
     const expenseEvents = revenueEvents * eventExpenseRate;
     const expenseOther = revenueOther * otherExpenseRate;
     const expenseMarketing = revenueTotal * costRateMarketing;
-    const expensePropertyOps = revenueTotal * costRatePropertyOps;
     const expenseUtilitiesVar = revenueTotal * (costRateUtilities * utilitiesVariableSplit);
-    const expenseAdmin = revenueTotal * costRateAdmin;
-    const expenseIT = revenueTotal * costRateIT;
-    const expenseInsurance = revenueTotal * costRateInsurance;
-    const expenseTaxes = revenueTotal * costRateTaxes;
-    const expenseUtilitiesFixed = revenueTotal * (costRateUtilities * (1 - utilitiesVariableSplit));
-    const expenseOtherCosts = revenueTotal * costRateOther;
     const expenseFFE = revenueTotal * costRateFFE;
+    // Fixed costs: base dollar amount × annual escalation (F-8 fix)
+    const expenseAdmin = baseMonthlyTotalRev * costRateAdmin * fixedCostFactor;
+    const expensePropertyOps = baseMonthlyTotalRev * costRatePropertyOps * fixedCostFactor;
+    const expenseIT = baseMonthlyTotalRev * costRateIT * fixedCostFactor;
+    const expenseInsurance = baseMonthlyTotalRev * costRateInsurance * fixedCostFactor;
+    const expenseTaxes = baseMonthlyTotalRev * costRateTaxes * fixedCostFactor;
+    const expenseUtilitiesFixed = baseMonthlyTotalRev * (costRateUtilities * (1 - utilitiesVariableSplit)) * fixedCostFactor;
+    const expenseOtherCosts = baseMonthlyTotalRev * costRateOther * fixedCostFactor;
 
     const feeBase = revenueTotal * global.baseManagementFee;
     const totalOperatingExpenses =

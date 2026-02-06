@@ -190,10 +190,49 @@ export default function Methodology() {
               <div className="bg-red-50 rounded-lg p-4 border border-red-200">
                 <h4 className="font-semibold mb-2 text-red-800">5. No Over-Distribution Rule</h4>
                 <p className="text-sm text-red-700">
-                  FCF distributions and refinancing proceeds returned to investors must not exceed available cash. 
-                  The system must not distribute cash to the point that any property ends up with a negative cash 
-                  balance. This ensures that repayment of principal and investor distributions are always funded 
-                  by actual available cash.
+                  FCF distributions and refinancing proceeds returned to investors must not exceed available cash.
+                  The system must not distribute cash to the point that any property ends up with a negative cash
+                  balance. This ensures that repayment of principal and investor distributions are always funded
+                  by actual available cash. Refinance payback to investors is also subject to this constraint —
+                  proceeds from refinancing cannot be swept out if doing so would leave the property cash-negative.
+                </p>
+              </div>
+
+              <div className="bg-red-50 rounded-lg p-4 border border-red-200">
+                <h4 className="font-semibold mb-2 text-red-800">6. Income Statement: Interest Only (No Principal)</h4>
+                <p className="text-sm text-red-700">
+                  The income statement must show <strong>only interest expense</strong>, never principal repayment.
+                  Principal repayment is a <strong>financing activity</strong> (ASC 470), not an operating expense.
+                  It reduces cash but does not reduce net income. The income statement waterfall is:
+                </p>
+                <div className="bg-white/50 rounded p-2 font-mono text-xs mt-2 text-red-700">
+                  <div>NOI</div>
+                  <div>Less: Interest Expense (only the interest portion of debt service)</div>
+                  <div>Less: Depreciation</div>
+                  <div>Less: Income Tax</div>
+                  <div>= Net Income</div>
+                </div>
+                <p className="text-sm text-red-700 mt-2">
+                  Principal repayment appears only on the cash flow statement as a financing outflow.
+                </p>
+              </div>
+
+              <div className="bg-red-50 rounded-lg p-4 border border-red-200">
+                <h4 className="font-semibold mb-2 text-red-800">7. Capital Structure Presentation in Reports</h4>
+                <p className="text-sm text-red-700">
+                  All financial reports, cash flow statements, and balance sheets must present capital sources
+                  on <strong>separate lines</strong> for clarity:
+                </p>
+                <div className="bg-white/50 rounded p-2 font-mono text-xs mt-2 text-red-700 space-y-1">
+                  <div><strong>Equity (Cash) Infusion</strong> — one line item</div>
+                  <div><strong>Loan Proceeds</strong> — separate line item (acquisition financing)</div>
+                  <div><strong>Refinancing Proceeds</strong> — separate line item (cash-out from refi)</div>
+                </div>
+                <p className="text-sm text-red-700 mt-2">
+                  Equity and debt/refinance must never be lumped together. Each source of capital has different
+                  risk characteristics, repayment obligations, and investor implications. This separation must be
+                  maintained in income statements, cash flow statements, balance sheets, and all exported reports
+                  (PDF, CSV).
                 </p>
               </div>
             </AccordionContent>
@@ -448,7 +487,8 @@ export default function Methodology() {
                   <div>= Net Proceeds to Equity</div>
                 </div>
                 <p className="text-sm text-muted-foreground mt-2">
-                  Exit proceeds combined with cumulative FCFE and refinancing proceeds determine the total return (IRR, equity multiple).
+                  All outstanding debt is fully repaid from gross sale proceeds — properties must be debt-free at exit.
+                  Net exit proceeds combined with cumulative FCFE and refinancing proceeds determine the total return (IRR, equity multiple).
                 </p>
               </div>
             </AccordionContent>
@@ -697,7 +737,10 @@ export default function Methodology() {
                   <div>Annual Debt Service = Monthly Payment × 12</div>
                 </div>
                 <p className="text-sm text-muted-foreground mt-2">
-                  Each payment is split between interest expense (deductible) and principal repayment.
+                  Each payment is split between interest expense and principal repayment.
+                  <strong> Only interest expense appears on the income statement</strong> (per ASC 470).
+                  Principal repayment is a financing activity — it reduces cash but not net income.
+                  On the cash flow statement, interest is an operating outflow and principal is a financing outflow.
                 </p>
               </div>
 
@@ -715,7 +758,9 @@ export default function Methodology() {
                   <div>Pass 2: Re-amortize with new loan terms from refinance date forward</div>
                 </div>
                 <p className="text-sm text-muted-foreground mt-2">
-                  Net refinance proceeds are distributed to investors and appear as a financing activity in the cash flow statement.
+                  Net refinance proceeds appear as a financing activity in the cash flow statement — separate from
+                  equity contributions and loan proceeds. Proceeds may be distributed to investors, but only to the
+                  extent that doing so does not cause the property's cash balance to go negative (see No Over-Distribution Rule).
                   After refinancing, debt service recalculates based on the new loan amount and terms.
                 </p>
               </div>

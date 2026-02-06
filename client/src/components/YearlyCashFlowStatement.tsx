@@ -303,15 +303,15 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
   const cashFromInvesting = yearlyData.map((cf, i) => {
     const ffe = yearlyDetails[i].expenseFFE;
     const acqCost = i === acquisitionYear ? totalPropertyCost : 0;
-    return -acqCost - ffe;
+    const exitVal = cf.exitValue;
+    return -acqCost - ffe + exitVal;
   });
   
   const cashFromFinancing = yearlyData.map((cf, i) => {
     const eqContrib = i === acquisitionYear ? equityInvested : 0;
     const loanProceeds = i === acquisitionYear && loan.loanAmount > 0 ? loan.loanAmount : 0;
     const refiProceeds = i === refi.refiYear ? refi.refiProceeds : 0;
-    const exitVal = cf.exitValue;
-    return eqContrib + loanProceeds - cf.principalPayment + refiProceeds + exitVal;
+    return eqContrib + loanProceeds - cf.principalPayment + refiProceeds;
   });
   
   const netChangeCash = cashFromOperations.map((cfo, i) => cfo + cashFromInvesting[i] + cashFromFinancing[i]);
@@ -488,11 +488,18 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
               tooltip="Furniture, fixtures & equipment reserve. Reclassified from operating to investing as a capital expenditure."
             />
             
+            <LineItem 
+              label="Sale Proceeds (Net Exit Value)" 
+              values={yearlyData.map(y => y.exitValue)} 
+              showZero={false}
+              tooltip={`Property sale price minus ${((global?.commissionRate ?? DEFAULT_COMMISSION_RATE) * 100).toFixed(0)}% commission and outstanding loan payoff. Classified as investing per ASC 360.`}
+            />
+            
             {/* ═ Cash from Investing Subtotal ═ */}
             <SubtotalRow 
               label="Cash from Investing" 
               values={cashFromInvesting}
-              tooltip="Net cash used for capital investments = -(Acquisition + FF&E)."
+              tooltip="Net cash from investing = -(Acquisition + FF&E) + Sale Proceeds."
             />
 
             <SpacerRow colSpan={colSpan} />
@@ -532,18 +539,11 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
               tooltip="Net cash-out from refinancing, after closing costs and payoff of existing loan."
             />
             
-            <LineItem 
-              label="Sale Proceeds (Net Exit Value)" 
-              values={yearlyData.map(y => y.exitValue)} 
-              showZero={false}
-              tooltip={`Property sale price minus ${((global?.commissionRate ?? DEFAULT_COMMISSION_RATE) * 100).toFixed(0)}% commission and outstanding loan payoff.`}
-            />
-            
             {/* ═ Cash from Financing Subtotal ═ */}
             <SubtotalRow 
               label="Cash from Financing" 
               values={cashFromFinancing}
-              tooltip="Net cash from financing = Equity + Loan Proceeds - Principal + Refinancing + Sale Proceeds."
+              tooltip="Net cash from financing = Equity + Loan Proceeds - Principal + Refinancing."
             />
 
             <SpacerRow colSpan={colSpan} />

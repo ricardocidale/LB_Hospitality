@@ -454,10 +454,17 @@ export default function Dashboard() {
   
   const operatingCashFlows = consolidatedFlows.slice(1).map((cf, idx) => {
     let exitValue = 0;
+    let refiProceeds = 0;
     if (idx === projectionYears - 1) {
       exitValue = properties.reduce((sum, prop, propIdx) => sum + getPropertyExitValue(prop, propIdx), 0);
     }
-    return cf - exitValue;
+    properties.forEach((prop, propIdx) => {
+      const refi = getPropertyRefinanceProceeds(prop, propIdx);
+      if (idx === refi.year) {
+        refiProceeds += refi.proceeds;
+      }
+    });
+    return cf - exitValue - refiProceeds;
   });
   const avgAnnualCashFlow = operatingCashFlows.reduce((sum, cf) => sum + cf, 0) / projectionYears;
   const cashOnCash = totalInitialEquity > 0 ? (avgAnnualCashFlow / totalInitialEquity) * 100 : 0;
@@ -3056,6 +3063,24 @@ function calculateIRR(cashFlows: number[], guess: number = 0.1): number {
     rate = rate - npv / derivNpv;
 
     if (rate < -1) rate = -0.99;
+    if (!isFinite(rate)) break;
+  }
+
+  if (!isFinite(rate)) {
+    let lo = -0.99;
+    let hi = 10.0;
+    const computeNPV = (r: number) => cashFlows.reduce((sum, cf, t) => sum + cf / Math.pow(1 + r, t), 0);
+    for (let i = 0; i < 200; i++) {
+      const mid = (lo + hi) / 2;
+      const npvMid = computeNPV(mid);
+      if (Math.abs(npvMid) < tolerance) return mid;
+      if (computeNPV(lo) * npvMid < 0) {
+        hi = mid;
+      } else {
+        lo = mid;
+      }
+    }
+    rate = (lo + hi) / 2;
   }
 
   return rate;
@@ -3080,8 +3105,6 @@ function InvestmentAnalysis({
   expandedRows,
   toggleRow
 }: InvestmentAnalysisProps) {
-  const DEPRECIATION_YEARS = 27.5;
-
   const projectionYears = global?.projectionYears ?? PROJECTION_YEARS;
   const projectionMonths = projectionYears * 12;
   

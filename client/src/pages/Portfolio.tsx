@@ -207,6 +207,7 @@ export default function Portfolio() {
                     onImageChange={(url) => setFormData(prev => ({ ...prev, imageUrl: url }))}
                     propertyName={formData.name}
                     location={formData.location}
+                    variant="light"
                   />
                 </div>
 

@@ -809,16 +809,16 @@ export default function PropertyEdit() {
             <div>
               <h3 className="text-xl font-semibold text-white flex items-center">
                 Revenue Streams
-                <HelpTooltip text="Configure how much additional revenue each stream generates as a percentage of rooms revenue. F&B revenue gets boosted based on what percentage of events require catering." />
+                <HelpTooltip text="Configure how much additional revenue each stream generates as a percentage of room revenue. F&B revenue gets boosted based on what percentage of events require catering." />
               </h3>
-              <p className="text-gray-600 text-sm">Additional revenue as percentage of rooms revenue</p>
+              <p className="text-gray-600 text-sm">Additional revenue as percentage of room revenue</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <Label className="flex items-center gap-1 text-gray-700">
                     Events
-                    <HelpTooltip text="Revenue from meetings, weddings, and other events as a percentage of rooms revenue." />
+                    <HelpTooltip text="Revenue from meetings, weddings, and other events as a percentage of room revenue." />
                   </Label>
                   <EditableValue
                     value={(draft.revShareEvents ?? DEFAULT_REV_SHARE_EVENTS) * 100}
@@ -843,7 +843,7 @@ export default function PropertyEdit() {
                 <div className="flex justify-between items-center">
                   <Label className="flex items-center gap-1 text-gray-700">
                     F&B
-                    <HelpTooltip text="Base food & beverage revenue as a percentage of rooms revenue. This gets boosted by catering at events (see catering mix below)." />
+                    <HelpTooltip text="Base food & beverage revenue as a percentage of room revenue. This gets boosted by catering at events (see catering mix below)." />
                   </Label>
                   <EditableValue
                     value={(draft.revShareFB ?? DEFAULT_REV_SHARE_FB) * 100}

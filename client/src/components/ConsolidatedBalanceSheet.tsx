@@ -13,7 +13,8 @@ import {
   GlobalLoanParams,
   DEFAULT_TAX_RATE,
   DEFAULT_LAND_VALUE_PERCENT,
-  PROJECTION_YEARS
+  PROJECTION_YEARS,
+  DEPRECIATION_YEARS
 } from "@/lib/loanCalculations";
 
 interface Props {
@@ -110,10 +111,16 @@ export function ConsolidatedBalanceSheet({ properties, global, allProFormas, yea
     totalDebtOutstanding += debtOutstanding;
     
     // Accumulated Depreciation: 27.5-year straight-line on building value (GAAP for residential real estate)
-    // Only depreciate from acquisition date
-    const yearsDepreciated = Math.max(0, Math.min(year - acqYear, projectionYears));
+    // Only depreciate from acquisition date; prorate first year for mid-year acquisitions (F-2 fix)
     const annualDepreciation = loan.annualDepreciation;
-    totalAccumulatedDepreciation += annualDepreciation * yearsDepreciated;
+    const monthsOwnedInAcqYear = 12 - (loan.acqMonthsFromModelStart % 12);
+    const firstYearDep = annualDepreciation * (monthsOwnedInAcqYear / 12);
+    const fullYearsAfterAcq = Math.max(0, year - acqYear);
+    const accDepForProp = year >= acqYear
+      ? Math.min(firstYearDep + annualDepreciation * fullYearsAfterAcq,
+                 annualDepreciation * DEPRECIATION_YEARS)
+      : 0;
+    totalAccumulatedDepreciation += accDepForProp;
     
     // Initial operating reserve (only after acquisition)
     const operatingReserve = prop.operatingReserve ?? 0;
@@ -140,17 +147,15 @@ export function ConsolidatedBalanceSheet({ properties, global, allProFormas, yea
     totalRefinanceProceeds += refiProceedsReceived;
     
     // GAAP Retained Earnings = Cumulative Net Income
-    // Net Income = NOI - Interest Expense - Depreciation - Income Taxes
+    // Use monthly engine values for consistency (F-1 fix: avoids cumulative vs monthly tax divergence)
     const cumulativeNOI = relevantMonths.reduce((sum, m) => sum + m.noi, 0);
-    const cumulativeDepreciation = annualDepreciation * yearsDepreciated;
-    const taxRate = prop.taxRate ?? DEFAULT_TAX_RATE;
-    
-    // Taxable Income = NOI - Interest - Depreciation
-    const taxableIncome = cumulativeNOI - cumulativeInterest - cumulativeDepreciation;
-    const incomeTax = Math.max(0, taxableIncome) * taxRate;
-    
-    // Net Income (GAAP) = NOI - Interest - Depreciation - Tax
-    const netIncome = cumulativeNOI - cumulativeInterest - cumulativeDepreciation - incomeTax;
+    const cumulativeDepreciation = accDepForProp;
+
+    // Sum monthly taxes from engine (tax = 0 in loss months, per monthly engine)
+    const incomeTax = relevantMonths.reduce((sum, m) => sum + m.incomeTax, 0);
+
+    // Net Income = cumulative(NOI - Interest - Depreciation - Tax) from engine
+    const netIncome = relevantMonths.reduce((sum, m) => sum + m.netIncome, 0);
     totalRetainedEarnings += netIncome;
     
     // Cash Position = Operating Reserve + Cash from Operations + Financing Proceeds

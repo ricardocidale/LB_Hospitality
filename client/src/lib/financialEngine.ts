@@ -40,7 +40,10 @@ import {
   PROJECTION_MONTHS,
   STAFFING_TIERS,
   DEFAULT_LAND_VALUE_PERCENT,
-  DEFAULT_TAX_RATE
+  DEFAULT_TAX_RATE,
+  DEFAULT_REFI_LTV,
+  DEFAULT_REFI_CLOSING_COST_RATE,
+  DEFAULT_EXIT_CAP_RATE
 } from './constants';
 
 // Helper function to get fiscal year label for a given month in the model
@@ -99,6 +102,14 @@ interface PropertyInput {
   acquisitionInterestRate?: number | null;
   acquisitionTermYears?: number | null;
   taxRate?: number | null;
+  // Refinance
+  willRefinance?: string | null;
+  refinanceDate?: string | null;
+  refinanceLTV?: number | null;
+  refinanceInterestRate?: number | null;
+  refinanceTermYears?: number | null;
+  refinanceClosingCostRate?: number | null;
+  exitCapRate?: number | null;
   // Operating Cost Rates (should sum to ~84% of revenue)
   costRateRooms: number;
   costRateFB: number;
@@ -184,6 +195,8 @@ interface GlobalInput {
     interestRate: number;
     amortizationYears: number;
     acqLTV?: number;
+    refiLTV?: number;
+    refiClosingCostRate?: number;
   };
 }
 
@@ -228,6 +241,8 @@ export interface MonthlyFinancials {
   depreciationExpense: number;
   propertyValue: number;
   debtOutstanding: number;
+  // Refinance
+  refinancingProceeds: number;
   // Cash flow statement fields for GAAP verification (ASC 230)
   operatingCashFlow: number;
   financingCashFlow: number;
@@ -467,13 +482,129 @@ export function generatePropertyProForma(
       depreciationExpense,
       propertyValue,
       debtOutstanding,
+      // Refinance
+      refinancingProceeds: 0,
       // Cash flow statement fields per GAAP ASC 230
       operatingCashFlow,
       financingCashFlow,
       endingCash
     });
   }
-  
+
+  // --- PASS 2: Refinance post-processing (F-3 fix) ---
+  // If the property has a refinance, recalculate debt-related fields from the refinance month onward.
+  // NOI is debt-independent, so pass 1 values for revenue/expenses/NOI remain correct.
+  if (property.willRefinance === "Yes" && property.refinanceDate) {
+    const refiDate = new Date(property.refinanceDate);
+    const refiMonthIndex = (refiDate.getFullYear() - modelStart.getFullYear()) * 12 +
+                           (refiDate.getMonth() - modelStart.getMonth());
+
+    if (refiMonthIndex >= 0 && refiMonthIndex < months) {
+      // Aggregate yearly NOI to size the new loan
+      const refiYear = Math.floor(refiMonthIndex / 12);
+      const projectionYears = Math.ceil(months / 12);
+      const yearlyNOI: number[] = [];
+      for (let y = 0; y < projectionYears; y++) {
+        const yearSlice = financials.slice(y * 12, (y + 1) * 12);
+        yearlyNOI.push(yearSlice.reduce((sum, m) => sum + m.noi, 0));
+      }
+
+      // Compute refinance loan parameters
+      const refiLTV = property.refinanceLTV ?? global.debtAssumptions?.refiLTV ?? DEFAULT_REFI_LTV;
+      const refiExitCap = property.exitCapRate ?? global.exitCapRate ?? DEFAULT_EXIT_CAP_RATE;
+      const stabilizedNOI = yearlyNOI[refiYear] || 0;
+      const propertyValueAtRefi = refiExitCap > 0 ? stabilizedNOI / refiExitCap : 0;
+      const refiLoanAmount = propertyValueAtRefi * refiLTV;
+
+      const refiRate = property.refinanceInterestRate ?? global.debtAssumptions?.interestRate ?? DEFAULT_INTEREST_RATE;
+      const refiTermYears = property.refinanceTermYears ?? global.debtAssumptions?.amortizationYears ?? DEFAULT_TERM_YEARS;
+      const refiMonthlyRate = refiRate / 12;
+      const refiTotalPayments = refiTermYears * 12;
+
+      let refiMonthlyPayment = 0;
+      if (refiLoanAmount > 0) {
+        if (refiMonthlyRate === 0) {
+          refiMonthlyPayment = refiLoanAmount / refiTotalPayments;
+        } else {
+          refiMonthlyPayment = (refiLoanAmount * refiMonthlyRate * Math.pow(1 + refiMonthlyRate, refiTotalPayments)) /
+                               (Math.pow(1 + refiMonthlyRate, refiTotalPayments) - 1);
+        }
+      }
+
+      // Existing debt outstanding just before refinance (from pass 1)
+      const existingDebt = refiMonthIndex > 0 ? financials[refiMonthIndex - 1].debtOutstanding : originalLoanAmount;
+      const closingCostRate = property.refinanceClosingCostRate ?? global.debtAssumptions?.refiClosingCostRate ?? DEFAULT_REFI_CLOSING_COST_RATE;
+      const closingCosts = refiLoanAmount * closingCostRate;
+      const refiProceeds = Math.max(0, refiLoanAmount - closingCosts - existingDebt);
+
+      // Recalculate cumulative cash from scratch through all months
+      let cumCash = 0;
+      for (let i = 0; i < months; i++) {
+        const m = financials[i];
+
+        if (i < refiMonthIndex) {
+          // Pre-refinance months: just recalculate cumulative cash (no changes to debt)
+          cumCash += m.cashFlow;
+          m.endingCash = cumCash;
+        } else {
+          // Post-refinance: use new loan parameters
+          const monthsSinceRefi = i - refiMonthIndex;
+
+          let debtPayment = 0;
+          let interestExpense = 0;
+          let principalPayment = 0;
+          let debtOutstanding = 0;
+
+          if (refiLoanAmount > 0 && monthsSinceRefi < refiTotalPayments) {
+            debtPayment = refiMonthlyPayment;
+
+            if (refiMonthlyRate === 0) {
+              const straightLine = refiLoanAmount / refiTotalPayments;
+              debtOutstanding = Math.max(0, refiLoanAmount - straightLine * monthsSinceRefi);
+              interestExpense = 0;
+              principalPayment = straightLine;
+            } else {
+              let balance = refiLoanAmount;
+              for (let j = 0; j < monthsSinceRefi && j < refiTotalPayments; j++) {
+                const mInt = balance * refiMonthlyRate;
+                const mPrin = refiMonthlyPayment - mInt;
+                balance = Math.max(0, balance - mPrin);
+              }
+              debtOutstanding = balance;
+              interestExpense = balance * refiMonthlyRate;
+              principalPayment = refiMonthlyPayment - interestExpense;
+            }
+          }
+
+          // Recalculate net income and cash flow with new debt
+          const taxableIncome = m.noi - interestExpense - m.depreciationExpense;
+          const incomeTax = taxableIncome > 0 ? taxableIncome * taxRate : 0;
+          const netIncome = m.noi - interestExpense - m.depreciationExpense - incomeTax;
+          const cashFlow = m.noi - debtPayment - incomeTax;
+          const operatingCashFlow = netIncome + m.depreciationExpense;
+          const financingCashFlow = -principalPayment;
+
+          // Refinance proceeds flow into cash in the refinance month
+          const proceeds = (i === refiMonthIndex) ? refiProceeds : 0;
+
+          m.interestExpense = interestExpense;
+          m.principalPayment = principalPayment;
+          m.debtPayment = debtPayment;
+          m.debtOutstanding = debtOutstanding;
+          m.incomeTax = incomeTax;
+          m.netIncome = netIncome;
+          m.cashFlow = cashFlow + proceeds;
+          m.operatingCashFlow = operatingCashFlow;
+          m.financingCashFlow = financingCashFlow + proceeds;
+          m.refinancingProceeds = proceeds;
+
+          cumCash += m.cashFlow;
+          m.endingCash = cumCash;
+        }
+      }
+    }
+  }
+
   return financials;
 }
 

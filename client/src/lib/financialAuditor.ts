@@ -1026,7 +1026,7 @@ export function runFullAudit(
   const totalFailed = sections.reduce((sum, s) => sum + s.failed, 0);
   const criticalIssues = sections.reduce((sum, s) => 
     sum + s.findings.filter(f => !f.passed && f.severity === "critical").length, 0);
-  const materialIssues = sections.reduce((sum, s) => s.materialIssues, 0);
+  const materialIssues = sections.reduce((sum, s) => sum + s.materialIssues, 0);
   
   let opinion: "UNQUALIFIED" | "QUALIFIED" | "ADVERSE" | "DISCLAIMER";
   let opinionText: string;

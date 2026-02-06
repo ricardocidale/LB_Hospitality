@@ -1605,6 +1605,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       
       const researchParams: ResearchParams = {
         type: type as "property" | "company" | "global",
+        propertyLabel: globalAssumptions?.propertyLabel || "Boutique Hotel",
         propertyContext,
         boutiqueDefinition: boutiqueDef,
       };

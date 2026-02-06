@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Layout from "@/components/Layout";
+import { useGlobalAssumptions } from "@/lib/api";
 import { PageHeader } from "@/components/ui/page-header";
 import { GlassButton } from "@/components/ui/glass-button";
 import { Input } from "@/components/ui/input";
@@ -270,6 +271,7 @@ function SavedPropertyCard({
 }
 
 export default function PropertyFinder() {
+  const { data: global } = useGlobalAssumptions();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<"search" | "saved">("search");
   const [searchParams, setSearchParams] = useState<PropertyFinderSearchParams | null>(null);
@@ -587,7 +589,7 @@ export default function PropertyFinder() {
                   <div>
                     <p className="text-gray-400 font-medium">Search for Properties</p>
                     <p className="text-gray-500 text-sm mt-1">
-                      Enter a location above to find large homes and estates with boutique hotel conversion potential.
+                      Enter a location above to find large homes and estates with {(global?.propertyLabel || "boutique hotel").toLowerCase()} conversion potential.
                     </p>
                   </div>
                 </div>

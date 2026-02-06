@@ -123,6 +123,7 @@ export default function CompanyResearch() {
                 onClick={generateResearch}
                 disabled={isGenerating}
                 data-testid="button-update-research"
+                style={isGenerating ? { background: 'linear-gradient(135deg, #F4795B 0%, #e0694e 50%, #d45a40 100%)', opacity: 1 } : undefined}
               >
                 {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
                 {isGenerating ? "Analyzing..." : "Update Research"}

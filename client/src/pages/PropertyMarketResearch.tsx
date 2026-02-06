@@ -144,7 +144,8 @@ export default function PropertyMarketResearch() {
   const content = research?.content as any;
   const hasResearch = content && !content.rawResponse;
   const adrValue = property.startAdr ? Math.round(property.startAdr) : null;
-  const googleMapsUrl = `https://www.google.com/maps/search/${encodeURIComponent(`boutique hotels near ${property.location}${adrValue ? ` $${adrValue} ADR` : ""}`)}`;
+  const propertyLabel = global?.propertyLabel || "boutique hotel";
+  const googleMapsUrl = `https://www.google.com/maps/search/${encodeURIComponent(`${propertyLabel.toLowerCase()}s near ${property.location}${adrValue ? ` $${adrValue} ADR` : ""}`)}`;
 
   return (
     <Layout>
@@ -181,6 +182,7 @@ export default function PropertyMarketResearch() {
                 onClick={generateResearch}
                 disabled={isGenerating}
                 data-testid="button-update-research"
+                style={isGenerating ? { background: 'linear-gradient(135deg, #F4795B 0%, #e0694e 50%, #d45a40 100%)', opacity: 1 } : undefined}
               >
                 {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
                 {isGenerating ? "Analyzing..." : "Update Research"}

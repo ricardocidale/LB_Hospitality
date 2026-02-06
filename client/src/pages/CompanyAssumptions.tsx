@@ -130,12 +130,22 @@ export default function CompanyAssumptions() {
   const [isUploading, setIsUploading] = useState(false);
 
   const [formData, setFormData] = useState<Partial<GlobalResponse>>({});
+  const [isDirty, setIsDirty] = useState(false);
 
   useEffect(() => {
     if (global) {
       setFormData(global);
     }
   }, [global]);
+
+  useEffect(() => {
+    if (!isDirty) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [isDirty]);
 
   const modelStartYear = global?.modelStartDate 
     ? new Date(global.modelStartDate).getFullYear() 
@@ -153,6 +163,7 @@ export default function CompanyAssumptions() {
 
   const handleUpdate = <K extends keyof GlobalResponse>(field: K, value: GlobalResponse[K]) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    setIsDirty(true);
   };
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -239,6 +250,7 @@ export default function CompanyAssumptions() {
   const handleSave = async () => {
     try {
       await updateMutation.mutateAsync(formData);
+      setIsDirty(false);
       toast({
         title: "Saved",
         description: "Company assumptions have been updated.",

@@ -1,6 +1,6 @@
 import { globalAssumptions, properties, users, sessions, scenarios, loginLogs, designThemes, marketResearch, prospectiveProperties, savedSearches, type GlobalAssumptions, type Property, type InsertGlobalAssumptions, type InsertProperty, type UpdateProperty, type User, type InsertUser, type Session, type Scenario, type InsertScenario, type UpdateScenario, type LoginLog, type InsertLoginLog, type DesignTheme, type InsertDesignTheme, type MarketResearch, type InsertMarketResearch, type ProspectiveProperty, type InsertProspectiveProperty, type SavedSearch, type InsertSavedSearch } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, gt, gte, desc, or, isNull } from "drizzle-orm";
+import { eq, and, gt, lt, gte, desc, or, isNull } from "drizzle-orm";
 
 export interface IStorage {
   // Users
@@ -17,6 +17,7 @@ export interface IStorage {
   getSession(sessionId: string): Promise<(Session & { user: User }) | undefined>;
   deleteSession(sessionId: string): Promise<void>;
   deleteUserSessions(userId: number): Promise<void>;
+  deleteExpiredSessions(): Promise<number>;
   
   // Global Assumptions (per user)
   getGlobalAssumptions(userId?: number): Promise<GlobalAssumptions | undefined>;
@@ -102,6 +103,13 @@ export class DatabaseStorage implements IStorage {
 
   async deleteUser(id: number): Promise<void> {
     await db.delete(sessions).where(eq(sessions.userId, id));
+    await db.delete(scenarios).where(eq(scenarios.userId, id));
+    await db.delete(marketResearch).where(eq(marketResearch.userId, id));
+    await db.delete(prospectiveProperties).where(eq(prospectiveProperties.userId, id));
+    await db.delete(savedSearches).where(eq(savedSearches.userId, id));
+    await db.delete(properties).where(eq(properties.userId, id));
+    await db.delete(globalAssumptions).where(eq(globalAssumptions.userId, id));
+    await db.delete(loginLogs).where(eq(loginLogs.userId, id));
     await db.delete(users).where(eq(users.id, id));
   }
 
@@ -145,6 +153,11 @@ export class DatabaseStorage implements IStorage {
 
   async deleteUserSessions(userId: number): Promise<void> {
     await db.delete(sessions).where(eq(sessions.userId, userId));
+  }
+
+  async deleteExpiredSessions(): Promise<number> {
+    const result = await db.delete(sessions).where(lt(sessions.expiresAt, new Date())).returning();
+    return result.length;
   }
 
   // Global Assumptions

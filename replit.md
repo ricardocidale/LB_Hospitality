@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project is a business simulation portal for L+B Hospitality Group, a boutique hotel management company. It provides financial modeling and portfolio management capabilities, including dashboard views, property portfolio management, financial pro forma generation, and configurable model inputs for hospitality assets across North America and Latin America. The system models both the management company and individual property SPVs, generating monthly and yearly financial statements, income statements, and cash flow projections. The core purpose is to offer a comprehensive financial simulation and projection tool for hospitality business planning.
+This project is a business simulation portal designed for L+B Hospitality Group, a boutique hotel management company. Its primary purpose is to provide comprehensive financial simulation and projection capabilities for hospitality business planning. Key functionalities include financial modeling, portfolio management, dashboard views, property portfolio management, and the generation of financial pro formas. The system allows for configurable model inputs for hospitality assets across North America and Latin America, modeling both the management company and individual property SPVs to generate monthly and yearly financial statements, income statements, and cash flow projections.
 
 ## User Preferences
 
@@ -11,16 +11,16 @@ Always format money as money (currency format with commas and appropriate precis
 
 ## System Architecture
 
-### Frontend Architecture
+### Frontend
 - **Framework**: React 18 with TypeScript
 - **Routing**: Wouter
 - **State Management**: TanStack React Query for server state, Zustand for local state
 - **UI Components**: shadcn/ui built on Radix UI
-- **Styling**: Tailwind CSS v4 with custom design tokens, class-variance-authority
+- **Styling**: Tailwind CSS v4 with custom design tokens and class-variance-authority
 - **Charts**: Recharts
 - **Fonts**: Playfair Display (serif headings) + Inter (UI/data)
 
-### Backend Architecture
+### Backend
 - **Runtime**: Node.js with Express 5
 - **Language**: TypeScript with ESM modules
 - **API Pattern**: RESTful endpoints
@@ -28,93 +28,63 @@ Always format money as money (currency format with commas and appropriate precis
 
 ### Data Layer
 - **ORM**: Drizzle ORM with PostgreSQL dialect
-- **Schema Location**: `shared/schema.ts`
 - **Validation**: Zod schemas generated from Drizzle schemas
 - **Database**: PostgreSQL
 
-### UI/UX Decisions
-- **Color Palette**: Primary Sage Green (#9FBCA4), Secondary Green (#257D41), Warm Off-White (#FFF9F5), Coral Accent (#F4795B), Black (#000000, #0a0a0f), and a specific dark blue-gray gradient (#2d4a5e, #3d5a6a, #3a5a5e) for navigation and dark-themed pages.
-- **Page Styling**:
-    - **Login Page**: Centered glass dialog card on near-black (#0a0a0f) background with subtle sage green blur orbs. Clean, Swiss Modernist design.
-    - **Assumption Pages (Light Theme)**: White/80 backdrop-blur-xl cards with sage green accents, gray text, and white input backgrounds.
-    - **Main App Pages (Dark Glass Theme)**: Dark blue-gray gradient cards with off-white text and semi-transparent white input backgrounds.
-    - **Financial Statement Tables (Light Theme)**: Light backgrounds (white, gray-50, gray-100) with dark gray text.
-- **Navigation & Tabs**: Dark glass gradient sidebar with white text for active items.
-- **Buttons on Dark Backgrounds**: ALL action buttons on dark backgrounds (PageHeaders, dark glass cards) MUST use `GlassButton variant="primary"` from `@/components/ui/glass-button`. This includes Save, Research navigation, Update Research, Google Maps links, and any other action buttons. Uses dark glass gradient (#2d4a5e → #3d5a6a → #3a5a5e), white text, top shine line, and sage green glow on hover. Never use raw `<button>` with ad-hoc `bg-white/10` classes for action buttons on dark backgrounds.
-- **SaveButton**: Convenience wrapper around `GlassButton variant="primary"` with save icon and loading state. Located at `@/components/ui/save-button`.
-- **Export Buttons**: Use `GlassButton variant="export"` or `Button variant="outline"` for all export buttons (PDF, CSV, Chart). Style: neutral gray background (#f5f5f5), dark gray text, gray border. Must be aligned with tabs on financial pages, not in the title block.
-- **PageHeader Component**: Standardized `PageHeader` with fixed minimum height, `text-3xl` serif title, `text-sm` subtitle, and a dark glass variant across all pages.
-- **Charts**: All charts must follow these requirements:
-    - **White background** for readability (bg-white with shadow-lg and gray border)
-    - **Colorful gradient lines**: Green gradients (#257D41 to #34D399) for revenue/NOI, Blue gradients (#3B82F6 to #60A5FA) for GOP/FCF, Coral gradients (#F4795B to #FB923C) for FCFE/secondary metrics
-    - **Data point dots**: Every chart line must have visible dots at each data point (dot={{ fill: 'color', stroke: '#fff', strokeWidth: 2, r: 4 }})
-    - **Light gray grid**: Dashed grid lines (#E5E7EB) with no vertical lines
-    - **Line width**: strokeWidth of 3 for all chart lines
-    - Verified by Design Consistency Checker in Admin > Verification tab
-- **Admin Page**: Consolidated admin functionality in single `/admin` route with tabs for Users, Login Activity, and Verification. Replaces separate `/admin/users`, `/admin/login-logs`, `/admin/verification` routes.
+### UI/UX Design Principles
+- **Color Palette**: Sage Green, Secondary Green, Warm Off-White, Coral Accent, Black, and a dark blue-gray gradient for navigation.
+- **Theming**: A blend of light-themed assumption pages and dark glass-themed main application pages.
+- **Component Standardization**: `GlassButton` for actions on dark backgrounds, `SaveButton` for saving, `PageHeader` for consistent page titles.
+- **Charts**: Standardized with white backgrounds, colorful gradient lines (green for revenue, blue for GOP, coral for FCFE), data point dots, and light gray dashed grids.
+- **Admin Interface**: Consolidated into a single `/admin` route with tab-based navigation for users, login activity, and verification.
 
-### Financial Engine & Logic
-- Generates monthly pro forma projections including revenue, operating expenses, management fees, debt service, NOI, and cash flow.
-- **GAAP-Compliant Free Cash Flow Calculation (Indirect Method)**: Incorporates Net Income, Operating Cash Flow, and Free Cash Flow to Equity (FCFE).
-- **Depreciation**: 27.5-year straight-line on depreciable basis (purchase price × (1 - landValuePercent) + building improvements), starting from acquisition date. Land does not depreciate per IRS Publication 946.
-- **Land Value Allocation**: Configurable per property (default 25%, range 5-60%). Determines the portion of purchase price allocated to land (non-depreciable) vs. building (depreciable). Research-backed values seeded for each property based on local market data.
-- **Debt Service**: Proper amortization with interest/principal separation.
-- **Acquisition Timing**: All balance sheet entries (assets, liabilities, equity) only appear after property acquisition date. Debt outstanding returns 0 before acquisition.
-- **Shared Loan Calculations**: `client/src/lib/loanCalculations.ts` provides consistent debt service, refinance, and outstanding balance calculations across all financial statements.
-- **Partner Compensation**: Starts at $15,000/month per partner, escalates annually at inflation + 10%, capped at $30,000/month.
-- **SAFE Funding**: Models two tranches with configurable amounts and dates, appearing as inflows in cash flow.
-- **Cost Escalation**: Fixed costs escalate at a configurable rate (default 3%), while variable costs escalate at the inflation rate.
-- **Catering Levels**: Global assumptions define Full Service and Partial Service catering rates for event revenue and costs.
-- **Configurable Expense Rates**: Event expense rate (default 65%), Other expense rate (default 60%), and Utilities variable/fixed split (default 60/40) are all configurable in Global Assumptions.
-- **Exit & Sale Assumptions**: Exit cap rate (default 8.5%) and sales commission rate (default 5%) are configurable at global level, with property-level overrides for exit cap rate and tax rate.
-- **Configurable Fiscal Year**: Financial statements and charts can align with any fiscal year start month.
-- **Key Data Models**: Global Assumptions (model-wide parameters), Properties (individual asset details), and Scenarios (saved snapshots of assumptions and properties per user).
-- **Scenarios Feature**: Users can save their current configuration (global assumptions + all properties) as named scenarios, then load them later to restore that state. Each user has their own isolated scenarios.
-- **Room Revenue Calculation**: Uses 30.5 days per month (365/12 = 30.4167, rounded to 30.5) as the industry-standard average month length.
+### Financial Engine
+- Generates monthly pro forma projections covering revenue, operating expenses, management fees, debt service, NOI, and cash flow.
+- **GAAP-Compliant Calculations**: Uses an indirect method for Free Cash Flow (ASC 230), adheres to ASC 360 for depreciation, and ASC 470 for debt.
+- **Key Financial Logic**:
+    - **Depreciation**: 27.5-year straight-line based on depreciable basis (purchase price × (1 - landValuePercent) + building improvements).
+    - **Land Value Allocation**: Configurable per property (default 25%) to differentiate depreciable vs. non-depreciable assets.
+    - **Debt Service**: Proper amortization with interest/principal separation.
+    - **Acquisition Timing**: Balance sheet entries activate post-acquisition.
+    - **Loan Calculations**: Centralized in `client/src/lib/loanCalculations.ts`.
+    - **Partner Compensation**: Starts at $15,000/month per partner, escalates with inflation + 10%, capped at $30,000/month.
+    - **Cost Escalation**: Fixed costs escalate at a configurable rate (default 3%), variable costs at inflation.
+    - **Configurable Fiscal Year**: Financial statements align with any fiscal year start month.
+- **Data Models**: Global Assumptions (model-wide parameters), Properties (individual asset details), and Scenarios (user-saved snapshots).
+- **Room Revenue Calculation**: Uses an industry-standard 30.5 days per month.
 
-### Financial Verification & Audit System
-- **Location**: `client/src/lib/financialAuditor.ts` and `client/src/lib/runVerification.ts`
-- **Purpose**: PwC-level independent verification of all financial calculations against GAAP standards
-- **Audit Sections**: Timing Rules, Depreciation, Loan Amortization, Income Statement, Balance Sheet, Cash Flow Statement, Management Fees
-- **GAAP References**: ASC 230 (Cash Flow), ASC 360 (Property Assets), ASC 470 (Debt), ASC 606 (Revenue Recognition), FASB Conceptual Framework
-- **Key Validations**:
-  - Depreciation: (Depreciable Basis / 27.5 / 12) monthly, starting at acquisition. Depreciable basis = purchasePrice × (1 - landValuePercent) + buildingImprovements
-  - Loan PMT: Standard amortization formula with interest/principal split
-  - Balance Sheet: Assets = Liabilities + Equity for every period
-  - Cash Flow: Operating CF = Net Income + Depreciation (indirect method)
-  - Principal payments are financing activities, NOT income statement expenses (ASC 470)
-- **Known-Value Test Cases**: Validates calculations with hand-calculated expected values (e.g., 10 rooms × $100 × 70% × 30.5 = $21,350)
-- **Audit Opinions**: UNQUALIFIED (no issues), QUALIFIED (minor issues), ADVERSE (critical issues)
+### Financial Verification & Audit
+- **System**: Located in `client/src/lib/financialAuditor.ts` and `client/src/lib/runVerification.ts`.
+- **Purpose**: Verifies financial calculations against GAAP standards (PwC-level audit simulation).
+- **Scope**: Covers Timing Rules, Depreciation, Loan Amortization, Income Statement, Balance Sheet, Cash Flow Statement, and Management Fees.
+- **Output**: Provides audit opinions (UNQUALIFIED, QUALIFIED, ADVERSE).
 
-### Shared Constants Pattern
-- **Location**: `client/src/lib/constants.ts` is the single source of truth for all DEFAULT_* constants
-- **Re-exports**: `client/src/lib/loanCalculations.ts` re-exports constants for backwards compatibility
-- **Constants**: DEFAULT_LTV (0.75), DEFAULT_INTEREST_RATE (0.09), DEFAULT_TERM_YEARS (25), DEPRECIATION_YEARS (27.5), DEFAULT_EXIT_CAP_RATE (0.085), DEFAULT_TAX_RATE (0.25), DEFAULT_COMMISSION_RATE (0.05), DEFAULT_REFI_LTV (0.65), DEFAULT_REFI_CLOSING_COST_RATE (0.03), DEFAULT_ROOM_COUNT (10), DEFAULT_START_ADR (250), DEFAULT_STABILIZATION_MONTHS (24), DEFAULT_PARTNER_COUNT (3), DEFAULT_REFI_PERIOD_YEARS (3), IRR_HIGHLIGHT_THRESHOLD (0.15), AUDIT_VARIANCE_TOLERANCE (0.01), AUDIT_DOLLAR_TOLERANCE (100), AUDIT_VERIFICATION_WINDOW_MONTHS (24), AUDIT_CRITICAL_ISSUE_THRESHOLD (3)
-- **Fallback Pattern**: property-specific value → global value → DEFAULT constant
-- **Consumers**: financialEngine.ts, financialAuditor.ts, runVerification.ts, Dashboard.tsx, PropertyEdit.tsx, PropertyDetail.tsx
-- **Immutable Constants**: DEPRECIATION_YEARS (27.5) is IRS-mandated per Publication 946 / ASC 360; DAYS_PER_MONTH (30.5) is industry standard (365/12 rounded)
-- **Configurable Variables**: All user-adjustable values are stored in the database (globalAssumptions and properties tables) and editable through assumption pages:
-  - **Global Assumptions Page**: Property type label (configurable, default "Boutique Hotel" — used system-wide in UI titles, research prompts, tooltips), general property description (room range, ADR range, F&B/events/wellness flags, description), inflation rate, fixed cost escalation, management fees, SAFE funding, partner compensation, staff salary, overhead costs, exit/sale assumptions, catering boosts, expense rates, debt assumptions, projection years (1-30, default 10), staffing tiers (3 tiers: max properties + FTE per tier)
-  - **Property Edit Page**: Cost rates (rooms, F&B, admin, etc.), revenue shares (events, F&B, other), catering percentages, exit cap rate, tax rate, financing terms
-- **Dynamic Projection Period**: `projectionYears` is configurable in global assumptions (default 10). All consumers (Dashboard, PropertyDetail, Company, ConsolidatedBalanceSheet, runVerification, calculationChecker) use `global?.projectionYears ?? PROJECTION_YEARS` fallback pattern.
-- **Dynamic Staffing Tiers**: 3 configurable tiers (`staffTier1MaxProperties/Fte`, `staffTier2MaxProperties/Fte`, `staffTier3Fte`) in global assumptions, replacing hardcoded staffing model. Editable via Company Assumptions page.
+### Configuration Management
+- **Constants**: `client/src/lib/constants.ts` serves as the single source of truth for all `DEFAULT_*` constants, with fallbacks for property-specific or global values.
+- **User-Adjustable Variables**: Stored in the database (`globalAssumptions` and `properties` tables) and editable via assumption pages.
+    - **Global Assumptions**: Includes property type label, general property description, inflation rate, management fees, SAFE funding, partner compensation, staffing tiers, and exit/sale assumptions.
+    - **Property Edit**: Allows configuration of cost rates, revenue shares, catering percentages, exit cap rate, and financing terms.
+- **Dynamic Projection Period**: `projectionYears` is configurable (default 10).
+- **Dynamic Staffing Tiers**: Three configurable tiers (`staffTier1MaxProperties/Fte`, `staffTier2MaxProperties/Fte`, `staffTier3Fte`).
 
-### AI Research Architecture (Skills & Tools)
-- **Skills** (`.claude/skills/`): Markdown files that provide system-level instructions guiding Claude's analysis methodology. Loaded at runtime as system prompts.
-  - **Research skills**: `property-market-research.md` (property-level analysis guided by boutique definition), `company-research.md` (management company benchmarks), `global-research.md` (industry overview)
-  - **UI skills**: `page-header.md` (PageHeader component patterns), `glass-components.md` (GlassButton/GlassCard/SaveButton), `financial-statements.md` (Income Statement, Cash Flow, Balance Sheet rendering rules per GAAP), `charts.md` (Recharts styling patterns)
-- **Tools** (`.claude/tools/`): JSON files defining Claude tool-use function schemas for property research. Claude calls these tools to gather analysis dimensions, then synthesizes findings.
-  - `analyze-market.json`, `analyze-adr.json`, `analyze-occupancy.json`, `analyze-event-demand.json`, `analyze-cap-rates.json`, `analyze-competitive-set.json`, `analyze-land-value.json`
-- **Orchestration** (`server/aiResearch.ts`): Loads skills/tools from disk, handles Claude tool-use loop (up to 10 iterations), tool handlers return contextual guidance prompts (not external data) so Claude uses its knowledge for analysis.
-  - For Claude models: Uses tool-use pattern with `generateResearchWithToolsStream()`
-  - For Gemini/OpenAI: Falls back to skill-loaded prompts without tool-use
-- **Research output schema**: `marketOverview`, `adrAnalysis`, `occupancyAnalysis`, `eventDemand`, `capRateAnalysis`, `competitiveSet`, `landValueAllocation`, `risks`, `sources`
-- **Seed data**: All 5 properties have pre-seeded research with `llmModel: "seed-data"` for immediate display without AI generation
+### Property Finder
+- **Functionality**: Allows users to search, save, and manage prospective properties.
+- **Features**: Search by location, price, bedrooms, lot size, property type. Includes tabs for "Search", "Saved Searches", and "Saved Properties".
+- **Display**: Properties are displayed in a dark glass table format.
+- **Data Storage**: Saved searches are stored in `saved_searches` table, and favorited properties in `prospective_properties` table.
+
+### AI Research Architecture
+- **Skills**: Markdown files (`.claude/skills/`) provide system instructions to guide Claude's analysis (e.g., `property-market-research.md`, `company-research.md`).
+- **Tools**: JSON files (`.claude/tools/`) define Claude tool-use function schemas for property research (e.g., `analyze-market.json`, `analyze-adr.json`).
+- **Orchestration**: `server/aiResearch.ts` loads skills/tools, manages Claude's tool-use loop, and returns contextual guidance.
+- **Output**: Research results adhere to a defined schema including `marketOverview`, `adrAnalysis`, `occupancyAnalysis`, `capRateAnalysis`, etc.
+- **Seed Data**: Pre-seeded research data is available for all 5 properties for immediate display.
 
 ## External Dependencies
 
 - **Database**: PostgreSQL
-- **ORM Tooling**: Drizzle Kit (for schema migrations)
-- **UI Libraries**: Radix UI (accessible components), Recharts (charts), Lucide React (icons)
-- **Utilities**: date-fns (date manipulation)
-- **Development Tools**: Vite (frontend dev server), tsx (TypeScript execution for server)
+- **ORM Tooling**: Drizzle Kit
+- **UI Libraries**: Radix UI, Recharts, Lucide React
+- **Utilities**: date-fns
+- **Development Tools**: Vite, tsx
+- **Third-Party APIs**: RapidAPI "Realty in US" (for property finding).

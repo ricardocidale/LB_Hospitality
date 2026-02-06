@@ -49,6 +49,7 @@ export const globalAssumptions = pgTable("global_assumptions", {
   companyName: text("company_name").notNull().default("L+B Hospitality"),
   companyLogo: text("company_logo"),
   modelStartDate: text("model_start_date").notNull(),
+  projectionYears: integer("projection_years").notNull().default(10),
   companyOpsStartDate: text("company_ops_start_date").notNull().default("2026-06-01"),
   fiscalYearStartMonth: integer("fiscal_year_start_month").notNull().default(1), // 1 = January, 4 = April, etc.
   inflationRate: real("inflation_rate").notNull(),
@@ -91,6 +92,13 @@ export const globalAssumptions = pgTable("global_assumptions", {
   partnerCountYear10: integer("partner_count_year10").notNull().default(3),
   
   staffSalary: real("staff_salary").notNull(),
+  
+  // Staffing tiers - FTE headcount based on portfolio size
+  staffTier1MaxProperties: integer("staff_tier1_max_properties").notNull().default(3),
+  staffTier1Fte: real("staff_tier1_fte").notNull().default(2.5),
+  staffTier2MaxProperties: integer("staff_tier2_max_properties").notNull().default(6),
+  staffTier2Fte: real("staff_tier2_fte").notNull().default(4.5),
+  staffTier3Fte: real("staff_tier3_fte").notNull().default(7.0),
   
   // Cost variables - Fixed overhead
   officeLeaseStart: real("office_lease_start").notNull(),
@@ -192,6 +200,7 @@ export const insertGlobalAssumptionsSchema = createInsertSchema(globalAssumption
   companyName: true,
   companyLogo: true,
   modelStartDate: true,
+  projectionYears: true,
   companyOpsStartDate: true,
   fiscalYearStartMonth: true,
   inflationRate: true,
@@ -225,6 +234,11 @@ export const insertGlobalAssumptionsSchema = createInsertSchema(globalAssumption
   partnerCountYear9: true,
   partnerCountYear10: true,
   staffSalary: true,
+  staffTier1MaxProperties: true,
+  staffTier1Fte: true,
+  staffTier2MaxProperties: true,
+  staffTier2Fte: true,
+  staffTier3Fte: true,
   officeLeaseStart: true,
   professionalServicesStart: true,
   techInfraStart: true,

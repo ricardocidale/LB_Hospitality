@@ -59,39 +59,19 @@ export default function Dashboard() {
     });
   };
 
-  if (propertiesLoading || globalLoading) {
-    return (
-      <Layout>
-        <div className="flex items-center justify-center h-[60vh]">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
-        </div>
-      </Layout>
-    );
-  }
-
-  if (!properties || !global) {
-    return (
-      <Layout>
-        <div className="flex items-center justify-center h-[60vh]">
-          <p className="text-muted-foreground">No data available. Please check the database.</p>
-        </div>
-      </Layout>
-    );
-  }
-
   const projectionYears = global?.projectionYears ?? PROJECTION_YEARS;
   const projectionMonths = projectionYears * 12;
 
-  const fiscalYearStartMonth = global.fiscalYearStartMonth ?? 1;
-  const getFiscalYear = (yearIndex: number) => getFiscalYearForModelYear(global.modelStartDate, fiscalYearStartMonth, yearIndex);
+  const allPropertyFinancials = useMemo(() => {
+    if (!properties || !global) return [];
+    return properties.map(p => {
+      const financials = generatePropertyProForma(p, global, projectionMonths);
+      return { property: p, financials };
+    });
+  }, [properties, global, projectionMonths]);
 
-  const allPropertyFinancials = useMemo(() => properties.map(p => {
-    const financials = generatePropertyProForma(p, global, projectionMonths);
-    return { property: p, financials };
-  }), [properties, global, projectionMonths]);
-
-  // Pre-compute all yearly consolidated data once (instead of on-demand per row per year)
   const yearlyConsolidatedCache = useMemo(() => {
+    if (allPropertyFinancials.length === 0) return [];
     return Array.from({ length: projectionYears }, (_, yearIndex) => {
       const startMonth = yearIndex * 12;
       const endMonth = startMonth + 12;
@@ -160,6 +140,29 @@ export default function Dashboard() {
       return totals;
     });
   }, [allPropertyFinancials, projectionYears]);
+
+  if (propertiesLoading || globalLoading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center h-[60vh]">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!properties || !global) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center h-[60vh]">
+          <p className="text-muted-foreground">No data available. Please check the database.</p>
+        </div>
+      </Layout>
+    );
+  }
+
+  const fiscalYearStartMonth = global.fiscalYearStartMonth ?? 1;
+  const getFiscalYear = (yearIndex: number) => getFiscalYearForModelYear(global.modelStartDate, fiscalYearStartMonth, yearIndex);
 
   const getYearlyConsolidated = (yearIndex: number) => yearlyConsolidatedCache[yearIndex];
 

@@ -71,7 +71,7 @@ export default function Dashboard() {
   }, [properties, global, projectionMonths]);
 
   const yearlyConsolidatedCache = useMemo(() => {
-    if (allPropertyFinancials.length === 0) return [];
+    if (!allPropertyFinancials.length) return [];
     return Array.from({ length: projectionYears }, (_, yearIndex) => {
       const startMonth = yearIndex * 12;
       const endMonth = startMonth + 12;
@@ -140,6 +140,18 @@ export default function Dashboard() {
       return totals;
     });
   }, [allPropertyFinancials, projectionYears]);
+
+  const { totalProjectionRevenue, totalProjectionNOI, totalProjectionCashFlow } = useMemo(() => {
+    if (!yearlyConsolidatedCache.length) return { totalProjectionRevenue: 0, totalProjectionNOI: 0, totalProjectionCashFlow: 0 };
+    let rev = 0, noi = 0, cf = 0;
+    for (let y = 0; y < projectionYears; y++) {
+      const yearData = yearlyConsolidatedCache[y];
+      rev += yearData.revenueTotal;
+      noi += yearData.noi;
+      cf += yearData.cashFlow;
+    }
+    return { totalProjectionRevenue: rev, totalProjectionNOI: noi, totalProjectionCashFlow: cf };
+  }, [yearlyConsolidatedCache, projectionYears]);
 
   if (propertiesLoading || globalLoading) {
     return (
@@ -243,17 +255,6 @@ export default function Dashboard() {
   const avgADR = totalRooms > 0 
     ? properties.reduce((sum, p) => sum + p.startAdr * p.roomCount, 0) / totalRooms
     : 0;
-  
-  const { totalProjectionRevenue, totalProjectionNOI, totalProjectionCashFlow } = useMemo(() => {
-    let rev = 0, noi = 0, cf = 0;
-    for (let y = 0; y < projectionYears; y++) {
-      const yearData = yearlyConsolidatedCache[y];
-      rev += yearData.revenueTotal;
-      noi += yearData.noi;
-      cf += yearData.cashFlow;
-    }
-    return { totalProjectionRevenue: rev, totalProjectionNOI: noi, totalProjectionCashFlow: cf };
-  }, [yearlyConsolidatedCache, projectionYears]);
   
   // Calculate weighted average exit cap rate (for display purposes)
   const avgExitCapRate = properties.reduce((sum, p) => sum + (p.exitCapRate ?? DEFAULT_EXIT_CAP_RATE), 0) / totalProperties;

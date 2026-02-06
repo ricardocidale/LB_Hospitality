@@ -75,18 +75,21 @@ export default function PropertyDetail() {
     [property, global, projectionMonths]
   );
 
-  const yearlyChartData = [];
-  for (let y = 0; y < projectionYears; y++) {
-    const yearData = financials.slice(y * 12, (y + 1) * 12);
-    if (yearData.length === 0) continue;
-    yearlyChartData.push({
-      year: String(getFiscalYear(y)),
-      Revenue: yearData.reduce((a, m) => a + m.revenueTotal, 0),
-      GOP: yearData.reduce((a, m) => a + m.gop, 0),
-      NOI: yearData.reduce((a, m) => a + m.noi, 0),
-      CashFlow: yearData.reduce((a, m) => a + m.cashFlow, 0),
-    });
-  }
+  const yearlyChartData = useMemo(() => {
+    const data = [];
+    for (let y = 0; y < projectionYears; y++) {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      if (yearData.length === 0) continue;
+      data.push({
+        year: String(getFiscalYear(y)),
+        Revenue: yearData.reduce((a, m) => a + m.revenueTotal, 0),
+        GOP: yearData.reduce((a, m) => a + m.gop, 0),
+        NOI: yearData.reduce((a, m) => a + m.noi, 0),
+        CashFlow: yearData.reduce((a, m) => a + m.cashFlow, 0),
+      });
+    }
+    return data;
+  }, [financials, projectionYears]);
 
   const years = projectionYears;
   const startYear = getFiscalYear(0);

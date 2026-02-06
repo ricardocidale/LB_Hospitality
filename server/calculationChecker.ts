@@ -141,7 +141,7 @@ function independentPropertyCalc(property: any, global: any) {
         (currentDate.getMonth() - opsStart.getMonth());
     }
 
-    if (isOperational && monthsSinceOps > 0 && monthsSinceOps % 12 === 0) {
+    if (isOperational) {
       const opsYear = Math.floor(monthsSinceOps / 12);
       currentAdr = property.startAdr * Math.pow(1 + property.adrGrowthRate, opsYear);
     }

@@ -1595,7 +1595,13 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
   app.get("/api/research/:type", requireAuth, async (req, res) => {
     try {
       const { type } = req.params;
-      const propertyId = req.query.propertyId ? parseInt(req.query.propertyId as string) : undefined;
+      let propertyId: number | undefined;
+      if (req.query.propertyId) {
+        propertyId = parseInt(req.query.propertyId as string);
+        if (isNaN(propertyId)) {
+          return res.status(400).json({ error: "Invalid property ID" });
+        }
+      }
       const userId = (req as any).user?.id;
       const research = await storage.getMarketResearch(type, userId, propertyId);
       res.json(research || null);
@@ -1756,25 +1762,32 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       }
       
       const { location, priceMin, priceMax, bedsMin, lotSizeMin, propertyType, offset: searchOffset } = req.query;
-      
+
       if (!location) {
         return res.status(400).json({ error: "Location is required" });
       }
 
+      // Parse numeric query params safely
+      const parsedPriceMin = priceMin ? parseInt(priceMin as string) : undefined;
+      const parsedPriceMax = priceMax ? parseInt(priceMax as string) : undefined;
+      const parsedBedsMin = bedsMin ? parseInt(bedsMin as string) : undefined;
+      const parsedLotSizeMin = lotSizeMin ? parseFloat(lotSizeMin as string) : undefined;
+      const parsedOffset = searchOffset ? parseInt(searchOffset as string) : 0;
+
       const searchUrl = "https://realty-in-us.p.rapidapi.com/properties/v3/list";
-      
+
       const filters: any[] = [];
-      
-      if (priceMin || priceMax) {
+
+      if (parsedPriceMin || parsedPriceMax) {
         const priceFilter: any = { type: "sold" };
-        if (priceMin) priceFilter.min = parseInt(priceMin as string);
-        if (priceMax) priceFilter.max = parseInt(priceMax as string);
+        if (parsedPriceMin && !isNaN(parsedPriceMin)) priceFilter.min = parsedPriceMin;
+        if (parsedPriceMax && !isNaN(parsedPriceMax)) priceFilter.max = parsedPriceMax;
         filters.push(priceFilter);
       }
 
       const payload: any = {
         limit: 20,
-        offset: parseInt(searchOffset as string) || 0,
+        offset: !isNaN(parsedOffset) ? parsedOffset : 0,
         status: ["for_sale"],
         sort: { direction: "desc", field: "list_date" },
       };
@@ -1792,18 +1805,18 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       }
 
       const listPrice: any = {};
-      if (priceMin) listPrice.min = parseInt(priceMin as string);
-      if (priceMax) listPrice.max = parseInt(priceMax as string);
+      if (parsedPriceMin && !isNaN(parsedPriceMin)) listPrice.min = parsedPriceMin;
+      if (parsedPriceMax && !isNaN(parsedPriceMax)) listPrice.max = parsedPriceMax;
       if (Object.keys(listPrice).length > 0) {
         payload.list_price = listPrice;
       }
 
-      if (bedsMin) {
-        payload.beds_min = parseInt(bedsMin as string);
+      if (parsedBedsMin && !isNaN(parsedBedsMin)) {
+        payload.beds_min = parsedBedsMin;
       }
 
-      if (lotSizeMin) {
-        payload.lot_sqft_min = Math.round(parseFloat(lotSizeMin as string) * 43560);
+      if (parsedLotSizeMin && !isNaN(parsedLotSizeMin)) {
+        payload.lot_sqft_min = Math.round(parsedLotSizeMin * 43560);
       }
 
       if (propertyType && propertyType !== "any") {

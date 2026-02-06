@@ -152,17 +152,20 @@ export default function Company() {
     [properties, global, projectionMonths]
   );
   
-  const yearlyChartData = [];
-  for (let y = 0; y < projectionYears; y++) {
-    const yearData = financials.slice(y * 12, (y + 1) * 12);
-    if (yearData.length === 0) continue;
-    yearlyChartData.push({
-      year: String(getFiscalYear(y)),
-      Revenue: yearData.reduce((a, m) => a + m.totalRevenue, 0),
-      Expenses: yearData.reduce((a, m) => a + m.totalExpenses, 0),
-      NetIncome: yearData.reduce((a, m) => a + m.netIncome, 0),
-    });
-  }
+  const yearlyChartData = useMemo(() => {
+    const data = [];
+    for (let y = 0; y < projectionYears; y++) {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      if (yearData.length === 0) continue;
+      data.push({
+        year: String(getFiscalYear(y)),
+        Revenue: yearData.reduce((a, m) => a + m.totalRevenue, 0),
+        Expenses: yearData.reduce((a, m) => a + m.totalExpenses, 0),
+        NetIncome: yearData.reduce((a, m) => a + m.netIncome, 0),
+      });
+    }
+    return data;
+  }, [financials, projectionYears]);
 
   const activePropertyCount = properties.filter(p => p.status === "Operational").length;
   const tier1Max = global?.staffTier1MaxProperties ?? STAFFING_TIERS[0].maxProperties;

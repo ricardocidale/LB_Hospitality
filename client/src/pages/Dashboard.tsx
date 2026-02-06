@@ -14,7 +14,7 @@ import { format, differenceInMonths } from "date-fns";
 import { useState, useMemo } from "react";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { ConsolidatedBalanceSheet } from "@/components/ConsolidatedBalanceSheet";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { LineChart, Line, BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { drawLineChart } from "@/lib/pdfChartDrawer";
@@ -3700,6 +3700,56 @@ function InvestmentAnalysis({
               </TableRow>
             </TableBody>
           </Table>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Property IRR Comparison</CardTitle>
+          <p className="text-sm text-muted-foreground">Side-by-side comparison of individual property internal rates of return</p>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={360}>
+            <BarChart
+              data={properties.map((prop, idx) => {
+                const cashFlows = getPropertyCashFlows(prop, idx);
+                const irr = calculateIRR(cashFlows);
+                return {
+                  name: prop.name.length > 20 ? prop.name.substring(0, 18) + '…' : prop.name,
+                  fullName: prop.name,
+                  irr: parseFloat((irr * 100).toFixed(1)),
+                };
+              })}
+              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
+              <XAxis
+                dataKey="name"
+                tick={{ fontSize: 12, fill: '#6b7280' }}
+                angle={-25}
+                textAnchor="end"
+                height={70}
+              />
+              <YAxis
+                tickFormatter={(v: number) => `${v}%`}
+                tick={{ fontSize: 12, fill: '#6b7280' }}
+                domain={[0, 'auto']}
+              />
+              <Tooltip
+                formatter={(value: number) => [`${value.toFixed(1)}%`, 'IRR']}
+                labelFormatter={(label: string, payload: any[]) => payload?.[0]?.payload?.fullName || label}
+                contentStyle={{ borderRadius: 8, border: '1px solid #e5e7eb' }}
+              />
+              <Bar dataKey="irr" radius={[6, 6, 0, 0]} maxBarSize={60}>
+                {properties.map((prop, idx) => {
+                  const cashFlows = getPropertyCashFlows(prop, idx);
+                  const irr = calculateIRR(cashFlows);
+                  const color = irr > IRR_HIGHLIGHT_THRESHOLD ? '#9FBCA4' : irr > 0 ? '#2d4a5e' : '#ef4444';
+                  return <Cell key={prop.id} fill={color} />;
+                })}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
         </CardContent>
       </Card>
     </>

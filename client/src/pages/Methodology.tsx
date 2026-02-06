@@ -2,7 +2,7 @@ import Layout from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
-import { Calculator, TrendingUp, Building2, DollarSign, PieChart, BarChart3, Wallet, Info } from "lucide-react";
+import { Calculator, TrendingUp, Building2, DollarSign, PieChart, BarChart3, Wallet, Info, Layers, ArrowRightLeft, BookOpen } from "lucide-react";
 
 export default function Methodology() {
   return (
@@ -24,7 +24,7 @@ export default function Methodology() {
           </CardHeader>
           <CardContent className="prose prose-sm max-w-none text-muted-foreground">
             <p>
-              This financial model generates 10-year projections for a portfolio of hospitality properties. 
+              This financial model generates multi-year projections (configurable 1-30 years, default 10) for a portfolio of hospitality properties. 
               It uses a combination of <strong>Systemwide Assumptions</strong> (market-wide parameters) and 
               <strong>Property Assumptions</strong> (individual property details) to calculate revenues, 
               expenses, cash flows, and investment returns.
@@ -38,6 +38,163 @@ export default function Methodology() {
         </Card>
 
         <Accordion type="multiple" className="space-y-4">
+          <AccordionItem value="business-model" className="border rounded-lg px-4">
+            <AccordionTrigger className="hover:no-underline">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                  <Layers className="w-5 h-5 text-primary" />
+                </div>
+                <div className="text-left">
+                  <h3 className="font-semibold">Business Model Overview</h3>
+                  <p className="text-sm text-muted-foreground">Two-entity structure: Management Company + Property Portfolio</p>
+                </div>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="pt-4 pb-6 space-y-4">
+              <p className="text-sm text-muted-foreground">
+                The L+B Hospitality model consists of <strong>two distinct financial entities</strong> that are
+                modeled independently but linked through management fees:
+              </p>
+
+              <div className="bg-muted/50 rounded-lg p-4">
+                <h4 className="font-semibold mb-3">Fund Flow Diagram</h4>
+                <div className="bg-background rounded p-4 font-mono text-xs space-y-2">
+                  <div className="text-center space-y-1">
+                    <div className="font-semibold text-sm">┌─────────────────────────────────┐</div>
+                    <div className="font-semibold text-sm">│     PROPERTY PORTFOLIO P&L      │</div>
+                    <div className="font-semibold text-sm">└───────────────┬─────────────────┘</div>
+                    <div>Guests pay → Room + F&B + Event Revenue</div>
+                    <div>Less: Operating Expenses, Debt Service</div>
+                    <div>= Free Cash Flow to Equity (FCFE)</div>
+                    <div className="text-primary font-semibold">│</div>
+                    <div className="text-primary font-semibold">│ Management Fees (5% base + 15% incentive)</div>
+                    <div className="text-primary font-semibold">▼</div>
+                    <div className="font-semibold text-sm">┌─────────────────────────────────┐</div>
+                    <div className="font-semibold text-sm">│   MANAGEMENT COMPANY P&L        │</div>
+                    <div className="font-semibold text-sm">└─────────────────────────────────┘</div>
+                    <div>Revenue = Management Fees from all properties</div>
+                    <div>Less: Staff, Office, Travel, Partner Comp</div>
+                    <div>= Company Net Income</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid gap-3 md:grid-cols-2">
+                <div className="bg-muted/50 rounded-lg p-4">
+                  <h4 className="font-semibold mb-2">Properties P&L</h4>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>• Each property is modeled independently</li>
+                    <li>• Revenue from rooms, F&B, events, other</li>
+                    <li>• Expenses per USALI standards</li>
+                    <li>• Debt service for financed properties</li>
+                    <li>• Full balance sheet and cash flow statement</li>
+                    <li>• IRR and equity multiple at exit</li>
+                  </ul>
+                </div>
+
+                <div className="bg-muted/50 rounded-lg p-4">
+                  <h4 className="font-semibold mb-2">Management Company P&L</h4>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>• Revenue = management fees from all properties</li>
+                    <li>• Partner compensation (defined per-year array)</li>
+                    <li>• Staff costs scale with property count (tiered)</li>
+                    <li>• Fixed costs: office, insurance, professional services</li>
+                    <li>• Variable costs: travel, IT, marketing</li>
+                    <li>• SAFE funding for working capital</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="bg-muted/50 rounded-lg p-4">
+                <h4 className="font-semibold mb-2">SAFE Funding</h4>
+                <p className="text-sm text-muted-foreground">
+                  The management company is initially funded through SAFE (Simple Agreement for Future Equity) tranches
+                  that provide working capital until management fee revenue is sufficient to cover operating expenses.
+                  SAFE funding appears as cash inflows but is <strong>not</strong> recorded as revenue — it represents
+                  future equity, not income.
+                </p>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="property-lifecycle" className="border rounded-lg px-4">
+            <AccordionTrigger className="hover:no-underline">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                  <ArrowRightLeft className="w-5 h-5 text-indigo-600" />
+                </div>
+                <div className="text-left">
+                  <h3 className="font-semibold">Property Lifecycle</h3>
+                  <p className="text-sm text-muted-foreground">Acquisition → Operations → Refinancing → Exit</p>
+                </div>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="pt-4 pb-6 space-y-4">
+              <div className="bg-muted/50 rounded-lg p-4">
+                <h4 className="font-semibold mb-2">1. Acquisition</h4>
+                <p className="text-sm text-muted-foreground mb-2">
+                  Each property enters the model at its acquisition date with a defined capital structure:
+                </p>
+                <div className="bg-background rounded p-3 font-mono text-sm space-y-1">
+                  <div>Total Project Cost = Purchase Price + Closing Costs (2%) + Operating Reserve</div>
+                  <div>Loan Amount = Purchase Price × LTV (default 75%) — for financed properties</div>
+                  <div>Initial Equity = Total Project Cost − Loan Amount</div>
+                </div>
+                <ul className="mt-3 text-sm text-muted-foreground space-y-1">
+                  <li>• <strong>Full Equity</strong>: No debt, 100% equity funded</li>
+                  <li>• <strong>Financed</strong>: Debt + equity per LTV ratio</li>
+                  <li>• Balance sheet entries only appear after acquisition date</li>
+                  <li>• Depreciation begins the first full month after acquisition</li>
+                </ul>
+              </div>
+
+              <div className="bg-muted/50 rounded-lg p-4">
+                <h4 className="font-semibold mb-2">2. Operations</h4>
+                <p className="text-sm text-muted-foreground mb-2">
+                  Revenue and expenses begin at the operations start date with a ramp-up period:
+                </p>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>• Occupancy ramps from starting rate (default 55%) to maximum (default 85%)</li>
+                  <li>• Ramp-up occurs over configurable months (default 6 months)</li>
+                  <li>• ADR grows annually at the ADR growth rate (default 3%)</li>
+                  <li>• Expenses escalate annually with inflation (variable) or fixed cost escalation rate</li>
+                  <li>• NOI = Revenue − Operating Expenses − Management Fees − FF&E Reserve</li>
+                </ul>
+              </div>
+
+              <div className="bg-muted/50 rounded-lg p-4">
+                <h4 className="font-semibold mb-2">3. Refinancing (Financed Properties Only)</h4>
+                <p className="text-sm text-muted-foreground mb-2">
+                  At the refinance date (default: 3 years after operations start), the property is reappraised:
+                </p>
+                <div className="bg-background rounded p-3 font-mono text-sm space-y-1">
+                  <div>Appraised Value = Trailing-12-Month NOI ÷ Cap Rate</div>
+                  <div>New Loan = Appraised Value × Refi LTV (default 65%)</div>
+                  <div>Proceeds = New Loan − Old Balance − Closing Costs (3%)</div>
+                </div>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Net proceeds are distributed to investors. Debt service recalculates from the new loan balance forward.
+                </p>
+              </div>
+
+              <div className="bg-muted/50 rounded-lg p-4">
+                <h4 className="font-semibold mb-2">4. Exit (End of Projection Period)</h4>
+                <p className="text-sm text-muted-foreground mb-2">
+                  At the end of the projection period, each property is assumed to be sold:
+                </p>
+                <div className="bg-background rounded p-3 font-mono text-sm space-y-1">
+                  <div>Gross Sale Value = Final Year NOI ÷ Exit Cap Rate (default 8.5%)</div>
+                  <div>Less: Sales Commission (default 5%)</div>
+                  <div>Less: Outstanding Debt Balance</div>
+                  <div>= Net Proceeds to Equity</div>
+                </div>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Exit proceeds combined with cumulative FCFE and refinancing proceeds determine the total return (IRR, equity multiple).
+                </p>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
           <AccordionItem value="defaults" className="border rounded-lg px-4">
             <AccordionTrigger className="hover:no-underline">
               <div className="flex items-center gap-3">
@@ -68,8 +225,8 @@ export default function Methodology() {
                   <li>• Inflation Rate: 3% annually</li>
                   <li>• Management Base Fee: 5% of revenue</li>
                   <li>• Management Incentive Fee: 15% of GOP</li>
-                  <li>• Loan-to-Value (LTV): 65%</li>
-                  <li>• Interest Rate: 7%</li>
+                  <li>• Loan-to-Value (LTV): 75%</li>
+                  <li>• Interest Rate: 9%</li>
                   <li>• Loan Term: 25 years</li>
                   <li>• Exit Cap Rate: 8.5%</li>
                   <li>• FF&E Reserve: 4% of revenue</li>
@@ -112,7 +269,7 @@ export default function Methodology() {
                   Calculated as a percentage of room revenue:
                 </p>
                 <div className="bg-background rounded p-3 font-mono text-sm">
-                  F&B Revenue = Room Revenue × F&B Rate (default 28%)
+                  F&B Revenue = Room Revenue × F&B Revenue Share (default 22%) × Catering Boost
                 </div>
               </div>
 
@@ -163,7 +320,7 @@ export default function Methodology() {
                   <ul className="text-sm text-muted-foreground space-y-1">
                     <li>• Room Expense: 36% of room revenue</li>
                     <li>• F&B Expense: 15% of F&B revenue</li>
-                    <li>• Event Expense: Based on catering level (80-92%)</li>
+                    <li>• Event Expense: 65% of event revenue</li>
                   </ul>
                 </div>
 
@@ -263,7 +420,7 @@ export default function Methodology() {
                   For financed properties, the loan amount is based on Loan-to-Value (LTV):
                 </p>
                 <div className="bg-background rounded p-3 font-mono text-sm space-y-1">
-                  <div>Loan Amount = Purchase Price × LTV Ratio (default 65%)</div>
+                  <div>Loan Amount = Purchase Price × LTV Ratio (default 75%)</div>
                   <div>Initial Equity = Total Project Cost − Loan Amount</div>
                 </div>
                 <p className="text-sm text-muted-foreground mt-2">
@@ -287,10 +444,20 @@ export default function Methodology() {
 
               <div className="bg-muted/50 rounded-lg p-4">
                 <h4 className="font-semibold mb-2">Refinancing</h4>
-                <p className="text-sm text-muted-foreground">
-                  Properties can be refinanced based on their new appraised value. The new loan pays off the 
-                  existing mortgage, and any excess proceeds are distributed to investors. Refinancing typically 
-                  occurs when property values increase significantly.
+                <p className="text-sm text-muted-foreground mb-2">
+                  Financed properties can be refinanced at a configurable date (default: 3 years after operations start).
+                  The model uses a two-pass calculation:
+                </p>
+                <div className="bg-background rounded p-3 font-mono text-sm space-y-1">
+                  <div>Pass 1: Project forward to get NOI at refinance date</div>
+                  <div>Appraised Value = Trailing-12-Month NOI ÷ Exit Cap Rate</div>
+                  <div>New Loan = Appraised Value × Refinance LTV (default 65%)</div>
+                  <div>Net Proceeds = New Loan − Old Balance − Closing Costs (default 3%)</div>
+                  <div>Pass 2: Re-amortize with new loan terms from refinance date forward</div>
+                </div>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Net refinance proceeds are distributed to investors and appear as a financing activity in the cash flow statement.
+                  After refinancing, debt service recalculates based on the new loan amount and terms.
                 </p>
               </div>
             </AccordionContent>
@@ -359,6 +526,76 @@ export default function Methodology() {
                 <div className="bg-background rounded p-2 font-mono text-xs mt-2">
                   Annual Depreciation = (Purchase Price + Building Improvements) ÷ 27.5
                 </div>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="balance-sheet" className="border rounded-lg px-4">
+            <AccordionTrigger className="hover:no-underline">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center">
+                  <BookOpen className="w-5 h-5 text-teal-600" />
+                </div>
+                <div className="text-left">
+                  <h3 className="font-semibold">Balance Sheet</h3>
+                  <p className="text-sm text-muted-foreground">Assets, liabilities, and equity per GAAP standards</p>
+                </div>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="pt-4 pb-6 space-y-4">
+              <p className="text-sm text-muted-foreground">
+                The consolidated balance sheet tracks each property's financial position monthly, following the
+                <strong> FASB Conceptual Framework</strong> fundamental equation:
+              </p>
+              <div className="bg-background rounded p-3 font-mono text-sm text-center">
+                Assets = Liabilities + Equity
+              </div>
+
+              <div className="bg-muted/50 rounded-lg p-4">
+                <h4 className="font-semibold mb-2">Assets</h4>
+                <div className="bg-background rounded p-3 font-mono text-sm space-y-1">
+                  <div>Property Value = Purchase Price + Improvements − Accumulated Depreciation</div>
+                  <div>Cash = Cumulative Free Cash Flow (operating + investing + financing)</div>
+                  <div>Total Assets = Property Value + Cash + Other Assets</div>
+                </div>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Depreciation follows ASC 360: straight-line over 27.5 years from the first full month after acquisition.
+                  Property assets only appear on the balance sheet after the acquisition date.
+                </p>
+              </div>
+
+              <div className="bg-muted/50 rounded-lg p-4">
+                <h4 className="font-semibold mb-2">Liabilities</h4>
+                <div className="bg-background rounded p-3 font-mono text-sm space-y-1">
+                  <div>Debt Outstanding = Loan Balance − Cumulative Principal Payments</div>
+                  <div>After Refinance: New Loan Balance − Post-Refi Principal Payments</div>
+                </div>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Debt is recorded per ASC 470. For full-equity properties, liabilities are zero.
+                  At refinancing, the old loan is fully replaced by the new loan at the refinanced balance.
+                </p>
+              </div>
+
+              <div className="bg-muted/50 rounded-lg p-4">
+                <h4 className="font-semibold mb-2">Equity</h4>
+                <div className="bg-background rounded p-3 font-mono text-sm space-y-1">
+                  <div>Equity = Total Assets − Total Liabilities</div>
+                  <div>     = Initial Equity + Retained Earnings (cumulative net income)</div>
+                </div>
+                <p className="text-sm text-muted-foreground mt-2">
+                  The verification system checks that Assets = Liabilities + Equity holds for every month
+                  across every property — any imbalance triggers a critical audit finding.
+                </p>
+              </div>
+
+              <div className="bg-muted/50 rounded-lg p-4">
+                <h4 className="font-semibold mb-2">GAAP References</h4>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>• <strong>FASB Conceptual Framework</strong>: Balance sheet equation and double-entry integrity</li>
+                  <li>• <strong>ASC 360</strong>: Property carried at cost minus accumulated depreciation</li>
+                  <li>• <strong>ASC 470</strong>: Debt recorded at outstanding principal balance</li>
+                  <li>• <strong>ASC 230</strong>: Cash reconciliation ties to cash flow statement</li>
+                </ul>
               </div>
             </AccordionContent>
           </AccordionItem>
@@ -465,7 +702,7 @@ export default function Methodology() {
               <div className="bg-muted/50 rounded-lg p-4">
                 <h4 className="font-semibold mb-2">Operating Expenses</h4>
                 <ul className="text-sm text-muted-foreground space-y-2">
-                  <li>• <strong>Partner Salaries</strong>: Starting at $15,000/month per partner, escalating at inflation + 10% (capped at $30,000/month)</li>
+                  <li>• <strong>Partner Compensation</strong>: Defined per-year ($540K/yr Years 1-3, escalating to $900K/yr by Year 10, split across 3 partners)</li>
                   <li>• <strong>Fixed Costs</strong>: Office lease, professional services, insurance (escalate at fixed cost rate)</li>
                   <li>• <strong>Variable Costs</strong>: Travel, IT, marketing, misc operations (escalate at inflation rate)</li>
                 </ul>
@@ -505,9 +742,9 @@ export default function Methodology() {
               <div className="bg-muted/50 rounded-lg p-4">
                 <h4 className="font-semibold mb-2">Time & Calendar</h4>
                 <ul className="text-sm text-muted-foreground space-y-2">
-                  <li>• <strong>Days per Month</strong>: 30 days (simplified monthly calculations)</li>
+                  <li>• <strong>Days per Month</strong>: 30.5 days (365 ÷ 12 = 30.4167, rounded to 30.5)</li>
                   <li>• <strong>Months per Year</strong>: 12 months</li>
-                  <li>• <strong>Projection Period</strong>: 10 years (120 months)</li>
+                  <li>• <strong>Projection Period</strong>: Configurable 1-30 years (default 10 years / 120 months)</li>
                 </ul>
               </div>
 

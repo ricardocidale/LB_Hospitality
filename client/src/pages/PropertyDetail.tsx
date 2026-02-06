@@ -535,7 +535,7 @@ export default function PropertyDetail() {
               <GlassButton
                 variant="export"
                 size="sm"
-                onClick={() => { setExportType('tablePng'); setExportDialogOpen(true); }}
+                onClick={() => exportTablePNG()}
                 data-testid="button-export-table-png"
               >
                 <ImageIcon className="w-4 h-4" />

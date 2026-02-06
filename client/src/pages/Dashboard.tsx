@@ -469,11 +469,14 @@ export default function Dashboard() {
   const totalInitialEquity = properties.reduce((sum, prop) => sum + getPropertyInvestment(prop), 0);
   const totalExitValue = properties.reduce((sum, prop, idx) => sum + getPropertyExitValue(prop, idx), 0);
   const totalCashReturned = consolidatedFlows.slice(1).reduce((sum, cf) => sum + cf, 0);
-  const equityMultiple = totalInitialEquity > 0 ? totalCashReturned / totalInitialEquity : 0;
+  const midProjectionEquity = Array.from({ length: projectionYears }, (_, y) => getEquityInvestmentForYear(y + 1))
+    .reduce((sum, eq) => sum + eq, 0);
+  const equityMultiple = totalInitialEquity > 0 ? (totalCashReturned + midProjectionEquity) / totalInitialEquity : 0;
   
   const operatingCashFlows = consolidatedFlows.slice(1).map((cf, idx) => {
     let exitValue = 0;
     let refiProceeds = 0;
+    let yearInvestment = getEquityInvestmentForYear(idx + 1);
     if (idx === projectionYears - 1) {
       exitValue = properties.reduce((sum, prop, propIdx) => sum + getPropertyExitValue(prop, propIdx), 0);
     }
@@ -483,7 +486,7 @@ export default function Dashboard() {
         refiProceeds += refi.proceeds;
       }
     });
-    return cf - exitValue - refiProceeds;
+    return cf - exitValue - refiProceeds + yearInvestment;
   });
   const avgAnnualCashFlow = operatingCashFlows.reduce((sum, cf) => sum + cf, 0) / projectionYears;
   const cashOnCash = totalInitialEquity > 0 ? (avgAnnualCashFlow / totalInitialEquity) * 100 : 0;
@@ -3541,14 +3544,17 @@ function InvestmentAnalysis({
   const totalExitValueIA = properties.reduce((sum, prop, idx) => sum + getPropertyExitValue(prop, idx), 0);
 
   const totalCashReturnedIA = consolidatedFlowsIA.slice(1).reduce((sum, cf) => sum + cf, 0);
-  const equityMultipleIA = totalInitialEquityIA > 0 ? totalCashReturnedIA / totalInitialEquityIA : 0;
+  const midProjectionEquityIA = Array.from({ length: projectionYears }, (_, y) => getEquityInvestmentForYear(y + 1))
+    .reduce((sum, eq) => sum + eq, 0);
+  const equityMultipleIA = totalInitialEquityIA > 0 ? (totalCashReturnedIA + midProjectionEquityIA) / totalInitialEquityIA : 0;
   
   const operatingCashFlowsIA = consolidatedFlowsIA.slice(1).map((cf, idx) => {
     let exitValue = 0;
+    let yearInvestmentIA = getEquityInvestmentForYear(idx + 1);
     if (idx === projectionYears - 1) {
       exitValue = properties.reduce((sum, prop, propIdx) => sum + getPropertyExitValue(prop, propIdx), 0);
     }
-    return cf - exitValue;
+    return cf - exitValue + yearInvestmentIA;
   });
   const avgAnnualCashFlowIA = operatingCashFlowsIA.reduce((sum, cf) => sum + cf, 0) / projectionYears;
   const cashOnCashIA = totalInitialEquityIA > 0 ? (avgAnnualCashFlowIA / totalInitialEquityIA) * 100 : 0;
@@ -4009,7 +4015,7 @@ function InvestmentAnalysis({
                 <TableCell className="text-right text-muted-foreground">-</TableCell>
                 <TableCell className="text-right text-accent">{formatMoney(totalExitValueIA)}</TableCell>
                 <TableCell className="text-right font-mono">{formatMoney(consolidatedFlowsIA.slice(1).reduce((a, b) => a + b, 0))}</TableCell>
-                <TableCell className="text-right">{(consolidatedFlowsIA.slice(1).reduce((a, b) => a + b, 0) / totalInitialEquityIA).toFixed(2)}x</TableCell>
+                <TableCell className="text-right">{equityMultipleIA.toFixed(2)}x</TableCell>
                 <TableCell className="text-right text-primary">{(portfolioIRRIA * 100).toFixed(1)}%</TableCell>
               </TableRow>
             </TableBody>

@@ -151,16 +151,24 @@ export default function Login() {
                 </div>
               </div>
               
-              <GlassButton
+              <button
                 type="submit"
-                variant="primary"
-                className="w-full h-12 text-base"
                 disabled={isLoading}
                 data-testid="button-login"
+                className="group relative w-full h-14 rounded-[2rem] overflow-hidden transition-all duration-500 ease-out hover:scale-[1.02] active:scale-[0.97] active:h-[3.2rem] disabled:opacity-60 disabled:pointer-events-none"
               >
-                {isLoading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : null}
-                Sign In
-              </GlassButton>
+                <div className="absolute inset-0 bg-gradient-to-b from-[#b8d4be] via-[#9FBCA4] to-[#6a9a78] rounded-[2rem]" />
+                <div className="absolute inset-0 bg-gradient-to-br from-white/30 via-transparent to-black/15 rounded-[2rem]" />
+                <div className="absolute inset-[1px] rounded-[calc(2rem-1px)] bg-gradient-to-b from-[#aacdb3] via-[#9FBCA4] to-[#7aaa8a]" />
+                <div className="absolute top-[2px] left-[10%] right-[10%] h-[45%] rounded-[2rem] bg-gradient-to-b from-white/50 via-white/20 to-transparent" />
+                <div className="absolute bottom-[3px] left-[15%] right-[15%] h-[20%] rounded-[2rem] bg-gradient-to-t from-white/10 to-transparent" />
+                <div className="absolute inset-0 rounded-[2rem] shadow-[inset_0_2px_4px_rgba(255,255,255,0.35),inset_0_-2px_6px_rgba(0,0,0,0.15),0_4px_20px_rgba(159,188,164,0.4),0_8px_32px_rgba(37,125,65,0.2)]" />
+                <div className="absolute inset-0 rounded-[2rem] opacity-0 group-hover:opacity-100 transition-opacity duration-500 shadow-[0_6px_30px_rgba(159,188,164,0.6),0_12px_40px_rgba(37,125,65,0.3)]" />
+                <span className="relative flex items-center justify-center gap-2 text-white font-semibold text-base tracking-wide" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.2)' }}>
+                  {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
+                  Sign In
+                </span>
+              </button>
             </form>
             
             <p className="text-center text-xs text-white/30 mt-8">

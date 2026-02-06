@@ -35,6 +35,10 @@ interface YearlyData {
   feeIncentive: number;
   gop: number;
   noi: number;
+  interestExpense: number;
+  depreciationExpense: number;
+  incomeTax: number;
+  netIncome: number;
 }
 
 function aggregateByYear(data: MonthlyFinancials[], years: number): YearlyData[] {
@@ -70,6 +74,10 @@ function aggregateByYear(data: MonthlyFinancials[], years: number): YearlyData[]
       feeIncentive: yearData.reduce((a, m) => a + m.feeIncentive, 0),
       gop: yearData.reduce((a, m) => a + m.gop, 0),
       noi: yearData.reduce((a, m) => a + m.noi, 0),
+      interestExpense: yearData.reduce((a, m) => a + m.interestExpense, 0),
+      depreciationExpense: yearData.reduce((a, m) => a + m.depreciationExpense, 0),
+      incomeTax: yearData.reduce((a, m) => a + m.incomeTax, 0),
+      netIncome: yearData.reduce((a, m) => a + m.netIncome, 0),
     });
   }
   
@@ -269,6 +277,39 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026 }: Pro
               <TableCell className="text-gray-900">Net Operating Income (NOI)</TableCell>
               {yearlyData.map((y) => (
                 <TableCell key={y.year} className="text-right text-[#F4795B]"><Money amount={y.noi} /></TableCell>
+              ))}
+            </TableRow>
+
+            <TableRow className="h-2 border-none bg-white"><TableCell colSpan={years + 1}></TableCell></TableRow>
+
+            <TableRow className="bg-gray-50">
+              <TableCell colSpan={years + 1} className="font-bold text-[#257D41]">Below NOI</TableCell>
+            </TableRow>
+            <TableRow className="bg-white">
+              <TableCell className="pl-6 text-gray-700">Interest Expense</TableCell>
+              {yearlyData.map((y) => (
+                <TableCell key={y.year} className="text-right text-gray-700"><Money amount={y.interestExpense} /></TableCell>
+              ))}
+            </TableRow>
+            <TableRow className="bg-white">
+              <TableCell className="pl-6 text-gray-700">Depreciation</TableCell>
+              {yearlyData.map((y) => (
+                <TableCell key={y.year} className="text-right text-gray-700"><Money amount={y.depreciationExpense} /></TableCell>
+              ))}
+            </TableRow>
+            <TableRow className="bg-white">
+              <TableCell className="pl-6 text-gray-700">Income Tax</TableCell>
+              {yearlyData.map((y) => (
+                <TableCell key={y.year} className="text-right text-gray-700"><Money amount={y.incomeTax} /></TableCell>
+              ))}
+            </TableRow>
+
+            <TableRow className="h-2 border-none bg-white"><TableCell colSpan={years + 1}></TableCell></TableRow>
+
+            <TableRow className="bg-[#7C3AED]/10 font-bold">
+              <TableCell className="text-gray-900">GAAP Net Income</TableCell>
+              {yearlyData.map((y) => (
+                <TableCell key={y.year} className="text-right text-[#7C3AED]"><Money amount={y.netIncome} /></TableCell>
               ))}
             </TableRow>
           </TableBody>

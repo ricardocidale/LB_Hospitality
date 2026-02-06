@@ -8,7 +8,9 @@ export interface GlobalResponse {
   id: number;
   companyName: string;
   companyLogo: string | null;
+  propertyLabel: string;
   modelStartDate: string;
+  projectionYears: number;
   companyOpsStartDate: string;
   fiscalYearStartMonth: number;
   inflationRate: number;
@@ -17,15 +19,41 @@ export interface GlobalResponse {
   baseManagementFee: number;
   incentiveManagementFee: number;
   // SAFE Funding
+  fundingSourceLabel: string;
   safeTranche1Amount: number;
   safeTranche1Date: string;
   safeTranche2Amount: number;
   safeTranche2Date: string;
   safeValuationCap: number;
   safeDiscountRate: number;
-  // Compensation
-  partnerSalary: number;
+  // Compensation - partner comp by year
+  partnerCompYear1: number;
+  partnerCompYear2: number;
+  partnerCompYear3: number;
+  partnerCompYear4: number;
+  partnerCompYear5: number;
+  partnerCompYear6: number;
+  partnerCompYear7: number;
+  partnerCompYear8: number;
+  partnerCompYear9: number;
+  partnerCompYear10: number;
+  partnerCountYear1: number;
+  partnerCountYear2: number;
+  partnerCountYear3: number;
+  partnerCountYear4: number;
+  partnerCountYear5: number;
+  partnerCountYear6: number;
+  partnerCountYear7: number;
+  partnerCountYear8: number;
+  partnerCountYear9: number;
+  partnerCountYear10: number;
   staffSalary: number;
+  // Staffing tiers
+  staffTier1MaxProperties: number;
+  staffTier1Fte: number;
+  staffTier2MaxProperties: number;
+  staffTier2Fte: number;
+  staffTier3Fte: number;
   // Fixed overhead
   officeLeaseStart: number;
   professionalServicesStart: number;
@@ -51,8 +79,6 @@ export interface GlobalResponse {
   utilitiesVariableSplit: number;
   // AI Research
   preferredLlm: string;
-  // Funding
-  fundingSourceLabel: string;
   standardAcqPackage: {
     monthsToOps: number;
     purchasePrice: number;
@@ -70,6 +96,22 @@ export interface GlobalResponse {
     refiInterestRate?: number;
     refiAmortizationYears?: number;
     refiPeriodYears?: number;
+  };
+  boutiqueDefinition: {
+    minRooms: number;
+    maxRooms: number;
+    hasFB: boolean;
+    hasEvents: boolean;
+    hasWellness: boolean;
+    minAdr: number;
+    maxAdr: number;
+    level?: string;
+    eventLocations?: number;
+    maxEventCapacity?: number;
+    acreage?: number;
+    privacyLevel?: string;
+    parkingSpaces?: number;
+    description: string;
   };
   updatedAt: string;
 }

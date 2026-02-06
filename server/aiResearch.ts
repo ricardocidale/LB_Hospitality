@@ -4,6 +4,7 @@ import Anthropic from "@anthropic-ai/sdk";
 
 interface ResearchParams {
   type: "property" | "company" | "global";
+  propertyLabel?: string;
   propertyContext?: {
     name: string;
     location: string;
@@ -70,9 +71,9 @@ function handleToolCall(name: string, input: Record<string, any>): string {
   // based on the provided parameters
   switch (name) {
     case "analyze_market":
-      return `Provide market overview analysis for ${input.location} (${input.market_region}). Property type: ${input.property_type}, ${input.room_count} rooms. Include tourism volume, hotel supply metrics, demand trends, RevPAR data, and market positioning for boutique hotels in this specific location. Use your knowledge of this market to provide specific, data-backed metrics with industry sources.`;
+      return `Provide market overview analysis for ${input.location} (${input.market_region}). Property type: ${input.property_type}, ${input.room_count} rooms. Include tourism volume, hotel supply metrics, demand trends, RevPAR data, and market positioning for comparable properties in this specific location. Use your knowledge of this market to provide specific, data-backed metrics with industry sources.`;
     case "analyze_adr":
-      return `Provide ADR analysis for ${input.location}. Current/target ADR: $${input.current_adr}, ${input.room_count} rooms, ${input.property_level} positioning. Has F&B: ${input.has_fb ?? "unknown"}, Events: ${input.has_events ?? "unknown"}, Wellness: ${input.has_wellness ?? "unknown"}. Include market average ADR, boutique hotel ADR range, at least 4 comparable property ADRs, and a recommended ADR range with rationale.`;
+      return `Provide ADR analysis for ${input.location}. Current/target ADR: $${input.current_adr}, ${input.room_count} rooms, ${input.property_level} positioning. Has F&B: ${input.has_fb ?? "unknown"}, Events: ${input.has_events ?? "unknown"}, Wellness: ${input.has_wellness ?? "unknown"}. Include market average ADR, comparable property ADR range, at least 4 comparable property ADRs, and a recommended ADR range with rationale.`;
     case "analyze_occupancy": {
       const targetOcc = typeof input.target_occupancy === "number" ? (input.target_occupancy * 100).toFixed(0) : "70";
       return `Provide occupancy analysis for ${input.location}. ${input.room_count || 20} rooms, target ${targetOcc}% stabilized occupancy, ${input.property_level || "luxury"} positioning, catering: ${input.catering_level || "unknown"}. Include market average occupancy, seasonal patterns (4 seasons with rates and notes), and expected ramp-up timeline.`;
@@ -80,9 +81,9 @@ function handleToolCall(name: string, input: Record<string, any>): string {
     case "analyze_event_demand":
       return `Provide event demand analysis for ${input.location}. ${input.event_locations || 2} event spaces, max capacity ${input.max_event_capacity || 150} guests. Wellness: ${input.has_wellness ?? true}, F&B: ${input.has_fb ?? true}, Privacy: ${input.privacy_level || "high"}, Acreage: ${input.acreage || 5}. Include corporate event demand, wellness retreat potential, wedding/private event demand, estimated event revenue share, and key demand drivers.`;
     case "analyze_cap_rates":
-      return `Provide cap rate analysis for ${input.location} (${input.market_region}). ${input.property_level} boutique hotel, ${input.room_count} rooms${input.purchase_price ? `, purchase price $${input.purchase_price.toLocaleString()}` : ""}. Include market cap rate range, boutique-specific range, at least 3 comparable transactions with cap rates and sale years, and a recommended acquisition/exit cap rate range.`;
+      return `Provide cap rate analysis for ${input.location} (${input.market_region}). ${input.property_level} hospitality property, ${input.room_count} rooms${input.purchase_price ? `, purchase price $${input.purchase_price.toLocaleString()}` : ""}. Include market cap rate range, comparable property range, at least 3 comparable transactions with cap rates and sale years, and a recommended acquisition/exit cap rate range.`;
     case "analyze_competitive_set":
-      return `Provide competitive set analysis for ${input.location}. Subject: ${input.room_count} rooms at $${input.current_adr} ADR, ${input.property_level} positioning. Has events: ${input.has_events ?? true}, wellness: ${input.has_wellness ?? true}, F&B: ${input.has_fb ?? true}. Identify 4-6 comparable boutique hotels with room counts, ADRs, and positioning descriptions.`;
+      return `Provide competitive set analysis for ${input.location}. Subject: ${input.room_count} rooms at $${input.current_adr} ADR, ${input.property_level} positioning. Has events: ${input.has_events ?? true}, wellness: ${input.has_wellness ?? true}, F&B: ${input.has_fb ?? true}. Identify 4-6 comparable properties with room counts, ADRs, and positioning descriptions.`;
     case "analyze_land_value":
       return `Provide land value allocation analysis for ${input.location} (${input.market_region}). Property type: ${input.property_type}, ${input.acreage || 10}+ acres, ${input.room_count || 20} rooms, purchase price: $${(input.purchase_price || 0).toLocaleString()}, building improvements: $${(input.building_improvements || 0).toLocaleString()}, setting: ${input.setting || "rural estate"}. Determine the appropriate percentage of the purchase price attributable to land vs. building/improvements for IRS depreciation purposes. Consider: local land values per acre, ratio of land to total property value in this market, whether the property is in a high-land-value area (urban/resort) vs. lower-value rural setting, comparable hotel land allocations, and county tax assessor land-to-improvement ratios. Provide a recommended land value percentage, market range, assessment methodology, rationale, and key factors.`;
     default:
@@ -92,10 +93,11 @@ function handleToolCall(name: string, input: Record<string, any>): string {
 
 // Build user prompt based on research type and context
 function buildUserPrompt(params: ResearchParams): string {
-  const { type, propertyContext, boutiqueDefinition: bd } = params;
+  const { type, propertyContext, boutiqueDefinition: bd, propertyLabel: pl } = params;
+  const label = pl || "boutique hotel";
   
   if (type === "property" && propertyContext) {
-    return `Analyze the market for this boutique hotel property:
+    return `Analyze the market for this ${label.toLowerCase()} property:
 - Property: ${propertyContext.name}
 - Location: ${propertyContext.location}
 - Market: ${propertyContext.market}
@@ -106,7 +108,7 @@ function buildUserPrompt(params: ResearchParams): string {
 - Property Type: ${propertyContext.type}
 ${propertyContext.purchasePrice ? `- Purchase Price: $${propertyContext.purchasePrice.toLocaleString()}` : ""}
 
-Boutique hotel definition: ${bd.description || "Independently operated, design-forward properties with curated guest experiences."}
+${label} definition: ${bd.description || "Independently operated, design-forward properties with curated guest experiences."}
 - Property level: ${bd.level || "luxury"}
 - Room range: ${bd.minRooms}–${bd.maxRooms} rooms
 - ADR range: $${bd.minAdr}–$${bd.maxAdr}
@@ -121,21 +123,21 @@ Use the available tools to gather data on each analysis dimension, then synthesi
   }
   
   if (type === "company") {
-    return `Provide comprehensive research on hotel management company fee structures, GAAP standards, and industry benchmarks for a boutique hotel management company focused on:
+    return `Provide comprehensive research on hotel management company fee structures, GAAP standards, and industry benchmarks for a ${label.toLowerCase()} management company focused on:
 1. Base management fee structures and industry norms (ASC 606 revenue recognition)
 2. Incentive management fee (IMF) structures and triggers
 3. GAAP-compliant fee recognition standards
 4. Operating expense ratios by department (USALI format)
 5. Management company compensation benchmarks
 6. Typical contract terms and duration
-Focus specifically on boutique hotels specializing in unique events like wellness retreats, corporate retreats, and experiential hospitality.`;
+Focus specifically on ${label.toLowerCase()}s specializing in unique events like wellness retreats, corporate retreats, and experiential hospitality.`;
   }
   
   // global
-  return `Provide comprehensive boutique hotel industry research covering:
-1. Overall boutique hotel market size, growth, and trends
+  return `Provide comprehensive ${label.toLowerCase()} industry research covering:
+1. Overall ${label.toLowerCase()} market size, growth, and trends
 2. Event-focused hospitality: wellness retreats, corporate events, yoga retreats, relationship/couples retreats market data
-3. Financial benchmarks: ADR, occupancy, RevPAR trends for boutique hotels
+3. Financial benchmarks: ADR, occupancy, RevPAR trends for ${label.toLowerCase()}s
 4. Capitalization rates and investment returns
 5. Debt market conditions for hotel acquisitions
 6. Emerging trends in experiential hospitality

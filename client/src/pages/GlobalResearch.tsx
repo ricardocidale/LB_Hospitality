@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 import Layout from "@/components/Layout";
-import { useMarketResearch } from "@/lib/api";
+import { useMarketResearch, useGlobalAssumptions } from "@/lib/api";
 import { PageHeader } from "@/components/ui/page-header";
 import { GlassCard } from "@/components/ui/glass-card";
 import { GlassButton } from "@/components/ui/glass-button";
@@ -31,6 +31,7 @@ function SectionHeader({ icon: Icon, title }: { icon: any; title: string }) {
 }
 
 export default function GlobalResearch() {
+  const { data: global } = useGlobalAssumptions();
   const { data: research, isLoading } = useMarketResearch("global");
   const [, setLocation] = useLocation();
   const [isGenerating, setIsGenerating] = useState(false);
@@ -105,7 +106,7 @@ export default function GlobalResearch() {
       <div className="space-y-6">
         <PageHeader
           title="Global Industry Research"
-          subtitle="Boutique hotel industry data, event hospitality trends, and financial benchmarks"
+          subtitle={`${global?.propertyLabel || "Boutique hotel"} industry data, event hospitality trends, and financial benchmarks`}
           variant="dark"
           backLink="/settings"
           actions={
@@ -123,6 +124,7 @@ export default function GlobalResearch() {
                 onClick={generateResearch}
                 disabled={isGenerating}
                 data-testid="button-update-research"
+                style={isGenerating ? { background: 'linear-gradient(135deg, #F4795B 0%, #e0694e 50%, #d45a40 100%)', opacity: 1 } : undefined}
               >
                 {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
                 {isGenerating ? "Analyzing..." : "Update Research"}
@@ -143,7 +145,7 @@ export default function GlobalResearch() {
             <div className="p-6">
               <div className="flex items-center gap-3 mb-4">
                 <Loader2 className="w-5 h-5 animate-spin text-[#9FBCA4]" />
-                <p className="text-white/70 text-sm">Researching global boutique hotel industry data...</p>
+                <p className="text-white/70 text-sm">Researching global {(global?.propertyLabel || "boutique hotel").toLowerCase()} industry data...</p>
               </div>
               {streamedContent && (
                 <pre className="text-xs text-white/50 whitespace-pre-wrap max-h-40 overflow-y-auto bg-white/5 rounded-lg p-3">

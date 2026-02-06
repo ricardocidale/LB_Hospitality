@@ -242,12 +242,29 @@ export default function Settings() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 font-display">
                   <Hotel className="w-5 h-5 text-[#9FBCA4]" />
-                  Boutique Hotel Definition
-                  <HelpTooltip text="Defines what this model considers a 'boutique hotel.' These parameters guide market research searches, comp set analysis, and financial benchmarks. Boutique hotels are independently operated, design-driven properties focused on curated experiences." />
+                  General Property Description
+                  <HelpTooltip text="Defines the target property profile for the portfolio. These parameters guide market research searches, comp set analysis, and financial benchmarks." />
                 </CardTitle>
                 <CardDescription className="label-text">Characterize the target property profile for the portfolio</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="propertyLabel" className="label-text flex items-center gap-1">
+                    Property Type Label
+                    <HelpTooltip text="This label is used throughout the application wherever 'Boutique Hotel' appears — in page titles, research prompts, tooltips, and financial reports. Change it to match your property concept (e.g., 'Estate Hotel', 'Private Estate', 'Luxury Inn')." />
+                  </Label>
+                  <Input
+                    id="propertyLabel"
+                    value={currentGlobal.propertyLabel || "Boutique Hotel"}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setGlobalDraft({ ...currentGlobal, propertyLabel: value });
+                    }}
+                    placeholder="e.g., Boutique Hotel, Estate Hotel, Private Estate"
+                    className="bg-white max-w-md"
+                    data-testid="input-property-label"
+                  />
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">

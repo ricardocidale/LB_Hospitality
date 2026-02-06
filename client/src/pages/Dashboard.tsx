@@ -1787,7 +1787,7 @@ export default function Dashboard() {
       <div className="space-y-6">
         <PageHeader
           title="Investment Overview"
-          subtitle="L+B Hospitality Group - Boutique Hotel Portfolio"
+          subtitle={`L+B Hospitality Group - ${global?.propertyLabel || "Boutique Hotel"} Portfolio`}
           variant="dark"
           actions={
             <div className="bg-white/10 backdrop-blur-xl rounded-xl px-5 py-3 border border-white/20 text-center">

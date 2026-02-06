@@ -267,16 +267,15 @@ export function generatePropertyProForma(
     
   let cumulativeCash = 0; // Track cumulative cash for ending cash balance
   
-  let currentAdr = property.startAdr;
+  const baseAdr = property.startAdr;
   
   for (let i = 0; i < months; i++) {
     const currentDate = addMonths(modelStart, i);
     const isOperational = !isBefore(currentDate, opsStart);
     const monthsSinceOps = isOperational ? differenceInMonths(currentDate, opsStart) : 0;
     
-    if (i > 0 && i % 12 === 0) {
-      currentAdr = currentAdr * (1 + property.adrGrowthRate);
-    }
+    const opsYear = Math.floor(monthsSinceOps / 12);
+    const currentAdr = baseAdr * Math.pow(1 + property.adrGrowthRate, opsYear);
 
     let occupancy = 0;
     if (isOperational) {

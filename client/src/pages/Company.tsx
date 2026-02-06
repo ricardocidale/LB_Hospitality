@@ -155,7 +155,7 @@ export default function Company() {
     });
   }
 
-  const activePropertyCount = properties.filter(p => p.status === "Operating").length;
+  const activePropertyCount = properties.filter(p => p.status === "Operational").length;
   const tier1Max = global?.staffTier1MaxProperties ?? STAFFING_TIERS[0].maxProperties;
   const tier1Fte = global?.staffTier1Fte ?? STAFFING_TIERS[0].fte;
   const tier2Max = global?.staffTier2MaxProperties ?? STAFFING_TIERS[1].maxProperties;
@@ -178,10 +178,10 @@ export default function Company() {
   const getPropertyYearlyIncentiveFee = (propIdx: number, year: number) => {
     const pf = propertyFinancials[propIdx].financials;
     const yearData = pf.slice(year * 12, (year + 1) * 12);
-    return yearData.reduce((a, m) => a + m.gop, 0) * global.incentiveManagementFee;
+    return yearData.reduce((a, m) => a + m.feeIncentive, 0);
   };
 
-  const years = Array.from({ length: 10 }, (_, i) => getFiscalYear(i));
+  const years = Array.from({ length: projectionYears }, (_, i) => getFiscalYear(i));
 
   const generateCompanyIncomeData = () => {
     const rows: { category: string; values: number[]; isHeader?: boolean; indent?: number }[] = [];

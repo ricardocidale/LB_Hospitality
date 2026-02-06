@@ -156,16 +156,16 @@ export default function Login() {
                   type="submit"
                   disabled={isLoading}
                   data-testid="button-login"
-                  className="group relative w-[24px] h-[24px] rounded-full overflow-hidden transition-all duration-500 ease-out hover:scale-110 active:scale-90 disabled:opacity-60 disabled:pointer-events-none"
+                  className="group relative w-28 h-28 rounded-full overflow-hidden transition-all duration-500 ease-out hover:scale-105 active:scale-95 disabled:opacity-60 disabled:pointer-events-none"
                 >
                   <div className="absolute inset-0 bg-gradient-to-b from-[#b8d4be] via-[#9FBCA4] to-[#6a9a78] rounded-full" />
                   <div className="absolute inset-0 bg-gradient-to-br from-white/30 via-transparent to-black/15 rounded-full" />
                   <div className="absolute inset-[1px] rounded-full bg-gradient-to-b from-[#aacdb3] via-[#9FBCA4] to-[#7aaa8a]" />
-                  <div className="absolute top-[1px] left-[15%] right-[15%] h-[45%] rounded-full bg-gradient-to-b from-white/50 via-white/20 to-transparent" />
-                  <div className="absolute inset-0 rounded-full shadow-[inset_0_1px_2px_rgba(255,255,255,0.35),inset_0_-1px_3px_rgba(0,0,0,0.15),0_2px_10px_rgba(159,188,164,0.4),0_4px_16px_rgba(37,125,65,0.2)]" />
-                  <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 shadow-[0_3px_15px_rgba(159,188,164,0.6),0_6px_20px_rgba(37,125,65,0.3)]" />
-                  <span className="relative flex items-center justify-center text-white" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.2)' }}>
-                    {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <span className="text-[10px] font-bold tracking-tight">&#x279C;</span>}
+                  <div className="absolute top-[2px] left-[15%] right-[15%] h-[45%] rounded-full bg-gradient-to-b from-white/50 via-white/20 to-transparent" />
+                  <div className="absolute inset-0 rounded-full shadow-[inset_0_2px_4px_rgba(255,255,255,0.35),inset_0_-2px_6px_rgba(0,0,0,0.15),0_4px_20px_rgba(159,188,164,0.4),0_8px_32px_rgba(37,125,65,0.2)]" />
+                  <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 shadow-[0_6px_30px_rgba(159,188,164,0.6),0_12px_40px_rgba(37,125,65,0.3)]" />
+                  <span className="relative flex items-center justify-center gap-2 text-white font-semibold text-sm tracking-wide" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.2)' }}>
+                    {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Sign In"}
                   </span>
                 </button>
               </div>

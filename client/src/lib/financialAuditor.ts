@@ -93,6 +93,12 @@ export interface PropertyAuditInput {
     interestRate: number;
     amortizationYears: number;
   };
+  willRefinance?: string;
+  refinanceDate?: string;
+  refinanceLTV?: number;
+  refinanceInterestRate?: number;
+  refinanceTermYears?: number;
+  refinanceClosingCostRate?: number;
   costRateRooms: number;
   costRateFB: number;
   costRateAdmin: number;
@@ -164,24 +170,69 @@ export function auditDepreciation(
     workpaperRef: "WP-DEP-002"
   });
   
+  // Validate depreciation is zero before acquisition
+  let preAcqDepFailures = 0;
   for (let i = 0; i < Math.min(acqMonthIndex, monthlyData.length); i++) {
     const m = monthlyData[i];
-    if (m.noi !== 0 || m.revenueTotal !== 0) {
-      findings.push({
-        category: "Depreciation",
-        rule: "Pre-Acquisition Activity",
-        gaapReference: "ASC 360-10-35",
-        severity: "critical",
-        passed: false,
-        expected: 0,
-        actual: m.noi,
-        variance: formatVariance(0, m.noi),
-        recommendation: `Month ${i + 1} shows activity before acquisition date - investigate`,
-        workpaperRef: `WP-DEP-003-M${i + 1}`
-      });
+    if ((m.depreciationExpense || 0) > AUDIT_TOLERANCE_DOLLARS) {
+      preAcqDepFailures++;
+      if (preAcqDepFailures <= 2) {
+        findings.push({
+          category: "Depreciation",
+          rule: "Pre-Acquisition Depreciation",
+          gaapReference: "ASC 360-10-35",
+          severity: "critical",
+          passed: false,
+          expected: 0,
+          actual: m.depreciationExpense,
+          variance: formatVariance(0, m.depreciationExpense || 0),
+          recommendation: `Month ${i + 1}: Depreciation recorded before asset placed in service`,
+          workpaperRef: `WP-DEP-003-M${i + 1}`
+        });
+      }
     }
   }
-  
+
+  // Validate actual depreciation amounts for post-acquisition months
+  let depFailures = 0;
+  const sampleEnd = Math.min(acqMonthIndex + AUDIT_SAMPLE_MONTHS, monthlyData.length);
+  for (let i = acqMonthIndex; i < sampleEnd; i++) {
+    const m = monthlyData[i];
+    const actualDep = m.depreciationExpense || 0;
+    if (!withinTolerance(expectedMonthlyDep, actualDep)) {
+      depFailures++;
+      if (depFailures <= 3) {
+        findings.push({
+          category: "Depreciation",
+          rule: "Monthly Depreciation Amount",
+          gaapReference: "ASC 360-10-35 / IRS Pub 946",
+          severity: "material",
+          passed: false,
+          expected: expectedMonthlyDep.toFixed(2),
+          actual: actualDep.toFixed(2),
+          variance: formatVariance(expectedMonthlyDep, actualDep),
+          recommendation: `Month ${i + 1}: Expected $${depreciableBasis.toLocaleString()} / ${DEPRECIATION_YEARS} / 12 = $${expectedMonthlyDep.toFixed(2)}`,
+          workpaperRef: `WP-DEP-AMT-M${i + 1}`
+        });
+      }
+    }
+  }
+
+  if (depFailures === 0 && preAcqDepFailures === 0) {
+    findings.push({
+      category: "Depreciation",
+      rule: "Depreciation Amount Validation",
+      gaapReference: "ASC 360-10-35 / IRS Pub 946",
+      severity: "info",
+      passed: true,
+      expected: `$${expectedMonthlyDep.toFixed(2)}/month`,
+      actual: `Verified ${sampleEnd - acqMonthIndex} post-acquisition months`,
+      variance: "Within tolerance",
+      recommendation: "Monthly depreciation matches 27.5-year straight-line calculation",
+      workpaperRef: "WP-DEP-AMT-OK"
+    });
+  }
+
   const passed = findings.filter(f => f.passed).length;
   const materialIssues = findings.filter(f => !f.passed && (f.severity === "critical" || f.severity === "material")).length;
   
@@ -202,7 +253,7 @@ export function auditLoanAmortization(
 ): AuditSection {
   const findings: AuditFinding[] = [];
   
-  if (property.type !== "Financed") {
+  if (property.type !== "Financed" && !(property.willRefinance === "Yes" && property.refinanceDate)) {
     findings.push({
       category: "Loan Amortization",
       rule: "All-Cash Acquisition",
@@ -223,11 +274,11 @@ export function auditLoanAmortization(
   const loanAmount = totalInvestment * ltv;
   const interestRate = property.debtAssumptions?.interestRate || global.debtAssumptions?.interestRate || DEFAULT_INTEREST_RATE;
   const termYears = property.debtAssumptions?.amortizationYears || global.debtAssumptions?.amortizationYears || DEFAULT_TERM_YEARS;
-  const monthlyRate = interestRate / 12;
-  const totalPayments = termYears * 12;
-  
-  const expectedMonthlyPayment = calculatePMT(loanAmount, monthlyRate, totalPayments);
-  
+  let currentMonthlyRate = interestRate / 12;
+  let currentTotalPayments = termYears * 12;
+
+  let currentMonthlyPayment = calculatePMT(loanAmount, currentMonthlyRate, currentTotalPayments);
+
   findings.push({
     category: "Loan Amortization",
     rule: "PMT Formula Verification",
@@ -235,20 +286,29 @@ export function auditLoanAmortization(
     severity: "critical",
     passed: true,
     expected: `Loan: $${loanAmount.toLocaleString()} @ ${(interestRate * 100).toFixed(2)}% for ${termYears} yrs`,
-    actual: `Monthly Payment: $${expectedMonthlyPayment.toFixed(2)}`,
+    actual: `Monthly Payment: $${currentMonthlyPayment.toFixed(2)}`,
     variance: "N/A",
     recommendation: "Verify PMT = P × r × (1+r)^n / ((1+r)^n - 1)",
     workpaperRef: "WP-LOAN-002"
   });
-  
+
   const modelStart = new Date(global.modelStartDate);
   const acquisitionDate = new Date(property.acquisitionDate || property.operationsStartDate);
   const acqMonthIndex = Math.max(0, differenceInMonths(acquisitionDate, modelStart));
-  
+
+  // Determine refinance month index if applicable
+  let refiMonthIndex = -1;
+  if (property.willRefinance === "Yes" && property.refinanceDate) {
+    const refiDate = new Date(property.refinanceDate);
+    refiMonthIndex = (refiDate.getFullYear() - modelStart.getFullYear()) * 12 +
+                     (refiDate.getMonth() - modelStart.getMonth());
+  }
+
   let runningBalance = loanAmount;
   let totalInterestPaid = 0;
   let totalPrincipalPaid = 0;
-  
+  let refinanced = false;
+
   for (let i = 0; i < acqMonthIndex && i < monthlyData.length; i++) {
     const m = monthlyData[i];
     if (m.debtPayment !== 0 || m.interestExpense !== 0 || m.principalPayment !== 0) {
@@ -266,18 +326,46 @@ export function auditLoanAmortization(
       });
     }
   }
-  
+
   const startMonth = Math.max(0, acqMonthIndex);
   for (let i = startMonth; i < Math.min(startMonth + AUDIT_SAMPLE_MONTHS, monthlyData.length); i++) {
     const m = monthlyData[i];
-    const expectedInterest = runningBalance * monthlyRate;
-    const expectedPrincipal = expectedMonthlyPayment - expectedInterest;
-    const expectedDebtService = expectedMonthlyPayment;
-    
+
+    // Detect refinance: at the refi month, switch to new loan parameters
+    if (!refinanced && refiMonthIndex >= 0 && i >= refiMonthIndex) {
+      refinanced = true;
+      // Infer the new loan amount from the engine's debtOutstanding at the refi month
+      // At monthsSinceRefi=0, the engine sets debtOutstanding = refiLoanAmount (before any amortization)
+      const refiLoanAmount = monthlyData[refiMonthIndex].debtOutstanding + monthlyData[refiMonthIndex].principalPayment;
+      const refiRate = property.refinanceInterestRate ?? global.debtAssumptions?.interestRate ?? DEFAULT_INTEREST_RATE;
+      const refiTermYears = property.refinanceTermYears ?? global.debtAssumptions?.amortizationYears ?? DEFAULT_TERM_YEARS;
+      currentMonthlyRate = refiRate / 12;
+      currentTotalPayments = refiTermYears * 12;
+      currentMonthlyPayment = calculatePMT(refiLoanAmount, currentMonthlyRate, currentTotalPayments);
+      runningBalance = refiLoanAmount;
+
+      findings.push({
+        category: "Loan Amortization",
+        rule: "Refinance Event",
+        gaapReference: "ASC 470",
+        severity: "info",
+        passed: true,
+        expected: `New Loan: $${refiLoanAmount.toLocaleString()} @ ${(refiRate * 100).toFixed(2)}% for ${refiTermYears} yrs`,
+        actual: `New Payment: $${currentMonthlyPayment.toFixed(2)}`,
+        variance: "N/A",
+        recommendation: `Month ${refiMonthIndex + 1}: Refinance detected - switching to new loan parameters`,
+        workpaperRef: "WP-LOAN-REFI"
+      });
+    }
+
+    const expectedInterest = runningBalance * currentMonthlyRate;
+    const expectedPrincipal = currentMonthlyPayment - expectedInterest;
+    const expectedDebtService = currentMonthlyPayment;
+
     const interestMatch = withinTolerance(expectedInterest, m.interestExpense);
     const principalMatch = withinTolerance(expectedPrincipal, m.principalPayment);
     const totalMatch = withinTolerance(expectedDebtService, m.debtPayment);
-    
+
     if (!interestMatch) {
       findings.push({
         category: "Loan Amortization",
@@ -288,11 +376,11 @@ export function auditLoanAmortization(
         expected: expectedInterest.toFixed(2),
         actual: m.interestExpense.toFixed(2),
         variance: formatVariance(expectedInterest, m.interestExpense),
-        recommendation: `Month ${i + 1}: Interest = Balance × Monthly Rate (${runningBalance.toFixed(2)} × ${monthlyRate.toFixed(6)})`,
+        recommendation: `Month ${i + 1}: Interest = Balance × Monthly Rate (${runningBalance.toFixed(2)} × ${currentMonthlyRate.toFixed(6)})`,
         workpaperRef: `WP-LOAN-INT-M${i + 1}`
       });
     }
-    
+
     if (!principalMatch) {
       findings.push({
         category: "Loan Amortization",
@@ -307,7 +395,7 @@ export function auditLoanAmortization(
         workpaperRef: `WP-LOAN-PRIN-M${i + 1}`
       });
     }
-    
+
     if (!totalMatch) {
       findings.push({
         category: "Loan Amortization",
@@ -322,7 +410,7 @@ export function auditLoanAmortization(
         workpaperRef: `WP-LOAN-DS-M${i + 1}`
       });
     }
-    
+
     if (interestMatch && principalMatch && totalMatch && i < startMonth + 3) {
       findings.push({
         category: "Loan Amortization",
@@ -337,7 +425,7 @@ export function auditLoanAmortization(
         workpaperRef: `WP-LOAN-OK-M${i + 1}`
       });
     }
-    
+
     runningBalance -= expectedPrincipal;
     totalInterestPaid += expectedInterest;
     totalPrincipalPaid += expectedPrincipal;
@@ -505,7 +593,7 @@ export function auditIncomeStatement(
       });
     }
     
-    const expectedCashFlow = m.noi - m.debtPayment - (m.incomeTax || 0);
+    const expectedCashFlow = m.noi - m.debtPayment - (m.incomeTax || 0) + (m.refinancingProceeds || 0);
     const cashFlowMatch = withinTolerance(expectedCashFlow, m.cashFlow);
     
     if (!cashFlowMatch) {

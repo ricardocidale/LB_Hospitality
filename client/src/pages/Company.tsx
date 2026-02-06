@@ -92,8 +92,9 @@ export default function Company() {
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState("income");
   const chartRef = useRef<HTMLDivElement>(null);
+  const tableRef = useRef<HTMLDivElement>(null);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
-  const [exportType, setExportType] = useState<'pdf' | 'chart'>('pdf');
+  const [exportType, setExportType] = useState<'pdf' | 'chart' | 'tablePng'>('pdf');
 
   const toggleRow = (rowId: string) => {
     setExpandedRows(prev => {
@@ -602,9 +603,31 @@ export default function Company() {
     }
   };
   
+  const exportTablePNG = async () => {
+    if (!tableRef.current) return;
+    try {
+      const scale = 2;
+      const dataUrl = await domtoimage.toPng(tableRef.current, {
+        bgcolor: '#ffffff',
+        quality: 1,
+        style: { transform: `scale(${scale})`, transformOrigin: 'top left' },
+        width: tableRef.current.scrollWidth * scale,
+        height: tableRef.current.scrollHeight * scale,
+      });
+      const link = document.createElement('a');
+      link.download = `company-${activeTab}-table.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (error) {
+      console.error('Error exporting table:', error);
+    }
+  };
+
   const handleExport = (orientation: 'landscape' | 'portrait') => {
     if (exportType === 'pdf') {
       exportCompanyPDF(activeTab as 'income' | 'cashflow' | 'balance', orientation);
+    } else if (exportType === 'tablePng') {
+      exportTablePNG();
     } else {
       exportChartPNG(orientation);
     }
@@ -616,7 +639,7 @@ export default function Company() {
         open={exportDialogOpen}
         onClose={() => setExportDialogOpen(false)}
         onExport={handleExport}
-        title={exportType === 'pdf' ? 'Export PDF' : 'Export Chart'}
+        title={exportType === 'pdf' ? 'Export PDF' : exportType === 'tablePng' ? 'Export Table as PNG' : 'Export Chart'}
       />
       <div className="space-y-6">
         {/* Page Header */}
@@ -706,6 +729,10 @@ export default function Company() {
                 <ImageIcon className="w-4 h-4" />
                 Export Chart
               </GlassButton>
+              <GlassButton variant="export" size="sm" onClick={() => { setExportType('tablePng'); setExportDialogOpen(true); }} data-testid="button-export-table-png">
+                <ImageIcon className="w-4 h-4" />
+                Export PNG
+              </GlassButton>
             </div>
           </div>
 
@@ -792,7 +819,7 @@ export default function Company() {
           
           <TabsContent value="income" className="mt-6">
             {/* Income Statement */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border">
+            <div ref={activeTab === 'income' ? tableRef : undefined} className="bg-white rounded-2xl p-6 shadow-sm border">
               <div>
                 <h3 className="text-lg font-display text-gray-900 mb-4">Income Statement - {global?.companyName || "L+B Hospitality Co."}</h3>
                 <div className="overflow-x-auto">
@@ -1082,7 +1109,7 @@ export default function Company() {
           
           <TabsContent value="cashflow" className="mt-6">
             {/* Cash Flow Statement */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border">
+            <div ref={activeTab === 'cashflow' ? tableRef : undefined} className="bg-white rounded-2xl p-6 shadow-sm border">
               <div>
                 <h3 className="text-lg font-display text-gray-900 mb-4">Cash Flow Statement - {global?.companyName || "L+B Hospitality Co."}</h3>
                 <div className="overflow-x-auto">
@@ -1421,7 +1448,7 @@ export default function Company() {
 
           <TabsContent value="balance" className="mt-6">
             {/* Balance Sheet */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border">
+            <div ref={activeTab === 'balance' ? tableRef : undefined} className="bg-white rounded-2xl p-6 shadow-sm border">
               <div>
                 <h3 className="text-lg font-display text-gray-900 mb-4">Balance Sheet - {global?.companyName || "L+B Hospitality Co."} (As of {getFiscalYear(9)})</h3>
                 {(() => {

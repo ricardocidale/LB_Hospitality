@@ -110,13 +110,16 @@ function independentPropertyCalc(property: any, global: any) {
   const opsStart = new Date(property.operationsStartDate);
   const acquisitionDate = property.acquisitionDate ? new Date(property.acquisitionDate) : opsStart;
 
-  const buildingValue = property.purchasePrice + (property.buildingImprovements ?? 0);
-  const monthlyDepreciation = buildingValue / DEPRECIATION_YEARS / 12;
+  const landPct = property.landValuePercent ?? 0.25;
+  const depreciableBasis = property.purchasePrice * (1 - landPct) + (property.buildingImprovements ?? 0);
+  const landValue = property.purchasePrice * landPct;
+  const monthlyDepreciation = depreciableBasis / DEPRECIATION_YEARS / 12;
 
+  const totalPropertyValue = property.purchasePrice + (property.buildingImprovements ?? 0);
   const ltv = property.acquisitionLTV ?? global.debtAssumptions?.acqLTV ?? DEFAULT_LTV;
-  const originalLoanAmount = property.type === "Financed" ? buildingValue * ltv : 0;
-  const loanRate = global.debtAssumptions?.interestRate ?? DEFAULT_INTEREST_RATE;
-  const loanTerm = global.debtAssumptions?.amortizationYears ?? DEFAULT_TERM_YEARS;
+  const originalLoanAmount = property.type === "Financed" ? totalPropertyValue * ltv : 0;
+  const loanRate = property.acquisitionInterestRate ?? global.debtAssumptions?.interestRate ?? DEFAULT_INTEREST_RATE;
+  const loanTerm = property.acquisitionTermYears ?? global.debtAssumptions?.amortizationYears ?? DEFAULT_TERM_YEARS;
   const monthlyRate = loanRate / 12;
   const totalPayments = loanTerm * 12;
   const monthlyPayment = calculatePMT(originalLoanAmount, monthlyRate, totalPayments);
@@ -138,8 +141,9 @@ function independentPropertyCalc(property: any, global: any) {
         (currentDate.getMonth() - opsStart.getMonth());
     }
 
-    if (i > 0 && i % 12 === 0) {
-      currentAdr = currentAdr * (1 + property.adrGrowthRate);
+    if (isOperational && monthsSinceOps > 0 && monthsSinceOps % 12 === 0) {
+      const opsYear = Math.floor(monthsSinceOps / 12);
+      currentAdr = property.startAdr * Math.pow(1 + property.adrGrowthRate, opsYear);
     }
 
     let occupancy = 0;
@@ -225,7 +229,7 @@ function independentPropertyCalc(property: any, global: any) {
         (currentDate.getMonth() - acquisitionDate.getMonth());
     }
 
-    if (isOperational && property.type === "Financed" && originalLoanAmount > 0 && monthlyRate > 0) {
+    if (isAcquired && property.type === "Financed" && originalLoanAmount > 0 && monthlyRate > 0) {
       debtPayment = monthlyPayment;
       let remainingBalance = originalLoanAmount;
       for (let m = 0; m < monthsSinceAcquisition && m < totalPayments; m++) {
@@ -238,12 +242,14 @@ function independentPropertyCalc(property: any, global: any) {
       principalPayment = monthlyPayment - interestExpense;
     }
 
-    const netIncome = noi - interestExpense;
-    const cashFlow = noi - debtPayment;
-
     const depreciationExpense = isAcquired ? monthlyDepreciation : 0;
+    const taxableIncome = noi - interestExpense - depreciationExpense;
+    const incomeTax = taxableIncome > 0 ? taxableIncome * (property.taxRate ?? 0.21) : 0;
+    const netIncome = noi - interestExpense - depreciationExpense - incomeTax;
+    const cashFlow = noi - debtPayment - incomeTax;
+
     const accumulatedDepreciation = isAcquired ? monthlyDepreciation * (monthsSinceAcquisition + 1) : 0;
-    const propertyValue = isAcquired ? buildingValue - accumulatedDepreciation : 0;
+    const propertyValue = isAcquired ? landValue + depreciableBasis - accumulatedDepreciation : 0;
 
     const operatingCashFlow = netIncome + depreciationExpense;
     const financingCashFlow = -principalPayment;
@@ -303,11 +309,11 @@ export function runIndependentVerification(properties: any[], globalAssumptions:
     const checks: CheckResult[] = [];
     const independentCalc = independentPropertyCalc(property, globalAssumptions);
 
-    const buildingValue = property.purchasePrice + (property.buildingImprovements ?? 0);
+    const checkPropertyValue = property.purchasePrice + (property.buildingImprovements ?? 0);
     const ltv = property.acquisitionLTV ?? globalAssumptions.debtAssumptions?.acqLTV ?? DEFAULT_LTV;
-    const loanAmount = property.type === "Financed" ? buildingValue * ltv : 0;
-    const loanRate = globalAssumptions.debtAssumptions?.interestRate ?? DEFAULT_INTEREST_RATE;
-    const loanTerm = globalAssumptions.debtAssumptions?.amortizationYears ?? DEFAULT_TERM_YEARS;
+    const loanAmount = property.type === "Financed" ? checkPropertyValue * ltv : 0;
+    const loanRate = property.acquisitionInterestRate ?? globalAssumptions.debtAssumptions?.interestRate ?? DEFAULT_INTEREST_RATE;
+    const loanTerm = property.acquisitionTermYears ?? globalAssumptions.debtAssumptions?.amortizationYears ?? DEFAULT_TERM_YEARS;
 
     const firstOperationalMonth = independentCalc.findIndex((m: any) => m.revenueRooms > 0);
 
@@ -368,21 +374,21 @@ export function runIndependentVerification(properties: any[], globalAssumptions:
       ));
 
       checks.push(check(
-        "Net Income = NOI - Interest",
+        "Net Income = NOI - Interest - Depreciation - Tax",
         "P&L",
-        "ASC 470",
-        "NOI - Interest Expense (principal excluded per GAAP)",
-        m.noi - m.interestExpense,
+        "ASC 470 / ASC 360",
+        "NOI - Interest - Depreciation - Income Tax",
+        m.noi - m.interestExpense - m.depreciationExpense - (Math.max(0, m.noi - m.interestExpense - m.depreciationExpense) * (property.taxRate ?? 0.21)),
         m.netIncome,
         "critical"
       ));
 
       checks.push(check(
-        "Cash Flow = NOI - Debt Service",
+        "Cash Flow = NOI - Debt Service - Tax",
         "Cash Flow",
         "ASC 230",
-        "NOI - Total Debt Payment (interest + principal)",
-        m.noi - m.debtPayment,
+        "NOI - Total Debt Payment (interest + principal) - Income Tax",
+        m.noi - m.debtPayment - (Math.max(0, m.noi - m.interestExpense - m.depreciationExpense) * (property.taxRate ?? 0.21)),
         m.cashFlow,
         "critical"
       ));
@@ -408,12 +414,13 @@ export function runIndependentVerification(properties: any[], globalAssumptions:
       ));
     }
 
+    const depBasis = property.purchasePrice * (1 - (property.landValuePercent ?? 0.25)) + (property.buildingImprovements ?? 0);
     checks.push(check(
-      "Annual Depreciation",
+      "Annual Depreciation (Land Excluded)",
       "Balance Sheet",
       "ASC 360 / IRS Pub 946",
-      `$${buildingValue.toLocaleString()} ÷ ${DEPRECIATION_YEARS} years`,
-      buildingValue / DEPRECIATION_YEARS,
+      `$${depBasis.toLocaleString()} depreciable basis ÷ ${DEPRECIATION_YEARS} years`,
+      depBasis / DEPRECIATION_YEARS,
       independentCalc.find((m: any) => m.depreciationExpense > 0)?.depreciationExpense * 12 || 0,
       "critical"
     ));

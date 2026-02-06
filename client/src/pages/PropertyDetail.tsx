@@ -143,12 +143,12 @@ export default function PropertyDetail() {
     const cfiData = cashFlowData.map((cf, i) => {
       const ffe = yearlyDetails[i].expenseFFE;
       const acqCost = i === csvAcqYear ? csvTotalPropertyCost : 0;
-      return -acqCost - ffe;
+      return -acqCost - ffe + cf.exitValue;
     });
     const cffData = cashFlowData.map((cf, i) => {
       const eqContrib = i === csvAcqYear ? csvLoan.equityInvested : 0;
       const loanProceeds = i === csvAcqYear && csvLoan.loanAmount > 0 ? csvLoan.loanAmount : 0;
-      return eqContrib + loanProceeds - cf.principalPayment + cf.refinancingProceeds + cf.exitValue;
+      return eqContrib + loanProceeds - cf.principalPayment + cf.refinancingProceeds;
     });
     const netChange = cfoData.map((cfo, i) => cfo + cfiData[i] + cffData[i]);
     let runCash = 0;
@@ -189,6 +189,7 @@ export default function PropertyDetail() {
       ["INVESTING CASH FLOW"],
       ["Property Acquisition", ...cashFlowData.map((_, i) => (i === csvAcqYear ? -csvTotalPropertyCost : 0).toFixed(0))],
       ["FF&E Reserve / Capital Improvements", ...yearlyDetails.map(y => (-y.expenseFFE).toFixed(0))],
+      ["Sale Proceeds (Net Exit Value)", ...cashFlowData.map(y => y.exitValue.toFixed(0))],
       ["Cash from Investing", ...cfiData.map(v => v.toFixed(0))],
       [""],
       ["FINANCING CASH FLOW"],
@@ -196,7 +197,6 @@ export default function PropertyDetail() {
       ["Loan Proceeds", ...cashFlowData.map((_, i) => (i === csvAcqYear && csvLoan.loanAmount > 0 ? csvLoan.loanAmount : 0).toFixed(0))],
       ["Less: Principal Repayments", ...cashFlowData.map(y => (-y.principalPayment).toFixed(0))],
       ["Refinancing Proceeds", ...cashFlowData.map(y => y.refinancingProceeds.toFixed(0))],
-      ["Sale Proceeds (Net Exit Value)", ...cashFlowData.map(y => y.exitValue.toFixed(0))],
       ["Cash from Financing", ...cffData.map(v => v.toFixed(0))],
       [""],
       ["Net Increase (Decrease) in Cash", ...netChange.map(v => v.toFixed(0))],
@@ -249,12 +249,12 @@ export default function PropertyDetail() {
     const pdfCfi = cashFlowData.map((cf, i) => {
       const ffe = yearlyDetails[i].expenseFFE;
       const acqCost = i === pdfAcqYear ? pdfTotalPropertyCost : 0;
-      return -acqCost - ffe;
+      return -acqCost - ffe + cf.exitValue;
     });
     const pdfCff = cashFlowData.map((cf, i) => {
       const eqContrib = i === pdfAcqYear ? pdfLoan.equityInvested : 0;
       const loanProceeds = i === pdfAcqYear && pdfLoan.loanAmount > 0 ? pdfLoan.loanAmount : 0;
-      return eqContrib + loanProceeds - cf.principalPayment + cf.refinancingProceeds + cf.exitValue;
+      return eqContrib + loanProceeds - cf.principalPayment + cf.refinancingProceeds;
     });
     const pdfNetChange = pdfCfo.map((cfo, i) => cfo + pdfCfi[i] + pdfCff[i]);
     let pdfRunCash = 0;
@@ -282,13 +282,13 @@ export default function PropertyDetail() {
       [{ content: "INVESTING CASH FLOW", colSpan: years + 1, styles: { fontStyle: "bold", fillColor: iceBlueHeader } }],
       ["Property Acquisition", ...cashFlowData.map((_, i) => fmtNum(i === pdfAcqYear ? -pdfTotalPropertyCost : 0))],
       ["FF&E Reserve / Capital Improvements", ...yearlyDetails.map(y => fmtNum(-y.expenseFFE))],
+      ["Sale Proceeds (Net Exit Value)", ...cashFlowData.map(y => fmtNum(y.exitValue))],
       [{ content: "Cash from Investing", styles: { fontStyle: "bold", fillColor: [208, 234, 251] } }, ...pdfCfi.map(v => ({ content: fmtNum(v), styles: { fontStyle: "bold", fillColor: [208, 234, 251] } }))],
       [{ content: "FINANCING CASH FLOW", colSpan: years + 1, styles: { fontStyle: "bold", fillColor: iceBlueHeader } }],
       ["Equity Contribution", ...cashFlowData.map((_, i) => fmtNum(i === pdfAcqYear ? pdfLoan.equityInvested : 0))],
       ["Loan Proceeds", ...cashFlowData.map((_, i) => fmtNum(i === pdfAcqYear && pdfLoan.loanAmount > 0 ? pdfLoan.loanAmount : 0))],
       ["Less: Principal Repayments", ...cashFlowData.map(y => fmtNum(-y.principalPayment))],
       ["Refinancing Proceeds", ...cashFlowData.map(y => fmtNum(y.refinancingProceeds))],
-      ["Sale Proceeds (Net Exit Value)", ...cashFlowData.map(y => fmtNum(y.exitValue))],
       [{ content: "Cash from Financing", styles: { fontStyle: "bold", fillColor: [208, 234, 251] } }, ...pdfCff.map(v => ({ content: fmtNum(v), styles: { fontStyle: "bold", fillColor: [208, 234, 251] } }))],
       [{ content: "Net Increase (Decrease) in Cash", styles: { fontStyle: "bold" } }, ...pdfNetChange.map(v => ({ content: fmtNum(v), styles: { fontStyle: "bold" } }))],
       ["Opening Cash Balance", ...pdfOpenCash.map(v => fmtNum(v))],
@@ -360,8 +360,8 @@ export default function PropertyDetail() {
       ];
       
       const chartTitle = activeTab === "cashflow" 
-        ? '10-Year Revenue, NOI, and Cash Flow Trend'
-        : '10-Year Revenue, GOP, and NOI Trend';
+        ? `${projectionYears}-Year Revenue, NOI, and Cash Flow Trend`
+        : `${projectionYears}-Year Revenue, GOP, and NOI Trend`;
       doc.text(chartTitle, 14, 22);
       
       drawLineChart({
@@ -370,7 +370,7 @@ export default function PropertyDetail() {
         y: 30,
         width: chartWidth,
         height: 150,
-        title: `${property.name} - Financial Performance (10-Year Projection)`,
+        title: `${property.name} - Financial Performance (${projectionYears}-Year Projection)`,
         series: chartSeries
       });
     }
@@ -579,7 +579,7 @@ export default function PropertyDetail() {
             {/* Income Statement Chart Card - Light Theme */}
             <div ref={incomeChartRef} className="relative overflow-hidden rounded-3xl p-6 bg-white shadow-lg border border-gray-100">
               <div className="relative">
-                <h3 className="text-lg font-display text-gray-900 mb-4">Income Statement Trends (10-Year Projection)</h3>
+                <h3 className="text-lg font-display text-gray-900 mb-4">Income Statement Trends ({projectionYears}-Year Projection)</h3>
                 <div className="h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={yearlyChartData}>
@@ -660,7 +660,7 @@ export default function PropertyDetail() {
               </div>
             </div>
             <div ref={incomeTableRef}>
-              <YearlyIncomeStatement data={financials} years={10} startYear={getFiscalYear(0)} />
+              <YearlyIncomeStatement data={financials} years={projectionYears} startYear={getFiscalYear(0)} />
             </div>
           </TabsContent>
           

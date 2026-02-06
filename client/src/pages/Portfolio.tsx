@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import { useProperties, useDeleteProperty, useCreateProperty, useGlobalAssumptions } from "@/lib/api";
 import { formatMoney } from "@/lib/financialEngine";
@@ -46,6 +46,72 @@ import {
 } from "@/lib/constants";
 import { PropertyImagePicker } from "@/features/property-images";
 
+function formatCurrencyDisplay(value: number): string {
+  if (!value) return "";
+  return new Intl.NumberFormat("en-US").format(value);
+}
+
+function parseCurrencyInput(raw: string): number {
+  return parseFloat(raw.replace(/[^0-9.]/g, "")) || 0;
+}
+
+function addMonths(dateStr: string, months: number): string {
+  if (!dateStr) return "";
+  const d = new Date(dateStr + "T00:00:00");
+  d.setMonth(d.getMonth() + months);
+  return d.toISOString().slice(0, 10);
+}
+
+function CurrencyInput({
+  value,
+  onChange,
+  id,
+  testId,
+  placeholder = "$0",
+}: {
+  value: number;
+  onChange: (val: number) => void;
+  id: string;
+  testId: string;
+  placeholder?: string;
+}) {
+  const [displayValue, setDisplayValue] = useState(value ? formatCurrencyDisplay(value) : "");
+  const [isFocused, setIsFocused] = useState(false);
+
+  useEffect(() => {
+    if (!isFocused) {
+      setDisplayValue(value ? formatCurrencyDisplay(value) : "");
+    }
+  }, [value, isFocused]);
+
+  return (
+    <div className="relative">
+      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">$</span>
+      <Input
+        id={id}
+        data-testid={testId}
+        placeholder={placeholder}
+        className="pl-7"
+        value={isFocused ? displayValue : (value ? formatCurrencyDisplay(value) : "")}
+        onFocus={() => {
+          setIsFocused(true);
+          setDisplayValue(value ? String(value) : "");
+        }}
+        onBlur={() => {
+          setIsFocused(false);
+          const parsed = parseCurrencyInput(displayValue);
+          onChange(parsed);
+        }}
+        onChange={(e) => {
+          setDisplayValue(e.target.value);
+          const parsed = parseCurrencyInput(e.target.value);
+          onChange(parsed);
+        }}
+      />
+    </div>
+  );
+}
+
 export default function Portfolio() {
   const { data: properties, isLoading } = useProperties();
   const { data: global } = useGlobalAssumptions();
@@ -76,7 +142,17 @@ export default function Portfolio() {
     stabilizationMonths: DEFAULT_STABILIZATION_MONTHS,
     type: "Full Equity",
     cateringLevel: "None",
+    fullCateringPercent: DEFAULT_FULL_CATERING_PCT,
+    partialCateringPercent: DEFAULT_PARTIAL_CATERING_PCT,
   });
+
+  const handleAcquisitionDateChange = (date: string) => {
+    const updates: Partial<typeof formData> = { acquisitionDate: date };
+    if (date && !formData.operationsStartDate) {
+      updates.operationsStartDate = addMonths(date, 6);
+    }
+    setFormData(prev => ({ ...prev, ...updates }));
+  };
 
   const handleDelete = (id: number, name: string) => {
     deleteProperty.mutate(id, {
@@ -112,6 +188,8 @@ export default function Portfolio() {
       stabilizationMonths: DEFAULT_STABILIZATION_MONTHS,
       type: "Full Equity",
       cateringLevel: "None",
+      fullCateringPercent: DEFAULT_FULL_CATERING_PCT,
+      partialCateringPercent: DEFAULT_PARTIAL_CATERING_PCT,
     });
   };
 
@@ -120,6 +198,24 @@ export default function Portfolio() {
       toast({
         title: "Missing Information",
         description: "Please fill in the property name, location, and upload a photo.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!formData.acquisitionDate || !formData.operationsStartDate) {
+      toast({
+        title: "Missing Dates",
+        description: "Please set both the acquisition date and operations start date.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (formData.operationsStartDate < formData.acquisitionDate) {
+      toast({
+        title: "Invalid Dates",
+        description: "Operations start date cannot be before the acquisition date.",
         variant: "destructive",
       });
       return;
@@ -141,8 +237,8 @@ export default function Portfolio() {
       revShareEvents: DEFAULT_REV_SHARE_EVENTS,
       revShareFB: DEFAULT_REV_SHARE_FB,
       revShareOther: DEFAULT_REV_SHARE_OTHER,
-      fullCateringPercent: DEFAULT_FULL_CATERING_PCT,
-      partialCateringPercent: DEFAULT_PARTIAL_CATERING_PCT,
+      fullCateringPercent: formData.fullCateringPercent,
+      partialCateringPercent: formData.partialCateringPercent,
       exitCapRate: DEFAULT_EXIT_CAP_RATE,
       taxRate: DEFAULT_TAX_RATE,
     };
@@ -285,19 +381,78 @@ export default function Portfolio() {
                         </SelectContent>
                       </Select>
                     </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="font-display text-lg border-b pb-2">Catering</h3>
+                  <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
-                      <Label htmlFor="cateringLevel">Catering Level</Label>
-                      <Select value={formData.cateringLevel} onValueChange={(v) => setFormData(prev => ({ ...prev, cateringLevel: v }))}>
+                      <Label htmlFor="cateringLevel">Catering Type</Label>
+                      <Select value={formData.cateringLevel} onValueChange={(v) => {
+                        const updates: Partial<typeof formData> = { cateringLevel: v };
+                        if (v === "None") {
+                          updates.fullCateringPercent = 0;
+                          updates.partialCateringPercent = 0;
+                        } else if (v === "Full") {
+                          updates.fullCateringPercent = DEFAULT_FULL_CATERING_PCT;
+                          updates.partialCateringPercent = 0;
+                        } else if (v === "Partial") {
+                          updates.fullCateringPercent = 0;
+                          updates.partialCateringPercent = DEFAULT_PARTIAL_CATERING_PCT;
+                        }
+                        setFormData(prev => ({ ...prev, ...updates }));
+                      }}>
                         <SelectTrigger data-testid="select-catering-level">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="None">None</SelectItem>
-                          <SelectItem value="Partial Service">Partial Service</SelectItem>
-                          <SelectItem value="Full Service">Full Service</SelectItem>
+                          <SelectItem value="Partial">Partial Service</SelectItem>
+                          <SelectItem value="Full">Full Service</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
+                    {formData.cateringLevel === "Full" && (
+                      <div className="space-y-2">
+                        <Label htmlFor="fullCateringPercent">Full Catering %</Label>
+                        <div className="relative">
+                          <Input
+                            id="fullCateringPercent"
+                            type="number"
+                            step="1"
+                            min="0"
+                            max="100"
+                            data-testid="input-full-catering-pct"
+                            className="pr-7"
+                            value={(formData.fullCateringPercent * 100).toFixed(0)}
+                            onChange={(e) => setFormData(prev => ({ ...prev, fullCateringPercent: (parseFloat(e.target.value) || 0) / 100 }))}
+                          />
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">%</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">Percentage of events with full catering</p>
+                      </div>
+                    )}
+                    {formData.cateringLevel === "Partial" && (
+                      <div className="space-y-2">
+                        <Label htmlFor="partialCateringPercent">Partial Catering %</Label>
+                        <div className="relative">
+                          <Input
+                            id="partialCateringPercent"
+                            type="number"
+                            step="1"
+                            min="0"
+                            max="100"
+                            data-testid="input-partial-catering-pct"
+                            className="pr-7"
+                            value={(formData.partialCateringPercent * 100).toFixed(0)}
+                            onChange={(e) => setFormData(prev => ({ ...prev, partialCateringPercent: (parseFloat(e.target.value) || 0) / 100 }))}
+                          />
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">%</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">Percentage of events with partial catering</p>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -311,8 +466,7 @@ export default function Portfolio() {
                         type="date"
                         data-testid="input-acquisition-date"
                         value={formData.acquisitionDate}
-                        onChange={(e) => setFormData(prev => ({ ...prev, acquisitionDate: e.target.value }))}
-                        className="[color-scheme:dark]"
+                        onChange={(e) => handleAcquisitionDateChange(e.target.value)}
                       />
                     </div>
                     <div className="space-y-2">
@@ -322,9 +476,15 @@ export default function Portfolio() {
                         type="date"
                         data-testid="input-operations-date"
                         value={formData.operationsStartDate}
+                        min={formData.acquisitionDate || undefined}
                         onChange={(e) => setFormData(prev => ({ ...prev, operationsStartDate: e.target.value }))}
-                        className="[color-scheme:dark]"
                       />
+                      {formData.acquisitionDate && !formData.operationsStartDate && (
+                        <p className="text-xs text-muted-foreground">Suggested: 6 months after acquisition</p>
+                      )}
+                      {formData.operationsStartDate && formData.acquisitionDate && formData.operationsStartDate < formData.acquisitionDate && (
+                        <p className="text-xs text-red-500">Operations cannot start before acquisition</p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -334,46 +494,38 @@ export default function Portfolio() {
                   <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
                       <Label htmlFor="purchasePrice">Purchase Price</Label>
-                      <Input
+                      <CurrencyInput
                         id="purchasePrice"
-                        type="number"
-                        data-testid="input-purchase-price"
-                        placeholder="0"
-                        value={formData.purchasePrice || ""}
-                        onChange={(e) => setFormData(prev => ({ ...prev, purchasePrice: parseFloat(e.target.value) || 0 }))}
+                        testId="input-purchase-price"
+                        value={formData.purchasePrice}
+                        onChange={(val) => setFormData(prev => ({ ...prev, purchasePrice: val }))}
                       />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="buildingImprovements">Building Improvements</Label>
-                      <Input
+                      <CurrencyInput
                         id="buildingImprovements"
-                        type="number"
-                        data-testid="input-building-improvements"
-                        placeholder="0"
-                        value={formData.buildingImprovements || ""}
-                        onChange={(e) => setFormData(prev => ({ ...prev, buildingImprovements: parseFloat(e.target.value) || 0 }))}
+                        testId="input-building-improvements"
+                        value={formData.buildingImprovements}
+                        onChange={(val) => setFormData(prev => ({ ...prev, buildingImprovements: val }))}
                       />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="preOpeningCosts">Pre-Opening Costs</Label>
-                      <Input
+                      <CurrencyInput
                         id="preOpeningCosts"
-                        type="number"
-                        data-testid="input-pre-opening-costs"
-                        placeholder="0"
-                        value={formData.preOpeningCosts || ""}
-                        onChange={(e) => setFormData(prev => ({ ...prev, preOpeningCosts: parseFloat(e.target.value) || 0 }))}
+                        testId="input-pre-opening-costs"
+                        value={formData.preOpeningCosts}
+                        onChange={(val) => setFormData(prev => ({ ...prev, preOpeningCosts: val }))}
                       />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="operatingReserve">Operating Reserve</Label>
-                      <Input
+                      <CurrencyInput
                         id="operatingReserve"
-                        type="number"
-                        data-testid="input-operating-reserve"
-                        placeholder="0"
-                        value={formData.operatingReserve || ""}
-                        onChange={(e) => setFormData(prev => ({ ...prev, operatingReserve: parseFloat(e.target.value) || 0 }))}
+                        testId="input-operating-reserve"
+                        value={formData.operatingReserve}
+                        onChange={(val) => setFormData(prev => ({ ...prev, operatingReserve: val }))}
                       />
                     </div>
                   </div>
@@ -383,47 +535,62 @@ export default function Portfolio() {
                   <h3 className="font-display text-lg border-b pb-2">Revenue Assumptions</h3>
                   <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
-                      <Label htmlFor="startAdr">Starting ADR ($)</Label>
-                      <Input
+                      <Label htmlFor="startAdr">Starting ADR</Label>
+                      <CurrencyInput
                         id="startAdr"
-                        type="number"
-                        data-testid="input-start-adr"
+                        testId="input-start-adr"
                         value={formData.startAdr}
-                        onChange={(e) => setFormData(prev => ({ ...prev, startAdr: parseFloat(e.target.value) || 0 }))}
+                        onChange={(val) => setFormData(prev => ({ ...prev, startAdr: val }))}
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="adrGrowthRate">ADR Growth Rate (%)</Label>
-                      <Input
-                        id="adrGrowthRate"
-                        type="number"
-                        step="0.01"
-                        data-testid="input-adr-growth"
-                        value={(formData.adrGrowthRate * 100).toFixed(1)}
-                        onChange={(e) => setFormData(prev => ({ ...prev, adrGrowthRate: (parseFloat(e.target.value) || 0) / 100 }))}
-                      />
+                      <Label htmlFor="adrGrowthRate">ADR Growth Rate</Label>
+                      <div className="relative">
+                        <Input
+                          id="adrGrowthRate"
+                          type="number"
+                          step="0.1"
+                          data-testid="input-adr-growth"
+                          className="pr-7"
+                          value={(formData.adrGrowthRate * 100).toFixed(1)}
+                          onChange={(e) => setFormData(prev => ({ ...prev, adrGrowthRate: (parseFloat(e.target.value) || 0) / 100 }))}
+                        />
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">%</span>
+                      </div>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="startOccupancy">Starting Occupancy (%)</Label>
-                      <Input
-                        id="startOccupancy"
-                        type="number"
-                        step="1"
-                        data-testid="input-start-occupancy"
-                        value={(formData.startOccupancy * 100).toFixed(0)}
-                        onChange={(e) => setFormData(prev => ({ ...prev, startOccupancy: (parseFloat(e.target.value) || 0) / 100 }))}
-                      />
+                      <Label htmlFor="startOccupancy">Starting Occupancy</Label>
+                      <div className="relative">
+                        <Input
+                          id="startOccupancy"
+                          type="number"
+                          step="1"
+                          min="0"
+                          max="100"
+                          data-testid="input-start-occupancy"
+                          className="pr-7"
+                          value={(formData.startOccupancy * 100).toFixed(0)}
+                          onChange={(e) => setFormData(prev => ({ ...prev, startOccupancy: (parseFloat(e.target.value) || 0) / 100 }))}
+                        />
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">%</span>
+                      </div>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="maxOccupancy">Max Occupancy (%)</Label>
-                      <Input
-                        id="maxOccupancy"
-                        type="number"
-                        step="1"
-                        data-testid="input-max-occupancy"
-                        value={(formData.maxOccupancy * 100).toFixed(0)}
-                        onChange={(e) => setFormData(prev => ({ ...prev, maxOccupancy: (parseFloat(e.target.value) || 0) / 100 }))}
-                      />
+                      <Label htmlFor="maxOccupancy">Max Occupancy</Label>
+                      <div className="relative">
+                        <Input
+                          id="maxOccupancy"
+                          type="number"
+                          step="1"
+                          min="0"
+                          max="100"
+                          data-testid="input-max-occupancy"
+                          className="pr-7"
+                          value={(formData.maxOccupancy * 100).toFixed(0)}
+                          onChange={(e) => setFormData(prev => ({ ...prev, maxOccupancy: (parseFloat(e.target.value) || 0) / 100 }))}
+                        />
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">%</span>
+                      </div>
                     </div>
                   </div>
                 </div>

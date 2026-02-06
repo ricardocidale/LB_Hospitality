@@ -10,7 +10,8 @@ import { FileText, Banknote, Scale } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Users, Briefcase, TrendingUp, Settings2, Loader2, ChevronRight, ChevronDown, FileDown, FileSpreadsheet, ImageIcon, AlertTriangle, CheckCircle } from "lucide-react";
 import { FinancialChart } from "@/components/ui/financial-chart";
-import { ExportToolbar, pdfAction, excelAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
+import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
+import { exportCompanyPPTX } from "@/lib/exports/pptxExport";
 import { exportCompanyIncomeStatement, exportCompanyCashFlow, exportCompanyBalanceSheet } from "@/lib/excelExport";
 import { Link } from "wouter";
 import { GlassButton } from "@/components/ui/glass-button";
@@ -680,6 +681,21 @@ export default function Company() {
     }
   };
 
+  const handlePPTXExport = () => {
+    if (!global) return;
+    const incomeData = generateCompanyIncomeData();
+    const cashFlowData = generateCompanyCashFlowData();
+    const balanceData = generateCompanyBalanceData();
+
+    exportCompanyPPTX({
+      projectionYears,
+      getFiscalYear: (i: number) => String(getFiscalYear(i)),
+      incomeData: { years: incomeData.years.map(String), rows: incomeData.rows },
+      cashFlowData: { years: cashFlowData.years.map(String), rows: cashFlowData.rows },
+      balanceSheetData: { years: balanceData.years.map(String), rows: balanceData.rows },
+    });
+  };
+
   const handleExport = (orientation: 'landscape' | 'portrait') => {
     if (exportType === 'pdf') {
       exportCompanyPDF(activeTab as 'income' | 'cashflow' | 'balance', orientation);
@@ -724,11 +740,12 @@ export default function Company() {
               activeTab={activeTab}
               onTabChange={setActiveTab}
               rightContent={
-                <ExportToolbar
-                  variant="glass"
+                <ExportMenu
                   actions={[
                     pdfAction(() => { setExportType('pdf'); setExportDialogOpen(true); }),
                     excelAction(() => handleExcelExport()),
+                    csvAction(() => exportCompanyCSV(activeTab as 'income' | 'cashflow' | 'balance')),
+                    pptxAction(() => handlePPTXExport()),
                     chartAction(() => { setExportType('chart'); setExportDialogOpen(true); }),
                     pngAction(() => exportTablePNG()),
                   ]}

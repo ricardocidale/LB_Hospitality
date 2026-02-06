@@ -9,7 +9,8 @@ import { ConsolidatedBalanceSheet } from "@/components/ConsolidatedBalanceSheet"
 import { Tabs, TabsContent, DarkGlassTabs } from "@/components/ui/tabs";
 import { FileText, Banknote, Scale } from "lucide-react";
 import { ArrowLeft, MapPin, Loader2, Settings2, Sheet } from "lucide-react";
-import { ExportMenu, pdfAction, excelAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
+import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
+import { exportPropertyPPTX } from "@/lib/exports/pptxExport";
 import {
   exportPropertyIncomeStatement,
   exportPropertyCashFlow,
@@ -479,6 +480,49 @@ export default function PropertyDetail() {
     }
   };
 
+  const handlePPTXExport = () => {
+    const yearlyDetails = getYearlyDetails();
+    const cashFlowData = getCashFlowData();
+    const yearLabels = Array.from({ length: years }, (_, i) => `FY ${startYear + i}`);
+
+    const incomeRows = [
+      { category: "REVENUE", values: yearlyDetails.map(() => 0) },
+      { category: "Room Revenue", values: yearlyDetails.map(y => y.revenueRooms), indent: 1 },
+      { category: "Event Revenue", values: yearlyDetails.map(y => y.revenueEvents), indent: 1 },
+      { category: "F&B Revenue", values: yearlyDetails.map(y => y.revenueFB), indent: 1 },
+      { category: "Other Revenue", values: yearlyDetails.map(y => y.revenueOther), indent: 1 },
+      { category: "Total Revenue", values: yearlyDetails.map(y => y.totalRevenue), isBold: true },
+      { category: "OPERATING EXPENSES", values: yearlyDetails.map(() => 0) },
+      { category: "Housekeeping", values: yearlyDetails.map(y => y.expenseRooms), indent: 1 },
+      { category: "F&B", values: yearlyDetails.map(y => y.expenseFB), indent: 1 },
+      { category: "Marketing", values: yearlyDetails.map(y => y.expenseMarketing), indent: 1 },
+      { category: "Property Ops", values: yearlyDetails.map(y => y.expensePropertyOps), indent: 1 },
+      { category: "Admin", values: yearlyDetails.map(y => y.expenseAdmin), indent: 1 },
+      { category: "Net Operating Income", values: yearlyDetails.map(y => y.noi), isBold: true },
+    ];
+
+    const cfRows = [
+      { category: "Cash from Operations", values: yearlyDetails.map((yd, i) => yd.totalRevenue - (yd.totalExpenses - yd.expenseFFE) - cashFlowData[i].interestExpense - cashFlowData[i].taxLiability), isBold: true },
+      { category: "FCFE", values: yearlyDetails.map((yd, i) => {
+        const cfo = yd.totalRevenue - (yd.totalExpenses - yd.expenseFFE) - cashFlowData[i].interestExpense - cashFlowData[i].taxLiability;
+        return cfo - yd.expenseFFE - cashFlowData[i].principalPayment;
+      }), isBold: true },
+    ];
+
+    const bsRows = [
+      { category: "Balance Sheet data exported via Excel", values: yearlyDetails.map(() => 0) },
+    ];
+
+    exportPropertyPPTX({
+      propertyName: property.name,
+      projectionYears,
+      getFiscalYear: (i: number) => `FY ${startYear + i}`,
+      incomeData: { years: yearLabels, rows: incomeRows },
+      cashFlowData: { years: yearLabels, rows: cfRows },
+      balanceSheetData: { years: yearLabels, rows: bsRows },
+    });
+  };
+
   const handleExport = (orientation: 'landscape' | 'portrait') => {
     if (exportType === 'pdf') {
       exportCashFlowPDF(orientation);
@@ -573,6 +617,8 @@ export default function PropertyDetail() {
                   actions={[
                     pdfAction(() => { setExportType('pdf'); setExportDialogOpen(true); }),
                     excelAction(() => handleExcelExport()),
+                    csvAction(() => exportCashFlowCSV()),
+                    pptxAction(() => handlePPTXExport()),
                     chartAction(() => { setExportType('chart'); setExportDialogOpen(true); }),
                     pngAction(() => exportTablePNG()),
                   ]}

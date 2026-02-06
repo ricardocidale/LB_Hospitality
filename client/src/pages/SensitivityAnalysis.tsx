@@ -1,0 +1,603 @@
+import { useState, useMemo, useCallback } from "react";
+import Layout from "@/components/Layout";
+import { useProperties, useGlobalAssumptions } from "@/lib/api";
+import { generatePropertyProForma, formatMoney, getFiscalYearForModelYear } from "@/lib/financialEngine";
+import { PROJECTION_YEARS, DEFAULT_EXIT_CAP_RATE, DEFAULT_TAX_RATE } from "@/lib/constants";
+import { PageHeader } from "@/components/ui/page-header";
+import { StatCard } from "@/components/ui/stat-card";
+import { Loader2, TrendingUp, TrendingDown, BarChart3, Sliders, Building2, ArrowUpDown } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, ReferenceLine } from "recharts";
+
+interface SensitivityVariable {
+  id: string;
+  label: string;
+  unit: "%" | "$" | "x";
+  step: number;
+  range: [number, number];
+  defaultValue: number;
+  description: string;
+}
+
+interface ScenarioResult {
+  totalRevenue: number;
+  totalNOI: number;
+  totalCashFlow: number;
+  avgNOIMargin: number;
+  exitValue: number;
+}
+
+function calculateIRR(cashFlows: number[], guess: number = 0.1): number {
+  const maxIterations = 100;
+  const tolerance = 0.0001;
+  let rate = guess;
+  for (let i = 0; i < maxIterations; i++) {
+    let npv = 0;
+    let derivNpv = 0;
+    for (let t = 0; t < cashFlows.length; t++) {
+      const denominator = Math.pow(1 + rate, t);
+      npv += cashFlows[t] / denominator;
+      if (t > 0) {
+        derivNpv -= (t * cashFlows[t]) / Math.pow(1 + rate, t + 1);
+      }
+    }
+    if (Math.abs(npv) < tolerance) return rate;
+    if (derivNpv === 0) break;
+    rate = rate - npv / derivNpv;
+    if (rate < -1) rate = -0.99;
+    if (!isFinite(rate)) break;
+  }
+  if (!isFinite(rate)) {
+    let lo = -0.99;
+    let hi = 10.0;
+    for (let i = 0; i < 200; i++) {
+      const mid = (lo + hi) / 2;
+      let npv = 0;
+      for (let t = 0; t < cashFlows.length; t++) {
+        npv += cashFlows[t] / Math.pow(1 + mid, t);
+      }
+      if (npv > 0) lo = mid;
+      else hi = mid;
+      if (hi - lo < tolerance) return mid;
+    }
+    return (lo + hi) / 2;
+  }
+  return rate;
+}
+
+export default function SensitivityAnalysis() {
+  const { data: properties, isLoading: propertiesLoading } = useProperties();
+  const { data: global, isLoading: globalLoading } = useGlobalAssumptions();
+  const [selectedPropertyId, setSelectedPropertyId] = useState<string>("all");
+  const [adjustments, setAdjustments] = useState<Record<string, number>>({});
+
+  const projectionYears = global?.projectionYears ?? PROJECTION_YEARS;
+  const projectionMonths = projectionYears * 12;
+
+  const variables: SensitivityVariable[] = useMemo(() => {
+    if (!global) return [];
+    return [
+      {
+        id: "occupancy",
+        label: "Max Occupancy",
+        unit: "%",
+        step: 1,
+        range: [-20, 20],
+        defaultValue: 0,
+        description: "Adjust maximum occupancy rate up or down",
+      },
+      {
+        id: "adrGrowth",
+        label: "ADR Growth Rate",
+        unit: "%",
+        step: 0.5,
+        range: [-5, 5],
+        defaultValue: 0,
+        description: "Adjust annual ADR growth rate",
+      },
+      {
+        id: "expenseGrowth",
+        label: "Expense Escalation",
+        unit: "%",
+        step: 0.5,
+        range: [-3, 5],
+        defaultValue: 0,
+        description: "Adjust fixed cost escalation rate",
+      },
+      {
+        id: "exitCapRate",
+        label: "Exit Cap Rate",
+        unit: "%",
+        step: 0.25,
+        range: [-3, 3],
+        defaultValue: 0,
+        description: "Adjust exit cap rate (higher = lower value)",
+      },
+      {
+        id: "inflation",
+        label: "Inflation Rate",
+        unit: "%",
+        step: 0.5,
+        range: [-3, 5],
+        defaultValue: 0,
+        description: "Adjust general inflation rate",
+      },
+    ];
+  }, [global]);
+
+  const resetAll = useCallback(() => setAdjustments({}), []);
+
+  const runScenario = useCallback(
+    (overrides: Record<string, number>): ScenarioResult | null => {
+      if (!properties || !global) return null;
+      const targetProps =
+        selectedPropertyId === "all"
+          ? properties
+          : properties.filter((p) => String(p.id) === selectedPropertyId);
+      if (!targetProps.length) return null;
+
+      let totalRevenue = 0;
+      let totalNOI = 0;
+      let totalCashFlow = 0;
+      let exitValue = 0;
+
+      for (const prop of targetProps) {
+        const adjProp = {
+          ...prop,
+          maxOccupancy: Math.min(1, Math.max(0.1, prop.maxOccupancy + (overrides.occupancy ?? 0) / 100)),
+          startOccupancy: Math.min(
+            Math.min(1, Math.max(0.1, prop.maxOccupancy + (overrides.occupancy ?? 0) / 100)),
+            prop.startOccupancy
+          ),
+          adrGrowthRate: Math.max(0, prop.adrGrowthRate + (overrides.adrGrowth ?? 0) / 100),
+        };
+
+        const adjGlobal = {
+          ...global,
+          inflationRate: Math.max(0, global.inflationRate + (overrides.inflation ?? 0) / 100),
+          fixedCostEscalationRate: Math.max(
+            0,
+            (global.fixedCostEscalationRate ?? 0.03) + (overrides.expenseGrowth ?? 0) / 100
+          ),
+        };
+
+        const financials = generatePropertyProForma(adjProp, adjGlobal, projectionMonths);
+
+        for (const m of financials) {
+          totalRevenue += m.revenueTotal;
+          totalNOI += m.noi;
+          totalCashFlow += m.cashFlow;
+        }
+
+        const lastYearNOI = financials
+          .slice(-12)
+          .reduce((sum, m) => sum + m.noi, 0);
+        const capRate = Math.max(0.01, (prop.exitCapRate ?? global.exitCapRate ?? DEFAULT_EXIT_CAP_RATE) + (overrides.exitCapRate ?? 0) / 100);
+        const commissionRate = global.salesCommissionRate ?? 0.02;
+        const grossExit = lastYearNOI / capRate;
+        const netExit = grossExit * (1 - commissionRate);
+        const debtAtExit = financials[financials.length - 1]?.debtOutstanding ?? 0;
+        exitValue += Math.max(0, netExit - debtAtExit);
+      }
+
+      const avgNOIMargin = totalRevenue > 0 ? (totalNOI / totalRevenue) * 100 : 0;
+      return { totalRevenue, totalNOI, totalCashFlow, avgNOIMargin, exitValue };
+    },
+    [properties, global, selectedPropertyId, projectionMonths]
+  );
+
+  const baseResult = useMemo(() => runScenario({}), [runScenario]);
+  const adjustedResult = useMemo(() => runScenario(adjustments), [runScenario, adjustments]);
+
+  interface TornadoItem {
+    name: string;
+    positive: number;
+    negative: number;
+    spread: number;
+    upLabel: string;
+    downLabel: string;
+  }
+
+  const tornadoData: TornadoItem[] = useMemo(() => {
+    if (!baseResult || !variables.length) return [];
+    const items: TornadoItem[] = [];
+    for (const v of variables) {
+      const swingPct = v.id === "exitCapRate" ? 2 : v.id === "occupancy" ? 10 : 3;
+      const upResult = runScenario({ [v.id]: swingPct });
+      const downResult = runScenario({ [v.id]: -swingPct });
+      if (!upResult || !downResult) continue;
+
+      const baseNOI = baseResult.totalNOI;
+      const upDelta = ((upResult.totalNOI - baseNOI) / Math.abs(baseNOI)) * 100;
+      const downDelta = ((downResult.totalNOI - baseNOI) / Math.abs(baseNOI)) * 100;
+
+      items.push({
+        name: v.label,
+        positive: Math.max(upDelta, downDelta),
+        negative: Math.min(upDelta, downDelta),
+        spread: Math.abs(upDelta - downDelta),
+        upLabel: `+${swingPct}${v.unit === "%" ? "pp" : ""}`,
+        downLabel: `-${swingPct}${v.unit === "%" ? "pp" : ""}`,
+      });
+    }
+    return items.sort((a, b) => b.spread - a.spread);
+  }, [baseResult, variables, runScenario]);
+
+  const hasAdjustments = Object.values(adjustments).some((v) => v !== 0);
+
+  const pctChange = (adjusted: number, base: number) => {
+    if (base === 0) return 0;
+    return ((adjusted - base) / Math.abs(base)) * 100;
+  };
+
+  if (propertiesLoading || globalLoading) {
+    return (
+      <Layout>
+        <div className="min-h-screen flex items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-[#9FBCA4]" data-testid="loading-spinner" />
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!properties?.length || !global) {
+    return (
+      <Layout>
+        <PageHeader title="Sensitivity Analysis" subtitle="Add properties to your portfolio first" />
+      </Layout>
+    );
+  }
+
+  return (
+    <Layout>
+      <div className="space-y-6">
+        <PageHeader
+          title="Sensitivity Analysis"
+          subtitle="See how changes in key variables affect your portfolio's financial performance"
+          actions={
+            <div className="flex items-center gap-3">
+              <select
+                value={selectedPropertyId}
+                onChange={(e) => setSelectedPropertyId(e.target.value)}
+                className="bg-white/10 border border-white/20 text-white rounded-xl px-3 py-2 text-sm backdrop-blur-xl focus:outline-none focus:ring-2 focus:ring-[#9FBCA4]/50 [&>option]:bg-[#1a2a3a] [&>option]:text-white"
+                data-testid="select-property"
+              >
+                <option value="all">All Properties</option>
+                {properties.map((p) => (
+                  <option key={p.id} value={String(p.id)}>
+                    {p.name}
+                  </option>
+                ))}
+              </select>
+              {hasAdjustments && (
+                <button
+                  onClick={resetAll}
+                  className="px-3 py-2 text-xs font-medium text-white/70 hover:text-white border border-white/20 hover:border-white/40 rounded-xl transition-all"
+                  data-testid="button-reset-all"
+                >
+                  Reset All
+                </button>
+              )}
+            </div>
+          }
+        />
+
+        {baseResult && adjustedResult && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <StatCard
+              label="Total Revenue"
+              value={adjustedResult.totalRevenue}
+              format="money"
+              sublabel={
+                hasAdjustments
+                  ? `${pctChange(adjustedResult.totalRevenue, baseResult.totalRevenue) >= 0 ? "+" : ""}${pctChange(adjustedResult.totalRevenue, baseResult.totalRevenue).toFixed(1)}% vs. base`
+                  : `${projectionYears}-year total`
+              }
+              trend={
+                hasAdjustments
+                  ? pctChange(adjustedResult.totalRevenue, baseResult.totalRevenue) > 0
+                    ? "up"
+                    : pctChange(adjustedResult.totalRevenue, baseResult.totalRevenue) < 0
+                    ? "down"
+                    : "neutral"
+                  : undefined
+              }
+              variant="sage"
+              data-testid="stat-total-revenue"
+            />
+            <StatCard
+              label="Total NOI"
+              value={adjustedResult.totalNOI}
+              format="money"
+              sublabel={
+                hasAdjustments
+                  ? `${pctChange(adjustedResult.totalNOI, baseResult.totalNOI) >= 0 ? "+" : ""}${pctChange(adjustedResult.totalNOI, baseResult.totalNOI).toFixed(1)}% vs. base`
+                  : `${adjustedResult.avgNOIMargin.toFixed(1)}% margin`
+              }
+              trend={
+                hasAdjustments
+                  ? pctChange(adjustedResult.totalNOI, baseResult.totalNOI) > 0
+                    ? "up"
+                    : pctChange(adjustedResult.totalNOI, baseResult.totalNOI) < 0
+                    ? "down"
+                    : "neutral"
+                  : undefined
+              }
+              variant="sage"
+              data-testid="stat-total-noi"
+            />
+            <StatCard
+              label="Total Cash Flow"
+              value={adjustedResult.totalCashFlow}
+              format="money"
+              sublabel={
+                hasAdjustments
+                  ? `${pctChange(adjustedResult.totalCashFlow, baseResult.totalCashFlow) >= 0 ? "+" : ""}${pctChange(adjustedResult.totalCashFlow, baseResult.totalCashFlow).toFixed(1)}% vs. base`
+                  : `${projectionYears}-year total`
+              }
+              trend={
+                hasAdjustments
+                  ? pctChange(adjustedResult.totalCashFlow, baseResult.totalCashFlow) > 0
+                    ? "up"
+                    : pctChange(adjustedResult.totalCashFlow, baseResult.totalCashFlow) < 0
+                    ? "down"
+                    : "neutral"
+                  : undefined
+              }
+              variant="sage"
+              data-testid="stat-total-cashflow"
+            />
+            <StatCard
+              label="Exit Value"
+              value={adjustedResult.exitValue}
+              format="money"
+              sublabel={
+                hasAdjustments
+                  ? `${pctChange(adjustedResult.exitValue, baseResult.exitValue) >= 0 ? "+" : ""}${pctChange(adjustedResult.exitValue, baseResult.exitValue).toFixed(1)}% vs. base`
+                  : "Net to equity"
+              }
+              trend={
+                hasAdjustments
+                  ? pctChange(adjustedResult.exitValue, baseResult.exitValue) > 0
+                    ? "up"
+                    : pctChange(adjustedResult.exitValue, baseResult.exitValue) < 0
+                    ? "down"
+                    : "neutral"
+                  : undefined
+              }
+              variant="sage"
+              data-testid="stat-exit-value"
+            />
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Sliders Panel */}
+          <div className="bg-white/95 backdrop-blur-xl rounded-[2rem] p-6 border border-[#9FBCA4]/30 shadow-xl shadow-black/5">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-xl bg-[#9FBCA4]/15 flex items-center justify-center">
+                <Sliders className="w-5 h-5 text-[#257D41]" />
+              </div>
+              <div>
+                <h3 className="text-lg font-display font-bold text-gray-900" data-testid="text-adjustments-title">
+                  Variable Adjustments
+                </h3>
+                <p className="text-xs text-gray-500">
+                  Drag sliders to model different scenarios
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              {variables.map((v) => {
+                const currentVal = adjustments[v.id] ?? v.defaultValue;
+                return (
+                  <div key={v.id} className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-sm font-medium text-gray-700">
+                        {v.label}
+                      </label>
+                      <span
+                        className={`text-sm font-mono font-bold px-2 py-0.5 rounded-md ${
+                          currentVal > 0
+                            ? "text-[#257D41] bg-[#9FBCA4]/15"
+                            : currentVal < 0
+                            ? "text-red-600 bg-red-50"
+                            : "text-gray-500 bg-gray-100"
+                        }`}
+                        data-testid={`value-${v.id}`}
+                      >
+                        {currentVal > 0 ? "+" : ""}
+                        {currentVal.toFixed(v.step < 1 ? 1 : 0)}
+                        {v.unit === "%" ? "pp" : v.unit}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs text-gray-400 w-10 text-right font-mono">
+                        {v.range[0]}
+                      </span>
+                      <div className="flex-1 relative">
+                        <input
+                          type="range"
+                          min={v.range[0]}
+                          max={v.range[1]}
+                          step={v.step}
+                          value={currentVal}
+                          onChange={(e) =>
+                            setAdjustments((prev) => ({
+                              ...prev,
+                              [v.id]: parseFloat(e.target.value),
+                            }))
+                          }
+                          className="w-full h-2 rounded-full appearance-none cursor-pointer accent-[#9FBCA4] bg-gray-200 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#257D41] [&::-webkit-slider-thumb]:shadow-lg [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:cursor-grab [&::-webkit-slider-thumb]:active:cursor-grabbing [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-[#257D41] [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:cursor-grab"
+                          data-testid={`slider-${v.id}`}
+                        />
+                      </div>
+                      <span className="text-xs text-gray-400 w-10 font-mono">
+                        {v.range[1] > 0 ? "+" : ""}{v.range[1]}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-400">{v.description}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Tornado Chart Panel */}
+          <div className="bg-white/95 backdrop-blur-xl rounded-[2rem] p-6 border border-[#9FBCA4]/30 shadow-xl shadow-black/5">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-xl bg-[#9FBCA4]/15 flex items-center justify-center">
+                <BarChart3 className="w-5 h-5 text-[#257D41]" />
+              </div>
+              <div>
+                <h3 className="text-lg font-display font-bold text-gray-900" data-testid="text-tornado-title">
+                  Impact on NOI
+                </h3>
+                <p className="text-xs text-gray-500">
+                  Which variables have the biggest effect on Net Operating Income
+                </p>
+              </div>
+            </div>
+
+            {tornadoData.length > 0 ? (
+              <div className="h-[350px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={tornadoData}
+                    layout="vertical"
+                    margin={{ top: 5, right: 30, left: 10, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" horizontal={false} />
+                    <XAxis
+                      type="number"
+                      tickFormatter={(val) => `${val > 0 ? "+" : ""}${val.toFixed(1)}%`}
+                      tick={{ fontSize: 11, fill: "#6b7280" }}
+                      domain={["auto", "auto"]}
+                    />
+                    <YAxis
+                      type="category"
+                      dataKey="name"
+                      tick={{ fontSize: 12, fill: "#374151", fontWeight: 500 }}
+                      width={130}
+                    />
+                    <Tooltip
+                      formatter={(value: number, name: string) => [
+                        `${value > 0 ? "+" : ""}${value.toFixed(2)}%`,
+                        name === "positive" ? "Upside" : "Downside",
+                      ]}
+                      contentStyle={{
+                        backgroundColor: "rgba(255,255,255,0.95)",
+                        border: "1px solid #e5e7eb",
+                        borderRadius: "12px",
+                        fontSize: "12px",
+                      }}
+                    />
+                    <ReferenceLine x={0} stroke="#374151" strokeWidth={1.5} />
+                    <Bar dataKey="positive" stackId="tornado" radius={[0, 4, 4, 0]} maxBarSize={28}>
+                      {tornadoData.map((_, i) => (
+                        <Cell key={`pos-${i}`} fill="#257D41" fillOpacity={0.8} />
+                      ))}
+                    </Bar>
+                    <Bar dataKey="negative" stackId="tornado" radius={[4, 0, 0, 4]} maxBarSize={28}>
+                      {tornadoData.map((_, i) => (
+                        <Cell key={`neg-${i}`} fill="#E85D4A" fillOpacity={0.8} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            ) : (
+              <div className="h-[350px] flex items-center justify-center text-gray-400 text-sm">
+                No data available
+              </div>
+            )}
+            <div className="flex items-center justify-center gap-6 mt-4 text-xs text-gray-500">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-sm bg-[#257D41]/80" />
+                <span>Upside scenario</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-sm bg-[#E85D4A]/80" />
+                <span>Downside scenario</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Comparison Table */}
+        {hasAdjustments && baseResult && adjustedResult && (
+          <div className="bg-white/95 backdrop-blur-xl rounded-[2rem] p-6 border border-[#9FBCA4]/30 shadow-xl shadow-black/5">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-xl bg-[#9FBCA4]/15 flex items-center justify-center">
+                <ArrowUpDown className="w-5 h-5 text-[#257D41]" />
+              </div>
+              <div>
+                <h3 className="text-lg font-display font-bold text-gray-900" data-testid="text-comparison-title">
+                  Base vs. Adjusted Scenario
+                </h3>
+                <p className="text-xs text-gray-500">
+                  Side-by-side comparison of your current adjustments
+                </p>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm" data-testid="table-comparison">
+                <thead>
+                  <tr className="border-b border-gray-200">
+                    <th className="text-left py-3 px-4 font-medium text-gray-600">Metric</th>
+                    <th className="text-right py-3 px-4 font-medium text-gray-600">Base Case</th>
+                    <th className="text-right py-3 px-4 font-medium text-gray-600">Adjusted</th>
+                    <th className="text-right py-3 px-4 font-medium text-gray-600">Change</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { label: "Total Revenue", base: baseResult.totalRevenue, adj: adjustedResult.totalRevenue, fmt: "money" as const },
+                    { label: "Total NOI", base: baseResult.totalNOI, adj: adjustedResult.totalNOI, fmt: "money" as const },
+                    { label: "NOI Margin", base: baseResult.avgNOIMargin, adj: adjustedResult.avgNOIMargin, fmt: "pct" as const },
+                    { label: "Total Cash Flow", base: baseResult.totalCashFlow, adj: adjustedResult.totalCashFlow, fmt: "money" as const },
+                    { label: "Exit Value", base: baseResult.exitValue, adj: adjustedResult.exitValue, fmt: "money" as const },
+                  ].map((row) => {
+                    const delta = row.adj - row.base;
+                    const deltaPct = row.base !== 0 ? (delta / Math.abs(row.base)) * 100 : 0;
+                    return (
+                      <tr key={row.label} className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors">
+                        <td className="py-3 px-4 font-medium text-gray-800">{row.label}</td>
+                        <td className="py-3 px-4 text-right font-mono text-gray-600">
+                          {row.fmt === "money" ? formatMoney(row.base) : `${row.base.toFixed(1)}%`}
+                        </td>
+                        <td className="py-3 px-4 text-right font-mono font-semibold text-gray-900">
+                          {row.fmt === "money" ? formatMoney(row.adj) : `${row.adj.toFixed(1)}%`}
+                        </td>
+                        <td className={`py-3 px-4 text-right font-mono font-semibold ${
+                          delta > 0 ? "text-[#257D41]" : delta < 0 ? "text-red-600" : "text-gray-400"
+                        }`}>
+                          <div className="flex items-center justify-end gap-1">
+                            {delta > 0 ? (
+                              <TrendingUp className="w-3.5 h-3.5" />
+                            ) : delta < 0 ? (
+                              <TrendingDown className="w-3.5 h-3.5" />
+                            ) : null}
+                            <span>
+                              {row.fmt === "money"
+                                ? `${delta >= 0 ? "+" : ""}${formatMoney(delta)}`
+                                : `${delta >= 0 ? "+" : ""}${delta.toFixed(1)}pp`}
+                            </span>
+                            <span className="text-xs text-gray-400 ml-1">
+                              ({deltaPct >= 0 ? "+" : ""}{deltaPct.toFixed(1)}%)
+                            </span>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </div>
+    </Layout>
+  );
+}

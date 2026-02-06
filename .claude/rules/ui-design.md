@@ -148,7 +148,16 @@ Filing-system style tabs for multi-view pages. Used on pages with dark glass the
   activeTab={activeTab}
   onTabChange={setActiveTab}
   rightContent={
-    <ExportToolbar actions={[pdfAction(handlePdf), excelAction(handleExcel)]} />
+    <ExportMenu
+      actions={[
+        pdfAction(handlePdf),
+        excelAction(handleExcel),
+        csvAction(handleCsv),
+        pptxAction(handlePptx),
+        chartAction(handleChart),
+        pngAction(handlePng),
+      ]}
+    />
   }
 />
 ```
@@ -162,31 +171,37 @@ Filing-system style tabs for multi-view pages. Used on pages with dark glass the
 
 ## Export Controls
 
-**Component**: `ExportToolbar` (`client/src/components/ui/export-toolbar.tsx`)
+**Component**: `ExportMenu` (`client/src/components/ui/export-toolbar.tsx`)
+**Full documentation**: `.claude/skills/exports/SKILL.md`
+
+Single "Export" dropdown button with 6 formats: PDF, Excel, CSV, PowerPoint, Chart PNG, Table PNG.
 
 ### Variants
-- `"glass"` (default): White/transparent buttons with backdrop blur for dark backgrounds
-- `"light"`: Gray bordered buttons for light backgrounds
+- `"glass"` (default): Dark translucent dropdown with backdrop blur for dark backgrounds
+- `"light"`: White dropdown with gray borders for light backgrounds
 
-### Helper Functions
+### Action Helpers
 
-| Function | Creates | Icon |
-|----------|---------|------|
-| `pdfAction(onClick)` | PDF export button | `FileDown` |
-| `excelAction(onClick)` | Excel export button | `FileSpreadsheet` |
-| `chartAction(onClick)` | Chart PDF export button | `ImageIcon` |
-| `pngAction(onClick)` | PNG screenshot export button | `ImageIcon` |
+| Function | Label | Icon |
+|----------|-------|------|
+| `pdfAction(onClick)` | PDF | `FileDown` |
+| `excelAction(onClick)` | Excel | `FileSpreadsheet` |
+| `csvAction(onClick)` | CSV | `FileSpreadsheet` |
+| `pptxAction(onClick)` | PowerPoint | `Presentation` |
+| `chartAction(onClick)` | Chart as Image | `FileBarChart` |
+| `pngAction(onClick)` | Table as PNG | `ImageIcon` |
 
-### Supported Export Formats
-- **PDF**: via `jsPDF` + `jspdf-autotable` — table-based financial statements
-- **Excel (XLSX)**: via `xlsx` library — spreadsheet exports
-- **PNG**: via `dom-to-image-more` — screenshot of DOM element
-- **Chart PDF**: via custom `pdfChartDrawer` — Recharts chart to PDF
-- **PPTX**: Not yet implemented
+### Format Implementations
+Located in `client/src/lib/exports/`:
+- **Excel**: `excelExport.ts` — XLSX workbooks via SheetJS
+- **PowerPoint**: `pptxExport.ts` — Branded slides via pptxgenjs
+- **PDF**: `pdfChartDrawer.ts` — Line charts via jsPDF
+- **PNG**: `pngExport.ts` — DOM capture via dom-to-image-more
+- **CSV**: Inline per page (lightweight, no shared utility needed)
 
 ### Placement Rules
 - Export controls go in `DarkGlassTabs` `rightContent` slot on tabbed pages
-- On non-tabbed pages, use `ExportToolbar` in `PageHeader` actions slot
+- On non-tabbed pages, use `ExportMenu` in `PageHeader` `actions` slot
 - Never place export buttons in the page body or floating
 
 ---
@@ -260,8 +275,8 @@ All interactive elements must have `data-testid` attributes:
 ## Related Skills
 
 - **`.claude/skills/button-system.md`** — Full GlassButton variant reference and usage patterns
-- **`.claude/skills/tab-bar-system.md`** — DarkGlassTabs + ExportToolbar wiring pattern
-- **`.claude/skills/export-controls.md`** — Export format implementations and helper functions
+- **`.claude/skills/tab-bar-system.md`** — DarkGlassTabs + ExportMenu wiring pattern
+- **`.claude/skills/exports/SKILL.md`** — Export system methodology, ExportMenu component, format implementations
 - **`.claude/skills/page-header.md`** — PageHeader component reference and variant rules
 - **`.claude/skills/glass-components.md`** — GlassCard, GlassButton, SaveButton component specs
 - **`.claude/skills/property-image-picker.md`** — PropertyImagePicker (upload + AI generate), useGenerateImage hook

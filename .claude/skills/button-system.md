@@ -4,7 +4,7 @@
 
 ## Golden Rule
 
-**All buttons MUST use `GlassButton`**. No raw `<button>` elements with inline glass/gradient styling anywhere in the codebase. The only exception is internal implementation within component library files themselves (e.g., `DarkGlassTabs` tab triggers, `ExportToolbar` glass buttons).
+**All buttons MUST use `GlassButton`**. No raw `<button>` elements with inline glass/gradient styling anywhere in the codebase. The only exception is internal implementation within component library files themselves (e.g., `DarkGlassTabs` tab triggers, `ExportMenu` glass buttons).
 
 ## Variants
 
@@ -146,4 +146,4 @@ import { SaveButton } from "@/components/ui/save-button";
 
 - **glass-components.md** — GlassCard and full component specs
 - **tab-bar-system.md** — DarkGlassTabs uses glass-styled tab triggers internally
-- **export-controls.md** — ExportToolbar uses GlassExportButton internally
+- **exports/SKILL.md** — ExportMenu component and export format implementations

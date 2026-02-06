@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import OpenAI, { toFile } from "openai";
+import { GoogleGenAI } from "@google/genai";
 import { Buffer } from "node:buffer";
 
 export const openai = new OpenAI({
@@ -9,12 +10,38 @@ export const openai = new OpenAI({
 
 /**
  * Generate an image and return as Buffer.
- * Uses gpt-image-1 model via Replit AI Integrations.
+ * Uses Gemini Imagen via Replit AI Integrations (smaller output, JPEG).
+ * Falls back to gpt-image-1 if Gemini is unavailable.
  */
 export async function generateImageBuffer(
   prompt: string,
-  size: "1024x1024" | "512x512" | "256x256" = "1024x1024"
+  size: "1024x1024" | "1024x1536" | "1536x1024" | "auto" = "1024x1024"
 ): Promise<Buffer> {
+  // Try Gemini Imagen first (produces smaller JPEG images)
+  try {
+    const gemini = new GoogleGenAI({
+      apiKey: process.env.AI_INTEGRATIONS_GEMINI_API_KEY,
+      httpOptions: {
+        apiVersion: "",
+        baseUrl: process.env.AI_INTEGRATIONS_GEMINI_BASE_URL,
+      },
+    });
+
+    const response = await gemini.models.generateImages({
+      model: "imagen-3.0-generate-002",
+      prompt,
+      config: { numberOfImages: 1 },
+    });
+
+    const imageBytes = response.generatedImages?.[0]?.image?.imageBytes;
+    if (imageBytes) {
+      return Buffer.from(imageBytes, "base64");
+    }
+  } catch (err) {
+    console.log("Gemini image generation failed, falling back to OpenAI:", (err as Error).message);
+  }
+
+  // Fallback to OpenAI gpt-image-1
   const response = await openai.images.generate({
     model: "gpt-image-1",
     prompt,

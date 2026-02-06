@@ -152,22 +152,27 @@ Variants: `default`, `primary`, `ghost`, `icon`, `export`, `settings`.
 #### `SaveButton` — `client/src/components/ui/save-button.tsx`
 Specialized save button with loading/success states.
 
-#### `ExportToolbar` — `client/src/components/ui/export-toolbar.tsx`
-Group of export action buttons. Glass and light variants.
+#### `ExportMenu` — `client/src/components/ui/export-toolbar.tsx`
+Single "Export" dropdown button with format picker. Glass and light variants. Replaces `ExportToolbar`.
 ```tsx
-import { ExportToolbar, pdfAction, excelAction, chartAction } from "@/components/ui/export-toolbar";
+import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
 
-<ExportToolbar
+<ExportMenu
   variant="glass"  // "glass" | "light"
   actions={[
     pdfAction(() => exportPDF()),
     excelAction(() => exportExcel()),
+    csvAction(() => exportCSV()),
+    pptxAction(() => exportPPTX()),
     chartAction(() => exportChart()),
+    pngAction(() => exportPng()),
   ]}
 />
 ```
 
-Helper factories: `pdfAction(fn)`, `excelAction(fn)`, `chartAction(fn)`, `pngAction(fn)`.
+Helper factories: `pdfAction(fn)`, `excelAction(fn)`, `csvAction(fn)`, `pptxAction(fn)`, `chartAction(fn)`, `pngAction(fn)`.
+
+See `.claude/skills/exports/SKILL.md` for full export system documentation including PowerPoint generation.
 
 ### Utility Components
 

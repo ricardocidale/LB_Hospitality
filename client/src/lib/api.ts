@@ -468,3 +468,75 @@ export function useUpdateFavoriteNotes() {
     },
   });
 }
+
+// --- Saved Searches ---
+export interface SavedSearchData {
+  id: number;
+  userId: number;
+  name: string;
+  location: string;
+  priceMin: string | null;
+  priceMax: string | null;
+  bedsMin: string | null;
+  lotSizeMin: string | null;
+  propertyType: string | null;
+  savedAt: string;
+}
+
+export interface SaveSearchInput {
+  name: string;
+  location: string;
+  priceMin?: string;
+  priceMax?: string;
+  bedsMin?: string;
+  lotSizeMin?: string;
+  propertyType?: string;
+}
+
+async function fetchSavedSearches(): Promise<SavedSearchData[]> {
+  const res = await fetch("/api/property-finder/saved-searches");
+  if (!res.ok) throw new Error("Failed to fetch saved searches");
+  return res.json();
+}
+
+async function createSavedSearch(data: SaveSearchInput): Promise<SavedSearchData> {
+  const res = await fetch("/api/property-finder/saved-searches", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error("Failed to save search");
+  return res.json();
+}
+
+async function removeSavedSearch(id: number): Promise<void> {
+  const res = await fetch(`/api/property-finder/saved-searches/${id}`, { method: "DELETE" });
+  if (!res.ok) throw new Error("Failed to delete saved search");
+}
+
+export function useSavedSearches() {
+  return useQuery({
+    queryKey: ["savedSearches"],
+    queryFn: fetchSavedSearches,
+  });
+}
+
+export function useCreateSavedSearch() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: createSavedSearch,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["savedSearches"] });
+    },
+  });
+}
+
+export function useDeleteSavedSearch() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: removeSavedSearch,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["savedSearches"] });
+    },
+  });
+}

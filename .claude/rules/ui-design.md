@@ -264,3 +264,4 @@ All interactive elements must have `data-testid` attributes:
 - **`.claude/skills/export-controls.md`** — Export format implementations and helper functions
 - **`.claude/skills/page-header.md`** — PageHeader component reference and variant rules
 - **`.claude/skills/glass-components.md`** — GlassCard, GlassButton, SaveButton component specs
+- **`.claude/skills/property-image-picker.md`** — PropertyImagePicker (upload + AI generate), useGenerateImage hook

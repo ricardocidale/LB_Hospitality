@@ -144,12 +144,26 @@ All routes under `/api/auth/` handle user authentication.
 }
 ```
 
-## File Uploads
+## File Uploads & Image Generation
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
 | `POST` | `/api/uploads/request-url` | User | Get presigned upload URL for object storage |
 | `GET` | `/api/objects/*` | None | Serve uploaded files from object storage |
+| `POST` | `/api/generate-image` | User | Generate image via gpt-image-1 (returns raw base64) |
+| `POST` | `/api/generate-property-image` | User | Generate property photo with AI and upload to storage |
+
+### Generate Property Image Request
+```json
+{ "prompt": "Luxury boutique hotel exterior, Upstate New York, architectural photography" }
+```
+
+### Generate Property Image Response
+```json
+{ "objectPath": "/objects/uploads/abc-123-uuid" }
+```
+
+The endpoint generates an image via OpenAI `gpt-image-1`, uploads the PNG buffer to object storage via presigned URL, and returns the object path ready to use as `imageUrl` on a property. Used by `PropertyImagePicker` in `client/src/features/property-images/`.
 
 ## Utility
 

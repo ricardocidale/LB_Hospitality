@@ -10,7 +10,7 @@ A financial modeling and portfolio management portal for L+B Hospitality Group, 
 - **Backend**: Node.js + Express 5, TypeScript ESM modules
 - **Database**: PostgreSQL with Drizzle ORM
 - **Build**: Vite (client), esbuild (server)
-- **AI**: Multi-provider support (OpenAI, Anthropic/Claude, Gemini) for market research
+- **AI**: Multi-provider support (OpenAI, Anthropic/Claude, Gemini) for market research and image generation (gpt-image-1)
 
 ## Key Commands
 
@@ -28,12 +28,22 @@ shared/schema.ts              # Drizzle ORM schema (single source of truth)
 client/src/pages/              # React page components
 client/src/lib/                # Financial engine, constants, utilities
 client/src/components/         # Shared UI components
+client/src/features/           # Self-contained feature modules (see below)
 server/routes.ts               # Express API routes
 server/storage.ts              # Database access layer (IStorage interface)
 server/auth.ts                 # Authentication & session management
 server/calculationChecker.ts   # Independent server-side financial verification
 server/seed.ts                 # Database seeding script
+server/replit_integrations/    # External service integrations (image gen, object storage)
 ```
+
+### Feature Modules (`client/src/features/`)
+
+Self-contained feature folders for functionality outside the core financial engine. Each feature exports via a barrel `index.ts`.
+
+| Feature | Path | Description |
+|---------|------|-------------|
+| Property Images | `features/property-images/` | AI image generation + upload picker for property photos |
 
 ## Coding Standards
 
@@ -43,6 +53,7 @@ server/seed.ts                 # Database seeding script
 - Action buttons on dark backgrounds: use `GlassButton variant="primary"`
 - Schema changes require both `shared/schema.ts` update and SQL migration
 - Never expose API keys or secrets in client code
+- Non-core features (AI image gen, etc.) go in `client/src/features/<feature>/` with barrel exports — not in shared `hooks/` or `components/ui/`
 
 ## Mandatory Business Rules
 
@@ -70,9 +81,14 @@ These are non-negotiable constraints — see `.claude/rules/financial-engine.md`
 - `ADMIN_PASSWORD` - Admin user password (required)
 - `CHECKER_PASSWORD` - Checker user password (required)
 - `DATABASE_URL` - PostgreSQL connection string (auto-configured)
+- `AI_INTEGRATIONS_OPENAI_API_KEY` - OpenAI API key for AI image generation (auto-configured on Replit)
+- `AI_INTEGRATIONS_OPENAI_BASE_URL` - OpenAI base URL for AI image generation (auto-configured on Replit)
 
 ## Documentation
 
 See `.claude/rules/` for detailed documentation on:
 - Architecture, database & seeding, financial engine, verification system
 - UI design system, shared constants, API route reference
+
+See `.claude/skills/` for component-level documentation:
+- `property-image-picker.md` — PropertyImagePicker component, useGenerateImage hook, AI image endpoint

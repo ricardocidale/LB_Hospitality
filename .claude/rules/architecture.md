@@ -24,7 +24,8 @@ The L+B Hospitality Business Simulation Portal is a full-stack TypeScript applic
 │      │                                                    │
 │      ├──► auth.ts (sessions, bcrypt)                      │
 │      ├──► calculationChecker.ts (independent verification)│
-│      └──► AI providers (OpenAI, Anthropic, Gemini)        │
+│      ├──► AI providers (OpenAI, Anthropic, Gemini)        │
+│      └──► replit_integrations/ (image gen, object storage)│
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -61,6 +62,14 @@ The L+B Hospitality Business Simulation Portal is a full-stack TypeScript applic
 | `client/src/lib/runVerification.ts` | Client-side verification orchestration |
 | `client/src/lib/financialAuditor.ts` | GAAP audit engine |
 
+### Feature Modules (`client/src/features/`)
+
+Self-contained feature folders for functionality outside the core financial engine. Each feature has its own components, hooks, and barrel `index.ts`.
+
+| Feature | Path | Contents |
+|---------|------|----------|
+| Property Images | `features/property-images/` | `PropertyImagePicker.tsx` (upload + AI generate component), `useGenerateImage.ts` (hook), `index.ts` (barrel) |
+
 ## Backend Architecture
 
 ### Server Stack
@@ -76,6 +85,8 @@ RESTful endpoints organized by domain:
 - `/api/properties/*` - Property CRUD
 - `/api/scenarios/*` - Scenario save/load
 - `/api/research/*` - AI market research
+- `/api/generate-image`, `/api/generate-property-image` - AI image generation (gpt-image-1)
+- `/api/uploads/*` - Object storage file uploads
 
 ### Data Layer
 - **Drizzle ORM** with PostgreSQL dialect
@@ -128,9 +139,32 @@ Global Assumptions + Properties
                        └──► AI verification (methodology review via LLM)
 ```
 
+## Server Integrations (`server/replit_integrations/`)
+
+External service integrations provided by the Replit platform:
+
+| Integration | Path | Purpose |
+|-------------|------|---------|
+| Image Generation | `image/` | AI image generation via OpenAI `gpt-image-1` (`generateImageBuffer()`, `editImages()`) |
+| Object Storage | `object_storage/` | File uploads via presigned URLs, object serving, ACL policies |
+
+### Image Generation Flow
+```
+Client (PropertyImagePicker)
+    │
+    ▼
+POST /api/generate-property-image (prompt)
+    │
+    ├──► generateImageBuffer(prompt) → OpenAI gpt-image-1 → PNG buffer
+    │
+    └──► Upload buffer to object storage via presigned URL
+         │
+         └──► Return { objectPath: "/objects/uploads/uuid" }
+```
+
 ## Deployment
 
 - Hosted on Replit with automatic HTTPS
 - PostgreSQL database (Neon-backed)
-- Object storage for file uploads (logos, photos)
+- Object storage for file uploads (logos, photos, AI-generated images)
 - Environment secrets managed through Replit Secrets

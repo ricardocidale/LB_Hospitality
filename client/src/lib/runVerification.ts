@@ -9,7 +9,6 @@ import {
   DEPRECIATION_YEARS,
   DAYS_PER_MONTH,
   PROJECTION_YEARS,
-  PROJECTION_MONTHS
 } from "./constants";
 
 export interface VerificationResults {

@@ -37,7 +37,6 @@ import {
   DEFAULT_ACQ_CLOSING_COST_RATE,
   DEPRECIATION_YEARS,
   PROJECTION_YEARS,
-  PROJECTION_MONTHS
 } from "@/lib/loanCalculations";
 import { DAYS_PER_MONTH } from "@/lib/constants";
 

@@ -25,6 +25,7 @@ import {
   DEFAULT_UTILITIES_VARIABLE_SPLIT,
   DEFAULT_FULL_CATERING_BOOST,
   DEFAULT_PARTIAL_CATERING_BOOST,
+  PROJECTION_YEARS,
 } from "@/lib/constants";
 
 function EditableValue({
@@ -364,6 +365,21 @@ export default function CompanyAssumptions() {
                   data-testid="input-company-ops-start-date"
                 />
               </div>
+              <div className="flex flex-col gap-2">
+                <Label className="flex items-center text-gray-700 label-text">
+                  Projection Years
+                  <HelpTooltip text="Number of years to project financial statements. Affects all charts, tables, and verification checks." />
+                </Label>
+                <Input
+                  type="number"
+                  value={formData.projectionYears ?? global.projectionYears ?? PROJECTION_YEARS}
+                  onChange={(e) => handleUpdate("projectionYears", Math.max(1, Math.min(30, parseInt(e.target.value) || PROJECTION_YEARS)))}
+                  min={1}
+                  max={30}
+                  className="max-w-24 bg-white border-[#9FBCA4]/30 text-gray-900"
+                  data-testid="input-projection-years"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -587,13 +603,13 @@ export default function CompanyAssumptions() {
                   Compensation
                   <HelpTooltip text="Annual salaries for management company team members" />
                 </h3>
-                <p className="text-gray-600 text-sm label-text">Configure partner compensation and staff salaries over 10 years</p>
+                <p className="text-gray-600 text-sm label-text">Configure partner compensation, staff salaries, and staffing tiers</p>
               </div>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label className="flex items-center text-gray-700 label-text">
                     Staff Salary (Avg)
-                    <HelpTooltip text="Average annual salary per staff FTE. Staffing scales: 2.5 FTE (1-3 properties), 4.5 FTE (4-6), 7 FTE (7-10)" />
+                    <HelpTooltip text="Average annual salary per staff FTE. Staffing scales based on the tiers configured below." />
                   </Label>
                   <EditableValue
                     value={formData.staffSalary ?? global.staffSalary}
@@ -611,6 +627,83 @@ export default function CompanyAssumptions() {
                   max={200000}
                   step={5000}
                 />
+              </div>
+
+              <div className="pt-4 border-t border-[#9FBCA4]/20">
+                <div className="mb-3">
+                  <Label className="flex items-center text-gray-700 label-text font-medium">
+                    Staffing Tiers
+                    <HelpTooltip text="Define how many full-time employees (FTE) are needed based on the number of properties under management. Each tier sets a maximum property count and the FTE required." />
+                  </Label>
+                  <p className="text-xs text-gray-500 mt-1">Set the FTE headcount for each portfolio size bracket</p>
+                </div>
+                <div className="grid grid-cols-1 gap-3">
+                  <div className="flex items-center gap-3 bg-[#9FBCA4]/5 rounded-lg px-3 py-2">
+                    <span className="text-sm text-gray-600 w-20 shrink-0">Tier 1:</span>
+                    <span className="text-xs text-gray-500">Up to</span>
+                    <Input
+                      type="number"
+                      value={formData.staffTier1MaxProperties ?? global.staffTier1MaxProperties ?? 3}
+                      onChange={(e) => handleUpdate("staffTier1MaxProperties", Math.max(1, parseInt(e.target.value) || 3))}
+                      min={1}
+                      max={20}
+                      className="w-16 bg-white border-[#9FBCA4]/30 text-gray-900 text-center"
+                      data-testid="input-tier1-max-properties"
+                    />
+                    <span className="text-xs text-gray-500">properties →</span>
+                    <Input
+                      type="number"
+                      value={formData.staffTier1Fte ?? global.staffTier1Fte ?? 2.5}
+                      onChange={(e) => handleUpdate("staffTier1Fte", Math.max(0.5, parseFloat(e.target.value) || 2.5))}
+                      min={0.5}
+                      max={20}
+                      step={0.5}
+                      className="w-20 bg-white border-[#9FBCA4]/30 text-gray-900 text-center"
+                      data-testid="input-tier1-fte"
+                    />
+                    <span className="text-xs text-gray-500">FTE</span>
+                  </div>
+                  <div className="flex items-center gap-3 bg-[#9FBCA4]/5 rounded-lg px-3 py-2">
+                    <span className="text-sm text-gray-600 w-20 shrink-0">Tier 2:</span>
+                    <span className="text-xs text-gray-500">Up to</span>
+                    <Input
+                      type="number"
+                      value={formData.staffTier2MaxProperties ?? global.staffTier2MaxProperties ?? 6}
+                      onChange={(e) => handleUpdate("staffTier2MaxProperties", Math.max(1, parseInt(e.target.value) || 6))}
+                      min={1}
+                      max={30}
+                      className="w-16 bg-white border-[#9FBCA4]/30 text-gray-900 text-center"
+                      data-testid="input-tier2-max-properties"
+                    />
+                    <span className="text-xs text-gray-500">properties →</span>
+                    <Input
+                      type="number"
+                      value={formData.staffTier2Fte ?? global.staffTier2Fte ?? 4.5}
+                      onChange={(e) => handleUpdate("staffTier2Fte", Math.max(0.5, parseFloat(e.target.value) || 4.5))}
+                      min={0.5}
+                      max={30}
+                      step={0.5}
+                      className="w-20 bg-white border-[#9FBCA4]/30 text-gray-900 text-center"
+                      data-testid="input-tier2-fte"
+                    />
+                    <span className="text-xs text-gray-500">FTE</span>
+                  </div>
+                  <div className="flex items-center gap-3 bg-[#9FBCA4]/5 rounded-lg px-3 py-2">
+                    <span className="text-sm text-gray-600 w-20 shrink-0">Tier 3:</span>
+                    <span className="text-xs text-gray-500">Above {formData.staffTier2MaxProperties ?? global.staffTier2MaxProperties ?? 6} properties →</span>
+                    <Input
+                      type="number"
+                      value={formData.staffTier3Fte ?? global.staffTier3Fte ?? 7.0}
+                      onChange={(e) => handleUpdate("staffTier3Fte", Math.max(0.5, parseFloat(e.target.value) || 7.0))}
+                      min={0.5}
+                      max={50}
+                      step={0.5}
+                      className="w-20 bg-white border-[#9FBCA4]/30 text-gray-900 text-center"
+                      data-testid="input-tier3-fte"
+                    />
+                    <span className="text-xs text-gray-500">FTE</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div></div>

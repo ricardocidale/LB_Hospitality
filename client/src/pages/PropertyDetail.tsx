@@ -15,7 +15,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { drawLineChart } from "@/lib/pdfChartDrawer";
-import { calculateLoanParams, calculatePropertyYearlyCashFlows, LoanParams, GlobalLoanParams, DEFAULT_LTV, PROJECTION_YEARS, PROJECTION_MONTHS } from "@/lib/loanCalculations";
+import { calculateLoanParams, calculatePropertyYearlyCashFlows, LoanParams, GlobalLoanParams, DEFAULT_LTV, PROJECTION_YEARS } from "@/lib/loanCalculations";
 import { PropertyPhotoUpload } from "@/components/PropertyPhotoUpload";
 import { useQueryClient } from "@tanstack/react-query";
 import { ExportDialog } from "@/components/ExportDialog";

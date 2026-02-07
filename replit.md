@@ -107,6 +107,15 @@ To simulate a scalable hospitality platform where individual assets can be analy
 - **Output**: Research results adhere to a defined schema including `marketOverview`, `adrAnalysis`, `occupancyAnalysis`, `capRateAnalysis`, etc.
 - **Seed Data**: Pre-seeded research data is available for all 5 properties for immediate display.
 
+### Database Environments
+- **Separate Databases**: Development and Production use separate PostgreSQL databases with different data.
+- **Syncing Production Data**: After reseeding or changing seed data in development, the production database must be manually updated. The `execute_sql_tool` only supports READ-ONLY queries against production. To sync:
+  1. Query both dev and production databases to identify differences.
+  2. Write SQL UPDATE statements targeting the production property/global_assumptions IDs (production IDs may differ from development IDs).
+  3. Provide the SQL statements to the user to run in the Production Database shell (accessible via the Databases panel in Replit).
+- **Column naming**: Database columns use snake_case (e.g., `cost_rate_fb`, `catering_boost_percent`), while the Drizzle ORM schema uses camelCase (e.g., `costRateFb`, `cateringBoostPercent`).
+- **Production property IDs**: Currently 6-10. Development property IDs: Currently 32-36. Always verify current IDs before writing UPDATE statements.
+
 ## External Dependencies
 
 - **Database**: PostgreSQL

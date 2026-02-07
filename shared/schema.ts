@@ -601,3 +601,79 @@ export const insertSavedSearchSchema = z.object({
 
 export type SavedSearch = typeof savedSearches.$inferSelect;
 export type InsertSavedSearch = z.infer<typeof insertSavedSearchSchema>;
+
+// --- ACTIVITY LOGS TABLE ---
+// Tracks all user actions across the system: property CRUD, assumption changes,
+// scenario operations, verification runs, user management, and image generation.
+// This is the core audit trail for the operational layer.
+export const activityLogs = pgTable("activity_logs", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  /** Action performed: create, update, delete, load, save, run, export */
+  action: text("action").notNull(),
+  /** Entity type affected: property, scenario, global_assumptions, user, verification, image */
+  entityType: text("entity_type").notNull(),
+  /** ID of the affected entity (nullable for global operations like verification runs) */
+  entityId: integer("entity_id"),
+  /** Human-readable name of the entity (e.g. "The Hudson Estate", "Base scenario") */
+  entityName: text("entity_name"),
+  /** Additional context: changed fields, old/new values, audit metadata */
+  metadata: jsonb("metadata"),
+  /** Client IP address at time of action */
+  ipAddress: text("ip_address"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [
+  index("activity_logs_user_id_created_at_idx").on(table.userId, table.createdAt),
+  index("activity_logs_entity_type_entity_id_idx").on(table.entityType, table.entityId),
+]);
+
+export const insertActivityLogSchema = z.object({
+  userId: z.number(),
+  action: z.string(),
+  entityType: z.string(),
+  entityId: z.number().nullable().optional(),
+  entityName: z.string().nullable().optional(),
+  metadata: z.any().nullable().optional(),
+  ipAddress: z.string().nullable().optional(),
+});
+
+export type ActivityLog = typeof activityLogs.$inferSelect;
+export type InsertActivityLog = z.infer<typeof insertActivityLogSchema>;
+
+// --- VERIFICATION RUNS TABLE ---
+// Persists the results of each independent financial verification run.
+// Enables verification history, trend tracking, and audit compliance.
+// Results JSONB stores the full check array from calculationChecker.ts.
+export const verificationRuns = pgTable("verification_runs", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  /** Total number of checks executed */
+  totalChecks: integer("total_checks").notNull(),
+  /** Number of checks that passed */
+  passed: integer("passed").notNull(),
+  /** Number of checks that failed */
+  failed: integer("failed").notNull(),
+  /** Audit opinion: UNQUALIFIED (clean), QUALIFIED (minor issues), ADVERSE (critical) */
+  auditOpinion: text("audit_opinion").notNull(),
+  /** Overall status: PASS, WARNING, or FAIL */
+  overallStatus: text("overall_status").notNull(),
+  /** Full verification results (property results, company checks, consolidated checks) */
+  results: jsonb("results").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [
+  index("verification_runs_user_id_idx").on(table.userId),
+  index("verification_runs_created_at_idx").on(table.createdAt),
+]);
+
+export const insertVerificationRunSchema = z.object({
+  userId: z.number(),
+  totalChecks: z.number(),
+  passed: z.number(),
+  failed: z.number(),
+  auditOpinion: z.string(),
+  overallStatus: z.string(),
+  results: z.any(),
+});
+
+export type VerificationRun = typeof verificationRuns.$inferSelect;
+export type InsertVerificationRun = z.infer<typeof insertVerificationRunSchema>;

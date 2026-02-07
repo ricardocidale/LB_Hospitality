@@ -16,6 +16,8 @@ The database schema is defined in `shared/schema.ts` using Drizzle ORM. All tabl
 | `login_logs` | Authentication audit trail | userId, email, ipAddress, success, timestamp |
 | `market_research` | AI-generated research cache | type (property/company/global), content (JSON), propertyId, userId |
 | `design_themes` | UI color theme definitions | name, colors (JSON array of DesignColor), isActive |
+| `activity_logs` | User action audit trail | userId, action, entityType, entityId, entityName, metadata (JSONB), ipAddress, createdAt |
+| `verification_runs` | Persisted verification results | userId, totalChecks, passed, failed, auditOpinion, overallStatus, results (JSONB), createdAt |
 
 ### Schema Conventions
 - Most primary keys use `integer().primaryKey().generatedAlwaysAsIdentity()` (exception: `sessions` uses `text` PK)

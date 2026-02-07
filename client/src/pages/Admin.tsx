@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Layout from "@/components/Layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -436,6 +436,7 @@ export default function Admin() {
     onSuccess: (data) => {
       setVerificationResults(data);
       setAiReview("");
+      queryClient.invalidateQueries({ queryKey: ["admin", "verification-history"] });
       toast({
         title: data.summary.auditOpinion === "UNQUALIFIED" ? "Audit Complete - Unqualified Opinion" :
                data.summary.auditOpinion === "QUALIFIED" ? "Audit Complete - Qualified Opinion" :
@@ -681,6 +682,30 @@ export default function Admin() {
     },
   });
 
+  // Auto-run verification when entering verification view
+  const verificationAutoRan = useRef(false);
+  useEffect(() => {
+    if (currentView === "verification" && !verificationResults && !runVerification.isPending && !verificationAutoRan.current) {
+      verificationAutoRan.current = true;
+      runVerification.mutate();
+    }
+    if (currentView !== "verification") {
+      verificationAutoRan.current = false;
+    }
+  }, [currentView]);
+
+  // Auto-run design check when entering design view
+  const designAutoRan = useRef(false);
+  useEffect(() => {
+    if (currentView === "design" && !designResults && !runDesignCheck.isPending && !designAutoRan.current) {
+      designAutoRan.current = true;
+      runDesignCheck.mutate();
+    }
+    if (currentView !== "design") {
+      designAutoRan.current = false;
+    }
+  }, [currentView]);
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
@@ -746,17 +771,34 @@ export default function Admin() {
           </CardContent>
         </Card>
 
-        <Card className="group relative overflow-hidden bg-gradient-to-br from-[#1a2e3d]/95 via-[#243d4d]/95 to-[#1e3a42]/95 backdrop-blur-3xl border border-white/20 shadow-2xl shadow-black/40 hover:shadow-[#257D41]/20 transition-all duration-500">
+        <Card className="group relative overflow-hidden bg-gradient-to-br from-[#1a2e3d]/95 via-[#243d4d]/95 to-[#1e3a42]/95 backdrop-blur-3xl border border-white/20 shadow-2xl shadow-black/40 hover:shadow-[#257D41]/20 transition-all duration-500 cursor-pointer" onClick={() => setCurrentView("verification")}>
           <div className="absolute inset-0 bg-gradient-to-br from-[#257D41]/10 via-transparent to-[#9FBCA4]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-[#257D41]/15 rounded-full blur-3xl" />
           <CardContent className="relative p-6">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#257D41]/30 to-[#9FBCA4]/20 flex items-center justify-center border border-[#257D41]/30 shadow-lg shadow-[#257D41]/10">
+              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border shadow-lg ${
+                verificationHistory?.[0]?.auditOpinion === "UNQUALIFIED"
+                  ? "bg-gradient-to-br from-[#257D41]/40 to-[#9FBCA4]/30 border-[#257D41]/40 shadow-[#257D41]/20"
+                  : verificationHistory?.[0]?.auditOpinion === "QUALIFIED"
+                  ? "bg-gradient-to-br from-yellow-500/30 to-yellow-400/20 border-yellow-500/30 shadow-yellow-500/10"
+                  : "bg-gradient-to-br from-[#257D41]/30 to-[#9FBCA4]/20 border-[#257D41]/30 shadow-[#257D41]/10"
+              }`}>
                 <FileCheck className="w-7 h-7 text-[#9FBCA4]" />
               </div>
               <div>
-                <p className="text-4xl font-mono font-bold text-white tracking-tight">2</p>
-                <p className="text-sm text-white/50 label-text mt-1">Verification Tools</p>
+                {verificationHistory?.[0] ? (
+                  <>
+                    <p className="text-2xl font-mono font-bold text-white tracking-tight">{verificationHistory[0].passed}/{verificationHistory[0].totalChecks}</p>
+                    <p className={`text-sm label-text mt-1 ${
+                      verificationHistory[0].auditOpinion === "UNQUALIFIED" ? "text-[#9FBCA4]" : "text-yellow-400"
+                    }`}>{verificationHistory[0].auditOpinion}</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-2xl font-mono font-bold text-white/50 tracking-tight">--</p>
+                    <p className="text-sm text-white/50 label-text mt-1">Not Yet Run</p>
+                  </>
+                )}
               </div>
             </div>
           </CardContent>
@@ -826,7 +868,17 @@ export default function Admin() {
               </div>
               <div className="flex-1">
                 <h3 className="text-2xl font-display font-semibold text-white mb-2">Financial Verification</h3>
-                <p className="text-white/50 label-text">Run formula checks and GAAP compliance validation</p>
+                <p className="text-white/50 label-text">GAAP compliance validation with independent recalculation</p>
+                {verificationHistory?.[0] && (
+                  <div className="flex items-center gap-2 mt-2">
+                    <span className={`text-xs px-2 py-0.5 rounded font-mono ${
+                      verificationHistory[0].auditOpinion === "UNQUALIFIED" ? "bg-[#257D41]/20 text-[#9FBCA4]" :
+                      verificationHistory[0].auditOpinion === "QUALIFIED" ? "bg-yellow-500/20 text-yellow-400" :
+                      "bg-red-500/20 text-red-400"
+                    }`}>{verificationHistory[0].passed}/{verificationHistory[0].totalChecks} {verificationHistory[0].auditOpinion}</span>
+                    <span className="text-xs text-white/30 font-mono">{new Date(verificationHistory[0].createdAt).toLocaleDateString()}</span>
+                  </div>
+                )}
               </div>
             </div>
           </CardContent>
@@ -843,7 +895,16 @@ export default function Admin() {
               </div>
               <div className="flex-1">
                 <h3 className="text-2xl font-display font-semibold text-white mb-2">Design Consistency</h3>
-                <p className="text-white/50 label-text">Verify fonts, colors, and component standards across all pages</p>
+                <p className="text-white/50 label-text">Fonts, colors, and component standards across all pages</p>
+                {designResults && (
+                  <div className="flex items-center gap-2 mt-2">
+                    <span className={`text-xs px-2 py-0.5 rounded font-mono ${
+                      designResults.overallStatus === "PASS" ? "bg-[#257D41]/20 text-[#9FBCA4]" :
+                      designResults.overallStatus === "WARNING" ? "bg-yellow-500/20 text-yellow-400" :
+                      "bg-red-500/20 text-red-400"
+                    }`}>{designResults.passed}/{designResults.totalChecks} {designResults.overallStatus}</span>
+                  </div>
+                )}
               </div>
             </div>
           </CardContent>
@@ -1313,10 +1374,36 @@ export default function Admin() {
       
       <CardContent className="relative space-y-6">
         {!verificationResults && !runVerification.isPending && (
-          <div className="text-center py-12">
-            <FileCheck className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-            <p className="label-text text-gray-500">Click "Run Verification" to independently recalculate and verify all financial statements</p>
-          </div>
+          verificationHistory?.[0] ? (
+            <div className={`p-5 rounded-2xl border-2 ${
+              verificationHistory[0].auditOpinion === "UNQUALIFIED" ? "bg-green-50 border-green-200" :
+              verificationHistory[0].auditOpinion === "QUALIFIED" ? "bg-yellow-50 border-yellow-200" :
+              "bg-red-50 border-red-200"
+            }`}>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  {verificationHistory[0].auditOpinion === "UNQUALIFIED" ?
+                    <CheckCircle2 className="w-7 h-7 text-green-600" /> :
+                    verificationHistory[0].auditOpinion === "QUALIFIED" ?
+                    <AlertTriangle className="w-7 h-7 text-yellow-600" /> :
+                    <XCircle className="w-7 h-7 text-red-600" />
+                  }
+                  <div>
+                    <h3 className="font-display text-base font-bold">Last Run: {verificationHistory[0].auditOpinion}</h3>
+                    <p className="text-xs text-gray-500">
+                      {verificationHistory[0].passed}/{verificationHistory[0].totalChecks} checks passed on {new Date(verificationHistory[0].createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                  </div>
+                </div>
+                <span className="text-xs text-gray-400 label-text">Running fresh verification...</span>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <Loader2 className="w-16 h-16 mx-auto text-[#9FBCA4] animate-spin mb-4" />
+              <p className="label-text text-gray-500">Starting verification...</p>
+            </div>
+          )
         )}
 
         {runVerification.isPending && (
@@ -1741,8 +1828,8 @@ export default function Admin() {
         <CardContent className="relative space-y-6">
           {!designResults && !runDesignCheck.isPending && (
             <div className="text-center py-8">
-              <Palette className="w-12 h-12 mx-auto text-gray-300 mb-3" />
-              <p className="label-text text-gray-500 text-sm">Click "Run Design Check" to verify design consistency</p>
+              <Loader2 className="w-12 h-12 mx-auto text-[#9FBCA4] animate-spin mb-3" />
+              <p className="label-text text-gray-500 text-sm">Starting design consistency check...</p>
             </div>
           )}
 

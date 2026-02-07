@@ -12,7 +12,13 @@
       "Bash(find:*)",
       "WebSearch",
       "WebFetch(domain:corporatefinanceinstitute.com)",
-      "WebFetch(domain:www.cfainstitute.org)"
+      "WebFetch(domain:www.cfainstitute.org)",
+      "Bash(calc)",
+      "Bash(npx drizzle-kit push:*)",
+      "Bash(npx tsx:*)",
+      "Bash(node -e:*)",
+      "Bash(git remote get-url:*)",
+      "Bash(git remote set-url:*)"
     ]
   }
 }

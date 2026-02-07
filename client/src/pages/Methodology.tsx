@@ -565,26 +565,30 @@ export default function Methodology() {
               <div className="bg-muted/50 rounded-lg p-4">
                 <h4 className="font-semibold mb-2">Food & Beverage Revenue</h4>
                 <p className="text-sm text-muted-foreground mb-2">
-                  Calculated as a percentage of room revenue:
+                  F&B revenue is calculated as a percentage of room revenue, with an additional catering boost:
                 </p>
                 <div className="bg-background rounded p-3 font-mono text-sm">
-                  F&B Revenue = Room Revenue × F&B Revenue Share (default 22%) × Catering Boost
+                  Base F&B = Room Revenue × F&B % (default 22%)
                 </div>
+                <div className="bg-background rounded p-3 font-mono text-sm mt-2">
+                  Catering Boost = Base F&B × Catering Boost % (default 30%)
+                </div>
+                <div className="bg-background rounded p-3 font-mono text-sm mt-2">
+                  Total F&B Revenue = Base F&B + Catering Boost = Base F&B × (1 + Catering Boost %)
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  The catering boost percentage is defined per property and represents the blended effect across all events (catered and non-catered).
+                </p>
               </div>
 
               <div className="bg-muted/50 rounded-lg p-4">
                 <h4 className="font-semibold mb-2">Event Revenue</h4>
                 <p className="text-sm text-muted-foreground mb-2">
-                  Based on the property's catering level setting:
+                  Calculated as a percentage of room revenue:
                 </p>
                 <div className="bg-background rounded p-3 font-mono text-sm">
-                  Event Revenue = Room Revenue × Catering Level Rate
+                  Event Revenue = Room Revenue × Event Revenue Share (default 43%)
                 </div>
-                <ul className="mt-3 text-sm text-muted-foreground space-y-1">
-                  <li>• <strong>Full Service</strong>: 50% of room revenue</li>
-                  <li>• <strong>Partial Service</strong>: 25% of room revenue</li>
-                  <li>• <strong>None</strong>: No events revenue</li>
-                </ul>
               </div>
 
               <div className="bg-muted/50 rounded-lg p-4">
@@ -1102,12 +1106,11 @@ export default function Methodology() {
               </div>
 
               <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                <h4 className="font-semibold mb-2 text-green-800">Catering F&B Boost (Configurable)</h4>
+                <h4 className="font-semibold mb-2 text-green-800">Catering Boost (Configurable)</h4>
                 <ul className="text-sm text-green-700 space-y-2">
-                  <li>• <strong>Full Catering Mix</strong>: Default 40% of events <span className="text-green-600">(editable per property)</span></li>
-                  <li>• <strong>Partial Catering Mix</strong>: Default 30% of events <span className="text-green-600">(editable per property)</span></li>
-                  <li>• <strong>Full Catering F&B Boost</strong>: Default +50% to base F&B <span className="text-green-600">(editable in Systemwide Assumptions)</span></li>
-                  <li>• <strong>Partial Catering F&B Boost</strong>: Default +25% to base F&B <span className="text-green-600">(editable in Systemwide Assumptions)</span></li>
+                  <li>• <strong>Catering Boost %</strong>: Default 30% <span className="text-green-600">(editable per property)</span></li>
+                  <li>• Represents the blended uplift from all catered events</li>
+                  <li>• Applied to base F&B revenue: Total F&B = Base F&B × (1 + Boost %)</li>
                 </ul>
               </div>
             </AccordionContent>

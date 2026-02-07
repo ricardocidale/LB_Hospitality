@@ -99,8 +99,6 @@ async function seed() {
       acqClosingCostRate: 0.02,
       refiClosingCostRate: 0.03,
     },
-    fullCateringFBBoost: 0.5,
-    partialCateringFBBoost: 0.25,
     companyTaxRate: 0.3,
     companyName: "L+B Hospitality Company",
     exitCapRate: 0.085,
@@ -134,7 +132,7 @@ async function seed() {
       occupancyGrowthStep: 0.05,
       stabilizationMonths: 36,
       type: "Full Equity",
-      cateringLevel: "Partial",
+
       willRefinance: "Yes",
       refinanceDate: "2029-12-01",
       costRateRooms: 0.36,
@@ -151,8 +149,7 @@ async function seed() {
       revShareEvents: 0.43,
       revShareFB: 0.22,
       revShareOther: 0.07,
-      fullCateringPercent: 0.4,
-      partialCateringPercent: 0.3,
+      cateringBoostPercent: 0.28,
       exitCapRate: 0.085,
       taxRate: 0.25,
     },
@@ -177,7 +174,7 @@ async function seed() {
       occupancyGrowthStep: 0.05,
       stabilizationMonths: 36,
       type: "Full Equity",
-      cateringLevel: "Full",
+
       willRefinance: "Yes",
       refinanceDate: "2030-07-01",
       costRateRooms: 0.36,
@@ -194,8 +191,7 @@ async function seed() {
       revShareEvents: 0.43,
       revShareFB: 0.22,
       revShareOther: 0.07,
-      fullCateringPercent: 0.4,
-      partialCateringPercent: 0.3,
+      cateringBoostPercent: 0.38,
       exitCapRate: 0.085,
       taxRate: 0.25,
     },
@@ -220,7 +216,7 @@ async function seed() {
       occupancyGrowthStep: 0.05,
       stabilizationMonths: 36,
       type: "Full Equity",
-      cateringLevel: "Partial",
+
       willRefinance: "Yes",
       refinanceDate: "2031-01-01",
       costRateRooms: 0.36,
@@ -237,8 +233,7 @@ async function seed() {
       revShareEvents: 0.43,
       revShareFB: 0.22,
       revShareOther: 0.07,
-      fullCateringPercent: 0.4,
-      partialCateringPercent: 0.3,
+      cateringBoostPercent: 0.25,
       exitCapRate: 0.085,
       taxRate: 0.25,
     },
@@ -267,7 +262,7 @@ async function seed() {
       acquisitionInterestRate: 0.09,
       acquisitionTermYears: 25,
       acquisitionClosingCostRate: 0.02,
-      cateringLevel: "Full",
+
       costRateRooms: 0.36,
       costRateFB: 0.15,
       costRateAdmin: 0.08,
@@ -282,8 +277,7 @@ async function seed() {
       revShareEvents: 0.43,
       revShareFB: 0.22,
       revShareOther: 0.07,
-      fullCateringPercent: 0.4,
-      partialCateringPercent: 0.3,
+      cateringBoostPercent: 0.35,
       exitCapRate: 0.085,
       taxRate: 0.25,
     },
@@ -312,7 +306,7 @@ async function seed() {
       acquisitionInterestRate: 0.09,
       acquisitionTermYears: 25,
       acquisitionClosingCostRate: 0.02,
-      cateringLevel: "Full",
+
       costRateRooms: 0.36,
       costRateFB: 0.15,
       costRateAdmin: 0.08,
@@ -327,8 +321,7 @@ async function seed() {
       revShareEvents: 0.43,
       revShareFB: 0.22,
       revShareOther: 0.07,
-      fullCateringPercent: 0.4,
-      partialCateringPercent: 0.3,
+      cateringBoostPercent: 0.42,
       exitCapRate: 0.085,
       taxRate: 0.25,
     },
@@ -392,6 +385,23 @@ async function seed() {
             "Limited competition for high-end intimate event spaces in the region",
             "Expanding wellness tourism trend among affluent demographics"
           ]
+        },
+        cateringAnalysis: {
+          recommendedBoostPercent: "28%",
+          marketRange: "22% - 35%",
+          rationale: "The Hudson Estate's event mix skews toward partially catered corporate retreats and wellness weekends, with fully catered weddings comprising a smaller share. Hudson Valley comparable properties report F&B revenue at approximately 28–30% of room revenue when including catering uplift, versus a base F&B share of ~22%. This implies a catering boost of roughly 28%. The property's partial-catering positioning and strong but not dominant wedding market support a boost in the mid-range.",
+          factors: [
+            "Corporate retreats (40% of events) typically include 1–2 catered meals per day, not full-service catering",
+            "Hudson Valley wedding market is competitive but intimate estate weddings command full catering at premium per-head rates",
+            "Wellness retreats (25% of events) generally include healthy meal programming, driving moderate F&B uplift",
+            "Seasonal pattern: fall weddings and summer corporate events drive peak catering demand (Sep–Oct highest)",
+            "Comparable properties (Troutbeck, Hasbrouck House) report catering contributing 25–32% uplift to base F&B"
+          ],
+          eventMixBreakdown: {
+            fullyCatered: "30% of events (weddings, milestone celebrations, corporate dinners)",
+            partiallyCatered: "45% of events (retreats with some meals, corporate meetings with lunch)",
+            noCatering: "25% of events (room-only bookings, self-catered private gatherings)"
+          }
         },
         capRateAnalysis: {
           marketRange: "7.5%–9.5%",
@@ -491,6 +501,23 @@ async function seed() {
             "Year-round outdoor recreation supporting dual-season revenue model"
           ]
         },
+        cateringAnalysis: {
+          recommendedBoostPercent: "38%",
+          marketRange: "30% - 45%",
+          rationale: "Eden Summit Lodge's full-catering positioning in a supply-constrained ski market supports a higher catering boost. Mountain resorts in the Wasatch Range report F&B revenue at 30–33% of room revenue including catering, versus a base F&B share of ~22%. The property's full kitchen capability, multi-day corporate retreat format (3-meal programs), and growing mountain wedding market drive strong catering penetration. Ski lodge properties in comparable markets (Park City, Jackson Hole) report 35–45% catering uplift to base F&B.",
+          factors: [
+            "Full-catering capability allows 3-meal-per-day corporate retreat programs, maximizing per-event F&B revenue",
+            "Mountain wedding market (35% of events) commands full-service catering with premium per-head pricing ($150–$250/guest)",
+            "Ski season events (Dec–Mar) see near-100% catering participation due to limited dining alternatives in Eden",
+            "Corporate retreats from Salt Lake City tech companies (40% of events) typically book all-inclusive packages",
+            "Comparable properties (Snowpine Lodge, Stein Eriksen) report catering contributing 35–42% uplift to base F&B"
+          ],
+          eventMixBreakdown: {
+            fullyCatered: "45% of events (weddings, corporate multi-day retreats with all meals, galas)",
+            partiallyCatered: "35% of events (day meetings with lunch, wellness retreats with some meals)",
+            noCatering: "20% of events (ski group room-only bookings, self-catered groups)"
+          }
+        },
         capRateAnalysis: {
           marketRange: "7.0%–9.0%",
           boutiqueRange: "7.0%–8.0%",
@@ -588,6 +615,23 @@ async function seed() {
             "Growing wellness and experiential travel trends among tech demographics",
             "Hill Country setting providing differentiation from downtown hotel competition"
           ]
+        },
+        cateringAnalysis: {
+          recommendedBoostPercent: "25%",
+          marketRange: "20% - 32%",
+          rationale: "Austin Hillside's Hill Country positioning supports moderate catering uplift. While Austin's tech scene drives strong corporate retreat demand, many events are partially catered (lunch-only meetings, cocktail receptions) rather than full multi-meal programs. The competitive Austin F&B scene means guests often explore local restaurants for dinner, reducing full-catering penetration. Comparable Hill Country properties report F&B at 27–28% of room revenue including catering versus a 22% base, implying a ~25% boost.",
+          factors: [
+            "Austin's vibrant restaurant scene reduces demand for on-site dinner catering at corporate events",
+            "Tech company offsites (45% of events) typically book partial catering: breakfast, lunch, and coffee service",
+            "Hill Country weddings (25% of events) command full catering but represent a smaller share of the event mix",
+            "SXSW and ACL festival periods drive room-only bookings with minimal F&B attachment",
+            "Comparable properties (Camp Lucy, Travaasa) report catering contributing 22–30% uplift to base F&B"
+          ],
+          eventMixBreakdown: {
+            fullyCatered: "25% of events (weddings, executive dinners, multi-day wellness retreats)",
+            partiallyCatered: "40% of events (corporate day meetings with lunch, cocktail receptions)",
+            noCatering: "35% of events (festival period room-only, self-organized group stays)"
+          }
         },
         capRateAnalysis: {
           marketRange: "7.0%–8.5%",
@@ -687,6 +731,23 @@ async function seed() {
             "Year-round spring-like climate eliminating seasonal weather risk"
           ]
         },
+        cateringAnalysis: {
+          recommendedBoostPercent: "35%",
+          marketRange: "28% - 42%",
+          rationale: "Casa Medellín's 30-room full-catering positioning in the emerging Colombian luxury market supports a strong catering boost. International guests and destination events heavily rely on on-site F&B due to unfamiliarity with local dining options and security preferences for staying on-property. Colombian cultural events (weddings, quinceañeras) are traditionally fully catered celebrations. The favorable labor cost environment allows high-quality full-service catering at margins above North American norms. Comparable luxury properties in Medellín report F&B at 30–32% of room revenue including catering, versus a 22% base.",
+          factors: [
+            "International guests (60%+) strongly prefer on-site dining, driving higher F&B attachment rates than U.S. properties",
+            "Colombian wedding and social event culture emphasizes full-service catering with elaborate multi-course meals",
+            "Wellness retreats (30% of events) include full meal programs (farm-to-table, juice cleanses, health cuisine)",
+            "Favorable labor costs allow premium catering services at higher margins than North American markets",
+            "Limited luxury dining alternatives near the property increases on-site F&B capture rate"
+          ],
+          eventMixBreakdown: {
+            fullyCatered: "40% of events (destination weddings, Colombian celebrations, corporate galas)",
+            partiallyCatered: "40% of events (wellness retreats with meal programs, digital nomad co-working events)",
+            noCatering: "20% of events (extended-stay digital nomads, local business meetings)"
+          }
+        },
         capRateAnalysis: {
           marketRange: "9.0%–11.0%",
           boutiqueRange: "9.5%–11.0%",
@@ -784,6 +845,23 @@ async function seed() {
             "Growing corporate retreat market among Southeast tech and finance companies",
             "Strong wedding destination market with year-round demand for mountain venues"
           ]
+        },
+        cateringAnalysis: {
+          recommendedBoostPercent: "42%",
+          marketRange: "35% - 50%",
+          rationale: "Blue Ridge Manor's 30-room estate in Asheville commands the highest catering boost in the portfolio. Asheville is a top-tier U.S. wedding destination with exceptionally high full-catering penetration, and the property's mountain estate setting makes it a premier venue for fully catered celebrations. The city's nationally recognized culinary scene (farm-to-table, craft beverage) enhances F&B programming and justifies premium catering pricing. Comparable Asheville properties report F&B at 31–35% of room revenue including catering, versus a 22% base, implying a 40–50% boost for estate-style properties.",
+          factors: [
+            "Asheville ranks among top 10 U.S. wedding destinations — mountain estate weddings (40% of events) are almost always fully catered",
+            "Nationally recognized culinary scene enables premium farm-to-table catering at $175–$300 per guest",
+            "Corporate retreats from Charlotte/Atlanta (30% of events) book all-inclusive packages including 3 daily meals",
+            "Wellness retreats (20% of events) include full meal programs leveraging local organic/artisanal food suppliers",
+            "Property's remote mountain setting means guests dine on-site for nearly all meals, maximizing F&B capture"
+          ],
+          eventMixBreakdown: {
+            fullyCatered: "50% of events (mountain weddings, corporate retreats with all meals, wellness programs)",
+            partiallyCatered: "30% of events (day meetings with lunch, partial retreat packages)",
+            noCatering: "20% of events (room-only leisure guests, small self-catered gatherings)"
+          }
         },
         capRateAnalysis: {
           marketRange: "7.5%–9.0%",

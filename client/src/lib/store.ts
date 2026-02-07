@@ -64,7 +64,6 @@ export interface Property {
   
   // Financial Config
   type: "Full Equity" | "Financed";
-  cateringLevel: "Partial" | "Full";
   
   // Operating Cost Rates (should sum to 100%)
   costRateRooms: number;
@@ -147,7 +146,6 @@ const INITIAL_PROPERTIES: Property[] = [
     occupancyGrowthStep: 0.05,
     stabilizationMonths: 36,
     type: "Full Equity",
-    cateringLevel: "Partial",
     costRateRooms: 0.36,
     costRateFB: 0.15,
     costRateAdmin: 0.08,
@@ -181,7 +179,6 @@ const INITIAL_PROPERTIES: Property[] = [
     occupancyGrowthStep: 0.05,
     stabilizationMonths: 36,
     type: "Full Equity",
-    cateringLevel: "Full",
     costRateRooms: 0.36,
     costRateFB: 0.15,
     costRateAdmin: 0.08,
@@ -215,7 +212,6 @@ const INITIAL_PROPERTIES: Property[] = [
     occupancyGrowthStep: 0.05,
     stabilizationMonths: 36,
     type: "Full Equity",
-    cateringLevel: "Partial",
     costRateRooms: 0.36,
     costRateFB: 0.15,
     costRateAdmin: 0.08,
@@ -249,7 +245,6 @@ const INITIAL_PROPERTIES: Property[] = [
     occupancyGrowthStep: 0.05,
     stabilizationMonths: 36,
     type: "Financed",
-    cateringLevel: "Full",
     costRateRooms: 0.36,
     costRateFB: 0.15,
     costRateAdmin: 0.08,
@@ -283,7 +278,6 @@ const INITIAL_PROPERTIES: Property[] = [
     occupancyGrowthStep: 0.05,
     stabilizationMonths: 36,
     type: "Financed",
-    cateringLevel: "Full",
     costRateRooms: 0.36,
     costRateFB: 0.15,
     costRateAdmin: 0.08,

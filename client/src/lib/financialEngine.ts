@@ -8,10 +8,7 @@ import {
   DEFAULT_REV_SHARE_EVENTS,
   DEFAULT_REV_SHARE_FB,
   DEFAULT_REV_SHARE_OTHER,
-  DEFAULT_FULL_CATERING_PCT,
-  DEFAULT_PARTIAL_CATERING_PCT,
-  DEFAULT_FULL_CATERING_BOOST,
-  DEFAULT_PARTIAL_CATERING_BOOST,
+  DEFAULT_CATERING_BOOST_PCT,
   DEFAULT_COST_RATE_ROOMS,
   DEFAULT_COST_RATE_FB,
   DEFAULT_COST_RATE_ADMIN,
@@ -96,7 +93,6 @@ interface PropertyInput {
   buildingImprovements?: number | null;
   landValuePercent?: number | null;
   type: string;
-  cateringLevel: string;
   // Financing
   acquisitionLTV?: number | null;
   acquisitionInterestRate?: number | null;
@@ -126,9 +122,8 @@ interface PropertyInput {
   revShareEvents: number;
   revShareFB: number;
   revShareOther: number;
-  // Catering mix (% of events using each catering level)
-  fullCateringPercent: number;
-  partialCateringPercent: number;
+  // Catering boost (percentage uplift applied to F&B revenue)
+  cateringBoostPercent?: number;
 }
 
 interface GlobalInput {
@@ -181,9 +176,6 @@ interface GlobalInput {
   travelCostPerClient?: number;
   itLicensePerClient?: number;
   miscOpsRate?: number;
-  // Catering F&B boost factors
-  fullCateringFBBoost?: number;
-  partialCateringFBBoost?: number;
   // Expense rates (configurable)
   eventExpenseRate?: number;
   otherExpenseRate?: number;
@@ -297,11 +289,8 @@ export function generatePropertyProForma(
   const revShareEvents = property.revShareEvents ?? DEFAULT_REV_SHARE_EVENTS;
   const revShareFB = property.revShareFB ?? DEFAULT_REV_SHARE_FB;
   const revShareOther = property.revShareOther ?? DEFAULT_REV_SHARE_OTHER;
-  const fullCateringPct = property.fullCateringPercent ?? DEFAULT_FULL_CATERING_PCT;
-  const partialCateringPct = property.partialCateringPercent ?? DEFAULT_PARTIAL_CATERING_PCT;
-  const fullBoost = global.fullCateringFBBoost ?? DEFAULT_FULL_CATERING_BOOST;
-  const partialBoost = global.partialCateringFBBoost ?? DEFAULT_PARTIAL_CATERING_BOOST;
-  const cateringBoostMultiplier = 1 + (fullBoost * fullCateringPct) + (partialBoost * partialCateringPct);
+  const cateringBoostPct = property.cateringBoostPercent ?? DEFAULT_CATERING_BOOST_PCT;
+  const cateringBoostMultiplier = 1 + cateringBoostPct;
   const baseMonthlyEventsRev = baseMonthlyRoomRev * revShareEvents;
   const baseMonthlyFBRev = baseMonthlyRoomRev * revShareFB * cateringBoostMultiplier;
   const baseMonthlyOtherRev = baseMonthlyRoomRev * revShareOther;

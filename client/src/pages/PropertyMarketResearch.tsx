@@ -3,7 +3,7 @@ import Layout from "@/components/Layout";
 import { useProperty, useMarketResearch, useGlobalAssumptions } from "@/lib/api";
 import { PageHeader } from "@/components/ui/page-header";
 import { GlassButton } from "@/components/ui/glass-button";
-import { Loader2, RefreshCw, MapPin, TrendingUp, Building2, Calendar, Users, AlertTriangle, ExternalLink, BookOpen, Target, Clock, Shield, Mountain, ArrowLeft } from "lucide-react";
+import { Loader2, RefreshCw, MapPin, TrendingUp, Building2, Calendar, Users, AlertTriangle, ExternalLink, BookOpen, Target, Clock, Shield, Mountain, ArrowLeft, UtensilsCrossed } from "lucide-react";
 import { useRoute, useLocation } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
@@ -19,6 +19,7 @@ const sectionColors = {
   sources: { accent: "#6B7280", bg: "bg-gray-50", border: "border-gray-200", iconBg: "bg-gray-100", iconText: "text-gray-600", badge: "bg-gray-100 text-gray-700" },
   stabilization: { accent: "#D97706", bg: "bg-amber-50", border: "border-amber-200", iconBg: "bg-amber-100", iconText: "text-amber-700", badge: "bg-amber-100 text-amber-800" },
   landValue: { accent: "#78716C", bg: "bg-stone-50", border: "border-stone-200", iconBg: "bg-stone-100", iconText: "text-stone-700", badge: "bg-stone-100 text-stone-800" },
+  catering: { accent: "#D946EF", bg: "bg-fuchsia-50", border: "border-fuchsia-200", iconBg: "bg-fuchsia-100", iconText: "text-fuchsia-700", badge: "bg-fuchsia-100 text-fuchsia-800" },
 };
 
 function MetricCard({ label, value, source, color }: { label: string; value: string; source?: string; color: typeof sectionColors.market }) {
@@ -80,7 +81,6 @@ export default function PropertyMarketResearch() {
             roomCount: property.roomCount,
             startAdr: property.startAdr,
             maxOccupancy: property.maxOccupancy,
-            cateringLevel: property.cateringLevel,
             type: property.type,
           },
           boutiqueDefinition: global?.boutiqueDefinition,
@@ -398,6 +398,68 @@ export default function PropertyMarketResearch() {
                             <span className="text-xs font-bold text-orange-700">{i + 1}</span>
                           </span>
                           {d}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </SectionCard>
+            )}
+
+            {content.cateringAnalysis && (
+              <SectionCard icon={UtensilsCrossed} title="Catering & F&B Boost Analysis" color={sectionColors.catering}>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
+                  <MetricCard label="Recommended Boost" value={content.cateringAnalysis.recommendedBoostPercent || "N/A"} color={sectionColors.catering} />
+                  <MetricCard label="Market Range" value={content.cateringAnalysis.marketRange || "N/A"} color={sectionColors.catering} />
+                  <div className="rounded-xl p-4 border border-fuchsia-200 bg-fuchsia-50">
+                    <p className="text-xs font-medium uppercase tracking-wider mb-1.5 text-gray-500">Formula</p>
+                    <p className="text-sm font-mono text-gray-800">Total F&B = Base F&B × (1 + Boost%)</p>
+                  </div>
+                </div>
+                {content.cateringAnalysis.rationale && (
+                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200 mb-5">
+                    <h4 className="text-sm font-semibold text-gray-700 mb-2">Rationale</h4>
+                    <p className="text-sm text-gray-600 leading-relaxed">{content.cateringAnalysis.rationale}</p>
+                  </div>
+                )}
+                {content.cateringAnalysis.eventMixBreakdown && (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
+                    {content.cateringAnalysis.eventMixBreakdown.fullyCatered && (
+                      <div className="rounded-xl border border-fuchsia-200 bg-fuchsia-50 p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-fuchsia-200 text-fuchsia-800 font-semibold uppercase tracking-wider">Fully Catered</span>
+                        </div>
+                        <p className="text-sm text-gray-700 leading-relaxed">{content.cateringAnalysis.eventMixBreakdown.fullyCatered}</p>
+                      </div>
+                    )}
+                    {content.cateringAnalysis.eventMixBreakdown.partiallyCatered && (
+                      <div className="rounded-xl border border-purple-200 bg-purple-50 p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-purple-200 text-purple-800 font-semibold uppercase tracking-wider">Partially Catered</span>
+                        </div>
+                        <p className="text-sm text-gray-700 leading-relaxed">{content.cateringAnalysis.eventMixBreakdown.partiallyCatered}</p>
+                      </div>
+                    )}
+                    {content.cateringAnalysis.eventMixBreakdown.noCatering && (
+                      <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-gray-200 text-gray-700 font-semibold uppercase tracking-wider">No Catering</span>
+                        </div>
+                        <p className="text-sm text-gray-700 leading-relaxed">{content.cateringAnalysis.eventMixBreakdown.noCatering}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+                {content.cateringAnalysis.factors && content.cateringAnalysis.factors.length > 0 && (
+                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                    <h4 className="text-sm font-semibold text-gray-700 mb-3">Key Factors</h4>
+                    <ul className="space-y-2">
+                      {content.cateringAnalysis.factors.map((f: string, i: number) => (
+                        <li key={i} className="text-sm text-gray-600 flex items-start gap-2.5">
+                          <span className="flex-shrink-0 w-5 h-5 rounded-full bg-fuchsia-100 flex items-center justify-center mt-0.5">
+                            <span className="text-xs font-bold text-fuchsia-700">{i + 1}</span>
+                          </span>
+                          {f}
                         </li>
                       ))}
                     </ul>

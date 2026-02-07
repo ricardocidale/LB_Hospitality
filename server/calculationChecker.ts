@@ -7,10 +7,7 @@ const DEFAULT_TERM_YEARS = 25;
 const DEFAULT_REV_SHARE_EVENTS = 0.43;
 const DEFAULT_REV_SHARE_FB = 0.22;
 const DEFAULT_REV_SHARE_OTHER = 0.07;
-const DEFAULT_FULL_CATERING_PCT = 0.40;
-const DEFAULT_PARTIAL_CATERING_PCT = 0.30;
-const DEFAULT_FULL_CATERING_BOOST = 0.50;
-const DEFAULT_PARTIAL_CATERING_BOOST = 0.25;
+const DEFAULT_CATERING_BOOST_PCT = 0.30;
 const DEFAULT_COST_RATE_ROOMS = 0.36;
 const DEFAULT_COST_RATE_FB = 0.15;
 const DEFAULT_COST_RATE_ADMIN = 0.08;
@@ -158,11 +155,8 @@ function independentPropertyCalc(property: any, global: any) {
   const revShareEvents_base = property.revShareEvents ?? DEFAULT_REV_SHARE_EVENTS;
   const revShareFB_base = property.revShareFB ?? DEFAULT_REV_SHARE_FB;
   const revShareOther_base = property.revShareOther ?? DEFAULT_REV_SHARE_OTHER;
-  const fullCateringPct_base = property.fullCateringPercent ?? DEFAULT_FULL_CATERING_PCT;
-  const partialCateringPct_base = property.partialCateringPercent ?? DEFAULT_PARTIAL_CATERING_PCT;
-  const fullBoost_base = global.fullCateringFBBoost ?? DEFAULT_FULL_CATERING_BOOST;
-  const partialBoost_base = global.partialCateringFBBoost ?? DEFAULT_PARTIAL_CATERING_BOOST;
-  const cateringBoostMult_base = 1 + (fullBoost_base * fullCateringPct_base) + (partialBoost_base * partialCateringPct_base);
+  const cateringBoostPct_base = property.cateringBoostPercent ?? DEFAULT_CATERING_BOOST_PCT;
+  const cateringBoostMult_base = 1 + cateringBoostPct_base;
   const baseMonthlyRoomRev = property.roomCount * DAYS_PER_MONTH * property.startAdr * property.startOccupancy;
   const baseMonthlyTotalRev = baseMonthlyRoomRev + baseMonthlyRoomRev * revShareEvents_base
     + baseMonthlyRoomRev * revShareFB_base * cateringBoostMult_base + baseMonthlyRoomRev * revShareOther_base;
@@ -203,12 +197,9 @@ function independentPropertyCalc(property: any, global: any) {
     const revShareOther = property.revShareOther ?? DEFAULT_REV_SHARE_OTHER;
     const revenueEvents = revenueRooms * revShareEvents;
 
-    const fullCateringPct = property.fullCateringPercent ?? DEFAULT_FULL_CATERING_PCT;
-    const partialCateringPct = property.partialCateringPercent ?? DEFAULT_PARTIAL_CATERING_PCT;
-    const fullBoost = global.fullCateringFBBoost ?? DEFAULT_FULL_CATERING_BOOST;
-    const partialBoost = global.partialCateringFBBoost ?? DEFAULT_PARTIAL_CATERING_BOOST;
+    const cateringBoostPct = property.cateringBoostPercent ?? DEFAULT_CATERING_BOOST_PCT;
     const baseFB = revenueRooms * revShareFB;
-    const cateringBoostMultiplier = 1 + (fullBoost * fullCateringPct) + (partialBoost * partialCateringPct);
+    const cateringBoostMultiplier = 1 + cateringBoostPct;
     const revenueFB = baseFB * cateringBoostMultiplier;
 
     const revenueOther = revenueRooms * revShareOther;

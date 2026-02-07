@@ -1,0 +1,44 @@
+{
+  "name": "analyze_catering",
+  "description": "Analyze the catering and food & beverage revenue potential for a hospitality property. Determines the recommended catering boost percentage based on market demand, event mix, property capabilities, and comparable properties. The catering boost represents the blended uplift to base F&B revenue from all catered events (weddings, corporate retreats, wellness retreats, private celebrations).",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "location": {
+        "type": "string",
+        "description": "The property location"
+      },
+      "room_count": {
+        "type": "integer",
+        "description": "Number of guest rooms"
+      },
+      "has_fb": {
+        "type": "boolean",
+        "description": "Whether property has F&B operations"
+      },
+      "has_events": {
+        "type": "boolean",
+        "description": "Whether property hosts events"
+      },
+      "event_locations": {
+        "type": "integer",
+        "description": "Number of event spaces on property"
+      },
+      "max_event_capacity": {
+        "type": "integer",
+        "description": "Maximum event guest capacity"
+      },
+      "property_level": {
+        "type": "string",
+        "enum": ["budget", "average", "luxury"],
+        "description": "Property positioning tier"
+      },
+      "market_region": {
+        "type": "string",
+        "enum": ["North America", "Latin America"],
+        "description": "Market region"
+      }
+    },
+    "required": ["location", "room_count", "has_fb", "has_events"]
+  }
+}

@@ -119,9 +119,6 @@ export const globalAssumptions = pgTable("global_assumptions", {
   standardAcqPackage: jsonb("standard_acq_package").notNull(),
   debtAssumptions: jsonb("debt_assumptions").notNull(),
   
-  // Catering Level F&B Boost Factors
-  fullCateringFBBoost: real("full_catering_fb_boost").notNull().default(0.50),
-  partialCateringFBBoost: real("partial_catering_fb_boost").notNull().default(0.25),
   
   // Tax Rate (for calculating after-tax company cash flow)
   companyTaxRate: real("company_tax_rate").notNull().default(0.30),
@@ -252,8 +249,6 @@ export const insertGlobalAssumptionsSchema = createInsertSchema(globalAssumption
   commissionRate: true,
   standardAcqPackage: true,
   debtAssumptions: true,
-  fullCateringFBBoost: true,
-  partialCateringFBBoost: true,
   companyTaxRate: true,
   exitCapRate: true,
   salesCommissionRate: true,
@@ -298,7 +293,6 @@ export const properties = pgTable("properties", {
   stabilizationMonths: integer("stabilization_months").notNull(),
   
   type: text("type").notNull(),
-  cateringLevel: text("catering_level").notNull(),
   
   // Financing fields (for Financed type)
   acquisitionLTV: real("acquisition_ltv"),
@@ -332,9 +326,8 @@ export const properties = pgTable("properties", {
   revShareFB: real("rev_share_fb").notNull().default(0.22),
   revShareOther: real("rev_share_other").notNull().default(0.07),
   
-  // Catering mix (% of events using each catering level)
-  fullCateringPercent: real("full_catering_percent").notNull().default(0.40),
-  partialCateringPercent: real("partial_catering_percent").notNull().default(0.30),
+  // Catering boost (percentage uplift applied to F&B revenue)
+  cateringBoostPercent: real("catering_boost_percent").notNull().default(0.30),
   
   // Exit Cap Rate (for property valuation)
   exitCapRate: real("exit_cap_rate").notNull().default(0.085),
@@ -371,7 +364,6 @@ export const insertPropertySchema = createInsertSchema(properties).pick({
   occupancyGrowthStep: true,
   stabilizationMonths: true,
   type: true,
-  cateringLevel: true,
   acquisitionLTV: true,
   acquisitionInterestRate: true,
   acquisitionTermYears: true,
@@ -396,8 +388,7 @@ export const insertPropertySchema = createInsertSchema(properties).pick({
   revShareEvents: true,
   revShareFB: true,
   revShareOther: true,
-  fullCateringPercent: true,
-  partialCateringPercent: true,
+  cateringBoostPercent: true,
   exitCapRate: true,
   taxRate: true,
 });

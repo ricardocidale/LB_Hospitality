@@ -443,8 +443,6 @@ export async function registerRoutes(
           standardAcqPackage: { monthsToOps: 6, purchasePrice: 2300000, preOpeningCosts: 150000, operatingReserve: 200000, buildingImprovements: 800000 },
           debtAssumptions: { acqLTV: 0.75, refiLTV: 0.75, interestRate: 0.09, amortizationYears: 25, acqClosingCostRate: 0.02, refiClosingCostRate: 0.03 },
           commissionRate: 0.06,
-          fullCateringFBBoost: 0.5,
-          partialCateringFBBoost: 0.25,
           fixedCostEscalationRate: 0.03,
           safeTranche1Amount: 1000000,
           safeTranche1Date: "2026-06-01",
@@ -474,11 +472,11 @@ export async function registerRoutes(
 
       // Seed properties (skip if already exist by name)
       const propertiesToSeed = [
-        { name: "The Hudson Estate", location: "Upstate New York", market: "North America", imageUrl: "/images/property-ny.png", status: "Development", acquisitionDate: "2026-06-01", operationsStartDate: "2026-12-01", purchasePrice: 2300000, buildingImprovements: 800000, preOpeningCosts: 150000, operatingReserve: 200000, roomCount: 20, startAdr: 330, adrGrowthRate: 0.025, startOccupancy: 0.6, maxOccupancy: 0.9, occupancyRampMonths: 6, occupancyGrowthStep: 0.05, stabilizationMonths: 36, type: "Full Equity", cateringLevel: "Partial", costRateRooms: 0.36, costRateFB: 0.15, costRateAdmin: 0.08, costRateMarketing: 0.05, costRatePropertyOps: 0.04, costRateUtilities: 0.05, costRateInsurance: 0.02, costRateTaxes: 0.03, costRateIT: 0.02, costRateFFE: 0.04, revShareEvents: 0.43, revShareFB: 0.22, revShareOther: 0.07, fullCateringPercent: 0.4, partialCateringPercent: 0.3, costRateOther: 0.05, exitCapRate: 0.085, taxRate: 0.25, willRefinance: "Yes", refinanceDate: "2029-12-01" },
-        { name: "Eden Summit Lodge", location: "Eden, Utah", market: "North America", imageUrl: "/images/property-utah.png", status: "Acquisition", acquisitionDate: "2027-01-01", operationsStartDate: "2027-07-01", purchasePrice: 2300000, buildingImprovements: 800000, preOpeningCosts: 150000, operatingReserve: 200000, roomCount: 20, startAdr: 390, adrGrowthRate: 0.025, startOccupancy: 0.6, maxOccupancy: 0.9, occupancyRampMonths: 6, occupancyGrowthStep: 0.05, stabilizationMonths: 36, type: "Full Equity", cateringLevel: "Full", costRateRooms: 0.36, costRateFB: 0.15, costRateAdmin: 0.08, costRateMarketing: 0.05, costRatePropertyOps: 0.04, costRateUtilities: 0.05, costRateInsurance: 0.02, costRateTaxes: 0.03, costRateIT: 0.02, costRateFFE: 0.04, revShareEvents: 0.43, revShareFB: 0.22, revShareOther: 0.07, fullCateringPercent: 0.4, partialCateringPercent: 0.3, costRateOther: 0.05, exitCapRate: 0.085, taxRate: 0.25, willRefinance: "Yes", refinanceDate: "2030-07-01" },
-        { name: "Austin Hillside", location: "Austin, Texas", market: "North America", imageUrl: "/images/property-austin.png", status: "Acquisition", acquisitionDate: "2027-04-01", operationsStartDate: "2028-01-01", purchasePrice: 2300000, buildingImprovements: 800000, preOpeningCosts: 150000, operatingReserve: 200000, roomCount: 20, startAdr: 270, adrGrowthRate: 0.025, startOccupancy: 0.6, maxOccupancy: 0.9, occupancyRampMonths: 6, occupancyGrowthStep: 0.05, stabilizationMonths: 36, type: "Full Equity", cateringLevel: "Partial", costRateRooms: 0.36, costRateFB: 0.15, costRateAdmin: 0.08, costRateMarketing: 0.05, costRatePropertyOps: 0.04, costRateUtilities: 0.05, costRateInsurance: 0.02, costRateTaxes: 0.03, costRateIT: 0.02, costRateFFE: 0.04, revShareEvents: 0.43, revShareFB: 0.22, revShareOther: 0.07, fullCateringPercent: 0.4, partialCateringPercent: 0.3, costRateOther: 0.05, exitCapRate: 0.085, taxRate: 0.25, willRefinance: "Yes", refinanceDate: "2031-01-01" },
-        { name: "Casa Medellín", location: "Medellín, Colombia", market: "Latin America", imageUrl: "/images/property-medellin.png", status: "Acquisition", acquisitionDate: "2026-09-01", operationsStartDate: "2028-07-01", purchasePrice: 3500000, buildingImprovements: 800000, preOpeningCosts: 150000, operatingReserve: 200000, roomCount: 30, startAdr: 180, adrGrowthRate: 0.04, startOccupancy: 0.6, maxOccupancy: 0.9, occupancyRampMonths: 6, occupancyGrowthStep: 0.05, stabilizationMonths: 36, type: "Financed", cateringLevel: "Full", costRateRooms: 0.36, costRateFB: 0.15, costRateAdmin: 0.08, costRateMarketing: 0.05, costRatePropertyOps: 0.04, costRateUtilities: 0.05, costRateInsurance: 0.02, costRateTaxes: 0.03, costRateIT: 0.02, costRateFFE: 0.04, revShareEvents: 0.43, revShareFB: 0.22, revShareOther: 0.07, fullCateringPercent: 0.4, partialCateringPercent: 0.3, costRateOther: 0.05, exitCapRate: 0.085, taxRate: 0.25, acquisitionLTV: 0.75, acquisitionInterestRate: 0.09, acquisitionTermYears: 25, acquisitionClosingCostRate: 0.02 },
-        { name: "Blue Ridge Manor", location: "Asheville, North Carolina", market: "North America", imageUrl: "/images/property-asheville.png", status: "Acquisition", acquisitionDate: "2027-07-01", operationsStartDate: "2028-07-01", purchasePrice: 3500000, buildingImprovements: 800000, preOpeningCosts: 150000, operatingReserve: 200000, roomCount: 30, startAdr: 342, adrGrowthRate: 0.025, startOccupancy: 0.6, maxOccupancy: 0.9, occupancyRampMonths: 6, occupancyGrowthStep: 0.05, stabilizationMonths: 36, type: "Financed", cateringLevel: "Full", costRateRooms: 0.36, costRateFB: 0.15, costRateAdmin: 0.08, costRateMarketing: 0.05, costRatePropertyOps: 0.04, costRateUtilities: 0.05, costRateInsurance: 0.02, costRateTaxes: 0.03, costRateIT: 0.02, costRateFFE: 0.04, revShareEvents: 0.43, revShareFB: 0.22, revShareOther: 0.07, fullCateringPercent: 0.4, partialCateringPercent: 0.3, costRateOther: 0.05, exitCapRate: 0.085, taxRate: 0.25, acquisitionLTV: 0.75, acquisitionInterestRate: 0.09, acquisitionTermYears: 25, acquisitionClosingCostRate: 0.02 }
+        { name: "The Hudson Estate", location: "Upstate New York", market: "North America", imageUrl: "/images/property-ny.png", status: "Development", acquisitionDate: "2026-06-01", operationsStartDate: "2026-12-01", purchasePrice: 2300000, buildingImprovements: 800000, preOpeningCosts: 150000, operatingReserve: 200000, roomCount: 20, startAdr: 330, adrGrowthRate: 0.025, startOccupancy: 0.6, maxOccupancy: 0.9, occupancyRampMonths: 6, occupancyGrowthStep: 0.05, stabilizationMonths: 36, type: "Full Equity", costRateRooms: 0.36, costRateFB: 0.15, costRateAdmin: 0.08, costRateMarketing: 0.05, costRatePropertyOps: 0.04, costRateUtilities: 0.05, costRateInsurance: 0.02, costRateTaxes: 0.03, costRateIT: 0.02, costRateFFE: 0.04, revShareEvents: 0.43, revShareFB: 0.22, revShareOther: 0.07, cateringBoostPercent: 0.28, costRateOther: 0.05, exitCapRate: 0.085, taxRate: 0.25, willRefinance: "Yes", refinanceDate: "2029-12-01" },
+        { name: "Eden Summit Lodge", location: "Eden, Utah", market: "North America", imageUrl: "/images/property-utah.png", status: "Acquisition", acquisitionDate: "2027-01-01", operationsStartDate: "2027-07-01", purchasePrice: 2300000, buildingImprovements: 800000, preOpeningCosts: 150000, operatingReserve: 200000, roomCount: 20, startAdr: 390, adrGrowthRate: 0.025, startOccupancy: 0.6, maxOccupancy: 0.9, occupancyRampMonths: 6, occupancyGrowthStep: 0.05, stabilizationMonths: 36, type: "Full Equity", costRateRooms: 0.36, costRateFB: 0.15, costRateAdmin: 0.08, costRateMarketing: 0.05, costRatePropertyOps: 0.04, costRateUtilities: 0.05, costRateInsurance: 0.02, costRateTaxes: 0.03, costRateIT: 0.02, costRateFFE: 0.04, revShareEvents: 0.43, revShareFB: 0.22, revShareOther: 0.07, cateringBoostPercent: 0.38, costRateOther: 0.05, exitCapRate: 0.085, taxRate: 0.25, willRefinance: "Yes", refinanceDate: "2030-07-01" },
+        { name: "Austin Hillside", location: "Austin, Texas", market: "North America", imageUrl: "/images/property-austin.png", status: "Acquisition", acquisitionDate: "2027-04-01", operationsStartDate: "2028-01-01", purchasePrice: 2300000, buildingImprovements: 800000, preOpeningCosts: 150000, operatingReserve: 200000, roomCount: 20, startAdr: 270, adrGrowthRate: 0.025, startOccupancy: 0.6, maxOccupancy: 0.9, occupancyRampMonths: 6, occupancyGrowthStep: 0.05, stabilizationMonths: 36, type: "Full Equity", costRateRooms: 0.36, costRateFB: 0.15, costRateAdmin: 0.08, costRateMarketing: 0.05, costRatePropertyOps: 0.04, costRateUtilities: 0.05, costRateInsurance: 0.02, costRateTaxes: 0.03, costRateIT: 0.02, costRateFFE: 0.04, revShareEvents: 0.43, revShareFB: 0.22, revShareOther: 0.07, cateringBoostPercent: 0.25, costRateOther: 0.05, exitCapRate: 0.085, taxRate: 0.25, willRefinance: "Yes", refinanceDate: "2031-01-01" },
+        { name: "Casa Medellín", location: "Medellín, Colombia", market: "Latin America", imageUrl: "/images/property-medellin.png", status: "Acquisition", acquisitionDate: "2026-09-01", operationsStartDate: "2028-07-01", purchasePrice: 3500000, buildingImprovements: 800000, preOpeningCosts: 150000, operatingReserve: 200000, roomCount: 30, startAdr: 180, adrGrowthRate: 0.04, startOccupancy: 0.6, maxOccupancy: 0.9, occupancyRampMonths: 6, occupancyGrowthStep: 0.05, stabilizationMonths: 36, type: "Financed", costRateRooms: 0.36, costRateFB: 0.15, costRateAdmin: 0.08, costRateMarketing: 0.05, costRatePropertyOps: 0.04, costRateUtilities: 0.05, costRateInsurance: 0.02, costRateTaxes: 0.03, costRateIT: 0.02, costRateFFE: 0.04, revShareEvents: 0.43, revShareFB: 0.22, revShareOther: 0.07, cateringBoostPercent: 0.35, costRateOther: 0.05, exitCapRate: 0.085, taxRate: 0.25, acquisitionLTV: 0.75, acquisitionInterestRate: 0.09, acquisitionTermYears: 25, acquisitionClosingCostRate: 0.02 },
+        { name: "Blue Ridge Manor", location: "Asheville, North Carolina", market: "North America", imageUrl: "/images/property-asheville.png", status: "Acquisition", acquisitionDate: "2027-07-01", operationsStartDate: "2028-07-01", purchasePrice: 3500000, buildingImprovements: 800000, preOpeningCosts: 150000, operatingReserve: 200000, roomCount: 30, startAdr: 342, adrGrowthRate: 0.025, startOccupancy: 0.6, maxOccupancy: 0.9, occupancyRampMonths: 6, occupancyGrowthStep: 0.05, stabilizationMonths: 36, type: "Financed", costRateRooms: 0.36, costRateFB: 0.15, costRateAdmin: 0.08, costRateMarketing: 0.05, costRatePropertyOps: 0.04, costRateUtilities: 0.05, costRateInsurance: 0.02, costRateTaxes: 0.03, costRateIT: 0.02, costRateFFE: 0.04, revShareEvents: 0.43, revShareFB: 0.22, revShareOther: 0.07, cateringBoostPercent: 0.42, costRateOther: 0.05, exitCapRate: 0.085, taxRate: 0.25, acquisitionLTV: 0.75, acquisitionInterestRate: 0.09, acquisitionTermYears: 25, acquisitionClosingCostRate: 0.02 }
       ];
 
       const existingProperties = await storage.getAllProperties();
@@ -1157,8 +1155,6 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
           refiClosingCostRate: 0.03
         },
         commissionRate: 0.06,
-        fullCateringFBBoost: 0.5,
-        partialCateringFBBoost: 0.25,
         fixedCostEscalationRate: 0.03,
         safeTranche1Amount: 1000000,
         safeTranche1Date: "2026-06-01",
@@ -1205,7 +1201,6 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
           occupancyGrowthStep: 0.05,
           stabilizationMonths: 36,
           type: "Full Equity",
-          cateringLevel: "Partial",
           willRefinance: "Yes",
           refinanceDate: "2029-12-01",
           costRateRooms: 0.36,
@@ -1221,8 +1216,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
           revShareEvents: 0.43,
           revShareFB: 0.22,
           revShareOther: 0.07,
-          fullCateringPercent: 0.4,
-          partialCateringPercent: 0.3,
+          cateringBoostPercent: 0.28,
           costRateOther: 0.05,
           exitCapRate: 0.085,
           taxRate: 0.25
@@ -1248,7 +1242,6 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
           occupancyGrowthStep: 0.05,
           stabilizationMonths: 36,
           type: "Full Equity",
-          cateringLevel: "Full",
           willRefinance: "Yes",
           refinanceDate: "2030-07-01",
           costRateRooms: 0.36,
@@ -1264,8 +1257,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
           revShareEvents: 0.43,
           revShareFB: 0.22,
           revShareOther: 0.07,
-          fullCateringPercent: 0.4,
-          partialCateringPercent: 0.3,
+          cateringBoostPercent: 0.38,
           costRateOther: 0.05,
           exitCapRate: 0.085,
           taxRate: 0.25
@@ -1291,7 +1283,6 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
           occupancyGrowthStep: 0.05,
           stabilizationMonths: 36,
           type: "Full Equity",
-          cateringLevel: "Partial",
           willRefinance: "Yes",
           refinanceDate: "2031-01-01",
           costRateRooms: 0.36,
@@ -1307,8 +1298,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
           revShareEvents: 0.43,
           revShareFB: 0.22,
           revShareOther: 0.07,
-          fullCateringPercent: 0.4,
-          partialCateringPercent: 0.3,
+          cateringBoostPercent: 0.25,
           costRateOther: 0.05,
           exitCapRate: 0.085,
           taxRate: 0.25
@@ -1334,7 +1324,6 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
           occupancyGrowthStep: 0.05,
           stabilizationMonths: 36,
           type: "Financed",
-          cateringLevel: "Full",
           acquisitionLTV: 0.75,
           acquisitionInterestRate: 0.09,
           acquisitionTermYears: 25,
@@ -1352,8 +1341,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
           revShareEvents: 0.43,
           revShareFB: 0.22,
           revShareOther: 0.07,
-          fullCateringPercent: 0.4,
-          partialCateringPercent: 0.3,
+          cateringBoostPercent: 0.35,
           costRateOther: 0.05,
           exitCapRate: 0.085,
           taxRate: 0.25
@@ -1379,7 +1367,6 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
           occupancyGrowthStep: 0.05,
           stabilizationMonths: 36,
           type: "Financed",
-          cateringLevel: "Full",
           acquisitionLTV: 0.75,
           acquisitionInterestRate: 0.09,
           acquisitionTermYears: 25,
@@ -1397,8 +1384,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
           revShareEvents: 0.43,
           revShareFB: 0.22,
           revShareOther: 0.07,
-          fullCateringPercent: 0.4,
-          partialCateringPercent: 0.3,
+          cateringBoostPercent: 0.42,
           costRateOther: 0.05,
           exitCapRate: 0.085,
           taxRate: 0.25

@@ -36,8 +36,7 @@ import {
   DEFAULT_REV_SHARE_EVENTS,
   DEFAULT_REV_SHARE_FB,
   DEFAULT_REV_SHARE_OTHER,
-  DEFAULT_FULL_CATERING_PCT,
-  DEFAULT_PARTIAL_CATERING_PCT,
+  DEFAULT_CATERING_BOOST_PCT,
   DEFAULT_EXIT_CAP_RATE,
   DEFAULT_TAX_RATE,
   DEFAULT_ROOM_COUNT,
@@ -141,9 +140,7 @@ export default function Portfolio() {
     occupancyGrowthStep: DEFAULT_OCCUPANCY_GROWTH_STEP,
     stabilizationMonths: DEFAULT_STABILIZATION_MONTHS,
     type: "Full Equity",
-    cateringLevel: "None",
-    fullCateringPercent: DEFAULT_FULL_CATERING_PCT,
-    partialCateringPercent: DEFAULT_PARTIAL_CATERING_PCT,
+    cateringBoostPercent: DEFAULT_CATERING_BOOST_PCT,
   });
 
   const handleAcquisitionDateChange = (date: string) => {
@@ -187,9 +184,7 @@ export default function Portfolio() {
       occupancyGrowthStep: DEFAULT_OCCUPANCY_GROWTH_STEP,
       stabilizationMonths: DEFAULT_STABILIZATION_MONTHS,
       type: "Full Equity",
-      cateringLevel: "None",
-      fullCateringPercent: DEFAULT_FULL_CATERING_PCT,
-      partialCateringPercent: DEFAULT_PARTIAL_CATERING_PCT,
+      cateringBoostPercent: DEFAULT_CATERING_BOOST_PCT,
     });
   };
 
@@ -237,8 +232,7 @@ export default function Portfolio() {
       revShareEvents: DEFAULT_REV_SHARE_EVENTS,
       revShareFB: DEFAULT_REV_SHARE_FB,
       revShareOther: DEFAULT_REV_SHARE_OTHER,
-      fullCateringPercent: formData.fullCateringPercent,
-      partialCateringPercent: formData.partialCateringPercent,
+      cateringBoostPercent: formData.cateringBoostPercent,
       exitCapRate: DEFAULT_EXIT_CAP_RATE,
       taxRate: DEFAULT_TAX_RATE,
     };
@@ -385,74 +379,26 @@ export default function Portfolio() {
                 </div>
 
                 <div className="space-y-4">
-                  <h3 className="font-display text-lg border-b pb-2">Catering</h3>
+                  <h3 className="font-display text-lg border-b pb-2">Catering Boost</h3>
                   <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
-                      <Label htmlFor="cateringLevel">Catering Type</Label>
-                      <Select value={formData.cateringLevel} onValueChange={(v) => {
-                        const updates: Partial<typeof formData> = { cateringLevel: v };
-                        if (v === "None") {
-                          updates.fullCateringPercent = 0;
-                          updates.partialCateringPercent = 0;
-                        } else if (v === "Full") {
-                          updates.fullCateringPercent = DEFAULT_FULL_CATERING_PCT;
-                          updates.partialCateringPercent = 0;
-                        } else if (v === "Partial") {
-                          updates.fullCateringPercent = 0;
-                          updates.partialCateringPercent = DEFAULT_PARTIAL_CATERING_PCT;
-                        }
-                        setFormData(prev => ({ ...prev, ...updates }));
-                      }}>
-                        <SelectTrigger data-testid="select-catering-level">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="None">None</SelectItem>
-                          <SelectItem value="Partial">Partial Service</SelectItem>
-                          <SelectItem value="Full">Full Service</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <Label htmlFor="cateringBoostPercent">Catering Boost %</Label>
+                      <div className="relative">
+                        <Input
+                          id="cateringBoostPercent"
+                          type="number"
+                          step="1"
+                          min="0"
+                          max="100"
+                          data-testid="input-catering-boost-pct"
+                          className="pr-7"
+                          value={(formData.cateringBoostPercent * 100).toFixed(0)}
+                          onChange={(e) => setFormData(prev => ({ ...prev, cateringBoostPercent: (parseFloat(e.target.value) || 0) / 100 }))}
+                        />
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">%</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">Percentage uplift applied to F&B revenue from catered events. Should reflect blended average across all events.</p>
                     </div>
-                    {formData.cateringLevel === "Full" && (
-                      <div className="space-y-2">
-                        <Label htmlFor="fullCateringPercent">Full Catering %</Label>
-                        <div className="relative">
-                          <Input
-                            id="fullCateringPercent"
-                            type="number"
-                            step="1"
-                            min="0"
-                            max="100"
-                            data-testid="input-full-catering-pct"
-                            className="pr-7"
-                            value={(formData.fullCateringPercent * 100).toFixed(0)}
-                            onChange={(e) => setFormData(prev => ({ ...prev, fullCateringPercent: (parseFloat(e.target.value) || 0) / 100 }))}
-                          />
-                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">%</span>
-                        </div>
-                        <p className="text-xs text-muted-foreground">Percentage of events with full catering</p>
-                      </div>
-                    )}
-                    {formData.cateringLevel === "Partial" && (
-                      <div className="space-y-2">
-                        <Label htmlFor="partialCateringPercent">Partial Catering %</Label>
-                        <div className="relative">
-                          <Input
-                            id="partialCateringPercent"
-                            type="number"
-                            step="1"
-                            min="0"
-                            max="100"
-                            data-testid="input-partial-catering-pct"
-                            className="pr-7"
-                            value={(formData.partialCateringPercent * 100).toFixed(0)}
-                            onChange={(e) => setFormData(prev => ({ ...prev, partialCateringPercent: (parseFloat(e.target.value) || 0) / 100 }))}
-                          />
-                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">%</span>
-                        </div>
-                        <p className="text-xs text-muted-foreground">Percentage of events with partial catering</p>
-                      </div>
-                    )}
                   </div>
                 </div>
 

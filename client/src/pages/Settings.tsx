@@ -25,8 +25,6 @@ import {
   DEFAULT_REFI_LTV,
   DEFAULT_INTEREST_RATE,
   DEFAULT_REFI_CLOSING_COST_RATE,
-  DEFAULT_FULL_CATERING_BOOST,
-  DEFAULT_PARTIAL_CATERING_BOOST,
 } from "@/lib/constants";
 import { useAuth } from "@/lib/auth";
 import defaultLogo from "@/assets/logo.png";
@@ -900,51 +898,17 @@ export default function Settings() {
             <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
               <CardHeader>
                 <CardTitle className="flex items-center font-display">
-                  Catering Levels
-                  <HelpTooltip text="Defines how catering level affects event revenue and costs. Full Service properties offer complete F&B operations with higher revenue potential but also higher costs. Partial Service has limited offerings with lower revenue but better margins." />
+                  Catering Revenue Model
                 </CardTitle>
-                <CardDescription className="label-text">Catering at events boosts F&B revenue. Define boost factors and associated costs by catering service level.</CardDescription>
+                <CardDescription className="label-text">Catering is modeled as a percentage boost applied to F&B revenue at the property level.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="p-4 bg-muted rounded-lg space-y-4">
-                    <h4 className="font-display text-sm">Full Service Catering</h4>
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-1">
-                          <Label className="label-text">F&B Revenue Boost</Label>
-                          <HelpTooltip text="When an event requires full catering, F&B revenue gets boosted by this percentage. For example, 50% means F&B revenue increases by half for full-catered events." />
-                        </div>
-                        <span className="text-sm font-mono text-primary">{((currentGlobal.fullCateringFBBoost ?? DEFAULT_FULL_CATERING_BOOST) * 100).toFixed(0)}%</span>
-                      </div>
-                      <Slider 
-                        value={[(currentGlobal.fullCateringFBBoost ?? DEFAULT_FULL_CATERING_BOOST) * 100]}
-                        onValueChange={(vals) => handleGlobalChange("fullCateringFBBoost", (vals[0] / 100).toString())}
-                        min={0}
-                        max={100}
-                        step={5}
-                      />
-                    </div>
-                  </div>
-                  <div className="p-4 bg-muted rounded-lg space-y-4">
-                    <h4 className="font-display text-sm">Partial Service Catering</h4>
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-1">
-                          <Label className="label-text">F&B Revenue Boost</Label>
-                          <HelpTooltip text="When an event requires partial catering, F&B revenue gets boosted by this percentage. Lower than full service since less catering is provided." />
-                        </div>
-                        <span className="text-sm font-mono text-primary">{((currentGlobal.partialCateringFBBoost ?? DEFAULT_PARTIAL_CATERING_BOOST) * 100).toFixed(0)}%</span>
-                      </div>
-                      <Slider 
-                        value={[(currentGlobal.partialCateringFBBoost ?? DEFAULT_PARTIAL_CATERING_BOOST) * 100]}
-                        onValueChange={(vals) => handleGlobalChange("partialCateringFBBoost", (vals[0] / 100).toString())}
-                        min={0}
-                        max={100}
-                        step={5}
-                      />
-                    </div>
-                  </div>
+              <CardContent className="space-y-4">
+                <p className="text-sm text-gray-600">
+                  The catering boost percentage is configured per property on each property's assumptions page. There are no systemwide catering assumptions — property-level settings always govern.
+                </p>
+                <div className="p-3 bg-muted rounded-lg text-sm">
+                  <p className="font-medium mb-1">Formula:</p>
+                  <p>Total F&B Revenue = Room Revenue × F&B % × (1 + Catering Boost %)</p>
                 </div>
               </CardContent>
             </Card>

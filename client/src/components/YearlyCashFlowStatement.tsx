@@ -427,7 +427,7 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
               <TableHead className="w-[280px] font-bold sticky left-0 bg-gray-100 text-gray-900">Cash Flow Statement</TableHead>
               {yearlyData.map((y) => (
                 <TableHead key={y.year} className="text-right min-w-[110px] font-bold text-gray-900">
-                  FY {startYear + y.year - 1}
+                  FY {startYear + y.year}
                 </TableHead>
               ))}
             </TableRow>

@@ -98,7 +98,8 @@ export default function Login() {
               <img 
                 src={logo} 
                 alt="L+B Hospitality" 
-                className="w-16 h-16 object-contain mb-4 cursor-pointer opacity-90 hover:opacity-100 transition-all drop-shadow-[0_4px_12px_rgba(56,189,248,0.4)] hover:drop-shadow-[0_6px_20px_rgba(56,189,248,0.6)]" 
+                className="w-16 h-16 object-contain mb-4 cursor-pointer opacity-90 hover:opacity-100 transition-all"
+                style={{ filter: "drop-shadow(0 8px 16px rgba(0,0,0,0.5)) drop-shadow(0 2px 4px rgba(0,0,0,0.4))" }} 
                 onClick={handleAdminLogin}
               />
               <h1 className="text-2xl font-display text-[#FFF9F5] mb-1">

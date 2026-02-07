@@ -133,7 +133,7 @@ These rules are non-negotiable constraints enforced across the entire financial 
 ### Revenue Calculation
 - **Days per month**: 30.5 (industry standard, 365/12 rounded)
 - **Room Revenue**: `roomCount × ADR × occupancy × 30.5`
-- **Catering boost**: Full Service adds 50% to event/F&B revenue; Partial adds 25%
+- **Catering boost**: Single blended percentage uplift applied to F&B revenue (default 30%, property-configurable via `cateringBoostPercent`)
 - Revenue only starts after `operationsStartDate`
 
 ### Cost Escalation

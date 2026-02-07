@@ -149,7 +149,7 @@ DEFAULT_COST_RATE_FB = 0.15       // F&B cost rate
 | `server/calculationChecker.ts` | Validates F&B calculations |
 | `server/aiResearch.ts` | AI research tool handler |
 | `.claude/tools/analyze-catering.json` | Tool definition for AI |
-| `.claude/skills/property-market-research.md` | Research output schema |
+| `.claude/skills/research/property-market-research.md` | Research output schema |
 | `client/src/pages/PropertyMarketResearch.tsx` | Displays catering research |
 | `client/src/pages/Methodology.tsx` | Documents F&B methodology |
 

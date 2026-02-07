@@ -24,6 +24,7 @@ interface ScenarioResult {
   totalCashFlow: number;
   avgNOIMargin: number;
   exitValue: number;
+  irr: number;
 }
 
 function calculateIRR(cashFlows: number[], guess: number = 0.1): number {
@@ -121,6 +122,15 @@ export default function SensitivityAnalysis() {
         defaultValue: 0,
         description: "Adjust general inflation rate",
       },
+      {
+        id: "interestRate",
+        label: "Interest Rate",
+        unit: "%",
+        step: 0.25,
+        range: [-3, 5],
+        defaultValue: 0,
+        description: "Adjust debt financing interest rate",
+      },
     ];
   }, [global]);
 
@@ -139,6 +149,8 @@ export default function SensitivityAnalysis() {
       let totalNOI = 0;
       let totalCashFlow = 0;
       let exitValue = 0;
+      let totalInitialEquity = 0;
+      const annualCashFlows: number[] = new Array(projectionYears).fill(0);
 
       for (const prop of targetProps) {
         const adjProp = {
@@ -149,6 +161,7 @@ export default function SensitivityAnalysis() {
             prop.startOccupancy
           ),
           adrGrowthRate: Math.max(0, prop.adrGrowthRate + (overrides.adrGrowth ?? 0) / 100),
+          interestRate: Math.max(0.005, ((prop as any).interestRate ?? 0.065) + (overrides.interestRate ?? 0) / 100),
         };
 
         const adjGlobal = {
@@ -162,10 +175,15 @@ export default function SensitivityAnalysis() {
 
         const financials = generatePropertyProForma(adjProp, adjGlobal, projectionMonths);
 
-        for (const m of financials) {
+        for (let i = 0; i < financials.length; i++) {
+          const m = financials[i];
           totalRevenue += m.revenueTotal;
           totalNOI += m.noi;
           totalCashFlow += m.cashFlow;
+          const yearIdx = Math.floor(i / 12);
+          if (yearIdx < projectionYears) {
+            annualCashFlows[yearIdx] += m.cashFlow;
+          }
         }
 
         const lastYearNOI = financials
@@ -176,11 +194,19 @@ export default function SensitivityAnalysis() {
         const grossExit = lastYearNOI / capRate;
         const netExit = grossExit * (1 - commissionRate);
         const debtAtExit = financials[financials.length - 1]?.debtOutstanding ?? 0;
-        exitValue += Math.max(0, netExit - debtAtExit);
+        const propExitValue = Math.max(0, netExit - debtAtExit);
+        exitValue += propExitValue;
+
+        const equity = prop.purchasePrice * (1 - ((prop as any).acquisitionLTV ?? 0));
+        totalInitialEquity += equity;
       }
 
+      const irrFlows = [-totalInitialEquity, ...annualCashFlows];
+      irrFlows[irrFlows.length - 1] += exitValue;
+      const irr = totalInitialEquity > 0 ? calculateIRR(irrFlows) : 0;
+
       const avgNOIMargin = totalRevenue > 0 ? (totalNOI / totalRevenue) * 100 : 0;
-      return { totalRevenue, totalNOI, totalCashFlow, avgNOIMargin, exitValue };
+      return { totalRevenue, totalNOI, totalCashFlow, avgNOIMargin, exitValue, irr };
     },
     [properties, global, selectedPropertyId, projectionMonths]
   );
@@ -197,18 +223,26 @@ export default function SensitivityAnalysis() {
     downLabel: string;
   }
 
+  const [tornadoMetric, setTornadoMetric] = useState<"noi" | "irr">("irr");
+
   const tornadoData: TornadoItem[] = useMemo(() => {
     if (!baseResult || !variables.length) return [];
     const items: TornadoItem[] = [];
     for (const v of variables) {
-      const swingPct = v.id === "exitCapRate" ? 2 : v.id === "occupancy" ? 10 : 3;
+      const swingPct = v.id === "exitCapRate" ? 2 : v.id === "occupancy" ? 10 : v.id === "interestRate" ? 2 : 3;
       const upResult = runScenario({ [v.id]: swingPct });
       const downResult = runScenario({ [v.id]: -swingPct });
       if (!upResult || !downResult) continue;
 
-      const baseNOI = baseResult.totalNOI;
-      const upDelta = ((upResult.totalNOI - baseNOI) / Math.abs(baseNOI)) * 100;
-      const downDelta = ((downResult.totalNOI - baseNOI) / Math.abs(baseNOI)) * 100;
+      let upDelta: number, downDelta: number;
+      if (tornadoMetric === "irr") {
+        upDelta = (upResult.irr - baseResult.irr) * 100;
+        downDelta = (downResult.irr - baseResult.irr) * 100;
+      } else {
+        const baseNOI = baseResult.totalNOI;
+        upDelta = ((upResult.totalNOI - baseNOI) / Math.abs(baseNOI)) * 100;
+        downDelta = ((downResult.totalNOI - baseNOI) / Math.abs(baseNOI)) * 100;
+      }
 
       items.push({
         name: v.label,
@@ -220,7 +254,7 @@ export default function SensitivityAnalysis() {
       });
     }
     return items.sort((a, b) => b.spread - a.spread);
-  }, [baseResult, variables, runScenario]);
+  }, [baseResult, variables, runScenario, tornadoMetric]);
 
   const hasAdjustments = Object.values(adjustments).some((v) => v !== 0);
 
@@ -282,7 +316,7 @@ export default function SensitivityAnalysis() {
         />
 
         {baseResult && adjustedResult && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <StatCard
               label="Total Revenue"
               value={adjustedResult.totalRevenue}
@@ -367,6 +401,27 @@ export default function SensitivityAnalysis() {
               variant="sage"
               data-testid="stat-exit-value"
             />
+            <StatCard
+              label="Levered IRR"
+              value={`${(adjustedResult.irr * 100).toFixed(1)}%`}
+              format="text"
+              sublabel={
+                hasAdjustments
+                  ? `${((adjustedResult.irr - baseResult.irr) * 100) >= 0 ? "+" : ""}${((adjustedResult.irr - baseResult.irr) * 100).toFixed(1)}pp vs. base`
+                  : "Equity return rate"
+              }
+              trend={
+                hasAdjustments
+                  ? adjustedResult.irr > baseResult.irr
+                    ? "up"
+                    : adjustedResult.irr < baseResult.irr
+                    ? "down"
+                    : "neutral"
+                  : undefined
+              }
+              variant="sage"
+              data-testid="stat-irr"
+            />
           </div>
         )}
 
@@ -449,12 +504,30 @@ export default function SensitivityAnalysis() {
               <div className="w-10 h-10 rounded-xl bg-[#9FBCA4]/15 flex items-center justify-center">
                 <BarChart3 className="w-5 h-5 text-[#257D41]" />
               </div>
-              <div>
-                <h3 className="text-lg font-display font-bold text-gray-900" data-testid="text-tornado-title">
-                  Impact on NOI
-                </h3>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-lg font-display font-bold text-gray-900" data-testid="text-tornado-title">
+                    Impact on {tornadoMetric === "irr" ? "IRR" : "NOI"}
+                  </h3>
+                  <div className="flex rounded-lg border border-gray-200 overflow-hidden text-xs">
+                    <button
+                      onClick={() => setTornadoMetric("irr")}
+                      className={`px-2.5 py-1 font-medium transition-colors ${tornadoMetric === "irr" ? "bg-[#9FBCA4]/20 text-[#257D41]" : "text-gray-500 hover:text-gray-700"}`}
+                      data-testid="button-tornado-irr"
+                    >
+                      IRR
+                    </button>
+                    <button
+                      onClick={() => setTornadoMetric("noi")}
+                      className={`px-2.5 py-1 font-medium transition-colors ${tornadoMetric === "noi" ? "bg-[#9FBCA4]/20 text-[#257D41]" : "text-gray-500 hover:text-gray-700"}`}
+                      data-testid="button-tornado-noi"
+                    >
+                      NOI
+                    </button>
+                  </div>
+                </div>
                 <p className="text-xs text-gray-500">
-                  Which variables have the biggest effect on Net Operating Income
+                  {tornadoMetric === "irr" ? "Which variables have the biggest effect on Levered IRR (pp change)" : "Which variables have the biggest effect on Net Operating Income (% change)"}
                 </p>
               </div>
             </div>
@@ -482,7 +555,7 @@ export default function SensitivityAnalysis() {
                     />
                     <Tooltip
                       formatter={(value: number, name: string) => [
-                        `${value > 0 ? "+" : ""}${value.toFixed(2)}%`,
+                        `${value > 0 ? "+" : ""}${value.toFixed(2)}${tornadoMetric === "irr" ? "pp" : "%"}`,
                         name === "positive" ? "Upside" : "Downside",
                       ]}
                       contentStyle={{
@@ -558,6 +631,7 @@ export default function SensitivityAnalysis() {
                     { label: "NOI Margin", base: baseResult.avgNOIMargin, adj: adjustedResult.avgNOIMargin, fmt: "pct" as const },
                     { label: "Total Cash Flow", base: baseResult.totalCashFlow, adj: adjustedResult.totalCashFlow, fmt: "money" as const },
                     { label: "Exit Value", base: baseResult.exitValue, adj: adjustedResult.exitValue, fmt: "money" as const },
+                    { label: "Levered IRR", base: baseResult.irr * 100, adj: adjustedResult.irr * 100, fmt: "pct" as const },
                   ].map((row) => {
                     const delta = row.adj - row.base;
                     const deltaPct = row.base !== 0 ? (delta / Math.abs(row.base)) * 100 : 0;

@@ -69,6 +69,7 @@ Self-contained feature folders for functionality outside the core financial engi
 | Feature | Path | Contents |
 |---------|------|----------|
 | Property Images | `features/property-images/` | `PropertyImagePicker.tsx` (upload + AI generate component), `useGenerateImage.ts` (hook), `index.ts` (barrel) |
+| Design Themes | `features/design-themes/` | `ThemeManager.tsx` (theme CRUD UI), `useDesignThemes.ts` (query + mutation hooks), `types.ts` (interfaces), `index.ts` (barrel) |
 
 ## Backend Architecture
 

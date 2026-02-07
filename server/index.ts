@@ -46,7 +46,6 @@ const PUBLIC_API_PATHS = new Set([
   "/api/auth/admin-login",
   "/api/auth/logout",
   "/api/auth/me",
-  "/api/admin/design-themes/active",
 ]);
 
 app.use((req: Request, res: Response, next: NextFunction) => {

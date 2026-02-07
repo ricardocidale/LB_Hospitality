@@ -462,6 +462,7 @@ export type InsertLoginLog = z.infer<typeof insertLoginLogSchema>;
 // --- DESIGN THEMES TABLE ---
 export const designThemes = pgTable("design_themes", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  userId: integer("user_id").references(() => users.id),
   name: text("name").notNull(),
   description: text("description").notNull(),
   isActive: boolean("is_active").notNull().default(false),
@@ -470,6 +471,7 @@ export const designThemes = pgTable("design_themes", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => [
   index("design_themes_is_active_idx").on(table.isActive),
+  index("design_themes_user_id_idx").on(table.userId),
 ]);
 
 export interface DesignColor {
@@ -480,6 +482,7 @@ export interface DesignColor {
 }
 
 export const insertDesignThemeSchema = z.object({
+  userId: z.number().nullable().optional(),
   name: z.string(),
   description: z.string(),
   isActive: z.boolean().optional(),

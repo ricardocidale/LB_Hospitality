@@ -176,12 +176,12 @@ All routes under `/api/auth/` handle user authentication.
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
-| `GET` | `/api/admin/design-themes` | Admin | List all themes |
-| `GET` | `/api/admin/design-themes/active` | None | Get active theme |
-| `POST` | `/api/admin/design-themes` | Admin | Create theme |
-| `PATCH` | `/api/admin/design-themes/:id` | Admin | Update theme |
-| `DELETE` | `/api/admin/design-themes/:id` | Admin | Delete theme |
-| `POST` | `/api/admin/design-themes/:id/activate` | Admin | Set theme as active |
+| `GET` | `/api/design-themes` | User | List user's themes + system themes |
+| `GET` | `/api/design-themes/active` | User | Get active theme for current user |
+| `POST` | `/api/design-themes` | User | Create theme (owned by current user) |
+| `PATCH` | `/api/design-themes/:id` | User | Update theme (owner only) |
+| `DELETE` | `/api/design-themes/:id` | User | Delete theme (owner only, not active) |
+| `POST` | `/api/design-themes/:id/activate` | User | Set theme as active for current user |
 
 ## Market Research
 

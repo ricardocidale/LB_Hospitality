@@ -53,14 +53,14 @@ export interface IStorage {
   updateLogoutTime(sessionId: string): Promise<void>;
   getLoginLogs(): Promise<(LoginLog & { user: User })[]>;
   
-  // Design Themes
-  getAllDesignThemes(): Promise<DesignTheme[]>;
-  getActiveDesignTheme(): Promise<DesignTheme | undefined>;
+  // Design Themes (per user)
+  getAllDesignThemes(userId?: number): Promise<DesignTheme[]>;
+  getActiveDesignTheme(userId?: number): Promise<DesignTheme | undefined>;
   getDesignTheme(id: number): Promise<DesignTheme | undefined>;
   createDesignTheme(data: InsertDesignTheme): Promise<DesignTheme>;
   updateDesignTheme(id: number, data: Partial<InsertDesignTheme>): Promise<DesignTheme | undefined>;
   deleteDesignTheme(id: number): Promise<void>;
-  setActiveDesignTheme(id: number): Promise<void>;
+  setActiveDesignTheme(id: number, userId: number): Promise<void>;
   
   // Market Research
   getMarketResearch(type: string, userId?: number, propertyId?: number): Promise<MarketResearch | undefined>;
@@ -144,6 +144,7 @@ export class DatabaseStorage implements IStorage {
     await db.delete(loginLogs).where(eq(loginLogs.userId, id));
     await db.delete(activityLogs).where(eq(activityLogs.userId, id));
     await db.delete(verificationRuns).where(eq(verificationRuns.userId, id));
+    await db.delete(designThemes).where(eq(designThemes.userId, id));
     await db.delete(users).where(eq(users.id, id));
   }
 
@@ -348,25 +349,41 @@ export class DatabaseStorage implements IStorage {
     return results.map(r => ({ ...r.login_logs, user: r.users }));
   }
   
-  // Design Themes
-  async getAllDesignThemes(): Promise<DesignTheme[]> {
+  // Design Themes (per user)
+  async getAllDesignThemes(userId?: number): Promise<DesignTheme[]> {
+    if (userId) {
+      return await db.select().from(designThemes)
+        .where(or(eq(designThemes.userId, userId), isNull(designThemes.userId)))
+        .orderBy(designThemes.createdAt);
+    }
     return await db.select().from(designThemes).orderBy(designThemes.createdAt);
   }
-  
-  async getActiveDesignTheme(): Promise<DesignTheme | undefined> {
+
+  async getActiveDesignTheme(userId?: number): Promise<DesignTheme | undefined> {
+    if (userId) {
+      // Check for user's active theme first
+      const [userTheme] = await db.select().from(designThemes)
+        .where(and(eq(designThemes.isActive, true), eq(designThemes.userId, userId)));
+      if (userTheme) return userTheme;
+      // Fallback to system-level active theme
+      const [systemTheme] = await db.select().from(designThemes)
+        .where(and(eq(designThemes.isActive, true), isNull(designThemes.userId)));
+      return systemTheme || undefined;
+    }
     const [theme] = await db.select().from(designThemes).where(eq(designThemes.isActive, true));
     return theme || undefined;
   }
-  
+
   async getDesignTheme(id: number): Promise<DesignTheme | undefined> {
     const [theme] = await db.select().from(designThemes).where(eq(designThemes.id, id));
     return theme || undefined;
   }
-  
+
   async createDesignTheme(data: InsertDesignTheme): Promise<DesignTheme> {
     const [theme] = await db
       .insert(designThemes)
       .values({
+        userId: data.userId ?? null,
         name: data.name,
         description: data.description,
         isActive: data.isActive || false,
@@ -375,7 +392,7 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return theme;
   }
-  
+
   async updateDesignTheme(id: number, data: Partial<InsertDesignTheme>): Promise<DesignTheme | undefined> {
     const [theme] = await db
       .update(designThemes)
@@ -384,15 +401,17 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return theme || undefined;
   }
-  
+
   async deleteDesignTheme(id: number): Promise<void> {
     await db.delete(designThemes).where(eq(designThemes.id, id));
   }
-  
-  async setActiveDesignTheme(id: number): Promise<void> {
+
+  async setActiveDesignTheme(id: number, userId: number): Promise<void> {
     await db.transaction(async (tx) => {
-      // Deactivate all themes, then activate the selected one
-      await tx.update(designThemes).set({ isActive: false });
+      // Deactivate only this user's themes
+      await tx.update(designThemes).set({ isActive: false })
+        .where(eq(designThemes.userId, userId));
+      // Activate the selected one
       await tx.update(designThemes).set({ isActive: true }).where(eq(designThemes.id, id));
     });
   }

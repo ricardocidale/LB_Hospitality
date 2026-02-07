@@ -44,6 +44,7 @@ Self-contained feature folders for functionality outside the core financial engi
 | Feature | Path | Description |
 |---------|------|-------------|
 | Property Images | `features/property-images/` | AI image generation + upload picker for property photos |
+| Design Themes | `features/design-themes/` | Per-user theme CRUD with palette/chart colors |
 
 ## Coding Standards
 
@@ -92,3 +93,20 @@ See `.claude/rules/` for detailed documentation on:
 
 See `.claude/skills/` for component-level documentation:
 - `property-image-picker.md` — PropertyImagePicker component, useGenerateImage hook, AI image endpoint
+
+## Authoritative Skill Specifications
+
+The file `skills/finance/FINANCE_SKILL_SPECS.md` defines the mandatory Skill boundaries,
+GAAP constraints, and invariants for all work related to:
+
+- Financing
+- Refinancing
+- Funding and tranches
+- Income Statement, Cash Flow, Balance Sheet
+- FCF and IRR analysis
+
+Claude Code must:
+- Treat this file as authoritative
+- Not violate Skill boundaries defined there
+- Not modify accounting logic outside the allowed scope of the active Skill
+- Fail fast and report violations instead of silently compensating

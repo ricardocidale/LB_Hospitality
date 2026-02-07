@@ -18,7 +18,9 @@
       "Bash(npx tsx:*)",
       "Bash(node -e:*)",
       "Bash(git remote get-url:*)",
-      "Bash(git remote set-url:*)"
+      "Bash(git remote set-url:*)",
+      "Bash(npm run dev:*)",
+      "Bash(node:*)"
     ]
   }
 }

@@ -1,137 +1,131 @@
 # L+B Hospitality Group — Project Instructions
 
 ## Project Summary
-
-Business simulation portal for L+B Hospitality Group. Models boutique hotel management company + individual property SPVs with monthly/yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470) with IRS depreciation rules. PwC-level audit engine. Five mandatory business rules enforced.
+Business simulation portal for L+B Hospitality Group. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. The system is GAAP-compliant (ASC 230, ASC 360, ASC 470), applies IRS depreciation rules, and includes an internal audit and verification engine designed to support PwC-level review rigor. Five mandatory business rules are enforced across all scenarios.
 
 ## Tech Stack
-
-- **Frontend**: React 18 + TypeScript, Wouter routing, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v4, Recharts
-- **Backend**: Node.js + Express 5, TypeScript ESM, Drizzle ORM, PostgreSQL
-- **Build**: Vite (client), esbuild (server)
+Frontend: React 18, TypeScript, Wouter routing, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v4, Recharts  
+Backend: Node.js, Express 5, TypeScript (ESM), Drizzle ORM, PostgreSQL  
+Build: Vite (client), esbuild (server)
 
 ## Key Architecture Decisions
 
 ### Two-Entity Financial Model
-1. **Management Company** — Income Statement, Cash Flow, Balance Sheet, FCF/IRR. Revenue from fees.
-2. **Property Portfolio** — Each property is an independent SPV. Aggregated + individual views.
+1. Management Company  
+   Maintains its own Income Statement, Cash Flow Statement, Balance Sheet, and FCF/IRR. Generates revenue through management and service fees charged to properties.
+2. Property Portfolio  
+   Each property is modeled as an independent SPV with its own full financial statements and returns. The system also produces aggregated and consolidated portfolio views.
 
 ### Reusable Component Library
-
-Every page MUST use the shared component library. No inline/ad-hoc styling.
+Every page must use the shared component library. Inline or ad-hoc styling is not permitted.
 
 | Component | File | Purpose |
-|-----------|------|---------|
-| `PageHeader` | `client/src/components/ui/page-header.tsx` | Page titles with actions slot |
-| `GlassButton` | `client/src/components/ui/glass-button.tsx` | All buttons (primary, ghost, icon, export, settings) |
-| `ExportMenu` | `client/src/components/ui/export-toolbar.tsx` | Unified export dropdown (PDF, Excel, CSV, PPTX, Chart PNG, Table PNG) |
-| `DarkGlassTabs` | `client/src/components/ui/tabs.tsx` | Tab navigation with rightContent slot for exports |
-| `FinancialChart` | `client/src/components/ui/financial-chart.tsx` | Standardized Recharts wrapper |
-| `FinancialTable` | `client/src/components/ui/financial-table.tsx` | Sticky-column financial tables |
-| `StatCard` | `client/src/components/ui/stat-card.tsx` | KPI cards (glass/light/sage variants) |
-| `ContentPanel` | `client/src/components/ui/content-panel.tsx` | Section wrappers (light/dark) |
-| `SaveButton` | `client/src/components/ui/save-button.tsx` | Save actions with loading state |
+|---------|------|---------|
+| PageHeader | client/src/components/ui/page-header.tsx | Page titles with actions slot |
+| GlassButton | client/src/components/ui/glass-button.tsx | All buttons (primary, ghost, icon, export, settings) |
+| ExportMenu | client/src/components/ui/export-toolbar.tsx | Unified export dropdown |
+| DarkGlassTabs | client/src/components/ui/tabs.tsx | Tab navigation with rightContent slot |
+| FinancialChart | client/src/components/ui/financial-chart.tsx | Standardized Recharts wrapper |
+| FinancialTable | client/src/components/ui/financial-table.tsx | Sticky-column financial tables |
+| StatCard | client/src/components/ui/stat-card.tsx | KPI cards |
+| ContentPanel | client/src/components/ui/content-panel.tsx | Section wrappers |
+| SaveButton | client/src/components/ui/save-button.tsx | Save actions with loading state |
 
 ### Export System (Reusable Pattern)
+The export system is a core reusable pattern across all data-driven pages. Full documentation lives in `.claude/skills/exports/SKILL.md`.
 
-The export system is the primary reusable pattern across all data pages. Full documentation: `.claude/skills/exports/SKILL.md`.
+Component: ExportMenu — a single “Export” dropdown supporting PDF, Excel, CSV, PPTX, chart PNG, and table PNG.
 
-**Component**: `ExportMenu` — single "Export" dropdown button providing 6 formats.
-
-**How to add exports to any page:**
-1. Import `ExportMenu` and action helpers from `@/components/ui/export-toolbar`
+To add exports to any page:
+1. Import ExportMenu and action helpers from `@/components/ui/export-toolbar`
 2. Import export utilities from `@/lib/exports`
-3. Create handler functions that produce `{ years: string[], rows: SlideTableRow[] }`
-4. Wire handlers to action helpers: `pdfAction(fn)`, `excelAction(fn)`, `csvAction(fn)`, `pptxAction(fn)`, `chartAction(fn)`, `pngAction(fn)`
-5. Place `ExportMenu` in `DarkGlassTabs.rightContent` (tabbed pages) or `PageHeader.actions` (non-tabbed pages)
+3. Create handlers that return `{ years: string[], rows: SlideTableRow[] }`
+4. Wire handlers using `pdfAction`, `excelAction`, `csvAction`, `pptxAction`, `chartAction`, `pngAction`
+5. Place ExportMenu in `DarkGlassTabs.rightContent` or `PageHeader.actions`
 
-**Export utilities** (`client/src/lib/exports/`):
-- `excelExport.ts` — XLSX workbooks with currency/percent formatting (SheetJS)
-- `pptxExport.ts` — Branded PowerPoint slides with metric cards and tables (pptxgenjs)
-- `pdfChartDrawer.ts` — Line charts rendered into jsPDF documents
-- `pngExport.ts` — DOM-to-image table/chart capture (dom-to-image-more)
-- `index.ts` — Barrel re-exports for clean imports
-
-**Sub-skill docs**: `.claude/skills/exports/excel-export.md`, `pptx-export.md`, `pdf-chart-export.md`, `png-export.md`
+Export utilities live in `client/src/lib/exports/` and include Excel, PPTX, PDF chart, PNG, and barrel exports.
 
 ### Design System
+Authoritative reference: `.claude/rules/ui-design.md`
 
-Full reference: `.claude/rules/ui-design.md`
+Color palette:  
+Sage Green `#9FBCA4`, Secondary Green `#257D41`, Off-White `#FFF9F5`, Coral `#F4795B`, Dark Navy `#1A2A3A`
 
-**Color palette**: Sage Green `#9FBCA4`, Secondary Green `#257D41`, Off-White `#FFF9F5`, Coral `#F4795B`, Dark Navy `#1a2a3a`.
+Page themes:  
+Dark glass for dashboards and entity views; light for assumptions, research, and discovery pages.
 
-**Page themes**:
-- Dark glass: Dashboard, PropertyDetail, Company, Admin
-- Light: Assumption pages, Research pages, PropertyFinder
-
-**Typography**: Playfair Display (serif headings), Inter (UI/data text).
+Typography:  
+Playfair Display for headings, Inter for UI and data text.
 
 ### Financial Engine
+Core financial logic resides in:
+- `client/src/lib/financialEngine.ts`
+- `client/src/lib/loanCalculations.ts`
+- `client/src/lib/constants.ts`
 
-- Located in `client/src/lib/financialEngine.ts`
-- Monthly pro formas → yearly aggregation
-- Constants in `client/src/lib/constants.ts` (single source of truth for all `DEFAULT_*` values)
-- Loan calculations in `client/src/lib/loanCalculations.ts`
-- 27.5-year straight-line depreciation, configurable land value %, fiscal year start month
+The engine produces monthly pro formas with yearly aggregation. Depreciation defaults to 27.5-year straight-line with configurable land value percentage and fiscal year start.
 
-### AI Research
+### Verification and Audit
+The verification system enforces GAAP consistency and internal invariants:
+- `client/src/lib/financialAuditor.ts`
+- `client/src/lib/runVerification.ts`
 
-- Skills: `.claude/skills/property-market-research.md`, `company-research.md`, `global-research.md`
-- Tools: `.claude/tools/*.json` (Claude function schemas)
-- Orchestration: `server/aiResearch.ts`
-- Output schema: `marketOverview`, `adrAnalysis`, `occupancyAnalysis`, `capRateAnalysis`, etc.
+Coverage includes timing, depreciation, loans, income statement, balance sheet, cash flow, and management fees. Outputs UNQUALIFIED, QUALIFIED, or ADVERSE opinions.
 
-### Verification & Audit
-
-- `client/src/lib/financialAuditor.ts` + `runVerification.ts`
-- Covers: Timing, Depreciation, Loans, Income Statement, Balance Sheet, Cash Flow, Fees
-- Output: UNQUALIFIED / QUALIFIED / ADVERSE opinions
+## AI Research
+Research Skills are defined in `.claude/skills/` and orchestrated via `server/aiResearch.ts`. Claude tool schemas live in `.claude/tools/`. Outputs include structured market, ADR, occupancy, and cap rate analyses.
 
 ## File Organization
 
 ```
 client/src/
-├── components/ui/          # Reusable UI components (ExportMenu, GlassButton, etc.)
+├── components/ui/
 ├── lib/
-│   ├── exports/            # Export format implementations
-│   │   ├── excelExport.ts
-│   │   ├── pptxExport.ts
-│   │   ├── pdfChartDrawer.ts
-│   │   ├── pngExport.ts
-│   │   └── index.ts        # Barrel re-exports
-│   ├── financialEngine.ts  # Core financial calculations
-│   ├── loanCalculations.ts # Debt/equity/refinancing logic
-│   ├── constants.ts        # All DEFAULT_* values
-│   ├── financialAuditor.ts # GAAP verification engine
-│   └── runVerification.ts  # Verification runner
-├── pages/                  # Route pages
-└── hooks/                  # Custom React hooks
+│ ├── exports/
+│ ├── financialEngine.ts
+│ ├── loanCalculations.ts
+│ ├── constants.ts
+│ ├── financialAuditor.ts
+│ └── runVerification.ts
+├── pages/
+└── hooks/
 
 .claude/
-├── claude.md               # This file — project instructions
-├── rules/                  # Coding rules (architecture, UI, financial engine, etc.)
-├── skills/                 # Reusable skill documentation
-│   ├── exports/            # Export system skill + sub-skills
-│   │   ├── SKILL.md        # Main export methodology
-│   │   ├── excel-export.md
-│   │   ├── pptx-export.md
-│   │   ├── pdf-chart-export.md
-│   │   └── png-export.md
-│   └── *.md                # Other skills (charts, buttons, research, etc.)
-└── tools/                  # Claude function tool schemas for AI research
+├── claude.md
+├── rules/
+├── skills/
+│ ├── exports/
+│ └── *.md
+└── tools/
 
 server/
-├── routes.ts               # Express API routes
-├── storage.ts              # Database CRUD interface
-└── aiResearch.ts           # AI research orchestration
+├── routes.ts
+├── storage.ts
+└── aiResearch.ts
 ```
 
-## Conventions
 
-- Format all monetary values with commas and currency precision
-- Use `data-testid` on all interactive and display elements
-- No mock/placeholder data in production paths
-- All buttons must use `GlassButton` — no raw `<button>` with inline styles
-- All pages must use `PageHeader` — no ad-hoc header markup
-- All export functionality must use `ExportMenu` — no scattered export buttons
-- Legacy import paths preserved via re-export files (`@/lib/excelExport` → `@/lib/exports/excelExport`)
+## Conventions
+All monetary values must be formatted with currency precision and thousands separators. All interactive and display elements require `data-testid`. No mock or placeholder data is permitted in production paths. All buttons must use GlassButton. All pages must use PageHeader. All export functionality must use ExportMenu. Legacy import paths are preserved via re-export barrels.
+
+## Authoritative Finance Skill Specification
+The file `/skills/finance/FINANCE_SKILL_SPECS.md` is the single source of truth for:
+- Financing
+- Refinancing
+- Funding and tranches
+- Application of events to Income Statement, Cash Flow Statement, and Balance Sheet
+- FCF and IRR calculations
+
+When working on any finance-related code:
+- Claude Code must comply with the Skill boundaries and GAAP constraints defined in that file
+- Claude must explicitly state the Active Skill before making changes
+- Claude must not modify accounting logic outside the allowed scope of the Active Skill
+- Violations must be reported and explained, not silently corrected
+- Finance changes must pass the verification engine with an UNQUALIFIED result, or clearly explain why verification cannot yet be run
+
+Before implementing finance changes, Claude must state the Active Skill being used
+(e.g., Finance.RefinanceCalculator) and the allowed write scope for that task.
+
+Finance changes must run verification:
+- `client/src/lib/runVerification.ts` (or equivalent) must pass with UNQUALIFIED.
+If verification cannot be run, Claude must state why and provide a minimal reproduction plan.

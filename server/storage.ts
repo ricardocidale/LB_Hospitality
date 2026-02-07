@@ -408,9 +408,9 @@ export class DatabaseStorage implements IStorage {
 
   async setActiveDesignTheme(id: number, userId: number): Promise<void> {
     await db.transaction(async (tx) => {
-      // Deactivate only this user's themes
+      // Deactivate this user's themes and system themes
       await tx.update(designThemes).set({ isActive: false })
-        .where(eq(designThemes.userId, userId));
+        .where(or(eq(designThemes.userId, userId), isNull(designThemes.userId)));
       // Activate the selected one
       await tx.update(designThemes).set({ isActive: true }).where(eq(designThemes.id, id));
     });

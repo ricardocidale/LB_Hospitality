@@ -720,7 +720,7 @@ export default function Company() {
           title={global?.companyName || "L+B Hospitality Co."}
           subtitle="Corporate Management Entity & Operations"
           actions={
-            <Link href="/company/assumptions">
+            <Link href="/company/assumptions" className="text-inherit no-underline">
               <GlassButton variant="settings">
                 <Settings2 className="w-4 h-4" />
                 Assumptions

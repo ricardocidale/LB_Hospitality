@@ -290,7 +290,7 @@ export default function PropertyEdit() {
           backLink={`/property/${propertyId}`}
           actions={
             <div className="flex items-center gap-3">
-              <Link href={`/property/${propertyId}/research`}>
+              <Link href={`/property/${propertyId}/research`} className="text-inherit no-underline">
                 <GlassButton variant="primary" data-testid="button-market-research">
                   <BookOpen className="w-4 h-4" />
                   Market Research

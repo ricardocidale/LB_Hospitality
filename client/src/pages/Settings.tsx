@@ -209,7 +209,7 @@ export default function Settings() {
           variant="dark"
           actions={
             <div className="flex items-center gap-3">
-              <Link href="/global/research">
+              <Link href="/global/research" className="text-inherit no-underline">
                 <GlassButton variant="primary" data-testid="button-global-research">
                   <BookOpen className="w-4 h-4" />
                   Industry Research

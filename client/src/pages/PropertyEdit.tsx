@@ -1,5 +1,5 @@
 import Layout from "@/components/Layout";
-import { useProperty, useUpdateProperty, useGlobalAssumptions } from "@/lib/api";
+import { useProperty, useUpdateProperty, useGlobalAssumptions, useMarketResearch } from "@/lib/api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -126,6 +126,21 @@ function EditableValue({
   );
 }
 
+function ResearchBadge({ value, onClick }: { value: string | null | undefined; onClick?: () => void }) {
+  if (!value) return null;
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="text-xs font-medium text-amber-600 hover:text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-md px-1.5 py-0.5 transition-colors cursor-pointer"
+      title="Click to apply research-recommended value"
+      data-testid="badge-research"
+    >
+      (Research: {value})
+    </button>
+  );
+}
+
 function formatMoneyInput(value: number): string {
   return new Intl.NumberFormat('en-US').format(value);
 }
@@ -141,11 +156,44 @@ export default function PropertyEdit() {
   
   const { data: property, isLoading } = useProperty(propertyId);
   const { data: globalAssumptions } = useGlobalAssumptions();
+  const { data: research } = useMarketResearch("property", propertyId);
   const updateProperty = useUpdateProperty();
   const { toast } = useToast();
   
   const [draft, setDraft] = useState<any>(null);
   const [isDirty, setIsDirty] = useState(false);
+
+  const researchValues = (() => {
+    if (!research?.content) return {};
+    const c = research.content as any;
+    const parseRange = (rangeStr: string | undefined): { low: number; high: number; mid: number } | null => {
+      if (!rangeStr) return null;
+      const nums = rangeStr.replace(/[^0-9.,\-–]/g, ' ').split(/[\s–\-]+/).map(s => parseFloat(s.replace(/,/g, ''))).filter(n => !isNaN(n));
+      if (nums.length >= 2) return { low: nums[0], high: nums[1], mid: Math.round((nums[0] + nums[1]) / 2) };
+      if (nums.length === 1) return { low: nums[0], high: nums[0], mid: nums[0] };
+      return null;
+    };
+    const parsePct = (pctStr: string | undefined): number | null => {
+      if (!pctStr) return null;
+      const match = pctStr.match(/([\d.]+)/);
+      return match ? parseFloat(match[1]) : null;
+    };
+    const adrRange = parseRange(c.adrAnalysis?.recommendedRange);
+    const capRange = parseRange(c.capRateAnalysis?.recommendedRange);
+    const cateringPct = parsePct(c.cateringAnalysis?.recommendedBoostPercent);
+    const occText = c.occupancyAnalysis?.rampUpTimeline as string | undefined;
+    let occRange: { low: number; high: number; mid: number } | null = null;
+    if (occText) {
+      const stabMatch = occText.match(/stabilized occupancy of (\d+)[–\-](\d+)%/);
+      if (stabMatch) occRange = { low: parseInt(stabMatch[1]), high: parseInt(stabMatch[2]), mid: Math.round((parseInt(stabMatch[1]) + parseInt(stabMatch[2])) / 2) };
+    }
+    return {
+      adr: adrRange ? { display: c.adrAnalysis?.recommendedRange as string, mid: adrRange.mid } : null,
+      occupancy: occRange ? { display: `${occRange.low}%–${occRange.high}%`, mid: occRange.mid } : null,
+      capRate: capRange ? { display: c.capRateAnalysis?.recommendedRange as string, mid: (capRange.low + capRange.high) / 2 } : null,
+      catering: cateringPct != null ? { display: c.cateringAnalysis?.recommendedBoostPercent as string, mid: cateringPct } : null,
+    };
+  })();
 
   useEffect(() => {
     if (property && !draft) {
@@ -579,7 +627,10 @@ export default function PropertyEdit() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label className="label-text text-gray-700">Starting ADR</Label>
+                  <Label className="label-text text-gray-700 flex items-center gap-1.5">
+                    Starting ADR
+                    <ResearchBadge value={researchValues.adr?.display} onClick={() => researchValues.adr && handleChange("startAdr", researchValues.adr.mid.toString())} />
+                  </Label>
                   <EditableValue
                     value={draft.startAdr}
                     onChange={(val) => handleChange("startAdr", val.toString())}
@@ -644,7 +695,10 @@ export default function PropertyEdit() {
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label className="label-text text-gray-700">Max Occupancy</Label>
+                  <Label className="label-text text-gray-700 flex items-center gap-1.5">
+                    Stabilized Occupancy
+                    <ResearchBadge value={researchValues.occupancy?.display} onClick={() => researchValues.occupancy && handleChange("maxOccupancy", (researchValues.occupancy.mid / 100).toString())} />
+                  </Label>
                   <EditableValue
                     value={draft.maxOccupancy * 100}
                     onChange={(val) => handleChange("maxOccupancy", (val / 100).toString())}
@@ -832,7 +886,10 @@ export default function PropertyEdit() {
               </Label>
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label className="text-sm text-gray-600">Catering Boost %</Label>
+                  <Label className="text-sm text-gray-600 flex items-center gap-1.5">
+                    Catering Boost %
+                    <ResearchBadge value={researchValues.catering?.display} onClick={() => researchValues.catering && handleChange("cateringBoostPercent", (researchValues.catering.mid / 100).toString())} />
+                  </Label>
                   <EditableValue
                     value={(draft.cateringBoostPercent ?? DEFAULT_CATERING_BOOST_PCT) * 100}
                     onChange={(val) => handleChange("cateringBoostPercent", (val / 100).toString())}
@@ -1144,9 +1201,10 @@ export default function PropertyEdit() {
             </div>
             <div className="max-w-md space-y-2">
               <div className="flex justify-between items-center">
-                <Label className="flex items-center label-text text-gray-700">
-                  Exit Capitalization Rate
-                  <HelpTooltip text={`The cap rate used to calculate exit value. Exit Value = ${exitYear} NOI ÷ Cap Rate. Lower cap rates result in higher valuations.`} />
+                <Label className="flex items-center label-text text-gray-700 gap-1.5">
+                  Exit Cap Rate
+                  <HelpTooltip text={`The capitalization rate used to determine terminal (exit) value. Exit Value = Year ${exitYear} NOI ÷ Cap Rate. A lower cap rate implies higher property valuation.`} />
+                  <ResearchBadge value={researchValues.capRate?.display} onClick={() => researchValues.capRate && handleChange("exitCapRate", (researchValues.capRate.mid / 100).toString())} />
                 </Label>
                 <EditableValue
                   value={(draft.exitCapRate ?? DEFAULT_EXIT_CAP_RATE) * 100}

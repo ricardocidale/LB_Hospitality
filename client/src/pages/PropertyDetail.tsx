@@ -52,6 +52,44 @@ export default function PropertyDetail() {
     queryClient.invalidateQueries({ queryKey: ["/api/properties", propertyId] });
   };
 
+  const projectionYears = global?.projectionYears ?? PROJECTION_YEARS;
+  const projectionMonths = projectionYears * 12;
+  const fiscalYearStartMonth = global?.fiscalYearStartMonth ?? 1;
+  const getFiscalYear = (yearIndex: number) => global ? getFiscalYearForModelYear(global.modelStartDate, fiscalYearStartMonth, yearIndex) : 2026 + yearIndex;
+  const financials = useMemo(
+    () => (property && global) ? generatePropertyProForma(property, global, projectionMonths) : [],
+    [property, global, projectionMonths]
+  );
+
+  const yearlyChartData = useMemo(() => {
+    const data = [];
+    for (let y = 0; y < projectionYears; y++) {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      if (yearData.length === 0) continue;
+      data.push({
+        year: String(getFiscalYear(y)),
+        Revenue: yearData.reduce((a, m) => a + m.revenueTotal, 0),
+        GOP: yearData.reduce((a, m) => a + m.gop, 0),
+        NOI: yearData.reduce((a, m) => a + m.noi, 0),
+        CashFlow: yearData.reduce((a, m) => a + m.cashFlow, 0),
+      });
+    }
+    return data;
+  }, [financials, projectionYears]);
+
+  const years = projectionYears;
+  const startYear = getFiscalYear(0);
+
+  const cashFlowDataMemo = useMemo(() => {
+    if (!property || !global || financials.length === 0) return [];
+    const yearlyNOIData = [];
+    for (let y = 0; y < years; y++) {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      yearlyNOIData.push(yearData.reduce((a, m) => a + m.noi, 0));
+    }
+    return calculatePropertyYearlyCashFlows(yearlyNOIData, property as LoanParams, global as GlobalLoanParams, years);
+  }, [financials, property, global, years]);
+
   if (propertyLoading || globalLoading) {
     return (
       <Layout>
@@ -75,34 +113,6 @@ export default function PropertyDetail() {
     );
   }
 
-  const projectionYears = global?.projectionYears ?? PROJECTION_YEARS;
-  const projectionMonths = projectionYears * 12;
-  const fiscalYearStartMonth = global.fiscalYearStartMonth ?? 1;
-  const getFiscalYear = (yearIndex: number) => getFiscalYearForModelYear(global.modelStartDate, fiscalYearStartMonth, yearIndex);
-  const financials = useMemo(
-    () => generatePropertyProForma(property, global, projectionMonths),
-    [property, global, projectionMonths]
-  );
-
-  const yearlyChartData = useMemo(() => {
-    const data = [];
-    for (let y = 0; y < projectionYears; y++) {
-      const yearData = financials.slice(y * 12, (y + 1) * 12);
-      if (yearData.length === 0) continue;
-      data.push({
-        year: String(getFiscalYear(y)),
-        Revenue: yearData.reduce((a, m) => a + m.revenueTotal, 0),
-        GOP: yearData.reduce((a, m) => a + m.gop, 0),
-        NOI: yearData.reduce((a, m) => a + m.noi, 0),
-        CashFlow: yearData.reduce((a, m) => a + m.cashFlow, 0),
-      });
-    }
-    return data;
-  }, [financials, projectionYears]);
-
-  const years = projectionYears;
-  const startYear = getFiscalYear(0);
-  
   const getYearlyDetails = () => {
     const result = [];
     for (let y = 0; y < years; y++) {
@@ -134,15 +144,6 @@ export default function PropertyDetail() {
     }
     return result;
   };
-
-  const cashFlowDataMemo = useMemo(() => {
-    const yearlyNOIData = [];
-    for (let y = 0; y < years; y++) {
-      const yearData = financials.slice(y * 12, (y + 1) * 12);
-      yearlyNOIData.push(yearData.reduce((a, m) => a + m.noi, 0));
-    }
-    return calculatePropertyYearlyCashFlows(yearlyNOIData, property as LoanParams, global as GlobalLoanParams, years);
-  }, [financials, property, global, years]);
 
   const getCashFlowData = () => cashFlowDataMemo;
 

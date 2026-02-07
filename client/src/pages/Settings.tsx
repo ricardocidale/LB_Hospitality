@@ -575,7 +575,7 @@ export default function Settings() {
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <Label className="label-text">Term</Label>
-                    <span className="text-sm font-mono text-primary">{currentGlobal.debtAssumptions?.amortizationYears || 25} yrs</span>
+                    <span className="text-sm font-mono text-primary whitespace-nowrap">{currentGlobal.debtAssumptions?.amortizationYears || 25} yrs</span>
                   </div>
                   <Slider 
                     value={[currentGlobal.debtAssumptions?.amortizationYears || 25]}
@@ -585,8 +585,8 @@ export default function Settings() {
                     step={1}
                   />
                   <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>5 yrs</span>
-                    <span>30 yrs</span>
+                    <span className="whitespace-nowrap">5 yrs</span>
+                    <span className="whitespace-nowrap">30 yrs</span>
                   </div>
                 </div>
                 <div className="space-y-3">
@@ -621,7 +621,7 @@ export default function Settings() {
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <Label className="label-text">Years After Acq.</Label>
-                    <span className="text-sm font-mono text-primary">{currentGlobal.debtAssumptions?.refiPeriodYears || 3} yrs</span>
+                    <span className="text-sm font-mono text-primary whitespace-nowrap">{currentGlobal.debtAssumptions?.refiPeriodYears || 3} yrs</span>
                   </div>
                   <Slider 
                     value={[currentGlobal.debtAssumptions?.refiPeriodYears || 3]}
@@ -672,7 +672,7 @@ export default function Settings() {
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <Label className="label-text">Term</Label>
-                    <span className="text-sm font-mono text-primary">{currentGlobal.debtAssumptions?.refiAmortizationYears || 25} yrs</span>
+                    <span className="text-sm font-mono text-primary whitespace-nowrap">{currentGlobal.debtAssumptions?.refiAmortizationYears || 25} yrs</span>
                   </div>
                   <Slider 
                     value={[currentGlobal.debtAssumptions?.refiAmortizationYears || 25]}

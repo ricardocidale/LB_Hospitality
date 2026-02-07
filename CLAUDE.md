@@ -37,7 +37,10 @@ server/calculationChecker.ts   # Independent server-side financial verification
 server/seed.ts                 # Database seeding script
 server/replit_integrations/    # External service integrations (image gen, object storage)
 domain/types/                  # Shared domain types (accounting policy, rounding, journal deltas)
+calc/shared/                   # Shared math: PMT formula, schedule builder, common types
+calc/financing/                # Standalone acquisition debt calculator (Skill 1)
 calc/refinance/                # Standalone refinance calculator (Skill 2)
+tests/financing/               # Vitest tests for calc/financing/
 tests/refinance/               # Vitest tests for calc/refinance/
 ```
 
@@ -105,6 +108,9 @@ Standalone, GAAP-compliant calculator modules per `skills/finance/FINANCE_SKILL_
 | Module | Path | Description |
 |--------|------|-------------|
 | Domain Types | `domain/types/` | `AccountingPolicy`, `RoundingPolicy`, `JournalDelta` — shared across all finance Skills |
+| Shared Math | `calc/shared/` | PMT formula, IO payment, schedule builder, `NewLoanTerms`/`ScheduleEntry` types — used by Skills 1 & 2 |
+| Financing Calculator | `calc/financing/` | Skill 1: acquisition debt sizing (LTV/override), closing costs, amort schedules, journal hooks |
+| Financing Tests | `tests/financing/` | 34 tests: sizing, closing costs, golden scenario, IO-then-amort, journal hooks, validation |
 | Refinance Calculator | `calc/refinance/` | Skill 2: payoff, LTV/DSCR sizing, IO-to-amort schedules, journal hooks, proceeds breakdown |
 | Refinance Tests | `tests/refinance/` | 58 tests: unit, golden scenario, schedule reconciliation, flag determinism |
 

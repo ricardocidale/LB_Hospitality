@@ -2,7 +2,7 @@
 
 ## Constants Architecture
 
-All named constants are defined in a single source of truth: `client/src/lib/constants.ts`. Some are re-exported from `client/src/lib/loanCalculations.ts` for backwards compatibility.
+Shared constants (used by both client and server) are defined in `shared/constants.ts`. Client-only constants are defined in `client/src/lib/constants.ts`, which re-exports all shared constants. Server files (seed, routes, calculationChecker) import directly from `@shared/constants`.
 
 ## Fallback Pattern
 
@@ -68,10 +68,7 @@ Used as fallbacks when no user-configured value exists:
 | `DEFAULT_EVENT_EXPENSE_RATE` | 0.65 (65%) | Event operating expense rate |
 | `DEFAULT_OTHER_EXPENSE_RATE` | 0.60 (60%) | Other revenue expense rate |
 | `DEFAULT_UTILITIES_VARIABLE_SPLIT` | 0.60 (60%) | Utilities: % that is variable vs fixed |
-| `DEFAULT_FULL_CATERING_BOOST` | 0.50 (50%) | Revenue boost for full-service catering |
-| `DEFAULT_PARTIAL_CATERING_BOOST` | 0.25 (25%) | Revenue boost for partial catering |
-| `DEFAULT_FULL_CATERING_PCT` | 0.40 (40%) | Full-service catering percentage |
-| `DEFAULT_PARTIAL_CATERING_PCT` | 0.30 (30%) | Partial-service catering percentage |
+| `DEFAULT_CATERING_BOOST_PCT` | 0.30 (30%) | Blended catering boost applied to F&B revenue (property-level) |
 
 ### Default Property Constants
 
@@ -186,7 +183,7 @@ Files that import from `constants.ts`:
 
 ## Server-Side Constants
 
-`server/calculationChecker.ts` defines its own copy of constants (not imported from client). This is intentional for independence of verification. The values must be kept in sync manually.
+`server/calculationChecker.ts`, `server/seed.ts`, and `server/routes.ts` all import shared constants from `@shared/constants`. This eliminates the need to manually sync values between client and server. Only loan-specific constants (`DEFAULT_LTV`, `DEFAULT_INTEREST_RATE`, `DEFAULT_TERM_YEARS`) remain as local constants in `calculationChecker.ts`.
 
 ## Adding New Constants
 

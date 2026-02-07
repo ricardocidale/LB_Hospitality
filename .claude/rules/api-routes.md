@@ -95,9 +95,9 @@ All routes under `/api/auth/` handle user authentication.
   "startAdr": 330,
   "purchasePrice": 2300000,
   "type": "Full Equity",
-  "cateringLevel": "Partial",
+  "cateringBoostPercent": 0.30,
   "costRateRooms": 0.36,
-  "costRateFB": 0.38
+  "costRateFB": 0.15
 }
 ```
 

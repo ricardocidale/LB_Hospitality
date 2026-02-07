@@ -194,7 +194,7 @@ These rules are non-negotiable constraints enforced across the entire financial 
 | Parameter | Default | Location |
 |-----------|---------|----------|
 | costRateRooms | 36% | Property Edit page |
-| costRateFB | 38% | Property Edit page |
+| costRateFB | 32% | Property Edit page |
 | eventExpenseRate | 65% | Property Edit page |
 | exitCapRate | (global) | Property Edit page |
 | taxRate | (global) | Property Edit page |

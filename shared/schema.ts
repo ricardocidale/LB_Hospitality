@@ -310,7 +310,7 @@ export const properties = pgTable("properties", {
   
   // Operating Cost Rates (should sum to 100%)
   costRateRooms: real("cost_rate_rooms").notNull().default(0.36),
-  costRateFB: real("cost_rate_fb").notNull().default(0.15),
+  costRateFB: real("cost_rate_fb").notNull().default(0.32),
   costRateAdmin: real("cost_rate_admin").notNull().default(0.08),
   costRateMarketing: real("cost_rate_marketing").notNull().default(0.05),
   costRatePropertyOps: real("cost_rate_property_ops").notNull().default(0.04),

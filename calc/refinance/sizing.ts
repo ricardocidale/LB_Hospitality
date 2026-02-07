@@ -1,5 +1,6 @@
-import { pmt } from "./pmt.js";
-import type { NewLoanTerms, PropertyValuation } from "./types.js";
+import { pmt } from "../shared/pmt.js";
+import type { NewLoanTerms } from "../shared/types.js";
+import type { PropertyValuation } from "./types.js";
 import type { RoundingPolicy } from "../../domain/types/rounding.js";
 import { roundTo } from "../../domain/types/rounding.js";
 

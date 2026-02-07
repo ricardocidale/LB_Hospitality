@@ -2,6 +2,10 @@ import type { AccountingPolicy } from "../../domain/types/accounting-policy.js";
 import type { RoundingPolicy } from "../../domain/types/rounding.js";
 import type { JournalDelta } from "../../domain/types/journal-delta.js";
 
+// Re-export shared types used by refinance
+export type { NewLoanTerms, ScheduleEntry } from "../shared/types.js";
+import type { NewLoanTerms } from "../shared/types.js";
+
 // --- Input types ---
 
 export type PrepaymentPenaltyType = "none" | "pct_of_balance" | "fixed";
@@ -10,17 +14,6 @@ export interface PrepaymentPenalty {
   type: PrepaymentPenaltyType;
   /** Percentage (0.02 = 2%) if pct_of_balance; dollar amount if fixed; ignored if none */
   value: number;
-}
-
-export interface NewLoanTerms {
-  /** Annual interest rate as decimal (e.g. 0.07 = 7%) */
-  rate_annual: number;
-  /** Total loan term in months */
-  term_months: number;
-  /** Amortization schedule length in months */
-  amortization_months: number;
-  /** Interest-only period at start (0 = fully amortizing from day 1) */
-  io_months: number;
 }
 
 /** Mutually exclusive valuation input: provide exactly one path */
@@ -48,18 +41,6 @@ export interface RefinanceInput {
 export interface ProceedsLineItem {
   label: string;
   amount: number;
-}
-
-export interface ScheduleEntry {
-  /** 0-indexed month from refinance date */
-  month: number;
-  beginning_balance: number;
-  interest: number;
-  principal: number;
-  /** interest + principal */
-  payment: number;
-  ending_balance: number;
-  is_io: boolean;
 }
 
 export interface RefinanceFlags {

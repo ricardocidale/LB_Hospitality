@@ -16,6 +16,7 @@ A financial modeling and portfolio management portal for L+B Hospitality Group, 
 
 ```bash
 npm run dev          # Start development server (port 5000)
+npm test             # Run vitest tests (calc/, domain/)
 npx tsx server/seed.ts        # Seed database with dev data
 npx tsx server/seed.ts --force # Force re-seed (clears existing data)
 npx drizzle-kit push          # Push schema changes to database
@@ -35,6 +36,9 @@ server/auth.ts                 # Authentication & session management
 server/calculationChecker.ts   # Independent server-side financial verification
 server/seed.ts                 # Database seeding script
 server/replit_integrations/    # External service integrations (image gen, object storage)
+domain/types/                  # Shared domain types (accounting policy, rounding, journal deltas)
+calc/refinance/                # Standalone refinance calculator (Skill 2)
+tests/refinance/               # Vitest tests for calc/refinance/
 ```
 
 ### Feature Modules (`client/src/features/`)
@@ -93,6 +97,18 @@ See `.claude/rules/` for detailed documentation on:
 
 See `.claude/skills/` for component-level documentation:
 - `property-image-picker.md` — PropertyImagePicker component, useGenerateImage hook, AI image endpoint
+
+## Finance Skill Modules
+
+Standalone, GAAP-compliant calculator modules per `skills/finance/FINANCE_SKILL_SPECS.md`. Framework-agnostic pure TypeScript with vitest coverage.
+
+| Module | Path | Description |
+|--------|------|-------------|
+| Domain Types | `domain/types/` | `AccountingPolicy`, `RoundingPolicy`, `JournalDelta` — shared across all finance Skills |
+| Refinance Calculator | `calc/refinance/` | Skill 2: payoff, LTV/DSCR sizing, IO-to-amort schedules, journal hooks, proceeds breakdown |
+| Refinance Tests | `tests/refinance/` | 58 tests: unit, golden scenario, schedule reconciliation, flag determinism |
+
+These modules are isolated from the existing `client/src/lib/financialEngine.ts` engine. They do not import from or modify any existing application code.
 
 ## Authoritative Skill Specifications
 

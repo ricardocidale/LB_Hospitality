@@ -1,15 +1,24 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Money } from "@/components/Money";
+/**
+ * ConsolidatedBalanceSheet — Refactored with shared row components
+ *
+ * Uses BalanceSheetSection, BalanceSheetLineItem, GrandTotalRow, and
+ * SpacerRow from financial-table-rows for consistent visual language.
+ */
+
 import { Property } from "@shared/schema";
 import { MonthlyFinancials, getFiscalYearForModelYear } from "@/lib/financialEngine";
 import { GlobalResponse } from "@/lib/api";
 import {
   DEFAULT_LTV,
-  DEFAULT_LAND_VALUE_PERCENT,
   PROJECTION_YEARS,
-  DEPRECIATION_YEARS
 } from "@/lib/constants";
+import {
+  TableShell,
+  BalanceSheetSection,
+  BalanceSheetLineItem,
+  GrandTotalRow,
+  SpacerRow,
+} from "@/components/financial-table-rows";
 
 interface Props {
   properties: Property[];
@@ -124,110 +133,52 @@ export function ConsolidatedBalanceSheet({ properties, global, allProFormas, yea
     : "Consolidated Balance Sheet";
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
-        <p className="text-sm text-muted-foreground">As of December 31, {displayYear}</p>
-      </CardHeader>
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[250px]">Account</TableHead>
-              <TableHead className="text-right">Amount</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <TableRow className="bg-muted/30">
-              <TableCell colSpan={2} className="font-bold text-accent">ASSETS</TableCell>
-            </TableRow>
+    <TableShell
+      title={title}
+      subtitle={`As of December 31, ${displayYear}`}
+      columns={["Amount"]}
+      stickyLabel="Account"
+    >
+      {/* ── Assets ── */}
+      <BalanceSheetSection label="ASSETS" colSpan={2} />
 
-            <TableRow>
-              <TableCell className="pl-6 font-medium">Current Assets</TableCell>
-              <TableCell></TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="pl-10">Cash & Cash Equivalents</TableCell>
-              <TableCell className="text-right"><Money amount={totalCash} /></TableCell>
-            </TableRow>
-            <TableRow className="bg-primary/5">
-              <TableCell className="pl-6 font-medium">Total Current Assets</TableCell>
-              <TableCell className="text-right font-medium"><Money amount={totalCash} /></TableCell>
-            </TableRow>
+      <BalanceSheetLineItem label="Current Assets" indent={1} bold />
+      <BalanceSheetLineItem label="Cash & Cash Equivalents" amount={totalCash} indent={2} />
+      <BalanceSheetLineItem label="Total Current Assets" amount={totalCash} indent={1} bold isSubtotal />
 
-            <TableRow className="h-2 border-none"><TableCell colSpan={2}></TableCell></TableRow>
+      <SpacerRow colSpan={2} />
 
-            <TableRow>
-              <TableCell className="pl-6 font-medium">Fixed Assets</TableCell>
-              <TableCell></TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="pl-10">Property, Plant & Equipment</TableCell>
-              <TableCell className="text-right"><Money amount={totalPropertyValue} /></TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="pl-10">Less: Accumulated Depreciation</TableCell>
-              <TableCell className="text-right"><Money amount={-totalAccumulatedDepreciation} /></TableCell>
-            </TableRow>
-            <TableRow className="bg-primary/5">
-              <TableCell className="pl-6 font-medium">Net Fixed Assets</TableCell>
-              <TableCell className="text-right font-medium"><Money amount={netPropertyValue} /></TableCell>
-            </TableRow>
+      <BalanceSheetLineItem label="Fixed Assets" indent={1} bold />
+      <BalanceSheetLineItem label="Property, Plant & Equipment" amount={totalPropertyValue} indent={2} />
+      <BalanceSheetLineItem label="Less: Accumulated Depreciation" amount={-totalAccumulatedDepreciation} indent={2} />
+      <BalanceSheetLineItem label="Net Fixed Assets" amount={netPropertyValue} indent={1} bold isSubtotal />
 
-            <TableRow className="h-2 border-none"><TableCell colSpan={2}></TableCell></TableRow>
+      <SpacerRow colSpan={2} />
 
-            <TableRow className="bg-primary/10 font-bold">
-              <TableCell>TOTAL ASSETS</TableCell>
-              <TableCell className="text-right"><Money amount={totalAssets} /></TableCell>
-            </TableRow>
+      <BalanceSheetLineItem label="TOTAL ASSETS" amount={totalAssets} isTotal />
 
-            <TableRow className="h-4 border-none"><TableCell colSpan={2}></TableCell></TableRow>
+      <SpacerRow colSpan={2} height="h-4" />
 
-            <TableRow className="bg-muted/30">
-              <TableCell colSpan={2} className="font-bold text-accent">LIABILITIES</TableCell>
-            </TableRow>
+      {/* ── Liabilities ── */}
+      <BalanceSheetSection label="LIABILITIES" colSpan={2} />
 
-            <TableRow>
-              <TableCell className="pl-6 font-medium">Long-Term Liabilities</TableCell>
-              <TableCell></TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="pl-10">Mortgage Notes Payable</TableCell>
-              <TableCell className="text-right"><Money amount={totalDebtOutstanding} /></TableCell>
-            </TableRow>
-            <TableRow className="bg-primary/10 font-bold">
-              <TableCell>TOTAL LIABILITIES</TableCell>
-              <TableCell className="text-right"><Money amount={totalLiabilities} /></TableCell>
-            </TableRow>
+      <BalanceSheetLineItem label="Long-Term Liabilities" indent={1} bold />
+      <BalanceSheetLineItem label="Mortgage Notes Payable" amount={totalDebtOutstanding} indent={2} />
+      <BalanceSheetLineItem label="TOTAL LIABILITIES" amount={totalLiabilities} isTotal />
 
-            <TableRow className="h-4 border-none"><TableCell colSpan={2}></TableCell></TableRow>
+      <SpacerRow colSpan={2} height="h-4" />
 
-            <TableRow className="bg-muted/30">
-              <TableCell colSpan={2} className="font-bold text-accent">EQUITY</TableCell>
-            </TableRow>
+      {/* ── Equity ── */}
+      <BalanceSheetSection label="EQUITY" colSpan={2} />
 
-            <TableRow>
-              <TableCell className="pl-6">Paid-In Capital</TableCell>
-              <TableCell className="text-right"><Money amount={totalInitialEquity} /></TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="pl-6">Retained Earnings</TableCell>
-              <TableCell className="text-right"><Money amount={totalRetainedEarnings} /></TableCell>
-            </TableRow>
-            <TableRow className="bg-primary/10 font-bold">
-              <TableCell>TOTAL EQUITY</TableCell>
-              <TableCell className="text-right"><Money amount={totalEquity} /></TableCell>
-            </TableRow>
+      <BalanceSheetLineItem label="Paid-In Capital" amount={totalInitialEquity} indent={1} />
+      <BalanceSheetLineItem label="Retained Earnings" amount={totalRetainedEarnings} indent={1} />
+      <BalanceSheetLineItem label="TOTAL EQUITY" amount={totalEquity} isTotal />
 
-            <TableRow className="h-2 border-none"><TableCell colSpan={2}></TableCell></TableRow>
+      <SpacerRow colSpan={2} />
 
-            <TableRow className="bg-gradient-to-r from-primary/80 via-primary/60 to-primary/40 backdrop-blur-sm font-bold text-primary-foreground">
-              <TableCell>TOTAL LIABILITIES & EQUITY</TableCell>
-              <TableCell className="text-right"><Money amount={totalLiabilities + totalEquity} /></TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
+      {/* ── Grand Total ── */}
+      <GrandTotalRow label="TOTAL LIABILITIES & EQUITY" values={[totalLiabilities + totalEquity]} />
+    </TableShell>
   );
 }

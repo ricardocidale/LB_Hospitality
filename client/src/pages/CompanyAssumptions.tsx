@@ -273,7 +273,7 @@ export default function CompanyAssumptions() {
           backLink="/company"
           actions={
             <div className="flex items-center gap-3">
-              <Link href="/company/research">
+              <Link href="/company/research" className="text-inherit no-underline">
                 <GlassButton variant="primary" data-testid="button-company-research">
                   <BookOpen className="w-4 h-4" />
                   Standards Research

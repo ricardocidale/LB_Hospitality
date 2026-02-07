@@ -1885,6 +1885,24 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
         listingUrl: r.href ? `https://www.realtor.com${r.href}` : null,
       }));
 
+      // Validate listing URLs in parallel — null out dead links
+      await Promise.all(normalized.map(async (item: any) => {
+        if (!item.listingUrl) return;
+        try {
+          const check = await fetch(item.listingUrl, {
+            method: "HEAD",
+            redirect: "follow",
+            signal: AbortSignal.timeout(4000),
+            headers: { "User-Agent": "Mozilla/5.0 (compatible; LBHospitality/1.0)" },
+          });
+          if (!check.ok) {
+            item.listingUrl = null;
+          }
+        } catch {
+          item.listingUrl = null;
+        }
+      }));
+
       res.json({ results: normalized, total: totalCount, offset: parseInt(searchOffset as string) || 0 });
     } catch (error) {
       console.error("Property search error:", error);
@@ -1896,6 +1914,25 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     try {
       const userId = req.user!.id;
       const favorites = await storage.getProspectiveProperties(userId);
+
+      // Validate listing URLs in parallel — null out stale/dead links
+      await Promise.all(favorites.map(async (item: any) => {
+        if (!item.listingUrl) return;
+        try {
+          const check = await fetch(item.listingUrl, {
+            method: "HEAD",
+            redirect: "follow",
+            signal: AbortSignal.timeout(4000),
+            headers: { "User-Agent": "Mozilla/5.0 (compatible; LBHospitality/1.0)" },
+          });
+          if (!check.ok) {
+            item.listingUrl = null;
+          }
+        } catch {
+          item.listingUrl = null;
+        }
+      }));
+
       res.json(favorites);
     } catch (error) {
       console.error("Get favorites error:", error);

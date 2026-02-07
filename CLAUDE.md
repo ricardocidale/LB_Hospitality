@@ -98,8 +98,8 @@ See `.claude/rules/` for detailed documentation on:
 - Architecture, database & seeding, financial engine, verification system
 - UI design system, shared constants, API route reference
 
-See `.claude/skills/` for component-level documentation:
-- `property-image-picker.md` — PropertyImagePicker component, useGenerateImage hook, AI image endpoint
+See `.claude/skills/` for component-level documentation (organized by category: `ui/`, `exports/`, `finance/`, `research/`, `features/`):
+- `features/property-image-picker.md` — PropertyImagePicker component, useGenerateImage hook, AI image endpoint
 
 ## Finance Skill Modules
 

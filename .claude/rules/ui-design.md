@@ -274,9 +274,9 @@ All interactive elements must have `data-testid` attributes:
 
 ## Related Skills
 
-- **`.claude/skills/button-system.md`** — Full GlassButton variant reference and usage patterns
-- **`.claude/skills/tab-bar-system.md`** — DarkGlassTabs + ExportMenu wiring pattern
+- **`.claude/skills/ui/button-system.md`** — Full GlassButton variant reference and usage patterns
+- **`.claude/skills/ui/tab-bar-system.md`** — DarkGlassTabs + ExportMenu wiring pattern
 - **`.claude/skills/exports/SKILL.md`** — Export system methodology, ExportMenu component, format implementations
-- **`.claude/skills/page-header.md`** — PageHeader component reference and variant rules
-- **`.claude/skills/glass-components.md`** — GlassCard, GlassButton, SaveButton component specs
-- **`.claude/skills/property-image-picker.md`** — PropertyImagePicker (upload + AI generate), useGenerateImage hook
+- **`.claude/skills/ui/page-header.md`** — PageHeader component reference and variant rules
+- **`.claude/skills/ui/glass-components.md`** — GlassCard, GlassButton, SaveButton component specs
+- **`.claude/skills/features/property-image-picker.md`** — PropertyImagePicker (upload + AI generate), useGenerateImage hook

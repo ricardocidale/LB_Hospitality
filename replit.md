@@ -101,7 +101,7 @@ To simulate a scalable hospitality platform where individual assets can be analy
 - **Data Storage**: Saved searches are stored in `saved_searches` table, and favorited properties in `prospective_properties` table.
 
 ### AI Research Architecture
-- **Skills**: Markdown files (`.claude/skills/`) provide system instructions to guide Claude's analysis (e.g., `property-market-research.md`, `company-research.md`).
+- **Skills**: Markdown files (`.claude/skills/`) provide system instructions to guide Claude's analysis (e.g., `research/property-market-research.md`, `research/company-research.md`).
 - **Tools**: JSON files (`.claude/tools/`) define Claude tool-use function schemas for property research (e.g., `analyze-market.json`, `analyze-adr.json`).
 - **Orchestration**: `server/aiResearch.ts` loads skills/tools, manages Claude's tool-use loop, and returns contextual guidance.
 - **Output**: Research results adhere to a defined schema including `marketOverview`, `adrAnalysis`, `occupancyAnalysis`, `capRateAnalysis`, etc.

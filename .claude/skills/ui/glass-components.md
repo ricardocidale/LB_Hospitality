@@ -4,7 +4,7 @@
 
 **Location:** `client/src/components/ui/glass-button.tsx`
 
-> For full variant reference, decision guide, and anti-patterns, see **`.claude/skills/button-system.md`**.
+> For full variant reference, decision guide, and anti-patterns, see **`.claude/skills/ui/button-system.md`**.
 
 ### Variants
 

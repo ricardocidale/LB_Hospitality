@@ -47,10 +47,13 @@ export function ThemeManager() {
               Define color palettes and design systems for your application
             </CardDescription>
           </div>
-          <Button onClick={() => setThemeDialogOpen(true)} className="flex items-center gap-2 bg-[#257D41] hover:bg-[#1e6434]">
+          <button
+            onClick={() => setThemeDialogOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-[#257D41] bg-[#257D41]/10 text-[#257D41] font-semibold hover:bg-[#257D41]/20 transition-colors"
+          >
             <Plus className="w-4 h-4" />
             New Theme
-          </Button>
+          </button>
         </div>
       </CardHeader>
 

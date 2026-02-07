@@ -18,7 +18,6 @@ const GlassButton = React.forwardRef<HTMLButtonElement, GlassButtonProps>(
     };
 
     if (variant === "primary") {
-      const isDisabled = props.disabled;
       return (
         <button
           ref={ref}
@@ -28,24 +27,15 @@ const GlassButton = React.forwardRef<HTMLButtonElement, GlassButtonProps>(
             "text-white font-medium",
             className
           )}
-          style={{ background: 'linear-gradient(135deg, #2d4a5e 0%, #3d5a6a 50%, #3a5a5e 100%)', opacity: isDisabled ? 0.6 : 1 }}
+          style={{ background: 'linear-gradient(135deg, #2d4a5e 0%, #3d5a6a 50%, #3a5a5e 100%)' }}
           {...props}
         >
           {/* Top edge shine line */}
-          <div className={cn(
-            "absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent transition-opacity",
-            isDisabled && "opacity-50"
-          )} />
+          <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
           {/* Border */}
-          <div className={cn(
-            "absolute inset-0 rounded-xl border transition-opacity",
-            isDisabled ? "border-white/15" : "border-white/25"
-          )} />
+          <div className="absolute inset-0 rounded-xl border border-white/25" />
           {/* Hover glow effect */}
-          <div className={cn(
-            "absolute inset-0 rounded-xl transition-opacity",
-            isDisabled ? "" : "shadow-[0_0_20px_rgba(159,188,164,0.3)]"
-          )} />
+          <div className="absolute inset-0 rounded-xl shadow-[0_0_20px_rgba(159,188,164,0.3)]" />
           {/* Text always stays bright white */}
           <span className="relative flex items-center justify-center gap-2 text-white" style={{ color: '#FFFFFF' }}>
             {children}

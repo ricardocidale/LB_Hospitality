@@ -1572,74 +1572,84 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
-  // --- DESIGN THEMES ROUTES ---
-  
-  // Get all design themes
-  app.get("/api/admin/design-themes", requireAdmin, async (req, res) => {
+  // --- DESIGN THEMES ROUTES (per-user) ---
+
+  // Get all design themes for current user (includes system themes)
+  app.get("/api/design-themes", requireAuth, async (req, res) => {
     try {
-      const themes = await storage.getAllDesignThemes();
+      const themes = await storage.getAllDesignThemes(req.user!.id);
       res.json(themes);
     } catch (error) {
       console.error("Error fetching design themes:", error);
       res.status(500).json({ error: "Failed to fetch design themes" });
     }
   });
-  
-  // Get active design theme
-  app.get("/api/admin/design-themes/active", async (req, res) => {
+
+  // Get active design theme for current user
+  app.get("/api/design-themes/active", requireAuth, async (req, res) => {
     try {
-      const theme = await storage.getActiveDesignTheme();
+      const theme = await storage.getActiveDesignTheme(req.user!.id);
       res.json(theme || null);
     } catch (error) {
       console.error("Error fetching active design theme:", error);
       res.status(500).json({ error: "Failed to fetch active design theme" });
     }
   });
-  
-  // Create design theme
-  app.post("/api/admin/design-themes", requireAdmin, async (req, res) => {
+
+  // Create design theme for current user
+  app.post("/api/design-themes", requireAuth, async (req, res) => {
     try {
       const validation = insertDesignThemeSchema.safeParse(req.body);
       if (!validation.success) {
         return res.status(400).json({ error: fromZodError(validation.error).message });
       }
-      const theme = await storage.createDesignTheme(validation.data);
+      const theme = await storage.createDesignTheme({
+        ...validation.data,
+        userId: req.user!.id,
+      });
       res.json(theme);
     } catch (error) {
       console.error("Error creating design theme:", error);
       res.status(500).json({ error: "Failed to create design theme" });
     }
   });
-  
-  // Update design theme
-  app.patch("/api/admin/design-themes/:id", requireAdmin, async (req, res) => {
+
+  // Update design theme (ownership check)
+  app.patch("/api/design-themes/:id", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id as string);
-      if (isNaN(id)) {
-        return res.status(400).json({ error: "Invalid theme ID" });
+      if (isNaN(id)) return res.status(400).json({ error: "Invalid theme ID" });
+
+      const existing = await storage.getDesignTheme(id);
+      if (!existing) return res.status(404).json({ error: "Theme not found" });
+      if (existing.userId !== null && existing.userId !== req.user!.id) {
+        return res.status(403).json({ error: "Access denied" });
       }
+
       const validation = insertDesignThemeSchema.partial().safeParse(req.body);
       if (!validation.success) {
         return res.status(400).json({ error: fromZodError(validation.error).message });
       }
       const theme = await storage.updateDesignTheme(id, validation.data);
-      if (!theme) {
-        return res.status(404).json({ error: "Theme not found" });
-      }
       res.json(theme);
     } catch (error) {
       console.error("Error updating design theme:", error);
       res.status(500).json({ error: "Failed to update design theme" });
     }
   });
-  
-  // Delete design theme
-  app.delete("/api/admin/design-themes/:id", requireAdmin, async (req, res) => {
+
+  // Delete design theme (ownership check)
+  app.delete("/api/design-themes/:id", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id as string);
-      if (isNaN(id)) {
-        return res.status(400).json({ error: "Invalid theme ID" });
+      if (isNaN(id)) return res.status(400).json({ error: "Invalid theme ID" });
+
+      const existing = await storage.getDesignTheme(id);
+      if (!existing) return res.status(404).json({ error: "Theme not found" });
+      if (existing.userId !== null && existing.userId !== req.user!.id) {
+        return res.status(403).json({ error: "Access denied" });
       }
+
       await storage.deleteDesignTheme(id);
       res.json({ success: true });
     } catch (error) {
@@ -1647,15 +1657,20 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       res.status(500).json({ error: "Failed to delete design theme" });
     }
   });
-  
-  // Set active design theme
-  app.post("/api/admin/design-themes/:id/activate", requireAdmin, async (req, res) => {
+
+  // Activate design theme for current user (ownership check)
+  app.post("/api/design-themes/:id/activate", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id as string);
-      if (isNaN(id)) {
-        return res.status(400).json({ error: "Invalid theme ID" });
+      if (isNaN(id)) return res.status(400).json({ error: "Invalid theme ID" });
+
+      const existing = await storage.getDesignTheme(id);
+      if (!existing) return res.status(404).json({ error: "Theme not found" });
+      if (existing.userId !== null && existing.userId !== req.user!.id) {
+        return res.status(403).json({ error: "Access denied" });
       }
-      await storage.setActiveDesignTheme(id);
+
+      await storage.setActiveDesignTheme(id, req.user!.id);
       res.json({ success: true });
     } catch (error) {
       console.error("Error activating design theme:", error);

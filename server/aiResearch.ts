@@ -12,7 +12,6 @@ interface ResearchParams {
     roomCount: number;
     startAdr: number;
     maxOccupancy: number;
-    cateringLevel: string;
     type: string;
     purchasePrice?: number;
   };
@@ -76,7 +75,7 @@ function handleToolCall(name: string, input: Record<string, any>): string {
       return `Provide ADR analysis for ${input.location}. Current/target ADR: $${input.current_adr}, ${input.room_count} rooms, ${input.property_level} positioning. Has F&B: ${input.has_fb ?? "unknown"}, Events: ${input.has_events ?? "unknown"}, Wellness: ${input.has_wellness ?? "unknown"}. Include market average ADR, comparable property ADR range, at least 4 comparable property ADRs, and a recommended ADR range with rationale.`;
     case "analyze_occupancy": {
       const targetOcc = typeof input.target_occupancy === "number" ? (input.target_occupancy * 100).toFixed(0) : "70";
-      return `Provide occupancy analysis for ${input.location}. ${input.room_count || 20} rooms, target ${targetOcc}% stabilized occupancy, ${input.property_level || "luxury"} positioning, catering: ${input.catering_level || "unknown"}. Include market average occupancy, seasonal patterns (4 seasons with rates and notes), and expected ramp-up timeline.`;
+      return `Provide occupancy analysis for ${input.location}. ${input.room_count || 20} rooms, target ${targetOcc}% stabilized occupancy, ${input.property_level || "luxury"} positioning. Include market average occupancy, seasonal patterns (4 seasons with rates and notes), and expected ramp-up timeline.`;
     }
     case "analyze_event_demand":
       return `Provide event demand analysis for ${input.location}. ${input.event_locations || 2} event spaces, max capacity ${input.max_event_capacity || 150} guests. Wellness: ${input.has_wellness ?? true}, F&B: ${input.has_fb ?? true}, Privacy: ${input.privacy_level || "high"}, Acreage: ${input.acreage || 5}. Include corporate event demand, wellness retreat potential, wedding/private event demand, estimated event revenue share, and key demand drivers.`;
@@ -84,6 +83,25 @@ function handleToolCall(name: string, input: Record<string, any>): string {
       return `Provide cap rate analysis for ${input.location} (${input.market_region}). ${input.property_level} hospitality property, ${input.room_count} rooms${input.purchase_price ? `, purchase price $${input.purchase_price.toLocaleString()}` : ""}. Include market cap rate range, comparable property range, at least 3 comparable transactions with cap rates and sale years, and a recommended acquisition/exit cap rate range.`;
     case "analyze_competitive_set":
       return `Provide competitive set analysis for ${input.location}. Subject: ${input.room_count} rooms at $${input.current_adr} ADR, ${input.property_level} positioning. Has events: ${input.has_events ?? true}, wellness: ${input.has_wellness ?? true}, F&B: ${input.has_fb ?? true}. Identify 4-6 comparable properties with room counts, ADRs, and positioning descriptions.`;
+    case "analyze_catering":
+      return `Analyze the catering and F&B revenue uplift for a ${input.property_level || "luxury"} hospitality property in ${input.location}. ${input.room_count || 20} rooms, F&B: ${input.has_fb ?? true}, events: ${input.has_events ?? true}, ${input.event_locations || 2} event spaces, max capacity ${input.max_event_capacity || 150} guests, market: ${input.market_region || "North America"}.
+
+IMPORTANT CONTEXT: In our financial model, all revenue categories are expressed as percentages of ROOM REVENUE, not total revenue. The formula is:
+- Base F&B Revenue = Room Revenue × F&B Revenue Share (e.g., 22%)
+- Total F&B Revenue = Base F&B × (1 + Catering Boost %)
+
+The "catering boost percentage" is the additional uplift to base F&B from catered events. For example, if base F&B is $100K and catering boost is 30%, total F&B = $130K.
+
+If your market research provides total revenue breakdowns (e.g., "F&B is 35% of total revenue"), you must convert: work backwards from total revenue splits to derive what the catering boost would be on top of the base F&B percentage of room revenue.
+
+Determine the recommended catering boost percentage based on:
+- Local market event catering penetration rates
+- What proportion of events at comparable properties are fully catered (weddings, galas, corporate dinners) vs. partially catered (retreats with some meals) vs. no catering
+- F&B revenue multiplier effect from catered events at comparable properties
+- Seasonal variation in catered vs. non-catered events
+- Property-specific capabilities (kitchen capacity, event spaces, staff)
+
+Provide a recommended catering boost percentage (typically 15%–50%), market range, rationale, event mix breakdown, and key factors specific to this property's market.`;
     case "analyze_land_value":
       return `Provide land value allocation analysis for ${input.location} (${input.market_region}). Property type: ${input.property_type}, ${input.acreage || 10}+ acres, ${input.room_count || 20} rooms, purchase price: $${(input.purchase_price || 0).toLocaleString()}, building improvements: $${(input.building_improvements || 0).toLocaleString()}, setting: ${input.setting || "rural estate"}. Determine the appropriate percentage of the purchase price attributable to land vs. building/improvements for IRS depreciation purposes. Consider: local land values per acre, ratio of land to total property value in this market, whether the property is in a high-land-value area (urban/resort) vs. lower-value rural setting, comparable hotel land allocations, and county tax assessor land-to-improvement ratios. Provide a recommended land value percentage, market range, assessment methodology, rationale, and key factors.`;
     default:
@@ -104,7 +122,6 @@ function buildUserPrompt(params: ResearchParams): string {
 - Room Count: ${propertyContext.roomCount}
 - Current ADR: $${propertyContext.startAdr}
 - Target Occupancy: ${(propertyContext.maxOccupancy * 100).toFixed(0)}%
-- Catering Level: ${propertyContext.cateringLevel}
 - Property Type: ${propertyContext.type}
 ${propertyContext.purchasePrice ? `- Purchase Price: $${propertyContext.purchasePrice.toLocaleString()}` : ""}
 

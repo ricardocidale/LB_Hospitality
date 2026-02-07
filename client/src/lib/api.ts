@@ -66,8 +66,6 @@ export interface GlobalResponse {
   miscOpsRate: number;
   // Portfolio
   commissionRate: number;
-  fullCateringFBBoost: number;
-  partialCateringFBBoost: number;
   // Tax
   companyTaxRate: number;
   // Exit & Sale Assumptions

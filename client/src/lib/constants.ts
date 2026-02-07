@@ -43,10 +43,9 @@ export const DEFAULT_OCCUPANCY_RAMP_MONTHS = 6;
 export const DEFAULT_STABILIZATION_MONTHS = 24;
 
 // Catering defaults
-export const DEFAULT_FULL_CATERING_PCT = 0.40;
-export const DEFAULT_PARTIAL_CATERING_PCT = 0.30;
-export const DEFAULT_FULL_CATERING_BOOST = 0.50;
-export const DEFAULT_PARTIAL_CATERING_BOOST = 0.25;
+// Single catering boost percentage applied to F&B revenue at property level
+// Represents blended effect across all events (catered and non-catered)
+export const DEFAULT_CATERING_BOOST_PCT = 0.30;
 
 // Property cost rate defaults (USALI standard allocations)
 export const DEFAULT_COST_RATE_ROOMS = 0.36;

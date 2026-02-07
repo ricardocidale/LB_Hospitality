@@ -25,10 +25,11 @@ Key definition attributes to consider:
 2. **ADR Analysis**: Call `analyze_adr` to benchmark average daily rates
 3. **Occupancy Analysis**: Call `analyze_occupancy` for occupancy patterns and seasonality
 4. **Event Demand**: Call `analyze_event_demand` for corporate, wellness, and private event demand
-5. **Cap Rate Analysis**: Call `analyze_cap_rates` for investment return benchmarks
-6. **Competitive Set**: Call `analyze_competitive_set` for comparable properties
-7. **Land Value Allocation**: Call `analyze_land_value` to determine land vs. building value split for depreciation
-8. **Risk Assessment**: After gathering all data, synthesize risks and mitigations
+5. **Catering Analysis**: Call `analyze_catering` to determine the recommended catering boost percentage for F&B revenue
+6. **Cap Rate Analysis**: Call `analyze_cap_rates` for investment return benchmarks
+7. **Competitive Set**: Call `analyze_competitive_set` for comparable properties
+8. **Land Value Allocation**: Call `analyze_land_value` to determine land vs. building value split for depreciation
+9. **Risk Assessment**: After gathering all data, synthesize risks and mitigations
 
 ## Output Requirements
 
@@ -58,6 +59,17 @@ After calling all tools, synthesize the results into a single JSON object with t
     "weddingsPrivate": "description with revenue estimate",
     "estimatedEventRevShare": "XX% of total revenue",
     "keyDrivers": ["driver 1", "driver 2"]
+  },
+  "cateringAnalysis": {
+    "recommendedBoostPercent": "XX%",
+    "marketRange": "XX% - XX%",
+    "rationale": "Why this catering boost percentage is appropriate. NOTE: This is the uplift to BASE F&B revenue (which is itself a % of room revenue). If market data shows total revenue splits, convert backwards: e.g., if F&B is 30% of total and rooms are 55% of total, base F&B as % of room revenue = 30/55 ≈ 54.5%. Compare to model's base F&B share (default 22%) to derive the catering boost.",
+    "factors": ["factor 1", "factor 2", "factor 3"],
+    "eventMixBreakdown": {
+      "fullyCatered": "XX% of events (weddings, galas, corporate dinners)",
+      "partiallyCatered": "XX% of events (retreats, meetings with some meals)",
+      "noCatering": "XX% of events (self-catered, room-only bookings)"
+    }
   },
   "capRateAnalysis": {
     "marketRange": "X.X% - X.X%",

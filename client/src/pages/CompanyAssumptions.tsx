@@ -23,8 +23,6 @@ import {
   DEFAULT_EVENT_EXPENSE_RATE,
   DEFAULT_OTHER_EXPENSE_RATE,
   DEFAULT_UTILITIES_VARIABLE_SPLIT,
-  DEFAULT_FULL_CATERING_BOOST,
-  DEFAULT_PARTIAL_CATERING_BOOST,
   PROJECTION_YEARS,
   DEFAULT_MODEL_START_DATE,
   DEFAULT_PARTNER_COMP,
@@ -1151,63 +1149,17 @@ export default function CompanyAssumptions() {
           <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-[#9FBCA4]/10 blur-2xl" />
           <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/5 blur-xl" />
           <div className="relative">
-          <div className="space-y-6">
+          <div className="space-y-4">
             <h3 className="text-lg font-display text-gray-900 flex items-center gap-2">
-              Catering F&B Boost Factors
-              <HelpTooltip text="How much catering at events boosts F&B revenue. Full catering adds more revenue than partial." />
+              Catering Revenue Model
             </h3>
-            
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <Label className="flex items-center text-gray-700 label-text">
-                  Full Catering F&B Boost
-                  <HelpTooltip text="Additional F&B revenue multiplier when events use full in-house catering" />
-                </Label>
-                <EditableValue
-                  value={formData.fullCateringFBBoost ?? global.fullCateringFBBoost ?? DEFAULT_FULL_CATERING_BOOST}
-                  onChange={(v) => handleUpdate("fullCateringFBBoost", v)}
-                  format="percent"
-                  min={0}
-                  max={1.00}
-                  step={0.05}
-                />
-              </div>
-              <Slider
-                value={[(formData.fullCateringFBBoost ?? global.fullCateringFBBoost ?? DEFAULT_FULL_CATERING_BOOST) * 100]}
-                onValueChange={([v]) => handleUpdate("fullCateringFBBoost", v / 100)}
-                min={0}
-                max={100}
-                step={5}
-              />
-            </div>
-
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <Label className="flex items-center text-gray-700 label-text">
-                  Partial Catering F&B Boost
-                  <HelpTooltip text="Additional F&B revenue multiplier when events use partial in-house catering" />
-                </Label>
-                <EditableValue
-                  value={formData.partialCateringFBBoost ?? global.partialCateringFBBoost ?? DEFAULT_PARTIAL_CATERING_BOOST}
-                  onChange={(v) => handleUpdate("partialCateringFBBoost", v)}
-                  format="percent"
-                  min={0}
-                  max={0.75}
-                  step={0.05}
-                />
-              </div>
-              <Slider
-                value={[(formData.partialCateringFBBoost ?? global.partialCateringFBBoost ?? DEFAULT_PARTIAL_CATERING_BOOST) * 100]}
-                onValueChange={([v]) => handleUpdate("partialCateringFBBoost", v / 100)}
-                min={0}
-                max={75}
-                step={5}
-              />
-            </div>
-
-            <p className="text-xs text-gray-600 mt-2">
-              F&B revenue formula: Base F&B × (1 + Full Boost × Full Catering % + Partial Boost × Partial Catering %)
+            <p className="text-sm text-gray-600">
+              Catering is modeled as a percentage boost applied to each property's F&B revenue. The catering boost percentage is configured per property on the Property Assumptions page. There are no systemwide catering assumptions.
             </p>
+            <div className="p-3 bg-[#9FBCA4]/10 rounded-lg text-sm text-gray-700">
+              <p className="font-medium mb-1">Formula:</p>
+              <p>Total F&B Revenue = Room Revenue × F&B % × (1 + Catering Boost %)</p>
+            </div>
           </div>
         </div></div>
 

@@ -29,8 +29,7 @@ import {
   DEFAULT_REV_SHARE_EVENTS,
   DEFAULT_REV_SHARE_FB,
   DEFAULT_REV_SHARE_OTHER,
-  DEFAULT_FULL_CATERING_PCT,
-  DEFAULT_PARTIAL_CATERING_PCT,
+  DEFAULT_CATERING_BOOST_PCT,
   DEFAULT_COST_RATE_ROOMS,
   DEFAULT_COST_RATE_FB,
   DEFAULT_COST_RATE_ADMIN,
@@ -44,8 +43,6 @@ import {
   DEFAULT_COST_RATE_OTHER,
   DEFAULT_EXIT_CAP_RATE,
   DEFAULT_TAX_RATE,
-  DEFAULT_FULL_CATERING_BOOST,
-  DEFAULT_PARTIAL_CATERING_BOOST,
   PROJECTION_YEARS,
   DEFAULT_MODEL_START_DATE,
   DEFAULT_REFI_PERIOD_YEARS,
@@ -746,7 +743,7 @@ export default function PropertyEdit() {
             <div>
               <h3 className="text-xl font-semibold text-white flex items-center">
                 Revenue Streams
-                <HelpTooltip text="Configure how much additional revenue each stream generates as a percentage of room revenue. F&B revenue gets boosted based on what percentage of events require catering." />
+                <HelpTooltip text="Configure how much additional revenue each stream generates as a percentage of room revenue. F&B revenue gets boosted by the catering boost percentage." />
               </h3>
               <p className="text-gray-600 text-sm">Additional revenue as percentage of room revenue</p>
             </div>
@@ -780,7 +777,7 @@ export default function PropertyEdit() {
                 <div className="flex justify-between items-center">
                   <Label className="flex items-center gap-1 text-gray-700">
                     F&B
-                    <HelpTooltip text="Base food & beverage revenue as a percentage of room revenue. This gets boosted by catering at events (see catering mix below)." />
+                    <HelpTooltip text="Base food & beverage revenue as a percentage of room revenue. This gets boosted by the catering boost percentage below." />
                   </Label>
                   <EditableValue
                     value={(draft.revShareFB ?? DEFAULT_REV_SHARE_FB) * 100}
@@ -830,97 +827,31 @@ export default function PropertyEdit() {
             
             <div className="border-t border-white/10 pt-4">
               <Label className="flex items-center gap-1 mb-3 text-gray-700">
-                Event Catering Mix
-                <HelpTooltip text="What percentage of events at this property require catering. Full catering provides complete F&B service and boosts F&B revenue more. Partial catering includes limited offerings. The remaining events require no catering. Total cannot exceed 100%." />
+                Catering Boost
+                <HelpTooltip text="Percentage uplift applied to base F&B revenue from catered events. This should reflect the blended average across all events (catered and non-catered). For example, 30% means total F&B = Base F&B × 1.30." />
               </Label>
-              {(() => {
-                const fullPct = (draft.fullCateringPercent ?? DEFAULT_FULL_CATERING_PCT) * 100;
-                const partialPct = (draft.partialCateringPercent ?? DEFAULT_PARTIAL_CATERING_PCT) * 100;
-                const totalPct = fullPct + partialPct;
-                const noCateringPct = Math.max(0, 100 - totalPct);
-                
-                return (
-                  <>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                          <Label className="text-sm text-gray-600">% of Events with Full Catering</Label>
-                          <EditableValue
-                            value={fullPct}
-                            onChange={(val) => {
-                              const maxFull = 100 - partialPct;
-                              handleChange("fullCateringPercent", (Math.min(val, maxFull) / 100).toString());
-                            }}
-                            format="percent"
-                            min={0}
-                            max={100 - partialPct}
-                            step={5}
-                          />
-                        </div>
-                        <Slider 
-                          value={[fullPct]}
-                          onValueChange={(vals: number[]) => {
-                            const newFull = vals[0];
-                            const maxFull = 100 - partialPct;
-                            handleChange("fullCateringPercent", (Math.min(newFull, maxFull) / 100).toString());
-                          }}
-                          min={0}
-                          max={100 - partialPct}
-                          step={5}
-                          className="[&_[role=slider]]:bg-[#9FBCA4]"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                          <Label className="text-sm text-gray-600">% of Events with Partial Catering</Label>
-                          <EditableValue
-                            value={partialPct}
-                            onChange={(val) => {
-                              const maxPartial = 100 - fullPct;
-                              handleChange("partialCateringPercent", (Math.min(val, maxPartial) / 100).toString());
-                            }}
-                            format="percent"
-                            min={0}
-                            max={100 - fullPct}
-                            step={5}
-                          />
-                        </div>
-                        <Slider 
-                          value={[partialPct]}
-                          onValueChange={(vals: number[]) => {
-                            const newPartial = vals[0];
-                            const maxPartial = 100 - fullPct;
-                            handleChange("partialCateringPercent", (Math.min(newPartial, maxPartial) / 100).toString());
-                          }}
-                          min={0}
-                          max={100 - fullPct}
-                          step={5}
-                          className="[&_[role=slider]]:bg-[#9FBCA4]"
-                        />
-                      </div>
-                    </div>
-                    <div className="mt-3 p-2 bg-white/10 rounded text-sm flex justify-between items-center">
-                      <span className="text-gray-600">No catering required:</span>
-                      <span className="font-medium text-gray-900">{noCateringPct.toFixed(0)}% of events</span>
-                    </div>
-                  </>
-                );
-              })()}
-              {globalAssumptions && (
-                <div className="mt-4 p-3 bg-white/10 rounded-lg text-sm">
-                  <div className="text-gray-500 text-xs mb-2">F&B Boost Factors (from Systemwide Assumptions):</div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Full Catering Boost:</span>
-                      <span className="font-medium text-gray-900">+{((globalAssumptions.fullCateringFBBoost ?? DEFAULT_FULL_CATERING_BOOST) * 100).toFixed(0)}% to F&B</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Partial Catering Boost:</span>
-                      <span className="font-medium text-gray-900">+{((globalAssumptions.partialCateringFBBoost ?? DEFAULT_PARTIAL_CATERING_BOOST) * 100).toFixed(0)}% to F&B</span>
-                    </div>
-                  </div>
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <Label className="text-sm text-gray-600">Catering Boost %</Label>
+                  <EditableValue
+                    value={(draft.cateringBoostPercent ?? DEFAULT_CATERING_BOOST_PCT) * 100}
+                    onChange={(val) => handleChange("cateringBoostPercent", (val / 100).toString())}
+                    format="percent"
+                    min={0}
+                    max={100}
+                    step={5}
+                  />
                 </div>
-              )}
+                <Slider 
+                  value={[(draft.cateringBoostPercent ?? DEFAULT_CATERING_BOOST_PCT) * 100]}
+                  onValueChange={(vals: number[]) => handleChange("cateringBoostPercent", (vals[0] / 100).toString())}
+                  min={0}
+                  max={100}
+                  step={5}
+                  className="[&_[role=slider]]:bg-[#9FBCA4]"
+                />
+                <p className="text-xs text-gray-500 mt-1">Total F&B Revenue = Base F&B × (1 + Catering Boost %)</p>
+              </div>
             </div>
           </div>
         </div>

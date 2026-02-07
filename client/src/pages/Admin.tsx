@@ -114,7 +114,41 @@ interface DesignTheme {
   updatedAt: string;
 }
 
-type AdminView = "dashboard" | "users" | "activity" | "verification" | "design" | "themes";
+type AdminView = "dashboard" | "users" | "activity" | "activity-feed" | "verification" | "design" | "themes";
+
+interface ActivityLogEntry {
+  id: number;
+  userId: number;
+  userEmail: string;
+  userName: string | null;
+  action: string;
+  entityType: string;
+  entityId: number | null;
+  entityName: string | null;
+  metadata: Record<string, any> | null;
+  ipAddress: string | null;
+  createdAt: string;
+}
+
+interface VerificationHistoryEntry {
+  id: number;
+  userId: number;
+  totalChecks: number;
+  passed: number;
+  failed: number;
+  auditOpinion: string;
+  overallStatus: string;
+  createdAt: string;
+}
+
+interface ActiveSession {
+  id: string;
+  userId: number;
+  userEmail: string;
+  userName: string | null;
+  createdAt: string;
+  expiresAt: string;
+}
 
 export default function Admin() {
   const { toast } = useToast();
@@ -162,6 +196,44 @@ export default function Admin() {
   });
 
   const activeSessions = loginLogs?.filter(l => !l.logoutAt).length || 0;
+
+  // Activity feed filter state
+  const [activityEntityFilter, setActivityEntityFilter] = useState<string>("");
+  const [activityUserFilter, setActivityUserFilter] = useState<string>("");
+
+  // Login log filter state
+  const [loginLogUserFilter, setLoginLogUserFilter] = useState<string>("");
+  const [loginLogIpFilter, setLoginLogIpFilter] = useState<string>("");
+
+  const { data: activityLogs, isLoading: activityLogsLoading } = useQuery<ActivityLogEntry[]>({
+    queryKey: ["admin", "activity-logs", activityEntityFilter, activityUserFilter],
+    queryFn: async () => {
+      const params = new URLSearchParams({ limit: "50" });
+      if (activityEntityFilter) params.set("entityType", activityEntityFilter);
+      if (activityUserFilter) params.set("userId", activityUserFilter);
+      const res = await fetch(`/api/admin/activity-logs?${params}`, { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch activity logs");
+      return res.json();
+    },
+  });
+
+  const { data: verificationHistory } = useQuery<VerificationHistoryEntry[]>({
+    queryKey: ["admin", "verification-history"],
+    queryFn: async () => {
+      const res = await fetch("/api/admin/verification-history?limit=10", { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch verification history");
+      return res.json();
+    },
+  });
+
+  const { data: activeSessionsList } = useQuery<ActiveSession[]>({
+    queryKey: ["admin", "active-sessions"],
+    queryFn: async () => {
+      const res = await fetch("/api/admin/active-sessions", { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch active sessions");
+      return res.json();
+    },
+  });
 
   const { data: designThemes, isLoading: themesLoading } = useQuery<DesignTheme[]>({
     queryKey: ["admin", "design-themes"],
@@ -726,6 +798,23 @@ export default function Admin() {
           </CardContent>
         </Card>
 
+        <Card className="group relative overflow-hidden bg-gradient-to-br from-[#1a2e3d]/95 via-[#243d4d]/95 to-[#1e3a42]/95 backdrop-blur-3xl border border-white/20 shadow-2xl shadow-black/40 cursor-pointer hover:border-[#9FBCA4]/40 hover:shadow-[#9FBCA4]/20 transition-all duration-500" onClick={() => setCurrentView("activity-feed")} data-testid="card-activity-feed">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#9FBCA4]/10 via-transparent to-[#257D41]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="absolute -top-16 -right-16 w-48 h-48 bg-[#9FBCA4]/15 rounded-full blur-3xl group-hover:bg-[#9FBCA4]/25 transition-colors duration-500" />
+          <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-[#257D41]/10 rounded-full blur-3xl group-hover:bg-[#257D41]/20 transition-colors duration-500" />
+          <CardContent className="relative p-8">
+            <div className="flex items-center gap-6">
+              <div className="w-18 h-18 rounded-2xl bg-gradient-to-br from-[#9FBCA4] via-[#7aa88a] to-[#257D41] flex items-center justify-center shadow-xl shadow-[#9FBCA4]/30 border border-white/20" style={{ width: '72px', height: '72px' }}>
+                <Activity className="w-9 h-9 text-white drop-shadow-lg" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-2xl font-display font-semibold text-white mb-2">Activity Feed</h3>
+                <p className="text-white/50 label-text">Track property edits, scenario saves, and system actions</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         <Card className="group relative overflow-hidden bg-gradient-to-br from-[#1a2e3d]/95 via-[#243d4d]/95 to-[#1e3a42]/95 backdrop-blur-3xl border border-white/20 shadow-2xl shadow-black/40 cursor-pointer hover:border-[#9FBCA4]/40 hover:shadow-[#9FBCA4]/20 transition-all duration-500" onClick={() => setCurrentView("verification")} data-testid="card-verification">
           <div className="absolute inset-0 bg-gradient-to-br from-[#9FBCA4]/10 via-transparent to-[#257D41]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-[#9FBCA4]/15 rounded-full blur-3xl group-hover:bg-[#9FBCA4]/25 transition-colors duration-500" />
@@ -862,7 +951,14 @@ export default function Admin() {
     </Card>
   );
 
-  const renderActivity = () => (
+  const renderActivity = () => {
+    const filteredLogs = loginLogs?.filter(log => {
+      if (loginLogUserFilter && String(log.userId) !== loginLogUserFilter) return false;
+      if (loginLogIpFilter && !(log.ipAddress || "").toLowerCase().includes(loginLogIpFilter.toLowerCase())) return false;
+      return true;
+    });
+
+    return (<>
     <Card className="relative overflow-hidden bg-[#0a0a0f]/95 backdrop-blur-3xl border border-white/10 shadow-2xl shadow-black/50">
       <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] via-transparent to-black/20" />
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -870,23 +966,56 @@ export default function Admin() {
         <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-[#257D41]/15 blur-[100px] animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
       </div>
       <div className="absolute inset-0 shadow-[inset_0_0_100px_rgba(159,188,164,0.05)]" />
-      
+
       <CardHeader className="relative">
         <CardTitle className="text-xl font-display text-[#FFF9F5]">Login Activity</CardTitle>
         <CardDescription className="label-text text-white/60">
           {loginLogs?.length || 0} login records | {activeSessions} active sessions
         </CardDescription>
       </CardHeader>
-      
-      <CardContent className="relative">
+
+      <CardContent className="relative space-y-4">
+        {/* Login Log Filters */}
+        <div className="flex flex-wrap items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/10">
+          <div className="flex items-center gap-2">
+            <Label className="text-white/60 text-sm whitespace-nowrap">User</Label>
+            <select
+              value={loginLogUserFilter}
+              onChange={(e) => setLoginLogUserFilter(e.target.value)}
+              className="bg-white/10 border border-white/20 text-white rounded-lg px-3 py-1.5 text-sm"
+              data-testid="select-login-log-user-filter"
+            >
+              <option value="">All Users</option>
+              {users?.map(u => (
+                <option key={u.id} value={String(u.id)}>{u.name || u.email}</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex items-center gap-2">
+            <Label className="text-white/60 text-sm whitespace-nowrap">IP Address</Label>
+            <Input
+              value={loginLogIpFilter}
+              onChange={(e) => setLoginLogIpFilter(e.target.value)}
+              placeholder="Search IP..."
+              className="bg-white/10 border-white/20 text-white placeholder:text-white/30 h-8 w-36 text-sm"
+              data-testid="input-login-log-ip-filter"
+            />
+          </div>
+          <span className="text-white/40 text-sm ml-auto">
+            {filteredLogs?.length ?? 0} of {loginLogs?.length ?? 0} entries
+          </span>
+        </div>
+
         {logsLoading ? (
           <div className="flex items-center justify-center py-12">
             <Loader2 className="w-8 h-8 animate-spin text-[#9FBCA4]" />
           </div>
-        ) : loginLogs?.length === 0 ? (
+        ) : filteredLogs?.length === 0 ? (
           <div className="text-center py-12">
             <Clock className="w-16 h-16 mx-auto text-white/30 mb-4" />
-            <p className="label-text text-white/60">No login activity recorded yet</p>
+            <p className="label-text text-white/60">
+              {loginLogs?.length === 0 ? "No login activity recorded yet" : "No logs match the current filters"}
+            </p>
           </div>
         ) : (
           <Table>
@@ -900,7 +1029,7 @@ export default function Admin() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {loginLogs?.map((log) => (
+              {filteredLogs?.map((log) => (
                 <TableRow key={log.id} className="border-white/10 hover:bg-white/5" data-testid={`row-log-${log.id}`}>
                   <TableCell>
                     <div className="text-[#FFF9F5]">{log.userName || log.userEmail}</div>
@@ -923,7 +1052,62 @@ export default function Admin() {
         )}
       </CardContent>
     </Card>
-  );
+
+    {/* Active Sessions */}
+    {activeSessionsList && activeSessionsList.length > 0 && (
+      <Card className="relative overflow-hidden bg-[#0a0a0f]/95 backdrop-blur-3xl border border-white/10 shadow-2xl shadow-black/50 mt-6">
+        <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] via-transparent to-black/20" />
+        <CardHeader className="relative">
+          <CardTitle className="text-lg font-display text-[#FFF9F5]">Active Sessions</CardTitle>
+          <CardDescription className="label-text text-white/60">
+            {activeSessionsList.length} active session{activeSessionsList.length !== 1 ? "s" : ""}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="relative">
+          <Table>
+            <TableHeader>
+              <TableRow className="border-b border-white/10 hover:bg-transparent">
+                <TableHead className="text-[#9FBCA4] font-semibold text-xs uppercase tracking-wider">User</TableHead>
+                <TableHead className="text-[#9FBCA4] font-semibold text-xs uppercase tracking-wider">Session Started</TableHead>
+                <TableHead className="text-[#9FBCA4] font-semibold text-xs uppercase tracking-wider">Expires</TableHead>
+                <TableHead className="text-[#9FBCA4] font-semibold text-xs uppercase tracking-wider text-right">Action</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {activeSessionsList.map((s) => (
+                <TableRow key={s.id} className="border-b border-white/5 hover:bg-white/5">
+                  <TableCell className="text-white/80 text-sm">{s.userName || s.userEmail}</TableCell>
+                  <TableCell className="text-white/60 font-mono text-xs">{new Date(s.createdAt).toLocaleString()}</TableCell>
+                  <TableCell className="text-white/60 font-mono text-xs">{new Date(s.expiresAt).toLocaleString()}</TableCell>
+                  <TableCell className="text-right">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                      onClick={async () => {
+                        try {
+                          await fetch(`/api/admin/sessions/${s.id}`, { method: "DELETE", credentials: "include" });
+                          queryClient.invalidateQueries({ queryKey: ["admin", "active-sessions"] });
+                          toast({ title: "Session terminated", description: `Force logged out ${s.userName || s.userEmail}` });
+                        } catch {
+                          toast({ title: "Error", description: "Failed to terminate session", variant: "destructive" });
+                        }
+                      }}
+                      data-testid={`button-force-logout-${s.id.slice(0, 8)}`}
+                    >
+                      <LogOut className="w-4 h-4 mr-1" />
+                      Force Logout
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    )}
+    </>
+  );};
 
   const formatMoney = (n: number) => {
     const isNeg = n < 0;
@@ -973,7 +1157,111 @@ export default function Admin() {
     </div>
   );
 
-  const renderVerification = () => (
+  /** Activity Feed — filterable log of all user actions across the system. */
+  const renderActivityFeed = () => (
+    <div className="space-y-6">
+      {/* Filters */}
+      <Card className="relative overflow-hidden bg-[#0a0a0f]/95 backdrop-blur-3xl border border-white/10 shadow-2xl shadow-black/50">
+        <CardContent className="relative p-6">
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Label className="text-white/60 text-sm whitespace-nowrap">Entity Type</Label>
+              <select
+                value={activityEntityFilter}
+                onChange={(e) => setActivityEntityFilter(e.target.value)}
+                className="bg-white/10 border border-white/20 text-white rounded-lg px-3 py-1.5 text-sm"
+                data-testid="select-activity-entity-filter"
+              >
+                <option value="">All</option>
+                <option value="property">Property</option>
+                <option value="scenario">Scenario</option>
+                <option value="global_assumptions">Assumptions</option>
+                <option value="user">User</option>
+                <option value="verification">Verification</option>
+                <option value="image">Image</option>
+              </select>
+            </div>
+            <div className="flex items-center gap-2">
+              <Label className="text-white/60 text-sm whitespace-nowrap">User</Label>
+              <select
+                value={activityUserFilter}
+                onChange={(e) => setActivityUserFilter(e.target.value)}
+                className="bg-white/10 border border-white/20 text-white rounded-lg px-3 py-1.5 text-sm"
+                data-testid="select-activity-user-filter"
+              >
+                <option value="">All Users</option>
+                {users?.map(u => (
+                  <option key={u.id} value={String(u.id)}>{u.name || u.email}</option>
+                ))}
+              </select>
+            </div>
+            <span className="text-white/40 text-sm ml-auto">
+              {activityLogs?.length ?? 0} entries
+            </span>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Activity Table */}
+      <Card className="relative overflow-hidden bg-[#0a0a0f]/95 backdrop-blur-3xl border border-white/10 shadow-2xl shadow-black/50">
+        <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] via-transparent to-black/20" />
+        <CardContent className="relative p-6">
+          {activityLogsLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="w-6 h-6 animate-spin text-[#9FBCA4]" />
+            </div>
+          ) : !activityLogs?.length ? (
+            <p className="text-white/50 text-center py-12 label-text">No activity recorded yet</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-b border-white/10 hover:bg-transparent">
+                    <TableHead className="text-[#9FBCA4] font-semibold text-xs uppercase tracking-wider">Time</TableHead>
+                    <TableHead className="text-[#9FBCA4] font-semibold text-xs uppercase tracking-wider">User</TableHead>
+                    <TableHead className="text-[#9FBCA4] font-semibold text-xs uppercase tracking-wider">Action</TableHead>
+                    <TableHead className="text-[#9FBCA4] font-semibold text-xs uppercase tracking-wider">Type</TableHead>
+                    <TableHead className="text-[#9FBCA4] font-semibold text-xs uppercase tracking-wider">Entity</TableHead>
+                    <TableHead className="text-[#9FBCA4] font-semibold text-xs uppercase tracking-wider">Details</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {activityLogs.map((log) => (
+                    <TableRow key={log.id} className="border-b border-white/5 hover:bg-white/5">
+                      <TableCell className="text-white/70 text-xs font-mono whitespace-nowrap">
+                        {new Date(log.createdAt).toLocaleString()}
+                      </TableCell>
+                      <TableCell className="text-white/80 text-sm">
+                        {log.userName || log.userEmail}
+                      </TableCell>
+                      <TableCell>
+                        <span className={`text-xs px-2 py-0.5 rounded font-mono ${
+                          log.action === "create" ? "bg-green-500/20 text-green-400" :
+                          log.action === "update" ? "bg-blue-500/20 text-blue-400" :
+                          log.action === "delete" ? "bg-red-500/20 text-red-400" :
+                          log.action === "run" ? "bg-purple-500/20 text-purple-400" :
+                          "bg-white/10 text-white/60"
+                        }`}>
+                          {log.action}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-white/60 text-xs font-mono">{log.entityType}</TableCell>
+                      <TableCell className="text-white/80 text-sm">{log.entityName || "—"}</TableCell>
+                      <TableCell className="text-white/50 text-xs max-w-[200px] truncate">
+                        {log.metadata ? JSON.stringify(log.metadata).slice(0, 80) : "—"}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+
+  const renderVerification = () => (<>
     <Card className="relative overflow-hidden bg-white/80 backdrop-blur-xl border border-gray-200 shadow-2xl">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-[#9FBCA4]/10 blur-[100px] animate-pulse" style={{ animationDuration: '4s' }} />
@@ -1211,6 +1499,63 @@ export default function Admin() {
         )}
       </CardContent>
     </Card>
+
+    {/* Verification History */}
+    {verificationHistory && verificationHistory.length > 0 && (
+      <Card className="relative overflow-hidden bg-white/80 backdrop-blur-xl border border-gray-200 shadow-2xl mt-6">
+        <CardHeader className="relative">
+          <CardTitle className="text-lg font-display text-gray-900">Verification History</CardTitle>
+          <CardDescription className="label-text text-gray-600">
+            Past verification runs with audit opinions
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="relative">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-xs uppercase tracking-wider">Date</TableHead>
+                <TableHead className="text-xs uppercase tracking-wider">Checks</TableHead>
+                <TableHead className="text-xs uppercase tracking-wider">Passed</TableHead>
+                <TableHead className="text-xs uppercase tracking-wider">Failed</TableHead>
+                <TableHead className="text-xs uppercase tracking-wider">Opinion</TableHead>
+                <TableHead className="text-xs uppercase tracking-wider">Status</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {verificationHistory.map((run) => (
+                <TableRow key={run.id}>
+                  <TableCell className="text-sm font-mono">
+                    {new Date(run.createdAt).toLocaleString()}
+                  </TableCell>
+                  <TableCell className="text-sm font-mono">{run.totalChecks}</TableCell>
+                  <TableCell className="text-sm font-mono text-green-700">{run.passed}</TableCell>
+                  <TableCell className="text-sm font-mono text-red-600">{run.failed}</TableCell>
+                  <TableCell>
+                    <span className={`text-xs px-2 py-0.5 rounded font-mono ${
+                      run.auditOpinion === "UNQUALIFIED" ? "bg-green-100 text-green-700" :
+                      run.auditOpinion === "QUALIFIED" ? "bg-yellow-100 text-yellow-700" :
+                      "bg-red-100 text-red-700"
+                    }`}>
+                      {run.auditOpinion}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <span className={`text-xs px-2 py-0.5 rounded font-mono ${
+                      run.overallStatus === "PASS" ? "bg-green-100 text-green-700" :
+                      run.overallStatus === "WARNING" ? "bg-yellow-100 text-yellow-700" :
+                      "bg-red-100 text-red-700"
+                    }`}>
+                      {run.overallStatus}
+                    </span>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    )}
+    </>
   );
 
   const renderThemes = () => (
@@ -1504,14 +1849,16 @@ export default function Admin() {
     <Layout>
       <div className="space-y-8">
         <PageHeader 
-            title={currentView === "dashboard" ? "Administration" : 
+            title={currentView === "dashboard" ? "Administration" :
                    currentView === "users" ? "User Management" :
                    currentView === "activity" ? "Login Activity" :
-                   currentView === "verification" ? "Financial Verification" : 
+                   currentView === "activity-feed" ? "Activity Feed" :
+                   currentView === "verification" ? "Financial Verification" :
                    currentView === "themes" ? "Design Themes" : "Design Consistency"}
             subtitle={currentView === "dashboard" ? "Manage users, monitor activity, and run system verification" :
                       currentView === "users" ? "Add, edit, and manage user accounts" :
                       currentView === "activity" ? "Monitor user sessions and login history" :
+                      currentView === "activity-feed" ? "Track all user actions across the system" :
                       currentView === "verification" ? "Run formula and GAAP compliance checks" :
                       currentView === "themes" ? "Manage color palettes and design systems" : "Check fonts, colors, and component standards"}
             variant="dark"
@@ -1526,6 +1873,7 @@ export default function Admin() {
         {currentView === "dashboard" && renderDashboard()}
         {currentView === "users" && renderUsers()}
         {currentView === "activity" && renderActivity()}
+        {currentView === "activity-feed" && renderActivityFeed()}
         {currentView === "verification" && renderVerification()}
         {currentView === "design" && renderDesign()}
         {currentView === "themes" && renderThemes()}

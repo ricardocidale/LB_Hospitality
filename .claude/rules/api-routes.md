@@ -48,6 +48,58 @@ All routes under `/api/auth/` handle user authentication.
 | `POST` | `/api/admin/ai-verification` | Admin/Checker | AI-powered methodology review (SSE stream) |
 | `GET` | `/api/admin/run-design-check` | Admin | Run design consistency check on frontend |
 
+## Admin - Activity Logs
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| `GET` | `/api/admin/activity-logs` | Admin | Get filtered activity logs (query: userId, entityType, from, to, limit, offset) |
+| `GET` | `/api/activity-logs/mine` | User | Get current user's own activity (query: limit) |
+
+### Activity Log Response
+```json
+[{
+  "id": 1,
+  "userId": 1,
+  "userEmail": "admin",
+  "userName": "Ricardo Cidale",
+  "action": "create",
+  "entityType": "property",
+  "entityId": 1,
+  "entityName": "The Hudson Estate",
+  "metadata": { "changedFields": ["name", "location"] },
+  "ipAddress": "127.0.0.1",
+  "createdAt": "2026-02-07T12:00:00Z"
+}]
+```
+
+## Admin - Verification History
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| `GET` | `/api/admin/verification-history` | Admin | List past verification runs (query: limit) |
+| `GET` | `/api/admin/verification-history/:id` | Admin | Get full results for one verification run |
+
+### Verification History Response (list)
+```json
+[{
+  "id": 1,
+  "userId": 1,
+  "totalChecks": 98,
+  "passed": 98,
+  "failed": 0,
+  "auditOpinion": "UNQUALIFIED",
+  "overallStatus": "PASS",
+  "createdAt": "2026-02-07T12:00:00Z"
+}]
+```
+
+## Admin - Session Management
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| `GET` | `/api/admin/active-sessions` | Admin | List all active (non-expired) sessions with user info |
+| `DELETE` | `/api/admin/sessions/:sessionId` | Admin | Force logout — delete a specific session |
+
 ## Global Assumptions
 
 | Method | Path | Auth | Description |
@@ -110,6 +162,10 @@ All routes under `/api/auth/` handle user authentication.
 | `POST` | `/api/scenarios/:id/load` | User | Load saved scenario (restores all data) |
 | `PATCH` | `/api/scenarios/:id` | User | Update scenario name/description |
 | `DELETE` | `/api/scenarios/:id` | User | Delete scenario (cannot delete "Base") |
+| `POST` | `/api/scenarios/:id/clone` | User | Duplicate scenario with " (Copy)" suffix |
+| `GET` | `/api/scenarios/:id/export` | User | Download scenario as JSON (excludes images) |
+| `POST` | `/api/scenarios/import` | User | Upload and create scenario from JSON |
+| `GET` | `/api/scenarios/:id1/compare/:id2` | User | Diff two scenarios (assumptions + properties) |
 
 ### Scenario Save Request
 ```json

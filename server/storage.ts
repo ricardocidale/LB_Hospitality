@@ -1,6 +1,16 @@
-import { globalAssumptions, properties, users, sessions, scenarios, loginLogs, designThemes, marketResearch, prospectiveProperties, savedSearches, type GlobalAssumptions, type Property, type InsertGlobalAssumptions, type InsertProperty, type UpdateProperty, type User, type InsertUser, type Session, type Scenario, type InsertScenario, type UpdateScenario, type LoginLog, type InsertLoginLog, type DesignTheme, type InsertDesignTheme, type MarketResearch, type InsertMarketResearch, type ProspectiveProperty, type InsertProspectiveProperty, type SavedSearch, type InsertSavedSearch } from "@shared/schema";
+import { globalAssumptions, properties, users, sessions, scenarios, loginLogs, designThemes, marketResearch, prospectiveProperties, savedSearches, activityLogs, verificationRuns, type GlobalAssumptions, type Property, type InsertGlobalAssumptions, type InsertProperty, type UpdateProperty, type User, type InsertUser, type Session, type Scenario, type InsertScenario, type UpdateScenario, type LoginLog, type InsertLoginLog, type DesignTheme, type InsertDesignTheme, type MarketResearch, type InsertMarketResearch, type ProspectiveProperty, type InsertProspectiveProperty, type SavedSearch, type InsertSavedSearch, type ActivityLog, type InsertActivityLog, type VerificationRun, type InsertVerificationRun } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, gt, lt, gte, desc, or, isNull } from "drizzle-orm";
+import { eq, and, gt, lt, gte, lte, desc, or, isNull, type SQL } from "drizzle-orm";
+
+/** Filters for querying activity logs. */
+export interface ActivityLogFilters {
+  userId?: number;
+  entityType?: string;
+  from?: Date;
+  to?: Date;
+  limit?: number;
+  offset?: number;
+}
 
 export interface IStorage {
   // Users
@@ -68,6 +78,28 @@ export interface IStorage {
   getSavedSearches(userId: number): Promise<SavedSearch[]>;
   addSavedSearch(data: InsertSavedSearch): Promise<SavedSearch>;
   deleteSavedSearch(id: number, userId: number): Promise<void>;
+
+  // Activity Logs
+  /** Insert a new activity log entry for user action tracking. */
+  createActivityLog(data: InsertActivityLog): Promise<ActivityLog>;
+  /** Query activity logs with optional filters (userId, entityType, date range, pagination). */
+  getActivityLogs(filters: ActivityLogFilters): Promise<(ActivityLog & { user: User })[]>;
+  /** Get a user's own activity logs (limited). */
+  getUserActivityLogs(userId: number, limit?: number): Promise<ActivityLog[]>;
+
+  // Verification Runs
+  /** Persist a verification run result for historical tracking. */
+  createVerificationRun(data: InsertVerificationRun): Promise<VerificationRun>;
+  /** List recent verification runs (summary only — results field omitted). */
+  getVerificationRuns(limit?: number): Promise<Omit<VerificationRun, 'results'>[]>;
+  /** Get a single verification run with full results. */
+  getVerificationRun(id: number): Promise<VerificationRun | undefined>;
+
+  // Active Sessions (admin)
+  /** List all active (non-expired) sessions with associated user info. */
+  getActiveSessions(): Promise<(Session & { user: User })[]>;
+  /** Force-logout: delete a specific session by ID. */
+  forceDeleteSession(sessionId: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -110,6 +142,8 @@ export class DatabaseStorage implements IStorage {
     await db.delete(properties).where(eq(properties.userId, id));
     await db.delete(globalAssumptions).where(eq(globalAssumptions.userId, id));
     await db.delete(loginLogs).where(eq(loginLogs.userId, id));
+    await db.delete(activityLogs).where(eq(activityLogs.userId, id));
+    await db.delete(verificationRuns).where(eq(verificationRuns.userId, id));
     await db.delete(users).where(eq(users.id, id));
   }
 
@@ -472,6 +506,95 @@ export class DatabaseStorage implements IStorage {
   async deleteSavedSearch(id: number, userId: number): Promise<void> {
     await db.delete(savedSearches)
       .where(and(eq(savedSearches.id, id), eq(savedSearches.userId, userId)));
+  }
+
+  // Activity Logs
+
+  async createActivityLog(data: InsertActivityLog): Promise<ActivityLog> {
+    const [log] = await db
+      .insert(activityLogs)
+      .values(data as typeof activityLogs.$inferInsert)
+      .returning();
+    return log;
+  }
+
+  async getActivityLogs(filters: ActivityLogFilters): Promise<(ActivityLog & { user: User })[]> {
+    const conditions: SQL[] = [];
+    if (filters.userId) conditions.push(eq(activityLogs.userId, filters.userId));
+    if (filters.entityType) conditions.push(eq(activityLogs.entityType, filters.entityType));
+    if (filters.from) conditions.push(gte(activityLogs.createdAt, filters.from));
+    if (filters.to) conditions.push(lte(activityLogs.createdAt, filters.to));
+
+    const query = db
+      .select()
+      .from(activityLogs)
+      .innerJoin(users, eq(activityLogs.userId, users.id))
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
+      .orderBy(desc(activityLogs.createdAt))
+      .limit(filters.limit ?? 50)
+      .offset(filters.offset ?? 0);
+
+    const results = await query;
+    return results.map(r => ({ ...r.activity_logs, user: r.users }));
+  }
+
+  async getUserActivityLogs(userId: number, limit = 20): Promise<ActivityLog[]> {
+    return await db
+      .select()
+      .from(activityLogs)
+      .where(eq(activityLogs.userId, userId))
+      .orderBy(desc(activityLogs.createdAt))
+      .limit(limit);
+  }
+
+  // Verification Runs
+
+  async createVerificationRun(data: InsertVerificationRun): Promise<VerificationRun> {
+    const [run] = await db
+      .insert(verificationRuns)
+      .values(data as typeof verificationRuns.$inferInsert)
+      .returning();
+    return run;
+  }
+
+  async getVerificationRuns(limit = 20): Promise<Omit<VerificationRun, 'results'>[]> {
+    // Select all columns except 'results' (large JSON payload) for list view
+    const rows = await db
+      .select({
+        id: verificationRuns.id,
+        userId: verificationRuns.userId,
+        totalChecks: verificationRuns.totalChecks,
+        passed: verificationRuns.passed,
+        failed: verificationRuns.failed,
+        auditOpinion: verificationRuns.auditOpinion,
+        overallStatus: verificationRuns.overallStatus,
+        createdAt: verificationRuns.createdAt,
+      })
+      .from(verificationRuns)
+      .orderBy(desc(verificationRuns.createdAt))
+      .limit(limit);
+    return rows;
+  }
+
+  async getVerificationRun(id: number): Promise<VerificationRun | undefined> {
+    const [run] = await db.select().from(verificationRuns).where(eq(verificationRuns.id, id));
+    return run || undefined;
+  }
+
+  // Active Sessions (admin)
+
+  async getActiveSessions(): Promise<(Session & { user: User })[]> {
+    const results = await db
+      .select()
+      .from(sessions)
+      .innerJoin(users, eq(sessions.userId, users.id))
+      .where(gt(sessions.expiresAt, new Date()))
+      .orderBy(desc(sessions.createdAt));
+    return results.map(r => ({ ...r.sessions, user: r.users }));
+  }
+
+  async forceDeleteSession(sessionId: string): Promise<void> {
+    await db.delete(sessions).where(eq(sessions.id, sessionId));
   }
 }
 

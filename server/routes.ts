@@ -1,6 +1,6 @@
-import type { Express } from "express";
+import type { Express, Request } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import { storage, type ActivityLogFilters } from "./storage";
 import { insertGlobalAssumptionsSchema, insertPropertySchema, updatePropertySchema, insertDesignThemeSchema, updateScenarioSchema, insertProspectivePropertySchema, insertSavedSearchSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { registerObjectStorageRoutes, ObjectStorageService, ObjectNotFoundError } from "./replit_integrations/object_storage";
@@ -66,8 +66,36 @@ export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
+  // --- ACTIVITY LOGGING HELPER ---
+
+  /**
+   * Log a user action to the activity_logs table. Non-blocking — errors are
+   * caught and logged to console so they never break the primary request.
+   */
+  function logActivity(
+    req: Request,
+    action: string,
+    entityType: string,
+    entityId?: number | null,
+    entityName?: string | null,
+    metadata?: Record<string, unknown> | null,
+  ): void {
+    const userId = req.user?.id;
+    if (!userId) return;
+    const ipAddress = req.ip || req.socket.remoteAddress || "unknown";
+    storage.createActivityLog({
+      userId,
+      action,
+      entityType,
+      entityId: entityId ?? undefined,
+      entityName: entityName ?? undefined,
+      metadata: metadata ?? undefined,
+      ipAddress,
+    }).catch(err => console.error("Activity log error:", err));
+  }
+
   // --- AUTH ROUTES ---
-  
+
   app.post("/api/auth/login", async (req, res) => {
     try {
       const clientIp = req.ip || req.socket.remoteAddress || "unknown";
@@ -287,7 +315,8 @@ export async function registerRoutes(
       
       const passwordHash = await hashPassword(password);
       const user = await storage.createUser({ email, passwordHash, role: "user", name, company, title });
-      
+      logActivity(req, "create", "user", user.id, user.email);
+
       res.json({ id: user.id, email: user.email, name: user.name, company: user.company, title: user.title, role: user.role });
     } catch (error) {
       console.error("Error creating user:", error);
@@ -385,6 +414,7 @@ export async function registerRoutes(
       }
       
       await storage.deleteUser(id);
+      logActivity(req, "delete", "user", id, user.email);
       res.json({ success: true });
     } catch (error) {
       console.error("Error deleting user:", error);
@@ -586,6 +616,26 @@ export async function registerRoutes(
       });
 
       const report = runIndependentVerification(properties, globalAssumptions, clientResults);
+
+      // Persist verification run for historical tracking
+      if (req.user) {
+        const s = report.summary;
+        storage.createVerificationRun({
+          userId: req.user.id,
+          totalChecks: s.totalChecks,
+          passed: s.totalPassed,
+          failed: s.totalFailed,
+          auditOpinion: s.auditOpinion,
+          overallStatus: s.overallStatus,
+          results: report as any,
+        }).catch(err => console.error("Verification history save error:", err));
+        logActivity(req, "run", "verification", undefined, undefined, {
+          totalChecks: s.totalChecks,
+          passed: s.totalPassed,
+          auditOpinion: s.auditOpinion,
+        });
+      }
+
       res.json(report);
     } catch (error) {
       console.error("Error running verification:", error);
@@ -944,6 +994,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       }
       
       const data = await storage.upsertGlobalAssumptions(validation.data);
+      logActivity(req, "update", "global_assumptions", data.id, "Global Assumptions");
       res.json(data);
     } catch (error) {
       console.error("Error upserting global assumptions:", error);
@@ -1001,6 +1052,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       }
 
       const property = await storage.createProperty({ ...validation.data, userId: req.user!.id });
+      logActivity(req, "create", "property", property.id, property.name);
       res.status(201).json(property);
     } catch (error) {
       console.error("Error creating property:", error);
@@ -1034,11 +1086,12 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       }
       
       const property = await storage.updateProperty(id, validation.data);
-      
+
       if (!property) {
         return res.status(404).json({ error: "Property not found" });
       }
-      
+
+      logActivity(req, "update", "property", id, property.name, { changedFields: Object.keys(validation.data) });
       res.json(property);
     } catch (error) {
       console.error("Error updating property:", error);
@@ -1065,6 +1118,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       }
       
       await storage.deleteProperty(id);
+      logActivity(req, "delete", "property", id, existingProperty.name);
       res.status(204).send();
     } catch (error) {
       console.error("Error deleting property:", error);
@@ -1102,6 +1156,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
         throw new Error("Failed to upload generated image to storage");
       }
 
+      logActivity(req, "create", "image", undefined, undefined, { prompt, objectPath });
       res.json({ objectPath });
     } catch (error: any) {
       console.error("Error generating property image:", error);
@@ -1376,6 +1431,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
         scenarioImages: Object.keys(scenarioImages).length > 0 ? scenarioImages : undefined,
       });
 
+      logActivity(req, "save", "scenario", scenario.id, scenario.name);
       res.json(scenario);
     } catch (error) {
       console.error("Error creating scenario:", error);
@@ -1446,6 +1502,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       const savedProperties = scenario.properties as any[];
       await storage.loadScenario(userId, savedAssumptions, savedProperties);
 
+      logActivity(req, "load", "scenario", scenarioId, scenario.name);
       res.json({ success: true, message: "Scenario loaded successfully" });
     } catch (error) {
       console.error("Error loading scenario:", error);
@@ -1507,6 +1564,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       }
       
       await storage.deleteScenario(scenarioId);
+      logActivity(req, "delete", "scenario", scenarioId, scenario.name);
       res.json({ success: true });
     } catch (error) {
       console.error("Error deleting scenario:", error);
@@ -2025,6 +2083,297 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     } catch (error) {
       console.error("Delete saved search error:", error);
       res.status(500).json({ error: "Failed to delete saved search" });
+    }
+  });
+
+  // --- ACTIVITY LOG ENDPOINTS ---
+
+  /** Admin: query activity logs with optional filters. */
+  app.get("/api/admin/activity-logs", requireAdmin, async (req, res) => {
+    try {
+      const filters: ActivityLogFilters = {};
+      if (req.query.userId) filters.userId = parseInt(req.query.userId as string);
+      if (req.query.entityType) filters.entityType = req.query.entityType as string;
+      if (req.query.from) filters.from = new Date(req.query.from as string);
+      if (req.query.to) filters.to = new Date(req.query.to as string);
+      if (req.query.limit) filters.limit = Math.min(parseInt(req.query.limit as string) || 50, 200);
+      if (req.query.offset) filters.offset = parseInt(req.query.offset as string) || 0;
+
+      const logs = await storage.getActivityLogs(filters);
+      res.json(logs.map(log => ({
+        id: log.id,
+        userId: log.userId,
+        userEmail: log.user.email,
+        userName: log.user.name,
+        action: log.action,
+        entityType: log.entityType,
+        entityId: log.entityId,
+        entityName: log.entityName,
+        metadata: log.metadata,
+        ipAddress: log.ipAddress,
+        createdAt: log.createdAt,
+      })));
+    } catch (error) {
+      console.error("Error fetching activity logs:", error);
+      res.status(500).json({ error: "Failed to fetch activity logs" });
+    }
+  });
+
+  /** User: get own activity logs. */
+  app.get("/api/activity-logs/mine", requireAuth, async (req, res) => {
+    try {
+      const limit = Math.min(parseInt(req.query.limit as string) || 20, 100);
+      const logs = await storage.getUserActivityLogs(req.user!.id, limit);
+      res.json(logs);
+    } catch (error) {
+      console.error("Error fetching user activity logs:", error);
+      res.status(500).json({ error: "Failed to fetch activity logs" });
+    }
+  });
+
+  // --- VERIFICATION HISTORY ENDPOINTS ---
+
+  /** Admin: list recent verification runs (summary, no full results). */
+  app.get("/api/admin/verification-history", requireAdmin, async (req, res) => {
+    try {
+      const limit = Math.min(parseInt(req.query.limit as string) || 20, 100);
+      const runs = await storage.getVerificationRuns(limit);
+      res.json(runs);
+    } catch (error) {
+      console.error("Error fetching verification history:", error);
+      res.status(500).json({ error: "Failed to fetch verification history" });
+    }
+  });
+
+  /** Admin: get full detail for a single verification run. */
+  app.get("/api/admin/verification-history/:id", requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id as string);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid verification run ID" });
+      }
+      const run = await storage.getVerificationRun(id);
+      if (!run) {
+        return res.status(404).json({ error: "Verification run not found" });
+      }
+      res.json(run);
+    } catch (error) {
+      console.error("Error fetching verification run:", error);
+      res.status(500).json({ error: "Failed to fetch verification run" });
+    }
+  });
+
+  // --- SESSION MANAGEMENT ENDPOINTS ---
+
+  /** Admin: list all active (non-expired) sessions with user info. */
+  app.get("/api/admin/active-sessions", requireAdmin, async (req, res) => {
+    try {
+      const sessions = await storage.getActiveSessions();
+      res.json(sessions.map(s => ({
+        id: s.id,
+        userId: s.userId,
+        userEmail: s.user.email,
+        userName: s.user.name,
+        createdAt: s.createdAt,
+        expiresAt: s.expiresAt,
+      })));
+    } catch (error) {
+      console.error("Error fetching active sessions:", error);
+      res.status(500).json({ error: "Failed to fetch active sessions" });
+    }
+  });
+
+  /** Admin: force-logout a session by deleting it. */
+  app.delete("/api/admin/sessions/:sessionId", requireAdmin, async (req, res) => {
+    try {
+      const sessionId = req.params.sessionId as string;
+      if (!sessionId) {
+        return res.status(400).json({ error: "Session ID is required" });
+      }
+      await storage.forceDeleteSession(sessionId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error force-deleting session:", error);
+      res.status(500).json({ error: "Failed to delete session" });
+    }
+  });
+
+  // --- SCENARIO EXPORT / IMPORT / CLONE / COMPARE ENDPOINTS ---
+
+  /** Export a scenario as downloadable JSON (excludes images for size). */
+  app.get("/api/scenarios/:id/export", requireAuth, async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      const scenarioId = parseInt(req.params.id as string);
+      if (isNaN(scenarioId)) {
+        return res.status(400).json({ error: "Invalid scenario ID" });
+      }
+
+      const scenario = await storage.getScenario(scenarioId);
+      if (!scenario) {
+        return res.status(404).json({ error: "Scenario not found" });
+      }
+      if (scenario.userId !== userId) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+
+      // Build export payload without images (they're large base64 blobs)
+      const exportData = {
+        name: scenario.name,
+        description: scenario.description,
+        exportedAt: new Date().toISOString(),
+        globalAssumptions: scenario.globalAssumptions,
+        properties: scenario.properties,
+      };
+
+      logActivity(req, "export", "scenario", scenarioId, scenario.name);
+
+      res.setHeader("Content-Disposition", `attachment; filename="${scenario.name.replace(/[^a-zA-Z0-9-_ ]/g, "")}.json"`);
+      res.setHeader("Content-Type", "application/json");
+      res.json(exportData);
+    } catch (error) {
+      console.error("Error exporting scenario:", error);
+      res.status(500).json({ error: "Failed to export scenario" });
+    }
+  });
+
+  /** Import a scenario from JSON upload. Validates structure before creating. */
+  app.post("/api/scenarios/import", requireAuth, async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      const { name, description, globalAssumptions: ga, properties: props } = req.body;
+
+      if (!name || typeof name !== "string") {
+        return res.status(400).json({ error: "Scenario name is required" });
+      }
+      if (!ga || typeof ga !== "object") {
+        return res.status(400).json({ error: "globalAssumptions object is required" });
+      }
+      if (!Array.isArray(props)) {
+        return res.status(400).json({ error: "properties array is required" });
+      }
+
+      const scenario = await storage.createScenario({
+        userId,
+        name: name.trim(),
+        description: description || null,
+        globalAssumptions: ga as any,
+        properties: props as any,
+      });
+
+      logActivity(req, "import", "scenario", scenario.id, scenario.name);
+      res.json(scenario);
+    } catch (error) {
+      console.error("Error importing scenario:", error);
+      res.status(500).json({ error: "Failed to import scenario" });
+    }
+  });
+
+  /** Clone a scenario — duplicates with " (Copy)" suffix. */
+  app.post("/api/scenarios/:id/clone", requireAuth, async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      const scenarioId = parseInt(req.params.id as string);
+      if (isNaN(scenarioId)) {
+        return res.status(400).json({ error: "Invalid scenario ID" });
+      }
+
+      const scenario = await storage.getScenario(scenarioId);
+      if (!scenario) {
+        return res.status(404).json({ error: "Scenario not found" });
+      }
+      if (scenario.userId !== userId) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+
+      const clone = await storage.createScenario({
+        userId,
+        name: `${scenario.name} (Copy)`,
+        description: scenario.description,
+        globalAssumptions: scenario.globalAssumptions as any,
+        properties: scenario.properties as any,
+        scenarioImages: scenario.scenarioImages as any,
+      });
+
+      logActivity(req, "clone", "scenario", clone.id, clone.name, { sourceId: scenarioId });
+      res.json(clone);
+    } catch (error) {
+      console.error("Error cloning scenario:", error);
+      res.status(500).json({ error: "Failed to clone scenario" });
+    }
+  });
+
+  /** Compare two scenarios — returns diff of assumptions and properties. */
+  app.get("/api/scenarios/:id1/compare/:id2", requireAuth, async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      const id1 = parseInt(req.params.id1 as string);
+      const id2 = parseInt(req.params.id2 as string);
+      if (isNaN(id1) || isNaN(id2)) {
+        return res.status(400).json({ error: "Invalid scenario IDs" });
+      }
+
+      const [s1, s2] = await Promise.all([
+        storage.getScenario(id1),
+        storage.getScenario(id2),
+      ]);
+      if (!s1 || !s2) {
+        return res.status(404).json({ error: "One or both scenarios not found" });
+      }
+      if (s1.userId !== userId || s2.userId !== userId) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+
+      // Diff assumptions
+      const ga1 = (s1.globalAssumptions || {}) as Record<string, any>;
+      const ga2 = (s2.globalAssumptions || {}) as Record<string, any>;
+      const allAssumptionKeys = Array.from(new Set(Object.keys(ga1).concat(Object.keys(ga2))));
+      const assumptionDiffs: Array<{ field: string; scenario1: any; scenario2: any }> = [];
+      for (const key of allAssumptionKeys) {
+        if (JSON.stringify(ga1[key]) !== JSON.stringify(ga2[key])) {
+          assumptionDiffs.push({ field: key, scenario1: ga1[key], scenario2: ga2[key] });
+        }
+      }
+
+      // Diff properties
+      const props1 = ((s1.properties || []) as any[]);
+      const props2 = ((s2.properties || []) as any[]);
+      const propMap1 = new Map<string, any>(props1.map(p => [p.name, p]));
+      const propMap2 = new Map<string, any>(props2.map(p => [p.name, p]));
+      const allPropNames = Array.from(new Set(Array.from(propMap1.keys()).concat(Array.from(propMap2.keys()))));
+
+      const propertyDiffs: Array<{ name: string; status: "added" | "removed" | "changed"; changes?: Array<{ field: string; scenario1: any; scenario2: any }> }> = [];
+      for (const name of allPropNames) {
+        const p1 = propMap1.get(name);
+        const p2 = propMap2.get(name);
+        if (!p1) {
+          propertyDiffs.push({ name, status: "added" });
+        } else if (!p2) {
+          propertyDiffs.push({ name, status: "removed" });
+        } else {
+          const allKeys = Array.from(new Set(Object.keys(p1).concat(Object.keys(p2))));
+          const changes: Array<{ field: string; scenario1: any; scenario2: any }> = [];
+          for (const key of allKeys) {
+            if (key === "id" || key === "createdAt" || key === "updatedAt" || key === "userId") continue;
+            if (JSON.stringify(p1[key]) !== JSON.stringify(p2[key])) {
+              changes.push({ field: key, scenario1: p1[key], scenario2: p2[key] });
+            }
+          }
+          if (changes.length > 0) {
+            propertyDiffs.push({ name, status: "changed", changes });
+          }
+        }
+      }
+
+      res.json({
+        scenario1: { id: s1.id, name: s1.name },
+        scenario2: { id: s2.id, name: s2.name },
+        assumptionDiffs,
+        propertyDiffs,
+      });
+    } catch (error) {
+      console.error("Error comparing scenarios:", error);
+      res.status(500).json({ error: "Failed to compare scenarios" });
     }
   });
 

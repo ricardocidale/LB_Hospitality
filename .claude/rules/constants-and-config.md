@@ -85,7 +85,7 @@ Used as fallbacks when no user-configured value exists:
 | Constant | Value | Description |
 |----------|-------|-------------|
 | `DEFAULT_COST_RATE_ROOMS` | 0.36 (36%) | Room department costs |
-| `DEFAULT_COST_RATE_FB` | 0.15 (15%) | F&B department costs |
+| `DEFAULT_COST_RATE_FB` | 0.32 (32%) | F&B department COGS (USALI: 28-35% for full-service boutique) |
 | `DEFAULT_COST_RATE_ADMIN` | 0.08 (8%) | Administrative costs |
 | `DEFAULT_COST_RATE_MARKETING` | 0.05 (5%) | Marketing costs |
 | `DEFAULT_COST_RATE_PROPERTY_OPS` | 0.04 (4%) | Property operations |
@@ -187,10 +187,34 @@ Files that import from `constants.ts`:
 
 ## Adding New Constants
 
-1. Add the constant to `client/src/lib/constants.ts`
-2. If it's a configurable value, add the database column to `shared/schema.ts`
-3. Update seed endpoints in `server/routes.ts` with default values
-4. Add UI controls to the appropriate assumptions page
-5. Update consumers to use the fallback pattern
-6. If needed, add the constant to `server/calculationChecker.ts` independently
-7. Update this documentation
+### Shared constants (used by both client and server)
+
+1. Add the constant to `shared/constants.ts` (single source of truth)
+2. Re-export it from `client/src/lib/constants.ts` via the `export { ... } from "@shared/constants"` block
+3. Import it in server files (`server/seed.ts`, `server/routes.ts`, `server/calculationChecker.ts`) from `@shared/constants`
+4. If it's a configurable value, add the database column to `shared/schema.ts`
+5. Update seed endpoints in `server/routes.ts` and `server/seed.ts` with the named constant
+6. Add UI controls to the appropriate assumptions page
+7. Update consumers to use the fallback pattern
+8. Update this documentation
+
+### Client-only constants (UI thresholds, presentation, staffing tiers)
+
+1. Add the constant to `client/src/lib/constants.ts` directly (below the shared re-exports)
+2. These do NOT go in `shared/constants.ts` — they are not needed by the server
+3. Examples: `STAFFING_TIERS`, `AUDIT_VARIANCE_TOLERANCE`, `IRR_HIGHLIGHT_THRESHOLD`, `DEFAULT_PARTNER_COMP`
+
+### Server-local constants (verification independence)
+
+Only `PROJECTION_YEARS`, `DEFAULT_LTV`, `DEFAULT_INTEREST_RATE`, and `DEFAULT_TERM_YEARS` remain as local constants in `server/calculationChecker.ts`. All other constants are imported from `@shared/constants`.
+
+## Commission Rate Fields
+
+The `global_assumptions` table has two commission-related fields that both represent **property sale commission**:
+
+| Field | Section | Used By |
+|-------|---------|---------|
+| `commissionRate` | Portfolio settings | Dashboard, Settings, YearlyCashFlowStatement |
+| `salesCommissionRate` | Exit & Sale Assumptions | CompanyAssumptions, SensitivityAnalysis |
+
+Both default to `DEFAULT_COMMISSION_RATE` (5%). Dashboard.tsx uses `commissionRate ?? salesCommissionRate ?? DEFAULT_COMMISSION_RATE` as fallback chain. These are the same concept — property sale brokerage commission — surfaced in two UI locations.

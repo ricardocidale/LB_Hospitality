@@ -44,10 +44,13 @@ calc/funding/                  # Standalone funding & tranche engine (Skill 3)
 domain/ledger/                 # Ledger types, chart of accounts (Skill 4)
 engine/posting/                # Posting engine, trial balance builder (Skill 4)
 statements/                    # Statement extractors and event applier (Skill 4)
+analytics/fcf/                 # FCF derivation from statements (Skill 5)
+analytics/returns/             # IRR solver, MOIC, DPI, sensitivity (Skill 6)
 tests/financing/               # Vitest tests for calc/financing/
 tests/refinance/               # Vitest tests for calc/refinance/
 tests/funding/                 # Vitest tests for calc/funding/
 tests/statements/              # Vitest tests for statements/ and engine/posting/
+tests/analytics/               # Vitest tests for analytics/fcf/ and analytics/returns/
 ```
 
 ### Feature Modules (`client/src/features/`)

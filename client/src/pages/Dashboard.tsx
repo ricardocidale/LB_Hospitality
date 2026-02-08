@@ -33,6 +33,13 @@ import {
   IRR_HIGHLIGHT_THRESHOLD,
   DEFAULT_LAND_VALUE_PERCENT,
 } from "@/lib/constants";
+import { computeIRR } from "@analytics/returns/irr.js";
+
+/** Adapter: wraps standalone IRR solver to return a plain number (annual rate). */
+function calculateIRR(cashFlows: number[]): number {
+  const result = computeIRR(cashFlows, 1);
+  return result.irr_periodic ?? 0;
+}
 
 export default function Dashboard() {
   const { data: properties, isLoading: propertiesLoading } = useProperties();
@@ -3118,54 +3125,6 @@ export default function Dashboard() {
       </div>
     </Layout>
   );
-}
-
-function calculateIRR(cashFlows: number[], guess: number = 0.1): number {
-  const maxIterations = 100;
-  const tolerance = 0.0001;
-  let rate = guess;
-
-  for (let i = 0; i < maxIterations; i++) {
-    let npv = 0;
-    let derivNpv = 0;
-
-    for (let t = 0; t < cashFlows.length; t++) {
-      const denominator = Math.pow(1 + rate, t);
-      npv += cashFlows[t] / denominator;
-      if (t > 0) {
-        derivNpv -= (t * cashFlows[t]) / Math.pow(1 + rate, t + 1);
-      }
-    }
-
-    if (Math.abs(npv) < tolerance) {
-      return rate;
-    }
-
-    if (derivNpv === 0) break;
-    rate = rate - npv / derivNpv;
-
-    if (rate < -1) rate = -0.99;
-    if (!isFinite(rate)) break;
-  }
-
-  if (!isFinite(rate)) {
-    let lo = -0.99;
-    let hi = 10.0;
-    const computeNPV = (r: number) => cashFlows.reduce((sum, cf, t) => sum + cf / Math.pow(1 + r, t), 0);
-    for (let i = 0; i < 200; i++) {
-      const mid = (lo + hi) / 2;
-      const npvMid = computeNPV(mid);
-      if (Math.abs(npvMid) < tolerance) return mid;
-      if (computeNPV(lo) * npvMid < 0) {
-        hi = mid;
-      } else {
-        lo = mid;
-      }
-    }
-    rate = (lo + hi) / 2;
-  }
-
-  return rate;
 }
 
 interface InvestmentAnalysisProps {

@@ -1694,7 +1694,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
         }
       }
       const userId = req.user!.id;
-      const research = await storage.getMarketResearch(type, userId, propertyId);
+      const research = await storage.getMarketResearch(type as string, userId, propertyId);
       res.json(research || null);
     } catch (error) {
       console.error("Error fetching research:", error);
@@ -1726,7 +1726,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       const researchParams: ResearchParams = {
         type: type as "property" | "company" | "global",
         propertyLabel: globalAssumptions?.propertyLabel || "Boutique Hotel",
-        propertyContext,
+        propertyContext: propertyContext as ResearchParams["propertyContext"],
         boutiqueDefinition: boutiqueDef,
       };
       

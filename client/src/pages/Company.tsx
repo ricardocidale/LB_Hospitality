@@ -529,7 +529,7 @@ export default function Company() {
     ]);
     
     // Build column styles for proper alignment
-    const colStyles: Record<number, { halign?: string; cellWidth?: number }> = { 
+    const colStyles: any = { 
       0: { cellWidth: orientation === 'landscape' ? 50 : 40 } 
     };
     const numCols = data.years.length;

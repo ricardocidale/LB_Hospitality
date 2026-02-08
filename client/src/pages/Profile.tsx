@@ -136,7 +136,7 @@ export default function Profile() {
             <SaveButton 
               onClick={handleSave} 
               disabled={updateMutation.isPending}
-              isLoading={updateMutation.isPending}
+              isPending={updateMutation.isPending}
             />
           }
         />

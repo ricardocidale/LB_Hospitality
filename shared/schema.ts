@@ -192,7 +192,7 @@ export const insertGlobalAssumptionsSchema = createInsertSchema(globalAssumption
     privacyLevel: z.enum(["low", "moderate", "high"]).optional().default("high"),
     parkingSpaces: z.number().optional().default(50),
     description: z.string()
-  })
+  }).optional()
 }).pick({
   userId: true,
   companyName: true,
@@ -667,6 +667,21 @@ export const verificationRuns = pgTable("verification_runs", {
   index("verification_runs_user_id_idx").on(table.userId),
   index("verification_runs_created_at_idx").on(table.createdAt),
 ]);
+
+// --- CHAT TABLES (integration boilerplate) ---
+export const conversations = pgTable("conversations", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  title: text("title").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const messages = pgTable("messages", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  conversationId: integer("conversation_id").references(() => conversations.id).notNull(),
+  role: text("role").notNull(),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
 
 export const insertVerificationRunSchema = z.object({
   userId: z.number(),

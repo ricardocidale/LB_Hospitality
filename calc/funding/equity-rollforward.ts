@@ -50,9 +50,9 @@ export function buildEquityRollForward(
   const periods = generatePeriods(modelStartDate, lastEventDate);
 
   // Collect unique entity IDs
-  const entityIds = [
-    ...new Set(events.map((e) => e.target_entity.id)),
-  ];
+  const entityIds = Array.from(
+    new Set(events.map((e) => e.target_entity.id)),
+  );
 
   // Group contributions by entity_id → period → total amount
   const contributionMap = new Map<string, Map<string, number>>();

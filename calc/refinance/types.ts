@@ -4,7 +4,7 @@ import type { JournalDelta } from "../../domain/types/journal-delta.js";
 
 // Re-export shared types used by refinance
 export type { NewLoanTerms, ScheduleEntry } from "../shared/types.js";
-import type { NewLoanTerms } from "../shared/types.js";
+import type { NewLoanTerms, ScheduleEntry } from "../shared/types.js";
 
 // --- Input types ---
 

@@ -42,6 +42,9 @@ import {
   DEFAULT_REFI_CLOSING_COST_RATE,
   DEFAULT_EXIT_CAP_RATE
 } from './constants';
+import { computeRefinance } from '@calc/refinance';
+import type { ScheduleEntry } from '@calc/refinance';
+import { DEFAULT_ACCOUNTING_POLICY } from '@domain/types/accounting-policy';
 
 // Helper function to get fiscal year label for a given month in the model
 // modelStartDate: when the model starts (e.g., "2026-04-01")
@@ -504,97 +507,89 @@ export function generatePropertyProForma(
         yearlyNOI.push(yearSlice.reduce((sum, m) => sum + m.noi, 0));
       }
 
-      // Compute refinance loan parameters
+      // Build RefinanceInput from engine state using fallback pattern
       const refiLTV = property.refinanceLTV ?? global.debtAssumptions?.refiLTV ?? DEFAULT_REFI_LTV;
       const refiExitCap = property.exitCapRate ?? global.exitCapRate ?? DEFAULT_EXIT_CAP_RATE;
       const stabilizedNOI = yearlyNOI[refiYear] || 0;
-      const propertyValueAtRefi = refiExitCap > 0 ? stabilizedNOI / refiExitCap : 0;
-      const refiLoanAmount = propertyValueAtRefi * refiLTV;
-
       const refiRate = property.refinanceInterestRate ?? global.debtAssumptions?.interestRate ?? DEFAULT_INTEREST_RATE;
       const refiTermYears = property.refinanceTermYears ?? global.debtAssumptions?.amortizationYears ?? DEFAULT_TERM_YEARS;
-      const refiMonthlyRate = refiRate / 12;
-      const refiTotalPayments = refiTermYears * 12;
-
-      let refiMonthlyPayment = 0;
-      if (refiLoanAmount > 0) {
-        if (refiMonthlyRate === 0) {
-          refiMonthlyPayment = refiLoanAmount / refiTotalPayments;
-        } else {
-          refiMonthlyPayment = (refiLoanAmount * refiMonthlyRate * Math.pow(1 + refiMonthlyRate, refiTotalPayments)) /
-                               (Math.pow(1 + refiMonthlyRate, refiTotalPayments) - 1);
-        }
-      }
-
-      // Existing debt outstanding just before refinance (from pass 1)
-      const existingDebt = refiMonthIndex > 0 ? financials[refiMonthIndex - 1].debtOutstanding : originalLoanAmount;
       const closingCostRate = property.refinanceClosingCostRate ?? global.debtAssumptions?.refiClosingCostRate ?? DEFAULT_REFI_CLOSING_COST_RATE;
-      const closingCosts = refiLoanAmount * closingCostRate;
-      const refiProceeds = Math.max(0, refiLoanAmount - closingCosts - existingDebt);
+      const existingDebt = refiMonthIndex > 0 ? financials[refiMonthIndex - 1].debtOutstanding : originalLoanAmount;
 
-      // Recalculate cumulative cash from scratch through all months
-      let cumCash = 0;
-      for (let i = 0; i < months; i++) {
-        const m = financials[i];
+      // Call the standalone refinance calculator module (Skill 2)
+      const refiOutput = computeRefinance({
+        refinance_date: property.refinanceDate!,
+        current_loan_balance: existingDebt,
+        valuation: { method: "noi_cap", stabilized_noi: stabilizedNOI, cap_rate: refiExitCap },
+        ltv_max: refiLTV,
+        closing_cost_pct: closingCostRate,
+        prepayment_penalty: { type: "none", value: 0 },
+        new_loan_terms: {
+          rate_annual: refiRate,
+          term_months: refiTermYears * 12,
+          amortization_months: refiTermYears * 12,
+          io_months: 0,
+        },
+        accounting_policy_ref: DEFAULT_ACCOUNTING_POLICY,
+        rounding_policy: { precision: 2, bankers_rounding: false },
+      });
 
-        if (i < refiMonthIndex) {
-          // Pre-refinance months: just recalculate cumulative cash (no changes to debt)
-          cumCash += m.cashFlow;
-          m.endingCash = cumCash;
-        } else {
-          // Post-refinance: use new loan parameters
-          const monthsSinceRefi = i - refiMonthIndex;
+      // Only apply refinance if inputs are valid
+      if (refiOutput.flags.invalid_inputs.length === 0) {
+        const refiProceeds = refiOutput.cash_out_to_equity;
+        const schedule = refiOutput.new_debt_service_schedule;
 
-          let debtPayment = 0;
-          let interestExpense = 0;
-          let principalPayment = 0;
-          let debtOutstanding = 0;
+        // Apply pre-built schedule to monthly financials
+        let cumCash = 0;
+        for (let i = 0; i < months; i++) {
+          const m = financials[i];
 
-          if (refiLoanAmount > 0 && monthsSinceRefi < refiTotalPayments) {
-            debtPayment = refiMonthlyPayment;
+          if (i < refiMonthIndex) {
+            // Pre-refinance months: just recalculate cumulative cash (no changes to debt)
+            cumCash += m.cashFlow;
+            m.endingCash = cumCash;
+          } else {
+            const monthsSinceRefi = i - refiMonthIndex;
 
-            if (refiMonthlyRate === 0) {
-              const straightLine = refiLoanAmount / refiTotalPayments;
-              debtOutstanding = Math.max(0, refiLoanAmount - straightLine * monthsSinceRefi);
-              interestExpense = 0;
-              principalPayment = straightLine;
-            } else {
-              let balance = refiLoanAmount;
-              for (let j = 0; j < monthsSinceRefi && j < refiTotalPayments; j++) {
-                const mInt = balance * refiMonthlyRate;
-                const mPrin = refiMonthlyPayment - mInt;
-                balance = Math.max(0, balance - mPrin);
-              }
-              debtOutstanding = balance;
-              interestExpense = balance * refiMonthlyRate;
-              principalPayment = refiMonthlyPayment - interestExpense;
+            // Read debt fields from pre-built schedule (O(1) lookup)
+            let debtPayment = 0;
+            let interestExpense = 0;
+            let principalPayment = 0;
+            let debtOutstanding = 0;
+
+            if (monthsSinceRefi < schedule.length) {
+              const entry = schedule[monthsSinceRefi];
+              interestExpense = entry.interest;
+              principalPayment = entry.principal;
+              debtPayment = entry.payment;
+              debtOutstanding = entry.ending_balance;
             }
+
+            // Recalculate net income and cash flow with new debt
+            const taxableIncome = m.noi - interestExpense - m.depreciationExpense;
+            const incomeTax = taxableIncome > 0 ? taxableIncome * taxRate : 0;
+            const netIncome = m.noi - interestExpense - m.depreciationExpense - incomeTax;
+            const cashFlow = m.noi - debtPayment - incomeTax;
+            const operatingCashFlow = netIncome + m.depreciationExpense;
+            const financingCashFlow = -principalPayment;
+
+            // Refinance proceeds flow into cash in the refinance month
+            const proceeds = (i === refiMonthIndex) ? refiProceeds : 0;
+
+            m.interestExpense = interestExpense;
+            m.principalPayment = principalPayment;
+            m.debtPayment = debtPayment;
+            m.debtOutstanding = debtOutstanding;
+            m.incomeTax = incomeTax;
+            m.netIncome = netIncome;
+            m.cashFlow = cashFlow + proceeds;
+            m.operatingCashFlow = operatingCashFlow;
+            m.financingCashFlow = financingCashFlow + proceeds;
+            m.refinancingProceeds = proceeds;
+
+            cumCash += m.cashFlow;
+            m.endingCash = cumCash;
           }
-
-          // Recalculate net income and cash flow with new debt
-          const taxableIncome = m.noi - interestExpense - m.depreciationExpense;
-          const incomeTax = taxableIncome > 0 ? taxableIncome * taxRate : 0;
-          const netIncome = m.noi - interestExpense - m.depreciationExpense - incomeTax;
-          const cashFlow = m.noi - debtPayment - incomeTax;
-          const operatingCashFlow = netIncome + m.depreciationExpense;
-          const financingCashFlow = -principalPayment;
-
-          // Refinance proceeds flow into cash in the refinance month
-          const proceeds = (i === refiMonthIndex) ? refiProceeds : 0;
-
-          m.interestExpense = interestExpense;
-          m.principalPayment = principalPayment;
-          m.debtPayment = debtPayment;
-          m.debtOutstanding = debtOutstanding;
-          m.incomeTax = incomeTax;
-          m.netIncome = netIncome;
-          m.cashFlow = cashFlow + proceeds;
-          m.operatingCashFlow = operatingCashFlow;
-          m.financingCashFlow = financingCashFlow + proceeds;
-          m.refinancingProceeds = proceeds;
-
-          cumCash += m.cashFlow;
-          m.endingCash = cumCash;
         }
       }
     }

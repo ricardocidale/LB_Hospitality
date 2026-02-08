@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, real, integer, timestamp, jsonb, boolean, index, serial } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, real, integer, timestamp, jsonb, boolean, index, serial, unique, check } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -33,7 +33,7 @@ export type InsertUser = z.infer<typeof insertUserSchema>;
 // --- SESSIONS TABLE ---
 export const sessions = pgTable("sessions", {
   id: text("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   expiresAt: timestamp("expires_at").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 }, (table) => [
@@ -45,7 +45,7 @@ export type Session = typeof sessions.$inferSelect;
 // --- GLOBAL ASSUMPTIONS TABLE ---
 export const globalAssumptions = pgTable("global_assumptions", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-  userId: integer("user_id").references(() => users.id),
+  userId: integer("user_id").references(() => users.id, { onDelete: "cascade" }),
   companyName: text("company_name").notNull().default("L+B Hospitality"),
   companyLogo: text("company_logo"),
   propertyLabel: text("property_label").notNull().default("Boutique Hotel"),
@@ -156,6 +156,13 @@ export const globalAssumptions = pgTable("global_assumptions", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => [
   index("global_assumptions_user_id_idx").on(table.userId),
+  check("ga_projection_years_range", sql`${table.projectionYears} >= 1 AND ${table.projectionYears} <= 30`),
+  check("ga_inflation_rate_range", sql`${table.inflationRate} >= 0 AND ${table.inflationRate} <= 1`),
+  check("ga_base_mgmt_fee_range", sql`${table.baseManagementFee} >= 0 AND ${table.baseManagementFee} <= 1`),
+  check("ga_incentive_mgmt_fee_range", sql`${table.incentiveManagementFee} >= 0 AND ${table.incentiveManagementFee} <= 1`),
+  check("ga_commission_rate_range", sql`${table.commissionRate} >= 0 AND ${table.commissionRate} <= 1`),
+  check("ga_company_tax_rate_range", sql`${table.companyTaxRate} >= 0 AND ${table.companyTaxRate} <= 1`),
+  check("ga_exit_cap_rate_range", sql`${table.exitCapRate} > 0 AND ${table.exitCapRate} <= 1`),
 ]);
 
 export const insertGlobalAssumptionsSchema = createInsertSchema(globalAssumptions, {
@@ -267,7 +274,7 @@ export type InsertGlobalAssumptions = z.infer<typeof insertGlobalAssumptionsSche
 // --- PROPERTIES TABLE ---
 export const properties = pgTable("properties", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-  userId: integer("user_id").references(() => users.id),
+  userId: integer("user_id").references(() => users.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
   location: text("location").notNull(),
   market: text("market").notNull(),
@@ -339,6 +346,13 @@ export const properties = pgTable("properties", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => [
   index("properties_user_id_idx").on(table.userId),
+  check("prop_room_count_positive", sql`${table.roomCount} > 0`),
+  check("prop_start_adr_positive", sql`${table.startAdr} > 0`),
+  check("prop_start_occupancy_range", sql`${table.startOccupancy} >= 0 AND ${table.startOccupancy} <= 1`),
+  check("prop_max_occupancy_range", sql`${table.maxOccupancy} >= 0 AND ${table.maxOccupancy} <= 1`),
+  check("prop_occupancy_growth_range", sql`${table.occupancyGrowthStep} >= 0 AND ${table.occupancyGrowthStep} <= 1`),
+  check("prop_tax_rate_range", sql`${table.taxRate} >= 0 AND ${table.taxRate} <= 1`),
+  check("prop_exit_cap_rate_range", sql`${table.exitCapRate} > 0 AND ${table.exitCapRate} <= 1`),
 ]);
 
 export const insertPropertySchema = createInsertSchema(properties).pick({
@@ -404,7 +418,7 @@ export type UpdateProperty = z.infer<typeof updatePropertySchema>;
 // --- SCENARIOS TABLE ---
 export const scenarios = pgTable("scenarios", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-  userId: integer("user_id").notNull().references(() => users.id),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
   description: text("description"),
   globalAssumptions: jsonb("global_assumptions").notNull(),
@@ -414,6 +428,7 @@ export const scenarios = pgTable("scenarios", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => [
   index("scenarios_user_id_idx").on(table.userId),
+  unique("scenarios_user_id_name").on(table.userId, table.name),
 ]);
 
 export const insertScenarioSchema = createInsertSchema(scenarios).pick({
@@ -439,7 +454,7 @@ export type UpdateScenario = z.infer<typeof updateScenarioSchema>;
 // --- LOGIN LOGS TABLE ---
 export const loginLogs = pgTable("login_logs", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   loginAt: timestamp("login_at").defaultNow().notNull(),
   logoutAt: timestamp("logout_at"),
   sessionId: text("session_id").notNull(),
@@ -462,7 +477,7 @@ export type InsertLoginLog = z.infer<typeof insertLoginLogSchema>;
 // --- DESIGN THEMES TABLE ---
 export const designThemes = pgTable("design_themes", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-  userId: integer("user_id").references(() => users.id),
+  userId: integer("user_id").references(() => users.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
   description: text("description").notNull(),
   isActive: boolean("is_active").notNull().default(false),
@@ -500,9 +515,9 @@ export type InsertDesignTheme = z.infer<typeof insertDesignThemeSchema>;
 // --- MARKET RESEARCH TABLE ---
 export const marketResearch = pgTable("market_research", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-  userId: integer("user_id").references(() => users.id),
+  userId: integer("user_id").references(() => users.id, { onDelete: "cascade" }),
   type: text("type").notNull(), // "property", "company", "global"
-  propertyId: integer("property_id").references(() => properties.id),
+  propertyId: integer("property_id").references(() => properties.id, { onDelete: "cascade" }),
   title: text("title").notNull(),
   content: jsonb("content").notNull().$type<Record<string, any>>(),
   llmModel: text("llm_model"),
@@ -529,7 +544,7 @@ export type InsertMarketResearch = z.infer<typeof insertMarketResearchSchema>;
 // --- PROSPECTIVE PROPERTIES TABLE ---
 export const prospectiveProperties = pgTable("prospective_properties", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-  userId: integer("user_id").notNull().references(() => users.id),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   externalId: text("external_id").notNull(),
   source: text("source").notNull().default("realty-in-us"),
   address: text("address").notNull(),
@@ -550,6 +565,7 @@ export const prospectiveProperties = pgTable("prospective_properties", {
 }, (table) => [
   index("prospective_props_user_id_idx").on(table.userId),
   index("prospective_props_external_id_idx").on(table.externalId),
+  unique("prospective_props_user_external_source").on(table.userId, table.externalId, table.source),
 ]);
 
 export const insertProspectivePropertySchema = z.object({
@@ -578,7 +594,7 @@ export type InsertProspectiveProperty = z.infer<typeof insertProspectiveProperty
 // --- SAVED SEARCHES TABLE ---
 export const savedSearches = pgTable("saved_searches", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-  userId: integer("user_id").notNull().references(() => users.id),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
   location: text("location").notNull(),
   priceMin: text("price_min"),
@@ -611,7 +627,7 @@ export type InsertSavedSearch = z.infer<typeof insertSavedSearchSchema>;
 // This is the core audit trail for the operational layer.
 export const activityLogs = pgTable("activity_logs", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-  userId: integer("user_id").notNull().references(() => users.id),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   /** Action performed: create, update, delete, load, save, run, export */
   action: text("action").notNull(),
   /** Entity type affected: property, scenario, global_assumptions, user, verification, image */
@@ -649,7 +665,7 @@ export type InsertActivityLog = z.infer<typeof insertActivityLogSchema>;
 // Results JSONB stores the full check array from calculationChecker.ts.
 export const verificationRuns = pgTable("verification_runs", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-  userId: integer("user_id").notNull().references(() => users.id),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   /** Total number of checks executed */
   totalChecks: integer("total_checks").notNull(),
   /** Number of checks that passed */
@@ -677,11 +693,13 @@ export const conversations = pgTable("conversations", {
 
 export const messages = pgTable("messages", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-  conversationId: integer("conversation_id").references(() => conversations.id).notNull(),
+  conversationId: integer("conversation_id").references(() => conversations.id, { onDelete: "cascade" }).notNull(),
   role: text("role").notNull(),
   content: text("content").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+}, (table) => [
+  index("messages_conversation_id_idx").on(table.conversationId),
+]);
 
 export const insertVerificationRunSchema = z.object({
   userId: z.number(),

@@ -27,71 +27,7 @@ import {
 } from "@/lib/loanCalculations";
 import { OPERATING_RESERVE_BUFFER, RESERVE_ROUNDING_INCREMENT, DEFAULT_COMMISSION_RATE } from "@/lib/constants";
 import { aggregateCashFlowByYear } from "@/lib/cashFlowAggregator";
-
-interface YearlyDetails {
-  soldRooms: number;
-  availableRooms: number;
-  revenueRooms: number;
-  revenueEvents: number;
-  revenueFB: number;
-  revenueOther: number;
-  totalRevenue: number;
-  expenseRooms: number;
-  expenseFB: number;
-  expenseEvents: number;
-  expenseMarketing: number;
-  expensePropertyOps: number;
-  expenseUtilitiesVar: number;
-  expenseUtilitiesFixed: number;
-  expenseFFE: number;
-  expenseAdmin: number;
-  expenseIT: number;
-  expenseInsurance: number;
-  expenseTaxes: number;
-  expenseOther: number;
-  feeBase: number;
-  feeIncentive: number;
-  totalExpenses: number;
-  gop: number;
-  interestExpense: number;
-  incomeTax: number;
-}
-
-function aggregateYearlyDetails(data: MonthlyFinancials[], years: number): YearlyDetails[] {
-  const result: YearlyDetails[] = [];
-  for (let y = 0; y < years; y++) {
-    const yearData = data.slice(y * 12, (y + 1) * 12);
-    result.push({
-      soldRooms: yearData.reduce((a, m) => a + m.soldRooms, 0),
-      availableRooms: yearData.reduce((a, m) => a + m.availableRooms, 0),
-      revenueRooms: yearData.reduce((a, m) => a + m.revenueRooms, 0),
-      revenueEvents: yearData.reduce((a, m) => a + m.revenueEvents, 0),
-      revenueFB: yearData.reduce((a, m) => a + m.revenueFB, 0),
-      revenueOther: yearData.reduce((a, m) => a + m.revenueOther, 0),
-      totalRevenue: yearData.reduce((a, m) => a + m.revenueTotal, 0),
-      expenseRooms: yearData.reduce((a, m) => a + m.expenseRooms, 0),
-      expenseFB: yearData.reduce((a, m) => a + m.expenseFB, 0),
-      expenseEvents: yearData.reduce((a, m) => a + m.expenseEvents, 0),
-      expenseMarketing: yearData.reduce((a, m) => a + m.expenseMarketing, 0),
-      expensePropertyOps: yearData.reduce((a, m) => a + m.expensePropertyOps, 0),
-      expenseUtilitiesVar: yearData.reduce((a, m) => a + m.expenseUtilitiesVar, 0),
-      expenseUtilitiesFixed: yearData.reduce((a, m) => a + m.expenseUtilitiesFixed, 0),
-      expenseFFE: yearData.reduce((a, m) => a + m.expenseFFE, 0),
-      expenseAdmin: yearData.reduce((a, m) => a + m.expenseAdmin, 0),
-      expenseIT: yearData.reduce((a, m) => a + m.expenseIT, 0),
-      expenseInsurance: yearData.reduce((a, m) => a + m.expenseInsurance, 0),
-      expenseTaxes: yearData.reduce((a, m) => a + m.expenseTaxes, 0),
-      expenseOther: yearData.reduce((a, m) => a + m.expenseOtherCosts, 0),
-      feeBase: yearData.reduce((a, m) => a + m.feeBase, 0),
-      feeIncentive: yearData.reduce((a, m) => a + m.feeIncentive, 0),
-      totalExpenses: yearData.reduce((a, m) => a + m.totalExpenses, 0),
-      gop: yearData.reduce((a, m) => a + m.gop, 0),
-      interestExpense: yearData.reduce((a, m) => a + m.interestExpense, 0),
-      incomeTax: yearData.reduce((a, m) => a + m.incomeTax, 0),
-    });
-  }
-  return result;
-}
+import { aggregatePropertyByYear } from "@/lib/yearlyAggregator";
 
 interface CashPositionAnalysis {
   operatingReserve: number;
@@ -174,7 +110,7 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   const yearlyData = aggregateCashFlowByYear(data, property, global, years);
-  const yearlyDetails = aggregateYearlyDetails(data, years);
+  const yearlyDetails = aggregatePropertyByYear(data, years);
 
   const loan = calculateLoanParams(property, global);
   const equityInvested = loan.equityInvested;
@@ -193,7 +129,7 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
   const totalPropertyCost = property.purchasePrice + (property.buildingImprovements ?? 0) + property.preOpeningCosts;
 
   const cashFromOperations = yearlyDetails.map((yd) => {
-    return yd.totalRevenue - (yd.totalExpenses - yd.expenseFFE) - yd.interestExpense - yd.incomeTax;
+    return yd.revenueTotal - (yd.totalExpenses - yd.expenseFFE) - yd.interestExpense - yd.incomeTax;
   });
 
   const cashFromInvesting = yearlyData.map((cf, i) => {
@@ -289,7 +225,7 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
 
       <ExpandableLineItem
         label="Cash Received from Guests & Clients"
-        values={yearlyDetails.map(y => y.totalRevenue)}
+        values={yearlyDetails.map(y => y.revenueTotal)}
         tooltip="Click to expand: Room revenue, event & venue income, food & beverage, and other revenue streams."
         expanded={!!expanded.revenue}
         onToggle={() => toggleSection('revenue')}
@@ -328,7 +264,7 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
         <LineItem label="Property Taxes" values={yearlyDetails.map(y => y.expenseTaxes)} indent />
         <LineItem label="Administrative & Compliance" values={yearlyDetails.map(y => y.expenseAdmin)} indent />
         <LineItem label="IT Systems" values={yearlyDetails.map(y => y.expenseIT)} indent />
-        <LineItem label="Other Operating Costs" values={yearlyDetails.map(y => y.expenseOther)} indent />
+        <LineItem label="Other Operating Costs" values={yearlyDetails.map(y => y.expenseOtherCosts)} indent />
         <LineItem label="Base Management Fee" values={yearlyDetails.map(y => y.feeBase)} indent />
         <LineItem label="Incentive Management Fee" values={yearlyDetails.map(y => y.feeIncentive)} indent />
       </ExpandableLineItem>

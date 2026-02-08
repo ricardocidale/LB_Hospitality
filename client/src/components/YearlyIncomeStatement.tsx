@@ -20,6 +20,7 @@ import {
   SpacerRow,
   MetricRow,
 } from "@/components/financial-table-rows";
+import { aggregatePropertyByYear } from "@/lib/yearlyAggregator";
 
 interface Props {
   data: MonthlyFinancials[];
@@ -27,81 +28,9 @@ interface Props {
   startYear?: number;
 }
 
-interface YearlyData {
-  year: number;
-  soldRooms: number;
-  availableRooms: number;
-  revenueRooms: number;
-  revenueFB: number;
-  revenueEvents: number;
-  revenueOther: number;
-  revenueTotal: number;
-  expenseRooms: number;
-  expenseFB: number;
-  expenseEvents: number;
-  expenseOther: number;
-  expenseMarketing: number;
-  expensePropertyOps: number;
-  expenseUtilities: number;
-  expenseAdmin: number;
-  expenseIT: number;
-  expenseInsurance: number;
-  expenseTaxes: number;
-  expenseOtherCosts: number;
-  expenseFFE: number;
-  feeBase: number;
-  feeIncentive: number;
-  gop: number;
-  noi: number;
-  interestExpense: number;
-  depreciationExpense: number;
-  incomeTax: number;
-  netIncome: number;
-}
-
-function aggregateByYear(data: MonthlyFinancials[], years: number): YearlyData[] {
-  const result: YearlyData[] = [];
-  for (let y = 0; y < years; y++) {
-    const yd = data.slice(y * 12, (y + 1) * 12);
-    if (yd.length === 0) continue;
-    result.push({
-      year: y + 1,
-      soldRooms: yd.reduce((a, m) => a + m.soldRooms, 0),
-      availableRooms: yd.reduce((a, m) => a + m.availableRooms, 0),
-      revenueRooms: yd.reduce((a, m) => a + m.revenueRooms, 0),
-      revenueFB: yd.reduce((a, m) => a + m.revenueFB, 0),
-      revenueEvents: yd.reduce((a, m) => a + m.revenueEvents, 0),
-      revenueOther: yd.reduce((a, m) => a + m.revenueOther, 0),
-      revenueTotal: yd.reduce((a, m) => a + m.revenueTotal, 0),
-      expenseRooms: yd.reduce((a, m) => a + m.expenseRooms, 0),
-      expenseFB: yd.reduce((a, m) => a + m.expenseFB, 0),
-      expenseEvents: yd.reduce((a, m) => a + m.expenseEvents, 0),
-      expenseOther: yd.reduce((a, m) => a + m.expenseOther, 0),
-      expenseMarketing: yd.reduce((a, m) => a + m.expenseMarketing, 0),
-      expensePropertyOps: yd.reduce((a, m) => a + m.expensePropertyOps, 0),
-      expenseUtilities: yd.reduce((a, m) => a + m.expenseUtilitiesVar + m.expenseUtilitiesFixed, 0),
-      expenseAdmin: yd.reduce((a, m) => a + m.expenseAdmin, 0),
-      expenseIT: yd.reduce((a, m) => a + m.expenseIT, 0),
-      expenseInsurance: yd.reduce((a, m) => a + m.expenseInsurance, 0),
-      expenseTaxes: yd.reduce((a, m) => a + m.expenseTaxes, 0),
-      expenseOtherCosts: yd.reduce((a, m) => a + m.expenseOtherCosts, 0),
-      expenseFFE: yd.reduce((a, m) => a + m.expenseFFE, 0),
-      feeBase: yd.reduce((a, m) => a + m.feeBase, 0),
-      feeIncentive: yd.reduce((a, m) => a + m.feeIncentive, 0),
-      gop: yd.reduce((a, m) => a + m.gop, 0),
-      noi: yd.reduce((a, m) => a + m.noi, 0),
-      interestExpense: yd.reduce((a, m) => a + m.interestExpense, 0),
-      depreciationExpense: yd.reduce((a, m) => a + m.depreciationExpense, 0),
-      incomeTax: yd.reduce((a, m) => a + m.incomeTax, 0),
-      netIncome: yd.reduce((a, m) => a + m.netIncome, 0),
-    });
-  }
-  return result;
-}
-
 export function YearlyIncomeStatement({ data, years = 5, startYear = 2026 }: Props) {
-  const yd = aggregateByYear(data, years);
-  const columns = yd.map((y) => `${startYear + y.year - 1}`);
+  const yd = aggregatePropertyByYear(data, years);
+  const columns = yd.map((y) => `${startYear + y.year}`);
   const colSpan = years + 1;
 
   return (

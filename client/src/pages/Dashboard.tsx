@@ -33,6 +33,7 @@ import {
 import { computeIRR } from "@analytics/returns/irr.js";
 import { LoanParams, GlobalLoanParams } from "@/lib/loanCalculations";
 import { aggregateCashFlowByYear } from "@/lib/cashFlowAggregator";
+import { aggregatePropertyByYear, YearlyPropertyFinancials } from "@/lib/yearlyAggregator";
 
 /** Adapter: wraps standalone IRR solver to return a plain number (annual rate). */
 function calculateIRR(cashFlows: number[]): number {
@@ -79,76 +80,32 @@ export default function Dashboard() {
     );
   }, [allPropertyFinancials, properties, global, projectionYears]);
 
+  // Per-property yearly IS/expense aggregation (shared utility)
+  const allPropertyYearlyIS = useMemo(() =>
+    allPropertyFinancials.map(({ financials }) =>
+      aggregatePropertyByYear(financials, projectionYears)
+    ),
+    [allPropertyFinancials, projectionYears]
+  );
+
+  // Portfolio-level consolidated yearly totals
   const yearlyConsolidatedCache = useMemo(() => {
-    if (!allPropertyFinancials.length) return [];
-    return Array.from({ length: projectionYears }, (_, yearIndex) => {
-      const startMonth = yearIndex * 12;
-      const endMonth = startMonth + 12;
-
-      let totals = {
-        revenueRooms: 0,
-        revenueEvents: 0,
-        revenueFB: 0,
-        revenueOther: 0,
-        revenueTotal: 0,
-        expenseRooms: 0,
-        expenseFB: 0,
-        expenseEvents: 0,
-        expenseOther: 0,
-        expenseMarketing: 0,
-        expensePropertyOps: 0,
-        expenseUtilitiesVar: 0,
-        expenseFFE: 0,
-        expenseAdmin: 0,
-        expenseIT: 0,
-        expenseInsurance: 0,
-        expenseTaxes: 0,
-        expenseUtilitiesFixed: 0,
-        expenseOtherCosts: 0,
-        feeBase: 0,
-        feeIncentive: 0,
-        totalExpenses: 0,
-        gop: 0,
-        noi: 0,
-        debtPayment: 0,
-        cashFlow: 0
-      };
-
-      allPropertyFinancials.forEach(({ financials }) => {
-        const yearData = financials.slice(startMonth, endMonth);
-        yearData.forEach(m => {
-          totals.revenueRooms += m.revenueRooms;
-          totals.revenueEvents += m.revenueEvents;
-          totals.revenueFB += m.revenueFB;
-          totals.revenueOther += m.revenueOther;
-          totals.revenueTotal += m.revenueTotal;
-          totals.expenseRooms += m.expenseRooms;
-          totals.expenseFB += m.expenseFB;
-          totals.expenseEvents += m.expenseEvents;
-          totals.expenseOther += m.expenseOther;
-          totals.expenseMarketing += m.expenseMarketing;
-          totals.expensePropertyOps += m.expensePropertyOps;
-          totals.expenseUtilitiesVar += m.expenseUtilitiesVar;
-          totals.expenseFFE += m.expenseFFE;
-          totals.expenseAdmin += m.expenseAdmin;
-          totals.expenseIT += m.expenseIT;
-          totals.expenseInsurance += m.expenseInsurance;
-          totals.expenseTaxes += m.expenseTaxes;
-          totals.expenseUtilitiesFixed += m.expenseUtilitiesFixed;
-          totals.expenseOtherCosts += m.expenseOtherCosts;
-          totals.feeBase += m.feeBase;
-          totals.feeIncentive += m.feeIncentive;
-          totals.totalExpenses += m.totalExpenses;
-          totals.gop += m.gop;
-          totals.noi += m.noi;
-          totals.debtPayment += m.debtPayment;
-          totals.cashFlow += m.cashFlow;
-        });
-      });
-
-      return totals;
+    if (!allPropertyYearlyIS.length) return [] as YearlyPropertyFinancials[];
+    const numericKeys = Object.keys(allPropertyYearlyIS[0]?.[0] ?? {}).filter(
+      k => k !== 'year'
+    ) as (keyof YearlyPropertyFinancials)[];
+    return Array.from({ length: projectionYears }, (_, y) => {
+      const base: YearlyPropertyFinancials = { ...allPropertyYearlyIS[0][y] };
+      for (const key of numericKeys) (base as any)[key] = 0;
+      base.year = y;
+      for (const propYearly of allPropertyYearlyIS) {
+        const py = propYearly[y];
+        if (!py) continue;
+        for (const key of numericKeys) (base as any)[key] += (py as any)[key];
+      }
+      return base;
     });
-  }, [allPropertyFinancials, projectionYears]);
+  }, [allPropertyYearlyIS, projectionYears]);
 
   const { totalProjectionRevenue, totalProjectionNOI, totalProjectionCashFlow } = useMemo(() => {
     if (!yearlyConsolidatedCache.length) return { totalProjectionRevenue: 0, totalProjectionNOI: 0, totalProjectionCashFlow: 0 };
@@ -187,26 +144,8 @@ export default function Dashboard() {
 
   const getYearlyConsolidated = (yearIndex: number) => yearlyConsolidatedCache[yearIndex];
 
-  const getPropertyYearly = (propIndex: number, yearIndex: number) => {
-    const startMonth = yearIndex * 12;
-    const endMonth = startMonth + 12;
-    const { financials } = allPropertyFinancials[propIndex];
-    const yearData = financials.slice(startMonth, endMonth);
-    
-    return {
-      revenueTotal: yearData.reduce((a, m) => a + m.revenueTotal, 0),
-      revenueRooms: yearData.reduce((a, m) => a + m.revenueRooms, 0),
-      revenueEvents: yearData.reduce((a, m) => a + m.revenueEvents, 0),
-      revenueFB: yearData.reduce((a, m) => a + m.revenueFB, 0),
-      revenueOther: yearData.reduce((a, m) => a + m.revenueOther, 0),
-      gop: yearData.reduce((a, m) => a + m.gop, 0),
-      noi: yearData.reduce((a, m) => a + m.noi, 0),
-      feeBase: yearData.reduce((a, m) => a + m.feeBase, 0),
-      feeIncentive: yearData.reduce((a, m) => a + m.feeIncentive, 0),
-      debtPayment: yearData.reduce((a, m) => a + m.debtPayment, 0),
-      cashFlow: yearData.reduce((a, m) => a + m.cashFlow, 0)
-    };
-  };
+  const getPropertyYearly = (propIndex: number, yearIndex: number) =>
+    allPropertyYearlyIS[propIndex]?.[yearIndex];
 
   // Calculate weighted average ADR, Occupancy, and RevPAR for a given year
   // ADR weighted by rooms sold, Occupancy weighted by available rooms, RevPAR = Room Revenue / Available Rooms

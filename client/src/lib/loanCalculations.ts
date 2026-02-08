@@ -67,8 +67,10 @@ export interface YearlyDebtService {
   principalPayment: number;
 }
 
+import { pmt } from "@calc/shared/pmt";
+
 // Import constants from shared module
-import { 
+import {
   DEFAULT_LTV, 
   DEFAULT_INTEREST_RATE, 
   DEFAULT_TERM_YEARS, 
@@ -127,17 +129,9 @@ export function calculateLoanParams(
   const monthlyRate = interestRate / 12;
   const totalPayments = termYears * 12;
   
-  // Handle zero interest rate (straight-line principal reduction)
   let monthlyPayment = 0;
   if (loanAmount > 0) {
-    if (monthlyRate === 0) {
-      // Zero interest: simple principal / payments
-      monthlyPayment = loanAmount / totalPayments;
-    } else {
-      // Standard PMT formula
-      monthlyPayment = (loanAmount * monthlyRate * Math.pow(1 + monthlyRate, totalPayments)) / 
-                       (Math.pow(1 + monthlyRate, totalPayments) - 1);
-    }
+    monthlyPayment = pmt(loanAmount, monthlyRate, totalPayments);
   }
   
   const modelStart = new Date(global?.modelStartDate || DEFAULT_MODEL_START_DATE);
@@ -230,15 +224,9 @@ export function calculateRefinanceParams(
   const propertyValue = exitCapRate > 0 ? stabilizedNOI / exitCapRate : 0;
   const refiLoanAmount = propertyValue * refiLTV;
   
-  // Handle zero interest rate (straight-line principal reduction)
   let refiMonthlyPayment = 0;
   if (refiLoanAmount > 0) {
-    if (refiMonthlyRate === 0) {
-      refiMonthlyPayment = refiLoanAmount / refiTotalPayments;
-    } else {
-      refiMonthlyPayment = (refiLoanAmount * refiMonthlyRate * Math.pow(1 + refiMonthlyRate, refiTotalPayments)) / 
-                           (Math.pow(1 + refiMonthlyRate, refiTotalPayments) - 1);
-    }
+    refiMonthlyPayment = pmt(refiLoanAmount, refiMonthlyRate, refiTotalPayments);
   }
   
   const closingCostRate = property.refinanceClosingCostRate ?? global?.debtAssumptions?.refiClosingCostRate ?? DEFAULT_REFI_CLOSING_COST_RATE;

@@ -1,6 +1,7 @@
 import { MonthlyFinancials } from "./financialEngine";
 import { addMonths, differenceInMonths, isBefore } from "date-fns";
-import { 
+import { pmt } from "@calc/shared/pmt";
+import {
   DEFAULT_LTV, 
   DEFAULT_INTEREST_RATE, 
   DEFAULT_TERM_YEARS, 
@@ -64,14 +65,6 @@ function formatVariance(expected: number, actual: number): string {
   const diff = actual - expected;
   const pct = expected !== 0 ? ((diff / expected) * 100).toFixed(2) : "N/A";
   return `${diff >= 0 ? '+' : ''}${diff.toFixed(2)} (${pct}%)`;
-}
-
-function calculatePMT(principal: number, monthlyRate: number, totalPayments: number): number {
-  if (principal === 0) return 0;
-  // Handle zero interest rate (straight-line principal reduction)
-  if (monthlyRate === 0) return principal / totalPayments;
-  return (principal * monthlyRate * Math.pow(1 + monthlyRate, totalPayments)) / 
-         (Math.pow(1 + monthlyRate, totalPayments) - 1);
 }
 
 export interface PropertyAuditInput {
@@ -281,7 +274,7 @@ export function auditLoanAmortization(
   let currentMonthlyRate = isOriginallyFinanced ? interestRate / 12 : 0;
   let currentTotalPayments = isOriginallyFinanced ? termYears * 12 : 0;
 
-  let currentMonthlyPayment = calculatePMT(loanAmount, currentMonthlyRate, currentTotalPayments);
+  let currentMonthlyPayment = pmt(loanAmount, currentMonthlyRate, currentTotalPayments);
 
   if (isOriginallyFinanced) {
     findings.push({
@@ -363,7 +356,7 @@ export function auditLoanAmortization(
       const refiTermYears = property.refinanceTermYears ?? global.debtAssumptions?.amortizationYears ?? DEFAULT_TERM_YEARS;
       currentMonthlyRate = refiRate / 12;
       currentTotalPayments = refiTermYears * 12;
-      currentMonthlyPayment = calculatePMT(refiLoanAmount, currentMonthlyRate, currentTotalPayments);
+      currentMonthlyPayment = pmt(refiLoanAmount, currentMonthlyRate, currentTotalPayments);
       runningBalance = refiLoanAmount;
 
       findings.push({

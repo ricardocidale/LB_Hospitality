@@ -465,10 +465,13 @@ export async function registerRoutes(
       };
 
       // Seed users (skip if already exist)
+      // Passwords are hashed dynamically from env vars — never store static hashes in code
+      const adminPw = process.env.ADMIN_PASSWORD || "changeme";
+      const checkerPw = process.env.CHECKER_PASSWORD || "changeme";
       const usersToSeed = [
-        { email: "admin", passwordHash: "$2b$12$Pn7FR96mt7FWlXE4CVfCZ.J4amO5fnhrVpXa.fw6R.FpR.EJCYR.O", role: "admin" as const, name: "Ricardo Cidale", company: "Norfolk Group", title: "Partner" },
-        { email: "rosario@kitcapital.com", passwordHash: "$2b$12$2AtbFcvAfiT2mEYMIXPF0uvwZR764dP2HGtGsq1hfZLgFuYmJ7xaq", role: "user" as const, name: "Rosario David", company: "KIT Capital", title: "COO" },
-        { email: "checker", passwordHash: "$2b$12$2nybBrwP6J7IkfAhoyneDev.bO5U2KQIoRsM2txsp2gk7ofVQATMG", role: "user" as const, name: "Checker User" }
+        { email: "admin", passwordHash: await hashPassword(adminPw), role: "admin" as const, name: "Ricardo Cidale", company: "Norfolk Group", title: "Partner" },
+        { email: "rosario@kitcapital.com", passwordHash: await hashPassword(adminPw), role: "user" as const, name: "Rosario David", company: "KIT Capital", title: "COO" },
+        { email: "checker", passwordHash: await hashPassword(checkerPw), role: "user" as const, name: "Checker User" }
       ];
       
       for (const userData of usersToSeed) {

@@ -134,18 +134,20 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteUser(id: number): Promise<void> {
-    await db.delete(sessions).where(eq(sessions.userId, id));
-    await db.delete(scenarios).where(eq(scenarios.userId, id));
-    await db.delete(marketResearch).where(eq(marketResearch.userId, id));
-    await db.delete(prospectiveProperties).where(eq(prospectiveProperties.userId, id));
-    await db.delete(savedSearches).where(eq(savedSearches.userId, id));
-    await db.delete(properties).where(eq(properties.userId, id));
-    await db.delete(globalAssumptions).where(eq(globalAssumptions.userId, id));
-    await db.delete(loginLogs).where(eq(loginLogs.userId, id));
-    await db.delete(activityLogs).where(eq(activityLogs.userId, id));
-    await db.delete(verificationRuns).where(eq(verificationRuns.userId, id));
-    await db.delete(designThemes).where(eq(designThemes.userId, id));
-    await db.delete(users).where(eq(users.id, id));
+    await db.transaction(async (tx) => {
+      await tx.delete(sessions).where(eq(sessions.userId, id));
+      await tx.delete(scenarios).where(eq(scenarios.userId, id));
+      await tx.delete(marketResearch).where(eq(marketResearch.userId, id));
+      await tx.delete(prospectiveProperties).where(eq(prospectiveProperties.userId, id));
+      await tx.delete(savedSearches).where(eq(savedSearches.userId, id));
+      await tx.delete(properties).where(eq(properties.userId, id));
+      await tx.delete(globalAssumptions).where(eq(globalAssumptions.userId, id));
+      await tx.delete(loginLogs).where(eq(loginLogs.userId, id));
+      await tx.delete(activityLogs).where(eq(activityLogs.userId, id));
+      await tx.delete(verificationRuns).where(eq(verificationRuns.userId, id));
+      await tx.delete(designThemes).where(eq(designThemes.userId, id));
+      await tx.delete(users).where(eq(users.id, id));
+    });
   }
 
   async updateUserPassword(id: number, passwordHash: string): Promise<void> {

@@ -42,3 +42,6 @@ export const DEPRECIATION_YEARS = 27.5;
 
 // Industry standard days per month (365/12 rounded)
 export const DAYS_PER_MONTH = 30.5;
+
+// Default occupancy ramp period (months between growth steps)
+export const DEFAULT_OCCUPANCY_RAMP_MONTHS = 6;

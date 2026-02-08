@@ -25,15 +25,14 @@ import { exportTablePNG } from "@/lib/exports/pngExport";
 import {
   DEFAULT_LTV,
   DEFAULT_EXIT_CAP_RATE,
-  DEFAULT_COMMISSION_RATE,
   DEFAULT_TAX_RATE,
-  DEPRECIATION_YEARS,
   PROJECTION_YEARS,
   DAYS_PER_MONTH,
   IRR_HIGHLIGHT_THRESHOLD,
-  DEFAULT_LAND_VALUE_PERCENT,
 } from "@/lib/constants";
 import { computeIRR } from "@analytics/returns/irr.js";
+import { LoanParams, GlobalLoanParams } from "@/lib/loanCalculations";
+import { aggregateCashFlowByYear } from "@/lib/cashFlowAggregator";
 
 /** Adapter: wraps standalone IRR solver to return a plain number (annual rate). */
 function calculateIRR(cashFlows: number[]): number {
@@ -70,6 +69,15 @@ export default function Dashboard() {
       return { property: p, financials };
     });
   }, [properties, global, projectionMonths]);
+
+  // Pre-compute per-property yearly cash flow results via shared aggregator.
+  // Single source of truth for ATCF, exit value, refi proceeds, debt service, and IRR vectors.
+  const allPropertyYearlyCF = useMemo(() => {
+    if (!properties || !global || allPropertyFinancials.length === 0) return [];
+    return allPropertyFinancials.map(({ property: prop, financials }) =>
+      aggregateCashFlowByYear(financials, prop as unknown as LoanParams, global as unknown as GlobalLoanParams, projectionYears)
+    );
+  }, [allPropertyFinancials, properties, global, projectionYears]);
 
   const yearlyConsolidatedCache = useMemo(() => {
     if (!allPropertyFinancials.length) return [];
@@ -273,16 +281,7 @@ export default function Dashboard() {
   // Investment horizon
   const investmentHorizon = projectionYears;
 
-  const getPropertyYearlyNOI = (propIndex: number): number[] => {
-    const { financials } = allPropertyFinancials[propIndex];
-    const yearlyNOI: number[] = [];
-    for (let y = 0; y < projectionYears; y++) {
-      const yearData = financials.slice(y * 12, (y + 1) * 12);
-      yearlyNOI.push(yearData.reduce((a: number, m: any) => a + m.noi, 0));
-    }
-    return yearlyNOI;
-  };
-
+  // Kept: equity investment helpers (needed for KPI display and equity multiple)
   const getPropertyAcquisitionYear = (prop: any): number => {
     const modelStart = new Date(global.modelStartDate);
     const acqDate = prop.acquisitionDate ? new Date(prop.acquisitionDate) : new Date(prop.operationsStartDate);
@@ -309,170 +308,38 @@ export default function Dashboard() {
     return total;
   };
 
-  const getAnnualDepreciation = (prop: any) => {
-    const landPct = prop.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT;
-    const depreciableBase = prop.purchasePrice * (1 - landPct) + (prop.buildingImprovements ?? 0);
-    return depreciableBase / DEPRECIATION_YEARS;
+  // Aggregator-based helpers: read from precomputed allPropertyYearlyCF
+  const getPropertyExitValue = (propIndex: number): number => {
+    const yearly = allPropertyYearlyCF[propIndex];
+    return yearly?.[projectionYears - 1]?.exitValue ?? 0;
   };
 
-  const getPropertyExitValue = (prop: any, propIndex: number) => {
-    const { financials } = allPropertyFinancials[propIndex];
-    const lastYearData = financials.slice((projectionYears - 1) * 12, projectionYears * 12);
-    const lastYearNOI = lastYearData.reduce((a: number, m: any) => a + m.noi, 0);
-    const capRate = prop.exitCapRate ?? DEFAULT_EXIT_CAP_RATE;
-    const grossValue = lastYearNOI / capRate;
-    const commissionRate = global.salesCommissionRate ?? global.commissionRate ?? DEFAULT_COMMISSION_RATE;
-    const netValue = grossValue - (grossValue * commissionRate);
-    const lastMonth = financials[financials.length - 1];
-    const outstandingDebt = lastMonth ? lastMonth.debtOutstanding : 0;
-    return netValue - outstandingDebt;
+  const projectedExitValue = allPropertyYearlyCF.reduce(
+    (sum, yearly) => sum + (yearly[projectionYears - 1]?.exitValue ?? 0), 0
+  );
+
+  const getPropertyCashFlows = (propIndex: number): number[] => {
+    const yearly = allPropertyYearlyCF[propIndex];
+    if (!yearly) return [];
+    return yearly.map(r => r.netCashFlowToInvestors);
   };
 
-  // Calculate total portfolio exit value (net of commission and debt)
-  const projectedExitValue = properties.reduce((sum, prop, idx) => {
-    return sum + getPropertyExitValue(prop, idx);
-  }, 0);
-
-  // Engine-based yearly details: aggregates directly from monthly pro forma data
-  const getPropertyYearlyDetails = (prop: any, propIndex: number, yearIndex: number) => {
-    const { financials } = allPropertyFinancials[propIndex];
-    const yearData = financials.slice(yearIndex * 12, (yearIndex + 1) * 12);
-    const noi = yearData.reduce((a: number, m: any) => a + m.noi, 0);
-    const interestExpense = yearData.reduce((a: number, m: any) => a + m.interestExpense, 0);
-    const debtService = yearData.reduce((a: number, m: any) => a + m.debtPayment, 0);
-    const depreciation = yearData.reduce((a: number, m: any) => a + m.depreciationExpense, 0);
-    const incomeTax = yearData.reduce((a: number, m: any) => a + m.incomeTax, 0);
-    const btcf = noi - debtService;
-    const taxableIncome = noi - interestExpense - depreciation;
-    const atcf = btcf - incomeTax;
-
-    return {
-      noi,
-      debtService,
-      interestPortion: interestExpense,
-      depreciation,
-      btcf,
-      taxableIncome,
-      taxLiability: incomeTax,
-      atcf
-    };
-  };
-
-  const getConsolidatedYearlyDetails = (yearIndex: number) => {
-    let totalNOI = 0;
-    let totalDebtService = 0;
-    let totalInterest = 0;
-    let totalDepreciation = 0;
-    let totalBTCF = 0;
-    let totalTaxableIncome = 0;
-    let totalTax = 0;
-    let totalATCF = 0;
-
-    properties.forEach((prop, idx) => {
-      const details = getPropertyYearlyDetails(prop, idx, yearIndex);
-      totalNOI += details.noi;
-      totalDebtService += details.debtService;
-      totalInterest += details.interestPortion;
-      totalDepreciation += details.depreciation;
-      totalBTCF += details.btcf;
-      totalTaxableIncome += details.taxableIncome;
-      totalTax += details.taxLiability;
-      totalATCF += details.atcf;
-    });
-
-    return {
-      noi: totalNOI,
-      debtService: totalDebtService,
-      interestPortion: totalInterest,
-      depreciation: totalDepreciation,
-      btcf: totalBTCF,
-      taxableIncome: totalTaxableIncome,
-      taxLiability: totalTax,
-      atcf: totalATCF
-    };
-  };
-
-  const getPropertyRefinanceProceeds = (prop: any, propIndex: number) => {
-    const { financials } = allPropertyFinancials[propIndex];
-    for (let i = 0; i < financials.length; i++) {
-      if (financials[i].refinancingProceeds > 0) {
-        return { year: Math.floor(i / 12), proceeds: financials[i].refinancingProceeds };
-      }
-    }
-    return { year: -1, proceeds: 0 };
-  };
-
-  const getConsolidatedCashFlows = (): number[] => {
-    const flows: number[] = [];
-    const year0Investment = getEquityInvestmentForYear(0);
-    flows.push(-year0Investment);
-    
-    for (let y = 0; y < projectionYears; y++) {
-      const consolidated = getConsolidatedYearlyDetails(y);
-      let yearCashFlow = consolidated.atcf;
-      
-      const yearInvestment = getEquityInvestmentForYear(y + 1);
-      if (yearInvestment > 0) yearCashFlow -= yearInvestment;
-      
-      properties.forEach((prop, idx) => {
-        const refi = getPropertyRefinanceProceeds(prop, idx);
-        if (y === refi.year) {
-          yearCashFlow += refi.proceeds;
-        }
-        
-        if (y === projectionYears - 1) {
-          yearCashFlow += getPropertyExitValue(prop, idx);
-        }
-      });
-      
-      flows.push(yearCashFlow);
-    }
-    return flows;
-  };
-
-  const getPropertyCashFlows = (prop: any, propIndex: number): number[] => {
-    const flows: number[] = [];
-    const initialEquity = -getPropertyInvestment(prop);
-    flows.push(initialEquity);
-    const refi = getPropertyRefinanceProceeds(prop, propIndex);
-    for (let y = 0; y < projectionYears; y++) {
-      const details = getPropertyYearlyDetails(prop, propIndex, y);
-      let yearCashFlow = details.atcf;
-      if (y === refi.year) {
-        yearCashFlow += refi.proceeds;
-      }
-      if (y === projectionYears - 1) {
-        yearCashFlow += getPropertyExitValue(prop, propIndex);
-      }
-      flows.push(yearCashFlow);
-    }
-    return flows;
-  };
-
-  const consolidatedFlows = getConsolidatedCashFlows();
+  const consolidatedFlows = Array.from({ length: projectionYears }, (_, y) =>
+    allPropertyYearlyCF.reduce((sum, propYearly) => sum + (propYearly[y]?.netCashFlowToInvestors ?? 0), 0)
+  );
   const portfolioIRR = calculateIRR(consolidatedFlows);
   const totalInitialEquity = properties.reduce((sum, prop) => sum + getPropertyInvestment(prop), 0);
-  const totalExitValue = properties.reduce((sum, prop, idx) => sum + getPropertyExitValue(prop, idx), 0);
-  const totalCashReturned = consolidatedFlows.slice(1).reduce((sum, cf) => sum + cf, 0);
+  const totalExitValue = allPropertyYearlyCF.reduce(
+    (sum, yearly) => sum + (yearly[projectionYears - 1]?.exitValue ?? 0), 0
+  );
+  const totalCashReturned = consolidatedFlows.reduce((sum, cf) => sum + cf, 0);
   const midProjectionEquity = Array.from({ length: projectionYears }, (_, y) => getEquityInvestmentForYear(y + 1))
     .reduce((sum, eq) => sum + eq, 0);
   const equityMultiple = totalInitialEquity > 0 ? (totalCashReturned + midProjectionEquity) / totalInitialEquity : 0;
-  
-  const operatingCashFlows = consolidatedFlows.slice(1).map((cf, idx) => {
-    let exitValue = 0;
-    let refiProceeds = 0;
-    let yearInvestment = getEquityInvestmentForYear(idx + 1);
-    if (idx === projectionYears - 1) {
-      exitValue = properties.reduce((sum, prop, propIdx) => sum + getPropertyExitValue(prop, propIdx), 0);
-    }
-    properties.forEach((prop, propIdx) => {
-      const refi = getPropertyRefinanceProceeds(prop, propIdx);
-      if (idx === refi.year) {
-        refiProceeds += refi.proceeds;
-      }
-    });
-    return cf - exitValue - refiProceeds + yearInvestment;
-  });
+
+  const operatingCashFlows = Array.from({ length: projectionYears }, (_, y) =>
+    allPropertyYearlyCF.reduce((sum, propYearly) => sum + (propYearly[y]?.atcf ?? 0), 0)
+  );
   const avgAnnualCashFlow = operatingCashFlows.reduce((sum, cf) => sum + cf, 0) / projectionYears;
   const cashOnCash = totalInitialEquity > 0 ? (avgAnnualCashFlow / totalInitialEquity) * 100 : 0;
 
@@ -1915,7 +1782,7 @@ export default function Dashboard() {
                     <ResponsiveContainer width="100%" height={200}>
                       <BarChart
                         data={properties.map((prop, idx) => {
-                          const cashFlows = getPropertyCashFlows(prop, idx);
+                          const cashFlows = getPropertyCashFlows(idx);
                           const irr = calculateIRR(cashFlows);
                           return {
                             name: prop.name.length > 15 ? prop.name.substring(0, 13) + '…' : prop.name,
@@ -3111,9 +2978,10 @@ export default function Dashboard() {
           </TabsContent>
 
           <TabsContent value="investment" className="mt-6 space-y-6">
-            <InvestmentAnalysis 
-              properties={properties} 
+            <InvestmentAnalysis
+              properties={properties}
               allPropertyFinancials={allPropertyFinancials}
+              allPropertyYearlyCF={allPropertyYearlyCF}
               getPropertyYearly={getPropertyYearly}
               getYearlyConsolidated={getYearlyConsolidated}
               global={global}
@@ -3130,6 +2998,7 @@ export default function Dashboard() {
 interface InvestmentAnalysisProps {
   properties: any[];
   allPropertyFinancials: any[];
+  allPropertyYearlyCF: ReturnType<typeof aggregateCashFlowByYear>[];
   getPropertyYearly: (propIndex: number, yearIndex: number) => any;
   getYearlyConsolidated: (yearIndex: number) => any;
   global: any;
@@ -3137,10 +3006,11 @@ interface InvestmentAnalysisProps {
   toggleRow: (rowId: string) => void;
 }
 
-function InvestmentAnalysis({ 
-  properties, 
-  allPropertyFinancials, 
-  getPropertyYearly, 
+function InvestmentAnalysis({
+  properties,
+  allPropertyFinancials,
+  allPropertyYearlyCF,
+  getPropertyYearly,
   getYearlyConsolidated,
   global,
   expandedRows,
@@ -3152,16 +3022,17 @@ function InvestmentAnalysis({
   const fiscalYearStartMonth = global.fiscalYearStartMonth ?? 1;
   const getFiscalYear = (yearIndex: number) => getFiscalYearForModelYear(global.modelStartDate, fiscalYearStartMonth, yearIndex);
 
+  // Equity helpers (kept for KPI display)
   const getPropertyAcquisitionYear = (prop: any): number => {
     const acqDate = new Date(prop.acquisitionDate);
     const modelStart = new Date(global.modelStartDate);
-    const monthsDiff = (acqDate.getFullYear() - modelStart.getFullYear()) * 12 + 
+    const monthsDiff = (acqDate.getFullYear() - modelStart.getFullYear()) * 12 +
                        (acqDate.getMonth() - modelStart.getMonth());
     return Math.floor(monthsDiff / 12);
   };
 
   const getPropertyInvestment = (prop: any) => {
-    const totalInvestment = prop.purchasePrice + prop.buildingImprovements + 
+    const totalInvestment = prop.purchasePrice + prop.buildingImprovements +
                             prop.preOpeningCosts + prop.operatingReserve;
     if (prop.type === "Financed") {
       const propertyValue = prop.purchasePrice + prop.buildingImprovements;
@@ -3183,77 +3054,16 @@ function InvestmentAnalysis({
     return total;
   };
 
-  // === SINGLE ENGINE ARCHITECTURE (CFI/ICAEW best practice: "Build it and Link it") ===
-  // All debt service, depreciation, and tax values come from the monthly engine
-  // (financialEngine.ts). No parallel recalculation. Yearly values = sum of monthly engine data.
-
-  const getPropertyExitValue = (prop: any, propIndex: number) => {
-    const { financials } = allPropertyFinancials[propIndex];
-    const lastYearData = financials.slice((projectionYears - 1) * 12, projectionYears * 12);
-    const lastYearNOI = lastYearData.reduce((a: number, m: any) => a + m.noi, 0);
-    const capRate = prop.exitCapRate ?? DEFAULT_EXIT_CAP_RATE;
-    const grossValue = lastYearNOI / capRate;
-    const commissionRate = global.commissionRate ?? DEFAULT_COMMISSION_RATE;
-    const netValue = grossValue - (grossValue * commissionRate);
-    const lastMonth = financials[financials.length - 1];
-    const outstandingDebt = lastMonth ? lastMonth.debtOutstanding : 0;
-    return netValue - outstandingDebt;
+  // Aggregator-based helpers: read from precomputed allPropertyYearlyCF
+  const getPropertyExitValue = (propIndex: number): number => {
+    const yearly = allPropertyYearlyCF[propIndex];
+    return yearly?.[projectionYears - 1]?.exitValue ?? 0;
   };
 
-  const getPropertyRefinanceProceeds = (prop: any, propIndex: number) => {
-    const { financials } = allPropertyFinancials[propIndex];
-    for (let i = 0; i < financials.length; i++) {
-      if (financials[i].refinancingProceeds > 0) {
-        return { year: Math.floor(i / 12), proceeds: financials[i].refinancingProceeds };
-      }
-    }
-    return { year: -1, proceeds: 0 };
-  };
-
-  // Engine-based yearly details: aggregates directly from monthly pro forma data
-  const getPropertyYearlyDetails = (prop: any, propIndex: number, yearIndex: number) => {
-    const { financials } = allPropertyFinancials[propIndex];
-    const yearData = financials.slice(yearIndex * 12, (yearIndex + 1) * 12);
-    const noi = yearData.reduce((a: number, m: any) => a + m.noi, 0);
-    const interestExpense = yearData.reduce((a: number, m: any) => a + m.interestExpense, 0);
-    const principalPortion = yearData.reduce((a: number, m: any) => a + m.principalPayment, 0);
-    const debtService = yearData.reduce((a: number, m: any) => a + m.debtPayment, 0);
-    const depreciation = yearData.reduce((a: number, m: any) => a + m.depreciationExpense, 0);
-    const incomeTax = yearData.reduce((a: number, m: any) => a + m.incomeTax, 0);
-    const btcf = noi - debtService;
-    const taxableIncome = noi - interestExpense - depreciation;
-    const atcf = btcf - incomeTax;
-
-    return {
-      noi,
-      debtService,
-      interestPortion: interestExpense,
-      principalPortion,
-      depreciation,
-      btcf,
-      taxableIncome,
-      taxLiability: incomeTax,
-      atcf
-    };
-  };
-
-  const getPropertyCashFlows = (prop: any, propIndex: number): number[] => {
-    const flows: number[] = [];
-    const initialEquity = -getPropertyInvestment(prop);
-    flows.push(initialEquity);
-    const refi = getPropertyRefinanceProceeds(prop, propIndex);
-    for (let y = 0; y < projectionYears; y++) {
-      const details = getPropertyYearlyDetails(prop, propIndex, y);
-      let yearCashFlow = details.atcf;
-      if (y === refi.year) {
-        yearCashFlow += refi.proceeds;
-      }
-      if (y === projectionYears - 1) {
-        yearCashFlow += getPropertyExitValue(prop, propIndex);
-      }
-      flows.push(yearCashFlow);
-    }
-    return flows;
+  const getPropertyCashFlows = (propIndex: number): number[] => {
+    const yearly = allPropertyYearlyCF[propIndex];
+    if (!yearly) return [];
+    return yearly.map(r => r.netCashFlowToInvestors);
   };
 
   const getConsolidatedYearlyDetails = (yearIndex: number) => {
@@ -3267,17 +3077,18 @@ function InvestmentAnalysis({
     let totalTaxLiability = 0;
     let totalATCF = 0;
 
-    properties.forEach((prop, idx) => {
-      const details = getPropertyYearlyDetails(prop, idx, yearIndex);
-      totalNOI += details.noi;
-      totalDebtService += details.debtService;
-      totalInterest += details.interestPortion;
-      totalPrincipal += details.principalPortion;
-      totalDepreciation += details.depreciation;
-      totalBTCF += details.btcf;
-      totalTaxableIncome += details.taxableIncome;
-      totalTaxLiability += details.taxLiability;
-      totalATCF += details.atcf;
+    allPropertyYearlyCF.forEach(propYearly => {
+      const yr = propYearly[yearIndex];
+      if (!yr) return;
+      totalNOI += yr.noi;
+      totalDebtService += yr.debtService;
+      totalInterest += yr.interestExpense;
+      totalPrincipal += yr.principalPayment;
+      totalDepreciation += yr.depreciation;
+      totalBTCF += yr.btcf;
+      totalTaxableIncome += yr.taxableIncome;
+      totalTaxLiability += yr.taxLiability;
+      totalATCF += yr.atcf;
     });
 
     return {
@@ -3293,53 +3104,24 @@ function InvestmentAnalysis({
     };
   };
 
-  const getConsolidatedCashFlows = (): number[] => {
-    const flows: number[] = [];
-    const year0Investment = getEquityInvestmentForYear(0);
-    flows.push(-year0Investment);
-    
-    for (let y = 0; y < projectionYears; y++) {
-      const consolidated = getConsolidatedYearlyDetails(y);
-      let yearCashFlow = consolidated.atcf;
-      
-      const yearInvestment = getEquityInvestmentForYear(y + 1);
-      if (yearInvestment > 0) yearCashFlow -= yearInvestment;
-      
-      properties.forEach((prop, idx) => {
-        const refi = getPropertyRefinanceProceeds(prop, idx);
-        if (y === refi.year) {
-          yearCashFlow += refi.proceeds;
-        }
-        
-        if (y === projectionYears - 1) {
-          yearCashFlow += getPropertyExitValue(prop, idx);
-        }
-      });
-      
-      flows.push(yearCashFlow);
-    }
-    return flows;
-  };
-
-  const consolidatedFlowsIA = getConsolidatedCashFlows();
+  const consolidatedFlowsIA = Array.from({ length: projectionYears }, (_, y) =>
+    allPropertyYearlyCF.reduce((sum, propYearly) => sum + (propYearly[y]?.netCashFlowToInvestors ?? 0), 0)
+  );
   const portfolioIRRIA = calculateIRR(consolidatedFlowsIA);
-  
-  const totalInitialEquityIA = properties.reduce((sum, prop) => sum + getPropertyInvestment(prop), 0);
-  const totalExitValueIA = properties.reduce((sum, prop, idx) => sum + getPropertyExitValue(prop, idx), 0);
 
-  const totalCashReturnedIA = consolidatedFlowsIA.slice(1).reduce((sum, cf) => sum + cf, 0);
+  const totalInitialEquityIA = properties.reduce((sum, prop) => sum + getPropertyInvestment(prop), 0);
+  const totalExitValueIA = allPropertyYearlyCF.reduce(
+    (sum, yearly) => sum + (yearly[projectionYears - 1]?.exitValue ?? 0), 0
+  );
+
+  const totalCashReturnedIA = consolidatedFlowsIA.reduce((sum, cf) => sum + cf, 0);
   const midProjectionEquityIA = Array.from({ length: projectionYears }, (_, y) => getEquityInvestmentForYear(y + 1))
     .reduce((sum, eq) => sum + eq, 0);
   const equityMultipleIA = totalInitialEquityIA > 0 ? (totalCashReturnedIA + midProjectionEquityIA) / totalInitialEquityIA : 0;
-  
-  const operatingCashFlowsIA = consolidatedFlowsIA.slice(1).map((cf, idx) => {
-    let exitValue = 0;
-    let yearInvestmentIA = getEquityInvestmentForYear(idx + 1);
-    if (idx === projectionYears - 1) {
-      exitValue = properties.reduce((sum, prop, propIdx) => sum + getPropertyExitValue(prop, propIdx), 0);
-    }
-    return cf - exitValue + yearInvestmentIA;
-  });
+
+  const operatingCashFlowsIA = Array.from({ length: projectionYears }, (_, y) =>
+    allPropertyYearlyCF.reduce((sum, propYearly) => sum + (propYearly[y]?.atcf ?? 0), 0)
+  );
   const avgAnnualCashFlowIA = operatingCashFlowsIA.reduce((sum, cf) => sum + cf, 0) / projectionYears;
   const cashOnCashIA = totalInitialEquityIA > 0 ? (avgAnnualCashFlowIA / totalInitialEquityIA) * 100 : 0;
 
@@ -3618,10 +3400,11 @@ function InvestmentAnalysis({
                       </TableCell>
                       <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
-                        const details = getPropertyYearlyDetails(prop, idx, y);
+                        const yr = allPropertyYearlyCF[idx]?.[y];
+                        const atcf = yr?.atcf ?? 0;
                         return (
-                          <TableCell key={y} className={`text-right text-sm ${details.atcf < 0 ? 'text-destructive' : 'text-muted-foreground'}`}>
-                            {formatMoney(details.atcf)}
+                          <TableCell key={y} className={`text-right text-sm ${atcf < 0 ? 'text-destructive' : 'text-muted-foreground'}`}>
+                            {formatMoney(atcf)}
                           </TableCell>
                         );
                       })}
@@ -3644,11 +3427,9 @@ function InvestmentAnalysis({
                 </TableCell>
                 <TableCell className="text-right text-muted-foreground">-</TableCell>
                 {Array.from({ length: projectionYears }, (_, y) => {
-                  let totalRefi = 0;
-                  properties.forEach((prop, idx) => {
-                    const refi = getPropertyRefinanceProceeds(prop, idx);
-                    if (y === refi.year) totalRefi += refi.proceeds;
-                  });
+                  const totalRefi = allPropertyYearlyCF.reduce(
+                    (sum, propYearly) => sum + (propYearly[y]?.refinancingProceeds ?? 0), 0
+                  );
                   return (
                     <TableCell key={y} className={`text-right ${totalRefi > 0 ? 'text-accent font-medium' : 'text-muted-foreground'}`}>
                       {totalRefi > 0 ? formatMoney(totalRefi) : '-'}
@@ -3658,16 +3439,19 @@ function InvestmentAnalysis({
               </TableRow>
               {expandedRows.has('fcfRefi') && properties.filter(p => p.willRefinance === "Yes").map((prop, idx) => {
                 const propIdx = properties.findIndex(p => p.id === prop.id);
-                const refi = getPropertyRefinanceProceeds(prop, propIdx);
+                const propYearly = allPropertyYearlyCF[propIdx];
                 return (
                   <TableRow key={prop.id} className="bg-muted/10">
                     <TableCell className="sticky left-0 bg-muted/10 pl-8 text-sm text-muted-foreground">{prop.name}</TableCell>
                     <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
-                    {Array.from({ length: projectionYears }, (_, y) => (
-                      <TableCell key={y} className={`text-right text-sm ${y === refi.year ? 'text-accent' : 'text-muted-foreground'}`}>
-                        {y === refi.year ? formatMoney(refi.proceeds) : '-'}
-                      </TableCell>
-                    ))}
+                    {Array.from({ length: projectionYears }, (_, y) => {
+                      const refiAmt = propYearly?.[y]?.refinancingProceeds ?? 0;
+                      return (
+                        <TableCell key={y} className={`text-right text-sm ${refiAmt > 0 ? 'text-accent' : 'text-muted-foreground'}`}>
+                          {refiAmt > 0 ? formatMoney(refiAmt) : '-'}
+                        </TableCell>
+                      );
+                    })}
                   </TableRow>
                 );
               })}
@@ -3700,7 +3484,7 @@ function InvestmentAnalysis({
                   <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
                   {Array.from({ length: projectionYears }, (_, y) => (
                     <TableCell key={y} className={`text-right text-sm ${y === projectionYears - 1 ? 'text-accent' : 'text-muted-foreground'}`}>
-                      {y === projectionYears - 1 ? formatMoney(getPropertyExitValue(prop, idx)) : '-'}
+                      {y === projectionYears - 1 ? formatMoney(getPropertyExitValue(idx)) : '-'}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -3771,8 +3555,8 @@ function InvestmentAnalysis({
             <TableBody>
               {properties.map((prop, idx) => {
                 const equity = getPropertyInvestment(prop);
-                const exitValue = getPropertyExitValue(prop, idx);
-                const cashFlows = getPropertyCashFlows(prop, idx);
+                const exitValue = getPropertyExitValue(idx);
+                const cashFlows = getPropertyCashFlows(idx);
                 const irr = calculateIRR(cashFlows);
                 const totalDistributions = cashFlows.slice(1).reduce((a, b) => a + b, 0);
                 const equityMultiple = totalDistributions / equity;

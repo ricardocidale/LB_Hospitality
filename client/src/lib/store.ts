@@ -1,4 +1,21 @@
 import { create } from "zustand";
+import {
+  DEFAULT_INTEREST_RATE,
+  DEFAULT_TERM_YEARS,
+  DEFAULT_LTV,
+  DEFAULT_REFI_LTV,
+  DEFAULT_REFI_CLOSING_COST_RATE,
+  DEFAULT_ACQ_CLOSING_COST_RATE,
+  DEFAULT_STAFF_SALARY,
+  DEFAULT_OFFICE_LEASE,
+  DEFAULT_PROFESSIONAL_SERVICES,
+  DEFAULT_TECH_INFRA,
+  DEFAULT_BUSINESS_INSURANCE,
+  DEFAULT_TRAVEL_PER_CLIENT,
+  DEFAULT_IT_LICENSE_PER_CLIENT,
+  DEFAULT_MARKETING_RATE,
+  DEFAULT_MISC_OPS_RATE,
+} from './constants';
 
 // --- GLOBAL ASSUMPTIONS ---
 export interface GlobalAssumptions {
@@ -97,15 +114,15 @@ const INITIAL_GLOBAL: GlobalAssumptions = {
   baseManagementFee: 0.04,
   incentiveManagementFee: 0.10,
   partnerSalary: 150000,
-  staffSalary: 75000,
-  travelCostPerClient: 12000,
-  itLicensePerClient: 3000,
-  marketingRate: 0.05,
-  miscOpsRate: 0.03,
-  officeLeaseStart: 36000,
-  professionalServicesStart: 24000,
-  techInfraStart: 18000,
-  businessInsuranceStart: 12000,
+  staffSalary: DEFAULT_STAFF_SALARY,
+  travelCostPerClient: DEFAULT_TRAVEL_PER_CLIENT,
+  itLicensePerClient: DEFAULT_IT_LICENSE_PER_CLIENT,
+  marketingRate: DEFAULT_MARKETING_RATE,
+  miscOpsRate: DEFAULT_MISC_OPS_RATE,
+  officeLeaseStart: DEFAULT_OFFICE_LEASE,
+  professionalServicesStart: DEFAULT_PROFESSIONAL_SERVICES,
+  techInfraStart: DEFAULT_TECH_INFRA,
+  businessInsuranceStart: DEFAULT_BUSINESS_INSURANCE,
   standardAcqPackage: {
     purchasePrice: 2300000,
     buildingImprovements: 800000,
@@ -114,12 +131,12 @@ const INITIAL_GLOBAL: GlobalAssumptions = {
     monthsToOps: 6
   },
   debtAssumptions: {
-    interestRate: 0.09,
-    amortizationYears: 25,
-    refiLTV: 0.75,
-    refiClosingCostRate: 0.03,
-    acqLTV: 0.75,
-    acqClosingCostRate: 0.02
+    interestRate: DEFAULT_INTEREST_RATE,
+    amortizationYears: DEFAULT_TERM_YEARS,
+    refiLTV: DEFAULT_REFI_LTV,
+    refiClosingCostRate: DEFAULT_REFI_CLOSING_COST_RATE,
+    acqLTV: DEFAULT_LTV,
+    acqClosingCostRate: DEFAULT_ACQ_CLOSING_COST_RATE
   }
 };
 

@@ -304,128 +304,147 @@ export default function Company() {
   };
 
   const generateCompanyCashFlowData = () => {
-    const rows: { category: string; values: number[]; isHeader?: boolean; indent?: number }[] = [];
-    
-    rows.push({ category: "Cash Inflows", values: years.map((_, y) => {
-      const yearData = financials.slice(y * 12, (y + 1) * 12);
-      return yearData.reduce((a, m) => a + m.totalRevenue + m.safeFunding, 0);
-    }), isHeader: true });
-    
-    rows.push({ category: "Management Fee Revenue", values: years.map((_, y) => {
+    const rows: { category: string; values: number[]; isHeader?: boolean; isSubtotal?: boolean; indent?: number }[] = [];
+
+    // === Cash Flow from Operating Activities ===
+    rows.push({ category: "Cash Flow from Operating Activities", values: years.map(() => 0), isHeader: true });
+
+    rows.push({ category: "Cash Received from Management Fees", values: years.map((_, y) => {
       const yearData = financials.slice(y * 12, (y + 1) * 12);
       return yearData.reduce((a, m) => a + m.totalRevenue, 0);
     }), indent: 1 });
-    
+
     rows.push({ category: "Base Management Fees", values: years.map((_, y) => {
       const yearData = financials.slice(y * 12, (y + 1) * 12);
       return yearData.reduce((a, m) => a + m.baseFeeRevenue, 0);
     }), indent: 2 });
-    
+
     properties.forEach((prop, idx) => {
       rows.push({ category: prop.name, values: years.map((_, y) => getPropertyYearlyBaseFee(idx, y)), indent: 3 });
     });
-    
+
     rows.push({ category: "Incentive Fees", values: years.map((_, y) => {
       const yearData = financials.slice(y * 12, (y + 1) * 12);
       return yearData.reduce((a, m) => a + m.incentiveFeeRevenue, 0);
     }), indent: 2 });
-    
+
     properties.forEach((prop, idx) => {
       rows.push({ category: prop.name, values: years.map((_, y) => getPropertyYearlyIncentiveFee(idx, y)), indent: 3 });
     });
-    
-    rows.push({ category: "SAFE Funding", values: years.map((_, y) => {
+
+    rows.push({ category: "Cash Paid for Operating Expenses", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return -yearData.reduce((a, m) => a + m.totalExpenses, 0);
+    }), indent: 1 });
+
+    rows.push({ category: "Compensation", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return -yearData.reduce((a, m) => a + m.partnerCompensation + m.staffCompensation, 0);
+    }), indent: 2 });
+
+    rows.push({ category: "Partner Compensation", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return -yearData.reduce((a, m) => a + m.partnerCompensation, 0);
+    }), indent: 3 });
+
+    rows.push({ category: "Staff Compensation", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return -yearData.reduce((a, m) => a + m.staffCompensation, 0);
+    }), indent: 3 });
+
+    rows.push({ category: "Fixed Overhead", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return -yearData.reduce((a, m) => a + m.officeLease + m.professionalServices + m.techInfrastructure + m.businessInsurance, 0);
+    }), indent: 2 });
+
+    rows.push({ category: "Office Lease", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return -yearData.reduce((a, m) => a + m.officeLease, 0);
+    }), indent: 3 });
+
+    rows.push({ category: "Professional Services", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return -yearData.reduce((a, m) => a + m.professionalServices, 0);
+    }), indent: 3 });
+
+    rows.push({ category: "Insurance", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return -yearData.reduce((a, m) => a + m.businessInsurance, 0);
+    }), indent: 3 });
+
+    rows.push({ category: "Variable Costs", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return -yearData.reduce((a, m) => a + m.travelCosts + m.itLicensing + m.marketing + m.miscOps, 0);
+    }), indent: 2 });
+
+    rows.push({ category: "Travel", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return -yearData.reduce((a, m) => a + m.travelCosts, 0);
+    }), indent: 3 });
+
+    rows.push({ category: "IT Licensing", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return -yearData.reduce((a, m) => a + m.itLicensing, 0);
+    }), indent: 3 });
+
+    rows.push({ category: "Marketing", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return -yearData.reduce((a, m) => a + m.marketing, 0);
+    }), indent: 3 });
+
+    rows.push({ category: "Misc Operations", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return -yearData.reduce((a, m) => a + m.miscOps, 0);
+    }), indent: 3 });
+
+    rows.push({ category: "Net Cash from Operating Activities", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return yearData.reduce((a, m) => a + m.netIncome, 0);
+    }), isSubtotal: true });
+
+    // === Cash Flow from Financing Activities ===
+    rows.push({ category: "Cash Flow from Financing Activities", values: years.map(() => 0), isHeader: true });
+
+    rows.push({ category: "SAFE Funding Received", values: years.map((_, y) => {
       const yearData = financials.slice(y * 12, (y + 1) * 12);
       return yearData.reduce((a, m) => a + m.safeFunding, 0);
     }), indent: 1 });
-    
+
     rows.push({ category: "SAFE Tranche 1", values: years.map((_, y) => {
       const yearData = financials.slice(y * 12, (y + 1) * 12);
       return yearData.reduce((a, m) => a + m.safeFunding1, 0);
     }), indent: 2 });
-    
+
     rows.push({ category: "SAFE Tranche 2", values: years.map((_, y) => {
       const yearData = financials.slice(y * 12, (y + 1) * 12);
       return yearData.reduce((a, m) => a + m.safeFunding2, 0);
     }), indent: 2 });
-    
-    rows.push({ category: "Cash Outflows", values: years.map((_, y) => {
+
+    rows.push({ category: "Net Cash from Financing Activities", values: years.map((_, y) => {
       const yearData = financials.slice(y * 12, (y + 1) * 12);
-      return -yearData.reduce((a, m) => a + m.totalExpenses, 0);
-    }), isHeader: true });
-    
-    rows.push({ category: "Compensation", values: years.map((_, y) => {
-      const yearData = financials.slice(y * 12, (y + 1) * 12);
-      return -yearData.reduce((a, m) => a + m.partnerCompensation + m.staffCompensation, 0);
-    }), indent: 1 });
-    
-    rows.push({ category: "Partner Compensation", values: years.map((_, y) => {
-      const yearData = financials.slice(y * 12, (y + 1) * 12);
-      return -yearData.reduce((a, m) => a + m.partnerCompensation, 0);
-    }), indent: 2 });
-    
-    rows.push({ category: "Staff Compensation", values: years.map((_, y) => {
-      const yearData = financials.slice(y * 12, (y + 1) * 12);
-      return -yearData.reduce((a, m) => a + m.staffCompensation, 0);
-    }), indent: 2 });
-    
-    rows.push({ category: "Fixed Overhead", values: years.map((_, y) => {
-      const yearData = financials.slice(y * 12, (y + 1) * 12);
-      return -yearData.reduce((a, m) => a + m.officeLease + m.professionalServices + m.techInfrastructure + m.businessInsurance, 0);
-    }), indent: 1 });
-    
-    rows.push({ category: "Office Lease", values: years.map((_, y) => {
-      const yearData = financials.slice(y * 12, (y + 1) * 12);
-      return -yearData.reduce((a, m) => a + m.officeLease, 0);
-    }), indent: 2 });
-    
-    rows.push({ category: "Professional Services", values: years.map((_, y) => {
-      const yearData = financials.slice(y * 12, (y + 1) * 12);
-      return -yearData.reduce((a, m) => a + m.professionalServices, 0);
-    }), indent: 2 });
-    
-    rows.push({ category: "Insurance", values: years.map((_, y) => {
-      const yearData = financials.slice(y * 12, (y + 1) * 12);
-      return -yearData.reduce((a, m) => a + m.businessInsurance, 0);
-    }), indent: 2 });
-    
-    rows.push({ category: "Variable Costs", values: years.map((_, y) => {
-      const yearData = financials.slice(y * 12, (y + 1) * 12);
-      return -yearData.reduce((a, m) => a + m.travelCosts + m.itLicensing + m.marketing + m.miscOps, 0);
-    }), indent: 1 });
-    
-    rows.push({ category: "Travel", values: years.map((_, y) => {
-      const yearData = financials.slice(y * 12, (y + 1) * 12);
-      return -yearData.reduce((a, m) => a + m.travelCosts, 0);
-    }), indent: 2 });
-    
-    rows.push({ category: "IT Licensing", values: years.map((_, y) => {
-      const yearData = financials.slice(y * 12, (y + 1) * 12);
-      return -yearData.reduce((a, m) => a + m.itLicensing, 0);
-    }), indent: 2 });
-    
-    rows.push({ category: "Marketing", values: years.map((_, y) => {
-      const yearData = financials.slice(y * 12, (y + 1) * 12);
-      return -yearData.reduce((a, m) => a + m.marketing, 0);
-    }), indent: 2 });
-    
-    rows.push({ category: "Misc Operations", values: years.map((_, y) => {
-      const yearData = financials.slice(y * 12, (y + 1) * 12);
-      return -yearData.reduce((a, m) => a + m.miscOps, 0);
-    }), indent: 2 });
-    
-    rows.push({ category: "Net Cash Flow", values: years.map((_, y) => {
+      return yearData.reduce((a, m) => a + m.safeFunding, 0);
+    }), isSubtotal: true });
+
+    // === Net Change & Balances ===
+    rows.push({ category: "Net Increase (Decrease) in Cash", values: years.map((_, y) => {
       const yearData = financials.slice(y * 12, (y + 1) * 12);
       return yearData.reduce((a, m) => a + m.netIncome + m.safeFunding, 0);
     }), isHeader: true });
-    
+
     let cumCash = 0;
-    rows.push({ category: "Ending Cash Balance", values: years.map((_, y) => {
+    const openingCash = years.map((_, y) => {
+      if (y === 0) return 0;
+      const prevYearData = financials.slice(0, y * 12);
+      return prevYearData.reduce((a, m) => a + m.netIncome + m.safeFunding, 0);
+    });
+    rows.push({ category: "Opening Cash Balance", values: openingCash, indent: 0 });
+
+    rows.push({ category: "Closing Cash Balance", values: years.map((_, y) => {
       const yearData = financials.slice(y * 12, (y + 1) * 12);
       cumCash += yearData.reduce((a, m) => a + m.netIncome + m.safeFunding, 0);
       return cumCash;
     }), isHeader: true });
-    
+
     return { years, rows };
   };
 

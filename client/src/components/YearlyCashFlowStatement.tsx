@@ -355,16 +355,16 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
   return (
     <TableShell
       title="Cash Flow Statement"
-      subtitle="Operating, investing, and financing cash flows with balance tie-out"
+      subtitle="Statement of Cash Flows — ASC 230 Indirect Method"
       columns={columns}
       stickyLabel="Cash Flow Statement"
       banner={banner}
     >
       {/* ── Operating Cash Flow ── */}
       <SectionHeader
-        label="Operating Cash Flow"
+        label="Cash Flow from Operating Activities"
         colSpan={colSpan}
-        tooltip="Cash generated from day-to-day property operations. Shows actual cash received from guests and paid to vendors/staff."
+        tooltip="Cash generated from day-to-day property operations (ASC 230). Shows actual cash received from guests and paid to vendors/staff."
       />
 
       <ExpandableLineItem
@@ -428,18 +428,18 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
       />
 
       <SubtotalRow
-        label="Cash from Operations"
+        label="Net Cash from Operating Activities"
         values={cashFromOperations}
-        tooltip="Total cash generated from property operations = Revenue - Operating Expenses - Interest - Taxes."
+        tooltip="Total cash generated from property operations = Revenue - Operating Expenses - Interest - Taxes (ASC 230)."
       />
 
       <SpacerRow colSpan={colSpan} />
 
       {/* ── Investing Cash Flow ── */}
       <SectionHeader
-        label="Investing Cash Flow"
+        label="Cash Flow from Investing Activities"
         colSpan={colSpan}
-        tooltip="Cash spent on property acquisition, renovation, and capital improvements."
+        tooltip="Cash spent on property acquisition, renovation, and capital improvements (ASC 230)."
       />
 
       <LineItem
@@ -463,18 +463,18 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
       />
 
       <SubtotalRow
-        label="Cash from Investing"
+        label="Net Cash from Investing Activities"
         values={cashFromInvesting}
-        tooltip="Net cash from investing = -(Acquisition + FF&E) + Sale Proceeds."
+        tooltip="Net cash from investing activities = -(Acquisition + FF&E) + Sale Proceeds (ASC 230)."
       />
 
       <SpacerRow colSpan={colSpan} />
 
       {/* ── Financing Cash Flow ── */}
       <SectionHeader
-        label="Financing Cash Flow"
+        label="Cash Flow from Financing Activities"
         colSpan={colSpan}
-        tooltip="Cash from equity contributions, debt financing, and capital returns."
+        tooltip="Cash from equity contributions, debt financing, and capital returns (ASC 230)."
       />
 
       <LineItem
@@ -503,9 +503,9 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
       />
 
       <SubtotalRow
-        label="Cash from Financing"
+        label="Net Cash from Financing Activities"
         values={cashFromFinancing}
-        tooltip="Net cash from financing = Equity + Loan Proceeds - Principal + Refinancing."
+        tooltip="Net cash from financing activities = Equity + Loan Proceeds - Principal + Refinancing (ASC 230)."
       />
 
       <SpacerRow colSpan={colSpan} />
@@ -514,7 +514,7 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
       <GrandTotalRow
         label="Net Increase (Decrease) in Cash"
         values={netChangeCash}
-        tooltip="CFO + CFI + CFF = Net change in cash position for the year."
+        tooltip="Operating + Investing + Financing = Net change in cash per ASC 230."
       />
 
       <LineItem label="Opening Cash Balance" values={openingCash} showZero />
@@ -536,7 +536,7 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
         tooltip="Cash from Operations minus capital expenditures. Shows cash available before debt repayment."
       />
 
-      <LineItem label="Cash from Operations" values={cashFromOperations} showZero />
+      <LineItem label="Net Cash from Operating Activities" values={cashFromOperations} showZero />
 
       <LineItem
         label="Less: Capital Expenditures (FF&E)"
@@ -550,7 +550,7 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
         values={fcfValues}
         positive
         bgColor="rgba(37, 125, 65, 0.08)"
-        tooltip="FCF = Cash from Operations - Capital Expenditures. Cash available to service debt and distribute to investors."
+        tooltip="FCF = Net Cash from Operating Activities - Capital Expenditures. Cash available to service debt and distribute to investors."
       />
 
       <LineItem

@@ -26,6 +26,11 @@ import {
   DEFAULT_OCCUPANCY_RAMP_MONTHS,
 } from "@shared/constants";
 
+// INTENTIONALLY LOCAL — these loan defaults are redeclared here (not imported from
+// @shared/constants or client constants) to preserve verification independence.
+// The server-side checker must not share code with the client engine it verifies.
+// If canonical values change in shared/constants.ts, update these to match.
+// Canonical source: client/src/lib/constants.ts (DEFAULT_LTV, DEFAULT_INTEREST_RATE, DEFAULT_TERM_YEARS)
 const PROJECTION_YEARS = 10;
 const DEFAULT_LTV = 0.75;
 const DEFAULT_INTEREST_RATE = 0.09;

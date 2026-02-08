@@ -207,7 +207,7 @@ function buildCashFlowData(
     const atcf = btcf - taxLiability;
 
     const exitCapRate = property.exitCapRate ?? global?.exitCapRate ?? DEFAULT_EXIT_CAP_RATE;
-    const commissionRate = global?.commissionRate ?? (global as any)?.salesCommissionRate ?? DEFAULT_COMMISSION_RATE;
+    const commissionRate = global?.salesCommissionRate ?? global?.commissionRate ?? DEFAULT_COMMISSION_RATE;
     const isLastYear = y === years - 1;
     let exitValue = 0;
     if (isLastYear && exitCapRate > 0) {

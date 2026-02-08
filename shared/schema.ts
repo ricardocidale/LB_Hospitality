@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import { pgTable, text, varchar, real, integer, timestamp, jsonb, boolean, index, serial, unique, check } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
+import { DEFAULT_SAFE_VALUATION_CAP, DEFAULT_SAFE_DISCOUNT_RATE } from "./constants";
 
 // --- USERS TABLE ---
 export const users = pgTable("users", {
@@ -66,8 +67,8 @@ export const globalAssumptions = pgTable("global_assumptions", {
   safeTranche1Date: text("safe_tranche1_date").notNull().default("2026-06-01"),
   safeTranche2Amount: real("safe_tranche2_amount").notNull().default(800000),
   safeTranche2Date: text("safe_tranche2_date").notNull().default("2027-04-01"),
-  safeValuationCap: real("safe_valuation_cap").notNull().default(2500000),
-  safeDiscountRate: real("safe_discount_rate").notNull().default(0.20),
+  safeValuationCap: real("safe_valuation_cap").notNull().default(DEFAULT_SAFE_VALUATION_CAP),
+  safeDiscountRate: real("safe_discount_rate").notNull().default(DEFAULT_SAFE_DISCOUNT_RATE),
   
   // Cost variables - Compensation (yearly partner compensation and count)
   partnerCompYear1: real("partner_comp_year1").notNull().default(540000),

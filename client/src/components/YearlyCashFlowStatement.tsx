@@ -26,7 +26,7 @@ import {
   YearlyCashFlowResult,
   DEFAULT_COMMISSION_RATE
 } from "@/lib/loanCalculations";
-import { OPERATING_RESERVE_BUFFER, RESERVE_ROUNDING_INCREMENT } from "@/lib/constants";
+import { OPERATING_RESERVE_BUFFER, RESERVE_ROUNDING_INCREMENT, DEFAULT_EXIT_CAP_RATE } from "@/lib/constants";
 
 interface YearlyDetails {
   soldRooms: number;
@@ -205,8 +205,8 @@ function aggregateCashFlowByYear(
     const atcf = btcf - taxLiability;
 
     // Capital events (exit only in final year)
-    const exitCapRate = property.exitCapRate ?? global?.exitCapRate ?? 0.085;
-    const commissionRate = global?.commissionRate ?? global?.salesCommissionRate ?? DEFAULT_COMMISSION_RATE;
+    const exitCapRate = property.exitCapRate ?? global?.exitCapRate ?? DEFAULT_EXIT_CAP_RATE;
+    const commissionRate = global?.salesCommissionRate ?? global?.commissionRate ?? DEFAULT_COMMISSION_RATE;
     const isLastYear = y === years - 1;
     const lastYearNOI = noi;
     let exitValue = 0;

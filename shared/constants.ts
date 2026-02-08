@@ -45,3 +45,7 @@ export const DAYS_PER_MONTH = 30.5;
 
 // Default occupancy ramp period (months between growth steps)
 export const DEFAULT_OCCUPANCY_RAMP_MONTHS = 6;
+
+// SAFE funding agreement defaults
+export const DEFAULT_SAFE_VALUATION_CAP = 2500000;
+export const DEFAULT_SAFE_DISCOUNT_RATE = 0.20;

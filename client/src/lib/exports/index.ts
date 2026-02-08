@@ -16,6 +16,8 @@ export {
   captureChartAsImage,
 } from "./pngExport";
 
+export { downloadCSV } from "./csvExport";
+
 export {
   exportPortfolioPPTX,
   exportPropertyPPTX,

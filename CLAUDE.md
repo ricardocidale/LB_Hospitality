@@ -40,8 +40,10 @@ domain/types/                  # Shared domain types (accounting policy, roundin
 calc/shared/                   # Shared math: PMT formula, schedule builder, common types
 calc/financing/                # Standalone acquisition debt calculator (Skill 1)
 calc/refinance/                # Standalone refinance calculator (Skill 2)
+calc/funding/                  # Standalone funding & tranche engine (Skill 3)
 tests/financing/               # Vitest tests for calc/financing/
 tests/refinance/               # Vitest tests for calc/refinance/
+tests/funding/                 # Vitest tests for calc/funding/
 ```
 
 ### Feature Modules (`client/src/features/`)
@@ -113,6 +115,8 @@ Standalone, GAAP-compliant calculator modules per `skills/finance/FINANCE_SKILL_
 | Financing Tests | `tests/financing/` | 34 tests: sizing, closing costs, golden scenario, IO-then-amort, journal hooks, validation |
 | Refinance Calculator | `calc/refinance/` | Skill 2: payoff, LTV/DSCR sizing, IO-to-amort schedules, journal hooks, proceeds breakdown |
 | Refinance Tests | `tests/refinance/` | 58 tests: unit, golden scenario, schedule reconciliation, flag determinism |
+| Funding Engine | `calc/funding/` | Skill 3: equity funding events, SAFE tranches, activation gates, equity roll-forward, journal hooks |
+| Funding Tests | `tests/funding/` | 40 tests: timeline resolution, gate enforcement, equity roll-forward reconciliation, golden scenario |
 
 These modules are isolated from the existing `client/src/lib/financialEngine.ts` engine. They do not import from or modify any existing application code.
 

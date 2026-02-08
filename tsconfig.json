@@ -1,5 +1,5 @@
 {
-  "include": ["client/src/**/*", "shared/**/*", "server/**/*", "calc/**/*", "domain/**/*"],
+  "include": ["client/src/**/*", "shared/**/*", "server/**/*", "calc/**/*", "domain/**/*", "engine/**/*", "statements/**/*"],
   "exclude": ["node_modules", "build", "dist", "**/*.test.ts"],
   "compilerOptions": {
     "incremental": true,
@@ -19,7 +19,9 @@
       "@/*": ["./client/src/*"],
       "@shared/*": ["./shared/*"],
       "@calc/*": ["./calc/*"],
-      "@domain/*": ["./domain/*"]
+      "@domain/*": ["./domain/*"],
+      "@engine/*": ["./engine/*"],
+      "@statements/*": ["./statements/*"]
     }
   }
 }

@@ -31,7 +31,15 @@
       "Bash(git rm:*)",
       "Bash(git reset:*)",
       "Bash(git -C /home/runner/workspace status:*)",
-      "Bash(git -C /home/runner/workspace log --oneline -5)"
+      "Bash(git -C /home/runner/workspace log --oneline -5)",
+      "Bash(git -C /home/runner/workspace log --oneline -1)",
+      "Bash(git -C /home/runner/workspace diff --stat origin/main..HEAD)",
+      "Bash(git -C /home/runner/workspace push origin main)",
+      "Bash(git -C /home/runner/workspace diff)",
+      "Bash(git -C /home/runner/workspace log --oneline -3)",
+      "Bash(git -C /home/runner/workspace add statements/balance-sheet.ts statements/cash-flow.ts statements/event-applier.ts statements/index.ts statements/reconcile.ts statements/types.ts)",
+      "Bash(git -C /home/runner/workspace add statements/)",
+      "Bash(git -C /home/runner/workspace diff --cached --stat)"
     ]
   }
 }

@@ -28,7 +28,7 @@ export function buildTrialBalance(
   }
 
   const result: TrialBalanceEntry[] = [];
-  for (const [account, totals] of byAccount) {
+  for (const [account, totals] of Array.from(byAccount.entries())) {
     const acctDef = getAccount(account);
     const normalSide = acctDef?.normal_side ?? "DEBIT";
     const balance =
@@ -73,7 +73,7 @@ export function buildCumulativeTrialBalance(
   }
 
   const result: TrialBalanceEntry[] = [];
-  for (const [account, totals] of byAccount) {
+  for (const [account, totals] of Array.from(byAccount.entries())) {
     const acctDef = getAccount(account);
     const normalSide = acctDef?.normal_side ?? "DEBIT";
     const balance =

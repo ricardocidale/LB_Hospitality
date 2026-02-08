@@ -9,6 +9,8 @@ export default defineConfig({
     alias: {
       "@calc": path.resolve(__dirname, "calc"),
       "@domain": path.resolve(__dirname, "domain"),
+      "@engine": path.resolve(__dirname, "engine"),
+      "@statements": path.resolve(__dirname, "statements"),
     },
   },
 });

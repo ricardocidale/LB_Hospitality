@@ -7,12 +7,11 @@ import {
   getAcquisitionYear,
   YearlyCashFlowResult,
   DEFAULT_LTV,
-  DEFAULT_COMMISSION_RATE,
 } from "../loanCalculations";
 import {
   PROJECTION_YEARS,
-  DEFAULT_EXIT_CAP_RATE,
 } from "../constants";
+import { aggregateCashFlowByYear } from "../cashFlowAggregator";
 
 function downloadWorkbook(wb: XLSX.WorkBook, filename: string) {
   XLSX.writeFile(wb, filename);
@@ -174,82 +173,6 @@ function aggregateByYear(
   return result;
 }
 
-function buildCashFlowData(
-  data: MonthlyFinancials[],
-  property: LoanParams,
-  global: GlobalLoanParams | undefined,
-  years: number
-): YearlyCashFlowResult[] {
-  const loan = calculateLoanParams(property, global);
-  const acquisitionYear = getAcquisitionYear(loan);
-  const results: YearlyCashFlowResult[] = [];
-  let cumulative = 0;
-
-  for (let y = 0; y < years; y++) {
-    const yearData = data.slice(y * 12, (y + 1) * 12);
-    const noi = yearData.reduce((a, m) => a + m.noi, 0);
-    const interestExpense = yearData.reduce((a, m) => a + m.interestExpense, 0);
-    const principalPayment = yearData.reduce((a, m) => a + m.principalPayment, 0);
-    const debtService = yearData.reduce((a, m) => a + m.debtPayment, 0);
-    const depreciationExpense = yearData.reduce((a, m) => a + m.depreciationExpense, 0);
-    const taxLiability = yearData.reduce((a, m) => a + m.incomeTax, 0);
-    const netIncome = yearData.reduce((a, m) => a + m.netIncome, 0);
-    const refiProceeds = yearData.reduce((a, m) => a + m.refinancingProceeds, 0);
-    const expenseFFE = yearData.reduce((a, m) => a + m.expenseFFE, 0);
-
-    const operatingCashFlow = netIncome + depreciationExpense;
-    const workingCapitalChange = 0;
-    const cashFromOperations = operatingCashFlow + workingCapitalChange;
-    const freeCashFlow = cashFromOperations - expenseFFE;
-    const freeCashFlowToEquity = freeCashFlow - principalPayment;
-    const btcf = noi - debtService;
-    const taxableIncome = noi - interestExpense - depreciationExpense;
-    const atcf = btcf - taxLiability;
-
-    const exitCapRate = property.exitCapRate ?? global?.exitCapRate ?? DEFAULT_EXIT_CAP_RATE;
-    const commissionRate = global?.salesCommissionRate ?? global?.commissionRate ?? DEFAULT_COMMISSION_RATE;
-    const isLastYear = y === years - 1;
-    let exitValue = 0;
-    if (isLastYear && exitCapRate > 0) {
-      const grossValue = noi / exitCapRate;
-      const commission = grossValue * commissionRate;
-      const outstandingDebt = yearData.length > 0 ? yearData[yearData.length - 1].debtOutstanding : 0;
-      exitValue = grossValue - commission - outstandingDebt;
-    }
-
-    const capitalExpenditures = y === acquisitionYear ? loan.equityInvested : 0;
-    const netCashFlowToInvestors = atcf + refiProceeds + (isLastYear ? exitValue : 0) - (y === acquisitionYear ? loan.equityInvested : 0);
-    cumulative += netCashFlowToInvestors;
-
-    results.push({
-      year: y,
-      noi,
-      interestExpense,
-      depreciation: depreciationExpense,
-      netIncome,
-      taxLiability,
-      operatingCashFlow,
-      workingCapitalChange,
-      cashFromOperations,
-      maintenanceCapex: expenseFFE,
-      freeCashFlow,
-      principalPayment,
-      debtService,
-      freeCashFlowToEquity,
-      btcf,
-      taxableIncome,
-      atcf,
-      capitalExpenditures,
-      refinancingProceeds: refiProceeds,
-      exitValue,
-      netCashFlowToInvestors,
-      cumulativeCashFlow: cumulative,
-    });
-  }
-
-  return results;
-}
-
 export function exportPropertyIncomeStatement(
   data: MonthlyFinancials[],
   propertyName: string,
@@ -326,7 +249,7 @@ export function exportPropertyCashFlow(
   fiscalYearStartMonth: number
 ) {
   const yearly = aggregateByYear(data, years, modelStartDate, fiscalYearStartMonth);
-  const cfData = buildCashFlowData(data, property, global, years);
+  const cfData = aggregateCashFlowByYear(data, property, global, years);
   const loan = calculateLoanParams(property, global);
   const acquisitionYear = getAcquisitionYear(loan);
   const totalPropertyCost = (property as any).purchasePrice + ((property as any).buildingImprovements ?? 0) + ((property as any).preOpeningCosts ?? 0);
@@ -860,7 +783,7 @@ export function exportFullPropertyWorkbook(
   propertyIndex: number
 ) {
   const yearly = aggregateByYear(data, years, modelStartDate, fiscalYearStartMonth);
-  const cfData = buildCashFlowData(data, property, global, years);
+  const cfData = aggregateCashFlowByYear(data, property, global, years);
   const loan = calculateLoanParams(property, global);
   const acquisitionYear = getAcquisitionYear(loan);
   const totalPropertyCost = (property as any).purchasePrice + ((property as any).buildingImprovements ?? 0) + ((property as any).preOpeningCosts ?? 0);

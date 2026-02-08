@@ -24,9 +24,9 @@ import {
   calculateLoanParams,
   getAcquisitionYear,
   YearlyCashFlowResult,
-  DEFAULT_COMMISSION_RATE
 } from "@/lib/loanCalculations";
-import { OPERATING_RESERVE_BUFFER, RESERVE_ROUNDING_INCREMENT, DEFAULT_EXIT_CAP_RATE } from "@/lib/constants";
+import { OPERATING_RESERVE_BUFFER, RESERVE_ROUNDING_INCREMENT, DEFAULT_COMMISSION_RATE } from "@/lib/constants";
+import { aggregateCashFlowByYear } from "@/lib/cashFlowAggregator";
 
 interface YearlyDetails {
   soldRooms: number;
@@ -168,86 +168,6 @@ interface Props {
   years?: number;
   startYear?: number;
   defaultLTV?: number;
-}
-
-// F-4 fix: Aggregate cash flow data directly from monthly engine instead of recalculating
-// via loanCalculations.ts. This ensures IS, CF, and BS all use the same debt path (including refinance).
-function aggregateCashFlowByYear(
-  data: MonthlyFinancials[],
-  property: LoanParams,
-  global: GlobalLoanParams | undefined,
-  years: number
-): YearlyCashFlowResult[] {
-  const loan = calculateLoanParams(property, global);
-  const acquisitionYear = getAcquisitionYear(loan);
-  const results: YearlyCashFlowResult[] = [];
-  let cumulative = 0;
-
-  for (let y = 0; y < years; y++) {
-    const yearData = data.slice(y * 12, (y + 1) * 12);
-    const noi = yearData.reduce((a, m) => a + m.noi, 0);
-    const interestExpense = yearData.reduce((a, m) => a + m.interestExpense, 0);
-    const principalPayment = yearData.reduce((a, m) => a + m.principalPayment, 0);
-    const debtService = yearData.reduce((a, m) => a + m.debtPayment, 0);
-    const depreciationExpense = yearData.reduce((a, m) => a + m.depreciationExpense, 0);
-    const taxLiability = yearData.reduce((a, m) => a + m.incomeTax, 0);
-    const netIncome = yearData.reduce((a, m) => a + m.netIncome, 0);
-    const refiProceeds = yearData.reduce((a, m) => a + m.refinancingProceeds, 0);
-    const expenseFFE = yearData.reduce((a, m) => a + m.expenseFFE, 0);
-
-    const operatingCashFlow = netIncome + depreciationExpense;
-    const workingCapitalChange = 0;
-    const cashFromOperations = operatingCashFlow + workingCapitalChange;
-    const freeCashFlow = cashFromOperations - expenseFFE;
-    const freeCashFlowToEquity = freeCashFlow - principalPayment;
-    const btcf = noi - debtService;
-    const taxableIncome = noi - interestExpense - depreciationExpense;
-    const atcf = btcf - taxLiability;
-
-    // Capital events (exit only in final year)
-    const exitCapRate = property.exitCapRate ?? global?.exitCapRate ?? DEFAULT_EXIT_CAP_RATE;
-    const commissionRate = global?.salesCommissionRate ?? global?.commissionRate ?? DEFAULT_COMMISSION_RATE;
-    const isLastYear = y === years - 1;
-    const lastYearNOI = noi;
-    let exitValue = 0;
-    if (isLastYear && exitCapRate > 0) {
-      const grossValue = lastYearNOI / exitCapRate;
-      const commission = grossValue * commissionRate;
-      const outstandingDebt = yearData.length > 0 ? yearData[yearData.length - 1].debtOutstanding : 0;
-      exitValue = grossValue - commission - outstandingDebt;
-    }
-
-    const capitalExpenditures = y === acquisitionYear ? loan.equityInvested : 0;
-    const netCashFlowToInvestors = atcf + refiProceeds + (isLastYear ? exitValue : 0) - (y === acquisitionYear ? loan.equityInvested : 0);
-    cumulative += netCashFlowToInvestors;
-
-    results.push({
-      year: y,
-      noi,
-      interestExpense,
-      depreciation: depreciationExpense,
-      netIncome,
-      taxLiability,
-      operatingCashFlow,
-      workingCapitalChange,
-      cashFromOperations,
-      maintenanceCapex: expenseFFE,
-      freeCashFlow,
-      principalPayment,
-      debtService,
-      freeCashFlowToEquity,
-      btcf,
-      taxableIncome,
-      atcf,
-      capitalExpenditures,
-      refinancingProceeds: refiProceeds,
-      exitValue,
-      netCashFlowToInvestors,
-      cumulativeCashFlow: cumulative,
-    });
-  }
-
-  return results;
 }
 
 export function YearlyCashFlowStatement({ data, property, global, years = 10, startYear = 2026 }: Props) {

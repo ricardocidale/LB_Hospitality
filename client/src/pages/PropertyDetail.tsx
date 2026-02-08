@@ -26,7 +26,8 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { drawLineChart } from "@/lib/pdfChartDrawer";
-import { calculateLoanParams, calculatePropertyYearlyCashFlows, LoanParams, GlobalLoanParams, DEFAULT_LTV, PROJECTION_YEARS } from "@/lib/loanCalculations";
+import { calculateLoanParams, LoanParams, GlobalLoanParams, DEFAULT_LTV, PROJECTION_YEARS } from "@/lib/loanCalculations";
+import { aggregateCashFlowByYear } from "@/lib/cashFlowAggregator";
 import { PropertyPhotoUpload } from "@/components/PropertyPhotoUpload";
 import { useQueryClient } from "@tanstack/react-query";
 import { ExportDialog } from "@/components/ExportDialog";
@@ -82,12 +83,7 @@ export default function PropertyDetail() {
 
   const cashFlowDataMemo = useMemo(() => {
     if (!property || !global || financials.length === 0) return [];
-    const yearlyNOIData = [];
-    for (let y = 0; y < years; y++) {
-      const yearData = financials.slice(y * 12, (y + 1) * 12);
-      yearlyNOIData.push(yearData.reduce((a, m) => a + m.noi, 0));
-    }
-    return calculatePropertyYearlyCashFlows(yearlyNOIData, property as LoanParams, global as GlobalLoanParams, years);
+    return aggregateCashFlowByYear(financials, property as LoanParams, global as GlobalLoanParams, years);
   }, [financials, property, global, years]);
 
   if (propertyLoading || globalLoading) {

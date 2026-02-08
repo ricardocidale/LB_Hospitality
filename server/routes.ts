@@ -152,26 +152,32 @@ export async function registerRoutes(
 
       const user = await storage.getUserByEmail("admin");
       if (!user) {
+        recordLoginAttempt(clientIp, false);
         return res.status(401).json({ error: "Admin user not found" });
       }
-      
-      const adminPassword = process.env.ADMIN_PASSWORD;
-      if (!adminPassword) {
-        return res.status(401).json({ error: "Admin password not configured" });
+
+      // Validate password from request body against stored hash
+      const { password } = req.body || {};
+      if (!password) {
+        recordLoginAttempt(clientIp, false);
+        return res.status(401).json({ error: "Password required" });
       }
-      
-      const isValid = await verifyPassword(adminPassword, user.passwordHash);
+
+      const isValid = await verifyPassword(password, user.passwordHash);
       if (!isValid) {
+        recordLoginAttempt(clientIp, false);
         return res.status(401).json({ error: "Invalid admin credentials" });
       }
-      
+
+      recordLoginAttempt(clientIp, true);
+
       const sessionId = generateSessionId();
       const expiresAt = getSessionExpiryDate();
       await storage.createSession(user.id, sessionId, expiresAt);
       await storage.createLoginLog(user.id, sessionId, clientIp);
       setSessionCookie(res, sessionId);
-      
-      res.json({ 
+
+      res.json({
         user: { id: user.id, email: user.email, name: user.name, company: user.company, title: user.title, role: user.role }
       });
     } catch (error) {

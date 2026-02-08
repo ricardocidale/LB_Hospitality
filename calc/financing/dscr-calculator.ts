@@ -31,12 +31,18 @@ export interface DSCROutput {
   binding_constraint: "dscr" | "ltv" | "none";
   /** Final max loan (min of DSCR and LTV) */
   max_loan_binding: number;
-  /** Annual debt service at max DSCR loan */
-  annual_debt_service: number;
-  /** Monthly debt service at max DSCR loan */
-  monthly_debt_service: number;
-  /** Actual DSCR at the binding loan amount */
+  /** Annual debt service during amortizing period (peak DS) */
+  annual_debt_service_amortizing: number;
+  /** Annual debt service during IO period (if applicable) */
+  annual_debt_service_io: number | null;
+  /** Monthly amortizing payment at max DSCR loan */
+  monthly_payment_amortizing: number;
+  /** Monthly IO payment at max DSCR loan (if applicable) */
+  monthly_payment_io: number | null;
+  /** Actual DSCR at the binding loan amount (based on amortizing DS) */
   actual_dscr: number;
+  /** DSCR during IO period at binding loan amount */
+  io_dscr: number | null;
   /** Implied LTV at binding loan amount (if purchase_price provided) */
   implied_ltv: number | null;
 }
@@ -44,27 +50,32 @@ export interface DSCROutput {
 /**
  * Compute the maximum supportable loan amount based on a minimum DSCR threshold.
  *
- * DSCR = NOI / Annual Debt Service
+ * DSCR sizing uses the AMORTIZING payment (peak debt service) to ensure
+ * the loan passes DSCR even after the IO period ends. This is standard
+ * commercial lending practice — lenders size to worst-case DS.
+ *
+ * DSCR = NOI / Annual Debt Service (amortizing)
  * Max Annual DS = NOI / min_dscr
  * Max Monthly DS = Max Annual DS / 12
  *
- * Then reverse-solve PMT formula for principal:
+ * Reverse-solve PMT formula for principal:
  *   P = PMT * ((1+r)^n - 1) / (r * (1+r)^n)
  *
- * During IO periods, DS = balance * monthly_rate * 12, so:
- *   Max Loan (IO) = NOI / (min_dscr * annual_rate)
+ * For IO-only loans (io_months >= term_months):
+ *   Max Loan = NOI / (min_dscr * annual_rate)
  */
 export function computeDSCR(input: DSCRInput): DSCROutput {
   const r = (v: number) => roundTo(v, input.rounding_policy);
   const monthlyRate = input.interest_rate_annual / 12;
   const ioMonths = input.io_months ?? 0;
+  const isFullIO = ioMonths >= input.term_months;
 
   const maxAnnualDS = r(input.noi_annual / input.min_dscr);
   const maxMonthlyDS = r(maxAnnualDS / 12);
 
   let maxLoanDSCR: number;
 
-  if (ioMonths > 0 && ioMonths >= input.term_months) {
+  if (isFullIO) {
     maxLoanDSCR = monthlyRate > 0
       ? r(maxMonthlyDS / monthlyRate)
       : 0;
@@ -94,14 +105,23 @@ export function computeDSCR(input: DSCRInput): DSCROutput {
     maxLoanBinding = maxLoanDSCR;
   }
 
-  const monthlyDS = ioMonths > 0 && ioMonths >= input.term_months
-    ? r(maxLoanBinding * monthlyRate)
-    : r(pmt(maxLoanBinding, monthlyRate, input.amortization_months));
-
-  const annualDS = r(monthlyDS * 12);
-  const actualDSCR = annualDS > 0
-    ? roundTo(input.noi_annual / annualDS, { precision: 4, bankers_rounding: false })
+  const monthlyAmort = r(pmt(maxLoanBinding, monthlyRate, input.amortization_months));
+  const annualAmort = r(monthlyAmort * 12);
+  const actualDSCR = annualAmort > 0
+    ? roundTo(input.noi_annual / annualAmort, { precision: 4, bankers_rounding: false })
     : 0;
+
+  let monthlyIO: number | null = null;
+  let annualIO: number | null = null;
+  let ioDSCR: number | null = null;
+
+  if (ioMonths > 0) {
+    monthlyIO = r(maxLoanBinding * monthlyRate);
+    annualIO = r(monthlyIO * 12);
+    ioDSCR = annualIO > 0
+      ? roundTo(input.noi_annual / annualIO, { precision: 4, bankers_rounding: false })
+      : null;
+  }
 
   const impliedLTV = input.purchase_price
     ? roundTo(maxLoanBinding / input.purchase_price, { precision: 4, bankers_rounding: false })
@@ -112,9 +132,12 @@ export function computeDSCR(input: DSCRInput): DSCROutput {
     max_loan_ltv: maxLoanLTV,
     binding_constraint: bindingConstraint,
     max_loan_binding: maxLoanBinding,
-    annual_debt_service: annualDS,
-    monthly_debt_service: monthlyDS,
+    annual_debt_service_amortizing: isFullIO ? (annualIO ?? 0) : annualAmort,
+    annual_debt_service_io: annualIO,
+    monthly_payment_amortizing: isFullIO ? (monthlyIO ?? 0) : monthlyAmort,
+    monthly_payment_io: monthlyIO,
     actual_dscr: actualDSCR,
+    io_dscr: ioDSCR,
     implied_ltv: impliedLTV,
   };
 }

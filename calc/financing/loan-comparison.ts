@@ -18,8 +18,14 @@ export interface LoanScenarioResult {
   loan_to_value: number | null;
   equity_required: number;
   closing_costs_total: number;
-  monthly_payment_initial: number;
-  annual_debt_service_initial: number;
+  /** Monthly payment during IO period (null if no IO) */
+  monthly_payment_io: number | null;
+  /** Monthly payment during amortizing period */
+  monthly_payment_amortizing: number;
+  /** Annual debt service during IO period (null if no IO) */
+  annual_ds_io: number | null;
+  /** Annual debt service during amortizing period (peak DS) */
+  annual_ds_amortizing: number;
   total_interest_paid: number;
   total_principal_paid: number;
   total_payments: number;
@@ -27,8 +33,10 @@ export interface LoanScenarioResult {
   has_io_period: boolean;
   /** Months of IO */
   io_months: number;
-  /** DSCR if NOI provided */
-  dscr: number | null;
+  /** DSCR based on amortizing DS (worst-case) */
+  dscr_amortizing: number | null;
+  /** DSCR based on IO DS */
+  dscr_io: number | null;
   /** Debt yield if NOI provided */
   debt_yield: number | null;
   /** Balloon payment at maturity (0 if fully amortized) */
@@ -52,9 +60,9 @@ export interface LoanComparisonOutput {
   lowest_equity_label: string;
   /** Which scenario has lowest total interest */
   lowest_interest_label: string;
-  /** Which scenario has lowest monthly payment */
-  lowest_payment_label: string;
-  /** Which scenario has best DSCR (if NOI provided) */
+  /** Which scenario has lowest amortizing payment */
+  lowest_amort_payment_label: string;
+  /** Which scenario has best amortizing DSCR (if NOI provided) */
   best_dscr_label: string | null;
 }
 
@@ -62,7 +70,8 @@ export interface LoanComparisonOutput {
  * Compare multiple financing structures side-by-side.
  *
  * Runs each scenario through the full financing calculator and
- * produces normalized comparison metrics.
+ * produces normalized comparison metrics. Reports both IO and
+ * amortizing payments separately for accurate comparison.
  */
 export function compareLoanScenarios(scenarios: LoanScenario[]): LoanComparisonOutput {
   if (scenarios.length < 2) {
@@ -74,21 +83,31 @@ export function compareLoanScenarios(scenarios: LoanScenario[]): LoanComparisonO
     const schedule = output.debt_service_schedule;
     const rounding = scenario.input.rounding_policy;
     const r = (v: number) => roundTo(v, rounding);
+    const pctRound = (v: number) => roundTo(v, { precision: 4, bankers_rounding: false });
 
     const totalInterest = r(schedule.reduce((sum, e) => sum + e.interest, 0));
     const totalPrincipal = r(schedule.reduce((sum, e) => sum + e.principal, 0));
     const totalPayments = r(schedule.reduce((sum, e) => sum + e.payment, 0));
 
-    const firstEntry = schedule[0];
     const lastEntry = schedule[schedule.length - 1];
-    const monthlyPaymentInitial = firstEntry ? firstEntry.payment : 0;
-    const annualDSInitial = r(monthlyPaymentInitial * 12);
     const balloon = lastEntry ? lastEntry.ending_balance : 0;
 
-    const ioMonths = schedule.filter(e => e.is_io).length;
+    const ioEntries = schedule.filter(e => e.is_io);
+    const amortEntries = schedule.filter(e => !e.is_io);
+    const ioMonths = ioEntries.length;
 
-    const dscr = scenario.noi_annual && annualDSInitial > 0
-      ? roundTo(scenario.noi_annual / annualDSInitial, { precision: 4, bankers_rounding: false })
+    const monthlyIO = ioMonths > 0 ? ioEntries[0].payment : null;
+    const monthlyAmort = amortEntries.length > 0 ? amortEntries[0].payment : (monthlyIO ?? 0);
+
+    const annualIO = monthlyIO !== null ? r(monthlyIO * 12) : null;
+    const annualAmort = r(monthlyAmort * 12);
+
+    const dscrAmort = scenario.noi_annual && annualAmort > 0
+      ? pctRound(scenario.noi_annual / annualAmort)
+      : null;
+
+    const dscrIO = scenario.noi_annual && annualIO !== null && annualIO > 0
+      ? pctRound(scenario.noi_annual / annualIO)
       : null;
 
     const debtYield = scenario.noi_annual && output.loan_amount_gross > 0
@@ -96,7 +115,7 @@ export function compareLoanScenarios(scenarios: LoanScenario[]): LoanComparisonO
       : null;
 
     const ltv = scenario.input.purchase_price > 0
-      ? roundTo(output.loan_amount_gross / scenario.input.purchase_price, { precision: 4, bankers_rounding: false })
+      ? pctRound(output.loan_amount_gross / scenario.input.purchase_price)
       : null;
 
     return {
@@ -105,14 +124,17 @@ export function compareLoanScenarios(scenarios: LoanScenario[]): LoanComparisonO
       loan_to_value: ltv,
       equity_required: output.equity_required,
       closing_costs_total: output.closing_costs.total,
-      monthly_payment_initial: monthlyPaymentInitial,
-      annual_debt_service_initial: annualDSInitial,
+      monthly_payment_io: monthlyIO,
+      monthly_payment_amortizing: monthlyAmort,
+      annual_ds_io: annualIO,
+      annual_ds_amortizing: annualAmort,
       total_interest_paid: totalInterest,
       total_principal_paid: totalPrincipal,
       total_payments: totalPayments,
       has_io_period: ioMonths > 0,
       io_months: ioMonths,
-      dscr,
+      dscr_amortizing: dscrAmort,
+      dscr_io: dscrIO,
       debt_yield: debtYield,
       balloon_at_maturity: balloon,
       financing_output: output,
@@ -121,11 +143,12 @@ export function compareLoanScenarios(scenarios: LoanScenario[]): LoanComparisonO
 
   const lowestEquity = results.reduce((min, s) => s.equity_required < min.equity_required ? s : min);
   const lowestInterest = results.reduce((min, s) => s.total_interest_paid < min.total_interest_paid ? s : min);
-  const lowestPayment = results.reduce((min, s) => s.monthly_payment_initial < min.monthly_payment_initial ? s : min);
+  const lowestAmortPayment = results.reduce((min, s) =>
+    s.monthly_payment_amortizing < min.monthly_payment_amortizing ? s : min);
 
-  const dscrResults = results.filter(s => s.dscr !== null);
+  const dscrResults = results.filter(s => s.dscr_amortizing !== null);
   const bestDSCR = dscrResults.length > 0
-    ? dscrResults.reduce((best, s) => (s.dscr ?? 0) > (best.dscr ?? 0) ? s : best)
+    ? dscrResults.reduce((best, s) => (s.dscr_amortizing ?? 0) > (best.dscr_amortizing ?? 0) ? s : best)
     : null;
 
   const comparisonDeltas: LoanComparisonDelta[] = [
@@ -140,9 +163,17 @@ export function compareLoanScenarios(scenarios: LoanScenario[]): LoanComparisonO
       favors: lowestEquity.label,
     },
     {
-      field: "Monthly Payment (Initial)",
-      values: results.map(s => ({ label: s.label, value: s.monthly_payment_initial })),
-      favors: lowestPayment.label,
+      field: "Monthly Payment (Amortizing)",
+      values: results.map(s => ({ label: s.label, value: s.monthly_payment_amortizing })),
+      favors: lowestAmortPayment.label,
+    },
+    {
+      field: "Monthly Payment (IO)",
+      values: results.map(s => ({ label: s.label, value: s.monthly_payment_io })),
+      favors: results
+        .filter(s => s.monthly_payment_io !== null)
+        .reduce((min, s) => (s.monthly_payment_io ?? Infinity) < (min.monthly_payment_io ?? Infinity) ? s : min, results[0])
+        ?.label ?? "",
     },
     {
       field: "Total Interest Paid",
@@ -163,9 +194,17 @@ export function compareLoanScenarios(scenarios: LoanScenario[]): LoanComparisonO
 
   if (dscrResults.length > 0) {
     comparisonDeltas.push({
-      field: "DSCR",
-      values: results.map(s => ({ label: s.label, value: s.dscr })),
+      field: "DSCR (Amortizing)",
+      values: results.map(s => ({ label: s.label, value: s.dscr_amortizing })),
       favors: bestDSCR?.label ?? "",
+    });
+    comparisonDeltas.push({
+      field: "DSCR (IO)",
+      values: results.map(s => ({ label: s.label, value: s.dscr_io })),
+      favors: results
+        .filter(s => s.dscr_io !== null)
+        .reduce((best, s) => (s.dscr_io ?? 0) > (best.dscr_io ?? 0) ? s : best, results[0])
+        ?.label ?? "",
     });
     comparisonDeltas.push({
       field: "Debt Yield",
@@ -182,7 +221,7 @@ export function compareLoanScenarios(scenarios: LoanScenario[]): LoanComparisonO
     comparison_deltas: comparisonDeltas,
     lowest_equity_label: lowestEquity.label,
     lowest_interest_label: lowestInterest.label,
-    lowest_payment_label: lowestPayment.label,
+    lowest_amort_payment_label: lowestAmortPayment.label,
     best_dscr_label: bestDSCR?.label ?? null,
   };
 }

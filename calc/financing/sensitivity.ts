@@ -11,6 +11,8 @@ export interface SensitivityInput {
   interest_rate_annual: number;
   /** Amortization schedule length in months */
   amortization_months: number;
+  /** Total loan term in months */
+  term_months: number;
   /** Interest-only period in months (0 = fully amortizing) */
   io_months?: number;
   /** Rate variations to test as basis points (e.g. [-200, -100, 0, 100, 200]) */
@@ -31,18 +33,24 @@ export interface SensitivityCell {
   stressed_rate: number;
   /** Stressed NOI */
   stressed_noi: number;
-  /** Annual debt service at stressed rate */
-  annual_debt_service: number;
-  /** DSCR at this stress scenario */
-  dscr: number;
-  /** Whether DSCR meets minimum threshold */
+  /** Annual debt service during IO period (null if no IO) */
+  annual_ds_io: number | null;
+  /** Annual debt service during amortizing period (peak DS) */
+  annual_ds_amortizing: number;
+  /** DSCR during IO period (null if no IO) */
+  dscr_io: number | null;
+  /** DSCR during amortizing period (worst-case) */
+  dscr_amortizing: number;
+  /** Whether amortizing DSCR meets minimum threshold */
   passes: boolean;
 }
 
 export interface SensitivityOutput {
-  /** Base case DSCR (no shocks) */
+  /** Base case DSCR (amortizing, worst-case) */
   base_dscr: number;
-  /** Base annual debt service */
+  /** Base case IO DSCR (if applicable) */
+  base_dscr_io: number | null;
+  /** Base annual debt service (amortizing) */
   base_annual_ds: number;
   /** Full matrix of stress results */
   matrix: SensitivityCell[];
@@ -54,9 +62,9 @@ export interface SensitivityOutput {
   failing_scenarios: number;
   /** Total scenarios tested */
   total_scenarios: number;
-  /** Worst-case DSCR across all scenarios */
+  /** Worst-case DSCR across all scenarios (amortizing) */
   worst_dscr: number;
-  /** Best-case DSCR across all scenarios */
+  /** Best-case DSCR across all scenarios (amortizing) */
   best_dscr: number;
 }
 
@@ -66,23 +74,33 @@ export interface SensitivityOutput {
  * For each (rate_shock, noi_shock) combination:
  *   stressed_rate = base_rate + (shock_bps / 10_000)
  *   stressed_noi = base_noi * (1 + shock_pct / 100)
- *   DS computed via PMT at stressed rate
- *   DSCR = stressed_noi / DS
+ *
+ * DS is computed separately for IO and amortizing periods.
+ * Pass/fail is based on AMORTIZING DSCR (worst-case DS), consistent
+ * with standard commercial lending practice.
  */
 export function computeSensitivity(input: SensitivityInput): SensitivityOutput {
   const r = (v: number) => roundTo(v, input.rounding_policy);
   const dscr_round = (v: number) => roundTo(v, { precision: 4, bankers_rounding: false });
   const ioMonths = input.io_months ?? 0;
+  const isFullIO = ioMonths >= input.term_months;
   const minDSCR = input.min_dscr ?? 1.25;
 
-  const baseDS = computeAnnualDS(
+  const baseAmortDS = computeAmortizingAnnualDS(
     input.loan_amount,
     input.interest_rate_annual,
     input.amortization_months,
-    ioMonths,
     input.rounding_policy,
   );
+  const baseIODS = ioMonths > 0
+    ? computeIOAnnualDS(input.loan_amount, input.interest_rate_annual, input.rounding_policy)
+    : null;
+
+  const baseDS = isFullIO ? (baseIODS ?? 0) : baseAmortDS;
   const baseDSCR = baseDS > 0 ? dscr_round(input.noi_annual / baseDS) : 0;
+  const baseDSCRIO = baseIODS !== null && baseIODS > 0
+    ? dscr_round(input.noi_annual / baseIODS)
+    : null;
 
   const matrix: SensitivityCell[] = [];
   let worstDSCR = Infinity;
@@ -91,33 +109,40 @@ export function computeSensitivity(input: SensitivityInput): SensitivityOutput {
 
   for (const rateShock of input.rate_shocks_bps) {
     for (const noiShock of input.noi_shocks_pct) {
-      const stressedRate = input.interest_rate_annual + rateShock / 10_000;
+      const stressedRate = Math.max(0, input.interest_rate_annual + rateShock / 10_000);
       const stressedNOI = r(input.noi_annual * (1 + noiShock / 100));
 
-      const effectiveRate = Math.max(0.0001, stressedRate);
-
-      const annualDS = computeAnnualDS(
+      const amortDS = computeAmortizingAnnualDS(
         input.loan_amount,
-        effectiveRate,
+        stressedRate,
         input.amortization_months,
-        ioMonths,
         input.rounding_policy,
       );
 
-      const cellDSCR = annualDS > 0 ? dscr_round(stressedNOI / annualDS) : 0;
-      const passes = cellDSCR >= minDSCR;
+      let ioDS: number | null = null;
+      let dscrIO: number | null = null;
+      if (ioMonths > 0) {
+        ioDS = computeIOAnnualDS(input.loan_amount, stressedRate, input.rounding_policy);
+        dscrIO = ioDS > 0 ? dscr_round(stressedNOI / ioDS) : 0;
+      }
+
+      const peakDS = isFullIO ? (ioDS ?? 0) : amortDS;
+      const dscrAmort = peakDS > 0 ? dscr_round(stressedNOI / peakDS) : 0;
+      const passes = dscrAmort >= minDSCR;
       if (!passes) failCount++;
 
-      if (cellDSCR < worstDSCR) worstDSCR = cellDSCR;
-      if (cellDSCR > bestDSCR) bestDSCR = cellDSCR;
+      if (dscrAmort < worstDSCR) worstDSCR = dscrAmort;
+      if (dscrAmort > bestDSCR) bestDSCR = dscrAmort;
 
       matrix.push({
         rate_shock_bps: rateShock,
         noi_shock_pct: noiShock,
-        stressed_rate: roundTo(effectiveRate, { precision: 6, bankers_rounding: false }),
+        stressed_rate: roundTo(stressedRate, { precision: 6, bankers_rounding: false }),
         stressed_noi: stressedNOI,
-        annual_debt_service: annualDS,
-        dscr: cellDSCR,
+        annual_ds_io: ioDS,
+        annual_ds_amortizing: isFullIO ? (ioDS ?? 0) : amortDS,
+        dscr_io: dscrIO,
+        dscr_amortizing: dscrAmort,
         passes,
       });
     }
@@ -125,6 +150,7 @@ export function computeSensitivity(input: SensitivityInput): SensitivityOutput {
 
   return {
     base_dscr: baseDSCR,
+    base_dscr_io: baseDSCRIO,
     base_annual_ds: baseDS,
     matrix,
     rate_axis: [...input.rate_shocks_bps],
@@ -136,19 +162,22 @@ export function computeSensitivity(input: SensitivityInput): SensitivityOutput {
   };
 }
 
-function computeAnnualDS(
+function computeAmortizingAnnualDS(
   loanAmount: number,
   annualRate: number,
   amortMonths: number,
-  ioMonths: number,
   rounding: RoundingPolicy,
 ): number {
   const monthlyRate = annualRate / 12;
-  const r = (v: number) => roundTo(v, rounding);
+  const monthly = pmt(loanAmount, monthlyRate, amortMonths);
+  return roundTo(monthly * 12, rounding);
+}
 
-  if (ioMonths > 0) {
-    return r(ioPayment(loanAmount, monthlyRate) * 12);
-  }
-
-  return r(pmt(loanAmount, monthlyRate, amortMonths) * 12);
+function computeIOAnnualDS(
+  loanAmount: number,
+  annualRate: number,
+  rounding: RoundingPolicy,
+): number {
+  const monthlyRate = annualRate / 12;
+  return roundTo(ioPayment(loanAmount, monthlyRate) * 12, rounding);
 }

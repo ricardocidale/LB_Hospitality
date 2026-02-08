@@ -2392,5 +2392,101 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
+  // ──────────────────────────────────────────────────────
+  // FINANCING CALCULATOR API ENDPOINTS
+  // ──────────────────────────────────────────────────────
+
+  const defaultRounding = { precision: 2, bankers_rounding: false };
+
+  const dscrSchema = z.object({
+    noi_annual: z.number().positive(),
+    interest_rate_annual: z.number().min(0).max(1),
+    term_months: z.number().int().positive(),
+    amortization_months: z.number().int().positive(),
+    io_months: z.number().int().min(0).optional(),
+    min_dscr: z.number().positive(),
+    purchase_price: z.number().positive().optional(),
+    ltv_max: z.number().min(0).max(1).optional(),
+  });
+
+  app.post("/api/financing/dscr", requireAuth, async (req, res) => {
+    try {
+      const parsed = dscrSchema.safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ error: fromZodError(parsed.error).message });
+      const { computeDSCR } = await import("../calc/financing/dscr-calculator");
+      const result = computeDSCR({ ...parsed.data, rounding_policy: defaultRounding });
+      res.json(result);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  const debtYieldSchema = z.object({
+    noi_annual: z.number().positive(),
+    loan_amount: z.number().positive().optional(),
+    min_debt_yield: z.number().positive().optional(),
+    purchase_price: z.number().positive().optional(),
+    ltv_max: z.number().min(0).max(1).optional(),
+  });
+
+  app.post("/api/financing/debt-yield", requireAuth, async (req, res) => {
+    try {
+      const parsed = debtYieldSchema.safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ error: fromZodError(parsed.error).message });
+      const { computeDebtYield } = await import("../calc/financing/debt-yield");
+      const result = computeDebtYield({ ...parsed.data, rounding_policy: defaultRounding });
+      res.json(result);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  const sensitivitySchema = z.object({
+    noi_annual: z.number().positive(),
+    loan_amount: z.number().positive(),
+    interest_rate_annual: z.number().min(0).max(1),
+    amortization_months: z.number().int().positive(),
+    term_months: z.number().int().positive(),
+    io_months: z.number().int().min(0).optional(),
+    rate_shocks_bps: z.array(z.number()),
+    noi_shocks_pct: z.array(z.number()),
+    min_dscr: z.number().positive().optional(),
+  });
+
+  app.post("/api/financing/sensitivity", requireAuth, async (req, res) => {
+    try {
+      const parsed = sensitivitySchema.safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ error: fromZodError(parsed.error).message });
+      const { computeSensitivity } = await import("../calc/financing/sensitivity");
+      const result = computeSensitivity({ ...parsed.data, rounding_policy: defaultRounding });
+      res.json(result);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  const prepaymentSchema = z.object({
+    outstanding_balance: z.number().positive().optional(),
+    prepayment_month: z.number().int().min(0).optional(),
+    loan_rate_annual: z.number().min(0).max(1),
+    term_months: z.number().int().positive(),
+    prepayment_type: z.enum(["yield_maintenance", "step_down", "defeasance"]),
+    treasury_rate_annual: z.number().min(0).max(1).optional(),
+    step_down_schedule: z.array(z.number()).optional(),
+    defeasance_fee_pct: z.number().min(0).optional(),
+  });
+
+  app.post("/api/financing/prepayment", requireAuth, async (req, res) => {
+    try {
+      const parsed = prepaymentSchema.safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ error: fromZodError(parsed.error).message });
+      const { computePrepayment } = await import("../calc/financing/prepayment");
+      const result = computePrepayment({ ...parsed.data, rounding_policy: defaultRounding });
+      res.json(result);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   return httpServer;
 }

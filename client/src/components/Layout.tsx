@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Building2, Briefcase, Settings2, Menu, X, FileText, Shield, LogOut, UserCircle, FolderOpen, SearchCheck, BarChart3 } from "lucide-react";
+import { LayoutDashboard, Building2, Briefcase, Settings2, Menu, X, FileText, Shield, LogOut, UserCircle, FolderOpen, SearchCheck, BarChart3, Calculator } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
@@ -23,6 +23,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { type: "divider" as const },
     { href: "/property-finder", label: "Property Finder", icon: SearchCheck },
     { href: "/sensitivity", label: "Sensitivity Analysis", icon: BarChart3 },
+    { href: "/financing", label: "Financing Analysis", icon: Calculator },
     { type: "divider" as const },
     { href: "/settings", label: "Systemwide Assumptions", icon: Settings2 },
     { type: "divider" as const },

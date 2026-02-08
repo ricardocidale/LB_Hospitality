@@ -61,7 +61,7 @@ const global = {
   miscOpsRate: 0.03,
   safeTranche1Date: "2026-04-01",
   safeTranche1Amount: 1_000_000,
-  safeTranche2Date: null as string | null,
+  safeTranche2Date: undefined as string | undefined,
   safeTranche2Amount: 0,
   staffSalary: 75_000,
   staffTier1MaxProperties: 3,

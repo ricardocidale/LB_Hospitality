@@ -321,7 +321,7 @@ export default function Dashboard() {
     const lastYearNOI = lastYearData.reduce((a: number, m: any) => a + m.noi, 0);
     const capRate = prop.exitCapRate ?? DEFAULT_EXIT_CAP_RATE;
     const grossValue = lastYearNOI / capRate;
-    const commissionRate = global.commissionRate ?? global.salesCommissionRate ?? DEFAULT_COMMISSION_RATE;
+    const commissionRate = global.salesCommissionRate ?? global.commissionRate ?? DEFAULT_COMMISSION_RATE;
     const netValue = grossValue - (grossValue * commissionRate);
     const lastMonth = financials[financials.length - 1];
     const outstandingDebt = lastMonth ? lastMonth.debtOutstanding : 0;

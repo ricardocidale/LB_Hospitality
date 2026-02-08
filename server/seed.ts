@@ -22,9 +22,21 @@ import {
   DEFAULT_OTHER_EXPENSE_RATE,
   DEFAULT_UTILITIES_VARIABLE_SPLIT,
   DEFAULT_OCCUPANCY_RAMP_MONTHS,
+  DEFAULT_SAFE_VALUATION_CAP,
+  DEFAULT_SAFE_DISCOUNT_RATE,
 } from "@shared/constants";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcrypt";
+
+// Default debt assumptions for seed data (matches routes.ts SEED_DEBT_ASSUMPTIONS)
+const SEED_DEBT_ASSUMPTIONS = {
+  acqLTV: 0.75,
+  refiLTV: 0.75,
+  interestRate: 0.09,
+  amortizationYears: 25,
+  acqClosingCostRate: 0.02,
+  refiClosingCostRate: 0.03,
+} as const;
 
 async function seed() {
   const forceReseed = process.argv.includes("--force");
@@ -75,8 +87,8 @@ async function seed() {
     safeTranche1Date: "2026-06-01",
     safeTranche2Amount: 1000000,
     safeTranche2Date: "2027-04-01",
-    safeValuationCap: 2500000,
-    safeDiscountRate: 0.2,
+    safeValuationCap: DEFAULT_SAFE_VALUATION_CAP,
+    safeDiscountRate: DEFAULT_SAFE_DISCOUNT_RATE,
     partnerCompYear1: 540000,
     partnerCompYear2: 540000,
     partnerCompYear3: 540000,
@@ -114,14 +126,7 @@ async function seed() {
       operatingReserve: 200000,
       buildingImprovements: 800000,
     },
-    debtAssumptions: {
-      acqLTV: 0.75,
-      refiLTV: 0.75,
-      interestRate: 0.09,
-      amortizationYears: 25,
-      acqClosingCostRate: 0.02,
-      refiClosingCostRate: 0.03,
-    },
+    debtAssumptions: SEED_DEBT_ASSUMPTIONS,
     companyTaxRate: 0.3,
     companyName: "L+B Hospitality Company",
     exitCapRate: DEFAULT_EXIT_CAP_RATE,

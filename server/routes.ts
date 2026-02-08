@@ -32,8 +32,20 @@ import {
   DEFAULT_EVENT_EXPENSE_RATE,
   DEFAULT_OTHER_EXPENSE_RATE,
   DEFAULT_UTILITIES_VARIABLE_SPLIT,
+  DEFAULT_SAFE_VALUATION_CAP,
+  DEFAULT_SAFE_DISCOUNT_RATE,
 } from "@shared/constants";
 import { generateResearchWithToolsStream, loadSkill, buildUserPrompt, type ResearchParams } from "./aiResearch";
+
+// Default debt assumptions for seed endpoints (single definition, used by both admin and public seed)
+const SEED_DEBT_ASSUMPTIONS = {
+  acqLTV: 0.75,
+  refiLTV: 0.75,
+  interestRate: 0.09,
+  amortizationYears: 25,
+  acqClosingCostRate: 0.02,
+  refiClosingCostRate: 0.03,
+} as const;
 
 const loginSchema = z.object({
   email: z.string().min(1),
@@ -511,15 +523,15 @@ export async function registerRoutes(
           techInfraStart: 18000,
           businessInsuranceStart: 12000,
           standardAcqPackage: { monthsToOps: 6, purchasePrice: 2300000, preOpeningCosts: 150000, operatingReserve: 200000, buildingImprovements: 800000 },
-          debtAssumptions: { acqLTV: 0.75, refiLTV: 0.75, interestRate: 0.09, amortizationYears: 25, acqClosingCostRate: 0.02, refiClosingCostRate: 0.03 },
+          debtAssumptions: SEED_DEBT_ASSUMPTIONS,
           commissionRate: DEFAULT_COMMISSION_RATE,
           fixedCostEscalationRate: 0.03,
           safeTranche1Amount: 1000000,
           safeTranche1Date: "2026-06-01",
           safeTranche2Amount: 1000000,
           safeTranche2Date: "2027-04-01",
-          safeValuationCap: 2500000,
-          safeDiscountRate: 0.2,
+          safeValuationCap: DEFAULT_SAFE_VALUATION_CAP,
+          safeDiscountRate: DEFAULT_SAFE_DISCOUNT_RATE,
           companyTaxRate: 0.3,
           companyOpsStartDate: "2026-06-01",
           fiscalYearStartMonth: 1,
@@ -1255,14 +1267,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
           operatingReserve: 200000,
           buildingImprovements: 800000
         },
-        debtAssumptions: {
-          acqLTV: 0.75,
-          refiLTV: 0.75,
-          interestRate: 0.09,
-          amortizationYears: 25,
-          acqClosingCostRate: 0.02,
-          refiClosingCostRate: 0.03
-        },
+        debtAssumptions: SEED_DEBT_ASSUMPTIONS,
         commissionRate: DEFAULT_COMMISSION_RATE,
         fixedCostEscalationRate: 0.03,
         safeTranche1Amount: 1000000,

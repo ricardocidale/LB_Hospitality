@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback } from "react";
 import Layout from "@/components/Layout";
 import { useProperties, useGlobalAssumptions } from "@/lib/api";
 import { generatePropertyProForma, formatMoney, getFiscalYearForModelYear } from "@/lib/financialEngine";
-import { PROJECTION_YEARS, DEFAULT_EXIT_CAP_RATE, DEFAULT_TAX_RATE } from "@/lib/constants";
+import { PROJECTION_YEARS, DEFAULT_EXIT_CAP_RATE, DEFAULT_TAX_RATE, DEFAULT_COMMISSION_RATE } from "@/lib/constants";
 import { computeIRR } from "@analytics/returns/irr.js";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
@@ -158,7 +158,7 @@ export default function SensitivityAnalysis() {
           .slice(-12)
           .reduce((sum, m) => sum + m.noi, 0);
         const capRate = Math.max(0.01, (prop.exitCapRate ?? global.exitCapRate ?? DEFAULT_EXIT_CAP_RATE) + (overrides.exitCapRate ?? 0) / 100);
-        const commissionRate = global.salesCommissionRate ?? 0.02;
+        const commissionRate = global.salesCommissionRate ?? global.commissionRate ?? DEFAULT_COMMISSION_RATE;
         const grossExit = lastYearNOI / capRate;
         const netExit = grossExit * (1 - commissionRate);
         const debtAtExit = financials[financials.length - 1]?.debtOutstanding ?? 0;

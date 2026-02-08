@@ -50,18 +50,30 @@ function loadSkill(type: string): string {
   return readFileSync(skillPath, "utf-8");
 }
 
-// Load all tool definitions from .claude/tools/
+// Load all tool definitions from .claude/tools/ (recursively scans subfolders)
 function loadToolDefinitions(): Anthropic.Tool[] {
   const toolsDir = join(process.cwd(), ".claude", "tools");
-  const files = readdirSync(toolsDir).filter(f => f.endsWith(".json"));
-  return files.map(f => {
-    const content = JSON.parse(readFileSync(join(toolsDir, f), "utf-8"));
-    return {
-      name: content.name,
-      description: content.description,
-      input_schema: content.input_schema,
-    };
-  });
+  const tools: Anthropic.Tool[] = [];
+
+  function scanDir(dir: string) {
+    const entries = readdirSync(dir, { withFileTypes: true });
+    for (const entry of entries) {
+      const fullPath = join(dir, entry.name);
+      if (entry.isDirectory()) {
+        scanDir(fullPath);
+      } else if (entry.name.endsWith(".json")) {
+        const content = JSON.parse(readFileSync(fullPath, "utf-8"));
+        tools.push({
+          name: content.name,
+          description: content.description,
+          input_schema: content.input_schema,
+        });
+      }
+    }
+  }
+
+  scanDir(toolsDir);
+  return tools;
 }
 
 // Handle tool calls - returns contextual guidance for Claude

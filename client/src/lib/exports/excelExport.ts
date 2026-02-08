@@ -739,44 +739,52 @@ export function exportCompanyCashFlow(
   }
 
   let cumulative = 0;
-  const cumulatives = yearlyData.map((y) => {
+  const openingCash = yearlyData.map((_, i) => {
+    if (i === 0) return 0;
+    let cum = 0;
+    for (let j = 0; j < i; j++) cum += yearlyData[j].cashFlow;
+    return cum;
+  });
+  const closingCash = yearlyData.map((y) => {
     cumulative += y.cashFlow;
     return cumulative;
   });
 
-  const headers = ["Cash Flow Statement - Management Company", ...yearLabels];
+  const headers = ["Statement of Cash Flows - Management Company", ...yearLabels];
   const rows: (string | number)[][] = [
     headers,
     [],
-    ["CASH INFLOWS"],
-    ["  Management Fee Revenue", ...yearlyData.map((y) => y.totalRevenue)],
+    ["CASH FLOW FROM OPERATING ACTIVITIES"],
+    ["  Cash Received from Management Fees", ...yearlyData.map((y) => y.totalRevenue)],
     ["    Base Management Fees", ...yearlyData.map((y) => y.baseFee)],
     ["    Incentive Management Fees", ...yearlyData.map((y) => y.incentiveFee)],
-    ["  SAFE Funding", ...yearlyData.map((y) => y.safeFunding)],
-    ["Total Cash Inflows", ...yearlyData.map((y) => y.totalRevenue + y.safeFunding)],
+    ["  Cash Paid for Operating Expenses", ...yearlyData.map((y) => -y.totalExpenses)],
+    ["    Compensation", ...yearlyData.map((y) => -(y.partnerComp + y.staffComp))],
+    ["      Partner Compensation", ...yearlyData.map((y) => -y.partnerComp)],
+    ["      Staff Compensation", ...yearlyData.map((y) => -y.staffComp)],
+    ["    Fixed Overhead", ...yearlyData.map((y) => -(y.officeLease + y.profServices + y.techInfra + y.bizInsurance))],
+    ["      Office Lease", ...yearlyData.map((y) => -y.officeLease)],
+    ["      Professional Services", ...yearlyData.map((y) => -y.profServices)],
+    ["      Technology Infrastructure", ...yearlyData.map((y) => -y.techInfra)],
+    ["      Business Insurance", ...yearlyData.map((y) => -y.bizInsurance)],
+    ["    Variable Costs", ...yearlyData.map((y) => -(y.travel + y.itLicensing + y.marketing + y.miscOps))],
+    ["      Travel Costs", ...yearlyData.map((y) => -y.travel)],
+    ["      IT Licensing", ...yearlyData.map((y) => -y.itLicensing)],
+    ["      Marketing", ...yearlyData.map((y) => -y.marketing)],
+    ["      Miscellaneous Operations", ...yearlyData.map((y) => -y.miscOps)],
+    ["Net Cash from Operating Activities", ...yearlyData.map((y) => y.totalRevenue - y.totalExpenses)],
     [],
-    ["CASH OUTFLOWS"],
-    ["  Compensation", ...yearlyData.map((y) => y.partnerComp + y.staffComp)],
-    ["    Partner Compensation", ...yearlyData.map((y) => y.partnerComp)],
-    ["    Staff Compensation", ...yearlyData.map((y) => y.staffComp)],
-    ["  Fixed Overhead", ...yearlyData.map((y) => y.officeLease + y.profServices + y.techInfra + y.bizInsurance)],
-    ["    Office Lease", ...yearlyData.map((y) => y.officeLease)],
-    ["    Professional Services", ...yearlyData.map((y) => y.profServices)],
-    ["    Technology Infrastructure", ...yearlyData.map((y) => y.techInfra)],
-    ["    Business Insurance", ...yearlyData.map((y) => y.bizInsurance)],
-    ["  Variable Costs", ...yearlyData.map((y) => y.travel + y.itLicensing + y.marketing + y.miscOps)],
-    ["    Travel Costs", ...yearlyData.map((y) => y.travel)],
-    ["    IT Licensing", ...yearlyData.map((y) => y.itLicensing)],
-    ["    Marketing", ...yearlyData.map((y) => y.marketing)],
-    ["    Miscellaneous Operations", ...yearlyData.map((y) => y.miscOps)],
-    ["Total Cash Outflows", ...yearlyData.map((y) => y.totalExpenses)],
+    ["CASH FLOW FROM FINANCING ACTIVITIES"],
+    ["  SAFE Funding Received", ...yearlyData.map((y) => y.safeFunding)],
+    ["Net Cash from Financing Activities", ...yearlyData.map((y) => y.safeFunding)],
     [],
-    ["Net Cash Flow", ...yearlyData.map((y) => y.cashFlow)],
-    ["Cumulative Cash", ...cumulatives],
+    ["Net Increase (Decrease) in Cash", ...yearlyData.map((y) => y.cashFlow)],
+    ["Opening Cash Balance", ...openingCash],
+    ["Closing Cash Balance", ...closingCash],
   ];
 
   const ws = XLSX.utils.aoa_to_sheet(rows);
-  setColumnWidths(ws, [38, ...yearLabels.map(() => 16)]);
+  setColumnWidths(ws, [45, ...yearLabels.map(() => 16)]);
   applyCurrencyFormat(ws, rows);
   applyHeaderStyle(ws, rows);
 

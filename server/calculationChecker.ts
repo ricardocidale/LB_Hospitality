@@ -325,6 +325,7 @@ function independentPropertyCalc(property: any, global: any) {
       operatingCashFlow,
       financingCashFlow,
       endingCash: cumulativeCash,
+      cashShortfall: cumulativeCash < 0,
       expenseFFE,
       totalExpenses: totalOperatingExpenses + feeBase + feeIncentive + expenseFFE,
     });
@@ -619,6 +620,19 @@ export function runIndependentVerification(
       cumulativeCashFlow,
       endingCash,
       "critical"
+    ));
+
+    // No Negative Cash — mandatory business rule
+    const shortfallMonths = independentCalc.filter((m: any) => m.cashShortfall);
+    const minCash = Math.min(...independentCalc.map((m: any) => m.endingCash));
+    checks.push(check(
+      "No Negative Cash Balance",
+      "Cash Flow",
+      "Business Rule",
+      `Cash balance must never go negative; min balance = $${Math.round(minCash).toLocaleString()}, shortfall months = ${shortfallMonths.length}`,
+      0,
+      shortfallMonths.length,
+      "material"
     ));
 
     let preOpMonths = independentCalc.filter((m: any) => m.monthIndex < firstOperationalMonth);

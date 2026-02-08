@@ -91,11 +91,11 @@ export function sanitizeEmail(email: string): string {
 }
 
 export async function hashPassword(password: string): Promise<string> {
-  return bcrypt.hash(password.toLowerCase(), BCRYPT_ROUNDS);
+  return bcrypt.hash(password, BCRYPT_ROUNDS);
 }
 
 export async function verifyPassword(password: string, hash: string): Promise<boolean> {
-  return bcrypt.compare(password.toLowerCase(), hash);
+  return bcrypt.compare(password, hash);
 }
 
 export function generateSessionId(): string {

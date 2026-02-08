@@ -28,6 +28,7 @@ export {
   DEPRECIATION_YEARS,
   DAYS_PER_MONTH,
   DEFAULT_LAND_VALUE_PERCENT,
+  DEFAULT_OCCUPANCY_RAMP_MONTHS,
 } from "@shared/constants";
 
 // Loan defaults
@@ -48,7 +49,6 @@ export const DEFAULT_ADR_GROWTH_RATE = 0.03;
 export const DEFAULT_START_OCCUPANCY = 0.55;
 export const DEFAULT_MAX_OCCUPANCY = 0.85;
 export const DEFAULT_OCCUPANCY_GROWTH_STEP = 0.05;
-export const DEFAULT_OCCUPANCY_RAMP_MONTHS = 6;
 export const DEFAULT_STABILIZATION_MONTHS = 24;
 
 // Company cost defaults

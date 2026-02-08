@@ -23,6 +23,7 @@ import {
   DEPRECIATION_YEARS,
   DAYS_PER_MONTH,
   DEFAULT_LAND_VALUE_PERCENT,
+  DEFAULT_OCCUPANCY_RAMP_MONTHS,
 } from "@shared/constants";
 
 const PROJECTION_YEARS = 10;
@@ -73,7 +74,7 @@ export interface VerificationReport {
 
 function withinTolerance(expected: number, actual: number): boolean {
   if (expected === 0 && actual === 0) return true;
-  if (expected === 0) return Math.abs(actual) < 1;
+  if (expected === 0) return Math.abs(actual) < TOLERANCE;
   return Math.abs((expected - actual) / expected) < TOLERANCE;
 }
 
@@ -187,7 +188,7 @@ function independentPropertyCalc(property: any, global: any) {
 
     let occupancy = 0;
     if (isOperational) {
-      const rampMonths = property.occupancyRampMonths || 6;
+      const rampMonths = property.occupancyRampMonths ?? DEFAULT_OCCUPANCY_RAMP_MONTHS;
       const rampSteps = Math.floor(monthsSinceOps / rampMonths);
       occupancy = Math.min(
         property.maxOccupancy,
@@ -601,7 +602,7 @@ export function runIndependentVerification(
         "NOI Margin Reasonableness",
         "Reasonableness",
         "Industry Benchmark",
-        `Year 1: ${noiMarginYear1.toFixed(1)}% → Year ${projectionYears}: ${noiMarginLastYear.toFixed(1)}% (expect 15-45%)`,
+        `Year 1: ${noiMarginYear1.toFixed(1)}% → Year ${projectionYears}: ${noiMarginLastYear.toFixed(1)}% (expect 5-60%)`,
         1,
         (noiMarginLastYear >= 5 && noiMarginLastYear <= 60) ? 1 : 0,
         (noiMarginLastYear < 5 || noiMarginLastYear > 60) ? "material" : "info"

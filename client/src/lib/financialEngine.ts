@@ -40,7 +40,8 @@ import {
   DEFAULT_TAX_RATE,
   DEFAULT_REFI_LTV,
   DEFAULT_REFI_CLOSING_COST_RATE,
-  DEFAULT_EXIT_CAP_RATE
+  DEFAULT_EXIT_CAP_RATE,
+  DEFAULT_OCCUPANCY_RAMP_MONTHS
 } from './constants';
 import { computeRefinance } from '@calc/refinance';
 import type { ScheduleEntry } from '@calc/refinance';
@@ -312,7 +313,7 @@ export function generatePropertyProForma(
 
     let occupancy = 0;
     if (isOperational) {
-      const rampMonths = property.occupancyRampMonths || 6;
+      const rampMonths = property.occupancyRampMonths ?? DEFAULT_OCCUPANCY_RAMP_MONTHS;
       const rampSteps = Math.floor(monthsSinceOps / rampMonths);
       occupancy = Math.min(
         property.maxOccupancy, 

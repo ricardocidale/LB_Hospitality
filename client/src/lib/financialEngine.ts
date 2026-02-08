@@ -243,6 +243,8 @@ export interface MonthlyFinancials {
   operatingCashFlow: number;
   financingCashFlow: number;
   endingCash: number;
+  // Negative cash detection (mandatory business rule)
+  cashShortfall: boolean;
 }
 
 export function generatePropertyProForma(
@@ -486,7 +488,8 @@ export function generatePropertyProForma(
       // Cash flow statement fields per GAAP ASC 230
       operatingCashFlow,
       financingCashFlow,
-      endingCash
+      endingCash,
+      cashShortfall: endingCash < 0,
     });
   }
 
@@ -549,6 +552,7 @@ export function generatePropertyProForma(
             // Pre-refinance months: just recalculate cumulative cash (no changes to debt)
             cumCash += m.cashFlow;
             m.endingCash = cumCash;
+            m.cashShortfall = cumCash < 0;
           } else {
             const monthsSinceRefi = i - refiMonthIndex;
 
@@ -590,6 +594,7 @@ export function generatePropertyProForma(
 
             cumCash += m.cashFlow;
             m.endingCash = cumCash;
+            m.cashShortfall = cumCash < 0;
           }
         }
       }
@@ -646,6 +651,8 @@ export interface CompanyMonthlyFinancials {
   safeFunding1: number;
   safeFunding2: number;
   cashFlow: number;
+  endingCash: number;
+  cashShortfall: boolean;
 }
 
 export function generateCompanyProForma(
@@ -654,7 +661,8 @@ export function generateCompanyProForma(
   months: number = PROJECTION_MONTHS
 ): CompanyMonthlyFinancials[] {
   const results: CompanyMonthlyFinancials[] = [];
-  
+  let cumulativeCompanyCash = 0;
+
   const parseDateString = (dateStr: string) => {
     const [year, month, day] = dateStr.split('-').map(Number);
     return { year, month: month - 1, day };
@@ -765,7 +773,8 @@ export function generateCompanyProForma(
     const safeFunding = safeFunding1 + safeFunding2;
     
     const cashFlow = netIncome + safeFunding;
-    
+    cumulativeCompanyCash += cashFlow;
+
     results.push({
       date: currentDate,
       monthIndex: m,
@@ -789,6 +798,8 @@ export function generateCompanyProForma(
       safeFunding1,
       safeFunding2,
       cashFlow,
+      endingCash: cumulativeCompanyCash,
+      cashShortfall: cumulativeCompanyCash < 0,
     });
   }
   

@@ -23,11 +23,11 @@ import * as XLSX from "xlsx";
 import { exportPortfolioPPTX } from "@/lib/exports/pptxExport";
 import { exportTablePNG } from "@/lib/exports/pngExport";
 import {
-  DEFAULT_LTV,
   DEFAULT_EXIT_CAP_RATE,
   PROJECTION_YEARS,
   DAYS_PER_MONTH,
 } from "@/lib/constants";
+import { propertyEquityInvested, acquisitionYearIndex } from "@/lib/equityCalculations";
 import { computeIRR } from "@analytics/returns/irr.js";
 import { LoanParams, GlobalLoanParams } from "@/lib/loanCalculations";
 import { aggregateCashFlowByYear } from "@/lib/cashFlowAggregator";
@@ -218,32 +218,14 @@ export default function Dashboard() {
   // Investment horizon
   const investmentHorizon = projectionYears;
 
-  // Kept: equity investment helpers (needed for KPI display and equity multiple)
-  const getPropertyAcquisitionYear = (prop: any): number => {
-    const modelStart = new Date(global.modelStartDate);
-    const acqDate = prop.acquisitionDate ? new Date(prop.acquisitionDate) : new Date(prop.operationsStartDate);
-    const months = Math.max(0, (acqDate.getFullYear() - modelStart.getFullYear()) * 12 + (acqDate.getMonth() - modelStart.getMonth()));
-    return Math.floor(months / 12);
-  };
+  const getPropertyAcquisitionYear = (prop: any): number =>
+    acquisitionYearIndex(prop.acquisitionDate, prop.operationsStartDate, global.modelStartDate);
 
-  const getPropertyInvestment = (prop: any) => {
-    const totalPropVal = prop.purchasePrice + (prop.buildingImprovements ?? 0);
-    const ltv = prop.acquisitionLTV ?? global.debtAssumptions?.acqLTV ?? DEFAULT_LTV;
-    const loanAmount = prop.type === "Financed" ? totalPropVal * ltv : 0;
-    const totalInv = totalPropVal + (prop.preOpeningCosts ?? 0) + (prop.operatingReserve ?? 0);
-    return totalInv - loanAmount;
-  };
+  const getPropertyInvestment = (prop: any): number =>
+    propertyEquityInvested(prop, global.debtAssumptions?.acqLTV);
 
-  const getEquityInvestmentForYear = (yearIndex: number): number => {
-    let total = 0;
-    properties.forEach(prop => {
-      const acqYear = getPropertyAcquisitionYear(prop);
-      if (acqYear === yearIndex) {
-        total += getPropertyInvestment(prop);
-      }
-    });
-    return total;
-  };
+  const getEquityInvestmentForYear = (yearIndex: number): number =>
+    properties.reduce((sum, prop) => sum + (getPropertyAcquisitionYear(prop) === yearIndex ? getPropertyInvestment(prop) : 0), 0);
 
   // Aggregator-based helpers: read from precomputed allPropertyYearlyCF
   const getPropertyExitValue = (propIndex: number): number => {
@@ -704,11 +686,7 @@ export default function Dashboard() {
           ? proForma[lastMonthIdx].debtOutstanding : 0;
         totalDebtOutstanding += debtOutstanding;
 
-        // Equity invested: compute inline
-        const totalPropVal = prop.purchasePrice + (prop.buildingImprovements ?? 0);
-        const ltv = prop.acquisitionLTV ?? (global.debtAssumptions as any)?.acqLTV ?? DEFAULT_LTV;
-        const loanAmount = prop.type === "Financed" ? totalPropVal * ltv : 0;
-        const equityInvested = totalPropVal + (prop.preOpeningCosts ?? 0) + (prop.operatingReserve ?? 0) - loanAmount;
+        const equityInvested = propertyEquityInvested(prop, (global.debtAssumptions as any)?.acqLTV);
         totalInitialEquity += equityInvested;
 
         // Accumulated depreciation from engine monthly data
@@ -882,29 +860,11 @@ export default function Dashboard() {
     const years = ['Initial', ...Array.from({ length: projectionYears }, (_, i) => String(getFiscalYear(i)))];
     const rows: { category: string; values: (number | string)[]; isHeader?: boolean; indent?: number; isNegative?: boolean }[] = [];
     
-    const getEquityForYear = (yearIdx: number): number => {
-      let total = 0;
-      properties.forEach(prop => {
-        const acqDate = new Date(prop.acquisitionDate);
-        const modelStart = new Date(global.modelStartDate);
-        const monthsDiff = (acqDate.getFullYear() - modelStart.getFullYear()) * 12 + 
-                           (acqDate.getMonth() - modelStart.getMonth());
-        const acqYear = Math.floor(monthsDiff / 12);
-        if (acqYear === yearIdx) {
-          const totalInvestment = prop.purchasePrice + prop.buildingImprovements + 
-                                  prop.preOpeningCosts + prop.operatingReserve;
-          if (prop.type === "Financed") {
-            const propertyValue = prop.purchasePrice + prop.buildingImprovements;
-            const ltv = prop.acquisitionLTV ?? (global.debtAssumptions as any)?.acqLTV ?? DEFAULT_LTV;
-            const loanAmount = propertyValue * ltv;
-            total += totalInvestment - loanAmount;
-          } else {
-            total += totalInvestment;
-          }
-        }
-      });
-      return total;
-    };
+    const getEquityForYear = (yearIdx: number): number =>
+      properties.reduce((sum, prop) =>
+        sum + (acquisitionYearIndex(prop.acquisitionDate, prop.operationsStartDate, global.modelStartDate) === yearIdx
+          ? propertyEquityInvested(prop, (global.debtAssumptions as any)?.acqLTV)
+          : 0), 0);
     
     // Single engine: aggregate yearly details from monthly pro forma data
     const getYearDetails = (yearIdx: number) => {
@@ -946,18 +906,9 @@ export default function Dashboard() {
     ], isHeader: true, isNegative: true });
     
     properties.forEach(prop => {
-      const acqDate = new Date(prop.acquisitionDate);
-      const modelStart = new Date(global.modelStartDate);
-      const monthsDiff = (acqDate.getFullYear() - modelStart.getFullYear()) * 12 + 
-                         (acqDate.getMonth() - modelStart.getMonth());
-      const acqYear = Math.floor(monthsDiff / 12);
-      const totalInvestment = prop.purchasePrice + prop.buildingImprovements + 
-                              prop.preOpeningCosts + prop.operatingReserve;
-      const propertyValue = prop.purchasePrice + prop.buildingImprovements;
-      const investment = prop.type === "Financed" ? 
-        totalInvestment - propertyValue * (prop.acquisitionLTV ?? (global.debtAssumptions as any)?.acqLTV ?? DEFAULT_LTV) : 
-        totalInvestment;
-      
+      const acqYear = acquisitionYearIndex(prop.acquisitionDate, prop.operationsStartDate, global.modelStartDate);
+      const investment = propertyEquityInvested(prop, (global.debtAssumptions as any)?.acqLTV);
+
       const values: (number | string)[] = Array(projectionYears + 1).fill('');
       if (acqYear >= 0 && acqYear <= projectionYears) {
         values[acqYear] = -investment;

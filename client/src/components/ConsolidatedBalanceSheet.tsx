@@ -9,9 +9,9 @@ import { Property } from "@shared/schema";
 import { MonthlyFinancials, getFiscalYearForModelYear } from "@/lib/financialEngine";
 import { GlobalResponse } from "@/lib/api";
 import {
-  DEFAULT_LTV,
   PROJECTION_YEARS,
 } from "@/lib/constants";
+import { propertyEquityInvested, acquisitionYearIndex } from "@/lib/equityCalculations";
 import {
   TableShell,
   BalanceSheetSection,
@@ -55,13 +55,7 @@ export function ConsolidatedBalanceSheet({ properties, global, allProFormas, yea
     const monthsToInclude = year * 12;
     const relevantMonths = proForma.slice(0, monthsToInclude);
 
-    // Determine acquisition year from dates (no loanCalculations dependency)
-    const modelStart = new Date(global.modelStartDate);
-    const acqDate = prop.acquisitionDate ? new Date(prop.acquisitionDate) : new Date(prop.operationsStartDate);
-    const acqMonthsFromModelStart = Math.max(0,
-      (acqDate.getFullYear() - modelStart.getFullYear()) * 12 +
-      (acqDate.getMonth() - modelStart.getMonth()));
-    const acqYear = Math.floor(acqMonthsFromModelStart / 12);
+    const acqYear = acquisitionYearIndex(prop.acquisitionDate, prop.operationsStartDate, global.modelStartDate);
 
     // Property not yet acquired - skip all balance sheet entries
     if (year < acqYear) {
@@ -80,13 +74,7 @@ export function ConsolidatedBalanceSheet({ properties, global, allProFormas, yea
     const operatingReserve = prop.operatingReserve ?? 0;
     totalCashReserves += operatingReserve;
 
-    // Equity invested: compute inline (no loanCalculations dependency)
-    const totalInvestment = prop.purchasePrice + prop.buildingImprovements +
-      (prop.preOpeningCosts ?? 0) + operatingReserve;
-    const totalPropVal = prop.purchasePrice + prop.buildingImprovements;
-    const ltv = prop.acquisitionLTV ?? (global.debtAssumptions as any)?.acqLTV ?? DEFAULT_LTV;
-    const loanAmount = prop.type === "Financed" ? totalPropVal * ltv : 0;
-    const equityInvested = totalInvestment - loanAmount;
+    const equityInvested = propertyEquityInvested(prop, (global.debtAssumptions as any)?.acqLTV);
     totalInitialEquity += equityInvested;
 
     // Debt outstanding: from last month of the year period (engine data)

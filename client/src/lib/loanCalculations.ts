@@ -68,6 +68,11 @@ export interface YearlyDebtService {
 }
 
 import { pmt } from "@calc/shared/pmt";
+import {
+  totalPropertyCost,
+  acquisitionLoanAmount,
+  acqMonthsFromModelStart as sharedAcqMonths,
+} from "./equityCalculations";
 
 // Import constants from shared module
 import {
@@ -109,11 +114,8 @@ export function calculateLoanParams(
   property: LoanParams,
   global?: GlobalLoanParams
 ): LoanCalculation {
-  const totalInvestment = property.purchasePrice + property.buildingImprovements + 
-                          property.preOpeningCosts + property.operatingReserve;
-  const totalPropertyValue = property.purchasePrice + property.buildingImprovements;
-  const ltv = property.acquisitionLTV ?? global?.debtAssumptions?.acqLTV ?? DEFAULT_LTV;
-  const loanAmount = property.type === "Financed" ? totalPropertyValue * ltv : 0;
+  const totalInvestment = totalPropertyCost(property);
+  const loanAmount = acquisitionLoanAmount(property, global?.debtAssumptions?.acqLTV);
   const equityInvested = totalInvestment - loanAmount;
   
   const interestRate = property.acquisitionInterestRate ?? global?.debtAssumptions?.interestRate ?? DEFAULT_INTEREST_RATE;
@@ -134,11 +136,10 @@ export function calculateLoanParams(
     monthlyPayment = pmt(loanAmount, monthlyRate, totalPayments);
   }
   
-  const modelStart = new Date(global?.modelStartDate || DEFAULT_MODEL_START_DATE);
-  const acqDate = new Date(property.acquisitionDate || global?.modelStartDate || DEFAULT_MODEL_START_DATE);
-  const acqMonthsFromModelStart = Math.max(0, 
-    (acqDate.getFullYear() - modelStart.getFullYear()) * 12 + 
-    (acqDate.getMonth() - modelStart.getMonth())
+  const acqMonthsFromModelStart = sharedAcqMonths(
+    property.acquisitionDate,
+    null,
+    global?.modelStartDate || DEFAULT_MODEL_START_DATE,
   );
   
   return {

@@ -29,6 +29,7 @@ export default defineConfig({
       "@shared": path.resolve(import.meta.dirname, "shared"),
       "@calc": path.resolve(import.meta.dirname, "calc"),
       "@domain": path.resolve(import.meta.dirname, "domain"),
+      "@analytics": path.resolve(import.meta.dirname, "analytics"),
       "@assets": path.resolve(import.meta.dirname, "attached_assets"),
     },
   },

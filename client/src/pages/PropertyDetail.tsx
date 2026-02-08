@@ -10,6 +10,7 @@ import { Tabs, TabsContent, DarkGlassTabs } from "@/components/ui/tabs";
 import { FileText, Banknote, Scale } from "lucide-react";
 import { ArrowLeft, MapPin, Loader2, Settings2, Sheet } from "lucide-react";
 import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
+import { downloadCSV } from "@/lib/exports/csvExport";
 import { exportPropertyPPTX } from "@/lib/exports/pptxExport";
 import {
   exportPropertyIncomeStatement,
@@ -180,14 +181,10 @@ export default function PropertyDetail() {
       ["Free Cash Flow to Equity (FCFE)", ...s.fcfe.map(v => v.toFixed(0))],
     ];
 
-    const csvContent = [headers, ...rows].map(row => row.join(",")).join("\n");
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", `${property.name.replace(/\s+/g, '_')}_CashFlow.csv`);
-    link.click();
-    URL.revokeObjectURL(url);
+    downloadCSV(
+      [headers, ...rows].map(row => row.join(",")).join("\n"),
+      `${property.name.replace(/\s+/g, '_')}_CashFlow.csv`,
+    );
   };
 
   const handleExcelExport = () => {

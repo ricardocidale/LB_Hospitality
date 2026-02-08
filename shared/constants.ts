@@ -34,6 +34,9 @@ export const DEFAULT_EXIT_CAP_RATE = 0.085;
 export const DEFAULT_TAX_RATE = 0.25;
 export const DEFAULT_COMMISSION_RATE = 0.05;
 
+// Default land value percentage (IRS Publication 946 — non-depreciable)
+export const DEFAULT_LAND_VALUE_PERCENT = 0.25;
+
 // IRS-mandated depreciation period (Publication 946 / ASC 360)
 export const DEPRECIATION_YEARS = 27.5;
 

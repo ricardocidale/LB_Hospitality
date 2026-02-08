@@ -681,9 +681,10 @@ export function generateCompanyProForma(
     const fixedCostFactor = Math.pow(1 + fixedEscalationRate, year);
     const variableCostFactor = Math.pow(1 + global.inflationRate, year);
     
-    // Check if company has started operations
+    // Check if company has started operations (gated on SAFE funding receipt)
     const opsStartDate = new Date(opsStartParsed.year, opsStartParsed.month, 1);
-    const hasStartedOps = currentDate >= opsStartDate;
+    const firstSafeDate = new Date(tranche1Parsed.year, tranche1Parsed.month, 1);
+    const hasStartedOps = currentDate >= opsStartDate && currentDate >= firstSafeDate;
     
     let totalPropertyRevenue = 0;
     let totalPropertyGOP = 0;

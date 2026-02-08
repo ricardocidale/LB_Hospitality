@@ -24,6 +24,7 @@ import Profile from "@/pages/Profile";
 import Scenarios from "@/pages/Scenarios";
 import PropertyFinder from "@/pages/PropertyFinder";
 import SensitivityAnalysis from "@/pages/SensitivityAnalysis";
+import FinancingAnalysis from "@/pages/FinancingAnalysis";
 
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
   const { user, isLoading } = useAuth();
@@ -136,6 +137,9 @@ function Router() {
         <FinancialErrorBoundary>
           <ProtectedRoute component={SensitivityAnalysis} />
         </FinancialErrorBoundary>
+      </Route>
+      <Route path="/financing">
+        <ProtectedRoute component={FinancingAnalysis} />
       </Route>
       <Route component={NotFound} />
     </Switch>

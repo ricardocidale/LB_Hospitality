@@ -29,7 +29,9 @@
       "Bash(npm test:*)",
       "Bash(git mv:*)",
       "Bash(git rm:*)",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "Bash(git -C /home/runner/workspace status:*)",
+      "Bash(git -C /home/runner/workspace log --oneline -5)"
     ]
   }
 }

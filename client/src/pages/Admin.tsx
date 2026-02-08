@@ -16,8 +16,9 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { useToast } from "@/hooks/use-toast";
 import { ThemeManager } from "@/features/design-themes";
 import { runFullVerification, runKnownValueTests, VerificationResults } from "@/lib/runVerification";
-import { generatePropertyProForma } from "@/lib/financialEngine";
+import { generatePropertyProForma, formatMoney } from "@/lib/financialEngine";
 import { AuditReport } from "@/lib/financialAuditor";
+import { formatDateTime, formatDuration } from "@/lib/formatters";
 
 interface DesignCheckResult {
   timestamp: string;
@@ -604,19 +605,6 @@ export default function Admin() {
     }
   }, [currentView]);
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
-    });
-  };
-
-  const calculateDuration = (loginAt: string, logoutAt: string | null): string => {
-    if (!logoutAt) return "Active";
-    const diffMs = new Date(logoutAt).getTime() - new Date(loginAt).getTime();
-    const hours = Math.floor(diffMs / (1000 * 60 * 60));
-    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-    return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
-  };
 
   const renderDashboard = () => (
     <div className="space-y-8">
@@ -879,7 +867,7 @@ export default function Admin() {
                       {user.role}
                     </span>
                   </TableCell>
-                  <TableCell className="text-white/60 font-mono text-sm">{formatDate(user.createdAt)}</TableCell>
+                  <TableCell className="text-white/60 font-mono text-sm">{formatDateTime(user.createdAt)}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Button size="sm" variant="ghost" className="text-white/60 hover:text-white hover:bg-white/10"
@@ -994,13 +982,13 @@ export default function Admin() {
                     <div className="text-[#FFF9F5]">{log.userName || log.userEmail}</div>
                     {log.userName && <div className="text-xs text-white/50">{log.userEmail}</div>}
                   </TableCell>
-                  <TableCell className="text-white/80 font-mono text-sm">{formatDate(log.loginAt)}</TableCell>
+                  <TableCell className="text-white/80 font-mono text-sm">{formatDateTime(log.loginAt)}</TableCell>
                   <TableCell className="text-white/80 font-mono text-sm">
-                    {log.logoutAt ? formatDate(log.logoutAt) : <span className="text-[#9FBCA4]">Active</span>}
+                    {log.logoutAt ? formatDateTime(log.logoutAt) : <span className="text-[#9FBCA4]">Active</span>}
                   </TableCell>
                   <TableCell className="font-mono text-sm">
                     <span className={log.logoutAt ? "text-white/80" : "text-[#9FBCA4]"}>
-                      {calculateDuration(log.loginAt, log.logoutAt)}
+                      {formatDuration(log.loginAt, log.logoutAt)}
                     </span>
                   </TableCell>
                   <TableCell className="text-white/60 font-mono text-sm">{log.ipAddress || "-"}</TableCell>
@@ -1068,12 +1056,6 @@ export default function Admin() {
     </>
   );};
 
-  const formatMoney = (n: number) => {
-    const isNeg = n < 0;
-    const abs = Math.abs(n);
-    const formatted = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(abs);
-    return isNeg ? `(${formatted})` : formatted;
-  };
 
   const severityColor = (severity: string) => {
     switch (severity) {
@@ -1362,7 +1344,7 @@ export default function Admin() {
                   <div className="text-xs text-gray-600 label-text mt-1">Material</div>
                 </div>
               </div>
-              <p className="text-xs text-gray-500 font-mono mt-3 text-right">Verified at: {formatDate(verificationResults.timestamp)}</p>
+              <p className="text-xs text-gray-500 font-mono mt-3 text-right">Verified at: {formatDateTime(verificationResults.timestamp)}</p>
             </div>
 
             {/* AI Review */}
@@ -1592,7 +1574,7 @@ export default function Admin() {
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h3 className="font-display text-lg text-gray-900 font-semibold">Design Check Results</h3>
-                  <p className="text-xs text-gray-500 font-mono mt-1">Run at: {formatDate(designResults.timestamp)}</p>
+                  <p className="text-xs text-gray-500 font-mono mt-1">Run at: {formatDateTime(designResults.timestamp)}</p>
                 </div>
                 <div className={`flex items-center gap-2 px-4 py-2 rounded-xl ${
                   designResults.overallStatus === "PASS" ? "bg-green-100 text-green-700" :

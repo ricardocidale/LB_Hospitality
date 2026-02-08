@@ -49,16 +49,7 @@ import {
   DEFAULT_MODEL_START_DATE,
   DEFAULT_REFI_PERIOD_YEARS,
 } from "@/lib/constants";
-
-
-
-function formatMoneyInput(value: number): string {
-  return new Intl.NumberFormat('en-US').format(value);
-}
-
-function parseMoneyInput(value: string): number {
-  return parseFloat(value.replace(/,/g, '')) || 0;
-}
+import { formatMoneyInput, parseMoneyInput } from "@/lib/formatters";
 
 export default function PropertyEdit() {
   const [, params] = useRoute("/property/:id/edit");

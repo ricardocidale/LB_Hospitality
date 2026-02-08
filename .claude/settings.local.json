@@ -40,7 +40,23 @@
       "Bash(git -C /home/runner/workspace add statements/balance-sheet.ts statements/cash-flow.ts statements/event-applier.ts statements/index.ts statements/reconcile.ts statements/types.ts)",
       "Bash(git -C /home/runner/workspace add statements/)",
       "Bash(git -C /home/runner/workspace diff --cached --stat)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(echo:*)",
+      "Bash(git -C /home/runner/workspace add server/auth.ts server/calculationChecker.ts server/routes.ts server/storage.ts client/src/lib/constants.ts client/src/lib/financialEngine.ts shared/constants.ts)",
+      "Bash(git -C /home/runner/workspace commit -m \"$\\(cat <<''EOF''\nHarden auth, fix verification tolerances, and eliminate magic numbers\n\n- Remove password lowercasing in hashPassword/verifyPassword \\(preserves entropy\\)\n- Replace hardcoded password hashes in seed endpoint with dynamic hashing from env vars\n- Fix withinTolerance zero-expected check to use TOLERANCE constant instead of $1\n- Move DEFAULT_OCCUPANCY_RAMP_MONTHS to shared constants, use ?? instead of || in both engines\n- Wrap deleteUser in database transaction for atomicity\n- Fix NOI margin description to match actual 5-60% bounds\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(for i in 1 2 3 4 5 6)",
+      "Bash(do echo -n \"Attempt $i: \")",
+      "Bash(done)",
+      "Bash(pkill:*)",
+      "Bash(git -C /home/runner/workspace add:*)",
+      "Bash(git -C /home/runner/workspace commit -m \"$\\(cat <<''EOF''\nHarden session security, protect system accounts, and secure image endpoints\n\n- Add requireAuth + rate limiting \\(5/min\\) to /api/generate-image \\(was unauthenticated\\)\n- Add rate limiting \\(5/min\\) to /api/generate-property-image\n- Increase login lockout from 1 minute to 15 minutes\n- Change session cookie sameSite from \"lax\" to \"strict\"\n- Reduce session duration from 30 days to 7 days\n- Block admin/checker from changing their email via profile endpoint\n- Hide internal error messages in production for 500-level errors\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(printf:*)",
+      "Bash(npx drizzle-kit generate:*)",
+      "Bash(git -C /home/runner/workspace diff shared/schema.ts)",
+      "Bash(git -C /home/runner/workspace commit -m \"$\\(cat <<''EOF''\nAdd database constraints: CASCADE deletes, CHECK bounds, unique indexes\n\n- Add ON DELETE CASCADE to all 13 foreign keys \\(users, properties, conversations\\)\n- Add CHECK constraints on global_assumptions \\(projectionYears 1-30, rates 0-1\\)\n- Add CHECK constraints on properties \\(roomCount > 0, ADR > 0, occupancy/rates 0-1\\)\n- Add UNIQUE constraint on scenarios\\(userId, name\\) to prevent duplicates\n- Add UNIQUE constraint on prospective_properties\\(userId, externalId, source\\)\n- Add index on messages\\(conversationId\\) for query performance\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(wc:*)",
+      "Bash(git -C /home/runner/workspace diff client/src/lib/financialEngine.ts server/seed.ts)",
+      "Bash(git -C /home/runner/workspace commit -m \"$\\(cat <<''EOF''\nReplace hardcoded values with named constants in engine and seed\n\n- Refactor partner comp lookup from manual 10-element array to loop over keys\n- Replace hardcoded array bound \\(9\\) with DEFAULT_PARTNER_COMP.length - 1\n- Replace hardcoded occupancyRampMonths: 6 with DEFAULT_OCCUPANCY_RAMP_MONTHS in seed\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")"
     ]
   }
 }

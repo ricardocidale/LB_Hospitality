@@ -108,9 +108,16 @@ server/
 ## Conventions
 All monetary values must be formatted with currency precision and thousands separators. All interactive and display elements require `data-testid`. No mock or placeholder data is permitted in production paths. All buttons must use GlassButton. All pages must use PageHeader. All export functionality must use ExportMenu. Legacy import paths are preserved via re-export barrels.
 
+Agent persona: `.claude/rules/agent-persona.md` is mandatory behavior for all finance and statement work.
+
+Audit doctrine: `.claude/rules/audit-doctrine.md` defines what an “audit” must cover (math, variables, workflows, reports, code risks, and GAAP). For any request using the word “audit,” follow that doctrine and its output format.
+
+Audits must explicitly check for hardcoded values in calculation paths and monthly→yearly rollup correctness.
+
+
 ## Authoritative Finance Skill Specification
 
-Finance authority tool: `.claude/tools/financial_standards_authority.json` (tool name: `get_financial_standards_authority`). For any finance/stats/consolidation/refi work, consult this tool output before implementing classification-sensitive logic.
+Finance authority tool: `.claude/tools/financing/financial_standards_authority.json` (tool name: `get_financial_standards_authority`). For any finance/stats/consolidation/refi work, consult this tool output before implementing classification-sensitive logic.
 
 The file `/skills/finance/FINANCE_SKILL_SPECS.md` is the single source of truth for:
 - Financing

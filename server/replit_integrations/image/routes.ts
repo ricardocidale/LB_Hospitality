@@ -1,9 +1,14 @@
 import type { Express, Request, Response } from "express";
 import { openai } from "./client";
+import { requireAuth, isApiRateLimited } from "../../auth";
 
 export function registerImageRoutes(app: Express): void {
-  app.post("/api/generate-image", async (req: Request, res: Response) => {
+  app.post("/api/generate-image", requireAuth, async (req: Request, res: Response) => {
     try {
+      if (isApiRateLimited(req.user!.id, "generate-image", 5)) {
+        return res.status(429).json({ error: "Rate limit exceeded. Try again in a minute." });
+      }
+
       const { prompt, size = "1024x1024" } = req.body;
 
       if (!prompt) {
@@ -28,4 +33,3 @@ export function registerImageRoutes(app: Express): void {
     }
   });
 }
-

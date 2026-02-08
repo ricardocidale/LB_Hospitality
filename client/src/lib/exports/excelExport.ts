@@ -7,8 +7,8 @@ import {
   calculateLoanParams,
   getAcquisitionYear,
   YearlyCashFlowResult,
-  DEFAULT_LTV,
 } from "../loanCalculations";
+import { propertyEquityInvested } from "../equityCalculations";
 import {
   PROJECTION_YEARS,
 } from "../constants";
@@ -301,17 +301,7 @@ export function exportPropertyBalanceSheet(
       const operatingReserve = (prop as any).operatingReserve ?? 0;
       totalCashReserves += operatingReserve;
 
-      const totalInvestment =
-        (prop as any).purchasePrice +
-        ((prop as any).buildingImprovements ?? 0) +
-        ((prop as any).preOpeningCosts ?? 0) +
-        operatingReserve;
-      const ltv =
-        (prop as any).acquisitionLTV ??
-        (globalAssumptions.debtAssumptions as any)?.acqLTV ??
-        DEFAULT_LTV;
-      const loanAmount = (prop as any).type === "Financed" ? totalPropValue * ltv : 0;
-      const equityInvested = totalInvestment - loanAmount;
+      const equityInvested = propertyEquityInvested(prop as any, (globalAssumptions.debtAssumptions as any)?.acqLTV);
       totalEquity += equityInvested;
 
       const lastMonthIdx = monthsToInclude - 1;

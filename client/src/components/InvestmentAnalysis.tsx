@@ -5,11 +5,11 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 import { formatMoney, getFiscalYearForModelYear } from "@/lib/financialEngine";
 import {
   PROJECTION_YEARS,
-  DEFAULT_LTV,
   DEFAULT_EXIT_CAP_RATE,
   DEFAULT_TAX_RATE,
   IRR_HIGHLIGHT_THRESHOLD,
 } from "@/lib/constants";
+import { propertyEquityInvested, acquisitionYearIndex } from "@/lib/equityCalculations";
 import { computeIRR } from "@analytics/returns/irr.js";
 import type { aggregateCashFlowByYear } from "@/lib/cashFlowAggregator";
 
@@ -46,37 +46,14 @@ export function InvestmentAnalysis({
   const fiscalYearStartMonth = global.fiscalYearStartMonth ?? 1;
   const getFiscalYear = (yearIndex: number) => getFiscalYearForModelYear(global.modelStartDate, fiscalYearStartMonth, yearIndex);
 
-  // Equity helpers (kept for KPI display)
-  const getPropertyAcquisitionYear = (prop: any): number => {
-    const acqDate = new Date(prop.acquisitionDate);
-    const modelStart = new Date(global.modelStartDate);
-    const monthsDiff = (acqDate.getFullYear() - modelStart.getFullYear()) * 12 +
-                       (acqDate.getMonth() - modelStart.getMonth());
-    return Math.floor(monthsDiff / 12);
-  };
+  const getPropertyAcquisitionYear = (prop: any): number =>
+    acquisitionYearIndex(prop.acquisitionDate, prop.operationsStartDate, global.modelStartDate);
 
-  const getPropertyInvestment = (prop: any) => {
-    const totalInvestment = prop.purchasePrice + prop.buildingImprovements +
-                            prop.preOpeningCosts + prop.operatingReserve;
-    if (prop.type === "Financed") {
-      const propertyValue = prop.purchasePrice + prop.buildingImprovements;
-      const ltv = prop.acquisitionLTV ?? global.debtAssumptions.acqLTV ?? DEFAULT_LTV;
-      const loanAmount = propertyValue * ltv;
-      return totalInvestment - loanAmount;
-    }
-    return totalInvestment;
-  };
+  const getPropertyInvestment = (prop: any): number =>
+    propertyEquityInvested(prop, global.debtAssumptions?.acqLTV);
 
-  const getEquityInvestmentForYear = (yearIndex: number): number => {
-    let total = 0;
-    properties.forEach(prop => {
-      const acqYear = getPropertyAcquisitionYear(prop);
-      if (acqYear === yearIndex) {
-        total += getPropertyInvestment(prop);
-      }
-    });
-    return total;
-  };
+  const getEquityInvestmentForYear = (yearIndex: number): number =>
+    properties.reduce((sum, prop) => sum + (getPropertyAcquisitionYear(prop) === yearIndex ? getPropertyInvestment(prop) : 0), 0);
 
   // Aggregator-based helpers: read from precomputed allPropertyYearlyCF
   const getPropertyExitValue = (propIndex: number): number => {

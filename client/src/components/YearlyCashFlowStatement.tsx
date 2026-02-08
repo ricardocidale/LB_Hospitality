@@ -28,6 +28,7 @@ import {
 import { OPERATING_RESERVE_BUFFER, RESERVE_ROUNDING_INCREMENT, DEFAULT_COMMISSION_RATE } from "@/lib/constants";
 import { aggregateCashFlowByYear } from "@/lib/cashFlowAggregator";
 import { aggregatePropertyByYear } from "@/lib/yearlyAggregator";
+import { computeCashFlowSections } from "@/lib/cashFlowSections";
 
 interface CashPositionAnalysis {
   operatingReserve: number;
@@ -128,37 +129,8 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
 
   const totalPropertyCost = property.purchasePrice + (property.buildingImprovements ?? 0) + property.preOpeningCosts;
 
-  const cashFromOperations = yearlyDetails.map((yd) => {
-    return yd.revenueTotal - (yd.totalExpenses - yd.expenseFFE) - yd.interestExpense - yd.incomeTax;
-  });
-
-  const cashFromInvesting = yearlyData.map((cf, i) => {
-    const ffe = yearlyDetails[i].expenseFFE;
-    const acqCost = i === acquisitionYear ? totalPropertyCost : 0;
-    const exitVal = cf.exitValue;
-    return -acqCost - ffe + exitVal;
-  });
-
-  const cashFromFinancing = yearlyData.map((cf, i) => {
-    const eqContrib = i === acquisitionYear ? equityInvested : 0;
-    const loanProceeds = i === acquisitionYear && loan.loanAmount > 0 ? loan.loanAmount : 0;
-    return eqContrib + loanProceeds - cf.principalPayment + cf.refinancingProceeds;
-  });
-
-  const netChangeCash = cashFromOperations.map((cfo, i) => cfo + cashFromInvesting[i] + cashFromFinancing[i]);
-
-  const openingCash: number[] = [];
-  const closingCash: number[] = [];
-  let runningCash = 0;
-  for (let i = 0; i < years; i++) {
-    openingCash.push(runningCash);
-    runningCash += netChangeCash[i];
-    closingCash.push(runningCash);
-  }
-
-  // Pre-compute FCF and FCFE arrays
-  const fcfValues = cashFromOperations.map((cfo, i) => cfo - yearlyDetails[i].expenseFFE);
-  const fcfeValues = fcfValues.map((fcf, i) => fcf - yearlyData[i].principalPayment);
+  const sections = computeCashFlowSections(yearlyDetails, yearlyData, loan, acquisitionYear, totalPropertyCost, years);
+  const { cashFromOperations, cashFromInvesting, cashFromFinancing, netChangeCash, openingCash, closingCash, fcf: fcfValues, fcfe: fcfeValues } = sections;
 
   // Pre-format metric values
   const cocValues = yearlyData.map((y) =>

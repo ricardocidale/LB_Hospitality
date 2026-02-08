@@ -11,6 +11,7 @@ export default defineConfig({
       "@domain": path.resolve(__dirname, "domain"),
       "@engine": path.resolve(__dirname, "engine"),
       "@statements": path.resolve(__dirname, "statements"),
+      "@analytics": path.resolve(__dirname, "analytics"),
     },
   },
 });

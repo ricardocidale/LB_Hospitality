@@ -15,6 +15,7 @@ import { Link, useRoute, useLocation } from "wouter";
 import { useState, useEffect, useRef } from "react";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { Slider } from "@/components/ui/slider";
+import { EditableValue } from "@/components/ui/editable-value";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { PropertyImagePicker } from "@/features/property-images";
 import { 
@@ -49,83 +50,6 @@ import {
   DEFAULT_REFI_PERIOD_YEARS,
 } from "@/lib/constants";
 
-function EditableValue({ 
-  value, 
-  onChange, 
-  format = "percent",
-  min = 0,
-  max = 100,
-  step = 1
-}: { 
-  value: number; 
-  onChange: (val: number) => void;
-  format?: "percent" | "dollar" | "months" | "number";
-  min?: number;
-  max?: number;
-  step?: number;
-}) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [inputValue, setInputValue] = useState("");
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  const displayValue = () => {
-    if (format === "percent") return `${value.toFixed(1)}%`;
-    if (format === "dollar") return `$${value.toLocaleString()}`;
-    if (format === "months") return `${value} mo`;
-    return value.toString();
-  };
-
-  const handleClick = () => {
-    setInputValue(value.toString());
-    setIsEditing(true);
-    setTimeout(() => inputRef.current?.select(), 0);
-  };
-
-  const handleBlur = () => {
-    setIsEditing(false);
-    let parsed = parseFloat(inputValue);
-    if (!isNaN(parsed)) {
-      parsed = Math.max(min, Math.min(max, parsed));
-      onChange(parsed);
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleBlur();
-    } else if (e.key === "Escape") {
-      setIsEditing(false);
-    }
-  };
-
-  if (isEditing) {
-    return (
-      <input
-        ref={inputRef}
-        type="number"
-        value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
-        onBlur={handleBlur}
-        onKeyDown={handleKeyDown}
-        className="w-16 text-sm font-mono font-semibold text-[#9FBCA4] bg-transparent border-b border-[#9FBCA4] outline-none text-right"
-        step={step}
-        min={min}
-        max={max}
-        autoFocus
-      />
-    );
-  }
-
-  return (
-    <span 
-      onClick={handleClick}
-      className="text-sm font-mono font-semibold text-[#9FBCA4] cursor-pointer hover:underline"
-      title="Click to edit"
-    >
-      {displayValue()}
-    </span>
-  );
-}
 
 
 function formatMoneyInput(value: number): string {

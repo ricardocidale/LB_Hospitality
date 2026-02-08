@@ -10,6 +10,7 @@ import { Loader2, BookOpen } from "lucide-react";
 import { SaveButton } from "@/components/ui/save-button";
 import { GlassButton } from "@/components/ui/glass-button";
 import { PageHeader } from "@/components/ui/page-header";
+import { ResearchBadge } from "@/components/ui/research-badge";
 import { Link, useRoute, useLocation } from "wouter";
 import { useState, useEffect, useRef } from "react";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
@@ -126,20 +127,6 @@ function EditableValue({
   );
 }
 
-function ResearchBadge({ value, onClick }: { value: string | null | undefined; onClick?: () => void }) {
-  if (!value) return null;
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="text-xs font-medium text-amber-600 hover:text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-md px-1.5 py-0.5 transition-colors cursor-pointer"
-      title="Click to apply research-recommended value"
-      data-testid="badge-research"
-    >
-      (Research: {value})
-    </button>
-  );
-}
 
 function formatMoneyInput(value: number): string {
   return new Intl.NumberFormat('en-US').format(value);

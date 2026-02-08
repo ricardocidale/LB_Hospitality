@@ -3,6 +3,7 @@ import Layout from "@/components/Layout";
 import { useProperties, useGlobalAssumptions } from "@/lib/api";
 import { generatePropertyProForma, formatMoney, getFiscalYearForModelYear } from "@/lib/financialEngine";
 import { PROJECTION_YEARS, DEFAULT_EXIT_CAP_RATE, DEFAULT_TAX_RATE } from "@/lib/constants";
+import { computeIRR } from "@analytics/returns/irr.js";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
 import { Loader2, TrendingUp, TrendingDown, BarChart3, Sliders, Building2, ArrowUpDown } from "lucide-react";
@@ -27,42 +28,9 @@ interface ScenarioResult {
   irr: number;
 }
 
-function calculateIRR(cashFlows: number[], guess: number = 0.1): number {
-  const maxIterations = 100;
-  const tolerance = 0.0001;
-  let rate = guess;
-  for (let i = 0; i < maxIterations; i++) {
-    let npv = 0;
-    let derivNpv = 0;
-    for (let t = 0; t < cashFlows.length; t++) {
-      const denominator = Math.pow(1 + rate, t);
-      npv += cashFlows[t] / denominator;
-      if (t > 0) {
-        derivNpv -= (t * cashFlows[t]) / Math.pow(1 + rate, t + 1);
-      }
-    }
-    if (Math.abs(npv) < tolerance) return rate;
-    if (derivNpv === 0) break;
-    rate = rate - npv / derivNpv;
-    if (rate < -1) rate = -0.99;
-    if (!isFinite(rate)) break;
-  }
-  if (!isFinite(rate)) {
-    let lo = -0.99;
-    let hi = 10.0;
-    for (let i = 0; i < 200; i++) {
-      const mid = (lo + hi) / 2;
-      let npv = 0;
-      for (let t = 0; t < cashFlows.length; t++) {
-        npv += cashFlows[t] / Math.pow(1 + mid, t);
-      }
-      if (npv > 0) lo = mid;
-      else hi = mid;
-      if (hi - lo < tolerance) return mid;
-    }
-    return (lo + hi) / 2;
-  }
-  return rate;
+function calculateIRR(cashFlows: number[]): number {
+  const result = computeIRR(cashFlows, 1);
+  return result.irr_periodic ?? 0;
 }
 
 export default function SensitivityAnalysis() {

@@ -29,6 +29,7 @@ import { drawLineChart } from "@/lib/pdfChartDrawer";
 import { calculateLoanParams, LoanParams, GlobalLoanParams, DEFAULT_LTV, PROJECTION_YEARS } from "@/lib/loanCalculations";
 import { aggregateCashFlowByYear } from "@/lib/cashFlowAggregator";
 import { aggregatePropertyByYear } from "@/lib/yearlyAggregator";
+import { computeCashFlowSections } from "@/lib/cashFlowSections";
 import { PropertyPhotoUpload } from "@/components/PropertyPhotoUpload";
 import { useQueryClient } from "@tanstack/react-query";
 import { ExportDialog } from "@/components/ExportDialog";
@@ -125,30 +126,9 @@ export default function PropertyDetail() {
     const csvLoan = calculateLoanParams(property as LoanParams, global as GlobalLoanParams);
     const csvAcqYear = Math.floor(csvLoan.acqMonthsFromModelStart / 12);
     const csvTotalPropertyCost = (property as any).purchasePrice + ((property as any).buildingImprovements ?? 0) + ((property as any).preOpeningCosts ?? 0);
-    
-    const cfoData = yearlyDetails.map((yd, i) => {
-      return yd.revenueTotal - (yd.totalExpenses - yd.expenseFFE) - cashFlowData[i].interestExpense - cashFlowData[i].taxLiability;
-    });
-    const cfiData = cashFlowData.map((cf, i) => {
-      const ffe = yearlyDetails[i].expenseFFE;
-      const acqCost = i === csvAcqYear ? csvTotalPropertyCost : 0;
-      return -acqCost - ffe + cf.exitValue;
-    });
-    const cffData = cashFlowData.map((cf, i) => {
-      const eqContrib = i === csvAcqYear ? csvLoan.equityInvested : 0;
-      const loanProceeds = i === csvAcqYear && csvLoan.loanAmount > 0 ? csvLoan.loanAmount : 0;
-      return eqContrib + loanProceeds - cf.principalPayment + cf.refinancingProceeds;
-    });
-    const netChange = cfoData.map((cfo, i) => cfo + cfiData[i] + cffData[i]);
-    let runCash = 0;
-    const openCash: number[] = [];
-    const closeCash: number[] = [];
-    for (let i = 0; i < years; i++) {
-      openCash.push(runCash);
-      runCash += netChange[i];
-      closeCash.push(runCash);
-    }
-    
+
+    const s = computeCashFlowSections(yearlyDetails, cashFlowData, csvLoan, csvAcqYear, csvTotalPropertyCost, years);
+
     const rows = [
       ["CASH FLOW FROM OPERATING ACTIVITIES"],
       ["Cash Received from Guests & Clients", ...yearlyDetails.map(y => y.revenueTotal.toFixed(0))],
@@ -173,31 +153,31 @@ export default function PropertyDetail() {
       ["  Incentive Management Fee", ...yearlyDetails.map(y => y.feeIncentive.toFixed(0))],
       ["Less: Interest Paid", ...cashFlowData.map(y => (-y.interestExpense).toFixed(0))],
       ["Less: Income Taxes Paid", ...cashFlowData.map(y => (-y.taxLiability).toFixed(0))],
-      ["Net Cash from Operating Activities", ...cfoData.map(v => v.toFixed(0))],
+      ["Net Cash from Operating Activities", ...s.cashFromOperations.map(v => v.toFixed(0))],
       [""],
       ["CASH FLOW FROM INVESTING ACTIVITIES"],
       ["Property Acquisition", ...cashFlowData.map((_, i) => (i === csvAcqYear ? -csvTotalPropertyCost : 0).toFixed(0))],
       ["FF&E Reserve / Capital Improvements", ...yearlyDetails.map(y => (-y.expenseFFE).toFixed(0))],
       ["Sale Proceeds (Net Exit Value)", ...cashFlowData.map(y => y.exitValue.toFixed(0))],
-      ["Net Cash from Investing Activities", ...cfiData.map(v => v.toFixed(0))],
+      ["Net Cash from Investing Activities", ...s.cashFromInvesting.map(v => v.toFixed(0))],
       [""],
       ["CASH FLOW FROM FINANCING ACTIVITIES"],
       ["Equity Contribution", ...cashFlowData.map((_, i) => (i === csvAcqYear ? csvLoan.equityInvested : 0).toFixed(0))],
       ["Loan Proceeds", ...cashFlowData.map((_, i) => (i === csvAcqYear && csvLoan.loanAmount > 0 ? csvLoan.loanAmount : 0).toFixed(0))],
       ["Less: Principal Repayments", ...cashFlowData.map(y => (-y.principalPayment).toFixed(0))],
       ["Refinancing Proceeds", ...cashFlowData.map(y => y.refinancingProceeds.toFixed(0))],
-      ["Net Cash from Financing Activities", ...cffData.map(v => v.toFixed(0))],
+      ["Net Cash from Financing Activities", ...s.cashFromFinancing.map(v => v.toFixed(0))],
       [""],
-      ["Net Increase (Decrease) in Cash", ...netChange.map(v => v.toFixed(0))],
-      ["Opening Cash Balance", ...openCash.map(v => v.toFixed(0))],
-      ["Closing Cash Balance", ...closeCash.map(v => v.toFixed(0))],
+      ["Net Increase (Decrease) in Cash", ...s.netChangeCash.map(v => v.toFixed(0))],
+      ["Opening Cash Balance", ...s.openingCash.map(v => v.toFixed(0))],
+      ["Closing Cash Balance", ...s.closingCash.map(v => v.toFixed(0))],
       [""],
       ["FREE CASH FLOW"],
-      ["Net Cash from Operating Activities", ...cfoData.map(v => v.toFixed(0))],
+      ["Net Cash from Operating Activities", ...s.cashFromOperations.map(v => v.toFixed(0))],
       ["Less: Capital Expenditures (FF&E)", ...yearlyDetails.map(y => (-y.expenseFFE).toFixed(0))],
-      ["Free Cash Flow (FCF)", ...cfoData.map((cfo, i) => (cfo - yearlyDetails[i].expenseFFE).toFixed(0))],
+      ["Free Cash Flow (FCF)", ...s.fcf.map(v => v.toFixed(0))],
       ["Less: Principal Payments", ...cashFlowData.map(y => (-y.principalPayment).toFixed(0))],
-      ["Free Cash Flow to Equity (FCFE)", ...cfoData.map((cfo, i) => (cfo - yearlyDetails[i].expenseFFE - cashFlowData[i].principalPayment).toFixed(0))],
+      ["Free Cash Flow to Equity (FCFE)", ...s.fcfe.map(v => v.toFixed(0))],
     ];
 
     const csvContent = [headers, ...rows].map(row => row.join(",")).join("\n");

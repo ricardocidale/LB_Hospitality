@@ -183,17 +183,4 @@ function recalculateCompanyStats(properties: Property[], currentStats: Managemen
   };
 }
 
-// --- Financial Calculators (Mocking the business logic for charts) ---
-
-export const calculateAnnualRevenue = (property: Property) => {
-  // Room Revenue = Rooms * ADR * Occupancy * 365
-  const roomRev = property.roomCount * property.adr * property.occupancyRate * 365;
-  // Total Revenue = Room Revenue / 0.58 (from spec)
-  return roomRev / 0.58;
-};
-
-export const calculateGOP = (revenue: number) => {
-  // Rough estimate based on typical 30-40% margin for boutique hotels
-  return revenue * 0.35; 
-};
 

@@ -1,4 +1,5 @@
 import { addMonths, differenceInMonths, isBefore } from "date-fns";
+import { pmt } from "@calc/shared/pmt";
 import { 
   DEFAULT_LTV, 
   DEFAULT_INTEREST_RATE, 
@@ -274,15 +275,9 @@ export function generatePropertyProForma(
   const taxRate = property.taxRate ?? DEFAULT_TAX_RATE;
   const monthlyRate = loanRate / 12;
   const totalPayments = loanTerm * 12;
-  // Handle zero interest rate (straight-line principal reduction)
   let monthlyPayment = 0;
   if (originalLoanAmount > 0) {
-    if (monthlyRate === 0) {
-      monthlyPayment = originalLoanAmount / totalPayments;
-    } else {
-      monthlyPayment = (originalLoanAmount * monthlyRate * Math.pow(1 + monthlyRate, totalPayments)) / 
-                       (Math.pow(1 + monthlyRate, totalPayments) - 1);
-    }
+    monthlyPayment = pmt(originalLoanAmount, monthlyRate, totalPayments);
   }
     
   let cumulativeCash = 0; // Track cumulative cash for ending cash balance

@@ -119,35 +119,55 @@ export function runFullVerification(
       // Run legacy formula checks
       const formulaCheck = checkPropertyFormulas(financials);
       formulaReports.push(formulaCheck);
-      console.log(`  [1/5] Formula Verification:     ${formulaCheck.passed}/${formulaCheck.totalChecks} passed`);
+      console.log(`  [1/6] Formula Verification:     ${formulaCheck.passed}/${formulaCheck.totalChecks} passed`);
       
       // Run legacy GAAP compliance checks
       const gaapCheck = checkGAAPCompliance(financials);
       complianceReports.push(gaapCheck);
-      console.log(`  [2/5] GAAP Compliance:          ${gaapCheck.passed}/${gaapCheck.totalChecks} passed`);
+      console.log(`  [2/6] GAAP Compliance:          ${gaapCheck.passed}/${gaapCheck.totalChecks} passed`);
       
       // Run cash flow statement checks
       const cfCheck = checkCashFlowStatement(financials);
       complianceReports.push(cfCheck);
-      console.log(`  [3/5] Cash Flow Statement:      ${cfCheck.passed}/${cfCheck.totalChecks} passed`);
+      console.log(`  [3/6] Cash Flow Statement:      ${cfCheck.passed}/${cfCheck.totalChecks} passed`);
       
       // Run metric formula checks
       const yearlyData = aggregateToYearly(financials);
       const metricCheck = checkMetricFormulas(yearlyData);
       formulaReports.push(metricCheck);
-      console.log(`  [4/5] Metric Formulas:          ${metricCheck.passed}/${metricCheck.totalChecks} passed`);
+      console.log(`  [4/6] Metric Formulas:          ${metricCheck.passed}/${metricCheck.totalChecks} passed`);
       
       // Run comprehensive PwC-level audit
       const propertyAuditInput = convertToAuditInput(property);
       const auditReport = runFullAudit(propertyAuditInput, globalAuditInput, financials);
       auditReports.push(auditReport);
-      console.log(`  [5/5] Comprehensive Audit:      ${auditReport.totalPassed}/${auditReport.totalChecks} passed`);
+      console.log(`  [5/6] Comprehensive Audit:      ${auditReport.totalPassed}/${auditReport.totalChecks} passed`);
       console.log(`        Opinion: ${auditReport.opinion}`);
       if (auditReport.criticalIssues > 0) {
         console.log(`        ⚠️  Critical Issues: ${auditReport.criticalIssues}`);
       }
       if (auditReport.materialIssues > 0) {
         console.log(`        △  Material Issues: ${auditReport.materialIssues}`);
+      }
+      
+      // Run cross-calculator validation (IRS, GAAP, USALI authoritative checks)
+      const crossReport = crossValidateFinancingCalculators(
+        {
+          purchasePrice: property.purchasePrice,
+          type: property.type,
+          acquisitionLTV: property.acquisitionLTV,
+          acquisitionInterestRate: property.acquisitionInterestRate ?? property.debtAssumptions?.interestRate,
+          acquisitionTermYears: property.acquisitionTermYears ?? property.debtAssumptions?.amortizationYears,
+          landValuePercent: property.landValuePercent,
+          buildingImprovements: property.buildingImprovements,
+        },
+        globalAssumptions,
+        financials,
+      );
+      crossReports.push(crossReport);
+      console.log(`  [6/6] Cross-Validation:         ${crossReport.passed}/${crossReport.totalChecks} passed`);
+      if (crossReport.criticalIssues > 0) {
+        console.log(`        ⚠️  Critical Cross-Validation Issues: ${crossReport.criticalIssues}`);
       }
       
     } catch (error) {
@@ -170,20 +190,31 @@ export function runFullVerification(
     auditWorkpaper += generateAuditWorkpaper(report);
     auditWorkpaper += "\n\n";
   }
+
+  // Generate cross-validation report
+  let crossValidationReport = "";
+  for (const report of crossReports) {
+    crossValidationReport += formatCrossValidationReport(report);
+    crossValidationReport += "\n\n";
+  }
   
   // Calculate summary
   const formulaChecksPassed = formulaReports.reduce((sum, r) => sum + r.passed, 0);
   const formulaChecksFailed = formulaReports.reduce((sum, r) => sum + r.failed, 0);
   const complianceChecksPassed = complianceReports.reduce((sum, r) => sum + r.passed, 0);
   const complianceChecksFailed = complianceReports.reduce((sum, r) => sum + r.failed, 0);
-  const criticalIssues = auditReports.reduce((sum, r) => sum + r.criticalIssues, 0);
+  const crossValidationPassed = crossReports.reduce((sum, r) => sum + r.passed, 0);
+  const crossValidationFailed = crossReports.reduce((sum, r) => sum + r.failed, 0);
+  const criticalIssues = auditReports.reduce((sum, r) => sum + r.criticalIssues, 0) +
+    crossReports.reduce((sum, r) => sum + r.criticalIssues, 0);
   const materialIssues = auditReports.reduce((sum, r) => sum + r.materialIssues, 0);
   
-  // Determine overall audit opinion
+  // Determine overall audit opinion (cross-validation critical failures count as adverse)
   let auditOpinion: "UNQUALIFIED" | "QUALIFIED" | "ADVERSE" | "DISCLAIMER" = "UNQUALIFIED";
-  if (auditReports.some(r => r.opinion === "ADVERSE")) {
+  const hasCrossValidationCritical = crossReports.some(r => r.criticalIssues > 0);
+  if (auditReports.some(r => r.opinion === "ADVERSE") || hasCrossValidationCritical) {
     auditOpinion = "ADVERSE";
-  } else if (auditReports.some(r => r.opinion === "QUALIFIED")) {
+  } else if (auditReports.some(r => r.opinion === "QUALIFIED") || crossValidationFailed > 0) {
     auditOpinion = "QUALIFIED";
   } else if (auditReports.some(r => r.opinion === "DISCLAIMER")) {
     auditOpinion = "DISCLAIMER";
@@ -192,7 +223,7 @@ export function runFullVerification(
   let overallStatus: "PASS" | "FAIL" | "WARNING" = "PASS";
   if (criticalIssues > 0 || formulaChecksFailed > 0 || auditOpinion === "ADVERSE") {
     overallStatus = "FAIL";
-  } else if (materialIssues > 0 || complianceChecksFailed > 0 || auditOpinion === "QUALIFIED") {
+  } else if (materialIssues > 0 || complianceChecksFailed > 0 || crossValidationFailed > 0 || auditOpinion === "QUALIFIED") {
     overallStatus = "WARNING";
   }
   
@@ -200,12 +231,16 @@ export function runFullVerification(
     formulaReport,
     complianceReport,
     auditWorkpaper,
+    crossValidationReport,
     auditReports,
+    crossValidationReports: crossReports,
     summary: {
       formulaChecksPassed,
       formulaChecksFailed,
       complianceChecksPassed,
       complianceChecksFailed,
+      crossValidationPassed,
+      crossValidationFailed,
       criticalIssues,
       materialIssues,
       auditOpinion,
@@ -254,11 +289,14 @@ export function printVerificationResults(results: VerificationResults): void {
   console.log("\n\n");
   console.log(results.auditWorkpaper);
   console.log("\n\n");
+  console.log(results.crossValidationReport);
+  console.log("\n\n");
   console.log("╔══════════════════════════════════════════════════════════════════════════════╗");
   console.log("║                    CONSOLIDATED VERIFICATION STATUS                          ║");
   console.log("╠══════════════════════════════════════════════════════════════════════════════╣");
   console.log(`║  Formula Checks:      ${results.summary.formulaChecksPassed.toString().padStart(4)} passed, ${results.summary.formulaChecksFailed.toString().padStart(4)} failed                         ║`);
   console.log(`║  Compliance Checks:   ${results.summary.complianceChecksPassed.toString().padStart(4)} passed, ${results.summary.complianceChecksFailed.toString().padStart(4)} failed                         ║`);
+  console.log(`║  Cross-Validation:    ${results.summary.crossValidationPassed.toString().padStart(4)} passed, ${results.summary.crossValidationFailed.toString().padStart(4)} failed                         ║`);
   console.log(`║  Critical Issues:     ${results.summary.criticalIssues.toString().padStart(4)}                                                   ║`);
   console.log(`║  Material Issues:     ${results.summary.materialIssues.toString().padStart(4)}                                                   ║`);
   console.log("╠══════════════════════════════════════════════════════════════════════════════╣");

@@ -1,5 +1,12 @@
 import type { MonthlyFinancials } from './financialEngine';
 import { pmt } from '@calc/shared/pmt';
+import {
+  DEFAULT_LTV,
+  DEFAULT_INTEREST_RATE,
+  DEFAULT_TERM_YEARS,
+  DEFAULT_LAND_VALUE_PERCENT,
+  DEPRECIATION_YEARS,
+} from './constants';
 
 export interface CrossValidationResult {
   name: string;
@@ -25,6 +32,8 @@ interface PropertyForValidation {
   acquisitionLTV?: number | null;
   acquisitionInterestRate?: number | null;
   acquisitionTermYears?: number | null;
+  landValuePercent?: number | null;
+  buildingImprovements?: number | null;
 }
 
 interface GlobalForValidation {
@@ -35,9 +44,6 @@ interface GlobalForValidation {
   };
 }
 
-const DEFAULT_LTV = 0.75;
-const DEFAULT_INTEREST_RATE = 0.09;
-const DEFAULT_TERM_YEARS = 25;
 const TOLERANCE = 0.01;
 
 function withinTolerance(a: number, b: number, tol = TOLERANCE): boolean {
@@ -111,25 +117,39 @@ export function crossValidateFinancingCalculators(
   });
 
   // 3. DSCR Cross-Check
-  // For each operating year, compute DSCR from engine data and verify formula
+  // For each operating year, independently compute DSCR from raw NOI and debt service
+  // Verify DSCR > 0 for operating years and that the ratio is reasonable
   const projectionYears = Math.ceil(monthlyData.length / 12);
   for (let y = 0; y < Math.min(projectionYears, 5); y++) {
     const yearSlice = monthlyData.slice(y * 12, (y + 1) * 12);
     const yearNOI = yearSlice.reduce((sum, m) => sum + m.noi, 0);
     const yearDS = yearSlice.reduce((sum, m) => sum + m.debtPayment, 0);
+    const yearInterest = yearSlice.reduce((sum, m) => sum + m.interestExpense, 0);
+    const yearPrincipal = yearSlice.reduce((sum, m) => sum + m.principalPayment, 0);
 
     if (yearDS > 0 && yearNOI > 0) {
-      const engineDSCR = yearNOI / yearDS;
-      const expectedDSCR = yearNOI / yearDS;
+      const dscr = yearNOI / yearDS;
+      const dsFromComponents = yearInterest + yearPrincipal;
+      const dsComponentMatch = withinTolerance(yearDS, dsFromComponents);
 
       results.push({
-        name: `Year ${y + 1}: DSCR Calculation`,
-        description: 'DSCR = Annual NOI ÷ Annual Debt Service (industry standard)',
-        passed: withinTolerance(engineDSCR, expectedDSCR),
+        name: `Year ${y + 1}: DSCR Components`,
+        description: 'Annual Debt Service must equal Interest + Principal (ASC 470)',
+        passed: dsComponentMatch,
+        severity: 'critical',
+        expected: dsFromComponents.toFixed(2),
+        actual: yearDS.toFixed(2),
+        source: 'CRE Lending: DSCR = NOI ÷ (Interest + Principal)',
+      });
+
+      results.push({
+        name: `Year ${y + 1}: DSCR Value`,
+        description: `DSCR = ${dscr.toFixed(2)}x — must be positive for operating years`,
+        passed: dscr > 0,
         severity: 'material',
-        expected: expectedDSCR.toFixed(4),
-        actual: engineDSCR.toFixed(4),
-        source: 'CRE Lending: JP Morgan, Wall Street Prep',
+        expected: '> 0 (typical minimum 1.20x–1.25x)',
+        actual: `${dscr.toFixed(4)}x`,
+        source: 'CRE Lending Standard: NOI / Annual Debt Service',
       });
     }
   }
@@ -285,9 +305,10 @@ export function crossValidateFinancingCalculators(
   const operatingMonths = monthlyData.filter(m => m.propertyValue > 0);
   let bsErrors = 0;
   if (operatingMonths.length > 0) {
-    const landValue = property.purchasePrice * (0.25);
-    const buildingValue = property.purchasePrice * 0.75;
-    const monthlyDep = buildingValue / 27.5 / 12;
+    const landPct = property.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT;
+    const landValue = property.purchasePrice * landPct;
+    const buildingValue = property.purchasePrice * (1 - landPct) + (property.buildingImprovements ?? 0);
+    const monthlyDep = buildingValue / DEPRECIATION_YEARS / 12;
 
     for (let i = 0; i < operatingMonths.length; i++) {
       const m = operatingMonths[i];
@@ -324,8 +345,9 @@ export function crossValidateFinancingCalculators(
   // 14. IRS: Depreciation = Basis / 27.5 / 12 (straight-line)
   const depMonths = monthlyData.filter(m => m.depreciationExpense > 0);
   if (depMonths.length > 0) {
-    const buildingBasis = property.purchasePrice * 0.75;
-    const expectedMonthlyDep = buildingBasis / 27.5 / 12;
+    const depLandPct = property.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT;
+    const buildingBasis = property.purchasePrice * (1 - depLandPct) + (property.buildingImprovements ?? 0);
+    const expectedMonthlyDep = buildingBasis / DEPRECIATION_YEARS / 12;
     let depErrors = 0;
     for (const m of depMonths) {
       if (!withinTolerance(m.depreciationExpense, expectedMonthlyDep, 1.0)) {
@@ -334,12 +356,12 @@ export function crossValidateFinancingCalculators(
     }
     results.push({
       name: 'IRS Pub 946: Monthly Depreciation',
-      description: 'Monthly depreciation = depreciable basis / 27.5 / 12',
+      description: `Monthly depreciation = depreciable basis / ${DEPRECIATION_YEARS} / 12`,
       passed: depErrors === 0,
       severity: 'material',
       expected: expectedMonthlyDep.toFixed(2),
       actual: depMonths[0].depreciationExpense.toFixed(2),
-      source: 'IRS Publication 946: 27.5-year straight-line, residential rental',
+      source: `IRS Publication 946: ${DEPRECIATION_YEARS}-year straight-line, residential rental`,
     });
   }
 

@@ -109,6 +109,9 @@ server/
 All monetary values must be formatted with currency precision and thousands separators. All interactive and display elements require `data-testid`. No mock or placeholder data is permitted in production paths. All buttons must use GlassButton. All pages must use PageHeader. All export functionality must use ExportMenu. Legacy import paths are preserved via re-export barrels.
 
 ## Authoritative Finance Skill Specification
+
+Finance authority tool: `.claude/tools/financial_standards_authority.json` (tool name: `get_financial_standards_authority`). For any finance/stats/consolidation/refi work, consult this tool output before implementing classification-sensitive logic.
+
 The file `/skills/finance/FINANCE_SKILL_SPECS.md` is the single source of truth for:
 - Financing
 - Refinancing

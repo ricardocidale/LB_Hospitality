@@ -145,6 +145,11 @@ export async function registerRoutes(
   app.post("/api/auth/admin-login", async (req, res) => {
     try {
       const clientIp = req.ip || req.socket.remoteAddress || "unknown";
+
+      if (isRateLimited(clientIp)) {
+        return res.status(429).json({ error: "Too many login attempts. Please try again in 1 minute." });
+      }
+
       const user = await storage.getUserByEmail("admin");
       if (!user) {
         return res.status(401).json({ error: "Admin user not found" });
@@ -984,7 +989,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
-  app.post("/api/global-assumptions", async (req, res) => {
+  app.post("/api/global-assumptions", requireAuth, async (req, res) => {
     try {
       const validation = insertGlobalAssumptionsSchema.safeParse(req.body);
       
@@ -1165,7 +1170,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
   });
 
   // --- FIX IMAGE URLS ENDPOINT ---
-  app.post("/api/fix-images", async (req, res) => {
+  app.post("/api/fix-images", requireAdmin, async (req, res) => {
     try {
       const imageMap: Record<string, string> = {
         "The Hudson Estate": "/images/property-ny.png",
@@ -1195,7 +1200,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
 
   // --- ONE-TIME SEED ENDPOINT ---
   // Visit /api/seed-production once to populate the database with initial data
-  app.post("/api/seed-production", async (req, res) => {
+  app.post("/api/seed-production", requireAdmin, async (req, res) => {
     try {
       // Check if data already exists
       const existingProperties = await storage.getAllProperties();

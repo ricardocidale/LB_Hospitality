@@ -27,6 +27,7 @@ export {
   DEFAULT_COMMISSION_RATE,
   DEPRECIATION_YEARS,
   DAYS_PER_MONTH,
+  DEFAULT_LAND_VALUE_PERCENT,
 } from "@shared/constants";
 
 // Loan defaults
@@ -36,9 +37,6 @@ export const DEFAULT_TERM_YEARS = 25;
 export const DEFAULT_REFI_LTV = 0.65;
 export const DEFAULT_REFI_CLOSING_COST_RATE = 0.03;
 export const DEFAULT_ACQ_CLOSING_COST_RATE = 0.02;
-
-// Default land value percentage (IRS Publication 946 — non-depreciable)
-export const DEFAULT_LAND_VALUE_PERCENT = 0.25;
 
 // Company tax rate
 export const DEFAULT_COMPANY_TAX_RATE = 0.30;

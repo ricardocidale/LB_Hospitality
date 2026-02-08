@@ -22,6 +22,7 @@ import {
   DEFAULT_COMMISSION_RATE,
   DEPRECIATION_YEARS,
   DAYS_PER_MONTH,
+  DEFAULT_LAND_VALUE_PERCENT,
 } from "@shared/constants";
 
 const PROJECTION_YEARS = 10;
@@ -137,7 +138,7 @@ function independentPropertyCalc(property: any, global: any) {
   const opsStartYM = parseYearMonth(property.operationsStartDate);
   const acquisitionYM = property.acquisitionDate ? parseYearMonth(property.acquisitionDate) : opsStartYM;
 
-  const landPct = property.landValuePercent ?? 0.25;
+  const landPct = property.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT;
   const depreciableBasis = property.purchasePrice * (1 - landPct) + (property.buildingImprovements ?? 0);
   const landValue = property.purchasePrice * landPct;
   const monthlyDepreciation = depreciableBasis / DEPRECIATION_YEARS / 12;
@@ -281,7 +282,7 @@ function independentPropertyCalc(property: any, global: any) {
 
     const depreciationExpense = isAcquired ? monthlyDepreciation : 0;
     const taxableIncome = noi - interestExpense - depreciationExpense;
-    const incomeTax = taxableIncome > 0 ? taxableIncome * (property.taxRate ?? 0.25) : 0;
+    const incomeTax = taxableIncome > 0 ? taxableIncome * (property.taxRate ?? DEFAULT_TAX_RATE) : 0;
     const netIncome = noi - interestExpense - depreciationExpense - incomeTax;
     const cashFlow = noi - debtPayment - incomeTax;
 
@@ -442,7 +443,7 @@ export function runIndependentVerification(
         "P&L",
         "ASC 470 / ASC 360",
         "NOI - Interest - Depreciation - Income Tax",
-        m.noi - m.interestExpense - m.depreciationExpense - (Math.max(0, m.noi - m.interestExpense - m.depreciationExpense) * (property.taxRate ?? 0.25)),
+        m.noi - m.interestExpense - m.depreciationExpense - (Math.max(0, m.noi - m.interestExpense - m.depreciationExpense) * (property.taxRate ?? DEFAULT_TAX_RATE)),
         m.netIncome,
         "critical"
       ));
@@ -452,7 +453,7 @@ export function runIndependentVerification(
         "Cash Flow",
         "ASC 230",
         "NOI - Total Debt Payment (interest + principal) - Income Tax",
-        m.noi - m.debtPayment - (Math.max(0, m.noi - m.interestExpense - m.depreciationExpense) * (property.taxRate ?? 0.25)),
+        m.noi - m.debtPayment - (Math.max(0, m.noi - m.interestExpense - m.depreciationExpense) * (property.taxRate ?? DEFAULT_TAX_RATE)),
         m.cashFlow,
         "critical"
       ));
@@ -478,7 +479,7 @@ export function runIndependentVerification(
       ));
     }
 
-    const depBasis = property.purchasePrice * (1 - (property.landValuePercent ?? 0.25)) + (property.buildingImprovements ?? 0);
+    const depBasis = property.purchasePrice * (1 - (property.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT)) + (property.buildingImprovements ?? 0);
     checks.push(check(
       "Annual Depreciation (Land Excluded)",
       "Balance Sheet",

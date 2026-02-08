@@ -6,7 +6,7 @@
  */
 
 import { Property } from "@shared/schema";
-import { MonthlyFinancials, getFiscalYearForModelYear } from "@/lib/financialEngine";
+import { MonthlyFinancials, getFiscalYearForModelYear, formatMoney } from "@/lib/financialEngine";
 import { GlobalResponse } from "@/lib/api";
 import {
   PROJECTION_YEARS,
@@ -116,6 +116,10 @@ export function ConsolidatedBalanceSheet({ properties, global, allProFormas, yea
   const totalLiabilities = totalDebtOutstanding;
   const totalEquity = totalInitialEquity + totalRetainedEarnings;
 
+  // Balance sheet equation validation (FASB Conceptual Framework)
+  const balanceSheetVariance = totalAssets - (totalLiabilities + totalEquity);
+  const isUnbalanced = Math.abs(balanceSheetVariance) > 1;
+
   const title = propertyIndex !== undefined
     ? `Balance Sheet — ${properties[propertyIndex]?.name}`
     : "Consolidated Balance Sheet";
@@ -167,6 +171,16 @@ export function ConsolidatedBalanceSheet({ properties, global, allProFormas, yea
 
       {/* ── Grand Total ── */}
       <GrandTotalRow label="TOTAL LIABILITIES & EQUITY" values={[totalLiabilities + totalEquity]} />
+
+      {isUnbalanced && (
+        <tr>
+          <td colSpan={2} className="px-4 py-2 bg-red-50 border-t border-red-200">
+            <span className="text-red-700 text-xs font-medium">
+              Balance sheet does not balance — Assets {formatMoney(totalAssets)} ≠ L+E {formatMoney(totalLiabilities + totalEquity)} (variance: {formatMoney(balanceSheetVariance)})
+            </span>
+          </td>
+        </tr>
+      )}
     </TableShell>
   );
 }

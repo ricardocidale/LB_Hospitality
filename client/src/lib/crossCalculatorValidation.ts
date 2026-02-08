@@ -151,6 +151,22 @@ export function crossValidateFinancingCalculators(
         actual: `${dscr.toFixed(4)}x`,
         source: 'CRE Lending Standard: NOI / Annual Debt Service',
       });
+
+      // Verify engine DS against independently computed annual DS from loan params
+      const expectedAnnualDS = expectedPMT * 12;
+      if (y === 0 && expectedAnnualDS > 0) {
+        const independentDSCR = yearNOI / expectedAnnualDS;
+        const engineDSCR = dscr;
+        results.push({
+          name: `Year ${y + 1}: DSCR Formula Consistency`,
+          description: 'Engine DSCR must match independently computed DSCR (NOI ÷ 12×PMT)',
+          passed: withinTolerance(engineDSCR, independentDSCR, 0.05),
+          severity: 'critical',
+          expected: independentDSCR.toFixed(4),
+          actual: engineDSCR.toFixed(4),
+          source: 'Cross-Validation: Engine vs Independent PMT Calculation',
+        });
+      }
     }
   }
 

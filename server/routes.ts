@@ -232,6 +232,10 @@ export async function registerRoutes(
       const updates: { name?: string; email?: string; company?: string; title?: string } = {};
       if (validation.data.name !== undefined) updates.name = validation.data.name.trim();
       if (validation.data.email !== undefined) {
+        const protectedEmails = ["admin", "checker"];
+        if (protectedEmails.includes(req.user.email)) {
+          return res.status(403).json({ error: "System account emails cannot be changed" });
+        }
         const newEmail = sanitizeEmail(validation.data.email);
         if (newEmail !== req.user.email) {
           const existingUser = await storage.getUserByEmail(newEmail);
@@ -1146,6 +1150,10 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
   // --- AI IMAGE GENERATION + UPLOAD ---
   app.post("/api/generate-property-image", requireAuth, async (req, res) => {
     try {
+      if (isApiRateLimited(req.user!.id, "generate-property-image", 5)) {
+        return res.status(429).json({ error: "Rate limit exceeded. Try again in a minute." });
+      }
+
       const { prompt } = req.body;
       if (!prompt || typeof prompt !== "string") {
         return res.status(400).json({ error: "Prompt is required" });

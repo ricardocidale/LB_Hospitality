@@ -14,12 +14,12 @@ declare global {
 }
 
 const SESSION_COOKIE = "session_id";
-const SESSION_DURATION_DAYS = 30;
+const SESSION_DURATION_DAYS = 7;
 const BCRYPT_ROUNDS = 12;
 
 const loginAttempts = new Map<string, { count: number; lastAttempt: number }>();
 const MAX_LOGIN_ATTEMPTS = 5;
-const LOCKOUT_DURATION_MS = 1 * 60 * 1000; // 1 minute lockout
+const LOCKOUT_DURATION_MS = 15 * 60 * 1000; // 15 minute lockout
 
 export function isRateLimited(identifier: string): boolean {
   const now = Date.now();
@@ -153,7 +153,7 @@ export function setSessionCookie(res: Response, sessionId: string) {
   res.cookie(SESSION_COOKIE, sessionId, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    sameSite: "strict",
     maxAge: SESSION_DURATION_DAYS * 24 * 60 * 60 * 1000,
   });
 }

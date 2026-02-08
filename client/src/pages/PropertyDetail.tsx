@@ -28,6 +28,7 @@ import autoTable from "jspdf-autotable";
 import { drawLineChart } from "@/lib/pdfChartDrawer";
 import { calculateLoanParams, LoanParams, GlobalLoanParams, DEFAULT_LTV, PROJECTION_YEARS } from "@/lib/loanCalculations";
 import { aggregateCashFlowByYear } from "@/lib/cashFlowAggregator";
+import { aggregatePropertyByYear } from "@/lib/yearlyAggregator";
 import { PropertyPhotoUpload } from "@/components/PropertyPhotoUpload";
 import { useQueryClient } from "@tanstack/react-query";
 import { ExportDialog } from "@/components/ExportDialog";
@@ -109,42 +110,15 @@ export default function PropertyDetail() {
     );
   }
 
-  const getYearlyDetails = () => {
-    const result = [];
-    for (let y = 0; y < years; y++) {
-      const yearData = financials.slice(y * 12, (y + 1) * 12);
-      result.push({
-        revenueRooms: yearData.reduce((a, m) => a + m.revenueRooms, 0),
-        revenueEvents: yearData.reduce((a, m) => a + m.revenueEvents, 0),
-        revenueFB: yearData.reduce((a, m) => a + m.revenueFB, 0),
-        revenueOther: yearData.reduce((a, m) => a + m.revenueOther, 0),
-        totalRevenue: yearData.reduce((a, m) => a + m.revenueTotal, 0),
-        expenseRooms: yearData.reduce((a, m) => a + m.expenseRooms, 0),
-        expenseFB: yearData.reduce((a, m) => a + m.expenseFB, 0),
-        expenseEvents: yearData.reduce((a, m) => a + m.expenseEvents, 0),
-        expenseMarketing: yearData.reduce((a, m) => a + m.expenseMarketing, 0),
-        expensePropertyOps: yearData.reduce((a, m) => a + m.expensePropertyOps, 0),
-        expenseUtilitiesVar: yearData.reduce((a, m) => a + m.expenseUtilitiesVar, 0),
-        expenseUtilitiesFixed: yearData.reduce((a, m) => a + m.expenseUtilitiesFixed, 0),
-        expenseFFE: yearData.reduce((a, m) => a + m.expenseFFE, 0),
-        expenseAdmin: yearData.reduce((a, m) => a + m.expenseAdmin, 0),
-        expenseIT: yearData.reduce((a, m) => a + m.expenseIT, 0),
-        expenseInsurance: yearData.reduce((a, m) => a + m.expenseInsurance, 0),
-        expenseTaxes: yearData.reduce((a, m) => a + m.expenseTaxes, 0),
-        expenseOther: yearData.reduce((a, m) => a + m.expenseOtherCosts, 0),
-        feeBase: yearData.reduce((a, m) => a + m.feeBase, 0),
-        feeIncentive: yearData.reduce((a, m) => a + m.feeIncentive, 0),
-        totalExpenses: yearData.reduce((a, m) => a + m.totalExpenses, 0),
-        noi: yearData.reduce((a, m) => a + m.noi, 0),
-      });
-    }
-    return result;
-  };
+  const yearlyDetails = useMemo(
+    () => aggregatePropertyByYear(financials, years),
+    [financials, years]
+  );
 
   const getCashFlowData = () => cashFlowDataMemo;
 
   const exportCashFlowCSV = () => {
-    const yearlyDetails = getYearlyDetails();
+
     const cashFlowData = getCashFlowData();
     const headers = ["Line Item", ...Array.from({length: years}, (_, i) => `FY ${startYear + i}`)];
     
@@ -153,7 +127,7 @@ export default function PropertyDetail() {
     const csvTotalPropertyCost = (property as any).purchasePrice + ((property as any).buildingImprovements ?? 0) + ((property as any).preOpeningCosts ?? 0);
     
     const cfoData = yearlyDetails.map((yd, i) => {
-      return yd.totalRevenue - (yd.totalExpenses - yd.expenseFFE) - cashFlowData[i].interestExpense - cashFlowData[i].taxLiability;
+      return yd.revenueTotal - (yd.totalExpenses - yd.expenseFFE) - cashFlowData[i].interestExpense - cashFlowData[i].taxLiability;
     });
     const cfiData = cashFlowData.map((cf, i) => {
       const ffe = yearlyDetails[i].expenseFFE;
@@ -177,7 +151,7 @@ export default function PropertyDetail() {
     
     const rows = [
       ["CASH FLOW FROM OPERATING ACTIVITIES"],
-      ["Cash Received from Guests & Clients", ...yearlyDetails.map(y => y.totalRevenue.toFixed(0))],
+      ["Cash Received from Guests & Clients", ...yearlyDetails.map(y => y.revenueTotal.toFixed(0))],
       ["  Guest Room Revenue", ...yearlyDetails.map(y => y.revenueRooms.toFixed(0))],
       ["  Event & Venue Revenue", ...yearlyDetails.map(y => y.revenueEvents.toFixed(0))],
       ["  Food & Beverage Revenue", ...yearlyDetails.map(y => y.revenueFB.toFixed(0))],
@@ -194,7 +168,7 @@ export default function PropertyDetail() {
       ["  Property Taxes", ...yearlyDetails.map(y => y.expenseTaxes.toFixed(0))],
       ["  Administrative & Compliance", ...yearlyDetails.map(y => y.expenseAdmin.toFixed(0))],
       ["  IT Systems", ...yearlyDetails.map(y => y.expenseIT.toFixed(0))],
-      ["  Other Operating Costs", ...yearlyDetails.map(y => y.expenseOther.toFixed(0))],
+      ["  Other Operating Costs", ...yearlyDetails.map(y => y.expenseOtherCosts.toFixed(0))],
       ["  Base Management Fee", ...yearlyDetails.map(y => y.feeBase.toFixed(0))],
       ["  Incentive Management Fee", ...yearlyDetails.map(y => y.feeIncentive.toFixed(0))],
       ["Less: Interest Paid", ...cashFlowData.map(y => (-y.interestExpense).toFixed(0))],
@@ -270,7 +244,7 @@ export default function PropertyDetail() {
   };
 
   const exportCashFlowPDF = async (orientation: 'landscape' | 'portrait' = 'landscape') => {
-    const yearlyDetails = getYearlyDetails();
+
     const cashFlowData = getCashFlowData();
     const doc = new jsPDF({ orientation, unit: "mm", format: "a4" });
     const pageWidth = orientation === 'landscape' ? 297 : 210;
@@ -293,7 +267,7 @@ export default function PropertyDetail() {
     const pdfTotalPropertyCost = (property as any).purchasePrice + ((property as any).buildingImprovements ?? 0) + ((property as any).preOpeningCosts ?? 0);
     
     const pdfCfo = yearlyDetails.map((yd, i) => {
-      return yd.totalRevenue - (yd.totalExpenses - yd.expenseFFE) - cashFlowData[i].interestExpense - cashFlowData[i].taxLiability;
+      return yd.revenueTotal - (yd.totalExpenses - yd.expenseFFE) - cashFlowData[i].interestExpense - cashFlowData[i].taxLiability;
     });
     const pdfCfi = cashFlowData.map((cf, i) => {
       const ffe = yearlyDetails[i].expenseFFE;
@@ -319,7 +293,7 @@ export default function PropertyDetail() {
 
     const body = [
       [{ content: "CASH FLOW FROM OPERATING ACTIVITIES", colSpan: years + 1, styles: { fontStyle: "bold", fillColor: iceBlueHeader } }],
-      [{ content: "Cash Received from Guests & Clients", styles: { fontStyle: "bold" } }, ...yearlyDetails.map(y => ({ content: fmtNum(y.totalRevenue), styles: { fontStyle: "bold" } }))],
+      [{ content: "Cash Received from Guests & Clients", styles: { fontStyle: "bold" } }, ...yearlyDetails.map(y => ({ content: fmtNum(y.revenueTotal), styles: { fontStyle: "bold" } }))],
       ["  Guest Room Revenue", ...yearlyDetails.map(y => fmtNum(y.revenueRooms))],
       ["  Event & Venue Revenue", ...yearlyDetails.map(y => fmtNum(y.revenueEvents))],
       ["  Food & Beverage Revenue", ...yearlyDetails.map(y => fmtNum(y.revenueFB))],
@@ -478,7 +452,7 @@ export default function PropertyDetail() {
   };
 
   const handlePPTXExport = () => {
-    const yearlyDetails = getYearlyDetails();
+
     const cashFlowData = getCashFlowData();
     const yearLabels = Array.from({ length: years }, (_, i) => `FY ${startYear + i}`);
 
@@ -488,7 +462,7 @@ export default function PropertyDetail() {
       { category: "Event Revenue", values: yearlyDetails.map(y => y.revenueEvents), indent: 1 },
       { category: "F&B Revenue", values: yearlyDetails.map(y => y.revenueFB), indent: 1 },
       { category: "Other Revenue", values: yearlyDetails.map(y => y.revenueOther), indent: 1 },
-      { category: "Total Revenue", values: yearlyDetails.map(y => y.totalRevenue), isBold: true },
+      { category: "Total Revenue", values: yearlyDetails.map(y => y.revenueTotal), isBold: true },
       { category: "OPERATING EXPENSES", values: yearlyDetails.map(() => 0) },
       { category: "Housekeeping", values: yearlyDetails.map(y => y.expenseRooms), indent: 1 },
       { category: "F&B", values: yearlyDetails.map(y => y.expenseFB), indent: 1 },
@@ -499,9 +473,9 @@ export default function PropertyDetail() {
     ];
 
     const cfRows = [
-      { category: "Net Cash from Operating Activities", values: yearlyDetails.map((yd, i) => yd.totalRevenue - (yd.totalExpenses - yd.expenseFFE) - cashFlowData[i].interestExpense - cashFlowData[i].taxLiability), isBold: true },
+      { category: "Net Cash from Operating Activities", values: yearlyDetails.map((yd, i) => yd.revenueTotal - (yd.totalExpenses - yd.expenseFFE) - cashFlowData[i].interestExpense - cashFlowData[i].taxLiability), isBold: true },
       { category: "FCFE", values: yearlyDetails.map((yd, i) => {
-        const cfo = yd.totalRevenue - (yd.totalExpenses - yd.expenseFFE) - cashFlowData[i].interestExpense - cashFlowData[i].taxLiability;
+        const cfo = yd.revenueTotal - (yd.totalExpenses - yd.expenseFFE) - cashFlowData[i].interestExpense - cashFlowData[i].taxLiability;
         return cfo - yd.expenseFFE - cashFlowData[i].principalPayment;
       }), isBold: true },
     ];

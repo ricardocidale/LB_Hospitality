@@ -1,5 +1,6 @@
 import * as XLSX from "xlsx";
 import { MonthlyFinancials, CompanyMonthlyFinancials, getFiscalYearForModelYear } from "../financialEngine";
+import { aggregatePropertyByYear, YearlyPropertyFinancials } from "../yearlyAggregator";
 import {
   LoanParams,
   GlobalLoanParams,
@@ -73,48 +74,7 @@ function applyHeaderStyle(ws: XLSX.WorkSheet, rows: (string | number)[][]): void
   }
 }
 
-interface YearlyAggregation {
-  year: number;
-  label: string;
-  soldRooms: number;
-  availableRooms: number;
-  revenueRooms: number;
-  revenueFB: number;
-  revenueEvents: number;
-  revenueOther: number;
-  revenueTotal: number;
-  expenseRooms: number;
-  expenseFB: number;
-  expenseEvents: number;
-  expenseOther: number;
-  expenseMarketing: number;
-  expensePropertyOps: number;
-  expenseUtilities: number;
-  expenseUtilitiesVar: number;
-  expenseUtilitiesFixed: number;
-  expenseAdmin: number;
-  expenseIT: number;
-  expenseInsurance: number;
-  expenseTaxes: number;
-  expenseOtherCosts: number;
-  expenseFFE: number;
-  feeBase: number;
-  feeIncentive: number;
-  totalExpenses: number;
-  gop: number;
-  noi: number;
-  interestExpense: number;
-  depreciationExpense: number;
-  incomeTax: number;
-  netIncome: number;
-  principalPayment: number;
-  debtPayment: number;
-  cashFlow: number;
-  refinancingProceeds: number;
-  operatingCashFlow: number;
-  financingCashFlow: number;
-  endingCash: number;
-}
+type YearlyAggregation = YearlyPropertyFinancials & { label: string };
 
 function aggregateByYear(
   data: MonthlyFinancials[],
@@ -122,55 +82,10 @@ function aggregateByYear(
   modelStartDate: string,
   fiscalYearStartMonth: number
 ): YearlyAggregation[] {
-  const result: YearlyAggregation[] = [];
-  for (let y = 0; y < years; y++) {
-    const yearData = data.slice(y * 12, (y + 1) * 12);
-    if (yearData.length === 0) continue;
-    const fyLabel = getFiscalYearForModelYear(modelStartDate, fiscalYearStartMonth, y);
-    result.push({
-      year: y,
-      label: String(fyLabel),
-      soldRooms: yearData.reduce((a, m) => a + m.soldRooms, 0),
-      availableRooms: yearData.reduce((a, m) => a + m.availableRooms, 0),
-      revenueRooms: yearData.reduce((a, m) => a + m.revenueRooms, 0),
-      revenueFB: yearData.reduce((a, m) => a + m.revenueFB, 0),
-      revenueEvents: yearData.reduce((a, m) => a + m.revenueEvents, 0),
-      revenueOther: yearData.reduce((a, m) => a + m.revenueOther, 0),
-      revenueTotal: yearData.reduce((a, m) => a + m.revenueTotal, 0),
-      expenseRooms: yearData.reduce((a, m) => a + m.expenseRooms, 0),
-      expenseFB: yearData.reduce((a, m) => a + m.expenseFB, 0),
-      expenseEvents: yearData.reduce((a, m) => a + m.expenseEvents, 0),
-      expenseOther: yearData.reduce((a, m) => a + m.expenseOther, 0),
-      expenseMarketing: yearData.reduce((a, m) => a + m.expenseMarketing, 0),
-      expensePropertyOps: yearData.reduce((a, m) => a + m.expensePropertyOps, 0),
-      expenseUtilities: yearData.reduce((a, m) => a + m.expenseUtilitiesVar + m.expenseUtilitiesFixed, 0),
-      expenseUtilitiesVar: yearData.reduce((a, m) => a + m.expenseUtilitiesVar, 0),
-      expenseUtilitiesFixed: yearData.reduce((a, m) => a + m.expenseUtilitiesFixed, 0),
-      expenseAdmin: yearData.reduce((a, m) => a + m.expenseAdmin, 0),
-      expenseIT: yearData.reduce((a, m) => a + m.expenseIT, 0),
-      expenseInsurance: yearData.reduce((a, m) => a + m.expenseInsurance, 0),
-      expenseTaxes: yearData.reduce((a, m) => a + m.expenseTaxes, 0),
-      expenseOtherCosts: yearData.reduce((a, m) => a + m.expenseOtherCosts, 0),
-      expenseFFE: yearData.reduce((a, m) => a + m.expenseFFE, 0),
-      feeBase: yearData.reduce((a, m) => a + m.feeBase, 0),
-      feeIncentive: yearData.reduce((a, m) => a + m.feeIncentive, 0),
-      totalExpenses: yearData.reduce((a, m) => a + m.totalExpenses, 0),
-      gop: yearData.reduce((a, m) => a + m.gop, 0),
-      noi: yearData.reduce((a, m) => a + m.noi, 0),
-      interestExpense: yearData.reduce((a, m) => a + m.interestExpense, 0),
-      depreciationExpense: yearData.reduce((a, m) => a + m.depreciationExpense, 0),
-      incomeTax: yearData.reduce((a, m) => a + m.incomeTax, 0),
-      netIncome: yearData.reduce((a, m) => a + m.netIncome, 0),
-      principalPayment: yearData.reduce((a, m) => a + m.principalPayment, 0),
-      debtPayment: yearData.reduce((a, m) => a + m.debtPayment, 0),
-      cashFlow: yearData.reduce((a, m) => a + m.cashFlow, 0),
-      refinancingProceeds: yearData.reduce((a, m) => a + m.refinancingProceeds, 0),
-      operatingCashFlow: yearData.reduce((a, m) => a + m.operatingCashFlow, 0),
-      financingCashFlow: yearData.reduce((a, m) => a + m.financingCashFlow, 0),
-      endingCash: yearData.length > 0 ? yearData[yearData.length - 1].endingCash : 0,
-    });
-  }
-  return result;
+  return aggregatePropertyByYear(data, years).map((y) => ({
+    ...y,
+    label: String(getFiscalYearForModelYear(modelStartDate, fiscalYearStartMonth, y.year)),
+  }));
 }
 
 export function exportPropertyIncomeStatement(

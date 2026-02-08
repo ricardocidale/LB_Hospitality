@@ -2,6 +2,7 @@ import { generatePropertyProForma, MonthlyFinancials } from "./financialEngine";
 import { checkPropertyFormulas, checkMetricFormulas, generateFormulaReport, FormulaCheckReport } from "./formulaChecker";
 import { checkGAAPCompliance, checkCashFlowStatement, generateComplianceReport, ComplianceReport } from "./gaapComplianceChecker";
 import { runFullAudit, generateAuditWorkpaper, AuditReport, PropertyAuditInput, GlobalAuditInput } from "./financialAuditor";
+import { crossValidateFinancingCalculators, formatCrossValidationReport, CrossValidationReport } from "./crossCalculatorValidation";
 import {
   DEFAULT_LTV,
   DEFAULT_INTEREST_RATE,
@@ -16,12 +17,16 @@ export interface VerificationResults {
   formulaReport: string;
   complianceReport: string;
   auditWorkpaper: string;
+  crossValidationReport: string;
   auditReports: AuditReport[];
+  crossValidationReports: CrossValidationReport[];
   summary: {
     formulaChecksPassed: number;
     formulaChecksFailed: number;
     complianceChecksPassed: number;
     complianceChecksFailed: number;
+    crossValidationPassed: number;
+    crossValidationFailed: number;
     criticalIssues: number;
     materialIssues: number;
     auditOpinion: "UNQUALIFIED" | "QUALIFIED" | "ADVERSE" | "DISCLAIMER";
@@ -92,6 +97,7 @@ export function runFullVerification(
   const formulaReports: FormulaCheckReport[] = [];
   const complianceReports: ComplianceReport[] = [];
   const auditReports: AuditReport[] = [];
+  const crossReports: CrossValidationReport[] = [];
   
   console.log("╔══════════════════════════════════════════════════════════════════════════════╗");
   console.log("║           L+B HOSPITALITY - FINANCIAL VERIFICATION SUITE                     ║");
@@ -354,7 +360,7 @@ export function runKnownValueTests(): { passed: boolean; results: string } {
       const paymentMatch = Math.abs(calculatedPayment - testCase.expectedMonthlyPayment) < 1;
       
       output += `\n  Loan Payment: ${paymentMatch ? "✓" : "✗"}\n`;
-      output += `    Formula: PMT($${loanAmount.toLocaleString()}, 9%/12, 300 months)\n`;
+      output += `    Formula: PMT($${loanAmount.toLocaleString()}, ${(DEFAULT_INTEREST_RATE * 100).toFixed(0)}%/12, ${DEFAULT_TERM_YEARS * 12} months)\n`;
       output += `    Expected: $${testCase.expectedMonthlyPayment.toLocaleString()}\n`;
       output += `    Calculated: $${calculatedPayment.toFixed(2)}\n`;
       if (!paymentMatch) allPassed = false;

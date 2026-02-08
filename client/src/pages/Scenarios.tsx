@@ -12,6 +12,7 @@ import { useState, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { formatDateTime } from "@/lib/formatters";
 
 /** Diff result shape from GET /api/scenarios/:id1/compare/:id2 */
 interface ScenarioCompareResult {
@@ -195,16 +196,6 @@ export default function Scenarios() {
     return String(v);
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
   if (isLoading) {
     return (
       <Layout>
@@ -342,7 +333,7 @@ export default function Scenarios() {
                         <div className="flex items-center gap-4 mt-2 text-xs text-white/40">
                           <span className="flex items-center gap-1 font-mono">
                             <Clock className="w-3 h-3" />
-                            Saved: {formatDate(scenario.updatedAt)}
+                            Saved: {formatDateTime(scenario.updatedAt)}
                           </span>
                           <span className="font-mono">{(scenario.properties as any[])?.length || 0} properties</span>
                         </div>

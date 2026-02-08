@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Loader2, Clock, LogIn } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
+import { formatDateTime, formatDuration } from "@/lib/formatters";
 
 interface LoginLog {
   id: number;
@@ -16,31 +17,6 @@ interface LoginLog {
   userName: string | null;
 }
 
-function formatDateTime(dateString: string) {
-  return new Date(dateString).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-}
-
-function calculateDuration(loginAt: string, logoutAt: string | null): string {
-  if (!logoutAt) return "Active";
-  
-  const login = new Date(loginAt).getTime();
-  const logout = new Date(logoutAt).getTime();
-  const diffMs = logout - login;
-  
-  const hours = Math.floor(diffMs / (1000 * 60 * 60));
-  const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-  
-  if (hours > 0) {
-    return `${hours}h ${minutes}m`;
-  }
-  return `${minutes}m`;
-}
 
 export default function AdminLoginLogs() {
   const { data: logs, isLoading } = useQuery<LoginLog[]>({
@@ -128,7 +104,7 @@ export default function AdminLoginLogs() {
                         </TableCell>
                         <TableCell className="font-mono text-sm">
                           <span className={log.logoutAt ? "text-white/80" : "text-[#9FBCA4]"}>
-                            {calculateDuration(log.loginAt, log.logoutAt)}
+                            {formatDuration(log.loginAt, log.logoutAt)}
                           </span>
                         </TableCell>
                         <TableCell className="text-white/60 font-mono text-sm">

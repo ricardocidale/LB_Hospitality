@@ -28,14 +28,7 @@ import {
 } from "@/lib/constants";
 import { useAuth } from "@/lib/auth";
 import defaultLogo from "@/assets/logo.png";
-
-function formatMoneyInput(value: number): string {
-  return new Intl.NumberFormat('en-US').format(value);
-}
-
-function parseMoneyInput(value: string): number {
-  return parseFloat(value.replace(/,/g, '')) || 0;
-}
+import { formatMoneyInput, parseMoneyInput } from "@/lib/formatters";
 
 export default function Settings() {
   const { data: global, isLoading: globalLoading } = useGlobalAssumptions();

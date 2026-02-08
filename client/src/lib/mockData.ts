@@ -197,11 +197,3 @@ export const calculateGOP = (revenue: number) => {
   return revenue * 0.35; 
 };
 
-export const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount);
-};

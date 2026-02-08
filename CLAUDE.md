@@ -41,9 +41,13 @@ calc/shared/                   # Shared math: PMT formula, schedule builder, com
 calc/financing/                # Standalone acquisition debt calculator (Skill 1)
 calc/refinance/                # Standalone refinance calculator (Skill 2)
 calc/funding/                  # Standalone funding & tranche engine (Skill 3)
+domain/ledger/                 # Ledger types, chart of accounts (Skill 4)
+engine/posting/                # Posting engine, trial balance builder (Skill 4)
+statements/                    # Statement extractors and event applier (Skill 4)
 tests/financing/               # Vitest tests for calc/financing/
 tests/refinance/               # Vitest tests for calc/refinance/
 tests/funding/                 # Vitest tests for calc/funding/
+tests/statements/              # Vitest tests for statements/ and engine/posting/
 ```
 
 ### Feature Modules (`client/src/features/`)
@@ -117,6 +121,10 @@ Standalone, GAAP-compliant calculator modules per `skills/finance/FINANCE_SKILL_
 | Refinance Tests | `tests/refinance/` | 58 tests: unit, golden scenario, schedule reconciliation, flag determinism |
 | Funding Engine | `calc/funding/` | Skill 3: equity funding events, SAFE tranches, activation gates, equity roll-forward, journal hooks |
 | Funding Tests | `tests/funding/` | 40 tests: timeline resolution, gate enforcement, equity roll-forward reconciliation, golden scenario |
+| Ledger Domain | `domain/ledger/` | Skill 4: `StatementEvent`, `PostedEntry`, `TrialBalanceEntry`, `AccountDef`, chart of 13 accounts |
+| Posting Engine | `engine/posting/` | Skill 4: `postEvents()` with double-entry validation, `buildTrialBalance()`, `buildCumulativeTrialBalance()` |
+| Statement Extractors | `statements/` | Skill 4: IS/BS/CF extractors, reconciliation engine, `applyEvents()` orchestrator |
+| Statement Tests | `tests/statements/` | 8 test files: posting, trial balance, IS, BS, CF, reconciliation, golden scenario, integration |
 
 These modules are isolated from the existing `client/src/lib/financialEngine.ts` engine. They do not import from or modify any existing application code.
 

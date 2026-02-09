@@ -15,7 +15,7 @@ interface ResearchParams {
     type: string;
     purchasePrice?: number;
   };
-  boutiqueDefinition: {
+  assetDefinition: {
     minRooms: number;
     maxRooms: number;
     hasFB: boolean;
@@ -123,7 +123,7 @@ Provide a recommended catering boost percentage (typically 15%–50%), market ra
 
 // Build user prompt based on research type and context
 function buildUserPrompt(params: ResearchParams): string {
-  const { type, propertyContext, boutiqueDefinition: bd, propertyLabel: pl } = params;
+  const { type, propertyContext, assetDefinition: bd, propertyLabel: pl } = params;
   const label = pl || "boutique hotel";
   
   if (type === "property" && propertyContext) {

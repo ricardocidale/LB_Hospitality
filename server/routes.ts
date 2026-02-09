@@ -72,7 +72,7 @@ const researchGenerateSchema = z.object({
   type: z.enum(["property", "company", "global"]),
   propertyId: z.number().optional(),
   propertyContext: z.record(z.any()).optional(),
-  boutiqueDefinition: z.record(z.any()).optional(),
+  assetDefinition: z.record(z.any()).optional(),
 });
 
 const VALID_RESEARCH_TYPES = ["property", "company", "global"] as const;
@@ -1760,7 +1760,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       if (!validation.success) {
         return res.status(400).json({ error: fromZodError(validation.error).message });
       }
-      const { type, propertyId, propertyContext, boutiqueDefinition: clientBoutiqueDef } = validation.data;
+      const { type, propertyId, propertyContext, assetDefinition: clientAssetDef } = validation.data;
       const userId = req.user!.id;
 
       if (isApiRateLimited(userId, "research/generate", 10)) {
@@ -1769,7 +1769,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       
       const globalAssumptions = await storage.getGlobalAssumptions(userId);
       const preferredModel = globalAssumptions?.preferredLlm || "claude-sonnet-4-5";
-      const boutiqueDef = clientBoutiqueDef || (globalAssumptions?.boutiqueDefinition as any) || {
+      const assetDef = clientAssetDef || (globalAssumptions?.assetDefinition as any) || {
         minRooms: 10, maxRooms: 80, hasFB: true, hasEvents: true, hasWellness: true, minAdr: 150, maxAdr: 600,
         level: "luxury", eventLocations: 2, maxEventCapacity: 150, acreage: 5, privacyLevel: "high", parkingSpaces: 50,
         description: "Independently operated, design-forward properties with curated guest experiences."
@@ -1779,7 +1779,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
         type: type as "property" | "company" | "global",
         propertyLabel: globalAssumptions?.propertyLabel || "Boutique Hotel",
         propertyContext: propertyContext as ResearchParams["propertyContext"],
-        boutiqueDefinition: boutiqueDef,
+        assetDefinition: assetDef,
       };
       
       res.setHeader("Content-Type", "text/event-stream");

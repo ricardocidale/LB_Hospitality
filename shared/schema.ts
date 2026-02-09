@@ -136,8 +136,8 @@ export const globalAssumptions = pgTable("global_assumptions", {
   otherExpenseRate: real("other_expense_rate").notNull().default(0.60),
   utilitiesVariableSplit: real("utilities_variable_split").notNull().default(0.60),
   
-  // Boutique Hotel Definition
-  boutiqueDefinition: jsonb("boutique_definition").notNull().default({
+  // Asset Definition
+  assetDefinition: jsonb("asset_definition").notNull().default({
     minRooms: 10,
     maxRooms: 80,
     hasFB: true,
@@ -188,7 +188,7 @@ export const insertGlobalAssumptionsSchema = createInsertSchema(globalAssumption
     acqLTV: z.number(),
     acqClosingCostRate: z.number()
   }),
-  boutiqueDefinition: z.object({
+  assetDefinition: z.object({
     minRooms: z.number(),
     maxRooms: z.number(),
     hasFB: z.boolean(),
@@ -266,7 +266,7 @@ export const insertGlobalAssumptionsSchema = createInsertSchema(globalAssumption
   eventExpenseRate: true,
   otherExpenseRate: true,
   utilitiesVariableSplit: true,
-  boutiqueDefinition: true,
+  assetDefinition: true,
   preferredLlm: true,
 });
 

@@ -260,15 +260,15 @@ export default function Settings() {
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
                       <Label className="label-text">Minimum Rooms</Label>
-                      <span className="text-sm font-mono text-primary">{currentGlobal.boutiqueDefinition?.minRooms ?? 10}</span>
+                      <span className="text-sm font-mono text-primary">{currentGlobal.assetDefinition?.minRooms ?? 10}</span>
                     </div>
                     <Slider
-                      value={[currentGlobal.boutiqueDefinition?.minRooms ?? 10]}
-                      onValueChange={(vals) => handleNestedChange("boutiqueDefinition", "minRooms", vals[0].toString())}
+                      value={[currentGlobal.assetDefinition?.minRooms ?? 10]}
+                      onValueChange={(vals) => handleNestedChange("assetDefinition", "minRooms", vals[0].toString())}
                       min={5}
                       max={50}
                       step={5}
-                      data-testid="slider-boutique-min-rooms"
+                      data-testid="slider-asset-min-rooms"
                     />
                     <div className="flex justify-between text-xs text-muted-foreground">
                       <span>5</span>
@@ -278,15 +278,15 @@ export default function Settings() {
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
                       <Label className="label-text">Maximum Rooms</Label>
-                      <span className="text-sm font-mono text-primary">{currentGlobal.boutiqueDefinition?.maxRooms ?? 80}</span>
+                      <span className="text-sm font-mono text-primary">{currentGlobal.assetDefinition?.maxRooms ?? 80}</span>
                     </div>
                     <Slider
-                      value={[currentGlobal.boutiqueDefinition?.maxRooms ?? 80]}
-                      onValueChange={(vals) => handleNestedChange("boutiqueDefinition", "maxRooms", vals[0].toString())}
+                      value={[currentGlobal.assetDefinition?.maxRooms ?? 80]}
+                      onValueChange={(vals) => handleNestedChange("assetDefinition", "maxRooms", vals[0].toString())}
                       min={20}
                       max={200}
                       step={10}
-                      data-testid="slider-boutique-max-rooms"
+                      data-testid="slider-asset-max-rooms"
                     />
                     <div className="flex justify-between text-xs text-muted-foreground">
                       <span>20</span>
@@ -298,15 +298,15 @@ export default function Settings() {
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
                       <Label className="label-text">Minimum ADR</Label>
-                      <span className="text-sm font-mono text-primary">${currentGlobal.boutiqueDefinition?.minAdr ?? 150}</span>
+                      <span className="text-sm font-mono text-primary">${currentGlobal.assetDefinition?.minAdr ?? 150}</span>
                     </div>
                     <Slider
-                      value={[currentGlobal.boutiqueDefinition?.minAdr ?? 150]}
-                      onValueChange={(vals) => handleNestedChange("boutiqueDefinition", "minAdr", vals[0].toString())}
+                      value={[currentGlobal.assetDefinition?.minAdr ?? 150]}
+                      onValueChange={(vals) => handleNestedChange("assetDefinition", "minAdr", vals[0].toString())}
                       min={50}
                       max={500}
                       step={25}
-                      data-testid="slider-boutique-min-adr"
+                      data-testid="slider-asset-min-adr"
                     />
                     <div className="flex justify-between text-xs text-muted-foreground">
                       <span>$50</span>
@@ -316,15 +316,15 @@ export default function Settings() {
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
                       <Label className="label-text">Maximum ADR</Label>
-                      <span className="text-sm font-mono text-primary">${currentGlobal.boutiqueDefinition?.maxAdr ?? 600}</span>
+                      <span className="text-sm font-mono text-primary">${currentGlobal.assetDefinition?.maxAdr ?? 600}</span>
                     </div>
                     <Slider
-                      value={[currentGlobal.boutiqueDefinition?.maxAdr ?? 600]}
-                      onValueChange={(vals) => handleNestedChange("boutiqueDefinition", "maxAdr", vals[0].toString())}
+                      value={[currentGlobal.assetDefinition?.maxAdr ?? 600]}
+                      onValueChange={(vals) => handleNestedChange("assetDefinition", "maxAdr", vals[0].toString())}
                       min={200}
                       max={1500}
                       step={50}
-                      data-testid="slider-boutique-max-adr"
+                      data-testid="slider-asset-max-adr"
                     />
                     <div className="flex justify-between text-xs text-muted-foreground">
                       <span>$200</span>
@@ -336,25 +336,25 @@ export default function Settings() {
                   <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
                     <Label className="label-text">Food & Beverage (F&B)</Label>
                     <Switch
-                      checked={currentGlobal.boutiqueDefinition?.hasFB ?? true}
-                      onCheckedChange={(checked) => handleNestedChange("boutiqueDefinition", "hasFB", checked)}
-                      data-testid="switch-boutique-fb"
+                      checked={currentGlobal.assetDefinition?.hasFB ?? true}
+                      onCheckedChange={(checked) => handleNestedChange("assetDefinition", "hasFB", checked)}
+                      data-testid="switch-asset-fb"
                     />
                   </div>
                   <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
                     <Label className="label-text">Event Hosting</Label>
                     <Switch
-                      checked={currentGlobal.boutiqueDefinition?.hasEvents ?? true}
-                      onCheckedChange={(checked) => handleNestedChange("boutiqueDefinition", "hasEvents", checked)}
-                      data-testid="switch-boutique-events"
+                      checked={currentGlobal.assetDefinition?.hasEvents ?? true}
+                      onCheckedChange={(checked) => handleNestedChange("assetDefinition", "hasEvents", checked)}
+                      data-testid="switch-asset-events"
                     />
                   </div>
                   <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
                     <Label className="label-text">Wellness Programming</Label>
                     <Switch
-                      checked={currentGlobal.boutiqueDefinition?.hasWellness ?? true}
-                      onCheckedChange={(checked) => handleNestedChange("boutiqueDefinition", "hasWellness", checked)}
-                      data-testid="switch-boutique-wellness"
+                      checked={currentGlobal.assetDefinition?.hasWellness ?? true}
+                      onCheckedChange={(checked) => handleNestedChange("assetDefinition", "hasWellness", checked)}
+                      data-testid="switch-asset-wellness"
                     />
                   </div>
                 </div>
@@ -362,21 +362,21 @@ export default function Settings() {
                   <div className="space-y-3">
                     <Label className="label-text">Property Level</Label>
                     <RadioGroup
-                      value={currentGlobal.boutiqueDefinition?.level ?? "luxury"}
-                      onValueChange={(val) => handleNestedChange("boutiqueDefinition", "level", val)}
+                      value={currentGlobal.assetDefinition?.level ?? "luxury"}
+                      onValueChange={(val) => handleNestedChange("assetDefinition", "level", val)}
                       className="flex gap-6"
-                      data-testid="radio-boutique-level"
+                      data-testid="radio-asset-level"
                     >
                       <div className="flex items-center gap-2">
-                        <RadioGroupItem value="budget" id="level-budget" data-testid="radio-boutique-level-budget" />
+                        <RadioGroupItem value="budget" id="level-budget" data-testid="radio-asset-level-budget" />
                         <Label htmlFor="level-budget" className="label-text cursor-pointer">Budget</Label>
                       </div>
                       <div className="flex items-center gap-2">
-                        <RadioGroupItem value="average" id="level-average" data-testid="radio-boutique-level-average" />
+                        <RadioGroupItem value="average" id="level-average" data-testid="radio-asset-level-average" />
                         <Label htmlFor="level-average" className="label-text cursor-pointer">Average</Label>
                       </div>
                       <div className="flex items-center gap-2">
-                        <RadioGroupItem value="luxury" id="level-luxury" data-testid="radio-boutique-level-luxury" />
+                        <RadioGroupItem value="luxury" id="level-luxury" data-testid="radio-asset-level-luxury" />
                         <Label htmlFor="level-luxury" className="label-text cursor-pointer">Luxury</Label>
                       </div>
                     </RadioGroup>
@@ -384,21 +384,21 @@ export default function Settings() {
                   <div className="space-y-3">
                     <Label className="label-text">Privacy Level</Label>
                     <RadioGroup
-                      value={currentGlobal.boutiqueDefinition?.privacyLevel ?? "high"}
-                      onValueChange={(val) => handleNestedChange("boutiqueDefinition", "privacyLevel", val)}
+                      value={currentGlobal.assetDefinition?.privacyLevel ?? "high"}
+                      onValueChange={(val) => handleNestedChange("assetDefinition", "privacyLevel", val)}
                       className="flex gap-6"
-                      data-testid="radio-boutique-privacy"
+                      data-testid="radio-asset-privacy"
                     >
                       <div className="flex items-center gap-2">
-                        <RadioGroupItem value="low" id="privacy-low" data-testid="radio-boutique-privacy-low" />
+                        <RadioGroupItem value="low" id="privacy-low" data-testid="radio-asset-privacy-low" />
                         <Label htmlFor="privacy-low" className="label-text cursor-pointer">Low</Label>
                       </div>
                       <div className="flex items-center gap-2">
-                        <RadioGroupItem value="moderate" id="privacy-moderate" data-testid="radio-boutique-privacy-moderate" />
+                        <RadioGroupItem value="moderate" id="privacy-moderate" data-testid="radio-asset-privacy-moderate" />
                         <Label htmlFor="privacy-moderate" className="label-text cursor-pointer">Moderate</Label>
                       </div>
                       <div className="flex items-center gap-2">
-                        <RadioGroupItem value="high" id="privacy-high" data-testid="radio-boutique-privacy-high" />
+                        <RadioGroupItem value="high" id="privacy-high" data-testid="radio-asset-privacy-high" />
                         <Label htmlFor="privacy-high" className="label-text cursor-pointer">High</Label>
                       </div>
                     </RadioGroup>
@@ -408,15 +408,15 @@ export default function Settings() {
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
                       <Label className="label-text">Event Locations</Label>
-                      <span className="text-sm font-mono text-primary">{currentGlobal.boutiqueDefinition?.eventLocations ?? 2}</span>
+                      <span className="text-sm font-mono text-primary">{currentGlobal.assetDefinition?.eventLocations ?? 2}</span>
                     </div>
                     <Slider
-                      value={[currentGlobal.boutiqueDefinition?.eventLocations ?? 2]}
-                      onValueChange={(vals) => handleNestedChange("boutiqueDefinition", "eventLocations", vals[0].toString())}
+                      value={[currentGlobal.assetDefinition?.eventLocations ?? 2]}
+                      onValueChange={(vals) => handleNestedChange("assetDefinition", "eventLocations", vals[0].toString())}
                       min={0}
                       max={10}
                       step={1}
-                      data-testid="slider-boutique-event-locations"
+                      data-testid="slider-asset-event-locations"
                     />
                     <div className="flex justify-between text-xs text-muted-foreground">
                       <span>0</span>
@@ -426,15 +426,15 @@ export default function Settings() {
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
                       <Label className="label-text">Max Event Capacity</Label>
-                      <span className="text-sm font-mono text-primary">{currentGlobal.boutiqueDefinition?.maxEventCapacity ?? 150}</span>
+                      <span className="text-sm font-mono text-primary">{currentGlobal.assetDefinition?.maxEventCapacity ?? 150}</span>
                     </div>
                     <Slider
-                      value={[currentGlobal.boutiqueDefinition?.maxEventCapacity ?? 150]}
-                      onValueChange={(vals) => handleNestedChange("boutiqueDefinition", "maxEventCapacity", vals[0].toString())}
+                      value={[currentGlobal.assetDefinition?.maxEventCapacity ?? 150]}
+                      onValueChange={(vals) => handleNestedChange("assetDefinition", "maxEventCapacity", vals[0].toString())}
                       min={20}
                       max={500}
                       step={10}
-                      data-testid="slider-boutique-max-event-capacity"
+                      data-testid="slider-asset-max-event-capacity"
                     />
                     <div className="flex justify-between text-xs text-muted-foreground">
                       <span>20</span>
@@ -444,15 +444,15 @@ export default function Settings() {
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
                       <Label className="label-text">Parking Spaces</Label>
-                      <span className="text-sm font-mono text-primary">{currentGlobal.boutiqueDefinition?.parkingSpaces ?? 50}</span>
+                      <span className="text-sm font-mono text-primary">{currentGlobal.assetDefinition?.parkingSpaces ?? 50}</span>
                     </div>
                     <Slider
-                      value={[currentGlobal.boutiqueDefinition?.parkingSpaces ?? 50]}
-                      onValueChange={(vals) => handleNestedChange("boutiqueDefinition", "parkingSpaces", vals[0].toString())}
+                      value={[currentGlobal.assetDefinition?.parkingSpaces ?? 50]}
+                      onValueChange={(vals) => handleNestedChange("assetDefinition", "parkingSpaces", vals[0].toString())}
                       min={0}
                       max={200}
                       step={5}
-                      data-testid="slider-boutique-parking"
+                      data-testid="slider-asset-parking"
                     />
                     <div className="flex justify-between text-xs text-muted-foreground">
                       <span>0</span>
@@ -464,15 +464,15 @@ export default function Settings() {
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
                       <Label className="label-text">Acreage</Label>
-                      <span className="text-sm font-mono text-primary">{currentGlobal.boutiqueDefinition?.acreage ?? 5} acres</span>
+                      <span className="text-sm font-mono text-primary">{currentGlobal.assetDefinition?.acreage ?? 5} acres</span>
                     </div>
                     <Slider
-                      value={[currentGlobal.boutiqueDefinition?.acreage ?? 5]}
-                      onValueChange={(vals) => handleNestedChange("boutiqueDefinition", "acreage", vals[0].toString())}
+                      value={[currentGlobal.assetDefinition?.acreage ?? 5]}
+                      onValueChange={(vals) => handleNestedChange("assetDefinition", "acreage", vals[0].toString())}
                       min={1}
                       max={100}
                       step={1}
-                      data-testid="slider-boutique-acreage"
+                      data-testid="slider-asset-acreage"
                     />
                     <div className="flex justify-between text-xs text-muted-foreground">
                       <span>1 acre</span>
@@ -483,8 +483,8 @@ export default function Settings() {
                 <div className="space-y-2">
                   <Label className="label-text">Definition Summary</Label>
                   <Textarea
-                    value={currentGlobal.boutiqueDefinition?.description ?? ""}
-                    onChange={(e) => handleNestedChange("boutiqueDefinition", "description", e.target.value)}
+                    value={currentGlobal.assetDefinition?.description ?? ""}
+                    onChange={(e) => handleNestedChange("assetDefinition", "description", e.target.value)}
                     rows={3}
                     className="bg-white text-sm"
                     data-testid="textarea-boutique-description"

@@ -27,6 +27,10 @@
         "description": "Additional closing costs (transfer taxes, legal fees, etc.)",
         "default": 0
       },
+      "room_count": {
+        "type": "integer",
+        "description": "Number of rooms/keys (used to calculate implied price per key)"
+      },
       "property_name": {
         "type": "string",
         "description": "Optional property identifier for reporting"

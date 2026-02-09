@@ -40,6 +40,7 @@
         "description": "Present value of each individual cash flow at the discount rate"
       },
       "total_undiscounted": { "type": "number", "description": "Sum of all cash flows without discounting" },
+      "annualized_discount_rate": { "type": "number", "description": "Annualized discount rate when periods_per_year > 1 (e.g. monthly rate annualized)" },
       "irr_cross_check_passed": { "type": "boolean", "description": "True if NPV at irr_cross_check rate is within tolerance of zero" }
     }
   }

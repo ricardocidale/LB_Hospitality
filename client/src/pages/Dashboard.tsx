@@ -1592,7 +1592,7 @@ export default function Dashboard() {
                 </div>
                 
                 {/* Main IRR Display + Property IRR Bar Chart - Side by Side */}
-                <div className="flex flex-col md:flex-row items-center justify-center gap-8 mb-10">
+                <div className="flex flex-col lg:flex-row items-center justify-center gap-8 mb-10">
                   {/* Portfolio IRR Meter */}
                   <div className="relative bg-white/95 backdrop-blur-xl rounded-[2rem] p-8 border border-[#9FBCA4]/40 shadow-xl shadow-black/10">
                     <div className="relative">
@@ -1621,7 +1621,7 @@ export default function Dashboard() {
                   </div>
 
                   {/* Property IRR Comparison Bar Chart */}
-                  <div className="bg-white/95 backdrop-blur-xl rounded-[2rem] p-6 border border-[#9FBCA4]/40 shadow-xl shadow-black/10 min-w-[340px]" data-testid="chart-property-irr-comparison">
+                  <div className="bg-white/95 backdrop-blur-xl rounded-[2rem] p-6 border border-[#9FBCA4]/40 shadow-xl shadow-black/10 w-full lg:min-w-[340px]" data-testid="chart-property-irr-comparison">
                     <p className="text-xs font-medium tracking-widest text-[#2d4a5e]/60 uppercase mb-3 text-center label-text">Property IRR Comparison</p>
                     <ResponsiveContainer width="100%" height={200}>
                       <BarChart
@@ -1661,7 +1661,7 @@ export default function Dashboard() {
                   </div>
 
                   {/* Property Investment Bar Chart */}
-                  <div className="bg-white/95 backdrop-blur-xl rounded-[2rem] p-6 border border-[#9FBCA4]/40 shadow-xl shadow-black/10 min-w-[340px]" data-testid="chart-property-investment">
+                  <div className="bg-white/95 backdrop-blur-xl rounded-[2rem] p-6 border border-[#9FBCA4]/40 shadow-xl shadow-black/10 w-full lg:min-w-[340px]" data-testid="chart-property-investment">
                     <p className="text-xs font-medium tracking-widest text-[#2d4a5e]/60 uppercase mb-3 text-center label-text">Equity Investment by Property</p>
                     <ResponsiveContainer width="100%" height={200}>
                       <BarChart
@@ -1701,7 +1701,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* Key Metrics Grid - Liquid Glass Cards */}
-                <div className="grid gap-4 md:grid-cols-4 max-w-5xl mx-auto">
+                <div className="grid gap-4 grid-cols-2 lg:grid-cols-4 max-w-5xl mx-auto">
                   {/* Equity Multiple */}
                   <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-5 border border-white/40 shadow-lg shadow-black/10 hover:shadow-xl transition-all duration-300">
                     <div className="flex items-center gap-4 mb-3">
@@ -1861,7 +1861,7 @@ export default function Dashboard() {
               </div>
               
               {/* Projection Totals Row */}
-              <div className="relative mt-6 grid gap-4 md:grid-cols-3">
+              <div className="relative mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 <div className="bg-white/90 backdrop-blur-xl rounded-xl p-4 border border-white/40 shadow-lg shadow-black/10 text-center">
                   <p className="text-sm text-[#2d4a5e]/60 mb-1 label-text">{projectionYears}-Year Revenue</p>
                   <p className="text-xl font-bold text-[#2d4a5e] font-mono">{formatMoney(totalProjectionRevenue)}</p>

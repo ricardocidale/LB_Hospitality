@@ -181,7 +181,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
 
-      <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <main className="flex-1 flex flex-col min-w-0 overflow-x-auto">
         <header className="md:hidden h-16 border-b bg-card flex items-center justify-between px-4 sticky top-0 z-30">
           <div className="flex items-center gap-2">
             <img src={companyLogo} alt="L+B Hospitality" className="w-8 h-8 object-contain" />
@@ -192,8 +192,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </Button>
         </header>
 
-        <div className="flex-1 overflow-auto p-6 md:p-8">
-          <div className="max-w-7xl mx-auto">
+        <div className="flex-1 overflow-auto p-4 md:p-6 lg:p-8">
+          <div className="w-full max-w-7xl mx-auto">
             {children}
           </div>
         </div>

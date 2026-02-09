@@ -165,7 +165,8 @@ export default function PropertyEdit() {
       (draft?.costRateInsurance ?? DEFAULT_COST_RATE_INSURANCE) +
       (draft?.costRateTaxes ?? DEFAULT_COST_RATE_TAXES) +
       (draft?.costRateIT ?? DEFAULT_COST_RATE_IT) +
-      (draft?.costRateFFE ?? DEFAULT_COST_RATE_FFE)
+      (draft?.costRateFFE ?? DEFAULT_COST_RATE_FFE) +
+      (draft?.costRateOther ?? DEFAULT_COST_RATE_OTHER)
     );
   };
 
@@ -863,7 +864,7 @@ export default function PropertyEdit() {
                         <Label className="text-sm label-text text-gray-700">Housekeeping</Label>
                         <EditableValue
                           value={(draft.costRateRooms ?? DEFAULT_COST_RATE_ROOMS) * 100}
-                          onChange={(val) => handleChange("costRateRooms", (val / 100).toString())}
+                          onChange={(val) => handleChange("costRateRooms", val / 100)}
                           format="percent"
                           min={0}
                           max={50}
@@ -872,7 +873,7 @@ export default function PropertyEdit() {
                       </div>
                       <Slider 
                         value={[(draft.costRateRooms ?? DEFAULT_COST_RATE_ROOMS) * 100]}
-                        onValueChange={(vals: number[]) => handleChange("costRateRooms", (vals[0] / 100).toString())}
+                        onValueChange={(vals: number[]) => handleChange("costRateRooms", vals[0] / 100)}
                         min={0}
                         max={50}
                         step={1}
@@ -883,7 +884,7 @@ export default function PropertyEdit() {
                         <Label className="text-sm label-text text-gray-700">F&B</Label>
                         <EditableValue
                           value={(draft.costRateFB ?? DEFAULT_COST_RATE_FB) * 100}
-                          onChange={(val) => handleChange("costRateFB", (val / 100).toString())}
+                          onChange={(val) => handleChange("costRateFB", val / 100)}
                           format="percent"
                           min={0}
                           max={50}
@@ -892,7 +893,7 @@ export default function PropertyEdit() {
                       </div>
                       <Slider 
                         value={[(draft.costRateFB ?? DEFAULT_COST_RATE_FB) * 100]}
-                        onValueChange={(vals: number[]) => handleChange("costRateFB", (vals[0] / 100).toString())}
+                        onValueChange={(vals: number[]) => handleChange("costRateFB", vals[0] / 100)}
                         min={0}
                         max={50}
                         step={1}
@@ -903,7 +904,7 @@ export default function PropertyEdit() {
                         <Label className="text-sm label-text text-gray-700">Admin</Label>
                         <EditableValue
                           value={(draft.costRateAdmin ?? DEFAULT_COST_RATE_ADMIN) * 100}
-                          onChange={(val) => handleChange("costRateAdmin", (val / 100).toString())}
+                          onChange={(val) => handleChange("costRateAdmin", val / 100)}
                           format="percent"
                           min={0}
                           max={25}
@@ -912,7 +913,7 @@ export default function PropertyEdit() {
                       </div>
                       <Slider 
                         value={[(draft.costRateAdmin ?? DEFAULT_COST_RATE_ADMIN) * 100]}
-                        onValueChange={(vals: number[]) => handleChange("costRateAdmin", (vals[0] / 100).toString())}
+                        onValueChange={(vals: number[]) => handleChange("costRateAdmin", vals[0] / 100)}
                         min={0}
                         max={25}
                         step={1}
@@ -923,7 +924,7 @@ export default function PropertyEdit() {
                         <Label className="text-sm label-text text-gray-700">Marketing</Label>
                         <EditableValue
                           value={(draft.costRateMarketing ?? DEFAULT_COST_RATE_MARKETING) * 100}
-                          onChange={(val) => handleChange("costRateMarketing", (val / 100).toString())}
+                          onChange={(val) => handleChange("costRateMarketing", val / 100)}
                           format="percent"
                           min={0}
                           max={25}
@@ -932,7 +933,7 @@ export default function PropertyEdit() {
                       </div>
                       <Slider 
                         value={[(draft.costRateMarketing ?? DEFAULT_COST_RATE_MARKETING) * 100]}
-                        onValueChange={(vals: number[]) => handleChange("costRateMarketing", (vals[0] / 100).toString())}
+                        onValueChange={(vals: number[]) => handleChange("costRateMarketing", vals[0] / 100)}
                         min={0}
                         max={25}
                         step={1}
@@ -943,7 +944,7 @@ export default function PropertyEdit() {
                         <Label className="text-sm label-text text-gray-700">Property Ops</Label>
                         <EditableValue
                           value={(draft.costRatePropertyOps ?? DEFAULT_COST_RATE_PROPERTY_OPS) * 100}
-                          onChange={(val) => handleChange("costRatePropertyOps", (val / 100).toString())}
+                          onChange={(val) => handleChange("costRatePropertyOps", val / 100)}
                           format="percent"
                           min={0}
                           max={25}
@@ -952,7 +953,7 @@ export default function PropertyEdit() {
                       </div>
                       <Slider 
                         value={[(draft.costRatePropertyOps ?? DEFAULT_COST_RATE_PROPERTY_OPS) * 100]}
-                        onValueChange={(vals: number[]) => handleChange("costRatePropertyOps", (vals[0] / 100).toString())}
+                        onValueChange={(vals: number[]) => handleChange("costRatePropertyOps", vals[0] / 100)}
                         min={0}
                         max={25}
                         step={1}
@@ -963,7 +964,7 @@ export default function PropertyEdit() {
                         <Label className="text-sm label-text text-gray-700">Utilities</Label>
                         <EditableValue
                           value={(draft.costRateUtilities ?? DEFAULT_COST_RATE_UTILITIES) * 100}
-                          onChange={(val) => handleChange("costRateUtilities", (val / 100).toString())}
+                          onChange={(val) => handleChange("costRateUtilities", val / 100)}
                           format="percent"
                           min={0}
                           max={25}
@@ -972,7 +973,7 @@ export default function PropertyEdit() {
                       </div>
                       <Slider 
                         value={[(draft.costRateUtilities ?? DEFAULT_COST_RATE_UTILITIES) * 100]}
-                        onValueChange={(vals: number[]) => handleChange("costRateUtilities", (vals[0] / 100).toString())}
+                        onValueChange={(vals: number[]) => handleChange("costRateUtilities", vals[0] / 100)}
                         min={0}
                         max={25}
                         step={1}
@@ -983,7 +984,7 @@ export default function PropertyEdit() {
                         <Label className="text-sm label-text text-gray-700">Insurance</Label>
                         <EditableValue
                           value={(draft.costRateInsurance ?? DEFAULT_COST_RATE_INSURANCE) * 100}
-                          onChange={(val) => handleChange("costRateInsurance", (val / 100).toString())}
+                          onChange={(val) => handleChange("costRateInsurance", val / 100)}
                           format="percent"
                           min={0}
                           max={15}
@@ -992,7 +993,7 @@ export default function PropertyEdit() {
                       </div>
                       <Slider 
                         value={[(draft.costRateInsurance ?? DEFAULT_COST_RATE_INSURANCE) * 100]}
-                        onValueChange={(vals: number[]) => handleChange("costRateInsurance", (vals[0] / 100).toString())}
+                        onValueChange={(vals: number[]) => handleChange("costRateInsurance", vals[0] / 100)}
                         min={0}
                         max={15}
                         step={1}
@@ -1003,7 +1004,7 @@ export default function PropertyEdit() {
                         <Label className="text-sm label-text text-gray-700">Taxes</Label>
                         <EditableValue
                           value={(draft.costRateTaxes ?? DEFAULT_COST_RATE_TAXES) * 100}
-                          onChange={(val) => handleChange("costRateTaxes", (val / 100).toString())}
+                          onChange={(val) => handleChange("costRateTaxes", val / 100)}
                           format="percent"
                           min={0}
                           max={15}
@@ -1012,7 +1013,7 @@ export default function PropertyEdit() {
                       </div>
                       <Slider 
                         value={[(draft.costRateTaxes ?? DEFAULT_COST_RATE_TAXES) * 100]}
-                        onValueChange={(vals: number[]) => handleChange("costRateTaxes", (vals[0] / 100).toString())}
+                        onValueChange={(vals: number[]) => handleChange("costRateTaxes", vals[0] / 100)}
                         min={0}
                         max={15}
                         step={1}
@@ -1023,7 +1024,7 @@ export default function PropertyEdit() {
                         <Label className="text-sm label-text text-gray-700">IT</Label>
                         <EditableValue
                           value={(draft.costRateIT ?? DEFAULT_COST_RATE_IT) * 100}
-                          onChange={(val) => handleChange("costRateIT", (val / 100).toString())}
+                          onChange={(val) => handleChange("costRateIT", val / 100)}
                           format="percent"
                           min={0}
                           max={15}
@@ -1032,7 +1033,7 @@ export default function PropertyEdit() {
                       </div>
                       <Slider 
                         value={[(draft.costRateIT ?? DEFAULT_COST_RATE_IT) * 100]}
-                        onValueChange={(vals: number[]) => handleChange("costRateIT", (vals[0] / 100).toString())}
+                        onValueChange={(vals: number[]) => handleChange("costRateIT", vals[0] / 100)}
                         min={0}
                         max={15}
                         step={1}
@@ -1043,7 +1044,7 @@ export default function PropertyEdit() {
                         <Label className="text-sm label-text text-gray-700">FF&E Reserve</Label>
                         <EditableValue
                           value={(draft.costRateFFE ?? DEFAULT_COST_RATE_FFE) * 100}
-                          onChange={(val) => handleChange("costRateFFE", (val / 100).toString())}
+                          onChange={(val) => handleChange("costRateFFE", val / 100)}
                           format="percent"
                           min={0}
                           max={15}
@@ -1052,7 +1053,7 @@ export default function PropertyEdit() {
                       </div>
                       <Slider 
                         value={[(draft.costRateFFE ?? DEFAULT_COST_RATE_FFE) * 100]}
-                        onValueChange={(vals: number[]) => handleChange("costRateFFE", (vals[0] / 100).toString())}
+                        onValueChange={(vals: number[]) => handleChange("costRateFFE", vals[0] / 100)}
                         min={0}
                         max={15}
                         step={1}
@@ -1063,7 +1064,7 @@ export default function PropertyEdit() {
                         <Label className="text-sm label-text text-gray-700">Other</Label>
                         <EditableValue
                           value={(draft.costRateOther ?? DEFAULT_COST_RATE_OTHER) * 100}
-                          onChange={(val) => handleChange("costRateOther", (val / 100).toString())}
+                          onChange={(val) => handleChange("costRateOther", val / 100)}
                           format="percent"
                           min={0}
                           max={15}
@@ -1072,7 +1073,7 @@ export default function PropertyEdit() {
                       </div>
                       <Slider 
                         value={[(draft.costRateOther ?? DEFAULT_COST_RATE_OTHER) * 100]}
-                        onValueChange={(vals: number[]) => handleChange("costRateOther", (vals[0] / 100).toString())}
+                        onValueChange={(vals: number[]) => handleChange("costRateOther", vals[0] / 100)}
                         min={0}
                         max={25}
                         step={1}

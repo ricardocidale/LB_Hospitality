@@ -146,11 +146,11 @@ export default function CheckerManual() {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
-  const logActivity = (action: string) => {
+  const logActivity = (action: string, metadata?: Record<string, unknown>) => {
     fetch("/api/activity-logs/manual-view", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action }),
+      body: JSON.stringify({ action, metadata }),
       credentials: "include",
     }).catch(() => {});
   };
@@ -179,7 +179,11 @@ export default function CheckerManual() {
   const handleExportPDF = async () => {
     if (exportingManual) return;
     setExportingManual(true);
-    logActivity("export-manual-pdf");
+    logActivity("export-manual-pdf", {
+      exportType: "manual-pdf",
+      sectionCount: sections.length,
+      exportedAt: new Date().toISOString(),
+    });
     try {
       const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
         import("jspdf"),
@@ -297,7 +301,7 @@ export default function CheckerManual() {
   const handleFullExport = async () => {
     if (exportingData) return;
     setExportingData(true);
-    logActivity("full-data-export");
+    const exportTimestamp = new Date().toISOString();
     try {
       const [
         { default: jsPDF },
@@ -318,15 +322,36 @@ export default function CheckerManual() {
       const properties = await propertiesRes.json();
       const global = await globalRes.json();
 
+      const warnings: string[] = [];
+
+      if (!properties?.length) warnings.push("No properties found in database");
+      if (!global) warnings.push("Global assumptions not found");
       if (!properties?.length || !global) {
-        toast({ title: "No Data", description: "No properties or assumptions found.", variant: "destructive" });
+        toast({ title: "No Data", description: warnings.join(". "), variant: "destructive" });
+        logActivity("full-data-export", { exportType: "full-data", status: "failed", warnings, exportedAt: exportTimestamp });
         return;
       }
 
-      const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
-      const pageW = doc.internal.pageSize.getWidth();
       const projYears = global.projectionYears ?? 10;
       const projMonths = projYears * 12;
+
+      const requiredGlobalFields = [
+        "modelStartDate", "companyOpsStartDate", "inflationRate",
+        "baseManagementFee", "safeTranche1Amount", "exitCapRate",
+      ];
+      const missingGlobal = requiredGlobalFields.filter(f => global[f] === null || global[f] === undefined || global[f] === "");
+      if (missingGlobal.length > 0) warnings.push(`Missing global fields: ${missingGlobal.join(", ")}`);
+
+      const requiredPropertyFields = ["name", "location", "roomCount", "startAdr", "purchasePrice"];
+      properties.forEach((p: any, idx: number) => {
+        const missing = requiredPropertyFields.filter(f => p[f] === null || p[f] === undefined || p[f] === "");
+        if (missing.length > 0) warnings.push(`Property "${p.name || `#${idx + 1}`}" missing: ${missing.join(", ")}`);
+        if ((p.roomCount ?? 0) <= 0) warnings.push(`Property "${p.name}" has invalid room count`);
+        if ((p.purchasePrice ?? 0) <= 0) warnings.push(`Property "${p.name}" has invalid purchase price`);
+      });
+
+      const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+      const pageW = doc.internal.pageSize.getWidth();
 
       doc.setFillColor(26, 35, 50);
       doc.rect(0, 0, pageW, 40, "F");
@@ -338,9 +363,26 @@ export default function CheckerManual() {
       doc.text("L+B Hospitality Group — Full Data Export", 14, 18);
       doc.setFontSize(9);
       doc.setTextColor(159, 188, 164);
-      doc.text(`Generated: ${new Date().toLocaleString()} | User: ${user?.email || "checker"} | Properties: ${properties.length}`, 14, 30);
+      doc.text(`Generated: ${new Date().toLocaleString()} | User: ${user?.email || "unknown"} (${user?.role || "unknown"}) | Properties: ${properties.length}`, 14, 30);
 
       let y = 50;
+
+      if (warnings.length > 0) {
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(10);
+        doc.setTextColor(220, 80, 60);
+        doc.text("DATA COMPLETENESS WARNINGS", 14, y);
+        y += 5;
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8);
+        doc.setTextColor(180, 60, 40);
+        warnings.forEach(w => {
+          if (y > 185) { doc.addPage(); y = 20; }
+          doc.text(`• ${w}`, 18, y);
+          y += 4;
+        });
+        y += 4;
+      }
 
       const addTable = (title: string, head: string[], rows: string[][]) => {
         if (y > 170) { doc.addPage(); y = 20; }
@@ -363,7 +405,7 @@ export default function CheckerManual() {
 
       addTable("Global Assumptions", ["Parameter", "Value"], [
         ["Company Name", global.companyName || "L+B Hospitality"],
-        ["Model Start Date", global.modelStartDate],
+        ["Model Start Date", global.modelStartDate || "—"],
         ["Projection Years", String(projYears)],
         ["Company Ops Start", global.companyOpsStartDate || "—"],
         ["Fiscal Year Start Month", String(global.fiscalYearStartMonth ?? 1)],
@@ -378,67 +420,161 @@ export default function CheckerManual() {
         ["Exit Cap Rate", `${((global.exitCapRate ?? 0.08) * 100).toFixed(1)}%`],
         ["Sales Commission", `${((global.salesCommissionRate ?? 0.02) * 100).toFixed(1)}%`],
         ["Company Tax Rate", `${((global.companyTaxRate ?? 0.21) * 100).toFixed(1)}%`],
+        ["Partner Base Compensation", formatMoney(global.partnerBaseCompensation ?? 15000)],
+        ["Partner Comp Cap", formatMoney(global.partnerCompensationCap ?? 30000)],
       ]);
 
-      addTable("Properties Summary", ["Name", "Location", "Rooms", "ADR", "Purchase Price", "LTV", "Status"], 
+      addTable("Properties Summary", ["Name", "Location", "Rooms", "ADR", "Occupancy", "Purchase Price", "LTV", "Status"],
         properties.map((p: any) => [
           p.name,
-          p.location,
-          String(p.roomCount),
-          formatMoney(p.startAdr),
-          formatMoney(p.purchasePrice),
+          p.location || "—",
+          String(p.roomCount ?? 0),
+          formatMoney(p.startAdr ?? 0),
+          `${((p.startOccupancy ?? 0) * 100).toFixed(0)}%`,
+          formatMoney(p.purchasePrice ?? 0),
           p.acquisitionLTV ? `${(p.acquisitionLTV * 100).toFixed(0)}%` : "Cash",
-          p.status,
+          p.status || "active",
         ])
       );
 
+      const includedStatements: string[] = [];
+      let propertyErrors = 0;
+
       properties.forEach((p: any) => {
-        const financials = generatePropertyProForma(p, global, projMonths);
-        const yearly = aggregatePropertyByYear(financials, projYears);
-        const yearHeaders = ["Line Item", ...Array.from({ length: projYears }, (_, i) => `Year ${i + 1}`)];
+        try {
+          const financials = generatePropertyProForma(p, global, projMonths);
+          const yearly = aggregatePropertyByYear(financials, projYears);
+          const yearHeaders = ["Line Item", ...Array.from({ length: projYears }, (_, i) => `Year ${i + 1}`)];
 
-        addTable(`${p.name} — Income Statement`, yearHeaders, [
-          ["Room Revenue", ...yearly.map(yr => formatMoney(yr.revenueRooms))],
-          ["Total Revenue", ...yearly.map(yr => formatMoney(yr.revenueTotal))],
-          ["Total Expenses", ...yearly.map(yr => formatMoney(yr.totalExpenses))],
-          ["GOP", ...yearly.map(yr => formatMoney(yr.gop))],
-          ["NOI", ...yearly.map(yr => formatMoney(yr.noi))],
-          ["Net Income", ...yearly.map(yr => formatMoney(yr.netIncome))],
-        ]);
+          addTable(`${p.name} — Income Statement`, yearHeaders, [
+            ["Room Revenue", ...yearly.map(yr => formatMoney(yr.revenueRooms))],
+            ["F&B Revenue", ...yearly.map(yr => formatMoney(yr.revenueFB))],
+            ["Other Revenue", ...yearly.map(yr => formatMoney(yr.revenueOther))],
+            ["Total Revenue", ...yearly.map(yr => formatMoney(yr.revenueTotal))],
+            ["Total Expenses", ...yearly.map(yr => formatMoney(yr.totalExpenses))],
+            ["GOP", ...yearly.map(yr => formatMoney(yr.gop))],
+            ["Base Mgmt Fee", ...yearly.map(yr => formatMoney(yr.feeBase))],
+            ["Incentive Mgmt Fee", ...yearly.map(yr => formatMoney(yr.feeIncentive))],
+            ["NOI", ...yearly.map(yr => formatMoney(yr.noi))],
+            ["Depreciation", ...yearly.map(yr => formatMoney(yr.depreciationExpense))],
+            ["Net Income", ...yearly.map(yr => formatMoney(yr.netIncome))],
+          ]);
+          includedStatements.push(`${p.name} — Income Statement`);
 
-        addTable(`${p.name} — Cash Flow`, yearHeaders, [
-          ["Debt Service", ...yearly.map(yr => formatMoney(yr.debtPayment))],
-          ["Total Cash Flow", ...yearly.map(yr => formatMoney(yr.cashFlow))],
-          ["Ending Cash", ...yearly.map(yr => formatMoney(yr.endingCash))],
-        ]);
-      });
-
-      const companyData = generateCompanyProForma(properties, global, projMonths);
-      const companyYearly: Record<string, number[]> = {};
-      const keys = ["totalRevenue", "totalExpenses", "netIncome", "endingCash", "safeFunding"] as const;
-      keys.forEach(k => { companyYearly[k] = Array(projYears).fill(0); });
-      companyData.forEach((m: any, i: number) => {
-        const yr = Math.floor(i / 12);
-        if (yr < projYears) {
-          keys.forEach(k => {
-            if (k === "endingCash") companyYearly[k][yr] = m[k];
-            else companyYearly[k][yr] += m[k];
-          });
+          addTable(`${p.name} — Cash Flow`, yearHeaders, [
+            ["Interest Expense", ...yearly.map(yr => formatMoney(yr.interestExpense))],
+            ["Principal Payment", ...yearly.map(yr => formatMoney(yr.principalPayment))],
+            ["Total Debt Service", ...yearly.map(yr => formatMoney(yr.debtPayment))],
+            ["Operating Cash Flow", ...yearly.map(yr => formatMoney(yr.operatingCashFlow))],
+            ["Total Cash Flow", ...yearly.map(yr => formatMoney(yr.cashFlow))],
+            ["Ending Cash", ...yearly.map(yr => formatMoney(yr.endingCash))],
+          ]);
+          includedStatements.push(`${p.name} — Cash Flow`);
+        } catch (e) {
+          propertyErrors++;
+          warnings.push(`Failed to generate financials for "${p.name}": ${e instanceof Error ? e.message : "unknown error"}`);
         }
       });
 
-      const cYearHeaders = ["Line Item", ...Array.from({ length: projYears }, (_, i) => `Year ${i + 1}`)];
-      addTable("Management Company — Summary", cYearHeaders, [
-        ["Total Revenue", ...companyYearly.totalRevenue.map(v => formatMoney(v))],
-        ["Total Expenses", ...companyYearly.totalExpenses.map(v => formatMoney(v))],
-        ["Net Income", ...companyYearly.netIncome.map(v => formatMoney(v))],
-        ["SAFE Funding", ...companyYearly.safeFunding.map(v => formatMoney(v))],
-        ["Ending Cash", ...companyYearly.endingCash.map(v => formatMoney(v))],
-      ]);
+      let companyIncluded = false;
+      try {
+        const companyData = generateCompanyProForma(properties, global, projMonths);
+        const companyYearly: Record<string, number[]> = {};
+        const keys = ["totalRevenue", "totalExpenses", "netIncome", "endingCash", "safeFunding"] as const;
+        keys.forEach(k => { companyYearly[k] = Array(projYears).fill(0); });
+        companyData.forEach((m: any, i: number) => {
+          const yr = Math.floor(i / 12);
+          if (yr < projYears) {
+            keys.forEach(k => {
+              if (k === "endingCash") companyYearly[k][yr] = m[k];
+              else companyYearly[k][yr] += m[k];
+            });
+          }
+        });
+
+        const cYearHeaders = ["Line Item", ...Array.from({ length: projYears }, (_, i) => `Year ${i + 1}`)];
+        addTable("Management Company — Summary", cYearHeaders, [
+          ["Total Revenue", ...companyYearly.totalRevenue.map(v => formatMoney(v))],
+          ["Total Expenses", ...companyYearly.totalExpenses.map(v => formatMoney(v))],
+          ["Net Income", ...companyYearly.netIncome.map(v => formatMoney(v))],
+          ["SAFE Funding", ...companyYearly.safeFunding.map(v => formatMoney(v))],
+          ["Ending Cash", ...companyYearly.endingCash.map(v => formatMoney(v))],
+        ]);
+        includedStatements.push("Management Company — Summary");
+        companyIncluded = true;
+      } catch (e) {
+        warnings.push(`Failed to generate Management Company financials: ${e instanceof Error ? e.message : "unknown error"}`);
+      }
+
+      doc.addPage();
+      y = 20;
+      doc.setFillColor(26, 35, 50);
+      doc.rect(0, 0, pageW, 15, "F");
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(14);
+      doc.setTextColor(255, 255, 255);
+      doc.text("Export Summary & Completeness Report", 14, 11);
+      y = 25;
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(60, 60, 60);
+      const summaryLines = [
+        `Export Timestamp: ${new Date().toLocaleString()}`,
+        `Exported By: ${user?.email || "unknown"} (Role: ${user?.role || "unknown"})`,
+        `Projection Period: ${projYears} years (${projMonths} months)`,
+        `Properties Included: ${properties.length}`,
+        `Financial Statements Generated: ${includedStatements.length}`,
+        `Management Company Included: ${companyIncluded ? "Yes" : "No"}`,
+        `Global Assumptions: Included`,
+        `Warnings: ${warnings.length}`,
+      ];
+      summaryLines.forEach(line => {
+        doc.text(line, 14, y);
+        y += 5;
+      });
+      y += 3;
+
+      addTable("Included Financial Statements", ["#", "Statement"], 
+        includedStatements.map((s, i) => [String(i + 1), s])
+      );
+
+      if (warnings.length > 0) {
+        addTable("Data Completeness Warnings", ["#", "Warning"],
+          warnings.map((w, i) => [String(i + 1), w])
+        );
+      } else {
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(10);
+        doc.setTextColor(37, 125, 65);
+        if (y > 185) { doc.addPage(); y = 20; }
+        doc.text("ALL DATA COMPLETE — No warnings detected.", 14, y);
+      }
 
       doc.save("LB_Full_Data_Export.pdf");
-      toast({ title: "Full Data Export Complete", description: "PDF with all assumptions and financials has been downloaded." });
+
+      logActivity("full-data-export", {
+        exportType: "full-data",
+        status: warnings.length > 0 ? "completed-with-warnings" : "completed",
+        propertyCount: properties.length,
+        statementsGenerated: includedStatements.length,
+        companyIncluded,
+        warningCount: warnings.length,
+        warnings: warnings.length > 0 ? warnings : undefined,
+        projectionYears: projYears,
+        exportedAt: exportTimestamp,
+      });
+
+      if (warnings.length > 0) {
+        toast({
+          title: "Export Complete (with warnings)",
+          description: `${warnings.length} warning(s) found. Check the Summary page at the end of the PDF.`,
+        });
+      } else {
+        toast({ title: "Full Data Export Complete", description: "PDF with all assumptions, financials, and completeness report has been downloaded." });
+      }
     } catch (err) {
+      logActivity("full-data-export", { exportType: "full-data", status: "error", exportedAt: exportTimestamp });
       toast({ title: "Export Failed", description: "Could not generate full data export.", variant: "destructive" });
     } finally {
       setExportingData(false);

@@ -49,7 +49,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       )}
 
       <aside className={cn(
-        "fixed md:sticky top-0 left-0 z-50 h-screen w-64 transition-all duration-500 ease-out md:translate-x-0 flex flex-col overflow-hidden",
+        "fixed md:sticky top-0 left-0 z-50 h-screen w-64 md:w-56 lg:w-64 shrink-0 transition-all duration-500 ease-out md:translate-x-0 flex flex-col overflow-hidden",
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         {/* Deep Black Glass Background */}
@@ -181,7 +181,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
 
-      <main className="flex-1 flex flex-col min-w-0">
+      <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <header className="md:hidden h-16 border-b bg-card flex items-center justify-between px-4 sticky top-0 z-30">
           <div className="flex items-center gap-2">
             <img src={companyLogo} alt="L+B Hospitality" className="w-8 h-8 object-contain" />

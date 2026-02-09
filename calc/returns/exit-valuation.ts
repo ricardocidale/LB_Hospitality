@@ -1,5 +1,5 @@
 import type { RoundingPolicy } from "../../domain/types/rounding.js";
-import { roundTo } from "../../domain/types/rounding.js";
+import { rounder } from "../shared/utils.js";
 
 export interface ExitValuationInput {
   stabilized_noi: number;
@@ -23,7 +23,7 @@ export interface ExitValuationOutput {
 }
 
 export function computeExitValuation(input: ExitValuationInput): ExitValuationOutput {
-  const r = (v: number) => roundTo(v, input.rounding_policy);
+  const r = rounder(input.rounding_policy);
   const commissionRate = input.commission_rate ?? 0.02;
   const outstandingDebt = input.outstanding_debt ?? 0;
   const otherClosingCosts = input.other_closing_costs ?? 0;
@@ -40,15 +40,10 @@ export function computeExitValuation(input: ExitValuationInput): ExitValuationOu
   const net_sale_proceeds = r(gross_sale_price - commission - otherClosingCosts);
   const debt_repayment = r(outstandingDebt);
   const net_to_equity = r(net_sale_proceeds - debt_repayment);
-  const debt_free_at_exit = net_to_equity >= 0;
 
   return {
-    gross_sale_price,
-    implied_price_per_key,
-    commission,
-    net_sale_proceeds,
-    debt_repayment,
-    net_to_equity,
-    debt_free_at_exit,
+    gross_sale_price, implied_price_per_key, commission,
+    net_sale_proceeds, debt_repayment, net_to_equity,
+    debt_free_at_exit: net_to_equity >= 0,
   };
 }

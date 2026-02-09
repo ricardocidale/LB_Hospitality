@@ -1,3 +1,5 @@
+import { roundCents, CENTS_TOLERANCE } from "../shared/utils.js";
+
 export interface FundingGateInput {
   entity_type: "property" | "management_company" | "portfolio";
   entity_name: string;
@@ -27,7 +29,6 @@ export interface FundingGateOutput {
 export function checkFundingGates(input: FundingGateInput): FundingGateOutput {
   const gates: GateResult[] = [];
 
-  // Gate 1: Funding before operations
   if (input.operations_start_date && input.funding_date) {
     const opsDate = new Date(input.operations_start_date);
     const fundDate = new Date(input.funding_date);
@@ -49,7 +50,6 @@ export function checkFundingGates(input: FundingGateInput): FundingGateOutput {
     });
   }
 
-  // Gate 2: No Negative Cash
   const negative_cash_months: number[] = [];
   let minimum_cash_balance = Infinity;
   for (let i = 0; i < input.monthly_ending_cash.length; i++) {
@@ -70,9 +70,8 @@ export function checkFundingGates(input: FundingGateInput): FundingGateOutput {
     first_violation_month: negative_cash_months.length > 0 ? negative_cash_months[0] : -1,
   });
 
-  // Gate 3: Debt-Free at Exit
   if (input.final_debt_outstanding !== undefined) {
-    const debtFree = input.final_debt_outstanding <= 0.01;
+    const debtFree = input.final_debt_outstanding <= CENTS_TOLERANCE;
     gates.push({
       rule: "Debt-Free at Exit",
       description: "All debt must be repaid by end of projection period",
@@ -85,7 +84,6 @@ export function checkFundingGates(input: FundingGateInput): FundingGateOutput {
     });
   }
 
-  // Gate 4: No Over-Distribution
   if (input.monthly_distributions && input.monthly_distributions.length > 0) {
     let overDistMonth = -1;
     for (let i = 0; i < input.monthly_distributions.length; i++) {
@@ -112,6 +110,6 @@ export function checkFundingGates(input: FundingGateInput): FundingGateOutput {
     all_gates_passed: gates.every(g => g.passed),
     gates,
     negative_cash_months,
-    minimum_cash_balance: Math.round(minimum_cash_balance * 100) / 100,
+    minimum_cash_balance: roundCents(minimum_cash_balance),
   };
 }

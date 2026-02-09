@@ -1,3 +1,5 @@
+import { roundCents, DEFAULT_TOLERANCE } from "../shared/utils.js";
+
 export interface SampleValue {
   label: string;
   expected_value: number;
@@ -42,14 +44,12 @@ export function verifyExport(input: ExportVerificationInput): ExportVerification
   const missing_sections: string[] = [];
   const value_mismatches: ValueMismatch[] = [];
 
-  // Check format validity
   checks.push({
     check: "Export Format Valid",
     passed: true,
     details: `Format: ${input.export_format}, Source: ${input.export_source}`,
   });
 
-  // Check sections
   if (input.expected_sections && input.actual_sections) {
     const actualSet = new Set(input.actual_sections.map(s => s.toLowerCase()));
     for (const section of input.expected_sections) {
@@ -73,18 +73,12 @@ export function verifyExport(input: ExportVerificationInput): ExportVerification
     });
   }
 
-  // Check sample values
   if (input.sample_values) {
     for (const sv of input.sample_values) {
-      const tol = sv.tolerance ?? 1.0;
-      const variance = Math.abs(sv.expected_value - sv.exported_value);
-      if (variance > tol) {
-        value_mismatches.push({
-          label: sv.label,
-          expected: sv.expected_value,
-          actual: sv.exported_value,
-          variance: Math.round(variance * 100) / 100,
-        });
+      const tol = sv.tolerance ?? DEFAULT_TOLERANCE;
+      const v = Math.abs(sv.expected_value - sv.exported_value);
+      if (v > tol) {
+        value_mismatches.push({ label: sv.label, expected: sv.expected_value, actual: sv.exported_value, variance: roundCents(v) });
       }
     }
     const valuesPassed = value_mismatches.length === 0;
@@ -97,7 +91,6 @@ export function verifyExport(input: ExportVerificationInput): ExportVerification
     });
   }
 
-  // Check year count
   if (input.expected_year_count !== undefined && input.actual_year_count !== undefined) {
     const yearsPassed = input.actual_year_count === input.expected_year_count;
     checks.push({
@@ -109,7 +102,6 @@ export function verifyExport(input: ExportVerificationInput): ExportVerification
     });
   }
 
-  // Check property count
   if (input.expected_property_count !== undefined && input.actual_property_count !== undefined) {
     const propsPassed = input.actual_property_count === input.expected_property_count;
     checks.push({

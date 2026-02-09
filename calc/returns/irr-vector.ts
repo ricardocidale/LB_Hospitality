@@ -1,3 +1,5 @@
+import { roundCents } from "../shared/utils.js";
+
 export interface IRRVectorInput {
   equity_invested: number;
   acquisition_year: number;
@@ -69,14 +71,8 @@ export function buildIRRVector(input: IRRVectorInput): IRRVectorOutput {
   if (sign_changes > 1) warnings.push("Multiple sign changes — IRR may have multiple solutions");
 
   return {
-    cash_flow_vector: vector.map(v => Math.round(v * 100) / 100),
-    validation: {
-      has_negative,
-      has_positive,
-      has_exit,
-      sign_changes,
-      is_valid: has_negative && has_positive,
-    },
+    cash_flow_vector: vector.map(roundCents),
+    validation: { has_negative, has_positive, has_exit, sign_changes, is_valid: has_negative && has_positive },
     warnings,
   };
 }

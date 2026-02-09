@@ -6,7 +6,7 @@ This skill provides the complete User Manual content for the `/methodology` page
 ## Directory Structure
 
 ```
-.claude/methodology/
+.claude/user-manual/
 ├── SKILL.md              ← This file (master index)
 └── skills/               ← Narrative content files by section
     ├── 01-business-model.md

@@ -2,12 +2,10 @@ import { useState, useRef, useEffect } from "react";
 import Layout from "@/components/Layout";
 import { PageHeader } from "@/components/ui/page-header";
 import { GlassButton } from "@/components/ui/glass-button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { useAuth } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
 import {
-  ChevronDown,
-  ChevronRight,
   FileDown,
   Database,
   BookOpen,
@@ -30,9 +28,11 @@ import {
   PieChart,
   Landmark,
   BookOpenCheck,
-  AlertTriangle,
   Loader2,
 } from "lucide-react";
+import { SectionCard } from "@/components/ui/section-card";
+import { ManualTable } from "@/components/ui/manual-table";
+import { Callout } from "@/components/ui/callout";
 
 const sections = [
   { id: "app-overview", title: "1. Application Overview", icon: BookOpen },
@@ -58,84 +58,6 @@ const sections = [
   { id: "glossary", title: "21. Glossary", icon: BookOpenCheck },
 ];
 
-function ManualTable({ headers, rows }: { headers: string[]; rows: string[][] }) {
-  return (
-    <div className="overflow-x-auto rounded-lg border border-white/10">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="bg-white/10">
-            {headers.map((h, i) => (
-              <th key={i} className="px-4 py-3 text-left text-white/90 font-semibold whitespace-nowrap">{h}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row, ri) => (
-            <tr key={ri} className="bg-white/5 border-t border-white/10 hover:bg-white/[0.08] transition-colors">
-              {row.map((cell, ci) => (
-                <td key={ci} className="px-4 py-2.5 text-white/80">{cell}</td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-function Callout({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 mt-4">
-      <AlertTriangle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
-      <p className="text-amber-200/90 text-sm font-medium">{children}</p>
-    </div>
-  );
-}
-
-function SectionCard({
-  id,
-  title,
-  icon: Icon,
-  expanded,
-  onToggle,
-  sectionRef,
-  children,
-}: {
-  id: string;
-  title: string;
-  icon: React.ElementType;
-  expanded: boolean;
-  onToggle: () => void;
-  sectionRef: (el: HTMLDivElement | null) => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <div ref={sectionRef} id={id} className="scroll-mt-24">
-      <Card className="bg-white/5 backdrop-blur-xl border-white/10 shadow-xl">
-        <button
-          data-testid={`section-toggle-${id}`}
-          onClick={onToggle}
-          className="w-full flex items-center justify-between p-5 text-left hover:bg-white/5 transition-colors rounded-xl"
-        >
-          <div className="flex items-center gap-3">
-            <Icon className="w-5 h-5 text-[#9FBCA4]" />
-            <h2 className="text-lg font-semibold text-white">{title}</h2>
-          </div>
-          {expanded ? (
-            <ChevronDown className="w-5 h-5 text-white/60" />
-          ) : (
-            <ChevronRight className="w-5 h-5 text-white/60" />
-          )}
-        </button>
-        {expanded && (
-          <CardContent className="pt-0 pb-6 px-5 space-y-4">
-            {children}
-          </CardContent>
-        )}
-      </Card>
-    </div>
-  );
-}
 
 export default function CheckerManual() {
   const { user } = useAuth();
@@ -310,7 +232,7 @@ export default function CheckerManual() {
                     ["My Profile", "Account management", "/profile"],
                     ["My Scenarios", "Save/load assumption snapshots", "/scenarios"],
                     ["Administration", "User management, verification, design checks", "/admin"],
-                    ["Methodology", "Financial calculation documentation", "/methodology"],
+                    ["User Manual", "Financial calculation documentation", "/methodology"],
                   ]}
                 />
               </SectionCard>

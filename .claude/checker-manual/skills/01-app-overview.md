@@ -62,7 +62,7 @@ The application is organized into the following primary navigation areas:
 | **My Profile** | `/profile` | User account settings, display preferences |
 | **My Scenarios** | `/scenarios` | Saved model snapshots; create, load, compare, delete scenarios |
 | **Administration** | `/admin` | User management, login logs, system configuration (admin role only) |
-| **Methodology** | `/methodology` | Documentation of financial methodology, formulas, and GAAP/USALI references |
+| **User Manual** | `/methodology` | Documentation of financial methodology, formulas, and GAAP/USALI references |
 
 ---
 

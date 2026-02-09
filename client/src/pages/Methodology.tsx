@@ -1,56 +1,179 @@
+import { useState, useRef } from "react";
 import Layout from "@/components/Layout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Badge } from "@/components/ui/badge";
-import { Calculator, TrendingUp, Building2, DollarSign, PieChart, BarChart3, Wallet, Info, Layers, ArrowRightLeft, BookOpen, ShieldCheck, Banknote, RefreshCw } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { SectionCard } from "@/components/ui/section-card";
+import { ManualTable } from "@/components/ui/manual-table";
+import { Callout } from "@/components/ui/callout";
+import {
+  Calculator,
+  TrendingUp,
+  Building2,
+  DollarSign,
+  PieChart,
+  BarChart3,
+  Wallet,
+  Info,
+  Layers,
+  ArrowRightLeft,
+  BookOpen,
+  ShieldCheck,
+  Banknote,
+  RefreshCw,
+} from "lucide-react";
+import {
+  DEFAULT_LTV,
+  DEFAULT_INTEREST_RATE,
+  DEFAULT_TERM_YEARS,
+  DEFAULT_REFI_LTV,
+  DEFAULT_REFI_CLOSING_COST_RATE,
+  DEFAULT_ACQ_CLOSING_COST_RATE,
+  DEFAULT_COST_RATE_ROOMS,
+  DEFAULT_COST_RATE_FB,
+  DEFAULT_COST_RATE_ADMIN,
+  DEFAULT_COST_RATE_MARKETING,
+  DEFAULT_COST_RATE_PROPERTY_OPS,
+  DEFAULT_COST_RATE_UTILITIES,
+  DEFAULT_COST_RATE_INSURANCE,
+  DEFAULT_COST_RATE_TAXES,
+  DEFAULT_COST_RATE_IT,
+  DEFAULT_COST_RATE_FFE,
+  DEFAULT_EXIT_CAP_RATE,
+  DEFAULT_TAX_RATE,
+  DEFAULT_COMMISSION_RATE,
+  DEFAULT_REV_SHARE_EVENTS,
+  DEFAULT_REV_SHARE_FB,
+  DEFAULT_REV_SHARE_OTHER,
+  DEFAULT_CATERING_BOOST_PCT,
+  DEFAULT_EVENT_EXPENSE_RATE,
+  DEFAULT_OTHER_EXPENSE_RATE,
+  DEFAULT_UTILITIES_VARIABLE_SPLIT,
+  DEPRECIATION_YEARS,
+  DAYS_PER_MONTH,
+  PROJECTION_YEARS,
+  DEFAULT_START_OCCUPANCY,
+  DEFAULT_MAX_OCCUPANCY,
+  DEFAULT_OCCUPANCY_GROWTH_STEP,
+  DEFAULT_OCCUPANCY_RAMP_MONTHS,
+  DEFAULT_ADR_GROWTH_RATE,
+} from "@/lib/constants";
+
+/** Format a decimal as a percentage string, e.g. 0.36 → "36%" */
+const pct = (v: number) => `${Math.round(v * 100)}%`;
+/** Format a decimal as a percentage string with 1 decimal, e.g. 0.085 → "8.5%" */
+const pct1 = (v: number) => `${(v * 100).toFixed(1).replace(/\.0$/, "")}%`;
+
+const sections = [
+  { id: "business-model", title: "Business Model Overview", subtitle: "Two-entity structure: Management Company + Property Portfolio", icon: Layers },
+  { id: "business-rules", title: "Business Rules & Constraints", subtitle: "Mandatory financial gates and safety checks", icon: ShieldCheck, className: "border-red-200 bg-red-50/30" },
+  { id: "capital-lifecycle", title: "Capital Structure & Investor Returns", subtitle: "How capital flows in and how investors get paid back", icon: Banknote },
+  { id: "dynamic-behavior", title: "Dynamic Behavior & System Goals", subtitle: "Real-time recalculation and multi-level analysis", icon: RefreshCw },
+  { id: "property-lifecycle", title: "Property Lifecycle", subtitle: "Acquisition → Operations → Refinancing → Exit", icon: ArrowRightLeft },
+  { id: "defaults", title: "Default Values & Assumptions", subtitle: "Where the default numbers come from", icon: Info },
+  { id: "revenue", title: "Revenue Calculations", subtitle: "How we project rooms, F&B, and events revenue", icon: TrendingUp },
+  { id: "expenses", title: "Operating Expenses", subtitle: "How we calculate property operating costs", icon: Wallet },
+  { id: "noi-gop", title: "GOP and NOI", subtitle: "Gross Operating Profit and Net Operating Income", icon: BarChart3 },
+  { id: "debt", title: "Debt & Financing", subtitle: "Loan calculations and refinancing", icon: Building2 },
+  { id: "cash-flow", title: "Free Cash Flow (GAAP Method)", subtitle: "How we calculate cash available to investors", icon: DollarSign },
+  { id: "balance-sheet", title: "Balance Sheet", subtitle: "Assets, liabilities, and equity per GAAP standards", icon: BookOpen },
+  { id: "returns", title: "Investment Returns", subtitle: "IRR, equity multiple, and exit value calculations", icon: PieChart },
+  { id: "management-company", title: "Management Company Financials", subtitle: "L+B Hospitality Co. revenue and expenses", icon: Building2 },
+  { id: "fixed-assumptions", title: "Fixed Assumptions (Not Configurable)", subtitle: "Hardcoded values built into the calculation engine", icon: Info, className: "border-amber-200 bg-amber-50/30" },
+  { id: "verification", title: "Financial Verification & Audit", subtitle: "How we verify calculations for GAAP compliance", icon: Calculator },
+];
 
 export default function Methodology() {
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
+  const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  const toggleSection = (id: string) => {
+    setExpandedSections((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const scrollToSection = (id: string) => {
+    const el = sectionRefs.current[id];
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+      setExpandedSections((prev) => new Set(prev).add(id));
+    }
+  };
+
   return (
     <Layout>
       <div className="space-y-8">
         <div>
-          <h1 className="text-3xl font-display font-bold text-foreground">Methodology</h1>
+          <h1 className="text-3xl font-display font-bold text-foreground">User Manual</h1>
           <p className="text-muted-foreground mt-2">
-            How we calculate financial projections, returns, and investment metrics
+            Your guide to the financial model, assumptions, and reporting standards
           </p>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calculator className="w-5 h-5 text-primary" />
-              Overview of the Financial Model
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="prose prose-sm max-w-none text-muted-foreground">
-            <p>
-              This financial model generates multi-year projections (configurable 1-30 years, default 10) for a portfolio of hospitality properties. 
-              It uses a combination of <strong>Systemwide Assumptions</strong> (market-wide parameters) and 
-              <strong>Property Assumptions</strong> (individual property details) to calculate revenues, 
-              expenses, cash flows, and investment returns.
-            </p>
-            <p>
-              The model follows <strong>GAAP-compliant accounting standards</strong> and uses the 
-              <strong>indirect method for Free Cash Flow</strong> calculations, which is the industry 
-              standard for real estate investment analysis.
-            </p>
-          </CardContent>
+        <Card className="bg-primary/5 border-primary/20">
+          <div className="p-6">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                <Calculator className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-lg mb-2">Overview of the Financial Model</h3>
+                <p className="text-sm text-muted-foreground">
+                  This financial model generates multi-year projections (configurable 1-30 years, default {PROJECTION_YEARS}) for a portfolio of hospitality properties.
+                  It uses a combination of <strong>Systemwide Assumptions</strong> (market-wide parameters) and
+                  <strong> Property Assumptions</strong> (individual property details) to calculate revenues,
+                  expenses, cash flows, and investment returns.
+                </p>
+                <p className="text-sm text-muted-foreground mt-2">
+                  The model follows <strong>GAAP-compliant accounting standards</strong> and uses the
+                  <strong> indirect method for Free Cash Flow</strong> calculations, which is the industry
+                  standard for real estate investment analysis.
+                </p>
+              </div>
+            </div>
+          </div>
         </Card>
 
-        <Accordion type="multiple" className="space-y-4">
-          <AccordionItem value="business-model" className="border rounded-lg px-4">
-            <AccordionTrigger className="hover:no-underline">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                  <Layers className="w-5 h-5 text-primary" />
+        <div className="flex gap-6">
+          {/* Table of Contents Sidebar */}
+          <aside className="hidden lg:block w-72 flex-shrink-0">
+            <div className="sticky top-24">
+              <Card className="bg-white border shadow-sm">
+                <div className="p-4">
+                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Table of Contents</h3>
+                  <nav className="space-y-1">
+                    {sections.map((s) => (
+                      <button
+                        key={s.id}
+                        data-testid={`toc-${s.id}`}
+                        onClick={() => scrollToSection(s.id)}
+                        className="w-full text-left px-3 py-1.5 rounded-lg text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors truncate"
+                      >
+                        {s.title}
+                      </button>
+                    ))}
+                  </nav>
                 </div>
-                <div className="text-left">
-                  <h3 className="font-semibold">Business Model Overview</h3>
-                  <p className="text-sm text-muted-foreground">Two-entity structure: Management Company + Property Portfolio</p>
-                </div>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className="pt-4 pb-6 space-y-4">
+              </Card>
+            </div>
+          </aside>
+
+          {/* Main Content */}
+          <main className="flex-1 space-y-4 min-w-0">
+
+            {/* Section: Business Model Overview */}
+            <SectionCard
+              id="business-model"
+              title="Business Model Overview"
+              subtitle="Two-entity structure: Management Company + Property Portfolio"
+              icon={Layers}
+              variant="light"
+              expanded={expandedSections.has("business-model")}
+              onToggle={() => toggleSection("business-model")}
+              sectionRef={(el) => { sectionRefs.current["business-model"] = el; }}
+            >
               <p className="text-sm text-muted-foreground">
                 The L+B Hospitality model consists of <strong>two distinct financial entities</strong> that are
                 modeled independently but linked through management fees:
@@ -83,24 +206,24 @@ export default function Methodology() {
                 <div className="bg-muted/50 rounded-lg p-4">
                   <h4 className="font-semibold mb-2">Properties P&L</h4>
                   <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>• Each property is modeled independently</li>
-                    <li>• Revenue from rooms, F&B, events, other</li>
-                    <li>• Expenses per USALI standards</li>
-                    <li>• Debt service for financed properties</li>
-                    <li>• Full balance sheet and cash flow statement</li>
-                    <li>• IRR and equity multiple at exit</li>
+                    <li>&#8226; Each property is modeled independently</li>
+                    <li>&#8226; Revenue from rooms, F&B, events, other</li>
+                    <li>&#8226; Expenses per USALI standards</li>
+                    <li>&#8226; Debt service for financed properties</li>
+                    <li>&#8226; Full balance sheet and cash flow statement</li>
+                    <li>&#8226; IRR and equity multiple at exit</li>
                   </ul>
                 </div>
 
                 <div className="bg-muted/50 rounded-lg p-4">
                   <h4 className="font-semibold mb-2">Management Company P&L</h4>
                   <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>• Revenue = management fees from all properties</li>
-                    <li>• Partner compensation (defined per-year array)</li>
-                    <li>• Staff costs scale with property count (tiered)</li>
-                    <li>• Fixed costs: office, insurance, professional services</li>
-                    <li>• Variable costs: travel, IT, marketing</li>
-                    <li>• SAFE funding for working capital</li>
+                    <li>&#8226; Revenue = management fees from all properties</li>
+                    <li>&#8226; Partner compensation (defined per-year array)</li>
+                    <li>&#8226; Staff costs scale with property count (tiered)</li>
+                    <li>&#8226; Fixed costs: office, insurance, professional services</li>
+                    <li>&#8226; Variable costs: travel, IT, marketing</li>
+                    <li>&#8226; SAFE funding for working capital</li>
                   </ul>
                 </div>
               </div>
@@ -114,145 +237,133 @@ export default function Methodology() {
                   future equity, not income.
                 </p>
               </div>
-            </AccordionContent>
-          </AccordionItem>
+            </SectionCard>
 
-          <AccordionItem value="business-rules" className="border rounded-lg px-4 border-red-200 bg-red-50/30">
-            <AccordionTrigger className="hover:no-underline">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
-                  <ShieldCheck className="w-5 h-5 text-red-600" />
-                </div>
-                <div className="text-left">
-                  <h3 className="font-semibold">Business Rules & Constraints</h3>
-                  <p className="text-sm text-muted-foreground">Mandatory financial gates and safety checks</p>
-                </div>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className="pt-4 pb-6 space-y-4">
+            {/* Section: Business Rules */}
+            <SectionCard
+              id="business-rules"
+              title="Business Rules & Constraints"
+              subtitle="Mandatory financial gates and safety checks"
+              icon={ShieldCheck}
+              variant="light"
+              className="border-red-200 bg-red-50/30"
+              expanded={expandedSections.has("business-rules")}
+              onToggle={() => toggleSection("business-rules")}
+              sectionRef={(el) => { sectionRefs.current["business-rules"] = el; }}
+            >
               <p className="text-sm text-muted-foreground">
                 The system enforces mandatory business rules that reflect real-world financial constraints.
                 These rules cannot be overridden — if any are violated, the system flags the scenario as invalid
                 and requires assumption adjustments before proceeding.
               </p>
 
-              <div className="bg-red-50 rounded-lg p-4 border border-red-200">
-                <h4 className="font-semibold mb-2 text-red-800">1. Management Company Funding Gate</h4>
-                <p className="text-sm text-red-700">
-                  Operations of the Management Company cannot begin before funding is received. The company requires 
-                  SAFE funding tranches to cover startup costs (staff, office, professional services) before management 
+              <Callout severity="critical" title="1. Management Company Funding Gate">
+                <p>
+                  Operations of the Management Company cannot begin before funding is received. The company requires
+                  SAFE funding tranches to cover startup costs (staff, office, professional services) before management
                   fee revenue begins flowing from properties.
                 </p>
-                <p className="text-sm text-red-700 mt-2">
+                <p className="mt-2">
                   If assumptions indicate operations before funding, the system blocks the scenario and flags it as invalid.
                 </p>
-              </div>
+              </Callout>
 
-              <div className="bg-red-50 rounded-lg p-4 border border-red-200">
-                <h4 className="font-semibold mb-2 text-red-800">2. Property Activation Gate</h4>
-                <p className="text-sm text-red-700">
-                  A property cannot begin operating before it is purchased and funding is in place — whether that's 
-                  100% equity (cash purchase) or debt financing plus equity. Revenue and operating expenses only begin 
+              <Callout severity="critical" title="2. Property Activation Gate">
+                <p>
+                  A property cannot begin operating before it is purchased and funding is in place — whether that's
+                  100% equity (cash purchase) or debt financing plus equity. Revenue and operating expenses only begin
                   after the acquisition date and operations start date.
                 </p>
-                <p className="text-sm text-red-700 mt-2">
+                <p className="mt-2">
                   If the operating start date precedes acquisition or funding, the system blocks the scenario.
                 </p>
-              </div>
+              </Callout>
 
-              <div className="bg-red-50 rounded-lg p-4 border border-red-200">
-                <h4 className="font-semibold mb-2 text-red-800">3. No Negative Cash Rule</h4>
-                <p className="text-sm text-red-700">
-                  Cash balances for each property, the Management Company, and the aggregated portfolio must never 
-                  be negative. This ensures realistic capital planning and prevents scenarios where entities spend 
+              <Callout severity="critical" title="3. No Negative Cash Rule">
+                <p>
+                  Cash balances for each property, the Management Company, and the aggregated portfolio must never
+                  be negative. This ensures realistic capital planning and prevents scenarios where entities spend
                   money they don't have.
                 </p>
-                <p className="text-sm text-red-700 mt-2">
-                  If any projected cash balance goes below zero, the system flags a funding shortfall and requires 
+                <p className="mt-2">
+                  If any projected cash balance goes below zero, the system flags a funding shortfall and requires
                   increased funding, earlier funding, or assumption adjustments.
                 </p>
-              </div>
+              </Callout>
 
-              <div className="bg-red-50 rounded-lg p-4 border border-red-200">
-                <h4 className="font-semibold mb-2 text-red-800">4. Debt-Free at Exit</h4>
-                <p className="text-sm text-red-700">
-                  At exit (end of the projection period), all properties must be debt-free. Outstanding loan balances 
+              <Callout severity="critical" title="4. Debt-Free at Exit">
+                <p>
+                  At exit (end of the projection period), all properties must be debt-free. Outstanding loan balances
                   are repaid from gross sale proceeds before calculating net proceeds to equity. The exit waterfall is:
                 </p>
-                <div className="bg-white/50 rounded p-2 font-mono text-xs mt-2 text-red-700">
+                <div className="bg-white/50 rounded p-2 font-mono text-xs mt-2">
                   <div>Gross Sale Value = Final Year NOI / Exit Cap Rate</div>
                   <div>Less: Sales Commission</div>
                   <div>Less: Outstanding Debt Balance (must be fully repaid)</div>
                   <div>= Net Proceeds to Equity</div>
                 </div>
-              </div>
+              </Callout>
 
-              <div className="bg-red-50 rounded-lg p-4 border border-red-200">
-                <h4 className="font-semibold mb-2 text-red-800">5. No Over-Distribution Rule</h4>
-                <p className="text-sm text-red-700">
+              <Callout severity="critical" title="5. No Over-Distribution Rule">
+                <p>
                   FCF distributions and refinancing proceeds returned to investors must not exceed available cash.
                   The system must not distribute cash to the point that any property ends up with a negative cash
                   balance. This ensures that repayment of principal and investor distributions are always funded
                   by actual available cash. Refinance payback to investors is also subject to this constraint —
                   proceeds from refinancing cannot be swept out if doing so would leave the property cash-negative.
                 </p>
-              </div>
+              </Callout>
 
-              <div className="bg-red-50 rounded-lg p-4 border border-red-200">
-                <h4 className="font-semibold mb-2 text-red-800">6. Income Statement: Interest Only (No Principal)</h4>
-                <p className="text-sm text-red-700">
+              <Callout severity="critical" title="6. Income Statement: Interest Only (No Principal)">
+                <p>
                   The income statement must show <strong>only interest expense</strong>, never principal repayment.
                   Principal repayment is a <strong>financing activity</strong> (ASC 470), not an operating expense.
                   It reduces cash but does not reduce net income. The income statement waterfall is:
                 </p>
-                <div className="bg-white/50 rounded p-2 font-mono text-xs mt-2 text-red-700">
+                <div className="bg-white/50 rounded p-2 font-mono text-xs mt-2">
                   <div>NOI</div>
                   <div>Less: Interest Expense (only the interest portion of debt service)</div>
                   <div>Less: Depreciation</div>
                   <div>Less: Income Tax</div>
                   <div>= Net Income</div>
                 </div>
-                <p className="text-sm text-red-700 mt-2">
+                <p className="mt-2">
                   Principal repayment appears only on the cash flow statement as a financing outflow.
                 </p>
-              </div>
+              </Callout>
 
-              <div className="bg-red-50 rounded-lg p-4 border border-red-200">
-                <h4 className="font-semibold mb-2 text-red-800">7. Capital Structure Presentation in Reports</h4>
-                <p className="text-sm text-red-700">
+              <Callout severity="critical" title="7. Capital Structure Presentation in Reports">
+                <p>
                   All financial reports, cash flow statements, and balance sheets must present capital sources
                   on <strong>separate lines</strong> for clarity:
                 </p>
-                <div className="bg-white/50 rounded p-2 font-mono text-xs mt-2 text-red-700 space-y-1">
+                <div className="bg-white/50 rounded p-2 font-mono text-xs mt-2 space-y-1">
                   <div><strong>Equity (Cash) Infusion</strong> — one line item</div>
                   <div><strong>Loan Proceeds</strong> — separate line item (acquisition financing)</div>
                   <div><strong>Refinancing Proceeds</strong> — separate line item (cash-out from refi)</div>
                 </div>
-                <p className="text-sm text-red-700 mt-2">
+                <p className="mt-2">
                   Equity and debt/refinance must never be lumped together. Each source of capital has different
                   risk characteristics, repayment obligations, and investor implications. This separation must be
                   maintained in income statements, cash flow statements, balance sheets, and all exported reports
                   (PDF, CSV).
                 </p>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
+              </Callout>
+            </SectionCard>
 
-          <AccordionItem value="capital-lifecycle" className="border rounded-lg px-4">
-            <AccordionTrigger className="hover:no-underline">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
-                  <Banknote className="w-5 h-5 text-emerald-600" />
-                </div>
-                <div className="text-left">
-                  <h3 className="font-semibold">Capital Structure & Investor Returns</h3>
-                  <p className="text-sm text-muted-foreground">How capital flows in and how investors get paid back</p>
-                </div>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className="pt-4 pb-6 space-y-4">
+            {/* Section: Capital Structure */}
+            <SectionCard
+              id="capital-lifecycle"
+              title="Capital Structure & Investor Returns"
+              subtitle="How capital flows in and how investors get paid back"
+              icon={Banknote}
+              variant="light"
+              expanded={expandedSections.has("capital-lifecycle")}
+              onToggle={() => toggleSection("capital-lifecycle")}
+              sectionRef={(el) => { sectionRefs.current["capital-lifecycle"] = el; }}
+            >
               <p className="text-sm text-muted-foreground">
-                The platform models realistic capital flows for both the management company and each property, 
+                The platform models realistic capital flows for both the management company and each property,
                 tracking how money enters the system and how investors receive returns over time.
               </p>
 
@@ -274,7 +385,7 @@ export default function Methodology() {
                   <div className="bg-background rounded-lg p-3">
                     <h5 className="font-semibold text-sm mb-1">Debt Financing + Equity</h5>
                     <ul className="text-xs text-muted-foreground space-y-1">
-                      <li>&#8226; Loan based on LTV ratio (default 75%)</li>
+                      <li>&#8226; Loan based on LTV ratio (default {pct(DEFAULT_LTV)})</li>
                       <li>&#8226; Monthly debt service (interest + principal)</li>
                       <li>&#8226; Equity covers remainder of project cost</li>
                       <li>&#8226; Can also refinance at new terms</li>
@@ -297,7 +408,7 @@ export default function Methodology() {
                   <div className="pl-4 text-xs">Net sale value at end of projection (gross value - commission - debt)</div>
                 </div>
                 <p className="text-sm text-muted-foreground mt-3">
-                  Total return = Sum of all three channels. This is what drives the IRR, equity multiple, and 
+                  Total return = Sum of all three channels. This is what drives the IRR, equity multiple, and
                   cash-on-cash return metrics shown in the dashboard.
                 </p>
               </div>
@@ -305,9 +416,9 @@ export default function Methodology() {
               <div className="bg-muted/50 rounded-lg p-4">
                 <h4 className="font-semibold mb-2">Management Company Funding</h4>
                 <p className="text-sm text-muted-foreground">
-                  The management company receives capital from private equity through <strong>SAFE (Simple Agreement 
-                  for Future Equity)</strong> tranches — scheduled or conditional funding rounds that provide working 
-                  capital until management fee revenue covers operating expenses. SAFE funding is recorded as a cash 
+                  The management company receives capital from private equity through <strong>SAFE (Simple Agreement
+                  for Future Equity)</strong> tranches — scheduled or conditional funding rounds that provide working
+                  capital until management fee revenue covers operating expenses. SAFE funding is recorded as a cash
                   inflow but is <strong>not</strong> revenue — it represents future equity, not income.
                 </p>
               </div>
@@ -342,27 +453,24 @@ export default function Methodology() {
                   </div>
                 </div>
                 <p className="text-sm text-muted-foreground mt-3">
-                  Global assumptions apply across all properties and the management company. Property-level 
-                  assumptions override globals where applicable (e.g., a property's own exit cap rate takes 
+                  Global assumptions apply across all properties and the management company. Property-level
+                  assumptions override globals where applicable (e.g., a property's own exit cap rate takes
                   precedence over the system default).
                 </p>
               </div>
-            </AccordionContent>
-          </AccordionItem>
+            </SectionCard>
 
-          <AccordionItem value="dynamic-behavior" className="border rounded-lg px-4">
-            <AccordionTrigger className="hover:no-underline">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                  <RefreshCw className="w-5 h-5 text-blue-600" />
-                </div>
-                <div className="text-left">
-                  <h3 className="font-semibold">Dynamic Behavior & System Goals</h3>
-                  <p className="text-sm text-muted-foreground">Real-time recalculation and multi-level analysis</p>
-                </div>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className="pt-4 pb-6 space-y-4">
+            {/* Section: Dynamic Behavior */}
+            <SectionCard
+              id="dynamic-behavior"
+              title="Dynamic Behavior & System Goals"
+              subtitle="Real-time recalculation and multi-level analysis"
+              icon={RefreshCw}
+              variant="light"
+              expanded={expandedSections.has("dynamic-behavior")}
+              onToggle={() => toggleSection("dynamic-behavior")}
+              sectionRef={(el) => { sectionRefs.current["dynamic-behavior"] = el; }}
+            >
               <div className="bg-muted/50 rounded-lg p-4">
                 <h4 className="font-semibold mb-2">Dynamic Recalculation</h4>
                 <p className="text-sm text-muted-foreground">
@@ -406,43 +514,40 @@ export default function Methodology() {
               <div className="bg-primary/10 rounded-lg p-4 border border-primary/20">
                 <h4 className="font-semibold mb-2">System Goal</h4>
                 <p className="text-sm text-muted-foreground">
-                  To simulate a scalable hospitality platform where individual assets can be analyzed independently, 
-                  the management company operates as a profit center, capital flows realistically over time, and 
-                  returns can be evaluated at asset, company, and portfolio levels — while enforcing real-world 
+                  To simulate a scalable hospitality platform where individual assets can be analyzed independently,
+                  the management company operates as a profit center, capital flows realistically over time, and
+                  returns can be evaluated at asset, company, and portfolio levels — while enforcing real-world
                   financial constraints.
                 </p>
               </div>
-            </AccordionContent>
-          </AccordionItem>
+            </SectionCard>
 
-          <AccordionItem value="property-lifecycle" className="border rounded-lg px-4">
-            <AccordionTrigger className="hover:no-underline">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
-                  <ArrowRightLeft className="w-5 h-5 text-indigo-600" />
-                </div>
-                <div className="text-left">
-                  <h3 className="font-semibold">Property Lifecycle</h3>
-                  <p className="text-sm text-muted-foreground">Acquisition → Operations → Refinancing → Exit</p>
-                </div>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className="pt-4 pb-6 space-y-4">
+            {/* Section: Property Lifecycle */}
+            <SectionCard
+              id="property-lifecycle"
+              title="Property Lifecycle"
+              subtitle="Acquisition → Operations → Refinancing → Exit"
+              icon={ArrowRightLeft}
+              variant="light"
+              expanded={expandedSections.has("property-lifecycle")}
+              onToggle={() => toggleSection("property-lifecycle")}
+              sectionRef={(el) => { sectionRefs.current["property-lifecycle"] = el; }}
+            >
               <div className="bg-muted/50 rounded-lg p-4">
                 <h4 className="font-semibold mb-2">1. Acquisition</h4>
                 <p className="text-sm text-muted-foreground mb-2">
                   Each property enters the model at its acquisition date with a defined capital structure:
                 </p>
                 <div className="bg-background rounded p-3 font-mono text-sm space-y-1">
-                  <div>Total Project Cost = Purchase Price + Closing Costs (2%) + Operating Reserve</div>
-                  <div>Loan Amount = Purchase Price × LTV (default 75%) — for financed properties</div>
+                  <div>Total Project Cost = Purchase Price + Closing Costs ({pct(DEFAULT_ACQ_CLOSING_COST_RATE)}) + Operating Reserve</div>
+                  <div>Loan Amount = Purchase Price × LTV (default {pct(DEFAULT_LTV)}) — for financed properties</div>
                   <div>Initial Equity = Total Project Cost − Loan Amount</div>
                 </div>
                 <ul className="mt-3 text-sm text-muted-foreground space-y-1">
-                  <li>• <strong>Full Equity</strong>: No debt, 100% equity funded</li>
-                  <li>• <strong>Financed</strong>: Debt + equity per LTV ratio</li>
-                  <li>• Balance sheet entries only appear after acquisition date</li>
-                  <li>• Depreciation begins the first full month after acquisition</li>
+                  <li>&#8226; <strong>Full Equity</strong>: No debt, 100% equity funded</li>
+                  <li>&#8226; <strong>Financed</strong>: Debt + equity per LTV ratio</li>
+                  <li>&#8226; Balance sheet entries only appear after acquisition date</li>
+                  <li>&#8226; Depreciation begins the first full month after acquisition</li>
                 </ul>
               </div>
 
@@ -452,11 +557,11 @@ export default function Methodology() {
                   Revenue and expenses begin at the operations start date with a ramp-up period:
                 </p>
                 <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>• Occupancy ramps from starting rate (default 55%) to maximum (default 85%)</li>
-                  <li>• Ramp-up occurs over configurable months (default 6 months)</li>
-                  <li>• ADR grows annually at the ADR growth rate (default 3%)</li>
-                  <li>• Expenses escalate annually with inflation (variable) or fixed cost escalation rate</li>
-                  <li>• NOI = Revenue − Operating Expenses − Management Fees − FF&E Reserve</li>
+                  <li>&#8226; Occupancy ramps from starting rate (default {pct(DEFAULT_START_OCCUPANCY)}) to maximum (default {pct(DEFAULT_MAX_OCCUPANCY)})</li>
+                  <li>&#8226; Ramp-up occurs over configurable months (default {DEFAULT_OCCUPANCY_RAMP_MONTHS} months)</li>
+                  <li>&#8226; ADR grows annually at the ADR growth rate (default {pct(DEFAULT_ADR_GROWTH_RATE)})</li>
+                  <li>&#8226; Expenses escalate annually with inflation (variable) or fixed cost escalation rate</li>
+                  <li>&#8226; NOI = Revenue − Operating Expenses − Management Fees − FF&E Reserve</li>
                 </ul>
               </div>
 
@@ -467,8 +572,8 @@ export default function Methodology() {
                 </p>
                 <div className="bg-background rounded p-3 font-mono text-sm space-y-1">
                   <div>Appraised Value = Trailing-12-Month NOI ÷ Cap Rate</div>
-                  <div>New Loan = Appraised Value × Refi LTV (default 65%)</div>
-                  <div>Proceeds = New Loan − Old Balance − Closing Costs (3%)</div>
+                  <div>New Loan = Appraised Value × Refi LTV (default {pct(DEFAULT_REFI_LTV)})</div>
+                  <div>Proceeds = New Loan − Old Balance − Closing Costs (default {pct(DEFAULT_REFI_CLOSING_COST_RATE)})</div>
                 </div>
                 <p className="text-sm text-muted-foreground mt-2">
                   Net proceeds are distributed to investors. Debt service recalculates from the new loan balance forward.
@@ -481,8 +586,8 @@ export default function Methodology() {
                   At the end of the projection period, each property is assumed to be sold:
                 </p>
                 <div className="bg-background rounded p-3 font-mono text-sm space-y-1">
-                  <div>Gross Sale Value = Final Year NOI ÷ Exit Cap Rate (default 8.5%)</div>
-                  <div>Less: Sales Commission (default 5%)</div>
+                  <div>Gross Sale Value = Final Year NOI ÷ Exit Cap Rate (default {pct1(DEFAULT_EXIT_CAP_RATE)})</div>
+                  <div>Less: Sales Commission (default {pct(DEFAULT_COMMISSION_RATE)})</div>
                   <div>Less: Outstanding Debt Balance</div>
                   <div>= Net Proceeds to Equity</div>
                 </div>
@@ -491,74 +596,70 @@ export default function Methodology() {
                   Net exit proceeds combined with cumulative FCFE and refinancing proceeds determine the total return (IRR, equity multiple).
                 </p>
               </div>
-            </AccordionContent>
-          </AccordionItem>
+            </SectionCard>
 
-          <AccordionItem value="defaults" className="border rounded-lg px-4">
-            <AccordionTrigger className="hover:no-underline">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                  <Info className="w-5 h-5 text-primary" />
-                </div>
-                <div className="text-left">
-                  <h3 className="font-semibold">Default Values & Assumptions</h3>
-                  <p className="text-sm text-muted-foreground">Where the default numbers come from</p>
-                </div>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className="pt-4 pb-6 space-y-4">
+            {/* Section: Defaults */}
+            <SectionCard
+              id="defaults"
+              title="Default Values & Assumptions"
+              subtitle="Where the default numbers come from"
+              icon={Info}
+              variant="light"
+              expanded={expandedSections.has("defaults")}
+              onToggle={() => toggleSection("defaults")}
+              sectionRef={(el) => { sectionRefs.current["defaults"] = el; }}
+            >
               <p className="text-sm text-muted-foreground">
-                The default values throughout this model are based on research into the 
-                <strong> boutique hotel and bed & breakfast business model in North America</strong>. 
-                These include typical expense ratios, occupancy ramp-up periods, ADR ranges, and 
+                The default values throughout this model are based on research into the
+                <strong> boutique hotel and bed & breakfast business model in North America</strong>.
+                These include typical expense ratios, occupancy ramp-up periods, ADR ranges, and
                 cap rates for this asset class.
               </p>
               <p className="text-sm text-muted-foreground">
-                You are encouraged to adjust any variable to match your specific property, market 
-                conditions, or investment thesis. The model automatically recalculates all projections 
+                You are encouraged to adjust any variable to match your specific property, market
+                conditions, or investment thesis. The model automatically recalculates all projections
                 when you change any input.
               </p>
-              <div className="bg-muted/50 rounded-lg p-4">
-                <h4 className="font-semibold mb-2">Key Default Assumptions</h4>
-                <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>• Inflation Rate: 3% annually</li>
-                  <li>• Management Base Fee: 5% of revenue</li>
-                  <li>• Management Incentive Fee: 15% of GOP</li>
-                  <li>• Loan-to-Value (LTV): 75%</li>
-                  <li>• Interest Rate: 9%</li>
-                  <li>• Loan Term: 25 years</li>
-                  <li>• Exit Cap Rate: 8.5%</li>
-                  <li>• FF&E Reserve: 4% of revenue</li>
-                </ul>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-          <AccordionItem value="revenue" className="border rounded-lg px-4">
-            <AccordionTrigger className="hover:no-underline">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
-                  <TrendingUp className="w-5 h-5 text-emerald-600" />
-                </div>
-                <div className="text-left">
-                  <h3 className="font-semibold">Revenue Calculations</h3>
-                  <p className="text-sm text-muted-foreground">How we project rooms, F&B, and events revenue</p>
-                </div>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className="pt-4 pb-6 space-y-4">
+              <ManualTable
+                variant="light"
+                headers={["Parameter", "Default"]}
+                rows={[
+                  ["Inflation Rate", `${pct(DEFAULT_ADR_GROWTH_RATE)} annually`],
+                  ["Management Base Fee", `${pct(0.05)} of revenue`],
+                  ["Management Incentive Fee", `${pct(0.15)} of GOP`],
+                  ["Loan-to-Value (LTV)", pct(DEFAULT_LTV)],
+                  ["Interest Rate", pct(DEFAULT_INTEREST_RATE)],
+                  ["Loan Term", `${DEFAULT_TERM_YEARS} years`],
+                  ["Exit Cap Rate", pct1(DEFAULT_EXIT_CAP_RATE)],
+                  ["FF&E Reserve", `${pct(DEFAULT_COST_RATE_FFE)} of revenue`],
+                ]}
+              />
+            </SectionCard>
+
+            {/* Section: Revenue */}
+            <SectionCard
+              id="revenue"
+              title="Revenue Calculations"
+              subtitle="How we project rooms, F&B, and events revenue"
+              icon={TrendingUp}
+              variant="light"
+              expanded={expandedSections.has("revenue")}
+              onToggle={() => toggleSection("revenue")}
+              sectionRef={(el) => { sectionRefs.current["revenue"] = el; }}
+            >
               <div className="bg-muted/50 rounded-lg p-4">
                 <h4 className="font-semibold mb-2">Room Revenue</h4>
                 <p className="text-sm text-muted-foreground mb-2">
                   The primary revenue driver for each property, calculated monthly:
                 </p>
                 <div className="bg-background rounded p-3 font-mono text-sm">
-                  Room Revenue = Room Count × ADR × Occupancy × 30.5 days
+                  Room Revenue = Room Count × ADR × Occupancy × {DAYS_PER_MONTH} days
                 </div>
                 <ul className="mt-3 text-sm text-muted-foreground space-y-1">
-                  <li>• <strong>ADR (Average Daily Rate)</strong>: Starts at the property's initial rate and grows annually at the ADR Growth Rate</li>
-                  <li>• <strong>Occupancy</strong>: Ramps up from starting occupancy to maximum occupancy over the stabilization period</li>
-                  <li>• <strong>Room Count</strong>: Fixed number of rooms per property</li>
-                  <li>• <strong>Days in Month</strong>: Uses 30.5 days (365 ÷ 12 = 30.4167, rounded to 30.5) as the industry-standard average month length</li>
+                  <li>&#8226; <strong>ADR (Average Daily Rate)</strong>: Starts at the property's initial rate and grows annually at the ADR Growth Rate</li>
+                  <li>&#8226; <strong>Occupancy</strong>: Ramps up from starting occupancy ({pct(DEFAULT_START_OCCUPANCY)}) to maximum occupancy ({pct(DEFAULT_MAX_OCCUPANCY)}) over the ramp period, growing by {pct(DEFAULT_OCCUPANCY_GROWTH_STEP)} every {DEFAULT_OCCUPANCY_RAMP_MONTHS} months</li>
+                  <li>&#8226; <strong>Room Count</strong>: Fixed number of rooms per property</li>
+                  <li>&#8226; <strong>Days in Month</strong>: Uses {DAYS_PER_MONTH} days (365 ÷ 12 = 30.4167, rounded to {DAYS_PER_MONTH}) as the industry-standard average month length</li>
                 </ul>
               </div>
 
@@ -568,10 +669,10 @@ export default function Methodology() {
                   F&B revenue is calculated as a percentage of room revenue, with an additional catering boost:
                 </p>
                 <div className="bg-background rounded p-3 font-mono text-sm">
-                  Base F&B = Room Revenue × F&B % (default 22%)
+                  Base F&B = Room Revenue × F&B % (default {pct(DEFAULT_REV_SHARE_FB)})
                 </div>
                 <div className="bg-background rounded p-3 font-mono text-sm mt-2">
-                  Catering Boost = Base F&B × Catering Boost % (default 30%)
+                  Catering Boost = Base F&B × Catering Boost % (default {pct(DEFAULT_CATERING_BOOST_PCT)})
                 </div>
                 <div className="bg-background rounded p-3 font-mono text-sm mt-2">
                   Total F&B Revenue = Base F&B + Catering Boost = Base F&B × (1 + Catering Boost %)
@@ -587,83 +688,84 @@ export default function Methodology() {
                   Calculated as a percentage of room revenue:
                 </p>
                 <div className="bg-background rounded p-3 font-mono text-sm">
-                  Event Revenue = Room Revenue × Event Revenue Share (default 43%)
+                  Event Revenue = Room Revenue × Event Revenue Share (default {pct(DEFAULT_REV_SHARE_EVENTS)})
                 </div>
               </div>
 
               <div className="bg-muted/50 rounded-lg p-4">
                 <h4 className="font-semibold mb-2">Other Revenue</h4>
                 <p className="text-sm text-muted-foreground">
-                  Includes spa, parking, retail, and miscellaneous income. Calculated as 7% of room revenue by default.
+                  Includes spa, parking, retail, and miscellaneous income. Calculated as {pct(DEFAULT_REV_SHARE_OTHER)} of room revenue by default.
                 </p>
               </div>
-            </AccordionContent>
-          </AccordionItem>
+            </SectionCard>
 
-          <AccordionItem value="expenses" className="border rounded-lg px-4">
-            <AccordionTrigger className="hover:no-underline">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
-                  <Wallet className="w-5 h-5 text-red-600" />
-                </div>
-                <div className="text-left">
-                  <h3 className="font-semibold">Operating Expenses</h3>
-                  <p className="text-sm text-muted-foreground">How we calculate property operating costs</p>
-                </div>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className="pt-4 pb-6 space-y-4">
+            {/* Section: Expenses */}
+            <SectionCard
+              id="expenses"
+              title="Operating Expenses"
+              subtitle="How we calculate property operating costs"
+              icon={Wallet}
+              variant="light"
+              expanded={expandedSections.has("expenses")}
+              onToggle={() => toggleSection("expenses")}
+              sectionRef={(el) => { sectionRefs.current["expenses"] = el; }}
+            >
               <p className="text-sm text-muted-foreground">
                 Operating expenses are calculated as percentages of total revenue and escalate annually with inflation:
               </p>
 
               <div className="grid gap-3 md:grid-cols-2">
-                <div className="bg-muted/50 rounded-lg p-4">
+                <div>
                   <h4 className="font-semibold mb-2">Direct Costs</h4>
-                  <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>• Room Expense: 36% of room revenue</li>
-                    <li>• F&B Expense: 15% of F&B revenue</li>
-                    <li>• Event Expense: 65% of event revenue</li>
-                  </ul>
+                  <ManualTable
+                    variant="light"
+                    headers={["Cost", "Rate"]}
+                    rows={[
+                      ["Room Expense", `${pct(DEFAULT_COST_RATE_ROOMS)} of room revenue`],
+                      ["F&B Expense", `${pct(DEFAULT_COST_RATE_FB)} of F&B revenue`],
+                      ["Event Expense", `${pct(DEFAULT_EVENT_EXPENSE_RATE)} of event revenue`],
+                    ]}
+                  />
                 </div>
-
-                <div className="bg-muted/50 rounded-lg p-4">
+                <div>
                   <h4 className="font-semibold mb-2">Overhead Costs</h4>
-                  <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>• Marketing: 5% of total revenue</li>
-                    <li>• Admin & General: 8% of total revenue</li>
-                    <li>• Property Operations: 4% of total revenue</li>
-                    <li>• Utilities: 5% of total revenue</li>
-                    <li>• Insurance: 2% of total revenue</li>
-                    <li>• Property Taxes: 3% of total revenue</li>
-                    <li>• IT Systems: 2% of total revenue</li>
-                  </ul>
+                  <ManualTable
+                    variant="light"
+                    headers={["Cost", "Rate"]}
+                    rows={[
+                      ["Marketing", `${pct(DEFAULT_COST_RATE_MARKETING)} of total revenue`],
+                      ["Admin & General", `${pct(DEFAULT_COST_RATE_ADMIN)} of total revenue`],
+                      ["Property Operations", `${pct(DEFAULT_COST_RATE_PROPERTY_OPS)} of total revenue`],
+                      ["Utilities", `${pct(DEFAULT_COST_RATE_UTILITIES)} of total revenue`],
+                      ["Insurance", `${pct(DEFAULT_COST_RATE_INSURANCE)} of total revenue`],
+                      ["Property Taxes", `${pct(DEFAULT_COST_RATE_TAXES)} of total revenue`],
+                      ["IT Systems", `${pct(DEFAULT_COST_RATE_IT)} of total revenue`],
+                    ]}
+                  />
                 </div>
               </div>
 
               <div className="bg-muted/50 rounded-lg p-4">
                 <h4 className="font-semibold mb-2">FF&E Reserve</h4>
                 <p className="text-sm text-muted-foreground">
-                  4% of total revenue is set aside for Furniture, Fixtures & Equipment replacement. 
+                  {pct(DEFAULT_COST_RATE_FFE)} of total revenue is set aside for Furniture, Fixtures & Equipment replacement.
                   This is included in operating expenses following the Uniform System of Accounts for the Lodging Industry (USALI).
                 </p>
               </div>
-            </AccordionContent>
-          </AccordionItem>
+            </SectionCard>
 
-          <AccordionItem value="noi-gop" className="border rounded-lg px-4">
-            <AccordionTrigger className="hover:no-underline">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                  <BarChart3 className="w-5 h-5 text-blue-600" />
-                </div>
-                <div className="text-left">
-                  <h3 className="font-semibold">GOP and NOI</h3>
-                  <p className="text-sm text-muted-foreground">Gross Operating Profit and Net Operating Income</p>
-                </div>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className="pt-4 pb-6 space-y-4">
+            {/* Section: GOP and NOI */}
+            <SectionCard
+              id="noi-gop"
+              title="GOP and NOI"
+              subtitle="Gross Operating Profit and Net Operating Income"
+              icon={BarChart3}
+              variant="light"
+              expanded={expandedSections.has("noi-gop")}
+              onToggle={() => toggleSection("noi-gop")}
+              sectionRef={(el) => { sectionRefs.current["noi-gop"] = el; }}
+            >
               <div className="bg-muted/50 rounded-lg p-4">
                 <h4 className="font-semibold mb-2">Gross Operating Profit (GOP)</h4>
                 <p className="text-sm text-muted-foreground mb-2">
@@ -683,8 +785,8 @@ export default function Methodology() {
                   L+B Hospitality earns fees for managing each property:
                 </p>
                 <div className="bg-background rounded p-3 font-mono text-sm space-y-1">
-                  <div>Base Fee = Total Revenue × 5%</div>
-                  <div>Incentive Fee = GOP × 15%</div>
+                  <div>Base Fee = Total Revenue × {pct(0.05)}</div>
+                  <div>Incentive Fee = GOP × {pct(0.15)}</div>
                   <div>Total Management Fee = Base Fee + Incentive Fee</div>
                 </div>
               </div>
@@ -701,29 +803,26 @@ export default function Methodology() {
                   NOI is the key metric for property valuation and is used to calculate the exit value.
                 </p>
               </div>
-            </AccordionContent>
-          </AccordionItem>
+            </SectionCard>
 
-          <AccordionItem value="debt" className="border rounded-lg px-4">
-            <AccordionTrigger className="hover:no-underline">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
-                  <Building2 className="w-5 h-5 text-orange-600" />
-                </div>
-                <div className="text-left">
-                  <h3 className="font-semibold">Debt & Financing</h3>
-                  <p className="text-sm text-muted-foreground">Loan calculations and refinancing</p>
-                </div>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className="pt-4 pb-6 space-y-4">
+            {/* Section: Debt */}
+            <SectionCard
+              id="debt"
+              title="Debt & Financing"
+              subtitle="Loan calculations and refinancing"
+              icon={Building2}
+              variant="light"
+              expanded={expandedSections.has("debt")}
+              onToggle={() => toggleSection("debt")}
+              sectionRef={(el) => { sectionRefs.current["debt"] = el; }}
+            >
               <div className="bg-muted/50 rounded-lg p-4">
                 <h4 className="font-semibold mb-2">Initial Financing</h4>
                 <p className="text-sm text-muted-foreground mb-2">
                   For financed properties, the loan amount is based on Loan-to-Value (LTV):
                 </p>
                 <div className="bg-background rounded p-3 font-mono text-sm space-y-1">
-                  <div>Loan Amount = Purchase Price × LTV Ratio (default 75%)</div>
+                  <div>Loan Amount = Purchase Price × LTV Ratio (default {pct(DEFAULT_LTV)})</div>
                   <div>Initial Equity = Total Project Cost − Loan Amount</div>
                 </div>
                 <p className="text-sm text-muted-foreground mt-2">
@@ -757,8 +856,8 @@ export default function Methodology() {
                 <div className="bg-background rounded p-3 font-mono text-sm space-y-1">
                   <div>Pass 1: Project forward to get NOI at refinance date</div>
                   <div>Appraised Value = Trailing-12-Month NOI ÷ Exit Cap Rate</div>
-                  <div>New Loan = Appraised Value × Refinance LTV (default 65%)</div>
-                  <div>Net Proceeds = New Loan − Old Balance − Closing Costs (default 3%)</div>
+                  <div>New Loan = Appraised Value × Refinance LTV (default {pct(DEFAULT_REFI_LTV)})</div>
+                  <div>Net Proceeds = New Loan − Old Balance − Closing Costs (default {pct(DEFAULT_REFI_CLOSING_COST_RATE)})</div>
                   <div>Pass 2: Re-amortize with new loan terms from refinance date forward</div>
                 </div>
                 <p className="text-sm text-muted-foreground mt-2">
@@ -768,24 +867,21 @@ export default function Methodology() {
                   After refinancing, debt service recalculates based on the new loan amount and terms.
                 </p>
               </div>
-            </AccordionContent>
-          </AccordionItem>
+            </SectionCard>
 
-          <AccordionItem value="cash-flow" className="border rounded-lg px-4">
-            <AccordionTrigger className="hover:no-underline">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
-                  <DollarSign className="w-5 h-5 text-purple-600" />
-                </div>
-                <div className="text-left">
-                  <h3 className="font-semibold">Free Cash Flow (GAAP Method)</h3>
-                  <p className="text-sm text-muted-foreground">How we calculate cash available to investors</p>
-                </div>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className="pt-4 pb-6 space-y-4">
+            {/* Section: Cash Flow */}
+            <SectionCard
+              id="cash-flow"
+              title="Free Cash Flow (GAAP Method)"
+              subtitle="How we calculate cash available to investors"
+              icon={DollarSign}
+              variant="light"
+              expanded={expandedSections.has("cash-flow")}
+              onToggle={() => toggleSection("cash-flow")}
+              sectionRef={(el) => { sectionRefs.current["cash-flow"] = el; }}
+            >
               <p className="text-sm text-muted-foreground">
-                We use the <strong>indirect method</strong> for calculating Free Cash Flow, which is the GAAP-compliant 
+                We use the <strong>indirect method</strong> for calculating Free Cash Flow, which is the GAAP-compliant
                 approach used in financial statements:
               </p>
 
@@ -828,29 +924,26 @@ export default function Methodology() {
               <div className="bg-muted/50 rounded-lg p-4">
                 <h4 className="font-semibold mb-2">Depreciation</h4>
                 <p className="text-sm text-muted-foreground">
-                  Buildings are depreciated over 27.5 years using the straight-line method (IRS requirement for residential rental property). 
+                  Buildings are depreciated over {DEPRECIATION_YEARS} years using the straight-line method (IRS requirement for residential rental property).
                   Land is not depreciated.
                 </p>
                 <div className="bg-background rounded p-2 font-mono text-xs mt-2">
-                  Annual Depreciation = (Purchase Price + Building Improvements) ÷ 27.5
+                  Annual Depreciation = (Purchase Price + Building Improvements) ÷ {DEPRECIATION_YEARS}
                 </div>
               </div>
-            </AccordionContent>
-          </AccordionItem>
+            </SectionCard>
 
-          <AccordionItem value="balance-sheet" className="border rounded-lg px-4">
-            <AccordionTrigger className="hover:no-underline">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center">
-                  <BookOpen className="w-5 h-5 text-teal-600" />
-                </div>
-                <div className="text-left">
-                  <h3 className="font-semibold">Balance Sheet</h3>
-                  <p className="text-sm text-muted-foreground">Assets, liabilities, and equity per GAAP standards</p>
-                </div>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className="pt-4 pb-6 space-y-4">
+            {/* Section: Balance Sheet */}
+            <SectionCard
+              id="balance-sheet"
+              title="Balance Sheet"
+              subtitle="Assets, liabilities, and equity per GAAP standards"
+              icon={BookOpen}
+              variant="light"
+              expanded={expandedSections.has("balance-sheet")}
+              onToggle={() => toggleSection("balance-sheet")}
+              sectionRef={(el) => { sectionRefs.current["balance-sheet"] = el; }}
+            >
               <p className="text-sm text-muted-foreground">
                 The consolidated balance sheet tracks each property's financial position monthly, following the
                 <strong> FASB Conceptual Framework</strong> fundamental equation:
@@ -867,7 +960,7 @@ export default function Methodology() {
                   <div>Total Assets = Property Value + Cash + Other Assets</div>
                 </div>
                 <p className="text-sm text-muted-foreground mt-2">
-                  Depreciation follows ASC 360: straight-line over 27.5 years from the first full month after acquisition.
+                  Depreciation follows ASC 360: straight-line over {DEPRECIATION_YEARS} years from the first full month after acquisition.
                   Property assets only appear on the balance sheet after the acquisition date.
                 </p>
               </div>
@@ -899,47 +992,44 @@ export default function Methodology() {
               <div className="bg-muted/50 rounded-lg p-4">
                 <h4 className="font-semibold mb-2">GAAP References</h4>
                 <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>• <strong>FASB Conceptual Framework</strong>: Balance sheet equation and double-entry integrity</li>
-                  <li>• <strong>ASC 360</strong>: Property carried at cost minus accumulated depreciation</li>
-                  <li>• <strong>ASC 470</strong>: Debt recorded at outstanding principal balance</li>
-                  <li>• <strong>ASC 230</strong>: Cash reconciliation ties to cash flow statement</li>
+                  <li>&#8226; <strong>FASB Conceptual Framework</strong>: Balance sheet equation and double-entry integrity</li>
+                  <li>&#8226; <strong>ASC 360</strong>: Property carried at cost minus accumulated depreciation</li>
+                  <li>&#8226; <strong>ASC 470</strong>: Debt recorded at outstanding principal balance</li>
+                  <li>&#8226; <strong>ASC 230</strong>: Cash reconciliation ties to cash flow statement</li>
                 </ul>
               </div>
-            </AccordionContent>
-          </AccordionItem>
+            </SectionCard>
 
-          <AccordionItem value="returns" className="border rounded-lg px-4">
-            <AccordionTrigger className="hover:no-underline">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                  <PieChart className="w-5 h-5 text-primary" />
-                </div>
-                <div className="text-left">
-                  <h3 className="font-semibold">Investment Returns</h3>
-                  <p className="text-sm text-muted-foreground">IRR, equity multiple, and exit value calculations</p>
-                </div>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className="pt-4 pb-6 space-y-4">
+            {/* Section: Returns */}
+            <SectionCard
+              id="returns"
+              title="Investment Returns"
+              subtitle="IRR, equity multiple, and exit value calculations"
+              icon={PieChart}
+              variant="light"
+              expanded={expandedSections.has("returns")}
+              onToggle={() => toggleSection("returns")}
+              sectionRef={(el) => { sectionRefs.current["returns"] = el; }}
+            >
               <div className="bg-muted/50 rounded-lg p-4">
                 <h4 className="font-semibold mb-2">Exit Value</h4>
                 <p className="text-sm text-muted-foreground mb-2">
-                  The property's net sale proceeds in Year 10:
+                  The property's net sale proceeds at exit:
                 </p>
                 <div className="bg-background rounded p-3 font-mono text-sm space-y-1">
-                  <div>Gross Value = Year 10 NOI ÷ Exit Cap Rate</div>
+                  <div>Gross Value = Final Year NOI ÷ Exit Cap Rate</div>
                   <div>Exit Value = Gross Value − Sales Commission − Outstanding Debt</div>
                 </div>
                 <p className="text-sm text-muted-foreground mt-2">
-                  The exit cap rate defaults to 8.5% but can be customized per property. Lower cap rates result in higher valuations.
+                  The exit cap rate defaults to {pct1(DEFAULT_EXIT_CAP_RATE)} but can be customized per property. Lower cap rates result in higher valuations.
                 </p>
                 <div className="mt-3 p-3 bg-background rounded border-l-2 border-primary">
                   <p className="text-sm text-muted-foreground">
-                    <strong>Why might exit value seem low?</strong> For financed properties, the outstanding 
-                    loan balance is deducted from the gross property value. After 10 years of a 25-year loan, 
-                    approximately 60-65% of the original loan remains. The total return to investors includes 
-                    annual cash flow distributions and any refinancing proceeds received throughout the holding 
-                    period—not just the exit value. This is why IRR and Equity Multiple are better measures of 
+                    <strong>Why might exit value seem low?</strong> For financed properties, the outstanding
+                    loan balance is deducted from the gross property value. After {PROJECTION_YEARS} years of a {DEFAULT_TERM_YEARS}-year loan,
+                    approximately 60-65% of the original loan remains. The total return to investors includes
+                    annual cash flow distributions and any refinancing proceeds received throughout the holding
+                    period—not just the exit value. This is why IRR and Equity Multiple are better measures of
                     overall investment performance.
                   </p>
                 </div>
@@ -951,7 +1041,7 @@ export default function Methodology() {
                   The annualized return that makes the net present value of all cash flows equal to zero:
                 </p>
                 <div className="bg-background rounded p-3 font-mono text-sm">
-                  IRR = Rate where: Initial Equity + Σ(Annual FCFE ÷ (1+r)^n) + Exit Value ÷ (1+r)^10 = 0
+                  IRR = Rate where: Initial Equity + Σ(Annual FCFE ÷ (1+r)^n) + Exit Value ÷ (1+r)^{PROJECTION_YEARS} = 0
                 </div>
                 <p className="text-sm text-muted-foreground mt-2">
                   Portfolio IRR is weighted by each property's equity investment.
@@ -980,181 +1070,171 @@ export default function Methodology() {
                   Cash-on-Cash = Annual FCFE ÷ Initial Equity × 100%
                 </div>
                 <p className="text-sm text-muted-foreground mt-2">
-                  The average shown in the dashboard is the mean of all 10 years.
+                  The average shown in the dashboard is the mean of all {PROJECTION_YEARS} years.
                 </p>
               </div>
-            </AccordionContent>
-          </AccordionItem>
+            </SectionCard>
 
-          <AccordionItem value="management-company" className="border rounded-lg px-4">
-            <AccordionTrigger className="hover:no-underline">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
-                  <Building2 className="w-5 h-5 text-amber-600" />
-                </div>
-                <div className="text-left">
-                  <h3 className="font-semibold">Management Company Financials</h3>
-                  <p className="text-sm text-muted-foreground">L+B Hospitality Co. revenue and expenses</p>
-                </div>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className="pt-4 pb-6 space-y-4">
+            {/* Section: Management Company */}
+            <SectionCard
+              id="management-company"
+              title="Management Company Financials"
+              subtitle="L+B Hospitality Co. revenue and expenses"
+              icon={Building2}
+              variant="light"
+              expanded={expandedSections.has("management-company")}
+              onToggle={() => toggleSection("management-company")}
+              sectionRef={(el) => { sectionRefs.current["management-company"] = el; }}
+            >
               <div className="bg-muted/50 rounded-lg p-4">
                 <h4 className="font-semibold mb-2">Revenue Sources</h4>
                 <ul className="text-sm text-muted-foreground space-y-2">
-                  <li>• <strong>Base Management Fees</strong>: 5% of each property's total revenue</li>
-                  <li>• <strong>Incentive Fees</strong>: 15% of each property's GOP</li>
+                  <li>&#8226; <strong>Base Management Fees</strong>: {pct(0.05)} of each property's total revenue</li>
+                  <li>&#8226; <strong>Incentive Fees</strong>: {pct(0.15)} of each property's GOP</li>
                 </ul>
               </div>
 
               <div className="bg-muted/50 rounded-lg p-4">
                 <h4 className="font-semibold mb-2">Operating Expenses</h4>
                 <ul className="text-sm text-muted-foreground space-y-2">
-                  <li>• <strong>Partner Compensation</strong>: Defined per-year ($540K/yr Years 1-3, escalating to $900K/yr by Year 10, split across 3 partners)</li>
-                  <li>• <strong>Fixed Costs</strong>: Office lease, professional services, insurance (escalate at fixed cost rate)</li>
-                  <li>• <strong>Variable Costs</strong>: Travel, IT, marketing, misc operations (escalate at inflation rate)</li>
+                  <li>&#8226; <strong>Partner Compensation</strong>: Defined per-year ($540K/yr Years 1-3, escalating to $900K/yr by Year {PROJECTION_YEARS}, split across 3 partners)</li>
+                  <li>&#8226; <strong>Fixed Costs</strong>: Office lease, professional services, insurance (escalate at fixed cost rate)</li>
+                  <li>&#8226; <strong>Variable Costs</strong>: Travel, IT, marketing, misc operations (escalate at inflation rate)</li>
                 </ul>
               </div>
 
               <div className="bg-muted/50 rounded-lg p-4">
                 <h4 className="font-semibold mb-2">SAFE Funding</h4>
                 <p className="text-sm text-muted-foreground">
-                  The management company is funded through SAFE (Simple Agreement for Future Equity) tranches. 
-                  These appear as cash inflows in the cash flow statement but are not recorded as revenue. 
+                  The management company is funded through SAFE (Simple Agreement for Future Equity) tranches.
+                  These appear as cash inflows in the cash flow statement but are not recorded as revenue.
                   The funding provides working capital until the company becomes profitable from management fees.
                 </p>
               </div>
-            </AccordionContent>
-          </AccordionItem>
+            </SectionCard>
 
-          <AccordionItem value="fixed-assumptions" className="border rounded-lg px-4 border-amber-200 bg-amber-50/30">
-            <AccordionTrigger className="hover:no-underline">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
-                  <Info className="w-5 h-5 text-amber-600" />
-                </div>
-                <div className="text-left">
-                  <h3 className="font-semibold">Fixed Assumptions (Not Configurable)</h3>
-                  <p className="text-sm text-muted-foreground">Hardcoded values built into the calculation engine</p>
-                </div>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className="pt-4 pb-6 space-y-4">
-              <div className="p-4 bg-amber-100/50 rounded-lg border border-amber-200">
-                <p className="text-sm text-amber-800 font-medium">
-                  The following assumptions are built into the financial model and cannot be changed through the app interface. 
-                  These represent industry standards or regulatory requirements.
-                </p>
-              </div>
+            {/* Section: Fixed Assumptions */}
+            <SectionCard
+              id="fixed-assumptions"
+              title="Fixed Assumptions (Not Configurable)"
+              subtitle="Hardcoded values built into the calculation engine"
+              icon={Info}
+              variant="light"
+              className="border-amber-200 bg-amber-50/30"
+              expanded={expandedSections.has("fixed-assumptions")}
+              onToggle={() => toggleSection("fixed-assumptions")}
+              sectionRef={(el) => { sectionRefs.current["fixed-assumptions"] = el; }}
+            >
+              <Callout severity="warning">
+                The following assumptions are built into the financial model and cannot be changed through the app interface.
+                These represent industry standards or regulatory requirements.
+              </Callout>
 
               <div className="bg-muted/50 rounded-lg p-4">
                 <h4 className="font-semibold mb-2">Time & Calendar</h4>
                 <ul className="text-sm text-muted-foreground space-y-2">
-                  <li>• <strong>Days per Month</strong>: 30.5 days (365 ÷ 12 = 30.4167, rounded to 30.5)</li>
-                  <li>• <strong>Months per Year</strong>: 12 months</li>
-                  <li>• <strong>Projection Period</strong>: Configurable 1-30 years (default 10 years / 120 months)</li>
+                  <li>&#8226; <strong>Days per Month</strong>: {DAYS_PER_MONTH} days (365 ÷ 12 = 30.4167, rounded to {DAYS_PER_MONTH})</li>
+                  <li>&#8226; <strong>Months per Year</strong>: 12 months</li>
+                  <li>&#8226; <strong>Projection Period</strong>: Configurable 1-30 years (default {PROJECTION_YEARS} years / {PROJECTION_YEARS * 12} months)</li>
                 </ul>
               </div>
 
               <div className="bg-muted/50 rounded-lg p-4">
                 <h4 className="font-semibold mb-2">Depreciation & Taxes</h4>
                 <ul className="text-sm text-muted-foreground space-y-2">
-                  <li>• <strong>Depreciation Period</strong>: 27.5 years straight-line (IRS requirement for residential rental property)</li>
-                  <li>• <strong>Land Depreciation</strong>: None (land is not depreciated per IRS rules)</li>
-                  <li>• <strong>Depreciation Start</strong>: First month after acquisition date</li>
+                  <li>&#8226; <strong>Depreciation Period</strong>: {DEPRECIATION_YEARS} years straight-line (IRS requirement for residential rental property)</li>
+                  <li>&#8226; <strong>Land Depreciation</strong>: None (land is not depreciated per IRS rules)</li>
+                  <li>&#8226; <strong>Depreciation Start</strong>: First month after acquisition date</li>
                 </ul>
               </div>
 
-              <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                <h4 className="font-semibold mb-2 text-green-800">Expense Ratios (Now Configurable in Systemwide Assumptions)</h4>
-                <ul className="text-sm text-green-700 space-y-2">
-                  <li>• <strong>Event Expense Rate</strong>: Default 65% of event revenue <span className="text-green-600">(editable)</span></li>
-                  <li>• <strong>Other Revenue Expense Rate</strong>: Default 60% of other revenue <span className="text-green-600">(editable)</span></li>
-                  <li>• <strong>Utilities Split</strong>: Default 60% variable / 40% fixed <span className="text-green-600">(editable)</span></li>
+              <Callout severity="success" title={`Expense Ratios (Now Configurable in Systemwide Assumptions)`}>
+                <ul className="space-y-2">
+                  <li>&#8226; <strong>Event Expense Rate</strong>: Default {pct(DEFAULT_EVENT_EXPENSE_RATE)} of event revenue (editable)</li>
+                  <li>&#8226; <strong>Other Revenue Expense Rate</strong>: Default {pct(DEFAULT_OTHER_EXPENSE_RATE)} of other revenue (editable)</li>
+                  <li>&#8226; <strong>Utilities Split</strong>: Default {pct(DEFAULT_UTILITIES_VARIABLE_SPLIT)} variable / {pct(1 - DEFAULT_UTILITIES_VARIABLE_SPLIT)} fixed (editable)</li>
                 </ul>
-              </div>
+              </Callout>
 
               <div className="bg-muted/50 rounded-lg p-4">
                 <h4 className="font-semibold mb-2">Default Loan Parameters (Used if Not Specified at Property Level)</h4>
-                <ul className="text-sm text-muted-foreground space-y-2">
-                  <li>• <strong>Default LTV</strong>: 75%</li>
-                  <li>• <strong>Default Interest Rate</strong>: 9%</li>
-                  <li>• <strong>Default Loan Term</strong>: 25 years</li>
-                  <li>• <strong>Default Refinance LTV</strong>: 65%</li>
-                  <li>• <strong>Default Refinance Closing Costs</strong>: 3%</li>
-                </ul>
+                <ManualTable
+                  variant="light"
+                  headers={["Parameter", "Default"]}
+                  rows={[
+                    ["Default LTV", pct(DEFAULT_LTV)],
+                    ["Default Interest Rate", pct(DEFAULT_INTEREST_RATE)],
+                    ["Default Loan Term", `${DEFAULT_TERM_YEARS} years`],
+                    ["Default Refinance LTV", pct(DEFAULT_REFI_LTV)],
+                    ["Default Refinance Closing Costs", pct(DEFAULT_REFI_CLOSING_COST_RATE)],
+                  ]}
+                />
                 <p className="text-xs text-muted-foreground mt-2">Override these at the property level in Property Assumptions.</p>
               </div>
 
-              <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                <h4 className="font-semibold mb-2 text-green-800">Exit & Sale Assumptions (Now Configurable)</h4>
-                <ul className="text-sm text-green-700 space-y-2">
-                  <li>• <strong>Exit Cap Rate</strong>: Default 8.5% <span className="text-green-600">(editable in Systemwide & Property Assumptions)</span></li>
-                  <li>• <strong>Sales Commission</strong>: Default 5% of gross sale price <span className="text-green-600">(editable in Systemwide Assumptions)</span></li>
-                  <li>• <strong>Tax Rate</strong>: Default 25% <span className="text-green-600">(editable at property level)</span></li>
+              <Callout severity="success" title="Exit & Sale Assumptions (Now Configurable)">
+                <ul className="space-y-2">
+                  <li>&#8226; <strong>Exit Cap Rate</strong>: Default {pct1(DEFAULT_EXIT_CAP_RATE)} (editable in Systemwide & Property Assumptions)</li>
+                  <li>&#8226; <strong>Sales Commission</strong>: Default {pct(DEFAULT_COMMISSION_RATE)} of gross sale price (editable in Systemwide Assumptions)</li>
+                  <li>&#8226; <strong>Tax Rate</strong>: Default {pct(DEFAULT_TAX_RATE)} (editable at property level)</li>
                 </ul>
-              </div>
+              </Callout>
 
-              <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                <h4 className="font-semibold mb-2 text-green-800">Revenue Shares (Configurable Per Property)</h4>
-                <ul className="text-sm text-green-700 space-y-2">
-                  <li>• <strong>Events Revenue</strong>: Default 43% of room revenue <span className="text-green-600">(editable per property)</span></li>
-                  <li>• <strong>F&B Revenue</strong>: Default 22% of room revenue <span className="text-green-600">(editable per property)</span></li>
-                  <li>• <strong>Other Revenue</strong>: Default 7% of room revenue <span className="text-green-600">(editable per property)</span></li>
+              <Callout severity="success" title="Revenue Shares (Configurable Per Property)">
+                <ul className="space-y-2">
+                  <li>&#8226; <strong>Events Revenue</strong>: Default {pct(DEFAULT_REV_SHARE_EVENTS)} of room revenue (editable per property)</li>
+                  <li>&#8226; <strong>F&B Revenue</strong>: Default {pct(DEFAULT_REV_SHARE_FB)} of room revenue (editable per property)</li>
+                  <li>&#8226; <strong>Other Revenue</strong>: Default {pct(DEFAULT_REV_SHARE_OTHER)} of room revenue (editable per property)</li>
                 </ul>
-                <p className="text-xs text-green-600 mt-2">Configure these in Property Assumptions under "Revenue Mix".</p>
-              </div>
+                <p className="text-xs mt-2">Configure these in Property Assumptions under "Revenue Mix".</p>
+              </Callout>
 
-              <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                <h4 className="font-semibold mb-2 text-green-800">Catering Boost (Configurable)</h4>
-                <ul className="text-sm text-green-700 space-y-2">
-                  <li>• <strong>Catering Boost %</strong>: Default 30% <span className="text-green-600">(editable per property)</span></li>
-                  <li>• Represents the blended uplift from all catered events</li>
-                  <li>• Applied to base F&B revenue: Total F&B = Base F&B × (1 + Boost %)</li>
+              <Callout severity="success" title="Catering Boost (Configurable)">
+                <ul className="space-y-2">
+                  <li>&#8226; <strong>Catering Boost %</strong>: Default {pct(DEFAULT_CATERING_BOOST_PCT)} (editable per property)</li>
+                  <li>&#8226; Represents the blended uplift from all catered events</li>
+                  <li>&#8226; Applied to base F&B revenue: Total F&B = Base F&B × (1 + Boost %)</li>
                 </ul>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
+              </Callout>
+            </SectionCard>
 
-          <AccordionItem value="verification" className="border rounded-lg px-4">
-            <AccordionTrigger className="hover:no-underline">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-cyan-100 flex items-center justify-center">
-                  <Calculator className="w-5 h-5 text-cyan-600" />
-                </div>
-                <div className="text-left">
-                  <h3 className="font-semibold">Financial Verification & Audit</h3>
-                  <p className="text-sm text-muted-foreground">How we verify calculations for GAAP compliance</p>
-                </div>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className="pt-4 pb-6 space-y-4">
+            {/* Section: Verification */}
+            <SectionCard
+              id="verification"
+              title="Financial Verification & Audit"
+              subtitle="How we verify calculations for GAAP compliance"
+              icon={Calculator}
+              variant="light"
+              expanded={expandedSections.has("verification")}
+              onToggle={() => toggleSection("verification")}
+              sectionRef={(el) => { sectionRefs.current["verification"] = el; }}
+            >
               <p className="text-sm text-muted-foreground">
-                The system includes a comprehensive <strong>PwC-level audit engine</strong> that independently 
-                recalculates all financial values and compares them against the primary financial engine. 
+                The system includes a comprehensive <strong>PwC-level audit engine</strong> that independently
+                recalculates all financial values and compares them against the primary financial engine.
                 This ensures accuracy and GAAP compliance across all statements.
               </p>
 
               <div className="bg-muted/50 rounded-lg p-4">
                 <h4 className="font-semibold mb-2">Audit Sections</h4>
                 <ul className="text-sm text-muted-foreground space-y-2">
-                  <li>• <strong>Timing Rules (ASC 606)</strong>: Verifies no revenue or expenses before acquisition/operations start dates</li>
-                  <li>• <strong>Depreciation (ASC 360)</strong>: Verifies 27.5-year straight-line depreciation starting at acquisition</li>
-                  <li>• <strong>Loan Amortization (ASC 470)</strong>: Recalculates PMT formula, verifies interest/principal split each month</li>
-                  <li>• <strong>Income Statement</strong>: Verifies Revenue, GOP, NOI, and Net Income calculations</li>
-                  <li>• <strong>Balance Sheet (FASB Framework)</strong>: Verifies Assets = Liabilities + Equity for every period</li>
-                  <li>• <strong>Cash Flow Statement (ASC 230)</strong>: Verifies indirect method and Operating/Financing activity split</li>
-                  <li>• <strong>Management Fees</strong>: Verifies base and incentive fee calculations</li>
+                  <li>&#8226; <strong>Timing Rules (ASC 606)</strong>: Verifies no revenue or expenses before acquisition/operations start dates</li>
+                  <li>&#8226; <strong>Depreciation (ASC 360)</strong>: Verifies {DEPRECIATION_YEARS}-year straight-line depreciation starting at acquisition</li>
+                  <li>&#8226; <strong>Loan Amortization (ASC 470)</strong>: Recalculates PMT formula, verifies interest/principal split each month</li>
+                  <li>&#8226; <strong>Income Statement</strong>: Verifies Revenue, GOP, NOI, and Net Income calculations</li>
+                  <li>&#8226; <strong>Balance Sheet (FASB Framework)</strong>: Verifies Assets = Liabilities + Equity for every period</li>
+                  <li>&#8226; <strong>Cash Flow Statement (ASC 230)</strong>: Verifies indirect method and Operating/Financing activity split</li>
+                  <li>&#8226; <strong>Management Fees</strong>: Verifies base and incentive fee calculations</li>
                 </ul>
               </div>
 
               <div className="bg-muted/50 rounded-lg p-4">
                 <h4 className="font-semibold mb-2">Key GAAP Rules Enforced</h4>
                 <ul className="text-sm text-muted-foreground space-y-2">
-                  <li>• <strong>ASC 470</strong>: Principal payments are NOT expenses - they reduce Net Income only for cash flow purposes, not on the income statement</li>
-                  <li>• <strong>ASC 230-10-45</strong>: Operating Cash Flow = Net Income + Depreciation (indirect method)</li>
-                  <li>• <strong>ASC 230-10-45-17</strong>: Interest expense is an operating activity; principal repayment is a financing activity</li>
-                  <li>• <strong>ASC 360-10</strong>: Property assets carried at cost minus accumulated depreciation</li>
+                  <li>&#8226; <strong>ASC 470</strong>: Principal payments are NOT expenses - they reduce Net Income only for cash flow purposes, not on the income statement</li>
+                  <li>&#8226; <strong>ASC 230-10-45</strong>: Operating Cash Flow = Net Income + Depreciation (indirect method)</li>
+                  <li>&#8226; <strong>ASC 230-10-45-17</strong>: Interest expense is an operating activity; principal repayment is a financing activity</li>
+                  <li>&#8226; <strong>ASC 360-10</strong>: Property assets carried at cost minus accumulated depreciation</li>
                 </ul>
               </div>
 
@@ -1164,27 +1244,28 @@ export default function Methodology() {
                   The audit engine includes test cases with hand-calculated expected values to validate the calculation engine:
                 </p>
                 <div className="bg-background rounded p-3 font-mono text-sm space-y-1">
-                  <div>10 rooms × $100 ADR × 70% occupancy × 30.5 days = $21,350</div>
-                  <div>20 rooms × $150 ADR × 65% occupancy × 30.5 days = $59,475</div>
-                  <div>Depreciation: $1,200,000 ÷ 27.5 years = $43,636.36/year</div>
-                  <div>Loan PMT: $900,000 @ 9%/25yr = $7,549.94/month</div>
+                  <div>10 rooms × $100 ADR × 70% occupancy × {DAYS_PER_MONTH} days = $21,350</div>
+                  <div>20 rooms × $150 ADR × 65% occupancy × {DAYS_PER_MONTH} days = $59,475</div>
+                  <div>Depreciation: $1,200,000 ÷ {DEPRECIATION_YEARS} years = $43,636.36/year</div>
+                  <div>Loan PMT: $900,000 @ {pct(DEFAULT_INTEREST_RATE)}/{DEFAULT_TERM_YEARS}yr = $7,549.94/month</div>
                 </div>
               </div>
 
               <div className="bg-muted/50 rounded-lg p-4">
                 <h4 className="font-semibold mb-2">Audit Opinions</h4>
                 <ul className="text-sm text-muted-foreground space-y-2">
-                  <li>• <strong>UNQUALIFIED</strong>: All calculations verified, no material or critical issues</li>
-                  <li>• <strong>QUALIFIED</strong>: Minor material issues found but overall statements are fairly presented</li>
-                  <li>• <strong>ADVERSE</strong>: Critical issues found that affect the reliability of the financial projections</li>
+                  <li>&#8226; <strong>UNQUALIFIED</strong>: All calculations verified, no material or critical issues</li>
+                  <li>&#8226; <strong>QUALIFIED</strong>: Minor material issues found but overall statements are fairly presented</li>
+                  <li>&#8226; <strong>ADVERSE</strong>: Critical issues found that affect the reliability of the financial projections</li>
                 </ul>
               </div>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+            </SectionCard>
+
+          </main>
+        </div>
 
         <Card className="bg-primary/5 border-primary/20">
-          <CardContent className="pt-6">
+          <div className="p-6">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
                 <Calculator className="w-6 h-6 text-primary" />
@@ -1192,13 +1273,13 @@ export default function Methodology() {
               <div>
                 <h3 className="font-semibold text-lg mb-2">Questions About the Model?</h3>
                 <p className="text-sm text-muted-foreground">
-                  This financial model uses industry-standard methodologies and follows GAAP accounting principles. 
-                  All assumptions can be customized in the Systemwide Assumptions and Property Assumptions pages. 
+                  This financial model uses industry-standard methodologies and follows GAAP accounting principles.
+                  All assumptions can be customized in the Systemwide Assumptions and Property Assumptions pages.
                   The model automatically recalculates all projections when you change any input.
                 </p>
               </div>
             </div>
-          </CardContent>
+          </div>
         </Card>
       </div>
     </Layout>

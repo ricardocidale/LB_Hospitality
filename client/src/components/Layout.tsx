@@ -36,7 +36,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     ...(isAdmin ? [
       { href: "/admin", label: "Administration", icon: Shield },
     ] : []),
-    { href: "/methodology", label: "Methodology", icon: FileText },
+    { href: "/methodology", label: "User Manual", icon: FileText },
   ];
 
   return (

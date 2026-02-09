@@ -221,3 +221,52 @@ The checker should export assumptions and results to **Excel (.xlsx)** or **CSV*
 | Debt assumptions | Property financing defaults match `debtAssumptions` object when no property override is set |
 | Acquisition package | New properties created via Property Finder default to `standardAcqPackage` values |
 | Instant recalc | Changing any single assumption updates all dependent outputs without page reload |
+
+---
+
+## USALI Benchmark Reasonableness Ranges
+
+| Metric | Acceptable Range (Boutique Hotels) | Red Flag Below | Red Flag Above |
+|--------|-----------------------------------|----------------|----------------|
+| ADR | $150 – $600 | $100 | $800 |
+| Occupancy Rate | 55% – 85% | 40% | 95% |
+| RevPAR | $100 – $400 | $60 | $500 |
+| GOP Margin | 30% – 55% | 20% | 65% |
+| NOI Margin | 20% – 40% | 10% | 50% |
+| Rooms Revenue % of Total | 55% – 75% | 40% | 85% |
+| F&B Revenue % of Total | 15% – 30% | 5% | 45% |
+| Base Mgmt Fee | 3% – 7% | 1% | 10% |
+| Incentive Mgmt Fee | 10% – 25% | 5% | 35% |
+| FF&E Reserve | 3% – 6% | 1% | 10% |
+| Exit Cap Rate | 6% – 12% | 4% | 15% |
+
+---
+
+## Inflation & Escalation Verification
+
+### Two Escalation Paths
+
+The model uses two distinct escalation mechanisms:
+
+1. **`fixedCostEscalationRate`** — Applied to fixed costs: office lease, professional services (admin), marketing overhead, maintenance/tech infrastructure, and business insurance. Formula: `cost × (1 + fixedCostEscalationRate)^yearIndex`
+2. **`inflationRate`** — Applied to variable costs: travel cost per client, IT licensing per client, marketing (revenue-based), and miscellaneous operations
+
+### Fallback Behavior
+
+If `fixedCostEscalationRate` is **not set** (null or undefined), the engine falls back to `inflationRate` for fixed cost escalation. This ensures all costs still escalate even if only one rate is configured.
+
+### Verification Procedure
+
+To confirm the two-path escalation is working correctly:
+
+1. Set `inflationRate` = **3%** and `fixedCostEscalationRate` = **5%**
+2. Export the Management Company Income Statement to Excel
+3. Verify **fixed costs** grow at exactly **5%** year-over-year:
+   - Office Lease: Year 1 = $36,000, Year 2 = $37,800 ($36,000 × 1.05), Year 3 = $39,690, etc.
+   - Professional Services: Year 1 = $24,000, Year 2 = $25,200, Year 3 = $26,460, etc.
+   - Tech Infrastructure: Year 1 = $18,000, Year 2 = $18,900, Year 3 = $19,845, etc.
+   - Business Insurance: Year 1 = $12,000, Year 2 = $12,600, Year 3 = $13,230, etc.
+4. Verify **variable costs** grow at exactly **3%** year-over-year:
+   - Travel Cost Per Client: Year 1 = $12,000, Year 2 = $12,360, Year 3 = $12,731, etc.
+   - IT License Per Client: Year 1 = $3,000, Year 2 = $3,090, Year 3 = $3,183, etc.
+5. Confirm that setting `fixedCostEscalationRate` to null causes fixed costs to fall back to the 3% `inflationRate`

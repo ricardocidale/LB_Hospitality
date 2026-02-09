@@ -9,7 +9,7 @@ export const users = pgTable("users", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   email: text("email").notNull().unique(),
   passwordHash: text("password_hash").notNull(),
-  role: text("role").notNull().default("user"), // "admin" or "user"
+  role: text("role").notNull().default("user"), // "admin", "user", or "checker"
   name: text("name"),
   company: text("company"),
   title: text("title"),
@@ -17,10 +17,13 @@ export const users = pgTable("users", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const VALID_USER_ROLES = ["admin", "user", "checker"] as const;
+export type UserRole = typeof VALID_USER_ROLES[number];
+
 export const insertUserSchema = z.object({
   email: z.string(),
   passwordHash: z.string(),
-  role: z.string().optional(),
+  role: z.enum(VALID_USER_ROLES).optional().default("user"),
   name: z.string().nullable().optional(),
   company: z.string().nullable().optional(),
   title: z.string().nullable().optional(),

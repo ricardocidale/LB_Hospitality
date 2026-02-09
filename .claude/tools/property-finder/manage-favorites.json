@@ -1,0 +1,25 @@
+{
+  "name": "manage_favorites",
+  "description": "CRUD operations for saved/favorited prospective properties. All routes require authentication. Unique constraint prevents duplicate saves per user.",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "action": {
+        "type": "string",
+        "enum": ["list", "save", "remove", "update_notes"],
+        "description": "The operation to perform"
+      },
+      "property_id": { "type": "integer", "description": "DB row ID (for remove/update_notes)" },
+      "property_data": { "type": "object", "description": "Normalized property data (for save)" },
+      "notes": { "type": "string", "description": "Notes text (for update_notes)" }
+    },
+    "required": ["action"]
+  },
+  "implementation": "server/routes.ts — /api/property-finder/favorites/*",
+  "storage_methods": [
+    "getProspectiveProperties(userId)",
+    "addProspectiveProperty(data)",
+    "deleteProspectiveProperty(id, userId)",
+    "updateProspectivePropertyNotes(id, userId, notes)"
+  ]
+}

@@ -44,7 +44,7 @@ The company name is "Hospitality Business Group" (or "Hospitality Business" for 
 - **Role-Based Access Control**: Three roles defined in `shared/schema.ts` (`VALID_USER_ROLES`): `admin`, `user`, `checker`. Admin has superset permissions (all checker rights + admin capabilities). `requireChecker` middleware allows both admin and checker roles. `requireAdmin` middleware allows admin only. Last-admin protection prevents demoting/deleting the last admin user.
 - **Checker System**: Default checker user `checker@norfolkgroup.io` (name: Checker, title: Checker, company: Norfolk AI, role: checker). Password from `CHECKER_PASSWORD` env secret. Server auto-seeds/resets checker user on startup. Checker Manual accessible at `/checker-manual` for admin and checker roles.
 - **Checker Manual**: Comprehensive verification manual with 7-phase workflow (Input, Calculation, Financial Statement Reconciliation, IRR/DCF/FCF, Scenario & Stress Testing, Reports & Exports, Documentation & Sign-Off). Includes USALI benchmark tables, inflation verification paths, and audit opinion framework. Skills docs in `.claude/manuals/checker-manual/`, validation check schemas in `.claude/manuals/checker-manual/tools/`.
-- **Tool Schemas**: Organized under `.claude/tools/` by category: `financing/` (DSCR, debt yield, sensitivity, loan comparison), `returns/` (DCF/NPV, IRR vector, equity multiple, exit valuation), `validation/` (financial identities, funding gates, debt reconciliation, assumption consistency, export verification), `analysis/` (consolidation, scenario comparison, break-even). Research tools are co-located with their skills under `.claude/skills/research/*/tools/`.
+- **Tool Schemas**: Organized under `.claude/tools/` by category: `financing/` (DSCR, debt yield, sensitivity, loan comparison), `property-finder/` (URL validation, property search, favorites management), `returns/` (DCF/NPV, IRR vector, equity multiple, exit valuation), `validation/` (financial identities, funding gates, debt reconciliation, assumption consistency, export verification), `analysis/` (consolidation, scenario comparison, break-even). Research tools are co-located with their skills under `.claude/skills/research/*/tools/`. Property finder tools co-located under `.claude/skills/property-finder/tools/`.
 
 ### Business Model & Entity Structure
 - **Two-Entity Architecture**: Management Company (fees-based revenue) + Property Portfolio (independent SPVs). Each entity has its own Income Statement, Cash Flow, Balance Sheet, and IRR. Aggregated/consolidated views available.
@@ -77,10 +77,14 @@ The company name is "Hospitality Business Group" (or "Hospitality Business" for 
 - Details: `.claude/rules/constants-and-config.md`.
 
 ### Property Finder
-- **Functionality**: Allows users to search, save, and manage prospective properties.
+- **Functionality**: Allows users to search, save, and manage prospective properties from external real estate listings.
 - **Features**: Search by location, price, bedrooms, lot size, property type. Includes tabs for "Search", "Saved Searches", and "Saved Properties".
 - **Display**: Properties are displayed in a dark glass table format.
-- **Data Storage**: Saved searches are stored in `saved_searches` table, and favorited properties in `prospective_properties` table.
+- **Data Storage**: Saved searches in `saved_searches` table, favorited properties in `prospective_properties` table. Unique constraint on (userId, externalId, source).
+- **External API**: RapidAPI "Realty in US" (`RAPIDAPI_KEY` secret). Rate limited to 30 req/min per user.
+- **URL Validation**: Format-based (not HTTP HEAD) because realtor.com blocks server requests. URLs must match `https://www.realtor.com/realestateandhomes-detail/`. Primary: API href/permalink. Fallback: constructed from address + property_id.
+- **Skill**: `.claude/skills/property-finder/SKILL.md` with co-located tools in `tools/` subfolder.
+- **Tool Schemas**: `.claude/tools/property-finder/` — validate-listing-url, search-properties, manage-favorites.
 
 ### AI Research Architecture
 - **Skills per Research Type**: Each research type has its own skill folder under `.claude/skills/research/` with a `SKILL.md` and co-located `tools/` subfolder:

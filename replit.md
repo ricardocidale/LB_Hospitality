@@ -60,6 +60,12 @@ The company name is "Hospitality Business Group" (or "Hospitality Business" for 
 - Configurable fiscal year, projection period, cost escalation rates, staffing tiers.
 - Full calculation details: `.claude/rules/financial-engine.md`, `.claude/rules/constants-and-config.md`, `.claude/skills/finance/`.
 
+### Double-Entry Ledger & Statements
+- **Domain Layer** (`domain/`): Pure types — `AccountingPolicy` (GAAP accrual), `JournalDelta`, `CashFlowBucket`, `RoundingPolicy`, `CHART_OF_ACCOUNTS` (13 accounts).
+- **Engine Layer** (`engine/`): `postEvents()` validates double-entry (Σ debits = Σ credits), `buildTrialBalance()` / `buildCumulativeTrialBalance()` for period and point-in-time snapshots.
+- **Statements Layer** (`statements/`): `extractIncomeStatement()`, `extractBalanceSheet()`, `extractCashFlow()` from trial balances. `reconcile()` runs 3 cross-statement checks (BS balance, CF tie-out, IS→RE). `applyEvents()` orchestrates the full pipeline.
+- **Test Suite** (`tests/`): 32 Vitest files with golden snapshot tests across analytics, auth, engine, financing, funding, refinance, and statements.
+
 ### Financial Verification & Audit
 - Verification engine: `financialAuditor.ts` + `runVerification.ts`. 103 automated checks covering timing, depreciation, loans, IS, BS, CF, fees.
 - Outputs: UNQUALIFIED, QUALIFIED, or ADVERSE audit opinions.
@@ -100,6 +106,9 @@ The company name is "Hospitality Business Group" (or "Hospitality Business" for 
   3. Provide the SQL statements to the user to run in the Production Database shell (accessible via the Databases panel in Replit).
 - **Column naming**: Database columns use snake_case (e.g., `cost_rate_fb`, `catering_boost_percent`), while the Drizzle ORM schema uses camelCase (e.g., `costRateFb`, `cateringBoostPercent`).
 - **Production property IDs**: Currently 6-10. Development property IDs: Currently 32-36. Always verify current IDs before writing UPDATE statements.
+
+### Source Code Documentation
+- **Comprehensive Reference**: `.claude/skills/source-code/SKILL.md` — 800+ line documentation covering all layers: server, client, domain, engine, statements, calc, analytics, shared, tests. Includes directory layout, API route catalog, data flow diagrams, and component reference.
 
 ## External Dependencies
 

@@ -25,7 +25,8 @@ import Scenarios from "@/pages/Scenarios";
 import PropertyFinder from "@/pages/PropertyFinder";
 import SensitivityAnalysis from "@/pages/SensitivityAnalysis";
 import FinancingAnalysis from "@/pages/FinancingAnalysis";
-import CheckerManual from "@/pages/CheckerManual";
+import { lazy, Suspense } from "react";
+const CheckerManual = lazy(() => import("@/pages/CheckerManual"));
 
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
   const { user, isLoading } = useAuth();
@@ -65,6 +66,37 @@ function AdminRoute({ component: Component }: { component: React.ComponentType }
   }
   
   return <Component />;
+}
+
+function CheckerRoute({ component: Component }: { component: React.ComponentType }) {
+  const { user, isLoading, isAdmin } = useAuth();
+  
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#FFF9F5]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+  
+  if (!user) {
+    return <Redirect to="/login" />;
+  }
+  
+  const isChecker = isAdmin || user.role === "checker" || user.email === "checker";
+  if (!isChecker) {
+    return <Redirect to="/" />;
+  }
+  
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-[#FFF9F5]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    }>
+      <Component />
+    </Suspense>
+  );
 }
 
 function Router() {
@@ -143,7 +175,7 @@ function Router() {
         <ProtectedRoute component={FinancingAnalysis} />
       </Route>
       <Route path="/checker-manual">
-        <ProtectedRoute component={CheckerManual} />
+        <CheckerRoute component={CheckerManual} />
       </Route>
       <Route component={NotFound} />
     </Switch>

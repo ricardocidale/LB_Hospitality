@@ -4,12 +4,8 @@ import { PageHeader } from "@/components/ui/page-header";
 import { GlassButton } from "@/components/ui/glass-button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/lib/auth";
-import { useProperties, useGlobalAssumptions } from "@/lib/api";
-import { generatePropertyProForma, generateCompanyProForma, formatMoney } from "@/lib/financialEngine";
-import { aggregatePropertyByYear } from "@/lib/yearlyAggregator";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 import {
   ChevronDown,
   ChevronRight,
@@ -36,6 +32,7 @@ import {
   Landmark,
   BookOpenCheck,
   AlertTriangle,
+  Loader2,
 } from "lucide-react";
 
 const sections = [
@@ -144,8 +141,7 @@ function SectionCard({
 export default function CheckerManual() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const { data: properties } = useProperties();
-  const { data: global } = useGlobalAssumptions();
+  const [exporting, setExporting] = useState(false);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
@@ -179,9 +175,15 @@ export default function CheckerManual() {
     }
   };
 
-  const handleExportPDF = () => {
+  const handleExportPDF = async () => {
+    if (exporting) return;
+    setExporting(true);
     logActivity("export-manual-pdf");
     try {
+      const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
+        import("jspdf"),
+        import("jspdf-autotable"),
+      ]);
       const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
       const pageW = doc.internal.pageSize.getWidth();
 
@@ -286,16 +288,40 @@ export default function CheckerManual() {
       toast({ title: "Manual Exported", description: "PDF has been downloaded." });
     } catch (err) {
       toast({ title: "Export Failed", description: "Could not generate PDF.", variant: "destructive" });
+    } finally {
+      setExporting(false);
     }
   };
 
-  const handleFullExport = () => {
+  const handleFullExport = async () => {
+    if (exporting) return;
+    setExporting(true);
     logActivity("full-data-export");
     try {
-      if (!properties || !global) {
-        toast({ title: "Loading", description: "Please wait for data to load.", variant: "destructive" });
+      const [
+        { default: jsPDF },
+        { default: autoTable },
+        { generatePropertyProForma, generateCompanyProForma, formatMoney },
+        { aggregatePropertyByYear },
+      ] = await Promise.all([
+        import("jspdf"),
+        import("jspdf-autotable"),
+        import("@/lib/financialEngine"),
+        import("@/lib/yearlyAggregator"),
+      ]);
+
+      const [propertiesRes, globalRes] = await Promise.all([
+        apiRequest("GET", "/api/properties"),
+        apiRequest("GET", "/api/global-assumptions"),
+      ]);
+      const properties = await propertiesRes.json();
+      const global = await globalRes.json();
+
+      if (!properties?.length || !global) {
+        toast({ title: "No Data", description: "No properties or assumptions found.", variant: "destructive" });
         return;
       }
+
       const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
       const pageW = doc.internal.pageSize.getWidth();
       const projYears = global.projectionYears ?? 10;
@@ -354,7 +380,7 @@ export default function CheckerManual() {
       ]);
 
       addTable("Properties Summary", ["Name", "Location", "Rooms", "ADR", "Purchase Price", "LTV", "Status"], 
-        properties.map(p => [
+        properties.map((p: any) => [
           p.name,
           p.location,
           String(p.roomCount),
@@ -365,7 +391,7 @@ export default function CheckerManual() {
         ])
       );
 
-      properties.forEach(p => {
+      properties.forEach((p: any) => {
         const financials = generatePropertyProForma(p, global, projMonths);
         const yearly = aggregatePropertyByYear(financials, projYears);
         const yearHeaders = ["Line Item", ...Array.from({ length: projYears }, (_, i) => `Year ${i + 1}`)];
@@ -390,7 +416,7 @@ export default function CheckerManual() {
       const companyYearly: Record<string, number[]> = {};
       const keys = ["totalRevenue", "totalExpenses", "netIncome", "endingCash", "safeFunding"] as const;
       keys.forEach(k => { companyYearly[k] = Array(projYears).fill(0); });
-      companyData.forEach((m, i) => {
+      companyData.forEach((m: any, i: number) => {
         const yr = Math.floor(i / 12);
         if (yr < projYears) {
           keys.forEach(k => {
@@ -413,6 +439,8 @@ export default function CheckerManual() {
       toast({ title: "Full Data Export Complete", description: "PDF with all assumptions and financials has been downloaded." });
     } catch (err) {
       toast({ title: "Export Failed", description: "Could not generate full data export.", variant: "destructive" });
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -425,12 +453,12 @@ export default function CheckerManual() {
             subtitle="L+B Hospitality Group — Verification & Testing Guide"
             actions={
               <div className="flex gap-2">
-                <GlassButton data-testid="btn-export-pdf" onClick={handleExportPDF}>
-                  <FileDown className="w-4 h-4 mr-2" />
+                <GlassButton data-testid="btn-export-pdf" onClick={handleExportPDF} disabled={exporting}>
+                  {exporting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <FileDown className="w-4 h-4 mr-2" />}
                   Export Manual PDF
                 </GlassButton>
-                <GlassButton data-testid="btn-full-export" onClick={handleFullExport}>
-                  <Database className="w-4 h-4 mr-2" />
+                <GlassButton data-testid="btn-full-export" onClick={handleFullExport} disabled={exporting}>
+                  {exporting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Database className="w-4 h-4 mr-2" />}
                   Full Data Export
                 </GlassButton>
               </div>

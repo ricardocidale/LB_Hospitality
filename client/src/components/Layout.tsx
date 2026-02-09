@@ -103,8 +103,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               
               // Check for exact match or if we're on a sub-route
               const isActive = location === item.href || 
-                (item.href === "/portfolio" && location.startsWith("/property")) ||
-                (item.href !== "/" && location.startsWith(item.href));
+                (item.href === "/portfolio" && location.startsWith("/property/")) ||
+                (item.href !== "/" && location.startsWith(item.href + "/"));
               return (
                 <Link key={item.href} href={item.href!} onClick={() => setSidebarOpen(false)}>
                   <div className={cn(

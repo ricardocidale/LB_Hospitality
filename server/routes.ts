@@ -2004,39 +2004,43 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       const results = data?.data?.home_search?.results || [];
       const totalCount = data?.data?.home_search?.total || 0;
 
-      const normalized = results.map((r: any) => ({
-        externalId: r.property_id || r.listing_id || String(Math.random()),
-        address: [r.location?.address?.line, r.location?.address?.city, r.location?.address?.state_code].filter(Boolean).join(", "),
-        city: r.location?.address?.city || null,
-        state: r.location?.address?.state_code || null,
-        zipCode: r.location?.address?.postal_code || null,
-        price: r.list_price || null,
-        beds: r.description?.beds || null,
-        baths: r.description?.baths || null,
-        sqft: r.description?.sqft || null,
-        lotSizeAcres: r.description?.lot_sqft ? Math.round((r.description.lot_sqft / 43560) * 100) / 100 : null,
-        propertyType: r.description?.type || null,
-        imageUrl: r.primary_photo?.href || null,
-        listingUrl: r.href ? `https://www.realtor.com${r.href}` : null,
-      }));
+      const normalized = results.map((r: any) => {
+        const propertyId = r.property_id || r.listing_id || null;
+        const href = r.href || r.permalink || null;
 
-      // Validate listing URLs in parallel — null out dead links
-      await Promise.all(normalized.map(async (item: any) => {
-        if (!item.listingUrl) return;
-        try {
-          const check = await fetch(item.listingUrl, {
-            method: "HEAD",
-            redirect: "follow",
-            signal: AbortSignal.timeout(4000),
-            headers: { "User-Agent": "Mozilla/5.0 (compatible; LBHospitality/1.0)" },
-          });
-          if (!check.ok) {
-            item.listingUrl = null;
+        let listingUrl: string | null = null;
+        if (href && typeof href === "string") {
+          const path = href.startsWith("/") ? href : `/${href}`;
+          if (/^\/realestateandhomes-detail\//.test(path)) {
+            listingUrl = `https://www.realtor.com${path}`;
           }
-        } catch {
-          item.listingUrl = null;
         }
-      }));
+        if (!listingUrl && propertyId && typeof propertyId === "string" && /^M?\d/.test(propertyId)) {
+          const addr = r.location?.address;
+          if (addr?.line && addr?.city && addr?.state_code && addr?.postal_code) {
+            const slug = [addr.line, addr.city, addr.state_code, addr.postal_code]
+              .map((s: string) => s.replace(/\s+/g, "-").replace(/[^a-zA-Z0-9-]/g, ""))
+              .join("_");
+            listingUrl = `https://www.realtor.com/realestateandhomes-detail/${slug}_${propertyId}`;
+          }
+        }
+
+        return {
+          externalId: propertyId || String(Math.random()),
+          address: [r.location?.address?.line, r.location?.address?.city, r.location?.address?.state_code].filter(Boolean).join(", "),
+          city: r.location?.address?.city || null,
+          state: r.location?.address?.state_code || null,
+          zipCode: r.location?.address?.postal_code || null,
+          price: r.list_price || null,
+          beds: r.description?.beds || null,
+          baths: r.description?.baths || null,
+          sqft: r.description?.sqft || null,
+          lotSizeAcres: r.description?.lot_sqft ? Math.round((r.description.lot_sqft / 43560) * 100) / 100 : null,
+          propertyType: r.description?.type || null,
+          imageUrl: r.primary_photo?.href || null,
+          listingUrl,
+        };
+      });
 
       res.json({ results: normalized, total: totalCount, offset: parseInt(searchOffset as string) || 0 });
     } catch (error) {
@@ -2050,23 +2054,14 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       const userId = req.user!.id;
       const favorites = await storage.getProspectiveProperties(userId);
 
-      // Validate listing URLs in parallel — null out stale/dead links
-      await Promise.all(favorites.map(async (item: any) => {
-        if (!item.listingUrl) return;
-        try {
-          const check = await fetch(item.listingUrl, {
-            method: "HEAD",
-            redirect: "follow",
-            signal: AbortSignal.timeout(4000),
-            headers: { "User-Agent": "Mozilla/5.0 (compatible; LBHospitality/1.0)" },
-          });
-          if (!check.ok) {
+      for (const item of favorites as any[]) {
+        if (item.listingUrl && typeof item.listingUrl === "string") {
+          const isValidRealtorUrl = /^https:\/\/www\.realtor\.com\/realestateandhomes-detail\//.test(item.listingUrl);
+          if (!isValidRealtorUrl) {
             item.listingUrl = null;
           }
-        } catch {
-          item.listingUrl = null;
         }
-      }));
+      }
 
       res.json(favorites);
     } catch (error) {

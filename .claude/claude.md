@@ -81,6 +81,7 @@ Tool schemas are organized in two locations:
 **`.claude/tools/`** — Non-research tool schemas by category:
 - **analysis/** — Statement consolidation, scenario comparison, break-even analysis
 - **financing/** — DSCR, debt yield, prepayment, sensitivity, loan comparison, FSA
+- **property-finder/** — URL validation, property search, favorites management
 - **returns/** — DCF/NPV, IRR cash flow vector, equity multiple, exit valuation
 - **validation/** — Financial identity checks, funding gates, debt schedule reconciliation, assumption consistency, export verification
 
@@ -93,6 +94,11 @@ Tool schemas are organized in two locations:
 - `cap-rate-analysis/tools/` — analyze_cap_rates
 - `competitive-set/tools/` — analyze_competitive_set
 - `land-value/tools/` — analyze_land_value
+
+**`.claude/skills/property-finder/tools/`** — Property finder tool schemas:
+- `validate-listing-url.json` — validate_listing_url (format-based realtor.com URL validation)
+- `search-properties.json` — search_properties (RapidAPI Realty in US integration)
+- `manage-favorites.json` — manage_favorites (CRUD for saved properties)
 
 ## File Organization
 
@@ -129,11 +135,13 @@ client/src/
 │   ├── exports/           # Export system methodology
 │   ├── features/          # Feature-specific skills
 │   ├── finance/           # 17 finance calculation skills
+│   ├── property-finder/   # External property search, URL validation, favorites (with co-located tools/)
 │   ├── research/          # AI research skills (each with co-located tools/)
 │   └── ui/                # UI component skills
 └── tools/
     ├── analysis/          # Consolidation, scenario comparison, break-even
     ├── financing/         # Financing tool schemas (DSCR, sensitivity, loan comparison)
+    ├── property-finder/   # URL validation, property search, favorites management
     ├── returns/           # DCF/NPV, IRR vector, equity multiple, exit valuation
     └── validation/        # Financial identities, funding gates, debt reconciliation, assumptions, exports
 

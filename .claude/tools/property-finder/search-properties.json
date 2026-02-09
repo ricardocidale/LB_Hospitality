@@ -1,0 +1,24 @@
+{
+  "name": "search_properties",
+  "description": "Search external real estate listings via RapidAPI 'Realty in US'. Requires RAPIDAPI_KEY secret. Rate limited to 30 req/min per user.",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "location": { "type": "string", "description": "City, State or ZIP code" },
+      "price_min": { "type": "integer" },
+      "price_max": { "type": "integer" },
+      "beds_min": { "type": "integer" },
+      "lot_size_min_acres": { "type": "number", "description": "Converted to sqft via × 43,560" },
+      "property_type": { "type": "string", "enum": ["any", "single_family", "multi_family", "condo", "townhome", "land", "farm"] },
+      "offset": { "type": "integer", "description": "Pagination offset (page size 20)" }
+    },
+    "required": ["location"]
+  },
+  "implementation": "server/routes.ts — GET /api/property-finder/search",
+  "external_api": {
+    "endpoint": "https://realty-in-us.p.rapidapi.com/properties/v3/list",
+    "method": "POST",
+    "auth_header": "X-RapidAPI-Key",
+    "secret": "RAPIDAPI_KEY"
+  }
+}

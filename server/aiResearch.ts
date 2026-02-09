@@ -76,8 +76,8 @@ function loadToolDefinitions(): Anthropic.Tool[] {
   return tools;
 }
 
-// Handle tool calls - returns contextual guidance for Claude
-function handleToolCall(name: string, input: Record<string, any>): string {
+// Handle tool calls - returns contextual guidance for Claude or computed results
+async function handleToolCall(name: string, input: Record<string, any>): Promise<string> {
   // Each handler returns a context string that guides Claude to synthesize analysis
   // based on the provided parameters
   switch (name) {
@@ -117,7 +117,67 @@ Provide a recommended catering boost percentage (typically 15%–50%), market ra
     case "analyze_land_value":
       return `Provide land value allocation analysis for ${input.location} (${input.market_region}). Property type: ${input.property_type}, ${input.acreage || 10}+ acres, ${input.room_count || 20} rooms, purchase price: $${(input.purchase_price || 0).toLocaleString()}, building improvements: $${(input.building_improvements || 0).toLocaleString()}, setting: ${input.setting || "rural estate"}. Determine the appropriate percentage of the purchase price attributable to land vs. building/improvements for IRS depreciation purposes. Consider: local land values per acre, ratio of land to total property value in this market, whether the property is in a high-land-value area (urban/resort) vs. lower-value rural setting, comparable hotel land allocations, and county tax assessor land-to-improvement ratios. Provide a recommended land value percentage, market range, assessment methodology, rationale, and key factors.`;
     default:
-      return `Unknown tool: ${name}. Please proceed with your analysis.`;
+      return handleComputationTool(name, input);
+  }
+}
+
+async function handleComputationTool(name: string, input: Record<string, any>): Promise<string> {
+  const defaultRounding = { precision: 2, bankers_rounding: false };
+  try {
+    switch (name) {
+      case "calculate_dcf_npv": {
+        const { computeDCF } = await import("../calc/returns/dcf-npv");
+        return JSON.stringify(computeDCF({ ...input, rounding_policy: defaultRounding }));
+      }
+      case "build_irr_cashflow_vector": {
+        const { buildIRRVector } = await import("../calc/returns/irr-vector");
+        return JSON.stringify(buildIRRVector(input));
+      }
+      case "compute_equity_multiple": {
+        const { computeEquityMultiple } = await import("../calc/returns/equity-multiple");
+        return JSON.stringify(computeEquityMultiple({ ...input, rounding_policy: defaultRounding }));
+      }
+      case "exit_valuation": {
+        const { computeExitValuation } = await import("../calc/returns/exit-valuation");
+        return JSON.stringify(computeExitValuation({ ...input, rounding_policy: defaultRounding }));
+      }
+      case "validate_financial_identities": {
+        const { validateFinancialIdentities } = await import("../calc/validation/financial-identities");
+        return JSON.stringify(validateFinancialIdentities({ ...input, rounding_policy: defaultRounding }));
+      }
+      case "funding_gate_checks": {
+        const { checkFundingGates } = await import("../calc/validation/funding-gates");
+        return JSON.stringify(checkFundingGates(input));
+      }
+      case "schedule_reconcile": {
+        const { reconcileSchedule } = await import("../calc/validation/schedule-reconcile");
+        return JSON.stringify(reconcileSchedule(input));
+      }
+      case "assumption_consistency_check": {
+        const { checkAssumptionConsistency } = await import("../calc/validation/assumption-consistency");
+        return JSON.stringify(checkAssumptionConsistency(input));
+      }
+      case "export_verification": {
+        const { verifyExport } = await import("../calc/validation/export-verification");
+        return JSON.stringify(verifyExport(input));
+      }
+      case "consolidate_statements": {
+        const { consolidateStatements } = await import("../calc/analysis/consolidation");
+        return JSON.stringify(consolidateStatements({ ...input, rounding_policy: defaultRounding }));
+      }
+      case "scenario_compare": {
+        const { compareScenarios } = await import("../calc/analysis/scenario-compare");
+        return JSON.stringify(compareScenarios(input));
+      }
+      case "break_even_analysis": {
+        const { computeBreakEven } = await import("../calc/analysis/break-even");
+        return JSON.stringify(computeBreakEven(input));
+      }
+      default:
+        return `Unknown tool: ${name}. Please proceed with your analysis.`;
+    }
+  } catch (error: any) {
+    return JSON.stringify({ error: `Computation failed: ${error.message}` });
   }
 }
 
@@ -228,11 +288,13 @@ export async function* generateResearchWithToolsStream(
     // Process tool calls
     messages.push({ role: "assistant", content: response.content });
     
-    const toolResults: Anthropic.ToolResultBlockParam[] = toolUseBlocks.map(toolBlock => ({
-      type: "tool_result" as const,
-      tool_use_id: toolBlock.id,
-      content: handleToolCall(toolBlock.name, toolBlock.input as Record<string, any>),
-    }));
+    const toolResults: Anthropic.ToolResultBlockParam[] = await Promise.all(
+      toolUseBlocks.map(async (toolBlock) => ({
+        type: "tool_result" as const,
+        tool_use_id: toolBlock.id,
+        content: await handleToolCall(toolBlock.name, toolBlock.input as Record<string, any>),
+      }))
+    );
     
     messages.push({ role: "user", content: toolResults });
   }

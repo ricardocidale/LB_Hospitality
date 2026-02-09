@@ -27,6 +27,7 @@ import {
   PROJECTION_YEARS,
   DAYS_PER_MONTH,
 } from "@/lib/constants";
+import { Dashboard3DBackground } from "@/components/Dashboard3DBackground";
 import { propertyEquityInvested, acquisitionYearIndex } from "@/lib/equityCalculations";
 import { computeIRR } from "@analytics/returns/irr.js";
 import { LoanParams, GlobalLoanParams } from "@/lib/loanCalculations";
@@ -1575,7 +1576,7 @@ export default function Dashboard() {
           />
 
           <TabsContent value="overview" className="space-y-8" ref={tabContentRef}>
-            {/* Investment Returns - Hero Section - Fluid Glass Design */}
+            {/* Investment Returns - Hero Section - Fluid Glass Design with 3D */}
             <div className="relative overflow-hidden rounded-3xl p-8 border border-[#9FBCA4]/30 shadow-2xl">
               {/* Sage Glass Background with Fluid Effect */}
               <div className="absolute inset-0 bg-[#9FBCA4]/25 backdrop-blur-3xl" />
@@ -1584,6 +1585,7 @@ export default function Dashboard() {
                 <div className="absolute bottom-0 left-1/4 w-80 h-80 rounded-full bg-[#9FBCA4]/30 blur-3xl animate-pulse" style={{ animationDuration: '6s', animationDelay: '2s' }} />
                 <div className="absolute top-1/3 right-0 w-64 h-64 rounded-full bg-white/20 blur-2xl animate-pulse" style={{ animationDuration: '7s', animationDelay: '1s' }} />
               </div>
+              <Dashboard3DBackground />
               
               <div className="relative">
                 <div className="text-center mb-8">

@@ -1,36 +1,42 @@
 import { HelpCircle } from "lucide-react";
-import { useState } from "react";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
 
 interface HelpTooltipProps {
   text: string;
   light?: boolean;
+  side?: "top" | "bottom" | "left" | "right";
 }
 
-export function HelpTooltip({ text, light = false }: HelpTooltipProps) {
-  const [isOpen, setIsOpen] = useState(false);
-
+export function HelpTooltip({ text, light = false, side = "top" }: HelpTooltipProps) {
   return (
-    <div className="relative inline-block">
-      <button
-        type="button"
-        className={`ml-2 transition-colors focus:outline-none ${
-          light 
-            ? "text-white/60 hover:text-white" 
-            : "text-primary/60 hover:text-primary"
-        }`}
-        onMouseEnter={() => setIsOpen(true)}
-        onMouseLeave={() => setIsOpen(false)}
-        onClick={() => setIsOpen(!isOpen)}
-        aria-label="Help"
+    <Tooltip delayDuration={200}>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          className={`inline-flex items-center justify-center ml-1.5 cursor-help rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 ${
+            light
+              ? "text-white/50 hover:text-white"
+              : "text-[#9FBCA4] hover:text-[#7A9E82]"
+          }`}
+          aria-label="Help"
+          data-testid="help-tooltip-trigger"
+        >
+          <HelpCircle className="w-4 h-4" />
+        </button>
+      </TooltipTrigger>
+      <TooltipContent
+        side={side}
+        align="center"
+        sideOffset={8}
+        className="max-w-xs text-sm leading-relaxed px-4 py-3"
+        data-testid="help-tooltip-content"
       >
-        <HelpCircle className="w-4 h-4" />
-      </button>
-      {isOpen && (
-        <div className="absolute z-50 left-0 bottom-full mb-3 w-80 p-4 text-sm bg-slate-900 text-white rounded-xl shadow-2xl border border-slate-700">
-          <div className="leading-relaxed">{text}</div>
-          <div className="absolute left-4 top-full w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-slate-900" />
-        </div>
-      )}
-    </div>
+        {text}
+      </TooltipContent>
+    </Tooltip>
   );
 }

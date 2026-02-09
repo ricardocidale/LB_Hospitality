@@ -73,15 +73,26 @@ The verification system enforces GAAP consistency and internal invariants:
 Coverage includes timing, depreciation, loans, income statement, balance sheet, cash flow, and management fees. Outputs UNQUALIFIED, QUALIFIED, or ADVERSE opinions.
 
 ## AI Research
-Research Skills are defined in `.claude/skills/` and orchestrated via `server/aiResearch.ts`. Claude tool schemas live in `.claude/tools/research/`. Outputs include structured market, ADR, occupancy, and cap rate analyses.
+Research skills are defined in `.claude/skills/research/` with co-located tool schemas in each skill's `tools/` subfolder. Orchestrated via `server/aiResearch.ts` with data-driven tool prompts and dev-mode cache bypass. Outputs include structured market, ADR, occupancy, cap rate, catering, competitive set, event demand, and land value analyses.
 
 ## Tool Schema Categories
-All tool schemas live under `.claude/tools/` organized by category:
+Tool schemas are organized in two locations:
+
+**`.claude/tools/`** — Non-research tool schemas by category:
 - **analysis/** — Statement consolidation, scenario comparison, break-even analysis
 - **financing/** — DSCR, debt yield, prepayment, sensitivity, loan comparison, FSA
-- **research/** — Market analysis, ADR, occupancy, cap rates, catering, land value
 - **returns/** — DCF/NPV, IRR cash flow vector, equity multiple, exit valuation
 - **validation/** — Financial identity checks, funding gates, debt schedule reconciliation, assumption consistency, export verification
+
+**`.claude/skills/research/*/tools/`** — Research tool schemas co-located with their skills:
+- `market-overview/tools/` — analyze_market
+- `adr-analysis/tools/` — analyze_adr
+- `occupancy-analysis/tools/` — analyze_occupancy
+- `event-demand/tools/` — analyze_event_demand
+- `catering-analysis/tools/` — analyze_catering
+- `cap-rate-analysis/tools/` — analyze_cap_rates
+- `competitive-set/tools/` — analyze_competitive_set
+- `land-value/tools/` — analyze_land_value
 
 ## File Organization
 
@@ -118,12 +129,11 @@ client/src/
 │   ├── exports/           # Export system methodology
 │   ├── features/          # Feature-specific skills
 │   ├── finance/           # 17 finance calculation skills
-│   ├── research/          # AI research skills
+│   ├── research/          # AI research skills (each with co-located tools/)
 │   └── ui/                # UI component skills
 └── tools/
     ├── analysis/          # Consolidation, scenario comparison, break-even
     ├── financing/         # Financing tool schemas (DSCR, sensitivity, loan comparison)
-    ├── research/          # Research tool schemas (ADR, market, occupancy, etc.)
     ├── returns/           # DCF/NPV, IRR vector, equity multiple, exit valuation
     └── validation/        # Financial identities, funding gates, debt reconciliation, assumptions, exports
 

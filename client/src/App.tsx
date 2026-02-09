@@ -83,7 +83,7 @@ function CheckerRoute({ component: Component }: { component: React.ComponentType
     return <Redirect to="/login" />;
   }
   
-  const isChecker = isAdmin || user.role === "checker" || user.email === "checker";
+  const isChecker = isAdmin || user.role === "checker";
   if (!isChecker) {
     return <Redirect to="/" />;
   }

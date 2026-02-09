@@ -141,7 +141,8 @@ function SectionCard({
 export default function CheckerManual() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [exporting, setExporting] = useState(false);
+  const [exportingManual, setExportingManual] = useState(false);
+  const [exportingData, setExportingData] = useState(false);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
@@ -176,8 +177,8 @@ export default function CheckerManual() {
   };
 
   const handleExportPDF = async () => {
-    if (exporting) return;
-    setExporting(true);
+    if (exportingManual) return;
+    setExportingManual(true);
     logActivity("export-manual-pdf");
     try {
       const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
@@ -289,13 +290,13 @@ export default function CheckerManual() {
     } catch (err) {
       toast({ title: "Export Failed", description: "Could not generate PDF.", variant: "destructive" });
     } finally {
-      setExporting(false);
+      setExportingManual(false);
     }
   };
 
   const handleFullExport = async () => {
-    if (exporting) return;
-    setExporting(true);
+    if (exportingData) return;
+    setExportingData(true);
     logActivity("full-data-export");
     try {
       const [
@@ -440,7 +441,7 @@ export default function CheckerManual() {
     } catch (err) {
       toast({ title: "Export Failed", description: "Could not generate full data export.", variant: "destructive" });
     } finally {
-      setExporting(false);
+      setExportingData(false);
     }
   };
 
@@ -453,12 +454,12 @@ export default function CheckerManual() {
             subtitle="L+B Hospitality Group — Verification & Testing Guide"
             actions={
               <div className="flex gap-2">
-                <GlassButton data-testid="btn-export-pdf" onClick={handleExportPDF} disabled={exporting}>
-                  {exporting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <FileDown className="w-4 h-4 mr-2" />}
+                <GlassButton data-testid="btn-export-pdf" onClick={handleExportPDF} disabled={exportingManual}>
+                  {exportingManual ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <FileDown className="w-4 h-4 mr-2" />}
                   Export Manual PDF
                 </GlassButton>
-                <GlassButton data-testid="btn-full-export" onClick={handleFullExport} disabled={exporting}>
-                  {exporting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Database className="w-4 h-4 mr-2" />}
+                <GlassButton data-testid="btn-full-export" onClick={handleFullExport} disabled={exportingData}>
+                  {exportingData ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Database className="w-4 h-4 mr-2" />}
                   Full Data Export
                 </GlassButton>
               </div>

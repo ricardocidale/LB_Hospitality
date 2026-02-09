@@ -275,14 +275,15 @@ export default function CheckerManual() {
                 sectionRef={(el) => { sectionRefs.current["property-portfolio"] = el; }}
               >
                 <p className="text-white/70 text-sm">Each property is an independent SPV with its own financials. Investor returns come from: FCF distributions, refinancing proceeds, and exit proceeds.</p>
+                <p className="text-white/60 text-sm mt-2">View the current property portfolio in the <strong className="text-white/80">Properties</strong> page. Each property card shows its name, location, room count, ADR, financing type, and lifecycle status.</p>
                 <ManualTable
-                  headers={["Name", "Location", "Rooms", "Starting ADR", "Financing", "Status"]}
+                  headers={["Field", "Description", "Where to Find"]}
                   rows={[
-                    ["The Hudson Estate", "Hudson Valley, NY", "22", "$395", "Financed", "Operating"],
-                    ["Eden Summit Lodge", "Park City, UT", "18", "$450", "Financed", "Development"],
-                    ["Austin Hillside", "Austin, TX", "15", "$325", "Full Equity", "Acquisition"],
-                    ["Casa Medellín", "Medellín, Colombia", "20", "$185", "Financed", "Development"],
-                    ["Blue Ridge Manor", "Asheville, NC", "16", "$310", "Financed", "Operating"],
+                    ["Name / Location", "Property identity and geographic market", "Property card header"],
+                    ["Room Count", "Number of guest rooms (drives revenue)", "Property details"],
+                    ["Starting ADR", "Initial Average Daily Rate", "Property assumptions"],
+                    ["Financing Type", "Full Equity or Financed (debt + equity)", "Property assumptions"],
+                    ["Status", "Lifecycle stage: Acquisition, Development, Operating", "Property card"],
                   ]}
                 />
               </SectionCard>
@@ -826,8 +827,9 @@ export default function CheckerManual() {
                     ["F-P-13", "Taxable Income", "NOI − Interest − Depreciation", "Pre-tax income"],
                     ["F-P-14", "Net Income", "NOI − Interest − Depreciation − Tax", "Bottom line"],
                     ["F-P-15", "CFO", "Net Income + Depreciation", "Cash from Operations (indirect method)"],
-                    ["F-P-16", "CFF", "Loan Proceeds − Principal + Equity (acq yr)", "Cash from Financing"],
-                    ["F-P-17", "Net Change", "CFO + CFI + CFF", "Total cash movement"],
+                    ["F-P-16", "CFI", "−Acquisition Cost (acq month only)", "Cash from Investing"],
+                    ["F-P-17", "CFF", "Loan Proceeds − Principal + Equity + Refi (acq yr)", "Cash from Financing"],
+                    ["F-P-18", "Net Change", "CFO + CFI + CFF", "Total cash movement"],
                   ]}
                 />
               </SectionCard>
@@ -946,9 +948,9 @@ export default function CheckerManual() {
                     ["Boutique Hotel", "Independently owned, typically 10–80 rooms, with F&B and events", "—", "Property Type"],
                     ["Building Improvements", "Capital expenditures to improve property post-acquisition", "—", "Capital"],
                     ["Cap Rate", "NOI / Property Value; used to value income-producing real estate", "F-R-05", "Valuation"],
-                    ["Cash from Financing (CFF)", "Cash flows from debt, equity, and distributions", "F-P-18", "Cash Flow"],
-                    ["Cash from Investing (CFI)", "Cash flows from property acquisition/disposition", "F-P-17", "Cash Flow"],
-                    ["Cash from Operations (CFO)", "Cash generated from core business operations", "F-P-16", "Cash Flow"],
+                    ["Cash from Financing (CFF)", "Cash flows from debt, equity, and distributions", "F-P-17", "Cash Flow"],
+                    ["Cash from Investing (CFI)", "Cash flows from property acquisition/disposition", "F-P-16", "Cash Flow"],
+                    ["Cash from Operations (CFO)", "Cash generated from core business operations", "F-P-15", "Cash Flow"],
                     ["Closing Costs", "Fees/expenses associated with finalizing a loan (% of loan amount)", "F-F-02", "Financing"],
                     ["DCF (Discounted Cash Flow)", "Valuation method summing present value of projected cash flows", "—", "Valuation"],
                     ["Debt Service", "Total loan payment combining interest and principal = PMT", "F-F-04", "Financing"],

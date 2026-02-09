@@ -257,7 +257,7 @@ export default function Methodology() {
                 and requires assumption adjustments before proceeding.
               </p>
 
-              <Callout severity="critical" title="1. Management Company Funding Gate">
+              <Callout severity="critical" variant="light" title="1. Management Company Funding Gate">
                 <p>
                   Operations of the Management Company cannot begin before funding is received. The company requires
                   SAFE funding tranches to cover startup costs (staff, office, professional services) before management
@@ -268,7 +268,7 @@ export default function Methodology() {
                 </p>
               </Callout>
 
-              <Callout severity="critical" title="2. Property Activation Gate">
+              <Callout severity="critical" variant="light" title="2. Property Activation Gate">
                 <p>
                   A property cannot begin operating before it is purchased and funding is in place — whether that's
                   100% equity (cash purchase) or debt financing plus equity. Revenue and operating expenses only begin
@@ -279,7 +279,7 @@ export default function Methodology() {
                 </p>
               </Callout>
 
-              <Callout severity="critical" title="3. No Negative Cash Rule">
+              <Callout severity="critical" variant="light" title="3. No Negative Cash Rule">
                 <p>
                   Cash balances for each property, the Management Company, and the aggregated portfolio must never
                   be negative. This ensures realistic capital planning and prevents scenarios where entities spend
@@ -291,7 +291,7 @@ export default function Methodology() {
                 </p>
               </Callout>
 
-              <Callout severity="critical" title="4. Debt-Free at Exit">
+              <Callout severity="critical" variant="light" title="4. Debt-Free at Exit">
                 <p>
                   At exit (end of the projection period), all properties must be debt-free. Outstanding loan balances
                   are repaid from gross sale proceeds before calculating net proceeds to equity. The exit waterfall is:
@@ -304,7 +304,7 @@ export default function Methodology() {
                 </div>
               </Callout>
 
-              <Callout severity="critical" title="5. No Over-Distribution Rule">
+              <Callout severity="critical" variant="light" title="5. No Over-Distribution Rule">
                 <p>
                   FCF distributions and refinancing proceeds returned to investors must not exceed available cash.
                   The system must not distribute cash to the point that any property ends up with a negative cash
@@ -314,7 +314,7 @@ export default function Methodology() {
                 </p>
               </Callout>
 
-              <Callout severity="critical" title="6. Income Statement: Interest Only (No Principal)">
+              <Callout severity="critical" variant="light" title="6. Income Statement: Interest Only (No Principal)">
                 <p>
                   The income statement must show <strong>only interest expense</strong>, never principal repayment.
                   Principal repayment is a <strong>financing activity</strong> (ASC 470), not an operating expense.
@@ -332,7 +332,7 @@ export default function Methodology() {
                 </p>
               </Callout>
 
-              <Callout severity="critical" title="7. Capital Structure Presentation in Reports">
+              <Callout severity="critical" variant="light" title="7. Capital Structure Presentation in Reports">
                 <p>
                   All financial reports, cash flow statements, and balance sheets must present capital sources
                   on <strong>separate lines</strong> for clarity:
@@ -927,8 +927,9 @@ export default function Methodology() {
                   Buildings are depreciated over {DEPRECIATION_YEARS} years using the straight-line method (IRS requirement for residential rental property).
                   Land is not depreciated.
                 </p>
-                <div className="bg-background rounded p-2 font-mono text-xs mt-2">
-                  Annual Depreciation = (Purchase Price + Building Improvements) ÷ {DEPRECIATION_YEARS}
+                <div className="bg-background rounded p-2 font-mono text-xs mt-2 space-y-1">
+                  <div>Depreciable Basis = Purchase Price × (1 − Land Value %) + Building Improvements</div>
+                  <div>Annual Depreciation = Depreciable Basis ÷ {DEPRECIATION_YEARS}</div>
                 </div>
               </div>
             </SectionCard>
@@ -1125,7 +1126,7 @@ export default function Methodology() {
               onToggle={() => toggleSection("fixed-assumptions")}
               sectionRef={(el) => { sectionRefs.current["fixed-assumptions"] = el; }}
             >
-              <Callout severity="warning">
+              <Callout severity="warning" variant="light">
                 The following assumptions are built into the financial model and cannot be changed through the app interface.
                 These represent industry standards or regulatory requirements.
               </Callout>
@@ -1148,7 +1149,7 @@ export default function Methodology() {
                 </ul>
               </div>
 
-              <Callout severity="success" title={`Expense Ratios (Now Configurable in Systemwide Assumptions)`}>
+              <Callout severity="success" variant="light" title={`Expense Ratios (Now Configurable in Systemwide Assumptions)`}>
                 <ul className="space-y-2">
                   <li>&#8226; <strong>Event Expense Rate</strong>: Default {pct(DEFAULT_EVENT_EXPENSE_RATE)} of event revenue (editable)</li>
                   <li>&#8226; <strong>Other Revenue Expense Rate</strong>: Default {pct(DEFAULT_OTHER_EXPENSE_RATE)} of other revenue (editable)</li>
@@ -1172,7 +1173,7 @@ export default function Methodology() {
                 <p className="text-xs text-muted-foreground mt-2">Override these at the property level in Property Assumptions.</p>
               </div>
 
-              <Callout severity="success" title="Exit & Sale Assumptions (Now Configurable)">
+              <Callout severity="success" variant="light" title="Exit & Sale Assumptions (Now Configurable)">
                 <ul className="space-y-2">
                   <li>&#8226; <strong>Exit Cap Rate</strong>: Default {pct1(DEFAULT_EXIT_CAP_RATE)} (editable in Systemwide & Property Assumptions)</li>
                   <li>&#8226; <strong>Sales Commission</strong>: Default {pct(DEFAULT_COMMISSION_RATE)} of gross sale price (editable in Systemwide Assumptions)</li>
@@ -1180,7 +1181,7 @@ export default function Methodology() {
                 </ul>
               </Callout>
 
-              <Callout severity="success" title="Revenue Shares (Configurable Per Property)">
+              <Callout severity="success" variant="light" title="Revenue Shares (Configurable Per Property)">
                 <ul className="space-y-2">
                   <li>&#8226; <strong>Events Revenue</strong>: Default {pct(DEFAULT_REV_SHARE_EVENTS)} of room revenue (editable per property)</li>
                   <li>&#8226; <strong>F&B Revenue</strong>: Default {pct(DEFAULT_REV_SHARE_FB)} of room revenue (editable per property)</li>
@@ -1189,7 +1190,7 @@ export default function Methodology() {
                 <p className="text-xs mt-2">Configure these in Property Assumptions under "Revenue Mix".</p>
               </Callout>
 
-              <Callout severity="success" title="Catering Boost (Configurable)">
+              <Callout severity="success" variant="light" title="Catering Boost (Configurable)">
                 <ul className="space-y-2">
                   <li>&#8226; <strong>Catering Boost %</strong>: Default {pct(DEFAULT_CATERING_BOOST_PCT)} (editable per property)</li>
                   <li>&#8226; Represents the blended uplift from all catered events</li>

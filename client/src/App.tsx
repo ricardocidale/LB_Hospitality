@@ -25,6 +25,7 @@ import Scenarios from "@/pages/Scenarios";
 import PropertyFinder from "@/pages/PropertyFinder";
 import SensitivityAnalysis from "@/pages/SensitivityAnalysis";
 import FinancingAnalysis from "@/pages/FinancingAnalysis";
+import CheckerManual from "@/pages/CheckerManual";
 
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
   const { user, isLoading } = useAuth();
@@ -140,6 +141,9 @@ function Router() {
       </Route>
       <Route path="/financing">
         <ProtectedRoute component={FinancingAnalysis} />
+      </Route>
+      <Route path="/checker-manual">
+        <ProtectedRoute component={CheckerManual} />
       </Route>
       <Route component={NotFound} />
     </Switch>

@@ -4,12 +4,13 @@ import Layout from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, User, Eye, EyeOff, Key } from "lucide-react";
+import { Loader2, User, Eye, EyeOff, Key, ClipboardCheck } from "lucide-react";
 import { SaveButton } from "@/components/ui/save-button";
 import { PageHeader } from "@/components/ui/page-header";
 import { GlassButton } from "@/components/ui/glass-button";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth";
+import { Link } from "wouter";
 
 export default function Profile() {
   const { toast } = useToast();
@@ -140,6 +141,30 @@ export default function Profile() {
             />
           }
         />
+
+        {(user.role === "admin" || user.email === "checker") && (
+          <Card className="bg-gradient-to-br from-[#1a2e3d]/95 via-[#243d4d]/95 to-[#1e3a42]/95 backdrop-blur-xl border border-white/20 shadow-xl">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-[#9FBCA4]/20 flex items-center justify-center">
+                    <ClipboardCheck className="w-5 h-5 text-[#9FBCA4]" />
+                  </div>
+                  <div>
+                    <p className="text-white font-semibold">Verification & Testing Manual</p>
+                    <p className="text-white/60 text-sm">Complete guide for financial verification and QA testing</p>
+                  </div>
+                </div>
+                <Link href="/checker-manual">
+                  <GlassButton variant="primary" data-testid="button-checker-manual">
+                    <ClipboardCheck className="w-4 h-4" />
+                    Open Manual
+                  </GlassButton>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-lg">
           <CardContent className="p-6 space-y-6">

@@ -2173,6 +2173,17 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
+  /** Log checker manual activity (view, export). */
+  app.post("/api/activity-logs/manual-view", requireAuth, async (req, res) => {
+    try {
+      const { action } = req.body;
+      logActivity(req, action || "view", "checker_manual");
+      res.json({ ok: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to log activity" });
+    }
+  });
+
   // --- VERIFICATION HISTORY ENDPOINTS ---
 
   /** Admin: list recent verification runs (summary, no full results). */

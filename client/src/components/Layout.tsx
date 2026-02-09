@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Building2, Briefcase, Settings2, Menu, X, FileText, Shield, LogOut, UserCircle, FolderOpen, SearchCheck, BarChart3, Calculator } from "lucide-react";
+import { LayoutDashboard, Building2, Briefcase, Settings2, Menu, X, FileText, Shield, LogOut, UserCircle, FolderOpen, SearchCheck, BarChart3, Calculator, ClipboardCheck } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
@@ -30,6 +30,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { href: "/profile", label: "My Profile", icon: UserCircle },
     { href: "/scenarios", label: "My Scenarios", icon: FolderOpen },
     { type: "divider" as const },
+    ...(isAdmin || user?.email === "checker" ? [
+      { href: "/checker-manual", label: "Checker Manual", icon: ClipboardCheck },
+    ] : []),
     ...(isAdmin ? [
       { href: "/admin", label: "Administration", icon: Shield },
     ] : []),

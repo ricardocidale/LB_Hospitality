@@ -125,7 +125,7 @@ export function calculateLoanParams(
   
   // Depreciable basis: land doesn't depreciate (IRS Publication 946 / ASC 360)
   const landPct = property.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT;
-  const buildingValue = property.purchasePrice * (1 - landPct) + property.buildingImprovements;
+  const buildingValue = property.purchasePrice * (1 - landPct) + (property.buildingImprovements ?? 0);
   const annualDepreciation = buildingValue / DEPRECIATION_YEARS;
   
   const monthlyRate = interestRate / 12;

@@ -2173,11 +2173,18 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
-  /** Log checker manual activity (view, export). */
+  /** Log checker manual activity (view, export) with rich audit metadata. */
   app.post("/api/activity-logs/manual-view", requireAuth, async (req, res) => {
     try {
-      const { action } = req.body;
-      logActivity(req, action || "view", "checker_manual");
+      const { action, metadata } = req.body;
+      const validActions = ["view", "export-manual-pdf", "full-data-export", "expand-section"];
+      const sanitizedAction = validActions.includes(action) ? action : "view";
+      const auditMeta: Record<string, unknown> = {
+        userRole: req.user?.role || "unknown",
+        timestamp: new Date().toISOString(),
+        ...(metadata || {}),
+      };
+      logActivity(req, sanitizedAction, "checker_manual", undefined, undefined, auditMeta);
       res.json({ ok: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to log activity" });

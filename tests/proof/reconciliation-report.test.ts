@@ -73,6 +73,7 @@ interface ReconciliationReport {
     noi: number;
     less_debt_service: number;
     less_income_tax: number;
+    plus_refi_proceeds: number;
     fcf: number;
     check_passed: boolean;
   };
@@ -80,7 +81,6 @@ interface ReconciliationReport {
     beginning_cash: number;
     plus_operating_cf: number;
     plus_financing_cf: number;
-    plus_refi_proceeds: number;
     ending_cash: number;
     check_passed: boolean;
   };
@@ -129,17 +129,17 @@ function generateReport(
     noi: totalNOI,
     less_debt_service: totalDebtService,
     less_income_tax: totalTax,
+    plus_refi_proceeds: totalRefi,
     fcf: totalCF,
-    check_passed: Math.abs(totalNOI - totalDebtService - totalTax - totalCF) < 1,
+    check_passed: Math.abs(totalNOI - totalDebtService - totalTax + totalRefi - totalCF) < 1,
   };
 
   const cashBridge = {
     beginning_cash: 0,
     plus_operating_cf: totalOCF,
     plus_financing_cf: totalFCF,
-    plus_refi_proceeds: totalRefi,
     ending_cash: lastMonth.endingCash,
-    check_passed: Math.abs(totalOCF + totalFCF + totalRefi - lastMonth.endingCash) < 1,
+    check_passed: Math.abs(totalOCF + totalFCF - lastMonth.endingCash) < 1,
   };
 
   const debtRecon = {
@@ -213,15 +213,15 @@ Generated: ${report.timestamp}
 | NOI | ${fmt(report.noi_to_fcf_bridge.noi)} |
 | Less: Debt Service | ${fmt(report.noi_to_fcf_bridge.less_debt_service)} |
 | Less: Income Tax | ${fmt(report.noi_to_fcf_bridge.less_income_tax)} |
+| Plus: Refi Proceeds | ${fmt(report.noi_to_fcf_bridge.plus_refi_proceeds)} |
 | **Free Cash Flow** | ${fmt(report.noi_to_fcf_bridge.fcf)} |
 | Check | ${pass(report.noi_to_fcf_bridge.check_passed)} |
-## Begin Cash → End Cash Bridge
+## Begin Cash → End Cash Bridge (Financing CF includes refi proceeds)
 | Item | Amount |
 |------|--------|
 | Beginning Cash | ${fmt(report.cash_bridge.beginning_cash)} |
 | + Operating CF | ${fmt(report.cash_bridge.plus_operating_cf)} |
 | + Financing CF | ${fmt(report.cash_bridge.plus_financing_cf)} |
-| + Refi Proceeds | ${fmt(report.cash_bridge.plus_refi_proceeds)} |
 | **Ending Cash** | ${fmt(report.cash_bridge.ending_cash)} |
 | Check | ${pass(report.cash_bridge.check_passed)} |
 ## Debt Schedule Reconciliation
@@ -295,6 +295,7 @@ describe("Reconciliation Report Generator", () => {
 
       expect(report.sources_and_uses.balanced).toBe(true);
       expect(report.noi_to_fcf_bridge.check_passed).toBe(true);
+      expect(report.cash_bridge.check_passed).toBe(true);
       expect(report.financial_identities.opinion).toBe("UNQUALIFIED");
     });
   }

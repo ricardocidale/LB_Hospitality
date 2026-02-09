@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync } from "fs";
+import { readFileSync, readdirSync, existsSync } from "fs";
 import { join } from "path";
 import Anthropic from "@anthropic-ai/sdk";
 import { executeComputationTool, isComputationTool } from "../calc/dispatch.js";
@@ -53,79 +53,31 @@ const SKILL_FOLDER_MAP: Record<string, string | string[]> = {
   global: "global-research",
 };
 
-function loadSkill(type: string): string {
-  const mapping = SKILL_FOLDER_MAP[type];
-  if (!mapping) {
-    throw new Error(`Unknown research type: ${type}. Must be 'property', 'company', or 'global'.`);
-  }
+type ToolPromptBuilder = (input: Record<string, any>) => string;
 
-  if (Array.isArray(mapping)) {
-    return mapping
-      .map((folder) => {
-        const skillPath = join(RESEARCH_SKILLS_DIR, folder, "SKILL.md");
-        return readFileSync(skillPath, "utf-8");
-      })
-      .join("\n\n---\n\n");
-  }
+const TOOL_PROMPTS: Record<string, ToolPromptBuilder> = {
+  analyze_market: (input) =>
+    `Provide market overview analysis for ${input.location} (${input.market_region}). Property type: ${input.property_type}, ${input.room_count} rooms. Include tourism volume, hotel supply metrics, demand trends, RevPAR data, and market positioning for comparable properties in this specific location. Use your knowledge of this market to provide specific, data-backed metrics with industry sources.`,
 
-  const skillPath = join(RESEARCH_SKILLS_DIR, mapping, "SKILL.md");
-  return readFileSync(skillPath, "utf-8");
-}
+  analyze_adr: (input) =>
+    `Provide ADR analysis for ${input.location}. Current/target ADR: $${input.current_adr}, ${input.room_count} rooms, ${input.property_level} positioning. Has F&B: ${input.has_fb ?? "unknown"}, Events: ${input.has_events ?? "unknown"}, Wellness: ${input.has_wellness ?? "unknown"}. Include market average ADR, comparable property ADR range, at least 4 comparable property ADRs, and a recommended ADR range with rationale.`,
 
-function loadToolDefinitions(): Anthropic.Tool[] {
-  const tools: Anthropic.Tool[] = [];
+  analyze_occupancy: (input) => {
+    const targetOcc = typeof input.target_occupancy === "number" ? (input.target_occupancy * 100).toFixed(0) : "70";
+    return `Provide occupancy analysis for ${input.location}. ${input.room_count || 20} rooms, target ${targetOcc}% stabilized occupancy, ${input.property_level || "luxury"} positioning. Include market average occupancy, seasonal patterns (4 seasons with rates and notes), and expected ramp-up timeline.`;
+  },
 
-  function scanDir(dir: string) {
-    try {
-      const entries = readdirSync(dir, { withFileTypes: true });
-      for (const entry of entries) {
-        const fullPath = join(dir, entry.name);
-        if (entry.isDirectory()) {
-          scanDir(fullPath);
-        } else if (entry.name.endsWith(".json")) {
-          const content = JSON.parse(readFileSync(fullPath, "utf-8"));
-          tools.push({
-            name: content.name,
-            description: content.description,
-            input_schema: content.input_schema,
-          });
-        }
-      }
-    } catch {
-      // Directory doesn't exist, skip
-    }
-  }
+  analyze_event_demand: (input) =>
+    `Provide event demand analysis for ${input.location}. ${input.event_locations || 2} event spaces, max capacity ${input.max_event_capacity || 150} guests. Wellness: ${input.has_wellness ?? true}, F&B: ${input.has_fb ?? true}, Privacy: ${input.privacy_level || "high"}, Acreage: ${input.acreage || 5}. Include corporate event demand, wellness retreat potential, wedding/private event demand, estimated event revenue share, and key demand drivers.`,
 
-  for (const folder of PROPERTY_RESEARCH_SKILLS) {
-    scanDir(join(RESEARCH_SKILLS_DIR, folder, "tools"));
-  }
+  analyze_cap_rates: (input) =>
+    `Provide cap rate analysis for ${input.location} (${input.market_region}). ${input.property_level} hospitality property, ${input.room_count} rooms${input.purchase_price ? `, purchase price $${input.purchase_price.toLocaleString()}` : ""}. Include market cap rate range, comparable property range, at least 3 comparable transactions with cap rates and sale years, and a recommended acquisition/exit cap rate range.`,
 
-  const globalToolsDir = join(process.cwd(), ".claude", "tools");
-  scanDir(globalToolsDir);
+  analyze_competitive_set: (input) =>
+    `Provide competitive set analysis for ${input.location}. Subject: ${input.room_count} rooms at $${input.current_adr} ADR, ${input.property_level} positioning. Has events: ${input.has_events ?? true}, wellness: ${input.has_wellness ?? true}, F&B: ${input.has_fb ?? true}. Identify 4-6 comparable properties with room counts, ADRs, and positioning descriptions.`,
 
-  return tools;
-}
-
-function handleToolCall(name: string, input: Record<string, any>): string {
-  // Each handler returns a context string that guides Claude to synthesize analysis
-  // based on the provided parameters
-  switch (name) {
-    case "analyze_market":
-      return `Provide market overview analysis for ${input.location} (${input.market_region}). Property type: ${input.property_type}, ${input.room_count} rooms. Include tourism volume, hotel supply metrics, demand trends, RevPAR data, and market positioning for comparable properties in this specific location. Use your knowledge of this market to provide specific, data-backed metrics with industry sources.`;
-    case "analyze_adr":
-      return `Provide ADR analysis for ${input.location}. Current/target ADR: $${input.current_adr}, ${input.room_count} rooms, ${input.property_level} positioning. Has F&B: ${input.has_fb ?? "unknown"}, Events: ${input.has_events ?? "unknown"}, Wellness: ${input.has_wellness ?? "unknown"}. Include market average ADR, comparable property ADR range, at least 4 comparable property ADRs, and a recommended ADR range with rationale.`;
-    case "analyze_occupancy": {
-      const targetOcc = typeof input.target_occupancy === "number" ? (input.target_occupancy * 100).toFixed(0) : "70";
-      return `Provide occupancy analysis for ${input.location}. ${input.room_count || 20} rooms, target ${targetOcc}% stabilized occupancy, ${input.property_level || "luxury"} positioning. Include market average occupancy, seasonal patterns (4 seasons with rates and notes), and expected ramp-up timeline.`;
-    }
-    case "analyze_event_demand":
-      return `Provide event demand analysis for ${input.location}. ${input.event_locations || 2} event spaces, max capacity ${input.max_event_capacity || 150} guests. Wellness: ${input.has_wellness ?? true}, F&B: ${input.has_fb ?? true}, Privacy: ${input.privacy_level || "high"}, Acreage: ${input.acreage || 5}. Include corporate event demand, wellness retreat potential, wedding/private event demand, estimated event revenue share, and key demand drivers.`;
-    case "analyze_cap_rates":
-      return `Provide cap rate analysis for ${input.location} (${input.market_region}). ${input.property_level} hospitality property, ${input.room_count} rooms${input.purchase_price ? `, purchase price $${input.purchase_price.toLocaleString()}` : ""}. Include market cap rate range, comparable property range, at least 3 comparable transactions with cap rates and sale years, and a recommended acquisition/exit cap rate range.`;
-    case "analyze_competitive_set":
-      return `Provide competitive set analysis for ${input.location}. Subject: ${input.room_count} rooms at $${input.current_adr} ADR, ${input.property_level} positioning. Has events: ${input.has_events ?? true}, wellness: ${input.has_wellness ?? true}, F&B: ${input.has_fb ?? true}. Identify 4-6 comparable properties with room counts, ADRs, and positioning descriptions.`;
-    case "analyze_catering":
-      return `Analyze the catering and F&B revenue uplift for a ${input.property_level || "luxury"} hospitality property in ${input.location}. ${input.room_count || 20} rooms, F&B: ${input.has_fb ?? true}, events: ${input.has_events ?? true}, ${input.event_locations || 2} event spaces, max capacity ${input.max_event_capacity || 150} guests, market: ${input.market_region || "North America"}.
+  analyze_catering: (input) =>
+    `Analyze the catering and F&B revenue uplift for a ${input.property_level || "luxury"} hospitality property in ${input.location}. ${input.room_count || 20} rooms, F&B: ${input.has_fb ?? true}, events: ${input.has_events ?? true}, ${input.event_locations || 2} event spaces, max capacity ${input.max_event_capacity || 150} guests, market: ${input.market_region || "North America"}.
 
 IMPORTANT CONTEXT: In our financial model, all revenue categories are expressed as percentages of ROOM REVENUE, not total revenue. The formula is:
 - Base F&B Revenue = Room Revenue × F&B Revenue Share (e.g., 22%)
@@ -142,14 +94,111 @@ Determine the recommended catering boost percentage based on:
 - Seasonal variation in catered vs. non-catered events
 - Property-specific capabilities (kitchen capacity, event spaces, staff)
 
-Provide a recommended catering boost percentage (typically 15%–50%), market range, rationale, event mix breakdown, and key factors specific to this property's market.`;
-    case "analyze_land_value":
-      return `Provide land value allocation analysis for ${input.location} (${input.market_region}). Property type: ${input.property_type}, ${input.acreage || 10}+ acres, ${input.room_count || 20} rooms, purchase price: $${(input.purchase_price || 0).toLocaleString()}, building improvements: $${(input.building_improvements || 0).toLocaleString()}, setting: ${input.setting || "rural estate"}. Determine the appropriate percentage of the purchase price attributable to land vs. building/improvements for IRS depreciation purposes. Consider: local land values per acre, ratio of land to total property value in this market, whether the property is in a high-land-value area (urban/resort) vs. lower-value rural setting, comparable hotel land allocations, and county tax assessor land-to-improvement ratios. Provide a recommended land value percentage, market range, assessment methodology, rationale, and key factors.`;
-    default: {
-      const result = executeComputationTool(name, input);
-      return result ?? `Unknown tool: ${name}. Please proceed with your analysis.`;
+Provide a recommended catering boost percentage (typically 15%–50%), market range, rationale, event mix breakdown, and key factors specific to this property's market.`,
+
+  analyze_land_value: (input) =>
+    `Provide land value allocation analysis for ${input.location} (${input.market_region}). Property type: ${input.property_type}, ${input.acreage || 10}+ acres, ${input.room_count || 20} rooms, purchase price: $${(input.purchase_price || 0).toLocaleString()}, building improvements: $${(input.building_improvements || 0).toLocaleString()}, setting: ${input.setting || "rural estate"}. Determine the appropriate percentage of the purchase price attributable to land vs. building/improvements for IRS depreciation purposes. Consider: local land values per acre, ratio of land to total property value in this market, whether the property is in a high-land-value area (urban/resort) vs. lower-value rural setting, comparable hotel land allocations, and county tax assessor land-to-improvement ratios. Provide a recommended land value percentage, market range, assessment methodology, rationale, and key factors.`,
+};
+
+const isDev = process.env.NODE_ENV === "development";
+const skillCache = new Map<string, string>();
+let toolCache: Anthropic.Tool[] | null = null;
+
+function loadSkill(type: string): string {
+  if (!isDev) {
+    const cached = skillCache.get(type);
+    if (cached) return cached;
+  }
+
+  const mapping = SKILL_FOLDER_MAP[type];
+  if (!mapping) {
+    throw new Error(`Unknown research type: ${type}. Must be 'property', 'company', or 'global'.`);
+  }
+
+  let content: string;
+  if (Array.isArray(mapping)) {
+    content = mapping
+      .map((folder) => {
+        const skillPath = join(RESEARCH_SKILLS_DIR, folder, "SKILL.md");
+        return readFileSync(skillPath, "utf-8");
+      })
+      .join("\n\n---\n\n");
+  } else {
+    const skillPath = join(RESEARCH_SKILLS_DIR, mapping, "SKILL.md");
+    content = readFileSync(skillPath, "utf-8");
+  }
+
+  skillCache.set(type, content);
+  return content;
+}
+
+function loadToolDefinitions(): Anthropic.Tool[] {
+  if (!isDev && toolCache) return toolCache;
+
+  const tools: Anthropic.Tool[] = [];
+  const seen = new Set<string>();
+
+  function scanDir(dir: string) {
+    try {
+      const entries = readdirSync(dir, { withFileTypes: true });
+      for (const entry of entries) {
+        const fullPath = join(dir, entry.name);
+        if (entry.isDirectory()) {
+          scanDir(fullPath);
+        } else if (entry.name.endsWith(".json")) {
+          const content = JSON.parse(readFileSync(fullPath, "utf-8"));
+          if (seen.has(content.name)) {
+            console.warn(`Duplicate tool definition skipped: ${content.name} in ${fullPath}`);
+            continue;
+          }
+          seen.add(content.name);
+          tools.push({
+            name: content.name,
+            description: content.description,
+            input_schema: content.input_schema,
+          });
+        }
+      }
+    } catch {
     }
   }
+
+  for (const folder of PROPERTY_RESEARCH_SKILLS) {
+    scanDir(join(RESEARCH_SKILLS_DIR, folder, "tools"));
+  }
+
+  const globalToolsDir = join(process.cwd(), ".claude", "tools");
+  scanDir(globalToolsDir);
+
+  toolCache = tools;
+  return tools;
+}
+
+function validateSkillFolders(): void {
+  const allFolders = [...PROPERTY_RESEARCH_SKILLS, "company-research", "global-research"];
+  const missing: string[] = [];
+
+  for (const folder of allFolders) {
+    const skillPath = join(RESEARCH_SKILLS_DIR, folder, "SKILL.md");
+    if (!existsSync(skillPath)) {
+      missing.push(folder);
+    }
+  }
+
+  if (missing.length > 0) {
+    console.error(`Missing research skill folders: ${missing.join(", ")}`);
+  }
+}
+
+validateSkillFolders();
+
+function handleToolCall(name: string, input: Record<string, any>): string {
+  const promptBuilder = TOOL_PROMPTS[name];
+  if (promptBuilder) {
+    return promptBuilder(input);
+  }
+  const result = executeComputationTool(name, input);
+  return result ?? `Unknown tool: ${name}. Please proceed with your analysis.`;
 }
 
 // Build user prompt based on research type and context

@@ -1,3 +1,5 @@
+import { roundCents, CENTS_TOLERANCE } from "../shared/utils.js";
+
 export interface ScheduleEntry {
   month: number;
   expected_interest: number;
@@ -38,8 +40,21 @@ export interface ScheduleReconcileOutput {
   cumulative_interest_variance: number;
 }
 
+function pushIfExceedsTol(
+  variances: ScheduleVariance[], monthsWithVar: Set<number>,
+  month: number, field: ScheduleVariance["field"],
+  expected: number, actual: number, tol: number,
+): number {
+  const v = Math.abs(expected - actual);
+  if (v > tol) {
+    monthsWithVar.add(month);
+    variances.push({ month, field, expected, actual, variance: roundCents(v) });
+  }
+  return v;
+}
+
 export function reconcileSchedule(input: ScheduleReconcileInput): ScheduleReconcileOutput {
-  const tol = input.tolerance ?? 0.01;
+  const tol = input.tolerance ?? CENTS_TOLERANCE;
   const variances: ScheduleVariance[] = [];
   let maxBalanceDrift = 0;
   let cumulativeInterestVar = 0;
@@ -57,61 +72,17 @@ export function reconcileSchedule(input: ScheduleReconcileInput): ScheduleReconc
     if (!eng) continue;
     totalChecked++;
 
-    // Interest
-    const intVar = Math.abs(sched.expected_interest - eng.actual_interest);
     cumulativeInterestVar += sched.expected_interest - eng.actual_interest;
-    if (intVar > tol) {
-      monthsWithVar.add(sched.month);
-      variances.push({
-        month: sched.month,
-        field: "interest",
-        expected: sched.expected_interest,
-        actual: eng.actual_interest,
-        variance: Math.round(intVar * 100) / 100,
-      });
-    }
+    pushIfExceedsTol(variances, monthsWithVar, sched.month, "interest", sched.expected_interest, eng.actual_interest, tol);
+    pushIfExceedsTol(variances, monthsWithVar, sched.month, "principal", sched.expected_principal, eng.actual_principal, tol);
 
-    // Principal
-    const prinVar = Math.abs(sched.expected_principal - eng.actual_principal);
-    if (prinVar > tol) {
-      monthsWithVar.add(sched.month);
-      variances.push({
-        month: sched.month,
-        field: "principal",
-        expected: sched.expected_principal,
-        actual: eng.actual_principal,
-        variance: Math.round(prinVar * 100) / 100,
-      });
-    }
-
-    // Payment
     if (sched.expected_payment !== undefined && eng.actual_payment !== undefined) {
-      const payVar = Math.abs(sched.expected_payment - eng.actual_payment);
-      if (payVar > tol) {
-        monthsWithVar.add(sched.month);
-        variances.push({
-          month: sched.month,
-          field: "payment",
-          expected: sched.expected_payment,
-          actual: eng.actual_payment,
-          variance: Math.round(payVar * 100) / 100,
-        });
-      }
+      pushIfExceedsTol(variances, monthsWithVar, sched.month, "payment", sched.expected_payment, eng.actual_payment, tol);
     }
 
-    // Ending Balance
     const balVar = Math.abs(sched.expected_ending_balance - eng.actual_ending_balance);
     if (balVar > maxBalanceDrift) maxBalanceDrift = balVar;
-    if (balVar > tol) {
-      monthsWithVar.add(sched.month);
-      variances.push({
-        month: sched.month,
-        field: "ending_balance",
-        expected: sched.expected_ending_balance,
-        actual: eng.actual_ending_balance,
-        variance: Math.round(balVar * 100) / 100,
-      });
-    }
+    pushIfExceedsTol(variances, monthsWithVar, sched.month, "ending_balance", sched.expected_ending_balance, eng.actual_ending_balance, tol);
   }
 
   return {
@@ -119,7 +90,7 @@ export function reconcileSchedule(input: ScheduleReconcileInput): ScheduleReconc
     total_months_checked: totalChecked,
     months_with_variances: monthsWithVar.size,
     variances,
-    max_balance_drift: Math.round(maxBalanceDrift * 100) / 100,
-    cumulative_interest_variance: Math.round(cumulativeInterestVar * 100) / 100,
+    max_balance_drift: roundCents(maxBalanceDrift),
+    cumulative_interest_variance: roundCents(cumulativeInterestVar),
   };
 }

@@ -1,4 +1,5 @@
 import type { RoundingPolicy } from "../../domain/types/rounding.js";
+import { rounder, RATIO_ROUNDING } from "../shared/utils.js";
 import { roundTo } from "../../domain/types/rounding.js";
 
 export interface EquityMultipleInput {
@@ -17,7 +18,7 @@ export interface EquityMultipleOutput {
 }
 
 export function computeEquityMultiple(input: EquityMultipleInput): EquityMultipleOutput {
-  const r = (v: number) => roundTo(v, input.rounding_policy);
+  const r = rounder(input.rounding_policy);
 
   const total_invested = r(
     Math.abs(input.cash_flows.filter(cf => cf < 0).reduce((sum, cf) => sum + cf, 0))
@@ -30,19 +31,12 @@ export function computeEquityMultiple(input: EquityMultipleInput): EquityMultipl
   const net_profit = r(total_returned - total_invested);
 
   const equity_multiple = total_invested > 0
-    ? roundTo(total_returned / total_invested, { precision: 4, bankers_rounding: false })
+    ? roundTo(total_returned / total_invested, RATIO_ROUNDING)
     : 0;
 
   const profit_margin = total_invested > 0
-    ? roundTo(net_profit / total_invested, { precision: 4, bankers_rounding: false })
+    ? roundTo(net_profit / total_invested, RATIO_ROUNDING)
     : 0;
 
-  return {
-    equity_multiple,
-    total_invested,
-    total_returned,
-    net_profit,
-    profit_margin,
-    label: input.label ?? "",
-  };
+  return { equity_multiple, total_invested, total_returned, net_profit, profit_margin, label: input.label ?? "" };
 }

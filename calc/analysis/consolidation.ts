@@ -1,5 +1,5 @@
 import type { RoundingPolicy } from "../../domain/types/rounding.js";
-import { roundTo } from "../../domain/types/rounding.js";
+import { rounder, sumField, withinTolerance, variance, DEFAULT_TOLERANCE } from "../shared/utils.js";
 
 export interface PropertyStatement {
   name: string;
@@ -58,17 +58,17 @@ export interface ConsolidationOutput {
 }
 
 export function consolidateStatements(input: ConsolidationInput): ConsolidationOutput {
-  const r = (v: number) => roundTo(v, input.rounding_policy);
+  const r = rounder(input.rounding_policy);
   const props = input.property_statements;
 
-  const propRevenue = r(props.reduce((s, p) => s + p.revenue, 0));
-  const propExpenses = r(props.reduce((s, p) => s + (p.operating_expenses ?? 0), 0));
-  const propNOI = r(props.reduce((s, p) => s + p.noi, 0));
-  const propNetIncome = r(props.reduce((s, p) => s + p.net_income, 0));
-  const propAssets = r(props.reduce((s, p) => s + (p.total_assets ?? 0), 0));
-  const propLiabilities = r(props.reduce((s, p) => s + (p.total_liabilities ?? 0), 0));
-  const propEquity = r(props.reduce((s, p) => s + (p.total_equity ?? 0), 0));
-  const totalMgmtFeesPaid = r(props.reduce((s, p) => s + (p.management_fees ?? 0), 0));
+  const propRevenue = r(sumField(props, p => p.revenue));
+  const propExpenses = r(sumField(props, p => p.operating_expenses ?? 0));
+  const propNOI = r(sumField(props, p => p.noi));
+  const propNetIncome = r(sumField(props, p => p.net_income));
+  const propAssets = r(sumField(props, p => p.total_assets ?? 0));
+  const propLiabilities = r(sumField(props, p => p.total_liabilities ?? 0));
+  const propEquity = r(sumField(props, p => p.total_equity ?? 0));
+  const totalMgmtFeesPaid = r(sumField(props, p => p.management_fees ?? 0));
 
   let consolidated_revenue = propRevenue;
   let consolidated_expenses = propExpenses;
@@ -92,28 +92,19 @@ export function consolidateStatements(input: ConsolidationInput): ConsolidationO
     consolidated_equity = r(consolidated_equity + (mc.total_equity ?? 0));
 
     feeEliminated = r(Math.min(totalMgmtFeesPaid, mc.fee_revenue));
-    feeVariance = r(Math.abs(totalMgmtFeesPaid - mc.fee_revenue));
-    feeLinkageBalanced = feeVariance <= 1.0;
+    feeVariance = r(variance(totalMgmtFeesPaid, mc.fee_revenue));
+    feeLinkageBalanced = withinTolerance(totalMgmtFeesPaid, mc.fee_revenue, DEFAULT_TOLERANCE);
 
     consolidated_revenue = r(consolidated_revenue - feeEliminated);
     consolidated_expenses = r(consolidated_expenses - feeEliminated);
   }
 
-  const bsBalanced = Math.abs(consolidated_assets - (consolidated_liabilities + consolidated_equity)) <= 1.0;
+  const bsBalanced = withinTolerance(consolidated_assets, consolidated_liabilities + consolidated_equity, DEFAULT_TOLERANCE);
 
   return {
-    consolidated_revenue,
-    consolidated_expenses,
-    consolidated_noi,
-    consolidated_net_income,
-    intercompany_eliminations: {
-      management_fees_eliminated: feeEliminated,
-      fee_linkage_balanced: feeLinkageBalanced,
-      variance: feeVariance,
-    },
-    consolidated_assets,
-    consolidated_liabilities,
-    consolidated_equity,
+    consolidated_revenue, consolidated_expenses, consolidated_noi, consolidated_net_income,
+    intercompany_eliminations: { management_fees_eliminated: feeEliminated, fee_linkage_balanced: feeLinkageBalanced, variance: feeVariance },
+    consolidated_assets, consolidated_liabilities, consolidated_equity,
     balance_sheet_balanced: bsBalanced,
     property_count: props.length,
   };

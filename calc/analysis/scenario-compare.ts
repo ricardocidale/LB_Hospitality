@@ -1,3 +1,5 @@
+import { roundCents, sumArray, pctChange } from "../shared/utils.js";
+
 export interface ScenarioMetrics {
   total_revenue?: number[];
   noi: number[];
@@ -54,8 +56,7 @@ export function compareScenarios(input: ScenarioCompareInput): ScenarioCompareOu
   const b = input.baseline_metrics;
   const a = input.alternative_metrics;
 
-  const irr_delta_raw = a.irr - b.irr;
-  const irr_delta = Math.round(irr_delta_raw * 10000);
+  const irr_delta = Math.round((a.irr - b.irr) * 10000);
 
   let irr_direction: "improved" | "worsened" | "unchanged";
   if (Math.abs(irr_delta) < 1) irr_direction = "unchanged";
@@ -65,12 +66,10 @@ export function compareScenarios(input: ScenarioCompareInput): ScenarioCompareOu
   const equity_multiple_delta = (a.equity_multiple ?? 0) - (b.equity_multiple ?? 0);
   const exit_value_delta = (a.exit_value ?? 0) - (b.exit_value ?? 0);
 
-  const baseNOI = b.noi.reduce((s, v) => s + v, 0);
-  const altNOI = a.noi.reduce((s, v) => s + v, 0);
-  const cumulative_noi_delta = Math.round((altNOI - baseNOI) * 100) / 100;
-  const cumulative_noi_pct_change = baseNOI !== 0
-    ? Math.round(((altNOI - baseNOI) / baseNOI) * 10000) / 100
-    : 0;
+  const baseNOI = sumArray(b.noi);
+  const altNOI = sumArray(a.noi);
+  const cumulative_noi_delta = roundCents(altNOI - baseNOI);
+  const cumulative_noi_pct_change = pctChange(baseNOI, altNOI);
 
   const years = Math.max(b.noi.length, a.noi.length);
   const yearly_deltas: YearlyDelta[] = [];
@@ -88,44 +87,32 @@ export function compareScenarios(input: ScenarioCompareInput): ScenarioCompareOu
 
     yearly_deltas.push({
       year: y + 1,
-      revenue_delta: Math.round((aRev - bRev) * 100) / 100,
-      noi_delta: Math.round((aNOI - bNOI) * 100) / 100,
-      net_income_delta: Math.round((aNI - bNI) * 100) / 100,
-      cash_delta: Math.round((aCash - bCash) * 100) / 100,
+      revenue_delta: roundCents(aRev - bRev),
+      noi_delta: roundCents(aNOI - bNOI),
+      net_income_delta: roundCents(aNI - bNI),
+      cash_delta: roundCents(aCash - bCash),
     });
 
-    if (aCash < 0 && bCash >= 0) {
-      risk_flags.push(`Alternative scenario produces negative cash in Year ${y + 1}`);
-    }
-    if (aNOI < 0 && bNOI >= 0) {
-      risk_flags.push(`Alternative scenario produces negative NOI in Year ${y + 1}`);
-    }
+    if (aCash < 0 && bCash >= 0) risk_flags.push(`Alternative scenario produces negative cash in Year ${y + 1}`);
+    if (aNOI < 0 && bNOI >= 0) risk_flags.push(`Alternative scenario produces negative NOI in Year ${y + 1}`);
   }
 
-  if (irr_delta < -200) {
-    risk_flags.push(`IRR decreased by ${Math.abs(irr_delta)} bps — significant downside risk`);
-  }
+  if (irr_delta < -200) risk_flags.push(`IRR decreased by ${Math.abs(irr_delta)} bps — significant downside risk`);
 
-  // Simple sensitivity ranking based on assumption changes
   const sensitivity_ranking: SensitivityRanking[] = [];
   if (input.assumption_changes && input.assumption_changes.length > 0) {
     const perAssumptionImpact = Math.abs(irr_delta) / input.assumption_changes.length;
     for (const change of input.assumption_changes) {
-      sensitivity_ranking.push({
-        assumption: change.field,
-        impact_on_irr_bps: Math.round(perAssumptionImpact),
-      });
+      sensitivity_ranking.push({ assumption: change.field, impact_on_irr_bps: Math.round(perAssumptionImpact) });
     }
   }
 
   return {
     summary: {
-      irr_delta,
-      irr_direction,
+      irr_delta, irr_direction,
       equity_multiple_delta: Math.round(equity_multiple_delta * 10000) / 10000,
-      cumulative_noi_delta,
-      cumulative_noi_pct_change,
-      exit_value_delta: Math.round(exit_value_delta * 100) / 100,
+      cumulative_noi_delta, cumulative_noi_pct_change,
+      exit_value_delta: roundCents(exit_value_delta),
     },
     yearly_deltas,
     risk_flags,

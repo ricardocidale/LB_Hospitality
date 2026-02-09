@@ -228,10 +228,7 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/auth/me", async (req, res) => {
-    if (!req.user) {
-      return res.status(401).json({ error: "Not authenticated" });
-    }
+  app.get("/api/auth/me", requireAuth, async (req, res) => {
     res.json({ 
       user: { id: req.user.id, email: req.user.email, name: req.user.name, company: req.user.company, title: req.user.title, role: req.user.role }
     });
@@ -246,10 +243,7 @@ export async function registerRoutes(
     title: z.string().max(100).optional(),
   });
 
-  app.patch("/api/profile", async (req, res) => {
-    if (!req.user) {
-      return res.status(401).json({ error: "Not authenticated" });
-    }
+  app.patch("/api/profile", requireAuth, async (req, res) => {
     try {
       const validation = updateProfileSchema.safeParse(req.body);
       if (!validation.success) {
@@ -289,10 +283,7 @@ export async function registerRoutes(
     newPassword: z.string().min(8).regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, "Password must contain uppercase, lowercase, and number"),
   });
 
-  app.patch("/api/profile/password", async (req, res) => {
-    if (!req.user) {
-      return res.status(401).json({ error: "Not authenticated" });
-    }
+  app.patch("/api/profile/password", requireAuth, async (req, res) => {
     try {
       const validation = changePasswordSchema.safeParse(req.body);
       if (!validation.success) {
@@ -661,6 +652,9 @@ export async function registerRoutes(
   // Run independent financial verification (admin or checker)
   app.get("/api/admin/run-verification", requireChecker, async (req, res) => {
     try {
+      if (isApiRateLimited(req.user!.id, "run-verification", 5)) {
+        return res.status(429).json({ error: "Too many verification requests. Please wait a minute." });
+      }
       const globalAssumptions = await storage.getGlobalAssumptions();
       const properties = await storage.getAllProperties();
 
@@ -714,6 +708,9 @@ export async function registerRoutes(
   // AI-powered methodology review (admin or checker)
   app.post("/api/admin/ai-verification", requireChecker, async (req, res) => {
     try {
+      if (isApiRateLimited(req.user!.id, "ai-verification", 3)) {
+        return res.status(429).json({ error: "Too many AI verification requests. Please wait a minute." });
+      }
       const globalAssumptions = await storage.getGlobalAssumptions();
       const properties = await storage.getAllProperties();
 
@@ -2585,8 +2582,17 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     ltv_max: z.number().min(0).max(1).optional(),
   });
 
+  function calcRateLimit(req: Request, res: Response, endpoint: string): boolean {
+    if (isApiRateLimited(req.user!.id, endpoint, 30)) {
+      res.status(429).json({ error: "Too many calculation requests. Please wait a minute." });
+      return true;
+    }
+    return false;
+  }
+
   app.post("/api/financing/dscr", requireAuth, async (req, res) => {
     try {
+      if (calcRateLimit(req, res, "financing")) return;
       const parsed = dscrSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: fromZodError(parsed.error).message });
       const { computeDSCR } = await import("../calc/financing/dscr-calculator");
@@ -2607,6 +2613,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
 
   app.post("/api/financing/debt-yield", requireAuth, async (req, res) => {
     try {
+      if (calcRateLimit(req, res, "financing")) return;
       const parsed = debtYieldSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: fromZodError(parsed.error).message });
       const { computeDebtYield } = await import("../calc/financing/debt-yield");
@@ -2631,6 +2638,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
 
   app.post("/api/financing/sensitivity", requireAuth, async (req, res) => {
     try {
+      if (calcRateLimit(req, res, "financing")) return;
       const parsed = sensitivitySchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: fromZodError(parsed.error).message });
       const { computeSensitivity } = await import("../calc/financing/sensitivity");
@@ -2654,6 +2662,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
 
   app.post("/api/financing/prepayment", requireAuth, async (req, res) => {
     try {
+      if (calcRateLimit(req, res, "financing")) return;
       const parsed = prepaymentSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: fromZodError(parsed.error).message });
       const { computePrepayment } = await import("../calc/financing/prepayment");
@@ -2668,6 +2677,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
 
   app.post("/api/returns/dcf-npv", requireAuth, (req, res) => {
     try {
+      if (calcRateLimit(req, res, "returns")) return;
       const parsed = calcSchemas.dcfSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: fromZodError(parsed.error).message });
       res.json(computeDCF({ ...parsed.data, rounding_policy: defaultRounding }));
@@ -2678,6 +2688,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
 
   app.post("/api/returns/irr-vector", requireAuth, (req, res) => {
     try {
+      if (calcRateLimit(req, res, "returns")) return;
       const parsed = calcSchemas.irrVectorSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: fromZodError(parsed.error).message });
       res.json(buildIRRVector(parsed.data));
@@ -2688,6 +2699,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
 
   app.post("/api/returns/equity-multiple", requireAuth, (req, res) => {
     try {
+      if (calcRateLimit(req, res, "returns")) return;
       const parsed = calcSchemas.equityMultipleSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: fromZodError(parsed.error).message });
       res.json(computeEquityMultiple({ ...parsed.data, rounding_policy: defaultRounding }));
@@ -2698,6 +2710,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
 
   app.post("/api/returns/exit-valuation", requireAuth, (req, res) => {
     try {
+      if (calcRateLimit(req, res, "returns")) return;
       const parsed = calcSchemas.exitValuationSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: fromZodError(parsed.error).message });
       res.json(computeExitValuation({ ...parsed.data, rounding_policy: defaultRounding }));
@@ -2710,6 +2723,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
 
   app.post("/api/validation/financial-identities", requireChecker, (req, res) => {
     try {
+      if (calcRateLimit(req, res, "validation")) return;
       const parsed = calcSchemas.financialIdentitiesSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: fromZodError(parsed.error).message });
       res.json(validateFinancialIdentities({ ...parsed.data, rounding_policy: defaultRounding }));
@@ -2720,6 +2734,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
 
   app.post("/api/validation/funding-gates", requireChecker, (req, res) => {
     try {
+      if (calcRateLimit(req, res, "validation")) return;
       const parsed = calcSchemas.fundingGatesSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: fromZodError(parsed.error).message });
       res.json(checkFundingGates(parsed.data));
@@ -2730,6 +2745,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
 
   app.post("/api/validation/schedule-reconcile", requireChecker, (req, res) => {
     try {
+      if (calcRateLimit(req, res, "validation")) return;
       const parsed = calcSchemas.scheduleReconcileSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: fromZodError(parsed.error).message });
       res.json(reconcileSchedule(parsed.data));
@@ -2740,6 +2756,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
 
   app.post("/api/validation/assumption-consistency", requireChecker, (req, res) => {
     try {
+      if (calcRateLimit(req, res, "validation")) return;
       const parsed = calcSchemas.assumptionConsistencySchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: fromZodError(parsed.error).message });
       res.json(checkAssumptionConsistency(parsed.data));
@@ -2750,6 +2767,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
 
   app.post("/api/validation/export-verification", requireChecker, (req, res) => {
     try {
+      if (calcRateLimit(req, res, "validation")) return;
       const parsed = calcSchemas.exportVerificationSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: fromZodError(parsed.error).message });
       res.json(verifyExport(parsed.data));
@@ -2762,6 +2780,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
 
   app.post("/api/analysis/consolidation", requireChecker, (req, res) => {
     try {
+      if (calcRateLimit(req, res, "analysis")) return;
       const parsed = calcSchemas.consolidationSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: fromZodError(parsed.error).message });
       res.json(consolidateStatements({ ...parsed.data, rounding_policy: defaultRounding }));
@@ -2772,6 +2791,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
 
   app.post("/api/analysis/scenario-compare", requireChecker, (req, res) => {
     try {
+      if (calcRateLimit(req, res, "analysis")) return;
       const parsed = calcSchemas.scenarioCompareSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: fromZodError(parsed.error).message });
       res.json(compareScenarios(parsed.data));
@@ -2782,6 +2802,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
 
   app.post("/api/analysis/break-even", requireChecker, (req, res) => {
     try {
+      if (calcRateLimit(req, res, "analysis")) return;
       const parsed = calcSchemas.breakEvenSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: fromZodError(parsed.error).message });
       res.json(computeBreakEven(parsed.data));

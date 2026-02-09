@@ -13,87 +13,70 @@ import Dashboard from "@/pages/Dashboard";
 import Company from "@/pages/Company";
 import CompanyAssumptions from "@/pages/CompanyAssumptions";
 import Portfolio from "@/pages/Portfolio";
-import PropertyDetail from "@/pages/PropertyDetail";
-import PropertyEdit from "@/pages/PropertyEdit";
 import Settings from "@/pages/Settings";
-import PropertyMarketResearch from "@/pages/PropertyMarketResearch";
-import CompanyResearch from "@/pages/CompanyResearch";
-import GlobalResearch from "@/pages/GlobalResearch";
-import Admin from "@/pages/Admin";
 import Profile from "@/pages/Profile";
-import Scenarios from "@/pages/Scenarios";
-import PropertyFinder from "@/pages/PropertyFinder";
-import SensitivityAnalysis from "@/pages/SensitivityAnalysis";
-import FinancingAnalysis from "@/pages/FinancingAnalysis";
+const PropertyDetail = lazy(() => import("@/pages/PropertyDetail"));
+const PropertyEdit = lazy(() => import("@/pages/PropertyEdit"));
+const PropertyMarketResearch = lazy(() => import("@/pages/PropertyMarketResearch"));
+const CompanyResearch = lazy(() => import("@/pages/CompanyResearch"));
+const GlobalResearch = lazy(() => import("@/pages/GlobalResearch"));
+const Admin = lazy(() => import("@/pages/Admin"));
+const Scenarios = lazy(() => import("@/pages/Scenarios"));
+const PropertyFinder = lazy(() => import("@/pages/PropertyFinder"));
+const SensitivityAnalysis = lazy(() => import("@/pages/SensitivityAnalysis"));
+const FinancingAnalysis = lazy(() => import("@/pages/FinancingAnalysis"));
 const Methodology = lazy(() => import("@/pages/Methodology"));
 const CheckerManual = lazy(() => import("@/pages/CheckerManual"));
+
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center bg-[#FFF9F5]">
+    <Loader2 className="w-8 h-8 animate-spin text-primary" />
+  </div>
+);
 
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
   const { user, isLoading } = useAuth();
   
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#FFF9F5]">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
+    return <PageLoader />;
   }
   
   if (!user) {
     return <Redirect to="/login" />;
   }
   
-  return <Component />;
+  return (
+    <Suspense fallback={<PageLoader />}>
+      <Component />
+    </Suspense>
+  );
 }
 
 function AdminRoute({ component: Component }: { component: React.ComponentType }) {
   const { user, isLoading, isAdmin } = useAuth();
   
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#FFF9F5]">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
-  }
+  if (isLoading) return <PageLoader />;
+  if (!user) return <Redirect to="/login" />;
+  if (!isAdmin) return <Redirect to="/" />;
   
-  if (!user) {
-    return <Redirect to="/login" />;
-  }
-  
-  if (!isAdmin) {
-    return <Redirect to="/" />;
-  }
-  
-  return <Component />;
+  return (
+    <Suspense fallback={<PageLoader />}>
+      <Component />
+    </Suspense>
+  );
 }
 
 function CheckerRoute({ component: Component }: { component: React.ComponentType }) {
   const { user, isLoading, isAdmin } = useAuth();
   
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#FFF9F5]">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-  
-  if (!user) {
-    return <Redirect to="/login" />;
-  }
+  if (isLoading) return <PageLoader />;
+  if (!user) return <Redirect to="/login" />;
   
   const isChecker = isAdmin || user.role === "checker";
-  if (!isChecker) {
-    return <Redirect to="/" />;
-  }
+  if (!isChecker) return <Redirect to="/" />;
   
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-[#FFF9F5]">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    }>
+    <Suspense fallback={<PageLoader />}>
       <Component />
     </Suspense>
   );
@@ -143,13 +126,7 @@ function Router() {
         <ProtectedRoute component={Settings} />
       </Route>
       <Route path="/methodology">
-        <Suspense fallback={
-          <div className="min-h-screen flex items-center justify-center bg-[#FFF9F5]">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
-          </div>
-        }>
-          <ProtectedRoute component={Methodology} />
-        </Suspense>
+        <ProtectedRoute component={Methodology} />
       </Route>
       <Route path="/property/:id/research">
         <ProtectedRoute component={PropertyMarketResearch} />

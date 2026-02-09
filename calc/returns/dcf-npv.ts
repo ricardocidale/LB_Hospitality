@@ -28,7 +28,8 @@ export function computeDCF(input: DCFInput): DCFOutput {
   let npv = 0;
 
   for (let t = 0; t < input.cash_flows.length; t++) {
-    const pv = input.cash_flows[t] / Math.pow(1 + input.discount_rate, t);
+    const divisor = Math.pow(1 + input.discount_rate, t);
+    const pv = divisor !== 0 && isFinite(divisor) ? input.cash_flows[t] / divisor : 0;
     pv_timeline.push(r(pv));
     npv += pv;
   }
@@ -42,7 +43,8 @@ export function computeDCF(input: DCFInput): DCFOutput {
   if (input.irr_cross_check !== undefined) {
     let npvAtIRR = 0;
     for (let t = 0; t < input.cash_flows.length; t++) {
-      npvAtIRR += input.cash_flows[t] / Math.pow(1 + input.irr_cross_check, t);
+      const d = Math.pow(1 + input.irr_cross_check, t);
+      npvAtIRR += d !== 0 && isFinite(d) ? input.cash_flows[t] / d : 0;
     }
     irr_cross_check_passed = Math.abs(npvAtIRR) <= tolerance;
   }

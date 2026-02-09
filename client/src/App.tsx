@@ -109,10 +109,14 @@ function Router() {
         </FinancialErrorBoundary>
       </Route>
       <Route path="/company/assumptions">
-        <ProtectedRoute component={CompanyAssumptions} />
+        <FinancialErrorBoundary>
+          <ProtectedRoute component={CompanyAssumptions} />
+        </FinancialErrorBoundary>
       </Route>
       <Route path="/portfolio">
-        <ProtectedRoute component={Portfolio} />
+        <FinancialErrorBoundary>
+          <ProtectedRoute component={Portfolio} />
+        </FinancialErrorBoundary>
       </Route>
       <Route path="/property/:id">
         <FinancialErrorBoundary>
@@ -120,7 +124,9 @@ function Router() {
         </FinancialErrorBoundary>
       </Route>
       <Route path="/property/:id/edit">
-        <ProtectedRoute component={PropertyEdit} />
+        <FinancialErrorBoundary>
+          <ProtectedRoute component={PropertyEdit} />
+        </FinancialErrorBoundary>
       </Route>
       <Route path="/settings">
         <ProtectedRoute component={Settings} />
@@ -144,7 +150,9 @@ function Router() {
         <ProtectedRoute component={Profile} />
       </Route>
       <Route path="/scenarios">
-        <ProtectedRoute component={Scenarios} />
+        <FinancialErrorBoundary>
+          <ProtectedRoute component={Scenarios} />
+        </FinancialErrorBoundary>
       </Route>
       <Route path="/property-finder">
         <ProtectedRoute component={PropertyFinder} />
@@ -155,7 +163,9 @@ function Router() {
         </FinancialErrorBoundary>
       </Route>
       <Route path="/financing">
-        <ProtectedRoute component={FinancingAnalysis} />
+        <FinancialErrorBoundary>
+          <ProtectedRoute component={FinancingAnalysis} />
+        </FinancialErrorBoundary>
       </Route>
       <Route path="/checker-manual">
         <CheckerRoute component={CheckerManual} />

@@ -613,6 +613,9 @@ export default function Admin() {
     onSuccess: (data) => {
       setDesignResults(data);
     },
+    onError: (error: Error) => {
+      toast({ title: "Design Check Failed", description: error.message, variant: "destructive" });
+    },
   });
 
   // Auto-run verification when entering verification view

@@ -118,7 +118,7 @@ import { FileDown } from "lucide-react";
 - Dashboard, PropertyDetail, PropertyEdit, PropertyMarketResearch
 - Company, CompanyAssumptions, CompanyResearch
 - Admin, AdminUsers, AdminLoginLogs
-- Portfolio, Settings, Profile, Scenarios, Methodology
+- Portfolio, Settings, Profile, Scenarios, User Manual (Methodology.tsx)
 - GlobalResearch, Research, PropertyFinder (light variant)
 
 ## Related Skills

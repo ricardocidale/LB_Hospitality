@@ -48,8 +48,8 @@ F&B Expense = Total F&B Revenue × costRateFB
 ```
 
 **Schema field:** `costRateFB` (per property)
-**Default:** 15% (of F&B revenue)
-**Constant:** `DEFAULT_COST_RATE_FB` in `client/src/lib/constants.ts`
+**Default:** 32% (of F&B revenue) — USALI standard 28-35% for full-service boutique
+**Constant:** `DEFAULT_COST_RATE_FB` in `shared/constants.ts` (re-exported via `client/src/lib/constants.ts`)
 
 ### Total Revenue Composition
 
@@ -111,7 +111,7 @@ Research should provide the event mix that drives the boost:
 - **No catering** (room-only bookings, self-catered gatherings)
 
 ### 6. Cost Rate Independence
-The `costRateFB` (default 15%) applies to **Total F&B Revenue** (after catering boost). It does not change based on the catering boost percentage. The cost rate represents the blended cost-of-goods for all F&B operations.
+The `costRateFB` (default 32%) applies to **Total F&B Revenue** (after catering boost). It does not change based on the catering boost percentage. The cost rate represents the blended cost-of-goods for all F&B operations.
 
 ## Data Flow
 
@@ -135,7 +135,7 @@ cateringBoostPercent: real("catering_boost_percent").notNull().default(0.30)
 ```typescript
 DEFAULT_REV_SHARE_FB = 0.22      // Base F&B as % of room revenue
 DEFAULT_CATERING_BOOST_PCT = 0.30 // Default catering uplift
-DEFAULT_COST_RATE_FB = 0.15       // F&B cost rate
+DEFAULT_COST_RATE_FB = 0.32       // F&B cost rate (USALI: 28-35% for full-service boutique)
 ```
 
 ## Files That Use F&B Logic
@@ -151,7 +151,7 @@ DEFAULT_COST_RATE_FB = 0.15       // F&B cost rate
 | `.claude/tools/analyze-catering.json` | Tool definition for AI |
 | `.claude/skills/research/property-market-research.md` | Research output schema |
 | `client/src/pages/PropertyMarketResearch.tsx` | Displays catering research |
-| `client/src/pages/Methodology.tsx` | Documents F&B methodology |
+| `client/src/pages/Methodology.tsx` | Documents F&B methodology (User Manual page) |
 
 ## Anti-Patterns to Avoid
 

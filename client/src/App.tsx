@@ -15,7 +15,7 @@ import Portfolio from "@/pages/Portfolio";
 import PropertyDetail from "@/pages/PropertyDetail";
 import PropertyEdit from "@/pages/PropertyEdit";
 import Settings from "@/pages/Settings";
-import Methodology from "@/pages/Methodology";
+const Methodology = lazy(() => import("@/pages/Methodology"));
 import PropertyMarketResearch from "@/pages/PropertyMarketResearch";
 import CompanyResearch from "@/pages/CompanyResearch";
 import GlobalResearch from "@/pages/GlobalResearch";
@@ -143,7 +143,13 @@ function Router() {
         <ProtectedRoute component={Settings} />
       </Route>
       <Route path="/methodology">
-        <ProtectedRoute component={Methodology} />
+        <Suspense fallback={
+          <div className="min-h-screen flex items-center justify-center bg-[#FFF9F5]">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          </div>
+        }>
+          <ProtectedRoute component={Methodology} />
+        </Suspense>
       </Route>
       <Route path="/property/:id/research">
         <ProtectedRoute component={PropertyMarketResearch} />

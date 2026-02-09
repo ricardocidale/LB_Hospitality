@@ -279,4 +279,7 @@ All interactive elements must have `data-testid` attributes:
 - **`.claude/skills/exports/SKILL.md`** — Export system methodology, ExportMenu component, format implementations
 - **`.claude/skills/ui/page-header.md`** — PageHeader component reference and variant rules
 - **`.claude/skills/ui/glass-components.md`** — GlassCard, GlassButton, SaveButton component specs
+- **`.claude/skills/ui/section-card.md`** — SectionCard collapsible section (dark/light variants, used by User Manual + Checker Manual)
+- **`.claude/skills/ui/manual-table.md`** — ManualTable data table (dark/light variants, used by User Manual + Checker Manual)
+- **`.claude/skills/ui/callout.md`** — Callout alert box (4 severity levels, used by User Manual + Checker Manual)
 - **`.claude/skills/features/property-image-picker.md`** — PropertyImagePicker (upload + AI generate), useGenerateImage hook

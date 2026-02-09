@@ -143,7 +143,7 @@ export function requireChecker(req: Request, res: Response, next: NextFunction) 
   if (!req.user) {
     return res.status(401).json({ error: "Authentication required" });
   }
-  if (req.user.role !== "admin" && req.user.email !== "checker") {
+  if (req.user.role !== "admin" && req.user.role !== "checker") {
     return res.status(403).json({ error: "Checker or admin access required" });
   }
   next();
@@ -221,7 +221,7 @@ export async function seedAdminUser() {
   await createDefaultScenarioForUser(adminUser.id, "admin");
 
   // Seed checker user
-  const checkerEmail = "checker";
+  const checkerEmail = "checker@norfolkgroup.io";
   const checkerPassword = process.env.CHECKER_PASSWORD;
   
   if (!checkerPassword) {
@@ -232,21 +232,37 @@ export async function seedAdminUser() {
   let checkerUser = await storage.getUserByEmail(checkerEmail);
   
   if (!checkerUser) {
-    const passwordHash = await hashPassword(checkerPassword);
-    checkerUser = await storage.createUser({
-      email: checkerEmail,
-      passwordHash,
-      role: "user",
-      name: "Checker User",
-    });
-    console.log(`Checker user created: checker`);
+    // Check if old "checker" user exists and migrate it
+    const oldChecker = await storage.getUserByEmail("checker");
+    if (oldChecker) {
+      const passwordHash = await hashPassword(checkerPassword);
+      await storage.updateUserProfile(oldChecker.id, { email: checkerEmail, name: "Checker", company: "Norfolk AI", title: "Checker" });
+      await storage.updateUserPassword(oldChecker.id, passwordHash);
+      await storage.updateUserRole(oldChecker.id, "checker");
+      checkerUser = await storage.getUserById(oldChecker.id);
+      console.log(`Migrated old 'checker' user to checker@norfolkgroup.io with role=checker`);
+    } else {
+      const passwordHash = await hashPassword(checkerPassword);
+      checkerUser = await storage.createUser({
+        email: checkerEmail,
+        passwordHash,
+        role: "checker",
+        name: "Checker",
+        company: "Norfolk AI",
+        title: "Checker",
+      });
+      console.log(`Checker user created: checker@norfolkgroup.io`);
+    }
   } else {
-    // Always update password to ensure it matches
+    // Always update password and ensure role is correct
     const passwordHash = await hashPassword(checkerPassword);
     await storage.updateUserPassword(checkerUser.id, passwordHash);
-    console.log(`Checker user password reset: checker`);
+    await storage.updateUserRole(checkerUser.id, "checker");
+    console.log(`Checker user password reset: checker@norfolkgroup.io`);
   }
   
   // Create default scenario for checker
-  await createDefaultScenarioForUser(checkerUser.id, "checker");
+  if (checkerUser) {
+    await createDefaultScenarioForUser(checkerUser.id, "checker");
+  }
 }

@@ -52,12 +52,15 @@ const loginSchema = z.object({
   password: z.string().min(1),
 });
 
+const VALID_ROLES = ["admin", "user", "checker"] as const;
+
 const createUserSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
   name: z.string().max(100).optional(),
   company: z.string().max(100).optional(),
   title: z.string().max(100).optional(),
+  role: z.enum(VALID_ROLES).optional().default("user"),
 });
 
 const createScenarioSchema = z.object({
@@ -244,7 +247,7 @@ export async function registerRoutes(
       const updates: { name?: string; email?: string; company?: string; title?: string } = {};
       if (validation.data.name !== undefined) updates.name = validation.data.name.trim();
       if (validation.data.email !== undefined) {
-        const protectedEmails = ["admin", "checker"];
+        const protectedEmails = ["admin", "checker@norfolkgroup.io"];
         if (protectedEmails.includes(req.user.email)) {
           return res.status(403).json({ error: "System account emails cannot be changed" });
         }
@@ -340,9 +343,10 @@ export async function registerRoutes(
         return res.status(400).json({ error: "User with this email already exists" });
       }
       
+      const role = validation.data.role || "user";
       const passwordHash = await hashPassword(password);
-      const user = await storage.createUser({ email, passwordHash, role: "user", name, company, title });
-      logActivity(req, "create", "user", user.id, user.email);
+      const user = await storage.createUser({ email, passwordHash, role, name, company, title });
+      logActivity(req, "create", "user", user.id, user.email, { role });
 
       res.json({ id: user.id, email: user.email, name: user.name, company: user.company, title: user.title, role: user.role });
     } catch (error) {
@@ -383,6 +387,14 @@ export async function registerRoutes(
     }
   });
 
+  const adminUpdateUserSchema = z.object({
+    name: z.string().max(100).optional(),
+    email: z.string().email().max(255).optional(),
+    company: z.string().max(100).optional(),
+    title: z.string().max(100).optional(),
+    role: z.enum(VALID_ROLES).optional(),
+  });
+
   app.patch("/api/admin/users/:id", requireAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id as string);
@@ -390,7 +402,7 @@ export async function registerRoutes(
         return res.status(400).json({ error: "Invalid user ID" });
       }
       
-      const validation = updateProfileSchema.safeParse(req.body);
+      const validation = adminUpdateUserSchema.safeParse(req.body);
       if (!validation.success) {
         const error = fromZodError(validation.error);
         return res.status(400).json({ error: error.message });
@@ -400,9 +412,22 @@ export async function registerRoutes(
       if (!existingUser) {
         return res.status(404).json({ error: "User not found" });
       }
+
+      // Handle role change with last-admin protection
+      if (validation.data.role !== undefined && validation.data.role !== existingUser.role) {
+        if (existingUser.role === "admin" && validation.data.role !== "admin") {
+          const allUsers = await storage.getAllUsers();
+          const adminCount = allUsers.filter(u => u.role === "admin").length;
+          if (adminCount <= 1) {
+            return res.status(400).json({ error: "Cannot change role of the last admin user" });
+          }
+        }
+        await storage.updateUserRole(id, validation.data.role);
+        logActivity(req, "role_change", "user", id, existingUser.email, { oldRole: existingUser.role, newRole: validation.data.role });
+      }
       
       const updates: { email?: string; name?: string; company?: string; title?: string } = {};
-      if (validation.data.email !== undefined && existingUser.role !== "admin") {
+      if (validation.data.email !== undefined) {
         const newEmail = sanitizeEmail(validation.data.email);
         if (newEmail !== existingUser.email) {
           const emailUser = await storage.getUserByEmail(newEmail);
@@ -487,7 +512,7 @@ export async function registerRoutes(
       const usersToSeed = [
         { email: "admin", passwordHash: await hashPassword(adminPw), role: "admin" as const, name: "Ricardo Cidale", company: "Norfolk Group", title: "Partner" },
         { email: "rosario@kitcapital.com", passwordHash: await hashPassword(adminPw), role: "user" as const, name: "Rosario David", company: "KIT Capital", title: "COO" },
-        { email: "checker", passwordHash: await hashPassword(checkerPw), role: "checker" as const, name: "Checker User" }
+        { email: "checker@norfolkgroup.io", passwordHash: await hashPassword(checkerPw), role: "checker" as const, name: "Checker", company: "Norfolk AI", title: "Checker" }
       ];
       
       for (const userData of usersToSeed) {
@@ -2158,6 +2183,71 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     } catch (error) {
       console.error("Error fetching activity logs:", error);
       res.status(500).json({ error: "Failed to fetch activity logs" });
+    }
+  });
+
+  /** Admin: get checker-role activity summary for analytics. */
+  app.get("/api/admin/checker-activity", requireAdmin, async (req, res) => {
+    try {
+      const allUsers = await storage.getAllUsers();
+      const checkerUsers = allUsers.filter(u => u.role === "checker");
+      const checkerIds = checkerUsers.map(u => u.id);
+      
+      if (checkerIds.length === 0) {
+        return res.json({ checkers: [], summary: { totalActions: 0, verificationRuns: 0, manualViews: 0, exports: 0, pageVisits: 0 } });
+      }
+      
+      const allLogs: Array<{id: number; userId: number; action: string; entityType: string; entityId: number | null; entityName: string | null; metadata: unknown; ipAddress: string | null; createdAt: Date; user: {email: string; name: string | null}}> = [];
+      for (const checkerId of checkerIds) {
+        const logs = await storage.getActivityLogs({ userId: checkerId, limit: 200 });
+        allLogs.push(...logs);
+      }
+      
+      const summary = {
+        totalActions: allLogs.length,
+        verificationRuns: allLogs.filter(l => l.action === "run" && l.entityType === "verification").length,
+        manualViews: allLogs.filter(l => l.action === "view" && l.entityType === "checker_manual").length,
+        exports: allLogs.filter(l => l.action.includes("export")).length,
+        pageVisits: allLogs.filter(l => l.action === "view").length,
+        roleChanges: allLogs.filter(l => l.action === "role_change").length,
+      };
+      
+      const checkerSummaries = checkerUsers.map(u => {
+        const userLogs = allLogs.filter(l => l.userId === u.id);
+        return {
+          id: u.id,
+          email: u.email,
+          name: u.name,
+          totalActions: userLogs.length,
+          lastActive: userLogs.length > 0 ? userLogs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].createdAt : null,
+          verificationRuns: userLogs.filter(l => l.action === "run" && l.entityType === "verification").length,
+          manualViews: userLogs.filter(l => l.action === "view" && l.entityType === "checker_manual").length,
+          exports: userLogs.filter(l => l.action.includes("export")).length,
+        };
+      });
+      
+      res.json({
+        checkers: checkerSummaries,
+        summary,
+        recentActivity: allLogs
+          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+          .slice(0, 50)
+          .map(log => ({
+            id: log.id,
+            userId: log.userId,
+            userEmail: log.user.email,
+            userName: log.user.name,
+            action: log.action,
+            entityType: log.entityType,
+            entityId: log.entityId,
+            entityName: log.entityName,
+            metadata: log.metadata,
+            createdAt: log.createdAt,
+          })),
+      });
+    } catch (error) {
+      console.error("Error fetching checker activity:", error);
+      res.status(500).json({ error: "Failed to fetch checker activity" });
     }
   });
 

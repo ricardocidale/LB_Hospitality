@@ -98,7 +98,7 @@ interface VerificationResult {
   clientKnownValueTests?: { passed: boolean; results: string };
 }
 
-type AdminView = "dashboard" | "users" | "activity" | "activity-feed" | "verification" | "design" | "themes";
+type AdminView = "dashboard" | "users" | "activity" | "activity-feed" | "checker-activity" | "verification" | "design" | "themes";
 
 interface ActivityLogEntry {
   id: number;
@@ -112,6 +112,30 @@ interface ActivityLogEntry {
   metadata: Record<string, any> | null;
   ipAddress: string | null;
   createdAt: string;
+}
+
+interface CheckerSummary {
+  id: number;
+  email: string;
+  name: string | null;
+  totalActions: number;
+  lastActive: string | null;
+  verificationRuns: number;
+  manualViews: number;
+  exports: number;
+}
+
+interface CheckerActivityData {
+  checkers: CheckerSummary[];
+  summary: {
+    totalActions: number;
+    verificationRuns: number;
+    manualViews: number;
+    exports: number;
+    pageVisits: number;
+    roleChanges: number;
+  };
+  recentActivity: ActivityLogEntry[];
 }
 
 interface VerificationHistoryEntry {
@@ -144,8 +168,8 @@ export default function Admin() {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [newPassword, setNewPassword] = useState("");
-  const [newUser, setNewUser] = useState({ email: "", password: "", name: "", company: "", title: "" });
-  const [editUser, setEditUser] = useState({ email: "", name: "", company: "", title: "" });
+  const [newUser, setNewUser] = useState({ email: "", password: "", name: "", company: "", title: "", role: "user" as string });
+  const [editUser, setEditUser] = useState({ email: "", name: "", company: "", title: "", role: "user" as string });
   const [originalEmail, setOriginalEmail] = useState("");
   const [showNewUserPassword, setShowNewUserPassword] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
@@ -192,6 +216,16 @@ export default function Admin() {
     },
   });
 
+  const { data: checkerActivity } = useQuery<CheckerActivityData>({
+    queryKey: ["admin", "checker-activity"],
+    queryFn: async () => {
+      const res = await fetch("/api/admin/checker-activity", { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch checker activity");
+      return res.json();
+    },
+    enabled: currentView === "checker-activity" || currentView === "dashboard",
+  });
+
   const { data: verificationHistory } = useQuery<VerificationHistoryEntry[]>({
     queryKey: ["admin", "verification-history"],
     queryFn: async () => {
@@ -211,7 +245,7 @@ export default function Admin() {
   });
 
   const createMutation = useMutation({
-    mutationFn: async (data: { email: string; password: string; name?: string; company?: string; title?: string }) => {
+    mutationFn: async (data: { email: string; password: string; name?: string; company?: string; title?: string; role?: string }) => {
       const res = await fetch("/api/admin/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -227,7 +261,7 @@ export default function Admin() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
       setDialogOpen(false);
-      setNewUser({ email: "", password: "", name: "", company: "", title: "" });
+      setNewUser({ email: "", password: "", name: "", company: "", title: "", role: "user" });
       toast({ title: "User Created", description: "New user has been registered." });
     },
     onError: (error: Error) => {
@@ -278,7 +312,7 @@ export default function Admin() {
   });
 
   const editMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: { email?: string; name?: string; company?: string; title?: string } }) => {
+    mutationFn: async ({ id, data }: { id: number; data: { email?: string; name?: string; company?: string; title?: string; role?: string } }) => {
       const res = await fetch(`/api/admin/users/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -743,6 +777,30 @@ export default function Admin() {
           </CardContent>
         </Card>
 
+        <Card className="group relative overflow-hidden bg-gradient-to-br from-[#1a2e3d]/95 via-[#243d4d]/95 to-[#1e3a42]/95 backdrop-blur-3xl border border-white/20 shadow-2xl shadow-black/40 cursor-pointer hover:border-[#9FBCA4]/40 hover:shadow-[#9FBCA4]/20 transition-all duration-500" onClick={() => setCurrentView("checker-activity")} data-testid="card-checker-activity">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#9FBCA4]/10 via-transparent to-[#257D41]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="absolute -top-16 -right-16 w-48 h-48 bg-[#9FBCA4]/15 rounded-full blur-3xl group-hover:bg-[#9FBCA4]/25 transition-colors duration-500" />
+          <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-[#257D41]/10 rounded-full blur-3xl group-hover:bg-[#257D41]/20 transition-colors duration-500" />
+          <CardContent className="relative p-8">
+            <div className="flex items-center gap-6">
+              <div className="w-18 h-18 rounded-2xl bg-gradient-to-br from-[#E8927C] via-[#d4785f] to-[#c06040] flex items-center justify-center shadow-xl shadow-[#E8927C]/30 border border-white/20" style={{ width: '72px', height: '72px' }}>
+                <FileCheck className="w-9 h-9 text-white drop-shadow-lg" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-2xl font-display font-semibold text-white mb-2">Checker Activity</h3>
+                <p className="text-white/50 label-text">Monitor checker verifications, manual reviews, and audit trail</p>
+                {checkerActivity && (
+                  <div className="flex gap-4 mt-2">
+                    <span className="text-xs text-[#9FBCA4]">{checkerActivity.summary.verificationRuns} verifications</span>
+                    <span className="text-xs text-[#E8927C]">{checkerActivity.summary.manualViews} manual reviews</span>
+                    <span className="text-xs text-white/40">{checkerActivity.summary.exports} exports</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         <Card className="group relative overflow-hidden bg-gradient-to-br from-[#1a2e3d]/95 via-[#243d4d]/95 to-[#1e3a42]/95 backdrop-blur-3xl border border-white/20 shadow-2xl shadow-black/40 cursor-pointer hover:border-[#9FBCA4]/40 hover:shadow-[#9FBCA4]/20 transition-all duration-500" onClick={() => setCurrentView("verification")} data-testid="card-verification">
           <div className="absolute inset-0 bg-gradient-to-br from-[#9FBCA4]/10 via-transparent to-[#257D41]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-[#9FBCA4]/15 rounded-full blur-3xl group-hover:bg-[#9FBCA4]/25 transition-colors duration-500" />
@@ -871,7 +929,7 @@ export default function Admin() {
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Button size="sm" variant="ghost" className="text-white/60 hover:text-white hover:bg-white/10"
-                        onClick={() => { setSelectedUser(user); setOriginalEmail(user.email); setEditUser({ email: user.email, name: user.name || "", company: user.company || "", title: user.title || "" }); setEditDialogOpen(true); }}
+                        onClick={() => { setSelectedUser(user); setOriginalEmail(user.email); setEditUser({ email: user.email, name: user.name || "", company: user.company || "", title: user.title || "", role: user.role || "user" }); setEditDialogOpen(true); }}
                         data-testid={`button-edit-user-${user.id}`}>
                         <Pencil className="w-4 h-4" />
                       </Button>
@@ -1201,6 +1259,126 @@ export default function Admin() {
       </Card>
     </div>
   );
+
+  const renderCheckerActivity = () => {
+    const formatDate = (dateStr: string | null) => {
+      if (!dateStr) return "Never";
+      const d = new Date(dateStr);
+      return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" });
+    };
+
+    return (
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card className="bg-gradient-to-br from-[#1a2e3d]/95 to-[#243d4d]/95 border border-white/20">
+            <CardContent className="p-6 text-center">
+              <div className="text-3xl font-bold text-[#9FBCA4]">{checkerActivity?.summary.totalActions ?? 0}</div>
+              <div className="text-xs text-white/50 mt-1">Total Actions</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-gradient-to-br from-[#1a2e3d]/95 to-[#243d4d]/95 border border-white/20">
+            <CardContent className="p-6 text-center">
+              <div className="text-3xl font-bold text-[#4ECDC4]">{checkerActivity?.summary.verificationRuns ?? 0}</div>
+              <div className="text-xs text-white/50 mt-1">Verification Runs</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-gradient-to-br from-[#1a2e3d]/95 to-[#243d4d]/95 border border-white/20">
+            <CardContent className="p-6 text-center">
+              <div className="text-3xl font-bold text-[#E8927C]">{checkerActivity?.summary.manualViews ?? 0}</div>
+              <div className="text-xs text-white/50 mt-1">Manual Reviews</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-gradient-to-br from-[#1a2e3d]/95 to-[#243d4d]/95 border border-white/20">
+            <CardContent className="p-6 text-center">
+              <div className="text-3xl font-bold text-white">{checkerActivity?.summary.exports ?? 0}</div>
+              <div className="text-xs text-white/50 mt-1">Exports</div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {checkerActivity?.checkers && checkerActivity.checkers.length > 0 && (
+          <Card className="bg-gradient-to-br from-[#1a2e3d]/95 to-[#243d4d]/95 border border-white/20">
+            <CardHeader>
+              <CardTitle className="text-xl font-display text-white">Checker Users</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-white/10">
+                    <TableHead className="text-white/60">Email</TableHead>
+                    <TableHead className="text-white/60">Name</TableHead>
+                    <TableHead className="text-white/60 text-center">Actions</TableHead>
+                    <TableHead className="text-white/60 text-center">Verifications</TableHead>
+                    <TableHead className="text-white/60 text-center">Reviews</TableHead>
+                    <TableHead className="text-white/60 text-center">Exports</TableHead>
+                    <TableHead className="text-white/60">Last Active</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {checkerActivity.checkers.map((checker) => (
+                    <TableRow key={checker.id} className="border-white/10">
+                      <TableCell className="text-white font-mono text-sm">{checker.email}</TableCell>
+                      <TableCell className="text-white/80">{checker.name || "-"}</TableCell>
+                      <TableCell className="text-white/80 text-center">{checker.totalActions}</TableCell>
+                      <TableCell className="text-[#4ECDC4] text-center font-semibold">{checker.verificationRuns}</TableCell>
+                      <TableCell className="text-[#E8927C] text-center font-semibold">{checker.manualViews}</TableCell>
+                      <TableCell className="text-white/80 text-center">{checker.exports}</TableCell>
+                      <TableCell className="text-white/60 text-sm">{formatDate(checker.lastActive)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        )}
+
+        <Card className="bg-gradient-to-br from-[#1a2e3d]/95 to-[#243d4d]/95 border border-white/20">
+          <CardHeader>
+            <CardTitle className="text-xl font-display text-white">Recent Checker Activity</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {(!checkerActivity?.recentActivity || checkerActivity.recentActivity.length === 0) ? (
+              <p className="text-white/40 text-center py-8">No checker activity recorded yet</p>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-white/10">
+                    <TableHead className="text-white/60">Time</TableHead>
+                    <TableHead className="text-white/60">User</TableHead>
+                    <TableHead className="text-white/60">Action</TableHead>
+                    <TableHead className="text-white/60">Entity</TableHead>
+                    <TableHead className="text-white/60">Details</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {checkerActivity.recentActivity.map((log) => (
+                    <TableRow key={log.id} className="border-white/10">
+                      <TableCell className="text-white/60 text-sm whitespace-nowrap">{formatDate(log.createdAt)}</TableCell>
+                      <TableCell className="text-white font-mono text-sm">{log.userEmail}</TableCell>
+                      <TableCell>
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                          log.action === "run" ? "bg-[#4ECDC4]/20 text-[#4ECDC4]" :
+                          log.action === "view" ? "bg-blue-500/20 text-blue-400" :
+                          log.action.includes("export") ? "bg-purple-500/20 text-purple-400" :
+                          "bg-white/10 text-white/60"
+                        }`}>
+                          {log.action}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-white/80 text-sm">{log.entityName || log.entityType}</TableCell>
+                      <TableCell className="text-white/50 text-xs max-w-[200px] truncate">
+                        {log.metadata ? JSON.stringify(log.metadata).slice(0, 80) : "-"}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    );
+  };
 
   const renderVerification = () => (<>
     <Card className="relative overflow-hidden bg-white/80 backdrop-blur-xl border border-gray-200 shadow-2xl">
@@ -1668,12 +1846,14 @@ export default function Admin() {
                    currentView === "users" ? "User Management" :
                    currentView === "activity" ? "Login Activity" :
                    currentView === "activity-feed" ? "Activity Feed" :
+                   currentView === "checker-activity" ? "Checker Activity" :
                    currentView === "verification" ? "Financial Verification" :
                    currentView === "themes" ? "Design Themes" : "Design Consistency"}
             subtitle={currentView === "dashboard" ? "Manage users, monitor activity, and run system verification" :
                       currentView === "users" ? "Add, edit, and manage user accounts" :
                       currentView === "activity" ? "Monitor user sessions and login history" :
                       currentView === "activity-feed" ? "Track all user actions across the system" :
+                      currentView === "checker-activity" ? "Monitor checker verifications, manual reviews, and exports" :
                       currentView === "verification" ? "Run formula and GAAP compliance checks" :
                       currentView === "themes" ? "Manage color palettes and design systems" : "Check fonts, colors, and component standards"}
             variant="dark"
@@ -1689,6 +1869,7 @@ export default function Admin() {
         {currentView === "users" && renderUsers()}
         {currentView === "activity" && renderActivity()}
         {currentView === "activity-feed" && renderActivityFeed()}
+        {currentView === "checker-activity" && renderCheckerActivity()}
         {currentView === "verification" && renderVerification()}
         {currentView === "design" && renderDesign()}
         {currentView === "themes" && renderThemes()}
@@ -1717,6 +1898,14 @@ export default function Admin() {
             <div className="space-y-2"><Label className="flex items-center gap-2"><Users className="w-4 h-4 text-gray-500" />Name</Label><Input value={newUser.name} onChange={(e) => setNewUser({ ...newUser, name: e.target.value })} placeholder="Full name" data-testid="input-new-user-name" /></div>
             <div className="space-y-2"><Label className="flex items-center gap-2"><LayoutGrid className="w-4 h-4 text-gray-500" />Company</Label><Input value={newUser.company} onChange={(e) => setNewUser({ ...newUser, company: e.target.value })} placeholder="Company name" data-testid="input-new-user-company" /></div>
             <div className="space-y-2"><Label className="flex items-center gap-2"><Shield className="w-4 h-4 text-gray-500" />Title</Label><Input value={newUser.title} onChange={(e) => setNewUser({ ...newUser, title: e.target.value })} placeholder="Job title" data-testid="input-new-user-title" /></div>
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2"><Shield className="w-4 h-4 text-gray-500" />Role</Label>
+              <select value={newUser.role} onChange={(e) => setNewUser({ ...newUser, role: e.target.value })} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" data-testid="select-new-user-role">
+                <option value="user">User</option>
+                <option value="checker">Checker</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)} data-testid="button-cancel-add-user">Cancel</Button>
@@ -1766,18 +1955,29 @@ export default function Admin() {
             <div className="space-y-2"><Label className="flex items-center gap-2"><Users className="w-4 h-4 text-gray-500" />Name</Label><Input value={editUser.name} onChange={(e) => setEditUser({ ...editUser, name: e.target.value })} data-testid="input-edit-name" /></div>
             <div className="space-y-2"><Label className="flex items-center gap-2"><LayoutGrid className="w-4 h-4 text-gray-500" />Company</Label><Input value={editUser.company} onChange={(e) => setEditUser({ ...editUser, company: e.target.value })} data-testid="input-edit-company" /></div>
             <div className="space-y-2"><Label className="flex items-center gap-2"><Shield className="w-4 h-4 text-gray-500" />Title</Label><Input value={editUser.title} onChange={(e) => setEditUser({ ...editUser, title: e.target.value })} data-testid="input-edit-title" /></div>
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2"><Shield className="w-4 h-4 text-gray-500" />Role</Label>
+              <select value={editUser.role} onChange={(e) => setEditUser({ ...editUser, role: e.target.value })} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" data-testid="select-edit-user-role">
+                <option value="user">User</option>
+                <option value="checker">Checker</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditDialogOpen(false)} data-testid="button-cancel-edit">Cancel</Button>
             <Button variant="outline" onClick={() => {
               if (!selectedUser) return;
-              const data: { email?: string; name?: string; company?: string; title?: string } = {
+              const data: { email?: string; name?: string; company?: string; title?: string; role?: string } = {
                 name: editUser.name,
                 company: editUser.company,
                 title: editUser.title,
               };
               if (editUser.email !== originalEmail) {
                 data.email = editUser.email;
+              }
+              if (editUser.role !== selectedUser.role) {
+                data.role = editUser.role;
               }
               editMutation.mutate({ id: selectedUser.id, data });
             }} disabled={editMutation.isPending} data-testid="button-save-user" className="flex items-center gap-2">

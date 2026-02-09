@@ -119,11 +119,14 @@ export function ResearchRefreshOverlay({ onComplete }: ResearchRefreshOverlayPro
           if (checkRes.ok) {
             const existing = await checkRes.json();
             if (existing && existing.updatedAt) {
-              const age = Date.now() - new Date(existing.updatedAt).getTime();
-              const sevenDays = 7 * 24 * 60 * 60 * 1000;
-              if (age < sevenDays) {
-                setCompletedCount(i + 1);
-                continue;
+              const isSeedData = existing.llmModel === "seed-data";
+              if (!isSeedData) {
+                const age = Date.now() - new Date(existing.updatedAt).getTime();
+                const sevenDays = 7 * 24 * 60 * 60 * 1000;
+                if (age < sevenDays) {
+                  setCompletedCount(i + 1);
+                  continue;
+                }
               }
             }
           }

@@ -4,6 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/lib/auth";
+import { lazy, Suspense } from "react";
 import { ErrorBoundary, FinancialErrorBoundary } from "@/components/ErrorBoundary";
 import { Loader2 } from "lucide-react";
 import NotFound from "@/pages/not-found";
@@ -15,7 +16,6 @@ import Portfolio from "@/pages/Portfolio";
 import PropertyDetail from "@/pages/PropertyDetail";
 import PropertyEdit from "@/pages/PropertyEdit";
 import Settings from "@/pages/Settings";
-const Methodology = lazy(() => import("@/pages/Methodology"));
 import PropertyMarketResearch from "@/pages/PropertyMarketResearch";
 import CompanyResearch from "@/pages/CompanyResearch";
 import GlobalResearch from "@/pages/GlobalResearch";
@@ -25,7 +25,7 @@ import Scenarios from "@/pages/Scenarios";
 import PropertyFinder from "@/pages/PropertyFinder";
 import SensitivityAnalysis from "@/pages/SensitivityAnalysis";
 import FinancingAnalysis from "@/pages/FinancingAnalysis";
-import { lazy, Suspense } from "react";
+const Methodology = lazy(() => import("@/pages/Methodology"));
 const CheckerManual = lazy(() => import("@/pages/CheckerManual"));
 
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {

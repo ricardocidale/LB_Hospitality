@@ -265,4 +265,40 @@ export async function seedAdminUser() {
   if (checkerUser) {
     await createDefaultScenarioForUser(checkerUser.id, "checker");
   }
+
+  // Seed Reynaldo user
+  const reynaldoEmail = "reynaldo.fagundes@norfolk.ai";
+  const reynaldoPassword = process.env.REYNALDO_PASSWORD;
+
+  if (!reynaldoPassword) {
+    console.warn("REYNALDO_PASSWORD environment variable not set. Skipping Reynaldo user creation.");
+  } else {
+    let reynaldoUser = await storage.getUserByEmail(reynaldoEmail);
+
+    if (!reynaldoUser) {
+      const passwordHash = await hashPassword(reynaldoPassword);
+      reynaldoUser = await storage.createUser({
+        email: reynaldoEmail,
+        passwordHash,
+        role: "user",
+        name: "Reynaldo Fagundes",
+        company: "Norfolk AI",
+        title: "CTO",
+      });
+      console.log(`Reynaldo user created: ${reynaldoEmail}`);
+    } else {
+      const passwordHash = await hashPassword(reynaldoPassword);
+      await storage.updateUserPassword(reynaldoUser.id, passwordHash);
+      await storage.updateUserProfile(reynaldoUser.id, {
+        name: "Reynaldo Fagundes",
+        company: "Norfolk AI",
+        title: "CTO",
+      });
+      console.log(`Reynaldo user password reset: ${reynaldoEmail}`);
+    }
+
+    if (reynaldoUser) {
+      await createDefaultScenarioForUser(reynaldoUser.id, "reynaldo");
+    }
+  }
 }

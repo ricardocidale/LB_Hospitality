@@ -2,7 +2,7 @@
 
 ## Overview
 
-Each property in the L+B Hospitality portfolio is modeled as an independent **Special Purpose Vehicle (SPV)** — a single-asset entity consistent with standard real estate private equity fund structures (per ASC 810 / GAAP consolidation guidance). Every SPV produces its own complete set of financial statements, enabling both individual property analysis and aggregated portfolio reporting.
+Each property in the Hospitality Business portfolio is modeled as an independent **Special Purpose Vehicle (SPV)** — a single-asset entity consistent with standard real estate private equity fund structures (per ASC 810 / GAAP consolidation guidance). Every SPV produces its own complete set of financial statements, enabling both individual property analysis and aggregated portfolio reporting.
 
 The portfolio targets luxury boutique hotels in North America and Latin America, with properties characterized by intimate scale (10–80 rooms), full-service F&B, and event/catering revenue streams.
 

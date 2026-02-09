@@ -2,7 +2,7 @@
 
 ## Overview
 
-The L+B Hospitality Business Simulation Portal is a full-stack TypeScript application structured as a monorepo with shared types between client and server.
+The Hospitality Business Business Simulation Portal is a full-stack TypeScript application structured as a monorepo with shared types between client and server.
 
 ## Architecture Diagram
 

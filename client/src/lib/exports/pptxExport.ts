@@ -19,7 +19,7 @@ function addTitleSlide(pres: pptxgen, title: string, subtitle: string) {
   const slide = pres.addSlide();
   slide.background = { color: "1a2a3a" };
   slide.addShape(pres.ShapeType.rect, { x: 0, y: 0, w: "100%", h: 0.05, fill: { color: SAGE } });
-  slide.addText("L+B Hospitality Group", {
+  slide.addText("Hospitality Business Group", {
     x: 0.5, y: 1.5, w: 9, h: 0.6,
     fontSize: 28, fontFace: "Arial", color: SAGE, bold: true,
   });
@@ -189,7 +189,7 @@ export interface PortfolioExportData {
 export function exportPortfolioPPTX(data: PortfolioExportData) {
   const pres = new pptxgen();
   pres.layout = "LAYOUT_WIDE";
-  pres.author = "L+B Hospitality Group";
+  pres.author = "Hospitality Business Group";
   pres.title = "Portfolio Investment Report";
 
   addTitleSlide(pres, "Portfolio Investment Report", `${data.projectionYears}-Year Projection (${data.getFiscalYear(0)} – ${data.getFiscalYear(data.projectionYears - 1)})`);
@@ -226,7 +226,7 @@ export interface PropertyExportData {
 export function exportPropertyPPTX(data: PropertyExportData) {
   const pres = new pptxgen();
   pres.layout = "LAYOUT_WIDE";
-  pres.author = "L+B Hospitality Group";
+  pres.author = "Hospitality Business Group";
   pres.title = `${data.propertyName} Financial Report`;
 
   addTitleSlide(pres, data.propertyName, `${data.projectionYears}-Year Financial Projection`);
@@ -249,7 +249,7 @@ export interface CompanyExportData {
 export function exportCompanyPPTX(data: CompanyExportData) {
   const pres = new pptxgen();
   pres.layout = "LAYOUT_WIDE";
-  pres.author = "L+B Hospitality Group";
+  pres.author = "Hospitality Business Group";
   pres.title = "Management Company Financial Report";
 
   addTitleSlide(pres, "Management Company", `${data.projectionYears}-Year Financial Projection`);

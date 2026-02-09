@@ -29,6 +29,6 @@ Where P = principal, r = monthly rate, n = total months
 - Excess proceeds returned to investors
 
 ## Cross-References
-- Formulas: `.claude/checker-manual/formulas/funding-financing-refi.md`
+- Formulas: `.claude/manuals/checker-manual/formulas/funding-financing-refi.md`
 - PMT source: `calc/shared/pmt.ts`
 - Constants: `DEFAULT_LTV`, `DEFAULT_INTEREST_RATE`, `DEFAULT_TERM_YEARS`

@@ -430,7 +430,7 @@ export default function Admin() {
     y += 8;
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
-    doc.text(`L+B Hospitality Company | ${new Date(verificationResults.timestamp).toLocaleDateString()}`, pageWidth / 2, y, { align: "center" });
+    doc.text(`Hospitality Business Company | ${new Date(verificationResults.timestamp).toLocaleDateString()}`, pageWidth / 2, y, { align: "center" });
     y += 12;
 
     // Audit Opinion banner
@@ -598,7 +598,7 @@ export default function Admin() {
       doc.setPage(p);
       doc.setFontSize(7);
       doc.setFont("helvetica", "normal");
-      doc.text(`L+B Hospitality - Verification Report | Page ${p} of ${pageCount}`, pageWidth / 2, doc.internal.pageSize.getHeight() - 8, { align: "center" });
+      doc.text(`Hospitality Business - Verification Report | Page ${p} of ${pageCount}`, pageWidth / 2, doc.internal.pageSize.getHeight() - 8, { align: "center" });
     }
 
     doc.save(`verification-report-${new Date().toISOString().slice(0, 10)}.pdf`);

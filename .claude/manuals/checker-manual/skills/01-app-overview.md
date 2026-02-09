@@ -1,8 +1,8 @@
 # 01 — Application Overview
 
-## L+B Hospitality Group Business Simulation Portal
+## Hospitality Business Group Business Simulation Portal
 
-The L+B Hospitality Group Business Simulation Portal is a full-stack financial modeling platform purpose-built for a boutique hotel management company. It enables real-time financial simulation, multi-year projection, and scenario analysis for hospitality business planning across a portfolio of luxury boutique hotels in North America and Latin America.
+The Hospitality Business Group Business Simulation Portal is a full-stack financial modeling platform purpose-built for a boutique hotel management company. It enables real-time financial simulation, multi-year projection, and scenario analysis for hospitality business planning across a portfolio of luxury boutique hotels in North America and Latin America.
 
 ---
 

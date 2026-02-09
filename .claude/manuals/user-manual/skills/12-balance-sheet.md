@@ -35,6 +35,6 @@ Depreciable Basis = Purchase Price × (1 − Land %) + Building Improvements
 - Begins first full month after acquisition
 
 ## Cross-References
-- Formulas: `.claude/checker-manual/formulas/property-financials.md` § Balance Sheet
+- Formulas: `.claude/manuals/checker-manual/formulas/property-financials.md` § Balance Sheet
 - GAAP: ASC 360 (PP&E), FASB Conceptual Framework
 - Constant: `DEPRECIATION_YEARS = 27.5` (immutable)

@@ -30,6 +30,6 @@ Four-phase lifecycle for each property:
 - All outstanding debt repaid from proceeds
 
 ## Cross-References
-- Formulas: `.claude/checker-manual/formulas/property-financials.md`
-- Formulas: `.claude/checker-manual/formulas/funding-financing-refi.md`
+- Formulas: `.claude/manuals/checker-manual/formulas/property-financials.md`
+- Formulas: `.claude/manuals/checker-manual/formulas/funding-financing-refi.md`
 - Constants: `.claude/rules/constants-and-config.md`

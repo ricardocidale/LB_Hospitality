@@ -268,7 +268,7 @@ export default function CompanyAssumptions() {
       <div className="space-y-6">
         <PageHeader
           title="Company Assumptions"
-          subtitle={`Configure ${global.companyName ?? "L+B Hospitality"} Co. operating parameters`}
+          subtitle={`Configure ${global.companyName ?? "Hospitality Business"} Co. operating parameters`}
           variant="dark"
           backLink="/company"
           actions={
@@ -356,7 +356,7 @@ export default function CompanyAssumptions() {
                 </Label>
                 <Input
                   type="text"
-                  value={formData.companyName ?? global.companyName ?? "L+B Hospitality"}
+                  value={formData.companyName ?? global.companyName ?? "Hospitality Business"}
                   onChange={(e) => handleUpdate("companyName", e.target.value)}
                   disabled={!isAdmin}
                   className={`max-w-64 border-[#9FBCA4]/30 text-gray-900 ${!isAdmin ? 'bg-gray-100 cursor-not-allowed opacity-60' : 'bg-white'}`}

@@ -50,7 +50,7 @@ export type Session = typeof sessions.$inferSelect;
 export const globalAssumptions = pgTable("global_assumptions", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   userId: integer("user_id").references(() => users.id, { onDelete: "cascade" }),
-  companyName: text("company_name").notNull().default("L+B Hospitality"),
+  companyName: text("company_name").notNull().default("Hospitality Business"),
   companyLogo: text("company_logo"),
   propertyLabel: text("property_label").notNull().default("Boutique Hotel"),
   modelStartDate: text("model_start_date").notNull(),

@@ -35,5 +35,5 @@ Utilities are split between variable and fixed components:
 - Fixed costs: escalate at `fixedCostEscalationRate` (default 3%)
 
 ## Cross-References
-- Formulas: `.claude/checker-manual/formulas/property-financials.md` § Expenses
+- Formulas: `.claude/manuals/checker-manual/formulas/property-financials.md` § Expenses
 - Constants: `DEFAULT_COST_RATE_*` in `shared/constants.ts`

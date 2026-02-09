@@ -11,7 +11,7 @@
 
 ## Overview
 
-The L+B Hospitality platform models multiple property SPVs and one management company. Consolidation aggregates individual property-level financial statements into portfolio-level views, applying cross-entity eliminations where required.
+The Hospitality Business platform models multiple property SPVs and one management company. Consolidation aggregates individual property-level financial statements into portfolio-level views, applying cross-entity eliminations where required.
 
 ## Consolidated Income Statement
 

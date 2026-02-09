@@ -1195,7 +1195,7 @@ export function runFullAudit(
   
   return {
     timestamp: new Date(),
-    auditorName: "L+B Financial Audit Engine v2.0",
+    auditorName: "Hospitality Business Financial Audit Engine v2.0",
     propertyName: property.name,
     sections,
     totalChecks,

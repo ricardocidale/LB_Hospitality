@@ -1,6 +1,6 @@
 # 15 — Testing Methodology: 7-Phase Verification Workflow
 
-> **CRITICAL SECTION.** This document defines the structured, phased approach that checkers must follow to verify the correctness of all financial calculations, data flows, and system behaviors in the L+B Hospitality Business Simulation Portal.
+> **CRITICAL SECTION.** This document defines the structured, phased approach that checkers must follow to verify the correctness of all financial calculations, data flows, and system behaviors in the Hospitality Business Business Simulation Portal.
 
 ---
 

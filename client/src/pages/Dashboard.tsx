@@ -336,7 +336,7 @@ export default function Dashboard() {
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
     
     doc.setFontSize(18);
-    doc.text("L+B Hospitality Group - Portfolio Income Statement", 14, 15);
+    doc.text("Hospitality Business Group - Portfolio Income Statement", 14, 15);
     doc.setFontSize(10);
     doc.text(`${projectionYears}-Year Projection (${years[0]} - ${years[projectionYears - 1]})`, 14, 22);
     doc.text(`Generated: ${format(new Date(), 'MMM d, yyyy')}`, 14, 27);
@@ -478,7 +478,7 @@ export default function Dashboard() {
     
     rows.push({ category: "GROSS OPERATING PROFIT (GOP)", values: years.map((_, i) => getYearlyConsolidated(i).gop), isHeader: true });
     
-    rows.push({ category: "Management Fees (to L+B Co.)", values: years.map((_, i) => -(getYearlyConsolidated(i).feeBase + getYearlyConsolidated(i).feeIncentive)), isNegative: true });
+    rows.push({ category: "Management Fees (to Hospitality Business Co.)", values: years.map((_, i) => -(getYearlyConsolidated(i).feeBase + getYearlyConsolidated(i).feeIncentive)), isNegative: true });
     rows.push({ category: `Base Fee (${(global.baseManagementFee * 100).toFixed(0)}% of Revenue)`, values: years.map((_, i) => -getYearlyConsolidated(i).feeBase), indent: 1, isNegative: true });
     rows.push({ category: `Incentive Fee (${(global.incentiveManagementFee * 100).toFixed(0)}% of GOP)`, values: years.map((_, i) => -getYearlyConsolidated(i).feeIncentive), indent: 1, isNegative: true });
     
@@ -522,7 +522,7 @@ export default function Dashboard() {
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
     
     doc.setFontSize(18);
-    doc.text("L+B Hospitality Group - Cash Flow Statement", 14, 15);
+    doc.text("Hospitality Business Group - Cash Flow Statement", 14, 15);
     doc.setFontSize(10);
     doc.text(`${projectionYears}-Year Projection (${years[0]} - ${years[projectionYears - 1]})`, 14, 22);
     doc.text(`Generated: ${format(new Date(), 'MMM d, yyyy')}`, 14, 27);
@@ -766,7 +766,7 @@ export default function Dashboard() {
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
     
     doc.setFontSize(18);
-    doc.text("L+B Hospitality Group - Consolidated Balance Sheet", 14, 15);
+    doc.text("Hospitality Business Group - Consolidated Balance Sheet", 14, 15);
     doc.setFontSize(10);
     doc.text(`${projectionYears}-Year Projection (${years[0]} - ${years[projectionYears - 1]})`, 14, 22);
     doc.text(`Generated: ${format(new Date(), 'MMM d, yyyy')}`, 14, 27);
@@ -996,7 +996,7 @@ export default function Dashboard() {
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
     
     doc.setFontSize(18);
-    doc.text("L+B Hospitality Group - Investment Analysis", 14, 15);
+    doc.text("Hospitality Business Group - Investment Analysis", 14, 15);
     doc.setFontSize(10);
     doc.text(`${projectionYears}-Year Projection`, 14, 22);
     doc.text(`Generated: ${format(new Date(), 'MMM d, yyyy')}`, 14, 27);
@@ -1107,14 +1107,14 @@ export default function Dashboard() {
       doc.setFontSize(8);
       doc.setTextColor(128);
       doc.text(`Page ${pageNum}`, pageWidth - 20, pageHeight - 10);
-      doc.text("L+B Hospitality Group", 14, pageHeight - 10);
+      doc.text("Hospitality Business Group", 14, pageHeight - 10);
     };
 
     // ===== PAGE 1: Cover Page =====
     // Header
     doc.setFontSize(28);
     doc.setTextColor(37, 125, 65);
-    doc.text("L+B Hospitality Group", pageWidth / 2, 30, { align: 'center' });
+    doc.text("Hospitality Business Group", pageWidth / 2, 30, { align: 'center' });
     doc.setFontSize(20);
     doc.setTextColor(61, 61, 61);
     doc.text("Portfolio Investment Report", pageWidth / 2, 42, { align: 'center' });
@@ -1174,7 +1174,7 @@ export default function Dashboard() {
     doc.setFontSize(8);
     doc.setTextColor(128);
     doc.text("Page 1", pageWidth - 20, pageHeight - 10);
-    doc.text("L+B Hospitality Group", 14, pageHeight - 10);
+    doc.text("Hospitality Business Group", 14, pageHeight - 10);
 
     // ===== PAGE 2: Properties =====
     doc.addPage();
@@ -1371,7 +1371,7 @@ export default function Dashboard() {
     let csvContent = "";
 
     // Overview Section
-    csvContent += "L+B HOSPITALITY GROUP - PORTFOLIO INVESTMENT REPORT\n";
+    csvContent += "HOSPITALITY BUSINESS GROUP - PORTFOLIO INVESTMENT REPORT\n";
     csvContent += `Generated: ${format(new Date(), 'MMMM d, yyyy')}\n`;
     csvContent += `Investment Period: ${getFiscalYear(0)} - ${getFiscalYear(projectionYears - 1)}\n\n`;
 
@@ -1540,7 +1540,7 @@ export default function Dashboard() {
       <div className="space-y-6">
         <PageHeader
           title="Investment Overview"
-          subtitle={`L+B Hospitality Group - ${global?.propertyLabel || "Boutique Hotel"} Portfolio`}
+          subtitle={`Hospitality Business Group - ${global?.propertyLabel || "Boutique Hotel"} Portfolio`}
           variant="dark"
           actions={
             <div className="bg-white/10 backdrop-blur-xl rounded-xl px-5 py-3 border border-white/20 text-center">
@@ -1940,7 +1940,7 @@ export default function Dashboard() {
             <Card>
               <CardHeader>
                 <CardTitle className="font-display">Consolidated Portfolio Income Statement ({projectionYears}-Year)</CardTitle>
-                <p className="text-sm text-muted-foreground label-text">All properties combined - management fees shown as expenses paid to L+B Co.</p>
+                <p className="text-sm text-muted-foreground label-text">All properties combined - management fees shown as expenses paid to Hospitality Business Co.</p>
               </CardHeader>
               <CardContent className="overflow-x-auto">
                 <Table>
@@ -2206,7 +2206,7 @@ export default function Dashboard() {
                         ) : (
                           <ChevronRight className="w-4 h-4 text-muted-foreground" />
                         )}
-                        Management Fees (to L+B Co.)
+                        Management Fees (to Hospitality Business Co.)
                       </TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
                         const data = getYearlyConsolidated(y);
@@ -2682,7 +2682,7 @@ export default function Dashboard() {
                         ) : (
                           <ChevronRight className="w-4 h-4 text-muted-foreground" />
                         )}
-                        Management Fees (to L+B Co.)
+                        Management Fees (to Hospitality Business Co.)
                       </TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
                         const data = getYearlyConsolidated(y);

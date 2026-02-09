@@ -98,13 +98,13 @@ export default function Login() {
             <div className="flex flex-col items-center mb-8">
               <img 
                 src={logo} 
-                alt="L+B Hospitality" 
+                alt="Hospitality Business" 
                 className="w-16 h-16 object-contain mb-4 cursor-pointer opacity-90 hover:opacity-100 transition-all"
                 style={{ filter: "drop-shadow(0 8px 16px rgba(0,0,0,0.5)) drop-shadow(0 2px 4px rgba(0,0,0,0.4))" }} 
                 onClick={handleAdminLogin}
               />
               <h1 className="text-2xl font-display text-[#FFF9F5] mb-1">
-                L+B <span className="text-[#9FBCA4]">Hospitality</span>
+                Hospitality <span className="text-[#9FBCA4]">Business</span>
               </h1>
               <p className="text-xs text-white/40 uppercase tracking-[0.2em]">Business Simulation</p>
             </div>
@@ -180,7 +180,7 @@ export default function Login() {
         </div>
         
         <p className="text-center text-xs text-white/20 mt-6">
-          Business simulation portal for L+B Hospitality Group
+          Business simulation portal for Hospitality Business Group
         </p>
       </div>
     </div>

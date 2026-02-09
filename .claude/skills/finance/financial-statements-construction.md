@@ -1,6 +1,6 @@
 # Financial Statement Construction & Investment Analysis — Authoritative Reference
 
-This skill is the single source of truth for how every financial statement, DCF model, and return analysis is constructed in the L+B Hospitality platform. It governs two fundamentally different entity types:
+This skill is the single source of truth for how every financial statement, DCF model, and return analysis is constructed in the Hospitality Business platform. It governs two fundamentally different entity types:
 
 1. **Property SPVs** — Boutique hotels modeled as individual real estate investments (hospitality properties)
 2. **Hospitality Management Company** — A fee-based service company that earns management fees from the properties

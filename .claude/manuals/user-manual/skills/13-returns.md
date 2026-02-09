@@ -24,6 +24,6 @@ Net Proceeds = Exit Value − Commission − Outstanding Debt
 - IRR above `IRR_HIGHLIGHT_THRESHOLD` (15%) shown with accent color in UI
 
 ## Cross-References
-- Formulas: `.claude/checker-manual/formulas/dcf-fcf-irr.md`
+- Formulas: `.claude/manuals/checker-manual/formulas/dcf-fcf-irr.md`
 - Engine: `analytics/returns/` (Skill 6)
 - Constants: `DEFAULT_EXIT_CAP_RATE`, `DEFAULT_COMMISSION_RATE`, `IRR_HIGHLIGHT_THRESHOLD`

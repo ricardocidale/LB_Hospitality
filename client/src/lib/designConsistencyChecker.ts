@@ -1,6 +1,6 @@
 /**
  * Design Consistency Checker
- * Validates that UI components follow L+B Hospitality design guidelines
+ * Validates that UI components follow Hospitality Business design guidelines
  */
 
 export interface DesignCheck {
@@ -21,7 +21,7 @@ export interface DesignCheckResult {
   checks: DesignCheck[];
 }
 
-// L+B Design Guidelines
+// Hospitality Business Design Guidelines
 export const DESIGN_GUIDELINES = {
   colors: {
     primary: "#257D41",
@@ -118,7 +118,7 @@ export function checkColorPalette(fileContents: Map<string, string>): DesignChec
 
   checks.push({
     category: "Color Palette",
-    rule: "All colors should be from L+B brand palette",
+    rule: "All colors should be from Hospitality Business brand palette",
     status: offBrandColors.length === 0 ? "pass" : offBrandColors.length <= 3 ? "warning" : "fail",
     details: offBrandColors.length === 0 
       ? "All colors match brand palette"

@@ -1,14 +1,15 @@
-# L+B Hospitality Group - Business Simulation Portal
+# Hospitality Business Group - Business Simulation Portal
 
 ## Overview
 
-This project is a business simulation portal designed for L+B Hospitality Group, a boutique hotel management company. Its primary purpose is to provide comprehensive financial simulation and projection capabilities for hospitality business planning. Key functionalities include financial modeling, portfolio management, dashboard views, property portfolio management, and the generation of financial pro formas. The system allows for configurable model inputs for hospitality assets across North America and Latin America, modeling both the management company and individual property SPVs to generate monthly and yearly financial statements, income statements, and cash flow projections.
+This project is a business simulation portal designed for Hospitality Business Group, a boutique hotel management company. Its primary purpose is to provide comprehensive financial simulation and projection capabilities for hospitality business planning. Key functionalities include financial modeling, portfolio management, dashboard views, property portfolio management, and the generation of financial pro formas. The system allows for configurable model inputs for hospitality assets across North America and Latin America, modeling both the management company and individual property SPVs to generate monthly and yearly financial statements, income statements, and cash flow projections.
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
 Always format money as money (currency format with commas and appropriate precision).
-All skills must be stored under `.claude/` directory (e.g., `.claude/skills/`, `.claude/checker-manual/`, `.claude/tools/`). Never place skills elsewhere.
+All skills must be stored under `.claude/` directory (e.g., `.claude/skills/`, `.claude/manuals/`, `.claude/tools/`). Never place skills elsewhere.
+The company name is "Hospitality Business Group" (or "Hospitality Business" for short). Never use "L+B Hospitality" in code or documentation.
 
 ## System Architecture
 
@@ -42,7 +43,7 @@ All skills must be stored under `.claude/` directory (e.g., `.claude/skills/`, `
 - **Admin Interface**: Consolidated into a single `/admin` route with tab-based navigation for users, login activity, checker activity, and verification.
 - **Role-Based Access Control**: Three roles defined in `shared/schema.ts` (`VALID_USER_ROLES`): `admin`, `user`, `checker`. Admin has superset permissions (all checker rights + admin capabilities). `requireChecker` middleware allows both admin and checker roles. `requireAdmin` middleware allows admin only. Last-admin protection prevents demoting/deleting the last admin user.
 - **Checker System**: Default checker user `checker@norfolkgroup.io` (name: Checker, title: Checker, company: Norfolk AI, role: checker). Password from `CHECKER_PASSWORD` env secret. Server auto-seeds/resets checker user on startup. Checker Manual accessible at `/checker-manual` for admin and checker roles.
-- **Checker Manual**: Comprehensive verification manual with 7-phase workflow (Input, Calculation, Financial Statement Reconciliation, IRR/DCF/FCF, Scenario & Stress Testing, Reports & Exports, Documentation & Sign-Off). Includes USALI benchmark tables, inflation verification paths, and audit opinion framework. Skills docs in `.claude/checker-manual/`, tool schemas in `.claude/tools/financing/`.
+- **Checker Manual**: Comprehensive verification manual with 7-phase workflow (Input, Calculation, Financial Statement Reconciliation, IRR/DCF/FCF, Scenario & Stress Testing, Reports & Exports, Documentation & Sign-Off). Includes USALI benchmark tables, inflation verification paths, and audit opinion framework. Skills docs in `.claude/manuals/checker-manual/`, tool schemas in `.claude/tools/financing/`.
 
 ### Business Model & Entity Structure
 - **Two-Entity Architecture**: The platform models two financially linked but independently operated entities:

@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Management Company (referred to as "L+B Hospitality Company" in the default configuration) is a **hospitality management services company**. It is **not** a property owner or real estate holding company. Its business model follows the asset-light hotel management paradigm common among independent hospitality operators (per AHLA industry classification).
+The Management Company (referred to as "Hospitality Business Company" in the default configuration) is a **hospitality management services company**. It is **not** a property owner or real estate holding company. Its business model follows the asset-light hotel management paradigm common among independent hospitality operators (per AHLA industry classification).
 
 The Management Company earns revenue exclusively from management fees charged to the property SPVs it manages. It does not hold real property on its balance sheet, does not earn room revenue, and does not directly operate hotel departments.
 

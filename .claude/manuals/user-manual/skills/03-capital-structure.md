@@ -21,5 +21,5 @@ Explains the three sources of capital and the investor return path:
 - `DEFAULT_COMMISSION_RATE` (5%) — Sales commission at exit
 
 ## Cross-References
-- Formulas: `.claude/checker-manual/formulas/funding-financing-refi.md`
-- Formulas: `.claude/checker-manual/formulas/dcf-fcf-irr.md`
+- Formulas: `.claude/manuals/checker-manual/formulas/funding-financing-refi.md`
+- Formulas: `.claude/manuals/checker-manual/formulas/dcf-fcf-irr.md`

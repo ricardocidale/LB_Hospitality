@@ -164,7 +164,7 @@ export default function CheckerManual() {
         <div className="p-4 md:p-6 space-y-6">
           <PageHeader
             title="Checker Manual"
-            subtitle="L+B Hospitality Group — Verification & Testing Guide"
+            subtitle="Hospitality Business Group — Verification & Testing Guide"
             actions={
               <div className="flex gap-2">
                 <GlassButton data-testid="btn-export-pdf" onClick={handleExportPDF} disabled={exportingManual}>
@@ -302,7 +302,7 @@ export default function CheckerManual() {
                 <ManualTable
                   headers={["Variable", "Description", "Default", "Unit", "Affects"]}
                   rows={[
-                    ["companyName", "Display name for management company", "L+B Hospitality Company", "text", "Both"],
+                    ["companyName", "Display name for management company", "Hospitality Business Company", "text", "Both"],
                     ["companyLogo", "URL to uploaded company logo", "null", "URL", "Both"],
                     ["propertyLabel", "Label for property type throughout UI", "Boutique Hotel", "text", "Both"],
                     ["modelStartDate", "First month of the financial model", "2026-04-01", "date", "Both"],

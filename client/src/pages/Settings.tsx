@@ -785,7 +785,7 @@ export default function Settings() {
                     {isAdmin ? (
                       <Input
                         id="companyName"
-                        value={currentGlobal.companyName || "L+B Hospitality"}
+                        value={currentGlobal.companyName || "Hospitality Business"}
                         onChange={(e) => handleCompanyNameChange(e.target.value)}
                         placeholder="Enter company name"
                         className="bg-white"
@@ -793,7 +793,7 @@ export default function Settings() {
                       />
                     ) : (
                       <div className="px-3 py-2 bg-gray-100 border border-gray-200 rounded-md text-gray-500 text-sm">
-                        {currentGlobal.companyName || "L+B Hospitality"}
+                        {currentGlobal.companyName || "Hospitality Business"}
                         <span className="ml-2 text-xs">(Admin only)</span>
                       </div>
                     )}

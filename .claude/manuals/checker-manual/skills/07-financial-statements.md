@@ -1,6 +1,6 @@
 # 07 — Financial Statements
 
-> This section describes the financial statement reports produced for each entity in the L+B Hospitality platform. All statements are generated at **monthly granularity** and displayed at **yearly granularity** in the UI. The checker should understand each statement's structure, line items, and applicable GAAP standards.
+> This section describes the financial statement reports produced for each entity in the Hospitality Business platform. All statements are generated at **monthly granularity** and displayed at **yearly granularity** in the UI. The checker should understand each statement's structure, line items, and applicable GAAP standards.
 
 ---
 

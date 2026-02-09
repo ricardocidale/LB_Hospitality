@@ -3,7 +3,7 @@
 ## Section ID: `management-company`
 
 ## Content Summary
-L+B Hospitality Co. financial model:
+Hospitality Business Co. financial model:
 
 ### Revenue
 - **Base Management Fee**: `baseManagementFee` (default 5%) × Total Portfolio Revenue
@@ -32,5 +32,5 @@ Dynamic FTE based on active property count (configurable in global assumptions):
 Company operations gated on SAFE funding receipt. `DEFAULT_SAFE_TRANCHE` ($800,000).
 
 ## Cross-References
-- Formulas: `.claude/checker-manual/formulas/company-financials.md`
+- Formulas: `.claude/manuals/checker-manual/formulas/company-financials.md`
 - Constants: `DEFAULT_STAFF_SALARY`, `STAFFING_TIERS`, `DEFAULT_SAFE_TRANCHE`

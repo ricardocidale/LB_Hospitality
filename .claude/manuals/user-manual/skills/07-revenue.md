@@ -25,5 +25,5 @@ Room Revenue = roomCount × ADR × occupancy × 30.5 days
 - Revenue shares are property-configurable
 
 ## Cross-References
-- Formulas: `.claude/checker-manual/formulas/property-financials.md` § Revenue
+- Formulas: `.claude/manuals/checker-manual/formulas/property-financials.md` § Revenue
 - Constants: `DAYS_PER_MONTH`, `DEFAULT_REV_SHARE_*`, `DEFAULT_CATERING_BOOST_PCT`

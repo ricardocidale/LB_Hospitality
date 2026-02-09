@@ -44,7 +44,7 @@ The company name is "Hospitality Business Group" (or "Hospitality Business" for 
 - **Role-Based Access Control**: Three roles defined in `shared/schema.ts` (`VALID_USER_ROLES`): `admin`, `user`, `checker`. Admin has superset permissions (all checker rights + admin capabilities). `requireChecker` middleware allows both admin and checker roles. `requireAdmin` middleware allows admin only. Last-admin protection prevents demoting/deleting the last admin user.
 - **Checker System**: Default checker user `checker@norfolkgroup.io` (name: Checker, title: Checker, company: Norfolk AI, role: checker). Password from `CHECKER_PASSWORD` env secret. Server auto-seeds/resets checker user on startup. Checker Manual accessible at `/checker-manual` for admin and checker roles.
 - **Checker Manual**: Comprehensive verification manual with 7-phase workflow (Input, Calculation, Financial Statement Reconciliation, IRR/DCF/FCF, Scenario & Stress Testing, Reports & Exports, Documentation & Sign-Off). Includes USALI benchmark tables, inflation verification paths, and audit opinion framework. Skills docs in `.claude/manuals/checker-manual/`, validation check schemas in `.claude/manuals/checker-manual/tools/`.
-- **Tool Schemas**: Organized under `.claude/tools/` by category: `financing/` (DSCR, debt yield, sensitivity, loan comparison), `returns/` (DCF/NPV, IRR vector, equity multiple, exit valuation), `validation/` (financial identities, funding gates, debt reconciliation, assumption consistency, export verification), `analysis/` (consolidation, scenario comparison, break-even), `research/` (market, ADR, occupancy, cap rates).
+- **Tool Schemas**: Organized under `.claude/tools/` by category: `financing/` (DSCR, debt yield, sensitivity, loan comparison), `returns/` (DCF/NPV, IRR vector, equity multiple, exit valuation), `validation/` (financial identities, funding gates, debt reconciliation, assumption consistency, export verification), `analysis/` (consolidation, scenario comparison, break-even). Research tools are co-located with their skills under `.claude/skills/research/*/tools/`.
 
 ### Business Model & Entity Structure
 - **Two-Entity Architecture**: Management Company (fees-based revenue) + Property Portfolio (independent SPVs). Each entity has its own Income Statement, Cash Flow, Balance Sheet, and IRR. Aggregated/consolidated views available.
@@ -77,11 +77,20 @@ The company name is "Hospitality Business Group" (or "Hospitality Business" for 
 - **Data Storage**: Saved searches are stored in `saved_searches` table, and favorited properties in `prospective_properties` table.
 
 ### AI Research Architecture
-- **Skills**: Markdown files (`.claude/skills/`) provide system instructions to guide Claude's analysis (e.g., `research/property-market-research.md`, `research/company-research.md`).
-- **Tools**: JSON files (`.claude/tools/`) define Claude tool-use function schemas for property research (e.g., `analyze-market.json`, `analyze-adr.json`).
-- **Orchestration**: `server/aiResearch.ts` loads skills/tools, manages Claude's tool-use loop, and returns contextual guidance.
+- **Skills per Research Type**: Each research type has its own skill folder under `.claude/skills/research/` with a `SKILL.md` and co-located `tools/` subfolder:
+  - `market-overview/` — Local hospitality market analysis (tool: `analyze_market`)
+  - `adr-analysis/` — Average daily rate benchmarking (tool: `analyze_adr`)
+  - `occupancy-analysis/` — Occupancy patterns and seasonality (tool: `analyze_occupancy`)
+  - `event-demand/` — Corporate, wellness, wedding event demand (tool: `analyze_event_demand`)
+  - `catering-analysis/` — F&B catering boost percentage (tool: `analyze_catering`)
+  - `cap-rate-analysis/` — Investment cap rate benchmarks (tool: `analyze_cap_rates`)
+  - `competitive-set/` — Comparable property identification (tool: `analyze_competitive_set`)
+  - `land-value/` — Land vs. building allocation for depreciation (tool: `analyze_land_value`)
+  - `company-research/` — Management company fee structures and GAAP standards (no tool)
+  - `global-research/` — Industry-wide trends and benchmarks (no tool)
+- **Orchestration**: `server/aiResearch.ts` loads all property research skills as a combined system prompt, scans skill `tools/` folders for tool definitions, and manages Claude's tool-use loop.
 - **Output**: Research results adhere to a defined schema including `marketOverview`, `adrAnalysis`, `occupancyAnalysis`, `capRateAnalysis`, etc.
-- **Seed Data**: Pre-seeded research data is available for all 5 properties for immediate display.
+- **Seed Data**: Pre-seeded research data is available for all 5 properties for immediate display. Auto-seed on startup via `seedMissingMarketResearch()` in `server/seed.ts`.
 
 ### Database Environments
 - **Separate Databases**: Development and Production use separate PostgreSQL databases with different data.

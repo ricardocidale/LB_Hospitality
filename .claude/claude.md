@@ -79,29 +79,54 @@ Research Skills are defined in `.claude/skills/` and orchestrated via `server/ai
 
 ```
 client/src/
-├── components/ui/
+├── components/ui/         # Reusable component library
 ├── lib/
-│ ├── exports/
-│ ├── financialEngine.ts
-│ ├── loanCalculations.ts
-│ ├── constants.ts
-│ ├── financialAuditor.ts
-│ └── runVerification.ts
+│   ├── exports/           # Excel, PPTX, PDF, PNG export utilities
+│   ├── financialEngine.ts # Primary calculation engine
+│   ├── loanCalculations.ts
+│   ├── equityCalculations.ts
+│   ├── cashFlowAggregator.ts
+│   ├── cashFlowSections.ts
+│   ├── yearlyAggregator.ts
+│   ├── constants.ts       # All named constants and defaults
+│   ├── financialAuditor.ts
+│   └── runVerification.ts
 ├── pages/
 └── hooks/
 
 .claude/
-├── claude.md
-├── rules/
+├── claude.md              # This file (project instructions)
+├── commands/              # Slash commands for Claude Code
+├── manuals/
+│   ├── checker-manual/    # Verification procedures (admin/checker)
+│   │   ├── skills/        # Narrative explanations (15 sections)
+│   │   ├── formulas/      # Pure formula references (5 entity files)
+│   │   └── tools/         # Validation check schemas (JSON)
+│   └── user-manual/       # Financial model docs (all users)
+│       └── skills/        # Narrative content (16 sections)
+├── rules/                 # Coding rules and constraints
 ├── skills/
-│ ├── exports/
-│ └── *.md
+│   ├── design-system/     # Color, typography, component catalog
+│   ├── exports/           # Export system methodology
+│   ├── features/          # Feature-specific skills
+│   ├── finance/           # 17 finance calculation skills
+│   ├── research/          # AI research skills
+│   └── ui/                # UI component skills
 └── tools/
+    ├── financing/         # Finance tool schemas (DSCR, sensitivity, etc.)
+    └── research/          # Research tool schemas (ADR, market, etc.)
 
 server/
 ├── routes.ts
 ├── storage.ts
 └── aiResearch.ts
+
+calc/                      # Standalone calculation modules
+├── shared/pmt.ts          # PMT formula
+└── refinance/             # Refinance calculator
+
+analytics/
+└── returns/irr.ts         # IRR computation (Newton-Raphson)
 ```
 
 
@@ -119,15 +144,16 @@ Audits must explicitly check for hardcoded values in calculation paths and month
 
 Finance authority tool: `.claude/tools/financing/financial_standards_authority.json` (tool name: `get_financial_standards_authority`). For any finance/stats/consolidation/refi work, consult this tool output before implementing classification-sensitive logic.
 
-The file `/skills/finance/FINANCE_SKILL_SPECS.md` is the single source of truth for:
-- Financing
-- Refinancing
-- Funding and tranches
-- Application of events to Income Statement, Cash Flow Statement, and Balance Sheet
-- FCF and IRR calculations
+The finance skills directory `.claude/skills/finance/` contains 17 individual skill files that collectively define:
+- Income Statement, Cash Flow Statement, Balance Sheet construction
+- Financing, refinancing, and funding/tranche logic
+- Fee linkage between properties and management company
+- FCF, IRR, and DCF calculations
+- Validation identities and cross-statement references
+- Timing and activation rules
 
 When working on any finance-related code:
-- Claude Code must comply with the Skill boundaries and GAAP constraints defined in that file
+- Claude must consult the relevant skill file(s) in `.claude/skills/finance/` before making changes
 - Claude must explicitly state the Active Skill before making changes
 - Claude must not modify accounting logic outside the allowed scope of the Active Skill
 - Violations must be reported and explained, not silently corrected

@@ -6,7 +6,7 @@ This skill provides the complete testing and verification manual for the Checker
 ## Directory Structure
 
 ```
-.claude/checker-manual/
+.claude/manuals/checker-manual/
 ├── SKILL.md              ← This file (master index)
 ├── glossary.md           ← Comprehensive RE/hospitality finance glossary with formula cross-references
 ├── skills/               ← Narrative explanation files (how things work conceptually)

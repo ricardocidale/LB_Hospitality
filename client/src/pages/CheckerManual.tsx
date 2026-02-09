@@ -826,15 +826,55 @@ export default function CheckerManual() {
                 onToggle={() => toggleSection("testing-methodology")}
                 sectionRef={(el) => { sectionRefs.current["testing-methodology"] = el; }}
               >
+                <Callout>Checkers can and should create saved scenarios to test different assumption configurations. Use the Scenarios feature to save baseline states, apply changes, and compare results.</Callout>
+                <h4 className="text-white font-semibold mt-4 mb-2">7-Phase Verification Workflow</h4>
                 <ManualTable
-                  headers={["Phase", "Scope", "What to Verify"]}
+                  headers={["Phase", "Focus Area", "Key Checks"]}
                   rows={[
-                    ["Phase 1 — Simple", "Single property, all-cash, default assumptions", "Basic revenue/expense/GOP/NOI calculations"],
-                    ["Phase 2 — Moderate", "Multiple properties, mixed financing, refinancing, global changes, scenario save/load", "Debt service, interest, refinancing proceeds, fee linkage across entities"],
-                    ["Phase 3 — Edge Cases", "Zero revenue months, 100% LTV, extreme cap rates, negative NOI, mid-year acquisition, fiscal year crossover", "Boundary conditions, error handling, formula stability"],
+                    ["1. Input Verification", "Assumptions & defaults load correctly", "All defaults match constants.ts; USALI benchmark reasonableness; inflation paths configured"],
+                    ["2. Calculation Verification", "Cross-validate formulas with hand calculations", "Revenue, cost, fee, and debt formulas; PMT/amortization; management fee linkage"],
+                    ["3. Financial Statement Reconciliation", "Statement integrity & GAAP compliance", "Balance Sheet: A = L + E; Cash Flow: ASC 230 indirect method; Income Statement ties"],
+                    ["4. IRR/DCF/FCF Verification", "Investment return calculations", "NPV ≈ 0 at computed IRR; FCF = NI + D&A ± WC ± CFF; Terminal value via cap rate"],
+                    ["5. Scenario & Stress Testing", "Edge cases & boundary conditions", "Zero revenue, 100% LTV, extreme cap rates, negative NOI, mid-year acquisition"],
+                    ["6. Reports & Exports", "All outputs generate correctly", "6 export formats work; values match on-screen; charts render all projection years"],
+                    ["7. Documentation & Sign-Off", "Audit opinion & final review", "UNQUALIFIED / QUALIFIED / ADVERSE opinion; findings documented; sign-off complete"],
                   ]}
                 />
-                <p className="text-white/70 text-sm mt-3">For each test: Document setup → Export baseline Excel → Make change → Export new Excel → Compare → Log results.</p>
+
+                <h4 className="text-white font-semibold mt-6 mb-2">USALI Benchmark Ranges (Boutique Hotels)</h4>
+                <ManualTable
+                  headers={["Metric", "Acceptable Range", "Red Flag Below", "Red Flag Above"]}
+                  rows={[
+                    ["ADR", "$150 – $600", "$100", "$800"],
+                    ["Occupancy Rate", "55% – 85%", "40%", "95%"],
+                    ["RevPAR", "$100 – $400", "$60", "$500"],
+                    ["GOP Margin", "30% – 55%", "20%", "65%"],
+                    ["NOI Margin", "20% – 40%", "10%", "50%"],
+                    ["Rooms Revenue % of Total", "55% – 75%", "40%", "85%"],
+                    ["F&B Revenue % of Total", "15% – 30%", "5%", "45%"],
+                  ]}
+                />
+
+                <h4 className="text-white font-semibold mt-6 mb-2">Inflation & Escalation Verification</h4>
+                <ManualTable
+                  headers={["Cost Type", "Rate Used", "Formula", "Example Costs"]}
+                  rows={[
+                    ["Fixed Costs", "fixedCostEscalationRate (falls back to inflationRate)", "cost × (1 + rate)^yearIndex", "Admin, marketing, maintenance, insurance, tech"],
+                    ["Variable Costs", "inflationRate", "cost × (1 + rate)^yearIndex", "Travel, IT licensing, marketing %, misc ops"],
+                  ]}
+                />
+                <p className="text-white/60 text-sm mt-2">Test procedure: Set inflationRate = 3% and fixedCostEscalationRate = 5%. Verify fixed costs grow at 5% and variable costs at 3% independently.</p>
+
+                <h4 className="text-white font-semibold mt-6 mb-2">Audit Opinion Framework</h4>
+                <ManualTable
+                  headers={["Opinion", "Criteria", "Action Required"]}
+                  rows={[
+                    ["UNQUALIFIED", "All checks pass; no material discrepancies; formulas match documentation", "Approve — model is production-ready"],
+                    ["QUALIFIED", "Minor discrepancies found (< 1% variance); non-material issues identified", "Document exceptions; approve with noted reservations"],
+                    ["ADVERSE", "Material errors found; formula mismatches; GAAP violations; constraint breaches", "Block deployment; document all findings; require remediation"],
+                  ]}
+                />
+                <p className="text-white/70 text-sm mt-3">For each test: Document setup → Export baseline → Make change → Export new state → Compare hand-calculated vs. actual → Log results in activity feed.</p>
               </SectionCard>
 
               {/* Section 16: Property Financial Formulas */}

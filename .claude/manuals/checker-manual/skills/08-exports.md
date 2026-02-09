@@ -11,7 +11,7 @@
 | PDF | `.pdf` | Formal reports, investor presentations | Formatted tables matching on-screen display; includes headers and branding |
 | Excel | `.xlsx` | Offline analysis, formula verification | Separate worksheet per statement; raw numeric values; column headers preserved |
 | CSV | `.csv` | Data import to other tools | Flat file format; no formatting; ideal for loading into independent spreadsheets |
-| PowerPoint | `.pptx` | Investor presentations | Follows L+B branding (sage green palette, dark backgrounds); slide-per-statement |
+| PowerPoint | `.pptx` | Investor presentations | Follows Hospitality Business branding (sage green palette, dark backgrounds); slide-per-statement |
 | Chart PNG | `.png` | Embedding charts in documents | Rasterized chart image at screen resolution; white background |
 | Table PNG | `.png` | Embedding tables in documents | Rasterized table image matching on-screen rendering |
 
@@ -55,7 +55,7 @@ The Export Menu appears as a **dropdown button** labeled "Export" with a chevron
 - Column headers in first row; data rows follow
 
 ### PowerPoint Export (.pptx)
-- Presentation-ready slides following L+B Hospitality branding
+- Presentation-ready slides following Hospitality Business branding
 - Color scheme: Sage Green (#9FBCA4), dark backgrounds
 - One slide per major financial statement or chart
 - Suitable for investor meetings and stakeholder presentations
@@ -95,7 +95,7 @@ The Export Menu appears as a **dropdown button** labeled "Export" with a chevron
 | Excel sheets | Each statement gets its own worksheet — check sheet tabs |
 | CSV flatness | CSV has no sheet separation; use it for single-statement imports |
 | PDF fidelity | PDF tables should match the on-screen display exactly |
-| PowerPoint branding | Slides use L+B brand colors — verify consistency with design system |
+| PowerPoint branding | Slides use Hospitality Business brand colors — verify consistency with design system |
 | Export availability | The Export Menu dropdown is present on **every** financial data page |
 | Full Data Export | Available to **checker and admin roles only** — produces a complete PDF of ALL assumptions, property configurations, and financial statements in a single document |
 
@@ -129,7 +129,7 @@ This export serves as the **master reference document** for comprehensive verifi
 | ☐ | Excel export contains separate sheets per statement |
 | ☐ | CSV export opens correctly in external spreadsheet |
 | ☐ | PDF tables match on-screen display |
-| ☐ | PowerPoint uses correct L+B branding colors |
+| ☐ | PowerPoint uses correct Hospitality Business branding colors |
 | ☐ | Chart PNG captures the full chart with legend |
 | ☐ | Table PNG captures the full table with headers |
 | ☐ | Full Data Export is accessible with checker role |

@@ -565,7 +565,7 @@ export async function registerRoutes(
           partnerCompYear7: 700000, partnerCompYear8: 800000, partnerCompYear9: 800000, partnerCompYear10: 900000,
           partnerCountYear1: 3, partnerCountYear2: 3, partnerCountYear3: 3, partnerCountYear4: 3, partnerCountYear5: 3,
           partnerCountYear6: 3, partnerCountYear7: 3, partnerCountYear8: 3, partnerCountYear9: 3, partnerCountYear10: 3,
-          companyName: "L+B Hospitality Company",
+          companyName: "Hospitality Business Company",
           exitCapRate: DEFAULT_EXIT_CAP_RATE,
           salesCommissionRate: DEFAULT_COMMISSION_RATE,
           eventExpenseRate: DEFAULT_EVENT_EXPENSE_RATE,
@@ -854,7 +854,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       
       checks.push({
         category: "Color Palette",
-        rule: "All colors should be from L+B brand palette",
+        rule: "All colors should be from Hospitality Business brand palette",
         status: offBrandColors.length === 0 ? "pass" : offBrandColors.length <= 3 ? "warning" : "fail",
         details: offBrandColors.length === 0 
           ? "All colors match brand palette"
@@ -1309,7 +1309,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
         partnerCompYear7: 700000, partnerCompYear8: 800000, partnerCompYear9: 800000, partnerCompYear10: 900000,
         partnerCountYear1: 3, partnerCountYear2: 3, partnerCountYear3: 3, partnerCountYear4: 3, partnerCountYear5: 3,
         partnerCountYear6: 3, partnerCountYear7: 3, partnerCountYear8: 3, partnerCountYear9: 3, partnerCountYear10: 3,
-        companyName: "L+B Hospitality Company",
+        companyName: "Hospitality Business Company",
         exitCapRate: DEFAULT_EXIT_CAP_RATE,
         salesCommissionRate: DEFAULT_COMMISSION_RATE,
         eventExpenseRate: DEFAULT_EVENT_EXPENSE_RATE,

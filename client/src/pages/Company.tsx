@@ -510,7 +510,7 @@ export default function Company() {
     }
     
     doc.setFontSize(18);
-    doc.text(`${global?.companyName || "L+B Hospitality Co."} - ${title}`, 14, 15);
+    doc.text(`${global?.companyName || "Hospitality Business Co."} - ${title}`, 14, 15);
     doc.setFontSize(10);
     doc.text(`${projectionYears}-Year Projection (${data.years[0]} - ${data.years[data.years.length - 1]})`, 14, 22);
     doc.text(`Generated: ${format(new Date(), 'MMM d, yyyy')}`, 14, 27);
@@ -739,7 +739,7 @@ export default function Company() {
       <div className="space-y-6">
         {/* Page Header */}
         <PageHeader
-          title={global?.companyName || "L+B Hospitality Co."}
+          title={global?.companyName || "Hospitality Business Co."}
           subtitle="Corporate Management Entity & Operations"
           actions={
             <Link href="/company/assumptions" className="text-inherit no-underline">
@@ -788,7 +788,7 @@ export default function Company() {
             {/* Income Statement */}
             <div ref={activeTab === 'income' ? tableRef : undefined} className="bg-white rounded-2xl p-6 shadow-sm border">
               <div>
-                <h3 className="text-lg font-display text-gray-900 mb-4">Income Statement - {global?.companyName || "L+B Hospitality Co."}</h3>
+                <h3 className="text-lg font-display text-gray-900 mb-4">Income Statement - {global?.companyName || "Hospitality Business Co."}</h3>
                 <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
@@ -1078,7 +1078,7 @@ export default function Company() {
             {/* Cash Flow Statement */}
             <div ref={activeTab === 'cashflow' ? tableRef : undefined} className="bg-white rounded-2xl p-6 shadow-sm border">
               <div>
-                <h3 className="text-lg font-display text-gray-900 mb-4">Statement of Cash Flows — {global?.companyName || "L+B Hospitality Co."}</h3>
+                <h3 className="text-lg font-display text-gray-900 mb-4">Statement of Cash Flows — {global?.companyName || "Hospitality Business Co."}</h3>
                 <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
@@ -1455,7 +1455,7 @@ export default function Company() {
             {/* Balance Sheet */}
             <div ref={activeTab === 'balance' ? tableRef : undefined} className="bg-white rounded-2xl p-6 shadow-sm border">
               <div>
-                <h3 className="text-lg font-display text-gray-900 mb-4">Balance Sheet - {global?.companyName || "L+B Hospitality Co."} (As of {getFiscalYear(9)})</h3>
+                <h3 className="text-lg font-display text-gray-900 mb-4">Balance Sheet - {global?.companyName || "Hospitality Business Co."} (As of {getFiscalYear(9)})</h3>
                 {(() => {
                   // Calculate cumulative values through Year 10
                   const cumulativeNetIncome = financials.reduce((a, m) => a + m.netIncome, 0);

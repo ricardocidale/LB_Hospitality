@@ -13,7 +13,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const { user, isAdmin, logout } = useAuth();
   const { data: global } = useGlobalAssumptions();
   
-  const companyName = global?.companyName ?? "L+B Hospitality";
+  const companyName = global?.companyName ?? "Hospitality Business";
   const companyLogo = global?.companyLogo ?? defaultLogo;
 
   const navItems = [
@@ -79,7 +79,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </div>
               <div>
                 <h1 className="text-xl font-extrabold" style={{ fontFamily: "'Nunito', sans-serif", color: '#FFF9F5' }}>
-                  L+B <span style={{ color: '#9FBCA4' }}>Hospitality</span>
+                  Hospitality <span style={{ color: '#9FBCA4' }}>Business</span>
                 </h1>
                 <p className="text-xs uppercase tracking-widest" style={{ color: 'rgba(255, 249, 245, 0.5)' }}>Business Simulation</p>
               </div>
@@ -184,8 +184,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <main className="flex-1 flex flex-col min-w-0 overflow-x-auto">
         <header className="md:hidden h-16 border-b bg-card flex items-center justify-between px-4 sticky top-0 z-30">
           <div className="flex items-center gap-2">
-            <img src={companyLogo} alt="L+B Hospitality" className="w-8 h-8 object-contain" />
-            <span className="font-extrabold text-lg" style={{ fontFamily: "'Nunito', sans-serif" }}>L+B <span style={{ color: '#9FBCA4' }}>Hospitality</span></span>
+            <img src={companyLogo} alt="Hospitality Business" className="w-8 h-8 object-contain" />
+            <span className="font-extrabold text-lg" style={{ fontFamily: "'Nunito', sans-serif" }}>Hospitality <span style={{ color: '#9FBCA4' }}>Business</span></span>
           </div>
           <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)}>
             {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}

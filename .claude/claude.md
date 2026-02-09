@@ -1,7 +1,7 @@
-# L+B Hospitality Group — Project Instructions
+# Hospitality Business Group — Project Instructions
 
 ## Project Summary
-Business simulation portal for L+B Hospitality Group. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. The system is GAAP-compliant (ASC 230, ASC 360, ASC 470), applies IRS depreciation rules, and includes an internal audit and verification engine designed to support PwC-level review rigor. Five mandatory business rules are enforced across all scenarios.
+Business simulation portal for Hospitality Business Group. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. The system is GAAP-compliant (ASC 230, ASC 360, ASC 470), applies IRS depreciation rules, and includes an internal audit and verification engine designed to support PwC-level review rigor. Five mandatory business rules are enforced across all scenarios.
 
 ## Tech Stack
 Frontend: React 18, TypeScript, Wouter routing, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v4, Recharts  

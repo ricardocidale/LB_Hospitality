@@ -1,6 +1,6 @@
-# L+B Hospitality Group — Business Simulation Portal
+# Hospitality Business Group — Business Simulation Portal
 
-A financial modeling and portfolio management portal for L+B Hospitality Group, a boutique hotel management company. Generates monthly and yearly pro forma projections, income statements, balance sheets, and cash flow statements for hospitality assets across North America and Latin America — with independent GAAP-compliant financial verification.
+A financial modeling and portfolio management portal for Hospitality Business Group, a boutique hotel management company. Generates monthly and yearly pro forma projections, income statements, balance sheets, and cash flow statements for hospitality assets across North America and Latin America — with independent GAAP-compliant financial verification.
 
 ## Business Model
 

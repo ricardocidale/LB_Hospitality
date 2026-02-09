@@ -3,9 +3,9 @@
 ## Section ID: `business-model`
 
 ## Content Summary
-Explains the two-entity structure of L+B Hospitality Group:
+Explains the two-entity structure of Hospitality Business Group:
 
-1. **Management Company (L+B Hospitality Co.)** — Earns management fees from operating boutique hotels. Revenue = base management fees + incentive fees from property portfolio. Expenses = staff, office lease, professional services, technology, travel, marketing.
+1. **Management Company (Hospitality Business Co.)** — Earns management fees from operating boutique hotels. Revenue = base management fees + incentive fees from property portfolio. Expenses = staff, office lease, professional services, technology, travel, marketing.
 
 2. **Property Portfolio** — Individual boutique hotel properties. Each property is modeled independently with its own revenue streams, expenses, debt, and returns. Properties feed management fees up to the management company.
 
@@ -16,6 +16,6 @@ Explains the two-entity structure of L+B Hospitality Group:
 - Consolidated view combines both entities
 
 ## Cross-References
-- Formulas: `.claude/checker-manual/formulas/company-financials.md` (management company math)
-- Formulas: `.claude/checker-manual/formulas/property-financials.md` (property math)
+- Formulas: `.claude/manuals/checker-manual/formulas/company-financials.md` (management company math)
+- Formulas: `.claude/manuals/checker-manual/formulas/property-financials.md` (property math)
 - Constants: `PROJECTION_YEARS` in `shared/constants.ts`

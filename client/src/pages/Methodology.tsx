@@ -76,7 +76,7 @@ const sections = [
   { id: "cash-flow", title: "Free Cash Flow (GAAP Method)", subtitle: "How we calculate cash available to investors", icon: DollarSign },
   { id: "balance-sheet", title: "Balance Sheet", subtitle: "Assets, liabilities, and equity per GAAP standards", icon: BookOpen },
   { id: "returns", title: "Investment Returns", subtitle: "IRR, equity multiple, and exit value calculations", icon: PieChart },
-  { id: "management-company", title: "Management Company Financials", subtitle: "L+B Hospitality Co. revenue and expenses", icon: Building2 },
+  { id: "management-company", title: "Management Company Financials", subtitle: "Hospitality Business Co. revenue and expenses", icon: Building2 },
   { id: "fixed-assumptions", title: "Fixed Assumptions (Not Configurable)", subtitle: "Hardcoded values built into the calculation engine", icon: Info, className: "border-amber-200 bg-amber-50/30" },
   { id: "verification", title: "Financial Verification & Audit", subtitle: "How we verify calculations for GAAP compliance", icon: Calculator },
 ];
@@ -175,7 +175,7 @@ export default function Methodology() {
               sectionRef={(el) => { sectionRefs.current["business-model"] = el; }}
             >
               <p className="text-sm text-muted-foreground">
-                The L+B Hospitality model consists of <strong>two distinct financial entities</strong> that are
+                The Hospitality Business model consists of <strong>two distinct financial entities</strong> that are
                 modeled independently but linked through management fees:
               </p>
 
@@ -782,7 +782,7 @@ export default function Methodology() {
               <div className="bg-muted/50 rounded-lg p-4">
                 <h4 className="font-semibold mb-2">Management Fees</h4>
                 <p className="text-sm text-muted-foreground mb-2">
-                  L+B Hospitality earns fees for managing each property:
+                  Hospitality Business earns fees for managing each property:
                 </p>
                 <div className="bg-background rounded p-3 font-mono text-sm space-y-1">
                   <div>Base Fee = Total Revenue × {pct(0.05)}</div>
@@ -1080,7 +1080,7 @@ export default function Methodology() {
             <SectionCard
               id="management-company"
               title="Management Company Financials"
-              subtitle="L+B Hospitality Co. revenue and expenses"
+              subtitle="Hospitality Business Co. revenue and expenses"
               icon={Building2}
               variant="light"
               expanded={expandedSections.has("management-company")}

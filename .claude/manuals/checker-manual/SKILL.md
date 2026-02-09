@@ -1,4 +1,4 @@
-# Checker Manual — L+B Hospitality Group Business Simulation Portal
+# Checker Manual — Hospitality Business Group Business Simulation Portal
 
 ## Purpose
 This skill provides the complete testing and verification manual for the Checker user role. It is organized into three sub-directories and two root files to minimize context load:

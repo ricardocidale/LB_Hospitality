@@ -1,6 +1,6 @@
 # Glossary of Terms — Real Estate & Hospitality Finance
 
-This glossary defines every financial and operational term used in the L+B Hospitality Group Business Simulation Portal. Each entry includes a cross-reference to the relevant formula ID in the `formulas/` directory where applicable.
+This glossary defines every financial and operational term used in the Hospitality Business Group Business Simulation Portal. Each entry includes a cross-reference to the relevant formula ID in the `formulas/` directory where applicable.
 
 ## Formula Reference Key
 

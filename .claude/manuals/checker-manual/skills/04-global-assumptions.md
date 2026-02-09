@@ -16,7 +16,7 @@ Global assumptions are stored in the `global_assumptions` database table (one ro
 
 | Field | Definition | Default Value | Unit | Impacts |
 |-------|-----------|--------------|------|---------|
-| `companyName` | Display name for the management company | "L+B Hospitality Company" | text | Both |
+| `companyName` | Display name for the management company | "Hospitality Business Company" | text | Both |
 | `companyLogo` | URL to uploaded company logo | null | URL | Both |
 | `propertyLabel` | Label used for property type throughout UI | "Boutique Hotel" | text | Both |
 | `modelStartDate` | First month of the financial model | 2026-04-01 | date | Both |

@@ -26,5 +26,5 @@ NOI = GOP − Undistributed Expenses − Management Fees − FF&E Reserve
 - Incentive fee: `incentiveManagementFee` (default 15%) × GOP above threshold
 
 ## Cross-References
-- Formulas: `.claude/checker-manual/formulas/property-financials.md` § GOP, NOI
+- Formulas: `.claude/manuals/checker-manual/formulas/property-financials.md` § GOP, NOI
 - Rules: `.claude/rules/financial-engine.md` → "Profitability"

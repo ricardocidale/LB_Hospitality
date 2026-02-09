@@ -29,5 +29,5 @@ All user actions are logged for audit trail. Verification results are persisted 
 
 ## Cross-References
 - System: `.claude/rules/verification-system.md` (complete verification architecture)
-- Checker Manual: `.claude/checker-manual/skills/15-testing-methodology.md` (7-phase testing)
-- Tools: `.claude/checker-manual/tools/` (validation check schemas)
+- Checker Manual: `.claude/manuals/checker-manual/skills/15-testing-methodology.md` (7-phase testing)
+- Tools: `.claude/manuals/checker-manual/tools/` (validation check schemas)

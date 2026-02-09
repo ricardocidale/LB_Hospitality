@@ -31,5 +31,5 @@ FCFE = FCF − Additional Principal (cash to equity holders)
 - No negative cash allowed
 
 ## Cross-References
-- Formulas: `.claude/checker-manual/formulas/property-financials.md` § Cash Flow
+- Formulas: `.claude/manuals/checker-manual/formulas/property-financials.md` § Cash Flow
 - GAAP: ASC 230 (Statement of Cash Flows), ASC 470 (Debt)

@@ -1,6 +1,6 @@
 # Calculation Chain — Authoritative Reference
 
-This skill documents every financial formula in the L+B Hospitality engine, its authoritative source (IRS, GAAP, USALI, or industry standard), and the exact chain from assumption variables through to financial statement line items.
+This skill documents every financial formula in the Hospitality Business engine, its authoritative source (IRS, GAAP, USALI, or industry standard), and the exact chain from assumption variables through to financial statement line items.
 
 Any code change to the financial engine MUST be cross-referenced against this document.
 
@@ -16,9 +16,9 @@ Any code change to the financial engine MUST be cross-referenced against this do
 | Sold Rooms | `availableRooms × occupancy` | STR methodology |
 | Room Revenue | `soldRooms × ADR` | STR: ADR = Total Room Revenue ÷ Rooms Sold |
 | RevPAR | `ADR × occupancy` or `roomRevenue ÷ availableRooms` | STR: both methods must agree |
-| F&B Revenue | `roomRevenue × revShareFB × (1 + cateringBoostPercent)` | L+B model |
-| Events Revenue | `roomRevenue × revShareEvents` | L+B model |
-| Other Revenue | `roomRevenue × revShareOther` | L+B model |
+| F&B Revenue | `roomRevenue × revShareFB × (1 + cateringBoostPercent)` | Hospitality Business model |
+| Events Revenue | `roomRevenue × revShareEvents` | Hospitality Business model |
+| Other Revenue | `roomRevenue × revShareOther` | Hospitality Business model |
 | Total Revenue | `roomRevenue + fbRevenue + eventsRevenue + otherRevenue` | USALI Summary Statement |
 
 ### ADR Growth

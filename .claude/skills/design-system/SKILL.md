@@ -1,13 +1,13 @@
 ---
 name: design-system
 description: >
-  L+B Hospitality Group UI design system. Use when building or modifying pages,
+  Hospitality Business Group UI design system. Use when building or modifying pages,
   creating components, or ensuring visual consistency. Covers exact CSS classes
   (production-audited), color palette, typography, component catalog, shared
   financial table components, layout patterns, and migration guides.
 ---
 
-# L+B Hospitality Partner Portal — Design System
+# Hospitality Business Partner Portal — Design System
 
 > Single source of truth for the visual language of the Partner Portal.
 > Every new page, component, or feature must follow these patterns.
@@ -307,7 +307,7 @@ shadow-[0_0_40px_rgba(56,189,248,0.35),0_0_80px_rgba(56,189,248,0.18),0_8px_32px
 ```
 
 - Ambient glow orbs behind: `bg-[#38BDF8]/10 blur-[120px]`
-- Logo + "L+B Hospitality" branding at top
+- Logo + "Hospitality Business" branding at top
 - Input fields: dark glass with subtle borders
 - **Circular orb button** for Sign In (112×112px, `rounded-full`) — unique to login, do not replicate
 

@@ -100,7 +100,7 @@ export function runFullVerification(
   const crossReports: CrossValidationReport[] = [];
   
   console.log("╔══════════════════════════════════════════════════════════════════════════════╗");
-  console.log("║           L+B HOSPITALITY - FINANCIAL VERIFICATION SUITE                     ║");
+  console.log("║           HOSPITALITY BUSINESS - FINANCIAL VERIFICATION SUITE                     ║");
   console.log("║                    PwC-Level Audit Standards                                 ║");
   console.log("╚══════════════════════════════════════════════════════════════════════════════╝\n");
   
@@ -183,7 +183,7 @@ export function runFullVerification(
   let auditWorkpaper = "";
   auditWorkpaper += "╔══════════════════════════════════════════════════════════════════════════════╗\n";
   auditWorkpaper += "║               CONSOLIDATED INDEPENDENT AUDITOR'S REPORT                      ║\n";
-  auditWorkpaper += "║                       L+B Hospitality Group                                  ║\n";
+  auditWorkpaper += "║                       Hospitality Business Group                                  ║\n";
   auditWorkpaper += "╚══════════════════════════════════════════════════════════════════════════════╝\n\n";
   
   for (const report of auditReports) {

@@ -135,7 +135,7 @@ Generates formatted workbooks with currency formatting (`#,##0`), percentage for
 **Library**: `pptxgenjs`
 **Detail**: [pptx-export.md](./pptx-export.md)
 
-Branded presentations with L+B colors (sage green headers, dark navy title slides, metric cards). Three export scopes: `exportPortfolioPPTX`, `exportPropertyPPTX`, `exportCompanyPPTX`. Auto-paginates tables when projection years exceed 5.
+Branded presentations with Hospitality Business colors (sage green headers, dark navy title slides, metric cards). Three export scopes: `exportPortfolioPPTX`, `exportPropertyPPTX`, `exportCompanyPPTX`. Auto-paginates tables when projection years exceed 5.
 
 ### 3. PDF (Charts + Tables)
 
@@ -287,7 +287,7 @@ import { ExportDialog } from "@/components/ui/export-dialog";
 
 ## Branding Constants
 
-All exports use consistent L+B branding:
+All exports use consistent Hospitality Business branding:
 
 | Token | Hex | Usage |
 |-------|-----|-------|

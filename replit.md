@@ -6,10 +6,11 @@ This project is a business simulation portal designed for Hospitality Business G
 
 ## User Preferences
 
-Preferred communication style: Simple, everyday language.
+Preferred communication style: Simple, everyday language. Detailed user — ask lots of clarifying questions before implementing features. Do not assume; confirm requirements first.
 Always format money as money (currency format with commas and appropriate precision).
 All skills must be stored under `.claude/` directory (e.g., `.claude/skills/`, `.claude/manuals/`, `.claude/tools/`). Never place skills elsewhere.
 The company name is "Hospitality Business Group" (or "Hospitality Business" for short). Never use "L+B Hospitality" in code or documentation.
+Research badges (amber/gold `ResearchBadge` component) must be placed next to every user input field that has corresponding AI market research data. When research data exists for a field, show the recommended value inline so users can click to apply it. Currently mapped: startAdr, maxOccupancy, startOccupancy, occupancyRampMonths, cateringBoostPercent, exitCapRate, landValuePercent. Any new research fields should always get badges on input fields.
 
 ## System Architecture
 

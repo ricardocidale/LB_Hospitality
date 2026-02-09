@@ -83,17 +83,27 @@ export default function PropertyEdit() {
     const adrRange = parseRange(c.adrAnalysis?.recommendedRange);
     const capRange = parseRange(c.capRateAnalysis?.recommendedRange);
     const cateringPct = parsePct(c.cateringAnalysis?.recommendedBoostPercent);
+    const landPct = parsePct(c.landValueAllocation?.recommendedPercent);
     const occText = c.occupancyAnalysis?.rampUpTimeline as string | undefined;
     let occRange: { low: number; high: number; mid: number } | null = null;
+    let initOccRange: { low: number; high: number; mid: number } | null = null;
+    let rampMonthsRange: { low: number; high: number; mid: number } | null = null;
     if (occText) {
       const stabMatch = occText.match(/stabilized occupancy of (\d+)[–\-](\d+)%/);
       if (stabMatch) occRange = { low: parseInt(stabMatch[1]), high: parseInt(stabMatch[2]), mid: Math.round((parseInt(stabMatch[1]) + parseInt(stabMatch[2])) / 2) };
+      const initMatch = occText.match(/initial occupancy (?:around |of )?(\d+)[–\-](\d+)%/);
+      if (initMatch) initOccRange = { low: parseInt(initMatch[1]), high: parseInt(initMatch[2]), mid: Math.round((parseInt(initMatch[1]) + parseInt(initMatch[2])) / 2) };
+      const rampMatch = occText.match(/(\d+)[–\-](\d+) months/);
+      if (rampMatch) rampMonthsRange = { low: parseInt(rampMatch[1]), high: parseInt(rampMatch[2]), mid: Math.round((parseInt(rampMatch[1]) + parseInt(rampMatch[2])) / 2) };
     }
     return {
       adr: adrRange ? { display: c.adrAnalysis?.recommendedRange as string, mid: adrRange.mid } : null,
       occupancy: occRange ? { display: `${occRange.low}%–${occRange.high}%`, mid: occRange.mid } : null,
+      startOccupancy: initOccRange ? { display: `${initOccRange.low}%–${initOccRange.high}%`, mid: initOccRange.mid } : null,
+      rampMonths: rampMonthsRange ? { display: `${rampMonthsRange.low}–${rampMonthsRange.high} mo`, mid: rampMonthsRange.mid } : null,
       capRate: capRange ? { display: c.capRateAnalysis?.recommendedRange as string, mid: (capRange.low + capRange.high) / 2 } : null,
       catering: cateringPct != null ? { display: c.cateringAnalysis?.recommendedBoostPercent as string, mid: cateringPct } : null,
+      landValue: landPct != null ? { display: c.landValueAllocation?.recommendedPercent as string, mid: landPct } : null,
     };
   })();
 
@@ -221,19 +231,19 @@ export default function PropertyEdit() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label className="label-text text-gray-700">Property Name</Label>
+                <Label className="label-text text-gray-700 flex items-center gap-1.5">Property Name<HelpTooltip text="Internal name used to identify this property across the portfolio. Appears in dashboards, reports, and financial statements." /></Label>
                 <Input value={draft.name} onChange={(e) => handleChange("name", e.target.value)} className="bg-white border-[#9FBCA4]/30 text-gray-900 placeholder:text-gray-400" />
               </div>
               <div className="space-y-2">
-                <Label className="label-text text-gray-700">Location</Label>
+                <Label className="label-text text-gray-700 flex items-center gap-1.5">Location<HelpTooltip text="Full address or city/state of the property. Used for market research to find comparable properties and local hospitality benchmarks." /></Label>
                 <Input value={draft.location} onChange={(e) => handleChange("location", e.target.value)} className="bg-white border-[#9FBCA4]/30 text-gray-900 placeholder:text-gray-400" />
               </div>
               <div className="space-y-2">
-                <Label className="label-text text-gray-700">Market</Label>
+                <Label className="label-text text-gray-700 flex items-center gap-1.5">Market<HelpTooltip text="The broader market or MSA (Metropolitan Statistical Area) this property operates in. Drives market research, comp set analysis, and regional benchmarks." /></Label>
                 <Input value={draft.market} onChange={(e) => handleChange("market", e.target.value)} className="bg-white border-[#9FBCA4]/30 text-gray-900 placeholder:text-gray-400" />
               </div>
               <div className="space-y-2 md:col-span-2">
-                <Label className="label-text text-gray-700">Property Photo</Label>
+                <Label className="label-text text-gray-700 flex items-center gap-1.5">Property Photo<HelpTooltip text="Upload or generate a representative photo for this property. Displayed on portfolio cards and property detail pages." /></Label>
                 <PropertyImagePicker
                   imageUrl={draft.imageUrl}
                   onImageChange={(url) => handleChange("imageUrl", url)}
@@ -243,7 +253,7 @@ export default function PropertyEdit() {
                 />
               </div>
               <div className="space-y-2">
-                <Label className="label-text text-gray-700">Status</Label>
+                <Label className="label-text text-gray-700 flex items-center gap-1.5">Status<HelpTooltip text="Current stage of the property: Acquisition (under contract), Planned (in development), or Active (generating revenue)." /></Label>
                 <Select value={draft.status} onValueChange={(v) => handleChange("status", v)}>
                   <SelectTrigger className="bg-white border-[#9FBCA4]/30 text-gray-900"><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -254,7 +264,7 @@ export default function PropertyEdit() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label className="label-text text-gray-700">Room Count</Label>
+                <Label className="label-text text-gray-700 flex items-center gap-1.5">Room Count<HelpTooltip text="Total number of rentable guest rooms. This is the primary revenue driver — all room revenue is calculated as Rooms × ADR × Occupancy × 30.5 days/month." /></Label>
                 <Input type="number" value={draft.roomCount} onChange={(e) => handleNumberChange("roomCount", e.target.value)} className="bg-white border-[#9FBCA4]/30 text-gray-900 placeholder:text-gray-400" />
               </div>
             </div>
@@ -306,7 +316,7 @@ export default function PropertyEdit() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="space-y-2">
-                <Label className="label-text text-gray-700">Purchase Price ($)</Label>
+                <Label className="label-text text-gray-700 flex items-center gap-1.5">Purchase Price ($)<HelpTooltip text="Total acquisition cost of the property. This is the basis for equity investment, loan sizing, and depreciation calculations." /></Label>
                 <Input 
                   value={formatMoneyInput(draft.purchasePrice)} 
                   onChange={(e) => handleNumberChange("purchasePrice", parseMoneyInput(e.target.value).toString())}
@@ -314,7 +324,7 @@ export default function PropertyEdit() {
                 />
               </div>
               <div className="space-y-2">
-                <Label className="label-text text-gray-700">Building Improvements ($)</Label>
+                <Label className="label-text text-gray-700 flex items-center gap-1.5">Building Improvements ($)<HelpTooltip text="Capital improvements and renovation costs added to the building basis. These are depreciated over 27.5 years along with the building portion of the purchase price." /></Label>
                 <Input 
                   value={formatMoneyInput(draft.buildingImprovements)} 
                   onChange={(e) => handleNumberChange("buildingImprovements", parseMoneyInput(e.target.value).toString())}
@@ -322,9 +332,10 @@ export default function PropertyEdit() {
                 />
               </div>
               <div className="space-y-2">
-                <Label className="label-text text-gray-700 flex items-center">
+                <Label className="label-text text-gray-700 flex items-center gap-1.5">
                   Land Value (%)
                   <HelpTooltip text="Percentage of the purchase price allocated to land. Land does not depreciate under IRS rules (Publication 946). Only the building portion is depreciated over 27.5 years. Typical land allocation ranges from 15-40% depending on location and property type." />
+                  <ResearchBadge value={researchValues.landValue?.display} onClick={() => researchValues.landValue && handleChange("landValuePercent", researchValues.landValue.mid / 100)} />
                 </Label>
                 <div className="flex items-center gap-3">
                   <Slider
@@ -345,7 +356,7 @@ export default function PropertyEdit() {
                 </p>
               </div>
               <div className="space-y-2">
-                <Label className="label-text text-gray-700">Pre-Opening Costs ($)</Label>
+                <Label className="label-text text-gray-700 flex items-center gap-1.5">Pre-Opening Costs ($)<HelpTooltip text="One-time costs incurred before the property opens: hiring, training, marketing launch, supplies, licensing, and initial inventory." /></Label>
                 <Input 
                   value={formatMoneyInput(draft.preOpeningCosts)} 
                   onChange={(e) => handleNumberChange("preOpeningCosts", parseMoneyInput(e.target.value).toString())}
@@ -353,7 +364,7 @@ export default function PropertyEdit() {
                 />
               </div>
               <div className="space-y-2">
-                <Label className="label-text text-gray-700">Operating Reserve ($)</Label>
+                <Label className="label-text text-gray-700 flex items-center gap-1.5">Operating Reserve ($)<HelpTooltip text="Cash reserve set aside at acquisition to cover working capital needs during the ramp-up period before the property reaches stabilized operations." /></Label>
                 <Input 
                   value={formatMoneyInput(draft.operatingReserve)} 
                   onChange={(e) => handleNumberChange("operatingReserve", parseMoneyInput(e.target.value).toString())}
@@ -363,7 +374,7 @@ export default function PropertyEdit() {
             </div>
 
             <div className="space-y-3 pt-2">
-              <Label className="label-text text-gray-700">Type of Funding</Label>
+              <Label className="label-text text-gray-700 flex items-center gap-1.5">Type of Funding<HelpTooltip text="How the acquisition is financed. Full Equity means 100% cash investment. Financed means a portion is covered by a mortgage loan." /></Label>
               <RadioGroup 
                 value={draft.type} 
                 onValueChange={(v) => handleChange("type", v)}
@@ -385,7 +396,7 @@ export default function PropertyEdit() {
                 <h4 className="font-display mb-4 text-gray-900">Acquisition Financing</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label className="label-text text-gray-700">Loan-to-Value (LTV) %</Label>
+                    <Label className="label-text text-gray-700 flex items-center gap-1.5">Loan-to-Value (LTV) %<HelpTooltip text="Loan-to-Value ratio: the percentage of the purchase price financed by the lender. Higher LTV means less equity required but more debt service." /></Label>
                     <Input 
                       type="number" 
                       step="0.01"
@@ -395,7 +406,7 @@ export default function PropertyEdit() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="label-text text-gray-700">Interest Rate (%)</Label>
+                    <Label className="label-text text-gray-700 flex items-center gap-1.5">Interest Rate (%)<HelpTooltip text="Annual interest rate on the acquisition loan. Determines monthly debt service payments." /></Label>
                     <Input 
                       type="number" 
                       step="0.01"
@@ -405,7 +416,7 @@ export default function PropertyEdit() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="label-text text-gray-700">Loan Term (Years)</Label>
+                    <Label className="label-text text-gray-700 flex items-center gap-1.5">Loan Term (Years)<HelpTooltip text="Amortization period for the loan in years. Longer terms reduce monthly payments but increase total interest paid." /></Label>
                     <Input 
                       type="number" 
                       value={draft.acquisitionTermYears || DEFAULT_TERM_YEARS} 
@@ -414,7 +425,7 @@ export default function PropertyEdit() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="label-text text-gray-700">Closing Costs (%)</Label>
+                    <Label className="label-text text-gray-700 flex items-center gap-1.5">Closing Costs (%)<HelpTooltip text="Transaction costs as a percentage of the loan amount: lender fees, appraisal, title insurance, legal fees." /></Label>
                     <Input 
                       type="number" 
                       step="0.01"
@@ -577,7 +588,10 @@ export default function PropertyEdit() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label className="label-text text-gray-700">Starting Occupancy</Label>
+                  <Label className="label-text text-gray-700 flex items-center gap-1.5">
+                    Starting Occupancy
+                    <ResearchBadge value={researchValues.startOccupancy?.display} onClick={() => researchValues.startOccupancy && handleChange("startOccupancy", researchValues.startOccupancy.mid / 100)} />
+                  </Label>
                   <EditableValue
                     value={draft.startOccupancy * 100}
                     onChange={(val) => handleChange("startOccupancy", val / 100)}
@@ -624,7 +638,10 @@ export default function PropertyEdit() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label className="label-text text-gray-700">Occupancy Ramp</Label>
+                  <Label className="label-text text-gray-700 flex items-center gap-1.5">
+                    Occupancy Ramp
+                    <ResearchBadge value={researchValues.rampMonths?.display} onClick={() => researchValues.rampMonths && handleChange("occupancyRampMonths", researchValues.rampMonths.mid)} />
+                  </Label>
                   <EditableValue
                     value={draft.occupancyRampMonths}
                     onChange={(val) => handleChange("occupancyRampMonths", val)}

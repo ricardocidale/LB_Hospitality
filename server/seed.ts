@@ -944,6 +944,124 @@ async function seed() {
   console.log("Database seed completed successfully!");
 }
 
+export function getMarketResearchSeedData(propertyMap: Record<string, number>) {
+  return [
+    {
+      userId: null as number | null,
+      type: "property",
+      propertyId: propertyMap["The Hudson Estate"],
+      title: "Market Research: The Hudson Estate",
+      llmModel: "seed-data",
+    },
+    {
+      userId: null as number | null,
+      type: "property",
+      propertyId: propertyMap["Eden Summit Lodge"],
+      title: "Market Research: Eden Summit Lodge",
+      llmModel: "seed-data",
+    },
+    {
+      userId: null as number | null,
+      type: "property",
+      propertyId: propertyMap["Austin Hillside"],
+      title: "Market Research: Austin Hillside",
+      llmModel: "seed-data",
+    },
+    {
+      userId: null as number | null,
+      type: "property",
+      propertyId: propertyMap["Casa Medellín"],
+      title: "Market Research: Casa Medellín",
+      llmModel: "seed-data",
+    },
+    {
+      userId: null as number | null,
+      type: "property",
+      propertyId: propertyMap["Blue Ridge Manor"],
+      title: "Market Research: Blue Ridge Manor",
+      llmModel: "seed-data",
+    },
+  ];
+}
+
+export async function seedMissingMarketResearch() {
+  try {
+    const allProperties = await db.select().from(properties);
+    if (allProperties.length === 0) return;
+
+    const existingResearch = await db.select().from(marketResearch);
+    const propertyIdsWithResearch = new Set(existingResearch.map(r => r.propertyId));
+
+    const propertyMap: Record<string, number> = {};
+    for (const p of allProperties) {
+      propertyMap[p.name] = p.id;
+    }
+
+    const missingNames = allProperties
+      .filter(p => !propertyIdsWithResearch.has(p.id))
+      .map(p => p.name);
+
+    if (missingNames.length === 0) return;
+
+    const fullSeedValues = await getFullMarketResearchValues(propertyMap);
+    const toInsert = fullSeedValues.filter(v => {
+      const prop = allProperties.find(p => p.id === v.propertyId);
+      return prop && missingNames.includes(prop.name);
+    });
+
+    if (toInsert.length > 0) {
+      await db.insert(marketResearch).values(toInsert);
+      console.log(`Seeded market research for ${toInsert.length} properties: ${missingNames.join(", ")}`);
+    }
+  } catch (err) {
+    console.error("Error seeding market research:", err);
+  }
+}
+
+async function getFullMarketResearchValues(propertyMap: Record<string, number>) {
+  // Return the full market research seed data with content
+  // This reuses the same data from the seed() function
+  const values: any[] = [];
+
+  if (propertyMap["The Hudson Estate"]) {
+    values.push({
+      userId: null, type: "property", propertyId: propertyMap["The Hudson Estate"],
+      title: "Market Research: The Hudson Estate", llmModel: "seed-data",
+      content: getHudsonEstateResearch(),
+    });
+  }
+  if (propertyMap["Eden Summit Lodge"]) {
+    values.push({
+      userId: null, type: "property", propertyId: propertyMap["Eden Summit Lodge"],
+      title: "Market Research: Eden Summit Lodge", llmModel: "seed-data",
+      content: getEdenSummitResearch(),
+    });
+  }
+  if (propertyMap["Austin Hillside"]) {
+    values.push({
+      userId: null, type: "property", propertyId: propertyMap["Austin Hillside"],
+      title: "Market Research: Austin Hillside", llmModel: "seed-data",
+      content: getAustinHillsideResearch(),
+    });
+  }
+  if (propertyMap["Casa Medellín"]) {
+    values.push({
+      userId: null, type: "property", propertyId: propertyMap["Casa Medellín"],
+      title: "Market Research: Casa Medellín", llmModel: "seed-data",
+      content: getCasaMedellinResearch(),
+    });
+  }
+  if (propertyMap["Blue Ridge Manor"]) {
+    values.push({
+      userId: null, type: "property", propertyId: propertyMap["Blue Ridge Manor"],
+      title: "Market Research: Blue Ridge Manor", llmModel: "seed-data",
+      content: getBlueRidgeResearch(),
+    });
+  }
+
+  return values;
+}
+
 seed()
   .then(() => process.exit(0))
   .catch((error) => {

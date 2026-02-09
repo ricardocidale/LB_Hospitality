@@ -487,7 +487,7 @@ export async function registerRoutes(
       const usersToSeed = [
         { email: "admin", passwordHash: await hashPassword(adminPw), role: "admin" as const, name: "Ricardo Cidale", company: "Norfolk Group", title: "Partner" },
         { email: "rosario@kitcapital.com", passwordHash: await hashPassword(adminPw), role: "user" as const, name: "Rosario David", company: "KIT Capital", title: "COO" },
-        { email: "checker", passwordHash: await hashPassword(checkerPw), role: "user" as const, name: "Checker User" }
+        { email: "checker", passwordHash: await hashPassword(checkerPw), role: "checker" as const, name: "Checker User" }
       ];
       
       for (const userData of usersToSeed) {

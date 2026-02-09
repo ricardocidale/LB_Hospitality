@@ -1,0 +1,14 @@
+{
+  "scenario": "Consolidated with Eliminations",
+  "timestamp": "2026-02-09T23:18:51.160Z",
+  "property_a_fees": 87466.65712499997,
+  "property_b_fees": 157439.98282499998,
+  "total_spv_fees": 244906.63994999995,
+  "opco_fee_revenue": 244906.63994999995,
+  "fees_eliminated": 244906.64,
+  "fee_linkage_balanced": true,
+  "fee_variance": 0,
+  "consolidated_revenue": 2859832.5,
+  "consolidated_net_income": 138776.21,
+  "balance_sheet_balanced": true
+}

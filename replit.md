@@ -85,6 +85,15 @@ When updating features, always update the corresponding skills (`.claude/skills/
 - **Seed Data**: Pre-seeded research data for all 5 properties, auto-seeded on startup.
 - **Auto-Refresh on Login**: Research data older than 7 days is automatically regenerated with a 3D animated overlay.
 
+### Automated Financial Proof System
+- **Purpose**: Eliminates human Excel verification. Code proves itself correct.
+- **Test Files**: `tests/proof/scenarios.test.ts` (5 golden scenarios), `tests/proof/hardcoded-detection.test.ts` (magic number scanner), `tests/proof/reconciliation-report.test.ts` (artifact generator).
+- **Verify Runner**: `tests/proof/verify-runner.ts` — 4-phase orchestrator (scenarios → hardcoded detection → reconciliation → artifact summary).
+- **Artifacts**: `test-artifacts/` — JSON + Markdown reconciliation reports for each scenario.
+- **Test Count**: 355 total tests (315 existing + 40 proof tests).
+- **Commands**: `npm test` (all tests), `npx tsx tests/proof/verify-runner.ts` (full verification).
+- **Skill Docs**: `.claude/skills/finance/automated-proof-system.md`.
+
 ### Database Environments
 - **Separate Databases**: Development and Production PostgreSQL databases with distinct data.
 - **Syncing Production Data**: Manual process involving identifying differences, writing SQL UPDATE statements, and executing them in the Production Database shell.

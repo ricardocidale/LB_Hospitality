@@ -242,14 +242,17 @@ describe("Proof Scenario 2: Financed Purchase (LTV Binding)", () => {
     }
   });
 
-  it("debt schedule reconciles: begin balance - principal = end balance", () => {
-    let previousBalance = loanAmount;
-    for (const m of result) {
-      if (m.debtPayment > 0) {
-        const expectedEnd = previousBalance - m.principalPayment;
-        expect(m.debtOutstanding).toBeCloseTo(expectedEnd, 0);
-        previousBalance = m.debtOutstanding;
+  it("debt outstanding = loanAmount minus cumulative principal (replay method)", () => {
+    const r = monthlyRate;
+    const n = numPayments;
+    for (let month = 0; month < 120; month++) {
+      let bal = loanAmount;
+      for (let m = 0; m < month && m < n; m++) {
+        const interest = bal * r;
+        const principal = expectedPMT - interest;
+        bal = Math.max(0, bal - principal);
       }
+      expect(result[month].debtOutstanding).toBeCloseTo(bal, 2);
     }
   });
 

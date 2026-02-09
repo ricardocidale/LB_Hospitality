@@ -26,10 +26,12 @@ Eliminate the need for any human to verify calculations by hand or in Excel. Eve
 | Scope | Rule |
 |-------|------|
 | `client/src/lib/financialEngine.ts` | All numeric literals must trace to `constants.ts` or function parameters |
-| `client/src/lib/loanCalculations.ts` | Same |
-| `client/src/lib/cashFlowAggregator.ts` | Same |
-| `client/src/lib/yearlyAggregator.ts` | Same |
-| Safe constants (exempt) | `0`, `1`, `12`, `100`, `-1` (sign flip) |
+| `calc/refinance/refinance-calculator.ts` | No inline financial constants |
+| `calc/validation/financial-identities.ts` | GAAP string refs exempted; no magic formula constants |
+| `calc/validation/schedule-reconcile.ts` | Same |
+| `calc/analysis/consolidation.ts` | Same |
+| Safe constants (exempt) | `0`, `1`, `-1`, `2`, `12`, `100` |
+| Context exceptions (exempt) | Loop counters, array indices, Math functions, GAAP reference strings, string literals |
 ### 4. Golden Scenario Coverage
 | # | Scenario | Tests |
 |---|----------|-------|

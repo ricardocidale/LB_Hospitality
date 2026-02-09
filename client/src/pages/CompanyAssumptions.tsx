@@ -5,8 +5,8 @@ import { useAuth } from "@/lib/auth";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Loader2, HelpCircle, Upload, X, BookOpen } from "lucide-react";
+import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { Loader2, Upload, X, BookOpen } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { formatPercent, formatMoney } from "@/lib/financialEngine";
 import { useToast } from "@/hooks/use-toast";
@@ -105,16 +105,6 @@ function EditableValue({
   );
 }
 
-function HelpTooltip({ text }: { text: string }) {
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <HelpCircle className="w-4 h-4 text-[#9FBCA4] cursor-help ml-1" />
-      </TooltipTrigger>
-      <TooltipContent className="max-w-xs">{text}</TooltipContent>
-    </Tooltip>
-  );
-}
 
 
 export default function CompanyAssumptions() {

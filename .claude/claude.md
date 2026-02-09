@@ -46,7 +46,7 @@ To add exports to any page:
 Export utilities live in `client/src/lib/exports/` and include Excel, PPTX, PDF chart, PNG, and barrel exports.
 
 ### Design System
-Authoritative reference: `.claude/rules/ui-design.md`
+Authoritative reference: `.claude/skills/design-system/SKILL.md`
 
 Color palette:  
 Sage Green `#9FBCA4`, Secondary Green `#257D41`, Off-White `#FFF9F5`, Coral `#F4795B`, Dark Navy `#1A2A3A`

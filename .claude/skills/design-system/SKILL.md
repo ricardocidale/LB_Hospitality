@@ -479,9 +479,9 @@ Main content area wrapper: `flex-1 overflow-auto p-6 md:p-8` → `max-w-7xl mx-a
 | Feature modules          | `client/src/features/`                     |
 | Pages                    | `client/src/pages/`                        |
 | Design tokens            | `components.json` + `tailwind.config.ts`   |
-| This skill               | `skills/design-system/SKILL.md`            |
+| This skill               | `.claude/skills/design-system/SKILL.md`    |
 | Claude Code rules        | `.claude/rules/`                           |
-| Project system prompt    | `CLAUDE.md`                                |
+| Project instructions     | `.claude/claude.md`                        |
 
 ---
 

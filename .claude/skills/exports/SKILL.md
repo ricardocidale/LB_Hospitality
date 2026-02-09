@@ -324,7 +324,7 @@ Legacy import paths still work via re-export shim files:
 
 | Resource | Path | What it covers |
 |----------|------|----------------|
-| UI Design Rules | `.claude/rules/ui-design.md` | Color palette, component library, page themes |
+| Design System | `.claude/skills/design-system/SKILL.md` | Color palette, component library, page themes |
 | Tab Bar System | `.claude/skills/ui/tab-bar-system.md` | DarkGlassTabs `rightContent` slot |
 | Button System | `.claude/skills/ui/button-system.md` | GlassButton variants including `export` |
 | Page Header | `.claude/skills/ui/page-header.md` | PageHeader `actions` slot |

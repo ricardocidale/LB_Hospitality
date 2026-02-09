@@ -1,8 +1,8 @@
-# Financial Statements
+# Financial Table Styling
 
 ## Common Patterns
 
-All financial statement tables follow these conventions:
+All financial statement tables follow these UI conventions:
 
 - **Theme:** Light theme — white/gray backgrounds (NOT dark glass theme)
 - **Container:** `<Card className="overflow-hidden bg-white shadow-lg border border-gray-100">`

@@ -8,6 +8,7 @@ This project is a business simulation portal designed for L+B Hospitality Group,
 
 Preferred communication style: Simple, everyday language.
 Always format money as money (currency format with commas and appropriate precision).
+All skills must be stored under `.claude/` directory (e.g., `.claude/skills/`, `.claude/checker-manual/`, `.claude/tools/`). Never place skills elsewhere.
 
 ## System Architecture
 
@@ -36,7 +37,7 @@ Always format money as money (currency format with commas and appropriate precis
 - **Theming**: A blend of light-themed assumption pages and dark glass-themed main application pages.
 - **Component Standardization**: `GlassButton` for actions on dark backgrounds, `SaveButton` for saving, `PageHeader` for consistent page titles. Reusable library: `FinancialChart` (preset series), `FinancialTable` (sticky columns, section grouping), `ExportMenu` (unified dropdown for PDF/Excel/CSV/PPTX/PNG exports, glass/light variants), `StatCard` (glass/light/sage KPI cards), `ContentPanel` (light/dark section wrappers).
 - **Export System**: Reusable `ExportMenu` dropdown component providing 6 formats (PDF, Excel, CSV, PowerPoint, Chart PNG, Table PNG). Used on every data page. Component in `client/src/components/ui/export-toolbar.tsx`. Format implementations in `client/src/lib/exports/` (excelExport.ts, pptxExport.ts, pdfChartDrawer.ts, pngExport.ts). Full methodology and integration guide at `.claude/skills/exports/SKILL.md` with sub-skills for each format. Project instructions at `.claude/claude.md`.
-- **Design System Skill**: Full documentation at `~/.agents/skills/design-system/SKILL.md` covering color palette, typography, theme modes, component catalog with usage examples.
+- **Design System Skill**: Full documentation at `.claude/skills/design-system/SKILL.md` covering color palette, typography, theme modes, component catalog with usage examples.
 - **Charts**: Standardized with white backgrounds, colorful gradient lines (green for revenue, blue for GOP, coral for FCFE), data point dots, and light gray dashed grids.
 - **Admin Interface**: Consolidated into a single `/admin` route with tab-based navigation for users, login activity, checker activity, and verification.
 - **Role-Based Access Control**: Three roles defined in `shared/schema.ts` (`VALID_USER_ROLES`): `admin`, `user`, `checker`. Admin has superset permissions (all checker rights + admin capabilities). `requireChecker` middleware allows both admin and checker roles. `requireAdmin` middleware allows admin only. Last-admin protection prevents demoting/deleting the last admin user.

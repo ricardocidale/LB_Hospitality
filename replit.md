@@ -43,61 +43,31 @@ The company name is "Hospitality Business Group" (or "Hospitality Business" for 
 - **Admin Interface**: Consolidated into a single `/admin` route with tab-based navigation for users, login activity, checker activity, and verification.
 - **Role-Based Access Control**: Three roles defined in `shared/schema.ts` (`VALID_USER_ROLES`): `admin`, `user`, `checker`. Admin has superset permissions (all checker rights + admin capabilities). `requireChecker` middleware allows both admin and checker roles. `requireAdmin` middleware allows admin only. Last-admin protection prevents demoting/deleting the last admin user.
 - **Checker System**: Default checker user `checker@norfolkgroup.io` (name: Checker, title: Checker, company: Norfolk AI, role: checker). Password from `CHECKER_PASSWORD` env secret. Server auto-seeds/resets checker user on startup. Checker Manual accessible at `/checker-manual` for admin and checker roles.
-- **Checker Manual**: Comprehensive verification manual with 7-phase workflow (Input, Calculation, Financial Statement Reconciliation, IRR/DCF/FCF, Scenario & Stress Testing, Reports & Exports, Documentation & Sign-Off). Includes USALI benchmark tables, inflation verification paths, and audit opinion framework. Skills docs in `.claude/manuals/checker-manual/`, tool schemas in `.claude/tools/financing/`.
+- **Checker Manual**: Comprehensive verification manual with 7-phase workflow (Input, Calculation, Financial Statement Reconciliation, IRR/DCF/FCF, Scenario & Stress Testing, Reports & Exports, Documentation & Sign-Off). Includes USALI benchmark tables, inflation verification paths, and audit opinion framework. Skills docs in `.claude/manuals/checker-manual/`, validation check schemas in `.claude/manuals/checker-manual/tools/`, finance tool schemas in `.claude/tools/financing/`.
 
 ### Business Model & Entity Structure
-- **Two-Entity Architecture**: The platform models two financially linked but independently operated entities:
-    1. **Hospitality Management Company** — A standalone business with its own Income Statement, Cash Flow, Balance Sheet, and FCF-based IRR. Provides centralized services (operations, marketing, administration) to all properties. Revenue comes from management/service fees charged to properties.
-    2. **Property Portfolio** — Each property is modeled as its own independent SPV with its own P&L, Cash Flow, Balance Sheet, FCF, and IRR. The system also produces aggregated financials for all properties combined and combined FCF/IRR for the full portfolio.
-- **Fee Linkage**: Management fees appear as revenue for the Management Company and as expenses for each property.
-- **Capital Structure**:
-    - Properties can be acquired using 100% equity (cash purchase) or debt financing + equity.
-    - Early properties may be purchased fully in cash and later refinanced after a defined period (e.g., 3 years).
-    - Equity investors are repaid through: Free Cash Flow distributions, Refinancing proceeds, and Exit proceeds.
-    - Management Company receives capital from private equity via SAFE funding in scheduled or conditional tranches.
-- **Assumptions Framework**: Two tiers:
-    - **Property-level**: Revenue drivers, operating costs, financing structure, acquisition date, refinance timing, exit cap rate.
-    - **App-wide (global)**: Management fee structures, inflation/escalation rates, shared cost growth, tax/macro parameters.
-- **Dynamic Behavior**: Users can add/remove properties, modify any assumptions, and instantly recalculate all financial statements and returns.
-
-### Mandatory Business Rules (Constraints)
-1. **Management Company Funding Gate**: Operations of the Management Company cannot begin before funding is received. If assumptions indicate operations before funding, the system must block the scenario and flag it as invalid.
-2. **Property Activation Gate**: A property cannot begin operating before it is purchased and funding is in place (either equity or financing). If the operating start date precedes acquisition or funding, the system must block the scenario.
-3. **No Negative Cash Rule**: Cash balances for each property, the Management Company, and the aggregated portfolio must never be negative. If any projected cash balance goes below zero, the system must flag a funding shortfall and require increased funding, earlier funding, or assumption adjustments. FCF distributions and refinancing paybacks must not cause negative cash balances.
-4. **Debt-Free at Exit**: At exit (end of projection period), all properties must be debt-free. Outstanding loan balances are repaid from gross sale proceeds before calculating net proceeds to equity.
-5. **No Over-Distribution Rule**: FCF distributions and refinancing proceeds returned to investors must not exceed available cash. The system must not distribute cash to the point that any property ends up with a negative cash balance.
-
-### System Goal
-To simulate a scalable hospitality platform where individual assets can be analyzed independently, the management company operates as a profit center, capital flows realistically over time, and returns can be evaluated at asset level, company level, and portfolio level — while enforcing real-world financial constraints.
+- **Two-Entity Architecture**: Management Company (fees-based revenue) + Property Portfolio (independent SPVs). Each entity has its own Income Statement, Cash Flow, Balance Sheet, and IRR. Aggregated/consolidated views available.
+- **Fee Linkage**: Management fees mirror between property expenses and company revenue. Details: `.claude/skills/finance/fee-linkage.md`.
+- **Capital Structure**: Equity or debt acquisition, refinancing, SAFE funding for management company.
+- **Assumptions Framework**: Property-level (revenue, costs, financing) and global (fees, inflation, staffing, exit).
+- **5 Mandatory Business Rules**: Funding gates, no negative cash, debt-free at exit, no over-distribution. Full details: `.claude/manuals/user-manual/skills/02-business-rules.md`.
 
 ### Financial Engine
-- Generates monthly pro forma projections covering revenue, operating expenses, management fees, debt service, NOI, and cash flow.
-- **GAAP-Compliant Calculations**: Uses an indirect method for Free Cash Flow (ASC 230), adheres to ASC 360 for depreciation, and ASC 470 for debt.
-- **Key Financial Logic**:
-    - **Depreciation**: 27.5-year straight-line based on depreciable basis (purchase price × (1 - landValuePercent) + building improvements).
-    - **Land Value Allocation**: Configurable per property (default 25%) to differentiate depreciable vs. non-depreciable assets.
-    - **Debt Service**: Proper amortization with interest/principal separation.
-    - **Acquisition Timing**: Balance sheet entries activate post-acquisition.
-    - **Loan Calculations**: Centralized in `client/src/lib/loanCalculations.ts`.
-    - **Partner Compensation**: Starts at $15,000/month per partner, escalates with inflation + 10%, capped at $30,000/month.
-    - **Cost Escalation**: Fixed costs escalate at a configurable rate (default 3%), variable costs at inflation.
-    - **Configurable Fiscal Year**: Financial statements align with any fiscal year start month.
-- **Data Models**: Global Assumptions (model-wide parameters), Properties (individual asset details), and Scenarios (user-saved snapshots).
-- **Room Revenue Calculation**: Uses an industry-standard 30.5 days per month.
+- Monthly pro forma projections: revenue, expenses, NOI, debt service, cash flow. GAAP-compliant (ASC 230, 360, 470).
+- Core files: `financialEngine.ts`, `loanCalculations.ts`, `equityCalculations.ts`, `cashFlowAggregator.ts`, `yearlyAggregator.ts`, `constants.ts`.
+- Depreciation: 27.5-year straight-line (IRS Pub 946). Room revenue: 30.5 days/month industry standard.
+- Configurable fiscal year, projection period, cost escalation rates, staffing tiers.
+- Full calculation details: `.claude/rules/financial-engine.md`, `.claude/rules/constants-and-config.md`, `.claude/skills/finance/`.
 
 ### Financial Verification & Audit
-- **System**: Located in `client/src/lib/financialAuditor.ts` and `client/src/lib/runVerification.ts`.
-- **Purpose**: Verifies financial calculations against GAAP standards (PwC-level audit simulation).
-- **Scope**: Covers Timing Rules, Depreciation, Loan Amortization, Income Statement, Balance Sheet, Cash Flow Statement, and Management Fees.
-- **Output**: Provides audit opinions (UNQUALIFIED, QUALIFIED, ADVERSE).
+- Verification engine: `financialAuditor.ts` + `runVerification.ts`. 103 automated checks covering timing, depreciation, loans, IS, BS, CF, fees.
+- Outputs: UNQUALIFIED, QUALIFIED, or ADVERSE audit opinions.
+- Details: `.claude/rules/verification-system.md`, `.claude/rules/audit-doctrine.md`.
 
 ### Configuration Management
-- **Constants**: `client/src/lib/constants.ts` serves as the single source of truth for all `DEFAULT_*` constants, with fallbacks for property-specific or global values.
-- **User-Adjustable Variables**: Stored in the database (`globalAssumptions` and `properties` tables) and editable via assumption pages.
-    - **Global Assumptions**: Includes property type label, general property description, inflation rate, management fees, SAFE funding, partner compensation, staffing tiers, and exit/sale assumptions.
-    - **Property Edit**: Allows configuration of cost rates, revenue shares, catering percentages, exit cap rate, and financing terms.
-- **Dynamic Projection Period**: `projectionYears` is configurable (default 10).
-- **Dynamic Staffing Tiers**: Three configurable tiers (`staffTier1MaxProperties/Fte`, `staffTier2MaxProperties/Fte`, `staffTier3Fte`).
+- **Constants**: `client/src/lib/constants.ts` — single source of truth for all `DEFAULT_*` values. Three-tier fallback: property → global → constant.
+- **User-Adjustable**: Global Assumptions (fees, inflation, staffing, SAFE funding) and Property settings (cost rates, revenue shares, financing terms) stored in database.
+- Details: `.claude/rules/constants-and-config.md`.
 
 ### Property Finder
 - **Functionality**: Allows users to search, save, and manage prospective properties.

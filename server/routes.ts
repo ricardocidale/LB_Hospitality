@@ -2173,10 +2173,38 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
-  /** Log checker manual activity (view, export) with rich audit metadata. */
+  const manualLogMetadataSchema = z.object({
+    exportType: z.string().max(50).optional(),
+    sectionCount: z.number().int().nonnegative().optional(),
+    exportedAt: z.string().max(50).optional(),
+    status: z.string().max(50).optional(),
+    propertyCount: z.number().int().nonnegative().optional(),
+    statementsGenerated: z.number().int().nonnegative().optional(),
+    companyIncluded: z.boolean().optional(),
+    warningCount: z.number().int().nonnegative().optional(),
+    warnings: z.array(z.string().max(200)).max(50).optional(),
+    projectionYears: z.number().int().nonnegative().optional(),
+  }).strict().optional();
+
+  const manualLogBodySchema = z.object({
+    action: z.string().max(50),
+    metadata: manualLogMetadataSchema,
+  });
+
+  /** Log checker manual activity (view, export) with validated audit metadata. */
   app.post("/api/activity-logs/manual-view", requireAuth, async (req, res) => {
     try {
-      const { action, metadata } = req.body;
+      const rawBody = JSON.stringify(req.body);
+      if (rawBody && rawBody.length > 4096) {
+        return res.status(400).json({ error: "Payload too large" });
+      }
+
+      const parsed = manualLogBodySchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid log payload", details: parsed.error.issues.map(i => i.message) });
+      }
+
+      const { action, metadata } = parsed.data;
       const validActions = ["view", "export-manual-pdf", "full-data-export", "expand-section"];
       const sanitizedAction = validActions.includes(action) ? action : "view";
       const auditMeta: Record<string, unknown> = {

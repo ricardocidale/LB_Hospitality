@@ -5,7 +5,6 @@ import { GlassButton } from "@/components/ui/glass-button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
 import {
   ChevronDown,
   ChevronRight,
@@ -185,112 +184,13 @@ export default function CheckerManual() {
       exportedAt: new Date().toISOString(),
     });
     try {
-      const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
-        import("jspdf"),
-        import("jspdf-autotable"),
-      ]);
-      const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-      const pageW = doc.internal.pageSize.getWidth();
-
-      doc.setFillColor(26, 35, 50);
-      doc.rect(0, 0, pageW, 60, "F");
-      doc.setFillColor(159, 188, 164);
-      doc.rect(0, 56, pageW, 2, "F");
-
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(22);
-      doc.setTextColor(255, 255, 255);
-      doc.text("L+B Hospitality Group", 14, 25);
-      doc.setFontSize(14);
-      doc.setTextColor(159, 188, 164);
-      doc.text("Checker Manual — Verification & Testing Guide", 14, 38);
-      doc.setFontSize(9);
-      doc.setTextColor(200, 200, 200);
-      doc.text(`Generated: ${new Date().toLocaleDateString()} | User: ${user?.email || "checker"}`, 14, 50);
-
-      let y = 70;
-      const addSection = (title: string, rows: string[][]) => {
-        if (y > 260) { doc.addPage(); y = 20; }
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(12);
-        doc.setTextColor(37, 125, 65);
-        doc.text(title, 14, y);
-        y += 6;
-        if (rows.length > 0) {
-          autoTable(doc, {
-            startY: y,
-            head: [rows[0]],
-            body: rows.slice(1),
-            theme: "grid",
-            styles: { fontSize: 7, cellPadding: 2 },
-            headStyles: { fillColor: [26, 46, 61], textColor: [255, 255, 255], fontStyle: "bold" },
-            alternateRowStyles: { fillColor: [245, 245, 245] },
-          });
-          y = (doc as any).lastAutoTable.finalY + 8;
-        }
-      };
-
-      addSection("Table of Contents", [
-        ["#", "Section"],
-        ...sections.map((s, i) => [String(i + 1), s.title]),
-      ]);
-
-      addSection("Key Property Formulas", [
-        ["ID", "Formula", "Expression"],
-        ["F-P-01", "Available Rooms", "Room Count × 30.5"],
-        ["F-P-02", "Sold Rooms", "Available Rooms × Occupancy Rate"],
-        ["F-P-03", "Room Revenue", "ADR × Sold Rooms"],
-        ["F-P-08", "GOP", "Total Revenue − Total Operating Expenses"],
-        ["F-P-10", "NOI", "GOP − Mgmt Fees − FF&E Reserve"],
-        ["F-P-11", "Depreciable Basis", "Price × (1 − Land%) + Improvements"],
-        ["F-P-12", "Monthly Depreciation", "Depreciable Basis / 27.5 / 12"],
-        ["F-P-14", "Net Income", "NOI − Interest − Depreciation − Tax"],
-        ["F-P-15", "CFO", "Net Income + Depreciation"],
-      ]);
-
-      addSection("Key Company Formulas", [
-        ["ID", "Formula", "Expression"],
-        ["F-C-01", "Base Fee Revenue", "Σ(Property Revenue × Base Rate)"],
-        ["F-C-02", "Incentive Fee Revenue", "Σ(max(0, Property GOP × Incentive Rate))"],
-        ["F-C-04", "Net Income", "Total Revenue − Total Expenses"],
-        ["F-C-05", "Cash Flow", "Net Income + SAFE Funding"],
-      ]);
-
-      addSection("Investment Return Formulas", [
-        ["ID", "Formula", "Expression"],
-        ["F-R-01", "FCF", "NOI − Tax − CapEx"],
-        ["F-R-02", "FCFE", "NOI − Debt Service − Tax"],
-        ["F-R-04", "IRR", "Solve: Σ(FCFE_t/(1+r)^t) = Equity₀"],
-        ["F-R-05", "Exit Value", "Terminal NOI / Cap Rate"],
-        ["F-R-07", "Equity Multiple", "Total Distributions / Equity"],
-      ]);
-
-      addSection("Financing Formulas", [
-        ["ID", "Formula", "Expression"],
-        ["F-F-01", "Loan Amount", "Purchase Price × LTV"],
-        ["F-F-02", "PMT", "P × [r(1+r)^n / ((1+r)^n − 1)]"],
-        ["F-F-05", "Refi Value", "Stabilized NOI / Cap Rate"],
-        ["F-F-07", "Refi Proceeds", "New Loan − Old Balance − Closing Costs"],
-      ]);
-
-      addSection("Mandatory Business Rules", [
-        ["Rule", "Description"],
-        ["BC-01", "Company operations cannot begin before SAFE funding is received"],
-        ["BC-02", "Property cannot operate before acquisition and funding"],
-        ["BC-03", "Cash balances must never go negative for any entity"],
-        ["BC-04", "All properties must be debt-free at exit"],
-        ["BC-05", "Distributions cannot cause negative cash"],
-      ]);
-
-      addSection("Testing Methodology", [
-        ["Phase", "Focus", "Key Tests"],
-        ["Phase 1", "Simple Scenarios", "Single property, all-cash, verify revenue/expense/GOP/NOI"],
-        ["Phase 2", "Moderate", "Multiple properties, financing, refi, global changes, scenarios"],
-        ["Phase 3", "Edge Cases", "Zero revenue, 100% LTV, extreme cap rates, mid-year acquisition"],
-      ]);
-
-      doc.save("LB_Checker_Manual.pdf");
-      toast({ title: "Manual Exported", description: "PDF has been downloaded." });
+      const { exportManualPDF } = await import("@/lib/exports/checkerManualExport");
+      const result = await exportManualPDF({ email: user?.email, role: user?.role });
+      if (result.success) {
+        toast({ title: "Manual Exported", description: "PDF has been downloaded." });
+      } else {
+        toast({ title: "Export Failed", description: result.error || "Could not generate PDF.", variant: "destructive" });
+      }
     } catch (err) {
       toast({ title: "Export Failed", description: "Could not generate PDF.", variant: "destructive" });
     } finally {
@@ -301,280 +201,35 @@ export default function CheckerManual() {
   const handleFullExport = async () => {
     if (exportingData) return;
     setExportingData(true);
-    const exportTimestamp = new Date().toISOString();
     try {
-      const [
-        { default: jsPDF },
-        { default: autoTable },
-        { generatePropertyProForma, generateCompanyProForma, formatMoney },
-        { aggregatePropertyByYear },
-      ] = await Promise.all([
-        import("jspdf"),
-        import("jspdf-autotable"),
-        import("@/lib/financialEngine"),
-        import("@/lib/yearlyAggregator"),
-      ]);
-
-      const [propertiesRes, globalRes] = await Promise.all([
-        apiRequest("GET", "/api/properties"),
-        apiRequest("GET", "/api/global-assumptions"),
-      ]);
-      const properties = await propertiesRes.json();
-      const global = await globalRes.json();
-
-      const warnings: string[] = [];
-
-      if (!properties?.length) warnings.push("No properties found in database");
-      if (!global) warnings.push("Global assumptions not found");
-      if (!properties?.length || !global) {
-        toast({ title: "No Data", description: warnings.join(". "), variant: "destructive" });
-        logActivity("full-data-export", { exportType: "full-data", status: "failed", warnings, exportedAt: exportTimestamp });
-        return;
-      }
-
-      const projYears = global.projectionYears ?? 10;
-      const projMonths = projYears * 12;
-
-      const requiredGlobalFields = [
-        "modelStartDate", "companyOpsStartDate", "inflationRate",
-        "baseManagementFee", "safeTranche1Amount", "exitCapRate",
-      ];
-      const missingGlobal = requiredGlobalFields.filter(f => global[f] === null || global[f] === undefined || global[f] === "");
-      if (missingGlobal.length > 0) warnings.push(`Missing global fields: ${missingGlobal.join(", ")}`);
-
-      const requiredPropertyFields = ["name", "location", "roomCount", "startAdr", "purchasePrice"];
-      properties.forEach((p: any, idx: number) => {
-        const missing = requiredPropertyFields.filter(f => p[f] === null || p[f] === undefined || p[f] === "");
-        if (missing.length > 0) warnings.push(`Property "${p.name || `#${idx + 1}`}" missing: ${missing.join(", ")}`);
-        if ((p.roomCount ?? 0) <= 0) warnings.push(`Property "${p.name}" has invalid room count`);
-        if ((p.purchasePrice ?? 0) <= 0) warnings.push(`Property "${p.name}" has invalid purchase price`);
-      });
-
-      const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
-      const pageW = doc.internal.pageSize.getWidth();
-
-      doc.setFillColor(26, 35, 50);
-      doc.rect(0, 0, pageW, 40, "F");
-      doc.setFillColor(159, 188, 164);
-      doc.rect(0, 37, pageW, 1.5, "F");
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(18);
-      doc.setTextColor(255, 255, 255);
-      doc.text("L+B Hospitality Group — Full Data Export", 14, 18);
-      doc.setFontSize(9);
-      doc.setTextColor(159, 188, 164);
-      doc.text(`Generated: ${new Date().toLocaleString()} | User: ${user?.email || "unknown"} (${user?.role || "unknown"}) | Properties: ${properties.length}`, 14, 30);
-
-      let y = 50;
-
-      if (warnings.length > 0) {
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(10);
-        doc.setTextColor(220, 80, 60);
-        doc.text("DATA COMPLETENESS WARNINGS", 14, y);
-        y += 5;
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(8);
-        doc.setTextColor(180, 60, 40);
-        warnings.forEach(w => {
-          if (y > 185) { doc.addPage(); y = 20; }
-          doc.text(`• ${w}`, 18, y);
-          y += 4;
-        });
-        y += 4;
-      }
-
-      const addTable = (title: string, head: string[], rows: string[][]) => {
-        if (y > 170) { doc.addPage(); y = 20; }
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(11);
-        doc.setTextColor(37, 125, 65);
-        doc.text(title, 14, y);
-        y += 5;
-        autoTable(doc, {
-          startY: y,
-          head: [head],
-          body: rows,
-          theme: "grid",
-          styles: { fontSize: 6.5, cellPadding: 1.5 },
-          headStyles: { fillColor: [26, 46, 61], textColor: [255, 255, 255], fontStyle: "bold" },
-          alternateRowStyles: { fillColor: [245, 245, 245] },
-        });
-        y = (doc as any).lastAutoTable.finalY + 8;
-      };
-
-      addTable("Global Assumptions", ["Parameter", "Value"], [
-        ["Company Name", global.companyName || "L+B Hospitality"],
-        ["Model Start Date", global.modelStartDate || "—"],
-        ["Projection Years", String(projYears)],
-        ["Company Ops Start", global.companyOpsStartDate || "—"],
-        ["Fiscal Year Start Month", String(global.fiscalYearStartMonth ?? 1)],
-        ["Inflation Rate", `${((global.inflationRate ?? 0.03) * 100).toFixed(1)}%`],
-        ["Fixed Cost Escalation", `${((global.fixedCostEscalationRate ?? 0.03) * 100).toFixed(1)}%`],
-        ["Base Management Fee", `${((global.baseManagementFee ?? 0.05) * 100).toFixed(1)}%`],
-        ["Incentive Management Fee", `${((global.incentiveManagementFee ?? 0.15) * 100).toFixed(1)}%`],
-        ["SAFE Tranche 1", formatMoney(global.safeTranche1Amount ?? 0)],
-        ["SAFE Tranche 1 Date", global.safeTranche1Date || "—"],
-        ["SAFE Tranche 2", formatMoney(global.safeTranche2Amount ?? 0)],
-        ["SAFE Tranche 2 Date", global.safeTranche2Date || "—"],
-        ["Exit Cap Rate", `${((global.exitCapRate ?? 0.08) * 100).toFixed(1)}%`],
-        ["Sales Commission", `${((global.salesCommissionRate ?? 0.02) * 100).toFixed(1)}%`],
-        ["Company Tax Rate", `${((global.companyTaxRate ?? 0.21) * 100).toFixed(1)}%`],
-        ["Partner Base Compensation", formatMoney(global.partnerBaseCompensation ?? 15000)],
-        ["Partner Comp Cap", formatMoney(global.partnerCompensationCap ?? 30000)],
-      ]);
-
-      addTable("Properties Summary", ["Name", "Location", "Rooms", "ADR", "Occupancy", "Purchase Price", "LTV", "Status"],
-        properties.map((p: any) => [
-          p.name,
-          p.location || "—",
-          String(p.roomCount ?? 0),
-          formatMoney(p.startAdr ?? 0),
-          `${((p.startOccupancy ?? 0) * 100).toFixed(0)}%`,
-          formatMoney(p.purchasePrice ?? 0),
-          p.acquisitionLTV ? `${(p.acquisitionLTV * 100).toFixed(0)}%` : "Cash",
-          p.status || "active",
-        ])
-      );
-
-      const includedStatements: string[] = [];
-      let propertyErrors = 0;
-
-      properties.forEach((p: any) => {
-        try {
-          const financials = generatePropertyProForma(p, global, projMonths);
-          const yearly = aggregatePropertyByYear(financials, projYears);
-          const yearHeaders = ["Line Item", ...Array.from({ length: projYears }, (_, i) => `Year ${i + 1}`)];
-
-          addTable(`${p.name} — Income Statement`, yearHeaders, [
-            ["Room Revenue", ...yearly.map(yr => formatMoney(yr.revenueRooms))],
-            ["F&B Revenue", ...yearly.map(yr => formatMoney(yr.revenueFB))],
-            ["Other Revenue", ...yearly.map(yr => formatMoney(yr.revenueOther))],
-            ["Total Revenue", ...yearly.map(yr => formatMoney(yr.revenueTotal))],
-            ["Total Expenses", ...yearly.map(yr => formatMoney(yr.totalExpenses))],
-            ["GOP", ...yearly.map(yr => formatMoney(yr.gop))],
-            ["Base Mgmt Fee", ...yearly.map(yr => formatMoney(yr.feeBase))],
-            ["Incentive Mgmt Fee", ...yearly.map(yr => formatMoney(yr.feeIncentive))],
-            ["NOI", ...yearly.map(yr => formatMoney(yr.noi))],
-            ["Depreciation", ...yearly.map(yr => formatMoney(yr.depreciationExpense))],
-            ["Net Income", ...yearly.map(yr => formatMoney(yr.netIncome))],
-          ]);
-          includedStatements.push(`${p.name} — Income Statement`);
-
-          addTable(`${p.name} — Cash Flow`, yearHeaders, [
-            ["Interest Expense", ...yearly.map(yr => formatMoney(yr.interestExpense))],
-            ["Principal Payment", ...yearly.map(yr => formatMoney(yr.principalPayment))],
-            ["Total Debt Service", ...yearly.map(yr => formatMoney(yr.debtPayment))],
-            ["Operating Cash Flow", ...yearly.map(yr => formatMoney(yr.operatingCashFlow))],
-            ["Total Cash Flow", ...yearly.map(yr => formatMoney(yr.cashFlow))],
-            ["Ending Cash", ...yearly.map(yr => formatMoney(yr.endingCash))],
-          ]);
-          includedStatements.push(`${p.name} — Cash Flow`);
-        } catch (e) {
-          propertyErrors++;
-          warnings.push(`Failed to generate financials for "${p.name}": ${e instanceof Error ? e.message : "unknown error"}`);
-        }
-      });
-
-      let companyIncluded = false;
-      try {
-        const companyData = generateCompanyProForma(properties, global, projMonths);
-        const companyYearly: Record<string, number[]> = {};
-        const keys = ["totalRevenue", "totalExpenses", "netIncome", "endingCash", "safeFunding"] as const;
-        keys.forEach(k => { companyYearly[k] = Array(projYears).fill(0); });
-        companyData.forEach((m: any, i: number) => {
-          const yr = Math.floor(i / 12);
-          if (yr < projYears) {
-            keys.forEach(k => {
-              if (k === "endingCash") companyYearly[k][yr] = m[k];
-              else companyYearly[k][yr] += m[k];
-            });
-          }
-        });
-
-        const cYearHeaders = ["Line Item", ...Array.from({ length: projYears }, (_, i) => `Year ${i + 1}`)];
-        addTable("Management Company — Summary", cYearHeaders, [
-          ["Total Revenue", ...companyYearly.totalRevenue.map(v => formatMoney(v))],
-          ["Total Expenses", ...companyYearly.totalExpenses.map(v => formatMoney(v))],
-          ["Net Income", ...companyYearly.netIncome.map(v => formatMoney(v))],
-          ["SAFE Funding", ...companyYearly.safeFunding.map(v => formatMoney(v))],
-          ["Ending Cash", ...companyYearly.endingCash.map(v => formatMoney(v))],
-        ]);
-        includedStatements.push("Management Company — Summary");
-        companyIncluded = true;
-      } catch (e) {
-        warnings.push(`Failed to generate Management Company financials: ${e instanceof Error ? e.message : "unknown error"}`);
-      }
-
-      doc.addPage();
-      y = 20;
-      doc.setFillColor(26, 35, 50);
-      doc.rect(0, 0, pageW, 15, "F");
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(14);
-      doc.setTextColor(255, 255, 255);
-      doc.text("Export Summary & Completeness Report", 14, 11);
-      y = 25;
-
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(9);
-      doc.setTextColor(60, 60, 60);
-      const summaryLines = [
-        `Export Timestamp: ${new Date().toLocaleString()}`,
-        `Exported By: ${user?.email || "unknown"} (Role: ${user?.role || "unknown"})`,
-        `Projection Period: ${projYears} years (${projMonths} months)`,
-        `Properties Included: ${properties.length}`,
-        `Financial Statements Generated: ${includedStatements.length}`,
-        `Management Company Included: ${companyIncluded ? "Yes" : "No"}`,
-        `Global Assumptions: Included`,
-        `Warnings: ${warnings.length}`,
-      ];
-      summaryLines.forEach(line => {
-        doc.text(line, 14, y);
-        y += 5;
-      });
-      y += 3;
-
-      addTable("Included Financial Statements", ["#", "Statement"], 
-        includedStatements.map((s, i) => [String(i + 1), s])
-      );
-
-      if (warnings.length > 0) {
-        addTable("Data Completeness Warnings", ["#", "Warning"],
-          warnings.map((w, i) => [String(i + 1), w])
-        );
-      } else {
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(10);
-        doc.setTextColor(37, 125, 65);
-        if (y > 185) { doc.addPage(); y = 20; }
-        doc.text("ALL DATA COMPLETE — No warnings detected.", 14, y);
-      }
-
-      doc.save("LB_Full_Data_Export.pdf");
+      const { exportFullData } = await import("@/lib/exports/checkerManualExport");
+      const result = await exportFullData({ email: user?.email, role: user?.role });
 
       logActivity("full-data-export", {
         exportType: "full-data",
-        status: warnings.length > 0 ? "completed-with-warnings" : "completed",
-        propertyCount: properties.length,
-        statementsGenerated: includedStatements.length,
-        companyIncluded,
-        warningCount: warnings.length,
-        warnings: warnings.length > 0 ? warnings : undefined,
-        projectionYears: projYears,
-        exportedAt: exportTimestamp,
+        status: result.status,
+        propertyCount: result.propertyCount,
+        statementsGenerated: result.includedStatements.length,
+        companyIncluded: result.companyIncluded,
+        warningCount: result.warnings.length,
+        warnings: result.warnings.length > 0 ? result.warnings : undefined,
+        projectionYears: result.projectionYears,
+        exportedAt: result.exportTimestamp,
       });
 
-      if (warnings.length > 0) {
+      if (!result.success) {
+        const msg = result.error || result.warnings.join(". ") || "Export failed";
+        toast({ title: result.status === "error" ? "Export Error" : "No Data", description: msg, variant: "destructive" });
+      } else if (result.warnings.length > 0) {
         toast({
           title: "Export Complete (with warnings)",
-          description: `${warnings.length} warning(s) found. Check the Summary page at the end of the PDF.`,
+          description: `${result.warnings.length} warning(s) found. Check the Summary page at the end of the PDF.`,
         });
       } else {
         toast({ title: "Full Data Export Complete", description: "PDF with all assumptions, financials, and completeness report has been downloaded." });
       }
     } catch (err) {
-      logActivity("full-data-export", { exportType: "full-data", status: "error", exportedAt: exportTimestamp });
+      logActivity("full-data-export", { exportType: "full-data", status: "error", exportedAt: new Date().toISOString() });
       toast({ title: "Export Failed", description: "Could not generate full data export.", variant: "destructive" });
     } finally {
       setExportingData(false);

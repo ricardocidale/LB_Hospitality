@@ -492,8 +492,8 @@
           "notNull": true,
           "default": 0.6
         },
-        "boutique_definition": {
-          "name": "boutique_definition",
+        "asset_definition": {
+          "name": "asset_definition",
           "type": "jsonb",
           "primaryKey": false,
           "notNull": true,

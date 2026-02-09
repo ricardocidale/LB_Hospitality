@@ -428,7 +428,7 @@ export default function CheckerManual() {
                     ["monthsToOps", "Months from acquisition to ops start", "6", "months", "Properties"],
                   ]}
                 />
-                <h3 className="text-white/90 text-sm font-semibold mt-4 mb-2">Boutique Definition</h3>
+                <h3 className="text-white/90 text-sm font-semibold mt-4 mb-2">Asset Definition</h3>
                 <ManualTable
                   headers={["Variable", "Description", "Default", "Unit"]}
                   rows={[

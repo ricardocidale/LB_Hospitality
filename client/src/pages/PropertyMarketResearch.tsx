@@ -83,7 +83,7 @@ export default function PropertyMarketResearch() {
             maxOccupancy: property.maxOccupancy,
             type: property.type,
           },
-          boutiqueDefinition: global?.boutiqueDefinition,
+          assetDefinition: global?.assetDefinition,
         }),
         signal: abortRef.current.signal,
       });

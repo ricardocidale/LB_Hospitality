@@ -95,7 +95,7 @@ export interface GlobalResponse {
     refiAmortizationYears?: number;
     refiPeriodYears?: number;
   };
-  boutiqueDefinition: {
+  assetDefinition: {
     minRooms: number;
     maxRooms: number;
     hasFB: boolean;

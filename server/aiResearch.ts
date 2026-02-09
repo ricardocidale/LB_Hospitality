@@ -34,46 +34,75 @@ interface ResearchParams {
   };
 }
 
-// Skill file mapping
-const SKILL_FILES: Record<string, string> = {
-  property: "property-market-research.md",
-  company: "company-research.md",
-  global: "global-research.md",
+const RESEARCH_SKILLS_DIR = join(process.cwd(), ".claude", "skills", "research");
+
+const PROPERTY_RESEARCH_SKILLS = [
+  "market-overview",
+  "adr-analysis",
+  "occupancy-analysis",
+  "event-demand",
+  "catering-analysis",
+  "cap-rate-analysis",
+  "competitive-set",
+  "land-value",
+];
+
+const SKILL_FOLDER_MAP: Record<string, string | string[]> = {
+  property: PROPERTY_RESEARCH_SKILLS,
+  company: "company-research",
+  global: "global-research",
 };
 
-// Load a skill file content
 function loadSkill(type: string): string {
-  const skillFile = SKILL_FILES[type];
-  if (!skillFile) {
+  const mapping = SKILL_FOLDER_MAP[type];
+  if (!mapping) {
     throw new Error(`Unknown research type: ${type}. Must be 'property', 'company', or 'global'.`);
   }
-  const skillPath = join(process.cwd(), ".claude", "skills", skillFile);
+
+  if (Array.isArray(mapping)) {
+    return mapping
+      .map((folder) => {
+        const skillPath = join(RESEARCH_SKILLS_DIR, folder, "SKILL.md");
+        return readFileSync(skillPath, "utf-8");
+      })
+      .join("\n\n---\n\n");
+  }
+
+  const skillPath = join(RESEARCH_SKILLS_DIR, mapping, "SKILL.md");
   return readFileSync(skillPath, "utf-8");
 }
 
-// Load all tool definitions from .claude/tools/ (recursively scans subfolders)
 function loadToolDefinitions(): Anthropic.Tool[] {
-  const toolsDir = join(process.cwd(), ".claude", "tools");
   const tools: Anthropic.Tool[] = [];
 
   function scanDir(dir: string) {
-    const entries = readdirSync(dir, { withFileTypes: true });
-    for (const entry of entries) {
-      const fullPath = join(dir, entry.name);
-      if (entry.isDirectory()) {
-        scanDir(fullPath);
-      } else if (entry.name.endsWith(".json")) {
-        const content = JSON.parse(readFileSync(fullPath, "utf-8"));
-        tools.push({
-          name: content.name,
-          description: content.description,
-          input_schema: content.input_schema,
-        });
+    try {
+      const entries = readdirSync(dir, { withFileTypes: true });
+      for (const entry of entries) {
+        const fullPath = join(dir, entry.name);
+        if (entry.isDirectory()) {
+          scanDir(fullPath);
+        } else if (entry.name.endsWith(".json")) {
+          const content = JSON.parse(readFileSync(fullPath, "utf-8"));
+          tools.push({
+            name: content.name,
+            description: content.description,
+            input_schema: content.input_schema,
+          });
+        }
       }
+    } catch {
+      // Directory doesn't exist, skip
     }
   }
 
-  scanDir(toolsDir);
+  for (const folder of PROPERTY_RESEARCH_SKILLS) {
+    scanDir(join(RESEARCH_SKILLS_DIR, folder, "tools"));
+  }
+
+  const globalToolsDir = join(process.cwd(), ".claude", "tools");
+  scanDir(globalToolsDir);
+
   return tools;
 }
 

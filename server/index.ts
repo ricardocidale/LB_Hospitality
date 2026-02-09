@@ -94,6 +94,8 @@ app.use((req, res, next) => {
 
 (async () => {
   await seedAdminUser();
+  const { seedMissingMarketResearch } = await import("./seed");
+  await seedMissingMarketResearch();
   registerImageRoutes(app);
   await registerRoutes(httpServer, app);
 

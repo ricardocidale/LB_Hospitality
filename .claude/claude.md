@@ -73,7 +73,15 @@ The verification system enforces GAAP consistency and internal invariants:
 Coverage includes timing, depreciation, loans, income statement, balance sheet, cash flow, and management fees. Outputs UNQUALIFIED, QUALIFIED, or ADVERSE opinions.
 
 ## AI Research
-Research Skills are defined in `.claude/skills/` and orchestrated via `server/aiResearch.ts`. Claude tool schemas live in `.claude/tools/`. Outputs include structured market, ADR, occupancy, and cap rate analyses.
+Research Skills are defined in `.claude/skills/` and orchestrated via `server/aiResearch.ts`. Claude tool schemas live in `.claude/tools/research/`. Outputs include structured market, ADR, occupancy, and cap rate analyses.
+
+## Tool Schema Categories
+All tool schemas live under `.claude/tools/` organized by category:
+- **analysis/** — Statement consolidation, scenario comparison, break-even analysis
+- **financing/** — DSCR, debt yield, prepayment, sensitivity, loan comparison, FSA
+- **research/** — Market analysis, ADR, occupancy, cap rates, catering, land value
+- **returns/** — DCF/NPV, IRR cash flow vector, equity multiple, exit valuation
+- **validation/** — Financial identity checks, funding gates, debt schedule reconciliation, assumption consistency, export verification
 
 ## File Organization
 
@@ -113,8 +121,11 @@ client/src/
 │   ├── research/          # AI research skills
 │   └── ui/                # UI component skills
 └── tools/
-    ├── financing/         # Finance tool schemas (DSCR, sensitivity, etc.)
-    └── research/          # Research tool schemas (ADR, market, etc.)
+    ├── analysis/          # Consolidation, scenario comparison, break-even
+    ├── financing/         # Financing tool schemas (DSCR, sensitivity, loan comparison)
+    ├── research/          # Research tool schemas (ADR, market, occupancy, etc.)
+    ├── returns/           # DCF/NPV, IRR vector, equity multiple, exit valuation
+    └── validation/        # Financial identities, funding gates, debt reconciliation, assumptions, exports
 
 server/
 ├── routes.ts

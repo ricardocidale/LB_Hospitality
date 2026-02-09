@@ -118,12 +118,13 @@ export function checkPropertyFormulas(monthlyData: MonthlyFinancials[]): Formula
       actual: m.netIncome.toFixed(2)
     });
     
-    // 7. Cash Flow = NOI - Debt Payment - Tax (includes principal and tax)
-    const expectedCashFlow = m.noi - m.debtPayment - incomeTax;
+    // 7. Cash Flow = NOI - Debt Payment - Tax + Refinancing Proceeds (ASC 230)
+    const refiProceeds = m.refinancingProceeds || 0;
+    const expectedCashFlow = m.noi - m.debtPayment - incomeTax + refiProceeds;
     results.push({
       passed: withinTolerance(expectedCashFlow, m.cashFlow),
       name: `${monthLabel}: Cash Flow Formula`,
-      description: "Cash Flow = NOI - Total Debt Service - Income Tax",
+      description: "Cash Flow = NOI - Total Debt Service - Income Tax + Refinancing Proceeds",
       expected: expectedCashFlow.toFixed(2),
       actual: m.cashFlow.toFixed(2)
     });

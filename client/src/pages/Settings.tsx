@@ -259,7 +259,7 @@ export default function Settings() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <Label className="label-text">Minimum Rooms</Label>
+                      <Label className="label-text flex items-center gap-1">Minimum Rooms <HelpTooltip text="Minimum number of guest rooms for the target property profile. Used to filter market research and comparable properties." /></Label>
                       <span className="text-sm font-mono text-primary">{currentGlobal.assetDefinition?.minRooms ?? 10}</span>
                     </div>
                     <Slider
@@ -277,7 +277,7 @@ export default function Settings() {
                   </div>
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <Label className="label-text">Maximum Rooms</Label>
+                      <Label className="label-text flex items-center gap-1">Maximum Rooms <HelpTooltip text="Maximum number of guest rooms for the target property profile. Defines the upper bound for comp set analysis." /></Label>
                       <span className="text-sm font-mono text-primary">{currentGlobal.assetDefinition?.maxRooms ?? 80}</span>
                     </div>
                     <Slider
@@ -297,7 +297,7 @@ export default function Settings() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <Label className="label-text">Minimum ADR</Label>
+                      <Label className="label-text flex items-center gap-1">Minimum ADR <HelpTooltip text="Minimum Average Daily Rate target. Sets the floor for market research rate comparisons." /></Label>
                       <span className="text-sm font-mono text-primary">${currentGlobal.assetDefinition?.minAdr ?? 150}</span>
                     </div>
                     <Slider
@@ -315,7 +315,7 @@ export default function Settings() {
                   </div>
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <Label className="label-text">Maximum ADR</Label>
+                      <Label className="label-text flex items-center gap-1">Maximum ADR <HelpTooltip text="Maximum Average Daily Rate target. Sets the ceiling for market research rate comparisons." /></Label>
                       <span className="text-sm font-mono text-primary">${currentGlobal.assetDefinition?.maxAdr ?? 600}</span>
                     </div>
                     <Slider
@@ -334,7 +334,7 @@ export default function Settings() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                    <Label className="label-text">Food & Beverage (F&B)</Label>
+                    <Label className="label-text flex items-center gap-1">Food & Beverage (F&B) <HelpTooltip text="Whether target properties include Food & Beverage operations like restaurants and bars." /></Label>
                     <Switch
                       checked={currentGlobal.assetDefinition?.hasFB ?? true}
                       onCheckedChange={(checked) => handleNestedChange("assetDefinition", "hasFB", checked)}
@@ -342,7 +342,7 @@ export default function Settings() {
                     />
                   </div>
                   <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                    <Label className="label-text">Event Hosting</Label>
+                    <Label className="label-text flex items-center gap-1">Event Hosting <HelpTooltip text="Whether target properties host events such as weddings, corporate meetings, and social gatherings." /></Label>
                     <Switch
                       checked={currentGlobal.assetDefinition?.hasEvents ?? true}
                       onCheckedChange={(checked) => handleNestedChange("assetDefinition", "hasEvents", checked)}
@@ -350,7 +350,7 @@ export default function Settings() {
                     />
                   </div>
                   <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                    <Label className="label-text">Wellness Programming</Label>
+                    <Label className="label-text flex items-center gap-1">Wellness Programming <HelpTooltip text="Whether target properties include spa or wellness services like massage, yoga, and fitness programs." /></Label>
                     <Switch
                       checked={currentGlobal.assetDefinition?.hasWellness ?? true}
                       onCheckedChange={(checked) => handleNestedChange("assetDefinition", "hasWellness", checked)}
@@ -360,7 +360,7 @@ export default function Settings() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-3">
-                    <Label className="label-text">Property Level</Label>
+                    <Label className="label-text flex items-center gap-1">Property Level <HelpTooltip text="Service tier classification: Budget, Average, or Luxury. Affects comp set selection and benchmark ranges." /></Label>
                     <RadioGroup
                       value={currentGlobal.assetDefinition?.level ?? "luxury"}
                       onValueChange={(val) => handleNestedChange("assetDefinition", "level", val)}
@@ -382,7 +382,7 @@ export default function Settings() {
                     </RadioGroup>
                   </div>
                   <div className="space-y-3">
-                    <Label className="label-text">Privacy Level</Label>
+                    <Label className="label-text flex items-center gap-1">Privacy Level <HelpTooltip text="Level of guest privacy: High for secluded estates, Moderate for suburban settings, Low for urban locations." /></Label>
                     <RadioGroup
                       value={currentGlobal.assetDefinition?.privacyLevel ?? "high"}
                       onValueChange={(val) => handleNestedChange("assetDefinition", "privacyLevel", val)}
@@ -407,7 +407,7 @@ export default function Settings() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <Label className="label-text">Event Locations</Label>
+                      <Label className="label-text flex items-center gap-1">Event Locations <HelpTooltip text="Number of distinct event spaces available on the property (ballrooms, gardens, terraces, etc.)." /></Label>
                       <span className="text-sm font-mono text-primary">{currentGlobal.assetDefinition?.eventLocations ?? 2}</span>
                     </div>
                     <Slider
@@ -425,7 +425,7 @@ export default function Settings() {
                   </div>
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <Label className="label-text">Max Event Capacity</Label>
+                      <Label className="label-text flex items-center gap-1">Max Event Capacity <HelpTooltip text="Maximum number of guests that can be accommodated at events across all event spaces." /></Label>
                       <span className="text-sm font-mono text-primary">{currentGlobal.assetDefinition?.maxEventCapacity ?? 150}</span>
                     </div>
                     <Slider
@@ -443,7 +443,7 @@ export default function Settings() {
                   </div>
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <Label className="label-text">Parking Spaces</Label>
+                      <Label className="label-text flex items-center gap-1">Parking Spaces <HelpTooltip text="Number of on-site parking spaces available for guests and event attendees." /></Label>
                       <span className="text-sm font-mono text-primary">{currentGlobal.assetDefinition?.parkingSpaces ?? 50}</span>
                     </div>
                     <Slider
@@ -463,7 +463,7 @@ export default function Settings() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <Label className="label-text">Acreage</Label>
+                      <Label className="label-text flex items-center gap-1">Acreage <HelpTooltip text="Total property land area in acres. Larger acreage typically supports more amenities and privacy." /></Label>
                       <span className="text-sm font-mono text-primary">{currentGlobal.assetDefinition?.acreage ?? 5} acres</span>
                     </div>
                     <Slider
@@ -481,7 +481,7 @@ export default function Settings() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label className="label-text">Definition Summary</Label>
+                  <Label className="label-text flex items-center gap-1">Definition Summary <HelpTooltip text="Free-text description of the target property concept. Included in AI research prompts for more relevant market analysis." /></Label>
                   <Textarea
                     value={currentGlobal.assetDefinition?.description ?? ""}
                     onChange={(e) => handleNestedChange("assetDefinition", "description", e.target.value)}
@@ -504,7 +504,7 @@ export default function Settings() {
               <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <Label className="label-text">Real Estate Commission</Label>
+                    <Label className="label-text flex items-center gap-1">Real Estate Commission <HelpTooltip text="Broker commission percentage paid on property sale. Industry standard is 4–6%, split between buyer's and seller's agents." /></Label>
                     <span className="text-sm font-mono text-primary">{((currentGlobal.commissionRate || DEFAULT_COMMISSION_RATE) * 100).toFixed(1)}%</span>
                   </div>
                   <Slider 
@@ -533,7 +533,7 @@ export default function Settings() {
               <CardContent className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <Label className="label-text">LTV</Label>
+                    <Label className="label-text flex items-center gap-1">LTV <HelpTooltip text="Loan-to-Value ratio — percentage of purchase price financed by debt. Typical hotel acquisitions use 60–75% LTV." /></Label>
                     <span className="text-sm font-mono text-primary">{((currentGlobal.debtAssumptions?.acqLTV || DEFAULT_LTV) * 100).toFixed(0)}%</span>
                   </div>
                   <Slider 
@@ -550,7 +550,7 @@ export default function Settings() {
                 </div>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <Label className="label-text">Interest Rate</Label>
+                    <Label className="label-text flex items-center gap-1">Interest Rate <HelpTooltip text="Annual interest rate on the acquisition loan. Market rates vary; currently 6–8% for commercial hospitality loans." /></Label>
                     <span className="text-sm font-mono text-primary">{((currentGlobal.debtAssumptions?.interestRate || 0) * 100).toFixed(1)}%</span>
                   </div>
                   <Slider 
@@ -567,7 +567,7 @@ export default function Settings() {
                 </div>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <Label className="label-text">Term</Label>
+                    <Label className="label-text flex items-center gap-1">Term <HelpTooltip text="Loan amortization period in years. Standard commercial mortgages use 20–30 year amortization." /></Label>
                     <span className="text-sm font-mono text-primary whitespace-nowrap">{currentGlobal.debtAssumptions?.amortizationYears || 25} yrs</span>
                   </div>
                   <Slider 
@@ -584,7 +584,7 @@ export default function Settings() {
                 </div>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <Label className="label-text">Closing Costs</Label>
+                    <Label className="label-text flex items-center gap-1">Closing Costs <HelpTooltip text="Transaction costs as a percentage of loan amount — includes lender fees, legal, appraisal, and title insurance." /></Label>
                     <span className="text-sm font-mono text-primary">{((currentGlobal.debtAssumptions?.acqClosingCostRate || DEFAULT_ACQ_CLOSING_COST_RATE) * 100).toFixed(1)}%</span>
                   </div>
                   <Slider 
@@ -613,7 +613,7 @@ export default function Settings() {
               <CardContent className="grid grid-cols-1 md:grid-cols-5 gap-6">
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <Label className="label-text">Years After Acq.</Label>
+                    <Label className="label-text flex items-center gap-1">Years After Acq. <HelpTooltip text="Number of years after acquisition before refinancing. Typically 2–5 years to allow value appreciation." /></Label>
                     <span className="text-sm font-mono text-primary whitespace-nowrap">{currentGlobal.debtAssumptions?.refiPeriodYears || 3} yrs</span>
                   </div>
                   <Slider 
@@ -630,7 +630,7 @@ export default function Settings() {
                 </div>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <Label className="label-text">LTV</Label>
+                    <Label className="label-text flex items-center gap-1">LTV <HelpTooltip text="Refinance Loan-to-Value ratio. Often higher than acquisition LTV (up to 75%) based on appreciated value." /></Label>
                     <span className="text-sm font-mono text-primary">{((currentGlobal.debtAssumptions?.refiLTV || DEFAULT_REFI_LTV) * 100).toFixed(0)}%</span>
                   </div>
                   <Slider 
@@ -647,7 +647,7 @@ export default function Settings() {
                 </div>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <Label className="label-text">Interest Rate</Label>
+                    <Label className="label-text flex items-center gap-1">Interest Rate <HelpTooltip text="Annual interest rate for the refinance loan. May differ from acquisition rate based on market conditions." /></Label>
                     <span className="text-sm font-mono text-primary">{((currentGlobal.debtAssumptions?.refiInterestRate || DEFAULT_INTEREST_RATE) * 100).toFixed(1)}%</span>
                   </div>
                   <Slider 
@@ -664,7 +664,7 @@ export default function Settings() {
                 </div>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <Label className="label-text">Term</Label>
+                    <Label className="label-text flex items-center gap-1">Term <HelpTooltip text="Refinance loan amortization period in years." /></Label>
                     <span className="text-sm font-mono text-primary whitespace-nowrap">{currentGlobal.debtAssumptions?.refiAmortizationYears || 25} yrs</span>
                   </div>
                   <Slider 
@@ -681,7 +681,7 @@ export default function Settings() {
                 </div>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <Label className="label-text">Closing Costs</Label>
+                    <Label className="label-text flex items-center gap-1">Closing Costs <HelpTooltip text="Refinance closing costs as a percentage of the new loan amount." /></Label>
                     <span className="text-sm font-mono text-primary">{((currentGlobal.debtAssumptions?.refiClosingCostRate || DEFAULT_REFI_CLOSING_COST_RATE) * 100).toFixed(1)}%</span>
                   </div>
                   <Slider 
@@ -743,7 +743,7 @@ export default function Settings() {
                 </div>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <Label className="label-text">Annual Inflation Rate</Label>
+                    <Label className="label-text flex items-center gap-1">Annual Inflation Rate <HelpTooltip text="Expected annual inflation rate applied across the model. Affects operating cost escalation and revenue growth. Based on CPI forecasts — the Federal Reserve targets 2% annually." /></Label>
                     <span className="text-sm font-mono text-primary">{(currentGlobal.inflationRate * 100).toFixed(1)}%</span>
                   </div>
                   <Slider 
@@ -781,7 +781,7 @@ export default function Settings() {
               <CardContent className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="companyName" className="label-text">Hospitality Management Company Name</Label>
+                    <Label htmlFor="companyName" className="label-text flex items-center gap-1">Hospitality Management Company Name <HelpTooltip text="The company name displayed in navigation and reports. Only administrators can change this setting." /></Label>
                     {isAdmin ? (
                       <Input
                         id="companyName"
@@ -799,7 +799,7 @@ export default function Settings() {
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label className="label-text">Company Logo</Label>
+                    <Label className="label-text flex items-center gap-1">Company Logo <HelpTooltip text="Company logo displayed in the sidebar navigation. Recommended format: PNG or JPG, square aspect ratio. Only administrators can change this." /></Label>
                     <div className="flex items-center gap-4">
                       <div className="relative w-16 h-16 rounded-lg border-2 border-dashed border-[#9FBCA4]/40 flex items-center justify-center overflow-hidden bg-white">
                         <img 
@@ -867,7 +867,7 @@ export default function Settings() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2 max-w-sm">
-                  <Label className="label-text">Preferred Model</Label>
+                  <Label className="label-text flex items-center gap-1">Preferred Model <HelpTooltip text="The AI model used for generating market research. Each model has different strengths for analysis." /></Label>
                   <Select
                     value={currentGlobal.preferredLlm || "gpt-4o"}
                     onValueChange={(value) => handleGlobalChange("preferredLlm", value)}
@@ -892,6 +892,7 @@ export default function Settings() {
               <CardHeader>
                 <CardTitle className="flex items-center font-display">
                   Catering Revenue Model
+                  <HelpTooltip text="Catering revenue is modeled as a percentage boost applied to base F&B revenue. This is configured at the property level, not globally." />
                 </CardTitle>
                 <CardDescription className="label-text">Catering is modeled as a percentage boost applied to F&B revenue at the property level.</CardDescription>
               </CardHeader>

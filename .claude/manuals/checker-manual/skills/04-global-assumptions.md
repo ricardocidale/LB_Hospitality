@@ -270,3 +270,14 @@ To confirm the two-path escalation is working correctly:
    - Travel Cost Per Client: Year 1 = $12,000, Year 2 = $12,360, Year 3 = $12,731, etc.
    - IT License Per Client: Year 1 = $3,000, Year 2 = $3,090, Year 3 = $3,183, etc.
 5. Confirm that setting `fixedCostEscalationRate` to null causes fixed costs to fall back to the 3% `inflationRate`
+
+---
+
+## In-App Help System
+
+Every input field on the Settings page includes a **HelpTooltip** (? icon) providing contextual guidance:
+- Explains what the field controls and how it impacts the model
+- For GAAP-regulated or standards-based values, cites the authoritative source (e.g., IRS Pub 946, Federal Reserve CPI targets)
+- Helps users and checkers understand whether a value is standardized (low variability) or market-dependent (requires judgment)
+
+Fields with corresponding AI market research data also display an amber/gold **ResearchBadge** showing the AI-recommended value range. Clicking the badge auto-applies the research midpoint.

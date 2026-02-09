@@ -48,6 +48,7 @@ Comprehensive reference for every layer of the Hospitality Business Group simula
 │   ├── main.tsx         # React DOM entry point
 │   ├── pages/           # 19 page components (Dashboard, Portfolio, etc.)
 │   ├── components/      # Shared components (Layout, statements, analysis)
+│   │   ├── ResearchRefreshOverlay.tsx  # 3D animated overlay for auto-refreshing market research on login
 │   │   └── ui/          # 60+ shadcn/Radix UI primitives + custom components
 │   ├── hooks/           # Custom React hooks (toast, mobile, upload)
 │   ├── features/        # Feature modules

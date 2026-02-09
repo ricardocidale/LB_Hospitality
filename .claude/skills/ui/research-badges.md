@@ -91,9 +91,41 @@ const parsePct = (pctStr: string | undefined) => {
 };
 ```
 
+## HelpTooltip + ResearchBadge Co-Location Rule
+
+**Every user-editable input field MUST have both:**
+1. A `HelpTooltip` (? icon) explaining what the field does
+2. A `ResearchBadge` (amber/gold) if AI market research data exists for that field
+
+These appear together in the Label row:
+
+```tsx
+<Label className="label-text flex items-center gap-1">
+  Starting ADR
+  <HelpTooltip text="The initial nightly rate charged per room..." />
+  <ResearchBadge value={researchValues.adr?.display} onClick={...} />
+</Label>
+```
+
+### GAAP-Standardized vs. Market-Variable Fields
+
+Some assumptions are regulated by GAAP, IRS, or industry standards and are **not subjective**. Tooltips for these fields should reflect this certainty:
+
+| Field | Authority | Standard Value | Tooltip Guidance |
+|-------|-----------|---------------|------------------|
+| Depreciation Period | IRS Pub 946 / ASC 360 | 27.5 years | "Fixed at 27.5 years per IRS Publication 946 for residential rental property." |
+| Days Per Month | Industry standard | 30.5 days | "Industry convention: 365 ÷ 12 = 30.42, rounded to 30.5." |
+| Amortization Terms | Market convention | 20–30 years | "Standard commercial mortgage terms. 25 years is most common." |
+| Closing Costs | Market convention | 1–3% | "Includes lender fees, legal, appraisal, title insurance." |
+| Broker Commission | NAR / market | 4–6% | "Industry standard, split between buyer's and seller's agents." |
+| Inflation Rate | Federal Reserve | ~2% target | "Based on CPI forecasts. The Federal Reserve targets 2% annually." |
+
+For market-variable fields (ADR, occupancy, cap rate), tooltips explain the concept and research badges show the AI-recommended range.
+
 ## Currently Implemented
 
-- **Property Edit** (`client/src/pages/PropertyEdit.tsx`): ADR, Occupancy, Cap Rate, Catering Boost
+- **Property Edit** (`client/src/pages/PropertyEdit.tsx`): All 39+ input fields have HelpTooltips. ResearchBadges on: startAdr, maxOccupancy, startOccupancy, occupancyRampMonths, cateringBoostPercent, exitCapRate, landValuePercent.
+- **Settings** (`client/src/pages/Settings.tsx`): All input fields (portfolio, macro, other tabs) have HelpTooltips. No ResearchBadges (global settings are not property-specific).
 
 ## Integration Checklist
 

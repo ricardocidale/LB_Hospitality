@@ -4,12 +4,13 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/lib/auth";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useState, useEffect, useCallback } from "react";
 import { ErrorBoundary, FinancialErrorBoundary } from "@/components/ErrorBoundary";
 import { Loader2 } from "lucide-react";
 import NotFound from "@/pages/not-found";
 import Login from "@/pages/Login";
 import Dashboard from "@/pages/Dashboard";
+import { ResearchRefreshOverlay } from "@/components/ResearchRefreshOverlay";
 import Company from "@/pages/Company";
 import CompanyAssumptions from "@/pages/CompanyAssumptions";
 import Portfolio from "@/pages/Portfolio";
@@ -84,6 +85,24 @@ function CheckerRoute({ component: Component }: { component: React.ComponentType
 
 function Router() {
   const { user, isLoading } = useAuth();
+  const [showResearchRefresh, setShowResearchRefresh] = useState(false);
+  const prevUserRef = useState<any>(null);
+  
+  useEffect(() => {
+    if (user && !prevUserRef[0]) {
+      const lastRefresh = sessionStorage.getItem("research_refresh_done");
+      if (!lastRefresh) {
+        setShowResearchRefresh(true);
+      }
+    }
+    prevUserRef[0] = user;
+  }, [user]);
+
+  const handleResearchComplete = useCallback(() => {
+    setShowResearchRefresh(false);
+    sessionStorage.setItem("research_refresh_done", Date.now().toString());
+    queryClient.invalidateQueries({ queryKey: ["research"] });
+  }, []);
   
   if (isLoading) {
     return (
@@ -94,6 +113,8 @@ function Router() {
   }
   
   return (
+    <>
+    {showResearchRefresh && <ResearchRefreshOverlay onComplete={handleResearchComplete} />}
     <Switch>
       <Route path="/login">
         {user ? <Redirect to="/" /> : <Login />}
@@ -172,6 +193,7 @@ function Router() {
       </Route>
       <Route component={NotFound} />
     </Switch>
+    </>
   );
 }
 

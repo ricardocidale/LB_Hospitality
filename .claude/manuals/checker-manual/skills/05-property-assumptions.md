@@ -206,3 +206,25 @@ Supported formats: **Excel (.xlsx)** and **CSV**. Use exports to build independe
 | Financing | Loan Amount = LTV × (Purchase Price + Building Improvements); PMT uses standard amortization |
 | Balance Sheet | Assets = Liabilities + Equity every period |
 | Exit | Terminal Value = Trailing NOI ÷ `exitCapRate` |
+
+---
+
+## In-App Help & Research Integration
+
+Every input field on the Property Edit page includes:
+
+1. **HelpTooltip** (? icon) — Explains the field's purpose, impact on calculations, and for GAAP-regulated values, the authoritative source
+2. **ResearchBadge** (amber/gold) — Shown when AI market research data exists for the field. Displays the recommended range and applies the midpoint on click
+
+Currently mapped research badges: `startAdr`, `maxOccupancy`, `startOccupancy`, `occupancyRampMonths`, `cateringBoostPercent`, `exitCapRate`, `landValuePercent`
+
+### GAAP-Standardized Fields
+
+The following property-level fields are governed by authoritative standards and should have narrow acceptable ranges:
+
+| Field | Standard | Authority |
+|-------|----------|-----------|
+| Depreciation basis (land exclusion) | `landValuePercent` × purchase price is non-depreciable | IRS Pub 946 / ASC 360 |
+| Depreciation period | 27.5 years straight-line | IRS Pub 946 |
+| Loan amortization | 20–30 years | Market convention |
+| Closing costs | 1–3% of loan | Market convention |

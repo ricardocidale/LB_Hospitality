@@ -86,3 +86,51 @@ On the Property Edit page, research recommendations are displayed inline alongsi
 | Boundary values | Check that research recommendations fall within the model's valid input ranges (e.g., occupancy 0%–100%, cap rate > 0%) |
 
 > **Purpose for the Checker:** These tools help users determine realistic input values for their assumptions. The checker should verify that research recommendations align with the assumption ranges used in the model and that applying research values produces expected downstream financial results.
+
+---
+
+## Auto-Refresh on Login
+
+The system automatically refreshes stale market research when a user logs in:
+
+| Aspect | Detail |
+|--------|--------|
+| **Trigger** | Once per browser session, immediately after login |
+| **Age Threshold** | Research older than 7 days is regenerated |
+| **UI** | 3D animated overlay (Three.js) showing progress with property names and completion percentage |
+| **Session Gating** | Uses `sessionStorage` to prevent re-triggering during the same session |
+| **Skip Logic** | Properties with fresh research (< 7 days old) are skipped |
+
+### Verification Notes for Auto-Refresh
+
+| Check | What to Verify |
+|-------|---------------|
+| Freshness check | Log in → verify only properties with research > 7 days old are refreshed |
+| Progress display | Overlay shows correct property name and incremental progress |
+| Completion | After all properties are processed, overlay fades out and does not re-appear on navigation |
+| Session persistence | Refreshing the page does NOT re-trigger (session storage flag persists until tab close) |
+| New session | Closing browser tab and re-logging in DOES trigger a new freshness check |
+
+---
+
+## HelpTooltips on All Input Fields
+
+Every user-editable assumption field in the application now includes a `HelpTooltip` (? icon) explaining:
+- What the field controls
+- How it affects calculations
+- For GAAP-regulated values (depreciation, tax rates), the authoritative source and standard value
+
+### GAAP-Standardized Assumptions
+
+Some assumptions are regulated by authoritative standards and are NOT subjective estimates:
+
+| Assumption | Authority | Standard Value | Variability |
+|------------|-----------|---------------|-------------|
+| Depreciation Period | IRS Publication 946 / ASC 360 | 27.5 years | Fixed — tax law for residential rental property |
+| Days Per Month | Industry convention | 30.5 days (365 ÷ 12) | Fixed — universal hospitality standard |
+| Amortization Terms | Market convention | 20–30 years | Low — standard commercial mortgage terms |
+| Closing Costs | Market convention | 1–3% of loan amount | Low — fees, legal, appraisal, title |
+| Broker Commission | NAR / market practice | 4–6% of sale price | Low — industry standard range |
+| Inflation Rate | Federal Reserve target | ~2% annually | Moderate — CPI-based, Fed target is 2% |
+
+Checkers should note that these fields have narrow, well-documented ranges and should flag any values outside the standard ranges above as requiring justification.

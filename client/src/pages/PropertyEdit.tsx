@@ -442,7 +442,7 @@ export default function PropertyEdit() {
               <div className="border-t border-white/10 pt-6">
                 <div className="space-y-4">
                   <div className="space-y-3">
-                    <Label className="label-text text-gray-700">Will this property be refinanced?</Label>
+                    <Label className="label-text text-gray-700 flex items-center gap-1.5">Will this property be refinanced?<HelpTooltip text="Whether this property will refinance after the initial equity investment. Refinancing allows extracting equity by placing debt on an appreciated asset." /></Label>
                     <RadioGroup 
                       value={draft.willRefinance || "No"} 
                       onValueChange={(v) => handleChange("willRefinance", v)}
@@ -464,7 +464,7 @@ export default function PropertyEdit() {
                       <h4 className="font-display mb-4 text-gray-900">Refinance Terms</h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
-                          <Label className="label-text text-gray-700">Refinance Date</Label>
+                          <Label className="label-text text-gray-700 flex items-center gap-1.5">Refinance Date<HelpTooltip text="When the refinancing occurs. Typically 2-3 years after operations start, once the property has established a track record and appraised value." /></Label>
                           <Input 
                             type="date" 
                             value={draft.refinanceDate || (() => {
@@ -479,7 +479,7 @@ export default function PropertyEdit() {
                           <p className="text-xs text-gray-500">Suggested: {globalAssumptions?.debtAssumptions?.refiPeriodYears ?? DEFAULT_REFI_PERIOD_YEARS} years after operations start</p>
                         </div>
                         <div className="space-y-2">
-                          <Label className="label-text text-gray-700">Loan-to-Value (LTV) %</Label>
+                          <Label className="label-text text-gray-700 flex items-center gap-1.5">Loan-to-Value (LTV) %<HelpTooltip text="Loan-to-Value ratio for the refinance loan, based on the property's appraised value at the time of refinancing." /></Label>
                           <Input 
                             type="number" 
                             step="0.01"
@@ -489,7 +489,7 @@ export default function PropertyEdit() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label className="label-text text-gray-700">Interest Rate (%)</Label>
+                          <Label className="label-text text-gray-700 flex items-center gap-1.5">Interest Rate (%)<HelpTooltip text="Annual interest rate on the refinance loan." /></Label>
                           <Input 
                             type="number" 
                             step="0.01"
@@ -499,7 +499,7 @@ export default function PropertyEdit() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label className="label-text text-gray-700">Loan Term (Years)</Label>
+                          <Label className="label-text text-gray-700 flex items-center gap-1.5">Loan Term (Years)<HelpTooltip text="Amortization period for the refinance loan in years." /></Label>
                           <Input 
                             type="number" 
                             value={draft.refinanceTermYears || DEFAULT_TERM_YEARS} 
@@ -508,7 +508,7 @@ export default function PropertyEdit() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label className="label-text text-gray-700">Closing Costs (%)</Label>
+                          <Label className="label-text text-gray-700 flex items-center gap-1.5">Closing Costs (%)<HelpTooltip text="Transaction costs for the refinance as a percentage of the new loan amount." /></Label>
                           <Input 
                             type="number" 
                             step="0.01"
@@ -543,6 +543,7 @@ export default function PropertyEdit() {
                 <div className="flex justify-between items-center">
                   <Label className="label-text text-gray-700 flex items-center gap-1.5">
                     Starting ADR
+                    <HelpTooltip text="Average Daily Rate at the start of operations. This is the average revenue per occupied room per night." />
                     <ResearchBadge value={researchValues.adr?.display} onClick={() => researchValues.adr && handleChange("startAdr", researchValues.adr.mid)} />
                   </Label>
                   <EditableValue
@@ -565,7 +566,7 @@ export default function PropertyEdit() {
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label className="label-text text-gray-700">ADR Annual Growth</Label>
+                  <Label className="label-text text-gray-700 flex items-center gap-1.5">ADR Annual Growth<HelpTooltip text="Year-over-year percentage increase in ADR. Reflects pricing power, inflation, and market conditions. Typical range is 2-5% for established markets." /></Label>
                   <EditableValue
                     value={draft.adrGrowthRate * 100}
                     onChange={(val) => handleChange("adrGrowthRate", val / 100)}
@@ -590,6 +591,7 @@ export default function PropertyEdit() {
                 <div className="flex justify-between items-center">
                   <Label className="label-text text-gray-700 flex items-center gap-1.5">
                     Starting Occupancy
+                    <HelpTooltip text="Occupancy rate in the first month of operations. New properties typically start below stabilized levels and ramp up over time." />
                     <ResearchBadge value={researchValues.startOccupancy?.display} onClick={() => researchValues.startOccupancy && handleChange("startOccupancy", researchValues.startOccupancy.mid / 100)} />
                   </Label>
                   <EditableValue
@@ -614,6 +616,7 @@ export default function PropertyEdit() {
                 <div className="flex justify-between items-center">
                   <Label className="label-text text-gray-700 flex items-center gap-1.5">
                     Stabilized Occupancy
+                    <HelpTooltip text="Target occupancy rate after the ramp-up period. This is the long-term sustainable occupancy level for the market." />
                     <ResearchBadge value={researchValues.occupancy?.display} onClick={() => researchValues.occupancy && handleChange("maxOccupancy", researchValues.occupancy.mid / 100)} />
                   </Label>
                   <EditableValue
@@ -640,6 +643,7 @@ export default function PropertyEdit() {
                 <div className="flex justify-between items-center">
                   <Label className="label-text text-gray-700 flex items-center gap-1.5">
                     Occupancy Ramp
+                    <HelpTooltip text="Number of months from opening to reach stabilized occupancy. The property linearly ramps from starting to stabilized occupancy over this period." />
                     <ResearchBadge value={researchValues.rampMonths?.display} onClick={() => researchValues.rampMonths && handleChange("occupancyRampMonths", researchValues.rampMonths.mid)} />
                   </Label>
                   <EditableValue
@@ -662,7 +666,7 @@ export default function PropertyEdit() {
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label className="label-text text-gray-700">Occupancy Growth Step</Label>
+                  <Label className="label-text text-gray-700 flex items-center gap-1.5">Occupancy Growth Step<HelpTooltip text="Additional annual occupancy improvement after stabilization. Applied as a small yearly increase once the property has stabilized. Typical range is 1-3%." /></Label>
                   <EditableValue
                     value={draft.occupancyGrowthStep * 100}
                     onChange={(val) => handleChange("occupancyGrowthStep", val / 100)}
@@ -683,7 +687,7 @@ export default function PropertyEdit() {
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label className="label-text text-gray-700">Stabilization Period</Label>
+                  <Label className="label-text text-gray-700 flex items-center gap-1.5">Stabilization Period<HelpTooltip text="Total months until the property reaches mature, stabilized operations. Used for financial projections and investor reporting." /></Label>
                   <EditableValue
                     value={draft.stabilizationMonths}
                     onChange={(val) => handleChange("stabilizationMonths", val)}
@@ -878,7 +882,7 @@ export default function PropertyEdit() {
                   <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <Label className="text-sm label-text text-gray-700">Housekeeping</Label>
+                        <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Housekeeping<HelpTooltip text="Room department expenses: housekeeping labor, linens, guest supplies, and room maintenance as a percentage of total revenue (USALI Rooms Dept.)." /></Label>
                         <EditableValue
                           value={(draft.costRateRooms ?? DEFAULT_COST_RATE_ROOMS) * 100}
                           onChange={(val) => handleChange("costRateRooms", val / 100)}
@@ -898,7 +902,7 @@ export default function PropertyEdit() {
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <Label className="text-sm label-text text-gray-700">F&B</Label>
+                        <Label className="text-sm label-text text-gray-700 flex items-center gap-1">F&B<HelpTooltip text="Food & Beverage department expenses: kitchen labor, food costs, beverages, and dining operations as a percentage of total revenue (USALI F&B Dept.)." /></Label>
                         <EditableValue
                           value={(draft.costRateFB ?? DEFAULT_COST_RATE_FB) * 100}
                           onChange={(val) => handleChange("costRateFB", val / 100)}
@@ -918,7 +922,7 @@ export default function PropertyEdit() {
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <Label className="text-sm label-text text-gray-700">Admin</Label>
+                        <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Admin<HelpTooltip text="Administrative & General expenses: management salaries, accounting, legal, HR, and office supplies as a percentage of total revenue." /></Label>
                         <EditableValue
                           value={(draft.costRateAdmin ?? DEFAULT_COST_RATE_ADMIN) * 100}
                           onChange={(val) => handleChange("costRateAdmin", val / 100)}
@@ -938,7 +942,7 @@ export default function PropertyEdit() {
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <Label className="text-sm label-text text-gray-700">Marketing</Label>
+                        <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Marketing<HelpTooltip text="Sales & Marketing expenses: advertising, OTA commissions, loyalty programs, and business development as a percentage of total revenue." /></Label>
                         <EditableValue
                           value={(draft.costRateMarketing ?? DEFAULT_COST_RATE_MARKETING) * 100}
                           onChange={(val) => handleChange("costRateMarketing", val / 100)}
@@ -958,7 +962,7 @@ export default function PropertyEdit() {
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <Label className="text-sm label-text text-gray-700">Property Ops</Label>
+                        <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Property Ops<HelpTooltip text="Property Operations & Maintenance: engineering, repairs, grounds, and facility maintenance as a percentage of total revenue." /></Label>
                         <EditableValue
                           value={(draft.costRatePropertyOps ?? DEFAULT_COST_RATE_PROPERTY_OPS) * 100}
                           onChange={(val) => handleChange("costRatePropertyOps", val / 100)}
@@ -978,7 +982,7 @@ export default function PropertyEdit() {
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <Label className="text-sm label-text text-gray-700">Utilities</Label>
+                        <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Utilities<HelpTooltip text="Utility expenses: electricity, gas, water, sewer, and waste management as a percentage of total revenue." /></Label>
                         <EditableValue
                           value={(draft.costRateUtilities ?? DEFAULT_COST_RATE_UTILITIES) * 100}
                           onChange={(val) => handleChange("costRateUtilities", val / 100)}
@@ -998,7 +1002,7 @@ export default function PropertyEdit() {
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <Label className="text-sm label-text text-gray-700">Insurance</Label>
+                        <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Insurance<HelpTooltip text="Property insurance: liability, property damage, workers' comp, and business interruption coverage as a percentage of total revenue." /></Label>
                         <EditableValue
                           value={(draft.costRateInsurance ?? DEFAULT_COST_RATE_INSURANCE) * 100}
                           onChange={(val) => handleChange("costRateInsurance", val / 100)}
@@ -1018,7 +1022,7 @@ export default function PropertyEdit() {
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <Label className="text-sm label-text text-gray-700">Taxes</Label>
+                        <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Taxes<HelpTooltip text="Property taxes and other real estate assessments as a percentage of total revenue." /></Label>
                         <EditableValue
                           value={(draft.costRateTaxes ?? DEFAULT_COST_RATE_TAXES) * 100}
                           onChange={(val) => handleChange("costRateTaxes", val / 100)}
@@ -1038,7 +1042,7 @@ export default function PropertyEdit() {
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <Label className="text-sm label-text text-gray-700">IT</Label>
+                        <Label className="text-sm label-text text-gray-700 flex items-center gap-1">IT<HelpTooltip text="Information Technology: property management systems, WiFi, in-room tech, and IT support as a percentage of total revenue." /></Label>
                         <EditableValue
                           value={(draft.costRateIT ?? DEFAULT_COST_RATE_IT) * 100}
                           onChange={(val) => handleChange("costRateIT", val / 100)}
@@ -1058,7 +1062,7 @@ export default function PropertyEdit() {
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <Label className="text-sm label-text text-gray-700">FF&E Reserve</Label>
+                        <Label className="text-sm label-text text-gray-700 flex items-center gap-1">FF&E Reserve<HelpTooltip text="Furniture, Fixtures & Equipment reserve: annual set-aside for capital replacement of furnishings, carpets, and equipment (typically 3-5% of revenue)." /></Label>
                         <EditableValue
                           value={(draft.costRateFFE ?? DEFAULT_COST_RATE_FFE) * 100}
                           onChange={(val) => handleChange("costRateFFE", val / 100)}
@@ -1078,7 +1082,7 @@ export default function PropertyEdit() {
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <Label className="text-sm label-text text-gray-700">Other</Label>
+                        <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Other<HelpTooltip text="Miscellaneous operating expenses not categorized elsewhere as a percentage of total revenue." /></Label>
                         <EditableValue
                           value={(draft.costRateOther ?? DEFAULT_COST_RATE_OTHER) * 100}
                           onChange={(val) => handleChange("costRateOther", val / 100)}

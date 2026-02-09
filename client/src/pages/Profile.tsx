@@ -142,7 +142,7 @@ export default function Profile() {
           }
         />
 
-        {(user.role === "admin" || user.email === "checker") && (
+        {(user.role === "admin" || user.role === "checker") && (
           <Card className="bg-gradient-to-br from-[#1a2e3d]/95 via-[#243d4d]/95 to-[#1e3a42]/95 backdrop-blur-xl border border-white/20 shadow-xl">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">

@@ -30,7 +30,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { href: "/profile", label: "My Profile", icon: UserCircle },
     { href: "/scenarios", label: "My Scenarios", icon: FolderOpen },
     { type: "divider" as const },
-    ...(isAdmin || user?.email === "checker" ? [
+    ...(isAdmin || user?.role === "checker" ? [
       { href: "/checker-manual", label: "Checker Manual", icon: ClipboardCheck },
     ] : []),
     ...(isAdmin ? [

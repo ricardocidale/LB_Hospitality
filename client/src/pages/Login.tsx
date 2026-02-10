@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useAuth } from "@/lib/auth";
 import { useLocation } from "wouter";
 import { Input } from "@/components/ui/input";
@@ -6,8 +6,10 @@ import { Label } from "@/components/ui/label";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { GlassButton } from "@/components/ui/glass-button";
+import { motion } from "framer-motion";
 import logo from "@/assets/logo.png";
 import hotelParty from "@/assets/hotel-party.jpg";
+import { Login3DScene } from "@/components/Login3DScene";
 
 export default function Login() {
   const { login } = useAuth();
@@ -65,25 +67,45 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0a0a0f] relative overflow-hidden">
       {/* Boutique Hotel Party Background */}
-      <div 
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0.2 }}
+        transition={{ duration: 1.5, ease: "easeOut" }}
         className="absolute inset-0 pointer-events-none"
         style={{
           backgroundImage: `url(${hotelParty})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center top',
           backgroundRepeat: 'no-repeat',
-          opacity: 0.2,
         }}
       />
+
+      {/* 3D Scene Background */}
+      <Login3DScene />
       
       {/* Ambient Glow Effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 -left-20 w-96 h-96 rounded-full bg-[#38BDF8]/10 blur-[120px]" />
-        <div className="absolute bottom-1/4 -right-20 w-80 h-80 rounded-full bg-[#7DD3FC]/8 blur-[100px]" />
+        <motion.div 
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 2, ease: "easeOut" }}
+          className="absolute top-1/4 -left-20 w-96 h-96 rounded-full bg-[#38BDF8]/10 blur-[120px]" 
+        />
+        <motion.div 
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 2, delay: 0.3, ease: "easeOut" }}
+          className="absolute bottom-1/4 -right-20 w-80 h-80 rounded-full bg-[#7DD3FC]/8 blur-[100px]" 
+        />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-[#0a1e2e]/50 blur-[80px]" />
       </div>
 
-      <div className="relative z-10 w-full max-w-md mx-4">
+      <motion.div 
+        initial={{ opacity: 0, y: 30, scale: 0.96 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.7, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+        className="relative z-10 w-full max-w-md mx-4"
+      >
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#E0F2FE]/22 via-[#BAE6FD]/18 to-[#7DD3FC]/15 backdrop-blur-2xl border border-[#38BDF8]/25 shadow-[0_0_40px_rgba(56,189,248,0.35),0_0_80px_rgba(56,189,248,0.18),0_8px_32px_rgba(0,0,0,0.3)]">
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <div className="absolute -top-20 -right-20 w-48 h-48 rounded-full bg-[#38BDF8]/22 blur-3xl" />
@@ -95,11 +117,19 @@ export default function Login() {
           <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#38BDF8]/40 to-transparent" />
           
           <div className="relative p-8 sm:p-10">
-            <div className="flex flex-col items-center mb-8">
-              <img 
+            <motion.div 
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
+              className="flex flex-col items-center mb-8"
+            >
+              <motion.img 
+                initial={{ scale: 0.5, opacity: 0 }}
+                animate={{ scale: 1, opacity: 0.9 }}
+                transition={{ duration: 0.6, delay: 0.6, type: "spring", stiffness: 200 }}
                 src={logo} 
                 alt="Hospitality Business" 
-                className="w-16 h-16 object-contain mb-4 cursor-pointer opacity-90 hover:opacity-100 transition-all"
+                className="w-16 h-16 object-contain mb-4 cursor-pointer hover:opacity-100 transition-all"
                 style={{ filter: "drop-shadow(0 8px 16px rgba(0,0,0,0.5)) drop-shadow(0 2px 4px rgba(0,0,0,0.4))" }} 
                 onClick={handleAdminLogin}
               />
@@ -107,14 +137,25 @@ export default function Login() {
                 Hospitality <span className="text-[#9FBCA4]">Business</span>
               </h1>
               <p className="text-xs text-white/40 uppercase tracking-[0.2em]">Business Simulation</p>
-            </div>
+            </motion.div>
             
-            <div className="mb-8 text-center">
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.7 }}
+              className="mb-8 text-center"
+            >
               <h2 className="text-xl font-display text-[#FFF9F5] mb-2">Welcome Back</h2>
               <p className="text-sm text-white/50 label-text">Sign in to access the simulation portal</p>
-            </div>
+            </motion.div>
             
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <motion.form 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.85 }}
+              onSubmit={handleSubmit} 
+              className="space-y-5"
+            >
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-medium text-white/70">Email or Username</Label>
                 <Input
@@ -153,7 +194,12 @@ export default function Login() {
                 </div>
               </div>
               
-              <div className="flex justify-center mt-6">
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 1.0, type: "spring", stiffness: 200 }}
+                className="flex justify-center mt-6"
+              >
                 <button
                   type="submit"
                   disabled={isLoading}
@@ -170,19 +216,29 @@ export default function Login() {
                     {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Sign In"}
                   </span>
                 </button>
-              </div>
-            </form>
+              </motion.div>
+            </motion.form>
             
-            <p className="text-center text-xs text-white/30 mt-8">
+            <motion.p 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.4, delay: 1.2 }}
+              className="text-center text-xs text-white/30 mt-8"
+            >
               Contact your administrator if you need access
-            </p>
+            </motion.p>
           </div>
         </div>
         
-        <p className="text-center text-xs text-white/20 mt-6">
+        <motion.p 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4, delay: 1.3 }}
+          className="text-center text-xs text-white/20 mt-6"
+        >
           Business simulation portal for Hospitality Business Group
-        </p>
-      </div>
+        </motion.p>
+      </motion.div>
     </div>
   );
 }

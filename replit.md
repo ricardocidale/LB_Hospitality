@@ -15,6 +15,7 @@ Business simulation portal for a boutique hotel management company. Financial mo
 **Fluid Glass** is the active theme.
 
 ## Recent Changes
+- **Logo Portfolio & User Branding**: Admin-managed logo portfolio (logos table) with per-user assignment. Admins upload/delete logos and assign specific logo + theme to each user via Admin > Branding view. Users/checkers see their assigned logo in the sidebar but cannot modify assignments. Layout fetches `/api/my-branding` with fallback chain: assigned logo > company logo > default. Schema: `logos` table, `users.assignedLogoId`/`users.assignedThemeId`. Default logos seeded: HBG (default) + Norfolk AI.
 - **Calculation Transparency Toggles**: Two on/off switches in Settings > Other tab control visibility of formula help icons and expandable accordion rows in financial tables. One toggle for Management Company reports, one for all Property reports. Default: ON. Schema fields: `show_company_calculation_details`, `show_property_calculation_details`. Uses `CalcDetailsProvider` React context in `financial-table-rows.tsx`.
 - **Accordion Formula Rows**: Expandable rows in income statements showing step-by-step calculation breakdowns (base revenue × rate × escalation × 12). Used by checker for verification. Components: `ExpandableLineItem`, `ExpandableMetricRow`, `FormulaDetailRow`.
 - **Austin Hillside exit cap rate**: Updated to 8.0% based on market research (Austin boutique 5.5%-7.5% going-in, +50-100bps for exit).

@@ -29,6 +29,7 @@ const FinancingAnalysis = lazy(() => import("@/pages/FinancingAnalysis"));
 const Analysis = lazy(() => import("@/pages/Analysis"));
 const Methodology = lazy(() => import("@/pages/Methodology"));
 const CheckerManual = lazy(() => import("@/pages/CheckerManual"));
+const Help = lazy(() => import("@/pages/Help"));
 const ExecutiveSummary = lazy(() => import("@/pages/ExecutiveSummary"));
 const ComparisonView = lazy(() => import("@/pages/ComparisonView"));
 const TimelineView = lazy(() => import("@/pages/TimelineView"));
@@ -157,8 +158,11 @@ function Router() {
       <Route path="/settings">
         <ProtectedRoute component={Settings} />
       </Route>
+      <Route path="/help">
+        <ProtectedRoute component={Help} />
+      </Route>
       <Route path="/methodology">
-        <ProtectedRoute component={Methodology} />
+        <Redirect to="/help" />
       </Route>
       <Route path="/property/:id/research">
         <ProtectedRoute component={PropertyMarketResearch} />
@@ -201,7 +205,7 @@ function Router() {
         <Redirect to="/portfolio" />
       </Route>
       <Route path="/checker-manual">
-        <CheckerRoute component={CheckerManual} />
+        <Redirect to="/help" />
       </Route>
       <Route path="/compare">
         <ProtectedRoute component={ComparisonView} />

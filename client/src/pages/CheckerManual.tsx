@@ -59,7 +59,7 @@ const sections = [
 ];
 
 
-export default function CheckerManual() {
+export default function CheckerManual({ embedded }: { embedded?: boolean }) {
   const { user } = useAuth();
   const { toast } = useToast();
   const [exportingManual, setExportingManual] = useState(false);
@@ -158,26 +158,30 @@ export default function CheckerManual() {
     }
   };
 
+  const Wrapper = embedded ? ({ children }: { children: React.ReactNode }) => <>{children}</> : Layout;
+
   return (
-    <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-[#1a2332] via-[#1e2a3a] to-[#1a2832]">
-        <div className="p-4 md:p-6 space-y-6">
-          <PageHeader
-            title="Checker Manual"
-            subtitle="Hospitality Business Group — Verification & Testing Guide"
-            actions={
-              <div className="flex gap-2">
-                <GlassButton data-testid="btn-export-pdf" onClick={handleExportPDF} disabled={exportingManual}>
-                  {exportingManual ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <FileDown className="w-4 h-4 mr-2" />}
-                  Export Manual PDF
-                </GlassButton>
-                <GlassButton data-testid="btn-full-export" onClick={handleFullExport} disabled={exportingData}>
-                  {exportingData ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Database className="w-4 h-4 mr-2" />}
-                  Full Data Export
-                </GlassButton>
-              </div>
-            }
-          />
+    <Wrapper>
+      <div>
+        <div className={embedded ? "space-y-6" : "p-4 md:p-6 space-y-6"}>
+          {!embedded && (
+            <PageHeader
+              title="Checker Manual"
+              subtitle="Hospitality Business Group — Verification & Testing Guide"
+              actions={
+                <div className="flex gap-2">
+                  <GlassButton data-testid="btn-export-pdf" onClick={handleExportPDF} disabled={exportingManual}>
+                    {exportingManual ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <FileDown className="w-4 h-4 mr-2" />}
+                    Export Manual PDF
+                  </GlassButton>
+                  <GlassButton data-testid="btn-full-export" onClick={handleFullExport} disabled={exportingData}>
+                    {exportingData ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Database className="w-4 h-4 mr-2" />}
+                    Full Data Export
+                  </GlassButton>
+                </div>
+              }
+            />
+          )}
 
           <Callout>
             Always export to Excel and CSV before verifying calculations — this gives you raw numbers to cross-check against formulas.
@@ -187,16 +191,16 @@ export default function CheckerManual() {
             {/* Table of Contents Sidebar */}
             <aside className="hidden lg:block w-72 flex-shrink-0">
               <div className="sticky top-24">
-                <Card className="bg-white/5 backdrop-blur-xl border-white/10 shadow-xl">
+                <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
                   <div className="p-4">
-                    <h3 className="text-sm font-semibold text-white/70 uppercase tracking-wider mb-3">Table of Contents</h3>
+                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Table of Contents</h3>
                     <nav className="space-y-1">
                       {sections.map((s) => (
                         <button
                           key={s.id}
                           data-testid={`toc-${s.id}`}
                           onClick={() => scrollToSection(s.id)}
-                          className="w-full text-left px-3 py-1.5 rounded-lg text-xs text-white/60 hover:text-white hover:bg-white/10 transition-colors truncate"
+                          className="w-full text-left px-3 py-1.5 rounded-lg text-xs text-muted-foreground hover:text-foreground hover:bg-[#9FBCA4]/10 transition-colors truncate"
                         >
                           {s.title}
                         </button>
@@ -218,7 +222,7 @@ export default function CheckerManual() {
                 onToggle={() => toggleSection("app-overview")}
                 sectionRef={(el) => { sectionRefs.current["app-overview"] = el; }}
               >
-                <p className="text-white/70 text-sm">Two-entity architecture — Management Company (service co) + Property SPVs. All calculations client-side, no hardcoded values, configurable assumptions with centralized constants as fallbacks.</p>
+                <p className="text-muted-foreground text-sm">Two-entity architecture — Management Company (service co) + Property SPVs. All calculations client-side, no hardcoded values, configurable assumptions with centralized constants as fallbacks.</p>
                 <ManualTable
                   headers={["Navigation Section", "Purpose", "Route"]}
                   rows={[
@@ -246,7 +250,7 @@ export default function CheckerManual() {
                 onToggle={() => toggleSection("mgmt-company")}
                 sectionRef={(el) => { sectionRefs.current["mgmt-company"] = el; }}
               >
-                <p className="text-white/70 text-sm">Service company, NOT a property owner. Revenue: Base Fee (% of Total Revenue) + Incentive Fee (% of GOP). Funded via SAFE notes (Tranche 1 gates operations — Business Rule #1).</p>
+                <p className="text-muted-foreground text-sm">Service company, NOT a property owner. Revenue: Base Fee (% of Total Revenue) + Incentive Fee (% of GOP). Funded via SAFE notes (Tranche 1 gates operations — Business Rule #1).</p>
                 <ManualTable
                   headers={["Expense Category", "Calculation", "Escalation"]}
                   rows={[
@@ -274,8 +278,8 @@ export default function CheckerManual() {
                 onToggle={() => toggleSection("property-portfolio")}
                 sectionRef={(el) => { sectionRefs.current["property-portfolio"] = el; }}
               >
-                <p className="text-white/70 text-sm">Each property is an independent SPV with its own financials. Investor returns come from: FCF distributions, refinancing proceeds, and exit proceeds.</p>
-                <p className="text-white/60 text-sm mt-2">View the current property portfolio in the <strong className="text-white/80">Properties</strong> page. Each property card shows its name, location, room count, ADR, financing type, and lifecycle status.</p>
+                <p className="text-muted-foreground text-sm">Each property is an independent SPV with its own financials. Investor returns come from: FCF distributions, refinancing proceeds, and exit proceeds.</p>
+                <p className="text-muted-foreground text-sm mt-2">View the current property portfolio in the <strong className="text-foreground/80">Properties</strong> page. Each property card shows its name, location, room count, ADR, financing type, and lifecycle status.</p>
                 <ManualTable
                   headers={["Field", "Description", "Where to Find"]}
                   rows={[
@@ -297,8 +301,8 @@ export default function CheckerManual() {
                 onToggle={() => toggleSection("global-assumptions")}
                 sectionRef={(el) => { sectionRefs.current["global-assumptions"] = el; }}
               >
-                <p className="text-white/70 text-sm mb-2">Model-wide parameters accessible via Settings page. Changing any global assumption triggers instant client-side recalculation of every financial statement.</p>
-                <h3 className="text-white/90 text-sm font-semibold mt-4 mb-2">Model Parameters</h3>
+                <p className="text-muted-foreground text-sm mb-2">Model-wide parameters accessible via Settings page. Changing any global assumption triggers instant client-side recalculation of every financial statement.</p>
+                <h3 className="text-foreground text-sm font-semibold mt-4 mb-2">Model Parameters</h3>
                 <ManualTable
                   headers={["Variable", "Description", "Default", "Unit", "Affects"]}
                   rows={[
@@ -311,7 +315,7 @@ export default function CheckerManual() {
                     ["fiscalYearStartMonth", "Month number when fiscal year begins (1=Jan)", "1", "count (1–12)", "Both"],
                   ]}
                 />
-                <h3 className="text-white/90 text-sm font-semibold mt-4 mb-2">Inflation & Escalation</h3>
+                <h3 className="text-foreground text-sm font-semibold mt-4 mb-2">Inflation & Escalation</h3>
                 <ManualTable
                   headers={["Variable", "Description", "Default", "Unit", "Affects"]}
                   rows={[
@@ -319,7 +323,7 @@ export default function CheckerManual() {
                     ["fixedCostEscalationRate", "Annual escalation for Mgmt Co. fixed overhead", "3%", "%", "Mgmt Co."],
                   ]}
                 />
-                <h3 className="text-white/90 text-sm font-semibold mt-4 mb-2">Management Fees</h3>
+                <h3 className="text-foreground text-sm font-semibold mt-4 mb-2">Management Fees</h3>
                 <ManualTable
                   headers={["Variable", "Description", "Default", "Unit", "Affects"]}
                   rows={[
@@ -327,7 +331,7 @@ export default function CheckerManual() {
                     ["incentiveManagementFee", "Incentive fee as % of property GOP", "15%", "%", "Both"],
                   ]}
                 />
-                <h3 className="text-white/90 text-sm font-semibold mt-4 mb-2">SAFE Funding</h3>
+                <h3 className="text-foreground text-sm font-semibold mt-4 mb-2">SAFE Funding</h3>
                 <ManualTable
                   headers={["Variable", "Description", "Default", "Unit", "Affects"]}
                   rows={[
@@ -340,7 +344,7 @@ export default function CheckerManual() {
                     ["safeDiscountRate", "Discount rate for SAFE equity conversion", "20%", "%", "Mgmt Co."],
                   ]}
                 />
-                <h3 className="text-white/90 text-sm font-semibold mt-4 mb-2">Partner Compensation (per year)</h3>
+                <h3 className="text-foreground text-sm font-semibold mt-4 mb-2">Partner Compensation (per year)</h3>
                 <ManualTable
                   headers={["Variable", "Description", "Default", "Unit", "Affects"]}
                   rows={[
@@ -352,7 +356,7 @@ export default function CheckerManual() {
                     ["partnerCountYear1–10", "Partner headcount each year", "3", "count", "Mgmt Co."],
                   ]}
                 />
-                <h3 className="text-white/90 text-sm font-semibold mt-4 mb-2">Staffing</h3>
+                <h3 className="text-foreground text-sm font-semibold mt-4 mb-2">Staffing</h3>
                 <ManualTable
                   headers={["Variable", "Description", "Default", "Unit", "Affects"]}
                   rows={[
@@ -364,7 +368,7 @@ export default function CheckerManual() {
                     ["staffTier3Fte", "FTE headcount at Tier 3 (>6 properties)", "7.0", "FTE", "Mgmt Co."],
                   ]}
                 />
-                <h3 className="text-white/90 text-sm font-semibold mt-4 mb-2">Fixed Overhead (Management Company)</h3>
+                <h3 className="text-foreground text-sm font-semibold mt-4 mb-2">Fixed Overhead (Management Company)</h3>
                 <ManualTable
                   headers={["Variable", "Description", "Default", "Unit", "Affects"]}
                   rows={[
@@ -374,7 +378,7 @@ export default function CheckerManual() {
                     ["businessInsuranceStart", "Annual business insurance (Year 1)", "$12,000", "$/year", "Mgmt Co."],
                   ]}
                 />
-                <h3 className="text-white/90 text-sm font-semibold mt-4 mb-2">Variable Costs (Management Company)</h3>
+                <h3 className="text-foreground text-sm font-semibold mt-4 mb-2">Variable Costs (Management Company)</h3>
                 <ManualTable
                   headers={["Variable", "Description", "Default", "Unit", "Affects"]}
                   rows={[
@@ -384,7 +388,7 @@ export default function CheckerManual() {
                     ["miscOpsRate", "Misc operations as % of portfolio revenue", "3%", "%", "Mgmt Co."],
                   ]}
                 />
-                <h3 className="text-white/90 text-sm font-semibold mt-4 mb-2">Revenue Variables (Property Expense Rates)</h3>
+                <h3 className="text-foreground text-sm font-semibold mt-4 mb-2">Revenue Variables (Property Expense Rates)</h3>
                 <ManualTable
                   headers={["Variable", "Description", "Default", "Unit", "Affects"]}
                   rows={[
@@ -393,7 +397,7 @@ export default function CheckerManual() {
                     ["utilitiesVariableSplit", "Portion of utilities treated as variable", "60%", "%", "Properties"],
                   ]}
                 />
-                <h3 className="text-white/90 text-sm font-semibold mt-4 mb-2">Exit & Sale</h3>
+                <h3 className="text-foreground text-sm font-semibold mt-4 mb-2">Exit & Sale</h3>
                 <ManualTable
                   headers={["Variable", "Description", "Default", "Unit", "Affects"]}
                   rows={[
@@ -402,7 +406,7 @@ export default function CheckerManual() {
                     ["companyTaxRate", "Corporate income tax rate for Mgmt Co.", "30%", "%", "Mgmt Co."],
                   ]}
                 />
-                <h3 className="text-white/90 text-sm font-semibold mt-4 mb-2">Debt Assumptions</h3>
+                <h3 className="text-foreground text-sm font-semibold mt-4 mb-2">Debt Assumptions</h3>
                 <ManualTable
                   headers={["Variable", "Description", "Default", "Unit", "Affects"]}
                   rows={[
@@ -417,7 +421,7 @@ export default function CheckerManual() {
                     ["refiPeriodYears", "Years after ops start before refi eligibility", "—", "years", "Properties"],
                   ]}
                 />
-                <h3 className="text-white/90 text-sm font-semibold mt-4 mb-2">Standard Acquisition Package</h3>
+                <h3 className="text-foreground text-sm font-semibold mt-4 mb-2">Standard Acquisition Package</h3>
                 <ManualTable
                   headers={["Variable", "Description", "Default", "Unit", "Affects"]}
                   rows={[
@@ -428,7 +432,7 @@ export default function CheckerManual() {
                     ["monthsToOps", "Months from acquisition to ops start", "6", "months", "Properties"],
                   ]}
                 />
-                <h3 className="text-white/90 text-sm font-semibold mt-4 mb-2">Asset Definition</h3>
+                <h3 className="text-foreground text-sm font-semibold mt-4 mb-2">Asset Definition</h3>
                 <ManualTable
                   headers={["Variable", "Description", "Default", "Unit"]}
                   rows={[
@@ -454,8 +458,8 @@ export default function CheckerManual() {
                 onToggle={() => toggleSection("property-assumptions")}
                 sectionRef={(el) => { sectionRefs.current["property-assumptions"] = el; }}
               >
-                <p className="text-white/70 text-sm mb-2">Fallback chain: Property-specific value → Global assumption → DEFAULT constant from shared/constants.ts</p>
-                <h3 className="text-white/90 text-sm font-semibold mt-4 mb-2">Identity & Timing</h3>
+                <p className="text-muted-foreground text-sm mb-2">Fallback chain: Property-specific value → Global assumption → DEFAULT constant from shared/constants.ts</p>
+                <h3 className="text-foreground text-sm font-semibold mt-4 mb-2">Identity & Timing</h3>
                 <ManualTable
                   headers={["Variable", "Description", "Default", "Unit"]}
                   rows={[
@@ -468,7 +472,7 @@ export default function CheckerManual() {
                     ["operationsStartDate", "Date hotel operations begin", "— (required)", "date"],
                   ]}
                 />
-                <h3 className="text-white/90 text-sm font-semibold mt-4 mb-2">Capital Structure</h3>
+                <h3 className="text-foreground text-sm font-semibold mt-4 mb-2">Capital Structure</h3>
                 <ManualTable
                   headers={["Variable", "Description", "Default", "Unit"]}
                   rows={[
@@ -479,7 +483,7 @@ export default function CheckerManual() {
                     ["operatingReserve", "Cash reserve for initial operations", "$200,000", "$"],
                   ]}
                 />
-                <h3 className="text-white/90 text-sm font-semibold mt-4 mb-2">Revenue Drivers</h3>
+                <h3 className="text-foreground text-sm font-semibold mt-4 mb-2">Revenue Drivers</h3>
                 <ManualTable
                   headers={["Variable", "Description", "Default", "Unit"]}
                   rows={[
@@ -493,7 +497,7 @@ export default function CheckerManual() {
                     ["stabilizationMonths", "Months from ops start to stabilization", "24", "months"],
                   ]}
                 />
-                <h3 className="text-white/90 text-sm font-semibold mt-4 mb-2">Revenue Shares & Cost Rates</h3>
+                <h3 className="text-foreground text-sm font-semibold mt-4 mb-2">Revenue Shares & Cost Rates</h3>
                 <ManualTable
                   headers={["Variable", "Description", "Default", "Unit"]}
                   rows={[
@@ -514,7 +518,7 @@ export default function CheckerManual() {
                     ["costRateOther", "Other / Miscellaneous", "5%", "% of Revenue"],
                   ]}
                 />
-                <h3 className="text-white/90 text-sm font-semibold mt-4 mb-2">Financing (Acquisition + Refi)</h3>
+                <h3 className="text-foreground text-sm font-semibold mt-4 mb-2">Financing (Acquisition + Refi)</h3>
                 <ManualTable
                   headers={["Variable", "Description", "Default", "Unit"]}
                   rows={[
@@ -530,7 +534,7 @@ export default function CheckerManual() {
                     ["refinanceClosingCostRate", "Closing costs as % of refi loan", "3%", "%"],
                   ]}
                 />
-                <h3 className="text-white/90 text-sm font-semibold mt-4 mb-2">Exit & Tax</h3>
+                <h3 className="text-foreground text-sm font-semibold mt-4 mb-2">Exit & Tax</h3>
                 <ManualTable
                   headers={["Variable", "Description", "Default", "Unit"]}
                   rows={[
@@ -549,7 +553,7 @@ export default function CheckerManual() {
                 onToggle={() => toggleSection("cashflow-streams")}
                 sectionRef={(el) => { sectionRefs.current["cashflow-streams"] = el; }}
               >
-                <p className="text-white/70 text-sm">Each property SPV generates multiple interacting cash flow streams that must reconcile across Income Statement, Balance Sheet, and Cash Flow Statement.</p>
+                <p className="text-muted-foreground text-sm">Each property SPV generates multiple interacting cash flow streams that must reconcile across Income Statement, Balance Sheet, and Cash Flow Statement.</p>
                 <ManualTable
                   headers={["Stream", "When", "Formula Reference", "Impact"]}
                   rows={[
@@ -560,7 +564,7 @@ export default function CheckerManual() {
                     ["E. Management Fee Linkage", "Monthly", "F-C-01, F-C-02", "Dual-entry: property expense ↔ company revenue"],
                   ]}
                 />
-                <h3 className="text-white/90 text-sm font-semibold mt-4 mb-2">Mandatory Business Rules</h3>
+                <h3 className="text-foreground text-sm font-semibold mt-4 mb-2">Mandatory Business Rules</h3>
                 <ManualTable
                   headers={["Rule #", "Name", "Description"]}
                   rows={[
@@ -595,8 +599,8 @@ export default function CheckerManual() {
                     ["Investment Analysis", "Both", "FCF, FCFE, IRR, MOIC", "—"],
                   ]}
                 />
-                <h3 className="text-white/90 text-sm font-semibold mt-6 mb-2">Calculation Transparency</h3>
-                <p className="text-white/70 text-sm mb-2">Two on/off toggles in Settings {">"} Other tab control the visibility of formula details across all financial reports. One toggle controls Management Company reports, the other controls all Property reports. Default: ON.</p>
+                <h3 className="text-foreground text-sm font-semibold mt-6 mb-2">Calculation Transparency</h3>
+                <p className="text-muted-foreground text-sm mb-2">Two on/off toggles in Settings {">"} Other tab control the visibility of formula details across all financial reports. One toggle controls Management Company reports, the other controls all Property reports. Default: ON.</p>
                 <ManualTable
                   headers={["Toggle", "Scope", "Default", "Controls"]}
                   rows={[
@@ -604,8 +608,8 @@ export default function CheckerManual() {
                     ["Property Reports", "All property income statements, cash flows & balance sheets", "ON", "Expandable formula rows + help icons on every property page"],
                   ]}
                 />
-                <h3 className="text-white/90 text-sm font-semibold mt-4 mb-2">Expandable Formula Rows</h3>
-                <p className="text-white/70 text-sm mb-2">When Calculation Transparency is ON, line items in financial tables show a chevron. Click to expand and reveal step-by-step calculation breakdowns.</p>
+                <h3 className="text-foreground text-sm font-semibold mt-4 mb-2">Expandable Formula Rows</h3>
+                <p className="text-muted-foreground text-sm mb-2">When Calculation Transparency is ON, line items in financial tables show a chevron. Click to expand and reveal step-by-step calculation breakdowns.</p>
                 <ManualTable
                   headers={["Component", "Purpose", "Behavior"]}
                   rows={[
@@ -694,7 +698,7 @@ export default function CheckerManual() {
                 onToggle={() => toggleSection("my-profile")}
                 sectionRef={(el) => { sectionRefs.current["my-profile"] = el; }}
               >
-                <ul className="text-white/70 text-sm space-y-1 list-disc list-inside">
+                <ul className="text-muted-foreground text-sm space-y-1 list-disc list-inside">
                   <li>Edit name, email, company, and title</li>
                   <li>Change password (current + new + confirm)</li>
                   <li>Checker Manual button visible for checker and admin roles</li>
@@ -719,7 +723,7 @@ export default function CheckerManual() {
                     ["Portfolio Cash", "Σ property ending cash", "F-X-06"],
                   ]}
                 />
-                <p className="text-white/70 text-sm mt-3">Tabs: Overview, Income Statement, Cash Flow, Balance Sheet, Investment Analysis. Each tab shows aggregated yearly data computed from generatePropertyProForma + aggregation.</p>
+                <p className="text-muted-foreground text-sm mt-3">Tabs: Overview, Income Statement, Cash Flow, Balance Sheet, Investment Analysis. Each tab shows aggregated yearly data computed from generatePropertyProForma + aggregation.</p>
               </SectionCard>
 
               {/* Section 13: AI Research */}
@@ -731,13 +735,13 @@ export default function CheckerManual() {
                 onToggle={() => toggleSection("ai-research")}
                 sectionRef={(el) => { sectionRefs.current["ai-research"] = el; }}
               >
-                <p className="text-white/70 text-sm">Three research tools available per property and globally. They use Claude to analyze markets and provide assumption calibration guidance.</p>
-                <ul className="text-white/70 text-sm space-y-1 list-disc list-inside mt-2">
+                <p className="text-muted-foreground text-sm">Three research tools available per property and globally. They use Claude to analyze markets and provide assumption calibration guidance.</p>
+                <ul className="text-muted-foreground text-sm space-y-1 list-disc list-inside mt-2">
                   <li>ADR analysis and competitive benchmarking</li>
                   <li>Occupancy trends and seasonal patterns</li>
                   <li>Cap rate benchmarks by market</li>
                 </ul>
-                <p className="text-white/70 text-sm mt-2">Purpose: help users set realistic assumption values based on current market data.</p>
+                <p className="text-muted-foreground text-sm mt-2">Purpose: help users set realistic assumption values based on current market data.</p>
               </SectionCard>
 
               {/* Section 14: Property CRUD */}
@@ -770,7 +774,7 @@ export default function CheckerManual() {
                 sectionRef={(el) => { sectionRefs.current["testing-methodology"] = el; }}
               >
                 <Callout>Checkers can and should create saved scenarios to test different assumption configurations. Use the Scenarios feature to save baseline states, apply changes, and compare results.</Callout>
-                <h4 className="text-white font-semibold mt-4 mb-2">7-Phase Verification Workflow</h4>
+                <h4 className="text-foreground font-semibold mt-4 mb-2">7-Phase Verification Workflow</h4>
                 <ManualTable
                   headers={["Phase", "Focus Area", "Key Checks"]}
                   rows={[
@@ -784,7 +788,7 @@ export default function CheckerManual() {
                   ]}
                 />
 
-                <h4 className="text-white font-semibold mt-6 mb-2">USALI Benchmark Ranges (Boutique Hotels)</h4>
+                <h4 className="text-foreground font-semibold mt-6 mb-2">USALI Benchmark Ranges (Boutique Hotels)</h4>
                 <ManualTable
                   headers={["Metric", "Acceptable Range", "Red Flag Below", "Red Flag Above"]}
                   rows={[
@@ -798,7 +802,7 @@ export default function CheckerManual() {
                   ]}
                 />
 
-                <h4 className="text-white font-semibold mt-6 mb-2">Inflation & Escalation Verification</h4>
+                <h4 className="text-foreground font-semibold mt-6 mb-2">Inflation & Escalation Verification</h4>
                 <ManualTable
                   headers={["Cost Type", "Rate Used", "Formula", "Example Costs"]}
                   rows={[
@@ -806,9 +810,9 @@ export default function CheckerManual() {
                     ["Variable Costs", "inflationRate", "cost × (1 + rate)^yearIndex", "Travel, IT licensing, marketing %, misc ops"],
                   ]}
                 />
-                <p className="text-white/60 text-sm mt-2">Test procedure: Set inflationRate = 3% and fixedCostEscalationRate = 5%. Verify fixed costs grow at 5% and variable costs at 3% independently.</p>
+                <p className="text-muted-foreground text-sm mt-2">Test procedure: Set inflationRate = 3% and fixedCostEscalationRate = 5%. Verify fixed costs grow at 5% and variable costs at 3% independently.</p>
 
-                <h4 className="text-white font-semibold mt-6 mb-2">Audit Opinion Framework</h4>
+                <h4 className="text-foreground font-semibold mt-6 mb-2">Audit Opinion Framework</h4>
                 <ManualTable
                   headers={["Opinion", "Criteria", "Action Required"]}
                   rows={[
@@ -817,7 +821,7 @@ export default function CheckerManual() {
                     ["ADVERSE", "Material errors found; formula mismatches; GAAP violations; constraint breaches", "Block deployment; document all findings; require remediation"],
                   ]}
                 />
-                <p className="text-white/70 text-sm mt-3">For each test: Document setup → Export baseline → Make change → Export new state → Compare hand-calculated vs. actual → Log results in activity feed.</p>
+                <p className="text-muted-foreground text-sm mt-3">For each test: Document setup → Export baseline → Make change → Export new state → Compare hand-calculated vs. actual → Log results in activity feed.</p>
               </SectionCard>
 
               {/* Section 16: Property Financial Formulas */}
@@ -1027,6 +1031,6 @@ export default function CheckerManual() {
           </div>
         </div>
       </div>
-    </Layout>
+    </Wrapper>
   );
 }

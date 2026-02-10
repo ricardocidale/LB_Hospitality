@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Building2, Briefcase, Settings2, Menu, X, FileText, Shield, LogOut, UserCircle, FolderOpen, SearchCheck, BarChart3, Calculator, ClipboardCheck, Search, GitCompare, Clock, MapPin, FileBarChart, ChevronDown, BookOpen, HelpCircle } from "lucide-react";
+import { LayoutDashboard, Building2, Briefcase, Settings2, Menu, X, FileText, Shield, LogOut, UserCircle, FolderOpen, SearchCheck, BarChart3, Calculator, ClipboardCheck, Search, GitCompare, Clock, MapPin, FileBarChart, ChevronDown, BookOpen } from "lucide-react";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,6 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import NotificationCenter from "@/components/NotificationCenter";
 import FavoritesSidebar from "@/components/Favorites";
 import GuidedWalkthrough from "@/components/GuidedWalkthrough";
-import { useWalkthroughStore } from "@/components/GuidedWalkthrough";
 
 type NavLink = { href: string; label: string; icon: any; onClick?: () => void };
 type NavDivider = { type: "divider" };
@@ -40,19 +39,11 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
   const companyLogo = myBranding?.logoUrl || global?.companyLogo || defaultLogo;
 
   const sb = (key: string) => isAdmin || (global as any)?.[key] !== false;
-  const { setCompleted: resetWalkthrough } = useWalkthroughStore();
-
   const toggleGroup = (label: string) => {
     setExpandedGroups(prev => ({ ...prev, [label]: !prev[label] }));
   };
 
   const showAnalysis = sb("sidebarSensitivity") || sb("sidebarFinancing") || sb("sidebarExecutiveSummary");
-
-  const helpChildren: NavLink[] = [
-    ...(isAdmin || user?.role === "checker" ? [{ href: "/checker-manual", label: "Checker Manual", icon: ClipboardCheck }] : []),
-    ...(sb("sidebarUserManual") ? [{ href: "/methodology", label: "User Manual", icon: FileText }] : []),
-    { href: "#guided-tour", label: "Guided Tour", icon: HelpCircle, onClick: () => resetWalkthrough(false) },
-  ];
 
   const navItems: NavItem[] = [
     { href: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -70,7 +61,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
     { href: "/profile", label: "My Profile", icon: UserCircle },
     ...(sb("sidebarScenarios") ? [{ href: "/scenarios", label: "My Scenarios", icon: FolderOpen }] : []),
     { type: "divider" as const },
-    ...(helpChildren.length > 0 ? [{ type: "group" as const, label: "Help & Manuals", icon: BookOpen, children: helpChildren }] : []),
+    { href: "/help", label: "Help & Manuals", icon: BookOpen },
     ...(isAdmin ? [
       { href: "/admin", label: "Administration", icon: Shield },
     ] : []),

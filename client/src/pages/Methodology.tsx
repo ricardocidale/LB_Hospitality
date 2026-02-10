@@ -81,7 +81,7 @@ const sections = [
   { id: "verification", title: "Financial Verification & Audit", subtitle: "How we verify calculations for GAAP compliance", icon: Calculator },
 ];
 
-export default function Methodology() {
+export default function Methodology({ embedded }: { embedded?: boolean }) {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
@@ -102,15 +102,19 @@ export default function Methodology() {
     }
   };
 
+  const Wrapper = embedded ? ({ children }: { children: React.ReactNode }) => <>{children}</> : Layout;
+
   return (
-    <Layout>
+    <Wrapper>
       <div className="space-y-8">
-        <div>
-          <h1 className="text-3xl font-display font-bold text-foreground">User Manual</h1>
-          <p className="text-muted-foreground mt-2">
-            Your guide to the financial model, assumptions, and reporting standards
-          </p>
-        </div>
+        {!embedded && (
+          <div>
+            <h1 className="text-3xl font-display font-bold text-foreground">User Manual</h1>
+            <p className="text-muted-foreground mt-2">
+              Your guide to the financial model, assumptions, and reporting standards
+            </p>
+          </div>
+        )}
 
         <Card className="bg-primary/5 border-primary/20">
           <div className="p-6">
@@ -1283,6 +1287,6 @@ export default function Methodology() {
           </div>
         </Card>
       </div>
-    </Layout>
+    </Wrapper>
   );
 }

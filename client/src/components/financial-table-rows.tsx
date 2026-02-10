@@ -536,6 +536,119 @@ export function BalanceSheetLineItem({
 }
 
 /* ═══════════════════════════════════════════════
+   9b. ExpandableBalanceSheetLineItem
+   Accordion line item for Balance Sheet — click to
+   expand/collapse child detail rows (e.g. breakdown
+   of Cash, PP&E, Debt, Equity components).
+   ═══════════════════════════════════════════════ */
+
+interface ExpandableBalanceSheetLineItemProps {
+  label: string;
+  amount: number;
+  indent?: number;
+  bold?: boolean;
+  isSubtotal?: boolean;
+  isTotal?: boolean;
+  tooltip?: string;
+  children: React.ReactNode;
+  expanded: boolean;
+  onToggle: () => void;
+}
+
+export function ExpandableBalanceSheetLineItem({
+  label,
+  amount,
+  indent = 0,
+  bold,
+  isSubtotal,
+  isTotal,
+  tooltip,
+  children,
+  expanded,
+  onToggle,
+}: ExpandableBalanceSheetLineItemProps) {
+  const showDetails = useCalcDetails();
+  const paddingLeft = indent > 0 ? `${indent * 1.5}rem` : undefined;
+
+  if (!showDetails) {
+    return (
+      <TableRow
+        className={cn(
+          isSubtotal && "bg-primary/5",
+          isTotal && "bg-primary/10 font-bold"
+        )}
+      >
+        <TableCell
+          className={cn(bold && "font-medium")}
+          style={paddingLeft ? { paddingLeft } : undefined}
+        >
+          {label}
+        </TableCell>
+        <TableCell className="text-right font-mono">
+          <Money amount={amount} className={bold ? "font-medium" : undefined} />
+        </TableCell>
+      </TableRow>
+    );
+  }
+
+  return (
+    <>
+      <TableRow
+        className={cn(
+          "cursor-pointer hover:bg-gray-50",
+          isSubtotal && "bg-primary/5",
+          isTotal && "bg-primary/10 font-bold"
+        )}
+        onClick={onToggle}
+      >
+        <TableCell
+          className={cn(bold && "font-medium")}
+          style={paddingLeft ? { paddingLeft } : undefined}
+        >
+          <span className="flex items-center gap-1">
+            {expanded ? (
+              <ChevronDown className="w-3.5 h-3.5 flex-shrink-0 text-gray-400" />
+            ) : (
+              <ChevronRight className="w-3.5 h-3.5 flex-shrink-0 text-gray-400" />
+            )}
+            {label}
+            {tooltip && <HelpTooltip text={tooltip} />}
+          </span>
+        </TableCell>
+        <TableCell className="text-right font-mono">
+          <Money amount={amount} className={bold ? "font-medium" : undefined} />
+        </TableCell>
+      </TableRow>
+      {expanded && children}
+    </>
+  );
+}
+
+/* ═══════════════════════════════════════════════
+   9c. BalanceSheetFormulaRow
+   Sub-row shown inside expanded balance sheet items.
+   Shows one line of the breakdown in small italic text.
+   ═══════════════════════════════════════════════ */
+
+interface BalanceSheetFormulaRowProps {
+  label: string;
+  amount: number;
+}
+
+export function BalanceSheetFormulaRow({ label, amount }: BalanceSheetFormulaRowProps) {
+  return (
+    <TableRow className="bg-blue-50/40">
+      <TableCell className="pl-12 py-0.5 text-xs text-gray-500 italic">
+        {label}
+      </TableCell>
+      <TableCell className="text-right py-0.5 font-mono text-xs text-gray-500">
+        <Money amount={amount} />
+      </TableCell>
+    </TableRow>
+  );
+}
+
+/* ═══════════════════════════════════════════════
    10. TableShell
    Wraps a financial table with consistent card
    chrome, header row, and horizontal scroll.

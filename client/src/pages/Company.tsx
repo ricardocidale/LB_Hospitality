@@ -95,6 +95,7 @@ export default function Company() {
   const { data: global, isLoading: globalLoading } = useGlobalAssumptions();
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState("income");
+  const [bsExpanded, setBsExpanded] = useState<Record<string, boolean>>({});
   const chartRef = useRef<HTMLDivElement>(null);
   const tableRef = useRef<HTMLDivElement>(null);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
@@ -1457,31 +1458,22 @@ export default function Company() {
             {/* Balance Sheet */}
             <div ref={activeTab === 'balance' ? tableRef : undefined} className="bg-white rounded-2xl p-6 shadow-sm border">
               <div>
-                <h3 className="text-lg font-display text-gray-900 mb-4">Balance Sheet - {global?.companyName || "Hospitality Business Co."} (As of {getFiscalYear(9)})</h3>
+                <h3 className="text-lg font-display text-gray-900 mb-4">Balance Sheet - {global?.companyName || "Hospitality Business Co."} (As of {getFiscalYear(projectionYears - 1)})</h3>
                 {(() => {
-                  // Calculate cumulative values through Year 10
                   const cumulativeNetIncome = financials.reduce((a, m) => a + m.netIncome, 0);
                   
-                  // Funding instrument totals
                   const safeTranche1 = global.safeTranche1Amount || 0;
                   const safeTranche2 = global.safeTranche2Amount || 0;
                   const totalSafeFunding = safeTranche1 + safeTranche2;
                   
-                  // Cash = funding instrument + cumulative net income (simplified - no distributions assumed)
                   const cashBalance = totalSafeFunding + cumulativeNetIncome;
-                  
-                  // Total Assets
                   const totalAssets = cashBalance;
                   
-                  // Liabilities (funding notes are technically liability until conversion)
                   const safeNotesPayable = totalSafeFunding;
                   const totalLiabilities = safeNotesPayable;
                   
-                  // Equity
                   const retainedEarnings = cumulativeNetIncome;
                   const totalEquity = retainedEarnings;
-                  
-                  // Total Liabilities + Equity should equal Total Assets
                   const totalLiabilitiesAndEquity = totalLiabilities + totalEquity;
 
                   return (
@@ -1489,17 +1481,49 @@ export default function Company() {
                       <TableBody>
                         {/* ASSETS */}
                         <TableRow className="bg-gray-50 font-semibold">
-                          <TableCell colSpan={2} className="text-lg font-display">ASSETS</TableCell>
+                          <TableCell colSpan={2} className="text-lg font-display text-accent">ASSETS</TableCell>
                         </TableRow>
                         
                         <TableRow className="bg-gray-50">
                           <TableCell className="font-medium pl-4">Current Assets</TableCell>
                           <TableCell></TableCell>
                         </TableRow>
-                        <TableRow>
-                          <TableCell className="pl-8">Cash & Cash Equivalents</TableCell>
+                        <TableRow 
+                          className="cursor-pointer hover:bg-gray-50"
+                          onClick={() => setBsExpanded(prev => ({ ...prev, cash: !prev.cash }))}
+                        >
+                          <TableCell className="pl-8">
+                            <span className="flex items-center gap-1">
+                              {bsExpanded.cash ? <ChevronDown className="w-3.5 h-3.5 text-gray-400" /> : <ChevronRight className="w-3.5 h-3.5 text-gray-400" />}
+                              Cash & Cash Equivalents
+                            </span>
+                          </TableCell>
                           <TableCell className="text-right font-mono">{formatMoney(cashBalance)}</TableCell>
                         </TableRow>
+                        {bsExpanded.cash && (
+                          <>
+                            <TableRow className="bg-blue-50/40">
+                              <TableCell className="pl-12 py-0.5 text-xs text-gray-500 italic">{fundingLabel} Funding (Total)</TableCell>
+                              <TableCell className="text-right py-0.5 font-mono text-xs text-gray-500">{formatMoney(totalSafeFunding)}</TableCell>
+                            </TableRow>
+                            {safeTranche1 > 0 && (
+                              <TableRow className="bg-blue-50/40">
+                                <TableCell className="pl-16 py-0.5 text-xs text-gray-500 italic">Tranche 1</TableCell>
+                                <TableCell className="text-right py-0.5 font-mono text-xs text-gray-500">{formatMoney(safeTranche1)}</TableCell>
+                              </TableRow>
+                            )}
+                            {safeTranche2 > 0 && (
+                              <TableRow className="bg-blue-50/40">
+                                <TableCell className="pl-16 py-0.5 text-xs text-gray-500 italic">Tranche 2</TableCell>
+                                <TableCell className="text-right py-0.5 font-mono text-xs text-gray-500">{formatMoney(safeTranche2)}</TableCell>
+                              </TableRow>
+                            )}
+                            <TableRow className="bg-blue-50/40">
+                              <TableCell className="pl-12 py-0.5 text-xs text-gray-500 italic">+ Cumulative Net Income</TableCell>
+                              <TableCell className="text-right py-0.5 font-mono text-xs text-gray-500">{formatMoney(cumulativeNetIncome)}</TableCell>
+                            </TableRow>
+                          </>
+                        )}
                         <TableRow className="font-medium bg-gray-50/50">
                           <TableCell className="pl-4">Total Current Assets</TableCell>
                           <TableCell className="text-right font-mono">{formatMoney(cashBalance)}</TableCell>
@@ -1510,22 +1534,45 @@ export default function Company() {
                           <TableCell className="text-right font-mono">{formatMoney(totalAssets)}</TableCell>
                         </TableRow>
 
-                        {/* Spacer */}
                         <TableRow><TableCell colSpan={2} className="h-4"></TableCell></TableRow>
 
                         {/* LIABILITIES */}
                         <TableRow className="bg-gray-50 font-semibold">
-                          <TableCell colSpan={2} className="text-lg font-display">LIABILITIES</TableCell>
+                          <TableCell colSpan={2} className="text-lg font-display text-accent">LIABILITIES</TableCell>
                         </TableRow>
                         
                         <TableRow className="bg-gray-50">
                           <TableCell className="font-medium pl-4">Long-Term Liabilities</TableCell>
                           <TableCell></TableCell>
                         </TableRow>
-                        <TableRow>
-                          <TableCell className="pl-8">{fundingLabel} Notes Payable</TableCell>
+                        <TableRow
+                          className="cursor-pointer hover:bg-gray-50"
+                          onClick={() => setBsExpanded(prev => ({ ...prev, notes: !prev.notes }))}
+                        >
+                          <TableCell className="pl-8">
+                            <span className="flex items-center gap-1">
+                              {bsExpanded.notes ? <ChevronDown className="w-3.5 h-3.5 text-gray-400" /> : <ChevronRight className="w-3.5 h-3.5 text-gray-400" />}
+                              {fundingLabel} Notes Payable
+                            </span>
+                          </TableCell>
                           <TableCell className="text-right font-mono">{formatMoney(safeNotesPayable)}</TableCell>
                         </TableRow>
+                        {bsExpanded.notes && (
+                          <>
+                            {safeTranche1 > 0 && (
+                              <TableRow className="bg-blue-50/40">
+                                <TableCell className="pl-12 py-0.5 text-xs text-gray-500 italic">Tranche 1</TableCell>
+                                <TableCell className="text-right py-0.5 font-mono text-xs text-gray-500">{formatMoney(safeTranche1)}</TableCell>
+                              </TableRow>
+                            )}
+                            {safeTranche2 > 0 && (
+                              <TableRow className="bg-blue-50/40">
+                                <TableCell className="pl-12 py-0.5 text-xs text-gray-500 italic">Tranche 2</TableCell>
+                                <TableCell className="text-right py-0.5 font-mono text-xs text-gray-500">{formatMoney(safeTranche2)}</TableCell>
+                              </TableRow>
+                            )}
+                          </>
+                        )}
                         <TableRow className="font-medium bg-gray-50/50">
                           <TableCell className="pl-4">Total Long-Term Liabilities</TableCell>
                           <TableCell className="text-right font-mono">{formatMoney(totalLiabilities)}</TableCell>
@@ -1536,32 +1583,64 @@ export default function Company() {
                           <TableCell className="text-right font-mono">{formatMoney(totalLiabilities)}</TableCell>
                         </TableRow>
 
-                        {/* Spacer */}
                         <TableRow><TableCell colSpan={2} className="h-4"></TableCell></TableRow>
 
                         {/* EQUITY */}
                         <TableRow className="bg-gray-50 font-semibold">
-                          <TableCell colSpan={2} className="text-lg font-display">EQUITY</TableCell>
+                          <TableCell colSpan={2} className="text-lg font-display text-accent">EQUITY</TableCell>
                         </TableRow>
                         
-                        <TableRow>
-                          <TableCell className="pl-4">Retained Earnings</TableCell>
+                        <TableRow
+                          className="cursor-pointer hover:bg-gray-50"
+                          onClick={() => setBsExpanded(prev => ({ ...prev, equity: !prev.equity }))}
+                        >
+                          <TableCell className="pl-4">
+                            <span className="flex items-center gap-1">
+                              {bsExpanded.equity ? <ChevronDown className="w-3.5 h-3.5 text-gray-400" /> : <ChevronRight className="w-3.5 h-3.5 text-gray-400" />}
+                              Retained Earnings
+                            </span>
+                          </TableCell>
                           <TableCell className="text-right font-mono">{formatMoney(retainedEarnings)}</TableCell>
                         </TableRow>
+                        {bsExpanded.equity && (
+                          <>
+                            <TableRow className="bg-blue-50/40">
+                              <TableCell className="pl-12 py-0.5 text-xs text-gray-500 italic">Cumulative Revenue</TableCell>
+                              <TableCell className="text-right py-0.5 font-mono text-xs text-gray-500">{formatMoney(financials.reduce((a, m) => a + m.revenue, 0))}</TableCell>
+                            </TableRow>
+                            <TableRow className="bg-blue-50/40">
+                              <TableCell className="pl-12 py-0.5 text-xs text-gray-500 italic">Less: Cumulative Expenses</TableCell>
+                              <TableCell className="text-right py-0.5 font-mono text-xs text-gray-500">{formatMoney(-(financials.reduce((a, m) => a + m.revenue, 0) - cumulativeNetIncome))}</TableCell>
+                            </TableRow>
+                            <TableRow className="bg-blue-50/40">
+                              <TableCell className="pl-12 py-0.5 text-xs text-gray-500 italic">= Net Income</TableCell>
+                              <TableCell className="text-right py-0.5 font-mono text-xs text-gray-500">{formatMoney(cumulativeNetIncome)}</TableCell>
+                            </TableRow>
+                          </>
+                        )}
                         
                         <TableRow className="font-semibold border-t">
                           <TableCell>TOTAL EQUITY</TableCell>
-                          <TableCell className="text-right">{formatMoney(totalEquity)}</TableCell>
+                          <TableCell className="text-right font-mono">{formatMoney(totalEquity)}</TableCell>
                         </TableRow>
 
-                        {/* Spacer */}
                         <TableRow><TableCell colSpan={2} className="h-4"></TableCell></TableRow>
 
                         {/* TOTAL */}
                         <TableRow className="font-bold border-t-2 bg-primary/10">
                           <TableCell>TOTAL LIABILITIES & EQUITY</TableCell>
-                          <TableCell className="text-right">{formatMoney(totalLiabilitiesAndEquity)}</TableCell>
+                          <TableCell className="text-right font-mono">{formatMoney(totalLiabilitiesAndEquity)}</TableCell>
                         </TableRow>
+
+                        {Math.abs(totalAssets - totalLiabilitiesAndEquity) > 1 && (
+                          <TableRow>
+                            <TableCell colSpan={2} className="bg-red-50 border-t border-red-200">
+                              <span className="text-red-700 text-xs font-medium">
+                                Balance sheet does not balance — Assets {formatMoney(totalAssets)} ≠ L+E {formatMoney(totalLiabilitiesAndEquity)} (variance: {formatMoney(totalAssets - totalLiabilitiesAndEquity)})
+                              </span>
+                            </TableCell>
+                          </TableRow>
+                        )}
                       </TableBody>
                     </Table>
                   );

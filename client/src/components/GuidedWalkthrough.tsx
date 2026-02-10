@@ -19,13 +19,14 @@ export const useWalkthroughStore = create<WalkthroughState>()(
 );
 
 const TOUR_STEPS = [
-  { target: '[data-testid="button-search"]', title: "Quick Search", description: "Press Ctrl+K to search and navigate anywhere in the app." },
-  { target: '[href="/"]', title: "Dashboard", description: "Your portfolio overview with key metrics and charts." },
-  { target: '[href="/portfolio"]', title: "Properties", description: "View and manage all your hospitality properties." },
-  { target: '[href="/compare"]', title: "Compare", description: "Compare properties side-by-side." },
-  { target: '[href="/sensitivity"]', title: "Analysis", description: "Run sensitivity and financing analysis on your portfolio." },
-  { target: '[href="/settings"]', title: "Settings", description: "Configure global assumptions for your financial models." },
-  { target: '[data-testid="button-notifications"]', title: "Notifications", description: "Stay updated with important alerts and changes." },
+  { target: '[href="/"]', title: "Welcome to Your Dashboard", description: "This is your home base. It shows a high-level overview of your entire portfolio — key metrics, charts, and recent activity at a glance." },
+  { target: '[href="/portfolio"]', title: "Step 1: Define Your Properties", description: "Start here. Add each property you want to model, then fill in the assumptions for each one — purchase price, room count, ADR, occupancy, expenses, and financing terms. This is the foundation of your entire simulation." },
+  { target: '[href="/company"]', title: "Step 2: Management Company", description: "Next, define the management company assumptions — staffing tiers, partner compensation, base and incentive fee structures, and funding instruments. The management company earns fees from the properties you just set up." },
+  { target: '[href="/settings"]', title: "Step 3: Systemwide Assumptions", description: "Review and adjust the global settings that apply across all properties — tax rates, inflation, depreciation schedules, and other defaults. These ensure consistency across your entire portfolio." },
+  { target: '[href="/scenarios"]', title: "Save & Compare Scenarios", description: "Save your current assumptions as a named scenario so you can come back to it later. Create multiple scenarios to compare different strategies — like varying occupancy ramps or financing structures." },
+  { target: '[href="/analysis"]', title: "Analysis Tools", description: "Dive deeper with sensitivity analysis, financing comparisons, executive summaries, and side-by-side property comparisons — all in one unified view." },
+  { target: '[data-testid="button-search"]', title: "Quick Navigation", description: "Press Ctrl+K anytime to search and jump to any page, property, or feature instantly. You can also find your favorite properties and recent activity in the sidebar." },
+  { target: '[data-testid="button-notifications"]', title: "Stay Informed", description: "Check here for important alerts — like negative cash balance warnings or verification results. That's the tour! You can always restart it from the Help menu." },
 ];
 
 function GuidedWalkthrough() {

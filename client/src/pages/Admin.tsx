@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Loader2, Plus, Trash2, Users, Key, Eye, EyeOff, Pencil, Clock, FileCheck, CheckCircle2, XCircle, AlertTriangle, PlayCircle, Palette, Activity, HelpCircle, SwatchBook, UserPlus, Shield, Mail, Calendar, LogIn, LogOut, Monitor, MapPin, Hash, LayoutGrid, Sparkles, Settings, FileText, Download, Save, FileDown, Image, PanelLeft } from "lucide-react";
+import { Loader2, Plus, Trash2, Users, Key, Eye, EyeOff, Pencil, Clock, FileCheck, CheckCircle2, XCircle, AlertTriangle, PlayCircle, Palette, Activity, HelpCircle, SwatchBook, UserPlus, Shield, Mail, Calendar, LogIn, LogOut, Monitor, MapPin, Hash, LayoutGrid, Sparkles, Settings, FileText, Download, Save, FileDown, Image, PanelLeft, Upload, Building2, Tag } from "lucide-react";
+import defaultLogo from "@/assets/logo.png";
 import { Tabs, TabsContent, DarkGlassTabs } from "@/components/ui/tabs";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -215,7 +216,7 @@ export default function Admin() {
       if (!res.ok) throw new Error("Failed to fetch global assumptions");
       return res.json();
     },
-    enabled: adminTab === "sidebar",
+    enabled: adminTab === "sidebar" || adminTab === "branding",
   });
 
   const updateSidebarMutation = useMutation({
@@ -290,8 +291,12 @@ export default function Admin() {
   const [brandingUser, setBrandingUser] = useState<User | null>(null);
   const [brandingLogoId, setBrandingLogoId] = useState<number | null>(null);
   const [brandingThemeId, setBrandingThemeId] = useState<number | null>(null);
+  const [brandingAssetDescId, setBrandingAssetDescId] = useState<number | null>(null);
   const [newLogoName, setNewLogoName] = useState("");
   const [newLogoUrl, setNewLogoUrl] = useState("");
+  const [newAssetDescName, setNewAssetDescName] = useState("");
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+  const companyLogoInputRef = useRef<HTMLInputElement>(null);
 
   const { data: adminLogos } = useQuery<Logo[]>({
     queryKey: ["admin", "logos"],
@@ -312,6 +317,109 @@ export default function Admin() {
     },
     enabled: adminTab === "branding",
   });
+
+  interface AssetDesc { id: number; name: string; isDefault: boolean; createdAt: string; }
+  const { data: assetDescriptions } = useQuery<AssetDesc[]>({
+    queryKey: ["admin", "asset-descriptions"],
+    queryFn: async () => {
+      const res = await fetch("/api/admin/asset-descriptions", { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch asset descriptions");
+      return res.json();
+    },
+    enabled: adminTab === "branding",
+  });
+
+  const createAssetDescMutation = useMutation({
+    mutationFn: async (data: { name: string }) => {
+      const res = await fetch("/api/admin/asset-descriptions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Failed to create asset description");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "asset-descriptions"] });
+      setNewAssetDescName("");
+      toast({ title: "Asset Description Added", description: "New asset description has been created." });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const deleteAssetDescMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const res = await fetch(`/api/admin/asset-descriptions/${id}`, { method: "DELETE", credentials: "include" });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed to delete asset description");
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "asset-descriptions"] });
+      toast({ title: "Asset Description Deleted", description: "Asset description has been removed." });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const updateGlobalMutation = useMutation({
+    mutationFn: async (updates: Record<string, any>) => {
+      const res = await fetch("/api/global-assumptions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ ...globalAssumptions, ...updates }),
+      });
+      if (!res.ok) throw new Error("Failed to update settings");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["globalAssumptions"] });
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to save settings.", variant: "destructive" });
+    },
+  });
+
+  const handleCompanyLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      toast({ title: "Invalid file type", description: "Please upload a PNG, JPEG, GIF, or WebP image.", variant: "destructive" });
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "File too large", description: "Please upload an image smaller than 5MB.", variant: "destructive" });
+      return;
+    }
+    setIsUploadingLogo(true);
+    try {
+      const response = await fetch('/api/uploads/request-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ filename: `company-logo-${Date.now()}.${file.name.split('.').pop()}`, contentType: file.type }),
+      });
+      if (!response.ok) throw new Error('Failed to get upload URL');
+      const { uploadUrl, publicUrl } = await response.json();
+      const uploadResponse = await fetch(uploadUrl, { method: 'PUT', headers: { 'Content-Type': file.type }, body: file });
+      if (!uploadResponse.ok) throw new Error('Failed to upload file');
+      updateGlobalMutation.mutate({ companyLogo: publicUrl }, {
+        onSuccess: () => { toast({ title: "Logo uploaded", description: "Company logo has been updated." }); }
+      });
+    } catch {
+      toast({ title: "Upload failed", description: "Failed to upload logo. Please try again.", variant: "destructive" });
+    } finally {
+      setIsUploadingLogo(false);
+      if (companyLogoInputRef.current) companyLogoInputRef.current.value = '';
+    }
+  };
 
   const createLogoMutation = useMutation({
     mutationFn: async (data: { name: string; url: string }) => {
@@ -353,11 +461,11 @@ export default function Admin() {
   });
 
   const assignBrandingMutation = useMutation({
-    mutationFn: async ({ userId, assignedLogoId, assignedThemeId }: { userId: number; assignedLogoId: number | null; assignedThemeId: number | null }) => {
+    mutationFn: async ({ userId, assignedLogoId, assignedThemeId, assignedAssetDescriptionId }: { userId: number; assignedLogoId: number | null; assignedThemeId: number | null; assignedAssetDescriptionId: number | null }) => {
       const res = await fetch(`/api/admin/users/${userId}/branding`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ assignedLogoId, assignedThemeId }),
+        body: JSON.stringify({ assignedLogoId, assignedThemeId, assignedAssetDescriptionId }),
         credentials: "include",
       });
       if (!res.ok) throw new Error("Failed to assign branding");

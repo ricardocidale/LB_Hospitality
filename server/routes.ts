@@ -349,7 +349,7 @@ export async function registerRoutes(
   app.get("/api/admin/users", requireAdmin, async (req, res) => {
     try {
       const users = await storage.getAllUsers();
-      res.json(users.map(u => ({ id: u.id, email: u.email, name: u.name, company: u.company, title: u.title, role: u.role, createdAt: u.createdAt })));
+      res.json(users.map(u => ({ id: u.id, email: u.email, name: u.name, company: u.company, title: u.title, role: u.role, createdAt: u.createdAt, assignedLogoId: u.assignedLogoId, assignedThemeId: u.assignedThemeId })));
     } catch (error) {
       console.error("Error fetching users:", error);
       res.status(500).json({ error: "Failed to fetch users" });

@@ -1,7 +1,7 @@
 import type { Express, Request } from "express";
 import { createServer, type Server } from "http";
 import { storage, type ActivityLogFilters } from "./storage";
-import { insertGlobalAssumptionsSchema, insertPropertySchema, updatePropertySchema, insertDesignThemeSchema, updateScenarioSchema, insertProspectivePropertySchema, insertSavedSearchSchema, VALID_USER_ROLES } from "@shared/schema";
+import { insertGlobalAssumptionsSchema, insertPropertySchema, updatePropertySchema, insertDesignThemeSchema, insertLogoSchema, updateScenarioSchema, insertProspectivePropertySchema, insertSavedSearchSchema, VALID_USER_ROLES } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { registerObjectStorageRoutes, ObjectStorageService, ObjectNotFoundError } from "./replit_integrations/object_storage";
 import { hashPassword, verifyPassword, generateSessionId, setSessionCookie, clearSessionCookie, getSessionExpiryDate, requireAuth, requireAdmin, requireChecker, isRateLimited, recordLoginAttempt, sanitizeEmail, validatePassword, isApiRateLimited } from "./auth";
@@ -1667,10 +1667,93 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
+  // --- LOGO PORTFOLIO ROUTES (Admin only) ---
+  
+  app.get("/api/admin/logos", requireAdmin, async (req, res) => {
+    try {
+      const allLogos = await storage.getAllLogos();
+      res.json(allLogos);
+    } catch (error) {
+      console.error("Error fetching logos:", error);
+      res.status(500).json({ error: "Failed to fetch logos" });
+    }
+  });
+
+  app.post("/api/admin/logos", requireAdmin, async (req, res) => {
+    try {
+      const validation = insertLogoSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: fromZodError(validation.error).message });
+      }
+      const logo = await storage.createLogo(validation.data);
+      res.json(logo);
+    } catch (error) {
+      console.error("Error creating logo:", error);
+      res.status(500).json({ error: "Failed to create logo" });
+    }
+  });
+
+  app.delete("/api/admin/logos/:id", requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id as string);
+      if (isNaN(id)) return res.status(400).json({ error: "Invalid logo ID" });
+      const existing = await storage.getLogo(id);
+      if (!existing) return res.status(404).json({ error: "Logo not found" });
+      if (existing.isDefault) return res.status(400).json({ error: "Cannot delete the default logo" });
+      await storage.deleteLogo(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting logo:", error);
+      res.status(500).json({ error: "Failed to delete logo" });
+    }
+  });
+
+  // Admin assigns logo/theme to a user
+  app.patch("/api/admin/users/:id/branding", requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id as string);
+      if (isNaN(id)) return res.status(400).json({ error: "Invalid user ID" });
+      const { assignedLogoId, assignedThemeId } = req.body;
+      const user = await storage.assignUserBranding(id, { assignedLogoId, assignedThemeId });
+      res.json(user);
+    } catch (error) {
+      console.error("Error assigning branding:", error);
+      res.status(500).json({ error: "Failed to assign branding" });
+    }
+  });
+
+  // Get current user's assigned branding (logo + theme) — used by Layout
+  app.get("/api/my-branding", requireAuth, async (req, res) => {
+    try {
+      const user = req.user!;
+      let logoUrl: string | null = null;
+      let themeName: string | null = null;
+      
+      if (user.assignedLogoId) {
+        const logo = await storage.getLogo(user.assignedLogoId);
+        if (logo) logoUrl = logo.url;
+      }
+      if (!logoUrl) {
+        const defaultLogo = await storage.getDefaultLogo();
+        if (defaultLogo) logoUrl = defaultLogo.url;
+      }
+      
+      if (user.assignedThemeId) {
+        const theme = await storage.getDesignTheme(user.assignedThemeId);
+        if (theme) themeName = theme.name;
+      }
+      
+      res.json({ logoUrl, themeName });
+    } catch (error) {
+      console.error("Error fetching branding:", error);
+      res.status(500).json({ error: "Failed to fetch branding" });
+    }
+  });
+
   // --- DESIGN THEMES ROUTES (per-user) ---
 
   // Get all design themes for current user (includes system themes)
-  app.get("/api/design-themes", requireAuth, async (req, res) => {
+  app.get("/api/design-themes", requireAdmin, async (req, res) => {
     try {
       const themes = await storage.getAllDesignThemes(req.user!.id);
       res.json(themes);
@@ -1692,7 +1775,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
   });
 
   // Create design theme for current user
-  app.post("/api/design-themes", requireAuth, async (req, res) => {
+  app.post("/api/design-themes", requireAdmin, async (req, res) => {
     try {
       const validation = insertDesignThemeSchema.safeParse(req.body);
       if (!validation.success) {
@@ -1710,7 +1793,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
   });
 
   // Update design theme (ownership check)
-  app.patch("/api/design-themes/:id", requireAuth, async (req, res) => {
+  app.patch("/api/design-themes/:id", requireAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id as string);
       if (isNaN(id)) return res.status(400).json({ error: "Invalid theme ID" });
@@ -1734,7 +1817,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
   });
 
   // Delete design theme (ownership check)
-  app.delete("/api/design-themes/:id", requireAuth, async (req, res) => {
+  app.delete("/api/design-themes/:id", requireAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id as string);
       if (isNaN(id)) return res.status(400).json({ error: "Invalid theme ID" });
@@ -1754,7 +1837,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
   });
 
   // Activate design theme for current user (ownership check)
-  app.post("/api/design-themes/:id/activate", requireAuth, async (req, res) => {
+  app.post("/api/design-themes/:id/activate", requireAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id as string);
       if (isNaN(id)) return res.status(400).json({ error: "Invalid theme ID" });

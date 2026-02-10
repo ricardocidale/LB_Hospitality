@@ -4,6 +4,24 @@ import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 import { DEFAULT_SAFE_VALUATION_CAP, DEFAULT_SAFE_DISCOUNT_RATE } from "./constants";
 
+// --- LOGOS TABLE ---
+export const logos = pgTable("logos", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  name: text("name").notNull(),
+  url: text("url").notNull(),
+  isDefault: boolean("is_default").notNull().default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertLogoSchema = z.object({
+  name: z.string(),
+  url: z.string(),
+  isDefault: z.boolean().optional(),
+});
+
+export type Logo = typeof logos.$inferSelect;
+export type InsertLogo = z.infer<typeof insertLogoSchema>;
+
 // --- USERS TABLE ---
 export const users = pgTable("users", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
@@ -13,6 +31,8 @@ export const users = pgTable("users", {
   name: text("name"),
   company: text("company"),
   title: text("title"),
+  assignedLogoId: integer("assigned_logo_id"),
+  assignedThemeId: integer("assigned_theme_id"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

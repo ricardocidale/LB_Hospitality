@@ -28,6 +28,10 @@ const SensitivityAnalysis = lazy(() => import("@/pages/SensitivityAnalysis"));
 const FinancingAnalysis = lazy(() => import("@/pages/FinancingAnalysis"));
 const Methodology = lazy(() => import("@/pages/Methodology"));
 const CheckerManual = lazy(() => import("@/pages/CheckerManual"));
+const ExecutiveSummary = lazy(() => import("@/pages/ExecutiveSummary"));
+const ComparisonView = lazy(() => import("@/pages/ComparisonView"));
+const TimelineView = lazy(() => import("@/pages/TimelineView"));
+const MapView = lazy(() => import("@/pages/MapView"));
 
 const PageLoader = () => (
   <div className="min-h-screen flex items-center justify-center bg-[#FFF9F5]">
@@ -190,6 +194,18 @@ function Router() {
       </Route>
       <Route path="/checker-manual">
         <CheckerRoute component={CheckerManual} />
+      </Route>
+      <Route path="/executive-summary">
+        <ProtectedRoute component={ExecutiveSummary} />
+      </Route>
+      <Route path="/compare">
+        <ProtectedRoute component={ComparisonView} />
+      </Route>
+      <Route path="/timeline">
+        <ProtectedRoute component={TimelineView} />
+      </Route>
+      <Route path="/map">
+        <ProtectedRoute component={MapView} />
       </Route>
       <Route component={NotFound} />
     </Switch>

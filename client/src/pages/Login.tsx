@@ -23,11 +23,10 @@ export default function Login() {
   const handleAdminLogin = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch("/api/auth/admin-login", {
+      const response = await fetch("/api/auth/dev-login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ password }),
       });
       if (!response.ok) {
         const data = await response.json();

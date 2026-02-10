@@ -44,7 +44,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     setExpandedGroups(prev => ({ ...prev, [label]: !prev[label] }));
   };
 
-  const showAnalysis = sb("sidebarSensitivity") || sb("sidebarFinancing");
+  const showAnalysis = sb("sidebarSensitivity") || sb("sidebarFinancing") || sb("sidebarExecutiveSummary");
 
   const helpChildren: NavLink[] = [
     ...(isAdmin || user?.role === "checker" ? [{ href: "/checker-manual", label: "Checker Manual", icon: ClipboardCheck }] : []),
@@ -61,8 +61,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { type: "divider" as const },
     ...(sb("sidebarCompare") ? [{ href: "/compare", label: "Compare", icon: GitCompare }] : []),
     ...(sb("sidebarTimeline") ? [{ href: "/timeline", label: "Timeline", icon: Clock }] : []),
-    ...(sb("sidebarMapView") ? [{ href: "/map", label: "Map View", icon: MapPin }] : []),
-    ...(sb("sidebarExecutiveSummary") ? [{ href: "/executive-summary", label: "Executive Summary", icon: FileBarChart }] : []),
     { type: "divider" as const },
     { href: "/settings", label: "Systemwide Assumptions", icon: Settings2 },
     { type: "divider" as const },

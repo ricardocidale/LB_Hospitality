@@ -252,38 +252,40 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
   }
 
   return (
-    <Layout>
+    <Wrapper>
       <div className="space-y-6">
-        <PageHeader
-          title="Sensitivity Analysis"
-          subtitle="See how changes in key variables affect your portfolio's financial performance"
-          actions={
-            <div className="flex items-center gap-3">
-              <select
-                value={selectedPropertyId}
-                onChange={(e) => setSelectedPropertyId(e.target.value)}
-                className="bg-white/10 border border-white/20 text-white rounded-xl px-3 py-2 text-sm backdrop-blur-xl focus:outline-none focus:ring-2 focus:ring-[#9FBCA4]/50 [&>option]:bg-[#1a2a3a] [&>option]:text-white"
-                data-testid="select-property"
-              >
-                <option value="all">All Properties</option>
-                {properties.map((p) => (
-                  <option key={p.id} value={String(p.id)}>
-                    {p.name}
-                  </option>
-                ))}
-              </select>
-              {hasAdjustments && (
-                <button
-                  onClick={resetAll}
-                  className="px-3 py-2 text-xs font-medium text-white/70 hover:text-white border border-white/20 hover:border-white/40 rounded-xl transition-all"
-                  data-testid="button-reset-all"
+        {!embedded && (
+          <PageHeader
+            title="Sensitivity Analysis"
+            subtitle="See how changes in key variables affect your portfolio's financial performance"
+            actions={
+              <div className="flex items-center gap-3">
+                <select
+                  value={selectedPropertyId}
+                  onChange={(e) => setSelectedPropertyId(e.target.value)}
+                  className="bg-white/10 border border-white/20 text-white rounded-xl px-3 py-2 text-sm backdrop-blur-xl focus:outline-none focus:ring-2 focus:ring-[#9FBCA4]/50 [&>option]:bg-[#1a2a3a] [&>option]:text-white"
+                  data-testid="select-property"
                 >
-                  Reset All
-                </button>
-              )}
-            </div>
-          }
-        />
+                  <option value="all">All Properties</option>
+                  {properties.map((p) => (
+                    <option key={p.id} value={String(p.id)}>
+                      {p.name}
+                    </option>
+                  ))}
+                </select>
+                {hasAdjustments && (
+                  <button
+                    onClick={resetAll}
+                    className="px-3 py-2 text-xs font-medium text-white/70 hover:text-white border border-white/20 hover:border-white/40 rounded-xl transition-all"
+                    data-testid="button-reset-all"
+                  >
+                    Reset All
+                  </button>
+                )}
+              </div>
+            }
+          />
+        )}
 
         {baseResult && adjustedResult && (
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">

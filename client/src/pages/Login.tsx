@@ -123,16 +123,33 @@ export default function Login() {
               transition={{ duration: 0.5, delay: 0.5 }}
               className="flex flex-col items-center mb-8"
             >
-              <motion.img 
+              <motion.div
                 initial={{ scale: 0.5, opacity: 0 }}
-                animate={{ scale: 1, opacity: 0.9 }}
+                animate={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.6, delay: 0.6, type: "spring", stiffness: 200 }}
-                src={logo} 
-                alt="Hospitality Business" 
-                className="w-16 h-16 object-contain mb-4 cursor-pointer hover:opacity-100 transition-all"
-                style={{ filter: "drop-shadow(0 8px 16px rgba(0,0,0,0.5)) drop-shadow(0 2px 4px rgba(0,0,0,0.4))" }} 
+                className="relative mb-4 cursor-pointer"
                 onClick={handleAdminLogin}
-              />
+              >
+                <motion.div
+                  animate={{ 
+                    boxShadow: [
+                      "0 0 20px rgba(159,188,164,0.2), 0 0 40px rgba(159,188,164,0.1)",
+                      "0 0 30px rgba(159,188,164,0.4), 0 0 60px rgba(159,188,164,0.2)",
+                      "0 0 20px rgba(159,188,164,0.2), 0 0 40px rgba(159,188,164,0.1)"
+                    ]
+                  }}
+                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                  className="absolute inset-[-8px] rounded-full"
+                />
+                <motion.img
+                  animate={{ y: [0, -6, 0] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                  src={logo}
+                  alt="Hospitality Business"
+                  className="relative w-16 h-16 object-contain hover:opacity-100 transition-all"
+                  style={{ filter: "drop-shadow(0 8px 16px rgba(0,0,0,0.5)) drop-shadow(0 2px 4px rgba(0,0,0,0.4))" }}
+                />
+              </motion.div>
               <h1 className="text-2xl font-display text-[#FFF9F5] mb-1">
                 Hospitality <span className="text-[#9FBCA4]">Business</span>
               </h1>
@@ -230,14 +247,20 @@ export default function Login() {
           </div>
         </div>
         
-        <motion.p 
+        <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4, delay: 1.3 }}
-          className="text-center text-xs text-white/20 mt-6"
+          className="text-center mt-6 space-y-1"
         >
-          Business simulation portal for Hospitality Business Group
-        </motion.p>
+          <p className="text-xs text-white/20">Business simulation portal for Hospitality Business Group</p>
+          <div className="flex items-center justify-center gap-1.5">
+            <div className="w-1.5 h-1.5 rounded-full bg-[#9FBCA4] shadow-[0_0_6px_rgba(159,188,164,0.6)] animate-pulse" style={{ animationDuration: '3s' }} />
+            <p className="text-[10px] tracking-wider text-white/25">
+              powered by <span className="font-semibold text-white/40">Norfolk AI</span>
+            </p>
+          </div>
+        </motion.div>
       </motion.div>
     </div>
   );

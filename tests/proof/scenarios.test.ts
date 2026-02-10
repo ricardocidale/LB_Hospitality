@@ -372,10 +372,15 @@ describe("Proof Scenario 4: OpCo Fees + SPV Fees (Portfolio Aggregate)", () => {
     }
   });
 
-  it("portfolio NOI = sum of individual NOIs per month", () => {
+  it("portfolio NOI = independently computed NOI for each property", () => {
     for (let i = 0; i < 120; i++) {
+      const noiA = resultA[i].gop - resultA[i].feeBase - resultA[i].feeIncentive - resultA[i].expenseFFE;
+      const noiB = resultB[i].gop - resultB[i].feeBase - resultB[i].feeIncentive - resultB[i].expenseFFE;
+      expect(resultA[i].noi).toBeCloseTo(noiA, 2);
+      expect(resultB[i].noi).toBeCloseTo(noiB, 2);
+
       const portfolioNOI = resultA[i].noi + resultB[i].noi;
-      expect(portfolioNOI).toBeCloseTo(resultA[i].noi + resultB[i].noi, 2);
+      expect(portfolioNOI).toBeCloseTo(noiA + noiB, 2);
     }
   });
 });
@@ -440,10 +445,19 @@ describe("Proof Scenario 5: Consolidated Group with Eliminations", () => {
     expect(output.intercompany_eliminations.variance).toBeLessThan(1);
   });
 
-  it("consolidated BS balances after elimination", () => {
+  it("consolidated BS balances after elimination (using engine outputs)", () => {
     const totalFeesA = resultA.reduce((s, m) => s + m.feeBase + m.feeIncentive, 0);
     const totalFeesB = resultB.reduce((s, m) => s + m.feeBase + m.feeIncentive, 0);
     const totalSPVFees = totalFeesA + totalFeesB;
+
+    const lastA = resultA[11];
+    const lastB = resultB[11];
+    const assetsA = lastA.propertyValue + lastA.endingCash;
+    const liabilitiesA = lastA.debtOutstanding;
+    const equityA = assetsA - liabilitiesA;
+    const assetsB = lastB.propertyValue + lastB.endingCash;
+    const liabilitiesB = lastB.debtOutstanding;
+    const equityB = assetsB - liabilitiesB;
 
     const output = consolidateStatements({
       consolidation_type: "full_entity",
@@ -454,9 +468,9 @@ describe("Proof Scenario 5: Consolidated Group with Eliminations", () => {
           noi: resultA.reduce((s, m) => s + m.noi, 0),
           net_income: resultA.reduce((s, m) => s + m.netIncome, 0),
           management_fees: totalFeesA,
-          total_assets: 1_000_000,
-          total_liabilities: 0,
-          total_equity: 1_000_000,
+          total_assets: assetsA,
+          total_liabilities: liabilitiesA,
+          total_equity: equityA,
         },
         {
           name: "B",
@@ -464,16 +478,16 @@ describe("Proof Scenario 5: Consolidated Group with Eliminations", () => {
           noi: resultB.reduce((s, m) => s + m.noi, 0),
           net_income: resultB.reduce((s, m) => s + m.netIncome, 0),
           management_fees: totalFeesB,
-          total_assets: 2_000_000,
-          total_liabilities: 500_000,
-          total_equity: 1_500_000,
+          total_assets: assetsB,
+          total_liabilities: liabilitiesB,
+          total_equity: equityB,
         },
       ],
       management_company: {
         fee_revenue: totalSPVFees,
-        total_assets: 200_000,
+        total_assets: totalSPVFees * 0.5,
         total_liabilities: 0,
-        total_equity: 200_000,
+        total_equity: totalSPVFees * 0.5,
       },
       rounding_policy: DEFAULT_ROUNDING,
     });

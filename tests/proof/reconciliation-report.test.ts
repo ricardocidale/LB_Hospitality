@@ -142,12 +142,17 @@ function generateReport(
     check_passed: Math.abs(totalOCF + totalFCF - lastMonth.endingCash) < 1,
   };
 
+  const refiDraw = totalRefi > 0
+    ? (result.find((m) => m.refinancingProceeds > 0)?.debtOutstanding ?? 0)
+    : 0;
   const debtRecon = {
     beginning_balance: debt,
-    plus_draws: totalRefi > 0 ? result.find((m) => m.refinancingProceeds > 0)?.debtOutstanding ?? 0 : 0,
+    plus_draws: refiDraw,
     less_payments: totalPrincipal,
     ending_balance: lastMonth.debtOutstanding,
-    check_passed: true,
+    check_passed: debt > 0 || refiDraw > 0
+      ? Math.abs((debt + refiDraw - totalPrincipal) - lastMonth.debtOutstanding) < 1
+      : lastMonth.debtOutstanding === 0,
   };
 
   const yearEnd = result[11];

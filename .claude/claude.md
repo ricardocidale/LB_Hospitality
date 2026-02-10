@@ -83,7 +83,7 @@ Research skills are defined in `.claude/skills/research/` with co-located tool s
 - **Test Files**: `tests/proof/scenarios.test.ts` (5 golden scenarios), `tests/proof/hardcoded-detection.test.ts` (magic number scanner), `tests/proof/reconciliation-report.test.ts` (artifact generator).
 - **Verify Runner**: `tests/proof/verify-runner.ts` — 4-phase orchestrator (scenarios → hardcoded detection → reconciliation → artifact summary).
 - **Artifacts**: `test-artifacts/` — JSON + Markdown reconciliation reports for each scenario.
-- **Test Count**: 355 total tests (315 existing + 40 proof tests).
+- **Test Count**: 384 total tests (315 existing + 40 proof tests + 29 input verification tests).
 - **Commands**: `npm test` (all tests), `npx tsx tests/proof/verify-runner.ts` (full verification).
 - **Skill Docs**: `.claude/skills/finance/automated-proof-system.md`.
 
@@ -151,9 +151,11 @@ client/src/
 
 tests/proof/
 ├── scenarios.test.ts          # 5 golden scenario tests
-├── hardcoded-detection.test.ts # Magic number scanner
+├── input-verification.test.ts # Revenue, cost, ADR, occupancy, escalation, refi verification
+├── hardcoded-detection.test.ts # Magic number scanner (8 finance files)
 ├── reconciliation-report.test.ts # Artifact generator
-└── verify-runner.ts           # 4-phase orchestrator
+├── verify-runner.ts           # 4-phase orchestrator
+└── NO_EXCEL_GUARANTEE.md      # 31-item guarantee checklist enforced by code
 
 test-artifacts/                # Generated reconciliation reports (JSON + Markdown)
 

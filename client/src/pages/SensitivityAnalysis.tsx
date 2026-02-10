@@ -33,7 +33,7 @@ function calculateIRR(cashFlows: number[]): number {
   return result.irr_periodic ?? 0;
 }
 
-export default function SensitivityAnalysis() {
+export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }) {
   const { data: properties, isLoading: propertiesLoading } = useProperties();
   const { data: global, isLoading: globalLoading } = useGlobalAssumptions();
   const [selectedPropertyId, setSelectedPropertyId] = useState<string>("all");
@@ -231,21 +231,23 @@ export default function SensitivityAnalysis() {
     return ((adjusted - base) / Math.abs(base)) * 100;
   };
 
+  const Wrapper = embedded ? ({ children }: { children: React.ReactNode }) => <>{children}</> : Layout;
+
   if (propertiesLoading || globalLoading) {
     return (
-      <Layout>
+      <Wrapper>
         <div className="min-h-screen flex items-center justify-center">
           <Loader2 className="w-8 h-8 animate-spin text-[#9FBCA4]" data-testid="loading-spinner" />
         </div>
-      </Layout>
+      </Wrapper>
     );
   }
 
   if (!properties?.length || !global) {
     return (
-      <Layout>
+      <Wrapper>
         <PageHeader title="Sensitivity Analysis" subtitle="Add properties to your portfolio first" />
-      </Layout>
+      </Wrapper>
     );
   }
 

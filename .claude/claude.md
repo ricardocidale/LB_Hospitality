@@ -18,11 +18,20 @@ Business simulation portal for Hospitality Business Group. Models a boutique hos
 ## Current Theme
 **Fluid Glass** is the active theme. All new UI work must follow Fluid Glass styling conventions. See theme engine skill for token structure.
 
+## Context Loading Protocol
+With 80+ skill files (~15,000 lines), **never load all skills at once**. Use the context-loading skill (`.claude/skills/context-loading/SKILL.md`) to find the minimum required skill set for any task. Quick rules:
+- **Financial calc fix** → load the specific finance skill + `rules/audit-persona.md` + `proof-system/SKILL.md`
+- **UI/visual work** → load `component-library/SKILL.md` + `ui/theme-engine.md` + the specific UI skill
+- **Testing work** → load `testing/SKILL.md` + the relevant sub-skill only
+- **Export work** → load `exports/SKILL.md` or the specific export skill
+- **Cross-domain work** → load minimum from each domain (2-4 skills max per domain)
+
 ## Skill Router
 All detailed documentation lives in focused skills. Load the relevant skill before working.
 
 | Domain | Skill Path | What It Covers |
 |--------|-----------|---------------|
+| Context Loading | `.claude/skills/context-loading/SKILL.md` | Task-to-skill map, loading tiers, anti-patterns, session checklist |
 | Architecture | `.claude/skills/architecture/SKILL.md` | Tech stack, two-entity model, file organization |
 | Design System | `.claude/skills/design-system/SKILL.md` | Colors, typography, component catalog, CSS classes |
 | Theme Engine | `.claude/skills/ui/theme-engine.md` | Multi-theme system (Fluid Glass active), user-created themes, token structure |

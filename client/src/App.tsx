@@ -26,6 +26,7 @@ const Scenarios = lazy(() => import("@/pages/Scenarios"));
 const PropertyFinder = lazy(() => import("@/pages/PropertyFinder"));
 const SensitivityAnalysis = lazy(() => import("@/pages/SensitivityAnalysis"));
 const FinancingAnalysis = lazy(() => import("@/pages/FinancingAnalysis"));
+const Analysis = lazy(() => import("@/pages/Analysis"));
 const Methodology = lazy(() => import("@/pages/Methodology"));
 const CheckerManual = lazy(() => import("@/pages/CheckerManual"));
 const ExecutiveSummary = lazy(() => import("@/pages/ExecutiveSummary"));
@@ -182,30 +183,31 @@ function Router() {
       <Route path="/property-finder">
         <ProtectedRoute component={PropertyFinder} />
       </Route>
-      <Route path="/sensitivity">
+      <Route path="/analysis">
         <FinancialErrorBoundary>
-          <ProtectedRoute component={SensitivityAnalysis} />
+          <ProtectedRoute component={Analysis} />
         </FinancialErrorBoundary>
       </Route>
+      <Route path="/sensitivity">
+        <Redirect to="/analysis" />
+      </Route>
       <Route path="/financing">
-        <FinancialErrorBoundary>
-          <ProtectedRoute component={FinancingAnalysis} />
-        </FinancialErrorBoundary>
+        <Redirect to="/analysis" />
+      </Route>
+      <Route path="/executive-summary">
+        <Redirect to="/analysis" />
+      </Route>
+      <Route path="/map">
+        <Redirect to="/portfolio" />
       </Route>
       <Route path="/checker-manual">
         <CheckerRoute component={CheckerManual} />
-      </Route>
-      <Route path="/executive-summary">
-        <ProtectedRoute component={ExecutiveSummary} />
       </Route>
       <Route path="/compare">
         <ProtectedRoute component={ComparisonView} />
       </Route>
       <Route path="/timeline">
         <ProtectedRoute component={TimelineView} />
-      </Route>
-      <Route path="/map">
-        <ProtectedRoute component={MapView} />
       </Route>
       <Route component={NotFound} />
     </Switch>

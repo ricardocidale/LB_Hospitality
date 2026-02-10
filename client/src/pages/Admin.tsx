@@ -2062,8 +2062,8 @@ export default function Admin() {
 
   return (
     <TooltipProvider>
-    <Layout>
-      <div className="space-y-8">
+    <Layout darkMode>
+      <div className="space-y-8 relative">
         <PageHeader 
             title={currentView === "dashboard" ? "Administration" :
                    currentView === "users" ? "User Management" :

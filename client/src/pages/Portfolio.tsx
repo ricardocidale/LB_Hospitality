@@ -8,8 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Trash2, MapPin, Bed, ArrowRight, Loader2, Plus } from "lucide-react";
+import { Trash2, MapPin, Bed, ArrowRight, Loader2, Plus, Building2 as BuildingIcon } from "lucide-react";
 import { Link } from "wouter";
+import MapView from "./MapView";
 import { PageHeader } from "@/components/ui/page-header";
 import { GlassButton } from "@/components/ui/glass-button";
 import { useToast } from "@/hooks/use-toast";
@@ -111,6 +112,8 @@ function CurrencyInput({
   );
 }
 
+type PortfolioTab = "properties" | "map";
+
 export default function Portfolio() {
   const { data: properties, isLoading } = useProperties();
   const { data: global } = useGlobalAssumptions();
@@ -118,6 +121,7 @@ export default function Portfolio() {
   const createProperty = useCreateProperty();
   const { toast } = useToast();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<PortfolioTab>("properties");
 
   const [formData, setFormData] = useState({
     name: "",

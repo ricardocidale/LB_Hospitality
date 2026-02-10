@@ -11,14 +11,15 @@ import CommandPalette from "@/components/CommandPalette";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import NotificationCenter from "@/components/NotificationCenter";
 import FavoritesSidebar from "@/components/Favorites";
-import GuidedWalkthrough, { WalkthroughTrigger } from "@/components/GuidedWalkthrough";
+import GuidedWalkthrough from "@/components/GuidedWalkthrough";
+import { useWalkthroughStore } from "@/components/GuidedWalkthrough";
 
-type NavLink = { href: string; label: string; icon: any };
+type NavLink = { href: string; label: string; icon: any; onClick?: () => void };
 type NavDivider = { type: "divider" };
 type NavGroup = { type: "group"; label: string; icon: any; children: NavLink[] };
 type NavItem = NavLink | NavDivider | NavGroup;
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default function Layout({ children, darkMode }: { children: React.ReactNode; darkMode?: boolean }) {
   const [location] = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
@@ -39,6 +40,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const companyLogo = myBranding?.logoUrl || global?.companyLogo || defaultLogo;
 
   const sb = (key: string) => isAdmin || (global as any)?.[key] !== false;
+  const { setCompleted: resetWalkthrough } = useWalkthroughStore();
 
   const toggleGroup = (label: string) => {
     setExpandedGroups(prev => ({ ...prev, [label]: !prev[label] }));
@@ -49,6 +51,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const helpChildren: NavLink[] = [
     ...(isAdmin || user?.role === "checker" ? [{ href: "/checker-manual", label: "Checker Manual", icon: ClipboardCheck }] : []),
     ...(sb("sidebarUserManual") ? [{ href: "/methodology", label: "User Manual", icon: FileText }] : []),
+    { href: "#guided-tour", label: "Guided Tour", icon: HelpCircle, onClick: () => resetWalkthrough(false) },
   ];
 
   const navItems: NavItem[] = [
@@ -74,7 +77,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   ];
 
   return (
-    <div className="min-h-screen bg-background font-sans text-foreground flex">
+    <div className={cn("min-h-screen font-sans flex", darkMode ? "bg-[#0a0a0f] text-white" : "bg-background text-foreground")}>
       {sidebarOpen && (
         <div 
           className="fixed inset-0 bg-black/50 z-40 md:hidden"

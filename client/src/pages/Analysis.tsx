@@ -1,62 +1,56 @@
 import { useState } from "react";
 import Layout from "@/components/Layout";
 import { PageHeader } from "@/components/ui/page-header";
-import { BarChart3, Calculator } from "lucide-react";
+import { BarChart3, Calculator, FileBarChart } from "lucide-react";
 import SensitivityAnalysis from "./SensitivityAnalysis";
 import FinancingAnalysis from "./FinancingAnalysis";
+import ExecutiveSummary from "./ExecutiveSummary";
 
-type AnalysisTab = "sensitivity" | "financing";
+type AnalysisTab = "sensitivity" | "financing" | "executive";
 
 export default function Analysis() {
   const [tab, setTab] = useState<AnalysisTab>("sensitivity");
+
+  const tabs: { id: AnalysisTab; label: string; icon: any }[] = [
+    { id: "sensitivity", label: "Sensitivity", icon: BarChart3 },
+    { id: "financing", label: "Financing", icon: Calculator },
+    { id: "executive", label: "Executive Summary", icon: FileBarChart },
+  ];
 
   return (
     <Layout>
       <div className="space-y-6">
         <PageHeader
           title="Analysis"
-          subtitle="Sensitivity modeling and financing tools for your portfolio"
+          subtitle="Sensitivity modeling, financing tools, and executive overview"
           actions={
             <div className="flex gap-2">
-              <button
-                onClick={() => setTab("sensitivity")}
-                data-testid="tab-sensitivity"
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
-                  tab === "sensitivity"
-                    ? "bg-[#9FBCA4]/25 text-white border border-[#9FBCA4]/50"
-                    : "bg-white/5 text-white/60 border border-white/10 hover:bg-white/10 hover:text-white/80"
-                }`}
-              >
-                <BarChart3 className="w-4 h-4" />
-                Sensitivity
-              </button>
-              <button
-                onClick={() => setTab("financing")}
-                data-testid="tab-financing"
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
-                  tab === "financing"
-                    ? "bg-[#9FBCA4]/25 text-white border border-[#9FBCA4]/50"
-                    : "bg-white/5 text-white/60 border border-white/10 hover:bg-white/10 hover:text-white/80"
-                }`}
-              >
-                <Calculator className="w-4 h-4" />
-                Financing
-              </button>
+              {tabs.map((t) => {
+                const Icon = t.icon;
+                return (
+                  <button
+                    key={t.id}
+                    onClick={() => setTab(t.id)}
+                    data-testid={`tab-${t.id}`}
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
+                      tab === t.id
+                        ? "bg-[#9FBCA4]/25 text-white border border-[#9FBCA4]/50"
+                        : "bg-white/5 text-white/60 border border-white/10 hover:bg-white/10 hover:text-white/80"
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    {t.label}
+                  </button>
+                );
+              })}
             </div>
           }
         />
 
-        {tab === "sensitivity" && <SensitivityContent />}
-        {tab === "financing" && <FinancingContent />}
+        {tab === "sensitivity" && <SensitivityAnalysis embedded />}
+        {tab === "financing" && <FinancingAnalysis embedded />}
+        {tab === "executive" && <ExecutiveSummary />}
       </div>
     </Layout>
   );
-}
-
-function SensitivityContent() {
-  return <SensitivityAnalysis embedded />;
-}
-
-function FinancingContent() {
-  return <FinancingAnalysis embedded />;
 }

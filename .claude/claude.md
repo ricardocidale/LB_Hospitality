@@ -1,7 +1,19 @@
 # Hospitality Business Group — Project Instructions
 
 ## Project Summary
-Business simulation portal for Hospitality Business Group. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470) with IRS depreciation rules and an internal audit/verification engine.
+Business simulation portal for Hospitality Business Group. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470) with IRS depreciation rules and an internal audit/verification engine. Branded "powered by Norfolk AI" (discrete, 9px, low opacity).
+
+## User Preferences
+- Preferred communication style: Simple, everyday language. Detailed user — ask lots of clarifying questions before implementing features. Do not assume; confirm requirements first.
+- **TOP PRIORITY: Calculations and correct reports are always the highest priority.** Financial accuracy must never be compromised for visual or UI enhancements. The automated proof system (384 tests) must always pass.
+- Always format money as money (currency format with commas and appropriate precision).
+- All skills must be stored under `.claude/` directory (e.g., `.claude/skills/`, `.claude/manuals/`, `.claude/tools/`). Never place skills elsewhere.
+- The company name is "Hospitality Business Group" (or "Hospitality Business" for short). Never use "L+B Hospitality" in code or documentation.
+- When updating features, always update the corresponding skills (`.claude/skills/`) and manuals (`.claude/manuals/`) documentation.
+- **All UI components must reference a theme** via the theme engine (`.claude/skills/ui/theme-engine.md`). The app supports multiple themes including user-created themes.
+
+## Current Theme
+**Fluid Glass** is the active theme. All new UI work must follow Fluid Glass styling conventions. See theme engine skill for token structure.
 
 ## Skill Router
 All detailed documentation lives in focused skills. Load the relevant skill before working.
@@ -31,8 +43,14 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | Tools | `.claude/tools/` | Analysis, financing, returns, validation, UI tool schemas |
 | Rules (8) | `.claude/rules/` | Audit persona+doctrine+plan, constants, DB seeding, API routes, etc. |
 
-## Current Theme
-**Fluid Glass** is the active theme. All new UI work must follow Fluid Glass styling conventions. See theme engine skill for token structure.
+## Key Rules
+- **Calculations always highest priority** — never compromise financial accuracy for visuals
+- **All UI references a theme** — see theme engine skill
+- **No raw hex in components** — use CSS variable tokens
+- **All buttons use GlassButton**, all pages use PageHeader, all exports use ExportMenu
+- **No mock data** in production paths
+- **Finance changes must state Active Skill** and pass verification (UNQUALIFIED)
+- **Audit persona+doctrine**: `.claude/rules/audit-persona.md` mandatory for finance work
 
 ## Pages (client/src/pages/)
 | Page | Route | Description |
@@ -88,15 +106,6 @@ npm test          # Run all 384 tests
 npm run verify    # Full 4-phase financial verification
 npm run db:push   # Push schema changes
 ```
-
-## Key Rules
-- **Calculations always highest priority** — never compromise financial accuracy for visuals
-- **All UI references a theme** — see theme engine skill
-- **No raw hex in components** — use CSS variable tokens
-- **All buttons use GlassButton**, all pages use PageHeader, all exports use ExportMenu
-- **No mock data** in production paths
-- **Finance changes must state Active Skill** and pass verification (UNQUALIFIED)
-- **Audit persona+doctrine**: `.claude/rules/audit-persona.md` mandatory for finance work
 
 ## Integrations
 

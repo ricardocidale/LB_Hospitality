@@ -1708,13 +1708,55 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
-  // Admin assigns logo/theme to a user
+  // --- ASSET DESCRIPTIONS ROUTES (Admin only) ---
+
+  app.get("/api/admin/asset-descriptions", requireAdmin, async (req, res) => {
+    try {
+      const all = await storage.getAllAssetDescriptions();
+      res.json(all);
+    } catch (error) {
+      console.error("Error fetching asset descriptions:", error);
+      res.status(500).json({ error: "Failed to fetch asset descriptions" });
+    }
+  });
+
+  app.post("/api/admin/asset-descriptions", requireAdmin, async (req, res) => {
+    try {
+      const { insertAssetDescriptionSchema } = await import("@shared/schema");
+      const validation = insertAssetDescriptionSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: fromZodError(validation.error).message });
+      }
+      const ad = await storage.createAssetDescription(validation.data);
+      res.json(ad);
+    } catch (error) {
+      console.error("Error creating asset description:", error);
+      res.status(500).json({ error: "Failed to create asset description" });
+    }
+  });
+
+  app.delete("/api/admin/asset-descriptions/:id", requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id as string);
+      if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+      const existing = await storage.getAssetDescription(id);
+      if (!existing) return res.status(404).json({ error: "Asset description not found" });
+      if (existing.isDefault) return res.status(400).json({ error: "Cannot delete the default asset description" });
+      await storage.deleteAssetDescription(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting asset description:", error);
+      res.status(500).json({ error: "Failed to delete asset description" });
+    }
+  });
+
+  // Admin assigns logo/theme/asset-description to a user
   app.patch("/api/admin/users/:id/branding", requireAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id as string);
       if (isNaN(id)) return res.status(400).json({ error: "Invalid user ID" });
-      const { assignedLogoId, assignedThemeId } = req.body;
-      const user = await storage.assignUserBranding(id, { assignedLogoId, assignedThemeId });
+      const { assignedLogoId, assignedThemeId, assignedAssetDescriptionId } = req.body;
+      const user = await storage.assignUserBranding(id, { assignedLogoId, assignedThemeId, assignedAssetDescriptionId });
       res.json(user);
     } catch (error) {
       console.error("Error assigning branding:", error);
@@ -1722,12 +1764,13 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
-  // Get current user's assigned branding (logo + theme) — used by Layout
+  // Get current user's assigned branding (logo + theme + asset description) — used by Layout
   app.get("/api/my-branding", requireAuth, async (req, res) => {
     try {
       const user = req.user!;
       let logoUrl: string | null = null;
       let themeName: string | null = null;
+      let assetDescriptionName: string | null = null;
       
       if (user.assignedLogoId) {
         const logo = await storage.getLogo(user.assignedLogoId);
@@ -1742,8 +1785,17 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
         const theme = await storage.getDesignTheme(user.assignedThemeId);
         if (theme) themeName = theme.name;
       }
+
+      if (user.assignedAssetDescriptionId) {
+        const ad = await storage.getAssetDescription(user.assignedAssetDescriptionId);
+        if (ad) assetDescriptionName = ad.name;
+      }
+      if (!assetDescriptionName) {
+        const defaultAd = await storage.getDefaultAssetDescription();
+        if (defaultAd) assetDescriptionName = defaultAd.name;
+      }
       
-      res.json({ logoUrl, themeName });
+      res.json({ logoUrl, themeName, assetDescriptionName });
     } catch (error) {
       console.error("Error fetching branding:", error);
       res.status(500).json({ error: "Failed to fetch branding" });

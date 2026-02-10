@@ -7,9 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Loader2, Plus, Trash2, Users, Key, Eye, EyeOff, Pencil, Clock, FileCheck, CheckCircle2, XCircle, AlertTriangle, PlayCircle, Palette, ArrowLeft, Activity, HelpCircle, SwatchBook, UserPlus, Shield, Mail, Calendar, LogIn, LogOut, Monitor, MapPin, Hash, LayoutGrid, Sparkles, Settings, FileText, Download, Save, FileDown, Image } from "lucide-react";
+import { Loader2, Plus, Trash2, Users, Key, Eye, EyeOff, Pencil, Clock, FileCheck, CheckCircle2, XCircle, AlertTriangle, PlayCircle, Palette, ArrowLeft, Activity, HelpCircle, SwatchBook, UserPlus, Shield, Mail, Calendar, LogIn, LogOut, Monitor, MapPin, Hash, LayoutGrid, Sparkles, Settings, FileText, Download, Save, FileDown, Image, PanelLeft } from "lucide-react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { Switch } from "@/components/ui/switch";
 import { GlassButton } from "@/components/ui/glass-button";
 import { PageHeader } from "@/components/ui/page-header";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -108,7 +109,7 @@ interface VerificationResult {
   clientKnownValueTests?: { passed: boolean; results: string };
 }
 
-type AdminView = "dashboard" | "users" | "activity" | "activity-feed" | "checker-activity" | "verification" | "design" | "themes" | "branding";
+type AdminView = "dashboard" | "users" | "activity" | "activity-feed" | "checker-activity" | "verification" | "design" | "themes" | "branding" | "sidebar";
 
 interface ActivityLogEntry {
   id: number;
@@ -205,6 +206,36 @@ export default function Admin() {
   });
 
   const activeSessions = loginLogs?.filter(l => !l.logoutAt).length || 0;
+
+  const { data: globalAssumptions } = useQuery({
+    queryKey: ["globalAssumptions"],
+    queryFn: async () => {
+      const res = await fetch("/api/global-assumptions", { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch global assumptions");
+      return res.json();
+    },
+    enabled: currentView === "sidebar",
+  });
+
+  const updateSidebarMutation = useMutation({
+    mutationFn: async (updates: Record<string, boolean>) => {
+      const res = await fetch("/api/global-assumptions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ ...globalAssumptions, ...updates }),
+      });
+      if (!res.ok) throw new Error("Failed to update sidebar settings");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["globalAssumptions"] });
+      toast({ title: "Sidebar updated", description: "Navigation visibility saved for all users." });
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to save sidebar settings.", variant: "destructive" });
+    },
+  });
 
   // Activity feed filter state
   const [activityEntityFilter, setActivityEntityFilter] = useState<string>("");
@@ -983,6 +1014,22 @@ export default function Admin() {
               <div className="flex-1">
                 <h3 className="text-2xl font-display font-semibold text-white mb-2">Branding</h3>
                 <p className="text-white/50 label-text">Manage logos and assign branding per user</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="group relative overflow-hidden bg-gradient-to-br from-[#1a2e3d]/95 via-[#243d4d]/95 to-[#1e3a42]/95 backdrop-blur-3xl border border-white/20 shadow-2xl shadow-black/40 cursor-pointer hover:border-[#9FBCA4]/40 hover:shadow-[#9FBCA4]/20 transition-all duration-500" onClick={() => setCurrentView("sidebar")} data-testid="card-sidebar">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#9FBCA4]/10 via-transparent to-[#257D41]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="absolute -top-16 -right-16 w-48 h-48 bg-[#9FBCA4]/15 rounded-full blur-3xl group-hover:bg-[#9FBCA4]/25 transition-colors duration-500" />
+          <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-[#257D41]/10 rounded-full blur-3xl group-hover:bg-[#257D41]/20 transition-colors duration-500" />
+          <CardContent className="relative p-8">
+            <div className="flex items-center gap-6">
+              <div className="w-18 h-18 rounded-2xl bg-gradient-to-br from-[#9FBCA4] via-[#7aa88a] to-[#257D41] flex items-center justify-center shadow-xl shadow-[#9FBCA4]/30 border border-white/20" style={{ width: '72px', height: '72px' }}>
+                <PanelLeft className="w-9 h-9 text-white drop-shadow-lg" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-2xl font-display font-semibold text-white mb-2">Sidebar Navigation</h3>
+                <p className="text-white/50 label-text">Control which pages users and checkers see in the sidebar</p>
               </div>
             </div>
           </CardContent>

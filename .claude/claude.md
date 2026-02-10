@@ -11,6 +11,9 @@ Business simulation portal for Hospitality Business Group. Models a boutique hos
 - The company name is "Hospitality Business Group" (or "Hospitality Business" for short). Never use "L+B Hospitality" in code or documentation.
 - When updating features, always update the corresponding skills (`.claude/skills/`) and manuals (`.claude/manuals/`) documentation.
 - **All UI components must reference a theme** via the theme engine (`.claude/skills/ui/theme-engine.md`). The app supports multiple themes including user-created themes.
+- New UI features get their own skill file in `.claude/skills/ui/`.
+- Create skills when they can help divide tasks and reduce context. Always in `.claude/`.
+- Always keep `replit.md` in sync with `.claude/claude.md` — they must reflect the same project state.
 
 ## Current Theme
 **Fluid Glass** is the active theme. All new UI work must follow Fluid Glass styling conventions. See theme engine skill for token structure.
@@ -42,6 +45,15 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | Manuals | `.claude/manuals/` | Checker manual (15 sections), user manual (16 sections) |
 | Tools | `.claude/tools/` | Analysis, financing, returns, validation, UI tool schemas |
 | Rules (8) | `.claude/rules/` | Audit persona+doctrine+plan, constants, DB seeding, API routes, etc. |
+
+## Recent Changes
+- **Asset Descriptions**: Admin-managed asset descriptions (asset_descriptions table) with per-user assignment. Seeded: "Boutique Hotel", "Exotic Experience Hotel". Extended `/api/my-branding` returns logo, theme, and asset description with default fallbacks.
+- **International Address Fields**: Optional property address fields (streetAddress, city, stateProvince, zipPostalCode, country) for international locations. "Map" button on PropertyDetail opens Google Maps (disabled when no address).
+- **Sidebar Visibility**: Admin-controlled sidebar navigation. 9 boolean fields in global_assumptions control which optional nav items appear for non-admin users: Property Finder, Sensitivity, Financing, Compare, Timeline, Map View, Executive Summary, Scenarios, User Manual. Core items always visible: Dashboard, Properties, Management Co., Settings, Profile, Administration. Layout uses `sb()` helper for filtering. Admin UI card and renderSidebar view in Admin.tsx.
+- **Logo Portfolio & User Branding**: Admin-managed logo portfolio (logos table) with per-user assignment. Layout fetches `/api/my-branding` with fallback chain: assigned logo > company logo > default. Schema: `logos` table, `users.assignedLogoId`/`users.assignedThemeId`. Default logos seeded: HBG (default) + Norfolk AI.
+- **Calculation Transparency Toggles**: Two on/off switches in Settings > Other tab control visibility of formula help icons and expandable accordion rows. Default: ON. Schema: `show_company_calculation_details`, `show_property_calculation_details`. Uses `CalcDetailsProvider` React context.
+- **Accordion Formula Rows**: Expandable rows in income statements showing step-by-step calculation breakdowns. Components: `ExpandableLineItem`, `ExpandableMetricRow`, `FormulaDetailRow`.
+- **Exit Cap Rates**: Austin Hillside 8.0% (market: 5.5-7.5% going-in, +50-100bps for exit). Casa Medellín 9.0%.
 
 ## Key Rules
 - **Calculations always highest priority** — never compromise financial accuracy for visuals

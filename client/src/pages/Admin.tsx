@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Loader2, Plus, Trash2, Users, Key, Eye, EyeOff, Pencil, Clock, FileCheck, CheckCircle2, XCircle, AlertTriangle, PlayCircle, Palette, Activity, HelpCircle, SwatchBook, UserPlus, Shield, Mail, Calendar, LogIn, LogOut, Monitor, MapPin, Hash, LayoutGrid, Sparkles, Settings, FileText, Download, Save, FileDown, Image, PanelLeft, Upload, Building2, Tag } from "lucide-react";
+import { Loader2, Plus, Trash2, Users, Key, Eye, EyeOff, Pencil, Clock, FileCheck, CheckCircle2, XCircle, AlertTriangle, PlayCircle, Palette, Activity, HelpCircle, SwatchBook, UserPlus, Shield, Mail, Calendar, LogIn, LogOut, Monitor, MapPin, Hash, LayoutGrid, Sparkles, Settings, FileText, Download, Save, FileDown, Image, PanelLeft, Building2, Tag } from "lucide-react";
 import defaultLogo from "@/assets/logo.png";
 import { Tabs, TabsContent, DarkGlassTabs } from "@/components/ui/tabs";
 import jsPDF from "jspdf";
@@ -295,8 +295,6 @@ export default function Admin() {
   const [newLogoName, setNewLogoName] = useState("");
   const [newLogoUrl, setNewLogoUrl] = useState("");
   const [newAssetDescName, setNewAssetDescName] = useState("");
-  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
-  const companyLogoInputRef = useRef<HTMLInputElement>(null);
 
   const { data: adminLogos } = useQuery<Logo[]>({
     queryKey: ["admin", "logos"],
@@ -386,40 +384,6 @@ export default function Admin() {
     },
   });
 
-  const handleCompanyLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp'];
-    if (!allowedTypes.includes(file.type)) {
-      toast({ title: "Invalid file type", description: "Please upload a PNG, JPEG, GIF, or WebP image.", variant: "destructive" });
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      toast({ title: "File too large", description: "Please upload an image smaller than 5MB.", variant: "destructive" });
-      return;
-    }
-    setIsUploadingLogo(true);
-    try {
-      const response = await fetch('/api/uploads/request-url', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ filename: `company-logo-${Date.now()}.${file.name.split('.').pop()}`, contentType: file.type }),
-      });
-      if (!response.ok) throw new Error('Failed to get upload URL');
-      const { uploadUrl, publicUrl } = await response.json();
-      const uploadResponse = await fetch(uploadUrl, { method: 'PUT', headers: { 'Content-Type': file.type }, body: file });
-      if (!uploadResponse.ok) throw new Error('Failed to upload file');
-      updateGlobalMutation.mutate({ companyLogo: publicUrl }, {
-        onSuccess: () => { toast({ title: "Logo uploaded", description: "Company logo has been updated." }); }
-      });
-    } catch {
-      toast({ title: "Upload failed", description: "Failed to upload logo. Please try again.", variant: "destructive" });
-    } finally {
-      setIsUploadingLogo(false);
-      if (companyLogoInputRef.current) companyLogoInputRef.current.value = '';
-    }
-  };
 
   const createLogoMutation = useMutation({
     mutationFn: async (data: { name: string; url: string }) => {
@@ -1715,39 +1679,24 @@ export default function Admin() {
                     className="w-full h-full object-contain"
                   />
                 </div>
-                <div className="flex flex-col gap-2">
-                  <input
-                    ref={companyLogoInputRef}
-                    type="file"
-                    accept="image/png,image/jpeg,image/jpg,image/gif,image/webp"
-                    onChange={handleCompanyLogoUpload}
-                    className="hidden"
-                    data-testid="input-company-logo-upload"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => companyLogoInputRef.current?.click()}
-                    disabled={isUploadingLogo}
-                    className="gap-2"
-                    data-testid="button-upload-company-logo"
+                <div className="flex-1 space-y-1">
+                  <select
+                    value={globalAssumptions?.companyLogo || ""}
+                    onChange={(e) => {
+                      const url = e.target.value || null;
+                      updateGlobalMutation.mutate({ companyLogo: url }, {
+                        onSuccess: () => toast({ title: url ? "Logo updated" : "Logo reset", description: url ? "Company logo has been updated." : "Company logo has been reset to default." })
+                      });
+                    }}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    data-testid="select-company-logo"
                   >
-                    {isUploadingLogo ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-                    {isUploadingLogo ? "Uploading..." : "Upload"}
-                  </Button>
-                  {globalAssumptions?.companyLogo && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => updateGlobalMutation.mutate({ companyLogo: null }, { onSuccess: () => toast({ title: "Logo removed", description: "Company logo has been reset to default." }) })}
-                      className="gap-2 text-red-500 hover:text-red-600 hover:bg-red-50"
-                      data-testid="button-remove-company-logo"
-                    >
-                      <Trash2 className="w-4 h-4" /> Remove
-                    </Button>
-                  )}
+                    <option value="">Default Logo</option>
+                    {adminLogos?.map(logo => (
+                      <option key={logo.id} value={logo.url}>{logo.name}{logo.isDefault ? " (Default)" : ""}</option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-muted-foreground">Select from Logo Portfolio below</p>
                 </div>
               </div>
             </div>

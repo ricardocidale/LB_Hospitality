@@ -78,6 +78,7 @@
     "express-session": "^1.19.0",
     "framer-motion": "^12.34.0",
     "google-auth-library": "^10.5.0",
+    "googleapis": "^148.0.0",
     "input-otp": "^1.4.2",
     "jspdf": "^4.1.0",
     "jspdf-autotable": "^5.0.7",

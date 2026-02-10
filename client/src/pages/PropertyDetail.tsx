@@ -89,6 +89,11 @@ export default function PropertyDetail() {
     return aggregateCashFlowByYear(financials, property as LoanParams, global as GlobalLoanParams, years);
   }, [financials, property, global, years]);
 
+  const yearlyDetails = useMemo(
+    () => aggregatePropertyByYear(financials, years),
+    [financials, years]
+  );
+
   if (propertyLoading || globalLoading) {
     return (
       <Layout>
@@ -111,11 +116,6 @@ export default function PropertyDetail() {
       </Layout>
     );
   }
-
-  const yearlyDetails = useMemo(
-    () => aggregatePropertyByYear(financials, years),
-    [financials, years]
-  );
 
   const getCashFlowData = () => cashFlowDataMemo;
 

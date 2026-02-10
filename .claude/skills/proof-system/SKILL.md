@@ -69,5 +69,22 @@ tests/proof/
 - Debt schedule reconciliation
 - Intercompany elimination summary
 
-## Detailed Reference
-See `.claude/skills/finance/automated-proof-system.md` for implementation details.
+## Key Invariants Tested
+- Balance Sheet: A = L + E (ASC 210)
+- OCF = NI + Depreciation (ASC 230-10-45)
+- NI = NOI - Interest - Depreciation - Tax (ASC 220)
+- CFF = -Principal + Refi Proceeds (ASC 230-10-45-15)
+- Ending Cash = Beginning Cash + Net Cash Change (ASC 230-10-45-24)
+- Fee Linkage: Σ(SPV fees) = OpCo revenue (intercompany)
+- Consolidated eliminations net to zero
+
+## Hardcoded Value Detection
+- Scans: `financialEngine.ts`, `refinance-calculator.ts`, `financial-identities.ts`, `schedule-reconcile.ts`, `consolidation.ts`
+- Safe numbers: 0, 1, -1, 2, 12, 100
+- Context exceptions: loop counters, array indices, Math functions, string literals
+
+## Maintenance
+1. Run `npm test` — all 384 tests must pass
+2. Run `npm run verify` — all 4 phases must pass
+3. Check `test-artifacts/*.md` for UNQUALIFIED opinions
+4. New constants go in `shared/constants.ts` (never inline magic numbers)

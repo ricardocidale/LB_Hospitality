@@ -199,3 +199,37 @@ import {
 ## PDF Chart Export
 
 For PDF exports, use `drawLineChart()` from `@/lib/pdfChartDrawer` which renders charts into jsPDF documents with matching styling. The `chartExport.ts` utility handles DOM-to-image conversion for PNG exports using `dom-to-image-more`.
+
+---
+
+## Waterfall Chart
+
+Shows step-by-step breakdown from one financial total to another (e.g., Revenue → GOP → NOI → FCF).
+
+- **File**: `client/src/components/charts/WaterfallChart.tsx`
+- **Uses**: Recharts BarChart with stacked invisible + visible bars
+- **Colors**: Positive steps = `accent`, Negative steps = `destructive`, Totals = `secondary`
+- **Props**: `steps: { label, value, isTotal? }[]`, `title: string`, `formatValue: (v) => string`
+
+---
+
+## Heat Map
+
+Color-coded grid showing property KPIs across months or years.
+
+- **File**: `client/src/components/charts/HeatMap.tsx`
+- **Color Scale**: Low = `destructive/20-60`, Mid = `muted/30`, High = `accent/20-80`
+- **Props**: `data: { label, periods[] }[]`, `periodLabels`, `metric`, `formatValue`
+- **Interaction**: Hover tooltip with exact value; click navigates to property detail
+
+---
+
+## Spider / Radar Chart
+
+Compare multiple properties across 5-8 KPI dimensions simultaneously.
+
+- **File**: `client/src/components/charts/RadarChart.tsx`
+- **Uses**: Recharts RadarChart
+- **Axes**: Revenue, NOI, Occupancy, ADR, DSCR, IRR, Cap Rate, GOP Margin
+- **Colors**: Each property uses `chart-1` through `chart-5` tokens; fill 20%, stroke 80%
+- **Props**: `properties: { name, metrics }[]`, `dimensions: string[]`

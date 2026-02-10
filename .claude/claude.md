@@ -39,6 +39,7 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | Research (11 skills) | `.claude/skills/research/` | Market, ADR, occupancy, cap rate, catering, auto-refresh, etc. |
 | UI: Charts | `.claude/skills/ui/charts.md` | Line/bar chart styling + Waterfall, Heat Map, Radar chart specs |
 | UI: Portfolio Pages | `.claude/skills/ui/portfolio-pages.md` | Comparison, Timeline, Map, Executive Summary pages |
+| UI: Composite Pages | `.claude/skills/ui/composite-tabbed-pages.md` | Merging pages into unified tabbed views (Analysis, Properties+Map) |
 | UI: Interactions | `.claude/skills/ui/interactions.md` | What-If sliders, Variance Analysis, Guided Walkthrough, Inline Editing |
 | UI: Navigation | `.claude/skills/ui/navigation.md` | Command Palette, Breadcrumbs, Favorites, Activity Feed, Dark Mode |
 | UI: Other (14) | `.claude/skills/ui/` | Glass components, buttons, sliders, tabs, page-header, callout, image picker, etc. |
@@ -77,10 +78,11 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | CompanyResearch | `/company/research` | Management company research |
 | ComparisonView | `/compare` | Side-by-side property comparison |
 | TimelineView | `/timeline` | Chronological portfolio timeline |
-| MapView | `/map` | Geographic property card grid |
-| ExecutiveSummary | `/executive-summary` | Printable portfolio summary |
-| SensitivityAnalysis | `/sensitivity` | Sensitivity analysis tables |
-| FinancingAnalysis | `/financing` | DSCR, debt yield, loan sizing |
+| Analysis | `/analysis` | Unified page: Sensitivity + Financing + Executive Summary (tabs) |
+| SensitivityAnalysis | (embedded in Analysis) | Sensitivity analysis tables |
+| FinancingAnalysis | (embedded in Analysis) | DSCR, debt yield, loan sizing |
+| ExecutiveSummary | (embedded in Analysis) | Printable portfolio summary |
+| MapView | (tab in Portfolio) | Geographic property card grid |
 | Scenarios | `/scenarios` | Scenario management |
 | PropertyFinder | `/property-finder` | RapidAPI property search |
 | GlobalResearch | `/global/research` | Global market research |
@@ -103,8 +105,9 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | Radar Chart | charts/RadarChart.tsx | Spider chart with normalization |
 | Comparison View | ComparisonView.tsx | Side-by-side property comparison page |
 | Timeline View | TimelineView.tsx | Chronological portfolio timeline page |
-| Map View | MapView.tsx | Geographic property card grid page |
-| Executive Summary | ExecutiveSummary.tsx | Printable portfolio overview page |
+| Map View | MapView.tsx | Geographic property card grid (tab in Portfolio) |
+| Executive Summary | ExecutiveSummary.tsx | Printable portfolio overview (tab in Analysis) |
+| Composite Tabbed Pages | Analysis.tsx, Portfolio.tsx | Unified pages merging standalone components via embedded mode |
 | What-If Panel | WhatIfPanel.tsx | Slider-based assumption adjustments |
 | Variance Analysis | VarianceAnalysis.tsx | Property variance comparison |
 | Guided Walkthrough | GuidedWalkthrough.tsx | Step-by-step spotlight tour |

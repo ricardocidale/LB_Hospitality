@@ -12,7 +12,7 @@ import { Users, Briefcase, TrendingUp, Settings2, Loader2, ChevronRight, Chevron
 import { FinancialChart } from "@/components/ui/financial-chart";
 import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
 import { exportCompanyPPTX } from "@/lib/exports/pptxExport";
-import { exportCompanyIncomeStatement, exportCompanyCashFlow, exportCompanyBalanceSheet } from "@/lib/excelExport";
+import { exportCompanyIncomeStatement, exportCompanyCashFlow, exportCompanyBalanceSheet } from "@/lib/exports/excelExport";
 import { Link } from "wouter";
 import { GlassButton } from "@/components/ui/glass-button";
 import { PageHeader } from "@/components/ui/page-header";

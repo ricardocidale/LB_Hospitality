@@ -26,7 +26,7 @@ import {
   DEFAULT_SAFE_DISCOUNT_RATE,
 } from "@shared/constants";
 import { eq } from "drizzle-orm";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 // Default debt assumptions for seed data (matches routes.ts SEED_DEBT_ASSUMPTIONS)
 const SEED_DEBT_ASSUMPTIONS = {

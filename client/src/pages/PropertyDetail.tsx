@@ -17,7 +17,7 @@ import {
   exportPropertyCashFlow,
   exportPropertyBalanceSheet,
   exportFullPropertyWorkbook,
-} from "@/lib/excelExport";
+} from "@/lib/exports/excelExport";
 import domtoimage from 'dom-to-image-more';
 import { Link, useRoute } from "wouter";
 import { Button } from "@/components/ui/button";

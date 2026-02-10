@@ -675,12 +675,12 @@ export default function Dashboard() {
       let totalCumulativeCashFlow = 0;
       let totalAccumDepreciation = 0;
       let totalRefiProceeds = 0;
+      let totalDeferredFinancingCosts = 0;
 
       properties.forEach((prop, idx) => {
         const proForma = allPropertyFinancials[idx]?.financials || [];
         const relevantMonths = proForma.slice(0, monthsToInclude);
 
-        // Debt outstanding from last month of period (engine data)
         const lastMonthIdx = monthsToInclude - 1;
         const debtOutstanding = lastMonthIdx >= 0 && lastMonthIdx < proForma.length
           ? proForma[lastMonthIdx].debtOutstanding : 0;
@@ -689,23 +689,40 @@ export default function Dashboard() {
         const equityInvested = propertyEquityInvested(prop, (global.debtAssumptions as any)?.acqLTV);
         totalInitialEquity += equityInvested;
 
-        // Accumulated depreciation from engine monthly data
         const cumulativeDepreciation = relevantMonths.reduce((sum, m) => sum + m.depreciationExpense, 0);
         totalAccumDepreciation += cumulativeDepreciation;
 
-        // Net income and tax from engine
         const netIncome = relevantMonths.reduce((sum: number, m: any) => sum + m.netIncome, 0);
         totalRetainedEarnings += netIncome;
 
-        // Cash from operations and refinance proceeds from engine
+        let cumulativeInterest = 0;
+        let cumulativePrincipal = 0;
+        let refiProceeds = 0;
+        let deferredFinancingCosts = 0;
+
+        for (let m = 0; m < relevantMonths.length; m++) {
+          cumulativeInterest += relevantMonths[m].interestExpense;
+          cumulativePrincipal += relevantMonths[m].principalPayment;
+          refiProceeds += relevantMonths[m].refinancingProceeds;
+
+          if (relevantMonths[m].refinancingProceeds > 0) {
+            const debtBefore = m > 0 ? proForma[m - 1].debtOutstanding : (proForma[0]?.debtOutstanding ?? 0);
+            const debtAfter = proForma[m].debtOutstanding;
+            const principalInRefiMonth = relevantMonths[m].principalPayment;
+            const newLoanAmount = debtAfter + principalInRefiMonth;
+            const refiClosingCosts = newLoanAmount - debtBefore - relevantMonths[m].refinancingProceeds;
+            if (refiClosingCosts > 0) {
+              deferredFinancingCosts += refiClosingCosts;
+            }
+          }
+        }
+
         const cumulativeNOI = relevantMonths.reduce((sum, m) => sum + m.noi, 0);
-        const cumulativeInterest = relevantMonths.reduce((sum, m) => sum + m.interestExpense, 0);
-        const cumulativePrincipal = relevantMonths.reduce((sum, m) => sum + m.principalPayment, 0);
         const incomeTax = relevantMonths.reduce((sum: number, m: any) => sum + m.incomeTax, 0);
-        const refiProceeds = relevantMonths.reduce((sum, m) => sum + m.refinancingProceeds, 0);
         const cashFromOperations = cumulativeNOI - (cumulativeInterest + cumulativePrincipal) - incomeTax;
         totalCumulativeCashFlow += cashFromOperations;
         totalRefiProceeds += refiProceeds;
+        totalDeferredFinancingCosts += deferredFinancingCosts;
       });
       
       const accumulatedDepreciation = totalAccumDepreciation;

@@ -32,7 +32,7 @@ interface Props {
 
 function FormulaDetailRow({ label, values, colCount }: { label: string; values: string[]; colCount: number }) {
   return (
-    <TableRow className="bg-blue-50/40">
+    <TableRow className="bg-blue-50/40" data-expandable-row="true">
       <TableCell className="pl-12 sticky left-0 bg-blue-50/40 py-0.5 text-xs text-gray-500 italic">
         {label}
       </TableCell>

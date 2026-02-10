@@ -26,6 +26,7 @@ interface Props {
   startYear?: number;
   property?: any;
   global?: any;
+  allExpanded?: boolean;
 }
 
 function FormulaDetailRow({ label, values, colCount }: { label: string; values: string[]; colCount: number }) {
@@ -43,7 +44,7 @@ function FormulaDetailRow({ label, values, colCount }: { label: string; values: 
   );
 }
 
-export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, property, global }: Props) {
+export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, property, global, allExpanded = false }: Props) {
   const yd = aggregatePropertyByYear(data, years);
   const columns = yd.map((y) => `${startYear + y.year}`);
   const colSpan = years + 1;
@@ -51,6 +52,7 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
   const toggle = (key: string) =>
     setExpandedRows((prev) => ({ ...prev, [key]: !prev[key] }));
+  const isExpanded = (key: string) => allExpanded || !!expandedRows[key];
 
   const hasContext = property && global;
 
@@ -157,7 +159,7 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
         values={yd.map((y) =>
           y.cleanAdr > 0 ? `$${y.cleanAdr.toFixed(2)}` : "-"
         )}
-        expanded={!!expandedRows.adrRate}
+        expanded={isExpanded("adrRate")}
         onToggle={() => toggle("adrRate")}
       >
         <FormulaDetailRow
@@ -175,7 +177,7 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
         values={yd.map((y) =>
           y.soldRooms > 0 ? `$${(y.revenueRooms / y.soldRooms).toFixed(2)}` : "-"
         )}
-        expanded={!!expandedRows.adrEffective}
+        expanded={isExpanded("adrEffective")}
         onToggle={() => toggle("adrEffective")}
       >
         <FormulaDetailRow
@@ -195,7 +197,7 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
             ? `${((y.soldRooms / y.availableRooms) * 100).toFixed(1)}%`
             : "0%"
         )}
-        expanded={!!expandedRows.occupancy}
+        expanded={isExpanded("occupancy")}
         onToggle={() => toggle("occupancy")}
       >
         <FormulaDetailRow
@@ -216,7 +218,7 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
         values={yd.map((y) =>
           y.availableRooms > 0 ? `$${(y.revenueRooms / y.availableRooms).toFixed(2)}` : "-"
         )}
-        expanded={!!expandedRows.revpar}
+        expanded={isExpanded("revpar")}
         onToggle={() => toggle("revpar")}
       >
         <FormulaDetailRow
@@ -262,7 +264,7 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
             label="Property Operations"
             tooltip={`USALI fixed cost: ${pct(costRates.propertyOps)} of Year 1 base revenue (${fmt(baseMonthlyTotalRev)}/mo), escalating ${pct(fixedEscRate)}/yr. NOT a percentage of current revenue.`}
             values={yd.map((y) => y.expensePropertyOps)}
-            expanded={!!expandedRows.propertyOps}
+            expanded={isExpanded("propertyOps")}
             onToggle={() => toggle("propertyOps")}
           >
             {fixedCostFormulaRows("propertyOps", yd.map((y) => y.expensePropertyOps))}
@@ -272,7 +274,7 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
             label="Utilities"
             tooltip={`Split into variable (${pct(global.utilitiesVariableSplit ?? 0.60)} of rate, scales with revenue) and fixed (${pct(1 - (global.utilitiesVariableSplit ?? 0.60))} of rate, anchored to Year 1 base revenue). Total rate: ${pct(costRates.utilities)}.`}
             values={yd.map((y) => y.expenseUtilities)}
-            expanded={!!expandedRows.utilities}
+            expanded={isExpanded("utilities")}
             onToggle={() => toggle("utilities")}
           >
             <FormulaDetailRow
@@ -292,7 +294,7 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
             label="Administrative & General"
             tooltip={`USALI fixed cost: ${pct(costRates.admin)} of Year 1 base revenue (${fmt(baseMonthlyTotalRev)}/mo), escalating ${pct(fixedEscRate)}/yr. NOT a percentage of current revenue.`}
             values={yd.map((y) => y.expenseAdmin)}
-            expanded={!!expandedRows.admin}
+            expanded={isExpanded("admin")}
             onToggle={() => toggle("admin")}
           >
             {fixedCostFormulaRows("admin", yd.map((y) => y.expenseAdmin))}
@@ -302,7 +304,7 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
             label="IT & Technology"
             tooltip={`USALI fixed cost: ${pct(costRates.it)} of Year 1 base revenue (${fmt(baseMonthlyTotalRev)}/mo), escalating ${pct(fixedEscRate)}/yr.`}
             values={yd.map((y) => y.expenseIT)}
-            expanded={!!expandedRows.it}
+            expanded={isExpanded("it")}
             onToggle={() => toggle("it")}
           >
             {fixedCostFormulaRows("it", yd.map((y) => y.expenseIT))}
@@ -312,7 +314,7 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
             label="Insurance"
             tooltip={`USALI fixed cost: ${pct(costRates.insurance)} of Year 1 base revenue (${fmt(baseMonthlyTotalRev)}/mo), escalating ${pct(fixedEscRate)}/yr.`}
             values={yd.map((y) => y.expenseInsurance)}
-            expanded={!!expandedRows.insurance}
+            expanded={isExpanded("insurance")}
             onToggle={() => toggle("insurance")}
           >
             {fixedCostFormulaRows("insurance", yd.map((y) => y.expenseInsurance))}
@@ -322,7 +324,7 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
             label="Property Taxes"
             tooltip={`USALI fixed cost: ${pct(costRates.taxes)} of Year 1 base revenue (${fmt(baseMonthlyTotalRev)}/mo), escalating ${pct(fixedEscRate)}/yr.`}
             values={yd.map((y) => y.expenseTaxes)}
-            expanded={!!expandedRows.taxes}
+            expanded={isExpanded("taxes")}
             onToggle={() => toggle("taxes")}
           >
             {fixedCostFormulaRows("taxes", yd.map((y) => y.expenseTaxes))}
@@ -332,7 +334,7 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
             label="Other Costs"
             tooltip={`USALI fixed cost: ${pct(costRates.other)} of Year 1 base revenue (${fmt(baseMonthlyTotalRev)}/mo), escalating ${pct(fixedEscRate)}/yr.`}
             values={yd.map((y) => y.expenseOtherCosts)}
-            expanded={!!expandedRows.otherCosts}
+            expanded={isExpanded("otherCosts")}
             onToggle={() => toggle("otherCosts")}
           >
             {fixedCostFormulaRows("other", yd.map((y) => y.expenseOtherCosts))}

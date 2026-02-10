@@ -265,6 +265,7 @@ export default function PropertyDetail() {
   const cashFlowTableRef = useRef<HTMLDivElement>(null);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [exportType, setExportType] = useState<'pdf' | 'chart' | 'tablePng'>('pdf');
+  const [incomeAllExpanded, setIncomeAllExpanded] = useState(false);
   
   const { data: property, isLoading: propertyLoading } = useProperty(propertyId);
   const { data: global, isLoading: globalLoading } = useGlobalAssumptions();
@@ -688,13 +689,23 @@ export default function PropertyDetail() {
     });
   };
 
-  const handleExport = (orientation: 'landscape' | 'portrait') => {
-    if (exportType === 'pdf') {
-      exportCashFlowPDF(orientation);
-    } else if (exportType === 'tablePng') {
-      exportTablePNG(orientation);
-    } else {
-      exportChartPNG(orientation);
+  const handleExport = async (orientation: 'landscape' | 'portrait', includeDetails?: boolean) => {
+    if (includeDetails && activeTab === "income") {
+      setIncomeAllExpanded(true);
+      await new Promise((r) => setTimeout(r, 300));
+    }
+    try {
+      if (exportType === 'pdf') {
+        await exportCashFlowPDF(orientation);
+      } else if (exportType === 'tablePng') {
+        await exportTablePNG(orientation);
+      } else {
+        await exportChartPNG(orientation);
+      }
+    } finally {
+      if (includeDetails) {
+        setIncomeAllExpanded(false);
+      }
     }
   };
 
@@ -705,6 +716,7 @@ export default function PropertyDetail() {
         onClose={() => setExportDialogOpen(false)}
         onExport={handleExport}
         title={exportType === 'pdf' ? 'Export PDF' : exportType === 'tablePng' ? 'Export Table as PNG' : 'Export Chart'}
+        showDetailOption={activeTab === "income" && (exportType === 'pdf' || exportType === 'tablePng')}
       />
       <div className="space-y-6">
         {/* Liquid Glass Header */}
@@ -878,7 +890,7 @@ export default function PropertyDetail() {
               </div>
             </div>
             <div ref={incomeTableRef}>
-              <YearlyIncomeStatement data={financials} years={projectionYears} startYear={getFiscalYear(0)} property={property} global={global} />
+              <YearlyIncomeStatement data={financials} years={projectionYears} startYear={getFiscalYear(0)} property={property} global={global} allExpanded={incomeAllExpanded} />
             </div>
           </TabsContent>
           

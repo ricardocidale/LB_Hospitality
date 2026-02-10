@@ -10,11 +10,21 @@ export interface IAuthStorage {
 }
 
 class AuthStorage implements IAuthStorage {
+  /**
+   * Fetches a user by their unique ID from the database.
+   * @param {string} id - The unique identifier of the user to retrieve
+   * @returns {Promise<User | undefined>} The user record if found, or undefined if no user exists with the given ID
+   */
   async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user;
   }
 
+  /**
+   * Inserts a new user record or updates an existing one if a user with the same ID already exists, setting the updatedAt timestamp on conflict.
+   * @param {UpsertUser} userData - The user data to insert or update
+   * @returns {Promise<User>} The inserted or updated user record
+   */
   async upsertUser(userData: UpsertUser): Promise<User> {
     const [user] = await db
       .insert(users)

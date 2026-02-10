@@ -262,7 +262,7 @@ async function seed() {
       revShareFB: DEFAULT_REV_SHARE_FB,
       revShareOther: DEFAULT_REV_SHARE_OTHER,
       cateringBoostPercent: 0.25,
-      exitCapRate: DEFAULT_EXIT_CAP_RATE,
+      exitCapRate: 0.08,
       taxRate: DEFAULT_TAX_RATE,
     },
     {

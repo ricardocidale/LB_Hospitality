@@ -58,7 +58,11 @@ export default function Settings() {
 
   const currentGlobal = globalDraft || global;
 
-  const handleGlobalChange = (key: string, value: string) => {
+  const handleGlobalChange = (key: string, value: string | boolean) => {
+    if (typeof value === "boolean") {
+      setGlobalDraft({ ...currentGlobal, [key]: value });
+      return;
+    }
     const numValue = parseFloat(value);
     if (!isNaN(numValue) && key !== "preferredLlm" && key !== "companyName") {
       setGlobalDraft({ ...currentGlobal, [key]: numValue });
@@ -853,6 +857,41 @@ export default function Settings() {
                       )}
                     </div>
                   </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 font-display">
+                  <Sliders className="w-5 h-5 text-[#9FBCA4]" />
+                  Calculation Transparency
+                  <HelpTooltip text="Control whether formula breakdowns and help icons are visible in financial reports. When turned on, tables show expandable rows with step-by-step calculations and help icons explaining each line item. When turned off, tables display clean numbers only — ideal for investor presentations." />
+                </CardTitle>
+                <CardDescription className="label-text">Show or hide the formula verification details and help icons in financial statements.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                  <div>
+                    <Label className="label-text font-medium flex items-center gap-1">Management Company Reports <HelpTooltip text="When ON, the Company page financial statements show expandable formula rows and help icons that explain how each line item is calculated. Turn OFF for a clean investor-ready view with numbers only." /></Label>
+                    <p className="text-xs text-muted-foreground mt-0.5">Income statement, cash flow, and balance sheet on the Company page</p>
+                  </div>
+                  <Switch
+                    checked={currentGlobal.showCompanyCalculationDetails ?? true}
+                    onCheckedChange={(checked) => handleGlobalChange("showCompanyCalculationDetails", checked)}
+                    data-testid="switch-company-calc-details"
+                  />
+                </div>
+                <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                  <div>
+                    <Label className="label-text font-medium flex items-center gap-1">Property Reports <HelpTooltip text="When ON, all property-level financial statements show expandable formula rows and help icons that explain how each line item is calculated — including fixed-cost escalation factors and revenue breakdowns. Turn OFF for clean investor presentations across all properties." /></Label>
+                    <p className="text-xs text-muted-foreground mt-0.5">All property-level income statements, cash flows, and balance sheets</p>
+                  </div>
+                  <Switch
+                    checked={currentGlobal.showPropertyCalculationDetails ?? true}
+                    onCheckedChange={(checked) => handleGlobalChange("showPropertyCalculationDetails", checked)}
+                    data-testid="switch-property-calc-details"
+                  />
                 </div>
               </CardContent>
             </Card>

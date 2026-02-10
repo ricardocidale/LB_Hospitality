@@ -77,6 +77,9 @@ export interface GlobalResponse {
   utilitiesVariableSplit: number;
   // AI Research
   preferredLlm: string;
+  // Display Settings
+  showCompanyCalculationDetails: boolean;
+  showPropertyCalculationDetails: boolean;
   standardAcqPackage: {
     monthsToOps: number;
     purchasePrice: number;

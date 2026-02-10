@@ -33,6 +33,16 @@ import {
 } from "@/components/ui/table";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 
+const CalcDetailsContext = React.createContext<boolean>(true);
+
+export function CalcDetailsProvider({ show, children }: { show: boolean; children: React.ReactNode }) {
+  return <CalcDetailsContext.Provider value={show}>{children}</CalcDetailsContext.Provider>;
+}
+
+export function useCalcDetails() {
+  return React.useContext(CalcDetailsContext);
+}
+
 /* ─────────────────────────────────────────────
    Design tokens — kept in one place so a palette
    change only touches these four lines.
@@ -69,12 +79,13 @@ export function SectionHeader({
   tooltip,
   textColor = "text-[#257D41]",
 }: SectionHeaderProps) {
+  const showDetails = useCalcDetails();
   return (
     <TableRow className="bg-gray-50">
       <TableCell colSpan={colSpan} className={cn("font-bold py-2", textColor)}>
         <span className="flex items-center gap-1.5">
           {label}
-          {tooltip && <HelpTooltip text={tooltip} />}
+          {showDetails && tooltip && <HelpTooltip text={tooltip} />}
         </span>
       </TableCell>
     </TableRow>
@@ -111,6 +122,7 @@ export function SubtotalRow({
   bgColor,
   labelBg,
 }: SubtotalRowProps) {
+  const showDetails = useCalcDetails();
   const rowStyle = bgColor ? { backgroundColor: bgColor } : { backgroundColor: SUBTOTAL_BG };
   const cellStyle = labelBg ? { backgroundColor: labelBg } : rowStyle;
 
@@ -119,7 +131,7 @@ export function SubtotalRow({
       <TableCell className="sticky left-0 py-1.5" style={cellStyle}>
         <span className="flex items-center gap-1">
           {label}
-          {tooltip && <HelpTooltip text={tooltip} />}
+          {showDetails && tooltip && <HelpTooltip text={tooltip} />}
         </span>
       </TableCell>
       {values.map((v, i) => (
@@ -170,6 +182,7 @@ export function LineItem({
   formatAsPercent,
   className,
 }: LineItemProps) {
+  const showDetails = useCalcDetails();
   const indentLevel = indent === true ? 1 : typeof indent === "number" ? indent : 0;
   const paddingLeft = indentLevel > 0 ? `${indentLevel * 1.5 + 1}rem` : undefined;
 
@@ -181,7 +194,7 @@ export function LineItem({
       >
         <span className="flex items-center gap-1">
           {label}
-          {tooltip && <HelpTooltip text={tooltip} />}
+          {showDetails && tooltip && <HelpTooltip text={tooltip} />}
         </span>
       </TableCell>
       {values.map((v, i) => {
@@ -229,6 +242,28 @@ export function ExpandableLineItem({
   onToggle,
   negate,
 }: ExpandableLineItemProps) {
+  const showDetails = useCalcDetails();
+
+  if (!showDetails) {
+    return (
+      <TableRow>
+        <TableCell className="pl-6 sticky left-0 bg-white py-1">
+          <span className="flex items-center gap-1">
+            <span className="ml-5">{label}</span>
+          </span>
+        </TableCell>
+        {values.map((v, i) => {
+          const displayVal = negate ? -v : v;
+          return (
+            <TableCell key={i} className="text-right font-medium py-1 font-mono">
+              <Money amount={displayVal} />
+            </TableCell>
+          );
+        })}
+      </TableRow>
+    );
+  }
+
   return (
     <>
       <TableRow className="cursor-pointer hover:bg-gray-50" onClick={onToggle}>
@@ -278,12 +313,13 @@ export function GrandTotalRow({
   tooltip,
   lightTooltip = true,
 }: GrandTotalRowProps) {
+  const showDetails = useCalcDetails();
   return (
     <TableRow className={GRAND_TOTAL_CLASS}>
       <TableCell className="sticky left-0 bg-primary/70 py-1.5">
         <span className="flex items-center gap-1">
           {label}
-          {tooltip && <HelpTooltip text={tooltip} light={lightTooltip} />}
+          {showDetails && tooltip && <HelpTooltip text={tooltip} light={lightTooltip} />}
         </span>
       </TableCell>
       {values.map((v, i) => (
@@ -312,12 +348,13 @@ interface MetricRowProps {
 }
 
 export function MetricRow({ label, values, tooltip, highlights }: MetricRowProps) {
+  const showDetails = useCalcDetails();
   return (
     <TableRow>
       <TableCell className="pl-6 sticky left-0 bg-white py-1">
         <span className="flex items-center gap-1">
           {label}
-          {tooltip && <HelpTooltip text={tooltip} />}
+          {showDetails && tooltip && <HelpTooltip text={tooltip} />}
         </span>
       </TableCell>
       {values.map((v, i) => (
@@ -357,6 +394,28 @@ export function ExpandableMetricRow({
   expanded,
   onToggle,
 }: ExpandableMetricRowProps) {
+  const showDetails = useCalcDetails();
+
+  if (!showDetails) {
+    return (
+      <TableRow>
+        <TableCell className="pl-6 sticky left-0 bg-white py-1">
+          <span className="flex items-center gap-1">
+            {label}
+          </span>
+        </TableCell>
+        {values.map((v, i) => (
+          <TableCell
+            key={i}
+            className={cn("text-right font-medium py-1 font-mono", highlights?.[i])}
+          >
+            {v}
+          </TableCell>
+        ))}
+      </TableRow>
+    );
+  }
+
   return (
     <>
       <TableRow className="cursor-pointer hover:bg-gray-50" onClick={onToggle}>

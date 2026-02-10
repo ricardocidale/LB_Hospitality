@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { YearlyIncomeStatement } from "@/components/YearlyIncomeStatement";
 import { YearlyCashFlowStatement } from "@/components/YearlyCashFlowStatement";
 import { ConsolidatedBalanceSheet } from "@/components/ConsolidatedBalanceSheet";
+import { CalcDetailsProvider } from "@/components/financial-table-rows";
 import { Tabs, TabsContent, DarkGlassTabs } from "@/components/ui/tabs";
 import { FileText, Banknote, Scale, Building2 } from "lucide-react";
 import { ArrowLeft, MapPin, Loader2, Settings2, Sheet } from "lucide-react";
@@ -779,6 +780,7 @@ export default function PropertyDetail() {
           </div>
         </div>
 
+        <CalcDetailsProvider show={global?.showPropertyCalculationDetails ?? true}>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div className="mb-4">
             <DarkGlassTabs
@@ -1012,6 +1014,7 @@ export default function PropertyDetail() {
             <PPECostBasisSchedule property={property} global={global} />
           </TabsContent>
         </Tabs>
+        </CalcDetailsProvider>
       </div>
     </Layout>
   );

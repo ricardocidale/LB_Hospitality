@@ -1502,23 +1502,23 @@ export default function Company() {
                         </TableRow>
                         {bsExpanded.cash && (
                           <>
-                            <TableRow className="bg-blue-50/40">
+                            <TableRow className="bg-blue-50/40" data-expandable-row="true">
                               <TableCell className="pl-12 py-0.5 text-xs text-gray-500 italic">{fundingLabel} Funding (Total)</TableCell>
                               <TableCell className="text-right py-0.5 font-mono text-xs text-gray-500">{formatMoney(totalSafeFunding)}</TableCell>
                             </TableRow>
                             {safeTranche1 > 0 && (
-                              <TableRow className="bg-blue-50/40">
+                              <TableRow className="bg-blue-50/40" data-expandable-row="true">
                                 <TableCell className="pl-16 py-0.5 text-xs text-gray-500 italic">Tranche 1</TableCell>
                                 <TableCell className="text-right py-0.5 font-mono text-xs text-gray-500">{formatMoney(safeTranche1)}</TableCell>
                               </TableRow>
                             )}
                             {safeTranche2 > 0 && (
-                              <TableRow className="bg-blue-50/40">
+                              <TableRow className="bg-blue-50/40" data-expandable-row="true">
                                 <TableCell className="pl-16 py-0.5 text-xs text-gray-500 italic">Tranche 2</TableCell>
                                 <TableCell className="text-right py-0.5 font-mono text-xs text-gray-500">{formatMoney(safeTranche2)}</TableCell>
                               </TableRow>
                             )}
-                            <TableRow className="bg-blue-50/40">
+                            <TableRow className="bg-blue-50/40" data-expandable-row="true">
                               <TableCell className="pl-12 py-0.5 text-xs text-gray-500 italic">+ Cumulative Net Income</TableCell>
                               <TableCell className="text-right py-0.5 font-mono text-xs text-gray-500">{formatMoney(cumulativeNetIncome)}</TableCell>
                             </TableRow>
@@ -1560,13 +1560,13 @@ export default function Company() {
                         {bsExpanded.notes && (
                           <>
                             {safeTranche1 > 0 && (
-                              <TableRow className="bg-blue-50/40">
+                              <TableRow className="bg-blue-50/40" data-expandable-row="true">
                                 <TableCell className="pl-12 py-0.5 text-xs text-gray-500 italic">Tranche 1</TableCell>
                                 <TableCell className="text-right py-0.5 font-mono text-xs text-gray-500">{formatMoney(safeTranche1)}</TableCell>
                               </TableRow>
                             )}
                             {safeTranche2 > 0 && (
-                              <TableRow className="bg-blue-50/40">
+                              <TableRow className="bg-blue-50/40" data-expandable-row="true">
                                 <TableCell className="pl-12 py-0.5 text-xs text-gray-500 italic">Tranche 2</TableCell>
                                 <TableCell className="text-right py-0.5 font-mono text-xs text-gray-500">{formatMoney(safeTranche2)}</TableCell>
                               </TableRow>
@@ -1604,15 +1604,15 @@ export default function Company() {
                         </TableRow>
                         {bsExpanded.equity && (
                           <>
-                            <TableRow className="bg-blue-50/40">
+                            <TableRow className="bg-blue-50/40" data-expandable-row="true">
                               <TableCell className="pl-12 py-0.5 text-xs text-gray-500 italic">Cumulative Revenue</TableCell>
                               <TableCell className="text-right py-0.5 font-mono text-xs text-gray-500">{formatMoney(financials.reduce((a, m) => a + m.totalRevenue, 0))}</TableCell>
                             </TableRow>
-                            <TableRow className="bg-blue-50/40">
+                            <TableRow className="bg-blue-50/40" data-expandable-row="true">
                               <TableCell className="pl-12 py-0.5 text-xs text-gray-500 italic">Less: Cumulative Expenses</TableCell>
                               <TableCell className="text-right py-0.5 font-mono text-xs text-gray-500">{formatMoney(-financials.reduce((a, m) => a + m.totalExpenses, 0))}</TableCell>
                             </TableRow>
-                            <TableRow className="bg-blue-50/40">
+                            <TableRow className="bg-blue-50/40" data-expandable-row="true">
                               <TableCell className="pl-12 py-0.5 text-xs text-gray-500 italic">= Net Income</TableCell>
                               <TableCell className="text-right py-0.5 font-mono text-xs text-gray-500">{formatMoney(cumulativeNetIncome)}</TableCell>
                             </TableRow>

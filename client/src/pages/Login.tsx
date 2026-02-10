@@ -254,12 +254,9 @@ export default function Login() {
           className="text-center mt-6 space-y-1"
         >
           <p className="text-xs text-white/20">Business simulation portal for Hospitality Business Group</p>
-          <div className="flex items-center justify-center gap-1.5">
-            <div className="w-1.5 h-1.5 rounded-full bg-[#9FBCA4] shadow-[0_0_6px_rgba(159,188,164,0.6)] animate-pulse" style={{ animationDuration: '3s' }} />
-            <p className="text-[10px] tracking-wider text-white/25">
-              powered by <span className="font-semibold text-white/40">Norfolk AI</span>
-            </p>
-          </div>
+          <p className="text-[9px] tracking-wider text-white/10">
+            powered by Norfolk AI
+          </p>
         </motion.div>
       </motion.div>
     </div>

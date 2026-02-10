@@ -60,6 +60,7 @@ export function ConsolidatedBalanceSheet({ properties, global, allProFormas, yea
   let totalCumulativeCashFlow = 0;
   let totalRefinanceProceeds = 0;
   let totalPreOpeningCosts = 0;
+  let totalDeferredFinancingCosts = 0;
 
   const perPropertyData: {
     name: string;
@@ -72,6 +73,7 @@ export function ConsolidatedBalanceSheet({ properties, global, allProFormas, yea
     equityInvested: number;
     netIncome: number;
     preOpeningCosts: number;
+    deferredFinancingCosts: number;
   }[] = [];
 
   propertiesToShow.forEach(({ prop, idx }) => {
@@ -109,13 +111,26 @@ export function ConsolidatedBalanceSheet({ properties, global, allProFormas, yea
     let cumulativeInterest = 0;
     let cumulativePrincipal = 0;
     let refiProceedsReceived = 0;
+    let deferredFinancingCosts = 0;
 
     for (let m = 0; m < relevantMonths.length; m++) {
       cumulativeInterest += relevantMonths[m].interestExpense;
       cumulativePrincipal += relevantMonths[m].principalPayment;
       refiProceedsReceived += relevantMonths[m].refinancingProceeds;
+
+      if (relevantMonths[m].refinancingProceeds > 0) {
+        const debtBefore = m > 0 ? relevantMonths[m - 1].debtOutstanding : 0;
+        const debtAfter = relevantMonths[m].debtOutstanding;
+        const principalInRefiMonth = relevantMonths[m].principalPayment;
+        const newLoanAmount = debtAfter + principalInRefiMonth;
+        const refiClosingCosts = newLoanAmount - debtBefore - relevantMonths[m].refinancingProceeds;
+        if (refiClosingCosts > 0) {
+          deferredFinancingCosts += refiClosingCosts;
+        }
+      }
     }
     totalRefinanceProceeds += refiProceedsReceived;
+    totalDeferredFinancingCosts += deferredFinancingCosts;
 
     const netIncome = relevantMonths.reduce((sum, m) => sum + m.netIncome, 0);
     totalRetainedEarnings += netIncome;
@@ -137,12 +152,13 @@ export function ConsolidatedBalanceSheet({ properties, global, allProFormas, yea
       equityInvested,
       netIncome,
       preOpeningCosts: preOpening,
+      deferredFinancingCosts,
     });
   });
 
   const totalCash = totalCashReserves + totalCumulativeCashFlow + totalRefinanceProceeds;
   const netPropertyValue = totalPropertyValue - totalAccumulatedDepreciation;
-  const totalAssets = netPropertyValue + totalCash;
+  const totalAssets = netPropertyValue + totalCash + totalDeferredFinancingCosts;
   const totalLiabilities = totalDebtOutstanding;
   const adjustedRetainedEarnings = totalRetainedEarnings - totalPreOpeningCosts;
   const totalEquity = totalInitialEquity + adjustedRetainedEarnings;
@@ -214,6 +230,25 @@ export function ConsolidatedBalanceSheet({ properties, global, allProFormas, yea
         ))}
       </ExpandableBalanceSheetLineItem>
       <BalanceSheetLineItem label="Net Fixed Assets" amount={netPropertyValue} indent={1} bold isSubtotal />
+
+      {totalDeferredFinancingCosts > 0 && (
+        <>
+          <SpacerRow colSpan={2} />
+          <BalanceSheetLineItem label="Other Assets" indent={1} bold />
+          <ExpandableBalanceSheetLineItem
+            label="Deferred Financing Costs"
+            amount={totalDeferredFinancingCosts}
+            indent={2}
+            tooltip="Refinancing closing costs capitalized as a deferred asset per ASC 835-30. Equals new loan amount minus old balance minus net cash proceeds."
+            expanded={isExpanded("deferredFC")}
+            onToggle={() => toggle("deferredFC")}
+          >
+            {perPropertyData.filter(p => p.deferredFinancingCosts > 0).map((p, i) => (
+              <BalanceSheetFormulaRow key={i} label={`  ${p.name}`} amount={p.deferredFinancingCosts} />
+            ))}
+          </ExpandableBalanceSheetLineItem>
+        </>
+      )}
 
       <SpacerRow colSpan={2} />
 

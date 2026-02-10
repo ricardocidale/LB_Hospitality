@@ -1,11 +1,16 @@
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Building2, Briefcase, Settings2, Menu, X, FileText, Shield, LogOut, UserCircle, FolderOpen, SearchCheck, BarChart3, Calculator, ClipboardCheck } from "lucide-react";
+import { LayoutDashboard, Building2, Briefcase, Settings2, Menu, X, FileText, Shield, LogOut, UserCircle, FolderOpen, SearchCheck, BarChart3, Calculator, ClipboardCheck, Search, GitCompare, Clock, MapPin, FileBarChart } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { useGlobalAssumptions } from "@/lib/api";
 import defaultLogo from "@/assets/logo.png";
+import CommandPalette from "@/components/CommandPalette";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import NotificationCenter from "@/components/NotificationCenter";
+import FavoritesSidebar from "@/components/Favorites";
+import GuidedWalkthrough, { WalkthroughTrigger } from "@/components/GuidedWalkthrough";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
@@ -24,6 +29,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { href: "/property-finder", label: "Property Finder", icon: SearchCheck },
     { href: "/sensitivity", label: "Sensitivity Analysis", icon: BarChart3 },
     { href: "/financing", label: "Financing Analysis", icon: Calculator },
+    { type: "divider" as const },
+    { href: "/compare", label: "Compare", icon: GitCompare },
+    { href: "/timeline", label: "Timeline", icon: Clock },
+    { href: "/map", label: "Map View", icon: MapPin },
+    { href: "/executive-summary", label: "Executive Summary", icon: FileBarChart },
     { type: "divider" as const },
     { href: "/settings", label: "Systemwide Assumptions", icon: Settings2 },
     { type: "divider" as const },
@@ -86,8 +96,30 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </div>
           </div>
 
-          <div className="mx-4 mb-2">
+          <div className="mx-4 mb-1 flex items-center gap-2">
+            <button
+              onClick={() => {
+                const event = new KeyboardEvent('keydown', { key: 'k', metaKey: true, bubbles: true });
+                document.dispatchEvent(event);
+              }}
+              className="flex-1 flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-[#FFF9F5]/40 hover:text-[#FFF9F5]/60 text-xs transition-all duration-300 border border-white/10"
+              data-testid="button-search"
+            >
+              <Search className="w-3.5 h-3.5" />
+              <span>Search...</span>
+              <kbd className="ml-auto text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-[#FFF9F5]/30 font-mono">⌘K</kbd>
+            </button>
+            <div className="relative">
+              <NotificationCenter />
+            </div>
+          </div>
+
+          <div className="mx-4 my-2">
             <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+          </div>
+
+          <div className="px-4 pt-1">
+            <FavoritesSidebar />
           </div>
 
           <nav className="flex-1 p-4 pt-2 space-y-1 overflow-y-auto">
@@ -146,6 +178,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <div className="p-4 space-y-3">
             <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
             
+            <WalkthroughTrigger />
+            
             <button 
               className="group relative w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-[#FFF9F5]/60 hover:text-white rounded-2xl transition-all duration-300 overflow-hidden"
               onClick={() => logout()}
@@ -194,10 +228,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
         <div className="flex-1 overflow-auto p-4 md:p-6 lg:p-8">
           <div className="w-full max-w-7xl mx-auto">
+            <div className="mb-4">
+              <Breadcrumbs />
+            </div>
             {children}
           </div>
         </div>
       </main>
+
+      <CommandPalette />
+      <GuidedWalkthrough />
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { globalAssumptions, properties, users, sessions, scenarios, loginLogs, designThemes, marketResearch, prospectiveProperties, savedSearches, activityLogs, verificationRuns, type GlobalAssumptions, type Property, type InsertGlobalAssumptions, type InsertProperty, type UpdateProperty, type User, type InsertUser, type Session, type Scenario, type InsertScenario, type UpdateScenario, type LoginLog, type InsertLoginLog, type DesignTheme, type InsertDesignTheme, type MarketResearch, type InsertMarketResearch, type ProspectiveProperty, type InsertProspectiveProperty, type SavedSearch, type InsertSavedSearch, type ActivityLog, type InsertActivityLog, type VerificationRun, type InsertVerificationRun } from "@shared/schema";
+import { globalAssumptions, properties, users, sessions, scenarios, loginLogs, designThemes, logos, marketResearch, prospectiveProperties, savedSearches, activityLogs, verificationRuns, type GlobalAssumptions, type Property, type InsertGlobalAssumptions, type InsertProperty, type UpdateProperty, type User, type InsertUser, type Session, type Scenario, type InsertScenario, type UpdateScenario, type LoginLog, type InsertLoginLog, type DesignTheme, type InsertDesignTheme, type Logo, type InsertLogo, type MarketResearch, type InsertMarketResearch, type ProspectiveProperty, type InsertProspectiveProperty, type SavedSearch, type InsertSavedSearch, type ActivityLog, type InsertActivityLog, type VerificationRun, type InsertVerificationRun } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gt, lt, gte, lte, desc, or, isNull, type SQL } from "drizzle-orm";
 
@@ -101,6 +101,16 @@ export interface IStorage {
   getActiveSessions(): Promise<(Session & { user: User })[]>;
   /** Force-logout: delete a specific session by ID. */
   forceDeleteSession(sessionId: string): Promise<void>;
+
+  // Logos
+  getAllLogos(): Promise<Logo[]>;
+  getLogo(id: number): Promise<Logo | undefined>;
+  getDefaultLogo(): Promise<Logo | undefined>;
+  createLogo(data: InsertLogo): Promise<Logo>;
+  deleteLogo(id: number): Promise<void>;
+  
+  // User Branding Assignment
+  assignUserBranding(userId: number, data: { assignedLogoId?: number | null; assignedThemeId?: number | null }): Promise<User>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -621,6 +631,36 @@ export class DatabaseStorage implements IStorage {
 
   async forceDeleteSession(sessionId: string): Promise<void> {
     await db.delete(sessions).where(eq(sessions.id, sessionId));
+  }
+
+  // Logos
+  async getAllLogos(): Promise<Logo[]> {
+    return await db.select().from(logos).orderBy(logos.createdAt);
+  }
+
+  async getLogo(id: number): Promise<Logo | undefined> {
+    const [logo] = await db.select().from(logos).where(eq(logos.id, id));
+    return logo || undefined;
+  }
+
+  async getDefaultLogo(): Promise<Logo | undefined> {
+    const [logo] = await db.select().from(logos).where(eq(logos.isDefault, true));
+    return logo || undefined;
+  }
+
+  async createLogo(data: InsertLogo): Promise<Logo> {
+    const [logo] = await db.insert(logos).values(data).returning();
+    return logo;
+  }
+
+  async deleteLogo(id: number): Promise<void> {
+    await db.delete(logos).where(eq(logos.id, id));
+  }
+
+  // User Branding Assignment
+  async assignUserBranding(userId: number, data: { assignedLogoId?: number | null; assignedThemeId?: number | null }): Promise<User> {
+    const [user] = await db.update(users).set({ ...data, updatedAt: new Date() }).where(eq(users.id, userId)).returning();
+    return user;
   }
 }
 

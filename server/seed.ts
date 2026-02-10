@@ -1,5 +1,5 @@
 import { db } from "./db";
-import { globalAssumptions, marketResearch, properties, users } from "@shared/schema";
+import { globalAssumptions, marketResearch, properties, users, logos } from "@shared/schema";
 import {
   DEFAULT_REV_SHARE_EVENTS,
   DEFAULT_REV_SHARE_FB,
@@ -1080,6 +1080,25 @@ function getBlueRidgeResearch() {
       "Highland Group – Southeast Hotel Cap Rate Survey, 2024"
     ]
   };
+}
+
+export async function seedDefaultLogos() {
+  const existingLogos = await db.select().from(logos);
+  if (existingLogos.length > 0) return;
+
+  await db.insert(logos).values([
+    {
+      name: "Hospitality Business Group",
+      url: "/logos/default-hbg.png",
+      isDefault: true,
+    },
+    {
+      name: "Norfolk AI",
+      url: "/logos/norfolk-ai.png",
+      isDefault: false,
+    },
+  ]);
+  console.log("Seeded default logos: HBG (default) + Norfolk AI");
 }
 
 if (process.argv[1]?.endsWith("seed.ts") || process.argv[1]?.endsWith("seed.js")) {

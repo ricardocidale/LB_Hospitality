@@ -771,269 +771,126 @@ export default function Admin() {
   }, [currentView]);
 
 
+  const AdminCard = ({ icon: Icon, title, description, onClick, testId, badge, iconBg }: {
+    icon: any; title: string; description: string; onClick: () => void; testId: string;
+    badge?: React.ReactNode; iconBg?: string;
+  }) => (
+    <button
+      onClick={onClick}
+      data-testid={testId}
+      className="group w-full text-left rounded-2xl bg-white/[0.06] hover:bg-white/[0.10] border border-white/[0.08] hover:border-[#9FBCA4]/30 p-5 transition-all duration-300 hover:shadow-lg hover:shadow-[#9FBCA4]/5"
+    >
+      <div className="flex items-start gap-4">
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${iconBg || "bg-[#9FBCA4]/15"}`}>
+          <Icon className="w-5 h-5 text-[#9FBCA4]" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h3 className="text-[15px] font-semibold text-white/90 group-hover:text-white transition-colors">{title}</h3>
+          <p className="text-[13px] text-white/40 mt-0.5 leading-relaxed">{description}</p>
+          {badge}
+        </div>
+      </div>
+    </button>
+  );
+
   const renderDashboard = () => (
-    <div className="space-y-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="group relative overflow-hidden bg-gradient-to-br from-[#1a2e3d]/95 via-[#243d4d]/95 to-[#1e3a42]/95 backdrop-blur-3xl border border-white/20 shadow-2xl shadow-black/40 hover:shadow-[#9FBCA4]/20 transition-all duration-500">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#9FBCA4]/10 via-transparent to-[#257D41]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          <div className="absolute -top-8 -right-8 w-32 h-32 bg-[#9FBCA4]/20 rounded-full blur-3xl" />
-          <CardContent className="relative p-6">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#9FBCA4]/30 to-[#257D41]/20 flex items-center justify-center border border-[#9FBCA4]/30 shadow-lg shadow-[#9FBCA4]/10">
-                <Users className="w-7 h-7 text-[#9FBCA4]" />
-              </div>
-              <div>
-                <p className="text-4xl font-mono font-bold text-white tracking-tight">{users?.length || 0}</p>
-                <p className="text-sm text-white/50 label-text mt-1">Total Users</p>
-              </div>
+    <div className="space-y-10">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {[
+          { label: "Users", value: users?.length || 0, icon: Users, color: "text-[#9FBCA4]" },
+          { label: "Sessions", value: activeSessions, icon: Activity, color: "text-[#9FBCA4]" },
+          { label: "Logins", value: loginLogs?.length || 0, icon: Clock, color: "text-[#9FBCA4]" },
+          {
+            label: verificationHistory?.[0]?.auditOpinion || "Verification",
+            value: verificationHistory?.[0] ? `${verificationHistory[0].passed}/${verificationHistory[0].totalChecks}` : "--",
+            icon: FileCheck,
+            color: verificationHistory?.[0]?.auditOpinion === "UNQUALIFIED" ? "text-[#9FBCA4]" : verificationHistory?.[0]?.auditOpinion === "QUALIFIED" ? "text-yellow-400" : "text-white/50",
+            onClick: () => setCurrentView("verification"),
+          },
+        ].map((stat, i) => (
+          <div
+            key={i}
+            onClick={(stat as any).onClick}
+            className={`rounded-2xl bg-white/[0.06] border border-white/[0.08] p-5 ${(stat as any).onClick ? "cursor-pointer hover:bg-white/[0.10] hover:border-[#9FBCA4]/30 transition-all" : ""}`}
+          >
+            <div className="flex items-center gap-3 mb-3">
+              <stat.icon className={`w-4 h-4 ${stat.color}`} />
+              <span className="text-xs font-medium text-white/40 uppercase tracking-wider">{stat.label}</span>
             </div>
-          </CardContent>
-        </Card>
-
-        <Card className="group relative overflow-hidden bg-gradient-to-br from-[#1a2e3d]/95 via-[#243d4d]/95 to-[#1e3a42]/95 backdrop-blur-3xl border border-white/20 shadow-2xl shadow-black/40 hover:shadow-[#257D41]/20 transition-all duration-500">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#257D41]/10 via-transparent to-[#9FBCA4]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-[#257D41]/20 rounded-full blur-3xl" />
-          <CardContent className="relative p-6">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#257D41]/30 to-[#9FBCA4]/20 flex items-center justify-center border border-[#257D41]/30 shadow-lg shadow-[#257D41]/10">
-                <Activity className="w-7 h-7 text-[#9FBCA4]" />
-              </div>
-              <div>
-                <p className="text-4xl font-mono font-bold text-white tracking-tight">{activeSessions}</p>
-                <p className="text-sm text-white/50 label-text mt-1">Active Sessions</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="group relative overflow-hidden bg-gradient-to-br from-[#1a2e3d]/95 via-[#243d4d]/95 to-[#1e3a42]/95 backdrop-blur-3xl border border-white/20 shadow-2xl shadow-black/40 hover:shadow-[#9FBCA4]/20 transition-all duration-500">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#9FBCA4]/10 via-transparent to-[#257D41]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          <div className="absolute -top-8 -left-8 w-32 h-32 bg-[#9FBCA4]/15 rounded-full blur-3xl" />
-          <CardContent className="relative p-6">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#9FBCA4]/30 to-[#257D41]/20 flex items-center justify-center border border-[#9FBCA4]/30 shadow-lg shadow-[#9FBCA4]/10">
-                <Clock className="w-7 h-7 text-[#9FBCA4]" />
-              </div>
-              <div>
-                <p className="text-4xl font-mono font-bold text-white tracking-tight">{loginLogs?.length || 0}</p>
-                <p className="text-sm text-white/50 label-text mt-1">Login Records</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="group relative overflow-hidden bg-gradient-to-br from-[#1a2e3d]/95 via-[#243d4d]/95 to-[#1e3a42]/95 backdrop-blur-3xl border border-white/20 shadow-2xl shadow-black/40 hover:shadow-[#257D41]/20 transition-all duration-500 cursor-pointer" onClick={() => setCurrentView("verification")}>
-          <div className="absolute inset-0 bg-gradient-to-br from-[#257D41]/10 via-transparent to-[#9FBCA4]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-[#257D41]/15 rounded-full blur-3xl" />
-          <CardContent className="relative p-6">
-            <div className="flex items-center gap-4">
-              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border shadow-lg ${
-                verificationHistory?.[0]?.auditOpinion === "UNQUALIFIED"
-                  ? "bg-gradient-to-br from-[#257D41]/40 to-[#9FBCA4]/30 border-[#257D41]/40 shadow-[#257D41]/20"
-                  : verificationHistory?.[0]?.auditOpinion === "QUALIFIED"
-                  ? "bg-gradient-to-br from-yellow-500/30 to-yellow-400/20 border-yellow-500/30 shadow-yellow-500/10"
-                  : "bg-gradient-to-br from-[#257D41]/30 to-[#9FBCA4]/20 border-[#257D41]/30 shadow-[#257D41]/10"
-              }`}>
-                <FileCheck className="w-7 h-7 text-[#9FBCA4]" />
-              </div>
-              <div>
-                {verificationHistory?.[0] ? (
-                  <>
-                    <p className="text-2xl font-mono font-bold text-white tracking-tight">{verificationHistory[0].passed}/{verificationHistory[0].totalChecks}</p>
-                    <p className={`text-sm label-text mt-1 ${
-                      verificationHistory[0].auditOpinion === "UNQUALIFIED" ? "text-[#9FBCA4]" : "text-yellow-400"
-                    }`}>{verificationHistory[0].auditOpinion}</p>
-                  </>
-                ) : (
-                  <>
-                    <p className="text-2xl font-mono font-bold text-white/50 tracking-tight">--</p>
-                    <p className="text-sm text-white/50 label-text mt-1">Not Yet Run</p>
-                  </>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            <p className={`text-3xl font-display font-bold tracking-tight ${stat.color}`}>{stat.value}</p>
+          </div>
+        ))}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="group relative overflow-hidden bg-gradient-to-br from-[#1a2e3d]/95 via-[#243d4d]/95 to-[#1e3a42]/95 backdrop-blur-3xl border border-white/20 shadow-2xl shadow-black/40 cursor-pointer hover:border-[#9FBCA4]/40 hover:shadow-[#9FBCA4]/20 transition-all duration-500" onClick={() => setCurrentView("users")} data-testid="card-users">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#9FBCA4]/10 via-transparent to-[#257D41]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          <div className="absolute -top-16 -right-16 w-48 h-48 bg-[#9FBCA4]/15 rounded-full blur-3xl group-hover:bg-[#9FBCA4]/25 transition-colors duration-500" />
-          <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-[#257D41]/10 rounded-full blur-3xl group-hover:bg-[#257D41]/20 transition-colors duration-500" />
-          <CardContent className="relative p-8">
-            <div className="flex items-center gap-6">
-              <div className="w-18 h-18 rounded-2xl bg-gradient-to-br from-[#9FBCA4] via-[#7aa88a] to-[#257D41] flex items-center justify-center shadow-xl shadow-[#9FBCA4]/30 border border-white/20" style={{ width: '72px', height: '72px' }}>
-                <Users className="w-9 h-9 text-white drop-shadow-lg" />
+      <div>
+        <h2 className="text-xs font-semibold text-white/30 uppercase tracking-widest mb-4 px-1">Users & Activity</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+          <AdminCard icon={Users} title="Users" description="Accounts & permissions" onClick={() => setCurrentView("users")} testId="card-users" />
+          <AdminCard icon={Clock} title="Login Activity" description="Sessions & history" onClick={() => setCurrentView("activity")} testId="card-activity" />
+          <AdminCard icon={Activity} title="Activity Feed" description="Edits & system actions" onClick={() => setCurrentView("activity-feed")} testId="card-activity-feed" />
+          <AdminCard
+            icon={FileCheck}
+            title="Checker Activity"
+            description="Verifications & audit trail"
+            onClick={() => setCurrentView("checker-activity")}
+            testId="card-checker-activity"
+            iconBg="bg-[#E8927C]/15"
+            badge={checkerActivity ? (
+              <div className="flex gap-3 mt-2">
+                <span className="text-[11px] text-[#9FBCA4]">{checkerActivity.summary.verificationRuns} runs</span>
+                <span className="text-[11px] text-[#E8927C]">{checkerActivity.summary.manualViews} reviews</span>
               </div>
-              <div className="flex-1">
-                <h3 className="text-2xl font-display font-semibold text-white mb-2">User Management</h3>
-                <p className="text-white/50 label-text">Add, edit, and manage user accounts and permissions</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            ) : undefined}
+          />
+        </div>
+      </div>
 
-        <Card className="group relative overflow-hidden bg-gradient-to-br from-[#1a2e3d]/95 via-[#243d4d]/95 to-[#1e3a42]/95 backdrop-blur-3xl border border-white/20 shadow-2xl shadow-black/40 cursor-pointer hover:border-[#9FBCA4]/40 hover:shadow-[#9FBCA4]/20 transition-all duration-500" onClick={() => setCurrentView("activity")} data-testid="card-activity">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#257D41]/10 via-transparent to-[#9FBCA4]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          <div className="absolute -top-16 -left-16 w-48 h-48 bg-[#257D41]/15 rounded-full blur-3xl group-hover:bg-[#257D41]/25 transition-colors duration-500" />
-          <div className="absolute -bottom-16 -right-16 w-48 h-48 bg-[#9FBCA4]/10 rounded-full blur-3xl group-hover:bg-[#9FBCA4]/20 transition-colors duration-500" />
-          <CardContent className="relative p-8">
-            <div className="flex items-center gap-6">
-              <div className="w-18 h-18 rounded-2xl bg-gradient-to-br from-[#9FBCA4] via-[#7aa88a] to-[#257D41] flex items-center justify-center shadow-xl shadow-[#9FBCA4]/30 border border-white/20" style={{ width: '72px', height: '72px' }}>
-                <Clock className="w-9 h-9 text-white drop-shadow-lg" />
+      <div>
+        <h2 className="text-xs font-semibold text-white/30 uppercase tracking-widest mb-4 px-1">Verification & Quality</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <AdminCard
+            icon={FileCheck}
+            title="Financial Verification"
+            description="GAAP compliance & independent recalculation"
+            onClick={() => setCurrentView("verification")}
+            testId="card-verification"
+            badge={verificationHistory?.[0] ? (
+              <div className="flex items-center gap-2 mt-2">
+                <span className={`text-[11px] px-2 py-0.5 rounded-md font-mono ${
+                  verificationHistory[0].auditOpinion === "UNQUALIFIED" ? "bg-[#257D41]/15 text-[#9FBCA4]" :
+                  verificationHistory[0].auditOpinion === "QUALIFIED" ? "bg-yellow-500/15 text-yellow-400" :
+                  "bg-red-500/15 text-red-400"
+                }`}>{verificationHistory[0].passed}/{verificationHistory[0].totalChecks} {verificationHistory[0].auditOpinion}</span>
+                <span className="text-[11px] text-white/25 font-mono">{new Date(verificationHistory[0].createdAt).toLocaleDateString()}</span>
               </div>
-              <div className="flex-1">
-                <h3 className="text-2xl font-display font-semibold text-white mb-2">Login Activity</h3>
-                <p className="text-white/50 label-text">Monitor user sessions and login history</p>
+            ) : undefined}
+          />
+          <AdminCard
+            icon={Palette}
+            title="Design Consistency"
+            description="Fonts, colors & component standards"
+            onClick={() => setCurrentView("design")}
+            testId="card-design"
+            badge={designResults ? (
+              <div className="flex items-center gap-2 mt-2">
+                <span className={`text-[11px] px-2 py-0.5 rounded-md font-mono ${
+                  designResults.overallStatus === "PASS" ? "bg-[#257D41]/15 text-[#9FBCA4]" :
+                  designResults.overallStatus === "WARNING" ? "bg-yellow-500/15 text-yellow-400" :
+                  "bg-red-500/15 text-red-400"
+                }`}>{designResults.passed}/{designResults.totalChecks} {designResults.overallStatus}</span>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            ) : undefined}
+          />
+        </div>
+      </div>
 
-        <Card className="group relative overflow-hidden bg-gradient-to-br from-[#1a2e3d]/95 via-[#243d4d]/95 to-[#1e3a42]/95 backdrop-blur-3xl border border-white/20 shadow-2xl shadow-black/40 cursor-pointer hover:border-[#9FBCA4]/40 hover:shadow-[#9FBCA4]/20 transition-all duration-500" onClick={() => setCurrentView("activity-feed")} data-testid="card-activity-feed">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#9FBCA4]/10 via-transparent to-[#257D41]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          <div className="absolute -top-16 -right-16 w-48 h-48 bg-[#9FBCA4]/15 rounded-full blur-3xl group-hover:bg-[#9FBCA4]/25 transition-colors duration-500" />
-          <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-[#257D41]/10 rounded-full blur-3xl group-hover:bg-[#257D41]/20 transition-colors duration-500" />
-          <CardContent className="relative p-8">
-            <div className="flex items-center gap-6">
-              <div className="w-18 h-18 rounded-2xl bg-gradient-to-br from-[#9FBCA4] via-[#7aa88a] to-[#257D41] flex items-center justify-center shadow-xl shadow-[#9FBCA4]/30 border border-white/20" style={{ width: '72px', height: '72px' }}>
-                <Activity className="w-9 h-9 text-white drop-shadow-lg" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-2xl font-display font-semibold text-white mb-2">Activity Feed</h3>
-                <p className="text-white/50 label-text">Track property edits, scenario saves, and system actions</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="group relative overflow-hidden bg-gradient-to-br from-[#1a2e3d]/95 via-[#243d4d]/95 to-[#1e3a42]/95 backdrop-blur-3xl border border-white/20 shadow-2xl shadow-black/40 cursor-pointer hover:border-[#9FBCA4]/40 hover:shadow-[#9FBCA4]/20 transition-all duration-500" onClick={() => setCurrentView("checker-activity")} data-testid="card-checker-activity">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#9FBCA4]/10 via-transparent to-[#257D41]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          <div className="absolute -top-16 -right-16 w-48 h-48 bg-[#9FBCA4]/15 rounded-full blur-3xl group-hover:bg-[#9FBCA4]/25 transition-colors duration-500" />
-          <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-[#257D41]/10 rounded-full blur-3xl group-hover:bg-[#257D41]/20 transition-colors duration-500" />
-          <CardContent className="relative p-8">
-            <div className="flex items-center gap-6">
-              <div className="w-18 h-18 rounded-2xl bg-gradient-to-br from-[#E8927C] via-[#d4785f] to-[#c06040] flex items-center justify-center shadow-xl shadow-[#E8927C]/30 border border-white/20" style={{ width: '72px', height: '72px' }}>
-                <FileCheck className="w-9 h-9 text-white drop-shadow-lg" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-2xl font-display font-semibold text-white mb-2">Checker Activity</h3>
-                <p className="text-white/50 label-text">Monitor checker verifications, manual reviews, and audit trail</p>
-                {checkerActivity && (
-                  <div className="flex gap-4 mt-2">
-                    <span className="text-xs text-[#9FBCA4]">{checkerActivity.summary.verificationRuns} verifications</span>
-                    <span className="text-xs text-[#E8927C]">{checkerActivity.summary.manualViews} manual reviews</span>
-                    <span className="text-xs text-white/40">{checkerActivity.summary.exports} exports</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="group relative overflow-hidden bg-gradient-to-br from-[#1a2e3d]/95 via-[#243d4d]/95 to-[#1e3a42]/95 backdrop-blur-3xl border border-white/20 shadow-2xl shadow-black/40 cursor-pointer hover:border-[#9FBCA4]/40 hover:shadow-[#9FBCA4]/20 transition-all duration-500" onClick={() => setCurrentView("verification")} data-testid="card-verification">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#9FBCA4]/10 via-transparent to-[#257D41]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-[#9FBCA4]/15 rounded-full blur-3xl group-hover:bg-[#9FBCA4]/25 transition-colors duration-500" />
-          <div className="absolute -top-16 -right-16 w-48 h-48 bg-[#257D41]/10 rounded-full blur-3xl group-hover:bg-[#257D41]/20 transition-colors duration-500" />
-          <CardContent className="relative p-8">
-            <div className="flex items-center gap-6">
-              <div className="w-18 h-18 rounded-2xl bg-gradient-to-br from-[#9FBCA4] via-[#7aa88a] to-[#257D41] flex items-center justify-center shadow-xl shadow-[#9FBCA4]/30 border border-white/20" style={{ width: '72px', height: '72px' }}>
-                <FileCheck className="w-9 h-9 text-white drop-shadow-lg" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-2xl font-display font-semibold text-white mb-2">Financial Verification</h3>
-                <p className="text-white/50 label-text">GAAP compliance validation with independent recalculation</p>
-                {verificationHistory?.[0] && (
-                  <div className="flex items-center gap-2 mt-2">
-                    <span className={`text-xs px-2 py-0.5 rounded font-mono ${
-                      verificationHistory[0].auditOpinion === "UNQUALIFIED" ? "bg-[#257D41]/20 text-[#9FBCA4]" :
-                      verificationHistory[0].auditOpinion === "QUALIFIED" ? "bg-yellow-500/20 text-yellow-400" :
-                      "bg-red-500/20 text-red-400"
-                    }`}>{verificationHistory[0].passed}/{verificationHistory[0].totalChecks} {verificationHistory[0].auditOpinion}</span>
-                    <span className="text-xs text-white/30 font-mono">{new Date(verificationHistory[0].createdAt).toLocaleDateString()}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="group relative overflow-hidden bg-gradient-to-br from-[#1a2e3d]/95 via-[#243d4d]/95 to-[#1e3a42]/95 backdrop-blur-3xl border border-white/20 shadow-2xl shadow-black/40 cursor-pointer hover:border-[#9FBCA4]/40 hover:shadow-[#9FBCA4]/20 transition-all duration-500" onClick={() => setCurrentView("design")} data-testid="card-design">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#257D41]/10 via-transparent to-[#9FBCA4]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          <div className="absolute -top-16 -left-16 w-48 h-48 bg-[#257D41]/15 rounded-full blur-3xl group-hover:bg-[#257D41]/25 transition-colors duration-500" />
-          <div className="absolute -bottom-16 -right-16 w-48 h-48 bg-[#9FBCA4]/10 rounded-full blur-3xl group-hover:bg-[#9FBCA4]/20 transition-colors duration-500" />
-          <CardContent className="relative p-8">
-            <div className="flex items-center gap-6">
-              <div className="w-18 h-18 rounded-2xl bg-gradient-to-br from-[#9FBCA4] via-[#7aa88a] to-[#257D41] flex items-center justify-center shadow-xl shadow-[#9FBCA4]/30 border border-white/20" style={{ width: '72px', height: '72px' }}>
-                <Palette className="w-9 h-9 text-white drop-shadow-lg" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-2xl font-display font-semibold text-white mb-2">Design Consistency</h3>
-                <p className="text-white/50 label-text">Fonts, colors, and component standards across all pages</p>
-                {designResults && (
-                  <div className="flex items-center gap-2 mt-2">
-                    <span className={`text-xs px-2 py-0.5 rounded font-mono ${
-                      designResults.overallStatus === "PASS" ? "bg-[#257D41]/20 text-[#9FBCA4]" :
-                      designResults.overallStatus === "WARNING" ? "bg-yellow-500/20 text-yellow-400" :
-                      "bg-red-500/20 text-red-400"
-                    }`}>{designResults.passed}/{designResults.totalChecks} {designResults.overallStatus}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="group relative overflow-hidden bg-gradient-to-br from-[#1a2e3d]/95 via-[#243d4d]/95 to-[#1e3a42]/95 backdrop-blur-3xl border border-white/20 shadow-2xl shadow-black/40 cursor-pointer hover:border-[#9FBCA4]/40 hover:shadow-[#9FBCA4]/20 transition-all duration-500" onClick={() => setCurrentView("themes")} data-testid="card-themes">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#257D41]/10 via-transparent to-[#9FBCA4]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          <div className="absolute -top-16 -left-16 w-48 h-48 bg-[#257D41]/15 rounded-full blur-3xl group-hover:bg-[#257D41]/25 transition-colors duration-500" />
-          <div className="absolute -bottom-16 -right-16 w-48 h-48 bg-[#9FBCA4]/10 rounded-full blur-3xl group-hover:bg-[#9FBCA4]/20 transition-colors duration-500" />
-          <CardContent className="relative p-8">
-            <div className="flex items-center gap-6">
-              <div className="w-18 h-18 rounded-2xl bg-gradient-to-br from-[#9FBCA4] via-[#7aa88a] to-[#257D41] flex items-center justify-center shadow-xl shadow-[#9FBCA4]/30 border border-white/20" style={{ width: '72px', height: '72px' }}>
-                <SwatchBook className="w-9 h-9 text-white drop-shadow-lg" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-2xl font-display font-semibold text-white mb-2">Design Themes</h3>
-                <p className="text-white/50 label-text">Manage color palettes and design system definitions</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="group relative overflow-hidden bg-gradient-to-br from-[#1a2e3d]/95 via-[#243d4d]/95 to-[#1e3a42]/95 backdrop-blur-3xl border border-white/20 shadow-2xl shadow-black/40 cursor-pointer hover:border-[#9FBCA4]/40 hover:shadow-[#9FBCA4]/20 transition-all duration-500" onClick={() => setCurrentView("branding")} data-testid="card-branding">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#257D41]/10 via-transparent to-[#9FBCA4]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          <div className="absolute -top-16 -left-16 w-48 h-48 bg-[#257D41]/15 rounded-full blur-3xl group-hover:bg-[#257D41]/25 transition-colors duration-500" />
-          <div className="absolute -bottom-16 -right-16 w-48 h-48 bg-[#9FBCA4]/10 rounded-full blur-3xl group-hover:bg-[#9FBCA4]/20 transition-colors duration-500" />
-          <CardContent className="relative p-8">
-            <div className="flex items-center gap-6">
-              <div className="w-18 h-18 rounded-2xl bg-gradient-to-br from-[#9FBCA4] via-[#7aa88a] to-[#257D41] flex items-center justify-center shadow-xl shadow-[#9FBCA4]/30 border border-white/20" style={{ width: '72px', height: '72px' }}>
-                <Image className="w-9 h-9 text-white drop-shadow-lg" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-2xl font-display font-semibold text-white mb-2">Branding</h3>
-                <p className="text-white/50 label-text">Manage logos and assign branding per user</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="group relative overflow-hidden bg-gradient-to-br from-[#1a2e3d]/95 via-[#243d4d]/95 to-[#1e3a42]/95 backdrop-blur-3xl border border-white/20 shadow-2xl shadow-black/40 cursor-pointer hover:border-[#9FBCA4]/40 hover:shadow-[#9FBCA4]/20 transition-all duration-500" onClick={() => setCurrentView("sidebar")} data-testid="card-sidebar">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#9FBCA4]/10 via-transparent to-[#257D41]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          <div className="absolute -top-16 -right-16 w-48 h-48 bg-[#9FBCA4]/15 rounded-full blur-3xl group-hover:bg-[#9FBCA4]/25 transition-colors duration-500" />
-          <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-[#257D41]/10 rounded-full blur-3xl group-hover:bg-[#257D41]/20 transition-colors duration-500" />
-          <CardContent className="relative p-8">
-            <div className="flex items-center gap-6">
-              <div className="w-18 h-18 rounded-2xl bg-gradient-to-br from-[#9FBCA4] via-[#7aa88a] to-[#257D41] flex items-center justify-center shadow-xl shadow-[#9FBCA4]/30 border border-white/20" style={{ width: '72px', height: '72px' }}>
-                <PanelLeft className="w-9 h-9 text-white drop-shadow-lg" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-2xl font-display font-semibold text-white mb-2">Sidebar Navigation</h3>
-                <p className="text-white/50 label-text">Control which pages users and checkers see in the sidebar</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      <div>
+        <h2 className="text-xs font-semibold text-white/30 uppercase tracking-widest mb-4 px-1">Appearance & Settings</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+          <AdminCard icon={SwatchBook} title="Design Themes" description="Color palettes & system" onClick={() => setCurrentView("themes")} testId="card-themes" />
+          <AdminCard icon={Image} title="Branding" description="Logos & user assignments" onClick={() => setCurrentView("branding")} testId="card-branding" />
+          <AdminCard icon={PanelLeft} title="Navigation" description="Sidebar page visibility" onClick={() => setCurrentView("sidebar")} testId="card-sidebar" />
+        </div>
       </div>
     </div>
   );

@@ -44,10 +44,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     setExpandedGroups(prev => ({ ...prev, [label]: !prev[label] }));
   };
 
-  const analysisChildren: NavLink[] = [
-    ...(sb("sidebarSensitivity") ? [{ href: "/sensitivity", label: "Sensitivity", icon: BarChart3 }] : []),
-    ...(sb("sidebarFinancing") ? [{ href: "/financing", label: "Financing", icon: Calculator }] : []),
-  ];
+  const showAnalysis = sb("sidebarSensitivity") || sb("sidebarFinancing");
 
   const helpChildren: NavLink[] = [
     ...(isAdmin || user?.role === "checker" ? [{ href: "/checker-manual", label: "Checker Manual", icon: ClipboardCheck }] : []),
@@ -60,7 +57,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { href: "/company", label: "Management Co.", icon: Briefcase },
     { type: "divider" as const },
     ...(sb("sidebarPropertyFinder") ? [{ href: "/property-finder", label: "Property Finder", icon: SearchCheck }] : []),
-    ...(analysisChildren.length > 0 ? [{ type: "group" as const, label: "Analysis", icon: BarChart3, children: analysisChildren }] : []),
+    ...(showAnalysis ? [{ href: "/analysis", label: "Analysis", icon: BarChart3 }] : []),
     { type: "divider" as const },
     ...(sb("sidebarCompare") ? [{ href: "/compare", label: "Compare", icon: GitCompare }] : []),
     ...(sb("sidebarTimeline") ? [{ href: "/timeline", label: "Timeline", icon: Clock }] : []),

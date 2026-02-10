@@ -13,7 +13,7 @@ Business simulation portal for Hospitality Business Group. Models a boutique hos
 - **All UI components must reference a theme** via the theme engine (`.claude/skills/ui/theme-engine.md`). The app supports multiple themes including user-created themes.
 - New UI features get their own skill file in `.claude/skills/ui/`.
 - Create skills when they can help divide tasks and reduce context. Always in `.claude/`.
-- Always keep `replit.md` in sync with `.claude/claude.md` — they must reflect the same project state.
+- `.claude/claude.md` is the master documentation file. `replit.md` is a slim pointer that references this file. Keep all detailed content here.
 
 ## Current Theme
 **Fluid Glass** is the active theme. All new UI work must follow Fluid Glass styling conventions. See theme engine skill for token structure.

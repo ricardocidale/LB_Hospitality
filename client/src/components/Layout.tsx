@@ -32,24 +32,26 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const companyName = global?.companyName ?? "Hospitality Business";
   const companyLogo = myBranding?.logoUrl || global?.companyLogo || defaultLogo;
 
+  const sb = (key: string) => isAdmin || (global as any)?.[key] !== false;
+
   const navItems = [
     { href: "/", label: "Dashboard", icon: LayoutDashboard },
     { href: "/portfolio", label: "Properties", icon: Building2 },
     { href: "/company", label: "Management Co.", icon: Briefcase },
     { type: "divider" as const },
-    { href: "/property-finder", label: "Property Finder", icon: SearchCheck },
-    { href: "/sensitivity", label: "Sensitivity Analysis", icon: BarChart3 },
-    { href: "/financing", label: "Financing Analysis", icon: Calculator },
+    ...(sb("sidebarPropertyFinder") ? [{ href: "/property-finder", label: "Property Finder", icon: SearchCheck }] : []),
+    ...(sb("sidebarSensitivity") ? [{ href: "/sensitivity", label: "Sensitivity Analysis", icon: BarChart3 }] : []),
+    ...(sb("sidebarFinancing") ? [{ href: "/financing", label: "Financing Analysis", icon: Calculator }] : []),
     { type: "divider" as const },
-    { href: "/compare", label: "Compare", icon: GitCompare },
-    { href: "/timeline", label: "Timeline", icon: Clock },
-    { href: "/map", label: "Map View", icon: MapPin },
-    { href: "/executive-summary", label: "Executive Summary", icon: FileBarChart },
+    ...(sb("sidebarCompare") ? [{ href: "/compare", label: "Compare", icon: GitCompare }] : []),
+    ...(sb("sidebarTimeline") ? [{ href: "/timeline", label: "Timeline", icon: Clock }] : []),
+    ...(sb("sidebarMapView") ? [{ href: "/map", label: "Map View", icon: MapPin }] : []),
+    ...(sb("sidebarExecutiveSummary") ? [{ href: "/executive-summary", label: "Executive Summary", icon: FileBarChart }] : []),
     { type: "divider" as const },
     { href: "/settings", label: "Systemwide Assumptions", icon: Settings2 },
     { type: "divider" as const },
     { href: "/profile", label: "My Profile", icon: UserCircle },
-    { href: "/scenarios", label: "My Scenarios", icon: FolderOpen },
+    ...(sb("sidebarScenarios") ? [{ href: "/scenarios", label: "My Scenarios", icon: FolderOpen }] : []),
     { type: "divider" as const },
     ...(isAdmin || user?.role === "checker" ? [
       { href: "/checker-manual", label: "Checker Manual", icon: ClipboardCheck },
@@ -57,7 +59,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     ...(isAdmin ? [
       { href: "/admin", label: "Administration", icon: Shield },
     ] : []),
-    { href: "/methodology", label: "User Manual", icon: FileText },
+    ...(sb("sidebarUserManual") ? [{ href: "/methodology", label: "User Manual", icon: FileText }] : []),
   ];
 
   return (

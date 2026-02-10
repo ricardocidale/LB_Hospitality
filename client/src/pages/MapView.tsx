@@ -22,8 +22,22 @@ const statusColor = (status: string) => {
   }
 };
 
+function hasCompleteAddress(property: any): boolean {
+  return !!(property.streetAddress && property.city && property.country);
+}
+
+function formatAddress(property: any): string {
+  const parts = [property.streetAddress, property.city];
+  if (property.stateProvince) parts.push(property.stateProvince);
+  if (property.zipPostalCode) parts.push(property.zipPostalCode);
+  parts.push(property.country);
+  return parts.filter(Boolean).join(", ");
+}
+
 export default function MapView() {
   const properties = useStore((s) => s.properties);
+  const mappableProperties = properties.filter(hasCompleteAddress);
+  const unmappableCount = properties.length - mappableProperties.length;
 
   return (
     <div data-testid="map-view" className="min-h-screen bg-[#FFF9F5]">
@@ -44,12 +58,28 @@ export default function MapView() {
               Portfolio Map
             </h1>
             <p className="mt-1 text-gray-500">
-              Geographic overview of your properties
+              Geographic overview of properties with complete addresses
             </p>
           </div>
 
+          {unmappableCount > 0 && (
+            <div className="mb-6 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-sm text-amber-800" data-testid="text-unmappable-notice">
+              <span className="font-medium">{unmappableCount} {unmappableCount === 1 ? "property" : "properties"}</span> not shown — missing address details. Add a street address, city, and country on the property page to include {unmappableCount === 1 ? "it" : "them"} here.
+            </div>
+          )}
+
+          {mappableProperties.length === 0 && (
+            <div className="text-center py-20" data-testid="text-no-mappable">
+              <MapPin className="mx-auto mb-4 text-gray-300" size={48} />
+              <h2 className="text-lg font-semibold text-gray-600 mb-2">No properties with addresses yet</h2>
+              <p className="text-sm text-gray-400 max-w-md mx-auto">
+                Add a street address, city, and country to your properties to see them on the map. You can do this from each property's detail page.
+              </p>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {properties.map((property) => {
+            {mappableProperties.map((property) => {
               const pinColor =
                 property.market === "North America" ? "#9FBCA4" : "#3B82F6";
               const marketBadge =
@@ -82,7 +112,7 @@ export default function MapView() {
                           className="text-sm text-gray-500"
                           data-testid={`text-location-${property.id}`}
                         >
-                          {property.location}
+                          {formatAddress(property)}
                         </p>
                       </div>
                     </div>

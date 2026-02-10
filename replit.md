@@ -7,7 +7,8 @@ Business simulation portal for a boutique hotel management company. Financial mo
 **All project documentation lives in `.claude/claude.md`** — the single source of truth for architecture, skills, rules, manuals, tools, testing, integrations, and project state. Load it for any detailed work.
 
 Key directories inside `.claude/`:
-- `skills/` — 50+ skill files across testing, finance, UI, exports, proof system, architecture
+- `skills/` — 80+ skill files across testing, finance, UI, exports, proof system, architecture
+- `skills/context-loading/` — **Start here**: maps task types to minimum required skills for token efficiency
 - `rules/` — 8 rule files (audit doctrine, constants, DB seeding, API routes, etc.)
 - `manuals/` — Checker manual (15 sections) and user manual (16 sections)
 - `tools/` — Tool schemas for analysis, financing, returns, validation, UI

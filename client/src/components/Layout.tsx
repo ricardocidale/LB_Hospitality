@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Building2, Briefcase, Settings2, Menu, X, FileText, Shield, LogOut, UserCircle, FolderOpen, SearchCheck, BarChart3, Calculator, ClipboardCheck, Search, GitCompare, Clock, MapPin, FileBarChart, ChevronDown, BookOpen } from "lucide-react";
+import { LayoutDashboard, Building2, Briefcase, Settings2, Menu, X, FileText, Shield, LogOut, UserCircle, FolderOpen, SearchCheck, BarChart3, Calculator, ClipboardCheck, Search, MapPin, FileBarChart, ChevronDown, BookOpen } from "lucide-react";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -43,7 +43,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
     setExpandedGroups(prev => ({ ...prev, [label]: !prev[label] }));
   };
 
-  const showAnalysis = sb("sidebarSensitivity") || sb("sidebarFinancing") || sb("sidebarExecutiveSummary");
+  const showAnalysis = sb("sidebarSensitivity") || sb("sidebarFinancing") || sb("sidebarExecutiveSummary") || sb("sidebarCompare") || sb("sidebarTimeline");
 
   const navItems: NavItem[] = [
     { href: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -52,9 +52,6 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
     { type: "divider" as const },
     ...(sb("sidebarPropertyFinder") ? [{ href: "/property-finder", label: "Property Finder", icon: SearchCheck }] : []),
     ...(showAnalysis ? [{ href: "/analysis", label: "Analysis", icon: BarChart3 }] : []),
-    { type: "divider" as const },
-    ...(sb("sidebarCompare") ? [{ href: "/compare", label: "Compare", icon: GitCompare }] : []),
-    ...(sb("sidebarTimeline") ? [{ href: "/timeline", label: "Timeline", icon: Clock }] : []),
     { type: "divider" as const },
     { href: "/settings", label: "Systemwide Assumptions", icon: Settings2 },
     { type: "divider" as const },

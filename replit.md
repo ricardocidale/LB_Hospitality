@@ -17,18 +17,20 @@ Business simulation portal for a boutique hotel management company. Financial mo
 **Fluid Glass** is the active theme. All new UI work must follow Fluid Glass styling conventions.
 
 ## Recent Changes
+- **Unified Analysis Page**: `/analysis` route merges Sensitivity, Financing, and Executive Summary into a single tabbed page. Components use `embedded` prop to skip Layout wrapper. Old standalone routes redirect.
+- **Map View in Properties**: Map View is now a tab inside the Properties page (`/portfolio`) instead of a separate sidebar item.
+- **Admin 3D Redesign**: Admin dashboard upgraded with floating glass panel 3D background, glassmorphism stat cards with gradient borders, polished AdminCard with hover lift/glow effects.
+- **Composite Tabbed Pages Skill**: New skill (`.claude/skills/ui/composite-tabbed-pages.md`) documenting the pattern for merging standalone pages into unified tabbed views.
 - **Asset Descriptions**: Admin-managed asset descriptions (asset_descriptions table) with per-user assignment. Seeded: "Boutique Hotel", "Exotic Experience Hotel". Extended `/api/my-branding` returns logo, theme, and asset description with default fallbacks.
-- **International Address Fields**: Optional property address fields (streetAddress, city, stateProvince, zipPostalCode, country) for international locations. "Map" button on PropertyDetail opens Google Maps (disabled when no address).
-- **Sidebar Visibility**: Admin-controlled sidebar navigation. 9 boolean fields in global_assumptions control which optional nav items appear for non-admin users: Property Finder, Sensitivity, Financing, Compare, Timeline, Map View, Executive Summary, Scenarios, User Manual. Core items always visible: Dashboard, Properties, Management Co., Settings, Profile, Administration. Layout uses `sb()` helper for filtering. Admin UI card added, renderSidebar view in progress.
-- **Logo Portfolio & User Branding**: Admin-managed logo portfolio (logos table) with per-user assignment. Layout fetches `/api/my-branding` with fallback chain: assigned logo > company logo > default. Schema: `logos` table, `users.assignedLogoId`/`users.assignedThemeId`. Default logos seeded: HBG (default) + Norfolk AI.
-- **Calculation Transparency Toggles**: Two on/off switches in Settings > Other tab control visibility of formula help icons and expandable accordion rows. Default: ON. Schema: `show_company_calculation_details`, `show_property_calculation_details`. Uses `CalcDetailsProvider` React context.
-- **Accordion Formula Rows**: Expandable rows in income statements showing step-by-step calculation breakdowns. Components: `ExpandableLineItem`, `ExpandableMetricRow`, `FormulaDetailRow`.
-- **Exit Cap Rates**: Austin Hillside 8.0% (market: 5.5-7.5% going-in, +50-100bps for exit). Casa Medellín 9.0%.
+- **Sidebar Visibility**: Admin-controlled sidebar navigation. 9 boolean fields in global_assumptions control which optional nav items appear for non-admin users. Layout uses `sb()` helper for filtering.
+- **Calculation Transparency Toggles**: Two on/off switches in Settings > Other tab control visibility of formula help icons and expandable accordion rows.
+- **Accordion Formula Rows**: Expandable rows in income statements showing step-by-step calculation breakdowns.
 
 ## Full Documentation
 **All project instructions, skills, rules, manuals, and tools live in `.claude/claude.md`** (the single source of truth). Load it for detailed architecture, pages, integrations, tech stack, and skill routing.
 
 ## Key Skills (in `.claude/skills/`)
+- `ui/composite-tabbed-pages.md` — Pattern for unified tabbed pages (Analysis, Properties+Map)
 - `ui/calculation-transparency.md` — Toggle system for showing/hiding formula details
 - `ui/accordion-formula-rows.md` — Expandable formula verification rows
 - `ui/help-tooltip.md` — The `?` help icon system

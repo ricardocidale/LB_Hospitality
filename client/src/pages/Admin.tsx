@@ -778,46 +778,86 @@ export default function Admin() {
     <button
       onClick={onClick}
       data-testid={testId}
-      className="group w-full text-left rounded-2xl bg-white/[0.06] hover:bg-white/[0.10] border border-white/[0.08] hover:border-[#9FBCA4]/30 p-5 transition-all duration-300 hover:shadow-lg hover:shadow-[#9FBCA4]/5"
+      className="group w-full text-left rounded-2xl relative overflow-hidden transition-all duration-500 hover:-translate-y-1 hover:shadow-xl hover:shadow-[#9FBCA4]/10"
+      style={{
+        background: 'linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%)',
+        backdropFilter: 'blur(20px)',
+        border: '1px solid rgba(255,255,255,0.08)',
+      }}
     >
-      <div className="flex items-start gap-4">
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${iconBg || "bg-[#9FBCA4]/15"}`}>
-          <Icon className="w-5 h-5 text-[#9FBCA4]" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <h3 className="text-[15px] font-semibold text-white/90 group-hover:text-white transition-colors">{title}</h3>
-          <p className="text-[13px] text-white/40 mt-0.5 leading-relaxed">{description}</p>
-          {badge}
+      <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{
+        background: 'linear-gradient(135deg, rgba(159,188,164,0.12) 0%, rgba(37,125,65,0.06) 100%)',
+        border: '1px solid rgba(159,188,164,0.25)',
+      }} />
+      <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" style={{
+        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(0,0,0,0.1)',
+      }} />
+      <div className="relative p-5">
+        <div className="flex items-start gap-4">
+          <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-all duration-500 group-hover:scale-110 group-hover:shadow-lg ${iconBg || "bg-[#9FBCA4]/15"}`} style={{
+            background: iconBg ? undefined : 'linear-gradient(135deg, rgba(159,188,164,0.2) 0%, rgba(37,125,65,0.15) 100%)',
+            boxShadow: '0 2px 8px rgba(159,188,164,0.1)',
+          }}>
+            <Icon className="w-5 h-5 text-[#9FBCA4] group-hover:text-[#b8d4be] transition-colors duration-300" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h3 className="text-[15px] font-semibold text-white/90 group-hover:text-white transition-colors duration-300 font-display">{title}</h3>
+            <p className="text-[12px] text-white/35 mt-1 leading-relaxed tracking-wide">{description}</p>
+            {badge}
+          </div>
+          <div className="opacity-0 group-hover:opacity-60 transition-all duration-300 transform translate-x-1 group-hover:translate-x-0">
+            <svg className="w-4 h-4 text-[#9FBCA4]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
         </div>
       </div>
     </button>
   );
 
   const renderDashboard = () => (
-    <div className="space-y-10">
+    <div className="space-y-10 relative">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "Users", value: users?.length || 0, icon: Users, color: "text-[#9FBCA4]" },
-          { label: "Sessions", value: activeSessions, icon: Activity, color: "text-[#9FBCA4]" },
-          { label: "Logins", value: loginLogs?.length || 0, icon: Clock, color: "text-[#9FBCA4]" },
+          { label: "Users", value: users?.length || 0, icon: Users, color: "#9FBCA4", accent: "rgba(159,188,164,0.15)" },
+          { label: "Sessions", value: activeSessions, icon: Activity, color: "#9FBCA4", accent: "rgba(159,188,164,0.15)" },
+          { label: "Logins", value: loginLogs?.length || 0, icon: Clock, color: "#9FBCA4", accent: "rgba(159,188,164,0.15)" },
           {
             label: verificationHistory?.[0]?.auditOpinion || "Verification",
             value: verificationHistory?.[0] ? `${verificationHistory[0].passed}/${verificationHistory[0].totalChecks}` : "--",
             icon: FileCheck,
-            color: verificationHistory?.[0]?.auditOpinion === "UNQUALIFIED" ? "text-[#9FBCA4]" : verificationHistory?.[0]?.auditOpinion === "QUALIFIED" ? "text-yellow-400" : "text-white/50",
+            color: verificationHistory?.[0]?.auditOpinion === "UNQUALIFIED" ? "#9FBCA4" : verificationHistory?.[0]?.auditOpinion === "QUALIFIED" ? "#F59E0B" : "rgba(255,255,255,0.5)",
+            accent: verificationHistory?.[0]?.auditOpinion === "UNQUALIFIED" ? "rgba(37,125,65,0.15)" : "rgba(245,158,11,0.1)",
             onClick: () => setCurrentView("verification"),
           },
         ].map((stat, i) => (
           <div
             key={i}
             onClick={(stat as any).onClick}
-            className={`rounded-2xl bg-white/[0.06] border border-white/[0.08] p-5 ${(stat as any).onClick ? "cursor-pointer hover:bg-white/[0.10] hover:border-[#9FBCA4]/30 transition-all" : ""}`}
+            className={`group relative rounded-2xl overflow-hidden transition-all duration-500 ${(stat as any).onClick ? "cursor-pointer hover:-translate-y-1" : ""}`}
+            style={{
+              background: 'linear-gradient(145deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%)',
+              backdropFilter: 'blur(24px)',
+              border: '1px solid rgba(255,255,255,0.08)',
+            }}
           >
-            <div className="flex items-center gap-3 mb-3">
-              <stat.icon className={`w-4 h-4 ${stat.color}`} />
-              <span className="text-xs font-medium text-white/40 uppercase tracking-wider">{stat.label}</span>
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{
+              background: `linear-gradient(145deg, ${stat.accent} 0%, transparent 70%)`,
+            }} />
+            <div className="absolute top-0 left-0 right-0 h-[1px]" style={{
+              background: `linear-gradient(90deg, transparent, ${stat.color}33, transparent)`,
+            }} />
+            <div className="relative p-5">
+              <div className="flex items-center gap-2.5 mb-3">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{
+                  background: `linear-gradient(135deg, ${stat.accent}, transparent)`,
+                }}>
+                  <stat.icon className="w-4 h-4" style={{ color: stat.color }} />
+                </div>
+                <span className="text-[11px] font-semibold text-white/40 uppercase tracking-widest">{stat.label}</span>
+              </div>
+              <p className="text-3xl font-display font-bold tracking-tight" style={{ color: stat.color }}>{stat.value}</p>
             </div>
-            <p className={`text-3xl font-display font-bold tracking-tight ${stat.color}`}>{stat.value}</p>
           </div>
         ))}
       </div>

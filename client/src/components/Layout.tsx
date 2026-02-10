@@ -196,29 +196,39 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
                     </button>
                     <div className={cn(
                       "overflow-hidden transition-all duration-300 ease-out",
-                      autoExpand ? "max-h-40 opacity-100" : "max-h-0 opacity-0"
+                      autoExpand ? "max-h-60 opacity-100" : "max-h-0 opacity-0"
                     )}>
                       {group.children.map(child => {
-                        const isChildActive = location === child.href ||
-                          (child.href !== "/" && location.startsWith(child.href + "/"));
+                        const isChildActive = !child.onClick && (location === child.href ||
+                          (child.href !== "/" && location.startsWith(child.href + "/")));
+                        const childContent = (
+                          <div className={cn(
+                            "group relative flex items-center gap-3 pl-8 pr-4 py-2.5 text-sm font-medium transition-all duration-300 ease-out rounded-2xl cursor-pointer overflow-hidden ml-4",
+                            isChildActive ? "text-white" : "text-[#FFF9F5]/50 hover:text-white"
+                          )}>
+                            {isChildActive && (
+                              <>
+                                <div className="absolute inset-0 bg-white/10 backdrop-blur-xl rounded-2xl" />
+                                <div className="absolute inset-0 rounded-2xl border border-white/15" />
+                              </>
+                            )}
+                            {!isChildActive && (
+                              <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-all duration-300 rounded-2xl" />
+                            )}
+                            <child.icon className={cn("relative w-3.5 h-3.5 transition-all duration-300", isChildActive ? "text-[#9FBCA4]" : "text-[#FFF9F5]/40 group-hover:text-white")} />
+                            <span className="relative">{child.label}</span>
+                          </div>
+                        );
+                        if (child.onClick) {
+                          return (
+                            <button key={child.href} onClick={() => { child.onClick!(); setSidebarOpen(false); }} className="w-full text-left" data-testid={`nav-${child.label.toLowerCase().replace(/\s+/g, '-')}`}>
+                              {childContent}
+                            </button>
+                          );
+                        }
                         return (
                           <Link key={child.href} href={child.href} onClick={() => setSidebarOpen(false)}>
-                            <div className={cn(
-                              "group relative flex items-center gap-3 pl-8 pr-4 py-2.5 text-sm font-medium transition-all duration-300 ease-out rounded-2xl cursor-pointer overflow-hidden ml-4",
-                              isChildActive ? "text-white" : "text-[#FFF9F5]/50 hover:text-white"
-                            )}>
-                              {isChildActive && (
-                                <>
-                                  <div className="absolute inset-0 bg-white/10 backdrop-blur-xl rounded-2xl" />
-                                  <div className="absolute inset-0 rounded-2xl border border-white/15" />
-                                </>
-                              )}
-                              {!isChildActive && (
-                                <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-all duration-300 rounded-2xl" />
-                              )}
-                              <child.icon className={cn("relative w-3.5 h-3.5 transition-all duration-300", isChildActive ? "text-[#9FBCA4]" : "text-[#FFF9F5]/40 group-hover:text-white")} />
-                              <span className="relative">{child.label}</span>
-                            </div>
+                            {childContent}
                           </Link>
                         );
                       })}
@@ -267,8 +277,6 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
 
           <div className="p-4 space-y-3">
             <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-            
-            <WalkthroughTrigger />
             
             <button 
               className="group relative w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-[#FFF9F5]/60 hover:text-white rounded-2xl transition-all duration-300 overflow-hidden"

@@ -644,6 +644,6 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
           </div>
         )}
       </div>
-    </Layout>
+    </Wrapper>
   );
 }

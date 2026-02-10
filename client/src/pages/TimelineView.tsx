@@ -55,6 +55,20 @@ export default function TimelineView({ embedded }: { embedded?: boolean }) {
       </h1>
       )}
 
+      <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm max-w-4xl mx-auto mb-8">
+        <div className="flex items-start gap-3">
+          <svg className="w-5 h-5 text-[#9FBCA4] mt-0.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <div>
+            <h3 className="text-sm font-semibold text-gray-800 mb-1">Portfolio Timeline</h3>
+            <p className="text-xs text-gray-500 leading-relaxed">
+              Visualizes the chronological sequence of your portfolio — when each property was acquired and when operations began. 
+              This timeline helps you understand your deployment cadence, identify gaps between acquisitions, 
+              and plan future property additions based on historical patterns.
+            </p>
+          </div>
+        </div>
+      </div>
+
       <div className="relative max-w-4xl mx-auto">
         <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-[2px] bg-border hidden md:block" />
         <div className="absolute left-5 top-0 bottom-0 w-[2px] bg-border md:hidden" />

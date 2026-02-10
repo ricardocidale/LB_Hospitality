@@ -18,6 +18,7 @@ import {
   DollarSign,
   Percent,
 } from "lucide-react";
+import { HelpTooltip } from "@/components/ui/help-tooltip";
 
 type TabId = "dscr" | "debt-yield" | "sensitivity" | "prepayment";
 
@@ -65,10 +66,13 @@ function InputField({
 }) {
   return (
     <div className="space-y-1">
-      <label className="text-xs font-medium text-white/70">{label}</label>
+      <label className="text-xs font-medium text-gray-600 flex items-center">
+        {label}
+        {helpText && <HelpTooltip text={helpText} />}
+      </label>
       <div className="relative">
         {prefix && (
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50 text-sm">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
             {prefix}
           </span>
         )}
@@ -80,15 +84,14 @@ function InputField({
           min={min}
           max={max}
           data-testid={testId}
-          className={`w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-[#9FBCA4]/50 focus:ring-1 focus:ring-[#9FBCA4]/30 ${prefix ? "pl-7" : ""} ${suffix ? "pr-10" : ""}`}
+          className={`w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-300 focus:outline-none focus:border-[#9FBCA4] focus:ring-1 focus:ring-[#9FBCA4]/30 ${prefix ? "pl-7" : ""} ${suffix ? "pr-10" : ""}`}
         />
         {suffix && (
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 text-sm">
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
             {suffix}
           </span>
         )}
       </div>
-      {helpText && <p className="text-[10px] text-white/40">{helpText}</p>}
     </div>
   );
 }
@@ -140,20 +143,20 @@ function DSCRTab() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <InputField label="Annual NOI" value={noi} onChange={setNoi} prefix="$" data-testid="input-dscr-noi" />
-        <InputField label="Interest Rate" value={rate} onChange={setRate} suffix="%" step="0.25" data-testid="input-dscr-rate" />
-        <InputField label="Loan Term (months)" value={termMonths} onChange={setTermMonths} data-testid="input-dscr-term" />
-        <InputField label="Amortization (months)" value={amortMonths} onChange={setAmortMonths} data-testid="input-dscr-amort" />
-        <InputField label="IO Period (months)" value={ioMonths} onChange={setIoMonths} data-testid="input-dscr-io" />
-        <InputField label="Minimum DSCR" value={minDscr} onChange={setMinDscr} step="0.05" data-testid="input-dscr-min" />
-        <InputField label="Purchase Price" value={purchasePrice} onChange={setPurchasePrice} prefix="$" data-testid="input-dscr-price" />
-        <InputField label="Max LTV" value={ltvMax} onChange={setLtvMax} suffix="%" data-testid="input-dscr-ltv" />
+        <InputField label="Annual NOI" value={noi} onChange={setNoi} prefix="$" helpText="Net Operating Income: total revenue minus operating expenses, before debt service" data-testid="input-dscr-noi" />
+        <InputField label="Interest Rate" value={rate} onChange={setRate} suffix="%" step="0.25" helpText="Annual interest rate on the loan" data-testid="input-dscr-rate" />
+        <InputField label="Loan Term (months)" value={termMonths} onChange={setTermMonths} helpText="Total duration of the loan before maturity or balloon payment" data-testid="input-dscr-term" />
+        <InputField label="Amortization (months)" value={amortMonths} onChange={setAmortMonths} helpText="Period over which principal is repaid — longer = lower monthly payments" data-testid="input-dscr-amort" />
+        <InputField label="IO Period (months)" value={ioMonths} onChange={setIoMonths} helpText="Interest-only period at the start of the loan — no principal payments during this time" data-testid="input-dscr-io" />
+        <InputField label="Minimum DSCR" value={minDscr} onChange={setMinDscr} step="0.05" helpText="Lender's required minimum Debt Service Coverage Ratio (typically 1.20x–1.35x)" data-testid="input-dscr-min" />
+        <InputField label="Purchase Price" value={purchasePrice} onChange={setPurchasePrice} prefix="$" helpText="Total acquisition price of the property" data-testid="input-dscr-price" />
+        <InputField label="Max LTV" value={ltvMax} onChange={setLtvMax} suffix="%" helpText="Maximum Loan-to-Value ratio the lender will allow (typically 65–75%)" data-testid="input-dscr-ltv" />
       </div>
       <GlassButton variant="primary" onClick={calculate} disabled={loading} data-testid="button-dscr-calculate">
         {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2 inline" /> : <Calculator className="w-4 h-4 mr-2 inline" />}
         Calculate Max Loan
       </GlassButton>
-      {error && <p className="text-red-400 text-sm">{error}</p>}
+      {error && <p className="text-red-600 text-sm">{error}</p>}
       {result && (
         <div className="space-y-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -215,17 +218,17 @@ function DebtYieldTab() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <InputField label="Annual NOI" value={noi} onChange={setNoi} prefix="$" data-testid="input-dy-noi" />
-        <InputField label="Loan Amount" value={loanAmount} onChange={setLoanAmount} prefix="$" data-testid="input-dy-loan" />
-        <InputField label="Min Debt Yield" value={minYield} onChange={setMinYield} suffix="%" data-testid="input-dy-min" />
-        <InputField label="Purchase Price" value={purchasePrice} onChange={setPurchasePrice} prefix="$" data-testid="input-dy-price" />
-        <InputField label="Max LTV" value={ltvMax} onChange={setLtvMax} suffix="%" data-testid="input-dy-ltv" />
+        <InputField label="Annual NOI" value={noi} onChange={setNoi} prefix="$" helpText="Net Operating Income used to calculate debt yield" data-testid="input-dy-noi" />
+        <InputField label="Loan Amount" value={loanAmount} onChange={setLoanAmount} prefix="$" helpText="Proposed loan amount to evaluate" data-testid="input-dy-loan" />
+        <InputField label="Min Debt Yield" value={minYield} onChange={setMinYield} suffix="%" helpText="Lender's minimum debt yield threshold (typically 8–10%)" data-testid="input-dy-min" />
+        <InputField label="Purchase Price" value={purchasePrice} onChange={setPurchasePrice} prefix="$" helpText="Property purchase price for LTV calculation" data-testid="input-dy-price" />
+        <InputField label="Max LTV" value={ltvMax} onChange={setLtvMax} suffix="%" helpText="Maximum Loan-to-Value ratio allowed" data-testid="input-dy-ltv" />
       </div>
       <GlassButton variant="primary" onClick={calculate} disabled={loading} data-testid="button-dy-calculate">
         {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2 inline" /> : <TrendingUp className="w-4 h-4 mr-2 inline" />}
         Analyze Debt Yield
       </GlassButton>
-      {error && <p className="text-red-400 text-sm">{error}</p>}
+      {error && <p className="text-red-600 text-sm">{error}</p>}
       {result && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <StatCard
@@ -317,19 +320,19 @@ function SensitivityTab() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <InputField label="Annual NOI" value={noi} onChange={setNoi} prefix="$" data-testid="input-sens-noi" />
-        <InputField label="Loan Amount" value={loanAmount} onChange={setLoanAmount} prefix="$" data-testid="input-sens-loan" />
-        <InputField label="Interest Rate" value={rate} onChange={setRate} suffix="%" data-testid="input-sens-rate" />
-        <InputField label="Amortization (months)" value={amortMonths} onChange={setAmortMonths} data-testid="input-sens-amort" />
-        <InputField label="Loan Term (months)" value={termMonths} onChange={setTermMonths} data-testid="input-sens-term" />
-        <InputField label="IO Period (months)" value={ioMonths} onChange={setIoMonths} data-testid="input-sens-io" />
-        <InputField label="Min DSCR Threshold" value={minDscr} onChange={setMinDscr} step="0.05" data-testid="input-sens-min-dscr" />
+        <InputField label="Annual NOI" value={noi} onChange={setNoi} prefix="$" helpText="Base NOI before stress adjustments" data-testid="input-sens-noi" />
+        <InputField label="Loan Amount" value={loanAmount} onChange={setLoanAmount} prefix="$" helpText="Current or proposed loan principal" data-testid="input-sens-loan" />
+        <InputField label="Interest Rate" value={rate} onChange={setRate} suffix="%" helpText="Base interest rate before rate shocks" data-testid="input-sens-rate" />
+        <InputField label="Amortization (months)" value={amortMonths} onChange={setAmortMonths} helpText="Amortization schedule for the loan" data-testid="input-sens-amort" />
+        <InputField label="Loan Term (months)" value={termMonths} onChange={setTermMonths} helpText="Remaining loan term" data-testid="input-sens-term" />
+        <InputField label="IO Period (months)" value={ioMonths} onChange={setIoMonths} helpText="Interest-only months at the start" data-testid="input-sens-io" />
+        <InputField label="Min DSCR Threshold" value={minDscr} onChange={setMinDscr} step="0.05" helpText="Red cells in the matrix indicate DSCR below this threshold" data-testid="input-sens-min-dscr" />
       </div>
       <GlassButton variant="primary" onClick={calculate} disabled={loading} data-testid="button-sens-calculate">
         {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2 inline" /> : <BarChart3 className="w-4 h-4 mr-2 inline" />}
         Run Stress Test
       </GlassButton>
-      {error && <p className="text-red-400 text-sm">{error}</p>}
+      {error && <p className="text-red-600 text-sm">{error}</p>}
       {result && (
         <div className="space-y-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -349,11 +352,11 @@ function SensitivityTab() {
             <table className="w-full text-xs">
               <thead>
                 <tr>
-                  <th className="text-left text-white/50 p-2 border-b border-white/10">
+                  <th className="text-left text-gray-500 p-2 border-b border-gray-200">
                     Rate \ NOI
                   </th>
                   {noiShocks.map((ns) => (
-                    <th key={ns} className="text-center text-white/50 p-2 border-b border-white/10">
+                    <th key={ns} className="text-center text-gray-500 p-2 border-b border-gray-200">
                       {ns > 0 ? `+${ns}%` : `${ns}%`}
                     </th>
                   ))}
@@ -362,7 +365,7 @@ function SensitivityTab() {
               <tbody>
                 {rateShocks.map((rs) => (
                   <tr key={rs}>
-                    <td className="text-white/70 p-2 border-b border-white/5 font-medium">
+                    <td className="text-gray-700 p-2 border-b border-gray-100 font-medium">
                       {rs > 0 ? `+${rs}` : rs} bps
                     </td>
                     {noiShocks.map((ns) => {
@@ -374,12 +377,12 @@ function SensitivityTab() {
                       return (
                         <td
                           key={ns}
-                          className={`text-center p-2 border-b border-white/5 font-mono ${
+                          className={`text-center p-2 border-b border-gray-100 font-mono ${
                             !cell.passes
                               ? "bg-red-500/20 text-red-300"
                               : isBase
                               ? "bg-[#9FBCA4]/20 text-[#9FBCA4]"
-                              : "text-white/80"
+                              : "text-gray-800"
                           }`}
                           data-testid={`cell-sens-${rs}-${ns}`}
                         >
@@ -451,13 +454,13 @@ function PrepaymentTab() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <InputField label="Outstanding Balance" value={balance} onChange={setBalance} prefix="$" data-testid="input-prepay-balance" />
-        <InputField label="Prepayment Month" value={prepayMonth} onChange={setPrepayMonth} helpText="Months from origination" data-testid="input-prepay-month" />
-        <InputField label="Loan Rate" value={loanRate} onChange={setLoanRate} suffix="%" data-testid="input-prepay-rate" />
-        <InputField label="Loan Term (months)" value={termMonths} onChange={setTermMonths} data-testid="input-prepay-term" />
+        <InputField label="Outstanding Balance" value={balance} onChange={setBalance} prefix="$" helpText="Remaining loan principal at prepayment date" data-testid="input-prepay-balance" />
+        <InputField label="Prepayment Month" value={prepayMonth} onChange={setPrepayMonth} helpText="Month number from loan origination when you plan to prepay" data-testid="input-prepay-month" />
+        <InputField label="Loan Rate" value={loanRate} onChange={setLoanRate} suffix="%" helpText="Annual interest rate on the loan being prepaid" data-testid="input-prepay-rate" />
+        <InputField label="Loan Term (months)" value={termMonths} onChange={setTermMonths} helpText="Original loan term in months" data-testid="input-prepay-term" />
       </div>
       <div className="space-y-2">
-        <label className="text-xs font-medium text-white/70">Penalty Type</label>
+        <label className="text-xs font-medium text-gray-600">Penalty Type</label>
         <div className="flex gap-2">
           {(["yield_maintenance", "step_down", "defeasance"] as const).map((type) => (
             <button
@@ -467,7 +470,7 @@ function PrepaymentTab() {
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                 penaltyType === type
                   ? "bg-[#9FBCA4]/30 text-[#9FBCA4] border border-[#9FBCA4]/50"
-                  : "bg-white/5 text-white/60 border border-white/10 hover:bg-white/10"
+                  : "bg-gray-50 text-gray-500 border border-gray-200 hover:bg-gray-100"
               }`}
             >
               {type === "yield_maintenance" ? "Yield Maintenance" : type === "step_down" ? "Step-Down" : "Defeasance"}
@@ -484,13 +487,13 @@ function PrepaymentTab() {
         </div>
       )}
       {penaltyType === "step_down" && (
-        <p className="text-xs text-white/40">Using standard 5-4-3-2-1 step-down schedule</p>
+        <p className="text-xs text-gray-400">Using standard 5-4-3-2-1 step-down schedule</p>
       )}
       <GlassButton variant="primary" onClick={calculate} disabled={loading} data-testid="button-prepay-calculate">
         {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2 inline" /> : <Shield className="w-4 h-4 mr-2 inline" />}
         Calculate Prepayment Cost
       </GlassButton>
-      {error && <p className="text-red-400 text-sm">{error}</p>}
+      {error && <p className="text-red-600 text-sm">{error}</p>}
       {result && (
         <div className="space-y-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -501,8 +504,8 @@ function PrepaymentTab() {
             <StatCard label="Months Remaining" value={result.months_remaining} format="number" variant="glass" />
           </div>
           {result.details && (
-            <ContentPanel variant="dark" title="Penalty Details">
-              <div className="space-y-2 text-sm text-white/70">
+            <ContentPanel variant="light" title="Penalty Details">
+              <div className="space-y-2 text-sm text-gray-600">
                 {result.details.type === "yield_maintenance" && (
                   <>
                     <p>Rate Differential: {formatPct(result.details.rate_differential)}</p>
@@ -557,7 +560,7 @@ export default function FinancingAnalysis({ embedded }: { embedded?: boolean }) 
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
                   isActive
                     ? "bg-[#9FBCA4]/20 text-[#9FBCA4] border border-[#9FBCA4]/40"
-                    : "bg-white/5 text-white/60 border border-white/10 hover:bg-white/10 hover:text-white/80"
+                    : "bg-gray-50 text-gray-500 border border-gray-200 hover:bg-gray-100 hover:text-gray-700"
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -566,11 +569,72 @@ export default function FinancingAnalysis({ embedded }: { embedded?: boolean }) 
             );
           })}
         </div>
-        <ContentPanel variant="dark">
-          {activeTab === "dscr" && <DSCRTab />}
-          {activeTab === "debt-yield" && <DebtYieldTab />}
-          {activeTab === "sensitivity" && <SensitivityTab />}
-          {activeTab === "prepayment" && <PrepaymentTab />}
+        <ContentPanel variant="light">
+          {activeTab === "dscr" && (
+            <div className="space-y-6">
+              <div className="flex items-start gap-3 bg-gray-50 rounded-lg p-3">
+                <Calculator className="w-5 h-5 text-[#9FBCA4] mt-0.5 flex-shrink-0" />
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-800 mb-1">DSCR Loan Sizing</h3>
+                  <p className="text-xs text-gray-500 leading-relaxed">
+                    Determines the maximum loan amount a property can support based on its Debt Service Coverage Ratio (DSCR). 
+                    Lenders typically require a minimum DSCR of 1.20x–1.35x, meaning the property's NOI must exceed annual debt payments by that multiple. 
+                    Enter your property's NOI and loan terms to see how much you can borrow.
+                  </p>
+                </div>
+              </div>
+              <DSCRTab />
+            </div>
+          )}
+          {activeTab === "debt-yield" && (
+            <div className="space-y-6">
+              <div className="flex items-start gap-3 bg-gray-50 rounded-lg p-3">
+                <TrendingUp className="w-5 h-5 text-[#9FBCA4] mt-0.5 flex-shrink-0" />
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-800 mb-1">Debt Yield Analysis</h3>
+                  <p className="text-xs text-gray-500 leading-relaxed">
+                    Debt Yield = NOI / Loan Amount. It measures the lender's return if they had to foreclose. 
+                    Most commercial lenders require a minimum debt yield of 8–10%. 
+                    This tool calculates your debt yield and determines the maximum loan based on that threshold, 
+                    then compares it against the LTV constraint to find the binding limit.
+                  </p>
+                </div>
+              </div>
+              <DebtYieldTab />
+            </div>
+          )}
+          {activeTab === "sensitivity" && (
+            <div className="space-y-6">
+              <div className="flex items-start gap-3 bg-gray-50 rounded-lg p-3">
+                <BarChart3 className="w-5 h-5 text-[#9FBCA4] mt-0.5 flex-shrink-0" />
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-800 mb-1">Debt Stress Testing</h3>
+                  <p className="text-xs text-gray-500 leading-relaxed">
+                    Tests how your loan performs under adverse conditions. The matrix shows DSCR at every combination of 
+                    interest rate changes (in basis points) and NOI changes (in percent). Red cells indicate scenarios 
+                    where DSCR falls below your minimum threshold — signaling potential covenant violations or debt service shortfalls.
+                  </p>
+                </div>
+              </div>
+              <SensitivityTab />
+            </div>
+          )}
+          {activeTab === "prepayment" && (
+            <div className="space-y-6">
+              <div className="flex items-start gap-3 bg-gray-50 rounded-lg p-3">
+                <Shield className="w-5 h-5 text-[#9FBCA4] mt-0.5 flex-shrink-0" />
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-800 mb-1">Prepayment Penalty Calculator</h3>
+                  <p className="text-xs text-gray-500 leading-relaxed">
+                    Calculates the cost of paying off a loan early. Three common methods: Yield Maintenance (compensates the lender for lost interest), 
+                    Step-Down (declining percentage penalty over time, e.g. 5-4-3-2-1), and Defeasance (replacing the loan with government securities). 
+                    Understanding prepayment costs is critical for refinancing or sale decisions.
+                  </p>
+                </div>
+              </div>
+              <PrepaymentTab />
+            </div>
+          )}
         </ContentPanel>
       </div>
     </Wrapper>

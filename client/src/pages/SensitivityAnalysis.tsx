@@ -287,6 +287,20 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
           />
         )}
 
+        <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
+          <div className="flex items-start gap-3">
+            <Sliders className="w-5 h-5 text-[#9FBCA4] mt-0.5 flex-shrink-0" />
+            <div>
+              <h3 className="text-sm font-semibold text-gray-800 mb-1">What is Sensitivity Analysis?</h3>
+              <p className="text-xs text-gray-500 leading-relaxed">
+                Sensitivity analysis shows how changes in key assumptions — like occupancy, ADR growth, expense inflation, and exit cap rates — impact your portfolio's financial performance. 
+                Use the sliders below to adjust variables up or down and instantly see the effect on revenue, NOI, cash flow, and investor returns (IRR). 
+                This helps identify which assumptions have the biggest impact on your investment outcomes.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {baseResult && adjustedResult && (
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <StatCard

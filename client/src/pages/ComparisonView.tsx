@@ -80,6 +80,20 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
         </div>
         )}
 
+        <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
+          <div className="flex items-start gap-3">
+            <svg className="w-5 h-5 text-[#9FBCA4] mt-0.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M12 22v-8.3a4 4 0 0 0-1.172-2.872L3 3"/><path d="m15 9 6-6"/></svg>
+            <div>
+              <h3 className="text-sm font-semibold text-gray-800 mb-1">Property Comparison</h3>
+              <p className="text-xs text-gray-500 leading-relaxed">
+                Compare up to 4 properties side by side across key assumptions — room count, ADR, occupancy, purchase price, and more. 
+                Best values are highlighted in green to quickly spot which properties have the strongest fundamentals. 
+                Use this to evaluate acquisition targets or benchmark existing portfolio assets.
+              </p>
+            </div>
+          </div>
+        </div>
+
         <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
           <h2 className="text-sm font-semibold text-gray-700 mb-3" data-testid="text-selector-heading">
             Select Properties ({selectedIds.length}/4)

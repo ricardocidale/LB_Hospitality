@@ -531,16 +531,20 @@ function PrepaymentTab() {
   );
 }
 
-export default function FinancingAnalysis() {
+export default function FinancingAnalysis({ embedded }: { embedded?: boolean }) {
   const [activeTab, setActiveTab] = useState<TabId>("dscr");
 
+  const Wrapper = embedded ? ({ children }: { children: React.ReactNode }) => <>{children}</> : Layout;
+
   return (
-    <Layout>
+    <Wrapper>
       <div className="space-y-6 p-4 md:p-6">
-        <PageHeader
-          title="Financing Analysis"
-          subtitle="Loan sizing, debt yield analysis, stress testing, and prepayment modeling"
-        />
+        {!embedded && (
+          <PageHeader
+            title="Financing Analysis"
+            subtitle="Loan sizing, debt yield analysis, stress testing, and prepayment modeling"
+          />
+        )}
         <div className="flex gap-2 overflow-x-auto pb-2">
           {TABS.map((tab) => {
             const Icon = tab.icon;
@@ -569,6 +573,6 @@ export default function FinancingAnalysis() {
           {activeTab === "prepayment" && <PrepaymentTab />}
         </ContentPanel>
       </div>
-    </Layout>
+    </Wrapper>
   );
 }

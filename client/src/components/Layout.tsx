@@ -2,6 +2,7 @@ import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 import { LayoutDashboard, Building2, Briefcase, Settings2, Menu, X, FileText, Shield, LogOut, UserCircle, FolderOpen, SearchCheck, BarChart3, Calculator, ClipboardCheck, Search, GitCompare, Clock, MapPin, FileBarChart } from "lucide-react";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { useGlobalAssumptions } from "@/lib/api";
@@ -18,8 +19,18 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const { user, isAdmin, logout } = useAuth();
   const { data: global } = useGlobalAssumptions();
   
+  const { data: myBranding } = useQuery<{ logoUrl: string | null; themeName: string | null }>({
+    queryKey: ["my-branding"],
+    queryFn: async () => {
+      const res = await fetch("/api/my-branding", { credentials: "include" });
+      if (!res.ok) return { logoUrl: null, themeName: null };
+      return res.json();
+    },
+    enabled: !!user,
+  });
+
   const companyName = global?.companyName ?? "Hospitality Business";
-  const companyLogo = global?.companyLogo ?? defaultLogo;
+  const companyLogo = myBranding?.logoUrl || global?.companyLogo || defaultLogo;
 
   const navItems = [
     { href: "/", label: "Dashboard", icon: LayoutDashboard },

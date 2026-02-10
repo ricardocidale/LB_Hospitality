@@ -16,7 +16,21 @@ Business simulation portal for a boutique hotel management company. Financial mo
 ## Current Theme
 **Fluid Glass** is the active theme. All new UI work must follow Fluid Glass styling conventions.
 
+## Testing & Proof System (445 Tests, 42 Files)
+
+| Entity Level | Test Domains | Skill |
+|-------------|-------------|-------|
+| Individual Property | IS, CF, BS, trial balance, reconciliation, ASC 230 identities, pro forma golden | `testing/property-statements.md` |
+| Consolidated Portfolio | Portfolio aggregation, intercompany eliminations, portfolio IRR | `testing/consolidated-statements.md` |
+| Management Company | Company pro forma, fee linkage, funding instruments, cash balance | `testing/management-company.md` |
+| Returns Analysis | IRR, NPV, MOIC, sensitivity, portfolio IRR, refi/exit vectors | `testing/analysis-returns.md` |
+| DCF/FCF Analysis | FCF computation, FCFE two-method reconciliation | `testing/analysis-dcf-fcf.md` |
+| Financing & Debt | Acquisition sizing, closing costs, refi schedule, funding engine | `testing/financing-refinance-funding.md` |
+
+**Commands**: `npm test` (all 445), `npm run verify` (4-phase, UNQUALIFIED required)
+
 ## Recent Changes
+- **Testing Skills Suite**: New `.claude/skills/testing/` directory with 7 skill files documenting test coverage for every financial statement and analysis at property, consolidated, and management company levels.
 - **Accordion Chevron Standardization**: All expandable/accordion row indicators standardized to the same size across the entire app.
 - **Unified Analysis Page**: `/analysis` route merges Sensitivity, Financing, Executive Summary, Compare, and Timeline into a single tabbed page. Components use `embedded` prop to skip Layout wrapper. Old standalone routes (`/compare`, `/timeline`) redirect to `/analysis`.
 - **Map View in Properties**: Map View is now a tab inside the Properties page (`/portfolio`) instead of a separate sidebar item.
@@ -34,6 +48,13 @@ Business simulation portal for a boutique hotel management company. Financial mo
 **All project instructions, skills, rules, manuals, and tools live in `.claude/claude.md`** (the single source of truth). Load it for detailed architecture, pages, integrations, tech stack, and skill routing.
 
 ## Key Skills (in `.claude/skills/`)
+- `testing/SKILL.md` — Master testing skill with 42-file map, entity-level coverage
+- `testing/property-statements.md` — Property-level IS, CF, BS test coverage
+- `testing/consolidated-statements.md` — Portfolio aggregation, elimination tests
+- `testing/management-company.md` — Management company pro forma, fee linkage, funding tests
+- `testing/analysis-returns.md` — IRR, NPV, MOIC, sensitivity, portfolio IRR tests
+- `testing/analysis-dcf-fcf.md` — FCF, FCFE computation and reconciliation tests
+- `testing/financing-refinance-funding.md` — Debt sizing, refi schedule, funding instrument tests
 - `ui/composite-tabbed-pages.md` — Pattern for unified tabbed pages (Analysis, Properties+Map)
 - `ui/calculation-transparency.md` — Toggle system for showing/hiding formula details
 - `ui/accordion-formula-rows.md` — Expandable formula verification rows
@@ -43,6 +64,7 @@ Business simulation portal for a boutique hotel management company. Financial mo
 - `ui/navigation.md` — Command Palette, Breadcrumbs, Favorites, Activity Feed
 - `finance/income-statement.md` — Income statement architecture
 - `finance/cash-flow-statement.md` — Cash flow statement architecture
+- `finance/balance-sheet.md` — Balance sheet architecture (ASC 210, 360, 835-30)
 - `proof-system/SKILL.md` — 445 tests, 5 golden scenarios, verification
 
 ## Quick Reference

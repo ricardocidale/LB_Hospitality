@@ -250,7 +250,7 @@ export default function CheckerManual({ embedded }: { embedded?: boolean }) {
                 onToggle={() => toggleSection("mgmt-company")}
                 sectionRef={(el) => { sectionRefs.current["mgmt-company"] = el; }}
               >
-                <p className="text-muted-foreground text-sm">Service company, NOT a property owner. Revenue: Base Fee (% of Total Revenue) + Incentive Fee (% of GOP). Funded via SAFE notes (Tranche 1 gates operations — Business Rule #1).</p>
+                <p className="text-muted-foreground text-sm">Service company, NOT a property owner. Revenue: Base Fee (% of Total Revenue) + Incentive Fee (% of GOP). Funded via capital notes (Tranche 1 gates operations — Business Rule #1).</p>
                 <ManualTable
                   headers={["Expense Category", "Calculation", "Escalation"]}
                   rows={[
@@ -331,17 +331,17 @@ export default function CheckerManual({ embedded }: { embedded?: boolean }) {
                     ["incentiveManagementFee", "Incentive fee as % of property GOP", "15%", "%", "Both"],
                   ]}
                 />
-                <h3 className="text-foreground text-sm font-semibold mt-4 mb-2">SAFE Funding</h3>
+                <h3 className="text-foreground text-sm font-semibold mt-4 mb-2">Funding Instrument</h3>
                 <ManualTable
                   headers={["Variable", "Description", "Default", "Unit", "Affects"]}
                   rows={[
                     ["fundingSourceLabel", "Label for funding instrument type", "SAFE", "text", "Mgmt Co."],
-                    ["safeTranche1Amount", "Amount of first SAFE tranche", "$1,000,000", "$", "Mgmt Co."],
+                    ["safeTranche1Amount", "Amount of first funding tranche", "$1,000,000", "$", "Mgmt Co."],
                     ["safeTranche1Date", "Disbursement date for first tranche", "2026-06-01", "date", "Mgmt Co."],
-                    ["safeTranche2Amount", "Amount of second SAFE tranche", "$1,000,000", "$", "Mgmt Co."],
+                    ["safeTranche2Amount", "Amount of second funding tranche", "$1,000,000", "$", "Mgmt Co."],
                     ["safeTranche2Date", "Disbursement date for second tranche", "2027-04-01", "date", "Mgmt Co."],
-                    ["safeValuationCap", "Max pre-money valuation for SAFE conversion", "$2,500,000", "$", "Mgmt Co."],
-                    ["safeDiscountRate", "Discount rate for SAFE equity conversion", "20%", "%", "Mgmt Co."],
+                    ["safeValuationCap", "Max pre-money valuation for funding conversion", "$2,500,000", "$", "Mgmt Co."],
+                    ["safeDiscountRate", "Discount rate for funding equity conversion", "20%", "%", "Mgmt Co."],
                   ]}
                 />
                 <h3 className="text-foreground text-sm font-semibold mt-4 mb-2">Partner Compensation (per year)</h3>
@@ -568,7 +568,7 @@ export default function CheckerManual({ embedded }: { embedded?: boolean }) {
                 <ManualTable
                   headers={["Rule #", "Name", "Description"]}
                   rows={[
-                    ["BR-1", "SAFE Funding Gate", "Tranche 1 must be received before Management Company can begin operations"],
+                    ["BR-1", "Funding Gate", "Tranche 1 must be received before Management Company can begin operations"],
                     ["BR-2", "Fee Linkage", "Management fees appear as expense on Property IS and revenue on Company IS — must net to zero in consolidated view"],
                     ["BR-3", "Stabilization Prerequisite", "Refinancing cannot occur until property reaches stabilized occupancy"],
                     ["BR-4", "Balance Sheet Identity", "Assets = Liabilities + Equity must hold every period for every property"],
@@ -593,7 +593,7 @@ export default function CheckerManual({ embedded }: { embedded?: boolean }) {
                     ["Balance Sheet", "Property", "Assets, Liabilities, Equity", "ASC 360"],
                     ["Cash Flow", "Property", "CFO, CFI, CFF, Net Change", "ASC 230"],
                     ["Income Statement", "Company", "Fee Revenue, OpEx, Net Income", "—"],
-                    ["Cash Flow", "Company", "Net Income, SAFE Funding", "—"],
+                    ["Cash Flow", "Company", "Net Income, Funding", "—"],
                     ["Consolidated IS", "Portfolio", "Sum across all properties", "ASC 810"],
                     ["Consolidated CF", "Portfolio", "Aggregated cash flows", "ASC 810"],
                     ["Investment Analysis", "Both", "FCF, FCFE, IRR, MOIC", "—"],
@@ -874,7 +874,7 @@ export default function CheckerManual({ embedded }: { embedded?: boolean }) {
                     ["F-C-02", "Incentive Fee Revenue", "Σ(max(0, Property GOP × Incentive Rate))", "No cross-subsidy; per-property"],
                     ["F-C-03", "Total Revenue", "Base + Incentive", "Gross management company revenue"],
                     ["F-C-04", "Net Income", "Revenue − Expenses", "Bottom line after all costs"],
-                    ["F-C-05", "Cash Flow", "Net Income + SAFE Funding", "Operating cash plus funding tranches"],
+                    ["F-C-05", "Cash Flow", "Net Income + Funding", "Operating cash plus funding tranches"],
                   ]}
                 />
               </SectionCard>
@@ -1015,7 +1015,7 @@ export default function CheckerManual({ embedded }: { embedded?: boolean }) {
                     ["Refi Proceeds", "Net cash from refinancing = New Loan − Old Balance − Costs", "F-F-07", "Financing"],
                     ["RevPAR", "Revenue Per Available Room = ADR × Occupancy", "—", "Revenue"],
                     ["Room Revenue", "ADR × Sold Rooms", "F-P-03", "Revenue"],
-                    ["SAFE", "Simple Agreement for Future Equity — convertible instrument", "F-F-10", "Funding"],
+                    ["Funding Instrument", "Convertible funding instrument (e.g., SAFE, Seed, Series A)", "F-F-10", "Funding"],
                     ["Scenario", "Saved snapshot of all assumptions and property configurations", "—", "System"],
                     ["SPV (Special Purpose Vehicle)", "Legal entity isolating each property's financial risk", "—", "Legal"],
                     ["Stabilization", "Period when property reaches target occupancy (12–24 months)", "—", "Operations"],

@@ -13,8 +13,8 @@ const rounding: RoundingPolicy = { precision: 2, bankers_rounding: false };
  * Company Ops Start: 2026-06-01
  *
  * Tranches:
- *   1. "SAFE Tranche 1": $1,000,000 on 2026-06-01 → OpCo
- *   2. "SAFE Tranche 2": $500,000 on 2027-01-01 → OpCo
+ *   1. "Funding Tranche 1": $1,000,000 on 2026-06-01 → OpCo
+ *   2. "Funding Tranche 2": $500,000 on 2027-01-01 → OpCo
  *   3. "Property A Equity": $800,000 on_acquisition p_a → Property A
  *   4. "Property B Equity": $1,200,000 on_acquisition p_b → Property B
  *
@@ -23,10 +23,10 @@ const rounding: RoundingPolicy = { precision: 2, bankers_rounding: false };
  *   B: acq=2026-10-01, ops=2027-04-01, total=$2,000,000, loan=$800,000, equity=$1,200,000
  *
  * Expected Timeline (sorted):
- *   2026-06-01 SAFE Tranche 1 $1,000,000
+ *   2026-06-01 Funding Tranche 1 $1,000,000
  *   2026-07-01 Property A Equity $800,000
  *   2026-10-01 Property B Equity $1,200,000
- *   2027-01-01 SAFE Tranche 2 $500,000
+ *   2027-01-01 Funding Tranche 2 $500,000
  *
  * Gate Checks:
  *   OpCo: PASS (first OPCO tranche 2026-06-01 ≤ ops 2026-06-01)

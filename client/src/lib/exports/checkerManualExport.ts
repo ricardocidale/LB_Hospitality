@@ -63,7 +63,7 @@ const COMPANY_FORMULAS = [
   ["F-C-01", "Base Fee Revenue", "Σ(Property Revenue × Base Rate)"],
   ["F-C-02", "Incentive Fee Revenue", "Σ(max(0, Property GOP × Incentive Rate))"],
   ["F-C-04", "Net Income", "Total Revenue − Total Expenses"],
-  ["F-C-05", "Cash Flow", "Net Income + SAFE Funding"],
+  ["F-C-05", "Cash Flow", "Net Income + Funding"],
 ];
 
 const RETURN_FORMULAS = [
@@ -82,7 +82,7 @@ const FINANCING_FORMULAS = [
 ];
 
 const BUSINESS_RULES = [
-  ["BC-01", "Company operations cannot begin before SAFE funding is received"],
+  ["BC-01", "Company operations cannot begin before funding is received"],
   ["BC-02", "Property cannot operate before acquisition and funding"],
   ["BC-03", "Cash balances must never go negative for any entity"],
   ["BC-04", "All properties must be debt-free at exit"],
@@ -323,10 +323,10 @@ export async function exportFullData(user: ExportUser): Promise<FullDataExportRe
     ["Fixed Cost Escalation", `${((global.fixedCostEscalationRate ?? 0.03) * 100).toFixed(1)}%`],
     ["Base Management Fee", `${((global.baseManagementFee ?? 0.05) * 100).toFixed(1)}%`],
     ["Incentive Management Fee", `${((global.incentiveManagementFee ?? 0.15) * 100).toFixed(1)}%`],
-    ["SAFE Tranche 1", formatMoney(global.safeTranche1Amount ?? 0)],
-    ["SAFE Tranche 1 Date", global.safeTranche1Date || "—"],
-    ["SAFE Tranche 2", formatMoney(global.safeTranche2Amount ?? 0)],
-    ["SAFE Tranche 2 Date", global.safeTranche2Date || "—"],
+    ["Funding Tranche 1", formatMoney(global.safeTranche1Amount ?? 0)],
+    ["Funding Tranche 1 Date", global.safeTranche1Date || "—"],
+    ["Funding Tranche 2", formatMoney(global.safeTranche2Amount ?? 0)],
+    ["Funding Tranche 2 Date", global.safeTranche2Date || "—"],
     ["Exit Cap Rate", `${((global.exitCapRate ?? 0.08) * 100).toFixed(1)}%`],
     ["Sales Commission", `${((global.salesCommissionRate ?? 0.02) * 100).toFixed(1)}%`],
     ["Company Tax Rate", `${((global.companyTaxRate ?? 0.21) * 100).toFixed(1)}%`],
@@ -405,7 +405,7 @@ export async function exportFullData(user: ExportUser): Promise<FullDataExportRe
       ["Total Revenue", ...companyYearly.totalRevenue.map(v => formatMoney(v))],
       ["Total Expenses", ...companyYearly.totalExpenses.map(v => formatMoney(v))],
       ["Net Income", ...companyYearly.netIncome.map(v => formatMoney(v))],
-      ["SAFE Funding", ...companyYearly.safeFunding.map(v => formatMoney(v))],
+      ["Funding Received", ...companyYearly.safeFunding.map(v => formatMoney(v))],
       ["Ending Cash", ...companyYearly.endingCash.map(v => formatMoney(v))],
     ]);
     includedStatements.push("Management Company — Summary");

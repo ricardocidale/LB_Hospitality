@@ -227,17 +227,17 @@ export default function Methodology({ embedded }: { embedded?: boolean }) {
                     <li>&#8226; Staff costs scale with property count (tiered)</li>
                     <li>&#8226; Fixed costs: office, insurance, professional services</li>
                     <li>&#8226; Variable costs: travel, IT, marketing</li>
-                    <li>&#8226; SAFE funding for working capital</li>
+                    <li>&#8226; Funding instrument for working capital</li>
                   </ul>
                 </div>
               </div>
 
               <div className="bg-muted/50 rounded-lg p-4">
-                <h4 className="font-semibold mb-2">SAFE Funding</h4>
+                <h4 className="font-semibold mb-2">Funding Instrument</h4>
                 <p className="text-sm text-muted-foreground">
-                  The management company is initially funded through SAFE (Simple Agreement for Future Equity) tranches
+                  The management company is initially funded through capital tranches
                   that provide working capital until management fee revenue is sufficient to cover operating expenses.
-                  SAFE funding appears as cash inflows but is <strong>not</strong> recorded as revenue — it represents
+                  Funding instrument capital appears as cash inflows but is <strong>not</strong> recorded as revenue — it represents
                   future equity, not income.
                 </p>
               </div>
@@ -264,7 +264,7 @@ export default function Methodology({ embedded }: { embedded?: boolean }) {
               <Callout severity="critical" variant="light" title="1. Management Company Funding Gate">
                 <p>
                   Operations of the Management Company cannot begin before funding is received. The company requires
-                  SAFE funding tranches to cover startup costs (staff, office, professional services) before management
+                  Funding tranches to cover startup costs (staff, office, professional services) before management
                   fee revenue begins flowing from properties.
                 </p>
                 <p className="mt-2">
@@ -420,9 +420,8 @@ export default function Methodology({ embedded }: { embedded?: boolean }) {
               <div className="bg-muted/50 rounded-lg p-4">
                 <h4 className="font-semibold mb-2">Management Company Funding</h4>
                 <p className="text-sm text-muted-foreground">
-                  The management company receives capital from private equity through <strong>SAFE (Simple Agreement
-                  for Future Equity)</strong> tranches — scheduled or conditional funding rounds that provide working
-                  capital until management fee revenue covers operating expenses. SAFE funding is recorded as a cash
+                  The management company receives capital through a <strong>funding instrument</strong> — scheduled or conditional funding rounds that provide working
+                  capital until management fee revenue covers operating expenses. Funding is recorded as a cash
                   inflow but is <strong>not</strong> revenue — it represents future equity, not income.
                 </p>
               </div>
@@ -451,7 +450,7 @@ export default function Methodology({ embedded }: { embedded?: boolean }) {
                       <li>&#8226; Inflation and escalation rates</li>
                       <li>&#8226; Shared cost growth rates</li>
                       <li>&#8226; Tax and macro parameters</li>
-                      <li>&#8226; SAFE funding schedule</li>
+                      <li>&#8226; Funding schedule</li>
                       <li>&#8226; Partner compensation</li>
                     </ul>
                   </div>
@@ -1109,9 +1108,9 @@ export default function Methodology({ embedded }: { embedded?: boolean }) {
               </div>
 
               <div className="bg-muted/50 rounded-lg p-4">
-                <h4 className="font-semibold mb-2">SAFE Funding</h4>
+                <h4 className="font-semibold mb-2">Funding Instrument</h4>
                 <p className="text-sm text-muted-foreground">
-                  The management company is funded through SAFE (Simple Agreement for Future Equity) tranches.
+                  The management company is funded through capital tranches.
                   These appear as cash inflows in the cash flow statement but are not recorded as revenue.
                   The funding provides working capital until the company becomes profitable from management fees.
                 </p>

@@ -13,7 +13,7 @@ const rounding: RoundingPolicy = { precision: 2, bankers_rounding: false };
  *   Events → Statements → FCF → Return Metrics
  *
  * Events:
- *   1. FUNDING: 2026-06-01, OpCo, $1,000,000 equity
+ *   1. FUNDING: 2026-06-01, OpCo, $1,000,000 equity (funding instrument)
  *   2. ACQUISITION: 2026-07-01, Property A ($1.5M asset, $1M debt, $20K closing, $520K equity)
  *   3. DEBT_SERVICE: 2026-08-01, Interest $7,500 + Principal $2,500
  *   4. EXIT: 2026-12-01, Property A sale $1,800,000 gross, repay $997,500 debt
@@ -34,7 +34,7 @@ describe("golden — events → statements → FCF → returns", () => {
       date: "2026-06-01",
       entity_id: "opco",
       journal_deltas: [
-        { account: "CASH", debit: 1_000_000, credit: 0, classification: "BS_ASSET", cash_flow_bucket: "FINANCING", memo: "SAFE tranche" },
+        { account: "CASH", debit: 1_000_000, credit: 0, classification: "BS_ASSET", cash_flow_bucket: "FINANCING", memo: "Funding tranche" },
         { account: "EQUITY_CONTRIBUTED", debit: 0, credit: 1_000_000, classification: "BS_EQUITY", cash_flow_bucket: "FINANCING", memo: "Equity" },
       ],
     },

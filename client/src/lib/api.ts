@@ -18,7 +18,7 @@ export interface GlobalResponse {
   // Revenue
   baseManagementFee: number;
   incentiveManagementFee: number;
-  // SAFE Funding
+  // Funding Instrument
   fundingSourceLabel: string;
   safeTranche1Amount: number;
   safeTranche1Date: string;

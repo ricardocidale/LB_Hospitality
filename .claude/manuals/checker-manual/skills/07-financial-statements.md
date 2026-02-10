@@ -1,6 +1,6 @@
-# 07 — Financial Statements
+# Chapter 7: Financial Statements
 
-> This section describes the financial statement reports produced for each entity in the Hospitality Business platform. All statements are generated at **monthly granularity** and displayed at **yearly granularity** in the UI. The checker should understand each statement's structure, line items, and applicable GAAP standards.
+This chapter describes the financial statement reports produced for each entity in the platform. All statements are generated at monthly granularity and displayed at yearly granularity in the interface. The checker should understand each statement's structure, line items, and applicable GAAP standards.
 
 ---
 
@@ -16,91 +16,61 @@
 
 ## Time Period Convention
 
-| Aspect | Detail |
-|--------|--------|
-| Generation frequency | Monthly (120 months for 10-year projection) |
-| Display granularity | Yearly (10 fiscal years) |
-| Aggregation method | Sum for flow items (revenue, expenses); pick-last for stock items (ending cash, balances) |
-| Fiscal year support | Configurable fiscal year start month (default: January) |
+All financial statements are generated monthly (120 months for a 10-year projection) and displayed annually (10 fiscal years). For flow items such as revenue and expenses, monthly values are summed into annual totals. For stock items such as ending cash and outstanding balances, the last monthly value within the fiscal year is used. The fiscal year start month is configurable, with a default of January.
 
 ---
 
 ## 1. Property-Level Income Statement
 
-The Income Statement follows the **USALI (Uniform System of Accounts for the Lodging Industry)** departmental structure, with below-the-line items added for financing and tax effects.
+The Income Statement follows the USALI (Uniform System of Accounts for the Lodging Industry) departmental structure, with below-the-line items added for financing and tax effects.
 
-### Structure
+### Revenue Section
 
-| Section | Line Items | Formula Reference |
-|---------|-----------|-------------------|
-| **Revenue** | | `formulas/property-financials.md` §1 |
-| | Room Revenue | Sold Rooms × ADR |
-| | F&B Revenue | Room Revenue × F&B Revenue Share |
-| | Events Revenue | Room Revenue × Events Revenue Share |
-| | Other Revenue | Room Revenue × Other Revenue Share |
-| | **Total Revenue** | Sum of all revenue streams |
-| **Departmental Expenses** | | `formulas/property-financials.md` §2 |
-| | Rooms Expense | Total Revenue × Cost Rate (Rooms) |
-| | F&B Expense | Total Revenue × Cost Rate (F&B) |
-| | Events Expense | Events Revenue × Event Expense Rate |
-| | Other Expense | Other Revenue × Other Expense Rate |
-| **Undistributed Operating Expenses** | | `formulas/property-financials.md` §2 |
-| | Administrative & General | Total Revenue × Cost Rate (Admin) |
-| | Marketing | Total Revenue × Cost Rate (Marketing) |
-| | Property Operations & Maintenance | Total Revenue × Cost Rate (Property Ops) |
-| | Utilities (Variable + Fixed) | Total Revenue × Cost Rate (Utilities) + Fixed |
-| | IT & Telecom | Total Revenue × Cost Rate (IT) |
-| **Fixed Charges** | | |
-| | Insurance | Total Revenue × Cost Rate (Insurance) |
-| | Property Taxes | Total Revenue × Cost Rate (Taxes) |
-| | FF&E Reserve | Total Revenue × Cost Rate (FF&E) |
-| **Management Fees** | | `formulas/company-financials.md` §1 |
-| | Base Management Fee | Total Revenue × Base Mgmt Fee Rate |
-| | Incentive Management Fee | max(0, GOP × Incentive Fee Rate) |
-| **Profitability Metrics** | | `formulas/property-financials.md` §3 |
-| | **Total Operating Expenses** | Sum of all expense categories |
-| | **Gross Operating Profit (GOP)** | Total Revenue − Departmental & Undistributed Expenses |
-| | **Net Operating Income (NOI)** | GOP − Fixed Charges − Management Fees |
-| **Below-the-Line** | | `formulas/property-financials.md` §4 |
-| | Interest Expense | From amortization schedule (ASC 470) |
-| | Depreciation | Building Value ÷ 39 years (ASC 360) |
-| | Income Tax | Taxable Income × Tax Rate |
-| | **Net Income** | NOI − Interest − Depreciation − Tax |
+The revenue section begins with Room Revenue, calculated as Sold Rooms multiplied by ADR. Three ancillary revenue streams follow: F&B Revenue (Room Revenue × F&B Revenue Share), Events Revenue (Room Revenue × Events Revenue Share), and Other Revenue (Room Revenue × Other Revenue Share). Total Revenue is the sum of all four streams.
+
+### Departmental Expenses
+
+Direct departmental expenses include Rooms Expense (Total Revenue × rooms cost rate), F&B Expense (Total Revenue × F&B cost rate), Events Expense (Events Revenue × event expense rate), and Other Expense (Other Revenue × other expense rate).
+
+### Undistributed Operating Expenses
+
+Undistributed expenses include Administrative & General, Sales & Marketing, Property Operations & Maintenance, Utilities, and IT & Telecom. Each is calculated as Total Revenue multiplied by the corresponding cost rate.
+
+### Fixed Charges
+
+Fixed charges include Insurance, Property Taxes, and the FF&E Reserve — all calculated as percentages of Total Revenue.
+
+### Management Fees
+
+The Base Management Fee equals Total Revenue multiplied by the base fee rate. The Incentive Management Fee equals the greater of zero and GOP multiplied by the incentive fee rate.
+
+### Profitability Metrics
+
+- **Gross Operating Profit (GOP)** = Total Revenue − Departmental Expenses − Undistributed Expenses
+- **Net Operating Income (NOI)** = GOP − Fixed Charges − Management Fees
+
+### Below-the-Line Items
+
+- **Interest Expense** — from the amortization schedule, per ASC 470
+- **Depreciation** — building value divided by 27.5 years, per ASC 360
+- **Income Tax** — taxable income multiplied by the tax rate
+- **Net Income** = NOI − Interest − Depreciation − Income Tax
 
 ---
 
 ## 2. Property-Level Cash Flow Statement (ASC 230 — Indirect Method)
 
-The Cash Flow Statement reconciles Net Income to actual cash movement using the indirect method per ASC 230.
+The Cash Flow Statement reconciles Net Income to actual cash movement using the indirect method per ASC 230. It is organized into three sections.
 
-### Structure
+**Cash from Operations (CFO)** includes Total Revenue, less operating expenses (excluding FF&E), less interest expense, less income tax. Net CFO represents the cash generated by core hotel operations.
 
-| Section | Line Items | Formula Reference |
-|---------|-----------|-------------------|
-| **Cash from Operations (CFO)** | | `formulas/property-financials.md` §5 |
-| | Total Revenue | All revenue streams |
-| | Less: Operating Expenses (ex-FF&E) | All operating costs excluding FF&E reserve |
-| | Less: Interest Expense | Per amortization schedule |
-| | Less: Income Tax | Per tax calculation |
-| | **Net CFO** | Revenue − OpEx − Interest − Tax |
-| **Cash from Investing (CFI)** | | `formulas/property-financials.md` §6 |
-| | Property Acquisition | (Year 0 only) Total Property Cost as outflow |
-| | FF&E / Capital Expenditures | Annual FF&E reserve spending |
-| | Exit / Sale Proceeds | (Terminal year only) Net disposition value |
-| | **Net CFI** | −Acquisition − FF&E + Exit Proceeds |
-| **Cash from Financing (CFF)** | | `formulas/funding-financing-refi.md` §1–3 |
-| | Equity Contribution | (Year 0 only) Sponsor equity injection |
-| | Loan Proceeds | (Year 0 only) Acquisition debt drawn |
-| | Principal Repayment | Monthly principal portion of debt service |
-| | Refinancing Net Proceeds | (Refi year only) New loan − old balance − costs |
-| | **Net CFF** | Equity + Loan − Principal + Refi Proceeds |
-| **Summary** | | |
-| | **Net Change in Cash** | CFO + CFI + CFF |
-| | Opening Cash Balance | Prior period ending cash |
-| | **Closing Cash Balance** | Opening + Net Change |
-| **Investment Metrics** | | `formulas/dcf-fcf-irr.md` §1–2 |
-| | Free Cash Flow (FCF) | CFO − FF&E CapEx |
-| | Free Cash Flow to Equity (FCFE) | FCF − Principal Repayment |
+**Cash from Investing (CFI)** includes the property acquisition cost (Year 0 only, as an outflow), annual FF&E capital expenditures, and exit/sale proceeds (terminal year only, as an inflow).
+
+**Cash from Financing (CFF)** includes the equity contribution (Year 0), loan proceeds (Year 0), monthly principal repayment, and any refinancing net proceeds.
+
+The **Summary** section presents the Net Change in Cash (CFO + CFI + CFF), the Opening Cash Balance (prior period ending cash), and the Closing Cash Balance (Opening + Net Change).
+
+**Investment Metrics** are also presented on the Cash Flow Statement: Free Cash Flow (FCF) equals CFO minus FF&E capital expenditures, and Free Cash Flow to Equity (FCFE) equals FCF minus principal repayment.
 
 ---
 
@@ -108,24 +78,13 @@ The Cash Flow Statement reconciles Net Income to actual cash movement using the 
 
 The Balance Sheet presents a point-in-time snapshot of the property SPV's financial position at each year-end.
 
-### Structure
+**Assets** include Cash & Cash Equivalents (the closing cash from the Cash Flow Statement), Property at gross value (Purchase Price + Building Improvements), less Accumulated Depreciation (cumulative depreciation per ASC 360), yielding Net Property. Total Assets equal Cash plus Net Property.
 
-| Section | Line Items | Notes |
-|---------|-----------|-------|
-| **Assets** | | |
-| | Cash & Cash Equivalents | Closing cash from Cash Flow Statement |
-| | Property (Gross) | Purchase Price + Building Improvements |
-| | Less: Accumulated Depreciation | Cumulative depreciation (ASC 360) |
-| | Property (Net) | Gross − Accumulated Depreciation |
-| | **Total Assets** | Cash + Net Property |
-| **Liabilities** | | |
-| | Outstanding Loan Balance | Per amortization schedule (acquisition or refi) |
-| | **Total Liabilities** | Outstanding loan balance |
-| **Owners' Equity** | | |
-| | Contributed Equity | Initial equity investment |
-| | Retained Earnings | Cumulative net income + refi distributions |
-| | **Total Equity** | Contributed + Retained |
-| **Check** | **Total Assets = Total Liabilities + Total Equity** | Must balance every period |
+**Liabilities** consist of the Outstanding Loan Balance per the amortization schedule (acquisition or refinance loan).
+
+**Owners' Equity** comprises Contributed Equity (the initial equity investment) and Retained Earnings (cumulative net income plus any refinance distributions). Total Equity equals Contributed Equity plus Retained Earnings.
+
+The fundamental check is that Total Assets must equal Total Liabilities plus Total Equity in every period.
 
 ---
 
@@ -133,39 +92,19 @@ The Balance Sheet presents a point-in-time snapshot of the property SPV's financ
 
 The Management Company earns fees from managing the property portfolio and incurs its own operating costs.
 
-### Structure
+**Revenue** consists of Base Management Fees (summed across all properties) and Incentive Management Fees (summed across all properties). Total Fee Revenue is the sum of both.
 
-| Section | Line Items | Formula Reference |
-|---------|-----------|-------------------|
-| **Revenue** | | `formulas/company-financials.md` §1 |
-| | Base Management Fees | Sum across all properties |
-| | Incentive Management Fees | Sum across all properties |
-| | **Total Fee Revenue** | Base + Incentive |
-| **Operating Expenses** | | `formulas/company-financials.md` §2 |
-| | Partner Compensation | Per-partner salary × partner count (by year) |
-| | Staff Salaries | FTE count × salary (tiered by portfolio size) |
-| | Office Lease | Fixed annual cost with escalation |
-| | Professional Services | Legal, accounting, consulting |
-| | Technology Infrastructure | Software, hosting, IT systems |
-| | Business Insurance | Corporate insurance |
-| | Travel | Per-property travel cost × property count |
-| | IT Licenses | Per-property license cost × property count |
-| | Marketing | Total Fee Revenue × Marketing Rate |
-| | Miscellaneous Operations | Total Fee Revenue × Misc Ops Rate |
-| | **Total Expenses** | Sum of all company operating costs |
-| **Profitability** | | |
-| | **Net Operating Income** | Total Fee Revenue − Total Expenses |
-| | SAFE Dilution Payments | If applicable, based on SAFE funding terms |
-| | **Net Income** | NOI − SAFE payments |
+**Operating Expenses** include Partner Compensation (configurable per year), Staff Salaries (tiered by portfolio size), Office Lease, Professional Services, Technology Infrastructure, Business Insurance, Travel (per property), IT Licenses (per property), Marketing (percentage of portfolio revenue), and Miscellaneous Operations (percentage of portfolio revenue).
+
+**Profitability** is measured as Net Operating Income (Total Fee Revenue minus Total Expenses), less any SAFE dilution payments if applicable, yielding Net Income.
 
 ---
 
-## 5. Management Company Cash Flow Statement & Balance Sheet
+## 5. Management Company Cash Flow Statement and Balance Sheet
 
-| Statement | Key Characteristics |
-|-----------|-------------------|
-| Cash Flow | Simplified: operating cash = Net Income (no depreciation or major non-cash items); financing cash includes SAFE tranche inflows |
-| Balance Sheet | Assets = Cash; Liabilities = SAFE obligations; Equity = Retained Earnings |
+The Management Company Cash Flow Statement is simplified: operating cash equals Net Income (there is no depreciation or other major non-cash items), and financing cash includes SAFE tranche inflows on their respective disbursement dates.
+
+The Management Company Balance Sheet is also straightforward: Assets consist of Cash; Liabilities consist of SAFE obligations; and Equity consists of Retained Earnings.
 
 ---
 
@@ -173,46 +112,28 @@ The Management Company earns fees from managing the property portfolio and incur
 
 Consolidated statements aggregate across all entities to present the total portfolio view.
 
-| Statement | Aggregation Method | Notes |
-|-----------|--------------------|-------|
-| Aggregated Income Statement | Sum revenue and expenses across all properties | Eliminates inter-entity management fees (property expense = company revenue) |
-| Aggregated Cash Flow | Sum CFO, CFI, CFF across all properties + Management Company | Shows total portfolio cash generation |
-| Consolidated Balance Sheet | Sum assets, liabilities, equity across all entities | Inter-entity balances eliminated |
+The Aggregated Income Statement sums revenue and expenses across all properties. The Aggregated Cash Flow sums CFO, CFI, and CFF across all properties plus the Management Company. The Consolidated Balance Sheet sums assets, liabilities, and equity across all entities.
 
 ### Elimination Entries
 
-Management fees are an **intra-group transaction** — they appear as expense on the property IS and revenue on the company IS. In consolidation, these are eliminated:
+Management fees are an intra-group transaction — they appear as an expense on the property income statement and as revenue on the Management Company income statement. In consolidation, these are eliminated to avoid double-counting:
 
-```
-Consolidated Revenue = Σ Property Revenue  (management fees excluded)
-                     + Σ External Company Revenue (if any)
-
-Consolidated Expenses = Σ Property OpEx (ex-mgmt fees)
-                      + Σ Company OpEx
-```
+> Consolidated Revenue = Σ Property Revenue (management fees excluded) + Σ External Company Revenue
+>
+> Consolidated Expenses = Σ Property Operating Expenses (excluding management fees) + Σ Company Operating Expenses
 
 ---
 
 ## 7. Investment Analysis Metrics
 
-These metrics evaluate return on invested capital across the projection period.
+These metrics evaluate return on invested capital across the projection period:
 
-| Metric | Formula | Reference |
-|--------|---------|-----------|
-| Free Cash Flow (FCF) | CFO − FF&E Capital Expenditures | `formulas/dcf-fcf-irr.md` §1 |
-| Free Cash Flow to Equity (FCFE) | FCF − Principal Repayment | `formulas/dcf-fcf-irr.md` §2 |
-| Internal Rate of Return (IRR) | Discount rate where NPV of equity cash flows = 0 | `formulas/dcf-fcf-irr.md` §3 |
-| Equity Multiple | Total Cash Distributions ÷ Total Equity Invested | `formulas/dcf-fcf-irr.md` §5 |
+- **Free Cash Flow (FCF)** = CFO minus FF&E Capital Expenditures
+- **Free Cash Flow to Equity (FCFE)** = FCF minus Principal Repayment
+- **Internal Rate of Return (IRR)** = The discount rate that sets the NPV of equity cash flows to zero
+- **Equity Multiple** = Total Cash Distributions divided by Total Equity Invested
 
-### IRR Cash Flow Series
-
-The IRR is calculated on the following cash flow series:
-
-| Year | Cash Flow Components |
-|------|---------------------|
-| Year 0 | −Equity Invested (negative, outflow) |
-| Years 1–(N−1) | FCFE (operating cash after debt service) + Refi Proceeds (if any) |
-| Year N (terminal) | FCFE + Net Exit Proceeds |
+The IRR is calculated on the following cash flow series: Year 0 consists of the negative equity investment (outflow), Years 1 through N−1 consist of FCFE plus any refinance proceeds, and Year N (the terminal year) consists of FCFE plus net exit proceeds.
 
 ---
 
@@ -220,61 +141,33 @@ The IRR is calculated on the following cash flow series:
 
 ### ASC 230 — Statement of Cash Flows
 
-| Requirement | Implementation |
-|-------------|---------------|
-| Method | Indirect method (start from net income, adjust for non-cash items) |
-| Three sections | Operating, Investing, Financing activities |
-| Interest classification | Operating activity (per ASC 230-10-45-17) |
-| Principal classification | Financing activity |
-| Acquisition costs | Investing activity |
-| Non-cash adjustment | Add back depreciation to operating cash flow |
+The platform uses the indirect method, starting from net income and adjusting for non-cash items. Cash flows are classified into three sections: Operating, Investing, and Financing. Interest is classified as an operating activity (per ASC 230-10-45-17), principal as a financing activity, and acquisition costs as an investing activity. Depreciation is added back to operating cash flow as a non-cash adjustment.
 
 ### ASC 360 — Property, Plant, and Equipment
 
-| Requirement | Implementation |
-|-------------|---------------|
-| Depreciable basis | Building value only (land excluded per IRS Pub 946) |
-| Building value | Purchase Price × (1 − Land Value %) + Building Improvements |
-| Useful life | 39 years (commercial real property, straight-line) |
-| Annual depreciation | Building Value ÷ 39 |
-| Accumulated depreciation | Cumulative sum of annual depreciation |
+The depreciable basis includes building value only, with land excluded per IRS Publication 946. Building value equals the purchase price multiplied by (1 − land value percent), plus building improvements. The useful life is 27.5 years using straight-line depreciation. Accumulated depreciation is the cumulative sum of annual depreciation.
 
 ### ASC 470 — Debt
 
-| Requirement | Implementation |
-|-------------|---------------|
-| Classification | Long-term liability on Balance Sheet |
-| Interest | Expense on Income Statement |
-| Principal | Cash Flow Statement only (financing activity) |
-| Refinancing | Old debt derecognized, new debt recognized at fair value |
-| Amortization | Standard mortgage amortization schedule |
+Debt is classified as a long-term liability on the Balance Sheet. Interest appears as an expense on the Income Statement. Principal appears on the Cash Flow Statement only, as a financing activity. At refinancing, the old debt is derecognized and the new debt is recognized at fair value. Amortization follows a standard mortgage amortization schedule.
 
 ### USALI — Uniform System of Accounts for the Lodging Industry
 
-USALI provides the standard chart of accounts and departmental expense structure for the hospitality industry.
+USALI provides the standard chart of accounts and departmental expense structure for the hospitality industry. Departmental revenue is tracked separately for Rooms, F&B, Events, and Other. Departmental expenses are allocated directly by department. Undistributed operating expenses include A&G, Marketing, Property Operations, Utilities, and IT. Fixed charges include Insurance, Property Taxes, and the FF&E Reserve. GOP equals Revenue minus Departmental minus Undistributed expenses, and NOI equals GOP minus Fixed Charges minus Management Fees.
 
-| USALI Concept | Platform Implementation |
-|---------------|----------------------|
-| Departmental revenue | Rooms, F&B, Events, Other — each tracked separately |
-| Departmental expenses | Direct costs allocated by department (Rooms, F&B, Events) |
-| Undistributed operating expenses | A&G, Marketing, Property Ops, Utilities, IT |
-| Fixed charges | Insurance, Property Taxes, FF&E Reserve |
-| Gross Operating Profit (GOP) | Revenue − Departmental − Undistributed expenses |
-| Net Operating Income (NOI) | GOP − Fixed Charges − Management Fees |
-
-> **Checker note:** Verify that the Income Statement line item order matches USALI standards. Departmental expenses should appear before undistributed expenses, followed by fixed charges, then management fees, then below-the-line items (interest, depreciation, tax).
+The checker should verify that the Income Statement line item order matches USALI standards: departmental expenses appear before undistributed expenses, followed by fixed charges, then management fees, then below-the-line items (interest, depreciation, tax).
 
 ---
 
 ## Checker Verification Summary
 
-| Verification | What to Check | Reference |
-|-------------|---------------|-----------|
-| IS structure | Line items follow USALI order | This file |
-| CF three-section split | CFO + CFI + CFF = Net Change | `formulas/property-financials.md` §5–6 |
-| BS balance | Assets = Liabilities + Equity every year | `tools/balance-sheet-checks.json` |
-| Fee linkage | Property fee expense = Company fee revenue | `tools/fee-linkage-checks.json` |
-| Depreciation | Building Value ÷ 39, land excluded | `formulas/property-financials.md` §4 |
-| Interest vs. Principal | Interest → IS, Principal → CFF only | ASC 470 |
-| Consolidation eliminations | Mgmt fees eliminated in consolidated view | This file §6 |
-| IRR inputs | Equity outflow Year 0, FCFE + exit Year N | `formulas/dcf-fcf-irr.md` §3 |
+| Verification | What to Check |
+|-------------|---------------|
+| Income Statement structure | Line items follow USALI order |
+| Cash Flow three-section split | CFO + CFI + CFF = Net Change in Cash |
+| Balance Sheet balance | Assets = Liabilities + Equity every year |
+| Fee linkage | Property fee expense = Company fee revenue |
+| Depreciation | Building value ÷ 27.5 years, land excluded |
+| Interest vs. Principal | Interest → Income Statement; Principal → CFF only |
+| Consolidation eliminations | Management fees eliminated in consolidated view |
+| IRR inputs | Equity outflow Year 0, FCFE plus exit proceeds Year N |

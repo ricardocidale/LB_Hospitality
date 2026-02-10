@@ -1,36 +1,48 @@
-# Management Company Financials
+# Chapter 14: Management Company Financials
 
-## Section ID: `management-company`
+The management company — Hospitality Business Co. — is modeled as a standalone business entity with its own revenue, expenses, and profitability profile. Its financial health determines whether the management platform is self-sustaining and capable of supporting portfolio growth.
 
-## Content Summary
-Hospitality Business Co. financial model:
+## Revenue
 
-### Revenue
-- **Base Management Fee**: `baseManagementFee` (default 5%) × Total Portfolio Revenue
-- **Incentive Fee**: `incentiveManagementFee` (default 15%) × GOP above threshold
-- Revenue only starts after `companyOpsStartDate`
+The management company earns revenue from two sources, both tied directly to the performance of the properties it manages:
 
-### Expenses
-- **Staff**: FTE count × `DEFAULT_STAFF_SALARY` ($75,000/yr)
-- **Office Lease**: `DEFAULT_OFFICE_LEASE` ($36,000/yr)
-- **Professional Services**: `DEFAULT_PROFESSIONAL_SERVICES` ($24,000/yr)
-- **Technology**: `DEFAULT_TECH_INFRA` ($18,000/yr)
-- **Insurance**: `DEFAULT_BUSINESS_INSURANCE` ($12,000/yr)
-- **Travel**: `DEFAULT_TRAVEL_PER_CLIENT` ($12,000/yr) × active properties
-- **IT Licenses**: `DEFAULT_IT_LICENSE_PER_CLIENT` ($3,000/yr) × active properties
-- **Marketing**: `DEFAULT_MARKETING_RATE` (5%) × revenue
-- **Misc Ops**: `DEFAULT_MISC_OPS_RATE` (3%) × revenue
-- **Partner Compensation**: Per-year schedule from `DEFAULT_PARTNER_COMP`
+**Base management fee** is calculated at 5% of the total portfolio revenue. This fee provides a stable revenue base that grows as the portfolio expands and as individual properties increase their top-line performance.
 
-### Staffing Tiers
-Dynamic FTE based on active property count (configurable in global assumptions):
-- Tier 1: Up to 3 properties → 2.5 FTE
-- Tier 2: Up to 6 properties → 4.5 FTE
-- Tier 3: 7+ properties → 7.0 FTE
+**Incentive management fee** is calculated at 15% of gross operating profit above a defined threshold. This performance-based fee rewards the management company when properties exceed profitability expectations, aligning management incentives with investor outcomes.
 
-### Funding Gate
-Company operations gated on SAFE funding receipt. `DEFAULT_SAFE_TRANCHE` ($800,000).
+Revenue only begins after the company's operations start date, which is gated on receipt of initial funding.
 
-## Cross-References
-- Formulas: `.claude/manuals/checker-manual/formulas/company-financials.md`
-- Constants: `DEFAULT_STAFF_SALARY`, `STAFFING_TIERS`, `DEFAULT_SAFE_TRANCHE`
+## Operating Expenses
+
+The management company carries the following expense structure:
+
+| Expense | Default Amount |
+|---------|---------------|
+| Staff salaries | FTE count × $75,000 per year |
+| Office lease | $36,000 per year |
+| Professional services | $24,000 per year |
+| Technology infrastructure | $18,000 per year |
+| Business insurance | $12,000 per year |
+| Travel | $12,000 per year per active property |
+| IT licenses | $3,000 per year per active property |
+| Marketing | 5% of management company revenue |
+| Miscellaneous operations | 3% of management company revenue |
+| Partner compensation | Per-year schedule (configurable) |
+
+Note that travel and IT license costs scale with the number of active properties in the portfolio, reflecting the incremental cost of managing additional assets. Marketing and miscellaneous operations scale as a percentage of the management company's own revenue.
+
+## Staffing Tiers
+
+The management company's staffing requirements grow with the portfolio. Full-time equivalent (FTE) headcount is determined by the number of active properties, using three tiers that can be configured in the global assumptions:
+
+| Portfolio Size | Default FTE |
+|---------------|------------|
+| Up to 3 properties | 2.5 FTE |
+| 4 to 6 properties | 4.5 FTE |
+| 7 or more properties | 7.0 FTE |
+
+These tiers reflect the operational reality that a small portfolio can be managed by a lean team, while a larger portfolio requires dedicated staff for asset management, accounting, operations oversight, and investor relations.
+
+## Funding Gate
+
+The management company cannot begin operations — and therefore cannot generate revenue or incur operating expenses — until it has received its initial SAFE funding. The default SAFE tranche is $800,000, which provides the working capital needed to establish the management infrastructure before the first property acquisition closes.

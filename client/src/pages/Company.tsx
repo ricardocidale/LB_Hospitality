@@ -3,12 +3,11 @@ import domtoimage from 'dom-to-image-more';
 import { ExportDialog } from "@/components/ExportDialog";
 import Layout from "@/components/Layout";
 import { useProperties, useGlobalAssumptions } from "@/lib/api";
-import { generateCompanyProForma, generatePropertyProForma, formatMoney, getFiscalYearForModelYear } from "@/lib/financialEngine";
+import { generateCompanyProForma, generatePropertyProForma, formatMoney, getFiscalYearForModelYear, CompanyMonthlyFinancials } from "@/lib/financialEngine";
 import { PROJECTION_YEARS, STAFFING_TIERS, OPERATING_RESERVE_BUFFER, COMPANY_FUNDING_BUFFER } from "@/lib/constants";
 import { Tabs, TabsContent, DarkGlassTabs } from "@/components/ui/tabs";
-import { FileText, Banknote, Scale } from "lucide-react";
+import { FileText, Banknote, Scale, Users, Briefcase, TrendingUp, Settings2, Loader2, ChevronRight, ChevronDown, FileDown, FileSpreadsheet, ImageIcon, AlertTriangle, CheckCircle } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Users, Briefcase, TrendingUp, Settings2, Loader2, ChevronRight, ChevronDown, FileDown, FileSpreadsheet, ImageIcon, AlertTriangle, CheckCircle } from "lucide-react";
 import { FinancialChart } from "@/components/ui/financial-chart";
 import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
 import { CalcDetailsProvider } from "@/components/financial-table-rows";
@@ -22,7 +21,6 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { drawLineChart } from "@/lib/pdfChartDrawer";
 import { format } from "date-fns";
-import { CompanyMonthlyFinancials } from "@/lib/financialEngine";
 
 interface CompanyCashAnalysis {
   totalSafeFunding: number;

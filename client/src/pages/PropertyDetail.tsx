@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState, useRef } from "react";
 import Layout from "@/components/Layout";
 import { useProperty, useGlobalAssumptions } from "@/lib/api";
 import { generatePropertyProForma, formatMoney, getFiscalYearForModelYear } from "@/lib/financialEngine";
@@ -8,8 +8,7 @@ import { YearlyCashFlowStatement } from "@/components/YearlyCashFlowStatement";
 import { ConsolidatedBalanceSheet } from "@/components/ConsolidatedBalanceSheet";
 import { CalcDetailsProvider } from "@/components/financial-table-rows";
 import { Tabs, TabsContent, DarkGlassTabs } from "@/components/ui/tabs";
-import { FileText, Banknote, Scale, Building2 } from "lucide-react";
-import { ArrowLeft, MapPin, Loader2, Settings2, Sheet } from "lucide-react";
+import { FileText, Banknote, Scale, Building2, ArrowLeft, MapPin, Loader2, Settings2, Sheet, ChevronDown, ChevronRight, Info } from "lucide-react";
 import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
 import { downloadCSV } from "@/lib/exports/csvExport";
 import { exportPropertyPPTX } from "@/lib/exports/pptxExport";
@@ -29,7 +28,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { drawLineChart } from "@/lib/pdfChartDrawer";
 import { calculateLoanParams, LoanParams, GlobalLoanParams, DEFAULT_LTV, PROJECTION_YEARS } from "@/lib/loanCalculations";
-import { DEPRECIATION_YEARS, DAYS_PER_MONTH } from "@shared/constants";
+import { DEPRECIATION_YEARS, DAYS_PER_MONTH, DEFAULT_LAND_VALUE_PERCENT, DEFAULT_REV_SHARE_EVENTS, DEFAULT_REV_SHARE_FB, DEFAULT_REV_SHARE_OTHER, DEFAULT_CATERING_BOOST_PCT } from "@shared/constants";
 import { aggregateCashFlowByYear } from "@/lib/cashFlowAggregator";
 import { aggregatePropertyByYear } from "@/lib/yearlyAggregator";
 import { computeCashFlowSections } from "@/lib/cashFlowSections";
@@ -37,16 +36,7 @@ import { PropertyPhotoUpload } from "@/components/PropertyPhotoUpload";
 import { useQueryClient } from "@tanstack/react-query";
 import { ExportDialog } from "@/components/ExportDialog";
 
-import { useState, useRef } from "react";
-import { ChevronDown, ChevronRight, Info } from "lucide-react";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
-import {
-  DEFAULT_LAND_VALUE_PERCENT,
-  DEFAULT_REV_SHARE_EVENTS,
-  DEFAULT_REV_SHARE_FB,
-  DEFAULT_REV_SHARE_OTHER,
-  DEFAULT_CATERING_BOOST_PCT,
-} from "@shared/constants";
 
 function PPECostBasisSchedule({ property, global }: { property: any; global: any }) {
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({

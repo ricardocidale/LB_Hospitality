@@ -31,7 +31,7 @@ Side-by-side comparison of two scenarios with variance highlighting.
 Step-by-step interactive tour explaining the recommended workflow for new users.
 
 - **File**: `client/src/components/GuidedWalkthrough.tsx`
-- **Flow**: Dashboard → (1) Define Properties & Assumptions → (2) Management Company Assumptions → (3) Systemwide Assumptions → Save Scenarios → Analysis Tools → Quick Search → Notifications
+- **Flow**: Dashboard → (1) Define Properties & Assumptions → (2) Management Company Assumptions → (3) Systemwide Assumptions → Save Scenarios → Analysis Tools → User Manual & Help → Quick Search → Notifications
 - **Workflow narrative**: Tour explains the proper order — start by defining properties of interest and completing their assumptions, then set up the management company, then review systemwide defaults. Mentions scenarios and other features after the core workflow.
 - **Storage**: Zustand store with localStorage persistence (`walkthrough-store`); auto-starts on first visit, restartable from Help menu
 - **Tooltip Style**: White rounded card with shadow, step counter, Back/Next/Skip controls

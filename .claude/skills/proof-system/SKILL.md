@@ -1,16 +1,16 @@
 ---
 name: proof-system
-description: Automated financial proof system with 384 tests and 5 golden scenarios. Use when running verification, adding tests, debugging financial calculations, or reviewing proof coverage.
+description: Automated financial proof system with 445 tests and 5 golden scenarios. Use when running verification, adding tests, debugging financial calculations, or reviewing proof coverage.
 ---
 
 # Automated Financial Proof System
 
 ## Purpose
-Eliminates human Excel verification. Code proves itself correct through 384 automated tests across 5 golden scenarios, input-to-output pipeline verification, and magic number detection.
+Eliminates human Excel verification. Code proves itself correct through 445 automated tests across 5 golden scenarios, input-to-output pipeline verification, and magic number detection.
 
 ## Commands
 ```bash
-npm test                          # Run all 384 tests
+npm test                          # Run all 445 tests
 npm run verify                    # Full 4-phase verification (UNQUALIFIED = pass)
 npx vitest run tests/proof/       # Run only proof tests
 npx tsx tests/proof/verify-runner.ts  # 4-phase orchestrator directly
@@ -77,14 +77,29 @@ tests/proof/
 - Ending Cash = Beginning Cash + Net Cash Change (ASC 230-10-45-24)
 - Fee Linkage: Σ(SPV fees) = OpCo revenue (intercompany)
 - Consolidated eliminations net to zero
+- FCFE Direct ≡ FCFE From-NI (two-method reconciliation)
+- NPV = 0 at computed IRR (cross-validation)
 
 ## Hardcoded Value Detection
 - Scans: `financialEngine.ts`, `refinance-calculator.ts`, `financial-identities.ts`, `schedule-reconcile.ts`, `consolidation.ts`
 - Safe numbers: 0, 1, -1, 2, 12, 100
 - Context exceptions: loop counters, array indices, Math functions, string literals
 
+## Detailed Testing Skills
+For per-statement and per-analysis test coverage, see:
+
+| Skill | Path | Scope |
+|-------|------|-------|
+| Property Statements | `.claude/skills/testing/property-statements.md` | IS, CF, BS at property level |
+| Consolidated Statements | `.claude/skills/testing/consolidated-statements.md` | Portfolio aggregation, eliminations |
+| Management Company | `.claude/skills/testing/management-company.md` | OpCo pro forma, fee linkage, funding |
+| Analysis: Returns | `.claude/skills/testing/analysis-returns.md` | IRR, NPV, MOIC, sensitivity |
+| Analysis: DCF/FCF | `.claude/skills/testing/analysis-dcf-fcf.md` | FCF, FCFE reconciliation |
+| Financing & Refinancing | `.claude/skills/testing/financing-refinance-funding.md` | Debt, refi, funding instruments |
+
 ## Maintenance
-1. Run `npm test` — all 384 tests must pass
+1. Run `npm test` — all 445 tests must pass
 2. Run `npm run verify` — all 4 phases must pass
 3. Check `test-artifacts/*.md` for UNQUALIFIED opinions
 4. New constants go in `shared/constants.ts` (never inline magic numbers)
+5. Update testing skills when adding new test suites

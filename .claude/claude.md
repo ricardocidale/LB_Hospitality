@@ -28,6 +28,7 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | Theme Engine | `.claude/skills/ui/theme-engine.md` | Multi-theme system (Fluid Glass active), user-created themes, token structure |
 | Component Library | `.claude/skills/component-library/SKILL.md` | PageHeader, GlassButton, ExportMenu, DarkGlassTabs, etc. |
 | Proof System | `.claude/skills/proof-system/SKILL.md` | 445 tests, 5 golden scenarios, verification commands |
+| Testing (7 skills) | `.claude/skills/testing/` | Per-statement/analysis test coverage at property, consolidated, and management company levels |
 | 3D Graphics | `.claude/skills/3d-graphics/SKILL.md` | Three.js scenes, framer-motion wrappers |
 | Database | `.claude/skills/database-environments/SKILL.md` | Dev/prod databases, migrations, sync |
 | Tool Schemas | `.claude/skills/tool-schemas/SKILL.md` | Tool organization, schema conventions |
@@ -47,7 +48,21 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | Tools | `.claude/tools/` | Analysis, financing, returns, validation, UI tool schemas |
 | Rules (8) | `.claude/rules/` | Audit persona+doctrine+plan, constants, DB seeding, API routes, etc. |
 
+## Testing & Proof System (445 Tests, 42 Files)
+
+| Entity Level | Test Domains | Skill |
+|-------------|-------------|-------|
+| Individual Property | IS, CF, BS, trial balance, reconciliation, ASC 230 identities, pro forma golden | `testing/property-statements.md` |
+| Consolidated Portfolio | Portfolio aggregation, intercompany eliminations, portfolio IRR | `testing/consolidated-statements.md` |
+| Management Company | Company pro forma, fee linkage, funding instruments, cash balance | `testing/management-company.md` |
+| Returns Analysis | IRR, NPV, MOIC, sensitivity, portfolio IRR, refi/exit vectors | `testing/analysis-returns.md` |
+| DCF/FCF Analysis | FCF computation, FCFE two-method reconciliation | `testing/analysis-dcf-fcf.md` |
+| Financing & Debt | Acquisition sizing, closing costs, refi schedule, funding engine | `testing/financing-refinance-funding.md` |
+
+**Commands**: `npm test` (all 445), `npm run verify` (4-phase, UNQUALIFIED required)
+
 ## Recent Changes
+- **Testing Skills Suite**: New `.claude/skills/testing/` directory with 7 skill files documenting test coverage for every financial statement and analysis at property, consolidated, and management company levels.
 - **Accordion Chevron Standardization**: All expandable/accordion row indicators standardized to `w-4 h-4` across the entire app. Non-accordion icons (Search, Star, Download) remain at their intentional smaller sizes.
 - **Unified Analysis Page**: `/analysis` route merges Sensitivity, Financing, Executive Summary, Compare, and Timeline into a single tabbed page. Components use `embedded` prop to skip Layout wrapper. Old standalone routes (`/compare`, `/timeline`) redirect to `/analysis`.
 - **Map View in Properties**: Map View is now a tab inside the Properties page (`/portfolio`) instead of a separate sidebar item.

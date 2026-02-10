@@ -506,18 +506,29 @@ export function generatePropertyProForma(
 
     if (refiMonthIndex >= 0 && refiMonthIndex < months) {
       // Aggregate yearly NOI to size the new loan
+      // BUG FIX: If the refinance year has fewer than 12 operational months
+      // (property started mid-year), annualize the NOI. Otherwise the loan
+      // is sized on partial-year income, massively under-sizing the new debt.
       const refiYear = Math.floor(refiMonthIndex / 12);
       const projectionYears = Math.ceil(months / 12);
       const yearlyNOI: number[] = [];
+      const yearlyOperationalMonths: number[] = [];
       for (let y = 0; y < projectionYears; y++) {
         const yearSlice = financials.slice(y * 12, (y + 1) * 12);
         yearlyNOI.push(yearSlice.reduce((sum, m) => sum + m.noi, 0));
+        yearlyOperationalMonths.push(yearSlice.filter(m => m.revenueTotal > 0 || m.noi !== 0).length);
       }
 
       // Build RefinanceInput from engine state using fallback pattern
       const refiLTV = property.refinanceLTV ?? global.debtAssumptions?.refiLTV ?? DEFAULT_REFI_LTV;
       const refiExitCap = property.exitCapRate ?? global.exitCapRate ?? DEFAULT_EXIT_CAP_RATE;
-      const stabilizedNOI = yearlyNOI[refiYear] || 0;
+      const rawRefiYearNOI = yearlyNOI[refiYear] || 0;
+      const refiYearOpsMonths = yearlyOperationalMonths[refiYear] || 12;
+      const stabilizedNOI = refiYearOpsMonths >= 12
+        ? rawRefiYearNOI
+        : refiYearOpsMonths > 0
+          ? (rawRefiYearNOI / refiYearOpsMonths) * 12
+          : 0;
       const refiRate = property.refinanceInterestRate ?? global.debtAssumptions?.interestRate ?? DEFAULT_INTEREST_RATE;
       const refiTermYears = property.refinanceTermYears ?? global.debtAssumptions?.amortizationYears ?? DEFAULT_TERM_YEARS;
       const closingCostRate = property.refinanceClosingCostRate ?? global.debtAssumptions?.refiClosingCostRate ?? DEFAULT_REFI_CLOSING_COST_RATE;
@@ -685,14 +696,22 @@ export function generateCompanyProForma(
     const currentMonth = totalMonths % 12;
     const currentDate = new Date(currentYear, currentMonth, 1);
     const year = Math.floor(m / 12);
-    const fixedEscalationRate = global.fixedCostEscalationRate ?? global.inflationRate;
-    const fixedCostFactor = Math.pow(1 + fixedEscalationRate, year);
-    const variableCostFactor = Math.pow(1 + global.inflationRate, year);
     
     // Check if company has started operations (gated on SAFE funding receipt)
     const opsStartDate = new Date(opsStartParsed.year, opsStartParsed.month, 1);
     const firstSafeDate = new Date(tranche1Parsed.year, tranche1Parsed.month, 1);
     const hasStartedOps = currentDate >= opsStartDate && currentDate >= firstSafeDate;
+
+    // BUG FIX: Escalation must count from company ops start, not model start.
+    // If company starts in month 6, Year 1 costs should use base values (factor=1.0),
+    // not model-year escalated values. Partner comp uses model year by design (admin-set per year).
+    const monthsSinceCompanyOps = hasStartedOps
+      ? (currentYear - opsStartParsed.year) * 12 + (currentMonth - opsStartParsed.month)
+      : 0;
+    const companyOpsYear = Math.floor(monthsSinceCompanyOps / 12);
+    const fixedEscalationRate = global.fixedCostEscalationRate ?? global.inflationRate;
+    const fixedCostFactor = Math.pow(1 + fixedEscalationRate, companyOpsYear);
+    const variableCostFactor = Math.pow(1 + global.inflationRate, companyOpsYear);
     
     let totalPropertyRevenue = 0;
     let totalPropertyGOP = 0;

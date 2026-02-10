@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Building2, Briefcase, Settings2, Menu, X, FileText, Shield, LogOut, UserCircle, FolderOpen, SearchCheck, BarChart3, Calculator, ClipboardCheck, Search, GitCompare, Clock, MapPin, FileBarChart } from "lucide-react";
+import { LayoutDashboard, Building2, Briefcase, Settings2, Menu, X, FileText, Shield, LogOut, UserCircle, FolderOpen, SearchCheck, BarChart3, Calculator, ClipboardCheck, Search, GitCompare, Clock, MapPin, FileBarChart, ChevronDown, BookOpen, HelpCircle } from "lucide-react";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -13,9 +13,15 @@ import NotificationCenter from "@/components/NotificationCenter";
 import FavoritesSidebar from "@/components/Favorites";
 import GuidedWalkthrough, { WalkthroughTrigger } from "@/components/GuidedWalkthrough";
 
+type NavLink = { href: string; label: string; icon: any };
+type NavDivider = { type: "divider" };
+type NavGroup = { type: "group"; label: string; icon: any; children: NavLink[] };
+type NavItem = NavLink | NavDivider | NavGroup;
+
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
   const { user, isAdmin, logout } = useAuth();
   const { data: global } = useGlobalAssumptions();
   
@@ -34,14 +40,27 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   const sb = (key: string) => isAdmin || (global as any)?.[key] !== false;
 
-  const navItems = [
+  const toggleGroup = (label: string) => {
+    setExpandedGroups(prev => ({ ...prev, [label]: !prev[label] }));
+  };
+
+  const analysisChildren: NavLink[] = [
+    ...(sb("sidebarSensitivity") ? [{ href: "/sensitivity", label: "Sensitivity", icon: BarChart3 }] : []),
+    ...(sb("sidebarFinancing") ? [{ href: "/financing", label: "Financing", icon: Calculator }] : []),
+  ];
+
+  const helpChildren: NavLink[] = [
+    ...(isAdmin || user?.role === "checker" ? [{ href: "/checker-manual", label: "Checker Manual", icon: ClipboardCheck }] : []),
+    ...(sb("sidebarUserManual") ? [{ href: "/methodology", label: "User Manual", icon: FileText }] : []),
+  ];
+
+  const navItems: NavItem[] = [
     { href: "/", label: "Dashboard", icon: LayoutDashboard },
     { href: "/portfolio", label: "Properties", icon: Building2 },
     { href: "/company", label: "Management Co.", icon: Briefcase },
     { type: "divider" as const },
     ...(sb("sidebarPropertyFinder") ? [{ href: "/property-finder", label: "Property Finder", icon: SearchCheck }] : []),
-    ...(sb("sidebarSensitivity") ? [{ href: "/sensitivity", label: "Sensitivity Analysis", icon: BarChart3 }] : []),
-    ...(sb("sidebarFinancing") ? [{ href: "/financing", label: "Financing Analysis", icon: Calculator }] : []),
+    ...(analysisChildren.length > 0 ? [{ type: "group" as const, label: "Analysis", icon: BarChart3, children: analysisChildren }] : []),
     { type: "divider" as const },
     ...(sb("sidebarCompare") ? [{ href: "/compare", label: "Compare", icon: GitCompare }] : []),
     ...(sb("sidebarTimeline") ? [{ href: "/timeline", label: "Timeline", icon: Clock }] : []),
@@ -53,13 +72,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { href: "/profile", label: "My Profile", icon: UserCircle },
     ...(sb("sidebarScenarios") ? [{ href: "/scenarios", label: "My Scenarios", icon: FolderOpen }] : []),
     { type: "divider" as const },
-    ...(isAdmin || user?.role === "checker" ? [
-      { href: "/checker-manual", label: "Checker Manual", icon: ClipboardCheck },
-    ] : []),
+    ...(helpChildren.length > 0 ? [{ type: "group" as const, label: "Help & Manuals", icon: BookOpen, children: helpChildren }] : []),
     ...(isAdmin ? [
       { href: "/admin", label: "Administration", icon: Shield },
     ] : []),
-    ...(sb("sidebarUserManual") ? [{ href: "/methodology", label: "User Manual", icon: FileText }] : []),
   ];
 
   return (
@@ -137,7 +153,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
           <nav className="flex-1 p-4 pt-2 space-y-1 overflow-y-auto">
             {navItems.map((item, index) => {
-              // Handle divider type
               if ('type' in item && item.type === 'divider') {
                 return (
                   <div key={`divider-${index}`} className="my-3 mx-2">
@@ -145,31 +160,95 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   </div>
                 );
               }
+
+              if ('type' in item && item.type === 'group') {
+                const group = item as NavGroup;
+                const isExpanded = expandedGroups[group.label] ?? false;
+                const hasActiveChild = group.children.some(child =>
+                  location === child.href || (child.href !== "/" && location.startsWith(child.href + "/"))
+                );
+                const autoExpand = isExpanded || hasActiveChild;
+
+                return (
+                  <div key={group.label}>
+                    <button
+                      onClick={() => toggleGroup(group.label)}
+                      className={cn(
+                        "group relative w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-all duration-300 ease-out rounded-2xl cursor-pointer overflow-hidden",
+                        hasActiveChild ? "text-white" : "text-[#FFF9F5]/60 hover:text-white"
+                      )}
+                      data-testid={`button-nav-group-${group.label.toLowerCase().replace(/\s+/g, '-')}`}
+                    >
+                      {!hasActiveChild && (
+                        <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-all duration-300 rounded-2xl" />
+                      )}
+                      <div className={cn(
+                        "relative w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-300",
+                        hasActiveChild
+                          ? "bg-gradient-to-br from-[#9FBCA4] to-[#257D41] shadow-[0_0_16px_rgba(159,188,164,0.5)]"
+                          : "bg-white/5 group-hover:bg-white/10"
+                      )}>
+                        <group.icon className={cn("w-4 h-4 transition-all duration-300", hasActiveChild ? "text-white" : "text-[#FFF9F5]/60 group-hover:text-white")} />
+                      </div>
+                      <span className="relative flex-1 text-left">{group.label}</span>
+                      <ChevronDown className={cn(
+                        "relative w-3.5 h-3.5 transition-transform duration-300",
+                        autoExpand ? "rotate-180" : ""
+                      )} />
+                    </button>
+                    <div className={cn(
+                      "overflow-hidden transition-all duration-300 ease-out",
+                      autoExpand ? "max-h-40 opacity-100" : "max-h-0 opacity-0"
+                    )}>
+                      {group.children.map(child => {
+                        const isChildActive = location === child.href ||
+                          (child.href !== "/" && location.startsWith(child.href + "/"));
+                        return (
+                          <Link key={child.href} href={child.href} onClick={() => setSidebarOpen(false)}>
+                            <div className={cn(
+                              "group relative flex items-center gap-3 pl-8 pr-4 py-2.5 text-sm font-medium transition-all duration-300 ease-out rounded-2xl cursor-pointer overflow-hidden ml-4",
+                              isChildActive ? "text-white" : "text-[#FFF9F5]/50 hover:text-white"
+                            )}>
+                              {isChildActive && (
+                                <>
+                                  <div className="absolute inset-0 bg-white/10 backdrop-blur-xl rounded-2xl" />
+                                  <div className="absolute inset-0 rounded-2xl border border-white/15" />
+                                </>
+                              )}
+                              {!isChildActive && (
+                                <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-all duration-300 rounded-2xl" />
+                              )}
+                              <child.icon className={cn("relative w-3.5 h-3.5 transition-all duration-300", isChildActive ? "text-[#9FBCA4]" : "text-[#FFF9F5]/40 group-hover:text-white")} />
+                              <span className="relative">{child.label}</span>
+                            </div>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              }
               
-              // Check for exact match or if we're on a sub-route
-              const isActive = location === item.href || 
-                (item.href === "/portfolio" && location.startsWith("/property/")) ||
-                (item.href !== "/" && location.startsWith(item.href + "/"));
+              const navLink = item as NavLink;
+              const isActive = location === navLink.href || 
+                (navLink.href === "/portfolio" && location.startsWith("/property/")) ||
+                (navLink.href !== "/" && location.startsWith(navLink.href + "/"));
               return (
-                <Link key={item.href} href={item.href!} onClick={() => setSidebarOpen(false)}>
+                <Link key={navLink.href} href={navLink.href!} onClick={() => setSidebarOpen(false)}>
                   <div className={cn(
                     "group relative flex items-center gap-3 px-4 py-3 text-sm font-medium transition-all duration-300 ease-out rounded-2xl cursor-pointer overflow-hidden",
                     isActive 
                       ? "text-white" 
                       : "text-[#FFF9F5]/60 hover:text-white"
                   )}>
-                    {/* Frosted Glass Background for Active */}
                     {isActive && (
                       <>
                         <div className="absolute inset-0 bg-white/12 backdrop-blur-xl rounded-2xl" />
                         <div className="absolute inset-0 rounded-2xl border border-white/20" />
-                        {/* Top edge sheen */}
                         <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
-                        {/* Subtle glow */}
                         <div className="absolute inset-0 rounded-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),0_4px_16px_rgba(0,0,0,0.2)]" />
                       </>
                     )}
-                    {/* Hover state background */}
                     {!isActive && (
                       <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-all duration-300 rounded-2xl" />
                     )}
@@ -179,9 +258,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                         ? "bg-gradient-to-br from-[#9FBCA4] to-[#257D41] shadow-[0_0_16px_rgba(159,188,164,0.5)]" 
                         : "bg-white/5 group-hover:bg-white/10"
                     )}>
-                      <item.icon className={cn("w-4 h-4 transition-all duration-300", isActive ? "text-white" : "text-[#FFF9F5]/60 group-hover:text-white")} />
+                      <navLink.icon className={cn("w-4 h-4 transition-all duration-300", isActive ? "text-white" : "text-[#FFF9F5]/60 group-hover:text-white")} />
                     </div>
-                    <span className="relative">{item.label}</span>
+                    <span className="relative">{navLink.label}</span>
                   </div>
                 </Link>
               );

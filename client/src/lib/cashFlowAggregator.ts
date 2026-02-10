@@ -52,13 +52,22 @@ export function aggregateCashFlowByYear(
     const atcf = btcf - taxLiability;
 
     // Capital events (exit only in final year)
+    // BUG FIX: If the final projection year has fewer than 12 operational months
+    // (property started mid-year or model ends mid-year), annualize the NOI
+    // before applying the exit cap rate. Using partial-year NOI directly would
+    // understate exit value and destroy investor returns.
     const exitCapRate = property.exitCapRate ?? global?.exitCapRate ?? DEFAULT_EXIT_CAP_RATE;
     const commissionRate = global?.salesCommissionRate ?? global?.commissionRate ?? DEFAULT_COMMISSION_RATE;
     const isLastYear = y === years - 1;
-    const lastYearNOI = noi;
+    const operationalMonthsInYear = yearData.filter(m => m.revenueTotal > 0 || m.noi !== 0).length;
+    const annualizedNOI = operationalMonthsInYear >= 12
+      ? noi
+      : operationalMonthsInYear > 0
+        ? (noi / operationalMonthsInYear) * 12
+        : 0;
     let exitValue = 0;
     if (isLastYear && exitCapRate > 0) {
-      const grossValue = lastYearNOI / exitCapRate;
+      const grossValue = annualizedNOI / exitCapRate;
       const commission = grossValue * commissionRate;
       const outstandingDebt = yearData.length > 0 ? yearData[yearData.length - 1].debtOutstanding : 0;
       exitValue = grossValue - commission - outstandingDebt;

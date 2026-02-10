@@ -197,6 +197,17 @@ export const globalAssumptions = pgTable("global_assumptions", {
   // Display Settings
   showCompanyCalculationDetails: boolean("show_company_calculation_details").notNull().default(true),
   showPropertyCalculationDetails: boolean("show_property_calculation_details").notNull().default(true),
+
+  // Sidebar Visibility (admin-controlled, applies to non-admin users)
+  sidebarPropertyFinder: boolean("sidebar_property_finder").notNull().default(true),
+  sidebarSensitivity: boolean("sidebar_sensitivity").notNull().default(true),
+  sidebarFinancing: boolean("sidebar_financing").notNull().default(true),
+  sidebarCompare: boolean("sidebar_compare").notNull().default(true),
+  sidebarTimeline: boolean("sidebar_timeline").notNull().default(true),
+  sidebarMapView: boolean("sidebar_map_view").notNull().default(true),
+  sidebarExecutiveSummary: boolean("sidebar_executive_summary").notNull().default(true),
+  sidebarScenarios: boolean("sidebar_scenarios").notNull().default(true),
+  sidebarUserManual: boolean("sidebar_user_manual").notNull().default(true),
   
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => [
@@ -309,6 +320,15 @@ export const insertGlobalAssumptionsSchema = createInsertSchema(globalAssumption
   utilitiesVariableSplit: true,
   assetDefinition: true,
   preferredLlm: true,
+  sidebarPropertyFinder: true,
+  sidebarSensitivity: true,
+  sidebarFinancing: true,
+  sidebarCompare: true,
+  sidebarTimeline: true,
+  sidebarMapView: true,
+  sidebarExecutiveSummary: true,
+  sidebarScenarios: true,
+  sidebarUserManual: true,
 });
 
 export const selectGlobalAssumptionsSchema = createSelectSchema(globalAssumptions);

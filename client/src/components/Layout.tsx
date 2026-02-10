@@ -212,12 +212,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </div>
             </div>
 
-            <div className="flex items-center justify-center gap-1.5 pt-2 pb-1">
-              <div className="w-1.5 h-1.5 rounded-full bg-[#9FBCA4] shadow-[0_0_6px_rgba(159,188,164,0.6)] animate-pulse" style={{ animationDuration: '3s' }} />
-              <p className="text-[10px] tracking-wider text-[#FFF9F5]/35" style={{ fontFamily: "'Inter', sans-serif" }}>
-                powered by <span className="font-semibold text-[#FFF9F5]/50">Norfolk AI</span>
-              </p>
-            </div>
+            <p className="text-center text-[9px] tracking-wider text-[#FFF9F5]/15 pt-2 pb-1">
+              powered by Norfolk AI
+            </p>
           </div>
         </div>
       </aside>

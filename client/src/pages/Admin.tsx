@@ -1998,7 +1998,7 @@ export default function Admin() {
     <Card className="relative overflow-hidden bg-[#0a0a0f]/95 backdrop-blur-3xl border border-white/10 shadow-2xl shadow-black/50" data-testid="card-sidebar-settings">
       <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] via-transparent to-black/20" />
       <CardHeader className="relative">
-        <CardTitle className="font-display text-white flex items-center gap-2"><Settings2 className="w-5 h-5" /> Navigation Visibility</CardTitle>
+        <CardTitle className="font-display text-white flex items-center gap-2"><Settings className="w-5 h-5" /> Navigation Visibility</CardTitle>
         <CardDescription className="label-text">Toggle which optional pages appear in the sidebar for non-admin users. Core pages (Dashboard, Properties, Management Co., Settings, Profile, Administration) are always visible.</CardDescription>
       </CardHeader>
       <CardContent className="relative space-y-1">

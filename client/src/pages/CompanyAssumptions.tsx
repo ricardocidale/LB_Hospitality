@@ -409,7 +409,7 @@ export default function CompanyAssumptions() {
                   placeholder="e.g., SAFE, Seed, Series A"
                   className="max-w-48 bg-white border-[#9FBCA4]/30 text-gray-900"
                 />
-                <HelpTooltip text="Customize the name of your funding source (default: SAFE)" />
+                <HelpTooltip text="Customize the name of your funding source (e.g., SAFE, Seed, Series A)" />
               </div>
               <p className="text-gray-600 text-sm label-text">Capital raised via {formData.fundingSourceLabel ?? global.fundingSourceLabel ?? "SAFE"} in two tranches to support operations</p>
             </div>
@@ -490,7 +490,7 @@ export default function CompanyAssumptions() {
                 <div className="flex items-center justify-between">
                   <Label className="flex items-center text-gray-700 label-text">
                     Valuation Cap
-                    <HelpTooltip text="Maximum company valuation for SAFE conversion" manualSection="funding-financing" />
+                    <HelpTooltip text="Maximum company valuation for funding conversion" manualSection="funding-financing" />
                   </Label>
                   <EditableValue
                     value={formData.safeValuationCap ?? global.safeValuationCap}
@@ -513,7 +513,7 @@ export default function CompanyAssumptions() {
                 <div className="flex items-center justify-between">
                   <Label className="flex items-center text-gray-700 label-text">
                     Discount Rate
-                    <HelpTooltip text="Discount on share price when SAFE converts to equity" manualSection="funding-financing" />
+                    <HelpTooltip text="Discount on share price when funding converts to equity" manualSection="funding-financing" />
                   </Label>
                   <EditableValue
                     value={formData.safeDiscountRate ?? global.safeDiscountRate}

@@ -8,7 +8,7 @@ const rounding: RoundingPolicy = { precision: 2, bankers_rounding: false };
 /**
  * Golden test — all values hand-calculated:
  *
- * Event 1: FUNDING — 2026-06-01, OpCo, SAFE Tranche $1,000,000
+ * Event 1: FUNDING — 2026-06-01, OpCo, Funding instrument tranche $1,000,000
  *   CASH debit $1,000,000 (financing)
  *   EQUITY_CONTRIBUTED credit $1,000,000 (financing)
  *
@@ -70,7 +70,7 @@ describe("golden scenario — funding + acquisition + debt service", () => {
           credit: 0,
           classification: "BS_ASSET",
           cash_flow_bucket: "FINANCING",
-          memo: "SAFE tranche cash inflow",
+          memo: "Funding tranche cash inflow",
         },
         {
           account: "EQUITY_CONTRIBUTED",
@@ -78,7 +78,7 @@ describe("golden scenario — funding + acquisition + debt service", () => {
           credit: 1_000_000,
           classification: "BS_EQUITY",
           cash_flow_bucket: "FINANCING",
-          memo: "SAFE equity contribution",
+          memo: "Funding equity contribution",
         },
       ],
     },

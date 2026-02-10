@@ -23,7 +23,7 @@ import { drawLineChart } from "@/lib/pdfChartDrawer";
 import { format } from "date-fns";
 
 interface CompanyCashAnalysis {
-  totalSafeFunding: number;
+  totalFunding: number;
   minCashPosition: number;
   minCashMonth: number | null;
   shortfall: number;
@@ -34,7 +34,7 @@ interface CompanyCashAnalysis {
 function analyzeCompanyCashPosition(financials: CompanyMonthlyFinancials[]): CompanyCashAnalysis {
   if (!financials || financials.length === 0) {
     return {
-      totalSafeFunding: 0,
+      totalFunding: 0,
       minCashPosition: 0,
       minCashMonth: null,
       shortfall: 0,
@@ -67,7 +67,7 @@ function analyzeCompanyCashPosition(financials: CompanyMonthlyFinancials[]): Com
 
   if (!hasActivity) {
     return {
-      totalSafeFunding: 0,
+      totalFunding: 0,
       minCashPosition: 0,
       minCashMonth: null,
       shortfall: 0,
@@ -81,7 +81,7 @@ function analyzeCompanyCashPosition(financials: CompanyMonthlyFinancials[]): Com
   const suggestedAdditionalFunding = isAdequate ? 0 : Math.ceil(shortfall / OPERATING_RESERVE_BUFFER) * OPERATING_RESERVE_BUFFER + COMPANY_FUNDING_BUFFER;
 
   return {
-    totalSafeFunding: totalSafe,
+    totalFunding: totalSafe,
     minCashPosition,
     minCashMonth,
     shortfall,
@@ -99,6 +99,8 @@ export default function Company() {
   const tableRef = useRef<HTMLDivElement>(null);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [exportType, setExportType] = useState<'pdf' | 'chart' | 'tablePng'>('pdf');
+
+  const fundingLabel = global?.fundingSourceLabel ?? "SAFE";
 
   const toggleRow = (rowId: string) => {
     setExpandedRows(prev => {
@@ -404,17 +406,17 @@ export default function Company() {
     // === Cash Flow from Financing Activities ===
     rows.push({ category: "Cash Flow from Financing Activities", values: years.map(() => 0), isHeader: true });
 
-    rows.push({ category: "SAFE Funding Received", values: years.map((_, y) => {
+    rows.push({ category: `${fundingLabel} Funding Received`, values: years.map((_, y) => {
       const yearData = financials.slice(y * 12, (y + 1) * 12);
       return yearData.reduce((a, m) => a + m.safeFunding, 0);
     }), indent: 1 });
 
-    rows.push({ category: "SAFE Tranche 1", values: years.map((_, y) => {
+    rows.push({ category: `${fundingLabel} Tranche 1`, values: years.map((_, y) => {
       const yearData = financials.slice(y * 12, (y + 1) * 12);
       return yearData.reduce((a, m) => a + m.safeFunding1, 0);
     }), indent: 2 });
 
-    rows.push({ category: "SAFE Tranche 2", values: years.map((_, y) => {
+    rows.push({ category: `${fundingLabel} Tranche 2`, values: years.map((_, y) => {
       const yearData = financials.slice(y * 12, (y + 1) * 12);
       return yearData.reduce((a, m) => a + m.safeFunding2, 0);
     }), indent: 2 });
@@ -476,7 +478,7 @@ export default function Company() {
     rows.push({ category: "TOTAL ASSETS", values: cashValues, isHeader: true });
     
     rows.push({ category: "LIABILITIES", values: years.map(() => 0), isHeader: true });
-    rows.push({ category: "SAFE Notes", values: safeValues, indent: 1 });
+    rows.push({ category: `${fundingLabel} Notes`, values: safeValues, indent: 1 });
     rows.push({ category: "TOTAL LIABILITIES", values: safeValues, isHeader: true });
     
     rows.push({ category: "EQUITY", values: years.map(() => 0), isHeader: true });
@@ -1364,7 +1366,7 @@ export default function Company() {
                         ) : (
                           <ChevronRight className="w-4 h-4 text-gray-600" />
                         )}
-                        SAFE Funding Received
+                        {fundingLabel} Funding Received
                       </TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
                         const yearData = financials.slice(y * 12, (y + 1) * 12);
@@ -1376,7 +1378,7 @@ export default function Company() {
                       <>
                         <TableRow className="bg-gray-50/50">
                           <TableCell className="sticky left-0 bg-gray-50/50 pl-12 text-sm text-gray-600">
-                            SAFE Tranche 1
+                            {fundingLabel} Tranche 1
                           </TableCell>
                           {Array.from({ length: projectionYears }, (_, y) => {
                             const yearData = financials.slice(y * 12, (y + 1) * 12);
@@ -1386,7 +1388,7 @@ export default function Company() {
                         </TableRow>
                         <TableRow className="bg-gray-50/50">
                           <TableCell className="sticky left-0 bg-gray-50/50 pl-12 text-sm text-gray-600">
-                            SAFE Tranche 2
+                            {fundingLabel} Tranche 2
                           </TableCell>
                           {Array.from({ length: projectionYears }, (_, y) => {
                             const yearData = financials.slice(y * 12, (y + 1) * 12);
@@ -1460,18 +1462,18 @@ export default function Company() {
                   // Calculate cumulative values through Year 10
                   const cumulativeNetIncome = financials.reduce((a, m) => a + m.netIncome, 0);
                   
-                  // SAFE funding totals
+                  // Funding instrument totals
                   const safeTranche1 = global.safeTranche1Amount || 0;
                   const safeTranche2 = global.safeTranche2Amount || 0;
                   const totalSafeFunding = safeTranche1 + safeTranche2;
                   
-                  // Cash = SAFE funding + cumulative net income (simplified - no distributions assumed)
+                  // Cash = funding instrument + cumulative net income (simplified - no distributions assumed)
                   const cashBalance = totalSafeFunding + cumulativeNetIncome;
                   
                   // Total Assets
                   const totalAssets = cashBalance;
                   
-                  // Liabilities (SAFE notes are technically liability until conversion)
+                  // Liabilities (funding notes are technically liability until conversion)
                   const safeNotesPayable = totalSafeFunding;
                   const totalLiabilities = safeNotesPayable;
                   
@@ -1521,7 +1523,7 @@ export default function Company() {
                           <TableCell></TableCell>
                         </TableRow>
                         <TableRow>
-                          <TableCell className="pl-8">SAFE Notes Payable</TableCell>
+                          <TableCell className="pl-8">{fundingLabel} Notes Payable</TableCell>
                           <TableCell className="text-right font-mono">{formatMoney(safeNotesPayable)}</TableCell>
                         </TableRow>
                         <TableRow className="font-medium bg-gray-50/50">
@@ -1574,10 +1576,10 @@ export default function Company() {
               <AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
               <p>
                 <span data-testid="text-company-cash-warning-title" className="font-medium text-red-600">Additional Funding Required:</span>{' '}
-                The current SAFE funding of <span className="font-medium text-gray-900">{formatMoney(cashAnalysis.totalSafeFunding)}</span> is insufficient to cover operating expenses.
+                The current {fundingLabel} funding of <span className="font-medium text-gray-900">{formatMoney(cashAnalysis.totalFunding)}</span> is insufficient to cover operating expenses.
                 Monthly cash position drops to <span className="font-medium text-red-600">{formatMoney(cashAnalysis.minCashPosition)}</span>
                 {cashAnalysis.minCashMonth !== null && <> in month {cashAnalysis.minCashMonth}</>}.
-                {' '}Suggested: Increase SAFE funding by at least{' '}
+                {' '}Suggested: Increase {fundingLabel} funding by at least{' '}
                 <span className="font-medium text-gray-900">{formatMoney(cashAnalysis.suggestedAdditionalFunding)}</span> in{' '}
                 <Link href="/company/assumptions" className="font-medium text-[#257D41] hover:underline">Company Assumptions</Link>.
               </p>
@@ -1587,7 +1589,7 @@ export default function Company() {
               <CheckCircle className="w-4 h-4 text-[#257D41] flex-shrink-0 mt-0.5" />
               <p>
                 <span data-testid="text-company-cash-adequate-title" className="font-medium text-[#257D41]">Cash Position Adequate:</span>{' '}
-                The SAFE funding of <span className="font-medium text-gray-900">{formatMoney(cashAnalysis.totalSafeFunding)}</span> covers all operating costs.
+                The {fundingLabel} funding of <span className="font-medium text-gray-900">{formatMoney(cashAnalysis.totalFunding)}</span> covers all operating costs.
                 {cashAnalysis.minCashMonth !== null && (
                   <> Minimum cash position: <span className="font-medium text-gray-900">{formatMoney(cashAnalysis.minCashPosition)}</span> (month {cashAnalysis.minCashMonth}).</>
                 )}

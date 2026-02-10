@@ -5,7 +5,7 @@ Business simulation portal for a boutique hotel management company. Financial mo
 
 ## User Preferences
 - Communication style: Simple, everyday language. Ask clarifying questions before implementing.
-- **TOP PRIORITY: Calculations and correct reports always highest priority.** 384-test proof system must always pass.
+- **TOP PRIORITY: Calculations and correct reports always highest priority.** 445-test proof system must always pass.
 - Always format money as currency. Company name is "Hospitality Business Group" (never "L+B Hospitality").
 - All skills stored under `.claude/`. All UI must reference a theme via the theme engine.
 - Always keep `replit.md` in sync with `.claude/claude.md` — they must reflect the same project state.
@@ -25,6 +25,9 @@ Business simulation portal for a boutique hotel management company. Financial mo
 - **Sidebar Visibility**: Admin-controlled sidebar navigation. 9 boolean fields in global_assumptions control which optional nav items appear for non-admin users. Layout uses `sb()` helper for filtering.
 - **Calculation Transparency Toggles**: Two on/off switches in Settings > Other tab control visibility of formula help icons and expandable accordion rows.
 - **Accordion Formula Rows**: Expandable rows in income statements showing step-by-step calculation breakdowns.
+- **Funding Instrument Rename**: All UI labels changed from hardcoded "SAFE" to dynamic `fundingSourceLabel` (default "SAFE"). Supports SAFE, Seed, Series A, etc. DB field names unchanged for backward compatibility.
+- **Negative Cash Balance Entity Identification**: Verification check now clearly identifies which entity (Management Company vs specific property by name) has negative cash balance issues. Management Company gets its own independent cash balance check.
+- **Expanded Test Suite**: 445 tests (up from 384). New suites: NPV-IRR cross-validation, FCFE two-method reconciliation, ASC 230 cash flow identities, portfolio IRR, refinancing/exit vectors, realistic 10-year hotel golden scenario.
 
 ## Full Documentation
 **All project instructions, skills, rules, manuals, and tools live in `.claude/claude.md`** (the single source of truth). Load it for detailed architecture, pages, integrations, tech stack, and skill routing.
@@ -39,11 +42,11 @@ Business simulation portal for a boutique hotel management company. Financial mo
 - `ui/navigation.md` — Command Palette, Breadcrumbs, Favorites, Activity Feed
 - `finance/income-statement.md` — Income statement architecture
 - `finance/cash-flow-statement.md` — Cash flow statement architecture
-- `proof-system/SKILL.md` — 384 tests, 5 golden scenarios, verification
+- `proof-system/SKILL.md` — 445 tests, 5 golden scenarios, verification
 
 ## Quick Reference
 - `npm run dev` — Start dev server
-- `npm test` — Run all 384 tests
+- `npm test` — Run all 445 tests
 - `npm run verify` — Full financial verification
 - `npm run db:push` — Push schema changes
 - Tech: React 18 + TypeScript + Express 5 + PostgreSQL + Drizzle ORM

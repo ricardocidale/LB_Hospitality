@@ -480,7 +480,7 @@ export function exportCompanyIncomeStatement(
     ["Net Income", ...yearlyData.map((y) => y.netIncome)],
     [],
     ["FUNDING"],
-    ["  SAFE Funding", ...yearlyData.map((y) => y.safeFunding)],
+    ["  Funding Received", ...yearlyData.map((y) => y.safeFunding)],
     ["Cash Flow", ...yearlyData.map((y) => y.cashFlow)],
   ];
 
@@ -585,7 +585,7 @@ export function exportCompanyCashFlow(
     ["Net Cash from Operating Activities", ...yearlyData.map((y) => y.totalRevenue - y.totalExpenses)],
     [],
     ["CASH FLOW FROM FINANCING ACTIVITIES"],
-    ["  SAFE Funding Received", ...yearlyData.map((y) => y.safeFunding)],
+    ["  Funding Received", ...yearlyData.map((y) => y.safeFunding)],
     ["Net Cash from Financing Activities", ...yearlyData.map((y) => y.safeFunding)],
     [],
     ["Net Increase (Decrease) in Cash", ...yearlyData.map((y) => y.cashFlow)],
@@ -634,7 +634,7 @@ export function exportCompanyBalanceSheet(
     [],
     ["LIABILITIES"],
     ["  Long-Term Liabilities"],
-    ["    SAFE Notes Payable", safeNotesPayable],
+    ["    Funding Notes Payable", safeNotesPayable],
     ["  Total Long-Term Liabilities", totalLiabilities],
     ["TOTAL LIABILITIES", totalLiabilities],
     [],

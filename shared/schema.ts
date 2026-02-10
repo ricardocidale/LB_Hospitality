@@ -101,7 +101,7 @@ export const globalAssumptions = pgTable("global_assumptions", {
   baseManagementFee: real("base_management_fee").notNull(),
   incentiveManagementFee: real("incentive_management_fee").notNull(),
   
-  // SAFE Funding
+  // Funding Instrument
   fundingSourceLabel: text("funding_source_label").notNull().default("SAFE"),
   safeTranche1Amount: real("safe_tranche1_amount").notNull().default(800000),
   safeTranche1Date: text("safe_tranche1_date").notNull().default("2026-06-01"),

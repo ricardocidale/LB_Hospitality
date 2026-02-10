@@ -18,7 +18,7 @@ function makeFundingEvent(overrides: Partial<StatementEvent> = {}): StatementEve
         credit: 0,
         classification: "BS_ASSET",
         cash_flow_bucket: "FINANCING",
-        memo: "Cash inflow from SAFE",
+        memo: "Cash inflow from funding",
       },
       {
         account: "EQUITY_CONTRIBUTED",
@@ -53,7 +53,7 @@ describe("postEvents — balanced events", () => {
     expect(cashEntry.credit).toBe(0);
     expect(cashEntry.classification).toBe("BS_ASSET");
     expect(cashEntry.cash_flow_bucket).toBe("FINANCING");
-    expect(cashEntry.memo).toBe("Cash inflow from SAFE");
+    expect(cashEntry.memo).toBe("Cash inflow from funding");
   });
 
   it("posts multiple events", () => {

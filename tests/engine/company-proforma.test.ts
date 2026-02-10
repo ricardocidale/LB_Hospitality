@@ -6,13 +6,13 @@ import { generateCompanyProForma, generatePropertyProForma } from "../../client/
  *
  * Uses a single Full Equity property with known inputs.
  * Company ops start = model start = 2026-04-01.
- * SAFE tranche 1 = $1M on model start.
+ * Funding instrument tranche 1 = $1M on model start.
  *
  * Tests cover:
  *   - Management fee calculation (base + incentive)
  *   - Staffing tiers
  *   - Partner compensation
- *   - SAFE funding gate
+ *   - Funding gate
  *   - Cash flow and cumulative cash
  */
 
@@ -178,13 +178,13 @@ describe("generateCompanyProForma — golden scenario", () => {
     });
   });
 
-  describe("SAFE funding", () => {
+  describe("Funding instrument", () => {
     it("tranche 1 received in month 0", () => {
       expect(result[0].safeFunding1).toBe(1_000_000);
       expect(result[0].safeFunding).toBe(1_000_000);
     });
 
-    it("no SAFE funding in subsequent months", () => {
+    it("no funding in subsequent months", () => {
       for (let i = 1; i < 12; i++) {
         expect(result[i].safeFunding).toBe(0);
       }
@@ -206,7 +206,7 @@ describe("generateCompanyProForma — golden scenario", () => {
       }
     });
 
-    it("no negative cash (SAFE-funded company with revenue)", () => {
+    it("no negative cash (funded company with revenue)", () => {
       for (const m of result) {
         expect(m.cashShortfall).toBe(false);
       }
@@ -214,12 +214,12 @@ describe("generateCompanyProForma — golden scenario", () => {
   });
 });
 
-describe("SAFE funding gate — company ops blocked before SAFE receipt", () => {
-  it("has zero expenses before SAFE date", () => {
+describe("Funding gate — company ops blocked before funding receipt", () => {
+  it("has zero expenses before funding date", () => {
     const delayedGlobal = {
       ...global,
       companyOpsStartDate: "2026-04-01",
-      safeTranche1Date: "2026-07-01", // SAFE delayed to July
+      safeTranche1Date: "2026-07-01", // Funding delayed to July
     };
 
     const result = generateCompanyProForma([property], delayedGlobal, 12);
@@ -231,7 +231,7 @@ describe("SAFE funding gate — company ops blocked before SAFE receipt", () => 
       expect(result[i].staffCompensation).toBe(0);
     }
 
-    // Month 3 (Jul) should have expenses after SAFE received
+    // Month 3 (Jul) should have expenses after funding received
     expect(result[3].totalExpenses).toBeGreaterThan(0);
   });
 });

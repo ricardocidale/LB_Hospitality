@@ -141,7 +141,7 @@ interface GlobalInput {
   baseManagementFee: number;
   incentiveManagementFee: number;
   marketingRate: number;
-  // SAFE Funding
+  // Funding Instrument
   safeTranche1Amount?: number;
   safeTranche1Date?: string;
   safeTranche2Amount?: number;
@@ -697,7 +697,7 @@ export function generateCompanyProForma(
     const currentDate = new Date(currentYear, currentMonth, 1);
     const year = Math.floor(m / 12);
     
-    // Check if company has started operations (gated on SAFE funding receipt)
+    // Check if company has started operations (gated on funding instrument receipt)
     const opsStartDate = new Date(opsStartParsed.year, opsStartParsed.month, 1);
     const firstSafeDate = new Date(tranche1Parsed.year, tranche1Parsed.month, 1);
     const hasStartedOps = currentDate >= opsStartDate && currentDate >= firstSafeDate;

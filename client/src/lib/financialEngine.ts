@@ -346,6 +346,12 @@ export function generatePropertyProForma(
     const otherExpenseRate = global.otherExpenseRate ?? DEFAULT_OTHER_EXPENSE_RATE;
     const utilitiesVariableSplit = global.utilitiesVariableSplit ?? DEFAULT_UTILITIES_VARIABLE_SPLIT;
 
+    // PRE-OPERATIONAL GATE: All operating expenses, fees, and reserves are ZERO
+    // before operationsStartDate. Per USALI and timing-activation-rules:
+    //   Pre-Operations: Revenue=0, Operating Expenses=0, GOP=0, NOI=0
+    // Variable costs are naturally zero (driven by zero revenue), but fixed costs
+    // must be explicitly gated because they use baseMonthlyTotalRev (a constant).
+
     // VARIABLE costs: scale with current revenue (grow naturally with ADR/occupancy)
     const expenseRooms = revenueRooms * costRateRooms;
     const expenseFB = revenueFB * costRateFB;
@@ -358,13 +364,15 @@ export function generatePropertyProForma(
     // FIXED costs: base dollar amount (from Year 1 revenue level) × annual escalation (F-8 fix)
     // Per USALI, admin, property ops, insurance, taxes, IT, fixed utilities, and other overhead
     // are dollar-based line items that escalate at fixedCostEscalationRate, not revenue-based.
-    const expenseAdmin = baseMonthlyTotalRev * costRateAdmin * fixedCostFactor;
-    const expensePropertyOps = baseMonthlyTotalRev * costRatePropertyOps * fixedCostFactor;
-    const expenseIT = baseMonthlyTotalRev * costRateIT * fixedCostFactor;
-    const expenseInsurance = baseMonthlyTotalRev * costRateInsurance * fixedCostFactor;
-    const expenseTaxes = baseMonthlyTotalRev * costRateTaxes * fixedCostFactor;
-    const expenseUtilitiesFixed = baseMonthlyTotalRev * (costRateUtilities * (1 - utilitiesVariableSplit)) * fixedCostFactor;
-    const expenseOtherCosts = baseMonthlyTotalRev * costRateOther * fixedCostFactor;
+    // CRITICAL: Only activate when property is operational (isOperational gate)
+    const fixedGate = isOperational ? 1 : 0;
+    const expenseAdmin = baseMonthlyTotalRev * costRateAdmin * fixedCostFactor * fixedGate;
+    const expensePropertyOps = baseMonthlyTotalRev * costRatePropertyOps * fixedCostFactor * fixedGate;
+    const expenseIT = baseMonthlyTotalRev * costRateIT * fixedCostFactor * fixedGate;
+    const expenseInsurance = baseMonthlyTotalRev * costRateInsurance * fixedCostFactor * fixedGate;
+    const expenseTaxes = baseMonthlyTotalRev * costRateTaxes * fixedCostFactor * fixedGate;
+    const expenseUtilitiesFixed = baseMonthlyTotalRev * (costRateUtilities * (1 - utilitiesVariableSplit)) * fixedCostFactor * fixedGate;
+    const expenseOtherCosts = baseMonthlyTotalRev * costRateOther * fixedCostFactor * fixedGate;
     
     const feeBase = revenueTotal * global.baseManagementFee;
     

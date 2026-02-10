@@ -1,4 +1,4 @@
-import { globalAssumptions, properties, users, sessions, scenarios, loginLogs, designThemes, logos, marketResearch, prospectiveProperties, savedSearches, activityLogs, verificationRuns, type GlobalAssumptions, type Property, type InsertGlobalAssumptions, type InsertProperty, type UpdateProperty, type User, type InsertUser, type Session, type Scenario, type InsertScenario, type UpdateScenario, type LoginLog, type InsertLoginLog, type DesignTheme, type InsertDesignTheme, type Logo, type InsertLogo, type MarketResearch, type InsertMarketResearch, type ProspectiveProperty, type InsertProspectiveProperty, type SavedSearch, type InsertSavedSearch, type ActivityLog, type InsertActivityLog, type VerificationRun, type InsertVerificationRun } from "@shared/schema";
+import { globalAssumptions, properties, users, sessions, scenarios, loginLogs, designThemes, logos, assetDescriptions, marketResearch, prospectiveProperties, savedSearches, activityLogs, verificationRuns, type GlobalAssumptions, type Property, type InsertGlobalAssumptions, type InsertProperty, type UpdateProperty, type User, type InsertUser, type Session, type Scenario, type InsertScenario, type UpdateScenario, type LoginLog, type InsertLoginLog, type DesignTheme, type InsertDesignTheme, type Logo, type InsertLogo, type AssetDescription, type InsertAssetDescription, type MarketResearch, type InsertMarketResearch, type ProspectiveProperty, type InsertProspectiveProperty, type SavedSearch, type InsertSavedSearch, type ActivityLog, type InsertActivityLog, type VerificationRun, type InsertVerificationRun } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gt, lt, gte, lte, desc, or, isNull, type SQL } from "drizzle-orm";
 
@@ -108,9 +108,16 @@ export interface IStorage {
   getDefaultLogo(): Promise<Logo | undefined>;
   createLogo(data: InsertLogo): Promise<Logo>;
   deleteLogo(id: number): Promise<void>;
+
+  // Asset Descriptions
+  getAllAssetDescriptions(): Promise<AssetDescription[]>;
+  getAssetDescription(id: number): Promise<AssetDescription | undefined>;
+  getDefaultAssetDescription(): Promise<AssetDescription | undefined>;
+  createAssetDescription(data: InsertAssetDescription): Promise<AssetDescription>;
+  deleteAssetDescription(id: number): Promise<void>;
   
   // User Branding Assignment
-  assignUserBranding(userId: number, data: { assignedLogoId?: number | null; assignedThemeId?: number | null }): Promise<User>;
+  assignUserBranding(userId: number, data: { assignedLogoId?: number | null; assignedThemeId?: number | null; assignedAssetDescriptionId?: number | null }): Promise<User>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -657,8 +664,32 @@ export class DatabaseStorage implements IStorage {
     await db.delete(logos).where(eq(logos.id, id));
   }
 
+  // Asset Descriptions
+  async getAllAssetDescriptions(): Promise<AssetDescription[]> {
+    return await db.select().from(assetDescriptions).orderBy(assetDescriptions.createdAt);
+  }
+
+  async getAssetDescription(id: number): Promise<AssetDescription | undefined> {
+    const [ad] = await db.select().from(assetDescriptions).where(eq(assetDescriptions.id, id));
+    return ad || undefined;
+  }
+
+  async getDefaultAssetDescription(): Promise<AssetDescription | undefined> {
+    const [ad] = await db.select().from(assetDescriptions).where(eq(assetDescriptions.isDefault, true));
+    return ad || undefined;
+  }
+
+  async createAssetDescription(data: InsertAssetDescription): Promise<AssetDescription> {
+    const [ad] = await db.insert(assetDescriptions).values(data).returning();
+    return ad;
+  }
+
+  async deleteAssetDescription(id: number): Promise<void> {
+    await db.delete(assetDescriptions).where(eq(assetDescriptions.id, id));
+  }
+
   // User Branding Assignment
-  async assignUserBranding(userId: number, data: { assignedLogoId?: number | null; assignedThemeId?: number | null }): Promise<User> {
+  async assignUserBranding(userId: number, data: { assignedLogoId?: number | null; assignedThemeId?: number | null; assignedAssetDescriptionId?: number | null }): Promise<User> {
     const [user] = await db.update(users).set({ ...data, updatedAt: new Date() }).where(eq(users.id, userId)).returning();
     return user;
   }

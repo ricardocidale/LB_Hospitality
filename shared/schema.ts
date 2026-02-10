@@ -22,6 +22,22 @@ export const insertLogoSchema = z.object({
 export type Logo = typeof logos.$inferSelect;
 export type InsertLogo = z.infer<typeof insertLogoSchema>;
 
+// --- ASSET DESCRIPTIONS TABLE ---
+export const assetDescriptions = pgTable("asset_descriptions", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  name: text("name").notNull(),
+  isDefault: boolean("is_default").notNull().default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertAssetDescriptionSchema = z.object({
+  name: z.string(),
+  isDefault: z.boolean().optional(),
+});
+
+export type AssetDescription = typeof assetDescriptions.$inferSelect;
+export type InsertAssetDescription = z.infer<typeof insertAssetDescriptionSchema>;
+
 // --- USERS TABLE ---
 export const users = pgTable("users", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
@@ -33,6 +49,7 @@ export const users = pgTable("users", {
   title: text("title"),
   assignedLogoId: integer("assigned_logo_id"),
   assignedThemeId: integer("assigned_theme_id"),
+  assignedAssetDescriptionId: integer("assigned_asset_description_id"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

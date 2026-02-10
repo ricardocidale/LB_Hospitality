@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Loader2, Plus, Trash2, Users, Key, Eye, EyeOff, Pencil, Clock, FileCheck, CheckCircle2, XCircle, AlertTriangle, PlayCircle, Palette, ArrowLeft, Activity, HelpCircle, SwatchBook, UserPlus, Shield, Mail, Calendar, LogIn, LogOut, Monitor, MapPin, Hash, LayoutGrid, Sparkles, Settings, FileText, Download, Save, FileDown, Image, PanelLeft } from "lucide-react";
+import { Loader2, Plus, Trash2, Users, Key, Eye, EyeOff, Pencil, Clock, FileCheck, CheckCircle2, XCircle, AlertTriangle, PlayCircle, Palette, Activity, HelpCircle, SwatchBook, UserPlus, Shield, Mail, Calendar, LogIn, LogOut, Monitor, MapPin, Hash, LayoutGrid, Sparkles, Settings, FileText, Download, Save, FileDown, Image, PanelLeft } from "lucide-react";
+import { Tabs, TabsContent, DarkGlassTabs } from "@/components/ui/tabs";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { Switch } from "@/components/ui/switch";
@@ -109,7 +110,7 @@ interface VerificationResult {
   clientKnownValueTests?: { passed: boolean; results: string };
 }
 
-type AdminView = "dashboard" | "users" | "activity" | "activity-feed" | "checker-activity" | "verification" | "design" | "themes" | "branding" | "sidebar";
+type AdminView = "users" | "activity" | "activity-feed" | "checker-activity" | "verification" | "themes" | "branding" | "sidebar";
 
 interface ActivityLogEntry {
   id: number;
@@ -172,7 +173,7 @@ interface ActiveSession {
 export default function Admin() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [currentView, setCurrentView] = useState<AdminView>("dashboard");
+  const [adminTab, setAdminTab] = useState<AdminView>("users");
   
   const [dialogOpen, setDialogOpen] = useState(false);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
@@ -214,7 +215,7 @@ export default function Admin() {
       if (!res.ok) throw new Error("Failed to fetch global assumptions");
       return res.json();
     },
-    enabled: currentView === "sidebar",
+    enabled: adminTab === "sidebar",
   });
 
   const updateSidebarMutation = useMutation({
@@ -264,7 +265,7 @@ export default function Admin() {
       if (!res.ok) throw new Error("Failed to fetch checker activity");
       return res.json();
     },
-    enabled: currentView === "checker-activity" || currentView === "dashboard",
+    enabled: adminTab === "checker-activity",
   });
 
   const { data: verificationHistory } = useQuery<VerificationHistoryEntry[]>({
@@ -299,7 +300,7 @@ export default function Admin() {
       if (!res.ok) throw new Error("Failed to fetch logos");
       return res.json();
     },
-    enabled: currentView === "branding",
+    enabled: adminTab === "branding",
   });
 
   const { data: allThemes } = useQuery<Array<{ id: number; name: string; isActive: boolean }>>({
@@ -309,7 +310,7 @@ export default function Admin() {
       if (!res.ok) throw new Error("Failed to fetch themes");
       return res.json();
     },
-    enabled: currentView === "branding",
+    enabled: adminTab === "branding",
   });
 
   const createLogoMutation = useMutation({
@@ -749,206 +750,26 @@ export default function Admin() {
   // Auto-run verification when entering verification view
   const verificationAutoRan = useRef(false);
   useEffect(() => {
-    if (currentView === "verification" && !verificationResults && !runVerification.isPending && !verificationAutoRan.current) {
+    if (adminTab === "verification" && !verificationResults && !runVerification.isPending && !verificationAutoRan.current) {
       verificationAutoRan.current = true;
       runVerification.mutate();
     }
-    if (currentView !== "verification") {
+    if (adminTab !== "verification") {
       verificationAutoRan.current = false;
     }
-  }, [currentView]);
-
-  // Auto-run design check when entering design view
-  const designAutoRan = useRef(false);
-  useEffect(() => {
-    if (currentView === "design" && !designResults && !runDesignCheck.isPending && !designAutoRan.current) {
-      designAutoRan.current = true;
-      runDesignCheck.mutate();
-    }
-    if (currentView !== "design") {
-      designAutoRan.current = false;
-    }
-  }, [currentView]);
+  }, [adminTab]);
 
 
-  const AdminCard = ({ icon: Icon, title, description, onClick, testId, badge, iconBg }: {
-    icon: any; title: string; description: string; onClick: () => void; testId: string;
-    badge?: React.ReactNode; iconBg?: string;
-  }) => (
-    <button
-      onClick={onClick}
-      data-testid={testId}
-      className="group w-full text-left rounded-2xl relative overflow-hidden transition-all duration-500 hover:-translate-y-1 hover:shadow-xl hover:shadow-[#9FBCA4]/10"
-      style={{
-        background: 'linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%)',
-        backdropFilter: 'blur(20px)',
-        border: '1px solid rgba(255,255,255,0.08)',
-      }}
-    >
-      <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{
-        background: 'linear-gradient(135deg, rgba(159,188,164,0.12) 0%, rgba(37,125,65,0.06) 100%)',
-        border: '1px solid rgba(159,188,164,0.25)',
-      }} />
-      <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" style={{
-        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(0,0,0,0.1)',
-      }} />
-      <div className="relative p-5">
-        <div className="flex items-start gap-4">
-          <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-all duration-500 group-hover:scale-110 group-hover:shadow-lg ${iconBg || "bg-[#9FBCA4]/15"}`} style={{
-            background: iconBg ? undefined : 'linear-gradient(135deg, rgba(159,188,164,0.2) 0%, rgba(37,125,65,0.15) 100%)',
-            boxShadow: '0 2px 8px rgba(159,188,164,0.1)',
-          }}>
-            <Icon className="w-5 h-5 text-[#9FBCA4] group-hover:text-[#b8d4be] transition-colors duration-300" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="text-[15px] font-semibold text-white/90 group-hover:text-white transition-colors duration-300 font-display">{title}</h3>
-            <p className="text-[12px] text-white/35 mt-1 leading-relaxed tracking-wide">{description}</p>
-            {badge}
-          </div>
-          <div className="opacity-0 group-hover:opacity-60 transition-all duration-300 transform translate-x-1 group-hover:translate-x-0">
-            <svg className="w-4 h-4 text-[#9FBCA4]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-            </svg>
-          </div>
-        </div>
-      </div>
-    </button>
-  );
-
-  const renderDashboard = () => (
-    <div className="space-y-10 relative">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[
-          { label: "Users", value: users?.length || 0, icon: Users, color: "#9FBCA4", accent: "rgba(159,188,164,0.15)" },
-          { label: "Sessions", value: activeSessions, icon: Activity, color: "#9FBCA4", accent: "rgba(159,188,164,0.15)" },
-          { label: "Logins", value: loginLogs?.length || 0, icon: Clock, color: "#9FBCA4", accent: "rgba(159,188,164,0.15)" },
-          {
-            label: verificationHistory?.[0]?.auditOpinion || "Verification",
-            value: verificationHistory?.[0] ? `${verificationHistory[0].passed}/${verificationHistory[0].totalChecks}` : "--",
-            icon: FileCheck,
-            color: verificationHistory?.[0]?.auditOpinion === "UNQUALIFIED" ? "#9FBCA4" : verificationHistory?.[0]?.auditOpinion === "QUALIFIED" ? "#F59E0B" : "rgba(255,255,255,0.5)",
-            accent: verificationHistory?.[0]?.auditOpinion === "UNQUALIFIED" ? "rgba(37,125,65,0.15)" : "rgba(245,158,11,0.1)",
-            onClick: () => setCurrentView("verification"),
-          },
-        ].map((stat, i) => (
-          <div
-            key={i}
-            onClick={(stat as any).onClick}
-            className={`group relative rounded-2xl overflow-hidden transition-all duration-500 ${(stat as any).onClick ? "cursor-pointer hover:-translate-y-1" : ""}`}
-            style={{
-              background: 'linear-gradient(145deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%)',
-              backdropFilter: 'blur(24px)',
-              border: '1px solid rgba(255,255,255,0.08)',
-            }}
-          >
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{
-              background: `linear-gradient(145deg, ${stat.accent} 0%, transparent 70%)`,
-            }} />
-            <div className="absolute top-0 left-0 right-0 h-[1px]" style={{
-              background: `linear-gradient(90deg, transparent, ${stat.color}33, transparent)`,
-            }} />
-            <div className="relative p-5">
-              <div className="flex items-center gap-2.5 mb-3">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{
-                  background: `linear-gradient(135deg, ${stat.accent}, transparent)`,
-                }}>
-                  <stat.icon className="w-4 h-4" style={{ color: stat.color }} />
-                </div>
-                <span className="text-[11px] font-semibold text-white/40 uppercase tracking-widest">{stat.label}</span>
-              </div>
-              <p className="text-3xl font-display font-bold tracking-tight" style={{ color: stat.color }}>{stat.value}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div>
-        <h2 className="text-xs font-semibold text-white/30 uppercase tracking-widest mb-4 px-1">Users & Activity</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-          <AdminCard icon={Users} title="Users" description="Accounts & permissions" onClick={() => setCurrentView("users")} testId="card-users" />
-          <AdminCard icon={Clock} title="Login Activity" description="Sessions & history" onClick={() => setCurrentView("activity")} testId="card-activity" />
-          <AdminCard icon={Activity} title="Activity Feed" description="Edits & system actions" onClick={() => setCurrentView("activity-feed")} testId="card-activity-feed" />
-          <AdminCard
-            icon={FileCheck}
-            title="Checker Activity"
-            description="Verifications & audit trail"
-            onClick={() => setCurrentView("checker-activity")}
-            testId="card-checker-activity"
-            iconBg="bg-[#E8927C]/15"
-            badge={checkerActivity ? (
-              <div className="flex gap-3 mt-2">
-                <span className="text-[11px] text-[#9FBCA4]">{checkerActivity.summary.verificationRuns} runs</span>
-                <span className="text-[11px] text-[#E8927C]">{checkerActivity.summary.manualViews} reviews</span>
-              </div>
-            ) : undefined}
-          />
-        </div>
-      </div>
-
-      <div>
-        <h2 className="text-xs font-semibold text-white/30 uppercase tracking-widest mb-4 px-1">Verification & Quality</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <AdminCard
-            icon={FileCheck}
-            title="Financial Verification"
-            description="GAAP compliance & independent recalculation"
-            onClick={() => setCurrentView("verification")}
-            testId="card-verification"
-            badge={verificationHistory?.[0] ? (
-              <div className="flex items-center gap-2 mt-2">
-                <span className={`text-[11px] px-2 py-0.5 rounded-md font-mono ${
-                  verificationHistory[0].auditOpinion === "UNQUALIFIED" ? "bg-[#257D41]/15 text-[#9FBCA4]" :
-                  verificationHistory[0].auditOpinion === "QUALIFIED" ? "bg-yellow-500/15 text-yellow-400" :
-                  "bg-red-500/15 text-red-400"
-                }`}>{verificationHistory[0].passed}/{verificationHistory[0].totalChecks} {verificationHistory[0].auditOpinion}</span>
-                <span className="text-[11px] text-white/25 font-mono">{new Date(verificationHistory[0].createdAt).toLocaleDateString()}</span>
-              </div>
-            ) : undefined}
-          />
-          <AdminCard
-            icon={Palette}
-            title="Design Consistency"
-            description="Fonts, colors & component standards"
-            onClick={() => setCurrentView("design")}
-            testId="card-design"
-            badge={designResults ? (
-              <div className="flex items-center gap-2 mt-2">
-                <span className={`text-[11px] px-2 py-0.5 rounded-md font-mono ${
-                  designResults.overallStatus === "PASS" ? "bg-[#257D41]/15 text-[#9FBCA4]" :
-                  designResults.overallStatus === "WARNING" ? "bg-yellow-500/15 text-yellow-400" :
-                  "bg-red-500/15 text-red-400"
-                }`}>{designResults.passed}/{designResults.totalChecks} {designResults.overallStatus}</span>
-              </div>
-            ) : undefined}
-          />
-        </div>
-      </div>
-
-      <div>
-        <h2 className="text-xs font-semibold text-white/30 uppercase tracking-widest mb-4 px-1">Appearance & Settings</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-          <AdminCard icon={SwatchBook} title="Design Themes" description="Color palettes & system" onClick={() => setCurrentView("themes")} testId="card-themes" />
-          <AdminCard icon={Image} title="Branding" description="Logos & user assignments" onClick={() => setCurrentView("branding")} testId="card-branding" />
-          <AdminCard icon={PanelLeft} title="Navigation" description="Sidebar page visibility" onClick={() => setCurrentView("sidebar")} testId="card-sidebar" />
-        </div>
-      </div>
-    </div>
-  );
 
   const renderUsers = () => (
-    <Card className="relative overflow-hidden bg-[#0a0a0f]/95 backdrop-blur-3xl border border-white/10 shadow-2xl shadow-black/50">
-      <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] via-transparent to-black/20" />
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-[#9FBCA4]/20 blur-[100px] animate-pulse" style={{ animationDuration: '4s' }} />
-        <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-[#257D41]/15 blur-[100px] animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
-      </div>
-      <div className="absolute inset-0 shadow-[inset_0_0_100px_rgba(159,188,164,0.05)]" />
+    <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+
       
       <CardHeader className="relative">
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-xl font-display text-[#FFF9F5]">User Management</CardTitle>
-            <CardDescription className="label-text text-white/60">
+            <CardTitle className="text-xl font-display">User Management</CardTitle>
+            <CardDescription className="label-text">
               {users?.length || 0} registered users
             </CardDescription>
           </div>
@@ -967,34 +788,34 @@ export default function Admin() {
         ) : (
           <Table>
             <TableHeader>
-              <TableRow className="border-white/10 hover:bg-transparent">
-                <TableHead className="text-white/60 font-display"><div className="flex items-center gap-2"><Users className="w-4 h-4" />User</div></TableHead>
-                <TableHead className="text-white/60 font-display"><div className="flex items-center gap-2"><Shield className="w-4 h-4" />Role</div></TableHead>
-                <TableHead className="text-white/60 font-display"><div className="flex items-center gap-2"><Calendar className="w-4 h-4" />Created</div></TableHead>
-                <TableHead className="text-white/60 font-display text-right"><div className="flex items-center justify-end gap-2"><Settings className="w-4 h-4" />Actions</div></TableHead>
+              <TableRow className="border-[#9FBCA4]/20 hover:bg-transparent">
+                <TableHead className="text-muted-foreground font-display"><div className="flex items-center gap-2"><Users className="w-4 h-4" />User</div></TableHead>
+                <TableHead className="text-muted-foreground font-display"><div className="flex items-center gap-2"><Shield className="w-4 h-4" />Role</div></TableHead>
+                <TableHead className="text-muted-foreground font-display"><div className="flex items-center gap-2"><Calendar className="w-4 h-4" />Created</div></TableHead>
+                <TableHead className="text-muted-foreground font-display text-right"><div className="flex items-center justify-end gap-2"><Settings className="w-4 h-4" />Actions</div></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {users?.map((user) => (
-                <TableRow key={user.id} className="border-white/10 hover:bg-white/5" data-testid={`row-user-${user.id}`}>
+                <TableRow key={user.id} className="border-[#9FBCA4]/20 hover:bg-[#9FBCA4]/5" data-testid={`row-user-${user.id}`}>
                   <TableCell>
-                    <div className="text-[#FFF9F5] font-medium">{user.name || user.email}</div>
-                    {user.name && <div className="text-xs text-white/50">{user.email}</div>}
+                    <div className="font-display font-medium">{user.name || user.email}</div>
+                    {user.name && <div className="text-xs text-muted-foreground">{user.email}</div>}
                   </TableCell>
                   <TableCell>
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${user.role === 'admin' ? 'bg-[#257D41]/20 text-[#9FBCA4]' : 'bg-white/10 text-white/70'}`}>
+                    <span className={`px-2 py-1 rounded text-xs font-medium ${user.role === 'admin' ? 'bg-[#257D41]/15 text-[#257D41]' : 'bg-[#9FBCA4]/10 text-muted-foreground'}`}>
                       {user.role}
                     </span>
                   </TableCell>
-                  <TableCell className="text-white/60 font-mono text-sm">{formatDateTime(user.createdAt)}</TableCell>
+                  <TableCell className="text-muted-foreground font-mono text-sm">{formatDateTime(user.createdAt)}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <Button size="sm" variant="ghost" className="text-white/60 hover:text-white hover:bg-white/10"
+                      <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-[#9FBCA4]/10"
                         onClick={() => { setSelectedUser(user); setOriginalEmail(user.email); setEditUser({ email: user.email, name: user.name || "", company: user.company || "", title: user.title || "", role: user.role || "user" }); setEditDialogOpen(true); }}
                         data-testid={`button-edit-user-${user.id}`}>
                         <Pencil className="w-4 h-4" />
                       </Button>
-                      <Button size="sm" variant="ghost" className="text-white/60 hover:text-white hover:bg-white/10"
+                      <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-[#9FBCA4]/10"
                         onClick={() => { setSelectedUser(user); setPasswordDialogOpen(true); }}
                         data-testid={`button-password-user-${user.id}`}>
                         <Key className="w-4 h-4" />
@@ -1025,30 +846,25 @@ export default function Admin() {
     });
 
     return (<>
-    <Card className="relative overflow-hidden bg-[#0a0a0f]/95 backdrop-blur-3xl border border-white/10 shadow-2xl shadow-black/50">
-      <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] via-transparent to-black/20" />
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-[#9FBCA4]/20 blur-[100px] animate-pulse" style={{ animationDuration: '4s' }} />
-        <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-[#257D41]/15 blur-[100px] animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
-      </div>
-      <div className="absolute inset-0 shadow-[inset_0_0_100px_rgba(159,188,164,0.05)]" />
+    <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+
 
       <CardHeader className="relative">
-        <CardTitle className="text-xl font-display text-[#FFF9F5]">Login Activity</CardTitle>
-        <CardDescription className="label-text text-white/60">
+        <CardTitle className="text-xl font-display">Login Activity</CardTitle>
+        <CardDescription className="label-text">
           {loginLogs?.length || 0} login records | {activeSessions} active sessions
         </CardDescription>
       </CardHeader>
 
       <CardContent className="relative space-y-4">
         {/* Login Log Filters */}
-        <div className="flex flex-wrap items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/10">
+        <div className="flex flex-wrap items-center gap-4 p-4 rounded-xl bg-[#9FBCA4]/5 border border-[#9FBCA4]/20">
           <div className="flex items-center gap-2">
-            <Label className="text-white/60 text-sm whitespace-nowrap">User</Label>
+            <Label className="text-muted-foreground text-sm whitespace-nowrap">User</Label>
             <select
               value={loginLogUserFilter}
               onChange={(e) => setLoginLogUserFilter(e.target.value)}
-              className="bg-white/10 border border-white/20 text-white rounded-lg px-3 py-1.5 text-sm"
+              className="bg-[#9FBCA4]/10 border border-[#9FBCA4]/20 text-foreground rounded-lg px-3 py-1.5 text-sm"
               data-testid="select-login-log-user-filter"
             >
               <option value="">All Users</option>
@@ -1058,16 +874,16 @@ export default function Admin() {
             </select>
           </div>
           <div className="flex items-center gap-2">
-            <Label className="text-white/60 text-sm whitespace-nowrap">IP Address</Label>
+            <Label className="text-muted-foreground text-sm whitespace-nowrap">IP Address</Label>
             <Input
               value={loginLogIpFilter}
               onChange={(e) => setLoginLogIpFilter(e.target.value)}
               placeholder="Search IP..."
-              className="bg-white/10 border-white/20 text-white placeholder:text-white/30 h-8 w-36 text-sm"
+              className="bg-[#9FBCA4]/10 border-[#9FBCA4]/20 text-foreground placeholder:text-muted-foreground h-8 w-36 text-sm"
               data-testid="input-login-log-ip-filter"
             />
           </div>
-          <span className="text-white/40 text-sm ml-auto">
+          <span className="text-muted-foreground text-sm ml-auto">
             {filteredLogs?.length ?? 0} of {loginLogs?.length ?? 0} entries
           </span>
         </div>
@@ -1078,39 +894,39 @@ export default function Admin() {
           </div>
         ) : filteredLogs?.length === 0 ? (
           <div className="text-center py-12">
-            <Clock className="w-16 h-16 mx-auto text-white/30 mb-4" />
-            <p className="label-text text-white/60">
+            <Clock className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+            <p className="label-text">
               {loginLogs?.length === 0 ? "No login activity recorded yet" : "No logs match the current filters"}
             </p>
           </div>
         ) : (
           <Table>
             <TableHeader>
-              <TableRow className="border-white/10 hover:bg-transparent">
-                <TableHead className="text-white/60 font-display"><div className="flex items-center gap-2"><Users className="w-4 h-4" />User</div></TableHead>
-                <TableHead className="text-white/60 font-display"><div className="flex items-center gap-2"><LogIn className="w-4 h-4" />Login Time</div></TableHead>
-                <TableHead className="text-white/60 font-display"><div className="flex items-center gap-2"><LogOut className="w-4 h-4" />Logout Time</div></TableHead>
-                <TableHead className="text-white/60 font-display"><div className="flex items-center gap-2"><Clock className="w-4 h-4" />Duration</div></TableHead>
-                <TableHead className="text-white/60 font-display"><div className="flex items-center gap-2"><Monitor className="w-4 h-4" />IP Address</div></TableHead>
+              <TableRow className="border-[#9FBCA4]/20 hover:bg-transparent">
+                <TableHead className="text-muted-foreground font-display"><div className="flex items-center gap-2"><Users className="w-4 h-4" />User</div></TableHead>
+                <TableHead className="text-muted-foreground font-display"><div className="flex items-center gap-2"><LogIn className="w-4 h-4" />Login Time</div></TableHead>
+                <TableHead className="text-muted-foreground font-display"><div className="flex items-center gap-2"><LogOut className="w-4 h-4" />Logout Time</div></TableHead>
+                <TableHead className="text-muted-foreground font-display"><div className="flex items-center gap-2"><Clock className="w-4 h-4" />Duration</div></TableHead>
+                <TableHead className="text-muted-foreground font-display"><div className="flex items-center gap-2"><Monitor className="w-4 h-4" />IP Address</div></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredLogs?.map((log) => (
-                <TableRow key={log.id} className="border-white/10 hover:bg-white/5" data-testid={`row-log-${log.id}`}>
+                <TableRow key={log.id} className="border-[#9FBCA4]/20 hover:bg-[#9FBCA4]/5" data-testid={`row-log-${log.id}`}>
                   <TableCell>
-                    <div className="text-[#FFF9F5]">{log.userName || log.userEmail}</div>
-                    {log.userName && <div className="text-xs text-white/50">{log.userEmail}</div>}
+                    <div className="font-display">{log.userName || log.userEmail}</div>
+                    {log.userName && <div className="text-xs text-muted-foreground">{log.userEmail}</div>}
                   </TableCell>
-                  <TableCell className="text-white/80 font-mono text-sm">{formatDateTime(log.loginAt)}</TableCell>
-                  <TableCell className="text-white/80 font-mono text-sm">
+                  <TableCell className="text-foreground/80 font-mono text-sm">{formatDateTime(log.loginAt)}</TableCell>
+                  <TableCell className="text-foreground/80 font-mono text-sm">
                     {log.logoutAt ? formatDateTime(log.logoutAt) : <span className="text-[#9FBCA4]">Active</span>}
                   </TableCell>
                   <TableCell className="font-mono text-sm">
-                    <span className={log.logoutAt ? "text-white/80" : "text-[#9FBCA4]"}>
+                    <span className={log.logoutAt ? "text-foreground/80" : "text-[#9FBCA4]"}>
                       {formatDuration(log.loginAt, log.logoutAt)}
                     </span>
                   </TableCell>
-                  <TableCell className="text-white/60 font-mono text-sm">{log.ipAddress || "-"}</TableCell>
+                  <TableCell className="text-muted-foreground font-mono text-sm">{log.ipAddress || "-"}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -1121,18 +937,17 @@ export default function Admin() {
 
     {/* Active Sessions */}
     {activeSessionsList && activeSessionsList.length > 0 && (
-      <Card className="relative overflow-hidden bg-[#0a0a0f]/95 backdrop-blur-3xl border border-white/10 shadow-2xl shadow-black/50 mt-6">
-        <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] via-transparent to-black/20" />
-        <CardHeader className="relative">
-          <CardTitle className="text-lg font-display text-[#FFF9F5]">Active Sessions</CardTitle>
-          <CardDescription className="label-text text-white/60">
+      <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)] mt-6">
+        <CardHeader>
+          <CardTitle className="text-lg font-display">Active Sessions</CardTitle>
+          <CardDescription className="label-text">
             {activeSessionsList.length} active session{activeSessionsList.length !== 1 ? "s" : ""}
           </CardDescription>
         </CardHeader>
         <CardContent className="relative">
           <Table>
             <TableHeader>
-              <TableRow className="border-b border-white/10 hover:bg-transparent">
+              <TableRow className="border-b border-[#9FBCA4]/20 hover:bg-transparent">
                 <TableHead className="text-[#9FBCA4] font-semibold text-xs uppercase tracking-wider">User</TableHead>
                 <TableHead className="text-[#9FBCA4] font-semibold text-xs uppercase tracking-wider">Session Started</TableHead>
                 <TableHead className="text-[#9FBCA4] font-semibold text-xs uppercase tracking-wider">Expires</TableHead>
@@ -1141,10 +956,10 @@ export default function Admin() {
             </TableHeader>
             <TableBody>
               {activeSessionsList.map((s) => (
-                <TableRow key={s.id} className="border-b border-white/5 hover:bg-white/5">
-                  <TableCell className="text-white/80 text-sm">{s.userName || s.userEmail}</TableCell>
-                  <TableCell className="text-white/60 font-mono text-xs">{new Date(s.createdAt).toLocaleString()}</TableCell>
-                  <TableCell className="text-white/60 font-mono text-xs">{new Date(s.expiresAt).toLocaleString()}</TableCell>
+                <TableRow key={s.id} className="border-b border-[#9FBCA4]/10 hover:bg-[#9FBCA4]/5">
+                  <TableCell className="text-foreground/80 text-sm">{s.userName || s.userEmail}</TableCell>
+                  <TableCell className="text-muted-foreground font-mono text-xs">{new Date(s.createdAt).toLocaleString()}</TableCell>
+                  <TableCell className="text-muted-foreground font-mono text-xs">{new Date(s.expiresAt).toLocaleString()}</TableCell>
                   <TableCell className="text-right">
                     <Button
                       size="sm"
@@ -1221,15 +1036,15 @@ export default function Admin() {
   const renderActivityFeed = () => (
     <div className="space-y-6">
       {/* Filters */}
-      <Card className="relative overflow-hidden bg-[#0a0a0f]/95 backdrop-blur-3xl border border-white/10 shadow-2xl shadow-black/50">
+      <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
         <CardContent className="relative p-6">
           <div className="flex flex-wrap items-center gap-4">
             <div className="flex items-center gap-2">
-              <Label className="text-white/60 text-sm whitespace-nowrap">Entity Type</Label>
+              <Label className="text-muted-foreground text-sm whitespace-nowrap">Entity Type</Label>
               <select
                 value={activityEntityFilter}
                 onChange={(e) => setActivityEntityFilter(e.target.value)}
-                className="bg-white/10 border border-white/20 text-white rounded-lg px-3 py-1.5 text-sm"
+                className="bg-[#9FBCA4]/10 border border-[#9FBCA4]/20 text-foreground rounded-lg px-3 py-1.5 text-sm"
                 data-testid="select-activity-entity-filter"
               >
                 <option value="">All</option>
@@ -1242,11 +1057,11 @@ export default function Admin() {
               </select>
             </div>
             <div className="flex items-center gap-2">
-              <Label className="text-white/60 text-sm whitespace-nowrap">User</Label>
+              <Label className="text-muted-foreground text-sm whitespace-nowrap">User</Label>
               <select
                 value={activityUserFilter}
                 onChange={(e) => setActivityUserFilter(e.target.value)}
-                className="bg-white/10 border border-white/20 text-white rounded-lg px-3 py-1.5 text-sm"
+                className="bg-[#9FBCA4]/10 border border-[#9FBCA4]/20 text-foreground rounded-lg px-3 py-1.5 text-sm"
                 data-testid="select-activity-user-filter"
               >
                 <option value="">All Users</option>
@@ -1255,7 +1070,7 @@ export default function Admin() {
                 ))}
               </select>
             </div>
-            <span className="text-white/40 text-sm ml-auto">
+            <span className="text-muted-foreground text-sm ml-auto">
               {activityLogs?.length ?? 0} entries
             </span>
           </div>
@@ -1263,20 +1078,19 @@ export default function Admin() {
       </Card>
 
       {/* Activity Table */}
-      <Card className="relative overflow-hidden bg-[#0a0a0f]/95 backdrop-blur-3xl border border-white/10 shadow-2xl shadow-black/50">
-        <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] via-transparent to-black/20" />
-        <CardContent className="relative p-6">
+      <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+        <CardContent className="p-6">
           {activityLogsLoading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="w-6 h-6 animate-spin text-[#9FBCA4]" />
             </div>
           ) : !activityLogs?.length ? (
-            <p className="text-white/50 text-center py-12 label-text">No activity recorded yet</p>
+            <p className="text-muted-foreground text-center py-12 label-text">No activity recorded yet</p>
           ) : (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow className="border-b border-white/10 hover:bg-transparent">
+                  <TableRow className="border-b border-[#9FBCA4]/20 hover:bg-transparent">
                     <TableHead className="text-[#9FBCA4] font-semibold text-xs uppercase tracking-wider">Time</TableHead>
                     <TableHead className="text-[#9FBCA4] font-semibold text-xs uppercase tracking-wider">User</TableHead>
                     <TableHead className="text-[#9FBCA4] font-semibold text-xs uppercase tracking-wider">Action</TableHead>
@@ -1287,11 +1101,11 @@ export default function Admin() {
                 </TableHeader>
                 <TableBody>
                   {activityLogs.map((log) => (
-                    <TableRow key={log.id} className="border-b border-white/5 hover:bg-white/5">
-                      <TableCell className="text-white/70 text-xs font-mono whitespace-nowrap">
+                    <TableRow key={log.id} className="border-b border-[#9FBCA4]/10 hover:bg-[#9FBCA4]/5">
+                      <TableCell className="text-muted-foreground text-xs font-mono whitespace-nowrap">
                         {new Date(log.createdAt).toLocaleString()}
                       </TableCell>
-                      <TableCell className="text-white/80 text-sm">
+                      <TableCell className="text-foreground/80 text-sm">
                         {log.userName || log.userEmail}
                       </TableCell>
                       <TableCell>
@@ -1300,14 +1114,14 @@ export default function Admin() {
                           log.action === "update" ? "bg-blue-500/20 text-blue-400" :
                           log.action === "delete" ? "bg-red-500/20 text-red-400" :
                           log.action === "run" ? "bg-purple-500/20 text-purple-400" :
-                          "bg-white/10 text-white/60"
+                          "bg-[#9FBCA4]/10 text-muted-foreground"
                         }`}>
                           {log.action}
                         </span>
                       </TableCell>
-                      <TableCell className="text-white/60 text-xs font-mono">{log.entityType}</TableCell>
-                      <TableCell className="text-white/80 text-sm">{log.entityName || "—"}</TableCell>
-                      <TableCell className="text-white/50 text-xs max-w-[200px] truncate">
+                      <TableCell className="text-muted-foreground text-xs font-mono">{log.entityType}</TableCell>
+                      <TableCell className="text-foreground/80 text-sm">{log.entityName || "—"}</TableCell>
+                      <TableCell className="text-muted-foreground text-xs max-w-[200px] truncate">
                         {log.metadata ? JSON.stringify(log.metadata).slice(0, 80) : "—"}
                       </TableCell>
                     </TableRow>
@@ -1331,60 +1145,60 @@ export default function Admin() {
     return (
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card className="bg-gradient-to-br from-[#1a2e3d]/95 to-[#243d4d]/95 border border-white/20">
+          <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
             <CardContent className="p-6 text-center">
               <div className="text-3xl font-bold text-[#9FBCA4]">{checkerActivity?.summary.totalActions ?? 0}</div>
-              <div className="text-xs text-white/50 mt-1">Total Actions</div>
+              <div className="text-xs text-muted-foreground mt-1">Total Actions</div>
             </CardContent>
           </Card>
-          <Card className="bg-gradient-to-br from-[#1a2e3d]/95 to-[#243d4d]/95 border border-white/20">
+          <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
             <CardContent className="p-6 text-center">
               <div className="text-3xl font-bold text-[#4ECDC4]">{checkerActivity?.summary.verificationRuns ?? 0}</div>
-              <div className="text-xs text-white/50 mt-1">Verification Runs</div>
+              <div className="text-xs text-muted-foreground mt-1">Verification Runs</div>
             </CardContent>
           </Card>
-          <Card className="bg-gradient-to-br from-[#1a2e3d]/95 to-[#243d4d]/95 border border-white/20">
+          <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
             <CardContent className="p-6 text-center">
               <div className="text-3xl font-bold text-[#E8927C]">{checkerActivity?.summary.manualViews ?? 0}</div>
-              <div className="text-xs text-white/50 mt-1">Manual Reviews</div>
+              <div className="text-xs text-muted-foreground mt-1">Manual Reviews</div>
             </CardContent>
           </Card>
-          <Card className="bg-gradient-to-br from-[#1a2e3d]/95 to-[#243d4d]/95 border border-white/20">
+          <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
             <CardContent className="p-6 text-center">
-              <div className="text-3xl font-bold text-white">{checkerActivity?.summary.exports ?? 0}</div>
-              <div className="text-xs text-white/50 mt-1">Exports</div>
+              <div className="text-3xl font-bold text-foreground">{checkerActivity?.summary.exports ?? 0}</div>
+              <div className="text-xs text-muted-foreground mt-1">Exports</div>
             </CardContent>
           </Card>
         </div>
 
         {checkerActivity?.checkers && checkerActivity.checkers.length > 0 && (
-          <Card className="bg-gradient-to-br from-[#1a2e3d]/95 to-[#243d4d]/95 border border-white/20">
+          <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
             <CardHeader>
-              <CardTitle className="text-xl font-display text-white">Checker Users</CardTitle>
+              <CardTitle className="text-xl font-display">Checker Users</CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
-                  <TableRow className="border-white/10">
-                    <TableHead className="text-white/60">Email</TableHead>
-                    <TableHead className="text-white/60">Name</TableHead>
-                    <TableHead className="text-white/60 text-center">Actions</TableHead>
-                    <TableHead className="text-white/60 text-center">Verifications</TableHead>
-                    <TableHead className="text-white/60 text-center">Reviews</TableHead>
-                    <TableHead className="text-white/60 text-center">Exports</TableHead>
-                    <TableHead className="text-white/60">Last Active</TableHead>
+                  <TableRow className="border-[#9FBCA4]/20">
+                    <TableHead className="text-muted-foreground">Email</TableHead>
+                    <TableHead className="text-muted-foreground">Name</TableHead>
+                    <TableHead className="text-muted-foreground text-center">Actions</TableHead>
+                    <TableHead className="text-muted-foreground text-center">Verifications</TableHead>
+                    <TableHead className="text-muted-foreground text-center">Reviews</TableHead>
+                    <TableHead className="text-muted-foreground text-center">Exports</TableHead>
+                    <TableHead className="text-muted-foreground">Last Active</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {checkerActivity.checkers.map((checker) => (
-                    <TableRow key={checker.id} className="border-white/10">
-                      <TableCell className="text-white font-mono text-sm">{checker.email}</TableCell>
-                      <TableCell className="text-white/80">{checker.name || "-"}</TableCell>
-                      <TableCell className="text-white/80 text-center">{checker.totalActions}</TableCell>
+                    <TableRow key={checker.id} className="border-[#9FBCA4]/20">
+                      <TableCell className="text-foreground font-mono text-sm">{checker.email}</TableCell>
+                      <TableCell className="text-foreground/80">{checker.name || "-"}</TableCell>
+                      <TableCell className="text-foreground/80 text-center">{checker.totalActions}</TableCell>
                       <TableCell className="text-[#4ECDC4] text-center font-semibold">{checker.verificationRuns}</TableCell>
                       <TableCell className="text-[#E8927C] text-center font-semibold">{checker.manualViews}</TableCell>
-                      <TableCell className="text-white/80 text-center">{checker.exports}</TableCell>
-                      <TableCell className="text-white/60 text-sm">{formatDate(checker.lastActive)}</TableCell>
+                      <TableCell className="text-foreground/80 text-center">{checker.exports}</TableCell>
+                      <TableCell className="text-muted-foreground text-sm">{formatDate(checker.lastActive)}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -1393,41 +1207,41 @@ export default function Admin() {
           </Card>
         )}
 
-        <Card className="bg-gradient-to-br from-[#1a2e3d]/95 to-[#243d4d]/95 border border-white/20">
+        <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
           <CardHeader>
-            <CardTitle className="text-xl font-display text-white">Recent Checker Activity</CardTitle>
+            <CardTitle className="text-xl font-display">Recent Checker Activity</CardTitle>
           </CardHeader>
           <CardContent>
             {(!checkerActivity?.recentActivity || checkerActivity.recentActivity.length === 0) ? (
-              <p className="text-white/40 text-center py-8">No checker activity recorded yet</p>
+              <p className="text-muted-foreground text-center py-8">No checker activity recorded yet</p>
             ) : (
               <Table>
                 <TableHeader>
-                  <TableRow className="border-white/10">
-                    <TableHead className="text-white/60">Time</TableHead>
-                    <TableHead className="text-white/60">User</TableHead>
-                    <TableHead className="text-white/60">Action</TableHead>
-                    <TableHead className="text-white/60">Entity</TableHead>
-                    <TableHead className="text-white/60">Details</TableHead>
+                  <TableRow className="border-[#9FBCA4]/20">
+                    <TableHead className="text-muted-foreground">Time</TableHead>
+                    <TableHead className="text-muted-foreground">User</TableHead>
+                    <TableHead className="text-muted-foreground">Action</TableHead>
+                    <TableHead className="text-muted-foreground">Entity</TableHead>
+                    <TableHead className="text-muted-foreground">Details</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {checkerActivity.recentActivity.map((log) => (
-                    <TableRow key={log.id} className="border-white/10">
-                      <TableCell className="text-white/60 text-sm whitespace-nowrap">{formatDate(log.createdAt)}</TableCell>
-                      <TableCell className="text-white font-mono text-sm">{log.userEmail}</TableCell>
+                    <TableRow key={log.id} className="border-[#9FBCA4]/20">
+                      <TableCell className="text-muted-foreground text-sm whitespace-nowrap">{formatDate(log.createdAt)}</TableCell>
+                      <TableCell className="text-foreground font-mono text-sm">{log.userEmail}</TableCell>
                       <TableCell>
                         <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
                           log.action === "run" ? "bg-[#4ECDC4]/20 text-[#4ECDC4]" :
                           log.action === "view" ? "bg-blue-500/20 text-blue-400" :
                           log.action.includes("export") ? "bg-purple-500/20 text-purple-400" :
-                          "bg-white/10 text-white/60"
+                          "bg-[#9FBCA4]/10 text-muted-foreground"
                         }`}>
                           {log.action}
                         </span>
                       </TableCell>
-                      <TableCell className="text-white/80 text-sm">{log.entityName || log.entityType}</TableCell>
-                      <TableCell className="text-white/50 text-xs max-w-[200px] truncate">
+                      <TableCell className="text-foreground/80 text-sm">{log.entityName || log.entityType}</TableCell>
+                      <TableCell className="text-muted-foreground text-xs max-w-[200px] truncate">
                         {log.metadata ? JSON.stringify(log.metadata).slice(0, 80) : "-"}
                       </TableCell>
                     </TableRow>
@@ -1766,21 +1580,20 @@ export default function Admin() {
 
   const renderBranding = () => (
     <div className="space-y-6">
-      <Card className="relative overflow-hidden bg-[#0a0a0f]/95 backdrop-blur-3xl border border-white/10 shadow-2xl shadow-black/50">
-        <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] via-transparent to-black/20" />
-        <CardHeader className="relative">
-          <CardTitle className="font-display text-white flex items-center gap-2"><Image className="w-5 h-5" /> Logo Portfolio</CardTitle>
+      <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+        <CardHeader>
+          <CardTitle className="font-display flex items-center gap-2"><Image className="w-5 h-5" /> Logo Portfolio</CardTitle>
           <CardDescription className="label-text">Manage logos available for user assignment</CardDescription>
         </CardHeader>
         <CardContent className="relative space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {adminLogos?.map(logo => (
-              <div key={logo.id} className="relative bg-white/5 border border-white/10 rounded-xl p-4 flex items-center gap-4" data-testid={`logo-card-${logo.id}`}>
-                <div className="w-16 h-16 rounded-lg bg-white/10 flex items-center justify-center overflow-hidden border border-white/10">
+              <div key={logo.id} className="relative bg-[#9FBCA4]/5 border border-[#9FBCA4]/20 rounded-xl p-4 flex items-center gap-4" data-testid={`logo-card-${logo.id}`}>
+                <div className="w-16 h-16 rounded-lg bg-[#9FBCA4]/10 flex items-center justify-center overflow-hidden border border-[#9FBCA4]/20">
                   <img src={logo.url} alt={logo.name} className="max-w-full max-h-full object-contain" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-white font-medium truncate">{logo.name}</p>
+                  <p className="text-foreground font-medium truncate">{logo.name}</p>
                   {logo.isDefault && <span className="text-xs text-[#9FBCA4] font-mono">DEFAULT</span>}
                 </div>
                 {!logo.isDefault && (
@@ -1792,16 +1605,16 @@ export default function Admin() {
             ))}
           </div>
 
-          <div className="border-t border-white/10 pt-4">
-            <h4 className="text-white/80 font-medium mb-3">Add New Logo</h4>
+          <div className="border-t border-[#9FBCA4]/20 pt-4">
+            <h4 className="text-foreground/80 font-medium mb-3">Add New Logo</h4>
             <div className="flex gap-3 items-end">
               <div className="flex-1 space-y-1">
-                <Label className="text-white/60 text-xs">Name</Label>
-                <Input value={newLogoName} onChange={(e) => setNewLogoName(e.target.value)} placeholder="Logo name" className="bg-white/5 border-white/10" data-testid="input-new-logo-name" />
+                <Label className="text-muted-foreground text-xs">Name</Label>
+                <Input value={newLogoName} onChange={(e) => setNewLogoName(e.target.value)} placeholder="Logo name" className="bg-[#9FBCA4]/5 border-[#9FBCA4]/20" data-testid="input-new-logo-name" />
               </div>
               <div className="flex-1 space-y-1">
-                <Label className="text-white/60 text-xs">URL</Label>
-                <Input value={newLogoUrl} onChange={(e) => setNewLogoUrl(e.target.value)} placeholder="/logos/custom.png or https://..." className="bg-white/5 border-white/10" data-testid="input-new-logo-url" />
+                <Label className="text-muted-foreground text-xs">URL</Label>
+                <Input value={newLogoUrl} onChange={(e) => setNewLogoUrl(e.target.value)} placeholder="/logos/custom.png or https://..." className="bg-[#9FBCA4]/5 border-[#9FBCA4]/20" data-testid="input-new-logo-url" />
               </div>
               <Button variant="outline" onClick={() => createLogoMutation.mutate({ name: newLogoName, url: newLogoUrl })} disabled={!newLogoName || !newLogoUrl || createLogoMutation.isPending} className="flex items-center gap-2" data-testid="button-add-logo">
                 {createLogoMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
@@ -1812,21 +1625,20 @@ export default function Admin() {
         </CardContent>
       </Card>
 
-      <Card className="relative overflow-hidden bg-[#0a0a0f]/95 backdrop-blur-3xl border border-white/10 shadow-2xl shadow-black/50">
-        <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] via-transparent to-black/20" />
-        <CardHeader className="relative">
-          <CardTitle className="font-display text-white flex items-center gap-2"><Users className="w-5 h-5" /> User Branding Assignment</CardTitle>
+      <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+        <CardHeader>
+          <CardTitle className="font-display flex items-center gap-2"><Users className="w-5 h-5" /> User Branding Assignment</CardTitle>
           <CardDescription className="label-text">Assign a specific logo and theme to each user</CardDescription>
         </CardHeader>
         <CardContent className="relative">
           <Table>
             <TableHeader>
-              <TableRow className="border-white/10 hover:bg-transparent">
-                <TableHead className="text-white/60">User</TableHead>
-                <TableHead className="text-white/60">Role</TableHead>
-                <TableHead className="text-white/60">Assigned Logo</TableHead>
-                <TableHead className="text-white/60">Assigned Theme</TableHead>
-                <TableHead className="text-white/60 text-right">Actions</TableHead>
+              <TableRow className="border-[#9FBCA4]/20 hover:bg-transparent">
+                <TableHead className="text-muted-foreground">User</TableHead>
+                <TableHead className="text-muted-foreground">Role</TableHead>
+                <TableHead className="text-muted-foreground">Assigned Logo</TableHead>
+                <TableHead className="text-muted-foreground">Assigned Theme</TableHead>
+                <TableHead className="text-muted-foreground text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -1834,30 +1646,30 @@ export default function Admin() {
                 const userLogo = adminLogos?.find(l => l.id === user.assignedLogoId);
                 const userTheme = allThemes?.find(t => t.id === user.assignedThemeId);
                 return (
-                  <TableRow key={user.id} className="border-white/10 hover:bg-white/5" data-testid={`branding-row-${user.id}`}>
-                    <TableCell className="text-white">
+                  <TableRow key={user.id} className="border-[#9FBCA4]/20 hover:bg-[#9FBCA4]/5" data-testid={`branding-row-${user.id}`}>
+                    <TableCell className="text-foreground">
                       <div>
                         <span className="font-medium">{user.name || user.email}</span>
-                        {user.name && <span className="text-white/40 text-xs ml-2">{user.email}</span>}
+                        {user.name && <span className="text-muted-foreground text-xs ml-2">{user.email}</span>}
                       </div>
                     </TableCell>
                     <TableCell>
                       <span className={`text-xs px-2 py-0.5 rounded font-mono ${
                         user.role === "admin" ? "bg-[#9FBCA4]/20 text-[#9FBCA4]" :
                         user.role === "checker" ? "bg-blue-500/20 text-blue-400" :
-                        "bg-white/10 text-white/60"
+                        "bg-[#9FBCA4]/10 text-muted-foreground"
                       }`}>{user.role}</span>
                     </TableCell>
-                    <TableCell className="text-white/70">
+                    <TableCell className="text-muted-foreground">
                       {userLogo ? (
                         <div className="flex items-center gap-2">
-                          <img src={userLogo.url} alt={userLogo.name} className="w-6 h-6 rounded object-contain bg-white/10" />
+                          <img src={userLogo.url} alt={userLogo.name} className="w-6 h-6 rounded object-contain bg-[#9FBCA4]/10" />
                           <span className="text-sm">{userLogo.name}</span>
                         </div>
-                      ) : <span className="text-white/30 text-sm">Default</span>}
+                      ) : <span className="text-muted-foreground text-sm">Default</span>}
                     </TableCell>
-                    <TableCell className="text-white/70">
-                      {userTheme ? <span className="text-sm">{userTheme.name}</span> : <span className="text-white/30 text-sm">Default</span>}
+                    <TableCell className="text-muted-foreground">
+                      {userTheme ? <span className="text-sm">{userTheme.name}</span> : <span className="text-muted-foreground text-sm">Default</span>}
                     </TableCell>
                     <TableCell className="text-right">
                       <Button variant="ghost" size="sm" onClick={() => {
@@ -1865,7 +1677,7 @@ export default function Admin() {
                         setBrandingLogoId(user.assignedLogoId);
                         setBrandingThemeId(user.assignedThemeId);
                         setBrandingDialogOpen(true);
-                      }} className="text-[#9FBCA4] hover:text-white hover:bg-white/10" data-testid={`button-edit-branding-${user.id}`}>
+                      }} className="text-[#9FBCA4] hover:text-foreground hover:bg-[#9FBCA4]/10" data-testid={`button-edit-branding-${user.id}`}>
                         <Pencil className="w-4 h-4 mr-1" /> Assign
                       </Button>
                     </TableCell>
@@ -1892,10 +1704,9 @@ export default function Admin() {
   ];
 
   const renderSidebar = () => (
-    <Card className="relative overflow-hidden bg-[#0a0a0f]/95 backdrop-blur-3xl border border-white/10 shadow-2xl shadow-black/50" data-testid="card-sidebar-settings">
-      <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] via-transparent to-black/20" />
-      <CardHeader className="relative">
-        <CardTitle className="font-display text-white flex items-center gap-2"><Settings className="w-5 h-5" /> Navigation Visibility</CardTitle>
+    <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]" data-testid="card-sidebar-settings">
+      <CardHeader>
+        <CardTitle className="font-display flex items-center gap-2"><Settings className="w-5 h-5" /> Navigation Visibility</CardTitle>
         <CardDescription className="label-text">Toggle which optional pages appear in the sidebar for non-admin users. Core pages (Dashboard, Properties, Management Co., Settings, Profile, Administration) are always visible.</CardDescription>
       </CardHeader>
       <CardContent className="relative space-y-1">
@@ -1904,12 +1715,12 @@ export default function Admin() {
           return (
             <div
               key={toggle.key}
-              className="flex items-center justify-between py-3 px-4 rounded-xl hover:bg-white/5 transition-colors"
+              className="flex items-center justify-between py-3 px-4 rounded-xl hover:bg-[#9FBCA4]/5 transition-colors"
               data-testid={`sidebar-toggle-${toggle.key}`}
             >
               <div className="flex-1 min-w-0">
-                <p className="text-white font-medium text-sm">{toggle.label}</p>
-                <p className="text-white/40 text-xs mt-0.5">{toggle.description}</p>
+                <p className="text-foreground font-medium text-sm">{toggle.label}</p>
+                <p className="text-muted-foreground text-xs mt-0.5">{toggle.description}</p>
               </div>
               <Switch
                 checked={isOn}
@@ -1928,180 +1739,57 @@ export default function Admin() {
 
   const renderThemes = () => (<ThemeManager />);
 
-  const renderDesign = () => (
-    <Card className="relative overflow-hidden bg-white/80 backdrop-blur-xl border border-gray-200 shadow-2xl">
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-[#9FBCA4]/10 blur-[100px] animate-pulse" style={{ animationDuration: '4s' }} />
-        <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-[#257D41]/10 blur-[100px] animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
-      </div>
-      <CardHeader className="relative">
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-xl font-display text-gray-900">Design Consistency Verification</CardTitle>
-              <CardDescription className="label-text text-gray-600">
-                Check fonts, typography, color palette, and component standards across all pages
-              </CardDescription>
-            </div>
-            <button 
-              onClick={() => runDesignCheck.mutate()} 
-              disabled={runDesignCheck.isPending} 
-              data-testid="button-run-design-check"
-              className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-[#257D41] bg-[#257D41]/10 text-[#257D41] font-semibold hover:bg-[#257D41]/20 transition-colors disabled:opacity-50"
-            >
-              {runDesignCheck.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Palette className="w-4 h-4" />}
-              Run Design Check
-            </button>
-          </div>
-        </CardHeader>
-        
-        <CardContent className="relative space-y-6">
-          {!designResults && !runDesignCheck.isPending && (
-            <div className="text-center py-8">
-              <Loader2 className="w-12 h-12 mx-auto text-[#9FBCA4] animate-spin mb-3" />
-              <p className="label-text text-gray-500 text-sm">Starting design consistency check...</p>
-            </div>
-          )}
-
-        {runDesignCheck.isPending && (
-          <div className="text-center py-12">
-            <Loader2 className="w-16 h-16 mx-auto text-[#257D41] animate-spin mb-4" />
-            <p className="label-text text-gray-500">Analyzing design consistency...</p>
-          </div>
-        )}
-
-        {designResults && (
-          <>
-            <div className="p-5 rounded-2xl bg-gray-50 border border-gray-200 shadow-lg">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h3 className="font-display text-lg text-gray-900 font-semibold">Design Check Results</h3>
-                  <p className="text-xs text-gray-500 font-mono mt-1">Run at: {formatDateTime(designResults.timestamp)}</p>
-                </div>
-                <div className={`flex items-center gap-2 px-4 py-2 rounded-xl ${
-                  designResults.overallStatus === "PASS" ? "bg-green-100 text-green-700" :
-                  designResults.overallStatus === "WARNING" ? "bg-yellow-100 text-yellow-700" :
-                  "bg-red-100 text-red-700"
-                }`}>
-                  {designResults.overallStatus === "PASS" ? <CheckCircle2 className="w-5 h-5" /> :
-                   designResults.overallStatus === "WARNING" ? <AlertTriangle className="w-5 h-5" /> :
-                   <XCircle className="w-5 h-5" />}
-                  <span className="font-display font-bold">{designResults.overallStatus}</span>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-4 gap-4 text-center mb-6">
-                <div className="p-4 rounded-xl bg-white border border-gray-200 shadow-sm">
-                  <div className="text-3xl font-mono font-bold text-gray-900">{designResults.totalChecks}</div>
-                  <div className="text-xs text-gray-500 label-text mt-1">Total Checks</div>
-                </div>
-                <div className="p-4 rounded-xl bg-[#9FBCA4]/10 border border-[#9FBCA4]/30 shadow-sm">
-                  <div className="text-3xl font-mono font-bold text-[#257D41]">{designResults.passed}</div>
-                  <div className="text-xs text-gray-600 label-text mt-1">Passed</div>
-                </div>
-                <div className="p-4 rounded-xl bg-yellow-50 border border-yellow-200 shadow-sm">
-                  <div className="text-3xl font-mono font-bold text-yellow-600">{designResults.warnings}</div>
-                  <div className="text-xs text-gray-600 label-text mt-1">Warnings</div>
-                </div>
-                <div className="p-4 rounded-xl bg-red-50 border border-red-200 shadow-sm">
-                  <div className="text-3xl font-mono font-bold text-red-600">{designResults.failed}</div>
-                  <div className="text-xs text-gray-600 label-text mt-1">Failed</div>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                {designResults.checks.map((check, i) => (
-                  <div key={i} className="space-y-1">
-                    <div className="flex items-center gap-3 p-3 rounded-lg bg-white border border-gray-100">
-                      {check.status === "pass" ? <CheckCircle2 className="w-5 h-5 text-[#257D41] shrink-0" /> :
-                       check.status === "warning" ? <AlertTriangle className="w-5 h-5 text-yellow-500 shrink-0" /> :
-                       <XCircle className="w-5 h-5 text-red-500 shrink-0" />}
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">{check.category}</span>
-                          <span className="text-gray-700 text-sm">{check.rule}</span>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <HelpCircle className="w-3.5 h-3.5 text-gray-400 hover:text-gray-600 cursor-help" />
-                            </TooltipTrigger>
-                            <TooltipContent side="top" className="max-w-xs">
-                              <p>{check.details}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </div>
-                        <p className="text-xs text-gray-500 mt-0.5">{check.details}</p>
-                      </div>
-                      <span className={`text-xs px-2 py-1 rounded ${
-                        check.status === "pass" ? 'bg-green-100 text-green-700' : 
-                        check.status === "warning" ? 'bg-yellow-100 text-yellow-700' :
-                        'bg-red-100 text-red-700'
-                      }`}>
-                        {check.status === "pass" ? 'PASS' : check.status === "warning" ? 'WARNING' : 'FAIL'}
-                      </span>
-                    </div>
-                    {check.status === "fail" && (
-                      <div className="ml-8 p-3 rounded-lg bg-red-50 border border-red-200">
-                        <p className="text-xs text-red-700 font-medium">Diagnosis: Design standard violation in {check.category}</p>
-                        <p className="text-xs text-gray-600 mt-1">Solution: Update component to follow {check.category} design guidelines</p>
-                      </div>
-                    )}
-                    {check.status === "warning" && (
-                      <div className="ml-8 p-3 rounded-lg bg-yellow-50 border border-yellow-200">
-                        <p className="text-xs text-yellow-700 font-medium">Diagnosis: Minor design inconsistency in {check.category}</p>
-                        <p className="text-xs text-gray-600 mt-1">Solution: Consider updating to improve {check.category} consistency</p>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </>
-        )}
-      </CardContent>
-    </Card>
-  );
-
   return (
     <TooltipProvider>
-    <Layout darkMode>
-      <div className="space-y-8 relative">
+    <Layout>
+      <div className="space-y-6">
         <PageHeader 
-            title={currentView === "dashboard" ? "Administration" :
-                   currentView === "users" ? "User Management" :
-                   currentView === "activity" ? "Login Activity" :
-                   currentView === "activity-feed" ? "Activity Feed" :
-                   currentView === "checker-activity" ? "Checker Activity" :
-                   currentView === "verification" ? "Financial Verification" :
-                   currentView === "themes" ? "Design Themes" :
-                   currentView === "branding" ? "Branding" :
-                   currentView === "sidebar" ? "Sidebar Navigation" : "Design Consistency"}
-            subtitle={currentView === "dashboard" ? "Manage users, monitor activity, and run system verification" :
-                      currentView === "users" ? "Add, edit, and manage user accounts" :
-                      currentView === "activity" ? "Monitor user sessions and login history" :
-                      currentView === "activity-feed" ? "Track all user actions across the system" :
-                      currentView === "checker-activity" ? "Monitor checker verifications, manual reviews, and exports" :
-                      currentView === "verification" ? "Run formula and GAAP compliance checks" :
-                      currentView === "themes" ? "Manage color palettes and design systems" :
-                      currentView === "branding" ? "Manage logos and assign branding per user" :
-                      currentView === "sidebar" ? "Control which pages users and checkers see in the sidebar" : "Check fonts, colors, and component standards"}
-            variant="dark"
-            actions={currentView !== "dashboard" ? (
-              <GlassButton variant="primary" onClick={() => setCurrentView("dashboard")} data-testid="button-back">
-                <ArrowLeft className="w-4 h-4" />
-                Back to Dashboard
-              </GlassButton>
-            ) : undefined}
+          title="Administration"
+          subtitle="Manage users, monitor activity, and run system verification"
+          variant="dark"
+        />
+
+        <Tabs value={adminTab} onValueChange={(v) => setAdminTab(v as AdminView)} className="w-full">
+          <DarkGlassTabs
+            tabs={[
+              { value: 'users', label: 'Users', icon: Users },
+              { value: 'activity', label: 'Login Activity', icon: Clock },
+              { value: 'activity-feed', label: 'Activity Feed', icon: Activity },
+              { value: 'checker-activity', label: 'Checker Activity', icon: FileCheck },
+              { value: 'verification', label: 'Verification', icon: FileCheck },
+              { value: 'branding', label: 'Branding', icon: Image },
+              { value: 'themes', label: 'Themes', icon: SwatchBook },
+              { value: 'sidebar', label: 'Navigation', icon: PanelLeft },
+            ]}
+            activeTab={adminTab}
+            onTabChange={(v) => setAdminTab(v as AdminView)}
           />
 
-        {currentView === "dashboard" && renderDashboard()}
-        {currentView === "users" && renderUsers()}
-        {currentView === "activity" && renderActivity()}
-        {currentView === "activity-feed" && renderActivityFeed()}
-        {currentView === "checker-activity" && renderCheckerActivity()}
-        {currentView === "verification" && renderVerification()}
-        {currentView === "design" && renderDesign()}
-        {currentView === "themes" && renderThemes()}
-        {currentView === "branding" && renderBranding()}
-        {currentView === "sidebar" && renderSidebar()}
+          <TabsContent value="users" className="space-y-6 mt-6">
+            {renderUsers()}
+          </TabsContent>
+          <TabsContent value="activity" className="space-y-6 mt-6">
+            {renderActivity()}
+          </TabsContent>
+          <TabsContent value="activity-feed" className="space-y-6 mt-6">
+            {renderActivityFeed()}
+          </TabsContent>
+          <TabsContent value="checker-activity" className="space-y-6 mt-6">
+            {renderCheckerActivity()}
+          </TabsContent>
+          <TabsContent value="verification" className="space-y-6 mt-6">
+            {renderVerification()}
+          </TabsContent>
+          <TabsContent value="branding" className="space-y-6 mt-6">
+            {renderBranding()}
+          </TabsContent>
+          <TabsContent value="themes" className="space-y-6 mt-6">
+            {renderThemes()}
+          </TabsContent>
+          <TabsContent value="sidebar" className="space-y-6 mt-6">
+            {renderSidebar()}
+          </TabsContent>
+        </Tabs>
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>

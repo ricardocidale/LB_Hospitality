@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Loader2, Plus, Trash2, Users, Key, Eye, EyeOff, Pencil, Clock, FileCheck, CheckCircle2, XCircle, AlertTriangle, PlayCircle, Palette, ArrowLeft, Activity, HelpCircle, SwatchBook, UserPlus, Shield, Mail, Calendar, LogIn, LogOut, Monitor, MapPin, Hash, LayoutGrid, Sparkles, Settings, FileText, Download, Save, FileDown } from "lucide-react";
+import { Loader2, Plus, Trash2, Users, Key, Eye, EyeOff, Pencil, Clock, FileCheck, CheckCircle2, XCircle, AlertTriangle, PlayCircle, Palette, ArrowLeft, Activity, HelpCircle, SwatchBook, UserPlus, Shield, Mail, Calendar, LogIn, LogOut, Monitor, MapPin, Hash, LayoutGrid, Sparkles, Settings, FileText, Download, Save, FileDown, Image } from "lucide-react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { GlassButton } from "@/components/ui/glass-button";
@@ -42,6 +42,16 @@ interface User {
   company: string | null;
   title: string | null;
   role: string;
+  createdAt: string;
+  assignedLogoId: number | null;
+  assignedThemeId: number | null;
+}
+
+interface Logo {
+  id: number;
+  name: string;
+  url: string;
+  isDefault: boolean;
   createdAt: string;
 }
 
@@ -98,7 +108,7 @@ interface VerificationResult {
   clientKnownValueTests?: { passed: boolean; results: string };
 }
 
-type AdminView = "dashboard" | "users" | "activity" | "activity-feed" | "checker-activity" | "verification" | "design" | "themes";
+type AdminView = "dashboard" | "users" | "activity" | "activity-feed" | "checker-activity" | "verification" | "design" | "themes" | "branding";
 
 interface ActivityLogEntry {
   id: number;
@@ -241,6 +251,93 @@ export default function Admin() {
       const res = await fetch("/api/admin/active-sessions", { credentials: "include" });
       if (!res.ok) throw new Error("Failed to fetch active sessions");
       return res.json();
+    },
+  });
+
+  const [brandingDialogOpen, setBrandingDialogOpen] = useState(false);
+  const [brandingUser, setBrandingUser] = useState<User | null>(null);
+  const [brandingLogoId, setBrandingLogoId] = useState<number | null>(null);
+  const [brandingThemeId, setBrandingThemeId] = useState<number | null>(null);
+  const [newLogoName, setNewLogoName] = useState("");
+  const [newLogoUrl, setNewLogoUrl] = useState("");
+
+  const { data: adminLogos } = useQuery<Logo[]>({
+    queryKey: ["admin", "logos"],
+    queryFn: async () => {
+      const res = await fetch("/api/admin/logos", { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch logos");
+      return res.json();
+    },
+    enabled: currentView === "branding",
+  });
+
+  const { data: allThemes } = useQuery<Array<{ id: number; name: string; isActive: boolean }>>({
+    queryKey: ["admin", "all-themes"],
+    queryFn: async () => {
+      const res = await fetch("/api/design-themes", { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch themes");
+      return res.json();
+    },
+    enabled: currentView === "branding",
+  });
+
+  const createLogoMutation = useMutation({
+    mutationFn: async (data: { name: string; url: string }) => {
+      const res = await fetch("/api/admin/logos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Failed to create logo");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "logos"] });
+      setNewLogoName("");
+      setNewLogoUrl("");
+      toast({ title: "Logo Added", description: "New logo has been added to the portfolio." });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const deleteLogoMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const res = await fetch(`/api/admin/logos/${id}`, { method: "DELETE", credentials: "include" });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed to delete logo");
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "logos"] });
+      toast({ title: "Logo Deleted", description: "Logo has been removed." });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const assignBrandingMutation = useMutation({
+    mutationFn: async ({ userId, assignedLogoId, assignedThemeId }: { userId: number; assignedLogoId: number | null; assignedThemeId: number | null }) => {
+      const res = await fetch(`/api/admin/users/${userId}/branding`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ assignedLogoId, assignedThemeId }),
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Failed to assign branding");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
+      setBrandingDialogOpen(false);
+      toast({ title: "Branding Updated", description: "User branding has been assigned." });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
     },
   });
 
@@ -869,6 +966,23 @@ export default function Admin() {
               <div className="flex-1">
                 <h3 className="text-2xl font-display font-semibold text-white mb-2">Design Themes</h3>
                 <p className="text-white/50 label-text">Manage color palettes and design system definitions</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="group relative overflow-hidden bg-gradient-to-br from-[#1a2e3d]/95 via-[#243d4d]/95 to-[#1e3a42]/95 backdrop-blur-3xl border border-white/20 shadow-2xl shadow-black/40 cursor-pointer hover:border-[#9FBCA4]/40 hover:shadow-[#9FBCA4]/20 transition-all duration-500" onClick={() => setCurrentView("branding")} data-testid="card-branding">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#257D41]/10 via-transparent to-[#9FBCA4]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="absolute -top-16 -left-16 w-48 h-48 bg-[#257D41]/15 rounded-full blur-3xl group-hover:bg-[#257D41]/25 transition-colors duration-500" />
+          <div className="absolute -bottom-16 -right-16 w-48 h-48 bg-[#9FBCA4]/10 rounded-full blur-3xl group-hover:bg-[#9FBCA4]/20 transition-colors duration-500" />
+          <CardContent className="relative p-8">
+            <div className="flex items-center gap-6">
+              <div className="w-18 h-18 rounded-2xl bg-gradient-to-br from-[#9FBCA4] via-[#7aa88a] to-[#257D41] flex items-center justify-center shadow-xl shadow-[#9FBCA4]/30 border border-white/20" style={{ width: '72px', height: '72px' }}>
+                <Image className="w-9 h-9 text-white drop-shadow-lg" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-2xl font-display font-semibold text-white mb-2">Branding</h3>
+                <p className="text-white/50 label-text">Manage logos and assign branding per user</p>
               </div>
             </div>
           </CardContent>
@@ -1706,6 +1820,121 @@ export default function Admin() {
     </>
   );
 
+  const renderBranding = () => (
+    <div className="space-y-6">
+      <Card className="relative overflow-hidden bg-[#0a0a0f]/95 backdrop-blur-3xl border border-white/10 shadow-2xl shadow-black/50">
+        <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] via-transparent to-black/20" />
+        <CardHeader className="relative">
+          <CardTitle className="font-display text-white flex items-center gap-2"><Image className="w-5 h-5" /> Logo Portfolio</CardTitle>
+          <CardDescription className="label-text">Manage logos available for user assignment</CardDescription>
+        </CardHeader>
+        <CardContent className="relative space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {adminLogos?.map(logo => (
+              <div key={logo.id} className="relative bg-white/5 border border-white/10 rounded-xl p-4 flex items-center gap-4" data-testid={`logo-card-${logo.id}`}>
+                <div className="w-16 h-16 rounded-lg bg-white/10 flex items-center justify-center overflow-hidden border border-white/10">
+                  <img src={logo.url} alt={logo.name} className="max-w-full max-h-full object-contain" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-white font-medium truncate">{logo.name}</p>
+                  {logo.isDefault && <span className="text-xs text-[#9FBCA4] font-mono">DEFAULT</span>}
+                </div>
+                {!logo.isDefault && (
+                  <Button variant="ghost" size="sm" onClick={() => deleteLogoMutation.mutate(logo.id)} className="text-red-400 hover:text-red-300 hover:bg-red-500/10" data-testid={`button-delete-logo-${logo.id}`}>
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div className="border-t border-white/10 pt-4">
+            <h4 className="text-white/80 font-medium mb-3">Add New Logo</h4>
+            <div className="flex gap-3 items-end">
+              <div className="flex-1 space-y-1">
+                <Label className="text-white/60 text-xs">Name</Label>
+                <Input value={newLogoName} onChange={(e) => setNewLogoName(e.target.value)} placeholder="Logo name" className="bg-white/5 border-white/10" data-testid="input-new-logo-name" />
+              </div>
+              <div className="flex-1 space-y-1">
+                <Label className="text-white/60 text-xs">URL</Label>
+                <Input value={newLogoUrl} onChange={(e) => setNewLogoUrl(e.target.value)} placeholder="/logos/custom.png or https://..." className="bg-white/5 border-white/10" data-testid="input-new-logo-url" />
+              </div>
+              <Button variant="outline" onClick={() => createLogoMutation.mutate({ name: newLogoName, url: newLogoUrl })} disabled={!newLogoName || !newLogoUrl || createLogoMutation.isPending} className="flex items-center gap-2" data-testid="button-add-logo">
+                {createLogoMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                Add
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="relative overflow-hidden bg-[#0a0a0f]/95 backdrop-blur-3xl border border-white/10 shadow-2xl shadow-black/50">
+        <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] via-transparent to-black/20" />
+        <CardHeader className="relative">
+          <CardTitle className="font-display text-white flex items-center gap-2"><Users className="w-5 h-5" /> User Branding Assignment</CardTitle>
+          <CardDescription className="label-text">Assign a specific logo and theme to each user</CardDescription>
+        </CardHeader>
+        <CardContent className="relative">
+          <Table>
+            <TableHeader>
+              <TableRow className="border-white/10 hover:bg-transparent">
+                <TableHead className="text-white/60">User</TableHead>
+                <TableHead className="text-white/60">Role</TableHead>
+                <TableHead className="text-white/60">Assigned Logo</TableHead>
+                <TableHead className="text-white/60">Assigned Theme</TableHead>
+                <TableHead className="text-white/60 text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {users?.map(user => {
+                const userLogo = adminLogos?.find(l => l.id === user.assignedLogoId);
+                const userTheme = allThemes?.find(t => t.id === user.assignedThemeId);
+                return (
+                  <TableRow key={user.id} className="border-white/10 hover:bg-white/5" data-testid={`branding-row-${user.id}`}>
+                    <TableCell className="text-white">
+                      <div>
+                        <span className="font-medium">{user.name || user.email}</span>
+                        {user.name && <span className="text-white/40 text-xs ml-2">{user.email}</span>}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <span className={`text-xs px-2 py-0.5 rounded font-mono ${
+                        user.role === "admin" ? "bg-[#9FBCA4]/20 text-[#9FBCA4]" :
+                        user.role === "checker" ? "bg-blue-500/20 text-blue-400" :
+                        "bg-white/10 text-white/60"
+                      }`}>{user.role}</span>
+                    </TableCell>
+                    <TableCell className="text-white/70">
+                      {userLogo ? (
+                        <div className="flex items-center gap-2">
+                          <img src={userLogo.url} alt={userLogo.name} className="w-6 h-6 rounded object-contain bg-white/10" />
+                          <span className="text-sm">{userLogo.name}</span>
+                        </div>
+                      ) : <span className="text-white/30 text-sm">Default</span>}
+                    </TableCell>
+                    <TableCell className="text-white/70">
+                      {userTheme ? <span className="text-sm">{userTheme.name}</span> : <span className="text-white/30 text-sm">Default</span>}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="ghost" size="sm" onClick={() => {
+                        setBrandingUser(user);
+                        setBrandingLogoId(user.assignedLogoId);
+                        setBrandingThemeId(user.assignedThemeId);
+                        setBrandingDialogOpen(true);
+                      }} className="text-[#9FBCA4] hover:text-white hover:bg-white/10" data-testid={`button-edit-branding-${user.id}`}>
+                        <Pencil className="w-4 h-4 mr-1" /> Assign
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </div>
+  );
+
   const renderThemes = () => (<ThemeManager />);
 
   const renderDesign = () => (
@@ -1851,14 +2080,16 @@ export default function Admin() {
                    currentView === "activity-feed" ? "Activity Feed" :
                    currentView === "checker-activity" ? "Checker Activity" :
                    currentView === "verification" ? "Financial Verification" :
-                   currentView === "themes" ? "Design Themes" : "Design Consistency"}
+                   currentView === "themes" ? "Design Themes" :
+                   currentView === "branding" ? "Branding" : "Design Consistency"}
             subtitle={currentView === "dashboard" ? "Manage users, monitor activity, and run system verification" :
                       currentView === "users" ? "Add, edit, and manage user accounts" :
                       currentView === "activity" ? "Monitor user sessions and login history" :
                       currentView === "activity-feed" ? "Track all user actions across the system" :
                       currentView === "checker-activity" ? "Monitor checker verifications, manual reviews, and exports" :
                       currentView === "verification" ? "Run formula and GAAP compliance checks" :
-                      currentView === "themes" ? "Manage color palettes and design systems" : "Check fonts, colors, and component standards"}
+                      currentView === "themes" ? "Manage color palettes and design systems" :
+                      currentView === "branding" ? "Manage logos and assign branding per user" : "Check fonts, colors, and component standards"}
             variant="dark"
             actions={currentView !== "dashboard" ? (
               <GlassButton variant="primary" onClick={() => setCurrentView("dashboard")} data-testid="button-back">
@@ -1876,6 +2107,7 @@ export default function Admin() {
         {currentView === "verification" && renderVerification()}
         {currentView === "design" && renderDesign()}
         {currentView === "themes" && renderThemes()}
+        {currentView === "branding" && renderBranding()}
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -1985,6 +2217,45 @@ export default function Admin() {
               editMutation.mutate({ id: selectedUser.id, data });
             }} disabled={editMutation.isPending} data-testid="button-save-user" className="flex items-center gap-2">
               {editMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={brandingDialogOpen} onOpenChange={setBrandingDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="font-display">Assign Branding</DialogTitle>
+            <DialogDescription className="label-text">Set logo and theme for {brandingUser?.name || brandingUser?.email}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2"><Image className="w-4 h-4 text-gray-500" />Logo</Label>
+              <select value={brandingLogoId ?? ""} onChange={(e) => setBrandingLogoId(e.target.value ? parseInt(e.target.value) : null)} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" data-testid="select-branding-logo">
+                <option value="">Default Logo</option>
+                {adminLogos?.map(logo => (
+                  <option key={logo.id} value={logo.id}>{logo.name}{logo.isDefault ? " (Default)" : ""}</option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2"><Palette className="w-4 h-4 text-gray-500" />Theme</Label>
+              <select value={brandingThemeId ?? ""} onChange={(e) => setBrandingThemeId(e.target.value ? parseInt(e.target.value) : null)} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" data-testid="select-branding-theme">
+                <option value="">Default Theme</option>
+                {allThemes?.map(theme => (
+                  <option key={theme.id} value={theme.id}>{theme.name}{theme.isActive ? " (Active)" : ""}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBrandingDialogOpen(false)} data-testid="button-cancel-branding">Cancel</Button>
+            <Button variant="outline" onClick={() => {
+              if (!brandingUser) return;
+              assignBrandingMutation.mutate({ userId: brandingUser.id, assignedLogoId: brandingLogoId, assignedThemeId: brandingThemeId });
+            }} disabled={assignBrandingMutation.isPending} data-testid="button-save-branding" className="flex items-center gap-2">
+              {assignBrandingMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               Save
             </Button>
           </DialogFooter>

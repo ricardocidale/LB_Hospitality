@@ -11,6 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Users, Briefcase, TrendingUp, Settings2, Loader2, ChevronRight, ChevronDown, FileDown, FileSpreadsheet, ImageIcon, AlertTriangle, CheckCircle } from "lucide-react";
 import { FinancialChart } from "@/components/ui/financial-chart";
 import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
+import { CalcDetailsProvider } from "@/components/financial-table-rows";
 import { exportCompanyPPTX } from "@/lib/exports/pptxExport";
 import { exportCompanyIncomeStatement, exportCompanyCashFlow, exportCompanyBalanceSheet } from "@/lib/exports/excelExport";
 import { Link } from "wouter";
@@ -751,6 +752,7 @@ export default function Company() {
           }
         />
 
+        <CalcDetailsProvider show={global?.showCompanyCalculationDetails ?? true}>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div className="mb-6">
             <DarkGlassTabs
@@ -1595,6 +1597,7 @@ export default function Company() {
             </div>
           )}
         </Tabs>
+        </CalcDetailsProvider>
       </div>
     </Layout>
   );

@@ -157,6 +157,10 @@ export const globalAssumptions = pgTable("global_assumptions", {
   // AI Research Settings
   preferredLlm: text("preferred_llm").notNull().default("claude-sonnet-4-5"),
   
+  // Display Settings
+  showCompanyCalculationDetails: boolean("show_company_calculation_details").notNull().default(true),
+  showPropertyCalculationDetails: boolean("show_property_calculation_details").notNull().default(true),
+  
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => [
   index("global_assumptions_user_id_idx").on(table.userId),

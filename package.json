@@ -12,7 +12,8 @@
     "check": "tsc",
     "test": "vitest run",
     "test:watch": "vitest",
-    "db:push": "drizzle-kit push"
+    "db:push": "drizzle-kit push",
+    "verify": "npx tsx tests/proof/verify-runner.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.73.0",

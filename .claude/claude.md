@@ -75,6 +75,31 @@ Coverage includes timing, depreciation, loans, income statement, balance sheet, 
 ## AI Research
 Research skills are defined in `.claude/skills/research/` with co-located tool schemas in each skill's `tools/` subfolder. Orchestrated via `server/aiResearch.ts` with data-driven tool prompts and dev-mode cache bypass. Outputs include structured market, ADR, occupancy, cap rate, catering, competitive set, event demand, and land value analyses.
 
+- **Seed Data**: Pre-seeded research data for all 5 properties, auto-seeded on startup.
+- **Auto-Refresh on Login**: `ResearchRefreshOverlay` component detects seed data (`llmModel === "seed-data"`) and automatically regenerates it with a 3D animated overlay when users log in. Research data older than 7 days is also refreshed. Skill docs: `.claude/skills/research/auto-refresh/SKILL.md`.
+
+## Automated Financial Proof System
+- **Purpose**: Eliminates human Excel verification. Code proves itself correct.
+- **Test Files**: `tests/proof/scenarios.test.ts` (5 golden scenarios), `tests/proof/hardcoded-detection.test.ts` (magic number scanner), `tests/proof/reconciliation-report.test.ts` (artifact generator).
+- **Verify Runner**: `tests/proof/verify-runner.ts` — 4-phase orchestrator (scenarios → hardcoded detection → reconciliation → artifact summary).
+- **Artifacts**: `test-artifacts/` — JSON + Markdown reconciliation reports for each scenario.
+- **Test Count**: 355 total tests (315 existing + 40 proof tests).
+- **Commands**: `npm test` (all tests), `npx tsx tests/proof/verify-runner.ts` (full verification).
+- **Skill Docs**: `.claude/skills/finance/automated-proof-system.md`.
+
+## 3D Graphics & Animation
+- **3D Engine**: Three.js via @react-three/fiber, @react-three/drei, @react-three/postprocessing.
+- **Animation**: framer-motion for entrance animations, transitions, and staggered reveals.
+- **Components**:
+  - `Dashboard3DBackground` (`client/src/components/Dashboard3DBackground.tsx`) — Three.js spheres, rings, and particles behind the dashboard.
+  - `Login3DScene` (`client/src/components/Login3DScene.tsx`) — Glowing orbs, orbital rings, floating dots, and stars on the login page.
+  - `animated.tsx` (`client/src/components/ui/animated.tsx`) — Reusable framer-motion wrappers: `FadeIn`, `FadeInUp`, `ScaleIn`, `StaggerContainer`, `PageTransition`.
+- **Usage Pattern**: 3D scenes are overlaid as background layers (pointer-events-none). Animated wrappers enhance page content with entrance effects.
+
+## Database Environments
+- **Separate Databases**: Development and Production PostgreSQL databases with distinct data.
+- **Syncing Production Data**: Manual process involving identifying differences, writing SQL UPDATE statements, and executing them in the Production Database shell.
+
 ## Tool Schema Categories
 Tool schemas are organized in two locations:
 
@@ -104,7 +129,12 @@ Tool schemas are organized in two locations:
 
 ```
 client/src/
-├── components/ui/         # Reusable component library
+├── components/
+│   ├── ui/                    # Reusable component library
+│   │   └── animated.tsx       # framer-motion wrappers (FadeIn, FadeInUp, ScaleIn, etc.)
+│   ├── Dashboard3DBackground.tsx  # Three.js dashboard background
+│   ├── Login3DScene.tsx           # Three.js login background
+│   └── ResearchRefreshOverlay.tsx # Auto-refresh 3D overlay
 ├── lib/
 │   ├── exports/           # Excel, PPTX, PDF, PNG export utilities
 │   ├── financialEngine.ts # Primary calculation engine
@@ -118,6 +148,14 @@ client/src/
 │   └── runVerification.ts
 ├── pages/
 └── hooks/
+
+tests/proof/
+├── scenarios.test.ts          # 5 golden scenario tests
+├── hardcoded-detection.test.ts # Magic number scanner
+├── reconciliation-report.test.ts # Artifact generator
+└── verify-runner.ts           # 4-phase orchestrator
+
+test-artifacts/                # Generated reconciliation reports (JSON + Markdown)
 
 .claude/
 ├── claude.md              # This file (project instructions)

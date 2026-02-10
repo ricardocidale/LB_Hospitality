@@ -13,98 +13,40 @@ All skills must be stored under `.claude/` directory (e.g., `.claude/skills/`, `
 The company name is "Hospitality Business Group" (or "Hospitality Business" for short). Never use "L+B Hospitality" in code or documentation.
 When updating features, always update the corresponding skills (`.claude/skills/`) and manuals (`.claude/manuals/`) documentation.
 
-## System Architecture
+## Detailed Documentation
 
-### Frontend
-- **Framework**: React 18 with TypeScript
-- **Routing**: Wouter
-- **State Management**: TanStack React Query (server state), Zustand (local state)
-- **UI Components**: shadcn/ui built on Radix UI
-- **Styling**: Tailwind CSS v4 with custom design tokens
-- **Charts**: Recharts
-- **Fonts**: Playfair Display (serif headings) + Inter (UI/data)
+**All detailed project documentation, architecture, file organization, conventions, and technical references are maintained in `.claude/claude.md`.** That file is the single source of truth for:
 
-### Backend
-- **Runtime**: Node.js with Express 5
-- **Language**: TypeScript with ESM modules
-- **API Pattern**: RESTful endpoints
-- **Build Tool**: esbuild
+- System architecture (frontend, backend, data layer)
+- UI/UX design principles, component library, and design system
+- Business model and entity structure
+- Financial engine, double-entry ledger, and statements
+- Verification and audit system
+- AI research architecture, seed data, and auto-refresh
+- Automated financial proof system (355 tests)
+- 3D graphics and animation system
+- Database environments
+- Tool schema categories and file organization
+- Coding conventions and finance skill specifications
 
-### Data Layer
-- **ORM**: Drizzle ORM with PostgreSQL dialect
-- **Validation**: Zod schemas from Drizzle schemas
-- **Database**: PostgreSQL
+Always refer to `.claude/claude.md` for the authoritative, up-to-date details on any of the above topics.
 
-### UI/UX Design Principles
-- **Color Palette**: Sage Green, Secondary Green, Warm Off-White, Coral Accent, Black, and dark blue-gray gradient.
-- **Theming**: Blend of light-themed assumption pages and dark glass-themed main application pages.
-- **Component Standardization**: `GlassButton`, `SaveButton`, `PageHeader`, `FinancialChart`, `FinancialTable`, `ExportMenu`, `StatCard`, `ContentPanel`.
-- **Export System**: Reusable `ExportMenu` component providing 6 formats (PDF, Excel, CSV, PowerPoint, Chart PNG, Table PNG).
-- **Charts**: Standardized with white backgrounds, gradient lines (green for revenue, blue for GOP, coral for FCFE), data point dots, and light gray dashed grids.
-- **Admin Interface**: Single `/admin` route with tab-based navigation for user, login, checker activity, and verification.
-- **Role-Based Access Control**: `admin`, `user`, `checker` roles with specific middleware (`requireChecker`, `requireAdmin`).
-- **Checker System**: Default checker user `checker@norfolkgroup.io`, accessible manual at `/checker-manual` with a 7-phase workflow.
-- **Tool Schemas**: Organized under `.claude/tools/` by category: `financing/`, `property-finder/`, `returns/`, `validation/`, `analysis/`.
+## Quick Reference
 
-### Business Model & Entity Structure
-- **Two-Entity Architecture**: Management Company (fees-based) + Property Portfolio (independent SPVs), each with full financial statements. Aggregated views available.
-- **Fee Linkage**: Management fees mirror between property expenses and company revenue.
-- **Capital Structure**: Equity or debt acquisition, refinancing, SAFE funding for management company.
-- **Assumptions Framework**: Property-level and global assumptions.
-- **5 Mandatory Business Rules**: Funding gates, no negative cash, debt-free at exit, no over-distribution.
+### Tech Stack
+- **Frontend**: React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v4, Recharts
+- **Backend**: Node.js, Express 5, TypeScript (ESM), esbuild
+- **Data**: Drizzle ORM, PostgreSQL, Zod validation
+- **3D/Animation**: Three.js (@react-three/fiber, drei, postprocessing), framer-motion
+- **Fonts**: Playfair Display (headings) + Inter (UI/data)
 
-### Financial Engine
-- Monthly pro forma projections: revenue, expenses, NOI, debt service, cash flow. GAAP-compliant (ASC 230, 360, 470).
-- Key components: `financialEngine.ts`, `loanCalculations.ts`, `equityCalculations.ts`, `cashFlowAggregator.ts`, `yearlyAggregator.ts`, `constants.ts`.
-- Standardized values: Depreciation (27.5-year straight-line per IRS Pub 946), Room revenue (30.5 days/month industry standard).
-- Configurable fiscal year, projection period, cost escalation rates, staffing tiers.
+### Key Commands
+- `npm run dev` — Start development server
+- `npm test` — Run all 355 tests
+- `npx tsx tests/proof/verify-runner.ts` — Full financial verification (4-phase)
 
-### Double-Entry Ledger & Statements
-- **Domain Layer**: Defines `AccountingPolicy`, `JournalDelta`, `CashFlowBucket`, `RoundingPolicy`, `CHART_OF_ACCOUNTS`.
-- **Engine Layer**: `postEvents()` for double-entry validation, `buildTrialBalance()` for snapshots.
-- **Statements Layer**: `extractIncomeStatement()`, `extractBalanceSheet()`, `extractCashFlow()` from trial balances, `reconcile()` for cross-statement checks, `applyEvents()` for orchestration.
-
-### Financial Verification & Audit
-- Verification engine: `financialAuditor.ts` + `runVerification.ts`. 103 automated checks across various financial aspects.
-- Outputs UNQUALIFIED, QUALIFIED, or ADVERSE audit opinions.
-
-### Configuration Management
-- **Constants**: `client/src/lib/constants.ts` as single source of truth for `DEFAULT_*` values. Three-tier fallback: property → global → constant.
-- **User-Adjustable**: Global Assumptions and Property settings stored in the database.
-
-### Property Finder
-- **Functionality**: Search, save, and manage prospective properties from external real estate listings.
-- **Features**: Search by location, price, bedrooms, lot size, property type. "Search", "Saved Searches", and "Saved Properties" tabs.
-- **Display**: Dark glass table format.
-- **Data Storage**: `saved_searches` and `prospective_properties` tables.
-- **URL Validation**: Specific `realtor.com` URL format validation.
-
-### AI Research Architecture
-- **Skills per Research Type**: Each research type has its own skill folder under `.claude/skills/research/` (e.g., `market-overview/`, `adr-analysis/`, `occupancy-analysis/`, `cap-rate-analysis/`).
-- **Orchestration**: `server/aiResearch.ts` loads skills, scans for tool definitions, and manages Claude's tool-use loop.
-- **Output**: Research results adhere to a defined schema.
-- **Seed Data**: Pre-seeded research data for all 5 properties, auto-seeded on startup.
-- **Auto-Refresh on Login**: Research data older than 7 days is automatically regenerated with a 3D animated overlay.
-
-### Automated Financial Proof System
-- **Purpose**: Eliminates human Excel verification. Code proves itself correct.
-- **Test Files**: `tests/proof/scenarios.test.ts` (5 golden scenarios), `tests/proof/hardcoded-detection.test.ts` (magic number scanner), `tests/proof/reconciliation-report.test.ts` (artifact generator).
-- **Verify Runner**: `tests/proof/verify-runner.ts` — 4-phase orchestrator (scenarios → hardcoded detection → reconciliation → artifact summary).
-- **Artifacts**: `test-artifacts/` — JSON + Markdown reconciliation reports for each scenario.
-- **Test Count**: 355 total tests (315 existing + 40 proof tests).
-- **Commands**: `npm test` (all tests), `npx tsx tests/proof/verify-runner.ts` (full verification).
-- **Skill Docs**: `.claude/skills/finance/automated-proof-system.md`.
-
-### Database Environments
-- **Separate Databases**: Development and Production PostgreSQL databases with distinct data.
-- **Syncing Production Data**: Manual process involving identifying differences, writing SQL UPDATE statements, and executing them in the Production Database shell.
-
-## External Dependencies
-
-- **Database**: PostgreSQL
-- **ORM Tooling**: Drizzle Kit
-- **UI Libraries**: Radix UI, Recharts, Lucide React
-- **Utilities**: date-fns
-- **3D Graphics**: three, @react-three/fiber, @react-three/drei, @react-three/postprocessing
-- **Animation**: framer-motion
-- **Third-Party APIs**: RapidAPI "Realty in US" (for property finding).
+### External Dependencies
+- PostgreSQL, Drizzle Kit, Radix UI, Recharts, Lucide React, date-fns
+- three, @react-three/fiber, @react-three/drei, @react-three/postprocessing
+- framer-motion
+- RapidAPI "Realty in US" (property finding)

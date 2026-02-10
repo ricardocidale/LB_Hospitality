@@ -6,14 +6,14 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, DarkGlassTabs } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Upload, X, Building2, BookOpen, Hotel, Globe, Sliders } from "lucide-react";
+import { Loader2, BookOpen, Hotel, Globe, Sliders } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Link } from "wouter";
 import { SaveButton } from "@/components/ui/save-button";
 import { GlassButton } from "@/components/ui/glass-button";
 import { PageHeader } from "@/components/ui/page-header";
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { Slider } from "@/components/ui/slider";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -26,8 +26,6 @@ import {
   DEFAULT_INTEREST_RATE,
   DEFAULT_REFI_CLOSING_COST_RATE,
 } from "@/lib/constants";
-import { useAuth } from "@/lib/auth";
-import defaultLogo from "@/assets/logo.png";
 import { formatMoneyInput, parseMoneyInput } from "@/lib/formatters";
 
 export default function Settings() {
@@ -36,12 +34,8 @@ export default function Settings() {
   const updateGlobal = useUpdateGlobalAssumptions();
   const updateProperty = useUpdateProperty();
   const { toast } = useToast();
-  const { isAdmin } = useAuth();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
   const [globalDraft, setGlobalDraft] = useState<any>(null);
   const [propertyDrafts, setPropertyDrafts] = useState<Record<number, any>>({});
-  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [settingsTab, setSettingsTab] = useState("portfolio");
 
   if (globalLoading || propertiesLoading) {
@@ -133,69 +127,6 @@ export default function Settings() {
     }
   };
 
-  const handleCompanyNameChange = (value: string) => {
-    setGlobalDraft({ ...currentGlobal, companyName: value });
-  };
-
-  const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp'];
-    if (!allowedTypes.includes(file.type)) {
-      toast({ title: "Invalid file type", description: "Please upload a PNG, JPEG, GIF, or WebP image.", variant: "destructive" });
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      toast({ title: "File too large", description: "Please upload an image smaller than 5MB.", variant: "destructive" });
-      return;
-    }
-
-    setIsUploadingLogo(true);
-    try {
-      const response = await fetch('/api/uploads/request-url', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          filename: `company-logo-${Date.now()}.${file.name.split('.').pop()}`,
-          contentType: file.type,
-        }),
-      });
-
-      if (!response.ok) throw new Error('Failed to get upload URL');
-
-      const { uploadUrl, publicUrl } = await response.json();
-
-      const uploadResponse = await fetch(uploadUrl, {
-        method: 'PUT',
-        headers: { 'Content-Type': file.type },
-        body: file,
-      });
-
-      if (!uploadResponse.ok) throw new Error('Failed to upload file');
-
-      updateGlobal.mutate({ companyLogo: publicUrl }, {
-        onSuccess: () => {
-          toast({ title: "Logo uploaded", description: "Company logo has been updated." });
-        }
-      });
-    } catch (error) {
-      toast({ title: "Upload failed", description: "Failed to upload logo. Please try again.", variant: "destructive" });
-    } finally {
-      setIsUploadingLogo(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
-    }
-  };
-
-  const handleRemoveLogo = () => {
-    updateGlobal.mutate({ companyLogo: null }, {
-      onSuccess: () => {
-        toast({ title: "Logo removed", description: "Company logo has been reset to default." });
-      }
-    });
-  };
 
   return (
     <Layout>
@@ -243,23 +174,6 @@ export default function Settings() {
                 <CardDescription className="label-text">Characterize the target property profile for the portfolio</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="propertyLabel" className="label-text flex items-center gap-1">
-                    Property Type Label
-                    <HelpTooltip text="This label is used throughout the application wherever 'Boutique Hotel' appears — in page titles, research prompts, tooltips, and financial reports. Change it to match your property concept (e.g., 'Estate Hotel', 'Private Estate', 'Luxury Inn')." />
-                  </Label>
-                  <Input
-                    id="propertyLabel"
-                    value={currentGlobal.propertyLabel || "Boutique Hotel"}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      setGlobalDraft({ ...currentGlobal, propertyLabel: value });
-                    }}
-                    placeholder="e.g., Boutique Hotel, Estate Hotel, Private Estate"
-                    className="bg-white max-w-md"
-                    data-testid="input-property-label"
-                  />
-                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
@@ -773,94 +687,6 @@ export default function Settings() {
           </TabsContent>
 
           <TabsContent value="other" className="space-y-6 mt-6">
-            <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 font-display">
-                  <Building2 className="w-5 h-5 text-[#9FBCA4]" />
-                  Company Branding
-                  <HelpTooltip text="Customize your company name and logo. These appear in the navigation sidebar throughout the application." />
-                </CardTitle>
-                <CardDescription className="label-text">Set your company name and logo for the application branding.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="companyName" className="label-text flex items-center gap-1">Hospitality Management Company Name <HelpTooltip text="The company name displayed in navigation and reports. Only administrators can change this setting." /></Label>
-                    {isAdmin ? (
-                      <Input
-                        id="companyName"
-                        value={currentGlobal.companyName || "Hospitality Business"}
-                        onChange={(e) => handleCompanyNameChange(e.target.value)}
-                        placeholder="Enter company name"
-                        className="bg-white"
-                        data-testid="input-company-name"
-                      />
-                    ) : (
-                      <div className="px-3 py-2 bg-gray-100 border border-gray-200 rounded-md text-gray-500 text-sm">
-                        {currentGlobal.companyName || "Hospitality Business"}
-                        <span className="ml-2 text-xs">(Admin only)</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="label-text flex items-center gap-1">Company Logo <HelpTooltip text="Company logo displayed in the sidebar navigation. Recommended format: PNG or JPG, square aspect ratio. Only administrators can change this." /></Label>
-                    <div className="flex items-center gap-4">
-                      <div className="relative w-16 h-16 rounded-lg border-2 border-dashed border-[#9FBCA4]/40 flex items-center justify-center overflow-hidden bg-white">
-                        <img 
-                          src={currentGlobal.companyLogo || defaultLogo} 
-                          alt="Company logo" 
-                          className="w-full h-full object-contain"
-                        />
-                      </div>
-                      {isAdmin ? (
-                        <div className="flex flex-col gap-2">
-                          <input
-                            ref={fileInputRef}
-                            type="file"
-                            accept="image/png,image/jpeg,image/jpg,image/gif,image/webp"
-                            onChange={handleLogoUpload}
-                            className="hidden"
-                            data-testid="input-logo-upload"
-                          />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => fileInputRef.current?.click()}
-                            disabled={isUploadingLogo}
-                            className="gap-2"
-                            data-testid="button-upload-logo"
-                          >
-                            {isUploadingLogo ? (
-                              <Loader2 className="w-4 h-4 animate-spin" />
-                            ) : (
-                              <Upload className="w-4 h-4" />
-                            )}
-                            {isUploadingLogo ? "Uploading..." : "Upload"}
-                          </Button>
-                          {currentGlobal.companyLogo && (
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={handleRemoveLogo}
-                              className="gap-2 text-red-500 hover:text-red-600 hover:bg-red-50"
-                              data-testid="button-remove-logo"
-                            >
-                              <X className="w-4 h-4" />
-                              Remove
-                            </Button>
-                          )}
-                        </div>
-                      ) : (
-                        <span className="text-sm text-gray-500">(Admin only)</span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
             <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 font-display">

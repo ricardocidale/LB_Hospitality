@@ -2137,7 +2137,7 @@ export default function Admin() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="font-display">Assign Branding</DialogTitle>
-            <DialogDescription className="label-text">Set logo and theme for {brandingUser?.name || brandingUser?.email}</DialogDescription>
+            <DialogDescription className="label-text">Set logo, theme, and asset description for {brandingUser?.name || brandingUser?.email}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
@@ -2158,12 +2158,21 @@ export default function Admin() {
                 ))}
               </select>
             </div>
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2"><Tag className="w-4 h-4 text-gray-500" />Asset Description</Label>
+              <select value={brandingAssetDescId ?? ""} onChange={(e) => setBrandingAssetDescId(e.target.value ? parseInt(e.target.value) : null)} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" data-testid="select-branding-asset-desc">
+                <option value="">Default</option>
+                {assetDescriptions?.map(ad => (
+                  <option key={ad.id} value={ad.id}>{ad.name}{ad.isDefault ? " (Default)" : ""}</option>
+                ))}
+              </select>
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setBrandingDialogOpen(false)} data-testid="button-cancel-branding">Cancel</Button>
             <Button variant="outline" onClick={() => {
               if (!brandingUser) return;
-              assignBrandingMutation.mutate({ userId: brandingUser.id, assignedLogoId: brandingLogoId, assignedThemeId: brandingThemeId });
+              assignBrandingMutation.mutate({ userId: brandingUser.id, assignedLogoId: brandingLogoId, assignedThemeId: brandingThemeId, assignedAssetDescriptionId: brandingAssetDescId });
             }} disabled={assignBrandingMutation.isPending} data-testid="button-save-branding" className="flex items-center gap-2">
               {assignBrandingMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               Save

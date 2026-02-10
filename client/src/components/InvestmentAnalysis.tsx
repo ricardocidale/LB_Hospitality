@@ -140,7 +140,7 @@ export function InvestmentAnalysis({
           <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-5 border border-[#9FBCA4]/30 shadow-lg shadow-black/10">
             <p className="text-sm font-medium text-[#2d4a5e]/70 flex items-center mb-2">
               Total Equity
-              <HelpTooltip text="Total initial capital required from investors across all properties, including purchase price, improvements, pre-opening costs, and operating reserves (net of any financing)." />
+              <HelpTooltip text="Total initial capital required from investors across all properties, including purchase price, improvements, pre-opening costs, and operating reserves (net of any financing)." manualSection="investment-returns" />
             </p>
             <div className="text-2xl font-bold text-[#2d4a5e] font-mono">{formatMoney(totalInitialEquityIA)}</div>
           </div>
@@ -148,7 +148,7 @@ export function InvestmentAnalysis({
           <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-5 border border-[#9FBCA4]/30 shadow-lg shadow-black/10">
             <p className="text-sm font-medium text-[#2d4a5e]/70 flex items-center mb-2">
               Exit Value ({getFiscalYear(projectionYears - 1)})
-              <HelpTooltip text={`Projected sale value of all properties at ${getFiscalYear(10)}, calculated as NOI ÷ Exit Cap Rate, minus any outstanding debt at time of sale.`} />
+              <HelpTooltip text={`Projected sale value of all properties at ${getFiscalYear(10)}, calculated as NOI ÷ Exit Cap Rate, minus any outstanding debt at time of sale.`} manualSection="investment-returns" />
             </p>
             <div className="text-2xl font-bold text-[#059669] font-mono">{formatMoney(totalExitValueIA)}</div>
           </div>
@@ -156,7 +156,7 @@ export function InvestmentAnalysis({
           <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-5 border border-[#9FBCA4]/30 shadow-lg shadow-black/10">
             <p className="text-sm font-medium text-[#2d4a5e]/70 flex items-center mb-2">
               Equity Multiple
-              <HelpTooltip text="Total cash returned to investors divided by total equity invested. A 2.0x multiple means investors receive $2 back for every $1 invested." />
+              <HelpTooltip text="Total cash returned to investors divided by total equity invested. A 2.0x multiple means investors receive $2 back for every $1 invested." manualSection="investment-returns" manualLabel="MOIC formula in the Manual" />
             </p>
             <div className="text-2xl font-bold text-[#2563EB] font-mono">{equityMultipleIA.toFixed(2)}x</div>
           </div>
@@ -172,7 +172,7 @@ export function InvestmentAnalysis({
           <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-5 border border-[#9FBCA4]/30 shadow-lg shadow-black/10">
             <p className="text-sm font-medium text-[#2d4a5e]/70 flex items-center mb-2">
               Portfolio IRR
-              <HelpTooltip text="Internal Rate of Return - the annualized return that makes the net present value of all cash flows (investments, distributions, and exit) equal to zero. The gold standard metric for real estate investments." />
+              <HelpTooltip text="Internal Rate of Return - the annualized return that makes the net present value of all cash flows (investments, distributions, and exit) equal to zero. The gold standard metric for real estate investments." manualSection="investment-returns" manualLabel="IRR methodology in the Manual" />
             </p>
             <div className="text-2xl font-bold text-[#257D41] font-mono">{(portfolioIRRIA * 100).toFixed(1)}%</div>
           </div>
@@ -253,7 +253,7 @@ export function InvestmentAnalysis({
                     <ChevronRight className="w-4 h-4 text-muted-foreground" />
                   )}
                   Free Cash Flow to Equity (FCFE)
-                  <HelpTooltip text="GAAP FCFE = Cash from Operations - Principal Payments. For hotels where FF&E reserves are included in NOI, this equals After-Tax Cash Flow (ATCF)." />
+                  <HelpTooltip text="GAAP FCFE = Cash from Operations - Principal Payments. For hotels where FF&E reserves are included in NOI, this equals After-Tax Cash Flow (ATCF)." manualSection="investment-returns" manualLabel="FCFE formula in the Manual" />
                 </TableCell>
                 <TableCell className="text-right text-muted-foreground">-</TableCell>
                 {Array.from({ length: projectionYears }, (_, y) => {
@@ -300,7 +300,7 @@ export function InvestmentAnalysis({
                   <TableRow className="bg-muted/5">
                     <TableCell className="sticky left-0 bg-muted/5 pl-12 text-sm text-muted-foreground flex items-center gap-1">
                       = Before-Tax Cash Flow (BTCF)
-                      <HelpTooltip text="BTCF = NOI - Debt Service. Cash available before income taxes." />
+                      <HelpTooltip text="BTCF = NOI - Debt Service. Cash available before income taxes." manualSection="property-formulas" />
                     </TableCell>
                     <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
                     {Array.from({ length: projectionYears }, (_, y) => {
@@ -374,7 +374,7 @@ export function InvestmentAnalysis({
                   <TableRow className="bg-green-50/30 dark:bg-green-950/20 border-t">
                     <TableCell className="sticky left-0 bg-green-50/30 dark:bg-green-950/20 pl-8 text-sm font-medium flex items-center gap-1">
                       After-Tax Cash Flow (ATCF)
-                      <HelpTooltip text="ATCF = BTCF - Tax Liability. Cash available to investors after all taxes paid." />
+                      <HelpTooltip text="ATCF = BTCF - Tax Liability. Cash available to investors after all taxes paid." manualSection="property-formulas" />
                     </TableCell>
                     <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
                     {Array.from({ length: projectionYears }, (_, y) => {
@@ -534,7 +534,7 @@ export function InvestmentAnalysis({
                 <TableHead className="text-right">
                   <div className="flex items-center justify-end gap-1">
                     Exit Cap Rate
-                    <HelpTooltip text="Capitalization rate used to value the property at sale. Lower cap rate = higher valuation." />
+                    <HelpTooltip text="Capitalization rate used to value the property at sale. Lower cap rate = higher valuation." manualSection="investment-returns" />
                   </div>
                 </TableHead>
                 <TableHead className="text-right">Exit Value ({getFiscalYear(10)})</TableHead>
@@ -542,13 +542,13 @@ export function InvestmentAnalysis({
                 <TableHead className="text-right">
                   <div className="flex items-center justify-end gap-1">
                     Equity Multiple
-                    <HelpTooltip text="Total cash returned ÷ Equity invested. A 2.0x means $2 back for every $1 invested." />
+                    <HelpTooltip text="Total cash returned ÷ Equity invested. A 2.0x means $2 back for every $1 invested." manualSection="investment-returns" />
                   </div>
                 </TableHead>
                 <TableHead className="text-right">
                   <div className="flex items-center justify-end gap-1">
                     IRR
-                    <HelpTooltip text="Internal Rate of Return - the annualized return that makes NPV of all cash flows = 0." />
+                    <HelpTooltip text="Internal Rate of Return - the annualized return that makes NPV of all cash flows = 0." manualSection="investment-returns" />
                   </div>
                 </TableHead>
               </TableRow>

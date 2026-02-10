@@ -2270,7 +2270,7 @@ export default function Dashboard() {
                     <TableRow className="bg-primary/10 font-bold">
                       <TableCell className="sticky left-0 bg-primary/10 flex items-center gap-1 label-text">
                         Net Operating Income (NOI)
-                        <HelpTooltip text="NOI = Total Revenue - Operating Expenses. The property's income before debt service, taxes, and depreciation." />
+                        <HelpTooltip text="NOI = Total Revenue - Operating Expenses. The property's income before debt service, taxes, and depreciation." manualSection="dashboard-kpis" />
                       </TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
                         const noi = getYearlyConsolidated(y).noi;
@@ -2717,7 +2717,7 @@ export default function Dashboard() {
                     <TableRow className="font-semibold bg-muted/20">
                       <TableCell className="sticky left-0 bg-muted/20 flex items-center gap-1 label-text">
                         Net Operating Income (NOI)
-                        <HelpTooltip text="NOI = Total Revenue - Operating Expenses. The property's income before debt service, taxes, and depreciation." />
+                        <HelpTooltip text="NOI = Total Revenue - Operating Expenses. The property's income before debt service, taxes, and depreciation." manualSection="dashboard-kpis" />
                       </TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
                         const noi = getYearlyConsolidated(y).noi;
@@ -2740,7 +2740,7 @@ export default function Dashboard() {
                           <ChevronRight className="w-4 h-4 text-muted-foreground" />
                         )}
                         Debt Service
-                        <HelpTooltip text="Total debt payment including principal and interest. Paid to lenders before distributions to investors." />
+                        <HelpTooltip text="Total debt payment including principal and interest. Paid to lenders before distributions to investors." manualSection="dashboard-kpis" />
                       </TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
                         const debt = getYearlyConsolidated(y).debtPayment;
@@ -2767,7 +2767,7 @@ export default function Dashboard() {
                     <TableRow className="bg-primary/10 font-bold">
                       <TableCell className="sticky left-0 bg-primary/10 flex items-center gap-1">
                         Net Cash Flow
-                        <HelpTooltip text="Cash available after debt service. For unlevered properties, equals NOI." />
+                        <HelpTooltip text="Cash available after debt service. For unlevered properties, equals NOI." manualSection="dashboard-kpis" />
                       </TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
                         const cf = getYearlyConsolidated(y).cashFlow;

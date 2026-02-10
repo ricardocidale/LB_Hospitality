@@ -1,7 +1,7 @@
 # HelpTooltip — In-App Field Help System
 
 ## Purpose
-The `HelpTooltip` component provides contextual help for every input field across the application. It displays a `?` icon next to field labels that reveals an explanatory tooltip on hover or click.
+The `HelpTooltip` component provides contextual help for every input field across the application. It displays a `?` icon next to field labels that reveals an explanatory tooltip on hover or click. Optionally links to the relevant Checker Manual section.
 
 ## Component Location
 `client/src/components/ui/help-tooltip.tsx`
@@ -15,15 +15,45 @@ import { HelpTooltip } from "@/components/ui/help-tooltip";
   text="Explanation of the field"   // Required — plain-text help content
   light={false}                      // Optional — use true on dark backgrounds
   side="top"                         // Optional — "top" | "bottom" | "left" | "right"
+  manualSection="global-assumptions" // Optional — links to CheckerManual section id
+  manualLabel="See Global Assumptions" // Optional — custom link text
 />
 ```
 
 ### Props
-| Prop    | Type    | Default | Description |
-|---------|---------|---------|-------------|
-| `text`  | string  | —       | Help text shown in the tooltip popup |
-| `light` | boolean | `false` | Sage green icon on light backgrounds; white icon on dark backgrounds |
-| `side`  | string  | `"top"` | Preferred tooltip direction. Radix auto-flips if clipped by viewport. |
+| Prop            | Type    | Default                     | Description |
+|-----------------|---------|-----------------------------|-|
+| `text`          | string  | —                           | Help text shown in the tooltip popup |
+| `light`         | boolean | `false`                     | Sage green icon on light backgrounds; white icon on dark backgrounds |
+| `side`          | string  | `"top"`                     | Preferred tooltip direction. Radix auto-flips if clipped by viewport. |
+| `manualSection` | string  | —                           | Section id in CheckerManual.tsx. Renders a clickable link to `/checker-manual#{id}`. |
+| `manualLabel`   | string  | `"Learn more in the Manual"` | Custom text for the manual link. Only used when `manualSection` is set. |
+
+### Available Manual Sections
+These are the valid `manualSection` ids (defined in CheckerManual.tsx `sections` array):
+| Section ID | Title |
+|---|---|
+| `app-overview` | 1. Application Overview |
+| `mgmt-company` | 2. Management Company |
+| `property-portfolio` | 3. Property Portfolio (SPVs) |
+| `global-assumptions` | 4. Global Assumptions |
+| `property-assumptions` | 5. Property-Level Assumptions |
+| `cashflow-streams` | 6. Cash Flow Streams |
+| `financial-statements` | 7. Financial Statements |
+| `export-system` | 8. Export System |
+| `design-config` | 9. Design Configuration |
+| `scenario-mgmt` | 10. Scenario Management |
+| `my-profile` | 11. My Profile |
+| `dashboard-kpis` | 12. Dashboard & KPIs |
+| `ai-research` | 13. AI Research & Calibration |
+| `property-crud` | 14. Property CRUD & Images |
+| `testing-methodology` | 15. Testing Methodology |
+| `property-formulas` | 16. Property Financial Formulas |
+| `company-formulas` | 17. Management Company Formulas |
+| `consolidated-formulas` | 18. Consolidated Portfolio Formulas |
+| `investment-returns` | 19. Investment Returns (DCF/FCF/IRR) |
+| `funding-financing` | 20. Funding, Financing & Refinancing |
+| `glossary` | 21. Glossary |
 
 ## Implementation Details
 - Built on top of Radix UI `Tooltip` via shadcn (`@/components/ui/tooltip`)
@@ -31,7 +61,8 @@ import { HelpTooltip } from "@/components/ui/help-tooltip";
 - Collision-aware: auto-repositions when tooltip would clip viewport edges
 - 200ms delay before showing to prevent accidental triggers
 - Accessible: `aria-label="Help"`, keyboard focusable with visible focus ring
-- Test IDs: `help-tooltip-trigger`, `help-tooltip-content`
+- Test IDs: `help-tooltip-trigger`, `help-tooltip-content`, `help-tooltip-manual-link`
+- Manual link uses `ExternalLink` icon from lucide-react, 10px text, subtle color
 
 ## Placement Patterns
 
@@ -39,6 +70,18 @@ import { HelpTooltip } from "@/components/ui/help-tooltip";
 ```tsx
 <Label className="flex items-center gap-1">
   Field Name <HelpTooltip text="What this field does" />
+</Label>
+```
+
+### With manual section link
+```tsx
+<Label className="flex items-center gap-1">
+  Exit Cap Rate
+  <HelpTooltip
+    text="Cap rate used to calculate terminal value at disposition."
+    manualSection="investment-returns"
+    manualLabel="See IRR methodology"
+  />
 </Label>
 ```
 
@@ -76,16 +119,23 @@ For values that depend on market conditions or user judgment, describe what the 
 Explain the consequence of enabling/disabling:
 - "Whether target properties include Food & Beverage operations like restaurants and bars."
 
+## When to Add manualSection
+- Add to tooltips that explain financial calculations or formulas (formula verification is the manual's primary purpose)
+- Add to tooltips for key assumptions that affect multiple calculations
+- Do NOT add to every tooltip — only where a manual link provides real verification value
+- Settings/CompanyAssumptions page tooltips explaining settings concepts can link to `global-assumptions` or `company-formulas`
+
 ## Coverage
 
 ### Current Usage (all fields covered)
 | Page | Count | Includes |
 |------|-------|----------|
-| `Settings.tsx` | 37 | Portfolio profile, financing defaults, macro assumptions, branding, AI model |
+| `Settings.tsx` | 41 | Portfolio profile, financing defaults, macro assumptions, branding, AI model, calc transparency |
 | `PropertyEdit.tsx` | 52 | Revenue, costs, financing, exit, staffing, events, F&B, wellness |
-| `CompanyAssumptions.tsx` | 4+ | Start date, company name, logo, operational start |
-| `Dashboard.tsx` | 3 | NOI, debt service, cash flow |
-| `InvestmentAnalysis.tsx` | 4 | Total equity, exit value, equity multiple, cash-on-cash |
+| `CompanyAssumptions.tsx` | 36 | Start date, company name, logo, fees, compensation, overhead, taxes |
+| `Dashboard.tsx` | 5 | NOI, debt service, cash flow |
+| `InvestmentAnalysis.tsx` | 12 | Total equity, exit value, equity multiple, cash-on-cash, FCFE, BTCF, ATCF, IRR |
+| `PropertyDetail.tsx` | 4 | NOI, debt service, cash flow, PP&E schedule |
 
 ### Mandatory Rule
 Every user-facing input field **must** have a `HelpTooltip`. When adding new fields, always add a corresponding tooltip.
@@ -94,3 +144,4 @@ Every user-facing input field **must** have a `HelpTooltip`. When adding new fie
 - Do not create local `HelpTooltip` functions inside page components — always import the shared component
 - Do not use the old absolute-positioned custom tooltip approach
 - Do not skip tooltips on any input field, even toggles and sliders
+- Do not add `manualSection` to tooltips where the manual link would not help with verification

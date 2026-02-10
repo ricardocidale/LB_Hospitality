@@ -125,7 +125,7 @@ function PPECostBasisSchedule({ property, global }: { property: any; global: any
       <CardHeader className="pb-2">
         <CardTitle className="text-gray-900 flex items-center gap-2">
           PP&E / Cost Basis Schedule
-          <HelpTooltip text="Shows the underlying asset values, depreciation basis, and fixed-cost anchors used by the financial engine. Click each section to expand details." />
+          <HelpTooltip text="Shows the underlying asset values, depreciation basis, and fixed-cost anchors used by the financial engine. Click each section to expand details." manualSection="property-formulas" />
         </CardTitle>
         <p className="text-sm text-gray-500">
           {property.name} — Checker transparency view

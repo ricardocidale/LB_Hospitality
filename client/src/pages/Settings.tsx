@@ -238,7 +238,7 @@ export default function Settings() {
                 <CardTitle className="flex items-center gap-2 font-display">
                   <Hotel className="w-5 h-5 text-[#9FBCA4]" />
                   General Property Description
-                  <HelpTooltip text="Defines the target property profile for the portfolio. These parameters guide market research searches, comp set analysis, and financial benchmarks." />
+                  <HelpTooltip text="Defines the target property profile for the portfolio. These parameters guide market research searches, comp set analysis, and financial benchmarks." manualSection="global-assumptions" />
                 </CardTitle>
                 <CardDescription className="label-text">Characterize the target property profile for the portfolio</CardDescription>
               </CardHeader>
@@ -501,7 +501,7 @@ export default function Settings() {
               <CardHeader>
                 <CardTitle className="flex items-center font-display">
                   Disposition
-                  <HelpTooltip text="When a property is sold, real estate commissions are paid to brokers/realtors who facilitate the transaction. This is typically a percentage of the sale price, split between buyer's and seller's agents." />
+                  <HelpTooltip text="When a property is sold, real estate commissions are paid to brokers/realtors who facilitate the transaction. This is typically a percentage of the sale price, split between buyer's and seller's agents." manualSection="global-assumptions" />
                 </CardTitle>
                 <CardDescription className="label-text">Costs associated with property sales</CardDescription>
               </CardHeader>
@@ -610,7 +610,7 @@ export default function Settings() {
               <CardHeader>
                 <CardTitle className="flex items-center font-display">
                   Refinancing
-                  <HelpTooltip text="Refinancing allows properties acquired with full equity to obtain debt later, or properties with existing debt to restructure their loans. The refinance period specifies when refinancing typically occurs after acquisition. Refinancing can return capital to investors while leveraging the property's appreciated value. Closing Costs include lender fees, legal fees, and other transaction costs." />
+                  <HelpTooltip text="Refinancing allows properties acquired with full equity to obtain debt later, or properties with existing debt to restructure their loans. The refinance period specifies when refinancing typically occurs after acquisition. Refinancing can return capital to investors while leveraging the property's appreciated value. Closing Costs include lender fees, legal fees, and other transaction costs." manualSection="funding-financing" />
                 </CardTitle>
                 <CardDescription className="label-text">Default terms for refinancing properties</CardDescription>
               </CardHeader>
@@ -747,7 +747,7 @@ export default function Settings() {
                 </div>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <Label className="label-text flex items-center gap-1">Annual Inflation Rate <HelpTooltip text="Expected annual inflation rate applied across the model. Affects operating cost escalation and revenue growth. Based on CPI forecasts — the Federal Reserve targets 2% annually." /></Label>
+                    <Label className="label-text flex items-center gap-1">Annual Inflation Rate <HelpTooltip text="Expected annual inflation rate applied across the model. Affects operating cost escalation and revenue growth. Based on CPI forecasts — the Federal Reserve targets 2% annually." manualSection="global-assumptions" /></Label>
                     <span className="text-sm font-mono text-primary">{(currentGlobal.inflationRate * 100).toFixed(1)}%</span>
                   </div>
                   <Slider 
@@ -866,7 +866,7 @@ export default function Settings() {
                 <CardTitle className="flex items-center gap-2 font-display">
                   <Sliders className="w-5 h-5 text-[#9FBCA4]" />
                   Calculation Transparency
-                  <HelpTooltip text="Control whether formula breakdowns and help icons are visible in financial reports. When turned on, tables show expandable rows with step-by-step calculations and help icons explaining each line item. When turned off, tables display clean numbers only — ideal for investor presentations." />
+                  <HelpTooltip text="Control whether formula breakdowns and help icons are visible in financial reports. When turned on, tables show expandable rows with step-by-step calculations and help icons explaining each line item. When turned off, tables display clean numbers only — ideal for investor presentations." manualSection="financial-statements" />
                 </CardTitle>
                 <CardDescription className="label-text">Show or hide the formula verification details and help icons in financial statements.</CardDescription>
               </CardHeader>

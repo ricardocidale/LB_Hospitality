@@ -15,8 +15,8 @@ Tool schemas are JSON files defining structured inputs/outputs for AI-assisted w
 .claude/tools/
 ├── analysis/          # Statement consolidation, scenario comparison, break-even
 ├── financing/         # DSCR, debt yield, prepayment, sensitivity, loan comparison, FSA
-├── property-finder/   # URL validation, property search, favorites management
 ├── returns/           # DCF/NPV, IRR cash flow vector, equity multiple, exit valuation
+├── ui/                # Theme management, property comparison, what-if, variance
 └── validation/        # Financial identities, funding gates, debt reconciliation, assumptions, exports
 ```
 

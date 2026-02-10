@@ -26,10 +26,9 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | UI: Portfolio Pages | `.claude/skills/ui/portfolio-pages.md` | Comparison, Timeline, Map, Executive Summary pages |
 | UI: Interactions | `.claude/skills/ui/interactions.md` | What-If sliders, Variance Analysis, Guided Walkthrough, Inline Editing |
 | UI: Navigation | `.claude/skills/ui/navigation.md` | Command Palette, Breadcrumbs, Favorites, Activity Feed, Dark Mode |
-| UI: Other (10) | `.claude/skills/ui/` | Glass components, buttons, sliders, tabs, page-header, callout, etc. |
-| Features | `.claude/skills/features/` | Property image picker, etc. |
+| UI: Other (14) | `.claude/skills/ui/` | Glass components, buttons, sliders, tabs, page-header, callout, image picker, etc. |
 | Manuals | `.claude/manuals/` | Checker manual (15 sections), user manual (16 sections) |
-| Tools | `.claude/tools/` | Analysis, financing, returns, validation, UI, property-finder tool schemas |
+| Tools | `.claude/tools/` | Analysis, financing, returns, validation, UI tool schemas |
 | Rules (8) | `.claude/rules/` | Audit persona+doctrine+plan, constants, DB seeding, API routes, etc. |
 
 ## Current Theme

@@ -24,9 +24,9 @@ When updating features, always update the corresponding skills (`.claude/skills/
 
 - `.claude/skills/architecture/` — Tech stack, two-entity model, file organization
 - `.claude/skills/design-system/` — Colors, typography, component catalog
-- `.claude/skills/ui/` — 30+ UI component skills (each theme-aware), theme engine
-- `.claude/skills/finance/` — 17 finance calculation skills (IRR, DCF, income statement, cash flow, balance sheet, etc.)
-- `.claude/skills/research/` — 8 AI research skills with co-located tools
+- `.claude/skills/ui/` — 18 UI component skills (charts, portfolio pages, interactions, navigation, glass components, buttons, sliders, tabs, image picker, theme engine)
+- `.claude/skills/finance/` — 16 finance calculation skills (IRR, DCF, income statement, cash flow, balance sheet, etc.)
+- `.claude/skills/research/` — 11 AI research skills with co-located tools
 - `.claude/skills/proof-system/` — 384-test automated proof system
 - `.claude/skills/exports/` — PDF, Excel, PPTX, PNG, CSV export system
 - `.claude/skills/coding-conventions/` — Style rules, finance code rules
@@ -35,11 +35,10 @@ When updating features, always update the corresponding skills (`.claude/skills/
 - `.claude/skills/component-library/` — PageHeader, GlassButton, ExportMenu, DarkGlassTabs
 - `.claude/skills/3d-graphics/` — Three.js scenes, framer-motion wrappers
 - `.claude/skills/source-code/` — Full source code map
-- `.claude/skills/property-finder/` — RapidAPI property search integration
-- `.claude/skills/features/` — Property image picker, etc.
+- `.claude/skills/property-finder/` — RapidAPI property search integration (with co-located tools)
 - `.claude/manuals/` — Checker manual (15 sections), user manual (16 sections)
-- `.claude/tools/` — Analysis, financing, returns, validation, UI, property-finder tool schemas
-- `.claude/rules/` — Agent persona, audit doctrine, constants, DB seeding, API routes, financial engine, release checklist
+- `.claude/tools/` — Analysis, financing, returns, validation, UI tool schemas
+- `.claude/rules/` — Audit persona+doctrine+plan, constants, DB seeding, API routes, financial engine, release checklist
 
 ## Pages (client/src/pages/)
 

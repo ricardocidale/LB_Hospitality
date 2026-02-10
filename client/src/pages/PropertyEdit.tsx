@@ -335,13 +335,13 @@ export default function PropertyEdit() {
           <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/5 blur-xl" />
           <div className="absolute inset-0 border border-[#9FBCA4]/20 rounded-2xl shadow-[0_8px_32px_rgba(159,188,164,0.15)]" />
           
-          <div className="relative p-6 space-y-8">
+          <div className="relative p-6 space-y-5">
             <div>
               <h3 className="text-xl font-display text-gray-900">Capital Structure</h3>
               <p className="text-gray-600 text-sm label-text">Purchase and investment details</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="space-y-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-4">
+              <div className="space-y-1.5">
                 <Label className="label-text text-gray-700 flex items-center gap-1.5">Purchase Price ($)<HelpTooltip text="Total acquisition cost of the property. This is the basis for equity investment, loan sizing, and depreciation calculations." /></Label>
                 <Input 
                   value={formatMoneyInput(draft.purchasePrice)} 
@@ -349,7 +349,7 @@ export default function PropertyEdit() {
                   className="bg-white border-[#9FBCA4]/30 text-gray-900"
                 />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <Label className="label-text text-gray-700 flex items-center gap-1.5">Building Improvements ($)<HelpTooltip text="Capital improvements and renovation costs added to the building basis. These are depreciated over 27.5 years along with the building portion of the purchase price." /></Label>
                 <Input 
                   value={formatMoneyInput(draft.buildingImprovements)} 
@@ -357,13 +357,29 @@ export default function PropertyEdit() {
                   className="bg-white border-[#9FBCA4]/30 text-gray-900"
                 />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-1.5">
+                <Label className="label-text text-gray-700 flex items-center gap-1.5">Pre-Opening Costs ($)<HelpTooltip text="One-time costs incurred before the property opens: hiring, training, marketing launch, supplies, licensing, and initial inventory." /></Label>
+                <Input 
+                  value={formatMoneyInput(draft.preOpeningCosts)} 
+                  onChange={(e) => handleNumberChange("preOpeningCosts", parseMoneyInput(e.target.value).toString())}
+                  className="bg-white border-[#9FBCA4]/30 text-gray-900"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="label-text text-gray-700 flex items-center gap-1.5">Operating Reserve ($)<HelpTooltip text="Cash reserve set aside at acquisition to cover working capital needs during the ramp-up period before the property reaches stabilized operations." /></Label>
+                <Input 
+                  value={formatMoneyInput(draft.operatingReserve)} 
+                  onChange={(e) => handleNumberChange("operatingReserve", parseMoneyInput(e.target.value).toString())}
+                  className="bg-white border-[#9FBCA4]/30 text-gray-900"
+                />
+              </div>
+              <div className="lg:col-span-4 space-y-1.5">
                 <Label className="label-text text-gray-700 flex items-center gap-1.5">
                   Land Value (%)
                   <HelpTooltip text="Percentage of the purchase price allocated to land. Land does not depreciate under IRS rules (Publication 946). Only the building portion is depreciated over 27.5 years. Typical land allocation ranges from 15-40% depending on location and property type." />
                   <ResearchBadge value={researchValues.landValue?.display} onClick={() => researchValues.landValue && handleChange("landValuePercent", researchValues.landValue.mid / 100)} />
                 </Label>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 max-w-md">
                   <Slider
                     data-testid="slider-land-value-percent"
                     value={[(draft.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT) * 100]}
@@ -376,26 +392,10 @@ export default function PropertyEdit() {
                   <span className="text-sm font-medium text-gray-700 w-12 text-right" data-testid="text-land-value-percent">
                     {((draft.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT) * 100).toFixed(0)}%
                   </span>
+                  <span className="text-xs text-gray-500 ml-2">
+                    Depreciable basis: ${((draft.purchasePrice * (1 - (draft.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT))) + draft.buildingImprovements).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                  </span>
                 </div>
-                <p className="text-xs text-gray-500">
-                  Depreciable basis: ${((draft.purchasePrice * (1 - (draft.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT))) + draft.buildingImprovements).toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                </p>
-              </div>
-              <div className="space-y-2">
-                <Label className="label-text text-gray-700 flex items-center gap-1.5">Pre-Opening Costs ($)<HelpTooltip text="One-time costs incurred before the property opens: hiring, training, marketing launch, supplies, licensing, and initial inventory." /></Label>
-                <Input 
-                  value={formatMoneyInput(draft.preOpeningCosts)} 
-                  onChange={(e) => handleNumberChange("preOpeningCosts", parseMoneyInput(e.target.value).toString())}
-                  className="bg-white border-[#9FBCA4]/30 text-gray-900"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="label-text text-gray-700 flex items-center gap-1.5">Operating Reserve ($)<HelpTooltip text="Cash reserve set aside at acquisition to cover working capital needs during the ramp-up period before the property reaches stabilized operations." /></Label>
-                <Input 
-                  value={formatMoneyInput(draft.operatingReserve)} 
-                  onChange={(e) => handleNumberChange("operatingReserve", parseMoneyInput(e.target.value).toString())}
-                  className="bg-white border-[#9FBCA4]/30 text-gray-900"
-                />
               </div>
             </div>
 

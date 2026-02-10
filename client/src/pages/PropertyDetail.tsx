@@ -8,7 +8,7 @@ import { YearlyCashFlowStatement } from "@/components/YearlyCashFlowStatement";
 import { ConsolidatedBalanceSheet } from "@/components/ConsolidatedBalanceSheet";
 import { CalcDetailsProvider } from "@/components/financial-table-rows";
 import { Tabs, TabsContent, DarkGlassTabs } from "@/components/ui/tabs";
-import { FileText, Banknote, Scale, Building2, ArrowLeft, MapPin, Loader2, Settings2, Sheet, ChevronDown, ChevronRight, Info } from "lucide-react";
+import { FileText, Banknote, Scale, Building2, ArrowLeft, MapPin, Loader2, Settings2, Sheet, ChevronDown, ChevronRight, Info, Map } from "lucide-react";
 import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
 import { downloadCSV } from "@/lib/exports/csvExport";
 import { exportPropertyPPTX } from "@/lib/exports/pptxExport";
@@ -756,16 +756,39 @@ export default function PropertyDetail() {
                 </div>
               </div>
               
-              <Link href={`/property/${propertyId}/edit`}>
-                <button className="relative overflow-hidden px-4 py-2 text-sm font-medium text-white rounded-xl transition-all duration-300 group/edit flex items-center gap-2">
-                  <div className="absolute inset-0 bg-white/12 backdrop-blur-xl rounded-xl" />
-                  <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
-                  <div className="absolute inset-0 rounded-xl border border-white/25 group-hover/edit:border-white/40 transition-all duration-300" />
-                  <div className="absolute inset-0 rounded-xl shadow-[0_0_20px_rgba(159,188,164,0.3)] group-hover/edit:shadow-[0_0_30px_rgba(159,188,164,0.5)] transition-all duration-300" />
-                  <Settings2 className="relative w-4 h-4" />
-                  <span className="relative">Assumptions</span>
-                </button>
-              </Link>
+              <div className="flex items-center gap-2">
+                {(() => {
+                  const addressParts = [property.streetAddress, property.city, property.stateProvince, property.zipPostalCode, property.country].filter(Boolean);
+                  const hasAddress = addressParts.length > 0;
+                  const mapQuery = hasAddress ? addressParts.join(", ") : "";
+                  const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`;
+                  return (
+                    <button
+                      onClick={() => hasAddress && window.open(mapUrl, "_blank")}
+                      disabled={!hasAddress}
+                      title={hasAddress ? `View ${mapQuery} on Google Maps` : "No address provided — add address details in Assumptions"}
+                      className={`relative overflow-hidden px-4 py-2 text-sm font-medium rounded-xl transition-all duration-300 flex items-center gap-2 ${hasAddress ? "text-white group/map cursor-pointer" : "text-white/40 cursor-not-allowed"}`}
+                    >
+                      <div className={`absolute inset-0 backdrop-blur-xl rounded-xl ${hasAddress ? "bg-white/12" : "bg-white/5"}`} />
+                      <div className={`absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent ${hasAddress ? "via-white/40" : "via-white/15"} to-transparent`} />
+                      <div className={`absolute inset-0 rounded-xl border ${hasAddress ? "border-white/25 group-hover/map:border-white/40" : "border-white/10"} transition-all duration-300`} />
+                      {hasAddress && <div className="absolute inset-0 rounded-xl shadow-[0_0_20px_rgba(159,188,164,0.3)] group-hover/map:shadow-[0_0_30px_rgba(159,188,164,0.5)] transition-all duration-300" />}
+                      <Map className="relative w-4 h-4" />
+                      <span className="relative">Map</span>
+                    </button>
+                  );
+                })()}
+                <Link href={`/property/${propertyId}/edit`}>
+                  <button className="relative overflow-hidden px-4 py-2 text-sm font-medium text-white rounded-xl transition-all duration-300 group/edit flex items-center gap-2">
+                    <div className="absolute inset-0 bg-white/12 backdrop-blur-xl rounded-xl" />
+                    <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+                    <div className="absolute inset-0 rounded-xl border border-white/25 group-hover/edit:border-white/40 transition-all duration-300" />
+                    <div className="absolute inset-0 rounded-xl shadow-[0_0_20px_rgba(159,188,164,0.3)] group-hover/edit:shadow-[0_0_30px_rgba(159,188,164,0.5)] transition-all duration-300" />
+                    <Settings2 className="relative w-4 h-4" />
+                    <span className="relative">Assumptions</span>
+                  </button>
+                </Link>
+              </div>
             </div>
           </div>
         </div>

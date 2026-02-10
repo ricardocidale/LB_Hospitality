@@ -214,6 +214,39 @@ export async function registerRoutes(
     }
   });
 
+  app.post("/api/auth/dev-login", async (req, res) => {
+    try {
+      if (process.env.NODE_ENV === "production") {
+        return res.status(403).json({ error: "Dev login disabled in production" });
+      }
+      const adminPassword = process.env.ADMIN_PASSWORD;
+      if (!adminPassword) {
+        return res.status(500).json({ error: "ADMIN_PASSWORD not configured" });
+      }
+      const user = await storage.getUserByEmail("admin");
+      if (!user) {
+        return res.status(401).json({ error: "Admin user not found" });
+      }
+      const isValid = await verifyPassword(adminPassword, user.passwordHash);
+      if (!isValid) {
+        return res.status(401).json({ error: "Admin password mismatch" });
+      }
+      const clientIp = req.ip || req.socket.remoteAddress || "unknown";
+      recordLoginAttempt(clientIp, true);
+      const sessionId = generateSessionId();
+      const expiresAt = getSessionExpiryDate();
+      await storage.createSession(user.id, sessionId, expiresAt);
+      await storage.createLoginLog(user.id, sessionId, clientIp);
+      setSessionCookie(res, sessionId);
+      res.json({
+        user: { id: user.id, email: user.email, name: user.name, company: user.company, title: user.title, role: user.role }
+      });
+    } catch (error) {
+      console.error("Dev login error:", error);
+      res.status(500).json({ error: "Dev login failed" });
+    }
+  });
+
   app.post("/api/auth/logout", async (req, res) => {
     try {
       if (req.sessionId) {

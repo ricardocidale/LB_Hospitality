@@ -45,6 +45,7 @@ app.use(authMiddleware);
 const PUBLIC_API_PATHS = new Set([
   "/api/auth/login",
   "/api/auth/admin-login",
+  "/api/auth/dev-login",
   "/api/auth/logout",
   "/api/auth/me",
 ]);

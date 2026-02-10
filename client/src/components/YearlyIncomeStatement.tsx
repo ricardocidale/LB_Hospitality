@@ -81,7 +81,7 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026 }: Pro
       <LineItem label="Events & Functions"        values={yd.map((y) => y.expenseEvents)} />
       <LineItem label="Other Departments"         values={yd.map((y) => y.expenseOther)} />
       <LineItem label="Sales & Marketing"         values={yd.map((y) => y.expenseMarketing)} />
-      <LineItem label="Property Operations"       values={yd.map((y) => y.expensePropertyOps)} />
+      <LineItem label="Property Operations"       values={yd.map((y) => y.expensePropertyOps)} tooltip="Fixed cost per USALI: Year 1 base revenue × 4% rate, escalating annually at the fixed cost escalation rate. Not a percentage of current-year revenue." />
       <LineItem label="Utilities"                 values={yd.map((y) => y.expenseUtilities)} />
       <LineItem label="Administrative & General"  values={yd.map((y) => y.expenseAdmin)} />
       <LineItem label="IT & Technology"           values={yd.map((y) => y.expenseIT)} />

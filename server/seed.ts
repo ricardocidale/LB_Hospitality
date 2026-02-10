@@ -1093,12 +1093,22 @@ export async function seedDefaultLogos() {
       isDefault: true,
     },
     {
-      name: "Norfolk AI",
-      url: "/logos/norfolk-ai.png",
+      name: "Norfolk AI - Blue",
+      url: "/logos/norfolk-ai-blue.png",
+      isDefault: false,
+    },
+    {
+      name: "Norfolk AI - Yellow",
+      url: "/logos/norfolk-ai-yellow.png",
+      isDefault: false,
+    },
+    {
+      name: "Norfolk AI - Wireframe",
+      url: "/logos/norfolk-ai-wireframe.png",
       isDefault: false,
     },
   ]);
-  console.log("Seeded default logos: HBG (default) + Norfolk AI");
+  console.log("Seeded default logos: HBG (default) + 3 Norfolk AI variants");
 }
 
 if (process.argv[1]?.endsWith("seed.ts") || process.argv[1]?.endsWith("seed.js")) {

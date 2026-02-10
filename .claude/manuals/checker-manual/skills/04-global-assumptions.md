@@ -1,12 +1,10 @@
-# 04 — Global / Systemwide Assumptions
+# Chapter 4: Global Assumptions
 
 ## Overview
 
-Global assumptions are model-wide parameters accessible via the **Settings** page (`/settings`). These parameters affect **all properties and the Management Company simultaneously**. Changing any global assumption triggers an **instant, client-side recalculation** of every financial statement in the model.
+Global assumptions are model-wide parameters accessible via the Settings page. These parameters affect all properties and the Management Company simultaneously. Changing any global assumption triggers an instant recalculation of every financial statement in the model.
 
-Global assumptions are stored in the `global_assumptions` database table (one row per user) and are loaded into the financial engine at runtime. When a property-level value is not explicitly set, the engine falls back to the corresponding global assumption, and ultimately to the hardcoded `DEFAULT` constant in `shared/constants.ts`.
-
-> **Cross-reference:** See `skills/05-property-assumptions.md` for property-level overrides and the fallback chain.
+When a property-level value is not explicitly set, the financial engine falls back to the corresponding global assumption, and ultimately to the system default constant. This ensures every calculation always has a valid input.
 
 ---
 
@@ -14,217 +12,167 @@ Global assumptions are stored in the `global_assumptions` database table (one ro
 
 ### Model Parameters
 
-| Field | Definition | Default Value | Unit | Impacts |
-|-------|-----------|--------------|------|---------|
-| `companyName` | Display name for the management company | "Hospitality Business Company" | text | Both |
-| `companyLogo` | URL to uploaded company logo | null | URL | Both |
-| `propertyLabel` | Label used for property type throughout UI | "Boutique Hotel" | text | Both |
-| `modelStartDate` | First month of the financial model | 2026-04-01 | date | Both |
-| `projectionYears` | Number of years to project | 10 | count | Both |
-| `companyOpsStartDate` | Date the Management Company begins operations | 2026-06-01 | date | Mgmt Co. |
-| `fiscalYearStartMonth` | Month number when the fiscal year begins (1=Jan, 4=Apr) | 1 | count (1–12) | Both |
+| Field | Definition | Default Value | Impacts |
+|-------|-----------|--------------|---------|
+| Company Name | Display name for the management company | "Hospitality Business Company" | Both entities |
+| Property Label | Label used for property type throughout the interface | "Boutique Hotel" | Both entities |
+| Model Start Date | First month of the financial model | 2026-04-01 | Both entities |
+| Projection Years | Number of years to project | 10 | Both entities |
+| Company Operations Start Date | Date the Management Company begins operations | 2026-06-01 | Management Company |
+| Fiscal Year Start Month | Month number when the fiscal year begins (1 = January, 4 = April) | 1 | Both entities |
 
-### Inflation & Escalation
+### Inflation and Escalation
 
-| Field | Definition | Default Value | Unit | Impacts |
-|-------|-----------|--------------|------|---------|
-| `inflationRate` | Annual inflation rate applied to salaries and variable costs | 3% | % | Both |
-| `fixedCostEscalationRate` | Annual escalation rate for Management Company fixed overhead | 3% | % | Mgmt Co. |
+| Field | Definition | Default Value | Impacts |
+|-------|-----------|--------------|---------|
+| Inflation Rate | Annual inflation rate applied to salaries and variable costs | 3% | Both entities |
+| Fixed Cost Escalation Rate | Annual escalation rate for Management Company fixed overhead | 3% | Management Company |
 
 ### Management Fees
 
-| Field | Definition | Default Value | Unit | Impacts |
-|-------|-----------|--------------|------|---------|
-| `baseManagementFee` | Base management fee as % of property Total Revenue | 5% | % | Both |
-| `incentiveManagementFee` | Incentive management fee as % of property GOP | 15% | % | Both |
+| Field | Definition | Default Value | Impacts |
+|-------|-----------|--------------|---------|
+| Base Management Fee | Base management fee as percentage of property Total Revenue | 5% | Both entities |
+| Incentive Management Fee | Incentive management fee as percentage of property GOP | 15% | Both entities |
 
-The incentive fee base is Gross Operating Profit (GOP). The incentive fee is earned only when GOP > 0.
+The incentive fee is earned only when GOP is positive. A negative GOP produces zero incentive fee for that period.
 
 ### SAFE Funding
 
-| Field | Definition | Default Value | Unit | Impacts |
-|-------|-----------|--------------|------|---------|
-| `fundingSourceLabel` | Label for the funding instrument type | "SAFE" | text | Mgmt Co. |
-| `safeTranche1Amount` | Amount of first SAFE tranche | $1,000,000 | $ | Mgmt Co. |
-| `safeTranche1Date` | Disbursement date for first SAFE tranche | 2026-06-01 | date | Mgmt Co. |
-| `safeTranche2Amount` | Amount of second SAFE tranche | $1,000,000 | $ | Mgmt Co. |
-| `safeTranche2Date` | Disbursement date for second SAFE tranche | 2027-04-01 | date | Mgmt Co. |
-| `safeValuationCap` | Maximum pre-money valuation for SAFE conversion to equity | $2,500,000 | $ | Mgmt Co. |
-| `safeDiscountRate` | Discount rate applied when SAFE converts to equity | 20% | % | Mgmt Co. |
-
-> **Cross-reference:** See `formulas/funding-financing-refi.md` §1 for SAFE conversion mechanics.
+| Field | Definition | Default Value | Impacts |
+|-------|-----------|--------------|---------|
+| Funding Source Label | Label for the funding instrument type | "SAFE" | Management Company |
+| Tranche 1 Amount | Amount of first SAFE tranche | $1,000,000 | Management Company |
+| Tranche 1 Date | Disbursement date for first SAFE tranche | 2026-06-01 | Management Company |
+| Tranche 2 Amount | Amount of second SAFE tranche | $1,000,000 | Management Company |
+| Tranche 2 Date | Disbursement date for second SAFE tranche | 2027-04-01 | Management Company |
+| Valuation Cap | Maximum pre-money valuation for SAFE conversion to equity | $2,500,000 | Management Company |
+| Discount Rate | Discount rate applied when SAFE converts to equity | 20% | Management Company |
 
 ### Partner Compensation
 
 Annual compensation pool and headcount per year across the projection horizon:
 
-| Field | Year | Default Comp Pool | Default Count |
-|-------|------|------------------|--------------|
-| `partnerCompYear1` / `partnerCountYear1` | 1 | $540,000 | 3 |
-| `partnerCompYear2` / `partnerCountYear2` | 2 | $540,000 | 3 |
-| `partnerCompYear3` / `partnerCountYear3` | 3 | $540,000 | 3 |
-| `partnerCompYear4` / `partnerCountYear4` | 4 | $600,000 | 3 |
-| `partnerCompYear5` / `partnerCountYear5` | 5 | $600,000 | 3 |
-| `partnerCompYear6` / `partnerCountYear6` | 6 | $700,000 | 3 |
-| `partnerCompYear7` / `partnerCountYear7` | 7 | $700,000 | 3 |
-| `partnerCompYear8` / `partnerCountYear8` | 8 | $800,000 | 3 |
-| `partnerCompYear9` / `partnerCountYear9` | 9 | $800,000 | 3 |
-| `partnerCompYear10` / `partnerCountYear10` | 10 | $900,000 | 3 |
-
-Units: Comp Pool in $/year (total for all partners); Count is integer headcount.
-Impacts: Management Company only.
+| Year | Default Compensation Pool | Default Partner Count |
+|------|--------------------------|----------------------|
+| 1 | $540,000 | 3 |
+| 2 | $540,000 | 3 |
+| 3 | $540,000 | 3 |
+| 4 | $600,000 | 3 |
+| 5 | $600,000 | 3 |
+| 6 | $700,000 | 3 |
+| 7 | $700,000 | 3 |
+| 8 | $800,000 | 3 |
+| 9 | $800,000 | 3 |
+| 10 | $900,000 | 3 |
 
 ### Staffing
 
-| Field | Definition | Default Value | Unit | Impacts |
-|-------|-----------|--------------|------|---------|
-| `staffSalary` | Average annual salary per staff FTE | $75,000 | $/year | Mgmt Co. |
-| `staffTier1MaxProperties` | Max properties for Tier 1 staffing | 3 | count | Mgmt Co. |
-| `staffTier1Fte` | FTE headcount at Tier 1 | 2.5 | FTE | Mgmt Co. |
-| `staffTier2MaxProperties` | Max properties for Tier 2 staffing | 6 | count | Mgmt Co. |
-| `staffTier2Fte` | FTE headcount at Tier 2 | 4.5 | FTE | Mgmt Co. |
-| `staffTier3Fte` | FTE headcount at Tier 3 (>6 properties) | 7.0 | FTE | Mgmt Co. |
+| Field | Definition | Default Value | Impacts |
+|-------|-----------|--------------|---------|
+| Average Staff Salary | Average annual salary per staff FTE | $75,000/year | Management Company |
+| Tier 1 Max Properties | Maximum properties for Tier 1 staffing | 3 | Management Company |
+| Tier 1 FTE | FTE headcount at Tier 1 | 2.5 | Management Company |
+| Tier 2 Max Properties | Maximum properties for Tier 2 staffing | 6 | Management Company |
+| Tier 2 FTE | FTE headcount at Tier 2 | 4.5 | Management Company |
+| Tier 3 FTE | FTE headcount at Tier 3 (more than 6 properties) | 7.0 | Management Company |
 
-Staff salary escalates annually at `inflationRate`.
+Staff salary escalates annually at the inflation rate.
 
 ### Fixed Overhead (Management Company)
 
-| Field | Definition | Default Value | Unit | Impacts |
-|-------|-----------|--------------|------|---------|
-| `officeLeaseStart` | Annual office lease cost (Year 1) | $36,000 | $/year | Mgmt Co. |
-| `professionalServicesStart` | Annual legal, accounting, and advisory cost (Year 1) | $24,000 | $/year | Mgmt Co. |
-| `techInfraStart` | Annual technology infrastructure cost (Year 1) | $18,000 | $/year | Mgmt Co. |
-| `businessInsuranceStart` | Annual business insurance cost (Year 1) | $12,000 | $/year | Mgmt Co. |
+| Field | Definition | Default Value |
+|-------|-----------|--------------|
+| Office Lease | Annual office lease cost (Year 1) | $36,000/year |
+| Professional Services | Annual legal, accounting, and advisory cost (Year 1) | $24,000/year |
+| Technology Infrastructure | Annual technology infrastructure cost (Year 1) | $18,000/year |
+| Business Insurance | Annual business insurance cost (Year 1) | $12,000/year |
 
-All fixed costs escalate annually at `fixedCostEscalationRate`. Monthly cost = `annualCost × (1 + fixedCostEscalationRate)^yearIndex / 12`.
+All fixed costs escalate annually at the fixed cost escalation rate. The monthly cost is computed as: annual cost × (1 + escalation rate) raised to the year index, divided by 12.
 
 ### Variable Costs (Management Company)
 
-| Field | Definition | Default Value | Unit | Impacts |
-|-------|-----------|--------------|------|---------|
-| `travelCostPerClient` | Annual travel cost per managed property | $12,000 | $/property/year | Mgmt Co. |
-| `itLicensePerClient` | Annual IT licensing cost per managed property | $3,000 | $/property/year | Mgmt Co. |
-| `marketingRate` | Marketing spend as % of total portfolio revenue | 5% | % | Mgmt Co. |
-| `miscOpsRate` | Miscellaneous operations as % of total portfolio revenue | 3% | % | Mgmt Co. |
+| Field | Definition | Default Value |
+|-------|-----------|--------------|
+| Travel Cost Per Client | Annual travel cost per managed property | $12,000/property/year |
+| IT Licensing Per Client | Annual IT licensing cost per managed property | $3,000/property/year |
+| Marketing Rate | Marketing spend as percentage of total portfolio revenue | 5% |
+| Miscellaneous Operations Rate | Miscellaneous operations as percentage of total portfolio revenue | 3% |
 
-Per-client costs escalate with `inflationRate`. Revenue-based costs scale naturally with portfolio growth.
+Per-client costs escalate with the inflation rate. Revenue-based costs scale naturally with portfolio growth.
 
 ### Revenue Variables (Property-Level Expense Rates)
 
 These global rates govern how specific property revenue streams translate to departmental expenses:
 
-| Field | Definition | Default Value | Unit | Impacts |
-|-------|-----------|--------------|------|---------|
-| `eventExpenseRate` | Expense rate applied to Event Revenue | 65% | % | Properties |
-| `otherExpenseRate` | Expense rate applied to Other Revenue | 60% | % | Properties |
-| `utilitiesVariableSplit` | Portion of utilities expense treated as variable | 60% | % | Properties |
+| Field | Definition | Default Value |
+|-------|-----------|--------------|
+| Event Expense Rate | Expense rate applied to Event Revenue | 65% |
+| Other Expense Rate | Expense rate applied to Other Revenue | 60% |
+| Utilities Variable Split | Portion of utilities expense treated as variable | 60% |
 
-> **Cross-reference:** See `formulas/property-financials.md` §3 for how these rates apply to departmental expense calculations.
+### Exit and Sale
 
-### Exit & Sale
+| Field | Definition | Default Value | Impacts |
+|-------|-----------|--------------|---------|
+| Exit Cap Rate | Capitalization rate for terminal value calculation | 8.5% | Properties |
+| Sales Commission Rate | Broker commission at disposition | 5% | Properties |
+| Company Tax Rate | Corporate income tax rate for Management Company | 30% | Management Company |
 
-| Field | Definition | Default Value | Unit | Impacts |
-|-------|-----------|--------------|------|---------|
-| `exitCapRate` | Capitalization rate for terminal value calculation | 8.5% | % | Properties |
-| `salesCommissionRate` | Broker commission at disposition | 5% | % | Properties |
-| `companyTaxRate` | Corporate income tax rate for Management Company | 30% | % | Mgmt Co. |
+### Debt Assumptions
 
-### Debt Assumptions (JSON Object: `debtAssumptions`)
+| Field | Definition | Default Value |
+|-------|-----------|--------------|
+| Interest Rate | Default loan interest rate (acquisition) | 9% |
+| Amortization Years | Default loan amortization period | 25 years |
+| Acquisition LTV | Default acquisition loan-to-value ratio | 75% |
+| Acquisition Closing Cost Rate | Closing costs as percentage of acquisition loan amount | 2% |
+| Refinance LTV | Default refinance loan-to-value ratio | 75% |
+| Refinance Closing Cost Rate | Closing costs as percentage of refinance loan amount | 3% |
 
-| Field | Definition | Default Value | Unit | Impacts |
-|-------|-----------|--------------|------|---------|
-| `interestRate` | Default loan interest rate (acquisition) | 9% | % | Properties |
-| `amortizationYears` | Default loan amortization period | 25 | years | Properties |
-| `acqLTV` | Default acquisition loan-to-value ratio | 75% | % | Properties |
-| `acqClosingCostRate` | Closing costs as % of acquisition loan amount | 2% | % | Properties |
-| `refiLTV` | Default refinance loan-to-value ratio | 75% | % | Properties |
-| `refiClosingCostRate` | Closing costs as % of refinance loan amount | 3% | % | Properties |
-| `refiInterestRate` | Interest rate on refinance loan (optional override) | — | % | Properties |
-| `refiAmortizationYears` | Amortization period for refinance loan (optional override) | — | years | Properties |
-| `refiPeriodYears` | Default years after ops start before refinance eligibility | — | years | Properties |
-
-> **Cross-reference:** See `formulas/funding-financing-refi.md` §2–§3 for acquisition and refinance debt calculations.
-
-### Standard Acquisition Package (JSON Object: `standardAcqPackage`)
+### Standard Acquisition Package
 
 Default capital budget for new property acquisitions:
 
-| Field | Definition | Default Value | Unit | Impacts |
-|-------|-----------|--------------|------|---------|
-| `purchasePrice` | Default property purchase price | $2,300,000 | $ | Properties |
-| `buildingImprovements` | Default building improvement / renovation budget | $800,000 | $ | Properties |
-| `preOpeningCosts` | Pre-opening expenses (staffing, training, marketing) | $150,000 | $ | Properties |
-| `operatingReserve` | Cash reserve for initial operations | $200,000 | $ | Properties |
-| `monthsToOps` | Default months from acquisition to operations start | 6 | months | Properties |
+| Field | Definition | Default Value |
+|-------|-----------|--------------|
+| Purchase Price | Default property purchase price | $2,300,000 |
+| Building Improvements | Default building improvement or renovation budget | $800,000 |
+| Pre-Opening Costs | Pre-opening expenses (staffing, training, marketing) | $150,000 |
+| Operating Reserve | Cash reserve for initial operations | $200,000 |
+| Months to Operations | Default months from acquisition to operations start | 6 months |
 
-### Boutique Definition (JSON Object: `boutiqueDefinition`)
+### Boutique Definition
 
-Defines the target property profile for the Property Finder and validation:
+The boutique definition establishes the target property profile for the Property Finder and validation:
 
-| Field | Definition | Default Value | Unit |
-|-------|-----------|--------------|------|
-| `minRooms` | Minimum room count | 10 | count |
-| `maxRooms` | Maximum room count | 80 | count |
-| `hasFB` | Property has food & beverage operations | true | boolean |
-| `hasEvents` | Property has event/meeting space | true | boolean |
-| `hasWellness` | Property has wellness programming | true | boolean |
-| `minAdr` | Minimum target ADR | $150 | $ |
-| `maxAdr` | Maximum target ADR | $600 | $ |
-| `level` | Service level classification | "luxury" | enum |
-| `eventLocations` | Number of distinct event spaces | 2 | count |
-| `maxEventCapacity` | Maximum event guest capacity | 150 | count |
-| `acreage` | Minimum property acreage | 10 | acres |
-| `privacyLevel` | Guest privacy classification | "high" | enum |
-| `parkingSpaces` | Minimum parking spaces | 50 | count |
-| `description` | Free-text description of target property type | (see schema) | text |
+| Field | Definition | Default Value |
+|-------|-----------|--------------|
+| Minimum Rooms | Minimum room count | 10 |
+| Maximum Rooms | Maximum room count | 80 |
+| Has F&B | Property has food & beverage operations | Yes |
+| Has Events | Property has event/meeting space | Yes |
+| Has Wellness | Property has wellness programming | Yes |
+| Minimum ADR | Minimum target ADR | $150 |
+| Maximum ADR | Maximum target ADR | $600 |
+| Service Level | Service level classification | Luxury |
+| Event Locations | Number of distinct event spaces | 2 |
+| Max Event Capacity | Maximum event guest capacity | 150 |
+| Acreage | Minimum property acreage | 10 acres |
+| Privacy Level | Guest privacy classification | High |
+| Parking Spaces | Minimum parking spaces | 50 |
 
 ---
 
 ## Instant Recalculation
 
-Changing **any** global assumption instantly recalculates all downstream financial statements:
-
-```
-Global Assumption Changed
-    ├── Management Company Income Statement (recalculated)
-    ├── Management Company Cash Flow Statement (recalculated)
-    ├── Property #1: Income Statement, Cash Flow, Balance Sheet, FCF, IRR (recalculated)
-    ├── Property #2: Income Statement, Cash Flow, Balance Sheet, FCF, IRR (recalculated)
-    ├── ...
-    ├── Property #N: Income Statement, Cash Flow, Balance Sheet, FCF, IRR (recalculated)
-    ├── Portfolio Aggregates (recalculated)
-    └── Dashboard KPIs (recalculated)
-```
-
----
-
-## Export for Offline Verification
-
-The checker should export assumptions and results to **Excel (.xlsx)** or **CSV** from the Settings page and every financial statement page. This enables:
-
-- Side-by-side comparison of assumptions before and after changes
-- Independent recalculation in a spreadsheet to verify engine accuracy
-- Audit trail preservation for scenario comparisons
-- Offline review without application access
-
----
-
-## Checker Verification Points
-
-| Check | What to Verify |
-|-------|---------------|
-| Default values | All fields display correct default values per this table |
-| Escalation | Fixed costs escalate at exactly `fixedCostEscalationRate` year-over-year |
-| Staffing tiers | FTE transitions correctly as portfolio grows past tier thresholds |
-| Fee rates | Base and incentive fee rates propagate correctly to all property income statements |
-| SAFE dates | Tranche dates precede or equal `companyOpsStartDate` (funding gate) |
-| Debt assumptions | Property financing defaults match `debtAssumptions` object when no property override is set |
-| Acquisition package | New properties created via Property Finder default to `standardAcqPackage` values |
-| Instant recalc | Changing any single assumption updates all dependent outputs without page reload |
+Changing any global assumption instantly recalculates all downstream financial statements, including the Management Company income statement and cash flow, every property's income statement, cash flow, balance sheet, FCF, and IRR, all portfolio aggregates, and all Dashboard KPIs.
 
 ---
 
 ## USALI Benchmark Reasonableness Ranges
+
+The following benchmark ranges represent industry-accepted norms for boutique hotel properties. Values outside these ranges should be flagged for further investigation — they are not necessarily errors, but require justification.
 
 | Metric | Acceptable Range (Boutique Hotels) | Red Flag Below | Red Flag Above |
 |--------|-----------------------------------|----------------|----------------|
@@ -235,49 +183,44 @@ The checker should export assumptions and results to **Excel (.xlsx)** or **CSV*
 | NOI Margin | 20% – 40% | 10% | 50% |
 | Rooms Revenue % of Total | 55% – 75% | 40% | 85% |
 | F&B Revenue % of Total | 15% – 30% | 5% | 45% |
-| Base Mgmt Fee | 3% – 7% | 1% | 10% |
-| Incentive Mgmt Fee | 10% – 25% | 5% | 35% |
+| Base Management Fee | 3% – 7% | 1% | 10% |
+| Incentive Management Fee | 10% – 25% | 5% | 35% |
 | FF&E Reserve | 3% – 6% | 1% | 10% |
 | Exit Cap Rate | 6% – 12% | 4% | 15% |
 
 ---
 
-## Inflation & Escalation Verification
+## Inflation and Escalation Verification
 
-### Two Escalation Paths
+The model uses two distinct escalation mechanisms, and it is critical that the checker verify each one independently.
 
-The model uses two distinct escalation mechanisms:
+**Path 1: Fixed Cost Escalation Rate.** This rate is applied to fixed costs including office lease, professional services, technology infrastructure, and business insurance. The formula is: cost × (1 + fixed cost escalation rate) raised to the year index.
 
-1. **`fixedCostEscalationRate`** — Applied to fixed costs: office lease, professional services (admin), marketing overhead, maintenance/tech infrastructure, and business insurance. Formula: `cost × (1 + fixedCostEscalationRate)^yearIndex`
-2. **`inflationRate`** — Applied to variable costs: travel cost per client, IT licensing per client, marketing (revenue-based), and miscellaneous operations
+**Path 2: Inflation Rate.** This rate is applied to variable costs including travel cost per client, IT licensing per client, marketing (revenue-based), and miscellaneous operations. It is also used for staff salary escalation.
 
-### Fallback Behavior
-
-If `fixedCostEscalationRate` is **not set** (null or undefined), the engine falls back to `inflationRate` for fixed cost escalation. This ensures all costs still escalate even if only one rate is configured.
+If the fixed cost escalation rate is not set (null or undefined), the engine falls back to the inflation rate for fixed cost escalation. This ensures all costs still escalate even if only one rate is configured.
 
 ### Verification Procedure
 
 To confirm the two-path escalation is working correctly:
 
-1. Set `inflationRate` = **3%** and `fixedCostEscalationRate` = **5%**
-2. Export the Management Company Income Statement to Excel
-3. Verify **fixed costs** grow at exactly **5%** year-over-year:
-   - Office Lease: Year 1 = $36,000, Year 2 = $37,800 ($36,000 × 1.05), Year 3 = $39,690, etc.
-   - Professional Services: Year 1 = $24,000, Year 2 = $25,200, Year 3 = $26,460, etc.
-   - Tech Infrastructure: Year 1 = $18,000, Year 2 = $18,900, Year 3 = $19,845, etc.
-   - Business Insurance: Year 1 = $12,000, Year 2 = $12,600, Year 3 = $13,230, etc.
-4. Verify **variable costs** grow at exactly **3%** year-over-year:
-   - Travel Cost Per Client: Year 1 = $12,000, Year 2 = $12,360, Year 3 = $12,731, etc.
-   - IT License Per Client: Year 1 = $3,000, Year 2 = $3,090, Year 3 = $3,183, etc.
-5. Confirm that setting `fixedCostEscalationRate` to null causes fixed costs to fall back to the 3% `inflationRate`
+1. Set the inflation rate to 3% and the fixed cost escalation rate to 5%.
+2. Export the Management Company Income Statement to Excel.
+3. Verify fixed costs grow at exactly 5% year-over-year (e.g., Office Lease: Year 1 = $36,000, Year 2 = $37,800, Year 3 = $39,690).
+4. Verify variable costs grow at exactly 3% year-over-year (e.g., Travel Cost Per Client: Year 1 = $12,000, Year 2 = $12,360, Year 3 = $12,731).
+5. Confirm that setting the fixed cost escalation rate to null causes fixed costs to fall back to the 3% inflation rate.
 
 ---
 
-## In-App Help System
+## Checker Verification Points
 
-Every input field on the Settings page includes a **HelpTooltip** (? icon) providing contextual guidance:
-- Explains what the field controls and how it impacts the model
-- For GAAP-regulated or standards-based values, cites the authoritative source (e.g., IRS Pub 946, Federal Reserve CPI targets)
-- Helps users and checkers understand whether a value is standardized (low variability) or market-dependent (requires judgment)
-
-Fields with corresponding AI market research data also display an amber/gold **ResearchBadge** showing the AI-recommended value range. Clicking the badge auto-applies the research midpoint.
+| Check | What to Verify |
+|-------|---------------|
+| Default values | All fields display correct default values per the tables above |
+| Escalation | Fixed costs escalate at exactly the fixed cost escalation rate year-over-year |
+| Staffing tiers | FTE transitions correctly as portfolio grows past tier thresholds |
+| Fee rates | Base and incentive fee rates propagate correctly to all property income statements |
+| SAFE dates | Tranche dates precede or equal the company operations start date (funding gate) |
+| Debt assumptions | Property financing defaults match the debt assumptions when no property override is set |
+| Acquisition package | New properties default to the standard acquisition package values |
+| Instant recalculation | Changing any single assumption updates all dependent outputs without page reload |

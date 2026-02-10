@@ -1,29 +1,41 @@
-# Investment Returns
+# Chapter 13: Investment Returns
 
-## Section ID: `returns`
+The ultimate measure of any investment is the return it delivers. This chapter explains how the platform calculates exit value and the three key return metrics that investors use to evaluate performance.
 
-## Content Summary
-How the model calculates investor returns:
+## Exit Valuation
 
-### Exit Value
-```
-Exit Value = Final Year NOI ÷ Exit Cap Rate
-Net Proceeds = Exit Value − Commission − Outstanding Debt
-```
-- Exit Cap Rate: `DEFAULT_EXIT_CAP_RATE` (8.5%)
-- Commission: `DEFAULT_COMMISSION_RATE` (5%)
+At the end of the projection period, each property's exit value is determined using the income capitalization approach — the standard valuation method for commercial real estate:
 
-### Return Metrics
-- **IRR (Internal Rate of Return)**: Newton-Raphson solver applied to the full cash flow timeline (equity invested, FCF distributions, exit proceeds)
-- **Equity Multiple (MOIC)**: Total distributions ÷ Total equity invested
-- **Cash-on-Cash Return**: Annual FCF ÷ Equity invested
+**Exit Value = Final Year NOI ÷ Exit Cap Rate**
 
-### IRR Calculation
-- Uses `analytics/returns/` engine with Newton-Raphson iteration
-- Cash flows: negative (equity in) → positive (FCF distributions) → large positive (exit proceeds)
-- IRR above `IRR_HIGHLIGHT_THRESHOLD` (15%) shown with accent color in UI
+Using the default exit cap rate of 8.5%, a property generating $850,000 in final-year NOI would be valued at $10,000,000.
 
-## Cross-References
-- Formulas: `.claude/manuals/checker-manual/formulas/dcf-fcf-irr.md`
-- Engine: `analytics/returns/` (Skill 6)
-- Constants: `DEFAULT_EXIT_CAP_RATE`, `DEFAULT_COMMISSION_RATE`, `IRR_HIGHLIGHT_THRESHOLD`
+From this gross exit value, two deductions are made before calculating net proceeds to investors:
+
+**Net Proceeds = Exit Value − Sales Commission − Outstanding Debt**
+
+The sales commission defaults to 5% of the gross sale price, covering broker fees and transaction costs. All outstanding debt is repaid in full at exit, consistent with the model's debt-free-at-exit rule.
+
+## Internal Rate of Return (IRR)
+
+The IRR is the discount rate that makes the net present value of all cash flows equal to zero. It is the single most widely used metric for evaluating real estate investment performance because it accounts for both the magnitude and the timing of cash flows.
+
+The model constructs the full cash flow timeline for each investment: a negative cash flow at the beginning (equity invested), positive cash flows during operations (free cash flow distributions), and a large positive cash flow at exit (net sale proceeds plus any final distributions). The IRR is then solved using the Newton-Raphson iterative method.
+
+Returns above 15% are highlighted in the platform's reports, reflecting the threshold at which most investors consider a boutique hotel investment to be performing well.
+
+## Equity Multiple (MOIC)
+
+The equity multiple — also known as the Multiple on Invested Capital — provides a straightforward measure of total return:
+
+**Equity Multiple = Total Distributions ÷ Total Equity Invested**
+
+An equity multiple of 2.0× means the investor received back twice what they put in. Unlike IRR, the equity multiple does not account for the time value of money, but it offers an intuitive sense of the investment's absolute return.
+
+## Cash-on-Cash Return
+
+The cash-on-cash return measures annual cash yield relative to the original equity investment:
+
+**Cash-on-Cash Return = Annual Free Cash Flow ÷ Total Equity Invested**
+
+This metric is particularly useful for evaluating a property's ability to generate current income during the hold period, independent of any appreciation or exit proceeds. It answers the question: "What annual cash return am I earning on the money I put in?"

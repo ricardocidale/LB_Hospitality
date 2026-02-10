@@ -1494,7 +1494,7 @@ export default function Company() {
                         >
                           <TableCell className="pl-8">
                             <span className="flex items-center gap-1">
-                              {bsExpanded.cash ? <ChevronDown className="w-3.5 h-3.5 text-gray-400" /> : <ChevronRight className="w-3.5 h-3.5 text-gray-400" />}
+                              {bsExpanded.cash ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
                               Cash & Cash Equivalents
                             </span>
                           </TableCell>
@@ -1551,7 +1551,7 @@ export default function Company() {
                         >
                           <TableCell className="pl-8">
                             <span className="flex items-center gap-1">
-                              {bsExpanded.notes ? <ChevronDown className="w-3.5 h-3.5 text-gray-400" /> : <ChevronRight className="w-3.5 h-3.5 text-gray-400" />}
+                              {bsExpanded.notes ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
                               {fundingLabel} Notes Payable
                             </span>
                           </TableCell>
@@ -1596,7 +1596,7 @@ export default function Company() {
                         >
                           <TableCell className="pl-4">
                             <span className="flex items-center gap-1">
-                              {bsExpanded.equity ? <ChevronDown className="w-3.5 h-3.5 text-gray-400" /> : <ChevronRight className="w-3.5 h-3.5 text-gray-400" />}
+                              {bsExpanded.equity ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
                               Retained Earnings
                             </span>
                           </TableCell>

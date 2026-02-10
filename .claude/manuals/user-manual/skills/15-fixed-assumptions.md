@@ -1,44 +1,40 @@
-# Fixed Assumptions (Not Configurable)
+# Chapter 15: Fixed Assumptions and Configurable Parameters
 
-## Section ID: `fixed-assumptions`
+Not all assumptions in the model can be changed. Some are fixed by law or industry convention, while others — though they ship with sensible defaults — can be adjusted to match your specific investment scenario. This chapter clarifies which is which.
 
-## Content Summary
-Two immutable constants built into the calculation engine. Rendered with `Callout severity="warning"`.
+## Immutable Constants
 
-### Immutable Constants
+Two values are permanently fixed in the calculation engine and cannot be overridden:
 
-| Constant | Value | Source | Rationale |
-|----------|-------|--------|-----------|
-| `DEPRECIATION_YEARS` | 27.5 years | IRS Publication 946 / ASC 360 | Tax law for residential rental property. Cannot be changed. |
-| `DAYS_PER_MONTH` | 30.5 days | Industry standard (365 ÷ 12) | Hotel revenue calculation convention. |
+| Parameter | Value | Authority | Rationale |
+|-----------|-------|-----------|-----------|
+| Depreciation period | 27.5 years | IRS Publication 946 / ASC 360 | Mandated by U.S. tax law for residential rental property |
+| Days per month | 30.5 days | Industry convention (365 ÷ 12) | Standard hotel revenue calculation convention |
 
-### Now Configurable (Callout severity="success")
-Parameters that were previously fixed but are now adjustable in Company Assumptions:
-- Exit Cap Rate (default 8.5%)
-- Tax Rate (default 25%)
-- Sales Commission (default 5%)
-- Loan terms (LTV, interest rate, amortization period)
-- Revenue shares (events, F&B, other)
+The 27.5-year depreciation period is not a modeling choice — it is a legal requirement for the classification of property used in the model. Similarly, the 30.5-day month is universally used in hospitality financial analysis to convert daily rates to monthly revenue.
+
+## Configurable Parameters
+
+The following parameters were designed to be adjustable through the Company Assumptions page, allowing you to tailor the model to your market and investment thesis:
+
+- **Exit cap rate** (default 8.5%) — reflects your expectation of market conditions at the time of sale
+- **Tax rate** (default 25%) — can be adjusted for different jurisdictions or tax structures
+- **Sales commission** (default 5%) — covers broker fees and transaction costs at exit
+- **Loan terms** — LTV, interest rate, and amortization period can all be modified to reflect actual financing terms
+- **Revenue shares** — the percentage of room revenue allocated to events, food and beverage, and other income
+
+## Understanding Assumption Variability
+
+When evaluating which assumptions to adjust, it helps to understand the three categories of variability:
+
+| Category | Examples | Degree of Variability |
+|----------|----------|----------------------|
+| **Regulated by GAAP or IRS** | Depreciation (27.5 years), days per month (30.5) | None — set by law or accounting standard |
+| **Market convention** | Amortization period (20–30 years), closing costs (1–3%), broker commission (4–6%) | Low — narrow industry range |
+| **Market variable** | Average daily rate, occupancy, cap rate, catering boost | High — requires local market research |
+
+Parameters in the first category are locked for good reason. Parameters in the second category have sensible defaults that rarely need adjustment. Parameters in the third category are where your local market knowledge and AI-assisted research add the most value — these are the assumptions that most significantly influence projected returns.
 
 ## In-App Guidance
 
-Every input field in the application includes a **HelpTooltip** (? icon) that explains:
-- What the field controls
-- How it affects downstream calculations
-- For GAAP-regulated values, the authoritative source and why it's fixed
-
-Fields with AI market research data also show an amber/gold **ResearchBadge** displaying the recommended range. Click the badge to apply the AI-recommended midpoint value.
-
-### GAAP-Standardized vs. Market-Variable
-
-| Category | Examples | Variability |
-|----------|----------|-------------|
-| **GAAP/IRS Fixed** | Depreciation (27.5yr), Days/Month (30.5) | None — set by law/standard |
-| **Market Convention** | Amortization (20–30yr), Closing Costs (1–3%), Broker Commission (4–6%) | Low — narrow industry range |
-| **Market Variable** | ADR, Occupancy, Cap Rate, Catering Boost | High — requires local market research |
-
-## Cross-References
-- Constants: `.claude/rules/constants-and-config.md` → "Immutable Constants"
-- GAAP: ASC 360 (depreciation), IRS Publication 946
-- Research Badges: `.claude/skills/ui/research-badges.md`
-- Auto-Refresh: `.claude/skills/research/auto-refresh/SKILL.md`
+Every input field includes a help tooltip explaining what the field controls and how changes will ripple through the model. For GAAP-regulated values, the tooltip explains the authoritative source and why the value cannot be changed. For market-variable fields, AI-powered research badges display recommended ranges based on current market data, helping you calibrate assumptions with confidence.

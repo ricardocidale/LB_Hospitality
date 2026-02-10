@@ -1,21 +1,21 @@
-# Business Model Overview
+# Chapter 1: Business Model Overview
 
-## Section ID: `business-model`
+The Hospitality Business Group platform models a boutique hotel investment business built on two distinct but interconnected entities. Understanding this two-entity structure is essential to interpreting the financial projections and reports throughout the platform.
 
-## Content Summary
-Explains the two-entity structure of Hospitality Business Group:
+## The Management Company
 
-1. **Management Company (Hospitality Business Co.)** — Earns management fees from operating boutique hotels. Revenue = base management fees + incentive fees from property portfolio. Expenses = staff, office lease, professional services, technology, travel, marketing.
+The first entity is the management company — Hospitality Business Co. This is the operating company that earns revenue by managing a portfolio of boutique hotel properties. Its income comes from two sources: base management fees calculated as a percentage of each property's total revenue, and incentive fees earned when properties exceed profitability thresholds.
 
-2. **Property Portfolio** — Individual boutique hotel properties. Each property is modeled independently with its own revenue streams, expenses, debt, and returns. Properties feed management fees up to the management company.
+The management company carries its own expense structure, including staff salaries, office lease, professional services, technology infrastructure, travel, and marketing. It operates as a lean organization whose costs scale with the number of properties under management.
 
-## Key Concepts
-- Two separate P&L structures that interact via management fees
-- Properties can be "Full Equity" (no debt) or "Financed" (with acquisition loan)
-- The model projects both entities over the projection period (default 10 years)
-- Consolidated view combines both entities
+## The Property Portfolio
 
-## Cross-References
-- Formulas: `.claude/manuals/checker-manual/formulas/company-financials.md` (management company math)
-- Formulas: `.claude/manuals/checker-manual/formulas/property-financials.md` (property math)
-- Constants: `PROJECTION_YEARS` in `shared/constants.ts`
+The second entity is the property portfolio itself — a collection of individual boutique hotel properties, each modeled independently. Every property has its own revenue streams (rooms, food and beverage, events, and ancillary income), its own operating expenses structured according to USALI standards, its own debt and financing terms, and its own investment return profile.
+
+Properties generate management fees that flow up to the management company, creating the financial link between the two entities. Each property can be structured as either a full-equity acquisition (no debt, 100% cash investment) or a financed acquisition (with a bank loan sized by loan-to-value ratio).
+
+## How the Two Entities Connect
+
+The model maintains two separate profit-and-loss structures that interact through management fees. The management company's revenue is derived entirely from the properties it manages, while each property's expenses include the management fees it pays to the company. This creates a natural alignment of interests: as properties perform better, the management company earns more.
+
+The default projection period is 10 years, during which the model tracks both entities month by month and presents results on an annual basis. A consolidated view combines both entities, providing a complete picture of the business as a whole.

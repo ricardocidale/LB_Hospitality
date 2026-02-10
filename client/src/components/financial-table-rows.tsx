@@ -422,9 +422,9 @@ export function ExpandableMetricRow({
         <TableCell className="pl-6 sticky left-0 bg-white py-1">
           <span className="flex items-center gap-1">
             {expanded ? (
-              <ChevronDown className="w-3.5 h-3.5 flex-shrink-0 text-gray-400" />
+              <ChevronDown className="w-4 h-4 flex-shrink-0 text-gray-400" />
             ) : (
-              <ChevronRight className="w-3.5 h-3.5 flex-shrink-0 text-gray-400" />
+              <ChevronRight className="w-4 h-4 flex-shrink-0 text-gray-400" />
             )}
             {label}
             {tooltip && <HelpTooltip text={tooltip} />}
@@ -607,9 +607,9 @@ export function ExpandableBalanceSheetLineItem({
         >
           <span className="flex items-center gap-1">
             {expanded ? (
-              <ChevronDown className="w-3.5 h-3.5 flex-shrink-0 text-gray-400" />
+              <ChevronDown className="w-4 h-4 flex-shrink-0 text-gray-400" />
             ) : (
-              <ChevronRight className="w-3.5 h-3.5 flex-shrink-0 text-gray-400" />
+              <ChevronRight className="w-4 h-4 flex-shrink-0 text-gray-400" />
             )}
             {label}
             {tooltip && <HelpTooltip text={tooltip} />}

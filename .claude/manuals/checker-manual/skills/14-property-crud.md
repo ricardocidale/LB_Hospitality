@@ -1,19 +1,14 @@
-# 14 — Adding, Editing, and Deleting Properties
+# Chapter 14: Adding, Editing, and Deleting Properties
 
 ## Overview
 
-Properties (SPVs) are the fundamental investment entities in the portfolio. The platform supports full CRUD (Create, Read, Update, Delete) operations on properties, with each change triggering immediate recalculation of all consolidated financials, management company fee revenue, and portfolio-level metrics.
+Properties (SPVs) are the fundamental investment entities in the portfolio. The platform supports full create, read, update, and delete operations on properties, with each change triggering immediate recalculation of all consolidated financials, Management Company fee revenue, and portfolio-level metrics.
 
 ---
 
 ## Adding a Property
 
-| Step | Action | Detail |
-|------|--------|--------|
-| 1 | Navigate to Portfolio | Go to `/portfolio` |
-| 2 | Click "Add Property" | Opens the Add Property dialog |
-| 3 | Fill required fields | Property identity, capital structure, revenue drivers (see field table below) |
-| 4 | Save | Property is created in the database and immediately appears in the portfolio |
+To add a property, navigate to the Portfolio page, click "Add Property" to open the dialog, fill in the required fields, and save. The property is created in the database and immediately appears in the portfolio.
 
 ### Required Fields for New Property
 
@@ -39,88 +34,63 @@ Properties (SPVs) are the fundamental investment entities in the portfolio. The 
 | | Occupancy Ramp Months | 18 | Months to reach stabilized occupancy |
 | | Catering Boost % | 15% | F&B revenue uplift from catering programs |
 
-> **Cross-reference:** See `skills/05-property-assumptions.md` for the full assumption catalog and `formulas/property-financials.md` for how each assumption feeds into the financial engine.
+For the full assumption catalog and how each assumption feeds into the financial engine, see Chapter 5: Property-Level Assumptions.
 
 ---
 
 ## Editing a Property
 
-| Step | Action | Detail |
-|------|--------|--------|
-| 1 | Navigate to Portfolio | Go to `/portfolio` |
-| 2 | Click edit icon | On the property card → navigates to `/property/:id/edit` (PropertyEdit page) |
-| 3 | Modify fields | All configurable fields organized in collapsible sections |
-| 4 | Save | SaveButton in page header persists changes via `PATCH /api/properties/:id` |
+To edit a property, navigate to the Portfolio page and click the edit icon on the property card. This opens the Property Edit page, where all configurable fields are organized in collapsible sections.
 
-### PropertyEdit Page Sections
+### Property Edit Page Sections
 
 | Section | Fields Included |
 |---------|----------------|
-| **Property Identity** | Name, location, market, status, image |
-| **Acquisition & Timing** | Purchase price, acquisition date, operations start date |
-| **Capital Improvements** | Building improvements, pre-opening costs, operating reserve, land value % |
-| **Revenue Assumptions** | Room count, start ADR, ADR growth rate, start/max occupancy, occupancy ramp months, catering boost % |
-| **Revenue Shares** | Event revenue share, F&B revenue share, other revenue share (as % of room revenue) |
-| **Operating Cost Rates** | Rooms, F&B, admin, marketing, property ops, utilities, insurance, taxes, IT, FF&E, other (each as % of total revenue) |
-| **Financing** | Acquisition type (Full Equity / Leveraged), LTV, interest rate, term, closing cost rate |
-| **Refinancing** | Will refinance (Yes/No), refinance date, refi LTV, refi interest rate, refi term, refi closing cost rate |
-| **Exit** | Exit cap rate, tax rate |
+| Property Identity | Name, location, market, status, image |
+| Acquisition & Timing | Purchase price, acquisition date, operations start date |
+| Capital Improvements | Building improvements, pre-opening costs, operating reserve, land value percentage |
+| Revenue Assumptions | Room count, start ADR, ADR growth rate, start/max occupancy, occupancy ramp months, catering boost percentage |
+| Revenue Shares | Event revenue share, F&B revenue share, other revenue share (as percentage of room revenue) |
+| Operating Cost Rates | Rooms, F&B, admin, marketing, property ops, utilities, insurance, taxes, IT, FF&E, other (each as percentage of total revenue) |
+| Financing | Acquisition type (Full Equity / Leveraged), LTV, interest rate, term, closing cost rate |
+| Refinancing | Will refinance (Yes/No), refinance date, refi LTV, refi interest rate, refi term, refi closing cost rate |
+| Exit | Exit cap rate, tax rate |
 
-Research badges (from AI market research) appear inline next to applicable fields, showing recommended ranges.
+Where AI market research data exists, recommended ranges appear inline next to applicable fields.
 
 ---
 
 ## Deleting a Property
 
-| Step | Action | Detail |
-|------|--------|--------|
-| 1 | Navigate to Portfolio | Go to `/portfolio` |
-| 2 | Click delete icon | On the property card → opens confirmation dialog (AlertDialog) |
-| 3 | Confirm deletion | Property is permanently removed via `DELETE /api/properties/:id` |
+To delete a property, navigate to the Portfolio page, click the delete icon on the property card, and confirm deletion in the confirmation dialog. The property is permanently removed.
 
-**Cascading Effects of Deletion:**
+### Cascading Effects of Deletion
 
 | Impact Area | Effect |
 |-------------|--------|
 | Portfolio totals | Consolidated financials immediately exclude the deleted property |
-| Management Company revenue | Fee revenue from the deleted property drops to zero; Management Company P&L recalculates |
+| Management Company revenue | Fee revenue from the deleted property drops to zero; the Management Company P&L recalculates |
 | Dashboard KPIs | All portfolio metrics update to reflect the reduced property count |
 | Investment analysis | IRR, equity multiple, and FCF recalculate without the deleted property |
-| Scenarios | Saved scenarios retain their snapshot; only the active state is affected |
+| Scenarios | Saved scenarios retain their snapshot; only the active working state is affected |
 
 ---
 
 ## Property Images
 
-Properties support visual assets for display on property cards and detail pages:
-
-| Image Source | Method | Storage |
-|-------------|--------|---------|
-| **URL** | Paste an external image URL into the Image URL field | Referenced directly; no upload |
-| **Upload** | Use the PropertyImagePicker / ObjectUploader component to upload a file | Stored in Replit Object Storage; URL is persisted to the property record |
-| **AI-Generated** | Use the image generation feature to create a property rendering | Generated image is stored in Object Storage |
-
-Images appear on:
-- Portfolio page property cards (thumbnail)
-- Property Detail page (hero image)
-- Property Edit page (editable)
-- Exported reports (where supported)
+Properties support visual assets for display on property cards and detail pages. Images can be provided via an external URL, uploaded directly through the image upload interface, or generated using the AI image generation feature. Images appear on the Portfolio page property cards (as thumbnails), the Property Detail page (as a hero image), the Property Edit page, and in exported reports where supported.
 
 ---
 
 ## Recalculation Behavior
 
-> **Critical:** Adding, editing, or removing properties triggers an **immediate, full recalculation** of all downstream financials.
+Adding, editing, or removing properties triggers an immediate, full recalculation of all downstream financials. This recalculation is client-side and instantaneous — there is no batch processing or queue.
 
 | Trigger | Recalculation Scope |
 |---------|-------------------|
 | Add property | New property's pro forma is generated; consolidated totals include the new entity; Management Company fee revenue increases |
 | Edit property assumptions | That property's pro forma regenerates; consolidated totals and Management Company revenue update accordingly |
 | Delete property | Property excluded from all aggregations; Management Company fee revenue decreases; portfolio metrics contract |
-
-This recalculation is **client-side and instantaneous** — there is no batch processing or queue.
-
-> **Cross-reference:** See `formulas/company-financials.md` §1 for Management Company fee linkage and `formulas/consolidated.md` for portfolio aggregation formulas.
 
 ---
 
@@ -130,7 +100,7 @@ This recalculation is **client-side and instantaneous** — there is no batch pr
 |-------|---------------|
 | Add → recalculate | Add a new property → confirm Dashboard KPIs, consolidated statements, and Management Company fees all reflect the addition |
 | Edit → recalculate | Change a single assumption (e.g., ADR) on one property → confirm only that property's financials change; consolidated totals update by the correct delta |
-| Delete → recalculate | Remove a property → confirm its revenue/expenses are fully excluded from all consolidated views |
+| Delete → recalculate | Remove a property → confirm its revenue and expenses are fully excluded from all consolidated views |
 | Fee linkage | Property management fee expense must equal the Management Company's fee revenue from that property (to the penny) |
 | Image persistence | Upload an image → save → reload page → confirm the image displays correctly |
-| Default values | Add a property with minimal inputs → confirm all default assumptions are correctly applied per `shared/constants.ts` |
+| Default values | Add a property with minimal inputs → confirm all default assumptions are correctly applied |

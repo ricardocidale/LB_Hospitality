@@ -1,57 +1,34 @@
-# User Manual — Hospitality Business Group Business Simulation Portal
+# Hospitality Business Group — Financial Model Handbook
 
-## Purpose
-This skill provides the complete User Manual content for the `/methodology` page. It explains the financial model, assumptions, calculations, and reporting standards to normal app users. The Checker Manual (`.claude/manuals/checker-manual/`) serves the parallel verification role for checker/admin users.
+## About This Manual
 
-## Directory Structure
+This handbook serves as your comprehensive guide to the Hospitality Business Group Business Simulation Portal. Whether you are an investor evaluating a boutique hotel opportunity, an asset manager overseeing a growing portfolio, or an operator seeking to understand the financial mechanics behind the platform, this manual will walk you through every aspect of the model — from high-level business structure to the detailed formulas that drive each projection.
 
-```
-.claude/manuals/user-manual/
-├── SKILL.md              ← This file (master index)
-└── skills/               ← Narrative content files by section
-    ├── 01-business-model.md
-    ├── 02-business-rules.md
-    ├── 03-capital-structure.md
-    ├── 04-dynamic-behavior.md
-    ├── 05-property-lifecycle.md
-    ├── 06-defaults.md
-    ├── 07-revenue.md
-    ├── 08-expenses.md
-    ├── 09-gop-noi.md
-    ├── 10-debt-financing.md
-    ├── 11-cash-flow.md
-    ├── 12-balance-sheet.md
-    ├── 13-returns.md
-    ├── 14-mgmt-company.md
-    ├── 15-fixed-assumptions.md
-    └── 16-verification.md
-```
+The platform models the complete financial lifecycle of a boutique hotel portfolio: acquisition, operations, refinancing, and exit. Every number you see in the application traces directly back to the assumptions you provide, and every calculation adheres to Generally Accepted Accounting Principles (GAAP) and the Uniform System of Accounts for the Lodging Industry (USALI).
 
-## How to Use
-1. **Start with** `skills/01-business-model.md` for the two-entity structure.
-2. **Understand constraints** via `skills/02-business-rules.md` (7 mandatory rules).
-3. **Review capital flow** in `skills/03-capital-structure.md`.
-4. **Study calculations** in sections 07–13 (revenue through returns).
-5. **Cross-reference formulas** in `.claude/manuals/checker-manual/formulas/` — the math is identical for both manuals; only the framing differs.
-6. **Check constants** in `.claude/rules/constants-and-config.md` — all numeric values in the manual come from `shared/constants.ts` or `client/src/lib/constants.ts`.
+This manual is organized into sixteen chapters, each covering a distinct aspect of the financial model. You may read it cover to cover for a thorough understanding, or jump to specific chapters as a reference when working with a particular area of the platform.
 
-## Relationship to Checker Manual
-- **User Manual** (this): Explains concepts to investors/operators. Light theme. Accessible to all authenticated users.
-- **Checker Manual** (`.claude/manuals/checker-manual/`): Provides verification procedures for auditors. Dark glass theme. Accessible to admin/checker users only.
-- Both pages share the same UI components: `SectionCard`, `ManualTable`, `Callout` (from `client/src/components/ui/`).
-- Formulas are NOT duplicated here — cross-reference `.claude/manuals/checker-manual/formulas/` for the exact math.
+## Table of Contents
 
-## Rendered In-App
-The manual is rendered at `/methodology` (accessible to all authenticated users) with:
-- Light theme using `SectionCard variant="light"`
-- Collapsible sections driven by a `sections` array
-- TOC sidebar for desktop navigation
-- Constants-driven values (no hardcoded numbers)
-- `data-testid` attributes on section toggles and TOC links
+1. **Business Model Overview** — The two-entity structure: management company and property portfolio
+2. **Business Rules and Constraints** — Seven mandatory financial rules that govern the entire model
+3. **Capital Structure and Investor Returns** — Sources of capital and how investors earn returns
+4. **Dynamic Behavior and System Goals** — Real-time recalculation, multi-level analysis, and design principles
+5. **Property Lifecycle** — The four phases every property moves through: acquisition, operations, refinancing, and exit
+6. **Default Values and Assumptions** — How defaults work and a complete reference of starting values
+7. **Revenue Calculations** — Room revenue and the three ancillary revenue streams
+8. **Operating Expenses** — Direct costs, overhead costs, and cost escalation mechanics
+9. **Gross Operating Profit and Net Operating Income** — The two key profitability metrics for hotel properties
+10. **Debt and Financing** — Loan mechanics, amortization, and refinancing
+11. **Free Cash Flow** — Cash flow statement structure and free cash flow calculations
+12. **Balance Sheet** — Assets, liabilities, equity, and depreciation
+13. **Investment Returns** — Exit valuation, IRR, equity multiple, and cash-on-cash returns
+14. **Management Company Financials** — Revenue, expenses, staffing, and funding for the management entity
+15. **Fixed Assumptions** — Constants that cannot be changed and those that can be configured
+16. **Cross-Verification and Audit Trail** — How the platform independently verifies every calculation
 
-## Key Implementation Details
-- **File**: `client/src/pages/Methodology.tsx`
-- **Lazy loaded**: Via `React.lazy()` in `App.tsx`
-- **Constants imported**: ~30 values from `@/lib/constants`
-- **Formatting helpers**: `pct()` for "36%", `pct1()` for "8.5%"
-- **Shared components**: `SectionCard`, `ManualTable`, `Callout` from `@/components/ui/`
+## How to Use This Handbook
+
+If you are new to the platform, begin with Chapters 1 through 5 for a solid foundation in how the business is structured and how properties move through their lifecycle. Chapters 6 through 13 provide detailed coverage of the financial calculations — revenue, expenses, profitability, debt, cash flow, balance sheet, and returns. Chapter 14 covers the management company as a separate financial entity. Chapters 15 and 16 address the assumptions framework and the verification system that ensures calculation integrity.
+
+Throughout this handbook, formulas are presented in plain notation, and default values are stated directly. Where relevant, we reference the applicable GAAP standards (ASC 230, 360, 470, 606) and USALI guidelines that inform the model's design.

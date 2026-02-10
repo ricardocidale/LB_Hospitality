@@ -1,26 +1,31 @@
-# Business Rules & Constraints
+# Chapter 2: Business Rules and Constraints
 
-## Section ID: `business-rules`
+The financial model enforces seven mandatory rules that cannot be overridden. These rules reflect fundamental accounting principles and prudent financial management practices. Every projection the platform generates adheres to these constraints, and any scenario that would violate them is flagged immediately.
 
-## Content Summary
-Seven mandatory financial rules enforced across the entire model. These are non-negotiable constraints — rendered as `Callout severity="critical"` in the UI.
+## Rule 1: Interest Only on the Income Statement, Never Principal
 
-### The 7 Rules
+The income statement reflects only the interest portion of debt service. Net Income is calculated as NOI minus interest expense, minus depreciation, minus income tax. Loan principal repayment is classified as a financing activity in accordance with ASC 470, and it never appears as an operating expense. This distinction is critical for accurately measuring operating profitability.
 
-1. **Income Statement: Interest Only, Never Principal** — Net Income = NOI − Interest − Depreciation − Tax. Principal is a financing activity (ASC 470), not an expense.
+## Rule 2: Debt-Free at Exit
 
-2. **Debt-Free at Exit** — All outstanding debt is repaid from gross sale proceeds at the end of the projection period.
+When a property is sold at the end of the projection period, all outstanding debt must be repaid from the gross sale proceeds before any distributions to investors. No property exits the model with remaining loan balances.
 
-3. **No Negative Cash** — Cash balances for each property, the management company, and the portfolio must never go negative.
+## Rule 3: No Negative Cash
 
-4. **No Over-Distribution** — FCF distributions and refinancing proceeds must not be distributed to the point that any entity's cash goes negative.
+Cash balances must remain at or above zero at all times — for each individual property, for the management company, and for the portfolio as a whole. The model will not permit a scenario in which any entity runs out of cash.
 
-5. **Capital Sources on Separate Lines** — Equity, loan proceeds, and refinancing proceeds must always appear as separate line items in all reports.
+## Rule 4: No Over-Distribution
 
-6. **Funding Gates** — Management company cannot operate before SAFE funding; properties cannot operate before acquisition/funding.
+Free cash flow distributions and refinancing proceeds may not be distributed to the point where any entity's cash balance goes negative. Distributions are constrained by available cash, ensuring that no entity is left underfunded.
 
-7. **Balance Sheet Must Balance** — Assets = Liabilities + Equity every period, validated at runtime.
+## Rule 5: Capital Sources on Separate Lines
 
-## Cross-References
-- Rules: `.claude/rules/financial-engine.md` → "Mandatory Business Rules"
-- GAAP: ASC 230 (cash flows), ASC 470 (debt), ASC 360 (PP&E)
+Equity contributions, loan proceeds, and refinancing proceeds must always appear as separate, clearly identified line items in all financial reports. Capital sources are never commingled or netted against one another, maintaining full transparency for investors and auditors.
+
+## Rule 6: Funding Gates
+
+The management company cannot begin operations until SAFE funding has been received. Similarly, individual properties cannot begin operations until their acquisition has been funded — whether through equity, debt, or a combination of both. These gates ensure that no entity generates revenue or incurs operating expenses before its capital is in place.
+
+## Rule 7: Balance Sheet Must Balance
+
+The fundamental accounting equation — Assets equals Liabilities plus Equity — must hold true in every period for every entity. This is validated continuously, and any variance is flagged as an error. This requirement follows the FASB Conceptual Framework and the standards set forth in ASC 230 (cash flows), ASC 470 (debt), and ASC 360 (property, plant, and equipment).

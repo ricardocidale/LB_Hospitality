@@ -235,12 +235,38 @@ export default function PropertyEdit() {
                 <Input value={draft.name} onChange={(e) => handleChange("name", e.target.value)} className="bg-white border-[#9FBCA4]/30 text-gray-900 placeholder:text-gray-400" />
               </div>
               <div className="space-y-2">
-                <Label className="label-text text-gray-700 flex items-center gap-1.5">Location<HelpTooltip text="Full address or city/state of the property. Used for market research to find comparable properties and local hospitality benchmarks." /></Label>
+                <Label className="label-text text-gray-700 flex items-center gap-1.5">Location<HelpTooltip text="City and state/region of the property. Used for market research to find comparable properties and local hospitality benchmarks." /></Label>
                 <Input value={draft.location} onChange={(e) => handleChange("location", e.target.value)} className="bg-white border-[#9FBCA4]/30 text-gray-900 placeholder:text-gray-400" />
               </div>
               <div className="space-y-2">
                 <Label className="label-text text-gray-700 flex items-center gap-1.5">Market<HelpTooltip text="The broader market or MSA (Metropolitan Statistical Area) this property operates in. Drives market research, comp set analysis, and regional benchmarks." /></Label>
                 <Input value={draft.market} onChange={(e) => handleChange("market", e.target.value)} className="bg-white border-[#9FBCA4]/30 text-gray-900 placeholder:text-gray-400" />
+              </div>
+
+              <div className="md:col-span-2 border border-[#9FBCA4]/20 rounded-xl p-4 space-y-4">
+                <p className="text-sm font-medium text-gray-700 label-text">Address Details <span className="text-gray-400 font-normal">(optional)</span></p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2 md:col-span-2">
+                    <Label className="label-text text-gray-600 text-sm">Street Address</Label>
+                    <Input value={draft.streetAddress || ""} onChange={(e) => handleChange("streetAddress", e.target.value || null)} placeholder="123 Main Street" className="bg-white border-[#9FBCA4]/30 text-gray-900 placeholder:text-gray-400" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="label-text text-gray-600 text-sm">City</Label>
+                    <Input value={draft.city || ""} onChange={(e) => handleChange("city", e.target.value || null)} placeholder="Austin" className="bg-white border-[#9FBCA4]/30 text-gray-900 placeholder:text-gray-400" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="label-text text-gray-600 text-sm">State / Province / Region</Label>
+                    <Input value={draft.stateProvince || ""} onChange={(e) => handleChange("stateProvince", e.target.value || null)} placeholder="Texas" className="bg-white border-[#9FBCA4]/30 text-gray-900 placeholder:text-gray-400" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="label-text text-gray-600 text-sm">Postal / ZIP Code</Label>
+                    <Input value={draft.zipPostalCode || ""} onChange={(e) => handleChange("zipPostalCode", e.target.value || null)} placeholder="78701" className="bg-white border-[#9FBCA4]/30 text-gray-900 placeholder:text-gray-400" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="label-text text-gray-600 text-sm">Country</Label>
+                    <Input value={draft.country || ""} onChange={(e) => handleChange("country", e.target.value || null)} placeholder="United States" className="bg-white border-[#9FBCA4]/30 text-gray-900 placeholder:text-gray-400" />
+                  </div>
+                </div>
               </div>
               <div className="space-y-2 md:col-span-2">
                 <Label className="label-text text-gray-700 flex items-center gap-1.5">Property Photo<HelpTooltip text="Upload or generate a representative photo for this property. Displayed on portfolio cards and property detail pages." /></Label>

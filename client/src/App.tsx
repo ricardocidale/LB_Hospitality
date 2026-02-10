@@ -31,8 +31,6 @@ const Methodology = lazy(() => import("@/pages/Methodology"));
 const CheckerManual = lazy(() => import("@/pages/CheckerManual"));
 const Help = lazy(() => import("@/pages/Help"));
 const ExecutiveSummary = lazy(() => import("@/pages/ExecutiveSummary"));
-const ComparisonView = lazy(() => import("@/pages/ComparisonView"));
-const TimelineView = lazy(() => import("@/pages/TimelineView"));
 const MapView = lazy(() => import("@/pages/MapView"));
 
 const PageLoader = () => (
@@ -208,10 +206,10 @@ function Router() {
         <Redirect to="/help" />
       </Route>
       <Route path="/compare">
-        <ProtectedRoute component={ComparisonView} />
+        <Redirect to="/analysis" />
       </Route>
       <Route path="/timeline">
-        <ProtectedRoute component={TimelineView} />
+        <Redirect to="/analysis" />
       </Route>
       <Route component={NotFound} />
     </Switch>

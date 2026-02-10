@@ -33,7 +33,7 @@ const METRICS: MetricRow[] = [
   { label: "Financing Type", key: "type", format: "text" },
 ];
 
-export default function ComparisonView() {
+export default function ComparisonView({ embedded }: { embedded?: boolean }) {
   const properties = useStore((s) => s.properties);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
@@ -67,8 +67,9 @@ export default function ComparisonView() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FFF9F5] p-6 md:p-8" data-testid="comparison-view">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <div className={embedded ? "space-y-6" : "min-h-screen bg-[#FFF9F5] p-6 md:p-8"} data-testid="comparison-view">
+      <div className={embedded ? "space-y-6" : "max-w-7xl mx-auto space-y-8"}>
+        {!embedded && (
         <div>
           <h1 className="text-3xl font-bold text-[#2d4a5e]" data-testid="text-page-title">
             Property Comparison
@@ -77,6 +78,7 @@ export default function ComparisonView() {
             Select 2–4 properties to compare assumptions side by side
           </p>
         </div>
+        )}
 
         <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
           <h2 className="text-sm font-semibold text-gray-700 mb-3" data-testid="text-selector-heading">

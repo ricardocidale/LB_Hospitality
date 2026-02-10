@@ -17,7 +17,7 @@ Business simulation portal for a boutique hotel management company. Financial mo
 **Fluid Glass** is the active theme. All new UI work must follow Fluid Glass styling conventions.
 
 ## Recent Changes
-- **Unified Analysis Page**: `/analysis` route merges Sensitivity, Financing, and Executive Summary into a single tabbed page. Components use `embedded` prop to skip Layout wrapper. Old standalone routes redirect.
+- **Unified Analysis Page**: `/analysis` route merges Sensitivity, Financing, Executive Summary, Compare, and Timeline into a single tabbed page. Components use `embedded` prop to skip Layout wrapper. Old standalone routes (`/compare`, `/timeline`) redirect to `/analysis`.
 - **Map View in Properties**: Map View is now a tab inside the Properties page (`/portfolio`) instead of a separate sidebar item.
 - **Admin 3D Redesign**: Admin dashboard upgraded with floating glass panel 3D background, glassmorphism stat cards with gradient borders, polished AdminCard with hover lift/glow effects.
 - **Composite Tabbed Pages Skill**: New skill (`.claude/skills/ui/composite-tabbed-pages.md`) documenting the pattern for merging standalone pages into unified tabbed views.

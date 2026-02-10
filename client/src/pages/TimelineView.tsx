@@ -20,7 +20,7 @@ function formatCurrency(value: number): string {
   return "$" + value.toLocaleString("en-US");
 }
 
-export default function TimelineView() {
+export default function TimelineView({ embedded }: { embedded?: boolean }) {
   const properties = useStore((s) => s.properties);
 
   const events = useMemo(() => {
@@ -48,10 +48,12 @@ export default function TimelineView() {
   }, [properties]);
 
   return (
-    <div data-testid="timeline-view" className="min-h-screen bg-[#FFF9F5] p-6 md:p-10">
+    <div data-testid="timeline-view" className={embedded ? "" : "min-h-screen bg-[#FFF9F5] p-6 md:p-10"}>
+      {!embedded && (
       <h1 className="text-3xl font-bold text-center mb-10" data-testid="timeline-title">
         Portfolio Timeline
       </h1>
+      )}
 
       <div className="relative max-w-4xl mx-auto">
         <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-[2px] bg-border hidden md:block" />

@@ -397,7 +397,7 @@ export default function CompanyAssumptions() {
               <div className="flex items-center gap-4 mb-2">
                 <h3 className="text-lg font-display text-gray-900 flex items-center">
                   Funding
-                  <HelpTooltip text="Initial capital to fund management company operations before fee revenue begins" />
+                  <HelpTooltip text="Initial capital to fund management company operations before fee revenue begins" manualSection="funding-financing" />
                 </h3>
               </div>
               <div className="flex items-center gap-3 mb-3">
@@ -490,7 +490,7 @@ export default function CompanyAssumptions() {
                 <div className="flex items-center justify-between">
                   <Label className="flex items-center text-gray-700 label-text">
                     Valuation Cap
-                    <HelpTooltip text="Maximum company valuation for SAFE conversion" />
+                    <HelpTooltip text="Maximum company valuation for SAFE conversion" manualSection="funding-financing" />
                   </Label>
                   <EditableValue
                     value={formData.safeValuationCap ?? global.safeValuationCap}
@@ -513,7 +513,7 @@ export default function CompanyAssumptions() {
                 <div className="flex items-center justify-between">
                   <Label className="flex items-center text-gray-700 label-text">
                     Discount Rate
-                    <HelpTooltip text="Discount on share price when SAFE converts to equity" />
+                    <HelpTooltip text="Discount on share price when SAFE converts to equity" manualSection="funding-financing" />
                   </Label>
                   <EditableValue
                     value={formData.safeDiscountRate ?? global.safeDiscountRate}
@@ -545,13 +545,13 @@ export default function CompanyAssumptions() {
             <div className="space-y-6">
               <h3 className="text-lg font-display text-gray-900 flex items-center">
                 Revenue
-                <HelpTooltip text="Management fees collected from each property in the portfolio" />
+                <HelpTooltip text="Management fees collected from each property in the portfolio" manualSection="company-formulas" />
               </h3>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label className="flex items-center text-gray-700 label-text">
                     Base Management Fee
-                    <HelpTooltip text="Percentage of each property's gross revenue collected monthly" />
+                    <HelpTooltip text="Percentage of each property's gross revenue collected monthly" manualSection="company-formulas" />
                   </Label>
                   <EditableValue
                     value={formData.baseManagementFee ?? global.baseManagementFee}
@@ -721,7 +721,7 @@ export default function CompanyAssumptions() {
             <div className="space-y-6">
               <h3 className="text-lg font-display text-gray-900 flex items-center">
                 Fixed Overhead (<span className="font-mono">{modelStartYear}</span>)
-                <HelpTooltip text="Starting annual costs that escalate yearly at the fixed cost escalation rate" />
+                <HelpTooltip text="Starting annual costs that escalate yearly at the fixed cost escalation rate" manualSection="company-formulas" />
               </h3>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
@@ -960,7 +960,7 @@ export default function CompanyAssumptions() {
           <div className="space-y-4">
             <h3 className="text-lg font-display text-gray-900 flex items-center gap-2">
               Tax Rate
-              <HelpTooltip text="Corporate tax rate applied to positive net income for after-tax cash flow calculations" />
+              <HelpTooltip text="Corporate tax rate applied to positive net income for after-tax cash flow calculations" manualSection="company-formulas" />
             </h3>
             <div className="max-w-md space-y-2">
               <div className="flex justify-between items-center">
@@ -1161,7 +1161,7 @@ export default function CompanyAssumptions() {
             <div>
               <h3 className="text-lg font-display text-gray-900 flex items-center gap-2">
                 Partner Compensation Schedule
-                <HelpTooltip text="Annual total partner compensation and partner count for each year. Individual partner compensation = Total ÷ Partner Count." />
+                <HelpTooltip text="Annual total partner compensation and partner count for each year. Individual partner compensation = Total ÷ Partner Count." manualSection="company-formulas" />
               </h3>
               <p className="text-gray-600 text-sm label-text">Configure total partner compensation and headcount by year</p>
             </div>

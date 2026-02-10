@@ -595,6 +595,26 @@ export default function CheckerManual() {
                     ["Investment Analysis", "Both", "FCF, FCFE, IRR, MOIC", "—"],
                   ]}
                 />
+                <h3 className="text-white/90 text-sm font-semibold mt-6 mb-2">Calculation Transparency</h3>
+                <p className="text-white/70 text-sm mb-2">Two on/off toggles in Settings {">"} Other tab control the visibility of formula details across all financial reports. One toggle controls Management Company reports, the other controls all Property reports. Default: ON.</p>
+                <ManualTable
+                  headers={["Toggle", "Scope", "Default", "Controls"]}
+                  rows={[
+                    ["Management Company Reports", "Company income statement & cash flow", "ON", "Expandable formula rows + help icons on the Company page"],
+                    ["Property Reports", "All property income statements, cash flows & balance sheets", "ON", "Expandable formula rows + help icons on every property page"],
+                  ]}
+                />
+                <h3 className="text-white/90 text-sm font-semibold mt-4 mb-2">Expandable Formula Rows</h3>
+                <p className="text-white/70 text-sm mb-2">When Calculation Transparency is ON, line items in financial tables show a chevron. Click to expand and reveal step-by-step calculation breakdowns.</p>
+                <ManualTable
+                  headers={["Component", "Purpose", "Behavior"]}
+                  rows={[
+                    ["Chevron (▸)", "Indicates an expandable row", "Click to toggle formula details"],
+                    ["Formula Detail Row", "Shows base value × rate × escalation × 12", "Appears below the parent line item"],
+                    ["Help Icon (?)", "Tooltip explaining the line item", "Hover to see definition; may include link to this manual"],
+                  ]}
+                />
+                <Callout>When Calculation Transparency is OFF, financial tables display clean numbers only — no chevrons, no formula rows, no help icons. Ideal for investor presentations. The export dialog has a separate checkbox to include formula details in exported files.</Callout>
               </SectionCard>
 
               {/* Section 8: Export System */}

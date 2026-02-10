@@ -1,4 +1,4 @@
-import { HelpCircle } from "lucide-react";
+import { HelpCircle, ExternalLink } from "lucide-react";
 import {
   Tooltip,
   TooltipTrigger,
@@ -9,9 +9,11 @@ interface HelpTooltipProps {
   text: string;
   light?: boolean;
   side?: "top" | "bottom" | "left" | "right";
+  manualSection?: string;
+  manualLabel?: string;
 }
 
-export function HelpTooltip({ text, light = false, side = "top" }: HelpTooltipProps) {
+export function HelpTooltip({ text, light = false, side = "top", manualSection, manualLabel }: HelpTooltipProps) {
   return (
     <Tooltip delayDuration={200}>
       <TooltipTrigger asChild>
@@ -35,7 +37,18 @@ export function HelpTooltip({ text, light = false, side = "top" }: HelpTooltipPr
         className="max-w-xs text-sm leading-relaxed px-4 py-3"
         data-testid="help-tooltip-content"
       >
-        {text}
+        <span>{text}</span>
+        {manualSection && (
+          <a
+            href={`/checker-manual#${manualSection}`}
+            className="flex items-center gap-1 mt-1.5 text-[10px] text-[#9FBCA4] hover:text-white transition-colors"
+            data-testid="help-tooltip-manual-link"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <ExternalLink className="w-3 h-3" />
+            {manualLabel || "Learn more in the Manual"}
+          </a>
+        )}
       </TooltipContent>
     </Tooltip>
   );

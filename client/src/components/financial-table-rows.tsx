@@ -333,6 +333,59 @@ export function MetricRow({ label, values, tooltip, highlights }: MetricRowProps
 }
 
 /* ═══════════════════════════════════════════════
+   6b. ExpandableMetricRow
+   Like MetricRow but with an accordion chevron.
+   Click to expand/collapse child detail rows.
+   ═══════════════════════════════════════════════ */
+
+interface ExpandableMetricRowProps {
+  label: string;
+  values: string[];
+  tooltip?: string;
+  highlights?: (string | undefined)[];
+  children: React.ReactNode;
+  expanded: boolean;
+  onToggle: () => void;
+}
+
+export function ExpandableMetricRow({
+  label,
+  values,
+  tooltip,
+  highlights,
+  children,
+  expanded,
+  onToggle,
+}: ExpandableMetricRowProps) {
+  return (
+    <>
+      <TableRow className="cursor-pointer hover:bg-gray-50" onClick={onToggle}>
+        <TableCell className="pl-6 sticky left-0 bg-white py-1">
+          <span className="flex items-center gap-1">
+            {expanded ? (
+              <ChevronDown className="w-3.5 h-3.5 flex-shrink-0 text-gray-400" />
+            ) : (
+              <ChevronRight className="w-3.5 h-3.5 flex-shrink-0 text-gray-400" />
+            )}
+            {label}
+            {tooltip && <HelpTooltip text={tooltip} />}
+          </span>
+        </TableCell>
+        {values.map((v, i) => (
+          <TableCell
+            key={i}
+            className={cn("text-right font-medium py-1 font-mono", highlights?.[i])}
+          >
+            {v}
+          </TableCell>
+        ))}
+      </TableRow>
+      {expanded && children}
+    </>
+  );
+}
+
+/* ═══════════════════════════════════════════════
    7. SpacerRow
    Empty row for visual breathing room between
    sections.

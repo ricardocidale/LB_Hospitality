@@ -878,7 +878,7 @@ export default function PropertyDetail() {
               </div>
             </div>
             <div ref={incomeTableRef}>
-              <YearlyIncomeStatement data={financials} years={projectionYears} startYear={getFiscalYear(0)} />
+              <YearlyIncomeStatement data={financials} years={projectionYears} startYear={getFiscalYear(0)} property={property} global={global} />
             </div>
           </TabsContent>
           

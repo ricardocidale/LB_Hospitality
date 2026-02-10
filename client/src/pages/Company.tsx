@@ -1606,11 +1606,11 @@ export default function Company() {
                           <>
                             <TableRow className="bg-blue-50/40">
                               <TableCell className="pl-12 py-0.5 text-xs text-gray-500 italic">Cumulative Revenue</TableCell>
-                              <TableCell className="text-right py-0.5 font-mono text-xs text-gray-500">{formatMoney(financials.reduce((a, m) => a + m.revenue, 0))}</TableCell>
+                              <TableCell className="text-right py-0.5 font-mono text-xs text-gray-500">{formatMoney(financials.reduce((a, m) => a + m.totalRevenue, 0))}</TableCell>
                             </TableRow>
                             <TableRow className="bg-blue-50/40">
                               <TableCell className="pl-12 py-0.5 text-xs text-gray-500 italic">Less: Cumulative Expenses</TableCell>
-                              <TableCell className="text-right py-0.5 font-mono text-xs text-gray-500">{formatMoney(-(financials.reduce((a, m) => a + m.revenue, 0) - cumulativeNetIncome))}</TableCell>
+                              <TableCell className="text-right py-0.5 font-mono text-xs text-gray-500">{formatMoney(-financials.reduce((a, m) => a + m.totalExpenses, 0))}</TableCell>
                             </TableRow>
                             <TableRow className="bg-blue-50/40">
                               <TableCell className="pl-12 py-0.5 text-xs text-gray-500 italic">= Net Income</TableCell>

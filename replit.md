@@ -12,24 +12,43 @@ Always format money as money (currency format with commas and appropriate precis
 All skills must be stored under `.claude/` directory (e.g., `.claude/skills/`, `.claude/manuals/`, `.claude/tools/`). Never place skills elsewhere.
 The company name is "Hospitality Business Group" (or "Hospitality Business" for short). Never use "L+B Hospitality" in code or documentation.
 When updating features, always update the corresponding skills (`.claude/skills/`) and manuals (`.claude/manuals/`) documentation.
+**All UI components must reference a theme** via the theme engine (`.claude/skills/ui/theme-engine.md`). The app supports multiple themes including user-created themes.
 
 ## Detailed Documentation
 
-**All detailed project documentation, architecture, file organization, conventions, and technical references are maintained in `.claude/claude.md`.** That file is the single source of truth for:
+**`.claude/claude.md` is now a slim router** pointing to focused skills. Load the relevant skill before working on any domain. Key skill directories:
 
-- System architecture (frontend, backend, data layer)
-- UI/UX design principles, component library, and design system
-- Business model and entity structure
-- Financial engine, double-entry ledger, and statements
-- Verification and audit system
-- AI research architecture, seed data, and auto-refresh
-- Automated financial proof system (384 tests)
-- 3D graphics and animation system
-- Database environments
-- Tool schema categories and file organization
-- Coding conventions and finance skill specifications
+- `.claude/skills/architecture/` — Tech stack, two-entity model, file organization
+- `.claude/skills/design-system/` — Colors, typography, component catalog
+- `.claude/skills/ui/` — 20+ UI component skills (each theme-aware), theme engine
+- `.claude/skills/finance/` — 17 finance calculation skills
+- `.claude/skills/research/` — 8 AI research skills with co-located tools
+- `.claude/skills/proof-system/` — 384-test automated proof system
+- `.claude/skills/exports/` — PDF, Excel, PPTX, PNG, CSV export system
+- `.claude/skills/coding-conventions/` — Style rules, finance code rules
+- `.claude/skills/database-environments/` — Dev/prod databases, migrations
+- `.claude/skills/tool-schemas/` — Tool organization and conventions
+- `.claude/manuals/` — Checker manual (15 sections), user manual (16 sections)
+- `.claude/tools/` — Analysis, financing, returns, validation, UI tool schemas
 
-Always refer to `.claude/claude.md` for the authoritative, up-to-date details on any of the above topics.
+## Integrations
+
+### Connected (server/integrations/)
+| Integration | File | Status |
+|-------------|------|--------|
+| Google Sheets | googleSheets.ts | Connected, client saved |
+| Gmail | gmail.ts | Connected, client saved |
+| Google Drive | googleDrive.ts | Connected, client saved |
+| Google Docs | googleDocs.ts | Connected, client saved |
+| Google Calendar | googleCalendar.ts | Connected, client saved |
+| Stripe | stripeClient.ts, stripeWebhook.ts | Connected, client saved |
+| Twilio | twilio.ts | Connected, client saved |
+| Replit Auth | server/replit_integrations/auth/ | Files added, NOT wired into existing login |
+| Google Analytics | client/src/lib/analytics.ts | Files added, needs VITE_GA_MEASUREMENT_ID |
+
+### Not Connected
+- **Notion**: User dismissed — can connect later if needed
+- **SendGrid**: User dismissed
 
 ## Quick Reference
 
@@ -49,4 +68,6 @@ Always refer to `.claude/claude.md` for the authoritative, up-to-date details on
 - PostgreSQL, Drizzle Kit, Radix UI, Recharts, Lucide React, date-fns
 - three, @react-three/fiber, @react-three/drei, @react-three/postprocessing
 - framer-motion
+- googleapis (Google Sheets, Drive, Docs, Calendar)
+- twilio (SMS alerts)
 - RapidAPI "Realty in US" (property finding)

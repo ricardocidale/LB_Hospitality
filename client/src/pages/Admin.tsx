@@ -1690,7 +1690,121 @@ export default function Admin() {
     <div className="space-y-6">
       <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
         <CardHeader>
-          <CardTitle className="font-display flex items-center gap-2"><Image className="w-5 h-5" /> Logo Portfolio</CardTitle>
+          <CardTitle className="font-display flex items-center gap-2"><Building2 className="w-5 h-5 text-[#9FBCA4]" /> Company Branding</CardTitle>
+          <CardDescription className="label-text">Set the company name, logo, and property type label used throughout the application</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label className="label-text text-gray-700">Company Name</Label>
+              <Input
+                value={globalAssumptions?.companyName || "Hospitality Business"}
+                onChange={(e) => updateGlobalMutation.mutate({ companyName: e.target.value })}
+                placeholder="Enter company name"
+                className="bg-white"
+                data-testid="input-company-name"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="label-text text-gray-700">Company Logo</Label>
+              <div className="flex items-center gap-4">
+                <div className="relative w-14 h-14 rounded-lg border-2 border-dashed border-[#9FBCA4]/40 flex items-center justify-center overflow-hidden bg-white">
+                  <img
+                    src={globalAssumptions?.companyLogo || defaultLogo}
+                    alt="Company logo"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <input
+                    ref={companyLogoInputRef}
+                    type="file"
+                    accept="image/png,image/jpeg,image/jpg,image/gif,image/webp"
+                    onChange={handleCompanyLogoUpload}
+                    className="hidden"
+                    data-testid="input-company-logo-upload"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => companyLogoInputRef.current?.click()}
+                    disabled={isUploadingLogo}
+                    className="gap-2"
+                    data-testid="button-upload-company-logo"
+                  >
+                    {isUploadingLogo ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                    {isUploadingLogo ? "Uploading..." : "Upload"}
+                  </Button>
+                  {globalAssumptions?.companyLogo && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => updateGlobalMutation.mutate({ companyLogo: null }, { onSuccess: () => toast({ title: "Logo removed", description: "Company logo has been reset to default." }) })}
+                      className="gap-2 text-red-500 hover:text-red-600 hover:bg-red-50"
+                      data-testid="button-remove-company-logo"
+                    >
+                      <Trash2 className="w-4 h-4" /> Remove
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="space-y-2 border-t border-[#9FBCA4]/10 pt-4">
+            <Label className="label-text text-gray-700">Property Type Label</Label>
+            <Input
+              value={globalAssumptions?.propertyLabel || "Boutique Hotel"}
+              onChange={(e) => updateGlobalMutation.mutate({ propertyLabel: e.target.value })}
+              placeholder="e.g., Boutique Hotel, Estate Hotel, Private Estate"
+              className="bg-white max-w-md"
+              data-testid="input-property-label"
+            />
+            <p className="text-xs text-muted-foreground">This label appears in page titles, research prompts, and financial reports</p>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+        <CardHeader>
+          <CardTitle className="font-display flex items-center gap-2"><Tag className="w-5 h-5 text-[#9FBCA4]" /> Asset Descriptions</CardTitle>
+          <CardDescription className="label-text">Define asset description labels that can be assigned to users</CardDescription>
+        </CardHeader>
+        <CardContent className="relative space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {assetDescriptions?.map(ad => (
+              <div key={ad.id} className="bg-[#9FBCA4]/5 border border-[#9FBCA4]/20 rounded-xl p-3 flex items-center justify-between" data-testid={`asset-desc-card-${ad.id}`}>
+                <div className="min-w-0">
+                  <p className="text-foreground font-medium truncate">{ad.name}</p>
+                  {ad.isDefault && <span className="text-xs text-[#9FBCA4] font-mono">DEFAULT</span>}
+                </div>
+                {!ad.isDefault && (
+                  <Button variant="ghost" size="sm" onClick={() => deleteAssetDescMutation.mutate(ad.id)} className="text-red-400 hover:text-red-300 hover:bg-red-500/10" data-testid={`button-delete-asset-desc-${ad.id}`}>
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                )}
+              </div>
+            ))}
+          </div>
+          <div className="border-t border-[#9FBCA4]/20 pt-4">
+            <div className="flex gap-3 items-end">
+              <div className="flex-1 space-y-1">
+                <Label className="text-muted-foreground text-xs">Name</Label>
+                <Input value={newAssetDescName} onChange={(e) => setNewAssetDescName(e.target.value)} placeholder="e.g., Luxury Resort, Urban Boutique" className="bg-[#9FBCA4]/5 border-[#9FBCA4]/20" data-testid="input-new-asset-desc-name" />
+              </div>
+              <Button variant="outline" onClick={() => createAssetDescMutation.mutate({ name: newAssetDescName })} disabled={!newAssetDescName || createAssetDescMutation.isPending} className="flex items-center gap-2" data-testid="button-add-asset-desc">
+                {createAssetDescMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                Add
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+        <CardHeader>
+          <CardTitle className="font-display flex items-center gap-2"><Image className="w-5 h-5 text-[#9FBCA4]" /> Logo Portfolio</CardTitle>
           <CardDescription className="label-text">Manage logos available for user assignment</CardDescription>
         </CardHeader>
         <CardContent className="relative space-y-4">
@@ -1735,8 +1849,8 @@ export default function Admin() {
 
       <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
         <CardHeader>
-          <CardTitle className="font-display flex items-center gap-2"><Users className="w-5 h-5" /> User Branding Assignment</CardTitle>
-          <CardDescription className="label-text">Assign a specific logo and theme to each user</CardDescription>
+          <CardTitle className="font-display flex items-center gap-2"><Users className="w-5 h-5 text-[#9FBCA4]" /> User Branding Assignment</CardTitle>
+          <CardDescription className="label-text">Assign a specific logo, theme, and asset description to each user</CardDescription>
         </CardHeader>
         <CardContent className="relative">
           <Table>
@@ -1744,8 +1858,9 @@ export default function Admin() {
               <TableRow className="border-[#9FBCA4]/20 hover:bg-transparent">
                 <TableHead className="text-muted-foreground">User</TableHead>
                 <TableHead className="text-muted-foreground">Role</TableHead>
-                <TableHead className="text-muted-foreground">Assigned Logo</TableHead>
-                <TableHead className="text-muted-foreground">Assigned Theme</TableHead>
+                <TableHead className="text-muted-foreground">Logo</TableHead>
+                <TableHead className="text-muted-foreground">Theme</TableHead>
+                <TableHead className="text-muted-foreground">Asset Desc.</TableHead>
                 <TableHead className="text-muted-foreground text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -1753,6 +1868,7 @@ export default function Admin() {
               {users?.map(user => {
                 const userLogo = adminLogos?.find(l => l.id === user.assignedLogoId);
                 const userTheme = allThemes?.find(t => t.id === user.assignedThemeId);
+                const userAssetDesc = assetDescriptions?.find(a => a.id === user.assignedAssetDescriptionId);
                 return (
                   <TableRow key={user.id} className="border-[#9FBCA4]/20 hover:bg-[#9FBCA4]/5" data-testid={`branding-row-${user.id}`}>
                     <TableCell className="text-foreground">
@@ -1779,11 +1895,15 @@ export default function Admin() {
                     <TableCell className="text-muted-foreground">
                       {userTheme ? <span className="text-sm">{userTheme.name}</span> : <span className="text-muted-foreground text-sm">Default</span>}
                     </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {userAssetDesc ? <span className="text-sm">{userAssetDesc.name}</span> : <span className="text-muted-foreground text-sm">Default</span>}
+                    </TableCell>
                     <TableCell className="text-right">
                       <Button variant="ghost" size="sm" onClick={() => {
                         setBrandingUser(user);
                         setBrandingLogoId(user.assignedLogoId);
                         setBrandingThemeId(user.assignedThemeId);
+                        setBrandingAssetDescId(user.assignedAssetDescriptionId);
                         setBrandingDialogOpen(true);
                       }} className="text-[#9FBCA4] hover:text-foreground hover:bg-[#9FBCA4]/10" data-testid={`button-edit-branding-${user.id}`}>
                         <Pencil className="w-4 h-4 mr-1" /> Assign

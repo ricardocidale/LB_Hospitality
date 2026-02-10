@@ -1982,6 +1982,53 @@ export default function Admin() {
     </div>
   );
 
+  const sidebarToggles = [
+    { key: "sidebarPropertyFinder", label: "Property Finder", description: "Search and discover new property opportunities" },
+    { key: "sidebarSensitivity", label: "Sensitivity Analysis", description: "Run what-if scenarios on key assumptions" },
+    { key: "sidebarFinancing", label: "Financing Analysis", description: "Analyze debt structures and refinance options" },
+    { key: "sidebarCompare", label: "Compare", description: "Side-by-side property comparison" },
+    { key: "sidebarTimeline", label: "Timeline", description: "Visual timeline of acquisitions and milestones" },
+    { key: "sidebarMapView", label: "Map View", description: "Geographic overview (only for properties with addresses)" },
+    { key: "sidebarExecutiveSummary", label: "Executive Summary", description: "High-level portfolio summary report" },
+    { key: "sidebarScenarios", label: "My Scenarios", description: "Saved scenario snapshots per user" },
+    { key: "sidebarUserManual", label: "User Manual", description: "Methodology documentation and help" },
+  ];
+
+  const renderSidebar = () => (
+    <Card className="relative overflow-hidden bg-[#0a0a0f]/95 backdrop-blur-3xl border border-white/10 shadow-2xl shadow-black/50" data-testid="card-sidebar-settings">
+      <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] via-transparent to-black/20" />
+      <CardHeader className="relative">
+        <CardTitle className="font-display text-white flex items-center gap-2"><Settings2 className="w-5 h-5" /> Navigation Visibility</CardTitle>
+        <CardDescription className="label-text">Toggle which optional pages appear in the sidebar for non-admin users. Core pages (Dashboard, Properties, Management Co., Settings, Profile, Administration) are always visible.</CardDescription>
+      </CardHeader>
+      <CardContent className="relative space-y-1">
+        {sidebarToggles.map((toggle) => {
+          const isOn = globalAssumptions?.[toggle.key] !== false;
+          return (
+            <div
+              key={toggle.key}
+              className="flex items-center justify-between py-3 px-4 rounded-xl hover:bg-white/5 transition-colors"
+              data-testid={`sidebar-toggle-${toggle.key}`}
+            >
+              <div className="flex-1 min-w-0">
+                <p className="text-white font-medium text-sm">{toggle.label}</p>
+                <p className="text-white/40 text-xs mt-0.5">{toggle.description}</p>
+              </div>
+              <Switch
+                checked={isOn}
+                onCheckedChange={(checked) => {
+                  updateSidebarMutation.mutate({ [toggle.key]: checked });
+                }}
+                className="data-[state=checked]:bg-[#9FBCA4]"
+                data-testid={`switch-${toggle.key}`}
+              />
+            </div>
+          );
+        })}
+      </CardContent>
+    </Card>
+  );
+
   const renderThemes = () => (<ThemeManager />);
 
   const renderDesign = () => (
@@ -2128,7 +2175,8 @@ export default function Admin() {
                    currentView === "checker-activity" ? "Checker Activity" :
                    currentView === "verification" ? "Financial Verification" :
                    currentView === "themes" ? "Design Themes" :
-                   currentView === "branding" ? "Branding" : "Design Consistency"}
+                   currentView === "branding" ? "Branding" :
+                   currentView === "sidebar" ? "Sidebar Navigation" : "Design Consistency"}
             subtitle={currentView === "dashboard" ? "Manage users, monitor activity, and run system verification" :
                       currentView === "users" ? "Add, edit, and manage user accounts" :
                       currentView === "activity" ? "Monitor user sessions and login history" :
@@ -2136,7 +2184,8 @@ export default function Admin() {
                       currentView === "checker-activity" ? "Monitor checker verifications, manual reviews, and exports" :
                       currentView === "verification" ? "Run formula and GAAP compliance checks" :
                       currentView === "themes" ? "Manage color palettes and design systems" :
-                      currentView === "branding" ? "Manage logos and assign branding per user" : "Check fonts, colors, and component standards"}
+                      currentView === "branding" ? "Manage logos and assign branding per user" :
+                      currentView === "sidebar" ? "Control which pages users and checkers see in the sidebar" : "Check fonts, colors, and component standards"}
             variant="dark"
             actions={currentView !== "dashboard" ? (
               <GlassButton variant="primary" onClick={() => setCurrentView("dashboard")} data-testid="button-back">
@@ -2155,6 +2204,7 @@ export default function Admin() {
         {currentView === "design" && renderDesign()}
         {currentView === "themes" && renderThemes()}
         {currentView === "branding" && renderBranding()}
+        {currentView === "sidebar" && renderSidebar()}
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>

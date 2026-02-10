@@ -1,5 +1,5 @@
 # Reconciliation Report: Cash Purchase → Refinance Year 3
-Generated: 2026-02-10T00:05:09.892Z
+Generated: 2026-02-10T00:13:40.280Z
 ## Sources & Uses at Acquisition
 | Item | Amount |
 |------|--------|
@@ -32,7 +32,7 @@ Generated: 2026-02-10T00:05:09.892Z
 | Beginning Balance | $0.00 |
 | Less: Payments | $230,018.51 |
 | Ending Balance | $1,721,167.91 |
-| Check | PASS |
+| Check | **FAIL** |
 ## Financial Identity Checks (Year 1)
 | Metric | Value |
 |--------|-------|

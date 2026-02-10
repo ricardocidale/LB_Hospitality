@@ -13,6 +13,9 @@ const SAFE_PATTERNS = [
 
 const FINANCE_FILES = [
   "client/src/lib/financialEngine.ts",
+  "client/src/lib/cashFlowAggregator.ts",
+  "client/src/lib/yearlyAggregator.ts",
+  "client/src/lib/equityCalculations.ts",
   "calc/refinance/refinance-calculator.ts",
   "calc/validation/financial-identities.ts",
   "calc/validation/schedule-reconcile.ts",

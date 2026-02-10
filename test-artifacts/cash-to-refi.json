@@ -1,6 +1,6 @@
 {
   "scenario": "Cash Purchase → Refinance Year 3",
-  "timestamp": "2026-02-10T00:05:09.892Z",
+  "timestamp": "2026-02-10T00:13:40.280Z",
   "sources_and_uses": {
     "sources": {
       "equity": 2000000,
@@ -33,7 +33,7 @@
     "plus_draws": 1949134.76,
     "less_payments": 230018.51,
     "ending_balance": 1721167.91,
-    "check_passed": true
+    "check_passed": false
   },
   "financial_identities": {
     "opinion": "UNQUALIFIED",

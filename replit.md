@@ -7,7 +7,7 @@ This project is a business simulation portal for Hospitality Business Group, a b
 ## User Preferences
 
 Preferred communication style: Simple, everyday language. Detailed user — ask lots of clarifying questions before implementing features. Do not assume; confirm requirements first.
-**TOP PRIORITY: Calculations and correct reports are always the highest priority.** Financial accuracy must never be compromised for visual or UI enhancements. The automated proof system (355 tests) must always pass.
+**TOP PRIORITY: Calculations and correct reports are always the highest priority.** Financial accuracy must never be compromised for visual or UI enhancements. The automated proof system (384 tests) must always pass.
 Always format money as money (currency format with commas and appropriate precision).
 All skills must be stored under `.claude/` directory (e.g., `.claude/skills/`, `.claude/manuals/`, `.claude/tools/`). Never place skills elsewhere.
 The company name is "Hospitality Business Group" (or "Hospitality Business" for short). Never use "L+B Hospitality" in code or documentation.
@@ -23,7 +23,7 @@ When updating features, always update the corresponding skills (`.claude/skills/
 - Financial engine, double-entry ledger, and statements
 - Verification and audit system
 - AI research architecture, seed data, and auto-refresh
-- Automated financial proof system (355 tests)
+- Automated financial proof system (384 tests)
 - 3D graphics and animation system
 - Database environments
 - Tool schema categories and file organization
@@ -42,8 +42,8 @@ Always refer to `.claude/claude.md` for the authoritative, up-to-date details on
 
 ### Key Commands
 - `npm run dev` — Start development server
-- `npm test` — Run all 355 tests
-- `npx tsx tests/proof/verify-runner.ts` — Full financial verification (4-phase)
+- `npm test` — Run all 384 tests
+- `npm run verify` — Full financial verification (4-phase)
 
 ### External Dependencies
 - PostgreSQL, Drizzle Kit, Radix UI, Recharts, Lucide React, date-fns

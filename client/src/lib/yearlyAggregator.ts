@@ -13,6 +13,9 @@ export interface YearlyPropertyFinancials {
   soldRooms: number;
   availableRooms: number;
 
+  // Clean ADR: the end-of-year rate from the engine (not blended)
+  cleanAdr: number;
+
   // Revenue (SUM)
   revenueRooms: number;
   revenueEvents: number;
@@ -104,10 +107,19 @@ export function aggregatePropertyByYear(
       }
     }
 
+    let cleanAdr = 0;
+    for (let mi = yearData.length - 1; mi >= 0; mi--) {
+      if (yearData[mi].adr > 0) {
+        cleanAdr = yearData[mi].adr;
+        break;
+      }
+    }
+
     results.push({
       year: y,
       soldRooms: sums.soldRooms,
       availableRooms: sums.availableRooms,
+      cleanAdr,
       revenueRooms: sums.revenueRooms,
       revenueEvents: sums.revenueEvents,
       revenueFB: sums.revenueFB,

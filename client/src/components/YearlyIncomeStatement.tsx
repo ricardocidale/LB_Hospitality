@@ -39,7 +39,13 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026 }: Pro
       <SectionHeader label="Revenue" colSpan={colSpan} />
 
       <MetricRow
-        label="ADR"
+        label="ADR (Rate)"
+        values={yd.map((y) =>
+          y.cleanAdr > 0 ? `$${y.cleanAdr.toFixed(0)}` : "-"
+        )}
+      />
+      <MetricRow
+        label="ADR (Effective)"
         values={yd.map((y) =>
           y.soldRooms > 0 ? `$${(y.revenueRooms / y.soldRooms).toFixed(0)}` : "-"
         )}

@@ -20,13 +20,17 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | Exports | `.claude/skills/exports/SKILL.md` | PDF, Excel, PPTX, PNG, CSV export system |
 | Source Code | `.claude/skills/source-code/SKILL.md` | Full source code map |
 | Property Finder | `.claude/skills/property-finder/SKILL.md` | RapidAPI property search integration |
-| Finance (17 skills) | `.claude/skills/finance/` | Income statement, cash flow, balance sheet, IRR, DCF, etc. |
-| Research (8 skills) | `.claude/skills/research/` | Market, ADR, occupancy, cap rate, catering, etc. |
-| UI Components (30+) | `.claude/skills/ui/` | Individual component specs with theme references |
+| Finance (16 skills) | `.claude/skills/finance/` | Income statement, cash flow, balance sheet, IRR, DCF, etc. |
+| Research (11 skills) | `.claude/skills/research/` | Market, ADR, occupancy, cap rate, catering, auto-refresh, etc. |
+| UI: Charts | `.claude/skills/ui/charts.md` | Line/bar chart styling + Waterfall, Heat Map, Radar chart specs |
+| UI: Portfolio Pages | `.claude/skills/ui/portfolio-pages.md` | Comparison, Timeline, Map, Executive Summary pages |
+| UI: Interactions | `.claude/skills/ui/interactions.md` | What-If sliders, Variance Analysis, Guided Walkthrough, Inline Editing |
+| UI: Navigation | `.claude/skills/ui/navigation.md` | Command Palette, Breadcrumbs, Favorites, Activity Feed, Dark Mode |
+| UI: Other (10) | `.claude/skills/ui/` | Glass components, buttons, sliders, tabs, page-header, callout, etc. |
 | Features | `.claude/skills/features/` | Property image picker, etc. |
 | Manuals | `.claude/manuals/` | Checker manual (15 sections), user manual (16 sections) |
 | Tools | `.claude/tools/` | Analysis, financing, returns, validation, UI, property-finder tool schemas |
-| Rules | `.claude/rules/` | Agent persona, audit doctrine, constants, DB seeding, API routes, etc. |
+| Rules (8) | `.claude/rules/` | Audit persona+doctrine+plan, constants, DB seeding, API routes, etc. |
 
 ## Current Theme
 **Fluid Glass** is the active theme. All new UI work must follow Fluid Glass styling conventions. See theme engine skill for token structure.
@@ -93,8 +97,7 @@ npm run db:push   # Push schema changes
 - **All buttons use GlassButton**, all pages use PageHeader, all exports use ExportMenu
 - **No mock data** in production paths
 - **Finance changes must state Active Skill** and pass verification (UNQUALIFIED)
-- **Agent persona**: `.claude/rules/agent-persona.md` mandatory for finance work
-- **Audit doctrine**: `.claude/rules/audit-doctrine.md` defines audit scope
+- **Audit persona+doctrine**: `.claude/rules/audit-persona.md` mandatory for finance work
 
 ## Integrations
 

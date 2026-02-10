@@ -70,6 +70,9 @@ Every audit must cover all dimensions. If one cannot be assessed, state why.
 | Debt roll-forward | ASC 470 |
 | Fee linkage: SPV fees = OpCo revenue | Intercompany |
 
+## Finance Standards Authority
+When working on finance, statements, consolidation, refinancing, or returns, use the tool `get_financial_standards_authority` to retrieve the authoritative ruleset. Treat the tool output as the single source of truth for classification, statement structure, eliminations, and ambiguity handling.
+
 ## Claude Code Workflow
 Before finance-sensitive changes:
 1. State the Active Skill and allowed scope.

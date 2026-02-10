@@ -21,6 +21,14 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
+/**
+ * React context provider that manages authentication state including user fetching,
+ * login, logout, and query cache invalidation. Wraps children with AuthContext
+ * so descendant components can access auth state via the useAuth hook.
+ * @param {{ children: ReactNode }} props - The component props.
+ * @param {ReactNode} props.children - Child components to render within the auth context.
+ * @returns {JSX.Element} The AuthContext provider wrapping the children.
+ */
 export function AuthProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   
@@ -94,6 +102,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
+/**
+ * React hook that returns the current authentication context. Must be used
+ * within an AuthProvider. Provides access to the current user, loading state,
+ * admin status, and login/logout/refetch functions.
+ * @returns {AuthContextType} The authentication context containing user, isLoading, isAdmin, login, logout, and refetch.
+ * @throws {Error} If called outside of an AuthProvider.
+ */
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {

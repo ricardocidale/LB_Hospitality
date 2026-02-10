@@ -21,6 +21,12 @@ const loginAttempts = new Map<string, { count: number; lastAttempt: number }>();
 const MAX_LOGIN_ATTEMPTS = 5;
 const LOCKOUT_DURATION_MS = 15 * 60 * 1000; // 15 minute lockout
 
+/**
+ * Checks whether a given identifier has exceeded the maximum allowed login attempts.
+ * If the lockout duration has elapsed since the last attempt, the record is cleared.
+ * @param identifier - The unique identifier to check (e.g., email or IP address).
+ * @returns `true` if the identifier is currently rate-limited, `false` otherwise.
+ */
 export function isRateLimited(identifier: string): boolean {
   const now = Date.now();
   const attempts = loginAttempts.get(identifier);
@@ -35,6 +41,14 @@ export function isRateLimited(identifier: string): boolean {
   return attempts.count >= MAX_LOGIN_ATTEMPTS;
 }
 
+/**
+ * Records a login attempt for the given identifier. On a successful attempt the
+ * record is deleted, effectively resetting the counter. On a failed attempt the
+ * failure count is incremented (or initialised to 1).
+ * @param identifier - The unique identifier for the login attempt (e.g., email or IP address).
+ * @param success - Whether the login attempt was successful.
+ * @returns {void}
+ */
 export function recordLoginAttempt(identifier: string, success: boolean) {
   const now = Date.now();
   
@@ -56,6 +70,14 @@ export function recordLoginAttempt(identifier: string, success: boolean) {
 const apiRateLimits = new Map<string, { count: number; windowStart: number }>();
 const API_RATE_WINDOW_MS = 60 * 1000; // 1 minute sliding window
 
+/**
+ * Determines whether a specific user has exceeded the allowed number of requests
+ * for a given API endpoint within a 1-minute sliding window.
+ * @param userId - The numeric ID of the user making the request.
+ * @param endpoint - The API endpoint being rate-limited.
+ * @param maxRequests - The maximum number of requests allowed within the window.
+ * @returns `true` if the user has exceeded the limit, `false` otherwise.
+ */
 export function isApiRateLimited(userId: number, endpoint: string, maxRequests: number): boolean {
   const key = `${userId}:${endpoint}`;
   const now = Date.now();
@@ -70,6 +92,13 @@ export function isApiRateLimited(userId: number, endpoint: string, maxRequests: 
   return record.count > maxRequests;
 }
 
+/**
+ * Validates that a password meets the minimum complexity requirements:
+ * at least 8 characters, one uppercase letter, one lowercase letter, and one number.
+ * @param password - The plaintext password to validate.
+ * @returns An object with `valid` set to `true` if all requirements are met,
+ *          or `valid` set to `false` with a descriptive `message` explaining the failure.
+ */
 export function validatePassword(password: string): { valid: boolean; message?: string } {
   if (password.length < 8) {
     return { valid: false, message: "Password must be at least 8 characters" };
@@ -86,22 +115,51 @@ export function validatePassword(password: string): { valid: boolean; message?: 
   return { valid: true };
 }
 
+/**
+ * Sanitizes an email address by converting it to lowercase and trimming whitespace.
+ * @param email - The raw email string to sanitize.
+ * @returns The sanitized email string.
+ */
 export function sanitizeEmail(email: string): string {
   return email.toLowerCase().trim();
 }
 
+/**
+ * Hashes a plaintext password using bcrypt with the configured number of salt rounds.
+ * @param password - The plaintext password to hash.
+ * @returns A promise that resolves to the bcrypt hash string.
+ */
 export async function hashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, BCRYPT_ROUNDS);
 }
 
+/**
+ * Compares a plaintext password against a bcrypt hash to verify a match.
+ * @param password - The plaintext password to verify.
+ * @param hash - The bcrypt hash to compare against.
+ * @returns A promise that resolves to `true` if the password matches, `false` otherwise.
+ */
 export async function verifyPassword(password: string, hash: string): Promise<boolean> {
   return bcrypt.compare(password, hash);
 }
 
+/**
+ * Generates a cryptographically secure random session ID.
+ * @returns A 64-character hexadecimal string derived from 32 random bytes.
+ */
 export function generateSessionId(): string {
   return crypto.randomBytes(32).toString("hex");
 }
 
+/**
+ * Express middleware that attempts to load the authenticated user from the session cookie.
+ * If a valid session is found, `req.user` and `req.sessionId` are populated.
+ * If no session cookie is present or the session is invalid, the request proceeds unauthenticated.
+ * @param req - The Express request object.
+ * @param res - The Express response object.
+ * @param next - The next middleware function in the chain.
+ * @returns {Promise<void>}
+ */
 export async function authMiddleware(req: Request, res: Response, next: NextFunction) {
   const sessionId = req.cookies?.[SESSION_COOKIE];
   
@@ -122,6 +180,14 @@ export async function authMiddleware(req: Request, res: Response, next: NextFunc
   next();
 }
 
+/**
+ * Express middleware that enforces authentication. Returns a 401 response
+ * if no authenticated user is attached to the request.
+ * @param req - The Express request object.
+ * @param res - The Express response object.
+ * @param next - The next middleware function in the chain.
+ * @returns {void}
+ */
 export function requireAuth(req: Request, res: Response, next: NextFunction) {
   if (!req.user) {
     return res.status(401).json({ error: "Authentication required" });
@@ -129,6 +195,15 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
   next();
 }
 
+/**
+ * Express middleware that enforces admin-level access. Returns a 401 response
+ * if the user is not authenticated, or a 403 response if the user does not
+ * have the "admin" role.
+ * @param req - The Express request object.
+ * @param res - The Express response object.
+ * @param next - The next middleware function in the chain.
+ * @returns {void}
+ */
 export function requireAdmin(req: Request, res: Response, next: NextFunction) {
   if (!req.user) {
     return res.status(401).json({ error: "Authentication required" });
@@ -139,6 +214,15 @@ export function requireAdmin(req: Request, res: Response, next: NextFunction) {
   next();
 }
 
+/**
+ * Express middleware that enforces checker or admin-level access. Returns a 401 response
+ * if the user is not authenticated, or a 403 response if the user does not have
+ * a "checker" or "admin" role.
+ * @param req - The Express request object.
+ * @param res - The Express response object.
+ * @param next - The next middleware function in the chain.
+ * @returns {void}
+ */
 export function requireChecker(req: Request, res: Response, next: NextFunction) {
   if (!req.user) {
     return res.status(401).json({ error: "Authentication required" });
@@ -149,6 +233,13 @@ export function requireChecker(req: Request, res: Response, next: NextFunction) 
   next();
 }
 
+/**
+ * Sets an httpOnly session cookie on the response with a 7-day expiry.
+ * The cookie is marked as secure in production and uses strict same-site policy.
+ * @param res - The Express response object.
+ * @param sessionId - The session ID string to store in the cookie.
+ * @returns {void}
+ */
 export function setSessionCookie(res: Response, sessionId: string) {
   res.cookie(SESSION_COOKIE, sessionId, {
     httpOnly: true,
@@ -158,14 +249,31 @@ export function setSessionCookie(res: Response, sessionId: string) {
   });
 }
 
+/**
+ * Clears the session cookie from the response, effectively logging the user out.
+ * @param res - The Express response object.
+ * @returns {void}
+ */
 export function clearSessionCookie(res: Response) {
   res.clearCookie(SESSION_COOKIE);
 }
 
+/**
+ * Calculates and returns the session expiry date, which is 7 days from the current time.
+ * @returns A `Date` object representing the session expiry timestamp.
+ */
 export function getSessionExpiryDate(): Date {
   return new Date(Date.now() + SESSION_DURATION_DAYS * 24 * 60 * 60 * 1000);
 }
 
+/**
+ * Creates a default "Development" scenario for a newly created user, populated with
+ * the current global assumptions and properties. Skips creation if the user already
+ * has a scenario named "Development".
+ * @param userId - The numeric ID of the user to create the scenario for.
+ * @param userName - The display name of the user (used for logging).
+ * @returns {Promise<void>}
+ */
 async function createDefaultScenarioForUser(userId: number, userName: string) {
   // Check if user already has a "Development" scenario
   const existingScenarios = await storage.getScenariosByUser(userId);
@@ -189,6 +297,14 @@ async function createDefaultScenarioForUser(userId: number, userName: string) {
   }
 }
 
+/**
+ * Seeds the database with default users (admin, checker, and Reynaldo) using
+ * credentials from environment variables (`ADMIN_PASSWORD`, `CHECKER_PASSWORD`,
+ * `REYNALDO_PASSWORD`). If users already exist, their passwords are reset to match
+ * the current environment variable values. A default "Development" scenario is
+ * created for each seeded user.
+ * @returns A promise that resolves when all seed operations are complete.
+ */
 export async function seedAdminUser() {
   // Seed admin user
   const adminEmail = "admin";

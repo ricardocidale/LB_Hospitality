@@ -18,6 +18,10 @@ const getOidcConfig = memoize(
   { maxAge: 3600 * 1000 }
 );
 
+/**
+ * Creates Express session middleware configured with a PostgreSQL-backed session store and a 7-day TTL.
+ * @returns {RequestHandler} Express session middleware instance
+ */
 export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
   const pgStore = connectPg(session);
@@ -40,6 +44,12 @@ export function getSession() {
   });
 }
 
+/**
+ * Updates the user session object with OIDC claims and token data from the token endpoint response.
+ * @param {any} user - The user session object to update
+ * @param {client.TokenEndpointResponse & client.TokenEndpointResponseHelpers} tokens - The OIDC token endpoint response containing claims, access token, and refresh token
+ * @returns {void}
+ */
 function updateUserSession(
   user: any,
   tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers
@@ -50,6 +60,11 @@ function updateUserSession(
   user.expires_at = user.claims?.exp;
 }
 
+/**
+ * Upserts a user record in the database from OIDC claims, creating or updating the user with their profile information.
+ * @param {any} claims - The OIDC claims object containing sub, email, first_name, last_name, and profile_image_url
+ * @returns {Promise<void>}
+ */
 async function upsertUser(claims: any) {
   await authStorage.upsertUser({
     id: claims["sub"],
@@ -60,6 +75,11 @@ async function upsertUser(claims: any) {
   });
 }
 
+/**
+ * Configures Passport.js with OpenID Connect strategy for Replit Auth, registers login/callback/logout routes, and initializes session handling.
+ * @param {Express} app - The Express application instance to configure authentication on
+ * @returns {Promise<void>}
+ */
 export async function setupAuth(app: Express) {
   app.set("trust proxy", 1);
   app.use(getSession());
@@ -130,6 +150,13 @@ export async function setupAuth(app: Express) {
   });
 }
 
+/**
+ * Express middleware that checks if the request is authenticated and automatically refreshes expired tokens using the refresh token grant.
+ * @param {Request} req - The Express request object
+ * @param {Response} res - The Express response object
+ * @param {NextFunction} next - The Express next function
+ * @returns {Promise<void>} Calls next() if authenticated, or responds with 401 Unauthorized
+ */
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
   const user = req.user as any;
 

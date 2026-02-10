@@ -1,4 +1,4 @@
-import { useState, Suspense } from "react";
+import { useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { useLocation } from "wouter";
 import { Input } from "@/components/ui/input";
@@ -7,9 +7,8 @@ import { Loader2, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { GlassButton } from "@/components/ui/glass-button";
 import { motion } from "framer-motion";
-import logo from "@/assets/logo.png";
 import hotelParty from "@/assets/hotel-party.jpg";
-import { Login3DScene } from "@/components/Login3DScene";
+import { LogoSvg } from "@/components/LogoSvg";
 
 export default function Login() {
   const { login } = useAuth();
@@ -80,8 +79,6 @@ export default function Login() {
         }}
       />
 
-      {/* 3D Scene Background */}
-      <Login3DScene />
       
       {/* Ambient Glow Effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -127,27 +124,15 @@ export default function Login() {
                 initial={{ scale: 0.5, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.6, delay: 0.6, type: "spring", stiffness: 200 }}
-                className="relative mb-4 cursor-pointer"
-                onClick={handleAdminLogin}
+                className="relative mb-4"
+                style={{ filter: "drop-shadow(0 8px 16px rgba(0,0,0,0.5)) drop-shadow(0 2px 4px rgba(0,0,0,0.4))" }}
               >
-                <motion.div
-                  animate={{ 
-                    boxShadow: [
-                      "0 0 20px rgba(159,188,164,0.2), 0 0 40px rgba(159,188,164,0.1)",
-                      "0 0 30px rgba(159,188,164,0.4), 0 0 60px rgba(159,188,164,0.2)",
-                      "0 0 20px rgba(159,188,164,0.2), 0 0 40px rgba(159,188,164,0.1)"
-                    ]
-                  }}
-                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute inset-[-8px] rounded-full"
-                />
-                <motion.img
-                  animate={{ y: [0, -6, 0] }}
-                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                  src={logo}
-                  alt="Hospitality Business"
-                  className="relative w-16 h-16 object-contain hover:opacity-100 transition-all"
-                  style={{ filter: "drop-shadow(0 8px 16px rgba(0,0,0,0.5)) drop-shadow(0 2px 4px rgba(0,0,0,0.4))" }}
+                <LogoSvg
+                  size={72}
+                  color="#9FBCA4"
+                  rotating
+                  rotationDuration={20}
+                  onClick={handleAdminLogin}
                 />
               </motion.div>
               <h1 className="text-2xl font-display text-[#FFF9F5] mb-1">

@@ -962,7 +962,7 @@ export default function CompanyAssumptions() {
               Tax Rate
               <HelpTooltip text="Corporate tax rate applied to positive net income for after-tax cash flow calculations" manualSection="company-formulas" />
             </h3>
-            <div className="max-w-md space-y-2">
+            <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <Label className="text-gray-700 label-text">Company Tax Rate</Label>
                 <EditableValue

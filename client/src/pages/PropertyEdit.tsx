@@ -380,7 +380,15 @@ export default function PropertyEdit() {
                   </Label>
                   <ResearchBadge value={researchValues.landValue?.display} onClick={() => researchValues.landValue && handleChange("landValuePercent", researchValues.landValue.mid / 100)} />
                 </div>
-                <div className="flex items-center gap-3 max-w-md">
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-gray-700" data-testid="text-land-value-percent">
+                      {((draft.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT) * 100).toFixed(0)}%
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      Depreciable basis: ${((draft.purchasePrice * (1 - (draft.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT))) + draft.buildingImprovements).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                    </span>
+                  </div>
                   <Slider
                     data-testid="slider-land-value-percent"
                     value={[(draft.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT) * 100]}
@@ -388,14 +396,7 @@ export default function PropertyEdit() {
                     min={5}
                     max={60}
                     step={1}
-                    className="flex-1"
                   />
-                  <span className="text-sm font-medium text-gray-700 w-12 text-right" data-testid="text-land-value-percent">
-                    {((draft.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT) * 100).toFixed(0)}%
-                  </span>
-                  <span className="text-xs text-gray-500 ml-2">
-                    Depreciable basis: ${((draft.purchasePrice * (1 - (draft.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT))) + draft.buildingImprovements).toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                  </span>
                 </div>
               </div>
             </div>
@@ -671,7 +672,7 @@ export default function PropertyEdit() {
                 />
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <div className="flex flex-col gap-0.5">
@@ -960,7 +961,7 @@ export default function PropertyEdit() {
 
                   <div>
                     <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Based on Total Revenue</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <div className="flex justify-between items-center">
                           <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Admin & General<HelpTooltip text="Admin & General expense = (Year 1 Total Revenue ÷ 12) × this rate × annual escalation factor. A fixed cost covering management salaries, accounting, legal, HR, and office operations. The dollar amount is set in Year 1 and escalates annually with the Inflation Escalator Factor. USALI A&G Department." /></Label>
@@ -1198,58 +1199,59 @@ export default function PropertyEdit() {
               </h3>
               <p className="text-gray-600 text-sm label-text">Exit valuation and tax rate assumptions</p>
             </div>
-            <div className="max-w-md space-y-2">
-              <div className="flex justify-between items-center">
-                <div className="flex flex-col gap-0.5">
-                  <Label className="flex items-center label-text text-gray-700 gap-1.5">
-                    Exit Cap Rate
-                    <HelpTooltip text={`The capitalization rate used to determine terminal (exit) value. Exit Value = Year ${exitYear} NOI ÷ Cap Rate. A lower cap rate implies higher property valuation.`} />
-                  </Label>
-                  <ResearchBadge value={researchValues.capRate?.display} onClick={() => researchValues.capRate && handleChange("exitCapRate", researchValues.capRate.mid / 100)} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <div className="flex flex-col gap-0.5">
+                    <Label className="flex items-center label-text text-gray-700 gap-1.5">
+                      Exit Cap Rate
+                      <HelpTooltip text={`The capitalization rate used to determine terminal (exit) value. Exit Value = Year ${exitYear} NOI ÷ Cap Rate. A lower cap rate implies higher property valuation.`} />
+                    </Label>
+                    <ResearchBadge value={researchValues.capRate?.display} onClick={() => researchValues.capRate && handleChange("exitCapRate", researchValues.capRate.mid / 100)} />
+                  </div>
+                  <EditableValue
+                    value={(draft.exitCapRate ?? DEFAULT_EXIT_CAP_RATE) * 100}
+                    onChange={(val) => handleChange("exitCapRate", val / 100)}
+                    format="percent"
+                    min={1}
+                    max={10}
+                    step={0.1}
+                  />
                 </div>
-                <EditableValue
-                  value={(draft.exitCapRate ?? DEFAULT_EXIT_CAP_RATE) * 100}
-                  onChange={(val) => handleChange("exitCapRate", val / 100)}
-                  format="percent"
+                <Slider 
+                  value={[(draft.exitCapRate ?? DEFAULT_EXIT_CAP_RATE) * 100]}
+                  onValueChange={(vals: number[]) => handleChange("exitCapRate", vals[0] / 100)}
                   min={1}
                   max={10}
                   step={0.1}
                 />
+                <p className="text-xs text-gray-600 mt-2">
+                  Exit Value = {exitYear} NOI ÷ {((draft.exitCapRate ?? DEFAULT_EXIT_CAP_RATE) * 100).toFixed(1)}% = <span className="font-medium">higher property valuation at lower cap rates</span>
+                </p>
               </div>
-              <Slider 
-                value={[(draft.exitCapRate ?? DEFAULT_EXIT_CAP_RATE) * 100]}
-                onValueChange={(vals: number[]) => handleChange("exitCapRate", vals[0] / 100)}
-                min={1}
-                max={10}
-                step={0.1}
-              />
-              <p className="text-xs text-gray-600 mt-2">
-                Exit Value = {exitYear} NOI ÷ {((draft.exitCapRate ?? DEFAULT_EXIT_CAP_RATE) * 100).toFixed(1)}% = <span className="font-medium">higher property valuation at lower cap rates</span>
-              </p>
-            </div>
-
-            <div className="max-w-md space-y-2 mt-6">
-              <div className="flex justify-between items-center">
-                <Label className="flex items-center label-text text-gray-700">
-                  Tax Rate
-                  <HelpTooltip text="Corporate tax rate applied to positive operating cash flows to calculate after-tax free cash flow for IRR analysis." />
-                </Label>
-                <EditableValue
-                  value={(draft.taxRate ?? DEFAULT_TAX_RATE) * 100}
-                  onChange={(val) => handleChange("taxRate", val / 100)}
-                  format="percent"
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <Label className="flex items-center label-text text-gray-700">
+                    Tax Rate
+                    <HelpTooltip text="Corporate tax rate applied to positive operating cash flows to calculate after-tax free cash flow for IRR analysis." />
+                  </Label>
+                  <EditableValue
+                    value={(draft.taxRate ?? DEFAULT_TAX_RATE) * 100}
+                    onChange={(val) => handleChange("taxRate", val / 100)}
+                    format="percent"
+                    min={0}
+                    max={50}
+                    step={1}
+                  />
+                </div>
+                <Slider 
+                  value={[(draft.taxRate ?? DEFAULT_TAX_RATE) * 100]}
+                  onValueChange={(vals: number[]) => handleChange("taxRate", vals[0] / 100)}
                   min={0}
                   max={50}
                   step={1}
                 />
               </div>
-              <Slider 
-                value={[(draft.taxRate ?? DEFAULT_TAX_RATE) * 100]}
-                onValueChange={(vals: number[]) => handleChange("taxRate", vals[0] / 100)}
-                min={0}
-                max={50}
-                step={1}
-              />
             </div>
           </div>
         </div>

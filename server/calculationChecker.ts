@@ -249,7 +249,7 @@ function independentPropertyCalc(property: any, global: any) {
     const expenseAdmin = baseMonthlyTotalRev * costRateAdmin * fixedCostFactor * fixedGate;
     const expensePropertyOps = baseMonthlyTotalRev * costRatePropertyOps * fixedCostFactor * fixedGate;
     const expenseIT = baseMonthlyTotalRev * costRateIT * fixedCostFactor * fixedGate;
-    const expenseInsurance = baseMonthlyTotalRev * costRateInsurance * fixedCostFactor * fixedGate;
+    const expenseInsurance = (totalPropertyValue / 12) * costRateInsurance * fixedCostFactor * fixedGate;
     const expenseTaxes = baseMonthlyTotalRev * costRateTaxes * fixedCostFactor * fixedGate;
     const expenseUtilitiesFixed = baseMonthlyTotalRev * (costRateUtilities * (1 - utilitiesVariableSplit)) * fixedCostFactor * fixedGate;
     const expenseOtherCosts = baseMonthlyTotalRev * costRateOther * fixedCostFactor * fixedGate;

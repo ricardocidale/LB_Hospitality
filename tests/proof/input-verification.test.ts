@@ -24,15 +24,15 @@ const baseProperty = {
   landValuePercent: DEFAULT_LAND_VALUE_PERCENT,
   preOpeningCosts: 0,
   operatingReserve: 0,
-  costRateRooms: 0.36,
-  costRateFB: 0.32,
+  costRateRooms: 0.20,
+  costRateFB: 0.09,
   costRateAdmin: 0.08,
   costRateMarketing: 0.05,
   costRatePropertyOps: 0.04,
   costRateUtilities: 0.05,
   costRateInsurance: 0.02,
   costRateTaxes: 0.03,
-  costRateIT: 0.02,
+  costRateIT: 0.005,
   costRateFFE: 0.04,
   costRateOther: 0.05,
   revShareEvents: 0.43,
@@ -189,9 +189,9 @@ describe("Variable Cost Verification", () => {
     }
   });
 
-  it("F&B expense = revenueFB × costRateFB", () => {
+  it("F&B expense = revenueRooms × costRateFB", () => {
     for (const m of result) {
-      expect(m.expenseFB).toBeCloseTo(m.revenueFB * property.costRateFB, 2);
+      expect(m.expenseFB).toBeCloseTo(m.revenueRooms * property.costRateFB, 2);
     }
   });
 

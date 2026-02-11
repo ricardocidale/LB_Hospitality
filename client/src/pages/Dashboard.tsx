@@ -296,7 +296,7 @@ export default function Dashboard() {
     rows.push({ category: "Event Expense", values: years.map((_, i) => getYearlyConsolidated(i).expenseEvents), indent: 1 });
     rows.push({ category: "Marketing", values: years.map((_, i) => getYearlyConsolidated(i).expenseMarketing), indent: 1 });
     rows.push({ category: "Property Ops", values: years.map((_, i) => getYearlyConsolidated(i).expensePropertyOps), indent: 1 });
-    rows.push({ category: "Admin", values: years.map((_, i) => getYearlyConsolidated(i).expenseAdmin), indent: 1 });
+    rows.push({ category: "Admin & General", values: years.map((_, i) => getYearlyConsolidated(i).expenseAdmin), indent: 1 });
     rows.push({ category: "IT", values: years.map((_, i) => getYearlyConsolidated(i).expenseIT), indent: 1 });
     rows.push({ category: "Insurance", values: years.map((_, i) => getYearlyConsolidated(i).expenseInsurance), indent: 1 });
     rows.push({ category: "Taxes", values: years.map((_, i) => getYearlyConsolidated(i).expenseTaxes), indent: 1 });

@@ -17,15 +17,15 @@ export const DEFAULT_OTHER_EXPENSE_RATE = 0.60;
 export const DEFAULT_UTILITIES_VARIABLE_SPLIT = 0.60;
 
 // Property cost rate defaults (USALI standard allocations)
-export const DEFAULT_COST_RATE_ROOMS = 0.36;
-export const DEFAULT_COST_RATE_FB = 0.32;
+export const DEFAULT_COST_RATE_ROOMS = 0.20;
+export const DEFAULT_COST_RATE_FB = 0.09;
 export const DEFAULT_COST_RATE_ADMIN = 0.08;
 export const DEFAULT_COST_RATE_MARKETING = 0.05;
 export const DEFAULT_COST_RATE_PROPERTY_OPS = 0.04;
 export const DEFAULT_COST_RATE_UTILITIES = 0.05;
 export const DEFAULT_COST_RATE_INSURANCE = 0.02;
 export const DEFAULT_COST_RATE_TAXES = 0.03;
-export const DEFAULT_COST_RATE_IT = 0.02;
+export const DEFAULT_COST_RATE_IT = 0.005;
 export const DEFAULT_COST_RATE_FFE = 0.04;
 export const DEFAULT_COST_RATE_OTHER = 0.05;
 

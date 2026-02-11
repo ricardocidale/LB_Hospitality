@@ -1,6 +1,6 @@
 {
   "scenario": "Financed Purchase (75% LTV)",
-  "timestamp": "2026-02-10T21:52:28.265Z",
+  "timestamp": "2026-02-11T14:13:33.430Z",
   "sources_and_uses": {
     "sources": {
       "equity": 500000,
@@ -14,18 +14,18 @@
     "balanced": true
   },
   "noi_to_fcf_bridge": {
-    "noi": 2475442.677442522,
+    "noi": 3795088.2013376444,
     "less_debt_service": 1510553.4545427186,
-    "less_income_tax": 191964.7625465725,
+    "less_income_tax": 499532.89956790605,
     "plus_refi_proceeds": 0,
-    "fcf": 772924.4603532334,
+    "fcf": 1785001.8472270193,
     "check_passed": true
   },
   "cash_bridge": {
     "beginning_cash": 0,
-    "plus_operating_cf": 1031836.0077620741,
+    "plus_operating_cf": 2043913.3946358596,
     "plus_financing_cf": -258911.5474088411,
-    "ending_cash": 772924.4603532334,
+    "ending_cash": 1785001.8472270193,
     "check_passed": true
   },
   "debt_reconciliation": {

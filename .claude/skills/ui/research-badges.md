@@ -56,21 +56,80 @@ Place inline with the field label, to the right:
 <input value={draft.startAdr} onChange={...} />
 ```
 
-## Data Source
+## Data Source — 3-Tier Hierarchy
 
-Research data comes from `useMarketResearch("property", propertyId)` hook → `market_research` table → JSON `content` column.
+Research badge data follows a 3-tier priority system. Each entry has `{ display, mid, source }`:
 
-### Available Research Fields
+| Tier | Source | `source` value | Stored In | When Applied |
+|------|--------|---------------|-----------|--------------|
+| 1 (base) | Location-aware DB seeds | `'seed'` | `properties.research_values` JSONB | Property creation / seed backfill |
+| 2 (override) | AI research | `'ai'` | `market_research` table → parsed | "Run Research" button / auto-refresh |
+| 3 (fallback) | Generic national averages | (none) | Hardcoded in `PropertyEdit.tsx` | Only when tiers 1 & 2 are absent |
 
-| Badge Field   | Research Path                                      | Format Example                               |
-| ------------- | -------------------------------------------------- | -------------------------------------------- |
-| ADR           | `content.adrAnalysis.recommendedRange`             | `"$350–$450"`                                |
-| Occupancy     | `content.occupancyAnalysis.rampUpTimeline`          | Contains `"stabilized occupancy of 65–75%"`  |
-| Cap Rate      | `content.capRateAnalysis.recommendedRange`          | `"5.5%–7.0%"`                                |
-| Catering      | `content.cateringAnalysis.recommendedBoostPercent`  | `"25%"`                                      |
-| Land Value    | `content.landValueAnalysis.recommendedPercent`      | `"20%–30%"`                                  |
+### Merge Logic (PropertyEdit.tsx)
 
-### Parsing Helpers
+```typescript
+// Start with generic national averages
+const baseDefaults = { ...GENERIC_DEFAULTS };
+
+// Tier 1: Overlay location-aware DB seeds (skip source='none')
+if (property.researchValues) {
+  for (const [key, val] of Object.entries(property.researchValues)) {
+    if (val.source !== 'none') baseDefaults[key] = val;
+  }
+}
+
+// Tier 2: Overlay AI research (highest priority)
+if (research?.content) {
+  const aiValues = parseAIContent(research.content);
+  for (const [key, val] of Object.entries(aiValues)) {
+    if (val) merged[key] = { ...val, source: 'ai' };
+  }
+}
+```
+
+### Source Tracking
+
+| `source` | Badge visible? | Meaning |
+|----------|---------------|---------|
+| `'seed'` | Yes | Location-aware industry default from `researchSeeds.ts` |
+| `'ai'` | Yes | AI-generated market research |
+| `'none'` | No | Explicitly hidden — badge returns null |
+| (absent) | Yes | Generic fallback (pre-seed properties) |
+
+### Available Research Fields (25 keys)
+
+| Badge Field | Key | Format Example | Calculation Base |
+|-------------|-----|----------------|------------------|
+| ADR | `adr` | `"$280–$450"` | — |
+| Max Occupancy | `occupancy` | `"70%–82%"` | — |
+| Initial Occupancy | `startOccupancy` | `"30%–45%"` | — |
+| Ramp-Up Months | `rampMonths` | `"12–24 mo"` | — |
+| Cap Rate | `capRate` | `"6.5%–8.5%"` | — |
+| Catering Boost | `catering` | `"25%–35%"` | — |
+| Land Value | `landValue` | `"15%–25%"` | — |
+| Housekeeping | `costHousekeeping` | `"15%–22%"` | Room Revenue |
+| F&B CoS | `costFB` | `"7%–12%"` | Room Revenue |
+| Admin & General | `costAdmin` | `"4%–7%"` | Total Revenue |
+| Property Ops | `costPropertyOps` | `"3%–5%"` | Total Revenue |
+| Utilities | `costUtilities` | `"2.9%–4.0%"` | Total Revenue |
+| FF&E Reserve | `costFFE` | `"3%–5%"` | Total Revenue |
+| Marketing | `costMarketing` | `"1%–3%"` | Total Revenue |
+| IT | `costIT` | `"0.5%–1.5%"` | Total Revenue |
+| Other | `costOther` | `"3%–6%"` | Total Revenue |
+| Insurance | `costInsurance` | `"0.3%–0.5%"` | Property Value |
+| Property Taxes | `costPropertyTaxes` | `"1.0%–2.5%"` | Property Value |
+| Svc Fee: Marketing | `svcFeeMarketing` | `"0.5%–1.5%"` | Total Revenue |
+| Svc Fee: IT | `svcFeeIT` | `"0.3%–0.8%"` | Total Revenue |
+| Svc Fee: Accounting | `svcFeeAccounting` | `"0.5%–1.5%"` | Total Revenue |
+| Svc Fee: Reservations | `svcFeeReservations` | `"1.0%–2.0%"` | Total Revenue |
+| Svc Fee: General Mgmt | `svcFeeGeneralMgmt` | `"0.7%–1.2%"` | Total Revenue |
+| Incentive Fee | `incentiveFee` | `"8%–12%"` | GOP |
+| Income Tax | `incomeTax` | `"24%–28%"` | Taxable Income |
+
+### AI Research Parsing Helpers
+
+When AI research exists, raw text is parsed into `{ display, mid }` objects:
 
 ```tsx
 const parseRange = (rangeStr: string | undefined) => {

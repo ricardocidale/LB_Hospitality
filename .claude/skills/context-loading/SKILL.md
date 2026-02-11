@@ -67,10 +67,14 @@ With 80+ skill files (~15,000 lines), loading everything wastes tokens and slows
 #### Research & AI
 | Task | Load These Skills | Skip |
 |------|------------------|------|
-| Property market research | `research/market-overview/SKILL.md`, the specific analysis skill | Finance engine, UI |
+| Research system architecture | `research/SKILL.md` (master) | Individual analysis skills |
+| Property market research | `research/SKILL.md`, the specific analysis skill | Finance engine, UI |
 | ADR benchmarking | `research/adr-analysis/SKILL.md` | Other research skills |
 | Company research | `research/company-research/SKILL.md` | Property research skills |
 | Auto-refresh on login | `research/auto-refresh/SKILL.md` | All other research skills |
+| Location-aware seeding | `research/location-aware-seeding/SKILL.md` | Analysis skills |
+| Research badge data flow | `ui/research-badges.md`, `research/SKILL.md` | Analysis skills |
+| Any research change | **Always also load**: `research/SKILL.md` (master) | — |
 
 #### Database & Infrastructure
 | Task | Load These Skills | Skip |

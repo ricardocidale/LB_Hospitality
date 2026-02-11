@@ -8,7 +8,8 @@ The database schema is defined in `shared/schema.ts` using Drizzle ORM. All tabl
 
 | Table | Purpose | Key Fields |
 |-------|---------|------------|
-| `users` | User accounts and roles | email, passwordHash, role (admin/user), name, company, title, createdAt, updatedAt |
+| `user_groups` | Named groups for multi-tenant branding | name, companyName, logoId, themeId, assetDescriptionId |
+| `users` | User accounts and roles | email, passwordHash, role (admin/user/checker), name, company, title, userGroupId (FK→user_groups), assignedLogoId, assignedThemeId, assignedAssetDescriptionId, createdAt, updatedAt |
 | `sessions` | Active user sessions | id (text PK), userId (FK), expiresAt, createdAt |
 | `global_assumptions` | Model-wide financial parameters | inflationRate, managementFees, SAFE funding, partner comp, staffing tiers, projectionYears |
 | `properties` | Individual hotel assets | name, location, purchasePrice, roomCount, ADR, occupancy, cost rates, revenue shares |
@@ -51,18 +52,25 @@ seedAdminUser() in server/auth.ts
     │
     ├── Check CHECKER_PASSWORD env var
     │   ├── Not set → Skip checker creation (warn to console)
-    │   └── Set → Check if "checker" user exists
-    │       ├── No  → Create with role "user" (not "admin")
+    │   └── Set → Check if "checker@norfolkgroup.io" user exists
+    │       ├── No  → Create with role "checker"
     │       └── Yes → Update password hash to match env var
     │
-    └── Ensure both users have a "Base" scenario
+    ├── Check REYNALDO_PASSWORD env var
+    │   ├── Not set → Skip Reynaldo creation (warn to console)
+    │   └── Set → Check if "reynaldo.fagundes@norfolk.ai" user exists
+    │       ├── No  → Create with role "user"
+    │       └── Yes → Update password hash to match env var
+    │
+    └── Ensure admin, checker, and Reynaldo users have a "Base" scenario
 ```
 
-**Important**: The checker user has role `"user"` in the database, NOT a special "checker" role. Checker access is determined by the `requireChecker` middleware in `server/auth.ts`, which grants verification access to users with `role === "admin"` OR `email === "checker"`.
+**Important**: The checker user has role `"checker"` in the database. Checker access is determined by the `requireChecker` middleware in `server/auth.ts`, which grants verification access to users with `role === "admin"` OR `email === "checker@norfolkgroup.io"`.
 
 **Environment Variables Required**:
 - `ADMIN_PASSWORD` - Sets the admin user's password
 - `CHECKER_PASSWORD` - Sets the checker user's password
+- `REYNALDO_PASSWORD` - Sets Reynaldo's password
 
 If these env vars are not set, the respective user creation is skipped with a console warning.
 
@@ -114,7 +122,19 @@ Seeds users, global assumptions, properties, and design themes. Skips any catego
 |-------|------|------|---------|
 | admin | admin | Ricardo Cidale | Norfolk Group |
 | rosario@kitcapital.com | user | Rosario David | KIT Capital |
-| checker | user | Checker User | - |
+| kit@kitcapital.com | user | Dov Tuzman | KIT Capital |
+| lemazniku@icloud.com | user | Lea Mazniku | KIT Capital |
+| checker@norfolkgroup.io | checker | Checker | Norfolk AI |
+| bhuvan@norfolkgroup.io | user | Bhuvan Agarwal | Norfolk Group |
+| reynaldo.fagundes@norfolk.ai | user | Reynaldo Fagundes | Norfolk AI |
+
+**Seeded User Groups** (skips if group name already exists):
+| Group Name | Company Name | Members |
+|------------|-------------|---------|
+| KIT Group | KIT Capital | Rosario David, Dov Tuzman, Lea Mazniku |
+| Norfolk Group | Norfolk Group | Ricardo Cidale, Checker, Bhuvan Agarwal, Reynaldo Fagundes |
+
+User groups control branding (company name, logo, theme, asset description) for all members. Branding resolution priority: user-level override > group-level > system default.
 
 **Seeded Properties** (skips if name already exists):
 | Name | Location | Rooms | ADR | Type |

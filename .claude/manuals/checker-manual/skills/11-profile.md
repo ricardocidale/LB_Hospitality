@@ -17,8 +17,24 @@ The profile contains the following editable and display-only fields:
 | **Company** | Yes | Organization or firm affiliation |
 | **Title** | Yes | Professional title (e.g., Asset Manager, VP Acquisitions) |
 | **Role** | No (display only) | Displayed beneath the user avatar; values: admin, checker, or user |
+| **User Group** | No (admin assigns) | Group membership determines branding (company name, logo, theme). Assigned via Administration > User Groups |
 
 Profile edits are saved via the save action in the page header. Admin users can update all fields except email, which is locked to "Admin." A success confirmation appears on save; errors are surfaced via notification.
+
+---
+
+## User Groups & Branding
+
+Users can be assigned to a User Group by an admin. Each group defines:
+- **Company Name** — displayed in the sidebar header and mobile header
+- **Logo** — displayed in the sidebar
+- **Theme** — visual theme override
+- **Asset Description** — custom asset description
+
+Branding resolution follows this priority:
+1. User-level override (assignedLogoId, assignedThemeId, assignedAssetDescriptionId)
+2. Group-level settings (from the user's group)
+3. System defaults
 
 ---
 

@@ -55,7 +55,7 @@ The application is organized into the following primary areas:
 | **Systemwide Assumptions** | Global model parameters affecting all entities (inflation, fees, SAFE funding, staffing, costs) |
 | **My Profile** | User account settings and display preferences |
 | **My Scenarios** | Saved model snapshots — create, load, compare, and delete scenarios |
-| **Administration** | User management, login logs, and system configuration (admin role only) |
+| **Administration** | User management, user groups, login logs, session management, verification, activity logs, and system configuration (admin role only) |
 | **User Manual** | Documentation of financial methodology, formulas, and GAAP/USALI references |
 
 ---

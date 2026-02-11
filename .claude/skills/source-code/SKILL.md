@@ -87,7 +87,7 @@ Comprehensive reference for every layer of the Hospitality Business Group simula
 │           └── checkerManualExport.ts  # Checker Manual PDF
 │
 ├── shared/              # Shared between client and server
-│   ├── schema.ts        # Drizzle ORM tables, Zod schemas, TypeScript types
+│   ├── schema.ts        # Drizzle ORM tables (user_groups, users, sessions, global_assumptions, properties, scenarios, etc.), Zod schemas, TypeScript types
 │   ├── constants.ts     # Single source of truth for DEFAULT_* values
 │   └── models/          # Shared domain models
 │
@@ -259,6 +259,7 @@ Analysis (requireChecker):
 
 **IStorage Interface** — 40+ methods covering:
 - Users: CRUD, password updates, role management
+- User Groups: CRUD, assign/unassign users to groups
 - Sessions: Create, get (with user join), delete, expire cleanup
 - Global Assumptions: Per-user get/upsert
 - Properties: Per-user CRUD

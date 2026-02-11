@@ -81,7 +81,7 @@ Self-contained feature folders for functionality outside the core financial engi
 ### API Pattern
 RESTful endpoints organized by domain:
 - `/api/auth/*` - Authentication
-- `/api/admin/*` - Admin operations (user management, seeding, verification)
+- `/api/admin/*` - Admin operations (user management, user groups, seeding, verification)
 - `/api/global-assumptions` - Model configuration
 - `/api/properties/*` - Property CRUD
 - `/api/scenarios/*` - Scenario save/load
@@ -99,8 +99,9 @@ RESTful endpoints organized by domain:
 - Session-based auth with bcrypt password hashing
 - Sessions stored in PostgreSQL `sessions` table (id, userId, expiresAt)
 - Cookie-based session management
-- Two database roles: `admin` (full access) and `user` (standard access)
-- Checker access: `requireChecker` middleware grants verification endpoint access to `admin` role OR email `"checker"` (checker user has role `"user"` in the database)
+- Three database roles: `admin` (full access), `user` (standard access), `checker` (verification access)
+- Checker access: `requireChecker` middleware grants verification endpoint access to `admin` role OR email `"checker@norfolkgroup.io"`
+- **User Groups**: Users can be assigned to groups (user_groups table) for multi-tenant branding. Each group has a companyName, optional logo, theme, and asset description. Branding resolution: user-level > group-level > system default. Layout sidebar dynamically displays the resolved company name and logo.
 - Rate limiting on login attempts (by IP address)
 - IP tracking for login history (`login_logs` table)
 - Admin and checker users auto-created/updated on every server start via `seedAdminUser()` in `server/auth.ts`

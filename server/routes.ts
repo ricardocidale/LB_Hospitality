@@ -552,6 +552,7 @@ export async function registerRoutes(
         { email: "admin", passwordHash: await hashPassword(adminPw), role: "admin" as const, name: "Ricardo Cidale", company: "Norfolk Group", title: "Partner" },
         { email: "rosario@kitcapital.com", passwordHash: await hashPassword(adminPw), role: "user" as const, name: "Rosario David", company: "KIT Capital", title: "COO" },
         { email: "kit@kitcapital.com", passwordHash: await hashPassword(adminPw), role: "user" as const, name: "Dov Tuzman", company: "KIT Capital", title: "Managing Partner" },
+        { email: "lemazniku@icloud.com", passwordHash: await hashPassword(adminPw), role: "user" as const, name: "Lea Mazniku", company: "KIT Capital", title: "Associate" },
         { email: "checker@norfolkgroup.io", passwordHash: await hashPassword(checkerPw), role: "checker" as const, name: "Checker", company: "Norfolk AI", title: "Checker" },
         { email: "bhuvan@norfolkgroup.io", passwordHash: await hashPassword(adminPw), role: "user" as const, name: "Bhuvan Agarwal", company: "Norfolk Group", title: "Associate" },
         { email: "reynaldo.fagundes@norfolk.ai", passwordHash: await hashPassword(reynaldoPw), role: "user" as const, name: "Reynaldo Fagundes", company: "Norfolk AI", title: "Partner" },
@@ -591,6 +592,7 @@ export async function registerRoutes(
       const groupAssignments: Record<string, string> = {
         "rosario@kitcapital.com": "KIT Group",
         "kit@kitcapital.com": "KIT Group",
+        "lemazniku@icloud.com": "KIT Group",
         "admin": "Norfolk Group",
         "checker@norfolkgroup.io": "Norfolk Group",
         "bhuvan@norfolkgroup.io": "Norfolk Group",

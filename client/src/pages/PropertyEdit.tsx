@@ -987,26 +987,6 @@ export default function PropertyEdit() {
                       </div>
                       <div className="space-y-2">
                         <div className="flex justify-between items-center">
-                          <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Marketing<HelpTooltip text="Marketing expense = Total Revenue × this rate. A variable cost covering advertising, OTA commissions, loyalty programs, and business development that scales with revenue. USALI Sales & Marketing Department." /></Label>
-                          <EditableValue
-                            value={(draft.costRateMarketing ?? DEFAULT_COST_RATE_MARKETING) * 100}
-                            onChange={(val) => handleChange("costRateMarketing", val / 100)}
-                            format="percent"
-                            min={0}
-                            max={25}
-                            step={1}
-                          />
-                        </div>
-                        <Slider 
-                          value={[(draft.costRateMarketing ?? DEFAULT_COST_RATE_MARKETING) * 100]}
-                          onValueChange={(vals: number[]) => handleChange("costRateMarketing", vals[0] / 100)}
-                          min={0}
-                          max={25}
-                          step={1}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-center">
                           <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Property Ops<HelpTooltip text="Property Ops expense = (Year 1 Total Revenue ÷ 12) × this rate × annual escalation factor. A fixed cost covering engineering, repairs, grounds maintenance, and facilities. The dollar amount is set in Year 1 and escalates annually with the Inflation Escalator Factor. USALI POM Department." /></Label>
                           <EditableValue
                             value={(draft.costRatePropertyOps ?? DEFAULT_COST_RATE_PROPERTY_OPS) * 100}
@@ -1152,6 +1132,26 @@ export default function PropertyEdit() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <div className="flex justify-between items-center">
+                          <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Marketing<HelpTooltip text="Marketing expense = Total Revenue × this rate. Covers property-level advertising, OTA commissions, and local promotions only. Brand strategy, digital marketing, loyalty programs, and business development are provided by the management company. USALI Sales & Marketing Department." /></Label>
+                          <EditableValue
+                            value={(draft.costRateMarketing ?? DEFAULT_COST_RATE_MARKETING) * 100}
+                            onChange={(val) => handleChange("costRateMarketing", val / 100)}
+                            format="percent"
+                            min={0}
+                            max={15}
+                            step={1}
+                          />
+                        </div>
+                        <Slider 
+                          value={[(draft.costRateMarketing ?? DEFAULT_COST_RATE_MARKETING) * 100]}
+                          onValueChange={(vals: number[]) => handleChange("costRateMarketing", vals[0] / 100)}
+                          min={0}
+                          max={15}
+                          step={1}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
                           <Label className="text-sm label-text text-gray-700 flex items-center gap-1">IT<HelpTooltip text="IT expense = (Year 1 Total Revenue ÷ 12) × this rate × annual escalation factor. A minimal fixed cost for property-level IT needs only — WiFi, in-room tech, and basic support. Core IT infrastructure (PMS, accounting systems, networks) is provided by the management company." /></Label>
                           <EditableValue
                             value={(draft.costRateIT ?? DEFAULT_COST_RATE_IT) * 100}
@@ -1171,7 +1171,7 @@ export default function PropertyEdit() {
                         />
                       </div>
                     </div>
-                    <p className="text-xs text-gray-500 mt-2">IT infrastructure and systems are primarily provided by the management company. This represents only property-level IT costs.</p>
+                    <p className="text-xs text-gray-500 mt-2">Marketing and IT are primarily provided by the management company. These represent only property-level costs.</p>
                   </div>
                 </>
               );

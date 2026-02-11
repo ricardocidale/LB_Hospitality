@@ -46,7 +46,7 @@ const property = {
   costRateRooms: 0.20,
   costRateFB: 0.09,
   costRateAdmin: 0.08,
-  costRateMarketing: 0.05,
+  costRateMarketing: 0.01,
   costRatePropertyOps: 0.04,
   costRateUtilities: 0.05,
   costRateInsurance: 0.02,

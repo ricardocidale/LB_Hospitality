@@ -550,8 +550,8 @@ export default function CompanyAssumptions() {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label className="flex items-center text-gray-700 label-text">
-                    Base Management Fee
-                    <HelpTooltip text="Percentage of each property's gross revenue collected monthly" manualSection="company-formulas" />
+                    Base Management Fee (% of Property Gross Revenue)
+                    <HelpTooltip text="Percentage of each property's total gross revenue collected monthly as a management fee" manualSection="company-formulas" />
                   </Label>
                   <EditableValue
                     value={formData.baseManagementFee ?? global.baseManagementFee}
@@ -574,8 +574,8 @@ export default function CompanyAssumptions() {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label className="flex items-center text-gray-700 label-text">
-                    Incentive Fee (% of GOP)
-                    <HelpTooltip text="Percentage of each property's Gross Operating Profit collected annually" />
+                    Incentive Fee (% of Property GOP)
+                    <HelpTooltip text="Percentage of each property's Gross Operating Profit collected annually as a performance-based management fee" />
                   </Label>
                   <EditableValue
                     value={formData.incentiveManagementFee ?? global.incentiveManagementFee}
@@ -905,8 +905,8 @@ export default function CompanyAssumptions() {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label className="flex items-center text-gray-700 label-text">
-                    Marketing (% of Revenue)
-                    <HelpTooltip text="Corporate marketing spend as percentage of management fee revenue" />
+                    Marketing (% of Mgmt Fee Revenue)
+                    <HelpTooltip text="Corporate marketing spend as a percentage of total management fee revenue (base + incentive fees collected from properties)" />
                   </Label>
                   <EditableValue
                     value={formData.marketingRate ?? global.marketingRate}
@@ -929,8 +929,8 @@ export default function CompanyAssumptions() {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label className="flex items-center text-gray-700 label-text">
-                    Misc Operations (% of Revenue)
-                    <HelpTooltip text="General operating expenses as percentage of management fee revenue" />
+                    Misc Operations (% of Mgmt Fee Revenue)
+                    <HelpTooltip text="General operating expenses as a percentage of total management fee revenue (base + incentive fees collected from properties)" />
                   </Label>
                   <EditableValue
                     value={formData.miscOpsRate ?? global.miscOpsRate}
@@ -1026,8 +1026,8 @@ export default function CompanyAssumptions() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <Label className="flex items-center text-gray-700 label-text">
-                  Sales Commission Rate
-                  <HelpTooltip text="Broker commission paid on property sales as percentage of gross sale price" />
+                  Sales Commission Rate (% of Gross Sale Price)
+                  <HelpTooltip text="Broker commission paid on property sales as a percentage of the gross sale price at exit" />
                 </Label>
                 <EditableValue
                   value={formData.salesCommissionRate ?? global.salesCommissionRate ?? DEFAULT_COMMISSION_RATE}
@@ -1064,8 +1064,8 @@ export default function CompanyAssumptions() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <Label className="flex items-center text-gray-700 label-text">
-                  Event Expense Rate
-                  <HelpTooltip text="Operating costs for events as percentage of event revenue (labor, setup, coordination)" />
+                  Event Expense Rate (% of Event Revenue)
+                  <HelpTooltip text="Operating costs for events as a percentage of event revenue (labor, setup, coordination)" />
                 </Label>
                 <EditableValue
                   value={formData.eventExpenseRate ?? global.eventExpenseRate ?? DEFAULT_EVENT_EXPENSE_RATE}
@@ -1088,8 +1088,8 @@ export default function CompanyAssumptions() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <Label className="flex items-center text-gray-700 label-text">
-                  Other Revenue Expense Rate
-                  <HelpTooltip text="Operating costs for other revenue (spa, parking, retail) as percentage of that revenue" />
+                  Other Revenue Expense Rate (% of Other Revenue)
+                  <HelpTooltip text="Operating costs for other revenue (spa, parking, retail) as a percentage of that department's revenue" />
                 </Label>
                 <EditableValue
                   value={formData.otherExpenseRate ?? global.otherExpenseRate ?? DEFAULT_OTHER_EXPENSE_RATE}
@@ -1112,8 +1112,8 @@ export default function CompanyAssumptions() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <Label className="flex items-center text-gray-700 label-text">
-                  Utilities Variable Split
-                  <HelpTooltip text="Percentage of utility costs that scale with revenue. Remaining portion is fixed overhead." />
+                  Utilities Variable Split (% Variable vs Fixed)
+                  <HelpTooltip text="How much of the utilities expense rate scales with current property revenue (variable) vs stays anchored to Year 1 base revenue (fixed). Example: 60% means 60% of utilities cost varies with occupancy, 40% is fixed overhead." />
                 </Label>
                 <EditableValue
                   value={formData.utilitiesVariableSplit ?? global.utilitiesVariableSplit ?? DEFAULT_UTILITIES_VARIABLE_SPLIT}

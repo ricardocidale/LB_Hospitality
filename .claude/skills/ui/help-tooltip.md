@@ -1,5 +1,7 @@
 # HelpTooltip — In-App Field Help System
 
+> **See also**: [`info-icons.md`](info-icons.md) — the `InfoTooltip` component (ℹ icon) for read-only values and calculated metrics. Use HelpTooltip (?) for "what should I do here?" on inputs, and InfoTooltip (ℹ) for "what does this mean?" on displayed values.
+
 ## Purpose
 The `HelpTooltip` component provides contextual help for every input field across the application. It displays a `?` icon next to field labels that reveals an explanatory tooltip on hover or click. Optionally links to the relevant Checker Manual section.
 
@@ -145,3 +147,4 @@ Every user-facing input field **must** have a `HelpTooltip`. When adding new fie
 - Do not use the old absolute-positioned custom tooltip approach
 - Do not skip tooltips on any input field, even toggles and sliders
 - Do not add `manualSection` to tooltips where the manual link would not help with verification
+- Do not use `HelpTooltip` (?) for read-only values or calculated metrics — use `InfoTooltip` (ℹ) instead (see `info-icons.md`)

@@ -1,4 +1,5 @@
 import React from "react";
+import { Button } from "@/components/ui/button";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 
 interface ErrorBoundaryProps {
@@ -36,13 +37,10 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
             <p className="text-gray-600 mb-4 text-sm">
               {this.state.error?.message || "An unexpected error occurred."}
             </p>
-            <button
-              onClick={() => window.location.reload()}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg text-sm hover:bg-gray-800"
-            >
+            <Button onClick={() => window.location.reload()}>
               <RefreshCw className="w-4 h-4" />
               Reload page
-            </button>
+            </Button>
           </div>
         </div>
       );
@@ -78,13 +76,10 @@ export class FinancialErrorBoundary extends React.Component<ErrorBoundaryProps, 
           <p className="text-gray-400 text-xs mb-4 font-mono">
             {this.state.error?.message}
           </p>
-          <button
-            onClick={() => this.setState({ hasError: false, error: null })}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg text-sm hover:bg-gray-800"
-          >
+          <Button onClick={() => this.setState({ hasError: false, error: null })}>
             <RefreshCw className="w-4 h-4" />
             Retry
-          </button>
+          </Button>
         </div>
       );
     }

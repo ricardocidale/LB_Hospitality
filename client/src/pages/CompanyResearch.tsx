@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 import Layout from "@/components/Layout";
+import { Button } from "@/components/ui/button";
 import { useMarketResearch } from "@/lib/api";
 import { PageHeader } from "@/components/ui/page-header";
 import { Loader2, RefreshCw, Briefcase, Scale, DollarSign, Users, FileText, BookOpen, ArrowLeft } from "lucide-react";
@@ -119,27 +120,23 @@ export default function CompanyResearch() {
           backLink="/company/assumptions"
           actions={
             <div className="flex items-center gap-3">
-              <button
+              <Button
+                variant="outline"
                 onClick={() => setLocation("/company/assumptions")}
                 data-testid="button-back"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-200 bg-white text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Back
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={generateResearch}
                 disabled={isGenerating}
                 data-testid="button-update-research"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-white text-sm font-medium transition-colors disabled:opacity-70"
-                style={isGenerating
-                  ? { backgroundColor: '#F4795B' }
-                  : { backgroundColor: '#9FBCA4' }
-                }
+                variant={isGenerating ? "destructive" : "default"}
               >
                 {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
                 {isGenerating ? "Analyzing..." : "Update Research"}
-              </button>
+              </Button>
             </div>
           }
         />

@@ -80,29 +80,29 @@ export default function PropertyEdit() {
   const researchValues = (() => {
     const SEEDED_DEFAULTS: Record<string, { display: string; mid: number }> = {
       adr: { display: "$150–$250", mid: 200 },
-      occupancy: { display: "68%–75%", mid: 72 },
+      occupancy: { display: "68%–78%", mid: 73 },
       startOccupancy: { display: "35%–45%", mid: 40 },
       rampMonths: { display: "12–24 mo", mid: 18 },
       capRate: { display: "7.5%–8.5%", mid: 8 },
-      catering: { display: "8%–15%", mid: 12 },
-      landValue: { display: "25%–35%", mid: 30 },
-      costHousekeeping: { display: "20%–28%", mid: 24 },
+      catering: { display: "25%–35%", mid: 30 },
+      landValue: { display: "20%–35%", mid: 25 },
+      costHousekeeping: { display: "18%–25%", mid: 20 },
       costFB: { display: "7%–12%", mid: 9 },
       costAdmin: { display: "7%–10%", mid: 8 },
-      costPropertyOps: { display: "4%–6%", mid: 5 },
+      costPropertyOps: { display: "4%–6%", mid: 4 },
       costUtilities: { display: "4%–6%", mid: 5 },
       costFFE: { display: "3%–5%", mid: 4 },
-      costMarketing: { display: "1%–3%", mid: 2 },
-      costIT: { display: "0.5%–1.5%", mid: 1 },
-      costOther: { display: "2%–5%", mid: 3 },
-      costInsurance: { display: "0.5%–1.5%", mid: 1 },
-      costPropertyTaxes: { display: "1%–3%", mid: 2 },
+      costMarketing: { display: "1%–3%", mid: 1 },
+      costIT: { display: "0.5%–1.5%", mid: 0.5 },
+      costOther: { display: "3%–6%", mid: 5 },
+      costInsurance: { display: "1%–3%", mid: 2 },
+      costPropertyTaxes: { display: "1%–3%", mid: 3 },
       svcFeeMarketing: { display: "1.0%–2.0%", mid: 1.5 },
       svcFeeIT: { display: "0.5%–1.5%", mid: 1 },
       svcFeeAccounting: { display: "1.0%–2.0%", mid: 1.5 },
       svcFeeReservations: { display: "1.0%–2.0%", mid: 1.5 },
       svcFeeGeneralMgmt: { display: "2.0%–3.0%", mid: 2.5 },
-      incentiveFee: { display: "10%–15%", mid: 12 },
+      incentiveFee: { display: "10%–15%", mid: 15 },
       incomeTax: { display: "21%–28%", mid: 25 },
     };
 
@@ -179,9 +179,9 @@ export default function PropertyEdit() {
     };
 
     const merged: Record<string, { display: string; mid: number }> = { ...SEEDED_DEFAULTS };
-    for (const key of Object.keys(merged)) {
-      if (aiValues[key]) {
-        merged[key] = aiValues[key]!;
+    for (const [key, val] of Object.entries(aiValues)) {
+      if (val) {
+        merged[key] = val;
       }
     }
     return merged;

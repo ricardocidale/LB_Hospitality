@@ -403,7 +403,7 @@ export default function PropertyEdit() {
               <h3 className="text-xl font-display text-gray-900">Capital Structure</h3>
               <p className="text-gray-600 text-sm label-text">Purchase and investment details</p>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
               <div className="space-y-1.5">
                 <Label className="label-text text-gray-700 flex items-center gap-1.5">Purchase Price ($)<HelpTooltip text="Total acquisition cost of the property. This is the basis for equity investment, loan sizing, and depreciation calculations." /></Label>
                 <Input 
@@ -436,7 +436,7 @@ export default function PropertyEdit() {
                   className="bg-white border-[#9FBCA4]/30 text-gray-900"
                 />
               </div>
-              <div className="lg:col-span-2 space-y-1.5">
+              <div className="sm:col-span-2 space-y-1.5">
                 <div className="flex flex-col gap-0.5">
                   <Label className="label-text text-gray-700 flex items-center gap-1.5">
                     Land Value (%)

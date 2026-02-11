@@ -292,7 +292,7 @@ export async function registerRoutes(
       if (validation.data.name !== undefined) updates.name = validation.data.name.trim();
       if (validation.data.email !== undefined) {
         const protectedEmails = ["admin", "checker@norfolkgroup.io"];
-        if (protectedEmails.includes(req.user!.email)) {
+        if (protectedEmails.includes(req.user!.email.toLowerCase())) {
           return res.status(403).json({ error: "System account emails cannot be changed" });
         }
         const newEmail = sanitizeEmail(validation.data.email);

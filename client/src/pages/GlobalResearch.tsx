@@ -101,7 +101,7 @@ export default function GlobalResearch() {
     return (
       <Layout>
         <div className="flex items-center justify-center h-[60vh]">
-          <Loader2 className="w-8 h-8 animate-spin text-[#9FBCA4]" />
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </div>
       </Layout>
     );
@@ -191,7 +191,7 @@ export default function GlobalResearch() {
                     <ul className="space-y-2">
                       {content.industryOverview.keyTrends.map((t: string, i: number) => (
                         <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
-                          <span className="text-[#9FBCA4] mt-0.5">·</span>
+                          <span className="text-primary mt-0.5">·</span>
                           {t}
                         </li>
                       ))}
@@ -403,7 +403,7 @@ export default function GlobalResearch() {
                 <ul className="space-y-2">
                   {content.regulatoryEnvironment.map((r: string, i: number) => (
                     <li key={i} className="text-sm text-gray-600 flex items-start gap-2 bg-gray-50 rounded-lg p-3 border border-gray-100">
-                      <span className="text-[#9FBCA4] mt-0.5">·</span>
+                      <span className="text-primary mt-0.5">·</span>
                       {r}
                     </li>
                   ))}

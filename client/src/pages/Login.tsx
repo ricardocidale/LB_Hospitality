@@ -134,8 +134,8 @@ export default function Login() {
                   onClick={handleAdminLogin}
                 />
               </motion.div>
-              <h1 className="text-2xl font-display text-[#FFF9F5] mb-1">
-                Hospitality <span className="text-[#9FBCA4]">Business</span>
+              <h1 className="text-2xl font-display text-background mb-1">
+                Hospitality <span className="text-primary">Business</span>
               </h1>
               <p className="text-xs text-white/40 uppercase tracking-[0.2em]">Business Simulation</p>
             </motion.div>
@@ -146,7 +146,7 @@ export default function Login() {
               transition={{ duration: 0.4, delay: 0.7 }}
               className="mb-8 text-center"
             >
-              <h2 className="text-xl font-display text-[#FFF9F5] mb-2">Welcome Back</h2>
+              <h2 className="text-xl font-display text-background mb-2">Welcome Back</h2>
               <p className="text-sm text-white/50 label-text">Sign in to access the simulation portal</p>
             </motion.div>
             
@@ -166,7 +166,7 @@ export default function Login() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
                   required
-                  className="h-12 bg-white/5 border-white/10 text-[#FFF9F5] placeholder:text-white/30 focus:border-[#38BDF8]/50 focus:ring-[#38BDF8]/20 transition-colors"
+                  className="h-12 bg-white/5 border-white/10 text-background placeholder:text-white/30 focus:border-[#38BDF8]/50 focus:ring-[#38BDF8]/20 transition-colors"
                   data-testid="input-email"
                 />
               </div>
@@ -181,7 +181,7 @@ export default function Login() {
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password"
                     required
-                    className="h-12 bg-white/5 border-white/10 text-[#FFF9F5] placeholder:text-white/30 focus:border-[#38BDF8]/50 focus:ring-[#38BDF8]/20 pr-12 transition-colors"
+                    className="h-12 bg-white/5 border-white/10 text-background placeholder:text-white/30 focus:border-[#38BDF8]/50 focus:ring-[#38BDF8]/20 pr-12 transition-colors"
                     data-testid="input-password"
                   />
                   <button
@@ -207,9 +207,9 @@ export default function Login() {
                   data-testid="button-login"
                   className="group relative w-28 h-28 rounded-full overflow-hidden transition-all duration-500 ease-out hover:scale-105 active:scale-95 disabled:opacity-60 disabled:pointer-events-none"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-b from-[#b8d4be] via-[#9FBCA4] to-[#6a9a78] rounded-full" />
+                  <div className="absolute inset-0 bg-gradient-to-b from-[#b8d4be] via-primary to-[#6a9a78] rounded-full" />
                   <div className="absolute inset-0 bg-gradient-to-br from-white/30 via-transparent to-black/15 rounded-full" />
-                  <div className="absolute inset-[1px] rounded-full bg-gradient-to-b from-[#aacdb3] via-[#9FBCA4] to-[#7aaa8a]" />
+                  <div className="absolute inset-[1px] rounded-full bg-gradient-to-b from-[#aacdb3] via-primary to-[#7aaa8a]" />
                   <div className="absolute top-[2px] left-[15%] right-[15%] h-[45%] rounded-full bg-gradient-to-b from-white/50 via-white/20 to-transparent" />
                   <div className="absolute inset-0 rounded-full shadow-[inset_0_2px_4px_rgba(255,255,255,0.35),inset_0_-2px_6px_rgba(0,0,0,0.15),0_4px_20px_rgba(159,188,164,0.4),0_8px_32px_rgba(37,125,65,0.2)]" />
                   <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 shadow-[0_6px_30px_rgba(159,188,164,0.6),0_12px_40px_rgba(37,125,65,0.3)]" />

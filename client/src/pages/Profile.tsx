@@ -147,8 +147,8 @@ export default function Profile() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#9FBCA4]/20 flex items-center justify-center">
-                    <ClipboardCheck className="w-5 h-5 text-[#9FBCA4]" />
+                  <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+                    <ClipboardCheck className="w-5 h-5 text-primary" />
                   </div>
                   <div>
                     <p className="text-white font-semibold">Verification & Testing Manual</p>
@@ -166,10 +166,10 @@ export default function Profile() {
           </Card>
         )}
 
-        <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-lg">
+        <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-lg">
           <CardContent className="p-6 space-y-6">
             <div className="flex items-center gap-4 pb-4 border-b border-gray-100">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#9FBCA4] to-[#257D41] flex items-center justify-center">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
                 <User className="w-8 h-8 text-white" />
               </div>
               <div>
@@ -187,7 +187,7 @@ export default function Profile() {
                     type="text"
                     value="Admin"
                     disabled
-                    className="bg-gray-100 border-[#9FBCA4]/30 text-gray-500 cursor-not-allowed"
+                    className="bg-gray-100 border-primary/30 text-gray-500 cursor-not-allowed"
                     data-testid="input-profile-email"
                   />
                 ) : (
@@ -197,7 +197,7 @@ export default function Profile() {
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     placeholder="Enter your email"
-                    className="bg-white border-[#9FBCA4]/30 text-gray-900"
+                    className="bg-white border-primary/30 text-gray-900"
                     data-testid="input-profile-email"
                   />
                 )}
@@ -210,7 +210,7 @@ export default function Profile() {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="Enter your full name"
-                  className="bg-white border-[#9FBCA4]/30 text-gray-900"
+                  className="bg-white border-primary/30 text-gray-900"
                   data-testid="input-profile-name"
                 />
               </div>
@@ -222,7 +222,7 @@ export default function Profile() {
                   value={formData.company}
                   onChange={(e) => setFormData({ ...formData, company: e.target.value })}
                   placeholder="Enter your company name"
-                  className="bg-white border-[#9FBCA4]/30 text-gray-900"
+                  className="bg-white border-primary/30 text-gray-900"
                   data-testid="input-profile-company"
                 />
               </div>
@@ -234,7 +234,7 @@ export default function Profile() {
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   placeholder="Enter your job title"
-                  className="bg-white border-[#9FBCA4]/30 text-gray-900"
+                  className="bg-white border-primary/30 text-gray-900"
                   data-testid="input-profile-title"
                 />
               </div>
@@ -242,10 +242,10 @@ export default function Profile() {
           </CardContent>
         </Card>
 
-        <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-lg">
+        <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-lg">
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center gap-2 text-gray-900">
-              <Key className="w-5 h-5 text-[#9FBCA4]" />
+              <Key className="w-5 h-5 text-primary" />
               Change Password
             </CardTitle>
           </CardHeader>
@@ -260,7 +260,7 @@ export default function Profile() {
                     value={passwordData.currentPassword}
                     onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
                     placeholder="Enter current password"
-                    className="bg-white border-[#9FBCA4]/30 text-gray-900 pr-10"
+                    className="bg-white border-primary/30 text-gray-900 pr-10"
                     data-testid="input-current-password"
                   />
                   <button
@@ -282,7 +282,7 @@ export default function Profile() {
                     value={passwordData.newPassword}
                     onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
                     placeholder="Enter new password"
-                    className="bg-white border-[#9FBCA4]/30 text-gray-900 pr-10"
+                    className="bg-white border-primary/30 text-gray-900 pr-10"
                     data-testid="input-new-password"
                   />
                   <button
@@ -307,7 +307,7 @@ export default function Profile() {
                     value={passwordData.confirmPassword}
                     onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
                     placeholder="Confirm new password"
-                    className="bg-white border-[#9FBCA4]/30 text-gray-900 pr-10"
+                    className="bg-white border-primary/30 text-gray-900 pr-10"
                     data-testid="input-confirm-password"
                   />
                   <button

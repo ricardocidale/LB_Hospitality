@@ -72,7 +72,7 @@ export function EditableValue({
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
         className={cn(
-          "w-16 text-sm font-mono font-semibold text-[#9FBCA4] bg-transparent border-b border-[#9FBCA4] outline-none text-right",
+          "w-16 text-sm font-mono font-semibold text-primary bg-transparent border-b border-primary outline-none text-right",
           className
         )}
         step={step}
@@ -87,7 +87,7 @@ export function EditableValue({
     <span
       onClick={handleClick}
       className={cn(
-        "text-sm font-mono font-semibold text-[#9FBCA4] cursor-pointer hover:underline",
+        "text-sm font-mono font-semibold text-primary cursor-pointer hover:underline",
         className
       )}
       title="Click to edit"

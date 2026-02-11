@@ -34,7 +34,7 @@ const ExecutiveSummary = lazy(() => import("@/pages/ExecutiveSummary"));
 const MapView = lazy(() => import("@/pages/MapView"));
 
 const PageLoader = () => (
-  <div className="min-h-screen flex items-center justify-center bg-[#FFF9F5]">
+  <div className="min-h-screen flex items-center justify-center bg-background">
     <Loader2 className="w-8 h-8 animate-spin text-primary" />
   </div>
 );
@@ -110,7 +110,7 @@ function Router() {
   
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#FFF9F5]">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );

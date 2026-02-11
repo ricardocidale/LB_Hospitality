@@ -38,7 +38,7 @@ export default function Analysis() {
                     data-testid={`tab-${t.id}`}
                     className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
                       tab === t.id
-                        ? "bg-[#9FBCA4]/25 text-white border border-[#9FBCA4]/50"
+                        ? "bg-primary/25 text-white border border-primary/50"
                         : "bg-white/5 text-white/60 border border-white/10 hover:bg-white/10 hover:text-white/80"
                     }`}
                   >

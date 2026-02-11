@@ -33,7 +33,7 @@ const ContentPanel = React.forwardRef<HTMLDivElement, ContentPanelProps>(
             <h3
               className={cn(
                 "text-lg font-display mb-1",
-                isDark ? "text-[#FFF9F5]" : "text-gray-900"
+                isDark ? "text-background" : "text-gray-900"
               )}
             >
               {title}
@@ -43,7 +43,7 @@ const ContentPanel = React.forwardRef<HTMLDivElement, ContentPanelProps>(
             <p
               className={cn(
                 "text-sm mb-4",
-                isDark ? "text-[#FFF9F5]/50" : "text-gray-500"
+                isDark ? "text-background/50" : "text-gray-500"
               )}
             >
               {subtitle}

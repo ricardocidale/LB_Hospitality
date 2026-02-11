@@ -102,7 +102,7 @@ export default function NotificationCenter() {
         onClick={() => setOpen((o) => !o)}
         className="relative w-10 h-10 rounded-xl flex items-center justify-center bg-white/5 hover:bg-white/10 transition-all duration-300"
       >
-        <Bell className="w-5 h-5 text-[#FFF9F5]/70" />
+        <Bell className="w-5 h-5 text-background/70" />
         {count > 0 && (
           <span
             data-testid="badge-unread-count"
@@ -124,14 +124,14 @@ export default function NotificationCenter() {
           }}
         >
           <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
-            <span className="text-sm font-semibold text-[#FFF9F5]">
+            <span className="text-sm font-semibold text-background">
               Notifications
             </span>
             {notifications.length > 0 && (
               <button
                 data-testid="button-mark-all-read"
                 onClick={markAllRead}
-                className="text-xs text-[#9FBCA4] hover:text-[#9FBCA4]/80 transition-colors"
+                className="text-xs text-primary hover:text-primary/80 transition-colors"
               >
                 Mark all read
               </button>
@@ -142,7 +142,7 @@ export default function NotificationCenter() {
             {notifications.length === 0 ? (
               <div
                 data-testid="text-no-notifications"
-                className="flex items-center justify-center py-12 text-sm text-[#FFF9F5]/40"
+                className="flex items-center justify-center py-12 text-sm text-background/40"
               >
                 No notifications
               </div>
@@ -167,13 +167,13 @@ export default function NotificationCenter() {
                       style={{ color: cfg.color }}
                     />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-[#FFF9F5] truncate">
+                      <p className="text-sm font-medium text-background truncate">
                         {n.title}
                       </p>
-                      <p className="text-xs text-[#FFF9F5]/50 line-clamp-2">
+                      <p className="text-xs text-background/50 line-clamp-2">
                         {n.message}
                       </p>
-                      <p className="text-[10px] text-[#FFF9F5]/30 mt-1">
+                      <p className="text-[10px] text-background/30 mt-1">
                         {relativeTime(n.timestamp)}
                       </p>
                     </div>
@@ -188,7 +188,7 @@ export default function NotificationCenter() {
               <button
                 data-testid="button-clear-all"
                 onClick={clearAll}
-                className="w-full text-xs text-[#FFF9F5]/40 hover:text-[#FFF9F5]/60 transition-colors py-1"
+                className="w-full text-xs text-background/40 hover:text-background/60 transition-colors py-1"
               >
                 Clear all
               </button>

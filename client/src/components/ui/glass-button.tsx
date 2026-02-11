@@ -56,21 +56,21 @@ const GlassButton = React.forwardRef<HTMLButtonElement, GlassButtonProps>(
 
     const variants = {
       default: `
-        text-[#FFF9F5]
+        text-background
         border border-white/20 hover:border-white/40
         hover:shadow-[0_0_20px_rgba(159,188,164,0.3)]
       `,
       settings: `
-        text-[#FFF9F5]
+        text-background
         border border-white/20 hover:border-white/40
         hover:shadow-[0_0_20px_rgba(159,188,164,0.3)]
       `,
       ghost: `
-        bg-white/10 hover:bg-white/20 text-[#FFF9F5]
+        bg-white/10 hover:bg-white/20 text-background
         border border-white/15 hover:border-white/25
       `,
       icon: `
-        bg-white/10 hover:bg-white/20 text-[#FFF9F5]
+        bg-white/10 hover:bg-white/20 text-background
         border border-white/15 hover:border-white/25
       `,
       export: `

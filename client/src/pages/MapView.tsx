@@ -40,7 +40,7 @@ export default function MapView() {
   const unmappableCount = properties.length - mappableProperties.length;
 
   return (
-    <div data-testid="map-view" className="min-h-screen bg-[#FFF9F5]">
+    <div data-testid="map-view" className="min-h-screen bg-background">
       <div
         className="min-h-screen"
         style={{

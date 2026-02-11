@@ -4,7 +4,7 @@ import { useProperties, useGlobalAssumptions } from "@/lib/api";
 import { generatePropertyProForma, formatMoney, getFiscalYearForModelYear } from "@/lib/financialEngine";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, DarkGlassTabs } from "@/components/ui/tabs";
-import { LayoutDashboard, FileText, Banknote, Scale, TrendingUp as TrendingUpIcon, Loader2, ChevronRight, ChevronDown } from "lucide-react";
+import { LayoutDashboard, FileText, Banknote, Scale, TrendingUp as TrendingUpIcon, Loader2, ChevronRight, ChevronDown, AlertTriangle } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { GlassButton } from "@/components/ui/glass-button";
 import { ExportMenu, pdfAction, csvAction, excelAction, pptxAction, pngAction } from "@/components/ui/export-toolbar";
@@ -41,8 +41,8 @@ function calculateIRR(cashFlows: number[]): number {
 }
 
 export default function Dashboard() {
-  const { data: properties, isLoading: propertiesLoading } = useProperties();
-  const { data: global, isLoading: globalLoading } = useGlobalAssumptions();
+  const { data: properties, isLoading: propertiesLoading, isError: propertiesError } = useProperties();
+  const { data: global, isLoading: globalLoading, isError: globalError } = useGlobalAssumptions();
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState("overview");
   const tabContentRef = useRef<HTMLDivElement>(null);
@@ -123,6 +123,17 @@ export default function Dashboard() {
       <Layout>
         <div className="flex items-center justify-center h-[60vh]">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      </Layout>
+    );
+  }
+
+  if (propertiesError || globalError) {
+    return (
+      <Layout>
+        <div className="flex flex-col items-center justify-center h-[60vh] gap-3">
+          <AlertTriangle className="w-8 h-8 text-destructive" />
+          <p className="text-muted-foreground">Failed to load dashboard data. Please try refreshing the page.</p>
         </div>
       </Layout>
     );
@@ -1562,8 +1573,8 @@ export default function Dashboard() {
           variant="dark"
           actions={
             <div className="bg-white/10 backdrop-blur-xl rounded-xl px-5 py-3 border border-white/20 text-center">
-              <p className="text-xs text-[#FFF9F5]/50 uppercase tracking-widest label-text">Investment Period</p>
-              <p className="text-lg font-medium text-[#FFF9F5] font-mono">{getFiscalYear(0)} - {getFiscalYear(investmentHorizon - 1)}</p>
+              <p className="text-xs text-background/50 uppercase tracking-widest label-text">Investment Period</p>
+              <p className="text-lg font-medium text-background font-mono">{getFiscalYear(0)} - {getFiscalYear(investmentHorizon - 1)}</p>
             </div>
           }
         />
@@ -1594,12 +1605,12 @@ export default function Dashboard() {
 
           <TabsContent value="overview" className="space-y-8" ref={tabContentRef}>
             {/* Investment Returns - Hero Section - Fluid Glass Design with 3D */}
-            <div className="relative overflow-hidden rounded-3xl p-8 border border-[#9FBCA4]/30 shadow-2xl">
+            <div className="relative overflow-hidden rounded-3xl p-8 border border-primary/30 shadow-2xl">
               {/* Sage Glass Background with Fluid Effect */}
-              <div className="absolute inset-0 bg-[#9FBCA4]/25 backdrop-blur-3xl" />
+              <div className="absolute inset-0 bg-primary/25 backdrop-blur-3xl" />
               <div className="absolute inset-0">
-                <div className="absolute top-0 right-1/4 w-96 h-96 rounded-full bg-[#257D41]/20 blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />
-                <div className="absolute bottom-0 left-1/4 w-80 h-80 rounded-full bg-[#9FBCA4]/30 blur-3xl animate-pulse" style={{ animationDuration: '6s', animationDelay: '2s' }} />
+                <div className="absolute top-0 right-1/4 w-96 h-96 rounded-full bg-secondary/20 blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />
+                <div className="absolute bottom-0 left-1/4 w-80 h-80 rounded-full bg-primary/30 blur-3xl animate-pulse" style={{ animationDuration: '6s', animationDelay: '2s' }} />
                 <div className="absolute top-1/3 right-0 w-64 h-64 rounded-full bg-white/20 blur-2xl animate-pulse" style={{ animationDuration: '7s', animationDelay: '1s' }} />
               </div>
               <Dashboard3DBackground />
@@ -1613,7 +1624,7 @@ export default function Dashboard() {
                 {/* Main IRR Display + Property IRR Bar Chart - Side by Side */}
                 <div className="flex flex-col lg:flex-row items-center justify-center gap-8 mb-10">
                   {/* Portfolio IRR Meter */}
-                  <div className="relative bg-white/95 backdrop-blur-xl rounded-[2rem] p-8 border border-[#9FBCA4]/40 shadow-xl shadow-black/10">
+                  <div className="relative bg-white/95 backdrop-blur-xl rounded-[2rem] p-8 border border-primary/40 shadow-xl shadow-black/10">
                     <div className="relative">
                       <svg className="w-48 h-48" viewBox="0 0 200 200">
                         <defs>
@@ -1640,7 +1651,7 @@ export default function Dashboard() {
                   </div>
 
                   {/* Property IRR Comparison Bar Chart */}
-                  <div className="bg-white/95 backdrop-blur-xl rounded-[2rem] p-6 border border-[#9FBCA4]/40 shadow-xl shadow-black/10 w-full lg:min-w-[340px]" data-testid="chart-property-irr-comparison">
+                  <div className="bg-white/95 backdrop-blur-xl rounded-[2rem] p-6 border border-primary/40 shadow-xl shadow-black/10 w-full lg:min-w-[340px]" data-testid="chart-property-irr-comparison">
                     <p className="text-xs font-medium tracking-widest text-[#2d4a5e]/60 uppercase mb-3 text-center label-text">Property IRR Comparison</p>
                     <ResponsiveContainer width="100%" height={200}>
                       <BarChart
@@ -1680,7 +1691,7 @@ export default function Dashboard() {
                   </div>
 
                   {/* Property Investment Bar Chart */}
-                  <div className="bg-white/95 backdrop-blur-xl rounded-[2rem] p-6 border border-[#9FBCA4]/40 shadow-xl shadow-black/10 w-full lg:min-w-[340px]" data-testid="chart-property-investment">
+                  <div className="bg-white/95 backdrop-blur-xl rounded-[2rem] p-6 border border-primary/40 shadow-xl shadow-black/10 w-full lg:min-w-[340px]" data-testid="chart-property-investment">
                     <p className="text-xs font-medium tracking-widest text-[#2d4a5e]/60 uppercase mb-3 text-center label-text">Equity Investment by Property</p>
                     <ResponsiveContainer width="100%" height={200}>
                       <BarChart
@@ -1792,7 +1803,7 @@ export default function Dashboard() {
                       <p className="text-sm text-[#2d4a5e]/60 label-text">Equity Invested</p>
                     </div>
                     <div className="h-1.5 bg-[#2d4a5e]/10 rounded-full overflow-hidden">
-                      <div className="h-full bg-gradient-to-r from-[#9FBCA4] to-[#257D41] rounded-full" style={{ width: '100%' }} />
+                      <div className="h-full bg-gradient-to-r from-primary to-secondary rounded-full" style={{ width: '100%' }} />
                     </div>
                   </div>
 
@@ -1814,12 +1825,12 @@ export default function Dashboard() {
             </div>
 
             {/* Portfolio & Capital Summary - Fluid Glass Style */}
-            <div className="relative overflow-hidden rounded-3xl p-6 border border-[#9FBCA4]/30 shadow-2xl">
+            <div className="relative overflow-hidden rounded-3xl p-6 border border-primary/30 shadow-2xl">
               {/* Sage Glass Background with Fluid Effect */}
-              <div className="absolute inset-0 bg-[#9FBCA4]/25 backdrop-blur-3xl" />
+              <div className="absolute inset-0 bg-primary/25 backdrop-blur-3xl" />
               <div className="absolute inset-0">
-                <div className="absolute top-0 right-1/3 w-56 h-56 rounded-full bg-[#257D41]/20 blur-3xl animate-pulse" style={{ animationDuration: '7s' }} />
-                <div className="absolute bottom-0 left-1/3 w-48 h-48 rounded-full bg-[#9FBCA4]/30 blur-3xl animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
+                <div className="absolute top-0 right-1/3 w-56 h-56 rounded-full bg-secondary/20 blur-3xl animate-pulse" style={{ animationDuration: '7s' }} />
+                <div className="absolute bottom-0 left-1/3 w-48 h-48 rounded-full bg-primary/30 blur-3xl animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
                 <div className="absolute top-1/2 left-0 w-40 h-40 rounded-full bg-white/20 blur-2xl animate-pulse" style={{ animationDuration: '6s', animationDelay: '2s' }} />
               </div>
               
@@ -1900,10 +1911,10 @@ export default function Dashboard() {
           <TabsContent value="income" className="mt-6 space-y-6">
             {/* Chart Container */}
             <Card className="relative overflow-hidden">
-              <div className="absolute inset-0 bg-[#FFF9F5]" />
+              <div className="absolute inset-0 bg-background" />
               <div className="absolute inset-0">
-                <div className="absolute top-0 right-1/4 w-72 h-72 rounded-full bg-[#9FBCA4]/10 blur-3xl" />
-                <div className="absolute bottom-0 left-1/3 w-64 h-64 rounded-full bg-[#9FBCA4]/8 blur-3xl" />
+                <div className="absolute top-0 right-1/4 w-72 h-72 rounded-full bg-primary/10 blur-3xl" />
+                <div className="absolute bottom-0 left-1/3 w-64 h-64 rounded-full bg-primary/8 blur-3xl" />
               </div>
               
               <CardHeader className="relative">
@@ -1912,7 +1923,7 @@ export default function Dashboard() {
               </CardHeader>
               
               <CardContent className="relative">
-                <div className="bg-white/90 backdrop-blur-xl rounded-xl p-4 border border-[#9FBCA4]/30 shadow-lg shadow-black/10">
+                <div className="bg-white/90 backdrop-blur-xl rounded-xl p-4 border border-primary/30 shadow-lg shadow-black/10">
                   <ResponsiveContainer width="100%" height={300}>
                     <LineChart
                       data={Array.from({ length: projectionYears }, (_, i) => {
@@ -2405,10 +2416,10 @@ export default function Dashboard() {
           <TabsContent value="cashflow" className="mt-6 space-y-6">
             {/* Chart - Revenue & Operating Performance */}
             <Card className="relative overflow-hidden">
-              <div className="absolute inset-0 bg-[#FFF9F5]" />
+              <div className="absolute inset-0 bg-background" />
               <div className="absolute inset-0">
-                <div className="absolute top-0 left-1/4 w-72 h-72 rounded-full bg-[#9FBCA4]/10 blur-3xl" />
-                <div className="absolute bottom-0 right-1/4 w-64 h-64 rounded-full bg-[#257D41]/8 blur-3xl" />
+                <div className="absolute top-0 left-1/4 w-72 h-72 rounded-full bg-primary/10 blur-3xl" />
+                <div className="absolute bottom-0 right-1/4 w-64 h-64 rounded-full bg-secondary/8 blur-3xl" />
               </div>
               
               <CardHeader className="relative">
@@ -2417,7 +2428,7 @@ export default function Dashboard() {
               </CardHeader>
               
               <CardContent className="relative">
-                <div className="bg-white/90 backdrop-blur-xl rounded-xl p-4 border border-[#9FBCA4]/30 shadow-lg shadow-black/10">
+                <div className="bg-white/90 backdrop-blur-xl rounded-xl p-4 border border-primary/30 shadow-lg shadow-black/10">
                   <ResponsiveContainer width="100%" height={300}>
                     <LineChart
                       data={Array.from({ length: projectionYears }, (_, i) => {
@@ -2462,10 +2473,10 @@ export default function Dashboard() {
 
             {/* Chart - Cash Flow After Financing */}
             <Card className="relative overflow-hidden">
-              <div className="absolute inset-0 bg-[#FFF9F5]" />
+              <div className="absolute inset-0 bg-background" />
               <div className="absolute inset-0">
-                <div className="absolute top-0 right-1/3 w-72 h-72 rounded-full bg-[#9FBCA4]/10 blur-3xl" />
-                <div className="absolute bottom-0 left-1/3 w-64 h-64 rounded-full bg-[#9FBCA4]/8 blur-3xl" />
+                <div className="absolute top-0 right-1/3 w-72 h-72 rounded-full bg-primary/10 blur-3xl" />
+                <div className="absolute bottom-0 left-1/3 w-64 h-64 rounded-full bg-primary/8 blur-3xl" />
               </div>
               
               <CardHeader className="relative">
@@ -2474,7 +2485,7 @@ export default function Dashboard() {
               </CardHeader>
               
               <CardContent className="relative">
-                <div className="bg-white/90 backdrop-blur-xl rounded-xl p-4 border border-[#9FBCA4]/30 shadow-lg shadow-black/10">
+                <div className="bg-white/90 backdrop-blur-xl rounded-xl p-4 border border-primary/30 shadow-lg shadow-black/10">
                   <ResponsiveContainer width="100%" height={300}>
                     <LineChart
                       data={Array.from({ length: projectionYears }, (_, i) => {

@@ -82,15 +82,15 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
         {/* Subtle gradient overlay for depth */}
         <div className="absolute inset-0 bg-gradient-to-b from-white/[0.03] via-transparent to-black/20" />
         {/* Glossy Edge Highlight - Right Side */}
-        <div className="absolute top-0 right-0 bottom-0 w-[1px] bg-gradient-to-b from-[#9FBCA4]/40 via-white/10 to-[#9FBCA4]/30" />
+        <div className="absolute top-0 right-0 bottom-0 w-[1px] bg-gradient-to-b from-primary/40 via-white/10 to-primary/30" />
         {/* Top Edge Sheen */}
-        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#9FBCA4]/30 to-transparent" />
+        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
         {/* Floating Color Orbs - More visible on black */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-[#9FBCA4]/20 blur-[100px] animate-pulse" style={{ animationDuration: '4s' }} />
-          <div className="absolute top-1/3 -right-16 w-56 h-56 rounded-full bg-[#257D41]/25 blur-[80px] animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
-          <div className="absolute bottom-1/4 left-1/4 w-64 h-64 rounded-full bg-[#9FBCA4]/15 blur-[100px] animate-pulse" style={{ animationDuration: '6s', animationDelay: '2s' }} />
-          <div className="absolute -bottom-16 -right-16 w-48 h-48 rounded-full bg-[#257D41]/20 blur-[80px] animate-pulse" style={{ animationDuration: '7s', animationDelay: '0.5s' }} />
+          <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-primary/20 blur-[100px] animate-pulse" style={{ animationDuration: '4s' }} />
+          <div className="absolute top-1/3 -right-16 w-56 h-56 rounded-full bg-secondary/25 blur-[80px] animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
+          <div className="absolute bottom-1/4 left-1/4 w-64 h-64 rounded-full bg-primary/15 blur-[100px] animate-pulse" style={{ animationDuration: '6s', animationDelay: '2s' }} />
+          <div className="absolute -bottom-16 -right-16 w-48 h-48 rounded-full bg-secondary/20 blur-[80px] animate-pulse" style={{ animationDuration: '7s', animationDelay: '0.5s' }} />
         </div>
         {/* Inner glow effect */}
         <div className="absolute inset-0 shadow-[inset_0_0_80px_rgba(159,188,164,0.08)]" />
@@ -99,11 +99,11 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
           <div className="p-6">
             <div className="flex items-center gap-3">
               <div className="relative">
-                <div className="absolute inset-0 bg-[#9FBCA4]/30 rounded-xl blur-md" />
+                <div className="absolute inset-0 bg-primary/30 rounded-xl blur-md" />
                 <img src={companyLogo} alt={companyName} className="relative w-10 h-10 object-contain" />
               </div>
               <div>
-                <h1 className="text-xl font-extrabold" style={{ fontFamily: "'Nunito', sans-serif", color: '#FFF9F5' }}>
+                <h1 className="text-xl font-extrabold text-sidebar-foreground" style={{ fontFamily: "'Nunito', sans-serif" }}>
                   {companyName}
                 </h1>
                 <p className="text-xs uppercase tracking-widest" style={{ color: 'rgba(255, 249, 245, 0.5)' }}>Business Simulation</p>
@@ -117,12 +117,12 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
                 const event = new KeyboardEvent('keydown', { key: 'k', metaKey: true, bubbles: true });
                 document.dispatchEvent(event);
               }}
-              className="flex-1 flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-[#FFF9F5]/40 hover:text-[#FFF9F5]/60 text-xs transition-all duration-300 border border-white/10"
+              className="flex-1 flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-sidebar-foreground/40 hover:text-sidebar-foreground/60 text-xs transition-all duration-300 border border-white/10"
               data-testid="button-search"
             >
               <Search className="w-3.5 h-3.5" />
               <span>Search...</span>
-              <kbd className="ml-auto text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-[#FFF9F5]/30 font-mono">⌘K</kbd>
+              <kbd className="ml-auto text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-sidebar-foreground/30 font-mono">⌘K</kbd>
             </button>
             <div className="relative">
               <NotificationCenter />
@@ -161,7 +161,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
                       onClick={() => toggleGroup(group.label)}
                       className={cn(
                         "group relative w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-all duration-300 ease-out rounded-2xl cursor-pointer overflow-hidden",
-                        hasActiveChild ? "text-white" : "text-[#FFF9F5]/60 hover:text-white"
+                        hasActiveChild ? "text-white" : "text-sidebar-foreground/60 hover:text-white"
                       )}
                       data-testid={`button-nav-group-${group.label.toLowerCase().replace(/\s+/g, '-')}`}
                     >
@@ -171,10 +171,10 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
                       <div className={cn(
                         "relative w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-300",
                         hasActiveChild
-                          ? "bg-gradient-to-br from-[#9FBCA4] to-[#257D41] shadow-[0_0_16px_rgba(159,188,164,0.5)]"
+                          ? "bg-gradient-to-br from-primary to-secondary shadow-[0_0_16px_rgba(159,188,164,0.5)]"
                           : "bg-white/5 group-hover:bg-white/10"
                       )}>
-                        <group.icon className={cn("w-4 h-4 transition-all duration-300", hasActiveChild ? "text-white" : "text-[#FFF9F5]/60 group-hover:text-white")} />
+                        <group.icon className={cn("w-4 h-4 transition-all duration-300", hasActiveChild ? "text-white" : "text-sidebar-foreground/60 group-hover:text-white")} />
                       </div>
                       <span className="relative flex-1 text-left">{group.label}</span>
                       <ChevronDown className={cn(
@@ -192,7 +192,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
                         const childContent = (
                           <div className={cn(
                             "group relative flex items-center gap-3 pl-8 pr-4 py-2.5 text-sm font-medium transition-all duration-300 ease-out rounded-2xl cursor-pointer overflow-hidden ml-4",
-                            isChildActive ? "text-white" : "text-[#FFF9F5]/50 hover:text-white"
+                            isChildActive ? "text-white" : "text-sidebar-foreground/50 hover:text-white"
                           )}>
                             {isChildActive && (
                               <>
@@ -203,7 +203,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
                             {!isChildActive && (
                               <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-all duration-300 rounded-2xl" />
                             )}
-                            <child.icon className={cn("relative w-3.5 h-3.5 transition-all duration-300", isChildActive ? "text-[#9FBCA4]" : "text-[#FFF9F5]/40 group-hover:text-white")} />
+                            <child.icon className={cn("relative w-3.5 h-3.5 transition-all duration-300", isChildActive ? "text-primary" : "text-sidebar-foreground/40 group-hover:text-white")} />
                             <span className="relative">{child.label}</span>
                           </div>
                         );
@@ -235,7 +235,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
                     "group relative flex items-center gap-3 px-4 py-3 text-sm font-medium transition-all duration-300 ease-out rounded-2xl cursor-pointer overflow-hidden",
                     isActive 
                       ? "text-white" 
-                      : "text-[#FFF9F5]/60 hover:text-white"
+                      : "text-sidebar-foreground/60 hover:text-white"
                   )}>
                     {isActive && (
                       <>
@@ -251,10 +251,10 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
                     <div className={cn(
                       "relative w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-300",
                       isActive 
-                        ? "bg-gradient-to-br from-[#9FBCA4] to-[#257D41] shadow-[0_0_16px_rgba(159,188,164,0.5)]" 
+                        ? "bg-gradient-to-br from-primary to-secondary shadow-[0_0_16px_rgba(159,188,164,0.5)]" 
                         : "bg-white/5 group-hover:bg-white/10"
                     )}>
-                      <navLink.icon className={cn("w-4 h-4 transition-all duration-300", isActive ? "text-white" : "text-[#FFF9F5]/60 group-hover:text-white")} />
+                      <navLink.icon className={cn("w-4 h-4 transition-all duration-300", isActive ? "text-white" : "text-sidebar-foreground/60 group-hover:text-white")} />
                     </div>
                     <span className="relative">{navLink.label}</span>
                   </div>
@@ -267,7 +267,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
             <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
             
             <button 
-              className="group relative w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-[#FFF9F5]/60 hover:text-white rounded-2xl transition-all duration-300 overflow-hidden"
+              className="group relative w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-sidebar-foreground/60 hover:text-white rounded-2xl transition-all duration-300 overflow-hidden"
               onClick={() => logout()}
               data-testid="button-logout"
             >
@@ -288,17 +288,17 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
               <div className="absolute inset-0 rounded-2xl border border-white/15" />
               {/* Content */}
               <div className="relative flex items-center gap-3 px-3 py-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#9FBCA4] to-[#257D41] flex items-center justify-center text-[#FFF9F5] font-bold text-sm shadow-[0_0_16px_rgba(159,188,164,0.4)]">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-sidebar-foreground font-bold text-sm shadow-[0_0_16px_rgba(159,188,164,0.4)]">
                   {user?.name ? user.name.charAt(0).toUpperCase() : user?.email?.charAt(0).toUpperCase() || "U"}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-[#FFF9F5] truncate">{user?.name || user?.email || "User"}</p>
-                  <p className="text-xs text-[#FFF9F5]/50 capitalize">{user?.role || "User"}</p>
+                  <p className="text-sm font-medium text-sidebar-foreground truncate">{user?.name || user?.email || "User"}</p>
+                  <p className="text-xs text-sidebar-foreground/50 capitalize">{user?.role || "User"}</p>
                 </div>
               </div>
             </div>
 
-            <p className="text-center text-[9px] tracking-wider text-[#FFF9F5]/15 pt-2 pb-1">
+            <p className="text-center text-[9px] tracking-wider text-sidebar-foreground/15 pt-2 pb-1">
               powered by Norfolk AI
             </p>
           </div>

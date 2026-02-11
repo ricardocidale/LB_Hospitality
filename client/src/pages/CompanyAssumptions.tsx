@@ -92,7 +92,7 @@ function EditableValue({
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
         autoFocus
-        className="w-24 px-1 py-0.5 text-right font-mono font-semibold border rounded bg-white border-[#9FBCA4]/40 text-gray-900"
+        className="w-24 px-1 py-0.5 text-right font-mono font-semibold border rounded bg-white border-primary/40 text-gray-900"
       />
     );
   }
@@ -100,7 +100,7 @@ function EditableValue({
   return (
     <span
       onClick={handleEdit}
-      className="cursor-pointer hover:text-[#257D41] text-[#257D41] font-mono font-semibold"
+      className="cursor-pointer hover:text-secondary text-secondary font-mono font-semibold"
       title="Click to edit"
     >
       {displayValue()}
@@ -320,9 +320,9 @@ export default function CompanyAssumptions() {
           }
         />
 
-        <div className="relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
-          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-[#9FBCA4]/10 blur-2xl" />
-          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/5 blur-xl" />
+        <div className="relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-primary/10 blur-2xl" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-primary/5 blur-xl" />
           <div className="relative space-y-4">
             <div>
               <h3 className="text-lg font-display text-gray-900 flex items-center">
@@ -338,7 +338,7 @@ export default function CompanyAssumptions() {
                   <HelpTooltip text="The company logo displayed in the navigation. Only administrators can change this." />
                 </Label>
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-lg border border-[#9FBCA4]/30 bg-white flex items-center justify-center overflow-hidden">
+                  <div className="w-16 h-16 rounded-lg border border-primary/30 bg-white flex items-center justify-center overflow-hidden">
                     <img 
                       src={formData.companyLogo ?? global.companyLogo ?? defaultLogo} 
                       alt="Company Logo" 
@@ -358,7 +358,7 @@ export default function CompanyAssumptions() {
                       <button
                         onClick={() => fileInputRef.current?.click()}
                         disabled={isUploading}
-                        className="flex items-center gap-2 px-3 py-1.5 text-sm bg-[#9FBCA4]/20 hover:bg-[#9FBCA4]/30 text-gray-700 rounded-lg transition-colors disabled:opacity-50"
+                        className="flex items-center gap-2 px-3 py-1.5 text-sm bg-primary/20 hover:bg-primary/30 text-gray-700 rounded-lg transition-colors disabled:opacity-50"
                       >
                         {isUploading ? (
                           <Loader2 className="w-4 h-4 animate-spin" />
@@ -392,7 +392,7 @@ export default function CompanyAssumptions() {
                   value={formData.companyName ?? global.companyName ?? "Hospitality Business"}
                   onChange={(e) => handleUpdate("companyName", e.target.value)}
                   disabled={!isAdmin}
-                  className={`max-w-64 border-[#9FBCA4]/30 text-gray-900 ${!isAdmin ? 'bg-gray-100 cursor-not-allowed opacity-60' : 'bg-white'}`}
+                  className={`max-w-64 border-primary/30 text-gray-900 ${!isAdmin ? 'bg-gray-100 cursor-not-allowed opacity-60' : 'bg-white'}`}
                   data-testid="input-company-name"
                 />
                 {!isAdmin && (
@@ -408,7 +408,7 @@ export default function CompanyAssumptions() {
                   type="date"
                   value={formData.companyOpsStartDate ?? global.companyOpsStartDate ?? "2026-06-01"}
                   onChange={(e) => handleUpdate("companyOpsStartDate", e.target.value)}
-                  className="max-w-40 bg-white border-[#9FBCA4]/30 text-gray-900"
+                  className="max-w-40 bg-white border-primary/30 text-gray-900"
                   data-testid="input-company-ops-start-date"
                 />
               </div>
@@ -423,7 +423,7 @@ export default function CompanyAssumptions() {
                   onChange={(e) => handleUpdate("projectionYears", Math.max(1, Math.min(30, parseInt(e.target.value) || PROJECTION_YEARS)))}
                   min={1}
                   max={30}
-                  className="max-w-24 bg-white border-[#9FBCA4]/30 text-gray-900"
+                  className="max-w-24 bg-white border-primary/30 text-gray-900"
                   data-testid="input-projection-years"
                 />
               </div>
@@ -431,9 +431,9 @@ export default function CompanyAssumptions() {
           </div>
         </div>
 
-        <div className="relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
-          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-[#9FBCA4]/10 blur-2xl" />
-          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/5 blur-xl" />
+        <div className="relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-primary/10 blur-2xl" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-primary/5 blur-xl" />
           <div className="relative">
           <div className="space-y-6">
             <div>
@@ -450,14 +450,14 @@ export default function CompanyAssumptions() {
                   value={formData.fundingSourceLabel ?? global.fundingSourceLabel ?? "Funding Vehicle"}
                   onChange={(e) => handleUpdate("fundingSourceLabel", e.target.value)}
                   placeholder="e.g., Funding Vehicle, SAFE, Seed, Series A"
-                  className="max-w-48 bg-white border-[#9FBCA4]/30 text-gray-900"
+                  className="max-w-48 bg-white border-primary/30 text-gray-900"
                 />
                 <HelpTooltip text="Customize the name of your funding source (e.g., Funding Vehicle, SAFE, Seed, Series A)" />
               </div>
               <p className="text-gray-600 text-sm label-text">Capital raised via {formData.fundingSourceLabel ?? global.fundingSourceLabel ?? "Funding Vehicle"} in two tranches to support operations</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div className="p-4 bg-[#9FBCA4]/10 rounded-lg space-y-4">
+              <div className="p-4 bg-primary/10 rounded-lg space-y-4">
                 <h4 className="text-sm font-display text-gray-900">Tranche 1</h4>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
@@ -485,11 +485,11 @@ export default function CompanyAssumptions() {
                     type="date"
                     value={formData.safeTranche1Date ?? global.safeTranche1Date}
                     onChange={(e) => handleUpdate("safeTranche1Date", e.target.value)}
-                    className="max-w-40 bg-white border-[#9FBCA4]/30 text-gray-900"
+                    className="max-w-40 bg-white border-primary/30 text-gray-900"
                   />
                 </div>
               </div>
-              <div className="p-4 bg-[#9FBCA4]/10 rounded-lg space-y-4">
+              <div className="p-4 bg-primary/10 rounded-lg space-y-4">
                 <h4 className="text-sm font-display text-gray-900">Tranche 2</h4>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
@@ -517,12 +517,12 @@ export default function CompanyAssumptions() {
                     type="date"
                     value={formData.safeTranche2Date ?? global.safeTranche2Date}
                     onChange={(e) => handleUpdate("safeTranche2Date", e.target.value)}
-                    className="max-w-40 bg-white border-[#9FBCA4]/30 text-gray-900"
+                    className="max-w-40 bg-white border-primary/30 text-gray-900"
                   />
                 </div>
               </div>
             </div>
-            <div className="mt-4 pt-4 border-t border-[#9FBCA4]/20 grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="mt-4 pt-4 border-t border-primary/20 grid grid-cols-2 sm:grid-cols-4 gap-4">
               <div>
                 <Label className="text-gray-600 text-sm label-text">Total {formData.fundingSourceLabel ?? global.fundingSourceLabel ?? "Funding Vehicle"} Raise</Label>
                 <p className="font-mono font-semibold text-lg text-gray-900">
@@ -581,9 +581,9 @@ export default function CompanyAssumptions() {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
-          <div className="relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
-          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-[#9FBCA4]/10 blur-2xl" />
-          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/5 blur-xl" />
+          <div className="relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-primary/10 blur-2xl" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-primary/5 blur-xl" />
           <div className="relative">
             <div className="space-y-6">
               <h3 className="text-lg font-display text-gray-900 flex items-center">
@@ -591,7 +591,7 @@ export default function CompanyAssumptions() {
                 <HelpTooltip text="Management fees are defined per property. Each property sets its own Base Fee (% of Revenue) and Incentive Fee (% of GOP). Edit these rates on each property's assumptions page." manualSection="company-formulas" />
               </h3>
               <p className="text-sm text-muted-foreground mb-3">Fee rates are set individually on each property. This table shows the current rates for reference.</p>
-              <div className="rounded-lg border border-[#9FBCA4]/20 overflow-hidden">
+              <div className="rounded-lg border border-primary/20 overflow-hidden">
                 {(() => {
                   const allCatNames = Array.from(new Set(allFeeCategories.filter(c => c.isActive).map(c => c.name)));
                   const hasCategoryData = allCatNames.length > 0;
@@ -599,7 +599,7 @@ export default function CompanyAssumptions() {
                     <div className="overflow-x-auto">
                     <table className="w-full text-sm" data-testid="table-property-fee-summary">
                       <thead>
-                        <tr className="bg-[#9FBCA4]/10 border-b border-[#9FBCA4]/20">
+                        <tr className="bg-primary/10 border-b border-primary/20">
                           <th className="text-left px-4 py-2 font-semibold text-gray-700 whitespace-nowrap">Property</th>
                           {hasCategoryData ? (
                             <>
@@ -622,9 +622,9 @@ export default function CompanyAssumptions() {
                             const propCats = allFeeCategories.filter(c => c.propertyId === prop.id);
                             const totalServiceRate = propCats.filter(c => c.isActive).reduce((sum, c) => sum + c.rate, 0);
                             return (
-                              <tr key={prop.id} className="border-b border-[#9FBCA4]/10 last:border-b-0 hover:bg-[#9FBCA4]/5">
+                              <tr key={prop.id} className="border-b border-primary/10 last:border-b-0 hover:bg-primary/5">
                                 <td className="px-4 py-2 text-gray-800 whitespace-nowrap">
-                                  <Link href={`/property/${prop.id}/edit`} className="text-[#9FBCA4] hover:underline">{prop.name}</Link>
+                                  <Link href={`/property/${prop.id}/edit`} className="text-primary hover:underline">{prop.name}</Link>
                                 </td>
                                 {hasCategoryData ? (
                                   <>
@@ -655,9 +655,9 @@ export default function CompanyAssumptions() {
             </div>
           </div></div>
 
-          <div className="relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
-          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-[#9FBCA4]/10 blur-2xl" />
-          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/5 blur-xl" />
+          <div className="relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-primary/10 blur-2xl" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-primary/5 blur-xl" />
           <div className="relative">
             <div className="space-y-6">
               <div>
@@ -692,7 +692,7 @@ export default function CompanyAssumptions() {
                 />
               </div>
 
-              <div className="pt-4 border-t border-[#9FBCA4]/20">
+              <div className="pt-4 border-t border-primary/20">
                 <div className="mb-3">
                   <Label className="flex items-center text-gray-700 label-text font-medium">
                     Staffing Tiers
@@ -701,7 +701,7 @@ export default function CompanyAssumptions() {
                   <p className="text-xs text-gray-500 mt-1">Set the FTE headcount for each portfolio size bracket</p>
                 </div>
                 <div className="grid grid-cols-1 gap-3">
-                  <div className="flex items-center gap-3 bg-[#9FBCA4]/5 rounded-lg px-3 py-2">
+                  <div className="flex items-center gap-3 bg-primary/5 rounded-lg px-3 py-2">
                     <span className="text-sm text-gray-600 w-20 shrink-0">Tier 1:</span>
                     <span className="text-xs text-gray-500">Up to</span>
                     <Input
@@ -710,7 +710,7 @@ export default function CompanyAssumptions() {
                       onChange={(e) => handleUpdate("staffTier1MaxProperties", Math.max(1, parseInt(e.target.value) || 3))}
                       min={1}
                       max={20}
-                      className="w-16 bg-white border-[#9FBCA4]/30 text-gray-900 text-center"
+                      className="w-16 bg-white border-primary/30 text-gray-900 text-center"
                       data-testid="input-tier1-max-properties"
                     />
                     <span className="text-xs text-gray-500">properties →</span>
@@ -721,12 +721,12 @@ export default function CompanyAssumptions() {
                       min={0.5}
                       max={20}
                       step={0.5}
-                      className="w-20 bg-white border-[#9FBCA4]/30 text-gray-900 text-center"
+                      className="w-20 bg-white border-primary/30 text-gray-900 text-center"
                       data-testid="input-tier1-fte"
                     />
                     <span className="text-xs text-gray-500">FTE</span>
                   </div>
-                  <div className="flex items-center gap-3 bg-[#9FBCA4]/5 rounded-lg px-3 py-2">
+                  <div className="flex items-center gap-3 bg-primary/5 rounded-lg px-3 py-2">
                     <span className="text-sm text-gray-600 w-20 shrink-0">Tier 2:</span>
                     <span className="text-xs text-gray-500">Up to</span>
                     <Input
@@ -735,7 +735,7 @@ export default function CompanyAssumptions() {
                       onChange={(e) => handleUpdate("staffTier2MaxProperties", Math.max(1, parseInt(e.target.value) || 6))}
                       min={1}
                       max={30}
-                      className="w-16 bg-white border-[#9FBCA4]/30 text-gray-900 text-center"
+                      className="w-16 bg-white border-primary/30 text-gray-900 text-center"
                       data-testid="input-tier2-max-properties"
                     />
                     <span className="text-xs text-gray-500">properties →</span>
@@ -746,12 +746,12 @@ export default function CompanyAssumptions() {
                       min={0.5}
                       max={30}
                       step={0.5}
-                      className="w-20 bg-white border-[#9FBCA4]/30 text-gray-900 text-center"
+                      className="w-20 bg-white border-primary/30 text-gray-900 text-center"
                       data-testid="input-tier2-fte"
                     />
                     <span className="text-xs text-gray-500">FTE</span>
                   </div>
-                  <div className="flex items-center gap-3 bg-[#9FBCA4]/5 rounded-lg px-3 py-2">
+                  <div className="flex items-center gap-3 bg-primary/5 rounded-lg px-3 py-2">
                     <span className="text-sm text-gray-600 w-20 shrink-0">Tier 3:</span>
                     <span className="text-xs text-gray-500">Above {formData.staffTier2MaxProperties ?? global.staffTier2MaxProperties ?? 6} properties →</span>
                     <Input
@@ -761,7 +761,7 @@ export default function CompanyAssumptions() {
                       min={0.5}
                       max={50}
                       step={0.5}
-                      className="w-20 bg-white border-[#9FBCA4]/30 text-gray-900 text-center"
+                      className="w-20 bg-white border-primary/30 text-gray-900 text-center"
                       data-testid="input-tier3-fte"
                     />
                     <span className="text-xs text-gray-500">FTE</span>
@@ -773,9 +773,9 @@ export default function CompanyAssumptions() {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
-          <div className="relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
-          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-[#9FBCA4]/10 blur-2xl" />
-          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/5 blur-xl" />
+          <div className="relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-primary/10 blur-2xl" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-primary/5 blur-xl" />
           <div className="relative">
             <div className="space-y-6">
               <h3 className="text-lg font-display text-gray-900 flex items-center">
@@ -904,9 +904,9 @@ export default function CompanyAssumptions() {
             </div>
           </div></div>
 
-          <div className="relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
-          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-[#9FBCA4]/10 blur-2xl" />
-          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/5 blur-xl" />
+          <div className="relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-primary/10 blur-2xl" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-primary/5 blur-xl" />
           <div className="relative">
             <div className="space-y-6">
               <h3 className="text-lg font-display text-gray-900 flex items-center">
@@ -1014,9 +1014,9 @@ export default function CompanyAssumptions() {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
-        <div className="relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
-          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-[#9FBCA4]/10 blur-2xl" />
-          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/5 blur-xl" />
+        <div className="relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-primary/10 blur-2xl" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-primary/5 blur-xl" />
           <div className="relative">
           <div className="space-y-4">
             <h3 className="text-lg font-display text-gray-900 flex items-center gap-2">
@@ -1049,9 +1049,9 @@ export default function CompanyAssumptions() {
           </div>
         </div></div>
 
-        <div className="relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
-          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-[#9FBCA4]/10 blur-2xl" />
-          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/5 blur-xl" />
+        <div className="relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-primary/10 blur-2xl" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-primary/5 blur-xl" />
           <div className="relative">
           <div className="space-y-6">
             <h3 className="text-lg font-display text-gray-900 flex items-center gap-2">
@@ -1111,9 +1111,9 @@ export default function CompanyAssumptions() {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
-        <div className="relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
-          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-[#9FBCA4]/10 blur-2xl" />
-          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/5 blur-xl" />
+        <div className="relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-primary/10 blur-2xl" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-primary/5 blur-xl" />
           <div className="relative">
           <div className="space-y-6">
             <h3 className="text-lg font-display text-gray-900 flex items-center gap-2">
@@ -1199,9 +1199,9 @@ export default function CompanyAssumptions() {
           </div>
         </div></div>
 
-        <div className="relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
-          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-[#9FBCA4]/10 blur-2xl" />
-          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/5 blur-xl" />
+        <div className="relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-primary/10 blur-2xl" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-primary/5 blur-xl" />
           <div className="relative">
           <div className="space-y-4">
             <h3 className="text-lg font-display text-gray-900 flex items-center gap-2">
@@ -1210,7 +1210,7 @@ export default function CompanyAssumptions() {
             <p className="text-sm text-gray-600">
               Catering is modeled as a percentage boost applied to each property's F&B revenue. The catering boost percentage is configured per property on the Property Assumptions page. There are no systemwide catering assumptions.
             </p>
-            <div className="p-3 bg-[#9FBCA4]/10 rounded-lg text-sm text-gray-700">
+            <div className="p-3 bg-primary/10 rounded-lg text-sm text-gray-700">
               <p className="font-medium mb-1">Formula:</p>
               <p>Total F&B Revenue = Room Revenue × F&B % × (1 + Catering Boost %)</p>
             </div>
@@ -1218,9 +1218,9 @@ export default function CompanyAssumptions() {
         </div></div>
         </div>
 
-        <div className="relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
-          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-[#9FBCA4]/10 blur-2xl" />
-          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/5 blur-xl" />
+        <div className="relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-primary/10 blur-2xl" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-primary/5 blur-xl" />
           <div className="relative">
           <div className="space-y-4">
             <div>
@@ -1233,7 +1233,7 @@ export default function CompanyAssumptions() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-[#9FBCA4]/20">
+                  <tr className="border-b border-primary/20">
                     <th className="text-left py-2 px-2 font-display text-gray-900">Year</th>
                     <th className="text-right py-2 px-2 font-display text-gray-900">Total Partner Comp</th>
                     <th className="text-center py-2 px-2 font-display text-gray-900">Partner Count</th>
@@ -1251,7 +1251,7 @@ export default function CompanyAssumptions() {
                     const perPartner = countValue > 0 ? compValue / countValue : 0;
                     
                     return (
-                      <tr key={year} className="border-b border-[#9FBCA4]/20 last:border-0">
+                      <tr key={year} className="border-b border-primary/20 last:border-0">
                         <td className="py-2 px-2 font-medium text-gray-900">Year {year} (<span className="font-mono">{modelStartYear + year - 1}</span>)</td>
                         <td className="py-2 px-2 text-right">
                           <EditableValue
@@ -1267,7 +1267,7 @@ export default function CompanyAssumptions() {
                           <select
                             value={countValue}
                             onChange={(e) => handleUpdate(countKey, parseInt(e.target.value))}
-                            className="w-16 text-center border rounded px-2 py-1 bg-white border-[#9FBCA4]/30 text-gray-900 font-mono"
+                            className="w-16 text-center border rounded px-2 py-1 bg-white border-primary/30 text-gray-900 font-mono"
                             data-testid={`select-partner-count-year${year}`}
                           >
                             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
@@ -1290,9 +1290,9 @@ export default function CompanyAssumptions() {
           </div>
         </div></div>
 
-        <div className="relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
-          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-[#9FBCA4]/10 blur-2xl" />
-          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/5 blur-xl" />
+        <div className="relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-primary/10 blur-2xl" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-primary/5 blur-xl" />
           <div className="relative">
           <p className="text-sm text-gray-600 text-center label-text">
             Fixed overhead escalates at <span className="font-mono">{formatPercent(formData.fixedCostEscalationRate ?? global.fixedCostEscalationRate)}</span>/year. Staff scales: <span className="font-mono">{formData.staffTier1Fte ?? global.staffTier1Fte ?? STAFFING_TIERS[0].fte}</span> FTE (1-{formData.staffTier1MaxProperties ?? global.staffTier1MaxProperties ?? STAFFING_TIERS[0].maxProperties} properties), <span className="font-mono">{formData.staffTier2Fte ?? global.staffTier2Fte ?? STAFFING_TIERS[1].fte}</span> ({(formData.staffTier1MaxProperties ?? global.staffTier1MaxProperties ?? STAFFING_TIERS[0].maxProperties) + 1}-{formData.staffTier2MaxProperties ?? global.staffTier2MaxProperties ?? STAFFING_TIERS[1].maxProperties}), <span className="font-mono">{formData.staffTier3Fte ?? global.staffTier3Fte ?? STAFFING_TIERS[2].fte}</span> ({(formData.staffTier2MaxProperties ?? global.staffTier2MaxProperties ?? STAFFING_TIERS[1].maxProperties) + 1}+).

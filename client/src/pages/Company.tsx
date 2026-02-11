@@ -91,8 +91,8 @@ function analyzeCompanyCashPosition(financials: CompanyMonthlyFinancials[]): Com
 }
 
 export default function Company() {
-  const { data: properties, isLoading: propertiesLoading } = useProperties();
-  const { data: global, isLoading: globalLoading } = useGlobalAssumptions();
+  const { data: properties, isLoading: propertiesLoading, isError: propertiesError } = useProperties();
+  const { data: global, isLoading: globalLoading, isError: globalError } = useGlobalAssumptions();
   const { data: allFeeCategories } = useAllFeeCategories();
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState("income");
@@ -178,6 +178,17 @@ export default function Company() {
       <Layout>
         <div className="flex items-center justify-center h-[60vh]">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      </Layout>
+    );
+  }
+
+  if (propertiesError || globalError) {
+    return (
+      <Layout>
+        <div className="flex flex-col items-center justify-center h-[60vh] gap-3">
+          <AlertTriangle className="w-8 h-8 text-destructive" />
+          <p className="text-muted-foreground">Failed to load company data. Please try refreshing the page.</p>
         </div>
       </Layout>
     );
@@ -1810,14 +1821,14 @@ export default function Company() {
                 {cashAnalysis.minCashMonth !== null && <> in month {cashAnalysis.minCashMonth}</>}.
                 {' '}Suggested: Increase {fundingLabel} funding by at least{' '}
                 <span className="font-medium text-gray-900">{formatMoney(cashAnalysis.suggestedAdditionalFunding)}</span> in{' '}
-                <Link href="/company/assumptions" className="font-medium text-[#257D41] hover:underline">Company Assumptions</Link>.
+                <Link href="/company/assumptions" className="font-medium text-secondary hover:underline">Company Assumptions</Link>.
               </p>
             </div>
           ) : (
             <div className="flex items-start gap-2 text-sm text-gray-600 mt-4" data-testid="banner-company-cash-adequate">
-              <CheckCircle className="w-4 h-4 text-[#257D41] flex-shrink-0 mt-0.5" />
+              <CheckCircle className="w-4 h-4 text-secondary flex-shrink-0 mt-0.5" />
               <p>
-                <span data-testid="text-company-cash-adequate-title" className="font-medium text-[#257D41]">Cash Position Adequate:</span>{' '}
+                <span data-testid="text-company-cash-adequate-title" className="font-medium text-secondary">Cash Position Adequate:</span>{' '}
                 The {fundingLabel} funding of <span className="font-medium text-gray-900">{formatMoney(cashAnalysis.totalFunding)}</span> covers all operating costs.
                 {cashAnalysis.minCashMonth !== null && (
                   <> Minimum cash position: <span className="font-medium text-gray-900">{formatMoney(cashAnalysis.minCashPosition)}</span> (month {cashAnalysis.minCashMonth}).</>

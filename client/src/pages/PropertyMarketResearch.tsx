@@ -14,7 +14,7 @@ const sectionColors = {
   occupancy: { accent: "#8B5CF6", bg: "bg-violet-50", border: "border-violet-200", iconBg: "bg-violet-100", iconText: "text-violet-700", badge: "bg-violet-100 text-violet-800" },
   events: { accent: "#F4795B", bg: "bg-orange-50", border: "border-orange-200", iconBg: "bg-orange-100", iconText: "text-orange-700", badge: "bg-orange-100 text-orange-800" },
   capRate: { accent: "#0891B2", bg: "bg-cyan-50", border: "border-cyan-200", iconBg: "bg-cyan-100", iconText: "text-cyan-700", badge: "bg-cyan-100 text-cyan-800" },
-  competitive: { accent: "#9FBCA4", bg: "bg-emerald-50/50", border: "border-[#9FBCA4]/30", iconBg: "bg-[#9FBCA4]/20", iconText: "text-[#257D41]", badge: "bg-[#9FBCA4]/20 text-[#257D41]" },
+  competitive: { accent: "#9FBCA4", bg: "bg-emerald-50/50", border: "border-primary/30", iconBg: "bg-primary/20", iconText: "text-secondary", badge: "bg-primary/20 text-secondary" },
   risks: { accent: "#DC2626", bg: "bg-red-50", border: "border-red-200", iconBg: "bg-red-100", iconText: "text-red-700", badge: "bg-red-100 text-red-800" },
   sources: { accent: "#6B7280", bg: "bg-gray-50", border: "border-gray-200", iconBg: "bg-gray-100", iconText: "text-gray-600", badge: "bg-gray-100 text-gray-700" },
   stabilization: { accent: "#D97706", bg: "bg-amber-50", border: "border-amber-200", iconBg: "bg-amber-100", iconText: "text-amber-700", badge: "bg-amber-100 text-amber-800" },
@@ -127,7 +127,7 @@ export default function PropertyMarketResearch() {
     return (
       <Layout>
         <div className="flex items-center justify-center h-[60vh]">
-          <Loader2 className="w-8 h-8 animate-spin text-[#9FBCA4]" />
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </div>
       </Layout>
     );
@@ -542,7 +542,7 @@ export default function PropertyMarketResearch() {
                 <div className="rounded-xl border border-gray-200 overflow-hidden">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="bg-[#9FBCA4]/10">
+                      <tr className="bg-primary/10">
                         <th className="text-left p-3 text-gray-600 font-semibold">Property</th>
                         <th className="text-right p-3 text-gray-600 font-semibold">Rooms</th>
                         <th className="text-right p-3 text-gray-600 font-semibold">ADR</th>

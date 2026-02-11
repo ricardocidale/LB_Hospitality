@@ -207,7 +207,7 @@ export function ResearchRefreshOverlay({ onComplete }: ResearchRefreshOverlayPro
             <p className="text-sm text-white/50">
               {phase === "loading" && "Connecting to market data sources..."}
               {phase === "researching" && (
-                <>Analyzing <span className="text-[#9FBCA4] font-medium">{currentProperty}</span> ({completedCount}/{totalProperties})</>
+                <>Analyzing <span className="text-primary font-medium">{currentProperty}</span> ({completedCount}/{totalProperties})</>
               )}
               {phase === "done" && "All properties are up to date"}
             </p>

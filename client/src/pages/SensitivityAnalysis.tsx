@@ -237,7 +237,7 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
     return (
       <Wrapper>
         <div className="min-h-screen flex items-center justify-center">
-          <Loader2 className="w-8 h-8 animate-spin text-[#9FBCA4]" data-testid="loading-spinner" />
+          <Loader2 className="w-8 h-8 animate-spin text-primary" data-testid="loading-spinner" />
         </div>
       </Wrapper>
     );
@@ -263,7 +263,7 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
                 <select
                   value={selectedPropertyId}
                   onChange={(e) => setSelectedPropertyId(e.target.value)}
-                  className="bg-white/10 border border-white/20 text-white rounded-xl px-3 py-2 text-sm backdrop-blur-xl focus:outline-none focus:ring-2 focus:ring-[#9FBCA4]/50 [&>option]:bg-[#1a2a3a] [&>option]:text-white"
+                  className="bg-white/10 border border-white/20 text-white rounded-xl px-3 py-2 text-sm backdrop-blur-xl focus:outline-none focus:ring-2 focus:ring-primary/50 [&>option]:bg-[#1a2a3a] [&>option]:text-white"
                   data-testid="select-property"
                 >
                   <option value="all">All Properties</option>
@@ -289,7 +289,7 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
 
         <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
           <div className="flex items-start gap-3">
-            <Sliders className="w-5 h-5 text-[#9FBCA4] mt-0.5 flex-shrink-0" />
+            <Sliders className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
             <div>
               <h3 className="text-sm font-semibold text-gray-800 mb-1">What is Sensitivity Analysis?</h3>
               <p className="text-xs text-gray-500 leading-relaxed">
@@ -413,10 +413,10 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Sliders Panel */}
-          <div className="bg-white/95 backdrop-blur-xl rounded-[2rem] p-6 border border-[#9FBCA4]/30 shadow-xl shadow-black/5">
+          <div className="bg-white/95 backdrop-blur-xl rounded-[2rem] p-6 border border-primary/30 shadow-xl shadow-black/5">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-[#9FBCA4]/15 flex items-center justify-center">
-                <Sliders className="w-5 h-5 text-[#257D41]" />
+              <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center">
+                <Sliders className="w-5 h-5 text-secondary" />
               </div>
               <div>
                 <h3 className="text-lg font-display font-bold text-gray-900" data-testid="text-adjustments-title">
@@ -440,7 +440,7 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
                       <span
                         className={`text-sm font-mono font-bold px-2 py-0.5 rounded-md ${
                           currentVal > 0
-                            ? "text-[#257D41] bg-[#9FBCA4]/15"
+                            ? "text-secondary bg-primary/15"
                             : currentVal < 0
                             ? "text-red-600 bg-red-50"
                             : "text-gray-500 bg-gray-100"
@@ -469,7 +469,7 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
                               [v.id]: parseFloat(e.target.value),
                             }))
                           }
-                          className="w-full h-2 rounded-full appearance-none cursor-pointer accent-[#9FBCA4] bg-gray-200 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#257D41] [&::-webkit-slider-thumb]:shadow-lg [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:cursor-grab [&::-webkit-slider-thumb]:active:cursor-grabbing [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-[#257D41] [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:cursor-grab"
+                          className="w-full h-2 rounded-full appearance-none cursor-pointer accent-primary bg-gray-200 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-secondary [&::-webkit-slider-thumb]:shadow-lg [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:cursor-grab [&::-webkit-slider-thumb]:active:cursor-grabbing [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-secondary [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:cursor-grab"
                           data-testid={`slider-${v.id}`}
                         />
                       </div>
@@ -485,10 +485,10 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
           </div>
 
           {/* Tornado Chart Panel */}
-          <div className="bg-white/95 backdrop-blur-xl rounded-[2rem] p-6 border border-[#9FBCA4]/30 shadow-xl shadow-black/5">
+          <div className="bg-white/95 backdrop-blur-xl rounded-[2rem] p-6 border border-primary/30 shadow-xl shadow-black/5">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-[#9FBCA4]/15 flex items-center justify-center">
-                <BarChart3 className="w-5 h-5 text-[#257D41]" />
+              <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center">
+                <BarChart3 className="w-5 h-5 text-secondary" />
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2">
@@ -498,14 +498,14 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
                   <div className="flex rounded-lg border border-gray-200 overflow-hidden text-xs">
                     <button
                       onClick={() => setTornadoMetric("irr")}
-                      className={`px-2.5 py-1 font-medium transition-colors ${tornadoMetric === "irr" ? "bg-[#9FBCA4]/20 text-[#257D41]" : "text-gray-500 hover:text-gray-700"}`}
+                      className={`px-2.5 py-1 font-medium transition-colors ${tornadoMetric === "irr" ? "bg-primary/20 text-secondary" : "text-gray-500 hover:text-gray-700"}`}
                       data-testid="button-tornado-irr"
                     >
                       IRR
                     </button>
                     <button
                       onClick={() => setTornadoMetric("noi")}
-                      className={`px-2.5 py-1 font-medium transition-colors ${tornadoMetric === "noi" ? "bg-[#9FBCA4]/20 text-[#257D41]" : "text-gray-500 hover:text-gray-700"}`}
+                      className={`px-2.5 py-1 font-medium transition-colors ${tornadoMetric === "noi" ? "bg-primary/20 text-secondary" : "text-gray-500 hover:text-gray-700"}`}
                       data-testid="button-tornado-noi"
                     >
                       NOI
@@ -572,7 +572,7 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
             )}
             <div className="flex items-center justify-center gap-6 mt-4 text-xs text-gray-500">
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-sm bg-[#257D41]/80" />
+                <div className="w-3 h-3 rounded-sm bg-secondary/80" />
                 <span>Upside scenario</span>
               </div>
               <div className="flex items-center gap-2">
@@ -585,10 +585,10 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
 
         {/* Comparison Table */}
         {hasAdjustments && baseResult && adjustedResult && (
-          <div className="bg-white/95 backdrop-blur-xl rounded-[2rem] p-6 border border-[#9FBCA4]/30 shadow-xl shadow-black/5">
+          <div className="bg-white/95 backdrop-blur-xl rounded-[2rem] p-6 border border-primary/30 shadow-xl shadow-black/5">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-[#9FBCA4]/15 flex items-center justify-center">
-                <ArrowUpDown className="w-5 h-5 text-[#257D41]" />
+              <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center">
+                <ArrowUpDown className="w-5 h-5 text-secondary" />
               </div>
               <div>
                 <h3 className="text-lg font-display font-bold text-gray-900" data-testid="text-comparison-title">
@@ -631,7 +631,7 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
                           {row.fmt === "money" ? formatMoney(row.adj) : `${row.adj.toFixed(1)}%`}
                         </td>
                         <td className={`py-3 px-4 text-right font-mono font-semibold ${
-                          delta > 0 ? "text-[#257D41]" : delta < 0 ? "text-red-600" : "text-gray-400"
+                          delta > 0 ? "text-secondary" : delta < 0 ? "text-red-600" : "text-gray-400"
                         }`}>
                           <div className="flex items-center justify-end gap-1">
                             {delta > 0 ? (

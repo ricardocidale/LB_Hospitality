@@ -84,7 +84,7 @@ function InputField({
           min={min}
           max={max}
           data-testid={testId}
-          className={`w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-300 focus:outline-none focus:border-[#9FBCA4] focus:ring-1 focus:ring-[#9FBCA4]/30 ${prefix ? "pl-7" : ""} ${suffix ? "pr-10" : ""}`}
+          className={`w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-300 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 ${prefix ? "pl-7" : ""} ${suffix ? "pr-10" : ""}`}
         />
         {suffix && (
           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
@@ -381,7 +381,7 @@ function SensitivityTab() {
                             !cell.passes
                               ? "bg-red-500/20 text-red-300"
                               : isBase
-                              ? "bg-[#9FBCA4]/20 text-[#9FBCA4]"
+                              ? "bg-primary/20 text-primary"
                               : "text-gray-800"
                           }`}
                           data-testid={`cell-sens-${rs}-${ns}`}
@@ -469,7 +469,7 @@ function PrepaymentTab() {
               data-testid={`button-prepay-type-${type}`}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                 penaltyType === type
-                  ? "bg-[#9FBCA4]/30 text-[#9FBCA4] border border-[#9FBCA4]/50"
+                  ? "bg-primary/30 text-primary border border-primary/50"
                   : "bg-gray-50 text-gray-500 border border-gray-200 hover:bg-gray-100"
               }`}
             >
@@ -559,7 +559,7 @@ export default function FinancingAnalysis({ embedded }: { embedded?: boolean }) 
                 data-testid={`tab-${tab.id}`}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
                   isActive
-                    ? "bg-[#9FBCA4]/20 text-[#9FBCA4] border border-[#9FBCA4]/40"
+                    ? "bg-primary/20 text-primary border border-primary/40"
                     : "bg-gray-50 text-gray-500 border border-gray-200 hover:bg-gray-100 hover:text-gray-700"
                 }`}
               >
@@ -573,7 +573,7 @@ export default function FinancingAnalysis({ embedded }: { embedded?: boolean }) 
           {activeTab === "dscr" && (
             <div className="space-y-6">
               <div className="flex items-start gap-3 bg-gray-50 rounded-lg p-3">
-                <Calculator className="w-5 h-5 text-[#9FBCA4] mt-0.5 flex-shrink-0" />
+                <Calculator className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                 <div>
                   <h3 className="text-sm font-semibold text-gray-800 mb-1">DSCR Loan Sizing</h3>
                   <p className="text-xs text-gray-500 leading-relaxed">
@@ -589,7 +589,7 @@ export default function FinancingAnalysis({ embedded }: { embedded?: boolean }) 
           {activeTab === "debt-yield" && (
             <div className="space-y-6">
               <div className="flex items-start gap-3 bg-gray-50 rounded-lg p-3">
-                <TrendingUp className="w-5 h-5 text-[#9FBCA4] mt-0.5 flex-shrink-0" />
+                <TrendingUp className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                 <div>
                   <h3 className="text-sm font-semibold text-gray-800 mb-1">Debt Yield Analysis</h3>
                   <p className="text-xs text-gray-500 leading-relaxed">
@@ -606,7 +606,7 @@ export default function FinancingAnalysis({ embedded }: { embedded?: boolean }) 
           {activeTab === "sensitivity" && (
             <div className="space-y-6">
               <div className="flex items-start gap-3 bg-gray-50 rounded-lg p-3">
-                <BarChart3 className="w-5 h-5 text-[#9FBCA4] mt-0.5 flex-shrink-0" />
+                <BarChart3 className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                 <div>
                   <h3 className="text-sm font-semibold text-gray-800 mb-1">Debt Stress Testing</h3>
                   <p className="text-xs text-gray-500 leading-relaxed">
@@ -622,7 +622,7 @@ export default function FinancingAnalysis({ embedded }: { embedded?: boolean }) 
           {activeTab === "prepayment" && (
             <div className="space-y-6">
               <div className="flex items-start gap-3 bg-gray-50 rounded-lg p-3">
-                <Shield className="w-5 h-5 text-[#9FBCA4] mt-0.5 flex-shrink-0" />
+                <Shield className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                 <div>
                   <h3 className="text-sm font-semibold text-gray-800 mb-1">Prepayment Penalty Calculator</h3>
                   <p className="text-xs text-gray-500 leading-relaxed">

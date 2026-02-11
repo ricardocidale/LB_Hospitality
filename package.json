@@ -1,7 +1,7 @@
 {
-  "name": "lb-hospitality-portal",
+  "name": "hospitality-business-portal",
   "version": "1.0.0",
-  "description": "L+B Hospitality Group - Business Simulation Portal. Financial modeling, pro forma projections, and portfolio management for boutique hospitality assets.",
+  "description": "Hospitality Business Group - Business Simulation Portal. Financial modeling, pro forma projections, and portfolio management for boutique hospitality assets.",
   "type": "module",
   "license": "MIT",
   "scripts": {

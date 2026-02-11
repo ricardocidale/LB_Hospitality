@@ -1,11 +1,11 @@
 # Testing & Proof System — Master Skill
 
 ## Purpose
-Documents the full 477-test automated verification system. Every financial statement, analysis, and engine calculation has dedicated tests that prove correctness without manual Excel verification.
+Documents the full 963-test automated verification system. Every financial statement, analysis, and engine calculation has dedicated tests that prove correctness without manual Excel verification.
 
 ## Commands
 ```bash
-npm test                              # Run all 477 tests
+npm test                              # Run all 963 tests
 npm run verify                        # Full 4-phase verification (UNQUALIFIED = pass)
 npx vitest run tests/statements/      # Statement tests only
 npx vitest run tests/analytics/       # Analytics/returns tests only
@@ -17,7 +17,7 @@ npx vitest run tests/proof/           # Proof system (scenarios + hardcoded dete
 npx vitest run tests/auth/            # Auth utility tests only
 ```
 
-## Test Suite Map (43 files, 477 tests)
+## Test Suite Map (49 files, 963 tests)
 
 ### By Domain
 
@@ -25,7 +25,7 @@ npx vitest run tests/auth/            # Auth utility tests only
 |--------|-----------|-------|-------|----------------|
 | Statements | `tests/statements/` | 9 | ~52 | BS, IS, CF extraction, trial balance, reconciliation, ASC 230 identities |
 | Analytics | `tests/analytics/` | 10 | ~101 | IRR, NPV, MOIC, FCF, FCFE, sensitivity, portfolio IRR, refi/exit vectors |
-| Engine | `tests/engine/` | 4 | ~103 | Property pro forma golden, company pro forma golden, per-property fees, formatters |
+| Engine | `tests/engine/` | 10 | ~589 | Property pro forma golden, company pro forma golden, per-property fees, formatters, loan calculations, edge cases, cash flow aggregator, yearly aggregator, equity calculations, GAAP compliance |
 | Financing | `tests/financing/` | 4 | ~20 | Acquisition loan sizing, closing costs, amort schedules, journal hooks |
 | Refinancing | `tests/refinance/` | 6 | ~35 | Refi sizing, schedule, flags, payoff, calculator, golden |
 | Funding | `tests/funding/` | 5 | ~25 | Funding engine, gates, timeline, equity rollforward, golden |
@@ -77,7 +77,7 @@ npx vitest run tests/auth/            # Auth utility tests only
 
 ## Maintenance Rules
 
-1. **All 477 tests must pass before any merge** — run `npm test`
+1. **All 963 tests must pass before any merge** — run `npm test`
 2. **New financial calculations require new tests** — add to the appropriate domain directory
 3. **New constants go in `shared/constants.ts`** — never inline magic numbers
 4. **Hardcoded detection scans 8 finance files** — `proof/hardcoded-detection.test.ts`

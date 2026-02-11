@@ -4,7 +4,7 @@ import { registerRoutes } from "./routes";
 import { registerImageRoutes } from "./replit_integrations/image";
 import { serveStatic } from "./static";
 import { createServer } from "http";
-import { authMiddleware, requireAuth, seedAdminUser } from "./auth";
+import { authMiddleware, requireAuth, seedAdminUser, cleanupRateLimitMaps } from "./auth";
 import { storage } from "./storage";
 
 const app = express();
@@ -140,13 +140,15 @@ app.use((req, res, next) => {
     () => {
       log(`serving on port ${port}`);
 
-      // Clean expired sessions every hour
+      // Clean expired sessions and stale rate-limit entries every hour
       setInterval(async () => {
         try {
-          const count = await storage.deleteExpiredSessions();
-          if (count > 0) log(`Cleaned ${count} expired sessions`);
+          const sessions = await storage.deleteExpiredSessions();
+          if (sessions > 0) log(`Cleaned ${sessions} expired sessions`);
+          const rateLimits = cleanupRateLimitMaps();
+          if (rateLimits > 0) log(`Cleaned ${rateLimits} stale rate-limit entries`);
         } catch (err) {
-          console.error("Session cleanup error:", err);
+          console.error("Periodic cleanup error:", err);
         }
       }, 60 * 60 * 1000);
     },

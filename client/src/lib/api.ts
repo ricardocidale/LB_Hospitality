@@ -232,11 +232,13 @@ export function useUpdateProperty() {
 
 export function useDeleteProperty() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: deleteProperty,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["properties"] });
+      queryClient.invalidateQueries({ queryKey: ["scenarios"] });
+      queryClient.invalidateQueries({ queryKey: ["feeCategories"] });
     },
   });
 }

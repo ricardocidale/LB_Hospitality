@@ -108,6 +108,32 @@ export function isApiRateLimited(userId: number, endpoint: string, maxRequests: 
 }
 
 /**
+ * Removes expired entries from the in-memory rate limit maps to prevent
+ * unbounded memory growth. Should be called periodically (e.g., hourly).
+ * @returns The total number of stale entries removed.
+ */
+export function cleanupRateLimitMaps(): number {
+  const now = Date.now();
+  let removed = 0;
+
+  loginAttempts.forEach((value, key) => {
+    if (now - value.lastAttempt > LOCKOUT_DURATION_MS) {
+      loginAttempts.delete(key);
+      removed++;
+    }
+  });
+
+  apiRateLimits.forEach((value, key) => {
+    if (now - value.windowStart > API_RATE_WINDOW_MS) {
+      apiRateLimits.delete(key);
+      removed++;
+    }
+  });
+
+  return removed;
+}
+
+/**
  * Validates that a password meets the minimum complexity requirements:
  * at least 8 characters, one uppercase letter, one lowercase letter, and one number.
  * @param password - The plaintext password to validate.

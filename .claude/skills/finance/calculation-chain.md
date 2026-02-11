@@ -74,7 +74,17 @@ fixedCostFactor = (1 + fixedCostEscalationRate) ^ opsYear
 fixedExpense = baseDollar × fixedCostFactor
 ```
 
-Fixed cost line items: Admin, Property Ops, IT, Insurance, Taxes, Fixed Utilities, Other Costs.
+Fixed cost line items (revenue-based): Admin, Property Ops, IT, Fixed Utilities, Other Costs.
+
+**Property-Value-Based Costs** — anchored to total property value, escalate with inflation:
+```
+totalPropertyValue = purchasePrice + buildingImprovements
+baseDollar = (totalPropertyValue / 12) × costRate
+fixedCostFactor = (1 + fixedCostEscalationRate) ^ opsYear
+fixedExpense = baseDollar × fixedCostFactor
+```
+
+Property-value-based line items: Insurance, Property Taxes.
 
 **Total Operating Expenses** = sum of all variable + fixed expenses.
 
@@ -87,8 +97,8 @@ Fixed cost line items: Admin, Property Ops, IT, Insurance, Taxes, Fixed Utilitie
 | `costRateMarketing` | Marketing expense (variable) |
 | `costRatePropertyOps` | Property operations (fixed) |
 | `costRateUtilities` | Utilities expense (split variable/fixed) |
-| `costRateInsurance` | Insurance expense (fixed) |
-| `costRateTaxes` | Property tax expense (fixed) |
+| `costRateInsurance` | Insurance expense (property-value-based) |
+| `costRateTaxes` | Property tax expense (property-value-based) |
 | `costRateIT` | IT expense (fixed) |
 | `costRateFFE` | FF&E reserve (variable) |
 | `costRateOther` | Other costs (fixed) |

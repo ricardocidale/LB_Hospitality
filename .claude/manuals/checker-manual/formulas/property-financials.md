@@ -54,7 +54,8 @@
 | F-P-15 | `Expense_Admin = Base Monthly Total Rev × Cost Rate Admin × Fixed Cost Factor` | Administrative & general |
 | F-P-16 | `Expense_Marketing = Base Monthly Total Rev × Cost Rate Marketing × Fixed Cost Factor` | Sales & marketing |
 | F-P-17 | `Expense_Maintenance = Base Monthly Total Rev × Cost Rate Maintenance × Fixed Cost Factor` | Property operations & maintenance |
-| F-P-18 | `Expense_Insurance = Base Monthly Total Rev × Cost Rate Insurance × Fixed Cost Factor` | Property insurance |
+| F-P-18 | `Expense_Insurance = (Purchase Price + Building Improvements) ÷ 12 × Cost Rate Insurance × Fixed Cost Factor` | Property insurance (based on property value) |
+| F-P-18b | `Expense_Taxes = (Purchase Price + Building Improvements) ÷ 12 × Cost Rate Taxes × Fixed Cost Factor` | Property taxes (based on property value) |
 | F-P-19 | `Expense_Technology = Base Monthly Total Rev × Cost Rate Technology × Fixed Cost Factor` | IT systems & technology |
 
 ### Utilities (Blended Split)

@@ -83,7 +83,7 @@ Total Revenue equals Room Revenue plus Event Revenue plus F&B Revenue plus Other
 
 The catering boost percentage (default: 30%) represents the uplift applied to base F&B revenue from catering operations. The adjusted F&B Revenue equals the base F&B Revenue multiplied by (1 + catering boost percentage). This reflects the blended catering uplift across all event types — fully catered, partially catered, and non-catered. The boost is applied before computing F&B departmental expenses.
 
-### Operating Cost Rates (as Percentage of Total Revenue)
+### Operating Cost Rates (Revenue-Based)
 
 These USALI-aligned departmental and undistributed expense allocations determine operating costs for each property:
 
@@ -92,16 +92,23 @@ These USALI-aligned departmental and undistributed expense allocations determine
 | Rooms Department Expense | Rooms department cost rate | 36% | USALI Schedule 1 — Rooms |
 | F&B Department Expense | F&B department cost rate | 32% | USALI Schedule 2 — Food & Beverage |
 | Administrative & General | A&G expense rate | 8% | USALI Schedule 8 — A&G |
-| Sales & Marketing | S&M expense rate | 5% | USALI Schedule 9 — S&M |
+| Sales & Marketing | S&M expense rate | 1% | USALI Schedule 9 — S&M |
 | Property Operations & Maintenance | POM expense rate | 4% | USALI Schedule 10 — POM |
 | Utilities | Utilities expense rate | 5% | USALI Schedule 11 — Utilities |
-| Property Insurance | Insurance expense rate | 2% | Undistributed — Insurance |
-| Property Taxes | Tax expense rate | 3% | Undistributed — Taxes |
-| Information Technology | IT expense rate | 2% | USALI Schedule 12 — IT |
+| Information Technology | IT expense rate | 0.5% | USALI Schedule 12 — IT |
 | FF&E Reserve | Furniture, fixtures, and equipment reserve | 4% | Industry standard reserve |
 | Other / Miscellaneous | Other expense rate | 5% | Undistributed — Other |
 
-Total Operating Expenses equal the sum of each rate multiplied by Total Revenue, plus management fees and depreciation.
+### Operating Cost Rates (Property-Value-Based)
+
+Insurance and Property Taxes are calculated as a percentage of total property value (Purchase Price + Building Improvements), not revenue. Formula: `(totalPropertyValue / 12) × rate × fixedCostFactor × fixedGate`.
+
+| Field | Definition | Default | Basis |
+|-------|-----------|---------|-------|
+| Property Insurance | Insurance expense rate | 2% | % of Property Value |
+| Property Taxes | Tax expense rate | 3% | % of Property Value |
+
+Total Operating Expenses equal the sum of revenue-based costs plus property-value-based costs, plus management fees and depreciation.
 
 ### Financing — Acquisition (Financed Properties Only)
 

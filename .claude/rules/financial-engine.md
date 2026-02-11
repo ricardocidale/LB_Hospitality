@@ -62,6 +62,8 @@ Month N
 │   ├── Marketing = Total Revenue × costRateMarketing
 │   ├── Maintenance = Total Revenue × costRateMaintenance
 │   ├── Utilities = split between variable (revenue-based) and fixed
+│   ├── Insurance = (Purchase Price + Improvements) ÷ 12 × rate × escalation
+│   ├── Property Taxes = (Purchase Price + Improvements) ÷ 12 × rate × escalation
 │   ├── Management Fees = base fee on revenue + incentive fee on GOP
 │   └── FF&E Reserve = Total Revenue × ffEReserveRate
 │
@@ -139,6 +141,7 @@ These rules are non-negotiable constraints enforced across the entire financial 
 ### Cost Escalation
 - **Variable costs**: Escalate at the inflation rate
 - **Fixed costs**: Escalate at `fixedCostEscalationRate` (default 3%)
+- **Property-value-based costs** (Insurance, Property Taxes): Based on (purchasePrice + buildingImprovements) ÷ 12 × rate, escalate at `fixedCostEscalationRate`
 - Escalation applied annually, compounding year over year
 
 ### Depreciation

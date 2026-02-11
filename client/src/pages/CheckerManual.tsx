@@ -335,7 +335,7 @@ export default function CheckerManual({ embedded }: { embedded?: boolean }) {
                 <ManualTable
                   headers={["Variable", "Description", "Default", "Unit", "Affects"]}
                   rows={[
-                    ["fundingSourceLabel", "Label for funding instrument type", "SAFE", "text", "Mgmt Co."],
+                    ["fundingSourceLabel", "Label for funding instrument type", "Funding Vehicle", "text", "Mgmt Co."],
                     ["safeTranche1Amount", "Amount of first funding tranche", "$1,000,000", "$", "Mgmt Co."],
                     ["safeTranche1Date", "Disbursement date for first tranche", "2026-06-01", "date", "Mgmt Co."],
                     ["safeTranche2Amount", "Amount of second funding tranche", "$1,000,000", "$", "Mgmt Co."],

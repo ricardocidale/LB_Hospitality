@@ -404,14 +404,14 @@ export default function CompanyAssumptions() {
                 <Label className="text-gray-600 text-sm label-text whitespace-nowrap">Funding Source Name:</Label>
                 <Input
                   type="text"
-                  value={formData.fundingSourceLabel ?? global.fundingSourceLabel ?? "SAFE"}
+                  value={formData.fundingSourceLabel ?? global.fundingSourceLabel ?? "Funding Vehicle"}
                   onChange={(e) => handleUpdate("fundingSourceLabel", e.target.value)}
-                  placeholder="e.g., SAFE, Seed, Series A"
+                  placeholder="e.g., Funding Vehicle, SAFE, Seed, Series A"
                   className="max-w-48 bg-white border-[#9FBCA4]/30 text-gray-900"
                 />
-                <HelpTooltip text="Customize the name of your funding source (e.g., SAFE, Seed, Series A)" />
+                <HelpTooltip text="Customize the name of your funding source (e.g., Funding Vehicle, SAFE, Seed, Series A)" />
               </div>
-              <p className="text-gray-600 text-sm label-text">Capital raised via {formData.fundingSourceLabel ?? global.fundingSourceLabel ?? "SAFE"} in two tranches to support operations</p>
+              <p className="text-gray-600 text-sm label-text">Capital raised via {formData.fundingSourceLabel ?? global.fundingSourceLabel ?? "Funding Vehicle"} in two tranches to support operations</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="p-4 bg-[#9FBCA4]/10 rounded-lg space-y-4">
@@ -481,7 +481,7 @@ export default function CompanyAssumptions() {
             </div>
             <div className="mt-4 pt-4 border-t border-[#9FBCA4]/20 grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
-                <Label className="text-gray-600 text-sm label-text">Total {formData.fundingSourceLabel ?? global.fundingSourceLabel ?? "SAFE"} Raise</Label>
+                <Label className="text-gray-600 text-sm label-text">Total {formData.fundingSourceLabel ?? global.fundingSourceLabel ?? "Funding Vehicle"} Raise</Label>
                 <p className="font-mono font-semibold text-lg text-gray-900">
                   {formatMoney((formData.safeTranche1Amount ?? global.safeTranche1Amount) + (formData.safeTranche2Amount ?? global.safeTranche2Amount))}
                 </p>

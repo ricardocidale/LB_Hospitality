@@ -21,6 +21,15 @@ npm run verify         # Full 4-phase financial verification (verbose)
 npm run db:push        # Push schema changes
 ```
 
+## Research Badge Defaults (Seeded)
+All property assumption research badges display industry-standard ranges sourced from:
+- **CBRE Trends 2024-2025**, **STR/CoStar**, **HVS**, **Highland Group Boutique Hotel Report 2025**
+- ADR $193 mid (upscale boutique segment), Occupancy 69% mid, Cap Rate 8.5% mid
+- Operating costs aligned to USALI department structure and calculation bases (Room Revenue, Total Revenue, Property Value)
+- Management service fees sum to ~4% within HVS-cited 2-4% industry range
+- Incentive fee 8-12% of GOP per HVS standard
+- When AI research runs, it overrides seeded defaults for that property
+
 ## Top Rules
 - **Calculations and correct reports are always the highest priority.** 477-test proof system must always pass.
 - Company name is "Hospitality Business Group". All UI must reference a theme. All skills stored under `.claude/`.

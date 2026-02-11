@@ -91,6 +91,7 @@ export interface Property {
   costRateTaxes: number;
   costRateIT: number;
   costRateFFE: number;
+  streetAddress?: string;
 }
 
 // --- STORE STATE ---

@@ -46,7 +46,7 @@ export function Callout({
   title,
 }: CalloutProps) {
   const entry = severityConfig[severity];
-  const colors = entry[variant];
+  const colors = entry[variant] as { bg: string; border: string; text: string };
   const IconComponent = icon ?? entry.icon;
 
   return (

@@ -593,7 +593,7 @@ export default function CompanyAssumptions() {
               <p className="text-sm text-muted-foreground mb-3">Fee rates are set individually on each property. This table shows the current rates for reference.</p>
               <div className="rounded-lg border border-[#9FBCA4]/20 overflow-hidden">
                 {(() => {
-                  const allCatNames = [...new Set(allFeeCategories.filter(c => c.isActive).map(c => c.name))];
+                  const allCatNames = Array.from(new Set(allFeeCategories.filter(c => c.isActive).map(c => c.name)));
                   const hasCategoryData = allCatNames.length > 0;
                   return (
                     <div className="overflow-x-auto">

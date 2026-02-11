@@ -136,7 +136,7 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
           values={yd.map((y) => {
             const factors = getMonthlyFactors(y.year);
             const operatingMonths = factors.filter(f => f > 0).length;
-            const uniqueFactors = [...new Set(factors.filter(f => f > 0))];
+            const uniqueFactors = Array.from(new Set(factors.filter(f => f > 0)));
             if (uniqueFactors.length === 1) {
               return `×${uniqueFactors[0].toFixed(4)} × ${operatingMonths} mo`;
             }
@@ -345,7 +345,7 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
                   values={yd.map((y) => {
                     const factors = getMonthlyFactors(y.year);
                     const operatingMonths = factors.filter(f => f > 0).length;
-                    const uniqueFactors = [...new Set(factors.filter(f => f > 0))];
+                    const uniqueFactors = Array.from(new Set(factors.filter(f => f > 0)));
                     if (uniqueFactors.length === 1) {
                       return `×${uniqueFactors[0].toFixed(4)} × ${operatingMonths} mo`;
                     }
@@ -386,7 +386,7 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
                   values={yd.map((y) => {
                     const factors = getMonthlyFactors(y.year);
                     const operatingMonths = factors.filter(f => f > 0).length;
-                    const uniqueFactors = [...new Set(factors.filter(f => f > 0))];
+                    const uniqueFactors = Array.from(new Set(factors.filter(f => f > 0)));
                     if (uniqueFactors.length === 1) {
                       return `×${uniqueFactors[0].toFixed(4)} × ${operatingMonths} mo`;
                     }

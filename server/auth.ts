@@ -6,6 +6,21 @@ import type { User } from "@shared/schema";
 
 declare global {
   namespace Express {
+    interface User {
+      id: number;
+      email: string;
+      passwordHash: string;
+      role: string;
+      name: string | null;
+      company: string | null;
+      title: string | null;
+      assignedLogoId: number | null;
+      assignedThemeId: number | null;
+      assignedAssetDescriptionId: number | null;
+      userGroupId: number | null;
+      createdAt: Date;
+      updatedAt: Date;
+    }
     interface Request {
       user?: User;
       sessionId?: string;

@@ -837,17 +837,11 @@ export default function PropertyEdit() {
                 />
                 <p className="text-xs text-gray-500">Spa, parking, activities</p>
               </div>
-            </div>
-            
-            <div className="border-t border-white/10 pt-4">
-              <Label className="flex items-center gap-1 mb-3 text-gray-700">
-                Catering Boost
-                <HelpTooltip text="Percentage uplift applied to base F&B revenue from catered events. This should reflect the blended average across all events (catered and non-catered). For example, 30% means total F&B = Base F&B × 1.30." />
-              </Label>
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label className="text-sm text-gray-600 flex items-center gap-1.5">
-                    Catering Boost %
+                  <Label className="flex items-center gap-1 text-gray-700">
+                    Catering Boost
+                    <HelpTooltip text="Percentage uplift applied to base F&B revenue from catered events. For example, 30% means total F&B = Base F&B × 1.30." />
                     <ResearchBadge value={researchValues.catering?.display} onClick={() => researchValues.catering && handleChange("cateringBoostPercent", researchValues.catering.mid / 100)} />
                   </Label>
                   <EditableValue
@@ -867,7 +861,7 @@ export default function PropertyEdit() {
                   step={5}
                   className="[&_[role=slider]]:bg-[#9FBCA4]"
                 />
-                <p className="text-xs text-gray-500 mt-1">Total F&B Revenue = Base F&B × (1 + Catering Boost %)</p>
+                <p className="text-xs text-gray-500">F&B uplift from catered events</p>
               </div>
             </div>
           </div>

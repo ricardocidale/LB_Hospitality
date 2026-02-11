@@ -436,7 +436,7 @@ export default function PropertyEdit() {
                   className="bg-white border-[#9FBCA4]/30 text-gray-900"
                 />
               </div>
-              <div className="sm:col-span-2 space-y-1.5">
+              <div className="space-y-1.5">
                 <div className="flex flex-col gap-0.5">
                   <Label className="label-text text-gray-700 flex items-center gap-1.5">
                     Land Value (%)

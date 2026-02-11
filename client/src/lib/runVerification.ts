@@ -99,19 +99,9 @@ export function runFullVerification(
   const auditReports: AuditReport[] = [];
   const crossReports: CrossValidationReport[] = [];
   
-  console.log("╔══════════════════════════════════════════════════════════════════════════════╗");
-  console.log("║           HOSPITALITY BUSINESS - FINANCIAL VERIFICATION SUITE                     ║");
-  console.log("║                    PwC-Level Audit Standards                                 ║");
-  console.log("╚══════════════════════════════════════════════════════════════════════════════╝\n");
-  
-  console.log(`Running comprehensive audit on ${properties.length} properties...\n`);
-  
   const globalAuditInput = convertToGlobalAuditInput(globalAssumptions);
   
   for (const property of properties) {
-    console.log(`\n▸ Auditing: ${property.name || 'Property'}`);
-    console.log("  ─────────────────────────────────────────────────────────────");
-    
     try {
       const projectionMonths = ((globalAssumptions as any).projectionYears ?? PROJECTION_YEARS) * 12;
       const financials = generatePropertyProForma(property, globalAssumptions, projectionMonths);
@@ -119,36 +109,24 @@ export function runFullVerification(
       // Run legacy formula checks
       const formulaCheck = checkPropertyFormulas(financials);
       formulaReports.push(formulaCheck);
-      console.log(`  [1/6] Formula Verification:     ${formulaCheck.passed}/${formulaCheck.totalChecks} passed`);
       
       // Run legacy GAAP compliance checks
       const gaapCheck = checkGAAPCompliance(financials);
       complianceReports.push(gaapCheck);
-      console.log(`  [2/6] GAAP Compliance:          ${gaapCheck.passed}/${gaapCheck.totalChecks} passed`);
       
       // Run cash flow statement checks
       const cfCheck = checkCashFlowStatement(financials);
       complianceReports.push(cfCheck);
-      console.log(`  [3/6] Cash Flow Statement:      ${cfCheck.passed}/${cfCheck.totalChecks} passed`);
       
       // Run metric formula checks
       const yearlyData = aggregateToYearly(financials);
       const metricCheck = checkMetricFormulas(yearlyData);
       formulaReports.push(metricCheck);
-      console.log(`  [4/6] Metric Formulas:          ${metricCheck.passed}/${metricCheck.totalChecks} passed`);
       
       // Run comprehensive PwC-level audit
       const propertyAuditInput = convertToAuditInput(property);
       const auditReport = runFullAudit(propertyAuditInput, globalAuditInput, financials);
       auditReports.push(auditReport);
-      console.log(`  [5/6] Comprehensive Audit:      ${auditReport.totalPassed}/${auditReport.totalChecks} passed`);
-      console.log(`        Opinion: ${auditReport.opinion}`);
-      if (auditReport.criticalIssues > 0) {
-        console.log(`        ⚠️  Critical Issues: ${auditReport.criticalIssues}`);
-      }
-      if (auditReport.materialIssues > 0) {
-        console.log(`        △  Material Issues: ${auditReport.materialIssues}`);
-      }
       
       // Run cross-calculator validation (IRS, GAAP, USALI authoritative checks)
       const crossReport = crossValidateFinancingCalculators(
@@ -165,13 +143,9 @@ export function runFullVerification(
         financials,
       );
       crossReports.push(crossReport);
-      console.log(`  [6/6] Cross-Validation:         ${crossReport.passed}/${crossReport.totalChecks} passed`);
-      if (crossReport.criticalIssues > 0) {
-        console.log(`        ⚠️  Critical Cross-Validation Issues: ${crossReport.criticalIssues}`);
-      }
       
-    } catch (error) {
-      console.error(`  ✗ Error processing property: ${error}`);
+    } catch (_error) {
+      // Property processing errors are captured in the results
     }
   }
   

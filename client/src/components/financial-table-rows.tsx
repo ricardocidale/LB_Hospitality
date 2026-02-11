@@ -69,7 +69,7 @@ interface SectionHeaderProps {
   colSpan: number;
   /** Optional tooltip shown as an info icon beside the label */
   tooltip?: string;
-  /** Override the section header text color (default: text-[#257D41]) */
+  /** Override the section header text color (default: text-secondary) */
   textColor?: string;
 }
 
@@ -77,7 +77,7 @@ export function SectionHeader({
   label,
   colSpan,
   tooltip,
-  textColor = "text-[#257D41]",
+  textColor = "text-secondary",
 }: SectionHeaderProps) {
   const showDetails = useCalcDetails();
   return (

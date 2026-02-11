@@ -915,7 +915,7 @@ export default function Admin() {
 
 
   const renderUsers = () => (
-    <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+    <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
 
       
       <CardHeader className="relative">
@@ -936,12 +936,12 @@ export default function Admin() {
       <CardContent className="relative">
         {usersLoading ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-[#9FBCA4]" />
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
         ) : (
           <Table>
             <TableHeader>
-              <TableRow className="border-[#9FBCA4]/20 hover:bg-transparent">
+              <TableRow className="border-primary/20 hover:bg-transparent">
                 <TableHead className="text-muted-foreground font-display"><div className="flex items-center gap-2"><Users className="w-4 h-4" />User</div></TableHead>
                 <TableHead className="text-muted-foreground font-display"><div className="flex items-center gap-2"><Shield className="w-4 h-4" />Role</div></TableHead>
                 <TableHead className="text-muted-foreground font-display"><div className="flex items-center gap-2"><Calendar className="w-4 h-4" />Created</div></TableHead>
@@ -950,25 +950,25 @@ export default function Admin() {
             </TableHeader>
             <TableBody>
               {users?.map((user) => (
-                <TableRow key={user.id} className="border-[#9FBCA4]/20 hover:bg-[#9FBCA4]/5" data-testid={`row-user-${user.id}`}>
+                <TableRow key={user.id} className="border-primary/20 hover:bg-primary/5" data-testid={`row-user-${user.id}`}>
                   <TableCell>
                     <div className="font-display font-medium">{user.name || user.email}</div>
                     {user.name && <div className="text-xs text-muted-foreground">{user.email}</div>}
                   </TableCell>
                   <TableCell>
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${user.role === 'admin' ? 'bg-[#257D41]/15 text-[#257D41]' : 'bg-[#9FBCA4]/10 text-muted-foreground'}`}>
+                    <span className={`px-2 py-1 rounded text-xs font-medium ${user.role === 'admin' ? 'bg-secondary/15 text-secondary' : 'bg-primary/10 text-muted-foreground'}`}>
                       {user.role}
                     </span>
                   </TableCell>
                   <TableCell className="text-muted-foreground font-mono text-sm">{formatDateTime(user.createdAt)}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-[#9FBCA4]/10"
+                      <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-primary/10"
                         onClick={() => { setSelectedUser(user); setOriginalEmail(user.email); setEditUser({ email: user.email, name: user.name || "", company: user.company || "", title: user.title || "", role: user.role || "user" }); setEditDialogOpen(true); }}
                         data-testid={`button-edit-user-${user.id}`}>
                         <Pencil className="w-4 h-4" />
                       </Button>
-                      <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-[#9FBCA4]/10"
+                      <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-primary/10"
                         onClick={() => { setSelectedUser(user); setPasswordDialogOpen(true); }}
                         data-testid={`button-password-user-${user.id}`}>
                         <Key className="w-4 h-4" />
@@ -999,7 +999,7 @@ export default function Admin() {
     });
 
     return (<>
-    <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+    <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
 
 
       <CardHeader className="relative">
@@ -1011,13 +1011,13 @@ export default function Admin() {
 
       <CardContent className="relative space-y-4">
         {/* Login Log Filters */}
-        <div className="flex flex-wrap items-center gap-4 p-4 rounded-xl bg-[#9FBCA4]/5 border border-[#9FBCA4]/20">
+        <div className="flex flex-wrap items-center gap-4 p-4 rounded-xl bg-primary/5 border border-primary/20">
           <div className="flex items-center gap-2">
             <Label className="text-muted-foreground text-sm whitespace-nowrap">User</Label>
             <select
               value={loginLogUserFilter}
               onChange={(e) => setLoginLogUserFilter(e.target.value)}
-              className="bg-[#9FBCA4]/10 border border-[#9FBCA4]/20 text-foreground rounded-lg px-3 py-1.5 text-sm"
+              className="bg-primary/10 border border-primary/20 text-foreground rounded-lg px-3 py-1.5 text-sm"
               data-testid="select-login-log-user-filter"
             >
               <option value="">All Users</option>
@@ -1032,7 +1032,7 @@ export default function Admin() {
               value={loginLogIpFilter}
               onChange={(e) => setLoginLogIpFilter(e.target.value)}
               placeholder="Search IP..."
-              className="bg-[#9FBCA4]/10 border-[#9FBCA4]/20 text-foreground placeholder:text-muted-foreground h-8 w-36 text-sm"
+              className="bg-primary/10 border-primary/20 text-foreground placeholder:text-muted-foreground h-8 w-36 text-sm"
               data-testid="input-login-log-ip-filter"
             />
           </div>
@@ -1043,7 +1043,7 @@ export default function Admin() {
 
         {logsLoading ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-[#9FBCA4]" />
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
         ) : filteredLogs?.length === 0 ? (
           <div className="text-center py-12">
@@ -1055,7 +1055,7 @@ export default function Admin() {
         ) : (
           <Table>
             <TableHeader>
-              <TableRow className="border-[#9FBCA4]/20 hover:bg-transparent">
+              <TableRow className="border-primary/20 hover:bg-transparent">
                 <TableHead className="text-muted-foreground font-display"><div className="flex items-center gap-2"><Users className="w-4 h-4" />User</div></TableHead>
                 <TableHead className="text-muted-foreground font-display"><div className="flex items-center gap-2"><LogIn className="w-4 h-4" />Login Time</div></TableHead>
                 <TableHead className="text-muted-foreground font-display"><div className="flex items-center gap-2"><LogOut className="w-4 h-4" />Logout Time</div></TableHead>
@@ -1065,17 +1065,17 @@ export default function Admin() {
             </TableHeader>
             <TableBody>
               {filteredLogs?.map((log) => (
-                <TableRow key={log.id} className="border-[#9FBCA4]/20 hover:bg-[#9FBCA4]/5" data-testid={`row-log-${log.id}`}>
+                <TableRow key={log.id} className="border-primary/20 hover:bg-primary/5" data-testid={`row-log-${log.id}`}>
                   <TableCell>
                     <div className="font-display">{log.userName || log.userEmail}</div>
                     {log.userName && <div className="text-xs text-muted-foreground">{log.userEmail}</div>}
                   </TableCell>
                   <TableCell className="text-foreground/80 font-mono text-sm">{formatDateTime(log.loginAt)}</TableCell>
                   <TableCell className="text-foreground/80 font-mono text-sm">
-                    {log.logoutAt ? formatDateTime(log.logoutAt) : <span className="text-[#9FBCA4]">Active</span>}
+                    {log.logoutAt ? formatDateTime(log.logoutAt) : <span className="text-primary">Active</span>}
                   </TableCell>
                   <TableCell className="font-mono text-sm">
-                    <span className={log.logoutAt ? "text-foreground/80" : "text-[#9FBCA4]"}>
+                    <span className={log.logoutAt ? "text-foreground/80" : "text-primary"}>
                       {formatDuration(log.loginAt, log.logoutAt)}
                     </span>
                   </TableCell>
@@ -1090,7 +1090,7 @@ export default function Admin() {
 
     {/* Active Sessions */}
     {activeSessionsList && activeSessionsList.length > 0 && (
-      <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)] mt-6">
+      <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)] mt-6">
         <CardHeader>
           <CardTitle className="text-lg font-display">Active Sessions</CardTitle>
           <CardDescription className="label-text">
@@ -1100,16 +1100,16 @@ export default function Admin() {
         <CardContent className="relative">
           <Table>
             <TableHeader>
-              <TableRow className="border-b border-[#9FBCA4]/20 hover:bg-transparent">
-                <TableHead className="text-[#9FBCA4] font-semibold text-xs uppercase tracking-wider">User</TableHead>
-                <TableHead className="text-[#9FBCA4] font-semibold text-xs uppercase tracking-wider">Session Started</TableHead>
-                <TableHead className="text-[#9FBCA4] font-semibold text-xs uppercase tracking-wider">Expires</TableHead>
-                <TableHead className="text-[#9FBCA4] font-semibold text-xs uppercase tracking-wider text-right">Action</TableHead>
+              <TableRow className="border-b border-primary/20 hover:bg-transparent">
+                <TableHead className="text-primary font-semibold text-xs uppercase tracking-wider">User</TableHead>
+                <TableHead className="text-primary font-semibold text-xs uppercase tracking-wider">Session Started</TableHead>
+                <TableHead className="text-primary font-semibold text-xs uppercase tracking-wider">Expires</TableHead>
+                <TableHead className="text-primary font-semibold text-xs uppercase tracking-wider text-right">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {activeSessionsList.map((s) => (
-                <TableRow key={s.id} className="border-b border-[#9FBCA4]/10 hover:bg-[#9FBCA4]/5">
+                <TableRow key={s.id} className="border-b border-primary/10 hover:bg-primary/5">
                   <TableCell className="text-foreground/80 text-sm">{s.userName || s.userEmail}</TableCell>
                   <TableCell className="text-muted-foreground font-mono text-xs">{new Date(s.createdAt).toLocaleString()}</TableCell>
                   <TableCell className="text-muted-foreground font-mono text-xs">{new Date(s.expiresAt).toLocaleString()}</TableCell>
@@ -1156,14 +1156,14 @@ export default function Admin() {
   const renderCheckRow = (chk: CheckResult, idx: number) => (
     <div key={idx} className="space-y-1">
       <div className="flex items-center gap-3 p-3 rounded-lg bg-white border border-gray-100">
-        {chk.passed ? <CheckCircle2 className="w-5 h-5 text-[#257D41] shrink-0" /> : <XCircle className="w-5 h-5 text-red-500 shrink-0" />}
+        {chk.passed ? <CheckCircle2 className="w-5 h-5 text-secondary shrink-0" /> : <XCircle className="w-5 h-5 text-red-500 shrink-0" />}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-gray-800 text-sm font-medium">{chk.metric}</span>
             {!chk.passed && (
               <span className={`text-[10px] px-1.5 py-0.5 rounded font-mono ${severityColor(chk.severity)}`}>{chk.severity.toUpperCase()}</span>
             )}
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#9FBCA4]/20 text-[#257D41] font-mono">{chk.gaapRef}</span>
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/20 text-secondary font-mono">{chk.gaapRef}</span>
           </div>
           <p className="text-xs text-gray-500 mt-0.5 font-mono">{chk.formula}</p>
         </div>
@@ -1189,7 +1189,7 @@ export default function Admin() {
   const renderActivityFeed = () => (
     <div className="space-y-6">
       {/* Filters */}
-      <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+      <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
         <CardContent className="relative p-6">
           <div className="flex flex-wrap items-center gap-4">
             <div className="flex items-center gap-2">
@@ -1197,7 +1197,7 @@ export default function Admin() {
               <select
                 value={activityEntityFilter}
                 onChange={(e) => setActivityEntityFilter(e.target.value)}
-                className="bg-[#9FBCA4]/10 border border-[#9FBCA4]/20 text-foreground rounded-lg px-3 py-1.5 text-sm"
+                className="bg-primary/10 border border-primary/20 text-foreground rounded-lg px-3 py-1.5 text-sm"
                 data-testid="select-activity-entity-filter"
               >
                 <option value="">All</option>
@@ -1214,7 +1214,7 @@ export default function Admin() {
               <select
                 value={activityUserFilter}
                 onChange={(e) => setActivityUserFilter(e.target.value)}
-                className="bg-[#9FBCA4]/10 border border-[#9FBCA4]/20 text-foreground rounded-lg px-3 py-1.5 text-sm"
+                className="bg-primary/10 border border-primary/20 text-foreground rounded-lg px-3 py-1.5 text-sm"
                 data-testid="select-activity-user-filter"
               >
                 <option value="">All Users</option>
@@ -1231,11 +1231,11 @@ export default function Admin() {
       </Card>
 
       {/* Activity Table */}
-      <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+      <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
         <CardContent className="p-6">
           {activityLogsLoading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-6 h-6 animate-spin text-[#9FBCA4]" />
+              <Loader2 className="w-6 h-6 animate-spin text-primary" />
             </div>
           ) : !activityLogs?.length ? (
             <p className="text-muted-foreground text-center py-12 label-text">No activity recorded yet</p>
@@ -1243,18 +1243,18 @@ export default function Admin() {
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow className="border-b border-[#9FBCA4]/20 hover:bg-transparent">
-                    <TableHead className="text-[#9FBCA4] font-semibold text-xs uppercase tracking-wider">Time</TableHead>
-                    <TableHead className="text-[#9FBCA4] font-semibold text-xs uppercase tracking-wider">User</TableHead>
-                    <TableHead className="text-[#9FBCA4] font-semibold text-xs uppercase tracking-wider">Action</TableHead>
-                    <TableHead className="text-[#9FBCA4] font-semibold text-xs uppercase tracking-wider">Type</TableHead>
-                    <TableHead className="text-[#9FBCA4] font-semibold text-xs uppercase tracking-wider">Entity</TableHead>
-                    <TableHead className="text-[#9FBCA4] font-semibold text-xs uppercase tracking-wider">Details</TableHead>
+                  <TableRow className="border-b border-primary/20 hover:bg-transparent">
+                    <TableHead className="text-primary font-semibold text-xs uppercase tracking-wider">Time</TableHead>
+                    <TableHead className="text-primary font-semibold text-xs uppercase tracking-wider">User</TableHead>
+                    <TableHead className="text-primary font-semibold text-xs uppercase tracking-wider">Action</TableHead>
+                    <TableHead className="text-primary font-semibold text-xs uppercase tracking-wider">Type</TableHead>
+                    <TableHead className="text-primary font-semibold text-xs uppercase tracking-wider">Entity</TableHead>
+                    <TableHead className="text-primary font-semibold text-xs uppercase tracking-wider">Details</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {activityLogs.map((log) => (
-                    <TableRow key={log.id} className="border-b border-[#9FBCA4]/10 hover:bg-[#9FBCA4]/5">
+                    <TableRow key={log.id} className="border-b border-primary/10 hover:bg-primary/5">
                       <TableCell className="text-muted-foreground text-xs font-mono whitespace-nowrap">
                         {new Date(log.createdAt).toLocaleString()}
                       </TableCell>
@@ -1267,7 +1267,7 @@ export default function Admin() {
                           log.action === "update" ? "bg-blue-500/20 text-blue-400" :
                           log.action === "delete" ? "bg-red-500/20 text-red-400" :
                           log.action === "run" ? "bg-purple-500/20 text-purple-400" :
-                          "bg-[#9FBCA4]/10 text-muted-foreground"
+                          "bg-primary/10 text-muted-foreground"
                         }`}>
                           {log.action}
                         </span>
@@ -1298,25 +1298,25 @@ export default function Admin() {
     return (
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+          <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
             <CardContent className="p-6 text-center">
-              <div className="text-3xl font-bold text-[#9FBCA4]">{checkerActivity?.summary.totalActions ?? 0}</div>
+              <div className="text-3xl font-bold text-primary">{checkerActivity?.summary.totalActions ?? 0}</div>
               <div className="text-xs text-muted-foreground mt-1">Total Actions</div>
             </CardContent>
           </Card>
-          <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+          <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
             <CardContent className="p-6 text-center">
               <div className="text-3xl font-bold text-[#4ECDC4]">{checkerActivity?.summary.verificationRuns ?? 0}</div>
               <div className="text-xs text-muted-foreground mt-1">Verification Runs</div>
             </CardContent>
           </Card>
-          <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+          <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
             <CardContent className="p-6 text-center">
               <div className="text-3xl font-bold text-[#E8927C]">{checkerActivity?.summary.manualViews ?? 0}</div>
               <div className="text-xs text-muted-foreground mt-1">Manual Reviews</div>
             </CardContent>
           </Card>
-          <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+          <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
             <CardContent className="p-6 text-center">
               <div className="text-3xl font-bold text-foreground">{checkerActivity?.summary.exports ?? 0}</div>
               <div className="text-xs text-muted-foreground mt-1">Exports</div>
@@ -1325,14 +1325,14 @@ export default function Admin() {
         </div>
 
         {checkerActivity?.checkers && checkerActivity.checkers.length > 0 && (
-          <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+          <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
             <CardHeader>
               <CardTitle className="text-xl font-display">Checker Users</CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
-                  <TableRow className="border-[#9FBCA4]/20">
+                  <TableRow className="border-primary/20">
                     <TableHead className="text-muted-foreground">Email</TableHead>
                     <TableHead className="text-muted-foreground">Name</TableHead>
                     <TableHead className="text-muted-foreground text-center">Actions</TableHead>
@@ -1344,7 +1344,7 @@ export default function Admin() {
                 </TableHeader>
                 <TableBody>
                   {checkerActivity.checkers.map((checker) => (
-                    <TableRow key={checker.id} className="border-[#9FBCA4]/20">
+                    <TableRow key={checker.id} className="border-primary/20">
                       <TableCell className="text-foreground font-mono text-sm">{checker.email}</TableCell>
                       <TableCell className="text-foreground/80">{checker.name || "-"}</TableCell>
                       <TableCell className="text-foreground/80 text-center">{checker.totalActions}</TableCell>
@@ -1360,7 +1360,7 @@ export default function Admin() {
           </Card>
         )}
 
-        <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+        <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
           <CardHeader>
             <CardTitle className="text-xl font-display">Recent Checker Activity</CardTitle>
           </CardHeader>
@@ -1370,7 +1370,7 @@ export default function Admin() {
             ) : (
               <Table>
                 <TableHeader>
-                  <TableRow className="border-[#9FBCA4]/20">
+                  <TableRow className="border-primary/20">
                     <TableHead className="text-muted-foreground">Time</TableHead>
                     <TableHead className="text-muted-foreground">User</TableHead>
                     <TableHead className="text-muted-foreground">Action</TableHead>
@@ -1380,7 +1380,7 @@ export default function Admin() {
                 </TableHeader>
                 <TableBody>
                   {checkerActivity.recentActivity.map((log) => (
-                    <TableRow key={log.id} className="border-[#9FBCA4]/20">
+                    <TableRow key={log.id} className="border-primary/20">
                       <TableCell className="text-muted-foreground text-sm whitespace-nowrap">{formatDate(log.createdAt)}</TableCell>
                       <TableCell className="text-foreground font-mono text-sm">{log.userEmail}</TableCell>
                       <TableCell>
@@ -1388,7 +1388,7 @@ export default function Admin() {
                           log.action === "run" ? "bg-[#4ECDC4]/20 text-[#4ECDC4]" :
                           log.action === "view" ? "bg-blue-500/20 text-blue-400" :
                           log.action.includes("export") ? "bg-purple-500/20 text-purple-400" :
-                          "bg-[#9FBCA4]/10 text-muted-foreground"
+                          "bg-primary/10 text-muted-foreground"
                         }`}>
                           {log.action}
                         </span>
@@ -1411,8 +1411,8 @@ export default function Admin() {
   const renderVerification = () => (<>
     <Card className="relative overflow-hidden bg-white/80 backdrop-blur-xl border border-gray-200 shadow-2xl">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-[#9FBCA4]/10 blur-[100px] animate-pulse" style={{ animationDuration: '4s' }} />
-        <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-[#257D41]/10 blur-[100px] animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
+        <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-primary/10 blur-[100px] animate-pulse" style={{ animationDuration: '4s' }} />
+        <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-secondary/10 blur-[100px] animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
       </div>
       
       <CardHeader className="relative">
@@ -1428,7 +1428,7 @@ export default function Admin() {
               onClick={() => runVerification.mutate()} 
               disabled={runVerification.isPending} 
               data-testid="button-run-verification"
-              className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-[#257D41] bg-[#257D41]/10 text-[#257D41] font-semibold hover:bg-[#257D41]/20 transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-secondary bg-secondary/10 text-secondary font-semibold hover:bg-secondary/20 transition-colors disabled:opacity-50"
             >
               {runVerification.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <PlayCircle className="w-4 h-4" />}
               Run Verification
@@ -1486,7 +1486,7 @@ export default function Admin() {
             </div>
           ) : (
             <div className="text-center py-12">
-              <Loader2 className="w-16 h-16 mx-auto text-[#9FBCA4] animate-spin mb-4" />
+              <Loader2 className="w-16 h-16 mx-auto text-primary animate-spin mb-4" />
               <p className="label-text text-gray-500">Starting verification...</p>
             </div>
           )
@@ -1494,7 +1494,7 @@ export default function Admin() {
 
         {runVerification.isPending && (
           <div className="text-center py-12">
-            <Loader2 className="w-16 h-16 mx-auto text-[#9FBCA4] animate-spin mb-4" />
+            <Loader2 className="w-16 h-16 mx-auto text-primary animate-spin mb-4" />
             <p className="label-text text-gray-500">Running independent recalculation...</p>
           </div>
         )}
@@ -1534,7 +1534,7 @@ export default function Admin() {
                   <div className="text-xs text-gray-500 label-text mt-1">Total Checks</div>
                 </div>
                 <div className="p-4 rounded-xl bg-white/60 border border-gray-200 shadow-sm">
-                  <div className="text-3xl font-mono font-bold text-[#257D41]">{verificationResults.summary.totalPassed}</div>
+                  <div className="text-3xl font-mono font-bold text-secondary">{verificationResults.summary.totalPassed}</div>
                   <div className="text-xs text-gray-600 label-text mt-1">Passed</div>
                 </div>
                 <div className="p-4 rounded-xl bg-white/60 border border-gray-200 shadow-sm">
@@ -1591,7 +1591,7 @@ export default function Admin() {
                     {property.propertyName} <span className="text-gray-500 font-normal text-sm">({property.propertyType})</span>
                   </h4>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-mono text-[#257D41] bg-green-50 px-2 py-1 rounded">{property.passed} passed</span>
+                    <span className="text-xs font-mono text-secondary bg-green-50 px-2 py-1 rounded">{property.passed} passed</span>
                     {property.failed > 0 && <span className="text-xs font-mono text-red-600 bg-red-50 px-2 py-1 rounded">{property.failed} failed</span>}
                     {property.criticalIssues > 0 && <span className="text-xs font-mono text-red-700 bg-red-100 px-2 py-1 rounded">{property.criticalIssues} critical</span>}
                   </div>
@@ -1604,8 +1604,8 @@ export default function Admin() {
 
             {/* Management Company Checks */}
             {verificationResults.companyChecks.length > 0 && (
-              <div className="p-5 rounded-2xl bg-[#9FBCA4]/10 border border-[#9FBCA4]/30">
-                <h4 className="font-display text-[#257D41] font-semibold mb-3">Management Company Checks</h4>
+              <div className="p-5 rounded-2xl bg-primary/10 border border-primary/30">
+                <h4 className="font-display text-secondary font-semibold mb-3">Management Company Checks</h4>
                 <div className="space-y-2">
                   {verificationResults.companyChecks.map((chk, cIdx) => renderCheckRow(chk, cIdx))}
                 </div>
@@ -1614,8 +1614,8 @@ export default function Admin() {
 
             {/* Consolidated Portfolio Checks */}
             {verificationResults.consolidatedChecks.length > 0 && (
-              <div className="p-5 rounded-2xl bg-[#257D41]/10 border border-[#257D41]/30">
-                <h4 className="font-display text-[#257D41] font-semibold mb-3">Consolidated Portfolio Checks</h4>
+              <div className="p-5 rounded-2xl bg-secondary/10 border border-secondary/30">
+                <h4 className="font-display text-secondary font-semibold mb-3">Consolidated Portfolio Checks</h4>
                 <div className="space-y-2">
                   {verificationResults.consolidatedChecks.map((chk, cIdx) => renderCheckRow(chk, cIdx))}
                 </div>
@@ -1733,9 +1733,9 @@ export default function Admin() {
 
   const renderBranding = () => (
     <div className="space-y-6">
-      <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+      <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
         <CardHeader>
-          <CardTitle className="font-display flex items-center gap-2"><Building2 className="w-5 h-5 text-[#9FBCA4]" /> Company Branding</CardTitle>
+          <CardTitle className="font-display flex items-center gap-2"><Building2 className="w-5 h-5 text-primary" /> Company Branding</CardTitle>
           <CardDescription className="label-text">Set the company name, logo, and property type label used throughout the application</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -1753,7 +1753,7 @@ export default function Admin() {
             <div className="space-y-2">
               <Label className="label-text text-gray-700">Company Logo</Label>
               <div className="flex items-center gap-4">
-                <div className="relative w-14 h-14 rounded-lg border-2 border-dashed border-[#9FBCA4]/40 flex items-center justify-center overflow-hidden bg-white">
+                <div className="relative w-14 h-14 rounded-lg border-2 border-dashed border-primary/40 flex items-center justify-center overflow-hidden bg-white">
                   <img
                     src={globalAssumptions?.companyLogo || defaultLogo}
                     alt="Company logo"
@@ -1782,7 +1782,7 @@ export default function Admin() {
               </div>
             </div>
           </div>
-          <div className="space-y-2 border-t border-[#9FBCA4]/10 pt-4">
+          <div className="space-y-2 border-t border-primary/10 pt-4">
             <Label className="label-text text-gray-700">Property Type Label</Label>
             <Input
               value={globalAssumptions?.propertyLabel || "Boutique Hotel"}
@@ -1796,18 +1796,18 @@ export default function Admin() {
         </CardContent>
       </Card>
 
-      <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+      <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
         <CardHeader>
-          <CardTitle className="font-display flex items-center gap-2"><Tag className="w-5 h-5 text-[#9FBCA4]" /> Asset Descriptions</CardTitle>
+          <CardTitle className="font-display flex items-center gap-2"><Tag className="w-5 h-5 text-primary" /> Asset Descriptions</CardTitle>
           <CardDescription className="label-text">Define asset description labels that can be assigned to users</CardDescription>
         </CardHeader>
         <CardContent className="relative space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {assetDescriptions?.map(ad => (
-              <div key={ad.id} className="bg-[#9FBCA4]/5 border border-[#9FBCA4]/20 rounded-xl p-3 flex items-center justify-between" data-testid={`asset-desc-card-${ad.id}`}>
+              <div key={ad.id} className="bg-primary/5 border border-primary/20 rounded-xl p-3 flex items-center justify-between" data-testid={`asset-desc-card-${ad.id}`}>
                 <div className="min-w-0">
                   <p className="text-foreground font-medium truncate">{ad.name}</p>
-                  {ad.isDefault && <span className="text-xs text-[#9FBCA4] font-mono">DEFAULT</span>}
+                  {ad.isDefault && <span className="text-xs text-primary font-mono">DEFAULT</span>}
                 </div>
                 {!ad.isDefault && (
                   <Button variant="ghost" size="sm" onClick={() => deleteAssetDescMutation.mutate(ad.id)} className="text-red-400 hover:text-red-300 hover:bg-red-500/10" data-testid={`button-delete-asset-desc-${ad.id}`}>
@@ -1817,11 +1817,11 @@ export default function Admin() {
               </div>
             ))}
           </div>
-          <div className="border-t border-[#9FBCA4]/20 pt-4">
+          <div className="border-t border-primary/20 pt-4">
             <div className="flex gap-3 items-end">
               <div className="flex-1 space-y-1">
                 <Label className="text-muted-foreground text-xs">Name</Label>
-                <Input value={newAssetDescName} onChange={(e) => setNewAssetDescName(e.target.value)} placeholder="e.g., Luxury Resort, Urban Boutique" className="bg-[#9FBCA4]/5 border-[#9FBCA4]/20" data-testid="input-new-asset-desc-name" />
+                <Input value={newAssetDescName} onChange={(e) => setNewAssetDescName(e.target.value)} placeholder="e.g., Luxury Resort, Urban Boutique" className="bg-primary/5 border-primary/20" data-testid="input-new-asset-desc-name" />
               </div>
               <Button variant="outline" onClick={() => createAssetDescMutation.mutate({ name: newAssetDescName })} disabled={!newAssetDescName || createAssetDescMutation.isPending} className="flex items-center gap-2" data-testid="button-add-asset-desc">
                 {createAssetDescMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
@@ -1832,21 +1832,21 @@ export default function Admin() {
         </CardContent>
       </Card>
 
-      <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+      <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
         <CardHeader>
-          <CardTitle className="font-display flex items-center gap-2"><Image className="w-5 h-5 text-[#9FBCA4]" /> Logo Portfolio</CardTitle>
+          <CardTitle className="font-display flex items-center gap-2"><Image className="w-5 h-5 text-primary" /> Logo Portfolio</CardTitle>
           <CardDescription className="label-text">Manage logos available for user assignment</CardDescription>
         </CardHeader>
         <CardContent className="relative space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {adminLogos?.map(logo => (
-              <div key={logo.id} className="relative bg-[#9FBCA4]/5 border border-[#9FBCA4]/20 rounded-xl p-4 flex items-center gap-4" data-testid={`logo-card-${logo.id}`}>
-                <div className="w-16 h-16 rounded-lg bg-[#9FBCA4]/10 flex items-center justify-center overflow-hidden border border-[#9FBCA4]/20">
+              <div key={logo.id} className="relative bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-center gap-4" data-testid={`logo-card-${logo.id}`}>
+                <div className="w-16 h-16 rounded-lg bg-primary/10 flex items-center justify-center overflow-hidden border border-primary/20">
                   <img src={logo.url} alt={logo.name} className="max-w-full max-h-full object-contain" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-foreground font-medium truncate">{logo.name}</p>
-                  {logo.isDefault && <span className="text-xs text-[#9FBCA4] font-mono">DEFAULT</span>}
+                  {logo.isDefault && <span className="text-xs text-primary font-mono">DEFAULT</span>}
                 </div>
                 {!logo.isDefault && (
                   <Button variant="ghost" size="sm" onClick={() => deleteLogoMutation.mutate(logo.id)} className="text-red-400 hover:text-red-300 hover:bg-red-500/10" data-testid={`button-delete-logo-${logo.id}`}>
@@ -1857,16 +1857,16 @@ export default function Admin() {
             ))}
           </div>
 
-          <div className="border-t border-[#9FBCA4]/20 pt-4">
+          <div className="border-t border-primary/20 pt-4">
             <h4 className="text-foreground/80 font-medium mb-3">Add New Logo</h4>
             <div className="flex gap-3 items-end">
               <div className="flex-1 space-y-1">
                 <Label className="text-muted-foreground text-xs">Name</Label>
-                <Input value={newLogoName} onChange={(e) => setNewLogoName(e.target.value)} placeholder="Logo name" className="bg-[#9FBCA4]/5 border-[#9FBCA4]/20" data-testid="input-new-logo-name" />
+                <Input value={newLogoName} onChange={(e) => setNewLogoName(e.target.value)} placeholder="Logo name" className="bg-primary/5 border-primary/20" data-testid="input-new-logo-name" />
               </div>
               <div className="flex-1 space-y-1">
                 <Label className="text-muted-foreground text-xs">URL</Label>
-                <Input value={newLogoUrl} onChange={(e) => setNewLogoUrl(e.target.value)} placeholder="/logos/custom.png or https://..." className="bg-[#9FBCA4]/5 border-[#9FBCA4]/20" data-testid="input-new-logo-url" />
+                <Input value={newLogoUrl} onChange={(e) => setNewLogoUrl(e.target.value)} placeholder="/logos/custom.png or https://..." className="bg-primary/5 border-primary/20" data-testid="input-new-logo-url" />
               </div>
               <Button variant="outline" onClick={() => createLogoMutation.mutate({ name: newLogoName, url: newLogoUrl })} disabled={!newLogoName || !newLogoUrl || createLogoMutation.isPending} className="flex items-center gap-2" data-testid="button-add-logo">
                 {createLogoMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
@@ -1877,15 +1877,15 @@ export default function Admin() {
         </CardContent>
       </Card>
 
-      <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+      <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
         <CardHeader>
-          <CardTitle className="font-display flex items-center gap-2"><Users className="w-5 h-5 text-[#9FBCA4]" /> User Branding Assignment</CardTitle>
+          <CardTitle className="font-display flex items-center gap-2"><Users className="w-5 h-5 text-primary" /> User Branding Assignment</CardTitle>
           <CardDescription className="label-text">Assign a specific logo, theme, and asset description to each user</CardDescription>
         </CardHeader>
         <CardContent className="relative">
           <Table>
             <TableHeader>
-              <TableRow className="border-[#9FBCA4]/20 hover:bg-transparent">
+              <TableRow className="border-primary/20 hover:bg-transparent">
                 <TableHead className="text-muted-foreground">User</TableHead>
                 <TableHead className="text-muted-foreground">Role</TableHead>
                 <TableHead className="text-muted-foreground">Logo</TableHead>
@@ -1900,7 +1900,7 @@ export default function Admin() {
                 const userTheme = allThemes?.find(t => t.id === user.assignedThemeId);
                 const userAssetDesc = assetDescriptions?.find(a => a.id === user.assignedAssetDescriptionId);
                 return (
-                  <TableRow key={user.id} className="border-[#9FBCA4]/20 hover:bg-[#9FBCA4]/5" data-testid={`branding-row-${user.id}`}>
+                  <TableRow key={user.id} className="border-primary/20 hover:bg-primary/5" data-testid={`branding-row-${user.id}`}>
                     <TableCell className="text-foreground">
                       <div>
                         <span className="font-medium">{user.name || user.email}</span>
@@ -1909,15 +1909,15 @@ export default function Admin() {
                     </TableCell>
                     <TableCell>
                       <span className={`text-xs px-2 py-0.5 rounded font-mono ${
-                        user.role === "admin" ? "bg-[#9FBCA4]/20 text-[#9FBCA4]" :
+                        user.role === "admin" ? "bg-primary/20 text-primary" :
                         user.role === "checker" ? "bg-blue-500/20 text-blue-400" :
-                        "bg-[#9FBCA4]/10 text-muted-foreground"
+                        "bg-primary/10 text-muted-foreground"
                       }`}>{user.role}</span>
                     </TableCell>
                     <TableCell className="text-muted-foreground">
                       {userLogo ? (
                         <div className="flex items-center gap-2">
-                          <img src={userLogo.url} alt={userLogo.name} className="w-6 h-6 rounded object-contain bg-[#9FBCA4]/10" />
+                          <img src={userLogo.url} alt={userLogo.name} className="w-6 h-6 rounded object-contain bg-primary/10" />
                           <span className="text-sm">{userLogo.name}</span>
                         </div>
                       ) : <span className="text-muted-foreground text-sm">Default</span>}
@@ -1935,7 +1935,7 @@ export default function Admin() {
                         setBrandingThemeId(user.assignedThemeId);
                         setBrandingAssetDescId(user.assignedAssetDescriptionId);
                         setBrandingDialogOpen(true);
-                      }} className="text-[#9FBCA4] hover:text-foreground hover:bg-[#9FBCA4]/10" data-testid={`button-edit-branding-${user.id}`}>
+                      }} className="text-primary hover:text-foreground hover:bg-primary/10" data-testid={`button-edit-branding-${user.id}`}>
                         <Pencil className="w-4 h-4 mr-1" /> Assign
                       </Button>
                     </TableCell>
@@ -1951,11 +1951,11 @@ export default function Admin() {
 
   const renderUserGroups = () => (
     <div className="space-y-6">
-      <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+      <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="font-display flex items-center gap-2"><Users className="w-5 h-5 text-[#9FBCA4]" /> User Groups</CardTitle>
+              <CardTitle className="font-display flex items-center gap-2"><Users className="w-5 h-5 text-primary" /> User Groups</CardTitle>
               <CardDescription className="label-text">Create groups with a company name and logo. Assign users to groups so they see the group's branding.</CardDescription>
             </div>
             <Button variant="outline" onClick={() => {
@@ -1982,16 +1982,16 @@ export default function Admin() {
                 const groupAssetDesc = assetDescriptions?.find(a => a.id === group.assetDescriptionId);
                 const groupUsers = users?.filter(u => u.userGroupId === group.id) || [];
                 return (
-                  <div key={group.id} className="bg-[#9FBCA4]/5 border border-[#9FBCA4]/20 rounded-xl p-4" data-testid={`group-card-${group.id}`}>
+                  <div key={group.id} className="bg-primary/5 border border-primary/20 rounded-xl p-4" data-testid={`group-card-${group.id}`}>
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-3">
                         {groupLogo ? (
-                          <div className="w-10 h-10 rounded-lg bg-white border border-[#9FBCA4]/20 flex items-center justify-center overflow-hidden">
+                          <div className="w-10 h-10 rounded-lg bg-white border border-primary/20 flex items-center justify-center overflow-hidden">
                             <img src={groupLogo.url} alt={groupLogo.name} className="max-w-full max-h-full object-contain" />
                           </div>
                         ) : (
-                          <div className="w-10 h-10 rounded-lg bg-[#9FBCA4]/10 border border-[#9FBCA4]/20 flex items-center justify-center">
-                            <Building2 className="w-5 h-5 text-[#9FBCA4]" />
+                          <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
+                            <Building2 className="w-5 h-5 text-primary" />
                           </div>
                         )}
                         <div>
@@ -2004,7 +2004,7 @@ export default function Admin() {
                           setEditingGroup(group);
                           setGroupForm({ name: group.name, companyName: group.companyName, logoId: group.logoId, themeId: group.themeId, assetDescriptionId: group.assetDescriptionId });
                           setGroupDialogOpen(true);
-                        }} className="text-[#9FBCA4] hover:text-foreground hover:bg-[#9FBCA4]/10" data-testid={`button-edit-group-${group.id}`}>
+                        }} className="text-primary hover:text-foreground hover:bg-primary/10" data-testid={`button-edit-group-${group.id}`}>
                           <Pencil className="w-4 h-4" />
                         </Button>
                         <Button variant="ghost" size="sm" onClick={() => {
@@ -2017,14 +2017,14 @@ export default function Admin() {
                       </div>
                     </div>
                     <div className="flex flex-wrap gap-2 text-xs text-muted-foreground mb-3">
-                      {groupTheme && <span className="bg-[#9FBCA4]/10 px-2 py-0.5 rounded">Theme: {groupTheme.name}</span>}
-                      {groupAssetDesc && <span className="bg-[#9FBCA4]/10 px-2 py-0.5 rounded">Asset: {groupAssetDesc.name}</span>}
-                      <span className="bg-[#9FBCA4]/10 px-2 py-0.5 rounded">{groupUsers.length} member{groupUsers.length !== 1 ? "s" : ""}</span>
+                      {groupTheme && <span className="bg-primary/10 px-2 py-0.5 rounded">Theme: {groupTheme.name}</span>}
+                      {groupAssetDesc && <span className="bg-primary/10 px-2 py-0.5 rounded">Asset: {groupAssetDesc.name}</span>}
+                      <span className="bg-primary/10 px-2 py-0.5 rounded">{groupUsers.length} member{groupUsers.length !== 1 ? "s" : ""}</span>
                     </div>
                     {groupUsers.length > 0 && (
                       <div className="flex flex-wrap gap-2">
                         {groupUsers.map(u => (
-                          <span key={u.id} className="inline-flex items-center gap-1 bg-white/80 border border-[#9FBCA4]/20 rounded-full px-3 py-1 text-sm">
+                          <span key={u.id} className="inline-flex items-center gap-1 bg-white/80 border border-primary/20 rounded-full px-3 py-1 text-sm">
                             <span className="font-medium">{u.name || u.email}</span>
                             <button onClick={() => assignGroupMutation.mutate({ userId: u.id, groupId: null })} className="text-red-400 hover:text-red-600 ml-1" title="Remove from group" data-testid={`button-remove-user-${u.id}-from-group`}>
                               &times;
@@ -2041,15 +2041,15 @@ export default function Admin() {
         </CardContent>
       </Card>
 
-      <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+      <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
         <CardHeader>
-          <CardTitle className="font-display flex items-center gap-2"><UserPlus className="w-5 h-5 text-[#9FBCA4]" /> Assign Users to Groups</CardTitle>
+          <CardTitle className="font-display flex items-center gap-2"><UserPlus className="w-5 h-5 text-primary" /> Assign Users to Groups</CardTitle>
           <CardDescription className="label-text">Set which group each user belongs to. Group branding overrides defaults.</CardDescription>
         </CardHeader>
         <CardContent className="relative">
           <Table>
             <TableHeader>
-              <TableRow className="border-[#9FBCA4]/20 hover:bg-transparent">
+              <TableRow className="border-primary/20 hover:bg-transparent">
                 <TableHead className="text-muted-foreground">User</TableHead>
                 <TableHead className="text-muted-foreground">Role</TableHead>
                 <TableHead className="text-muted-foreground">Group</TableHead>
@@ -2059,7 +2059,7 @@ export default function Admin() {
               {users?.map(user => {
                 const currentGroup = userGroupsList?.find(g => g.id === user.userGroupId);
                 return (
-                  <TableRow key={user.id} className="border-[#9FBCA4]/20 hover:bg-[#9FBCA4]/5" data-testid={`group-assign-row-${user.id}`}>
+                  <TableRow key={user.id} className="border-primary/20 hover:bg-primary/5" data-testid={`group-assign-row-${user.id}`}>
                     <TableCell className="text-foreground">
                       <div>
                         <span className="font-medium">{user.name || user.email}</span>
@@ -2068,9 +2068,9 @@ export default function Admin() {
                     </TableCell>
                     <TableCell>
                       <span className={`text-xs px-2 py-0.5 rounded font-mono ${
-                        user.role === "admin" ? "bg-[#9FBCA4]/20 text-[#9FBCA4]" :
+                        user.role === "admin" ? "bg-primary/20 text-primary" :
                         user.role === "checker" ? "bg-blue-500/20 text-blue-400" :
-                        "bg-[#9FBCA4]/10 text-muted-foreground"
+                        "bg-primary/10 text-muted-foreground"
                       }`}>{user.role}</span>
                     </TableCell>
                     <TableCell>
@@ -2112,7 +2112,7 @@ export default function Admin() {
   ];
 
   const renderSidebar = () => (
-    <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]" data-testid="card-sidebar-settings">
+    <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]" data-testid="card-sidebar-settings">
       <CardHeader>
         <CardTitle className="font-display flex items-center gap-2"><Settings className="w-5 h-5" /> Navigation Visibility</CardTitle>
         <CardDescription className="label-text">Toggle which optional pages appear in the sidebar for non-admin users. Core pages (Dashboard, Properties, Management Co., Settings, Profile, Administration) are always visible.</CardDescription>
@@ -2123,7 +2123,7 @@ export default function Admin() {
           return (
             <div
               key={toggle.key}
-              className="flex items-center justify-between py-3 px-4 rounded-xl hover:bg-[#9FBCA4]/5 transition-colors"
+              className="flex items-center justify-between py-3 px-4 rounded-xl hover:bg-primary/5 transition-colors"
               data-testid={`sidebar-toggle-${toggle.key}`}
             >
               <div className="flex-1 min-w-0">
@@ -2135,7 +2135,7 @@ export default function Admin() {
                 onCheckedChange={(checked) => {
                   updateSidebarMutation.mutate({ [toggle.key]: checked });
                 }}
-                className="data-[state=checked]:bg-[#9FBCA4]"
+                className="data-[state=checked]:bg-primary"
                 data-testid={`switch-${toggle.key}`}
               />
             </div>

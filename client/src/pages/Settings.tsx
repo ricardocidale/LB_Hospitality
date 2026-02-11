@@ -164,10 +164,10 @@ export default function Settings() {
           />
 
           <TabsContent value="portfolio" className="space-y-6 mt-6">
-            <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+            <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 font-display">
-                  <Hotel className="w-5 h-5 text-[#9FBCA4]" />
+                  <Hotel className="w-5 h-5 text-primary" />
                   General Property Description
                   <HelpTooltip text="Defines the target property profile for the portfolio. These parameters guide market research searches, comp set analysis, and financial benchmarks." manualSection="global-assumptions" />
                 </CardTitle>
@@ -411,7 +411,7 @@ export default function Settings() {
               </CardContent>
             </Card>
 
-            <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+            <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
               <CardHeader>
                 <CardTitle className="flex items-center font-display">
                   Disposition
@@ -440,7 +440,7 @@ export default function Settings() {
               </CardContent>
             </Card>
 
-            <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+            <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
               <CardHeader>
                 <CardTitle className="flex items-center font-display">
                   Acquisition Financing
@@ -520,7 +520,7 @@ export default function Settings() {
               </CardContent>
             </Card>
 
-            <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+            <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
               <CardHeader>
                 <CardTitle className="flex items-center font-display">
                   Refinancing
@@ -625,7 +625,7 @@ export default function Settings() {
           </TabsContent>
 
           <TabsContent value="macro" className="space-y-6 mt-6">
-            <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+            <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
               <CardHeader>
                 <CardTitle className="font-display">Economic Assumptions</CardTitle>
                 <CardDescription className="label-text">Market-wide economic factors affecting the model</CardDescription>
@@ -687,10 +687,10 @@ export default function Settings() {
           </TabsContent>
 
           <TabsContent value="other" className="space-y-6 mt-6">
-            <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+            <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 font-display">
-                  <Sliders className="w-5 h-5 text-[#9FBCA4]" />
+                  <Sliders className="w-5 h-5 text-primary" />
                   Calculation Transparency
                   <HelpTooltip text="Control whether formula breakdowns and help icons are visible in financial reports. When turned on, tables show expandable rows with step-by-step calculations and help icons explaining each line item. When turned off, tables display clean numbers only — ideal for investor presentations." manualSection="financial-statements" />
                 </CardTitle>
@@ -722,7 +722,7 @@ export default function Settings() {
               </CardContent>
             </Card>
 
-            <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+            <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
               <CardHeader>
                 <CardTitle className="flex items-center font-display">
                   AI Research Model
@@ -753,7 +753,7 @@ export default function Settings() {
               </CardContent>
             </Card>
 
-            <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+            <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
               <CardHeader>
                 <CardTitle className="flex items-center font-display">
                   Catering Revenue Model

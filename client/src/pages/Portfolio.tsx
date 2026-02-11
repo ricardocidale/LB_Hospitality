@@ -599,8 +599,8 @@ export default function Portfolio() {
                       data-testid={`badge-type-${property.id}`}
                       className={`px-3 py-1 rounded-full text-xs font-medium backdrop-blur-xl label-text ${
                         property.type === "Financed" 
-                          ? "bg-[#257D41]/80 text-white border border-white/20" 
-                          : "bg-[#9FBCA4]/80 text-white border border-white/20"
+                          ? "bg-secondary/80 text-white border border-white/20" 
+                          : "bg-primary/80 text-white border border-white/20"
                       }`}
                     >
                       {property.type}
@@ -617,8 +617,8 @@ export default function Portfolio() {
                 </div>
                 
                 <div className="p-5">
-                  <h3 className="font-display text-xl text-[#FFF9F5]">{property.name}</h3>
-                  <div className="flex items-center text-[#FFF9F5]/60 text-sm mt-1 label-text">
+                  <h3 className="font-display text-xl text-background">{property.name}</h3>
+                  <div className="flex items-center text-background/60 text-sm mt-1 label-text">
                     <MapPin className="w-3 h-3 mr-1" />
                     {property.location}
                   </div>
@@ -627,11 +627,11 @@ export default function Portfolio() {
                 <div className="px-5 pb-4 flex-1">
                   <div className="grid grid-cols-2 gap-3 text-sm">
                     <div className="p-3 bg-white/10 backdrop-blur-xl rounded-xl border border-white/10">
-                      <p className="text-xs text-[#FFF9F5]/50 mb-1 label-text">Acquisition</p>
-                      <p className="font-mono font-semibold text-[#FFF9F5]">{formatMoney(property.purchasePrice)}</p>
+                      <p className="text-xs text-background/50 mb-1 label-text">Acquisition</p>
+                      <p className="font-mono font-semibold text-background">{formatMoney(property.purchasePrice)}</p>
                     </div>
                     <div className="p-3 bg-white/10 backdrop-blur-xl rounded-xl border border-white/10">
-                      <p className="text-xs text-[#FFF9F5]/50 mb-1 label-text">Capacity</p>
+                      <p className="text-xs text-background/50 mb-1 label-text">Capacity</p>
                       <p className="font-semibold text-white flex items-center">
                         <Bed className="w-3 h-3 mr-1" />
                         <span className="font-mono">{property.roomCount}</span> <span className="label-text ml-1">Rooms</span>
@@ -643,7 +643,7 @@ export default function Portfolio() {
                 <div className="px-5 pb-5 pt-2 border-t border-white/10 flex justify-between items-center">
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <button className="relative overflow-hidden p-2 rounded-xl text-[#FFF9F5]/50 hover:text-red-400 transition-all duration-300 group/del">
+                      <button className="relative overflow-hidden p-2 rounded-xl text-background/50 hover:text-red-400 transition-all duration-300 group/del">
                         <div className="absolute inset-0 bg-white/0 group-hover/del:bg-white/5 rounded-xl transition-all duration-300" />
                         <Trash2 className="w-4 h-4 relative" />
                       </button>

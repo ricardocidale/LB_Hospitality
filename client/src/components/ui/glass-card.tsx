@@ -14,9 +14,9 @@ const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(
         border: "border-white/10",
       },
       success: {
-        bg: "from-[#257D41]/20 via-[#3d5a6a]/50 to-[#3a5a5e]/60",
-        highlight: "via-[#9FBCA4]/30",
-        border: "border-[#9FBCA4]/30",
+        bg: "from-secondary/20 via-[#3d5a6a]/50 to-[#3a5a5e]/60",
+        highlight: "via-primary/30",
+        border: "border-primary/30",
       },
       warning: {
         bg: "from-red-900/30 via-[#3d5a6a]/50 to-[#3a5a5e]/60",
@@ -43,8 +43,8 @@ const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(
         <div className={cn("absolute inset-0 rounded-2xl border", v.border)} />
         {variant === "chart" && (
           <>
-            <div className="absolute top-0 left-1/4 w-72 h-72 rounded-full bg-[#9FBCA4]/20 blur-3xl" />
-            <div className="absolute bottom-0 right-1/4 w-64 h-64 rounded-full bg-[#9FBCA4]/15 blur-3xl" />
+            <div className="absolute top-0 left-1/4 w-72 h-72 rounded-full bg-primary/20 blur-3xl" />
+            <div className="absolute bottom-0 right-1/4 w-64 h-64 rounded-full bg-primary/15 blur-3xl" />
           </>
         )}
         <div className="relative">

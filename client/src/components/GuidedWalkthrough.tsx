@@ -205,7 +205,7 @@ export function WalkthroughTrigger() {
   return (
     <button
       onClick={handleClick}
-      className="group relative flex items-center gap-3 px-4 py-3 text-sm font-medium text-[#FFF9F5]/60 hover:text-white rounded-2xl transition-all duration-300 overflow-hidden w-full"
+      className="group relative flex items-center gap-3 px-4 py-3 text-sm font-medium text-background/60 hover:text-white rounded-2xl transition-all duration-300 overflow-hidden w-full"
       data-testid="button-start-tour"
     >
       <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-all duration-300 rounded-2xl" />

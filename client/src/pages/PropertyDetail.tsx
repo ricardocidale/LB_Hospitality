@@ -8,7 +8,7 @@ import { YearlyCashFlowStatement } from "@/components/YearlyCashFlowStatement";
 import { ConsolidatedBalanceSheet } from "@/components/ConsolidatedBalanceSheet";
 import { CalcDetailsProvider } from "@/components/financial-table-rows";
 import { Tabs, TabsContent, DarkGlassTabs } from "@/components/ui/tabs";
-import { FileText, Banknote, Scale, Building2, ArrowLeft, MapPin, Loader2, Settings2, Sheet, ChevronDown, ChevronRight, Info, Map } from "lucide-react";
+import { FileText, Banknote, Scale, Building2, ArrowLeft, MapPin, Loader2, Settings2, Sheet, ChevronDown, ChevronRight, Info, Map, AlertTriangle } from "lucide-react";
 import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
 import { downloadCSV } from "@/lib/exports/csvExport";
 import { exportPropertyPPTX } from "@/lib/exports/pptxExport";
@@ -258,8 +258,8 @@ export default function PropertyDetail() {
   const [exportType, setExportType] = useState<'pdf' | 'chart' | 'tablePng'>('pdf');
   const [incomeAllExpanded, setIncomeAllExpanded] = useState(false);
   
-  const { data: property, isLoading: propertyLoading } = useProperty(propertyId);
-  const { data: global, isLoading: globalLoading } = useGlobalAssumptions();
+  const { data: property, isLoading: propertyLoading, isError: propertyError } = useProperty(propertyId);
+  const { data: global, isLoading: globalLoading, isError: globalError } = useGlobalAssumptions();
   
   const handlePhotoUploadComplete = () => {
     queryClient.invalidateQueries({ queryKey: ["/api/properties", propertyId] });
@@ -308,6 +308,17 @@ export default function PropertyDetail() {
       <Layout>
         <div className="flex items-center justify-center h-[60vh]">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      </Layout>
+    );
+  }
+
+  if (propertyError || globalError) {
+    return (
+      <Layout>
+        <div className="flex flex-col items-center justify-center h-[60vh] gap-3">
+          <AlertTriangle className="w-8 h-8 text-destructive" />
+          <p className="text-muted-foreground">Failed to load property data. Please try refreshing the page.</p>
         </div>
       </Layout>
     );
@@ -731,8 +742,8 @@ export default function PropertyDetail() {
             <div className="absolute top-0 left-8 right-8 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
             {/* Floating Color Orbs */}
             <div className="absolute inset-0 overflow-hidden">
-              <div className="absolute -top-12 -right-12 w-56 h-56 rounded-full bg-[#9FBCA4]/25 blur-3xl" />
-              <div className="absolute bottom-0 left-1/4 w-48 h-48 rounded-full bg-[#9FBCA4]/15 blur-3xl" />
+              <div className="absolute -top-12 -right-12 w-56 h-56 rounded-full bg-primary/25 blur-3xl" />
+              <div className="absolute bottom-0 left-1/4 w-48 h-48 rounded-full bg-primary/15 blur-3xl" />
             </div>
             
             <div className="relative flex items-center justify-between">
@@ -745,8 +756,8 @@ export default function PropertyDetail() {
                   </button>
                 </Link>
                 <div>
-                  <h1 className="text-2xl font-display text-[#FFF9F5]">{property.name}</h1>
-                  <div className="flex items-center gap-4 text-[#FFF9F5]/70 text-sm mt-1 label-text">
+                  <h1 className="text-2xl font-display text-background">{property.name}</h1>
+                  <div className="flex items-center gap-4 text-background/70 text-sm mt-1 label-text">
                     <span className="flex items-center gap-1"><MapPin className="w-4 h-4" /> {property.location}</span>
                     <span className="font-mono">{property.roomCount} Rooms</span>
                     <span className="px-2 py-0.5 rounded-full bg-white/15 border border-white/25 text-white text-xs">

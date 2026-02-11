@@ -35,8 +35,8 @@ export function ThemeManager() {
     <>
     <Card className="relative overflow-hidden bg-white/80 backdrop-blur-xl border border-gray-200 shadow-2xl">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-[#9FBCA4]/10 blur-[100px] animate-pulse" style={{ animationDuration: '4s' }} />
-        <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-[#257D41]/10 blur-[100px] animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
+        <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-primary/10 blur-[100px] animate-pulse" style={{ animationDuration: '4s' }} />
+        <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-secondary/10 blur-[100px] animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
       </div>
 
       <CardHeader className="relative">
@@ -49,7 +49,7 @@ export function ThemeManager() {
           </div>
           <button
             onClick={() => setThemeDialogOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-[#257D41] bg-[#257D41]/10 text-[#257D41] font-semibold hover:bg-[#257D41]/20 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-secondary bg-secondary/10 text-secondary font-semibold hover:bg-secondary/20 transition-colors"
           >
             <Plus className="w-4 h-4" />
             New Theme
@@ -60,18 +60,18 @@ export function ThemeManager() {
         <CardContent className="relative space-y-6">
           {themesLoading ? (
             <div className="text-center py-8">
-              <Loader2 className="w-8 h-8 mx-auto text-[#257D41] animate-spin" />
+              <Loader2 className="w-8 h-8 mx-auto text-secondary animate-spin" />
             </div>
           ) : designThemes && designThemes.length > 0 ? (
             <div className="space-y-4">
               {designThemes.map((theme) => (
-                <div key={theme.id} className={`p-5 rounded-2xl border-2 ${theme.isActive ? 'border-[#257D41] bg-[#9FBCA4]/10' : 'border-gray-200 bg-white'}`}>
+                <div key={theme.id} className={`p-5 rounded-2xl border-2 ${theme.isActive ? 'border-secondary bg-primary/10' : 'border-gray-200 bg-white'}`}>
                   <div className="flex items-start justify-between mb-4">
                     <div>
                       <div className="flex items-center gap-3">
                         <h3 className="font-display text-lg text-gray-900 font-semibold">{theme.name}</h3>
                         {theme.isActive && (
-                          <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-[#257D41] text-white">Active</span>
+                          <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-secondary text-white">Active</span>
                         )}
                         {theme.userId === null && (
                           <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-gray-200 text-gray-600">System</span>
@@ -85,7 +85,7 @@ export function ThemeManager() {
                           size="sm"
                           variant="outline"
                           onClick={() => activateThemeMutation.mutate(theme.id)}
-                          className="text-[#257D41] border-[#257D41] hover:bg-[#257D41]/10"
+                          className="text-secondary border-secondary hover:bg-secondary/10"
                         >
                           Set Active
                         </Button>
@@ -109,7 +109,7 @@ export function ThemeManager() {
                   {theme.colors.filter(c => c.description?.startsWith('PALETTE:')).length > 0 && (
                     <div className="mb-4">
                       <div className="flex items-center gap-2 mb-3">
-                        <Palette className="w-4 h-4 text-[#257D41]" />
+                        <Palette className="w-4 h-4 text-secondary" />
                         <h4 className="font-display text-sm font-semibold text-gray-700">Palette Colors</h4>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
@@ -226,14 +226,14 @@ export function ThemeManager() {
           </div>
 
           {/* Palette Colors Section */}
-          <div className="p-4 rounded-lg border-2 border-[#9FBCA4]/50 bg-[#9FBCA4]/5">
+          <div className="p-4 rounded-lg border-2 border-primary/50 bg-primary/5">
             <div className="flex items-center justify-between mb-3">
-              <Label className="flex items-center gap-2"><Palette className="w-4 h-4 text-[#257D41]" />Palette Colors</Label>
+              <Label className="flex items-center gap-2"><Palette className="w-4 h-4 text-secondary" />Palette Colors</Label>
               <Button
                 type="button"
                 size="sm"
                 variant="outline"
-                className="border-[#257D41] text-[#257D41] hover:bg-[#257D41]/10"
+                className="border-secondary text-secondary hover:bg-secondary/10"
                 onClick={() => {
                   const paletteColors = (editingTheme?.colors || newTheme.colors).filter(c => c.description?.startsWith('PALETTE:'));
                   const newColor = { rank: paletteColors.length + 1, name: "", hexCode: "#9FBCA4", description: "PALETTE: " };

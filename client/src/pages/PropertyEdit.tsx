@@ -78,7 +78,37 @@ export default function PropertyEdit() {
   }, [feeCategories]);
 
   const researchValues = (() => {
-    if (!research?.content) return {};
+    const SEEDED_DEFAULTS: Record<string, { display: string; mid: number }> = {
+      adr: { display: "$150–$250", mid: 200 },
+      occupancy: { display: "68%–75%", mid: 72 },
+      startOccupancy: { display: "35%–45%", mid: 40 },
+      rampMonths: { display: "12–24 mo", mid: 18 },
+      capRate: { display: "7.5%–8.5%", mid: 8 },
+      catering: { display: "8%–15%", mid: 12 },
+      landValue: { display: "25%–35%", mid: 30 },
+      costHousekeeping: { display: "20%–28%", mid: 24 },
+      costFB: { display: "7%–12%", mid: 9 },
+      costAdmin: { display: "7%–10%", mid: 8 },
+      costPropertyOps: { display: "4%–6%", mid: 5 },
+      costUtilities: { display: "4%–6%", mid: 5 },
+      costFFE: { display: "3%–5%", mid: 4 },
+      costMarketing: { display: "1%–3%", mid: 2 },
+      costIT: { display: "0.5%–1.5%", mid: 1 },
+      costOther: { display: "2%–5%", mid: 3 },
+      costInsurance: { display: "0.5%–1.5%", mid: 1 },
+      costPropertyTaxes: { display: "1%–3%", mid: 2 },
+      svcFeeMarketing: { display: "1.0%–2.0%", mid: 1.5 },
+      svcFeeIT: { display: "0.5%–1.5%", mid: 1 },
+      svcFeeAccounting: { display: "1.0%–2.0%", mid: 1.5 },
+      svcFeeReservations: { display: "1.0%–2.0%", mid: 1.5 },
+      svcFeeGeneralMgmt: { display: "2.0%–3.0%", mid: 2.5 },
+      incentiveFee: { display: "10%–15%", mid: 12 },
+      incomeTax: { display: "21%–28%", mid: 25 },
+    };
+
+    if (!research?.content) {
+      return SEEDED_DEFAULTS;
+    }
     const c = research.content;
     const parseRange = (rangeStr: string | undefined): { low: number; high: number; mid: number } | null => {
       if (!rangeStr) return null;
@@ -120,7 +150,7 @@ export default function PropertyEdit() {
     const msf = c.managementServiceFeeAnalysis;
     const ita = c.incomeTaxAnalysis;
 
-    return {
+    const aiValues: Record<string, { display: string; mid: number } | null> = {
       adr: adrRange ? { display: c.adrAnalysis?.recommendedRange ?? "", mid: adrRange.mid } : null,
       occupancy: occRange ? { display: `${occRange.low}%–${occRange.high}%`, mid: occRange.mid } : null,
       startOccupancy: initOccRange ? { display: `${initOccRange.low}%–${initOccRange.high}%`, mid: initOccRange.mid } : null,
@@ -147,6 +177,14 @@ export default function PropertyEdit() {
       incentiveFee: parseCostRate(msf?.incentiveFee),
       incomeTax: ita?.recommendedRate ? parseCostRate({ recommendedRate: ita.recommendedRate }) : null,
     };
+
+    const merged: Record<string, { display: string; mid: number }> = { ...SEEDED_DEFAULTS };
+    for (const key of Object.keys(merged)) {
+      if (aiValues[key]) {
+        merged[key] = aiValues[key]!;
+      }
+    }
+    return merged;
   })();
 
   useEffect(() => {
@@ -283,9 +321,9 @@ export default function PropertyEdit() {
         {/* Glass Card - Basic Information */}
         <div className="relative overflow-hidden rounded-2xl">
           <div className="absolute inset-0 bg-white/80 backdrop-blur-xl" />
-          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-[#9FBCA4]/10 blur-2xl" />
-          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/5 blur-xl" />
-          <div className="absolute inset-0 border border-[#9FBCA4]/20 rounded-2xl shadow-[0_8px_32px_rgba(159,188,164,0.15)]" />
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-primary/10 blur-2xl" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-primary/5 blur-xl" />
+          <div className="absolute inset-0 border border-primary/20 rounded-2xl shadow-[0_8px_32px_rgba(159,188,164,0.15)]" />
           
           <div className="relative p-6">
             <div className="mb-6">
@@ -295,39 +333,39 @@ export default function PropertyEdit() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label className="label-text text-gray-700 flex items-center gap-1.5">Property Name<HelpTooltip text="Internal name used to identify this property across the portfolio. Appears in dashboards, reports, and financial statements." /></Label>
-                <Input value={draft.name} onChange={(e) => handleChange("name", e.target.value)} className="bg-white border-[#9FBCA4]/30 text-gray-900 placeholder:text-gray-400" />
+                <Input value={draft.name} onChange={(e) => handleChange("name", e.target.value)} className="bg-white border-primary/30 text-gray-900 placeholder:text-gray-400" />
               </div>
               <div className="space-y-2">
                 <Label className="label-text text-gray-700 flex items-center gap-1.5">Location<HelpTooltip text="City and state/region of the property. Used for market research to find comparable properties and local hospitality benchmarks." /></Label>
-                <Input value={draft.location} onChange={(e) => handleChange("location", e.target.value)} className="bg-white border-[#9FBCA4]/30 text-gray-900 placeholder:text-gray-400" />
+                <Input value={draft.location} onChange={(e) => handleChange("location", e.target.value)} className="bg-white border-primary/30 text-gray-900 placeholder:text-gray-400" />
               </div>
               <div className="space-y-2">
                 <Label className="label-text text-gray-700 flex items-center gap-1.5">Market<HelpTooltip text="The broader market or MSA (Metropolitan Statistical Area) this property operates in. Drives market research, comp set analysis, and regional benchmarks." /></Label>
-                <Input value={draft.market} onChange={(e) => handleChange("market", e.target.value)} className="bg-white border-[#9FBCA4]/30 text-gray-900 placeholder:text-gray-400" />
+                <Input value={draft.market} onChange={(e) => handleChange("market", e.target.value)} className="bg-white border-primary/30 text-gray-900 placeholder:text-gray-400" />
               </div>
 
-              <div className="sm:col-span-2 border border-[#9FBCA4]/20 rounded-xl p-4 space-y-4">
+              <div className="sm:col-span-2 border border-primary/20 rounded-xl p-4 space-y-4">
                 <p className="text-sm font-medium text-gray-700 label-text">Address Details <span className="text-gray-400 font-normal">(optional)</span></p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2 sm:col-span-2">
                     <Label className="label-text text-gray-600 text-sm">Street Address</Label>
-                    <Input value={draft.streetAddress || ""} onChange={(e) => handleChange("streetAddress", e.target.value || null)} placeholder="123 Main Street" className="bg-white border-[#9FBCA4]/30 text-gray-900 placeholder:text-gray-400" />
+                    <Input value={draft.streetAddress || ""} onChange={(e) => handleChange("streetAddress", e.target.value || null)} placeholder="123 Main Street" className="bg-white border-primary/30 text-gray-900 placeholder:text-gray-400" />
                   </div>
                   <div className="space-y-2">
                     <Label className="label-text text-gray-600 text-sm">City</Label>
-                    <Input value={draft.city || ""} onChange={(e) => handleChange("city", e.target.value || null)} placeholder="Austin" className="bg-white border-[#9FBCA4]/30 text-gray-900 placeholder:text-gray-400" />
+                    <Input value={draft.city || ""} onChange={(e) => handleChange("city", e.target.value || null)} placeholder="Austin" className="bg-white border-primary/30 text-gray-900 placeholder:text-gray-400" />
                   </div>
                   <div className="space-y-2">
                     <Label className="label-text text-gray-600 text-sm">State / Province / Region</Label>
-                    <Input value={draft.stateProvince || ""} onChange={(e) => handleChange("stateProvince", e.target.value || null)} placeholder="Texas" className="bg-white border-[#9FBCA4]/30 text-gray-900 placeholder:text-gray-400" />
+                    <Input value={draft.stateProvince || ""} onChange={(e) => handleChange("stateProvince", e.target.value || null)} placeholder="Texas" className="bg-white border-primary/30 text-gray-900 placeholder:text-gray-400" />
                   </div>
                   <div className="space-y-2">
                     <Label className="label-text text-gray-600 text-sm">Postal / ZIP Code</Label>
-                    <Input value={draft.zipPostalCode || ""} onChange={(e) => handleChange("zipPostalCode", e.target.value || null)} placeholder="78701" className="bg-white border-[#9FBCA4]/30 text-gray-900 placeholder:text-gray-400" />
+                    <Input value={draft.zipPostalCode || ""} onChange={(e) => handleChange("zipPostalCode", e.target.value || null)} placeholder="78701" className="bg-white border-primary/30 text-gray-900 placeholder:text-gray-400" />
                   </div>
                   <div className="space-y-2">
                     <Label className="label-text text-gray-600 text-sm">Country</Label>
-                    <Input value={draft.country || ""} onChange={(e) => handleChange("country", e.target.value || null)} placeholder="United States" className="bg-white border-[#9FBCA4]/30 text-gray-900 placeholder:text-gray-400" />
+                    <Input value={draft.country || ""} onChange={(e) => handleChange("country", e.target.value || null)} placeholder="United States" className="bg-white border-primary/30 text-gray-900 placeholder:text-gray-400" />
                   </div>
                 </div>
               </div>
@@ -344,7 +382,7 @@ export default function PropertyEdit() {
               <div className="space-y-2">
                 <Label className="label-text text-gray-700 flex items-center gap-1.5">Status<HelpTooltip text="Current stage of the property: Acquisition (under contract), Planned (in development), or Active (generating revenue)." /></Label>
                 <Select value={draft.status} onValueChange={(v) => handleChange("status", v)}>
-                  <SelectTrigger className="bg-white border-[#9FBCA4]/30 text-gray-900"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="bg-white border-primary/30 text-gray-900"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Acquisition">Acquisition</SelectItem>
                     <SelectItem value="Development">Planned</SelectItem>
@@ -354,7 +392,7 @@ export default function PropertyEdit() {
               </div>
               <div className="space-y-2">
                 <Label className="label-text text-gray-700 flex items-center gap-1.5">Room Count<HelpTooltip text="Total number of rentable guest rooms. This is the primary revenue driver — all room revenue is calculated as Rooms × ADR × Occupancy × 30.5 days/month." /></Label>
-                <Input type="number" value={draft.roomCount} onChange={(e) => handleNumberChange("roomCount", e.target.value)} className="bg-white border-[#9FBCA4]/30 text-gray-900 placeholder:text-gray-400" />
+                <Input type="number" value={draft.roomCount} onChange={(e) => handleNumberChange("roomCount", e.target.value)} className="bg-white border-primary/30 text-gray-900 placeholder:text-gray-400" />
               </div>
             </div>
           </div>
@@ -363,9 +401,9 @@ export default function PropertyEdit() {
         {/* Glass Card - Timeline */}
         <div className="relative overflow-hidden rounded-2xl">
           <div className="absolute inset-0 bg-white/80 backdrop-blur-xl" />
-          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-[#9FBCA4]/10 blur-2xl" />
-          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/5 blur-xl" />
-          <div className="absolute inset-0 border border-[#9FBCA4]/20 rounded-2xl shadow-[0_8px_32px_rgba(159,188,164,0.15)]" />
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-primary/10 blur-2xl" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-primary/5 blur-xl" />
+          <div className="absolute inset-0 border border-primary/20 rounded-2xl shadow-[0_8px_32px_rgba(159,188,164,0.15)]" />
           
           <div className="relative p-6">
             <div className="mb-6">
@@ -378,14 +416,14 @@ export default function PropertyEdit() {
                   Acquisition Date
                   <HelpTooltip text="The date when the property is purchased. Equity investment occurs on this date. Pre-opening costs and building improvements are incurred during the period between acquisition and operations start." />
                 </Label>
-                <Input type="date" value={draft.acquisitionDate} onChange={(e) => handleChange("acquisitionDate", e.target.value)} className="bg-white border-[#9FBCA4]/30 text-gray-900" />
+                <Input type="date" value={draft.acquisitionDate} onChange={(e) => handleChange("acquisitionDate", e.target.value)} className="bg-white border-primary/30 text-gray-900" />
               </div>
               <div className="space-y-2">
                 <Label className="flex items-center label-text text-gray-700">
                   Operations Start Date
                   <HelpTooltip text="The date when the property begins operating and generating revenue. All revenues and operating expenses start on this date. The period between acquisition and operations start is used for renovations and pre-opening preparation." />
                 </Label>
-                <Input type="date" value={draft.operationsStartDate} onChange={(e) => handleChange("operationsStartDate", e.target.value)} className="bg-white border-[#9FBCA4]/30 text-gray-900" />
+                <Input type="date" value={draft.operationsStartDate} onChange={(e) => handleChange("operationsStartDate", e.target.value)} className="bg-white border-primary/30 text-gray-900" />
               </div>
             </div>
           </div>
@@ -394,9 +432,9 @@ export default function PropertyEdit() {
         {/* Glass Card - Capital Structure */}
         <div className="relative overflow-hidden rounded-2xl">
           <div className="absolute inset-0 bg-white/80 backdrop-blur-xl" />
-          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-[#9FBCA4]/10 blur-2xl" />
-          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/5 blur-xl" />
-          <div className="absolute inset-0 border border-[#9FBCA4]/20 rounded-2xl shadow-[0_8px_32px_rgba(159,188,164,0.15)]" />
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-primary/10 blur-2xl" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-primary/5 blur-xl" />
+          <div className="absolute inset-0 border border-primary/20 rounded-2xl shadow-[0_8px_32px_rgba(159,188,164,0.15)]" />
           
           <div className="relative p-6 space-y-5">
             <div>
@@ -409,7 +447,7 @@ export default function PropertyEdit() {
                 <Input 
                   value={formatMoneyInput(draft.purchasePrice)} 
                   onChange={(e) => handleNumberChange("purchasePrice", parseMoneyInput(e.target.value).toString())}
-                  className="bg-white border-[#9FBCA4]/30 text-gray-900"
+                  className="bg-white border-primary/30 text-gray-900"
                 />
               </div>
               <div className="space-y-1.5">
@@ -417,7 +455,7 @@ export default function PropertyEdit() {
                 <Input 
                   value={formatMoneyInput(draft.buildingImprovements)} 
                   onChange={(e) => handleNumberChange("buildingImprovements", parseMoneyInput(e.target.value).toString())}
-                  className="bg-white border-[#9FBCA4]/30 text-gray-900"
+                  className="bg-white border-primary/30 text-gray-900"
                 />
               </div>
               <div className="space-y-1.5">
@@ -425,7 +463,7 @@ export default function PropertyEdit() {
                 <Input 
                   value={formatMoneyInput(draft.preOpeningCosts)} 
                   onChange={(e) => handleNumberChange("preOpeningCosts", parseMoneyInput(e.target.value).toString())}
-                  className="bg-white border-[#9FBCA4]/30 text-gray-900"
+                  className="bg-white border-primary/30 text-gray-900"
                 />
               </div>
               <div className="space-y-1.5">
@@ -433,7 +471,7 @@ export default function PropertyEdit() {
                 <Input 
                   value={formatMoneyInput(draft.operatingReserve)} 
                   onChange={(e) => handleNumberChange("operatingReserve", parseMoneyInput(e.target.value).toString())}
-                  className="bg-white border-[#9FBCA4]/30 text-gray-900"
+                  className="bg-white border-primary/30 text-gray-900"
                 />
               </div>
               <div className="space-y-1.5">
@@ -600,7 +638,7 @@ export default function PropertyEdit() {
                               return opsDate.toISOString().split('T')[0];
                             })()} 
                             onChange={(e) => handleChange("refinanceDate", e.target.value)}
-                            className="bg-white border-[#9FBCA4]/30 text-gray-900"
+                            className="bg-white border-primary/30 text-gray-900"
                           />
                           <p className="text-xs text-gray-500">Suggested: {globalAssumptions?.debtAssumptions?.refiPeriodYears ?? DEFAULT_REFI_PERIOD_YEARS} years after operations start</p>
                         </div>
@@ -689,9 +727,9 @@ export default function PropertyEdit() {
         {/* Glass Card - Revenue Assumptions */}
         <div className="relative overflow-hidden rounded-2xl">
           <div className="absolute inset-0 bg-white/80 backdrop-blur-xl" />
-          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-[#9FBCA4]/10 blur-2xl" />
-          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/5 blur-xl" />
-          <div className="absolute inset-0 border border-[#9FBCA4]/20 rounded-2xl shadow-[0_8px_32px_rgba(159,188,164,0.15)]" />
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-primary/10 blur-2xl" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-primary/5 blur-xl" />
+          <div className="absolute inset-0 border border-primary/20 rounded-2xl shadow-[0_8px_32px_rgba(159,188,164,0.15)]" />
           
           <div className="relative p-6 space-y-6">
             <div>
@@ -723,7 +761,7 @@ export default function PropertyEdit() {
                   min={100}
                   max={1200}
                   step={10}
-                  className="[&_[role=slider]]:bg-[#9FBCA4]"
+                  className="[&_[role=slider]]:bg-primary"
                 />
               </div>
               <div className="space-y-2">
@@ -744,7 +782,7 @@ export default function PropertyEdit() {
                   min={0}
                   max={50}
                   step={1}
-                  className="[&_[role=slider]]:bg-[#9FBCA4]"
+                  className="[&_[role=slider]]:bg-primary"
                 />
               </div>
             </div>
@@ -773,7 +811,7 @@ export default function PropertyEdit() {
                   min={0}
                   max={100}
                   step={1}
-                  className="[&_[role=slider]]:bg-[#9FBCA4]"
+                  className="[&_[role=slider]]:bg-primary"
                 />
               </div>
               <div className="space-y-2">
@@ -800,7 +838,7 @@ export default function PropertyEdit() {
                   min={0}
                   max={100}
                   step={1}
-                  className="[&_[role=slider]]:bg-[#9FBCA4]"
+                  className="[&_[role=slider]]:bg-primary"
                 />
               </div>
             </div>
@@ -829,7 +867,7 @@ export default function PropertyEdit() {
                   min={0}
                   max={36}
                   step={1}
-                  className="[&_[role=slider]]:bg-[#9FBCA4]"
+                  className="[&_[role=slider]]:bg-primary"
                 />
               </div>
               <div className="space-y-2">
@@ -850,7 +888,7 @@ export default function PropertyEdit() {
                   min={0}
                   max={20}
                   step={1}
-                  className="[&_[role=slider]]:bg-[#9FBCA4]"
+                  className="[&_[role=slider]]:bg-primary"
                 />
               </div>
               <div className="space-y-2">
@@ -871,12 +909,12 @@ export default function PropertyEdit() {
                   min={0}
                   max={36}
                   step={1}
-                  className="[&_[role=slider]]:bg-[#9FBCA4]"
+                  className="[&_[role=slider]]:bg-primary"
                 />
               </div>
             </div>
 
-            <div className="space-y-4 pt-2 border-t border-[#9FBCA4]/15">
+            <div className="space-y-4 pt-2 border-t border-primary/15">
               <Label className="label-text text-gray-700 flex items-center gap-1.5">
                 Additional Revenue as % of Room Revenue
                 <HelpTooltip text="Configure how much additional revenue each stream generates as a percentage of room revenue. F&B revenue gets boosted by the catering boost percentage." />
@@ -903,7 +941,7 @@ export default function PropertyEdit() {
                     min={0}
                     max={100}
                     step={5}
-                    className="[&_[role=slider]]:bg-[#9FBCA4]"
+                    className="[&_[role=slider]]:bg-primary"
                   />
                   <p className="text-xs text-gray-500">Meetings, weddings, conferences</p>
                 </div>
@@ -928,7 +966,7 @@ export default function PropertyEdit() {
                     min={0}
                     max={100}
                     step={5}
-                    className="[&_[role=slider]]:bg-[#9FBCA4]"
+                    className="[&_[role=slider]]:bg-primary"
                   />
                   <p className="text-xs text-gray-500">Restaurant, bar, room service</p>
                 </div>
@@ -953,7 +991,7 @@ export default function PropertyEdit() {
                     min={0}
                     max={100}
                     step={5}
-                    className="[&_[role=slider]]:bg-[#9FBCA4]"
+                    className="[&_[role=slider]]:bg-primary"
                   />
                   <p className="text-xs text-gray-500">Spa, parking, activities</p>
                 </div>
@@ -979,7 +1017,7 @@ export default function PropertyEdit() {
                     min={0}
                     max={100}
                     step={5}
-                    className="[&_[role=slider]]:bg-[#9FBCA4]"
+                    className="[&_[role=slider]]:bg-primary"
                   />
                   <p className="text-xs text-gray-500">F&B uplift from catered events</p>
                 </div>
@@ -991,9 +1029,9 @@ export default function PropertyEdit() {
         {/* Glass Card - Operating Cost Rates */}
         <div className="relative overflow-hidden rounded-2xl">
           <div className="absolute inset-0 bg-white/80 backdrop-blur-xl" />
-          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-[#9FBCA4]/10 blur-2xl" />
-          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/5 blur-xl" />
-          <div className="absolute inset-0 border border-[#9FBCA4]/20 rounded-2xl shadow-[0_8px_32px_rgba(159,188,164,0.15)]" />
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-primary/10 blur-2xl" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-primary/5 blur-xl" />
+          <div className="absolute inset-0 border border-primary/20 rounded-2xl shadow-[0_8px_32px_rgba(159,188,164,0.15)]" />
           
           <div className="relative p-6">
             <div className="mb-6">
@@ -1022,7 +1060,7 @@ export default function PropertyEdit() {
                   <div className="p-4 rounded-lg bg-white/10 border border-white/20">
                     <div className="flex justify-between items-center">
                       <span className="font-medium text-gray-900">Total Allocation:</span>
-                      <span className="text-lg font-bold text-[#9FBCA4]">
+                      <span className="text-lg font-bold text-primary">
                         {(costRateTotal * 100).toFixed(1)}%
                       </span>
                     </div>
@@ -1329,9 +1367,9 @@ export default function PropertyEdit() {
         {/* Glass Card - Management Fees */}
         <div className="relative overflow-hidden rounded-2xl">
           <div className="absolute inset-0 bg-white/80 backdrop-blur-xl" />
-          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-[#9FBCA4]/10 blur-2xl" />
-          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/5 blur-xl" />
-          <div className="absolute inset-0 border border-[#9FBCA4]/20 rounded-2xl shadow-[0_8px_32px_rgba(159,188,164,0.15)]" />
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-primary/10 blur-2xl" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-primary/5 blur-xl" />
+          <div className="absolute inset-0 border border-primary/20 rounded-2xl shadow-[0_8px_32px_rgba(159,188,164,0.15)]" />
           
           <div className="relative p-6">
             <div className="mb-6">
@@ -1383,7 +1421,7 @@ export default function PropertyEdit() {
                         <button
                           type="button"
                           onClick={() => handleFeeCategoryChange(idx, "isActive", !cat.isActive)}
-                          className={`w-8 h-5 rounded-full transition-colors ${cat.isActive ? 'bg-[#9FBCA4]' : 'bg-gray-300'} relative`}
+                          className={`w-8 h-5 rounded-full transition-colors ${cat.isActive ? 'bg-primary' : 'bg-gray-300'} relative`}
                           title={cat.isActive ? "Disable this fee" : "Enable this fee"}
                           data-testid={`toggle-fee-${cat.name.toLowerCase().replace(/\s+/g, '-')}`}
                         >
@@ -1405,7 +1443,7 @@ export default function PropertyEdit() {
               </div>
             </div>
 
-            <div className="border-t border-[#9FBCA4]/20 pt-4">
+            <div className="border-t border-primary/20 pt-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
@@ -1442,9 +1480,9 @@ export default function PropertyEdit() {
         {/* Glass Card - Other Assumptions */}
         <div className="relative overflow-hidden rounded-2xl">
           <div className="absolute inset-0 bg-white/80 backdrop-blur-xl" />
-          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-[#9FBCA4]/10 blur-2xl" />
-          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/5 blur-xl" />
-          <div className="absolute inset-0 border border-[#9FBCA4]/20 rounded-2xl shadow-[0_8px_32px_rgba(159,188,164,0.15)]" />
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-primary/10 blur-2xl" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-primary/5 blur-xl" />
+          <div className="absolute inset-0 border border-primary/20 rounded-2xl shadow-[0_8px_32px_rgba(159,188,164,0.15)]" />
           
           <div className="relative p-6">
             <div className="mb-6">

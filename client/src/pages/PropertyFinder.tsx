@@ -58,11 +58,11 @@ function PropertyCard({
       className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow group"
       data-testid={`row-property-${property.externalId}`}
     >
-      <div className="h-0.5 bg-gradient-to-r from-[#9FBCA4] to-[#9FBCA4]/30" />
+      <div className="h-0.5 bg-gradient-to-r from-primary to-primary/30" />
       <div className="p-5">
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="flex items-start gap-2">
-            <MapPin className="w-4 h-4 text-[#9FBCA4] mt-0.5 flex-shrink-0" />
+            <MapPin className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
             <span className="text-gray-900 font-medium text-sm leading-snug" data-testid={`text-address-${property.externalId}`}>
               {property.address}
             </span>
@@ -74,7 +74,7 @@ function PropertyCard({
                 className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
                 data-testid={`btn-image-${property.externalId}`}
               >
-                <Image className="w-4 h-4 text-[#9FBCA4]" />
+                <Image className="w-4 h-4 text-primary" />
               </button>
             )}
             <button
@@ -110,31 +110,31 @@ function PropertyCard({
           {property.price ? formatMoney(property.price) : "—"}
         </p>
 
-        <div className="flex flex-wrap items-center gap-4 py-2.5 px-3 bg-[#9FBCA4]/5 rounded-xl border border-[#9FBCA4]/10">
+        <div className="flex flex-wrap items-center gap-4 py-2.5 px-3 bg-primary/5 rounded-xl border border-primary/10">
           <div className="flex items-center gap-1.5">
-            <Bed className="w-3.5 h-3.5 text-[#9FBCA4]" />
+            <Bed className="w-3.5 h-3.5 text-primary" />
             <span className="text-sm text-gray-700" data-testid={`text-beds-${property.externalId}`}>{property.beds ?? "—"} beds</span>
           </div>
-          <div className="w-px h-4 bg-[#9FBCA4]/20" />
+          <div className="w-px h-4 bg-primary/20" />
           <div className="flex items-center gap-1.5">
-            <Bath className="w-3.5 h-3.5 text-[#9FBCA4]" />
+            <Bath className="w-3.5 h-3.5 text-primary" />
             <span className="text-sm text-gray-700" data-testid={`text-baths-${property.externalId}`}>{property.baths ?? "—"} baths</span>
           </div>
-          <div className="w-px h-4 bg-[#9FBCA4]/20" />
+          <div className="w-px h-4 bg-primary/20" />
           <div className="flex items-center gap-1.5">
-            <Ruler className="w-3.5 h-3.5 text-[#9FBCA4]" />
+            <Ruler className="w-3.5 h-3.5 text-primary" />
             <span className="text-sm text-gray-700" data-testid={`text-sqft-${property.externalId}`}>{property.sqft ? property.sqft.toLocaleString() : "—"} sqft</span>
           </div>
-          <div className="w-px h-4 bg-[#9FBCA4]/20" />
+          <div className="w-px h-4 bg-primary/20" />
           <div className="flex items-center gap-1.5">
-            <Trees className="w-3.5 h-3.5 text-[#9FBCA4]" />
-            <span className="text-sm font-semibold text-[#257D41]" data-testid={`text-acres-${property.externalId}`}>{property.lotSizeAcres ?? "—"} acres</span>
+            <Trees className="w-3.5 h-3.5 text-primary" />
+            <span className="text-sm font-semibold text-secondary" data-testid={`text-acres-${property.externalId}`}>{property.lotSizeAcres ?? "—"} acres</span>
           </div>
         </div>
 
         <div className="flex items-center justify-between mt-3">
           {property.propertyType ? (
-            <span className="px-2.5 py-1 rounded-lg text-xs font-medium bg-[#9FBCA4]/10 text-[#257D41] border border-[#9FBCA4]/20">
+            <span className="px-2.5 py-1 rounded-lg text-xs font-medium bg-primary/10 text-secondary border border-primary/20">
               {PropertyTypeLabel(property.propertyType)}
             </span>
           ) : <span />}
@@ -143,7 +143,7 @@ function PropertyCard({
               href={property.listingUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs text-[#9FBCA4] hover:text-[#257D41] flex items-center gap-1"
+              className="text-xs text-primary hover:text-secondary flex items-center gap-1"
               data-testid={`link-listing-${property.externalId}`}
             >
               View Listing <ExternalLink className="w-3 h-3" />
@@ -183,11 +183,11 @@ function FavoriteCard({
       className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow group"
       data-testid={`row-saved-${property.id}`}
     >
-      <div className="h-0.5 bg-gradient-to-r from-[#9FBCA4] to-[#9FBCA4]/30" />
+      <div className="h-0.5 bg-gradient-to-r from-primary to-primary/30" />
       <div className="p-5">
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="flex items-start gap-2">
-            <MapPin className="w-4 h-4 text-[#9FBCA4] mt-0.5 flex-shrink-0" />
+            <MapPin className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
             <span className="text-gray-900 font-medium text-sm leading-snug">{property.address}</span>
           </div>
           <button
@@ -209,31 +209,31 @@ function FavoriteCard({
           {property.price ? formatMoney(property.price) : "—"}
         </p>
 
-        <div className="flex flex-wrap items-center gap-4 py-2.5 px-3 bg-[#9FBCA4]/5 rounded-xl border border-[#9FBCA4]/10">
+        <div className="flex flex-wrap items-center gap-4 py-2.5 px-3 bg-primary/5 rounded-xl border border-primary/10">
           <div className="flex items-center gap-1.5">
-            <Bed className="w-3.5 h-3.5 text-[#9FBCA4]" />
+            <Bed className="w-3.5 h-3.5 text-primary" />
             <span className="text-sm text-gray-700">{property.beds ?? "—"} beds</span>
           </div>
-          <div className="w-px h-4 bg-[#9FBCA4]/20" />
+          <div className="w-px h-4 bg-primary/20" />
           <div className="flex items-center gap-1.5">
-            <Bath className="w-3.5 h-3.5 text-[#9FBCA4]" />
+            <Bath className="w-3.5 h-3.5 text-primary" />
             <span className="text-sm text-gray-700">{property.baths ?? "—"} baths</span>
           </div>
-          <div className="w-px h-4 bg-[#9FBCA4]/20" />
+          <div className="w-px h-4 bg-primary/20" />
           <div className="flex items-center gap-1.5">
-            <Ruler className="w-3.5 h-3.5 text-[#9FBCA4]" />
+            <Ruler className="w-3.5 h-3.5 text-primary" />
             <span className="text-sm text-gray-700">{property.sqft ? property.sqft.toLocaleString() : "—"} sqft</span>
           </div>
-          <div className="w-px h-4 bg-[#9FBCA4]/20" />
+          <div className="w-px h-4 bg-primary/20" />
           <div className="flex items-center gap-1.5">
-            <Trees className="w-3.5 h-3.5 text-[#9FBCA4]" />
-            <span className="text-sm font-semibold text-[#257D41]">{property.lotSizeAcres ?? "—"} acres</span>
+            <Trees className="w-3.5 h-3.5 text-primary" />
+            <span className="text-sm font-semibold text-secondary">{property.lotSizeAcres ?? "—"} acres</span>
           </div>
         </div>
 
         <div className="flex items-center justify-between mt-3">
           {property.propertyType ? (
-            <span className="px-2.5 py-1 rounded-lg text-xs font-medium bg-[#9FBCA4]/10 text-[#257D41] border border-[#9FBCA4]/20">
+            <span className="px-2.5 py-1 rounded-lg text-xs font-medium bg-primary/10 text-secondary border border-primary/20">
               {PropertyTypeLabel(property.propertyType)}
             </span>
           ) : <span />}
@@ -242,7 +242,7 @@ function FavoriteCard({
               href={property.listingUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs text-[#9FBCA4] hover:text-[#257D41] flex items-center gap-1"
+              className="text-xs text-primary hover:text-secondary flex items-center gap-1"
               data-testid={`link-saved-listing-${property.id}`}
             >
               View Listing <ExternalLink className="w-3 h-3" />
@@ -259,14 +259,14 @@ function FavoriteCard({
               <input
                 value={notesText}
                 onChange={(e) => onNotesChange(e.target.value)}
-                className="flex-1 px-3 py-1.5 rounded-lg bg-gray-50 border border-gray-200 text-gray-900 text-xs focus:outline-none focus:border-[#9FBCA4] focus:ring-1 focus:ring-[#9FBCA4]/20"
+                className="flex-1 px-3 py-1.5 rounded-lg bg-gray-50 border border-gray-200 text-gray-900 text-xs focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20"
                 placeholder="Add notes..."
                 data-testid={`input-notes-${property.id}`}
                 onKeyDown={(e) => e.key === "Enter" && onSaveNotes(property.id)}
               />
               <button
                 onClick={() => onSaveNotes(property.id)}
-                className="p-1.5 rounded-lg hover:bg-[#9FBCA4]/10 text-[#9FBCA4]"
+                className="p-1.5 rounded-lg hover:bg-primary/10 text-primary"
                 data-testid={`btn-save-notes-${property.id}`}
               >
                 <Save className="w-3.5 h-3.5" />
@@ -453,7 +453,7 @@ export default function PropertyFinder() {
             {savedSearches.map((search) => (
               <div
                 key={search.id}
-                className="inline-flex items-center gap-1.5 bg-[#9FBCA4]/10 text-[#257D41] border border-[#9FBCA4]/20 rounded-full px-3 py-1.5 text-xs font-medium"
+                className="inline-flex items-center gap-1.5 bg-primary/10 text-secondary border border-primary/20 rounded-full px-3 py-1.5 text-xs font-medium"
                 data-testid={`row-saved-search-${search.id}`}
               >
                 <button
@@ -466,7 +466,7 @@ export default function PropertyFinder() {
                 <button
                   onClick={() => handleDeleteSearch(search.id)}
                   disabled={deleteSavedSearch.isPending}
-                  className="p-0.5 rounded-full hover:bg-[#9FBCA4]/20 transition-colors"
+                  className="p-0.5 rounded-full hover:bg-primary/20 transition-colors"
                   title="Delete search"
                   data-testid={`btn-delete-search-${search.id}`}
                 >
@@ -482,8 +482,8 @@ export default function PropertyFinder() {
         )}
 
         <form onSubmit={handleSearch} data-testid="form-search">
-          <div className="bg-white rounded-2xl shadow-sm border border-[#9FBCA4]/20 overflow-hidden">
-            <div className="h-1 bg-gradient-to-r from-[#9FBCA4] via-[#7aaa8a] to-[#9FBCA4]" />
+          <div className="bg-white rounded-2xl shadow-sm border border-primary/20 overflow-hidden">
+            <div className="h-1 bg-gradient-to-r from-primary via-[#7aaa8a] to-primary" />
             <div className="p-5 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="lg:col-span-2">
@@ -492,7 +492,7 @@ export default function PropertyFinder() {
                     value={formData.location}
                     onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                     placeholder="e.g. Hudson, NY or 12534"
-                    className="bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-[#9FBCA4] focus:ring-[#9FBCA4]/20"
+                    className="bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-primary focus:ring-primary/20"
                     data-testid="input-location"
                   />
                 </div>
@@ -503,7 +503,7 @@ export default function PropertyFinder() {
                     value={formData.priceMin}
                     onChange={(e) => setFormData({ ...formData, priceMin: e.target.value })}
                     placeholder="$500,000"
-                    className="bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-[#9FBCA4] focus:ring-[#9FBCA4]/20"
+                    className="bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-primary focus:ring-primary/20"
                     data-testid="input-price-min"
                   />
                 </div>
@@ -514,7 +514,7 @@ export default function PropertyFinder() {
                     value={formData.priceMax}
                     onChange={(e) => setFormData({ ...formData, priceMax: e.target.value })}
                     placeholder="$5,000,000"
-                    className="bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-[#9FBCA4] focus:ring-[#9FBCA4]/20"
+                    className="bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-primary focus:ring-primary/20"
                     data-testid="input-price-max"
                   />
                 </div>
@@ -528,7 +528,7 @@ export default function PropertyFinder() {
                     value={formData.bedsMin}
                     onChange={(e) => setFormData({ ...formData, bedsMin: e.target.value })}
                     placeholder="5+"
-                    className="bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-[#9FBCA4] focus:ring-[#9FBCA4]/20"
+                    className="bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-primary focus:ring-primary/20"
                     data-testid="input-beds-min"
                   />
                 </div>
@@ -540,7 +540,7 @@ export default function PropertyFinder() {
                     value={formData.lotSizeMin}
                     onChange={(e) => setFormData({ ...formData, lotSizeMin: e.target.value })}
                     placeholder="1"
-                    className="bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-[#9FBCA4] focus:ring-[#9FBCA4]/20"
+                    className="bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-primary focus:ring-primary/20"
                     data-testid="input-lot-size-min"
                   />
                 </div>
@@ -551,7 +551,7 @@ export default function PropertyFinder() {
                     onValueChange={(v) => setFormData({ ...formData, propertyType: v })}
                   >
                     <SelectTrigger
-                      className="bg-gray-50 border-gray-200 text-gray-900 focus:border-[#9FBCA4] focus:ring-[#9FBCA4]/20"
+                      className="bg-gray-50 border-gray-200 text-gray-900 focus:border-primary focus:ring-primary/20"
                       data-testid="select-property-type"
                     >
                       <SelectValue placeholder="Any type" />
@@ -577,7 +577,7 @@ export default function PropertyFinder() {
                             value={saveSearchName}
                             onChange={(e) => setSaveSearchName(e.target.value)}
                             placeholder="Search name..."
-                            className="bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-[#9FBCA4] focus:ring-[#9FBCA4]/20 w-48 h-9 text-sm"
+                            className="bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-primary focus:ring-primary/20 w-48 h-9 text-sm"
                             data-testid="input-search-name"
                             onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleSaveSearch())}
                           />
@@ -585,7 +585,7 @@ export default function PropertyFinder() {
                             type="button"
                             onClick={handleSaveSearch}
                             disabled={createSavedSearch.isPending}
-                            className="p-2 rounded-lg bg-[#9FBCA4] hover:bg-[#8aab93] text-white transition-colors"
+                            className="p-2 rounded-lg bg-primary hover:bg-[#8aab93] text-white transition-colors"
                             data-testid="btn-confirm-save-search"
                           >
                             {createSavedSearch.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
@@ -602,7 +602,7 @@ export default function PropertyFinder() {
                         <button
                           type="button"
                           onClick={() => setShowSaveDialog(true)}
-                          className="flex items-center gap-1.5 text-xs text-[#9FBCA4] hover:text-[#7aaa8a] transition-colors"
+                          className="flex items-center gap-1.5 text-xs text-primary hover:text-[#7aaa8a] transition-colors"
                           data-testid="btn-save-search"
                         >
                           <Bookmark className="w-3.5 h-3.5" /> Save This Search
@@ -614,7 +614,7 @@ export default function PropertyFinder() {
                 <button
                   type="submit"
                   disabled={isSearching}
-                  className="bg-[#9FBCA4] hover:bg-[#8aab93] text-white font-semibold px-6 py-2.5 rounded-xl transition-colors flex items-center gap-2 disabled:opacity-50"
+                  className="bg-primary hover:bg-[#8aab93] text-white font-semibold px-6 py-2.5 rounded-xl transition-colors flex items-center gap-2 disabled:opacity-50"
                   data-testid="btn-search"
                 >
                   {isSearching ? (
@@ -629,7 +629,7 @@ export default function PropertyFinder() {
         </form>
 
         {isNoApiKey && (
-          <div className="bg-white rounded-2xl shadow-sm border border-[#9FBCA4]/20 overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-sm border border-primary/20 overflow-hidden">
             <div className="h-1 bg-gradient-to-r from-[#F4795B] via-[#F4795B]/60 to-[#F4795B]" />
             <div className="p-6 flex items-start gap-4">
               <AlertCircle className="w-6 h-6 text-[#F4795B] flex-shrink-0 mt-0.5" />
@@ -637,7 +637,7 @@ export default function PropertyFinder() {
                 <h3 className="text-gray-900 font-semibold mb-1">API Key Required</h3>
                 <p className="text-gray-600 text-sm mb-3">
                   To search real estate listings, you need a free RapidAPI key. Sign up at{" "}
-                  <a href="https://rapidapi.com/apidojo/api/realty-in-us" target="_blank" rel="noopener noreferrer" className="text-[#9FBCA4] hover:text-[#7aaa8a] underline">
+                  <a href="https://rapidapi.com/apidojo/api/realty-in-us" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-[#7aaa8a] underline">
                     rapidapi.com
                   </a>
                   , subscribe to the "Realty in US" API (free tier: 100 requests/month), then add your key as <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs text-gray-800">RAPIDAPI_KEY</code> in the Secrets tab.
@@ -659,7 +659,7 @@ export default function PropertyFinder() {
 
         {isSearching && (
           <div className="flex justify-center py-16">
-            <Loader2 className="w-8 h-8 animate-spin text-[#9FBCA4]" />
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
         )}
 
@@ -695,9 +695,9 @@ export default function PropertyFinder() {
             </div>
 
             {searchData.results.length === 0 ? (
-              <div className="bg-white rounded-2xl shadow-sm border border-[#9FBCA4]/20 p-12 text-center">
-                <div className="h-0.5 bg-gradient-to-r from-[#9FBCA4]/20 to-transparent mb-8 -mt-8 -mx-12 rounded-t-2xl" />
-                <Building2 className="w-12 h-12 text-[#9FBCA4]/30 mx-auto mb-3" />
+              <div className="bg-white rounded-2xl shadow-sm border border-primary/20 p-12 text-center">
+                <div className="h-0.5 bg-gradient-to-r from-primary/20 to-transparent mb-8 -mt-8 -mx-12 rounded-t-2xl" />
+                <Building2 className="w-12 h-12 text-primary/30 mx-auto mb-3" />
                 <p className="text-gray-600 font-medium">No properties found matching your criteria.</p>
                 <p className="text-gray-400 text-sm mt-1">Try adjusting your filters or searching a different location.</p>
               </div>
@@ -724,9 +724,9 @@ export default function PropertyFinder() {
         )}
 
         {!searchData && !searchError && !isSearching && (
-          <div className="bg-white rounded-2xl shadow-sm border border-[#9FBCA4]/10 p-16 text-center">
-            <div className="w-16 h-16 rounded-full bg-[#9FBCA4]/10 flex items-center justify-center mx-auto mb-4">
-              <Search className="w-8 h-8 text-[#9FBCA4]/40" />
+          <div className="bg-white rounded-2xl shadow-sm border border-primary/10 p-16 text-center">
+            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+              <Search className="w-8 h-8 text-primary/40" />
             </div>
             <p className="text-gray-600 font-medium">Search for Properties</p>
             <p className="text-gray-400 text-sm mt-1">
@@ -737,23 +737,23 @@ export default function PropertyFinder() {
 
         <div className="mt-10" data-testid="table-saved-properties">
           <div className="flex items-center gap-4 mb-6">
-            <div className="h-px flex-1 bg-gradient-to-r from-[#9FBCA4]/40 to-transparent" />
+            <div className="h-px flex-1 bg-gradient-to-r from-primary/40 to-transparent" />
             <div className="flex items-center gap-2">
               <Heart className="w-5 h-5 text-[#F4795B]" />
               <h2 className="text-lg font-display font-bold text-gray-900">Your Favorites</h2>
               <span className="text-sm text-gray-400">({favorites.length})</span>
             </div>
-            <div className="h-px flex-1 bg-gradient-to-l from-[#9FBCA4]/40 to-transparent" />
+            <div className="h-px flex-1 bg-gradient-to-l from-primary/40 to-transparent" />
           </div>
 
           {isFavoritesLoading ? (
             <div className="flex justify-center py-16">
-              <Loader2 className="w-8 h-8 animate-spin text-[#9FBCA4]" />
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
             </div>
           ) : favorites.length === 0 ? (
-            <div className="bg-white rounded-2xl shadow-sm border border-[#9FBCA4]/10 p-12 text-center">
-              <div className="w-14 h-14 rounded-full bg-[#9FBCA4]/10 flex items-center justify-center mx-auto mb-3">
-                <Heart className="w-7 h-7 text-[#9FBCA4]/30" />
+            <div className="bg-white rounded-2xl shadow-sm border border-primary/10 p-12 text-center">
+              <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                <Heart className="w-7 h-7 text-primary/30" />
               </div>
               <p className="text-gray-500 font-medium">No Saved Properties</p>
               <p className="text-gray-400 text-sm mt-1">

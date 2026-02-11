@@ -67,7 +67,7 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
   };
 
   return (
-    <div className={embedded ? "space-y-6" : "min-h-screen bg-[#FFF9F5] p-6 md:p-8"} data-testid="comparison-view">
+    <div className={embedded ? "space-y-6" : "min-h-screen bg-background p-6 md:p-8"} data-testid="comparison-view">
       <div className={embedded ? "space-y-6" : "max-w-7xl mx-auto space-y-8"}>
         {!embedded && (
         <div>
@@ -82,7 +82,7 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
 
         <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
           <div className="flex items-start gap-3">
-            <svg className="w-5 h-5 text-[#9FBCA4] mt-0.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M12 22v-8.3a4 4 0 0 0-1.172-2.872L3 3"/><path d="m15 9 6-6"/></svg>
+            <svg className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M12 22v-8.3a4 4 0 0 0-1.172-2.872L3 3"/><path d="m15 9 6-6"/></svg>
             <div>
               <h3 className="text-sm font-semibold text-gray-800 mb-1">Property Comparison</h3>
               <p className="text-xs text-gray-500 leading-relaxed">

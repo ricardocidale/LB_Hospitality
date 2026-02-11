@@ -22,7 +22,7 @@ export function HelpTooltip({ text, light = false, side = "top", manualSection, 
           className={`inline-flex items-center justify-center ml-1.5 cursor-help rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 ${
             light
               ? "text-white/50 hover:text-white"
-              : "text-[#9FBCA4] hover:text-[#7A9E82]"
+              : "text-primary hover:text-[#7A9E82]"
           }`}
           aria-label="Help"
           data-testid="help-tooltip-trigger"
@@ -41,7 +41,7 @@ export function HelpTooltip({ text, light = false, side = "top", manualSection, 
         {manualSection && (
           <a
             href={`/checker-manual#${manualSection}`}
-            className="flex items-center gap-1 mt-1.5 text-[10px] text-[#9FBCA4] hover:text-white transition-colors"
+            className="flex items-center gap-1 mt-1.5 text-[10px] text-primary hover:text-white transition-colors"
             data-testid="help-tooltip-manual-link"
             onClick={(e) => e.stopPropagation()}
           >

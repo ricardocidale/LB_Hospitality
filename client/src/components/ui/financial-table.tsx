@@ -77,7 +77,7 @@ function FinancialTable({
         <h3
           className={cn(
             "text-lg font-display mb-4",
-            isDark ? "text-[#FFF9F5]" : "text-gray-900"
+            isDark ? "text-background" : "text-gray-900"
           )}
         >
           {title}
@@ -128,7 +128,7 @@ function FinancialTable({
                   : "bg-gray-50/50 font-semibold"
                 : row.isTotal
                 ? isDark
-                  ? "bg-[#9FBCA4]/10 font-bold"
+                  ? "bg-primary/10 font-bold"
                   : "bg-primary/10 font-bold"
                 : "";
 

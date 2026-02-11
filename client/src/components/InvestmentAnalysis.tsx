@@ -130,14 +130,14 @@ export function InvestmentAnalysis({
     <>
       {/* Investment Analysis - Liquid Glass Metrics */}
       <div className="relative overflow-hidden rounded-3xl p-6 mb-6">
-        <div className="absolute inset-0 bg-[#FFF9F5]" />
+        <div className="absolute inset-0 bg-background" />
         <div className="absolute inset-0">
-          <div className="absolute top-0 left-1/4 w-72 h-72 rounded-full bg-[#9FBCA4]/10 blur-3xl" />
-          <div className="absolute bottom-0 right-1/4 w-64 h-64 rounded-full bg-[#9FBCA4]/10 blur-3xl" />
+          <div className="absolute top-0 left-1/4 w-72 h-72 rounded-full bg-primary/10 blur-3xl" />
+          <div className="absolute bottom-0 right-1/4 w-64 h-64 rounded-full bg-primary/10 blur-3xl" />
         </div>
 
         <div className="relative grid gap-4 md:grid-cols-5">
-          <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-5 border border-[#9FBCA4]/30 shadow-lg shadow-black/10">
+          <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-5 border border-primary/30 shadow-lg shadow-black/10">
             <p className="text-sm font-medium text-[#2d4a5e]/70 flex items-center mb-2">
               Total Equity
               <HelpTooltip text="Total initial capital required from investors across all properties, including purchase price, improvements, pre-opening costs, and operating reserves (net of any financing)." manualSection="investment-returns" />
@@ -145,7 +145,7 @@ export function InvestmentAnalysis({
             <div className="text-2xl font-bold text-[#2d4a5e] font-mono">{formatMoney(totalInitialEquityIA)}</div>
           </div>
 
-          <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-5 border border-[#9FBCA4]/30 shadow-lg shadow-black/10">
+          <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-5 border border-primary/30 shadow-lg shadow-black/10">
             <p className="text-sm font-medium text-[#2d4a5e]/70 flex items-center mb-2">
               Exit Value ({getFiscalYear(projectionYears - 1)})
               <HelpTooltip text={`Projected sale value of all properties at ${getFiscalYear(10)}, calculated as NOI ÷ Exit Cap Rate, minus any outstanding debt at time of sale.`} manualSection="investment-returns" />
@@ -153,7 +153,7 @@ export function InvestmentAnalysis({
             <div className="text-2xl font-bold text-[#059669] font-mono">{formatMoney(totalExitValueIA)}</div>
           </div>
 
-          <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-5 border border-[#9FBCA4]/30 shadow-lg shadow-black/10">
+          <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-5 border border-primary/30 shadow-lg shadow-black/10">
             <p className="text-sm font-medium text-[#2d4a5e]/70 flex items-center mb-2">
               Equity Multiple
               <HelpTooltip text="Total cash returned to investors divided by total equity invested. A 2.0x multiple means investors receive $2 back for every $1 invested." manualSection="investment-returns" manualLabel="MOIC formula in the Manual" />
@@ -161,7 +161,7 @@ export function InvestmentAnalysis({
             <div className="text-2xl font-bold text-[#2563EB] font-mono">{equityMultipleIA.toFixed(2)}x</div>
           </div>
 
-          <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-5 border border-[#9FBCA4]/30 shadow-lg shadow-black/10">
+          <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-5 border border-primary/30 shadow-lg shadow-black/10">
             <p className="text-sm font-medium text-[#2d4a5e]/70 flex items-center mb-2">
               Avg Cash-on-Cash
               <HelpTooltip text="Average annual operating cash flow (excluding exit proceeds) as a percentage of total equity invested. Measures the annual yield on invested capital." />
@@ -169,12 +169,12 @@ export function InvestmentAnalysis({
             <div className="text-2xl font-bold text-[#D97706] font-mono">{cashOnCashIA.toFixed(1)}%</div>
           </div>
 
-          <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-5 border border-[#9FBCA4]/30 shadow-lg shadow-black/10">
+          <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-5 border border-primary/30 shadow-lg shadow-black/10">
             <p className="text-sm font-medium text-[#2d4a5e]/70 flex items-center mb-2">
               Portfolio IRR
               <HelpTooltip text="Internal Rate of Return - the annualized return that makes the net present value of all cash flows (investments, distributions, and exit) equal to zero. The gold standard metric for real estate investments." manualSection="investment-returns" manualLabel="IRR methodology in the Manual" />
             </p>
-            <div className="text-2xl font-bold text-[#257D41] font-mono">{(portfolioIRRIA * 100).toFixed(1)}%</div>
+            <div className="text-2xl font-bold text-secondary font-mono">{(portfolioIRRIA * 100).toFixed(1)}%</div>
           </div>
         </div>
       </div>

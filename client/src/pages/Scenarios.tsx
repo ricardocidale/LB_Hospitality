@@ -217,14 +217,14 @@ export default function Scenarios() {
 
         <Card className="relative overflow-hidden bg-gradient-to-br from-[#2d4a5e]/90 via-[#3d5a6a]/90 to-[#3a5a5e]/90 backdrop-blur-xl border-white/10">
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute -top-12 -left-12 w-48 h-48 rounded-full bg-[#9FBCA4]/15 blur-3xl" />
-            <div className="absolute bottom-0 right-0 w-64 h-64 rounded-full bg-[#257D41]/10 blur-3xl" />
+            <div className="absolute -top-12 -left-12 w-48 h-48 rounded-full bg-primary/15 blur-3xl" />
+            <div className="absolute bottom-0 right-0 w-64 h-64 rounded-full bg-secondary/10 blur-3xl" />
           </div>
           
           <CardHeader className="relative">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-xl font-display text-[#FFF9F5]">Saved Scenarios</CardTitle>
+                <CardTitle className="text-xl font-display text-background">Saved Scenarios</CardTitle>
                 <CardDescription className="label-text text-white/60">
                   {scenarios?.length === 0 
                     ? "No scenarios saved yet. Save your current configuration to get started."
@@ -273,7 +273,7 @@ export default function Scenarios() {
           <CardContent className="relative space-y-4">
             {/* Compare selection bar */}
             {compareMode && (
-              <div className="flex items-center justify-between p-3 rounded-xl bg-[#9FBCA4]/10 border border-[#9FBCA4]/30">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-primary/10 border border-primary/30">
                 <span className="text-white/70 text-sm">
                   {compareSelection.length === 0 && "Select two scenarios to compare"}
                   {compareSelection.length === 1 && "Select one more scenario"}
@@ -307,7 +307,7 @@ export default function Scenarios() {
                     key={scenario.id}
                     className={`p-4 rounded-xl border transition-colors ${
                       compareMode && compareSelection.includes(scenario.id)
-                        ? "bg-[#9FBCA4]/15 border-[#9FBCA4]/40"
+                        ? "bg-primary/15 border-primary/40"
                         : "bg-white/5 border-white/10 hover:bg-white/10"
                     } ${compareMode ? "cursor-pointer" : ""}`}
                     onClick={compareMode ? () => toggleCompareSelect(scenario.id) : undefined}
@@ -316,7 +316,7 @@ export default function Scenarios() {
                     <div className="flex items-start justify-between gap-4">
                       {compareMode && (
                         <div className={`mt-1 w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                          compareSelection.includes(scenario.id) ? "border-[#9FBCA4] bg-[#9FBCA4]" : "border-white/30"
+                          compareSelection.includes(scenario.id) ? "border-primary bg-primary" : "border-white/30"
                         }`}>
                           {compareSelection.includes(scenario.id) && (
                             <span className="text-[10px] font-bold text-black">
@@ -326,7 +326,7 @@ export default function Scenarios() {
                         </div>
                       )}
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-display text-[#FFF9F5] truncate">{scenario.name}</h3>
+                        <h3 className="font-display text-background truncate">{scenario.name}</h3>
                         {scenario.description && (
                           <p className="label-text text-white/60 mt-1 line-clamp-2">{scenario.description}</p>
                         )}

@@ -59,8 +59,8 @@ export function FavoritesStar({ item, className }: { item: FavoriteItem; classNa
       }}
       className={`transition-all duration-300 ease-in-out ${
         favorited
-          ? "text-[#9FBCA4]"
-          : "text-[#FFF9F5]/30 hover:text-[#9FBCA4]"
+          ? "text-primary"
+          : "text-background/30 hover:text-primary"
       } ${className ?? ""}`}
     >
       <Star
@@ -90,7 +90,7 @@ export default function FavoritesSidebar() {
     <div data-testid="favorites-sidebar">
       <button
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center gap-2 px-4 py-2 text-sm font-medium text-[#FFF9F5]/60 hover:text-white transition-colors duration-200"
+        className="w-full flex items-center gap-2 px-4 py-2 text-sm font-medium text-background/60 hover:text-white transition-colors duration-200"
       >
         <Star className="w-3.5 h-3.5" />
         <span>Favorites</span>
@@ -104,7 +104,7 @@ export default function FavoritesSidebar() {
       {open && (
         <div className="px-2 pb-2 space-y-0.5">
           {items.length === 0 ? (
-            <p className="px-4 py-2 text-xs text-[#FFF9F5]/30">No favorites yet</p>
+            <p className="px-4 py-2 text-xs text-background/30">No favorites yet</p>
           ) : (
             items.map((item) => {
               const Icon = typeIcon[item.type];
@@ -112,7 +112,7 @@ export default function FavoritesSidebar() {
                 <a
                   key={item.id}
                   href={getHref(item)}
-                  className="flex items-center gap-2 px-4 py-1.5 text-sm text-[#FFF9F5]/60 hover:text-white rounded-lg hover:bg-white/5 transition-all duration-200"
+                  className="flex items-center gap-2 px-4 py-1.5 text-sm text-background/60 hover:text-white rounded-lg hover:bg-white/5 transition-all duration-200"
                 >
                   <Icon className="w-3.5 h-3.5 shrink-0" />
                   <span className="truncate">{item.label}</span>

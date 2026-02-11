@@ -104,7 +104,7 @@ export function PropertyImagePicker({
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
             mode === "upload"
               ? isLight
-                ? "bg-[#9FBCA4]/20 text-gray-900 border border-[#9FBCA4]/40"
+                ? "bg-primary/20 text-gray-900 border border-primary/40"
                 : "bg-white/20 text-white border border-white/30"
               : isLight
                 ? "text-gray-500 hover:text-gray-700 border border-transparent"
@@ -121,7 +121,7 @@ export function PropertyImagePicker({
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
             mode === "generate"
               ? isLight
-                ? "bg-[#9FBCA4]/20 text-gray-900 border border-[#9FBCA4]/40"
+                ? "bg-primary/20 text-gray-900 border border-primary/40"
                 : "bg-white/20 text-white border border-white/30"
               : isLight
                 ? "text-gray-500 hover:text-gray-700 border border-transparent"
@@ -190,7 +190,7 @@ export function PropertyImagePicker({
             data-testid="input-ai-image-prompt"
             className={
               isLight
-                ? "bg-white border-[#9FBCA4]/30 text-gray-900 placeholder:text-gray-400"
+                ? "bg-white border-primary/30 text-gray-900 placeholder:text-gray-400"
                 : ""
             }
           />
@@ -199,7 +199,7 @@ export function PropertyImagePicker({
             onClick={handleGenerate}
             disabled={isGenerating}
             data-testid="button-generate-image"
-            className="bg-[#9FBCA4]/20 border-[#9FBCA4]/30 text-gray-700 hover:bg-[#9FBCA4]/30"
+            className="bg-primary/20 border-primary/30 text-gray-700 hover:bg-primary/30"
             variant="outline"
           >
             {isGenerating ? (

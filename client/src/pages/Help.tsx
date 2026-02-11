@@ -50,10 +50,10 @@ export default function Help() {
             <Methodology embedded />
           </TabsContent>
           <TabsContent value="guided-tour" className="space-y-6 mt-6">
-            <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+            <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
               <div className="p-8 text-center space-y-6">
-                <div className="w-16 h-16 rounded-2xl bg-[#9FBCA4]/15 flex items-center justify-center mx-auto">
-                  <PlayCircle className="w-8 h-8 text-[#9FBCA4]" />
+                <div className="w-16 h-16 rounded-2xl bg-primary/15 flex items-center justify-center mx-auto">
+                  <PlayCircle className="w-8 h-8 text-primary" />
                 </div>
                 <div className="space-y-2">
                   <h2 className="text-xl font-display font-semibold">Interactive Guided Tour</h2>

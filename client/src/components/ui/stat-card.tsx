@@ -55,7 +55,7 @@ function StatCard({
         <p
           className={cn(
             "text-2xl font-bold font-mono text-[#2d4a5e]",
-            trend === "up" && "text-[#257D41]",
+            trend === "up" && "text-secondary",
             trend === "down" && "text-red-500"
           )}
         >
@@ -79,7 +79,7 @@ function StatCard({
       >
         <div className="flex items-center gap-3">
           {icon && (
-            <div className="w-10 h-10 rounded-xl bg-[#9FBCA4]/10 flex items-center justify-center text-[#257D41]">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-secondary">
               {icon}
             </div>
           )}
@@ -90,7 +90,7 @@ function StatCard({
             <p
               className={cn(
                 "text-xl font-bold font-mono text-gray-900",
-                trend === "up" && "text-[#257D41]",
+                trend === "up" && "text-secondary",
                 trend === "down" && "text-red-500"
               )}
             >
@@ -117,21 +117,21 @@ function StatCard({
       <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
       <div className="absolute inset-0 rounded-2xl border border-white/10" />
       <div className="relative">
-        {icon && <div className="mb-2 text-[#9FBCA4]">{icon}</div>}
-        <p className="text-xs font-medium text-[#FFF9F5]/50 uppercase tracking-wider mb-1 label-text">
+        {icon && <div className="mb-2 text-primary">{icon}</div>}
+        <p className="text-xs font-medium text-background/50 uppercase tracking-wider mb-1 label-text">
           {label}
         </p>
         <p
           className={cn(
-            "text-2xl font-bold font-mono text-[#FFF9F5]",
-            trend === "up" && "text-[#9FBCA4]",
+            "text-2xl font-bold font-mono text-background",
+            trend === "up" && "text-primary",
             trend === "down" && "text-red-400"
           )}
         >
           {formatStatValue(value, format)}
         </p>
         {sublabel && (
-          <p className="text-xs text-[#FFF9F5]/40 mt-1 label-text">{sublabel}</p>
+          <p className="text-xs text-background/40 mt-1 label-text">{sublabel}</p>
         )}
       </div>
     </div>

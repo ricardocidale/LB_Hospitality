@@ -48,7 +48,7 @@ export default function TimelineView({ embedded }: { embedded?: boolean }) {
   }, [properties]);
 
   return (
-    <div data-testid="timeline-view" className={embedded ? "" : "min-h-screen bg-[#FFF9F5] p-6 md:p-10"}>
+    <div data-testid="timeline-view" className={embedded ? "" : "min-h-screen bg-background p-6 md:p-10"}>
       {!embedded && (
       <h1 className="text-3xl font-bold text-center mb-10" data-testid="timeline-title">
         Portfolio Timeline
@@ -57,7 +57,7 @@ export default function TimelineView({ embedded }: { embedded?: boolean }) {
 
       <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm max-w-4xl mx-auto mb-8">
         <div className="flex items-start gap-3">
-          <svg className="w-5 h-5 text-[#9FBCA4] mt-0.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <svg className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           <div>
             <h3 className="text-sm font-semibold text-gray-800 mb-1">Portfolio Timeline</h3>
             <p className="text-xs text-gray-500 leading-relaxed">

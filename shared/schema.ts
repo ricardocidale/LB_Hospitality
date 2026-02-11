@@ -435,6 +435,10 @@ export const properties = pgTable("properties", {
   // Tax Rate (for calculating after-tax free cash flow)
   taxRate: real("tax_rate").notNull().default(0.25),
   
+  // Management Company Fee Rates (per-property, charged by management company)
+  baseManagementFeeRate: real("base_management_fee_rate").notNull().default(0.05),
+  incentiveManagementFeeRate: real("incentive_management_fee_rate").notNull().default(0.15),
+  
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => [
@@ -446,6 +450,8 @@ export const properties = pgTable("properties", {
   check("prop_occupancy_growth_range", sql`${table.occupancyGrowthStep} >= 0 AND ${table.occupancyGrowthStep} <= 1`),
   check("prop_tax_rate_range", sql`${table.taxRate} >= 0 AND ${table.taxRate} <= 1`),
   check("prop_exit_cap_rate_range", sql`${table.exitCapRate} > 0 AND ${table.exitCapRate} <= 1`),
+  check("prop_base_mgmt_fee_range", sql`${table.baseManagementFeeRate} >= 0 AND ${table.baseManagementFeeRate} <= 1`),
+  check("prop_incentive_mgmt_fee_range", sql`${table.incentiveManagementFeeRate} >= 0 AND ${table.incentiveManagementFeeRate} <= 1`),
 ]);
 
 export const insertPropertySchema = createInsertSchema(properties).pick({
@@ -503,6 +509,8 @@ export const insertPropertySchema = createInsertSchema(properties).pick({
   cateringBoostPercent: true,
   exitCapRate: true,
   taxRate: true,
+  baseManagementFeeRate: true,
+  incentiveManagementFeeRate: true,
 });
 
 export const updatePropertySchema = insertPropertySchema.partial();

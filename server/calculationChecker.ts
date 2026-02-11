@@ -24,6 +24,8 @@ import {
   DAYS_PER_MONTH,
   DEFAULT_LAND_VALUE_PERCENT,
   DEFAULT_OCCUPANCY_RAMP_MONTHS,
+  DEFAULT_BASE_MANAGEMENT_FEE_RATE,
+  DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
 } from "@shared/constants";
 
 // INTENTIONALLY LOCAL — these loan defaults are redeclared here (not imported from
@@ -254,14 +256,14 @@ function independentPropertyCalc(property: any, global: any) {
     const expenseUtilitiesFixed = baseMonthlyTotalRev * (costRateUtilities * (1 - utilitiesVariableSplit)) * fixedCostFactor * fixedGate;
     const expenseOtherCosts = baseMonthlyTotalRev * costRateOther * fixedCostFactor * fixedGate;
 
-    const feeBase = revenueTotal * global.baseManagementFee;
+    const feeBase = revenueTotal * (property.baseManagementFeeRate ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE);
     const totalOperatingExpenses =
       expenseRooms + expenseFB + expenseEvents + expenseOther +
       expenseMarketing + expensePropertyOps + expenseUtilitiesVar +
       expenseAdmin + expenseIT + expenseInsurance + expenseTaxes + expenseUtilitiesFixed + expenseOtherCosts;
 
     const gop = revenueTotal - totalOperatingExpenses;
-    const feeIncentive = Math.max(0, gop * global.incentiveManagementFee);
+    const feeIncentive = Math.max(0, gop * (property.incentiveManagementFeeRate ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE));
     const noi = gop - feeBase - feeIncentive - expenseFFE;
 
     let debtPayment = 0;
@@ -696,25 +698,33 @@ export function runIndependentVerification(
       }
     }
 
-    // Verify base fee: sum(feeBase) should equal sum(revenueTotal) × rate
-    const expectedBaseFee = serverTotalRevenue * globalAssumptions.baseManagementFee;
+    // Verify base fee: sum(feeBase) should equal Σ per-property (revenue × property rate)
+    let expectedBaseFee = 0;
+    let expectedIncentiveFee = 0;
+    for (let pi = 0; pi < properties.length; pi++) {
+      const propBaseRate = properties[pi].baseManagementFeeRate ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE;
+      const propIncRate = properties[pi].incentiveManagementFeeRate ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE;
+      for (const m of allIndependentCalcs[pi]) {
+        expectedBaseFee += m.revenueTotal * propBaseRate;
+        expectedIncentiveFee += (m.gop > 0 ? m.gop : 0) * propIncRate;
+      }
+    }
     companyChecks.push(check(
       "Base Fee Applied at Stated Rate",
       "Management Co",
       "ASC 606",
-      `Σ monthly base fees = Σ monthly revenue × ${(globalAssumptions.baseManagementFee * 100).toFixed(1)}%`,
+      `Σ monthly base fees = Σ per-property (monthly revenue × property base rate)`,
       expectedBaseFee,
       serverTotalFeeBase,
       "critical"
     ));
 
-    // Verify incentive fee: sum(feeIncentive) should equal sum(max(0,gop)) × rate
-    const expectedIncentiveFee = serverTotalPositiveGOP * globalAssumptions.incentiveManagementFee;
+    // Verify incentive fee: sum(feeIncentive) should equal Σ per-property (max(0,gop) × property rate)
     companyChecks.push(check(
       "Incentive Fee Applied at Stated Rate",
       "Management Co",
       "ASC 606",
-      `Σ monthly incentive fees = Σ monthly positive GOP × ${(globalAssumptions.incentiveManagementFee * 100).toFixed(1)}%`,
+      `Σ monthly incentive fees = Σ per-property (monthly positive GOP × property incentive rate)`,
       expectedIncentiveFee,
       serverTotalFeeIncentive,
       "critical"
@@ -911,8 +921,15 @@ export function runIndependentVerification(
         if (m.gop > 0) totalPortfolioPositiveGOP += m.gop;
       }
     }
-    const companyFeesReceivable = totalPortfolioRevenue * globalAssumptions.baseManagementFee +
-                                  totalPortfolioPositiveGOP * globalAssumptions.incentiveManagementFee;
+    let companyFeesReceivable = 0;
+    for (let pi = 0; pi < properties.length; pi++) {
+      const propBaseRate = properties[pi].baseManagementFeeRate ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE;
+      const propIncRate = properties[pi].incentiveManagementFeeRate ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE;
+      for (const m of allIndependentCalcs[pi]) {
+        companyFeesReceivable += m.revenueTotal * propBaseRate;
+        companyFeesReceivable += (m.gop > 0 ? m.gop : 0) * propIncRate;
+      }
+    }
 
     consolidatedChecks.push(check(
       "Intercompany Fee Elimination",

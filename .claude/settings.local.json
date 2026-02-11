@@ -74,7 +74,14 @@
       "Bash(npm run health:*)",
       "Bash(git -C /home/runner/workspace diff test-artifacts/cash-purchase.json)",
       "Bash(git -C /home/runner/workspace commit -m \"$\\(cat <<''EOF''\nAdd token-saving health, test:summary, and verify:summary scripts\n\nThree new npm scripts that produce compact output for AI-assisted\ndevelopment sessions, reducing context token usage by ~98% per\ncheck cycle \\(4 lines vs ~270 lines for tsc + tests + verify\\).\n\n- script/health.ts: single command runs tsc + tests + verify\n- script/test-summary.ts: 1-line pass/fail for 477 tests\n- script/verify-summary.ts: compact 4-phase verification output\n- Add Replit workflows for all three \\(clickable in UI\\)\n- Add Claude Code permissions for new npm scripts\n- Update test artifacts with latest verification timestamps\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
-      "Bash(git -C /home/runner/workspace commit -m \"$\\(cat <<''EOF''\nAdd token-saving health, test:summary, and verify:summary scripts\n\nThree new npm scripts that produce compact output for AI-assisted\ndevelopment sessions, reducing context token usage by ~98% per\ncheck cycle \\(4 lines vs ~270 lines for tsc + tests + verify\\).\n\n- script/health.ts: single command runs tsc + tests + verify\n- script/test-summary.ts: 1-line pass/fail for 477 tests\n- script/verify-summary.ts: compact 4-phase verification output\n- Add Replit workflows for all three \\(clickable in UI\\)\n- Add Claude Code permissions for new npm scripts\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")"
+      "Bash(git -C /home/runner/workspace commit -m \"$\\(cat <<''EOF''\nAdd token-saving health, test:summary, and verify:summary scripts\n\nThree new npm scripts that produce compact output for AI-assisted\ndevelopment sessions, reducing context token usage by ~98% per\ncheck cycle \\(4 lines vs ~270 lines for tsc + tests + verify\\).\n\n- script/health.ts: single command runs tsc + tests + verify\n- script/test-summary.ts: 1-line pass/fail for 477 tests\n- script/verify-summary.ts: compact 4-phase verification output\n- Add Replit workflows for all three \\(clickable in UI\\)\n- Add Claude Code permissions for new npm scripts\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git -C /home/runner/workspace show --stat HEAD)",
+      "Bash(git -C /home/runner/workspace show --stat HEAD -- script/ .replit package.json)",
+      "Bash(git -C /home/runner/workspace log --oneline -3 --name-only)",
+      "Bash(git -C /home/runner/workspace ls-files script/health.ts script/test-summary.ts script/verify-summary.ts .replit package.json)",
+      "Bash(git -C /home/runner/workspace diff .replit package.json script/)",
+      "Bash(git -C /home/runner/workspace reset HEAD test-artifacts/)",
+      "Bash(git -C /home/runner/workspace log --oneline origin/main..HEAD)"
     ]
   }
 }

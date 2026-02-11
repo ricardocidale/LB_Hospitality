@@ -1,5 +1,5 @@
 # Reconciliation Report: Cash Purchase → Refinance Year 3
-Generated: 2026-02-11T15:20:36.543Z
+Generated: 2026-02-11T15:24:05.612Z
 ## Sources & Uses at Acquisition
 | Item | Amount |
 |------|--------|
@@ -12,26 +12,26 @@ Generated: 2026-02-11T15:20:36.543Z
 ## NOI → FCF Bridge (10-Year Total)
 | Item | Amount |
 |------|--------|
-| NOI | $3,795,088.20 |
-| Less: Debt Service | $1,911,206.64 |
-| Less: Income Tax | $421,486.69 |
-| Plus: Refi Proceeds | $2,859,473.78 |
-| **Free Cash Flow** | $4,321,868.65 |
+| NOI | $4,315,376.46 |
+| Less: Debt Service | $2,167,064.76 |
+| Less: Income Tax | $499,224.98 |
+| Plus: Refi Proceeds | $3,242,279.33 |
+| **Free Cash Flow** | $4,891,366.05 |
 | Check | PASS |
 ## Begin Cash → End Cash Bridge (Financing CF includes refi proceeds)
 | Item | Amount |
 |------|--------|
 | Beginning Cash | $0.00 |
-| + Operating CF | $1,809,914.62 |
-| + Financing CF | $2,511,954.03 |
-| **Ending Cash** | $4,321,868.65 |
+| + Operating CF | $2,043,129.48 |
+| + Financing CF | $2,848,236.57 |
+| **Ending Cash** | $4,891,366.05 |
 | Check | PASS |
 ## Debt Schedule Reconciliation
 | Item | Amount |
 |------|--------|
 | Beginning Balance | $0.00 |
-| Less: Payments | $347,519.75 |
-| Ending Balance | $2,600,391.36 |
+| Less: Payments | $394,042.76 |
+| Ending Balance | $2,948,513.25 |
 | Check | **FAIL** |
 ## Financial Identity Checks (Year 1)
 | Metric | Value |

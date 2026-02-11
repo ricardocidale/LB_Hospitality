@@ -101,7 +101,7 @@ export default function Company() {
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [exportType, setExportType] = useState<'pdf' | 'chart' | 'tablePng'>('pdf');
 
-  const fundingLabel = global?.fundingSourceLabel ?? "SAFE";
+  const fundingLabel = global?.fundingSourceLabel ?? "Funding Vehicle";
 
   const toggleRow = (rowId: string) => {
     setExpandedRows(prev => {

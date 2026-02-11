@@ -45,6 +45,7 @@ import {
   DEFAULT_OCCUPANCY_RAMP_MONTHS,
   DEFAULT_BASE_MANAGEMENT_FEE_RATE,
   DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
+  DEFAULT_SERVICE_FEE_CATEGORIES,
 } from './constants';
 import { computeRefinance } from '@calc/refinance';
 import type { ScheduleEntry } from '@calc/refinance';
@@ -134,6 +135,8 @@ interface PropertyInput {
   // Management company fee rates (per-property)
   baseManagementFeeRate?: number;
   incentiveManagementFeeRate?: number;
+  // Service fee categories (replaces single baseManagementFeeRate when present)
+  feeCategories?: { name: string; rate: number; isActive: boolean }[];
 }
 
 interface GlobalInput {
@@ -222,6 +225,7 @@ export interface MonthlyFinancials {
   expenseFFE: number;
   feeBase: number;
   feeIncentive: number;
+  serviceFeesByCategory: Record<string, number>;
   expenseAdmin: number;
   expenseIT: number;
   expenseInsurance: number;
@@ -377,7 +381,19 @@ export function generatePropertyProForma(
     const expenseUtilitiesFixed = baseMonthlyTotalRev * (costRateUtilities * (1 - utilitiesVariableSplit)) * fixedCostFactor * fixedGate;
     const expenseOtherCosts = baseMonthlyTotalRev * costRateOther * fixedCostFactor * fixedGate;
     
-    const feeBase = revenueTotal * (property.baseManagementFeeRate ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE);
+    const serviceFeesByCategory: Record<string, number> = {};
+    let feeBase: number;
+    const activeFeeCategories = property.feeCategories?.filter(c => c.isActive);
+    if (activeFeeCategories && activeFeeCategories.length > 0) {
+      feeBase = 0;
+      for (const cat of activeFeeCategories) {
+        const catFee = revenueTotal * cat.rate;
+        serviceFeesByCategory[cat.name] = catFee;
+        feeBase += catFee;
+      }
+    } else {
+      feeBase = revenueTotal * (property.baseManagementFeeRate ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE);
+    }
     
     const totalOperatingExpenses = 
       expenseRooms + expenseFB + expenseEvents + expenseOther + 
@@ -470,6 +486,7 @@ export function generatePropertyProForma(
       expenseFFE,
       feeBase,
       feeIncentive,
+      serviceFeesByCategory,
       expenseAdmin,
       expenseIT,
       expenseInsurance,
@@ -645,12 +662,20 @@ export function formatPercent(amount: number) {
   }).format(amount);
 }
 
+export interface ServiceFeeBreakdown {
+  byCategory: Record<string, number>;
+  byProperty: Record<string, number>;
+  byCategoryByProperty: Record<string, Record<string, number>>;
+}
+
 export interface CompanyMonthlyFinancials {
   date: Date;
   monthIndex: number;
   year: number;
   baseFeeRevenue: number;
   incentiveFeeRevenue: number;
+  incentiveFeeByProperty: Record<string, number>;
+  serviceFeeBreakdown: ServiceFeeBreakdown;
   totalRevenue: number;
   partnerCompensation: number;
   staffCompensation: number;
@@ -731,13 +756,46 @@ export function generateCompanyProForma(
     
     let baseFeeRevenue = 0;
     let incentiveFeeRevenue = 0;
+    const incentiveFeeByProperty: Record<string, number> = {};
+    const serviceFeeBreakdown: ServiceFeeBreakdown = {
+      byCategory: {},
+      byProperty: {},
+      byCategoryByProperty: {},
+    };
     for (let i = 0; i < properties.length; i++) {
       const pf = propertyFinancials[i];
       if (m < pf.length) {
-        const propBaseFee = properties[i].baseManagementFeeRate ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE;
+        const propName = (properties[i] as any).name || `Property ${i + 1}`;
         const propIncentiveFee = properties[i].incentiveManagementFeeRate ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE;
-        baseFeeRevenue += pf[m].revenueTotal * propBaseFee;
-        incentiveFeeRevenue += Math.max(0, pf[m].gop * propIncentiveFee);
+        const propIncentive = Math.max(0, pf[m].gop * propIncentiveFee);
+        incentiveFeeRevenue += propIncentive;
+        incentiveFeeByProperty[propName] = propIncentive;
+        
+        const catFees = pf[m].serviceFeesByCategory;
+        const hasCategoryData = Object.keys(catFees).length > 0;
+        if (hasCategoryData) {
+          let propServiceTotal = 0;
+          for (const [catName, catAmount] of Object.entries(catFees)) {
+            serviceFeeBreakdown.byCategory[catName] = (serviceFeeBreakdown.byCategory[catName] || 0) + catAmount;
+            if (!serviceFeeBreakdown.byCategoryByProperty[catName]) {
+              serviceFeeBreakdown.byCategoryByProperty[catName] = {};
+            }
+            serviceFeeBreakdown.byCategoryByProperty[catName][propName] = catAmount;
+            propServiceTotal += catAmount;
+          }
+          serviceFeeBreakdown.byProperty[propName] = propServiceTotal;
+          baseFeeRevenue += propServiceTotal;
+        } else {
+          const propBaseFee = properties[i].baseManagementFeeRate ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE;
+          const propServiceFee = pf[m].revenueTotal * propBaseFee;
+          baseFeeRevenue += propServiceFee;
+          serviceFeeBreakdown.byProperty[propName] = propServiceFee;
+          serviceFeeBreakdown.byCategory["Service Fee"] = (serviceFeeBreakdown.byCategory["Service Fee"] || 0) + propServiceFee;
+          if (!serviceFeeBreakdown.byCategoryByProperty["Service Fee"]) {
+            serviceFeeBreakdown.byCategoryByProperty["Service Fee"] = {};
+          }
+          serviceFeeBreakdown.byCategoryByProperty["Service Fee"][propName] = propServiceFee;
+        }
       }
     }
     const totalRevenue = baseFeeRevenue + incentiveFeeRevenue;
@@ -816,6 +874,8 @@ export function generateCompanyProForma(
       year: year + 1,
       baseFeeRevenue,
       incentiveFeeRevenue,
+      incentiveFeeByProperty,
+      serviceFeeBreakdown,
       totalRevenue,
       partnerCompensation,
       staffCompensation,

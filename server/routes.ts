@@ -1268,6 +1268,80 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
+  // --- PROPERTY FEE CATEGORIES ---
+  app.get("/api/properties/:propertyId/fee-categories", requireAuth, async (req, res) => {
+    try {
+      const propertyId = parseInt(req.params.propertyId as string);
+      if (isNaN(propertyId)) return res.status(400).json({ error: "Invalid property ID" });
+      const categories = await storage.getFeeCategoriesByProperty(propertyId);
+      res.json(categories);
+    } catch (error) {
+      console.error("Error fetching fee categories:", error);
+      res.status(500).json({ error: "Failed to fetch fee categories" });
+    }
+  });
+
+  app.get("/api/fee-categories", requireAuth, async (req, res) => {
+    try {
+      const categories = await storage.getAllFeeCategories();
+      res.json(categories);
+    } catch (error) {
+      console.error("Error fetching all fee categories:", error);
+      res.status(500).json({ error: "Failed to fetch fee categories" });
+    }
+  });
+
+  app.post("/api/properties/:propertyId/fee-categories/seed", requireAuth, async (req, res) => {
+    try {
+      const propertyId = parseInt(req.params.propertyId as string);
+      if (isNaN(propertyId)) return res.status(400).json({ error: "Invalid property ID" });
+      const categories = await storage.seedDefaultFeeCategories(propertyId);
+      res.json(categories);
+    } catch (error) {
+      console.error("Error seeding fee categories:", error);
+      res.status(500).json({ error: "Failed to seed fee categories" });
+    }
+  });
+
+  app.post("/api/properties/:propertyId/fee-categories", requireAuth, async (req, res) => {
+    try {
+      const propertyId = parseInt(req.params.propertyId as string);
+      if (isNaN(propertyId)) return res.status(400).json({ error: "Invalid property ID" });
+      const { name, rate, isActive, sortOrder } = req.body;
+      const category = await storage.createFeeCategory({ propertyId, name, rate, isActive, sortOrder });
+      res.json(category);
+    } catch (error) {
+      console.error("Error creating fee category:", error);
+      res.status(500).json({ error: "Failed to create fee category" });
+    }
+  });
+
+  app.patch("/api/fee-categories/:id", requireAuth, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id as string);
+      if (isNaN(id)) return res.status(400).json({ error: "Invalid category ID" });
+      const { name, rate, isActive, sortOrder } = req.body;
+      const category = await storage.updateFeeCategory(id, { name, rate, isActive, sortOrder });
+      if (!category) return res.status(404).json({ error: "Category not found" });
+      res.json(category);
+    } catch (error) {
+      console.error("Error updating fee category:", error);
+      res.status(500).json({ error: "Failed to update fee category" });
+    }
+  });
+
+  app.delete("/api/fee-categories/:id", requireAuth, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id as string);
+      if (isNaN(id)) return res.status(400).json({ error: "Invalid category ID" });
+      await storage.deleteFeeCategory(id);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting fee category:", error);
+      res.status(500).json({ error: "Failed to delete fee category" });
+    }
+  });
+
   // Register object storage routes for file uploads
   registerObjectStorageRoutes(app);
 

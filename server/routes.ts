@@ -38,6 +38,7 @@ import {
   DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
 } from "@shared/constants";
 import { generateResearchWithToolsStream, loadSkill, buildUserPrompt, type ResearchParams } from "./aiResearch";
+import { generateLocationAwareResearchValues } from "./researchSeeds";
 import * as calcSchemas from "../calc/shared/schemas";
 import { computeDCF } from "../calc/returns/dcf-npv";
 import { buildIRRVector } from "../calc/returns/irr-vector";
@@ -696,10 +697,32 @@ export async function registerRoutes(
       
       for (const propData of propertiesToSeed) {
         if (!existingNames.has(propData.name)) {
-          await storage.createProperty(propData);
+          const researchValues = generateLocationAwareResearchValues({
+            location: propData.location,
+            streetAddress: propData.streetAddress,
+            city: (propData as any).city,
+            stateProvince: (propData as any).stateProvince,
+            market: propData.market,
+          });
+          await storage.createProperty({ ...propData, researchValues });
           results.properties.created++;
         } else {
           results.properties.skipped++;
+        }
+      }
+
+      for (const existing of existingProperties) {
+        if (!existing.researchValues) {
+          const rv = generateLocationAwareResearchValues({
+            location: existing.location,
+            streetAddress: existing.streetAddress,
+            city: existing.city,
+            stateProvince: existing.stateProvince,
+            market: existing.market,
+          });
+          await storage.updateProperty(existing.id, { researchValues: rv });
+          results.properties.skipped--;
+          results.properties.created++;
         }
       }
 
@@ -1207,7 +1230,17 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
         return res.status(400).json({ error: error.message });
       }
 
-      const property = await storage.createProperty({ ...validation.data, userId: req.user!.id });
+      const data = validation.data;
+      if (!data.researchValues) {
+        data.researchValues = generateLocationAwareResearchValues({
+          location: data.location,
+          streetAddress: data.streetAddress,
+          city: data.city,
+          stateProvince: data.stateProvince,
+          market: data.market,
+        });
+      }
+      const property = await storage.createProperty({ ...data, userId: req.user!.id });
       logActivity(req, "create", "property", property.id, property.name);
       res.status(201).json(property);
     } catch (error) {
@@ -1320,9 +1353,9 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
 
       logActivity(req, "create", "image", undefined, undefined, { prompt, objectPath });
       res.json({ objectPath });
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error generating property image:", error);
-      res.status(500).json({ error: error.message || "Failed to generate image" });
+      res.status(500).json({ error: "Failed to generate image" });
     }
   });
 
@@ -1441,7 +1474,14 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       ];
 
       for (const prop of properties) {
-        await storage.createProperty(prop);
+        const rv = generateLocationAwareResearchValues({
+          location: prop.location,
+          streetAddress: prop.streetAddress,
+          city: (prop as any).city,
+          stateProvince: (prop as any).stateProvince,
+          market: prop.market,
+        });
+        await storage.createProperty({ ...prop, researchValues: rv });
       }
 
       res.json({ 
@@ -1815,7 +1855,14 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     try {
       const id = parseInt(req.params.id as string);
       if (isNaN(id)) return res.status(400).json({ error: "Invalid user ID" });
-      const { assignedLogoId, assignedThemeId, assignedAssetDescriptionId } = req.body;
+      const brandingSchema = z.object({
+        assignedLogoId: z.number().nullable().optional(),
+        assignedThemeId: z.number().nullable().optional(),
+        assignedAssetDescriptionId: z.number().nullable().optional(),
+      });
+      const validation = brandingSchema.safeParse(req.body);
+      if (!validation.success) return res.status(400).json({ error: fromZodError(validation.error).message });
+      const { assignedLogoId, assignedThemeId, assignedAssetDescriptionId } = validation.data;
       const user = await storage.assignUserBranding(id, { assignedLogoId, assignedThemeId, assignedAssetDescriptionId });
       res.json(user);
     } catch (error) {
@@ -1853,7 +1900,10 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     try {
       const id = parseInt(req.params.id as string);
       if (isNaN(id)) return res.status(400).json({ error: "Invalid group ID" });
-      const group = await storage.updateUserGroup(id, req.body);
+      const { insertUserGroupSchema } = await import("@shared/schema");
+      const validation = insertUserGroupSchema.partial().safeParse(req.body);
+      if (!validation.success) return res.status(400).json({ error: fromZodError(validation.error).message });
+      const group = await storage.updateUserGroup(id, validation.data);
       res.json(group);
     } catch (error) {
       console.error("Error updating user group:", error);
@@ -2906,8 +2956,9 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       const { computeDSCR } = await import("../calc/financing/dscr-calculator");
       const result = computeDSCR({ ...parsed.data, rounding_policy: defaultRounding });
       res.json(result);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Calculation failed" });
     }
   });
 
@@ -2927,8 +2978,9 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       const { computeDebtYield } = await import("../calc/financing/debt-yield");
       const result = computeDebtYield({ ...parsed.data, rounding_policy: defaultRounding });
       res.json(result);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Calculation failed" });
     }
   });
 
@@ -2952,8 +3004,9 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       const { computeSensitivity } = await import("../calc/financing/sensitivity");
       const result = computeSensitivity({ ...parsed.data, rounding_policy: defaultRounding });
       res.json(result);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Calculation failed" });
     }
   });
 
@@ -2976,8 +3029,9 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       const { computePrepayment } = await import("../calc/financing/prepayment");
       const result = computePrepayment({ ...parsed.data, rounding_policy: defaultRounding });
       res.json(result);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Calculation failed" });
     }
   });
 
@@ -2989,8 +3043,9 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       const parsed = calcSchemas.dcfSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: fromZodError(parsed.error).message });
       res.json(computeDCF({ ...parsed.data, rounding_policy: defaultRounding }));
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Calculation failed" });
     }
   });
 
@@ -3000,8 +3055,9 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       const parsed = calcSchemas.irrVectorSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: fromZodError(parsed.error).message });
       res.json(buildIRRVector(parsed.data));
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Calculation failed" });
     }
   });
 
@@ -3011,8 +3067,9 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       const parsed = calcSchemas.equityMultipleSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: fromZodError(parsed.error).message });
       res.json(computeEquityMultiple({ ...parsed.data, rounding_policy: defaultRounding }));
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Calculation failed" });
     }
   });
 
@@ -3022,8 +3079,9 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       const parsed = calcSchemas.exitValuationSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: fromZodError(parsed.error).message });
       res.json(computeExitValuation({ ...parsed.data, rounding_policy: defaultRounding }));
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Calculation failed" });
     }
   });
 
@@ -3035,8 +3093,9 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       const parsed = calcSchemas.financialIdentitiesSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: fromZodError(parsed.error).message });
       res.json(validateFinancialIdentities({ ...parsed.data, rounding_policy: defaultRounding }));
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Calculation failed" });
     }
   });
 
@@ -3046,8 +3105,9 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       const parsed = calcSchemas.fundingGatesSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: fromZodError(parsed.error).message });
       res.json(checkFundingGates(parsed.data));
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Calculation failed" });
     }
   });
 
@@ -3057,8 +3117,9 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       const parsed = calcSchemas.scheduleReconcileSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: fromZodError(parsed.error).message });
       res.json(reconcileSchedule(parsed.data));
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Calculation failed" });
     }
   });
 
@@ -3068,8 +3129,9 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       const parsed = calcSchemas.assumptionConsistencySchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: fromZodError(parsed.error).message });
       res.json(checkAssumptionConsistency(parsed.data));
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Calculation failed" });
     }
   });
 
@@ -3079,8 +3141,9 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       const parsed = calcSchemas.exportVerificationSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: fromZodError(parsed.error).message });
       res.json(verifyExport(parsed.data));
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Calculation failed" });
     }
   });
 
@@ -3092,8 +3155,9 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       const parsed = calcSchemas.consolidationSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: fromZodError(parsed.error).message });
       res.json(consolidateStatements({ ...parsed.data, rounding_policy: defaultRounding }));
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Calculation failed" });
     }
   });
 
@@ -3103,8 +3167,9 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       const parsed = calcSchemas.scenarioCompareSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: fromZodError(parsed.error).message });
       res.json(compareScenarios(parsed.data));
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Calculation failed" });
     }
   });
 
@@ -3114,8 +3179,9 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       const parsed = calcSchemas.breakEvenSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: fromZodError(parsed.error).message });
       res.json(computeBreakEven(parsed.data));
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Calculation failed" });
     }
   });
 
@@ -3130,8 +3196,9 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
         return res.json(seeded);
       }
       res.json(categories);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Calculation failed" });
     }
   });
 
@@ -3173,8 +3240,9 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
         }
       }
       res.json(results);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Calculation failed" });
     }
   });
 
@@ -3182,8 +3250,9 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     try {
       const categories = await storage.getAllFeeCategories();
       res.json(categories);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Calculation failed" });
     }
   });
 

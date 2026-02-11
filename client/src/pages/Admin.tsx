@@ -14,6 +14,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { Switch } from "@/components/ui/switch";
 import { GlassButton } from "@/components/ui/glass-button";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { PageHeader } from "@/components/ui/page-header";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
@@ -2229,11 +2230,14 @@ export default function Admin() {
             <div className="space-y-2"><Label className="flex items-center gap-2"><Shield className="w-4 h-4 text-gray-500" />Title</Label><Input value={newUser.title} onChange={(e) => setNewUser({ ...newUser, title: e.target.value })} placeholder="Job title" data-testid="input-new-user-title" /></div>
             <div className="space-y-2">
               <Label className="flex items-center gap-2"><Shield className="w-4 h-4 text-gray-500" />Role</Label>
-              <select value={newUser.role} onChange={(e) => setNewUser({ ...newUser, role: e.target.value })} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" data-testid="select-new-user-role">
-                <option value="user">User</option>
-                <option value="checker">Checker</option>
-                <option value="admin">Admin</option>
-              </select>
+              <Select value={newUser.role} onValueChange={(v) => setNewUser({ ...newUser, role: v })} data-testid="select-new-user-role">
+                <SelectTrigger data-testid="select-new-user-role"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="user">User</SelectItem>
+                  <SelectItem value="checker">Checker</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
           <DialogFooter>
@@ -2286,11 +2290,14 @@ export default function Admin() {
             <div className="space-y-2"><Label className="flex items-center gap-2"><Shield className="w-4 h-4 text-gray-500" />Title</Label><Input value={editUser.title} onChange={(e) => setEditUser({ ...editUser, title: e.target.value })} data-testid="input-edit-title" /></div>
             <div className="space-y-2">
               <Label className="flex items-center gap-2"><Shield className="w-4 h-4 text-gray-500" />Role</Label>
-              <select value={editUser.role} onChange={(e) => setEditUser({ ...editUser, role: e.target.value })} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" data-testid="select-edit-user-role">
-                <option value="user">User</option>
-                <option value="checker">Checker</option>
-                <option value="admin">Admin</option>
-              </select>
+              <Select value={editUser.role} onValueChange={(v) => setEditUser({ ...editUser, role: v })} data-testid="select-edit-user-role">
+                <SelectTrigger data-testid="select-edit-user-role"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="user">User</SelectItem>
+                  <SelectItem value="checker">Checker</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
           <DialogFooter>
@@ -2326,30 +2333,39 @@ export default function Admin() {
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label className="flex items-center gap-2"><Image className="w-4 h-4 text-gray-500" />Logo</Label>
-              <select value={brandingLogoId ?? ""} onChange={(e) => setBrandingLogoId(e.target.value ? parseInt(e.target.value) : null)} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" data-testid="select-branding-logo">
-                <option value="">Default Logo</option>
-                {adminLogos?.map(logo => (
-                  <option key={logo.id} value={logo.id}>{logo.name}{logo.isDefault ? " (Default)" : ""}</option>
-                ))}
-              </select>
+              <Select value={brandingLogoId != null ? String(brandingLogoId) : "default"} onValueChange={(v) => setBrandingLogoId(v === "default" ? null : parseInt(v))} data-testid="select-branding-logo">
+                <SelectTrigger data-testid="select-branding-logo"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="default">Default Logo</SelectItem>
+                  {adminLogos?.map(logo => (
+                    <SelectItem key={logo.id} value={String(logo.id)}>{logo.name}{logo.isDefault ? " (Default)" : ""}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label className="flex items-center gap-2"><Palette className="w-4 h-4 text-gray-500" />Theme</Label>
-              <select value={brandingThemeId ?? ""} onChange={(e) => setBrandingThemeId(e.target.value ? parseInt(e.target.value) : null)} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" data-testid="select-branding-theme">
-                <option value="">Default Theme</option>
-                {allThemes?.map(theme => (
-                  <option key={theme.id} value={theme.id}>{theme.name}{theme.isActive ? " (Active)" : ""}</option>
-                ))}
-              </select>
+              <Select value={brandingThemeId != null ? String(brandingThemeId) : "default"} onValueChange={(v) => setBrandingThemeId(v === "default" ? null : parseInt(v))} data-testid="select-branding-theme">
+                <SelectTrigger data-testid="select-branding-theme"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="default">Default Theme</SelectItem>
+                  {allThemes?.map(theme => (
+                    <SelectItem key={theme.id} value={String(theme.id)}>{theme.name}{theme.isActive ? " (Active)" : ""}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label className="flex items-center gap-2"><Tag className="w-4 h-4 text-gray-500" />Asset Description</Label>
-              <select value={brandingAssetDescId ?? ""} onChange={(e) => setBrandingAssetDescId(e.target.value ? parseInt(e.target.value) : null)} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" data-testid="select-branding-asset-desc">
-                <option value="">Default</option>
-                {assetDescriptions?.map(ad => (
-                  <option key={ad.id} value={ad.id}>{ad.name}{ad.isDefault ? " (Default)" : ""}</option>
-                ))}
-              </select>
+              <Select value={brandingAssetDescId != null ? String(brandingAssetDescId) : "default"} onValueChange={(v) => setBrandingAssetDescId(v === "default" ? null : parseInt(v))} data-testid="select-branding-asset-desc">
+                <SelectTrigger data-testid="select-branding-asset-desc"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="default">Default</SelectItem>
+                  {assetDescriptions?.map(ad => (
+                    <SelectItem key={ad.id} value={String(ad.id)}>{ad.name}{ad.isDefault ? " (Default)" : ""}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
           <DialogFooter>
@@ -2383,30 +2399,39 @@ export default function Admin() {
             </div>
             <div className="space-y-2">
               <Label className="flex items-center gap-2"><Image className="w-4 h-4 text-gray-500" />Logo</Label>
-              <select value={groupForm.logoId ?? ""} onChange={(e) => setGroupForm({ ...groupForm, logoId: e.target.value ? parseInt(e.target.value) : null })} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" data-testid="select-group-logo">
-                <option value="">Default Logo</option>
-                {adminLogos?.map(logo => (
-                  <option key={logo.id} value={logo.id}>{logo.name}{logo.isDefault ? " (Default)" : ""}</option>
-                ))}
-              </select>
+              <Select value={groupForm.logoId != null ? String(groupForm.logoId) : "default"} onValueChange={(v) => setGroupForm({ ...groupForm, logoId: v === "default" ? null : parseInt(v) })} data-testid="select-group-logo">
+                <SelectTrigger data-testid="select-group-logo"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="default">Default Logo</SelectItem>
+                  {adminLogos?.map(logo => (
+                    <SelectItem key={logo.id} value={String(logo.id)}>{logo.name}{logo.isDefault ? " (Default)" : ""}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label className="flex items-center gap-2"><Palette className="w-4 h-4 text-gray-500" />Theme</Label>
-              <select value={groupForm.themeId ?? ""} onChange={(e) => setGroupForm({ ...groupForm, themeId: e.target.value ? parseInt(e.target.value) : null })} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" data-testid="select-group-theme">
-                <option value="">Default Theme</option>
-                {allThemes?.map(theme => (
-                  <option key={theme.id} value={theme.id}>{theme.name}{theme.isActive ? " (Active)" : ""}</option>
-                ))}
-              </select>
+              <Select value={groupForm.themeId != null ? String(groupForm.themeId) : "default"} onValueChange={(v) => setGroupForm({ ...groupForm, themeId: v === "default" ? null : parseInt(v) })} data-testid="select-group-theme">
+                <SelectTrigger data-testid="select-group-theme"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="default">Default Theme</SelectItem>
+                  {allThemes?.map(theme => (
+                    <SelectItem key={theme.id} value={String(theme.id)}>{theme.name}{theme.isActive ? " (Active)" : ""}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label className="flex items-center gap-2"><Tag className="w-4 h-4 text-gray-500" />Asset Description</Label>
-              <select value={groupForm.assetDescriptionId ?? ""} onChange={(e) => setGroupForm({ ...groupForm, assetDescriptionId: e.target.value ? parseInt(e.target.value) : null })} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" data-testid="select-group-asset-desc">
-                <option value="">Default</option>
-                {assetDescriptions?.map(ad => (
-                  <option key={ad.id} value={ad.id}>{ad.name}{ad.isDefault ? " (Default)" : ""}</option>
-                ))}
-              </select>
+              <Select value={groupForm.assetDescriptionId != null ? String(groupForm.assetDescriptionId) : "default"} onValueChange={(v) => setGroupForm({ ...groupForm, assetDescriptionId: v === "default" ? null : parseInt(v) })} data-testid="select-group-asset-desc">
+                <SelectTrigger data-testid="select-group-asset-desc"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="default">Default</SelectItem>
+                  {assetDescriptions?.map(ad => (
+                    <SelectItem key={ad.id} value={String(ad.id)}>{ad.name}{ad.isDefault ? " (Default)" : ""}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
           <DialogFooter>

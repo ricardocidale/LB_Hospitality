@@ -255,28 +255,9 @@ function aggregateToYearly(monthlyData: MonthlyFinancials[]): Array<{
   }));
 }
 
-export function printVerificationResults(results: VerificationResults): void {
-  console.log("\n\n");
-  console.log(results.formulaReport);
-  console.log("\n\n");
-  console.log(results.complianceReport);
-  console.log("\n\n");
-  console.log(results.auditWorkpaper);
-  console.log("\n\n");
-  console.log(results.crossValidationReport);
-  console.log("\n\n");
-  console.log("╔══════════════════════════════════════════════════════════════════════════════╗");
-  console.log("║                    CONSOLIDATED VERIFICATION STATUS                          ║");
-  console.log("╠══════════════════════════════════════════════════════════════════════════════╣");
-  console.log(`║  Formula Checks:      ${results.summary.formulaChecksPassed.toString().padStart(4)} passed, ${results.summary.formulaChecksFailed.toString().padStart(4)} failed                         ║`);
-  console.log(`║  Compliance Checks:   ${results.summary.complianceChecksPassed.toString().padStart(4)} passed, ${results.summary.complianceChecksFailed.toString().padStart(4)} failed                         ║`);
-  console.log(`║  Cross-Validation:    ${results.summary.crossValidationPassed.toString().padStart(4)} passed, ${results.summary.crossValidationFailed.toString().padStart(4)} failed                         ║`);
-  console.log(`║  Critical Issues:     ${results.summary.criticalIssues.toString().padStart(4)}                                                   ║`);
-  console.log(`║  Material Issues:     ${results.summary.materialIssues.toString().padStart(4)}                                                   ║`);
-  console.log("╠══════════════════════════════════════════════════════════════════════════════╣");
-  console.log(`║  AUDIT OPINION:       ${results.summary.auditOpinion.padEnd(55)}║`);
-  console.log(`║  OVERALL STATUS:      ${(results.summary.overallStatus === "PASS" ? "✓ PASS" : results.summary.overallStatus === "WARNING" ? "△ WARNING" : "✗ FAIL").padEnd(55)}║`);
-  console.log("╚══════════════════════════════════════════════════════════════════════════════╝\n");
+export function printVerificationResults(_results: VerificationResults): void {
+  // Results are returned programmatically via the VerificationResults interface.
+  // No console output in production — callers should read the returned object.
 }
 
 // Known-value test case for validation

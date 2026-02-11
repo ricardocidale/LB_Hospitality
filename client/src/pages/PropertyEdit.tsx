@@ -1033,7 +1033,10 @@ export default function PropertyEdit() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <div className="flex justify-between items-center">
-                          <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Housekeeping<HelpTooltip text="Housekeeping expense = Room Revenue × this rate. Covers cleaning labor, linens, guest supplies, and room maintenance. Calculated monthly as a variable cost that scales with room revenue. USALI Rooms Department." /></Label>
+                          <div className="flex flex-col gap-0.5">
+                            <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Housekeeping<HelpTooltip text="Housekeeping expense = Room Revenue × this rate. Covers cleaning labor, linens, guest supplies, and room maintenance. Calculated monthly as a variable cost that scales with room revenue. USALI Rooms Department." /></Label>
+                            <ResearchBadge value={researchValues.costHousekeeping?.display} onClick={() => researchValues.costHousekeeping && handleChange("costRateRooms", researchValues.costHousekeeping.mid / 100)} />
+                          </div>
                           <EditableValue
                             value={(draft.costRateRooms ?? DEFAULT_COST_RATE_ROOMS) * 100}
                             onChange={(val) => handleChange("costRateRooms", val / 100)}
@@ -1053,7 +1056,10 @@ export default function PropertyEdit() {
                       </div>
                       <div className="space-y-2">
                         <div className="flex justify-between items-center">
-                          <Label className="text-sm label-text text-gray-700 flex items-center gap-1">F&B<HelpTooltip text="Food & Beverage expense = Room Revenue × this rate. Covers kitchen labor, food costs, beverages, and dining operations. Calculated as a percentage of Room Revenue (not F&B Revenue) for consistent cost modeling. USALI F&B Department." /></Label>
+                          <div className="flex flex-col gap-0.5">
+                            <Label className="text-sm label-text text-gray-700 flex items-center gap-1">F&B<HelpTooltip text="Food & Beverage expense = Room Revenue × this rate. Covers kitchen labor, food costs, beverages, and dining operations. Calculated as a percentage of Room Revenue (not F&B Revenue) for consistent cost modeling. USALI F&B Department." /></Label>
+                            <ResearchBadge value={researchValues.costFB?.display} onClick={() => researchValues.costFB && handleChange("costRateFB", researchValues.costFB.mid / 100)} />
+                          </div>
                           <EditableValue
                             value={(draft.costRateFB ?? DEFAULT_COST_RATE_FB) * 100}
                             onChange={(val) => handleChange("costRateFB", val / 100)}
@@ -1079,7 +1085,10 @@ export default function PropertyEdit() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <div className="flex justify-between items-center">
-                          <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Admin & General<HelpTooltip text="Admin & General expense = (Year 1 Total Revenue ÷ 12) × this rate × annual escalation factor. A fixed cost covering management salaries, accounting, legal, HR, and office operations. The dollar amount is set in Year 1 and escalates annually with the Inflation Escalator Factor. USALI A&G Department." /></Label>
+                          <div className="flex flex-col gap-0.5">
+                            <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Admin & General<HelpTooltip text="Admin & General expense = (Year 1 Total Revenue ÷ 12) × this rate × annual escalation factor. A fixed cost covering management salaries, accounting, legal, HR, and office operations. The dollar amount is set in Year 1 and escalates annually with the Inflation Escalator Factor. USALI A&G Department." /></Label>
+                            <ResearchBadge value={researchValues.costAdmin?.display} onClick={() => researchValues.costAdmin && handleChange("costRateAdmin", researchValues.costAdmin.mid / 100)} />
+                          </div>
                           <EditableValue
                             value={(draft.costRateAdmin ?? DEFAULT_COST_RATE_ADMIN) * 100}
                             onChange={(val) => handleChange("costRateAdmin", val / 100)}
@@ -1099,7 +1108,10 @@ export default function PropertyEdit() {
                       </div>
                       <div className="space-y-2">
                         <div className="flex justify-between items-center">
-                          <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Property Ops<HelpTooltip text="Property Ops expense = (Year 1 Total Revenue ÷ 12) × this rate × annual escalation factor. A fixed cost covering engineering, repairs, grounds maintenance, and facilities. The dollar amount is set in Year 1 and escalates annually with the Inflation Escalator Factor. USALI POM Department." /></Label>
+                          <div className="flex flex-col gap-0.5">
+                            <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Property Ops<HelpTooltip text="Property Ops expense = (Year 1 Total Revenue ÷ 12) × this rate × annual escalation factor. A fixed cost covering engineering, repairs, grounds maintenance, and facilities. The dollar amount is set in Year 1 and escalates annually with the Inflation Escalator Factor. USALI POM Department." /></Label>
+                            <ResearchBadge value={researchValues.costPropertyOps?.display} onClick={() => researchValues.costPropertyOps && handleChange("costRatePropertyOps", researchValues.costPropertyOps.mid / 100)} />
+                          </div>
                           <EditableValue
                             value={(draft.costRatePropertyOps ?? DEFAULT_COST_RATE_PROPERTY_OPS) * 100}
                             onChange={(val) => handleChange("costRatePropertyOps", val / 100)}
@@ -1119,7 +1131,10 @@ export default function PropertyEdit() {
                       </div>
                       <div className="space-y-2">
                         <div className="flex justify-between items-center">
-                          <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Utilities<HelpTooltip text="Utilities expense is split between variable and fixed components. Variable portion scales with current Total Revenue; fixed portion uses Year 1 base and escalates annually. Covers electricity, gas, water, sewer, and waste. USALI Utilities." /></Label>
+                          <div className="flex flex-col gap-0.5">
+                            <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Utilities<HelpTooltip text="Utilities expense is split between variable and fixed components. Variable portion scales with current Total Revenue; fixed portion uses Year 1 base and escalates annually. Covers electricity, gas, water, sewer, and waste. USALI Utilities." /></Label>
+                            <ResearchBadge value={researchValues.costUtilities?.display} onClick={() => researchValues.costUtilities && handleChange("costRateUtilities", researchValues.costUtilities.mid / 100)} />
+                          </div>
                           <EditableValue
                             value={(draft.costRateUtilities ?? DEFAULT_COST_RATE_UTILITIES) * 100}
                             onChange={(val) => handleChange("costRateUtilities", val / 100)}
@@ -1158,7 +1173,10 @@ export default function PropertyEdit() {
                       </div>
                       <div className="space-y-2">
                         <div className="flex justify-between items-center">
-                          <Label className="text-sm label-text text-gray-700 flex items-center gap-1">FF&E Reserve<HelpTooltip text="FF&E Reserve = Total Revenue × this rate. A variable set-aside for future replacement of furniture, fixtures, and equipment. Industry standard is 3–5% of revenue. Treated as an operating expense below GOP." /></Label>
+                          <div className="flex flex-col gap-0.5">
+                            <Label className="text-sm label-text text-gray-700 flex items-center gap-1">FF&E Reserve<HelpTooltip text="FF&E Reserve = Total Revenue × this rate. A variable set-aside for future replacement of furniture, fixtures, and equipment. Industry standard is 3–5% of revenue. Treated as an operating expense below GOP." /></Label>
+                            <ResearchBadge value={researchValues.costFFE?.display} onClick={() => researchValues.costFFE && handleChange("costRateFFE", researchValues.costFFE.mid / 100)} />
+                          </div>
                           <EditableValue
                             value={(draft.costRateFFE ?? DEFAULT_COST_RATE_FFE) * 100}
                             onChange={(val) => handleChange("costRateFFE", val / 100)}
@@ -1178,7 +1196,10 @@ export default function PropertyEdit() {
                       </div>
                       <div className="space-y-2">
                         <div className="flex justify-between items-center">
-                          <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Other<HelpTooltip text="Other expenses = (Year 1 Total Revenue ÷ 12) × this rate × annual escalation factor. A fixed cost for miscellaneous operating expenses not categorized elsewhere. Escalates annually with the Inflation Escalator Factor." /></Label>
+                          <div className="flex flex-col gap-0.5">
+                            <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Other<HelpTooltip text="Other expenses = (Year 1 Total Revenue ÷ 12) × this rate × annual escalation factor. A fixed cost for miscellaneous operating expenses not categorized elsewhere. Escalates annually with the Inflation Escalator Factor." /></Label>
+                            <ResearchBadge value={researchValues.costOther?.display} onClick={() => researchValues.costOther && handleChange("costRateOther", researchValues.costOther.mid / 100)} />
+                          </div>
                           <EditableValue
                             value={(draft.costRateOther ?? DEFAULT_COST_RATE_OTHER) * 100}
                             onChange={(val) => handleChange("costRateOther", val / 100)}

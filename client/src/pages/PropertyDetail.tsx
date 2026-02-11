@@ -654,7 +654,7 @@ export default function PropertyDetail() {
       { category: "F&B", values: yearlyDetails.map(y => y.expenseFB), indent: 1 },
       { category: "Marketing", values: yearlyDetails.map(y => y.expenseMarketing), indent: 1 },
       { category: "Property Ops", values: yearlyDetails.map(y => y.expensePropertyOps), indent: 1 },
-      { category: "Admin", values: yearlyDetails.map(y => y.expenseAdmin), indent: 1 },
+      { category: "Admin & General", values: yearlyDetails.map(y => y.expenseAdmin), indent: 1 },
       { category: "Net Operating Income", values: yearlyDetails.map(y => y.noi), isBold: true },
     ];
 

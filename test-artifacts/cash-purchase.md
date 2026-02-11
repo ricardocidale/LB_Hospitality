@@ -1,5 +1,5 @@
 # Reconciliation Report: Cash Purchase (Full Equity)
-Generated: 2026-02-10T21:52:28.234Z
+Generated: 2026-02-11T14:13:33.408Z
 ## Sources & Uses at Acquisition
 | Item | Amount |
 |------|--------|
@@ -12,19 +12,19 @@ Generated: 2026-02-10T21:52:28.234Z
 ## NOI → FCF Bridge (10-Year Total)
 | Item | Amount |
 |------|--------|
-| NOI | $2,475,442.68 |
+| NOI | $3,795,088.20 |
 | Less: Debt Service | $0.00 |
-| Less: Income Tax | $482,497.03 |
+| Less: Income Tax | $812,408.41 |
 | Plus: Refi Proceeds | $0.00 |
-| **Free Cash Flow** | $1,992,945.64 |
+| **Free Cash Flow** | $2,982,679.79 |
 | Check | PASS |
 ## Begin Cash → End Cash Bridge (Financing CF includes refi proceeds)
 | Item | Amount |
 |------|--------|
 | Beginning Cash | $0.00 |
-| + Operating CF | $1,992,945.64 |
+| + Operating CF | $2,982,679.79 |
 | + Financing CF | $0.00 |
-| **Ending Cash** | $1,992,945.64 |
+| **Ending Cash** | $2,982,679.79 |
 | Check | PASS |
 ## Debt Schedule Reconciliation
 | Item | Amount |

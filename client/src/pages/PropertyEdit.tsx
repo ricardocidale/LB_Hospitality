@@ -374,11 +374,13 @@ export default function PropertyEdit() {
                 />
               </div>
               <div className="lg:col-span-4 space-y-1.5">
-                <Label className="label-text text-gray-700 flex items-center gap-1.5">
-                  Land Value (%)
-                  <HelpTooltip text="Percentage of the purchase price allocated to land. Land does not depreciate under IRS rules (Publication 946). Only the building portion is depreciated over 27.5 years. Typical land allocation ranges from 15-40% depending on location and property type." />
+                <div className="flex flex-col gap-0.5">
+                  <Label className="label-text text-gray-700 flex items-center gap-1.5">
+                    Land Value (%)
+                    <HelpTooltip text="Percentage of the purchase price allocated to land. Land does not depreciate under IRS rules (Publication 946). Only the building portion is depreciated over 27.5 years. Typical land allocation ranges from 15-40% depending on location and property type." />
+                  </Label>
                   <ResearchBadge value={researchValues.landValue?.display} onClick={() => researchValues.landValue && handleChange("landValuePercent", researchValues.landValue.mid / 100)} />
-                </Label>
+                </div>
                 <div className="flex items-center gap-3 max-w-md">
                   <Slider
                     data-testid="slider-land-value-percent"
@@ -567,11 +569,13 @@ export default function PropertyEdit() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label className="label-text text-gray-700 flex items-center gap-1.5">
-                    Starting ADR
-                    <HelpTooltip text="Average Daily Rate at the start of operations. This is the average revenue per occupied room per night." />
+                  <div className="flex flex-col gap-0.5">
+                    <Label className="label-text text-gray-700 flex items-center gap-1.5">
+                      Starting ADR
+                      <HelpTooltip text="Average Daily Rate at the start of operations. This is the average revenue per occupied room per night." />
+                    </Label>
                     <ResearchBadge value={researchValues.adr?.display} onClick={() => researchValues.adr && handleChange("startAdr", researchValues.adr.mid)} />
-                  </Label>
+                  </div>
                   <EditableValue
                     value={draft.startAdr}
                     onChange={(val) => handleChange("startAdr", val)}
@@ -615,11 +619,13 @@ export default function PropertyEdit() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label className="label-text text-gray-700 flex items-center gap-1.5">
-                    Starting Occupancy
-                    <HelpTooltip text="Occupancy rate in the first month of operations. New properties typically start below stabilized levels and ramp up over time." />
+                  <div className="flex flex-col gap-0.5">
+                    <Label className="label-text text-gray-700 flex items-center gap-1.5">
+                      Starting Occupancy
+                      <HelpTooltip text="Occupancy rate in the first month of operations. New properties typically start below stabilized levels and ramp up over time." />
+                    </Label>
                     <ResearchBadge value={researchValues.startOccupancy?.display} onClick={() => researchValues.startOccupancy && handleChange("startOccupancy", researchValues.startOccupancy.mid / 100)} />
-                  </Label>
+                  </div>
                   <EditableValue
                     value={draft.startOccupancy * 100}
                     onChange={(val) => handleChange("startOccupancy", val / 100)}
@@ -640,11 +646,13 @@ export default function PropertyEdit() {
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label className="label-text text-gray-700 flex items-center gap-1.5">
-                    Stabilized Occupancy
-                    <HelpTooltip text="Target occupancy rate after the ramp-up period. This is the long-term sustainable occupancy level for the market." />
+                  <div className="flex flex-col gap-0.5">
+                    <Label className="label-text text-gray-700 flex items-center gap-1.5">
+                      Stabilized Occupancy
+                      <HelpTooltip text="Target occupancy rate after the ramp-up period. This is the long-term sustainable occupancy level for the market." />
+                    </Label>
                     <ResearchBadge value={researchValues.occupancy?.display} onClick={() => researchValues.occupancy && handleChange("maxOccupancy", researchValues.occupancy.mid / 100)} />
-                  </Label>
+                  </div>
                   <EditableValue
                     value={draft.maxOccupancy * 100}
                     onChange={(val) => handleChange("maxOccupancy", val / 100)}
@@ -667,11 +675,13 @@ export default function PropertyEdit() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label className="label-text text-gray-700 flex items-center gap-1.5">
-                    Occupancy Ramp
-                    <HelpTooltip text="Number of months from opening to reach stabilized occupancy. The property linearly ramps from starting to stabilized occupancy over this period." />
+                  <div className="flex flex-col gap-0.5">
+                    <Label className="label-text text-gray-700 flex items-center gap-1.5">
+                      Occupancy Ramp
+                      <HelpTooltip text="Number of months from opening to reach stabilized occupancy. The property linearly ramps from starting to stabilized occupancy over this period." />
+                    </Label>
                     <ResearchBadge value={researchValues.rampMonths?.display} onClick={() => researchValues.rampMonths && handleChange("occupancyRampMonths", researchValues.rampMonths.mid)} />
-                  </Label>
+                  </div>
                   <EditableValue
                     value={draft.occupancyRampMonths}
                     onChange={(val) => handleChange("occupancyRampMonths", val)}
@@ -874,7 +884,7 @@ export default function PropertyEdit() {
             <div className="mb-6">
               <h3 className="text-xl font-display text-gray-900 flex items-center">
                 Operating Cost Rates
-                <HelpTooltip text="These percentages represent the portion of revenue allocated to each expense category for this property." />
+                <HelpTooltip text="Operating cost rates grouped by their calculation basis. Some costs are percentages of Room Revenue, others of Total Revenue. Fixed costs (Admin & General, Property Ops, Insurance, Taxes, IT) use a base Year 1 dollar amount that escalates annually with the Inflation Escalator Factor." />
               </h3>
               <p className="text-gray-600 text-sm label-text">Expense allocation as percentage of revenue</p>
             </div>
@@ -905,227 +915,243 @@ export default function PropertyEdit() {
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Housekeeping<HelpTooltip text="Room department expenses: housekeeping labor, linens, guest supplies, and room maintenance as a percentage of total revenue (USALI Rooms Dept.)." /></Label>
-                        <EditableValue
-                          value={(draft.costRateRooms ?? DEFAULT_COST_RATE_ROOMS) * 100}
-                          onChange={(val) => handleChange("costRateRooms", val / 100)}
-                          format="percent"
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Based on Room Revenue</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Housekeeping<HelpTooltip text="Housekeeping expense = Room Revenue × this rate. Covers cleaning labor, linens, guest supplies, and room maintenance. Calculated monthly as a variable cost that scales with room revenue. USALI Rooms Department." /></Label>
+                          <EditableValue
+                            value={(draft.costRateRooms ?? DEFAULT_COST_RATE_ROOMS) * 100}
+                            onChange={(val) => handleChange("costRateRooms", val / 100)}
+                            format="percent"
+                            min={0}
+                            max={50}
+                            step={1}
+                          />
+                        </div>
+                        <Slider 
+                          value={[(draft.costRateRooms ?? DEFAULT_COST_RATE_ROOMS) * 100]}
+                          onValueChange={(vals: number[]) => handleChange("costRateRooms", vals[0] / 100)}
                           min={0}
                           max={50}
                           step={1}
                         />
                       </div>
-                      <Slider 
-                        value={[(draft.costRateRooms ?? DEFAULT_COST_RATE_ROOMS) * 100]}
-                        onValueChange={(vals: number[]) => handleChange("costRateRooms", vals[0] / 100)}
-                        min={0}
-                        max={50}
-                        step={1}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <Label className="text-sm label-text text-gray-700 flex items-center gap-1">F&B<HelpTooltip text="Food & Beverage department expenses: kitchen labor, food costs, beverages, and dining operations as a percentage of total revenue (USALI F&B Dept.)." /></Label>
-                        <EditableValue
-                          value={(draft.costRateFB ?? DEFAULT_COST_RATE_FB) * 100}
-                          onChange={(val) => handleChange("costRateFB", val / 100)}
-                          format="percent"
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <Label className="text-sm label-text text-gray-700 flex items-center gap-1">F&B<HelpTooltip text="Food & Beverage expense = Room Revenue × this rate. Covers kitchen labor, food costs, beverages, and dining operations. Calculated as a percentage of Room Revenue (not F&B Revenue) for consistent cost modeling. USALI F&B Department." /></Label>
+                          <EditableValue
+                            value={(draft.costRateFB ?? DEFAULT_COST_RATE_FB) * 100}
+                            onChange={(val) => handleChange("costRateFB", val / 100)}
+                            format="percent"
+                            min={0}
+                            max={50}
+                            step={1}
+                          />
+                        </div>
+                        <Slider 
+                          value={[(draft.costRateFB ?? DEFAULT_COST_RATE_FB) * 100]}
+                          onValueChange={(vals: number[]) => handleChange("costRateFB", vals[0] / 100)}
                           min={0}
                           max={50}
                           step={1}
                         />
                       </div>
-                      <Slider 
-                        value={[(draft.costRateFB ?? DEFAULT_COST_RATE_FB) * 100]}
-                        onValueChange={(vals: number[]) => handleChange("costRateFB", vals[0] / 100)}
-                        min={0}
-                        max={50}
-                        step={1}
-                      />
                     </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Admin<HelpTooltip text="Administrative & General expenses: management salaries, accounting, legal, HR, and office supplies as a percentage of total revenue." /></Label>
-                        <EditableValue
-                          value={(draft.costRateAdmin ?? DEFAULT_COST_RATE_ADMIN) * 100}
-                          onChange={(val) => handleChange("costRateAdmin", val / 100)}
-                          format="percent"
+                  </div>
+
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Based on Total Revenue</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Admin & General<HelpTooltip text="Admin & General expense = (Year 1 Total Revenue ÷ 12) × this rate × annual escalation factor. A fixed cost covering management salaries, accounting, legal, HR, and office operations. The dollar amount is set in Year 1 and escalates annually with the Inflation Escalator Factor. USALI A&G Department." /></Label>
+                          <EditableValue
+                            value={(draft.costRateAdmin ?? DEFAULT_COST_RATE_ADMIN) * 100}
+                            onChange={(val) => handleChange("costRateAdmin", val / 100)}
+                            format="percent"
+                            min={0}
+                            max={25}
+                            step={1}
+                          />
+                        </div>
+                        <Slider 
+                          value={[(draft.costRateAdmin ?? DEFAULT_COST_RATE_ADMIN) * 100]}
+                          onValueChange={(vals: number[]) => handleChange("costRateAdmin", vals[0] / 100)}
                           min={0}
                           max={25}
                           step={1}
                         />
                       </div>
-                      <Slider 
-                        value={[(draft.costRateAdmin ?? DEFAULT_COST_RATE_ADMIN) * 100]}
-                        onValueChange={(vals: number[]) => handleChange("costRateAdmin", vals[0] / 100)}
-                        min={0}
-                        max={25}
-                        step={1}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Marketing<HelpTooltip text="Sales & Marketing expenses: advertising, OTA commissions, loyalty programs, and business development as a percentage of total revenue." /></Label>
-                        <EditableValue
-                          value={(draft.costRateMarketing ?? DEFAULT_COST_RATE_MARKETING) * 100}
-                          onChange={(val) => handleChange("costRateMarketing", val / 100)}
-                          format="percent"
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Marketing<HelpTooltip text="Marketing expense = Total Revenue × this rate. A variable cost covering advertising, OTA commissions, loyalty programs, and business development that scales with revenue. USALI Sales & Marketing Department." /></Label>
+                          <EditableValue
+                            value={(draft.costRateMarketing ?? DEFAULT_COST_RATE_MARKETING) * 100}
+                            onChange={(val) => handleChange("costRateMarketing", val / 100)}
+                            format="percent"
+                            min={0}
+                            max={25}
+                            step={1}
+                          />
+                        </div>
+                        <Slider 
+                          value={[(draft.costRateMarketing ?? DEFAULT_COST_RATE_MARKETING) * 100]}
+                          onValueChange={(vals: number[]) => handleChange("costRateMarketing", vals[0] / 100)}
                           min={0}
                           max={25}
                           step={1}
                         />
                       </div>
-                      <Slider 
-                        value={[(draft.costRateMarketing ?? DEFAULT_COST_RATE_MARKETING) * 100]}
-                        onValueChange={(vals: number[]) => handleChange("costRateMarketing", vals[0] / 100)}
-                        min={0}
-                        max={25}
-                        step={1}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Property Ops<HelpTooltip text="Property Operations & Maintenance: engineering, repairs, grounds, and facility maintenance as a percentage of total revenue." /></Label>
-                        <EditableValue
-                          value={(draft.costRatePropertyOps ?? DEFAULT_COST_RATE_PROPERTY_OPS) * 100}
-                          onChange={(val) => handleChange("costRatePropertyOps", val / 100)}
-                          format="percent"
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Property Ops<HelpTooltip text="Property Ops expense = (Year 1 Total Revenue ÷ 12) × this rate × annual escalation factor. A fixed cost covering engineering, repairs, grounds maintenance, and facilities. The dollar amount is set in Year 1 and escalates annually with the Inflation Escalator Factor. USALI POM Department." /></Label>
+                          <EditableValue
+                            value={(draft.costRatePropertyOps ?? DEFAULT_COST_RATE_PROPERTY_OPS) * 100}
+                            onChange={(val) => handleChange("costRatePropertyOps", val / 100)}
+                            format="percent"
+                            min={0}
+                            max={25}
+                            step={1}
+                          />
+                        </div>
+                        <Slider 
+                          value={[(draft.costRatePropertyOps ?? DEFAULT_COST_RATE_PROPERTY_OPS) * 100]}
+                          onValueChange={(vals: number[]) => handleChange("costRatePropertyOps", vals[0] / 100)}
                           min={0}
                           max={25}
                           step={1}
                         />
                       </div>
-                      <Slider 
-                        value={[(draft.costRatePropertyOps ?? DEFAULT_COST_RATE_PROPERTY_OPS) * 100]}
-                        onValueChange={(vals: number[]) => handleChange("costRatePropertyOps", vals[0] / 100)}
-                        min={0}
-                        max={25}
-                        step={1}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Utilities<HelpTooltip text="Utility expenses: electricity, gas, water, sewer, and waste management as a percentage of total revenue." /></Label>
-                        <EditableValue
-                          value={(draft.costRateUtilities ?? DEFAULT_COST_RATE_UTILITIES) * 100}
-                          onChange={(val) => handleChange("costRateUtilities", val / 100)}
-                          format="percent"
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Utilities<HelpTooltip text="Utilities expense is split between variable and fixed components. Variable portion scales with current Total Revenue; fixed portion uses Year 1 base and escalates annually. Covers electricity, gas, water, sewer, and waste. USALI Utilities." /></Label>
+                          <EditableValue
+                            value={(draft.costRateUtilities ?? DEFAULT_COST_RATE_UTILITIES) * 100}
+                            onChange={(val) => handleChange("costRateUtilities", val / 100)}
+                            format="percent"
+                            min={0}
+                            max={25}
+                            step={1}
+                          />
+                        </div>
+                        <Slider 
+                          value={[(draft.costRateUtilities ?? DEFAULT_COST_RATE_UTILITIES) * 100]}
+                          onValueChange={(vals: number[]) => handleChange("costRateUtilities", vals[0] / 100)}
                           min={0}
                           max={25}
                           step={1}
                         />
                       </div>
-                      <Slider 
-                        value={[(draft.costRateUtilities ?? DEFAULT_COST_RATE_UTILITIES) * 100]}
-                        onValueChange={(vals: number[]) => handleChange("costRateUtilities", vals[0] / 100)}
-                        min={0}
-                        max={25}
-                        step={1}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Insurance<HelpTooltip text="Property insurance: liability, property damage, workers' comp, and business interruption coverage as a percentage of total revenue." /></Label>
-                        <EditableValue
-                          value={(draft.costRateInsurance ?? DEFAULT_COST_RATE_INSURANCE) * 100}
-                          onChange={(val) => handleChange("costRateInsurance", val / 100)}
-                          format="percent"
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Insurance<HelpTooltip text="Insurance expense = (Year 1 Total Revenue ÷ 12) × this rate × annual escalation factor. A fixed cost for property liability, damage, workers' comp, and business interruption coverage. Escalates annually with the Inflation Escalator Factor." /></Label>
+                          <EditableValue
+                            value={(draft.costRateInsurance ?? DEFAULT_COST_RATE_INSURANCE) * 100}
+                            onChange={(val) => handleChange("costRateInsurance", val / 100)}
+                            format="percent"
+                            min={0}
+                            max={15}
+                            step={1}
+                          />
+                        </div>
+                        <Slider 
+                          value={[(draft.costRateInsurance ?? DEFAULT_COST_RATE_INSURANCE) * 100]}
+                          onValueChange={(vals: number[]) => handleChange("costRateInsurance", vals[0] / 100)}
                           min={0}
                           max={15}
                           step={1}
                         />
                       </div>
-                      <Slider 
-                        value={[(draft.costRateInsurance ?? DEFAULT_COST_RATE_INSURANCE) * 100]}
-                        onValueChange={(vals: number[]) => handleChange("costRateInsurance", vals[0] / 100)}
-                        min={0}
-                        max={15}
-                        step={1}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Taxes<HelpTooltip text="Property taxes and other real estate assessments as a percentage of total revenue." /></Label>
-                        <EditableValue
-                          value={(draft.costRateTaxes ?? DEFAULT_COST_RATE_TAXES) * 100}
-                          onChange={(val) => handleChange("costRateTaxes", val / 100)}
-                          format="percent"
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Taxes<HelpTooltip text="Property tax expense = (Year 1 Total Revenue ÷ 12) × this rate × annual escalation factor. A fixed cost for real estate taxes and assessments. Escalates annually with the Inflation Escalator Factor." /></Label>
+                          <EditableValue
+                            value={(draft.costRateTaxes ?? DEFAULT_COST_RATE_TAXES) * 100}
+                            onChange={(val) => handleChange("costRateTaxes", val / 100)}
+                            format="percent"
+                            min={0}
+                            max={15}
+                            step={1}
+                          />
+                        </div>
+                        <Slider 
+                          value={[(draft.costRateTaxes ?? DEFAULT_COST_RATE_TAXES) * 100]}
+                          onValueChange={(vals: number[]) => handleChange("costRateTaxes", vals[0] / 100)}
                           min={0}
                           max={15}
                           step={1}
                         />
                       </div>
-                      <Slider 
-                        value={[(draft.costRateTaxes ?? DEFAULT_COST_RATE_TAXES) * 100]}
-                        onValueChange={(vals: number[]) => handleChange("costRateTaxes", vals[0] / 100)}
-                        min={0}
-                        max={15}
-                        step={1}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <Label className="text-sm label-text text-gray-700 flex items-center gap-1">IT<HelpTooltip text="Information Technology: property management systems, WiFi, in-room tech, and IT support as a percentage of total revenue." /></Label>
-                        <EditableValue
-                          value={(draft.costRateIT ?? DEFAULT_COST_RATE_IT) * 100}
-                          onChange={(val) => handleChange("costRateIT", val / 100)}
-                          format="percent"
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <Label className="text-sm label-text text-gray-700 flex items-center gap-1">FF&E Reserve<HelpTooltip text="FF&E Reserve = Total Revenue × this rate. A variable set-aside for future replacement of furniture, fixtures, and equipment. Industry standard is 3–5% of revenue. Treated as an operating expense below GOP." /></Label>
+                          <EditableValue
+                            value={(draft.costRateFFE ?? DEFAULT_COST_RATE_FFE) * 100}
+                            onChange={(val) => handleChange("costRateFFE", val / 100)}
+                            format="percent"
+                            min={0}
+                            max={15}
+                            step={1}
+                          />
+                        </div>
+                        <Slider 
+                          value={[(draft.costRateFFE ?? DEFAULT_COST_RATE_FFE) * 100]}
+                          onValueChange={(vals: number[]) => handleChange("costRateFFE", vals[0] / 100)}
                           min={0}
                           max={15}
                           step={1}
                         />
                       </div>
-                      <Slider 
-                        value={[(draft.costRateIT ?? DEFAULT_COST_RATE_IT) * 100]}
-                        onValueChange={(vals: number[]) => handleChange("costRateIT", vals[0] / 100)}
-                        min={0}
-                        max={15}
-                        step={1}
-                      />
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Other<HelpTooltip text="Other expenses = (Year 1 Total Revenue ÷ 12) × this rate × annual escalation factor. A fixed cost for miscellaneous operating expenses not categorized elsewhere. Escalates annually with the Inflation Escalator Factor." /></Label>
+                          <EditableValue
+                            value={(draft.costRateOther ?? DEFAULT_COST_RATE_OTHER) * 100}
+                            onChange={(val) => handleChange("costRateOther", val / 100)}
+                            format="percent"
+                            min={0}
+                            max={15}
+                            step={1}
+                          />
+                        </div>
+                        <Slider 
+                          value={[(draft.costRateOther ?? DEFAULT_COST_RATE_OTHER) * 100]}
+                          onValueChange={(vals: number[]) => handleChange("costRateOther", vals[0] / 100)}
+                          min={0}
+                          max={25}
+                          step={1}
+                        />
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <Label className="text-sm label-text text-gray-700 flex items-center gap-1">FF&E Reserve<HelpTooltip text="Furniture, Fixtures & Equipment reserve: annual set-aside for capital replacement of furnishings, carpets, and equipment (typically 3-5% of revenue)." /></Label>
-                        <EditableValue
-                          value={(draft.costRateFFE ?? DEFAULT_COST_RATE_FFE) * 100}
-                          onChange={(val) => handleChange("costRateFFE", val / 100)}
-                          format="percent"
+                  </div>
+
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Part of Services Provided by Management Company</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <Label className="text-sm label-text text-gray-700 flex items-center gap-1">IT<HelpTooltip text="IT expense = (Year 1 Total Revenue ÷ 12) × this rate × annual escalation factor. A minimal fixed cost for property-level IT needs only — WiFi, in-room tech, and basic support. Core IT infrastructure (PMS, accounting systems, networks) is provided by the management company." /></Label>
+                          <EditableValue
+                            value={(draft.costRateIT ?? DEFAULT_COST_RATE_IT) * 100}
+                            onChange={(val) => handleChange("costRateIT", val / 100)}
+                            format="percent"
+                            min={0}
+                            max={15}
+                            step={1}
+                          />
+                        </div>
+                        <Slider 
+                          value={[(draft.costRateIT ?? DEFAULT_COST_RATE_IT) * 100]}
+                          onValueChange={(vals: number[]) => handleChange("costRateIT", vals[0] / 100)}
                           min={0}
                           max={15}
                           step={1}
                         />
                       </div>
-                      <Slider 
-                        value={[(draft.costRateFFE ?? DEFAULT_COST_RATE_FFE) * 100]}
-                        onValueChange={(vals: number[]) => handleChange("costRateFFE", vals[0] / 100)}
-                        min={0}
-                        max={15}
-                        step={1}
-                      />
                     </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Other<HelpTooltip text="Miscellaneous operating expenses not categorized elsewhere as a percentage of total revenue." /></Label>
-                        <EditableValue
-                          value={(draft.costRateOther ?? DEFAULT_COST_RATE_OTHER) * 100}
-                          onChange={(val) => handleChange("costRateOther", val / 100)}
-                          format="percent"
-                          min={0}
-                          max={15}
-                          step={1}
-                        />
-                      </div>
-                      <Slider 
-                        value={[(draft.costRateOther ?? DEFAULT_COST_RATE_OTHER) * 100]}
-                        onValueChange={(vals: number[]) => handleChange("costRateOther", vals[0] / 100)}
-                        min={0}
-                        max={25}
-                        step={1}
-                      />
-                    </div>
+                    <p className="text-xs text-gray-500 mt-2">IT infrastructure and systems are primarily provided by the management company. This represents only property-level IT costs.</p>
                   </div>
                 </>
               );
@@ -1151,11 +1177,13 @@ export default function PropertyEdit() {
             </div>
             <div className="max-w-md space-y-2">
               <div className="flex justify-between items-center">
-                <Label className="flex items-center label-text text-gray-700 gap-1.5">
-                  Exit Cap Rate
-                  <HelpTooltip text={`The capitalization rate used to determine terminal (exit) value. Exit Value = Year ${exitYear} NOI ÷ Cap Rate. A lower cap rate implies higher property valuation.`} />
+                <div className="flex flex-col gap-0.5">
+                  <Label className="flex items-center label-text text-gray-700 gap-1.5">
+                    Exit Cap Rate
+                    <HelpTooltip text={`The capitalization rate used to determine terminal (exit) value. Exit Value = Year ${exitYear} NOI ÷ Cap Rate. A lower cap rate implies higher property valuation.`} />
+                  </Label>
                   <ResearchBadge value={researchValues.capRate?.display} onClick={() => researchValues.capRate && handleChange("exitCapRate", researchValues.capRate.mid / 100)} />
-                </Label>
+                </div>
                 <EditableValue
                   value={(draft.exitCapRate ?? DEFAULT_EXIT_CAP_RATE) * 100}
                   onChange={(val) => handleChange("exitCapRate", val / 100)}

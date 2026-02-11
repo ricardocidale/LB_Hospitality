@@ -164,7 +164,7 @@ async function seed() {
       willRefinance: "Yes",
       refinanceDate: "2029-12-01",
       costRateRooms: DEFAULT_COST_RATE_ROOMS,
-      costRateFB: 0.30,  // Upscale NY market, efficient sourcing (USALI: 28-35% for full-service boutique)
+      costRateFB: 0.085,  // Upscale NY market, efficient sourcing (% of Room Revenue)
       costRateAdmin: DEFAULT_COST_RATE_ADMIN,
       costRateMarketing: DEFAULT_COST_RATE_MARKETING,
       costRatePropertyOps: DEFAULT_COST_RATE_PROPERTY_OPS,
@@ -206,7 +206,7 @@ async function seed() {
       willRefinance: "Yes",
       refinanceDate: "2030-07-01",
       costRateRooms: DEFAULT_COST_RATE_ROOMS,
-      costRateFB: 0.28,  // Premium ski resort, higher markups on F&B (USALI: 25-32% for luxury mountain)
+      costRateFB: 0.085,  // Premium ski resort, higher markups on F&B (% of Room Revenue)
       costRateAdmin: DEFAULT_COST_RATE_ADMIN,
       costRateMarketing: DEFAULT_COST_RATE_MARKETING,
       costRatePropertyOps: DEFAULT_COST_RATE_PROPERTY_OPS,
@@ -248,7 +248,7 @@ async function seed() {
       willRefinance: "Yes",
       refinanceDate: "2031-01-01",
       costRateRooms: DEFAULT_COST_RATE_ROOMS,
-      costRateFB: 0.33,  // Competitive urban F&B market, higher ingredient costs (USALI: 31-35% for mid-tier)
+      costRateFB: 0.09,  // Competitive urban F&B market, higher ingredient costs (% of Room Revenue)
       costRateAdmin: DEFAULT_COST_RATE_ADMIN,
       costRateMarketing: DEFAULT_COST_RATE_MARKETING,
       costRatePropertyOps: DEFAULT_COST_RATE_PROPERTY_OPS,
@@ -292,7 +292,7 @@ async function seed() {
       acquisitionClosingCostRate: 0.02,
 
       costRateRooms: DEFAULT_COST_RATE_ROOMS,
-      costRateFB: 0.25,  // Lower LatAm ingredient costs, favorable labor economics (USALI: 28-30% LatAm)
+      costRateFB: 0.075,  // Lower LatAm ingredient costs, favorable labor economics (% of Room Revenue)
       costRateAdmin: DEFAULT_COST_RATE_ADMIN,
       costRateMarketing: DEFAULT_COST_RATE_MARKETING,
       costRatePropertyOps: DEFAULT_COST_RATE_PROPERTY_OPS,
@@ -336,7 +336,7 @@ async function seed() {
       acquisitionClosingCostRate: 0.02,
 
       costRateRooms: DEFAULT_COST_RATE_ROOMS,
-      costRateFB: 0.32,  // Farm-to-table Asheville, standard full-service rate (USALI: 30-35% for boutique)
+      costRateFB: 0.10,  // Farm-to-table Asheville, standard full-service rate (% of Room Revenue)
       costRateAdmin: DEFAULT_COST_RATE_ADMIN,
       costRateMarketing: DEFAULT_COST_RATE_MARKETING,
       costRatePropertyOps: DEFAULT_COST_RATE_PROPERTY_OPS,

@@ -1,5 +1,5 @@
 # Reconciliation Report: Financed Purchase (75% LTV)
-Generated: 2026-02-10T21:52:28.265Z
+Generated: 2026-02-11T14:13:33.430Z
 ## Sources & Uses at Acquisition
 | Item | Amount |
 |------|--------|
@@ -12,19 +12,19 @@ Generated: 2026-02-10T21:52:28.265Z
 ## NOI → FCF Bridge (10-Year Total)
 | Item | Amount |
 |------|--------|
-| NOI | $2,475,442.68 |
+| NOI | $3,795,088.20 |
 | Less: Debt Service | $1,510,553.45 |
-| Less: Income Tax | $191,964.76 |
+| Less: Income Tax | $499,532.90 |
 | Plus: Refi Proceeds | $0.00 |
-| **Free Cash Flow** | $772,924.46 |
+| **Free Cash Flow** | $1,785,001.85 |
 | Check | PASS |
 ## Begin Cash → End Cash Bridge (Financing CF includes refi proceeds)
 | Item | Amount |
 |------|--------|
 | Beginning Cash | $0.00 |
-| + Operating CF | $1,031,836.01 |
+| + Operating CF | $2,043,913.39 |
 | + Financing CF | ($258,911.55) |
-| **Ending Cash** | $772,924.46 |
+| **Ending Cash** | $1,785,001.85 |
 | Check | PASS |
 ## Debt Schedule Reconciliation
 | Item | Amount |

@@ -1,14 +1,14 @@
 {
   "scenario": "Consolidated with Eliminations",
-  "timestamp": "2026-02-10T21:52:28.281Z",
-  "property_a_fees": 87466.65712499997,
-  "property_b_fees": 157439.98282499998,
-  "total_spv_fees": 244906.63994999995,
-  "opco_fee_revenue": 244906.63994999995,
-  "fees_eliminated": 244906.64,
+  "timestamp": "2026-02-11T14:13:33.441Z",
+  "property_a_fees": 103528.20112499999,
+  "property_b_fees": 186350.76202499997,
+  "total_spv_fees": 289878.96314999997,
+  "opco_fee_revenue": 289878.96314999997,
+  "fees_eliminated": 289878.96,
   "fee_linkage_balanced": true,
   "fee_variance": 0,
   "consolidated_revenue": 2859832.5,
-  "consolidated_net_income": 138776.21,
+  "consolidated_net_income": 380764.05,
   "balance_sheet_balanced": true
 }

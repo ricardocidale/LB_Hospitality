@@ -180,7 +180,7 @@ export default function Dashboard() {
     // RevPAR = Total Room Revenue / Total Available Room Nights (or ADR × Occupancy)
     const revPAR = totalAvailableRoomNights > 0 ? totalRoomRevenue / totalAvailableRoomNights : 0;
     
-    return { weightedADR, weightedOcc, revPAR };
+    return { weightedADR, weightedOcc, revPAR, totalAvailableRoomNights };
   };
 
   const year1Data = getYearlyConsolidated(0);
@@ -1992,6 +1992,28 @@ export default function Dashboard() {
                       <>
                         <TableRow 
                           className="bg-muted/5 cursor-pointer hover:bg-muted/10"
+                          onClick={(e) => { e.stopPropagation(); toggleRow('isTotalRooms'); }}
+                        >
+                          <TableCell className="sticky left-0 bg-muted/5 pl-10 text-muted-foreground label-text flex items-center gap-2">
+                            {expandedRows.has('isTotalRooms') ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                            Total Rooms Available
+                          </TableCell>
+                          {Array.from({ length: projectionYears }, (_, y) => (
+                            <TableCell key={y} className="text-right text-muted-foreground font-mono">{getWeightedMetrics(y).totalAvailableRoomNights.toLocaleString()}</TableCell>
+                          ))}
+                        </TableRow>
+                        {expandedRows.has('isTotalRooms') && properties.map((prop, idx) => (
+                          <TableRow key={`isTotalRooms-${prop.id}`} className="bg-blue-50/30">
+                            <TableCell className="sticky left-0 bg-blue-50/30 pl-16 text-xs text-muted-foreground">{prop.name}</TableCell>
+                            {Array.from({ length: projectionYears }, (_, y) => (
+                              <TableCell key={y} className="text-right text-xs text-muted-foreground font-mono">
+                                {getPropertyYearly(idx, y).availableRooms.toLocaleString()}
+                              </TableCell>
+                            ))}
+                          </TableRow>
+                        ))}
+                        <TableRow 
+                          className="bg-muted/5 cursor-pointer hover:bg-muted/10"
                           onClick={(e) => { e.stopPropagation(); toggleRow('isAdr'); }}
                         >
                           <TableCell className="sticky left-0 bg-muted/5 pl-10 text-muted-foreground label-text flex items-center gap-2">
@@ -2517,6 +2539,28 @@ export default function Dashboard() {
                     </TableRow>
                     {expandedRows.has('cfInflows') && (
                       <>
+                        <TableRow 
+                          className="bg-muted/5 cursor-pointer hover:bg-muted/10"
+                          onClick={(e) => { e.stopPropagation(); toggleRow('cfTotalRooms'); }}
+                        >
+                          <TableCell className="sticky left-0 bg-muted/5 pl-10 text-muted-foreground label-text flex items-center gap-2">
+                            {expandedRows.has('cfTotalRooms') ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                            Total Rooms Available
+                          </TableCell>
+                          {Array.from({ length: projectionYears }, (_, y) => (
+                            <TableCell key={y} className="text-right text-muted-foreground font-mono">{getWeightedMetrics(y).totalAvailableRoomNights.toLocaleString()}</TableCell>
+                          ))}
+                        </TableRow>
+                        {expandedRows.has('cfTotalRooms') && properties.map((prop, idx) => (
+                          <TableRow key={`cfTotalRooms-${prop.id}`} className="bg-blue-50/30">
+                            <TableCell className="sticky left-0 bg-blue-50/30 pl-16 text-xs text-muted-foreground">{prop.name}</TableCell>
+                            {Array.from({ length: projectionYears }, (_, y) => (
+                              <TableCell key={y} className="text-right text-xs text-muted-foreground font-mono">
+                                {getPropertyYearly(idx, y).availableRooms.toLocaleString()}
+                              </TableCell>
+                            ))}
+                          </TableRow>
+                        ))}
                         <TableRow 
                           className="bg-muted/5 cursor-pointer hover:bg-muted/10"
                           onClick={(e) => { e.stopPropagation(); toggleRow('cfAdr'); }}

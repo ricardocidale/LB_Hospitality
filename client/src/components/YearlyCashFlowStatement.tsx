@@ -367,6 +367,7 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
           <LineItem label="Incentive Management Fee" values={yearlyDetails.map(y => y.feeIncentive)} indent />
         </ExpandableLineItem>
       </ExpandableLineItem>
+      <MarginRow label="% of Total Revenue" values={yearlyDetails.map(y => y.totalExpenses - y.expenseFFE)} baseValues={yearlyDetails.map(y => y.revenueTotal)} />
 
       <LineItem
         label="Less: Interest Paid"

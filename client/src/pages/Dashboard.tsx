@@ -2280,6 +2280,18 @@ export default function Dashboard() {
                         )}
                       </>
                     )}
+                    <TableRow>
+                      <TableCell className="sticky left-0 bg-card pl-8 text-xs text-muted-foreground italic">% of Total Revenue</TableCell>
+                      {Array.from({ length: projectionYears }, (_, y) => {
+                        const data = getYearlyConsolidated(y);
+                        const totalOpex = data.expenseRooms + data.expenseFB + data.expenseEvents + data.expenseOther + 
+                          data.expenseMarketing + data.expensePropertyOps + data.expenseUtilitiesVar + 
+                          data.expenseAdmin + data.expenseIT + data.expenseInsurance + data.expenseTaxes + 
+                          data.expenseUtilitiesFixed + data.expenseOtherCosts;
+                        const pct = data.revenueTotal > 0 ? (totalOpex / data.revenueTotal) * 100 : 0;
+                        return <TableCell key={y} className="text-right text-xs text-muted-foreground italic font-mono">{pct.toFixed(1)}%</TableCell>;
+                      })}
+                    </TableRow>
 
                     <TableRow className="bg-accent/20 font-semibold">
                       <TableCell className="sticky left-0 bg-accent/20 label-text">Gross Operating Profit (GOP)</TableCell>
@@ -2845,6 +2857,18 @@ export default function Dashboard() {
                         )}
                       </>
                     )}
+                    <TableRow>
+                      <TableCell className="sticky left-0 bg-card pl-8 text-xs text-muted-foreground italic">% of Total Revenue</TableCell>
+                      {Array.from({ length: projectionYears }, (_, y) => {
+                        const data = getYearlyConsolidated(y);
+                        const totalOpex = data.expenseRooms + data.expenseFB + data.expenseEvents + data.expenseOther + 
+                          data.expenseMarketing + data.expensePropertyOps + data.expenseUtilitiesVar + 
+                          data.expenseAdmin + data.expenseIT + data.expenseInsurance + data.expenseTaxes + 
+                          data.expenseUtilitiesFixed + data.expenseOtherCosts;
+                        const pct = data.revenueTotal > 0 ? (totalOpex / data.revenueTotal) * 100 : 0;
+                        return <TableCell key={y} className="text-right text-xs text-muted-foreground italic font-mono">{pct.toFixed(1)}%</TableCell>;
+                      })}
+                    </TableRow>
 
                     <TableRow className="bg-accent/20 font-semibold">
                       <TableCell className="sticky left-0 bg-accent/20 label-text">Gross Operating Profit (GOP)</TableCell>

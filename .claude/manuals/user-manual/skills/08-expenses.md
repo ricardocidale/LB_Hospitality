@@ -22,13 +22,18 @@ Overhead costs — also known as undistributed expenses in USALI terminology —
 | Expense Category | Default Rate |
 |-----------------|-------------|
 | Administrative & General | 8% |
-| Marketing | 5% |
+| Marketing | 1% |
 | Property Operations & Maintenance | 4% |
 | Utilities | 5% |
-| Insurance | 2% |
-| Property Taxes | 3% |
-| Information Technology | 2% |
+| Information Technology | 0.5% |
 | FF&E Reserve | 4% |
+
+**Property-Value-Based Costs**: Insurance and Property Taxes are calculated as a percentage of total property value (Purchase Price + Building Improvements), not revenue. This reflects that these costs are tied to the asset's value, not its operating performance.
+
+| Expense Category | Default Rate | Basis |
+|-----------------|-------------|-------|
+| Insurance | 2% | % of property value |
+| Property Taxes | 3% | % of property value |
 
 The FF&E (Furniture, Fixtures, and Equipment) reserve is a standard industry practice, setting aside a portion of revenue each year to fund future capital replacements and renovations.
 

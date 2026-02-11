@@ -100,22 +100,24 @@ DEPARTMENTAL / OPERATING EXPENSES
     Variable Utilities            = Total Revenue × (costRateUtilities × variableSplit)
     FF&E Reserve                  = Total Revenue × costRateFFE
 
-  Fixed Costs (anchored to Year 1 base, escalate independently per USALI):
+  Fixed Costs (anchored to Year 1 base revenue, escalate independently per USALI):
     Administrative & General      = baseDollar × (1 + escalationRate)^year
     Property Operations           = baseDollar × (1 + escalationRate)^year
     IT & Systems                  = baseDollar × (1 + escalationRate)^year
-    Insurance                     = baseDollar × (1 + escalationRate)^year
-    Property Taxes                = baseDollar × (1 + escalationRate)^year
     Fixed Utilities               = baseDollar × (1 + escalationRate)^year
     Other Costs                   = baseDollar × (1 + escalationRate)^year
+
+  Property-Value-Based Costs (anchored to purchase price + improvements, escalate):
+    Insurance                     = (totalPropertyValue / 12) × rate × (1 + escalationRate)^year
+    Property Taxes                = (totalPropertyValue / 12) × rate × (1 + escalationRate)^year
   ─────────────────────────────────────────────────
   TOTAL OPERATING EXPENSES        = Sum of all variable + fixed expenses
 ```
 
 **USALI Classification Rules:**
 - Departmental expenses (Rooms, F&B, Events, Other) are **variable** — they scale with departmental revenue
-- Undistributed Operating Expenses (Admin, Property Ops, IT, Utilities, Insurance) are **fixed** — they are dollar-based, anchored to opening-year revenue, and escalate at a configurable rate independent of revenue growth
-- Property Taxes are a fixed charge, escalated annually
+- Undistributed Operating Expenses (Admin, Property Ops, IT, Utilities) are **fixed** — they are dollar-based, anchored to opening-year revenue, and escalate at a configurable rate independent of revenue growth
+- Insurance and Property Taxes are **property-value-based** — anchored to (Purchase Price + Building Improvements), escalated annually
 - FF&E Reserve is a contractual/covenant obligation, treated as variable (% of Total Revenue)
 - Marketing includes franchise fees per USALI 10th edition
 

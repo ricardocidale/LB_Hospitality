@@ -90,8 +90,8 @@ Used as fallbacks when no user-configured value exists:
 | `DEFAULT_COST_RATE_MARKETING` | 0.05 (5%) | Marketing costs |
 | `DEFAULT_COST_RATE_PROPERTY_OPS` | 0.04 (4%) | Property operations |
 | `DEFAULT_COST_RATE_UTILITIES` | 0.05 (5%) | Utilities costs |
-| `DEFAULT_COST_RATE_INSURANCE` | 0.02 (2%) | Insurance costs |
-| `DEFAULT_COST_RATE_TAXES` | 0.03 (3%) | Property taxes |
+| `DEFAULT_COST_RATE_INSURANCE` | 0.02 (2%) | Insurance costs (% of property value) |
+| `DEFAULT_COST_RATE_TAXES` | 0.03 (3%) | Property taxes (% of property value) |
 | `DEFAULT_COST_RATE_IT` | 0.02 (2%) | IT costs |
 | `DEFAULT_COST_RATE_FFE` | 0.04 (4%) | FF&E reserve |
 | `DEFAULT_COST_RATE_OTHER` | 0.05 (5%) | Other costs |

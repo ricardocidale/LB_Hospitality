@@ -16,11 +16,11 @@ Tests `generateCompanyProForma()` from `client/src/lib/financialEngine.ts`.
 #### Revenue (Fee Linkage)
 | Test | What It Proves |
 |------|---------------|
-| Base fee = property revenue × mgmtFeePercent | Base management fee formula |
-| Incentive fee = property GOP × incentiveFeePercent | Incentive fee formula |
+| Base fee = property revenue × property.baseManagementFeeRate | Base management fee formula (per-property rate, default 5%) |
+| Incentive fee = property GOP × property.incentiveManagementFeeRate | Incentive fee formula (per-property rate, default 15%) |
 | Total revenue = base + incentive | Revenue aggregation |
 
-**Identity**: `OpCo total revenue = Σ(property base fees) + Σ(property incentive fees)`
+**Identity**: `OpCo total revenue = Σ(property[i].totalRevenue × property[i].baseManagementFeeRate) + Σ(max(0, property[i].GOP × property[i].incentiveManagementFeeRate))`
 
 #### Staffing Model (Tiered)
 | Test | What It Proves |

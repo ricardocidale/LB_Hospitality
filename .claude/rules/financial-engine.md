@@ -158,8 +158,8 @@ These rules are non-negotiable constraints enforced across the entire financial 
 - **Timing**: Debt only exists after acquisition date; returns 0 before
 
 ### Management Fees
-- **Base fee**: Percentage of total revenue (default 5%)
-- **Incentive fee**: Percentage of GOP above threshold (default 15%)
+- **Base fee**: Percentage of total revenue, defined per property (default 5%, `DEFAULT_BASE_MANAGEMENT_FEE_RATE`)
+- **Incentive fee**: Percentage of GOP, defined per property (default 15%, `DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE`)
 - Applied monthly, based on that month's revenue/GOP
 
 ### Partner Compensation
@@ -189,7 +189,6 @@ These rules are non-negotiable constraints enforced across the entire financial 
 | projectionYears | 10 | 1-30 | Company Assumptions page |
 | inflationRate | 3% | 0-15% | Company Assumptions page |
 | fixedCostEscalationRate | 3% | 0-10% | Company Assumptions page |
-| baseManagementFee | 5% | 0-15% | Company Assumptions page |
 | exitCapRate | 8.5% | 1-20% | Company Assumptions page |
 | All staffing tiers | varies | varies | Company Assumptions page |
 
@@ -201,3 +200,5 @@ These rules are non-negotiable constraints enforced across the entire financial 
 | eventExpenseRate | 65% | Property Edit page |
 | exitCapRate | (global) | Property Edit page |
 | taxRate | (global) | Property Edit page |
+| baseManagementFeeRate | 5% (`DEFAULT_BASE_MANAGEMENT_FEE_RATE`) | Property Edit page |
+| incentiveManagementFeeRate | 15% (`DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE`) | Property Edit page |

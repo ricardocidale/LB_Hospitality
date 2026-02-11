@@ -1217,6 +1217,52 @@ export default function PropertyEdit() {
                           step={1}
                         />
                       </div>
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <div className="flex flex-col gap-0.5">
+                            <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Marketing<HelpTooltip text="Marketing expense = Total Revenue × this rate. Covers property-level advertising, OTA commissions, and local promotions. USALI Sales & Marketing Department." /></Label>
+                            <ResearchBadge value={researchValues.costMarketing?.display} onClick={() => researchValues.costMarketing && handleChange("costRateMarketing", researchValues.costMarketing.mid / 100)} />
+                          </div>
+                          <EditableValue
+                            value={(draft.costRateMarketing ?? DEFAULT_COST_RATE_MARKETING) * 100}
+                            onChange={(val) => handleChange("costRateMarketing", val / 100)}
+                            format="percent"
+                            min={0}
+                            max={15}
+                            step={1}
+                          />
+                        </div>
+                        <Slider 
+                          value={[(draft.costRateMarketing ?? DEFAULT_COST_RATE_MARKETING) * 100]}
+                          onValueChange={(vals: number[]) => handleChange("costRateMarketing", vals[0] / 100)}
+                          min={0}
+                          max={15}
+                          step={1}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <div className="flex flex-col gap-0.5">
+                            <Label className="text-sm label-text text-gray-700 flex items-center gap-1">IT<HelpTooltip text="IT expense = (Year 1 Total Revenue ÷ 12) × this rate × annual escalation factor. Covers property-level IT needs — WiFi, in-room tech, PMS, and basic support. Escalates annually with the Inflation Escalator Factor." /></Label>
+                            <ResearchBadge value={researchValues.costIT?.display} onClick={() => researchValues.costIT && handleChange("costRateIT", researchValues.costIT.mid / 100)} />
+                          </div>
+                          <EditableValue
+                            value={(draft.costRateIT ?? DEFAULT_COST_RATE_IT) * 100}
+                            onChange={(val) => handleChange("costRateIT", val / 100)}
+                            format="percent"
+                            min={0}
+                            max={15}
+                            step={1}
+                          />
+                        </div>
+                        <Slider 
+                          value={[(draft.costRateIT ?? DEFAULT_COST_RATE_IT) * 100]}
+                          onValueChange={(vals: number[]) => handleChange("costRateIT", vals[0] / 100)}
+                          min={0}
+                          max={15}
+                          step={1}
+                        />
+                      </div>
                     </div>
                   </div>
 
@@ -1291,7 +1337,7 @@ export default function PropertyEdit() {
             <div className="mb-6">
               <h3 className="text-xl font-display text-gray-900 flex items-center">
                 Management and Service Fees by Hospitality Management Company
-                <HelpTooltip text="Fees paid by this property to the management company. Service fees are broken into categories (each a % of Total Revenue). The Incentive Fee is a % of Gross Operating Profit (GOP) collected when GOP is positive. Property-level Marketing and IT costs are also shown here as they complement the management company's services." />
+                <HelpTooltip text="Fees paid by this property to the management company. Service fees are broken into categories (each a % of Total Revenue). The Incentive Fee is a % of Gross Operating Profit (GOP) collected when GOP is positive." />
               </h3>
               <p className="text-gray-600 text-sm label-text">Fees charged by the management company for operating this property</p>
             </div>
@@ -1390,58 +1436,6 @@ export default function PropertyEdit() {
               </div>
             </div>
 
-            <div className="border-t border-[#9FBCA4]/20 pt-4 mt-6">
-              <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">Property-Level Costs (Part of Services Provided by Management Company)</h4>
-              <p className="text-xs text-gray-500 mb-4">These are minimal property-level costs. The majority of Marketing and IT services are provided centrally by the management company via the service fees above.</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <div className="flex flex-col gap-0.5">
-                      <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Marketing<HelpTooltip text="Marketing expense = Total Revenue × this rate. Covers property-level advertising, OTA commissions, and local promotions only. Brand strategy, digital marketing, loyalty programs, and business development are provided by the management company. USALI Sales & Marketing Department." /></Label>
-                      <ResearchBadge value={researchValues.costMarketing?.display} onClick={() => researchValues.costMarketing && handleChange("costRateMarketing", researchValues.costMarketing.mid / 100)} />
-                    </div>
-                    <EditableValue
-                      value={(draft.costRateMarketing ?? DEFAULT_COST_RATE_MARKETING) * 100}
-                      onChange={(val) => handleChange("costRateMarketing", val / 100)}
-                      format="percent"
-                      min={0}
-                      max={15}
-                      step={1}
-                    />
-                  </div>
-                  <Slider 
-                    value={[(draft.costRateMarketing ?? DEFAULT_COST_RATE_MARKETING) * 100]}
-                    onValueChange={(vals: number[]) => handleChange("costRateMarketing", vals[0] / 100)}
-                    min={0}
-                    max={15}
-                    step={1}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <div className="flex flex-col gap-0.5">
-                      <Label className="text-sm label-text text-gray-700 flex items-center gap-1">IT<HelpTooltip text="IT expense = (Year 1 Total Revenue ÷ 12) × this rate × annual escalation factor. A minimal fixed cost for property-level IT needs only — WiFi, in-room tech, and basic support. Core IT infrastructure (PMS, accounting systems, networks) is provided by the management company." /></Label>
-                      <ResearchBadge value={researchValues.costIT?.display} onClick={() => researchValues.costIT && handleChange("costRateIT", researchValues.costIT.mid / 100)} />
-                    </div>
-                    <EditableValue
-                      value={(draft.costRateIT ?? DEFAULT_COST_RATE_IT) * 100}
-                      onChange={(val) => handleChange("costRateIT", val / 100)}
-                      format="percent"
-                      min={0}
-                      max={15}
-                      step={1}
-                    />
-                  </div>
-                  <Slider 
-                    value={[(draft.costRateIT ?? DEFAULT_COST_RATE_IT) * 100]}
-                    onValueChange={(vals: number[]) => handleChange("costRateIT", vals[0] / 100)}
-                    min={0}
-                    max={15}
-                    step={1}
-                  />
-                </div>
-              </div>
-            </div>
           </div>
         </div>
 

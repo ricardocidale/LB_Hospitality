@@ -241,6 +241,61 @@ export function useDeleteProperty() {
   });
 }
 
+// --- FEE CATEGORIES ---
+
+export interface FeeCategoryResponse {
+  id: number;
+  propertyId: number;
+  name: string;
+  rate: number;
+  isActive: boolean;
+  sortOrder: number;
+  createdAt: string;
+}
+
+export function useFeeCategories(propertyId: number) {
+  return useQuery({
+    queryKey: ["feeCategories", propertyId],
+    queryFn: async () => {
+      const res = await fetch(`/api/properties/${propertyId}/fee-categories`);
+      if (!res.ok) throw new Error("Failed to fetch fee categories");
+      return res.json() as Promise<FeeCategoryResponse[]>;
+    },
+    enabled: !!propertyId,
+  });
+}
+
+export function useAllFeeCategories() {
+  return useQuery({
+    queryKey: ["feeCategories", "all"],
+    queryFn: async () => {
+      const res = await fetch("/api/fee-categories/all");
+      if (!res.ok) throw new Error("Failed to fetch all fee categories");
+      return res.json() as Promise<FeeCategoryResponse[]>;
+    },
+  });
+}
+
+export function useUpdateFeeCategories() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ propertyId, categories }: { propertyId: number; categories: Partial<FeeCategoryResponse>[] }) => {
+      const res = await fetch(`/api/properties/${propertyId}/fee-categories`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(categories),
+      });
+      if (!res.ok) throw new Error("Failed to update fee categories");
+      return res.json() as Promise<FeeCategoryResponse[]>;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["feeCategories", variables.propertyId] });
+      queryClient.invalidateQueries({ queryKey: ["feeCategories", "all"] });
+    },
+  });
+}
+
 // --- SCENARIOS ---
 
 export interface ScenarioResponse {

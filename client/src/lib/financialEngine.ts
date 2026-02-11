@@ -137,6 +137,9 @@ interface PropertyInput {
   incentiveManagementFeeRate?: number;
   // Service fee categories (replaces single baseManagementFeeRate when present)
   feeCategories?: { name: string; rate: number; isActive: boolean }[];
+  // Property identity (for keying breakdowns)
+  id?: number;
+  name?: string;
 }
 
 interface GlobalInput {
@@ -664,8 +667,8 @@ export function formatPercent(amount: number) {
 
 export interface ServiceFeeBreakdown {
   byCategory: Record<string, number>;
-  byProperty: Record<string, number>;
-  byCategoryByProperty: Record<string, Record<string, number>>;
+  byPropertyId: Record<string, number>;
+  byCategoryByPropertyId: Record<string, Record<string, number>>;
 }
 
 export interface CompanyMonthlyFinancials {
@@ -674,7 +677,7 @@ export interface CompanyMonthlyFinancials {
   year: number;
   baseFeeRevenue: number;
   incentiveFeeRevenue: number;
-  incentiveFeeByProperty: Record<string, number>;
+  incentiveFeeByPropertyId: Record<string, number>;
   serviceFeeBreakdown: ServiceFeeBreakdown;
   totalRevenue: number;
   partnerCompensation: number;
@@ -756,20 +759,20 @@ export function generateCompanyProForma(
     
     let baseFeeRevenue = 0;
     let incentiveFeeRevenue = 0;
-    const incentiveFeeByProperty: Record<string, number> = {};
+    const incentiveFeeByPropertyId: Record<string, number> = {};
     const serviceFeeBreakdown: ServiceFeeBreakdown = {
       byCategory: {},
-      byProperty: {},
-      byCategoryByProperty: {},
+      byPropertyId: {},
+      byCategoryByPropertyId: {},
     };
     for (let i = 0; i < properties.length; i++) {
       const pf = propertyFinancials[i];
       if (m < pf.length) {
-        const propName = (properties[i] as any).name || `Property ${i + 1}`;
+        const propId = String(properties[i].id ?? i);
         const propIncentiveFee = properties[i].incentiveManagementFeeRate ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE;
         const propIncentive = Math.max(0, pf[m].gop * propIncentiveFee);
         incentiveFeeRevenue += propIncentive;
-        incentiveFeeByProperty[propName] = propIncentive;
+        incentiveFeeByPropertyId[propId] = propIncentive;
         
         const catFees = pf[m].serviceFeesByCategory;
         const hasCategoryData = Object.keys(catFees).length > 0;
@@ -777,24 +780,24 @@ export function generateCompanyProForma(
           let propServiceTotal = 0;
           for (const [catName, catAmount] of Object.entries(catFees)) {
             serviceFeeBreakdown.byCategory[catName] = (serviceFeeBreakdown.byCategory[catName] || 0) + catAmount;
-            if (!serviceFeeBreakdown.byCategoryByProperty[catName]) {
-              serviceFeeBreakdown.byCategoryByProperty[catName] = {};
+            if (!serviceFeeBreakdown.byCategoryByPropertyId[catName]) {
+              serviceFeeBreakdown.byCategoryByPropertyId[catName] = {};
             }
-            serviceFeeBreakdown.byCategoryByProperty[catName][propName] = catAmount;
+            serviceFeeBreakdown.byCategoryByPropertyId[catName][propId] = catAmount;
             propServiceTotal += catAmount;
           }
-          serviceFeeBreakdown.byProperty[propName] = propServiceTotal;
+          serviceFeeBreakdown.byPropertyId[propId] = propServiceTotal;
           baseFeeRevenue += propServiceTotal;
         } else {
           const propBaseFee = properties[i].baseManagementFeeRate ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE;
           const propServiceFee = pf[m].revenueTotal * propBaseFee;
           baseFeeRevenue += propServiceFee;
-          serviceFeeBreakdown.byProperty[propName] = propServiceFee;
+          serviceFeeBreakdown.byPropertyId[propId] = propServiceFee;
           serviceFeeBreakdown.byCategory["Service Fee"] = (serviceFeeBreakdown.byCategory["Service Fee"] || 0) + propServiceFee;
-          if (!serviceFeeBreakdown.byCategoryByProperty["Service Fee"]) {
-            serviceFeeBreakdown.byCategoryByProperty["Service Fee"] = {};
+          if (!serviceFeeBreakdown.byCategoryByPropertyId["Service Fee"]) {
+            serviceFeeBreakdown.byCategoryByPropertyId["Service Fee"] = {};
           }
-          serviceFeeBreakdown.byCategoryByProperty["Service Fee"][propName] = propServiceFee;
+          serviceFeeBreakdown.byCategoryByPropertyId["Service Fee"][propId] = propServiceFee;
         }
       }
     }
@@ -874,7 +877,7 @@ export function generateCompanyProForma(
       year: year + 1,
       baseFeeRevenue,
       incentiveFeeRevenue,
-      incentiveFeeByProperty,
+      incentiveFeeByPropertyId,
       serviceFeeBreakdown,
       totalRevenue,
       partnerCompensation,

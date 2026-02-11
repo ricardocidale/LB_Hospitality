@@ -1,8 +1,8 @@
-import { useState, useRef, useMemo } from "react";
+import React, { useState, useRef, useMemo } from "react";
 import domtoimage from 'dom-to-image-more';
 import { ExportDialog } from "@/components/ExportDialog";
 import Layout from "@/components/Layout";
-import { useProperties, useGlobalAssumptions } from "@/lib/api";
+import { useProperties, useGlobalAssumptions, useAllFeeCategories } from "@/lib/api";
 import { generateCompanyProForma, generatePropertyProForma, formatMoney, getFiscalYearForModelYear, CompanyMonthlyFinancials } from "@/lib/financialEngine";
 import { PROJECTION_YEARS, STAFFING_TIERS, OPERATING_RESERVE_BUFFER, COMPANY_FUNDING_BUFFER } from "@/lib/constants";
 import { Tabs, TabsContent, DarkGlassTabs } from "@/components/ui/tabs";
@@ -93,6 +93,7 @@ function analyzeCompanyCashPosition(financials: CompanyMonthlyFinancials[]): Com
 export default function Company() {
   const { data: properties, isLoading: propertiesLoading } = useProperties();
   const { data: global, isLoading: globalLoading } = useGlobalAssumptions();
+  const { data: allFeeCategories } = useAllFeeCategories();
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState("income");
   const [bsExpanded, setBsExpanded] = useState<Record<string, boolean>>({});
@@ -118,12 +119,23 @@ export default function Company() {
   const projectionYears = global?.projectionYears ?? PROJECTION_YEARS;
   const projectionMonths = projectionYears * 12;
 
+  const enrichedProperties = useMemo(() => {
+    if (!properties) return [];
+    return properties.map(p => {
+      const cats = allFeeCategories?.filter(c => c.propertyId === p.id) ?? [];
+      if (cats.length > 0) {
+        return { ...p, feeCategories: cats.map(c => ({ name: c.name, rate: c.rate, isActive: c.isActive })) };
+      }
+      return p;
+    });
+  }, [properties, allFeeCategories]);
+
   const financials = useMemo(
     () => {
-      if (!properties || !global) return [];
-      return generateCompanyProForma(properties, global, projectionMonths);
+      if (!enrichedProperties.length || !global) return [];
+      return generateCompanyProForma(enrichedProperties, global, projectionMonths);
     },
-    [properties, global, projectionMonths]
+    [enrichedProperties, global, projectionMonths]
   );
 
   const cashAnalysis = useMemo(
@@ -133,13 +145,13 @@ export default function Company() {
 
   const propertyFinancials = useMemo(
     () => {
-      if (!properties || !global) return [];
-      return properties.map(p => ({
+      if (!enrichedProperties.length || !global) return [];
+      return enrichedProperties.map(p => ({
         property: p,
         financials: generatePropertyProForma(p, global, projectionMonths)
       }));
     },
-    [properties, global, projectionMonths]
+    [enrichedProperties, global, projectionMonths]
   );
   
   const fiscalYearStartMonth = global?.fiscalYearStartMonth ?? 1;
@@ -217,22 +229,35 @@ export default function Company() {
       return yearData.reduce((a, m) => a + m.totalRevenue, 0);
     }), isHeader: true });
     
-    rows.push({ category: "Base Management Fees", values: years.map((_, y) => {
+    rows.push({ category: "Service Fees", values: years.map((_, y) => {
       const yearData = financials.slice(y * 12, (y + 1) * 12);
       return yearData.reduce((a, m) => a + m.baseFeeRevenue, 0);
     }), indent: 1 });
     
-    properties.forEach((prop, idx) => {
-      rows.push({ category: prop.name, values: years.map((_, y) => getPropertyYearlyBaseFee(idx, y)), indent: 2 });
-    });
+    const categoryNames = Object.keys(financials[0]?.serviceFeeBreakdown?.byCategory ?? {});
+    if (categoryNames.length > 0) {
+      categoryNames.forEach(catName => {
+        rows.push({ category: catName, values: years.map((_, y) => {
+          const yearData = financials.slice(y * 12, (y + 1) * 12);
+          return yearData.reduce((a, m) => (m.serviceFeeBreakdown?.byCategory?.[catName] ?? 0) + a, 0);
+        }), indent: 2 });
+      });
+    } else {
+      properties.forEach((prop, idx) => {
+        rows.push({ category: prop.name, values: years.map((_, y) => getPropertyYearlyBaseFee(idx, y)), indent: 2 });
+      });
+    }
     
     rows.push({ category: "Incentive Fees", values: years.map((_, y) => {
       const yearData = financials.slice(y * 12, (y + 1) * 12);
       return yearData.reduce((a, m) => a + m.incentiveFeeRevenue, 0);
     }), indent: 1 });
     
-    properties.forEach((prop, idx) => {
-      rows.push({ category: prop.name, values: years.map((_, y) => getPropertyYearlyIncentiveFee(idx, y)), indent: 2 });
+    properties.forEach((prop) => {
+      rows.push({ category: prop.name, values: years.map((_, y) => {
+        const yearData = financials.slice(y * 12, (y + 1) * 12);
+        return yearData.reduce((a, m) => (m.incentiveFeeByPropertyId?.[String(prop.id)] ?? 0) + a, 0);
+      }), indent: 2 });
     });
     
     rows.push({ category: "Operating Expenses", values: years.map((_, y) => {
@@ -316,22 +341,35 @@ export default function Company() {
       return yearData.reduce((a, m) => a + m.totalRevenue, 0);
     }), indent: 1 });
 
-    rows.push({ category: "Base Management Fees", values: years.map((_, y) => {
+    rows.push({ category: "Service Fees", values: years.map((_, y) => {
       const yearData = financials.slice(y * 12, (y + 1) * 12);
       return yearData.reduce((a, m) => a + m.baseFeeRevenue, 0);
     }), indent: 2 });
 
-    properties.forEach((prop, idx) => {
-      rows.push({ category: prop.name, values: years.map((_, y) => getPropertyYearlyBaseFee(idx, y)), indent: 3 });
-    });
+    const cfCategoryNames = Object.keys(financials[0]?.serviceFeeBreakdown?.byCategory ?? {});
+    if (cfCategoryNames.length > 0) {
+      cfCategoryNames.forEach(catName => {
+        rows.push({ category: catName, values: years.map((_, y) => {
+          const yearData = financials.slice(y * 12, (y + 1) * 12);
+          return yearData.reduce((a, m) => (m.serviceFeeBreakdown?.byCategory?.[catName] ?? 0) + a, 0);
+        }), indent: 3 });
+      });
+    } else {
+      properties.forEach((prop, idx) => {
+        rows.push({ category: prop.name, values: years.map((_, y) => getPropertyYearlyBaseFee(idx, y)), indent: 3 });
+      });
+    }
 
     rows.push({ category: "Incentive Fees", values: years.map((_, y) => {
       const yearData = financials.slice(y * 12, (y + 1) * 12);
       return yearData.reduce((a, m) => a + m.incentiveFeeRevenue, 0);
     }), indent: 2 });
 
-    properties.forEach((prop, idx) => {
-      rows.push({ category: prop.name, values: years.map((_, y) => getPropertyYearlyIncentiveFee(idx, y)), indent: 3 });
+    properties.forEach((prop) => {
+      rows.push({ category: prop.name, values: years.map((_, y) => {
+        const yearData = financials.slice(y * 12, (y + 1) * 12);
+        return yearData.reduce((a, m) => (m.incentiveFeeByPropertyId?.[String(prop.id)] ?? 0) + a, 0);
+      }), indent: 3 });
     });
 
     rows.push({ category: "Cash Paid for Operating Expenses", values: years.map((_, y) => {
@@ -815,6 +853,7 @@ export default function Company() {
                     <TableRow 
                       className="cursor-pointer hover:bg-gray-50"
                       onClick={() => toggleRow('baseFees')}
+                      data-testid="row-service-fees"
                     >
                       <TableCell className="sticky left-0 bg-white pl-6 flex items-center gap-2">
                         {expandedRows.has('baseFees') ? (
@@ -822,7 +861,7 @@ export default function Company() {
                         ) : (
                           <ChevronRight className="w-4 h-4 text-gray-500" />
                         )}
-                        Base Management Fees
+                        Service Fees
                       </TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
                         const yearData = financials.slice(y * 12, (y + 1) * 12);
@@ -831,22 +870,66 @@ export default function Company() {
                       })}
                     </TableRow>
                     
-                    {expandedRows.has('baseFees') && properties.map((prop, idx) => (
-                      <TableRow key={`base-${prop.id}`} className="bg-gray-50/50">
-                        <TableCell className="sticky left-0 bg-gray-50/50 pl-12 text-sm text-gray-600">
-                          {prop.name}
-                        </TableCell>
-                        {Array.from({ length: projectionYears }, (_, y) => (
-                          <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">
-                            {formatMoney(getPropertyYearlyBaseFee(idx, y))}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    ))}
+                    {expandedRows.has('baseFees') && (() => {
+                      const categoryNames = Object.keys(financials[0]?.serviceFeeBreakdown?.byCategory ?? {});
+                      if (categoryNames.length === 0) {
+                        return properties.map((prop, idx) => (
+                          <TableRow key={`base-${prop.id}`} className="bg-gray-50/50">
+                            <TableCell className="sticky left-0 bg-gray-50/50 pl-12 text-sm text-gray-600">
+                              {prop.name}
+                            </TableCell>
+                            {Array.from({ length: projectionYears }, (_, y) => (
+                              <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">
+                                {formatMoney(getPropertyYearlyBaseFee(idx, y))}
+                              </TableCell>
+                            ))}
+                          </TableRow>
+                        ));
+                      }
+                      return categoryNames.map(catName => (
+                        <React.Fragment key={`cat-${catName}`}>
+                          <TableRow
+                            className="cursor-pointer hover:bg-gray-50/70"
+                            onClick={() => toggleRow(`cat-${catName}`)}
+                            data-testid={`row-category-${catName.toLowerCase().replace(/\s+/g, '-')}`}
+                          >
+                            <TableCell className="sticky left-0 bg-white pl-12 flex items-center gap-2 text-sm">
+                              {expandedRows.has(`cat-${catName}`) ? (
+                                <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
+                              ) : (
+                                <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                              )}
+                              {catName}
+                            </TableCell>
+                            {Array.from({ length: projectionYears }, (_, y) => {
+                              const yearData = financials.slice(y * 12, (y + 1) * 12);
+                              const total = yearData.reduce((a, m) => (m.serviceFeeBreakdown?.byCategory?.[catName] ?? 0) + a, 0);
+                              return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
+                            })}
+                          </TableRow>
+                          {expandedRows.has(`cat-${catName}`) && properties.map((prop) => {
+                            const propName = prop.name;
+                            return (
+                              <TableRow key={`cat-${catName}-prop-${prop.id}`} className="bg-gray-50/30">
+                                <TableCell className="sticky left-0 bg-gray-50/30 pl-[4.5rem] text-xs text-gray-500">
+                                  {propName}
+                                </TableCell>
+                                {Array.from({ length: projectionYears }, (_, y) => {
+                                  const yearData = financials.slice(y * 12, (y + 1) * 12);
+                                  const total = yearData.reduce((a, m) => (m.serviceFeeBreakdown?.byCategoryByPropertyId?.[catName]?.[String(prop.id)] ?? 0) + a, 0);
+                                  return <TableCell key={y} className="text-right text-xs text-gray-500 font-mono">{formatMoney(total)}</TableCell>;
+                                })}
+                              </TableRow>
+                            );
+                          })}
+                        </React.Fragment>
+                      ));
+                    })()}
                     
                     <TableRow 
                       className="cursor-pointer hover:bg-gray-50"
                       onClick={() => toggleRow('incentiveFees')}
+                      data-testid="row-incentive-fees"
                     >
                       <TableCell className="sticky left-0 bg-white pl-6 flex items-center gap-2">
                         {expandedRows.has('incentiveFees') ? (
@@ -863,16 +946,16 @@ export default function Company() {
                       })}
                     </TableRow>
                     
-                    {expandedRows.has('incentiveFees') && properties.map((prop, idx) => (
+                    {expandedRows.has('incentiveFees') && properties.map((prop) => (
                       <TableRow key={`incentive-${prop.id}`} className="bg-gray-50/50">
                         <TableCell className="sticky left-0 bg-gray-50/50 pl-12 text-sm text-gray-600">
                           {prop.name}
                         </TableCell>
-                        {Array.from({ length: projectionYears }, (_, y) => (
-                          <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">
-                            {formatMoney(getPropertyYearlyIncentiveFee(idx, y))}
-                          </TableCell>
-                        ))}
+                        {Array.from({ length: projectionYears }, (_, y) => {
+                          const yearData = financials.slice(y * 12, (y + 1) * 12);
+                          const total = yearData.reduce((a, m) => (m.incentiveFeeByPropertyId?.[String(prop.id)] ?? 0) + a, 0);
+                          return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
+                        })}
                       </TableRow>
                     ))}
                     
@@ -1131,7 +1214,7 @@ export default function Company() {
                         ) : (
                           <ChevronRight className="w-4 h-4 text-gray-600" />
                         )}
-                        Base Management Fees
+                        Service Fees
                       </TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
                         const yearData = financials.slice(y * 12, (y + 1) * 12);
@@ -1139,18 +1222,57 @@ export default function Company() {
                         return <TableCell key={y} className="text-right text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
                       })}
                     </TableRow>
-                    {expandedRows.has('cfBaseFees') && properties.map((prop, idx) => (
-                      <TableRow key={`cfbase-${prop.id}`} className="bg-gray-50/50">
-                        <TableCell className="sticky left-0 bg-gray-50/50 pl-14 text-sm text-gray-600">
-                          {prop.name}
-                        </TableCell>
-                        {Array.from({ length: projectionYears }, (_, y) => (
-                          <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">
-                            {formatMoney(getPropertyYearlyBaseFee(idx, y))}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    ))}
+                    {expandedRows.has('cfBaseFees') && (() => {
+                      const categoryNames = Object.keys(financials[0]?.serviceFeeBreakdown?.byCategory ?? {});
+                      if (categoryNames.length === 0) {
+                        return properties.map((prop, idx) => (
+                          <TableRow key={`cfbase-${prop.id}`} className="bg-gray-50/50">
+                            <TableCell className="sticky left-0 bg-gray-50/50 pl-14 text-sm text-gray-600">
+                              {prop.name}
+                            </TableCell>
+                            {Array.from({ length: projectionYears }, (_, y) => (
+                              <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">
+                                {formatMoney(getPropertyYearlyBaseFee(idx, y))}
+                              </TableCell>
+                            ))}
+                          </TableRow>
+                        ));
+                      }
+                      return categoryNames.map(catName => (
+                        <React.Fragment key={`cf-cat-${catName}`}>
+                          <TableRow
+                            className="cursor-pointer hover:bg-gray-50/70"
+                            onClick={() => toggleRow(`cf-cat-${catName}`)}
+                          >
+                            <TableCell className="sticky left-0 bg-white pl-14 flex items-center gap-2 text-sm">
+                              {expandedRows.has(`cf-cat-${catName}`) ? (
+                                <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
+                              ) : (
+                                <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                              )}
+                              {catName}
+                            </TableCell>
+                            {Array.from({ length: projectionYears }, (_, y) => {
+                              const yearData = financials.slice(y * 12, (y + 1) * 12);
+                              const total = yearData.reduce((a, m) => (m.serviceFeeBreakdown?.byCategory?.[catName] ?? 0) + a, 0);
+                              return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
+                            })}
+                          </TableRow>
+                          {expandedRows.has(`cf-cat-${catName}`) && properties.map((prop) => (
+                            <TableRow key={`cf-cat-${catName}-prop-${prop.id}`} className="bg-gray-50/30">
+                              <TableCell className="sticky left-0 bg-gray-50/30 pl-[4.5rem] text-xs text-gray-500">
+                                {prop.name}
+                              </TableCell>
+                              {Array.from({ length: projectionYears }, (_, y) => {
+                                const yearData = financials.slice(y * 12, (y + 1) * 12);
+                                const total = yearData.reduce((a, m) => (m.serviceFeeBreakdown?.byCategoryByPropertyId?.[catName]?.[String(prop.id)] ?? 0) + a, 0);
+                                return <TableCell key={y} className="text-right text-xs text-gray-500 font-mono">{formatMoney(total)}</TableCell>;
+                              })}
+                            </TableRow>
+                          ))}
+                        </React.Fragment>
+                      ));
+                    })()}
                     <TableRow 
                       className="cursor-pointer hover:bg-gray-50"
                       onClick={() => toggleRow('cfIncentiveFees')}
@@ -1169,16 +1291,16 @@ export default function Company() {
                         return <TableCell key={y} className="text-right text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
                       })}
                     </TableRow>
-                    {expandedRows.has('cfIncentiveFees') && properties.map((prop, idx) => (
+                    {expandedRows.has('cfIncentiveFees') && properties.map((prop) => (
                       <TableRow key={`cfinc-${prop.id}`} className="bg-gray-50/50">
                         <TableCell className="sticky left-0 bg-gray-50/50 pl-14 text-sm text-gray-600">
                           {prop.name}
                         </TableCell>
-                        {Array.from({ length: projectionYears }, (_, y) => (
-                          <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">
-                            {formatMoney(getPropertyYearlyIncentiveFee(idx, y))}
-                          </TableCell>
-                        ))}
+                        {Array.from({ length: projectionYears }, (_, y) => {
+                          const yearData = financials.slice(y * 12, (y + 1) * 12);
+                          const total = yearData.reduce((a, m) => (m.incentiveFeeByPropertyId?.[String(prop.id)] ?? 0) + a, 0);
+                          return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
+                        })}
                       </TableRow>
                     ))}
                     <TableRow

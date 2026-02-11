@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import Layout from "@/components/Layout";
-import { useGlobalAssumptions, useUpdateGlobalAssumptions, useMarketResearch, useProperties } from "@/lib/api";
+import { useGlobalAssumptions, useUpdateGlobalAssumptions, useMarketResearch, useProperties, useAllFeeCategories } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -114,6 +114,7 @@ export default function CompanyAssumptions() {
   const [, setLocation] = useLocation();
   const { data: global, isLoading, refetch } = useGlobalAssumptions();
   const { data: properties = [] } = useProperties();
+  const { data: allFeeCategories = [] } = useAllFeeCategories();
   const updateMutation = useUpdateGlobalAssumptions();
   const { toast } = useToast();
   const { user } = useAuth();
@@ -591,30 +592,65 @@ export default function CompanyAssumptions() {
               </h3>
               <p className="text-sm text-muted-foreground mb-3">Fee rates are set individually on each property. This table shows the current rates for reference.</p>
               <div className="rounded-lg border border-[#9FBCA4]/20 overflow-hidden">
-                <table className="w-full text-sm" data-testid="table-property-fee-summary">
-                  <thead>
-                    <tr className="bg-[#9FBCA4]/10 border-b border-[#9FBCA4]/20">
-                      <th className="text-left px-4 py-2 font-semibold text-gray-700">Property</th>
-                      <th className="text-right px-4 py-2 font-semibold text-gray-700">Base Fee (% of Revenue)</th>
-                      <th className="text-right px-4 py-2 font-semibold text-gray-700">Incentive Fee (% of GOP)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {properties.length === 0 ? (
-                      <tr><td colSpan={3} className="px-4 py-3 text-center text-muted-foreground">No properties configured</td></tr>
-                    ) : (
-                      properties.map((prop: any) => (
-                        <tr key={prop.id} className="border-b border-[#9FBCA4]/10 last:border-b-0 hover:bg-[#9FBCA4]/5">
-                          <td className="px-4 py-2 text-gray-800">
-                            <Link href={`/property/${prop.id}/edit`} className="text-[#9FBCA4] hover:underline">{prop.name}</Link>
-                          </td>
-                          <td className="px-4 py-2 text-right font-mono text-gray-700">{formatPercent(prop.baseManagementFeeRate ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE)}</td>
-                          <td className="px-4 py-2 text-right font-mono text-gray-700">{formatPercent(prop.incentiveManagementFeeRate ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE)}</td>
+                {(() => {
+                  const allCatNames = [...new Set(allFeeCategories.filter(c => c.isActive).map(c => c.name))];
+                  const hasCategoryData = allCatNames.length > 0;
+                  return (
+                    <div className="overflow-x-auto">
+                    <table className="w-full text-sm" data-testid="table-property-fee-summary">
+                      <thead>
+                        <tr className="bg-[#9FBCA4]/10 border-b border-[#9FBCA4]/20">
+                          <th className="text-left px-4 py-2 font-semibold text-gray-700 whitespace-nowrap">Property</th>
+                          {hasCategoryData ? (
+                            <>
+                              {allCatNames.map(name => (
+                                <th key={name} className="text-right px-3 py-2 font-semibold text-gray-700 whitespace-nowrap text-xs">{name}</th>
+                              ))}
+                              <th className="text-right px-3 py-2 font-semibold text-gray-700 whitespace-nowrap">Total Service</th>
+                            </>
+                          ) : (
+                            <th className="text-right px-4 py-2 font-semibold text-gray-700">Base Fee (% of Revenue)</th>
+                          )}
+                          <th className="text-right px-4 py-2 font-semibold text-gray-700 whitespace-nowrap">Incentive (% of GOP)</th>
                         </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
+                      </thead>
+                      <tbody>
+                        {properties.length === 0 ? (
+                          <tr><td colSpan={hasCategoryData ? allCatNames.length + 3 : 3} className="px-4 py-3 text-center text-muted-foreground">No properties configured</td></tr>
+                        ) : (
+                          properties.map((prop: any) => {
+                            const propCats = allFeeCategories.filter(c => c.propertyId === prop.id);
+                            const totalServiceRate = propCats.filter(c => c.isActive).reduce((sum, c) => sum + c.rate, 0);
+                            return (
+                              <tr key={prop.id} className="border-b border-[#9FBCA4]/10 last:border-b-0 hover:bg-[#9FBCA4]/5">
+                                <td className="px-4 py-2 text-gray-800 whitespace-nowrap">
+                                  <Link href={`/property/${prop.id}/edit`} className="text-[#9FBCA4] hover:underline">{prop.name}</Link>
+                                </td>
+                                {hasCategoryData ? (
+                                  <>
+                                    {allCatNames.map(name => {
+                                      const cat = propCats.find(c => c.name === name);
+                                      return (
+                                        <td key={name} className={`px-3 py-2 text-right font-mono text-xs ${cat?.isActive ? 'text-gray-700' : 'text-gray-400'}`}>
+                                          {cat ? formatPercent(cat.rate) : '—'}
+                                        </td>
+                                      );
+                                    })}
+                                    <td className="px-3 py-2 text-right font-mono font-semibold text-gray-800">{formatPercent(totalServiceRate)}</td>
+                                  </>
+                                ) : (
+                                  <td className="px-4 py-2 text-right font-mono text-gray-700">{formatPercent(prop.baseManagementFeeRate ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE)}</td>
+                                )}
+                                <td className="px-4 py-2 text-right font-mono text-gray-700">{formatPercent(prop.incentiveManagementFeeRate ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE)}</td>
+                              </tr>
+                            );
+                          })
+                        )}
+                      </tbody>
+                    </table>
+                    </div>
+                  );
+                })()}
               </div>
             </div>
           </div></div>

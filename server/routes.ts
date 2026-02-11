@@ -3175,5 +3175,63 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
+  // --- Fee Categories ---
+  app.get("/api/properties/:propertyId/fee-categories", requireAuth, async (req: any, res) => {
+    try {
+      const propertyId = parseInt(req.params.propertyId);
+      if (isNaN(propertyId)) return res.status(400).json({ error: "Invalid property ID" });
+      const categories = await storage.getFeeCategoriesByProperty(propertyId);
+      if (categories.length === 0) {
+        const seeded = await storage.seedDefaultFeeCategories(propertyId);
+        return res.json(seeded);
+      }
+      res.json(categories);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.put("/api/properties/:propertyId/fee-categories", requireAuth, async (req: any, res) => {
+    try {
+      const propertyId = parseInt(req.params.propertyId);
+      if (isNaN(propertyId)) return res.status(400).json({ error: "Invalid property ID" });
+      const categories = req.body;
+      if (!Array.isArray(categories)) return res.status(400).json({ error: "Expected array of categories" });
+      const results = [];
+      for (const cat of categories) {
+        if (cat.id) {
+          const updated = await storage.updateFeeCategory(cat.id, {
+            name: cat.name,
+            rate: cat.rate,
+            isActive: cat.isActive,
+            sortOrder: cat.sortOrder,
+          });
+          if (updated) results.push(updated);
+        } else {
+          const created = await storage.createFeeCategory({
+            propertyId,
+            name: cat.name,
+            rate: cat.rate ?? 0,
+            isActive: cat.isActive ?? true,
+            sortOrder: cat.sortOrder ?? 0,
+          });
+          results.push(created);
+        }
+      }
+      res.json(results);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.get("/api/fee-categories/all", requireAuth, async (req: any, res) => {
+    try {
+      const categories = await storage.getAllFeeCategories();
+      res.json(categories);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   return httpServer;
 }

@@ -11,9 +11,12 @@
     "start": "NODE_ENV=production node dist/index.cjs",
     "check": "tsc",
     "test": "vitest run",
+    "test:summary": "tsx script/test-summary.ts",
     "test:watch": "vitest",
+    "health": "tsx script/health.ts",
     "db:push": "drizzle-kit push",
-    "verify": "npx tsx tests/proof/verify-runner.ts"
+    "verify": "npx tsx tests/proof/verify-runner.ts",
+    "verify:summary": "tsx script/verify-summary.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.73.0",

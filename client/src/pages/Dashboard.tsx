@@ -1,3 +1,4 @@
+import React from "react";
 import Layout from "@/components/Layout";
 import { useProperties, useGlobalAssumptions } from "@/lib/api";
 import { generatePropertyProForma, formatMoney, getFiscalYearForModelYear } from "@/lib/financialEngine";
@@ -1989,24 +1990,75 @@ export default function Dashboard() {
                     </TableRow>
                     {expandedRows.has('revenue') && (
                       <>
-                        <TableRow className="bg-muted/5">
-                          <TableCell className="sticky left-0 bg-muted/5 pl-12 text-muted-foreground label-text">Wtd Avg ADR</TableCell>
+                        <TableRow 
+                          className="bg-muted/5 cursor-pointer hover:bg-muted/10"
+                          onClick={(e) => { e.stopPropagation(); toggleRow('isAdr'); }}
+                        >
+                          <TableCell className="sticky left-0 bg-muted/5 pl-10 text-muted-foreground label-text flex items-center gap-2">
+                            {expandedRows.has('isAdr') ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                            Wtd Avg ADR
+                          </TableCell>
                           {Array.from({ length: projectionYears }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getWeightedMetrics(y).weightedADR)}</TableCell>
                           ))}
                         </TableRow>
-                        <TableRow className="bg-muted/5">
-                          <TableCell className="sticky left-0 bg-muted/5 pl-12 text-muted-foreground label-text">Wtd Avg Occupancy</TableCell>
+                        {expandedRows.has('isAdr') && properties.map((prop, idx) => (
+                          <TableRow key={`isAdr-${prop.id}`} className="bg-blue-50/30">
+                            <TableCell className="sticky left-0 bg-blue-50/30 pl-16 text-xs text-muted-foreground">{prop.name}</TableCell>
+                            {Array.from({ length: projectionYears }, (_, y) => {
+                              const py = getPropertyYearly(idx, y);
+                              return <TableCell key={y} className="text-right text-xs text-muted-foreground font-mono">
+                                {py.soldRooms > 0 ? formatMoney(py.revenueRooms / py.soldRooms) : "-"}
+                              </TableCell>;
+                            })}
+                          </TableRow>
+                        ))}
+                        <TableRow 
+                          className="bg-muted/5 cursor-pointer hover:bg-muted/10"
+                          onClick={(e) => { e.stopPropagation(); toggleRow('isOcc'); }}
+                        >
+                          <TableCell className="sticky left-0 bg-muted/5 pl-10 text-muted-foreground label-text flex items-center gap-2">
+                            {expandedRows.has('isOcc') ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                            Wtd Avg Occupancy
+                          </TableCell>
                           {Array.from({ length: projectionYears }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground font-mono">{(getWeightedMetrics(y).weightedOcc * 100).toFixed(1)}%</TableCell>
                           ))}
                         </TableRow>
-                        <TableRow className="bg-muted/5">
-                          <TableCell className="sticky left-0 bg-muted/5 pl-12 text-muted-foreground label-text">RevPAR</TableCell>
+                        {expandedRows.has('isOcc') && properties.map((prop, idx) => (
+                          <TableRow key={`isOcc-${prop.id}`} className="bg-blue-50/30">
+                            <TableCell className="sticky left-0 bg-blue-50/30 pl-16 text-xs text-muted-foreground">{prop.name}</TableCell>
+                            {Array.from({ length: projectionYears }, (_, y) => {
+                              const py = getPropertyYearly(idx, y);
+                              return <TableCell key={y} className="text-right text-xs text-muted-foreground font-mono">
+                                {py.availableRooms > 0 ? `${((py.soldRooms / py.availableRooms) * 100).toFixed(1)}%` : "0%"}
+                              </TableCell>;
+                            })}
+                          </TableRow>
+                        ))}
+                        <TableRow 
+                          className="bg-muted/5 cursor-pointer hover:bg-muted/10"
+                          onClick={(e) => { e.stopPropagation(); toggleRow('isRevpar'); }}
+                        >
+                          <TableCell className="sticky left-0 bg-muted/5 pl-10 text-muted-foreground label-text flex items-center gap-2">
+                            {expandedRows.has('isRevpar') ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                            RevPAR
+                          </TableCell>
                           {Array.from({ length: projectionYears }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getWeightedMetrics(y).revPAR)}</TableCell>
                           ))}
                         </TableRow>
+                        {expandedRows.has('isRevpar') && properties.map((prop, idx) => (
+                          <TableRow key={`isRevpar-${prop.id}`} className="bg-blue-50/30">
+                            <TableCell className="sticky left-0 bg-blue-50/30 pl-16 text-xs text-muted-foreground">{prop.name}</TableCell>
+                            {Array.from({ length: projectionYears }, (_, y) => {
+                              const py = getPropertyYearly(idx, y);
+                              return <TableCell key={y} className="text-right text-xs text-muted-foreground font-mono">
+                                {py.availableRooms > 0 ? formatMoney(py.revenueRooms / py.availableRooms) : "-"}
+                              </TableCell>;
+                            })}
+                          </TableRow>
+                        ))}
                         <TableRow>
                           <TableCell className="sticky left-0 bg-card pl-8 text-muted-foreground">Room Revenue</TableCell>
                           {Array.from({ length: projectionYears }, (_, y) => (
@@ -2465,24 +2517,75 @@ export default function Dashboard() {
                     </TableRow>
                     {expandedRows.has('cfInflows') && (
                       <>
-                        <TableRow className="bg-muted/5">
-                          <TableCell className="sticky left-0 bg-muted/5 pl-12 text-muted-foreground label-text">Wtd Avg ADR</TableCell>
+                        <TableRow 
+                          className="bg-muted/5 cursor-pointer hover:bg-muted/10"
+                          onClick={(e) => { e.stopPropagation(); toggleRow('cfAdr'); }}
+                        >
+                          <TableCell className="sticky left-0 bg-muted/5 pl-10 text-muted-foreground label-text flex items-center gap-2">
+                            {expandedRows.has('cfAdr') ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                            Wtd Avg ADR
+                          </TableCell>
                           {Array.from({ length: projectionYears }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getWeightedMetrics(y).weightedADR)}</TableCell>
                           ))}
                         </TableRow>
-                        <TableRow className="bg-muted/5">
-                          <TableCell className="sticky left-0 bg-muted/5 pl-12 text-muted-foreground label-text">Wtd Avg Occupancy</TableCell>
+                        {expandedRows.has('cfAdr') && properties.map((prop, idx) => (
+                          <TableRow key={`cfAdr-${prop.id}`} className="bg-blue-50/30">
+                            <TableCell className="sticky left-0 bg-blue-50/30 pl-16 text-xs text-muted-foreground">{prop.name}</TableCell>
+                            {Array.from({ length: projectionYears }, (_, y) => {
+                              const py = getPropertyYearly(idx, y);
+                              return <TableCell key={y} className="text-right text-xs text-muted-foreground font-mono">
+                                {py.soldRooms > 0 ? formatMoney(py.revenueRooms / py.soldRooms) : "-"}
+                              </TableCell>;
+                            })}
+                          </TableRow>
+                        ))}
+                        <TableRow 
+                          className="bg-muted/5 cursor-pointer hover:bg-muted/10"
+                          onClick={(e) => { e.stopPropagation(); toggleRow('cfOcc'); }}
+                        >
+                          <TableCell className="sticky left-0 bg-muted/5 pl-10 text-muted-foreground label-text flex items-center gap-2">
+                            {expandedRows.has('cfOcc') ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                            Wtd Avg Occupancy
+                          </TableCell>
                           {Array.from({ length: projectionYears }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground font-mono">{(getWeightedMetrics(y).weightedOcc * 100).toFixed(1)}%</TableCell>
                           ))}
                         </TableRow>
-                        <TableRow className="bg-muted/5">
-                          <TableCell className="sticky left-0 bg-muted/5 pl-12 text-muted-foreground label-text">RevPAR</TableCell>
+                        {expandedRows.has('cfOcc') && properties.map((prop, idx) => (
+                          <TableRow key={`cfOcc-${prop.id}`} className="bg-blue-50/30">
+                            <TableCell className="sticky left-0 bg-blue-50/30 pl-16 text-xs text-muted-foreground">{prop.name}</TableCell>
+                            {Array.from({ length: projectionYears }, (_, y) => {
+                              const py = getPropertyYearly(idx, y);
+                              return <TableCell key={y} className="text-right text-xs text-muted-foreground font-mono">
+                                {py.availableRooms > 0 ? `${((py.soldRooms / py.availableRooms) * 100).toFixed(1)}%` : "0%"}
+                              </TableCell>;
+                            })}
+                          </TableRow>
+                        ))}
+                        <TableRow 
+                          className="bg-muted/5 cursor-pointer hover:bg-muted/10"
+                          onClick={(e) => { e.stopPropagation(); toggleRow('cfRevpar'); }}
+                        >
+                          <TableCell className="sticky left-0 bg-muted/5 pl-10 text-muted-foreground label-text flex items-center gap-2">
+                            {expandedRows.has('cfRevpar') ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                            RevPAR
+                          </TableCell>
                           {Array.from({ length: projectionYears }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getWeightedMetrics(y).revPAR)}</TableCell>
                           ))}
                         </TableRow>
+                        {expandedRows.has('cfRevpar') && properties.map((prop, idx) => (
+                          <TableRow key={`cfRevpar-${prop.id}`} className="bg-blue-50/30">
+                            <TableCell className="sticky left-0 bg-blue-50/30 pl-16 text-xs text-muted-foreground">{prop.name}</TableCell>
+                            {Array.from({ length: projectionYears }, (_, y) => {
+                              const py = getPropertyYearly(idx, y);
+                              return <TableCell key={y} className="text-right text-xs text-muted-foreground font-mono">
+                                {py.availableRooms > 0 ? formatMoney(py.revenueRooms / py.availableRooms) : "-"}
+                              </TableCell>;
+                            })}
+                          </TableRow>
+                        ))}
                         <TableRow>
                           <TableCell className="sticky left-0 bg-card pl-8 text-muted-foreground">Room Revenue</TableCell>
                           {Array.from({ length: projectionYears }, (_, y) => (
@@ -2580,30 +2683,37 @@ export default function Dashboard() {
                         </TableRow>
                         {expandedRows.has('cfDirect') && (
                           <>
-                            <TableRow className="bg-muted/10">
-                              <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Room Expense</TableCell>
-                              {Array.from({ length: projectionYears }, (_, y) => (
-                                <TableCell key={y} className="text-right text-sm text-muted-foreground">({formatMoney(getYearlyConsolidated(y).expenseRooms)})</TableCell>
-                              ))}
-                            </TableRow>
-                            <TableRow className="bg-muted/10">
-                              <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">F&B Expense</TableCell>
-                              {Array.from({ length: projectionYears }, (_, y) => (
-                                <TableCell key={y} className="text-right text-sm text-muted-foreground">({formatMoney(getYearlyConsolidated(y).expenseFB)})</TableCell>
-                              ))}
-                            </TableRow>
-                            <TableRow className="bg-muted/10">
-                              <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Event Expense</TableCell>
-                              {Array.from({ length: projectionYears }, (_, y) => (
-                                <TableCell key={y} className="text-right text-sm text-muted-foreground">({formatMoney(getYearlyConsolidated(y).expenseEvents)})</TableCell>
-                              ))}
-                            </TableRow>
-                            <TableRow className="bg-muted/10">
-                              <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Other Direct</TableCell>
-                              {Array.from({ length: projectionYears }, (_, y) => (
-                                <TableCell key={y} className="text-right text-sm text-muted-foreground">({formatMoney(getYearlyConsolidated(y).expenseOther)})</TableCell>
-                              ))}
-                            </TableRow>
+                            {[
+                              { key: 'cfExpRoom', label: 'Room Expense', field: 'expenseRooms' as const },
+                              { key: 'cfExpFB', label: 'F&B Expense', field: 'expenseFB' as const },
+                              { key: 'cfExpEvent', label: 'Event Expense', field: 'expenseEvents' as const },
+                              { key: 'cfExpOther', label: 'Other Direct', field: 'expenseOther' as const },
+                            ].map(item => (
+                              <React.Fragment key={item.key}>
+                                <TableRow 
+                                  className="bg-muted/10 cursor-pointer hover:bg-muted/15"
+                                  onClick={(e) => { e.stopPropagation(); toggleRow(item.key); }}
+                                >
+                                  <TableCell className="sticky left-0 bg-muted/10 pl-10 text-sm text-muted-foreground flex items-center gap-2">
+                                    {expandedRows.has(item.key) ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                                    {item.label}
+                                  </TableCell>
+                                  {Array.from({ length: projectionYears }, (_, y) => (
+                                    <TableCell key={y} className="text-right text-sm text-muted-foreground">({formatMoney(getYearlyConsolidated(y)[item.field])})</TableCell>
+                                  ))}
+                                </TableRow>
+                                {expandedRows.has(item.key) && properties.map((prop, idx) => (
+                                  <TableRow key={`${item.key}-${prop.id}`} className="bg-blue-50/30">
+                                    <TableCell className="sticky left-0 bg-blue-50/30 pl-16 text-xs text-muted-foreground">{prop.name}</TableCell>
+                                    {Array.from({ length: projectionYears }, (_, y) => (
+                                      <TableCell key={y} className="text-right text-xs text-muted-foreground font-mono">
+                                        ({formatMoney(getPropertyYearly(idx, y)[item.field])})
+                                      </TableCell>
+                                    ))}
+                                  </TableRow>
+                                ))}
+                              </React.Fragment>
+                            ))}
                           </>
                         )}
                         <TableRow 
@@ -2629,55 +2739,64 @@ export default function Dashboard() {
                         </TableRow>
                         {expandedRows.has('cfOverhead') && (
                           <>
-                            <TableRow className="bg-muted/10">
-                              <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Admin & General</TableCell>
-                              {Array.from({ length: projectionYears }, (_, y) => (
-                                <TableCell key={y} className="text-right text-sm text-muted-foreground">({formatMoney(getYearlyConsolidated(y).expenseAdmin)})</TableCell>
-                              ))}
-                            </TableRow>
-                            <TableRow className="bg-muted/10">
-                              <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Marketing</TableCell>
-                              {Array.from({ length: projectionYears }, (_, y) => (
-                                <TableCell key={y} className="text-right text-sm text-muted-foreground">({formatMoney(getYearlyConsolidated(y).expenseMarketing)})</TableCell>
-                              ))}
-                            </TableRow>
-                            <TableRow className="bg-muted/10">
-                              <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Property Operations</TableCell>
-                              {Array.from({ length: projectionYears }, (_, y) => (
-                                <TableCell key={y} className="text-right text-sm text-muted-foreground">({formatMoney(getYearlyConsolidated(y).expensePropertyOps)})</TableCell>
-                              ))}
-                            </TableRow>
-                            <TableRow className="bg-muted/10">
-                              <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Utilities</TableCell>
+                            {[
+                              { key: 'cfExpAdmin', label: 'Admin & General', field: 'expenseAdmin' as const },
+                              { key: 'cfExpMktg', label: 'Marketing', field: 'expenseMarketing' as const },
+                              { key: 'cfExpPropOps', label: 'Property Operations', field: 'expensePropertyOps' as const },
+                              { key: 'cfExpIT', label: 'IT Systems', field: 'expenseIT' as const },
+                              { key: 'cfExpInsurance', label: 'Insurance', field: 'expenseInsurance' as const },
+                              { key: 'cfExpTaxes', label: 'Property Taxes', field: 'expenseTaxes' as const },
+                              { key: 'cfExpOtherCosts', label: 'Other Expenses', field: 'expenseOtherCosts' as const },
+                            ].map(item => (
+                              <React.Fragment key={item.key}>
+                                <TableRow 
+                                  className="bg-muted/10 cursor-pointer hover:bg-muted/15"
+                                  onClick={(e) => { e.stopPropagation(); toggleRow(item.key); }}
+                                >
+                                  <TableCell className="sticky left-0 bg-muted/10 pl-10 text-sm text-muted-foreground flex items-center gap-2">
+                                    {expandedRows.has(item.key) ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                                    {item.label}
+                                  </TableCell>
+                                  {Array.from({ length: projectionYears }, (_, y) => (
+                                    <TableCell key={y} className="text-right text-sm text-muted-foreground">({formatMoney(getYearlyConsolidated(y)[item.field])})</TableCell>
+                                  ))}
+                                </TableRow>
+                                {expandedRows.has(item.key) && properties.map((prop, idx) => (
+                                  <TableRow key={`${item.key}-${prop.id}`} className="bg-blue-50/30">
+                                    <TableCell className="sticky left-0 bg-blue-50/30 pl-16 text-xs text-muted-foreground">{prop.name}</TableCell>
+                                    {Array.from({ length: projectionYears }, (_, y) => (
+                                      <TableCell key={y} className="text-right text-xs text-muted-foreground font-mono">
+                                        ({formatMoney(getPropertyYearly(idx, y)[item.field])})
+                                      </TableCell>
+                                    ))}
+                                  </TableRow>
+                                ))}
+                              </React.Fragment>
+                            ))}
+                            <TableRow 
+                              className="bg-muted/10 cursor-pointer hover:bg-muted/15"
+                              onClick={(e) => { e.stopPropagation(); toggleRow('cfExpUtilities'); }}
+                            >
+                              <TableCell className="sticky left-0 bg-muted/10 pl-10 text-sm text-muted-foreground flex items-center gap-2">
+                                {expandedRows.has('cfExpUtilities') ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                                Utilities
+                              </TableCell>
                               {Array.from({ length: projectionYears }, (_, y) => {
                                 const data = getYearlyConsolidated(y);
                                 return <TableCell key={y} className="text-right text-sm text-muted-foreground">({formatMoney(data.expenseUtilitiesVar + data.expenseUtilitiesFixed)})</TableCell>;
                               })}
                             </TableRow>
-                            <TableRow className="bg-muted/10">
-                              <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">IT Systems</TableCell>
-                              {Array.from({ length: projectionYears }, (_, y) => (
-                                <TableCell key={y} className="text-right text-sm text-muted-foreground">({formatMoney(getYearlyConsolidated(y).expenseIT)})</TableCell>
-                              ))}
-                            </TableRow>
-                            <TableRow className="bg-muted/10">
-                              <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Insurance</TableCell>
-                              {Array.from({ length: projectionYears }, (_, y) => (
-                                <TableCell key={y} className="text-right text-sm text-muted-foreground">({formatMoney(getYearlyConsolidated(y).expenseInsurance)})</TableCell>
-                              ))}
-                            </TableRow>
-                            <TableRow className="bg-muted/10">
-                              <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Property Taxes</TableCell>
-                              {Array.from({ length: projectionYears }, (_, y) => (
-                                <TableCell key={y} className="text-right text-sm text-muted-foreground">({formatMoney(getYearlyConsolidated(y).expenseTaxes)})</TableCell>
-                              ))}
-                            </TableRow>
-                            <TableRow className="bg-muted/10">
-                              <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Other Expenses</TableCell>
-                              {Array.from({ length: projectionYears }, (_, y) => (
-                                <TableCell key={y} className="text-right text-sm text-muted-foreground">({formatMoney(getYearlyConsolidated(y).expenseOtherCosts)})</TableCell>
-                              ))}
-                            </TableRow>
+                            {expandedRows.has('cfExpUtilities') && properties.map((prop, idx) => (
+                              <TableRow key={`cfExpUtil-${prop.id}`} className="bg-blue-50/30">
+                                <TableCell className="sticky left-0 bg-blue-50/30 pl-16 text-xs text-muted-foreground">{prop.name}</TableCell>
+                                {Array.from({ length: projectionYears }, (_, y) => {
+                                  const py = getPropertyYearly(idx, y);
+                                  return <TableCell key={y} className="text-right text-xs text-muted-foreground font-mono">
+                                    ({formatMoney(py.expenseUtilitiesVar + py.expenseUtilitiesFixed)})
+                                  </TableCell>;
+                                })}
+                              </TableRow>
+                            ))}
                           </>
                         )}
                       </>
@@ -2709,18 +2828,50 @@ export default function Dashboard() {
                     </TableRow>
                     {expandedRows.has('cfMgmtFees') && (
                       <>
-                        <TableRow className="bg-muted/10">
-                          <TableCell className="sticky left-0 bg-muted/10 pl-8 text-sm text-muted-foreground">Base Fee (% of Revenue, per property)</TableCell>
+                        <TableRow 
+                          className="bg-muted/10 cursor-pointer hover:bg-muted/15"
+                          onClick={(e) => { e.stopPropagation(); toggleRow('cfFeeBase'); }}
+                        >
+                          <TableCell className="sticky left-0 bg-muted/10 pl-8 text-sm text-muted-foreground flex items-center gap-2">
+                            {expandedRows.has('cfFeeBase') ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                            Base Fee (% of Revenue, per property)
+                          </TableCell>
                           {Array.from({ length: projectionYears }, (_, y) => (
                             <TableCell key={y} className="text-right text-sm text-muted-foreground">({formatMoney(getYearlyConsolidated(y).feeBase)})</TableCell>
                           ))}
                         </TableRow>
-                        <TableRow className="bg-muted/10">
-                          <TableCell className="sticky left-0 bg-muted/10 pl-8 text-sm text-muted-foreground">Incentive Fee (% of GOP, per property)</TableCell>
+                        {expandedRows.has('cfFeeBase') && properties.map((prop, idx) => (
+                          <TableRow key={`cfFeeBase-${prop.id}`} className="bg-blue-50/30">
+                            <TableCell className="sticky left-0 bg-blue-50/30 pl-16 text-xs text-muted-foreground">{prop.name}</TableCell>
+                            {Array.from({ length: projectionYears }, (_, y) => (
+                              <TableCell key={y} className="text-right text-xs text-muted-foreground font-mono">
+                                ({formatMoney(getPropertyYearly(idx, y).feeBase)})
+                              </TableCell>
+                            ))}
+                          </TableRow>
+                        ))}
+                        <TableRow 
+                          className="bg-muted/10 cursor-pointer hover:bg-muted/15"
+                          onClick={(e) => { e.stopPropagation(); toggleRow('cfFeeIncentive'); }}
+                        >
+                          <TableCell className="sticky left-0 bg-muted/10 pl-8 text-sm text-muted-foreground flex items-center gap-2">
+                            {expandedRows.has('cfFeeIncentive') ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                            Incentive Fee (% of GOP, per property)
+                          </TableCell>
                           {Array.from({ length: projectionYears }, (_, y) => (
                             <TableCell key={y} className="text-right text-sm text-muted-foreground">({formatMoney(getYearlyConsolidated(y).feeIncentive)})</TableCell>
                           ))}
                         </TableRow>
+                        {expandedRows.has('cfFeeIncentive') && properties.map((prop, idx) => (
+                          <TableRow key={`cfFeeInc-${prop.id}`} className="bg-blue-50/30">
+                            <TableCell className="sticky left-0 bg-blue-50/30 pl-16 text-xs text-muted-foreground">{prop.name}</TableCell>
+                            {Array.from({ length: projectionYears }, (_, y) => (
+                              <TableCell key={y} className="text-right text-xs text-muted-foreground font-mono">
+                                ({formatMoney(getPropertyYearly(idx, y).feeIncentive)})
+                              </TableCell>
+                            ))}
+                          </TableRow>
+                        ))}
                       </>
                     )}
 

@@ -112,6 +112,8 @@ Elimination Entry:
   Net Effect: $0 in consolidated P&L
 ```
 
+**Note:** Fee rates (`baseManagementFeeRate`, `incentiveManagementFeeRate`) are defined per-property, not as a single global rate. Each property may have different fee rates (defaults: 5% base, 15% incentive from `shared/constants.ts`). The elimination check must still hold: the sum of all per-property fee expenses must equal the management company's total fee revenue.
+
 If these do not match, there is a fee linkage error that must be investigated.
 
 ## Portfolio-Level Metrics

@@ -10,11 +10,12 @@ Every fee the Management Company charges to properties creates a mirror entry: a
 
 **Formula:**
 ```
-Base Fee = Total Property Revenue × baseManagementFee
-Default rate: 4%
+Base Fee = Total Property Revenue × property.baseManagementFeeRate
+Default rate: 5% (DEFAULT_BASE_MANAGEMENT_FEE_RATE)
 ```
 
 **Characteristics:**
+- **Defined per property** — each property has its own `baseManagementFeeRate`
 - Calculated on **Total Revenue** (rooms + F&B + events + other)
 - NOT dependent on profitability — charged even if the property loses money
 - Scales linearly with revenue: higher occupancy/ADR = higher fee
@@ -30,11 +31,12 @@ Default rate: 4%
 
 **Formula:**
 ```
-Incentive Fee = max(0, GOP × incentiveManagementFee)
-Default rate: 10%
+Incentive Fee = max(0, GOP × property.incentiveManagementFeeRate)
+Default rate: 15% (DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE)
 ```
 
 **Characteristics:**
+- **Defined per property** — each property has its own `incentiveManagementFeeRate`
 - Calculated on **Gross Operating Profit (GOP)**, not revenue
 - Performance-dependent: only charged when GOP > 0
 - Aligns Management Company incentives with property profitability
@@ -120,6 +122,13 @@ The same dollar flows through two separate entities:
 - Pre-operational properties generate zero revenue → zero base fee, zero GOP → zero incentive fee
 - The Management Company receives no fee revenue from non-operational properties
 
+### Per-Property Rate Configuration
+- Each property stores its own `baseManagementFeeRate` and `incentiveManagementFeeRate`
+- If not set on a property, the engine falls back to `DEFAULT_BASE_MANAGEMENT_FEE_RATE` (5%) and `DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE` (15%) from `shared/constants.ts`
+- Global fee fields (`baseManagementFee`, `incentiveManagementFee`) on the GlobalAssumptions are **deprecated** — kept in DB schema for backward compatibility only
+- CompanyAssumptions.tsx displays a read-only summary table of each property's fee rates (not editable)
+- Fee rates are edited on each property's PropertyEdit page under the "Management Fees" section
+
 ### Multi-Property Aggregation
 When the Management Company manages multiple properties:
 ```
@@ -166,8 +175,10 @@ These would follow the same pattern: expense on property, revenue on company, tr
 |---------|------|---------------|
 | Property fee calculation | `client/src/lib/financialEngine.ts` | `feeBase`, `feeIncentive` in `generatePropertyProForma()` |
 | Company fee revenue | `client/src/lib/financialEngine.ts` | `baseFeeRevenue`, `incentiveFeeRevenue` in `generateCompanyProForma()` |
-| Fee rates (assumptions) | `shared/schema.ts` | `baseManagementFee`, `incentiveManagementFee` in `globalAssumptions` |
-| Default rates | `client/src/lib/constants.ts` | `DEFAULT_BASE_MANAGEMENT_FEE`, `DEFAULT_INCENTIVE_MANAGEMENT_FEE` |
+| Fee rates (per property) | `shared/schema.ts` | `baseManagementFeeRate`, `incentiveManagementFeeRate` on each property |
+| Default rates | `shared/constants.ts` | `DEFAULT_BASE_MANAGEMENT_FEE_RATE` (5%), `DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE` (15%) |
+| Fee rate UI (edit) | `client/src/pages/PropertyEdit.tsx` | Management Fees section with sliders, tooltips, and research badges |
+| Fee rate UI (summary) | `client/src/pages/CompanyAssumptions.tsx` | Read-only table showing each property's fee rates |
 | Cross-entity validation | `.claude/skills/finance/fee-reconciliation.md` | Validation identity and audit procedure |
 
 ---

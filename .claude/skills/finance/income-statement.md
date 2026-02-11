@@ -137,8 +137,8 @@ Per USALI, Management Fees are reported as a **separate deduction from GOP**, no
 
 ```
 MANAGEMENT FEES
-  Base Management Fee             = Total Revenue × baseManagementFee
-  Incentive Management Fee        = max(0, GOP × incentiveManagementFee)
+  Base Management Fee             = Total Revenue × property.baseManagementFeeRate
+  Incentive Management Fee        = max(0, GOP × property.incentiveManagementFeeRate)
   ─────────────────────────────────────────────────
   TOTAL MANAGEMENT FEES           = Base + Incentive
 ```
@@ -272,7 +272,7 @@ Every major subtotal on the Income Statement is followed by a `MarginRow` showin
 
 ### Assumption Label Clarity (CompanyAssumptions.tsx)
 All percentage-based assumptions now explicitly state their calculation base in the label:
-- **Base Management Fee** → `(% of Property Gross Revenue)`
-- **Incentive Fee** → `(% of Property GOP)`
+- **Base Management Fee** → `(% of Property Gross Revenue)` — per-property rate, defined on each property's edit page (default 5%, `DEFAULT_BASE_MANAGEMENT_FEE_RATE`)
+- **Incentive Fee** → `(% of Property GOP)` — per-property rate, defined on each property's edit page (default 15%, `DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE`)
 - **Event Expense Rate** → `(% of Event Revenue)`
 - **Other Revenue Expense Rate** → `(% of Other Revenue)`

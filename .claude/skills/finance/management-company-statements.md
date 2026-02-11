@@ -16,8 +16,8 @@ The Management Company is a **service company** — it has NO real estate assets
 │                   (Service Company)                              │
 ├──────────────────────────────────────────────────────────────────┤
 │ REVENUE                                                          │
-│   Base Management Fee Revenue   = Σ(Property Revenue) × baseFee  │
-│   Incentive Fee Revenue         = max(0, Σ(Property GOP) × fee)  │
+│   Base Management Fee Revenue   = Σ(Property[i].Revenue × Property[i].baseManagementFeeRate)  │
+│   Incentive Fee Revenue         = Σ(max(0, Property[i].GOP × Property[i].incentiveManagementFeeRate))  │
 │   ───────────────────────────                                    │
 │   TOTAL REVENUE                                                  │
 ├──────────────────────────────────────────────────────────────────┤
@@ -85,5 +85,5 @@ The Management Company is a **service company** — it has NO real estate assets
 Labels in CompanyAssumptions.tsx now specify the exact revenue base:
 - **Marketing** → `(% of Mgmt Fee Revenue)` — percentage of total management fee revenue (base + incentive)
 - **Misc Operations** → `(% of Mgmt Fee Revenue)` — same base as marketing
-- **Base Management Fee** → `(% of Property Gross Revenue)` — each property's total revenue
-- **Incentive Fee** → `(% of Property GOP)` — each property's Gross Operating Profit
+- **Base Management Fee** → `(% of Property Gross Revenue)` — per-property rate, defined on each property's edit page (default 5%, `DEFAULT_BASE_MANAGEMENT_FEE_RATE`)
+- **Incentive Fee** → `(% of Property GOP)` — per-property rate, defined on each property's edit page (default 15%, `DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE`)

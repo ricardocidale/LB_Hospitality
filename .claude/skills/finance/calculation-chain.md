@@ -125,17 +125,17 @@ NOI = GOP − Base Management Fee − Incentive Management Fee − FF&E Reserve
 ```
 
 Where:
-- `baseMgmtFee = totalRevenue × baseManagementFee`
-- `incentiveMgmtFee = max(0, GOP × incentiveManagementFee)`
+- `baseMgmtFee = totalRevenue × property.baseManagementFeeRate`
+- `incentiveMgmtFee = max(0, GOP × property.incentiveManagementFeeRate)`
 - FF&E Reserve = `totalRevenue × costRateFFE`
 
 **Note on USALI alignment:** The engine combines management fees and FF&E in the NOI calculation. Per strict USALI, NOI = GOP − Mgmt Fees − Fixed Charges. Our engine treats FF&E as an operating expense deducted at the NOI level, which is acceptable for pro forma modeling (FF&E is not a GAAP expense but a contractual/covenant item).
 
 ### Assumption Variables → Profitability
-| Assumption | Affects |
-|-----------|---------|
-| `baseManagementFee` | Base fee deducted from GOP → NOI |
-| `incentiveManagementFee` | Incentive fee deducted from GOP → NOI |
+| Assumption | Affects | Scope |
+|-----------|---------|-------|
+| `property.baseManagementFeeRate` | Base fee deducted from GOP → NOI | Per-property (default 5% via `DEFAULT_BASE_MANAGEMENT_FEE_RATE`) |
+| `property.incentiveManagementFeeRate` | Incentive fee deducted from GOP → NOI | Per-property (default 15% via `DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE`) |
 
 ---
 
@@ -387,10 +387,11 @@ FCFE = Cash Flow = NOI − Total Debt Service − Income Tax
 
 ### Revenue
 ```
-baseFeeRevenue = Σ(property.totalRevenue) × baseManagementFee
-incentiveFeeRevenue = max(0, Σ(property.GOP) × incentiveManagementFee)
+baseFeeRevenue = Σ(property[i].totalRevenue × property[i].baseManagementFeeRate)
+incentiveFeeRevenue = Σ(max(0, property[i].GOP × property[i].incentiveManagementFeeRate))
 totalRevenue = baseFeeRevenue + incentiveFeeRevenue
 ```
+Fee rates are per-property (not a single global rate). Each property may have its own `baseManagementFeeRate` and `incentiveManagementFeeRate`, defaulting to 5% and 15% respectively via `DEFAULT_BASE_MANAGEMENT_FEE_RATE` and `DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE` from `shared/constants.ts`.
 
 ### Expenses (after company operations start)
 Fixed costs escalate at `fixedCostEscalationRate`:

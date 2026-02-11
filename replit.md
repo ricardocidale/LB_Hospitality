@@ -16,12 +16,13 @@ Key directories inside `.claude/`:
 
 ## User Preferences
 - Communication style: Simple, everyday language. Ask clarifying questions before implementing.
-- **TOP PRIORITY: Calculations and correct reports always highest priority.** 445-test proof system must always pass.
+- **TOP PRIORITY: Calculations and correct reports always highest priority.** 477-test proof system must always pass.
 - Always format money as currency. Company name is "Hospitality Business Group" (never "L+B Hospitality").
 - All skills stored under `.claude/`. All UI must reference a theme via the theme engine.
 - New UI features get their own skill file in `.claude/skills/ui/`.
 - When updating features, always update the corresponding skills and manuals documentation.
 - Percentage-based assumptions must always clarify their calculation base in the label (e.g., "% of Property Gross Revenue", "% of Mgmt Fee Revenue").
+- **When a task is vague or ambiguous, research best practices online before implementing.** Don't guess — consult current industry/technical standards first.
 
 ## Current Theme
 **Fluid Glass** is the active theme. All new UI work must follow Fluid Glass styling conventions.

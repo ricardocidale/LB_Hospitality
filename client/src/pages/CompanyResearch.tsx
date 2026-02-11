@@ -3,7 +3,7 @@ import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { useMarketResearch } from "@/lib/api";
 import { PageHeader } from "@/components/ui/page-header";
-import { Loader2, RefreshCw, Briefcase, Scale, DollarSign, Users, FileText, BookOpen, ArrowLeft } from "lucide-react";
+import { Loader2, RefreshCw, Briefcase, Scale, DollarSign, Users, FileText, BookOpen, ArrowLeft, AlertTriangle } from "lucide-react";
 import { useLocation } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
@@ -41,7 +41,7 @@ function SectionCard({ icon: Icon, title, color, children }: { icon: any; title:
 }
 
 export default function CompanyResearch() {
-  const { data: research, isLoading } = useMarketResearch("company");
+  const { data: research, isLoading, isError } = useMarketResearch("company");
   const [, setLocation] = useLocation();
   const [isGenerating, setIsGenerating] = useState(false);
   const [streamedContent, setStreamedContent] = useState("");
@@ -102,6 +102,17 @@ export default function CompanyResearch() {
       <Layout>
         <div className="flex items-center justify-center h-[60vh]">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      </Layout>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Layout>
+        <div className="flex flex-col items-center justify-center h-[60vh] gap-3">
+          <AlertTriangle className="w-8 h-8 text-destructive" />
+          <p className="text-muted-foreground">Failed to load company research. Please try refreshing the page.</p>
         </div>
       </Layout>
     );

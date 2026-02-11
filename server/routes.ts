@@ -2285,18 +2285,27 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
         });
       }
       
-      const { location, priceMin, priceMax, bedsMin, lotSizeMin, propertyType, offset: searchOffset } = req.query;
-
-      if (!location) {
-        return res.status(400).json({ error: "Location is required" });
+      const searchQuerySchema = z.object({
+        location: z.string().min(1, "Location is required").max(200),
+        priceMin: z.coerce.number().int().min(0).optional(),
+        priceMax: z.coerce.number().int().min(0).optional(),
+        bedsMin: z.coerce.number().int().min(0).optional(),
+        lotSizeMin: z.coerce.number().min(0).optional(),
+        propertyType: z.string().max(50).optional(),
+        offset: z.coerce.number().int().min(0).optional(),
+      });
+      const searchParsed = searchQuerySchema.safeParse(req.query);
+      if (!searchParsed.success) {
+        return res.status(400).json({ error: fromZodError(searchParsed.error).message });
       }
 
-      // Parse numeric query params safely
-      const parsedPriceMin = priceMin ? parseInt(priceMin as string) : undefined;
-      const parsedPriceMax = priceMax ? parseInt(priceMax as string) : undefined;
-      const parsedBedsMin = bedsMin ? parseInt(bedsMin as string) : undefined;
-      const parsedLotSizeMin = lotSizeMin ? parseFloat(lotSizeMin as string) : undefined;
-      const parsedOffset = searchOffset ? parseInt(searchOffset as string) : 0;
+      const { location } = searchParsed.data;
+      const parsedPriceMin = searchParsed.data.priceMin;
+      const parsedPriceMax = searchParsed.data.priceMax;
+      const parsedBedsMin = searchParsed.data.bedsMin;
+      const parsedLotSizeMin = searchParsed.data.lotSizeMin;
+      const parsedOffset = searchParsed.data.offset ?? 0;
+      const propertyType = searchParsed.data.propertyType;
 
       const searchUrl = "https://realty-in-us.p.rapidapi.com/properties/v3/list";
 
@@ -2344,7 +2353,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       }
 
       if (propertyType && propertyType !== "any") {
-        payload.type = [propertyType as string];
+        payload.type = [propertyType];
       }
 
       const response = await fetch(searchUrl, {
@@ -2405,7 +2414,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
         };
       });
 
-      res.json({ results: normalized, total: totalCount, offset: parseInt(searchOffset as string) || 0 });
+      res.json({ results: normalized, total: totalCount, offset: parsedOffset });
     } catch (error) {
       console.error("Property search error:", error);
       res.status(500).json({ error: "Property search failed" });
@@ -2526,13 +2535,25 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
   /** Admin: query activity logs with optional filters. */
   app.get("/api/admin/activity-logs", requireAdmin, async (req, res) => {
     try {
+      const querySchema = z.object({
+        userId: z.coerce.number().int().positive().optional(),
+        entityType: z.string().max(50).optional(),
+        from: z.string().datetime({ offset: true }).or(z.string().date()).optional(),
+        to: z.string().datetime({ offset: true }).or(z.string().date()).optional(),
+        limit: z.coerce.number().int().min(1).max(200).optional(),
+        offset: z.coerce.number().int().min(0).optional(),
+      });
+      const parsed = querySchema.safeParse(req.query);
+      if (!parsed.success) {
+        return res.status(400).json({ error: fromZodError(parsed.error).message });
+      }
       const filters: ActivityLogFilters = {};
-      if (req.query.userId) filters.userId = parseInt(req.query.userId as string);
-      if (req.query.entityType) filters.entityType = req.query.entityType as string;
-      if (req.query.from) filters.from = new Date(req.query.from as string);
-      if (req.query.to) filters.to = new Date(req.query.to as string);
-      if (req.query.limit) filters.limit = Math.min(parseInt(req.query.limit as string) || 50, 200);
-      if (req.query.offset) filters.offset = parseInt(req.query.offset as string) || 0;
+      if (parsed.data.userId) filters.userId = parsed.data.userId;
+      if (parsed.data.entityType) filters.entityType = parsed.data.entityType;
+      if (parsed.data.from) filters.from = new Date(parsed.data.from);
+      if (parsed.data.to) filters.to = new Date(parsed.data.to);
+      if (parsed.data.limit) filters.limit = parsed.data.limit;
+      if (parsed.data.offset) filters.offset = parsed.data.offset;
 
       const logs = await storage.getActivityLogs(filters);
       res.json(logs.map(log => ({

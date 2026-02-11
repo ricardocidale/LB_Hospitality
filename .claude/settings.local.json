@@ -86,7 +86,11 @@
       "Bash(git -C /home/runner/workspace commit -m \"$\\(cat <<''EOF''\nFix all 117 TypeScript errors \\(0 remaining\\)\n\nType-only fixes — no runtime behavior changes except two seed bugfixes.\n\n- Augment Express.User interface with all schema fields \\(59 errors\\)\n- Import Response type from express in routes.ts \\(16 errors\\)\n- Add non-null assertions for req.user behind requireAuth middleware \\(12 errors\\)\n- Add streetAddress to store Property interface \\(5 errors\\)\n- Widen handleChange to accept null for clearable fields \\(5 errors\\)\n- Replace [...new Set\\(\\)] with Array.from\\(new Set\\(\\)\\) for TS compat \\(4 errors\\)\n- Use React.ComponentType instead of ElementType for icon props \\(5 errors\\)\n- Add missing baseManagementFee/incentiveManagementFee to seed objects \\(2 errors\\)\n- Fix sidebarMapView: false → true in schema pick \\(1 error\\)\n- Widen LoanParams prop and remove unsafe Record cast \\(1 error\\)\n- Fix replitAuth user type assertion \\(1 error\\)\n- Add type assertion for callout variant lookup \\(1 error\\)\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
       "Bash(git -C /home/runner/workspace log --oneline -6 --name-only)",
       "Bash(git -C /home/runner/workspace commit -m \"$\\(cat <<''EOF''\nHarmonize replit.md as slim pointer to .claude/claude.md\n\nStrip replit.md from 46 lines of duplicated content to 27-line\npointer. Eliminates drift between replit.md and claude.md for\nuser preferences, recent changes, and tech stack details.\n\n- replit.md: remove duplicated preferences, recent changes, theme\n  info; keep only directory map, commands, and top 3 rules\n- claude.md: add health, test:summary, verify:summary to Quick Commands\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
-      "Bash(sort:*)"
+      "Bash(sort:*)",
+      "Bash(for file in api.ts auth-utils.ts loanCalculations.ts equityCalculations.ts yearlyAggregator.ts cashFlowAggregator.ts analytics.ts)",
+      "Bash(do echo \"=== $file ===\")",
+      "Bash(for file in /home/runner/workspace/calc/validation/*.ts)",
+      "Bash(xargs:*)"
     ]
   }
 }

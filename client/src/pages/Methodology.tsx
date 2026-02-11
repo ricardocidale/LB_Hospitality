@@ -1180,7 +1180,7 @@ export default function Methodology({ embedded }: { embedded?: boolean }) {
                 <ul className="space-y-2">
                   <li>&#8226; <strong>Exit Cap Rate</strong>: Default {pct1(DEFAULT_EXIT_CAP_RATE)} (editable in Systemwide & Property Assumptions)</li>
                   <li>&#8226; <strong>Sales Commission</strong>: Default {pct(DEFAULT_COMMISSION_RATE)} of gross sale price (editable in Systemwide Assumptions)</li>
-                  <li>&#8226; <strong>Tax Rate</strong>: Default {pct(DEFAULT_TAX_RATE)} (editable at property level)</li>
+                  <li>&#8226; <strong>Income Tax Rate</strong>: Default {pct(DEFAULT_TAX_RATE)} per property SPV (editable at property level)</li>
                 </ul>
               </Callout>
 

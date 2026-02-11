@@ -397,7 +397,7 @@ export function InvestmentAnalysis({
                     <TableRow key={prop.id} className="bg-muted/5" data-testid={`fcf-property-${prop.id}`}>
                       <TableCell className="sticky left-0 bg-muted/5 pl-12 text-sm text-muted-foreground">
                         {prop.name}
-                        <span className="text-xs ml-2">({((prop.taxRate ?? DEFAULT_TAX_RATE) * 100).toFixed(0)}% tax)</span>
+                        <span className="text-xs ml-2">({((prop.taxRate ?? DEFAULT_TAX_RATE) * 100).toFixed(0)}% income tax)</span>
                       </TableCell>
                       <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
@@ -530,7 +530,7 @@ export function InvestmentAnalysis({
               <TableRow>
                 <TableHead>Property</TableHead>
                 <TableHead className="text-right">Equity Investment</TableHead>
-                <TableHead className="text-right">Tax Rate</TableHead>
+                <TableHead className="text-right">Income Tax</TableHead>
                 <TableHead className="text-right">
                   <div className="flex items-center justify-end gap-1">
                     Exit Cap Rate

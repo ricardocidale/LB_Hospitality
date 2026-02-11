@@ -120,7 +120,7 @@ export function calculateLoanParams(
   
   const interestRate = property.acquisitionInterestRate ?? global?.debtAssumptions?.interestRate ?? DEFAULT_INTEREST_RATE;
   const termYears = property.acquisitionTermYears ?? global?.debtAssumptions?.amortizationYears ?? DEFAULT_TERM_YEARS;
-  const taxRate = property.taxRate ?? global?.companyTaxRate ?? DEFAULT_TAX_RATE;
+  const taxRate = property.taxRate ?? DEFAULT_TAX_RATE;
   const commissionRate = global?.salesCommissionRate ?? global?.commissionRate ?? DEFAULT_COMMISSION_RATE;
   
   // Depreciable basis: land doesn't depreciate (IRS Publication 946 / ASC 360)

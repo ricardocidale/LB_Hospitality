@@ -49,6 +49,8 @@ import {
   PROJECTION_YEARS,
   DEFAULT_MODEL_START_DATE,
   DEFAULT_REFI_PERIOD_YEARS,
+  DEFAULT_BASE_MANAGEMENT_FEE_RATE,
+  DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
 } from "@/lib/constants";
 import { formatMoneyInput, parseMoneyInput } from "@/lib/formatters";
 
@@ -1242,6 +1244,78 @@ export default function PropertyEdit() {
                 </>
               );
             })()}
+            </div>
+          </div>
+        </div>
+
+        {/* Glass Card - Management Fees */}
+        <div className="relative overflow-hidden rounded-2xl">
+          <div className="absolute inset-0 bg-white/80 backdrop-blur-xl" />
+          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-[#9FBCA4]/10 blur-2xl" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/5 blur-xl" />
+          <div className="absolute inset-0 border border-[#9FBCA4]/20 rounded-2xl shadow-[0_8px_32px_rgba(159,188,164,0.15)]" />
+          
+          <div className="relative p-6">
+            <div className="mb-6">
+              <h3 className="text-xl font-display text-gray-900 flex items-center">
+                Management Fees
+                <HelpTooltip text="Fees paid by this property to the management company. The Base Fee is a percentage of total gross revenue collected monthly. The Incentive Fee is a percentage of Gross Operating Profit (GOP) collected when GOP is positive." />
+              </h3>
+              <p className="text-gray-600 text-sm label-text">Fees charged by the management company for operating this property</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <div className="flex flex-col gap-0.5">
+                    <Label className="flex items-center label-text text-gray-700 gap-1.5">
+                      Base Fee (% of Total Revenue)
+                      <HelpTooltip text="Base Management Fee = Total Revenue × this rate. Collected monthly regardless of profitability. Industry standard: 3–5% of gross revenue." />
+                    </Label>
+                    <ResearchBadge value={researchValues.baseFee?.display} onClick={() => researchValues.baseFee && handleChange("baseManagementFeeRate", researchValues.baseFee.mid / 100)} />
+                  </div>
+                  <EditableValue
+                    value={(draft.baseManagementFeeRate ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE) * 100}
+                    onChange={(val) => handleChange("baseManagementFeeRate", val / 100)}
+                    format="percent"
+                    min={0}
+                    max={10}
+                    step={0.5}
+                  />
+                </div>
+                <Slider 
+                  value={[(draft.baseManagementFeeRate ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE) * 100]}
+                  onValueChange={(vals: number[]) => handleChange("baseManagementFeeRate", vals[0] / 100)}
+                  min={0}
+                  max={10}
+                  step={0.5}
+                />
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <div className="flex flex-col gap-0.5">
+                    <Label className="flex items-center label-text text-gray-700 gap-1.5">
+                      Incentive Fee (% of GOP)
+                      <HelpTooltip text="Incentive Management Fee = max(0, GOP) × this rate. Only charged when Gross Operating Profit is positive, rewarding the management company for strong performance. Industry standard: 10–20% of GOP." />
+                    </Label>
+                    <ResearchBadge value={researchValues.incentiveFee?.display} onClick={() => researchValues.incentiveFee && handleChange("incentiveManagementFeeRate", researchValues.incentiveFee.mid / 100)} />
+                  </div>
+                  <EditableValue
+                    value={(draft.incentiveManagementFeeRate ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE) * 100}
+                    onChange={(val) => handleChange("incentiveManagementFeeRate", val / 100)}
+                    format="percent"
+                    min={0}
+                    max={25}
+                    step={1}
+                  />
+                </div>
+                <Slider 
+                  value={[(draft.incentiveManagementFeeRate ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE) * 100]}
+                  onValueChange={(vals: number[]) => handleChange("incentiveManagementFeeRate", vals[0] / 100)}
+                  min={0}
+                  max={25}
+                  step={1}
+                />
+              </div>
             </div>
           </div>
         </div>

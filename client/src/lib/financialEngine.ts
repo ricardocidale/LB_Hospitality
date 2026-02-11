@@ -143,8 +143,6 @@ interface GlobalInput {
   fiscalYearStartMonth?: number; // 1 = January, 4 = April, etc.
   inflationRate: number;
   fixedCostEscalationRate?: number;
-  baseManagementFee?: number;
-  incentiveManagementFee?: number;
   marketingRate: number;
   // Funding Instrument
   safeTranche1Amount?: number;

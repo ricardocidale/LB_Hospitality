@@ -9,6 +9,8 @@ import {
   DAYS_PER_MONTH,
   DEFAULT_LAND_VALUE_PERCENT,
   DEFAULT_TAX_RATE,
+  DEFAULT_BASE_MANAGEMENT_FEE_RATE,
+  DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
 } from "../../shared/constants.js";
 
 const baseProperty = {
@@ -41,6 +43,8 @@ const baseProperty = {
   revShareFB: 0.22,
   revShareOther: 0.07,
   cateringBoostPercent: 0.30,
+  baseManagementFeeRate: DEFAULT_BASE_MANAGEMENT_FEE_RATE,
+  incentiveManagementFeeRate: DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
 };
 
 const baseGlobal = {
@@ -348,16 +352,16 @@ describe("Proof Scenario 4: OpCo Fees + SPV Fees (Portfolio Aggregate)", () => {
 
   it("management fee = base fee × total revenue per property per month", () => {
     for (const m of resultA) {
-      expect(m.feeBase).toBeCloseTo(m.revenueTotal * baseGlobal.baseManagementFee, 2);
+      expect(m.feeBase).toBeCloseTo(m.revenueTotal * DEFAULT_BASE_MANAGEMENT_FEE_RATE, 2);
     }
     for (const m of resultB) {
-      expect(m.feeBase).toBeCloseTo(m.revenueTotal * baseGlobal.baseManagementFee, 2);
+      expect(m.feeBase).toBeCloseTo(m.revenueTotal * DEFAULT_BASE_MANAGEMENT_FEE_RATE, 2);
     }
   });
 
   it("incentive fee = incentive rate × max(0, GOP) per property per month", () => {
     for (const m of resultA) {
-      expect(m.feeIncentive).toBeCloseTo(Math.max(0, m.gop * baseGlobal.incentiveManagementFee), 2);
+      expect(m.feeIncentive).toBeCloseTo(Math.max(0, m.gop * DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE), 2);
     }
   });
 

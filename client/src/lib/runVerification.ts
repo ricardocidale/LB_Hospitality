@@ -73,6 +73,8 @@ function convertToAuditInput(property: any): PropertyAuditInput {
     revShareEvents: property.revShareEvents,
     revShareFB: property.revShareFB,
     revShareOther: property.revShareOther,
+    baseManagementFeeRate: property.baseManagementFeeRate,
+    incentiveManagementFeeRate: property.incentiveManagementFeeRate,
   };
 }
 
@@ -80,8 +82,6 @@ function convertToGlobalAuditInput(global: any): GlobalAuditInput {
   return {
     modelStartDate: global.modelStartDate,
     inflationRate: global.inflationRate,
-    baseManagementFee: global.baseManagementFee,
-    incentiveManagementFee: global.incentiveManagementFee,
     debtAssumptions: global.debtAssumptions || {
       interestRate: DEFAULT_INTEREST_RATE,
       amortizationYears: DEFAULT_TERM_YEARS,

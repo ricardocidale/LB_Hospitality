@@ -21,8 +21,6 @@ import {
 export interface GlobalAssumptions {
   modelStartDate: string;
   inflationRate: number; // 0.03
-  baseManagementFee: number; // 0.04
-  incentiveManagementFee: number; // 0.10
   partnerSalary: number; // 150000
   staffSalary: number; // 75000
   travelCostPerClient: number; // 12000
@@ -111,8 +109,6 @@ interface AppState {
 const INITIAL_GLOBAL: GlobalAssumptions = {
   modelStartDate: "2026-04-01",
   inflationRate: 0.03,
-  baseManagementFee: 0.04,
-  incentiveManagementFee: 0.10,
   partnerSalary: 150000,
   staffSalary: DEFAULT_STAFF_SALARY,
   travelCostPerClient: DEFAULT_TRAVEL_PER_CLIENT,

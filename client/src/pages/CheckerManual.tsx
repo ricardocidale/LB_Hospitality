@@ -323,12 +323,12 @@ export default function CheckerManual({ embedded }: { embedded?: boolean }) {
                     ["fixedCostEscalationRate", "Annual escalation for Mgmt Co. fixed overhead", "3%", "%", "Mgmt Co."],
                   ]}
                 />
-                <h3 className="text-foreground text-sm font-semibold mt-4 mb-2">Management Fees</h3>
+                <h3 className="text-foreground text-sm font-semibold mt-4 mb-2">Management Fees (Per-Property)</h3>
                 <ManualTable
                   headers={["Variable", "Description", "Default", "Unit", "Affects"]}
                   rows={[
-                    ["baseManagementFee", "Base fee as % of property Total Revenue", "5%", "%", "Both"],
-                    ["incentiveManagementFee", "Incentive fee as % of property GOP", "15%", "%", "Both"],
+                    ["baseManagementFeeRate", "Base fee as % of property Total Revenue (set per property)", "5%", "%", "Both"],
+                    ["incentiveManagementFeeRate", "Incentive fee as % of property GOP (set per property)", "15%", "%", "Both"],
                   ]}
                 />
                 <h3 className="text-foreground text-sm font-semibold mt-4 mb-2">Funding Instrument</h3>

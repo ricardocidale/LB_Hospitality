@@ -479,8 +479,8 @@ export default function Dashboard() {
     rows.push({ category: "GROSS OPERATING PROFIT (GOP)", values: years.map((_, i) => getYearlyConsolidated(i).gop), isHeader: true });
     
     rows.push({ category: "Management Fees (to Hospitality Business Co.)", values: years.map((_, i) => -(getYearlyConsolidated(i).feeBase + getYearlyConsolidated(i).feeIncentive)), isNegative: true });
-    rows.push({ category: `Base Fee (${(global.baseManagementFee * 100).toFixed(0)}% of Revenue)`, values: years.map((_, i) => -getYearlyConsolidated(i).feeBase), indent: 1, isNegative: true });
-    rows.push({ category: `Incentive Fee (${(global.incentiveManagementFee * 100).toFixed(0)}% of GOP)`, values: years.map((_, i) => -getYearlyConsolidated(i).feeIncentive), indent: 1, isNegative: true });
+    rows.push({ category: "Base Fee (% of Revenue, per property)", values: years.map((_, i) => -getYearlyConsolidated(i).feeBase), indent: 1, isNegative: true });
+    rows.push({ category: "Incentive Fee (% of GOP, per property)", values: years.map((_, i) => -getYearlyConsolidated(i).feeIncentive), indent: 1, isNegative: true });
     
     rows.push({ category: "FF&E Reserve", values: years.map((_, i) => -getYearlyConsolidated(i).expenseFFE), isNegative: true });
     
@@ -2234,13 +2234,13 @@ export default function Dashboard() {
                     {expandedRows.has('mgmtFees') && (
                       <>
                         <TableRow>
-                          <TableCell className="sticky left-0 bg-card pl-8 text-muted-foreground">Base Fee ({(global.baseManagementFee * 100).toFixed(0)}% of Revenue)</TableCell>
+                          <TableCell className="sticky left-0 bg-card pl-8 text-muted-foreground">Base Fee (% of Revenue, per property)</TableCell>
                           {Array.from({ length: projectionYears }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).feeBase)}</TableCell>
                           ))}
                         </TableRow>
                         <TableRow>
-                          <TableCell className="sticky left-0 bg-card pl-8 text-muted-foreground">Incentive Fee ({(global.incentiveManagementFee * 100).toFixed(0)}% of GOP)</TableCell>
+                          <TableCell className="sticky left-0 bg-card pl-8 text-muted-foreground">Incentive Fee (% of GOP, per property)</TableCell>
                           {Array.from({ length: projectionYears }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).feeIncentive)}</TableCell>
                           ))}
@@ -2710,13 +2710,13 @@ export default function Dashboard() {
                     {expandedRows.has('cfMgmtFees') && (
                       <>
                         <TableRow className="bg-muted/10">
-                          <TableCell className="sticky left-0 bg-muted/10 pl-8 text-sm text-muted-foreground">Base Fee ({(global.baseManagementFee * 100).toFixed(0)}% of Revenue)</TableCell>
+                          <TableCell className="sticky left-0 bg-muted/10 pl-8 text-sm text-muted-foreground">Base Fee (% of Revenue, per property)</TableCell>
                           {Array.from({ length: projectionYears }, (_, y) => (
                             <TableCell key={y} className="text-right text-sm text-muted-foreground">({formatMoney(getYearlyConsolidated(y).feeBase)})</TableCell>
                           ))}
                         </TableRow>
                         <TableRow className="bg-muted/10">
-                          <TableCell className="sticky left-0 bg-muted/10 pl-8 text-sm text-muted-foreground">Incentive Fee ({(global.incentiveManagementFee * 100).toFixed(0)}% of GOP)</TableCell>
+                          <TableCell className="sticky left-0 bg-muted/10 pl-8 text-sm text-muted-foreground">Incentive Fee (% of GOP, per property)</TableCell>
                           {Array.from({ length: projectionYears }, (_, y) => (
                             <TableCell key={y} className="text-right text-sm text-muted-foreground">({formatMoney(getYearlyConsolidated(y).feeIncentive)})</TableCell>
                           ))}

@@ -12,6 +12,8 @@ import {
   AUDIT_VERIFICATION_WINDOW_MONTHS,
   AUDIT_CRITICAL_ISSUE_THRESHOLD,
   DEFAULT_TAX_RATE,
+  DEFAULT_BASE_MANAGEMENT_FEE_RATE,
+  DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
 } from './constants';
 
 export interface AuditFinding {
@@ -108,13 +110,13 @@ export interface PropertyAuditInput {
   revShareEvents: number;
   revShareFB: number;
   revShareOther: number;
+  baseManagementFeeRate?: number;
+  incentiveManagementFeeRate?: number;
 }
 
 export interface GlobalAuditInput {
   modelStartDate: string;
   inflationRate: number;
-  baseManagementFee: number;
-  incentiveManagementFee: number;
   debtAssumptions: {
     interestRate: number;
     amortizationYears: number;
@@ -802,7 +804,9 @@ export function auditManagementFees(
     
     if (!isOperational) continue;
     
-    const expectedBaseFee = m.revenueTotal * global.baseManagementFee;
+    const baseFeeRate = property.baseManagementFeeRate ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE;
+    const incentiveFeeRate = property.incentiveManagementFeeRate ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE;
+    const expectedBaseFee = m.revenueTotal * baseFeeRate;
     const baseFeeMatch = withinTolerance(expectedBaseFee, m.feeBase);
     
     if (!baseFeeMatch && i < 6) {
@@ -815,12 +819,12 @@ export function auditManagementFees(
         expected: expectedBaseFee.toFixed(2),
         actual: m.feeBase.toFixed(2),
         variance: formatVariance(expectedBaseFee, m.feeBase),
-        recommendation: `Month ${i + 1}: Base Fee = Revenue × ${(global.baseManagementFee * 100).toFixed(1)}%`,
+        recommendation: `Month ${i + 1}: Base Fee = Revenue × ${(baseFeeRate * 100).toFixed(1)}%`,
         workpaperRef: `WP-FEE-BASE-M${i + 1}`
       });
     }
     
-    const expectedIncentiveFee = m.gop > 0 ? Math.max(0, m.gop * global.incentiveManagementFee) : 0;
+    const expectedIncentiveFee = m.gop > 0 ? Math.max(0, m.gop * incentiveFeeRate) : 0;
     if (m.feeIncentive < 0) {
       findings.push({
         category: "Management Fees",
@@ -843,10 +847,10 @@ export function auditManagementFees(
     gaapReference: "ASC 606",
     severity: "info",
     passed: true,
-    expected: `Base: ${(global.baseManagementFee * 100).toFixed(1)}%, Incentive: ${(global.incentiveManagementFee * 100).toFixed(1)}%`,
+    expected: `Base: ${((property.baseManagementFeeRate ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE) * 100).toFixed(1)}%, Incentive: ${((property.incentiveManagementFeeRate ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE) * 100).toFixed(1)}%`,
     actual: "Fee rates documented",
     variance: "N/A",
-    recommendation: "Management fee structure matches global assumptions",
+    recommendation: "Management fee structure matches per-property assumptions",
     workpaperRef: "WP-FEE-STRUCT"
   });
   

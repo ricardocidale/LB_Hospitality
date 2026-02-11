@@ -15,9 +15,6 @@ export interface GlobalResponse {
   fiscalYearStartMonth: number;
   inflationRate: number;
   fixedCostEscalationRate: number;
-  // Revenue
-  baseManagementFee: number;
-  incentiveManagementFee: number;
   // Funding Instrument
   fundingSourceLabel: string;
   safeTranche1Amount: number;

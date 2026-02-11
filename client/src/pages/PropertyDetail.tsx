@@ -171,7 +171,7 @@ function PPECostBasisSchedule({ property, global }: { property: any; global: any
               sectionKey="fixedCostAnchor"
               label="Fixed Cost Anchor (Year 1 Base Revenue)"
               value={fmt(baseAnnualTotalRev) + " /yr"}
-              tooltip="Fixed operating costs (Property Ops, Admin, Insurance, Taxes, IT, etc.) are calculated as a rate × this Year 1 base revenue, then escalated annually. They do NOT scale with actual revenue growth."
+              tooltip="Fixed operating costs (Property Ops, Admin, Taxes, IT, etc.) are calculated as a rate × this Year 1 base revenue, then escalated annually. They do NOT scale with actual revenue growth. Insurance is calculated separately based on property value."
             />
             {openSections.fixedCostAnchor && (
               <>
@@ -195,7 +195,7 @@ function PPECostBasisSchedule({ property, global }: { property: any; global: any
                       <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-xs text-blue-700">
                         <span>Property Operations: {pct(costRatePropertyOps)} → {fmt(baseMonthlyTotalRev * costRatePropertyOps)}/mo</span>
                         <span>Admin & General: {pct(costRateAdmin)} → {fmt(baseMonthlyTotalRev * costRateAdmin)}/mo</span>
-                        <span>Insurance: {pct(costRateInsurance)} → {fmt(baseMonthlyTotalRev * costRateInsurance)}/mo</span>
+                        <span>Insurance: {pct(costRateInsurance)} of property value → {fmt(totalPropertyValue / 12 * costRateInsurance)}/mo</span>
                         <span>Property Taxes: {pct(costRateTaxes)} → {fmt(baseMonthlyTotalRev * costRateTaxes)}/mo</span>
                         <span>IT & Technology: {pct(costRateIT)} → {fmt(baseMonthlyTotalRev * costRateIT)}/mo</span>
                         <span>Other Costs: {pct(costRateOther)} → {fmt(baseMonthlyTotalRev * costRateOther)}/mo</span>

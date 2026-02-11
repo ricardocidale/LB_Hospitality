@@ -511,7 +511,7 @@ export default function CheckerManual({ embedded }: { embedded?: boolean }) {
                     ["costRateMarketing", "Sales & Marketing", "5%", "% of Revenue"],
                     ["costRatePropertyOps", "Property Operations & Maintenance", "4%", "% of Revenue"],
                     ["costRateUtilities", "Utilities", "5%", "% of Revenue"],
-                    ["costRateInsurance", "Property Insurance", "2%", "% of Revenue"],
+                    ["costRateInsurance", "Property Insurance", "2%", "% of Property Value"],
                     ["costRateTaxes", "Property Taxes", "3%", "% of Revenue"],
                     ["costRateIT", "Information Technology", "2%", "% of Revenue"],
                     ["costRateFFE", "FF&E Reserve", "4%", "% of Revenue"],
@@ -806,7 +806,7 @@ export default function CheckerManual({ embedded }: { embedded?: boolean }) {
                 <ManualTable
                   headers={["Cost Type", "Rate Used", "Formula", "Example Costs"]}
                   rows={[
-                    ["Fixed Costs", "fixedCostEscalationRate (falls back to inflationRate)", "cost × (1 + rate)^yearIndex", "Admin, marketing, maintenance, insurance, tech"],
+                    ["Fixed Costs", "fixedCostEscalationRate (falls back to inflationRate)", "cost × (1 + rate)^yearIndex", "Admin, marketing, maintenance, tech (Insurance uses property value basis)"],
                     ["Variable Costs", "inflationRate", "cost × (1 + rate)^yearIndex", "Travel, IT licensing, marketing %, misc ops"],
                   ]}
                 />

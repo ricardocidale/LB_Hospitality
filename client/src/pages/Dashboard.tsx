@@ -194,10 +194,10 @@ export default function Dashboard() {
   const getWeightedMetrics = (yearIndex: number) => weightedMetricsByYear[yearIndex];
 
   const year1Data = getYearlyConsolidated(0);
-  const portfolioTotalRevenue = year1Data.revenueTotal;
-  const portfolioTotalGOP = year1Data.gop;
+  const portfolioTotalRevenue = year1Data?.revenueTotal ?? 0;
+  const portfolioTotalGOP = year1Data?.gop ?? 0;
   const activeProperties = properties.filter(p => p.status === "Operational" || p.status === "Development").length;
-  const managementFees = year1Data.feeBase + year1Data.feeIncentive;
+  const managementFees = (year1Data?.feeBase ?? 0) + (year1Data?.feeIncentive ?? 0);
 
   // Calculate comprehensive investment overview metrics
   const totalProperties = properties.length;
@@ -218,7 +218,7 @@ export default function Dashboard() {
   
   // Final year NOI for reference
   const year10Data = getYearlyConsolidated(projectionYears - 1);
-  const year10NOI = year10Data.noi;
+  const year10NOI = year10Data?.noi ?? 0;
   
   // Geographic distribution
   const marketCounts = properties.reduce((acc, p) => {
@@ -277,65 +277,69 @@ export default function Dashboard() {
     const years = Array.from({ length: projectionYears }, (_, i) => getFiscalYear(i));
     const rows: { category: string; values: number[]; isHeader?: boolean; indent?: number }[] = [];
     
-    rows.push({ category: "Total Revenue", values: years.map((_, i) => getYearlyConsolidated(i).revenueTotal), isHeader: true });
-    rows.push({ category: "Room Revenue", values: years.map((_, i) => getYearlyConsolidated(i).revenueRooms), indent: 1 });
-    rows.push({ category: "Event Revenue", values: years.map((_, i) => getYearlyConsolidated(i).revenueEvents), indent: 1 });
-    rows.push({ category: "F&B Revenue", values: years.map((_, i) => getYearlyConsolidated(i).revenueFB), indent: 1 });
-    rows.push({ category: "Other Revenue", values: years.map((_, i) => getYearlyConsolidated(i).revenueOther), indent: 1 });
-    
+    const c = (i: number) => getYearlyConsolidated(i);
+    const p = (idx: number, i: number) => getPropertyYearly(idx, i);
+
+    rows.push({ category: "Total Revenue", values: years.map((_, i) => c(i)?.revenueTotal ?? 0), isHeader: true });
+    rows.push({ category: "Room Revenue", values: years.map((_, i) => c(i)?.revenueRooms ?? 0), indent: 1 });
+    rows.push({ category: "Event Revenue", values: years.map((_, i) => c(i)?.revenueEvents ?? 0), indent: 1 });
+    rows.push({ category: "F&B Revenue", values: years.map((_, i) => c(i)?.revenueFB ?? 0), indent: 1 });
+    rows.push({ category: "Other Revenue", values: years.map((_, i) => c(i)?.revenueOther ?? 0), indent: 1 });
+
     properties.forEach((prop, idx) => {
-      rows.push({ 
-        category: `  ${prop.name}`, 
-        values: years.map((_, i) => getPropertyYearly(idx, i).revenueTotal), 
-        indent: 2 
+      rows.push({
+        category: `  ${prop.name}`,
+        values: years.map((_, i) => p(idx, i)?.revenueTotal ?? 0),
+        indent: 2
       });
     });
-    
-    rows.push({ 
-      category: "Operating Expenses", 
+
+    rows.push({
+      category: "Operating Expenses",
       values: years.map((_, i) => {
-        const data = getYearlyConsolidated(i);
-        return data.expenseRooms + data.expenseFB + data.expenseEvents + data.expenseOther + 
-          data.expenseMarketing + data.expensePropertyOps + data.expenseUtilitiesVar + 
-          data.expenseAdmin + data.expenseIT + data.expenseInsurance + data.expenseTaxes + 
+        const data = c(i);
+        if (!data) return 0;
+        return data.expenseRooms + data.expenseFB + data.expenseEvents + data.expenseOther +
+          data.expenseMarketing + data.expensePropertyOps + data.expenseUtilitiesVar +
+          data.expenseAdmin + data.expenseIT + data.expenseInsurance + data.expenseTaxes +
           data.expenseUtilitiesFixed + data.expenseOtherCosts;
-      }), 
-      isHeader: true 
+      }),
+      isHeader: true
     });
-    rows.push({ category: "Room Expense", values: years.map((_, i) => getYearlyConsolidated(i).expenseRooms), indent: 1 });
-    rows.push({ category: "F&B Expense", values: years.map((_, i) => getYearlyConsolidated(i).expenseFB), indent: 1 });
-    rows.push({ category: "Event Expense", values: years.map((_, i) => getYearlyConsolidated(i).expenseEvents), indent: 1 });
-    rows.push({ category: "Marketing", values: years.map((_, i) => getYearlyConsolidated(i).expenseMarketing), indent: 1 });
-    rows.push({ category: "Property Ops", values: years.map((_, i) => getYearlyConsolidated(i).expensePropertyOps), indent: 1 });
-    rows.push({ category: "Admin & General", values: years.map((_, i) => getYearlyConsolidated(i).expenseAdmin), indent: 1 });
-    rows.push({ category: "IT", values: years.map((_, i) => getYearlyConsolidated(i).expenseIT), indent: 1 });
-    rows.push({ category: "Insurance", values: years.map((_, i) => getYearlyConsolidated(i).expenseInsurance), indent: 1 });
-    rows.push({ category: "Taxes", values: years.map((_, i) => getYearlyConsolidated(i).expenseTaxes), indent: 1 });
-    rows.push({ category: "Utilities", values: years.map((_, i) => getYearlyConsolidated(i).expenseUtilitiesVar + getYearlyConsolidated(i).expenseUtilitiesFixed), indent: 1 });
-    rows.push({ category: "FF&E Reserve", values: years.map((_, i) => getYearlyConsolidated(i).expenseFFE), indent: 1 });
-    rows.push({ category: "Other Expenses", values: years.map((_, i) => getYearlyConsolidated(i).expenseOther + getYearlyConsolidated(i).expenseOtherCosts), indent: 1 });
-    
-    rows.push({ category: "Gross Operating Profit", values: years.map((_, i) => getYearlyConsolidated(i).gop), isHeader: true });
-    
+    rows.push({ category: "Room Expense", values: years.map((_, i) => c(i)?.expenseRooms ?? 0), indent: 1 });
+    rows.push({ category: "F&B Expense", values: years.map((_, i) => c(i)?.expenseFB ?? 0), indent: 1 });
+    rows.push({ category: "Event Expense", values: years.map((_, i) => c(i)?.expenseEvents ?? 0), indent: 1 });
+    rows.push({ category: "Marketing", values: years.map((_, i) => c(i)?.expenseMarketing ?? 0), indent: 1 });
+    rows.push({ category: "Property Ops", values: years.map((_, i) => c(i)?.expensePropertyOps ?? 0), indent: 1 });
+    rows.push({ category: "Admin & General", values: years.map((_, i) => c(i)?.expenseAdmin ?? 0), indent: 1 });
+    rows.push({ category: "IT", values: years.map((_, i) => c(i)?.expenseIT ?? 0), indent: 1 });
+    rows.push({ category: "Insurance", values: years.map((_, i) => c(i)?.expenseInsurance ?? 0), indent: 1 });
+    rows.push({ category: "Taxes", values: years.map((_, i) => c(i)?.expenseTaxes ?? 0), indent: 1 });
+    rows.push({ category: "Utilities", values: years.map((_, i) => (c(i)?.expenseUtilitiesVar ?? 0) + (c(i)?.expenseUtilitiesFixed ?? 0)), indent: 1 });
+    rows.push({ category: "FF&E Reserve", values: years.map((_, i) => c(i)?.expenseFFE ?? 0), indent: 1 });
+    rows.push({ category: "Other Expenses", values: years.map((_, i) => (c(i)?.expenseOther ?? 0) + (c(i)?.expenseOtherCosts ?? 0)), indent: 1 });
+
+    rows.push({ category: "Gross Operating Profit", values: years.map((_, i) => c(i)?.gop ?? 0), isHeader: true });
+
     properties.forEach((prop, idx) => {
-      rows.push({ 
-        category: prop.name, 
-        values: years.map((_, i) => getPropertyYearly(idx, i).gop), 
-        indent: 1 
+      rows.push({
+        category: prop.name,
+        values: years.map((_, i) => p(idx, i)?.gop ?? 0),
+        indent: 1
       });
     });
-    
-    rows.push({ category: "Management Fees", values: years.map((_, i) => getYearlyConsolidated(i).feeBase + getYearlyConsolidated(i).feeIncentive), isHeader: true });
-    rows.push({ category: "Base Fee", values: years.map((_, i) => getYearlyConsolidated(i).feeBase), indent: 1 });
-    rows.push({ category: "Incentive Fee", values: years.map((_, i) => getYearlyConsolidated(i).feeIncentive), indent: 1 });
-    
-    rows.push({ category: "Net Operating Income", values: years.map((_, i) => getYearlyConsolidated(i).noi), isHeader: true });
-    
+
+    rows.push({ category: "Management Fees", values: years.map((_, i) => (c(i)?.feeBase ?? 0) + (c(i)?.feeIncentive ?? 0)), isHeader: true });
+    rows.push({ category: "Base Fee", values: years.map((_, i) => c(i)?.feeBase ?? 0), indent: 1 });
+    rows.push({ category: "Incentive Fee", values: years.map((_, i) => c(i)?.feeIncentive ?? 0), indent: 1 });
+
+    rows.push({ category: "Net Operating Income", values: years.map((_, i) => c(i)?.noi ?? 0), isHeader: true });
+
     properties.forEach((prop, idx) => {
-      rows.push({ 
-        category: prop.name, 
-        values: years.map((_, i) => getPropertyYearly(idx, i).noi), 
-        indent: 1 
+      rows.push({
+        category: prop.name,
+        values: years.map((_, i) => p(idx, i)?.noi ?? 0),
+        indent: 1
       });
     });
     

@@ -111,6 +111,9 @@ export default function Settings() {
         onSuccess: () => {
           toast({ title: "Saved", description: "Systemwide assumptions updated successfully." });
           setGlobalDraft(null);
+        },
+        onError: () => {
+          toast({ title: "Error", description: "Failed to save systemwide assumptions.", variant: "destructive" });
         }
       });
     }
@@ -122,6 +125,9 @@ export default function Settings() {
         onSuccess: () => {
           toast({ title: "Saved", description: "Property updated successfully." });
           setPropertyDrafts({ ...propertyDrafts, [id]: undefined });
+        },
+        onError: () => {
+          toast({ title: "Error", description: "Failed to save property.", variant: "destructive" });
         }
       });
     }

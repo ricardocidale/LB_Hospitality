@@ -162,6 +162,13 @@ export default function Portfolio() {
           title: "Property Deleted",
           description: `${name} has been removed from the portfolio.`,
         });
+      },
+      onError: () => {
+        toast({
+          title: "Error",
+          description: `Failed to delete ${name}.`,
+          variant: "destructive",
+        });
       }
     });
   };

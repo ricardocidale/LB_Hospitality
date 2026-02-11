@@ -1232,8 +1232,8 @@ export default function PropertyEdit() {
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <Label className="flex items-center label-text text-gray-700">
-                    Tax Rate
-                    <HelpTooltip text="Corporate tax rate applied to positive operating cash flows to calculate after-tax free cash flow for IRR analysis." />
+                    Income Tax Rate
+                    <HelpTooltip text="Income tax rate for this property's SPV entity, applied to taxable income (NOI minus interest and depreciation) to calculate after-tax cash flow. Set per property to reflect the jurisdiction where the property is located." />
                   </Label>
                   <EditableValue
                     value={(draft.taxRate ?? DEFAULT_TAX_RATE) * 100}

@@ -118,7 +118,7 @@ function analyzeMonthlyCashPosition(
 
 interface Props {
   data: MonthlyFinancials[];
-  property: LoanParams;
+  property: LoanParams & { startAdr?: number; adrGrowthRate?: number };
   global?: GlobalLoanParams;
   years?: number;
   startYear?: number;
@@ -237,9 +237,8 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
             label="Starting ADR × (1 + growth rate)^year"
             values={yearlyDetails.map(y => {
               if (y.cleanAdr <= 0) return "-";
-              const prop = property as Record<string, number>;
-              const startAdr = prop.startAdr ?? 0;
-              const growthRate = prop.adrGrowthRate ?? 0;
+              const startAdr = property.startAdr ?? 0;
+              const growthRate = property.adrGrowthRate ?? 0;
               return `$${startAdr.toFixed(2)} × (1+${(growthRate * 100).toFixed(1)}%)^${y.year}`;
             })}
             colCount={years}

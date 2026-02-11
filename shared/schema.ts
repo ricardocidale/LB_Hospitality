@@ -348,7 +348,7 @@ export const insertGlobalAssumptionsSchema = createInsertSchema(globalAssumption
   sidebarFinancing: true,
   sidebarCompare: true,
   sidebarTimeline: true,
-  sidebarMapView: false,
+  sidebarMapView: true,
   sidebarExecutiveSummary: true,
   sidebarScenarios: true,
   sidebarUserManual: true,

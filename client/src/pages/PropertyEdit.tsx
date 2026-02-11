@@ -193,7 +193,7 @@ export default function PropertyEdit() {
     );
   }
 
-  const handleChange = (key: string, value: string | number) => {
+  const handleChange = (key: string, value: string | number | null) => {
     setDraft({ ...draft, [key]: value });
     setIsDirty(true);
   };

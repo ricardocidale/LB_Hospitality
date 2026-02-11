@@ -36,7 +36,7 @@ export const useActivityStore = create<ActivityState>()(
   )
 );
 
-const EVENT_ICONS: Record<ActivityEvent['type'], React.ElementType> = {
+const EVENT_ICONS: Record<ActivityEvent['type'], React.ComponentType<{ className?: string; style?: React.CSSProperties }>> = {
   assumption_change: Sliders,
   scenario_run: Play,
   export: Download,

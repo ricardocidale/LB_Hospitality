@@ -1,4 +1,4 @@
-import type { Express, Request } from "express";
+import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage, type ActivityLogFilters } from "./storage";
 import { insertGlobalAssumptionsSchema, insertPropertySchema, updatePropertySchema, insertDesignThemeSchema, insertLogoSchema, updateScenarioSchema, insertProspectivePropertySchema, insertSavedSearchSchema, VALID_USER_ROLES } from "@shared/schema";
@@ -262,8 +262,9 @@ export async function registerRoutes(
   });
 
   app.get("/api/auth/me", requireAuth, async (req, res) => {
-    res.json({ 
-      user: { id: req.user.id, email: req.user.email, name: req.user.name, company: req.user.company, title: req.user.title, role: req.user.role }
+    const u = req.user!;
+    res.json({
+      user: { id: u.id, email: u.email, name: u.name, company: u.company, title: u.title, role: u.role }
     });
   });
 
@@ -288,13 +289,13 @@ export async function registerRoutes(
       if (validation.data.name !== undefined) updates.name = validation.data.name.trim();
       if (validation.data.email !== undefined) {
         const protectedEmails = ["admin", "checker@norfolkgroup.io"];
-        if (protectedEmails.includes(req.user.email)) {
+        if (protectedEmails.includes(req.user!.email)) {
           return res.status(403).json({ error: "System account emails cannot be changed" });
         }
         const newEmail = sanitizeEmail(validation.data.email);
-        if (newEmail !== req.user.email) {
+        if (newEmail !== req.user!.email) {
           const existingUser = await storage.getUserByEmail(newEmail);
-          if (existingUser && existingUser.id !== req.user.id) {
+          if (existingUser && existingUser.id !== req.user!.id) {
             return res.status(400).json({ error: "Email already in use" });
           }
           updates.email = newEmail;
@@ -303,7 +304,7 @@ export async function registerRoutes(
       if (validation.data.company !== undefined) updates.company = validation.data.company.trim();
       if (validation.data.title !== undefined) updates.title = validation.data.title.trim();
       
-      const user = await storage.updateUserProfile(req.user.id, updates);
+      const user = await storage.updateUserProfile(req.user!.id, updates);
       res.json({ id: user.id, email: user.email, name: user.name, company: user.company, title: user.title, role: user.role });
     } catch (error) {
       console.error("Error updating profile:", error);
@@ -324,7 +325,7 @@ export async function registerRoutes(
         return res.status(400).json({ error: error.message });
       }
 
-      const user = await storage.getUserById(req.user.id);
+      const user = await storage.getUserById(req.user!.id);
       if (!user) {
         return res.status(404).json({ error: "User not found" });
       }
@@ -335,7 +336,7 @@ export async function registerRoutes(
       }
 
       const newPasswordHash = await hashPassword(validation.data.newPassword);
-      await storage.updateUserPassword(req.user.id, newPasswordHash);
+      await storage.updateUserPassword(req.user!.id, newPasswordHash);
       
       res.json({ success: true });
     } catch (error) {

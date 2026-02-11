@@ -6,7 +6,7 @@ interface SectionCardProps {
   id: string;
   title: string;
   subtitle?: string;
-  icon: React.ElementType;
+  icon: React.ComponentType<{ className?: string }>;
   expanded: boolean;
   onToggle: () => void;
   sectionRef: (el: HTMLDivElement | null) => void;

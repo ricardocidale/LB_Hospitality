@@ -1,5 +1,5 @@
 import Layout from "@/components/Layout";
-import { useProperty, useUpdateProperty, useGlobalAssumptions, useMarketResearch } from "@/lib/api";
+import { useProperty, useUpdateProperty, useGlobalAssumptions, useMarketResearch, useFeeCategories, useUpdateFeeCategories, type FeeCategoryResponse } from "@/lib/api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -62,11 +62,20 @@ export default function PropertyEdit() {
   const { data: property, isLoading } = useProperty(propertyId);
   const { data: globalAssumptions } = useGlobalAssumptions();
   const { data: research } = useMarketResearch("property", propertyId);
+  const { data: feeCategories } = useFeeCategories(propertyId);
   const updateProperty = useUpdateProperty();
+  const updateFeeCategories = useUpdateFeeCategories();
   const { toast } = useToast();
   
   const [draft, setDraft] = useState<any>(null);
   const [isDirty, setIsDirty] = useState(false);
+  const [feeDraft, setFeeDraft] = useState<FeeCategoryResponse[] | null>(null);
+  
+  useEffect(() => {
+    if (feeCategories && !feeDraft) {
+      setFeeDraft([...feeCategories]);
+    }
+  }, [feeCategories]);
 
   const researchValues = (() => {
     if (!research?.content) return {};
@@ -181,12 +190,35 @@ export default function PropertyEdit() {
     );
   };
 
+  const handleFeeCategoryChange = (index: number, field: keyof FeeCategoryResponse, value: any) => {
+    if (!feeDraft) return;
+    const updated = [...feeDraft];
+    updated[index] = { ...updated[index], [field]: value };
+    setFeeDraft(updated);
+    setIsDirty(true);
+  };
+
+  const totalServiceFeeRate = feeDraft?.filter(c => c.isActive).reduce((sum, c) => sum + c.rate, 0) ?? 0;
+
   const handleSave = () => {
     updateProperty.mutate({ id: propertyId, data: draft }, {
       onSuccess: () => {
-        setIsDirty(false);
-        toast({ title: "Saved", description: "Property assumptions updated successfully." });
-        setLocation(`/property/${propertyId}`);
+        if (feeDraft) {
+          updateFeeCategories.mutate({ propertyId, categories: feeDraft }, {
+            onSuccess: () => {
+              setIsDirty(false);
+              toast({ title: "Saved", description: "Property assumptions updated successfully." });
+              setLocation(`/property/${propertyId}`);
+            },
+            onError: () => {
+              toast({ title: "Error", description: "Failed to save fee categories.", variant: "destructive" });
+            }
+          });
+        } else {
+          setIsDirty(false);
+          toast({ title: "Saved", description: "Property assumptions updated successfully." });
+          setLocation(`/property/${propertyId}`);
+        }
       },
       onError: () => {
         toast({ title: "Error", description: "Failed to save property assumptions.", variant: "destructive" });
@@ -1259,62 +1291,89 @@ export default function PropertyEdit() {
             <div className="mb-6">
               <h3 className="text-xl font-display text-gray-900 flex items-center">
                 Management Fees
-                <HelpTooltip text="Fees paid by this property to the management company. The Base Fee is a percentage of total gross revenue collected monthly. The Incentive Fee is a percentage of Gross Operating Profit (GOP) collected when GOP is positive." />
+                <HelpTooltip text="Fees paid by this property to the management company. Service fees are broken into categories (each a % of Total Revenue). The Incentive Fee is a % of Gross Operating Profit (GOP) collected when GOP is positive." />
               </h3>
               <p className="text-gray-600 text-sm label-text">Fees charged by the management company for operating this property</p>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <div className="flex flex-col gap-0.5">
-                    <Label className="flex items-center label-text text-gray-700 gap-1.5">
-                      Base Fee (% of Total Revenue)
-                      <HelpTooltip text="Base Management Fee = Total Revenue × this rate. Collected monthly regardless of profitability. Industry standard: 3–5% of gross revenue." />
-                    </Label>
-                    <ResearchBadge value={researchValues.baseFee?.display} onClick={() => researchValues.baseFee && handleChange("baseManagementFeeRate", researchValues.baseFee.mid / 100)} />
-                  </div>
-                  <EditableValue
-                    value={(draft.baseManagementFeeRate ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE) * 100}
-                    onChange={(val) => handleChange("baseManagementFeeRate", val / 100)}
-                    format="percent"
-                    min={0}
-                    max={10}
-                    step={0.5}
-                  />
-                </div>
-                <Slider 
-                  value={[(draft.baseManagementFeeRate ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE) * 100]}
-                  onValueChange={(vals: number[]) => handleChange("baseManagementFeeRate", vals[0] / 100)}
-                  min={0}
-                  max={10}
-                  step={0.5}
-                />
+
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-3">
+                <Label className="text-sm font-semibold text-gray-800 label-text">
+                  Service Fee Categories (% of Total Revenue)
+                </Label>
+                <span className={`text-sm font-mono font-semibold ${totalServiceFeeRate > 0.10 ? 'text-amber-600' : 'text-gray-700'}`} data-testid="text-total-service-fee">
+                  Total: {(totalServiceFeeRate * 100).toFixed(1)}%
+                </span>
               </div>
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <div className="flex flex-col gap-0.5">
-                    <Label className="flex items-center label-text text-gray-700 gap-1.5">
-                      Incentive Fee (% of GOP)
-                      <HelpTooltip text="Incentive Management Fee = max(0, GOP) × this rate. Only charged when Gross Operating Profit is positive, rewarding the management company for strong performance. Industry standard: 10–20% of GOP." />
-                    </Label>
-                    <ResearchBadge value={researchValues.incentiveFee?.display} onClick={() => researchValues.incentiveFee && handleChange("incentiveManagementFeeRate", researchValues.incentiveFee.mid / 100)} />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {feeDraft?.map((cat, idx) => (
+                  <div key={cat.id} className="space-y-2" data-testid={`fee-category-${cat.name.toLowerCase().replace(/\s+/g, '-')}`}>
+                    <div className="flex justify-between items-center">
+                      <Label className={`flex items-center label-text gap-1.5 ${cat.isActive ? 'text-gray-700' : 'text-gray-400 line-through'}`}>
+                        {cat.name}
+                        <HelpTooltip text={`${cat.name} service fee = Total Revenue × ${(cat.rate * 100).toFixed(1)}%. Charged monthly as part of the management company's service fees.`} />
+                      </Label>
+                      <div className="flex items-center gap-2">
+                        <EditableValue
+                          value={cat.rate * 100}
+                          onChange={(val) => handleFeeCategoryChange(idx, "rate", val / 100)}
+                          format="percent"
+                          min={0}
+                          max={5}
+                          step={0.1}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleFeeCategoryChange(idx, "isActive", !cat.isActive)}
+                          className={`w-8 h-5 rounded-full transition-colors ${cat.isActive ? 'bg-[#9FBCA4]' : 'bg-gray-300'} relative`}
+                          title={cat.isActive ? "Disable this fee" : "Enable this fee"}
+                          data-testid={`toggle-fee-${cat.name.toLowerCase().replace(/\s+/g, '-')}`}
+                        >
+                          <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${cat.isActive ? 'right-0.5' : 'left-0.5'}`} />
+                        </button>
+                      </div>
+                    </div>
+                    <Slider 
+                      value={[cat.rate * 100]}
+                      onValueChange={(vals: number[]) => handleFeeCategoryChange(idx, "rate", vals[0] / 100)}
+                      min={0}
+                      max={5}
+                      step={0.1}
+                      disabled={!cat.isActive}
+                    />
                   </div>
-                  <EditableValue
-                    value={(draft.incentiveManagementFeeRate ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE) * 100}
-                    onChange={(val) => handleChange("incentiveManagementFeeRate", val / 100)}
-                    format="percent"
+                ))}
+              </div>
+            </div>
+
+            <div className="border-t border-[#9FBCA4]/20 pt-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <div className="flex flex-col gap-0.5">
+                      <Label className="flex items-center label-text text-gray-700 gap-1.5">
+                        Incentive Fee (% of GOP)
+                        <HelpTooltip text="Incentive Management Fee = max(0, GOP) × this rate. Only charged when Gross Operating Profit is positive, rewarding the management company for strong performance. Industry standard: 10–20% of GOP." />
+                      </Label>
+                      <ResearchBadge value={researchValues.incentiveFee?.display} onClick={() => researchValues.incentiveFee && handleChange("incentiveManagementFeeRate", researchValues.incentiveFee.mid / 100)} />
+                    </div>
+                    <EditableValue
+                      value={(draft.incentiveManagementFeeRate ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE) * 100}
+                      onChange={(val) => handleChange("incentiveManagementFeeRate", val / 100)}
+                      format="percent"
+                      min={0}
+                      max={25}
+                      step={1}
+                    />
+                  </div>
+                  <Slider 
+                    value={[(draft.incentiveManagementFeeRate ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE) * 100]}
+                    onValueChange={(vals: number[]) => handleChange("incentiveManagementFeeRate", vals[0] / 100)}
                     min={0}
                     max={25}
                     step={1}
                   />
                 </div>
-                <Slider 
-                  value={[(draft.incentiveManagementFeeRate ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE) * 100]}
-                  onValueChange={(vals: number[]) => handleChange("incentiveManagementFeeRate", vals[0] / 100)}
-                  min={0}
-                  max={25}
-                  step={1}
-                />
               </div>
             </div>
           </div>

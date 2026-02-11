@@ -418,7 +418,7 @@ export default function CompanyAssumptions() {
                 <h4 className="text-sm font-display text-gray-900">Tranche 1</h4>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <Label className="text-gray-700 label-text">Amount</Label>
+                    <Label className="text-gray-700 label-text flex items-center gap-1">Amount<HelpTooltip text="Capital amount raised in the first tranche of funding to cover initial operating expenses before management fee revenue begins." /></Label>
                     <EditableValue
                       value={formData.safeTranche1Amount ?? global.safeTranche1Amount}
                       onChange={(v) => handleUpdate("safeTranche1Amount", v)}
@@ -437,7 +437,7 @@ export default function CompanyAssumptions() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-gray-700 label-text">Date</Label>
+                  <Label className="text-gray-700 label-text flex items-center gap-1">Date<HelpTooltip text="Date when the first tranche of funding is received and recorded on the balance sheet." /></Label>
                   <Input
                     type="date"
                     value={formData.safeTranche1Date ?? global.safeTranche1Date}
@@ -450,7 +450,7 @@ export default function CompanyAssumptions() {
                 <h4 className="text-sm font-display text-gray-900">Tranche 2</h4>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <Label className="text-gray-700 label-text">Amount</Label>
+                    <Label className="text-gray-700 label-text flex items-center gap-1">Amount<HelpTooltip text="Capital amount raised in the second tranche of funding, typically deployed as the portfolio grows." /></Label>
                     <EditableValue
                       value={formData.safeTranche2Amount ?? global.safeTranche2Amount}
                       onChange={(v) => handleUpdate("safeTranche2Amount", v)}
@@ -469,7 +469,7 @@ export default function CompanyAssumptions() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-gray-700 label-text">Date</Label>
+                  <Label className="text-gray-700 label-text flex items-center gap-1">Date<HelpTooltip text="Date when the second tranche of funding is received and recorded on the balance sheet." /></Label>
                   <Input
                     type="date"
                     value={formData.safeTranche2Date ?? global.safeTranche2Date}
@@ -959,12 +959,12 @@ export default function CompanyAssumptions() {
           <div className="relative">
           <div className="space-y-4">
             <h3 className="text-lg font-display text-gray-900 flex items-center gap-2">
-              Tax Rate
-              <HelpTooltip text="Corporate tax rate applied to positive net income for after-tax cash flow calculations" manualSection="company-formulas" />
+              Company Income Tax
+              <HelpTooltip text="Income tax rate applied to the management company's positive net income for after-tax cash flow calculations. Each property SPV has its own income tax rate set on its assumptions page." manualSection="company-formulas" />
             </h3>
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <Label className="text-gray-700 label-text">Company Tax Rate</Label>
+                <Label className="text-gray-700 label-text flex items-center gap-1">Company Income Tax Rate<HelpTooltip text="Income tax rate applied to the management company's positive net income. This is separate from property-level income taxes, which are set per property on each property's assumptions page." /></Label>
                 <EditableValue
                   value={formData.companyTaxRate ?? global.companyTaxRate ?? DEFAULT_COMPANY_TAX_RATE}
                   onChange={(v) => handleUpdate("companyTaxRate", v)}

@@ -102,6 +102,67 @@ Provide a recommended catering boost percentage (typically 15%–50%), market ra
 
   analyze_land_value: (input) =>
     `Provide land value allocation analysis for ${input.location} (${input.market_region}). Property type: ${input.property_type}, ${input.acreage || 10}+ acres, ${input.room_count || 20} rooms, purchase price: $${(input.purchase_price || 0).toLocaleString()}, building improvements: $${(input.building_improvements || 0).toLocaleString()}, setting: ${input.setting || "rural estate"}. Determine the appropriate percentage of the purchase price attributable to land vs. building/improvements for IRS depreciation purposes. Consider: local land values per acre, ratio of land to total property value in this market, whether the property is in a high-land-value area (urban/resort) vs. lower-value rural setting, comparable hotel land allocations, and county tax assessor land-to-improvement ratios. Provide a recommended land value percentage, market range, assessment methodology, rationale, and key factors.`,
+
+  analyze_operating_costs: (input) =>
+    `Analyze operating cost benchmarks for a ${input.property_level || "luxury"} hotel in ${input.location}. ${input.room_count || 20} rooms, ADR: $${input.current_adr || 300}, F&B: ${input.has_fb ?? true}, Events: ${input.has_events ?? true}, Market: ${input.market_region || "North America"}.
+
+CRITICAL: Different costs have different calculation bases. You MUST provide rates with the correct base:
+
+ROOM REVENUE-BASED (% of Room Revenue):
+- Housekeeping: cleaning labor, linens, guest supplies, room maintenance (USALI Rooms Dept)
+- F&B Cost of Sales: kitchen labor, food costs, beverages, dining operations (USALI F&B Dept)
+
+TOTAL REVENUE-BASED (% of Total Revenue):
+- Admin & General: management salaries, accounting, legal, HR (USALI A&G) — fixed base, escalates with inflation
+- Property Ops: engineering, repairs, grounds, facilities (USALI POM) — fixed base, escalates with inflation
+- Utilities: electricity, gas, water, sewer (split variable/fixed)
+- FF&E Reserve: furniture, fixtures, equipment replacement set-aside (industry standard 3-5%)
+- Marketing: property-level advertising, OTA commissions, local promotions (property-level only, brand marketing is management company service)
+- IT: WiFi, in-room tech, basic support (property-level only, core IT is management company service)
+- Other: miscellaneous operating expenses — fixed base, escalates with inflation
+
+Provide recommended rates for each category, industry ranges, and rationale. Use USALI standards, PKF Trends, STR HOST, and CBRE benchmarks.`,
+
+  analyze_property_value_costs: (input) =>
+    `Analyze property value-based costs for a ${input.property_level || "luxury"} hotel in ${input.location}. ${input.room_count || 20} rooms, purchase price: $${(input.purchase_price || 0).toLocaleString()}, building improvements: $${(input.building_improvements || 0).toLocaleString()}, market: ${input.market_region || "North America"}.
+
+These costs are calculated as a percentage of TOTAL PROPERTY VALUE (Purchase Price + Building Improvements), NOT revenue:
+- Monthly Cost = (Property Value / 12) × Rate × Annual Escalation Factor
+
+Provide recommended rates for:
+1. Insurance: property liability, damage, workers comp, business interruption coverage
+2. Property Taxes: real estate taxes and assessments based on local jurisdiction
+
+Include jurisdiction-specific context (local tax rates, assessment ratios, insurance market conditions) and industry benchmarks.`,
+
+  analyze_management_service_fees: (input) =>
+    `Analyze management company service fee benchmarks for a ${input.property_level || "luxury"} boutique hotel in ${input.location}. ${input.room_count || 20} rooms, F&B: ${input.has_fb ?? true}, Events: ${input.has_events ?? true}, Market: ${input.market_region || "North America"}.
+
+The management company charges 5 service fee categories, each as a % of Total Revenue:
+1. Marketing: brand strategy, digital marketing, loyalty programs, business development
+2. IT: PMS systems, accounting systems, network infrastructure, cybersecurity
+3. Accounting: financial reporting, budgeting, audit coordination, treasury management
+4. Reservations: central reservation system, revenue management, distribution channels
+5. General Management: executive oversight, strategic planning, compliance, HR support
+
+Plus an Incentive Management Fee as % of Gross Operating Profit (GOP), paid only when GOP > 0.
+
+Provide recommended rates for each category, total service fee rate, incentive fee rate, industry ranges from management contract databases, and rationale. Consider that smaller boutique properties often pay higher management fee percentages.`,
+
+  analyze_income_tax: (input) =>
+    `Analyze income tax rates for a hotel property SPV entity in ${input.location}. Market: ${input.market_region || "North America"}, Entity type: ${input.entity_type || "LLC"}, Property value: $${(input.purchase_price || 0).toLocaleString()}.
+
+Tax is applied to TAXABLE INCOME = NOI - Interest Expense - Depreciation.
+
+Provide:
+1. Recommended effective combined tax rate for this jurisdiction
+2. Breakdown: federal rate, state/provincial rate, local rate (if applicable)
+3. Effective range accounting for deductions and credits
+4. SPV entity structure considerations (pass-through vs C-Corp)
+5. Any hospitality-specific tax incentives
+
+For US properties: Federal (21% C-Corp or pass-through) + State (0-13.3%) + Local
+For Latin America: Country-specific corporate rates (Mexico ~30%, Costa Rica ~30%, etc.)`,
 };
 
 const isDev = process.env.NODE_ENV === "development";

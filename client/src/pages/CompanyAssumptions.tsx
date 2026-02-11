@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import Layout from "@/components/Layout";
-import { useGlobalAssumptions, useUpdateGlobalAssumptions } from "@/lib/api";
+import { useGlobalAssumptions, useUpdateGlobalAssumptions, useMarketResearch } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { ResearchBadge } from "@/components/ui/research-badge";
 import { Loader2, Upload, X, BookOpen } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { formatPercent, formatMoney } from "@/lib/financialEngine";
@@ -119,6 +120,44 @@ export default function CompanyAssumptions() {
 
   const [formData, setFormData] = useState<Partial<GlobalResponse>>({});
   const [isDirty, setIsDirty] = useState(false);
+  const { data: research } = useMarketResearch("company");
+
+  const researchValues = (() => {
+    if (!research?.content) return {};
+    const c = research.content as any;
+    const parsePctRange = (str: string | undefined): { display: string; mid: number } | null => {
+      if (!str) return null;
+      const nums = str.replace(/[^0-9.,\-–]/g, ' ').split(/[\s–\-]+/).map(s => parseFloat(s.replace(/,/g, ''))).filter(n => !isNaN(n));
+      if (nums.length >= 2) return { display: str, mid: (nums[0] + nums[1]) / 2 };
+      if (nums.length === 1) return { display: str, mid: nums[0] };
+      return null;
+    };
+    const parseDollarRange = (str: string | undefined): { display: string; mid: number } | null => {
+      if (!str) return null;
+      const nums = str.replace(/[^0-9.,\-–kK]/g, ' ').replace(/[kK]/g, '000').split(/[\s–\-]+/).map(s => parseFloat(s.replace(/,/g, ''))).filter(n => !isNaN(n));
+      if (nums.length >= 2) return { display: str, mid: Math.round((nums[0] + nums[1]) / 2) };
+      if (nums.length === 1) return { display: str, mid: nums[0] };
+      return null;
+    };
+
+    const baseFee = parsePctRange(c.managementFees?.baseFee?.recommended || c.managementFees?.baseFee?.boutiqueRange);
+    const incentiveFee = parsePctRange(c.managementFees?.incentiveFee?.recommended || c.managementFees?.incentiveFee?.industryRange);
+
+    const opExRatios = c.industryBenchmarks?.operatingExpenseRatios as Array<{ category: string; range: string }> | undefined;
+    const findRatio = (keyword: string) => {
+      if (!opExRatios) return null;
+      const match = opExRatios.find(r => r.category?.toLowerCase().includes(keyword.toLowerCase()));
+      return match ? parsePctRange(match.range) : null;
+    };
+
+    const eventExpense = findRatio("event") || findRatio("banquet") || findRatio("catering");
+    const marketingRate = findRatio("marketing") || findRatio("sales & marketing") || findRatio("franchise");
+
+    const compBenchmarks = c.compensationBenchmarks;
+    const staffSalary = compBenchmarks?.manager ? parseDollarRange(compBenchmarks.manager) : null;
+
+    return { baseFee, incentiveFee, eventExpense, marketingRate, staffSalary };
+  })();
 
   useEffect(() => {
     if (global) {
@@ -552,6 +591,7 @@ export default function CompanyAssumptions() {
                   <Label className="flex items-center text-gray-700 label-text">
                     Base Management Fee (% of Property Gross Revenue)
                     <HelpTooltip text="Percentage of each property's total gross revenue collected monthly as a management fee" manualSection="company-formulas" />
+                    <ResearchBadge value={researchValues.baseFee?.display} onClick={() => researchValues.baseFee && handleUpdate("baseManagementFee", researchValues.baseFee.mid / 100)} data-testid="badge-base-fee" />
                   </Label>
                   <EditableValue
                     value={formData.baseManagementFee ?? global.baseManagementFee}
@@ -576,6 +616,7 @@ export default function CompanyAssumptions() {
                   <Label className="flex items-center text-gray-700 label-text">
                     Incentive Fee (% of Property GOP)
                     <HelpTooltip text="Percentage of each property's Gross Operating Profit collected annually as a performance-based management fee" />
+                    <ResearchBadge value={researchValues.incentiveFee?.display} onClick={() => researchValues.incentiveFee && handleUpdate("incentiveManagementFee", researchValues.incentiveFee.mid / 100)} data-testid="badge-incentive-fee" />
                   </Label>
                   <EditableValue
                     value={formData.incentiveManagementFee ?? global.incentiveManagementFee}
@@ -614,6 +655,7 @@ export default function CompanyAssumptions() {
                   <Label className="flex items-center text-gray-700 label-text">
                     Staff Salary (Avg)
                     <HelpTooltip text="Average annual salary per staff FTE. Staffing scales based on the tiers configured below." />
+                    <ResearchBadge value={researchValues.staffSalary?.display} onClick={() => researchValues.staffSalary && handleUpdate("staffSalary", researchValues.staffSalary.mid)} data-testid="badge-staff-salary" />
                   </Label>
                   <EditableValue
                     value={formData.staffSalary ?? global.staffSalary}
@@ -907,6 +949,7 @@ export default function CompanyAssumptions() {
                   <Label className="flex items-center text-gray-700 label-text">
                     Marketing (% of Mgmt Fee Revenue)
                     <HelpTooltip text="Corporate marketing spend as a percentage of total management fee revenue (base + incentive fees collected from properties)" />
+                    <ResearchBadge value={researchValues.marketingRate?.display} onClick={() => researchValues.marketingRate && handleUpdate("marketingRate", researchValues.marketingRate.mid / 100)} data-testid="badge-marketing-rate" />
                   </Label>
                   <EditableValue
                     value={formData.marketingRate ?? global.marketingRate}
@@ -1066,6 +1109,7 @@ export default function CompanyAssumptions() {
                 <Label className="flex items-center text-gray-700 label-text">
                   Event Expense Rate (% of Event Revenue)
                   <HelpTooltip text="Operating costs for events as a percentage of event revenue (labor, setup, coordination)" />
+                  <ResearchBadge value={researchValues.eventExpense?.display} onClick={() => researchValues.eventExpense && handleUpdate("eventExpenseRate", researchValues.eventExpense.mid / 100)} data-testid="badge-event-expense" />
                 </Label>
                 <EditableValue
                   value={formData.eventExpenseRate ?? global.eventExpenseRate ?? DEFAULT_EVENT_EXPENSE_RATE}

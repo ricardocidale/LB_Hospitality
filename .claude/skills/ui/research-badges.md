@@ -125,6 +125,12 @@ For market-variable fields (ADR, occupancy, cap rate), tooltips explain the conc
 ## Currently Implemented
 
 - **Property Edit** (`client/src/pages/PropertyEdit.tsx`): All 39+ input fields have HelpTooltips. ResearchBadges on: startAdr, maxOccupancy, startOccupancy, occupancyRampMonths, cateringBoostPercent, exitCapRate, landValuePercent.
+- **Company Assumptions** (`client/src/pages/CompanyAssumptions.tsx`): ResearchBadges on management company fee and cost fields, sourced from `useMarketResearch("company")`:
+  - `baseManagementFee` — from `content.managementFees.baseFee.recommended` (or `.boutiqueRange`)
+  - `incentiveManagementFee` — from `content.managementFees.incentiveFee.recommended` (or `.industryRange`)
+  - `staffSalary` — from `content.compensationBenchmarks.manager`
+  - `marketingRate` — from `content.industryBenchmarks.operatingExpenseRatios` (matching "marketing" or "sales & marketing")
+  - `eventExpenseRate` — from `content.industryBenchmarks.operatingExpenseRatios` (matching "event", "banquet", or "catering")
 - **Settings** (`client/src/pages/Settings.tsx`): All input fields (portfolio, macro, other tabs) have HelpTooltips. No ResearchBadges (global settings are not property-specific).
 
 ## Integration Checklist

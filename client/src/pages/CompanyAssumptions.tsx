@@ -330,7 +330,7 @@ export default function CompanyAssumptions() {
               </h3>
               <p className="text-gray-600 text-sm label-text">Configure the management company name and when it starts operations</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               <div className="flex flex-col gap-2">
                 <Label className="flex items-center text-gray-700 label-text">
                   Company Logo
@@ -455,7 +455,7 @@ export default function CompanyAssumptions() {
               </div>
               <p className="text-gray-600 text-sm label-text">Capital raised via {formData.fundingSourceLabel ?? global.fundingSourceLabel ?? "Funding Vehicle"} in two tranches to support operations</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="p-4 bg-[#9FBCA4]/10 rounded-lg space-y-4">
                 <h4 className="text-sm font-display text-gray-900">Tranche 1</h4>
                 <div className="space-y-3">
@@ -521,7 +521,7 @@ export default function CompanyAssumptions() {
                 </div>
               </div>
             </div>
-            <div className="mt-4 pt-4 border-t border-[#9FBCA4]/20 grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="mt-4 pt-4 border-t border-[#9FBCA4]/20 grid grid-cols-2 sm:grid-cols-4 gap-4">
               <div>
                 <Label className="text-gray-600 text-sm label-text">Total {formData.fundingSourceLabel ?? global.fundingSourceLabel ?? "Funding Vehicle"} Raise</Label>
                 <p className="font-mono font-semibold text-lg text-gray-900">

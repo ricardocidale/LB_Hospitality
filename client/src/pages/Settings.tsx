@@ -174,7 +174,7 @@ export default function Settings() {
                 <CardDescription className="label-text">Characterize the target property profile for the portfolio</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
                       <Label className="label-text flex items-center gap-1">Minimum Rooms <HelpTooltip text="Minimum number of guest rooms for the target property profile. Used to filter market research and comparable properties." /></Label>
@@ -212,7 +212,7 @@ export default function Settings() {
                     </div>
                   </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
                       <Label className="label-text flex items-center gap-1">Minimum ADR <HelpTooltip text="Minimum Average Daily Rate target. Sets the floor for market research rate comparisons." /></Label>
@@ -250,7 +250,7 @@ export default function Settings() {
                     </div>
                   </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                   <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
                     <Label className="label-text flex items-center gap-1">Food & Beverage (F&B) <HelpTooltip text="Whether target properties include Food & Beverage operations like restaurants and bars." /></Label>
                     <Switch
@@ -276,7 +276,7 @@ export default function Settings() {
                     />
                   </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div className="space-y-3">
                     <Label className="label-text flex items-center gap-1">Property Level <HelpTooltip text="Service tier classification: Budget, Average, or Luxury. Affects comp set selection and benchmark ranges." /></Label>
                     <RadioGroup
@@ -322,7 +322,7 @@ export default function Settings() {
                     </RadioGroup>
                   </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
                       <Label className="label-text flex items-center gap-1">Event Locations <HelpTooltip text="Number of distinct event spaces available on the property (ballrooms, gardens, terraces, etc.)." /></Label>
@@ -378,7 +378,7 @@ export default function Settings() {
                     </div>
                   </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
                       <Label className="label-text flex items-center gap-1">Acreage <HelpTooltip text="Total property land area in acres. Larger acreage typically supports more amenities and privacy." /></Label>
@@ -419,7 +419,7 @@ export default function Settings() {
                 </CardTitle>
                 <CardDescription className="label-text">Costs associated with property sales</CardDescription>
               </CardHeader>
-              <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <Label className="label-text flex items-center gap-1">Real Estate Commission <HelpTooltip text="Broker commission percentage paid on property sale. Industry standard is 4–6%, split between buyer's and seller's agents." /></Label>
@@ -448,7 +448,7 @@ export default function Settings() {
                 </CardTitle>
                 <CardDescription className="label-text">Default loan terms for property acquisitions</CardDescription>
               </CardHeader>
-              <CardContent className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <Label className="label-text flex items-center gap-1">LTV <HelpTooltip text="Loan-to-Value ratio — percentage of purchase price financed by debt. Typical hotel acquisitions use 60–75% LTV." /></Label>
@@ -528,7 +528,7 @@ export default function Settings() {
                 </CardTitle>
                 <CardDescription className="label-text">Default terms for refinancing properties</CardDescription>
               </CardHeader>
-              <CardContent className="grid grid-cols-1 md:grid-cols-5 gap-6">
+              <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <Label className="label-text flex items-center gap-1">Years After Acq. <HelpTooltip text="Number of years after acquisition before refinancing. Typically 2–5 years to allow value appreciation." /></Label>
@@ -630,7 +630,7 @@ export default function Settings() {
                 <CardTitle className="font-display">Economic Assumptions</CardTitle>
                 <CardDescription className="label-text">Market-wide economic factors affecting the model</CardDescription>
               </CardHeader>
-              <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
                     <Label className="label-text">Fiscal Year Start Month</Label>

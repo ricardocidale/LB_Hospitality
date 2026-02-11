@@ -230,7 +230,7 @@ export default function PropertyEdit() {
               <h3 className="text-xl font-display text-gray-900">Basic Information</h3>
               <p className="text-gray-600 text-sm label-text">Property identification and location details</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label className="label-text text-gray-700 flex items-center gap-1.5">Property Name<HelpTooltip text="Internal name used to identify this property across the portfolio. Appears in dashboards, reports, and financial statements." /></Label>
                 <Input value={draft.name} onChange={(e) => handleChange("name", e.target.value)} className="bg-white border-[#9FBCA4]/30 text-gray-900 placeholder:text-gray-400" />
@@ -244,10 +244,10 @@ export default function PropertyEdit() {
                 <Input value={draft.market} onChange={(e) => handleChange("market", e.target.value)} className="bg-white border-[#9FBCA4]/30 text-gray-900 placeholder:text-gray-400" />
               </div>
 
-              <div className="md:col-span-2 border border-[#9FBCA4]/20 rounded-xl p-4 space-y-4">
+              <div className="sm:col-span-2 border border-[#9FBCA4]/20 rounded-xl p-4 space-y-4">
                 <p className="text-sm font-medium text-gray-700 label-text">Address Details <span className="text-gray-400 font-normal">(optional)</span></p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2 md:col-span-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2 sm:col-span-2">
                     <Label className="label-text text-gray-600 text-sm">Street Address</Label>
                     <Input value={draft.streetAddress || ""} onChange={(e) => handleChange("streetAddress", e.target.value || null)} placeholder="123 Main Street" className="bg-white border-[#9FBCA4]/30 text-gray-900 placeholder:text-gray-400" />
                   </div>
@@ -269,7 +269,7 @@ export default function PropertyEdit() {
                   </div>
                 </div>
               </div>
-              <div className="space-y-2 md:col-span-2">
+              <div className="space-y-2 sm:col-span-2">
                 <Label className="label-text text-gray-700 flex items-center gap-1.5">Property Photo<HelpTooltip text="Upload or generate a representative photo for this property. Displayed on portfolio cards and property detail pages." /></Label>
                 <PropertyImagePicker
                   imageUrl={draft.imageUrl}
@@ -310,7 +310,7 @@ export default function PropertyEdit() {
               <h3 className="text-xl font-display text-gray-900">Timeline</h3>
               <p className="text-gray-600 text-sm label-text">Acquisition and operations schedule</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label className="flex items-center label-text text-gray-700">
                   Acquisition Date
@@ -341,7 +341,7 @@ export default function PropertyEdit() {
               <h3 className="text-xl font-display text-gray-900">Capital Structure</h3>
               <p className="text-gray-600 text-sm label-text">Purchase and investment details</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-4">
               <div className="space-y-1.5">
                 <Label className="label-text text-gray-700 flex items-center gap-1.5">Purchase Price ($)<HelpTooltip text="Total acquisition cost of the property. This is the basis for equity investment, loan sizing, and depreciation calculations." /></Label>
                 <Input 
@@ -424,7 +424,7 @@ export default function PropertyEdit() {
             {draft.type === "Financed" && (
               <div className="border-t border-white/10 pt-6">
                 <h4 className="font-display mb-4 text-gray-900">Acquisition Financing</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
                       <Label className="label-text text-gray-700 flex items-center gap-1.5">LTV<HelpTooltip text="Loan-to-Value ratio: the percentage of the purchase price financed by the lender. Higher LTV means less equity required but more debt service." /></Label>
@@ -526,7 +526,7 @@ export default function PropertyEdit() {
                   {draft.willRefinance === "Yes" && (
                     <div className="border-t border-white/10 pt-4">
                       <h4 className="font-display mb-4 text-gray-900">Refinance Terms</h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div className="space-y-2">
                           <Label className="label-text text-gray-700 flex items-center gap-1.5">Refinance Date<HelpTooltip text="When the refinancing occurs. Typically 2-3 years after operations start, once the property has established a track record and appraised value." /></Label>
                           <Input 
@@ -636,7 +636,7 @@ export default function PropertyEdit() {
               <h3 className="text-xl font-display text-gray-900">Revenue Assumptions</h3>
               <p className="text-gray-600 text-sm label-text">ADR and occupancy projections</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <div className="flex flex-col gap-0.5">
@@ -686,7 +686,7 @@ export default function PropertyEdit() {
                 />
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <div className="flex flex-col gap-0.5">
@@ -742,7 +742,7 @@ export default function PropertyEdit() {
                 />
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <div className="flex flex-col gap-0.5">
@@ -831,7 +831,7 @@ export default function PropertyEdit() {
               </h3>
               <p className="text-gray-600 text-sm">Additional revenue as percentage of room revenue</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <Label className="flex items-center gap-1 text-gray-700">
@@ -979,7 +979,7 @@ export default function PropertyEdit() {
                   
                   <div>
                     <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Based on Room Revenue</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <div className="flex justify-between items-center">
                           <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Housekeeping<HelpTooltip text="Housekeeping expense = Room Revenue × this rate. Covers cleaning labor, linens, guest supplies, and room maintenance. Calculated monthly as a variable cost that scales with room revenue. USALI Rooms Department." /></Label>
@@ -1025,7 +1025,7 @@ export default function PropertyEdit() {
 
                   <div>
                     <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Based on Total Revenue</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <div className="flex justify-between items-center">
                           <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Admin & General<HelpTooltip text="Admin & General expense = (Year 1 Total Revenue ÷ 12) × this rate × annual escalation factor. A fixed cost covering management salaries, accounting, legal, HR, and office operations. The dollar amount is set in Year 1 and escalates annually with the Inflation Escalator Factor. USALI A&G Department." /></Label>
@@ -1151,7 +1151,7 @@ export default function PropertyEdit() {
                   <div>
                     <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Based on Property Value</h4>
                     <p className="text-xs text-gray-500 mb-4">Calculated as a percentage of total property value (Purchase Price + Building Improvements), adjusted annually by the Inflation Escalator Factor.</p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <div className="flex justify-between items-center">
                           <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Insurance<HelpTooltip text="Insurance expense = (Purchase Price + Building Improvements) ÷ 12 × this rate × annual escalation factor. Based on total property value, not revenue. Covers property liability, damage, workers' comp, and business interruption coverage. Escalates annually with the Inflation Escalator Factor." /></Label>
@@ -1197,7 +1197,7 @@ export default function PropertyEdit() {
 
                   <div>
                     <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Part of Services Provided by Management Company</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <div className="flex justify-between items-center">
                           <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Marketing<HelpTooltip text="Marketing expense = Total Revenue × this rate. Covers property-level advertising, OTA commissions, and local promotions only. Brand strategy, digital marketing, loyalty programs, and business development are provided by the management company. USALI Sales & Marketing Department." /></Label>
@@ -1263,7 +1263,7 @@ export default function PropertyEdit() {
               </h3>
               <p className="text-gray-600 text-sm label-text">Fees charged by the management company for operating this property</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <div className="flex flex-col gap-0.5">
@@ -1335,7 +1335,7 @@ export default function PropertyEdit() {
               </h3>
               <p className="text-gray-600 text-sm label-text">Exit valuation and tax rate assumptions</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <div className="flex flex-col gap-0.5">

@@ -42,7 +42,9 @@ import {
   DEFAULT_REFI_LTV,
   DEFAULT_REFI_CLOSING_COST_RATE,
   DEFAULT_EXIT_CAP_RATE,
-  DEFAULT_OCCUPANCY_RAMP_MONTHS
+  DEFAULT_OCCUPANCY_RAMP_MONTHS,
+  DEFAULT_BASE_MANAGEMENT_FEE_RATE,
+  DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
 } from './constants';
 import { computeRefinance } from '@calc/refinance';
 import type { ScheduleEntry } from '@calc/refinance';
@@ -129,6 +131,9 @@ interface PropertyInput {
   revShareOther: number;
   // Catering boost (percentage uplift applied to F&B revenue)
   cateringBoostPercent?: number;
+  // Management company fee rates (per-property)
+  baseManagementFeeRate?: number;
+  incentiveManagementFeeRate?: number;
 }
 
 interface GlobalInput {
@@ -138,8 +143,8 @@ interface GlobalInput {
   fiscalYearStartMonth?: number; // 1 = January, 4 = April, etc.
   inflationRate: number;
   fixedCostEscalationRate?: number;
-  baseManagementFee: number;
-  incentiveManagementFee: number;
+  baseManagementFee?: number;
+  incentiveManagementFee?: number;
   marketingRate: number;
   // Funding Instrument
   safeTranche1Amount?: number;
@@ -374,7 +379,7 @@ export function generatePropertyProForma(
     const expenseUtilitiesFixed = baseMonthlyTotalRev * (costRateUtilities * (1 - utilitiesVariableSplit)) * fixedCostFactor * fixedGate;
     const expenseOtherCosts = baseMonthlyTotalRev * costRateOther * fixedCostFactor * fixedGate;
     
-    const feeBase = revenueTotal * global.baseManagementFee;
+    const feeBase = revenueTotal * (property.baseManagementFeeRate ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE);
     
     const totalOperatingExpenses = 
       expenseRooms + expenseFB + expenseEvents + expenseOther + 
@@ -382,7 +387,7 @@ export function generatePropertyProForma(
       expenseAdmin + expenseIT + expenseInsurance + expenseTaxes + expenseUtilitiesFixed + expenseOtherCosts;
       
     const gop = revenueTotal - totalOperatingExpenses;
-    const feeIncentive = Math.max(0, gop * global.incentiveManagementFee);
+    const feeIncentive = Math.max(0, gop * (property.incentiveManagementFeeRate ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE));
     const noi = gop - feeBase - feeIncentive - expenseFFE;
     
     let debtPayment = 0;
@@ -726,8 +731,17 @@ export function generateCompanyProForma(
       }
     }
     
-    const baseFeeRevenue = totalPropertyRevenue * global.baseManagementFee;
-    const incentiveFeeRevenue = Math.max(0, totalPropertyGOP * global.incentiveManagementFee);
+    let baseFeeRevenue = 0;
+    let incentiveFeeRevenue = 0;
+    for (let i = 0; i < properties.length; i++) {
+      const pf = propertyFinancials[i];
+      if (m < pf.length) {
+        const propBaseFee = properties[i].baseManagementFeeRate ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE;
+        const propIncentiveFee = properties[i].incentiveManagementFeeRate ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE;
+        baseFeeRevenue += pf[m].revenueTotal * propBaseFee;
+        incentiveFeeRevenue += Math.max(0, pf[m].gop * propIncentiveFee);
+      }
+    }
     const totalRevenue = baseFeeRevenue + incentiveFeeRevenue;
     
     // Only incur expenses after company operations start

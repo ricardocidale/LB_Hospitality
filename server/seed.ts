@@ -24,6 +24,8 @@ import {
   DEFAULT_OCCUPANCY_RAMP_MONTHS,
   DEFAULT_SAFE_VALUATION_CAP,
   DEFAULT_SAFE_DISCOUNT_RATE,
+  DEFAULT_BASE_MANAGEMENT_FEE_RATE,
+  DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
 } from "@shared/constants";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
@@ -184,6 +186,8 @@ async function seed() {
       cateringBoostPercent: 0.28,
       exitCapRate: DEFAULT_EXIT_CAP_RATE,
       taxRate: DEFAULT_TAX_RATE,
+      baseManagementFeeRate: DEFAULT_BASE_MANAGEMENT_FEE_RATE,
+      incentiveManagementFeeRate: DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
     },
     {
       name: "Eden Summit Lodge",
@@ -230,6 +234,8 @@ async function seed() {
       cateringBoostPercent: 0.38,
       exitCapRate: DEFAULT_EXIT_CAP_RATE,
       taxRate: DEFAULT_TAX_RATE,
+      baseManagementFeeRate: DEFAULT_BASE_MANAGEMENT_FEE_RATE,
+      incentiveManagementFeeRate: DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
     },
     {
       name: "Austin Hillside",
@@ -276,6 +282,8 @@ async function seed() {
       cateringBoostPercent: 0.25,
       exitCapRate: 0.08,
       taxRate: DEFAULT_TAX_RATE,
+      baseManagementFeeRate: DEFAULT_BASE_MANAGEMENT_FEE_RATE,
+      incentiveManagementFeeRate: DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
     },
     {
       name: "Casa Medellín",
@@ -324,6 +332,8 @@ async function seed() {
       cateringBoostPercent: 0.35,
       exitCapRate: 0.09,
       taxRate: DEFAULT_TAX_RATE,
+      baseManagementFeeRate: DEFAULT_BASE_MANAGEMENT_FEE_RATE,
+      incentiveManagementFeeRate: DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
     },
     {
       name: "Blue Ridge Manor",
@@ -372,6 +382,8 @@ async function seed() {
       cateringBoostPercent: 0.42,
       exitCapRate: DEFAULT_EXIT_CAP_RATE,
       taxRate: DEFAULT_TAX_RATE,
+      baseManagementFeeRate: DEFAULT_BASE_MANAGEMENT_FEE_RATE,
+      incentiveManagementFeeRate: DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
     },
   ]);
   console.log("Seeded 5 properties");

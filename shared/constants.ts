@@ -29,6 +29,10 @@ export const DEFAULT_COST_RATE_IT = 0.005;
 export const DEFAULT_COST_RATE_FFE = 0.04;
 export const DEFAULT_COST_RATE_OTHER = 0.05;
 
+// Management company fee defaults (per-property)
+export const DEFAULT_BASE_MANAGEMENT_FEE_RATE = 0.05;
+export const DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE = 0.15;
+
 // Exit & sale defaults
 export const DEFAULT_EXIT_CAP_RATE = 0.085;
 export const DEFAULT_TAX_RATE = 0.25;

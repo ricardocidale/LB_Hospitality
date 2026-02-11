@@ -47,6 +47,8 @@ const property = {
   revShareFB: 0.22,
   revShareOther: 0.07,
   cateringBoostPercent: 0.30,
+  baseManagementFeeRate: 0.05,
+  incentiveManagementFeeRate: 0.15,
 };
 
 const global = {

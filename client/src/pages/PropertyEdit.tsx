@@ -78,7 +78,7 @@ export default function PropertyEdit() {
   }, [feeCategories]);
 
   const researchValues = (() => {
-    const SEEDED_DEFAULTS: Record<string, { display: string; mid: number }> = {
+    const GENERIC_DEFAULTS: Record<string, { display: string; mid: number; source?: string }> = {
       adr: { display: "$175–$225", mid: 193 },
       occupancy: { display: "65%–73%", mid: 69 },
       startOccupancy: { display: "30%–45%", mid: 40 },
@@ -106,8 +106,18 @@ export default function PropertyEdit() {
       incomeTax: { display: "24%–28%", mid: 25 },
     };
 
+    const dbResearch = property?.researchValues as Record<string, { display: string; mid: number; source?: string }> | null | undefined;
+    const baseDefaults: Record<string, { display: string; mid: number; source?: string }> = { ...GENERIC_DEFAULTS };
+    if (dbResearch) {
+      for (const [key, val] of Object.entries(dbResearch)) {
+        if (val && val.display && val.mid != null && val.source !== 'none') {
+          baseDefaults[key] = val;
+        }
+      }
+    }
+
     if (!research?.content) {
-      return SEEDED_DEFAULTS;
+      return baseDefaults;
     }
     const c = research.content;
     const parseRange = (rangeStr: string | undefined): { low: number; high: number; mid: number } | null => {
@@ -178,10 +188,10 @@ export default function PropertyEdit() {
       incomeTax: ita?.recommendedRate ? parseCostRate({ recommendedRate: ita.recommendedRate }) : null,
     };
 
-    const merged: Record<string, { display: string; mid: number }> = { ...SEEDED_DEFAULTS };
+    const merged: Record<string, { display: string; mid: number; source?: string }> = { ...baseDefaults };
     for (const [key, val] of Object.entries(aiValues)) {
       if (val) {
-        merged[key] = val;
+        merged[key] = { ...val, source: 'ai' };
       }
     }
     return merged;

@@ -22,6 +22,20 @@ export const insertLogoSchema = z.object({
 export type Logo = typeof logos.$inferSelect;
 export type InsertLogo = z.infer<typeof insertLogoSchema>;
 
+// --- RESEARCH VALUE TYPES ---
+export const researchValueSourceEnum = z.enum(["ai", "seed", "none"]);
+export type ResearchValueSource = z.infer<typeof researchValueSourceEnum>;
+
+export const researchValueEntrySchema = z.object({
+  display: z.string(),
+  mid: z.number(),
+  source: researchValueSourceEnum,
+});
+export type ResearchValueEntry = z.infer<typeof researchValueEntrySchema>;
+
+export const researchValueMapSchema = z.record(z.string(), researchValueEntrySchema);
+export type ResearchValueMap = z.infer<typeof researchValueMapSchema>;
+
 // --- ASSET DESCRIPTIONS TABLE ---
 export const assetDescriptions = pgTable("asset_descriptions", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
@@ -438,6 +452,8 @@ export const properties = pgTable("properties", {
   // Management Company Fee Rates (per-property, charged by management company)
   baseManagementFeeRate: real("base_management_fee_rate").notNull().default(0.05),
   incentiveManagementFeeRate: real("incentive_management_fee_rate").notNull().default(0.15),
+
+  researchValues: jsonb("research_values").$type<Record<string, ResearchValueEntry>>(),
   
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -511,6 +527,7 @@ export const insertPropertySchema = createInsertSchema(properties).pick({
   taxRate: true,
   baseManagementFeeRate: true,
   incentiveManagementFeeRate: true,
+  researchValues: true,
 });
 
 export const updatePropertySchema = insertPropertySchema.partial();

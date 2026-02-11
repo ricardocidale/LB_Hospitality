@@ -71,11 +71,21 @@ All financial statement tables follow these UI conventions:
 └─────────────────────────────────────────────┘
 ```
 
+### Percentage Margin Rows (Common-Size Analysis)
+Every subtotal row that financial managers review should be followed by a `MarginRow` showing its percentage of a base value (typically Total Revenue). These rows use the shared `MarginRow` component from `financial-table-rows.tsx`.
+
+- **Styling:** `text-xs text-gray-400 italic font-mono` — visually subordinate to value rows
+- **Placement:** Immediately after each subtotal (GOP, NOI, Net Income, Total OpEx, Operating CF, FCF, FCFE)
+- **Formula:** `(value / base) × 100`, displayed as `XX.X%` or `—` when base is zero
+- **Component:** `<MarginRow label="% of Total Revenue" values={...} baseValues={...} />`
+- **Balance Sheet:** Uses inline `<tr>` with same styling for Debt-to-Assets and Equity-to-Assets ratios
+
 ### Key Styling
 - Revenue section header: `text-[#257D41]` (green)
 - GOP row: `bg-gray-50 font-bold text-[#257D41]`
 - NOI row: `bg-gray-100 font-bold text-[#257D41]`
 - Total rows: `border-t-2 border-gray-300 font-semibold`
+- Margin/percentage rows: `text-xs text-gray-400 italic font-mono` (see above)
 
 ---
 

@@ -464,6 +464,38 @@ export function SpacerRow({ colSpan, height = "h-2" }: SpacerRowProps) {
 }
 
 /* ═══════════════════════════════════════════════
+   7b. MarginRow
+   Italic percentage row shown beneath subtotals
+   to display common-size analysis (value ÷ base × 100).
+   Used for margins like GOP %, NOI %, Net Income %.
+   ═══════════════════════════════════════════════ */
+
+interface MarginRowProps {
+  label: string;
+  values: number[];
+  baseValues: number[];
+}
+
+export function MarginRow({ label, values, baseValues }: MarginRowProps) {
+  return (
+    <TableRow>
+      <TableCell className="sticky left-0 bg-white py-0.5 text-xs text-gray-400 italic pl-6">
+        {label}
+      </TableCell>
+      {values.map((v, i) => {
+        const base = baseValues[i] || 0;
+        const pctVal = base !== 0 ? (v / base) * 100 : 0;
+        return (
+          <TableCell key={i} className="text-right py-0.5 font-mono text-xs text-gray-400 italic px-2">
+            {base !== 0 ? `${pctVal.toFixed(1)}%` : "—"}
+          </TableCell>
+        );
+      })}
+    </TableRow>
+  );
+}
+
+/* ═══════════════════════════════════════════════
    8. BalanceSheetSection
    Section header for Balance Sheet style tables
    (e.g. "ASSETS", "LIABILITIES", "EQUITY")

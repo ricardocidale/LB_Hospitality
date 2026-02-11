@@ -1044,6 +1044,20 @@ export default function Company() {
                         )}
                       </>
                     )}
+                    <TableRow>
+                      <TableCell className="sticky left-0 bg-white text-xs text-gray-400 italic pl-6">OpEx % of Revenue</TableCell>
+                      {Array.from({ length: projectionYears }, (_, y) => {
+                        const yearData = financials.slice(y * 12, (y + 1) * 12);
+                        const totalExpenses = yearData.reduce((a, m) => a + m.totalExpenses, 0);
+                        const totalRevenue = yearData.reduce((a, m) => a + m.totalRevenue, 0);
+                        const pct = totalRevenue > 0 ? (totalExpenses / totalRevenue) * 100 : 0;
+                        return (
+                          <TableCell key={y} className="text-right text-xs text-gray-400 italic font-mono px-2">
+                            {totalRevenue > 0 ? `${pct.toFixed(1)}%` : "—"}
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
                     <TableRow className="bg-primary/10 font-bold">
                       <TableCell className="sticky left-0 bg-primary/10">Net Income</TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
@@ -1345,6 +1359,20 @@ export default function Company() {
                         return (
                           <TableCell key={y} className={`text-right font-mono ${total < 0 ? 'text-destructive' : ''}`}>
                             {formatMoney(total)}
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="sticky left-0 bg-white text-xs text-gray-400 italic pl-6">% of Revenue</TableCell>
+                      {Array.from({ length: projectionYears }, (_, y) => {
+                        const yearData = financials.slice(y * 12, (y + 1) * 12);
+                        const cashFromOps = yearData.reduce((a, m) => a + m.netIncome, 0);
+                        const totalRevenue = yearData.reduce((a, m) => a + m.totalRevenue, 0);
+                        const pct = totalRevenue > 0 ? (cashFromOps / totalRevenue) * 100 : 0;
+                        return (
+                          <TableCell key={y} className="text-right text-xs text-gray-400 italic font-mono px-2">
+                            {totalRevenue > 0 ? `${pct.toFixed(1)}%` : "—"}
                           </TableCell>
                         );
                       })}

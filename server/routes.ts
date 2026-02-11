@@ -34,6 +34,8 @@ import {
   DEFAULT_UTILITIES_VARIABLE_SPLIT,
   DEFAULT_SAFE_VALUATION_CAP,
   DEFAULT_SAFE_DISCOUNT_RATE,
+  DEFAULT_BASE_MANAGEMENT_FEE_RATE,
+  DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
 } from "@shared/constants";
 import { generateResearchWithToolsStream, loadSkill, buildUserPrompt, type ResearchParams } from "./aiResearch";
 import * as calcSchemas from "../calc/shared/schemas";
@@ -615,6 +617,8 @@ export async function registerRoutes(
         await storage.upsertGlobalAssumptions({
           modelStartDate: "2026-04-01",
           inflationRate: 0.03,
+          baseManagementFee: DEFAULT_BASE_MANAGEMENT_FEE_RATE,
+          incentiveManagementFee: DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
           staffSalary: 75000,
           staffTier1MaxProperties: 3,
           staffTier1Fte: 2.5,
@@ -1359,6 +1363,8 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       await storage.upsertGlobalAssumptions({
         modelStartDate: "2026-04-01",
         inflationRate: 0.03,
+        baseManagementFee: DEFAULT_BASE_MANAGEMENT_FEE_RATE,
+        incentiveManagementFee: DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
         staffSalary: 75000,
         staffTier1MaxProperties: 3,
         staffTier1Fte: 2.5,

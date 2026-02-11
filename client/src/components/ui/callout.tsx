@@ -6,7 +6,7 @@ type Variant = "dark" | "light";
 
 const severityConfig: Record<
   Severity,
-  Record<Variant, { bg: string; border: string; text: string }> & { icon: React.ElementType }
+  Record<Variant, { bg: string; border: string; text: string }> & { icon: React.ComponentType<{ className?: string }> }
 > = {
   warning: {
     icon: AlertTriangle,
@@ -34,7 +34,7 @@ interface CalloutProps {
   children: React.ReactNode;
   severity?: Severity;
   variant?: Variant;
-  icon?: React.ElementType;
+  icon?: React.ComponentType<{ className?: string }>;
   title?: string;
 }
 

@@ -157,42 +157,42 @@ export default function Dashboard() {
   const getPropertyYearly = (propIndex: number, yearIndex: number) =>
     allPropertyYearlyIS[propIndex]?.[yearIndex];
 
-  // Calculate weighted average ADR, Occupancy, and RevPAR for a given year
+  // Calculate weighted average ADR, Occupancy, and RevPAR for all years (memoized)
   // ADR weighted by rooms sold, Occupancy weighted by available rooms, RevPAR = Room Revenue / Available Rooms
-  const getWeightedMetrics = (yearIndex: number) => {
-    const startMonth = yearIndex * 12;
-    const endMonth = startMonth + 12;
-    
-    let totalAvailableRoomNights = 0;
-    let totalRoomsSold = 0;
-    let totalRoomRevenue = 0;
-    
-    properties.forEach((prop, idx) => {
-      const { financials } = allPropertyFinancials[idx];
-      const yearData = financials.slice(startMonth, endMonth);
-      const roomCount = prop.roomCount;
-      
-      // Sum up monthly data for this property
-      yearData.forEach(month => {
-        const daysInMonth = DAYS_PER_MONTH;
-        const availableRooms = roomCount * daysInMonth;
-        const roomsSold = availableRooms * month.occupancy;
-        
-        totalAvailableRoomNights += availableRooms;
-        totalRoomsSold += roomsSold;
-        totalRoomRevenue += month.revenueRooms;
+  const weightedMetricsByYear = useMemo(() => {
+    return Array.from({ length: projectionYears }, (_, yearIndex) => {
+      const startMonth = yearIndex * 12;
+      const endMonth = startMonth + 12;
+
+      let totalAvailableRoomNights = 0;
+      let totalRoomsSold = 0;
+      let totalRoomRevenue = 0;
+
+      properties.forEach((prop, idx) => {
+        const { financials } = allPropertyFinancials[idx];
+        const yearData = financials.slice(startMonth, endMonth);
+        const roomCount = prop.roomCount;
+
+        yearData.forEach(month => {
+          const daysInMonth = DAYS_PER_MONTH;
+          const availableRooms = roomCount * daysInMonth;
+          const roomsSold = availableRooms * month.occupancy;
+
+          totalAvailableRoomNights += availableRooms;
+          totalRoomsSold += roomsSold;
+          totalRoomRevenue += month.revenueRooms;
+        });
       });
+
+      const weightedADR = totalRoomsSold > 0 ? totalRoomRevenue / totalRoomsSold : 0;
+      const weightedOcc = totalAvailableRoomNights > 0 ? totalRoomsSold / totalAvailableRoomNights : 0;
+      const revPAR = totalAvailableRoomNights > 0 ? totalRoomRevenue / totalAvailableRoomNights : 0;
+
+      return { weightedADR, weightedOcc, revPAR, totalAvailableRoomNights };
     });
-    
-    // Weighted ADR = Total Room Revenue / Total Rooms Sold
-    const weightedADR = totalRoomsSold > 0 ? totalRoomRevenue / totalRoomsSold : 0;
-    // Weighted Occupancy = Total Rooms Sold / Total Available Room Nights
-    const weightedOcc = totalAvailableRoomNights > 0 ? totalRoomsSold / totalAvailableRoomNights : 0;
-    // RevPAR = Total Room Revenue / Total Available Room Nights (or ADR × Occupancy)
-    const revPAR = totalAvailableRoomNights > 0 ? totalRoomRevenue / totalAvailableRoomNights : 0;
-    
-    return { weightedADR, weightedOcc, revPAR, totalAvailableRoomNights };
-  };
+  }, [properties, allPropertyFinancials, projectionYears]);
+
+  const getWeightedMetrics = (yearIndex: number) => weightedMetricsByYear[yearIndex];
 
   const year1Data = getYearlyConsolidated(0);
   const portfolioTotalRevenue = year1Data.revenueTotal;

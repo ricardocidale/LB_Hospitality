@@ -8,6 +8,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
 import { Loader2, TrendingUp, TrendingDown, BarChart3, Sliders, Building2, ArrowUpDown } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, ReferenceLine } from "recharts";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 
 interface SensitivityVariable {
   id: string;
@@ -260,19 +261,22 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
             subtitle="See how changes in key variables affect your portfolio's financial performance"
             actions={
               <div className="flex items-center gap-3">
-                <select
+                <Select
                   value={selectedPropertyId}
-                  onChange={(e) => setSelectedPropertyId(e.target.value)}
-                  className="bg-white/10 border border-white/20 text-white rounded-xl px-3 py-2 text-sm backdrop-blur-xl focus:outline-none focus:ring-2 focus:ring-primary/50 [&>option]:bg-[#1a2a3a] [&>option]:text-white"
-                  data-testid="select-property"
+                  onValueChange={setSelectedPropertyId}
                 >
-                  <option value="all">All Properties</option>
-                  {properties.map((p) => (
-                    <option key={p.id} value={String(p.id)}>
-                      {p.name}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger className="w-[200px] bg-white/10 border-white/20 text-white rounded-xl text-sm backdrop-blur-xl" data-testid="select-property">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Properties</SelectItem>
+                    {properties.map((p) => (
+                      <SelectItem key={p.id} value={String(p.id)}>
+                        {p.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 {hasAdjustments && (
                   <button
                     onClick={resetAll}

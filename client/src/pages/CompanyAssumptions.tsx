@@ -13,6 +13,7 @@ import { formatPercent, formatMoney } from "@/lib/financialEngine";
 import { useToast } from "@/hooks/use-toast";
 import type { GlobalResponse } from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { SaveButton } from "@/components/ui/save-button";
 import { GlassButton } from "@/components/ui/glass-button";
 import { PageHeader } from "@/components/ui/page-header";
@@ -1267,16 +1268,19 @@ export default function CompanyAssumptions() {
                           />
                         </td>
                         <td className="py-2 px-2 text-center">
-                          <select
-                            value={countValue}
-                            onChange={(e) => handleUpdate(countKey, parseInt(e.target.value))}
-                            className="w-16 text-center border rounded px-2 py-1 bg-white border-primary/30 text-gray-900 font-mono"
-                            data-testid={`select-partner-count-year${year}`}
+                          <Select
+                            value={String(countValue)}
+                            onValueChange={(v) => handleUpdate(countKey, parseInt(v))}
                           >
-                            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
-                              <option key={n} value={n} className="bg-[#2d4a5e] text-gray-900">{n}</option>
-                            ))}
-                          </select>
+                            <SelectTrigger className="w-16 text-center font-mono" data-testid={`select-partner-count-year${year}`}>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+                                <SelectItem key={n} value={String(n)}>{n}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </td>
                         <td className="py-2 px-2 text-right text-gray-600 font-mono">
                           {formatMoney(perPartner)}

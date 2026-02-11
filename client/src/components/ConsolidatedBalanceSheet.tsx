@@ -314,6 +314,25 @@ export function ConsolidatedBalanceSheet({ properties, global, allProFormas, yea
       {/* ── Grand Total ── */}
       <GrandTotalRow label="TOTAL LIABILITIES & EQUITY" values={[totalLiabilities + totalEquity]} />
 
+      <SpacerRow colSpan={2} />
+
+      {totalAssets > 0 && (
+        <>
+          <tr>
+            <td className="px-4 py-0.5 text-xs text-gray-400 italic pl-6">Debt-to-Assets Ratio</td>
+            <td className="px-4 py-0.5 text-right font-mono text-xs text-gray-400 italic">
+              {(totalLiabilities / totalAssets * 100).toFixed(1)}%
+            </td>
+          </tr>
+          <tr>
+            <td className="px-4 py-0.5 text-xs text-gray-400 italic pl-6">Equity-to-Assets Ratio</td>
+            <td className="px-4 py-0.5 text-right font-mono text-xs text-gray-400 italic">
+              {(totalEquity / totalAssets * 100).toFixed(1)}%
+            </td>
+          </tr>
+        </>
+      )}
+
       {isUnbalanced && (
         <tr>
           <td colSpan={2} className="px-4 py-2 bg-red-50 border-t border-red-200">

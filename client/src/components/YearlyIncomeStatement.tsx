@@ -6,6 +6,7 @@ import {
   SubtotalRow,
   LineItem,
   SpacerRow,
+  MarginRow,
   MetricRow,
   ExpandableMetricRow,
   ExpandableLineItem,
@@ -30,24 +31,6 @@ interface Props {
   allExpanded?: boolean;
 }
 
-function MarginRow({ label, values, revenueValues }: { label: string; values: number[]; revenueValues: number[] }) {
-  return (
-    <TableRow>
-      <TableCell className="sticky left-0 bg-white py-0.5 text-xs text-gray-400 italic pl-6">
-        {label}
-      </TableCell>
-      {values.map((v, i) => {
-        const rev = revenueValues[i] || 0;
-        const pctVal = rev !== 0 ? (v / rev) * 100 : 0;
-        return (
-          <TableCell key={i} className="text-right py-0.5 font-mono text-xs text-gray-400 italic px-2">
-            {rev !== 0 ? `${pctVal.toFixed(1)}%` : "—"}
-          </TableCell>
-        );
-      })}
-    </TableRow>
-  );
-}
 
 function FormulaDetailRow({ label, values, colCount }: { label: string; values: string[]; colCount: number }) {
   return (
@@ -436,11 +419,14 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
         </>
       )}
 
+      <SubtotalRow label="Total Operating Expenses" values={yd.map((y) => y.revenueTotal - y.gop)} tooltip="Sum of all departmental and undistributed operating expenses." />
+      <MarginRow label="% of Total Revenue" values={yd.map((y) => y.revenueTotal - y.gop)} baseValues={yd.map((y) => y.revenueTotal)} />
+
       <SpacerRow colSpan={colSpan} />
 
       {/* ── Profitability ── */}
       <SubtotalRow label="Gross Operating Profit (GOP)" values={yd.map((y) => y.gop)} positive tooltip="Total Revenue minus all Operating Expenses. The property's core operating profitability before management fees and reserves." />
-      <MarginRow label="% of Total Revenue" values={yd.map((y) => y.gop)} revenueValues={yd.map((y) => y.totalRevenue)} />
+      <MarginRow label="% of Total Revenue" values={yd.map((y) => y.gop)} baseValues={yd.map((y) => y.revenueTotal)} />
 
       <SpacerRow colSpan={colSpan} />
 
@@ -454,7 +440,7 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
       <SpacerRow colSpan={colSpan} />
 
       <SubtotalRow label="Net Operating Income (NOI)" values={yd.map((y) => y.noi)} positive tooltip="GOP minus management fees and FF&E reserve. The property's income available for debt service and returns." />
-      <MarginRow label="% of Total Revenue" values={yd.map((y) => y.noi)} revenueValues={yd.map((y) => y.totalRevenue)} />
+      <MarginRow label="% of Total Revenue" values={yd.map((y) => y.noi)} baseValues={yd.map((y) => y.revenueTotal)} />
 
       <SpacerRow colSpan={colSpan} />
 
@@ -469,7 +455,7 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
 
       {/* ── Bottom Line ── */}
       <SubtotalRow label="GAAP Net Income" values={yd.map((y) => y.netIncome)} positive tooltip="The bottom line: NOI minus interest, depreciation, and income tax. This is the GAAP-compliant net income figure." />
-      <MarginRow label="% of Total Revenue" values={yd.map((y) => y.netIncome)} revenueValues={yd.map((y) => y.totalRevenue)} />
+      <MarginRow label="% of Total Revenue" values={yd.map((y) => y.netIncome)} baseValues={yd.map((y) => y.revenueTotal)} />
     </TableShell>
   );
 }

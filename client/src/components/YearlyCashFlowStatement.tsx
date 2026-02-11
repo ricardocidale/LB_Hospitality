@@ -17,6 +17,7 @@ import {
   GrandTotalRow,
   SpacerRow,
   MetricRow,
+  MarginRow,
 } from "@/components/financial-table-rows";
 import {
   LoanParams,
@@ -260,6 +261,7 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
         values={cashFromOperations}
         tooltip="Total cash generated from property operations = Revenue - Operating Expenses - Interest - Taxes (ASC 230)."
       />
+      <MarginRow label="% of Total Revenue" values={cashFromOperations} baseValues={yearlyDetails.map(y => y.revenueTotal)} />
 
       <SpacerRow colSpan={colSpan} />
 
@@ -380,6 +382,7 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
         bgColor="rgba(37, 125, 65, 0.08)"
         tooltip="FCF = Net Cash from Operating Activities - Capital Expenditures. Cash available to service debt and distribute to investors."
       />
+      <MarginRow label="% of Total Revenue" values={fcfValues} baseValues={yearlyDetails.map(y => y.revenueTotal)} />
 
       <LineItem
         label="Less: Principal Payments"
@@ -395,6 +398,7 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
         bgColor="rgba(37, 125, 65, 0.08)"
         tooltip="FCFE = FCF - Principal Payments. Cash available for distribution to investors after all obligations."
       />
+      <MarginRow label="% of Total Revenue" values={fcfeValues} baseValues={yearlyDetails.map(y => y.revenueTotal)} />
 
       <SpacerRow colSpan={colSpan} />
 

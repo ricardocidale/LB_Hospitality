@@ -141,7 +141,10 @@ async function seed() {
   await db.insert(properties).values([
     {
       name: "The Hudson Estate",
-      streetAddress: "47 Ridgeview Lane, Rhinebeck, NY 12572",
+      streetAddress: "47 Ridgeview Lane",
+      city: "Rhinebeck",
+      stateProvince: "NY",
+      zipPostalCode: "12572",
       location: "Upstate New York",
       market: "North America",
       imageUrl: "/images/property-ny.png",
@@ -184,7 +187,10 @@ async function seed() {
     },
     {
       name: "Eden Summit Lodge",
-      streetAddress: "1280 Powder Mountain Road, Eden, UT 84310",
+      streetAddress: "1280 Powder Mountain Road",
+      city: "Eden",
+      stateProvince: "UT",
+      zipPostalCode: "84310",
       location: "Eden, Utah",
       market: "North America",
       imageUrl: "/images/property-utah.png",
@@ -227,7 +233,10 @@ async function seed() {
     },
     {
       name: "Austin Hillside",
-      streetAddress: "3200 Balcones Crest Drive, Austin, TX 78731",
+      streetAddress: "3200 Balcones Crest Drive",
+      city: "Austin",
+      stateProvince: "TX",
+      zipPostalCode: "78731",
       location: "Austin, Texas",
       market: "North America",
       imageUrl: "/images/property-austin.png",
@@ -270,7 +279,9 @@ async function seed() {
     },
     {
       name: "Casa Medellín",
-      streetAddress: "Calle 10A #34-15, El Poblado, Medellín, Antioquia",
+      streetAddress: "Calle 10A #34-15, El Poblado",
+      city: "Medellín",
+      stateProvince: "Antioquia",
       location: "Medellín, Colombia",
       market: "Latin America",
       imageUrl: "/images/property-medellin.png",
@@ -315,7 +326,10 @@ async function seed() {
     },
     {
       name: "Blue Ridge Manor",
-      streetAddress: "815 Overlook Parkway, Asheville, NC 28804",
+      streetAddress: "815 Overlook Parkway",
+      city: "Asheville",
+      stateProvince: "NC",
+      zipPostalCode: "28804",
       location: "Asheville, North Carolina",
       market: "North America",
       imageUrl: "/images/property-asheville.png",

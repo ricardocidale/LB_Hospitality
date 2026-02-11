@@ -403,7 +403,7 @@ export default function CheckerManual({ embedded }: { embedded?: boolean }) {
                   rows={[
                     ["exitCapRate", "Cap rate for terminal value calculation", "8.5%", "%", "Properties"],
                     ["salesCommissionRate", "Broker commission at disposition", "5%", "%", "Properties"],
-                    ["companyTaxRate", "Corporate income tax rate for Mgmt Co.", "30%", "%", "Mgmt Co."],
+                    ["companyTaxRate", "Company income tax rate for Mgmt Co.", "30%", "%", "Mgmt Co."],
                   ]}
                 />
                 <h3 className="text-foreground text-sm font-semibold mt-4 mb-2">Debt Assumptions</h3>

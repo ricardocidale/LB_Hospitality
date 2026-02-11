@@ -329,7 +329,7 @@ export async function exportFullData(user: ExportUser): Promise<FullDataExportRe
     ["Funding Tranche 2 Date", global.safeTranche2Date || "—"],
     ["Exit Cap Rate", `${((global.exitCapRate ?? 0.08) * 100).toFixed(1)}%`],
     ["Sales Commission", `${((global.salesCommissionRate ?? 0.02) * 100).toFixed(1)}%`],
-    ["Company Tax Rate", `${((global.companyTaxRate ?? 0.21) * 100).toFixed(1)}%`],
+    ["Company Income Tax Rate", `${((global.companyTaxRate ?? 0.21) * 100).toFixed(1)}%`],
     ["Partner Base Compensation", formatMoney(global.partnerBaseCompensation ?? 15000)],
     ["Partner Comp Cap", formatMoney(global.partnerCompensationCap ?? 30000)],
   ]);

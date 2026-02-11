@@ -845,125 +845,114 @@ export default function PropertyEdit() {
                 />
               </div>
             </div>
-          </div>
-        </div>
 
-        {/* Glass Card - Revenue Streams */}
-        <div className="relative overflow-hidden rounded-2xl">
-          <div className="absolute inset-0 bg-white/80 backdrop-blur-xl" />
-          <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-[#9FBCA4]/10 blur-2xl" />
-          <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/5 blur-xl" />
-          <div className="absolute inset-0 border border-[#9FBCA4]/20 rounded-2xl shadow-[0_8px_32px_rgba(159,188,164,0.15)]" />
-          
-          <div className="relative p-6 space-y-6">
-            <div>
-              <h3 className="text-xl font-semibold text-white flex items-center">
-                Revenue Streams
+            <div className="space-y-4 pt-2 border-t border-[#9FBCA4]/15">
+              <Label className="label-text text-gray-700 flex items-center gap-1.5">
+                Additional Revenue as % of Room Revenue
                 <HelpTooltip text="Configure how much additional revenue each stream generates as a percentage of room revenue. F&B revenue gets boosted by the catering boost percentage." />
-              </h3>
-              <p className="text-gray-600 text-sm">Additional revenue as percentage of room revenue</p>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <Label className="flex items-center gap-1 text-gray-700">
-                    Events
-                    <HelpTooltip text="Revenue from meetings, weddings, and other events as a percentage of room revenue." />
-                  </Label>
-                  <EditableValue
-                    value={(draft.revShareEvents ?? DEFAULT_REV_SHARE_EVENTS) * 100}
-                    onChange={(val) => handleChange("revShareEvents", val / 100)}
-                    format="percent"
+              </Label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <Label className="label-text text-gray-700 flex items-center gap-1.5">
+                      Events
+                      <HelpTooltip text="Revenue from meetings, weddings, and other events as a percentage of room revenue." />
+                    </Label>
+                    <EditableValue
+                      value={(draft.revShareEvents ?? DEFAULT_REV_SHARE_EVENTS) * 100}
+                      onChange={(val) => handleChange("revShareEvents", val / 100)}
+                      format="percent"
+                      min={0}
+                      max={100}
+                      step={5}
+                    />
+                  </div>
+                  <Slider 
+                    value={[(draft.revShareEvents ?? DEFAULT_REV_SHARE_EVENTS) * 100]}
+                    onValueChange={(vals: number[]) => handleChange("revShareEvents", vals[0] / 100)}
                     min={0}
                     max={100}
                     step={5}
+                    className="[&_[role=slider]]:bg-[#9FBCA4]"
                   />
+                  <p className="text-xs text-gray-500">Meetings, weddings, conferences</p>
                 </div>
-                <Slider 
-                  value={[(draft.revShareEvents ?? DEFAULT_REV_SHARE_EVENTS) * 100]}
-                  onValueChange={(vals: number[]) => handleChange("revShareEvents", vals[0] / 100)}
-                  min={0}
-                  max={100}
-                  step={5}
-                  className="[&_[role=slider]]:bg-[#9FBCA4]"
-                />
-                <p className="text-xs text-gray-500">Meetings, weddings, conferences</p>
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <Label className="flex items-center gap-1 text-gray-700">
-                    F&B
-                    <HelpTooltip text="Base food & beverage revenue as a percentage of room revenue. This gets boosted by the catering boost percentage below." />
-                  </Label>
-                  <EditableValue
-                    value={(draft.revShareFB ?? DEFAULT_REV_SHARE_FB) * 100}
-                    onChange={(val) => handleChange("revShareFB", val / 100)}
-                    format="percent"
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <Label className="label-text text-gray-700 flex items-center gap-1.5">
+                      F&B
+                      <HelpTooltip text="Base food & beverage revenue as a percentage of room revenue. This gets boosted by the catering boost percentage below." />
+                    </Label>
+                    <EditableValue
+                      value={(draft.revShareFB ?? DEFAULT_REV_SHARE_FB) * 100}
+                      onChange={(val) => handleChange("revShareFB", val / 100)}
+                      format="percent"
+                      min={0}
+                      max={100}
+                      step={5}
+                    />
+                  </div>
+                  <Slider 
+                    value={[(draft.revShareFB ?? DEFAULT_REV_SHARE_FB) * 100]}
+                    onValueChange={(vals: number[]) => handleChange("revShareFB", vals[0] / 100)}
                     min={0}
                     max={100}
                     step={5}
+                    className="[&_[role=slider]]:bg-[#9FBCA4]"
                   />
+                  <p className="text-xs text-gray-500">Restaurant, bar, room service</p>
                 </div>
-                <Slider 
-                  value={[(draft.revShareFB ?? DEFAULT_REV_SHARE_FB) * 100]}
-                  onValueChange={(vals: number[]) => handleChange("revShareFB", vals[0] / 100)}
-                  min={0}
-                  max={100}
-                  step={5}
-                  className="[&_[role=slider]]:bg-[#9FBCA4]"
-                />
-                <p className="text-xs text-gray-500">Restaurant, bar, room service</p>
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <Label className="flex items-center gap-1 text-gray-700">
-                    Other
-                    <HelpTooltip text="Revenue from spa, parking, activities, and other ancillary services." />
-                  </Label>
-                  <EditableValue
-                    value={(draft.revShareOther ?? DEFAULT_REV_SHARE_OTHER) * 100}
-                    onChange={(val) => handleChange("revShareOther", val / 100)}
-                    format="percent"
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <Label className="label-text text-gray-700 flex items-center gap-1.5">
+                      Other
+                      <HelpTooltip text="Revenue from spa, parking, activities, and other ancillary services." />
+                    </Label>
+                    <EditableValue
+                      value={(draft.revShareOther ?? DEFAULT_REV_SHARE_OTHER) * 100}
+                      onChange={(val) => handleChange("revShareOther", val / 100)}
+                      format="percent"
+                      min={0}
+                      max={100}
+                      step={5}
+                    />
+                  </div>
+                  <Slider 
+                    value={[(draft.revShareOther ?? DEFAULT_REV_SHARE_OTHER) * 100]}
+                    onValueChange={(vals: number[]) => handleChange("revShareOther", vals[0] / 100)}
                     min={0}
                     max={100}
                     step={5}
+                    className="[&_[role=slider]]:bg-[#9FBCA4]"
                   />
+                  <p className="text-xs text-gray-500">Spa, parking, activities</p>
                 </div>
-                <Slider 
-                  value={[(draft.revShareOther ?? DEFAULT_REV_SHARE_OTHER) * 100]}
-                  onValueChange={(vals: number[]) => handleChange("revShareOther", vals[0] / 100)}
-                  min={0}
-                  max={100}
-                  step={5}
-                  className="[&_[role=slider]]:bg-[#9FBCA4]"
-                />
-                <p className="text-xs text-gray-500">Spa, parking, activities</p>
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <Label className="flex items-center gap-1 text-gray-700">
-                    Catering Boost
-                    <HelpTooltip text="Percentage uplift applied to base F&B revenue from catered events. For example, 30% means total F&B = Base F&B × 1.30." />
-                    <ResearchBadge value={researchValues.catering?.display} onClick={() => researchValues.catering && handleChange("cateringBoostPercent", researchValues.catering.mid / 100)} />
-                  </Label>
-                  <EditableValue
-                    value={(draft.cateringBoostPercent ?? DEFAULT_CATERING_BOOST_PCT) * 100}
-                    onChange={(val) => handleChange("cateringBoostPercent", val / 100)}
-                    format="percent"
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <Label className="label-text text-gray-700 flex items-center gap-1.5">
+                      Catering Boost
+                      <HelpTooltip text="Percentage uplift applied to base F&B revenue from catered events. For example, 30% means total F&B = Base F&B × 1.30." />
+                      <ResearchBadge value={researchValues.catering?.display} onClick={() => researchValues.catering && handleChange("cateringBoostPercent", researchValues.catering.mid / 100)} />
+                    </Label>
+                    <EditableValue
+                      value={(draft.cateringBoostPercent ?? DEFAULT_CATERING_BOOST_PCT) * 100}
+                      onChange={(val) => handleChange("cateringBoostPercent", val / 100)}
+                      format="percent"
+                      min={0}
+                      max={100}
+                      step={5}
+                    />
+                  </div>
+                  <Slider 
+                    value={[(draft.cateringBoostPercent ?? DEFAULT_CATERING_BOOST_PCT) * 100]}
+                    onValueChange={(vals: number[]) => handleChange("cateringBoostPercent", vals[0] / 100)}
                     min={0}
                     max={100}
                     step={5}
+                    className="[&_[role=slider]]:bg-[#9FBCA4]"
                   />
+                  <p className="text-xs text-gray-500">F&B uplift from catered events</p>
                 </div>
-                <Slider 
-                  value={[(draft.cateringBoostPercent ?? DEFAULT_CATERING_BOOST_PCT) * 100]}
-                  onValueChange={(vals: number[]) => handleChange("cateringBoostPercent", vals[0] / 100)}
-                  min={0}
-                  max={100}
-                  step={5}
-                  className="[&_[role=slider]]:bg-[#9FBCA4]"
-                />
-                <p className="text-xs text-gray-500">F&B uplift from catered events</p>
               </div>
             </div>
           </div>

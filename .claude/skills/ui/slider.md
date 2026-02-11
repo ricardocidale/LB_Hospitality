@@ -74,6 +74,12 @@ Displays a formatted value that becomes an inline `<input>` on click. Sage green
 3. **Enter/Blur**: Parses, clamps to min/max, calls `onChange`
 4. **Escape**: Cancels edit, reverts to display mode
 
+## Layout Rule — Half-Width Maximum
+
+**Sliders must never span the full content width on desktop.** All slider groups must be inside a multi-column grid (`grid lg:grid-cols-2`, `md:grid-cols-2`, etc.) so each slider occupies at most half the screen width. On mobile (`< md` breakpoint), sliders can be full width.
+
+If you have standalone cards with only 1-3 sliders, pair them with another card in a `grid gap-6 lg:grid-cols-2` wrapper rather than leaving them as full-width standalone cards.
+
 ## Standard Layout Pattern
 
 The slider + label + value follows a consistent structure across all assumption pages:
@@ -181,8 +187,9 @@ When a field is stored as a decimal (0.65) but displayed as a percentage (65%):
 
 ## Anti-Patterns
 
-1. **Slider without visible value** — Always show the current value
-2. **Mismatched min/max/step** between EditableValue and Slider — They must be identical
-3. **Inline EditableValue definitions** — Import from `@/components/ui/editable-value` (except CompanyAssumptions legacy)
-4. **Raw `<input type="range">`** — Always use the Radix-based `Slider` component
-5. **Missing HelpTooltip** — Every slider field should have a HelpTooltip explaining the parameter
+1. **Full-width slider on desktop** — Always place sliders in a multi-column grid so they occupy at most half the screen width on desktop
+2. **Slider without visible value** — Always show the current value
+3. **Mismatched min/max/step** between EditableValue and Slider — They must be identical
+4. **Inline EditableValue definitions** — Import from `@/components/ui/editable-value` (except CompanyAssumptions legacy)
+5. **Raw `<input type="range">`** — Always use the Radix-based `Slider` component
+6. **Missing HelpTooltip** — Every slider field should have a HelpTooltip explaining the parameter

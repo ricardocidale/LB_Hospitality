@@ -953,6 +953,7 @@ export default function CompanyAssumptions() {
           </div></div>
         </div>
 
+        <div className="grid gap-6 lg:grid-cols-2">
         <div className="relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
           <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-[#9FBCA4]/10 blur-2xl" />
           <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/5 blur-xl" />
@@ -1047,7 +1048,9 @@ export default function CompanyAssumptions() {
             </div>
           </div>
         </div></div>
+        </div>
 
+        <div className="grid gap-6 lg:grid-cols-2">
         <div className="relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
           <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-[#9FBCA4]/10 blur-2xl" />
           <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-[#9FBCA4]/5 blur-xl" />
@@ -1152,6 +1155,7 @@ export default function CompanyAssumptions() {
             </div>
           </div>
         </div></div>
+        </div>
 
         <div className="relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
           <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-[#9FBCA4]/10 blur-2xl" />

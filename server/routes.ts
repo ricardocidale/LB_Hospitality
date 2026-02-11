@@ -349,7 +349,7 @@ export async function registerRoutes(
   app.get("/api/admin/users", requireAdmin, async (req, res) => {
     try {
       const users = await storage.getAllUsers();
-      res.json(users.map(u => ({ id: u.id, email: u.email, name: u.name, company: u.company, title: u.title, role: u.role, createdAt: u.createdAt, assignedLogoId: u.assignedLogoId, assignedThemeId: u.assignedThemeId })));
+      res.json(users.map(u => ({ id: u.id, email: u.email, name: u.name, company: u.company, title: u.title, role: u.role, createdAt: u.createdAt, assignedLogoId: u.assignedLogoId, assignedThemeId: u.assignedThemeId, assignedAssetDescriptionId: u.assignedAssetDescriptionId, userGroupId: u.userGroupId })));
     } catch (error) {
       console.error("Error fetching users:", error);
       res.status(500).json({ error: "Failed to fetch users" });
@@ -1764,16 +1764,89 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
+  // --- USER GROUPS ROUTES ---
+
+  app.get("/api/admin/user-groups", requireAdmin, async (req, res) => {
+    try {
+      const groups = await storage.getAllUserGroups();
+      res.json(groups);
+    } catch (error) {
+      console.error("Error fetching user groups:", error);
+      res.status(500).json({ error: "Failed to fetch user groups" });
+    }
+  });
+
+  app.post("/api/admin/user-groups", requireAdmin, async (req, res) => {
+    try {
+      const { insertUserGroupSchema } = await import("@shared/schema");
+      const validation = insertUserGroupSchema.safeParse(req.body);
+      if (!validation.success) return res.status(400).json({ error: validation.error.message });
+      const group = await storage.createUserGroup(validation.data);
+      res.json(group);
+    } catch (error) {
+      console.error("Error creating user group:", error);
+      res.status(500).json({ error: "Failed to create user group" });
+    }
+  });
+
+  app.patch("/api/admin/user-groups/:id", requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id as string);
+      if (isNaN(id)) return res.status(400).json({ error: "Invalid group ID" });
+      const group = await storage.updateUserGroup(id, req.body);
+      res.json(group);
+    } catch (error) {
+      console.error("Error updating user group:", error);
+      res.status(500).json({ error: "Failed to update user group" });
+    }
+  });
+
+  app.delete("/api/admin/user-groups/:id", requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id as string);
+      if (isNaN(id)) return res.status(400).json({ error: "Invalid group ID" });
+      await storage.deleteUserGroup(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting user group:", error);
+      res.status(500).json({ error: "Failed to delete user group" });
+    }
+  });
+
+  app.patch("/api/admin/users/:id/group", requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id as string);
+      if (isNaN(id)) return res.status(400).json({ error: "Invalid user ID" });
+      const { groupId } = req.body;
+      const user = await storage.assignUserToGroup(id, groupId ?? null);
+      res.json(user);
+    } catch (error) {
+      console.error("Error assigning user to group:", error);
+      res.status(500).json({ error: "Failed to assign user to group" });
+    }
+  });
+
   // Get current user's assigned branding (logo + theme + asset description) — used by Layout
+  // Priority: user-level override > group-level > default
   app.get("/api/my-branding", requireAuth, async (req, res) => {
     try {
       const user = req.user!;
       let logoUrl: string | null = null;
       let themeName: string | null = null;
       let assetDescriptionName: string | null = null;
-      
+      let groupCompanyName: string | null = null;
+
+      let group: Awaited<ReturnType<typeof storage.getUserGroup>> | undefined;
+      if (user.userGroupId) {
+        group = await storage.getUserGroup(user.userGroupId);
+      }
+
       if (user.assignedLogoId) {
         const logo = await storage.getLogo(user.assignedLogoId);
+        if (logo) logoUrl = logo.url;
+      }
+      if (!logoUrl && group?.logoId) {
+        const logo = await storage.getLogo(group.logoId);
         if (logo) logoUrl = logo.url;
       }
       if (!logoUrl) {
@@ -1785,17 +1858,29 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
         const theme = await storage.getDesignTheme(user.assignedThemeId);
         if (theme) themeName = theme.name;
       }
+      if (!themeName && group?.themeId) {
+        const theme = await storage.getDesignTheme(group.themeId);
+        if (theme) themeName = theme.name;
+      }
 
       if (user.assignedAssetDescriptionId) {
         const ad = await storage.getAssetDescription(user.assignedAssetDescriptionId);
+        if (ad) assetDescriptionName = ad.name;
+      }
+      if (!assetDescriptionName && group?.assetDescriptionId) {
+        const ad = await storage.getAssetDescription(group.assetDescriptionId);
         if (ad) assetDescriptionName = ad.name;
       }
       if (!assetDescriptionName) {
         const defaultAd = await storage.getDefaultAssetDescription();
         if (defaultAd) assetDescriptionName = defaultAd.name;
       }
+
+      if (group) {
+        groupCompanyName = group.companyName;
+      }
       
-      res.json({ logoUrl, themeName, assetDescriptionName });
+      res.json({ logoUrl, themeName, assetDescriptionName, groupCompanyName });
     } catch (error) {
       console.error("Error fetching branding:", error);
       res.status(500).json({ error: "Failed to fetch branding" });

@@ -38,6 +38,7 @@ import {
   DEFAULT_COST_RATE_MARKETING,
   DEFAULT_COST_RATE_PROPERTY_OPS,
   DEFAULT_COST_RATE_UTILITIES,
+  DEFAULT_UTILITIES_VARIABLE_SPLIT,
   DEFAULT_COST_RATE_INSURANCE,
   DEFAULT_COST_RATE_TAXES,
   DEFAULT_COST_RATE_IT,
@@ -1043,6 +1044,25 @@ export default function PropertyEdit() {
                           max={25}
                           step={1}
                         />
+                        {(() => {
+                          const split = globalAssumptions?.utilitiesVariableSplit ?? DEFAULT_UTILITIES_VARIABLE_SPLIT;
+                          const rate = (draft.costRateUtilities ?? DEFAULT_COST_RATE_UTILITIES) * 100;
+                          return (
+                            <div className="mt-1 pl-2 border-l-2 border-gray-200 space-y-1">
+                              <div className="flex justify-between text-xs text-muted-foreground">
+                                <span>Variable (scales with revenue)</span>
+                                <span className="font-mono">{(rate * split).toFixed(1)}%</span>
+                              </div>
+                              <div className="flex justify-between text-xs text-muted-foreground">
+                                <span>Fixed (escalates with inflation)</span>
+                                <span className="font-mono">{(rate * (1 - split)).toFixed(1)}%</span>
+                              </div>
+                              <p className="text-[11px] text-muted-foreground/70">
+                                Split is {(split * 100).toFixed(0)}% variable / {((1 - split) * 100).toFixed(0)}% fixed — set in <Link href="/assumptions" className="underline hover:text-primary">Company Assumptions</Link>
+                              </p>
+                            </div>
+                          );
+                        })()}
                       </div>
                       <div className="space-y-2">
                         <div className="flex justify-between items-center">

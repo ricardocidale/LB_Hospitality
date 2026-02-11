@@ -424,42 +424,76 @@ export default function PropertyEdit() {
                 <h4 className="font-display mb-4 text-gray-900">Acquisition Financing</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label className="label-text text-gray-700 flex items-center gap-1.5">Loan-to-Value (LTV) %<HelpTooltip text="Loan-to-Value ratio: the percentage of the purchase price financed by the lender. Higher LTV means less equity required but more debt service." /></Label>
-                    <Input 
-                      type="number" 
-                      step="0.01"
-                      value={((draft.acquisitionLTV || DEFAULT_LTV) * 100).toFixed(0)} 
-                      onChange={(e) => handleNumberChange("acquisitionLTV", (parseFloat(e.target.value) / 100).toString())}
-                      className="bg-white border-[#9FBCA4]/30 text-gray-900"
+                    <div className="flex justify-between items-center">
+                      <Label className="label-text text-gray-700 flex items-center gap-1.5">LTV<HelpTooltip text="Loan-to-Value ratio: the percentage of the purchase price financed by the lender. Higher LTV means less equity required but more debt service." /></Label>
+                      <EditableValue
+                        value={(draft.acquisitionLTV || DEFAULT_LTV) * 100}
+                        onChange={(val) => handleChange("acquisitionLTV", val / 100)}
+                        format="percent"
+                        min={0}
+                        max={95}
+                        step={5}
+                      />
+                    </div>
+                    <Slider
+                      value={[(draft.acquisitionLTV || DEFAULT_LTV) * 100]}
+                      onValueChange={(vals: number[]) => handleChange("acquisitionLTV", vals[0] / 100)}
+                      min={0}
+                      max={95}
+                      step={5}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="label-text text-gray-700 flex items-center gap-1.5">Interest Rate (%)<HelpTooltip text="Annual interest rate on the acquisition loan. Determines monthly debt service payments." /></Label>
-                    <Input 
-                      type="number" 
-                      step="0.01"
-                      value={((draft.acquisitionInterestRate || DEFAULT_INTEREST_RATE) * 100).toFixed(2)} 
-                      onChange={(e) => handleNumberChange("acquisitionInterestRate", (parseFloat(e.target.value) / 100).toString())}
-                      className="bg-white border-[#9FBCA4]/30 text-gray-900"
+                    <div className="flex justify-between items-center">
+                      <Label className="label-text text-gray-700 flex items-center gap-1.5">Interest Rate<HelpTooltip text="Annual interest rate on the acquisition loan. Determines monthly debt service payments." /></Label>
+                      <EditableValue
+                        value={(draft.acquisitionInterestRate || DEFAULT_INTEREST_RATE) * 100}
+                        onChange={(val) => handleChange("acquisitionInterestRate", val / 100)}
+                        format="percent"
+                        min={0}
+                        max={20}
+                        step={0.25}
+                      />
+                    </div>
+                    <Slider
+                      value={[(draft.acquisitionInterestRate || DEFAULT_INTEREST_RATE) * 100]}
+                      onValueChange={(vals: number[]) => handleChange("acquisitionInterestRate", vals[0] / 100)}
+                      min={0}
+                      max={20}
+                      step={0.25}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="label-text text-gray-700 flex items-center gap-1.5">Loan Term (Years)<HelpTooltip text="Amortization period for the loan in years. Longer terms reduce monthly payments but increase total interest paid." /></Label>
-                    <Input 
-                      type="number" 
-                      value={draft.acquisitionTermYears || DEFAULT_TERM_YEARS} 
-                      onChange={(e) => handleNumberChange("acquisitionTermYears", e.target.value)}
-                      className="bg-white border-[#9FBCA4]/30 text-gray-900"
+                    <div className="flex justify-between items-center">
+                      <Label className="label-text text-gray-700 flex items-center gap-1.5">Loan Term<HelpTooltip text="Amortization period for the loan in years. Longer terms reduce monthly payments but increase total interest paid." /></Label>
+                      <span className="text-sm font-mono text-gray-700">{draft.acquisitionTermYears || DEFAULT_TERM_YEARS} yrs</span>
+                    </div>
+                    <Slider
+                      value={[draft.acquisitionTermYears || DEFAULT_TERM_YEARS]}
+                      onValueChange={(vals: number[]) => handleChange("acquisitionTermYears", vals[0])}
+                      min={5}
+                      max={30}
+                      step={5}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="label-text text-gray-700 flex items-center gap-1.5">Closing Costs (%)<HelpTooltip text="Transaction costs as a percentage of the loan amount: lender fees, appraisal, title insurance, legal fees." /></Label>
-                    <Input 
-                      type="number" 
-                      step="0.01"
-                      value={((draft.acquisitionClosingCostRate || DEFAULT_ACQ_CLOSING_COST_RATE) * 100).toFixed(1)} 
-                      onChange={(e) => handleNumberChange("acquisitionClosingCostRate", (parseFloat(e.target.value) / 100).toString())}
-                      className="bg-white border-[#9FBCA4]/30 text-gray-900"
+                    <div className="flex justify-between items-center">
+                      <Label className="label-text text-gray-700 flex items-center gap-1.5">Closing Costs<HelpTooltip text="Transaction costs as a percentage of the loan amount: lender fees, appraisal, title insurance, legal fees." /></Label>
+                      <EditableValue
+                        value={(draft.acquisitionClosingCostRate || DEFAULT_ACQ_CLOSING_COST_RATE) * 100}
+                        onChange={(val) => handleChange("acquisitionClosingCostRate", val / 100)}
+                        format="percent"
+                        min={0}
+                        max={10}
+                        step={0.5}
+                      />
+                    </div>
+                    <Slider
+                      value={[(draft.acquisitionClosingCostRate || DEFAULT_ACQ_CLOSING_COST_RATE) * 100]}
+                      onValueChange={(vals: number[]) => handleChange("acquisitionClosingCostRate", vals[0] / 100)}
+                      min={0}
+                      max={10}
+                      step={0.5}
                     />
                   </div>
                 </div>
@@ -507,42 +541,76 @@ export default function PropertyEdit() {
                           <p className="text-xs text-gray-500">Suggested: {globalAssumptions?.debtAssumptions?.refiPeriodYears ?? DEFAULT_REFI_PERIOD_YEARS} years after operations start</p>
                         </div>
                         <div className="space-y-2">
-                          <Label className="label-text text-gray-700 flex items-center gap-1.5">Loan-to-Value (LTV) %<HelpTooltip text="Loan-to-Value ratio for the refinance loan, based on the property's appraised value at the time of refinancing." /></Label>
-                          <Input 
-                            type="number" 
-                            step="0.01"
-                            value={((draft.refinanceLTV || DEFAULT_REFI_LTV) * 100).toFixed(0)} 
-                            onChange={(e) => handleNumberChange("refinanceLTV", (parseFloat(e.target.value) / 100).toString())}
-                            className="bg-white border-[#9FBCA4]/30 text-gray-900"
+                          <div className="flex justify-between items-center">
+                            <Label className="label-text text-gray-700 flex items-center gap-1.5">LTV<HelpTooltip text="Loan-to-Value ratio for the refinance loan, based on the property's appraised value at the time of refinancing." /></Label>
+                            <EditableValue
+                              value={(draft.refinanceLTV || DEFAULT_REFI_LTV) * 100}
+                              onChange={(val) => handleChange("refinanceLTV", val / 100)}
+                              format="percent"
+                              min={0}
+                              max={95}
+                              step={5}
+                            />
+                          </div>
+                          <Slider
+                            value={[(draft.refinanceLTV || DEFAULT_REFI_LTV) * 100]}
+                            onValueChange={(vals: number[]) => handleChange("refinanceLTV", vals[0] / 100)}
+                            min={0}
+                            max={95}
+                            step={5}
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label className="label-text text-gray-700 flex items-center gap-1.5">Interest Rate (%)<HelpTooltip text="Annual interest rate on the refinance loan." /></Label>
-                          <Input 
-                            type="number" 
-                            step="0.01"
-                            value={((draft.refinanceInterestRate || DEFAULT_INTEREST_RATE) * 100).toFixed(2)} 
-                            onChange={(e) => handleNumberChange("refinanceInterestRate", (parseFloat(e.target.value) / 100).toString())}
-                            className="bg-white border-[#9FBCA4]/30 text-gray-900"
+                          <div className="flex justify-between items-center">
+                            <Label className="label-text text-gray-700 flex items-center gap-1.5">Interest Rate<HelpTooltip text="Annual interest rate on the refinance loan." /></Label>
+                            <EditableValue
+                              value={(draft.refinanceInterestRate || DEFAULT_INTEREST_RATE) * 100}
+                              onChange={(val) => handleChange("refinanceInterestRate", val / 100)}
+                              format="percent"
+                              min={0}
+                              max={20}
+                              step={0.25}
+                            />
+                          </div>
+                          <Slider
+                            value={[(draft.refinanceInterestRate || DEFAULT_INTEREST_RATE) * 100]}
+                            onValueChange={(vals: number[]) => handleChange("refinanceInterestRate", vals[0] / 100)}
+                            min={0}
+                            max={20}
+                            step={0.25}
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label className="label-text text-gray-700 flex items-center gap-1.5">Loan Term (Years)<HelpTooltip text="Amortization period for the refinance loan in years." /></Label>
-                          <Input 
-                            type="number" 
-                            value={draft.refinanceTermYears || DEFAULT_TERM_YEARS} 
-                            onChange={(e) => handleNumberChange("refinanceTermYears", e.target.value)}
-                            className="bg-white border-[#9FBCA4]/30 text-gray-900"
+                          <div className="flex justify-between items-center">
+                            <Label className="label-text text-gray-700 flex items-center gap-1.5">Loan Term<HelpTooltip text="Amortization period for the refinance loan in years." /></Label>
+                            <span className="text-sm font-mono text-gray-700">{draft.refinanceTermYears || DEFAULT_TERM_YEARS} yrs</span>
+                          </div>
+                          <Slider
+                            value={[draft.refinanceTermYears || DEFAULT_TERM_YEARS]}
+                            onValueChange={(vals: number[]) => handleChange("refinanceTermYears", vals[0])}
+                            min={5}
+                            max={30}
+                            step={5}
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label className="label-text text-gray-700 flex items-center gap-1.5">Closing Costs (%)<HelpTooltip text="Transaction costs for the refinance as a percentage of the new loan amount." /></Label>
-                          <Input 
-                            type="number" 
-                            step="0.01"
-                            value={((draft.refinanceClosingCostRate || DEFAULT_REFI_CLOSING_COST_RATE) * 100).toFixed(1)} 
-                            onChange={(e) => handleNumberChange("refinanceClosingCostRate", (parseFloat(e.target.value) / 100).toString())}
-                            className="bg-white border-[#9FBCA4]/30 text-gray-900"
+                          <div className="flex justify-between items-center">
+                            <Label className="label-text text-gray-700 flex items-center gap-1.5">Closing Costs<HelpTooltip text="Transaction costs for the refinance as a percentage of the new loan amount." /></Label>
+                            <EditableValue
+                              value={(draft.refinanceClosingCostRate || DEFAULT_REFI_CLOSING_COST_RATE) * 100}
+                              onChange={(val) => handleChange("refinanceClosingCostRate", val / 100)}
+                              format="percent"
+                              min={0}
+                              max={10}
+                              step={0.5}
+                            />
+                          </div>
+                          <Slider
+                            value={[(draft.refinanceClosingCostRate || DEFAULT_REFI_CLOSING_COST_RATE) * 100]}
+                            onValueChange={(vals: number[]) => handleChange("refinanceClosingCostRate", vals[0] / 100)}
+                            min={0}
+                            max={10}
+                            step={0.5}
                           />
                         </div>
                       </div>

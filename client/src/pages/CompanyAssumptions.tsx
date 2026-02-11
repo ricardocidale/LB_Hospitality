@@ -128,7 +128,7 @@ export default function CompanyAssumptions() {
 
   const researchValues = (() => {
     if (!research?.content) return {};
-    const c = research.content as any;
+    const c = research.content;
     const parsePctRange = (str: string | undefined): { display: string; mid: number } | null => {
       if (!str) return null;
       const nums = str.replace(/[^0-9.,\-–]/g, ' ').split(/[\s–\-]+/).map(s => parseFloat(s.replace(/,/g, ''))).filter(n => !isNaN(n));
@@ -1241,9 +1241,11 @@ export default function CompanyAssumptions() {
                   </tr>
                 </thead>
                 <tbody>
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((year) => {
-                    const compKey = `partnerCompYear${year}` as keyof GlobalResponse;
-                    const countKey = `partnerCountYear${year}` as keyof GlobalResponse;
+                  {([1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as const).map((year) => {
+                    type PartnerCompKey = `partnerCompYear${typeof year}`;
+                    type PartnerCountKey = `partnerCountYear${typeof year}`;
+                    const compKey = `partnerCompYear${year}` as PartnerCompKey;
+                    const countKey = `partnerCountYear${year}` as PartnerCountKey;
                     const compValue = (formData[compKey] ?? global[compKey] ?? DEFAULT_PARTNER_COMP[year - 1]) as number;
                     const countValue = (formData[countKey] ?? global[countKey] ?? DEFAULT_PARTNER_COUNT) as number;
                     const perPartner = countValue > 0 ? compValue / countValue : 0;
@@ -1264,7 +1266,7 @@ export default function CompanyAssumptions() {
                         <td className="py-2 px-2 text-center">
                           <select
                             value={countValue}
-                            onChange={(e) => handleUpdate(countKey, parseInt(e.target.value) as any)}
+                            onChange={(e) => handleUpdate(countKey, parseInt(e.target.value))}
                             className="w-16 text-center border rounded px-2 py-1 bg-white border-[#9FBCA4]/30 text-gray-900 font-mono"
                             data-testid={`select-partner-count-year${year}`}
                           >

@@ -512,7 +512,7 @@ export default function CheckerManual({ embedded }: { embedded?: boolean }) {
                     ["costRatePropertyOps", "Property Operations & Maintenance", "4%", "% of Revenue"],
                     ["costRateUtilities", "Utilities", "5%", "% of Revenue"],
                     ["costRateInsurance", "Property Insurance", "2%", "% of Property Value"],
-                    ["costRateTaxes", "Property Taxes", "3%", "% of Revenue"],
+                    ["costRateTaxes", "Property Taxes", "3%", "% of Property Value"],
                     ["costRateIT", "Information Technology", "2%", "% of Revenue"],
                     ["costRateFFE", "FF&E Reserve", "4%", "% of Revenue"],
                     ["costRateOther", "Other / Miscellaneous", "5%", "% of Revenue"],

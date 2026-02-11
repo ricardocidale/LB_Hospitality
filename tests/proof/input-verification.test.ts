@@ -254,7 +254,7 @@ describe("Fixed Cost Escalation Verification", () => {
     const expectedIT = baseTotalRev * property.costRateIT * factor;
     const totalPropertyValue = property.purchasePrice + (property.buildingImprovements ?? 0);
     const expectedInsurance = (totalPropertyValue / 12) * property.costRateInsurance * factor;
-    const expectedTaxes = baseTotalRev * property.costRateTaxes * factor;
+    const expectedTaxes = (totalPropertyValue / 12) * property.costRateTaxes * factor;
     const expectedUtilFixed = baseTotalRev * (property.costRateUtilities * (1 - DEFAULT_UTILITIES_VARIABLE_SPLIT)) * factor;
     const expectedOther = baseTotalRev * property.costRateOther * factor;
 

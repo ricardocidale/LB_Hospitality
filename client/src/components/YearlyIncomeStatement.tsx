@@ -356,12 +356,43 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
 
           <ExpandableLineItem
             label="Property Taxes"
-            tooltip={`USALI fixed cost: ${pct(costRates.taxes)} of Year 1 base revenue (${fmt(baseMonthlyTotalRev)}/mo), escalating ${pct(fixedEscRate)}/yr.`}
+            tooltip={`Based on property value: ${pct(costRates.taxes)} of ${fmt(totalPropertyValue)} (${fmt(totalPropertyValue / 12)}/mo), escalating ${pct(fixedEscRate)}/yr.`}
             values={yd.map((y) => y.expenseTaxes)}
             expanded={isExpanded("taxes")}
             onToggle={() => toggle("taxes")}
           >
-            {fixedCostFormulaRows("taxes", yd.map((y) => y.expenseTaxes))}
+            {hasContext && (
+              <>
+                <FormulaDetailRow
+                  label={`Property Value (Purchase + Improvements)`}
+                  values={yd.map(() => fmt(totalPropertyValue))}
+                  colCount={years}
+                />
+                <FormulaDetailRow
+                  label={`Monthly base: ${fmt(totalPropertyValue)} ÷ 12 × ${pct(costRates.taxes)}`}
+                  values={yd.map(() => `${fmt(totalPropertyValue / 12 * costRates.taxes)}/mo base`)}
+                  colCount={years}
+                />
+                <FormulaDetailRow
+                  label="Monthly base × escalation factor, summed over 12 months"
+                  values={yd.map((y) => {
+                    const factors = getMonthlyFactors(y.year);
+                    const operatingMonths = factors.filter(f => f > 0).length;
+                    const uniqueFactors = [...new Set(factors.filter(f => f > 0))];
+                    if (uniqueFactors.length === 1) {
+                      return `×${uniqueFactors[0].toFixed(4)} × ${operatingMonths} mo`;
+                    }
+                    return uniqueFactors.map(f => `×${f.toFixed(4)}`).join(", ") + ` (${operatingMonths} mo)`;
+                  })}
+                  colCount={years}
+                />
+                <FormulaDetailRow
+                  label="= Annual total (sum of monthly amounts)"
+                  values={yd.map((_, i) => fmt(yd[i].expenseTaxes))}
+                  colCount={years}
+                />
+              </>
+            )}
           </ExpandableLineItem>
 
           <ExpandableLineItem
@@ -381,7 +412,7 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
           <LineItem label="Administrative & General"  values={yd.map((y) => y.expenseAdmin)} tooltip="Fixed cost per USALI: anchored to Year 1 base revenue." />
           <LineItem label="IT & Technology"           values={yd.map((y) => y.expenseIT)} tooltip="Fixed cost per USALI: anchored to Year 1 base revenue." />
           <LineItem label="Insurance"                 values={yd.map((y) => y.expenseInsurance)} tooltip="Based on property value (Purchase Price + Building Improvements), adjusted annually by inflation." />
-          <LineItem label="Property Taxes"            values={yd.map((y) => y.expenseTaxes)} tooltip="Fixed cost per USALI: anchored to Year 1 base revenue." />
+          <LineItem label="Property Taxes"            values={yd.map((y) => y.expenseTaxes)} tooltip="Based on property value (Purchase Price + Building Improvements), adjusted annually by inflation." />
           <LineItem label="Other Costs"               values={yd.map((y) => y.expenseOtherCosts)} tooltip="Fixed cost per USALI: anchored to Year 1 base revenue." />
         </>
       )}

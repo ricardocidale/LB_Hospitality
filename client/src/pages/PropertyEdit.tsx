@@ -173,7 +173,6 @@ export default function PropertyEdit() {
       (draft?.costRateMarketing ?? DEFAULT_COST_RATE_MARKETING) +
       (draft?.costRatePropertyOps ?? DEFAULT_COST_RATE_PROPERTY_OPS) +
       (draft?.costRateUtilities ?? DEFAULT_COST_RATE_UTILITIES) +
-      (draft?.costRateTaxes ?? DEFAULT_COST_RATE_TAXES) +
       (draft?.costRateIT ?? DEFAULT_COST_RATE_IT) +
       (draft?.costRateFFE ?? DEFAULT_COST_RATE_FFE) +
       (draft?.costRateOther ?? DEFAULT_COST_RATE_OTHER)
@@ -884,7 +883,7 @@ export default function PropertyEdit() {
             <div className="mb-6">
               <h3 className="text-xl font-display text-gray-900 flex items-center">
                 Operating Cost Rates
-                <HelpTooltip text="Operating cost rates grouped by their calculation basis. Some costs are percentages of Room Revenue, others of Total Revenue. Fixed costs (Admin & General, Property Ops, Taxes, IT) use a base Year 1 dollar amount that escalates annually with the Inflation Escalator Factor. Insurance is based on property value (Purchase Price + Building Improvements) adjusted by inflation." />
+                <HelpTooltip text="Operating cost rates grouped by their calculation basis. Some costs are percentages of Room Revenue, others of Total Revenue. Fixed costs (Admin & General, Property Ops, IT) use a base Year 1 dollar amount that escalates annually with the Inflation Escalator Factor. Insurance and Property Taxes are based on property value (Purchase Price + Building Improvements) adjusted by inflation." />
               </h3>
               <p className="text-gray-600 text-sm label-text">Expense allocation as percentage of revenue</p>
             </div>
@@ -897,7 +896,6 @@ export default function PropertyEdit() {
                 (draft.costRateMarketing ?? DEFAULT_COST_RATE_MARKETING) +
                 (draft.costRatePropertyOps ?? DEFAULT_COST_RATE_PROPERTY_OPS) +
                 (draft.costRateUtilities ?? DEFAULT_COST_RATE_UTILITIES) +
-                (draft.costRateTaxes ?? DEFAULT_COST_RATE_TAXES) +
                 (draft.costRateIT ?? DEFAULT_COST_RATE_IT) +
                 (draft.costRateFFE ?? DEFAULT_COST_RATE_FFE) +
                 (draft.costRateOther ?? DEFAULT_COST_RATE_OTHER)
@@ -1044,26 +1042,6 @@ export default function PropertyEdit() {
                       </div>
                       <div className="space-y-2">
                         <div className="flex justify-between items-center">
-                          <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Taxes<HelpTooltip text="Property tax expense = (Year 1 Total Revenue ÷ 12) × this rate × annual escalation factor. A fixed cost for real estate taxes and assessments. Escalates annually with the Inflation Escalator Factor." /></Label>
-                          <EditableValue
-                            value={(draft.costRateTaxes ?? DEFAULT_COST_RATE_TAXES) * 100}
-                            onChange={(val) => handleChange("costRateTaxes", val / 100)}
-                            format="percent"
-                            min={0}
-                            max={15}
-                            step={1}
-                          />
-                        </div>
-                        <Slider 
-                          value={[(draft.costRateTaxes ?? DEFAULT_COST_RATE_TAXES) * 100]}
-                          onValueChange={(vals: number[]) => handleChange("costRateTaxes", vals[0] / 100)}
-                          min={0}
-                          max={15}
-                          step={1}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-center">
                           <Label className="text-sm label-text text-gray-700 flex items-center gap-1">FF&E Reserve<HelpTooltip text="FF&E Reserve = Total Revenue × this rate. A variable set-aside for future replacement of furniture, fixtures, and equipment. Industry standard is 3–5% of revenue. Treated as an operating expense below GOP." /></Label>
                           <EditableValue
                             value={(draft.costRateFFE ?? DEFAULT_COST_RATE_FFE) * 100}
@@ -1124,6 +1102,26 @@ export default function PropertyEdit() {
                         <Slider 
                           value={[(draft.costRateInsurance ?? DEFAULT_COST_RATE_INSURANCE) * 100]}
                           onValueChange={(vals: number[]) => handleChange("costRateInsurance", vals[0] / 100)}
+                          min={0}
+                          max={15}
+                          step={1}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Property Taxes<HelpTooltip text="Property tax expense = (Purchase Price + Building Improvements) ÷ 12 × this rate × annual escalation factor. Based on total property value, not revenue. Covers real estate taxes and assessments. Escalates annually with the Inflation Escalator Factor." /></Label>
+                          <EditableValue
+                            value={(draft.costRateTaxes ?? DEFAULT_COST_RATE_TAXES) * 100}
+                            onChange={(val) => handleChange("costRateTaxes", val / 100)}
+                            format="percent"
+                            min={0}
+                            max={15}
+                            step={1}
+                          />
+                        </div>
+                        <Slider 
+                          value={[(draft.costRateTaxes ?? DEFAULT_COST_RATE_TAXES) * 100]}
+                          onValueChange={(vals: number[]) => handleChange("costRateTaxes", vals[0] / 100)}
                           min={0}
                           max={15}
                           step={1}

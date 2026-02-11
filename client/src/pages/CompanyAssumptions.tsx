@@ -12,6 +12,7 @@ import { Link, useLocation } from "wouter";
 import { formatPercent, formatMoney } from "@/lib/financialEngine";
 import { useToast } from "@/hooks/use-toast";
 import type { GlobalResponse } from "@/lib/api";
+import { Button } from "@/components/ui/button";
 import { SaveButton } from "@/components/ui/save-button";
 import { GlassButton } from "@/components/ui/glass-button";
 import { PageHeader } from "@/components/ui/page-header";
@@ -355,10 +356,11 @@ export default function CompanyAssumptions() {
                         className="hidden"
                         data-testid="input-logo-upload"
                       />
-                      <button
+                      <Button
+                        variant="outline"
+                        size="sm"
                         onClick={() => fileInputRef.current?.click()}
                         disabled={isUploading}
-                        className="flex items-center gap-2 px-3 py-1.5 text-sm bg-primary/20 hover:bg-primary/30 text-gray-700 rounded-lg transition-colors disabled:opacity-50"
                       >
                         {isUploading ? (
                           <Loader2 className="w-4 h-4 animate-spin" />
@@ -366,15 +368,16 @@ export default function CompanyAssumptions() {
                           <Upload className="w-4 h-4" />
                         )}
                         {isUploading ? "Uploading..." : "Upload"}
-                      </button>
+                      </Button>
                       {(formData.companyLogo || global.companyLogo) && (
-                        <button
+                        <Button
+                          variant="destructive"
+                          size="sm"
                           onClick={handleRemoveLogo}
-                          className="flex items-center gap-2 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                         >
                           <X className="w-4 h-4" />
                           Remove
-                        </button>
+                        </Button>
                       )}
                     </div>
                   ) : (

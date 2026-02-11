@@ -144,6 +144,7 @@ const INITIAL_PROPERTIES: Property[] = [
   {
     id: "prop-1",
     name: "The Hudson Estate",
+    streetAddress: "47 Ridgeview Lane, Rhinebeck, NY 12572",
     location: "Upstate New York",
     market: "North America",
     imageUrl: "/images/property-ny.png",
@@ -177,6 +178,7 @@ const INITIAL_PROPERTIES: Property[] = [
   {
     id: "prop-2",
     name: "Eden Summit Lodge",
+    streetAddress: "1280 Powder Mountain Road, Eden, UT 84310",
     location: "Eden, Utah",
     market: "North America",
     imageUrl: "/images/property-utah.png",
@@ -210,6 +212,7 @@ const INITIAL_PROPERTIES: Property[] = [
   {
     id: "prop-3",
     name: "Austin Hillside",
+    streetAddress: "3200 Balcones Crest Drive, Austin, TX 78731",
     location: "Austin, Texas",
     market: "North America",
     imageUrl: "/images/property-austin.png",
@@ -243,6 +246,7 @@ const INITIAL_PROPERTIES: Property[] = [
   {
     id: "prop-4",
     name: "Casa Medellín",
+    streetAddress: "Calle 10A #34-15, El Poblado, Medellín, Antioquia",
     location: "Medellín, Colombia",
     market: "Latin America",
     imageUrl: "/images/property-medellin.png",
@@ -276,6 +280,7 @@ const INITIAL_PROPERTIES: Property[] = [
   {
     id: "prop-5",
     name: "Blue Ridge Manor",
+    streetAddress: "815 Overlook Parkway, Asheville, NC 28804",
     location: "Asheville, North Carolina",
     market: "North America",
     imageUrl: "/images/property-asheville.png",

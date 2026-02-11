@@ -282,6 +282,7 @@ async function seed() {
       streetAddress: "Carrera 43A #7-50, El Poblado",
       city: "Medellín",
       stateProvince: "Antioquia",
+      zipPostalCode: "050021",
       location: "El Poblado, Medellín",
       market: "Latin America",
       imageUrl: "/images/property-medellin.png",

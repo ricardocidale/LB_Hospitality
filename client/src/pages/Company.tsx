@@ -198,7 +198,7 @@ export default function Company() {
   const getPropertyYearlyBaseFee = (propIdx: number, year: number) => {
     const pf = propertyFinancials[propIdx].financials;
     const yearData = pf.slice(year * 12, (year + 1) * 12);
-    return yearData.reduce((a, m) => a + m.revenueTotal, 0) * global.baseManagementFee;
+    return yearData.reduce((a, m) => a + m.feeBase, 0);
   };
 
   const getPropertyYearlyIncentiveFee = (propIdx: number, year: number) => {

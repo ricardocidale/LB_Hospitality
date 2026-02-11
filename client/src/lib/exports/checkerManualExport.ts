@@ -97,7 +97,7 @@ const TESTING_PHASES = [
 
 const REQUIRED_GLOBAL_FIELDS = [
   "modelStartDate", "companyOpsStartDate", "inflationRate",
-  "baseManagementFee", "safeTranche1Amount", "exitCapRate",
+  "safeTranche1Amount", "exitCapRate",
 ];
 
 const REQUIRED_PROPERTY_FIELDS = ["name", "location", "roomCount", "startAdr", "purchasePrice"];
@@ -321,8 +321,7 @@ export async function exportFullData(user: ExportUser): Promise<FullDataExportRe
     ["Fiscal Year Start Month", String(global.fiscalYearStartMonth ?? 1)],
     ["Inflation Rate", `${((global.inflationRate ?? 0.03) * 100).toFixed(1)}%`],
     ["Fixed Cost Escalation", `${((global.fixedCostEscalationRate ?? 0.03) * 100).toFixed(1)}%`],
-    ["Base Management Fee", `${((global.baseManagementFee ?? 0.05) * 100).toFixed(1)}%`],
-    ["Incentive Management Fee", `${((global.incentiveManagementFee ?? 0.15) * 100).toFixed(1)}%`],
+    ["Management Fees", "Per-property (see property details)"],
     ["Funding Tranche 1", formatMoney(global.safeTranche1Amount ?? 0)],
     ["Funding Tranche 1 Date", global.safeTranche1Date || "—"],
     ["Funding Tranche 2", formatMoney(global.safeTranche2Amount ?? 0)],

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import Layout from "@/components/Layout";
-import { useGlobalAssumptions, useUpdateGlobalAssumptions, useMarketResearch } from "@/lib/api";
+import { useGlobalAssumptions, useUpdateGlobalAssumptions, useMarketResearch, useProperties } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -29,6 +29,8 @@ import {
   DEFAULT_PARTNER_COMP,
   DEFAULT_PARTNER_COUNT,
   STAFFING_TIERS,
+  DEFAULT_BASE_MANAGEMENT_FEE_RATE,
+  DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
 } from "@/lib/constants";
 
 function EditableValue({
@@ -111,6 +113,7 @@ function EditableValue({
 export default function CompanyAssumptions() {
   const [, setLocation] = useLocation();
   const { data: global, isLoading, refetch } = useGlobalAssumptions();
+  const { data: properties = [] } = useProperties();
   const updateMutation = useUpdateGlobalAssumptions();
   const { toast } = useToast();
   const { user } = useAuth();
@@ -583,57 +586,35 @@ export default function CompanyAssumptions() {
           <div className="relative">
             <div className="space-y-6">
               <h3 className="text-lg font-display text-gray-900 flex items-center">
-                Revenue
-                <HelpTooltip text="Management fees collected from each property in the portfolio" manualSection="company-formulas" />
+                Revenue — Management Fees
+                <HelpTooltip text="Management fees are defined per property. Each property sets its own Base Fee (% of Revenue) and Incentive Fee (% of GOP). Edit these rates on each property's assumptions page." manualSection="company-formulas" />
               </h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <Label className="flex items-center text-gray-700 label-text">
-                    Base Management Fee (% of Property Gross Revenue)
-                    <HelpTooltip text="Percentage of each property's total gross revenue collected monthly as a management fee" manualSection="company-formulas" />
-                    <ResearchBadge value={researchValues.baseFee?.display} onClick={() => researchValues.baseFee && handleUpdate("baseManagementFee", researchValues.baseFee.mid / 100)} data-testid="badge-base-fee" />
-                  </Label>
-                  <EditableValue
-                    value={formData.baseManagementFee ?? global.baseManagementFee}
-                    onChange={(v) => handleUpdate("baseManagementFee", v)}
-                    format="percent"
-                    min={0}
-                    max={0.1}
-                    step={0.005}
-                  />
-                </div>
-                <Slider
-                  value={[(formData.baseManagementFee ?? global.baseManagementFee) * 100]}
-                  onValueChange={([v]) => handleUpdate("baseManagementFee", v / 100)}
-                  min={0}
-                  max={10}
-                  step={0.5}
-                />
-              </div>
-
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <Label className="flex items-center text-gray-700 label-text">
-                    Incentive Fee (% of Property GOP)
-                    <HelpTooltip text="Percentage of each property's Gross Operating Profit collected annually as a performance-based management fee" />
-                    <ResearchBadge value={researchValues.incentiveFee?.display} onClick={() => researchValues.incentiveFee && handleUpdate("incentiveManagementFee", researchValues.incentiveFee.mid / 100)} data-testid="badge-incentive-fee" />
-                  </Label>
-                  <EditableValue
-                    value={formData.incentiveManagementFee ?? global.incentiveManagementFee}
-                    onChange={(v) => handleUpdate("incentiveManagementFee", v)}
-                    format="percent"
-                    min={0}
-                    max={0.2}
-                    step={0.01}
-                  />
-                </div>
-                <Slider
-                  value={[(formData.incentiveManagementFee ?? global.incentiveManagementFee) * 100]}
-                  onValueChange={([v]) => handleUpdate("incentiveManagementFee", v / 100)}
-                  min={0}
-                  max={20}
-                  step={1}
-                />
+              <p className="text-sm text-muted-foreground mb-3">Fee rates are set individually on each property. This table shows the current rates for reference.</p>
+              <div className="rounded-lg border border-[#9FBCA4]/20 overflow-hidden">
+                <table className="w-full text-sm" data-testid="table-property-fee-summary">
+                  <thead>
+                    <tr className="bg-[#9FBCA4]/10 border-b border-[#9FBCA4]/20">
+                      <th className="text-left px-4 py-2 font-semibold text-gray-700">Property</th>
+                      <th className="text-right px-4 py-2 font-semibold text-gray-700">Base Fee (% of Revenue)</th>
+                      <th className="text-right px-4 py-2 font-semibold text-gray-700">Incentive Fee (% of GOP)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {properties.length === 0 ? (
+                      <tr><td colSpan={3} className="px-4 py-3 text-center text-muted-foreground">No properties configured</td></tr>
+                    ) : (
+                      properties.map((prop: any) => (
+                        <tr key={prop.id} className="border-b border-[#9FBCA4]/10 last:border-b-0 hover:bg-[#9FBCA4]/5">
+                          <td className="px-4 py-2 text-gray-800">
+                            <Link href={`/property/${prop.id}/edit`} className="text-[#9FBCA4] hover:underline">{prop.name}</Link>
+                          </td>
+                          <td className="px-4 py-2 text-right font-mono text-gray-700">{formatPercent(prop.baseManagementFeeRate ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE)}</td>
+                          <td className="px-4 py-2 text-right font-mono text-gray-700">{formatPercent(prop.incentiveManagementFeeRate ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE)}</td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
               </div>
             </div>
           </div></div>

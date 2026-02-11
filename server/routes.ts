@@ -613,8 +613,6 @@ export async function registerRoutes(
         await storage.upsertGlobalAssumptions({
           modelStartDate: "2026-04-01",
           inflationRate: 0.03,
-          baseManagementFee: 0.05,
-          incentiveManagementFee: 0.15,
           staffSalary: 75000,
           staffTier1MaxProperties: 3,
           staffTier1Fte: 2.5,
@@ -825,7 +823,7 @@ Be concise but thorough. Format as JSON with keys: overallAssessment, methodolog
 ${JSON.stringify(report, null, 2)}
 
 Properties analyzed: ${properties.map((p: any) => `${p.name} (${p.roomCount} rooms, ${p.type})`).join(', ')}
-Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(1)}%, Base fee ${(globalAssumptions.baseManagementFee * 100).toFixed(1)}%, Incentive fee ${(globalAssumptions.incentiveManagementFee * 100).toFixed(1)}%`;
+Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(1)}%. Management fees are per-property.`;
 
       res.setHeader("Content-Type", "text/event-stream");
       res.setHeader("Cache-Control", "no-cache");
@@ -1357,8 +1355,6 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       await storage.upsertGlobalAssumptions({
         modelStartDate: "2026-04-01",
         inflationRate: 0.03,
-        baseManagementFee: 0.05,
-        incentiveManagementFee: 0.15,
         staffSalary: 75000,
         staffTier1MaxProperties: 3,
         staffTier1Fte: 2.5,

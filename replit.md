@@ -27,6 +27,7 @@ Key directories inside `.claude/`:
 **Fluid Glass** is the active theme. All new UI work must follow Fluid Glass styling conventions.
 
 ## Recent Changes
+- **Per-property management fees**: Management fees (baseManagementFeeRate, incentiveManagementFeeRate) moved from global assumptions to per-property. Company Assumptions shows a read-only summary table of each property's fee rates. PropertyEdit has new Management Fees section with sliders and tooltips. Global fee fields deprecated (kept in DB schema for backward compatibility).
 - **Common-size analysis**: All financial statement subtotals (IS, CF, BS) now show percentage margin rows via shared `MarginRow` component
 - **Assumption label clarity**: CompanyAssumptions.tsx labels now explicitly state the revenue/value base for each percentage input
 - **Balance sheet ratios**: Debt-to-Assets and Equity-to-Assets ratios displayed after Grand Total

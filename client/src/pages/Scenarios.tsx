@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { GlassButton } from "@/components/ui/glass-button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Save, FolderOpen, Pencil, Trash2, Plus, Clock, FileStack, Download, Upload, Copy, GitCompareArrows, ArrowRight, Minus, PlusCircle, RefreshCw } from "lucide-react";
+import { Loader2, Save, FolderOpen, Pencil, Trash2, Plus, Clock, FileStack, Download, Upload, Copy, GitCompareArrows, ArrowRight, Minus, PlusCircle, RefreshCw, AlertTriangle } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { useState, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -27,7 +27,7 @@ interface ScenarioCompareResult {
 }
 
 export default function Scenarios() {
-  const { data: scenarios, isLoading } = useScenarios();
+  const { data: scenarios, isLoading, isError } = useScenarios();
   const createScenario = useCreateScenario();
   const loadScenario = useLoadScenario();
   const updateScenario = useUpdateScenario();
@@ -201,6 +201,17 @@ export default function Scenarios() {
       <Layout>
         <div className="flex items-center justify-center h-[60vh]">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      </Layout>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Layout>
+        <div className="flex flex-col items-center justify-center h-[60vh] gap-3">
+          <AlertTriangle className="w-8 h-8 text-destructive" />
+          <p className="text-muted-foreground">Failed to load scenarios. Please try refreshing the page.</p>
         </div>
       </Layout>
     );

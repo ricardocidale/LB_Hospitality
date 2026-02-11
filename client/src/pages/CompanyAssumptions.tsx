@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { ResearchBadge } from "@/components/ui/research-badge";
-import { Loader2, Upload, X, BookOpen } from "lucide-react";
+import { Loader2, Upload, X, BookOpen, AlertTriangle } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { formatPercent, formatMoney } from "@/lib/financialEngine";
 import { useToast } from "@/hooks/use-toast";
@@ -114,7 +114,7 @@ function EditableValue({
 
 export default function CompanyAssumptions() {
   const [, setLocation] = useLocation();
-  const { data: global, isLoading, refetch } = useGlobalAssumptions();
+  const { data: global, isLoading, isError, refetch } = useGlobalAssumptions();
   const { data: properties = [] } = useProperties();
   const { data: allFeeCategories = [] } = useAllFeeCategories();
   const updateMutation = useUpdateGlobalAssumptions();
@@ -183,6 +183,17 @@ export default function CompanyAssumptions() {
   const modelStartYear = global?.modelStartDate 
     ? new Date(global.modelStartDate).getFullYear() 
     : new Date(DEFAULT_MODEL_START_DATE).getFullYear();
+
+  if (isError) {
+    return (
+      <Layout>
+        <div className="flex flex-col items-center justify-center h-[60vh] gap-3">
+          <AlertTriangle className="w-8 h-8 text-destructive" />
+          <p className="text-muted-foreground">Failed to load assumptions. Please try refreshing the page.</p>
+        </div>
+      </Layout>
+    );
+  }
 
   if (isLoading || !global) {
     return (

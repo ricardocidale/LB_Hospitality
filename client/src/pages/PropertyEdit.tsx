@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, BookOpen } from "lucide-react";
+import { Loader2, BookOpen, AlertTriangle } from "lucide-react";
 import { SaveButton } from "@/components/ui/save-button";
 import { GlassButton } from "@/components/ui/glass-button";
 import { PageHeader } from "@/components/ui/page-header";
@@ -59,7 +59,7 @@ export default function PropertyEdit() {
   const [, setLocation] = useLocation();
   const propertyId = params?.id ? parseInt(params.id) : 0;
   
-  const { data: property, isLoading } = useProperty(propertyId);
+  const { data: property, isLoading, isError } = useProperty(propertyId);
   const { data: globalAssumptions } = useGlobalAssumptions();
   const { data: research } = useMarketResearch("property", propertyId);
   const { data: feeCategories } = useFeeCategories(propertyId);
@@ -223,6 +223,17 @@ export default function PropertyEdit() {
       <Layout>
         <div className="flex items-center justify-center h-[60vh]">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      </Layout>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Layout>
+        <div className="flex flex-col items-center justify-center h-[60vh] gap-3">
+          <AlertTriangle className="w-8 h-8 text-destructive" />
+          <p className="text-muted-foreground">Failed to load property data. Please try refreshing the page.</p>
         </div>
       </Layout>
     );

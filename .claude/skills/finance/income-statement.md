@@ -249,3 +249,30 @@ BELOW NOI
 │   NET INCOME                                                     │
 └──────────────────────────────────────────────────────────────────┘
 ```
+
+---
+
+## Common-Size Analysis (Percentage Margin Rows)
+
+Every major subtotal on the Income Statement is followed by a `MarginRow` showing its percentage of Total Revenue. This is standard common-size analysis used by financial managers to evaluate operating efficiency.
+
+### Displayed Margins
+| After Subtotal | Margin Label | Formula |
+|---------------|-------------|---------|
+| Total Operating Expenses | % of Total Revenue | `(revenueTotal − gop) / revenueTotal × 100` |
+| Gross Operating Profit (GOP) | % of Total Revenue | `gop / revenueTotal × 100` |
+| Net Operating Income (NOI) | % of Total Revenue | `noi / revenueTotal × 100` |
+| GAAP Net Income | % of Total Revenue | `netIncome / revenueTotal × 100` |
+
+### Implementation
+- Shared component: `MarginRow` from `client/src/components/financial-table-rows.tsx`
+- Props: `label`, `values` (numerator array), `baseValues` (denominator array)
+- Styling: `text-xs text-gray-400 italic font-mono` — visually subordinate to value rows
+- Displays `XX.X%` or `—` when base is zero
+
+### Assumption Label Clarity (CompanyAssumptions.tsx)
+All percentage-based assumptions now explicitly state their calculation base in the label:
+- **Base Management Fee** → `(% of Property Gross Revenue)`
+- **Incentive Fee** → `(% of Property GOP)`
+- **Event Expense Rate** → `(% of Event Revenue)`
+- **Other Revenue Expense Rate** → `(% of Other Revenue)`

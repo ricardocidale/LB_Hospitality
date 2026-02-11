@@ -30,8 +30,8 @@ The Management Company is a **service company** — it has NO real estate assets
 │   Business Insurance            (fixed, escalated)               │
 │   Travel Costs                  (per property, variable)         │
 │   IT Licensing                  (per property, variable)         │
-│   Marketing                     (% of revenue)                   │
-│   Miscellaneous Operations      (% of revenue)                   │
+│   Marketing                     (% of mgmt fee revenue)          │
+│   Miscellaneous Operations      (% of mgmt fee revenue)          │
 │   ───────────────────────────                                    │
 │   TOTAL EXPENSES                                                 │
 ├──────────────────────────────────────────────────────────────────┤
@@ -56,7 +56,7 @@ The Management Company is a **service company** — it has NO real estate assets
 **Expense Categories:**
 - **Fixed costs** (escalate at `fixedCostEscalationRate`): Partner comp, staff comp, office lease, professional services, tech infra, business insurance
 - **Variable costs** (escalate at `inflationRate`): Travel (per active property), IT licensing (per active property)
-- **Revenue-linked**: Marketing (% of revenue), Misc Ops (% of revenue)
+- **Revenue-linked**: Marketing (% of mgmt fee revenue), Misc Ops (% of mgmt fee revenue)
 
 **Staffing Tiers:** Staff FTE is determined by active property count:
 - Tier 1: ≤ N properties → X FTE
@@ -68,3 +68,22 @@ The Management Company is a **service company** — it has NO real estate assets
 - They appear on the Cash Flow Statement as financing activities
 - They increase the company's cash position but do not affect Net Income
 - The Funding Gate rule prevents expenses from being incurred before SAFE capital is received
+
+---
+
+## Common-Size Analysis (Percentage Rows)
+
+### Income Statement
+- **OpEx % of Revenue** row after operating expenses — shows `totalExpenses / totalRevenue × 100`
+- Styled as italic gray inline row (not using shared MarginRow due to different table structure)
+
+### Cash Flow Statement
+- **% of Revenue** row after Net Cash from Operating Activities — shows `cashFromOps / totalRevenue × 100`
+- Same inline styling pattern
+
+### Assumption Label Clarity
+Labels in CompanyAssumptions.tsx now specify the exact revenue base:
+- **Marketing** → `(% of Mgmt Fee Revenue)` — percentage of total management fee revenue (base + incentive)
+- **Misc Operations** → `(% of Mgmt Fee Revenue)` — same base as marketing
+- **Base Management Fee** → `(% of Property Gross Revenue)` — each property's total revenue
+- **Incentive Fee** → `(% of Property GOP)` — each property's Gross Operating Profit

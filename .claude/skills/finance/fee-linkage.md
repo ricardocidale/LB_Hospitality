@@ -72,8 +72,8 @@ TOTAL REVENUE
 ─────────────────────────────
 = GROSS OPERATING PROFIT (GOP)      ← Fees calculated from this line and above
 ─────────────────────────────
-− Base Management Fee                ← % of Total Revenue
-− Incentive Management Fee           ← % of GOP (only if GOP > 0)
+− Base Management Fee                ← % of Property Gross Revenue
+− Incentive Management Fee           ← % of Property GOP (only if GOP > 0)
 − FF&E Reserve                       ← % of Total Revenue
 ─────────────────────────────
 = NET OPERATING INCOME (NOI)         ← After all fees and reserves

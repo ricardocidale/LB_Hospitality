@@ -13,7 +13,8 @@ Adjustable sliders for key assumptions with real-time projection updates.
 - **Placement**: Collapsible side panel on property/portfolio pages
 - **Sliders**: ADR Growth (0-10%), Occupancy (40-100%), Cost Escalation (0-8%), Cap Rate (3-12%), LTV (0-80%), Interest Rate (2-10%)
 - **Behavior**: Debounced 150ms recalculation, Reset button, Save as Scenario button
-- **Theme**: Light Cream — slider track `muted`, thumb `accent`, values `font-mono tabular-nums`
+- **Slider styling**: Uses shared `Slider` from `@/components/ui/slider` — track `h-2 bg-gray-200/80`, range gradient `from-[#9FBCA4] to-[#85a88b]`, thumb `h-5 w-5 bg-white border-[#9FBCA4]` with hover/active scale animations
+- **Value display**: `font-mono tabular-nums` for aligned numeric readouts
 
 ---
 

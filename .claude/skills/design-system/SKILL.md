@@ -324,11 +324,13 @@ bg-white/90 backdrop-blur-xl rounded-xl p-4 border border-white/40
 
 ### Variable Adjustments Card
 
-Standard `Card` on cream background containing sliders:
-- Slider knob: `--primary` (sage green)
-- Range labels: muted text at left and right
-- Value display: right-aligned, bold
-- Helper text: `text-sm text-muted-foreground`
+Standard `Card` on cream background containing sliders (uses shared `Slider` from `@/components/ui/slider`):
+- Track: `h-2 bg-gray-200/80 shadow-inner rounded-full`
+- Range fill: gradient `from-[#9FBCA4] to-[#85a88b]`
+- Thumb: `h-5 w-5 bg-white border-2 border-[#9FBCA4] shadow-md` with `hover:scale-110` and `active:scale-95` animations
+- Value display: right-aligned, `font-mono font-semibold text-[#9FBCA4]` (or read-only `text-sm font-mono text-primary`)
+- Labels: `text-sm text-muted-foreground` at left, value at right
+- Pair with `EditableValue` for editable fields or `<span>` for read-only
 
 ### Impact Chart Card
 

@@ -108,6 +108,18 @@ export default function PropertyEdit() {
       const rampMatch = occText.match(/(\d+)[–\-](\d+) months/);
       if (rampMatch) rampMonthsRange = { low: parseInt(rampMatch[1]), high: parseInt(rampMatch[2]), mid: Math.round((parseInt(rampMatch[1]) + parseInt(rampMatch[2])) / 2) };
     }
+    const parseCostRate = (cat: { recommendedRate?: string; industryRange?: string } | undefined): { display: string; mid: number } | null => {
+      if (!cat?.recommendedRate) return null;
+      const pct = parsePct(cat.recommendedRate);
+      if (pct == null) return null;
+      return { display: cat.recommendedRate, mid: pct };
+    };
+
+    const oc = c.operatingCostAnalysis;
+    const pvc = c.propertyValueCostAnalysis;
+    const msf = c.managementServiceFeeAnalysis;
+    const ita = c.incomeTaxAnalysis;
+
     return {
       adr: adrRange ? { display: c.adrAnalysis?.recommendedRange ?? "", mid: adrRange.mid } : null,
       occupancy: occRange ? { display: `${occRange.low}%–${occRange.high}%`, mid: occRange.mid } : null,
@@ -116,6 +128,24 @@ export default function PropertyEdit() {
       capRate: capRange ? { display: c.capRateAnalysis?.recommendedRange ?? "", mid: (capRange.low + capRange.high) / 2 } : null,
       catering: cateringPct != null ? { display: c.cateringAnalysis?.recommendedBoostPercent ?? "", mid: cateringPct } : null,
       landValue: landPct != null ? { display: c.landValueAllocation?.recommendedPercent ?? "", mid: landPct } : null,
+      costHousekeeping: parseCostRate(oc?.roomRevenueBased?.housekeeping),
+      costFB: parseCostRate(oc?.roomRevenueBased?.fbCostOfSales),
+      costAdmin: parseCostRate(oc?.totalRevenueBased?.adminGeneral),
+      costPropertyOps: parseCostRate(oc?.totalRevenueBased?.propertyOps),
+      costUtilities: parseCostRate(oc?.totalRevenueBased?.utilities),
+      costFFE: parseCostRate(oc?.totalRevenueBased?.ffeReserve),
+      costMarketing: parseCostRate(oc?.totalRevenueBased?.marketing),
+      costIT: parseCostRate(oc?.totalRevenueBased?.it),
+      costOther: parseCostRate(oc?.totalRevenueBased?.other),
+      costInsurance: parseCostRate(pvc?.insurance),
+      costPropertyTaxes: parseCostRate(pvc?.propertyTaxes),
+      svcFeeMarketing: parseCostRate(msf?.serviceFeeCategories?.marketing),
+      svcFeeIT: parseCostRate(msf?.serviceFeeCategories?.it),
+      svcFeeAccounting: parseCostRate(msf?.serviceFeeCategories?.accounting),
+      svcFeeReservations: parseCostRate(msf?.serviceFeeCategories?.reservations),
+      svcFeeGeneralMgmt: parseCostRate(msf?.serviceFeeCategories?.generalManagement),
+      incentiveFee: parseCostRate(msf?.incentiveFee),
+      incomeTax: ita?.recommendedRate ? parseCostRate({ recommendedRate: ita.recommendedRate }) : null,
     };
   })();
 

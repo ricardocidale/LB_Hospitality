@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useStore } from "@/lib/store";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 
 const formatMoney = (value: number) =>
   new Intl.NumberFormat("en-US", {
@@ -120,35 +121,27 @@ export default function VarianceAnalysis() {
       <div className="flex gap-4 mb-6">
         <div className="flex-1">
           <label className="block text-sm font-medium mb-1">Scenario A</label>
-          <select
-            data-testid="select-scenario-a"
-            value={idA}
-            onChange={(e) => setIdA(e.target.value)}
-            className="w-full border rounded-md px-3 py-2 text-sm"
-          >
-            <option value="">Select property</option>
-            {properties.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
-              </option>
-            ))}
-          </select>
+          <Select value={idA || "none"} onValueChange={(v) => setIdA(v === "none" ? "" : v)}>
+            <SelectTrigger data-testid="select-scenario-a"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Select property</SelectItem>
+              {properties.map((p) => (
+                <SelectItem key={p.id} value={String(p.id)}>{p.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <div className="flex-1">
           <label className="block text-sm font-medium mb-1">Scenario B</label>
-          <select
-            data-testid="select-scenario-b"
-            value={idB}
-            onChange={(e) => setIdB(e.target.value)}
-            className="w-full border rounded-md px-3 py-2 text-sm"
-          >
-            <option value="">Select property</option>
-            {properties.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
-              </option>
-            ))}
-          </select>
+          <Select value={idB || "none"} onValueChange={(v) => setIdB(v === "none" ? "" : v)}>
+            <SelectTrigger data-testid="select-scenario-b"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Select property</SelectItem>
+              {properties.map((p) => (
+                <SelectItem key={p.id} value={String(p.id)}>{p.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 

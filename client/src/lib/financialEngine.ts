@@ -48,7 +48,7 @@ import {
   DEFAULT_SERVICE_FEE_CATEGORIES,
 } from './constants';
 import { computeRefinance } from '@calc/refinance';
-import type { ScheduleEntry } from '@calc/refinance';
+
 import { DEFAULT_ACCOUNTING_POLICY } from '@domain/types/accounting-policy';
 
 // Helper function to get fiscal year label for a given month in the model

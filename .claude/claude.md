@@ -71,6 +71,7 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 **Commands**: `npm test` (all 445), `npm run verify` (4-phase, UNQUALIFIED required)
 
 ## Recent Changes
+- **User Groups & Multi-Tenant Branding**: New `user_groups` table with CRUD API (`/api/admin/user-groups/*`). Users assigned to groups inherit group branding (companyName, logo, theme, asset description). Branding resolution priority: user-level > group-level > system default. Layout sidebar dynamically shows resolved company name. Two seed groups: KIT Group (Rosario, Dov, Lea) and Norfolk Group (Ricardo, Checker, Bhuvan, Reynaldo). Admin UI has "User Groups" tab for management.
 - **Testing Skills Suite**: New `.claude/skills/testing/` directory with 7 skill files documenting test coverage for every financial statement and analysis at property, consolidated, and management company levels.
 - **Accordion Chevron Standardization**: All expandable/accordion row indicators standardized to `w-4 h-4` across the entire app. Non-accordion icons (Search, Star, Download) remain at their intentional smaller sizes.
 - **Unified Analysis Page**: `/analysis` route merges Sensitivity, Financing, Executive Summary, Compare, and Timeline into a single tabbed page. Components use `embedded` prop to skip Layout wrapper. Old standalone routes (`/compare`, `/timeline`) redirect to `/analysis`.
@@ -117,7 +118,7 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | GlobalResearch | `/global/research` | Global market research |
 | Settings | `/settings` | Themes, preferences |
 | Profile | `/profile` | User profile |
-| Admin | `/admin` | Administration |
+| Admin | `/admin` | Administration (Users, User Groups, Login Logs, Sessions, Verification, Activity, Seed) |
 | Methodology | `/methodology` | User manual |
 | CheckerManual | `/checker-manual` | Checker manual |
 

@@ -39,6 +39,25 @@ All routes under `/api/auth/` handle user authentication.
 | `DELETE` | `/api/admin/users/:id` | Admin | Delete user |
 | `GET` | `/api/admin/login-logs` | Admin | Get login audit history |
 
+## Admin - User Groups
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| `GET` | `/api/admin/user-groups` | Admin | List all user groups |
+| `POST` | `/api/admin/user-groups` | Admin | Create new user group (name, companyName, logoId?, themeId?, assetDescriptionId?) |
+| `PATCH` | `/api/admin/user-groups/:id` | Admin | Update user group |
+| `DELETE` | `/api/admin/user-groups/:id` | Admin | Delete user group (unassigns members first) |
+| `POST` | `/api/admin/user-groups/:id/assign` | Admin | Assign user to group (`{ userId }`) |
+| `POST` | `/api/admin/user-groups/:id/unassign` | Admin | Remove user from group (`{ userId }`) |
+
+### Branding Resolution
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| `GET` | `/api/my-branding` | User | Get resolved branding for current user |
+
+Branding priority: user-level overrides (assignedLogoId, assignedThemeId, assignedAssetDescriptionId) > group-level (from user_groups) > system defaults. Response includes `groupCompanyName` from the user's group.
+
 ## Admin - Seeding & Verification
 
 | Method | Path | Auth | Description |
@@ -240,7 +259,9 @@ The endpoint generates an image via OpenAI `gpt-image-1`, uploads the PNG buffer
 | `admin` | Full access to all endpoints including user management and verification |
 | `user` | Standard access to properties, assumptions, scenarios, research |
 
-**Checker Access**: The `requireChecker` middleware grants verification endpoint access to users with `role === "admin"` OR `email === "checker"`. The checker user has role `"user"` in the database — checker is identified by email, not by a separate role.
+| `checker` | Verification access to run financial checks and view audit results |
+
+**Checker Access**: The `requireChecker` middleware grants verification endpoint access to users with `role === "admin"` OR `email === "checker@norfolkgroup.io"`. The checker user has role `"checker"` in the database.
 
 ## Error Responses
 

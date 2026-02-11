@@ -1,7 +1,7 @@
 # Hospitality Business Group - Business Simulation Portal
 
 ## Overview
-Business simulation portal for a boutique hotel management company. Financial modeling, portfolio management, and GAAP-compliant pro formas for hospitality assets across North America and Latin America. Branded "powered by Norfolk AI" (discrete, 9px, low opacity).
+Business simulation portal for a boutique hotel management company. Financial modeling, portfolio management, and GAAP-compliant pro formas for hospitality assets across North America and Latin America. Branded "powered by Norfolk AI" (discrete, 9px, low opacity). Supports multi-tenant branding via User Groups — each group can have its own company name, logo, theme, and asset description.
 
 ## Documentation Hub
 **All project documentation lives in `.claude/claude.md`** — the single source of truth for architecture, skills, rules, manuals, tools, testing, integrations, and project state. Load it for any detailed work.

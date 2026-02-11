@@ -38,6 +38,30 @@ task = "shell.exec"
 args = "npm run dev"
 waitForPort = 5000
 
+[[workflows.workflow]]
+name = "Health Check"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run health"
+
+[[workflows.workflow]]
+name = "Run Tests"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run test:summary"
+
+[[workflows.workflow]]
+name = "Verify Financials"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run verify:summary"
+
 [agent]
 mockupState = "FULLSTACK"
 integrations = ["javascript_database:1.0.0", "javascript_object_storage:2.0.0", "github:1.0.0", "javascript_openai_ai_integrations:2.0.0", "javascript_anthropic_ai_integrations:2.0.0", "javascript_gemini_ai_integrations:2.0.0", "google-sheet:1.0.0", "google-mail:1.0.0", "stripe:2.0.0", "javascript_log_in_with_replit:2.0.0", "google-drive:1.0.0", "google-docs:1.0.0", "google-calendar:1.0.0", "twilio:1.0.0"]

@@ -27,6 +27,9 @@
       "Bash(npm install:*)",
       "Bash(npx vitest run:*)",
       "Bash(npm test:*)",
+      "Bash(npm run health:*)",
+      "Bash(npm run test\\:summary:*)",
+      "Bash(npm run verify\\:summary:*)",
       "Bash(git mv:*)",
       "Bash(git rm:*)",
       "Bash(git reset:*)",
@@ -65,7 +68,11 @@
       "Bash(awk:*)",
       "Bash(/tmp/schema_audit.txt << 'EOF'\nSCHEMA TABLES \\(from schema.ts\\):\n1. users - email, passwordHash, role, name, company, title, createdAt, updatedAt\n2. sessions - id, userId, expiresAt, createdAt\n3. globalAssumptions - 40+ columns\n4. properties - 40+ columns\n5. scenarios - id, userId, name, description, globalAssumptions, properties, scenarioImages, createdAt, updatedAt\n6. loginLogs - id, userId, loginAt, logoutAt, sessionId, ipAddress\n7. designThemes - id, userId, name, description, isActive, colors, createdAt, updatedAt\n8. marketResearch - id, userId, type, propertyId, title, content, llmModel, createdAt, updatedAt\n9. prospectiveProperties - 12 columns\n10. savedSearches - 7 columns\n11. activityLogs - id, userId, action, entityType, entityId, entityName, metadata, ipAddress, createdAt\n12. verificationRuns - id, userId, totalChecks, passed, failed, auditOpinion, overallStatus, results, createdAt\n13. conversations - id, title, createdAt\n14. messages - id, conversationId, role, content, createdAt\nEOF)",
       "Bash(claude:*)",
-      "Bash(npx vite build:*)"
+      "Bash(npx vite build:*)",
+      "Bash(npm run test:summary:*)",
+      "Bash(npm run verify:summary:*)",
+      "Bash(npm run health:*)",
+      "Bash(git -C /home/runner/workspace diff test-artifacts/cash-purchase.json)"
     ]
   }
 }

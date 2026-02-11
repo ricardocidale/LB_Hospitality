@@ -48,6 +48,8 @@ interface User {
   createdAt: string;
   assignedLogoId: number | null;
   assignedThemeId: number | null;
+  assignedAssetDescriptionId: number | null;
+  userGroupId: number | null;
 }
 
 interface Logo {
@@ -111,7 +113,17 @@ interface VerificationResult {
   clientKnownValueTests?: { passed: boolean; results: string };
 }
 
-type AdminView = "users" | "activity" | "activity-feed" | "checker-activity" | "verification" | "themes" | "branding" | "sidebar";
+interface UserGroup {
+  id: number;
+  name: string;
+  companyName: string;
+  logoId: number | null;
+  themeId: number | null;
+  assetDescriptionId: number | null;
+  createdAt: string;
+}
+
+type AdminView = "users" | "activity" | "activity-feed" | "checker-activity" | "verification" | "themes" | "branding" | "user-groups" | "sidebar";
 
 interface ActivityLogEntry {
   id: number;
@@ -303,7 +315,7 @@ export default function Admin() {
       if (!res.ok) throw new Error("Failed to fetch logos");
       return res.json();
     },
-    enabled: adminTab === "branding",
+    enabled: adminTab === "branding" || adminTab === "user-groups",
   });
 
   const { data: allThemes } = useQuery<Array<{ id: number; name: string; isActive: boolean }>>({
@@ -313,7 +325,7 @@ export default function Admin() {
       if (!res.ok) throw new Error("Failed to fetch themes");
       return res.json();
     },
-    enabled: adminTab === "branding",
+    enabled: adminTab === "branding" || adminTab === "user-groups",
   });
 
   interface AssetDesc { id: number; name: string; isDefault: boolean; createdAt: string; }
@@ -324,7 +336,7 @@ export default function Admin() {
       if (!res.ok) throw new Error("Failed to fetch asset descriptions");
       return res.json();
     },
-    enabled: adminTab === "branding",
+    enabled: adminTab === "branding" || adminTab === "user-groups",
   });
 
   const createAssetDescMutation = useMutation({
@@ -442,6 +454,75 @@ export default function Admin() {
     },
     onError: (error: Error) => {
       toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+
+  // --- User Groups ---
+  const [groupDialogOpen, setGroupDialogOpen] = useState(false);
+  const [editingGroup, setEditingGroup] = useState<UserGroup | null>(null);
+  const [groupForm, setGroupForm] = useState({ name: "", companyName: "", logoId: null as number | null, themeId: null as number | null, assetDescriptionId: null as number | null });
+
+  const { data: userGroupsList } = useQuery<UserGroup[]>({
+    queryKey: ["admin", "user-groups"],
+    queryFn: async () => {
+      const res = await fetch("/api/admin/user-groups", { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch user groups");
+      return res.json();
+    },
+    enabled: adminTab === "user-groups" || adminTab === "branding",
+  });
+
+  const createGroupMutation = useMutation({
+    mutationFn: async (data: { name: string; companyName: string; logoId?: number | null; themeId?: number | null; assetDescriptionId?: number | null }) => {
+      const res = await fetch("/api/admin/user-groups", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data), credentials: "include" });
+      if (!res.ok) throw new Error("Failed to create group");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "user-groups"] });
+      setGroupDialogOpen(false);
+      setGroupForm({ name: "", companyName: "", logoId: null, themeId: null, assetDescriptionId: null });
+      setEditingGroup(null);
+      toast({ title: "Group Created", description: "User group has been created." });
+    },
+  });
+
+  const updateGroupMutation = useMutation({
+    mutationFn: async ({ id, ...data }: { id: number; name?: string; companyName?: string; logoId?: number | null; themeId?: number | null; assetDescriptionId?: number | null }) => {
+      const res = await fetch(`/api/admin/user-groups/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data), credentials: "include" });
+      if (!res.ok) throw new Error("Failed to update group");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "user-groups"] });
+      setGroupDialogOpen(false);
+      setEditingGroup(null);
+      toast({ title: "Group Updated", description: "User group has been updated." });
+    },
+  });
+
+  const deleteGroupMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const res = await fetch(`/api/admin/user-groups/${id}`, { method: "DELETE", credentials: "include" });
+      if (!res.ok) throw new Error("Failed to delete group");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "user-groups"] });
+      queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
+      toast({ title: "Group Deleted", description: "User group has been deleted." });
+    },
+  });
+
+  const assignGroupMutation = useMutation({
+    mutationFn: async ({ userId, groupId }: { userId: number; groupId: number | null }) => {
+      const res = await fetch(`/api/admin/users/${userId}/group`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ groupId }), credentials: "include" });
+      if (!res.ok) throw new Error("Failed to assign group");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
+      toast({ title: "Group Assigned", description: "User has been assigned to the group." });
     },
   });
 
@@ -1868,6 +1949,156 @@ export default function Admin() {
     </div>
   );
 
+  const renderUserGroups = () => (
+    <div className="space-y-6">
+      <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="font-display flex items-center gap-2"><Users className="w-5 h-5 text-[#9FBCA4]" /> User Groups</CardTitle>
+              <CardDescription className="label-text">Create groups with a company name and logo. Assign users to groups so they see the group's branding.</CardDescription>
+            </div>
+            <Button variant="outline" onClick={() => {
+              setEditingGroup(null);
+              setGroupForm({ name: "", companyName: "", logoId: null, themeId: null, assetDescriptionId: null });
+              setGroupDialogOpen(true);
+            }} className="flex items-center gap-2" data-testid="button-add-group">
+              <Plus className="w-4 h-4" /> New Group
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="relative space-y-4">
+          {(!userGroupsList || userGroupsList.length === 0) ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <Users className="w-10 h-10 mx-auto mb-2 opacity-40" />
+              <p>No user groups created yet.</p>
+              <p className="text-sm">Create a group to assign a company name and logo to one or more users.</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {userGroupsList.map(group => {
+                const groupLogo = adminLogos?.find(l => l.id === group.logoId);
+                const groupTheme = allThemes?.find(t => t.id === group.themeId);
+                const groupAssetDesc = assetDescriptions?.find(a => a.id === group.assetDescriptionId);
+                const groupUsers = users?.filter(u => u.userGroupId === group.id) || [];
+                return (
+                  <div key={group.id} className="bg-[#9FBCA4]/5 border border-[#9FBCA4]/20 rounded-xl p-4" data-testid={`group-card-${group.id}`}>
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        {groupLogo ? (
+                          <div className="w-10 h-10 rounded-lg bg-white border border-[#9FBCA4]/20 flex items-center justify-center overflow-hidden">
+                            <img src={groupLogo.url} alt={groupLogo.name} className="max-w-full max-h-full object-contain" />
+                          </div>
+                        ) : (
+                          <div className="w-10 h-10 rounded-lg bg-[#9FBCA4]/10 border border-[#9FBCA4]/20 flex items-center justify-center">
+                            <Building2 className="w-5 h-5 text-[#9FBCA4]" />
+                          </div>
+                        )}
+                        <div>
+                          <h3 className="font-display text-foreground font-medium">{group.name}</h3>
+                          <p className="text-sm text-muted-foreground">Company: <span className="text-foreground">{group.companyName}</span></p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Button variant="ghost" size="sm" onClick={() => {
+                          setEditingGroup(group);
+                          setGroupForm({ name: group.name, companyName: group.companyName, logoId: group.logoId, themeId: group.themeId, assetDescriptionId: group.assetDescriptionId });
+                          setGroupDialogOpen(true);
+                        }} className="text-[#9FBCA4] hover:text-foreground hover:bg-[#9FBCA4]/10" data-testid={`button-edit-group-${group.id}`}>
+                          <Pencil className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => {
+                          if (confirm("Delete this group? Users in this group will be unassigned.")) {
+                            deleteGroupMutation.mutate(group.id);
+                          }
+                        }} className="text-red-400 hover:text-red-300 hover:bg-red-500/10" data-testid={`button-delete-group-${group.id}`}>
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-2 text-xs text-muted-foreground mb-3">
+                      {groupTheme && <span className="bg-[#9FBCA4]/10 px-2 py-0.5 rounded">Theme: {groupTheme.name}</span>}
+                      {groupAssetDesc && <span className="bg-[#9FBCA4]/10 px-2 py-0.5 rounded">Asset: {groupAssetDesc.name}</span>}
+                      <span className="bg-[#9FBCA4]/10 px-2 py-0.5 rounded">{groupUsers.length} member{groupUsers.length !== 1 ? "s" : ""}</span>
+                    </div>
+                    {groupUsers.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {groupUsers.map(u => (
+                          <span key={u.id} className="inline-flex items-center gap-1 bg-white/80 border border-[#9FBCA4]/20 rounded-full px-3 py-1 text-sm">
+                            <span className="font-medium">{u.name || u.email}</span>
+                            <button onClick={() => assignGroupMutation.mutate({ userId: u.id, groupId: null })} className="text-red-400 hover:text-red-600 ml-1" title="Remove from group" data-testid={`button-remove-user-${u.id}-from-group`}>
+                              &times;
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card className="bg-white/80 backdrop-blur-xl border-[#9FBCA4]/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+        <CardHeader>
+          <CardTitle className="font-display flex items-center gap-2"><UserPlus className="w-5 h-5 text-[#9FBCA4]" /> Assign Users to Groups</CardTitle>
+          <CardDescription className="label-text">Set which group each user belongs to. Group branding overrides defaults.</CardDescription>
+        </CardHeader>
+        <CardContent className="relative">
+          <Table>
+            <TableHeader>
+              <TableRow className="border-[#9FBCA4]/20 hover:bg-transparent">
+                <TableHead className="text-muted-foreground">User</TableHead>
+                <TableHead className="text-muted-foreground">Role</TableHead>
+                <TableHead className="text-muted-foreground">Group</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {users?.map(user => {
+                const currentGroup = userGroupsList?.find(g => g.id === user.userGroupId);
+                return (
+                  <TableRow key={user.id} className="border-[#9FBCA4]/20 hover:bg-[#9FBCA4]/5" data-testid={`group-assign-row-${user.id}`}>
+                    <TableCell className="text-foreground">
+                      <div>
+                        <span className="font-medium">{user.name || user.email}</span>
+                        {user.name && <span className="text-muted-foreground text-xs ml-2">{user.email}</span>}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <span className={`text-xs px-2 py-0.5 rounded font-mono ${
+                        user.role === "admin" ? "bg-[#9FBCA4]/20 text-[#9FBCA4]" :
+                        user.role === "checker" ? "bg-blue-500/20 text-blue-400" :
+                        "bg-[#9FBCA4]/10 text-muted-foreground"
+                      }`}>{user.role}</span>
+                    </TableCell>
+                    <TableCell>
+                      <select
+                        value={user.userGroupId ?? ""}
+                        onChange={(e) => {
+                          const groupId = e.target.value ? parseInt(e.target.value) : null;
+                          assignGroupMutation.mutate({ userId: user.id, groupId });
+                        }}
+                        className="flex h-9 w-full max-w-[200px] rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        data-testid={`select-user-group-${user.id}`}
+                      >
+                        <option value="">No Group</option>
+                        {userGroupsList?.map(g => (
+                          <option key={g.id} value={g.id}>{g.name}</option>
+                        ))}
+                      </select>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </div>
+  );
+
   const sidebarToggles = [
     { key: "sidebarPropertyFinder", label: "Property Finder", description: "Search and discover new property opportunities" },
     { key: "sidebarSensitivity", label: "Sensitivity Analysis", description: "Run what-if scenarios on key assumptions" },
@@ -1934,6 +2165,7 @@ export default function Admin() {
               { value: 'activity-feed', label: 'Activity Feed', icon: Activity },
               { value: 'checker-activity', label: 'Checker Activity', icon: FileCheck },
               { value: 'verification', label: 'Verification', icon: FileCheck },
+              { value: 'user-groups', label: 'User Groups', icon: Building2 },
               { value: 'branding', label: 'Branding', icon: Image },
               { value: 'themes', label: 'Themes', icon: SwatchBook },
               { value: 'sidebar', label: 'Navigation', icon: PanelLeft },
@@ -1956,6 +2188,9 @@ export default function Admin() {
           </TabsContent>
           <TabsContent value="verification" className="space-y-6 mt-6">
             {renderVerification()}
+          </TabsContent>
+          <TabsContent value="user-groups" className="space-y-6 mt-6">
+            {renderUserGroups()}
           </TabsContent>
           <TabsContent value="branding" className="space-y-6 mt-6">
             {renderBranding()}
@@ -2125,6 +2360,66 @@ export default function Admin() {
             }} disabled={assignBrandingMutation.isPending} data-testid="button-save-branding" className="flex items-center gap-2">
               {assignBrandingMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={groupDialogOpen} onOpenChange={setGroupDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="font-display">{editingGroup ? "Edit Group" : "Create User Group"}</DialogTitle>
+            <DialogDescription className="label-text">{editingGroup ? "Update group settings" : "Create a new group with a company name and logo"}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2"><Users className="w-4 h-4 text-gray-500" />Group Name</Label>
+              <Input value={groupForm.name} onChange={(e) => setGroupForm({ ...groupForm, name: e.target.value })} placeholder="e.g., KIT Capital Team" data-testid="input-group-name" />
+            </div>
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2"><Building2 className="w-4 h-4 text-gray-500" />Company Name</Label>
+              <Input value={groupForm.companyName} onChange={(e) => setGroupForm({ ...groupForm, companyName: e.target.value })} placeholder="e.g., KIT Capital" data-testid="input-group-company-name" />
+              <p className="text-xs text-muted-foreground">Users in this group will see this company name in the portal</p>
+            </div>
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2"><Image className="w-4 h-4 text-gray-500" />Logo</Label>
+              <select value={groupForm.logoId ?? ""} onChange={(e) => setGroupForm({ ...groupForm, logoId: e.target.value ? parseInt(e.target.value) : null })} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" data-testid="select-group-logo">
+                <option value="">Default Logo</option>
+                {adminLogos?.map(logo => (
+                  <option key={logo.id} value={logo.id}>{logo.name}{logo.isDefault ? " (Default)" : ""}</option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2"><Palette className="w-4 h-4 text-gray-500" />Theme</Label>
+              <select value={groupForm.themeId ?? ""} onChange={(e) => setGroupForm({ ...groupForm, themeId: e.target.value ? parseInt(e.target.value) : null })} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" data-testid="select-group-theme">
+                <option value="">Default Theme</option>
+                {allThemes?.map(theme => (
+                  <option key={theme.id} value={theme.id}>{theme.name}{theme.isActive ? " (Active)" : ""}</option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2"><Tag className="w-4 h-4 text-gray-500" />Asset Description</Label>
+              <select value={groupForm.assetDescriptionId ?? ""} onChange={(e) => setGroupForm({ ...groupForm, assetDescriptionId: e.target.value ? parseInt(e.target.value) : null })} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" data-testid="select-group-asset-desc">
+                <option value="">Default</option>
+                {assetDescriptions?.map(ad => (
+                  <option key={ad.id} value={ad.id}>{ad.name}{ad.isDefault ? " (Default)" : ""}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setGroupDialogOpen(false); setEditingGroup(null); }} data-testid="button-cancel-group">Cancel</Button>
+            <Button variant="outline" onClick={() => {
+              if (editingGroup) {
+                updateGroupMutation.mutate({ id: editingGroup.id, ...groupForm });
+              } else {
+                createGroupMutation.mutate(groupForm);
+              }
+            }} disabled={!groupForm.name || !groupForm.companyName || createGroupMutation.isPending || updateGroupMutation.isPending} data-testid="button-save-group" className="flex items-center gap-2">
+              {(createGroupMutation.isPending || updateGroupMutation.isPending) ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              {editingGroup ? "Update" : "Create"}
             </Button>
           </DialogFooter>
         </DialogContent>

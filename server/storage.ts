@@ -1,4 +1,4 @@
-import { globalAssumptions, properties, users, sessions, scenarios, loginLogs, designThemes, logos, assetDescriptions, marketResearch, prospectiveProperties, savedSearches, activityLogs, verificationRuns, type GlobalAssumptions, type Property, type InsertGlobalAssumptions, type InsertProperty, type UpdateProperty, type User, type InsertUser, type Session, type Scenario, type InsertScenario, type UpdateScenario, type LoginLog, type InsertLoginLog, type DesignTheme, type InsertDesignTheme, type Logo, type InsertLogo, type AssetDescription, type InsertAssetDescription, type MarketResearch, type InsertMarketResearch, type ProspectiveProperty, type InsertProspectiveProperty, type SavedSearch, type InsertSavedSearch, type ActivityLog, type InsertActivityLog, type VerificationRun, type InsertVerificationRun } from "@shared/schema";
+import { globalAssumptions, properties, users, sessions, scenarios, loginLogs, designThemes, logos, assetDescriptions, userGroups, marketResearch, prospectiveProperties, savedSearches, activityLogs, verificationRuns, type GlobalAssumptions, type Property, type InsertGlobalAssumptions, type InsertProperty, type UpdateProperty, type User, type InsertUser, type Session, type Scenario, type InsertScenario, type UpdateScenario, type LoginLog, type InsertLoginLog, type DesignTheme, type InsertDesignTheme, type Logo, type InsertLogo, type AssetDescription, type InsertAssetDescription, type UserGroup, type InsertUserGroup, type MarketResearch, type InsertMarketResearch, type ProspectiveProperty, type InsertProspectiveProperty, type SavedSearch, type InsertSavedSearch, type ActivityLog, type InsertActivityLog, type VerificationRun, type InsertVerificationRun } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gt, lt, gte, lte, desc, or, isNull, type SQL } from "drizzle-orm";
 
@@ -118,6 +118,14 @@ export interface IStorage {
   
   // User Branding Assignment
   assignUserBranding(userId: number, data: { assignedLogoId?: number | null; assignedThemeId?: number | null; assignedAssetDescriptionId?: number | null }): Promise<User>;
+
+  // User Groups
+  getAllUserGroups(): Promise<UserGroup[]>;
+  getUserGroup(id: number): Promise<UserGroup | undefined>;
+  createUserGroup(data: InsertUserGroup): Promise<UserGroup>;
+  updateUserGroup(id: number, data: Partial<InsertUserGroup>): Promise<UserGroup>;
+  deleteUserGroup(id: number): Promise<void>;
+  assignUserToGroup(userId: number, groupId: number | null): Promise<User>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -691,6 +699,36 @@ export class DatabaseStorage implements IStorage {
   // User Branding Assignment
   async assignUserBranding(userId: number, data: { assignedLogoId?: number | null; assignedThemeId?: number | null; assignedAssetDescriptionId?: number | null }): Promise<User> {
     const [user] = await db.update(users).set({ ...data, updatedAt: new Date() }).where(eq(users.id, userId)).returning();
+    return user;
+  }
+
+  // User Groups
+  async getAllUserGroups(): Promise<UserGroup[]> {
+    return db.select().from(userGroups).orderBy(userGroups.name);
+  }
+
+  async getUserGroup(id: number): Promise<UserGroup | undefined> {
+    const [group] = await db.select().from(userGroups).where(eq(userGroups.id, id));
+    return group || undefined;
+  }
+
+  async createUserGroup(data: InsertUserGroup): Promise<UserGroup> {
+    const [group] = await db.insert(userGroups).values(data).returning();
+    return group;
+  }
+
+  async updateUserGroup(id: number, data: Partial<InsertUserGroup>): Promise<UserGroup> {
+    const [group] = await db.update(userGroups).set(data).where(eq(userGroups.id, id)).returning();
+    return group;
+  }
+
+  async deleteUserGroup(id: number): Promise<void> {
+    await db.update(users).set({ userGroupId: null, updatedAt: new Date() }).where(eq(users.userGroupId, id));
+    await db.delete(userGroups).where(eq(userGroups.id, id));
+  }
+
+  async assignUserToGroup(userId: number, groupId: number | null): Promise<User> {
+    const [user] = await db.update(users).set({ userGroupId: groupId, updatedAt: new Date() }).where(eq(users.id, userId)).returning();
     return user;
   }
 }

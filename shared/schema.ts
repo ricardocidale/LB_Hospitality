@@ -38,6 +38,28 @@ export const insertAssetDescriptionSchema = z.object({
 export type AssetDescription = typeof assetDescriptions.$inferSelect;
 export type InsertAssetDescription = z.infer<typeof insertAssetDescriptionSchema>;
 
+// --- USER GROUPS TABLE ---
+export const userGroups = pgTable("user_groups", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  name: text("name").notNull(),
+  companyName: text("company_name").notNull(),
+  logoId: integer("logo_id"),
+  themeId: integer("theme_id"),
+  assetDescriptionId: integer("asset_description_id"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertUserGroupSchema = z.object({
+  name: z.string().min(1),
+  companyName: z.string().min(1),
+  logoId: z.number().nullable().optional(),
+  themeId: z.number().nullable().optional(),
+  assetDescriptionId: z.number().nullable().optional(),
+});
+
+export type UserGroup = typeof userGroups.$inferSelect;
+export type InsertUserGroup = z.infer<typeof insertUserGroupSchema>;
+
 // --- USERS TABLE ---
 export const users = pgTable("users", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
@@ -50,6 +72,7 @@ export const users = pgTable("users", {
   assignedLogoId: integer("assigned_logo_id"),
   assignedThemeId: integer("assigned_theme_id"),
   assignedAssetDescriptionId: integer("assigned_asset_description_id"),
+  userGroupId: integer("user_group_id"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

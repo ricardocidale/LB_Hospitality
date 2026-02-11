@@ -25,17 +25,17 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
   const { user, isAdmin, logout } = useAuth();
   const { data: global } = useGlobalAssumptions();
   
-  const { data: myBranding } = useQuery<{ logoUrl: string | null; themeName: string | null }>({
+  const { data: myBranding } = useQuery<{ logoUrl: string | null; themeName: string | null; groupCompanyName: string | null }>({
     queryKey: ["my-branding"],
     queryFn: async () => {
       const res = await fetch("/api/my-branding", { credentials: "include" });
-      if (!res.ok) return { logoUrl: null, themeName: null };
+      if (!res.ok) return { logoUrl: null, themeName: null, groupCompanyName: null };
       return res.json();
     },
     enabled: !!user,
   });
 
-  const companyName = global?.companyName ?? "Hospitality Business";
+  const companyName = myBranding?.groupCompanyName || global?.companyName || "Hospitality Business";
   const companyLogo = myBranding?.logoUrl || global?.companyLogo || defaultLogo;
 
   const sb = (key: string) => isAdmin || (global as any)?.[key] !== false;
@@ -104,7 +104,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
               </div>
               <div>
                 <h1 className="text-xl font-extrabold" style={{ fontFamily: "'Nunito', sans-serif", color: '#FFF9F5' }}>
-                  Hospitality <span style={{ color: '#9FBCA4' }}>Business</span>
+                  {companyName}
                 </h1>
                 <p className="text-xs uppercase tracking-widest" style={{ color: 'rgba(255, 249, 245, 0.5)' }}>Business Simulation</p>
               </div>
@@ -308,8 +308,8 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
       <main className="flex-1 flex flex-col min-w-0 overflow-x-auto">
         <header className="md:hidden h-16 border-b bg-card flex items-center justify-between px-4 sticky top-0 z-30">
           <div className="flex items-center gap-2">
-            <img src={companyLogo} alt="Hospitality Business" className="w-8 h-8 object-contain" />
-            <span className="font-extrabold text-lg" style={{ fontFamily: "'Nunito', sans-serif" }}>Hospitality <span style={{ color: '#9FBCA4' }}>Business</span></span>
+            <img src={companyLogo} alt={companyName} className="w-8 h-8 object-contain" />
+            <span className="font-extrabold text-lg" style={{ fontFamily: "'Nunito', sans-serif" }}>{companyName}</span>
           </div>
           <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)}>
             {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}

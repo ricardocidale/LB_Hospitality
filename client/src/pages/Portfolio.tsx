@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Trash2, MapPin, Bed, ArrowRight, Loader2, Plus, Building2 as BuildingIcon } from "lucide-react";
+import { Trash2, MapPin, Bed, ArrowRight, Loader2, Plus, Building2 as BuildingIcon, AlertTriangle } from "lucide-react";
 import { Link } from "wouter";
 import MapView from "./MapView";
 import { PageHeader } from "@/components/ui/page-header";
@@ -115,7 +115,7 @@ function CurrencyInput({
 type PortfolioTab = "properties" | "map";
 
 export default function Portfolio() {
-  const { data: properties, isLoading } = useProperties();
+  const { data: properties, isLoading, isError } = useProperties();
   const { data: global } = useGlobalAssumptions();
   const deleteProperty = useDeleteProperty();
   const createProperty = useCreateProperty();
@@ -265,6 +265,17 @@ export default function Portfolio() {
       <Layout>
         <div className="flex items-center justify-center h-[60vh]">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      </Layout>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Layout>
+        <div className="flex flex-col items-center justify-center h-[60vh] gap-3">
+          <AlertTriangle className="w-8 h-8 text-destructive" />
+          <p className="text-muted-foreground">Failed to load portfolio data. Please try refreshing the page.</p>
         </div>
       </Layout>
     );

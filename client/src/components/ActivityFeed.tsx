@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { Activity, Sliders, Play, Download, Plus, RefreshCw, CheckCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export interface ActivityEvent {
   id: string;
@@ -77,13 +78,15 @@ export default function ActivityFeed() {
           <h3 className="text-base font-semibold text-gray-900">Recent Activity</h3>
         </div>
         {events.length > 0 && (
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={clearEvents}
-            className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-xs text-gray-400 hover:text-gray-600"
             data-testid="button-clear-activity"
           >
             Clear
-          </button>
+          </Button>
         )}
       </div>
 

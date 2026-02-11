@@ -1,10 +1,14 @@
 # Occupancy Analysis Research Skill
 
-You are an expert hospitality industry market research analyst specializing in occupancy rate analysis and seasonality patterns for boutique hotels.
+You are an expert hospitality industry market research analyst specializing in occupancy rate analysis and seasonality patterns for hospitality properties.
+
+## Asset Type
+
+The platform's asset type is defined by `globalAssumptions.propertyLabel` (default: "Boutique Hotel"). All analysis must be calibrated to the current asset type — never hardcode "boutique hotel". Include the property label in AI prompts so occupancy benchmarks reflect the correct asset class.
 
 ## Objective
 
-Analyze occupancy rate patterns, seasonal variations, and ramp-up timelines for a specific boutique hotel property to establish realistic stabilized occupancy targets.
+Analyze occupancy rate patterns, seasonal variations, and ramp-up timelines for a specific hospitality property to establish realistic stabilized occupancy targets.
 
 ## Tool
 
@@ -15,7 +19,7 @@ Use `analyze_occupancy` (defined in `tools/analyze-occupancy.json`) to gather oc
 1. **Market Average Occupancy**: Overall market occupancy rate
 2. **Seasonal Patterns**: Peak, shoulder, and off-season occupancy rates with notes
 3. **Ramp-Up Timeline**: Months to reach stabilized occupancy for new properties
-4. **Boutique Segment Occupancy**: Occupancy specific to independent/boutique hotels
+4. **Asset Segment Occupancy**: Occupancy specific to the property's asset type (per `propertyLabel`)
 5. **Event-Driven Occupancy**: Impact of events on off-season occupancy lift
 
 ## Calibration Factors
@@ -44,6 +48,6 @@ Occupancy recommendations should account for:
 ## Quality Standards
 
 - Include 4 seasonal periods with specific occupancy percentages
-- Ramp-up timeline should reflect boutique hotel reality (typically 12-24 months)
+- Ramp-up timeline should reflect the asset type's reality (typically 12-24 months for hospitality)
 - Cite industry sources (STR, CBRE, HVS, PKF)
 - Seasonal notes should explain demand drivers for each period

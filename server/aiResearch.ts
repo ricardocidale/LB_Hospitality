@@ -45,6 +45,10 @@ const PROPERTY_RESEARCH_SKILLS = [
   "cap-rate-analysis",
   "competitive-set",
   "land-value",
+  "operating-costs",
+  "property-value-costs",
+  "management-service-fees",
+  "income-tax",
 ];
 
 const SKILL_FOLDER_MAP: Record<string, string | string[]> = {

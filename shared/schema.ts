@@ -521,6 +521,39 @@ export type Property = typeof properties.$inferSelect;
 export type InsertProperty = z.infer<typeof insertPropertySchema>;
 export type UpdateProperty = z.infer<typeof updatePropertySchema>;
 
+// --- PROPERTY FEE CATEGORIES TABLE ---
+export const propertyFeeCategories = pgTable("property_fee_categories", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  propertyId: integer("property_id").notNull().references(() => properties.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  rate: real("rate").notNull().default(0),
+  isActive: boolean("is_active").notNull().default(true),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [
+  index("fee_categories_property_id_idx").on(table.propertyId),
+  check("fee_cat_rate_range", sql`${table.rate} >= 0 AND ${table.rate} <= 1`),
+]);
+
+export const insertFeeCategorySchema = createInsertSchema(propertyFeeCategories).pick({
+  propertyId: true,
+  name: true,
+  rate: true,
+  isActive: true,
+  sortOrder: true,
+});
+
+export const updateFeeCategorySchema = z.object({
+  name: z.string().optional(),
+  rate: z.number().min(0).max(1).optional(),
+  isActive: z.boolean().optional(),
+  sortOrder: z.number().optional(),
+});
+
+export type FeeCategory = typeof propertyFeeCategories.$inferSelect;
+export type InsertFeeCategory = z.infer<typeof insertFeeCategorySchema>;
+export type UpdateFeeCategory = z.infer<typeof updateFeeCategorySchema>;
+
 // --- SCENARIOS TABLE ---
 export const scenarios = pgTable("scenarios", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),

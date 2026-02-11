@@ -1,4 +1,4 @@
-import { globalAssumptions, properties, users, sessions, scenarios, loginLogs, designThemes, logos, assetDescriptions, userGroups, marketResearch, prospectiveProperties, savedSearches, activityLogs, verificationRuns, type GlobalAssumptions, type Property, type InsertGlobalAssumptions, type InsertProperty, type UpdateProperty, type User, type InsertUser, type Session, type Scenario, type InsertScenario, type UpdateScenario, type LoginLog, type InsertLoginLog, type DesignTheme, type InsertDesignTheme, type Logo, type InsertLogo, type AssetDescription, type InsertAssetDescription, type UserGroup, type InsertUserGroup, type MarketResearch, type InsertMarketResearch, type ProspectiveProperty, type InsertProspectiveProperty, type SavedSearch, type InsertSavedSearch, type ActivityLog, type InsertActivityLog, type VerificationRun, type InsertVerificationRun } from "@shared/schema";
+import { globalAssumptions, properties, users, sessions, scenarios, loginLogs, designThemes, logos, assetDescriptions, userGroups, marketResearch, prospectiveProperties, savedSearches, activityLogs, verificationRuns, propertyFeeCategories, type GlobalAssumptions, type Property, type InsertGlobalAssumptions, type InsertProperty, type UpdateProperty, type User, type InsertUser, type Session, type Scenario, type InsertScenario, type UpdateScenario, type LoginLog, type InsertLoginLog, type DesignTheme, type InsertDesignTheme, type Logo, type InsertLogo, type AssetDescription, type InsertAssetDescription, type UserGroup, type InsertUserGroup, type MarketResearch, type InsertMarketResearch, type ProspectiveProperty, type InsertProspectiveProperty, type SavedSearch, type InsertSavedSearch, type ActivityLog, type InsertActivityLog, type VerificationRun, type InsertVerificationRun, type FeeCategory, type InsertFeeCategory, type UpdateFeeCategory } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gt, lt, gte, lte, desc, or, isNull, type SQL } from "drizzle-orm";
 
@@ -126,6 +126,14 @@ export interface IStorage {
   updateUserGroup(id: number, data: Partial<InsertUserGroup>): Promise<UserGroup>;
   deleteUserGroup(id: number): Promise<void>;
   assignUserToGroup(userId: number, groupId: number | null): Promise<User>;
+
+  // Property Fee Categories
+  getFeeCategoriesByProperty(propertyId: number): Promise<FeeCategory[]>;
+  getAllFeeCategories(): Promise<FeeCategory[]>;
+  createFeeCategory(data: InsertFeeCategory): Promise<FeeCategory>;
+  updateFeeCategory(id: number, data: UpdateFeeCategory): Promise<FeeCategory | undefined>;
+  deleteFeeCategory(id: number): Promise<void>;
+  seedDefaultFeeCategories(propertyId: number): Promise<FeeCategory[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -730,6 +738,49 @@ export class DatabaseStorage implements IStorage {
   async assignUserToGroup(userId: number, groupId: number | null): Promise<User> {
     const [user] = await db.update(users).set({ userGroupId: groupId, updatedAt: new Date() }).where(eq(users.id, userId)).returning();
     return user;
+  }
+
+  // Property Fee Categories
+  async getFeeCategoriesByProperty(propertyId: number): Promise<FeeCategory[]> {
+    return db.select().from(propertyFeeCategories)
+      .where(eq(propertyFeeCategories.propertyId, propertyId))
+      .orderBy(propertyFeeCategories.sortOrder);
+  }
+
+  async getAllFeeCategories(): Promise<FeeCategory[]> {
+    return db.select().from(propertyFeeCategories)
+      .orderBy(propertyFeeCategories.propertyId, propertyFeeCategories.sortOrder);
+  }
+
+  async createFeeCategory(data: InsertFeeCategory): Promise<FeeCategory> {
+    const [cat] = await db.insert(propertyFeeCategories).values(data).returning();
+    return cat;
+  }
+
+  async updateFeeCategory(id: number, data: UpdateFeeCategory): Promise<FeeCategory | undefined> {
+    const [cat] = await db.update(propertyFeeCategories).set(data).where(eq(propertyFeeCategories.id, id)).returning();
+    return cat;
+  }
+
+  async deleteFeeCategory(id: number): Promise<void> {
+    await db.delete(propertyFeeCategories).where(eq(propertyFeeCategories.id, id));
+  }
+
+  async seedDefaultFeeCategories(propertyId: number): Promise<FeeCategory[]> {
+    const { DEFAULT_SERVICE_FEE_CATEGORIES } = await import("@shared/constants");
+    const existing = await this.getFeeCategoriesByProperty(propertyId);
+    if (existing.length > 0) return existing;
+    const results: FeeCategory[] = [];
+    for (const cat of DEFAULT_SERVICE_FEE_CATEGORIES) {
+      const [created] = await db.insert(propertyFeeCategories).values({
+        propertyId,
+        name: cat.name,
+        rate: cat.rate,
+        sortOrder: cat.sortOrder,
+      }).returning();
+      results.push(created);
+    }
+    return results;
   }
 }
 

@@ -33,6 +33,17 @@ export const DEFAULT_COST_RATE_OTHER = 0.05;
 export const DEFAULT_BASE_MANAGEMENT_FEE_RATE = 0.05;
 export const DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE = 0.15;
 
+// Service fee category defaults (per-property, % of Total Revenue)
+// These replace the single baseManagementFeeRate with granular categories
+// Sum of default rates = 5% (matches DEFAULT_BASE_MANAGEMENT_FEE_RATE)
+export const DEFAULT_SERVICE_FEE_CATEGORIES = [
+  { name: "Marketing", rate: 0.01, sortOrder: 1 },
+  { name: "IT", rate: 0.005, sortOrder: 2 },
+  { name: "Accounting", rate: 0.01, sortOrder: 3 },
+  { name: "Reservations", rate: 0.015, sortOrder: 4 },
+  { name: "General Management", rate: 0.01, sortOrder: 5 },
+] as const;
+
 // Exit & sale defaults
 export const DEFAULT_EXIT_CAP_RATE = 0.085;
 export const DEFAULT_TAX_RATE = 0.25;

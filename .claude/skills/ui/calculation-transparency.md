@@ -55,3 +55,10 @@ showPropertyCalculationDetails: boolean;
 - They display standard financial analysis (common-size percentages), not formula breakdowns
 - They serve financial managers who expect to see margins alongside subtotals
 - They are lightweight (single italic gray row) and don't clutter the presentation
+
+## InfoTooltip vs HelpTooltip in Financial Tables
+Financial tables use two distinct tooltip icons:
+- **`HelpTooltip` (? icon)**: Controlled by calc transparency toggle. Explains formula breakdowns and calculation methodology. Hidden when toggle is OFF.
+- **`InfoTooltip` (ℹ icon)**: NOT controlled by this toggle. Used for read-only values and calculated metrics to explain "what does this mean?" Always visible regardless of toggle state.
+
+See `info-icons.md` for full InfoTooltip documentation.

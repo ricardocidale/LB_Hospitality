@@ -13,6 +13,9 @@ Tests for the management company pro forma — fee revenue linkage, staffing mod
 ### Company Pro Forma Golden — `tests/engine/company-proforma.test.ts` (25 tests)
 Tests `generateCompanyProForma()` from `client/src/lib/financialEngine.ts`.
 
+### Per-Property Fees — `tests/engine/per-property-fees.test.ts` (32 tests)
+Tests per-property management fee rates — default rates, custom overrides, fallback behavior, zero-rate scenarios, multi-property aggregation, and seed data integrity. Validates that each property independently calculates its own base and incentive management fees using `baseManagementFeeRate` and `incentiveManagementFeeRate`, with fallback to `DEFAULT_BASE_MANAGEMENT_FEE_RATE` (5%) and `DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE` (15%) from `shared/constants.ts`.
+
 #### Revenue (Fee Linkage)
 | Test | What It Proves |
 |------|---------------|
@@ -118,6 +121,7 @@ EQUITY
 ## Run Commands
 ```bash
 npx vitest run tests/engine/company-proforma.test.ts   # Company pro forma (25 tests)
+npx vitest run tests/engine/per-property-fees.test.ts  # Per-property fee tests (32 tests)
 npx vitest run tests/funding/                          # All funding tests (25 tests)
 npx vitest run tests/proof/scenarios.test.ts           # Includes Scenario 5 (consolidated + OpCo)
 ```

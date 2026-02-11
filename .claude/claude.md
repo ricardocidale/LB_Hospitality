@@ -5,7 +5,7 @@ Business simulation portal for Hospitality Business Group. Models a boutique hos
 
 ## User Preferences
 - Preferred communication style: Simple, everyday language. Detailed user — ask lots of clarifying questions before implementing features. Do not assume; confirm requirements first.
-- **TOP PRIORITY: Calculations and correct reports are always the highest priority.** Financial accuracy must never be compromised for visual or UI enhancements. The automated proof system (445 tests) must always pass.
+- **TOP PRIORITY: Calculations and correct reports are always the highest priority.** Financial accuracy must never be compromised for visual or UI enhancements. The automated proof system (477 tests) must always pass.
 - Always format money as money (currency format with commas and appropriate precision).
 - All skills must be stored under `.claude/` directory (e.g., `.claude/skills/`, `.claude/manuals/`, `.claude/tools/`). Never place skills elsewhere.
 - The company name is "Hospitality Business Group" (or "Hospitality Business" for short). Never use "L+B Hospitality" in code or documentation.
@@ -36,7 +36,7 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | Design System | `.claude/skills/design-system/SKILL.md` | Colors, typography, component catalog, CSS classes |
 | Theme Engine | `.claude/skills/ui/theme-engine.md` | Multi-theme system (Fluid Glass active), user-created themes, token structure |
 | Component Library | `.claude/skills/component-library/SKILL.md` | PageHeader, GlassButton, ExportMenu, DarkGlassTabs, etc. |
-| Proof System | `.claude/skills/proof-system/SKILL.md` | 445 tests, 5 golden scenarios, verification commands |
+| Proof System | `.claude/skills/proof-system/SKILL.md` | 477 tests, 5 golden scenarios, verification commands |
 | Testing (7 skills) | `.claude/skills/testing/` | Per-statement/analysis test coverage at property, consolidated, and management company levels |
 | 3D Graphics | `.claude/skills/3d-graphics/SKILL.md` | Three.js scenes, framer-motion wrappers |
 | Database | `.claude/skills/database-environments/SKILL.md` | Dev/prod databases, migrations, sync |
@@ -57,7 +57,7 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | Tools | `.claude/tools/` | Analysis, financing, returns, validation, UI tool schemas |
 | Rules (8) | `.claude/rules/` | Audit persona+doctrine+plan, constants, DB seeding, API routes, etc. |
 
-## Testing & Proof System (445 Tests, 42 Files)
+## Testing & Proof System (477 Tests, 43 Files)
 
 | Entity Level | Test Domains | Skill |
 |-------------|-------------|-------|
@@ -68,7 +68,7 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | DCF/FCF Analysis | FCF computation, FCFE two-method reconciliation | `testing/analysis-dcf-fcf.md` |
 | Financing & Debt | Acquisition sizing, closing costs, refi schedule, funding engine | `testing/financing-refinance-funding.md` |
 
-**Commands**: `npm test` (all 445), `npm run verify` (4-phase, UNQUALIFIED required)
+**Commands**: `npm test` (all 477), `npm run verify` (4-phase, UNQUALIFIED required)
 
 ## Recent Changes
 - **User Groups & Multi-Tenant Branding**: New `user_groups` table with CRUD API (`/api/admin/user-groups/*`). Users assigned to groups inherit group branding (companyName, logo, theme, asset description). Branding resolution priority: user-level > group-level > system default. Layout sidebar dynamically shows resolved company name. Two seed groups: KIT Group (Rosario, Dov, Lea) and Norfolk Group (Ricardo, Checker, Bhuvan, Reynaldo). Admin UI has "User Groups" tab for management.
@@ -84,7 +84,7 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 - **Accordion Formula Rows**: Expandable rows in income statements showing step-by-step calculation breakdowns.
 - **Funding Instrument Rename**: All UI labels changed from hardcoded "SAFE" to dynamic `fundingSourceLabel` (default "SAFE"). Supports SAFE, Seed, Series A, etc. DB field names unchanged for backward compatibility.
 - **Negative Cash Balance Entity Identification**: Verification check now clearly identifies which entity (Management Company vs specific property by name) has negative cash balance issues. Management Company gets its own independent cash balance check.
-- **Expanded Test Suite**: 445 tests (up from 384). New suites: NPV-IRR cross-validation, FCFE two-method reconciliation, ASC 230 cash flow identities, portfolio IRR, refinancing/exit vectors, realistic 10-year hotel golden scenario.
+- **Expanded Test Suite**: 477 tests (up from 384). New suites: NPV-IRR cross-validation, FCFE two-method reconciliation, ASC 230 cash flow identities, portfolio IRR, refinancing/exit vectors, realistic 10-year hotel golden scenario, per-property management fees (32 tests).
 
 ## Key Rules
 - **Calculations always highest priority** — never compromise financial accuracy for visuals
@@ -147,7 +147,7 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 ## Quick Commands
 ```bash
 npm run dev       # Start dev server
-npm test          # Run all 445 tests
+npm test          # Run all 477 tests
 npm run verify    # Full 4-phase financial verification
 npm run db:push   # Push schema changes
 ```

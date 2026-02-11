@@ -28,14 +28,16 @@ Key directories inside `.claude/`:
 **Fluid Glass** is the active theme. All new UI work must follow Fluid Glass styling conventions.
 
 ## Recent Changes
-- **Per-property management fees**: Management fees (baseManagementFeeRate, incentiveManagementFeeRate) moved from global assumptions to per-property. Company Assumptions shows a read-only summary table of each property's fee rates. PropertyEdit has new Management Fees section with sliders and tooltips. Global fee fields deprecated (kept in DB schema for backward compatibility).
+- **Slider responsive breakpoints**: All slider grids use `sm:` (640px) instead of `md:` (768px) — sliders go multi-column on tablets and landscape phones, full-width only on extremely narrow portrait phones (<640px)
+- **InfoTooltip component**: New `InfoTooltip` (ℹ icon) for read-only values and calculated metrics, complementing `HelpTooltip` (? icon) for form inputs. Full skill doc at `.claude/skills/ui/info-icons.md`
+- **Per-property management fees**: Management fees (baseManagementFeeRate, incentiveManagementFeeRate) moved from global assumptions to per-property. 32 new tests in `tests/engine/per-property-fees.test.ts`. CompanyAssumptions shows read-only summary table. PropertyEdit has Management Fees section with sliders and tooltips.
 - **Common-size analysis**: All financial statement subtotals (IS, CF, BS) now show percentage margin rows via shared `MarginRow` component
 - **Assumption label clarity**: CompanyAssumptions.tsx labels now explicitly state the revenue/value base for each percentage input
 - **Balance sheet ratios**: Debt-to-Assets and Equity-to-Assets ratios displayed after Grand Total
 
 ## Quick Reference
 - `npm run dev` — Start dev server
-- `npm test` — Run all 445 tests
+- `npm test` — Run all 477 tests
 - `npm run verify` — Full financial verification (UNQUALIFIED = pass)
 - `npm run db:push` — Push schema changes
 - Tech: React 18 + TypeScript + Express 5 + PostgreSQL + Drizzle ORM

@@ -158,6 +158,12 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
       {/* ── Revenue ── */}
       <SectionHeader label="Revenue" colSpan={colSpan} />
 
+      <MetricRow
+        label="Total Rooms Available"
+        tooltip="Total room-nights available for the year. Calculated as Room Count × Days per Month × 12."
+        values={yd.map((y) => y.availableRooms.toLocaleString())}
+      />
+
       <ExpandableMetricRow
         label="ADR (Rate)"
         tooltip="Average Daily Rate — the published end-of-year room rate after annual ADR growth is applied. This is the 'clean' rate, not blended across rate changes."

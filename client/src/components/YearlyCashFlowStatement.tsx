@@ -220,6 +220,12 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
         expanded={!!expanded.revenue}
         onToggle={() => toggleSection('revenue')}
       >
+        <MetricRow
+          label="Total Rooms Available"
+          tooltip="Total room-nights available for the year. Room Count × Days per Month × 12."
+          values={yearlyDetails.map(y => y.availableRooms.toLocaleString())}
+        />
+
         <ExpandableMetricRow
           label="ADR (Rate)"
           tooltip="Average Daily Rate — the published end-of-year room rate after annual ADR growth. This is the 'clean' rate, not blended across rate changes."

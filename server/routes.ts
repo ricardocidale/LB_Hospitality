@@ -3129,8 +3129,10 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
         if (typeof cat.name !== "string" || !cat.name.trim()) {
           return res.status(400).json({ error: "Each category must have a non-empty name" });
         }
-        if (typeof cat.rate !== "number" || cat.rate < 0 || cat.rate > 1) {
-          return res.status(400).json({ error: `Invalid rate for category "${cat.name}": must be a number between 0 and 1` });
+        if (cat.rate !== undefined && cat.rate !== null) {
+          if (typeof cat.rate !== "number" || cat.rate < 0 || cat.rate > 1) {
+            return res.status(400).json({ error: `Invalid rate for category "${cat.name}": must be a number between 0 and 1` });
+          }
         }
       }
       const results = [];

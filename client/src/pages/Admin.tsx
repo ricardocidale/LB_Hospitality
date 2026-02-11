@@ -1015,17 +1015,15 @@ export default function Admin() {
         <div className="flex flex-wrap items-center gap-4 p-4 rounded-xl bg-primary/5 border border-primary/20">
           <div className="flex items-center gap-2">
             <Label className="text-muted-foreground text-sm whitespace-nowrap">User</Label>
-            <select
-              value={loginLogUserFilter}
-              onChange={(e) => setLoginLogUserFilter(e.target.value)}
-              className="bg-primary/10 border border-primary/20 text-foreground rounded-lg px-3 py-1.5 text-sm"
-              data-testid="select-login-log-user-filter"
-            >
-              <option value="">All Users</option>
-              {users?.map(u => (
-                <option key={u.id} value={String(u.id)}>{u.name || u.email}</option>
-              ))}
-            </select>
+            <Select value={loginLogUserFilter || "all"} onValueChange={(v) => setLoginLogUserFilter(v === "all" ? "" : v)}>
+              <SelectTrigger className="bg-primary/10 border-primary/20 text-foreground h-8 w-40 text-sm" data-testid="select-login-log-user-filter"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Users</SelectItem>
+                {users?.map(u => (
+                  <SelectItem key={u.id} value={String(u.id)}>{u.name || u.email}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="flex items-center gap-2">
             <Label className="text-muted-foreground text-sm whitespace-nowrap">IP Address</Label>
@@ -1195,34 +1193,30 @@ export default function Admin() {
           <div className="flex flex-wrap items-center gap-4">
             <div className="flex items-center gap-2">
               <Label className="text-muted-foreground text-sm whitespace-nowrap">Entity Type</Label>
-              <select
-                value={activityEntityFilter}
-                onChange={(e) => setActivityEntityFilter(e.target.value)}
-                className="bg-primary/10 border border-primary/20 text-foreground rounded-lg px-3 py-1.5 text-sm"
-                data-testid="select-activity-entity-filter"
-              >
-                <option value="">All</option>
-                <option value="property">Property</option>
-                <option value="scenario">Scenario</option>
-                <option value="global_assumptions">Assumptions</option>
-                <option value="user">User</option>
-                <option value="verification">Verification</option>
-                <option value="image">Image</option>
-              </select>
+              <Select value={activityEntityFilter || "all"} onValueChange={(v) => setActivityEntityFilter(v === "all" ? "" : v)}>
+                <SelectTrigger className="bg-primary/10 border-primary/20 text-foreground h-8 w-40 text-sm" data-testid="select-activity-entity-filter"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="property">Property</SelectItem>
+                  <SelectItem value="scenario">Scenario</SelectItem>
+                  <SelectItem value="global_assumptions">Assumptions</SelectItem>
+                  <SelectItem value="user">User</SelectItem>
+                  <SelectItem value="verification">Verification</SelectItem>
+                  <SelectItem value="image">Image</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="flex items-center gap-2">
               <Label className="text-muted-foreground text-sm whitespace-nowrap">User</Label>
-              <select
-                value={activityUserFilter}
-                onChange={(e) => setActivityUserFilter(e.target.value)}
-                className="bg-primary/10 border border-primary/20 text-foreground rounded-lg px-3 py-1.5 text-sm"
-                data-testid="select-activity-user-filter"
-              >
-                <option value="">All Users</option>
-                {users?.map(u => (
-                  <option key={u.id} value={String(u.id)}>{u.name || u.email}</option>
-                ))}
-              </select>
+              <Select value={activityUserFilter || "all"} onValueChange={(v) => setActivityUserFilter(v === "all" ? "" : v)}>
+                <SelectTrigger className="bg-primary/10 border-primary/20 text-foreground h-8 w-40 text-sm" data-testid="select-activity-user-filter"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Users</SelectItem>
+                  {users?.map(u => (
+                    <SelectItem key={u.id} value={String(u.id)}>{u.name || u.email}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <span className="text-muted-foreground text-sm ml-auto">
               {activityLogs?.length ?? 0} entries
@@ -1762,22 +1756,23 @@ export default function Admin() {
                   />
                 </div>
                 <div className="flex-1 space-y-1">
-                  <select
-                    value={globalAssumptions?.companyLogo || ""}
-                    onChange={(e) => {
-                      const url = e.target.value || null;
+                  <Select
+                    value={globalAssumptions?.companyLogo || "default"}
+                    onValueChange={(v) => {
+                      const url = v === "default" ? null : v;
                       updateGlobalMutation.mutate({ companyLogo: url }, {
                         onSuccess: () => toast({ title: url ? "Logo updated" : "Logo reset", description: url ? "Company logo has been updated." : "Company logo has been reset to default." })
                       });
                     }}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                    data-testid="select-company-logo"
                   >
-                    <option value="">Default Logo</option>
-                    {adminLogos?.map(logo => (
-                      <option key={logo.id} value={logo.url}>{logo.name}{logo.isDefault ? " (Default)" : ""}</option>
-                    ))}
-                  </select>
+                    <SelectTrigger data-testid="select-company-logo"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="default">Default Logo</SelectItem>
+                      {adminLogos?.map(logo => (
+                        <SelectItem key={logo.id} value={logo.url}>{logo.name}{logo.isDefault ? " (Default)" : ""}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <p className="text-xs text-muted-foreground">Select from Logo Portfolio below</p>
                 </div>
               </div>
@@ -2075,20 +2070,21 @@ export default function Admin() {
                       }`}>{user.role}</span>
                     </TableCell>
                     <TableCell>
-                      <select
-                        value={user.userGroupId ?? ""}
-                        onChange={(e) => {
-                          const groupId = e.target.value ? parseInt(e.target.value) : null;
+                      <Select
+                        value={user.userGroupId != null ? String(user.userGroupId) : "none"}
+                        onValueChange={(v) => {
+                          const groupId = v === "none" ? null : parseInt(v);
                           assignGroupMutation.mutate({ userId: user.id, groupId });
                         }}
-                        className="flex h-9 w-full max-w-[200px] rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                        data-testid={`select-user-group-${user.id}`}
                       >
-                        <option value="">No Group</option>
-                        {userGroupsList?.map(g => (
-                          <option key={g.id} value={g.id}>{g.name}</option>
-                        ))}
-                      </select>
+                        <SelectTrigger className="h-9 max-w-[200px]" data-testid={`select-user-group-${user.id}`}><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">No Group</SelectItem>
+                          {userGroupsList?.map(g => (
+                            <SelectItem key={g.id} value={String(g.id)}>{g.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </TableCell>
                   </TableRow>
                 );

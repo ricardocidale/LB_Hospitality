@@ -71,3 +71,21 @@ TOTAL ASSETS = TOTAL LIABILITIES + TOTAL EQUITY
 ```
 
 If this does not balance within rounding tolerance ($1), there is a calculation error.
+
+---
+
+## Financial Ratios
+
+After the Grand Total row, the Balance Sheet displays two key leverage ratios when total assets > 0:
+
+| Ratio | Formula | Purpose |
+|-------|---------|---------|
+| Debt-to-Assets | `totalLiabilities / totalAssets × 100` | Measures financial leverage — what percentage of assets are financed by debt |
+| Equity-to-Assets | `totalEquity / totalAssets × 100` | Measures owner's stake — what percentage of assets are financed by equity |
+
+These always sum to 100% (since Assets = Liabilities + Equity).
+
+### Implementation
+- Inline `<tr>` elements in `ConsolidatedBalanceSheet.tsx` (not using MarginRow since BS is single-year, 2-column layout)
+- Styling matches MarginRow: `text-xs text-gray-400 italic font-mono`
+- Only rendered when `totalAssets > 0`

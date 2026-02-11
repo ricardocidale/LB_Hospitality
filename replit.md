@@ -21,9 +21,15 @@ Key directories inside `.claude/`:
 - All skills stored under `.claude/`. All UI must reference a theme via the theme engine.
 - New UI features get their own skill file in `.claude/skills/ui/`.
 - When updating features, always update the corresponding skills and manuals documentation.
+- Percentage-based assumptions must always clarify their calculation base in the label (e.g., "% of Property Gross Revenue", "% of Mgmt Fee Revenue").
 
 ## Current Theme
 **Fluid Glass** is the active theme. All new UI work must follow Fluid Glass styling conventions.
+
+## Recent Changes
+- **Common-size analysis**: All financial statement subtotals (IS, CF, BS) now show percentage margin rows via shared `MarginRow` component
+- **Assumption label clarity**: CompanyAssumptions.tsx labels now explicitly state the revenue/value base for each percentage input
+- **Balance sheet ratios**: Debt-to-Assets and Equity-to-Assets ratios displayed after Grand Total
 
 ## Quick Reference
 - `npm run dev` — Start dev server

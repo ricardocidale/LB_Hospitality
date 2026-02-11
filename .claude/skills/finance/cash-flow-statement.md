@@ -139,3 +139,20 @@ Simplified (for operating periods without CapEx):
 │ BALANCE CHECK: ✓ or ⚠                                            │
 └──────────────────────────────────────────────────────────────────┘
 ```
+
+---
+
+## Common-Size Analysis (Percentage Margin Rows)
+
+Cash flow subtotals include percentage rows showing their relationship to Total Revenue for quick operating efficiency assessment.
+
+### Displayed Margins
+| After Subtotal | Margin Label | Formula |
+|---------------|-------------|---------|
+| Net Cash from Operating Activities | % of Total Revenue | `cashFromOperations / revenueTotal × 100` |
+| Free Cash Flow (FCF) | % of Total Revenue | `fcf / revenueTotal × 100` |
+| Free Cash Flow to Equity (FCFE) | % of Total Revenue | `fcfe / revenueTotal × 100` |
+
+### Implementation
+- Uses shared `MarginRow` component from `financial-table-rows.tsx`
+- Same styling as Income Statement margins: `text-xs text-gray-400 italic font-mono`

@@ -49,3 +49,9 @@ showPropertyCalculationDetails: boolean;
 3. Export dialog "Include formula details" checkbox is independent of this toggle
 4. Help icons on Settings/CompanyAssumptions pages are NOT affected (those explain settings, not calculations)
 5. Always use `?? true` fallback when reading the toggle to handle legacy data without the column
+
+## MarginRow Behavior
+`MarginRow` percentage rows are NOT affected by the calculation transparency toggle. They are always visible because:
+- They display standard financial analysis (common-size percentages), not formula breakdowns
+- They serve financial managers who expect to see margins alongside subtotals
+- They are lightweight (single italic gray row) and don't clutter the presentation

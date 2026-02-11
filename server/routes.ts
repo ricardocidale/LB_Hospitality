@@ -537,6 +537,7 @@ export async function registerRoutes(
     try {
       const results = {
         users: { created: 0, skipped: 0 },
+        userGroups: { created: 0, skipped: 0 },
         globalAssumptions: { created: 0, skipped: 0 },
         properties: { created: 0, skipped: 0 },
         designThemes: { created: 0, skipped: 0 }
@@ -546,10 +547,14 @@ export async function registerRoutes(
       // Passwords are hashed dynamically from env vars — never store static hashes in code
       const adminPw = process.env.ADMIN_PASSWORD || "changeme";
       const checkerPw = process.env.CHECKER_PASSWORD || "changeme";
+      const reynaldoPw = process.env.REYNALDO_PASSWORD || "changeme";
       const usersToSeed = [
         { email: "admin", passwordHash: await hashPassword(adminPw), role: "admin" as const, name: "Ricardo Cidale", company: "Norfolk Group", title: "Partner" },
         { email: "rosario@kitcapital.com", passwordHash: await hashPassword(adminPw), role: "user" as const, name: "Rosario David", company: "KIT Capital", title: "COO" },
-        { email: "checker@norfolkgroup.io", passwordHash: await hashPassword(checkerPw), role: "checker" as const, name: "Checker", company: "Norfolk AI", title: "Checker" }
+        { email: "kit@kitcapital.com", passwordHash: await hashPassword(adminPw), role: "user" as const, name: "Dov Tuzman", company: "KIT Capital", title: "Managing Partner" },
+        { email: "checker@norfolkgroup.io", passwordHash: await hashPassword(checkerPw), role: "checker" as const, name: "Checker", company: "Norfolk AI", title: "Checker" },
+        { email: "bhuvan@norfolkgroup.io", passwordHash: await hashPassword(adminPw), role: "user" as const, name: "Bhuvan Agarwal", company: "Norfolk Group", title: "Associate" },
+        { email: "reynaldo.fagundes@norfolk.ai", passwordHash: await hashPassword(reynaldoPw), role: "user" as const, name: "Reynaldo Fagundes", company: "Norfolk AI", title: "Partner" },
       ];
       
       for (const userData of usersToSeed) {
@@ -559,6 +564,44 @@ export async function registerRoutes(
           results.users.created++;
         } else {
           results.users.skipped++;
+        }
+      }
+
+      // Seed user groups and assign users
+      const existingGroups = await storage.getAllUserGroups();
+      const groupMap: Record<string, number> = {};
+      
+      const groupsToSeed = [
+        { name: "KIT Group", companyName: "KIT Capital" },
+        { name: "Norfolk Group", companyName: "Norfolk Group" },
+      ];
+
+      for (const groupData of groupsToSeed) {
+        const existing = existingGroups.find(g => g.name === groupData.name);
+        if (!existing) {
+          const created = await storage.createUserGroup(groupData);
+          groupMap[groupData.name] = created.id;
+          results.userGroups.created++;
+        } else {
+          groupMap[groupData.name] = existing.id;
+          results.userGroups.skipped++;
+        }
+      }
+
+      const groupAssignments: Record<string, string> = {
+        "rosario@kitcapital.com": "KIT Group",
+        "kit@kitcapital.com": "KIT Group",
+        "admin": "Norfolk Group",
+        "checker@norfolkgroup.io": "Norfolk Group",
+        "bhuvan@norfolkgroup.io": "Norfolk Group",
+        "reynaldo.fagundes@norfolk.ai": "Norfolk Group",
+      };
+
+      for (const [email, groupName] of Object.entries(groupAssignments)) {
+        const user = await storage.getUserByEmail(email);
+        const groupId = groupMap[groupName];
+        if (user && groupId && user.userGroupId !== groupId) {
+          await storage.assignUserToGroup(user.id, groupId);
         }
       }
 

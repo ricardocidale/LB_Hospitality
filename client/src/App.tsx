@@ -143,14 +143,17 @@ function Router() {
           <ProtectedRoute component={Portfolio} />
         </FinancialErrorBoundary>
       </Route>
-      <Route path="/property/:id">
-        <FinancialErrorBoundary>
-          <ProtectedRoute component={PropertyDetail} />
-        </FinancialErrorBoundary>
-      </Route>
       <Route path="/property/:id/edit">
         <FinancialErrorBoundary>
           <ProtectedRoute component={PropertyEdit} />
+        </FinancialErrorBoundary>
+      </Route>
+      <Route path="/property/:id/research">
+        <ProtectedRoute component={PropertyMarketResearch} />
+      </Route>
+      <Route path="/property/:id">
+        <FinancialErrorBoundary>
+          <ProtectedRoute component={PropertyDetail} />
         </FinancialErrorBoundary>
       </Route>
       <Route path="/settings">
@@ -161,9 +164,6 @@ function Router() {
       </Route>
       <Route path="/methodology">
         <Redirect to="/help" />
-      </Route>
-      <Route path="/property/:id/research">
-        <ProtectedRoute component={PropertyMarketResearch} />
       </Route>
       <Route path="/company/research">
         <ProtectedRoute component={CompanyResearch} />

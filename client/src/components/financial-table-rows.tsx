@@ -138,7 +138,7 @@ export function SubtotalRow({
         <TableCell
           key={i}
           className={cn(
-            "text-right py-1.5 font-mono",
+            "text-right py-1.5 font-mono px-2",
             v < 0 ? "text-destructive" : positive ? positiveColor : ""
           )}
         >
@@ -201,13 +201,13 @@ export function LineItem({
         const displayVal = negate ? -v : v;
         if (formatAsPercent) {
           return (
-            <TableCell key={i} className="text-right text-muted-foreground py-1 font-mono">
+            <TableCell key={i} className="text-right text-muted-foreground py-1 font-mono px-2">
               {v === 0 && !showZero ? "-" : `${displayVal.toFixed(1)}%`}
             </TableCell>
           );
         }
         return (
-          <TableCell key={i} className="text-right text-muted-foreground py-1 font-mono">
+          <TableCell key={i} className="text-right text-muted-foreground py-1 font-mono px-2">
             {v === 0 && !showZero ? "-" : <Money amount={displayVal} />}
           </TableCell>
         );
@@ -255,7 +255,7 @@ export function ExpandableLineItem({
         {values.map((v, i) => {
           const displayVal = negate ? -v : v;
           return (
-            <TableCell key={i} className="text-right font-medium py-1 font-mono">
+            <TableCell key={i} className="text-right font-medium py-1 font-mono px-2">
               <Money amount={displayVal} />
             </TableCell>
           );
@@ -281,7 +281,7 @@ export function ExpandableLineItem({
         {values.map((v, i) => {
           const displayVal = negate ? -v : v;
           return (
-            <TableCell key={i} className="text-right font-medium py-1 font-mono">
+            <TableCell key={i} className="text-right font-medium py-1 font-mono px-2">
               <Money amount={displayVal} />
             </TableCell>
           );
@@ -323,7 +323,7 @@ export function GrandTotalRow({
         </span>
       </TableCell>
       {values.map((v, i) => (
-        <TableCell key={i} className="text-right py-1.5 font-mono">
+        <TableCell key={i} className="text-right py-1.5 font-mono px-2">
           <Money amount={v} className={v < 0 ? "text-red-200" : ""} />
         </TableCell>
       ))}
@@ -360,7 +360,7 @@ export function MetricRow({ label, values, tooltip, highlights }: MetricRowProps
       {values.map((v, i) => (
         <TableCell
           key={i}
-          className={cn("text-right font-medium py-1 font-mono", highlights?.[i])}
+          className={cn("text-right font-medium py-1 font-mono px-2", highlights?.[i])}
         >
           {v}
         </TableCell>
@@ -407,7 +407,7 @@ export function ExpandableMetricRow({
         {values.map((v, i) => (
           <TableCell
             key={i}
-            className={cn("text-right font-medium py-1 font-mono", highlights?.[i])}
+            className={cn("text-right font-medium py-1 font-mono px-2", highlights?.[i])}
           >
             {v}
           </TableCell>
@@ -433,7 +433,7 @@ export function ExpandableMetricRow({
         {values.map((v, i) => (
           <TableCell
             key={i}
-            className={cn("text-right font-medium py-1 font-mono", highlights?.[i])}
+            className={cn("text-right font-medium py-1 font-mono px-2", highlights?.[i])}
           >
             {v}
           </TableCell>
@@ -696,16 +696,16 @@ export function TableShell({
         {banner}
       </CardHeader>
       <div className="overflow-x-auto">
-        <Table>
+        <Table className="w-full table-auto">
           <TableHeader>
             <TableRow className="bg-gray-100">
-              <TableHead className="w-[250px] font-bold sticky left-0 bg-gray-100 text-gray-900">
+              <TableHead className="w-[180px] min-w-[140px] font-bold sticky left-0 bg-gray-100 text-gray-900">
                 {stickyLabel}
               </TableHead>
               {columns.map((col, i) => (
                 <TableHead
                   key={i}
-                  className="text-right min-w-[110px] font-bold text-gray-900"
+                  className="text-right min-w-[85px] font-bold text-gray-900 px-2"
                 >
                   {col}
                 </TableHead>

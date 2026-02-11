@@ -40,7 +40,7 @@ function MarginRow({ label, values, revenueValues }: { label: string; values: nu
         const rev = revenueValues[i] || 0;
         const pctVal = rev !== 0 ? (v / rev) * 100 : 0;
         return (
-          <TableCell key={i} className="text-right py-0.5 font-mono text-xs text-gray-400 italic">
+          <TableCell key={i} className="text-right py-0.5 font-mono text-xs text-gray-400 italic px-2">
             {rev !== 0 ? `${pctVal.toFixed(1)}%` : "—"}
           </TableCell>
         );

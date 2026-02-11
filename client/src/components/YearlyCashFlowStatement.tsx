@@ -14,11 +14,13 @@ import {
   SubtotalRow,
   LineItem,
   ExpandableLineItem,
+  ExpandableMetricRow,
   GrandTotalRow,
   SpacerRow,
   MetricRow,
   MarginRow,
 } from "@/components/financial-table-rows";
+import { TableRow, TableCell } from "@/components/ui/table";
 import {
   LoanParams,
   GlobalLoanParams,
@@ -30,6 +32,21 @@ import { OPERATING_RESERVE_BUFFER, RESERVE_ROUNDING_INCREMENT, DEFAULT_COMMISSIO
 import { aggregateCashFlowByYear } from "@/lib/cashFlowAggregator";
 import { aggregatePropertyByYear } from "@/lib/yearlyAggregator";
 import { computeCashFlowSections } from "@/lib/cashFlowSections";
+
+function FormulaDetailRow({ label, values, colCount }: { label: string; values: string[]; colCount: number }) {
+  return (
+    <TableRow className="bg-blue-50/40" data-expandable-row="true">
+      <TableCell className="pl-12 sticky left-0 bg-blue-50/40 py-0.5 text-xs text-gray-500 italic">
+        {label}
+      </TableCell>
+      {values.map((v, i) => (
+        <TableCell key={i} className="text-right py-0.5 font-mono text-xs text-gray-500">
+          {v}
+        </TableCell>
+      ))}
+    </TableRow>
+  );
+}
 
 interface CashPositionAnalysis {
   operatingReserve: number;
@@ -199,19 +216,95 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
       <ExpandableLineItem
         label="Cash Received from Guests & Clients"
         values={yearlyDetails.map(y => y.revenueTotal)}
-        tooltip="Click to expand: Room revenue, event & venue income, food & beverage, and other revenue streams."
+        tooltip="Click to expand: ADR, Occupancy, RevPAR, and revenue by stream."
         expanded={!!expanded.revenue}
         onToggle={() => toggleSection('revenue')}
       >
-        <LineItem label="ADR" values={yearlyDetails.map(y => y.soldRooms > 0 ? y.revenueRooms / y.soldRooms : 0)} indent showZero />
-        <LineItem
+        <ExpandableMetricRow
+          label="ADR (Rate)"
+          tooltip="Average Daily Rate — the published end-of-year room rate after annual ADR growth. This is the 'clean' rate, not blended across rate changes."
+          values={yearlyDetails.map(y => y.cleanAdr > 0 ? `$${y.cleanAdr.toFixed(2)}` : "-")}
+          expanded={!!expanded.cfAdrRate}
+          onToggle={() => toggleSection('cfAdrRate')}
+        >
+          <FormulaDetailRow
+            label="Starting ADR × (1 + growth rate)^year"
+            values={yearlyDetails.map(y => {
+              if (y.cleanAdr <= 0) return "-";
+              const prop = property as Record<string, number>;
+              const startAdr = prop.startAdr ?? 0;
+              const growthRate = prop.adrGrowthRate ?? 0;
+              return `$${startAdr.toFixed(2)} × (1+${(growthRate * 100).toFixed(1)}%)^${y.year}`;
+            })}
+            colCount={years}
+          />
+        </ExpandableMetricRow>
+
+        <ExpandableMetricRow
+          label="ADR (Effective)"
+          tooltip="Effective ADR — the actual blended average rate earned. Room Revenue ÷ Sold Rooms."
+          values={yearlyDetails.map(y => y.soldRooms > 0 ? `$${(y.revenueRooms / y.soldRooms).toFixed(2)}` : "-")}
+          expanded={!!expanded.cfAdrEff}
+          onToggle={() => toggleSection('cfAdrEff')}
+        >
+          <FormulaDetailRow
+            label="Room Revenue ÷ Sold Rooms"
+            values={yearlyDetails.map(y =>
+              y.soldRooms > 0 ? `${formatMoney(y.revenueRooms)} ÷ ${y.soldRooms.toLocaleString()}` : "-"
+            )}
+            colCount={years}
+          />
+        </ExpandableMetricRow>
+
+        <ExpandableMetricRow
           label="Occupancy"
-          values={yearlyDetails.map(y => y.availableRooms > 0 ? (y.soldRooms / y.availableRooms) * 100 : 0)}
-          indent
-          formatAsPercent
-          showZero
-        />
-        <LineItem label="RevPAR" values={yearlyDetails.map(y => y.availableRooms > 0 ? y.revenueRooms / y.availableRooms : 0)} indent showZero />
+          tooltip="Occupancy Rate — percentage of available rooms sold. Sold Rooms ÷ Available Rooms × 100."
+          values={yearlyDetails.map(y =>
+            y.availableRooms > 0 ? `${((y.soldRooms / y.availableRooms) * 100).toFixed(1)}%` : "0%"
+          )}
+          expanded={!!expanded.cfOcc}
+          onToggle={() => toggleSection('cfOcc')}
+        >
+          <FormulaDetailRow
+            label="Sold Rooms"
+            values={yearlyDetails.map(y => y.soldRooms.toLocaleString())}
+            colCount={years}
+          />
+          <FormulaDetailRow
+            label="Available Rooms"
+            values={yearlyDetails.map(y => y.availableRooms.toLocaleString())}
+            colCount={years}
+          />
+        </ExpandableMetricRow>
+
+        <ExpandableMetricRow
+          label="RevPAR"
+          tooltip="Revenue Per Available Room — Room Revenue ÷ Available Rooms (or ADR × Occupancy)."
+          values={yearlyDetails.map(y =>
+            y.availableRooms > 0 ? `$${(y.revenueRooms / y.availableRooms).toFixed(2)}` : "-"
+          )}
+          expanded={!!expanded.cfRevpar}
+          onToggle={() => toggleSection('cfRevpar')}
+        >
+          <FormulaDetailRow
+            label="Room Revenue ÷ Available Rooms"
+            values={yearlyDetails.map(y =>
+              y.availableRooms > 0 ? `${formatMoney(y.revenueRooms)} ÷ ${y.availableRooms.toLocaleString()}` : "-"
+            )}
+            colCount={years}
+          />
+          <FormulaDetailRow
+            label="Cross-check: ADR × Occupancy"
+            values={yearlyDetails.map(y => {
+              if (y.availableRooms === 0) return "-";
+              const effAdr = y.soldRooms > 0 ? y.revenueRooms / y.soldRooms : 0;
+              const occ = y.soldRooms / y.availableRooms;
+              return `$${effAdr.toFixed(2)} × ${(occ * 100).toFixed(1)}% = $${(effAdr * occ).toFixed(2)}`;
+            })}
+            colCount={years}
+          />
+        </ExpandableMetricRow>
+
         <LineItem label="Guest Room Revenue" values={yearlyDetails.map(y => y.revenueRooms)} indent />
         <LineItem label="Event & Venue Revenue" values={yearlyDetails.map(y => y.revenueEvents)} indent />
         <LineItem label="Food & Beverage Revenue" values={yearlyDetails.map(y => y.revenueFB)} indent />
@@ -221,25 +314,52 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
       <ExpandableLineItem
         label="Cash Paid for Operating Expenses"
         values={yearlyDetails.map(y => y.totalExpenses - y.expenseFFE)}
-        tooltip="Click to expand: Departmental costs, utilities, taxes, insurance, and management fees. Excludes FF&E (shown in Investing)."
+        tooltip="Click to expand: Direct costs, overhead & admin, and management fees. Excludes FF&E (shown in Investing)."
         expanded={!!expanded.expenses}
         onToggle={() => toggleSection('expenses')}
         negate
       >
-        <LineItem label="Housekeeping & Room Operations" values={yearlyDetails.map(y => y.expenseRooms)} indent />
-        <LineItem label="Food & Beverage Costs" values={yearlyDetails.map(y => y.expenseFB)} indent />
-        <LineItem label="Event Operations" values={yearlyDetails.map(y => y.expenseEvents)} indent />
-        <LineItem label="Marketing & Platform Fees" values={yearlyDetails.map(y => y.expenseMarketing)} indent />
-        <LineItem label="Property Operations & Maintenance" values={yearlyDetails.map(y => y.expensePropertyOps)} indent />
-        <LineItem label="Utilities (Variable)" values={yearlyDetails.map(y => y.expenseUtilitiesVar)} indent />
-        <LineItem label="Utilities (Fixed)" values={yearlyDetails.map(y => y.expenseUtilitiesFixed)} indent />
-        <LineItem label="Insurance" values={yearlyDetails.map(y => y.expenseInsurance)} indent />
-        <LineItem label="Property Taxes" values={yearlyDetails.map(y => y.expenseTaxes)} indent />
-        <LineItem label="Administrative & Compliance" values={yearlyDetails.map(y => y.expenseAdmin)} indent />
-        <LineItem label="IT Systems" values={yearlyDetails.map(y => y.expenseIT)} indent />
-        <LineItem label="Other Operating Costs" values={yearlyDetails.map(y => y.expenseOtherCosts)} indent />
-        <LineItem label="Base Management Fee" values={yearlyDetails.map(y => y.feeBase)} indent />
-        <LineItem label="Incentive Management Fee" values={yearlyDetails.map(y => y.feeIncentive)} indent />
+        <ExpandableLineItem
+          label="Direct Costs"
+          values={yearlyDetails.map(y => y.expenseRooms + y.expenseFB + y.expenseEvents + y.expenseOther)}
+          tooltip="Variable departmental costs that scale with occupancy and revenue."
+          expanded={!!expanded.cfDirect}
+          onToggle={() => toggleSection('cfDirect')}
+        >
+          <LineItem label="Housekeeping & Room Operations" values={yearlyDetails.map(y => y.expenseRooms)} indent />
+          <LineItem label="Food & Beverage Costs" values={yearlyDetails.map(y => y.expenseFB)} indent />
+          <LineItem label="Event Operations" values={yearlyDetails.map(y => y.expenseEvents)} indent />
+          <LineItem label="Other Direct Costs" values={yearlyDetails.map(y => y.expenseOther)} indent />
+        </ExpandableLineItem>
+
+        <ExpandableLineItem
+          label="Overhead & Administration"
+          values={yearlyDetails.map(y => y.expenseMarketing + y.expensePropertyOps + y.expenseUtilitiesVar + y.expenseUtilitiesFixed + y.expenseInsurance + y.expenseTaxes + y.expenseAdmin + y.expenseIT + y.expenseOtherCosts)}
+          tooltip="Fixed and semi-variable overhead: marketing, property ops, utilities, insurance, taxes, admin, IT, and other costs."
+          expanded={!!expanded.cfOverhead}
+          onToggle={() => toggleSection('cfOverhead')}
+        >
+          <LineItem label="Marketing & Platform Fees" values={yearlyDetails.map(y => y.expenseMarketing)} indent />
+          <LineItem label="Property Operations & Maintenance" values={yearlyDetails.map(y => y.expensePropertyOps)} indent />
+          <LineItem label="Utilities (Variable)" values={yearlyDetails.map(y => y.expenseUtilitiesVar)} indent />
+          <LineItem label="Utilities (Fixed)" values={yearlyDetails.map(y => y.expenseUtilitiesFixed)} indent />
+          <LineItem label="Insurance" values={yearlyDetails.map(y => y.expenseInsurance)} indent />
+          <LineItem label="Property Taxes" values={yearlyDetails.map(y => y.expenseTaxes)} indent />
+          <LineItem label="Administrative & Compliance" values={yearlyDetails.map(y => y.expenseAdmin)} indent />
+          <LineItem label="IT Systems" values={yearlyDetails.map(y => y.expenseIT)} indent />
+          <LineItem label="Other Operating Costs" values={yearlyDetails.map(y => y.expenseOtherCosts)} indent />
+        </ExpandableLineItem>
+
+        <ExpandableLineItem
+          label="Management Fees"
+          values={yearlyDetails.map(y => y.feeBase + y.feeIncentive)}
+          tooltip="Fees paid to the management company: base fee (% of total revenue) and incentive fee (% of GOP)."
+          expanded={!!expanded.cfMgmtFees}
+          onToggle={() => toggleSection('cfMgmtFees')}
+        >
+          <LineItem label="Base Management Fee" values={yearlyDetails.map(y => y.feeBase)} indent />
+          <LineItem label="Incentive Management Fee" values={yearlyDetails.map(y => y.feeIncentive)} indent />
+        </ExpandableLineItem>
       </ExpandableLineItem>
 
       <LineItem

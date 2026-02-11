@@ -118,15 +118,16 @@ Authorization: Admin role required
 Seeds users, global assumptions, properties, and design themes. Skips any category where data already exists.
 
 **Seeded Users** (skips if email already exists):
-| Email | Role | Name | Company |
-|-------|------|------|---------|
-| admin | admin | Ricardo Cidale | Norfolk Group |
-| rosario@kitcapital.com | user | Rosario David | KIT Capital |
-| kit@kitcapital.com | user | Dov Tuzman | KIT Capital |
-| lemazniku@icloud.com | user | Lea Mazniku | KIT Capital |
-| checker@norfolkgroup.io | checker | Checker | Norfolk AI |
-| bhuvan@norfolkgroup.io | user | Bhuvan Agarwal | Norfolk Group |
-| reynaldo.fagundes@norfolk.ai | user | Reynaldo Fagundes | Norfolk AI |
+| Email | Role | Name | Company | Title |
+|-------|------|------|---------|-------|
+| admin | admin | Ricardo Cidale | Norfolk Group | Partner |
+| rosario@kitcapital.com | user | Rosario David | KIT Capital | COO |
+| kit@kitcapital.com | user | Dov Tuzman | KIT Capital | Principal |
+| lemazniku@icloud.com | user | Lea Mazniku | KIT Capital | Partner |
+| checker@norfolkgroup.io | checker | Checker | Norfolk AI | Checker |
+| bhuvan@norfolkgroup.io | user | Bhuvan Agarwal | Norfolk AI | Financial Analyst |
+| reynaldo.fagundes@norfolk.ai | user | Reynaldo Fagundes | Norfolk AI | CTO |
+| leslie@cidale.com | user | Leslie Cidale | Numeratti Endeavors | Senior Partner |
 
 **Seeded User Groups** (skips if group name already exists):
 | Group Name | Company Name | Members |

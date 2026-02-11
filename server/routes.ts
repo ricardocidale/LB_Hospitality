@@ -551,11 +551,12 @@ export async function registerRoutes(
       const usersToSeed = [
         { email: "admin", passwordHash: await hashPassword(adminPw), role: "admin" as const, name: "Ricardo Cidale", company: "Norfolk Group", title: "Partner" },
         { email: "rosario@kitcapital.com", passwordHash: await hashPassword(adminPw), role: "user" as const, name: "Rosario David", company: "KIT Capital", title: "COO" },
-        { email: "kit@kitcapital.com", passwordHash: await hashPassword(adminPw), role: "user" as const, name: "Dov Tuzman", company: "KIT Capital", title: "Managing Partner" },
-        { email: "lemazniku@icloud.com", passwordHash: await hashPassword(adminPw), role: "user" as const, name: "Lea Mazniku", company: "KIT Capital", title: "Associate" },
+        { email: "kit@kitcapital.com", passwordHash: await hashPassword(adminPw), role: "user" as const, name: "Dov Tuzman", company: "KIT Capital", title: "Principal" },
+        { email: "lemazniku@icloud.com", passwordHash: await hashPassword(adminPw), role: "user" as const, name: "Lea Mazniku", company: "KIT Capital", title: "Partner" },
         { email: "checker@norfolkgroup.io", passwordHash: await hashPassword(checkerPw), role: "checker" as const, name: "Checker", company: "Norfolk AI", title: "Checker" },
-        { email: "bhuvan@norfolkgroup.io", passwordHash: await hashPassword(adminPw), role: "user" as const, name: "Bhuvan Agarwal", company: "Norfolk Group", title: "Associate" },
-        { email: "reynaldo.fagundes@norfolk.ai", passwordHash: await hashPassword(reynaldoPw), role: "user" as const, name: "Reynaldo Fagundes", company: "Norfolk AI", title: "Partner" },
+        { email: "bhuvan@norfolkgroup.io", passwordHash: await hashPassword(adminPw), role: "user" as const, name: "Bhuvan Agarwal", company: "Norfolk AI", title: "Financial Analyst" },
+        { email: "reynaldo.fagundes@norfolk.ai", passwordHash: await hashPassword(reynaldoPw), role: "user" as const, name: "Reynaldo Fagundes", company: "Norfolk AI", title: "CTO" },
+        { email: "leslie@cidale.com", passwordHash: await hashPassword(adminPw), role: "user" as const, name: "Leslie Cidale", company: "Numeratti Endeavors", title: "Senior Partner" },
       ];
       
       for (const userData of usersToSeed) {

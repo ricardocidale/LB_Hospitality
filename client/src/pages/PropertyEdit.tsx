@@ -1486,14 +1486,14 @@ export default function PropertyEdit() {
                   max={10}
                   step={0.1}
                 />
-                <p className="text-xs text-gray-600 mt-2">
-                  Exit Value = {exitYear} NOI ÷ {((draft.exitCapRate ?? DEFAULT_EXIT_CAP_RATE) * 100).toFixed(1)}% = <span className="font-medium">higher property valuation at lower cap rates</span>
+                <p className="text-xs text-gray-500 mt-1">
+                  Exit Value = Year {exitYear} NOI ÷ {((draft.exitCapRate ?? DEFAULT_EXIT_CAP_RATE) * 100).toFixed(1)}%
                 </p>
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <div className="flex flex-col gap-0.5">
-                    <Label className="flex items-center label-text text-gray-700">
+                    <Label className="flex items-center label-text text-gray-700 gap-1.5">
                       Income Tax Rate
                       <HelpTooltip text="Income tax rate for this property's SPV entity, applied to taxable income (NOI minus interest and depreciation) to calculate after-tax cash flow. Set per property to reflect the jurisdiction where the property is located." />
                     </Label>
@@ -1515,6 +1515,9 @@ export default function PropertyEdit() {
                   max={50}
                   step={1}
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  Applied to taxable income (NOI − interest − depreciation)
+                </p>
               </div>
             </div>
           </div>

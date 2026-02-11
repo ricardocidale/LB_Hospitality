@@ -412,6 +412,68 @@ export interface ResearchAnalysisSection {
   [key: string]: string | undefined;
 }
 
+export interface OperatingCostCategoryResearch {
+  recommendedRate?: string;
+  industryRange?: string;
+  rationale?: string;
+  [key: string]: string | undefined;
+}
+
+export interface OperatingCostAnalysis {
+  roomRevenueBased?: {
+    housekeeping?: OperatingCostCategoryResearch;
+    fbCostOfSales?: OperatingCostCategoryResearch;
+  };
+  totalRevenueBased?: {
+    adminGeneral?: OperatingCostCategoryResearch;
+    propertyOps?: OperatingCostCategoryResearch;
+    utilities?: OperatingCostCategoryResearch;
+    ffeReserve?: OperatingCostCategoryResearch;
+    marketing?: OperatingCostCategoryResearch;
+    it?: OperatingCostCategoryResearch;
+    other?: OperatingCostCategoryResearch;
+  };
+  totalOperatingCostRatio?: string;
+  sources?: string[];
+  [key: string]: any;
+}
+
+export interface PropertyValueCostAnalysis {
+  insurance?: OperatingCostCategoryResearch & { coverageNotes?: string };
+  propertyTaxes?: OperatingCostCategoryResearch & { jurisdictionNotes?: string };
+  sources?: string[];
+  [key: string]: any;
+}
+
+export interface ManagementServiceFeeAnalysis {
+  serviceFeeCategories?: {
+    marketing?: OperatingCostCategoryResearch;
+    it?: OperatingCostCategoryResearch;
+    accounting?: OperatingCostCategoryResearch;
+    reservations?: OperatingCostCategoryResearch;
+    generalManagement?: OperatingCostCategoryResearch;
+  };
+  incentiveFee?: OperatingCostCategoryResearch & { basis?: string };
+  totalServiceFeeRate?: string;
+  sources?: string[];
+  [key: string]: any;
+}
+
+export interface IncomeTaxAnalysis {
+  recommendedRate?: string;
+  rateBreakdown?: {
+    federal?: string;
+    state?: string;
+    local?: string;
+  };
+  effectiveRange?: string;
+  entityNotes?: string;
+  jurisdictionNotes?: string;
+  rationale?: string;
+  sources?: string[];
+  [key: string]: any;
+}
+
 export interface MarketResearchContent {
   adrAnalysis?: ResearchAnalysisSection;
   capRateAnalysis?: ResearchAnalysisSection;
@@ -421,7 +483,11 @@ export interface MarketResearchContent {
   compensationAnalysis?: ResearchAnalysisSection;
   staffingAnalysis?: ResearchAnalysisSection;
   overheadAnalysis?: ResearchAnalysisSection;
-  [key: string]: ResearchAnalysisSection | string | undefined;
+  operatingCostAnalysis?: OperatingCostAnalysis;
+  propertyValueCostAnalysis?: PropertyValueCostAnalysis;
+  managementServiceFeeAnalysis?: ManagementServiceFeeAnalysis;
+  incomeTaxAnalysis?: IncomeTaxAnalysis;
+  [key: string]: any;
 }
 
 export interface MarketResearchResponse {

@@ -303,8 +303,8 @@ export interface ScenarioResponse {
   userId: number;
   name: string;
   description: string | null;
-  globalAssumptions: any;
-  properties: any[];
+  globalAssumptions: GlobalResponse;
+  properties: PropertyResponse[];
   createdAt: string;
   updatedAt: string;
 }
@@ -404,13 +404,33 @@ export function useDeleteScenario() {
 
 // --- MARKET RESEARCH ---
 
+export interface ResearchAnalysisSection {
+  recommendedRange?: string;
+  recommendedBoostPercent?: string;
+  recommendedPercent?: string;
+  rampUpTimeline?: string;
+  [key: string]: string | undefined;
+}
+
+export interface MarketResearchContent {
+  adrAnalysis?: ResearchAnalysisSection;
+  capRateAnalysis?: ResearchAnalysisSection;
+  cateringAnalysis?: ResearchAnalysisSection;
+  landValueAllocation?: ResearchAnalysisSection;
+  occupancyAnalysis?: ResearchAnalysisSection;
+  compensationAnalysis?: ResearchAnalysisSection;
+  staffingAnalysis?: ResearchAnalysisSection;
+  overheadAnalysis?: ResearchAnalysisSection;
+  [key: string]: ResearchAnalysisSection | string | undefined;
+}
+
 export interface MarketResearchResponse {
   id: number;
   userId: number | null;
   type: string;
   propertyId: number | null;
   title: string;
-  content: Record<string, any>;
+  content: MarketResearchContent;
   llmModel: string | null;
   createdAt: string;
   updatedAt: string;

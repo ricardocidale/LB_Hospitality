@@ -79,7 +79,7 @@ export default function PropertyEdit() {
 
   const researchValues = (() => {
     if (!research?.content) return {};
-    const c = research.content as any;
+    const c = research.content;
     const parseRange = (rangeStr: string | undefined): { low: number; high: number; mid: number } | null => {
       if (!rangeStr) return null;
       const nums = rangeStr.replace(/[^0-9.,\-–]/g, ' ').split(/[\s–\-]+/).map(s => parseFloat(s.replace(/,/g, ''))).filter(n => !isNaN(n));
@@ -96,7 +96,7 @@ export default function PropertyEdit() {
     const capRange = parseRange(c.capRateAnalysis?.recommendedRange);
     const cateringPct = parsePct(c.cateringAnalysis?.recommendedBoostPercent);
     const landPct = parsePct(c.landValueAllocation?.recommendedPercent);
-    const occText = c.occupancyAnalysis?.rampUpTimeline as string | undefined;
+    const occText = c.occupancyAnalysis?.rampUpTimeline;
     let occRange: { low: number; high: number; mid: number } | null = null;
     let initOccRange: { low: number; high: number; mid: number } | null = null;
     let rampMonthsRange: { low: number; high: number; mid: number } | null = null;
@@ -109,13 +109,13 @@ export default function PropertyEdit() {
       if (rampMatch) rampMonthsRange = { low: parseInt(rampMatch[1]), high: parseInt(rampMatch[2]), mid: Math.round((parseInt(rampMatch[1]) + parseInt(rampMatch[2])) / 2) };
     }
     return {
-      adr: adrRange ? { display: c.adrAnalysis?.recommendedRange as string, mid: adrRange.mid } : null,
+      adr: adrRange ? { display: c.adrAnalysis?.recommendedRange ?? "", mid: adrRange.mid } : null,
       occupancy: occRange ? { display: `${occRange.low}%–${occRange.high}%`, mid: occRange.mid } : null,
       startOccupancy: initOccRange ? { display: `${initOccRange.low}%–${initOccRange.high}%`, mid: initOccRange.mid } : null,
       rampMonths: rampMonthsRange ? { display: `${rampMonthsRange.low}–${rampMonthsRange.high} mo`, mid: rampMonthsRange.mid } : null,
-      capRate: capRange ? { display: c.capRateAnalysis?.recommendedRange as string, mid: (capRange.low + capRange.high) / 2 } : null,
-      catering: cateringPct != null ? { display: c.cateringAnalysis?.recommendedBoostPercent as string, mid: cateringPct } : null,
-      landValue: landPct != null ? { display: c.landValueAllocation?.recommendedPercent as string, mid: landPct } : null,
+      capRate: capRange ? { display: c.capRateAnalysis?.recommendedRange ?? "", mid: (capRange.low + capRange.high) / 2 } : null,
+      catering: cateringPct != null ? { display: c.cateringAnalysis?.recommendedBoostPercent ?? "", mid: cateringPct } : null,
+      landValue: landPct != null ? { display: c.landValueAllocation?.recommendedPercent ?? "", mid: landPct } : null,
     };
   })();
 

@@ -86,9 +86,11 @@ Sliders must align to a consistent virtual column grid that adapts to screen wid
 
 | Screen Width | Breakpoint | Columns | Slider Behavior |
 |-------------|------------|---------|-----------------|
-| < 768px     | (default)  | **1**   | Full width, stacked vertically |
-| 768–1279px  | `md:`      | **2**   | Side-by-side pairs |
-| ≥ 1280px    | `lg:` / `xl:` | **2 or 3** | Use 3 only for sections with 6+ related sliders of the same type |
+| < 640px     | (default)  | **1**   | Full width — only on extremely narrow screens (phones in portrait) |
+| 640–1023px  | `sm:`      | **2**   | Side-by-side pairs |
+| ≥ 1024px    | `lg:` / `xl:` | **2 or 3** | Use 3 only for sections with 6+ related sliders of the same type |
+
+**Important:** Sliders should only go full-width on extremely narrow screens (below 640px). The `sm:` breakpoint (640px) is the standard threshold for switching to multi-column — not `md:` (768px). This ensures sliders are already in columns on most tablets and landscape phones.
 
 ### Column Class Patterns
 
@@ -96,12 +98,12 @@ Use these exact Tailwind grid patterns for slider groups:
 
 ```tsx
 // DEFAULT: 2-column (most common — used for most sections)
-<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
   {/* slider items */}
 </div>
 
 // 3-column: Only for large groups of similar fields (6+ sliders of same type)
-<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
   {/* slider items — e.g., all cost rates, all revenue shares */}
 </div>
 
@@ -116,25 +118,25 @@ Use these exact Tailwind grid patterns for slider groups:
 
 | Columns | When to Use | Examples |
 |---------|-------------|---------|
-| **1 column** | Mobile only (automatic via responsive grid). Never use 1-col as the desktop default. | All pages on phones |
-| **2 columns** | Default for most sections. Use for 2–5 related sliders, mixed field types, or financing parameters. | Acquisition details, financing terms, revenue assumptions, management fees, staffing |
-| **3 columns** | Large groups of 6+ homogeneous sliders (same type/format). Must step down to 2 on `md:` and 1 on mobile. | Operating cost rates (10 sliders), revenue share splits (4+ sliders), boutique definition (5 sliders) |
+| **1 column** | Extremely narrow screens only (< 640px, phones in portrait). Never use 1-col as the default on any screen wider than a phone. | Phones in portrait mode |
+| **2 columns** | Default for most sections starting at `sm:` (640px). Use for 2–5 related sliders, mixed field types, or financing parameters. | Acquisition details, financing terms, revenue assumptions, management fees, staffing |
+| **3 columns** | Large groups of 6+ homogeneous sliders (same type/format). Steps to 2 on `sm:` and 1 below 640px. | Operating cost rates (10 sliders), revenue share splits (4+ sliders), boutique definition (5 sliders) |
 
 ### Page-Specific Column Assignments
 
 | Page | Section | Column Pattern |
 |------|---------|---------------|
-| **PropertyEdit** | Property Details (name, location, rooms) | `grid-cols-1 md:grid-cols-2` |
-| **PropertyEdit** | Revenue (ADR, occupancy, growth) | `grid-cols-1 md:grid-cols-2` |
-| **PropertyEdit** | Operating Costs (10 cost rates) | `grid-cols-1 md:grid-cols-2` (could be 3-col) |
-| **PropertyEdit** | Revenue Shares (events, F&B, other) | `grid-cols-1 md:grid-cols-2` |
-| **PropertyEdit** | Financing (LTV, rate, term) | `grid-cols-1 md:grid-cols-2` |
-| **PropertyEdit** | Management Fees (base, incentive) | `grid-cols-1 md:grid-cols-2` |
-| **CompanyAssumptions** | Dates/identity (3 fields) | `grid-cols-1 md:grid-cols-3` |
-| **CompanyAssumptions** | Compensation sliders | `grid-cols-1 md:grid-cols-2` via card pairing (`grid gap-6 lg:grid-cols-2`) |
-| **CompanyAssumptions** | Overhead/costs | `grid-cols-1 md:grid-cols-2` via card pairing |
-| **Settings** | Boutique definition (5 sliders) | `grid-cols-1 md:grid-cols-3` |
-| **Settings** | Debt assumptions (LTV, rate, term, costs) | `grid-cols-1 md:grid-cols-2` |
+| **PropertyEdit** | Property Details (name, location, rooms) | `grid-cols-1 sm:grid-cols-2` |
+| **PropertyEdit** | Revenue (ADR, occupancy, growth) | `grid-cols-1 sm:grid-cols-2` |
+| **PropertyEdit** | Operating Costs (10 cost rates) | `grid-cols-1 sm:grid-cols-2` (could be 3-col) |
+| **PropertyEdit** | Revenue Shares (events, F&B, other) | `grid-cols-1 sm:grid-cols-2` |
+| **PropertyEdit** | Financing (LTV, rate, term) | `grid-cols-1 sm:grid-cols-2` |
+| **PropertyEdit** | Management Fees (base, incentive) | `grid-cols-1 sm:grid-cols-2` |
+| **CompanyAssumptions** | Dates/identity (3 fields) | `grid-cols-1 sm:grid-cols-3` |
+| **CompanyAssumptions** | Compensation sliders | `grid-cols-1 sm:grid-cols-2` via card pairing (`grid gap-6 lg:grid-cols-2`) |
+| **CompanyAssumptions** | Overhead/costs | `grid-cols-1 sm:grid-cols-2` via card pairing |
+| **Settings** | Boutique definition (5 sliders) | `grid-cols-1 sm:grid-cols-3` |
+| **Settings** | Debt assumptions (LTV, rate, term, costs) | `grid-cols-1 sm:grid-cols-2 lg:grid-cols-4` |
 
 ### Alignment Rules
 
@@ -200,7 +202,7 @@ The slider + label + value follows a consistent structure across all assumption 
 
 ```tsx
 <h3 className="text-lg font-semibold mb-4">Revenue Assumptions</h3>
-<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
   {/* Column 1 */}
   <div className="space-y-2">
     <div className="flex items-center justify-between">
@@ -233,7 +235,7 @@ The slider + label + value follows a consistent structure across all assumption 
 
 ```tsx
 <h3 className="text-lg font-semibold mb-4">Operating Cost Rates (% of Total Revenue)</h3>
-<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
   <div className="space-y-2">
     <div className="flex items-center justify-between">
       <Label>Rooms <HelpTooltip text="..." /></Label>
@@ -321,6 +323,7 @@ When a field is stored as a decimal (0.65) but displayed as a percentage (65%):
 5. **Raw `<input type="range">`** — Always use the Radix-based `Slider` component
 6. **Missing HelpTooltip** — Every slider field should have a HelpTooltip explaining the parameter
 7. **Mixed column counts in one grid** — Don't mix 2-col and 3-col items in the same grid container; use separate grids with headings
-8. **1-column sliders on desktop** — Sliders must always be in a multi-column grid on md+ screens
-9. **Inconsistent gap values** — Always use `gap-6` between grid items for uniform spacing
-10. **Breaking column alignment** — All sliders in the same grid must share the same cell width (the grid handles this automatically; don't override with custom widths)
+8. **1-column sliders above 640px** — Sliders must always be in a multi-column grid on `sm:` (640px) and above. Full-width is only acceptable on extremely narrow screens (phones in portrait)
+9. **Using `md:` for slider columns** — Use `sm:` (640px) not `md:` (768px) as the column breakpoint. Sliders should be in columns on tablets and landscape phones
+10. **Inconsistent gap values** — Always use `gap-6` between grid items for uniform spacing
+11. **Breaking column alignment** — All sliders in the same grid must share the same cell width (the grid handles this automatically; don't override with custom widths)

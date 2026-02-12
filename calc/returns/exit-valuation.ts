@@ -1,5 +1,6 @@
 import type { RoundingPolicy } from "../../domain/types/rounding.js";
 import { rounder } from "../shared/utils.js";
+import { DEFAULT_COMMISSION_RATE } from "../../shared/constants.js";
 
 export interface ExitValuationInput {
   stabilized_noi: number;
@@ -24,7 +25,7 @@ export interface ExitValuationOutput {
 
 export function computeExitValuation(input: ExitValuationInput): ExitValuationOutput {
   const r = rounder(input.rounding_policy);
-  const commissionRate = input.commission_rate ?? 0.02;
+  const commissionRate = input.commission_rate ?? DEFAULT_COMMISSION_RATE;
   const outstandingDebt = input.outstanding_debt ?? 0;
   const otherClosingCosts = input.other_closing_costs ?? 0;
 

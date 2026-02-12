@@ -34,6 +34,9 @@ export {
   DEFAULT_BASE_MANAGEMENT_FEE_RATE,
   DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
   DEFAULT_SERVICE_FEE_CATEGORIES,
+  DEFAULT_FIXED_COST_ESCALATION_RATE,
+  DEFAULT_COMPANY_TAX_RATE,
+  DEFAULT_PROJECTION_YEARS,
 } from "@shared/constants";
 
 // Loan defaults
@@ -43,9 +46,6 @@ export const DEFAULT_TERM_YEARS = 25;
 export const DEFAULT_REFI_LTV = 0.65;
 export const DEFAULT_REFI_CLOSING_COST_RATE = 0.03;
 export const DEFAULT_ACQ_CLOSING_COST_RATE = 0.02;
-
-// Company tax rate
-export const DEFAULT_COMPANY_TAX_RATE = 0.30;
 
 // Property defaults
 export const DEFAULT_ROOM_COUNT = 10;

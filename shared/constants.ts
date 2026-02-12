@@ -64,6 +64,15 @@ export const DAYS_PER_MONTH = 30.5;
 // Default occupancy ramp period (months between growth steps)
 export const DEFAULT_OCCUPANCY_RAMP_MONTHS = 6;
 
+// Fixed cost escalation rate (annual inflation for fixed operating expenses)
+export const DEFAULT_FIXED_COST_ESCALATION_RATE = 0.03;
+
+// Management company tax rate (corporate income tax on management company earnings)
+export const DEFAULT_COMPANY_TAX_RATE = 0.30;
+
+// Default projection horizon
+export const DEFAULT_PROJECTION_YEARS = 10;
+
 // Funding instrument defaults
 export const DEFAULT_SAFE_VALUATION_CAP = 2500000;
 export const DEFAULT_SAFE_DISCOUNT_RATE = 0.20;

@@ -29,6 +29,9 @@ import {
   DEFAULT_EVENT_EXPENSE_RATE,
   DEFAULT_OTHER_EXPENSE_RATE,
   DEFAULT_UTILITIES_VARIABLE_SPLIT,
+  DEFAULT_FIXED_COST_ESCALATION_RATE,
+  DEFAULT_COMPANY_TAX_RATE,
+  DEFAULT_PROJECTION_YEARS,
 } from "./constants";
 
 // --- LOGOS TABLE ---
@@ -155,11 +158,11 @@ export const globalAssumptions = pgTable("global_assumptions", {
   companyLogo: text("company_logo"),
   propertyLabel: text("property_label").notNull().default("Boutique Hotel"),
   modelStartDate: text("model_start_date").notNull(),
-  projectionYears: integer("projection_years").notNull().default(10),
+  projectionYears: integer("projection_years").notNull().default(DEFAULT_PROJECTION_YEARS),
   companyOpsStartDate: text("company_ops_start_date").notNull().default("2026-06-01"),
   fiscalYearStartMonth: integer("fiscal_year_start_month").notNull().default(1), // 1 = January, 4 = April, etc.
   inflationRate: real("inflation_rate").notNull(),
-  fixedCostEscalationRate: real("fixed_cost_escalation_rate").notNull().default(0.03),
+  fixedCostEscalationRate: real("fixed_cost_escalation_rate").notNull().default(DEFAULT_FIXED_COST_ESCALATION_RATE),
   
   // Revenue variables
   baseManagementFee: real("base_management_fee").notNull(),
@@ -226,7 +229,7 @@ export const globalAssumptions = pgTable("global_assumptions", {
   
   
   // Tax Rate (for calculating after-tax company cash flow)
-  companyTaxRate: real("company_tax_rate").notNull().default(0.30),
+  companyTaxRate: real("company_tax_rate").notNull().default(DEFAULT_COMPANY_TAX_RATE),
   
   // Exit & Sale Assumptions (global defaults)
   exitCapRate: real("exit_cap_rate").notNull().default(DEFAULT_EXIT_CAP_RATE),

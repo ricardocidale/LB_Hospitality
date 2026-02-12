@@ -14,6 +14,12 @@
     "test:summary": "tsx script/test-summary.ts",
     "test:watch": "vitest",
     "health": "tsx script/health.ts",
+    "lint:summary": "tsx script/lint-summary.ts",
+    "diff:summary": "tsx script/diff-summary.ts",
+    "test:file": "tsx script/test-file.ts",
+    "stats": "tsx script/stats.ts",
+    "audit:quick": "tsx script/audit-quick.ts",
+    "exports:check": "tsx script/exports-check.ts",
     "db:push": "drizzle-kit push",
     "verify": "npx tsx tests/proof/verify-runner.ts",
     "verify:summary": "tsx script/verify-summary.ts"

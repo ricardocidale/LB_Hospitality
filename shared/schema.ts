@@ -2,7 +2,34 @@ import { sql } from "drizzle-orm";
 import { pgTable, text, varchar, real, integer, timestamp, jsonb, boolean, index, serial, unique, check } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
-import { DEFAULT_SAFE_VALUATION_CAP, DEFAULT_SAFE_DISCOUNT_RATE } from "./constants";
+import {
+  DEFAULT_SAFE_VALUATION_CAP,
+  DEFAULT_SAFE_DISCOUNT_RATE,
+  DEFAULT_REV_SHARE_EVENTS,
+  DEFAULT_REV_SHARE_FB,
+  DEFAULT_REV_SHARE_OTHER,
+  DEFAULT_CATERING_BOOST_PCT,
+  DEFAULT_COST_RATE_ROOMS,
+  DEFAULT_COST_RATE_FB,
+  DEFAULT_COST_RATE_ADMIN,
+  DEFAULT_COST_RATE_MARKETING,
+  DEFAULT_COST_RATE_PROPERTY_OPS,
+  DEFAULT_COST_RATE_UTILITIES,
+  DEFAULT_COST_RATE_INSURANCE,
+  DEFAULT_COST_RATE_TAXES,
+  DEFAULT_COST_RATE_IT,
+  DEFAULT_COST_RATE_FFE,
+  DEFAULT_COST_RATE_OTHER,
+  DEFAULT_EXIT_CAP_RATE,
+  DEFAULT_TAX_RATE,
+  DEFAULT_BASE_MANAGEMENT_FEE_RATE,
+  DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
+  DEFAULT_LAND_VALUE_PERCENT,
+  DEFAULT_COMMISSION_RATE,
+  DEFAULT_EVENT_EXPENSE_RATE,
+  DEFAULT_OTHER_EXPENSE_RATE,
+  DEFAULT_UTILITIES_VARIABLE_SPLIT,
+} from "./constants";
 
 // --- LOGOS TABLE ---
 export const logos = pgTable("logos", {
@@ -192,7 +219,7 @@ export const globalAssumptions = pgTable("global_assumptions", {
   miscOpsRate: real("misc_ops_rate").notNull(),
   
   // Portfolio
-  commissionRate: real("commission_rate").notNull().default(0.05),
+  commissionRate: real("commission_rate").notNull().default(DEFAULT_COMMISSION_RATE),
   
   standardAcqPackage: jsonb("standard_acq_package").notNull(),
   debtAssumptions: jsonb("debt_assumptions").notNull(),
@@ -202,13 +229,13 @@ export const globalAssumptions = pgTable("global_assumptions", {
   companyTaxRate: real("company_tax_rate").notNull().default(0.30),
   
   // Exit & Sale Assumptions (global defaults)
-  exitCapRate: real("exit_cap_rate").notNull().default(0.085),
-  salesCommissionRate: real("sales_commission_rate").notNull().default(0.05),
+  exitCapRate: real("exit_cap_rate").notNull().default(DEFAULT_EXIT_CAP_RATE),
+  salesCommissionRate: real("sales_commission_rate").notNull().default(DEFAULT_COMMISSION_RATE),
   
   // Expense Rates (applied to specific revenue streams)
-  eventExpenseRate: real("event_expense_rate").notNull().default(0.65),
-  otherExpenseRate: real("other_expense_rate").notNull().default(0.60),
-  utilitiesVariableSplit: real("utilities_variable_split").notNull().default(0.60),
+  eventExpenseRate: real("event_expense_rate").notNull().default(DEFAULT_EVENT_EXPENSE_RATE),
+  otherExpenseRate: real("other_expense_rate").notNull().default(DEFAULT_OTHER_EXPENSE_RATE),
+  utilitiesVariableSplit: real("utilities_variable_split").notNull().default(DEFAULT_UTILITIES_VARIABLE_SPLIT),
   
   // Asset Definition
   assetDefinition: jsonb("asset_definition").notNull().default({
@@ -393,7 +420,7 @@ export const properties = pgTable("properties", {
   
   purchasePrice: real("purchase_price").notNull(),
   buildingImprovements: real("building_improvements").notNull(),
-  landValuePercent: real("land_value_percent").notNull().default(0.25),
+  landValuePercent: real("land_value_percent").notNull().default(DEFAULT_LAND_VALUE_PERCENT),
   preOpeningCosts: real("pre_opening_costs").notNull(),
   operatingReserve: real("operating_reserve").notNull(),
   
@@ -423,35 +450,35 @@ export const properties = pgTable("properties", {
   refinanceClosingCostRate: real("refinance_closing_cost_rate"),
   
   // Operating Cost Rates (should sum to 100%)
-  costRateRooms: real("cost_rate_rooms").notNull().default(0.36),
-  costRateFB: real("cost_rate_fb").notNull().default(0.32),
-  costRateAdmin: real("cost_rate_admin").notNull().default(0.08),
-  costRateMarketing: real("cost_rate_marketing").notNull().default(0.01),
-  costRatePropertyOps: real("cost_rate_property_ops").notNull().default(0.04),
-  costRateUtilities: real("cost_rate_utilities").notNull().default(0.05),
-  costRateInsurance: real("cost_rate_insurance").notNull().default(0.02),
-  costRateTaxes: real("cost_rate_taxes").notNull().default(0.03),
-  costRateIT: real("cost_rate_it").notNull().default(0.02),
-  costRateFFE: real("cost_rate_ffe").notNull().default(0.04),
-  costRateOther: real("cost_rate_other").notNull().default(0.05),
+  costRateRooms: real("cost_rate_rooms").notNull().default(DEFAULT_COST_RATE_ROOMS),
+  costRateFB: real("cost_rate_fb").notNull().default(DEFAULT_COST_RATE_FB),
+  costRateAdmin: real("cost_rate_admin").notNull().default(DEFAULT_COST_RATE_ADMIN),
+  costRateMarketing: real("cost_rate_marketing").notNull().default(DEFAULT_COST_RATE_MARKETING),
+  costRatePropertyOps: real("cost_rate_property_ops").notNull().default(DEFAULT_COST_RATE_PROPERTY_OPS),
+  costRateUtilities: real("cost_rate_utilities").notNull().default(DEFAULT_COST_RATE_UTILITIES),
+  costRateInsurance: real("cost_rate_insurance").notNull().default(DEFAULT_COST_RATE_INSURANCE),
+  costRateTaxes: real("cost_rate_taxes").notNull().default(DEFAULT_COST_RATE_TAXES),
+  costRateIT: real("cost_rate_it").notNull().default(DEFAULT_COST_RATE_IT),
+  costRateFFE: real("cost_rate_ffe").notNull().default(DEFAULT_COST_RATE_FFE),
+  costRateOther: real("cost_rate_other").notNull().default(DEFAULT_COST_RATE_OTHER),
   
   // Revenue Streams (as % of room revenue)
-  revShareEvents: real("rev_share_events").notNull().default(0.43),
-  revShareFB: real("rev_share_fb").notNull().default(0.22),
-  revShareOther: real("rev_share_other").notNull().default(0.07),
+  revShareEvents: real("rev_share_events").notNull().default(DEFAULT_REV_SHARE_EVENTS),
+  revShareFB: real("rev_share_fb").notNull().default(DEFAULT_REV_SHARE_FB),
+  revShareOther: real("rev_share_other").notNull().default(DEFAULT_REV_SHARE_OTHER),
   
   // Catering boost (percentage uplift applied to F&B revenue)
-  cateringBoostPercent: real("catering_boost_percent").notNull().default(0.30),
+  cateringBoostPercent: real("catering_boost_percent").notNull().default(DEFAULT_CATERING_BOOST_PCT),
   
   // Exit Cap Rate (for property valuation)
-  exitCapRate: real("exit_cap_rate").notNull().default(0.085),
+  exitCapRate: real("exit_cap_rate").notNull().default(DEFAULT_EXIT_CAP_RATE),
   
   // Tax Rate (for calculating after-tax free cash flow)
-  taxRate: real("tax_rate").notNull().default(0.25),
+  taxRate: real("tax_rate").notNull().default(DEFAULT_TAX_RATE),
   
   // Management Company Fee Rates (per-property, charged by management company)
-  baseManagementFeeRate: real("base_management_fee_rate").notNull().default(0.05),
-  incentiveManagementFeeRate: real("incentive_management_fee_rate").notNull().default(0.15),
+  baseManagementFeeRate: real("base_management_fee_rate").notNull().default(DEFAULT_BASE_MANAGEMENT_FEE_RATE),
+  incentiveManagementFeeRate: real("incentive_management_fee_rate").notNull().default(DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE),
 
   researchValues: jsonb("research_values").$type<Record<string, ResearchValueEntry>>(),
   

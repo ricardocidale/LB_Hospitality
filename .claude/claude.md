@@ -5,7 +5,7 @@ Business simulation portal for Hospitality Business Group. Models a boutique hos
 
 ## User Preferences
 - Preferred communication style: Simple, everyday language. Detailed user — ask lots of clarifying questions before implementing features. Do not assume; confirm requirements first.
-- **TOP PRIORITY: Calculations and correct reports are always the highest priority.** Financial accuracy must never be compromised for visual or UI enhancements. The automated proof system (963 tests) must always pass.
+- **TOP PRIORITY: Calculations and correct reports are always the highest priority.** Financial accuracy must never be compromised for visual or UI enhancements. The automated proof system (1175 tests) must always pass.
 - Always format money as money (currency format with commas and appropriate precision).
 - All skills must be stored under `.claude/` directory (e.g., `.claude/skills/`, `.claude/manuals/`, `.claude/tools/`). Never place skills elsewhere.
 - The company name is "Hospitality Business Group" (or "Hospitality Business" for short). Never use "L+B Hospitality" in code or documentation.
@@ -36,7 +36,7 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | Design System | `.claude/skills/design-system/SKILL.md` | Colors, typography, component catalog, CSS classes |
 | Theme Engine | `.claude/skills/ui/theme-engine.md` | Multi-theme system (Fluid Glass active), user-created themes, token structure |
 | Component Library | `.claude/skills/component-library/SKILL.md` | PageHeader, GlassButton, ExportMenu, DarkGlassTabs, etc. |
-| Proof System | `.claude/skills/proof-system/SKILL.md` | 963 tests, 5 golden scenarios, verification commands |
+| Proof System | `.claude/skills/proof-system/SKILL.md` | 1175 tests, 5 golden scenarios, verification commands |
 | Testing (7 skills) | `.claude/skills/testing/` | Per-statement/analysis test coverage at property, consolidated, and management company levels |
 | 3D Graphics | `.claude/skills/3d-graphics/SKILL.md` | Three.js scenes, framer-motion wrappers |
 | Database | `.claude/skills/database-environments/SKILL.md` | Dev/prod databases, migrations, sync |
@@ -57,7 +57,7 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | Tools | `.claude/tools/` | Analysis, financing, returns, validation, UI tool schemas |
 | Rules (8) | `.claude/rules/` | Audit persona+doctrine+plan, constants, DB seeding, API routes, etc. |
 
-## Testing & Proof System (963 Tests, 49 Files)
+## Testing & Proof System (1175 Tests, 52 Files)
 
 | Entity Level | Test Domains | Skill |
 |-------------|-------------|-------|
@@ -68,14 +68,16 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | DCF/FCF Analysis | FCF computation, FCFE two-method reconciliation | `testing/analysis-dcf-fcf.md` |
 | Financing & Debt | Acquisition sizing, closing costs, refi schedule, funding engine | `testing/financing-refinance-funding.md` |
 | Engine Unit Tests | Cash flow aggregator, yearly aggregator, equity calculations, loan calculations, GAAP compliance, edge cases | `tests/engine/` |
+| Validation | Assumption consistency, funding gates, export verification | `tests/calc/validation/` |
 
-**Commands**: `npm test` (all 963), `npm run verify` (4-phase, UNQUALIFIED required)
+**Commands**: `npm test` (all 1175), `npm run verify` (4-phase, UNQUALIFIED required)
 
 ## Research Badge Defaults (Database-Backed, Location-Aware)
 Research values are stored in the `research_values` JSONB column on each property, generated location-aware at creation time via `server/researchSeeds.ts` with 25+ regional profiles. Sources: CBRE Trends 2024-2025, STR/CoStar, HVS, Highland Group Boutique Hotel Report 2025. Location detection uses pattern matching on location/streetAddress/city/stateProvince/market fields. Each entry has `{ display, mid, source }` where source = 'seed' (location defaults), 'ai' (AI research override), or 'none' (hidden). Generic fallback: ADR $193, Occupancy 69%, Cap Rate 8.5% (national averages). When AI research runs, it overrides seeded defaults with source='ai'. Frontend (PropertyEdit.tsx) reads from property.researchValues, falling back to generic defaults if absent.
 
 ## Recent Changes
-- **Engine Unit Test Expansion (963 tests)**: Added 312 new tests across 4 engine test suites: cash flow aggregator (67), yearly aggregator (118), equity calculations (49), GAAP compliance checker (78). Plus loan calculations (138) and pro forma edge cases (126). Total: 963 tests, 49 files.
+- **Validation Test Suites (1175 tests)**: Added 212 new tests across 3 validation modules: assumption-consistency (83), funding-gates (75), export-verification (54). Total: 1175 tests, 52 files.
+- **Engine Unit Test Expansion**: Added 312 new tests across 4 engine test suites: cash flow aggregator (67), yearly aggregator (118), equity calculations (49), GAAP compliance checker (78). Plus loan calculations (138) and pro forma edge cases (126).
 - **Rate-Limit Memory Leak Fix**: Added `cleanupRateLimitMaps()` to `server/auth.ts` — purges expired entries from in-memory loginAttempts and apiRateLimits Maps. Called hourly from the existing cleanup interval in `server/index.ts`.
 - **Stale Cache After Property Deletion Fix**: `useDeleteProperty` in `client/src/lib/api.ts` now invalidates `["scenarios"]` and `["feeCategories"]` queries in addition to `["properties"]`.
 - **Zero TypeScript Errors**: All 117 TypeScript errors resolved (Express.User augmentation, missing imports, seed fields, Set iteration, etc.).
@@ -155,11 +157,17 @@ Research values are stored in the `research_values` JSONB column on each propert
 ```bash
 npm run dev            # Start dev server
 npm run health         # One-shot: tsc + tests + verify (~4 lines output)
-npm run test:summary   # Run all 963 tests, 1-line output on pass
+npm run test:summary   # Run all 1175 tests, 1-line output on pass
 npm run verify:summary # 4-phase verification, compact output
-npm test               # Run all 963 tests (full output)
+npm test               # Run all 1175 tests (full output)
 npm run verify         # Full 4-phase financial verification (verbose)
 npm run db:push        # Push schema changes
+npm run lint:summary   # tsc --noEmit with 1-line output
+npm run diff:summary   # Compact git status + diff stat (~5-10 lines)
+npm run test:file -- <path>  # Run single test file with summary output
+npm run stats          # Codebase metrics: files, lines, tests, TS errors (~12 lines)
+npm run audit:quick    # Quick code quality scan: any types, TODOs, console.logs (~15 lines)
+npm run exports:check  # Find unused public exports from calc/ and lib/
 ```
 
 ## Integrations

@@ -62,6 +62,46 @@ author = "agent"
 task = "shell.exec"
 args = "npm run verify:summary"
 
+[[workflows.workflow]]
+name = "Lint Check"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run lint:summary"
+
+[[workflows.workflow]]
+name = "Diff Summary"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run diff:summary"
+
+[[workflows.workflow]]
+name = "Codebase Stats"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run stats"
+
+[[workflows.workflow]]
+name = "Quick Audit"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run audit:quick"
+
+[[workflows.workflow]]
+name = "Exports Check"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run exports:check"
+
 [agent]
 mockupState = "FULLSTACK"
 integrations = ["javascript_database:1.0.0", "javascript_object_storage:2.0.0", "github:1.0.0", "javascript_openai_ai_integrations:2.0.0", "javascript_anthropic_ai_integrations:2.0.0", "javascript_gemini_ai_integrations:2.0.0", "google-sheet:1.0.0", "google-mail:1.0.0", "stripe:2.0.0", "javascript_log_in_with_replit:2.0.0", "google-drive:1.0.0", "google-docs:1.0.0", "google-calendar:1.0.0", "twilio:1.0.0"]

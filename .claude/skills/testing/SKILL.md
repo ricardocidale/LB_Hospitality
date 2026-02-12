@@ -1,11 +1,11 @@
 # Testing & Proof System — Master Skill
 
 ## Purpose
-Documents the full 963-test automated verification system. Every financial statement, analysis, and engine calculation has dedicated tests that prove correctness without manual Excel verification.
+Documents the full 1175-test automated verification system. Every financial statement, analysis, and engine calculation has dedicated tests that prove correctness without manual Excel verification.
 
 ## Commands
 ```bash
-npm test                              # Run all 963 tests
+npm test                              # Run all 1175 tests
 npm run verify                        # Full 4-phase verification (UNQUALIFIED = pass)
 npx vitest run tests/statements/      # Statement tests only
 npx vitest run tests/analytics/       # Analytics/returns tests only
@@ -14,10 +14,11 @@ npx vitest run tests/financing/       # Acquisition financing tests only
 npx vitest run tests/refinance/       # Refinancing tests only
 npx vitest run tests/funding/         # Funding instrument tests only
 npx vitest run tests/proof/           # Proof system (scenarios + hardcoded detection)
+npx vitest run tests/calc/validation/  # Validation tests only
 npx vitest run tests/auth/            # Auth utility tests only
 ```
 
-## Test Suite Map (49 files, 963 tests)
+## Test Suite Map (52 files, 1175 tests)
 
 ### By Domain
 
@@ -30,6 +31,7 @@ npx vitest run tests/auth/            # Auth utility tests only
 | Refinancing | `tests/refinance/` | 6 | ~35 | Refi sizing, schedule, flags, payoff, calculator, golden |
 | Funding | `tests/funding/` | 5 | ~25 | Funding engine, gates, timeline, equity rollforward, golden |
 | Proof | `tests/proof/` | 4 | ~140 | 5 golden scenarios, input verification, hardcoded detection, reconciliation |
+| Validation | `tests/calc/validation/` | 3 | ~212 | Assumption consistency, funding gates, export verification |
 | Auth | `tests/auth/` | 1 | ~1 | Auth utility functions |
 
 ### By Entity Level
@@ -77,7 +79,7 @@ npx vitest run tests/auth/            # Auth utility tests only
 
 ## Maintenance Rules
 
-1. **All 963 tests must pass before any merge** — run `npm test`
+1. **All 1175 tests must pass before any merge** — run `npm test`
 2. **New financial calculations require new tests** — add to the appropriate domain directory
 3. **New constants go in `shared/constants.ts`** — never inline magic numbers
 4. **Hardcoded detection scans 8 finance files** — `proof/hardcoded-detection.test.ts`

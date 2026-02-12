@@ -542,6 +542,64 @@ export async function registerRoutes(
     }
   });
 
+  app.get("/api/admin/sync-status", requireAdmin, async (_req, res) => {
+    try {
+      const globalAssumptions = await storage.getGlobalAssumptions();
+      const properties = await storage.getAllProperties();
+      const users = await storage.getAllUsers();
+      const userGroups = await storage.getAllUserGroups();
+      const themes = await storage.getAllDesignThemes();
+
+      const propertyDetails = await Promise.all(properties.map(async (p) => {
+        const feeCategories = await storage.getFeeCategoriesByProperty(p.id);
+        return {
+          id: p.id,
+          name: p.name,
+          location: p.location,
+          status: p.status,
+          purchasePrice: p.purchasePrice,
+          roomCount: p.roomCount,
+          startAdr: p.startAdr,
+          startOccupancy: p.startOccupancy,
+          baseManagementFeeRate: p.baseManagementFeeRate,
+          incentiveManagementFeeRate: p.incentiveManagementFeeRate,
+          exitCapRate: p.exitCapRate,
+          feeCategories: feeCategories.map(fc => ({ name: fc.name, rate: fc.rate, isActive: fc.isActive })),
+          hasResearchValues: !!p.researchValues,
+        };
+      }));
+
+      const totalFeeCategories = propertyDetails.reduce((sum, p) => sum + p.feeCategories.length, 0);
+
+      res.json({
+        environment: process.env.NODE_ENV || "development",
+        summary: {
+          users: users.length,
+          userGroups: userGroups.length,
+          properties: properties.length,
+          themes: themes.length,
+          hasGlobalAssumptions: !!globalAssumptions,
+          totalFeeCategories,
+        },
+        globalAssumptions: globalAssumptions ? {
+          baseManagementFee: globalAssumptions.baseManagementFee,
+          incentiveManagementFee: globalAssumptions.incentiveManagementFee,
+          inflationRate: globalAssumptions.inflationRate,
+          companyName: globalAssumptions.companyName,
+          modelStartDate: globalAssumptions.modelStartDate,
+          exitCapRate: globalAssumptions.exitCapRate,
+          commissionRate: globalAssumptions.commissionRate,
+          companyTaxRate: globalAssumptions.companyTaxRate,
+        } : null,
+        properties: propertyDetails,
+        userGroups: userGroups.map(g => ({ id: g.id, name: g.name, companyName: g.companyName })),
+      });
+    } catch (error) {
+      console.error("Error fetching sync status:", error);
+      res.status(500).json({ error: "Failed to fetch sync status" });
+    }
+  });
+
   // --- PRODUCTION DATA SEEDING (one-time use) ---
   app.post("/api/admin/seed-production", requireAdmin, async (req, res) => {
     try {

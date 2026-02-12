@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Loader2, Plus, Trash2, Users, Key, Eye, EyeOff, Pencil, Clock, FileCheck, CheckCircle2, XCircle, AlertTriangle, PlayCircle, Palette, Activity, HelpCircle, SwatchBook, UserPlus, Shield, Mail, Calendar, LogIn, LogOut, Monitor, MapPin, Hash, LayoutGrid, Sparkles, Settings, FileText, Download, Save, FileDown, Image, PanelLeft, Building2, Tag } from "lucide-react";
+import { Loader2, Plus, Trash2, Users, Key, Eye, EyeOff, Pencil, Clock, FileCheck, CheckCircle2, XCircle, AlertTriangle, PlayCircle, Palette, Activity, HelpCircle, SwatchBook, UserPlus, Shield, Mail, Calendar, LogIn, LogOut, Monitor, MapPin, Hash, LayoutGrid, Sparkles, Settings, FileText, Download, Save, FileDown, Image, PanelLeft, Building2, Tag, Database, RefreshCw } from "lucide-react";
 import defaultLogo from "@/assets/logo.png";
 import { Tabs, TabsContent, DarkGlassTabs } from "@/components/ui/tabs";
 import jsPDF from "jspdf";
@@ -124,7 +124,7 @@ interface UserGroup {
   createdAt: string;
 }
 
-type AdminView = "users" | "activity" | "activity-feed" | "checker-activity" | "verification" | "themes" | "branding" | "user-groups" | "sidebar";
+type AdminView = "users" | "activity" | "activity-feed" | "checker-activity" | "verification" | "themes" | "branding" | "user-groups" | "sidebar" | "database";
 
 interface ActivityLogEntry {
   id: number;
@@ -201,6 +201,8 @@ export default function Admin() {
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [verificationResults, setVerificationResults] = useState<VerificationResult | null>(null);
   const [designResults, setDesignResults] = useState<DesignCheckResult | null>(null);
+  const [syncResults, setSyncResults] = useState<Record<string, any> | null>(null);
+  const [syncConfirmOpen, setSyncConfirmOpen] = useState(false);
 
   const { data: users, isLoading: usersLoading } = useQuery<User[]>({
     queryKey: ["admin", "users"],
@@ -900,6 +902,56 @@ export default function Admin() {
       toast({ title: "Design Check Failed", description: error.message, variant: "destructive" });
     },
   });
+
+  const checkSyncStatus = useMutation({
+    mutationFn: async () => {
+      const res = await fetch("/api/admin/sync-status", { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to check sync status");
+      return res.json();
+    },
+    onSuccess: (data) => {
+      setSyncResults(data);
+    },
+    onError: (error: Error) => {
+      toast({ title: "Sync Check Failed", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const executeSyncMutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetch("/api/admin/seed-production", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ mode: "sync" }),
+      });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({ error: "Sync failed" }));
+        throw new Error(errData.error || "Sync failed");
+      }
+      return res.json();
+    },
+    onSuccess: (data) => {
+      toast({ title: "Sync Complete", description: data.message || "Database synchronized successfully" });
+      setSyncConfirmOpen(false);
+      checkSyncStatus.mutate();
+    },
+    onError: (error: Error) => {
+      toast({ title: "Sync Failed", description: error.message, variant: "destructive" });
+      setSyncConfirmOpen(false);
+    },
+  });
+
+  const syncAutoChecked = useRef(false);
+  useEffect(() => {
+    if (adminTab === "database" && !syncResults && !checkSyncStatus.isPending && !syncAutoChecked.current) {
+      syncAutoChecked.current = true;
+      checkSyncStatus.mutate();
+    }
+    if (adminTab !== "database") {
+      syncAutoChecked.current = false;
+    }
+  }, [adminTab]);
 
   // Auto-run verification when entering verification view
   const verificationAutoRan = useRef(false);
@@ -2144,6 +2196,153 @@ export default function Admin() {
 
   const renderThemes = () => (<ThemeManager />);
 
+  const renderDatabase = () => (
+    <div className="space-y-6">
+      <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]" data-testid="card-database-sync">
+        <CardHeader>
+          <CardTitle className="font-display flex items-center gap-2">
+            <Database className="w-5 h-5" /> Database Status
+          </CardTitle>
+          <CardDescription className="label-text">
+            View current database state and reset to canonical seed values. Sync mode overwrites global assumptions, property values, and fee categories with the values defined in the seed configuration.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex gap-3">
+            <GlassButton
+              onClick={() => { setSyncResults(null); checkSyncStatus.mutate(); }}
+              disabled={checkSyncStatus.isPending}
+              data-testid="button-check-status"
+            >
+              {checkSyncStatus.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}
+              Check Status
+            </GlassButton>
+            <GlassButton
+              onClick={() => setSyncConfirmOpen(true)}
+              disabled={executeSyncMutation.isPending}
+              className="bg-amber-500/10 border-amber-500/30 hover:bg-amber-500/20 text-amber-700"
+              data-testid="button-sync-database"
+            >
+              {executeSyncMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Database className="w-4 h-4 mr-2" />}
+              Sync Database
+            </GlassButton>
+          </div>
+
+          {syncResults && (
+            <div className="space-y-4 mt-4">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                <div className="bg-primary/5 rounded-xl p-4 text-center" data-testid="stat-users-count">
+                  <p className="text-2xl font-bold text-primary">{syncResults.summary?.users ?? "—"}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Users</p>
+                </div>
+                <div className="bg-primary/5 rounded-xl p-4 text-center" data-testid="stat-properties-count">
+                  <p className="text-2xl font-bold text-primary">{syncResults.summary?.properties ?? "—"}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Properties</p>
+                </div>
+                <div className="bg-primary/5 rounded-xl p-4 text-center" data-testid="stat-groups-count">
+                  <p className="text-2xl font-bold text-primary">{syncResults.summary?.userGroups ?? "—"}</p>
+                  <p className="text-xs text-muted-foreground mt-1">User Groups</p>
+                </div>
+                <div className="bg-primary/5 rounded-xl p-4 text-center" data-testid="stat-fee-categories">
+                  <p className="text-2xl font-bold text-primary">{syncResults.summary?.totalFeeCategories ?? "—"}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Fee Categories</p>
+                </div>
+                <div className="bg-primary/5 rounded-xl p-4 text-center" data-testid="stat-global-assumptions">
+                  <p className="text-2xl font-bold text-primary">{syncResults.summary?.hasGlobalAssumptions ? "Yes" : "No"}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Global Assumptions</p>
+                </div>
+              </div>
+
+              {syncResults.globalAssumptions && (
+                <Card className="bg-white/60 border-primary/10">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium">Global Assumptions</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
+                      <div><span className="text-muted-foreground">Base Mgmt Fee:</span> <span className="font-mono">{((syncResults.globalAssumptions.baseManagementFee ?? 0) * 100).toFixed(1)}%</span></div>
+                      <div><span className="text-muted-foreground">Incentive Fee:</span> <span className="font-mono">{((syncResults.globalAssumptions.incentiveManagementFee ?? 0) * 100).toFixed(1)}%</span></div>
+                      <div><span className="text-muted-foreground">Inflation:</span> <span className="font-mono">{((syncResults.globalAssumptions.inflationRate ?? 0) * 100).toFixed(1)}%</span></div>
+                      <div><span className="text-muted-foreground">Tax Rate:</span> <span className="font-mono">{((syncResults.globalAssumptions.companyTaxRate ?? 0) * 100).toFixed(1)}%</span></div>
+                      <div><span className="text-muted-foreground">Exit Cap:</span> <span className="font-mono">{((syncResults.globalAssumptions.exitCapRate ?? 0) * 100).toFixed(1)}%</span></div>
+                      <div><span className="text-muted-foreground">Commission:</span> <span className="font-mono">{((syncResults.globalAssumptions.commissionRate ?? 0) * 100).toFixed(1)}%</span></div>
+                      <div className="col-span-2"><span className="text-muted-foreground">Company:</span> <span className="font-medium">{syncResults.globalAssumptions.companyName}</span></div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {syncResults.properties?.length > 0 && (
+                <Card className="bg-white/60 border-primary/10">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium">Properties ({syncResults.properties.length})</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Name</TableHead>
+                          <TableHead>Location</TableHead>
+                          <TableHead className="text-right">Rooms</TableHead>
+                          <TableHead className="text-right">ADR</TableHead>
+                          <TableHead className="text-right">Base Fee</TableHead>
+                          <TableHead className="text-right">Exit Cap</TableHead>
+                          <TableHead className="text-center">Research</TableHead>
+                          <TableHead className="text-center">Fee Cats</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {syncResults.properties.map((prop: any) => (
+                          <TableRow key={prop.id} data-testid={`row-property-${prop.id}`}>
+                            <TableCell className="font-medium" data-testid={`text-property-name-${prop.id}`}>{prop.name}</TableCell>
+                            <TableCell className="text-muted-foreground text-xs">{prop.location}</TableCell>
+                            <TableCell className="text-right font-mono">{prop.roomCount}</TableCell>
+                            <TableCell className="text-right font-mono">${prop.startAdr}</TableCell>
+                            <TableCell className="text-right font-mono">{((prop.baseManagementFeeRate ?? 0) * 100).toFixed(1)}%</TableCell>
+                            <TableCell className="text-right font-mono">{((prop.exitCapRate ?? 0) * 100).toFixed(1)}%</TableCell>
+                            <TableCell className="text-center">
+                              {prop.hasResearchValues ? <CheckCircle2 className="w-4 h-4 text-green-500 mx-auto" /> : <XCircle className="w-4 h-4 text-red-400 mx-auto" />}
+                            </TableCell>
+                            <TableCell className="text-center font-mono">{prop.feeCategories?.length ?? 0}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Dialog open={syncConfirmOpen} onOpenChange={setSyncConfirmOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-amber-500" /> Confirm Database Sync
+            </DialogTitle>
+            <DialogDescription>
+              This will overwrite global assumptions, property financial values, and fee categories with canonical seed data. Users and user groups will be created if missing but not overwritten. This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setSyncConfirmOpen(false)} data-testid="button-cancel-sync">Cancel</Button>
+            <Button
+              onClick={() => executeSyncMutation.mutate()}
+              disabled={executeSyncMutation.isPending}
+              className="bg-amber-500 hover:bg-amber-600 text-white"
+              data-testid="button-confirm-sync"
+            >
+              {executeSyncMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+              Yes, Sync Now
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+
   return (
     <TooltipProvider>
     <Layout>
@@ -2166,6 +2365,7 @@ export default function Admin() {
               { value: 'branding', label: 'Branding', icon: Image },
               { value: 'themes', label: 'Themes', icon: SwatchBook },
               { value: 'sidebar', label: 'Navigation', icon: PanelLeft },
+              { value: 'database', label: 'Database', icon: Database },
             ]}
             activeTab={adminTab}
             onTabChange={(v) => setAdminTab(v as AdminView)}
@@ -2197,6 +2397,9 @@ export default function Admin() {
           </TabsContent>
           <TabsContent value="sidebar" className="space-y-6 mt-6">
             {renderSidebar()}
+          </TabsContent>
+          <TabsContent value="database" className="space-y-6 mt-6">
+            {renderDatabase()}
           </TabsContent>
         </Tabs>
       </div>

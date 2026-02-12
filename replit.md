@@ -14,9 +14,9 @@
 ```bash
 npm run dev            # Start dev server
 npm run health         # One-shot: tsc + tests + verify (~4 lines output)
-npm run test:summary   # Run all 1175 tests, 1-line output on pass
+npm run test:summary   # Run all 1252 tests, 1-line output on pass
 npm run verify:summary # 4-phase verification, compact output
-npm test               # Run all 1175 tests (full output)
+npm test               # Run all 1252 tests (full output)
 npm run verify         # Full 4-phase financial verification (verbose)
 npm run db:push        # Push schema changes
 npm run lint:summary   # tsc --noEmit, 1-line output
@@ -28,6 +28,6 @@ npm run exports:check  # Find unused exports
 ```
 
 ## Top Rules
-- **Calculations and correct reports are always the highest priority.** 1175-test proof system must always pass.
+- **Calculations and correct reports are always the highest priority.** 1252-test proof system must always pass.
 - Company name is "Hospitality Business Group". All UI must reference a theme. All skills stored under `.claude/`.
 - For anything else, see `.claude/claude.md`.

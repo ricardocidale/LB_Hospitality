@@ -98,7 +98,8 @@
       "Bash(npm run audit:quick:*)",
       "Bash(npm run stats:*)",
       "Bash(npm run exports:check:*)",
-      "Bash(head -20 grep -oP 'npm run \\\\S+|npm test' .claude/claude.md)"
+      "Bash(head -20 grep -oP 'npm run \\\\S+|npm test' .claude/claude.md)",
+      "Bash(npm run verify:*)"
     ]
   }
 }

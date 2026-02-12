@@ -301,12 +301,12 @@ describe("Per-Property Fee Impact on NOI and Cash Flow", () => {
 });
 
 describe("Per-Property Fee Constants", () => {
-  it("DEFAULT_BASE_MANAGEMENT_FEE_RATE is 5%", () => {
-    expect(DEFAULT_BASE_MANAGEMENT_FEE_RATE).toBe(0.05);
+  it("DEFAULT_BASE_MANAGEMENT_FEE_RATE is 8.5%", () => {
+    expect(DEFAULT_BASE_MANAGEMENT_FEE_RATE).toBe(0.085);
   });
 
-  it("DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE is 15%", () => {
-    expect(DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE).toBe(0.15);
+  it("DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE is 12%", () => {
+    expect(DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE).toBe(0.12);
   });
 });
 

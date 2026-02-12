@@ -3,13 +3,15 @@
 // across the financial engine, seed data, and verification checker.
 
 // Default revenue shares (property-configurable)
-export const DEFAULT_REV_SHARE_EVENTS = 0.43;
-export const DEFAULT_REV_SHARE_FB = 0.22;
-export const DEFAULT_REV_SHARE_OTHER = 0.07;
+// Wellness clinic/retreat event programming justifies higher event share vs standard hotels (10-15%)
+// Global Wellness Institute 2024: wellness retreats generate 25-35% of total revenue
+export const DEFAULT_REV_SHARE_EVENTS = 0.30;
+export const DEFAULT_REV_SHARE_FB = 0.18;
+export const DEFAULT_REV_SHARE_OTHER = 0.05;
 
 // Single catering boost percentage applied to F&B revenue at property level
 // Represents blended effect across all events (catered and non-catered)
-export const DEFAULT_CATERING_BOOST_PCT = 0.30;
+export const DEFAULT_CATERING_BOOST_PCT = 0.22;
 
 // Expense rate defaults (global-configurable)
 export const DEFAULT_EVENT_EXPENSE_RATE = 0.65;
@@ -30,18 +32,19 @@ export const DEFAULT_COST_RATE_FFE = 0.04;
 export const DEFAULT_COST_RATE_OTHER = 0.05;
 
 // Management company fee defaults (per-property)
-export const DEFAULT_BASE_MANAGEMENT_FEE_RATE = 0.05;
-export const DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE = 0.15;
+// HVS Fee Survey 2024: Specialty/wellness operators command 6-10% base + 12-20% incentive
+export const DEFAULT_BASE_MANAGEMENT_FEE_RATE = 0.085;
+export const DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE = 0.12;
 
 // Service fee category defaults (per-property, % of Total Revenue)
 // These replace the single baseManagementFeeRate with granular categories
-// Sum of default rates = 5% (matches DEFAULT_BASE_MANAGEMENT_FEE_RATE)
+// Sum of default rates = 8.5% (matches DEFAULT_BASE_MANAGEMENT_FEE_RATE)
 export const DEFAULT_SERVICE_FEE_CATEGORIES = [
-  { name: "Marketing", rate: 0.01, sortOrder: 1 },
-  { name: "IT", rate: 0.005, sortOrder: 2 },
-  { name: "Accounting", rate: 0.01, sortOrder: 3 },
-  { name: "Reservations", rate: 0.015, sortOrder: 4 },
-  { name: "General Management", rate: 0.01, sortOrder: 5 },
+  { name: "Marketing", rate: 0.02, sortOrder: 1 },
+  { name: "IT", rate: 0.01, sortOrder: 2 },
+  { name: "Accounting", rate: 0.015, sortOrder: 3 },
+  { name: "Reservations", rate: 0.02, sortOrder: 4 },
+  { name: "General Management", rate: 0.02, sortOrder: 5 },
 ] as const;
 
 // Exit & sale defaults

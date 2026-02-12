@@ -84,6 +84,8 @@ const createScenarioSchema = z.object({
   description: z.string().max(1000).nullable().optional(),
 });
 
+const MAX_SCENARIOS_PER_USER = 20;
+
 const researchGenerateSchema = z.object({
   type: z.enum(["property", "company", "global"]),
   propertyId: z.number().optional(),
@@ -1545,6 +1547,17 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
 
   // --- SCENARIOS ROUTES ---
   
+  async function collectFeeCategories(props: { id: number; name: string }[]): Promise<Record<string, any[]>> {
+    const feeCategories: Record<string, any[]> = {};
+    for (const prop of props) {
+      const cats = await storage.getFeeCategoriesByProperty(prop.id);
+      if (cats.length > 0) {
+        feeCategories[prop.name] = cats;
+      }
+    }
+    return feeCategories;
+  }
+
   // Get all scenarios for current user (ensures Base scenario exists)
   app.get("/api/scenarios", requireAuth, async (req, res) => {
     try {
@@ -1554,11 +1567,9 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       // Ensure Base scenario exists
       const hasBase = scenarios.some(s => s.name === "Base");
       if (!hasBase) {
-        // Create Base scenario with current assumptions and properties
         let assumptions = await storage.getGlobalAssumptions(userId);
         let properties = await storage.getAllProperties(userId);
         
-        // Fallback to shared data if user has none
         if (!assumptions) {
           assumptions = await storage.getGlobalAssumptions();
         }
@@ -1567,7 +1578,6 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
         }
         
         if (assumptions) {
-          // Capture images for Base scenario
           const baseImages: Record<string, { dataUri: string; contentType: string }> = {};
           const objService = new ObjectStorageService();
           const baseImageUrls: string[] = [];
@@ -1589,6 +1599,8 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
             } catch { /* skip missing images */ }
           }
 
+          const feeCategories = await collectFeeCategories(properties);
+
           await storage.createScenario({
             userId,
             name: "Base",
@@ -1596,6 +1608,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
             globalAssumptions: assumptions,
             properties: properties,
             scenarioImages: Object.keys(baseImages).length > 0 ? baseImages : undefined,
+            feeCategories: Object.keys(feeCategories).length > 0 ? feeCategories : undefined,
           });
           scenarios = await storage.getScenariosByUser(userId);
         }
@@ -1618,7 +1631,11 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       }
       const { name, description } = validation.data;
 
-      // Get current assumptions and properties for this user (fallback to shared if none)
+      const existingCount = (await storage.getScenariosByUser(userId)).length;
+      if (existingCount >= MAX_SCENARIOS_PER_USER) {
+        return res.status(400).json({ error: `Maximum of ${MAX_SCENARIOS_PER_USER} scenarios per user reached. Delete an existing scenario to create a new one.` });
+      }
+
       let assumptions = await storage.getGlobalAssumptions(userId);
       let properties = await storage.getAllProperties(userId);
 
@@ -1664,6 +1681,8 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
         }
       }
 
+      const feeCategories = await collectFeeCategories(properties);
+
       const scenario = await storage.createScenario({
         userId,
         name: name.trim(),
@@ -1671,6 +1690,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
         globalAssumptions: assumptions,
         properties: properties,
         scenarioImages: Object.keys(scenarioImages).length > 0 ? scenarioImages : undefined,
+        feeCategories: Object.keys(feeCategories).length > 0 ? feeCategories : undefined,
       });
 
       logActivity(req, "save", "scenario", scenario.id, scenario.name);
@@ -1739,10 +1759,10 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
         }
       }
 
-      // Restore assumptions and properties atomically in a transaction
-      const savedAssumptions = scenario.globalAssumptions as any;
-      const savedProperties = scenario.properties as any[];
-      await storage.loadScenario(userId, savedAssumptions, savedProperties);
+      const savedAssumptions = scenario.globalAssumptions as Record<string, unknown>;
+      const savedProperties = scenario.properties as Array<Record<string, unknown>>;
+      const savedFeeCategories = (scenario.feeCategories as Record<string, Array<Record<string, unknown>>>) || undefined;
+      await storage.loadScenario(userId, savedAssumptions, savedProperties, savedFeeCategories);
 
       logActivity(req, "load", "scenario", scenarioId, scenario.name);
       res.json({ success: true, message: "Scenario loaded successfully" });
@@ -2079,6 +2099,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
         ...validation.data,
         userId: req.user!.id,
       });
+      logActivity(req, "create", "design_theme", theme.id, theme.name);
       res.json(theme);
     } catch (error) {
       console.error("Error creating design theme:", error);
@@ -2103,6 +2124,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
         return res.status(400).json({ error: fromZodError(validation.error).message });
       }
       const theme = await storage.updateDesignTheme(id, validation.data);
+      logActivity(req, "update", "design_theme", id, theme?.name ?? existing.name);
       res.json(theme);
     } catch (error) {
       console.error("Error updating design theme:", error);
@@ -2123,6 +2145,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       }
 
       await storage.deleteDesignTheme(id);
+      logActivity(req, "delete", "design_theme", id, existing.name);
       res.json({ success: true });
     } catch (error) {
       console.error("Error deleting design theme:", error);
@@ -2143,6 +2166,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       }
 
       await storage.setActiveDesignTheme(id, req.user!.id);
+      logActivity(req, "activate", "design_theme", id, existing.name);
       res.json({ success: true });
     } catch (error) {
       console.error("Error activating design theme:", error);
@@ -2855,6 +2879,12 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
   app.post("/api/scenarios/import", requireAuth, async (req, res) => {
     try {
       const userId = req.user!.id;
+
+      const importCount = (await storage.getScenariosByUser(userId)).length;
+      if (importCount >= MAX_SCENARIOS_PER_USER) {
+        return res.status(400).json({ error: `Maximum of ${MAX_SCENARIOS_PER_USER} scenarios per user reached. Delete an existing scenario to import a new one.` });
+      }
+
       const { name, description, globalAssumptions: ga, properties: props } = req.body;
 
       if (!name || typeof name !== "string") {
@@ -2867,9 +2897,20 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
         return res.status(400).json({ error: "properties array is required" });
       }
 
+      const existingScenarios = await storage.getScenariosByUser(userId);
+      const existingNames = new Set(existingScenarios.map(s => s.name));
+      let importName = name.trim();
+      if (existingNames.has(importName)) {
+        let suffix = 2;
+        while (existingNames.has(`${importName} (${suffix})`)) {
+          suffix++;
+        }
+        importName = `${importName} (${suffix})`;
+      }
+
       const scenario = await storage.createScenario({
         userId,
-        name: name.trim(),
+        name: importName,
         description: description || null,
         globalAssumptions: ga as any,
         properties: props as any,
@@ -2883,13 +2924,18 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
-  /** Clone a scenario — duplicates with " (Copy)" suffix. */
+  /** Clone a scenario — duplicates with " (Copy)" suffix, auto-incrementing if name exists. */
   app.post("/api/scenarios/:id/clone", requireAuth, async (req, res) => {
     try {
       const userId = req.user!.id;
       const scenarioId = parseInt(req.params.id as string);
       if (isNaN(scenarioId)) {
         return res.status(400).json({ error: "Invalid scenario ID" });
+      }
+
+      const existingScenarios = await storage.getScenariosByUser(userId);
+      if (existingScenarios.length >= MAX_SCENARIOS_PER_USER) {
+        return res.status(400).json({ error: `Maximum of ${MAX_SCENARIOS_PER_USER} scenarios per user reached. Delete an existing scenario to clone.` });
       }
 
       const scenario = await storage.getScenario(scenarioId);
@@ -2899,10 +2945,17 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       if (scenario.userId !== userId) {
         return res.status(403).json({ error: "Access denied" });
       }
+      const existingNames = new Set(existingScenarios.map(s => s.name));
+      let cloneName = `${scenario.name} (Copy)`;
+      let suffix = 2;
+      while (existingNames.has(cloneName)) {
+        cloneName = `${scenario.name} (Copy ${suffix})`;
+        suffix++;
+      }
 
       const clone = await storage.createScenario({
         userId,
-        name: `${scenario.name} (Copy)`,
+        name: cloneName,
         description: scenario.description,
         globalAssumptions: scenario.globalAssumptions as any,
         properties: scenario.properties as any,

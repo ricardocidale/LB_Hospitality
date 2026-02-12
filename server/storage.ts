@@ -47,7 +47,7 @@ export interface IStorage {
   createScenario(data: InsertScenario): Promise<Scenario>;
   updateScenario(id: number, data: UpdateScenario): Promise<Scenario | undefined>;
   deleteScenario(id: number): Promise<void>;
-  loadScenario(userId: number, savedAssumptions: any, savedProperties: any[]): Promise<void>;
+  loadScenario(userId: number, savedAssumptions: Record<string, unknown>, savedProperties: Array<Record<string, unknown>>, savedFeeCategories?: Record<string, Array<Record<string, unknown>>>): Promise<void>;
   
   // Login Logs
   createLoginLog(userId: number, sessionId: string, ipAddress?: string): Promise<LoginLog>;
@@ -335,9 +335,8 @@ export class DatabaseStorage implements IStorage {
     await db.delete(scenarios).where(eq(scenarios.id, id));
   }
 
-  async loadScenario(userId: number, savedAssumptions: any, savedProperties: any[]): Promise<void> {
+  async loadScenario(userId: number, savedAssumptions: Record<string, unknown>, savedProperties: Array<Record<string, unknown>>, savedFeeCategories?: Record<string, Array<Record<string, unknown>>>): Promise<void> {
     await db.transaction(async (tx) => {
-      // Restore global assumptions
       const existing = await tx.select().from(globalAssumptions)
         .where(eq(globalAssumptions.userId, userId));
       if (existing.length > 0) {
@@ -347,7 +346,6 @@ export class DatabaseStorage implements IStorage {
         await tx.insert(globalAssumptions).values({ ...savedAssumptions, userId });
       }
 
-      // Delete current properties atomically, then restore saved ones
       const currentProps = await tx.select().from(properties)
         .where(or(eq(properties.userId, userId), isNull(properties.userId)));
       for (const prop of currentProps) {
@@ -355,7 +353,16 @@ export class DatabaseStorage implements IStorage {
       }
       for (const prop of savedProperties) {
         const { id, createdAt, updatedAt, ...propData } = prop;
-        await tx.insert(properties).values({ ...propData, userId });
+        const [inserted] = await tx.insert(properties).values({ ...propData, userId }).returning();
+
+        const propName = prop.name as string;
+        const feeCats = savedFeeCategories?.[propName];
+        if (feeCats && feeCats.length > 0) {
+          for (const cat of feeCats) {
+            const { id: _catId, propertyId: _propId, createdAt: _catCreated, ...catData } = cat;
+            await tx.insert(propertyFeeCategories).values({ ...catData, propertyId: inserted.id });
+          }
+        }
       }
     });
   }
@@ -448,9 +455,9 @@ export class DatabaseStorage implements IStorage {
 
   async setActiveDesignTheme(id: number, userId: number): Promise<void> {
     await db.transaction(async (tx) => {
-      // Deactivate this user's themes and system themes
+      // Only deactivate this user's own themes (not system themes shared by all users)
       await tx.update(designThemes).set({ isActive: false })
-        .where(or(eq(designThemes.userId, userId), isNull(designThemes.userId)));
+        .where(eq(designThemes.userId, userId));
       // Activate the selected one
       await tx.update(designThemes).set({ isActive: true }).where(eq(designThemes.id, id));
     });

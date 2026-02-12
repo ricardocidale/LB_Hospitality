@@ -609,7 +609,8 @@ export const scenarios = pgTable("scenarios", {
   description: text("description"),
   globalAssumptions: jsonb("global_assumptions").notNull(),
   properties: jsonb("properties").notNull(),
-  scenarioImages: jsonb("scenario_images"), // { [imageUrl: string]: { dataUri: string, contentType: string } }
+  scenarioImages: jsonb("scenario_images"),
+  feeCategories: jsonb("fee_categories"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => [
@@ -624,6 +625,7 @@ export const insertScenarioSchema = createInsertSchema(scenarios).pick({
   globalAssumptions: true,
   properties: true,
   scenarioImages: true,
+  feeCategories: true,
 });
 
 export const updateScenarioSchema = z.object({

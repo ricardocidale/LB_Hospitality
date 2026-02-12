@@ -1,5 +1,5 @@
 import { db } from "./db";
-import { globalAssumptions, marketResearch, properties, users, logos } from "@shared/schema";
+import { globalAssumptions, marketResearch, properties, users, logos, userGroups, propertyFeeCategories } from "@shared/schema";
 import {
   DEFAULT_REV_SHARE_EVENTS,
   DEFAULT_REV_SHARE_FB,
@@ -1141,6 +1141,69 @@ export async function seedDefaultLogos() {
     },
   ]);
   console.log("Seeded default logos: HBG (default) + 3 Norfolk AI variants");
+}
+
+export async function seedUserGroups() {
+  const existing = await db.select().from(userGroups);
+  if (existing.length > 0) return;
+
+  const allUsers = await db.select().from(users);
+
+  const groupsToSeed = [
+    { name: "KIT Group", companyName: "KIT Capital" },
+    { name: "Norfolk Group", companyName: "Norfolk Group" },
+  ];
+
+  const groupMap: Record<string, number> = {};
+  for (const g of groupsToSeed) {
+    const [created] = await db.insert(userGroups).values(g).returning();
+    groupMap[g.name] = created.id;
+  }
+
+  const assignments: Record<string, string> = {
+    "rosario@kitcapital.com": "KIT Group",
+    "kit@kitcapital.com": "KIT Group",
+    "lemazniku@icloud.com": "KIT Group",
+    "admin": "Norfolk Group",
+    "checker@norfolkgroup.io": "Norfolk Group",
+    "bhuvan@norfolkgroup.io": "Norfolk Group",
+    "reynaldo.fagundes@norfolk.ai": "Norfolk Group",
+  };
+
+  for (const u of allUsers) {
+    const groupName = assignments[u.email];
+    if (groupName && groupMap[groupName]) {
+      await db.update(users).set({ userGroupId: groupMap[groupName] }).where(eq(users.id, u.id));
+    }
+  }
+  console.log("Seeded user groups: KIT Group + Norfolk Group");
+}
+
+export async function seedFeeCategories() {
+  const existing = await db.select().from(propertyFeeCategories).limit(1);
+  if (existing.length > 0) return;
+
+  const allProps = await db.select({ id: properties.id }).from(properties);
+  const defaultCategories = [
+    { name: "Marketing", rate: 0.01, sortOrder: 1 },
+    { name: "IT", rate: 0.005, sortOrder: 2 },
+    { name: "Accounting", rate: 0.01, sortOrder: 3 },
+    { name: "Reservations", rate: 0.015, sortOrder: 4 },
+    { name: "General Management", rate: 0.01, sortOrder: 5 },
+  ];
+
+  for (const prop of allProps) {
+    for (const cat of defaultCategories) {
+      await db.insert(propertyFeeCategories).values({
+        propertyId: prop.id,
+        name: cat.name,
+        rate: cat.rate,
+        isActive: true,
+        sortOrder: cat.sortOrder,
+      });
+    }
+  }
+  console.log(`Seeded fee categories for ${allProps.length} properties`);
 }
 
 if (process.argv[1]?.endsWith("seed.ts") || process.argv[1]?.endsWith("seed.js")) {

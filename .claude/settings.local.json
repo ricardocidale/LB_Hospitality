@@ -90,7 +90,15 @@
       "Bash(for file in api.ts auth-utils.ts loanCalculations.ts equityCalculations.ts yearlyAggregator.ts cashFlowAggregator.ts analytics.ts)",
       "Bash(do echo \"=== $file ===\")",
       "Bash(for file in /home/runner/workspace/calc/validation/*.ts)",
-      "Bash(xargs:*)"
+      "Bash(xargs:*)",
+      "Bash(tee:*)",
+      "Bash(npm run lint:*)",
+      "Bash(npm run diff:summary:*)",
+      "Bash(npm run test:file:*)",
+      "Bash(npm run audit:quick:*)",
+      "Bash(npm run stats:*)",
+      "Bash(npm run exports:check:*)",
+      "Bash(head -20 grep -oP 'npm run \\\\S+|npm test' .claude/claude.md)"
     ]
   }
 }

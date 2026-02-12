@@ -1,3 +1,5 @@
+import { DAYS_PER_MONTH, DEFAULT_COST_RATE_FFE } from "../../shared/constants.js";
+
 export interface BreakEvenInput {
   property_name?: string;
   room_count: number;
@@ -68,9 +70,9 @@ function solveBreakEvenOccupancy(
 }
 
 export function computeBreakEven(input: BreakEvenInput): BreakEvenOutput {
-  const days = input.days_per_month ?? 30.5;
+  const days = input.days_per_month ?? DAYS_PER_MONTH;
   const mgmtRate = input.management_fee_rate ?? 0;
-  const ffeRate = input.ffe_reserve_rate ?? 0.04;
+  const ffeRate = input.ffe_reserve_rate ?? DEFAULT_COST_RATE_FFE;
   const debtService = input.monthly_debt_service ?? 0;
   const tax = input.monthly_income_tax_estimate ?? 0;
   const ancPct = input.ancillary_revenue_pct ?? 0;

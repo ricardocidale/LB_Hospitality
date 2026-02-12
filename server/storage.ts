@@ -343,7 +343,7 @@ export class DatabaseStorage implements IStorage {
         await tx.update(globalAssumptions).set(savedAssumptions)
           .where(eq(globalAssumptions.userId, userId));
       } else {
-        await tx.insert(globalAssumptions).values({ ...savedAssumptions, userId });
+        await tx.insert(globalAssumptions).values({ ...savedAssumptions, userId } as typeof globalAssumptions.$inferInsert);
       }
 
       const currentProps = await tx.select().from(properties)
@@ -353,14 +353,14 @@ export class DatabaseStorage implements IStorage {
       }
       for (const prop of savedProperties) {
         const { id, createdAt, updatedAt, ...propData } = prop;
-        const [inserted] = await tx.insert(properties).values({ ...propData, userId }).returning();
+        const [inserted] = await tx.insert(properties).values({ ...propData, userId } as typeof properties.$inferInsert).returning();
 
         const propName = prop.name as string;
         const feeCats = savedFeeCategories?.[propName];
         if (feeCats && feeCats.length > 0) {
           for (const cat of feeCats) {
             const { id: _catId, propertyId: _propId, createdAt: _catCreated, ...catData } = cat;
-            await tx.insert(propertyFeeCategories).values({ ...catData, propertyId: inserted.id });
+            await tx.insert(propertyFeeCategories).values({ ...catData, propertyId: inserted.id } as typeof propertyFeeCategories.$inferInsert);
           }
         }
       }

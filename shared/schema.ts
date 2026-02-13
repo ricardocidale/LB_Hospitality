@@ -38,6 +38,7 @@ import {
 export const logos = pgTable("logos", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   name: text("name").notNull(),
+  companyName: text("company_name").notNull().default("Hospitality Business Group"),
   url: text("url").notNull(),
   isDefault: boolean("is_default").notNull().default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -45,6 +46,7 @@ export const logos = pgTable("logos", {
 
 export const insertLogoSchema = z.object({
   name: z.string(),
+  companyName: z.string(),
   url: z.string(),
   isDefault: z.boolean().optional(),
 });
@@ -86,7 +88,6 @@ export type InsertAssetDescription = z.infer<typeof insertAssetDescriptionSchema
 export const userGroups = pgTable("user_groups", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   name: text("name").notNull(),
-  companyName: text("company_name").notNull(),
   logoId: integer("logo_id"),
   themeId: integer("theme_id"),
   assetDescriptionId: integer("asset_description_id"),
@@ -96,7 +97,6 @@ export const userGroups = pgTable("user_groups", {
 
 export const insertUserGroupSchema = z.object({
   name: z.string().min(1),
-  companyName: z.string().min(1),
   logoId: z.number().nullable().optional(),
   themeId: z.number().nullable().optional(),
   assetDescriptionId: z.number().nullable().optional(),

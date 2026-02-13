@@ -69,7 +69,7 @@ Navigation items in `client/src/components/Layout.tsx` are filtered by user role
 | Systemwide Assumptions | Yes | Yes | Yes | No | `hasManagementAccess` |
 | My Profile | Yes | Yes | Yes | Yes | — |
 | My Scenarios | Yes | Yes | Yes | No | `hasManagementAccess` + sidebar config |
-| Help & Manuals | Yes | Yes | Yes | Yes | — |
+| Help | Yes | Yes | Yes | Yes | — |
 | Administration | Yes | No | No | No | `isAdmin` |
 | Logo Management | Yes | No | No | No | `isAdmin` |
 

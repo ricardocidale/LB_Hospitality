@@ -3,7 +3,7 @@
 > See also: [accordion-formula-rows](accordion-formula-rows.md), [help-tooltip](help-tooltip.md), [financial-table-styling](financial-table-styling.md)
 
 ## Overview
-Two systemwide toggles in Settings (Other tab) that control whether financial reports show calculation verification details:
+Two systemwide toggles in Systemwide Assumptions (Other tab) that control whether financial reports show calculation verification details:
 - **Management Company Reports** — controls Company page financial statements
 - **Property Reports** — controls all property-level financial statements
 
@@ -34,7 +34,7 @@ When `showDetails = true` (default):
 ### Wiring Points
 - **PropertyDetail.tsx**: Wraps financial tabs with `<CalcDetailsProvider show={global.showPropertyCalculationDetails ?? true}>`
 - **Company.tsx**: Wraps financial tabs with `<CalcDetailsProvider show={global.showCompanyCalculationDetails ?? true}>`
-- **Settings.tsx** (Other tab): Two `<Switch>` components under "Calculation Transparency" card, each with a `?` help icon
+- **Settings.tsx** (Systemwide Assumptions > Other tab): Two `<Switch>` components under "Calculation Transparency" card, each with a `?` help icon
 
 ### API Type
 `GlobalResponse` in `client/src/lib/api.ts`:

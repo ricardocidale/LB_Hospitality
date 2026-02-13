@@ -40,6 +40,7 @@ export const companies = pgTable("companies", {
   name: text("name").notNull().unique(),
   type: text("type").notNull().default("spv"),
   description: text("description"),
+  logoId: integer("logo_id"),
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
@@ -48,6 +49,7 @@ export const insertCompanySchema = z.object({
   name: z.string().min(1),
   type: z.enum(["management", "spv"]).optional().default("spv"),
   description: z.string().nullable().optional(),
+  logoId: z.number().nullable().optional(),
   isActive: z.boolean().optional(),
 });
 

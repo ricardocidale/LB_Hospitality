@@ -123,7 +123,8 @@ interface UserGroup {
   createdAt: string;
 }
 
-type AdminView = "users" | "activity" | "activity-feed" | "checker-activity" | "verification" | "themes" | "branding" | "user-groups" | "sidebar" | "database";
+type AdminView = "users" | "activity" | "verification" | "themes" | "branding" | "user-groups" | "sidebar" | "database";
+type ActivitySubView = "login" | "feed" | "checker";
 
 interface ActivityLogEntry {
   id: number;
@@ -187,6 +188,7 @@ export default function Admin() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [adminTab, setAdminTab] = useState<AdminView>("users");
+  const [activitySubTab, setActivitySubTab] = useState<ActivitySubView>("login");
   
   const [dialogOpen, setDialogOpen] = useState(false);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
@@ -280,7 +282,7 @@ export default function Admin() {
       if (!res.ok) throw new Error("Failed to fetch checker activity");
       return res.json();
     },
-    enabled: adminTab === "checker-activity",
+    enabled: adminTab === "activity" && activitySubTab === "checker",
   });
 
   const { data: verificationHistory } = useQuery<VerificationHistoryEntry[]>({
@@ -2336,9 +2338,7 @@ export default function Admin() {
           <DarkGlassTabs
             tabs={[
               { value: 'users', label: 'Users', icon: Users },
-              { value: 'activity', label: 'Login Activity', icon: Clock },
-              { value: 'activity-feed', label: 'Activity Feed', icon: Activity },
-              { value: 'checker-activity', label: 'Checker Activity', icon: FileCheck },
+              { value: 'activity', label: 'Activity', icon: Activity },
               { value: 'verification', label: 'Verification', icon: FileCheck },
               { value: 'user-groups', label: 'User Groups', icon: Building2 },
               { value: 'branding', label: 'Branding', icon: Image },
@@ -2354,13 +2354,30 @@ export default function Admin() {
             {renderUsers()}
           </TabsContent>
           <TabsContent value="activity" className="space-y-6 mt-6">
-            {renderActivity()}
-          </TabsContent>
-          <TabsContent value="activity-feed" className="space-y-6 mt-6">
-            {renderActivityFeed()}
-          </TabsContent>
-          <TabsContent value="checker-activity" className="space-y-6 mt-6">
-            {renderCheckerActivity()}
+            <div className="flex gap-2 mb-6">
+              {([
+                { value: "login" as ActivitySubView, label: "Login Activity", icon: Clock },
+                { value: "feed" as ActivitySubView, label: "User Activity Feed", icon: Activity },
+                { value: "checker" as ActivitySubView, label: "Checker Activity", icon: FileCheck },
+              ]).map((sub) => (
+                <Button
+                  key={sub.value}
+                  variant={activitySubTab === sub.value ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setActivitySubTab(sub.value)}
+                  className={activitySubTab === sub.value
+                    ? "bg-primary text-primary-foreground shadow-lg"
+                    : "bg-card/50 border-primary/20 text-muted-foreground hover:bg-primary/10 hover:text-foreground"}
+                  data-testid={`btn-activity-sub-${sub.value}`}
+                >
+                  <sub.icon className="w-4 h-4 mr-2" />
+                  {sub.label}
+                </Button>
+              ))}
+            </div>
+            {activitySubTab === "login" && renderActivity()}
+            {activitySubTab === "feed" && renderActivityFeed()}
+            {activitySubTab === "checker" && renderCheckerActivity()}
           </TabsContent>
           <TabsContent value="verification" className="space-y-6 mt-6">
             {renderVerification()}

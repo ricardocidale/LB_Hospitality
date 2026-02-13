@@ -118,6 +118,7 @@ interface UserGroup {
   logoId: number | null;
   themeId: number | null;
   assetDescriptionId: number | null;
+  isDefault: boolean;
   createdAt: string;
 }
 
@@ -2002,7 +2003,7 @@ export default function Admin() {
                           </div>
                         )}
                         <div>
-                          <h3 className="font-display text-foreground font-medium">{group.name}</h3>
+                          <h3 className="font-display text-foreground font-medium">{group.name}{group.isDefault && <span className="ml-2 text-xs bg-primary/20 text-primary px-2 py-0.5 rounded">Default</span>}</h3>
                           <p className="text-sm text-muted-foreground">Company: <span className="text-foreground">{group.companyName}</span></p>
                         </div>
                       </div>
@@ -2014,13 +2015,15 @@ export default function Admin() {
                         }} className="text-primary hover:text-foreground hover:bg-primary/10" data-testid={`button-edit-group-${group.id}`}>
                           <Pencil className="w-4 h-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" onClick={() => {
-                          if (confirm("Delete this group? Users in this group will be unassigned.")) {
-                            deleteGroupMutation.mutate(group.id);
-                          }
-                        }} className="text-red-400 hover:text-red-300 hover:bg-red-500/10" data-testid={`button-delete-group-${group.id}`}>
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                        {!group.isDefault && (
+                          <Button variant="ghost" size="sm" onClick={() => {
+                            if (confirm("Delete this group? Users will be moved to the default group.")) {
+                              deleteGroupMutation.mutate(group.id);
+                            }
+                          }} className="text-red-400 hover:text-red-300 hover:bg-red-500/10" data-testid={`button-delete-group-${group.id}`}>
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        )}
                       </div>
                     </div>
                     <div className="flex flex-wrap gap-2 text-xs text-muted-foreground mb-3">

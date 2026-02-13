@@ -430,6 +430,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteDesignTheme(id: number): Promise<void> {
+    const [theme] = await db.select().from(designThemes).where(eq(designThemes.id, id));
+    if (theme?.isDefault) throw new Error("Cannot delete the default theme");
     await db.delete(designThemes).where(eq(designThemes.id, id));
   }
   
@@ -701,8 +703,17 @@ export class DatabaseStorage implements IStorage {
     return group;
   }
 
+  async getDefaultUserGroup(): Promise<UserGroup | undefined> {
+    const [group] = await db.select().from(userGroups).where(eq(userGroups.isDefault, true));
+    return group || undefined;
+  }
+
   async deleteUserGroup(id: number): Promise<void> {
-    await db.update(users).set({ userGroupId: null, updatedAt: new Date() }).where(eq(users.userGroupId, id));
+    const [group] = await db.select().from(userGroups).where(eq(userGroups.id, id));
+    if (group?.isDefault) throw new Error("Cannot delete the default user group");
+    const defaultGroup = await this.getDefaultUserGroup();
+    if (!defaultGroup) throw new Error("Cannot delete group: no default group exists to reassign users");
+    await db.update(users).set({ userGroupId: defaultGroup.id, updatedAt: new Date() }).where(eq(users.userGroupId, id));
     await db.delete(userGroups).where(eq(userGroups.id, id));
   }
 

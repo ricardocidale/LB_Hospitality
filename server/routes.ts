@@ -2022,9 +2022,13 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       if (isNaN(id)) return res.status(400).json({ error: "Invalid group ID" });
       await storage.deleteUserGroup(id);
       res.json({ success: true });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error deleting user group:", error);
-      res.status(500).json({ error: "Failed to delete user group" });
+      if (error.message?.includes("Cannot delete")) {
+        res.status(400).json({ error: error.message });
+      } else {
+        res.status(500).json({ error: "Failed to delete user group" });
+      }
     }
   });
 

@@ -55,8 +55,10 @@ interface ThemeTokens {
 
 ## Storage
 - Built-in themes: `client/src/lib/themes.ts` (static)
-- User themes: Database table `user_themes` (id, userId, name, tokens JSON, createdAt)
-- Active theme: Zustand store `useThemeStore` persisted to localStorage
+- Design themes: Database table `design_themes` (id, name, description, colors JSON, isDefault, createdAt, updatedAt)
+- Themes are standalone entities (not user-owned), assigned to User Groups
+- Active theme: resolved from user's User Group → default theme fallback
+- See `.claude/skills/multi-tenancy/SKILL.md` for full branding architecture
 
 ## Applying Themes
 - Theme tokens map to CSS custom properties on `:root`
@@ -64,12 +66,12 @@ interface ThemeTokens {
 - Components use CSS var tokens (`bg-[hsl(var(--primary))]`) — never raw hex
 - Dark mode is a theme variant, not a separate toggle
 
-## User Theme Creation
-- Settings page has "Themes" section
-- User picks colors via color pickers for each token
-- Live preview panel shows sample components
-- Save creates a new `user_themes` row
-- Saved themes appear in theme switcher dropdown
+## Theme Management (Admin)
+- Admin page has "Themes" tab for standalone CRUD
+- Admin creates/edits themes with name, description, and color definitions
+- At least one default theme always exists and cannot be deleted
+- Themes are assigned to User Groups (not individual users)
+- Users inherit their theme from their assigned User Group
 
 ## Component Theme Reference
 Every UI skill specifies which theme context it uses:

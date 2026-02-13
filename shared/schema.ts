@@ -90,6 +90,7 @@ export const userGroups = pgTable("user_groups", {
   logoId: integer("logo_id"),
   themeId: integer("theme_id"),
   assetDescriptionId: integer("asset_description_id"),
+  isDefault: boolean("is_default").notNull().default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

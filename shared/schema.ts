@@ -115,6 +115,7 @@ export const users = pgTable("users", {
   company: text("company"),
   title: text("title"),
   userGroupId: integer("user_group_id"),
+  selectedThemeId: integer("selected_theme_id"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

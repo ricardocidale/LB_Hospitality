@@ -4,7 +4,7 @@ import { storage, type ActivityLogFilters } from "./storage";
 import { insertGlobalAssumptionsSchema, insertPropertySchema, updatePropertySchema, insertDesignThemeSchema, insertLogoSchema, updateScenarioSchema, insertProspectivePropertySchema, insertSavedSearchSchema, VALID_USER_ROLES } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { registerObjectStorageRoutes, ObjectStorageService, ObjectNotFoundError } from "./replit_integrations/object_storage";
-import { hashPassword, verifyPassword, generateSessionId, setSessionCookie, clearSessionCookie, getSessionExpiryDate, requireAuth, requireAdmin, requireChecker, isRateLimited, recordLoginAttempt, sanitizeEmail, validatePassword, isApiRateLimited } from "./auth";
+import { hashPassword, verifyPassword, generateSessionId, setSessionCookie, clearSessionCookie, getSessionExpiryDate, requireAuth, requireAdmin, requireChecker, requireManagementAccess, isRateLimited, recordLoginAttempt, sanitizeEmail, validatePassword, isApiRateLimited } from "./auth";
 import { z } from "zod";
 import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
@@ -75,8 +75,9 @@ const createUserSchema = z.object({
   password: z.string().min(8),
   name: z.string().max(100).optional(),
   company: z.string().max(100).optional(),
+  companyId: z.number().nullable().optional(),
   title: z.string().max(100).optional(),
-  role: z.enum(VALID_ROLES).optional().default("user"),
+  role: z.enum(VALID_ROLES).optional().default("partner"),
 });
 
 const createScenarioSchema = z.object({
@@ -268,8 +269,13 @@ export async function registerRoutes(
 
   app.get("/api/auth/me", requireAuth, async (req, res) => {
     const u = req.user!;
+    let companyName: string | null = null;
+    if (u.companyId) {
+      const comp = await storage.getCompany(u.companyId);
+      if (comp) companyName = comp.name;
+    }
     res.json({
-      user: { id: u.id, email: u.email, name: u.name, company: u.company, title: u.title, role: u.role }
+      user: { id: u.id, email: u.email, name: u.name, company: u.company, companyId: u.companyId, companyName, title: u.title, role: u.role }
     });
   });
 
@@ -417,12 +423,13 @@ export async function registerRoutes(
         return res.status(400).json({ error: "User with this email already exists" });
       }
       
-      const role = validation.data.role || "user";
+      const role = validation.data.role || "partner";
+      const companyId = validation.data.companyId ?? null;
       const passwordHash = await hashPassword(password);
-      const user = await storage.createUser({ email, passwordHash, role, name, company, title });
+      const user = await storage.createUser({ email, passwordHash, role, name, company, companyId, title });
       logActivity(req, "create", "user", user.id, user.email, { role });
 
-      res.json({ id: user.id, email: user.email, name: user.name, company: user.company, title: user.title, role: user.role });
+      res.json({ id: user.id, email: user.email, name: user.name, company: user.company, companyId: user.companyId, title: user.title, role: user.role });
     } catch (error) {
       console.error("Error creating user:", error);
       res.status(500).json({ error: "Failed to create user" });
@@ -465,6 +472,7 @@ export async function registerRoutes(
     name: z.string().max(100).optional(),
     email: z.string().email().max(255).optional(),
     company: z.string().max(100).optional(),
+    companyId: z.number().nullable().optional(),
     title: z.string().max(100).optional(),
     role: z.enum(VALID_ROLES).optional(),
   });
@@ -500,7 +508,7 @@ export async function registerRoutes(
         logActivity(req, "role_change", "user", id, existingUser.email, { oldRole: existingUser.role, newRole: validation.data.role });
       }
       
-      const updates: { email?: string; name?: string; company?: string; title?: string } = {};
+      const updates: { email?: string; name?: string; company?: string; companyId?: number | null; title?: string } = {};
       if (validation.data.email !== undefined) {
         const newEmail = sanitizeEmail(validation.data.email);
         if (newEmail !== existingUser.email) {
@@ -513,10 +521,11 @@ export async function registerRoutes(
       }
       if (validation.data.name !== undefined) updates.name = validation.data.name.trim();
       if (validation.data.company !== undefined) updates.company = validation.data.company.trim();
+      if (validation.data.companyId !== undefined) updates.companyId = validation.data.companyId;
       if (validation.data.title !== undefined) updates.title = validation.data.title.trim();
       
       const user = await storage.updateUserProfile(id, updates);
-      res.json({ id: user.id, email: user.email, name: user.name, company: user.company, title: user.title, role: user.role });
+      res.json({ id: user.id, email: user.email, name: user.name, company: user.company, companyId: user.companyId, title: user.title, role: user.role });
     } catch (error) {
       console.error("Error updating user:", error);
       res.status(500).json({ error: "Failed to update user" });
@@ -656,13 +665,13 @@ export async function registerRoutes(
 
       const usersToSeed = !adminPw ? [] : [
         { email: "admin", passwordHash: await hashPassword(adminPw), role: "admin" as const, name: "Ricardo Cidale", company: "Norfolk Group", title: "Partner" },
-        { email: "rosario@kitcapital.com", passwordHash: await hashPassword(adminPw), role: "user" as const, name: "Rosario David", company: "KIT Capital", title: "COO" },
-        { email: "kit@kitcapital.com", passwordHash: await hashPassword(adminPw), role: "user" as const, name: "Dov Tuzman", company: "KIT Capital", title: "Principal" },
-        { email: "lemazniku@icloud.com", passwordHash: await hashPassword(adminPw), role: "user" as const, name: "Lea Mazniku", company: "KIT Capital", title: "Partner" },
+        { email: "rosario@kitcapital.com", passwordHash: await hashPassword(adminPw), role: "partner" as const, name: "Rosario David", company: "KIT Capital", title: "COO" },
+        { email: "kit@kitcapital.com", passwordHash: await hashPassword(adminPw), role: "partner" as const, name: "Dov Tuzman", company: "KIT Capital", title: "Principal" },
+        { email: "lemazniku@icloud.com", passwordHash: await hashPassword(adminPw), role: "partner" as const, name: "Lea Mazniku", company: "KIT Capital", title: "Partner" },
         ...(checkerPw ? [{ email: "checker@norfolkgroup.io", passwordHash: await hashPassword(checkerPw), role: "checker" as const, name: "Checker", company: "Norfolk AI", title: "Checker" }] : []),
-        { email: "bhuvan@norfolkgroup.io", passwordHash: await hashPassword(adminPw), role: "user" as const, name: "Bhuvan Agarwal", company: "Norfolk AI", title: "Financial Analyst" },
-        ...(reynaldoPw ? [{ email: "reynaldo.fagundes@norfolk.ai", passwordHash: await hashPassword(reynaldoPw), role: "user" as const, name: "Reynaldo Fagundes", company: "Norfolk AI", title: "CTO" }] : []),
-        { email: "leslie@cidale.com", passwordHash: await hashPassword(adminPw), role: "user" as const, name: "Leslie Cidale", company: "Numeratti Endeavors", title: "Senior Partner" },
+        { email: "bhuvan@norfolkgroup.io", passwordHash: await hashPassword(adminPw), role: "partner" as const, name: "Bhuvan Agarwal", company: "Norfolk AI", title: "Financial Analyst" },
+        ...(reynaldoPw ? [{ email: "reynaldo.fagundes@norfolk.ai", passwordHash: await hashPassword(reynaldoPw), role: "partner" as const, name: "Reynaldo Fagundes", company: "Norfolk AI", title: "CTO" }] : []),
+        { email: "leslie@cidale.com", passwordHash: await hashPassword(adminPw), role: "partner" as const, name: "Leslie Cidale", company: "Numeratti Endeavors", title: "Senior Partner" },
       ];
       
       for (const userData of usersToSeed) {
@@ -1654,7 +1663,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
   }
 
   // Get all scenarios for current user (ensures Base scenario exists)
-  app.get("/api/scenarios", requireAuth, async (req, res) => {
+  app.get("/api/scenarios", requireManagementAccess, async (req, res) => {
     try {
       const userId = req.user!.id;
       let scenarios = await storage.getScenariosByUser(userId);
@@ -1717,7 +1726,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
   });
 
   // Create new scenario (save current assumptions + properties + images)
-  app.post("/api/scenarios", requireAuth, async (req, res) => {
+  app.post("/api/scenarios", requireManagementAccess, async (req, res) => {
     try {
       const userId = req.user!.id;
       const validation = createScenarioSchema.safeParse(req.body);
@@ -1797,7 +1806,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
   });
 
   // Load scenario (restore assumptions + properties + images)
-  app.post("/api/scenarios/:id/load", requireAuth, async (req, res) => {
+  app.post("/api/scenarios/:id/load", requireManagementAccess, async (req, res) => {
     try {
       const userId = req.user!.id;
       const scenarioId = parseInt(req.params.id as string);
@@ -1868,7 +1877,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
   });
 
   // Update scenario (rename)
-  app.patch("/api/scenarios/:id", requireAuth, async (req, res) => {
+  app.patch("/api/scenarios/:id", requireManagementAccess, async (req, res) => {
     try {
       const userId = req.user!.id;
       const scenarioId = parseInt(req.params.id as string);
@@ -1899,7 +1908,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
   });
 
   // Delete scenario (cannot delete Base scenario)
-  app.delete("/api/scenarios/:id", requireAuth, async (req, res) => {
+  app.delete("/api/scenarios/:id", requireManagementAccess, async (req, res) => {
     try {
       const userId = req.user!.id;
       const scenarioId = parseInt(req.params.id as string);
@@ -2079,6 +2088,67 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     } catch (error) {
       console.error("Error assigning user to group:", error);
       res.status(500).json({ error: "Failed to assign user to group" });
+    }
+  });
+
+  // Company CRUD routes
+  app.get("/api/admin/companies", requireAdmin, async (req, res) => {
+    try {
+      const allCompanies = await storage.getAllCompanies();
+      res.json(allCompanies);
+    } catch (error) {
+      console.error("Error fetching companies:", error);
+      res.status(500).json({ error: "Failed to fetch companies" });
+    }
+  });
+
+  app.post("/api/admin/companies", requireAdmin, async (req, res) => {
+    try {
+      const { name, type, description } = req.body;
+      if (!name || typeof name !== "string" || name.trim().length === 0) {
+        return res.status(400).json({ error: "Company name is required" });
+      }
+      const company = await storage.createCompany({ name: name.trim(), type: type || "spv", description: description || null });
+      logActivity(req, "create", "company", company.id, company.name);
+      res.json(company);
+    } catch (error) {
+      console.error("Error creating company:", error);
+      res.status(500).json({ error: "Failed to create company" });
+    }
+  });
+
+  app.patch("/api/admin/companies/:id", requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id as string);
+      if (isNaN(id)) return res.status(400).json({ error: "Invalid company ID" });
+      const company = await storage.updateCompany(id, req.body);
+      res.json(company);
+    } catch (error) {
+      console.error("Error updating company:", error);
+      res.status(500).json({ error: "Failed to update company" });
+    }
+  });
+
+  app.delete("/api/admin/companies/:id", requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id as string);
+      if (isNaN(id)) return res.status(400).json({ error: "Invalid company ID" });
+      await storage.deleteCompany(id);
+      logActivity(req, "delete", "company", id, "");
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting company:", error);
+      res.status(500).json({ error: "Failed to delete company" });
+    }
+  });
+
+  // Public companies list (for dropdowns, any authenticated user)
+  app.get("/api/companies", requireAuth, async (req, res) => {
+    try {
+      const allCompanies = await storage.getAllCompanies();
+      res.json(allCompanies);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch companies" });
     }
   });
 
@@ -2382,7 +2452,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
 
   // --- PROPERTY FINDER ROUTES ---
   
-  app.get("/api/property-finder/search", requireAuth, async (req: any, res) => {
+  app.get("/api/property-finder/search", requireManagementAccess, async (req: any, res) => {
     try {
       const userId = req.user!.id;
       if (isApiRateLimited(userId, "property-finder/search", 30)) {
@@ -2532,7 +2602,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
-  app.get("/api/property-finder/favorites", requireAuth, async (req: any, res) => {
+  app.get("/api/property-finder/favorites", requireManagementAccess, async (req: any, res) => {
     try {
       const userId = req.user!.id;
       const favorites = await storage.getProspectiveProperties(userId);
@@ -2553,7 +2623,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
-  app.post("/api/property-finder/favorites", requireAuth, async (req: any, res) => {
+  app.post("/api/property-finder/favorites", requireManagementAccess, async (req: any, res) => {
     try {
       const userId = req.user!.id;
       const validation = insertProspectivePropertySchema.safeParse({ ...req.body, userId });
@@ -2568,7 +2638,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
-  app.delete("/api/property-finder/favorites/:id", requireAuth, async (req: any, res) => {
+  app.delete("/api/property-finder/favorites/:id", requireManagementAccess, async (req: any, res) => {
     try {
       const userId = req.user!.id;
       const id = parseInt(req.params.id);
@@ -2583,7 +2653,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
-  app.patch("/api/property-finder/favorites/:id/notes", requireAuth, async (req: any, res) => {
+  app.patch("/api/property-finder/favorites/:id/notes", requireManagementAccess, async (req: any, res) => {
     try {
       const userId = req.user!.id;
       const id = parseInt(req.params.id);
@@ -2600,7 +2670,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
   });
 
   // --- Saved Searches ---
-  app.get("/api/property-finder/saved-searches", requireAuth, async (req: any, res) => {
+  app.get("/api/property-finder/saved-searches", requireManagementAccess, async (req: any, res) => {
     try {
       const userId = req.user!.id;
       const searches = await storage.getSavedSearches(userId);
@@ -2611,7 +2681,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
-  app.post("/api/property-finder/saved-searches", requireAuth, async (req: any, res) => {
+  app.post("/api/property-finder/saved-searches", requireManagementAccess, async (req: any, res) => {
     try {
       const userId = req.user!.id;
       const validation = insertSavedSearchSchema.safeParse({ ...req.body, userId });
@@ -2626,7 +2696,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
-  app.delete("/api/property-finder/saved-searches/:id", requireAuth, async (req: any, res) => {
+  app.delete("/api/property-finder/saved-searches/:id", requireManagementAccess, async (req: any, res) => {
     try {
       const userId = req.user!.id;
       const id = parseInt(req.params.id);
@@ -2879,7 +2949,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
   // --- SCENARIO EXPORT / IMPORT / CLONE / COMPARE ENDPOINTS ---
 
   /** Export a scenario as downloadable JSON (excludes images for size). */
-  app.get("/api/scenarios/:id/export", requireAuth, async (req, res) => {
+  app.get("/api/scenarios/:id/export", requireManagementAccess, async (req, res) => {
     try {
       const userId = req.user!.id;
       const scenarioId = parseInt(req.params.id as string);
@@ -2916,7 +2986,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
   });
 
   /** Import a scenario from JSON upload. Validates structure before creating. */
-  app.post("/api/scenarios/import", requireAuth, async (req, res) => {
+  app.post("/api/scenarios/import", requireManagementAccess, async (req, res) => {
     try {
       const userId = req.user!.id;
 
@@ -2965,7 +3035,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
   });
 
   /** Clone a scenario — duplicates with " (Copy)" suffix, auto-incrementing if name exists. */
-  app.post("/api/scenarios/:id/clone", requireAuth, async (req, res) => {
+  app.post("/api/scenarios/:id/clone", requireManagementAccess, async (req, res) => {
     try {
       const userId = req.user!.id;
       const scenarioId = parseInt(req.params.id as string);
@@ -3011,7 +3081,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
   });
 
   /** Compare two scenarios — returns diff of assumptions and properties. */
-  app.get("/api/scenarios/:id1/compare/:id2", requireAuth, async (req, res) => {
+  app.get("/api/scenarios/:id1/compare/:id2", requireManagementAccess, async (req, res) => {
     try {
       const userId = req.user!.id;
       const id1 = parseInt(req.params.id1 as string);

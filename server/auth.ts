@@ -13,6 +13,7 @@ declare global {
       role: string;
       name: string | null;
       company: string | null;
+      companyId: number | null;
       title: string | null;
       userGroupId: number | null;
       selectedThemeId: number | null;
@@ -272,6 +273,16 @@ export function requireChecker(req: Request, res: Response, next: NextFunction) 
   next();
 }
 
+export function requireManagementAccess(req: Request, res: Response, next: NextFunction) {
+  if (!req.user) {
+    return res.status(401).json({ error: "Authentication required" });
+  }
+  if (req.user.role === "investor") {
+    return res.status(403).json({ error: "Management company access required" });
+  }
+  next();
+}
+
 /**
  * Sets an httpOnly session cookie on the response with a 7-day expiry.
  * The cookie is marked as secure in production and uses strict same-site policy.
@@ -435,7 +446,7 @@ export async function seedAdminUser() {
       reynaldoUser = await storage.createUser({
         email: reynaldoEmail,
         passwordHash,
-        role: "user",
+        role: "partner",
         name: "Reynaldo Fagundes",
         company: "Norfolk AI",
         title: "CTO",

@@ -195,8 +195,8 @@ export default function Admin() {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [newPassword, setNewPassword] = useState("");
-  const [newUser, setNewUser] = useState({ email: "", password: "", name: "", company: "", title: "", role: "user" as string });
-  const [editUser, setEditUser] = useState({ email: "", name: "", company: "", title: "", role: "user" as string });
+  const [newUser, setNewUser] = useState({ email: "", password: "", name: "", company: "", title: "", role: "partner" as string });
+  const [editUser, setEditUser] = useState({ email: "", name: "", company: "", title: "", role: "partner" as string });
   const [originalEmail, setOriginalEmail] = useState("");
   const [showNewUserPassword, setShowNewUserPassword] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
@@ -521,7 +521,7 @@ export default function Admin() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
       setDialogOpen(false);
-      setNewUser({ email: "", password: "", name: "", company: "", title: "", role: "user" });
+      setNewUser({ email: "", password: "", name: "", company: "", title: "", role: "partner" });
       toast({ title: "User Created", description: "New user has been registered." });
     },
     onError: (error: Error) => {
@@ -992,7 +992,7 @@ export default function Admin() {
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-primary/10"
-                        onClick={() => { setSelectedUser(user); setOriginalEmail(user.email); setEditUser({ email: user.email, name: user.name || "", company: user.company || "", title: user.title || "", role: user.role || "user" }); setEditDialogOpen(true); }}
+                        onClick={() => { setSelectedUser(user); setOriginalEmail(user.email); setEditUser({ email: user.email, name: user.name || "", company: user.company || "", title: user.title || "", role: user.role || "partner" }); setEditDialogOpen(true); }}
                         data-testid={`button-edit-user-${user.id}`}>
                         <Pencil className="w-4 h-4" />
                       </Button>
@@ -1949,6 +1949,7 @@ export default function Admin() {
                       <span className={`text-xs px-2 py-0.5 rounded font-mono ${
                         user.role === "admin" ? "bg-primary/20 text-primary" :
                         user.role === "checker" ? "bg-blue-500/20 text-blue-400" :
+                        user.role === "investor" ? "bg-amber-500/20 text-amber-400" :
                         "bg-primary/10 text-muted-foreground"
                       }`}>{user.role}</span>
                     </TableCell>
@@ -2099,6 +2100,7 @@ export default function Admin() {
                       <span className={`text-xs px-2 py-0.5 rounded font-mono ${
                         user.role === "admin" ? "bg-primary/20 text-primary" :
                         user.role === "checker" ? "bg-blue-500/20 text-blue-400" :
+                        user.role === "investor" ? "bg-amber-500/20 text-amber-400" :
                         "bg-primary/10 text-muted-foreground"
                       }`}>{user.role}</span>
                     </TableCell>
@@ -2428,7 +2430,8 @@ export default function Admin() {
               <Select value={newUser.role} onValueChange={(v) => setNewUser({ ...newUser, role: v })} data-testid="select-new-user-role">
                 <SelectTrigger data-testid="select-new-user-role"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="user">User</SelectItem>
+                  <SelectItem value="partner">Partner</SelectItem>
+                  <SelectItem value="investor">Investor</SelectItem>
                   <SelectItem value="checker">Checker</SelectItem>
                   <SelectItem value="admin">Admin</SelectItem>
                 </SelectContent>
@@ -2488,7 +2491,8 @@ export default function Admin() {
               <Select value={editUser.role} onValueChange={(v) => setEditUser({ ...editUser, role: v })} data-testid="select-edit-user-role">
                 <SelectTrigger data-testid="select-edit-user-role"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="user">User</SelectItem>
+                  <SelectItem value="partner">Partner</SelectItem>
+                  <SelectItem value="investor">Investor</SelectItem>
                   <SelectItem value="checker">Checker</SelectItem>
                   <SelectItem value="admin">Admin</SelectItem>
                 </SelectContent>

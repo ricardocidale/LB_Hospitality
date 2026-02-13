@@ -1,5 +1,5 @@
 import { db } from "./db";
-import { globalAssumptions, marketResearch, properties, users, logos, userGroups, propertyFeeCategories } from "@shared/schema";
+import { globalAssumptions, marketResearch, properties, users, logos, userGroups, companies, propertyFeeCategories } from "@shared/schema";
 import {
   DEFAULT_REV_SHARE_EVENTS,
   DEFAULT_REV_SHARE_FB,
@@ -1202,6 +1202,22 @@ export async function seedUserGroups() {
       console.log(`Assigned ${unassigned.length} unassigned user(s) to '${defaultGroup.name}' group`);
     }
   }
+}
+
+export async function seedCompanies() {
+  const existing = await db.select().from(companies).limit(1);
+  if (existing.length > 0) return;
+
+  const companiesToSeed = [
+    { name: "Hospitality Business Group", type: "management" as const, description: "Management company overseeing all hotel SPVs" },
+    { name: "HBG Property 1 LLC", type: "spv" as const, description: "SPV for first hotel property" },
+    { name: "HBG Property 2 LLC", type: "spv" as const, description: "SPV for second hotel property" },
+  ];
+
+  for (const c of companiesToSeed) {
+    await db.insert(companies).values(c);
+  }
+  console.log("Seeded default companies");
 }
 
 export async function seedFeeCategories() {

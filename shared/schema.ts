@@ -34,6 +34,26 @@ import {
   DEFAULT_PROJECTION_YEARS,
 } from "./constants";
 
+// --- COMPANIES TABLE ---
+export const companies = pgTable("companies", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  name: text("name").notNull().unique(),
+  type: text("type").notNull().default("spv"),
+  description: text("description"),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertCompanySchema = z.object({
+  name: z.string().min(1),
+  type: z.enum(["management", "spv"]).optional().default("spv"),
+  description: z.string().nullable().optional(),
+  isActive: z.boolean().optional(),
+});
+
+export type Company = typeof companies.$inferSelect;
+export type InsertCompany = z.infer<typeof insertCompanySchema>;
+
 // --- LOGOS TABLE ---
 export const logos = pgTable("logos", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
@@ -110,9 +130,10 @@ export const users = pgTable("users", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   email: text("email").notNull().unique(),
   passwordHash: text("password_hash").notNull(),
-  role: text("role").notNull().default("user"), // "admin", "user", or "checker"
+  role: text("role").notNull().default("partner"), // "admin", "partner", "checker", "investor"
   name: text("name"),
   company: text("company"),
+  companyId: integer("company_id").references(() => companies.id, { onDelete: "set null" }),
   title: text("title"),
   userGroupId: integer("user_group_id"),
   selectedThemeId: integer("selected_theme_id"),
@@ -120,15 +141,16 @@ export const users = pgTable("users", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-export const VALID_USER_ROLES = ["admin", "user", "checker"] as const;
+export const VALID_USER_ROLES = ["admin", "partner", "checker", "investor"] as const;
 export type UserRole = typeof VALID_USER_ROLES[number];
 
 export const insertUserSchema = z.object({
   email: z.string(),
   passwordHash: z.string(),
-  role: z.enum(VALID_USER_ROLES).optional().default("user"),
+  role: z.enum(VALID_USER_ROLES).optional().default("partner"),
   name: z.string().nullable().optional(),
   company: z.string().nullable().optional(),
+  companyId: z.number().nullable().optional(),
   title: z.string().nullable().optional(),
 });
 

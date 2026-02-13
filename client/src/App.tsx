@@ -71,6 +71,20 @@ function AdminRoute({ component: Component }: { component: React.ComponentType }
   );
 }
 
+function ManagementRoute({ component: Component }: { component: React.ComponentType }) {
+  const { user, isLoading, hasManagementAccess } = useAuth();
+  
+  if (isLoading) return <PageLoader />;
+  if (!user) return <Redirect to="/login" />;
+  if (!hasManagementAccess) return <Redirect to="/" />;
+  
+  return (
+    <Suspense fallback={<PageLoader />}>
+      <Component />
+    </Suspense>
+  );
+}
+
 function CheckerRoute({ component: Component }: { component: React.ComponentType }) {
   const { user, isLoading, isAdmin } = useAuth();
   
@@ -130,12 +144,12 @@ function Router() {
       </Route>
       <Route path="/company">
         <FinancialErrorBoundary>
-          <ProtectedRoute component={Company} />
+          <ManagementRoute component={Company} />
         </FinancialErrorBoundary>
       </Route>
       <Route path="/company/assumptions">
         <FinancialErrorBoundary>
-          <ProtectedRoute component={CompanyAssumptions} />
+          <ManagementRoute component={CompanyAssumptions} />
         </FinancialErrorBoundary>
       </Route>
       <Route path="/portfolio">
@@ -166,10 +180,10 @@ function Router() {
         <Redirect to="/help" />
       </Route>
       <Route path="/company/research">
-        <ProtectedRoute component={CompanyResearch} />
+        <ManagementRoute component={CompanyResearch} />
       </Route>
       <Route path="/global/research">
-        <ProtectedRoute component={GlobalResearch} />
+        <ManagementRoute component={GlobalResearch} />
       </Route>
       <Route path="/admin">
         <AdminRoute component={Admin} />
@@ -179,11 +193,11 @@ function Router() {
       </Route>
       <Route path="/scenarios">
         <FinancialErrorBoundary>
-          <ProtectedRoute component={Scenarios} />
+          <ManagementRoute component={Scenarios} />
         </FinancialErrorBoundary>
       </Route>
       <Route path="/property-finder">
-        <ProtectedRoute component={PropertyFinder} />
+        <ManagementRoute component={PropertyFinder} />
       </Route>
       <Route path="/analysis">
         <FinancialErrorBoundary>

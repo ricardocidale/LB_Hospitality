@@ -13,8 +13,8 @@ import { GlassButton } from "@/components/ui/glass-button";
 type HelpTab = "checker-manual" | "user-manual" | "guided-tour";
 
 export default function Help() {
-  const { user, isAdmin } = useAuth();
-  const isChecker = isAdmin || user?.role === "checker";
+  const { user, isAdmin, isChecker: authIsChecker } = useAuth();
+  const isChecker = isAdmin || authIsChecker;
   const defaultTab: HelpTab = isChecker ? "checker-manual" : "user-manual";
   const [tab, setTab] = useState<HelpTab>(defaultTab);
   const { setCompleted: resetWalkthrough } = useWalkthroughStore();

@@ -1,4 +1,4 @@
-import { globalAssumptions, properties, users, sessions, scenarios, loginLogs, designThemes, logos, assetDescriptions, userGroups, marketResearch, prospectiveProperties, savedSearches, activityLogs, verificationRuns, propertyFeeCategories, type GlobalAssumptions, type Property, type InsertGlobalAssumptions, type InsertProperty, type UpdateProperty, type User, type InsertUser, type Session, type Scenario, type InsertScenario, type UpdateScenario, type LoginLog, type InsertLoginLog, type DesignTheme, type InsertDesignTheme, type Logo, type InsertLogo, type AssetDescription, type InsertAssetDescription, type UserGroup, type InsertUserGroup, type MarketResearch, type InsertMarketResearch, type ProspectiveProperty, type InsertProspectiveProperty, type SavedSearch, type InsertSavedSearch, type ActivityLog, type InsertActivityLog, type VerificationRun, type InsertVerificationRun, type FeeCategory, type InsertFeeCategory, type UpdateFeeCategory } from "@shared/schema";
+import { globalAssumptions, properties, users, sessions, scenarios, loginLogs, designThemes, logos, assetDescriptions, userGroups, companies, marketResearch, prospectiveProperties, savedSearches, activityLogs, verificationRuns, propertyFeeCategories, type GlobalAssumptions, type Property, type InsertGlobalAssumptions, type InsertProperty, type UpdateProperty, type User, type InsertUser, type Session, type Scenario, type InsertScenario, type UpdateScenario, type LoginLog, type InsertLoginLog, type DesignTheme, type InsertDesignTheme, type Logo, type InsertLogo, type AssetDescription, type InsertAssetDescription, type UserGroup, type InsertUserGroup, type Company, type InsertCompany, type MarketResearch, type InsertMarketResearch, type ProspectiveProperty, type InsertProspectiveProperty, type SavedSearch, type InsertSavedSearch, type ActivityLog, type InsertActivityLog, type VerificationRun, type InsertVerificationRun, type FeeCategory, type InsertFeeCategory, type UpdateFeeCategory } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gt, lt, gte, lte, desc, or, isNull, type SQL } from "drizzle-orm";
 
@@ -20,7 +20,7 @@ export interface IStorage {
   getAllUsers(): Promise<User[]>;
   deleteUser(id: number): Promise<void>;
   updateUserPassword(id: number, passwordHash: string): Promise<void>;
-  updateUserProfile(id: number, data: { name?: string; email?: string; company?: string; title?: string }): Promise<User>;
+  updateUserProfile(id: number, data: { name?: string; email?: string; company?: string; companyId?: number | null; title?: string }): Promise<User>;
   updateUserSelectedTheme(id: number, themeId: number | null): Promise<User>;
   updateUserRole(id: number, role: string): Promise<void>;
   
@@ -125,6 +125,13 @@ export interface IStorage {
   deleteUserGroup(id: number): Promise<void>;
   assignUserToGroup(userId: number, groupId: number | null): Promise<User>;
 
+  // Companies
+  getAllCompanies(): Promise<Company[]>;
+  getCompany(id: number): Promise<Company | undefined>;
+  createCompany(data: InsertCompany): Promise<Company>;
+  updateCompany(id: number, data: Partial<InsertCompany>): Promise<Company>;
+  deleteCompany(id: number): Promise<void>;
+
   // Property Fee Categories
   getFeeCategoriesByProperty(propertyId: number): Promise<FeeCategory[]>;
   getAllFeeCategories(): Promise<FeeCategory[]>;
@@ -155,6 +162,7 @@ export class DatabaseStorage implements IStorage {
         role: data.role,
         name: data.name,
         company: data.company,
+        companyId: data.companyId,
         title: data.title,
       })
       .returning();
@@ -186,7 +194,7 @@ export class DatabaseStorage implements IStorage {
     await db.delete(sessions).where(eq(sessions.userId, id));
   }
 
-  async updateUserProfile(id: number, data: { name?: string; email?: string; company?: string; title?: string }): Promise<User> {
+  async updateUserProfile(id: number, data: { name?: string; email?: string; company?: string; companyId?: number | null; title?: string }): Promise<User> {
     const [user] = await db
       .update(users)
       .set({ ...data, updatedAt: new Date() })
@@ -730,6 +738,31 @@ export class DatabaseStorage implements IStorage {
   async assignUserToGroup(userId: number, groupId: number | null): Promise<User> {
     const [user] = await db.update(users).set({ userGroupId: groupId, updatedAt: new Date() }).where(eq(users.id, userId)).returning();
     return user;
+  }
+
+  // Companies
+  async getAllCompanies(): Promise<Company[]> {
+    return db.select().from(companies).orderBy(companies.name);
+  }
+
+  async getCompany(id: number): Promise<Company | undefined> {
+    const [company] = await db.select().from(companies).where(eq(companies.id, id));
+    return company || undefined;
+  }
+
+  async createCompany(data: InsertCompany): Promise<Company> {
+    const [company] = await db.insert(companies).values(data).returning();
+    return company;
+  }
+
+  async updateCompany(id: number, data: Partial<InsertCompany>): Promise<Company> {
+    const [company] = await db.update(companies).set(data).where(eq(companies.id, id)).returning();
+    return company;
+  }
+
+  async deleteCompany(id: number): Promise<void> {
+    await db.update(users).set({ companyId: null, updatedAt: new Date() }).where(eq(users.companyId, id));
+    await db.delete(companies).where(eq(companies.id, id));
   }
 
   // Property Fee Categories

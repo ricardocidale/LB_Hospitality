@@ -203,7 +203,7 @@ Default role for new users: `partner`.
 
 ## Calculation Transparency
 
-Two toggles in **Settings > Other tab** control formula help visibility:
+Two toggles in **Systemwide Assumptions > Other tab** control formula help visibility:
 - `showCompanyCalculationDetails` — Management Company reports
 - `showPropertyCalculationDetails` — Property reports
 

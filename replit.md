@@ -61,7 +61,7 @@ Administration page (`/admin`) has these tabs:
 - Branding tab shows read-only logo summary with "Manage Logos" button linking to Logos tab
 
 ## Calculation Transparency
-- Two toggles in **Settings > Other tab** control formula accordion visibility:
+- Two toggles in **Systemwide Assumptions > Other tab** control formula accordion visibility:
   - `showCompanyCalculationDetails` — Management Company reports
   - `showPropertyCalculationDetails` — Property reports
 - Default: ON. When OFF, shows clean numbers only (investor-ready view).

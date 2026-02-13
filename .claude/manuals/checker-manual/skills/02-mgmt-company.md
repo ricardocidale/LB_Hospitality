@@ -22,7 +22,7 @@ Several key rules govern fee calculation:
 - Fees are calculated per property, per month, based on that property's operating results.
 - Fees are only charged for months when the property is operational (after the operations start date).
 - The Incentive Management Fee is only earned when GOP is positive. If GOP is negative, the incentive fee for that period is zero.
-- Both fee rates are configurable as global assumptions on the Settings page.
+- Both fee rates are configurable as global assumptions on the Systemwide Assumptions page.
 
 ---
 

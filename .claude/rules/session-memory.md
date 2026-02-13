@@ -68,6 +68,9 @@ This rule ensures continuity across chat resets. The agent must treat this file 
 - Skill file moved to `.claude/skills/ui/reusable-components.md` (proper subdirectory per skill-organization rule)
 - **README.md rewritten** — comprehensive GitHub README covering app purpose, data sources, Replit's role, financial engine, verification system, tech stack, codebase structure
 - **Full documentation harmonization** — claude.md, replit.md, and all 84 skill files updated to reflect latest project state with consistent counts, accurate role names, current Admin tab structure, and AI image generation architecture
+- **Removed Catering Revenue Model card** from Systemwide Assumptions > Other tab (was informational-only with no inputs)
+- **Renamed "Help & Manuals" to "Help"** in sidebar and page header
+- **Fixed all "Settings page" references** in docs to "Systemwide Assumptions page" (13 files updated)
 
 ### Key Architecture Decisions
 - **Nano Banana (gemini-2.5-flash-image)** is the primary image generation model; fallback to OpenAI `gpt-image-1`
@@ -83,7 +86,7 @@ This rule ensures continuity across chat resets. The agent must treat this file 
 - User calls the image generation model "Nano Banana" (Google's gemini-2.5-flash-image)
 - User wants reusable UI tools that can be shared across features
 - User wants **100% session memory** — all decisions, changes, and context must be saved to persist across chat resets
-- User wants "formula-like" accordion details in statements to remain toggleable via Settings > Other tab > Calculation Transparency (two switches: `showCompanyCalculationDetails` and `showPropertyCalculationDetails`)
+- User wants "formula-like" accordion details in statements to remain toggleable via Systemwide Assumptions > Other tab > Calculation Transparency (two switches: `showCompanyCalculationDetails` and `showPropertyCalculationDetails`)
 - User wants **ALL buttons to use "Save"** consistently (not "Update" for existing items)
 - User wants **logos to be vector-based/SVG** for animation support
 - User wants **every financial line item** to have a ? tooltip explanation
@@ -100,7 +103,7 @@ This rule ensures continuity across chat resets. The agent must treat this file 
 | `client/src/pages/Admin.tsx` | Administration page with tabs: Users, Companies, Activity, Verification, User Groups, Logos, Branding, Themes, Navigation, Database |
 | `server/replit_integrations/image/client.ts` | Server-side image gen client (Nano Banana + OpenAI fallback) |
 | `server/routes.ts` | All API routes including logo CRUD, image generation, branding |
-| `client/src/pages/Settings.tsx` | Settings page — "Other" tab has Calculation Transparency toggles |
+| `client/src/pages/Settings.tsx` | Systemwide Assumptions page — "Other" tab has Calculation Transparency toggles |
 
 ### Sidebar Navigation Structure (by role)
 - **Admin:** sees everything — all pages + Administration

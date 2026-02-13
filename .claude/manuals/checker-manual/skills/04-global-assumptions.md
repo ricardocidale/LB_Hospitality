@@ -2,7 +2,7 @@
 
 ## Overview
 
-Global assumptions are model-wide parameters accessible via the Settings page. These parameters affect all properties and the Management Company simultaneously. Changing any global assumption triggers an instant recalculation of every financial statement in the model.
+Global assumptions are model-wide parameters accessible via the Systemwide Assumptions page. These parameters affect all properties and the Management Company simultaneously. Changing any global assumption triggers an instant recalculation of every financial statement in the model.
 
 When a property-level value is not explicitly set, the financial engine falls back to the corresponding global assumption, and ultimately to the system default constant. This ensures every calculation always has a valid input.
 

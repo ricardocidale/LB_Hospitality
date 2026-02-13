@@ -7,7 +7,7 @@ Property-level assumptions are accessible via the Property Edit page for each in
 The financial engine applies a three-tier fallback chain when resolving any property parameter:
 
 1. **Property-specific value** — if explicitly set on the Property Edit page, this value takes precedence.
-2. **Global assumption** — if the property value is null or undefined, the engine uses the corresponding global assumption from the Settings page.
+2. **Global assumption** — if the property value is null or undefined, the engine uses the corresponding global assumption from the Systemwide Assumptions page.
 3. **System default constant** — if neither property nor global values are set, the engine uses the hardcoded default.
 
 This chain ensures that every calculation always has a valid input, while allowing maximum configurability at any level. A single global assumption change can update all properties that have not been individually overridden, while properties with explicit values remain unaffected.

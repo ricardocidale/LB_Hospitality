@@ -57,7 +57,7 @@ Never hardcode values that are managed through the Administration page. All admi
 | My Scenarios | `globalAssumptions.sidebarScenarios` | `true` / `false` |
 | User Manual | `globalAssumptions.sidebarUserManual` | `true` / `false` |
 
-### Display Settings (managed in Settings page, admin-controlled)
+### Display Settings (managed in Systemwide Assumptions page, admin-controlled)
 | Setting | Source | Never Hardcode |
 |---------|--------|----------------|
 | Show Company Calculation Details | `globalAssumptions.showCompanyCalculationDetails` | `true` / `false` |

@@ -38,7 +38,7 @@
 | PropertyDetail | `"dark"` (default) | Main app page |
 | PropertyEdit | `"dark"` (default) | Edit page |
 | Company | `"dark"` (default) | Main app page |
-| CompanyAssumptions | `"dark"` (default) | Settings page |
+| CompanyAssumptions | `"dark"` (default) | Systemwide Assumptions page |
 | Admin | `"dark"` (default) | Admin page |
 | Scenarios | `"dark"` (default) | Main app page |
 | **PropertyFinder** | **`"light"`** | **Only page that uses light variant** |

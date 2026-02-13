@@ -90,7 +90,7 @@ The checker should use exports extensively to verify calculations offline agains
 
 When verifying the application, the checker should follow this general approach:
 
-1. Start by reviewing global assumptions on the Settings page — these drive every downstream calculation.
+1. Start by reviewing global assumptions on the Systemwide Assumptions page — these drive every downstream calculation.
 2. Compare exported Excel or CSV data against the on-screen presentation to confirm rendering accuracy.
 3. Use the Sensitivity Analysis page to stress-test edge cases such as zero occupancy, extreme ADR values, and 100% LTV.
 4. Cross-check Management Company fee revenue against the corresponding fee expense on each property's income statement.

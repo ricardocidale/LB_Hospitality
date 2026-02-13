@@ -17,7 +17,7 @@
 ## Key Directories
 - `.claude/skills/` — 80+ skill files (finance, UI, testing, exports, proof system, architecture)
 - `.claude/skills/context-loading/` — Start here: maps task types to minimum required skills
-- `.claude/rules/` — 14 rule files (audit doctrine, constants, DB seeding, API routes, graphics, hardcoding, etc.)
+- `.claude/rules/` — 15 rule files (audit doctrine, constants, DB seeding, API routes, graphics, hardcoding, skill organization, etc.)
 - `.claude/manuals/` — Checker manual and user manual
 - `.claude/tools/` — Tool schemas for analysis, financing, returns, validation, UI
 - `.claude/commands/` — 8 slash commands (verify, seed, scenarios, themes, etc.)

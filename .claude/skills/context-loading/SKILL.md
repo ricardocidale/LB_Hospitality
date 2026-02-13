@@ -92,7 +92,9 @@ With 80+ skill files (~15,000 lines), loading everything wastes tokens and slows
 |------|------------------|------|
 | Update checker manual | `manuals/checker-manual/SKILL.md` | Finance engine, UI |
 | Update user manual | `manuals/user-manual/SKILL.md` | Finance engine, UI |
-| Create new skill | `coding-conventions/SKILL.md` | Unrelated domain skills |
+| Create new skill | `coding-conventions/SKILL.md`, `rules/skill-organization.md` | Unrelated domain skills |
+| Reorganize skills/rules | `rules/skill-organization.md`, `context-loading/SKILL.md` | Finance, UI skills |
+| Audit folder structure | `rules/skill-organization.md`, `source-code/SKILL.md` | Finance, UI skills |
 
 ## Loading Tiers by Request Complexity
 
@@ -135,5 +137,5 @@ User asks for verification, release prep, or comprehensive review.
 ## Cross-References
 - Skill Router: `claude.md` § Skill Router
 - All skills: `.claude/skills/` (15 directories, 80+ files)
-- Rules: `.claude/rules/` (14 files)
+- Rules: `.claude/rules/` (15 files)
 - Manuals: `.claude/manuals/` (2 manuals, 31 sections total)

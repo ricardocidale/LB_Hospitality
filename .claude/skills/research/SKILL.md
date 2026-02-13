@@ -182,7 +182,7 @@ Each AI research module has its own skill file with tool schema:
 ## Rules
 
 1. **Never hardcode "boutique hotel"** — always reference `globalAssumptions.propertyLabel`
-2. **Calculations trump research** — research badges are guidance, not calculations. The 1175-test proof system takes absolute priority.
+2. **Calculations trump research** — research badges are guidance, not calculations. The 1330-test proof system takes absolute priority.
 3. **Source tracking is mandatory** — every research value must have a `source` field (`'seed'`, `'ai'`, or `'none'`)
 4. **Seed values are location-aware** — generic national averages are the fallback of last resort
 5. **AI overrides seed** — when AI research runs, its values take precedence over seed defaults

@@ -56,7 +56,7 @@ npm run exports:check  # Find unused exports
 - **Server endpoint:** `POST /api/generate-property-image` — generates image, uploads to object storage, returns `objectPath`
 
 ## Admin Page Structure
-Administration page (`/admin`) has these tabs:
+Admin Settings page (`/admin`) has these tabs:
 - Users, Companies, Activity, Verification, User Groups, **Logos**, Branding, Themes, Navigation, Database
 - Logo Management is a tab within Admin (not a separate sidebar link)
 - Branding tab shows read-only logo summary with "Manage Logos" button linking to Logos tab

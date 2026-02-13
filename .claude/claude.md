@@ -140,7 +140,7 @@ Research values are stored in the `research_values` JSONB column on each propert
 
 ## Admin Page Structure
 
-The Administration page (`/admin`) has these tabs:
+The Admin Settings page (`/admin`) has these tabs:
 
 | Tab | Value | Purpose |
 |-----|-------|---------|
@@ -182,7 +182,7 @@ Four roles with hierarchical access:
 
 | Role | Access Level |
 |------|-------------|
-| `admin` | Full access — all pages + Administration panel |
+| `admin` | Full access — all pages + Admin Settings panel |
 | `partner` | Management-level — Dashboard, Properties, Company, Settings, Reports (no Admin) |
 | `checker` | Financial verification — same as Partner, plus verification tools and checker manual |
 | `investor` | Limited — Dashboard, Properties, Profile, Help only |
@@ -215,7 +215,7 @@ Default role for new users: `partner`.
 | GlobalResearch | `/global/research` | Global market research |
 | Settings | `/settings` | Themes, preferences, calculation transparency |
 | Profile | `/profile` | User profile, theme selection |
-| Admin | `/admin` | Administration (10 tabs — see Admin Page Structure above) |
+| Admin | `/admin` | Admin Settings (10 tabs — see Admin Page Structure above) |
 | Methodology | `/methodology` | User manual |
 | CheckerManual | `/checker-manual` | Checker manual (21 sections) |
 | Help | `/help` | Help and documentation |

@@ -2488,7 +2488,7 @@ export default function Admin() {
     <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]" data-testid="card-sidebar-settings">
       <CardHeader>
         <CardTitle className="font-display flex items-center gap-2"><Settings className="w-5 h-5" /> Navigation Visibility</CardTitle>
-        <CardDescription className="label-text">Toggle which optional pages appear in the sidebar for non-admin users. Core pages (Dashboard, Properties, Management Co., Settings, Profile, Administration) are always visible.</CardDescription>
+        <CardDescription className="label-text">Toggle which optional pages appear in the sidebar for non-admin users. Core pages (Dashboard, Properties, Management Co., Settings, Profile, Admin Settings) are always visible.</CardDescription>
       </CardHeader>
       <CardContent className="relative space-y-1">
         {sidebarToggles.map((toggle) => {
@@ -2672,7 +2672,7 @@ export default function Admin() {
     <Layout>
       <div className="space-y-6">
         <PageHeader 
-          title="Administration"
+          title="Admin Settings"
           subtitle="Manage users, monitor activity, and run system verification"
           variant="dark"
         />

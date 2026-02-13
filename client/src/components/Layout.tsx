@@ -60,7 +60,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
     { type: "divider" as const },
     { href: "/help", label: "Help", icon: BookOpen },
     ...(isAdmin ? [
-      { href: "/admin", label: "Administration", icon: Shield },
+      { href: "/admin", label: "Admin Settings", icon: Shield },
     ] : []),
   ];
 

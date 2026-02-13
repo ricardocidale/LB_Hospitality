@@ -70,7 +70,7 @@ Navigation items in `client/src/components/Layout.tsx` are filtered by user role
 | My Profile | Yes | Yes | Yes | Yes | — |
 | My Scenarios | Yes | Yes | Yes | No | `hasManagementAccess` + sidebar config |
 | Help | Yes | Yes | Yes | Yes | — |
-| Administration | Yes | No | No | No | `isAdmin` |
+| Admin Settings | Yes | No | No | No | `isAdmin` |
 | Logo Management | Yes | No | No | No | `isAdmin` |
 
 ### Role Definitions (from `client/src/lib/auth.tsx`)

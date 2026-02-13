@@ -52,8 +52,7 @@ Every user belongs to exactly one User Group. Every User Group defines company b
 |-------|------|-------------|
 | id | integer (auto) | Primary key |
 | name | text | Group display name (e.g., "KIT Group", "General") |
-| companyName | text | Company name shown in portal UI |
-| logoId | integer? | FK to logos table |
+| logoId | integer? | FK to logos table (logo carries the company name) |
 | themeId | integer? | FK to design_themes table |
 | assetDescriptionId | integer? | FK to asset_descriptions table |
 | isDefault | boolean | Exactly one group is default (the "General" group) |
@@ -64,14 +63,15 @@ Every user belongs to exactly one User Group. Every User Group defines company b
 - The default group cannot be deleted
 - When a non-default group is deleted, its users are moved to the default group
 - All users without a group are auto-assigned to the default group on startup
-- Company name from the group is displayed throughout the portal for users in that group
+- **No `companyName` on user groups** — the company name comes from the group's assigned logo
+- Users see the company name from their group's logo (or the default logo if none assigned)
 
 **Seed behavior:**
-- On startup, if no default group exists, a "General" group is created with company name "Hospitality Business Group"
+- On startup, if no default group exists, a "General" group is created
 - All unassigned users are moved to the default group
 
 **Admin UI:** User Groups tab in Admin page
-- Create/edit groups with name, company name, logo, theme, asset description
+- Create/edit groups with name, logo (includes company name), theme, asset description
 - Default group shows "Default" badge and cannot be deleted
 - Users can be assigned to groups via the Users tab
 
@@ -120,17 +120,20 @@ interface DesignColor {
 | Field | Type | Description |
 |-------|------|-------------|
 | id | integer (auto) | Primary key |
-| name | text | Logo display name |
+| name | text | Logo display name (e.g., "Norfolk AI - Blue") |
+| companyName | text | Company name associated with this logo (e.g., "Norfolk Group") |
 | url | text | Path or URL to logo image |
 | isDefault | boolean | Exactly one logo is default |
 | createdAt | timestamp | Auto |
 
 **Invariants:**
 - Logos are standalone, reusable entities
+- Each logo carries its own `companyName` — this is how company names are defined
 - Exactly one logo has `isDefault = true`
 - The default logo cannot be deleted
 - Logos are assigned to User Groups
 - Any group without a logoId uses the default logo
+- **Company names live on logos, not on user groups.** When a group picks a logo, users in that group see the logo's company name.
 
 ### 5. Asset Descriptions
 
@@ -155,13 +158,15 @@ The `/api/my-branding` endpoint resolves branding for the authenticated user:
 ```
 1. Get user's userGroupId
 2. If group exists:
-   - companyName = group.companyName
    - logo = group.logoId → logos table (or default logo)
+   - companyName = resolved logo's companyName
    - theme = group.themeId → design_themes table (or default theme)
    - assetDescription = group.assetDescriptionId → asset_descriptions table (or default)
 3. If no group (should not happen):
-   - Fall back to defaults for everything
+   - Fall back to defaults for everything (default logo, default theme, etc.)
 ```
+
+**Key: company name comes from the logo**, not the group. The logo entity is the single source of truth for both the visual logo and the associated company name.
 
 ## API Routes
 
@@ -206,15 +211,15 @@ The `/api/my-branding` endpoint resolves branding for the authenticated user:
 
 The Admin user (email: `admin`) belongs to the **Norfolk Group** user group, not the default "General" group. Each built-in user is pre-assigned to a specific group:
 
-| User Email | Name | User Group | Company Name | Role |
-|------------|------|-----------|--------------|------|
-| `admin` | Ricardo Cidale | Norfolk Group | Norfolk Group | admin |
-| `checker@norfolkgroup.io` | Checker | Norfolk Group | Norfolk Group | checker |
-| `bhuvan@norfolkgroup.io` | Bhuvan Agarwal | Norfolk Group | Norfolk Group | user |
-| `reynaldo.fagundes@norfolk.ai` | Reynaldo Fagundes | Norfolk Group | Norfolk Group | user |
-| `rosario@kitcapital.com` | Rosario David | KIT Group | KIT Capital Hospitality | user |
-| `kit@kitcapital.com` | Dov Tuzman | KIT Group | KIT Capital Hospitality | user |
-| `lemazniku@icloud.com` | Lea Mazniku | KIT Group | KIT Capital Hospitality | user |
+| User Email | Name | User Group | Logo → Company Name | Role |
+|------------|------|-----------|---------------------|------|
+| `admin` | Ricardo Cidale | Norfolk Group | (via Norfolk AI logo) → Norfolk Group | admin |
+| `checker@norfolkgroup.io` | Checker | Norfolk Group | (via Norfolk AI logo) → Norfolk Group | checker |
+| `bhuvan@norfolkgroup.io` | Bhuvan Agarwal | Norfolk Group | (via Norfolk AI logo) → Norfolk Group | user |
+| `reynaldo.fagundes@norfolk.ai` | Reynaldo Fagundes | Norfolk Group | (via Norfolk AI logo) → Norfolk Group | user |
+| `rosario@kitcapital.com` | Rosario David | KIT Group | (via KIT logo) → KIT Capital Hospitality | user |
+| `kit@kitcapital.com` | Dov Tuzman | KIT Group | (via KIT logo) → KIT Capital Hospitality | user |
+| `lemazniku@icloud.com` | Lea Mazniku | KIT Group | (via KIT logo) → KIT Capital Hospitality | user |
 
 **Admin in Norfolk Group:** The admin user sees "Norfolk Group" branding (company name, logo, theme, asset description) throughout the portal, not the default "Hospitality Business Group" branding. This is intentional — the admin operates under the Norfolk Group identity.
 
@@ -223,8 +228,9 @@ The Admin user (email: `admin`) belongs to the **Norfolk Group** user group, not
 ## Key Design Decisions
 
 1. **No per-user branding** — Branding is always group-level. This simplifies admin workflow and ensures consistency.
-2. **Admin belongs to Norfolk Group** — The admin user is a member of the "Norfolk Group" user group and inherits its branding. Admin role is about permissions, not branding.
-3. **Default group is mandatory** — The "General" group always exists and cannot be deleted. New users land here.
-4. **Default theme is mandatory** — At least one theme always exists. Groups without an explicit theme get the default.
-5. **Deletion cascades to default** — Deleting a non-default group moves its users to the default group.
-6. **Standalone entities** — Themes, logos, and asset descriptions are not owned by users or groups. They are shared resources that groups reference.
+2. **Company names live on logos** — Each logo carries a `companyName`. When a group picks a logo, users in that group see the logo's company name. There is no separate company name field on user groups.
+3. **Admin belongs to Norfolk Group** — The admin user is a member of the "Norfolk Group" user group and inherits its branding. Admin role is about permissions, not branding.
+4. **Default group is mandatory** — The "General" group always exists and cannot be deleted. New users land here.
+5. **Default theme is mandatory** — At least one theme always exists. Groups without an explicit theme get the default.
+6. **Deletion cascades to default** — Deleting a non-default group moves its users to the default group.
+7. **Standalone entities** — Themes, logos, and asset descriptions are not owned by users or groups. They are shared resources that groups reference.

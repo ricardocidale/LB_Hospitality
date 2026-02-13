@@ -707,6 +707,61 @@ interface TableShellProps {
   className?: string;
 }
 
+/* ═══════════════════════════════════════════════
+   FormulaDetailRow
+   Sub-row rendered inside expanded accordions.
+   Shows one line of a formula chain (italic, small,
+   blue-tinted background).
+   ═══════════════════════════════════════════════ */
+
+interface FormulaDetailRowProps {
+  label: string;
+  values: string[];
+  colCount?: number;
+}
+
+export function FormulaDetailRow({ label, values }: FormulaDetailRowProps) {
+  return (
+    <TableRow className="bg-blue-50/40" data-expandable-row="true">
+      <TableCell className="pl-12 sticky left-0 bg-blue-50/40 py-0.5 text-xs text-gray-500 italic">
+        {label}
+      </TableCell>
+      {values.map((v, i) => (
+        <TableCell key={i} className="text-right py-0.5 font-mono text-xs text-gray-500">
+          {v}
+        </TableCell>
+      ))}
+    </TableRow>
+  );
+}
+
+/* ═══════════════════════════════════════════════
+   PropertyBreakdownRow
+   Level-3 row for consolidated statements showing
+   a single property's contribution. Deeper indent
+   than FormulaDetailRow, slightly different tint.
+   ═══════════════════════════════════════════════ */
+
+interface PropertyBreakdownRowProps {
+  propertyName: string;
+  values: string[];
+}
+
+export function PropertyBreakdownRow({ propertyName, values }: PropertyBreakdownRowProps) {
+  return (
+    <TableRow className="bg-indigo-50/30" data-expandable-row="true">
+      <TableCell className="pl-16 sticky left-0 bg-indigo-50/30 py-0.5 text-xs text-gray-400 italic">
+        {propertyName}
+      </TableCell>
+      {values.map((v, i) => (
+        <TableCell key={i} className="text-right py-0.5 font-mono text-xs text-gray-400">
+          {v}
+        </TableCell>
+      ))}
+    </TableRow>
+  );
+}
+
 export function TableShell({
   title,
   subtitle,

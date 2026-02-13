@@ -14,7 +14,7 @@ This glossary defines every financial and operational term used in the Hospitali
 | ASC 810 | GAAP consolidation standard; governs inter-company elimination entries. | Accounting Standard |
 | ATCF (After-Tax Cash Flow) | Cash remaining after operating expenses, debt service, and taxes. Calculated as NOI minus debt service minus income tax. | Returns |
 | Balance Sheet | Point-in-time snapshot of assets, liabilities, and equity. | Financial Statement |
-| Base Management Fee | Percentage of total property revenue paid to the management company. Default rate is 5%. | Fees |
+| Base Management Fee | Percentage of total property revenue paid to the management company. Default rate is 8.5%. | Fees |
 | Boutique Hotel | Independently owned hotel, typically 10–80 rooms, with food & beverage and events capability. | Property Type |
 | Building Improvements | Capital expenditures to improve property post-acquisition; added to depreciable basis. | Capital |
 | Cap Rate (Capitalization Rate) | NOI divided by property value. Used to value income-producing real estate. | Valuation |
@@ -40,7 +40,7 @@ This glossary defines every financial and operational term used in the Hospitali
 | GOP (Gross Operating Profit) | Total revenue minus total operating expenses. | Profitability |
 | Gross Disposition Value | Property sale price calculated as terminal NOI divided by exit cap rate. | Valuation |
 | HMA (Hotel Management Agreement) | Contract defining the management fee structure between property owner and operator. | Legal |
-| Incentive Management Fee | Performance-based fee calculated on gross operating profit or NOI. Default rate is 15%. | Fees |
+| Incentive Management Fee | Performance-based fee calculated on gross operating profit or NOI. Default rate is 12%. | Fees |
 | Income Statement (P&L) | Financial statement showing revenue, expenses, and net income over a period. | Financial Statement |
 | Indirect Method | ASC 230 approach that starts with net income and adjusts for non-cash items to derive cash from operations. | Accounting |
 | Inflation Rate | Annual rate of general price increase; affects variable costs. Default is 3%. | Assumptions |

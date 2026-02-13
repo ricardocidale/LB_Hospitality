@@ -32,8 +32,8 @@ When a property-level value is not explicitly set, the financial engine falls ba
 
 | Field | Definition | Default Value | Impacts |
 |-------|-----------|--------------|---------|
-| Base Management Fee | Base management fee as percentage of property Total Revenue | 5% | Both entities |
-| Incentive Management Fee | Incentive management fee as percentage of property GOP | 15% | Both entities |
+| Base Management Fee | Base management fee as percentage of property Total Revenue | 8.5% | Both entities |
+| Incentive Management Fee | Incentive management fee as percentage of property GOP | 12% | Both entities |
 
 The incentive fee is earned only when GOP is positive. A negative GOP produces zero incentive fee for that period.
 
@@ -41,10 +41,10 @@ The incentive fee is earned only when GOP is positive. A negative GOP produces z
 
 | Field | Definition | Default Value | Impacts |
 |-------|-----------|--------------|---------|
-| Funding Source Label | Label for the funding instrument type | "SAFE" | Management Company |
-| Tranche 1 Amount | Amount of first SAFE tranche | $1,000,000 | Management Company |
+| Funding Source Label | Label for the funding instrument type | "Funding Vehicle" | Management Company |
+| Tranche 1 Amount | Amount of first SAFE tranche | $800,000 | Management Company |
 | Tranche 1 Date | Disbursement date for first SAFE tranche | 2026-06-01 | Management Company |
-| Tranche 2 Amount | Amount of second SAFE tranche | $1,000,000 | Management Company |
+| Tranche 2 Amount | Amount of second SAFE tranche | $800,000 | Management Company |
 | Tranche 2 Date | Disbursement date for second SAFE tranche | 2027-04-01 | Management Company |
 | Valuation Cap | Maximum pre-money valuation for SAFE conversion to equity | $2,500,000 | Management Company |
 | Discount Rate | Discount rate applied when SAFE converts to equity | 20% | Management Company |
@@ -136,10 +136,10 @@ Default capital budget for new property acquisitions:
 
 | Field | Definition | Default Value |
 |-------|-----------|--------------|
-| Purchase Price | Default property purchase price | $2,300,000 |
-| Building Improvements | Default building improvement or renovation budget | $800,000 |
-| Pre-Opening Costs | Pre-opening expenses (staffing, training, marketing) | $150,000 |
-| Operating Reserve | Cash reserve for initial operations | $200,000 |
+| Purchase Price | Default property purchase price | $3,800,000 |
+| Building Improvements | Default building improvement or renovation budget | $1,200,000 |
+| Pre-Opening Costs | Pre-opening expenses (staffing, training, marketing) | $200,000 |
+| Operating Reserve | Cash reserve for initial operations | $250,000 |
 | Months to Operations | Default months from acquisition to operations start | 6 months |
 
 ### Boutique Definition
@@ -158,7 +158,7 @@ The boutique definition establishes the target property profile for the Property
 | Service Level | Service level classification | Luxury |
 | Event Locations | Number of distinct event spaces | 2 |
 | Max Event Capacity | Maximum event guest capacity | 150 |
-| Acreage | Minimum property acreage | 10 acres |
+| Acreage | Minimum property acreage | 5 acres |
 | Privacy Level | Guest privacy classification | High |
 | Parking Spaces | Minimum parking spaces | 50 |
 

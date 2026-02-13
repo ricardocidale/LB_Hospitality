@@ -17,7 +17,7 @@ To add a property, navigate to the Portfolio page, click "Add Property" to open 
 | **Identity** | Name | — | Descriptive property name |
 | | Location | — | City/region (e.g., "Asheville, NC") |
 | | Market | — | Market classification (e.g., "Southeast US") |
-| | Status | Development | Development, Operational, or Stabilized |
+| | Status | Development | Development, Acquisition, or Operating |
 | | Image URL | — | Optional; property card thumbnail |
 | **Timing** | Acquisition Date | — | Date of property purchase |
 | | Operations Start Date | Acquisition + 6 months | Auto-calculated; user-overridable |
@@ -25,14 +25,14 @@ To add a property, navigate to the Portfolio page, click "Add Property" to open 
 | | Building Improvements | $0 | Renovation / repositioning CapEx |
 | | Pre-Opening Costs | $0 | Soft costs before operations commence |
 | | Operating Reserve | $0 | Working capital cushion |
-| | Type | Full Equity | "Full Equity" (all-cash) or "Leveraged" |
+| | Type | Full Equity | "Full Equity" (all-cash) or "Financed" |
 | **Revenue Drivers** | Room Count | 20 | Number of keys |
 | | Start ADR | $350 | Average Daily Rate at launch |
 | | ADR Growth Rate | 3% | Annual ADR escalation |
-| | Start Occupancy | 45% | Opening occupancy rate |
-| | Max Occupancy | 75% | Stabilized occupancy target |
-| | Occupancy Ramp Months | 18 | Months to reach stabilized occupancy |
-| | Catering Boost % | 15% | F&B revenue uplift from catering programs |
+| | Start Occupancy | 55% | Opening occupancy rate |
+| | Max Occupancy | 85% | Stabilized occupancy target |
+| | Occupancy Ramp Months | 6 | Months between occupancy growth steps |
+| | Catering Boost % | 22% | F&B revenue uplift from catering programs |
 
 For the full assumption catalog and how each assumption feeds into the financial engine, see Chapter 5: Property-Level Assumptions.
 
@@ -52,7 +52,7 @@ To edit a property, navigate to the Portfolio page and click the edit icon on th
 | Revenue Assumptions | Room count, start ADR, ADR growth rate, start/max occupancy, occupancy ramp months, catering boost percentage |
 | Revenue Shares | Event revenue share, F&B revenue share, other revenue share (as percentage of room revenue) |
 | Operating Cost Rates | Rooms, F&B, admin, marketing, property ops, utilities, insurance, taxes, IT, FF&E, other (each as percentage of total revenue) |
-| Financing | Acquisition type (Full Equity / Leveraged), LTV, interest rate, term, closing cost rate |
+| Financing | Acquisition type (Full Equity / Financed), LTV, interest rate, term, closing cost rate |
 | Refinancing | Will refinance (Yes/No), refinance date, refi LTV, refi interest rate, refi term, refi closing cost rate |
 | Exit | Exit cap rate, tax rate |
 

@@ -12,7 +12,7 @@ The platform includes three AI-powered research tools designed to help users cal
 |---------------|-------|-------------------|-----------------|
 | **Property Market Research** | Per-property local market analysis | Property Edit page → "Market Research" button | Calibrate ADR, occupancy ramp, cap rate, and catering boost assumptions for a specific property in a specific market |
 | **Company Research** | Management company benchmarking | Company page → "Company Research" button | Benchmark management fee structures, staffing ratios, and operating cost profiles against comparable boutique hotel operators |
-| **Global Market Research** | Industry-wide hospitality trends | Global/Settings area → "Global Research" button | Inform macro assumptions such as inflation rate, RevPAR growth trajectories, and industry cap rate trends |
+| **Global Market Research** | Industry-wide hospitality trends | Systemwide Assumptions page → "Global Research" button | Inform macro assumptions such as inflation rate, RevPAR growth trajectories, and industry cap rate trends |
 
 ---
 

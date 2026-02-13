@@ -14,8 +14,8 @@ The Management Company's sole revenue source is management fees, structured as t
 
 | Fee Type | Calculation Basis | Default Rate | USALI Classification |
 |----------|------------------|-------------|---------------------|
-| **Base Management Fee** | Percentage of property Total Revenue | 5% | Management Fee — Base (USALI Schedule 1) |
-| **Incentive Management Fee** | Percentage of property Gross Operating Profit (GOP) | 15% | Management Fee — Incentive (USALI Schedule 1) |
+| **Base Management Fee** | Percentage of property Total Revenue | 8.5% | Management Fee — Base (USALI Schedule 1) |
+| **Incentive Management Fee** | Percentage of property Gross Operating Profit (GOP) | 12% | Management Fee — Incentive (USALI Schedule 1) |
 
 Several key rules govern fee calculation:
 
@@ -44,9 +44,9 @@ The default SAFE funding parameters are:
 
 | Parameter | Default Value | Description |
 |-----------|--------------|-------------|
-| Tranche 1 Amount | $1,000,000 | First tranche of SAFE funding |
+| Tranche 1 Amount | $800,000 | First tranche of SAFE funding |
 | Tranche 1 Date | 2026-06-01 | Disbursement date for Tranche 1 |
-| Tranche 2 Amount | $1,000,000 | Second tranche of SAFE funding |
+| Tranche 2 Amount | $800,000 | Second tranche of SAFE funding |
 | Tranche 2 Date | 2027-04-01 | Disbursement date for Tranche 2 |
 | Valuation Cap | $2,500,000 | Maximum pre-money valuation for SAFE conversion |
 | Discount Rate | 20% | Discount rate applied to conversion price |

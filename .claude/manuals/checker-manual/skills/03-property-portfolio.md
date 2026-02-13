@@ -28,13 +28,13 @@ The model ships with five seeded properties representing the initial target port
 
 | Property | Location | Rooms | Starting ADR | Purchase Price | Financing Type | Ops Start |
 |----------|----------|-------|-------------|---------------|---------------|-----------|
-| The Hudson Estate | Upstate New York | 20 | $330 | $2,300,000 | Full Equity (Refi planned) | 2026-12-01 |
-| Eden Summit Lodge | Eden, Utah | 20 | $390 | $2,300,000 | Full Equity (Refi planned) | 2027-07-01 |
-| Austin Hillside | Austin, Texas | 20 | $270 | $2,300,000 | Full Equity (Refi planned) | 2028-01-01 |
-| Casa Medellín | Medellín, Colombia | 30 | $180 | $3,500,000 | Financed (75% LTV) | 2028-07-01 |
-| Blue Ridge Manor | Asheville, NC | 30 | $342 | $3,500,000 | Financed (75% LTV) | 2028-07-01 |
+| The Hudson Estate | Upstate New York | 20 | $385 | $3,800,000 | Full Equity (Refi planned) | 2026-12-01 |
+| Eden Summit Lodge | Eden, Utah | 20 | $425 | $4,000,000 | Full Equity (Refi planned) | 2027-07-01 |
+| Austin Hillside | Austin, Texas | 20 | $320 | $3,500,000 | Full Equity (Refi planned) | 2028-01-01 |
+| Casa Medellín | Medellín, Colombia | 30 | $210 | $3,800,000 | Financed (60% LTV) | 2028-07-01 |
+| Blue Ridge Manor | Asheville, NC | 30 | $375 | $6,000,000 | Financed (60% LTV) | 2028-07-01 |
 
-All seed properties share common assumptions unless specifically overridden. The default parameters include an ADR growth rate of 2.5% (4.0% for Casa Medellín to reflect the emerging market premium), starting occupancy of 60%, maximum occupancy of 90%, occupancy growth steps of 5% every 6 months, a 36-month stabilization period, pre-opening costs of $150,000, operating reserve of $200,000, exit cap rate of 8.5%, and a tax rate of 25%.
+All seed properties share common assumptions unless specifically overridden. The default parameters include an ADR growth rate of 2.5% (4.0% for Casa Medellín to reflect the emerging market premium), starting occupancy of 50–55%, maximum occupancy of 78–82%, occupancy growth steps of 5% every 6 months, a 36-month stabilization period, pre-opening costs of $200,000, operating reserve of $250,000, exit cap rate of 8.5%, and a tax rate of 25%.
 
 ---
 

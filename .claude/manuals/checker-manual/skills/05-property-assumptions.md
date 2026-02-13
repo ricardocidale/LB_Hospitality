@@ -40,11 +40,11 @@ The gap between the acquisition date and the operations start date represents th
 
 | Field | Definition | Default | Unit |
 |-------|-----------|---------|------|
-| Purchase Price | Property acquisition price | $2,300,000 | $ |
-| Building Improvements | Renovation and improvement budget | $800,000 | $ |
+| Purchase Price | Property acquisition price | $3,800,000 | $ |
+| Building Improvements | Renovation and improvement budget | $1,200,000 | $ |
 | Land Value Percent | Non-depreciable land allocation (per IRS Publication 946) | 25% | % |
-| Pre-Opening Costs | Pre-opening expenses (staff training, soft opening, marketing) | $150,000 | $ |
-| Operating Reserve | Cash reserve for initial operations | $200,000 | $ |
+| Pre-Opening Costs | Pre-opening expenses (staff training, soft opening, marketing) | $200,000 | $ |
+| Operating Reserve | Cash reserve for initial operations | $250,000 | $ |
 
 The depreciable basis is calculated as the sum of the purchase price and building improvements, multiplied by (1 − land value percent). The depreciation period is 27.5 years per IRS Publication 946 and ASC 360 for residential rental property.
 
@@ -73,15 +73,15 @@ Ancillary revenue streams are calculated as percentages of Room Revenue:
 
 | Field | Definition | Default |
 |-------|-----------|---------|
-| Event Revenue Share | Event revenue as percentage of Room Revenue | 43% |
-| F&B Revenue Share | Food & Beverage revenue as percentage of Room Revenue | 22% |
-| Other Revenue Share | Other revenue as percentage of Room Revenue | 7% |
+| Event Revenue Share | Event revenue as percentage of Room Revenue | 30% |
+| F&B Revenue Share | Food & Beverage revenue as percentage of Room Revenue | 18% |
+| Other Revenue Share | Other revenue as percentage of Room Revenue | 5% |
 
 Total Revenue equals Room Revenue plus Event Revenue plus F&B Revenue plus Other Revenue.
 
 ### Catering Boost
 
-The catering boost percentage (default: 30%) represents the uplift applied to base F&B revenue from catering operations. The adjusted F&B Revenue equals the base F&B Revenue multiplied by (1 + catering boost percentage). This reflects the blended catering uplift across all event types — fully catered, partially catered, and non-catered. The boost is applied before computing F&B departmental expenses.
+The catering boost percentage (default: 22%) represents the uplift applied to base F&B revenue from catering operations. The adjusted F&B Revenue equals the base F&B Revenue multiplied by (1 + catering boost percentage). This reflects the blended catering uplift across all event types — fully catered, partially catered, and non-catered. The boost is applied before computing F&B departmental expenses.
 
 ### Operating Cost Rates (Revenue-Based)
 
@@ -89,8 +89,8 @@ These USALI-aligned departmental and undistributed expense allocations determine
 
 | Field | Definition | Default | USALI Reference |
 |-------|-----------|---------|-----------------|
-| Rooms Department Expense | Rooms department cost rate | 36% | USALI Schedule 1 — Rooms |
-| F&B Department Expense | F&B department cost rate | 32% | USALI Schedule 2 — Food & Beverage |
+| Rooms Department Expense | Rooms department cost rate | 20% | USALI Schedule 1 — Rooms |
+| F&B Department Expense | F&B department cost rate | 9% | USALI Schedule 2 — Food & Beverage |
 | Administrative & General | A&G expense rate | 8% | USALI Schedule 8 — A&G |
 | Sales & Marketing | S&M expense rate | 1% | USALI Schedule 9 — S&M |
 | Property Operations & Maintenance | POM expense rate | 4% | USALI Schedule 10 — POM |

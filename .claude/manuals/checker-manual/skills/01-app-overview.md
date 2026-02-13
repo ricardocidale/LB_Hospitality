@@ -50,13 +50,12 @@ The application is organized into the following primary areas:
 | **Properties** | List of all property SPVs with access to individual property detail and financials |
 | **Management Company** | Management Company income statement, cash flow, and fee revenue breakdown |
 | **Property Finder** | Search and save prospective acquisition targets from external listing data |
-| **Sensitivity Analysis** | Multi-variable sensitivity tables with IRR, NOI, and FCF impact matrices |
-| **Financing Analysis** | Loan comparison, DSCR analysis, debt yield, and refinance modeling |
+| **Analysis** | Sensitivity tables, financing analysis, loan comparison, DSCR, debt yield, and refinance modeling |
 | **Systemwide Assumptions** | Global model parameters affecting all entities (inflation, fees, SAFE funding, staffing, costs) |
 | **My Profile** | User account settings and display preferences |
 | **My Scenarios** | Saved model snapshots — create, load, compare, and delete scenarios |
+| **Help** | Documentation of financial methodology, formulas, and GAAP/USALI references |
 | **Administration** | User management, user groups, login logs, session management, verification, activity logs, and system configuration (admin role only) |
-| **User Manual** | Documentation of financial methodology, formulas, and GAAP/USALI references |
 
 ---
 

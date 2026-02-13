@@ -53,10 +53,10 @@ Every assumption field must display the correct default value. Load a fresh scen
 
 | Field | Expected Default |
 |-------|-----------------|
-| Revenue Share — Events | 43% |
-| Revenue Share — F&B | 22% |
-| Revenue Share — Other | 7% |
-| Catering Boost % | 30% |
+| Revenue Share — Events | 30% |
+| Revenue Share — F&B | 18% |
+| Revenue Share — Other | 5% |
+| Catering Boost % | 22% |
 
 ### Expense Rate Defaults
 
@@ -70,15 +70,15 @@ Every assumption field must display the correct default value. Load a fresh scen
 
 | Field | Expected Default | USALI Category |
 |-------|-----------------|----------------|
-| Cost Rate — Rooms | 36% | Rooms Department |
-| Cost Rate — F&B | 32% | F&B Department |
+| Cost Rate — Rooms | 20% | Rooms Department |
+| Cost Rate — F&B | 9% | F&B Department |
 | Cost Rate — Admin | 8% | Undistributed |
-| Cost Rate — Marketing | 5% | Undistributed |
+| Cost Rate — Marketing | 1% | Undistributed |
 | Cost Rate — Property Ops | 4% | Undistributed |
 | Cost Rate — Utilities | 5% | Undistributed |
 | Cost Rate — Insurance | 2% | Fixed Charges |
 | Cost Rate — Taxes | 3% | Fixed Charges |
-| Cost Rate — IT | 2% | Undistributed |
+| Cost Rate — IT | 0.5% | Undistributed |
 | Cost Rate — FF&E | 4% | Reserve |
 | Cost Rate — Other | 5% | Other |
 
@@ -167,8 +167,8 @@ Using the same property, verify each expense line item:
 
 | Calculation | Formula |
 |-------------|---------|
-| Rooms Expense | Room Revenue × Rooms Cost Rate (default 36%) |
-| F&B Expense | F&B Revenue × F&B Cost Rate (default 32%) |
+| Rooms Expense | Room Revenue × Rooms Cost Rate (default 20%) |
+| F&B Expense | F&B Revenue × F&B Cost Rate (default 9%) |
 | Event Expense | Event Revenue × Event Expense Rate (default 65%) |
 | Other Expense | Other Revenue × Other Expense Rate (default 60%) |
 | Admin Expense | Base Revenue × Admin Cost Rate × (1 + Fixed Cost Escalation Rate)^year |
@@ -183,8 +183,8 @@ Using the same property, verify each expense line item:
 | Calculation | Formula |
 |-------------|---------|
 | GOP | Total Revenue − Total Operating Expenses |
-| Base Management Fee | Total Revenue × Base Management Fee Rate (default 5%) |
-| Incentive Management Fee | max(0, GOP × Incentive Fee Rate) (default 15%) |
+| Base Management Fee | Total Revenue × Base Management Fee Rate (default 8.5%) |
+| Incentive Management Fee | max(0, GOP × Incentive Fee Rate) (default 12%) |
 | FF&E Reserve | Total Revenue × FF&E Cost Rate (default 4%) |
 | NOI | GOP − Base Management Fee − Incentive Management Fee − FF&E Reserve |
 
@@ -200,7 +200,7 @@ With a single property active, verify that the Management Company's fee revenue 
 
 ## 2.5 — Acquisition Financing Verification
 
-Change a property from Full Equity to Leveraged. Configure LTV, interest rate, and term.
+Change a property from Full Equity to Financed. Configure LTV, interest rate, and term.
 
 | Calculation | Formula |
 |-------------|---------|

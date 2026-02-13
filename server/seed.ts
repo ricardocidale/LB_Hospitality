@@ -1121,21 +1121,25 @@ export async function seedDefaultLogos() {
   await db.insert(logos).values([
     {
       name: "Hospitality Business Group",
+      companyName: "Hospitality Business Group",
       url: "/logos/default-hbg.png",
       isDefault: true,
     },
     {
       name: "Norfolk AI - Blue",
+      companyName: "Norfolk Group",
       url: "/logos/norfolk-ai-blue.png",
       isDefault: false,
     },
     {
       name: "Norfolk AI - Yellow",
+      companyName: "Norfolk Group",
       url: "/logos/norfolk-ai-yellow.png",
       isDefault: false,
     },
     {
       name: "Norfolk AI - Wireframe",
+      companyName: "Norfolk Group",
       url: "/logos/norfolk-ai-wireframe.png",
       isDefault: false,
     },
@@ -1153,15 +1157,15 @@ export async function seedUserGroups() {
       await db.update(userGroups).set({ isDefault: true }).where(eq(userGroups.id, existingGeneral.id));
       console.log("Marked existing 'General' group as default");
     } else {
-      await db.insert(userGroups).values({ name: "General", companyName: "Hospitality Business Group", isDefault: true });
+      await db.insert(userGroups).values({ name: "General", isDefault: true });
       console.log("Created default 'General' user group");
     }
   }
 
   if (existing.length === 0) {
     const groupsToSeed = [
-      { name: "KIT Group", companyName: "KIT Capital Hospitality" },
-      { name: "Norfolk Group", companyName: "Norfolk Group" },
+      { name: "KIT Group" },
+      { name: "Norfolk Group" },
     ];
 
     const groupMap: Record<string, number> = {};

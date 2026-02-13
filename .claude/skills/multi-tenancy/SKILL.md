@@ -202,10 +202,29 @@ The `/api/my-branding` endpoint resolves branding for the authenticated user:
 | Theme engine skill | `.claude/skills/ui/theme-engine.md` |
 | This skill | `.claude/skills/multi-tenancy/SKILL.md` |
 
+## User Group Assignments (Seed)
+
+The Admin user (email: `admin`) belongs to the **Norfolk Group** user group, not the default "General" group. Each built-in user is pre-assigned to a specific group:
+
+| User Email | User Group | Role |
+|------------|-----------|------|
+| `admin` | Norfolk Group | admin |
+| `checker@norfolkgroup.io` | Norfolk Group | checker |
+| `bhuvan@norfolkgroup.io` | Norfolk Group | user |
+| `reynaldo.fagundes@norfolk.ai` | Norfolk Group | user |
+| `rosario@kitcapital.com` | KIT Group | user |
+| `kit@kitcapital.com` | KIT Group | user |
+| `lemazniku@icloud.com` | KIT Group | user |
+
+**Admin in Norfolk Group:** The admin user sees "Norfolk Group" branding (company name, logo, theme, asset description) throughout the portal, not the default "Hospitality Business Group" branding. This is intentional — the admin operates under the Norfolk Group identity.
+
+**Important:** The admin's branding is determined by their user group, not by their role. If the admin is reassigned to a different group, their branding changes accordingly. The admin role only grants administrative privileges (managing groups, themes, users); it does not confer special branding.
+
 ## Key Design Decisions
 
 1. **No per-user branding** — Branding is always group-level. This simplifies admin workflow and ensures consistency.
-2. **Default group is mandatory** — The "General" group always exists and cannot be deleted. New users land here.
-3. **Default theme is mandatory** — At least one theme always exists. Groups without an explicit theme get the default.
-4. **Deletion cascades to default** — Deleting a non-default group moves its users to the default group.
-5. **Standalone entities** — Themes, logos, and asset descriptions are not owned by users or groups. They are shared resources that groups reference.
+2. **Admin belongs to Norfolk Group** — The admin user is a member of the "Norfolk Group" user group and inherits its branding. Admin role is about permissions, not branding.
+3. **Default group is mandatory** — The "General" group always exists and cannot be deleted. New users land here.
+4. **Default theme is mandatory** — At least one theme always exists. Groups without an explicit theme get the default.
+5. **Deletion cascades to default** — Deleting a non-default group moves its users to the default group.
+6. **Standalone entities** — Themes, logos, and asset descriptions are not owned by users or groups. They are shared resources that groups reference.

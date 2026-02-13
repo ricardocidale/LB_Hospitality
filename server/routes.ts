@@ -2104,11 +2104,11 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
 
   app.post("/api/admin/companies", requireAdmin, async (req, res) => {
     try {
-      const { name, type, description } = req.body;
+      const { name, type, description, logoId } = req.body;
       if (!name || typeof name !== "string" || name.trim().length === 0) {
         return res.status(400).json({ error: "Company name is required" });
       }
-      const company = await storage.createCompany({ name: name.trim(), type: type || "spv", description: description || null });
+      const company = await storage.createCompany({ name: name.trim(), type: type || "spv", description: description || null, logoId: logoId ?? null });
       logActivity(req, "create", "company", company.id, company.name);
       res.json(company);
     } catch (error) {

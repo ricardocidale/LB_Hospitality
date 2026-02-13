@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import { useGlobalAssumptions, useUpdateGlobalAssumptions, useMarketResearch, useProperties, useAllFeeCategories } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { ResearchBadge } from "@/components/ui/research-badge";
-import { Loader2, Upload, X, BookOpen, AlertTriangle } from "lucide-react";
+import { Loader2, BookOpen, AlertTriangle } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { formatPercent, formatMoney } from "@/lib/financialEngine";
 import { useToast } from "@/hooks/use-toast";
@@ -121,8 +121,7 @@ export default function CompanyAssumptions() {
   const { toast } = useToast();
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isUploading, setIsUploading] = useState(false);
+
 
   const [formData, setFormData] = useState<Partial<GlobalResponse>>({});
   const [isDirty, setIsDirty] = useState(false);
@@ -210,86 +209,6 @@ export default function CompanyAssumptions() {
     setIsDirty(true);
   };
 
-  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Validate file type
-    if (!file.type.startsWith("image/")) {
-      toast({
-        title: "Invalid file type",
-        description: "Please upload an image file (PNG, JPG, etc.)",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsUploading(true);
-    try {
-      // Step 1: Get presigned URL
-      const urlRes = await fetch("/api/uploads/request-url", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: `company-logo-${Date.now()}.${file.name.split(".").pop()}`,
-          size: file.size,
-          contentType: file.type,
-        }),
-      });
-      
-      if (!urlRes.ok) throw new Error("Failed to get upload URL");
-      const { uploadURL, objectPath } = await urlRes.json();
-
-      // Step 2: Upload directly to storage
-      const uploadRes = await fetch(uploadURL, {
-        method: "PUT",
-        body: file,
-        headers: { "Content-Type": file.type },
-      });
-
-      if (!uploadRes.ok) throw new Error("Failed to upload file");
-
-      // Step 3: Update global assumptions with the new logo path
-      const logoUrl = `/api/objects/${objectPath}`;
-      await updateMutation.mutateAsync({ ...formData, companyLogo: logoUrl });
-      
-      toast({
-        title: "Logo uploaded",
-        description: "Company logo has been updated successfully.",
-      });
-      
-      refetch();
-    } catch (error) {
-      toast({
-        title: "Upload failed",
-        description: "Failed to upload logo. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsUploading(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
-    }
-  };
-
-  const handleRemoveLogo = async () => {
-    try {
-      await updateMutation.mutateAsync({ ...formData, companyLogo: null });
-      setFormData(prev => ({ ...prev, companyLogo: null }));
-      toast({
-        title: "Logo removed",
-        description: "Company logo has been reset to default.",
-      });
-      refetch();
-    } catch {
-      toast({
-        title: "Error",
-        description: "Failed to remove logo.",
-        variant: "destructive",
-      });
-    }
-  };
 
   const handleSave = async () => {
     try {
@@ -348,53 +267,17 @@ export default function CompanyAssumptions() {
               <div className="flex flex-col gap-2">
                 <Label className="flex items-center text-gray-700 label-text">
                   Company Logo
-                  <HelpTooltip text="The company logo displayed in the navigation. Only administrators can change this." />
+                  <HelpTooltip text="The company logo displayed in the navigation. Managed in Administration > Branding." />
                 </Label>
                 <div className="flex items-center gap-4">
                   <div className="w-16 h-16 rounded-lg border border-primary/30 bg-white flex items-center justify-center overflow-hidden">
                     <img 
-                      src={formData.companyLogo ?? global.companyLogo ?? defaultLogo} 
+                      src={global.companyLogoUrl ?? global.companyLogo ?? defaultLogo} 
                       alt="Company Logo" 
                       className="w-12 h-12 object-contain"
                     />
                   </div>
-                  {isAdmin ? (
-                    <div className="flex flex-col gap-2">
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/*"
-                        onChange={handleLogoUpload}
-                        className="hidden"
-                        data-testid="input-logo-upload"
-                      />
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => fileInputRef.current?.click()}
-                        disabled={isUploading}
-                      >
-                        {isUploading ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <Upload className="w-4 h-4" />
-                        )}
-                        {isUploading ? "Uploading..." : "Upload"}
-                      </Button>
-                      {(formData.companyLogo || global.companyLogo) && (
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={handleRemoveLogo}
-                        >
-                          <X className="w-4 h-4" />
-                          Remove
-                        </Button>
-                      )}
-                    </div>
-                  ) : (
-                    <p className="text-xs text-gray-500">Only administrators can change the logo</p>
-                  )}
+                  <p className="text-xs text-gray-500">Managed in Administration &gt; Branding</p>
                 </div>
               </div>
               <div className="flex flex-col gap-2">

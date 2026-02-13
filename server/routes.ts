@@ -1293,7 +1293,13 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
         return res.status(404).json({ error: "Global assumptions not initialized" });
       }
       
-      res.json(data);
+      let companyLogoUrl: string | null = null;
+      if (data.companyLogoId) {
+        const logo = await storage.getLogo(data.companyLogoId);
+        companyLogoUrl = logo?.url ?? null;
+      }
+      
+      res.json({ ...data, companyLogoUrl });
     } catch (error) {
       console.error("Error fetching global assumptions:", error);
       res.status(500).json({ error: "Failed to fetch global assumptions" });

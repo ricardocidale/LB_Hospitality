@@ -208,3 +208,13 @@ All cards use a consistent approach:
 - Radial gradient overlay (`group-hover:opacity-100`) for inner glow
 - SVG gauges: `group-hover:scale-110`, `group-hover:stroke-[8]` for emphasis
 - Value text: `group-hover:scale-105` for subtle zoom
+
+### New UI Skill Files Created
+| File | Purpose |
+|------|---------|
+| `.claude/skills/ui/card-hover-effects.md` | Core 5-layer card hover pattern with color theme map |
+| `.claude/skills/ui/gauge-hover-effects.md` | SVG gauge hover (stroke thicken, scale, rotate) |
+| `.claude/skills/ui/chart-container-hover.md` | Chart container subtle hover (scale 1.02, no lift) |
+| `.claude/skills/ui/kpi-grid-hover.md` | KPIGrid dual-layer hover (framer-motion + Tailwind) |
+| `.claude/skills/ui/radial-glow-overlay.md` | Radial gradient inner glow overlay presets |
+| `.claude/skills/ui/animation-patterns.md` | Updated with cross-references to new hover skills |

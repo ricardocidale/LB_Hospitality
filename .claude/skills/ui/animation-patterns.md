@@ -98,6 +98,16 @@ import { HoverScale } from "@/components/ui/animated";
 </HoverScale>
 ```
 
+## Advanced Hover Effects (Detailed Skills)
+
+For rich, multi-layered hover effects used on the Dashboard, see these dedicated skill files:
+
+- **card-hover-effects.md** — Core 5-layer card hover pattern (group, transition, lift, glow, border)
+- **gauge-hover-effects.md** — SVG gauge stroke thickening, scale, rotation on hover
+- **chart-container-hover.md** — Subtle chart container hover (scale 1.02, no lift)
+- **kpi-grid-hover.md** — KPIGrid dual-layer hover (framer-motion + Tailwind group)
+- **radial-glow-overlay.md** — Inner radial gradient overlay with theme-specific presets
+
 ## Performance Notes
 
 - `AnimatedPage` uses `will-change: auto` — safe for all pages

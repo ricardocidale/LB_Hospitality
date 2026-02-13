@@ -59,9 +59,13 @@ This rule ensures continuity across chat resets. The agent must treat this file 
 - **Created ImagePreviewCard** reusable component (`client/src/components/ui/image-preview-card.tsx`)
 - **Logo dialog in Admin** now uses AIImagePicker (upload + AI generate + URL modes)
 
-### Still Pending / In Progress
-- Verify TypeScript compiles, health check passes, end-to-end testing
-- Final architect review of all changes
+### Completed
+- TypeScript compiles cleanly (0 errors via `npx tsc --noEmit`)
+- All 1330 tests pass (59 files)
+- Financial verification: UNQUALIFIED (PASS)
+- Architect review: PASS — no blocking issues
+- All "Update" buttons changed to "Save" across entire Admin page (management company, SPV companies, user groups)
+- Skill file moved to `.claude/skills/ui/reusable-components.md` (proper subdirectory per skill-organization rule)
 
 ### Key Architecture Decisions
 - **Nano Banana (gemini-2.5-flash-image)** is the primary image generation model; fallback to OpenAI `gpt-image-1`

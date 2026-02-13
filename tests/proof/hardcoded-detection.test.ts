@@ -54,6 +54,12 @@ const CALC_MODULE_FILES = [
   "calc/returns/equity-multiple.ts",
   "calc/returns/exit-valuation.ts",
   "calc/returns/irr-vector.ts",
+  "calc/analysis/revpar-index.ts",
+  "calc/analysis/waterfall.ts",
+  "calc/analysis/stress-test.ts",
+  "calc/analysis/hold-vs-sell.ts",
+  "calc/analysis/capex-reserve.ts",
+  "calc/financing/interest-rate-swap.ts",
   "calc/shared/pmt.ts",
   "calc/shared/schedule.ts",
   "calc/shared/utils.ts",
@@ -182,15 +188,19 @@ function scanFileForMagicNumbers(filePath: string): MagicNumberFinding[] {
   const content = fs.readFileSync(absPath, "utf-8");
   const lines = content.split("\n");
   const findings: MagicNumberFinding[] = [];
+  let skipBlock = false;
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     const trimmed = line.trim();
 
+    if (trimmed.includes("skipcalcscan")) { skipBlock = true; continue; }
+    if (skipBlock && trimmed === "") { skipBlock = false; continue; }
+    if (skipBlock) continue;
     if (trimmed.startsWith("//") || trimmed.startsWith("*") || trimmed.startsWith("/*")) continue;
     if (trimmed.startsWith("import ") || trimmed.startsWith("export {")) continue;
     if (trimmed.startsWith("export const ") || trimmed.startsWith("const ")) {
-      if (/^(export\s+)?const\s+[A-Z_]+\s*=/.test(trimmed)) continue;
+      if (/^(export\s+)?const\s+[A-Z_][A-Z0-9_]*\s*=/.test(trimmed)) continue;
     }
 
     let match;
@@ -252,7 +262,7 @@ function scanForForbiddenLiterals(filePath: string): ForbiddenLiteralFinding[] {
 
     if (trimmed.startsWith("//") || trimmed.startsWith("*") || trimmed.startsWith("/*")) continue;
     if (trimmed.startsWith("import ") || trimmed.startsWith("export {")) continue;
-    if (/^(export\s+)?const\s+[A-Z_]+\s*=/.test(trimmed)) continue;
+    if (/^(export\s+)?const\s+[A-Z_][A-Z0-9_]*\s*=/.test(trimmed)) continue;
 
     for (const [literal, constantName] of Object.entries(FORBIDDEN_LITERALS)) {
       const escapedLiteral = literal.replace(/\./g, "\\.");

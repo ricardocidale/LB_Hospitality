@@ -2,23 +2,38 @@
 
 ## Rule
 
-Every time the architect agent is invoked — for planning, evaluation, debugging, or code review — it must first read all rule files in `.claude/rules/` and all relevant skill files in `.claude/skills/`. This ensures the architect's analysis and recommendations are grounded in the project's actual constraints, not generic assumptions.
+Every time the architect agent is invoked — for planning, evaluation, debugging, or code review — ALL rule files in `.claude/rules/` MUST be included in `relevant_files`. This is mandatory and non-negotiable. No exceptions.
 
-## What to Include
+## Mandatory `relevant_files` — Every Architect Call
 
-When calling the architect, always include in `relevant_files`:
+The following files must ALWAYS be passed to the architect in the `relevant_files` array:
 
-1. **All rule files** in `.claude/rules/`:
-   - `no-hardcoded-assumptions.md`
-   - `no-hardcoded-admin-config.md`
-   - `recalculate-on-save.md`
-   - `audit-checks-rules.md`
-   - `architect-reads-rules-and-skills.md`
-   - Any other rule files added later
+### All Rules (always include every file in `.claude/rules/`)
+- `.claude/rules/no-hardcoded-assumptions.md`
+- `.claude/rules/no-hardcoded-admin-config.md`
+- `.claude/rules/recalculate-on-save.md`
+- `.claude/rules/audit-checks-rules.md`
+- `.claude/rules/architect-reads-rules-and-skills.md`
+- `.claude/rules/graphics-rich-design.md`
+- `.claude/rules/api-routes.md`
+- `.claude/rules/financial-engine.md`
+- `.claude/rules/architecture.md`
+- `.claude/rules/audit-persona.md`
+- `.claude/rules/constants-and-config.md`
+- `.claude/rules/database-seeding.md`
+- `.claude/rules/release-audit-checklist.md`
+- `.claude/rules/verification-system.md`
 
-2. **Relevant skill files** from `.claude/skills/` based on the task context (use `.claude/skills/context-loading/` to identify which skills apply)
+### Always include
+- `replit.md` — project-level preferences and architecture
 
-3. **`replit.md`** for project-level preferences and architecture
+### When rules are added or removed
+If new rule files are added to `.claude/rules/`, they must be included in future architect calls. Before calling the architect, run `ls .claude/rules/` to get the current list.
+
+## Additionally Include (based on task context)
+
+- **Relevant skill files** from `.claude/skills/` based on the task context (use `.claude/skills/context-loading/` to identify which skills apply)
+- **Source files** being modified or reviewed
 
 ## Why
 
@@ -26,8 +41,10 @@ The architect cannot give accurate guidance if it doesn't know the project's rul
 - It might recommend hardcoding values that must come from the database
 - It might approve partial query invalidation that violates the recalculate-on-save rule
 - It might miss branding resolution order violations
-- Its reviews would be incomplete
+- It might approve non-graphics-rich implementations
+- It might overlook financial engine constraints
+- Its reviews would be incomplete and potentially harmful
 
-## How to Comply
+## Enforcement
 
-Before every `architect()` call, list all `.claude/rules/*.md` files in the `relevant_files` array. For large tasks, also include the skill files identified by the context-loading skill.
+If the agent calls the architect without including all rule files, the review is considered invalid and must be redone with the complete rule set.

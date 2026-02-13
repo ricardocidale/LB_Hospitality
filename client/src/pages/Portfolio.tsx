@@ -45,6 +45,7 @@ import {
   DEFAULT_STABILIZATION_MONTHS,
 } from "@/lib/constants";
 import { PropertyImagePicker } from "@/features/property-images";
+import { PageTransition, StaggerContainer, StaggerItem, FadeInUp, HoverScale } from "@/components/ui/animated";
 
 function formatCurrencyDisplay(value: number): string {
   if (!value) return "";
@@ -290,7 +291,7 @@ export default function Portfolio() {
 
   return (
     <Layout>
-      <div className="space-y-8">
+      <PageTransition><div className="space-y-8">
         <PageHeader
           title="Property Portfolio"
           subtitle="Managed assets & developments"
@@ -593,9 +594,11 @@ export default function Portfolio() {
           }
         />
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <StaggerContainer className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {properties?.slice().sort((a, b) => new Date(a.acquisitionDate).getTime() - new Date(b.acquisitionDate).getTime()).map((property) => (
-            <div key={property.id} className="group relative overflow-hidden rounded-2xl flex flex-col">
+            <StaggerItem key={property.id}>
+            <HoverScale>
+            <div className="group relative overflow-hidden rounded-2xl flex flex-col">
               {/* Liquid Glass Card Background */}
               <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e] via-[#3d5a6a] to-[#3a5a5e]" />
               {/* Top Edge Sheen */}
@@ -703,9 +706,11 @@ export default function Portfolio() {
                 </div>
               </div>
             </div>
+            </HoverScale>
+            </StaggerItem>
           ))}
-        </div>
-      </div>
+        </StaggerContainer>
+      </div></PageTransition>
     </Layout>
   );
 }

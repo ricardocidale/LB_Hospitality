@@ -1615,7 +1615,7 @@ export default function Dashboard() {
             <KPIGrid
               data-testid="kpi-dashboard-hero"
               items={[
-                { label: "Portfolio IRR", value: portfolioIRR * 100, format: (v: number) => `${v.toFixed(1)}%`, trend: portfolioIRR > 0.08 ? "up" as const : "down" as const, icon: <TrendingUpIcon className="w-4 h-4" /> },
+                { label: "Equity Multiple", value: equityMultiple, format: (v: number) => `${v.toFixed(2)}x`, trend: equityMultiple > 2 ? "up" as const : equityMultiple > 1 ? "neutral" as const : "down" as const, icon: <TrendingUpIcon className="w-4 h-4" /> },
                 { label: "Total Revenue (Yr 1)", value: portfolioTotalRevenue, format: formatCompact, sublabel: String(getFiscalYear(0)) },
                 { label: "Properties", value: totalProperties, sublabel: `${totalRooms} total rooms` },
                 { label: "Cash-on-Cash", value: cashOnCash, format: (v: number) => `${v.toFixed(1)}%`, trend: cashOnCash > 8 ? "up" as const : "neutral" as const },

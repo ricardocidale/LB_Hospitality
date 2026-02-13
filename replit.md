@@ -11,13 +11,14 @@
 3. When calling the architect, include ALL `.claude/rules/*.md` files in `relevant_files` plus `replit.md`
 4. When running tests or audits, verify compliance with all rules
 5. When creating new skills or functions, check rules for constraints
+6. **Read `.claude/rules/session-memory.md` FIRST** — it contains full context from previous sessions
 
 **This is non-negotiable. Skipping rule loading invalidates any review or implementation.**
 
 ## Key Directories
 - `.claude/skills/` — 80+ skill files (finance, UI, testing, exports, proof system, architecture)
 - `.claude/skills/context-loading/` — Start here: maps task types to minimum required skills
-- `.claude/rules/` — 15 rule files (audit doctrine, constants, DB seeding, API routes, graphics, hardcoding, skill organization, etc.)
+- `.claude/rules/` — 16+ rule files (audit doctrine, constants, DB seeding, API routes, graphics, hardcoding, skill organization, session memory, etc.)
 - `.claude/manuals/` — Checker manual and user manual
 - `.claude/tools/` — Tool schemas for analysis, financing, returns, validation, UI
 - `.claude/commands/` — 8 slash commands (verify, seed, scenarios, themes, etc.)
@@ -45,11 +46,31 @@ npm run exports:check  # Find unused exports
 - User Groups define company branding: `companyName`, `logoId`, `themeId`, `assetDescriptionId`.
 - Users inherit branding from their assigned User Group. Admin manages branding at the group level.
 
+## AI Image Generation
+- **Primary model:** Nano Banana (`gemini-2.5-flash-image`) via Gemini AI Integrations
+- **Fallback:** OpenAI `gpt-image-1`
+- **Reusable component:** `client/src/components/ui/ai-image-picker.tsx` — supports upload, AI generate, and URL input modes
+- **Property-specific wrapper:** `client/src/features/property-images/PropertyImagePicker.tsx`
+- **Server endpoint:** `POST /api/generate-property-image` — generates image, uploads to object storage, returns `objectPath`
+
+## Admin Page Structure
+Administration page (`/admin`) has these tabs:
+- Users, Companies, Activity, Verification, User Groups, **Logos**, Branding, Themes, Navigation, Database
+- Logo Management is a tab within Admin (not a separate sidebar link)
+- Branding tab shows read-only logo summary with "Manage Logos" button linking to Logos tab
+
+## Calculation Transparency
+- Two toggles in **Settings > Other tab** control formula accordion visibility:
+  - `showCompanyCalculationDetails` — Management Company reports
+  - `showPropertyCalculationDetails` — Property reports
+- Default: ON. When OFF, shows clean numbers only (investor-ready view).
+
 ## Top Rules
 - **Calculations and correct reports are always the highest priority.** 1330-test proof system must always pass.
 - **Every page must be graphics-rich.** Use charts, animations, and visual elements on every page.
 - **Never hardcode financial assumptions or admin config.** All values from database or named constants.
 - **Every save must trigger full financial recalculation.** No partial query invalidation.
 - **All tests and audits must verify rule compliance.** Check all `.claude/rules/` on every audit.
+- **Save all session context to `.claude/rules/session-memory.md`.** Update at the end of every session.
 - Company name is "Hospitality Business Group". All UI must reference a theme. All skills stored under `.claude/`.
 - For anything else, see `.claude/claude.md`.

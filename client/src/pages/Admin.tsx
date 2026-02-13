@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Loader2, Plus, Trash2, Users, Key, Eye, EyeOff, Pencil, Clock, FileCheck, CheckCircle2, XCircle, AlertTriangle, PlayCircle, Palette, Activity, HelpCircle, SwatchBook, UserPlus, Shield, Mail, Calendar, LogIn, LogOut, Monitor, MapPin, Hash, LayoutGrid, Sparkles, Settings, FileText, Download, Save, FileDown, Image, PanelLeft, Building2, Tag, Database, RefreshCw, Upload, Star } from "lucide-react";
 import defaultLogo from "@/assets/logo.png";
+import { AIImagePicker } from "@/components/ui/ai-image-picker";
 import { Tabs, TabsContent, DarkGlassTabs } from "@/components/ui/tabs";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -541,17 +542,14 @@ export default function Admin() {
   const [logoName, setLogoName] = useState("");
   const [logoCompanyName, setLogoCompanyName] = useState("");
   const [logoUrl, setLogoUrl] = useState("");
-  const [uploadingFile, setUploadingFile] = useState(false);
   const [uploadedPreview, setUploadedPreview] = useState<string | null>(null);
   const [deleteLogoConfirmId, setDeleteLogoConfirmId] = useState<number | null>(null);
-  const logoFileInputRef = useRef<HTMLInputElement>(null);
 
   const resetLogoForm = () => {
     setLogoName("");
     setLogoCompanyName("");
     setLogoUrl("");
     setUploadedPreview(null);
-    if (logoFileInputRef.current) logoFileInputRef.current.value = "";
   };
 
   const createLogoMutation = useMutation({
@@ -589,33 +587,6 @@ export default function Admin() {
     },
   });
 
-  const handleLogoFileUpload = async (file: File) => {
-    if (!file.type.startsWith("image/")) {
-      toast({ title: "Invalid File", description: "Please select an image file.", variant: "destructive" });
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      toast({ title: "File Too Large", description: "Logo must be under 5MB.", variant: "destructive" });
-      return;
-    }
-    setUploadingFile(true);
-    try {
-      const res = await fetch("/api/admin/logos/upload", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: file.name, size: file.size, contentType: file.type }), credentials: "include" });
-      if (!res.ok) throw new Error("Failed to get upload URL");
-      const { uploadURL, objectPath } = await res.json();
-      const uploadRes = await fetch(uploadURL, { method: "PUT", body: file, headers: { "Content-Type": file.type } });
-      if (!uploadRes.ok) throw new Error("Failed to upload file");
-      setLogoUrl(objectPath);
-      const reader = new FileReader();
-      reader.onload = (e) => setUploadedPreview(e.target?.result as string);
-      reader.readAsDataURL(file);
-      toast({ title: "Uploaded", description: "Logo image uploaded successfully." });
-    } catch {
-      toast({ title: "Upload Failed", description: "Failed to upload logo image.", variant: "destructive" });
-    } finally {
-      setUploadingFile(false);
-    }
-  };
 
   const createMutation = useMutation({
     mutationFn: async (data: { email: string; password: string; name?: string; company?: string; title?: string; role?: string }) => {
@@ -2176,7 +2147,7 @@ export default function Admin() {
                 data-testid="button-save-mgmt-company"
               >
                 {saveMgmtCompanyMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                {managementCompany ? "Update" : "Save"}
+                Save
               </Button>
             </div>
           </div>
@@ -3014,7 +2985,7 @@ export default function Admin() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="font-display">Add New Logo</DialogTitle>
-            <DialogDescription className="label-text">Upload an image or provide a URL for the new logo</DialogDescription>
+            <DialogDescription className="label-text">Upload an image, generate with AI, or provide a URL</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
@@ -3026,31 +2997,21 @@ export default function Admin() {
               <Input value={logoCompanyName} onChange={(e) => setLogoCompanyName(e.target.value)} placeholder="e.g., Hospitality Business Group" data-testid="input-logo-company-name" />
             </div>
             <div className="space-y-2">
-              <Label className="flex items-center gap-2"><Upload className="w-4 h-4 text-gray-500" />Upload Image</Label>
-              <input
-                ref={logoFileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={(e) => { if (e.target.files?.[0]) handleLogoFileUpload(e.target.files[0]); }}
-                className="block w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
-                data-testid="input-logo-file"
+              <Label className="flex items-center gap-2"><Image className="w-4 h-4 text-gray-500" />Logo Image</Label>
+              <AIImagePicker
+                imageUrl={logoUrl}
+                onImageChange={(url) => { setLogoUrl(url); setUploadedPreview(null); }}
+                promptPlaceholder="e.g., Modern minimalist logo for a boutique hotel management company, clean design..."
+                uploadLabel="Upload"
+                generateLabel="AI Generate"
+                variant="light"
+                aspectRatio="square"
+                maxSizeMB={5}
+                showUrlMode={true}
+                context="Nano Banana will generate a logo image from your description"
+                data-testid="logo-image-picker"
               />
-              {uploadingFile && <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="w-4 h-4 animate-spin" /> Uploading...</div>}
             </div>
-            {!logoUrl && (
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2"><Image className="w-4 h-4 text-gray-500" />Or Enter URL</Label>
-                <Input value={logoUrl} onChange={(e) => setLogoUrl(e.target.value)} placeholder="/logos/custom.png or https://..." data-testid="input-logo-url" />
-              </div>
-            )}
-            {(uploadedPreview || logoUrl) && (
-              <div className="border border-primary/20 rounded-lg p-4 bg-primary/5">
-                <p className="text-xs text-muted-foreground mb-2">Preview</p>
-                <div className="w-24 h-24 mx-auto flex items-center justify-center">
-                  <img src={uploadedPreview || logoUrl} alt="Preview" className="max-w-full max-h-full object-contain" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                </div>
-              </div>
-            )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => { setLogoDialogOpen(false); resetLogoForm(); }} data-testid="button-cancel-logo">Cancel</Button>

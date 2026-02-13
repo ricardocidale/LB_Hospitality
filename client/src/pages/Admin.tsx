@@ -114,7 +114,6 @@ interface VerificationResult {
 interface UserGroup {
   id: number;
   name: string;
-  companyName: string;
   logoId: number | null;
   themeId: number | null;
   assetDescriptionId: number | null;
@@ -435,7 +434,7 @@ export default function Admin() {
   // --- User Groups ---
   const [groupDialogOpen, setGroupDialogOpen] = useState(false);
   const [editingGroup, setEditingGroup] = useState<UserGroup | null>(null);
-  const [groupForm, setGroupForm] = useState({ name: "", companyName: "", logoId: null as number | null, themeId: null as number | null, assetDescriptionId: null as number | null });
+  const [groupForm, setGroupForm] = useState({ name: "", logoId: null as number | null, themeId: null as number | null, assetDescriptionId: null as number | null });
 
   const { data: userGroupsList } = useQuery<UserGroup[]>({
     queryKey: ["admin", "user-groups"],
@@ -448,7 +447,7 @@ export default function Admin() {
   });
 
   const createGroupMutation = useMutation({
-    mutationFn: async (data: { name: string; companyName: string; logoId?: number | null; themeId?: number | null; assetDescriptionId?: number | null }) => {
+    mutationFn: async (data: { name: string; logoId?: number | null; themeId?: number | null; assetDescriptionId?: number | null }) => {
       const res = await fetch("/api/admin/user-groups", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data), credentials: "include" });
       if (!res.ok) throw new Error("Failed to create group");
       return res.json();
@@ -456,14 +455,14 @@ export default function Admin() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "user-groups"] });
       setGroupDialogOpen(false);
-      setGroupForm({ name: "", companyName: "", logoId: null, themeId: null, assetDescriptionId: null });
+      setGroupForm({ name: "", logoId: null, themeId: null, assetDescriptionId: null });
       setEditingGroup(null);
       toast({ title: "Group Created", description: "User group has been created." });
     },
   });
 
   const updateGroupMutation = useMutation({
-    mutationFn: async ({ id, ...data }: { id: number; name?: string; companyName?: string; logoId?: number | null; themeId?: number | null; assetDescriptionId?: number | null }) => {
+    mutationFn: async ({ id, ...data }: { id: number; name?: string; logoId?: number | null; themeId?: number | null; assetDescriptionId?: number | null }) => {
       const res = await fetch(`/api/admin/user-groups/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data), credentials: "include" });
       if (!res.ok) throw new Error("Failed to update group");
       return res.json();
@@ -1968,7 +1967,7 @@ export default function Admin() {
             </div>
             <Button variant="outline" onClick={() => {
               setEditingGroup(null);
-              setGroupForm({ name: "", companyName: "", logoId: null, themeId: null, assetDescriptionId: null });
+              setGroupForm({ name: "", logoId: null, themeId: null, assetDescriptionId: null });
               setGroupDialogOpen(true);
             }} className="flex items-center gap-2" data-testid="button-add-group">
               <Plus className="w-4 h-4" /> New Group
@@ -2004,13 +2003,13 @@ export default function Admin() {
                         )}
                         <div>
                           <h3 className="font-display text-foreground font-medium">{group.name}{group.isDefault && <span className="ml-2 text-xs bg-primary/20 text-primary px-2 py-0.5 rounded">Default</span>}</h3>
-                          <p className="text-sm text-muted-foreground">Company: <span className="text-foreground">{group.companyName}</span></p>
+                          <p className="text-sm text-muted-foreground">Logo: <span className="text-foreground">{group.logoId ? `ID ${group.logoId}` : "Default"}</span></p>
                         </div>
                       </div>
                       <div className="flex items-center gap-1">
                         <Button variant="ghost" size="sm" onClick={() => {
                           setEditingGroup(group);
-                          setGroupForm({ name: group.name, companyName: group.companyName, logoId: group.logoId, themeId: group.themeId, assetDescriptionId: group.assetDescriptionId });
+                          setGroupForm({ name: group.name, logoId: group.logoId, themeId: group.themeId, assetDescriptionId: group.assetDescriptionId });
                           setGroupDialogOpen(true);
                         }} className="text-primary hover:text-foreground hover:bg-primary/10" data-testid={`button-edit-group-${group.id}`}>
                           <Pencil className="w-4 h-4" />
@@ -2497,18 +2496,13 @@ export default function Admin() {
               <Input value={groupForm.name} onChange={(e) => setGroupForm({ ...groupForm, name: e.target.value })} placeholder="e.g., KIT Capital Team" data-testid="input-group-name" />
             </div>
             <div className="space-y-2">
-              <Label className="flex items-center gap-2"><Building2 className="w-4 h-4 text-gray-500" />Company Name</Label>
-              <Input value={groupForm.companyName} onChange={(e) => setGroupForm({ ...groupForm, companyName: e.target.value })} placeholder="e.g., KIT Capital" data-testid="input-group-company-name" />
-              <p className="text-xs text-muted-foreground">Users in this group will see this company name in the portal</p>
-            </div>
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2"><Image className="w-4 h-4 text-gray-500" />Logo</Label>
+              <Label className="flex items-center gap-2"><Image className="w-4 h-4 text-gray-500" />Logo (includes company name)</Label>
               <Select value={groupForm.logoId != null ? String(groupForm.logoId) : "default"} onValueChange={(v) => setGroupForm({ ...groupForm, logoId: v === "default" ? null : parseInt(v) })} data-testid="select-group-logo">
                 <SelectTrigger data-testid="select-group-logo"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="default">Default Logo</SelectItem>
                   {adminLogos?.map(logo => (
-                    <SelectItem key={logo.id} value={String(logo.id)}>{logo.name}{logo.isDefault ? " (Default)" : ""}</SelectItem>
+                    <SelectItem key={logo.id} value={String(logo.id)}>{logo.name} — {logo.companyName}{logo.isDefault ? " (Default)" : ""}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -2546,7 +2540,7 @@ export default function Admin() {
               } else {
                 createGroupMutation.mutate(groupForm);
               }
-            }} disabled={!groupForm.name || !groupForm.companyName || createGroupMutation.isPending || updateGroupMutation.isPending} data-testid="button-save-group" className="flex items-center gap-2">
+            }} disabled={!groupForm.name || createGroupMutation.isPending || updateGroupMutation.isPending} data-testid="button-save-group" className="flex items-center gap-2">
               {(createGroupMutation.isPending || updateGroupMutation.isPending) ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               {editingGroup ? "Update" : "Create"}
             </Button>

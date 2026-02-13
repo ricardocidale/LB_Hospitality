@@ -592,7 +592,7 @@ export async function registerRoutes(
           companyTaxRate: globalAssumptions.companyTaxRate,
         } : null,
         properties: propertyDetails,
-        userGroups: userGroups.map(g => ({ id: g.id, name: g.name, companyName: g.companyName })),
+        userGroups: userGroups.map(g => ({ id: g.id, name: g.name })),
       });
     } catch (error) {
       console.error("Error fetching sync status:", error);
@@ -649,8 +649,8 @@ export async function registerRoutes(
       const groupMap: Record<string, number> = {};
       
       const groupsToSeed = [
-        { name: "KIT Group", companyName: "KIT Capital" },
-        { name: "Norfolk Group", companyName: "Norfolk Group" },
+        { name: "KIT Group" },
+        { name: "Norfolk Group" },
       ];
 
       for (const groupData of groupsToSeed) {
@@ -2059,13 +2059,16 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
         group = await storage.getUserGroup(user.userGroupId);
       }
 
+      let resolvedLogo: Awaited<ReturnType<typeof storage.getLogo>> | undefined;
       if (group?.logoId) {
-        const logo = await storage.getLogo(group.logoId);
-        if (logo) logoUrl = logo.url;
+        resolvedLogo = await storage.getLogo(group.logoId) ?? undefined;
       }
-      if (!logoUrl) {
-        const defaultLogo = await storage.getDefaultLogo();
-        if (defaultLogo) logoUrl = defaultLogo.url;
+      if (!resolvedLogo) {
+        resolvedLogo = await storage.getDefaultLogo() ?? undefined;
+      }
+      if (resolvedLogo) {
+        logoUrl = resolvedLogo.url;
+        groupCompanyName = resolvedLogo.companyName;
       }
 
       if (group?.themeId) {
@@ -2090,10 +2093,6 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       if (!assetDescriptionName) {
         const defaultAd = await storage.getDefaultAssetDescription();
         if (defaultAd) assetDescriptionName = defaultAd.name;
-      }
-
-      if (group) {
-        groupCompanyName = group.companyName;
       }
 
       res.json({ logoUrl, themeName, themeColors, assetDescriptionName, groupCompanyName });

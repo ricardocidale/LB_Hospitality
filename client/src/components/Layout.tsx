@@ -22,7 +22,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
   const [location] = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
-  const { user, isAdmin, logout } = useAuth();
+  const { user, isAdmin, isInvestor, hasManagementAccess, logout } = useAuth();
   const { data: global } = useGlobalAssumptions();
   
   const { data: myBranding } = useQuery<{ logoUrl: string | null; themeName: string | null; groupCompanyName: string | null }>({
@@ -48,15 +48,15 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
   const navItems: NavItem[] = [
     { href: "/", label: "Dashboard", icon: LayoutDashboard },
     { href: "/portfolio", label: "Properties", icon: Building2 },
-    { href: "/company", label: "Management Co.", icon: Briefcase },
+    ...(hasManagementAccess ? [{ href: "/company", label: "Management Co.", icon: Briefcase }] : []),
     { type: "divider" as const },
-    ...(sb("sidebarPropertyFinder") ? [{ href: "/property-finder", label: "Property Finder", icon: SearchCheck }] : []),
+    ...(sb("sidebarPropertyFinder") && hasManagementAccess ? [{ href: "/property-finder", label: "Property Finder", icon: SearchCheck }] : []),
     ...(showAnalysis ? [{ href: "/analysis", label: "Analysis", icon: BarChart3 }] : []),
     { type: "divider" as const },
     { href: "/settings", label: "Systemwide Assumptions", icon: Settings2 },
     { type: "divider" as const },
     { href: "/profile", label: "My Profile", icon: UserCircle },
-    ...(sb("sidebarScenarios") ? [{ href: "/scenarios", label: "My Scenarios", icon: FolderOpen }] : []),
+    ...(sb("sidebarScenarios") && hasManagementAccess ? [{ href: "/scenarios", label: "My Scenarios", icon: FolderOpen }] : []),
     { type: "divider" as const },
     { href: "/help", label: "Help & Manuals", icon: BookOpen },
     ...(isAdmin ? [

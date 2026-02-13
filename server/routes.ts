@@ -1964,6 +1964,18 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
+  app.post("/api/admin/logos/upload", requireAdmin, async (req, res) => {
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
+      const objectPath = objectStorageService.normalizeObjectEntityPath(uploadURL);
+      res.json({ uploadURL, objectPath });
+    } catch (error) {
+      console.error("Error generating logo upload URL:", error);
+      res.status(500).json({ error: "Failed to generate upload URL" });
+    }
+  });
+
   app.delete("/api/admin/logos/:id", requireAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id as string);
@@ -2169,6 +2181,15 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       let resolvedLogo: Awaited<ReturnType<typeof storage.getLogo>> | undefined;
       if (group?.logoId) {
         resolvedLogo = await storage.getLogo(group.logoId) ?? undefined;
+      }
+      if (!resolvedLogo && user.companyId) {
+        const company = await storage.getCompany(user.companyId);
+        if (company?.logoId) {
+          resolvedLogo = await storage.getLogo(company.logoId) ?? undefined;
+        }
+        if (!resolvedLogo && company) {
+          groupCompanyName = company.name;
+        }
       }
       if (!resolvedLogo) {
         resolvedLogo = await storage.getDefaultLogo() ?? undefined;

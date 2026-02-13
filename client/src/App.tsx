@@ -22,6 +22,7 @@ const PropertyMarketResearch = lazy(() => import("@/pages/PropertyMarketResearch
 const CompanyResearch = lazy(() => import("@/pages/CompanyResearch"));
 const GlobalResearch = lazy(() => import("@/pages/GlobalResearch"));
 const Admin = lazy(() => import("@/pages/Admin"));
+const Logos = lazy(() => import("@/pages/Logos"));
 const Scenarios = lazy(() => import("@/pages/Scenarios"));
 const PropertyFinder = lazy(() => import("@/pages/PropertyFinder"));
 const SensitivityAnalysis = lazy(() => import("@/pages/SensitivityAnalysis"));
@@ -187,6 +188,9 @@ function Router() {
       </Route>
       <Route path="/admin">
         <AdminRoute component={Admin} />
+      </Route>
+      <Route path="/admin/logos">
+        <AdminRoute component={Logos} />
       </Route>
       <Route path="/profile">
         <ProtectedRoute component={Profile} />

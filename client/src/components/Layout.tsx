@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Building2, Briefcase, Settings2, Menu, X, FileText, Shield, LogOut, UserCircle, FolderOpen, SearchCheck, BarChart3, Calculator, ClipboardCheck, Search, MapPin, FileBarChart, ChevronDown, BookOpen } from "lucide-react";
+import { LayoutDashboard, Building2, Briefcase, Settings2, Menu, X, FileText, Shield, LogOut, UserCircle, FolderOpen, SearchCheck, BarChart3, Calculator, ClipboardCheck, Search, MapPin, FileBarChart, ChevronDown, BookOpen, Image } from "lucide-react";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -61,6 +61,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
     { href: "/help", label: "Help & Manuals", icon: BookOpen },
     ...(isAdmin ? [
       { href: "/admin", label: "Administration", icon: Shield },
+      { href: "/admin/logos", label: "Logo Management", icon: Image },
     ] : []),
   ];
 

@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Layout from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, User, Eye, EyeOff, Key, ClipboardCheck } from "lucide-react";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { Loader2, User, Eye, EyeOff, Key, ClipboardCheck, Palette } from "lucide-react";
 import { SaveButton } from "@/components/ui/save-button";
 import { PageHeader } from "@/components/ui/page-header";
 import { GlassButton } from "@/components/ui/glass-button";
@@ -33,6 +34,58 @@ export default function Profile() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  interface AvailableTheme {
+    id: number;
+    name: string;
+    description: string;
+    isDefault: boolean;
+    colors: Array<{ rank: number; name: string; hexCode: string; description: string }>;
+  }
+
+  const { data: availableThemes } = useQuery<AvailableTheme[]>({
+    queryKey: ["available-themes"],
+    queryFn: async () => {
+      const res = await fetch("/api/available-themes", { credentials: "include" });
+      if (!res.ok) return [];
+      return res.json();
+    },
+    enabled: !!user,
+  });
+
+  const { data: myBranding } = useQuery<{ selectedThemeId: number | null }>({
+    queryKey: ["my-branding"],
+    queryFn: async () => {
+      const res = await fetch("/api/my-branding", { credentials: "include" });
+      if (!res.ok) return { selectedThemeId: null };
+      return res.json();
+    },
+    enabled: !!user,
+  });
+
+  const themeMutation = useMutation({
+    mutationFn: async (themeId: number | null) => {
+      const res = await fetch("/api/profile/theme", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ themeId }),
+        credentials: "include",
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed to update theme");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["my-branding"] });
+      queryClient.invalidateQueries({ queryKey: ["available-themes"] });
+      toast({ title: "Theme Updated", description: "Your theme preference has been saved." });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
 
   useEffect(() => {
     if (user) {
@@ -241,6 +294,62 @@ export default function Profile() {
             </div>
           </CardContent>
         </Card>
+
+        {availableThemes && availableThemes.length > 1 && (
+          <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-lg">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2 text-gray-900">
+                <Palette className="w-5 h-5 text-primary" />
+                Theme Preference
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label className="text-gray-700">Select Theme</Label>
+                <Select
+                  value={myBranding?.selectedThemeId != null ? String(myBranding.selectedThemeId) : "default"}
+                  onValueChange={(v) => {
+                    themeMutation.mutate(v === "default" ? null : parseInt(v));
+                  }}
+                  data-testid="select-user-theme"
+                >
+                  <SelectTrigger data-testid="select-user-theme-trigger">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="default">Group Default</SelectItem>
+                    {availableThemes.map(theme => (
+                      <SelectItem key={theme.id} value={String(theme.id)}>
+                        {theme.name}{theme.isDefault ? " (Default)" : ""}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-gray-500">
+                  Choose "Group Default" to use the theme assigned by your administrator, or select a specific theme.
+                </p>
+              </div>
+              {availableThemes && (
+                <div className="flex flex-wrap gap-2 pt-2">
+                  {availableThemes.map(theme => {
+                    const isActive = myBranding?.selectedThemeId === theme.id || 
+                      (myBranding?.selectedThemeId == null && theme.isDefault);
+                    return (
+                      <div key={theme.id} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border ${isActive ? 'border-primary bg-primary/5' : 'border-gray-200'}`}>
+                        <div className="flex gap-0.5">
+                          {theme.colors.slice(0, 4).map((c, i) => (
+                            <div key={i} className="w-3 h-3 rounded-full" style={{ backgroundColor: c.hexCode }} />
+                          ))}
+                        </div>
+                        <span className="text-xs text-gray-600">{theme.name}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-lg">
           <CardHeader className="pb-4">

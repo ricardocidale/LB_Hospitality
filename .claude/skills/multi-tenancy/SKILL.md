@@ -156,17 +156,22 @@ interface DesignColor {
 The `/api/my-branding` endpoint resolves branding for the authenticated user:
 
 ```
-1. Get user's userGroupId
+1. Get user's userGroupId and selectedThemeId
 2. If group exists:
    - logo = group.logoId → logos table (or default logo)
    - companyName = resolved logo's companyName
-   - theme = group.themeId → design_themes table (or default theme)
+   - theme resolution (3-tier):
+     a. user.selectedThemeId → if set, use this theme (user's personal choice)
+     b. group.themeId → if set, use this theme (group default)
+     c. default theme → fallback
    - assetDescription = group.assetDescriptionId → asset_descriptions table (or default)
 3. If no group (should not happen):
    - Fall back to defaults for everything (default logo, default theme, etc.)
 ```
 
 **Key: company name comes from the logo**, not the group. The logo entity is the single source of truth for both the visual logo and the associated company name.
+
+**Theme selection**: Users can override their group's default theme by selecting a different one on their Profile page. The theme selector only appears when more than one theme is available. Selecting "Group Default" clears the override (sets `selectedThemeId` to null). Themes are created, edited, and deleted only in Administration.
 
 ## API Routes
 
@@ -178,11 +183,13 @@ The `/api/my-branding` endpoint resolves branding for the authenticated user:
 - `PATCH /api/admin/users/:id/group` — Assign user to group
 
 ### Themes
-- `GET /api/design-themes` — List all themes
+- `GET /api/design-themes` — List all themes (admin only, full details)
+- `GET /api/available-themes` — List all themes (any authenticated user, for theme selection)
 - `GET /api/design-themes/:id` — Get single theme
 - `POST /api/admin/design-themes` — Create theme (admin only)
-- `PATCH /api/admin/design-themes/:id` — Update theme
+- `PATCH /api/admin/design-themes/:id` — Update theme (admin only)
 - `DELETE /api/admin/design-themes/:id` — Delete theme (400 if default)
+- `PATCH /api/profile/theme` — User selects a theme (`{ themeId: number | null }`)
 
 ### Logos
 - `GET /api/admin/logos` — List all logos
@@ -227,10 +234,13 @@ The Admin user (email: `admin`) belongs to the **Norfolk Group** user group, not
 
 ## Key Design Decisions
 
-1. **No per-user branding** — Branding is always group-level. This simplifies admin workflow and ensures consistency.
+1. **No per-user branding (except themes)** — Logo, company name, and asset description are group-level only. Themes allow user-level override.
 2. **Company names live on logos** — Each logo carries a `companyName`. When a group picks a logo, users in that group see the logo's company name. There is no separate company name field on user groups.
-3. **Admin belongs to Norfolk Group** — The admin user is a member of the "Norfolk Group" user group and inherits its branding. Admin role is about permissions, not branding.
-4. **Default group is mandatory** — The "General" group always exists and cannot be deleted. New users land here.
-5. **Default theme is mandatory** — At least one theme always exists. Groups without an explicit theme get the default.
-6. **Deletion cascades to default** — Deleting a non-default group moves its users to the default group.
-7. **Standalone entities** — Themes, logos, and asset descriptions are not owned by users or groups. They are shared resources that groups reference.
+3. **Two separate "company name" concepts** — `logo.companyName` is the branding company name shown in the UI for multi-tenant identity. `globalAssumptions.companyName` is the Management Company entity name used in financial modeling. These are completely independent values serving different purposes.
+4. **User-selectable themes** — Themes are managed (CRUD) only in Administration. Each user gets a default theme from their group but can select a different one on their Profile page if multiple themes exist. The theme selector only appears when >1 theme is available.
+5. **Theme resolution order** — User's `selectedThemeId` → Group's `themeId` → Default theme.
+6. **Admin belongs to Norfolk Group** — The admin user is a member of the "Norfolk Group" user group and inherits its branding. Admin role is about permissions, not branding.
+7. **Default group is mandatory** — The "General" group always exists and cannot be deleted. New users land here.
+8. **Default theme is mandatory** — At least one theme always exists. Groups without an explicit theme get the default.
+9. **Deletion cascades to default** — Deleting a non-default group moves its users to the default group.
+10. **Standalone entities** — Themes, logos, and asset descriptions are not owned by users or groups. They are shared resources that groups reference.

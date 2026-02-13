@@ -21,6 +21,7 @@ export interface IStorage {
   deleteUser(id: number): Promise<void>;
   updateUserPassword(id: number, passwordHash: string): Promise<void>;
   updateUserProfile(id: number, data: { name?: string; email?: string; company?: string; title?: string }): Promise<User>;
+  updateUserSelectedTheme(id: number, themeId: number | null): Promise<User>;
   updateUserRole(id: number, role: string): Promise<void>;
   
   // Sessions
@@ -189,6 +190,15 @@ export class DatabaseStorage implements IStorage {
     const [user] = await db
       .update(users)
       .set({ ...data, updatedAt: new Date() })
+      .where(eq(users.id, id))
+      .returning();
+    return user;
+  }
+
+  async updateUserSelectedTheme(id: number, themeId: number | null): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set({ selectedThemeId: themeId, updatedAt: new Date() })
       .where(eq(users.id, id))
       .returning();
     return user;

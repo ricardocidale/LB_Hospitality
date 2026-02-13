@@ -173,6 +173,25 @@ async function deleteProperty(id: number): Promise<void> {
   if (!res.ok) throw new Error("Failed to delete property");
 }
 
+// --- FULL RECALCULATION ---
+// Rule: recalculate-on-save.md — Every save that affects financial data must
+// invalidate ALL financial queries so the entire app recalculates.
+// No partial invalidation is allowed.
+
+const ALL_FINANCIAL_QUERY_KEYS = [
+  ["globalAssumptions"],
+  ["properties"],
+  ["feeCategories"],
+  ["scenarios"],
+  ["research"],
+] as const;
+
+export function invalidateAllFinancialQueries(queryClient: ReturnType<typeof useQueryClient>) {
+  for (const key of ALL_FINANCIAL_QUERY_KEYS) {
+    queryClient.invalidateQueries({ queryKey: [...key] });
+  }
+}
+
 // --- HOOKS ---
 
 export function useGlobalAssumptions() {
@@ -188,7 +207,7 @@ export function useUpdateGlobalAssumptions() {
   return useMutation({
     mutationFn: updateGlobalAssumptions,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["globalAssumptions"] });
+      invalidateAllFinancialQueries(queryClient);
     },
   });
 }
@@ -214,7 +233,7 @@ export function useCreateProperty() {
   return useMutation({
     mutationFn: createProperty,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["properties"] });
+      invalidateAllFinancialQueries(queryClient);
     },
   });
 }
@@ -225,9 +244,8 @@ export function useUpdateProperty() {
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: UpdateProperty }) => 
       updateProperty(id, data),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["properties"] });
-      queryClient.invalidateQueries({ queryKey: ["properties", variables.id] });
+    onSuccess: () => {
+      invalidateAllFinancialQueries(queryClient);
     },
   });
 }
@@ -238,9 +256,7 @@ export function useDeleteProperty() {
   return useMutation({
     mutationFn: deleteProperty,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["properties"] });
-      queryClient.invalidateQueries({ queryKey: ["scenarios"] });
-      queryClient.invalidateQueries({ queryKey: ["feeCategories"] });
+      invalidateAllFinancialQueries(queryClient);
     },
   });
 }
@@ -293,9 +309,8 @@ export function useUpdateFeeCategories() {
       if (!res.ok) throw new Error("Failed to update fee categories");
       return res.json() as Promise<FeeCategoryResponse[]>;
     },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["feeCategories", variables.propertyId] });
-      queryClient.invalidateQueries({ queryKey: ["feeCategories", "all"] });
+    onSuccess: () => {
+      invalidateAllFinancialQueries(queryClient);
     },
   });
 }
@@ -366,7 +381,7 @@ export function useCreateScenario() {
   return useMutation({
     mutationFn: createScenario,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["scenarios"] });
+      invalidateAllFinancialQueries(queryClient);
     },
   });
 }
@@ -377,8 +392,7 @@ export function useLoadScenario() {
   return useMutation({
     mutationFn: loadScenario,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["globalAssumptions"] });
-      queryClient.invalidateQueries({ queryKey: ["properties"] });
+      invalidateAllFinancialQueries(queryClient);
     },
   });
 }
@@ -390,7 +404,7 @@ export function useUpdateScenario() {
     mutationFn: ({ id, data }: { id: number; data: { name?: string; description?: string } }) => 
       updateScenario(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["scenarios"] });
+      invalidateAllFinancialQueries(queryClient);
     },
   });
 }
@@ -401,7 +415,7 @@ export function useDeleteScenario() {
   return useMutation({
     mutationFn: deleteScenario,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["scenarios"] });
+      invalidateAllFinancialQueries(queryClient);
     },
   });
 }

@@ -23,6 +23,7 @@ The following files must ALWAYS be passed to the architect in the `relevant_file
 - `.claude/rules/database-seeding.md`
 - `.claude/rules/release-audit-checklist.md`
 - `.claude/rules/verification-system.md`
+- `.claude/rules/skill-organization.md`
 
 ### Always include
 - `replit.md` — project-level preferences and architecture

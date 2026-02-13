@@ -36,7 +36,7 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | Design System | `.claude/skills/design-system/SKILL.md` | Colors, typography, component catalog, CSS classes |
 | Theme Engine | `.claude/skills/ui/theme-engine.md` | Multi-theme system (Fluid Glass active), user-created themes, token structure |
 | Component Library | `.claude/skills/component-library/SKILL.md` | PageHeader, GlassButton, ExportMenu, DarkGlassTabs, etc. |
-| Proof System | `.claude/skills/proof-system/SKILL.md` | 1175 tests, 5 golden scenarios, verification commands |
+| Proof System | `.claude/skills/proof-system/SKILL.md` | 1330 tests, 5 golden scenarios, verification commands |
 | Testing (7 skills) | `.claude/skills/testing/` | Per-statement/analysis test coverage at property, consolidated, and management company levels |
 | 3D Graphics | `.claude/skills/3d-graphics/SKILL.md` | Three.js scenes, framer-motion wrappers |
 | Database | `.claude/skills/database-environments/SKILL.md` | Dev/prod databases, migrations, sync |
@@ -56,7 +56,7 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | Manuals | `.claude/manuals/` | Checker manual (15 sections), user manual (16 sections) |
 | Tools | `.claude/tools/` | Analysis, financing, returns, validation, UI tool schemas |
 | UI: Graphics | `.claude/skills/ui/graphics-component-catalog.md`, `ui/page-enhancement-checklist.md`, `ui/animation-patterns.md` | Reusable graphics components, page visual minimums, animation patterns |
-| Rules (14) | `.claude/rules/` | Audit persona, constants, DB seeding, API routes, graphics-rich design, architecture, financial engine, verification, etc. |
+| Rules (15) | `.claude/rules/` | Audit persona, constants, DB seeding, API routes, graphics-rich design, architecture, financial engine, verification, skill organization, etc. |
 
 ## Testing & Proof System (1330 Tests, 59 Files)
 

@@ -1,16 +1,16 @@
 ---
 name: proof-system
-description: Automated financial proof system with 1175 tests and 5 golden scenarios. Use when running verification, adding tests, debugging financial calculations, or reviewing proof coverage.
+description: Automated financial proof system with 1330 tests and 5 golden scenarios. Use when running verification, adding tests, debugging financial calculations, or reviewing proof coverage.
 ---
 
 # Automated Financial Proof System
 
 ## Purpose
-Eliminates human Excel verification. Code proves itself correct through 1175 automated tests across 5 golden scenarios, input-to-output pipeline verification, and magic number detection.
+Eliminates human Excel verification. Code proves itself correct through 1330 automated tests across 5 golden scenarios, input-to-output pipeline verification, and magic number detection.
 
 ## Commands
 ```bash
-npm test                          # Run all 1175 tests
+npm test                          # Run all 1330 tests
 npm run verify                    # Full 4-phase verification (UNQUALIFIED = pass)
 npx vitest run tests/proof/       # Run only proof tests
 npx tsx tests/proof/verify-runner.ts  # 4-phase orchestrator directly
@@ -98,7 +98,7 @@ For per-statement and per-analysis test coverage, see:
 | Financing & Refinancing | `.claude/skills/testing/financing-refinance-funding.md` | Debt, refi, funding instruments |
 
 ## Maintenance
-1. Run `npm test` — all 1175 tests must pass
+1. Run `npm test` — all 1330 tests must pass
 2. Run `npm run verify` — all 4 phases must pass
 3. Check `test-artifacts/*.md` for UNQUALIFIED opinions
 4. New constants go in `shared/constants.ts` (never inline magic numbers)

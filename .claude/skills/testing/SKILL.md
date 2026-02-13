@@ -1,11 +1,11 @@
 # Testing & Proof System — Master Skill
 
 ## Purpose
-Documents the full 1175-test automated verification system. Every financial statement, analysis, and engine calculation has dedicated tests that prove correctness without manual Excel verification.
+Documents the full 1330-test automated verification system. Every financial statement, analysis, and engine calculation has dedicated tests that prove correctness without manual Excel verification.
 
 ## Commands
 ```bash
-npm test                              # Run all 1175 tests
+npm test                              # Run all 1330 tests
 npm run verify                        # Full 4-phase verification (UNQUALIFIED = pass)
 npx vitest run tests/statements/      # Statement tests only
 npx vitest run tests/analytics/       # Analytics/returns tests only
@@ -18,7 +18,7 @@ npx vitest run tests/calc/validation/  # Validation tests only
 npx vitest run tests/auth/            # Auth utility tests only
 ```
 
-## Test Suite Map (52 files, 1175 tests)
+## Test Suite Map (59 files, 1330 tests)
 
 ### By Domain
 
@@ -79,7 +79,7 @@ npx vitest run tests/auth/            # Auth utility tests only
 
 ## Maintenance Rules
 
-1. **All 1175 tests must pass before any merge** — run `npm test`
+1. **All 1330 tests must pass before any merge** — run `npm test`
 2. **New financial calculations require new tests** — add to the appropriate domain directory
 3. **New constants go in `shared/constants.ts`** — never inline magic numbers
 4. **Hardcoded detection scans 8 finance files** — `proof/hardcoded-detection.test.ts`

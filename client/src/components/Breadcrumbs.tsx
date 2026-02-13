@@ -100,7 +100,7 @@ function useBreadcrumbs(): BreadcrumbEntry[] {
     ],
     "/admin": [
       { label: "Home", href: "/" },
-      { label: "Administration" },
+      { label: "Admin Settings" },
     ],
     "/global/research": [
       { label: "Home", href: "/" },

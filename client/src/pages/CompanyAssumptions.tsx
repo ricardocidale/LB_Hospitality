@@ -269,7 +269,7 @@ export default function CompanyAssumptions() {
               <div className="flex flex-col gap-2">
                 <Label className="flex items-center text-gray-700 label-text">
                   Company Logo
-                  <HelpTooltip text="The company logo displayed in the navigation. Managed in Administration > Branding." />
+                  <HelpTooltip text="The company logo displayed in the navigation. Managed in Admin Settings > Branding." />
                 </Label>
                 <div className="flex items-center gap-4">
                   <div className="w-16 h-16 rounded-lg border border-primary/30 bg-white flex items-center justify-center overflow-hidden">
@@ -279,7 +279,7 @@ export default function CompanyAssumptions() {
                       className="w-12 h-12 object-contain"
                     />
                   </div>
-                  <p className="text-xs text-gray-500">Managed in Administration &gt; Branding</p>
+                  <p className="text-xs text-gray-500">Managed in Admin Settings &gt; Branding</p>
                 </div>
               </div>
               <div className="flex flex-col gap-2">

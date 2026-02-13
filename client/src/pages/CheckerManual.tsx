@@ -235,7 +235,7 @@ export default function CheckerManual({ embedded }: { embedded?: boolean }) {
                     ["Systemwide Assumptions", "Model-wide configurable parameters", "/settings"],
                     ["My Profile", "Account management", "/profile"],
                     ["My Scenarios", "Save/load assumption snapshots", "/scenarios"],
-                    ["Administration", "User management, verification, design checks", "/admin"],
+                    ["Admin Settings", "User management, verification, design checks", "/admin"],
                     ["User Manual", "Financial calculation documentation", "/methodology"],
                   ]}
                 />

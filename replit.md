@@ -27,6 +27,12 @@ npm run audit:quick    # Quick code quality scan
 npm run exports:check  # Find unused exports
 ```
 
+## Branding Architecture
+- **Branding flows: User → User Group → Default.** No per-user branding overrides.
+- Design themes are standalone entities (not user-owned). Each has `isDefault` flag.
+- User Groups define company branding: `companyName`, `logoId`, `themeId`, `assetDescriptionId`.
+- Users inherit branding from their assigned User Group. Admin manages branding at the group level.
+
 ## Top Rules
 - **Calculations and correct reports are always the highest priority.** 1330-test proof system must always pass.
 - Company name is "Hospitality Business Group". All UI must reference a theme. All skills stored under `.claude/`.

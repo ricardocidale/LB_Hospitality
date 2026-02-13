@@ -17,6 +17,8 @@ description: Coding standards, naming conventions, and development rules for the
 - All pages must use `PageHeader` from `@/components/ui/page-header`
 - All export functionality must use `ExportMenu` from `@/components/ui/export-toolbar`
 - All tabs must use `DarkGlassTabs` from `@/components/ui/tabs`
+- All image input → AIImagePicker or a wrapper (never custom upload UI)
+- All entity card grids → EntityCard system from `@/components/ui/entity-card`
 - Inline or ad-hoc styling is not permitted — use the shared component library
 
 ## Finance Code Rules
@@ -25,13 +27,17 @@ description: Coding standards, naming conventions, and development rules for the
 - Do not modify accounting logic outside the allowed scope of the Active Skill
 - Report violations explicitly — do not silently correct them
 - Finance changes must pass verification with UNQUALIFIED result
-- Agent persona: `.claude/rules/agent-persona.md` is mandatory for all finance work
+- Agent persona: `.claude/rules/audit-persona.md` is mandatory for all finance work
 
 ## Audit Rules
-- Audit doctrine: `.claude/rules/audit-doctrine.md` defines audit scope
+- Audit doctrine: `.claude/rules/audit-persona.md` defines audit scope
 - Audits must check for hardcoded values in calculation paths
 - Audits must verify monthly→yearly rollup correctness
 - For any "audit" request, follow the doctrine and its output format
+
+## Button Label Rules
+- All save/update buttons must display "Save" (never "Update")
+- See `.claude/rules/button-label-consistency.md`
 
 ## TypeScript Conventions
 - Use ESM imports (no CommonJS require)

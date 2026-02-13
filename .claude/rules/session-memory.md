@@ -66,6 +66,8 @@ This rule ensures continuity across chat resets. The agent must treat this file 
 - Architect review: PASS — no blocking issues
 - All "Update" buttons changed to "Save" across entire Admin page (management company, SPV companies, user groups)
 - Skill file moved to `.claude/skills/ui/reusable-components.md` (proper subdirectory per skill-organization rule)
+- **README.md rewritten** — comprehensive GitHub README covering app purpose, data sources, Replit's role, financial engine, verification system, tech stack, codebase structure
+- **Full documentation harmonization** — claude.md, replit.md, and all 84 skill files updated to reflect latest project state with consistent counts, accurate role names, current Admin tab structure, and AI image generation architecture
 
 ### Key Architecture Decisions
 - **Nano Banana (gemini-2.5-flash-image)** is the primary image generation model; fallback to OpenAI `gpt-image-1`

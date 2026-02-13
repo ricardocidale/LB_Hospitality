@@ -721,7 +721,7 @@ Output includes: posted entries, periods, trial balances, income statements, bal
 - `activityLogs` — userId, action, entityType, entityId, details (JSON), timestamp
 - `verificationRuns` — userId, results (JSON), opinion, createdAt
 
-**Roles:** `VALID_USER_ROLES = ["admin", "user", "checker"]`
+**Roles:** `VALID_USER_ROLES = ["admin", "partner", "checker", "investor"]`
 
 **Zod Schemas:** `insertUserSchema`, `insertPropertySchema`, etc. generated via `createInsertSchema()` from `drizzle-zod`.
 

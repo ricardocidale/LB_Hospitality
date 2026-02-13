@@ -1,32 +1,52 @@
 # Hospitality Business Group — Project Instructions
 
 ## Project Summary
-Business simulation portal for Hospitality Business Group. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470) with IRS depreciation rules and an internal audit/verification engine. Branded "powered by Norfolk AI" (discrete, 9px, low opacity).
+
+Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470) with IRS depreciation rules and an independent audit/verification engine. Built and hosted entirely on Replit.
+
+**Codebase:** 284 source files, 63,035 lines of code, 1,330 tests across 59 files.
+
+---
 
 ## User Preferences
+
 - Preferred communication style: Simple, everyday language. Detailed user — ask lots of clarifying questions before implementing features. Do not assume; confirm requirements first.
-- **TOP PRIORITY: Calculations and correct reports are always the highest priority.** Financial accuracy must never be compromised for visual or UI enhancements. The automated proof system (1330 tests) must always pass.
+- **TOP PRIORITY: Calculations and correct reports are always the highest priority.** Financial accuracy must never be compromised for visual or UI enhancements. The automated proof system (1,330 tests) must always pass.
 - Always format money as money (currency format with commas and appropriate precision).
 - All skills must be stored under `.claude/` directory (e.g., `.claude/skills/`, `.claude/manuals/`, `.claude/tools/`). Never place skills elsewhere.
-- The company name is "Hospitality Business Group" (or "Hospitality Business" for short). Never use "L+B Hospitality" in code or documentation.
+- The company name is "Hospitality Business Group" (or "Hospitality Business" for short).
 - When updating features, always update the corresponding skills (`.claude/skills/`) and manuals (`.claude/manuals/`) documentation.
 - **All UI components must reference a theme** via the theme engine (`.claude/skills/ui/theme-engine.md`). The app supports multiple themes including user-created themes.
 - New UI features get their own skill file in `.claude/skills/ui/`.
 - Create skills when they can help divide tasks and reduce context. Always in `.claude/`.
 - `.claude/claude.md` is the master documentation file. `replit.md` is a slim pointer that references this file. Keep all detailed content here.
+- **Button Label Consistency:** Always use "Save" for all save/update actions — never "Update". See `.claude/rules/button-label-consistency.md`.
+- **100% Session Memory:** All decisions, changes, and context must be saved to `.claude/rules/session-memory.md` at the end of every session to persist across chat resets.
+- **Reusable UI Tools:** Whenever building a new feature, extract reusable components and document them in `.claude/skills/ui/reusable-components.md`.
+- **Every financial line item** should have a ? tooltip explanation (HelpTooltip or InfoTooltip as appropriate).
+- **Every page must be graphics-rich** — use charts, animations, and visual elements on every page.
+
+---
 
 ## Current Theme
-**Fluid Glass** is the active theme. All new UI work must follow Fluid Glass styling conventions. See theme engine skill for token structure.
+
+**Fluid Glass** is the active theme. All new UI work must follow Fluid Glass styling conventions. See `.claude/skills/ui/theme-engine.md` for token structure.
+
+---
 
 ## Context Loading Protocol
-With 80+ skill files (~15,000 lines), **never load all skills at once**. Use the context-loading skill (`.claude/skills/context-loading/SKILL.md`) to find the minimum required skill set for any task. Quick rules:
+
+With 84 skill files (~15,000 lines), **never load all skills at once**. Use the context-loading skill (`.claude/skills/context-loading/SKILL.md`) to find the minimum required skill set for any task. Quick rules:
 - **Financial calc fix** → load the specific finance skill + `rules/audit-persona.md` + `proof-system/SKILL.md`
 - **UI/visual work** → load `component-library/SKILL.md` + `ui/theme-engine.md` + the specific UI skill
 - **Testing work** → load `testing/SKILL.md` + the relevant sub-skill only
 - **Export work** → load `exports/SKILL.md` or the specific export skill
-- **Cross-domain work** → load minimum from each domain (2-4 skills max per domain)
+- **Cross-domain work** → load minimum from each domain (2–4 skills max per domain)
+
+---
 
 ## Skill Router
+
 All detailed documentation lives in focused skills. Load the relevant skill before working.
 
 | Domain | Skill Path | What It Covers |
@@ -36,29 +56,34 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | Design System | `.claude/skills/design-system/SKILL.md` | Colors, typography, component catalog, CSS classes |
 | Theme Engine | `.claude/skills/ui/theme-engine.md` | Multi-theme system (Fluid Glass active), user-created themes, token structure |
 | Component Library | `.claude/skills/component-library/SKILL.md` | PageHeader, GlassButton, ExportMenu, DarkGlassTabs, etc. |
-| Proof System | `.claude/skills/proof-system/SKILL.md` | 1330 tests, 5 golden scenarios, verification commands |
+| Reusable UI | `.claude/skills/ui/reusable-components.md` | AIImagePicker, AnimatedLogo, StatusBadge, ImagePreviewCard, EntityCard |
+| Proof System | `.claude/skills/proof-system/SKILL.md` | 1,330 tests, 5 golden scenarios, verification commands |
 | Testing (7 skills) | `.claude/skills/testing/` | Per-statement/analysis test coverage at property, consolidated, and management company levels |
 | 3D Graphics | `.claude/skills/3d-graphics/SKILL.md` | Three.js scenes, framer-motion wrappers |
 | Database | `.claude/skills/database-environments/SKILL.md` | Dev/prod databases, migrations, sync |
+| Multi-Tenancy | `.claude/skills/multi-tenancy/SKILL.md` | Users, user groups, logos, themes, branding resolution |
 | Tool Schemas | `.claude/skills/tool-schemas/SKILL.md` | Tool organization, schema conventions |
 | Coding Conventions | `.claude/skills/coding-conventions/SKILL.md` | Style rules, finance code rules, audit doctrine |
 | Exports | `.claude/skills/exports/SKILL.md` | PDF, Excel, PPTX, PNG, CSV export system |
 | Source Code | `.claude/skills/source-code/SKILL.md` | Full source code map |
 | Property Finder | `.claude/skills/property-finder/SKILL.md` | RapidAPI property search integration |
 | Finance (16 skills) | `.claude/skills/finance/` | Income statement, cash flow, balance sheet, IRR, DCF, etc. |
-| Research (11 skills) | `.claude/skills/research/` | Market, ADR, occupancy, cap rate, catering, auto-refresh, etc. |
+| Research (16 skills) | `.claude/skills/research/` | Market, ADR, occupancy, cap rate, catering, auto-refresh, etc. |
 | UI: Charts | `.claude/skills/ui/charts.md` | Line/bar chart styling + Waterfall, Heat Map, Radar chart specs |
 | UI: Portfolio Pages | `.claude/skills/ui/portfolio-pages.md` | Comparison, Timeline, Map, Executive Summary pages |
 | UI: Composite Pages | `.claude/skills/ui/composite-tabbed-pages.md` | Merging pages into unified tabbed views (Analysis, Properties+Map) |
 | UI: Interactions | `.claude/skills/ui/interactions.md` | What-If sliders, Variance Analysis, Guided Walkthrough, Inline Editing |
 | UI: Navigation | `.claude/skills/ui/navigation.md` | Command Palette, Breadcrumbs, Favorites, Activity Feed, Dark Mode |
-| UI: Other (14) | `.claude/skills/ui/` | Glass components, buttons, sliders, tabs, page-header, callout, image picker, etc. |
-| Manuals | `.claude/manuals/` | Checker manual (15 sections), user manual (16 sections) |
-| Tools | `.claude/tools/` | Analysis, financing, returns, validation, UI tool schemas |
+| UI: Image & Media | `.claude/skills/ui/property-image-picker.md`, `ui/reusable-components.md` | AIImagePicker, PropertyImagePicker, AnimatedLogo |
 | UI: Graphics | `.claude/skills/ui/graphics-component-catalog.md`, `ui/page-enhancement-checklist.md`, `ui/animation-patterns.md` | Reusable graphics components, page visual minimums, animation patterns |
-| Rules (15) | `.claude/rules/` | Audit persona, constants, DB seeding, API routes, graphics-rich design, architecture, financial engine, verification, skill organization, etc. |
+| UI: Other (14) | `.claude/skills/ui/` | Glass components, buttons, sliders, tabs, page-header, callout, etc. |
+| Manuals | `.claude/manuals/` | Checker manual (21 sections), user manual (16 sections) |
+| Tools | `.claude/tools/` | Analysis, financing, returns, validation, UI tool schemas |
+| Rules (18) | `.claude/rules/` | Audit persona, constants, DB seeding, API routes, graphics-rich design, architecture, financial engine, verification, skill organization, session memory, button label consistency, entity cards, etc. |
 
-## Testing & Proof System (1330 Tests, 59 Files)
+---
+
+## Testing & Proof System (1,330 Tests, 59 Files)
 
 | Entity Level | Test Domains | Skill |
 |-------------|-------------|-------|
@@ -71,70 +96,123 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | Engine Unit Tests | Cash flow aggregator, yearly aggregator, equity calculations, loan calculations, GAAP compliance, edge cases | `tests/engine/` |
 | Validation | Assumption consistency, funding gates, export verification | `tests/calc/validation/` |
 
-**Commands**: `npm test` (all 1330), `npm run verify` (4-phase, UNQUALIFIED required)
+**Commands**: `npm test` (all 1,330), `npm run verify` (4-phase, UNQUALIFIED required)
+
+---
+
+## AI Image Generation
+
+- **Primary model:** Nano Banana (`gemini-2.5-flash-image`) via Replit's Gemini AI Integration
+- **Fallback model:** OpenAI `gpt-image-1` via Replit's OpenAI AI Integration
+- **Generic component:** `AIImagePicker` (`client/src/components/ui/ai-image-picker.tsx`) — three modes: upload, AI generate, URL input. Configurable aspect ratio, dark/light variants.
+- **Property-specific wrapper:** `PropertyImagePicker` (`client/src/features/property-images/PropertyImagePicker.tsx`) — wraps AIImagePicker with auto-prompt from property name + location.
+- **AnimatedLogo:** `client/src/components/ui/animated-logo.tsx` — SVG wrapper for raster images with animation support (pulse, glow, spin, bounce).
+- **Server endpoint:** `POST /api/generate-property-image` — generates image, uploads to Replit Object Storage, returns `objectPath`.
+- **Server client:** `server/replit_integrations/image/client.ts` — uses `generateContent` with `gemini-2.5-flash-image` model, falls back to OpenAI.
+
+---
 
 ## Research Badge Defaults (Database-Backed, Location-Aware)
-Research values are stored in the `research_values` JSONB column on each property, generated location-aware at creation time via `server/researchSeeds.ts` with 25+ regional profiles. Sources: CBRE Trends 2024-2025, STR/CoStar, HVS, Highland Group Boutique Hotel Report 2025. Location detection uses pattern matching on location/streetAddress/city/stateProvince/market fields. Each entry has `{ display, mid, source }` where source = 'seed' (location defaults), 'ai' (AI research override), or 'none' (hidden). Generic fallback: ADR $193, Occupancy 69%, Cap Rate 8.5% (national averages). When AI research runs, it overrides seeded defaults with source='ai'. Frontend (PropertyEdit.tsx) reads from property.researchValues, falling back to generic defaults if absent.
 
-## Recent Changes
-- **Graphics Enhancement (10 pages)**: Added KPIGrid, InsightPanel, Gauge, DonutChart, RadarChart, AnimatedPage, ScrollReveal, AnimatedGrid to Dashboard, Company, PropertyDetail, CompanyAssumptions, Portfolio, Scenarios, ComparisonView, FinancingAnalysis, SensitivityAnalysis, Analysis. Reusable graphics library at `client/src/components/graphics/`. Skills moved to `ui/` subdirectory.
-- **Skill & Rule Organization**: Moved 3 loose skill files (animation-patterns, graphics-component-catalog, page-enhancement-checklist) into `.claude/skills/ui/`. Updated graphics-rich-design rule with skill cross-references and verification checklist. Fixed stale counts across documentation (tests: 1330, rules: 14, test files: 59).
-- **Validation Test Suites (1330 tests)**: Added 212 new tests across 3 validation modules: assumption-consistency (83), funding-gates (75), export-verification (54). Total: 1330 tests, 59 files.
-- **Engine Unit Test Expansion**: Added 312 new tests across 4 engine test suites: cash flow aggregator (67), yearly aggregator (118), equity calculations (49), GAAP compliance checker (78). Plus loan calculations (138) and pro forma edge cases (126).
-- **Rate-Limit Memory Leak Fix**: Added `cleanupRateLimitMaps()` to `server/auth.ts` — purges expired entries from in-memory loginAttempts and apiRateLimits Maps. Called hourly from the existing cleanup interval in `server/index.ts`.
-- **Stale Cache After Property Deletion Fix**: `useDeleteProperty` in `client/src/lib/api.ts` now invalidates `["scenarios"]` and `["feeCategories"]` queries in addition to `["properties"]`.
-- **Zero TypeScript Errors**: All 117 TypeScript errors resolved (Express.User augmentation, missing imports, seed fields, Set iteration, etc.).
-- **User Groups & Multi-Tenant Branding**: New `user_groups` table with CRUD API (`/api/admin/user-groups/*`). Users assigned to groups inherit group branding (companyName, logo, theme, asset description). Branding resolution priority: user-level > group-level > system default. Layout sidebar dynamically shows resolved company name. Two seed groups: KIT Group (Rosario, Dov, Lea) and Norfolk Group (Ricardo, Checker, Bhuvan, Reynaldo). Admin UI has "User Groups" tab for management.
-- **Testing Skills Suite**: New `.claude/skills/testing/` directory with 7 skill files documenting test coverage for every financial statement and analysis at property, consolidated, and management company levels.
-- **Accordion Chevron Standardization**: All expandable/accordion row indicators standardized to `w-4 h-4` across the entire app. Non-accordion icons (Search, Star, Download) remain at their intentional smaller sizes.
-- **Unified Analysis Page**: `/analysis` route merges Sensitivity, Financing, Executive Summary, Compare, and Timeline into a single tabbed page. Components use `embedded` prop to skip Layout wrapper. Old standalone routes (`/compare`, `/timeline`) redirect to `/analysis`.
-- **Map View in Properties**: Map View is now a tab inside the Properties page (`/portfolio`) instead of a separate sidebar item.
-- **Admin 3D Redesign**: Admin dashboard upgraded with floating glass panel 3D background, glassmorphism stat cards with gradient borders, polished AdminCard with hover lift/glow effects.
-- **Composite Tabbed Pages Skill**: New skill (`.claude/skills/ui/composite-tabbed-pages.md`) documenting the pattern for merging standalone pages into unified tabbed views.
-- **Asset Descriptions**: Admin-managed asset descriptions (asset_descriptions table) with per-user assignment.
-- **Sidebar Visibility**: Admin-controlled sidebar navigation. 9 boolean fields in global_assumptions control which optional nav items appear for non-admin users. Layout uses `sb()` helper for filtering.
-- **Calculation Transparency Toggles**: Two on/off switches in Settings > Other tab control visibility of formula help icons and expandable accordion rows.
-- **Accordion Formula Rows**: Expandable rows in income statements showing step-by-step calculation breakdowns.
-- **Funding Instrument Rename**: All UI labels changed from hardcoded "SAFE" to dynamic `fundingSourceLabel` (default "SAFE"). Supports SAFE, Seed, Series A, etc. DB field names unchanged for backward compatibility.
-- **Negative Cash Balance Entity Identification**: Verification check now clearly identifies which entity (Management Company vs specific property by name) has negative cash balance issues. Management Company gets its own independent cash balance check.
+Research values are stored in the `research_values` JSONB column on each property, generated location-aware at creation time via `server/researchSeeds.ts` with 25+ regional profiles. Sources: CBRE Trends 2024-2025, STR/CoStar, HVS, Highland Group Boutique Hotel Report 2025. Location detection uses pattern matching on location/streetAddress/city/stateProvince/market fields. Each entry has `{ display, mid, source }` where source = `'seed'` (location defaults), `'ai'` (AI research override), or `'none'` (hidden). Generic fallback: ADR $193, Occupancy 69%, Cap Rate 8.5% (national averages). When AI research runs, it overrides seeded defaults with `source='ai'`. Frontend (`PropertyEdit.tsx`) reads from `property.researchValues`, falling back to generic defaults if absent.
+
+---
+
+## Admin Page Structure
+
+The Administration page (`/admin`) has these tabs:
+
+| Tab | Value | Purpose |
+|-----|-------|---------|
+| Users | `users` | Create, edit, delete users; manage roles and passwords |
+| Companies | `companies` | Manage SPV companies for individual properties |
+| Activity | `activity` | View user activity logs and audit trail |
+| Verification | `verification` | Run and view financial verification results |
+| Logos | `logos` | Upload, AI-generate, or URL-import logo images (via AIImagePicker) |
+| User Groups | `user-groups` | Manage multi-tenant groups with branding assignments |
+| Branding | `branding` | View branding configuration summary |
+| Themes | `themes` | Manage design themes (colors, typography) |
+| Navigation | `sidebar` | Configure sidebar navigation visibility |
+| Database | `database` | Database management and diagnostics |
+
+Logo Management is a tab within Admin (not a separate sidebar link). The Branding tab shows a read-only logo summary with a "Manage Logos" button linking to the Logos tab.
+
+---
 
 ## Key Rules
+
 - **Calculations always highest priority** — never compromise financial accuracy for visuals
 - **All UI references a theme** — see theme engine skill
 - **No raw hex in components** — use CSS variable tokens
 - **All buttons use GlassButton**, all pages use PageHeader, all exports use ExportMenu
 - **No mock data** in production paths
 - **Finance changes must state Active Skill** and pass verification (UNQUALIFIED)
-- **Audit persona+doctrine**: `.claude/rules/audit-persona.md` mandatory for finance work
+- **Audit persona + doctrine**: `.claude/rules/audit-persona.md` mandatory for finance work
+- **Button labels**: Always "Save" for save/update actions (never "Update") — `.claude/rules/button-label-consistency.md`
+- **Session memory**: Update `.claude/rules/session-memory.md` at the end of every session
+- **Every page must be graphics-rich**: Charts, animations, visual elements required
+
+---
+
+## User Roles
+
+Four roles with hierarchical access:
+
+| Role | Access Level |
+|------|-------------|
+| `admin` | Full access — all pages + Administration panel |
+| `partner` | Management-level — Dashboard, Properties, Company, Settings, Reports (no Admin) |
+| `checker` | Financial verification — same as Partner, plus verification tools and checker manual |
+| `investor` | Limited — Dashboard, Properties, Profile, Help only |
+
+Default role for new users: `partner`.
+
+---
 
 ## Pages (client/src/pages/)
+
 | Page | Route | Description |
 |------|-------|-------------|
-| Dashboard | `/` | Portfolio overview with 3D graphics, activity feed |
-| Portfolio | `/portfolio` | Property list with favorites |
-| PropertyDetail | `/property/:id` | Individual property financials |
+| Dashboard | `/` | Portfolio overview with 3D graphics, KPIs, activity feed |
+| Portfolio | `/portfolio` | Property list with favorites + Map View tab |
+| PropertyDetail | `/property/:id` | Individual property financial analysis |
 | PropertyEdit | `/property/:id/edit` | Edit property assumptions |
 | PropertyMarketResearch | `/property/:id/research` | AI-powered property research |
 | Company | `/company` | Management company financials + Investment Analysis (IRR) |
 | CompanyAssumptions | `/company/assumptions` | Management company assumptions |
 | CompanyResearch | `/company/research` | Management company research |
-| ComparisonView | `/compare` | Side-by-side property comparison |
-| TimelineView | `/timeline` | Chronological portfolio timeline |
 | Analysis | `/analysis` | Unified page: Sensitivity + Financing + Executive Summary (tabs) |
 | SensitivityAnalysis | (embedded in Analysis) | Sensitivity analysis tables |
 | FinancingAnalysis | (embedded in Analysis) | DSCR, debt yield, loan sizing |
 | ExecutiveSummary | (embedded in Analysis) | Printable portfolio summary |
 | MapView | (tab in Portfolio) | Geographic property card grid |
+| ComparisonView | `/compare` | Side-by-side property comparison |
+| TimelineView | `/timeline` | Chronological portfolio timeline |
 | Scenarios | `/scenarios` | Scenario management |
 | PropertyFinder | `/property-finder` | RapidAPI property search |
 | GlobalResearch | `/global/research` | Global market research |
-| Settings | `/settings` | Themes, preferences |
-| Profile | `/profile` | User profile |
-| Admin | `/admin` | Administration (Users, User Groups, Login Logs, Sessions, Verification, Activity, Seed) |
+| Settings | `/settings` | Themes, preferences, calculation transparency |
+| Profile | `/profile` | User profile, theme selection |
+| Admin | `/admin` | Administration (10 tabs — see Admin Page Structure above) |
 | Methodology | `/methodology` | User manual |
-| CheckerManual | `/checker-manual` | Checker manual |
+| CheckerManual | `/checker-manual` | Checker manual (21 sections) |
+| Help | `/help` | Help and documentation |
+| Login | `/login` | Authentication page |
 
-## UI Features (17 enhancements)
+---
+
+## Calculation Transparency
+
+Two toggles in **Settings > Other tab** control formula help visibility:
+- `showCompanyCalculationDetails` — Management Company reports
+- `showPropertyCalculationDetails` — Property reports
+
+When ON (default), every financial line item shows a ? icon explaining its formula and meaning. When OFF, clean investor-ready view.
+
+---
+
+## UI Features (17+ enhancements)
+
 | Feature | Component | Location |
 |---------|-----------|----------|
 | Command Palette | CommandPalette.tsx | Ctrl+K global search |
@@ -154,55 +232,89 @@ Research values are stored in the `research_values` JSONB column on each propert
 | Variance Analysis | VarianceAnalysis.tsx | Property variance comparison |
 | Guided Walkthrough | GuidedWalkthrough.tsx | Step-by-step spotlight tour |
 | Inline Editing | inline-editing skill | In-place value editing |
-| Financial Statements | FinancialStatement.tsx, YearlyIncomeStatement.tsx, YearlyCashFlowStatement.tsx, ConsolidatedBalanceSheet.tsx | GAAP-compliant statements |
+| AIImagePicker | ai-image-picker.tsx | Three-mode image input (upload, AI generate, URL) |
+| AnimatedLogo | animated-logo.tsx | SVG-wrapped logo with animation support |
+| Financial Statements | FinancialStatement.tsx, YearlyIncomeStatement.tsx, etc. | GAAP-compliant statements |
+
+---
 
 ## Quick Commands
+
 ```bash
-npm run dev            # Start dev server
+npm run dev            # Start dev server (port 5000)
 npm run health         # One-shot: tsc + tests + verify (~4 lines output)
-npm run test:summary   # Run all 1330 tests, 1-line output on pass
+npm run test:summary   # Run all 1,330 tests, 1-line output on pass
 npm run verify:summary # 4-phase verification, compact output
-npm test               # Run all 1330 tests (full output)
+npm test               # Run all 1,330 tests (full output)
 npm run verify         # Full 4-phase financial verification (verbose)
 npm run db:push        # Push schema changes
 npm run lint:summary   # tsc --noEmit with 1-line output
-npm run diff:summary   # Compact git status + diff stat (~5-10 lines)
+npm run diff:summary   # Compact git status + diff stat
 npm run test:file -- <path>  # Run single test file with summary output
 npm run stats          # Codebase metrics: files, lines, tests, TS errors (~12 lines)
-npm run audit:quick    # Quick code quality scan: any types, TODOs, console.logs (~15 lines)
+npm run audit:quick    # Quick code quality scan
 npm run exports:check  # Find unused public exports from calc/ and lib/
 ```
 
-## Integrations
+---
 
-### Connected (server/integrations/)
-| Integration | File | Status |
-|-------------|------|--------|
-| Google Sheets | googleSheets.ts | Connected, client saved |
-| Gmail | gmail.ts | Connected, client saved |
-| Google Drive | googleDrive.ts | Connected, client saved |
-| Google Docs | googleDocs.ts | Connected, client saved |
-| Google Calendar | googleCalendar.ts | Connected, client saved |
-| Stripe | stripeClient.ts, stripeWebhook.ts | Connected, client saved |
-| Twilio | twilio.ts | Connected, client saved |
-| Replit Auth | server/replit_integrations/auth/ | Files added, NOT wired into existing login |
-| Google Analytics | client/src/lib/analytics.ts | Files added, needs VITE_GA_MEASUREMENT_ID |
+## Integrations (Replit-Managed)
 
-### Not Connected
-- **Notion**: User dismissed — can connect later if needed
-- **SendGrid**: User dismissed
+All integrations are managed through Replit's platform, handling API keys and secret rotation automatically.
+
+### AI Integrations (no external API keys needed)
+| Integration | Model | Purpose |
+|-------------|-------|---------|
+| Google Gemini | `gemini-2.5-flash-image` | Primary AI image generation (Nano Banana) |
+| Google Gemini | `gemini-2.5-flash` | Market research analysis |
+| OpenAI | `gpt-image-1` | Fallback AI image generation |
+| Anthropic Claude | `claude-sonnet` | Financial methodology review, market research |
+
+### Connected Services
+| Integration | Purpose |
+|-------------|---------|
+| Google Sheets | Spreadsheet connectivity |
+| Gmail | Email notifications |
+| Google Drive | Document storage |
+| Google Docs | Document connectivity |
+| Google Calendar | Calendar integration |
+| Stripe | Payment processing |
+| Twilio | SMS/communication |
+| Replit Auth | "Log in with Replit" authentication |
+| GitHub | Source control |
+
+### Infrastructure (Replit-Provided)
+| Service | Purpose |
+|---------|---------|
+| PostgreSQL (Neon) | Primary database — auto-configured `DATABASE_URL` |
+| Object Storage (GCS) | Image uploads, AI-generated assets, exported documents |
+| Secrets Management | Encrypted storage for `ADMIN_PASSWORD`, `CHECKER_PASSWORD`, `REYNALDO_PASSWORD` |
+| Deployments | Automatic TLS, health checks, `.replit.app` domain |
+
+---
 
 ## Tech Stack
+
 - **Frontend**: React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v4, Recharts
 - **Backend**: Node.js, Express 5, TypeScript (ESM), esbuild
-- **Data**: Drizzle ORM, PostgreSQL, Zod validation
+- **Data**: Drizzle ORM, PostgreSQL (Neon), Zod validation
 - **3D/Animation**: Three.js (@react-three/fiber, drei, postprocessing), framer-motion
+- **AI**: Google Gemini, OpenAI, Anthropic Claude (via Replit AI Integrations)
+- **Exports**: jsPDF, xlsx, pptxgenjs, dom-to-image-more
 - **Fonts**: Playfair Display (headings) + Inter (UI/data)
+- **Hosting**: Replit Deployments
 
-## External Dependencies
-- PostgreSQL, Drizzle Kit, Radix UI, Recharts, Lucide React, date-fns
-- three, @react-three/fiber, @react-three/drei, @react-three/postprocessing
-- framer-motion
-- googleapis (Google Sheets, Drive, Docs, Calendar)
-- twilio (SMS alerts)
-- RapidAPI "Realty in US" (property finding)
+---
+
+## Branding Architecture
+
+Branding resolution flows: **User → User Group → Default**.
+
+- **Logos** are standalone entities carrying both a visual image and a `companyName`.
+- **User Groups** reference a logo, theme, and asset description.
+- **Users** inherit branding from their assigned User Group.
+- **Theme override**: Users can select a different theme on their Profile page.
+- **Company name** comes from the logo (not the group). Picking a logo sets the company name.
+- **Two separate "company name" concepts**: `logo.companyName` is branding identity; `globalAssumptions.companyName` is the Management Company entity name in financial modeling.
+
+See `.claude/skills/multi-tenancy/SKILL.md` for full details.

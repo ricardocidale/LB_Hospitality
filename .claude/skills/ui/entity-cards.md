@@ -330,7 +330,7 @@ Dropdown with inline logo preview thumbnails:
   className="flex items-center gap-2 mt-2"
   data-testid="button-save-entity">
   {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-  {isEditing ? "Update" : "Save"}
+  {isEditing ? "Save" : "Create"}
 </Button>
 ```
 

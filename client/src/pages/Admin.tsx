@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Loader2, Plus, Trash2, Users, Key, Eye, EyeOff, Pencil, Clock, FileCheck, CheckCircle2, XCircle, AlertTriangle, PlayCircle, Palette, Activity, HelpCircle, SwatchBook, UserPlus, Shield, Mail, Calendar, LogIn, LogOut, Monitor, MapPin, Hash, LayoutGrid, Sparkles, Settings, FileText, Download, Save, FileDown, Image, PanelLeft, Building2, Tag, Database, RefreshCw } from "lucide-react";
+import { Loader2, Plus, Trash2, Users, Key, Eye, EyeOff, Pencil, Clock, FileCheck, CheckCircle2, XCircle, AlertTriangle, PlayCircle, Palette, Activity, HelpCircle, SwatchBook, UserPlus, Shield, Mail, Calendar, LogIn, LogOut, Monitor, MapPin, Hash, LayoutGrid, Sparkles, Settings, FileText, Download, Save, FileDown, Image, PanelLeft, Building2, Tag, Database, RefreshCw, Upload, Star } from "lucide-react";
 import defaultLogo from "@/assets/logo.png";
 import { Tabs, TabsContent, DarkGlassTabs } from "@/components/ui/tabs";
 import jsPDF from "jspdf";
@@ -134,7 +134,7 @@ interface AdminCompany {
   createdAt: string;
 }
 
-type AdminView = "users" | "companies" | "activity" | "verification" | "themes" | "branding" | "user-groups" | "sidebar" | "database";
+type AdminView = "users" | "companies" | "activity" | "verification" | "themes" | "branding" | "user-groups" | "sidebar" | "database" | "logos";
 type ActivitySubView = "login" | "feed" | "checker";
 
 interface ActivityLogEntry {
@@ -314,8 +314,6 @@ export default function Admin() {
     },
   });
 
-  const [newLogoName, setNewLogoName] = useState("");
-  const [newLogoUrl, setNewLogoUrl] = useState("");
   const [newAssetDescName, setNewAssetDescName] = useState("");
 
   const { data: adminLogos } = useQuery<Logo[]>({
@@ -325,7 +323,7 @@ export default function Admin() {
       if (!res.ok) throw new Error("Failed to fetch logos");
       return res.json();
     },
-    enabled: adminTab === "branding" || adminTab === "user-groups" || adminTab === "companies",
+    enabled: adminTab === "branding" || adminTab === "user-groups" || adminTab === "companies" || adminTab === "logos",
   });
 
   const { data: allThemes } = useQuery<Array<{ id: number; name: string; isDefault: boolean }>>({
@@ -407,44 +405,6 @@ export default function Admin() {
   });
 
 
-  const createLogoMutation = useMutation({
-    mutationFn: async (data: { name: string; url: string }) => {
-      const res = await fetch("/api/admin/logos", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error("Failed to create logo");
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin", "logos"] });
-      setNewLogoName("");
-      setNewLogoUrl("");
-      toast({ title: "Logo Added", description: "New logo has been added to the portfolio." });
-    },
-    onError: (error: Error) => {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    },
-  });
-
-  const deleteLogoMutation = useMutation({
-    mutationFn: async (id: number) => {
-      const res = await fetch(`/api/admin/logos/${id}`, { method: "DELETE", credentials: "include" });
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || "Failed to delete logo");
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin", "logos"] });
-      toast({ title: "Logo Deleted", description: "Logo has been removed." });
-    },
-    onError: (error: Error) => {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    },
-  });
 
   // --- User Groups ---
   const [groupDialogOpen, setGroupDialogOpen] = useState(false);
@@ -576,6 +536,86 @@ export default function Admin() {
       toast({ title: "Company Deleted", description: "Company has been deleted." });
     },
   });
+
+  const [logoDialogOpen, setLogoDialogOpen] = useState(false);
+  const [logoName, setLogoName] = useState("");
+  const [logoCompanyName, setLogoCompanyName] = useState("");
+  const [logoUrl, setLogoUrl] = useState("");
+  const [uploadingFile, setUploadingFile] = useState(false);
+  const [uploadedPreview, setUploadedPreview] = useState<string | null>(null);
+  const [deleteLogoConfirmId, setDeleteLogoConfirmId] = useState<number | null>(null);
+  const logoFileInputRef = useRef<HTMLInputElement>(null);
+
+  const resetLogoForm = () => {
+    setLogoName("");
+    setLogoCompanyName("");
+    setLogoUrl("");
+    setUploadedPreview(null);
+    if (logoFileInputRef.current) logoFileInputRef.current.value = "";
+  };
+
+  const createLogoMutation = useMutation({
+    mutationFn: async (data: { name: string; companyName: string; url: string }) => {
+      const res = await fetch("/api/admin/logos", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data), credentials: "include" });
+      if (!res.ok) throw new Error("Failed to create logo");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "logos"] });
+      queryClient.invalidateQueries({ queryKey: ["my-branding"] });
+      setLogoDialogOpen(false);
+      resetLogoForm();
+      toast({ title: "Logo Created", description: "Logo has been added successfully." });
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to create logo.", variant: "destructive" });
+    },
+  });
+
+  const deleteLogoMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const res = await fetch(`/api/admin/logos/${id}`, { method: "DELETE", credentials: "include" });
+      if (!res.ok) { const data = await res.json(); throw new Error(data.error || "Failed to delete logo"); }
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "logos"] });
+      queryClient.invalidateQueries({ queryKey: ["my-branding"] });
+      setDeleteLogoConfirmId(null);
+      toast({ title: "Logo Deleted", description: "Logo has been removed." });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const handleLogoFileUpload = async (file: File) => {
+    if (!file.type.startsWith("image/")) {
+      toast({ title: "Invalid File", description: "Please select an image file.", variant: "destructive" });
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "File Too Large", description: "Logo must be under 5MB.", variant: "destructive" });
+      return;
+    }
+    setUploadingFile(true);
+    try {
+      const res = await fetch("/api/admin/logos/upload", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: file.name, size: file.size, contentType: file.type }), credentials: "include" });
+      if (!res.ok) throw new Error("Failed to get upload URL");
+      const { uploadURL, objectPath } = await res.json();
+      const uploadRes = await fetch(uploadURL, { method: "PUT", body: file, headers: { "Content-Type": file.type } });
+      if (!uploadRes.ok) throw new Error("Failed to upload file");
+      setLogoUrl(objectPath);
+      const reader = new FileReader();
+      reader.onload = (e) => setUploadedPreview(e.target?.result as string);
+      reader.readAsDataURL(file);
+      toast({ title: "Uploaded", description: "Logo image uploaded successfully." });
+    } catch {
+      toast({ title: "Upload Failed", description: "Failed to upload logo image.", variant: "destructive" });
+    } finally {
+      setUploadingFile(false);
+    }
+  };
 
   const createMutation = useMutation({
     mutationFn: async (data: { email: string; password: string; name?: string; company?: string; title?: string; role?: string }) => {
@@ -1980,45 +2020,29 @@ export default function Admin() {
 
       <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
         <CardHeader>
-          <CardTitle className="font-display flex items-center gap-2"><Image className="w-5 h-5 text-primary" /> Logo Portfolio</CardTitle>
-          <CardDescription className="label-text">Manage logos available for user assignment</CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="font-display flex items-center gap-2"><Image className="w-5 h-5 text-primary" /> Logo Portfolio</CardTitle>
+              <CardDescription className="label-text">Manage logos available for user assignment</CardDescription>
+            </div>
+            <Button variant="outline" onClick={() => setAdminTab("logos")} className="flex items-center gap-2" data-testid="button-go-to-logos">
+              <Upload className="w-4 h-4" /> Manage Logos
+            </Button>
+          </div>
         </CardHeader>
-        <CardContent className="relative space-y-4">
+        <CardContent className="relative">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {adminLogos?.map(logo => (
               <div key={logo.id} className="relative bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-center gap-4" data-testid={`logo-card-${logo.id}`}>
                 <div className="w-16 h-16 rounded-lg bg-primary/10 flex items-center justify-center overflow-hidden border border-primary/20">
-                  <img src={logo.url} alt={logo.name} className="max-w-full max-h-full object-contain" />
+                  <img src={logo.url} alt={logo.name} className="max-w-full max-h-full object-contain" onError={(e) => { (e.target as HTMLImageElement).src = defaultLogo; }} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-foreground font-medium truncate">{logo.name}</p>
-                  {logo.isDefault && <span className="text-xs text-primary font-mono">DEFAULT</span>}
+                  {logo.isDefault && <span className="text-xs text-amber-600 font-mono flex items-center gap-1"><Star className="w-3 h-3 fill-amber-500" /> DEFAULT</span>}
                 </div>
-                {!logo.isDefault && (
-                  <Button variant="ghost" size="sm" onClick={() => deleteLogoMutation.mutate(logo.id)} className="text-red-400 hover:text-red-300 hover:bg-red-500/10" data-testid={`button-delete-logo-${logo.id}`}>
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                )}
               </div>
             ))}
-          </div>
-
-          <div className="border-t border-primary/20 pt-4">
-            <h4 className="text-foreground/80 font-medium mb-3">Add New Logo</h4>
-            <div className="flex gap-3 items-end">
-              <div className="flex-1 space-y-1">
-                <Label className="text-muted-foreground text-xs">Name</Label>
-                <Input value={newLogoName} onChange={(e) => setNewLogoName(e.target.value)} placeholder="Logo name" className="bg-primary/5 border-primary/20" data-testid="input-new-logo-name" />
-              </div>
-              <div className="flex-1 space-y-1">
-                <Label className="text-muted-foreground text-xs">URL</Label>
-                <Input value={newLogoUrl} onChange={(e) => setNewLogoUrl(e.target.value)} placeholder="/logos/custom.png or https://..." className="bg-primary/5 border-primary/20" data-testid="input-new-logo-url" />
-              </div>
-              <Button variant="outline" onClick={() => createLogoMutation.mutate({ name: newLogoName, url: newLogoUrl })} disabled={!newLogoName || !newLogoUrl || createLogoMutation.isPending} className="flex items-center gap-2" data-testid="button-add-logo">
-                {createLogoMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-                Add
-              </Button>
-            </div>
           </div>
         </CardContent>
       </Card>
@@ -2249,6 +2273,79 @@ export default function Admin() {
     </div>
   );
   };
+
+  const renderLogos = () => (
+    <div className="space-y-6">
+      <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="font-display flex items-center gap-2"><Image className="w-5 h-5 text-primary" /> Logo Management</CardTitle>
+              <CardDescription className="label-text">Upload, create, and manage logos used by companies in the platform</CardDescription>
+            </div>
+            <Button variant="outline" onClick={() => { resetLogoForm(); setLogoDialogOpen(true); }} className="flex items-center gap-2" data-testid="button-add-logo">
+              <Plus className="w-4 h-4" /> Add Logo
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="relative space-y-4">
+          {!adminLogos || adminLogos.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">
+              <Image className="w-16 h-16 mx-auto mb-4 text-primary/30" />
+              <p className="text-lg mb-1">No logos yet</p>
+              <p className="text-sm">Click "Add Logo" to upload or create your first logo.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {adminLogos.map(logo => (
+                <Card key={logo.id} className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)] group hover:shadow-lg transition-shadow" data-testid={`logo-card-${logo.id}`}>
+                  <CardContent className="p-6">
+                    <div className="aspect-square bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl border border-primary/20 flex items-center justify-center p-6 mb-4 overflow-hidden">
+                      <img
+                        src={logo.url}
+                        alt={logo.name}
+                        className="max-w-full max-h-full object-contain"
+                        onError={(e) => { (e.target as HTMLImageElement).src = defaultLogo; }}
+                        data-testid={`logo-image-${logo.id}`}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-start justify-between">
+                        <div className="min-w-0 flex-1">
+                          <h3 className="font-display font-medium text-foreground truncate flex items-center gap-2">
+                            {logo.name}
+                            {logo.isDefault && <Star className="w-4 h-4 text-amber-500 fill-amber-500 flex-shrink-0" />}
+                          </h3>
+                          <p className="text-sm text-muted-foreground flex items-center gap-1 mt-0.5">
+                            <Building2 className="w-3.5 h-3.5" />
+                            {logo.companyName}
+                          </p>
+                        </div>
+                        {!logo.isDefault && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setDeleteLogoConfirmId(logo.id)}
+                            className="text-red-400 hover:text-red-600 hover:bg-red-500/10 flex-shrink-0"
+                            data-testid={`button-delete-logo-${logo.id}`}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
+                      {logo.isDefault && (
+                        <span className="inline-block text-xs bg-amber-500/20 text-amber-700 px-2 py-0.5 rounded">Default Logo</span>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
 
   const renderUserGroups = () => (
     <div className="space-y-6">
@@ -2617,6 +2714,7 @@ export default function Admin() {
               { value: 'activity', label: 'Activity', icon: Activity },
               { value: 'verification', label: 'Verification', icon: FileCheck },
               { value: 'user-groups', label: 'User Groups', icon: LayoutGrid },
+              { value: 'logos', label: 'Logos', icon: Upload },
               { value: 'branding', label: 'Branding', icon: Image },
               { value: 'themes', label: 'Themes', icon: SwatchBook },
               { value: 'sidebar', label: 'Navigation', icon: PanelLeft },
@@ -2660,6 +2758,9 @@ export default function Admin() {
           </TabsContent>
           <TabsContent value="verification" className="space-y-6 mt-6">
             {renderVerification()}
+          </TabsContent>
+          <TabsContent value="logos" className="space-y-6 mt-6">
+            {renderLogos()}
           </TabsContent>
           <TabsContent value="user-groups" className="space-y-6 mt-6">
             {renderUserGroups()}
@@ -2904,6 +3005,76 @@ export default function Admin() {
             }} disabled={!groupForm.name || createGroupMutation.isPending || updateGroupMutation.isPending} data-testid="button-save-group" className="flex items-center gap-2">
               {(createGroupMutation.isPending || updateGroupMutation.isPending) ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               {editingGroup ? "Update" : "Create"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={logoDialogOpen} onOpenChange={setLogoDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="font-display">Add New Logo</DialogTitle>
+            <DialogDescription className="label-text">Upload an image or provide a URL for the new logo</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2"><Tag className="w-4 h-4 text-gray-500" />Logo Name</Label>
+              <Input value={logoName} onChange={(e) => setLogoName(e.target.value)} placeholder="e.g., Company Logo" data-testid="input-logo-name" />
+            </div>
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2"><Building2 className="w-4 h-4 text-gray-500" />Company Name</Label>
+              <Input value={logoCompanyName} onChange={(e) => setLogoCompanyName(e.target.value)} placeholder="e.g., Hospitality Business Group" data-testid="input-logo-company-name" />
+            </div>
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2"><Upload className="w-4 h-4 text-gray-500" />Upload Image</Label>
+              <input
+                ref={logoFileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={(e) => { if (e.target.files?.[0]) handleLogoFileUpload(e.target.files[0]); }}
+                className="block w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
+                data-testid="input-logo-file"
+              />
+              {uploadingFile && <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="w-4 h-4 animate-spin" /> Uploading...</div>}
+            </div>
+            {!logoUrl && (
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2"><Image className="w-4 h-4 text-gray-500" />Or Enter URL</Label>
+                <Input value={logoUrl} onChange={(e) => setLogoUrl(e.target.value)} placeholder="/logos/custom.png or https://..." data-testid="input-logo-url" />
+              </div>
+            )}
+            {(uploadedPreview || logoUrl) && (
+              <div className="border border-primary/20 rounded-lg p-4 bg-primary/5">
+                <p className="text-xs text-muted-foreground mb-2">Preview</p>
+                <div className="w-24 h-24 mx-auto flex items-center justify-center">
+                  <img src={uploadedPreview || logoUrl} alt="Preview" className="max-w-full max-h-full object-contain" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                </div>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setLogoDialogOpen(false); resetLogoForm(); }} data-testid="button-cancel-logo">Cancel</Button>
+            <Button variant="outline" onClick={() => {
+              createLogoMutation.mutate({ name: logoName, companyName: logoCompanyName, url: logoUrl });
+            }} disabled={!logoName || !logoUrl || createLogoMutation.isPending} data-testid="button-save-logo" className="flex items-center gap-2">
+              {createLogoMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              Add Logo
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={deleteLogoConfirmId !== null} onOpenChange={(open) => { if (!open) setDeleteLogoConfirmId(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="font-display">Delete Logo</DialogTitle>
+            <DialogDescription className="label-text">Are you sure you want to delete this logo? This action cannot be undone.</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteLogoConfirmId(null)} data-testid="button-cancel-delete-logo">Cancel</Button>
+            <Button variant="destructive" onClick={() => { if (deleteLogoConfirmId) deleteLogoMutation.mutate(deleteLogoConfirmId); }} disabled={deleteLogoMutation.isPending} data-testid="button-confirm-delete-logo" className="flex items-center gap-2">
+              {deleteLogoMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+              Delete
             </Button>
           </DialogFooter>
         </DialogContent>

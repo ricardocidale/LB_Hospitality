@@ -21,6 +21,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { drawLineChart } from "@/lib/pdfChartDrawer";
 import { format } from "date-fns";
+import { KPIGrid, InsightPanel, AnimatedPage, ScrollReveal, formatCompact, formatPercent, CHART_COLORS, type KPIItem, type Insight } from "@/components/graphics";
 
 interface CompanyCashAnalysis {
   totalFunding: number;
@@ -781,6 +782,7 @@ export default function Company() {
 
   return (
     <Layout>
+      <AnimatedPage>
       <ExportDialog
         open={exportDialogOpen}
         onClose={() => setExportDialogOpen(false)}
@@ -800,6 +802,18 @@ export default function Company() {
               </GlassButton>
             </Link>
           }
+        />
+
+        <KPIGrid
+          data-testid="kpi-company-hero"
+          items={[
+            { label: "Total Revenue", value: yearlyChartData[0]?.Revenue ?? 0, format: formatCompact, sublabel: "Year 1" },
+            { label: "Net Income", value: yearlyChartData[0]?.NetIncome ?? 0, format: formatCompact, trend: (yearlyChartData[0]?.NetIncome ?? 0) > 0 ? "up" as const : "down" as const },
+            { label: "Total Expenses", value: yearlyChartData[0]?.Expenses ?? 0, format: formatCompact },
+            { label: "Properties Managed", value: properties?.length ?? 0, sublabel: "Active portfolio" },
+          ]}
+          columns={4}
+          variant="glass"
         />
 
         <CalcDetailsProvider show={global?.showCompanyCalculationDetails ?? true}>
@@ -835,8 +849,22 @@ export default function Company() {
             chartRef={chartRef}
             id="company"
           />
+
+          <ScrollReveal>
+            <InsightPanel
+              data-testid="insight-company"
+              title="Company Cash Analysis"
+              variant="compact"
+              insights={[
+                { text: "Cash position", metric: cashAnalysis.isAdequate ? "Adequate" : "Needs attention", type: cashAnalysis.isAdequate ? "positive" as const : "warning" as const },
+                ...(cashAnalysis.shortfall > 0 ? [{ text: "Cash shortfall detected", metric: formatMoney(cashAnalysis.shortfall), type: "negative" as const }] : []),
+                { text: "Total company funding", metric: formatMoney(cashAnalysis.totalFunding), type: "neutral" as const },
+              ]}
+            />
+          </ScrollReveal>
           
           <TabsContent value="income" className="mt-6">
+            <ScrollReveal>
             {/* Income Statement */}
             <div ref={activeTab === 'income' ? tableRef : undefined} className="bg-white rounded-2xl p-6 shadow-sm border">
               <div>
@@ -1183,9 +1211,11 @@ export default function Company() {
                 </div>
               </div>
             </div>
+            </ScrollReveal>
           </TabsContent>
           
           <TabsContent value="cashflow" className="mt-6">
+            <ScrollReveal>
             {/* Cash Flow Statement */}
             <div ref={activeTab === 'cashflow' ? tableRef : undefined} className="bg-white rounded-2xl p-6 shadow-sm border">
               <div>
@@ -1613,9 +1643,11 @@ export default function Company() {
                 </div>
               </div>
             </div>
+            </ScrollReveal>
           </TabsContent>
 
           <TabsContent value="balance" className="mt-6">
+            <ScrollReveal>
             {/* Balance Sheet */}
             <div ref={activeTab === 'balance' ? tableRef : undefined} className="bg-white rounded-2xl p-6 shadow-sm border">
               <div>
@@ -1808,6 +1840,7 @@ export default function Company() {
                 })()}
               </div>
             </div>
+            </ScrollReveal>
           </TabsContent>
 
           {/* Cash Position Footnote */}
@@ -1839,6 +1872,7 @@ export default function Company() {
         </Tabs>
         </CalcDetailsProvider>
       </div>
+      </AnimatedPage>
     </Layout>
   );
 }

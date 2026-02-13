@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Layout from "@/components/Layout";
+import { AnimatedPage } from "@/components/graphics";
 import { PageHeader } from "@/components/ui/page-header";
 import { BarChart3, Calculator, FileBarChart, GitCompare, Clock } from "lucide-react";
 import SensitivityAnalysis from "./SensitivityAnalysis";
@@ -23,6 +24,7 @@ export default function Analysis() {
 
   return (
     <Layout>
+      <AnimatedPage>
       <div className="space-y-6">
         <PageHeader
           title="Analysis"
@@ -57,6 +59,7 @@ export default function Analysis() {
         {tab === "compare" && <ComparisonView embedded />}
         {tab === "timeline" && <TimelineView embedded />}
       </div>
+      </AnimatedPage>
     </Layout>
   );
 }

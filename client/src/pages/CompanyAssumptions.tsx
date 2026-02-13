@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
+import { AnimatedPage, ScrollReveal } from "@/components/graphics";
 import { useGlobalAssumptions, useUpdateGlobalAssumptions, useMarketResearch, useProperties, useAllFeeCategories } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { Label } from "@/components/ui/label";
@@ -230,6 +231,7 @@ export default function CompanyAssumptions() {
 
   return (
     <Layout>
+      <AnimatedPage>
       <div className="space-y-6">
         <PageHeader
           title="Company Assumptions"
@@ -670,6 +672,7 @@ export default function CompanyAssumptions() {
           </div></div>
         </div>
 
+        <ScrollReveal>
         <div className="grid gap-6 lg:grid-cols-2">
           <div className="relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
           <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-primary/10 blur-2xl" />
@@ -910,7 +913,9 @@ export default function CompanyAssumptions() {
             </div>
           </div></div>
         </div>
+        </ScrollReveal>
 
+        <ScrollReveal>
         <div className="grid gap-6 lg:grid-cols-2">
         <div className="relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
           <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-primary/10 blur-2xl" />
@@ -1007,7 +1012,9 @@ export default function CompanyAssumptions() {
           </div>
         </div></div>
         </div>
+        </ScrollReveal>
 
+        <ScrollReveal>
         <div className="grid gap-6 lg:grid-cols-2">
         <div className="relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
           <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-primary/10 blur-2xl" />
@@ -1115,7 +1122,9 @@ export default function CompanyAssumptions() {
           </div>
         </div></div>
         </div>
+        </ScrollReveal>
 
+        <ScrollReveal>
         <div className="relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
           <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-primary/10 blur-2xl" />
           <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-primary/5 blur-xl" />
@@ -1190,7 +1199,9 @@ export default function CompanyAssumptions() {
             </p>
           </div>
         </div></div>
+        </ScrollReveal>
 
+        <ScrollReveal>
         <div className="relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
           <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-primary/10 blur-2xl" />
           <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-primary/5 blur-xl" />
@@ -1200,6 +1211,7 @@ export default function CompanyAssumptions() {
             All costs begin at Operations Start Date and are prorated for partial years.
           </p>
         </div></div>
+        </ScrollReveal>
 
         <div className="flex justify-end pb-8">
           <SaveButton 
@@ -1208,6 +1220,7 @@ export default function CompanyAssumptions() {
           />
         </div>
       </div>
+      </AnimatedPage>
     </Layout>
   );
 }

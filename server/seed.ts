@@ -1160,7 +1160,7 @@ export async function seedUserGroups() {
 
   if (existing.length === 0) {
     const groupsToSeed = [
-      { name: "KIT Group", companyName: "KIT Capital" },
+      { name: "KIT Group", companyName: "KIT Capital Hospitality" },
       { name: "Norfolk Group", companyName: "Norfolk Group" },
     ];
 

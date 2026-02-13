@@ -63,3 +63,23 @@ Every page in the application must be visually impressive. Leverage all availabl
 3. **Branded consistency** — All visuals must respect the active theme colors
 4. **Progressive enhancement** — Show skeleton loaders, then animate content in
 5. **Data density with clarity** — Pack information in but keep it readable with good hierarchy
+
+## Related Skills (Mandatory Reading for Graphics Work)
+
+Before any graphics or visual enhancement work, load these skills:
+
+| Skill | Path | What It Covers |
+|-------|------|----------------|
+| Graphics Component Catalog | `.claude/skills/ui/graphics-component-catalog.md` | Reusable graphics components: KPIGrid, InsightPanel, Gauge, DonutChart, AnimatedPage, ScrollReveal, etc. Import paths and props reference. |
+| Page Enhancement Checklist | `.claude/skills/ui/page-enhancement-checklist.md` | Per-page-type minimum visual requirements (financial, analysis, list, config pages). Checklist for architect review compliance. |
+| Animation Patterns | `.claude/skills/ui/animation-patterns.md` | AnimatedPage, ScrollReveal, AnimatedGrid, AnimatedGridItem, HoverScale patterns with Framer Motion. |
+| Charts | `.claude/skills/ui/charts.md` | Recharts line/bar/area chart styling, Waterfall, Heat Map, Radar chart specs. |
+| 3D Graphics | `.claude/skills/3d-graphics/SKILL.md` | Three.js scenes, React Three Fiber wrappers. |
+
+## Verification Checklist
+
+When reviewing or auditing graphics compliance, check each page against:
+1. **Page Enhancement Checklist** (`ui/page-enhancement-checklist.md`) — Does the page meet the minimum requirements for its type?
+2. **Graphics Component Catalog** (`ui/graphics-component-catalog.md`) — Are the correct reusable components being used?
+3. **Page-Level Standards** (table above) — Does the page include all required visual elements?
+4. **Animation Patterns** (`ui/animation-patterns.md`) — Are AnimatedPage wrappers and ScrollReveal used on every page?

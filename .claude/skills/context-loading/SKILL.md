@@ -46,10 +46,12 @@ With 80+ skill files (~15,000 lines), loading everything wastes tokens and slows
 |------|------------------|------|
 | New page or component | `component-library/SKILL.md`, `ui/theme-engine.md` | Finance skills, research |
 | Chart work | `ui/charts.md`, `component-library/SKILL.md` | Finance skills, testing |
+| Graphics enhancement | `ui/graphics-component-catalog.md`, `ui/page-enhancement-checklist.md`, `rules/graphics-rich-design.md` | Finance skills |
+| Animation patterns | `ui/animation-patterns.md`, `ui/graphics-component-catalog.md` | Finance skills, testing |
 | Financial table styling | `ui/financial-table-styling.md`, `ui/theme-engine.md` | Finance engine skills |
 | Navigation / sidebar | `ui/navigation.md`, `component-library/SKILL.md` | Finance skills |
 | Export UI (buttons, menus) | `exports/SKILL.md`, `component-library/SKILL.md` | Finance skills |
-| 3D graphics / animations | `3d-graphics/SKILL.md` | Everything else |
+| 3D graphics / animations | `3d-graphics/SKILL.md`, `ui/animation-patterns.md` | Everything else |
 | Theme changes | `ui/theme-engine.md`, `design-system/SKILL.md` | Finance skills |
 | Branding / user groups / logos | `multi-tenancy/SKILL.md` | Finance skills |
 | User management / roles | `multi-tenancy/SKILL.md` | Finance skills |
@@ -133,5 +135,5 @@ User asks for verification, release prep, or comprehensive review.
 ## Cross-References
 - Skill Router: `claude.md` § Skill Router
 - All skills: `.claude/skills/` (15 directories, 80+ files)
-- Rules: `.claude/rules/` (8 files)
+- Rules: `.claude/rules/` (14 files)
 - Manuals: `.claude/manuals/` (2 manuals, 31 sections total)

@@ -982,21 +982,21 @@ export default function Admin() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ mode: "sync" }),
+        body: JSON.stringify({}),
       });
       if (!res.ok) {
-        const errData = await res.json().catch(() => ({ error: "Sync failed" }));
-        throw new Error(errData.error || "Sync failed");
+        const errData = await res.json().catch(() => ({ error: "Fill failed" }));
+        throw new Error(errData.error || "Fill failed");
       }
       return res.json();
     },
     onSuccess: (data) => {
-      toast({ title: "Sync Complete", description: data.message || "Database synchronized successfully" });
+      toast({ title: "Fill Complete", description: data.message || "Missing values populated successfully" });
       setSyncConfirmOpen(false);
       checkSyncStatus.mutate();
     },
     onError: (error: Error) => {
-      toast({ title: "Sync Failed", description: error.message, variant: "destructive" });
+      toast({ title: "Fill Failed", description: error.message, variant: "destructive" });
       setSyncConfirmOpen(false);
     },
   });
@@ -2528,29 +2528,18 @@ export default function Admin() {
             <Database className="w-5 h-5" /> Database Status
           </CardTitle>
           <CardDescription className="label-text">
-            View current database state and reset to canonical seed values. Sync mode overwrites global assumptions, property values, and fee categories with the values defined in the seed configuration.
+            View current database entity counts, global assumptions, and property details.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex gap-3">
-            <GlassButton
-              onClick={() => { setSyncResults(null); checkSyncStatus.mutate(); }}
-              disabled={checkSyncStatus.isPending}
-              data-testid="button-check-status"
-            >
-              {checkSyncStatus.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}
-              Check Status
-            </GlassButton>
-            <GlassButton
-              onClick={() => setSyncConfirmOpen(true)}
-              disabled={executeSyncMutation.isPending}
-              className="bg-amber-500/10 border-amber-500/30 hover:bg-amber-500/20 text-amber-700"
-              data-testid="button-sync-database"
-            >
-              {executeSyncMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Database className="w-4 h-4 mr-2" />}
-              Sync Database
-            </GlassButton>
-          </div>
+          <GlassButton
+            onClick={() => { setSyncResults(null); checkSyncStatus.mutate(); }}
+            disabled={checkSyncStatus.isPending}
+            data-testid="button-check-status"
+          >
+            {checkSyncStatus.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}
+            Check Status
+          </GlassButton>
 
           {syncResults && (
             <div className="space-y-4 mt-4">
@@ -2656,14 +2645,36 @@ export default function Admin() {
         </CardContent>
       </Card>
 
+      <Card className="bg-amber-50/80 backdrop-blur-xl border-amber-300/40 shadow-[0_8px_32px_rgba(245,158,11,0.08)]" data-testid="card-populate-production">
+        <CardHeader>
+          <CardTitle className="font-display flex items-center gap-2 text-amber-800">
+            <Upload className="w-5 h-5" /> Populate Production
+          </CardTitle>
+          <CardDescription className="label-text text-amber-700/80">
+            Push development seed values to the production database. Only fills in values that are <strong>not already set</strong> by a user — existing data is never overwritten.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <GlassButton
+            onClick={() => setSyncConfirmOpen(true)}
+            disabled={executeSyncMutation.isPending}
+            className="bg-amber-500/10 border-amber-500/30 hover:bg-amber-500/20 text-amber-700"
+            data-testid="button-sync-database"
+          >
+            {executeSyncMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Upload className="w-4 h-4 mr-2" />}
+            Fill Missing Values
+          </GlassButton>
+        </CardContent>
+      </Card>
+
       <Dialog open={syncConfirmOpen} onOpenChange={setSyncConfirmOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-amber-500" /> Confirm Database Sync
+              <AlertTriangle className="w-5 h-5 text-amber-500" /> Confirm Production Fill
             </DialogTitle>
             <DialogDescription>
-              This will overwrite global assumptions, property financial values, and fee categories with canonical seed data. Users and user groups will be created if missing but not overwritten. This action cannot be undone.
+              This will populate global assumptions, properties, fee categories, and design themes with seed values <strong>only where they are currently empty</strong>. Any values already set by users will not be changed. Users and user groups will be created if missing.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2">
@@ -2675,7 +2686,7 @@ export default function Admin() {
               data-testid="button-confirm-sync"
             >
               {executeSyncMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-              Yes, Sync Now
+              Yes, Fill Now
             </Button>
           </DialogFooter>
         </DialogContent>

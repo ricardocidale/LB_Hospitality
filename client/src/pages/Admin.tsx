@@ -18,6 +18,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { PageHeader } from "@/components/ui/page-header";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
+import { invalidateAllFinancialQueries } from "@/lib/api";
 import { ThemeManager } from "@/features/design-themes";
 import { runFullVerification, runKnownValueTests, VerificationResults } from "@/lib/runVerification";
 import { generatePropertyProForma, formatMoney } from "@/lib/financialEngine";
@@ -244,7 +245,7 @@ export default function Admin() {
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["globalAssumptions"] });
+      invalidateAllFinancialQueries(queryClient);
       toast({ title: "Sidebar updated", description: "Navigation visibility saved for all users." });
     },
     onError: () => {
@@ -385,7 +386,7 @@ export default function Admin() {
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["globalAssumptions"] });
+      invalidateAllFinancialQueries(queryClient);
     },
     onError: () => {
       toast({ title: "Error", description: "Failed to save settings.", variant: "destructive" });

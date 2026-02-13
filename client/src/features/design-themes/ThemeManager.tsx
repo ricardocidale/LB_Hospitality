@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Loader2, Plus, Trash2, Pencil, Palette, Activity, Sparkles, Type, ChevronUp, ChevronDown, Save } from "lucide-react";
 import { ColorPicker } from "@/components/ui/color-picker";
-import { useDesignThemes, useCreateTheme, useUpdateTheme, useDeleteTheme, useActivateTheme } from "./useDesignThemes";
+import { useDesignThemes, useCreateTheme, useUpdateTheme, useDeleteTheme } from "./useDesignThemes";
 import type { DesignTheme, DesignColor } from "./types";
 
 export function ThemeManager() {
@@ -29,7 +29,6 @@ export function ThemeManager() {
     onSuccess: () => setEditingTheme(null),
   });
   const deleteThemeMutation = useDeleteTheme();
-  const activateThemeMutation = useActivateTheme();
 
   return (
     <>
@@ -65,31 +64,18 @@ export function ThemeManager() {
           ) : designThemes && designThemes.length > 0 ? (
             <div className="space-y-4">
               {designThemes.map((theme) => (
-                <div key={theme.id} className={`p-5 rounded-2xl border-2 ${theme.isActive ? 'border-secondary bg-primary/10' : 'border-gray-200 bg-white'}`}>
+                <div key={theme.id} className={`p-5 rounded-2xl border-2 ${theme.isDefault ? 'border-secondary bg-primary/10' : 'border-gray-200 bg-white'}`}>
                   <div className="flex items-start justify-between mb-4">
                     <div>
                       <div className="flex items-center gap-3">
                         <h3 className="font-display text-lg text-gray-900 font-semibold">{theme.name}</h3>
-                        {theme.isActive && (
-                          <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-secondary text-white">Active</span>
-                        )}
-                        {theme.userId === null && (
-                          <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-gray-200 text-gray-600">System</span>
+                        {theme.isDefault && (
+                          <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-secondary text-white">Default</span>
                         )}
                       </div>
                       <p className="text-sm text-gray-600 mt-1 max-w-2xl">{theme.description}</p>
                     </div>
                     <div className="flex items-center gap-2">
-                      {!theme.isActive && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => activateThemeMutation.mutate(theme.id)}
-                          className="text-secondary border-secondary hover:bg-secondary/10"
-                        >
-                          Set Active
-                        </Button>
-                      )}
                       <Button size="sm" variant="outline" onClick={() => setEditingTheme(theme)}>
                         <Pencil className="w-4 h-4" />
                       </Button>
@@ -98,7 +84,7 @@ export function ThemeManager() {
                         variant="outline"
                         className="text-red-600 border-red-300 hover:bg-red-50"
                         onClick={() => deleteThemeMutation.mutate(theme.id)}
-                        disabled={theme.isActive}
+                        disabled={theme.isDefault}
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>

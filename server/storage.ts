@@ -54,14 +54,13 @@ export interface IStorage {
   updateLogoutTime(sessionId: string): Promise<void>;
   getLoginLogs(): Promise<(LoginLog & { user: User })[]>;
   
-  // Design Themes (per user)
-  getAllDesignThemes(userId?: number): Promise<DesignTheme[]>;
-  getActiveDesignTheme(userId?: number): Promise<DesignTheme | undefined>;
+  // Design Themes (standalone, like logos)
+  getAllDesignThemes(): Promise<DesignTheme[]>;
   getDesignTheme(id: number): Promise<DesignTheme | undefined>;
+  getDefaultDesignTheme(): Promise<DesignTheme | undefined>;
   createDesignTheme(data: InsertDesignTheme): Promise<DesignTheme>;
   updateDesignTheme(id: number, data: Partial<InsertDesignTheme>): Promise<DesignTheme | undefined>;
   deleteDesignTheme(id: number): Promise<void>;
-  setActiveDesignTheme(id: number, userId: number): Promise<void>;
   
   // Market Research
   getMarketResearch(type: string, userId?: number, propertyId?: number): Promise<MarketResearch | undefined>;
@@ -116,8 +115,6 @@ export interface IStorage {
   createAssetDescription(data: InsertAssetDescription): Promise<AssetDescription>;
   deleteAssetDescription(id: number): Promise<void>;
   
-  // User Branding Assignment
-  assignUserBranding(userId: number, data: { assignedLogoId?: number | null; assignedThemeId?: number | null; assignedAssetDescriptionId?: number | null }): Promise<User>;
 
   // User Groups
   getAllUserGroups(): Promise<UserGroup[]>;
@@ -179,7 +176,6 @@ export class DatabaseStorage implements IStorage {
       await tx.delete(loginLogs).where(eq(loginLogs.userId, id));
       await tx.delete(activityLogs).where(eq(activityLogs.userId, id));
       await tx.delete(verificationRuns).where(eq(verificationRuns.userId, id));
-      await tx.delete(designThemes).where(eq(designThemes.userId, id));
       await tx.delete(users).where(eq(users.id, id));
     });
   }
@@ -397,28 +393,8 @@ export class DatabaseStorage implements IStorage {
   }
   
   // Design Themes (per user)
-  async getAllDesignThemes(userId?: number): Promise<DesignTheme[]> {
-    if (userId) {
-      return await db.select().from(designThemes)
-        .where(or(eq(designThemes.userId, userId), isNull(designThemes.userId)))
-        .orderBy(designThemes.createdAt);
-    }
+  async getAllDesignThemes(): Promise<DesignTheme[]> {
     return await db.select().from(designThemes).orderBy(designThemes.createdAt);
-  }
-
-  async getActiveDesignTheme(userId?: number): Promise<DesignTheme | undefined> {
-    if (userId) {
-      // Check for user's active theme first
-      const [userTheme] = await db.select().from(designThemes)
-        .where(and(eq(designThemes.isActive, true), eq(designThemes.userId, userId)));
-      if (userTheme) return userTheme;
-      // Fallback to system-level active theme
-      const [systemTheme] = await db.select().from(designThemes)
-        .where(and(eq(designThemes.isActive, true), isNull(designThemes.userId)));
-      return systemTheme || undefined;
-    }
-    const [theme] = await db.select().from(designThemes).where(eq(designThemes.isActive, true));
-    return theme || undefined;
   }
 
   async getDesignTheme(id: number): Promise<DesignTheme | undefined> {
@@ -426,15 +402,19 @@ export class DatabaseStorage implements IStorage {
     return theme || undefined;
   }
 
+  async getDefaultDesignTheme(): Promise<DesignTheme | undefined> {
+    const [theme] = await db.select().from(designThemes).where(eq(designThemes.isDefault, true));
+    return theme || undefined;
+  }
+
   async createDesignTheme(data: InsertDesignTheme): Promise<DesignTheme> {
     const [theme] = await db
       .insert(designThemes)
       .values({
-        userId: data.userId ?? null,
         name: data.name,
         description: data.description,
-        isActive: data.isActive || false,
         colors: data.colors,
+        isDefault: data.isDefault || false,
       })
       .returning();
     return theme;
@@ -451,16 +431,6 @@ export class DatabaseStorage implements IStorage {
 
   async deleteDesignTheme(id: number): Promise<void> {
     await db.delete(designThemes).where(eq(designThemes.id, id));
-  }
-
-  async setActiveDesignTheme(id: number, userId: number): Promise<void> {
-    await db.transaction(async (tx) => {
-      // Only deactivate this user's own themes (not system themes shared by all users)
-      await tx.update(designThemes).set({ isActive: false })
-        .where(eq(designThemes.userId, userId));
-      // Activate the selected one
-      await tx.update(designThemes).set({ isActive: true }).where(eq(designThemes.id, id));
-    });
   }
   
   // Market Research
@@ -709,12 +679,6 @@ export class DatabaseStorage implements IStorage {
 
   async deleteAssetDescription(id: number): Promise<void> {
     await db.delete(assetDescriptions).where(eq(assetDescriptions.id, id));
-  }
-
-  // User Branding Assignment
-  async assignUserBranding(userId: number, data: { assignedLogoId?: number | null; assignedThemeId?: number | null; assignedAssetDescriptionId?: number | null }): Promise<User> {
-    const [user] = await db.update(users).set({ ...data, updatedAt: new Date() }).where(eq(users.id, userId)).returning();
-    return user;
   }
 
   // User Groups

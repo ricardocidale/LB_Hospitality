@@ -81,22 +81,3 @@ export function useDeleteTheme() {
   });
 }
 
-export function useActivateTheme() {
-  const queryClient = useQueryClient();
-  const { toast } = useToast();
-
-  return useMutation({
-    mutationFn: async (id: number) => {
-      const res = await fetch(`/api/design-themes/${id}/activate`, {
-        method: "POST",
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error("Failed to activate theme");
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
-      toast({ title: "Theme activated successfully" });
-    },
-  });
-}

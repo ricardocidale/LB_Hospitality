@@ -7,11 +7,10 @@ export interface DesignColor {
 
 export interface DesignTheme {
   id: number;
-  userId: number | null;
   name: string;
   description: string;
-  isActive: boolean;
   colors: DesignColor[];
+  isDefault: boolean;
   createdAt: string;
   updatedAt: string;
 }

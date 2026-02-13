@@ -355,7 +355,7 @@ export async function registerRoutes(
   app.get("/api/admin/users", requireAdmin, async (req, res) => {
     try {
       const users = await storage.getAllUsers();
-      res.json(users.map(u => ({ id: u.id, email: u.email, name: u.name, company: u.company, title: u.title, role: u.role, createdAt: u.createdAt, assignedLogoId: u.assignedLogoId, assignedThemeId: u.assignedThemeId, assignedAssetDescriptionId: u.assignedAssetDescriptionId, userGroupId: u.userGroupId })));
+      res.json(users.map(u => ({ id: u.id, email: u.email, name: u.name, company: u.company, title: u.title, role: u.role, createdAt: u.createdAt, userGroupId: u.userGroupId })));
     } catch (error) {
       console.error("Error fetching users:", error);
       res.status(500).json({ error: "Failed to fetch users" });
@@ -838,7 +838,7 @@ export async function registerRoutes(
         await storage.createDesignTheme({
           name: "Fluid Glass",
           description: "Inspired by Apple's iOS design language, Fluid Glass creates a sense of depth and dimension through translucent layers, subtle gradients, and smooth animations.",
-          isActive: true,
+          isDefault: true,
           colors: [
             { name: "Sage Green", rank: 1, hexCode: "#9FBCA4", description: "PALETTE: Secondary accent for subtle highlights, card borders, and supporting visual elements." },
             { name: "Deep Green", rank: 2, hexCode: "#257D41", description: "PALETTE: Primary brand color for main action buttons, active navigation items, and key highlights." },
@@ -1975,26 +1975,6 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
-  // Admin assigns logo/theme/asset-description to a user
-  app.patch("/api/admin/users/:id/branding", requireAdmin, async (req, res) => {
-    try {
-      const id = parseInt(req.params.id as string);
-      if (isNaN(id)) return res.status(400).json({ error: "Invalid user ID" });
-      const brandingSchema = z.object({
-        assignedLogoId: z.number().nullable().optional(),
-        assignedThemeId: z.number().nullable().optional(),
-        assignedAssetDescriptionId: z.number().nullable().optional(),
-      });
-      const validation = brandingSchema.safeParse(req.body);
-      if (!validation.success) return res.status(400).json({ error: fromZodError(validation.error).message });
-      const { assignedLogoId, assignedThemeId, assignedAssetDescriptionId } = validation.data;
-      const user = await storage.assignUserBranding(id, { assignedLogoId, assignedThemeId, assignedAssetDescriptionId });
-      res.json(user);
-    } catch (error) {
-      console.error("Error assigning branding:", error);
-      res.status(500).json({ error: "Failed to assign branding" });
-    }
-  });
 
   // --- USER GROUPS ROUTES ---
 
@@ -2061,13 +2041,12 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
-  // Get current user's assigned branding (logo + theme + asset description) — used by Layout
-  // Priority: user-level override > group-level > default
   app.get("/api/my-branding", requireAuth, async (req, res) => {
     try {
       const user = req.user!;
       let logoUrl: string | null = null;
       let themeName: string | null = null;
+      let themeColors: Array<{ rank: number; name: string; hexCode: string; description: string }> | null = null;
       let assetDescriptionName: string | null = null;
       let groupCompanyName: string | null = null;
 
@@ -2076,11 +2055,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
         group = await storage.getUserGroup(user.userGroupId);
       }
 
-      if (user.assignedLogoId) {
-        const logo = await storage.getLogo(user.assignedLogoId);
-        if (logo) logoUrl = logo.url;
-      }
-      if (!logoUrl && group?.logoId) {
+      if (group?.logoId) {
         const logo = await storage.getLogo(group.logoId);
         if (logo) logoUrl = logo.url;
       }
@@ -2088,21 +2063,23 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
         const defaultLogo = await storage.getDefaultLogo();
         if (defaultLogo) logoUrl = defaultLogo.url;
       }
-      
-      if (user.assignedThemeId) {
-        const theme = await storage.getDesignTheme(user.assignedThemeId);
-        if (theme) themeName = theme.name;
-      }
-      if (!themeName && group?.themeId) {
+
+      if (group?.themeId) {
         const theme = await storage.getDesignTheme(group.themeId);
-        if (theme) themeName = theme.name;
+        if (theme) {
+          themeName = theme.name;
+          themeColors = theme.colors;
+        }
+      }
+      if (!themeName) {
+        const defaultTheme = await storage.getDefaultDesignTheme();
+        if (defaultTheme) {
+          themeName = defaultTheme.name;
+          themeColors = defaultTheme.colors;
+        }
       }
 
-      if (user.assignedAssetDescriptionId) {
-        const ad = await storage.getAssetDescription(user.assignedAssetDescriptionId);
-        if (ad) assetDescriptionName = ad.name;
-      }
-      if (!assetDescriptionName && group?.assetDescriptionId) {
+      if (group?.assetDescriptionId) {
         const ad = await storage.getAssetDescription(group.assetDescriptionId);
         if (ad) assetDescriptionName = ad.name;
       }
@@ -2114,20 +2091,19 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       if (group) {
         groupCompanyName = group.companyName;
       }
-      
-      res.json({ logoUrl, themeName, assetDescriptionName, groupCompanyName });
+
+      res.json({ logoUrl, themeName, themeColors, assetDescriptionName, groupCompanyName });
     } catch (error) {
       console.error("Error fetching branding:", error);
       res.status(500).json({ error: "Failed to fetch branding" });
     }
   });
 
-  // --- DESIGN THEMES ROUTES (per-user) ---
+  // --- DESIGN THEMES ROUTES (standalone, like logos) ---
 
-  // Get all design themes for current user (includes system themes)
   app.get("/api/design-themes", requireAdmin, async (req, res) => {
     try {
-      const themes = await storage.getAllDesignThemes(req.user!.id);
+      const themes = await storage.getAllDesignThemes();
       res.json(themes);
     } catch (error) {
       console.error("Error fetching design themes:", error);
@@ -2135,28 +2111,13 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
-  // Get active design theme for current user
-  app.get("/api/design-themes/active", requireAuth, async (req, res) => {
-    try {
-      const theme = await storage.getActiveDesignTheme(req.user!.id);
-      res.json(theme || null);
-    } catch (error) {
-      console.error("Error fetching active design theme:", error);
-      res.status(500).json({ error: "Failed to fetch active design theme" });
-    }
-  });
-
-  // Create design theme for current user
   app.post("/api/design-themes", requireAdmin, async (req, res) => {
     try {
       const validation = insertDesignThemeSchema.safeParse(req.body);
       if (!validation.success) {
         return res.status(400).json({ error: fromZodError(validation.error).message });
       }
-      const theme = await storage.createDesignTheme({
-        ...validation.data,
-        userId: req.user!.id,
-      });
+      const theme = await storage.createDesignTheme(validation.data);
       logActivity(req, "create", "design_theme", theme.id, theme.name);
       res.json(theme);
     } catch (error) {
@@ -2165,7 +2126,6 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
-  // Update design theme (ownership check)
   app.patch("/api/design-themes/:id", requireAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id as string);
@@ -2173,9 +2133,6 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
 
       const existing = await storage.getDesignTheme(id);
       if (!existing) return res.status(404).json({ error: "Theme not found" });
-      if (existing.userId !== null && existing.userId !== req.user!.id) {
-        return res.status(403).json({ error: "Access denied" });
-      }
 
       const validation = insertDesignThemeSchema.partial().safeParse(req.body);
       if (!validation.success) {
@@ -2190,7 +2147,6 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
-  // Delete design theme (ownership check)
   app.delete("/api/design-themes/:id", requireAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id as string);
@@ -2198,9 +2154,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
 
       const existing = await storage.getDesignTheme(id);
       if (!existing) return res.status(404).json({ error: "Theme not found" });
-      if (existing.userId !== null && existing.userId !== req.user!.id) {
-        return res.status(403).json({ error: "Access denied" });
-      }
+      if (existing.isDefault) return res.status(400).json({ error: "Cannot delete the default theme" });
 
       await storage.deleteDesignTheme(id);
       logActivity(req, "delete", "design_theme", id, existing.name);
@@ -2208,27 +2162,6 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     } catch (error) {
       console.error("Error deleting design theme:", error);
       res.status(500).json({ error: "Failed to delete design theme" });
-    }
-  });
-
-  // Activate design theme for current user (ownership check)
-  app.post("/api/design-themes/:id/activate", requireAdmin, async (req, res) => {
-    try {
-      const id = parseInt(req.params.id as string);
-      if (isNaN(id)) return res.status(400).json({ error: "Invalid theme ID" });
-
-      const existing = await storage.getDesignTheme(id);
-      if (!existing) return res.status(404).json({ error: "Theme not found" });
-      if (existing.userId !== null && existing.userId !== req.user!.id) {
-        return res.status(403).json({ error: "Access denied" });
-      }
-
-      await storage.setActiveDesignTheme(id, req.user!.id);
-      logActivity(req, "activate", "design_theme", id, existing.name);
-      res.json({ success: true });
-    } catch (error) {
-      console.error("Error activating design theme:", error);
-      res.status(500).json({ error: "Failed to activate design theme" });
     }
   });
 

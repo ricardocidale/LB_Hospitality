@@ -661,7 +661,7 @@ export async function registerRoutes(
 
       const usersToSeed = !adminPw ? [] : [
         { email: "admin", passwordHash: await hashPassword(adminPw), role: "admin" as const, name: "Ricardo Cidale", company: "Norfolk Group", title: "Partner" },
-        { email: "rosario@kitcapital.com", passwordHash: await hashPassword(adminPw), role: "partner" as const, name: "Rosario David", company: "KIT Capital", title: "COO" },
+        { email: "rosario@kitcapital.com", passwordHash: await hashPassword(adminPw), role: "investor" as const, name: "Rosario David", company: "KIT Capital", title: "COO" },
         { email: "kit@kitcapital.com", passwordHash: await hashPassword(adminPw), role: "partner" as const, name: "Dov Tuzman", company: "KIT Capital", title: "Principal" },
         { email: "lemazniku@icloud.com", passwordHash: await hashPassword(adminPw), role: "partner" as const, name: "Lea Mazniku", company: "KIT Capital", title: "Partner" },
         ...(checkerPw ? [{ email: "checker@norfolkgroup.io", passwordHash: await hashPassword(checkerPw), role: "checker" as const, name: "Checker", company: "Norfolk AI", title: "Checker" }] : []),

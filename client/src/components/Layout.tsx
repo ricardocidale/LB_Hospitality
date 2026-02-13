@@ -51,10 +51,10 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
     ...(hasManagementAccess ? [{ href: "/company", label: "Management Co.", icon: Briefcase }] : []),
     { type: "divider" as const },
     ...(sb("sidebarPropertyFinder") && hasManagementAccess ? [{ href: "/property-finder", label: "Property Finder", icon: SearchCheck }] : []),
-    ...(showAnalysis ? [{ href: "/analysis", label: "Analysis", icon: BarChart3 }] : []),
+    ...(showAnalysis && hasManagementAccess ? [{ href: "/analysis", label: "Analysis", icon: BarChart3 }] : []),
     { type: "divider" as const },
-    { href: "/settings", label: "Systemwide Assumptions", icon: Settings2 },
-    { type: "divider" as const },
+    ...(hasManagementAccess ? [{ href: "/settings", label: "Systemwide Assumptions", icon: Settings2 }] : []),
+    ...(hasManagementAccess ? [{ type: "divider" as const }] : []),
     { href: "/profile", label: "My Profile", icon: UserCircle },
     ...(sb("sidebarScenarios") && hasManagementAccess ? [{ href: "/scenarios", label: "My Scenarios", icon: FolderOpen }] : []),
     { type: "divider" as const },
@@ -139,7 +139,16 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
           </div>
 
           <nav className="flex-1 p-4 pt-2 space-y-1 overflow-y-auto">
-            {navItems.map((item, index) => {
+            {navItems.filter((item, index, arr) => {
+              if ('type' in item && item.type === 'divider') {
+                if (index === 0 || index === arr.length - 1) return false;
+                const prev = arr[index - 1];
+                if ('type' in prev && prev.type === 'divider') return false;
+                const nextNonDivider = arr.slice(index + 1).find(i => !('type' in i && i.type === 'divider'));
+                if (!nextNonDivider) return false;
+              }
+              return true;
+            }).map((item, index) => {
               if ('type' in item && item.type === 'divider') {
                 return (
                   <div key={`divider-${index}`} className="my-3 mx-2">

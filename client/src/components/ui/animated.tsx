@@ -1,5 +1,5 @@
-import { motion, type Variants } from "framer-motion";
-import { type ReactNode } from "react";
+import { motion, type Variants, useMotionValue, useTransform, animate, AnimatePresence } from "framer-motion";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 
 const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 20 },
@@ -14,6 +14,16 @@ const fadeIn: Variants = {
 const scaleIn: Variants = {
   hidden: { opacity: 0, scale: 0.95 },
   visible: { opacity: 1, scale: 1 },
+};
+
+const slideInLeft: Variants = {
+  hidden: { opacity: 0, x: -24 },
+  visible: { opacity: 1, x: 0 },
+};
+
+const slideInRight: Variants = {
+  hidden: { opacity: 0, x: 24 },
+  visible: { opacity: 1, x: 0 },
 };
 
 export function FadeInUp({ children, delay = 0, duration = 0.5, className }: { children: ReactNode; delay?: number; duration?: number; className?: string }) {
@@ -50,6 +60,20 @@ export function ScaleIn({ children, delay = 0, duration = 0.4, className }: { ch
       initial="hidden"
       animate="visible"
       variants={scaleIn}
+      transition={{ duration, delay, ease: "easeOut" }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+export function SlideIn({ children, delay = 0, duration = 0.5, direction = "left", className }: { children: ReactNode; delay?: number; duration?: number; direction?: "left" | "right"; className?: string }) {
+  return (
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={direction === "left" ? slideInLeft : slideInRight}
       transition={{ duration, delay, ease: "easeOut" }}
       className={className}
     >
@@ -108,21 +132,30 @@ export function StaggerItem({ children, className }: { children: ReactNode; clas
   );
 }
 
+export function AnimatedCounter({ value, duration = 1.2, format, className }: { value: number; duration?: number; format?: (n: number) => string; className?: string }) {
+  const [displayValue, setDisplayValue] = useState(0);
+  const prevValue = useRef(0);
+
+  useEffect(() => {
+    const controls = animate(prevValue.current, value, {
+      duration,
+      ease: "easeOut",
+      onUpdate: (latest) => setDisplayValue(latest),
+    });
+    prevValue.current = value;
+    return () => controls.stop();
+  }, [value, duration]);
+
+  return (
+    <span className={className}>
+      {format ? format(displayValue) : Math.round(displayValue).toLocaleString()}
+    </span>
+  );
+}
+
 export function AnimatedNumber({ value, duration = 1.5, format }: { value: number; duration?: number; format?: (n: number) => string }) {
   return (
-    <motion.span
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
-    >
-      <motion.span
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-      >
-        {format ? format(value) : value.toLocaleString()}
-      </motion.span>
-    </motion.span>
+    <AnimatedCounter value={value} duration={duration} format={format} />
   );
 }
 
@@ -136,5 +169,45 @@ export function PageTransition({ children, className }: { children: ReactNode; c
     >
       {children}
     </motion.div>
+  );
+}
+
+export function HoverScale({ children, scale = 1.02, className }: { children: ReactNode; scale?: number; className?: string }) {
+  return (
+    <motion.div
+      whileHover={{ scale }}
+      whileTap={{ scale: 0.98 }}
+      transition={{ type: "spring", stiffness: 400, damping: 25 }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+export function PulseOnMount({ children, className }: { children: ReactNode; className?: string }) {
+  return (
+    <motion.div
+      initial={{ scale: 0.95, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+export function AnimatedProgressBar({ value, max = 100, className, color = "bg-primary" }: { value: number; max?: number; className?: string; color?: string }) {
+  const percentage = Math.min((value / max) * 100, 100);
+  return (
+    <div className={`w-full bg-gray-200 rounded-full h-2.5 overflow-hidden ${className || ""}`}>
+      <motion.div
+        className={`h-full rounded-full ${color}`}
+        initial={{ width: 0 }}
+        animate={{ width: `${percentage}%` }}
+        transition={{ duration: 1, ease: "easeOut" }}
+      />
+    </div>
   );
 }

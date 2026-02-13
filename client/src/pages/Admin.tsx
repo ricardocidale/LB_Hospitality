@@ -45,6 +45,7 @@ interface User {
   email: string;
   name: string | null;
   company: string | null;
+  companyId: number | null;
   title: string | null;
   role: string;
   createdAt: string;
@@ -123,7 +124,17 @@ interface UserGroup {
   createdAt: string;
 }
 
-type AdminView = "users" | "activity" | "verification" | "themes" | "branding" | "user-groups" | "sidebar" | "database";
+interface AdminCompany {
+  id: number;
+  name: string;
+  type: string;
+  description: string | null;
+  logoId: number | null;
+  isActive: boolean;
+  createdAt: string;
+}
+
+type AdminView = "users" | "companies" | "activity" | "verification" | "themes" | "branding" | "user-groups" | "sidebar" | "database";
 type ActivitySubView = "login" | "feed" | "checker";
 
 interface ActivityLogEntry {
@@ -314,7 +325,7 @@ export default function Admin() {
       if (!res.ok) throw new Error("Failed to fetch logos");
       return res.json();
     },
-    enabled: adminTab === "branding" || adminTab === "user-groups",
+    enabled: adminTab === "branding" || adminTab === "user-groups" || adminTab === "companies",
   });
 
   const { data: allThemes } = useQuery<Array<{ id: number; name: string; isDefault: boolean }>>({
@@ -501,6 +512,65 @@ export default function Admin() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
       toast({ title: "Group Assigned", description: "User has been assigned to the group." });
+    },
+  });
+
+  const [companyDialogOpen, setCompanyDialogOpen] = useState(false);
+  const [editingCompany, setEditingCompany] = useState<AdminCompany | null>(null);
+  const [companyForm, setCompanyForm] = useState({ name: "", type: "spv" as string, description: "", logoId: null as number | null });
+
+  const { data: adminCompanies } = useQuery<AdminCompany[]>({
+    queryKey: ["admin", "companies"],
+    queryFn: async () => {
+      const res = await fetch("/api/admin/companies", { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch companies");
+      return res.json();
+    },
+    enabled: adminTab === "companies" || adminTab === "users",
+  });
+
+  const createCompanyMutation = useMutation({
+    mutationFn: async (data: { name: string; type: string; description?: string | null; logoId?: number | null }) => {
+      const res = await fetch("/api/admin/companies", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data), credentials: "include" });
+      if (!res.ok) throw new Error("Failed to create company");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "companies"] });
+      queryClient.invalidateQueries({ queryKey: ["companies"] });
+      setCompanyDialogOpen(false);
+      setCompanyForm({ name: "", type: "spv", description: "", logoId: null });
+      setEditingCompany(null);
+      toast({ title: "Company Created", description: "Company has been created." });
+    },
+  });
+
+  const updateCompanyMutation = useMutation({
+    mutationFn: async ({ id, ...data }: { id: number; name?: string; type?: string; description?: string | null; logoId?: number | null }) => {
+      const res = await fetch(`/api/admin/companies/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data), credentials: "include" });
+      if (!res.ok) throw new Error("Failed to update company");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "companies"] });
+      queryClient.invalidateQueries({ queryKey: ["companies"] });
+      setCompanyDialogOpen(false);
+      setEditingCompany(null);
+      toast({ title: "Company Updated", description: "Company has been updated." });
+    },
+  });
+
+  const deleteCompanyMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const res = await fetch(`/api/admin/companies/${id}`, { method: "DELETE", credentials: "include" });
+      if (!res.ok) throw new Error("Failed to delete company");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "companies"] });
+      queryClient.invalidateQueries({ queryKey: ["companies"] });
+      queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
+      toast({ title: "Company Deleted", description: "Company has been deleted." });
     },
   });
 
@@ -1977,6 +2047,100 @@ export default function Admin() {
     </div>
   );
 
+  const renderCompanies = () => (
+    <div className="space-y-6">
+      <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="font-display flex items-center gap-2"><Building2 className="w-5 h-5 text-primary" /> Companies</CardTitle>
+              <CardDescription className="label-text">Define companies with a name and logo. Assign users to companies for organizational structure.</CardDescription>
+            </div>
+            <Button variant="outline" onClick={() => {
+              setEditingCompany(null);
+              setCompanyForm({ name: "", type: "spv", description: "", logoId: null });
+              setCompanyDialogOpen(true);
+            }} className="flex items-center gap-2" data-testid="button-add-company">
+              <Plus className="w-4 h-4" /> New Company
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="relative space-y-4">
+          {(!adminCompanies || adminCompanies.length === 0) ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <Building2 className="w-10 h-10 mx-auto mb-2 opacity-40" />
+              <p>No companies created yet.</p>
+              <p className="text-sm">Create a company to organize users and assign branding.</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {adminCompanies.map(company => {
+                const companyLogo = adminLogos?.find(l => l.id === company.logoId);
+                const companyUsers = users?.filter(u => u.companyId === company.id) || [];
+                return (
+                  <div key={company.id} className="bg-primary/5 border border-primary/20 rounded-xl p-4" data-testid={`company-card-${company.id}`}>
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        {companyLogo ? (
+                          <div className="w-10 h-10 rounded-lg bg-white border border-primary/20 flex items-center justify-center overflow-hidden">
+                            <img src={companyLogo.url} alt={companyLogo.name} className="max-w-full max-h-full object-contain" />
+                          </div>
+                        ) : (
+                          <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
+                            <Building2 className="w-5 h-5 text-primary" />
+                          </div>
+                        )}
+                        <div>
+                          <h3 className="font-display text-foreground font-medium">{company.name}</h3>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <span className={`text-xs px-2 py-0.5 rounded font-mono ${company.type === "management" ? "bg-primary/20 text-primary" : "bg-blue-500/20 text-blue-600"}`}>{company.type === "management" ? "Management Co." : "SPV"}</span>
+                            {!company.isActive && <span className="text-xs px-2 py-0.5 rounded bg-red-500/20 text-red-600">Inactive</span>}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Button variant="ghost" size="sm" onClick={() => {
+                          setEditingCompany(company);
+                          setCompanyForm({ name: company.name, type: company.type, description: company.description || "", logoId: company.logoId });
+                          setCompanyDialogOpen(true);
+                        }} className="text-primary hover:text-foreground hover:bg-primary/10" data-testid={`button-edit-company-${company.id}`}>
+                          <Pencil className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => {
+                          if (confirm(`Delete "${company.name}"? Users assigned to this company will be unassigned.`)) {
+                            deleteCompanyMutation.mutate(company.id);
+                          }
+                        }} className="text-red-400 hover:text-red-300 hover:bg-red-500/10" data-testid={`button-delete-company-${company.id}`}>
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                    {company.description && (
+                      <p className="text-sm text-muted-foreground mb-3">{company.description}</p>
+                    )}
+                    <div className="flex flex-wrap gap-2 text-xs text-muted-foreground mb-3">
+                      {companyLogo && <span className="bg-primary/10 px-2 py-0.5 rounded">Logo: {companyLogo.name}</span>}
+                      <span className="bg-primary/10 px-2 py-0.5 rounded">{companyUsers.length} member{companyUsers.length !== 1 ? "s" : ""}</span>
+                    </div>
+                    {companyUsers.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {companyUsers.map(u => (
+                          <span key={u.id} className="inline-flex items-center gap-1 bg-white/80 border border-primary/20 rounded-full px-3 py-1 text-sm">
+                            <span className="font-medium">{u.name || u.email}</span>
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+
   const renderUserGroups = () => (
     <div className="space-y-6">
       <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
@@ -2340,9 +2504,10 @@ export default function Admin() {
           <DarkGlassTabs
             tabs={[
               { value: 'users', label: 'Users', icon: Users },
+              { value: 'companies', label: 'Companies', icon: Building2 },
               { value: 'activity', label: 'Activity', icon: Activity },
               { value: 'verification', label: 'Verification', icon: FileCheck },
-              { value: 'user-groups', label: 'User Groups', icon: Building2 },
+              { value: 'user-groups', label: 'User Groups', icon: LayoutGrid },
               { value: 'branding', label: 'Branding', icon: Image },
               { value: 'themes', label: 'Themes', icon: SwatchBook },
               { value: 'sidebar', label: 'Navigation', icon: PanelLeft },
@@ -2354,6 +2519,9 @@ export default function Admin() {
 
           <TabsContent value="users" className="space-y-6 mt-6">
             {renderUsers()}
+          </TabsContent>
+          <TabsContent value="companies" className="space-y-6 mt-6">
+            {renderCompanies()}
           </TabsContent>
           <TabsContent value="activity" className="space-y-6 mt-6">
             <div className="flex gap-2 mb-6">
@@ -2518,6 +2686,61 @@ export default function Admin() {
             }} disabled={editMutation.isPending} data-testid="button-save-user" className="flex items-center gap-2">
               {editMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={companyDialogOpen} onOpenChange={setCompanyDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="font-display">{editingCompany ? "Edit Company" : "Create Company"}</DialogTitle>
+            <DialogDescription className="label-text">{editingCompany ? "Update company details" : "Create a new company with a name and logo"}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2"><Building2 className="w-4 h-4 text-gray-500" />Company Name</Label>
+              <Input value={companyForm.name} onChange={(e) => setCompanyForm({ ...companyForm, name: e.target.value })} placeholder="e.g., Norfolk Group" data-testid="input-company-form-name" />
+            </div>
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2"><Image className="w-4 h-4 text-gray-500" />Logo</Label>
+              <Select value={companyForm.logoId != null ? String(companyForm.logoId) : "none"} onValueChange={(v) => setCompanyForm({ ...companyForm, logoId: v === "none" ? null : parseInt(v) })} data-testid="select-company-logo">
+                <SelectTrigger data-testid="trigger-company-logo"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No Logo</SelectItem>
+                  {adminLogos?.map(logo => (
+                    <SelectItem key={logo.id} value={String(logo.id)}>{logo.name}{logo.isDefault ? " (Default)" : ""}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2"><Tag className="w-4 h-4 text-gray-500" />Type</Label>
+              <Select value={companyForm.type} onValueChange={(v) => setCompanyForm({ ...companyForm, type: v })} data-testid="select-company-type">
+                <SelectTrigger data-testid="trigger-company-type"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="spv">SPV (Property)</SelectItem>
+                  <SelectItem value="management">Management Company</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2"><FileText className="w-4 h-4 text-gray-500" />Description</Label>
+              <Input value={companyForm.description} onChange={(e) => setCompanyForm({ ...companyForm, description: e.target.value })} placeholder="Optional description" data-testid="input-company-form-description" />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setCompanyDialogOpen(false); setEditingCompany(null); }} data-testid="button-cancel-company">Cancel</Button>
+            <Button variant="outline" onClick={() => {
+              const payload = { ...companyForm, description: companyForm.description || null };
+              if (editingCompany) {
+                updateCompanyMutation.mutate({ id: editingCompany.id, ...payload });
+              } else {
+                createCompanyMutation.mutate(payload);
+              }
+            }} disabled={!companyForm.name || createCompanyMutation.isPending || updateCompanyMutation.isPending} data-testid="button-save-company" className="flex items-center gap-2">
+              {(createCompanyMutation.isPending || updateCompanyMutation.isPending) ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              {editingCompany ? "Update" : "Create"}
             </Button>
           </DialogFooter>
         </DialogContent>

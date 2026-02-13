@@ -47,9 +47,6 @@ interface User {
   title: string | null;
   role: string;
   createdAt: string;
-  assignedLogoId: number | null;
-  assignedThemeId: number | null;
-  assignedAssetDescriptionId: number | null;
   userGroupId: number | null;
 }
 
@@ -302,11 +299,6 @@ export default function Admin() {
     },
   });
 
-  const [brandingDialogOpen, setBrandingDialogOpen] = useState(false);
-  const [brandingUser, setBrandingUser] = useState<User | null>(null);
-  const [brandingLogoId, setBrandingLogoId] = useState<number | null>(null);
-  const [brandingThemeId, setBrandingThemeId] = useState<number | null>(null);
-  const [brandingAssetDescId, setBrandingAssetDescId] = useState<number | null>(null);
   const [newLogoName, setNewLogoName] = useState("");
   const [newLogoUrl, setNewLogoUrl] = useState("");
   const [newAssetDescName, setNewAssetDescName] = useState("");
@@ -321,7 +313,7 @@ export default function Admin() {
     enabled: adminTab === "branding" || adminTab === "user-groups",
   });
 
-  const { data: allThemes } = useQuery<Array<{ id: number; name: string; isActive: boolean }>>({
+  const { data: allThemes } = useQuery<Array<{ id: number; name: string; isDefault: boolean }>>({
     queryKey: ["admin", "all-themes"],
     queryFn: async () => {
       const res = await fetch("/api/design-themes", { credentials: "include" });
@@ -433,27 +425,6 @@ export default function Admin() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "logos"] });
       toast({ title: "Logo Deleted", description: "Logo has been removed." });
-    },
-    onError: (error: Error) => {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    },
-  });
-
-  const assignBrandingMutation = useMutation({
-    mutationFn: async ({ userId, assignedLogoId, assignedThemeId, assignedAssetDescriptionId }: { userId: number; assignedLogoId: number | null; assignedThemeId: number | null; assignedAssetDescriptionId: number | null }) => {
-      const res = await fetch(`/api/admin/users/${userId}/branding`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ assignedLogoId, assignedThemeId, assignedAssetDescriptionId }),
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error("Failed to assign branding");
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
-      setBrandingDialogOpen(false);
-      toast({ title: "Branding Updated", description: "User branding has been assigned." });
     },
     onError: (error: Error) => {
       toast({ title: "Error", description: error.message, variant: "destructive" });
@@ -1927,8 +1898,8 @@ export default function Admin() {
 
       <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
         <CardHeader>
-          <CardTitle className="font-display flex items-center gap-2"><Users className="w-5 h-5 text-primary" /> User Branding Assignment</CardTitle>
-          <CardDescription className="label-text">Assign a specific logo, theme, and asset description to each user</CardDescription>
+          <CardTitle className="font-display flex items-center gap-2"><Users className="w-5 h-5 text-primary" /> User Branding</CardTitle>
+          <CardDescription className="label-text">Branding is managed at the User Group level. Assign users to groups in the User Groups tab to control their branding experience.</CardDescription>
         </CardHeader>
         <CardContent className="relative">
           <Table>
@@ -1936,17 +1907,16 @@ export default function Admin() {
               <TableRow className="border-primary/20 hover:bg-transparent">
                 <TableHead className="text-muted-foreground">User</TableHead>
                 <TableHead className="text-muted-foreground">Role</TableHead>
-                <TableHead className="text-muted-foreground">Logo</TableHead>
-                <TableHead className="text-muted-foreground">Theme</TableHead>
-                <TableHead className="text-muted-foreground">Asset Desc.</TableHead>
-                <TableHead className="text-muted-foreground text-right">Actions</TableHead>
+                <TableHead className="text-muted-foreground">Group</TableHead>
+                <TableHead className="text-muted-foreground">Effective Logo</TableHead>
+                <TableHead className="text-muted-foreground">Effective Theme</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {users?.map(user => {
-                const userLogo = adminLogos?.find(l => l.id === user.assignedLogoId);
-                const userTheme = allThemes?.find(t => t.id === user.assignedThemeId);
-                const userAssetDesc = assetDescriptions?.find(a => a.id === user.assignedAssetDescriptionId);
+                const group = userGroupsList?.find((g: UserGroup) => g.id === user.userGroupId);
+                const groupLogo = group?.logoId ? adminLogos?.find(l => l.id === group.logoId) : null;
+                const groupTheme = group?.themeId ? allThemes?.find(t => t.id === group.themeId) : null;
                 return (
                   <TableRow key={user.id} className="border-primary/20 hover:bg-primary/5" data-testid={`branding-row-${user.id}`}>
                     <TableCell className="text-foreground">
@@ -1963,29 +1933,18 @@ export default function Admin() {
                       }`}>{user.role}</span>
                     </TableCell>
                     <TableCell className="text-muted-foreground">
-                      {userLogo ? (
+                      {group ? <span className="text-sm font-medium">{group.name}</span> : <span className="text-muted-foreground text-sm italic">No group</span>}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {groupLogo ? (
                         <div className="flex items-center gap-2">
-                          <img src={userLogo.url} alt={userLogo.name} className="w-6 h-6 rounded object-contain bg-primary/10" />
-                          <span className="text-sm">{userLogo.name}</span>
+                          <img src={groupLogo.url} alt={groupLogo.name} className="w-6 h-6 rounded object-contain bg-primary/10" />
+                          <span className="text-sm">{groupLogo.name}</span>
                         </div>
                       ) : <span className="text-muted-foreground text-sm">Default</span>}
                     </TableCell>
                     <TableCell className="text-muted-foreground">
-                      {userTheme ? <span className="text-sm">{userTheme.name}</span> : <span className="text-muted-foreground text-sm">Default</span>}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {userAssetDesc ? <span className="text-sm">{userAssetDesc.name}</span> : <span className="text-muted-foreground text-sm">Default</span>}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="ghost" size="sm" onClick={() => {
-                        setBrandingUser(user);
-                        setBrandingLogoId(user.assignedLogoId);
-                        setBrandingThemeId(user.assignedThemeId);
-                        setBrandingAssetDescId(user.assignedAssetDescriptionId);
-                        setBrandingDialogOpen(true);
-                      }} className="text-primary hover:text-foreground hover:bg-primary/10" data-testid={`button-edit-branding-${user.id}`}>
-                        <Pencil className="w-4 h-4 mr-1" /> Assign
-                      </Button>
+                      {groupTheme ? <span className="text-sm">{groupTheme.name}</span> : <span className="text-muted-foreground text-sm">Default</span>}
                     </TableCell>
                   </TableRow>
                 );
@@ -2523,63 +2482,6 @@ export default function Admin() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={brandingDialogOpen} onOpenChange={setBrandingDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="font-display">Assign Branding</DialogTitle>
-            <DialogDescription className="label-text">Set logo, theme, and asset description for {brandingUser?.name || brandingUser?.email}</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2"><Image className="w-4 h-4 text-gray-500" />Logo</Label>
-              <Select value={brandingLogoId != null ? String(brandingLogoId) : "default"} onValueChange={(v) => setBrandingLogoId(v === "default" ? null : parseInt(v))} data-testid="select-branding-logo">
-                <SelectTrigger data-testid="select-branding-logo"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="default">Default Logo</SelectItem>
-                  {adminLogos?.map(logo => (
-                    <SelectItem key={logo.id} value={String(logo.id)}>{logo.name}{logo.isDefault ? " (Default)" : ""}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2"><Palette className="w-4 h-4 text-gray-500" />Theme</Label>
-              <Select value={brandingThemeId != null ? String(brandingThemeId) : "default"} onValueChange={(v) => setBrandingThemeId(v === "default" ? null : parseInt(v))} data-testid="select-branding-theme">
-                <SelectTrigger data-testid="select-branding-theme"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="default">Default Theme</SelectItem>
-                  {allThemes?.map(theme => (
-                    <SelectItem key={theme.id} value={String(theme.id)}>{theme.name}{theme.isActive ? " (Active)" : ""}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2"><Tag className="w-4 h-4 text-gray-500" />Asset Description</Label>
-              <Select value={brandingAssetDescId != null ? String(brandingAssetDescId) : "default"} onValueChange={(v) => setBrandingAssetDescId(v === "default" ? null : parseInt(v))} data-testid="select-branding-asset-desc">
-                <SelectTrigger data-testid="select-branding-asset-desc"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="default">Default</SelectItem>
-                  {assetDescriptions?.map(ad => (
-                    <SelectItem key={ad.id} value={String(ad.id)}>{ad.name}{ad.isDefault ? " (Default)" : ""}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setBrandingDialogOpen(false)} data-testid="button-cancel-branding">Cancel</Button>
-            <Button variant="outline" onClick={() => {
-              if (!brandingUser) return;
-              assignBrandingMutation.mutate({ userId: brandingUser.id, assignedLogoId: brandingLogoId, assignedThemeId: brandingThemeId, assignedAssetDescriptionId: brandingAssetDescId });
-            }} disabled={assignBrandingMutation.isPending} data-testid="button-save-branding" className="flex items-center gap-2">
-              {assignBrandingMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-              Save
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
       <Dialog open={groupDialogOpen} onOpenChange={setGroupDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -2615,7 +2517,7 @@ export default function Admin() {
                 <SelectContent>
                   <SelectItem value="default">Default Theme</SelectItem>
                   {allThemes?.map(theme => (
-                    <SelectItem key={theme.id} value={String(theme.id)}>{theme.name}{theme.isActive ? " (Active)" : ""}</SelectItem>
+                    <SelectItem key={theme.id} value={String(theme.id)}>{theme.name}{theme.isDefault ? " (Default)" : ""}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>

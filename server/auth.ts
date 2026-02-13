@@ -14,9 +14,6 @@ declare global {
       name: string | null;
       company: string | null;
       title: string | null;
-      assignedLogoId: number | null;
-      assignedThemeId: number | null;
-      assignedAssetDescriptionId: number | null;
       userGroupId: number | null;
       createdAt: Date;
       updatedAt: Date;

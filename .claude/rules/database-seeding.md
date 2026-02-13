@@ -9,7 +9,7 @@ The database schema is defined in `shared/schema.ts` using Drizzle ORM. All tabl
 | Table | Purpose | Key Fields |
 |-------|---------|------------|
 | `user_groups` | Named groups for multi-tenant branding | name, companyName, logoId, themeId, assetDescriptionId |
-| `users` | User accounts and roles | email, passwordHash, role (admin/user/checker), name, company, title, userGroupId (FK→user_groups), assignedLogoId, assignedThemeId, assignedAssetDescriptionId, createdAt, updatedAt |
+| `users` | User accounts and roles | email, passwordHash, role (admin/partner/checker/investor), name, company, title, userGroupId (FK→user_groups), selectedThemeId, createdAt, updatedAt |
 | `sessions` | Active user sessions | id (text PK), userId (FK), expiresAt, createdAt |
 | `global_assumptions` | Model-wide financial parameters | inflationRate, managementFees, SAFE funding, partner comp, staffing tiers, projectionYears |
 | `properties` | Individual hotel assets | name, location, purchasePrice, roomCount, ADR, occupancy, cost rates, revenue shares |
@@ -59,7 +59,7 @@ seedAdminUser() in server/auth.ts
     ├── Check REYNALDO_PASSWORD env var
     │   ├── Not set → Skip Reynaldo creation (warn to console)
     │   └── Set → Check if "reynaldo.fagundes@norfolk.ai" user exists
-    │       ├── No  → Create with role "user"
+    │       ├── No  → Create with role "partner"
     │       └── Yes → Update password hash to match env var
     │
     └── Ensure admin, checker, and Reynaldo users have a "Base" scenario

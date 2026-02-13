@@ -28,7 +28,7 @@ Every user belongs to exactly one User Group. Every User Group defines company b
 | id | integer (auto) | Primary key |
 | email | text (unique) | Login identifier |
 | passwordHash | text | bcrypt hash |
-| role | text | `admin`, `checker`, or `user` |
+| role | text | `admin`, `partner`, `checker`, or `investor` |
 | name | text? | Display name |
 | company | text? | Legacy company field |
 | title | text? | Job title |
@@ -70,7 +70,7 @@ Every user belongs to exactly one User Group. Every User Group defines company b
 - On startup, if no default group exists, a "General" group is created
 - All unassigned users are moved to the default group
 
-**Admin UI:** User Groups tab in Admin page
+**Admin UI:** User Groups tab in Admin page (tabs: Users, Companies, Activity, Verification, Logos, User Groups, Branding, Themes, Navigation, Database)
 - Create/edit groups with name, logo (includes company name), theme, asset description
 - Default group shows "Default" badge and cannot be deleted
 - Users can be assigned to groups via the Users tab
@@ -134,6 +134,7 @@ interface DesignColor {
 - Logos are assigned to User Groups
 - Any group without a logoId uses the default logo
 - **Company names live on logos, not on user groups.** When a group picks a logo, users in that group see the logo's company name.
+- **Admin Logos tab uses AIImagePicker** — Logo creation supports three modes: file upload, AI image generation, and URL input (via the `AIImagePicker` component)
 
 ### 5. Asset Descriptions
 
@@ -222,11 +223,11 @@ The Admin user (email: `admin`) belongs to the **Norfolk Group** user group, not
 |------------|------|-----------|---------------------|------|
 | `admin` | Ricardo Cidale | Norfolk Group | (via Norfolk AI logo) → Norfolk Group | admin |
 | `checker@norfolkgroup.io` | Checker | Norfolk Group | (via Norfolk AI logo) → Norfolk Group | checker |
-| `bhuvan@norfolkgroup.io` | Bhuvan Agarwal | Norfolk Group | (via Norfolk AI logo) → Norfolk Group | user |
-| `reynaldo.fagundes@norfolk.ai` | Reynaldo Fagundes | Norfolk Group | (via Norfolk AI logo) → Norfolk Group | user |
-| `rosario@kitcapital.com` | Rosario David | KIT Group | (via KIT logo) → KIT Capital Hospitality | user |
-| `kit@kitcapital.com` | Dov Tuzman | KIT Group | (via KIT logo) → KIT Capital Hospitality | user |
-| `lemazniku@icloud.com` | Lea Mazniku | KIT Group | (via KIT logo) → KIT Capital Hospitality | user |
+| `bhuvan@norfolkgroup.io` | Bhuvan Agarwal | Norfolk Group | (via Norfolk AI logo) → Norfolk Group | partner |
+| `reynaldo.fagundes@norfolk.ai` | Reynaldo Fagundes | Norfolk Group | (via Norfolk AI logo) → Norfolk Group | partner |
+| `rosario@kitcapital.com` | Rosario David | KIT Group | (via KIT logo) → KIT Capital Hospitality | partner |
+| `kit@kitcapital.com` | Dov Tuzman | KIT Group | (via KIT logo) → KIT Capital Hospitality | partner |
+| `lemazniku@icloud.com` | Lea Mazniku | KIT Group | (via KIT logo) → KIT Capital Hospitality | partner |
 
 **Admin in Norfolk Group:** The admin user sees "Norfolk Group" branding (company name, logo, theme, asset description) throughout the portal, not the default "Hospitality Business Group" branding. This is intentional — the admin operates under the Norfolk Group identity.
 

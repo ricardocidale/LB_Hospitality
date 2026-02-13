@@ -6,7 +6,7 @@ description: Token-efficient context loading protocol. Maps common task types to
 # Context Loading Protocol
 
 ## Purpose
-With 80+ skill files (~15,000 lines), loading everything wastes tokens and slows responses. This skill maps common task types to the **minimum required** skill set, ensuring fast, focused sessions.
+With 84 skill files (~15,000 lines), loading everything wastes tokens and slows responses. This skill maps common task types to the **minimum required** skill set, ensuring fast, focused sessions.
 
 ## Golden Rule
 **Load `claude.md` first (always loaded automatically). Then load only the skills needed for the current task. Never load all skills at once.**
@@ -53,6 +53,8 @@ With 80+ skill files (~15,000 lines), loading everything wastes tokens and slows
 | Export UI (buttons, menus) | `exports/SKILL.md`, `component-library/SKILL.md` | Finance skills |
 | 3D graphics / animations | `3d-graphics/SKILL.md`, `ui/animation-patterns.md` | Everything else |
 | Theme changes | `ui/theme-engine.md`, `design-system/SKILL.md` | Finance skills |
+| Image generation / AI images | `ui/reusable-components.md`, `ui/property-image-picker.md` | Finance skills |
+| Logo management | `multi-tenancy/SKILL.md`, `ui/reusable-components.md` | Finance skills |
 | Branding / user groups / logos | `multi-tenancy/SKILL.md` | Finance skills |
 | Entity card UI (admin CRUD) | `ui/entity-cards.md`, `rules/entity-card-patterns.md` | Finance skills |
 | User management / roles | `multi-tenancy/SKILL.md` | Finance skills |
@@ -87,6 +89,7 @@ With 80+ skill files (~15,000 lines), loading everything wastes tokens and slows
 | Schema changes / migrations | `database-environments/SKILL.md`, `rules/database-seeding.md` | Finance, UI skills |
 | API route changes | `rules/api-routes.md`, `architecture/SKILL.md` | UI skills |
 | Seed data changes | `rules/database-seeding.md` | Finance engine skills |
+| Image generation server | `ui/property-image-picker.md`, `architecture/SKILL.md` | Finance, UI skills |
 
 #### Documentation & Skills
 | Task | Load These Skills | Skip |
@@ -120,11 +123,11 @@ User asks for verification, release prep, or comprehensive review.
 | Don't Do This | Do This Instead |
 |---------------|-----------------|
 | Load all 16 finance skills for an IS fix | Load `finance/income-statement.md` only |
-| Load all 18 UI skills for a button change | Load `component-library/SKILL.md` only |
+| Load all UI skills for a button change | Load `component-library/SKILL.md` only |
 | Load testing skills for a UI change | Skip testing unless the change affects calculations |
 | Load research skills for a finance fix | Skip research entirely |
 | Load source-code/SKILL.md (814 lines) routinely | Only load when you need a full file map |
-| Read all 15 checker manual sections | Read only the section relevant to the task |
+| Read all 18 checker manual sections | Read only the section relevant to the task |
 
 ## Session Start Checklist
 
@@ -137,6 +140,6 @@ User asks for verification, release prep, or comprehensive review.
 
 ## Cross-References
 - Skill Router: `claude.md` § Skill Router
-- All skills: `.claude/skills/` (15 directories, 80+ files)
-- Rules: `.claude/rules/` (15 files)
-- Manuals: `.claude/manuals/` (2 manuals, 31 sections total)
+- All skills: `.claude/skills/` (15 directories, 84 files)
+- Rules: `.claude/rules/` (18 files)
+- Manuals: `.claude/manuals/` (2 manuals)

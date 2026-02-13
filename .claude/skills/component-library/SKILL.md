@@ -21,11 +21,26 @@ Every page must use the shared component library. Inline or ad-hoc styling is no
 | ContentPanel | `client/src/components/ui/content-panel.tsx` | Section wrappers |
 | SaveButton | `client/src/components/ui/save-button.tsx` | Save actions with loading state |
 
+## Additional Components
+
+| Component | File | Purpose |
+|-----------|------|---------|
+| AIImagePicker | `client/src/components/ui/ai-image-picker.tsx` | Three-mode image input (upload, AI generate, URL). Configurable aspect ratio, dark/light variants, default prompt |
+| AnimatedLogo | `client/src/components/ui/animated-logo.tsx` | SVG wrapper for raster images with animation support (pulse, glow, spin, bounce) |
+| StatusBadge | `client/src/components/ui/status-badge.tsx` | Colored dot + label for status display (active, inactive, pending, error, warning) |
+| ImagePreviewCard | `client/src/components/ui/image-preview-card.tsx` | Card with image, overlay title/subtitle, hover action buttons |
+| EntityCardContainer | `client/src/components/ui/entity-card.tsx` | Responsive grid container for entity cards |
+| EntityCardItem | `client/src/components/ui/entity-card.tsx` | Individual entity card with image, title, actions |
+| EntityEmptyState | `client/src/components/ui/entity-card.tsx` | Empty-state placeholder for entity grids |
+| HelpTooltip | `client/src/components/ui/help-tooltip.tsx` | **?** icon with hover tooltip for input field explanations |
+| InfoTooltip | `client/src/components/ui/info-tooltip.tsx` | **i** icon for read-only value explanations with optional formula display |
+
 ## Usage Rules
 
 - All buttons → GlassButton (never raw `<button>`)
 - All pages → PageHeader (never inline titles)
 - All export → ExportMenu (never custom export UI)
+- All save/update buttons must say "Save" (never "Update")
 - All interactive/display elements → `data-testid` attribute required
 - No mock or placeholder data in production paths
 
@@ -52,6 +67,10 @@ Quick reference:
 ## UI Component Skills
 
 Individual component skills live in `.claude/skills/ui/`:
-- button-system, callout, charts, financial-table-styling, glass-components
-- help-tooltip, manual-table, page-header, research-badges, section-card
-- slider, tab-bar-system
+
+accordion-formula-rows, animation-patterns, button-system, calculation-transparency,
+callout, charts, composite-tabbed-pages, entity-cards, financial-table-styling,
+glass-components, graphics-component-catalog, help-tooltip, info-icons, interactions,
+manual-table, navigation, notification-center, page-enhancement-checklist, page-header,
+portfolio-pages, property-image-picker, research-badges, reusable-components,
+section-card, slider, tab-bar-system, theme-engine

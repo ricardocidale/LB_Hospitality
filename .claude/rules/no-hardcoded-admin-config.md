@@ -9,7 +9,7 @@ Never hardcode values that are managed through the Administration page. All admi
 ### Management Company (Branding Tab)
 | Setting | Source | Never Hardcode |
 |---------|--------|----------------|
-| Management Company Name | `globalAssumptions.companyName` | `"Hospitality Business"`, `"L+B Hospitality"` |
+| Management Company Name | `globalAssumptions.companyName` | `"Hospitality Business"`, `"Hospitality Business Group"` |
 | Management Company Logo | `globalAssumptions.companyLogoId` → resolved from `logos` table | any logo URL or ID literal |
 | Property Type Label | `globalAssumptions.propertyLabel` | `"Boutique Hotel"`, `"Estate Hotel"` |
 

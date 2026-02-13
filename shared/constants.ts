@@ -76,3 +76,13 @@ export const DEFAULT_PROJECTION_YEARS = 10;
 // Funding instrument defaults
 export const DEFAULT_SAFE_VALUATION_CAP = 2500000;
 export const DEFAULT_SAFE_DISCOUNT_RATE = 0.20;
+
+// Seed debt assumptions for production seeding
+export const SEED_DEBT_ASSUMPTIONS = {
+  acqLTV: 0.75,
+  refiLTV: 0.75,
+  interestRate: 0.09,
+  amortizationYears: 25,
+  acqClosingCostRate: 0.02,
+  refiClosingCostRate: 0.03,
+} as const;

@@ -18,7 +18,7 @@
 ## Key Directories
 - `.claude/skills/` — 80+ skill files (finance, UI, testing, exports, proof system, architecture)
 - `.claude/skills/context-loading/` — Start here: maps task types to minimum required skills
-- `.claude/rules/` — 16+ rule files (audit doctrine, constants, DB seeding, API routes, graphics, hardcoding, skill organization, session memory, etc.)
+- `.claude/rules/` — 18 rule files (audit doctrine, constants, DB seeding, API routes, graphics, hardcoding, skill organization, session memory, button consistency, etc.)
 - `.claude/manuals/` — Checker manual and user manual
 - `.claude/tools/` — Tool schemas for analysis, financing, returns, validation, UI
 - `.claude/commands/` — 8 slash commands (verify, seed, scenarios, themes, etc.)
@@ -51,6 +51,7 @@ npm run exports:check  # Find unused exports
 - **Fallback:** OpenAI `gpt-image-1`
 - **Reusable component:** `client/src/components/ui/ai-image-picker.tsx` — supports upload, AI generate, and URL input modes
 - **Property-specific wrapper:** `client/src/features/property-images/PropertyImagePicker.tsx`
+- **AnimatedLogo:** `client/src/components/ui/animated-logo.tsx` — SVG wrapper for vector-like scaling and animation (pulse, glow, spin, bounce)
 - **Server endpoint:** `POST /api/generate-property-image` — generates image, uploads to object storage, returns `objectPath`
 
 ## Admin Page Structure
@@ -72,5 +73,6 @@ Administration page (`/admin`) has these tabs:
 - **Every save must trigger full financial recalculation.** No partial query invalidation.
 - **All tests and audits must verify rule compliance.** Check all `.claude/rules/` on every audit.
 - **Save all session context to `.claude/rules/session-memory.md`.** Update at the end of every session.
+- **Button Label Consistency:** Always use "Save" (never "Update") for all save actions.
 - Company name is "Hospitality Business Group". All UI must reference a theme. All skills stored under `.claude/`.
 - For anything else, see `.claude/claude.md`.

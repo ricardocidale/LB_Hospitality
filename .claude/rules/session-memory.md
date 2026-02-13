@@ -50,9 +50,16 @@ This rule ensures continuity across chat resets. The agent must treat this file 
 - **Refactored** `PropertyImagePicker` to wrap `AIImagePicker` with property-specific defaults (auto-prompt from name + location)
 - **Files changed:** `client/src/components/ui/ai-image-picker.tsx` (new), `client/src/features/property-images/PropertyImagePicker.tsx` (refactored)
 
+#### 4. Additional Changes Made This Session
+- **Fixed TypeScript errors:** removed unused `handleLogoFileUpload`, `setUploadingFile`, `logoFileInputRef` from Admin.tsx
+- **Changed "Update" to "Save"** on Management Company button for UI consistency
+- **Added missing ? tooltip explanations** to all Dashboard financial statement lines
+- **Created AnimatedLogo** SVG component for vector-based logo display with animation support (`client/src/components/ui/animated-logo.tsx`)
+- **Created StatusBadge** reusable component (`client/src/components/ui/status-badge.tsx`)
+- **Created ImagePreviewCard** reusable component (`client/src/components/ui/image-preview-card.tsx`)
+- **Logo dialog in Admin** now uses AIImagePicker (upload + AI generate + URL modes)
+
 ### Still Pending / In Progress
-- Wire AI image generation into Admin Logos tab (add "Generate with AI" option in logo creation dialog)
-- Create skill documentation for the new reusable image picker components
 - Verify TypeScript compiles, health check passes, end-to-end testing
 - Final architect review of all changes
 
@@ -63,12 +70,18 @@ This rule ensures continuity across chat resets. The agent must treat this file 
 - **Logo CRUD:** `GET/POST /api/admin/logos`, `DELETE /api/admin/logos/:id`
 - **AIImagePicker** is the canonical reusable image component; all specific pickers (property, logo) should wrap it
 - **Branding resolution:** User Group logoId → Company logoId → Default Logo
+- **AnimatedLogo** wraps raster images in SVG for vector-like behavior (scaling + animation)
+- **All financial statement tooltips** controlled by CalcDetailsContext (`showDetails` flag)
 
 ### User Preferences Noted
 - User calls the image generation model "Nano Banana" (Google's gemini-2.5-flash-image)
 - User wants reusable UI tools that can be shared across features
 - User wants **100% session memory** — all decisions, changes, and context must be saved to persist across chat resets
 - User wants "formula-like" accordion details in statements to remain toggleable via Settings > Other tab > Calculation Transparency (two switches: `showCompanyCalculationDetails` and `showPropertyCalculationDetails`)
+- User wants **ALL buttons to use "Save"** consistently (not "Update" for existing items)
+- User wants **logos to be vector-based/SVG** for animation support
+- User wants **every financial line item** to have a ? tooltip explanation
+- User wants **reusable UI tools created** whenever building new features
 
 ### Important File Map
 | File | Purpose |

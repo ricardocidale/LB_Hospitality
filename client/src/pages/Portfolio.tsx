@@ -46,6 +46,7 @@ import {
 } from "@/lib/constants";
 import { PropertyImagePicker } from "@/features/property-images";
 import { PageTransition, StaggerContainer, StaggerItem, FadeInUp, HoverScale } from "@/components/ui/animated";
+import { AnimatedPage, AnimatedGrid, AnimatedGridItem } from "@/components/graphics";
 
 function formatCurrencyDisplay(value: number): string {
   if (!value) return "";
@@ -291,6 +292,7 @@ export default function Portfolio() {
 
   return (
     <Layout>
+      <AnimatedPage>
       <PageTransition><div className="space-y-8">
         <PageHeader
           title="Property Portfolio"
@@ -594,9 +596,10 @@ export default function Portfolio() {
           }
         />
 
-        <StaggerContainer className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <AnimatedGrid className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {properties?.slice().sort((a, b) => new Date(a.acquisitionDate).getTime() - new Date(b.acquisitionDate).getTime()).map((property) => (
-            <StaggerItem key={property.id}>
+            <AnimatedGridItem key={property.id}>
+            <StaggerItem>
             <HoverScale>
             <div className="group relative overflow-hidden rounded-2xl flex flex-col">
               {/* Liquid Glass Card Background */}
@@ -708,9 +711,11 @@ export default function Portfolio() {
             </div>
             </HoverScale>
             </StaggerItem>
+            </AnimatedGridItem>
           ))}
-        </StaggerContainer>
+        </AnimatedGrid>
       </div></PageTransition>
+      </AnimatedPage>
     </Layout>
   );
 }

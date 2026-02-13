@@ -9,6 +9,7 @@ import { StatCard } from "@/components/ui/stat-card";
 import { Loader2, TrendingUp, TrendingDown, BarChart3, Sliders, Building2, ArrowUpDown } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, ReferenceLine } from "recharts";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { AnimatedPage, ScrollReveal, InsightPanel, type Insight } from "@/components/graphics";
 
 interface SensitivityVariable {
   id: string;
@@ -252,8 +253,40 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
     );
   }
 
+  const sensitivityInsights: Insight[] = (() => {
+    if (!tornadoData.length || !baseResult) return [];
+    const insights: Insight[] = [];
+    const topVar = tornadoData[0];
+    if (topVar) {
+      insights.push({
+        text: `${topVar.name} has the largest impact on ${tornadoMetric === "irr" ? "IRR" : "NOI"} with a spread of ${topVar.spread.toFixed(1)}${tornadoMetric === "irr" ? "pp" : "%"}`,
+        type: "warning",
+        metric: `±${(topVar.spread / 2).toFixed(1)}${tornadoMetric === "irr" ? "pp" : "%"}`,
+      });
+    }
+    if (baseResult.irr > 0.15) {
+      insights.push({
+        text: `Base case IRR of ${(baseResult.irr * 100).toFixed(1)}% exceeds typical institutional hurdle rates`,
+        type: "positive",
+      });
+    } else if (baseResult.irr > 0) {
+      insights.push({
+        text: `Base case IRR is ${(baseResult.irr * 100).toFixed(1)}%`,
+        type: "neutral",
+      });
+    }
+    if (baseResult.avgNOIMargin > 30) {
+      insights.push({
+        text: `Strong NOI margin at ${baseResult.avgNOIMargin.toFixed(1)}% indicates healthy operations`,
+        type: "positive",
+      });
+    }
+    return insights;
+  })();
+
   return (
     <Wrapper>
+      <AnimatedPage>
       <div className="space-y-6">
         {!embedded && (
           <PageHeader
@@ -587,6 +620,17 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
           </div>
         </div>
 
+        {sensitivityInsights.length > 0 && (
+          <ScrollReveal>
+            <InsightPanel
+              data-testid="insight-sensitivity"
+              insights={sensitivityInsights}
+              title="Sensitivity Insights"
+              variant="compact"
+            />
+          </ScrollReveal>
+        )}
+
         {/* Comparison Table */}
         {hasAdjustments && baseResult && adjustedResult && (
           <div className="bg-white/95 backdrop-blur-xl rounded-[2rem] p-6 border border-primary/30 shadow-xl shadow-black/5">
@@ -662,6 +706,7 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
           </div>
         )}
       </div>
+      </AnimatedPage>
     </Wrapper>
   );
 }

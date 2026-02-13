@@ -1,4 +1,5 @@
 import Layout from "@/components/Layout";
+import { AnimatedPage, ScrollReveal } from "@/components/graphics";
 import { useScenarios, useCreateScenario, useLoadScenario, useUpdateScenario, useDeleteScenario } from "@/lib/api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -219,6 +220,7 @@ export default function Scenarios() {
 
   return (
     <Layout>
+      <AnimatedPage>
       <div className="space-y-8">
         <PageHeader 
           title="Scenarios" 
@@ -312,6 +314,7 @@ export default function Scenarios() {
                 </p>
               </div>
             ) : (
+              <ScrollReveal>
               <div className="grid gap-4">
                 {scenarios?.map((scenario) => (
                   <div
@@ -437,6 +440,7 @@ export default function Scenarios() {
                   </div>
                 ))}
               </div>
+              </ScrollReveal>
             )}
           </CardContent>
         </Card>
@@ -673,6 +677,7 @@ export default function Scenarios() {
           </DialogContent>
         </Dialog>
       </div>
+      </AnimatedPage>
     </Layout>
   );
 }

@@ -19,6 +19,7 @@ import {
   Percent,
 } from "lucide-react";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { AnimatedPage, ScrollReveal } from "@/components/graphics";
 
 type TabId = "dscr" | "debt-yield" | "sensitivity" | "prepayment";
 
@@ -541,6 +542,7 @@ export default function FinancingAnalysis({ embedded }: { embedded?: boolean }) 
 
   return (
     <Wrapper>
+      <AnimatedPage>
       <div className="space-y-6 p-4 md:p-6">
         {!embedded && (
           <PageHeader
@@ -569,6 +571,7 @@ export default function FinancingAnalysis({ embedded }: { embedded?: boolean }) 
             );
           })}
         </div>
+        <ScrollReveal>
         <ContentPanel variant="light">
           {activeTab === "dscr" && (
             <div className="space-y-6">
@@ -636,7 +639,9 @@ export default function FinancingAnalysis({ embedded }: { embedded?: boolean }) 
             </div>
           )}
         </ContentPanel>
+        </ScrollReveal>
       </div>
+      </AnimatedPage>
     </Wrapper>
   );
 }

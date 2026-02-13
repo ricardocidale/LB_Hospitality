@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { useStore } from "@/lib/store";
+import { AnimatedPage, ScrollReveal } from "@/components/graphics";
 
 function fmtMoney(value: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -66,7 +67,7 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
     return String(value);
   };
 
-  return (
+  const content = (
     <div className={embedded ? "space-y-6" : "min-h-screen bg-background p-6 md:p-8"} data-testid="comparison-view">
       <div className={embedded ? "space-y-6" : "max-w-7xl mx-auto space-y-8"}>
         {!embedded && (
@@ -195,4 +196,7 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
       </div>
     </div>
   );
+
+  if (embedded) return content;
+  return <AnimatedPage>{content}</AnimatedPage>;
 }

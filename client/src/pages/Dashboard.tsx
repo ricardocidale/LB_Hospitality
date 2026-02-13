@@ -33,6 +33,7 @@ import { computeIRR } from "@analytics/returns/irr.js";
 import { LoanParams, GlobalLoanParams } from "@/lib/loanCalculations";
 import { aggregateCashFlowByYear } from "@/lib/cashFlowAggregator";
 import { aggregatePropertyByYear, YearlyPropertyFinancials } from "@/lib/yearlyAggregator";
+import { KPIGrid, DonutChart, Gauge, InsightPanel, AnimatedPage, AnimatedSection, ScrollReveal, formatCompact, formatPercent, CHART_COLORS, type KPIItem, type Insight } from "@/components/graphics";
 
 /** Adapter: wraps standalone IRR solver to return a plain number (annual rate). */
 function calculateIRR(cashFlows: number[]): number {
@@ -1569,6 +1570,7 @@ export default function Dashboard() {
 
   return (
     <Layout>
+      <AnimatedPage>
       <div className="space-y-6">
         <PageHeader
           title="Investment Overview"
@@ -1607,6 +1609,17 @@ export default function Dashboard() {
           />
 
           <TabsContent value="overview" className="space-y-8" ref={tabContentRef}>
+            <KPIGrid
+              data-testid="kpi-dashboard-hero"
+              items={[
+                { label: "Portfolio IRR", value: portfolioIRR * 100, format: (v: number) => `${v.toFixed(1)}%`, trend: portfolioIRR > 0.08 ? "up" as const : "down" as const, icon: <TrendingUpIcon className="w-4 h-4" /> },
+                { label: "Total Revenue (Yr 1)", value: portfolioTotalRevenue, format: formatCompact, sublabel: String(getFiscalYear(0)) },
+                { label: "Properties", value: totalProperties, sublabel: `${totalRooms} total rooms` },
+                { label: "Cash-on-Cash", value: cashOnCash, format: (v: number) => `${v.toFixed(1)}%`, trend: cashOnCash > 8 ? "up" as const : "neutral" as const },
+              ]}
+              columns={4}
+              variant="glass"
+            />
             {/* Investment Returns - Hero Section - Fluid Glass Design with 3D */}
             <div className="relative overflow-hidden rounded-3xl p-8 border border-primary/30 shadow-2xl">
               {/* Sage Glass Background with Fluid Effect */}
@@ -1909,9 +1922,22 @@ export default function Dashboard() {
                 </div>
               </div>
             </div>
+            <ScrollReveal>
+              <InsightPanel
+                data-testid="insight-dashboard"
+                title="Portfolio Insights"
+                insights={[
+                  { text: "Portfolio IRR", metric: `${(portfolioIRR * 100).toFixed(1)}%`, type: portfolioIRR > 0.12 ? "positive" as const : portfolioIRR > 0.08 ? "neutral" as const : "warning" as const },
+                  { text: `${totalProperties} properties across ${Object.keys(marketCounts).length} markets`, type: "neutral" as const },
+                  { text: "Equity Multiple", metric: `${equityMultiple.toFixed(2)}x`, type: equityMultiple > 2 ? "positive" as const : "neutral" as const },
+                  { text: `Avg Cash-on-Cash Return`, metric: `${cashOnCash.toFixed(1)}%`, type: cashOnCash > 8 ? "positive" as const : "warning" as const },
+                ]}
+              />
+            </ScrollReveal>
           </TabsContent>
 
           <TabsContent value="income" className="mt-6 space-y-6">
+            <ScrollReveal>
             {/* Chart Container */}
             <Card className="relative overflow-hidden">
               <div className="absolute inset-0 bg-background" />
@@ -2414,9 +2440,11 @@ export default function Dashboard() {
                 </Table>
               </CardContent>
             </Card>
+            </ScrollReveal>
           </TabsContent>
 
           <TabsContent value="cashflow" className="mt-6 space-y-6">
+            <ScrollReveal>
             {/* Chart - Revenue & Operating Performance */}
             <Card className="relative overflow-hidden">
               <div className="absolute inset-0 bg-background" />
@@ -3061,15 +3089,18 @@ export default function Dashboard() {
                 </Table>
               </CardContent>
             </Card>
+            </ScrollReveal>
           </TabsContent>
 
           <TabsContent value="balance" className="mt-6">
+            <ScrollReveal>
             <ConsolidatedBalanceSheet 
               properties={properties} 
               global={global} 
               allProFormas={allPropertyFinancials.map(pf => ({ property: pf.property, data: pf.financials }))}
               year={projectionYears}
             />
+            </ScrollReveal>
           </TabsContent>
 
           <TabsContent value="investment" className="mt-6 space-y-6">
@@ -3086,6 +3117,7 @@ export default function Dashboard() {
           </TabsContent>
         </Tabs>
       </div>
+      </AnimatedPage>
     </Layout>
   );
 }

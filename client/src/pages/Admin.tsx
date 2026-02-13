@@ -2911,7 +2911,7 @@ export default function Admin() {
               }
             }} disabled={!companyForm.name || createCompanyMutation.isPending || updateCompanyMutation.isPending} data-testid="button-save-company" className="flex items-center gap-2">
               {(createCompanyMutation.isPending || updateCompanyMutation.isPending) ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-              {editingCompany ? "Update" : "Create"}
+              {editingCompany ? "Save" : "Create"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -2975,7 +2975,7 @@ export default function Admin() {
               }
             }} disabled={!groupForm.name || createGroupMutation.isPending || updateGroupMutation.isPending} data-testid="button-save-group" className="flex items-center gap-2">
               {(createGroupMutation.isPending || updateGroupMutation.isPending) ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-              {editingGroup ? "Update" : "Create"}
+              {editingGroup ? "Save" : "Create"}
             </Button>
           </DialogFooter>
         </DialogContent>

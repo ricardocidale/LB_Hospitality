@@ -68,32 +68,46 @@ export function KPIGrid({ items, columns = 4, variant = "glass", className, ...p
         <motion.div
           key={item.label}
           variants={itemVariants}
-          className={`relative overflow-hidden rounded-2xl p-5 ${variantStyles[variant]}`}
+          whileHover={{
+            scale: 1.04,
+            y: -4,
+            transition: { duration: 0.25, ease: "easeOut" },
+          }}
+          className={`group relative overflow-hidden rounded-2xl p-5 cursor-pointer transition-all duration-500 ${variantStyles[variant]} hover:shadow-[0_12px_40px_rgba(159,188,164,0.25)] hover:border-primary/40 hover:-translate-y-1`}
+          style={{ willChange: "transform" }}
         >
-          <div className="flex items-start justify-between mb-1">
-            <p className={`text-xs font-medium uppercase tracking-wider ${variant === "dark" ? "text-white/50" : "text-gray-500"} label-text`}>
-              {item.label}
-            </p>
-            {item.icon && <div className={variant === "dark" ? "text-primary" : "text-primary/70"}>{item.icon}</div>}
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className={`text-2xl font-bold font-mono ${variant === "dark" ? "text-white" : "text-gray-900"}`}>
-              <AnimatedCounter value={item.value} format={item.format || defaultFormat} />
-            </span>
-            {item.trend && (
-              <span className="flex items-center gap-1">
-                {trendIcon(item.trend)}
-                {item.trendLabel && (
-                  <span className={`text-xs font-medium ${item.trend === "up" ? "text-emerald-500" : item.trend === "down" ? "text-red-500" : "text-gray-400"}`}>
-                    {item.trendLabel}
-                  </span>
-                )}
+          <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+            style={{ background: variant === "dark"
+              ? "radial-gradient(circle at 50% 0%, rgba(255,255,255,0.06), transparent 70%)"
+              : "radial-gradient(circle at 50% 0%, rgba(159,188,164,0.12), transparent 70%)"
+            }}
+          />
+          <div className="relative">
+            <div className="flex items-start justify-between mb-1">
+              <p className={`text-xs font-medium uppercase tracking-wider ${variant === "dark" ? "text-white/50" : "text-gray-500"} label-text`}>
+                {item.label}
+              </p>
+              {item.icon && <div className={`${variant === "dark" ? "text-primary" : "text-primary/70"} transition-transform duration-300 group-hover:scale-110`}>{item.icon}</div>}
+            </div>
+            <div className="flex items-baseline gap-2">
+              <span className={`text-2xl font-bold font-mono ${variant === "dark" ? "text-white" : "text-gray-900"}`}>
+                <AnimatedCounter value={item.value} format={item.format || defaultFormat} />
               </span>
+              {item.trend && (
+                <span className="flex items-center gap-1">
+                  {trendIcon(item.trend)}
+                  {item.trendLabel && (
+                    <span className={`text-xs font-medium ${item.trend === "up" ? "text-emerald-500" : item.trend === "down" ? "text-red-500" : "text-gray-400"}`}>
+                      {item.trendLabel}
+                    </span>
+                  )}
+                </span>
+              )}
+            </div>
+            {item.sublabel && (
+              <p className={`text-xs mt-1 ${variant === "dark" ? "text-white/40" : "text-gray-400"} label-text`}>{item.sublabel}</p>
             )}
           </div>
-          {item.sublabel && (
-            <p className={`text-xs mt-1 ${variant === "dark" ? "text-white/40" : "text-gray-400"} label-text`}>{item.sublabel}</p>
-          )}
         </motion.div>
       ))}
     </motion.div>

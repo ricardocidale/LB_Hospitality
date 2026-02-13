@@ -173,3 +173,38 @@ This rule ensures continuity across chat resets. The agent must treat this file 
 | `.claude/skills/finance/consolidated-formula-helpers.md` | Full API docs for consolidated helpers |
 | `.claude/rules/docs-after-edits.md` | Rule: update docs after every codebase edit |
 | `.claude/rules/read-session-memory-first.md` | Rule: read session memory before answering questions |
+
+---
+
+## Session: February 13, 2026 (Continued — Dashboard Hover Effects)
+
+### What Was Done
+
+#### 1. KPIGrid Hover Effects Enhanced
+- **File:** `client/src/components/graphics/cards/KPIGrid.tsx`
+- Added framer-motion `whileHover` (scale 1.04, y -4) to each KPI card
+- Added `group` class with radial gradient overlay (`group-hover:opacity-100`)
+- Added enhanced shadow on hover (`hover:shadow-[0_12px_40px_rgba(159,188,164,0.25)]`)
+- Added border color change on hover (`hover:border-primary/40`)
+
+#### 2. Dashboard Overview Cards — Rich Hover Effects
+- **File:** `client/src/pages/Dashboard.tsx`
+- **IRR Gauge:** scale 1.03 on hover, orange glow shadow, SVG gauge scales up with thicker stroke, percentage text scales up
+- **Property IRR Chart:** blue glow shadow on hover, scale 1.02, border changes to blue
+- **Equity Investment Chart:** amber glow shadow on hover, scale 1.02, border changes to amber
+- **Equity Multiple card:** lifts up, blue glow, gauge SVG rotates slightly and thickens stroke, value text scales
+- **Cash-on-Cash card:** lifts up, amber glow, same gauge effects as Equity Multiple
+- **Total Equity card:** lifts up, sage green glow, progress bar gets glow effect
+- **Exit Value card:** lifts up, emerald glow, up-arrow icon scales and rises
+- **Portfolio Composition card:** lifts up, sage gradient overlay
+- **Capital Structure card:** lifts up, subtle slate gradient overlay
+
+### Design Pattern
+All cards use a consistent approach:
+- `group` class on container for child targeting
+- `transition-all duration-500` for smooth animation
+- `hover:scale-[1.02-1.05]` and `hover:-translate-y-1` for lift effect
+- Color-matched `hover:shadow-[...]` for themed glow (blue for equity, amber for CoC, emerald for exit, etc.)
+- Radial gradient overlay (`group-hover:opacity-100`) for inner glow
+- SVG gauges: `group-hover:scale-110`, `group-hover:stroke-[8]` for emphasis
+- Value text: `group-hover:scale-105` for subtle zoom

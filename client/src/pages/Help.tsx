@@ -29,7 +29,7 @@ export default function Help() {
     <Layout>
       <div className="space-y-6">
         <PageHeader
-          title="Help & Manuals"
+          title="Help"
           subtitle="Documentation, verification guides, and interactive tours"
           variant="dark"
         />

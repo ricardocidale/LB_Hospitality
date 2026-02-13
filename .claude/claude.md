@@ -79,7 +79,7 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | UI: Other (14) | `.claude/skills/ui/` | Glass components, buttons, sliders, tabs, page-header, callout, etc. |
 | Manuals | `.claude/manuals/` | Checker manual (21 sections), user manual (16 sections) |
 | Tools | `.claude/tools/` | Analysis, financing, returns, validation, UI tool schemas |
-| Rules (18) | `.claude/rules/` | Audit persona, constants, DB seeding, API routes, graphics-rich design, architecture, financial engine, verification, skill organization, session memory, button label consistency, entity cards, etc. |
+| Rules (20) | `.claude/rules/` | Audit persona, constants, DB seeding, API routes, graphics-rich design, architecture, financial engine, verification, skill organization, session memory, read-session-memory-first, button label consistency, entity cards, docs-after-edits, etc. |
 
 ---
 
@@ -109,6 +109,26 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 - **AnimatedLogo:** `client/src/components/ui/animated-logo.tsx` — SVG wrapper for raster images with animation support (pulse, glow, spin, bounce).
 - **Server endpoint:** `POST /api/generate-property-image` — generates image, uploads to Replit Object Storage, returns `objectPath`.
 - **Server client:** `server/replit_integrations/image/client.ts` — uses `generateContent` with `gemini-2.5-flash-image` model, falls back to OpenAI.
+
+---
+
+## Consolidated Formula Accordion Architecture
+
+Dashboard consolidated financial statements use a **3-level accordion** pattern for calculation transparency:
+
+- **Level 1:** `ExpandableLineItem` / `ExpandableMetricRow` — consolidated total with chevron
+- **Level 2:** `FormulaDetailRow` — consolidated formula (e.g., "Σ(Room Revenue) ÷ Σ(Sold Rooms) = Weighted ADR")
+- **Level 3:** `PropertyBreakdownRow` — per-property contributions
+
+### Shared Components
+- `FormulaDetailRow` and `PropertyBreakdownRow` exported from `client/src/components/financial-table-rows.tsx`
+- 7 reusable helper functions in `client/src/lib/consolidatedFormulaHelpers.tsx`:
+  - `consolidatedLineItemBreakdown()`, `consolidatedWeightedADR()`, `consolidatedWeightedOccupancy()`, `consolidatedRevPAR()` (income statement)
+  - `consolidatedCashFlowBreakdown()`, `consolidatedDSCR()`, `consolidatedCashOnCash()` (cash flow)
+- All helpers accept precomputed consolidated arrays — **zero re-aggregation** in render paths
+- Visibility controlled by `CalcDetailsProvider` context (Calculation Transparency toggles)
+
+See `.claude/skills/finance/consolidated-formula-helpers.md` for full API reference.
 
 ---
 
@@ -150,6 +170,8 @@ Logo Management is a tab within Admin (not a separate sidebar link). The Brandin
 - **Audit persona + doctrine**: `.claude/rules/audit-persona.md` mandatory for finance work
 - **Button labels**: Always "Save" for save/update actions (never "Update") — `.claude/rules/button-label-consistency.md`
 - **Session memory**: Update `.claude/rules/session-memory.md` at the end of every session
+- **Read session memory first**: Always read `session-memory.md` and `replit.md` before answering questions or starting work — `.claude/rules/read-session-memory-first.md`
+- **Docs after edits**: Update `.claude` docs and harmonize `replit.md` after any codebase changes — `.claude/rules/docs-after-edits.md`
 - **Every page must be graphics-rich**: Charts, animations, visual elements required
 
 ---

@@ -12,13 +12,14 @@
 4. When running tests or audits, verify compliance with all rules
 5. When creating new skills or functions, check rules for constraints
 6. **Read `.claude/rules/session-memory.md` FIRST** — it contains full context from previous sessions
+7. **Before answering ANY question**, read session-memory.md to check if it was already discussed
 
 **This is non-negotiable. Skipping rule loading invalidates any review or implementation.**
 
 ## Key Directories
 - `.claude/skills/` — 84 skill files (finance, UI, testing, exports, proof system, architecture)
 - `.claude/skills/context-loading/` — Start here: maps task types to minimum required skills
-- `.claude/rules/` — 18 rule files (audit doctrine, constants, DB seeding, API routes, graphics, hardcoding, skill organization, session memory, button consistency, etc.)
+- `.claude/rules/` — 20 rule files (audit doctrine, constants, DB seeding, API routes, graphics, hardcoding, skill organization, session memory, read-session-memory-first, button consistency, docs-after-edits, etc.)
 - `.claude/manuals/` — Checker manual and user manual
 - `.claude/tools/` — Tool schemas for analysis, financing, returns, validation, UI
 - `.claude/commands/` — 8 slash commands (verify, seed, scenarios, themes, etc.)
@@ -65,6 +66,9 @@ Administration page (`/admin`) has these tabs:
   - `showCompanyCalculationDetails` — Management Company reports
   - `showPropertyCalculationDetails` — Property reports
 - Default: ON. When OFF, shows clean numbers only (investor-ready view).
+- **Consolidated statements** use 3-level accordion: consolidated total → weighted formula → per-property breakdown
+- 7 reusable helpers in `client/src/lib/consolidatedFormulaHelpers.tsx` (zero re-aggregation architecture)
+- Shared row components in `client/src/components/financial-table-rows.tsx`
 
 ## Top Rules
 - **Calculations and correct reports are always the highest priority.** 1330-test proof system must always pass.
@@ -73,6 +77,8 @@ Administration page (`/admin`) has these tabs:
 - **Every save must trigger full financial recalculation.** No partial query invalidation.
 - **All tests and audits must verify rule compliance.** Check all `.claude/rules/` on every audit.
 - **Save all session context to `.claude/rules/session-memory.md`.** Update at the end of every session.
+- **Read session memory first.** Always read `session-memory.md` + `replit.md` before answering questions or starting work.
+- **Update docs after every codebase edit.** `.claude` docs and `replit.md` must be harmonized after any code changes.
 - **Button Label Consistency:** Always use "Save" (never "Update") for all save actions.
 - Company name is "Hospitality Business Group". All UI must reference a theme. All skills stored under `.claude/`.
 - For anything else, see `.claude/claude.md`.

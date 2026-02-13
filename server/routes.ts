@@ -589,6 +589,9 @@ export async function registerRoutes(
       const users = await storage.getAllUsers();
       const userGroups = await storage.getAllUserGroups();
       const themes = await storage.getAllDesignThemes();
+      const allLogos = await storage.getAllLogos();
+      const allCompanies = await storage.getAllCompanies();
+      const allAssetDescriptions = await storage.getAllAssetDescriptions();
 
       const propertyDetails = await Promise.all(properties.map(async (p) => {
         const feeCategories = await storage.getFeeCategoriesByProperty(p.id);
@@ -618,6 +621,9 @@ export async function registerRoutes(
           userGroups: userGroups.length,
           properties: properties.length,
           themes: themes.length,
+          logos: allLogos.length,
+          companies: allCompanies.length,
+          assetDescriptions: allAssetDescriptions.length,
           hasGlobalAssumptions: !!globalAssumptions,
           totalFeeCategories,
         },

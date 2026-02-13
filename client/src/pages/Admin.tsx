@@ -2554,7 +2554,7 @@ export default function Admin() {
 
           {syncResults && (
             <div className="space-y-4 mt-4">
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+              <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-3">
                 <div className="bg-primary/5 rounded-xl p-4 text-center" data-testid="stat-users-count">
                   <p className="text-2xl font-bold text-primary">{syncResults.summary?.users ?? "—"}</p>
                   <p className="text-xs text-muted-foreground mt-1">Users</p>
@@ -2566,6 +2566,22 @@ export default function Admin() {
                 <div className="bg-primary/5 rounded-xl p-4 text-center" data-testid="stat-groups-count">
                   <p className="text-2xl font-bold text-primary">{syncResults.summary?.userGroups ?? "—"}</p>
                   <p className="text-xs text-muted-foreground mt-1">User Groups</p>
+                </div>
+                <div className="bg-primary/5 rounded-xl p-4 text-center" data-testid="stat-companies-count">
+                  <p className="text-2xl font-bold text-primary">{syncResults.summary?.companies ?? "—"}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Companies</p>
+                </div>
+                <div className="bg-primary/5 rounded-xl p-4 text-center" data-testid="stat-logos-count">
+                  <p className="text-2xl font-bold text-primary">{syncResults.summary?.logos ?? "—"}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Logos</p>
+                </div>
+                <div className="bg-primary/5 rounded-xl p-4 text-center" data-testid="stat-themes-count">
+                  <p className="text-2xl font-bold text-primary">{syncResults.summary?.themes ?? "—"}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Themes</p>
+                </div>
+                <div className="bg-primary/5 rounded-xl p-4 text-center" data-testid="stat-asset-descriptions-count">
+                  <p className="text-2xl font-bold text-primary">{syncResults.summary?.assetDescriptions ?? "—"}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Asset Descs</p>
                 </div>
                 <div className="bg-primary/5 rounded-xl p-4 text-center" data-testid="stat-fee-categories">
                   <p className="text-2xl font-bold text-primary">{syncResults.summary?.totalFeeCategories ?? "—"}</p>

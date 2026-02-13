@@ -206,15 +206,15 @@ The `/api/my-branding` endpoint resolves branding for the authenticated user:
 
 The Admin user (email: `admin`) belongs to the **Norfolk Group** user group, not the default "General" group. Each built-in user is pre-assigned to a specific group:
 
-| User Email | User Group | Role |
-|------------|-----------|------|
-| `admin` | Norfolk Group | admin |
-| `checker@norfolkgroup.io` | Norfolk Group | checker |
-| `bhuvan@norfolkgroup.io` | Norfolk Group | user |
-| `reynaldo.fagundes@norfolk.ai` | Norfolk Group | user |
-| `rosario@kitcapital.com` | KIT Group | user |
-| `kit@kitcapital.com` | KIT Group | user |
-| `lemazniku@icloud.com` | KIT Group | user |
+| User Email | Name | User Group | Company Name | Role |
+|------------|------|-----------|--------------|------|
+| `admin` | Ricardo Cidale | Norfolk Group | Norfolk Group | admin |
+| `checker@norfolkgroup.io` | Checker | Norfolk Group | Norfolk Group | checker |
+| `bhuvan@norfolkgroup.io` | Bhuvan Agarwal | Norfolk Group | Norfolk Group | user |
+| `reynaldo.fagundes@norfolk.ai` | Reynaldo Fagundes | Norfolk Group | Norfolk Group | user |
+| `rosario@kitcapital.com` | Rosario David | KIT Group | KIT Capital Hospitality | user |
+| `kit@kitcapital.com` | Dov Tuzman | KIT Group | KIT Capital Hospitality | user |
+| `lemazniku@icloud.com` | Lea Mazniku | KIT Group | KIT Capital Hospitality | user |
 
 **Admin in Norfolk Group:** The admin user sees "Norfolk Group" branding (company name, logo, theme, asset description) throughout the portal, not the default "Hospitality Business Group" branding. This is intentional — the admin operates under the Norfolk Group identity.
 

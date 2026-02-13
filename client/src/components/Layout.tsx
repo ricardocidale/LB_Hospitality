@@ -58,7 +58,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
     { href: "/profile", label: "My Profile", icon: UserCircle },
     ...(sb("sidebarScenarios") && hasManagementAccess ? [{ href: "/scenarios", label: "My Scenarios", icon: FolderOpen }] : []),
     { type: "divider" as const },
-    { href: "/help", label: "Help & Manuals", icon: BookOpen },
+    { href: "/help", label: "Help", icon: BookOpen },
     ...(isAdmin ? [
       { href: "/admin", label: "Administration", icon: Shield },
     ] : []),

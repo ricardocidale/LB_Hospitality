@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useStore } from "@/lib/store";
-import { AnimatedPage, ScrollReveal } from "@/components/graphics";
+import { AnimatedPage, ScrollReveal, KPIGrid, InsightPanel, DonutChart, formatCompact, formatPercent } from "@/components/graphics";
+import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend, ResponsiveContainer, Tooltip } from "recharts";
 
 function fmtMoney(value: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -130,6 +131,78 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
         </div>
 
         {selectedProperties.length >= 2 ? (
+          <>
+          <KPIGrid
+            data-testid="kpi-comparison"
+            items={[
+              { label: "Properties Selected", value: selectedProperties.length, sublabel: "comparing side by side" },
+              { label: "Avg Start ADR", value: selectedProperties.reduce((s, p) => s + p.startAdr, 0) / selectedProperties.length, format: (v: number) => fmtMoney(v) },
+              { label: "Avg Occupancy", value: selectedProperties.reduce((s, p) => s + p.startOccupancy, 0) / selectedProperties.length * 100, format: (v: number) => `${v.toFixed(1)}%` },
+              { label: "Total Rooms", value: selectedProperties.reduce((s, p) => s + p.roomCount, 0) },
+            ]}
+            columns={4}
+            variant="glass"
+          />
+          <ScrollReveal>
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+              <h3 className="text-lg font-display text-gray-900 mb-4">Performance Comparison</h3>
+              <ResponsiveContainer width="100%" height={320}>
+                <RadarChart data={[
+                  { metric: "ADR", ...Object.fromEntries(selectedProperties.map(p => [p.name, Math.min(p.startAdr / 5, 100)])) },
+                  { metric: "Occupancy", ...Object.fromEntries(selectedProperties.map(p => [p.name, p.startOccupancy * 100])) },
+                  { metric: "Rooms", ...Object.fromEntries(selectedProperties.map(p => [p.name, Math.min(p.roomCount, 100)])) },
+                  { metric: "Growth", ...Object.fromEntries(selectedProperties.map(p => [p.name, p.adrGrowthRate * 100 * 10])) },
+                  { metric: "Max Occ", ...Object.fromEntries(selectedProperties.map(p => [p.name, p.maxOccupancy * 100])) },
+                ]}>
+                  <PolarGrid stroke="#e5e7eb" />
+                  <PolarAngleAxis dataKey="metric" tick={{ fill: "#6b7280", fontSize: 12 }} />
+                  <PolarRadiusAxis tick={false} axisLine={false} />
+                  {selectedProperties.map((p, i) => (
+                    <Radar key={p.id} name={p.name} dataKey={p.name} stroke={["#9FBCA4", "#257D41", "#3B82F6", "#F4795B"][i]} fill={["#9FBCA4", "#257D41", "#3B82F6", "#F4795B"][i]} fillOpacity={0.15} strokeWidth={2} />
+                  ))}
+                  <Legend wrapperStyle={{ fontSize: 12 }} />
+                  <Tooltip />
+                </RadarChart>
+              </ResponsiveContainer>
+            </div>
+          </ScrollReveal>
+          <div className="grid gap-6 lg:grid-cols-2">
+            <DonutChart
+              data-testid="donut-comparison-rooms"
+              data={selectedProperties.map(p => ({ name: p.name, value: p.roomCount }))}
+              title="Room Distribution"
+              subtitle="Room count by property"
+              centerValue={String(selectedProperties.reduce((s, p) => s + p.roomCount, 0))}
+              centerLabel="Total Rooms"
+            />
+            <DonutChart
+              data-testid="donut-comparison-price"
+              data={selectedProperties.map(p => ({ name: p.name, value: p.purchasePrice }))}
+              title="Investment Distribution"
+              subtitle="Purchase price by property"
+              centerValue={fmtMoney(selectedProperties.reduce((s, p) => s + p.purchasePrice, 0))}
+              centerLabel="Total Investment"
+              formatValue={fmtMoney}
+            />
+          </div>
+          <InsightPanel
+            data-testid="insight-comparison"
+            variant="compact"
+            title="Comparison Findings"
+            insights={(() => {
+              const insights: Array<{text: string; metric?: string; type: "positive" | "negative" | "warning" | "neutral"}> = [];
+              const adrs = selectedProperties.map(p => ({ name: p.name, v: p.startAdr }));
+              const bestAdr = adrs.reduce((a, b) => a.v > b.v ? a : b);
+              insights.push({ text: `Highest ADR: ${bestAdr.name}`, metric: fmtMoney(bestAdr.v), type: "positive" });
+              const occs = selectedProperties.map(p => ({ name: p.name, v: p.maxOccupancy }));
+              const bestOcc = occs.reduce((a, b) => a.v > b.v ? a : b);
+              insights.push({ text: `Best Max Occupancy: ${bestOcc.name}`, metric: fmtPct(bestOcc.v), type: "positive" });
+              const prices = selectedProperties.map(p => ({ name: p.name, v: p.purchasePrice }));
+              const lowestPrice = prices.reduce((a, b) => a.v < b.v ? a : b);
+              insights.push({ text: `Lowest Purchase Price: ${lowestPrice.name}`, metric: fmtMoney(lowestPrice.v), type: "positive" });
+              return insights;
+            })()}
+          />
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-x-auto">
             <table className="w-full text-sm" data-testid="table-comparison">
               <thead>
@@ -184,6 +257,7 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
               </tbody>
             </table>
           </div>
+        </>
         ) : (
           <div className="bg-white rounded-xl border border-gray-200 p-12 text-center shadow-sm">
             <p className="text-gray-400 text-lg" data-testid="text-empty-state">

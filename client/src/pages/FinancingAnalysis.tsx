@@ -19,7 +19,7 @@ import {
   Percent,
 } from "lucide-react";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
-import { AnimatedPage, ScrollReveal } from "@/components/graphics";
+import { AnimatedPage, ScrollReveal, InsightPanel, Gauge, DonutChart, type Insight } from "@/components/graphics";
 
 type TabId = "dscr" | "debt-yield" | "sensitivity" | "prepayment";
 
@@ -172,6 +172,54 @@ function DSCRTab() {
             <StatCard label="Monthly Payment (Amort)" value={result.monthly_payment_amortizing} format="money" variant="glass" />
             <StatCard label="Implied LTV" value={result.implied_ltv ? formatPct(result.implied_ltv) : "N/A"} format="text" variant="glass" />
           </div>
+          <div className="grid gap-6 lg:grid-cols-3">
+            <Gauge
+              data-testid="gauge-dscr"
+              value={result.actual_dscr ?? 0}
+              min={0}
+              max={3}
+              label="Amortizing DSCR"
+              format={(v: number) => `${v.toFixed(2)}x`}
+              thresholds={{ good: parseFloat(minDscr), warn: 1.0 }}
+              size="lg"
+            />
+            {result.io_dscr && (
+              <Gauge
+                data-testid="gauge-io-dscr"
+                value={result.io_dscr}
+                min={0}
+                max={3}
+                label="IO Period DSCR"
+                format={(v: number) => `${v.toFixed(2)}x`}
+                thresholds={{ good: parseFloat(minDscr), warn: 1.0 }}
+                size="lg"
+              />
+            )}
+            <DonutChart
+              data-testid="donut-loan-constraint"
+              data={[
+                { name: "DSCR Limit", value: result.max_loan_dscr ?? 0 },
+                ...(result.max_loan_ltv ? [{ name: "LTV Limit", value: result.max_loan_ltv }] : []),
+              ]}
+              title="Loan Constraint Comparison"
+              subtitle="Max loan by constraint type"
+              centerValue={formatMoney(result.max_loan_binding)}
+              centerLabel="Binding Limit"
+              formatValue={(v: number) => formatMoney(v)}
+              height={200}
+            />
+          </div>
+          <InsightPanel
+            data-testid="insight-dscr"
+            variant="compact"
+            title="Loan Sizing Insights"
+            insights={[
+              { text: `Binding constraint is ${result.binding_constraint === "dscr" ? "DSCR" : "LTV"}`, type: "neutral" as const },
+              { text: "Actual DSCR", metric: formatRatio(result.actual_dscr), type: (result.actual_dscr ?? 0) >= parseFloat(minDscr) ? "positive" as const : "warning" as const },
+              ...(result.implied_ltv ? [{ text: "Implied LTV", metric: formatPct(result.implied_ltv), type: (result.implied_ltv ?? 0) <= 0.75 ? "positive" as const : "warning" as const }] : []),
+              { text: "Max loan amount", metric: formatMoney(result.max_loan_binding), type: "neutral" as const },
+            ]}
+          />
         </div>
       )}
     </div>
@@ -266,6 +314,18 @@ function DebtYieldTab() {
           <StatCard label="Final Max Loan" value={result.max_loan_binding ? formatMoney(result.max_loan_binding) : "N/A"} format="text" variant="sage" />
           <StatCard label="Implied LTV" value={result.implied_ltv ? formatPct(result.implied_ltv) : "N/A"} format="text" variant="glass" />
         </div>
+      )}
+      {result && (
+        <InsightPanel
+          data-testid="insight-debt-yield"
+          variant="compact"
+          title="Debt Yield Analysis"
+          insights={[
+            { text: "Debt Yield", metric: result.debt_yield ? formatPct(result.debt_yield) : "N/A", type: result.passes_min_threshold ? "positive" as const : "warning" as const },
+            { text: `${result.passes_min_threshold ? "Passes" : "Fails"} minimum threshold`, type: result.passes_min_threshold ? "positive" as const : "negative" as const },
+            { text: "Binding constraint", metric: result.binding_constraint === "debt_yield" ? "Debt Yield" : result.binding_constraint === "ltv" ? "LTV" : "None", type: "neutral" as const },
+          ]}
+        />
       )}
     </div>
   );

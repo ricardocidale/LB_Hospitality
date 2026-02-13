@@ -1,5 +1,6 @@
 import Layout from "@/components/Layout";
-import { AnimatedPage, ScrollReveal } from "@/components/graphics";
+import { AnimatedPage, ScrollReveal, KPIGrid, AnimatedGrid, AnimatedGridItem } from "@/components/graphics";
+import { HoverScale } from "@/components/ui/animated";
 import { useScenarios, useCreateScenario, useLoadScenario, useUpdateScenario, useDeleteScenario } from "@/lib/api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -228,6 +229,16 @@ export default function Scenarios() {
           variant="dark"
         />
 
+        <KPIGrid
+          data-testid="kpi-scenarios"
+          items={[
+            { label: "Total Scenarios", value: scenarios?.length ?? 0, sublabel: "saved snapshots" },
+            { label: "Latest Saved", value: scenarios?.length ?? 0, format: () => scenarios?.length ? new Date(scenarios[0].updatedAt || scenarios[0].createdAt).toLocaleDateString() : "—", sublabel: "most recent" },
+          ]}
+          columns={2}
+          variant="glass"
+        />
+
         <Card className="relative overflow-hidden bg-gradient-to-br from-[#2d4a5e]/90 via-[#3d5a6a]/90 to-[#3a5a5e]/90 backdrop-blur-xl border-white/10">
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <div className="absolute -top-12 -left-12 w-48 h-48 rounded-full bg-primary/15 blur-3xl" />
@@ -315,10 +326,11 @@ export default function Scenarios() {
               </div>
             ) : (
               <ScrollReveal>
-              <div className="grid gap-4">
+              <AnimatedGrid className="grid gap-4">
                 {scenarios?.map((scenario) => (
+                  <AnimatedGridItem key={scenario.id}>
+                  <HoverScale scale={1.01}>
                   <div
-                    key={scenario.id}
                     className={`p-4 rounded-xl border transition-colors ${
                       compareMode && compareSelection.includes(scenario.id)
                         ? "bg-primary/15 border-primary/40"
@@ -438,8 +450,10 @@ export default function Scenarios() {
                       </div>
                     </div>
                   </div>
+                  </HoverScale>
+                  </AnimatedGridItem>
                 ))}
-              </div>
+              </AnimatedGrid>
               </ScrollReveal>
             )}
           </CardContent>

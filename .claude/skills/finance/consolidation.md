@@ -3,7 +3,10 @@
 ## Source Components
 - `client/src/pages/Company.tsx` (`generateCompanyIncomeData`, `generateCompanyCashFlowData`)
 - `client/src/components/ConsolidatedBalanceSheet.tsx`
+- `client/src/components/ConsolidatedIncomeStatement.tsx` — Dashboard multi-level accordion IS
+- `client/src/components/ConsolidatedCashFlowStatement.tsx` — Dashboard multi-level accordion CF
 - `client/src/components/InvestmentAnalysis.tsx`
+- `client/src/lib/consolidatedFormulaHelpers.tsx` — Reusable formula row builders
 - `client/src/lib/cashFlowAggregator.ts`
 - `client/src/lib/yearlyAggregator.ts`
 
@@ -140,6 +143,47 @@ Used for portfolio-level DSCR, debt yield, and valuation.
 Portfolio RevPAR = Σ(Property[i].roomRevenue) ÷ Σ(Property[i].availableRooms)
 ```
 Weighted average across all properties.
+
+## Multi-Level Accordion Architecture (Dashboard)
+
+The Dashboard consolidated statements use a 3-level accordion to provide the same formula verification depth as property-level statements:
+
+### Level 1 — Consolidated Total
+Standard `ExpandableLineItem` or `ExpandableMetricRow` showing the portfolio-wide total.
+Example: "Total Revenue = $4,200,000"
+
+### Level 2 — Consolidated Formula
+`FormulaDetailRow` showing how the consolidated number is derived.
+Example: "Weighted ADR = Σ(Room Revenue) / Σ(Sold Rooms) = $3,150,000 / 21,000 = $150.00"
+
+### Level 3 — Per-Property Breakdown
+`PropertyBreakdownRow` (or additional `FormulaDetailRow` with property name prefix) showing each property's individual contribution with its own formula chain.
+Example:
+```
+Hotel Alpha:  $155.00 ADR × 87% Occ × 80 rooms × 366 nights = $1,750,000
+Hotel Beta:   $142.00 ADR × 82% Occ × 60 rooms × 366 nights = $1,400,000
+```
+
+### Data Dependencies
+```
+Dashboard.tsx (precomputes all data)
+  ├── allPropertyFinancials[]     → monthly engine output
+  ├── allPropertyYearlyIS[]       → aggregatePropertyByYear() per property
+  ├── allPropertyYearlyCF[]       → aggregateCashFlowByYear() per property
+  ├── yearlyConsolidatedCache[]   → Σ across allPropertyYearlyIS
+  └── weightedMetricsByYear[]     → room-night-weighted ADR/Occ/RevPAR
+
+Helper functions in consolidatedFormulaHelpers.tsx accept these pre-computed arrays
+and return JSX fragments ready to place inside Expandable* components.
+```
+
+### Key Design Decisions
+1. **No re-aggregation** — helpers receive pre-computed data, never call aggregatePropertyByYear() themselves
+2. **FormulaDetailRow shared** — exported from `financial-table-rows.tsx`, not duplicated
+3. **Property-level formulas match property pages** — same escalation logic, same rate display
+4. **Toggle-transparent** — helpers don't check CalcDetailsProvider; parent Expandable* handles visibility
+
+See skill: `finance/consolidated-formula-helpers` for helper function API.
 
 ## Validation Rules
 

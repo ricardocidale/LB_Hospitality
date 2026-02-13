@@ -13,6 +13,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { format } from "date-fns";
 import { useState, useMemo, useRef } from "react";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { CalcDetailsProvider } from "@/components/financial-table-rows";
 import { ConsolidatedBalanceSheet } from "@/components/ConsolidatedBalanceSheet";
 import { InvestmentAnalysis } from "@/components/InvestmentAnalysis";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
@@ -47,6 +48,7 @@ export default function Dashboard() {
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState("overview");
   const tabContentRef = useRef<HTMLDivElement>(null);
+  const showCalcDetails = global?.showCompanyCalculationDetails ?? true;
 
   const toggleRow = (rowId: string) => {
     setExpandedRows(prev => {
@@ -1584,6 +1586,7 @@ export default function Dashboard() {
           }
         />
 
+        <CalcDetailsProvider show={showCalcDetails}>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <DarkGlassTabs
             tabs={[
@@ -2013,37 +2016,37 @@ export default function Dashboard() {
                   </TableHeader>
                   <TableBody>
                     <TableRow 
-                      className="font-semibold bg-muted/20 cursor-pointer hover:bg-muted/30"
-                      onClick={() => toggleRow('revenue')}
+                      className={`font-semibold bg-muted/20 ${showCalcDetails ? 'cursor-pointer hover:bg-muted/30' : ''}`}
+                      onClick={showCalcDetails ? () => toggleRow('revenue') : undefined}
                     >
                       <TableCell className="sticky left-0 bg-muted/20 flex items-center gap-2 label-text">
-                        {expandedRows.has('revenue') ? (
+                        {showCalcDetails && (expandedRows.has('revenue') ? (
                           <ChevronDown className="w-4 h-4 text-muted-foreground" />
                         ) : (
                           <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                        )}
+                        ))}
                         Total Revenue
-                        <HelpTooltip text="Combined revenue from rooms, food & beverage, events, and other income sources." />
+                        {showCalcDetails && <HelpTooltip text="Combined revenue from rooms, food & beverage, events, and other income sources." />}
                       </TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => (
                         <TableCell key={y} className="text-right font-mono">{formatMoney(getYearlyConsolidated(y).revenueTotal)}</TableCell>
                       ))}
                     </TableRow>
-                    {expandedRows.has('revenue') && (
+                    {showCalcDetails && expandedRows.has('revenue') && (
                       <>
                         <TableRow 
-                          className="bg-muted/5 cursor-pointer hover:bg-muted/10"
-                          onClick={(e) => { e.stopPropagation(); toggleRow('isTotalRooms'); }}
+                          className={`bg-muted/5 ${showCalcDetails ? 'cursor-pointer hover:bg-muted/10' : ''}`}
+                          onClick={showCalcDetails ? (e) => { e.stopPropagation(); toggleRow('isTotalRooms'); } : undefined}
                         >
                           <TableCell className="sticky left-0 bg-muted/5 pl-10 text-muted-foreground label-text flex items-center gap-2">
-                            {expandedRows.has('isTotalRooms') ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                            {showCalcDetails && (expandedRows.has('isTotalRooms') ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />)}
                             Total Rooms Available
                           </TableCell>
                           {Array.from({ length: projectionYears }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground font-mono">{getWeightedMetrics(y).totalAvailableRoomNights.toLocaleString()}</TableCell>
                           ))}
                         </TableRow>
-                        {expandedRows.has('isTotalRooms') && properties.map((prop, idx) => (
+                        {showCalcDetails && expandedRows.has('isTotalRooms') && properties.map((prop, idx) => (
                           <TableRow key={`isTotalRooms-${prop.id}`} className="bg-blue-50/30">
                             <TableCell className="sticky left-0 bg-blue-50/30 pl-16 text-xs text-muted-foreground">{prop.name}</TableCell>
                             {Array.from({ length: projectionYears }, (_, y) => (
@@ -2054,18 +2057,18 @@ export default function Dashboard() {
                           </TableRow>
                         ))}
                         <TableRow 
-                          className="bg-muted/5 cursor-pointer hover:bg-muted/10"
-                          onClick={(e) => { e.stopPropagation(); toggleRow('isAdr'); }}
+                          className={`bg-muted/5 ${showCalcDetails ? 'cursor-pointer hover:bg-muted/10' : ''}`}
+                          onClick={showCalcDetails ? (e) => { e.stopPropagation(); toggleRow('isAdr'); } : undefined}
                         >
                           <TableCell className="sticky left-0 bg-muted/5 pl-10 text-muted-foreground label-text flex items-center gap-2">
-                            {expandedRows.has('isAdr') ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                            {showCalcDetails && (expandedRows.has('isAdr') ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />)}
                             Wtd Avg ADR
                           </TableCell>
                           {Array.from({ length: projectionYears }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getWeightedMetrics(y).weightedADR)}</TableCell>
                           ))}
                         </TableRow>
-                        {expandedRows.has('isAdr') && properties.map((prop, idx) => (
+                        {showCalcDetails && expandedRows.has('isAdr') && properties.map((prop, idx) => (
                           <TableRow key={`isAdr-${prop.id}`} className="bg-blue-50/30">
                             <TableCell className="sticky left-0 bg-blue-50/30 pl-16 text-xs text-muted-foreground">{prop.name}</TableCell>
                             {Array.from({ length: projectionYears }, (_, y) => {
@@ -2077,18 +2080,18 @@ export default function Dashboard() {
                           </TableRow>
                         ))}
                         <TableRow 
-                          className="bg-muted/5 cursor-pointer hover:bg-muted/10"
-                          onClick={(e) => { e.stopPropagation(); toggleRow('isOcc'); }}
+                          className={`bg-muted/5 ${showCalcDetails ? 'cursor-pointer hover:bg-muted/10' : ''}`}
+                          onClick={showCalcDetails ? (e) => { e.stopPropagation(); toggleRow('isOcc'); } : undefined}
                         >
                           <TableCell className="sticky left-0 bg-muted/5 pl-10 text-muted-foreground label-text flex items-center gap-2">
-                            {expandedRows.has('isOcc') ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                            {showCalcDetails && (expandedRows.has('isOcc') ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />)}
                             Wtd Avg Occupancy
                           </TableCell>
                           {Array.from({ length: projectionYears }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground font-mono">{(getWeightedMetrics(y).weightedOcc * 100).toFixed(1)}%</TableCell>
                           ))}
                         </TableRow>
-                        {expandedRows.has('isOcc') && properties.map((prop, idx) => (
+                        {showCalcDetails && expandedRows.has('isOcc') && properties.map((prop, idx) => (
                           <TableRow key={`isOcc-${prop.id}`} className="bg-blue-50/30">
                             <TableCell className="sticky left-0 bg-blue-50/30 pl-16 text-xs text-muted-foreground">{prop.name}</TableCell>
                             {Array.from({ length: projectionYears }, (_, y) => {
@@ -2100,18 +2103,18 @@ export default function Dashboard() {
                           </TableRow>
                         ))}
                         <TableRow 
-                          className="bg-muted/5 cursor-pointer hover:bg-muted/10"
-                          onClick={(e) => { e.stopPropagation(); toggleRow('isRevpar'); }}
+                          className={`bg-muted/5 ${showCalcDetails ? 'cursor-pointer hover:bg-muted/10' : ''}`}
+                          onClick={showCalcDetails ? (e) => { e.stopPropagation(); toggleRow('isRevpar'); } : undefined}
                         >
                           <TableCell className="sticky left-0 bg-muted/5 pl-10 text-muted-foreground label-text flex items-center gap-2">
-                            {expandedRows.has('isRevpar') ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                            {showCalcDetails && (expandedRows.has('isRevpar') ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />)}
                             RevPAR
                           </TableCell>
                           {Array.from({ length: projectionYears }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getWeightedMetrics(y).revPAR)}</TableCell>
                           ))}
                         </TableRow>
-                        {expandedRows.has('isRevpar') && properties.map((prop, idx) => (
+                        {showCalcDetails && expandedRows.has('isRevpar') && properties.map((prop, idx) => (
                           <TableRow key={`isRevpar-${prop.id}`} className="bg-blue-50/30">
                             <TableCell className="sticky left-0 bg-blue-50/30 pl-16 text-xs text-muted-foreground">{prop.name}</TableCell>
                             {Array.from({ length: projectionYears }, (_, y) => {
@@ -2147,22 +2150,22 @@ export default function Dashboard() {
                           ))}
                         </TableRow>
                         <TableRow 
-                          className="cursor-pointer hover:bg-muted/10"
-                          onClick={(e) => { e.stopPropagation(); toggleRow('revenueByProperty'); }}
+                          className={`${showCalcDetails ? 'cursor-pointer hover:bg-muted/10' : ''}`}
+                          onClick={showCalcDetails ? (e) => { e.stopPropagation(); toggleRow('revenueByProperty'); } : undefined}
                         >
                           <TableCell className="sticky left-0 bg-card pl-8 flex items-center gap-2 text-muted-foreground">
-                            {expandedRows.has('revenueByProperty') ? (
+                            {showCalcDetails && (expandedRows.has('revenueByProperty') ? (
                               <ChevronDown className="w-4 h-4" />
                             ) : (
                               <ChevronRight className="w-4 h-4" />
-                            )}
+                            ))}
                             By Property
                           </TableCell>
                           {Array.from({ length: projectionYears }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground">-</TableCell>
                           ))}
                         </TableRow>
-                        {expandedRows.has('revenueByProperty') && properties.map((prop, idx) => (
+                        {showCalcDetails && expandedRows.has('revenueByProperty') && properties.map((prop, idx) => (
                           <TableRow key={prop.id} className="bg-muted/10">
                             <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">{prop.name}</TableCell>
                             {Array.from({ length: projectionYears }, (_, y) => (
@@ -2176,17 +2179,17 @@ export default function Dashboard() {
                     )}
 
                     <TableRow 
-                      className="font-semibold bg-muted/30 cursor-pointer hover:bg-muted/40"
-                      onClick={() => toggleRow('opex')}
+                      className={`font-semibold bg-muted/30 ${showCalcDetails ? 'cursor-pointer hover:bg-muted/40' : ''}`}
+                      onClick={showCalcDetails ? () => toggleRow('opex') : undefined}
                     >
                       <TableCell className="sticky left-0 bg-muted/30 flex items-center gap-2 label-text">
-                        {expandedRows.has('opex') ? (
+                        {showCalcDetails && (expandedRows.has('opex') ? (
                           <ChevronDown className="w-4 h-4 text-muted-foreground" />
                         ) : (
                           <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                        )}
+                        ))}
                         Operating Expenses
-                        <HelpTooltip text="Sum of all departmental and undistributed operating expenses including rooms, F&B, events, marketing, property operations, admin, and utilities." />
+                        {showCalcDetails && <HelpTooltip text="Sum of all departmental and undistributed operating expenses including rooms, F&B, events, marketing, property operations, admin, and utilities." />}
                       </TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
                         const data = getYearlyConsolidated(y);
@@ -2197,18 +2200,18 @@ export default function Dashboard() {
                         return <TableCell key={y} className="text-right font-mono">{formatMoney(totalOpex)}</TableCell>;
                       })}
                     </TableRow>
-                    {expandedRows.has('opex') && (
+                    {showCalcDetails && expandedRows.has('opex') && (
                       <>
                         <TableRow 
-                          className="cursor-pointer hover:bg-muted/20"
-                          onClick={(e) => { e.stopPropagation(); toggleRow('opexDirect'); }}
+                          className={`${showCalcDetails ? 'cursor-pointer hover:bg-muted/20' : ''}`}
+                          onClick={showCalcDetails ? (e) => { e.stopPropagation(); toggleRow('opexDirect'); } : undefined}
                         >
                           <TableCell className="sticky left-0 bg-card pl-6 flex items-center gap-2">
-                            {expandedRows.has('opexDirect') ? (
+                            {showCalcDetails && (expandedRows.has('opexDirect') ? (
                               <ChevronDown className="w-4 h-4 text-muted-foreground" />
                             ) : (
                               <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                            )}
+                            ))}
                             Direct Costs
                           </TableCell>
                           {Array.from({ length: projectionYears }, (_, y) => {
@@ -2218,7 +2221,7 @@ export default function Dashboard() {
                             </TableCell>;
                           })}
                         </TableRow>
-                        {expandedRows.has('opexDirect') && (
+                        {showCalcDetails && expandedRows.has('opexDirect') && (
                           <>
                             <TableRow className="bg-muted/10">
                               <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Room Expense</TableCell>
@@ -2247,15 +2250,15 @@ export default function Dashboard() {
                           </>
                         )}
                         <TableRow 
-                          className="cursor-pointer hover:bg-muted/20"
-                          onClick={(e) => { e.stopPropagation(); toggleRow('opexOverhead'); }}
+                          className={`${showCalcDetails ? 'cursor-pointer hover:bg-muted/20' : ''}`}
+                          onClick={showCalcDetails ? (e) => { e.stopPropagation(); toggleRow('opexOverhead'); } : undefined}
                         >
                           <TableCell className="sticky left-0 bg-card pl-6 flex items-center gap-2">
-                            {expandedRows.has('opexOverhead') ? (
+                            {showCalcDetails && (expandedRows.has('opexOverhead') ? (
                               <ChevronDown className="w-4 h-4 text-muted-foreground" />
                             ) : (
                               <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                            )}
+                            ))}
                             Overhead & Admin
                           </TableCell>
                           {Array.from({ length: projectionYears }, (_, y) => {
@@ -2267,7 +2270,7 @@ export default function Dashboard() {
                             </TableCell>;
                           })}
                         </TableRow>
-                        {expandedRows.has('opexOverhead') && (
+                        {showCalcDetails && expandedRows.has('opexOverhead') && (
                           <>
                             <TableRow className="bg-muted/10">
                               <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">Admin & General</TableCell>
@@ -2339,7 +2342,7 @@ export default function Dashboard() {
                       <TableCell className="sticky left-0 bg-accent/20 label-text">
                         <span className="flex items-center gap-1">
                           Gross Operating Profit (GOP)
-                          <HelpTooltip text="Revenue minus all direct operating expenses. Measures property-level operational efficiency before management fees and reserves." />
+                          {showCalcDetails && <HelpTooltip text="Revenue minus all direct operating expenses. Measures property-level operational efficiency before management fees and reserves." />}
                         </span>
                       </TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => (
@@ -2348,24 +2351,24 @@ export default function Dashboard() {
                     </TableRow>
 
                     <TableRow 
-                      className="font-semibold bg-muted/30 cursor-pointer hover:bg-muted/40"
-                      onClick={() => toggleRow('mgmtFees')}
+                      className={`font-semibold bg-muted/30 ${showCalcDetails ? 'cursor-pointer hover:bg-muted/40' : ''}`}
+                      onClick={showCalcDetails ? () => toggleRow('mgmtFees') : undefined}
                     >
                       <TableCell className="sticky left-0 bg-muted/30 flex items-center gap-2 label-text">
-                        {expandedRows.has('mgmtFees') ? (
+                        {showCalcDetails && (expandedRows.has('mgmtFees') ? (
                           <ChevronDown className="w-4 h-4 text-muted-foreground" />
                         ) : (
                           <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                        )}
+                        ))}
                         Management Fees (to Hospitality Business Co.)
-                        <HelpTooltip text="Base and incentive fees paid to Hospitality Business Group for hotel management services. Calculated as a percentage of revenue." />
+                        {showCalcDetails && <HelpTooltip text="Base and incentive fees paid to Hospitality Business Group for hotel management services. Calculated as a percentage of revenue." />}
                       </TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
                         const data = getYearlyConsolidated(y);
                         return <TableCell key={y} className="text-right font-mono">{formatMoney(data.feeBase + data.feeIncentive)}</TableCell>;
                       })}
                     </TableRow>
-                    {expandedRows.has('mgmtFees') && (
+                    {showCalcDetails && expandedRows.has('mgmtFees') && (
                       <>
                         <TableRow>
                           <TableCell className="sticky left-0 bg-card pl-8 text-muted-foreground">Base Fee (% of Revenue, per property)</TableCell>
@@ -2380,22 +2383,22 @@ export default function Dashboard() {
                           ))}
                         </TableRow>
                         <TableRow 
-                          className="cursor-pointer hover:bg-muted/10"
-                          onClick={(e) => { e.stopPropagation(); toggleRow('mgmtFeesByProperty'); }}
+                          className={`${showCalcDetails ? 'cursor-pointer hover:bg-muted/10' : ''}`}
+                          onClick={showCalcDetails ? (e) => { e.stopPropagation(); toggleRow('mgmtFeesByProperty'); } : undefined}
                         >
                           <TableCell className="sticky left-0 bg-card pl-8 flex items-center gap-2 text-muted-foreground">
-                            {expandedRows.has('mgmtFeesByProperty') ? (
+                            {showCalcDetails && (expandedRows.has('mgmtFeesByProperty') ? (
                               <ChevronDown className="w-4 h-4" />
                             ) : (
                               <ChevronRight className="w-4 h-4" />
-                            )}
+                            ))}
                             By Property
                           </TableCell>
                           {Array.from({ length: projectionYears }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground">-</TableCell>
                           ))}
                         </TableRow>
-                        {expandedRows.has('mgmtFeesByProperty') && properties.map((prop, idx) => (
+                        {showCalcDetails && expandedRows.has('mgmtFeesByProperty') && properties.map((prop, idx) => (
                           <TableRow key={prop.id} className="bg-muted/10">
                             <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">{prop.name}</TableCell>
                             {Array.from({ length: projectionYears }, (_, y) => {
@@ -2415,7 +2418,7 @@ export default function Dashboard() {
                       <TableCell className="sticky left-0 bg-card">
                         <span className="flex items-center gap-1">
                           FF&E Reserve
-                          <HelpTooltip text="Furniture, Fixtures & Equipment reserve — funds set aside for capital replacements, renovations, and maintaining the property." />
+                          {showCalcDetails && <HelpTooltip text="Furniture, Fixtures & Equipment reserve — funds set aside for capital replacements, renovations, and maintaining the property." />}
                         </span>
                       </TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => (
@@ -2426,7 +2429,7 @@ export default function Dashboard() {
                     <TableRow className="bg-primary/10 font-bold">
                       <TableCell className="sticky left-0 bg-primary/10 flex items-center gap-1 label-text">
                         Net Operating Income (NOI)
-                        <HelpTooltip text="NOI = Total Revenue - Operating Expenses. The property's income before debt service, taxes, and depreciation." manualSection="dashboard-kpis" />
+                        {showCalcDetails && <HelpTooltip text="NOI = Total Revenue - Operating Expenses. The property's income before debt service, taxes, and depreciation." manualSection="dashboard-kpis" />}
                       </TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
                         const noi = getYearlyConsolidated(y).noi;
@@ -2441,7 +2444,7 @@ export default function Dashboard() {
                       <TableCell className="sticky left-0 bg-card text-muted-foreground">
                         <span className="flex items-center gap-1">
                           NOI Margin
-                          <HelpTooltip text="Net Operating Income as a percentage of Total Revenue. Indicates how much of each revenue dollar flows to NOI." />
+                          {showCalcDetails && <HelpTooltip text="Net Operating Income as a percentage of Total Revenue. Indicates how much of each revenue dollar flows to NOI." />}
                         </span>
                       </TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
@@ -2594,37 +2597,37 @@ export default function Dashboard() {
                   </TableHeader>
                   <TableBody>
                     <TableRow 
-                      className="font-semibold bg-muted/20 cursor-pointer hover:bg-muted/30"
-                      onClick={() => toggleRow('cfInflows')}
+                      className={`font-semibold bg-muted/20 ${showCalcDetails ? 'cursor-pointer hover:bg-muted/30' : ''}`}
+                      onClick={showCalcDetails ? () => toggleRow('cfInflows') : undefined}
                     >
                       <TableCell className="sticky left-0 bg-muted/20 flex items-center gap-2">
-                        {expandedRows.has('cfInflows') ? (
+                        {showCalcDetails && (expandedRows.has('cfInflows') ? (
                           <ChevronDown className="w-4 h-4 text-muted-foreground" />
                         ) : (
                           <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                        )}
+                        ))}
                         Cash Inflows (Revenue)
-                        <HelpTooltip text="Total property income from all sources including rooms, F&B, events, and miscellaneous." />
+                        {showCalcDetails && <HelpTooltip text="Total property income from all sources including rooms, F&B, events, and miscellaneous." />}
                       </TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => (
                         <TableCell key={y} className="text-right font-mono">{formatMoney(getYearlyConsolidated(y).revenueTotal)}</TableCell>
                       ))}
                     </TableRow>
-                    {expandedRows.has('cfInflows') && (
+                    {showCalcDetails && expandedRows.has('cfInflows') && (
                       <>
                         <TableRow 
-                          className="bg-muted/5 cursor-pointer hover:bg-muted/10"
-                          onClick={(e) => { e.stopPropagation(); toggleRow('cfTotalRooms'); }}
+                          className={`bg-muted/5 ${showCalcDetails ? 'cursor-pointer hover:bg-muted/10' : ''}`}
+                          onClick={showCalcDetails ? (e) => { e.stopPropagation(); toggleRow('cfTotalRooms'); } : undefined}
                         >
                           <TableCell className="sticky left-0 bg-muted/5 pl-10 text-muted-foreground label-text flex items-center gap-2">
-                            {expandedRows.has('cfTotalRooms') ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                            {showCalcDetails && (expandedRows.has('cfTotalRooms') ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />)}
                             Total Rooms Available
                           </TableCell>
                           {Array.from({ length: projectionYears }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground font-mono">{getWeightedMetrics(y).totalAvailableRoomNights.toLocaleString()}</TableCell>
                           ))}
                         </TableRow>
-                        {expandedRows.has('cfTotalRooms') && properties.map((prop, idx) => (
+                        {showCalcDetails && expandedRows.has('cfTotalRooms') && properties.map((prop, idx) => (
                           <TableRow key={`cfTotalRooms-${prop.id}`} className="bg-blue-50/30">
                             <TableCell className="sticky left-0 bg-blue-50/30 pl-16 text-xs text-muted-foreground">{prop.name}</TableCell>
                             {Array.from({ length: projectionYears }, (_, y) => (
@@ -2635,18 +2638,18 @@ export default function Dashboard() {
                           </TableRow>
                         ))}
                         <TableRow 
-                          className="bg-muted/5 cursor-pointer hover:bg-muted/10"
-                          onClick={(e) => { e.stopPropagation(); toggleRow('cfAdr'); }}
+                          className={`bg-muted/5 ${showCalcDetails ? 'cursor-pointer hover:bg-muted/10' : ''}`}
+                          onClick={showCalcDetails ? (e) => { e.stopPropagation(); toggleRow('cfAdr'); } : undefined}
                         >
                           <TableCell className="sticky left-0 bg-muted/5 pl-10 text-muted-foreground label-text flex items-center gap-2">
-                            {expandedRows.has('cfAdr') ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                            {showCalcDetails && (expandedRows.has('cfAdr') ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />)}
                             Wtd Avg ADR
                           </TableCell>
                           {Array.from({ length: projectionYears }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getWeightedMetrics(y).weightedADR)}</TableCell>
                           ))}
                         </TableRow>
-                        {expandedRows.has('cfAdr') && properties.map((prop, idx) => (
+                        {showCalcDetails && expandedRows.has('cfAdr') && properties.map((prop, idx) => (
                           <TableRow key={`cfAdr-${prop.id}`} className="bg-blue-50/30">
                             <TableCell className="sticky left-0 bg-blue-50/30 pl-16 text-xs text-muted-foreground">{prop.name}</TableCell>
                             {Array.from({ length: projectionYears }, (_, y) => {
@@ -2658,18 +2661,18 @@ export default function Dashboard() {
                           </TableRow>
                         ))}
                         <TableRow 
-                          className="bg-muted/5 cursor-pointer hover:bg-muted/10"
-                          onClick={(e) => { e.stopPropagation(); toggleRow('cfOcc'); }}
+                          className={`bg-muted/5 ${showCalcDetails ? 'cursor-pointer hover:bg-muted/10' : ''}`}
+                          onClick={showCalcDetails ? (e) => { e.stopPropagation(); toggleRow('cfOcc'); } : undefined}
                         >
                           <TableCell className="sticky left-0 bg-muted/5 pl-10 text-muted-foreground label-text flex items-center gap-2">
-                            {expandedRows.has('cfOcc') ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                            {showCalcDetails && (expandedRows.has('cfOcc') ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />)}
                             Wtd Avg Occupancy
                           </TableCell>
                           {Array.from({ length: projectionYears }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground font-mono">{(getWeightedMetrics(y).weightedOcc * 100).toFixed(1)}%</TableCell>
                           ))}
                         </TableRow>
-                        {expandedRows.has('cfOcc') && properties.map((prop, idx) => (
+                        {showCalcDetails && expandedRows.has('cfOcc') && properties.map((prop, idx) => (
                           <TableRow key={`cfOcc-${prop.id}`} className="bg-blue-50/30">
                             <TableCell className="sticky left-0 bg-blue-50/30 pl-16 text-xs text-muted-foreground">{prop.name}</TableCell>
                             {Array.from({ length: projectionYears }, (_, y) => {
@@ -2681,18 +2684,18 @@ export default function Dashboard() {
                           </TableRow>
                         ))}
                         <TableRow 
-                          className="bg-muted/5 cursor-pointer hover:bg-muted/10"
-                          onClick={(e) => { e.stopPropagation(); toggleRow('cfRevpar'); }}
+                          className={`bg-muted/5 ${showCalcDetails ? 'cursor-pointer hover:bg-muted/10' : ''}`}
+                          onClick={showCalcDetails ? (e) => { e.stopPropagation(); toggleRow('cfRevpar'); } : undefined}
                         >
                           <TableCell className="sticky left-0 bg-muted/5 pl-10 text-muted-foreground label-text flex items-center gap-2">
-                            {expandedRows.has('cfRevpar') ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                            {showCalcDetails && (expandedRows.has('cfRevpar') ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />)}
                             RevPAR
                           </TableCell>
                           {Array.from({ length: projectionYears }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getWeightedMetrics(y).revPAR)}</TableCell>
                           ))}
                         </TableRow>
-                        {expandedRows.has('cfRevpar') && properties.map((prop, idx) => (
+                        {showCalcDetails && expandedRows.has('cfRevpar') && properties.map((prop, idx) => (
                           <TableRow key={`cfRevpar-${prop.id}`} className="bg-blue-50/30">
                             <TableCell className="sticky left-0 bg-blue-50/30 pl-16 text-xs text-muted-foreground">{prop.name}</TableCell>
                             {Array.from({ length: projectionYears }, (_, y) => {
@@ -2728,22 +2731,22 @@ export default function Dashboard() {
                           ))}
                         </TableRow>
                         <TableRow 
-                          className="cursor-pointer hover:bg-muted/10"
-                          onClick={(e) => { e.stopPropagation(); toggleRow('cfInflowsByProperty'); }}
+                          className={`${showCalcDetails ? 'cursor-pointer hover:bg-muted/10' : ''}`}
+                          onClick={showCalcDetails ? (e) => { e.stopPropagation(); toggleRow('cfInflowsByProperty'); } : undefined}
                         >
                           <TableCell className="sticky left-0 bg-card pl-8 flex items-center gap-2 text-muted-foreground">
-                            {expandedRows.has('cfInflowsByProperty') ? (
+                            {showCalcDetails && (expandedRows.has('cfInflowsByProperty') ? (
                               <ChevronDown className="w-4 h-4" />
                             ) : (
                               <ChevronRight className="w-4 h-4" />
-                            )}
+                            ))}
                             By Property
                           </TableCell>
                           {Array.from({ length: projectionYears }, (_, y) => (
                             <TableCell key={y} className="text-right text-muted-foreground">-</TableCell>
                           ))}
                         </TableRow>
-                        {expandedRows.has('cfInflowsByProperty') && properties.map((prop, idx) => (
+                        {showCalcDetails && expandedRows.has('cfInflowsByProperty') && properties.map((prop, idx) => (
                           <TableRow key={prop.id} className="bg-muted/10">
                             <TableCell className="sticky left-0 bg-muted/10 pl-12 text-sm text-muted-foreground">{prop.name}</TableCell>
                             {Array.from({ length: projectionYears }, (_, y) => (
@@ -2757,17 +2760,17 @@ export default function Dashboard() {
                     )}
 
                     <TableRow 
-                      className="font-semibold bg-muted/30 cursor-pointer hover:bg-muted/40"
-                      onClick={() => toggleRow('cfOutflows')}
+                      className={`font-semibold bg-muted/30 ${showCalcDetails ? 'cursor-pointer hover:bg-muted/40' : ''}`}
+                      onClick={showCalcDetails ? () => toggleRow('cfOutflows') : undefined}
                     >
                       <TableCell className="sticky left-0 bg-muted/30 flex items-center gap-2">
-                        {expandedRows.has('cfOutflows') ? (
+                        {showCalcDetails && (expandedRows.has('cfOutflows') ? (
                           <ChevronDown className="w-4 h-4 text-muted-foreground" />
                         ) : (
                           <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                        )}
+                        ))}
                         Cash Outflows (Operating)
-                        <HelpTooltip text="Total operating expenses paid out, including departmental costs, administrative overhead, utilities, and other property expenses." />
+                        {showCalcDetails && <HelpTooltip text="Total operating expenses paid out, including departmental costs, administrative overhead, utilities, and other property expenses." />}
                       </TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
                         const data = getYearlyConsolidated(y);
@@ -2778,18 +2781,18 @@ export default function Dashboard() {
                         return <TableCell key={y} className="text-right">({formatMoney(totalOpex)})</TableCell>;
                       })}
                     </TableRow>
-                    {expandedRows.has('cfOutflows') && (
+                    {showCalcDetails && expandedRows.has('cfOutflows') && (
                       <>
                         <TableRow 
-                          className="cursor-pointer hover:bg-muted/20"
-                          onClick={(e) => { e.stopPropagation(); toggleRow('cfDirect'); }}
+                          className={`${showCalcDetails ? 'cursor-pointer hover:bg-muted/20' : ''}`}
+                          onClick={showCalcDetails ? (e) => { e.stopPropagation(); toggleRow('cfDirect'); } : undefined}
                         >
                           <TableCell className="sticky left-0 bg-card pl-6 flex items-center gap-2">
-                            {expandedRows.has('cfDirect') ? (
+                            {showCalcDetails && (expandedRows.has('cfDirect') ? (
                               <ChevronDown className="w-4 h-4 text-muted-foreground" />
                             ) : (
                               <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                            )}
+                            ))}
                             Direct Costs
                           </TableCell>
                           {Array.from({ length: projectionYears }, (_, y) => {
@@ -2799,7 +2802,7 @@ export default function Dashboard() {
                             </TableCell>;
                           })}
                         </TableRow>
-                        {expandedRows.has('cfDirect') && (
+                        {showCalcDetails && expandedRows.has('cfDirect') && (
                           <>
                             {[
                               { key: 'cfExpRoom', label: 'Room Expense', field: 'expenseRooms' as const },
@@ -2809,18 +2812,18 @@ export default function Dashboard() {
                             ].map(item => (
                               <React.Fragment key={item.key}>
                                 <TableRow 
-                                  className="bg-muted/10 cursor-pointer hover:bg-muted/15"
-                                  onClick={(e) => { e.stopPropagation(); toggleRow(item.key); }}
+                                  className={`bg-muted/10 ${showCalcDetails ? 'cursor-pointer hover:bg-muted/15' : ''}`}
+                                  onClick={showCalcDetails ? (e) => { e.stopPropagation(); toggleRow(item.key); } : undefined}
                                 >
                                   <TableCell className="sticky left-0 bg-muted/10 pl-10 text-sm text-muted-foreground flex items-center gap-2">
-                                    {expandedRows.has(item.key) ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                                    {showCalcDetails && (expandedRows.has(item.key) ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />)}
                                     {item.label}
                                   </TableCell>
                                   {Array.from({ length: projectionYears }, (_, y) => (
                                     <TableCell key={y} className="text-right text-sm text-muted-foreground">({formatMoney(getYearlyConsolidated(y)[item.field])})</TableCell>
                                   ))}
                                 </TableRow>
-                                {expandedRows.has(item.key) && properties.map((prop, idx) => (
+                                {showCalcDetails && expandedRows.has(item.key) && properties.map((prop, idx) => (
                                   <TableRow key={`${item.key}-${prop.id}`} className="bg-blue-50/30">
                                     <TableCell className="sticky left-0 bg-blue-50/30 pl-16 text-xs text-muted-foreground">{prop.name}</TableCell>
                                     {Array.from({ length: projectionYears }, (_, y) => (
@@ -2835,15 +2838,15 @@ export default function Dashboard() {
                           </>
                         )}
                         <TableRow 
-                          className="cursor-pointer hover:bg-muted/20"
-                          onClick={(e) => { e.stopPropagation(); toggleRow('cfOverhead'); }}
+                          className={`${showCalcDetails ? 'cursor-pointer hover:bg-muted/20' : ''}`}
+                          onClick={showCalcDetails ? (e) => { e.stopPropagation(); toggleRow('cfOverhead'); } : undefined}
                         >
                           <TableCell className="sticky left-0 bg-card pl-6 flex items-center gap-2">
-                            {expandedRows.has('cfOverhead') ? (
+                            {showCalcDetails && (expandedRows.has('cfOverhead') ? (
                               <ChevronDown className="w-4 h-4 text-muted-foreground" />
                             ) : (
                               <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                            )}
+                            ))}
                             Overhead & Admin
                           </TableCell>
                           {Array.from({ length: projectionYears }, (_, y) => {
@@ -2855,7 +2858,7 @@ export default function Dashboard() {
                             </TableCell>;
                           })}
                         </TableRow>
-                        {expandedRows.has('cfOverhead') && (
+                        {showCalcDetails && expandedRows.has('cfOverhead') && (
                           <>
                             {[
                               { key: 'cfExpAdmin', label: 'Admin & General', field: 'expenseAdmin' as const },
@@ -2868,18 +2871,18 @@ export default function Dashboard() {
                             ].map(item => (
                               <React.Fragment key={item.key}>
                                 <TableRow 
-                                  className="bg-muted/10 cursor-pointer hover:bg-muted/15"
-                                  onClick={(e) => { e.stopPropagation(); toggleRow(item.key); }}
+                                  className={`bg-muted/10 ${showCalcDetails ? 'cursor-pointer hover:bg-muted/15' : ''}`}
+                                  onClick={showCalcDetails ? (e) => { e.stopPropagation(); toggleRow(item.key); } : undefined}
                                 >
                                   <TableCell className="sticky left-0 bg-muted/10 pl-10 text-sm text-muted-foreground flex items-center gap-2">
-                                    {expandedRows.has(item.key) ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                                    {showCalcDetails && (expandedRows.has(item.key) ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />)}
                                     {item.label}
                                   </TableCell>
                                   {Array.from({ length: projectionYears }, (_, y) => (
                                     <TableCell key={y} className="text-right text-sm text-muted-foreground">({formatMoney(getYearlyConsolidated(y)[item.field])})</TableCell>
                                   ))}
                                 </TableRow>
-                                {expandedRows.has(item.key) && properties.map((prop, idx) => (
+                                {showCalcDetails && expandedRows.has(item.key) && properties.map((prop, idx) => (
                                   <TableRow key={`${item.key}-${prop.id}`} className="bg-blue-50/30">
                                     <TableCell className="sticky left-0 bg-blue-50/30 pl-16 text-xs text-muted-foreground">{prop.name}</TableCell>
                                     {Array.from({ length: projectionYears }, (_, y) => (
@@ -2892,11 +2895,11 @@ export default function Dashboard() {
                               </React.Fragment>
                             ))}
                             <TableRow 
-                              className="bg-muted/10 cursor-pointer hover:bg-muted/15"
-                              onClick={(e) => { e.stopPropagation(); toggleRow('cfExpUtilities'); }}
+                              className={`bg-muted/10 ${showCalcDetails ? 'cursor-pointer hover:bg-muted/15' : ''}`}
+                              onClick={showCalcDetails ? (e) => { e.stopPropagation(); toggleRow('cfExpUtilities'); } : undefined}
                             >
                               <TableCell className="sticky left-0 bg-muted/10 pl-10 text-sm text-muted-foreground flex items-center gap-2">
-                                {expandedRows.has('cfExpUtilities') ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                                {showCalcDetails && (expandedRows.has('cfExpUtilities') ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />)}
                                 Utilities
                               </TableCell>
                               {Array.from({ length: projectionYears }, (_, y) => {
@@ -2904,7 +2907,7 @@ export default function Dashboard() {
                                 return <TableCell key={y} className="text-right text-sm text-muted-foreground">({formatMoney(data.expenseUtilitiesVar + data.expenseUtilitiesFixed)})</TableCell>;
                               })}
                             </TableRow>
-                            {expandedRows.has('cfExpUtilities') && properties.map((prop, idx) => (
+                            {showCalcDetails && expandedRows.has('cfExpUtilities') && properties.map((prop, idx) => (
                               <TableRow key={`cfExpUtil-${prop.id}`} className="bg-blue-50/30">
                                 <TableCell className="sticky left-0 bg-blue-50/30 pl-16 text-xs text-muted-foreground">{prop.name}</TableCell>
                                 {Array.from({ length: projectionYears }, (_, y) => {
@@ -2936,7 +2939,7 @@ export default function Dashboard() {
                       <TableCell className="sticky left-0 bg-accent/20 label-text">
                         <span className="flex items-center gap-1">
                           Gross Operating Profit (GOP)
-                          <HelpTooltip text="Revenue minus all direct operating expenses. Measures property-level operational efficiency before management fees and reserves." />
+                          {showCalcDetails && <HelpTooltip text="Revenue minus all direct operating expenses. Measures property-level operational efficiency before management fees and reserves." />}
                         </span>
                       </TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => (
@@ -2945,38 +2948,38 @@ export default function Dashboard() {
                     </TableRow>
 
                     <TableRow 
-                      className="cursor-pointer hover:bg-muted/20"
-                      onClick={() => toggleRow('cfMgmtFees')}
+                      className={`${showCalcDetails ? 'cursor-pointer hover:bg-muted/20' : ''}`}
+                      onClick={showCalcDetails ? () => toggleRow('cfMgmtFees') : undefined}
                     >
                       <TableCell className="sticky left-0 bg-card flex items-center gap-2">
-                        {expandedRows.has('cfMgmtFees') ? (
+                        {showCalcDetails && (expandedRows.has('cfMgmtFees') ? (
                           <ChevronDown className="w-4 h-4 text-muted-foreground" />
                         ) : (
                           <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                        )}
+                        ))}
                         Management Fees (to Hospitality Business Co.)
-                        <HelpTooltip text="Base and incentive fees paid to Hospitality Business Group for hotel management services. Calculated as a percentage of revenue." />
+                        {showCalcDetails && <HelpTooltip text="Base and incentive fees paid to Hospitality Business Group for hotel management services. Calculated as a percentage of revenue." />}
                       </TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
                         const data = getYearlyConsolidated(y);
                         return <TableCell key={y} className="text-right text-muted-foreground">({formatMoney(data.feeBase + data.feeIncentive)})</TableCell>;
                       })}
                     </TableRow>
-                    {expandedRows.has('cfMgmtFees') && (
+                    {showCalcDetails && expandedRows.has('cfMgmtFees') && (
                       <>
                         <TableRow 
-                          className="bg-muted/10 cursor-pointer hover:bg-muted/15"
-                          onClick={(e) => { e.stopPropagation(); toggleRow('cfFeeBase'); }}
+                          className={`bg-muted/10 ${showCalcDetails ? 'cursor-pointer hover:bg-muted/15' : ''}`}
+                          onClick={showCalcDetails ? (e) => { e.stopPropagation(); toggleRow('cfFeeBase'); } : undefined}
                         >
                           <TableCell className="sticky left-0 bg-muted/10 pl-8 text-sm text-muted-foreground flex items-center gap-2">
-                            {expandedRows.has('cfFeeBase') ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                            {showCalcDetails && (expandedRows.has('cfFeeBase') ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />)}
                             Base Fee (% of Revenue, per property)
                           </TableCell>
                           {Array.from({ length: projectionYears }, (_, y) => (
                             <TableCell key={y} className="text-right text-sm text-muted-foreground">({formatMoney(getYearlyConsolidated(y).feeBase)})</TableCell>
                           ))}
                         </TableRow>
-                        {expandedRows.has('cfFeeBase') && properties.map((prop, idx) => (
+                        {showCalcDetails && expandedRows.has('cfFeeBase') && properties.map((prop, idx) => (
                           <TableRow key={`cfFeeBase-${prop.id}`} className="bg-blue-50/30">
                             <TableCell className="sticky left-0 bg-blue-50/30 pl-16 text-xs text-muted-foreground">{prop.name}</TableCell>
                             {Array.from({ length: projectionYears }, (_, y) => (
@@ -2987,18 +2990,18 @@ export default function Dashboard() {
                           </TableRow>
                         ))}
                         <TableRow 
-                          className="bg-muted/10 cursor-pointer hover:bg-muted/15"
-                          onClick={(e) => { e.stopPropagation(); toggleRow('cfFeeIncentive'); }}
+                          className={`bg-muted/10 ${showCalcDetails ? 'cursor-pointer hover:bg-muted/15' : ''}`}
+                          onClick={showCalcDetails ? (e) => { e.stopPropagation(); toggleRow('cfFeeIncentive'); } : undefined}
                         >
                           <TableCell className="sticky left-0 bg-muted/10 pl-8 text-sm text-muted-foreground flex items-center gap-2">
-                            {expandedRows.has('cfFeeIncentive') ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                            {showCalcDetails && (expandedRows.has('cfFeeIncentive') ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />)}
                             Incentive Fee (% of GOP, per property)
                           </TableCell>
                           {Array.from({ length: projectionYears }, (_, y) => (
                             <TableCell key={y} className="text-right text-sm text-muted-foreground">({formatMoney(getYearlyConsolidated(y).feeIncentive)})</TableCell>
                           ))}
                         </TableRow>
-                        {expandedRows.has('cfFeeIncentive') && properties.map((prop, idx) => (
+                        {showCalcDetails && expandedRows.has('cfFeeIncentive') && properties.map((prop, idx) => (
                           <TableRow key={`cfFeeInc-${prop.id}`} className="bg-blue-50/30">
                             <TableCell className="sticky left-0 bg-blue-50/30 pl-16 text-xs text-muted-foreground">{prop.name}</TableCell>
                             {Array.from({ length: projectionYears }, (_, y) => (
@@ -3015,7 +3018,7 @@ export default function Dashboard() {
                       <TableCell className="sticky left-0 bg-card">
                         <span className="flex items-center gap-1">
                           FF&E Reserve
-                          <HelpTooltip text="Furniture, Fixtures & Equipment reserve — funds set aside for capital replacements, renovations, and maintaining the property." />
+                          {showCalcDetails && <HelpTooltip text="Furniture, Fixtures & Equipment reserve — funds set aside for capital replacements, renovations, and maintaining the property." />}
                         </span>
                       </TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => (
@@ -3026,7 +3029,7 @@ export default function Dashboard() {
                     <TableRow className="font-semibold bg-muted/20">
                       <TableCell className="sticky left-0 bg-muted/20 flex items-center gap-1 label-text">
                         Net Operating Income (NOI)
-                        <HelpTooltip text="NOI = Total Revenue - Operating Expenses. The property's income before debt service, taxes, and depreciation." manualSection="dashboard-kpis" />
+                        {showCalcDetails && <HelpTooltip text="NOI = Total Revenue - Operating Expenses. The property's income before debt service, taxes, and depreciation." manualSection="dashboard-kpis" />}
                       </TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
                         const noi = getYearlyConsolidated(y).noi;
@@ -3039,24 +3042,24 @@ export default function Dashboard() {
                     </TableRow>
 
                     <TableRow 
-                      className="cursor-pointer hover:bg-muted/20"
-                      onClick={() => toggleRow('cfDebt')}
+                      className={`${showCalcDetails ? 'cursor-pointer hover:bg-muted/20' : ''}`}
+                      onClick={showCalcDetails ? () => toggleRow('cfDebt') : undefined}
                     >
                       <TableCell className="sticky left-0 bg-card flex items-center gap-2">
-                        {expandedRows.has('cfDebt') ? (
+                        {showCalcDetails && (expandedRows.has('cfDebt') ? (
                           <ChevronDown className="w-4 h-4 text-muted-foreground" />
                         ) : (
                           <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                        )}
+                        ))}
                         Debt Service
-                        <HelpTooltip text="Total debt payment including principal and interest. Paid to lenders before distributions to investors." manualSection="dashboard-kpis" />
+                        {showCalcDetails && <HelpTooltip text="Total debt payment including principal and interest. Paid to lenders before distributions to investors." manualSection="dashboard-kpis" />}
                       </TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
                         const debt = getYearlyConsolidated(y).debtPayment;
                         return <TableCell key={y} className="text-right text-muted-foreground">{debt > 0 ? `(${formatMoney(debt)})` : '-'}</TableCell>;
                       })}
                     </TableRow>
-                    {expandedRows.has('cfDebt') && properties.filter(p => p.type === 'Financed').map((prop, idx) => {
+                    {showCalcDetails && expandedRows.has('cfDebt') && properties.filter(p => p.type === 'Financed').map((prop, idx) => {
                       const propIdx = properties.findIndex(p => p.id === prop.id);
                       return (
                         <TableRow key={prop.id} className="bg-muted/10">
@@ -3076,7 +3079,7 @@ export default function Dashboard() {
                     <TableRow className="bg-primary/10 font-bold">
                       <TableCell className="sticky left-0 bg-primary/10 flex items-center gap-1">
                         Net Cash Flow
-                        <HelpTooltip text="Cash available after debt service. For unlevered properties, equals NOI." manualSection="dashboard-kpis" />
+                        {showCalcDetails && <HelpTooltip text="Cash available after debt service. For unlevered properties, equals NOI." manualSection="dashboard-kpis" />}
                       </TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
                         const cf = getYearlyConsolidated(y).cashFlow;
@@ -3088,22 +3091,22 @@ export default function Dashboard() {
                       })}
                     </TableRow>
                     <TableRow 
-                      className="cursor-pointer hover:bg-muted/10"
-                      onClick={() => toggleRow('cfByProperty')}
+                      className={`${showCalcDetails ? 'cursor-pointer hover:bg-muted/10' : ''}`}
+                      onClick={showCalcDetails ? () => toggleRow('cfByProperty') : undefined}
                     >
                       <TableCell className="sticky left-0 bg-card pl-6 flex items-center gap-2 text-muted-foreground">
-                        {expandedRows.has('cfByProperty') ? (
+                        {showCalcDetails && (expandedRows.has('cfByProperty') ? (
                           <ChevronDown className="w-4 h-4" />
                         ) : (
                           <ChevronRight className="w-4 h-4" />
-                        )}
+                        ))}
                         By Property
                       </TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => (
                         <TableCell key={y} className="text-right text-muted-foreground">-</TableCell>
                       ))}
                     </TableRow>
-                    {expandedRows.has('cfByProperty') && properties.map((prop, idx) => (
+                    {showCalcDetails && expandedRows.has('cfByProperty') && properties.map((prop, idx) => (
                       <TableRow key={prop.id} className="bg-muted/10">
                         <TableCell className="sticky left-0 bg-muted/10 pl-10 text-sm text-muted-foreground">{prop.name}</TableCell>
                         {Array.from({ length: projectionYears }, (_, y) => {
@@ -3147,6 +3150,7 @@ export default function Dashboard() {
             />
           </TabsContent>
         </Tabs>
+        </CalcDetailsProvider>
       </div>
       </AnimatedPage>
     </Layout>

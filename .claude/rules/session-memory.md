@@ -110,3 +110,66 @@ This rule ensures continuity across chat resets. The agent must treat this file 
 - **Partner/Checker:** sees management-level pages (dashboard, properties, company, settings, etc.) but NOT Administration
 - **Investor:** sees limited view — Dashboard, Properties, Profile, Help only
 - Consecutive dividers are auto-filtered to prevent visual gaps
+
+---
+
+## Session: February 13, 2026 (Continued — Consolidated Formula Helpers)
+
+### What Was Done
+
+#### 1. Consolidated Formula Helpers — Zero Re-Aggregation Architecture
+- **Created** `client/src/lib/consolidatedFormulaHelpers.tsx` with 7 exported helper functions for building multi-level accordion formula rows in consolidated (Dashboard) financial statements
+- **Exported helpers:**
+  - `consolidatedLineItemBreakdown()` — per-property breakdown for any summed IS field
+  - `consolidatedWeightedADR()` — weighted ADR formula with per-property breakdown
+  - `consolidatedWeightedOccupancy()` — weighted occupancy with per-property breakdown
+  - `consolidatedRevPAR()` — portfolio RevPAR with per-property breakdown
+  - `consolidatedCashFlowBreakdown()` — per-property breakdown for any CF field
+  - `consolidatedDSCR()` — DSCR formula with per-property breakdown
+  - `consolidatedCashOnCash()` — Cash-on-Cash formula with per-property breakdown
+- **Exported interface:** `WeightedMetrics { weightedADR, weightedOcc, revPAR, totalAvailableRoomNights }`
+- **Key design:** All helpers accept precomputed consolidated arrays (yearlyConsolidated, consolidatedNOI[], consolidatedDS[], consolidatedATCF[], totalEquity) — zero re-aggregation inside render paths
+
+#### 2. Shared Financial Table Row Components
+- **Created** `client/src/components/financial-table-rows.tsx` with shared exports:
+  - `FormulaDetailRow` — Level 2 accordion row (italic, blue-tinted, formula display)
+  - `PropertyBreakdownRow` — Level 3 accordion row (deeper indent, indigo-tinted, per-property contribution)
+- Legacy local copies remain in property-level statement components until full refactor
+
+#### 3. Three-Level Accordion Architecture Documented
+- **Level 1:** `ExpandableLineItem` / `ExpandableMetricRow` — consolidated total with chevron
+- **Level 2:** `FormulaDetailRow` — consolidated formula (e.g., "Σ(Room Revenue) ÷ Σ(Sold Rooms)")
+- **Level 3:** `PropertyBreakdownRow` — per-property contributions
+- All controlled by `CalcDetailsProvider` context (Calculation Transparency toggles)
+
+#### 4. Documentation Updated
+- **Created** `.claude/skills/finance/consolidated-formula-helpers.md` — full API reference for all 7 helpers
+- **Updated** `.claude/skills/ui/accordion-formula-rows.md` — shared FormulaDetailRow/PropertyBreakdownRow location, correct helper function names
+- **Updated** `.claude/skills/finance/consolidation.md` — fixed `.tsx` extension references, accurate helper names
+- **Fixed** all `.ts` → `.tsx` extension mismatches across docs
+- **Fixed** re-aggregation in helpers — replaced inline `.reduce()` calls with precomputed array parameters
+
+#### 5. New Rules Created
+- **Created** `.claude/rules/docs-after-edits.md` — mandates updating `.claude` docs and harmonizing `replit.md` after any codebase edits
+- **Created** `.claude/rules/read-session-memory-first.md` — mandates reading session-memory.md and replit.md before answering any question or starting any task
+- Rules count now: 20 (was 18)
+
+### Completed
+- TypeScript compiles cleanly (0 errors via `npx tsc --noEmit`)
+- All 1,330 tests pass (59 files)
+- Architect review: PASS — docs match actual exports, zero re-aggregation confirmed
+
+### Key Architecture Decisions
+- **3-level accordion** pattern for consolidated statements (total → formula → per-property)
+- **Zero re-aggregation** — helpers never call `.reduce()` on raw data; all consolidated totals passed in as precomputed arrays
+- **Shared components** — FormulaDetailRow and PropertyBreakdownRow exported from `financial-table-rows.tsx` for use by both property-level and consolidated components
+- **Token efficiency** — all 7 helpers in one file, accept precomputed data, return JSX fragments
+
+### Important File Map (Additions)
+| File | Purpose |
+|------|---------|
+| `client/src/lib/consolidatedFormulaHelpers.tsx` | 7 reusable formula row builders for consolidated statements |
+| `client/src/components/financial-table-rows.tsx` | Shared FormulaDetailRow and PropertyBreakdownRow components |
+| `.claude/skills/finance/consolidated-formula-helpers.md` | Full API docs for consolidated helpers |
+| `.claude/rules/docs-after-edits.md` | Rule: update docs after every codebase edit |
+| `.claude/rules/read-session-memory-first.md` | Rule: read session memory before answering questions |

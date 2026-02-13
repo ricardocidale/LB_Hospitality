@@ -44,3 +44,11 @@ export type {
   StepDownDetails,
   DefeasanceDetails,
 } from "./prepayment.js";
+
+export { computeInterestRateSwap } from "./interest-rate-swap.js";
+export type {
+  InterestRateSwapInput,
+  InterestRateSwapOutput,
+  SwapPeriodCashFlow,
+  SwapScenarioResult,
+} from "./interest-rate-swap.js";

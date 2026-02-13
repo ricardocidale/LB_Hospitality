@@ -54,6 +54,7 @@ With 80+ skill files (~15,000 lines), loading everything wastes tokens and slows
 | 3D graphics / animations | `3d-graphics/SKILL.md`, `ui/animation-patterns.md` | Everything else |
 | Theme changes | `ui/theme-engine.md`, `design-system/SKILL.md` | Finance skills |
 | Branding / user groups / logos | `multi-tenancy/SKILL.md` | Finance skills |
+| Entity card UI (admin CRUD) | `ui/entity-cards.md`, `rules/entity-card-patterns.md` | Finance skills |
 | User management / roles | `multi-tenancy/SKILL.md` | Finance skills |
 | Accordion/formula rows | `ui/help-tooltip.md`, `ui/financial-table-styling.md` | Finance engine skills |
 | Info/help icon work | `ui/info-icons.md`, `ui/help-tooltip.md` | Finance skills |

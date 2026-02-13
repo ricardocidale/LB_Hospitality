@@ -88,6 +88,7 @@ Each rule governs one or more skill domains. When working in a domain, load both
 | `architect-reads-rules-and-skills.md` | `context-loading/SKILL.md` | Architect calls include all rules |
 | `verification-system.md` | `proof-system/SKILL.md`, `testing/SKILL.md` | GAAP verification pipeline |
 | `release-audit-checklist.md` | `proof-system/SKILL.md`, `testing/SKILL.md`, `exports/SKILL.md` | Pre-release audit dimensions |
+| `entity-card-patterns.md` | `ui/entity-cards.md` | Admin entity card layout consistency |
 | `skill-organization.md` | All skills | Skill file structure and naming |
 
 ## When Creating New Skills

@@ -5,7 +5,7 @@ Business simulation portal for Hospitality Business Group. Models a boutique hos
 
 ## User Preferences
 - Preferred communication style: Simple, everyday language. Detailed user — ask lots of clarifying questions before implementing features. Do not assume; confirm requirements first.
-- **TOP PRIORITY: Calculations and correct reports are always the highest priority.** Financial accuracy must never be compromised for visual or UI enhancements. The automated proof system (1175 tests) must always pass.
+- **TOP PRIORITY: Calculations and correct reports are always the highest priority.** Financial accuracy must never be compromised for visual or UI enhancements. The automated proof system (1330 tests) must always pass.
 - Always format money as money (currency format with commas and appropriate precision).
 - All skills must be stored under `.claude/` directory (e.g., `.claude/skills/`, `.claude/manuals/`, `.claude/tools/`). Never place skills elsewhere.
 - The company name is "Hospitality Business Group" (or "Hospitality Business" for short). Never use "L+B Hospitality" in code or documentation.
@@ -55,9 +55,10 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | UI: Other (14) | `.claude/skills/ui/` | Glass components, buttons, sliders, tabs, page-header, callout, image picker, etc. |
 | Manuals | `.claude/manuals/` | Checker manual (15 sections), user manual (16 sections) |
 | Tools | `.claude/tools/` | Analysis, financing, returns, validation, UI tool schemas |
-| Rules (8) | `.claude/rules/` | Audit persona+doctrine+plan, constants, DB seeding, API routes, etc. |
+| UI: Graphics | `.claude/skills/ui/graphics-component-catalog.md`, `ui/page-enhancement-checklist.md`, `ui/animation-patterns.md` | Reusable graphics components, page visual minimums, animation patterns |
+| Rules (14) | `.claude/rules/` | Audit persona, constants, DB seeding, API routes, graphics-rich design, architecture, financial engine, verification, etc. |
 
-## Testing & Proof System (1175 Tests, 52 Files)
+## Testing & Proof System (1330 Tests, 59 Files)
 
 | Entity Level | Test Domains | Skill |
 |-------------|-------------|-------|
@@ -70,13 +71,15 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | Engine Unit Tests | Cash flow aggregator, yearly aggregator, equity calculations, loan calculations, GAAP compliance, edge cases | `tests/engine/` |
 | Validation | Assumption consistency, funding gates, export verification | `tests/calc/validation/` |
 
-**Commands**: `npm test` (all 1175), `npm run verify` (4-phase, UNQUALIFIED required)
+**Commands**: `npm test` (all 1330), `npm run verify` (4-phase, UNQUALIFIED required)
 
 ## Research Badge Defaults (Database-Backed, Location-Aware)
 Research values are stored in the `research_values` JSONB column on each property, generated location-aware at creation time via `server/researchSeeds.ts` with 25+ regional profiles. Sources: CBRE Trends 2024-2025, STR/CoStar, HVS, Highland Group Boutique Hotel Report 2025. Location detection uses pattern matching on location/streetAddress/city/stateProvince/market fields. Each entry has `{ display, mid, source }` where source = 'seed' (location defaults), 'ai' (AI research override), or 'none' (hidden). Generic fallback: ADR $193, Occupancy 69%, Cap Rate 8.5% (national averages). When AI research runs, it overrides seeded defaults with source='ai'. Frontend (PropertyEdit.tsx) reads from property.researchValues, falling back to generic defaults if absent.
 
 ## Recent Changes
-- **Validation Test Suites (1175 tests)**: Added 212 new tests across 3 validation modules: assumption-consistency (83), funding-gates (75), export-verification (54). Total: 1175 tests, 52 files.
+- **Graphics Enhancement (10 pages)**: Added KPIGrid, InsightPanel, Gauge, DonutChart, RadarChart, AnimatedPage, ScrollReveal, AnimatedGrid to Dashboard, Company, PropertyDetail, CompanyAssumptions, Portfolio, Scenarios, ComparisonView, FinancingAnalysis, SensitivityAnalysis, Analysis. Reusable graphics library at `client/src/components/graphics/`. Skills moved to `ui/` subdirectory.
+- **Skill & Rule Organization**: Moved 3 loose skill files (animation-patterns, graphics-component-catalog, page-enhancement-checklist) into `.claude/skills/ui/`. Updated graphics-rich-design rule with skill cross-references and verification checklist. Fixed stale counts across documentation (tests: 1330, rules: 14, test files: 59).
+- **Validation Test Suites (1330 tests)**: Added 212 new tests across 3 validation modules: assumption-consistency (83), funding-gates (75), export-verification (54). Total: 1330 tests, 59 files.
 - **Engine Unit Test Expansion**: Added 312 new tests across 4 engine test suites: cash flow aggregator (67), yearly aggregator (118), equity calculations (49), GAAP compliance checker (78). Plus loan calculations (138) and pro forma edge cases (126).
 - **Rate-Limit Memory Leak Fix**: Added `cleanupRateLimitMaps()` to `server/auth.ts` — purges expired entries from in-memory loginAttempts and apiRateLimits Maps. Called hourly from the existing cleanup interval in `server/index.ts`.
 - **Stale Cache After Property Deletion Fix**: `useDeleteProperty` in `client/src/lib/api.ts` now invalidates `["scenarios"]` and `["feeCategories"]` queries in addition to `["properties"]`.
@@ -157,9 +160,9 @@ Research values are stored in the `research_values` JSONB column on each propert
 ```bash
 npm run dev            # Start dev server
 npm run health         # One-shot: tsc + tests + verify (~4 lines output)
-npm run test:summary   # Run all 1175 tests, 1-line output on pass
+npm run test:summary   # Run all 1330 tests, 1-line output on pass
 npm run verify:summary # 4-phase verification, compact output
-npm test               # Run all 1175 tests (full output)
+npm test               # Run all 1330 tests (full output)
 npm run verify         # Full 4-phase financial verification (verbose)
 npm run db:push        # Push schema changes
 npm run lint:summary   # tsc --noEmit with 1-line output

@@ -2023,6 +2023,7 @@ export default function Dashboard() {
                           <ChevronRight className="w-4 h-4 text-muted-foreground" />
                         )}
                         Total Revenue
+                        <HelpTooltip text="Combined revenue from rooms, food & beverage, events, and other income sources." />
                       </TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => (
                         <TableCell key={y} className="text-right font-mono">{formatMoney(getYearlyConsolidated(y).revenueTotal)}</TableCell>
@@ -2185,6 +2186,7 @@ export default function Dashboard() {
                           <ChevronRight className="w-4 h-4 text-muted-foreground" />
                         )}
                         Operating Expenses
+                        <HelpTooltip text="Sum of all departmental and undistributed operating expenses including rooms, F&B, events, marketing, property operations, admin, and utilities." />
                       </TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
                         const data = getYearlyConsolidated(y);
@@ -2334,7 +2336,12 @@ export default function Dashboard() {
                     </TableRow>
 
                     <TableRow className="bg-accent/20 font-semibold">
-                      <TableCell className="sticky left-0 bg-accent/20 label-text">Gross Operating Profit (GOP)</TableCell>
+                      <TableCell className="sticky left-0 bg-accent/20 label-text">
+                        <span className="flex items-center gap-1">
+                          Gross Operating Profit (GOP)
+                          <HelpTooltip text="Revenue minus all direct operating expenses. Measures property-level operational efficiency before management fees and reserves." />
+                        </span>
+                      </TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => (
                         <TableCell key={y} className="text-right font-mono">{formatMoney(getYearlyConsolidated(y).gop)}</TableCell>
                       ))}
@@ -2351,6 +2358,7 @@ export default function Dashboard() {
                           <ChevronRight className="w-4 h-4 text-muted-foreground" />
                         )}
                         Management Fees (to Hospitality Business Co.)
+                        <HelpTooltip text="Base and incentive fees paid to Hospitality Business Group for hotel management services. Calculated as a percentage of revenue." />
                       </TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
                         const data = getYearlyConsolidated(y);
@@ -2404,7 +2412,12 @@ export default function Dashboard() {
                     )}
 
                     <TableRow>
-                      <TableCell className="sticky left-0 bg-card">FF&E Reserve</TableCell>
+                      <TableCell className="sticky left-0 bg-card">
+                        <span className="flex items-center gap-1">
+                          FF&E Reserve
+                          <HelpTooltip text="Furniture, Fixtures & Equipment reserve — funds set aside for capital replacements, renovations, and maintaining the property." />
+                        </span>
+                      </TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => (
                         <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(getYearlyConsolidated(y).expenseFFE)}</TableCell>
                       ))}
@@ -2425,7 +2438,12 @@ export default function Dashboard() {
                       })}
                     </TableRow>
                     <TableRow>
-                      <TableCell className="sticky left-0 bg-card text-muted-foreground">NOI Margin</TableCell>
+                      <TableCell className="sticky left-0 bg-card text-muted-foreground">
+                        <span className="flex items-center gap-1">
+                          NOI Margin
+                          <HelpTooltip text="Net Operating Income as a percentage of Total Revenue. Indicates how much of each revenue dollar flows to NOI." />
+                        </span>
+                      </TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
                         const data = getYearlyConsolidated(y);
                         const margin = data.revenueTotal > 0 ? (data.noi / data.revenueTotal) * 100 : 0;
@@ -2586,6 +2604,7 @@ export default function Dashboard() {
                           <ChevronRight className="w-4 h-4 text-muted-foreground" />
                         )}
                         Cash Inflows (Revenue)
+                        <HelpTooltip text="Total property income from all sources including rooms, F&B, events, and miscellaneous." />
                       </TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => (
                         <TableCell key={y} className="text-right font-mono">{formatMoney(getYearlyConsolidated(y).revenueTotal)}</TableCell>
@@ -2748,6 +2767,7 @@ export default function Dashboard() {
                           <ChevronRight className="w-4 h-4 text-muted-foreground" />
                         )}
                         Cash Outflows (Operating)
+                        <HelpTooltip text="Total operating expenses paid out, including departmental costs, administrative overhead, utilities, and other property expenses." />
                       </TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
                         const data = getYearlyConsolidated(y);
@@ -2913,7 +2933,12 @@ export default function Dashboard() {
                     </TableRow>
 
                     <TableRow className="bg-accent/20 font-semibold">
-                      <TableCell className="sticky left-0 bg-accent/20 label-text">Gross Operating Profit (GOP)</TableCell>
+                      <TableCell className="sticky left-0 bg-accent/20 label-text">
+                        <span className="flex items-center gap-1">
+                          Gross Operating Profit (GOP)
+                          <HelpTooltip text="Revenue minus all direct operating expenses. Measures property-level operational efficiency before management fees and reserves." />
+                        </span>
+                      </TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => (
                         <TableCell key={y} className="text-right font-mono">{formatMoney(getYearlyConsolidated(y).gop)}</TableCell>
                       ))}
@@ -2930,6 +2955,7 @@ export default function Dashboard() {
                           <ChevronRight className="w-4 h-4 text-muted-foreground" />
                         )}
                         Management Fees (to Hospitality Business Co.)
+                        <HelpTooltip text="Base and incentive fees paid to Hospitality Business Group for hotel management services. Calculated as a percentage of revenue." />
                       </TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
                         const data = getYearlyConsolidated(y);
@@ -2986,7 +3012,12 @@ export default function Dashboard() {
                     )}
 
                     <TableRow>
-                      <TableCell className="sticky left-0 bg-card">FF&E Reserve</TableCell>
+                      <TableCell className="sticky left-0 bg-card">
+                        <span className="flex items-center gap-1">
+                          FF&E Reserve
+                          <HelpTooltip text="Furniture, Fixtures & Equipment reserve — funds set aside for capital replacements, renovations, and maintaining the property." />
+                        </span>
+                      </TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => (
                         <TableCell key={y} className="text-right text-muted-foreground">({formatMoney(getYearlyConsolidated(y).expenseFFE)})</TableCell>
                       ))}

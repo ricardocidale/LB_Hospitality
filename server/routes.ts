@@ -322,6 +322,37 @@ export async function registerRoutes(
     newPassword: z.string().min(8).regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, "Password must contain uppercase, lowercase, and number"),
   });
 
+  app.get("/api/available-themes", requireAuth, async (req, res) => {
+    try {
+      const themes = await storage.getAllDesignThemes();
+      res.json(themes.map(t => ({ id: t.id, name: t.name, description: t.description, isDefault: t.isDefault, colors: t.colors })));
+    } catch (error) {
+      console.error("Error fetching available themes:", error);
+      res.status(500).json({ error: "Failed to fetch themes" });
+    }
+  });
+
+  app.patch("/api/profile/theme", requireAuth, async (req, res) => {
+    try {
+      const schema = z.object({ themeId: z.number().nullable() });
+      const validation = schema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: fromZodError(validation.error).message });
+      }
+      if (validation.data.themeId !== null) {
+        const theme = await storage.getDesignTheme(validation.data.themeId);
+        if (!theme) {
+          return res.status(404).json({ error: "Theme not found" });
+        }
+      }
+      const user = await storage.updateUserSelectedTheme(req.user!.id, validation.data.themeId);
+      res.json({ selectedThemeId: user.selectedThemeId });
+    } catch (error) {
+      console.error("Error updating theme preference:", error);
+      res.status(500).json({ error: "Failed to update theme preference" });
+    }
+  });
+
   app.patch("/api/profile/password", requireAuth, async (req, res) => {
     try {
       const validation = changePasswordSchema.safeParse(req.body);
@@ -2071,7 +2102,16 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
         groupCompanyName = resolvedLogo.companyName;
       }
 
-      if (group?.themeId) {
+      if (user.selectedThemeId) {
+        const selectedTheme = await storage.getDesignTheme(user.selectedThemeId);
+        if (selectedTheme) {
+          themeName = selectedTheme.name;
+          themeColors = selectedTheme.colors;
+        } else {
+          await storage.updateUserSelectedTheme(user.id, null);
+        }
+      }
+      if (!themeName && group?.themeId) {
         const theme = await storage.getDesignTheme(group.themeId);
         if (theme) {
           themeName = theme.name;
@@ -2095,7 +2135,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
         if (defaultAd) assetDescriptionName = defaultAd.name;
       }
 
-      res.json({ logoUrl, themeName, themeColors, assetDescriptionName, groupCompanyName });
+      res.json({ logoUrl, themeName, themeColors, assetDescriptionName, groupCompanyName, selectedThemeId: user.selectedThemeId || null });
     } catch (error) {
       console.error("Error fetching branding:", error);
       res.status(500).json({ error: "Failed to fetch branding" });

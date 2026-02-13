@@ -15,6 +15,7 @@ declare global {
       company: string | null;
       title: string | null;
       userGroupId: number | null;
+      selectedThemeId: number | null;
       createdAt: Date;
       updatedAt: Date;
     }

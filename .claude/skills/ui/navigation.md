@@ -52,3 +52,36 @@ Dark mode is a theme variant, not a separate toggle.
 - **Tokens**: Base `#0a0a0f`, Accent `#9FBCA4`, Text `#FFF9F5`, Card `#1a1a2e`, Borders `white/10`
 - **Toggle**: Theme switcher in Settings; switching to "Dark" theme activates full dark mode
 - **Persistence**: `useThemeStore` (localStorage)
+
+---
+
+## Sidebar Navigation Visibility by Role
+
+Navigation items in `client/src/components/Layout.tsx` are filtered by user role. The four roles are: `admin`, `partner`, `checker`, `investor`.
+
+| Nav Item | Admin | Partner | Checker | Investor | Guard |
+|----------|-------|---------|---------|----------|-------|
+| Dashboard | Yes | Yes | Yes | Yes | — |
+| Properties | Yes | Yes | Yes | Yes | — |
+| Management Co. | Yes | Yes | Yes | No | `hasManagementAccess` |
+| Property Finder | Yes | Yes | Yes | No | `hasManagementAccess` + sidebar config |
+| Analysis | Yes | Yes | Yes | No | `hasManagementAccess` + sidebar config |
+| Systemwide Assumptions | Yes | Yes | Yes | No | `hasManagementAccess` |
+| My Profile | Yes | Yes | Yes | Yes | — |
+| My Scenarios | Yes | Yes | Yes | No | `hasManagementAccess` + sidebar config |
+| Help & Manuals | Yes | Yes | Yes | Yes | — |
+| Administration | Yes | No | No | No | `isAdmin` |
+| Logo Management | Yes | No | No | No | `isAdmin` |
+
+### Role Definitions (from `client/src/lib/auth.tsx`)
+- `isAdmin`: `user.role === "admin"`
+- `isChecker`: `user.role === "checker"`
+- `isPartner`: `user.role === "partner"`
+- `isInvestor`: `user.role === "investor"`
+- `hasManagementAccess`: `user.role !== "investor"` (admin, partner, checker)
+
+### Sidebar Config Toggle (`sb()`)
+Admin-configurable toggles stored in `global_assumptions` table. Admin always sees all items regardless of toggle state. Non-admin users respect the toggle. Investor role is blocked independently of toggles via `hasManagementAccess`.
+
+### Divider Cleanup
+Consecutive dividers are automatically filtered out at render time so hidden items don't leave orphan separators.

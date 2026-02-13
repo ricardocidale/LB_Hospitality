@@ -103,8 +103,9 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
                 <img src={companyLogo} alt={companyName} className="relative w-10 h-10 object-contain" />
               </div>
               <div>
-                <h1 className="text-xl font-extrabold text-sidebar-foreground" style={{ fontFamily: "'Nunito', sans-serif" }}>
-                  {companyName}
+                <h1 className="text-xl font-extrabold" style={{ fontFamily: "'Nunito', sans-serif" }}>
+                  <span className="text-white">{companyName.split(' ')[0]}</span>{' '}
+                  <span className="text-primary">{companyName.split(' ').slice(1).join(' ')}</span>
                 </h1>
                 <p className="text-xs uppercase tracking-widest" style={{ color: 'rgba(255, 249, 245, 0.5)' }}>Business Simulation</p>
               </div>
@@ -318,7 +319,10 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
         <header className="md:hidden h-16 border-b bg-card flex items-center justify-between px-4 sticky top-0 z-30">
           <div className="flex items-center gap-2">
             <img src={companyLogo} alt={companyName} className="w-8 h-8 object-contain" />
-            <span className="font-extrabold text-lg" style={{ fontFamily: "'Nunito', sans-serif" }}>{companyName}</span>
+            <span className="font-extrabold text-lg" style={{ fontFamily: "'Nunito', sans-serif" }}>
+              <span className="text-white">{companyName.split(' ')[0]}</span>{' '}
+              <span className="text-primary">{companyName.split(' ').slice(1).join(' ')}</span>
+            </span>
           </div>
           <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)}>
             {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}

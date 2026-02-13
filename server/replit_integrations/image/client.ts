@@ -8,44 +8,51 @@ export const openai = new OpenAI({
   baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
 });
 
+function getGeminiClient() {
+  return new GoogleGenAI({
+    apiKey: process.env.AI_INTEGRATIONS_GEMINI_API_KEY!,
+    httpOptions: {
+      apiVersion: "",
+      baseUrl: process.env.AI_INTEGRATIONS_GEMINI_BASE_URL,
+    },
+  });
+}
+
 /**
- * Generate an image and return as Buffer.
- * Uses Gemini Imagen via Replit AI Integrations (smaller output, JPEG).
+ * Generate an image using Nano Banana (gemini-2.5-flash-image) and return as Buffer.
  * Falls back to gpt-image-1 if Gemini is unavailable.
  */
 export async function generateImageBuffer(
   prompt: string,
-  size: "1024x1024" | "1024x1536" | "1536x1024" | "auto" = "1024x1024"
+  _size: "1024x1024" | "1024x1536" | "1536x1024" | "auto" = "1024x1024"
 ): Promise<Buffer> {
-  // Try Gemini Imagen first (produces smaller JPEG images)
   try {
-    const gemini = new GoogleGenAI({
-      apiKey: process.env.AI_INTEGRATIONS_GEMINI_API_KEY,
-      httpOptions: {
-        apiVersion: "",
-        baseUrl: process.env.AI_INTEGRATIONS_GEMINI_BASE_URL,
+    const gemini = getGeminiClient();
+
+    const response = await gemini.models.generateContent({
+      model: "gemini-2.5-flash-image",
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      config: {
+        responseModalities: ["image", "text"],
       },
     });
 
-    const response = await gemini.models.generateImages({
-      model: "imagen-3.0-generate-002",
-      prompt,
-      config: { numberOfImages: 1 },
-    });
-
-    const imageBytes = response.generatedImages?.[0]?.image?.imageBytes;
-    if (imageBytes) {
-      return Buffer.from(imageBytes, "base64");
+    if (response.candidates?.[0]?.content?.parts) {
+      for (const part of response.candidates[0].content.parts) {
+        if (part.inlineData?.data) {
+          return Buffer.from(part.inlineData.data, "base64");
+        }
+      }
     }
+    throw new Error("No image data in Nano Banana response");
   } catch (err) {
-    console.log("Gemini image generation failed, falling back to OpenAI:", (err as Error).message);
+    console.log("Nano Banana image generation failed, falling back to OpenAI:", (err as Error).message);
   }
 
-  // Fallback to OpenAI gpt-image-1
   const response = await openai.images.generate({
     model: "gpt-image-1",
     prompt,
-    size,
+    size: _size === "auto" ? "1024x1024" : _size,
   });
   const base64 = response.data?.[0]?.b64_json ?? "";
   return Buffer.from(base64, "base64");
@@ -83,4 +90,3 @@ export async function editImages(
 
   return imageBytes;
 }
-

@@ -73,6 +73,7 @@ Before any graphics or visual enhancement work, load these skills:
 | Graphics Component Catalog | `.claude/skills/ui/graphics-component-catalog.md` | Reusable graphics components: KPIGrid, InsightPanel, Gauge, DonutChart, AnimatedPage, ScrollReveal, etc. Import paths and props reference. |
 | Page Enhancement Checklist | `.claude/skills/ui/page-enhancement-checklist.md` | Per-page-type minimum visual requirements (financial, analysis, list, config pages). Checklist for architect review compliance. |
 | Animation Patterns | `.claude/skills/ui/animation-patterns.md` | AnimatedPage, ScrollReveal, AnimatedGrid, AnimatedGridItem, HoverScale patterns with Framer Motion. |
+| Entity Cards | `.claude/skills/ui/entity-cards.md` | Container cards, featured entity cards, entity item cards, logo display, CRUD actions for admin pages. |
 | Charts | `.claude/skills/ui/charts.md` | Recharts line/bar/area chart styling, Waterfall, Heat Map, Radar chart specs. |
 | 3D Graphics | `.claude/skills/3d-graphics/SKILL.md` | Three.js scenes, React Three Fiber wrappers. |
 

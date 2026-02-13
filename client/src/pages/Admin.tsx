@@ -53,6 +53,7 @@ interface User {
 interface Logo {
   id: number;
   name: string;
+  companyName: string;
   url: string;
   isDefault: boolean;
   createdAt: string;

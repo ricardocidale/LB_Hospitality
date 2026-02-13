@@ -36,7 +36,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
   });
 
   const companyName = myBranding?.groupCompanyName || global?.companyName || "Hospitality Business";
-  const companyLogo = myBranding?.logoUrl || global?.companyLogo || defaultLogo;
+  const companyLogo = myBranding?.logoUrl || global?.companyLogoUrl || global?.companyLogo || defaultLogo;
 
   const sb = (key: string) => isAdmin || (global as any)?.[key] !== false;
   const toggleGroup = (label: string) => {

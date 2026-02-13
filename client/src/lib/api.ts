@@ -8,6 +8,8 @@ export interface GlobalResponse {
   id: number;
   companyName: string;
   companyLogo: string | null;
+  companyLogoId: number | null;
+  companyLogoUrl: string | null;
   propertyLabel: string;
   modelStartDate: string;
   projectionYears: number;

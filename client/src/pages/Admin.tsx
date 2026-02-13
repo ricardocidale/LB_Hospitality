@@ -1754,8 +1754,8 @@ export default function Admin() {
     <div className="space-y-6">
       <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
         <CardHeader>
-          <CardTitle className="font-display flex items-center gap-2"><Building2 className="w-5 h-5 text-primary" /> Company Branding</CardTitle>
-          <CardDescription className="label-text">Set the company name, logo, and property type label used throughout the application</CardDescription>
+          <CardTitle className="font-display flex items-center gap-2"><Building2 className="w-5 h-5 text-primary" /> Management Company</CardTitle>
+          <CardDescription className="label-text">Define the management company name and logo used in financial reports and navigation</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1764,28 +1764,35 @@ export default function Admin() {
               <Input
                 value={globalAssumptions?.companyName || "Hospitality Business"}
                 onChange={(e) => updateGlobalMutation.mutate({ companyName: e.target.value })}
-                placeholder="Enter company name"
+                placeholder="Enter management company name"
                 className="bg-white"
                 data-testid="input-company-name"
               />
+              <p className="text-xs text-muted-foreground">The entity name used in financial modeling and reports</p>
             </div>
             <div className="space-y-2">
               <Label className="label-text text-gray-700">Company Logo</Label>
               <div className="flex items-center gap-4">
                 <div className="relative w-14 h-14 rounded-lg border-2 border-dashed border-primary/40 flex items-center justify-center overflow-hidden bg-white">
                   <img
-                    src={globalAssumptions?.companyLogo || defaultLogo}
+                    src={(() => {
+                      if (globalAssumptions?.companyLogoId) {
+                        const logo = adminLogos?.find(l => l.id === globalAssumptions.companyLogoId);
+                        if (logo) return logo.url;
+                      }
+                      return globalAssumptions?.companyLogoUrl || globalAssumptions?.companyLogo || defaultLogo;
+                    })()}
                     alt="Company logo"
                     className="w-full h-full object-contain"
                   />
                 </div>
                 <div className="flex-1 space-y-1">
                   <Select
-                    value={globalAssumptions?.companyLogo || "default"}
+                    value={globalAssumptions?.companyLogoId ? String(globalAssumptions.companyLogoId) : "default"}
                     onValueChange={(v) => {
-                      const url = v === "default" ? null : v;
-                      updateGlobalMutation.mutate({ companyLogo: url }, {
-                        onSuccess: () => toast({ title: url ? "Logo updated" : "Logo reset", description: url ? "Company logo has been updated." : "Company logo has been reset to default." })
+                      const logoId = v === "default" ? null : Number(v);
+                      updateGlobalMutation.mutate({ companyLogoId: logoId }, {
+                        onSuccess: () => toast({ title: logoId ? "Logo updated" : "Logo reset", description: logoId ? "Management company logo has been updated." : "Logo has been reset to default." })
                       });
                     }}
                   >
@@ -1793,7 +1800,7 @@ export default function Admin() {
                     <SelectContent>
                       <SelectItem value="default">Default Logo</SelectItem>
                       {adminLogos?.map(logo => (
-                        <SelectItem key={logo.id} value={logo.url}>{logo.name}{logo.isDefault ? " (Default)" : ""}</SelectItem>
+                        <SelectItem key={logo.id} value={String(logo.id)}>{logo.name}{logo.isDefault ? " (Default)" : ""}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -1802,7 +1809,16 @@ export default function Admin() {
               </div>
             </div>
           </div>
-          <div className="space-y-2 border-t border-primary/10 pt-4">
+        </CardContent>
+      </Card>
+
+      <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+        <CardHeader>
+          <CardTitle className="font-display flex items-center gap-2"><Tag className="w-5 h-5 text-primary" /> Property Type</CardTitle>
+          <CardDescription className="label-text">Set the property type label used across the application</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
             <Label className="label-text text-gray-700">Property Type Label</Label>
             <Input
               value={globalAssumptions?.propertyLabel || "Boutique Hotel"}

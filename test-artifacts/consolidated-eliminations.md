@@ -1,18 +1,18 @@
 # Intercompany Elimination Report
-Generated: 2026-02-14T14:52:33.594Z
+Generated: 2026-02-14T15:01:38.473Z
 ## Fee Linkage
 | Item | Amount |
 |------|--------|
-| Property A Fees | $127569.81 |
-| Property B Fees | $233225.66 |
-| Total SPV Fees (Expense) | $360795.46 |
-| OpCo Fee Revenue | $360795.46 |
-| Fees Eliminated | $360795.46 |
+| Property A Fees | $131979.65 |
+| Property B Fees | $241163.37 |
+| Total SPV Fees (Expense) | $373143.02 |
+| OpCo Fee Revenue | $373143.02 |
+| Fees Eliminated | $373143.02 |
 | Linkage Balanced | PASS |
 | Variance | $0.00 |
 ## Consolidated Totals (Post-Elimination)
 | Item | Amount |
 |------|--------|
 | Revenue | $2859832.50 |
-| Net Income | $378467.17 |
+| Net Income | $455022.04 |
 | BS Balanced | PASS |

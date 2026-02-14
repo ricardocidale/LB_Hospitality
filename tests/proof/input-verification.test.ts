@@ -189,9 +189,9 @@ describe("Variable Cost Verification", () => {
     }
   });
 
-  it("F&B expense = revenueRooms × costRateFB", () => {
+  it("F&B expense = revenueFB × costRateFB", () => {
     for (const m of result) {
-      expect(m.expenseFB).toBeCloseTo(m.revenueRooms * property.costRateFB, 2);
+      expect(m.expenseFB).toBeCloseTo(m.revenueFB * property.costRateFB, 2);
     }
   });
 

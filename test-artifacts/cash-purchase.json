@@ -1,6 +1,6 @@
 {
   "scenario": "Cash Purchase (Full Equity)",
-  "timestamp": "2026-02-14T14:52:33.545Z",
+  "timestamp": "2026-02-14T15:01:38.441Z",
   "sources_and_uses": {
     "sources": {
       "equity": 2000000,
@@ -14,18 +14,18 @@
     "balanced": true
   },
   "noi_to_fcf_bridge": {
-    "noi": 3466461.619289375,
+    "noi": 3950976.4197601643,
     "less_debt_service": 0,
-    "less_income_tax": 730251.7684587088,
+    "less_income_tax": 851380.4685764039,
     "plus_refi_proceeds": 0,
-    "fcf": 2736209.8508306686,
+    "fcf": 3099595.9511837587,
     "check_passed": true
   },
   "cash_bridge": {
     "beginning_cash": 0,
-    "plus_operating_cf": 2736209.8508306686,
+    "plus_operating_cf": 3099595.9511837587,
     "plus_financing_cf": 0,
-    "ending_cash": 2736209.8508306686,
+    "ending_cash": 3099595.9511837587,
     "check_passed": true
   },
   "debt_reconciliation": {

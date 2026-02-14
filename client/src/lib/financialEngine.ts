@@ -368,7 +368,7 @@ export function generatePropertyProForma(
 
     // VARIABLE costs: scale with current revenue (grow naturally with ADR/occupancy)
     const expenseRooms = revenueRooms * costRateRooms;
-    const expenseFB = revenueRooms * costRateFB;
+    const expenseFB = revenueFB * costRateFB;
     const expenseEvents = revenueEvents * eventExpenseRate;
     const expenseOther = revenueOther * otherExpenseRate;
     const expenseMarketing = revenueTotal * costRateMarketing;

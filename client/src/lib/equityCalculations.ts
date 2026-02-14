@@ -28,16 +28,16 @@ export function totalPropertyCost(prop: EquityPropertyInput): number {
 }
 
 /** Acquisition loan amount (0 for Full Equity properties). */
-export function acquisitionLoanAmount(prop: EquityPropertyInput, globalLTV?: number): number {
+export function acquisitionLoanAmount(prop: EquityPropertyInput): number {
   if (prop.type !== "Financed") return 0;
   const propertyValue = prop.purchasePrice + (prop.buildingImprovements ?? 0);
-  const ltv = prop.acquisitionLTV ?? globalLTV ?? DEFAULT_LTV;
+  const ltv = prop.acquisitionLTV ?? DEFAULT_LTV;
   return propertyValue * ltv;
 }
 
 /** Equity invested = total cost - loan amount. */
-export function propertyEquityInvested(prop: EquityPropertyInput, globalLTV?: number): number {
-  return totalPropertyCost(prop) - acquisitionLoanAmount(prop, globalLTV);
+export function propertyEquityInvested(prop: EquityPropertyInput): number {
+  return totalPropertyCost(prop) - acquisitionLoanAmount(prop);
 }
 
 /** Months from model start to acquisition date. */

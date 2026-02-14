@@ -202,3 +202,13 @@ These rules are non-negotiable constraints enforced across the entire financial 
 | taxRate | (global) | Property Edit page |
 | baseManagementFeeRate | 5% (`DEFAULT_BASE_MANAGEMENT_FEE_RATE`) | Property Edit page |
 | incentiveManagementFeeRate | 15% (`DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE`) | Property Edit page |
+| dispositionCommission | 5% (`DEFAULT_COMMISSION_RATE`) | Property Edit page |
+| acquisitionLTV | 75% (`DEFAULT_LTV`) | Property Edit page |
+| acquisitionInterestRate | 9% (`DEFAULT_INTEREST_RATE`) | Property Edit page |
+| acquisitionTermYears | 25 (`DEFAULT_TERM_YEARS`) | Property Edit page |
+| acquisitionClosingCostRate | 2% (`DEFAULT_ACQ_CLOSING_COST_RATE`) | Property Edit page |
+| refinanceLTV | 65% (`DEFAULT_REFI_LTV`) | Property Edit page |
+| refinanceInterestRate | 9% (`DEFAULT_INTEREST_RATE`) | Property Edit page |
+| refinanceTermYears | 25 (`DEFAULT_TERM_YEARS`) | Property Edit page |
+| refinanceClosingCostRate | 3% (`DEFAULT_REFI_CLOSING_COST_RATE`) | Property Edit page |
+| refinanceYearsAfterAcquisition | 3 (`DEFAULT_REFI_PERIOD_YEARS`) | Property Edit page |

@@ -236,7 +236,7 @@ export default function Dashboard() {
     acquisitionYearIndex(prop.acquisitionDate, prop.operationsStartDate, global.modelStartDate);
 
   const getPropertyInvestment = (prop: any): number =>
-    propertyEquityInvested(prop, global.debtAssumptions?.acqLTV);
+    propertyEquityInvested(prop);
 
   const getEquityInvestmentForYear = (yearIndex: number): number =>
     properties.reduce((sum, prop) => sum + (getPropertyAcquisitionYear(prop) === yearIndex ? getPropertyInvestment(prop) : 0), 0);
@@ -704,7 +704,7 @@ export default function Dashboard() {
           ? proForma[lastMonthIdx].debtOutstanding : 0;
         totalDebtOutstanding += debtOutstanding;
 
-        const equityInvested = propertyEquityInvested(prop, (global.debtAssumptions as any)?.acqLTV);
+        const equityInvested = propertyEquityInvested(prop);
         totalInitialEquity += equityInvested;
 
         const cumulativeDepreciation = relevantMonths.reduce((sum, m) => sum + m.depreciationExpense, 0);
@@ -898,7 +898,7 @@ export default function Dashboard() {
     const getEquityForYear = (yearIdx: number): number =>
       properties.reduce((sum, prop) =>
         sum + (acquisitionYearIndex(prop.acquisitionDate, prop.operationsStartDate, global.modelStartDate) === yearIdx
-          ? propertyEquityInvested(prop, (global.debtAssumptions as any)?.acqLTV)
+          ? propertyEquityInvested(prop)
           : 0), 0);
     
     // Single engine: aggregate yearly details from monthly pro forma data
@@ -942,7 +942,7 @@ export default function Dashboard() {
     
     properties.forEach(prop => {
       const acqYear = acquisitionYearIndex(prop.acquisitionDate, prop.operationsStartDate, global.modelStartDate);
-      const investment = propertyEquityInvested(prop, (global.debtAssumptions as any)?.acqLTV);
+      const investment = propertyEquityInvested(prop);
 
       const values: (number | string)[] = Array(projectionYears + 1).fill('');
       if (acqYear >= 0 && acqYear <= projectionYears) {

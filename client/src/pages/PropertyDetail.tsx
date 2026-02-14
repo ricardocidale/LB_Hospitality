@@ -87,7 +87,7 @@ function PPECostBasisSchedule({ property, global }: { property: any; global: any
   const costRateIT = property.costRateIT ?? 0.02;
   const costRateOther = property.costRateOther ?? 0.05;
 
-  const ltv = property.acquisitionLTV ?? global.debtAssumptions?.acqLTV ?? 0.75;
+  const ltv = property.acquisitionLTV ?? DEFAULT_LTV;
   const loanAmount = property.type === "Financed" ? totalPropertyValue * ltv : 0;
   const equityRequired = totalProjectCost - loanAmount;
 
@@ -1062,7 +1062,7 @@ export default function PropertyDetail() {
                 global={global}
                 years={projectionYears} 
                 startYear={getFiscalYear(0)} 
-                defaultLTV={global.debtAssumptions?.acqLTV ?? DEFAULT_LTV}
+                defaultLTV={property.acquisitionLTV ?? DEFAULT_LTV}
               />
             </div>
           </TabsContent>

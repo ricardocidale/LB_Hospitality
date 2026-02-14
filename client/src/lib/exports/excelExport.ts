@@ -301,7 +301,7 @@ export function exportPropertyBalanceSheet(
       const operatingReserve = (prop as any).operatingReserve ?? 0;
       totalCashReserves += operatingReserve;
 
-      const equityInvested = propertyEquityInvested(prop as any, (globalAssumptions.debtAssumptions as any)?.acqLTV);
+      const equityInvested = propertyEquityInvested(prop as any);
       totalEquity += equityInvested;
 
       const lastMonthIdx = monthsToInclude - 1;

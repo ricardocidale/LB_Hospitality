@@ -46,6 +46,7 @@ import {
   DEFAULT_COST_RATE_OTHER,
   DEFAULT_EXIT_CAP_RATE,
   DEFAULT_TAX_RATE,
+  DEFAULT_COMMISSION_RATE,
   PROJECTION_YEARS,
   DEFAULT_MODEL_START_DATE,
   DEFAULT_REFI_PERIOD_YEARS,
@@ -662,6 +663,20 @@ export default function PropertyEdit() {
                             className="bg-white border-primary/30 text-gray-900"
                           />
                           <p className="text-xs text-gray-500">Suggested: {globalAssumptions?.debtAssumptions?.refiPeriodYears ?? DEFAULT_REFI_PERIOD_YEARS} years after operations start</p>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex justify-between items-center">
+                            <Label className="label-text text-gray-700 flex items-center gap-1.5">Years After Acquisition<HelpTooltip text="Number of years after acquisition before refinancing occurs." /></Label>
+                            <span className="text-sm font-mono text-gray-700" data-testid="text-refinance-years-after-acquisition">{draft.refinanceYearsAfterAcquisition ?? DEFAULT_REFI_PERIOD_YEARS} yrs</span>
+                          </div>
+                          <Slider
+                            data-testid="slider-refinance-years-after-acquisition"
+                            value={[draft.refinanceYearsAfterAcquisition ?? DEFAULT_REFI_PERIOD_YEARS]}
+                            onValueChange={(vals: number[]) => handleChange("refinanceYearsAfterAcquisition", vals[0])}
+                            min={1}
+                            max={10}
+                            step={1}
+                          />
                         </div>
                         <div className="space-y-2">
                           <div className="flex justify-between items-center">
@@ -1571,6 +1586,31 @@ export default function PropertyEdit() {
                 <p className="text-xs text-gray-500 mt-1">
                   Applied to taxable income (NOI − interest − depreciation)
                 </p>
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <Label className="flex items-center label-text text-gray-700 gap-1.5">
+                    Sale Commission
+                    <HelpTooltip text="Broker commission percentage applied when this property is sold." />
+                  </Label>
+                  <EditableValue
+                    data-testid="editable-disposition-commission"
+                    value={(draft.dispositionCommission ?? DEFAULT_COMMISSION_RATE) * 100}
+                    onChange={(val) => handleChange("dispositionCommission", val / 100)}
+                    format="percent"
+                    min={0}
+                    max={10}
+                    step={0.5}
+                  />
+                </div>
+                <Slider 
+                  data-testid="slider-disposition-commission"
+                  value={[(draft.dispositionCommission ?? DEFAULT_COMMISSION_RATE) * 100]}
+                  onValueChange={(vals: number[]) => handleChange("dispositionCommission", vals[0] / 100)}
+                  min={0}
+                  max={10}
+                  step={0.5}
+                />
               </div>
             </div>
           </div>

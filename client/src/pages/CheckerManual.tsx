@@ -402,7 +402,7 @@ export default function CheckerManual({ embedded }: { embedded?: boolean }) {
                   headers={["Variable", "Description", "Default", "Unit", "Affects"]}
                   rows={[
                     ["exitCapRate", "Cap rate for terminal value calculation", "8.5%", "%", "Properties"],
-                    ["salesCommissionRate", "Broker commission at disposition", "5%", "%", "Properties"],
+                    ["salesCommissionRate", "Broker commission at disposition (per-property, set on each property)", "5%", "%", "Per Property"],
                     ["companyTaxRate", "Company income tax rate for Mgmt Co.", "30%", "%", "Mgmt Co."],
                   ]}
                 />

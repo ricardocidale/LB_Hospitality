@@ -28,7 +28,7 @@ import {
   getAcquisitionYear,
   YearlyCashFlowResult,
 } from "@/lib/loanCalculations";
-import { OPERATING_RESERVE_BUFFER, RESERVE_ROUNDING_INCREMENT, DEFAULT_COMMISSION_RATE } from "@/lib/constants";
+import { OPERATING_RESERVE_BUFFER, RESERVE_ROUNDING_INCREMENT } from "@/lib/constants";
 import { aggregateCashFlowByYear } from "@/lib/cashFlowAggregator";
 import { aggregatePropertyByYear } from "@/lib/yearlyAggregator";
 import { computeCashFlowSections } from "@/lib/cashFlowSections";
@@ -415,7 +415,7 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
       <LineItem
         label="Sale Proceeds (Net Exit Value)"
         values={yearlyData.map(y => y.exitValue)}
-        tooltip={`Property sale price minus ${((global?.commissionRate ?? DEFAULT_COMMISSION_RATE) * 100).toFixed(0)}% commission and outstanding loan payoff. Classified as investing per ASC 360.`}
+        tooltip="Property sale price minus property-specific disposition commission and outstanding loan payoff. Classified as investing per ASC 360."
       />
 
       <SubtotalRow

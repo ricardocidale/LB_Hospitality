@@ -37,11 +37,6 @@ interface PropertyForValidation {
 }
 
 interface GlobalForValidation {
-  debtAssumptions?: {
-    acqLTV?: number;
-    interestRate?: number;
-    amortizationYears?: number;
-  };
 }
 
 const TOLERANCE = 0.01;
@@ -71,9 +66,9 @@ export function crossValidateFinancingCalculators(
     return buildReport(results);
   }
 
-  const ltv = property.acquisitionLTV ?? global.debtAssumptions?.acqLTV ?? DEFAULT_LTV;
-  const rate = property.acquisitionInterestRate ?? global.debtAssumptions?.interestRate ?? DEFAULT_INTEREST_RATE;
-  const termYears = property.acquisitionTermYears ?? global.debtAssumptions?.amortizationYears ?? DEFAULT_TERM_YEARS;
+  const ltv = property.acquisitionLTV ?? DEFAULT_LTV;
+  const rate = property.acquisitionInterestRate ?? DEFAULT_INTEREST_RATE;
+  const termYears = property.acquisitionTermYears ?? DEFAULT_TERM_YEARS;
   const totalPropertyValue = property.purchasePrice + (property.buildingImprovements ?? 0);
   const loanAmount = totalPropertyValue * ltv;
   const monthlyRate = rate / 12;

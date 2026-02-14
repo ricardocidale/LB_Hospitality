@@ -1222,6 +1222,28 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
           market: data.market,
         });
       }
+
+      const ga = await storage.getGlobalAssumptions();
+      const debt = (ga as any)?.debtAssumptions ?? SEED_DEBT_ASSUMPTIONS;
+
+      if (data.dispositionCommission == null) {
+        data.dispositionCommission = (ga as any)?.commissionRate ?? DEFAULT_COMMISSION_RATE;
+      }
+
+      if (data.type === "Financed") {
+        if (data.acquisitionLTV == null) data.acquisitionLTV = debt.acqLTV;
+        if (data.acquisitionInterestRate == null) data.acquisitionInterestRate = debt.interestRate;
+        if (data.acquisitionTermYears == null) data.acquisitionTermYears = debt.amortizationYears;
+        if (data.acquisitionClosingCostRate == null) data.acquisitionClosingCostRate = debt.acqClosingCostRate;
+      }
+
+      if (data.willRefinance === "Yes") {
+        if (data.refinanceLTV == null) data.refinanceLTV = debt.refiLTV;
+        if (data.refinanceInterestRate == null) data.refinanceInterestRate = debt.refiInterestRate ?? debt.interestRate;
+        if (data.refinanceTermYears == null) data.refinanceTermYears = debt.refiAmortizationYears ?? debt.amortizationYears;
+        if (data.refinanceClosingCostRate == null) data.refinanceClosingCostRate = debt.refiClosingCostRate;
+      }
+
       const property = await storage.createProperty({ ...data, userId: req.user!.id });
       logActivity(req, "create", "property", property.id, property.name);
       res.status(201).json(property);

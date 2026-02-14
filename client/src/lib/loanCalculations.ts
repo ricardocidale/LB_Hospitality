@@ -17,6 +17,7 @@ export interface LoanParams {
   refinanceTermYears?: number | null;
   refinanceClosingCostRate?: number | null;
   exitCapRate?: number | null;
+  dispositionCommission?: number | null;
 }
 
 export interface GlobalLoanParams {
@@ -115,13 +116,13 @@ export function calculateLoanParams(
   global?: GlobalLoanParams
 ): LoanCalculation {
   const totalInvestment = totalPropertyCost(property);
-  const loanAmount = acquisitionLoanAmount(property, global?.debtAssumptions?.acqLTV);
+  const loanAmount = acquisitionLoanAmount(property);
   const equityInvested = totalInvestment - loanAmount;
   
-  const interestRate = property.acquisitionInterestRate ?? global?.debtAssumptions?.interestRate ?? DEFAULT_INTEREST_RATE;
-  const termYears = property.acquisitionTermYears ?? global?.debtAssumptions?.amortizationYears ?? DEFAULT_TERM_YEARS;
+  const interestRate = property.acquisitionInterestRate ?? DEFAULT_INTEREST_RATE;
+  const termYears = property.acquisitionTermYears ?? DEFAULT_TERM_YEARS;
   const taxRate = property.taxRate ?? DEFAULT_TAX_RATE;
-  const commissionRate = global?.salesCommissionRate ?? global?.commissionRate ?? DEFAULT_COMMISSION_RATE;
+  const commissionRate = property.dispositionCommission ?? DEFAULT_COMMISSION_RATE;
   
   // Depreciable basis: land doesn't depreciate (IRS Publication 946 / ASC 360)
   const landPct = property.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT;
@@ -214,12 +215,12 @@ export function calculateRefinanceParams(
     return defaultResult;
   }
   
-  const refiInterestRate = property.refinanceInterestRate ?? global?.debtAssumptions?.interestRate ?? DEFAULT_INTEREST_RATE;
-  const refiTermYears = property.refinanceTermYears ?? global?.debtAssumptions?.amortizationYears ?? DEFAULT_TERM_YEARS;
+  const refiInterestRate = property.refinanceInterestRate ?? DEFAULT_INTEREST_RATE;
+  const refiTermYears = property.refinanceTermYears ?? DEFAULT_TERM_YEARS;
   const refiMonthlyRate = refiInterestRate / 12;
   const refiTotalPayments = refiTermYears * 12;
   
-  const refiLTV = property.refinanceLTV ?? global?.debtAssumptions?.refiLTV ?? DEFAULT_REFI_LTV;
+  const refiLTV = property.refinanceLTV ?? DEFAULT_REFI_LTV;
   const stabilizedNOI = yearlyNOIData[refiYear] || 0;
   const exitCapRate = property.exitCapRate ?? global?.exitCapRate ?? DEFAULT_EXIT_CAP_RATE;
   const propertyValue = exitCapRate > 0 ? stabilizedNOI / exitCapRate : 0;
@@ -230,7 +231,7 @@ export function calculateRefinanceParams(
     refiMonthlyPayment = pmt(refiLoanAmount, refiMonthlyRate, refiTotalPayments);
   }
   
-  const closingCostRate = property.refinanceClosingCostRate ?? global?.debtAssumptions?.refiClosingCostRate ?? DEFAULT_REFI_CLOSING_COST_RATE;
+  const closingCostRate = property.refinanceClosingCostRate ?? DEFAULT_REFI_CLOSING_COST_RATE;
   const closingCosts = refiLoanAmount * closingCostRate;
   const existingDebt = getAcquisitionOutstandingBalance(loan, refiYear - 1);
   const refiProceeds = Math.max(0, refiLoanAmount - closingCosts - existingDebt);

@@ -26,19 +26,12 @@ import {
   DEFAULT_SAFE_DISCOUNT_RATE,
   DEFAULT_BASE_MANAGEMENT_FEE_RATE,
   DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
+  SEED_DEBT_ASSUMPTIONS,
 } from "@shared/constants";
 import { eq, isNull } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 
-// Default debt assumptions for seed data (matches routes.ts SEED_DEBT_ASSUMPTIONS)
-const SEED_DEBT_ASSUMPTIONS = {
-  acqLTV: 0.75,
-  refiLTV: 0.75,
-  interestRate: 0.09,
-  amortizationYears: 25,
-  acqClosingCostRate: 0.02,
-  refiClosingCostRate: 0.03,
-} as const;
+// Use SEED_DEBT_ASSUMPTIONS from @shared/constants (imported above)
 
 async function seed() {
   const forceReseed = process.argv.includes("--force");
@@ -169,6 +162,11 @@ async function seed() {
 
       willRefinance: "Yes",
       refinanceDate: "2029-12-01",
+      refinanceLTV: SEED_DEBT_ASSUMPTIONS.refiLTV,
+      refinanceInterestRate: SEED_DEBT_ASSUMPTIONS.interestRate,
+      refinanceTermYears: SEED_DEBT_ASSUMPTIONS.amortizationYears,
+      refinanceClosingCostRate: SEED_DEBT_ASSUMPTIONS.refiClosingCostRate,
+      dispositionCommission: DEFAULT_COMMISSION_RATE,
       costRateRooms: DEFAULT_COST_RATE_ROOMS,
       costRateFB: 0.085,
       costRateAdmin: DEFAULT_COST_RATE_ADMIN,
@@ -217,6 +215,11 @@ async function seed() {
 
       willRefinance: "Yes",
       refinanceDate: "2030-07-01",
+      refinanceLTV: SEED_DEBT_ASSUMPTIONS.refiLTV,
+      refinanceInterestRate: SEED_DEBT_ASSUMPTIONS.interestRate,
+      refinanceTermYears: SEED_DEBT_ASSUMPTIONS.amortizationYears,
+      refinanceClosingCostRate: SEED_DEBT_ASSUMPTIONS.refiClosingCostRate,
+      dispositionCommission: DEFAULT_COMMISSION_RATE,
       costRateRooms: DEFAULT_COST_RATE_ROOMS,
       costRateFB: 0.085,
       costRateAdmin: DEFAULT_COST_RATE_ADMIN,
@@ -265,6 +268,11 @@ async function seed() {
 
       willRefinance: "Yes",
       refinanceDate: "2031-01-01",
+      refinanceLTV: SEED_DEBT_ASSUMPTIONS.refiLTV,
+      refinanceInterestRate: SEED_DEBT_ASSUMPTIONS.interestRate,
+      refinanceTermYears: SEED_DEBT_ASSUMPTIONS.amortizationYears,
+      refinanceClosingCostRate: SEED_DEBT_ASSUMPTIONS.refiClosingCostRate,
+      dispositionCommission: DEFAULT_COMMISSION_RATE,
       costRateRooms: DEFAULT_COST_RATE_ROOMS,
       costRateFB: 0.09,
       costRateAdmin: DEFAULT_COST_RATE_ADMIN,
@@ -314,6 +322,7 @@ async function seed() {
       acquisitionInterestRate: 0.095,
       acquisitionTermYears: 25,
       acquisitionClosingCostRate: 0.02,
+      dispositionCommission: DEFAULT_COMMISSION_RATE,
 
       costRateRooms: DEFAULT_COST_RATE_ROOMS,
       costRateFB: 0.075,
@@ -364,6 +373,7 @@ async function seed() {
       acquisitionInterestRate: 0.09,
       acquisitionTermYears: 25,
       acquisitionClosingCostRate: 0.02,
+      dispositionCommission: DEFAULT_COMMISSION_RATE,
 
       costRateRooms: DEFAULT_COST_RATE_ROOMS,
       costRateFB: 0.10,

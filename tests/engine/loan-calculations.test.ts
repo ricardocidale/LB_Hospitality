@@ -13,6 +13,7 @@ import {
   LoanCalculation,
   RefinanceCalculation,
 } from "../../client/src/lib/loanCalculations.js";
+import { DEFAULT_LTV, DEFAULT_INTEREST_RATE, DEFAULT_TERM_YEARS, DEFAULT_TAX_RATE } from "../../client/src/lib/constants.js";
 import { pmt } from "../../calc/shared/pmt.js";
 
 // ---------------------------------------------------------------------------
@@ -138,8 +139,7 @@ describe("calculateLoanParams", () => {
     expect(loan.annualDepreciation).toBeCloseTo(expectedBuildingValue / 27.5, 2);
   });
 
-  it("uses fallback chain: property -> global -> constants", () => {
-    // Property with all nulls falls back to global debtAssumptions
+  it("uses fallback chain: property -> constants (per-property financing)", () => {
     const bareboneProperty: LoanParams = {
       purchasePrice: 1_000_000,
       buildingImprovements: 0,
@@ -170,14 +170,10 @@ describe("calculateLoanParams", () => {
 
     const loan = calculateLoanParams(bareboneProperty, customGlobal);
 
-    // Should use global LTV 0.60 (no property override)
-    expect(loan.loanAmount).toBe(1_000_000 * 0.60);
-    // Interest from global
-    expect(loan.interestRate).toBe(0.07);
-    // Term from global
-    expect(loan.termYears).toBe(20);
-    // Tax falls to constant DEFAULT_TAX_RATE = 0.25
-    expect(loan.taxRate).toBe(0.25);
+    expect(loan.loanAmount).toBe(1_000_000 * DEFAULT_LTV);
+    expect(loan.interestRate).toBe(DEFAULT_INTEREST_RATE);
+    expect(loan.termYears).toBe(DEFAULT_TERM_YEARS);
+    expect(loan.taxRate).toBe(DEFAULT_TAX_RATE);
   });
 
   it("zero interest rate computes straight-line monthly payment", () => {

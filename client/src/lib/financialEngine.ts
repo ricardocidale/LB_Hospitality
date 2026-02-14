@@ -114,6 +114,10 @@ interface PropertyInput {
   refinanceTermYears?: number | null;
   refinanceClosingCostRate?: number | null;
   exitCapRate?: number | null;
+  // Disposition
+  dispositionCommission?: number | null;
+  // Refinance timing
+  refinanceYearsAfterAcquisition?: number | null;
   // Operating Cost Rates (should sum to ~84% of revenue)
   costRateRooms: number;
   costRateFB: number;
@@ -278,10 +282,10 @@ export function generatePropertyProForma(
   // Loan setup for debt outstanding tracking
   // Loan is based on total property value (including land), NOT depreciable basis
   const totalPropertyValue = property.purchasePrice + (property.buildingImprovements ?? 0);
-  const ltv = property.acquisitionLTV ?? global.debtAssumptions?.acqLTV ?? DEFAULT_LTV;
+  const ltv = property.acquisitionLTV ?? DEFAULT_LTV;
   const originalLoanAmount = property.type === "Financed" ? totalPropertyValue * ltv : 0;
-  const loanRate = property.acquisitionInterestRate ?? global.debtAssumptions?.interestRate ?? DEFAULT_INTEREST_RATE;
-  const loanTerm = property.acquisitionTermYears ?? global.debtAssumptions?.amortizationYears ?? DEFAULT_TERM_YEARS;
+  const loanRate = property.acquisitionInterestRate ?? DEFAULT_INTEREST_RATE;
+  const loanTerm = property.acquisitionTermYears ?? DEFAULT_TERM_YEARS;
   const taxRate = property.taxRate ?? DEFAULT_TAX_RATE;
   const monthlyRate = loanRate / 12;
   const totalPayments = loanTerm * 12;
@@ -543,7 +547,7 @@ export function generatePropertyProForma(
       }
 
       // Build RefinanceInput from engine state using fallback pattern
-      const refiLTV = property.refinanceLTV ?? global.debtAssumptions?.refiLTV ?? DEFAULT_REFI_LTV;
+      const refiLTV = property.refinanceLTV ?? DEFAULT_REFI_LTV;
       const refiExitCap = property.exitCapRate ?? global.exitCapRate ?? DEFAULT_EXIT_CAP_RATE;
       const rawRefiYearNOI = yearlyNOI[refiYear] || 0;
       const refiYearOpsMonths = yearlyOperationalMonths[refiYear] || 12;
@@ -552,9 +556,9 @@ export function generatePropertyProForma(
         : refiYearOpsMonths > 0
           ? (rawRefiYearNOI / refiYearOpsMonths) * 12
           : 0;
-      const refiRate = property.refinanceInterestRate ?? global.debtAssumptions?.interestRate ?? DEFAULT_INTEREST_RATE;
-      const refiTermYears = property.refinanceTermYears ?? global.debtAssumptions?.amortizationYears ?? DEFAULT_TERM_YEARS;
-      const closingCostRate = property.refinanceClosingCostRate ?? global.debtAssumptions?.refiClosingCostRate ?? DEFAULT_REFI_CLOSING_COST_RATE;
+      const refiRate = property.refinanceInterestRate ?? DEFAULT_INTEREST_RATE;
+      const refiTermYears = property.refinanceTermYears ?? DEFAULT_TERM_YEARS;
+      const closingCostRate = property.refinanceClosingCostRate ?? DEFAULT_REFI_CLOSING_COST_RATE;
       const existingDebt = refiMonthIndex > 0 ? financials[refiMonthIndex - 1].debtOutstanding : originalLoanAmount;
 
       // Call the standalone refinance calculator module (Skill 2)

@@ -420,10 +420,10 @@ export default function Settings() {
             <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
               <CardHeader>
                 <CardTitle className="flex items-center font-display">
-                  Disposition
-                  <HelpTooltip text="When a property is sold, real estate commissions are paid to brokers/realtors who facilitate the transaction. This is typically a percentage of the sale price, split between buyer's and seller's agents." manualSection="global-assumptions" />
+                  Disposition — Defaults for New Properties
+                  <HelpTooltip text="Default sale commission for newly created properties. Each property can override this in its own settings." manualSection="global-assumptions" />
                 </CardTitle>
-                <CardDescription className="label-text">Costs associated with property sales</CardDescription>
+                <CardDescription className="label-text">Default costs applied to new properties at creation. Override per property in Property Edit.</CardDescription>
               </CardHeader>
               <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="space-y-3">
@@ -449,10 +449,10 @@ export default function Settings() {
             <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
               <CardHeader>
                 <CardTitle className="flex items-center font-display">
-                  Acquisition Financing
-                  <HelpTooltip text="These are the default loan terms applied when acquiring a property with financing. LTV (Loan-to-Value) determines what percentage of the purchase price is financed vs. paid in equity. Interest Rate is the annual rate charged on the loan. Amortization is the period over which the loan is repaid. Closing Costs include lender fees, legal fees, and other transaction costs." />
+                  Acquisition Financing — Defaults for New Properties
+                  <HelpTooltip text="Default loan terms applied to newly created properties. Each property can override these in its own settings." />
                 </CardTitle>
-                <CardDescription className="label-text">Default loan terms for property acquisitions</CardDescription>
+                <CardDescription className="label-text">Default loan terms applied to new properties at creation. Override per property in Property Edit.</CardDescription>
               </CardHeader>
               <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div className="space-y-3">
@@ -529,10 +529,10 @@ export default function Settings() {
             <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
               <CardHeader>
                 <CardTitle className="flex items-center font-display">
-                  Refinancing
-                  <HelpTooltip text="Refinancing allows properties acquired with full equity to obtain debt later, or properties with existing debt to restructure their loans. The refinance period specifies when refinancing typically occurs after acquisition. Refinancing can return capital to investors while leveraging the property's appreciated value. Closing Costs include lender fees, legal fees, and other transaction costs." manualSection="funding-financing" />
+                  Refinancing — Defaults for New Properties
+                  <HelpTooltip text="Default refinancing terms applied to newly created properties. Each property can override these in its own settings." manualSection="funding-financing" />
                 </CardTitle>
-                <CardDescription className="label-text">Default terms for refinancing properties</CardDescription>
+                <CardDescription className="label-text">Default refinancing terms applied to new properties at creation. Override per property in Property Edit.</CardDescription>
               </CardHeader>
               <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
                 <div className="space-y-3">

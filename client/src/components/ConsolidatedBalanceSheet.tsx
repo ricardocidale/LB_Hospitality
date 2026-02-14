@@ -99,7 +99,7 @@ export function ConsolidatedBalanceSheet({ properties, global, allProFormas, yea
     const preOpening = prop.preOpeningCosts ?? 0;
     totalPreOpeningCosts += preOpening;
 
-    const equityInvested = propertyEquityInvested(prop, (global.debtAssumptions as any)?.acqLTV);
+    const equityInvested = propertyEquityInvested(prop);
     totalInitialEquity += equityInvested;
 
     const lastMonthIdx = monthsToInclude - 1;

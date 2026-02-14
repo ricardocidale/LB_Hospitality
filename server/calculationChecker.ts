@@ -37,6 +37,8 @@ const PROJECTION_YEARS = 10;
 const DEFAULT_LTV = 0.75;
 const DEFAULT_INTEREST_RATE = 0.09;
 const DEFAULT_TERM_YEARS = 25;
+const DEFAULT_REFI_LTV = 0.65;
+const DEFAULT_REFI_CLOSING_COST_RATE = 0.03;
 
 const TOLERANCE = 0.01; // 1% tolerance for floating point comparisons
 
@@ -152,10 +154,10 @@ function independentPropertyCalc(property: any, global: any) {
   const monthlyDepreciation = depreciableBasis / DEPRECIATION_YEARS / 12;
 
   const totalPropertyValue = property.purchasePrice + (property.buildingImprovements ?? 0);
-  const ltv = property.acquisitionLTV ?? global.debtAssumptions?.acqLTV ?? DEFAULT_LTV;
+  const ltv = property.acquisitionLTV ?? DEFAULT_LTV;
   const originalLoanAmount = property.type === "Financed" ? totalPropertyValue * ltv : 0;
-  const loanRate = property.acquisitionInterestRate ?? global.debtAssumptions?.interestRate ?? DEFAULT_INTEREST_RATE;
-  const loanTerm = property.acquisitionTermYears ?? global.debtAssumptions?.amortizationYears ?? DEFAULT_TERM_YEARS;
+  const loanRate = property.acquisitionInterestRate ?? DEFAULT_INTEREST_RATE;
+  const loanTerm = property.acquisitionTermYears ?? DEFAULT_TERM_YEARS;
   const monthlyRate = loanRate / 12;
   const totalPayments = loanTerm * 12;
   const monthlyPayment = calculatePMT(originalLoanAmount, monthlyRate, totalPayments);
@@ -386,10 +388,10 @@ export function runIndependentVerification(
     const clientMonthly = clientResults?.[pi];
 
     const checkPropertyValue = property.purchasePrice + (property.buildingImprovements ?? 0);
-    const ltv = property.acquisitionLTV ?? globalAssumptions.debtAssumptions?.acqLTV ?? DEFAULT_LTV;
+    const ltv = property.acquisitionLTV ?? DEFAULT_LTV;
     const loanAmount = property.type === "Financed" ? checkPropertyValue * ltv : 0;
-    const loanRate = property.acquisitionInterestRate ?? globalAssumptions.debtAssumptions?.interestRate ?? DEFAULT_INTEREST_RATE;
-    const loanTerm = property.acquisitionTermYears ?? globalAssumptions.debtAssumptions?.amortizationYears ?? DEFAULT_TERM_YEARS;
+    const loanRate = property.acquisitionInterestRate ?? DEFAULT_INTEREST_RATE;
+    const loanTerm = property.acquisitionTermYears ?? DEFAULT_TERM_YEARS;
 
     const firstOperationalMonth = independentCalc.findIndex((m: any) => m.revenueRooms > 0);
 

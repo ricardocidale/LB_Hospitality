@@ -197,6 +197,87 @@ describe("Operating Reserve and Cumulative Cash Flow", () => {
     });
   });
 
+  describe("Refinance path preserves operating reserve in cumulative cash", () => {
+    it("Full Equity + Refinance: ending cash includes operating reserve after refinance rebuild", () => {
+      const reserve = 250_000;
+      const property = {
+        ...baseProperty,
+        operatingReserve: reserve,
+        willRefinance: "Yes",
+        refinanceDate: "2028-04-01",
+        refinanceLTV: 0.65,
+        refinanceInterestRate: 0.09,
+        refinanceTermYears: 25,
+        refinanceClosingCostRate: 0.03,
+      };
+      const months = generatePropertyProForma(property, {
+        ...baseGlobal,
+        modelDurationYears: 5,
+      } as any);
+
+      let cumCash = reserve;
+      for (const m of months) {
+        cumCash += (m.cashFlow || 0);
+      }
+      const lastEndingCash = months[months.length - 1].endingCash || 0;
+      expect(Math.abs(cumCash - lastEndingCash)).toBeLessThan(1);
+    });
+
+    it("Full Equity + Refinance with pre-ops gap: reserve seeds at acquisition month, not lost in refi rebuild", () => {
+      const reserve = 250_000;
+      const property = {
+        ...baseProperty,
+        acquisitionDate: "2026-04-01",
+        operationsStartDate: "2026-10-01",
+        operatingReserve: reserve,
+        willRefinance: "Yes",
+        refinanceDate: "2029-04-01",
+        refinanceLTV: 0.65,
+        refinanceInterestRate: 0.09,
+        refinanceTermYears: 25,
+        refinanceClosingCostRate: 0.03,
+      };
+      const months = generatePropertyProForma(property, {
+        ...baseGlobal,
+        modelDurationYears: 5,
+      } as any);
+
+      const acqMonth = months[0];
+      expect(acqMonth.endingCash).toBeGreaterThanOrEqual(reserve);
+
+      let cumCash = reserve;
+      for (const m of months) {
+        cumCash += (m.cashFlow || 0);
+      }
+      const lastEndingCash = months[months.length - 1].endingCash || 0;
+      expect(Math.abs(cumCash - lastEndingCash)).toBeLessThan(1);
+    });
+
+    it("removing reserve from refinance property drops ending cash by reserve amount", () => {
+      const reserve = 500_000;
+      const refiProperty = {
+        ...baseProperty,
+        willRefinance: "Yes",
+        refinanceDate: "2028-04-01",
+        refinanceLTV: 0.65,
+        refinanceInterestRate: 0.09,
+        refinanceTermYears: 25,
+        refinanceClosingCostRate: 0.03,
+      };
+      const withReserve = generatePropertyProForma(
+        { ...refiProperty, operatingReserve: reserve },
+        { ...baseGlobal, modelDurationYears: 5 } as any
+      );
+      const withoutReserve = generatePropertyProForma(
+        { ...refiProperty, operatingReserve: 0 },
+        { ...baseGlobal, modelDurationYears: 5 } as any
+      );
+      const diff = (withReserve[withReserve.length - 1].endingCash || 0) -
+                   (withoutReserve[withoutReserve.length - 1].endingCash || 0);
+      expect(Math.abs(diff - reserve)).toBeLessThan(1);
+    });
+  });
+
   describe("Pre-operations gap with debt service", () => {
     it("financed property with pre-ops gap has debt payments during gap", () => {
       const property = {

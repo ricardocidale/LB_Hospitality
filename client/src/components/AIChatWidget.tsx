@@ -282,7 +282,7 @@ export default function AIChatWidget({ enabled = false }: { enabled?: boolean })
               </Button>
             )}
             <Sparkles className="w-5 h-5 text-primary" />
-            <span className="font-semibold text-sm">AI Assistant</span>
+            <span className="font-semibold text-sm">Marcela</span>
           </div>
           <div className="flex items-center gap-1">
             {!showConversations && (
@@ -327,7 +327,7 @@ export default function AIChatWidget({ enabled = false }: { enabled?: boolean })
                 <div className="flex flex-col items-center justify-center py-12 text-center px-6">
                   <Bot className="w-12 h-12 text-muted-foreground/40 mb-3" />
                   <p className="text-sm text-muted-foreground">No conversations yet</p>
-                  <p className="text-xs text-muted-foreground/60 mt-1">Start a new chat to get help with hospitality analytics</p>
+                  <p className="text-xs text-muted-foreground/60 mt-1">Start a new chat with Marcela for hospitality analytics</p>
                 </div>
               ) : (
                 <div className="p-2 space-y-1">
@@ -375,14 +375,14 @@ export default function AIChatWidget({ enabled = false }: { enabled?: boolean })
                   <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
                     <Sparkles className="w-8 h-8 text-primary" />
                   </div>
-                  <h3 className="font-semibold text-base mb-1">How can I help?</h3>
+                  <h3 className="font-semibold text-base mb-1">Hi, I'm Marcela</h3>
                   <p className="text-xs text-muted-foreground max-w-[250px]">
                     Ask me about hotel financials, market analysis, revenue management, or anything hospitality-related.
                   </p>
                   <div className="mt-4 space-y-2 w-full max-w-[280px]">
                     {[
                       "What's a good cap rate for boutique hotels?",
-                      "Explain RevPAR and how to improve it",
+                      "How can I use Industry Research for market insights?",
                       "How do management fees typically work?",
                     ].map((suggestion, i) => (
                       <button

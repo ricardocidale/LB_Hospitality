@@ -337,3 +337,12 @@ All cards use a consistent approach:
 - **Files changed:** `client/src/pages/Settings.tsx`, `server/routes.ts`, `server/aiResearch.ts`
 - **Manuals updated:** Checker manual chapters 4 and 13 updated with Industry Research tab documentation
 - **Tests:** 1381/1381 pass, verification UNQUALIFIED (PASS)
+
+### AI Chatbot Enhanced — "Marcela"
+- **Name:** Chatbot renamed from "AI Assistant" to "Marcela" — a witty, brilliant hospitality strategist
+- **System prompt** (`server/replit_integrations/chat/routes.ts`): Expanded from generic assistant to full platform-aware advisor with:
+  - Platform knowledge (Dashboard, Properties, Management Company, Systemwide Assumptions tabs, Scenarios, Reports, AI Features including Industry Research)
+  - Personality traits: witty, sharp, clever analogies, memorable one-liners, warm but direct
+  - Dynamic context injection: `buildContextPrompt()` fetches live portfolio data (globalAssumptions + all properties) and appends to system prompt per message
+- **UI** (`client/src/components/AIChatWidget.tsx`): Header shows "Marcela", empty state says "Hi, I'm Marcela", suggestion prompts updated to include Industry Research
+- **Files changed:** `server/replit_integrations/chat/routes.ts`, `client/src/components/AIChatWidget.tsx`

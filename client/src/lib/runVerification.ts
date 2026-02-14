@@ -82,7 +82,7 @@ function convertToGlobalAuditInput(global: any): GlobalAuditInput {
   return {
     modelStartDate: global.modelStartDate,
     inflationRate: global.inflationRate,
-    debtAssumptions: global.debtAssumptions || {
+    debtAssumptions: {
       interestRate: DEFAULT_INTEREST_RATE,
       amortizationYears: DEFAULT_TERM_YEARS,
       acqLTV: DEFAULT_LTV

@@ -160,7 +160,7 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
           .slice(-12)
           .reduce((sum, m) => sum + m.noi, 0);
         const capRate = Math.max(0.01, (prop.exitCapRate ?? global.exitCapRate ?? DEFAULT_EXIT_CAP_RATE) + (overrides.exitCapRate ?? 0) / 100);
-        const commissionRate = global.salesCommissionRate ?? global.commissionRate ?? DEFAULT_COMMISSION_RATE;
+        const commissionRate = prop.dispositionCommission ?? DEFAULT_COMMISSION_RATE;
         const grossExit = lastYearNOI / capRate;
         const netExit = grossExit * (1 - commissionRate);
         const debtAtExit = financials[financials.length - 1]?.debtOutstanding ?? 0;

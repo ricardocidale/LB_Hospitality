@@ -508,6 +508,12 @@ export const properties = pgTable("properties", {
   // Tax Rate (for calculating after-tax free cash flow)
   taxRate: real("tax_rate").notNull().default(DEFAULT_TAX_RATE),
   
+  // Disposition (per-property sale commission)
+  dispositionCommission: real("disposition_commission").notNull().default(DEFAULT_COMMISSION_RATE),
+
+  // Refinance years after acquisition (when refinancing should occur)
+  refinanceYearsAfterAcquisition: integer("refinance_years_after_acquisition"),
+
   // Management Company Fee Rates (per-property, charged by management company)
   baseManagementFeeRate: real("base_management_fee_rate").notNull().default(DEFAULT_BASE_MANAGEMENT_FEE_RATE),
   incentiveManagementFeeRate: real("incentive_management_fee_rate").notNull().default(DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE),
@@ -584,6 +590,8 @@ export const insertPropertySchema = createInsertSchema(properties).pick({
   cateringBoostPercent: true,
   exitCapRate: true,
   taxRate: true,
+  dispositionCommission: true,
+  refinanceYearsAfterAcquisition: true,
   baseManagementFeeRate: true,
   incentiveManagementFeeRate: true,
   researchValues: true,

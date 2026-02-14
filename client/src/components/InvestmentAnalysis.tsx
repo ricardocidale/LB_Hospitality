@@ -50,7 +50,7 @@ export function InvestmentAnalysis({
     acquisitionYearIndex(prop.acquisitionDate, prop.operationsStartDate, global.modelStartDate);
 
   const getPropertyInvestment = (prop: any): number =>
-    propertyEquityInvested(prop, global.debtAssumptions?.acqLTV);
+    propertyEquityInvested(prop);
 
   const getEquityInvestmentForYear = (yearIndex: number): number =>
     properties.reduce((sum, prop) => sum + (getPropertyAcquisitionYear(prop) === yearIndex ? getPropertyInvestment(prop) : 0), 0);

@@ -269,10 +269,10 @@ export function auditLoanAmortization(
   // For Full Equity properties that refinance, there's no original loan
   const isOriginallyFinanced = property.type === "Financed";
   const totalInvestment = property.purchasePrice + property.buildingImprovements;
-  const ltv = property.acquisitionLTV || global.debtAssumptions?.acqLTV || DEFAULT_LTV;
+  const ltv = property.acquisitionLTV || DEFAULT_LTV;
   const loanAmount = isOriginallyFinanced ? totalInvestment * ltv : 0;
-  const interestRate = property.debtAssumptions?.interestRate || global.debtAssumptions?.interestRate || DEFAULT_INTEREST_RATE;
-  const termYears = property.debtAssumptions?.amortizationYears || global.debtAssumptions?.amortizationYears || DEFAULT_TERM_YEARS;
+  const interestRate = property.debtAssumptions?.interestRate || DEFAULT_INTEREST_RATE;
+  const termYears = property.debtAssumptions?.amortizationYears || DEFAULT_TERM_YEARS;
   let currentMonthlyRate = isOriginallyFinanced ? interestRate / 12 : 0;
   let currentTotalPayments = isOriginallyFinanced ? termYears * 12 : 0;
 
@@ -354,8 +354,8 @@ export function auditLoanAmortization(
       // Infer the new loan amount from the engine's debtOutstanding at the refi month
       // At monthsSinceRefi=0, the engine sets debtOutstanding = refiLoanAmount (before any amortization)
       const refiLoanAmount = monthlyData[refiMonthIndex].debtOutstanding + monthlyData[refiMonthIndex].principalPayment;
-      const refiRate = property.refinanceInterestRate ?? global.debtAssumptions?.interestRate ?? DEFAULT_INTEREST_RATE;
-      const refiTermYears = property.refinanceTermYears ?? global.debtAssumptions?.amortizationYears ?? DEFAULT_TERM_YEARS;
+      const refiRate = property.refinanceInterestRate ?? DEFAULT_INTEREST_RATE;
+      const refiTermYears = property.refinanceTermYears ?? DEFAULT_TERM_YEARS;
       currentMonthlyRate = refiRate / 12;
       currentTotalPayments = refiTermYears * 12;
       currentMonthlyPayment = pmt(refiLoanAmount, currentMonthlyRate, currentTotalPayments);

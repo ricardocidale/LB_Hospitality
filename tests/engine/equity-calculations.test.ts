@@ -123,11 +123,9 @@ describe("totalPropertyCost", () => {
 describe("acquisitionLoanAmount", () => {
   it("Full Equity property returns 0 regardless of LTV", () => {
     expect(acquisitionLoanAmount(fullEquityProperty)).toBe(0);
-    expect(acquisitionLoanAmount(fullEquityProperty, 0.80)).toBe(0);
   });
 
   it("Financed property uses purchasePrice + improvements * LTV", () => {
-    // loanAmount = (2,000,000 + 100,000) * 0.75 = 1,575,000
     const loan = acquisitionLoanAmount(financedProperty);
     expect(loan).toBe(1_575_000);
   });
@@ -139,33 +137,20 @@ describe("acquisitionLoanAmount", () => {
       type: "Financed",
       acquisitionLTV: 0.60,
     };
-    // Should use property LTV 0.60, not global or default
-    expect(acquisitionLoanAmount(prop, 0.80)).toBe(600_000);
+    expect(acquisitionLoanAmount(prop)).toBe(600_000);
   });
 
-  it("falls back to globalLTV when property acquisitionLTV is null", () => {
+  it("falls back to DEFAULT_LTV when property acquisitionLTV is null", () => {
     const prop: EquityPropertyInput = {
       purchasePrice: 1_000_000,
       buildingImprovements: 0,
       type: "Financed",
       acquisitionLTV: null,
     };
-    expect(acquisitionLoanAmount(prop, 0.80)).toBe(800_000);
-  });
-
-  it("falls back to DEFAULT_LTV when both property and global LTV are absent", () => {
-    const prop: EquityPropertyInput = {
-      purchasePrice: 1_000_000,
-      buildingImprovements: 0,
-      type: "Financed",
-      acquisitionLTV: null,
-    };
-    // DEFAULT_LTV = 0.75
     expect(acquisitionLoanAmount(prop)).toBe(1_000_000 * DEFAULT_LTV);
-    expect(acquisitionLoanAmount(prop, undefined)).toBe(1_000_000 * DEFAULT_LTV);
   });
 
-  it("LTV fallback chain: property -> global -> DEFAULT_LTV", () => {
+  it("LTV fallback: property -> DEFAULT_LTV (no global)", () => {
     const propWithLTV: EquityPropertyInput = {
       purchasePrice: 1_000_000,
       buildingImprovements: 0,
@@ -179,11 +164,7 @@ describe("acquisitionLoanAmount", () => {
       acquisitionLTV: null,
     };
 
-    // Property LTV wins
-    expect(acquisitionLoanAmount(propWithLTV, 0.80)).toBe(500_000);
-    // Global LTV wins when property is null
-    expect(acquisitionLoanAmount(propNoLTV, 0.80)).toBe(800_000);
-    // DEFAULT_LTV wins when both are absent
+    expect(acquisitionLoanAmount(propWithLTV)).toBe(500_000);
     expect(acquisitionLoanAmount(propNoLTV)).toBe(1_000_000 * DEFAULT_LTV);
   });
 
@@ -250,7 +231,7 @@ describe("propertyEquityInvested", () => {
     expect(equity).toBe(605_000);
   });
 
-  it("passes globalLTV through to acquisitionLoanAmount", () => {
+  it("uses DEFAULT_LTV when property acquisitionLTV is null", () => {
     const prop: EquityPropertyInput = {
       purchasePrice: 1_000_000,
       buildingImprovements: 0,
@@ -259,9 +240,7 @@ describe("propertyEquityInvested", () => {
       type: "Financed",
       acquisitionLTV: null,
     };
-    // globalLTV = 0.60, loanAmount = 1,000,000 * 0.60 = 600,000
-    // equity = 1,000,000 - 600,000 = 400,000
-    expect(propertyEquityInvested(prop, 0.60)).toBe(400_000);
+    expect(propertyEquityInvested(prop)).toBe(1_000_000 * (1 - DEFAULT_LTV));
   });
 
   it("uses DEFAULT_LTV fallback when no LTV provided", () => {

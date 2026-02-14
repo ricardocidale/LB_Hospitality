@@ -6,18 +6,20 @@ Shared constants (used by both client and server) are defined in `shared/constan
 
 ## Fallback Pattern
 
-The system uses a three-tier fallback for configurable values:
+The system uses a two-tier fallback for per-property values:
 
 ```
-property-specific value → global assumption value → DEFAULT constant
+property-specific value → DEFAULT constant
 ```
 
 **Example**:
 ```typescript
-const exitCapRate = property.exitCapRate
-  ?? globalAssumptions.exitCapRate
-  ?? DEFAULT_EXIT_CAP_RATE;
+const exitCapRate = property.exitCapRate ?? DEFAULT_EXIT_CAP_RATE;
+const ltv = property.acquisitionLTV ?? DEFAULT_LTV;
+const commission = property.dispositionCommission ?? DEFAULT_COMMISSION_RATE;
 ```
+
+Note: Acquisition Financing, Refinancing, and Disposition Commission are per-property settings. The systemwide assumptions page shows "Defaults for New Properties" which are copied to new properties at creation time but do not affect existing properties.
 
 For projection years specifically:
 ```typescript

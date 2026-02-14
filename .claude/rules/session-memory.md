@@ -218,3 +218,44 @@ All cards use a consistent approach:
 | `.claude/skills/ui/kpi-grid-hover.md` | KPIGrid dual-layer hover (framer-motion + Tailwind) |
 | `.claude/skills/ui/radial-glow-overlay.md` | Radial gradient inner glow overlay presets |
 | `.claude/skills/ui/animation-patterns.md` | Updated with cross-references to new hover skills |
+
+---
+
+## Session: February 14, 2026
+
+### Per-Property Financing Architecture Migration
+
+**Major architectural change**: Moved Acquisition Financing, Refinancing, and Disposition Commission from systemwide-level settings to per-property settings.
+
+#### What Changed
+1. **Schema** (`shared/schema.ts`): Added per-property columns: `dispositionCommission`, `refinanceYearsAfterAcquisition`, `acquisitionLTV`, `acquisitionInterestRate`, `acquisitionTermYears`, `acquisitionClosingCostRate`, `refinanceLTV`, `refinanceInterestRate`, `refinanceTermYears`, `refinanceClosingCostRate`
+2. **Fallback pattern**: Changed from `property → global → DEFAULT` to `property → DEFAULT` for all financing fields
+3. **Calculation engines**: Updated `financialEngine.ts`, `loanCalculations.ts`, `equityCalculations.ts`, `cashFlowAggregator.ts` to use property-only fallback
+4. **Server-side**: Updated `calculationChecker.ts`, `seed.ts`, `routes.ts`, `syncHelpers.ts`
+5. **UI**: Settings.tsx relabeled financing sections as "Defaults for New Properties"; PropertyEdit.tsx has all per-property financing inputs
+6. **Consumers**: Updated sensitivity analysis, yearly cash flow, cross-validation, auditor, checker manual, exports, company assumptions
+7. **Tests**: All 1372 tests passing, TypeScript clean (0 errors), verification UNQUALIFIED
+
+#### Key Design Decisions
+- Systemwide assumptions for financing/refinancing/disposition are labeled "Defaults for New Properties" — they populate new properties at creation but don't override existing ones
+- Existing properties were populated with DEFAULT constant values during migration
+- `willRefinance` remains on the property (it was already per-property)
+- The `syncHelpers.ts` copies global defaults to new properties when they lack financing values
+
+#### Files Modified (key)
+- `shared/schema.ts` — new columns on properties table
+- `client/src/lib/financialEngine.ts` — property-only fallback
+- `client/src/lib/loanCalculations.ts` — property-only fallback
+- `client/src/lib/equityCalculations.ts` — property-only fallback
+- `client/src/lib/cashFlowAggregator.ts` — property-only fallback
+- `client/src/pages/Settings.tsx` — "Defaults for New Properties" labels
+- `client/src/pages/PropertyEdit.tsx` — per-property financing inputs
+- `server/calculationChecker.ts` — property-only fallback
+- `server/routes.ts` — property financing in PATCH routes
+- `server/seed.ts` — per-property financing in seed data
+- `tests/engine/loan-calculations.test.ts` — fixed import path
+
+#### Rules Updated
+- `.claude/rules/financial-engine.md` — expanded per-property config table
+- `.claude/rules/constants-and-config.md` — updated fallback pattern to two-tier
+- `replit.md` — reflects per-property architecture

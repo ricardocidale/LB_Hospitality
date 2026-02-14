@@ -989,8 +989,8 @@ export default function CompanyAssumptions() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <Label className="flex items-center text-gray-700 label-text">
-                  Sales Commission Rate (% of Gross Sale Price)
-                  <HelpTooltip text="Broker commission paid on property sales as a percentage of the gross sale price at exit" />
+                  Default Sales Commission Rate (% of Gross Sale Price)
+                  <HelpTooltip text="Default broker commission for new properties. Each property can override this with its own disposition commission on its assumptions page." />
                 </Label>
                 <EditableValue
                   value={formData.salesCommissionRate ?? global.salesCommissionRate ?? DEFAULT_COMMISSION_RATE}

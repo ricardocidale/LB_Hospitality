@@ -57,7 +57,7 @@ export function aggregateCashFlowByYear(
     // before applying the exit cap rate. Using partial-year NOI directly would
     // understate exit value and destroy investor returns.
     const exitCapRate = property.exitCapRate ?? global?.exitCapRate ?? DEFAULT_EXIT_CAP_RATE;
-    const commissionRate = global?.salesCommissionRate ?? global?.commissionRate ?? DEFAULT_COMMISSION_RATE;
+    const commissionRate = property.dispositionCommission ?? DEFAULT_COMMISSION_RATE;
     const isLastYear = y === years - 1;
     const operationalMonthsInYear = yearData.filter(m => m.revenueTotal > 0 || m.noi !== 0).length;
     const annualizedNOI = operationalMonthsInYear >= 12

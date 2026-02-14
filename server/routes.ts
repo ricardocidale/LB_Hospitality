@@ -4,6 +4,7 @@ import { storage, type ActivityLogFilters } from "./storage";
 import { insertGlobalAssumptionsSchema, insertPropertySchema, updatePropertySchema, insertDesignThemeSchema, insertLogoSchema, updateScenarioSchema, insertProspectivePropertySchema, insertSavedSearchSchema, VALID_USER_ROLES } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { registerObjectStorageRoutes, ObjectStorageService, ObjectNotFoundError } from "./replit_integrations/object_storage";
+import { registerChatRoutes } from "./replit_integrations/chat";
 import { hashPassword, verifyPassword, generateSessionId, setSessionCookie, clearSessionCookie, getSessionExpiryDate, requireAuth, requireAdmin, requireChecker, requireManagementAccess, isRateLimited, recordLoginAttempt, sanitizeEmail, validatePassword, isApiRateLimited } from "./auth";
 import { z } from "zod";
 import OpenAI from "openai";
@@ -1300,6 +1301,9 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
 
   // Register object storage routes for file uploads
   registerObjectStorageRoutes(app);
+
+  // Register AI chat assistant routes
+  registerChatRoutes(app);
 
   // --- AI IMAGE GENERATION + UPLOAD ---
   app.post("/api/generate-property-image", requireAuth, async (req, res) => {

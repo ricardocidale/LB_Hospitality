@@ -626,12 +626,13 @@ export function runIndependentVerification(
 
     const endingCash = independentCalc[independentCalc.length - 1]?.endingCash || 0;
     const cumulativeCashFlow = independentCalc.reduce((sum: number, m: any) => sum + m.cashFlow, 0);
+    const reserveSeed = property.operatingReserve ?? 0;
     checks.push(check(
       "Cumulative Cash Flow = Ending Cash",
       "Cash Flow",
       "ASC 230",
-      "Ending cash balance equals sum of all monthly cash flows",
-      cumulativeCashFlow,
+      "Ending cash balance equals sum of all monthly cash flows + operating reserve seed",
+      cumulativeCashFlow + reserveSeed,
       endingCash,
       "critical"
     ));

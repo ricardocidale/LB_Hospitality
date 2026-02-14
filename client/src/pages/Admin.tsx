@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Loader2, Plus, Trash2, Users, Key, Eye, EyeOff, Pencil, Clock, FileCheck, CheckCircle2, XCircle, AlertTriangle, PlayCircle, Palette, Activity, HelpCircle, SwatchBook, UserPlus, Shield, Mail, Calendar, LogIn, LogOut, Monitor, MapPin, Hash, LayoutGrid, Sparkles, Settings, FileText, Download, Save, FileDown, Image, PanelLeft, Building2, Tag, Database, RefreshCw, Upload, Star } from "lucide-react";
+import { Loader2, Plus, Trash2, Users, Key, Eye, EyeOff, Pencil, Clock, FileCheck, CheckCircle2, XCircle, AlertTriangle, PlayCircle, Palette, Activity, HelpCircle, SwatchBook, UserPlus, Shield, Mail, Calendar, LogIn, LogOut, Monitor, MapPin, Hash, LayoutGrid, Sparkles, Settings, FileText, Download, Save, FileDown, Image, PanelLeft, Building2, Tag, Database, RefreshCw, Upload, Star, ChevronDown, ChevronRight } from "lucide-react";
 import defaultLogo from "@/assets/logo.png";
 import { AIImagePicker } from "@/components/ui/ai-image-picker";
 import { Tabs, TabsContent, DarkGlassTabs } from "@/components/ui/tabs";
@@ -216,6 +216,7 @@ export default function Admin() {
   const [designResults, setDesignResults] = useState<DesignCheckResult | null>(null);
   const [syncResults, setSyncResults] = useState<Record<string, any> | null>(null);
   const [syncConfirmOpen, setSyncConfirmOpen] = useState(false);
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
 
   const { data: users, isLoading: usersLoading } = useQuery<User[]>({
     queryKey: ["admin", "users"],
@@ -712,6 +713,7 @@ export default function Admin() {
     },
     onSuccess: (data) => {
       setVerificationResults(data);
+      setExpandedCategories(new Set());
       setAiReview("");
       queryClient.invalidateQueries({ queryKey: ["admin", "verification-history"] });
       toast({
@@ -1329,6 +1331,67 @@ export default function Admin() {
     </div>
   );
 
+  const toggleCategory = (key: string) => {
+    setExpandedCategories(prev => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  };
+
+  const renderGroupedChecks = (checks: CheckResult[], sectionPrefix: string) => {
+    const grouped = new Map<string, CheckResult[]>();
+    for (const chk of checks) {
+      const cat = chk.category || "Other";
+      if (!grouped.has(cat)) grouped.set(cat, []);
+      grouped.get(cat)!.push(chk);
+    }
+
+    return Array.from(grouped.entries()).map(([category, catChecks]) => {
+      const passed = catChecks.filter(c => c.passed).length;
+      const failed = catChecks.filter(c => !c.passed).length;
+      const hasFails = failed > 0;
+      const key = `${sectionPrefix}-${category}`;
+      const isExpanded = expandedCategories.has(key) || hasFails;
+
+      return (
+        <div key={category} className="space-y-1">
+          <button
+            onClick={() => toggleCategory(key)}
+            data-testid={`accordion-category-${sectionPrefix}-${category.replace(/\s+/g, '-').toLowerCase()}`}
+            className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-colors cursor-pointer ${
+              hasFails
+                ? 'bg-red-50 border-red-200 hover:bg-red-100'
+                : 'bg-green-50 border-green-200 hover:bg-green-100'
+            }`}
+          >
+            {isExpanded
+              ? <ChevronDown className="w-4 h-4 text-gray-500 shrink-0" />
+              : <ChevronRight className="w-4 h-4 text-gray-500 shrink-0" />
+            }
+            {hasFails
+              ? <AlertTriangle className="w-5 h-5 text-red-500 shrink-0" />
+              : <CheckCircle2 className="w-5 h-5 text-secondary shrink-0" />
+            }
+            <span className="text-sm font-semibold text-gray-800 flex-1 text-left">{category}</span>
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="text-xs font-mono text-secondary bg-green-100 px-2 py-0.5 rounded">{passed} passed</span>
+              {failed > 0 && (
+                <span className="text-xs font-mono text-red-600 bg-red-100 px-2 py-0.5 rounded">{failed} failed</span>
+              )}
+            </div>
+          </button>
+          {isExpanded && (
+            <div className="ml-4 space-y-1">
+              {catChecks.map((chk, cIdx) => renderCheckRow(chk, cIdx))}
+            </div>
+          )}
+        </div>
+      );
+    });
+  };
+
   /** Activity Feed — filterable log of all user actions across the system. */
   const renderActivityFeed = () => (
     <div className="space-y-6">
@@ -1737,7 +1800,7 @@ export default function Admin() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  {property.checks.map((chk, cIdx) => renderCheckRow(chk, cIdx))}
+                  {renderGroupedChecks(property.checks, `prop-${pIdx}`)}
                 </div>
               </div>
             ))}
@@ -1747,7 +1810,7 @@ export default function Admin() {
               <div className="p-5 rounded-2xl bg-primary/10 border border-primary/30">
                 <h4 className="font-display text-secondary font-semibold mb-3">Management Company Checks</h4>
                 <div className="space-y-2">
-                  {verificationResults.companyChecks.map((chk, cIdx) => renderCheckRow(chk, cIdx))}
+                  {renderGroupedChecks(verificationResults.companyChecks, "company")}
                 </div>
               </div>
             )}
@@ -1757,7 +1820,7 @@ export default function Admin() {
               <div className="p-5 rounded-2xl bg-secondary/10 border border-secondary/30">
                 <h4 className="font-display text-secondary font-semibold mb-3">Consolidated Portfolio Checks</h4>
                 <div className="space-y-2">
-                  {verificationResults.consolidatedChecks.map((chk, cIdx) => renderCheckRow(chk, cIdx))}
+                  {renderGroupedChecks(verificationResults.consolidatedChecks, "consolidated")}
                 </div>
               </div>
             )}

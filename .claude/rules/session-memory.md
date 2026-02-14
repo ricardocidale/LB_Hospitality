@@ -343,8 +343,32 @@ All cards use a consistent approach:
 - **System prompt** (`server/replit_integrations/chat/routes.ts`): Expanded from generic assistant to full platform-aware advisor with:
   - Platform knowledge (Dashboard, Properties, Management Company, Systemwide Assumptions tabs, Scenarios, Reports, AI Features including Industry Research)
   - Personality traits: witty, sharp, clever analogies, memorable one-liners, warm but direct
-  - Dynamic context injection: `buildContextPrompt()` fetches live portfolio data (globalAssumptions + all properties) and appends to system prompt per message
+  - Full manual chapter summaries (User Manual 16 chapters, Checker Manual 15 chapters)
+  - Administration page structure, user role definitions (admin/partner/checker/investor)
+  - Dynamic context injection: `buildContextPrompt()` fetches live portfolio data and appends to system prompt per message
+- **Dynamic context** (`buildContextPrompt()`):
+  - Portfolio assumptions (company name, property type, projection years, inflation, fees, asset definition)
+  - All properties with details (roomCount, startAdr, location, purchasePrice)
+  - Team members with safe fields only (id, name, email, role, title) — **passwordHash and other sensitive fields are stripped**
+  - Identifies who Marcela is currently speaking with by userId
 - **UI** (`client/src/components/AIChatWidget.tsx`): Header shows "Marcela", empty state says "Hi, I'm Marcela", suggestion prompts updated to include Industry Research
-- **System prompt includes:** Full manual chapter summaries (User Manual 16 chapters, Checker Manual 15 chapters), Administration page structure, user role definitions (admin/partner/checker/investor)
-- **Dynamic context includes:** Portfolio assumptions, all properties with details, all team members with roles, identifies who Marcela is currently speaking with
+- **Security fix (architect-reviewed):** `buildContextPrompt()` destructures only safe fields from user records — `passwordHash`, `companyId`, `userGroupId`, `selectedThemeId`, and other internal fields are never sent to the AI
+- **Schema field mapping (corrected):** Uses actual Drizzle schema field names: `name` (not fullName/username), `roomCount` (not rooms), `startAdr` (not startingADR), `purchasePrice` (not acquisitionCost), `assetDefinition` (not boutiqueDefinition)
 - **Files changed:** `server/replit_integrations/chat/routes.ts`, `client/src/components/AIChatWidget.tsx`
+
+### Architect Review Findings
+- **Security:** Fixed — password hashes stripped from AI context via safe field destructuring
+- **Schema correctness:** Fixed — all field names now match Drizzle schema types
+- **Performance:** Noted — fetching all users/properties/assumptions per message is acceptable for current portfolio size; caching recommended if portfolio grows significantly
+- **Manual knowledge:** Approved — 31 chapter summaries provide comprehensive platform awareness
+- **Overall verdict:** PASS after security fix
+
+### Full Audit Results (February 14, 2026)
+- TypeScript: PASS — 0 errors
+- Lint: PASS — 0 errors
+- Tests: PASS — 1381/1381 (61 files)
+- Verification: UNQUALIFIED (PASS)
+- Health Check: ALL CLEAR
+- Codebase: 287 source files, 64,853 lines, 91 skills, 22 rules, 31 tools
+- Quick Audit: 1 pre-existing critical (10 `any` types in finance code — typed-safe casting in calc/dispatch.ts and partner comp lookup)
+- Exports Check: 313 used, 60 potentially unused (mostly interfaces and type exports for external consumers)

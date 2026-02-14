@@ -358,7 +358,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
 
       <CommandPalette />
       <GuidedWalkthrough />
-      <AIChatWidget />
+      <AIChatWidget enabled={!!(global as any)?.showAiAssistant} />
     </div>
   );
 }

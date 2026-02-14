@@ -2482,6 +2482,7 @@ export default function Admin() {
     { key: "sidebarExecutiveSummary", label: "Executive Summary", description: "High-level portfolio summary report" },
     { key: "sidebarScenarios", label: "My Scenarios", description: "Saved scenario snapshots per user" },
     { key: "sidebarUserManual", label: "User Manual", description: "Methodology documentation and help" },
+    { key: "showAiAssistant", label: "AI Assistant", description: "Floating AI chat widget available on every page" },
   ];
 
   const renderSidebar = () => (

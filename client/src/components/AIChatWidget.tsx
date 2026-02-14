@@ -100,7 +100,7 @@ function formatInline(text: string): React.ReactNode {
   return parts.length === 1 ? parts[0] : <>{parts}</>;
 }
 
-export default function AIChatWidget() {
+export default function AIChatWidget({ enabled = false }: { enabled?: boolean }) {
   const [isOpen, setIsOpen] = useState(false);
   const [showConversations, setShowConversations] = useState(false);
   const [activeConversationId, setActiveConversationId] = useState<number | null>(null);
@@ -245,6 +245,8 @@ export default function AIChatWidget() {
   };
 
   const messages = activeConversation?.messages || [];
+
+  if (!enabled) return null;
 
   return (
     <>

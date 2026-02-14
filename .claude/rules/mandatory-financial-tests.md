@@ -4,7 +4,7 @@
 
 ## Critical Test File
 
-`tests/engine/operating-reserve-cash.test.ts` — 10 tests that catch the exact bugs that caused negative cash balances and incorrect auditor results.
+`tests/engine/operating-reserve-cash.test.ts` — 13 tests that catch the exact bugs that caused negative cash balances, incorrect auditor results, and refinance cash reconciliation failures.
 
 ## What These Tests Guard Against
 
@@ -21,7 +21,13 @@
 - Different term years MUST produce different monthly debt payments
 - Auditor (`financialAuditor.ts`) MUST use: `property.acquisitionInterestRate ?? property.debtAssumptions?.interestRate ?? DEFAULT_INTEREST_RATE`
 
-### 3. Pre-Operations Gap Bugs
+### 3. Refinance Path Operating Reserve Bugs
+- Full Equity + Refinance properties MUST preserve operating reserve in cumulative cash after refinance post-processing (Pass 2)
+- Refinance cumulative cash rebuild MUST seed operating reserve at the acquisition month index (same as Pass 1)
+- Removing operating reserve from a refinance property MUST drop ending cash by exactly the reserve amount
+- Pre-ops gap + refinance properties MUST show reserve in ending cash at acquisition month even after refinance rebuild
+
+### 4. Pre-Operations Gap Bugs
 - Financed properties with a gap between acquisition and operations start MUST have debt payments during the gap
 - Operating reserve MUST be large enough to cover pre-ops debt service (no negative cash)
 
@@ -53,6 +59,7 @@ npm run test:file -- tests/engine/operating-reserve-cash.test.ts
 | Auditor false failures | Auditor using legacy `debtAssumptions` instead of per-property fields | All Financed properties |
 | Cumulative cash mismatch | Cash flow reconciliation audit not including operating reserve | All properties with reserves |
 | Wrong debt payments | Engine using wrong interest rate field | Casa Medellín (9.5% vs default) |
+| Refinance loses operating reserve | Pass 2 refi loop reset `cumCash = 0` without re-seeding operating reserve at acquisition month | The Hudson Estate, Eden Summit Lodge, Austin Hillside |
 
 ## If Tests Fail
 

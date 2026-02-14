@@ -116,6 +116,8 @@ interface PropertyInput {
   exitCapRate?: number | null;
   // Disposition
   dispositionCommission?: number | null;
+  // Operating reserve (seeds initial cash at acquisition)
+  operatingReserve?: number | null;
   // Refinance timing
   refinanceYearsAfterAcquisition?: number | null;
   // Operating Cost Rates (should sum to ~84% of revenue)
@@ -468,6 +470,9 @@ export function generatePropertyProForma(
     // This reconciles: OCF + FCF = (NI + Dep) + (-Principal) = NOI - Interest - Tax - Principal = cashFlow
     const operatingCashFlow = netIncome + depreciationExpense;
     const financingCashFlow = -principalPayment;
+    if (isAcquired && monthsSinceAcquisition === 0) {
+      cumulativeCash += (property.operatingReserve ?? 0);
+    }
     cumulativeCash += cashFlow;
     const endingCash = cumulativeCash;
 

@@ -303,6 +303,9 @@ function independentPropertyCalc(property: any, global: any) {
 
     const operatingCashFlow = netIncome + depreciationExpense;
     const financingCashFlow = -principalPayment;
+    if (isAcquired && monthsSinceAcquisition === 0) {
+      cumulativeCash += (property.operatingReserve ?? 0);
+    }
     cumulativeCash += cashFlow;
 
     results.push({

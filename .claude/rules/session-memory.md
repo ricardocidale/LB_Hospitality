@@ -280,3 +280,17 @@ All cards use a consistent approach:
 - TypeScript: 0 errors
 - Verification: UNQUALIFIED (PASS)
 - Blue Ridge Manor: min cash $0, 0 negative months
+
+### Casa Medellin Operating Reserve Fix
+- **Problem:** Casa Medellin had $250K operating reserve but a 22-month pre-ops gap (Sept 2026 → July 2028) generating ~$554K in debt payments
+- **Fix:** Increased operating reserve from $250K to $600K in database (property id=35)
+- **Result:** min cash $0, 0 negative months
+
+### Verification UI — Accordion Category Grouping
+- **Problem:** Verification check list was too long; all checks listed flat per property
+- **Fix:** Added `renderGroupedChecks()` helper that groups checks by `category` field (Revenue, P&L, Cash Flow, Balance Sheet, Debt Service, Independence, Industry Benchmark, Business Rule)
+- **Behavior:** Categories with all passes show collapsed (green) by default; categories with failures auto-expand (red). User can click to toggle any category.
+- **UI:** Chevron left/down icon, category name, pass/fail counts. Click to expand/collapse.
+- **State:** `expandedCategories` Set<string> tracks which are manually toggled open
+- **Applied to:** Property checks, Management Company checks, Consolidated Portfolio checks
+- **Files changed:** `client/src/pages/Admin.tsx` (added ChevronDown/ChevronRight imports, expandedCategories state, toggleCategory, renderGroupedChecks)

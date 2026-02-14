@@ -6,6 +6,17 @@ Global assumptions are model-wide parameters accessible via the Systemwide Assum
 
 When a property-level value is not explicitly set, the financial engine falls back to the corresponding global assumption, and ultimately to the system default constant. This ensures every calculation always has a valid input.
 
+## Systemwide Assumptions Tabs
+
+The Systemwide Assumptions page is organized into four tabs:
+
+| Tab | Purpose |
+|-----|---------|
+| **Portfolio** | General property description (asset definition), disposition defaults, acquisition financing defaults, refinancing defaults for new properties |
+| **Macro** | Economic assumptions (fiscal year start month, inflation rate) |
+| **Other** | Calculation transparency toggles, AI research model selection |
+| **Industry Research** | Configurable AI-powered industry research with focus areas, regions, time horizon, and custom questions. Displays model context (asset type, tier, room range, ADR range, inflation, projection years, features) as read-only summary from systemwide settings. Research results display inline. |
+
 ---
 
 ## Complete Global Assumptions Reference

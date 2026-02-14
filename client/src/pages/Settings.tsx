@@ -1,23 +1,24 @@
 import Layout from "@/components/Layout";
-import { useGlobalAssumptions, useUpdateGlobalAssumptions, useProperties, useUpdateProperty } from "@/lib/api";
+import { useGlobalAssumptions, useUpdateGlobalAssumptions, useProperties, useUpdateProperty, useMarketResearch } from "@/lib/api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, DarkGlassTabs } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, BookOpen, Hotel, Globe, Sliders } from "lucide-react";
+import { Loader2, BookOpen, Hotel, Globe, Sliders, Search, RefreshCw, TrendingUp, Landmark, Sparkles, AlertTriangle, Check } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Link } from "wouter";
 import { SaveButton } from "@/components/ui/save-button";
 import { GlassButton } from "@/components/ui/glass-button";
 import { PageHeader } from "@/components/ui/page-header";
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { Slider } from "@/components/ui/slider";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DEFAULT_COMMISSION_RATE,
   DEFAULT_LTV,
@@ -27,16 +28,59 @@ import {
   DEFAULT_REFI_CLOSING_COST_RATE,
 } from "@/lib/constants";
 import { formatMoneyInput, parseMoneyInput } from "@/lib/formatters";
+import { useQueryClient } from "@tanstack/react-query";
+import { format } from "date-fns";
+
+const FOCUS_AREA_OPTIONS = [
+  { id: "market", label: "Market Overview & Trends" },
+  { id: "events", label: "Event Hospitality (wellness, corporate, yoga, relationship retreats)" },
+  { id: "benchmarks", label: "Financial Benchmarks (ADR, occupancy, RevPAR)" },
+  { id: "caprates", label: "Cap Rates & Investment Returns" },
+  { id: "debt", label: "Debt Market Conditions" },
+  { id: "emerging", label: "Emerging Trends in Experiential Hospitality" },
+  { id: "supply", label: "New Supply Pipeline & Construction Activity" },
+  { id: "labor", label: "Labor Market & Staffing Trends" },
+  { id: "technology", label: "Technology & PropTech Adoption" },
+  { id: "sustainability", label: "Sustainability & ESG in Hospitality" },
+];
+
+const REGION_OPTIONS = [
+  { id: "north_america", label: "North America" },
+  { id: "latin_america", label: "Latin America" },
+  { id: "europe", label: "Europe" },
+  { id: "asia_pacific", label: "Asia Pacific" },
+  { id: "middle_east", label: "Middle East & Africa" },
+  { id: "caribbean", label: "Caribbean" },
+];
+
+const TIME_HORIZON_OPTIONS = [
+  { value: "1 year", label: "1 Year" },
+  { value: "3 years", label: "3 Years" },
+  { value: "5 years", label: "5 Years" },
+  { value: "10 years", label: "10 Years" },
+];
 
 export default function Settings() {
   const { data: global, isLoading: globalLoading } = useGlobalAssumptions();
   const { data: properties, isLoading: propertiesLoading } = useProperties();
+  const { data: research } = useMarketResearch("global");
   const updateGlobal = useUpdateGlobalAssumptions();
   const updateProperty = useUpdateProperty();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [globalDraft, setGlobalDraft] = useState<any>(null);
   const [propertyDrafts, setPropertyDrafts] = useState<Record<number, any>>({});
   const [settingsTab, setSettingsTab] = useState("portfolio");
+  
+  const [selectedFocusAreas, setSelectedFocusAreas] = useState<string[]>(
+    FOCUS_AREA_OPTIONS.slice(0, 6).map(o => o.label)
+  );
+  const [selectedRegions, setSelectedRegions] = useState<string[]>(["North America", "Latin America"]);
+  const [timeHorizon, setTimeHorizon] = useState("5 years");
+  const [customQuestions, setCustomQuestions] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [streamedContent, setStreamedContent] = useState("");
+  const abortRef = useRef<AbortController | null>(null);
 
   if (globalLoading || propertiesLoading) {
     return (
@@ -105,6 +149,60 @@ export default function Settings() {
     });
   };
 
+  const generateResearch = useCallback(async () => {
+    setIsGenerating(true);
+    setStreamedContent("");
+    abortRef.current = new AbortController();
+    
+    try {
+      const response = await fetch("/api/research/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "global",
+          researchVariables: {
+            focusAreas: selectedFocusAreas,
+            regions: selectedRegions,
+            timeHorizon,
+            customQuestions: customQuestions || undefined,
+          },
+        }),
+        signal: abortRef.current.signal,
+      });
+      
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let accumulated = "";
+      
+      while (reader) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value);
+        const lines = chunk.split("\n");
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              if (data.content) {
+                accumulated += data.content;
+                setStreamedContent(accumulated);
+              }
+              if (data.done) {
+                queryClient.invalidateQueries({ queryKey: ["research", "global"] });
+              }
+            } catch {}
+          }
+        }
+      }
+    } catch (error: any) {
+      if (error.name !== "AbortError") {
+        toast({ title: "Error", description: "Research generation failed. Please try again.", variant: "destructive" });
+      }
+    } finally {
+      setIsGenerating(false);
+    }
+  }, [selectedFocusAreas, selectedRegions, timeHorizon, customQuestions, queryClient, toast]);
+
   const handleSaveGlobal = () => {
     if (globalDraft) {
       updateGlobal.mutate(globalDraft, {
@@ -142,19 +240,13 @@ export default function Settings() {
           subtitle="Configure variables driving the financial model"
           variant="dark"
           actions={
-            <div className="flex items-center gap-3">
-              <Link href="/global/research" className="text-inherit no-underline">
-                <GlassButton variant="primary" data-testid="button-global-research">
-                  <BookOpen className="w-4 h-4" />
-                  Industry Research
-                </GlassButton>
-              </Link>
+            settingsTab !== "research" ? (
               <SaveButton 
                 onClick={handleSaveGlobal} 
                 disabled={!globalDraft} 
                 isPending={updateGlobal.isPending} 
               />
-            </div>
+            ) : undefined
           }
         />
 
@@ -163,7 +255,8 @@ export default function Settings() {
             tabs={[
               { value: 'portfolio', label: 'Portfolio', icon: Hotel },
               { value: 'macro', label: 'Macro', icon: Globe },
-              { value: 'other', label: 'Other', icon: Sliders }
+              { value: 'other', label: 'Other', icon: Sliders },
+              { value: 'research', label: 'Industry Research', icon: Search }
             ]}
             activeTab={settingsTab}
             onTabChange={setSettingsTab}
@@ -765,6 +858,398 @@ export default function Settings() {
               disabled={!globalDraft} 
               isPending={updateGlobal.isPending} 
             />
+          </TabsContent>
+
+          <TabsContent value="research" className="space-y-6 mt-6">
+            <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 font-display">
+                  <Globe className="w-5 h-5 text-primary" />
+                  Your Model Context
+                  <HelpTooltip text="These values come from your systemwide assumptions and are automatically included in the research prompt so the AI tailors its analysis to your portfolio." />
+                </CardTitle>
+                <CardDescription className="label-text">These systemwide settings shape your research. Edit them in Portfolio and Macro tabs.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div className="rounded-xl p-3 bg-emerald-50 border border-emerald-200">
+                    <p className="text-xs font-medium uppercase tracking-wider text-gray-500 mb-1">Asset Type</p>
+                    <p className="text-sm font-semibold text-gray-900" data-testid="text-research-asset-type">{currentGlobal.propertyLabel || "Boutique Hotel"}</p>
+                  </div>
+                  <div className="rounded-xl p-3 bg-emerald-50 border border-emerald-200">
+                    <p className="text-xs font-medium uppercase tracking-wider text-gray-500 mb-1">Tier</p>
+                    <p className="text-sm font-semibold text-gray-900 capitalize" data-testid="text-research-tier">{currentGlobal.assetDefinition?.level || "luxury"}</p>
+                  </div>
+                  <div className="rounded-xl p-3 bg-blue-50 border border-blue-200">
+                    <p className="text-xs font-medium uppercase tracking-wider text-gray-500 mb-1">Room Range</p>
+                    <p className="text-sm font-semibold text-gray-900" data-testid="text-research-rooms">{currentGlobal.assetDefinition?.minRooms ?? 10}–{currentGlobal.assetDefinition?.maxRooms ?? 80}</p>
+                  </div>
+                  <div className="rounded-xl p-3 bg-blue-50 border border-blue-200">
+                    <p className="text-xs font-medium uppercase tracking-wider text-gray-500 mb-1">ADR Range</p>
+                    <p className="text-sm font-semibold text-gray-900" data-testid="text-research-adr">${currentGlobal.assetDefinition?.minAdr ?? 150}–${currentGlobal.assetDefinition?.maxAdr ?? 600}</p>
+                  </div>
+                  <div className="rounded-xl p-3 bg-amber-50 border border-amber-200">
+                    <p className="text-xs font-medium uppercase tracking-wider text-gray-500 mb-1">Inflation</p>
+                    <p className="text-sm font-semibold text-gray-900" data-testid="text-research-inflation">{((currentGlobal.inflationRate ?? 0.03) * 100).toFixed(1)}%</p>
+                  </div>
+                  <div className="rounded-xl p-3 bg-amber-50 border border-amber-200">
+                    <p className="text-xs font-medium uppercase tracking-wider text-gray-500 mb-1">Model Duration</p>
+                    <p className="text-sm font-semibold text-gray-900" data-testid="text-research-duration">{currentGlobal.projectionYears ?? 10} years</p>
+                  </div>
+                  <div className="rounded-xl p-3 bg-gray-50 border border-gray-200 col-span-2">
+                    <p className="text-xs font-medium uppercase tracking-wider text-gray-500 mb-1">Features</p>
+                    <div className="flex flex-wrap gap-1.5" data-testid="text-research-features">
+                      {currentGlobal.assetDefinition?.hasFB && <span className="text-xs bg-white px-2 py-0.5 rounded-full border border-gray-200">F&B</span>}
+                      {currentGlobal.assetDefinition?.hasEvents && <span className="text-xs bg-white px-2 py-0.5 rounded-full border border-gray-200">Events</span>}
+                      {currentGlobal.assetDefinition?.hasWellness && <span className="text-xs bg-white px-2 py-0.5 rounded-full border border-gray-200">Wellness</span>}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 font-display">
+                  <Search className="w-5 h-5 text-primary" />
+                  Research Variables
+                  <HelpTooltip text="Configure what the AI should research. Select focus areas, target regions, and time horizon. Add custom questions for specific topics." />
+                </CardTitle>
+                <CardDescription className="label-text">Customize the scope and focus of AI-generated industry research</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-3">
+                  <Label className="label-text font-medium">Focus Areas</Label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {FOCUS_AREA_OPTIONS.map((option) => (
+                      <div key={option.id} className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted/50 transition-colors">
+                        <Checkbox
+                          id={`focus-${option.id}`}
+                          checked={selectedFocusAreas.includes(option.label)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setSelectedFocusAreas([...selectedFocusAreas, option.label]);
+                            } else {
+                              setSelectedFocusAreas(selectedFocusAreas.filter(a => a !== option.label));
+                            }
+                          }}
+                          data-testid={`checkbox-focus-${option.id}`}
+                        />
+                        <Label htmlFor={`focus-${option.id}`} className="text-sm cursor-pointer flex-1">{option.label}</Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="space-y-3">
+                    <Label className="label-text font-medium">Target Regions</Label>
+                    <div className="space-y-2">
+                      {REGION_OPTIONS.map((option) => (
+                        <div key={option.id} className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted/50 transition-colors">
+                          <Checkbox
+                            id={`region-${option.id}`}
+                            checked={selectedRegions.includes(option.label)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setSelectedRegions([...selectedRegions, option.label]);
+                              } else {
+                                setSelectedRegions(selectedRegions.filter(r => r !== option.label));
+                              }
+                            }}
+                            data-testid={`checkbox-region-${option.id}`}
+                          />
+                          <Label htmlFor={`region-${option.id}`} className="text-sm cursor-pointer">{option.label}</Label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label className="label-text font-medium">Time Horizon</Label>
+                    <RadioGroup
+                      value={timeHorizon}
+                      onValueChange={setTimeHorizon}
+                      className="space-y-2"
+                      data-testid="radio-time-horizon"
+                    >
+                      {TIME_HORIZON_OPTIONS.map((option) => (
+                        <div key={option.value} className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted/50 transition-colors">
+                          <RadioGroupItem value={option.value} id={`horizon-${option.value}`} data-testid={`radio-horizon-${option.value.replace(/\s/g, '-')}`} />
+                          <Label htmlFor={`horizon-${option.value}`} className="text-sm cursor-pointer">{option.label}</Label>
+                        </div>
+                      ))}
+                    </RadioGroup>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="label-text font-medium flex items-center gap-1">
+                    Custom Questions
+                    <HelpTooltip text="Add specific research questions you'd like the AI to address beyond the selected focus areas." />
+                  </Label>
+                  <Textarea
+                    value={customQuestions}
+                    onChange={(e) => setCustomQuestions(e.target.value)}
+                    placeholder="e.g., What is the average wellness retreat pricing in Costa Rica? How do boutique hotels perform vs. large chains in secondary markets?"
+                    rows={3}
+                    className="bg-white text-sm"
+                    data-testid="textarea-custom-questions"
+                  />
+                </div>
+
+                <Button
+                  onClick={generateResearch}
+                  disabled={isGenerating || selectedFocusAreas.length === 0 || selectedRegions.length === 0}
+                  className="w-full"
+                  data-testid="button-generate-research"
+                >
+                  {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                  {isGenerating ? "Analyzing Industry Data..." : "Generate Research"}
+                </Button>
+              </CardContent>
+            </Card>
+
+            {isGenerating && streamedContent && (
+              <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 font-display text-sm">
+                    <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                    Generating Research...
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <pre className="text-xs text-gray-500 whitespace-pre-wrap max-h-40 overflow-y-auto bg-gray-50 rounded-lg p-3 border border-gray-200">
+                    {streamedContent.slice(0, 800)}...
+                  </pre>
+                </CardContent>
+              </Card>
+            )}
+
+            {research?.updatedAt && !isGenerating && (
+              <p className="text-xs text-gray-400 text-right" data-testid="text-research-updated">
+                Last updated: {format(new Date(research.updatedAt), "MMM d, yyyy h:mm a")}
+                {research.llmModel && ` · Model: ${research.llmModel}`}
+              </p>
+            )}
+
+            {(() => {
+              const content = research?.content as any;
+              const hasResearch = content && !content.rawResponse;
+              if (!hasResearch || isGenerating) return null;
+              
+              return (
+                <div className="space-y-5">
+                  {content.industryOverview && (
+                    <Card className="bg-white/80 backdrop-blur-xl border-emerald-200 shadow-sm">
+                      <CardHeader className="pb-3" style={{ borderLeft: "4px solid #257D41" }}>
+                        <CardTitle className="flex items-center gap-2 text-base font-display">
+                          <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+                            <Globe className="w-4 h-4 text-emerald-700" />
+                          </div>
+                          Industry Overview
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+                          {content.industryOverview.marketSize && (
+                            <div className="rounded-xl p-3 border border-emerald-200 bg-emerald-50">
+                              <p className="text-xs font-medium uppercase tracking-wider text-gray-500 mb-1">Market Size</p>
+                              <p className="text-sm font-semibold text-gray-900">{content.industryOverview.marketSize}</p>
+                            </div>
+                          )}
+                          {content.industryOverview.growthRate && (
+                            <div className="rounded-xl p-3 border border-emerald-200 bg-emerald-50">
+                              <p className="text-xs font-medium uppercase tracking-wider text-gray-500 mb-1">Growth Rate</p>
+                              <p className="text-sm font-semibold text-gray-900">{content.industryOverview.growthRate}</p>
+                            </div>
+                          )}
+                          {content.industryOverview.boutiqueShare && (
+                            <div className="rounded-xl p-3 border border-emerald-200 bg-emerald-50">
+                              <p className="text-xs font-medium uppercase tracking-wider text-gray-500 mb-1">Boutique Share</p>
+                              <p className="text-sm font-semibold text-gray-900">{content.industryOverview.boutiqueShare}</p>
+                            </div>
+                          )}
+                        </div>
+                        {content.industryOverview.keyTrends?.length > 0 && (
+                          <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
+                            <h4 className="text-sm font-medium text-gray-700 mb-2">Key Trends</h4>
+                            <ul className="space-y-1.5">
+                              {content.industryOverview.keyTrends.map((t: string, i: number) => (
+                                <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
+                                  <span className="text-primary mt-0.5">·</span>
+                                  {t}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {content.eventHospitality && (
+                    <Card className="bg-white/80 backdrop-blur-xl border-amber-200 shadow-sm">
+                      <CardHeader className="pb-3" style={{ borderLeft: "4px solid #D97706" }}>
+                        <CardTitle className="flex items-center gap-2 text-base font-display">
+                          <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
+                            <Sparkles className="w-4 h-4 text-amber-700" />
+                          </div>
+                          Event & Experience Hospitality
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {content.eventHospitality.wellnessRetreats && (
+                            <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                              <h4 className="text-sm font-semibold text-gray-900 mb-3">Wellness Retreats</h4>
+                              <div className="space-y-2 text-sm">
+                                <div><p className="text-xs text-gray-500 uppercase tracking-wider mb-0.5">Market Size</p><p className="text-gray-800">{content.eventHospitality.wellnessRetreats.marketSize}</p></div>
+                                <div><p className="text-xs text-gray-500 uppercase tracking-wider mb-0.5">Growth</p><p className="text-emerald-600">{content.eventHospitality.wellnessRetreats.growth}</p></div>
+                              </div>
+                            </div>
+                          )}
+                          {content.eventHospitality.corporateEvents && (
+                            <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                              <h4 className="text-sm font-semibold text-gray-900 mb-3">Corporate Events</h4>
+                              <div className="space-y-2 text-sm">
+                                <div><p className="text-xs text-gray-500 uppercase tracking-wider mb-0.5">Market Size</p><p className="text-gray-800">{content.eventHospitality.corporateEvents.marketSize}</p></div>
+                                <div><p className="text-xs text-gray-500 uppercase tracking-wider mb-0.5">Growth</p><p className="text-emerald-600">{content.eventHospitality.corporateEvents.growth}</p></div>
+                              </div>
+                            </div>
+                          )}
+                          {content.eventHospitality.yogaRetreats && (
+                            <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                              <h4 className="text-sm font-semibold text-gray-900 mb-3">Yoga Retreats</h4>
+                              <div className="space-y-2 text-sm">
+                                <div><p className="text-xs text-gray-500 uppercase tracking-wider mb-0.5">Market Size</p><p className="text-gray-800">{content.eventHospitality.yogaRetreats.marketSize}</p></div>
+                                <div><p className="text-xs text-gray-500 uppercase tracking-wider mb-0.5">Growth</p><p className="text-emerald-600">{content.eventHospitality.yogaRetreats.growth}</p></div>
+                              </div>
+                            </div>
+                          )}
+                          {content.eventHospitality.relationshipRetreats && (
+                            <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                              <h4 className="text-sm font-semibold text-gray-900 mb-3">Relationship Retreats</h4>
+                              <div className="space-y-2 text-sm">
+                                <div><p className="text-xs text-gray-500 uppercase tracking-wider mb-0.5">Market Size</p><p className="text-gray-800">{content.eventHospitality.relationshipRetreats.marketSize}</p></div>
+                                <div><p className="text-xs text-gray-500 uppercase tracking-wider mb-0.5">Growth</p><p className="text-emerald-600">{content.eventHospitality.relationshipRetreats.growth}</p></div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {content.financialBenchmarks && (
+                    <Card className="bg-white/80 backdrop-blur-xl border-blue-200 shadow-sm">
+                      <CardHeader className="pb-3" style={{ borderLeft: "4px solid #3B82F6" }}>
+                        <CardTitle className="flex items-center gap-2 text-base font-display">
+                          <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+                            <TrendingUp className="w-4 h-4 text-blue-700" />
+                          </div>
+                          Financial Benchmarks
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        {content.financialBenchmarks.adrTrends?.length > 0 && (
+                          <div className="mb-4">
+                            <h4 className="text-sm font-medium text-gray-700 mb-2">ADR Trends</h4>
+                            <div className="bg-white rounded-lg border border-gray-100 overflow-hidden">
+                              <table className="w-full text-sm">
+                                <thead>
+                                  <tr className="bg-gray-50 border-b border-gray-200">
+                                    <th className="text-left p-2.5 text-gray-500 font-medium">Year</th>
+                                    <th className="text-right p-2.5 text-gray-500 font-medium">National</th>
+                                    <th className="text-right p-2.5 text-gray-500 font-medium">Boutique</th>
+                                    <th className="text-right p-2.5 text-gray-500 font-medium">Luxury</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {content.financialBenchmarks.adrTrends.map((r: any, i: number) => (
+                                    <tr key={i} className="border-b border-gray-50">
+                                      <td className="p-2.5 text-gray-800">{r.year}</td>
+                                      <td className="p-2.5 text-right text-gray-800">{r.national}</td>
+                                      <td className="p-2.5 text-right text-emerald-600 font-medium">{r.boutique}</td>
+                                      <td className="p-2.5 text-right text-gray-800">{r.luxury}</td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        )}
+                        {content.financialBenchmarks.capRates?.length > 0 && (
+                          <div>
+                            <h4 className="text-sm font-medium text-gray-700 mb-2">Cap Rates</h4>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                              {content.financialBenchmarks.capRates.map((c: any, i: number) => (
+                                <div key={i} className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                                  <p className="text-xs text-gray-500">{c.segment}</p>
+                                  <p className="text-sm text-gray-800 font-medium">{c.range}</p>
+                                  <p className="text-xs text-gray-400">{c.trend}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {content.debtMarket && (
+                    <Card className="bg-white/80 backdrop-blur-xl border-cyan-200 shadow-sm">
+                      <CardHeader className="pb-3" style={{ borderLeft: "4px solid #0891B2" }}>
+                        <CardTitle className="flex items-center gap-2 text-base font-display">
+                          <div className="w-8 h-8 rounded-lg bg-cyan-100 flex items-center justify-center">
+                            <Landmark className="w-4 h-4 text-cyan-700" />
+                          </div>
+                          Debt Market Conditions
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                          {content.debtMarket.currentRates && <div className="rounded-xl p-3 border border-cyan-200 bg-cyan-50"><p className="text-xs font-medium uppercase tracking-wider text-gray-500 mb-1">Current Rates</p><p className="text-sm font-semibold text-gray-900">{content.debtMarket.currentRates}</p></div>}
+                          {content.debtMarket.ltvRange && <div className="rounded-xl p-3 border border-cyan-200 bg-cyan-50"><p className="text-xs font-medium uppercase tracking-wider text-gray-500 mb-1">LTV Range</p><p className="text-sm font-semibold text-gray-900">{content.debtMarket.ltvRange}</p></div>}
+                          {content.debtMarket.terms && <div className="rounded-xl p-3 border border-cyan-200 bg-cyan-50"><p className="text-xs font-medium uppercase tracking-wider text-gray-500 mb-1">Terms</p><p className="text-sm font-semibold text-gray-900">{content.debtMarket.terms}</p></div>}
+                          {content.debtMarket.outlook && <div className="rounded-xl p-3 border border-cyan-200 bg-cyan-50"><p className="text-xs font-medium uppercase tracking-wider text-gray-500 mb-1">Outlook</p><p className="text-sm font-semibold text-gray-900">{content.debtMarket.outlook}</p></div>}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {content.sources?.length > 0 && (
+                    <Card className="bg-white/80 backdrop-blur-xl border-gray-200 shadow-sm">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="flex items-center gap-2 text-base font-display">
+                          <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
+                            <BookOpen className="w-4 h-4 text-gray-600" />
+                          </div>
+                          Sources
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <ul className="space-y-1">
+                          {content.sources.map((s: string, i: number) => (
+                            <li key={i} className="text-xs text-gray-500">· {s}</li>
+                          ))}
+                        </ul>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+              );
+            })()}
+
+            {!research?.content && !isGenerating && (
+              <Card className="bg-white/80 backdrop-blur-xl border-gray-200 shadow-sm">
+                <CardContent className="p-12 text-center">
+                  <BookOpen className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-700 mb-2">No Research Data Yet</h3>
+                  <p className="text-sm text-gray-500">Configure your research variables above and click "Generate Research" to get AI-powered industry analysis tailored to your portfolio.</p>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
         </Tabs>
       </div>

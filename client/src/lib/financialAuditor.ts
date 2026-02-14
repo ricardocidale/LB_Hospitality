@@ -86,6 +86,9 @@ export interface PropertyAuditInput {
   taxRate?: number;
   type: string;
   acquisitionLTV?: number;
+  acquisitionInterestRate?: number;
+  acquisitionTermYears?: number;
+  operatingReserve?: number;
   debtAssumptions?: {
     interestRate: number;
     amortizationYears: number;
@@ -271,8 +274,8 @@ export function auditLoanAmortization(
   const totalInvestment = property.purchasePrice + property.buildingImprovements;
   const ltv = property.acquisitionLTV || DEFAULT_LTV;
   const loanAmount = isOriginallyFinanced ? totalInvestment * ltv : 0;
-  const interestRate = property.debtAssumptions?.interestRate || DEFAULT_INTEREST_RATE;
-  const termYears = property.debtAssumptions?.amortizationYears || DEFAULT_TERM_YEARS;
+  const interestRate = property.acquisitionInterestRate ?? property.debtAssumptions?.interestRate ?? DEFAULT_INTEREST_RATE;
+  const termYears = property.acquisitionTermYears ?? property.debtAssumptions?.amortizationYears ?? DEFAULT_TERM_YEARS;
   let currentMonthlyRate = isOriginallyFinanced ? interestRate / 12 : 0;
   let currentTotalPayments = isOriginallyFinanced ? termYears * 12 : 0;
 
@@ -1007,9 +1010,13 @@ export function auditCashFlowReconciliation(
   let failedOperatingCF = 0;
   let failedFinancingCF = 0;
   let totalChecked = 0;
+  const reserveSeed = property.operatingReserve ?? 0;
 
   for (let i = 0; i < monthlyData.length; i++) {
     const m = monthlyData[i];
+    if (i === acqMonthIndex) {
+      cumulativeCashFlow += reserveSeed;
+    }
     cumulativeCashFlow += (m.cashFlow || 0);
 
     if (i < acqMonthIndex) continue;

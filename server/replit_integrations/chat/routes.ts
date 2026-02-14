@@ -45,6 +45,47 @@ The user is working in a financial simulation portal with these main areas:
 
 **AI Features** — Property-level market research (calibrates ADR, occupancy, cap rate assumptions), company benchmarking, and industry-wide research via the Industry Research tab. AI image generation for property photos and logos.
 
+**Help & Manuals** — Two comprehensive manuals are available in-app:
+
+*User Manual (16 chapters):*
+1. Business Model Overview — Two-entity structure (Management Company + Property SPVs)
+2. Business Rules — 7 mandatory financial rules (interest-only on IS, GAAP depreciation, etc.)
+3. Capital Structure — Equity, debt, SAFE funding, and investor return paths
+4. Dynamic Behavior — Real-time recalculation engine, monthly granularity, multi-level analysis
+5. Property Lifecycle — 4 phases: acquisition → operations → refinancing → exit
+6. Default Values — Three-tier fallback system, key default assumptions
+7. Revenue Calculations — Room revenue as foundation, ancillary streams as percentages
+8. Operating Expenses — USALI-compliant cost structure, direct and overhead categories
+9. GOP & NOI — Gross Operating Profit and Net Operating Income derivations
+10. Debt & Financing — Acquisition loans, monthly payments, refinancing mechanics
+11. Free Cash Flow — GAAP indirect method per ASC 230, three-section structure
+12. Balance Sheet — Assets = Liabilities + Equity, GAAP-compliant snapshots
+13. Investment Returns — Exit valuation via cap rate, IRR, NPV, equity multiples
+14. Management Company Financials — Fee revenue, SAFE funding, staffing tiers, P&L
+15. Fixed Assumptions — Immutable constants vs. configurable parameters
+16. Cross-Verification — Two-layer independent verification system, audit trail
+
+*Checker/Verification Manual (15 chapters):*
+1. Application Overview — Architecture and navigation
+2–3. Entities — Management Company and Property Portfolio (SPV structure)
+4–5. Assumptions — Global and property-level parameters
+6. Cash Flow Streams — The 6 cash flow streams per SPV
+7. Financial Statements — IS, CF, BS structure and line items
+8. Export System — 6 export formats for offline verification
+9–11. Supporting — Design, scenarios, profile management
+12. Dashboard KPIs — Consolidated portfolio metrics
+13. AI Research — Market research tools and Industry Research configuration
+14. Property CRUD — Adding/editing/deleting properties
+15. Testing Methodology — 7-phase verification workflow
+
+**Administration** — Admin-only page with tabs: Users, Companies, Activity, Verification, User Groups, Logos, Branding, Themes, Navigation, Database. Admins can manage users, assign roles, create user groups with company branding, and run financial verification.
+
+**User Roles:**
+- **Admin** — Full access to all features including Administration
+- **Partner** — Management-level access (Dashboard, Properties, Company, Settings, Scenarios) but no Administration
+- **Checker** — Same as Partner plus access to verification tools and checker manual
+- **Investor** — Limited view: Dashboard, Properties, Profile, Help only
+
 ## Your Personality
 - You introduce yourself as Marcela when greeting users
 - You are witty and sharp — you love a clever analogy, a well-placed quip, and making dry financial topics surprisingly fun
@@ -65,9 +106,10 @@ The user is working in a financial simulation portal with these main areas:
 
 async function buildContextPrompt(userId?: number): Promise<string> {
   try {
-    const [assumptions, properties] = await Promise.all([
+    const [assumptions, properties, users] = await Promise.all([
       storage.getGlobalAssumptions(userId),
       storage.getAllProperties(userId),
+      storage.getAllUsers(),
     ]);
 
     const parts: string[] = [];
@@ -96,6 +138,18 @@ async function buildContextPrompt(userId?: number): Promise<string> {
         if (p.location) details.push(p.location);
         if (p.acquisitionCost) details.push(`$${Number(p.acquisitionCost).toLocaleString()} acquisition`);
         parts.push(`- **${p.name}**: ${details.join(", ")}`);
+      }
+    }
+
+    if (users && users.length > 0) {
+      parts.push(`\n## Team Members (${users.length} users)`);
+      for (const u of users) {
+        const name = u.fullName || u.username;
+        parts.push(`- **${name}** — ${u.role}${u.email ? ` (${u.email})` : ""}`);
+      }
+      const currentUser = userId ? users.find(u => u.id === userId) : null;
+      if (currentUser) {
+        parts.push(`\nYou are currently speaking with **${currentUser.fullName || currentUser.username}** (${currentUser.role}).`);
       }
     }
 

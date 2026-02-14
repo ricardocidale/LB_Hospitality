@@ -345,4 +345,6 @@ All cards use a consistent approach:
   - Personality traits: witty, sharp, clever analogies, memorable one-liners, warm but direct
   - Dynamic context injection: `buildContextPrompt()` fetches live portfolio data (globalAssumptions + all properties) and appends to system prompt per message
 - **UI** (`client/src/components/AIChatWidget.tsx`): Header shows "Marcela", empty state says "Hi, I'm Marcela", suggestion prompts updated to include Industry Research
+- **System prompt includes:** Full manual chapter summaries (User Manual 16 chapters, Checker Manual 15 chapters), Administration page structure, user role definitions (admin/partner/checker/investor)
+- **Dynamic context includes:** Portfolio assumptions, all properties with details, all team members with roles, identifies who Marcela is currently speaking with
 - **Files changed:** `server/replit_integrations/chat/routes.ts`, `client/src/components/AIChatWidget.tsx`

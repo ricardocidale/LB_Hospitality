@@ -142,6 +142,52 @@
   --sidebar-ring: 131 18% 68%;
 }
 
+/* Indigo Blue Theme */
+.theme-indigo-blue {
+  --background: 226 100% 97%;
+  --foreground: 224 71% 15%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 224 71% 15%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 224 71% 15%;
+
+  --primary: 239 84% 67%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 243 75% 59%;
+  --secondary-foreground: 0 0% 100%;
+
+  --muted: 226 50% 93%;
+  --muted-foreground: 215 16% 47%;
+
+  --accent: 239 84% 67%;
+  --accent-foreground: 0 0% 100%;
+
+  --destructive: 347 77% 50%;
+  --destructive-foreground: 0 0% 100%;
+
+  --border: 226 30% 86%;
+  --input: 226 30% 86%;
+  --ring: 239 84% 67%;
+
+  --chart-1: 239 84% 67%;
+  --chart-2: 174 72% 40%;
+  --chart-3: 270 91% 65%;
+  --chart-4: 38 92% 50%;
+  --chart-5: 347 77% 50%;
+
+  --sidebar: 248 53% 14%;
+  --sidebar-foreground: 226 100% 97%;
+  --sidebar-primary: 239 84% 67%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 239 84% 67%;
+  --sidebar-accent-foreground: 0 0% 100%;
+  --sidebar-border: 248 40% 20%;
+  --sidebar-ring: 239 84% 67%;
+}
+
 @layer base {
   * {
     @apply border-border;

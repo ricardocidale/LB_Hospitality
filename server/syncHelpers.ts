@@ -211,8 +211,8 @@ export async function runFillOnlySync(storage: IStorage, generateResearchValues?
   }
 
   const existingThemes = await storage.getAllDesignThemes();
-  if (existingThemes.length === 0) {
-    await storage.createDesignTheme({
+  const SEED_THEMES = [
+    {
       name: "Fluid Glass",
       description: "Inspired by Apple's iOS design language, Fluid Glass creates a sense of depth and dimension through translucent layers, subtle gradients, and smooth animations.",
       isDefault: true,
@@ -227,10 +227,33 @@ export async function runFillOnlySync(storage: IStorage, generateResearchValues?
         { name: "Chart Red", rank: 2, hexCode: "#EF4444", description: "CHART: Secondary chart line color for expenses and cost-related metrics." },
         { name: "Chart Purple", rank: 3, hexCode: "#8B5CF6", description: "CHART: Tertiary chart line color for cash flow and profitability metrics." },
       ],
-    });
-    results.designThemes.created++;
-  } else {
-    results.designThemes.skipped++;
+    },
+    {
+      name: "Indigo Blue",
+      description: "A bold, professional theme centered on deep indigo-blue tones with cool steel accents. Conveys trust, authority, and modern sophistication — ideal for investor-facing presentations.",
+      isDefault: false,
+      colors: [
+        { name: "Indigo", rank: 1, hexCode: "#4F46E5", description: "PALETTE: Primary brand color for main action buttons, active navigation items, and key highlights." },
+        { name: "Deep Navy", rank: 2, hexCode: "#1E1B4B", description: "PALETTE: Dark theme background for navigation sidebars, dark glass panels, and login screens." },
+        { name: "Ice White", rank: 3, hexCode: "#F0F4FF", description: "PALETTE: Light background for page backgrounds, card surfaces, and cool accents." },
+        { name: "Steel Blue", rank: 4, hexCode: "#64748B", description: "PALETTE: Secondary accent for subtle highlights, card borders, and supporting visual elements." },
+        { name: "Coral", rank: 5, hexCode: "#F43F5E", description: "PALETTE: Accent color for warnings, notifications, and emphasis highlights." },
+        { name: "Amber", rank: 6, hexCode: "#F59E0B", description: "PALETTE: Accent color for highlights, badges, and attention-drawing elements." },
+        { name: "Chart Indigo", rank: 1, hexCode: "#6366F1", description: "CHART: Primary chart line color for revenue and key financial metrics." },
+        { name: "Chart Teal", rank: 2, hexCode: "#14B8A6", description: "CHART: Secondary chart line color for expenses and cost-related metrics." },
+        { name: "Chart Violet", rank: 3, hexCode: "#A855F7", description: "CHART: Tertiary chart line color for cash flow and profitability metrics." },
+      ],
+    },
+  ];
+
+  const existingNames = new Set(existingThemes.map(t => t.name));
+  for (const theme of SEED_THEMES) {
+    if (!existingNames.has(theme.name)) {
+      await storage.createDesignTheme(theme);
+      results.designThemes.created++;
+    } else {
+      results.designThemes.skipped++;
+    }
   }
 
   return results;

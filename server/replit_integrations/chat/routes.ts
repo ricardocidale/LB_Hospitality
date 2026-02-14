@@ -106,11 +106,13 @@ The user is working in a financial simulation portal with these main areas:
 
 async function buildContextPrompt(userId?: number): Promise<string> {
   try {
-    const [assumptions, properties, users] = await Promise.all([
+    const [assumptions, properties, allUsers] = await Promise.all([
       storage.getGlobalAssumptions(userId),
       storage.getAllProperties(userId),
       storage.getAllUsers(),
     ]);
+
+    const safeUsers = allUsers.map(({ id, name, email, role, title }) => ({ id, name, email, role, title }));
 
     const parts: string[] = [];
 
@@ -141,13 +143,13 @@ async function buildContextPrompt(userId?: number): Promise<string> {
       }
     }
 
-    if (users && users.length > 0) {
-      parts.push(`\n## Team Members (${users.length} users)`);
-      for (const u of users) {
+    if (safeUsers.length > 0) {
+      parts.push(`\n## Team Members (${safeUsers.length} users)`);
+      for (const u of safeUsers) {
         const displayName = u.name || u.email;
-        parts.push(`- **${displayName}** — ${u.role}${u.email ? ` (${u.email})` : ""}`);
+        parts.push(`- **${displayName}** — ${u.role}${u.title ? `, ${u.title}` : ""}`);
       }
-      const currentUser = userId ? users.find(u => u.id === userId) : null;
+      const currentUser = userId ? safeUsers.find(u => u.id === userId) : null;
       if (currentUser) {
         parts.push(`\nYou are currently speaking with **${currentUser.name || currentUser.email}** (${currentUser.role}).`);
       }

@@ -12,6 +12,7 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import NotificationCenter from "@/components/NotificationCenter";
 import FavoritesSidebar from "@/components/Favorites";
 import GuidedWalkthrough from "@/components/GuidedWalkthrough";
+import AIChatWidget from "@/components/AIChatWidget";
 
 const THEME_CSS_CLASSES: Record<string, string> = {
   "Fluid Glass": "",
@@ -357,6 +358,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
 
       <CommandPalette />
       <GuidedWalkthrough />
+      <AIChatWidget />
     </div>
   );
 }

@@ -590,12 +590,17 @@ export function generatePropertyProForma(
         const schedule = refiOutput.new_debt_service_schedule;
 
         // Apply pre-built schedule to monthly financials
+        const acqMonthIdx = (acquisitionDate.getFullYear() - modelStart.getFullYear()) * 12 +
+                            (acquisitionDate.getMonth() - modelStart.getMonth());
         let cumCash = 0;
         for (let i = 0; i < months; i++) {
           const m = financials[i];
 
           if (i < refiMonthIndex) {
             // Pre-refinance months: just recalculate cumulative cash (no changes to debt)
+            if (i === acqMonthIdx) {
+              cumCash += (property.operatingReserve ?? 0);
+            }
             cumCash += m.cashFlow;
             m.endingCash = cumCash;
             m.cashShortfall = cumCash < 0;

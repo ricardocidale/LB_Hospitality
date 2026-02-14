@@ -32,6 +32,14 @@ interface ResearchParams {
     parkingSpaces?: number;
     description?: string;
   };
+  researchVariables?: {
+    focusAreas?: string[];
+    regions?: string[];
+    timeHorizon?: string;
+    customQuestions?: string;
+    inflationRate?: number;
+    modelDurationYears?: number;
+  };
 }
 
 const RESEARCH_SKILLS_DIR = join(process.cwd(), ".claude", "skills", "research");
@@ -308,14 +316,47 @@ Focus specifically on ${label.toLowerCase()}s specializing in unique events like
   }
   
   // global
-  return `Provide comprehensive ${label.toLowerCase()} industry research covering:
-1. Overall ${label.toLowerCase()} market size, growth, and trends
-2. Event-focused hospitality: wellness retreats, corporate events, yoga retreats, relationship/couples retreats market data
-3. Financial benchmarks: ADR, occupancy, RevPAR trends for ${label.toLowerCase()}s
-4. Capitalization rates and investment returns
-5. Debt market conditions for hotel acquisitions
-6. Emerging trends in experiential hospitality
-Focus on North America and Latin America markets. Include specific data points, market sizes, growth rates, and cite sources.`;
+  const rv = params.researchVariables;
+  const regions = rv?.regions?.length ? rv.regions.join(", ") : "North America and Latin America";
+  const timeHorizon = rv?.timeHorizon || "5 years";
+  
+  const defaultFocusAreas = [
+    "Market Overview & Trends",
+    "Event Hospitality (wellness, corporate, yoga, relationship retreats)",
+    "Financial Benchmarks (ADR, occupancy, RevPAR)",
+    "Cap Rates & Investment Returns",
+    "Debt Market Conditions",
+    "Emerging Trends",
+  ];
+  const focusAreas = rv?.focusAreas?.length ? rv.focusAreas : defaultFocusAreas;
+  
+  let prompt = `Provide comprehensive ${label.toLowerCase()} industry research covering:\n`;
+  focusAreas.forEach((area, i) => {
+    prompt += `${i + 1}. ${area}\n`;
+  });
+  
+  prompt += `\nResearch Parameters:
+- Asset type: ${label} (${bd.level || "luxury"} tier)
+- Room range: ${bd.minRooms}–${bd.maxRooms} rooms
+- ADR range: $${bd.minAdr}–$${bd.maxAdr}
+- Features: ${[bd.hasFB && "F&B operations", bd.hasEvents && "event hosting", bd.hasWellness && "wellness programming"].filter(Boolean).join(", ")}
+- Target regions: ${regions}
+- Investment horizon: ${timeHorizon}`;
+  
+  if (rv?.inflationRate != null) {
+    prompt += `\n- Assumed inflation rate: ${(rv.inflationRate * 100).toFixed(1)}%`;
+  }
+  if (rv?.modelDurationYears != null) {
+    prompt += `\n- Financial model duration: ${rv.modelDurationYears} years`;
+  }
+  
+  prompt += `\n\nInclude specific data points, market sizes, growth rates, and cite sources.`;
+  
+  if (rv?.customQuestions) {
+    prompt += `\n\nAdditional research questions to address:\n${rv.customQuestions}`;
+  }
+  
+  return prompt;
 }
 
 // Main streaming research generation with tool use

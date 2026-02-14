@@ -12,7 +12,7 @@ The platform includes three AI-powered research tools designed to help users cal
 |---------------|-------|-------------------|-----------------|
 | **Property Market Research** | Per-property local market analysis | Property Edit page → "Market Research" button | Calibrate ADR, occupancy ramp, cap rate, and catering boost assumptions for a specific property in a specific market |
 | **Company Research** | Management company benchmarking | Company page → "Company Research" button | Benchmark management fee structures, staffing ratios, and operating cost profiles against comparable boutique hotel operators |
-| **Global Market Research** | Industry-wide hospitality trends | Systemwide Assumptions page → "Global Research" button | Inform macro assumptions such as inflation rate, RevPAR growth trajectories, and industry cap rate trends |
+| **Global Market Research** | Industry-wide hospitality trends | Systemwide Assumptions page → "Industry Research" tab | Inform macro assumptions such as inflation rate, RevPAR growth trajectories, and industry cap rate trends |
 
 ---
 
@@ -44,6 +44,21 @@ The following assumption fields display research recommendations when available:
 | Maximum Occupancy | "72%–85% (AI)" |
 | Exit Cap Rate | "5.5%–7.0% (AI)" |
 | Catering Boost % | "15%–25% (AI)" |
+
+---
+
+## Industry Research Configuration
+
+The Industry Research tab in Systemwide Assumptions provides user-configurable variables that shape the AI research prompt:
+
+| Variable | Options | Default |
+|----------|---------|---------|
+| **Focus Areas** | Market Overview & Trends, Event Hospitality, Financial Benchmarks, Cap Rates & Returns, Debt Market, Emerging Trends, Supply Pipeline, Labor Market, Technology, Sustainability | First 6 selected |
+| **Target Regions** | North America, Latin America, Europe, Asia Pacific, Middle East & Africa, Caribbean | North America + Latin America |
+| **Time Horizon** | 1 year, 3 years, 5 years, 10 years | 5 years |
+| **Custom Questions** | Free-text field for additional research questions | Empty |
+
+The tab also displays a read-only "Model Context" card showing the current systemwide settings (asset type, tier, room range, ADR range, inflation rate, projection years, features). These values are automatically merged into the AI research prompt alongside the user-configured variables, ensuring research results are tailored to the portfolio's actual configuration.
 
 ---
 

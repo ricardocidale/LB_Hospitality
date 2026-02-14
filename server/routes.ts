@@ -87,6 +87,12 @@ const researchGenerateSchema = z.object({
   propertyId: z.number().optional(),
   propertyContext: z.record(z.any()).optional(),
   assetDefinition: z.record(z.any()).optional(),
+  researchVariables: z.object({
+    focusAreas: z.array(z.string()).optional(),
+    regions: z.array(z.string()).optional(),
+    timeHorizon: z.string().optional(),
+    customQuestions: z.string().optional(),
+  }).optional(),
 });
 
 const VALID_RESEARCH_TYPES = ["property", "company", "global"] as const;
@@ -2190,7 +2196,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       if (!validation.success) {
         return res.status(400).json({ error: fromZodError(validation.error).message });
       }
-      const { type, propertyId, propertyContext, assetDefinition: clientAssetDef } = validation.data;
+      const { type, propertyId, propertyContext, assetDefinition: clientAssetDef, researchVariables } = validation.data;
       const userId = req.user!.id;
 
       if (isApiRateLimited(userId, "research/generate", 10)) {
@@ -2210,6 +2216,11 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
         propertyLabel: globalAssumptions?.propertyLabel || "Boutique Hotel",
         propertyContext: propertyContext as ResearchParams["propertyContext"],
         assetDefinition: assetDef,
+        researchVariables: researchVariables ? {
+          ...researchVariables,
+          inflationRate: globalAssumptions?.inflationRate,
+          modelDurationYears: globalAssumptions?.projectionYears,
+        } : undefined,
       };
       
       res.setHeader("Content-Type", "text/event-stream");

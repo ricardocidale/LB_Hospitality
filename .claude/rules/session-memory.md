@@ -103,7 +103,8 @@ This rule ensures continuity across chat resets. The agent must treat this file 
 | `client/src/pages/Admin.tsx` | Administration page with tabs: Users, Companies, Activity, Verification, User Groups, Logos, Branding, Themes, Navigation, Database |
 | `server/replit_integrations/image/client.ts` | Server-side image gen client (Nano Banana + OpenAI fallback) |
 | `server/routes.ts` | All API routes including logo CRUD, image generation, branding |
-| `client/src/pages/Settings.tsx` | Systemwide Assumptions page — "Other" tab has Calculation Transparency toggles |
+| `client/src/pages/Settings.tsx` | Systemwide Assumptions page — tabs: Portfolio, Macro, Other (Calculation Transparency toggles), Industry Research (configurable AI research) |
+| `server/aiResearch.ts` | AI research prompt builder — merges researchVariables + globalAssumptions into tailored prompts |
 
 ### Sidebar Navigation Structure (by role)
 - **Admin:** sees everything — all pages + Administration
@@ -320,3 +321,19 @@ All cards use a consistent approach:
 - **Triggers:** Any change to financialEngine.ts, financialAuditor.ts, calculationChecker.ts, runVerification.ts, loanCalculations.ts, cashFlowAggregator.ts, seed data, or schema financial fields
 - **Quick command:** `npm run test:file -- tests/engine/operating-reserve-cash.test.ts`
 - **Rules count now: 22** (was 20, added mandatory-financial-tests.md + this session also had docs-after-edits.md and read-session-memory-first.md from prior session)
+
+### Industry Research Tab Added to Settings Page
+- **What:** Added "Industry Research" tab to the Systemwide Assumptions (Settings) page
+- **Location:** 4th tab in Settings page tabs (Portfolio, Macro, Other, Industry Research)
+- **Configuration Variables:**
+  - Focus Areas: 10 options (Market Overview & Trends, Event Hospitality, Financial Benchmarks, Cap Rates & Returns, Debt Market, Emerging Trends, Supply Pipeline, Labor Market, Technology, Sustainability). Default: first 6 selected.
+  - Target Regions: 6 options (North America, Latin America, Europe, Asia Pacific, Middle East & Africa, Caribbean). Default: North America + Latin America.
+  - Time Horizon: 1/3/5/10 years. Default: 5 years.
+  - Custom Questions: free-text field. Default: empty.
+- **Model Context Card:** Read-only display of systemwide settings (asset type, tier, room range, ADR range, inflation, projection years, features) from globalAssumptions. Automatically merged into AI research prompts.
+- **Backend:** `researchGenerateSchema` accepts `researchVariables` object; `buildUserPrompt()` merges user selections with `globalAssumptions` for context-aware research
+- **Research Results:** Display inline below configuration form, same card layout as GlobalResearch.tsx
+- **Important:** Field is `projectionYears` (not `modelDurationYears`) in globalAssumptions schema
+- **Files changed:** `client/src/pages/Settings.tsx`, `server/routes.ts`, `server/aiResearch.ts`
+- **Manuals updated:** Checker manual chapters 4 and 13 updated with Industry Research tab documentation
+- **Tests:** 1381/1381 pass, verification UNQUALIFIED (PASS)

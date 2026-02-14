@@ -283,7 +283,7 @@ All cards use a consistent approach:
 
 ### Casa Medellin Operating Reserve Fix
 - **Problem:** Casa Medellin had $250K operating reserve but a 22-month pre-ops gap (Sept 2026 → July 2028) generating ~$554K in debt payments
-- **Fix:** Increased operating reserve from $250K to $600K in database (property id=35)
+- **Fix:** Increased operating reserve from $250K to $600K in database (property id=35) and seed data
 - **Result:** min cash $0, 0 negative months
 
 ### Verification UI — Accordion Category Grouping
@@ -294,3 +294,22 @@ All cards use a consistent approach:
 - **State:** `expandedCategories` Set<string> tracks which are manually toggled open
 - **Applied to:** Property checks, Management Company checks, Consolidated Portfolio checks
 - **Files changed:** `client/src/pages/Admin.tsx` (added ChevronDown/ChevronRight imports, expandedCategories state, toggleCategory, renderGroupedChecks)
+
+### Auditor Fixes — Per-Property Fields & Operating Reserve
+1. **Loan amortization audit** (`financialAuditor.ts`): Fixed to use `property.acquisitionInterestRate ?? property.debtAssumptions?.interestRate ?? DEFAULT_INTEREST_RATE` (and same for termYears). Was only using legacy `debtAssumptions` pattern.
+2. **Cash Flow Reconciliation audit** (`financialAuditor.ts`): Fixed to include `operatingReserve` in cumulative cash tracking at acquisition month — matches the engine's approach.
+3. **`convertToAuditInput`** (`runVerification.ts`): Added `acquisitionInterestRate`, `acquisitionTermYears`, `operatingReserve` to the conversion function so client-side audits receive per-property financing fields.
+4. **Seed data** (`routes.ts`): Updated Casa Medellín reserve to $600K and Blue Ridge Manor to $500K (matching DB values).
+
+### Operating Reserve & Cumulative Cash Tests Added
+- **File:** `tests/engine/operating-reserve-cash.test.ts` (10 tests)
+- Tests cover:
+  - Operating reserve seeds ending cash at acquisition month
+  - Reserve difference shows up in ending cash
+  - Reserve flows through to cumulative cash tracking
+  - Per-property `acquisitionInterestRate` used for debt payment calculation
+  - Different `acquisitionTermYears` produce different monthly payments
+  - Cumulative cash + reserve = ending cash (Full Equity and Financed)
+  - Pre-ops gap has debt payments during the gap
+- **Test count:** 1381 tests (61 files), all passing
+- **Verification:** UNQUALIFIED (PASS)

@@ -1,6 +1,6 @@
 {
   "scenario": "Cash Purchase (Full Equity)",
-  "timestamp": "2026-02-14T17:19:11.238Z",
+  "timestamp": "2026-02-14T17:25:11.964Z",
   "sources_and_uses": {
     "sources": {
       "equity": 2000000,

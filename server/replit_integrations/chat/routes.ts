@@ -122,21 +122,21 @@ async function buildContextPrompt(userId?: number): Promise<string> {
       parts.push(`- Inflation Rate: ${assumptions.inflationRate || 3}%`);
       parts.push(`- Base Management Fee: ${assumptions.baseManagementFee || 8.5}%`);
       parts.push(`- Incentive Management Fee: ${assumptions.incentiveManagementFee || 12}%`);
-      if (assumptions.boutiqueDefinition) {
-        const bd = assumptions.boutiqueDefinition as Record<string, unknown>;
-        if (bd.tier) parts.push(`- Tier: ${bd.tier}`);
-        if (bd.roomCountMin && bd.roomCountMax) parts.push(`- Room Range: ${bd.roomCountMin}–${bd.roomCountMax}`);
-        if (bd.adrMin && bd.adrMax) parts.push(`- ADR Range: $${bd.adrMin}–$${bd.adrMax}`);
+      if (assumptions.assetDefinition) {
+        const ad = assumptions.assetDefinition as Record<string, unknown>;
+        if (ad.level) parts.push(`- Tier: ${ad.level}`);
+        if (ad.minRooms && ad.maxRooms) parts.push(`- Room Range: ${ad.minRooms}–${ad.maxRooms}`);
+        if (ad.minAdr && ad.maxAdr) parts.push(`- ADR Range: $${ad.minAdr}–$${ad.maxAdr}`);
       }
     }
 
     if (properties && properties.length > 0) {
       parts.push(`\n## Properties in Portfolio (${properties.length} total)`);
       for (const p of properties) {
-        const details = [`${p.rooms || "?"} rooms`];
-        if (p.startingADR) details.push(`ADR $${p.startingADR}`);
+        const details = [`${p.roomCount} rooms`];
+        if (p.startAdr) details.push(`ADR $${p.startAdr}`);
         if (p.location) details.push(p.location);
-        if (p.acquisitionCost) details.push(`$${Number(p.acquisitionCost).toLocaleString()} acquisition`);
+        if (p.purchasePrice) details.push(`$${Number(p.purchasePrice).toLocaleString()} acquisition`);
         parts.push(`- **${p.name}**: ${details.join(", ")}`);
       }
     }
@@ -144,12 +144,12 @@ async function buildContextPrompt(userId?: number): Promise<string> {
     if (users && users.length > 0) {
       parts.push(`\n## Team Members (${users.length} users)`);
       for (const u of users) {
-        const name = u.fullName || u.username;
-        parts.push(`- **${name}** — ${u.role}${u.email ? ` (${u.email})` : ""}`);
+        const displayName = u.name || u.email;
+        parts.push(`- **${displayName}** — ${u.role}${u.email ? ` (${u.email})` : ""}`);
       }
       const currentUser = userId ? users.find(u => u.id === userId) : null;
       if (currentUser) {
-        parts.push(`\nYou are currently speaking with **${currentUser.fullName || currentUser.username}** (${currentUser.role}).`);
+        parts.push(`\nYou are currently speaking with **${currentUser.name || currentUser.email}** (${currentUser.role}).`);
       }
     }
 

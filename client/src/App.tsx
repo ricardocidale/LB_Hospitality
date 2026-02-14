@@ -33,6 +33,7 @@ const CheckerManual = lazy(() => import("@/pages/CheckerManual"));
 const Help = lazy(() => import("@/pages/Help"));
 const ExecutiveSummary = lazy(() => import("@/pages/ExecutiveSummary"));
 const MapView = lazy(() => import("@/pages/MapView"));
+const InvestorPresentation = lazy(() => import("@/pages/InvestorPresentation"));
 
 const PageLoader = () => (
   <div className="min-h-screen flex items-center justify-center bg-background">
@@ -228,6 +229,11 @@ function Router() {
       </Route>
       <Route path="/timeline">
         <Redirect to="/analysis" />
+      </Route>
+      <Route path="/presentation">
+        <Suspense fallback={<PageLoader />}>
+          <InvestorPresentation />
+        </Suspense>
       </Route>
       <Route component={NotFound} />
     </Switch>

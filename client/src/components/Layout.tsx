@@ -1,7 +1,7 @@
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 import { LayoutDashboard, Building2, Briefcase, Settings2, Menu, X, FileText, Shield, LogOut, UserCircle, FolderOpen, SearchCheck, BarChart3, Calculator, ClipboardCheck, Search, MapPin, FileBarChart, ChevronDown, BookOpen } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
@@ -12,6 +12,11 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import NotificationCenter from "@/components/NotificationCenter";
 import FavoritesSidebar from "@/components/Favorites";
 import GuidedWalkthrough from "@/components/GuidedWalkthrough";
+
+const THEME_CSS_CLASSES: Record<string, string> = {
+  "Fluid Glass": "",
+  "Indigo Blue": "theme-indigo-blue",
+};
 
 type NavLink = { href: string; label: string; icon: any; onClick?: () => void };
 type NavDivider = { type: "divider" };
@@ -37,6 +42,17 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
 
   const companyName = myBranding?.groupCompanyName || global?.companyName || "Hospitality Business";
   const companyLogo = myBranding?.logoUrl || global?.companyLogoUrl || global?.companyLogo || defaultLogo;
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const allThemeClasses = Object.values(THEME_CSS_CLASSES).filter(Boolean);
+    root.classList.remove(...allThemeClasses);
+    const themeName = myBranding?.themeName;
+    if (themeName && THEME_CSS_CLASSES[themeName]) {
+      root.classList.add(THEME_CSS_CLASSES[themeName]);
+    }
+    return () => { root.classList.remove(...allThemeClasses); };
+  }, [myBranding?.themeName]);
 
   const sb = (key: string) => isAdmin || (global as any)?.[key] !== false;
   const toggleGroup = (label: string) => {

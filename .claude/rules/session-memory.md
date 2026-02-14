@@ -363,10 +363,21 @@ All cards use a consistent approach:
 - **Manual knowledge:** Approved — 31 chapter summaries provide comprehensive platform awareness
 - **Overall verdict:** PASS after security fix
 
+### Refinance Operating Reserve Bug Fix (February 14, 2026)
+- **Bug:** Refinance post-processing (Pass 2) in `financialEngine.ts` reset `cumCash = 0` to rebuild cumulative cash, but operating reserve was added directly to `cumulativeCash` in Pass 1 (not to `cashFlow`), so it was lost during the rebuild
+- **Affected properties:** The Hudson Estate, Eden Summit Lodge, Austin Hillside (all Full Equity + Refinance)
+- **Fix:** Added `acqMonthIdx` calculation and operating reserve seed at `i === acqMonthIdx` during refinance loop (line 593-606 in `financialEngine.ts`)
+- **3 regression tests added** to `tests/engine/operating-reserve-cash.test.ts`:
+  1. Full Equity + Refinance: ending cash includes operating reserve after refinance rebuild
+  2. Full Equity + Refinance with pre-ops gap: reserve seeds at acquisition month, not lost in refi rebuild
+  3. Removing reserve from refinance property drops ending cash by exactly the reserve amount
+- **Mandatory tests rule updated** (`.claude/rules/mandatory-financial-tests.md`): Added section 3 "Refinance Path Operating Reserve Bugs" with 4 mandated invariants, and added bug to historical bugs table
+- **Test count:** 1384 tests (61 files), all passing (was 1381)
+
 ### Full Audit Results (February 14, 2026)
 - TypeScript: PASS — 0 errors
 - Lint: PASS — 0 errors
-- Tests: PASS — 1381/1381 (61 files)
+- Tests: PASS — 1384/1384 (61 files)
 - Verification: UNQUALIFIED (PASS)
 - Health Check: ALL CLEAR
 - Codebase: 287 source files, 64,853 lines, 91 skills, 22 rules, 31 tools

@@ -33,23 +33,71 @@ interface Conversation {
 }
 
 function MarkdownContent({ content }: { content: string }) {
-  const html = content
-    .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre class="bg-muted rounded p-2 my-1 overflow-x-auto text-xs"><code>$2</code></pre>')
-    .replace(/`([^`]+)`/g, '<code class="bg-muted px-1 rounded text-xs">$1</code>')
-    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-    .replace(/\*(.+?)\*/g, "<em>$1</em>")
-    .replace(/^### (.+)$/gm, '<h4 class="font-semibold text-sm mt-2">$1</h4>')
-    .replace(/^## (.+)$/gm, '<h3 class="font-semibold mt-2">$1</h3>')
-    .replace(/^- (.+)$/gm, '<li class="ml-4 list-disc text-sm">$1</li>')
-    .replace(/^\d+\. (.+)$/gm, '<li class="ml-4 list-decimal text-sm">$1</li>')
-    .replace(/\n/g, "<br/>");
+  const lines = content.split("\n");
+  const elements: React.ReactNode[] = [];
+  let i = 0;
 
-  return (
-    <div
-      className="prose prose-sm dark:prose-invert max-w-none text-sm leading-relaxed [&_br+br]:hidden"
-      dangerouslySetInnerHTML={{ __html: html }}
-    />
-  );
+  while (i < lines.length) {
+    const line = lines[i];
+
+    if (line.startsWith("```")) {
+      const codeLines: string[] = [];
+      i++;
+      while (i < lines.length && !lines[i].startsWith("```")) {
+        codeLines.push(lines[i]);
+        i++;
+      }
+      i++;
+      elements.push(
+        <pre key={elements.length} className="bg-muted rounded p-2 my-1 overflow-x-auto text-xs">
+          <code>{codeLines.join("\n")}</code>
+        </pre>
+      );
+      continue;
+    }
+
+    if (line.startsWith("### ")) {
+      elements.push(<h4 key={elements.length} className="font-semibold text-sm mt-2">{formatInline(line.slice(4))}</h4>);
+    } else if (line.startsWith("## ")) {
+      elements.push(<h3 key={elements.length} className="font-semibold mt-2">{formatInline(line.slice(3))}</h3>);
+    } else if (line.startsWith("- ")) {
+      elements.push(<li key={elements.length} className="ml-4 list-disc text-sm">{formatInline(line.slice(2))}</li>);
+    } else if (/^\d+\.\s/.test(line)) {
+      elements.push(<li key={elements.length} className="ml-4 list-decimal text-sm">{formatInline(line.replace(/^\d+\.\s/, ""))}</li>);
+    } else if (line.trim() === "") {
+      elements.push(<br key={elements.length} />);
+    } else {
+      elements.push(<p key={elements.length} className="text-sm">{formatInline(line)}</p>);
+    }
+    i++;
+  }
+
+  return <div className="max-w-none text-sm leading-relaxed space-y-0.5">{elements}</div>;
+}
+
+function formatInline(text: string): React.ReactNode {
+  const parts: React.ReactNode[] = [];
+  const regex = /(\*\*(.+?)\*\*)|(\*(.+?)\*)|(`([^`]+)`)/g;
+  let lastIndex = 0;
+  let match;
+
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(text.slice(lastIndex, match.index));
+    }
+    if (match[1]) {
+      parts.push(<strong key={parts.length}>{match[2]}</strong>);
+    } else if (match[3]) {
+      parts.push(<em key={parts.length}>{match[4]}</em>);
+    } else if (match[5]) {
+      parts.push(<code key={parts.length} className="bg-muted px-1 rounded text-xs">{match[6]}</code>);
+    }
+    lastIndex = regex.lastIndex;
+  }
+  if (lastIndex < text.length) {
+    parts.push(text.slice(lastIndex));
+  }
+  return parts.length === 1 ? parts[0] : <>{parts}</>;
 }
 
 export default function AIChatWidget() {

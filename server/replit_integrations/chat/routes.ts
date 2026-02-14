@@ -1,6 +1,7 @@
 import type { Express, Request, Response } from "express";
 import OpenAI from "openai";
 import { chatStorage } from "./storage";
+import { requireAuth } from "../../auth";
 
 const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
@@ -22,7 +23,7 @@ const SYSTEM_PROMPT = `You are a knowledgeable hospitality business assistant fo
 Be concise, professional, and data-driven. When discussing financial metrics, use industry-standard terminology. If you don't have enough context to give a specific answer, ask clarifying questions. Format responses with markdown when helpful.`;
 
 export function registerChatRoutes(app: Express): void {
-  app.get("/api/conversations", async (req: Request, res: Response) => {
+  app.get("/api/conversations", requireAuth, async (req: Request, res: Response) => {
     try {
       const conversations = await chatStorage.getAllConversations();
       res.json(conversations);
@@ -32,7 +33,7 @@ export function registerChatRoutes(app: Express): void {
     }
   });
 
-  app.get("/api/conversations/:id", async (req: Request, res: Response) => {
+  app.get("/api/conversations/:id", requireAuth, async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id as string);
       const conversation = await chatStorage.getConversation(id);
@@ -47,7 +48,7 @@ export function registerChatRoutes(app: Express): void {
     }
   });
 
-  app.post("/api/conversations", async (req: Request, res: Response) => {
+  app.post("/api/conversations", requireAuth, async (req: Request, res: Response) => {
     try {
       const { title } = req.body;
       const conversation = await chatStorage.createConversation(title || "New Chat");
@@ -58,7 +59,7 @@ export function registerChatRoutes(app: Express): void {
     }
   });
 
-  app.delete("/api/conversations/:id", async (req: Request, res: Response) => {
+  app.delete("/api/conversations/:id", requireAuth, async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id as string);
       await chatStorage.deleteConversation(id);
@@ -69,12 +70,16 @@ export function registerChatRoutes(app: Express): void {
     }
   });
 
-  app.post("/api/conversations/:id/messages", async (req: Request, res: Response) => {
+  app.post("/api/conversations/:id/messages", requireAuth, async (req: Request, res: Response) => {
     try {
       const conversationId = parseInt(req.params.id as string);
       const { content } = req.body;
 
-      await chatStorage.createMessage(conversationId, "user", content);
+      if (!content || typeof content !== "string" || !content.trim()) {
+        return res.status(400).json({ error: "Message content is required" });
+      }
+
+      await chatStorage.createMessage(conversationId, "user", content.trim());
 
       const messages = await chatStorage.getMessagesByConversation(conversationId);
       const chatMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [

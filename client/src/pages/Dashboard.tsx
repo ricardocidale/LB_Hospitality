@@ -1670,9 +1670,9 @@ export default function Dashboard() {
                 </div>
                 
                 {/* Main IRR Display + Property IRR Bar Chart - Side by Side */}
-                <div className="flex flex-col lg:flex-row items-center justify-center gap-8 mb-10">
+                <div className="flex flex-col lg:flex-row items-stretch justify-center gap-8 mb-10">
                   {/* Portfolio IRR Meter */}
-                  <div className="group relative bg-white/95 backdrop-blur-xl rounded-[2rem] p-8 border border-primary/40 shadow-xl shadow-black/10 transition-all duration-500 hover:shadow-[0_20px_60px_rgba(244,121,91,0.25)] hover:border-secondary/60 hover:scale-[1.03] cursor-pointer">
+                  <div className="group relative bg-white/95 backdrop-blur-xl rounded-[2rem] p-8 border border-primary/40 shadow-xl shadow-black/10 transition-all duration-500 hover:shadow-[0_20px_60px_rgba(244,121,91,0.25)] hover:border-secondary/60 hover:scale-[1.03] cursor-pointer flex flex-col items-center justify-center">
                     <div className="absolute inset-0 rounded-[2rem] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" style={{ background: "radial-gradient(circle at 50% 50%, rgba(244,121,91,0.08), transparent 70%)" }} />
                     <div className="relative">
                       <svg className="w-48 h-48 transition-transform duration-700 group-hover:scale-105" viewBox="0 0 200 200">
@@ -1701,9 +1701,10 @@ export default function Dashboard() {
                   </div>
 
                   {/* Property IRR Comparison Bar Chart */}
-                  <div className="group bg-white/95 backdrop-blur-xl rounded-[2rem] p-6 border border-primary/40 shadow-xl shadow-black/10 w-full lg:min-w-[340px] transition-all duration-500 hover:shadow-[0_16px_50px_rgba(59,130,246,0.2)] hover:border-blue-400/50 hover:scale-[1.02] cursor-pointer" data-testid="chart-property-irr-comparison">
+                  <div className="group bg-white/95 backdrop-blur-xl rounded-[2rem] p-6 border border-primary/40 shadow-xl shadow-black/10 w-full lg:min-w-[340px] transition-all duration-500 hover:shadow-[0_16px_50px_rgba(59,130,246,0.2)] hover:border-blue-400/50 hover:scale-[1.02] cursor-pointer flex flex-col" data-testid="chart-property-irr-comparison">
                     <p className="text-xs font-medium tracking-widest text-[#2d4a5e]/60 uppercase mb-3 text-center label-text">Property IRR Comparison</p>
-                    <ResponsiveContainer width="100%" height={200}>
+                    <div className="flex-1 min-h-[220px]">
+                    <ResponsiveContainer width="100%" height="100%">
                       <BarChart
                         data={properties.map((prop, idx) => {
                           const cashFlows = getPropertyCashFlows(idx);
@@ -1738,12 +1739,14 @@ export default function Dashboard() {
                         <Bar dataKey="irr" radius={[4, 4, 0, 0]} maxBarSize={40} fill="#3B82F6" />
                       </BarChart>
                     </ResponsiveContainer>
+                    </div>
                   </div>
 
                   {/* Property Investment Bar Chart */}
-                  <div className="group bg-white/95 backdrop-blur-xl rounded-[2rem] p-6 border border-primary/40 shadow-xl shadow-black/10 w-full lg:min-w-[340px] transition-all duration-500 hover:shadow-[0_16px_50px_rgba(245,158,11,0.2)] hover:border-amber-400/50 hover:scale-[1.02] cursor-pointer" data-testid="chart-property-investment">
+                  <div className="group bg-white/95 backdrop-blur-xl rounded-[2rem] p-6 border border-primary/40 shadow-xl shadow-black/10 w-full lg:min-w-[340px] transition-all duration-500 hover:shadow-[0_16px_50px_rgba(245,158,11,0.2)] hover:border-amber-400/50 hover:scale-[1.02] cursor-pointer flex flex-col" data-testid="chart-property-investment">
                     <p className="text-xs font-medium tracking-widest text-[#2d4a5e]/60 uppercase mb-3 text-center label-text">Equity Investment by Property</p>
-                    <ResponsiveContainer width="100%" height={200}>
+                    <div className="flex-1 min-h-[220px]">
+                    <ResponsiveContainer width="100%" height="100%">
                       <BarChart
                         data={properties.map((prop) => {
                           const investment = getPropertyInvestment(prop);
@@ -1777,6 +1780,7 @@ export default function Dashboard() {
                         <Bar dataKey="investment" radius={[4, 4, 0, 0]} maxBarSize={40} fill="#F59E0B" />
                       </BarChart>
                     </ResponsiveContainer>
+                    </div>
                   </div>
                 </div>
 

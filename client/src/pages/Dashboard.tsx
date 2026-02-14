@@ -1968,18 +1968,6 @@ export default function Dashboard() {
                 </div>
               </div>
             </div>
-            <ScrollReveal>
-              <InsightPanel
-                data-testid="insight-dashboard"
-                title="Portfolio Insights"
-                insights={[
-                  { text: "Portfolio IRR", metric: `${(portfolioIRR * 100).toFixed(1)}%`, type: portfolioIRR > 0.12 ? "positive" as const : portfolioIRR > 0.08 ? "neutral" as const : "warning" as const },
-                  { text: `${totalProperties} properties across ${Object.keys(marketCounts).length} markets`, type: "neutral" as const },
-                  { text: "Equity Multiple", metric: `${equityMultiple.toFixed(2)}x`, type: equityMultiple > 2 ? "positive" as const : "neutral" as const },
-                  { text: `Avg Cash-on-Cash Return`, metric: `${cashOnCash.toFixed(1)}%`, type: cashOnCash > 8 ? "positive" as const : "warning" as const },
-                ]}
-              />
-            </ScrollReveal>
           </TabsContent>
 
           <TabsContent value="income" className="mt-6 space-y-6">

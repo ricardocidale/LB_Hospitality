@@ -299,6 +299,9 @@ export const globalAssumptions = pgTable("global_assumptions", {
   sidebarExecutiveSummary: boolean("sidebar_executive_summary").notNull().default(true),
   sidebarScenarios: boolean("sidebar_scenarios").notNull().default(true),
   sidebarUserManual: boolean("sidebar_user_manual").notNull().default(true),
+
+  // Feature Toggles
+  showAiAssistant: boolean("show_ai_assistant").notNull().default(false),
   
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => [
@@ -421,6 +424,7 @@ export const insertGlobalAssumptionsSchema = createInsertSchema(globalAssumption
   sidebarExecutiveSummary: true,
   sidebarScenarios: true,
   sidebarUserManual: true,
+  showAiAssistant: true,
 });
 
 export const selectGlobalAssumptionsSchema = createSelectSchema(globalAssumptions);

@@ -259,3 +259,24 @@ All cards use a consistent approach:
 - `.claude/rules/financial-engine.md` — expanded per-property config table
 - `.claude/rules/constants-and-config.md` — updated fallback pattern to two-tier
 - `replit.md` — reflects per-property architecture
+
+### F&B Cost Fix + Operating Reserve Seed
+
+#### What Changed
+1. **F&B expense calculation fix**: Changed from `revenueRooms * costRateFB` to `revenueFB * costRateFB` in both client engine (`financialEngine.ts`) and server checker (`calculationChecker.ts`). This aligns with USALI standard — F&B costs are a percentage of F&B revenue, not room revenue.
+2. **Operating reserve seeds initial cash**: Both `generatePropertyProForma()` and `independentPropertyCalc()` now add `operatingReserve` to cumulative cash at the acquisition month. This covers pre-operational debt service payments during the gap between acquisition and operations start.
+3. **Added `operatingReserve` to `PropertyInput` interface** in `financialEngine.ts`
+4. **Blue Ridge Manor operating reserve increased**: $300K → $500K in database (property id=36) to fully cover 12-month pre-ops period ($453K in debt payments)
+5. **Year 10 NOI divergence eliminated**: Server and client engines now produce matching results (~15% divergence was caused by F&B cost bug)
+
+#### Key Design Decisions
+- Operating reserve is standard hotel accounting practice — covers pre-ops debt service before revenue begins
+- Reserve seeds `cumulativeCash` at acquisition month, not at model start
+- No negative cash balances allowed — operating reserve must fully cover pre-ops debt service gap
+- F&B cost formula: `revenueFB * costRateFB` (NOT `revenueRooms * costRateFB`)
+
+#### Test Results
+- All 1371 tests passing (60 files)
+- TypeScript: 0 errors
+- Verification: UNQUALIFIED (PASS)
+- Blue Ridge Manor: min cash $0, 0 negative months

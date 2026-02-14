@@ -36,24 +36,54 @@ export function SlideImage({
   const [error, setError] = useState(false);
 
   if (error) {
+    // Rich placeholder with gradient, icon, and label
     return (
       <div
         className={className}
         style={{
           ...style,
-          background: `linear-gradient(135deg, ${COLORS.darkForest}22, ${COLORS.darkForest}44)`,
+          background: `linear-gradient(135deg, ${COLORS.darkForest}18, ${COLORS.richGreen}20, ${COLORS.darkForest}28)`,
           display: "flex",
+          flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          color: COLORS.darkForest,
-          fontSize: "11px",
-          fontFamily: "Arial, sans-serif",
-          textAlign: "center",
-          padding: "12px",
-          opacity: 0.6,
+          gap: "8px",
+          position: "relative",
+          overflow: "hidden",
         }}
       >
-        {alt}
+        {/* Decorative border accent */}
+        <div style={{
+          position: "absolute",
+          inset: 0,
+          border: `1px solid ${COLORS.richGreen}30`,
+          borderRadius: "inherit",
+          pointerEvents: "none",
+        }} />
+        {/* Subtle corner flourishes */}
+        <svg width="32" height="32" viewBox="0 0 32 32" style={{ opacity: 0.25 }}>
+          <path
+            d="M16 4 L16 12 M12 8 L20 8 M16 20 L16 28 M12 24 L20 24 M4 16 L12 16 M8 12 L8 20 M20 16 L28 16 M24 12 L24 20"
+            stroke={COLORS.richGreen}
+            strokeWidth="1"
+            fill="none"
+          />
+          <circle cx="16" cy="16" r="6" stroke={COLORS.richGreen} strokeWidth="0.5" fill="none" />
+        </svg>
+        <span
+          style={{
+            color: COLORS.darkForest,
+            fontSize: "clamp(8px, 0.8vw, 11px)",
+            fontFamily: "'Arial', sans-serif",
+            textAlign: "center",
+            padding: "0 12px",
+            opacity: 0.55,
+            lineHeight: 1.3,
+            maxWidth: "80%",
+          }}
+        >
+          {alt}
+        </span>
       </div>
     );
   }

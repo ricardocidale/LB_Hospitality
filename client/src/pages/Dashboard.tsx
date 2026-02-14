@@ -1616,9 +1616,38 @@ export default function Dashboard() {
               data-testid="kpi-dashboard-hero"
               items={[
                 { label: "Equity Multiple", value: equityMultiple, format: (v: number) => `${v.toFixed(2)}x`, trend: equityMultiple > 2 ? "up" as const : equityMultiple > 1 ? "neutral" as const : "down" as const, icon: <TrendingUpIcon className="w-4 h-4" /> },
-                { label: "Total Revenue (Yr 1)", value: portfolioTotalRevenue, format: formatCompact, sublabel: String(getFiscalYear(0)) },
-                { label: "Properties", value: totalProperties, sublabel: `${totalRooms} total rooms` },
-                { label: "Cash-on-Cash", value: cashOnCash, format: (v: number) => `${v.toFixed(1)}%`, trend: cashOnCash > 8 ? "up" as const : "neutral" as const },
+                { label: "Total Revenue (Yr 1)", value: portfolioTotalRevenue, format: formatCompact, sublabel: String(getFiscalYear(0)), icon: (
+                  <svg width="28" height="28" viewBox="0 0 28 28" fill="none" className="transition-transform duration-300 group-hover:scale-110">
+                    <rect x="3" y="16" width="4" height="8" rx="1" fill="#3B82F6" opacity="0.5" />
+                    <rect x="9" y="12" width="4" height="12" rx="1" fill="#3B82F6" opacity="0.7" />
+                    <rect x="15" y="8" width="4" height="16" rx="1" fill="#3B82F6" opacity="0.85" />
+                    <rect x="21" y="4" width="4" height="20" rx="1" fill="#3B82F6" />
+                    <path d="M3 14 L9 10 L15 7 L25 3" stroke="#3B82F6" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
+                  </svg>
+                ) },
+                { label: "Properties", value: totalProperties, sublabel: `${totalRooms} total rooms`, icon: (
+                  <svg width="28" height="28" viewBox="0 0 28 28" fill="none" className="transition-transform duration-300 group-hover:scale-110">
+                    <rect x="4" y="10" width="8" height="14" rx="1" fill="#8B5CF6" opacity="0.7" />
+                    <rect x="6" y="12" width="2" height="2" rx="0.5" fill="white" opacity="0.9" />
+                    <rect x="6" y="16" width="2" height="2" rx="0.5" fill="white" opacity="0.9" />
+                    <rect x="6" y="20" width="2" height="2" rx="0.5" fill="white" opacity="0.9" />
+                    <rect x="14" y="6" width="10" height="18" rx="1" fill="#8B5CF6" />
+                    <rect x="16" y="8" width="2" height="2" rx="0.5" fill="white" opacity="0.9" />
+                    <rect x="20" y="8" width="2" height="2" rx="0.5" fill="white" opacity="0.9" />
+                    <rect x="16" y="12" width="2" height="2" rx="0.5" fill="white" opacity="0.9" />
+                    <rect x="20" y="12" width="2" height="2" rx="0.5" fill="white" opacity="0.9" />
+                    <rect x="16" y="16" width="2" height="2" rx="0.5" fill="white" opacity="0.9" />
+                    <rect x="20" y="16" width="2" height="2" rx="0.5" fill="white" opacity="0.9" />
+                    <rect x="17" y="20" width="4" height="4" rx="0.5" fill="white" opacity="0.8" />
+                  </svg>
+                ) },
+                { label: "Cash-on-Cash", value: cashOnCash, format: (v: number) => `${v.toFixed(1)}%`, trend: cashOnCash > 8 ? "up" as const : "neutral" as const, icon: (
+                  <svg width="28" height="28" viewBox="0 0 28 28" fill="none" className="transition-transform duration-300 group-hover:scale-110">
+                    <circle cx="14" cy="14" r="10" stroke="#F59E0B" strokeWidth="2" opacity="0.3" />
+                    <circle cx="14" cy="14" r="10" stroke="#F59E0B" strokeWidth="2" strokeDasharray={`${Math.min(Math.max(cashOnCash, 0) * 0.628, 62.8)} 62.8`} strokeLinecap="round" transform="rotate(-90 14 14)" />
+                    <text x="14" y="15.5" textAnchor="middle" fontSize="7" fontWeight="700" fill="#F59E0B" fontFamily="monospace">%</text>
+                  </svg>
+                ) },
               ]}
               columns={4}
               variant="glass"

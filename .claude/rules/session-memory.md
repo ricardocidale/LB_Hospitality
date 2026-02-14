@@ -313,3 +313,10 @@ All cards use a consistent approach:
   - Pre-ops gap has debt payments during the gap
 - **Test count:** 1381 tests (61 files), all passing
 - **Verification:** UNQUALIFIED (PASS)
+
+### New Rule Created: Mandatory Financial Tests
+- **File:** `.claude/rules/mandatory-financial-tests.md`
+- **Purpose:** Ensures operating reserve, per-property financing, and cumulative cash flow tests run every time financial code changes
+- **Triggers:** Any change to financialEngine.ts, financialAuditor.ts, calculationChecker.ts, runVerification.ts, loanCalculations.ts, cashFlowAggregator.ts, seed data, or schema financial fields
+- **Quick command:** `npm run test:file -- tests/engine/operating-reserve-cash.test.ts`
+- **Rules count now: 22** (was 20, added mandatory-financial-tests.md + this session also had docs-after-edits.md and read-session-memory-first.md from prior session)

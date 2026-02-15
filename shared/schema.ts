@@ -740,6 +740,7 @@ export const marketResearch = pgTable("market_research", {
   propertyId: integer("property_id").references(() => properties.id, { onDelete: "cascade" }),
   title: text("title").notNull(),
   content: jsonb("content").notNull().$type<Record<string, any>>(),
+  promptConditions: jsonb("prompt_conditions").$type<Record<string, any>>(),
   llmModel: text("llm_model"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -755,6 +756,7 @@ export const insertMarketResearchSchema = createInsertSchema(marketResearch).pic
   propertyId: true,
   title: true,
   content: true,
+  promptConditions: true,
   llmModel: true,
 });
 

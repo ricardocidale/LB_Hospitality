@@ -3,10 +3,13 @@ import Layout from "@/components/Layout";
 import { useProperty, useMarketResearch, useGlobalAssumptions } from "@/lib/api";
 import { PageHeader } from "@/components/ui/page-header";
 import { GlassButton } from "@/components/ui/glass-button";
-import { Loader2, RefreshCw, MapPin, TrendingUp, Building2, Calendar, Users, AlertTriangle, ExternalLink, BookOpen, Target, Clock, Shield, Mountain, ArrowLeft, UtensilsCrossed } from "lucide-react";
+import { ExportToolbar } from "@/components/ui/export-toolbar";
+import { Loader2, RefreshCw, MapPin, TrendingUp, Building2, Calendar, Users, AlertTriangle, ExternalLink, BookOpen, Target, Clock, Shield, Mountain, ArrowLeft, UtensilsCrossed, Mail, FileDown } from "lucide-react";
 import { useRoute, useLocation } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
+import { downloadResearchPDF, emailResearchPDF } from "@/lib/exports/researchPdfExport";
+import { useToast } from "@/hooks/use-toast";
 
 const sectionColors = {
   market: { accent: "#257D41", bg: "bg-emerald-50", border: "border-emerald-200", iconBg: "bg-emerald-100", iconText: "text-emerald-700", badge: "bg-emerald-100 text-emerald-800" },
@@ -57,8 +60,10 @@ export default function PropertyMarketResearch() {
   const [, setLocation] = useLocation();
   const [isGenerating, setIsGenerating] = useState(false);
   const [streamedContent, setStreamedContent] = useState("");
+  const [isEmailing, setIsEmailing] = useState(false);
   const queryClient = useQueryClient();
   const abortRef = useRef<AbortController | null>(null);
+  const { toast } = useToast();
 
   const generateResearch = useCallback(async () => {
     if (!property) return;
@@ -192,11 +197,61 @@ export default function PropertyMarketResearch() {
         />
 
         {research?.updatedAt && (
-          <div className="flex items-center justify-end gap-2">
+          <div className="flex items-center justify-between gap-2">
             <span className="text-xs text-gray-400" data-testid="text-last-updated">
               Last updated: {format(new Date(research.updatedAt), "MMM d, yyyy h:mm a")}
               {research.llmModel && ` · Model: ${research.llmModel}`}
             </span>
+            {hasResearch && !isGenerating && (
+              <ExportToolbar
+                variant="glass"
+                actions={[
+                  {
+                    label: "Download PDF",
+                    icon: <FileDown className="w-3.5 h-3.5" />,
+                    onClick: () => downloadResearchPDF({
+                      type: "property",
+                      title: `Market Research: ${property.name}`,
+                      subtitle: `${property.location} · ${property.market} · ${property.roomCount} rooms`,
+                      content,
+                      updatedAt: research?.updatedAt,
+                      llmModel: research?.llmModel || undefined,
+                      promptConditions: (research as any)?.promptConditions || undefined,
+                    }),
+                    testId: "button-export-research-pdf",
+                  },
+                  {
+                    label: isEmailing ? "Sending..." : "Email PDF",
+                    icon: <Mail className="w-3.5 h-3.5" />,
+                    onClick: async () => {
+                      if (isEmailing) return;
+                      setIsEmailing(true);
+                      try {
+                        const result = await emailResearchPDF({
+                          type: "property",
+                          title: `Market Research: ${property.name}`,
+                          subtitle: `${property.location} · ${property.market} · ${property.roomCount} rooms`,
+                          content,
+                          updatedAt: research?.updatedAt,
+                          llmModel: research?.llmModel || undefined,
+                          promptConditions: (research as any)?.promptConditions || undefined,
+                        });
+                        if (result.success) {
+                          toast({ title: "Email sent", description: "Research PDF has been emailed to you." });
+                        } else {
+                          toast({ title: "Email failed", description: result.error || "Could not send email.", variant: "destructive" });
+                        }
+                      } catch {
+                        toast({ title: "Email failed", description: "Could not send email.", variant: "destructive" });
+                      } finally {
+                        setIsEmailing(false);
+                      }
+                    },
+                    testId: "button-email-research-pdf",
+                  },
+                ]}
+              />
+            )}
           </div>
         )}
 

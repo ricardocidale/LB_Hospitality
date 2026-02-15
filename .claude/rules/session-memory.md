@@ -7,6 +7,48 @@ This rule ensures continuity across chat resets. The agent must treat this file 
 
 ---
 
+## Session: February 15, 2026
+
+### What Was Done
+
+#### 1. Critical Timezone Bug Fix — Client-Side Financial Auditor
+- **Root cause:** `new Date("2027-07-01")` parses date-only strings as UTC midnight. In Western Hemisphere browsers (UTC-5 to UTC-8), this shifts to previous day local time (June 30), causing `startOfMonth()` to return June 1 instead of July 1
+- **Impact:** Month index misalignment caused interest rate lookups, loan amortization schedules, and equity calculations to use wrong months — resulting in QUALIFIED audit opinion in browsers while server (Node.js, UTC) showed UNQUALIFIED
+- **Fix:** Created `parseLocalDate()` helper that appends `T00:00:00` to date-only strings, forcing local-time interpretation instead of UTC
+- **Applied across 4 files:**
+  - `client/src/lib/financialAuditor.ts` — audit date parsing
+  - `client/src/lib/financialEngine.ts` — core financial engine date parsing
+  - `client/src/lib/loanCalculations.ts` — loan amortization date parsing
+  - `client/src/lib/equityCalculations.ts` — acquisition year derivation
+- **Verification:** All `startOfMonth(new Date(dateStr))` patterns replaced; grep confirms zero remaining instances in `client/src/`
+- **No server-side changes needed:** Server `calculationChecker.ts` already had no `startOfMonth(new Date(` patterns
+
+#### 2. Client-Side Auditor Regression Tests Added
+- **Created** `tests/engine/client-auditor-regression.test.ts` with 17 tests covering all 5 properties
+- **Tests verify:** formula counts (5550/5550), cross-validation checks (39/39), UNQUALIFIED opinion for each property
+- All 1401 tests pass
+
+#### 3. Documentation & Rules
+- **Created** `.claude/rules/source-of-truth.md` — establishes `.claude` as single source of truth with `replit.md` as harmonized pointer
+- **Updated** `.claude/rules/docs-after-edits.md` — added mandatory bug-fix completion checklist
+- **Created** `.claude/rules/mandatory-financial-tests.md` — tracks financial bug regression tests
+
+### Completed
+- All 1401 tests pass
+- Financial verification: UNQUALIFIED (PASS) — all 5 properties, 5550/5550 formula checks, 39/39 cross-validation
+- Server-side diagnostic: UNQUALIFIED for all properties
+- Architect review: PASS — timezone fix approved, no blocking issues
+- No remaining `startOfMonth(new Date(` patterns in client/src
+
+### Key Technical Decision
+- **`parseLocalDate()` is defined locally in each file** (not centralized) — architect noted this could be centralized in future to avoid drift, but current approach is safe and complete
+
+### Pending / Future Work
+- Browser-side manual verification by user (confirming UNQUALIFIED in actual browser Verification tab)
+- Consider centralizing `parseLocalDate()` into a shared utility module
+
+---
+
 ## Session: February 13, 2026
 
 ### What Was Done
@@ -374,12 +416,18 @@ All cards use a consistent approach:
 - **Mandatory tests rule updated** (`.claude/rules/mandatory-financial-tests.md`): Added section 3 "Refinance Path Operating Reserve Bugs" with 4 mandated invariants, and added bug to historical bugs table
 - **Test count:** 1384 tests (61 files), all passing (was 1381)
 
-### Full Audit Results (February 14, 2026)
+### Timezone-Dependent Date Parsing Bug Fix (February 15, 2026)
+- **Bug:** Client-side auditor reports (financialAuditor.ts) showed systematic failures across all properties: balance sheet +0.25% variance, $0 values at acquisition months, and principal calculation mismatches
+- **Root Cause:** `new Date("2026-04-01")` in non-UTC timezones (e.g., US EST) produces March 31 local time. `addMonths(March 31, N)` then produces end-of-month dates (April 30, May 30, June 30...). `differenceInMonths(June 30, May 31)` returns 0 instead of 1 due to day-of-month adjustment (30 < 31). This caused `monthsSinceAcquisition` to be 1 less than expected, producing wrong accumulated depreciation, wrong debt amortization, and wrong acquisition timing.
+- **Fix:** Added `startOfMonth()` normalization to all date string parsing in:
+  - `client/src/lib/financialEngine.ts` — modelStart, opsStart, acquisitionDate, refinanceDate, getFiscalYearLabel
+  - `client/src/lib/financialAuditor.ts` — all 7 audit functions (depreciation, loan, income, timing, fees, balance sheet, cash flow)
+  - `client/src/lib/equityCalculations.ts` — `acqMonthsFromModelStart()` helper
+  - `client/src/lib/loanCalculations.ts` — refinance date parsing
+- **Server-side checker unaffected** — already uses pure `YearMonth` integer arithmetic (no `Date` objects)
+- **Tests:** 1401/1401 pass (62 files), TypeScript 0 errors, Verification UNQUALIFIED
+
+### Full Audit Results (February 15, 2026)
 - TypeScript: PASS — 0 errors
-- Lint: PASS — 0 errors
-- Tests: PASS — 1384/1384 (61 files)
+- Tests: PASS — 1401/1401 (62 files)
 - Verification: UNQUALIFIED (PASS)
-- Health Check: ALL CLEAR
-- Codebase: 287 source files, 64,853 lines, 91 skills, 22 rules, 31 tools
-- Quick Audit: 1 pre-existing critical (10 `any` types in finance code — typed-safe casting in calc/dispatch.ts and partner comp lookup)
-- Exports Check: 313 used, 60 potentially unused (mostly interfaces and type exports for external consumers)

@@ -21,7 +21,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { useToast } from "@/hooks/use-toast";
 import { invalidateAllFinancialQueries } from "@/lib/api";
 import { ThemeManager } from "@/features/design-themes";
-import { runFullVerification, runKnownValueTests, VerificationResults } from "@/lib/runVerification";
+import { runFullVerification, runKnownValueTestsStructured, type KnownValueTestResult, VerificationResults } from "@/lib/runVerification";
 import { generatePropertyProForma, formatMoney } from "@/lib/financialEngine";
 import { AuditReport } from "@/lib/financialAuditor";
 import { formatDateTime, formatDuration } from "@/lib/formatters";
@@ -112,7 +112,7 @@ interface VerificationResult {
   };
   clientAuditWorkpaper?: string;
   clientAuditReports?: AuditReport[];
-  clientKnownValueTests?: { passed: boolean; results: string };
+  clientKnownValueTests?: { passed: boolean; results: string; structured: KnownValueTestResult[] };
 }
 
 interface UserGroup {
@@ -698,7 +698,7 @@ export default function Admin() {
       const globalAssumptions = await assumptionsRes.json();
       
       const comprehensiveResults = runFullVerification(properties, globalAssumptions);
-      const knownValueTests = runKnownValueTests();
+      const knownValueTests = runKnownValueTestsStructured();
       
       const serverRes = await fetch("/api/admin/run-verification", { credentials: "include" });
       if (!serverRes.ok) throw new Error("Server verification failed");
@@ -1770,19 +1770,66 @@ export default function Admin() {
               </div>
             )}
 
-            {/* Client-side Known Value Tests */}
             {verificationResults.clientKnownValueTests && (
-              <div className={`p-5 rounded-2xl border-2 ${verificationResults.clientKnownValueTests.passed ? "bg-green-50 border-green-300" : "bg-red-50 border-red-300"}`}>
-                <div className="flex items-center gap-3 mb-3">
-                  {verificationResults.clientKnownValueTests.passed ? 
-                    <CheckCircle2 className="w-6 h-6 text-green-600" /> :
-                    <XCircle className="w-6 h-6 text-red-600" />
-                  }
-                  <h3 className="font-display font-semibold">Known-Value Test Cases</h3>
+              <div className={`p-5 rounded-2xl border-2 ${verificationResults.clientKnownValueTests.passed ? "bg-green-50/60 border-green-200" : "bg-red-50/60 border-red-200"}`}>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    {verificationResults.clientKnownValueTests.passed ?
+                      <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center"><CheckCircle2 className="w-5 h-5 text-green-600" /></div> :
+                      <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center"><XCircle className="w-5 h-5 text-red-600" /></div>
+                    }
+                    <div>
+                      <h3 className="font-display font-semibold text-gray-900">Known-Value Test Cases</h3>
+                      <p className="text-xs text-gray-500 mt-0.5">Independent formula validation against hand-calculated expected values</p>
+                    </div>
+                  </div>
+                  <span className={`text-xs font-semibold px-3 py-1.5 rounded-full ${verificationResults.clientKnownValueTests.passed ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+                    {verificationResults.clientKnownValueTests.passed ? "All Passed" : "Issues Found"}
+                  </span>
                 </div>
-                <pre className="text-xs font-mono bg-white/80 p-4 rounded-lg overflow-x-auto whitespace-pre-wrap border border-gray-200">
-                  {verificationResults.clientKnownValueTests.results}
-                </pre>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {(verificationResults.clientKnownValueTests.structured || []).map((testCase, tIdx) => (
+                    <div key={tIdx} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                      <div className="flex items-center gap-2.5 px-4 py-3 border-b border-gray-100 bg-gray-50/50">
+                        {testCase.allPassed ?
+                          <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" /> :
+                          <XCircle className="w-4 h-4 text-red-500 shrink-0" />
+                        }
+                        <span className="text-sm font-semibold text-gray-800">{testCase.name}</span>
+                      </div>
+                      <div className="divide-y divide-gray-100">
+                        {testCase.checks.map((check, cIdx) => (
+                          <div key={cIdx} className="px-4 py-3">
+                            <div className="flex items-center justify-between mb-1.5">
+                              <div className="flex items-center gap-2">
+                                {check.passed ?
+                                  <span className="w-5 h-5 rounded-full bg-green-50 border border-green-200 flex items-center justify-center text-green-600 text-[10px] font-bold">&#10003;</span> :
+                                  <span className="w-5 h-5 rounded-full bg-red-50 border border-red-200 flex items-center justify-center text-red-600 text-[10px] font-bold">&#10007;</span>
+                                }
+                                <span className="text-sm font-medium text-gray-800">{check.label}</span>
+                              </div>
+                              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${check.passed ? "bg-green-50 text-green-600 border border-green-200" : "bg-red-50 text-red-600 border border-red-200"}`}>
+                                {check.passed ? "Match" : "Mismatch"}
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-gray-400 font-mono mb-2 pl-7">{check.formula}</p>
+                            <div className="grid grid-cols-2 gap-2 pl-7">
+                              <div className="bg-gray-50 rounded-lg px-3 py-2">
+                                <p className="text-[10px] uppercase tracking-wider text-gray-400 mb-0.5">Expected</p>
+                                <p className="text-sm font-semibold text-gray-800 font-mono">${check.expected.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                              </div>
+                              <div className={`rounded-lg px-3 py-2 ${check.passed ? "bg-green-50/50" : "bg-red-50/50"}`}>
+                                <p className="text-[10px] uppercase tracking-wider text-gray-400 mb-0.5">Calculated</p>
+                                <p className={`text-sm font-semibold font-mono ${check.passed ? "text-green-700" : "text-red-700"}`}>${check.calculated.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 

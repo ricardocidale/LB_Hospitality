@@ -536,6 +536,70 @@ export function useMarketResearch(type: string, propertyId?: number) {
   });
 }
 
+// --- RESEARCH QUESTIONS ---
+
+export interface ResearchQuestion {
+  id: number;
+  question: string;
+  sortOrder: number;
+  createdAt: string;
+}
+
+export function useResearchQuestions() {
+  return useQuery<ResearchQuestion[]>({
+    queryKey: ["research-questions"],
+    queryFn: async () => {
+      const res = await fetch("/api/research-questions");
+      if (!res.ok) throw new Error("Failed to fetch research questions");
+      return res.json();
+    },
+  });
+}
+
+export function useCreateResearchQuestion() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (question: string) => {
+      const res = await fetch("/api/research-questions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question }),
+      });
+      if (!res.ok) throw new Error("Failed to create question");
+      return res.json();
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["research-questions"] }),
+  });
+}
+
+export function useUpdateResearchQuestion() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, question }: { id: number; question: string }) => {
+      const res = await fetch(`/api/research-questions/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question }),
+      });
+      if (!res.ok) throw new Error("Failed to update question");
+      return res.json();
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["research-questions"] }),
+  });
+}
+
+export function useDeleteResearchQuestion() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: number) => {
+      const res = await fetch(`/api/research-questions/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete question");
+      return res.json();
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["research-questions"] }),
+  });
+}
+
 // --- PROPERTY FINDER ---
 
 export interface PropertyFinderResult {

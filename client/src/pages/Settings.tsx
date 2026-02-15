@@ -1,12 +1,12 @@
 import Layout from "@/components/Layout";
-import { useGlobalAssumptions, useUpdateGlobalAssumptions, useProperties, useUpdateProperty, useMarketResearch } from "@/lib/api";
+import { useGlobalAssumptions, useUpdateGlobalAssumptions, useProperties, useUpdateProperty, useMarketResearch, useResearchQuestions, useCreateResearchQuestion, useUpdateResearchQuestion, useDeleteResearchQuestion } from "@/lib/api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, DarkGlassTabs } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, BookOpen, Hotel, Globe, Sliders, Search, RefreshCw, TrendingUp, Landmark, Sparkles, AlertTriangle, Check } from "lucide-react";
+import { Loader2, BookOpen, Hotel, Globe, Sliders, Search, RefreshCw, TrendingUp, Landmark, Sparkles, AlertTriangle, Check, Plus, Pencil, Trash2, X, MessageSquare } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Link } from "wouter";
@@ -77,7 +77,13 @@ export default function Settings() {
   );
   const [selectedRegions, setSelectedRegions] = useState<string[]>(["North America", "Latin America"]);
   const [timeHorizon, setTimeHorizon] = useState("5 years");
-  const [customQuestions, setCustomQuestions] = useState("");
+  const { data: researchQuestions = [] } = useResearchQuestions();
+  const createQuestion = useCreateResearchQuestion();
+  const updateQuestion = useUpdateResearchQuestion();
+  const deleteQuestion = useDeleteResearchQuestion();
+  const [newQuestion, setNewQuestion] = useState("");
+  const [editingQuestionId, setEditingQuestionId] = useState<number | null>(null);
+  const [editingQuestionText, setEditingQuestionText] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [streamedContent, setStreamedContent] = useState("");
   const abortRef = useRef<AbortController | null>(null);
@@ -164,7 +170,6 @@ export default function Settings() {
             focusAreas: selectedFocusAreas,
             regions: selectedRegions,
             timeHorizon,
-            customQuestions: customQuestions || undefined,
           },
         }),
         signal: abortRef.current.signal,
@@ -201,7 +206,7 @@ export default function Settings() {
     } finally {
       setIsGenerating(false);
     }
-  }, [selectedFocusAreas, selectedRegions, timeHorizon, customQuestions, queryClient, toast]);
+  }, [selectedFocusAreas, selectedRegions, timeHorizon, queryClient, toast]);
 
   const handleSaveGlobal = () => {
     if (globalDraft) {
@@ -983,19 +988,126 @@ export default function Settings() {
                   </div>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <Label className="label-text font-medium flex items-center gap-1">
-                    Custom Questions
-                    <HelpTooltip text="Add specific research questions you'd like the AI to address beyond the selected focus areas." />
+                    <MessageSquare className="w-4 h-4" />
+                    Custom Research Questions
+                    <HelpTooltip text="Add specific research questions or qualifiers for the AI to address. Each question is sent to the AI as part of the research prompt." />
                   </Label>
-                  <Textarea
-                    value={customQuestions}
-                    onChange={(e) => setCustomQuestions(e.target.value)}
-                    placeholder="e.g., What is the average wellness retreat pricing in Costa Rica? How do boutique hotels perform vs. large chains in secondary markets?"
-                    rows={3}
-                    className="bg-white text-sm"
-                    data-testid="textarea-custom-questions"
-                  />
+
+                  {researchQuestions.length > 0 && (
+                    <div className="space-y-2">
+                      {researchQuestions.map((q) => (
+                        <div key={q.id} className="group flex items-start gap-2 p-2.5 rounded-lg bg-gray-50 border border-gray-200 hover:border-primary/30 transition-colors" data-testid={`research-question-${q.id}`}>
+                          {editingQuestionId === q.id ? (
+                            <div className="flex-1 flex items-start gap-2">
+                              <Input
+                                value={editingQuestionText}
+                                onChange={(e) => setEditingQuestionText(e.target.value)}
+                                className="flex-1 text-sm bg-white"
+                                autoFocus
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter" && editingQuestionText.trim()) {
+                                    updateQuestion.mutate({ id: q.id, question: editingQuestionText.trim() });
+                                    setEditingQuestionId(null);
+                                  }
+                                  if (e.key === "Escape") setEditingQuestionId(null);
+                                }}
+                                data-testid={`input-edit-question-${q.id}`}
+                              />
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-8 w-8 p-0 text-primary hover:text-primary/80"
+                                onClick={() => {
+                                  if (editingQuestionText.trim()) {
+                                    updateQuestion.mutate({ id: q.id, question: editingQuestionText.trim() });
+                                  }
+                                  setEditingQuestionId(null);
+                                }}
+                                data-testid={`button-save-question-${q.id}`}
+                              >
+                                <Check className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-8 w-8 p-0 text-gray-400 hover:text-gray-600"
+                                onClick={() => setEditingQuestionId(null)}
+                                data-testid={`button-cancel-edit-${q.id}`}
+                              >
+                                <X className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          ) : (
+                            <>
+                              <p className="flex-1 text-sm text-gray-700 pt-0.5">{q.question}</p>
+                              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="h-7 w-7 p-0 text-gray-400 hover:text-primary"
+                                  onClick={() => {
+                                    setEditingQuestionId(q.id);
+                                    setEditingQuestionText(q.question);
+                                  }}
+                                  data-testid={`button-edit-question-${q.id}`}
+                                >
+                                  <Pencil className="w-3.5 h-3.5" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="h-7 w-7 p-0 text-gray-400 hover:text-destructive"
+                                  onClick={() => deleteQuestion.mutate(q.id)}
+                                  data-testid={`button-delete-question-${q.id}`}
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </Button>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {researchQuestions.length === 0 && (
+                    <p className="text-xs text-gray-400 italic py-2">No custom questions yet. Add one below to guide the AI research.</p>
+                  )}
+
+                  <div className="flex items-center gap-2">
+                    <Input
+                      value={newQuestion}
+                      onChange={(e) => setNewQuestion(e.target.value)}
+                      placeholder="e.g., What is the average wellness retreat pricing in Costa Rica?"
+                      className="flex-1 text-sm bg-white"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && newQuestion.trim()) {
+                          createQuestion.mutate(newQuestion.trim(), {
+                            onSuccess: () => setNewQuestion(""),
+                          });
+                        }
+                      }}
+                      data-testid="input-new-question"
+                    />
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={!newQuestion.trim() || createQuestion.isPending}
+                      onClick={() => {
+                        if (newQuestion.trim()) {
+                          createQuestion.mutate(newQuestion.trim(), {
+                            onSuccess: () => setNewQuestion(""),
+                          });
+                        }
+                      }}
+                      data-testid="button-add-question"
+                    >
+                      <Plus className="w-4 h-4 mr-1" />
+                      Add
+                    </Button>
+                  </div>
                 </div>
 
                 <Button

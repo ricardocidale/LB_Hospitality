@@ -311,6 +311,86 @@ export const KNOWN_VALUE_TEST_CASES: TestCase[] = [
   }
 ];
 
+export interface KnownValueCheck {
+  label: string;
+  formula: string;
+  expected: number;
+  calculated: number;
+  passed: boolean;
+}
+
+export interface KnownValueTestResult {
+  name: string;
+  checks: KnownValueCheck[];
+  allPassed: boolean;
+}
+
+export function runKnownValueTestsStructured(): { passed: boolean; results: string; structured: KnownValueTestResult[] } {
+  const structured: KnownValueTestResult[] = [];
+  const textResult = runKnownValueTests();
+
+  for (const testCase of KNOWN_VALUE_TEST_CASES) {
+    const checks: KnownValueCheck[] = [];
+
+    const roomCount = testCase.property.roomCount || 0;
+    const adr = testCase.property.startAdr || 0;
+    const occupancy = testCase.property.startOccupancy || 0;
+    const calculatedRoomRevenue = roomCount * adr * occupancy * DAYS_PER_MONTH;
+    checks.push({
+      label: "Room Revenue",
+      formula: `${roomCount} rooms × $${adr} ADR × ${(occupancy * 100).toFixed(0)}% × ${DAYS_PER_MONTH} days`,
+      expected: testCase.expectedMonthlyRoomRevenue,
+      calculated: Math.round(calculatedRoomRevenue * 100) / 100,
+      passed: Math.abs(calculatedRoomRevenue - testCase.expectedMonthlyRoomRevenue) < 1,
+    });
+
+    const landPct = testCase.property.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT;
+    const depreciableBasis = (testCase.property.purchasePrice || 0) * (1 - landPct) + (testCase.property.buildingImprovements || 0);
+    const calculatedDepreciation = depreciableBasis / DEPRECIATION_YEARS;
+    checks.push({
+      label: "Depreciation",
+      formula: `$${depreciableBasis.toLocaleString()} depreciable basis ÷ ${DEPRECIATION_YEARS} years`,
+      expected: testCase.expectedAnnualDepreciation,
+      calculated: Math.round(calculatedDepreciation * 100) / 100,
+      passed: Math.abs(calculatedDepreciation - testCase.expectedAnnualDepreciation) < 1,
+    });
+
+    if (testCase.property.type === "Financed") {
+      const totalInvestment = (testCase.property.purchasePrice || 0) + (testCase.property.buildingImprovements || 0);
+      const ltv = testCase.property.acquisitionLTV || DEFAULT_LTV;
+      const loanAmount = totalInvestment * ltv;
+      const rate = DEFAULT_INTEREST_RATE / 12;
+      const n = DEFAULT_TERM_YEARS * 12;
+      const calculatedPayment = loanAmount > 0
+        ? (loanAmount * rate * Math.pow(1 + rate, n)) / (Math.pow(1 + rate, n) - 1)
+        : 0;
+      checks.push({
+        label: "Loan Payment",
+        formula: `PMT($${loanAmount.toLocaleString()}, ${(DEFAULT_INTEREST_RATE * 100).toFixed(0)}%/12, ${DEFAULT_TERM_YEARS * 12} months)`,
+        expected: testCase.expectedMonthlyPayment,
+        calculated: Math.round(calculatedPayment * 100) / 100,
+        passed: Math.abs(calculatedPayment - testCase.expectedMonthlyPayment) < 1,
+      });
+    } else {
+      checks.push({
+        label: "Loan Payment",
+        formula: "All cash — no debt",
+        expected: 0,
+        calculated: 0,
+        passed: true,
+      });
+    }
+
+    structured.push({
+      name: testCase.name,
+      checks,
+      allPassed: checks.every(c => c.passed),
+    });
+  }
+
+  return { passed: textResult.passed, results: textResult.results, structured };
+}
+
 export function runKnownValueTests(): { passed: boolean; results: string } {
   let output = "";
   let allPassed = true;

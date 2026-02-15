@@ -2204,6 +2204,61 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
+  // --- RESEARCH QUESTIONS ROUTES ---
+
+  app.get("/api/research-questions", requireAuth, async (req, res) => {
+    try {
+      const questions = await storage.getAllResearchQuestions();
+      res.json(questions);
+    } catch (error) {
+      console.error("Error fetching research questions:", error);
+      res.status(500).json({ error: "Failed to fetch research questions" });
+    }
+  });
+
+  app.post("/api/research-questions", requireAuth, async (req, res) => {
+    try {
+      const { question } = req.body;
+      if (!question || typeof question !== "string" || question.trim().length === 0) {
+        return res.status(400).json({ error: "Question text is required" });
+      }
+      const created = await storage.createResearchQuestion({ question: question.trim() });
+      res.json(created);
+    } catch (error) {
+      console.error("Error creating research question:", error);
+      res.status(500).json({ error: "Failed to create research question" });
+    }
+  });
+
+  app.put("/api/research-questions/:id", requireAuth, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+      const { question } = req.body;
+      if (!question || typeof question !== "string" || question.trim().length === 0) {
+        return res.status(400).json({ error: "Question text is required" });
+      }
+      const updated = await storage.updateResearchQuestion(id, question.trim());
+      if (!updated) return res.status(404).json({ error: "Question not found" });
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating research question:", error);
+      res.status(500).json({ error: "Failed to update research question" });
+    }
+  });
+
+  app.delete("/api/research-questions/:id", requireAuth, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+      await storage.deleteResearchQuestion(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting research question:", error);
+      res.status(500).json({ error: "Failed to delete research question" });
+    }
+  });
+
   // --- MARKET RESEARCH ROUTES ---
   
   app.get("/api/research/:type", requireAuth, async (req, res) => {
@@ -2249,6 +2304,10 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
         description: "Independently operated, design-forward properties with curated guest experiences."
       };
       
+      const dbQuestions = await storage.getAllResearchQuestions();
+      const dbQuestionText = dbQuestions.map(q => q.question).join("\n");
+      const combinedCustomQuestions = [researchVariables?.customQuestions, dbQuestionText].filter(Boolean).join("\n");
+
       const researchParams: ResearchParams = {
         type: type as "property" | "company" | "global",
         propertyLabel: globalAssumptions?.propertyLabel || "Boutique Hotel",
@@ -2256,6 +2315,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
         assetDefinition: assetDef,
         researchVariables: researchVariables ? {
           ...researchVariables,
+          customQuestions: combinedCustomQuestions || undefined,
           inflationRate: globalAssumptions?.inflationRate,
           modelDurationYears: globalAssumptions?.projectionYears,
         } : undefined,

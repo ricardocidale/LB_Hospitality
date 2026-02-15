@@ -1,4 +1,4 @@
-import { globalAssumptions, properties, users, sessions, scenarios, loginLogs, designThemes, logos, assetDescriptions, userGroups, companies, marketResearch, prospectiveProperties, savedSearches, activityLogs, verificationRuns, propertyFeeCategories, type GlobalAssumptions, type Property, type InsertGlobalAssumptions, type InsertProperty, type UpdateProperty, type User, type InsertUser, type Session, type Scenario, type InsertScenario, type UpdateScenario, type LoginLog, type InsertLoginLog, type DesignTheme, type InsertDesignTheme, type Logo, type InsertLogo, type AssetDescription, type InsertAssetDescription, type UserGroup, type InsertUserGroup, type Company, type InsertCompany, type MarketResearch, type InsertMarketResearch, type ProspectiveProperty, type InsertProspectiveProperty, type SavedSearch, type InsertSavedSearch, type ActivityLog, type InsertActivityLog, type VerificationRun, type InsertVerificationRun, type FeeCategory, type InsertFeeCategory, type UpdateFeeCategory } from "@shared/schema";
+import { globalAssumptions, properties, users, sessions, scenarios, loginLogs, designThemes, logos, assetDescriptions, userGroups, companies, marketResearch, prospectiveProperties, savedSearches, activityLogs, verificationRuns, propertyFeeCategories, researchQuestions, type GlobalAssumptions, type Property, type InsertGlobalAssumptions, type InsertProperty, type UpdateProperty, type User, type InsertUser, type Session, type Scenario, type InsertScenario, type UpdateScenario, type LoginLog, type InsertLoginLog, type DesignTheme, type InsertDesignTheme, type Logo, type InsertLogo, type AssetDescription, type InsertAssetDescription, type UserGroup, type InsertUserGroup, type Company, type InsertCompany, type MarketResearch, type InsertMarketResearch, type ProspectiveProperty, type InsertProspectiveProperty, type SavedSearch, type InsertSavedSearch, type ActivityLog, type InsertActivityLog, type VerificationRun, type InsertVerificationRun, type FeeCategory, type InsertFeeCategory, type UpdateFeeCategory, type ResearchQuestion, type InsertResearchQuestion } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gt, lt, gte, lte, desc, or, isNull, type SQL } from "drizzle-orm";
 
@@ -139,6 +139,12 @@ export interface IStorage {
   updateFeeCategory(id: number, data: UpdateFeeCategory): Promise<FeeCategory | undefined>;
   deleteFeeCategory(id: number): Promise<void>;
   seedDefaultFeeCategories(propertyId: number): Promise<FeeCategory[]>;
+
+  // Research Questions
+  getAllResearchQuestions(): Promise<ResearchQuestion[]>;
+  createResearchQuestion(data: InsertResearchQuestion): Promise<ResearchQuestion>;
+  updateResearchQuestion(id: number, question: string): Promise<ResearchQuestion | undefined>;
+  deleteResearchQuestion(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -806,6 +812,29 @@ export class DatabaseStorage implements IStorage {
       results.push(created);
     }
     return results;
+  }
+
+  async getAllResearchQuestions(): Promise<ResearchQuestion[]> {
+    return db.select().from(researchQuestions).orderBy(researchQuestions.sortOrder, researchQuestions.id);
+  }
+
+  async createResearchQuestion(data: InsertResearchQuestion): Promise<ResearchQuestion> {
+    const maxOrder = await db.select().from(researchQuestions).orderBy(desc(researchQuestions.sortOrder)).limit(1);
+    const nextOrder = (maxOrder[0]?.sortOrder ?? -1) + 1;
+    const [q] = await db.insert(researchQuestions).values({
+      question: data.question,
+      sortOrder: data.sortOrder ?? nextOrder,
+    }).returning();
+    return q;
+  }
+
+  async updateResearchQuestion(id: number, question: string): Promise<ResearchQuestion | undefined> {
+    const [q] = await db.update(researchQuestions).set({ question }).where(eq(researchQuestions.id, id)).returning();
+    return q;
+  }
+
+  async deleteResearchQuestion(id: number): Promise<void> {
+    await db.delete(researchQuestions).where(eq(researchQuestions.id, id));
   }
 }
 

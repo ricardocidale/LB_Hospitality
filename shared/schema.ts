@@ -933,3 +933,19 @@ export const insertVerificationRunSchema = z.object({
 
 export type VerificationRun = typeof verificationRuns.$inferSelect;
 export type InsertVerificationRun = z.infer<typeof insertVerificationRunSchema>;
+
+// --- RESEARCH QUESTIONS TABLE ---
+export const researchQuestions = pgTable("research_questions", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  question: text("question").notNull(),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertResearchQuestionSchema = z.object({
+  question: z.string().min(1),
+  sortOrder: z.number().optional(),
+});
+
+export type ResearchQuestion = typeof researchQuestions.$inferSelect;
+export type InsertResearchQuestion = z.infer<typeof insertResearchQuestionSchema>;

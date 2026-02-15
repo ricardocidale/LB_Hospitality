@@ -12,6 +12,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { GoogleGenAI } from "@google/genai";
 import { runIndependentVerification, type VerificationReport, type ClientPropertyMonthly } from "./calculationChecker";
 import { generatePropertyProForma } from "../client/src/lib/financialEngine";
+import { runFullVerification as runClientVerification } from "../client/src/lib/runVerification";
 import {
   DEFAULT_REV_SHARE_EVENTS,
   DEFAULT_REV_SHARE_FB,
@@ -744,7 +745,44 @@ export async function registerRoutes(
   });
 
   // --- VERIFICATION ROUTES ---
-  
+
+  app.get("/api/admin/client-audit-diagnostic", requireChecker, async (req, res) => {
+    try {
+      const ga = await storage.getGlobalAssumptions();
+      const props = await storage.getAllProperties();
+      if (!ga) return res.status(400).json({ error: "No global assumptions" });
+      const propsJSON = JSON.parse(JSON.stringify(props));
+      const gaJSON = JSON.parse(JSON.stringify(ga));
+      const results = runClientVerification(propsJSON, gaJSON);
+      const diagnostic = results.auditReports.map(r => ({
+        property: r.propertyName,
+        opinion: r.opinion,
+        passed: r.totalPassed,
+        failed: r.totalFailed,
+        failures: r.sections.filter(s => s.failed > 0).map(s => ({
+          section: s.name,
+          passed: s.passed,
+          total: s.passed + s.failed,
+          details: s.findings.filter(f => !f.passed).map(f => ({
+            ref: f.workpaperRef,
+            rule: f.rule,
+            expected: f.expected,
+            actual: f.actual,
+            variance: f.variance,
+          })),
+        })),
+      }));
+      res.json({
+        overallOpinion: results.summary.auditOpinion,
+        formulaChecks: `${results.summary.formulaChecksPassed}/${results.summary.formulaChecksPassed + results.summary.formulaChecksFailed}`,
+        crossValidation: `${results.summary.crossValidationPassed}/${results.summary.crossValidationPassed + results.summary.crossValidationFailed}`,
+        properties: diagnostic,
+      });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message, stack: error.stack });
+    }
+  });
+
   // Run independent financial verification (admin or checker)
   app.get("/api/admin/run-verification", requireChecker, async (req, res) => {
     try {

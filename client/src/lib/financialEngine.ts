@@ -1,5 +1,10 @@
 import { addMonths, differenceInMonths, isBefore, startOfMonth } from "date-fns";
 import { pmt } from "@calc/shared/pmt";
+
+function parseLocalDate(dateStr: string): Date {
+  if (dateStr.includes('T')) return new Date(dateStr);
+  return new Date(dateStr + 'T00:00:00');
+}
 import { 
   DEFAULT_LTV, 
   DEFAULT_INTEREST_RATE, 
@@ -60,7 +65,7 @@ export function getFiscalYearLabel(
   fiscalYearStartMonth: number,
   monthIndex: number
 ): number {
-  const startDate = startOfMonth(new Date(modelStartDate));
+  const startDate = startOfMonth(parseLocalDate(modelStartDate));
   const currentDate = addMonths(startDate, monthIndex);
   const currentMonth = currentDate.getMonth() + 1; // 1-12
   const currentYear = currentDate.getFullYear();
@@ -270,9 +275,9 @@ export function generatePropertyProForma(
   months: number = PROJECTION_MONTHS
 ): MonthlyFinancials[] {
   const financials: MonthlyFinancials[] = [];
-  const modelStart = startOfMonth(new Date(global.modelStartDate));
-  const opsStart = startOfMonth(new Date(property.operationsStartDate));
-  const acquisitionDate = property.acquisitionDate ? startOfMonth(new Date(property.acquisitionDate)) : opsStart;
+  const modelStart = startOfMonth(parseLocalDate(global.modelStartDate));
+  const opsStart = startOfMonth(parseLocalDate(property.operationsStartDate));
+  const acquisitionDate = property.acquisitionDate ? startOfMonth(parseLocalDate(property.acquisitionDate)) : opsStart;
   
   // Balance sheet calculations - for PwC-level verification
   // Depreciable basis: land doesn't depreciate (IRS Publication 946 / ASC 360)
@@ -532,7 +537,7 @@ export function generatePropertyProForma(
   // If the property has a refinance, recalculate debt-related fields from the refinance month onward.
   // NOI is debt-independent, so pass 1 values for revenue/expenses/NOI remain correct.
   if (property.willRefinance === "Yes" && property.refinanceDate) {
-    const refiDate = startOfMonth(new Date(property.refinanceDate));
+    const refiDate = startOfMonth(parseLocalDate(property.refinanceDate));
     const refiMonthIndex = (refiDate.getFullYear() - modelStart.getFullYear()) * 12 +
                            (refiDate.getMonth() - modelStart.getMonth());
 

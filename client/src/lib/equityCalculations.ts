@@ -8,6 +8,11 @@
  */
 
 import { startOfMonth } from "date-fns";
+
+function parseLocalDate(dateStr: string): Date {
+  if (dateStr.includes('T')) return new Date(dateStr);
+  return new Date(dateStr + 'T00:00:00');
+}
 import { DEFAULT_LTV } from "./constants";
 
 /** Minimal property shape accepted by equity helpers. */
@@ -47,8 +52,8 @@ export function acqMonthsFromModelStart(
   fallbackDate: string | null | undefined,
   modelStartDate: string,
 ): number {
-  const modelStart = startOfMonth(new Date(modelStartDate));
-  const acqDate = startOfMonth(new Date(acquisitionDate || fallbackDate || modelStartDate));
+  const modelStart = startOfMonth(parseLocalDate(modelStartDate));
+  const acqDate = startOfMonth(parseLocalDate(acquisitionDate || fallbackDate || modelStartDate));
   return Math.max(0,
     (acqDate.getFullYear() - modelStart.getFullYear()) * 12 +
     (acqDate.getMonth() - modelStart.getMonth())

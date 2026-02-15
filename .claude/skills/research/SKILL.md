@@ -178,6 +178,7 @@ Each AI research module has its own skill file with tool schema:
 | Global Research | `research/global-research/` | Industry-wide trends |
 | Auto-Refresh | `research/auto-refresh/` | Login-triggered staleness check |
 | Location-Aware Seeding | `research/location-aware-seeding/` | Database seed profiles |
+| Research Questions | `research/research-questions/` | Custom AI research question CRUD management |
 
 ## Rules
 

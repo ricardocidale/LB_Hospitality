@@ -6,7 +6,7 @@ description: Token-efficient context loading protocol. Maps common task types to
 # Context Loading Protocol
 
 ## Purpose
-With 84 skill files (~15,000 lines), loading everything wastes tokens and slows responses. This skill maps common task types to the **minimum required** skill set, ensuring fast, focused sessions.
+With 92 skill files (~16,000 lines), loading everything wastes tokens and slows responses. This skill maps common task types to the **minimum required** skill set, ensuring fast, focused sessions.
 
 ## Golden Rule
 **Load `claude.md` first (always loaded automatically). Then load only the skills needed for the current task. Never load all skills at once.**
@@ -81,6 +81,7 @@ With 84 skill files (~15,000 lines), loading everything wastes tokens and slows 
 | Auto-refresh on login | `research/auto-refresh/SKILL.md` | All other research skills |
 | Location-aware seeding | `research/location-aware-seeding/SKILL.md` | Analysis skills |
 | Research badge data flow | `ui/research-badges.md`, `research/SKILL.md` | Analysis skills |
+| Research questions CRUD | `research/research-questions/SKILL.md` | Analysis skills, finance |
 | Any research change | **Always also load**: `research/SKILL.md` (master) | — |
 
 #### Database & Infrastructure

@@ -7,6 +7,46 @@ This rule ensures continuity across chat resets. The agent must treat this file 
 
 ---
 
+## Session: February 15, 2026 (Continued — Research Questions CRUD)
+
+### What Was Done
+
+#### 1. Research Questions CRUD Feature
+- **Purpose:** Allow users to create, edit, and delete custom AI research questions/qualifiers that get merged into AI research prompts
+- **Database:** Added `researchQuestions` table (`id`, `question`, `sortOrder`, `createdAt`) to `shared/schema.ts`
+- **Storage:** Added 4 IStorage methods: `getResearchQuestions()`, `createResearchQuestion()`, `updateResearchQuestion()`, `deleteResearchQuestion()`
+- **API Routes:** 4 endpoints under `/api/research-questions` (GET, POST, PUT, DELETE) — all use `requireAuth` middleware
+- **React Query Hooks:** `useResearchQuestions`, `useCreateResearchQuestion`, `useUpdateResearchQuestion`, `useDeleteResearchQuestion` in `client/src/lib/api.ts`
+- **UI:** Settings > Industry Research tab — CRUD list with inline editing (pencil icon), delete (trash icon), add input with Enter/button
+- **AI Integration:** Server fetches all questions from DB during research generation, joins them as `researchVariables.customQuestions`, merged into AI prompt
+- **Auto-sortOrder:** New questions auto-assign `max(sortOrder) + 1`
+
+#### 2. Documentation Created
+- **Skill:** `.claude/skills/research/research-questions/SKILL.md` — full architecture, data flow, UI patterns, key files
+- **Tool:** `.claude/tools/validation/research-questions-crud.json` — CRUD operation schemas with request/response formats
+- **Rule update:** `.claude/rules/api-routes.md` — added Research Questions section with all 4 endpoints
+- **Context loading:** Updated context-loading SKILL.md with research-questions task mapping
+- **Research SKILL.md:** Updated master skill with research-questions sub-skill reference
+
+### Key Files
+| File | Purpose |
+|------|---------|
+| `shared/schema.ts` | `researchQuestions` table + insert/select schemas |
+| `server/storage.ts` | IStorage CRUD methods for research questions |
+| `server/routes.ts` | API endpoints + AI prompt integration |
+| `client/src/lib/api.ts` | React Query hooks |
+| `client/src/pages/Settings.tsx` | UI in Industry Research tab |
+| `.claude/skills/research/research-questions/SKILL.md` | Feature skill |
+| `.claude/tools/validation/research-questions-crud.json` | Tool schema |
+
+### Test Results
+- All 1401 tests pass
+- TypeScript: 0 errors
+- Verification: UNQUALIFIED (PASS)
+- API tested: create, read, update, delete all working
+
+---
+
 ## Session: February 15, 2026
 
 ### What Was Done

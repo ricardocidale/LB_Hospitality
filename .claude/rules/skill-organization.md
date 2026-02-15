@@ -9,8 +9,8 @@ All skill files must follow consistent organization, naming, and placement conve
 ```
 .claude/
 ├── claude.md                  # Master doc (always loaded)
-├── rules/                     # Enforceable constraints (18 files)
-├── skills/                    # How-to documentation (84 files)
+├── rules/                     # Enforceable constraints (23 files)
+├── skills/                    # How-to documentation (92 files)
 │   ├── context-loading/       # Skill router (load first)
 │   ├── architecture/          # System architecture
 │   ├── coding-conventions/    # Code style rules
@@ -22,7 +22,7 @@ All skill files must follow consistent organization, naming, and placement conve
 │   ├── multi-tenancy/         # User groups, branding, roles
 │   ├── proof-system/          # Test framework, verification
 │   ├── property-finder/       # RapidAPI property search
-│   ├── research/              # 16 AI research skills
+│   ├── research/              # 17 AI research skills
 │   ├── source-code/           # Full source file map
 │   ├── testing/               # 7 test coverage skills
 │   ├── tool-schemas/          # Tool JSON schema conventions

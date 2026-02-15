@@ -202,6 +202,27 @@ Branding priority: user-level overrides (assignedLogoId, assignedThemeId, assign
 | `DELETE` | `/api/design-themes/:id` | User | Delete theme (owner only, not active) |
 | `POST` | `/api/design-themes/:id/activate` | User | Set theme as active for current user |
 
+## Research Questions
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| `GET` | `/api/research-questions` | User | List all custom research questions (ordered by sortOrder) |
+| `POST` | `/api/research-questions` | User | Create new research question (auto-assigns sortOrder) |
+| `PUT` | `/api/research-questions/:id` | User | Update question text |
+| `DELETE` | `/api/research-questions/:id` | User | Delete a research question |
+
+### Research Question Request (Create/Update)
+```json
+{ "question": "What is the average wellness retreat pricing in Costa Rica?" }
+```
+
+### Research Question Response
+```json
+{ "id": 1, "question": "What is the average wellness retreat pricing in Costa Rica?", "sortOrder": 0, "createdAt": "2026-02-15T01:10:29.043Z" }
+```
+
+Research questions are automatically merged into AI research prompts during property market research generation via `researchVariables.customQuestions`.
+
 ## Market Research
 
 | Method | Path | Auth | Description |

@@ -69,6 +69,11 @@ export interface YearlyDebtService {
 }
 
 import { startOfMonth } from "date-fns";
+
+function parseLocalDate(dateStr: string): Date {
+  if (dateStr.includes('T')) return new Date(dateStr);
+  return new Date(dateStr + 'T00:00:00');
+}
 import { pmt } from "@calc/shared/pmt";
 import {
   totalPropertyCost,
@@ -206,8 +211,8 @@ export function calculateRefinanceParams(
     return defaultResult;
   }
   
-  const modelStart = startOfMonth(new Date(global.modelStartDate));
-  const refiDate = startOfMonth(new Date(property.refinanceDate));
+  const modelStart = startOfMonth(parseLocalDate(global.modelStartDate));
+  const refiDate = startOfMonth(parseLocalDate(property.refinanceDate));
   const monthsDiff = (refiDate.getFullYear() - modelStart.getFullYear()) * 12 + 
                      (refiDate.getMonth() - modelStart.getMonth());
   const refiYear = Math.floor(monthsDiff / 12);

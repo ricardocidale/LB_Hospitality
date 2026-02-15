@@ -4,7 +4,7 @@
 
 Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470) with IRS depreciation rules and an independent audit/verification engine. Built and hosted entirely on Replit.
 
-**Codebase:** 284 source files, 63,035 lines of code, 1,330 tests across 59 files.
+**Codebase:** 287 source files, 64,860 lines of code, 1,401 tests across 62 files.
 
 ---
 
@@ -83,7 +83,7 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 
 ---
 
-## Testing & Proof System (1,330 Tests, 59 Files)
+## Testing & Proof System (1,401 Tests, 62 Files)
 
 | Entity Level | Test Domains | Skill |
 |-------------|-------------|-------|
@@ -96,7 +96,7 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | Engine Unit Tests | Cash flow aggregator, yearly aggregator, equity calculations, loan calculations, GAAP compliance, edge cases | `tests/engine/` |
 | Validation | Assumption consistency, funding gates, export verification | `tests/calc/validation/` |
 
-**Commands**: `npm test` (all 1,330), `npm run verify` (4-phase, UNQUALIFIED required)
+**Commands**: `npm test` (all 1,401), `npm run verify` (4-phase, UNQUALIFIED required)
 
 ---
 

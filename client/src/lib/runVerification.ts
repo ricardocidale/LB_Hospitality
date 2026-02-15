@@ -109,27 +109,32 @@ export function runFullVerification(
       const projectionMonths = ((globalAssumptions as any).projectionYears ?? PROJECTION_YEARS) * 12;
       const financials = generatePropertyProForma(property, globalAssumptions, projectionMonths);
       
-      // Run legacy formula checks
       const formulaCheck = checkPropertyFormulas(financials);
       formulaReports.push(formulaCheck);
       
-      // Run legacy GAAP compliance checks
       const gaapCheck = checkGAAPCompliance(financials);
       complianceReports.push(gaapCheck);
       
-      // Run cash flow statement checks
       const cfCheck = checkCashFlowStatement(financials);
       complianceReports.push(cfCheck);
       
-      // Run metric formula checks
       const yearlyData = aggregateToYearly(financials);
       const metricCheck = checkMetricFormulas(yearlyData);
       formulaReports.push(metricCheck);
       
-      // Run comprehensive PwC-level audit
       const propertyAuditInput = convertToAuditInput(property);
       const auditReport = runFullAudit(propertyAuditInput, globalAuditInput, financials);
       auditReports.push(auditReport);
+      
+      console.log(`[AUDIT-DIAG] ${property.name}: ${auditReport.opinion} (${auditReport.totalPassed}/${auditReport.totalPassed + auditReport.totalFailed})`);
+      for (const s of auditReport.sections) {
+        if (s.failed > 0) {
+          console.log(`[AUDIT-DIAG]   FAIL ${s.name}: ${s.passed}/${s.passed + s.failed}`);
+          for (const f of s.findings.filter((f: any) => !f.passed)) {
+            console.log(`[AUDIT-DIAG]     ${f.workpaperRef}: exp=${f.expected} act=${f.actual} var=${f.variance}`);
+          }
+        }
+      }
       
       // Run cross-calculator validation (IRS, GAAP, USALI authoritative checks)
       const crossReport = crossValidateFinancingCalculators(

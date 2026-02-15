@@ -7,6 +7,7 @@
  * and loanCalculations.
  */
 
+import { startOfMonth } from "date-fns";
 import { DEFAULT_LTV } from "./constants";
 
 /** Minimal property shape accepted by equity helpers. */
@@ -46,8 +47,8 @@ export function acqMonthsFromModelStart(
   fallbackDate: string | null | undefined,
   modelStartDate: string,
 ): number {
-  const modelStart = new Date(modelStartDate);
-  const acqDate = new Date(acquisitionDate || fallbackDate || modelStartDate);
+  const modelStart = startOfMonth(new Date(modelStartDate));
+  const acqDate = startOfMonth(new Date(acquisitionDate || fallbackDate || modelStartDate));
   return Math.max(0,
     (acqDate.getFullYear() - modelStart.getFullYear()) * 12 +
     (acqDate.getMonth() - modelStart.getMonth())

@@ -1,5 +1,5 @@
 import { MonthlyFinancials } from "./financialEngine";
-import { addMonths, differenceInMonths, isBefore } from "date-fns";
+import { addMonths, differenceInMonths, isBefore, startOfMonth } from "date-fns";
 import { pmt } from "@calc/shared/pmt";
 import {
   DEFAULT_LTV, 
@@ -139,9 +139,9 @@ export function auditDepreciation(
   const depreciableBasis = property.purchasePrice * (1 - landPct) + property.buildingImprovements;
   const expectedMonthlyDep = depreciableBasis / DEPRECIATION_YEARS / 12;
   const expectedAnnualDep = depreciableBasis / DEPRECIATION_YEARS;
-  
-  const modelStart = new Date(global.modelStartDate);
-  const acquisitionDate = new Date(property.acquisitionDate || property.operationsStartDate);
+
+  const modelStart = startOfMonth(new Date(global.modelStartDate));
+  const acquisitionDate = startOfMonth(new Date(property.acquisitionDate || property.operationsStartDate));
   const acqMonthIndex = Math.max(0, differenceInMonths(acquisitionDate, modelStart));
   
   findings.push({
@@ -309,14 +309,14 @@ export function auditLoanAmortization(
     });
   }
 
-  const modelStart = new Date(global.modelStartDate);
-  const acquisitionDate = new Date(property.acquisitionDate || property.operationsStartDate);
+  const modelStart = startOfMonth(new Date(global.modelStartDate));
+  const acquisitionDate = startOfMonth(new Date(property.acquisitionDate || property.operationsStartDate));
   const acqMonthIndex = Math.max(0, differenceInMonths(acquisitionDate, modelStart));
 
   // Determine refinance month index if applicable
   let refiMonthIndex = -1;
   if (property.willRefinance === "Yes" && property.refinanceDate) {
-    const refiDate = new Date(property.refinanceDate);
+    const refiDate = startOfMonth(new Date(property.refinanceDate));
     refiMonthIndex = (refiDate.getFullYear() - modelStart.getFullYear()) * 12 +
                      (refiDate.getMonth() - modelStart.getMonth());
   }
@@ -474,8 +474,8 @@ export function auditIncomeStatement(
 ): AuditSection {
   const findings: AuditFinding[] = [];
   
-  const modelStart = new Date(global.modelStartDate);
-  const opsStart = new Date(property.operationsStartDate);
+  const modelStart = startOfMonth(new Date(global.modelStartDate));
+  const opsStart = startOfMonth(new Date(property.operationsStartDate));
   let opsMonthsChecked = 0;
 
   for (let i = 0; i < monthlyData.length; i++) {
@@ -688,9 +688,9 @@ export function auditTimingRules(
 ): AuditSection {
   const findings: AuditFinding[] = [];
   
-  const modelStart = new Date(global.modelStartDate);
-  const opsStart = new Date(property.operationsStartDate);
-  const acquisitionDate = new Date(property.acquisitionDate || property.operationsStartDate);
+  const modelStart = startOfMonth(new Date(global.modelStartDate));
+  const opsStart = startOfMonth(new Date(property.operationsStartDate));
+  const acquisitionDate = startOfMonth(new Date(property.acquisitionDate || property.operationsStartDate));
   
   const opsMonthIndex = differenceInMonths(opsStart, modelStart);
   const acqMonthIndex = differenceInMonths(acquisitionDate, modelStart);
@@ -797,9 +797,9 @@ export function auditManagementFees(
 ): AuditSection {
   const findings: AuditFinding[] = [];
   
-  const modelStart = new Date(global.modelStartDate);
-  const opsStart = new Date(property.operationsStartDate);
-  
+  const modelStart = startOfMonth(new Date(global.modelStartDate));
+  const opsStart = startOfMonth(new Date(property.operationsStartDate));
+
   for (let i = 0; i < Math.min(AUDIT_SAMPLE_MONTHS, monthlyData.length); i++) {
     const m = monthlyData[i];
     const currentDate = addMonths(modelStart, i);
@@ -877,8 +877,8 @@ export function auditBalanceSheet(
 ): AuditSection {
   const findings: AuditFinding[] = [];
 
-  const modelStart = new Date(global.modelStartDate);
-  const acqDate = new Date(property.acquisitionDate || property.operationsStartDate);
+  const modelStart = startOfMonth(new Date(global.modelStartDate));
+  const acqDate = startOfMonth(new Date(property.acquisitionDate || property.operationsStartDate));
   const acqMonthIndex = differenceInMonths(acqDate, modelStart);
 
   // Depreciable basis: land doesn't depreciate (IRS Publication 946 / ASC 360)
@@ -999,8 +999,8 @@ export function auditCashFlowReconciliation(
 ): AuditSection {
   const findings: AuditFinding[] = [];
 
-  const modelStart = new Date(global.modelStartDate);
-  const acqDate = new Date(property.acquisitionDate || property.operationsStartDate);
+  const modelStart = startOfMonth(new Date(global.modelStartDate));
+  const acqDate = startOfMonth(new Date(property.acquisitionDate || property.operationsStartDate));
   const acqMonthIndex = differenceInMonths(acqDate, modelStart);
 
   // Track cumulative cash from month 0 (matching the engine's approach)

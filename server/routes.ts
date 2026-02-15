@@ -281,6 +281,44 @@ export async function registerRoutes(
     });
   });
 
+  app.get("/api/branding", requireAuth, async (req, res) => {
+    try {
+      const u = req.user!;
+      let companyName = "Hospitality Business Group";
+      let logoUrl: string | null = null;
+      let userName = u.name || u.email;
+
+      if (u.companyId) {
+        const comp = await storage.getCompany(u.companyId);
+        if (comp) companyName = comp.name;
+      }
+
+      if (u.userGroupId) {
+        const group = await storage.getUserGroup(u.userGroupId);
+        if (group?.logoId) {
+          const logo = await storage.getLogo(group.logoId);
+          if (logo) {
+            logoUrl = logo.url;
+            if (logo.companyName) companyName = logo.companyName;
+          }
+        }
+      }
+
+      if (!logoUrl) {
+        const defaultLogo = await storage.getDefaultLogo();
+        if (defaultLogo) logoUrl = defaultLogo.url;
+      }
+
+      const ga = await storage.getGlobalAssumptions();
+      if (ga?.companyName) companyName = ga.companyName;
+
+      res.json({ userName, companyName, logoUrl });
+    } catch (error) {
+      console.error("Error fetching branding:", error);
+      res.status(500).json({ error: "Failed to fetch branding" });
+    }
+  });
+
   // --- USER PROFILE ROUTES ---
   
   const updateProfileSchema = z.object({
@@ -2413,12 +2451,32 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
                      type === "company" ? "Management Company Research" :
                      "Global Industry Research";
       
+      const promptConditions: Record<string, any> = {
+        generatedAt: new Date().toISOString(),
+        llmModel: preferredModel,
+        researchType: type,
+      };
+      if (propertyContext) promptConditions.propertyContext = propertyContext;
+      if (assetDef) promptConditions.assetDefinition = assetDef;
+      if (researchVariables) {
+        promptConditions.focusAreas = researchVariables.focusAreas;
+        promptConditions.regions = researchVariables.regions;
+        promptConditions.timeHorizon = researchVariables.timeHorizon;
+      }
+      if (combinedCustomQuestions) promptConditions.customQuestions = combinedCustomQuestions;
+      if (globalAssumptions) {
+        promptConditions.propertyLabel = globalAssumptions.propertyLabel;
+        promptConditions.inflationRate = globalAssumptions.inflationRate;
+        promptConditions.projectionYears = globalAssumptions.projectionYears;
+      }
+
       const saved = await storage.upsertMarketResearch({
         userId,
         type,
         propertyId: propertyId || null,
         title,
         content: parsedContent,
+        promptConditions,
         llmModel: preferredModel,
       });
       
@@ -2432,6 +2490,73 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       } else {
         res.status(500).json({ error: "Failed to generate research" });
       }
+    }
+  });
+
+  // --- EMAIL RESEARCH PDF ---
+  app.post("/api/email-research-pdf", requireAuth, async (req, res) => {
+    try {
+      const schema = z.object({
+        pdfBase64: z.string().min(1),
+        filename: z.string().min(1),
+        subject: z.string().min(1),
+        researchType: z.enum(["property", "company", "global"]),
+      });
+      const validation = schema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: fromZodError(validation.error).message });
+      }
+      const { pdfBase64, filename, subject, researchType } = validation.data;
+      const userEmail = req.user!.email;
+      const userName = req.user!.name || userEmail;
+
+      const { getUncachableGmailClient } = await import("./integrations/gmail");
+      const gmail = await getUncachableGmailClient();
+
+      const boundary = "research_pdf_boundary_" + Date.now();
+      const typeLabel = researchType === "property" ? "Property Market" : researchType === "company" ? "Management Company" : "Global Industry";
+      const htmlBody = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px;">
+          <div style="background: #1a2332; padding: 20px 24px; border-radius: 8px 8px 0 0;">
+            <h2 style="color: #fff; margin: 0 0 4px 0; font-size: 18px;">Hospitality Business Group</h2>
+            <p style="color: #9FBCA4; margin: 0; font-size: 13px;">${typeLabel} Research Report</p>
+          </div>
+          <div style="padding: 20px 24px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px;">
+            <p style="color: #374151; font-size: 14px;">Hi ${userName},</p>
+            <p style="color: #374151; font-size: 14px;">Your AI-generated research report is attached as a PDF.</p>
+            <p style="color: #6b7280; font-size: 12px; margin-top: 16px;">Generated on ${new Date().toLocaleString()}</p>
+          </div>
+        </div>`;
+
+      const rawEmail = [
+        `Content-Type: multipart/mixed; boundary="${boundary}"`,
+        "MIME-Version: 1.0",
+        `To: ${userEmail}`,
+        `Subject: ${subject}`,
+        "",
+        `--${boundary}`,
+        "Content-Type: text/html; charset=UTF-8",
+        "",
+        htmlBody,
+        `--${boundary}`,
+        `Content-Type: application/pdf; name="${filename}"`,
+        "Content-Transfer-Encoding: base64",
+        `Content-Disposition: attachment; filename="${filename}"`,
+        "",
+        pdfBase64,
+        `--${boundary}--`,
+      ].join("\r\n");
+
+      const encodedMessage = Buffer.from(rawEmail).toString("base64url");
+      await gmail.users.messages.send({
+        userId: "me",
+        requestBody: { raw: encodedMessage },
+      });
+
+      res.json({ success: true, sentTo: userEmail });
+    } catch (error: any) {
+      console.error("Error sending research email:", error);
+      res.status(500).json({ error: error.message || "Failed to send email" });
     }
   });
 

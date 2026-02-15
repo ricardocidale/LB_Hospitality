@@ -106,10 +106,11 @@ The user is working in a financial simulation portal with these main areas:
 
 async function buildContextPrompt(userId?: number): Promise<string> {
   try {
-    const [assumptions, properties, allUsers] = await Promise.all([
+    const [assumptions, properties, allUsers, allResearch] = await Promise.all([
       storage.getGlobalAssumptions(userId),
       storage.getAllProperties(userId),
       storage.getAllUsers(),
+      storage.getAllMarketResearch(userId),
     ]);
 
     const safeUsers = allUsers.map(({ id, name, email, role, title }) => ({ id, name, email, role, title }));
@@ -152,6 +153,37 @@ async function buildContextPrompt(userId?: number): Promise<string> {
       const currentUser = userId ? safeUsers.find(u => u.id === userId) : null;
       if (currentUser) {
         parts.push(`\nYou are currently speaking with **${currentUser.name || currentUser.email}** (${currentUser.role}).`);
+      }
+    }
+
+    if (allResearch && allResearch.length > 0) {
+      parts.push(`\n## Latest AI Research (${allResearch.length} reports)`);
+      for (const r of allResearch) {
+        const dateStr = r.updatedAt ? new Date(r.updatedAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }) : "unknown";
+        parts.push(`\n### ${r.title} (${dateStr}, model: ${r.llmModel || "unknown"})`);
+        const content = r.content as Record<string, any>;
+        if (!content || content.rawResponse) continue;
+        if (r.type === "property" && content.marketOverview?.summary) {
+          parts.push(`Market: ${content.marketOverview.summary.slice(0, 300)}`);
+          if (content.adrAnalysis) {
+            parts.push(`ADR: market avg ${content.adrAnalysis.marketAverage || "N/A"}, recommended ${content.adrAnalysis.recommendedRange || "N/A"}`);
+          }
+          if (content.capRateAnalysis) {
+            parts.push(`Cap Rate: market ${content.capRateAnalysis.marketRange || "N/A"}, boutique ${content.capRateAnalysis.boutiqueRange || "N/A"}`);
+          }
+          if (content.occupancyAnalysis) {
+            parts.push(`Occupancy: market avg ${content.occupancyAnalysis.marketAverage || "N/A"}`);
+          }
+        } else if (r.type === "global" && content.industryOverview) {
+          if (content.industryOverview.marketSize) parts.push(`Market Size: ${content.industryOverview.marketSize}`);
+          if (content.industryOverview.growthRate) parts.push(`Growth: ${content.industryOverview.growthRate}`);
+          if (content.industryOverview.keyTrends?.length) {
+            parts.push(`Key Trends: ${content.industryOverview.keyTrends.slice(0, 3).join("; ")}`);
+          }
+        } else if (r.type === "company" && content.managementFees) {
+          if (content.managementFees.baseFee?.recommended) parts.push(`Base Fee: ${content.managementFees.baseFee.recommended}`);
+          if (content.managementFees.incentiveFee?.recommended) parts.push(`Incentive Fee: ${content.managementFees.incentiveFee.recommended}`);
+        }
       }
     }
 

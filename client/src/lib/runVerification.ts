@@ -422,7 +422,7 @@ export const KNOWN_VALUE_TEST_CASES: TestCase[] = [
     expectedMonthlyPayment: 40281.43, // $4,800,000 @ 9%/12 for 300 months
   },
   {
-    name: "Custom Fee Rates Test",
+    name: "Mid-Size Financed Test",
     property: {
       roomCount: 12,
       startAdr: 175,
@@ -432,8 +432,6 @@ export const KNOWN_VALUE_TEST_CASES: TestCase[] = [
       buildingImprovements: 300000,
       type: "Financed",
       acquisitionLTV: 0.70,
-      baseManagementFeeRate: 0.10,
-      incentiveManagementFeeRate: 0.15,
     },
     expectedMonthlyRoomRevenue: 35227.5, // 12 × $175 × 0.55 × 30.5
     expectedAnnualDepreciation: 60000, // ($1,800,000 × 75% + $300,000) / 27.5

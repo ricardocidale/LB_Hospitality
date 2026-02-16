@@ -39,7 +39,7 @@ interface PropertyForValidation {
 interface GlobalForValidation {
 }
 
-const TOLERANCE = 0.01;
+const TOLERANCE = 0.001;
 
 function withinTolerance(a: number, b: number, tol = TOLERANCE): boolean {
   if (a === 0 && b === 0) return true;

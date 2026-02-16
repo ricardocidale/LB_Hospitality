@@ -1,5 +1,5 @@
 # Reconciliation Report: Financed Purchase (75% LTV)
-Generated: 2026-02-16T18:50:56.409Z
+Generated: 2026-02-16T19:39:57.027Z
 ## Sources & Uses at Acquisition
 | Item | Amount |
 |------|--------|
@@ -31,8 +31,8 @@ Generated: 2026-02-16T18:50:56.409Z
 |------|--------|
 | Beginning Balance | $1,500,000.00 |
 | Less: Payments | $258,911.55 |
-| Ending Balance | $1,244,343.82 |
-| Check | **FAIL** |
+| Ending Balance | $1,241,088.45 |
+| Check | PASS |
 ## Financial Identity Checks (Year 1)
 | Metric | Value |
 |--------|-------|

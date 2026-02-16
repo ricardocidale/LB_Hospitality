@@ -17,7 +17,7 @@ export interface FormulaCheckReport {
   results: FormulaCheckResult[];
 }
 
-function withinTolerance(expected: number, actual: number, tolerance: number = 0.01): boolean {
+function withinTolerance(expected: number, actual: number, tolerance: number = 0.001): boolean {
   if (expected === 0 && actual === 0) return true;
   if (expected === 0) return Math.abs(actual) < tolerance;
   return Math.abs((expected - actual) / expected) < tolerance;

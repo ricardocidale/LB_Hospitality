@@ -102,7 +102,7 @@ export const DEFAULT_REFI_PERIOD_YEARS = 3;
 export const IRR_HIGHLIGHT_THRESHOLD = 0.15;
 
 // Auditor verification thresholds
-export const AUDIT_VARIANCE_TOLERANCE = 0.01;
-export const AUDIT_DOLLAR_TOLERANCE = 100;
+export const AUDIT_VARIANCE_TOLERANCE = 0.001;
+export const AUDIT_DOLLAR_TOLERANCE = 1;
 export const AUDIT_VERIFICATION_WINDOW_MONTHS = 24;
 export const AUDIT_CRITICAL_ISSUE_THRESHOLD = 3;

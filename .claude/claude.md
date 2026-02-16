@@ -4,14 +4,14 @@
 
 Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470) with IRS depreciation rules and an independent audit/verification engine. Built and hosted entirely on Replit.
 
-**Codebase:** 287 source files, 65,094 lines of code, 1,401 tests across 62 files.
+**Codebase:** 287 source files, 65,094 lines of code, 1,502 tests across 71 files.
 
 ---
 
 ## User Preferences
 
 - Preferred communication style: Simple, everyday language. Detailed user — ask lots of clarifying questions before implementing features. Do not assume; confirm requirements first.
-- **TOP PRIORITY: Calculations and correct reports are always the highest priority.** Financial accuracy must never be compromised for visual or UI enhancements. The automated proof system (1,330 tests) must always pass.
+- **TOP PRIORITY: Calculations and correct reports are always the highest priority.** Financial accuracy must never be compromised for visual or UI enhancements. The automated proof system (1,502 tests) must always pass.
 - Always format money as money (currency format with commas and appropriate precision).
 - All skills must be stored under `.claude/` directory (e.g., `.claude/skills/`, `.claude/manuals/`, `.claude/tools/`). Never place skills elsewhere.
 - The company name is "Hospitality Business Group" (or "Hospitality Business" for short).
@@ -20,7 +20,7 @@ Business simulation portal for **Hospitality Business Group**. Models a boutique
 - New UI features get their own skill file in `.claude/skills/ui/`.
 - Create skills when they can help divide tasks and reduce context. Always in `.claude/`.
 - `.claude/claude.md` is the master documentation file. `replit.md` is a slim pointer that references this file. Keep all detailed content here.
-- **Button Label Consistency:** Always use "Save" for all save/update actions — never "Update". See `.claude/rules/button-label-consistency.md`.
+- **Button Label Consistency:** Always use "Save" for all save/update actions — never "Update". See `.claude/rules/ui-patterns.md`.
 - **100% Session Memory:** All decisions, changes, and context must be saved to `.claude/rules/session-memory.md` at the end of every session to persist across chat resets.
 - **Reusable UI Tools:** Whenever building a new feature, extract reusable components and document them in `.claude/skills/ui/reusable-components.md`.
 - **Every financial line item** should have a ? tooltip explanation (HelpTooltip or InfoTooltip as appropriate).
@@ -36,7 +36,7 @@ Business simulation portal for **Hospitality Business Group**. Models a boutique
 
 ## Context Loading Protocol
 
-With 92 skill files (~16,000 lines), **never load all skills at once**. Use the context-loading skill (`.claude/skills/context-loading/SKILL.md`) to find the minimum required skill set for any task. Quick rules:
+With 96 skill files (~17,000 lines), **never load all skills at once**. Use the context-loading skill (`.claude/skills/context-loading/SKILL.md`) to find the minimum required skill set for any task. Quick rules:
 - **Financial calc fix** → load the specific finance skill + `rules/audit-persona.md` + `proof-system/SKILL.md`
 - **UI/visual work** → load `component-library/SKILL.md` + `ui/theme-engine.md` + the specific UI skill
 - **Testing work** → load `testing/SKILL.md` + the relevant sub-skill only
@@ -57,7 +57,7 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | Theme Engine | `.claude/skills/ui/theme-engine.md` | Multi-theme system (Fluid Glass active), user-created themes, token structure |
 | Component Library | `.claude/skills/component-library/SKILL.md` | PageHeader, GlassButton, ExportMenu, DarkGlassTabs, etc. |
 | Reusable UI | `.claude/skills/ui/reusable-components.md` | AIImagePicker, AnimatedLogo, StatusBadge, ImagePreviewCard, EntityCard |
-| Proof System | `.claude/skills/proof-system/SKILL.md` | 1,330 tests, 5 golden scenarios, verification commands |
+| Proof System | `.claude/skills/proof-system/SKILL.md` | 1,502 tests, 5 golden scenarios, verification commands |
 | Testing (7 skills) | `.claude/skills/testing/` | Per-statement/analysis test coverage at property, consolidated, and management company levels |
 | 3D Graphics | `.claude/skills/3d-graphics/SKILL.md` | Three.js scenes, framer-motion wrappers |
 | Database | `.claude/skills/database-environments/SKILL.md` | Dev/prod databases, migrations, sync |
@@ -76,14 +76,15 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | UI: Navigation | `.claude/skills/ui/navigation.md` | Command Palette, Breadcrumbs, Favorites, Activity Feed, Dark Mode |
 | UI: Image & Media | `.claude/skills/ui/property-image-picker.md`, `ui/reusable-components.md` | AIImagePicker, PropertyImagePicker, AnimatedLogo |
 | UI: Graphics | `.claude/skills/ui/graphics-component-catalog.md`, `ui/page-enhancement-checklist.md`, `ui/animation-patterns.md` | Reusable graphics components, page visual minimums, animation patterns |
+| Mobile Responsive | `.claude/skills/mobile-responsive/SKILL.md` | Breakpoints, tablet layouts, device testing, responsive helpers |
 | UI: Other (14) | `.claude/skills/ui/` | Glass components, buttons, sliders, tabs, page-header, callout, etc. |
 | Manuals | `.claude/manuals/` | Checker manual (21 sections), user manual (16 sections) |
 | Tools | `.claude/tools/` | Analysis, financing, returns, validation, UI tool schemas |
-| Rules (20) | `.claude/rules/` | Audit persona, constants, DB seeding, API routes, graphics-rich design, architecture, financial engine, verification, skill organization, session memory, read-session-memory-first, button label consistency, entity cards, docs-after-edits, etc. |
+| Rules (18) | `.claude/rules/` | Session-startup, documentation, ui-patterns, audit persona, constants, DB seeding, API routes, graphics-rich design, architecture, financial engine, verification, skill organization, session memory, etc. |
 
 ---
 
-## Testing & Proof System (1,401 Tests, 62 Files)
+## Testing & Proof System (1,502 Tests, 71 Files)
 
 | Entity Level | Test Domains | Skill |
 |-------------|-------------|-------|
@@ -96,7 +97,7 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | Engine Unit Tests | Cash flow aggregator, yearly aggregator, equity calculations, loan calculations, GAAP compliance, edge cases | `tests/engine/` |
 | Validation | Assumption consistency, funding gates, export verification | `tests/calc/validation/` |
 
-**Commands**: `npm test` (all 1,401), `npm run verify` (4-phase, UNQUALIFIED required)
+**Commands**: `npm test` (all 1,502), `npm run verify` (4-phase, UNQUALIFIED required)
 
 ---
 
@@ -168,10 +169,10 @@ Logo Management is a tab within Admin (not a separate sidebar link). The Brandin
 - **No mock data** in production paths
 - **Finance changes must state Active Skill** and pass verification (UNQUALIFIED)
 - **Audit persona + doctrine**: `.claude/rules/audit-persona.md` mandatory for finance work
-- **Button labels**: Always "Save" for save/update actions (never "Update") — `.claude/rules/button-label-consistency.md`
+- **Button labels**: Always "Save" for save/update actions (never "Update") — `.claude/rules/ui-patterns.md`
 - **Session memory**: Update `.claude/rules/session-memory.md` at the end of every session
-- **Read session memory first**: Always read `session-memory.md` and `replit.md` before answering questions or starting work — `.claude/rules/read-session-memory-first.md`
-- **Docs after edits**: Update `.claude` docs and harmonize `replit.md` after any codebase changes — `.claude/rules/docs-after-edits.md`
+- **Read session memory first**: Always read `session-memory.md` and `replit.md` before starting work — `.claude/rules/session-startup.md`
+- **Docs after edits**: Update `.claude` docs and harmonize `replit.md` after any codebase changes — `.claude/rules/documentation.md`
 - **Every page must be graphics-rich**: Charts, animations, visual elements required
 
 ---
@@ -265,9 +266,9 @@ When ON (default), every financial line item shows a ? icon explaining its formu
 ```bash
 npm run dev            # Start dev server (port 5000)
 npm run health         # One-shot: tsc + tests + verify (~4 lines output)
-npm run test:summary   # Run all 1,330 tests, 1-line output on pass
+npm run test:summary   # Run all 1,502 tests, 1-line output on pass
 npm run verify:summary # 4-phase verification, compact output
-npm test               # Run all 1,330 tests (full output)
+npm test               # Run all 1,502 tests (full output)
 npm run verify         # Full 4-phase financial verification (verbose)
 npm run db:push        # Push schema changes
 npm run lint:summary   # tsc --noEmit with 1-line output

@@ -134,7 +134,7 @@ export default function Login() {
                   onClick={handleAdminLogin}
                 />
               </motion.div>
-              <h1 className="text-2xl font-display text-background mb-1">
+              <h1 className="text-xl sm:text-2xl font-display text-background mb-1">
                 Hospitality <span className="text-primary">Business</span>
               </h1>
               <p className="text-xs text-white/40 uppercase tracking-[0.2em]">Business Simulation</p>
@@ -146,7 +146,7 @@ export default function Login() {
               transition={{ duration: 0.4, delay: 0.7 }}
               className="mb-8 text-center"
             >
-              <h2 className="text-xl font-display text-background mb-2">Welcome Back</h2>
+              <h2 className="text-lg sm:text-xl font-display text-background mb-2">Welcome Back</h2>
               <p className="text-sm text-white/50 label-text">Sign in to access the simulation portal</p>
             </motion.div>
             

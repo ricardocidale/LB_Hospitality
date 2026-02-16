@@ -17,7 +17,7 @@ function PageHeader({ title, subtitle, backLink, actions, className, variant = "
   const isDark = variant === "dark";
   
   return (
-    <div className={cn("relative rounded-3xl p-6 min-h-[88px]", className)}>
+    <div className={cn("relative rounded-2xl sm:rounded-3xl p-4 sm:p-6 min-h-[72px] sm:min-h-[88px]", className)}>
       {/* Background based on variant */}
       {isDark ? (
         <>
@@ -55,7 +55,7 @@ function PageHeader({ title, subtitle, backLink, actions, className, variant = "
           )}
           <div>
             <h2 className={cn(
-              "text-3xl font-display font-bold",
+              "text-xl sm:text-2xl md:text-3xl font-display font-bold",
               isDark ? "text-background" : "text-gray-900"
             )}>{title}</h2>
             {subtitle && (

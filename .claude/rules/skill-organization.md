@@ -10,7 +10,7 @@ All skill files must follow consistent organization, naming, and placement conve
 .claude/
 ├── claude.md                  # Master doc (always loaded)
 ├── rules/                     # Enforceable constraints (25 files)
-├── skills/                    # How-to documentation (92 files)
+├── skills/                    # How-to documentation (96 files)
 │   ├── context-loading/       # Skill router (load first)
 │   ├── architecture/          # System architecture
 │   ├── coding-conventions/    # Code style rules
@@ -27,6 +27,7 @@ All skill files must follow consistent organization, naming, and placement conve
 │   ├── testing/               # 7 test coverage skills
 │   ├── tool-schemas/          # Tool JSON schema conventions
 │   ├── ui/                    # 27 UI skills (charts, graphics, components, image picker)
+│   ├── mobile-responsive/     # 4 mobile/tablet responsive design skills
 │   └── 3d-graphics/           # Three.js / React Three Fiber
 ├── tools/                     # Tool schemas (JSON)
 │   ├── analysis/              # Break-even, consolidation, scenario
@@ -89,6 +90,7 @@ Each rule governs one or more skill domains. When working in a domain, load both
 | `verification-system.md` | `proof-system/SKILL.md`, `testing/SKILL.md` | GAAP verification pipeline |
 | `release-audit-checklist.md` | `proof-system/SKILL.md`, `testing/SKILL.md`, `exports/SKILL.md` | Pre-release audit dimensions |
 | `entity-card-patterns.md` | `ui/entity-cards.md` | Admin entity card layout consistency |
+| `graphics-rich-design.md` | `mobile-responsive/SKILL.md`, `mobile-responsive/device-testing-checklist.md` | Graphics must render on all devices |
 | `skill-organization.md` | All skills | Skill file structure and naming |
 
 ## When Creating New Skills

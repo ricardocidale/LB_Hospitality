@@ -6,7 +6,7 @@ description: Token-efficient context loading protocol. Maps common task types to
 # Context Loading Protocol
 
 ## Purpose
-With 92 skill files (~16,000 lines), loading everything wastes tokens and slows responses. This skill maps common task types to the **minimum required** skill set, ensuring fast, focused sessions.
+With 96 skill files (~17,000 lines), loading everything wastes tokens and slows responses. This skill maps common task types to the **minimum required** skill set, ensuring fast, focused sessions.
 
 ## Golden Rule
 **Load `claude.md` first (always loaded automatically). Then load only the skills needed for the current task. Never load all skills at once.**
@@ -61,6 +61,16 @@ With 92 skill files (~16,000 lines), loading everything wastes tokens and slows 
 | Accordion/formula rows | `ui/help-tooltip.md`, `ui/financial-table-styling.md` | Finance engine skills |
 | Info/help icon work | `ui/info-icons.md`, `ui/help-tooltip.md` | Finance skills |
 | Tabbed/composite pages | `ui/composite-tabbed-pages.md` | Finance skills |
+
+#### Mobile & Tablet Responsiveness
+| Task | Load These Skills | Skip |
+|------|------------------|------|
+| Fix mobile layout issues | `mobile-responsive/SKILL.md` | Finance skills, research |
+| iPad / tablet layout | `mobile-responsive/SKILL.md`, `mobile-responsive/tablet-layouts.md` | Finance skills |
+| Responsive charts (0px height) | `mobile-responsive/SKILL.md`, `ui/charts.md` | Finance skills |
+| Device testing / QA | `mobile-responsive/device-testing-checklist.md` | Finance skills |
+| useIsMobile hook usage | `mobile-responsive/responsive-helpers.md` | Finance skills |
+| Full mobile overhaul | `mobile-responsive/SKILL.md`, `mobile-responsive/tablet-layouts.md`, `mobile-responsive/device-testing-checklist.md` | Finance skills |
 
 #### Export Work
 | Task | Load These Skills | Skip |
@@ -141,6 +151,6 @@ User asks for verification, release prep, or comprehensive review.
 
 ## Cross-References
 - Skill Router: `claude.md` § Skill Router
-- All skills: `.claude/skills/` (15 directories, 84 files)
-- Rules: `.claude/rules/` (18 files)
+- All skills: `.claude/skills/` (16 directories, 96 files)
+- Rules: `.claude/rules/` (25 files)
 - Manuals: `.claude/manuals/` (2 manuals)

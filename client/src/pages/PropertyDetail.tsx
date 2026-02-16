@@ -755,9 +755,9 @@ export default function PropertyDetail() {
       />
       <div className="space-y-6">
         {/* Liquid Glass Header */}
-        <div className="relative overflow-hidden rounded-3xl">
+        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl">
           {/* Property Image */}
-          <div className="relative h-[280px]">
+          <div className="relative h-[180px] sm:h-[280px]">
             <img src={property.imageUrl.startsWith("/objects/") ? property.imageUrl : property.imageUrl} alt={property.name} className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
             <PropertyPhotoUpload 
@@ -768,7 +768,7 @@ export default function PropertyDetail() {
           </div>
           
           {/* Liquid Glass Info Bar */}
-          <div className="relative overflow-hidden p-6">
+          <div className="relative overflow-hidden p-3 sm:p-6">
             {/* Gradient Background */}
             <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e] via-[#3d5a6a] to-[#3a5a5e]" />
             {/* Top Edge Sheen */}
@@ -779,7 +779,7 @@ export default function PropertyDetail() {
               <div className="absolute bottom-0 left-1/4 w-48 h-48 rounded-full bg-primary/15 blur-3xl" />
             </div>
             
-            <div className="relative flex items-center justify-between">
+            <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div className="flex items-center gap-4">
                 <Link href="/portfolio">
                   <button className="relative overflow-hidden p-2 text-white rounded-xl transition-all duration-300 group/back">
@@ -789,8 +789,8 @@ export default function PropertyDetail() {
                   </button>
                 </Link>
                 <div>
-                  <h1 className="text-2xl font-display text-background">{property.name}</h1>
-                  <div className="flex items-center gap-4 text-background/70 text-sm mt-1 label-text">
+                  <h1 className="text-lg sm:text-2xl font-display text-background">{property.name}</h1>
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-background/70 text-sm mt-1 label-text">
                     <span className="flex items-center gap-1"><MapPin className="w-4 h-4" /> {property.location}</span>
                     <span className="font-mono">{property.roomCount} Rooms</span>
                     <span className="px-2 py-0.5 rounded-full bg-white/15 border border-white/25 text-white text-xs">
@@ -800,7 +800,7 @@ export default function PropertyDetail() {
                 </div>
               </div>
               
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 {(() => {
                   const addressParts = [property.streetAddress, property.city, property.stateProvince, property.zipPostalCode, property.country].filter(Boolean);
                   const hasAddress = addressParts.length > 0;
@@ -876,7 +876,7 @@ export default function PropertyDetail() {
           
           <TabsContent value="income" className="mt-6 space-y-6">
             {/* Income Statement Chart Card - Light Theme */}
-            <div ref={incomeChartRef} className="relative overflow-hidden rounded-3xl p-6 bg-white shadow-lg border border-gray-100">
+            <div ref={incomeChartRef} className="relative overflow-hidden rounded-2xl sm:rounded-3xl p-3 sm:p-6 bg-white shadow-lg border border-gray-100">
               <div className="relative">
                 <h3 className="text-lg font-display text-gray-900 mb-4">Income Statement Trends ({projectionYears}-Year Projection)</h3>
                 <div className="h-[300px]">
@@ -965,7 +965,7 @@ export default function PropertyDetail() {
           
           <TabsContent value="cashflow" className="mt-6 space-y-6">
             {/* Cash Flow Chart Card - Light Theme */}
-            <div ref={cashFlowChartRef} className="relative overflow-hidden rounded-3xl p-6 bg-white shadow-lg border border-gray-100">
+            <div ref={cashFlowChartRef} className="relative overflow-hidden rounded-2xl sm:rounded-3xl p-3 sm:p-6 bg-white shadow-lg border border-gray-100">
               <div className="relative">
                 <h3 className="text-lg font-display text-gray-900 mb-4">Cash Flow Trends ({projectionYears}-Year Projection)</h3>
                 <div className="h-[300px]">

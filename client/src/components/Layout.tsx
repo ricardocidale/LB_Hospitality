@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Building2, Briefcase, Settings2, Menu, X, FileText, Shield, LogOut, UserCircle, FolderOpen, SearchCheck, BarChart3, Calculator, ClipboardCheck, Search, MapPin, FileBarChart, ChevronDown, BookOpen } from "lucide-react";
+import { LayoutDashboard, Building2, Briefcase, Settings2, Menu, X, FileText, Shield, LogOut, UserCircle, FolderOpen, SearchCheck, BarChart3, Calculator, ClipboardCheck, Search, MapPin, FileBarChart, ChevronDown, BookOpen, MoreHorizontal } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -346,7 +346,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
           </Button>
         </header>
 
-        <div className="flex-1 overflow-x-hidden overflow-y-auto px-3 py-3 sm:px-4 sm:py-4 md:p-6 lg:p-8">
+        <div className="flex-1 overflow-x-hidden overflow-y-auto px-3 py-3 sm:px-4 sm:py-4 md:p-6 lg:p-8 pb-20 md:pb-6 lg:pb-8">
           <div className="w-full max-w-7xl mx-auto">
             <div className="mb-3 md:mb-4">
               <Breadcrumbs />
@@ -355,6 +355,51 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
           </div>
         </div>
       </main>
+
+      {(() => {
+        const bottomNavItems: { href: string; label: string; icon: any }[] = [
+          { href: "/", label: "Dashboard", icon: LayoutDashboard },
+          { href: "/portfolio", label: "Properties", icon: Building2 },
+          ...(hasManagementAccess ? [{ href: "/company", label: "Company", icon: Briefcase }] : []),
+          { href: "/profile", label: "Profile", icon: UserCircle },
+        ];
+        return (
+          <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40" data-testid="mobile-bottom-nav">
+            <div className="absolute inset-0 bg-[#0a0a0f]" />
+            <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+            <div className="relative flex items-center justify-around px-1 pt-1.5 pb-[max(0.375rem,env(safe-area-inset-bottom))]">
+              {bottomNavItems.map((item) => {
+                const isActive = location === item.href ||
+                  (item.href === "/portfolio" && location.startsWith("/property/")) ||
+                  (item.href !== "/" && location.startsWith(item.href + "/"));
+                return (
+                  <Link key={item.href} href={item.href}>
+                    <button className="flex flex-col items-center gap-0.5 px-3 py-1.5 min-w-[3.5rem]" data-testid={`bottom-nav-${item.label.toLowerCase()}`}>
+                      <div className={cn(
+                        "w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-200",
+                        isActive ? "bg-primary/20" : ""
+                      )}>
+                        <item.icon className={cn("w-[18px] h-[18px]", isActive ? "text-primary" : "text-white/50")} />
+                      </div>
+                      <span className={cn("text-[10px] leading-tight", isActive ? "text-primary font-medium" : "text-white/40")}>{item.label}</span>
+                    </button>
+                  </Link>
+                );
+              })}
+              <button
+                className="flex flex-col items-center gap-0.5 px-3 py-1.5 min-w-[3.5rem]"
+                onClick={() => setSidebarOpen(true)}
+                data-testid="bottom-nav-more"
+              >
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center">
+                  <MoreHorizontal className="w-[18px] h-[18px] text-white/50" />
+                </div>
+                <span className="text-[10px] leading-tight text-white/40">More</span>
+              </button>
+            </div>
+          </nav>
+        );
+      })()}
 
       <CommandPalette />
       <GuidedWalkthrough />

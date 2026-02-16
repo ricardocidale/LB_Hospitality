@@ -2162,7 +2162,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
 
   app.put("/api/research-questions/:id", requireAuth, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string);
       if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
       const { question } = req.body;
       if (!question || typeof question !== "string" || question.trim().length === 0) {
@@ -2179,7 +2179,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
 
   app.delete("/api/research-questions/:id", requireAuth, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string);
       if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
       await storage.deleteResearchQuestion(id);
       res.json({ success: true });

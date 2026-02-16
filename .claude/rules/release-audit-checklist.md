@@ -7,6 +7,8 @@ Comprehensive checklist for major releases. Covers all 7 audit dimensions plus i
 - [ ] `npx tsc --noEmit` — zero errors
 - [ ] `npm test` — all tests pass, no skipped
 - [ ] `git status` — clean working tree (no uncommitted changes)
+- [ ] Verify compliance with all `.claude/rules/` (no-hardcoded-assumptions, no-hardcoded-admin-config, recalculate-on-save, and all others)
+- [ ] Scan recently changed files for rule violations (grep for hardcoded literals, check mutation onSuccess handlers)
 
 ---
 

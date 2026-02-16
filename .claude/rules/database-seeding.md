@@ -163,7 +163,8 @@ User groups control branding (company name, logo, theme, asset description) for 
 
 5. **Seeding Must Be Error-Proof**: Seed data is the foundation of all financial calculations. Any error in seed values (wrong operating reserve, missing refinance parameters, incorrect rates) causes cascading calculation failures across the entire model. Seed data constants must be reviewed and verified before any deployment.
 
-6. **Database Sync Is SQL-Only**: Synchronizing values between production and development databases must be done via direct SQL statements. See `.claude/rules/database-sync-sql-only.md`.
+6. **Database Sync Is SQL-Only**: Synchronizing values between production and development databases MUST use direct SQL statements. No auto-sync on startup, no "sync from dev to prod" endpoints, no overwrite modes on seed endpoints, no code that reads from one DB and writes to another. Process: identify discrepancy → determine correct value → write targeted SQL UPDATE → verify with verification system. The fill-only seed endpoint (`/api/admin/seed-production`) is for initial setup only.
+7. **Production Sync Is Fill-Only**: The seed endpoint MUST never overwrite user-set values. Uses `isFieldEmpty()` and `fillMissingFields()` from `server/syncHelpers.ts`. Zero and `false` are valid user values. Response uses `filled` (not `updated`). Tests: `tests/admin/fill-only-sync.test.ts`, `tests/admin/database-sync.test.ts`.
 
 ## Global Assumptions Seed Defaults
 

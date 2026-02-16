@@ -28,9 +28,9 @@
 ```bash
 npm run dev            # Start dev server
 npm run health         # One-shot: tsc + tests + verify (~4 lines output)
-npm run test:summary   # Run all 1330 tests, 1-line output on pass
+npm run test:summary   # Run all 1502 tests, 1-line output on pass
 npm run verify:summary # 4-phase verification, compact output
-npm test               # Run all 1330 tests (full output)
+npm test               # Run all 1502 tests (full output)
 npm run verify         # Full 4-phase financial verification (verbose)
 npm run db:push        # Push schema changes
 npm run lint:summary   # tsc --noEmit, 1-line output
@@ -71,7 +71,7 @@ Admin Settings page (`/admin`) has these tabs:
 - Shared row components in `client/src/components/financial-table-rows.tsx`
 
 ## Top Rules
-- **Calculations and correct reports are always the highest priority.** 1330-test proof system must always pass.
+- **Calculations and correct reports are always the highest priority.** 1502-test proof system must always pass.
 - **Every page must be graphics-rich.** Use charts, animations, and visual elements on every page.
 - **Never hardcode financial assumptions or admin config.** All values from database or named constants.
 - **Every save must trigger full financial recalculation.** No partial query invalidation.

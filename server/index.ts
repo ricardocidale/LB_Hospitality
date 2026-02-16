@@ -6,8 +6,6 @@ import { serveStatic } from "./static";
 import { createServer } from "http";
 import { authMiddleware, requireAuth, seedAdminUser, cleanupRateLimitMaps } from "./auth";
 import { storage } from "./storage";
-import { runForceSync, runFillOnlySync } from "./syncHelpers";
-import { generateLocationAwareResearchValues } from "./researchSeeds";
 
 const app = express();
 const httpServer = createServer(app);
@@ -144,25 +142,6 @@ app.use((req, res, next) => {
     },
     () => {
       log(`serving on port ${port}`);
-
-      (async () => {
-        try {
-          const props = await storage.getAllProperties();
-          if (props.length > 0) {
-            const forceResult = await runForceSync(storage);
-            const changed = forceResult.properties.filter(p => p.updated.length > 0);
-            if (changed.length > 0) {
-              log(`Auto-sync: fixed ${changed.length} properties: ${changed.map(c => `${c.name} (${c.updated.join(", ")})`).join("; ")}`);
-            }
-            const fillResult = await runFillOnlySync(storage, generateLocationAwareResearchValues);
-            if (fillResult.properties.filled > 0 || fillResult.globalAssumptions.filled > 0) {
-              log(`Auto-sync: filled ${fillResult.properties.filled} properties, ${fillResult.globalAssumptions.filled} global assumptions`);
-            }
-          }
-        } catch (err) {
-          console.error("Auto-sync error (non-fatal):", err);
-        }
-      })();
 
       // Clean expired sessions and stale rate-limit entries every hour
       setInterval(async () => {

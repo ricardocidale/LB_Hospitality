@@ -149,14 +149,6 @@ User groups control branding (company name, logo, theme, asset description) for 
 **Design Theme Seeded** (skips if any themes exist):
 - Fluid Glass (active) - Apple-inspired translucent design with sage green, deep green, cream, and black
 
-#### b) One-Time Public Seed Endpoint
-```
-POST /api/seed-production
-Authorization: None (intended for initial setup only)
-```
-
-A simpler endpoint for first-time database population. Seeds global assumptions and properties only. Returns early if any properties already exist, preventing duplicate data.
-
 ### Seeding Best Practices
 
 1. **Idempotency**: All seed mechanisms check for existing data before inserting. Running them multiple times is safe.
@@ -168,6 +160,10 @@ A simpler endpoint for first-time database population. Seeds global assumptions 
 4. **Resetting Data**: To completely reset:
    - Use `npx tsx server/seed.ts --force` for development
    - For production, manually clear tables via SQL, then call the seed endpoint
+
+5. **Seeding Must Be Error-Proof**: Seed data is the foundation of all financial calculations. Any error in seed values (wrong operating reserve, missing refinance parameters, incorrect rates) causes cascading calculation failures across the entire model. Seed data constants must be reviewed and verified before any deployment.
+
+6. **Database Sync Is SQL-Only**: Synchronizing values between production and development databases must be done via direct SQL statements. See `.claude/rules/database-sync-sql-only.md`.
 
 ## Global Assumptions Seed Defaults
 

@@ -91,8 +91,16 @@ A completely independent recalculation engine that does NOT import from the clie
 | Cash Flow | Operating CF = Net Income + Depreciation | ASC 230 |
 | Reasonableness | NOI margin between 15-45% | Industry |
 | Reasonableness | Revenue growth is positive | Industry |
+| Cash Flow | No negative cash balance (per property) | Business Rule (info only) |
+| Management Co | No negative cash balance (company) | Business Rule (info only) |
 
 **Dynamic Configuration**: The checker respects `global.projectionYears` for projection length, falling back to the default constant of 10 years.
+
+### Underfunding vs. Calculation Errors
+
+**Underfunding (negative cash balance) is NOT a calculation error.** It is a business condition — the property or management company has insufficient operating reserves or funding. This is treated as an informational notification (`severity: "info"`), not a material or critical finding. It does NOT affect the audit opinion.
+
+A property going negative simply means it needs more capital. The calculation itself is correct — the model is accurately reflecting the cash shortfall. This should surface as a business alert/notification to the user, not as a verification failure.
 
 ### Check Result Structure
 

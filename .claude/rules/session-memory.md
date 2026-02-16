@@ -7,6 +7,42 @@ This rule ensures continuity across chat resets. The agent must treat this file 
 
 ---
 
+## Session: February 16, 2026 — Codebase Cleanup & Rules Documentation
+
+### What Was Done
+
+#### 1. New Rule: Database Sync Is SQL-Only
+- **File:** `.claude/rules/database-sync-sql-only.md`
+- **Lesson learned:** Multiple code-based sync approaches (auto-sync on startup, force-sync endpoints, fill-only with overwrite mode) all failed or added fragile complexity. The only reliable way to sync databases between environments is direct SQL UPDATE statements.
+- **Prohibited:** Auto-sync on startup, sync endpoints that read from one DB and write to another, overwrite modes
+- **Allowed:** Fill-only seeding for initial setup, direct SQL for corrections
+
+#### 2. Removed Duplicate Seed Endpoint
+- **Removed:** `/api/seed-production` (line 1482 in routes.ts) — ~100 lines of dead code duplicating `/api/admin/seed-production`
+- **Kept:** `/api/admin/seed-production` — the one actually used by Admin Database tab
+
+#### 3. Underfunding Changed from Verification Error to Notification
+- **Changed:** "No Negative Cash Balance" checks (both per-property and management company) in `server/calculationChecker.ts` from `severity: "material"` to `severity: "info"`
+- **Effect:** Underfunding no longer causes QUALIFIED audit opinion. It still shows in verification results as an informational item.
+- **Rationale:** Underfunding is a business condition (insufficient reserves/funding), not a calculation error. The math is correct — the model accurately reflects the shortfall.
+
+#### 4. Updated Existing Rules
+- **`database-seeding.md`:** Added seeding best practices #5 (error-proof seeding) and #6 (SQL-only sync reference). Removed documentation of the deleted duplicate endpoint.
+- **`verification-system.md`:** Added cash balance checks to the table. Added "Underfunding vs. Calculation Errors" section explaining the distinction.
+
+### Key Decisions
+- Database sync between environments = SQL only, never code
+- Seeding errors are ultra-serious — wrong seed values cascade into calculation failures across the entire model
+- Underfunding = business notification, not verification failure
+- Removed ~100 lines of dead code (duplicate seed endpoint)
+
+### Test Results
+- All 1401 tests pass
+- TypeScript: clean
+- UNQUALIFIED audit opinion maintained
+
+---
+
 ## Session: February 15, 2026 (Continued — Research Questions CRUD)
 
 ### What Was Done

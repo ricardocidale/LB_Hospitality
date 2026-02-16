@@ -637,7 +637,7 @@ export function runIndependentVerification(
       "critical"
     ));
 
-    // No Negative Cash — mandatory business rule (per-property)
+    // No Negative Cash — business notification (underfunding is not a calculation error)
     const shortfallMonths = independentCalc.filter((m: any) => m.cashShortfall);
     const minCash = Math.min(...independentCalc.map((m: any) => m.endingCash));
     const propLabel = property.name || `Property ${pi + 1}`;
@@ -648,7 +648,7 @@ export function runIndependentVerification(
       `[${propLabel}] Cash balance must never go negative; min balance = $${Math.round(minCash).toLocaleString()}, shortfall months = ${shortfallMonths.length}`,
       0,
       shortfallMonths.length,
-      "material"
+      "info"
     ));
 
     let preOpMonths = independentCalc.filter((m: any) => m.monthIndex < firstOperationalMonth);
@@ -871,7 +871,7 @@ export function runIndependentVerification(
       `[Management Company] Cash balance must never go negative; min balance = $${Math.round(companyMinCash).toLocaleString()}, shortfall months = ${companyShortfallMonths}`,
       0,
       companyShortfallMonths,
-      "material"
+      "info"
     ));
   }
 

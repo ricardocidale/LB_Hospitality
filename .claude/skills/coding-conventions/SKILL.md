@@ -37,7 +37,7 @@ description: Coding standards, naming conventions, and development rules for the
 
 ## Button Label Rules
 - All save/update buttons must display "Save" (never "Update")
-- See `.claude/rules/button-label-consistency.md`
+- See `.claude/rules/ui-patterns.md`
 
 ## TypeScript Conventions
 - Use ESM imports (no CommonJS require)

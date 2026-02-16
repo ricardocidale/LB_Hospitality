@@ -9,7 +9,7 @@ All skill files must follow consistent organization, naming, and placement conve
 ```
 .claude/
 ├── claude.md                  # Master doc (always loaded)
-├── rules/                     # Enforceable constraints (25 files)
+├── rules/                     # Enforceable constraints (18 files + 1 archive)
 ├── skills/                    # How-to documentation (96 files)
 │   ├── context-loading/       # Skill router (load first)
 │   ├── architecture/          # System architecture
@@ -85,11 +85,11 @@ Each rule governs one or more skill domains. When working in a domain, load both
 | `api-routes.md` | `architecture/SKILL.md` | API route naming and middleware conventions |
 | `architecture.md` | `architecture/SKILL.md`, `source-code/SKILL.md` | System architecture decisions |
 | `audit-persona.md` | `proof-system/SKILL.md`, `testing/SKILL.md` | Audit doctrine and verification mindset |
-| `audit-checks-rules.md` | `proof-system/SKILL.md` | All audits check rule compliance |
-| `architect-reads-rules-and-skills.md` | `context-loading/SKILL.md` | Architect calls include all rules |
+| `session-startup.md` | `context-loading/SKILL.md` | Session init + architect calls include all rules |
+| `documentation.md` | All skills | Source-of-truth hierarchy + docs-after-edits protocol |
+| `ui-patterns.md` | `ui/entity-cards.md` | Button labels + entity card layout consistency |
 | `verification-system.md` | `proof-system/SKILL.md`, `testing/SKILL.md` | GAAP verification pipeline |
-| `release-audit-checklist.md` | `proof-system/SKILL.md`, `testing/SKILL.md`, `exports/SKILL.md` | Pre-release audit dimensions |
-| `entity-card-patterns.md` | `ui/entity-cards.md` | Admin entity card layout consistency |
+| `release-audit-checklist.md` | `proof-system/SKILL.md`, `testing/SKILL.md`, `exports/SKILL.md` | Pre-release audit + rule compliance checks |
 | `graphics-rich-design.md` | `mobile-responsive/SKILL.md`, `mobile-responsive/device-testing-checklist.md` | Graphics must render on all devices |
 | `skill-organization.md` | All skills | Skill file structure and naming |
 

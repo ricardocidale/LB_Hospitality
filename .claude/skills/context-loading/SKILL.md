@@ -56,7 +56,7 @@ With 96 skill files (~17,000 lines), loading everything wastes tokens and slows 
 | Image generation / AI images | `ui/reusable-components.md`, `ui/property-image-picker.md` | Finance skills |
 | Logo management | `multi-tenancy/SKILL.md`, `ui/reusable-components.md` | Finance skills |
 | Branding / user groups / logos | `multi-tenancy/SKILL.md` | Finance skills |
-| Entity card UI (admin CRUD) | `ui/entity-cards.md`, `rules/entity-card-patterns.md` | Finance skills |
+| Entity card UI (admin CRUD) | `ui/entity-cards.md`, `rules/ui-patterns.md` | Finance skills |
 | User management / roles | `multi-tenancy/SKILL.md` | Finance skills |
 | Accordion/formula rows | `ui/help-tooltip.md`, `ui/financial-table-styling.md` | Finance engine skills |
 | Info/help icon work | `ui/info-icons.md`, `ui/help-tooltip.md` | Finance skills |
@@ -152,5 +152,5 @@ User asks for verification, release prep, or comprehensive review.
 ## Cross-References
 - Skill Router: `claude.md` § Skill Router
 - All skills: `.claude/skills/` (16 directories, 96 files)
-- Rules: `.claude/rules/` (25 files)
+- Rules: `.claude/rules/` (18 files + 1 archive)
 - Manuals: `.claude/manuals/` (2 manuals)

@@ -125,7 +125,7 @@ All mutations invalidate the `["/api/research-questions"]` query key for cache c
 
 - `.claude/rules/api-routes.md` — API route conventions and auth middleware
 - `.claude/rules/recalculate-on-save.md` — mutations invalidate relevant queries
-- `.claude/rules/button-label-consistency.md` — "Save" not "Update" for save actions
+- `.claude/rules/ui-patterns.md` — "Save" not "Update" for save actions
 
 ## Related Skills
 

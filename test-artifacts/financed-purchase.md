@@ -1,5 +1,5 @@
 # Reconciliation Report: Financed Purchase (75% LTV)
-Generated: 2026-02-16T18:23:49.784Z
+Generated: 2026-02-16T18:30:22.338Z
 ## Sources & Uses at Acquisition
 | Item | Amount |
 |------|--------|

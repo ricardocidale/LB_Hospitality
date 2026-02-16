@@ -63,7 +63,7 @@ Charts need consistent heights regardless of tablet orientation:
 ```
 
 ## Tab Bar on Tablets
-DarkGlassTabs should show full labels on tablet, with scrolling only needed on phone:
+CurrentThemeTab should show full labels on tablet, with scrolling only needed on phone:
 ```tsx
 // Tabs: icon-only on phone, icon+label on tablet+
 <span className="hidden sm:inline text-sm">Tab Label</span>

@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Loader2, Plus, Trash2, Users, Key, Eye, EyeOff, Pencil, Clock, FileCheck, CheckCircle2, XCircle, AlertTriangle, PlayCircle, Palette, Activity, HelpCircle, SwatchBook, UserPlus, Shield, Mail, Calendar, LogIn, LogOut, Monitor, MapPin, Hash, LayoutGrid, Sparkles, Settings, FileText, Download, Save, FileDown, Image, PanelLeft, Building2, Tag, Database, RefreshCw, Upload, Star, ChevronDown, ChevronRight } from "lucide-react";
 import defaultLogo from "@/assets/logo.png";
 import { AIImagePicker } from "@/components/ui/ai-image-picker";
-import { Tabs, TabsContent, DarkGlassTabs } from "@/components/ui/tabs";
+import { Tabs, TabsContent, CurrentThemeTab } from "@/components/ui/tabs";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { Switch } from "@/components/ui/switch";
@@ -2817,7 +2817,7 @@ export default function Admin() {
         />
 
         <Tabs value={adminTab} onValueChange={(v) => setAdminTab(v as AdminView)} className="w-full">
-          <DarkGlassTabs
+          <CurrentThemeTab
             tabs={[
               { value: 'users', label: 'Users', icon: Users },
               { value: 'companies', label: 'Companies', icon: Building2 },

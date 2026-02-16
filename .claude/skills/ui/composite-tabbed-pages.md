@@ -143,6 +143,6 @@ Embeds Map View as a second tab alongside the property list:
 
 ## Related Skills
 
-- **tab-bar-system.md** — `DarkGlassTabs` for in-page content tabs (different from PageHeader tab buttons)
+- **tab-bar-system.md** — `CurrentThemeTab` for in-page content tabs (different from PageHeader tab buttons)
 - **navigation.md** — Sidebar structure and `sb()` visibility helper
 - **page-header.md** — PageHeader `actions` slot where tab buttons live

@@ -24,7 +24,7 @@ import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction,
 ```
 
 **Placement rules:**
-- Tabbed pages → `DarkGlassTabs` `rightContent` slot
+- Tabbed pages → `CurrentThemeTab` `rightContent` slot
 - Non-tabbed pages → `PageHeader` `actions` slot
 
 ---
@@ -251,7 +251,7 @@ const handleChartPng = () => {
 ### Step 3 — Wire into ExportMenu
 
 ```tsx
-<DarkGlassTabs
+<CurrentThemeTab
   tabs={myTabs}
   activeTab={activeTab}
   onTabChange={setActiveTab}
@@ -325,6 +325,6 @@ Legacy import paths still work via re-export shim files:
 | Resource | Path | What it covers |
 |----------|------|----------------|
 | Design System | `.claude/skills/design-system/SKILL.md` | Color palette, component library, page themes |
-| Tab Bar System | `.claude/skills/ui/tab-bar-system.md` | DarkGlassTabs `rightContent` slot |
+| Tab Bar System | `.claude/skills/ui/tab-bar-system.md` | CurrentThemeTab `rightContent` slot |
 | Button System | `.claude/skills/ui/button-system.md` | GlassButton variants including `export` |
 | Page Header | `.claude/skills/ui/page-header.md` | PageHeader `actions` slot |

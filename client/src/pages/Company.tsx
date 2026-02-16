@@ -5,7 +5,7 @@ import Layout from "@/components/Layout";
 import { useProperties, useGlobalAssumptions, useAllFeeCategories } from "@/lib/api";
 import { generateCompanyProForma, generatePropertyProForma, formatMoney, getFiscalYearForModelYear, CompanyMonthlyFinancials } from "@/lib/financialEngine";
 import { PROJECTION_YEARS, STAFFING_TIERS, OPERATING_RESERVE_BUFFER, COMPANY_FUNDING_BUFFER } from "@/lib/constants";
-import { Tabs, TabsContent, DarkGlassTabs } from "@/components/ui/tabs";
+import { Tabs, TabsContent, CurrentThemeTab } from "@/components/ui/tabs";
 import { FileText, Banknote, Scale, Users, Briefcase, TrendingUp, Settings2, Loader2, ChevronRight, ChevronDown, FileDown, FileSpreadsheet, ImageIcon, AlertTriangle, CheckCircle } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { FinancialChart } from "@/components/ui/financial-chart";
@@ -819,7 +819,7 @@ export default function Company() {
         <CalcDetailsProvider show={global?.showCompanyCalculationDetails ?? true}>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div className="mb-6">
-            <DarkGlassTabs
+            <CurrentThemeTab
               tabs={[
                 { value: 'income', label: 'Income Statement', icon: FileText },
                 { value: 'cashflow', label: 'Cash Flows', icon: Banknote },

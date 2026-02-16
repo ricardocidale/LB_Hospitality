@@ -1,24 +1,24 @@
 # Tab-Bar System
 
-**Component**: `DarkGlassTabs` (`client/src/components/ui/tabs.tsx`)
+**Component**: `CurrentThemeTab` (`client/src/components/ui/tabs.tsx`)
 
 ## Overview
 
 Filing-system style dark glass tabs used on multi-view pages. The `rightContent` slot is the standard location for export controls via `ExportMenu`.
 
-## DarkGlassTabs Props
+## CurrentThemeTab Props
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `tabs` | `DarkGlassTabItem[]` | Array of `{ value: string, label: string, icon?: ComponentType }` |
+| `tabs` | `CurrentThemeTabItem[]` | Array of `{ value: string, label: string, icon?: ComponentType }` |
 | `activeTab` | `string` | Currently active tab value |
 | `onTabChange` | `(value: string) => void` | Tab change handler |
 | `rightContent` | `ReactNode` | Right-aligned slot — use for `ExportMenu` |
 
-## DarkGlassTabItem
+## CurrentThemeTabItem
 
 ```typescript
-interface DarkGlassTabItem {
+interface CurrentThemeTabItem {
   value: string;       // Unique tab identifier
   label: string;       // Display label
   icon?: ComponentType<{ className?: string }>;  // Optional lucide icon
@@ -36,7 +36,7 @@ const [activeTab, setActiveTab] = useState("income");
 ### Step 2: Define tabs
 
 ```tsx
-const tabs: DarkGlassTabItem[] = [
+const tabs: CurrentThemeTabItem[] = [
   { value: "income", label: "Income Statement", icon: DollarSign },
   { value: "balance", label: "Balance Sheet", icon: Scale },
   { value: "cashflow", label: "Cash Flow", icon: TrendingUp },
@@ -48,7 +48,7 @@ const tabs: DarkGlassTabItem[] = [
 ```tsx
 import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
 
-<DarkGlassTabs
+<CurrentThemeTab
   tabs={tabs}
   activeTab={activeTab}
   onTabChange={setActiveTab}
@@ -79,11 +79,11 @@ import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction,
 
 ```tsx
 import { useState } from "react";
-import { DarkGlassTabs, type DarkGlassTabItem } from "@/components/ui/tabs";
+import { CurrentThemeTab, type CurrentThemeTabItem } from "@/components/ui/tabs";
 import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
 import { DollarSign, Scale, TrendingUp } from "lucide-react";
 
-const tabs: DarkGlassTabItem[] = [
+const tabs: CurrentThemeTabItem[] = [
   { value: "income", label: "Income Statement", icon: DollarSign },
   { value: "balance", label: "Balance Sheet", icon: Scale },
   { value: "cashflow", label: "Cash Flow", icon: TrendingUp },
@@ -101,7 +101,7 @@ function FinancialPage() {
 
   return (
     <div>
-      <DarkGlassTabs
+      <CurrentThemeTab
         tabs={tabs}
         activeTab={activeTab}
         onTabChange={setActiveTab}
@@ -129,7 +129,7 @@ function FinancialPage() {
 
 ## Rules
 
-- Use `DarkGlassTabs` on all dark-themed pages with multiple views
+- Use `CurrentThemeTab` on all dark-themed pages with multiple views
 - Standard shadcn `Tabs`/`TabsList`/`TabsTrigger` should NOT be used on dark pages
 - Export controls always go in `rightContent`, never in page header or body
 - Each tab button has `data-testid={`tab-${tab.value}`}`

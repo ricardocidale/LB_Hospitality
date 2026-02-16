@@ -12,7 +12,7 @@ Documents all responsive design patterns, Tailwind breakpoint strategy, and prov
 - `client/src/hooks/use-mobile.tsx` — `useIsMobile()` hook (breakpoint: 768px)
 - `client/src/components/graphics/cards/KPIGrid.tsx` — Responsive KPI card grid (reference implementation)
 - `client/src/components/Layout.tsx` — Main layout with sidebar collapse
-- `client/src/components/ui/tabs.tsx` — DarkGlassTabs responsive tab bar
+- `client/src/components/ui/tabs.tsx` — CurrentThemeTab responsive tab bar
 
 ## Related Rules
 - `rules/graphics-rich-design.md` — Every page must be graphics-rich (mobile too)
@@ -173,7 +173,7 @@ const isMobile = useIsMobile(); // true when viewport < 768px
 <div className="group relative rounded-xl sm:rounded-2xl overflow-hidden">
 ```
 
-## DarkGlassTabs Mobile Pattern
+## CurrentThemeTab Mobile Pattern
 The tab bar must be scrollable on mobile with smaller touch targets:
 ```tsx
 // Tab container: scrollable on mobile

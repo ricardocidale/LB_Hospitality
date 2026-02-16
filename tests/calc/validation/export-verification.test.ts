@@ -178,7 +178,7 @@ describe("Sample value matching", () => {
     const result = verifyExport(
       minimalInput({
         sample_values: [
-          { label: "NOI", expected_value: 100_000, exported_value: 100_000.5 },
+          { label: "NOI", expected_value: 100_000, exported_value: 100_000.005 },
           { label: "Revenue", expected_value: 500_000, exported_value: 500_000 },
         ],
       }),
@@ -247,8 +247,8 @@ describe("Sample value matching", () => {
 // ---------------------------------------------------------------------------
 
 describe("Default tolerance", () => {
-  it("DEFAULT_TOLERANCE is 1.0", () => {
-    expect(DEFAULT_TOLERANCE).toBe(1.0);
+  it("DEFAULT_TOLERANCE is 0.01", () => {
+    expect(DEFAULT_TOLERANCE).toBe(0.01);
   });
 
   it("passes when difference equals DEFAULT_TOLERANCE exactly", () => {
@@ -274,7 +274,7 @@ describe("Default tolerance", () => {
           {
             label: "Revenue",
             expected_value: 1000,
-            exported_value: 1000 + DEFAULT_TOLERANCE + 0.01,
+            exported_value: 1000 + DEFAULT_TOLERANCE + 0.001,
           },
         ],
       }),
@@ -384,14 +384,14 @@ describe("Custom tolerance", () => {
     const result = verifyExport(
       minimalInput({
         sample_values: [
-          // Uses default tolerance (1.0) — diff 0.5 => passes
-          { label: "A", expected_value: 100, exported_value: 100.5 },
-          // Uses custom tolerance (0.1) — diff 0.5 => fails
+          // Uses default tolerance (0.01) — diff 0.005 => passes
+          { label: "A", expected_value: 100, exported_value: 100.005 },
+          // Uses custom tolerance (0.001) — diff 0.005 => fails
           {
             label: "B",
             expected_value: 100,
-            exported_value: 100.5,
-            tolerance: 0.1,
+            exported_value: 100.005,
+            tolerance: 0.001,
           },
         ],
       }),
@@ -911,13 +911,13 @@ describe("Edge cases", () => {
           {
             label: "Boundary",
             expected_value: 1000,
-            exported_value: 1001, // diff = 1.0 = DEFAULT_TOLERANCE exactly
+            exported_value: 1000.01, // diff = 0.01 = DEFAULT_TOLERANCE exactly
           },
         ],
       }),
     );
 
-    // Math.abs(1000 - 1001) = 1.0; 1.0 > 1.0 is false, so it passes
+    // Math.abs(1000 - 1000.01) = 0.01; 0.01 > 0.01 is false, so it passes
     expect(result.value_mismatches).toHaveLength(0);
   });
 });

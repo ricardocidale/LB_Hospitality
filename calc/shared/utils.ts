@@ -4,7 +4,7 @@ import { roundTo } from "../../domain/types/rounding.js";
 export const DEFAULT_ROUNDING: RoundingPolicy = { precision: 2, bankers_rounding: false };
 export const RATIO_ROUNDING: RoundingPolicy = { precision: 4, bankers_rounding: false };
 export const RATE_ROUNDING: RoundingPolicy = { precision: 6, bankers_rounding: false };
-export const DEFAULT_TOLERANCE = 1.0;
+export const DEFAULT_TOLERANCE = 0.01;
 export const CENTS_TOLERANCE = 0.01;
 
 export function rounder(policy: RoundingPolicy = DEFAULT_ROUNDING) {

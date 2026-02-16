@@ -39,7 +39,19 @@ function run() {
     allPassed = false;
   }
 
-  header("PHASE 3: Reconciliation Report Generation");
+  header("PHASE 3: Golden Value & Cross-Check Tests");
+  try {
+    execSync("npx vitest run tests/proof/golden-values.test.ts --reporter=verbose", {
+      stdio: "inherit",
+      timeout: 120_000,
+    });
+    console.log("\n  ✓ All golden value & cross-check tests passed");
+  } catch {
+    console.error("\n  ✗ Golden value tests FAILED — penny-exact verification broken");
+    allPassed = false;
+  }
+
+  header("PHASE 4: Reconciliation Report Generation");
   try {
     execSync("npx vitest run tests/proof/reconciliation-report.test.ts --reporter=verbose", {
       stdio: "inherit",
@@ -51,7 +63,7 @@ function run() {
     allPassed = false;
   }
 
-  header("PHASE 4: Artifact Summary");
+  header("PHASE 5: Artifact Summary");
   if (fs.existsSync(ARTIFACTS_DIR)) {
     const files = fs.readdirSync(ARTIFACTS_DIR);
     const jsonFiles = files.filter(f => f.endsWith(".json"));

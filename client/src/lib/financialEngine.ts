@@ -301,7 +301,9 @@ export function generatePropertyProForma(
     monthlyPayment = pmt(originalLoanAmount, monthlyRate, totalPayments);
   }
     
-  let cumulativeCash = 0; // Track cumulative cash for ending cash balance
+  let cumulativeCash = 0;
+  let prevDebtOutstanding = originalLoanAmount;
+  let acqDebtMonthCount = 0;
 
   const baseAdr = property.startAdr;
 
@@ -432,28 +434,24 @@ export function generatePropertyProForma(
       const n = loanTerm * 12;
       const loanAmount = originalLoanAmount;
       
-      if (loanAmount > 0) {
+      if (loanAmount > 0 && acqDebtMonthCount < n) {
         debtPayment = monthlyPayment;
         
         if (r === 0) {
           const straightLinePrincipal = loanAmount / n;
-          const monthsPaidSoFar = Math.min(monthsSinceAcquisition, n);
-          debtOutstanding = Math.max(0, loanAmount - straightLinePrincipal * monthsPaidSoFar);
+          principalPayment = straightLinePrincipal;
           interestExpense = 0;
-          principalPayment = monthsSinceAcquisition < n ? straightLinePrincipal : 0;
+          debtOutstanding = Math.max(0, prevDebtOutstanding - straightLinePrincipal);
         } else {
-          let remainingBalance = loanAmount;
-          for (let m = 0; m < monthsSinceAcquisition && m < n; m++) {
-            const monthInterest = remainingBalance * r;
-            const monthPrincipal = monthlyPayment - monthInterest;
-            remainingBalance = Math.max(0, remainingBalance - monthPrincipal);
-          }
-          
-          debtOutstanding = remainingBalance;
-          interestExpense = remainingBalance * r;
+          interestExpense = prevDebtOutstanding * r;
           principalPayment = monthlyPayment - interestExpense;
+          debtOutstanding = Math.max(0, prevDebtOutstanding - principalPayment);
         }
+        acqDebtMonthCount++;
+      } else if (loanAmount > 0) {
+        debtOutstanding = 0;
       }
+      prevDebtOutstanding = debtOutstanding;
     }
 
     // Balance sheet: Property value = land + (building - accumulated depreciation) per ASC 360

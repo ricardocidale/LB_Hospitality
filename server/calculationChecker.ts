@@ -40,7 +40,7 @@ const DEFAULT_TERM_YEARS = 25;
 const DEFAULT_REFI_LTV = 0.65;
 const DEFAULT_REFI_CLOSING_COST_RATE = 0.03;
 
-const TOLERANCE = 0.01; // 1% tolerance for floating point comparisons
+const TOLERANCE = 0.001; // 0.1% tolerance for floating point comparisons
 
 export interface CheckResult {
   metric: string;

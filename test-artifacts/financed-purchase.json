@@ -1,6 +1,6 @@
 {
   "scenario": "Financed Purchase (75% LTV)",
-  "timestamp": "2026-02-16T18:50:56.409Z",
+  "timestamp": "2026-02-16T19:39:57.027Z",
   "sources_and_uses": {
     "sources": {
       "equity": 500000,
@@ -32,8 +32,8 @@
     "beginning_balance": 1500000,
     "plus_draws": 0,
     "less_payments": 258911.5474088411,
-    "ending_balance": 1244343.8194001797,
-    "check_passed": false
+    "ending_balance": 1241088.4525911584,
+    "check_passed": true
   },
   "financial_identities": {
     "opinion": "UNQUALIFIED",

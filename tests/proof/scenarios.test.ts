@@ -246,16 +246,12 @@ describe("Proof Scenario 2: Financed Purchase (LTV Binding)", () => {
     }
   });
 
-  it("debt outstanding = loanAmount minus cumulative principal (replay method)", () => {
-    const r = monthlyRate;
-    const n = numPayments;
+  it("debt outstanding = loanAmount minus cumulative principal (carry-forward method)", () => {
+    let bal = loanAmount;
     for (let month = 0; month < 120; month++) {
-      let bal = loanAmount;
-      for (let m = 0; m < month && m < n; m++) {
-        const interest = bal * r;
-        const principal = expectedPMT - interest;
-        bal = Math.max(0, bal - principal);
-      }
+      const interest = bal * monthlyRate;
+      const principal = expectedPMT - interest;
+      bal = Math.max(0, bal - principal);
       expect(result[month].debtOutstanding).toBeCloseTo(bal, 2);
     }
   });

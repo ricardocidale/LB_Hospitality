@@ -40,7 +40,7 @@ import {
   DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
   SEED_DEBT_ASSUMPTIONS,
 } from "@shared/constants";
-import { runFillOnlySync, runForceSync } from "./syncHelpers";
+import { runFillOnlySync } from "./syncHelpers";
 import { generateResearchWithToolsStream, loadSkill, buildUserPrompt, type ResearchParams } from "./aiResearch";
 import { generateLocationAwareResearchValues } from "./researchSeeds";
 import * as calcSchemas from "../calc/shared/schemas";
@@ -779,22 +779,6 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error seeding production data:", error);
       res.status(500).json({ error: "Failed to seed production data" });
-    }
-  });
-
-  app.post("/api/admin/force-sync", requireAdmin, async (req, res) => {
-    try {
-      const forceSyncResults = await runForceSync(storage);
-      const fillResults = await runFillOnlySync(storage, generateLocationAwareResearchValues);
-      res.json({
-        success: true,
-        message: "Force sync completed — all property values overwritten to match seed data",
-        forceSync: forceSyncResults,
-        fillSync: fillResults,
-      });
-    } catch (error) {
-      console.error("Error running force sync:", error);
-      res.status(500).json({ error: "Failed to run force sync" });
     }
   });
 

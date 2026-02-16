@@ -216,7 +216,6 @@ export default function Admin() {
   const [designResults, setDesignResults] = useState<DesignCheckResult | null>(null);
   const [syncResults, setSyncResults] = useState<Record<string, any> | null>(null);
   const [syncConfirmOpen, setSyncConfirmOpen] = useState(false);
-  const [forceSyncConfirmOpen, setForceSyncConfirmOpen] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
 
   const { data: users, isLoading: usersLoading } = useQuery<User[]>({
@@ -1004,30 +1003,6 @@ export default function Admin() {
     },
   });
 
-  const forceSyncMutation = useMutation({
-    mutationFn: async () => {
-      const res = await fetch("/api/admin/force-sync", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({}),
-      });
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({ error: "Force sync failed" }));
-        throw new Error(errData.error || "Force sync failed");
-      }
-      return res.json();
-    },
-    onSuccess: (data) => {
-      toast({ title: "Force Sync Complete", description: data.message || "All values synchronized" });
-      setForceSyncConfirmOpen(false);
-      checkSyncStatus.mutate();
-    },
-    onError: (error: Error) => {
-      toast({ title: "Force Sync Failed", description: error.message, variant: "destructive" });
-      setForceSyncConfirmOpen(false);
-    },
-  });
 
   const syncAutoChecked = useRef(false);
   useEffect(() => {
@@ -2803,53 +2778,6 @@ export default function Admin() {
           </GlassButton>
         </CardContent>
       </Card>
-
-      <Card className="bg-red-50/80 backdrop-blur-xl border-red-200/40 shadow-[0_8px_32px_rgba(239,68,68,0.1)]" data-testid="card-force-sync">
-        <CardHeader>
-          <CardTitle className="font-display flex items-center gap-2 text-red-800">
-            <RefreshCw className="w-5 h-5" /> Force Sync Properties
-          </CardTitle>
-          <CardDescription className="label-text text-red-700/80">
-            Overwrite production property values (operating reserves, refinance parameters, exit cap rates) to match seed data. Use this to fix environment discrepancies.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <GlassButton
-            onClick={() => setForceSyncConfirmOpen(true)}
-            disabled={forceSyncMutation.isPending}
-            className="bg-red-500/10 border-red-500/30 hover:bg-red-500/20 text-red-700"
-            data-testid="button-force-sync"
-          >
-            {forceSyncMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}
-            Force Sync Now
-          </GlassButton>
-        </CardContent>
-      </Card>
-
-      <Dialog open={forceSyncConfirmOpen} onOpenChange={setForceSyncConfirmOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-red-500" /> Confirm Force Sync
-            </DialogTitle>
-            <DialogDescription>
-              This will <strong>overwrite</strong> operating reserves, refinance parameters, and exit cap rates for all properties to match seed values. Existing user-edited values for these fields will be replaced.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setForceSyncConfirmOpen(false)} data-testid="button-cancel-force-sync">Cancel</Button>
-            <Button
-              onClick={() => forceSyncMutation.mutate()}
-              disabled={forceSyncMutation.isPending}
-              className="bg-red-500 hover:bg-red-600 text-white"
-              data-testid="button-confirm-force-sync"
-            >
-              {forceSyncMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-              Yes, Force Sync
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       <Dialog open={syncConfirmOpen} onOpenChange={setSyncConfirmOpen}>
         <DialogContent>

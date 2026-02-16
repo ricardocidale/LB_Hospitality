@@ -9,6 +9,7 @@ Every time the architect agent is invoked — for planning, evaluation, debuggin
 The following files must ALWAYS be passed to the architect in the `relevant_files` array:
 
 ### All Rules (always include every file in `.claude/rules/`)
+- `.claude/rules/auto-load-rules.md`
 - `.claude/rules/no-hardcoded-assumptions.md`
 - `.claude/rules/no-hardcoded-admin-config.md`
 - `.claude/rules/recalculate-on-save.md`

@@ -14,7 +14,7 @@ Every page must use the shared component library. Inline or ad-hoc styling is no
 | PageHeader | `client/src/components/ui/page-header.tsx` | Page titles with actions slot |
 | GlassButton | `client/src/components/ui/glass-button.tsx` | All buttons (primary, ghost, icon, export, settings) |
 | ExportMenu | `client/src/components/ui/export-toolbar.tsx` | Unified export dropdown |
-| DarkGlassTabs | `client/src/components/ui/tabs.tsx` | Tab navigation with rightContent slot |
+| CurrentThemeTab | `client/src/components/ui/tabs.tsx` | Tab navigation with rightContent slot |
 | FinancialChart | `client/src/components/ui/financial-chart.tsx` | Standardized Recharts wrapper |
 | FinancialTable | `client/src/components/ui/financial-table.tsx` | Sticky-column financial tables |
 | StatCard | `client/src/components/ui/stat-card.tsx` | KPI cards |
@@ -53,7 +53,7 @@ To add exports to any page:
 2. Import export utilities from `@/lib/exports`
 3. Create handlers that return `{ years: string[], rows: SlideTableRow[] }`
 4. Wire handlers using `pdfAction`, `excelAction`, `csvAction`, `pptxAction`, `chartAction`, `pngAction`
-5. Place ExportMenu in `DarkGlassTabs.rightContent` or `PageHeader.actions`
+5. Place ExportMenu in `CurrentThemeTab.rightContent` or `PageHeader.actions`
 
 ## Design System
 

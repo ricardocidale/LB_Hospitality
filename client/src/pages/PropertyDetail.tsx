@@ -7,7 +7,7 @@ import { YearlyIncomeStatement } from "@/components/YearlyIncomeStatement";
 import { YearlyCashFlowStatement } from "@/components/YearlyCashFlowStatement";
 import { ConsolidatedBalanceSheet } from "@/components/ConsolidatedBalanceSheet";
 import { CalcDetailsProvider } from "@/components/financial-table-rows";
-import { Tabs, TabsContent, DarkGlassTabs } from "@/components/ui/tabs";
+import { Tabs, TabsContent, CurrentThemeTab } from "@/components/ui/tabs";
 import { FileText, Banknote, Scale, Building2, ArrowLeft, MapPin, Loader2, Settings2, Sheet, ChevronDown, ChevronRight, Info, Map, AlertTriangle } from "lucide-react";
 import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
 import { downloadCSV } from "@/lib/exports/csvExport";
@@ -850,7 +850,7 @@ export default function PropertyDetail() {
         <CalcDetailsProvider show={global?.showPropertyCalculationDetails ?? true}>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div className="mb-4">
-            <DarkGlassTabs
+            <CurrentThemeTab
               tabs={[
                 { value: 'income', label: 'Income Statement', icon: FileText },
                 { value: 'cashflow', label: 'Cash Flows', icon: Banknote },

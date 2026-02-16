@@ -11,7 +11,7 @@ Documents the available responsive utility hooks, shared responsive patterns in 
 ## Key Files
 - `client/src/hooks/use-mobile.tsx` — Primary mobile detection hook
 - `client/src/components/graphics/cards/KPIGrid.tsx` — Reference responsive component
-- `client/src/components/ui/tabs.tsx` — DarkGlassTabs responsive implementation
+- `client/src/components/ui/tabs.tsx` — CurrentThemeTab responsive implementation
 
 ## useIsMobile Hook
 
@@ -71,7 +71,7 @@ const colClass: Record<number, string> = {
 </div>
 ```
 
-### DarkGlassTabs (Responsive Tab Bar)
+### CurrentThemeTab (Responsive Tab Bar)
 `client/src/components/ui/tabs.tsx` handles tabs across devices:
 - Phone: Smaller buttons, horizontally scrollable
 - Tablet: Full labels with icons

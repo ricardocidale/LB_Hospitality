@@ -16,7 +16,7 @@ description: Coding standards, naming conventions, and development rules for the
 - All buttons must use `GlassButton` from `@/components/ui/glass-button`
 - All pages must use `PageHeader` from `@/components/ui/page-header`
 - All export functionality must use `ExportMenu` from `@/components/ui/export-toolbar`
-- All tabs must use `DarkGlassTabs` from `@/components/ui/tabs`
+- All tabs must use `CurrentThemeTab` from `@/components/ui/tabs`
 - All image input → AIImagePicker or a wrapper (never custom upload UI)
 - All entity card grids → EntityCard system from `@/components/ui/entity-card`
 - Inline or ad-hoc styling is not permitted — use the shared component library

@@ -9,6 +9,14 @@
 - Cancel: "Cancel" with no icon
 - Disabled when: form empty, no changes, mutation pending. Show Loader2 spinner when pending.
 
+## Accordion Summaries
+
+- **Always use accordion/collapsible sections** when displaying grouped or detailed content
+- Prefer collapsed-by-default for secondary details; expand-by-default for primary content
+- Use `<Accordion>` or `<Collapsible>` from shadcn/ui components
+- Applies to: financial breakdowns, settings groups, admin panels, report sections, help text, diagnostic results
+- Goal: reduce visual clutter, let users drill into details on demand
+
 ## Entity Card Hierarchy
 
 All admin/management pages displaying editable entity collections must use:

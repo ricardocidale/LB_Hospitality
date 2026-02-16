@@ -3,7 +3,7 @@ import Layout from "@/components/Layout";
 import { useProperties, useGlobalAssumptions } from "@/lib/api";
 import { generatePropertyProForma, formatMoney, getFiscalYearForModelYear } from "@/lib/financialEngine";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, DarkGlassTabs } from "@/components/ui/tabs";
+import { Tabs, TabsContent, CurrentThemeTab } from "@/components/ui/tabs";
 import { LayoutDashboard, FileText, Banknote, Scale, TrendingUp as TrendingUpIcon, Loader2, ChevronRight, ChevronDown, AlertTriangle } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { GlassButton } from "@/components/ui/glass-button";
@@ -1588,7 +1588,7 @@ export default function Dashboard() {
 
         <CalcDetailsProvider show={showCalcDetails}>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <DarkGlassTabs
+          <CurrentThemeTab
             tabs={[
               { value: 'overview', label: 'Overview', icon: LayoutDashboard },
               { value: 'income', label: 'Income Statement', icon: FileText },

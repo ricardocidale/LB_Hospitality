@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Layout from "@/components/Layout";
 import { PageHeader } from "@/components/ui/page-header";
-import { Tabs, TabsContent, DarkGlassTabs } from "@/components/ui/tabs";
+import { Tabs, TabsContent, CurrentThemeTab } from "@/components/ui/tabs";
 import { ClipboardCheck, FileText, HelpCircle, PlayCircle } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import CheckerManual from "./CheckerManual";
@@ -35,7 +35,7 @@ export default function Help() {
         />
 
         <Tabs value={tab} onValueChange={(v) => setTab(v as HelpTab)} className="w-full">
-          <DarkGlassTabs
+          <CurrentThemeTab
             tabs={tabs}
             activeTab={tab}
             onTabChange={(v) => setTab(v as HelpTab)}

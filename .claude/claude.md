@@ -55,7 +55,7 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | Architecture | `.claude/skills/architecture/SKILL.md` | Tech stack, two-entity model, file organization |
 | Design System | `.claude/skills/design-system/SKILL.md` | Colors, typography, component catalog, CSS classes |
 | Theme Engine | `.claude/skills/ui/theme-engine.md` | Multi-theme system (Fluid Glass active), user-created themes, token structure |
-| Component Library | `.claude/skills/component-library/SKILL.md` | PageHeader, GlassButton, ExportMenu, DarkGlassTabs, etc. |
+| Component Library | `.claude/skills/component-library/SKILL.md` | PageHeader, GlassButton, ExportMenu, CurrentThemeTab, etc. |
 | Reusable UI | `.claude/skills/ui/reusable-components.md` | AIImagePicker, AnimatedLogo, StatusBadge, ImagePreviewCard, EntityCard |
 | Proof System | `.claude/skills/proof-system/SKILL.md` | 1,502 tests, 5 golden scenarios, verification commands |
 | Testing (7 skills) | `.claude/skills/testing/` | Per-statement/analysis test coverage at property, consolidated, and management company levels |

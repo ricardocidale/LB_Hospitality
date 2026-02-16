@@ -70,7 +70,7 @@
 - Use `SaveButton` for save operations (wraps `GlassButton variant="primary"`)
 - Use `GlassButton variant="export"` for export/download buttons
 - Actions wrap with `flex-wrap items-center gap-2`
-- On tabbed pages, exports go in `DarkGlassTabs rightContent` instead
+- On tabbed pages, exports go in `CurrentThemeTab rightContent` instead
 
 ## Usage Example
 
@@ -123,4 +123,4 @@ import { FileDown } from "lucide-react";
 
 ## Related Skills
 - **button-system.md** — GlassButton variants used in actions slot
-- **tab-bar-system.md** — DarkGlassTabs (exports go there on tabbed pages, not in header)
+- **tab-bar-system.md** — CurrentThemeTab (exports go there on tabbed pages, not in header)

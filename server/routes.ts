@@ -970,6 +970,61 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
+  app.get("/api/admin/health-check", requireAdmin, async (req, res) => {
+    const { execSync } = await import("child_process");
+
+    interface PhaseResult {
+      name: string;
+      status: "pass" | "fail";
+      detail: string;
+    }
+
+    const results: PhaseResult[] = [];
+
+    const runPhase = (name: string, cmd: string, parseFn: (out: string) => { status: "pass" | "fail"; detail: string }) => {
+      try {
+        const output = execSync(cmd, { timeout: 180_000, encoding: "utf-8", maxBuffer: 10 * 1024 * 1024 });
+        const result = parseFn(output);
+        results.push({ name, ...result });
+      } catch (err: any) {
+        const output = (err.stdout ?? "") + (err.stderr ?? "");
+        const result = parseFn(output);
+        results.push({ name, ...result });
+      }
+    };
+
+    runPhase("TypeScript", "npx tsc --noEmit 2>&1", (out) => {
+      if (!out.trim()) return { status: "pass", detail: "0 errors" };
+      const count = out.split("\n").filter((l: string) => l.includes("error TS")).length;
+      return { status: "fail", detail: `${count} error${count !== 1 ? "s" : ""}` };
+    });
+
+    runPhase("Tests", "npx vitest run 2>&1", (out) => {
+      const clean = out.replace(/\x1b\[[0-9;]*m/g, "");
+      const failMatch = clean.match(/(\d+) failed/);
+      if (failMatch) return { status: "fail", detail: `${failMatch[1]} failed` };
+      const testsMatch = clean.match(/Tests\s+(\d+) passed\s*\((\d+)\)/);
+      const filesMatch = clean.match(/Test Files\s+(\d+) passed\s*\((\d+)\)/);
+      if (testsMatch && filesMatch) return { status: "pass", detail: `${testsMatch[1]}/${testsMatch[2]} tests, ${filesMatch[1]} files` };
+      return clean.includes("passed") ? { status: "pass", detail: "All passed" } : { status: "fail", detail: "See npm test" };
+    });
+
+    runPhase("Verification", "npx tsx tests/proof/verify-runner.ts 2>&1", (out) => {
+      if (out.includes("ALL PHASES PASSED")) {
+        const timeMatch = out.match(/Time:\s*([\d.]+s)/);
+        return { status: "pass", detail: `UNQUALIFIED${timeMatch ? ` (${timeMatch[1]})` : ""}` };
+      }
+      const failedPhases: string[] = [];
+      if (out.includes("Proof scenario tests FAILED")) failedPhases.push("scenarios");
+      if (out.includes("Magic number detection FAILED")) failedPhases.push("hardcoded values");
+      if (out.includes("Reconciliation report generation FAILED")) failedPhases.push("reconciliation");
+      return { status: "fail", detail: failedPhases.join(", ") || "See npm run verify" };
+    });
+
+    const allPassed = results.every((r) => r.status === "pass");
+    res.json({ allPassed, results, timestamp: new Date().toISOString() });
+  });
+
   // Run design consistency verification (admin only)
   app.get("/api/admin/run-design-check", requireAdmin, async (req, res) => {
     try {

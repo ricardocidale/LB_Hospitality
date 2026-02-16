@@ -3,7 +3,7 @@ import { useGlobalAssumptions, useUpdateGlobalAssumptions, useProperties, useUpd
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, DarkGlassTabs } from "@/components/ui/tabs";
+import { Tabs, TabsContent, CurrentThemeTab } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, BookOpen, Hotel, Globe, Sliders, Search, RefreshCw, TrendingUp, Landmark, Sparkles, AlertTriangle, Check, Plus, Pencil, Trash2, X, MessageSquare } from "lucide-react";
@@ -256,7 +256,7 @@ export default function Settings() {
         />
 
         <Tabs value={settingsTab} onValueChange={setSettingsTab} className="w-full">
-          <DarkGlassTabs
+          <CurrentThemeTab
             tabs={[
               { value: 'portfolio', label: 'Portfolio', icon: Hotel },
               { value: 'macro', label: 'Macro', icon: Globe },

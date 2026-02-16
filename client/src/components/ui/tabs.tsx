@@ -50,20 +50,20 @@ const TabsContent = React.forwardRef<
 ))
 TabsContent.displayName = TabsPrimitive.Content.displayName
 
-interface DarkGlassTabItem {
+interface CurrentThemeTabItem {
   value: string;
   label: string;
   icon?: React.ComponentType<{ className?: string }>;
 }
 
-interface DarkGlassTabsProps {
-  tabs: DarkGlassTabItem[];
+interface CurrentThemeTabProps {
+  tabs: CurrentThemeTabItem[];
   activeTab: string;
   onTabChange: (value: string) => void;
   rightContent?: React.ReactNode;
 }
 
-function DarkGlassTabs({ tabs, activeTab, onTabChange, rightContent }: DarkGlassTabsProps) {
+function CurrentThemeTab({ tabs, activeTab, onTabChange, rightContent }: CurrentThemeTabProps) {
   return (
     <div className="relative rounded-2xl w-full">
       <div className="absolute inset-0 bg-[#0a0a0f] rounded-2xl" />
@@ -126,5 +126,5 @@ function DarkGlassTabs({ tabs, activeTab, onTabChange, rightContent }: DarkGlass
   );
 }
 
-export { Tabs, TabsList, TabsTrigger, TabsContent, DarkGlassTabs }
-export type { DarkGlassTabItem }
+export { Tabs, TabsList, TabsTrigger, TabsContent, CurrentThemeTab }
+export type { CurrentThemeTabItem }

@@ -181,7 +181,7 @@ export default function Profile() {
 
   return (
     <Layout>
-      <div className="max-w-2xl mx-auto p-6 space-y-8">
+      <div className="max-w-2xl mx-auto p-0 sm:p-6 space-y-6 sm:space-y-8">
         <PageHeader
           title="My Profile"
           subtitle="Manage your account information"
@@ -197,7 +197,7 @@ export default function Profile() {
 
         {(user.role === "admin" || user.role === "checker") && (
           <Card className="bg-gradient-to-br from-[#1a2e3d]/95 via-[#243d4d]/95 to-[#1e3a42]/95 backdrop-blur-xl border border-white/20 shadow-xl">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
@@ -220,7 +220,7 @@ export default function Profile() {
         )}
 
         <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-lg">
-          <CardContent className="p-6 space-y-6">
+          <CardContent className="p-4 sm:p-6 space-y-4 sm:space-y-6">
             <div className="flex items-center gap-4 pb-4 border-b border-gray-100">
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
                 <User className="w-8 h-8 text-white" />

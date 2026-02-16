@@ -17,9 +17,10 @@
 **This is non-negotiable. Skipping rule loading invalidates any review or implementation.**
 
 ## Key Directories
-- `.claude/skills/` — 92 skill files (finance, UI, testing, exports, proof system, architecture, research questions)
+- `.claude/skills/` — 96 skill files (finance, UI, testing, exports, proof system, architecture, research questions, mobile-responsive)
 - `.claude/skills/context-loading/` — Start here: maps task types to minimum required skills
-- `.claude/rules/` — 23 rule files (audit doctrine, constants, DB seeding, API routes, graphics, hardcoding, skill organization, session memory, read-session-memory-first, button consistency, docs-after-edits, etc.)
+- `.claude/skills/mobile-responsive/` — 4 mobile/tablet skills (breakpoints, iPad layouts, device checklist, responsive helpers)
+- `.claude/rules/` — 25 rule files (audit doctrine, constants, DB seeding, API routes, graphics, hardcoding, skill organization, session memory, read-session-memory-first, button consistency, docs-after-edits, etc.)
 - `.claude/manuals/` — Checker manual and user manual
 - `.claude/tools/` — Tool schemas for analysis, financing, returns, validation, UI
 - `.claude/commands/` — 8 slash commands (verify, seed, scenarios, themes, etc.)

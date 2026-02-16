@@ -85,7 +85,7 @@ function DarkGlassTabs({ tabs, activeTab, onTabChange, rightContent }: DarkGlass
               <button
                 key={tab.value}
                 onClick={() => onTabChange(tab.value)}
-                className={`group relative overflow-hidden flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-2xl transition-all duration-300 ease-out ${
+                className={`group relative overflow-hidden flex items-center gap-1.5 sm:gap-3 px-2.5 py-2 sm:px-4 sm:py-3 text-sm font-medium rounded-2xl transition-all duration-300 ease-out ${
                   isActive ? "text-white" : "text-background/60 hover:text-white"
                 }`}
                 data-testid={`tab-${tab.value}`}
@@ -103,15 +103,15 @@ function DarkGlassTabs({ tabs, activeTab, onTabChange, rightContent }: DarkGlass
                 )}
                 {Icon && (
                   <div className={cn(
-                    "relative w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-300",
+                    "relative w-6 h-6 sm:w-8 sm:h-8 rounded-xl flex items-center justify-center transition-all duration-300",
                     isActive
                       ? "bg-gradient-to-br from-primary to-secondary shadow-[0_0_16px_rgba(159,188,164,0.5)]"
                       : "bg-white/5 group-hover:bg-white/10"
                   )}>
-                    <Icon className={cn("w-4 h-4 transition-all duration-300", isActive ? "text-white" : "text-background/60 group-hover:text-white")} />
+                    <Icon className={cn("w-3 h-3 sm:w-4 sm:h-4 transition-all duration-300", isActive ? "text-white" : "text-background/60 group-hover:text-white")} />
                   </div>
                 )}
-                <span className="relative">{tab.label}</span>
+                <span className="relative text-xs sm:text-sm">{tab.label}</span>
               </button>
             );
           })}

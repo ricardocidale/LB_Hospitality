@@ -1653,7 +1653,7 @@ export default function Dashboard() {
               variant="glass"
             />
             {/* Investment Returns - Hero Section - Fluid Glass Design with 3D */}
-            <div className="relative overflow-hidden rounded-3xl p-8 border border-primary/30 shadow-2xl">
+            <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 border border-primary/30 shadow-2xl">
               {/* Sage Glass Background with Fluid Effect */}
               <div className="absolute inset-0 bg-primary/25 backdrop-blur-3xl" />
               <div className="absolute inset-0">
@@ -1664,18 +1664,18 @@ export default function Dashboard() {
               <Dashboard3DBackground />
               
               <div className="relative">
-                <div className="text-center mb-8">
-                  <p className="text-sm font-medium tracking-widest text-[#2d4a5e]/60 uppercase mb-2 label-text">Investment Performance</p>
-                  <p className="text-[#2d4a5e]/50 text-sm label-text"><span className="font-mono">{investmentHorizon}</span>-Year Hold | <span className="font-mono">{totalProperties}</span> Properties | <span className="font-mono">{totalRooms}</span> Rooms</p>
+                <div className="text-center mb-4 sm:mb-8">
+                  <p className="text-xs sm:text-sm font-medium tracking-widest text-[#2d4a5e]/60 uppercase mb-1 sm:mb-2 label-text">Investment Performance</p>
+                  <p className="text-[#2d4a5e]/50 text-xs sm:text-sm label-text"><span className="font-mono">{investmentHorizon}</span>-Year Hold | <span className="font-mono">{totalProperties}</span> Properties | <span className="font-mono">{totalRooms}</span> Rooms</p>
                 </div>
                 
                 {/* Main IRR Display + Property IRR Bar Chart - Side by Side */}
-                <div className="flex flex-col lg:flex-row items-stretch justify-center gap-8 mb-10">
+                <div className="flex flex-col lg:flex-row items-stretch justify-center gap-4 sm:gap-8 mb-6 sm:mb-10">
                   {/* Portfolio IRR Meter */}
-                  <div className="group relative bg-white/95 backdrop-blur-xl rounded-[2rem] p-8 border border-primary/40 shadow-xl shadow-black/10 transition-all duration-500 hover:shadow-[0_20px_60px_rgba(244,121,91,0.25)] hover:border-secondary/60 hover:scale-[1.03] cursor-pointer flex flex-col items-center justify-center">
+                  <div className="group relative bg-white/95 backdrop-blur-xl rounded-2xl sm:rounded-[2rem] p-4 sm:p-8 border border-primary/40 shadow-xl shadow-black/10 transition-all duration-500 hover:shadow-[0_20px_60px_rgba(244,121,91,0.25)] hover:border-secondary/60 hover:scale-[1.03] cursor-pointer flex flex-col items-center justify-center">
                     <div className="absolute inset-0 rounded-[2rem] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" style={{ background: "radial-gradient(circle at 50% 50%, rgba(244,121,91,0.08), transparent 70%)" }} />
                     <div className="relative">
-                      <svg className="w-48 h-48 transition-transform duration-700 group-hover:scale-105" viewBox="0 0 200 200">
+                      <svg className="w-32 h-32 sm:w-48 sm:h-48 transition-transform duration-700 group-hover:scale-105" viewBox="0 0 200 200">
                         <defs>
                           <linearGradient id="irrTube3D" x1="0%" y1="0%" x2="0%" y2="100%">
                             <stop offset="0%" stopColor="#FFB89A" />
@@ -1694,17 +1694,17 @@ export default function Dashboard() {
                         />
                       </svg>
                       <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        <span className="text-5xl font-bold text-[#2d4a5e] tracking-tight font-mono transition-transform duration-500 group-hover:scale-110">{(portfolioIRR * 100).toFixed(1)}%</span>
-                        <span className="text-sm text-[#2d4a5e]/60 font-medium mt-2 label-text">Portfolio IRR</span>
+                        <span className="text-3xl sm:text-5xl font-bold text-[#2d4a5e] tracking-tight font-mono transition-transform duration-500 group-hover:scale-110">{(portfolioIRR * 100).toFixed(1)}%</span>
+                        <span className="text-xs sm:text-sm text-[#2d4a5e]/60 font-medium mt-1 sm:mt-2 label-text">Portfolio IRR</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Property IRR Comparison Bar Chart */}
-                  <div className="group bg-white/95 backdrop-blur-xl rounded-[2rem] p-6 border border-primary/40 shadow-xl shadow-black/10 w-full lg:min-w-[340px] transition-all duration-500 hover:shadow-[0_16px_50px_rgba(59,130,246,0.2)] hover:border-blue-400/50 hover:scale-[1.02] cursor-pointer flex flex-col" data-testid="chart-property-irr-comparison">
-                    <p className="text-xs font-medium tracking-widest text-[#2d4a5e]/60 uppercase mb-3 text-center label-text">Property IRR Comparison</p>
-                    <div className="flex-1 min-h-[220px]">
-                    <ResponsiveContainer width="100%" height="100%">
+                  <div className="group bg-white/95 backdrop-blur-xl rounded-2xl sm:rounded-[2rem] p-3 sm:p-6 border border-primary/40 shadow-xl shadow-black/10 w-full lg:min-w-[340px] transition-all duration-500 hover:shadow-[0_16px_50px_rgba(59,130,246,0.2)] hover:border-blue-400/50 hover:scale-[1.02] cursor-pointer flex flex-col" data-testid="chart-property-irr-comparison">
+                    <p className="text-[10px] sm:text-xs font-medium tracking-widest text-[#2d4a5e]/60 uppercase mb-2 sm:mb-3 text-center label-text">Property IRR Comparison</p>
+                    <div style={{ width: '100%', height: 220 }}>
+                    <ResponsiveContainer width="100%" height={220}>
                       <BarChart
                         data={properties.map((prop, idx) => {
                           const cashFlows = getPropertyCashFlows(idx);
@@ -1743,10 +1743,10 @@ export default function Dashboard() {
                   </div>
 
                   {/* Property Investment Bar Chart */}
-                  <div className="group bg-white/95 backdrop-blur-xl rounded-[2rem] p-6 border border-primary/40 shadow-xl shadow-black/10 w-full lg:min-w-[340px] transition-all duration-500 hover:shadow-[0_16px_50px_rgba(245,158,11,0.2)] hover:border-amber-400/50 hover:scale-[1.02] cursor-pointer flex flex-col" data-testid="chart-property-investment">
-                    <p className="text-xs font-medium tracking-widest text-[#2d4a5e]/60 uppercase mb-3 text-center label-text">Equity Investment by Property</p>
-                    <div className="flex-1 min-h-[220px]">
-                    <ResponsiveContainer width="100%" height="100%">
+                  <div className="group bg-white/95 backdrop-blur-xl rounded-2xl sm:rounded-[2rem] p-3 sm:p-6 border border-primary/40 shadow-xl shadow-black/10 w-full lg:min-w-[340px] transition-all duration-500 hover:shadow-[0_16px_50px_rgba(245,158,11,0.2)] hover:border-amber-400/50 hover:scale-[1.02] cursor-pointer flex flex-col" data-testid="chart-property-investment">
+                    <p className="text-[10px] sm:text-xs font-medium tracking-widest text-[#2d4a5e]/60 uppercase mb-2 sm:mb-3 text-center label-text">Equity Investment by Property</p>
+                    <div style={{ width: '100%', height: 220 }}>
+                    <ResponsiveContainer width="100%" height={220}>
                       <BarChart
                         data={properties.map((prop) => {
                           const investment = getPropertyInvestment(prop);
@@ -1785,13 +1785,13 @@ export default function Dashboard() {
                 </div>
 
                 {/* Key Metrics Grid - Liquid Glass Cards */}
-                <div className="grid gap-4 grid-cols-2 lg:grid-cols-4 max-w-5xl mx-auto">
+                <div className="grid gap-2 sm:gap-4 grid-cols-2 lg:grid-cols-4 max-w-5xl mx-auto">
                   {/* Equity Multiple */}
-                  <div className="group bg-white/90 backdrop-blur-xl rounded-2xl p-5 border border-white/40 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-[0_16px_48px_rgba(37,99,235,0.2)] hover:border-blue-300/60 hover:scale-[1.05] hover:-translate-y-1 cursor-pointer">
+                  <div className="group relative bg-white/90 backdrop-blur-xl rounded-xl sm:rounded-2xl p-3 sm:p-5 border border-white/40 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-[0_16px_48px_rgba(37,99,235,0.2)] hover:border-blue-300/60 hover:scale-[1.05] hover:-translate-y-1 cursor-pointer overflow-hidden">
                     <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-600 pointer-events-none" style={{ background: "radial-gradient(circle at 30% 30%, rgba(37,99,235,0.06), transparent 60%)" }} />
-                    <div className="flex items-center gap-4 mb-3 relative">
-                      <div className="relative w-14 h-14 flex-shrink-0">
-                        <svg className="w-14 h-14 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-[5deg]" viewBox="0 0 100 100">
+                    <div className="flex items-center gap-2 sm:gap-4 mb-2 sm:mb-3 relative">
+                      <div className="relative w-10 h-10 sm:w-14 sm:h-14 flex-shrink-0">
+                        <svg className="w-10 h-10 sm:w-14 sm:h-14 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-[5deg]" viewBox="0 0 100 100">
                           <defs>
                             <linearGradient id="smallTube3D_eq" x1="0%" y1="0%" x2="0%" y2="100%">
                               <stop offset="0%" stopColor="#3B82F6" />
@@ -1810,22 +1810,22 @@ export default function Dashboard() {
                           />
                         </svg>
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <span className="text-sm font-bold text-[#2d4a5e] font-mono">{equityMultiple.toFixed(1)}x</span>
+                          <span className="text-[10px] sm:text-sm font-bold text-[#2d4a5e] font-mono">{equityMultiple.toFixed(1)}x</span>
                         </div>
                       </div>
-                      <div>
-                        <p className="text-2xl font-bold text-[#2563EB] font-mono transition-transform duration-300 group-hover:scale-105">{equityMultiple.toFixed(2)}x</p>
-                        <p className="text-sm text-[#2d4a5e]/60 label-text">Equity Multiple</p>
+                      <div className="min-w-0">
+                        <p className="text-lg sm:text-2xl font-bold text-[#2563EB] font-mono transition-transform duration-300 group-hover:scale-105 truncate">{equityMultiple.toFixed(2)}x</p>
+                        <p className="text-xs sm:text-sm text-[#2d4a5e]/60 label-text">Equity Multiple</p>
                       </div>
                     </div>
                   </div>
 
                   {/* Cash-on-Cash */}
-                  <div className="group bg-white/90 backdrop-blur-xl rounded-2xl p-5 border border-white/40 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-[0_16px_48px_rgba(217,119,6,0.2)] hover:border-amber-300/60 hover:scale-[1.05] hover:-translate-y-1 cursor-pointer">
+                  <div className="group relative bg-white/90 backdrop-blur-xl rounded-xl sm:rounded-2xl p-3 sm:p-5 border border-white/40 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-[0_16px_48px_rgba(217,119,6,0.2)] hover:border-amber-300/60 hover:scale-[1.05] hover:-translate-y-1 cursor-pointer overflow-hidden">
                     <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-600 pointer-events-none" style={{ background: "radial-gradient(circle at 30% 30%, rgba(217,119,6,0.06), transparent 60%)" }} />
-                    <div className="flex items-center gap-4 mb-3 relative">
-                      <div className="relative w-14 h-14 flex-shrink-0">
-                        <svg className="w-14 h-14 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-[5deg]" viewBox="0 0 100 100">
+                    <div className="flex items-center gap-2 sm:gap-4 mb-2 sm:mb-3 relative">
+                      <div className="relative w-10 h-10 sm:w-14 sm:h-14 flex-shrink-0">
+                        <svg className="w-10 h-10 sm:w-14 sm:h-14 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-[5deg]" viewBox="0 0 100 100">
                           <defs>
                             <linearGradient id="smallTube3D_coc" x1="0%" y1="0%" x2="0%" y2="100%">
                               <stop offset="0%" stopColor="#F59E0B" />
@@ -1844,22 +1844,22 @@ export default function Dashboard() {
                           />
                         </svg>
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <span className="text-sm font-bold text-[#2d4a5e] font-mono">{cashOnCash.toFixed(0)}%</span>
+                          <span className="text-[10px] sm:text-sm font-bold text-[#2d4a5e] font-mono">{cashOnCash.toFixed(0)}%</span>
                         </div>
                       </div>
-                      <div>
-                        <p className="text-2xl font-bold text-[#D97706] font-mono transition-transform duration-300 group-hover:scale-105">{cashOnCash.toFixed(1)}%</p>
-                        <p className="text-sm text-[#2d4a5e]/60 label-text">Cash-on-Cash</p>
+                      <div className="min-w-0">
+                        <p className="text-lg sm:text-2xl font-bold text-[#D97706] font-mono transition-transform duration-300 group-hover:scale-105 truncate">{cashOnCash.toFixed(1)}%</p>
+                        <p className="text-xs sm:text-sm text-[#2d4a5e]/60 label-text">Cash-on-Cash</p>
                       </div>
                     </div>
                   </div>
 
                   {/* Total Equity */}
-                  <div className="group relative bg-white/90 backdrop-blur-xl rounded-2xl p-5 border border-white/40 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-[0_16px_48px_rgba(45,74,94,0.15)] hover:border-primary/50 hover:scale-[1.05] hover:-translate-y-1 cursor-pointer">
+                  <div className="group relative bg-white/90 backdrop-blur-xl rounded-xl sm:rounded-2xl p-3 sm:p-5 border border-white/40 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-[0_16px_48px_rgba(45,74,94,0.15)] hover:border-primary/50 hover:scale-[1.05] hover:-translate-y-1 cursor-pointer overflow-hidden">
                     <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-600 pointer-events-none" style={{ background: "radial-gradient(circle at 50% 80%, rgba(159,188,164,0.1), transparent 60%)" }} />
                     <div className="relative mb-2">
-                      <p className="text-2xl font-bold text-[#2d4a5e] font-mono transition-transform duration-300 group-hover:scale-105">{formatMoney(totalInitialEquity)}</p>
-                      <p className="text-sm text-[#2d4a5e]/60 label-text">Equity Invested</p>
+                      <p className="text-base sm:text-2xl font-bold text-[#2d4a5e] font-mono transition-transform duration-300 group-hover:scale-105 truncate">{formatMoney(totalInitialEquity)}</p>
+                      <p className="text-xs sm:text-sm text-[#2d4a5e]/60 label-text">Equity Invested</p>
                     </div>
                     <div className="relative h-1.5 bg-[#2d4a5e]/10 rounded-full overflow-hidden">
                       <div className="h-full bg-gradient-to-r from-primary to-secondary rounded-full transition-all duration-700 group-hover:shadow-[0_0_12px_rgba(159,188,164,0.6)]" style={{ width: '100%' }} />
@@ -1867,17 +1867,17 @@ export default function Dashboard() {
                   </div>
 
                   {/* Exit Value */}
-                  <div className="group relative bg-white/90 backdrop-blur-xl rounded-2xl p-5 border border-white/40 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-[0_16px_48px_rgba(5,150,105,0.2)] hover:border-emerald-300/60 hover:scale-[1.05] hover:-translate-y-1 cursor-pointer">
+                  <div className="group relative bg-white/90 backdrop-blur-xl rounded-xl sm:rounded-2xl p-3 sm:p-5 border border-white/40 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-[0_16px_48px_rgba(5,150,105,0.2)] hover:border-emerald-300/60 hover:scale-[1.05] hover:-translate-y-1 cursor-pointer overflow-hidden">
                     <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-600 pointer-events-none" style={{ background: "radial-gradient(circle at 70% 30%, rgba(5,150,105,0.06), transparent 60%)" }} />
                     <div className="relative mb-2">
-                      <p className="text-2xl font-bold text-[#059669] font-mono transition-transform duration-300 group-hover:scale-105">{formatMoney(totalExitValue)}</p>
-                      <p className="text-sm text-[#2d4a5e]/60 label-text">Projected Exit</p>
+                      <p className="text-base sm:text-2xl font-bold text-[#059669] font-mono transition-transform duration-300 group-hover:scale-105 truncate">{formatMoney(totalExitValue)}</p>
+                      <p className="text-xs sm:text-sm text-[#2d4a5e]/60 label-text">Projected Exit</p>
                     </div>
-                    <div className="relative flex items-center gap-1.5">
-                      <svg className="w-4 h-4 text-[#059669] transition-transform duration-500 group-hover:scale-125 group-hover:-translate-y-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div className="relative flex items-center gap-1">
+                      <svg className="w-3 h-3 sm:w-4 sm:h-4 text-[#059669] flex-shrink-0 transition-transform duration-500 group-hover:scale-125 group-hover:-translate-y-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
                       </svg>
-                      <span className="text-sm font-medium text-[#059669] font-mono">+{((totalExitValue / totalInitialEquity - 1) * 100).toFixed(0)}% gain</span>
+                      <span className="text-xs sm:text-sm font-medium text-[#059669] font-mono truncate">+{((totalExitValue / totalInitialEquity - 1) * 100).toFixed(0)}% gain</span>
                     </div>
                   </div>
                 </div>
@@ -1885,7 +1885,7 @@ export default function Dashboard() {
             </div>
 
             {/* Portfolio & Capital Summary - Fluid Glass Style */}
-            <div className="relative overflow-hidden rounded-3xl p-6 border border-primary/30 shadow-2xl">
+            <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl p-3 sm:p-6 border border-primary/30 shadow-2xl">
               {/* Sage Glass Background with Fluid Effect */}
               <div className="absolute inset-0 bg-primary/25 backdrop-blur-3xl" />
               <div className="absolute inset-0">
@@ -1896,9 +1896,9 @@ export default function Dashboard() {
               
               <div className="relative grid gap-6 md:grid-cols-2">
                 {/* Portfolio Composition */}
-                <div className="group bg-white/90 backdrop-blur-xl rounded-2xl p-6 border border-white/40 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-[0_16px_48px_rgba(159,188,164,0.2)] hover:border-primary/50 hover:scale-[1.02] hover:-translate-y-1 cursor-pointer relative overflow-hidden">
+                <div className="group bg-white/90 backdrop-blur-xl rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/40 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-[0_16px_48px_rgba(159,188,164,0.2)] hover:border-primary/50 hover:scale-[1.02] hover:-translate-y-1 cursor-pointer relative overflow-hidden">
                   <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-600 pointer-events-none" style={{ background: "radial-gradient(circle at 20% 20%, rgba(159,188,164,0.1), transparent 60%)" }} />
-                  <h3 className="text-lg font-semibold text-[#2d4a5e] mb-4 font-display relative">Portfolio Composition</h3>
+                  <h3 className="text-base sm:text-lg font-semibold text-[#2d4a5e] mb-4 font-display relative">Portfolio Composition</h3>
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-[#2d4a5e]/60 label-text">Properties</span>
@@ -1924,9 +1924,9 @@ export default function Dashboard() {
                 </div>
 
                 {/* Capital Structure */}
-                <div className="group bg-white/90 backdrop-blur-xl rounded-2xl p-6 border border-white/40 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-[0_16px_48px_rgba(45,74,94,0.15)] hover:border-[#2d4a5e]/30 hover:scale-[1.02] hover:-translate-y-1 cursor-pointer relative overflow-hidden">
+                <div className="group bg-white/90 backdrop-blur-xl rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/40 shadow-lg shadow-black/10 transition-all duration-500 hover:shadow-[0_16px_48px_rgba(45,74,94,0.15)] hover:border-[#2d4a5e]/30 hover:scale-[1.02] hover:-translate-y-1 cursor-pointer relative overflow-hidden">
                   <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-600 pointer-events-none" style={{ background: "radial-gradient(circle at 80% 20%, rgba(45,74,94,0.06), transparent 60%)" }} />
-                  <h3 className="text-lg font-semibold text-[#2d4a5e] mb-4 font-display relative">Capital Structure</h3>
+                  <h3 className="text-base sm:text-lg font-semibold text-[#2d4a5e] mb-4 font-display relative">Capital Structure</h3>
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-[#2d4a5e]/60 label-text">Total Investment</span>
@@ -1953,18 +1953,18 @@ export default function Dashboard() {
               </div>
               
               {/* Projection Totals Row */}
-              <div className="relative mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                <div className="bg-white/90 backdrop-blur-xl rounded-xl p-4 border border-white/40 shadow-lg shadow-black/10 text-center">
+              <div className="relative mt-4 sm:mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="bg-white/90 backdrop-blur-xl rounded-xl p-3 sm:p-4 border border-white/40 shadow-lg shadow-black/10 text-center">
                   <p className="text-sm text-[#2d4a5e]/60 mb-1 label-text">{projectionYears}-Year Revenue</p>
-                  <p className="text-xl font-bold text-[#2d4a5e] font-mono">{formatMoney(totalProjectionRevenue)}</p>
+                  <p className="text-base sm:text-xl font-bold text-[#2d4a5e] font-mono">{formatMoney(totalProjectionRevenue)}</p>
                 </div>
-                <div className="bg-white/90 backdrop-blur-xl rounded-xl p-4 border border-white/40 shadow-lg shadow-black/10 text-center">
+                <div className="bg-white/90 backdrop-blur-xl rounded-xl p-3 sm:p-4 border border-white/40 shadow-lg shadow-black/10 text-center">
                   <p className="text-sm text-[#2d4a5e]/60 mb-1 label-text">{projectionYears}-Year NOI</p>
-                  <p className="text-xl font-bold text-[#2d4a5e] font-mono">{formatMoney(totalProjectionNOI)}</p>
+                  <p className="text-base sm:text-xl font-bold text-[#2d4a5e] font-mono">{formatMoney(totalProjectionNOI)}</p>
                 </div>
-                <div className="bg-white/90 backdrop-blur-xl rounded-xl p-4 border border-white/40 shadow-lg shadow-black/10 text-center">
+                <div className="bg-white/90 backdrop-blur-xl rounded-xl p-3 sm:p-4 border border-white/40 shadow-lg shadow-black/10 text-center">
                   <p className="text-sm text-[#2d4a5e]/60 mb-1 label-text">{projectionYears}-Year Cash Flow</p>
-                  <p className="text-xl font-bold text-[#2d4a5e] font-mono">{formatMoney(totalProjectionCashFlow)}</p>
+                  <p className="text-base sm:text-xl font-bold text-[#2d4a5e] font-mono">{formatMoney(totalProjectionCashFlow)}</p>
                 </div>
               </div>
             </div>

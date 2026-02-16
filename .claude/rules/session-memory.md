@@ -7,6 +7,38 @@ This rule ensures continuity across chat resets. The agent must treat this file 
 
 ---
 
+## Session: February 16, 2026 — Mobile Responsive Skills & Device-Specific Documentation
+
+### What Was Done
+
+#### 1. Created Mobile/Tablet Responsive Skill Directory
+- **Location:** `.claude/skills/mobile-responsive/` (4 files)
+- **Files created:**
+  - `SKILL.md` — Comprehensive mobile responsive patterns: 10 common fix categories (text overflow, padding, grids, Recharts height, border radius, icons, flex direction, tables, labels, card overflow), breakpoint strategy, DarkGlassTabs pattern, hero sections, anti-patterns table
+  - `tablet-layouts.md` — iPad-specific patterns: iPad viewport sizes, sidebar behavior, grid patterns, chart sizing, split-view layouts, dialog sizing, touch targets
+  - `device-testing-checklist.md` — Per-page verification checklist for iPhone SE/14/iPad Mini/Pro, cross-cutting checks, common failures table
+  - `responsive-helpers.md` — Documents `useIsMobile` hook, KPIGrid reference implementation, responsive text/spacing scales, chart height helper, overflow protection patterns
+
+#### 2. Updated Context Loading
+- Added "Mobile & Tablet Responsiveness" section to `.claude/skills/context-loading/SKILL.md`
+- 6 task-to-skill mappings: fix mobile layout, iPad layout, responsive charts, device testing, useIsMobile hook, full mobile overhaul
+- Updated skill file counts: 92 → 96
+
+#### 3. Updated Skill Organization Rule
+- Added `mobile-responsive/` to directory tree in `.claude/rules/skill-organization.md`
+- Added cross-reference: `graphics-rich-design.md` governs `mobile-responsive/SKILL.md` and `device-testing-checklist.md`
+
+#### 4. Updated replit.md
+- Added `.claude/skills/mobile-responsive/` to Key Directories section
+- Updated skill count to 96
+
+### Key Decisions
+- Mobile responsive is its own skill directory (not under `ui/`) because it's cross-cutting across all UI components
+- 4 dedicated skill files covering patterns, tablet-specific, testing checklist, and utility hooks
+- Responsive patterns documented from actual fixes applied to Dashboard, PropertyDetail, KPIGrid, Login, Profile, DarkGlassTabs
+
+---
+
 ## Session: February 16, 2026 — Comprehensive Test Coverage & TypeScript Fixes
 
 ### What Was Done

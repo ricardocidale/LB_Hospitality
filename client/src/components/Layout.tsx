@@ -316,7 +316,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
               {/* Content */}
               <div className="relative flex items-center gap-3 px-3 py-3">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-sidebar-foreground font-bold text-sm shadow-[0_0_16px_rgba(159,188,164,0.4)]">
-                  {user?.name ? user.name.charAt(0).toUpperCase() : user?.email?.charAt(0).toUpperCase() || "U"}
+                  {user?.firstName ? user.firstName.charAt(0).toUpperCase() : user?.name ? user.name.charAt(0).toUpperCase() : user?.email?.charAt(0).toUpperCase() || "U"}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-sidebar-foreground truncate">{user?.name || user?.email || "User"}</p>

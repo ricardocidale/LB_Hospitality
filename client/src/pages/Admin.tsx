@@ -44,6 +44,8 @@ interface DesignCheckResult {
 interface User {
   id: number;
   email: string;
+  firstName: string | null;
+  lastName: string | null;
   name: string | null;
   company: string | null;
   companyId: number | null;
@@ -207,8 +209,8 @@ export default function Admin() {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [newPassword, setNewPassword] = useState("");
-  const [newUser, setNewUser] = useState({ email: "", password: "", name: "", company: "", title: "", role: "partner" as string });
-  const [editUser, setEditUser] = useState({ email: "", name: "", company: "", title: "", role: "partner" as string });
+  const [newUser, setNewUser] = useState({ email: "", password: "", firstName: "", lastName: "", company: "", title: "", role: "partner" as string });
+  const [editUser, setEditUser] = useState({ email: "", firstName: "", lastName: "", company: "", title: "", role: "partner" as string });
   const [originalEmail, setOriginalEmail] = useState("");
   const [showNewUserPassword, setShowNewUserPassword] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
@@ -590,7 +592,7 @@ export default function Admin() {
 
 
   const createMutation = useMutation({
-    mutationFn: async (data: { email: string; password: string; name?: string; company?: string; title?: string; role?: string }) => {
+    mutationFn: async (data: { email: string; password: string; firstName?: string; lastName?: string; company?: string; title?: string; role?: string }) => {
       const res = await fetch("/api/admin/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -657,7 +659,7 @@ export default function Admin() {
   });
 
   const editMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: { email?: string; name?: string; company?: string; title?: string; role?: string } }) => {
+    mutationFn: async ({ id, data }: { id: number; data: { email?: string; firstName?: string; lastName?: string; company?: string; title?: string; role?: string } }) => {
       const res = await fetch(`/api/admin/users/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -1113,7 +1115,7 @@ export default function Admin() {
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-primary/10"
-                        onClick={() => { setSelectedUser(user); setOriginalEmail(user.email); setEditUser({ email: user.email, name: user.name || "", company: user.company || "", title: user.title || "", role: user.role || "partner" }); setEditDialogOpen(true); }}
+                        onClick={() => { setSelectedUser(user); setOriginalEmail(user.email); setEditUser({ email: user.email, firstName: user.firstName || "", lastName: user.lastName || "", company: user.company || "", title: user.title || "", role: user.role || "partner" }); setEditDialogOpen(true); }}
                         data-testid={`button-edit-user-${user.id}`}>
                         <Pencil className="w-4 h-4" />
                       </Button>
@@ -2910,7 +2912,10 @@ export default function Admin() {
                 </button>
               </div>
             </div>
-            <div className="space-y-2"><Label className="flex items-center gap-2"><Users className="w-4 h-4 text-gray-500" />Name</Label><Input value={newUser.name} onChange={(e) => setNewUser({ ...newUser, name: e.target.value })} placeholder="Full name" data-testid="input-new-user-name" /></div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2"><Label className="flex items-center gap-2"><Users className="w-4 h-4 text-gray-500" />First Name</Label><Input value={newUser.firstName} onChange={(e) => setNewUser({ ...newUser, firstName: e.target.value })} placeholder="First name" data-testid="input-new-user-firstName" /></div>
+              <div className="space-y-2"><Label>Last Name</Label><Input value={newUser.lastName} onChange={(e) => setNewUser({ ...newUser, lastName: e.target.value })} placeholder="Last name" data-testid="input-new-user-lastName" /></div>
+            </div>
             <div className="space-y-2"><Label className="flex items-center gap-2"><LayoutGrid className="w-4 h-4 text-gray-500" />Company</Label><Input value={newUser.company} onChange={(e) => setNewUser({ ...newUser, company: e.target.value })} placeholder="Company name" data-testid="input-new-user-company" /></div>
             <div className="space-y-2"><Label className="flex items-center gap-2"><Shield className="w-4 h-4 text-gray-500" />Title</Label><Input value={newUser.title} onChange={(e) => setNewUser({ ...newUser, title: e.target.value })} placeholder="Job title" data-testid="input-new-user-title" /></div>
             <div className="space-y-2">
@@ -2971,7 +2976,10 @@ export default function Admin() {
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2"><Label className="flex items-center gap-2"><Mail className="w-4 h-4 text-gray-500" />Email</Label><Input value={editUser.email} onChange={(e) => setEditUser({ ...editUser, email: e.target.value })} data-testid="input-edit-email" /></div>
-            <div className="space-y-2"><Label className="flex items-center gap-2"><Users className="w-4 h-4 text-gray-500" />Name</Label><Input value={editUser.name} onChange={(e) => setEditUser({ ...editUser, name: e.target.value })} data-testid="input-edit-name" /></div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2"><Label className="flex items-center gap-2"><Users className="w-4 h-4 text-gray-500" />First Name</Label><Input value={editUser.firstName} onChange={(e) => setEditUser({ ...editUser, firstName: e.target.value })} data-testid="input-edit-firstName" /></div>
+              <div className="space-y-2"><Label>Last Name</Label><Input value={editUser.lastName} onChange={(e) => setEditUser({ ...editUser, lastName: e.target.value })} data-testid="input-edit-lastName" /></div>
+            </div>
             <div className="space-y-2"><Label className="flex items-center gap-2"><LayoutGrid className="w-4 h-4 text-gray-500" />Company</Label><Input value={editUser.company} onChange={(e) => setEditUser({ ...editUser, company: e.target.value })} data-testid="input-edit-company" /></div>
             <div className="space-y-2"><Label className="flex items-center gap-2"><Shield className="w-4 h-4 text-gray-500" />Title</Label><Input value={editUser.title} onChange={(e) => setEditUser({ ...editUser, title: e.target.value })} data-testid="input-edit-title" /></div>
             <div className="space-y-2">
@@ -2991,8 +2999,9 @@ export default function Admin() {
             <Button variant="outline" onClick={() => setEditDialogOpen(false)} data-testid="button-cancel-edit">Cancel</Button>
             <Button variant="outline" onClick={() => {
               if (!selectedUser) return;
-              const data: { email?: string; name?: string; company?: string; title?: string; role?: string } = {
-                name: editUser.name,
+              const data: { email?: string; firstName?: string; lastName?: string; company?: string; title?: string; role?: string } = {
+                firstName: editUser.firstName,
+                lastName: editUser.lastName,
                 company: editUser.company,
                 title: editUser.title,
               };

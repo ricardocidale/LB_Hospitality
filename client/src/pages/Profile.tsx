@@ -19,7 +19,8 @@ export default function Profile() {
   const { user, refetch } = useAuth();
   
   const [formData, setFormData] = useState({
-    name: "",
+    firstName: "",
+    lastName: "",
     email: "",
     company: "",
     title: "",
@@ -90,7 +91,8 @@ export default function Profile() {
   useEffect(() => {
     if (user) {
       setFormData({
-        name: user.name || "",
+        firstName: user.firstName || "",
+        lastName: user.lastName || "",
         email: user.email || "",
         company: user.company || "",
         title: user.title || "",
@@ -99,7 +101,7 @@ export default function Profile() {
   }, [user]);
 
   const updateMutation = useMutation({
-    mutationFn: async (data: { name?: string; email?: string; company?: string; title?: string }) => {
+    mutationFn: async (data: { firstName?: string; lastName?: string; email?: string; company?: string; title?: string }) => {
       const res = await fetch("/api/profile", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -256,16 +258,29 @@ export default function Profile() {
                 )}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="name" className="text-gray-700">Full Name</Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="Enter your full name"
-                  className="bg-white border-primary/30 text-gray-900"
-                  data-testid="input-profile-name"
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="firstName" className="text-gray-700">First Name</Label>
+                  <Input
+                    id="firstName"
+                    value={formData.firstName}
+                    onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                    placeholder="First name"
+                    className="bg-white border-primary/30 text-gray-900"
+                    data-testid="input-profile-firstName"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="lastName" className="text-gray-700">Last Name</Label>
+                  <Input
+                    id="lastName"
+                    value={formData.lastName}
+                    onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                    placeholder="Last name"
+                    className="bg-white border-primary/30 text-gray-900"
+                    data-testid="input-profile-lastName"
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">

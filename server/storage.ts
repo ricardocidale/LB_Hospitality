@@ -20,7 +20,7 @@ export interface IStorage {
   getAllUsers(): Promise<User[]>;
   deleteUser(id: number): Promise<void>;
   updateUserPassword(id: number, passwordHash: string): Promise<void>;
-  updateUserProfile(id: number, data: { name?: string; email?: string; company?: string; companyId?: number | null; title?: string }): Promise<User>;
+  updateUserProfile(id: number, data: { firstName?: string; lastName?: string; email?: string; company?: string; companyId?: number | null; title?: string }): Promise<User>;
   updateUserSelectedTheme(id: number, themeId: number | null): Promise<User>;
   updateUserRole(id: number, role: string): Promise<void>;
   
@@ -166,7 +166,8 @@ export class DatabaseStorage implements IStorage {
         email: data.email.toLowerCase(),
         passwordHash: data.passwordHash,
         role: data.role,
-        name: data.name,
+        firstName: data.firstName,
+        lastName: data.lastName,
         company: data.company,
         companyId: data.companyId,
         title: data.title,
@@ -200,7 +201,7 @@ export class DatabaseStorage implements IStorage {
     await db.delete(sessions).where(eq(sessions.userId, id));
   }
 
-  async updateUserProfile(id: number, data: { name?: string; email?: string; company?: string; companyId?: number | null; title?: string }): Promise<User> {
+  async updateUserProfile(id: number, data: { firstName?: string; lastName?: string; email?: string; company?: string; companyId?: number | null; title?: string }): Promise<User> {
     const [user] = await db
       .update(users)
       .set({ ...data, updatedAt: new Date() })

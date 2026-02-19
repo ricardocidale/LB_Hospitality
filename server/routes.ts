@@ -66,10 +66,20 @@ const loginSchema = z.object({
 
 const VALID_ROLES = VALID_USER_ROLES;
 
+function fullName(user: { firstName?: string | null; lastName?: string | null }): string | null {
+  const parts = [user.firstName, user.lastName].filter(Boolean);
+  return parts.length > 0 ? parts.join(" ") : null;
+}
+
+function userResponse(u: any, extra?: Record<string, any>) {
+  return { id: u.id, email: u.email, firstName: u.firstName, lastName: u.lastName, name: fullName(u), company: u.company, companyId: u.companyId, title: u.title, role: u.role, ...extra };
+}
+
 const createUserSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
-  name: z.string().max(100).optional(),
+  firstName: z.string().max(50).optional(),
+  lastName: z.string().max(50).optional(),
   company: z.string().max(100).optional(),
   companyId: z.number().nullable().optional(),
   title: z.string().max(100).optional(),
@@ -169,7 +179,7 @@ export async function registerRoutes(
       setSessionCookie(res, sessionId);
       
       res.json({ 
-        user: { id: user.id, email: user.email, name: user.name, company: user.company, title: user.title, role: user.role }
+        user: userResponse(user)
       });
     } catch (error) {
       console.error("Login error:", error);
@@ -214,7 +224,7 @@ export async function registerRoutes(
       setSessionCookie(res, sessionId);
 
       res.json({
-        user: { id: user.id, email: user.email, name: user.name, company: user.company, title: user.title, role: user.role }
+        user: userResponse(user)
       });
     } catch (error) {
       console.error("Admin login error:", error);
@@ -247,7 +257,7 @@ export async function registerRoutes(
       await storage.createLoginLog(user.id, sessionId, clientIp);
       setSessionCookie(res, sessionId);
       res.json({
-        user: { id: user.id, email: user.email, name: user.name, company: user.company, title: user.title, role: user.role }
+        user: userResponse(user)
       });
     } catch (error) {
       console.error("Dev login error:", error);
@@ -277,7 +287,7 @@ export async function registerRoutes(
       if (comp) companyName = comp.name;
     }
     res.json({
-      user: { id: u.id, email: u.email, name: u.name, company: u.company, companyId: u.companyId, companyName, title: u.title, role: u.role }
+      user: userResponse(u, { companyName })
     });
   });
 
@@ -322,7 +332,8 @@ export async function registerRoutes(
   // --- USER PROFILE ROUTES ---
   
   const updateProfileSchema = z.object({
-    name: z.string().max(100).optional(),
+    firstName: z.string().max(50).optional(),
+    lastName: z.string().max(50).optional(),
     email: z.string().email().max(255).optional(),
     company: z.string().max(100).optional(),
     title: z.string().max(100).optional(),
@@ -336,8 +347,9 @@ export async function registerRoutes(
         return res.status(400).json({ error: error.message });
       }
       
-      const updates: { name?: string; email?: string; company?: string; title?: string } = {};
-      if (validation.data.name !== undefined) updates.name = validation.data.name.trim();
+      const updates: { firstName?: string; lastName?: string; email?: string; company?: string; title?: string } = {};
+      if (validation.data.firstName !== undefined) updates.firstName = validation.data.firstName.trim();
+      if (validation.data.lastName !== undefined) updates.lastName = validation.data.lastName.trim();
       if (validation.data.email !== undefined) {
         const protectedEmails = ["admin", "checker@norfolkgroup.io"];
         if (protectedEmails.includes(req.user!.email.toLowerCase())) {
@@ -356,7 +368,7 @@ export async function registerRoutes(
       if (validation.data.title !== undefined) updates.title = validation.data.title.trim();
       
       const user = await storage.updateUserProfile(req.user!.id, updates);
-      res.json({ id: user.id, email: user.email, name: user.name, company: user.company, title: user.title, role: user.role });
+      res.json(userResponse(user));
     } catch (error) {
       console.error("Error updating profile:", error);
       res.status(500).json({ error: "Failed to update profile" });
@@ -432,7 +444,7 @@ export async function registerRoutes(
   app.get("/api/admin/users", requireAdmin, async (req, res) => {
     try {
       const users = await storage.getAllUsers();
-      res.json(users.map(u => ({ id: u.id, email: u.email, name: u.name, company: u.company, companyId: u.companyId, title: u.title, role: u.role, createdAt: u.createdAt, userGroupId: u.userGroupId })));
+      res.json(users.map(u => ({ ...userResponse(u), createdAt: u.createdAt, userGroupId: u.userGroupId })));
     } catch (error) {
       console.error("Error fetching users:", error);
       res.status(500).json({ error: "Failed to fetch users" });
@@ -449,7 +461,8 @@ export async function registerRoutes(
       
       const email = sanitizeEmail(validation.data.email);
       const password = validation.data.password;
-      const name = validation.data.name?.trim();
+      const firstName = validation.data.firstName?.trim();
+      const lastName = validation.data.lastName?.trim();
       const company = validation.data.company?.trim();
       const title = validation.data.title?.trim();
       
@@ -466,10 +479,10 @@ export async function registerRoutes(
       const role = validation.data.role || "partner";
       const companyId = validation.data.companyId ?? null;
       const passwordHash = await hashPassword(password);
-      const user = await storage.createUser({ email, passwordHash, role, name, company, companyId, title });
+      const user = await storage.createUser({ email, passwordHash, role, firstName, lastName, company, companyId, title });
       logActivity(req, "create", "user", user.id, user.email, { role });
 
-      res.json({ id: user.id, email: user.email, name: user.name, company: user.company, companyId: user.companyId, title: user.title, role: user.role });
+      res.json(userResponse(user));
     } catch (error) {
       console.error("Error creating user:", error);
       res.status(500).json({ error: "Failed to create user" });
@@ -509,7 +522,8 @@ export async function registerRoutes(
   });
 
   const adminUpdateUserSchema = z.object({
-    name: z.string().max(100).optional(),
+    firstName: z.string().max(50).optional(),
+    lastName: z.string().max(50).optional(),
     email: z.string().email().max(255).optional(),
     company: z.string().max(100).optional(),
     companyId: z.number().nullable().optional(),
@@ -548,7 +562,7 @@ export async function registerRoutes(
         logActivity(req, "role_change", "user", id, existingUser.email, { oldRole: existingUser.role, newRole: validation.data.role });
       }
       
-      const updates: { email?: string; name?: string; company?: string; companyId?: number | null; title?: string } = {};
+      const updates: { email?: string; firstName?: string; lastName?: string; company?: string; companyId?: number | null; title?: string } = {};
       if (validation.data.email !== undefined) {
         const newEmail = sanitizeEmail(validation.data.email);
         if (newEmail !== existingUser.email) {
@@ -559,13 +573,14 @@ export async function registerRoutes(
           updates.email = newEmail;
         }
       }
-      if (validation.data.name !== undefined) updates.name = validation.data.name.trim();
+      if (validation.data.firstName !== undefined) updates.firstName = validation.data.firstName.trim();
+      if (validation.data.lastName !== undefined) updates.lastName = validation.data.lastName.trim();
       if (validation.data.company !== undefined) updates.company = validation.data.company.trim();
       if (validation.data.companyId !== undefined) updates.companyId = validation.data.companyId;
       if (validation.data.title !== undefined) updates.title = validation.data.title.trim();
       
       const user = await storage.updateUserProfile(id, updates);
-      res.json({ id: user.id, email: user.email, name: user.name, company: user.company, companyId: user.companyId, title: user.title, role: user.role });
+      res.json(userResponse(user));
     } catch (error) {
       console.error("Error updating user:", error);
       res.status(500).json({ error: "Failed to update user" });

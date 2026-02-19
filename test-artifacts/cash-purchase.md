@@ -1,5 +1,5 @@
 # Reconciliation Report: Cash Purchase (Full Equity)
-Generated: 2026-02-19T02:25:50.635Z
+Generated: 2026-02-19T11:59:08.518Z
 ## Sources & Uses at Acquisition
 | Item | Amount |
 |------|--------|

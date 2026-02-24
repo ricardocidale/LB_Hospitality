@@ -9,7 +9,7 @@ All skill files must follow consistent organization, naming, and placement conve
 ```
 .claude/
 ├── claude.md                  # Master doc (always loaded)
-├── rules/                     # Enforceable constraints (19 files + 1 archive)
+├── rules/                     # Enforceable constraints (20 files + 1 archive)
 ├── skills/                    # How-to documentation (96 files)
 │   ├── context-loading/       # Skill router (load first)
 │   ├── architecture/          # System architecture
@@ -93,6 +93,7 @@ Each rule governs one or more skill domains. When working in a domain, load both
 | `graphics-rich-design.md` | `mobile-responsive/SKILL.md`, `mobile-responsive/device-testing-checklist.md` | Graphics must render on all devices |
 | `skill-organization.md` | All skills | Skill file structure and naming |
 | `context-reduction.md` | All skills, all refactors | Every refactor/feature must produce supporting skills, helpers, scripts, and tools |
+| `premium-design.md` | `ui/*`, `3d-graphics/SKILL.md`, `mobile-responsive/SKILL.md` | Premium bespoke design: animated numbers, micro-interactions, glassmorphism, staggered reveals, skeleton loading |
 
 ## When Creating New Skills
 

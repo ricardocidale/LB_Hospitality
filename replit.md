@@ -85,6 +85,7 @@ Admin Settings page (`/admin`) — **refactored from 3,235-line monolith into 10
 - **No hardcoded values.** Financial assumptions and admin config from DB or named constants.
 - **Full recalculation on save.** No partial query invalidation.
 - **Context reduction mandatory.** Every refactor/feature must produce skills, helpers, scripts, and tools to reduce future context needs.
+- **Premium design always.** Every page must look $50K+ bespoke — animated numbers, micro-interactions, depth, staggered reveals, skeleton loading. Never generic AI-template design.
 - **Rule compliance on audits.** Check all `.claude/rules/` every audit.
 - **Session memory.** Update `session-memory.md` every session. Read it first.
 - **Docs after edits.** `.claude` docs and `replit.md` harmonized after code changes.

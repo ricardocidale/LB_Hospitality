@@ -237,9 +237,9 @@ export async function registerRoutes(
       if (process.env.NODE_ENV === "production") {
         return res.status(403).json({ error: "Dev login disabled in production" });
       }
-      const adminPassword = process.env.ADMIN_PASSWORD;
+      const adminPassword = process.env.PASSWORD_ADMIN;
       if (!adminPassword) {
-        return res.status(500).json({ error: "ADMIN_PASSWORD not configured" });
+        return res.status(500).json({ error: "PASSWORD_ADMIN not configured" });
       }
       const user = await storage.getUserByEmail("admin");
       if (!user) {
@@ -523,20 +523,27 @@ export async function registerRoutes(
 
   app.post("/api/admin/reset-all-passwords", requireAdmin, async (req, res) => {
     try {
-      const adminPw = process.env.ADMIN_PASSWORD;
+      const adminPw = process.env.PASSWORD_ADMIN;
       if (!adminPw) {
-        return res.status(500).json({ error: "ADMIN_PASSWORD not configured" });
+        return res.status(500).json({ error: "PASSWORD_ADMIN not configured" });
       }
+      const emailToSecret: Record<string, string | undefined> = {
+        "admin": process.env.PASSWORD_ADMIN,
+        "kit@kitcapital.com": process.env.PASSWORD_KIT,
+        "rosario@kitcapital.com": process.env.PASSWORD_ROSARIO,
+        "checker@norfolkgroup.io": process.env.PASSWORD_CHECKER,
+        "reynaldo.fagundes@norfolk.ai": process.env.PASSWORD_REYNALDO,
+        "lemazniku@icloud.com": process.env.PASSWORD_LEA,
+      };
       const allUsers = await storage.getAllUsers();
-      const passwordHash = await hashPassword(adminPw);
+      const defaultHash = await hashPassword(adminPw);
       let count = 0;
       for (const user of allUsers) {
-        if (user.email === "checker@norfolkgroup.io" && process.env.CHECKER_PASSWORD) {
-          await storage.updateUserPassword(user.id, await hashPassword(process.env.CHECKER_PASSWORD));
-        } else if (user.email === "reynaldo.fagundes@norfolk.ai" && process.env.REYNALDO_PASSWORD) {
-          await storage.updateUserPassword(user.id, await hashPassword(process.env.REYNALDO_PASSWORD));
+        const userPw = emailToSecret[user.email];
+        if (userPw) {
+          await storage.updateUserPassword(user.id, await hashPassword(userPw));
         } else {
-          await storage.updateUserPassword(user.id, passwordHash);
+          await storage.updateUserPassword(user.id, defaultHash);
         }
         count++;
       }
@@ -738,19 +745,22 @@ export async function registerRoutes(
       };
 
       // Seed users (skip if already exist — never overwrite)
-      const adminPw = process.env.ADMIN_PASSWORD;
-      const checkerPw = process.env.CHECKER_PASSWORD;
-      const reynaldoPw = process.env.REYNALDO_PASSWORD;
+      const adminPw = process.env.PASSWORD_ADMIN;
+      const checkerPw = process.env.PASSWORD_CHECKER;
+      const reynaldoPw = process.env.PASSWORD_REYNALDO;
+      const kitPw = process.env.PASSWORD_KIT;
+      const leaPw = process.env.PASSWORD_LEA;
+      const rosarioPw = process.env.PASSWORD_ROSARIO;
 
       if (!adminPw) {
-        console.warn("ADMIN_PASSWORD env var not set — skipping user seeding");
+        console.warn("PASSWORD_ADMIN env var not set — skipping user seeding");
       }
 
       const usersToSeed = !adminPw ? [] : [
         { email: "admin", passwordHash: await hashPassword(adminPw), role: "admin" as const, name: "Ricardo Cidale", company: "Norfolk Group", title: "Partner" },
-        { email: "rosario@kitcapital.com", passwordHash: await hashPassword(adminPw), role: "investor" as const, name: "Rosario David", company: "KIT Capital", title: "COO" },
-        { email: "kit@kitcapital.com", passwordHash: await hashPassword(adminPw), role: "partner" as const, name: "Dov Tuzman", company: "KIT Capital", title: "Principal" },
-        { email: "lemazniku@icloud.com", passwordHash: await hashPassword(adminPw), role: "partner" as const, name: "Lea Mazniku", company: "KIT Capital", title: "Partner" },
+        { email: "rosario@kitcapital.com", passwordHash: await hashPassword(rosarioPw || adminPw), role: "investor" as const, name: "Rosario David", company: "KIT Capital", title: "COO" },
+        { email: "kit@kitcapital.com", passwordHash: await hashPassword(kitPw || adminPw), role: "partner" as const, name: "Dov Tuzman", company: "KIT Capital", title: "Principal" },
+        { email: "lemazniku@icloud.com", passwordHash: await hashPassword(leaPw || adminPw), role: "partner" as const, name: "Lea Mazniku", company: "KIT Capital", title: "Partner" },
         ...(checkerPw ? [{ email: "checker@norfolkgroup.io", passwordHash: await hashPassword(checkerPw), role: "checker" as const, name: "Checker", company: "Norfolk AI", title: "Checker" }] : []),
         { email: "bhuvan@norfolkgroup.io", passwordHash: await hashPassword(adminPw), role: "partner" as const, name: "Bhuvan Agarwal", company: "Norfolk AI", title: "Financial Analyst" },
         ...(reynaldoPw ? [{ email: "reynaldo.fagundes@norfolk.ai", passwordHash: await hashPassword(reynaldoPw), role: "partner" as const, name: "Reynaldo Fagundes", company: "Norfolk AI", title: "CTO" }] : []),

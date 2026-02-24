@@ -534,6 +534,7 @@ export async function registerRoutes(
         "checker@norfolkgroup.io": process.env.PASSWORD_CHECKER,
         "reynaldo.fagundes@norfolk.ai": process.env.PASSWORD_REYNALDO,
         "lemazniku@icloud.com": process.env.PASSWORD_LEA,
+        "leslie@cidale.com": process.env.PASSWORD_LESLIE,
       };
       const allUsers = await storage.getAllUsers();
       const defaultPw = process.env.PASSWORD_DEFAULT || adminPw;
@@ -765,7 +766,7 @@ export async function registerRoutes(
         ...(checkerPw ? [{ email: "checker@norfolkgroup.io", passwordHash: await hashPassword(checkerPw), role: "checker" as const, name: "Checker", company: "Norfolk AI", title: "Checker" }] : []),
         { email: "bhuvan@norfolkgroup.io", passwordHash: await hashPassword(process.env.PASSWORD_DEFAULT || adminPw), role: "partner" as const, name: "Bhuvan Agarwal", company: "Norfolk AI", title: "Financial Analyst" },
         ...(reynaldoPw ? [{ email: "reynaldo.fagundes@norfolk.ai", passwordHash: await hashPassword(reynaldoPw), role: "partner" as const, name: "Reynaldo Fagundes", company: "Norfolk AI", title: "CTO" }] : []),
-        { email: "leslie@cidale.com", passwordHash: await hashPassword(process.env.PASSWORD_DEFAULT || adminPw), role: "partner" as const, name: "Leslie Cidale", company: "Numeratti Endeavors", title: "Senior Partner" },
+        { email: "leslie@cidale.com", passwordHash: await hashPassword(process.env.PASSWORD_LESLIE || process.env.PASSWORD_DEFAULT || adminPw), role: "partner" as const, name: "Leslie Cidale", company: "Numeratti Endeavors", title: "Senior Partner" },
       ];
       
       for (const userData of usersToSeed) {

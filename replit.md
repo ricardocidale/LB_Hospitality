@@ -7,10 +7,10 @@
 **Before ANY work, read `session-memory.md` + `replit.md` + all `.claude/rules/*.md`.** Include all rules in architect calls. See `.claude/rules/session-startup.md` for full protocol.
 
 ## Key Directories
-- `.claude/skills/` — 99+ skill files (finance, UI, testing, exports, proof system, architecture, research questions, mobile-responsive, admin refactor)
+- `.claude/skills/` — 99+ skill files (finance, UI, testing, exports, proof system, architecture, research questions, mobile-responsive, admin refactor, property refactor)
 - `.claude/skills/context-loading/` — Start here: maps task types to minimum required skills
 - `.claude/skills/mobile-responsive/` — 4 mobile/tablet skills (breakpoints, iPad layouts, device checklist, responsive helpers)
-- `.claude/rules/` — 18 rule files (session-startup, documentation, ui-patterns, constants, DB seeding, API routes, graphics, hardcoding, skill organization, etc.)
+- `.claude/rules/` — 20 rule files (session-startup, documentation, ui-patterns, constants, DB seeding, API routes, graphics, hardcoding, skill organization, context-reduction, premium-design, etc.)
 - `.claude/manuals/` — Checker manual and user manual
 - `.claude/tools/` — Tool schemas for analysis, financing, returns, validation, UI
 - `.claude/commands/` — 8 slash commands (verify, seed, scenarios, themes, etc.)

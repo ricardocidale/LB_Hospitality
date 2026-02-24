@@ -141,22 +141,31 @@ Research values are stored in the `research_values` JSONB column on each propert
 
 ## Admin Page Structure
 
-The Admin Settings page (`/admin`) has these tabs:
+Admin Settings page (`/admin`) — **refactored from 3,235-line monolith into 10 standalone tab components + 87-line shell**.
 
-| Tab | Value | Purpose |
-|-----|-------|---------|
-| Users | `users` | Create, edit, delete users; manage roles and passwords |
-| Companies | `companies` | Manage SPV companies for individual properties |
-| Activity | `activity` | View user activity logs and audit trail |
-| Verification | `verification` | Run and view financial verification results |
-| Logos | `logos` | Upload, AI-generate, or URL-import logo images (via AIImagePicker) |
-| User Groups | `user-groups` | Manage multi-tenant groups with branding assignments |
-| Branding | `branding` | View branding configuration summary |
-| Themes | `themes` | Manage design themes (colors, typography) |
-| Navigation | `sidebar` | Configure sidebar navigation visibility |
-| Database | `database` | Database management and diagnostics |
+- **Shell:** `client/src/pages/Admin.tsx` — tab navigation only, no business logic
+- **Barrel export:** `client/src/components/admin/index.ts`
+- **Shared types:** `client/src/components/admin/types.ts` (17 interfaces)
 
-Logo Management is a tab within Admin (not a separate sidebar link). The Branding tab shows a read-only logo summary with a "Manage Logos" button linking to the Logos tab.
+| Tab | Component | Purpose |
+|-----|-----------|---------|
+| Users | `UsersTab.tsx` | User CRUD, add/edit/password dialogs |
+| Companies | `CompaniesTab.tsx` | SPV management, mgmt company config |
+| Activity | `ActivityTab.tsx` | Login logs, activity feed, checker activity (3 sub-tabs) |
+| Verification | `VerificationTab.tsx` | Auto-verification, AI review, PDF export |
+| User Groups | `UserGroupsTab.tsx` | Group CRUD, user-to-group assignment |
+| Logos | `LogosTab.tsx` | Logo CRUD with AI image picker |
+| Branding | `BrandingTab.tsx` | Global branding config (`onNavigate` prop for cross-tab nav) |
+| Themes | `ThemesTab.tsx` | Wraps ThemeManager |
+| Navigation | `NavigationTab.tsx` | Sidebar toggle config |
+| Database | `DatabaseTab.tsx` | Sync status, seed execution |
+
+Each tab owns its data fetching, mutations, dialogs, and state (no prop drilling from shell). Logo Management is a tab within Admin (not a separate sidebar link). The Branding tab shows a read-only logo summary with a "Manage Logos" button linking to the Logos tab.
+
+### Production Seed Script
+- `script/seed-production.sql` — comprehensive SQL to seed production DB (401 lines)
+- Covers 11 persistent tables (companies, logos, user_groups, design_themes, users, global_assumptions, properties, property_fee_categories, market_research, research_questions, saved_searches)
+- Uses `OVERRIDING SYSTEM VALUE` for identity columns, resets sequences, idempotent with `ON CONFLICT DO NOTHING`
 
 ---
 
@@ -266,9 +275,9 @@ When ON (default), every financial line item shows a ? icon explaining its formu
 ```bash
 npm run dev            # Start dev server (port 5000)
 npm run health         # One-shot: tsc + tests + verify (~4 lines output)
-npm run test:summary   # Run all 1,502 tests, 1-line output on pass
+npm run test:summary   # Run all 1,529 tests, 1-line output on pass
 npm run verify:summary # 4-phase verification, compact output
-npm test               # Run all 1,502 tests (full output)
+npm test               # Run all 1,529 tests (full output)
 npm run verify         # Full 4-phase financial verification (verbose)
 npm run db:push        # Push schema changes
 npm run lint:summary   # tsc --noEmit with 1-line output

@@ -12,7 +12,7 @@
  * Property order can be controlled by the parent (e.g. sort by name or IRR).
  */
 import { formatMoney } from "@/lib/financialEngine";
-import { Trash2, MapPin, Bed, ArrowRight } from "lucide-react";
+import { Trash2, MapPin, Bed, ArrowRight, Calendar } from "lucide-react";
 import { Link } from "wouter";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { StaggerItem, HoverScale } from "@/components/ui/animated";
@@ -59,6 +59,7 @@ export function PortfolioPropertyCard({ property, onDelete }: PortfolioPropertyC
               property.status === "Operating" ? "bg-emerald-500/80 text-white" :
               property.status === "Improvements" ? "bg-amber-500/80 text-white" :
               property.status === "Acquired" ? "bg-blue-500/80 text-white" :
+              property.status === "Planned" ? "bg-sky-500/80 text-white" :
               property.status === "In Negotiation" ? "bg-purple-500/80 text-white" :
               property.status === "Pipeline" ? "bg-gray-500/80 text-white" : "bg-white/20 text-white"
             }`}>
@@ -72,6 +73,11 @@ export function PortfolioPropertyCard({ property, onDelete }: PortfolioPropertyC
           <div className="flex items-center text-background/60 text-sm mt-1 label-text">
             <MapPin className="w-3 h-3 mr-1" />
             {property.location}
+          </div>
+          <div className="flex items-center text-background/50 text-xs mt-1.5 label-text">
+            <Calendar className="w-3 h-3 mr-1" />
+            {property.status === "Acquired" || property.status === "Operating" ? "Acquired" : "Planned"}{" "}
+            {new Date(property.acquisitionDate).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
           </div>
         </div>
         

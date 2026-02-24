@@ -447,7 +447,7 @@ export const properties = pgTable("properties", {
   country: text("country"),
   market: text("market").notNull(),
   imageUrl: text("image_url").notNull(),
-  status: text("status").notNull(),
+  status: text("status").notNull().default("Pipeline"),
   
   acquisitionDate: text("acquisition_date").notNull(),
   operationsStartDate: text("operations_start_date").notNull(),

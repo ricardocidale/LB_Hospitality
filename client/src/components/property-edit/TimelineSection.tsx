@@ -1,3 +1,16 @@
+/**
+ * TimelineSection.tsx — Acquisition and renovation timeline inputs.
+ *
+ * Controls the key dates that anchor the financial model:
+ *   • Acquisition date  – when the property is purchased; Year 1 of projections
+ *   • Renovation start  – when capital improvements begin (capex drawdown starts)
+ *   • Renovation end    – when the property opens for business and revenue begins
+ *   • Operating months  – automatically derived from renovation end date; shows
+ *                         how many months of Year 1 generate revenue (partial year)
+ *
+ * These dates drive the "ramp-up" logic: occupancy and ADR in Year 1 are
+ * prorated based on how many operating months remain after renovation.
+ */
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { HelpTooltip } from "@/components/ui/help-tooltip";

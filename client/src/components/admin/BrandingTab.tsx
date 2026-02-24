@@ -1,3 +1,19 @@
+/**
+ * BrandingTab.tsx — Platform-wide branding configuration.
+ *
+ * Controls the visual identity of the entire platform instance:
+ *   • Company name — displayed in the sidebar, headers, and PDF exports
+ *   • Primary logo — selected from the LogosTab library; shown in the
+ *     sidebar, login page, and exported documents
+ *   • Property type label — the default noun used for properties throughout
+ *     the UI (e.g. "Hotel", "Property", "Resort", "Asset")
+ *   • Asset descriptions — configurable labels that appear in user groups
+ *     and can be overridden per-group for white-labeling
+ *
+ * Changes here immediately affect all users (unless overridden by their
+ * user group's branding). This is the platform-level default; user groups
+ * can layer on their own logo, theme, and asset description.
+ */
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";

@@ -1,3 +1,29 @@
+/**
+ * CompanyAssumptions.tsx — Editor for management-company-level financial assumptions.
+ *
+ * This page lets management-level users configure the inputs that drive the
+ * company pro-forma (as opposed to individual property pro-formas). Sections:
+ *   • Company Setup — name, model start date, projection years, inflation
+ *   • Funding — SAFE note tranches (amount, date, valuation cap, discount rate)
+ *   • Management Fees — base and incentive fee structures applied to properties
+ *   • Compensation — partner comp schedule (by year) and staff salary assumptions
+ *   • Fixed Overhead — office lease, professional services, tech, insurance start dates
+ *   • Variable Costs — travel per client, IT licensing, marketing %, misc ops %
+ *   • Tax — company income tax rate
+ *   • Exit & Sale — exit cap rate, sales commission rate
+ *   • Property Expense Rates — default cost-rate overrides for new properties
+ *   • Catering — catering revenue boost percentage
+ *   • Partner Comp — year-by-year partner count and compensation table
+ *   • Summary Footer — visual summary of total expenses and breakeven point
+ *
+ * AI research integration:
+ *   The page loads company-level market research and extracts recommended values
+ *   (e.g. industry-standard management fee ranges, staff salary benchmarks).
+ *   These are passed to each section component so "suggested" badges appear.
+ *
+ * On save, the entire formData object is POSTed to the global-assumptions
+ * endpoint, and all financial queries are invalidated for full recalculation.
+ */
 import { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import { AnimatedPage, ScrollReveal } from "@/components/graphics";

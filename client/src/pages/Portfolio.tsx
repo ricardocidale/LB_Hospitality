@@ -1,3 +1,25 @@
+/**
+ * Portfolio.tsx — Portfolio overview page listing all managed hospitality properties.
+ *
+ * This page shows a card grid of every property in the system, sorted by
+ * acquisition date. Each card links to the property detail page and displays
+ * the property photo, name, location, and status badge.
+ *
+ * Adding a property:
+ *   The "Add Property" button opens a dialog where the user fills in basic
+ *   details (name, location, photo, dates, room count, ADR, capital structure).
+ *   Default operating-cost rates and revenue-share percentages are applied from
+ *   the constants module so a new property can produce reasonable pro-formas
+ *   immediately. The user can refine these later on the PropertyEdit page.
+ *
+ * Operations start date auto-fill:
+ *   When the user sets an acquisition date, if the operations start date is
+ *   still blank, it auto-fills to 6 months later — a typical renovation timeline
+ *   for a boutique hospitality property.
+ *
+ * Deleting a property removes it from the portfolio and triggers a full
+ * invalidation of all financial queries so dashboards update.
+ */
 import { useState } from "react";
 import Layout from "@/components/Layout";
 import { useProperties, useDeleteProperty, useCreateProperty, useGlobalAssumptions } from "@/lib/api";

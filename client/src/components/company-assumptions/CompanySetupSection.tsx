@@ -1,3 +1,18 @@
+/**
+ * CompanySetupSection.tsx — Company identity and model timeline.
+ *
+ * Configures top-level settings for the management company entity:
+ *   • Company name (editable only by admins)
+ *   • Model start year — the first projection year (Year 1 of operations)
+ *   • Number of projection years — how many years to model (e.g. 10)
+ *   • Acquisition schedule — how many properties are acquired per year
+ *     (drives revenue ramp as each new property adds management fee income)
+ *   • Property type — the kind of properties the company manages (hotel,
+ *     B&B, resort, etc.), which influences default USALI expense ratios
+ *
+ * This section must be filled in before any other assumptions are meaningful,
+ * because the acquisition schedule determines when fee revenue begins.
+ */
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { HelpTooltip } from "@/components/ui/help-tooltip";

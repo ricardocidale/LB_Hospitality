@@ -1,3 +1,33 @@
+/**
+ * formulaChecker.ts — Mathematical Relationship Validator
+ *
+ * This file checks that the basic arithmetic relationships in the financial model
+ * are internally consistent. It does NOT recalculate from scratch (that's the
+ * auditor's job) — instead, it verifies that the numbers in each month's output
+ * satisfy the expected mathematical identities.
+ *
+ * For every month, it checks 7 formulas:
+ *   1. Room Revenue = ADR × Sold Rooms
+ *   2. Sold Rooms = Available Rooms × Occupancy
+ *   3. Total Revenue = Room + F&B + Events + Other
+ *   4. Total Expenses = Operating Expenses + Management Fees + FF&E Reserve
+ *   5. GOP (Gross Operating Profit) = Total Revenue - Operating Expenses
+ *   6. NOI (Net Operating Income) = GOP - Base Fee - Incentive Fee - FF&E
+ *   7. Net Income = NOI - Interest - Depreciation - Tax (GAAP formula)
+ *   8. Cash Flow = NOI - Debt Service - Tax + Refinancing Proceeds
+ *
+ * It also checks yearly metric formulas:
+ *   - ADR = Room Revenue ÷ Rooms Sold
+ *   - Occupancy = Rooms Sold ÷ Available Room Nights
+ *   - RevPAR = Room Revenue ÷ Available Rooms (should equal ADR × Occupancy)
+ *
+ * All checks use a 0.1% tolerance to account for floating-point rounding.
+ *
+ * Key terms:
+ *   - ADR (Average Daily Rate): What the hotel charges per room per night
+ *   - RevPAR (Revenue Per Available Room): The industry's primary performance metric
+ *   - FF&E (Furniture, Fixtures & Equipment): Reserve fund for replacing worn-out items
+ */
 import { MonthlyFinancials } from "./financialEngine";
 
 export interface FormulaCheckResult {

@@ -1,3 +1,19 @@
+/**
+ * SearchForm.tsx — Property Finder search criteria form.
+ *
+ * Collects the user's acquisition search parameters:
+ *   • Market / location (free text — e.g. "Nashville, TN" or "Pacific NW")
+ *   • Property type filter (boutique hotel, B&B, resort, etc.)
+ *   • Room count range (min / max)
+ *   • ADR range (min / max Average Daily Rate)
+ *   • Budget range (min / max purchase price)
+ *
+ * On submit, these criteria are sent to the backend which prompts an LLM
+ * to generate structured property recommendations. The search query is
+ * also saved (SavedSearchBar) so users can re-run it later.
+ *
+ * Exports the SearchFormData type used by the parent page.
+ */
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";

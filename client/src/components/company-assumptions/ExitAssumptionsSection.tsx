@@ -1,3 +1,19 @@
+/**
+ * ExitAssumptionsSection.tsx — Company-level exit / disposition assumptions.
+ *
+ * Configures how the model values the management company at the end
+ * of the projection period:
+ *
+ *   • Exit multiple — EBITDA multiple used to value the management company
+ *     at sale (e.g. 8× means sale price = 8 × trailing EBITDA)
+ *   • Exit year — which projection year the company is sold
+ *   • Disposition fee rate — commission or advisory fee on the sale
+ *
+ * These are conceptually different from the property-level exit assumptions
+ * (which use cap rates on NOI). Management companies are typically valued
+ * on an EBITDA multiple because they are operating businesses, not
+ * real estate assets.
+ */
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { HelpTooltip } from "@/components/ui/help-tooltip";

@@ -1,3 +1,22 @@
+/**
+ * UsersTab.tsx — User management panel for platform administrators.
+ *
+ * Provides full CRUD for user accounts:
+ *   • List all registered users with search/filter
+ *   • Create new users with username, password, and role assignment
+ *   • Edit user details (name, email, role)
+ *   • Reset passwords (generates a temporary password)
+ *   • Delete users (with confirmation dialog)
+ *   • Assign users to a UserGroup for branded experiences
+ *
+ * Roles:
+ *   • "admin"   – full platform access including this admin panel
+ *   • "user"    – standard access to portfolio and financial views
+ *   • "checker" – read-only access for financial verification/audit
+ *
+ * User data is fetched via TanStack Query from GET /api/admin/users
+ * and mutations go to POST/PATCH/DELETE /api/admin/users.
+ */
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";

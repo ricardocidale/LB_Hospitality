@@ -1,3 +1,30 @@
+/**
+ * OperatingCostRatesSection.tsx — USALI departmental expense rates.
+ *
+ * Configures every operating expense line on the property income statement,
+ * following the USALI (Uniform System of Accounts for the Lodging Industry)
+ * chart of accounts. Expenses are expressed as a percentage of total revenue:
+ *
+ *   Departmental Expenses (directly tied to revenue departments):
+ *     • Rooms expense rate (housekeeping, front desk labor, amenities)
+ *     • F&B expense rate (kitchen labor, food cost, beverage cost)
+ *
+ *   Undistributed Operating Expenses:
+ *     • Admin & General (A&G) — back-office, accounting, HR
+ *     • Sales & Marketing — advertising, commissions, loyalty programs
+ *     • Property Operations & Maintenance (POM) — repairs, engineering
+ *     • Utilities — energy, water, waste (split between fixed & variable)
+ *
+ *   Fixed Charges:
+ *     • Property tax rate
+ *     • Insurance rate
+ *     • FF&E reserve (Furniture, Fixtures & Equipment replacement fund,
+ *       typically 3–5% of revenue, required by most lenders)
+ *     • Income tax rate (property-level, separate from company tax)
+ *
+ * Together these rates determine GOP (Gross Operating Profit) and NOI (Net
+ * Operating Income), the two key profitability metrics.
+ */
 import { Label } from "@/components/ui/label";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { Slider } from "@/components/ui/slider";

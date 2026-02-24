@@ -1,3 +1,33 @@
+/**
+ * schedule.ts — Debt Service Schedule Builder
+ *
+ * Produces a month-by-month loan amortization schedule, which is central to
+ * the pro forma model. The schedule shows, for each month of the loan:
+ *   - Beginning balance (what you owe at the start of the month)
+ *   - Interest payment (balance × monthly rate — this is an income statement expense)
+ *   - Principal payment (reduces the loan balance — this is balance sheet only)
+ *   - Total payment (interest + principal — this is the actual cash leaving)
+ *   - Ending balance (beginning balance - principal)
+ *
+ * Two-phase structure:
+ *   Phase 1 — Interest-Only (IO): During the IO period, you only pay interest.
+ *     The loan balance doesn't decrease. Hotels often have IO periods because
+ *     they need time to ramp up occupancy before generating enough cash for
+ *     full amortizing payments.
+ *
+ *   Phase 2 — Amortizing: After IO ends, the PMT formula kicks in. The payment
+ *     amount stays constant, but each month more goes to principal and less to
+ *     interest (because the balance is shrinking, so interest shrinks too).
+ *
+ * Balloon payment: If amortization_months > term_months (e.g., 30-year amortization
+ * on a 10-year term), the loan won't be fully paid off by maturity. The remaining
+ * balance is due as a "balloon" payment in the final month. The final month logic
+ * handles this by setting principal = remaining balance, which may be a large amount.
+ *
+ * The rounding policy ensures consistent decimal treatment. The final-month cleanup
+ * prevents "rounding dust" — tiny leftover balances like $0.003 that would otherwise
+ * appear on financial statements.
+ */
 import { pmt, ioPayment } from "./pmt.js";
 import type { NewLoanTerms, ScheduleEntry } from "./types.js";
 import type { RoundingPolicy } from "../../domain/types/rounding.js";

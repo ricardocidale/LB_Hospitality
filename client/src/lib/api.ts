@@ -1,3 +1,27 @@
+/**
+ * api.ts — API client layer: every function that talks to the backend lives here.
+ *
+ * The file is organised into sections, each mapping to a backend resource:
+ *   1. Global Assumptions — the system-wide configuration (projection years,
+ *      inflation, staffing, funding, etc.) stored in the `global_assumptions` table.
+ *   2. Properties — CRUD for individual hospitality properties in the portfolio.
+ *   3. Fee Categories — per-property management-fee line items.
+ *   4. Scenarios — save/load/compare snapshots of the entire financial model.
+ *   5. Market Research — AI-generated research stored per property or globally.
+ *   6. Research Questions — admin-defined prompts fed to the AI research pipeline.
+ *   7. Property Finder — search for prospective real-estate listings and save
+ *      favourites.
+ *   8. Saved Searches — persist Property Finder filter criteria.
+ *
+ * Every mutation that changes financial data calls `invalidateAllFinancialQueries`
+ * on success, which forces React Query to refetch ALL data that feeds into the
+ * financial engine. This is by design — the model is tightly coupled, so a change
+ * to one property's occupancy could ripple into consolidated statements, company
+ * proformas, and dashboard KPIs. Partial invalidation would risk stale numbers.
+ *
+ * Each section exposes plain async functions (for direct use) and React Query
+ * hooks (useXxx / useCreateXxx / useUpdateXxx / useDeleteXxx) for component use.
+ */
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Property, InsertProperty, UpdateProperty } from "@shared/schema";
 

@@ -1,3 +1,17 @@
+/**
+ * PropertyKPIs.tsx — Summary KPI cards for the property detail page.
+ *
+ * Renders a responsive grid of key performance indicators pulled from
+ * the property's computed financial projections:
+ *   • ADR (Average Daily Rate) – stabilized nightly room rate
+ *   • RevPAR – Revenue Per Available Room (ADR × Occupancy)
+ *   • NOI – Net Operating Income at stabilization
+ *   • DSCR – Debt Service Coverage Ratio (NOI / Annual Debt Service)
+ *   • Equity Multiple – total equity returned / equity invested
+ *   • Levered IRR – Internal Rate of Return on equity (after debt)
+ *
+ * Uses formatCompact to abbreviate large dollar values (e.g. "$1.2M").
+ */
 import { KPIGrid, formatCompact, type KPIItem } from "@/components/graphics";
 import type { PropertyKPIsProps } from "./types";
 

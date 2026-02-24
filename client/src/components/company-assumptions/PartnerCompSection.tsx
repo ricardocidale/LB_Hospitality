@@ -1,3 +1,20 @@
+/**
+ * PartnerCompSection.tsx — Partner / founder compensation schedule.
+ *
+ * Configures the annual compensation for founding partners of the management
+ * company. Partner comp is a significant expense line, especially in early
+ * years when fee revenue is low.
+ *
+ * Inputs:
+ *   • Number of partners
+ *   • Per-partner annual draw (salary equivalent)
+ *   • Draw escalation rate (annual increase %)
+ *   • Year-by-year override table — lets users model a stepped schedule
+ *     where draws start low and increase as the portfolio grows
+ *
+ * The model start year is passed in so column headers show actual calendar
+ * years (e.g. 2025, 2026, 2027…) rather than abstract "Year 1, Year 2…".
+ */
 import { Label } from "@/components/ui/label";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";

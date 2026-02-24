@@ -1,3 +1,25 @@
+/**
+ * property-detail/types.ts
+ *
+ * Prop contracts for the property detail view components.
+ *
+ * Key types:
+ *   • PropertyHeaderProps      – props for the hero header (property object,
+ *                                property ID, and photo upload callback)
+ *   • PropertyKPIsProps        – yearly chart data and projection year range
+ *                                for the KPI summary grid
+ *   • IncomeStatementTabProps  – income statement data, projection years,
+ *                                chart data, and global assumptions reference
+ *   • CashFlowTabProps         – cash flow data with loan parameters (LTV,
+ *                                interest rate, amortization) needed for
+ *                                debt service and DSCR calculations
+ *   • PPECostBasisScheduleProps – cost basis, land value, FF&E, useful lives,
+ *                                and projection years for the depreciation table
+ *
+ * LoanParams and GlobalLoanParams are imported from the loan calculation
+ * library and provide the debt-structure inputs (LTV, interest rate, term)
+ * needed by CashFlowTab.
+ */
 import type { RefObject } from "react";
 import type { LoanParams, GlobalLoanParams } from "@/lib/loanCalculations";
 

@@ -1,3 +1,28 @@
+/**
+ * PropertyEdit.tsx — Property assumptions editor page.
+ *
+ * This page lets a user configure every financial input for a single property:
+ *   • Basic info (name, location, status, photo)
+ *   • Timeline (acquisition date, operations start, stabilization period)
+ *   • Capital structure (purchase price, building improvements, reserves, loan terms)
+ *   • Revenue assumptions (ADR, occupancy ramp, growth rates, catering boost)
+ *   • Operating cost rates (housekeeping, F&B, marketing, utilities, etc.)
+ *   • Management fees (per-property fee categories with custom rates)
+ *   • Other assumptions (exit cap rate, tax rate, land-value allocation)
+ *
+ * Research integration:
+ *   The page fetches AI-generated market research for the property and merges
+ *   those recommended values with generic industry defaults. Research values
+ *   appear as "suggested" badges next to each input, so the user can compare
+ *   their assumptions against market data at a glance.
+ *
+ * Saving:
+ *   On save, the property record and its fee categories are updated in a
+ *   two-step mutation (property first, then fees). All financial queries are
+ *   invalidated so the rest of the app recalculates with the new inputs.
+ *   A "beforeunload" listener warns the user if they try to leave with unsaved
+ *   changes.
+ */
 import Layout from "@/components/Layout";
 import { useProperty, useUpdateProperty, useGlobalAssumptions, useMarketResearch, useFeeCategories, useUpdateFeeCategories, type FeeCategoryResponse } from "@/lib/api";
 import { Button } from "@/components/ui/button";

@@ -1,3 +1,17 @@
+/**
+ * FavoriteCard.tsx — A saved prospective property from the Property Finder.
+ *
+ * After a user saves a search result, it becomes a "favorite" persisted in
+ * the database. This card shows:
+ *   • Property name, market, room count, and estimated ADR / purchase price
+ *   • An "Import" button that creates a real portfolio property from the
+ *     favorite's estimated values, pre-filling all financial assumptions
+ *   • A delete button to remove the favorite
+ *
+ * Favorites bridge the gap between AI-generated research and the portfolio:
+ * users can browse search results asynchronously, curate a shortlist, and
+ * only import the most promising targets for full financial modeling.
+ */
 import { formatMoney } from "@/lib/financialEngine";
 import type { SavedProspectiveProperty } from "@/lib/api";
 import {

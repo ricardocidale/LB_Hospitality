@@ -1,3 +1,19 @@
+/**
+ * useCompanyResearchStream.ts — React hook for streaming company-level AI research.
+ *
+ * Works identically to property-research/useResearchStream but targets
+ * the /api/company-research endpoint instead. The hook:
+ *   1. Opens an SSE connection and streams JSON tokens from the LLM
+ *   2. Progressively parses the accumulated string into a typed research object
+ *   3. Invalidates the TanStack Query cache on completion for persistence
+ *
+ * Returns:
+ *   • research     – parsed company research object (or null while streaming)
+ *   • rawText      – raw accumulated JSON for debugging
+ *   • isStreaming   – whether the SSE connection is active
+ *   • startStream  – initiates a new company research request
+ *   • cancelStream – aborts the current SSE connection
+ */
 import { useState, useRef, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -21,6 +37,8 @@ export function useCompanyResearchStream() {
         signal: abortRef.current.signal,
       });
       
+      // Read the SSE stream; same pattern as property research but targeting
+      // the company research endpoint
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
       let accumulated = "";
@@ -41,6 +59,7 @@ export function useCompanyResearchStream() {
                 setStreamedContent(accumulated);
               }
               if (data.done) {
+                // Persist the completed research by invalidating the cache
                 queryClient.invalidateQueries({ queryKey: ["research", "company"] });
               }
             } catch {}

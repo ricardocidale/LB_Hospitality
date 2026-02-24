@@ -1,3 +1,26 @@
+/**
+ * DatabaseTab.tsx — Database overview and seed data management.
+ *
+ * Provides admin visibility into the database and tools for initial setup:
+ *
+ *   Entity Counts:
+ *     Displays row counts for key tables (users, companies, properties,
+ *     global assumptions, etc.) so admins can quickly verify the database
+ *     state and spot anomalies.
+ *
+ *   Seed Data:
+ *     A "Populate" button that runs the server-side seed script, which
+ *     inserts sample properties, default global assumptions, demo users,
+ *     and fee categories. Useful for:
+ *       • Setting up a new production instance
+ *       • Resetting a demo environment
+ *       • Populating a staging database for testing
+ *
+ *     The seed operation streams progress via SSE (Server-Sent Events)
+ *     and shows a real-time log of inserted entities.
+ *
+ * Caution: seeding is additive — it does not truncate existing data.
+ */
 import { useState, useEffect, useRef } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";

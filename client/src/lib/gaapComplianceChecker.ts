@@ -1,3 +1,33 @@
+/**
+ * gaapComplianceChecker.ts — GAAP Standards Compliance Verifier
+ *
+ * This file checks that the financial model follows Generally Accepted Accounting
+ * Principles (GAAP). While the formulaChecker verifies math, this file verifies
+ * that accounting rules are applied correctly.
+ *
+ * Two main functions:
+ *
+ * 1. checkGAAPCompliance() — Checks the income statement and related items:
+ *    - ASC 470 (Debt): Interest expense reduces Net Income, but principal does NOT.
+ *      Principal is a balance sheet transaction (reducing a liability), not an expense.
+ *    - ASC 230 (Cash Flows): Cash Flow = NOI - full debt service (interest + principal) - tax.
+ *      Unlike Net Income, cash flow DOES include principal because it's actual cash leaving.
+ *    - ASC 606 (Revenue): Room revenue recognized when the guest stays (point-in-time).
+ *    - ASC 360 (Property): 27.5-year straight-line depreciation for residential rental property.
+ *    - Matching Principle: Expenses are recorded in the same period as related revenue.
+ *    - USALI: NOI is calculated BEFORE debt service (industry standard for hotels).
+ *    - FF&E Reserve: Set-aside for furniture/fixtures replacement is properly recorded.
+ *
+ * 2. checkCashFlowStatement() — Checks the Statement of Cash Flows per ASC 230:
+ *    - Operating Activities: Start with Net Income, add back depreciation (non-cash).
+ *      Interest paid is classified as operating (US GAAP rule).
+ *    - Financing Activities: Principal repayment is a financing outflow (not operating).
+ *
+ * Key insight: The difference between Net Income and Cash Flow comes down to two items:
+ *   - Depreciation: Reduces Net Income (non-cash expense) but NOT Cash Flow
+ *   - Principal: Reduces Cash Flow (actual cash out) but NOT Net Income
+ *   This is why: Cash Flow = Net Income + Depreciation - Principal
+ */
 import { MonthlyFinancials } from "./financialEngine";
 
 export interface ComplianceCheckResult {

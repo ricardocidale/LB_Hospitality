@@ -1,3 +1,21 @@
+/**
+ * NavigationTab.tsx — Sidebar navigation visibility controls.
+ *
+ * Lets admins toggle which pages appear in the sidebar for non-admin users.
+ * For example, the "Property Finder" or "Management Co." pages can be
+ * hidden if they're not relevant to a particular deployment.
+ *
+ * Each toggleable page has:
+ *   • Page key (e.g. "propertyFinder", "company", "companyAssumptions")
+ *   • Display name
+ *   • Current visibility state (shown / hidden)
+ *
+ * Hidden pages are still accessible via direct URL (this is a UX
+ * simplification, not a security control). Admin users always see
+ * all pages regardless of these settings.
+ *
+ * Settings are persisted server-side at GET/PATCH /api/admin/navigation.
+ */
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";

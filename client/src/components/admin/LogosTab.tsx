@@ -1,3 +1,17 @@
+/**
+ * LogosTab.tsx — Logo image library for branding.
+ *
+ * Manages a library of logo images that can be assigned to companies
+ * and user groups. Features:
+ *   • Upload logos from local files (stored via object storage)
+ *   • AI-generated logos — uses an image generation API to create logos
+ *     from a text prompt (e.g. "modern minimalist hotel brand logo")
+ *   • Preview grid showing all uploaded logos with metadata
+ *   • Delete logos (with cascade check for dependent user groups)
+ *
+ * Each Logo record stores: name, imageUrl, and optional companyName.
+ * Logos are referenced by ID in BrandingTab and UserGroupsTab.
+ */
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";

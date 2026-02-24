@@ -1,3 +1,87 @@
+/**
+ * server/routes.ts — API Route Definitions
+ *
+ * This is the largest file in the server layer. It registers every HTTP endpoint
+ * the frontend calls, organized into these logical sections:
+ *
+ *   AUTHENTICATION (lines ~100-300)
+ *     POST /api/login, /api/logout, GET /api/me
+ *     Password-based auth with bcrypt hashing. Sessions stored in DB + HTTP-only cookie.
+ *
+ *   USER PROFILE (lines ~300-400)
+ *     PATCH /api/me/profile, /api/me/password, /api/me/theme
+ *     Users update their own info, password, or selected color theme.
+ *
+ *   ADMIN: USER MANAGEMENT (lines ~400-600)
+ *     GET/POST/PATCH/DELETE /api/admin/users
+ *     Full CRUD for user accounts. Admins can change roles, reset passwords, delete users.
+ *
+ *   ADMIN: TOOLS (lines ~600-700)
+ *     POST /api/admin/fill-missing-research — backfill seed research data for properties
+ *     GET /api/admin/login-logs — audit trail of authentication events
+ *
+ *   GLOBAL ASSUMPTIONS (lines ~700-900)
+ *     GET/PUT /api/global-assumptions
+ *     The "Settings" page: financial model parameters, company info, feature toggles.
+ *     PUT uses upsert logic (creates on first save, updates thereafter).
+ *
+ *   PROPERTIES (lines ~900-1500)
+ *     Full CRUD + image management + research seeding
+ *     Each property represents a hotel with full pro forma assumptions.
+ *     POST /api/properties — creates property + seeds default fee categories
+ *     POST /api/properties/:id/images — uploads property photos to object storage
+ *     POST /api/properties/:id/seed-research — generates AI research values
+ *
+ *   SCENARIOS (lines ~1500-1800)
+ *     Save/load/clone/export/import scenario snapshots for what-if analysis.
+ *
+ *   LOGOS, ASSET DESCRIPTIONS, USER GROUPS, COMPANIES (lines ~1800-2250)
+ *     CRUD for white-label branding entities. Each has standard REST endpoints.
+ *     GET /api/branding — composite endpoint returning the current user's
+ *     personalized logo, theme colors, and group branding.
+ *
+ *   DESIGN THEMES (lines ~2250-2300)
+ *     CRUD for color themes. Default theme cannot be deleted.
+ *
+ *   RESEARCH QUESTIONS (lines ~2300-2350)
+ *     Admin-managed questions injected into AI research prompts.
+ *
+ *   MARKET RESEARCH (lines ~2350-2600)
+ *     AI-powered research generation using Claude/GPT/Gemini. Streams responses
+ *     via Server-Sent Events (SSE) and persists results to the database.
+ *     POST /api/email-research-pdf — emails a PDF report via Gmail integration.
+ *
+ *   PROPERTY FINDER (lines ~2600-3000)
+ *     External property search via RapidAPI (Realtor.com). Users can search,
+ *     save favorites, and manage saved search criteria.
+ *
+ *   ACTIVITY LOGS & VERIFICATION (lines ~3000-3200)
+ *     GET /api/activity-logs — paginated audit trail with filtering
+ *     POST /api/verification/run — triggers the independent financial verification engine
+ *     GET /api/verification/history — past verification run results
+ *
+ *   SESSIONS (lines ~3200-3250)
+ *     Admin endpoints for listing and force-terminating active user sessions.
+ *
+ *   CALCULATION ENDPOINTS (lines ~3250-3600)
+ *     POST /api/calc/* — modular financial calculation endpoints:
+ *       DCF/NPV, IRR, equity multiple, exit valuation, financial identity checks,
+ *       funding gate validation, schedule reconciliation, assumption consistency,
+ *       portfolio consolidation, scenario comparison, break-even analysis,
+ *       and export verification.
+ *
+ * Authorization model:
+ *   - requireAuth: any logged-in user
+ *   - requireAdmin: admin role only
+ *   - requireChecker: admin or checker role
+ *   - requireManagementAccess: admin or partner role
+ *
+ * Conventions:
+ *   - Every mutating endpoint logs an activity via the logActivity() helper
+ *   - Request bodies are validated with Zod schemas before touching storage
+ *   - AI endpoints are rate-limited per user (isApiRateLimited helper)
+ *   - Streaming AI responses use SSE (Server-Sent Events) pattern
+ */
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage, type ActivityLogFilters } from "./storage";
@@ -57,7 +141,12 @@ import { consolidateStatements } from "../calc/analysis/consolidation";
 import { compareScenarios } from "../calc/analysis/scenario-compare";
 import { computeBreakEven } from "../calc/analysis/break-even";
 
-// SEED_DEBT_ASSUMPTIONS imported from @shared/constants
+// ────────────────────────────────────────────────────────────────
+// HELPER SCHEMAS & UTILITIES
+// These Zod schemas validate incoming request bodies before they reach
+// the storage layer. Keeping validation here (not in storage) follows the
+// "thin storage, validated routes" pattern.
+// ────────────────────────────────────────────────────────────────
 
 const loginSchema = z.object({
   email: z.string().min(1),
@@ -66,11 +155,13 @@ const loginSchema = z.object({
 
 const VALID_ROLES = VALID_USER_ROLES;
 
+/** Combine first + last name into a display-friendly string. Returns null if both are empty. */
 function fullName(user: { firstName?: string | null; lastName?: string | null }): string | null {
   const parts = [user.firstName, user.lastName].filter(Boolean);
   return parts.length > 0 ? parts.join(" ") : null;
 }
 
+/** Strip sensitive fields (password hash, etc.) from a user record before sending to the client. */
 function userResponse(u: any, extra?: Record<string, any>) {
   return { id: u.id, email: u.email, firstName: u.firstName, lastName: u.lastName, name: fullName(u), company: u.company, companyId: u.companyId, title: u.title, role: u.role, ...extra };
 }
@@ -91,6 +182,7 @@ const createScenarioSchema = z.object({
   description: z.string().max(1000).nullable().optional(),
 });
 
+// Hard limit on scenario count per user to prevent storage bloat
 const MAX_SCENARIOS_PER_USER = 20;
 
 const researchGenerateSchema = z.object({
@@ -140,7 +232,13 @@ export async function registerRoutes(
     }).catch(err => console.error("Activity log error:", err));
   }
 
-  // --- AUTH ROUTES ---
+  // ────────────────────────────────────────────────────────────
+  // AUTHENTICATION ROUTES
+  // Login: validates credentials → creates session → sets HTTP-only cookie
+  // Logout: deletes session + clears cookie
+  // GET /api/me: returns the currently authenticated user (session-based)
+  // Rate-limiting: IP-based throttle on failed login attempts
+  // ────────────────────────────────────────────────────────────
 
   app.post("/api/auth/login", async (req, res) => {
     try {
@@ -329,7 +427,11 @@ export async function registerRoutes(
     }
   });
 
-  // --- USER PROFILE ROUTES ---
+  // ────────────────────────────────────────────────────────────
+  // USER PROFILE ROUTES
+  // Self-service endpoints: any authenticated user can update their own profile,
+  // change their password, or select a design theme. No admin privileges needed.
+  // ────────────────────────────────────────────────────────────
   
   const updateProfileSchema = z.object({
     firstName: z.string().max(50).optional(),
@@ -439,7 +541,12 @@ export async function registerRoutes(
     }
   });
 
-  // --- ADMIN USER MANAGEMENT ROUTES ---
+  // ────────────────────────────────────────────────────────────
+  // ADMIN: USER MANAGEMENT
+  // Full CRUD for user accounts. Only admins can access these endpoints.
+  // Includes role changes, password resets, group/company assignment, and
+  // full user deletion (cascades to all related data via storage.deleteUser).
+  // ────────────────────────────────────────────────────────────
   
   app.get("/api/admin/users", requireAdmin, async (req, res) => {
     try {
@@ -836,7 +943,13 @@ export async function registerRoutes(
     }
   });
 
-  // --- VERIFICATION ROUTES ---
+  // ────────────────────────────────────────────────────────────
+  // VERIFICATION ROUTES
+  // The independent verification engine re-computes every property's pro forma
+  // from scratch and compares it to the client-side calculations. This catches
+  // rounding errors, formula bugs, or assumption drift. Only admins and checkers
+  // can trigger a verification run. Results are persisted for audit history.
+  // ────────────────────────────────────────────────────────────
 
   app.get("/api/admin/client-audit-diagnostic", requireChecker, async (req, res) => {
     try {
@@ -1313,7 +1426,13 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
-  // --- GLOBAL ASSUMPTIONS ROUTES ---
+  // ────────────────────────────────────────────────────────────
+  // GLOBAL ASSUMPTIONS ROUTES
+  // GET returns the current user's financial model settings (or the shared
+  // defaults if they haven't customized yet). PUT does an upsert — creates
+  // a user-specific copy on first save, updates it thereafter.
+  // These assumptions feed every property's pro forma calculation.
+  // ────────────────────────────────────────────────────────────
   
   app.get("/api/global-assumptions", requireAuth, async (req, res) => {
     try {
@@ -1354,7 +1473,16 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
-  // --- PROPERTIES ROUTES ---
+  // ────────────────────────────────────────────────────────────
+  // PROPERTIES ROUTES
+  // Full CRUD for hotel properties in the portfolio. Each property has dozens
+  // of financial fields (ADR, occupancy, cost rates, financing terms, etc.).
+  // Creating a property also seeds default fee categories from constants.ts.
+  // Image management: uploads go to Replit Object Storage, with support for
+  // multiple images per property and a hero (primary) image designation.
+  // Research seeding: POST /api/properties/:id/seed-research uses AI to
+  // generate market-appropriate default values for a property's location.
+  // ────────────────────────────────────────────────────────────
   
   app.get("/api/properties", requireAuth, async (req, res) => {
     try {
@@ -1587,7 +1715,15 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
   });
 
 
-  // --- SCENARIOS ROUTES ---
+  // ────────────────────────────────────────────────────────────
+  // SCENARIOS ROUTES
+  // Scenarios are complete snapshots of the financial model. Saving captures
+  // globalAssumptions + all properties + all fee categories into a JSON blob.
+  // Loading restores them. Clone duplicates a scenario under a new name.
+  // Export/import allows sharing scenarios as JSON files between users.
+  // The "Base" scenario cannot be deleted (acts as the default/fallback).
+  // Max 20 scenarios per user to prevent storage bloat.
+  // ────────────────────────────────────────────────────────────
   
   async function collectFeeCategories(props: { id: number; name: string }[]): Promise<Record<string, any[]>> {
     const feeCategories: Record<string, any[]> = {};
@@ -1876,7 +2012,14 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
-  // --- LOGO PORTFOLIO ROUTES (Admin only) ---
+  // ────────────────────────────────────────────────────────────
+  // LOGOS, ASSET DESCRIPTIONS, USER GROUPS, COMPANIES
+  // Standard CRUD for white-label branding entities (admin only).
+  // Each entity has list, create, update, delete endpoints.
+  // GET /api/branding: composite endpoint that resolves the current user's
+  // personalized logo URL, theme colors, and group company name by walking
+  // the chain: user → userGroup → logo/theme/assetDescription.
+  // ────────────────────────────────────────────────────────────
   
   app.get("/api/admin/logos", requireAdmin, async (req, res) => {
     try {
@@ -2177,7 +2320,11 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
-  // --- DESIGN THEMES ROUTES (standalone, like logos) ---
+  // ────────────────────────────────────────────────────────────
+  // DESIGN THEMES ROUTES
+  // CRUD for color themes. Each theme contains a named array of CSS colors.
+  // The default theme is protected from deletion. Admin only.
+  // ────────────────────────────────────────────────────────────
 
   app.get("/api/design-themes", requireAdmin, async (req, res) => {
     try {
@@ -2243,7 +2390,11 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
-  // --- RESEARCH QUESTIONS ROUTES ---
+  // ────────────────────────────────────────────────────────────
+  // RESEARCH QUESTIONS ROUTES
+  // Admin-defined questions that get injected into every AI research prompt.
+  // Allows the team to steer AI research output without changing code.
+  // ────────────────────────────────────────────────────────────
 
   app.get("/api/research-questions", requireAuth, async (req, res) => {
     try {
@@ -2298,7 +2449,20 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
-  // --- MARKET RESEARCH ROUTES ---
+  // ────────────────────────────────────────────────────────────
+  // MARKET RESEARCH ROUTES
+  // AI-powered research using Claude (Anthropic), GPT (OpenAI), or Gemini (Google).
+  // The user's preferred LLM is stored in globalAssumptions.preferredLlm.
+  //
+  // POST /api/research/generate: streams the AI response via SSE (Server-Sent Events).
+  // The LLM receives a structured prompt containing the asset definition, property
+  // context, focus areas, and custom questions. The response is parsed as JSON
+  // and persisted to the market_research table.
+  //
+  // POST /api/email-research-pdf: sends a pre-rendered PDF to the user's email
+  // via the Gmail integration. The PDF is generated client-side and uploaded as
+  // a base64-encoded attachment.
+  // ────────────────────────────────────────────────────────────
   
   app.get("/api/research/:type", requireAuth, async (req, res) => {
     try {
@@ -2494,7 +2658,8 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
-  // --- EMAIL RESEARCH PDF ---
+  // ── EMAIL RESEARCH PDF ──
+  // Sends a pre-rendered research PDF to the current user's email via Gmail API.
   app.post("/api/email-research-pdf", requireAuth, async (req, res) => {
     try {
       const schema = z.object({
@@ -2561,7 +2726,14 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
-  // --- PROPERTY FINDER ROUTES ---
+  // ────────────────────────────────────────────────────────────
+  // PROPERTY FINDER ROUTES
+  // External property search via RapidAPI (Realtor.com API). Allows users
+  // to search for real estate listings by location, price, beds, lot size, etc.
+  // Users can save search criteria for quick re-use and "favorite" individual
+  // listings as prospective properties for further evaluation.
+  // Requires RAPIDAPI_KEY in environment secrets.
+  // ────────────────────────────────────────────────────────────
   
   app.get("/api/property-finder/search", requireManagementAccess, async (req: any, res) => {
     try {
@@ -2822,7 +2994,13 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
-  // --- ACTIVITY LOG ENDPOINTS ---
+  // ────────────────────────────────────────────────────────────
+  // ACTIVITY LOG ENDPOINTS
+  // Paginated audit trail. Admins see all users' activity; checkers see
+  // only verification-related actions; regular users see their own.
+  // Manual log endpoint lets the frontend record client-side-only actions
+  // (like viewing a report or exporting a PDF) into the audit trail.
+  // ────────────────────────────────────────────────────────────
 
   /** Admin: query activity logs with optional filters. */
   app.get("/api/admin/activity-logs", requireAdmin, async (req, res) => {
@@ -3022,7 +3200,11 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
-  // --- SESSION MANAGEMENT ENDPOINTS ---
+  // ────────────────────────────────────────────────────────────
+  // SESSION MANAGEMENT ENDPOINTS (Admin)
+  // Lists all currently active sessions and allows admins to force-terminate
+  // any session (e.g., revoking access for a compromised account).
+  // ────────────────────────────────────────────────────────────
 
   /** Admin: list all active (non-expired) sessions with user info. */
   app.get("/api/admin/active-sessions", requireAdmin, async (req, res) => {
@@ -3265,9 +3447,32 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
-  // ──────────────────────────────────────────────────────
+  // ────────────────────────────────────────────────────────────
   // FINANCING CALCULATOR API ENDPOINTS
-  // ──────────────────────────────────────────────────────
+  // Stateless financial calculation endpoints. Each accepts input, runs a pure
+  // function from the calc/ module, and returns the result. No database writes.
+  //
+  // POST /api/financing/dscr — Debt Service Coverage Ratio: computes max loan
+  //   amount a property can support given its NOI, interest rate, and amortization.
+  // POST /api/financing/amortization — Full amortization schedule (month-by-month
+  //   principal, interest, and balance for any loan).
+  // POST /api/financing/refi — Refinance analysis: models paying off the existing
+  //   loan and replacing it with new terms, computing equity cash-out.
+  //
+  // MODULAR CALC ENDPOINTS (POST /api/calc/*):
+  //   dcf-npv       — Discounted Cash Flow / Net Present Value
+  //   irr           — Internal Rate of Return using Newton's method
+  //   equity-multiple — Total distributions / total invested equity
+  //   exit-valuation — Property sale price = trailing NOI / exit cap rate
+  //   financial-identities — Verify accounting identities (Revenue−Expenses=NOI, etc.)
+  //   funding-gates — Check that funding milestones are met before draws
+  //   schedule-reconcile — Verify monthly totals = sum of line items
+  //   assumption-consistency — Flag conflicting or out-of-range assumptions
+  //   export-verify — Validate a scenario export file's internal consistency
+  //   consolidate   — Roll up all properties into a single portfolio P&L
+  //   scenario-compare — Diff two scenarios to show what changed
+  //   break-even    — Calculate occupancy/ADR needed to reach NOI breakeven
+  // ────────────────────────────────────────────────────────────
 
   const defaultRounding = { precision: 2, bankers_rounding: false };
 

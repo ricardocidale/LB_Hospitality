@@ -1,3 +1,26 @@
+/**
+ * CompanyIncomeTab.tsx — Multi-year income statement for the management company.
+ *
+ * Revenue:
+ *   • Base Management Fees  – a percentage of each property's total revenue
+ *   • Incentive Mgmt Fees   – a percentage of each property's GOP (Gross
+ *     Operating Profit), earned only when the property exceeds profitability targets
+ *   • Other Revenue          – any additional income (consulting, development fees)
+ *
+ * Expenses (company's own overhead, not property-level costs):
+ *   • Partner Compensation   – draws and equity comp for founding partners
+ *   • Staff Compensation     – salaries for operational employees (scaled by tier)
+ *   • Fixed Overhead         – office lease, insurance, tech, professional services
+ *   • Variable Costs         – marketing, travel, and other costs that scale
+ *     with portfolio size or as a percentage of management fee revenue
+ *
+ * Bottom Line:
+ *   • EBITDA = Revenue − Total Expenses (before depreciation, interest, and tax)
+ *   • Net Income = EBITDA − Tax
+ *
+ * The table renders one column per projection year. Each row shows the dollar
+ * amount and (for expense rows) the percentage of total revenue.
+ */
 import React, { useState } from "react";
 import { formatMoney } from "@/lib/financialEngine";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -17,6 +40,9 @@ export default function CompanyIncomeTab({
   activeTab,
   propertyFinancials,
 }: CompanyTabProps) {
+  // Sums a single property's base management fee across 12 months for
+  // a given projection year. Used in drill-down rows to show per-property
+  // contribution to the company's service fee revenue line.
   const getPropertyYearlyBaseFee = (propIdx: number, year: number) => {
     const pf = propertyFinancials[propIdx].financials;
     const yearData = pf.slice(year * 12, (year + 1) * 12);

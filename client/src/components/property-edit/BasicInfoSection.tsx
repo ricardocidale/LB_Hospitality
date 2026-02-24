@@ -1,3 +1,15 @@
+/**
+ * BasicInfoSection.tsx — Property identity and physical characteristics.
+ *
+ * First section on the Edit Property page. Captures the property's name,
+ * street address / market, hero image URL, room count, property type
+ * (e.g. "Boutique Hotel", "B&B"), and optional SPV company assignment.
+ *
+ * Room count is the single most important driver in the financial model:
+ * it multiplies with ADR (Average Daily Rate) and occupancy to produce
+ * total room revenue.  Property type influences which USALI expense
+ * ratios the engine applies by default.
+ */
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";

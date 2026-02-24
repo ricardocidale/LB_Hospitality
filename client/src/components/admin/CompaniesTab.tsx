@@ -1,3 +1,21 @@
+/**
+ * CompaniesTab.tsx — Company entity management for administrators.
+ *
+ * In this platform, "companies" are legal entities:
+ *   • Management Company — the operating entity that manages properties
+ *     and earns management fees (there is typically one per platform instance)
+ *   • SPV (Special Purpose Vehicle) — a single-asset entity created for
+ *     each property acquisition. SPVs isolate liability and simplify
+ *     ownership structures for investors.
+ *
+ * This tab lets admins:
+ *   • Create new SPV companies
+ *   • Edit company names and metadata
+ *   • Assign properties to SPVs
+ *   • Delete companies (with cascade warnings)
+ *
+ * Data flows: GET/POST/PATCH/DELETE /api/admin/companies
+ */
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";

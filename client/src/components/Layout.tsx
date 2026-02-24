@@ -1,3 +1,29 @@
+/**
+ * Layout.tsx — Main application shell used by every authenticated page.
+ *
+ * Provides a persistent sidebar (desktop) / bottom-nav + hamburger drawer (mobile)
+ * that wraps page content. The sidebar includes:
+ *   • Company logo and name (pulled from per-user branding or global assumptions)
+ *   • Quick-search trigger (⌘K command palette)
+ *   • Notification center
+ *   • Favorites shortcut panel
+ *   • Navigation links — dynamically filtered by the user's role:
+ *       – "investor" users see a reduced set (Dashboard, Properties, Profile, Help)
+ *       – "admin" users see everything, including the Admin Settings link
+ *       – Other roles (partner, checker, staff) get "management access" to the
+ *         Company, Analysis, Settings, Scenarios, and Property Finder sections
+ *   • Sidebar visibility of individual items can also be toggled by admin via
+ *     globalAssumptions flags (e.g. sidebarSensitivity, sidebarFinancing).
+ *   • User card at the bottom showing name, role, and a logout button.
+ *
+ * The component also mounts globally-available overlays:
+ *   – CommandPalette (⌘K search)
+ *   – GuidedWalkthrough (first-time tour)
+ *   – AIChatWidget (floating AI assistant, if enabled)
+ *
+ * Theming: the Layout reads the user-group "themeName" from /api/my-branding
+ * and applies the matching CSS class to <html> so the entire app switches theme.
+ */
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 import { LayoutDashboard, Building2, Briefcase, Settings2, Menu, X, FileText, Shield, LogOut, UserCircle, FolderOpen, SearchCheck, BarChart3, Calculator, ClipboardCheck, Search, MapPin, FileBarChart, ChevronDown, BookOpen, MoreHorizontal } from "lucide-react";

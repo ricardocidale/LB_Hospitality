@@ -1,3 +1,25 @@
+/**
+ * property-edit/types.ts
+ *
+ * Shared prop contracts for the property assumption editor sections.
+ *
+ * PropertyEditSectionProps — the base interface every section receives:
+ *   • draft          – the mutable property object the user is editing
+ *   • onChange        – sets a single field on the draft (string, number, or null)
+ *   • onNumberChange  – special handler for numeric string inputs that need
+ *                       intermediate "empty string" states before committing a number
+ *   • globalAssumptions – fallback defaults from the company-wide global assumptions
+ *   • researchValues  – AI-generated benchmark data shown as "Research" badges next
+ *                       to inputs; each entry has a display string, a mid-point
+ *                       number, and an optional source citation
+ *
+ * ManagementFeesSectionProps adds the per-property fee category grid (base fee
+ * broken into named service categories like Revenue Mgmt, Marketing, etc.)
+ * and the computed totalServiceFeeRate that sums all active categories.
+ *
+ * OtherAssumptionsSectionProps adds exitYear so the exit-related fields can
+ * show which calendar year the disposition is modeled to occur.
+ */
 import type { FeeCategoryResponse } from "@/lib/api";
 
 export interface PropertyEditSectionProps {

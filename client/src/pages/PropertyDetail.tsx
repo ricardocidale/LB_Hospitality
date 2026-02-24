@@ -1,3 +1,27 @@
+/**
+ * PropertyDetail.tsx — Single-property financial dashboard.
+ *
+ * Displays the full pro-forma output for one property, organized into tabs:
+ *   • Income Statement — yearly revenue, expenses, GOP, management fees, NOI
+ *   • Cash Flow Statement — operating / investing / financing activities, FCF, FCFE
+ *   • Balance Sheet — consolidated balance sheet for this property
+ *   • PPE Schedule — Property, Plant & Equipment cost-basis and depreciation
+ *
+ * The page runs the financial engine (`generatePropertyProForma`) to produce
+ * monthly line items, then aggregates them into annual totals for display. It
+ * also computes loan parameters (LTV, amortization, refi) to populate the cash
+ * flow statement's financing section.
+ *
+ * Export capabilities:
+ *   • PDF — full cash flow table + performance chart on a second page
+ *   • Excel — per-statement workbooks via the shared excelExport module
+ *   • CSV — raw cash flow data dump
+ *   • PowerPoint — summary slides via pptxExport
+ *   • PNG — screenshot of the visible chart or table
+ *
+ * The page respects the fiscal-year-start-month setting, so FY labels align
+ * with the company's chosen fiscal calendar (e.g. FY 2027 may start in October).
+ */
 import { useMemo, useState, useRef } from "react";
 import Layout from "@/components/Layout";
 import { useProperty, useGlobalAssumptions } from "@/lib/api";

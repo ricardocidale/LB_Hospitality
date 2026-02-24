@@ -1,3 +1,16 @@
+/**
+ * company-research/types.ts
+ *
+ * Color palette for company-level AI research section cards.
+ * Re-uses the SectionColorScheme interface from property-research/types.ts
+ * but defines its own color mapping keyed by company research categories:
+ *   • feeStructure  – management fee benchmarks
+ *   • gaap          – accounting standards
+ *   • opex          – operating expense ratios
+ *   • compensation  – salary benchmarks
+ *   • contracts     – management agreement terms
+ *   • sources       – citation references
+ */
 import type { SectionColorScheme } from "../property-research/types";
 
 export type { SectionColorScheme };

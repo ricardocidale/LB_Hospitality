@@ -1,3 +1,18 @@
+/**
+ * ManagementFeesSection.tsx — Read-only summary of management fee rates
+ * across the portfolio.
+ *
+ * Unlike the property-edit ManagementFeesSection (which edits per-property
+ * fees), this company-level view is a read-only table showing:
+ *   • Each property's base management fee rate (% of revenue)
+ *   • Each property's incentive management fee rate (% of GOP)
+ *   • The service-fee category breakdown per property
+ *   • Links to each property's edit page for adjustments
+ *
+ * This gives the management company operator a single view of their
+ * fee structure across all managed properties, useful for ensuring
+ * consistency and spotting outliers.
+ */
 import { Link } from "wouter";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { formatPercent } from "@/lib/financialEngine";

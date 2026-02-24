@@ -1,3 +1,19 @@
+/**
+ * OtherAssumptionsSection.tsx — Exit strategy, cap rate, and disposition.
+ *
+ * Configures assumptions for modeling the eventual sale of the property:
+ *
+ *   • Exit year     – which projection year the property is sold (e.g. Year 7)
+ *   • Exit cap rate – capitalization rate used to value the property at sale.
+ *                     Valuation = NOI at exit / cap rate. A lower cap rate
+ *                     implies higher value (cap rate is an inverse yield).
+ *   • Sales commission rate – broker commission as % of gross sale price
+ *   • Depreciation basis   – total depreciable cost (purchase − land) used
+ *                            to compute gain on sale and tax implications
+ *
+ * The exit cap rate is arguably the most sensitive single assumption in
+ * the model: a 50 bps change can swing the property IRR by several points.
+ */
 import { Label } from "@/components/ui/label";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { Slider } from "@/components/ui/slider";

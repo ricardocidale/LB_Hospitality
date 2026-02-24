@@ -1,3 +1,34 @@
+/**
+ * Company.tsx — Management company financial dashboard.
+ *
+ * This page shows the pro-forma financials for the management company itself
+ * (not individual properties). The management company earns revenue from
+ * service fees (base management fees charged as a percentage of property
+ * revenue) and incentive fees (a share of property NOI above a threshold).
+ * Its expenses include partner compensation, staff salaries, office lease,
+ * professional services, insurance, travel, IT, and marketing.
+ *
+ * Three financial statement tabs:
+ *   • Income Statement — revenue breakdown (service fees by category, incentive
+ *     fees by property), expense breakdown, and net income with margin %.
+ *   • Cash Flow Statement — operating activities (fee receipts minus expenses),
+ *     financing activities (SAFE note funding tranches), and running cash balance.
+ *   • Balance Sheet — simple Assets (cash) = Liabilities (SAFE notes) + Equity
+ *     (retained earnings).
+ *
+ * The page also runs a cash-position analysis that warns if the company will
+ * run out of cash before reaching profitability (a common concern for startups
+ * with high fixed costs and a slowly-growing portfolio).
+ *
+ * Data flow:
+ *   1. Fetch all properties and global assumptions.
+ *   2. Enrich each property with its custom fee categories (if any).
+ *   3. Run `generateCompanyProForma()` to get monthly management-company financials.
+ *   4. Also run `generatePropertyProForma()` per property for per-property fee drill-down.
+ *   5. Aggregate monthly data into yearly totals for display and export.
+ *
+ * Exports: PDF (with chart), Excel, CSV, PowerPoint, PNG.
+ */
 import React, { useState, useRef, useMemo } from "react";
 import domtoimage from 'dom-to-image-more';
 import { ExportDialog } from "@/components/ExportDialog";

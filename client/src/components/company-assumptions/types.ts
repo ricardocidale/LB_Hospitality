@@ -1,3 +1,24 @@
+/**
+ * company-assumptions/types.ts
+ *
+ * Prop contracts for the Management Company assumptions editor sections.
+ *
+ * CompanyAssumptionsSectionProps is the base interface shared by most sections:
+ *   • formData – the editable draft of the global assumptions object
+ *   • onChange – writes a single field back to the draft
+ *   • global   – the persisted global assumptions used as fallback values
+ *
+ * Specialized variants add extra data:
+ *   • CompanySetupSectionProps  – adds isAdmin flag (only admins can rename the company)
+ *   • FundingSectionProps       – same base (SAFE tranche fields live in global)
+ *   • ManagementFeesSectionProps – adds the list of properties and their fee
+ *     categories so the read-only fee summary table can render per-property rates
+ *   • CompensationSectionProps  – adds researchValues for AI salary benchmarks
+ *   • FixedOverheadSectionProps – adds modelStartYear for display in the header
+ *   • VariableCostsSectionProps – adds researchValues for marketing/travel benchmarks
+ *   • PartnerCompSectionProps   – adds modelStartYear for year labels in the table
+ *   • PropertyExpenseRatesSectionProps – adds researchValues for expense benchmarks
+ */
 import type { GlobalResponse, FeeCategoryResponse } from "@/lib/api";
 
 export interface CompanyAssumptionsSectionProps {

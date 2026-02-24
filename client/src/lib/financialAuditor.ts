@@ -1,3 +1,39 @@
+/**
+ * financialAuditor.ts — The GAAP Compliance Audit Engine
+ *
+ * This file implements an automated financial auditor that independently verifies
+ * every number produced by the financial engine (financialEngine.ts). Think of it
+ * as a "second pair of eyes" that recalculates everything from scratch and flags
+ * any discrepancies.
+ *
+ * The auditor runs 7 audit sections, each targeting a different area:
+ *   1. Timing Rules — No revenue before operations start, no debt before acquisition
+ *   2. Depreciation — 27.5-year straight-line per IRS Publication 946 / ASC 360
+ *   3. Loan Amortization — PMT formula verification, interest/principal split (ASC 470)
+ *   4. Income Statement — Revenue, GOP, NOI, Net Income formulas (USALI / ASC 606)
+ *   5. Management Fees — Base fee on revenue, incentive fee on GOP (ASC 606)
+ *   6. Balance Sheet — Property value = Land + Building - Accumulated Depreciation (ASC 360)
+ *   7. Cash Flow Reconciliation — Operating CF + Financing CF = Net Cash Flow (ASC 230)
+ *
+ * Each audit produces findings with severity levels:
+ *   - "critical": A fundamental formula is wrong (e.g., principal counted as expense)
+ *   - "material": A number is off by more than tolerance (could affect decisions)
+ *   - "minor": Small variance, likely rounding
+ *   - "info": Informational — confirms something is working correctly
+ *
+ * The final output is an audit opinion modeled after real-world audit reports:
+ *   - UNQUALIFIED ("clean"): Everything checks out — no issues found
+ *   - QUALIFIED: Some issues found, but financials are mostly reliable
+ *   - ADVERSE: Serious problems — financials cannot be relied upon
+ *   - DISCLAIMER: Not enough data to form an opinion
+ *
+ * Key terms:
+ *   - GOP (Gross Operating Profit): Revenue minus operating expenses, before fees
+ *   - NOI (Net Operating Income): GOP minus management fees and FF&E reserve
+ *   - USALI: The hotel industry's standard chart of accounts
+ *   - Workpaper Ref (e.g., WP-DEP-001): A tracking ID for each audit finding,
+ *     mimicking how real auditors organize their documentation
+ */
 import { MonthlyFinancials } from "./financialEngine";
 import { addMonths, differenceInMonths, isBefore, startOfMonth } from "date-fns";
 import { pmt } from "@calc/shared/pmt";
@@ -132,6 +168,24 @@ export interface GlobalAuditInput {
   };
 }
 
+/**
+ * Audit the depreciation calculations for a single property.
+ *
+ * Depreciation is a non-cash expense that reduces the property's book value over time.
+ * Per IRS Publication 946 and ASC 360, residential rental property (hotels included)
+ * is depreciated over 27.5 years using straight-line method.
+ *
+ * Land never depreciates — only the building and improvements do. So the depreciable
+ * basis = (purchase price × (1 - land%)) + building improvements.
+ *
+ * Monthly depreciation = depreciable basis ÷ 27.5 ÷ 12
+ *
+ * This audit checks:
+ *   - Monthly depreciation amount matches the expected formula
+ *   - Annual depreciation totals correctly (monthly × 12)
+ *   - No depreciation is recorded before the acquisition date
+ *   - Accumulated depreciation accumulates correctly month over month
+ */
 export function auditDepreciation(
   property: PropertyAuditInput,
   global: GlobalAuditInput,
@@ -1170,6 +1224,20 @@ export function auditCashFlowReconciliation(
   };
 }
 
+/**
+ * Run the complete audit suite on a single property's financial projections.
+ *
+ * Orchestrates all 7 audit sections (timing, depreciation, loan amortization,
+ * income statement, management fees, balance sheet, cash flow) and aggregates
+ * their findings into a single AuditReport with an overall opinion.
+ *
+ * The audit opinion is determined by the number and severity of findings:
+ *   - UNQUALIFIED: No critical or material issues (the "clean" opinion)
+ *   - QUALIFIED: Material issues exist but the overall picture is still reliable
+ *   - ADVERSE: Critical issues exceed the threshold — financials are unreliable
+ *
+ * This mirrors real-world audit reporting standards (ISA 700 / AU-C 700).
+ */
 export function runFullAudit(
   property: PropertyAuditInput,
   global: GlobalAuditInput,
@@ -1224,6 +1292,18 @@ export function runFullAudit(
   };
 }
 
+/**
+ * Generate a human-readable audit workpaper from an AuditReport.
+ *
+ * Formats the audit results into a structured text document resembling
+ * real audit workpapers — with box-drawing characters, section headers,
+ * finding details, and a list of GAAP standards tested. This output is
+ * displayed in the Checker Manual page of the UI.
+ *
+ * Each finding shows its workpaper reference (e.g., WP-DEP-001), the
+ * GAAP standard tested, expected vs actual values, variance, and a
+ * recommendation for remediation.
+ */
 export function generateAuditWorkpaper(report: AuditReport): string {
   let output = "";
   

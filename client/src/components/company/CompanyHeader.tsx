@@ -1,3 +1,15 @@
+/**
+ * CompanyHeader.tsx — Summary banner for the Management Company page.
+ *
+ * Displays the management company's name, logo, and top-line KPIs:
+ *   • Total Revenue (sum of base + incentive management fees across all properties)
+ *   • EBITDA (Earnings Before Interest, Taxes, Depreciation & Amortization)
+ *   • Cash Balance (current cumulative cash position)
+ *   • A small sparkline chart showing Revenue and EBITDA by year
+ *
+ * Also provides a "Settings" link to the Company Assumptions editor
+ * so users can jump directly to adjusting overhead, staffing, or fee rates.
+ */
 import React from "react";
 import { Link } from "wouter";
 import { Settings2 } from "lucide-react";

@@ -1,3 +1,15 @@
+/**
+ * PropertyHeader.tsx — Hero banner and navigation for the property detail page.
+ *
+ * Renders the property's hero image (with gradient overlay for readability),
+ * property name, location pin, and quick-action buttons:
+ *   • Back arrow  – navigates to the portfolio list
+ *   • Settings    – links to the property's Edit Assumptions page
+ *   • Map         – external link to the property's address on a map
+ *
+ * Also displays the acquisition date, room count, and purchase price as
+ * compact badges so users get immediate context at a glance.
+ */
 import { Link } from "wouter";
 import { ArrowLeft, MapPin, Settings2, Map } from "lucide-react";
 import { PropertyPhotoUpload } from "@/components/PropertyPhotoUpload";

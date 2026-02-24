@@ -1,3 +1,23 @@
+/**
+ * ManagementFeesSection.tsx — Per-property management fee configuration.
+ *
+ * Hotels pay the management company two types of fees:
+ *
+ *   1. Base Management Fee (% of Total Revenue)
+ *      Broken into named service categories (e.g. Revenue Management,
+ *      Marketing, Accounting, Operations) via the fee category grid.
+ *      Each category can be toggled active/inactive and has its own rate.
+ *      The total service fee rate is the sum of all active categories.
+ *
+ *   2. Incentive Management Fee (% of GOP — Gross Operating Profit)
+ *      A performance bonus paid only when the property exceeds a
+ *      profitability threshold. GOP = Revenue − Departmental Expenses −
+ *      Undistributed Expenses (before fixed charges and debt service).
+ *
+ * These fees flow as revenue to the management company's income statement
+ * (see company/CompanyIncomeTab) and as an expense on the property's
+ * income statement. This dual-entity structure is central to the platform.
+ */
 import { Label } from "@/components/ui/label";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { Slider } from "@/components/ui/slider";

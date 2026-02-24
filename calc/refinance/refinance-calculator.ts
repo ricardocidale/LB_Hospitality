@@ -1,3 +1,35 @@
+/**
+ * refinance-calculator.ts — Hotel Property Refinance Engine
+ *
+ * When a hotel property's value increases (through higher NOI or market appreciation),
+ * the owner can refinance — take out a new, larger loan to pay off the old one and
+ * pocket the difference as tax-free cash (called "cash-out refinance").
+ *
+ * This is one of the most important wealth-building strategies in real estate:
+ * you get cash without selling the property, and the cash isn't taxed because
+ * it's borrowed money (a liability), not income.
+ *
+ * The refinance calculation pipeline has 8 steps:
+ *   1. Validate inputs (no negative values, rates within bounds, etc.)
+ *   2. Compute payoff — how much is needed to retire the old loan
+ *      (remaining balance + prepayment penalty + accrued interest)
+ *   3. Size the new loan — the lesser of LTV max and DSCR constraint
+ *      LTV (Loan-to-Value): New loan ≤ X% of property value (e.g., 75%)
+ *      DSCR (Debt Service Coverage Ratio): Annual NOI ÷ annual debt service ≥ Y (e.g., 1.25×)
+ *      The binding constraint (whichever produces the smaller loan) wins.
+ *   4. Compute cash-out = New loan net proceeds - Payoff amount
+ *      If negative (new loan doesn't cover old debt), cash-out is zero.
+ *   5. Build a proceeds breakdown (like a settlement statement at closing)
+ *   6. Generate the new loan's amortization schedule (monthly payments)
+ *   7. Build journal hooks — pre-formatted accounting entries for GAAP journals
+ *   8. Assemble flags (which constraint bound, whether cash-out was negative)
+ *
+ * GAAP treatment:
+ *   - Old debt removal and new debt recording are separate journal entries
+ *   - Prepayment penalties and closing costs are expensed in the period incurred
+ *   - Cash-out is classified as financing cash flow (ASC 230), never as income
+ *   - Only interest from the new loan flows through the income statement
+ */
 import { validateRefinanceInput } from "./validate.js";
 import { computePayoff } from "./payoff.js";
 import { computeSizing } from "./sizing.js";
@@ -12,7 +44,7 @@ import type {
 import { roundTo } from "../../domain/types/rounding.js";
 
 /**
- * Main entry point for the Refinance Calculator (Skill 2).
+ * Main entry point for the Refinance Calculator.
  *
  * Computes refinance proceeds, payoff amounts, penalties, new debt schedule,
  * and equity cash-out. Returns structured flags and journal hooks.

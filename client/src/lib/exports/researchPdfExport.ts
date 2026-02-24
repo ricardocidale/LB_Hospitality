@@ -1,3 +1,26 @@
+/**
+ * researchPdfExport.ts — PDF generation for AI-powered market research reports
+ *
+ * Produces branded, multi-page PDF documents from the AI research data stored
+ * on the server. Three research types are supported:
+ *   - "property" — market-specific research for a single hotel property
+ *     (occupancy, ADR, events, competition, cap rates, risks, etc.)
+ *   - "company" — management company research (fee benchmarks, GAAP standards,
+ *     compensation benchmarks, contract terms)
+ *   - "global" — industry-wide hospitality research (trends, financial
+ *     benchmarks, investment returns, debt market conditions)
+ *
+ * Each PDF includes:
+ *   - A branded header with company logo, name, and generation metadata
+ *   - Structured sections with tables, bullet lists, and key-value pairs
+ *   - Research conditions (what AI model was used, what parameters were set)
+ *   - Page numbers and confidential footer on every page
+ *
+ * The report can be either downloaded directly or emailed as an attachment
+ * (via the /api/email-research-pdf server endpoint + Gmail integration).
+ *
+ * Uses jsPDF for PDF rendering and jspdf-autotable for data tables.
+ */
 import { apiRequest } from "@/lib/queryClient";
 
 interface BrandingData {
@@ -17,6 +40,7 @@ interface ResearchExportOptions {
   branding?: BrandingData;
 }
 
+/** Fetch the current user's company branding (name, logo URL) from the server. */
 async function fetchBranding(): Promise<BrandingData> {
   try {
     const res = await fetch("/api/branding", { credentials: "include" });
@@ -25,6 +49,7 @@ async function fetchBranding(): Promise<BrandingData> {
   return { userName: "", companyName: "Hospitality Business Group", logoUrl: null };
 }
 
+/** Convert a logo URL into a base64 data URI that jsPDF can embed in the PDF. */
 async function loadLogoImage(url: string): Promise<string | null> {
   try {
     if (url.startsWith("data:")) return url;
@@ -41,6 +66,7 @@ async function loadLogoImage(url: string): Promise<string | null> {
   }
 }
 
+/** Draw the dark-blue branded header bar with a sage-green accent stripe at the bottom. */
 function brandedHeader(doc: any, pageW: number, height: number) {
   doc.setFillColor(26, 35, 50);
   doc.rect(0, 0, pageW, height, "F");
@@ -48,6 +74,7 @@ function brandedHeader(doc: any, pageW: number, height: number) {
   doc.rect(0, height - 4, pageW, 2, "F");
 }
 
+/** Draw a colored section heading with an underline; auto-paginates if near page bottom. */
 function addSectionHeader(doc: any, title: string, y: number, color: [number, number, number]): number {
   if (y > 260) { doc.addPage(); y = 20; }
   doc.setFont("helvetica", "bold");
@@ -61,6 +88,7 @@ function addSectionHeader(doc: any, title: string, y: number, color: [number, nu
   return y + 6;
 }
 
+/** Write a word-wrapped paragraph of body text; auto-paginates between lines. */
 function addParagraph(doc: any, text: string, y: number, pageW: number): number {
   if (!text) return y;
   doc.setFont("helvetica", "normal");
@@ -75,6 +103,7 @@ function addParagraph(doc: any, text: string, y: number, pageW: number): number 
   return y + 2;
 }
 
+/** Write a single "Label: Value" line (bold label, normal value). */
 function addKeyValue(doc: any, label: string, value: string, y: number): number {
   if (y > 275) { doc.addPage(); y = 20; }
   doc.setFont("helvetica", "bold");
@@ -87,6 +116,7 @@ function addKeyValue(doc: any, label: string, value: string, y: number): number 
   return y + 5;
 }
 
+/** Render a bulleted list with word-wrap and auto-pagination. */
 function addBulletList(doc: any, items: string[], y: number, pageW: number): number {
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
@@ -104,6 +134,7 @@ function addBulletList(doc: any, items: string[], y: number, pageW: number): num
   return y + 2;
 }
 
+/** Insert a formatted data table (via jspdf-autotable) with colored headers and zebra-striped rows. */
 function addTable(doc: any, autoTable: any, headers: string[], rows: string[][], y: number, color: [number, number, number]): number {
   if (y > 240) { doc.addPage(); y = 20; }
   autoTable(doc, {
@@ -119,6 +150,12 @@ function addTable(doc: any, autoTable: any, headers: string[], rows: string[][],
   return (doc as any).lastAutoTable.finalY + 8;
 }
 
+/**
+ * Render all sections of a property-level research report into the PDF.
+ * Sections include: Market Overview, Stabilization Timeline, ADR Analysis,
+ * Occupancy Analysis, Event Demand, Catering Analysis, Cap Rate Analysis,
+ * Land Value Allocation, Competitive Set, Risks, and Sources.
+ */
 function renderPropertyResearch(doc: any, autoTable: any, content: any, y: number, pageW: number): number {
   if (content.marketOverview) {
     y = addSectionHeader(doc, "Market Overview", y, [37, 125, 65]);
@@ -245,6 +282,11 @@ function renderPropertyResearch(doc: any, autoTable: any, content: any, y: numbe
   return y;
 }
 
+/**
+ * Render industry-level (global) research sections: Industry Overview,
+ * Event Hospitality segments, Financial Benchmarks, Investment Returns,
+ * Debt Market conditions, and Emerging Trends.
+ */
 function renderGlobalResearch(doc: any, autoTable: any, content: any, y: number, pageW: number): number {
   if (content.industryOverview) {
     y = addSectionHeader(doc, "Industry Overview", y, [37, 125, 65]);
@@ -317,6 +359,11 @@ function renderGlobalResearch(doc: any, autoTable: any, content: any, y: number,
   return y;
 }
 
+/**
+ * Render management-company research sections: Management Fee benchmarks,
+ * GAAP Standards references, Industry Benchmarks for operating expenses,
+ * Compensation Benchmarks, and Contract Terms.
+ */
 function renderCompanyResearch(doc: any, autoTable: any, content: any, y: number, pageW: number): number {
   if (content.managementFees) {
     y = addSectionHeader(doc, "Management Fees", y, [37, 125, 65]);
@@ -376,6 +423,12 @@ function renderCompanyResearch(doc: any, autoTable: any, content: any, y: number
   return y;
 }
 
+/**
+ * Render the "Research Conditions" section — metadata about how the AI research
+ * was generated (model used, property context, asset definition, focus areas,
+ * target regions, custom questions). This provides transparency so the reader
+ * knows exactly what inputs drove the AI's analysis.
+ */
 function renderPromptConditions(doc: any, conditions: Record<string, any>, y: number, pageW: number): number {
   y = addSectionHeader(doc, "Research Conditions", y, [100, 100, 120]);
 
@@ -438,6 +491,11 @@ function renderPromptConditions(doc: any, conditions: Record<string, any>, y: nu
   return y + 6;
 }
 
+/**
+ * Assemble a complete research PDF document: branded cover header, optional
+ * research conditions, then the type-specific research content (property,
+ * global, or company), and finally page-number footers on every page.
+ */
 async function buildResearchDoc(options: ResearchExportOptions) {
   const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
     import("jspdf"),
@@ -543,12 +601,17 @@ async function buildResearchDoc(options: ResearchExportOptions) {
   return doc;
 }
 
+/** Build and immediately download the research PDF to the user's browser. */
 export async function downloadResearchPDF(options: ResearchExportOptions): Promise<void> {
   const doc = await buildResearchDoc(options);
   const filename = `${options.title.replace(/[^a-zA-Z0-9]/g, "_")}_Research.pdf`;
   doc.save(filename);
 }
 
+/**
+ * Build the research PDF, convert it to base64, and send it as an email
+ * attachment via the server's Gmail integration (/api/email-research-pdf).
+ */
 export async function emailResearchPDF(options: ResearchExportOptions): Promise<{ success: boolean; error?: string }> {
   const doc = await buildResearchDoc(options);
   const arrayBuf = doc.output("arraybuffer");

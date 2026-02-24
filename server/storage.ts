@@ -1,8 +1,28 @@
+/**
+ * server/storage.ts — Database Access Layer (DAL)
+ *
+ * This file defines the IStorage interface and its PostgreSQL implementation
+ * (DatabaseStorage). Every database operation in the app goes through this layer
+ * — routes never talk to Drizzle directly. This separation makes it easy to:
+ *
+ *   - Swap the database engine (e.g., for testing with an in-memory store)
+ *   - Keep route handlers thin (just validate input → call storage → return result)
+ *   - Centralize transaction logic and cascading deletes
+ *
+ * The IStorage interface is organized by domain area:
+ *   Users, Sessions, Global Assumptions, Properties, Scenarios, Login Logs,
+ *   Design Themes, Market Research, Prospective Properties, Saved Searches,
+ *   Activity Logs, Verification Runs, Active Sessions, Logos, Asset Descriptions,
+ *   User Groups, Companies, Fee Categories, and Research Questions.
+ *
+ * A singleton `storage` instance is exported at the bottom of the file and used
+ * everywhere via `import { storage } from "./storage"`.
+ */
 import { globalAssumptions, properties, users, sessions, scenarios, loginLogs, designThemes, logos, assetDescriptions, userGroups, companies, marketResearch, prospectiveProperties, savedSearches, activityLogs, verificationRuns, propertyFeeCategories, researchQuestions, type GlobalAssumptions, type Property, type InsertGlobalAssumptions, type InsertProperty, type UpdateProperty, type User, type InsertUser, type Session, type Scenario, type InsertScenario, type UpdateScenario, type LoginLog, type InsertLoginLog, type DesignTheme, type InsertDesignTheme, type Logo, type InsertLogo, type AssetDescription, type InsertAssetDescription, type UserGroup, type InsertUserGroup, type Company, type InsertCompany, type MarketResearch, type InsertMarketResearch, type ProspectiveProperty, type InsertProspectiveProperty, type SavedSearch, type InsertSavedSearch, type ActivityLog, type InsertActivityLog, type VerificationRun, type InsertVerificationRun, type FeeCategory, type InsertFeeCategory, type UpdateFeeCategory, type ResearchQuestion, type InsertResearchQuestion } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gt, lt, gte, lte, desc, or, isNull, type SQL } from "drizzle-orm";
 
-/** Filters for querying activity logs. */
+/** Filters for querying activity logs (admin panel). */
 export interface ActivityLogFilters {
   userId?: number;
   entityType?: string;
@@ -12,6 +32,11 @@ export interface ActivityLogFilters {
   offset?: number;
 }
 
+/**
+ * IStorage — the contract that any storage backend must fulfill.
+ * Every method corresponds to a single database operation. Methods are grouped
+ * by the domain entity they operate on (Users, Properties, Scenarios, etc.).
+ */
 export interface IStorage {
   // Users
   getUserById(id: number): Promise<User | undefined>;
@@ -147,13 +172,28 @@ export interface IStorage {
   deleteResearchQuestion(id: number): Promise<void>;
 }
 
+/**
+ * DatabaseStorage — PostgreSQL implementation of IStorage using Drizzle ORM.
+ *
+ * Key patterns used throughout:
+ *   - Single-row queries: `const [row] = await db.select()...` — destructures the
+ *     first element of the result array, returning undefined if no match.
+ *   - Returning clause: `.returning()` tells Postgres to send back the affected row
+ *     after an INSERT or UPDATE, so we don't need a separate SELECT.
+ *   - Transactions: `db.transaction(async (tx) => { ... })` groups related writes
+ *     so they either all succeed or all roll back (e.g., deleting a user and all
+ *     their related data atomically).
+ */
 export class DatabaseStorage implements IStorage {
-  // Users
+  // ── Users ──────────────────────────────────────────────────
+
+  /** Look up a user by their numeric ID. Returns undefined if not found. */
   async getUserById(id: number): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user || undefined;
   }
 
+  /** Look up a user by email (case-insensitive). Used during login. */
   async getUserByEmail(email: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.email, email.toLowerCase()));
     return user || undefined;
@@ -180,6 +220,11 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(users).orderBy(users.createdAt);
   }
 
+  /**
+   * Delete a user and ALL related data in a single transaction.
+   * Cascading deletes remove sessions, scenarios, research, properties,
+   * assumptions, login logs, activity logs, and verification runs.
+   */
   async deleteUser(id: number): Promise<void> {
     await db.transaction(async (tx) => {
       await tx.delete(sessions).where(eq(sessions.userId, id));
@@ -196,6 +241,10 @@ export class DatabaseStorage implements IStorage {
     });
   }
 
+  /**
+   * Update a user's password hash and immediately invalidate all their sessions
+   * so they must re-authenticate with the new password.
+   */
   async updateUserPassword(id: number, passwordHash: string): Promise<void> {
     await db.update(users).set({ passwordHash, updatedAt: new Date() }).where(eq(users.id, id));
     await db.delete(sessions).where(eq(sessions.userId, id));
@@ -223,7 +272,9 @@ export class DatabaseStorage implements IStorage {
     await db.update(users).set({ role, updatedAt: new Date() }).where(eq(users.id, id));
   }
 
-  // Sessions
+  // ── Sessions ──────────────────────────────────────────────────
+
+  /** Create a new login session (called after successful authentication). */
   async createSession(userId: number, sessionId: string, expiresAt: Date): Promise<Session> {
     const [session] = await db
       .insert(sessions)
@@ -232,6 +283,10 @@ export class DatabaseStorage implements IStorage {
     return session;
   }
 
+  /**
+   * Validate a session cookie: find the session, verify it hasn't expired,
+   * and return it joined with the user record. This runs on every authenticated request.
+   */
   async getSession(sessionId: string): Promise<(Session & { user: User }) | undefined> {
     const [result] = await db
       .select()
@@ -251,12 +306,18 @@ export class DatabaseStorage implements IStorage {
     await db.delete(sessions).where(eq(sessions.userId, userId));
   }
 
+  /** Bulk-delete expired sessions. Called hourly by the cleanup interval in server/index.ts. */
   async deleteExpiredSessions(): Promise<number> {
     const result = await db.delete(sessions).where(lt(sessions.expiresAt, new Date())).returning();
     return result.length;
   }
 
-  // Global Assumptions
+  // ── Global Assumptions ──────────────────────────────────────
+
+  /**
+   * Fetch the system-wide financial assumptions. If a userId is provided,
+   * returns that user's personal copy; otherwise returns the shared (default) row.
+   */
   async getGlobalAssumptions(userId?: number): Promise<GlobalAssumptions | undefined> {
     if (userId) {
       const [result] = await db.select().from(globalAssumptions).where(eq(globalAssumptions.userId, userId)).limit(1);
@@ -266,6 +327,12 @@ export class DatabaseStorage implements IStorage {
     return result || undefined;
   }
 
+  /**
+   * Create or update global assumptions. Uses "upsert" logic: if a row already
+   * exists for this user, update it; otherwise insert a new one. This is how the
+   * Settings page saves — it always calls upsert regardless of whether it's the
+   * first save or the hundredth.
+   */
   async upsertGlobalAssumptions(data: InsertGlobalAssumptions, userId?: number): Promise<GlobalAssumptions> {
     const existing = await this.getGlobalAssumptions(userId);
     
@@ -288,10 +355,15 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  // Properties
+  // ── Properties ──────────────────────────────────────────────
+
+  /**
+   * Get all properties visible to a user. This includes properties they own
+   * (userId matches) AND shared/seed properties (userId is null). Shared
+   * properties are the initial portfolio that all users can see.
+   */
   async getAllProperties(userId?: number): Promise<Property[]> {
     if (userId) {
-      // Return properties belonging to the user OR shared properties (userId is null)
       return await db.select().from(properties)
         .where(or(eq(properties.userId, userId), isNull(properties.userId)))
         .orderBy(properties.createdAt);
@@ -325,7 +397,9 @@ export class DatabaseStorage implements IStorage {
     await db.delete(properties).where(eq(properties.id, id));
   }
 
-  // Scenarios
+  // ── Scenarios ──────────────────────────────────────────────
+
+  /** List all scenarios belonging to a user, ordered by last update. */
   async getScenariosByUser(userId: number): Promise<Scenario[]> {
     return await db.select().from(scenarios).where(eq(scenarios.userId, userId)).orderBy(scenarios.updatedAt);
   }
@@ -356,6 +430,11 @@ export class DatabaseStorage implements IStorage {
     await db.delete(scenarios).where(eq(scenarios.id, id));
   }
 
+  /**
+   * Restore a saved scenario by replacing the user's current working data
+   * (global assumptions + all properties + fee categories) with the snapshot
+   * from the scenario. Runs in a transaction so partial loads can't occur.
+   */
   async loadScenario(userId: number, savedAssumptions: Record<string, unknown>, savedProperties: Array<Record<string, unknown>>, savedFeeCategories?: Record<string, Array<Record<string, unknown>>>): Promise<void> {
     await db.transaction(async (tx) => {
       const existing = await tx.select().from(globalAssumptions)
@@ -388,7 +467,9 @@ export class DatabaseStorage implements IStorage {
     });
   }
 
-  // Login Logs
+  // ── Login Logs ──────────────────────────────────────────────
+
+  /** Record a login event. Called after successful authentication. */
   async createLoginLog(userId: number, sessionId: string, ipAddress?: string): Promise<LoginLog> {
     const [log] = await db
       .insert(loginLogs)
@@ -404,6 +485,7 @@ export class DatabaseStorage implements IStorage {
       .where(eq(loginLogs.sessionId, sessionId));
   }
   
+  /** Fetch recent login history (last 90 days) with user info, for the admin panel. */
   async getLoginLogs(): Promise<(LoginLog & { user: User })[]> {
     const ninetyDaysAgo = new Date();
     ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
@@ -417,7 +499,8 @@ export class DatabaseStorage implements IStorage {
     return results.map(r => ({ ...r.login_logs, user: r.users }));
   }
   
-  // Design Themes (per user)
+  // ── Design Themes ──────────────────────────────────────────────
+
   async getAllDesignThemes(): Promise<DesignTheme[]> {
     return await db.select().from(designThemes).orderBy(designThemes.createdAt);
   }
@@ -454,13 +537,19 @@ export class DatabaseStorage implements IStorage {
     return theme || undefined;
   }
 
+  /** Delete a theme. The default theme is protected and cannot be deleted. */
   async deleteDesignTheme(id: number): Promise<void> {
     const [theme] = await db.select().from(designThemes).where(eq(designThemes.id, id));
     if (theme?.isDefault) throw new Error("Cannot delete the default theme");
     await db.delete(designThemes).where(eq(designThemes.id, id));
   }
   
-  // Market Research
+  // ── Market Research ──────────────────────────────────────────────
+
+  /**
+   * Find the most recent research report matching the given type and optional
+   * userId/propertyId filters. Returns the latest by updatedAt.
+   */
   async getMarketResearch(type: string, userId?: number, propertyId?: number): Promise<MarketResearch | undefined> {
     const conditions = [eq(marketResearch.type, type)];
     if (userId) conditions.push(or(eq(marketResearch.userId, userId), isNull(marketResearch.userId))!);
@@ -482,6 +571,11 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(marketResearch).orderBy(desc(marketResearch.updatedAt));
   }
   
+  /**
+   * Create or update a market research report. If a report with the same type,
+   * userId, and propertyId already exists, update its content and LLM model;
+   * otherwise insert a new one. This prevents duplicate reports from piling up.
+   */
   async upsertMarketResearch(data: InsertMarketResearch): Promise<MarketResearch> {
     const conditions = [eq(marketResearch.type, data.type!)];
     if (data.userId) conditions.push(eq(marketResearch.userId, data.userId));
@@ -514,13 +608,20 @@ export class DatabaseStorage implements IStorage {
     await db.delete(marketResearch).where(eq(marketResearch.id, id));
   }
   
-  // Prospective Properties
+  // ── Prospective Properties (Property Finder Favorites) ────────
+
+  /** Get all properties a user has favorited from the Property Finder search. */
   async getProspectiveProperties(userId: number): Promise<ProspectiveProperty[]> {
     return await db.select().from(prospectiveProperties)
       .where(eq(prospectiveProperties.userId, userId))
       .orderBy(desc(prospectiveProperties.savedAt));
   }
   
+  /**
+   * Save a property listing as a favorite. If the user already saved this
+   * exact listing (same externalId), return the existing record instead of
+   * creating a duplicate.
+   */
   async addProspectiveProperty(data: InsertProspectiveProperty): Promise<ProspectiveProperty> {
     const existing = await db.select().from(prospectiveProperties)
       .where(and(
@@ -552,7 +653,9 @@ export class DatabaseStorage implements IStorage {
     return prop || undefined;
   }
 
-  // Saved Searches
+  // ── Saved Searches ──────────────────────────────────────────────
+
+  /** Get all saved property search criteria for a user. */
   async getSavedSearches(userId: number): Promise<SavedSearch[]> {
     return await db.select().from(savedSearches)
       .where(eq(savedSearches.userId, userId))
@@ -571,8 +674,9 @@ export class DatabaseStorage implements IStorage {
       .where(and(eq(savedSearches.id, id), eq(savedSearches.userId, userId)));
   }
 
-  // Activity Logs
+  // ── Activity Logs (Audit Trail) ──────────────────────────────
 
+  /** Insert a new activity log entry for user action tracking. */
   async createActivityLog(data: InsertActivityLog): Promise<ActivityLog> {
     const [log] = await db
       .insert(activityLogs)
@@ -581,6 +685,10 @@ export class DatabaseStorage implements IStorage {
     return log;
   }
 
+  /**
+   * Query activity logs with optional filters (user, entity type, date range)
+   * and pagination. Returns logs joined with user info for display in admin panel.
+   */
   async getActivityLogs(filters: ActivityLogFilters): Promise<(ActivityLog & { user: User })[]> {
     const conditions: SQL[] = [];
     if (filters.userId) conditions.push(eq(activityLogs.userId, filters.userId));
@@ -610,8 +718,9 @@ export class DatabaseStorage implements IStorage {
       .limit(limit);
   }
 
-  // Verification Runs
+  // ── Verification Runs (Financial Audit History) ──────────────
 
+  /** Persist a verification run result for historical tracking and compliance. */
   async createVerificationRun(data: InsertVerificationRun): Promise<VerificationRun> {
     const [run] = await db
       .insert(verificationRuns)
@@ -620,8 +729,11 @@ export class DatabaseStorage implements IStorage {
     return run;
   }
 
+  /**
+   * List recent verification runs for the admin panel. Excludes the `results`
+   * field (which can be megabytes of JSON) to keep list queries fast.
+   */
   async getVerificationRuns(limit = 20): Promise<Omit<VerificationRun, 'results'>[]> {
-    // Select all columns except 'results' (large JSON payload) for list view
     const rows = await db
       .select({
         id: verificationRuns.id,
@@ -644,8 +756,9 @@ export class DatabaseStorage implements IStorage {
     return run || undefined;
   }
 
-  // Active Sessions (admin)
+  // ── Active Sessions (Admin Session Management) ──────────────
 
+  /** List all currently valid (non-expired) sessions with user info. Admin panel uses this. */
   async getActiveSessions(): Promise<(Session & { user: User })[]> {
     const results = await db
       .select()
@@ -660,7 +773,8 @@ export class DatabaseStorage implements IStorage {
     await db.delete(sessions).where(eq(sessions.id, sessionId));
   }
 
-  // Logos
+  // ── Logos ──────────────────────────────────────────────────
+
   async getAllLogos(): Promise<Logo[]> {
     return await db.select().from(logos).orderBy(logos.createdAt);
   }
@@ -684,7 +798,8 @@ export class DatabaseStorage implements IStorage {
     await db.delete(logos).where(eq(logos.id, id));
   }
 
-  // Asset Descriptions
+  // ── Asset Descriptions ──────────────────────────────────────
+
   async getAllAssetDescriptions(): Promise<AssetDescription[]> {
     return await db.select().from(assetDescriptions).orderBy(assetDescriptions.createdAt);
   }
@@ -708,7 +823,8 @@ export class DatabaseStorage implements IStorage {
     await db.delete(assetDescriptions).where(eq(assetDescriptions.id, id));
   }
 
-  // User Groups
+  // ── User Groups ──────────────────────────────────────────────
+
   async getAllUserGroups(): Promise<UserGroup[]> {
     return db.select().from(userGroups).orderBy(userGroups.name);
   }
@@ -733,6 +849,11 @@ export class DatabaseStorage implements IStorage {
     return group || undefined;
   }
 
+  /**
+   * Delete a user group. The default group cannot be deleted. When a non-default
+   * group is deleted, all its users are reassigned to the default group so they
+   * aren't left orphaned without branding.
+   */
   async deleteUserGroup(id: number): Promise<void> {
     const [group] = await db.select().from(userGroups).where(eq(userGroups.id, id));
     if (group?.isDefault) throw new Error("Cannot delete the default user group");
@@ -747,7 +868,8 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
-  // Companies
+  // ── Companies ──────────────────────────────────────────────
+
   async getAllCompanies(): Promise<Company[]> {
     return db.select().from(companies).orderBy(companies.name);
   }
@@ -767,12 +889,18 @@ export class DatabaseStorage implements IStorage {
     return company;
   }
 
+  /**
+   * Delete a company. First unlinks any users who belong to it (sets companyId
+   * to null) so the foreign key doesn't block the delete.
+   */
   async deleteCompany(id: number): Promise<void> {
     await db.update(users).set({ companyId: null, updatedAt: new Date() }).where(eq(users.companyId, id));
     await db.delete(companies).where(eq(companies.id, id));
   }
 
-  // Property Fee Categories
+  // ── Property Fee Categories ──────────────────────────────────
+
+  /** Get all fee categories for a property, sorted by display order. */
   async getFeeCategoriesByProperty(propertyId: number): Promise<FeeCategory[]> {
     return db.select().from(propertyFeeCategories)
       .where(eq(propertyFeeCategories.propertyId, propertyId))
@@ -798,6 +926,12 @@ export class DatabaseStorage implements IStorage {
     await db.delete(propertyFeeCategories).where(eq(propertyFeeCategories.id, id));
   }
 
+  /**
+   * Auto-populate a property with the default service fee categories if it
+   * doesn't have any yet. Called when a property is first accessed to ensure
+   * every property has a fee breakdown. Uses DEFAULT_SERVICE_FEE_CATEGORIES
+   * from shared/constants.ts.
+   */
   async seedDefaultFeeCategories(propertyId: number): Promise<FeeCategory[]> {
     const { DEFAULT_SERVICE_FEE_CATEGORIES } = await import("@shared/constants");
     const existing = await this.getFeeCategoriesByProperty(propertyId);
@@ -815,6 +949,9 @@ export class DatabaseStorage implements IStorage {
     return results;
   }
 
+  // ── Research Questions ──────────────────────────────────────
+
+  /** Get all admin-configured research questions, sorted by display order. */
   async getAllResearchQuestions(): Promise<ResearchQuestion[]> {
     return db.select().from(researchQuestions).orderBy(researchQuestions.sortOrder, researchQuestions.id);
   }

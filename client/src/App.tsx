@@ -1,3 +1,24 @@
+/**
+ * App.tsx — Root component and routing hub for the hospitality business simulation platform.
+ *
+ * This file wires together the top-level React providers (React Query, Auth, Tooltips,
+ * Toasts) and declares every client-side route in the application.
+ *
+ * Key architectural decisions:
+ *   • All page components (except Login and NotFound) are lazy-loaded so the initial
+ *     bundle stays small. Each page is wrapped in <Suspense> with a spinner fallback.
+ *   • Four route-guard wrappers enforce role-based access:
+ *       – ProtectedRoute: any authenticated user
+ *       – AdminRoute: admin role only
+ *       – ManagementRoute: any role except "investor"
+ *       – CheckerRoute: admin or checker roles
+ *   • Financial pages are additionally wrapped in <FinancialErrorBoundary> so a
+ *     calculation error in one page doesn't crash the whole app.
+ *   • On first login each session, a <ResearchRefreshOverlay> triggers a background
+ *     refresh of cached AI research data so dashboards show up-to-date content.
+ *   • Several legacy routes (e.g. /sensitivity, /financing, /map) redirect to their
+ *     new consolidated locations.
+ */
 import { Switch, Route, Redirect } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";

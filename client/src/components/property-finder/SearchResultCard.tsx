@@ -1,3 +1,17 @@
+/**
+ * SearchResultCard.tsx — A single AI-generated property search result.
+ *
+ * When the user runs a Property Finder search, the LLM returns structured
+ * data for potential acquisition targets. Each result is rendered as a card
+ * showing:
+ *   • Property name, location, and type
+ *   • Estimated room count, ADR, and purchase price
+ *   • A brief AI-generated narrative about the opportunity
+ *   • A "Save" button that persists the result as a Favorite for later review
+ *
+ * Clicking "Import to Portfolio" on a saved favorite (FavoriteCard) creates
+ * a real property in the database with these estimated values pre-filled.
+ */
 import { formatMoney } from "@/lib/financialEngine";
 import type { PropertyFinderResult } from "@/lib/api";
 import {

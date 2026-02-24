@@ -1,3 +1,12 @@
+/**
+ * CateringSection.tsx — Placeholder section for catering / F&B revenue config.
+ *
+ * Currently renders a "coming soon" placeholder. When implemented, this section
+ * will let users configure company-level defaults for catering and event
+ * revenue assumptions — the percentage of F&B revenue attributed to
+ * weddings, corporate events, and banquets, which can significantly boost
+ * a property's ancillary income (especially for resorts and boutique venues).
+ */
 export default function CateringSection() {
   return (
     <div className="relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">

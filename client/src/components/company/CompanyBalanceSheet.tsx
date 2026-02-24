@@ -1,3 +1,27 @@
+/**
+ * CompanyBalanceSheet.tsx — Simplified balance sheet for the management company.
+ *
+ * Shows the management entity's financial position at each year-end:
+ *
+ *   Assets:
+ *     • Cash & Equivalents (cumulative net cash from the cash flow statement)
+ *
+ *   Liabilities:
+ *     • SAFE Notes Payable — total outstanding SAFE (Simple Agreement for
+ *       Future Equity) obligations. SAFEs convert to equity at a future
+ *       priced round; until then they sit as a liability.
+ *
+ *   Equity:
+ *     • Retained Earnings — cumulative net income less distributions
+ *     • Common Stock / Paid-in Capital
+ *
+ * The balance sheet follows the fundamental accounting equation:
+ *   Assets = Liabilities + Equity
+ *
+ * For a startup management company, the early years may show negative
+ * retained earnings offset by SAFE proceeds, which is normal until the
+ * portfolio generates sufficient fee revenue to cover overhead.
+ */
 import React from "react";
 import { formatMoney } from "@/lib/financialEngine";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
@@ -22,18 +46,25 @@ export default function CompanyBalanceSheet({
       <div>
         <h3 className="text-lg font-display text-gray-900 mb-4">Balance Sheet - {global?.companyName || "Hospitality Business Co."} (As of {getFiscalYear(projectionYears - 1)})</h3>
         {(() => {
+          // Cumulative net income across all projected months = retained earnings
           const cumulativeNetIncome = financials.reduce((a, m) => a + m.netIncome, 0);
           
+          // SAFE notes are the company's startup funding (see FundingSection)
           const safeTranche1 = global.safeTranche1Amount || 0;
           const safeTranche2 = global.safeTranche2Amount || 0;
           const totalSafeFunding = safeTranche1 + safeTranche2;
           
+          // Assets = Cash (funding received + cumulative profit/loss)
           const cashBalance = totalSafeFunding + cumulativeNetIncome;
           const totalAssets = cashBalance;
           
+          // Liabilities = SAFE notes (they remain liabilities until a priced
+          // equity round triggers conversion to shares)
           const safeNotesPayable = totalSafeFunding;
           const totalLiabilities = safeNotesPayable;
           
+          // Equity = Retained Earnings (cumulative net income)
+          // Balance sheet equation: Assets = Liabilities + Equity
           const retainedEarnings = cumulativeNetIncome;
           const totalEquity = retainedEarnings;
           const totalLiabilitiesAndEquity = totalLiabilities + totalEquity;

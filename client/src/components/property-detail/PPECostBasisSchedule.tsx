@@ -1,3 +1,25 @@
+/**
+ * PPECostBasisSchedule.tsx — Depreciation and cost-basis table for a property.
+ *
+ * Renders a year-by-year schedule showing how the property's depreciable
+ * assets lose book value over time under straight-line GAAP depreciation:
+ *
+ *   PP&E (Property, Plant & Equipment):
+ *     Cost basis = Purchase Price − Land Value.
+ *     Depreciated over the building's useful life (typically 27.5 or 39 years).
+ *
+ *   FF&E (Furniture, Fixtures & Equipment):
+ *     Cost basis = initial FF&E budget.
+ *     Depreciated over a shorter useful life (typically 5–7 years).
+ *     Annual FF&E reserve contributions may create new FF&E "layers" that
+ *     restart their own depreciation clock.
+ *
+ * Columns: Year | Beginning Balance | Annual Depreciation | Accumulated
+ * Depreciation | Ending Net Book Value.
+ *
+ * The ending book value matters for computing gain/loss on sale at exit
+ * and for the balance sheet's asset section.
+ */
 import { useState } from "react";
 import { formatMoney } from "@/lib/financialEngine";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,6 +43,9 @@ export default function PPECostBasisSchedule({ property, global }: PPECostBasisS
   const fmt = (n: number) => formatMoney(n);
   const pct = (n: number) => `${(n * 100).toFixed(1)}%`;
 
+  // ---- Cost basis breakdown ----
+  // Land is not depreciable (it doesn't lose value), so we split the purchase
+  // price into land vs. building using the land-value percentage.
   const purchasePrice = property.purchasePrice ?? 0;
   const buildingImprovements = property.buildingImprovements ?? 0;
   const preOpeningCosts = property.preOpeningCosts ?? 0;
@@ -28,20 +53,28 @@ export default function PPECostBasisSchedule({ property, global }: PPECostBasisS
   const landPct = property.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT;
   const landValue = purchasePrice * landPct;
   const buildingValue = purchasePrice * (1 - landPct);
+  // Depreciable basis = building portion + renovation costs (land excluded)
   const totalDepreciableBasis = buildingValue + buildingImprovements;
+  // Straight-line depreciation: spread evenly over the useful life
   const annualDepreciation = totalDepreciableBasis / DEPRECIATION_YEARS;
   const monthlyDepreciation = annualDepreciation / 12;
+  // Total project cost includes non-depreciable items (pre-opening, reserves)
   const totalProjectCost = purchasePrice + buildingImprovements + preOpeningCosts + operatingReserve;
   const totalPropertyValue = purchasePrice + buildingImprovements;
 
+  // ---- Revenue cross-check calculations ----
+  // Ancillary revenue (events, F&B, other) is modeled as a percentage of
+  // room revenue, so all revenue lines trace back to ADR × occupancy.
   const revShareEvents = property.revShareEvents ?? DEFAULT_REV_SHARE_EVENTS;
   const revShareFB = property.revShareFB ?? DEFAULT_REV_SHARE_FB;
   const revShareOther = property.revShareOther ?? DEFAULT_REV_SHARE_OTHER;
   const cateringBoostPct = property.cateringBoostPercent ?? DEFAULT_CATERING_BOOST_PCT;
   const cateringBoostMultiplier = 1 + cateringBoostPct;
 
+  // Base monthly room revenue = rooms × days/month × nightly rate × occupancy
   const baseMonthlyRoomRev = property.roomCount * DAYS_PER_MONTH * property.startAdr * property.startOccupancy;
   const baseMonthlyEventsRev = baseMonthlyRoomRev * revShareEvents;
+  // F&B includes catering boost (e.g. weddings, banquets add to base F&B)
   const baseMonthlyFBRev = baseMonthlyRoomRev * revShareFB * cateringBoostMultiplier;
   const baseMonthlyOtherRev = baseMonthlyRoomRev * revShareOther;
   const baseMonthlyTotalRev = baseMonthlyRoomRev + baseMonthlyEventsRev + baseMonthlyFBRev + baseMonthlyOtherRev;
@@ -55,6 +88,8 @@ export default function PPECostBasisSchedule({ property, global }: PPECostBasisS
   const costRateIT = property.costRateIT ?? 0.02;
   const costRateOther = property.costRateOther ?? 0.05;
 
+  // Capital stack: how the acquisition is funded
+  // LTV (Loan-to-Value) determines how much is debt vs. equity
   const ltv = property.acquisitionLTV ?? DEFAULT_LTV;
   const loanAmount = property.type === "Financed" ? totalPropertyValue * ltv : 0;
   const equityRequired = totalProjectCost - loanAmount;

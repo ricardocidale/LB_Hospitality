@@ -1,3 +1,23 @@
+/**
+ * checkerManualExport.ts — Checker Manual PDF and Full Data Export
+ *
+ * Provides two export capabilities for administrators and auditors:
+ *
+ * 1. **Checker Manual PDF** (`exportManualPDF`):
+ *    A reference document that lists every formula, business rule, and testing
+ *    methodology used by the financial engine. Intended for independent
+ *    verification — an auditor can read the manual and manually re-derive any
+ *    number the system produces.
+ *
+ * 2. **Full Data Export PDF** (`exportFullData`):
+ *    A comprehensive data dump that fetches all properties and global
+ *    assumptions from the server, re-runs the pro-forma engine for every
+ *    property and the management company, and renders all resulting financial
+ *    statements into a single landscape-oriented PDF. Includes a completeness
+ *    report showing what was generated and any data quality warnings.
+ *
+ * Both exports use jsPDF for PDF rendering and jspdf-autotable for tables.
+ */
 import { apiRequest } from "@/lib/queryClient";
 import {
   DEFAULT_EXIT_CAP_RATE,
@@ -27,6 +47,7 @@ export interface FullDataExportResult {
   error?: string;
 }
 
+/** Table of contents for the Checker Manual — each section maps to a chapter of the app. */
 const MANUAL_SECTIONS = [
   "1. Application Overview",
   "2. Management Company",
@@ -51,6 +72,10 @@ const MANUAL_SECTIONS = [
   "21. Glossary",
 ];
 
+/**
+ * Core property-level financial formulas. Each row is [ID, Name, Expression].
+ * These are the formulas an auditor would check to verify the engine output.
+ */
 const PROPERTY_FORMULAS = [
   ["F-P-01", "Available Rooms", "Room Count × 30.5"],
   ["F-P-02", "Sold Rooms", "Available Rooms × Occupancy Rate"],
@@ -63,6 +88,7 @@ const PROPERTY_FORMULAS = [
   ["F-P-15", "CFO", "Net Income + Depreciation"],
 ];
 
+/** Management company formulas — how the company's revenue and cash flow are derived. */
 const COMPANY_FORMULAS = [
   ["F-C-01", "Base Fee Revenue", "Σ(Property Revenue × Base Rate)"],
   ["F-C-02", "Incentive Fee Revenue", "Σ(max(0, Property GOP × Incentive Rate))"],
@@ -70,6 +96,7 @@ const COMPANY_FORMULAS = [
   ["F-C-05", "Cash Flow", "Net Income + Funding"],
 ];
 
+/** Investment return formulas — DCF, FCF, IRR, exit valuation, equity multiple. */
 const RETURN_FORMULAS = [
   ["F-R-01", "FCF", "NOI − Tax − CapEx"],
   ["F-R-02", "FCFE", "NOI − Debt Service − Tax"],
@@ -78,6 +105,7 @@ const RETURN_FORMULAS = [
   ["F-R-07", "Equity Multiple", "Total Distributions / Equity"],
 ];
 
+/** Financing and refinancing formulas — loan sizing, PMT calculation, refi proceeds. */
 const FINANCING_FORMULAS = [
   ["F-F-01", "Loan Amount", "Purchase Price × LTV"],
   ["F-F-02", "PMT", "P × [r(1+r)^n / ((1+r)^n − 1)]"],
@@ -85,6 +113,7 @@ const FINANCING_FORMULAS = [
   ["F-F-07", "Refi Proceeds", "New Loan − Old Balance − Closing Costs"],
 ];
 
+/** Mandatory business constraints that the engine must enforce at all times. */
 const BUSINESS_RULES = [
   ["BC-01", "Company operations cannot begin before funding is received"],
   ["BC-02", "Property cannot operate before acquisition and funding"],
@@ -93,6 +122,7 @@ const BUSINESS_RULES = [
   ["BC-05", "Distributions cannot cause negative cash"],
 ];
 
+/** Three-phase testing methodology — simple → moderate → edge-case scenarios. */
 const TESTING_PHASES = [
   ["Phase 1", "Simple Scenarios", "Single property, all-cash, verify revenue/expense/GOP/NOI"],
   ["Phase 2", "Moderate", "Multiple properties, financing, refi, global changes, scenarios"],
@@ -106,6 +136,7 @@ const REQUIRED_GLOBAL_FIELDS = [
 
 const REQUIRED_PROPERTY_FIELDS = ["name", "location", "roomCount", "startAdr", "purchasePrice"];
 
+/** Draw the branded dark-blue header with sage-green accent (same style as research PDFs). */
 function brandedHeader(doc: any, pageW: number, height: number) {
   doc.setFillColor(26, 35, 50);
   doc.rect(0, 0, pageW, height, "F");
@@ -113,6 +144,11 @@ function brandedHeader(doc: any, pageW: number, height: number) {
   doc.rect(0, height - 4, pageW, 2, "F");
 }
 
+/**
+ * Generate and download the Checker Manual PDF — a self-contained reference
+ * document listing all formulas, business rules, and testing phases. This
+ * allows an auditor to independently verify any number the system produces.
+ */
 export async function exportManualPDF(user: ExportUser): Promise<ManualExportResult> {
   try {
   const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
@@ -200,6 +236,11 @@ export async function exportManualPDF(user: ExportUser): Promise<ManualExportRes
   }
 }
 
+/**
+ * Check that properties and global assumptions have all required fields.
+ * Returns a list of human-readable warning strings for any missing data.
+ * This runs before the full data export so the user knows if their data is incomplete.
+ */
 function validateData(properties: any[], global: any): string[] {
   const warnings: string[] = [];
 
@@ -224,6 +265,19 @@ function validateData(properties: any[], global: any): string[] {
   return warnings;
 }
 
+/**
+ * Generate and download a Full Data Export PDF.
+ *
+ * This is a comprehensive audit artifact that:
+ *   1. Fetches all properties and global assumptions from the API
+ *   2. Validates data completeness (warns about missing fields)
+ *   3. Runs the financial engine for every property and the management company
+ *   4. Renders all Income Statements and Cash Flow summaries into tables
+ *   5. Appends a completeness report with warnings and statement inventory
+ *
+ * The result object reports success/failure, included statements, property
+ * count, and any data quality warnings.
+ */
 export async function exportFullData(user: ExportUser): Promise<FullDataExportResult> {
   const exportTimestamp = new Date().toISOString();
   const base: Omit<FullDataExportResult, "success" | "status"> = {

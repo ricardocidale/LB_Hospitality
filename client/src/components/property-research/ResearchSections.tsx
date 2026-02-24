@@ -1,3 +1,25 @@
+/**
+ * ResearchSections.tsx — Renders all AI-generated research for a property.
+ *
+ * Takes the parsed research JSON (produced by useResearchStream) and maps
+ * each category to a SectionCard + MetricCard layout:
+ *
+ *   • Market Overview       – macro market data, tourism stats, demand drivers
+ *   • ADR Analysis          – nightly-rate benchmarks vs. comp set
+ *   • Occupancy Analysis    – seasonal occupancy patterns, ramp-up timing
+ *   • Events & Demand       – local events that drive transient/group demand
+ *   • Cap Rate Analysis     – capitalization rate comps for the submarket
+ *   • Competitive Landscape – identified competitor properties
+ *   • Risk Factors          – market, operational, and regulatory risks
+ *   • Stabilization         – expected timeline to reach stabilized occupancy
+ *   • Land Value            – underlying land valuation for the basis split
+ *   • Catering              – F&B / wedding / event revenue potential
+ *   • Sources               – citations for the AI-generated data
+ *
+ * Each section is conditionally rendered only if the research JSON includes
+ * data for that category; sections stream in progressively as the LLM
+ * generates more content.
+ */
 import { TrendingUp, Building2, Calendar, Users, AlertTriangle, BookOpen, Target, Clock, Shield, Mountain, UtensilsCrossed } from "lucide-react";
 import { SectionCard } from "./SectionCard";
 import { MetricCard } from "./MetricCard";

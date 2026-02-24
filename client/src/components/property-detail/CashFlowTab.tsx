@@ -1,3 +1,26 @@
+/**
+ * CashFlowTab.tsx — Annual cash flow waterfall for a single property.
+ *
+ * Shows the path from NOI (Net Operating Income) down to net cash flow
+ * available to equity investors:
+ *
+ *   NOI
+ *   − Debt Service (principal + interest payments)
+ *   − FF&E Reserve contributions
+ *   − Income Tax
+ *   = Net Cash Flow (before distributions)
+ *
+ * Also computes the DSCR (Debt Service Coverage Ratio) = NOI / Debt Service.
+ * Lenders typically require DSCR ≥ 1.25×, meaning NOI must be at least
+ * 25% higher than the debt service obligation. The UI highlights years
+ * where DSCR falls below the required threshold.
+ *
+ * At the exit year, a terminal cash flow row shows the net sale proceeds:
+ *   Gross Sale Price (NOI / exit cap rate)
+ *   − Sales Commission
+ *   − Remaining Loan Balance
+ *   = Net Equity Proceeds
+ */
 import { formatMoney } from "@/lib/financialEngine";
 import { YearlyCashFlowStatement } from "@/components/YearlyCashFlowStatement";
 import { DEFAULT_LTV } from "@/lib/loanCalculations";
@@ -22,6 +45,8 @@ export default function CashFlowTab({
           <h3 className="text-lg font-display text-gray-900 mb-4">Cash Flow Trends ({projectionYears}-Year Projection)</h3>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
+              {/* Merge income-statement chart data (NOI) with cash-flow waterfall
+                  data (FCF, FCFE) so the chart shows all three lines together */}
               <LineChart data={yearlyChartData.map((d, i) => {
                 return {
                   ...d,

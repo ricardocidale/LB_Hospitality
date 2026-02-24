@@ -1,3 +1,22 @@
+/**
+ * UserGroupsTab.tsx — Branded user group management.
+ *
+ * User Groups enable white-labeling: each group can have its own logo,
+ * color theme, and "asset description" (the label used for properties,
+ * e.g. "Luxury Resort" vs. "Boutique Hotel"). When a user belongs to a
+ * group, the platform's UI adapts to show that group's branding.
+ *
+ * Admin capabilities:
+ *   • Create / edit / delete user groups
+ *   • Assign a logo (from the Logos library) to a group
+ *   • Assign a theme (from ThemesTab) to a group
+ *   • Set the asset description label
+ *   • Add or remove users from groups
+ *
+ * This powers multi-tenant scenarios where a single platform instance
+ * serves multiple hotel brands or investor groups, each seeing their
+ * own branded experience.
+ */
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";

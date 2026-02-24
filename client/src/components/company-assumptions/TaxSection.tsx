@@ -1,3 +1,17 @@
+/**
+ * TaxSection.tsx — Corporate income tax rate for the management company.
+ *
+ * A simple section with a single slider controlling the effective corporate
+ * tax rate applied to the management company's pre-tax income (EBITDA).
+ * The default is typically 21% (current US federal corporate rate), but
+ * users can adjust to model different jurisdictions or combined
+ * federal + state effective rates.
+ *
+ * Tax is computed in the financial engine as:
+ *   Tax = max(0, EBITDA × taxRate)
+ * No tax is owed in loss years (the model does not currently carry
+ * forward net operating losses / NOLs).
+ */
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { HelpTooltip } from "@/components/ui/help-tooltip";

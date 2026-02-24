@@ -1,3 +1,13 @@
+/**
+ * types.ts — Shared Type Definitions for the Calculation Engine
+ *
+ * Defines the data structures used across the calc/ directory, particularly
+ * for debt service calculations (loan terms and amortization schedules).
+ *
+ * These types are used by both the original loan schedule and the refinance calculator,
+ * ensuring consistent structure across the codebase.
+ */
+
 export interface NewLoanTerms {
   /** Annual interest rate as decimal (e.g. 0.07 = 7%) */
   rate_annual: number;

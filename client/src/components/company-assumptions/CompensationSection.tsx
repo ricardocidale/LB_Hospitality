@@ -1,3 +1,23 @@
+/**
+ * CompensationSection.tsx — Staff compensation and headcount tiers.
+ *
+ * Configures the management company's people costs. Staffing scales with
+ * portfolio size through "staffing tiers" — discrete FTE headcount
+ * thresholds that increase as more properties are acquired:
+ *
+ *   Tier 1 (1–2 properties): minimal team (e.g. 3 FTEs)
+ *   Tier 2 (3–5 properties): expanded team (e.g. 8 FTEs)
+ *   Tier 3 (6+ properties): full team (e.g. 15 FTEs)
+ *
+ * Inputs:
+ *   • Average salary per FTE
+ *   • Payroll burden rate (benefits, taxes — typically 20–30% of salary)
+ *   • Annual salary escalation rate (cost-of-living raises)
+ *   • FTE counts for each tier
+ *
+ * Research badges show AI-generated salary benchmarks for hospitality
+ * management roles in the user's market, when available.
+ */
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";

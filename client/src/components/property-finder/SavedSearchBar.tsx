@@ -1,3 +1,14 @@
+/**
+ * SavedSearchBar.tsx — Horizontal scrollable list of recent saved searches.
+ *
+ * Each pill represents a previously-run Property Finder query. Clicking a
+ * pill re-populates the SearchForm and re-runs the search. An "X" button
+ * deletes the saved search from the database.
+ *
+ * Saved searches are stored server-side and scoped to the current user,
+ * so they persist across sessions. The bar renders a loading spinner
+ * while saved searches are being fetched on mount.
+ */
 import type { SavedSearchData } from "@/lib/api";
 import { Bookmark, Loader2, X } from "lucide-react";
 

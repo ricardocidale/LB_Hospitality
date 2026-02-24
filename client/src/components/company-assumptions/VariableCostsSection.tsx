@@ -1,3 +1,21 @@
+/**
+ * VariableCostsSection.tsx — Variable costs that scale with portfolio size or revenue.
+ *
+ * Unlike fixed overhead, these expenses grow as the management company
+ * takes on more properties or earns more fee revenue:
+ *
+ *   • Marketing budget — expressed as a % of management fee revenue;
+ *     covers brand marketing, digital advertising, and PR
+ *   • Travel & site visits — per-property annual travel cost for on-site
+ *     inspections, owner meetings, and brand audits
+ *   • Per-property operating cost — a flat annual amount per managed
+ *     property (covers property-specific admin like license renewals,
+ *     local compliance, etc.)
+ *   • Miscellaneous variable — a catch-all percentage of total revenue
+ *
+ * Research badges display AI-benchmarked industry averages for marketing
+ * spend and travel budgets when available.
+ */
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { HelpTooltip } from "@/components/ui/help-tooltip";

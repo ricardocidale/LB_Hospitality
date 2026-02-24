@@ -1,3 +1,24 @@
+/**
+ * ActivityTab.tsx — Audit log, activity feed, and checker analytics.
+ *
+ * Three sub-views accessible via internal tabs:
+ *
+ *   1. Login Log — chronological audit trail of login/logout events.
+ *      Shows username, timestamp, IP address, and session duration.
+ *      Useful for security audits and compliance.
+ *
+ *   2. Activity Feed — all tracked user actions: property CRUD, assumption
+ *      changes, research generation, verification runs, etc. Each entry
+ *      shows the user, action type, target entity, and timestamp.
+ *
+ *   3. Checker Activity — analytics specific to "checker" role users who
+ *      perform independent financial verification. Shows how many
+ *      verification runs each checker has completed, pass/fail rates,
+ *      and the most recent audit opinion issued.
+ *
+ * Data is fetched from /api/admin/login-log, /api/admin/activity-log,
+ * and /api/admin/checker-activity respectively.
+ */
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";

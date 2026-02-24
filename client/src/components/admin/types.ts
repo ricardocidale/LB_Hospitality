@@ -1,3 +1,30 @@
+/**
+ * admin/types.ts
+ *
+ * TypeScript interfaces for the Admin Settings panel.
+ * These types model the data returned by /api/admin/* endpoints and are
+ * consumed by the various admin tab components.
+ *
+ * Key types:
+ *   • User           – a registered platform user with role-based access
+ *   • AdminCompany   – a company entity (management company or SPV)
+ *   • UserGroup      – a branded group that assigns a logo/theme to users
+ *   • Logo           – an uploaded logo image linked to a company name
+ *   • LoginLog       – an audit trail entry for login/logout events
+ *   • ActivityLogEntry – any tracked user action (CRUD on properties, etc.)
+ *   • VerificationResult – the output of the GAAP financial verification run,
+ *     including per-property checks, company checks, consolidated checks,
+ *     audit opinion (UNQUALIFIED / QUALIFIED / ADVERSE), and optional
+ *     client-side audit workpapers and known-value test results
+ *   • CheckResult    – a single verification check with expected vs. actual
+ *     values, variance, GAAP reference, and severity classification
+ *   • DesignCheckResult – output of the UI/UX design check (data-testid coverage, etc.)
+ *   • CheckerActivityData – analytics for users with the "checker" role
+ *   • ActiveSession  – a currently valid session (for force-logout capability)
+ *   • AssetDesc      – a property type label (e.g. "Luxury Resort") assignable to groups
+ *
+ * AdminView / ActivitySubView are union types controlling which tab is active.
+ */
 import type { AuditReport } from "@/lib/financialAuditor";
 import type { KnownValueTestResult } from "@/lib/runVerification";
 

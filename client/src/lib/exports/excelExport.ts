@@ -1,3 +1,23 @@
+/**
+ * excelExport.ts — Excel (.xlsx) workbook generation for financial statements
+ *
+ * Generates downloadable Excel files for every major financial statement in the
+ * system: Income Statement, Cash Flow, and Balance Sheet — at both the
+ * individual-property level and the management-company level.
+ *
+ * How it works:
+ *   1. Monthly pro-forma data (from the financial engine) is aggregated into
+ *      yearly buckets using the yearlyAggregator.
+ *   2. Rows are built as plain 2-D arrays (AOA) matching the standard
+ *      hospitality USALI (Uniform System of Accounts for the Lodging Industry)
+ *      line-item layout.
+ *   3. The SheetJS (xlsx) library converts the arrays into real Excel
+ *      worksheets with number formatting, column widths, and bold headers.
+ *   4. The workbook is downloaded to the user's browser via XLSX.writeFile().
+ *
+ * Each exported function corresponds to a single downloadable file (or sheet
+ * within a multi-sheet workbook in the case of exportFullPropertyWorkbook).
+ */
 import * as XLSX from "xlsx";
 import { MonthlyFinancials, CompanyMonthlyFinancials, getFiscalYearForModelYear } from "../financialEngine";
 import { aggregatePropertyByYear, YearlyPropertyFinancials } from "../yearlyAggregator";
@@ -15,14 +35,22 @@ import {
 import { aggregateCashFlowByYear } from "../cashFlowAggregator";
 import { computeCashFlowSections } from "../cashFlowSections";
 
+/** Trigger a browser download of the given Excel workbook. */
 function downloadWorkbook(wb: XLSX.WorkBook, filename: string) {
   XLSX.writeFile(wb, filename);
 }
 
+/** Set Excel column widths (in character units) so labels and numbers aren't truncated. */
 function setColumnWidths(ws: XLSX.WorkSheet, widths: number[]) {
   ws["!cols"] = widths.map((w) => ({ wch: w }));
 }
 
+/**
+ * Apply Excel number formats to numeric cells based on their row label.
+ * - Occupancy rows get a percentage format (e.g. 85.0%)
+ * - ADR / RevPAR rows get a decimal currency format ($250.00)
+ * - Everything else gets a whole-dollar currency format ($1,234)
+ */
 function applyCurrencyFormat(ws: XLSX.WorkSheet, rows: (string | number)[][]): void {
   const currencyFormat = '#,##0';
   const percentFormat = '0.0%';
@@ -47,6 +75,10 @@ function applyCurrencyFormat(ws: XLSX.WorkSheet, rows: (string | number)[][]): v
   }
 }
 
+/**
+ * Bold section headers (ALL-CAPS labels) and total/summary rows so they
+ * visually stand out in the exported spreadsheet.
+ */
 function applyHeaderStyle(ws: XLSX.WorkSheet, rows: (string | number)[][]): void {
   for (let r = 0; r < rows.length; r++) {
     const label = String(rows[r][0] || '').trim();
@@ -77,6 +109,10 @@ function applyHeaderStyle(ws: XLSX.WorkSheet, rows: (string | number)[][]): void
 
 type YearlyAggregation = YearlyPropertyFinancials & { label: string };
 
+/**
+ * Roll up monthly pro-forma data into fiscal-year buckets and attach a
+ * human-readable fiscal-year label to each bucket (e.g. "2027").
+ */
 function aggregateByYear(
   data: MonthlyFinancials[],
   years: number,
@@ -89,6 +125,11 @@ function aggregateByYear(
   }));
 }
 
+/**
+ * Build the row data for a single-property Income Statement following the
+ * USALI layout: Revenue → Operating Expenses → GOP → Non-operating → NOI →
+ * Below-NOI items → GAAP Net Income.
+ */
 function buildPropertyISRows(yearly: YearlyAggregation[]): (string | number)[][] {
   return [
     ["Income Statement", ...yearly.map((y) => y.label)],
@@ -135,6 +176,11 @@ function buildPropertyISRows(yearly: YearlyAggregation[]): (string | number)[][]
   ];
 }
 
+/**
+ * Download a single-property Income Statement as an Excel file.
+ * Aggregates monthly data into yearly columns, formats currency, and triggers
+ * a browser download.
+ */
 export function exportPropertyIncomeStatement(
   data: MonthlyFinancials[],
   propertyName: string,
@@ -157,6 +203,16 @@ export function exportPropertyIncomeStatement(
   downloadWorkbook(wb, `${safeName} - Income Statement.xlsx`);
 }
 
+/**
+ * Download a single-property Cash Flow Statement (ASC 230 format) as Excel.
+ *
+ * Sections follow GAAP's three-activity classification:
+ *   - Operating Activities: revenue collected minus operating expenses, interest, taxes
+ *   - Investing Activities: property acquisition, FF&E capex, sale proceeds
+ *   - Financing Activities: equity contributions, loan proceeds, principal repayment, refi
+ *
+ * Also includes a Free Cash Flow (FCF) and Free Cash Flow to Equity (FCFE) summary.
+ */
 export function exportPropertyCashFlow(
   data: MonthlyFinancials[],
   property: LoanParams,
@@ -241,6 +297,16 @@ export function exportPropertyCashFlow(
   downloadWorkbook(wb, `${safeName} - Cash Flow.xlsx`);
 }
 
+/**
+ * Download a Balance Sheet as Excel — either for a single property or the
+ * consolidated portfolio. Calculates Assets (property at cost minus accumulated
+ * depreciation, plus cash reserves), Liabilities (outstanding debt), and Equity
+ * (initial investment + refi proceeds + retained earnings). The accounting
+ * identity Assets = Liabilities + Equity is maintained.
+ *
+ * @param propertyIndex If provided, exports just that property; otherwise
+ *                      consolidates all properties into one balance sheet.
+ */
 export function exportPropertyBalanceSheet(
   properties: LoanParams[],
   globalAssumptions: any,
@@ -400,6 +466,17 @@ export function exportPropertyBalanceSheet(
   downloadWorkbook(wb, `${safeName} - Balance Sheet.xlsx`);
 }
 
+/**
+ * Download the Management Company Income Statement as Excel.
+ *
+ * The management company earns revenue from two fee streams:
+ *   - Base Management Fees: a percentage of each property's total revenue
+ *   - Incentive Management Fees: a percentage of each property's GOP
+ *
+ * Operating expenses include partner/staff compensation, office lease,
+ * professional services, tech infrastructure, insurance, travel, IT licensing,
+ * marketing, and miscellaneous operations. Also shows SAFE funding received.
+ */
 export function exportCompanyIncomeStatement(
   data: CompanyMonthlyFinancials[],
   years: number,
@@ -495,6 +572,14 @@ export function exportCompanyIncomeStatement(
   downloadWorkbook(wb, "Management Company - Income Statement.xlsx");
 }
 
+/**
+ * Download the Management Company Cash Flow Statement as Excel.
+ *
+ * The management company's cash flow is simpler than a property's because the
+ * company has no investing activities (no real estate) — only operating cash
+ * (fees received minus expenses paid) and financing cash (SAFE funding).
+ * Tracks running opening/closing balances across years.
+ */
 export function exportCompanyCashFlow(
   data: CompanyMonthlyFinancials[],
   years: number,
@@ -604,6 +689,17 @@ export function exportCompanyCashFlow(
   downloadWorkbook(wb, "Management Company - Cash Flow.xlsx");
 }
 
+/**
+ * Download the Management Company Balance Sheet as Excel.
+ *
+ * A simplified balance sheet for the management company (asset-light model):
+ *   - Assets = Cash (cumulative net income + SAFE funding)
+ *   - Liabilities = SAFE Notes Payable (total funding received)
+ *   - Equity = Retained Earnings (cumulative net income)
+ *
+ * Note: SAFE (Simple Agreement for Future Equity) funding is shown as a
+ * long-term liability until a future conversion event.
+ */
 export function exportCompanyBalanceSheet(
   data: CompanyMonthlyFinancials[],
   safeTranche1Amount: number,
@@ -656,6 +752,12 @@ export function exportCompanyBalanceSheet(
   downloadWorkbook(wb, "Management Company - Balance Sheet.xlsx");
 }
 
+/**
+ * Download a multi-sheet Excel workbook for a single property containing both
+ * the Income Statement and Cash Flow Statement on separate tabs. This is the
+ * "full workbook" export that gives investors a single file with all key
+ * financial statements for one property.
+ */
 export function exportFullPropertyWorkbook(
   data: MonthlyFinancials[],
   property: LoanParams,

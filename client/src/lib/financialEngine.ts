@@ -1,6 +1,39 @@
+/**
+ * financialEngine.ts — The Core Property Pro Forma Calculator
+ *
+ * This is the heart of the financial modeling system. It takes a single property's
+ * assumptions (room count, ADR, occupancy, purchase price, financing terms, etc.)
+ * and produces a month-by-month financial projection for up to 10 years (120 months).
+ *
+ * The output is an array of MonthlyFinancials objects — one per month — containing:
+ *   - Revenue breakdown (rooms, F&B, events, other)
+ *   - Operating expenses (variable costs that scale with revenue + fixed costs that escalate with inflation)
+ *   - Gross Operating Profit (GOP), Net Operating Income (NOI), Net Income
+ *   - Debt service (interest + principal, split per GAAP ASC 470)
+ *   - Balance sheet fields (property value with depreciation, debt outstanding)
+ *   - Cash flow statement fields (operating CF, financing CF, ending cash per ASC 230)
+ *
+ * Key accounting standards followed:
+ *   - ASC 606: Revenue recognized when room nights are consumed (point-in-time)
+ *   - ASC 360: Property depreciated over 27.5 years straight-line (land excluded)
+ *   - ASC 470: Interest hits the income statement; principal is balance-sheet only
+ *   - ASC 230: Cash flow split into operating and financing activities (indirect method)
+ *   - USALI: Uniform System of Accounts for the Lodging Industry (hotel P&L structure)
+ *
+ * This file also contains generateCompanyProForma(), which models the management
+ * company's own P&L. The management company earns fees from properties (base fee
+ * on revenue + incentive fee on GOP) and has its own overhead (staff, office, etc.).
+ *
+ * Data flow: PropertyInput + GlobalInput → generatePropertyProForma() → MonthlyFinancials[]
+ */
 import { addMonths, differenceInMonths, isBefore, startOfMonth } from "date-fns";
 import { pmt } from "@calc/shared/pmt";
 
+/**
+ * Parse a date string into a Date object, handling both ISO format ("2026-04-01T00:00:00")
+ * and plain date format ("2026-04-01"). The plain format gets "T00:00:00" appended to
+ * prevent timezone-related off-by-one-day errors that happen with new Date("2026-04-01").
+ */
 function parseLocalDate(dateStr: string): Date {
   if (dateStr.includes('T')) return new Date(dateStr);
   return new Date(dateStr + 'T00:00:00');
@@ -56,10 +89,18 @@ import { computeRefinance } from '@calc/refinance';
 
 import { DEFAULT_ACCOUNTING_POLICY } from '@domain/types/accounting-policy';
 
-// Helper function to get fiscal year label for a given month in the model
-// modelStartDate: when the model starts (e.g., "2026-04-01")
-// fiscalYearStartMonth: 1 = January, 4 = April, etc.
-// monthIndex: 0-based index from model start
+/**
+ * Determine which fiscal year a given month belongs to.
+ *
+ * Fiscal years don't always start in January. For example, if the fiscal year
+ * starts in April, then April 2026 through March 2027 is "FY 2026".
+ * This function figures out the correct label for any month in the projection.
+ *
+ * @param modelStartDate When the financial model begins (e.g., "2026-04-01")
+ * @param fiscalYearStartMonth Which month the fiscal year starts (1=Jan, 4=Apr, etc.)
+ * @param monthIndex 0-based index from the model start date
+ * @returns The fiscal year number (e.g., 2026)
+ */
 export function getFiscalYearLabel(
   modelStartDate: string,
   fiscalYearStartMonth: number,
@@ -91,7 +132,19 @@ export function getFiscalYearForModelYear(
   return getFiscalYearLabel(modelStartDate, fiscalYearStartMonth, firstMonthOfYear);
 }
 
-// Types that match our database schema
+/**
+ * PropertyInput — All the assumptions needed to model a single hotel property.
+ *
+ * This mirrors the database schema for a property record. Key groups:
+ *   - Identity: room count, property type (Financed vs All Cash)
+ *   - Revenue: starting ADR, ADR growth rate, occupancy ramp-up schedule
+ *   - Acquisition: purchase price, building improvements, land value split
+ *   - Financing: LTV ratio, interest rate, loan term (only for Financed properties)
+ *   - Refinancing: whether/when to refinance, new loan terms
+ *   - Operating costs: rates for each expense category (rooms, F&B, admin, etc.)
+ *   - Revenue shares: what percentage of room revenue goes to events, F&B, other
+ *   - Management fees: base fee rate on revenue, incentive fee rate on GOP
+ */
 interface PropertyInput {
   operationsStartDate: string;
   acquisitionDate?: string; // For balance sheet timing - defaults to operationsStartDate
@@ -153,6 +206,13 @@ interface PropertyInput {
   name?: string;
 }
 
+/**
+ * GlobalInput — System-wide assumptions that apply to all properties and the
+ * management company. These are set once and shared across the entire model.
+ *
+ * Includes: model timeline, inflation, staffing tiers, partner compensation,
+ * corporate overhead, funding instrument (SAFE notes), debt defaults, and exit assumptions.
+ */
 interface GlobalInput {
   modelStartDate: string;
   projectionYears?: number;
@@ -269,6 +329,37 @@ export interface MonthlyFinancials {
   cashShortfall: boolean;
 }
 
+/**
+ * Generate a complete month-by-month financial projection for a single property.
+ *
+ * This is the main calculation function. It runs in two passes:
+ *
+ * PASS 1 (lines below): For each month, calculate:
+ *   - Occupancy (ramps up gradually because a new hotel doesn't fill instantly)
+ *   - Revenue (rooms × ADR × occupancy, plus F&B, events, other streams)
+ *   - Variable expenses (scale with revenue: rooms dept, F&B, marketing, etc.)
+ *   - Fixed expenses (dollar-based, escalate annually with inflation, not revenue)
+ *   - GOP, management fees, NOI
+ *   - Debt service (PMT-based amortization for financed properties)
+ *   - Depreciation (27.5-year straight-line, land excluded)
+ *   - Net Income (NOI - interest - depreciation - tax)
+ *   - Cash flow (NOI - full debt service - tax)
+ *   - Balance sheet (property value net of depreciation, debt outstanding)
+ *
+ * PASS 2 (at the end): If the property has a refinance event, overlay new debt
+ * terms from the refinance month onward. Revenue and NOI stay the same (they're
+ * debt-independent), but interest, principal, net income, and cash flow all change.
+ *
+ * The occupancy ramp-up works in steps: starting at startOccupancy, it increases
+ * by occupancyGrowthStep every occupancyRampMonths until hitting maxOccupancy.
+ * This models the real-world pattern where a new hotel gradually builds its guest base.
+ *
+ * Fixed vs variable costs (the "F-8 fix"):
+ *   - Variable costs (rooms, F&B, marketing) scale with CURRENT revenue
+ *   - Fixed costs (admin, insurance, property tax) are anchored to Year 1 revenue
+ *     level and escalate with inflation, NOT with revenue growth. This prevents
+ *     the unrealistic scenario where admin costs double just because occupancy doubled.
+ */
 export function generatePropertyProForma(
   property: PropertyInput, 
   global: GlobalInput, 
@@ -658,6 +749,10 @@ export function generatePropertyProForma(
   return financials;
 }
 
+/**
+ * Format a number as USD currency. Negative values are shown in accounting
+ * notation with parentheses: ($1,234) instead of -$1,234.
+ */
 export function formatMoney(amount: number) {
   const isNegative = amount < 0;
   const absAmount = Math.abs(amount);
@@ -670,10 +765,12 @@ export function formatMoney(amount: number) {
   return isNegative ? `(${formatted})` : formatted;
 }
 
+/** Helper for conditional CSS styling — returns true when a value should be shown in red. */
 export function isNegative(amount: number): boolean {
   return amount < 0;
 }
 
+/** Format a decimal ratio as a percentage string with one decimal place (e.g. 0.85 → "85.0%"). */
 export function formatPercent(amount: number) {
   return new Intl.NumberFormat('en-US', {
     style: 'percent',
@@ -717,6 +814,31 @@ export interface CompanyMonthlyFinancials {
   cashShortfall: boolean;
 }
 
+/**
+ * Generate month-by-month financials for the management company itself.
+ *
+ * The management company is a separate entity from the hotel properties it manages.
+ * Its revenue comes from management fees charged to properties:
+ *   - Base management fee: a percentage of each property's total revenue
+ *   - Incentive fee: a percentage of each property's GOP (only when GOP > 0)
+ *
+ * Its expenses are corporate overhead:
+ *   - Partner compensation (set per year by the admin, not inflation-adjusted)
+ *   - Staff salaries (tiered by number of active properties: more properties = more staff)
+ *   - Office lease, professional services, tech infrastructure, business insurance
+ *   - Variable costs: travel per client property, IT licensing per property
+ *   - Marketing and miscellaneous operations (percentage of company revenue)
+ *
+ * The company also receives SAFE (Simple Agreement for Future Equity) funding
+ * tranches — essentially startup capital that arrives at specific dates.
+ *
+ * Company operations are gated: no expenses are incurred until both the company
+ * ops start date has passed AND the first SAFE tranche has been received.
+ *
+ * Fixed cost escalation counts from when the company starts operations, not from
+ * the model start date. So if the company starts in month 6, Year 1 costs use
+ * base values (no escalation), even though the model is already 6 months in.
+ */
 export function generateCompanyProForma(
   properties: PropertyInput[],
   global: GlobalInput,

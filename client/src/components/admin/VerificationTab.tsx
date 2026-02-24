@@ -1,3 +1,32 @@
+/**
+ * VerificationTab.tsx — Independent GAAP financial verification and audit.
+ *
+ * The most complex admin tab. Runs a comprehensive verification of the
+ * platform's financial calculations against GAAP (Generally Accepted
+ * Accounting Principles) standards and displays results with an
+ * audit opinion.
+ *
+ * Verification checks include:
+ *   • Property-level: revenue calculations, expense allocations, NOI,
+ *     depreciation schedules, debt service, DSCR, and exit valuation
+ *   • Company-level: management fee revenue, overhead allocation,
+ *     EBITDA, cash flow, and balance sheet equation (A = L + E)
+ *   • Consolidated: cross-entity eliminations, inter-company fee matching,
+ *     and portfolio-level IRR / equity multiple calculations
+ *   • Known-value tests: re-computes specific values from scratch and
+ *     compares against the engine output with tolerance thresholds
+ *
+ * Audit opinions (following GAAS):
+ *   • UNQUALIFIED — all checks pass; financials are fairly stated
+ *   • QUALIFIED   — minor variances exist but financials are usable
+ *   • ADVERSE     — material misstatements found; financials are unreliable
+ *
+ * Includes a PDF export that generates a formatted audit report with
+ * digital signature, suitable for distribution to investors or lenders.
+ *
+ * Also supports client-side audit workpapers via the financialAuditor
+ * library, which runs additional checks in the browser.
+ */
 import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -32,8 +61,13 @@ export default function VerificationTab() {
     },
   });
 
+  // Two-phase verification: runs checks both client-side (in the browser) and
+  // server-side (independent recalculation), then merges results. This dual
+  // approach ensures the client's financial engine agrees with the server's
+  // independent calculations — any discrepancy would indicate a bug.
   const runVerification = useMutation({
     mutationFn: async () => {
+      // Phase 1: Fetch all data needed for client-side verification
       const [propertiesRes, assumptionsRes] = await Promise.all([
         fetch("/api/properties", { credentials: "include" }),
         fetch("/api/global-assumptions", { credentials: "include" })
@@ -45,13 +79,21 @@ export default function VerificationTab() {
       const properties = await propertiesRes.json();
       const globalAssumptions = await assumptionsRes.json();
       
+      // Client-side: run the GAAP auditor in the browser using the same
+      // financial engine that powers the UI — catches formula errors
       const comprehensiveResults = runFullVerification(properties, globalAssumptions);
+      // Known-value tests: compare specific outputs against hand-calculated
+      // reference values to catch regressions
       const knownValueTests = runKnownValueTestsStructured();
       
+      // Phase 2: Server-side independent recalculation — the server re-derives
+      // all financial figures from scratch and compares against stored values
       const serverRes = await fetch("/api/admin/run-verification", { credentials: "include" });
       if (!serverRes.ok) throw new Error("Server verification failed");
       const serverReport: VerificationResult = await serverRes.json();
       
+      // Merge: server report is the authoritative structure, enriched with
+      // client-side audit workpapers and known-value test results
       return {
         ...serverReport,
         clientAuditWorkpaper: comprehensiveResults.auditWorkpaper,
@@ -77,6 +119,8 @@ export default function VerificationTab() {
     }
   });
 
+  // Streams an LLM-powered narrative review of the verification results.
+  // Uses SSE (Server-Sent Events) so the review text appears progressively.
   const runAiVerification = async () => {
     setAiReviewLoading(true);
     setAiReview("");
@@ -87,6 +131,8 @@ export default function VerificationTab() {
       if (!reader) throw new Error("No response body");
       const decoder = new TextDecoder();
       let buffer = "";
+      // Read the SSE stream chunk by chunk; each chunk may contain partial
+      // lines, so we buffer incomplete lines and process complete ones
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
@@ -111,6 +157,10 @@ export default function VerificationTab() {
     }
   };
 
+  // Generates a multi-page PDF audit report suitable for distribution to
+  // investors or lenders. Includes: title page with audit opinion, summary
+  // table, known-value tests, per-property check tables, company checks,
+  // consolidated checks, and client-side GAAP audit summary.
   const exportVerificationPDF = () => {
     if (!verificationResults) return;
     const doc = new jsPDF();
@@ -126,6 +176,8 @@ export default function VerificationTab() {
     doc.text(`Hospitality Business Company | ${new Date(verificationResults.timestamp).toLocaleDateString()}`, pageWidth / 2, y, { align: "center" });
     y += 12;
 
+    // Color-code the audit opinion banner: green = unqualified (clean),
+    // yellow = qualified (minor issues), red = adverse (material misstatement)
     const opinion = verificationResults.summary.auditOpinion;
     const status = verificationResults.summary.overallStatus;
     doc.setFillColor(opinion === "UNQUALIFIED" ? 34 : opinion === "QUALIFIED" ? 200 : 220,
@@ -303,6 +355,8 @@ export default function VerificationTab() {
     },
   });
 
+  // Auto-run verification on first mount so results are ready immediately
+  // when an admin opens this tab (avoids an extra click)
   const verificationAutoRan = useRef(false);
   useEffect(() => {
     if (!verificationResults && !runVerification.isPending && !verificationAutoRan.current) {
@@ -361,6 +415,9 @@ export default function VerificationTab() {
     });
   };
 
+  // Groups individual check results by their GAAP category (e.g. "Revenue",
+  // "Depreciation", "Balance Sheet") and renders each group as a collapsible
+  // accordion. Categories with failures are auto-expanded.
   const renderGroupedChecks = (checks: CheckResult[], sectionPrefix: string) => {
     const grouped = new Map<string, CheckResult[]>();
     for (const chk of checks) {

@@ -1,3 +1,21 @@
+/**
+ * Admin.tsx — Admin settings panel (admin-only access).
+ *
+ * A tabbed interface that gives platform administrators control over:
+ *   • Users        — manage user accounts, roles, and passwords
+ *   • Companies    — create/edit companies that users can belong to
+ *   • Activity     — audit log of recent user actions (logins, saves, etc.)
+ *   • Verification — run the server-side financial checker to validate model integrity
+ *   • User Groups  — assign users to groups with shared branding and permissions
+ *   • Logos        — upload and manage company logos used throughout the platform
+ *   • Branding     — assign logos and themes to user groups for white-label presentation
+ *   • Themes       — manage visual theme definitions (color palettes, CSS classes)
+ *   • Navigation   — toggle sidebar items on/off for all non-admin users
+ *   • Database     — sync tools and data management utilities
+ *
+ * Each tab is lazy-rendered — the component only mounts when the tab is active,
+ * keeping the Admin page lightweight even with many management features.
+ */
 import { useState } from "react";
 import Layout from "@/components/Layout";
 import { Tabs, TabsContent, CurrentThemeTab } from "@/components/ui/tabs";

@@ -1,3 +1,38 @@
+/**
+ * runVerification.ts — The Verification Orchestrator
+ *
+ * This file ties together all of the financial verification systems into a single
+ * pipeline. When the user clicks "Verify" in the UI, this is what runs.
+ *
+ * The verification pipeline runs 4 independent check systems on every property:
+ *   1. Formula Checker (formulaChecker.ts) — Validates math identities
+ *      (e.g., Revenue = ADR × Sold Rooms, NOI = GOP - Fees - FF&E)
+ *   2. GAAP Compliance Checker (gaapComplianceChecker.ts) — Validates accounting rules
+ *      (e.g., principal not in Net Income, depreciation method correct)
+ *   3. Full Auditor (financialAuditor.ts) — Independent recalculation of every number
+ *      with workpaper references, just like a real audit firm would do
+ *   4. Cross-Calculator Validation (crossCalculatorValidation.ts) — Compares the
+ *      client engine's numbers against IRS/GAAP authoritative formulas
+ *
+ * The pipeline:
+ *   For each property:
+ *     → Run the financial engine to generate pro forma numbers
+ *     → Feed those numbers through all 4 checkers
+ *     → Collect results
+ *   Then aggregate into a single VerificationResults object with:
+ *     - Human-readable text reports (for display in the Checker Manual page)
+ *     - Structured audit data (for programmatic consumption)
+ *     - A summary with pass/fail counts, critical/material issues, audit opinion
+ *
+ * This file also contains known-value test cases — hand-calculated reference scenarios
+ * (e.g., "10 rooms × $100 ADR × 70% occupancy = $21,350 monthly room revenue") that
+ * validate the engine produces the expected numbers. These serve as regression tests.
+ *
+ * Overall status logic:
+ *   PASS — No issues at all
+ *   WARNING — Material issues found but no critical failures
+ *   FAIL — Critical issues or formula failures detected
+ */
 import { generatePropertyProForma, MonthlyFinancials } from "./financialEngine";
 import { checkPropertyFormulas, checkMetricFormulas, generateFormulaReport, FormulaCheckReport } from "./formulaChecker";
 import { checkGAAPCompliance, checkCashFlowStatement, generateComplianceReport, ComplianceReport } from "./gaapComplianceChecker";

@@ -1,3 +1,17 @@
+/**
+ * SummaryFooter.tsx — Computed summary of current company assumptions.
+ *
+ * Renders a read-only summary bar at the bottom of the Company Assumptions
+ * page showing key derived metrics:
+ *   • Total fixed overhead (sum of office, insurance, tech, professional svcs)
+ *   • Current staffing tier and FTE count
+ *   • Annual staff cost (FTEs × average salary × (1 + burden rate))
+ *   • Total partner draws
+ *   • Effective tax rate
+ *
+ * This gives the user a quick sanity check: "my management company will
+ * cost $X/year to operate before earning any fee revenue."
+ */
 import { formatPercent } from "@/lib/financialEngine";
 import { STAFFING_TIERS } from "@/lib/constants";
 import type { CompanyAssumptionsSectionProps } from "./types";

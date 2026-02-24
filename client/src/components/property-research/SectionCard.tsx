@@ -1,3 +1,14 @@
+/**
+ * SectionCard.tsx — Reusable card wrapper for a research category section.
+ *
+ * Renders a collapsible card with an icon, title, and accent-colored border
+ * based on the SectionColorScheme (see types.ts). Used by ResearchSections
+ * to wrap each AI-generated research category (market overview, ADR comps,
+ * occupancy benchmarks, risk factors, etc.).
+ *
+ * Children are rendered inside the card body, typically as a mix of
+ * narrative paragraphs and MetricCard KPI badges.
+ */
 import type { SectionColorScheme } from "./types";
 
 export function SectionCard({ icon: Icon, title, color, children }: { icon: any; title: string; color: SectionColorScheme; children: React.ReactNode }) {

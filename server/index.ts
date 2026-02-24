@@ -1,3 +1,25 @@
+/**
+ * server/index.ts — Application Entry Point
+ *
+ * This is the main startup file for the Express server. It wires together every
+ * layer of the backend in the correct order:
+ *
+ *   1. Security headers (CSP, HSTS, X-Frame-Options, etc.)
+ *   2. Body parsing (JSON + URL-encoded, with raw body preserved for webhooks)
+ *   3. Cookie-based session authentication middleware
+ *   4. Default-deny authorization: every /api/ route requires a valid session
+ *      unless it's on the explicit PUBLIC_API_PATHS whitelist
+ *   5. Request logging (method, path, status, duration) for all /api/ calls
+ *   6. Seed data: admin user, logos, companies, user groups, fee categories,
+ *      and missing market research records are created on first boot
+ *   7. Route registration: image routes, API routes, object storage, chat, etc.
+ *   8. Error handler (hides internal details in production)
+ *   9. Static file serving (production) or Vite dev server (development)
+ *  10. Periodic cleanup: expired sessions and stale rate-limit entries every hour
+ *
+ * The server listens on the PORT environment variable (default 5000). This single
+ * port serves both the API and the client SPA — it is the only port not firewalled.
+ */
 import express, { type Request, Response, NextFunction } from "express";
 import cookieParser from "cookie-parser";
 import { registerRoutes } from "./routes";

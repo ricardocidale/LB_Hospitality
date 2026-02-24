@@ -1,3 +1,20 @@
+/**
+ * pptxExport.ts — PowerPoint (.pptx) presentation generation
+ *
+ * Generates branded investor-ready slide decks using the pptxgenjs library.
+ * Three export targets are supported:
+ *   1. Portfolio — consolidated multi-property investment summary
+ *   2. Property — single-property financial report
+ *   3. Company — management company financial report
+ *
+ * Each presentation includes a branded title slide, KPI metrics cards, and
+ * financial data tables (Income Statement, Cash Flow, Balance Sheet). Large
+ * tables automatically split across multiple slides (max 5 year-columns per
+ * slide) to stay readable.
+ *
+ * Color palette follows the L&B Hospitality brand guidelines (sage green,
+ * dark green, warm neutrals).
+ */
 import pptxgen from "pptxgenjs";
 import { format } from "date-fns";
 
@@ -15,6 +32,7 @@ interface SlideTableRow {
   isBold?: boolean;
 }
 
+/** Create a dark-background title slide with brand name, report title, and date. */
 function addTitleSlide(pres: pptxgen, title: string, subtitle: string) {
   const slide = pres.addSlide();
   slide.background = { color: "1a2a3a" };
@@ -37,6 +55,10 @@ function addTitleSlide(pres: pptxgen, title: string, subtitle: string) {
   });
 }
 
+/**
+ * Create a slide showing KPI metric cards in a 3-column grid layout.
+ * Each card displays a large formatted value with a descriptive label below it.
+ */
 function addMetricsSlide(pres: pptxgen, title: string, metrics: { label: string; value: string }[]) {
   const slide = pres.addSlide();
   slide.addText(title, {
@@ -75,6 +97,7 @@ function addMetricsSlide(pres: pptxgen, title: string, metrics: { label: string;
   });
 }
 
+/** Format a numeric value for display in slide tables — accounting-style parentheses for negatives. */
 function formatVal(v: string | number): string {
   if (typeof v === "number") {
     if (Math.abs(v) >= 1000) {
@@ -87,6 +110,12 @@ function formatVal(v: string | number): string {
   return String(v);
 }
 
+/**
+ * Add one or more slides containing a financial data table. When the table has
+ * more year-columns than maxYearsPerSlide (default 5), it is split across
+ * multiple slides so the text remains legible. Section headers (ALL-CAPS rows)
+ * get a tinted background; total rows are bolded.
+ */
 function addFinancialTableSlide(
   pres: pptxgen,
   title: string,
@@ -186,6 +215,11 @@ export interface PortfolioExportData {
   investmentData: { years: string[]; rows: SlideTableRow[] };
 }
 
+/**
+ * Generate and download a full portfolio investment report as a PowerPoint deck.
+ * Includes title slide, investment summary KPIs, and four financial tables
+ * (Income Statement, Cash Flow, Balance Sheet, Investment Analysis).
+ */
 export function exportPortfolioPPTX(data: PortfolioExportData) {
   const pres = new pptxgen();
   pres.layout = "LAYOUT_WIDE";
@@ -223,6 +257,10 @@ export interface PropertyExportData {
   balanceSheetData: { years: string[]; rows: SlideTableRow[] };
 }
 
+/**
+ * Generate and download a single-property financial report as a PowerPoint deck.
+ * Includes title slide plus Income Statement, Cash Flow, and Balance Sheet tables.
+ */
 export function exportPropertyPPTX(data: PropertyExportData) {
   const pres = new pptxgen();
   pres.layout = "LAYOUT_WIDE";
@@ -246,6 +284,10 @@ export interface CompanyExportData {
   balanceSheetData: { years: string[]; rows: SlideTableRow[] };
 }
 
+/**
+ * Generate and download a management company financial report as a PowerPoint deck.
+ * Includes title slide plus Income Statement, Cash Flow, and Balance Sheet tables.
+ */
 export function exportCompanyPPTX(data: CompanyExportData) {
   const pres = new pptxgen();
   pres.layout = "LAYOUT_WIDE";

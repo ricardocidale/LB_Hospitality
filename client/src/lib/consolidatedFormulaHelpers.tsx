@@ -1,3 +1,17 @@
+/**
+ * consolidatedFormulaHelpers.tsx — Formula breakdown rows for consolidated financial tables
+ *
+ * When a user clicks on a line item in a consolidated (multi-property) financial
+ * statement, the table expands to show how each property contributes to the
+ * portfolio total. This module generates those expandable breakdown rows.
+ *
+ * For example, clicking "Total Revenue" shows each property's revenue and how
+ * they sum to the portfolio total. Weighted metrics (ADR, Occupancy, RevPAR)
+ * also show the weighted-average formula with each property's contribution.
+ *
+ * These helpers are used by the YearlyIncomeStatement and YearlyCashFlowStatement
+ * components when rendering in "consolidated" (portfolio) mode.
+ */
 import React from "react";
 import {
   FormulaDetailRow,
@@ -19,6 +33,11 @@ export interface WeightedMetrics {
   totalAvailableRoomNights: number;
 }
 
+/**
+ * Render a per-property breakdown for any numeric field on the income statement
+ * (e.g., revenueRooms, expenseAdmin). Shows one row per property with that
+ * property's value for each projection year.
+ */
 export function consolidatedLineItemBreakdown(
   field: keyof YearlyPropertyFinancials,
   properties: Property[],
@@ -40,6 +59,11 @@ export function consolidatedLineItemBreakdown(
   );
 }
 
+/**
+ * Render the weighted ADR (Average Daily Rate) breakdown.
+ * Weighted ADR = Total Room Revenue across all properties ÷ Total Sold Rooms.
+ * Shows the formula row plus each property's ADR × room count contribution.
+ */
 export function consolidatedWeightedADR(
   properties: Property[],
   allPropertyYearlyIS: YearlyPropertyFinancials[][],
@@ -72,6 +96,11 @@ export function consolidatedWeightedADR(
   );
 }
 
+/**
+ * Render the weighted occupancy breakdown.
+ * Weighted Occupancy = Total Sold Rooms ÷ Total Available Rooms across all properties.
+ * Shows each property's occupancy rate and room counts.
+ */
 export function consolidatedWeightedOccupancy(
   properties: Property[],
   allPropertyYearlyIS: YearlyPropertyFinancials[][],
@@ -104,6 +133,11 @@ export function consolidatedWeightedOccupancy(
   );
 }
 
+/**
+ * Render the weighted RevPAR (Revenue Per Available Room) breakdown.
+ * RevPAR = Total Room Revenue ÷ Total Available Rooms (equivalent to ADR × Occupancy).
+ * Shows each property's RevPAR contribution based on its room count.
+ */
 export function consolidatedRevPAR(
   properties: Property[],
   allPropertyYearlyIS: YearlyPropertyFinancials[][],
@@ -136,6 +170,10 @@ export function consolidatedRevPAR(
   );
 }
 
+/**
+ * Render a per-property breakdown for any numeric field on the cash flow statement
+ * (e.g., interestExpense, principalPayment, debtService).
+ */
 export function consolidatedCashFlowBreakdown(
   field: keyof YearlyCashFlowResult,
   properties: Property[],
@@ -157,6 +195,11 @@ export function consolidatedCashFlowBreakdown(
   );
 }
 
+/**
+ * Render the consolidated DSCR (Debt Service Coverage Ratio) breakdown.
+ * DSCR = NOI ÷ Total Debt Service. Lenders typically require ≥ 1.25x.
+ * Shows the portfolio-level ratio plus each property's individual DSCR.
+ */
 export function consolidatedDSCR(
   properties: Property[],
   allPropertyYearlyCF: YearlyCashFlowResult[][],
@@ -189,6 +232,11 @@ export function consolidatedDSCR(
   );
 }
 
+/**
+ * Render the consolidated Cash-on-Cash Return breakdown.
+ * Cash-on-Cash = After-Tax Cash Flow (ATCF) ÷ Equity Invested.
+ * Shows the portfolio-level return plus each property's individual return.
+ */
 export function consolidatedCashOnCash(
   properties: Property[],
   allPropertyYearlyCF: YearlyCashFlowResult[][],

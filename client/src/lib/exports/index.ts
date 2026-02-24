@@ -1,3 +1,10 @@
+/**
+ * exports/index.ts — Barrel file for the export system
+ *
+ * Re-exports all export functions so the rest of the app can import from a
+ * single path: `@/lib/exports`. Covers Excel (.xlsx), PowerPoint (.pptx),
+ * PDF, PNG screenshot, and CSV export formats.
+ */
 export {
   exportPropertyIncomeStatement,
   exportPropertyCashFlow,

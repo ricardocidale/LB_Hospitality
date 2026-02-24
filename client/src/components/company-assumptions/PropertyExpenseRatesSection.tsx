@@ -1,3 +1,21 @@
+/**
+ * PropertyExpenseRatesSection.tsx — Default USALI expense rates for new properties.
+ *
+ * Sets the global default operating expense percentages that are applied to
+ * newly created properties. When a property is added to the portfolio, these
+ * rates pre-fill its OperatingCostRatesSection; users can then override
+ * them per-property.
+ *
+ * The rates follow the USALI (Uniform System of Accounts for the Lodging
+ * Industry) chart of accounts:
+ *   • Rooms expense, F&B expense (departmental)
+ *   • A&G, S&M, POM, Utilities (undistributed)
+ *   • Property tax, insurance, FF&E reserve (fixed charges)
+ *
+ * Research badges show AI-generated benchmarks for the configured property
+ * type and market, giving users a sense of what's "normal" before they
+ * customize individual properties.
+ */
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { HelpTooltip } from "@/components/ui/help-tooltip";

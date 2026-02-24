@@ -1,3 +1,28 @@
+/**
+ * Scenarios.tsx — Scenario management page for saving and comparing model snapshots.
+ *
+ * A "scenario" is a complete snapshot of the financial model at a point in time:
+ * it captures the global assumptions and all property data so the user can
+ * experiment with different sets of inputs and come back to previous versions.
+ *
+ * Key capabilities:
+ *   • Save As — snapshot the current global assumptions + all properties into a
+ *     named scenario. Useful for creating "Base Case", "Optimistic", "Conservative"
+ *     versions of the model.
+ *   • Load — restore a saved scenario, overwriting the current live data. This is
+ *     the "undo to a known state" workflow.
+ *   • Edit — rename or update description of a scenario.
+ *   • Delete — remove a scenario (the "Base" scenario cannot be deleted).
+ *   • Export / Import — download a scenario as JSON or upload one from a file.
+ *     This enables sharing model configurations between users or environments.
+ *   • Clone — duplicate a scenario with a "(Copy)" suffix for quick forking.
+ *   • Compare — select two scenarios and see a diff of assumption changes and
+ *     property additions/removals/changes. The diff is fetched from the server
+ *     via GET /api/scenarios/:id1/compare/:id2.
+ *
+ * The page shows KPIs (total scenario count, latest save date) and a card list
+ * of all saved scenarios with action buttons.
+ */
 import Layout from "@/components/Layout";
 import { AnimatedPage, ScrollReveal, KPIGrid, AnimatedGrid, AnimatedGridItem } from "@/components/graphics";
 import { HoverScale } from "@/components/ui/animated";

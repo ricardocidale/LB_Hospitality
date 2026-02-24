@@ -1,3 +1,21 @@
+/**
+ * AddPropertyDialog.tsx — Modal dialog for creating a new portfolio property.
+ *
+ * Presents a multi-field form collecting the minimum inputs needed to
+ * bootstrap a property's financial model:
+ *   • Property name and street address / market
+ *   • Room count (drives all per-room revenue calculations)
+ *   • ADR (Average Daily Rate — the nightly rack rate)
+ *   • Purchase price and optional renovation budget
+ *   • Hero image — either a URL or AI-generated via the PropertyImagePicker
+ *   • Optional SPV company assignment
+ *
+ * On submit, the form data is POSTed to the API which creates the property
+ * row with default assumptions (global defaults merged with user inputs).
+ * The user is then redirected to the Edit Property page to refine assumptions.
+ *
+ * Exports AddPropertyFormData — the shape of the form's validated output.
+ */
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";

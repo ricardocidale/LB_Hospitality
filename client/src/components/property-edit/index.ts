@@ -1,3 +1,17 @@
+/**
+ * property-edit/index.ts
+ *
+ * Barrel export for the property assumptions editor.
+ * These seven section components are rendered together on the "Edit Property"
+ * page, which lets users configure every financial input for a single hotel
+ * property — from basic info (name, rooms, ADR) through capital structure,
+ * revenue, operating costs, management fees, and exit assumptions.
+ *
+ * Each section receives a shared `PropertyEditSectionProps` contract (see
+ * types.ts) so the parent page can pass the draft property object, a global
+ * assumptions fallback, and an `onChange` handler that writes back to the
+ * optimistic draft before persisting.
+ */
 export { default as BasicInfoSection } from "./BasicInfoSection";
 export { default as TimelineSection } from "./TimelineSection";
 export { default as CapitalStructureSection } from "./CapitalStructureSection";

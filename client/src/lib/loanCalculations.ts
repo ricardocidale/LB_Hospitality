@@ -1,3 +1,24 @@
+/**
+ * loanCalculations.ts — Loan, refinance, and debt service math for hotel properties
+ *
+ * This module handles all the financing math for individual properties:
+ *   - Acquisition loan sizing (purchase price × LTV)
+ *   - Monthly payment calculation using the standard PMT formula
+ *   - Amortization schedule and outstanding balance tracking
+ *   - Refinancing (new loan based on stabilized NOI / cap rate × refi LTV)
+ *   - Yearly debt service breakdown (interest vs. principal)
+ *   - Exit value calculation (NOI / cap rate − commission − outstanding debt)
+ *
+ * Key financial concepts:
+ *   - LTV (Loan-to-Value): what percentage of the property cost is financed
+ *   - PMT: the fixed monthly payment on a fully amortizing loan
+ *   - DSCR (Debt Service Coverage Ratio): NOI / annual debt service — lenders
+ *     typically require ≥ 1.25x
+ *   - Cap Rate: NOI / property value — used to estimate market value at exit
+ *   - Depreciation: under IRS rules, commercial real estate (excluding land)
+ *     is depreciated straight-line over 27.5 years (residential rental property)
+ */
+
 export interface LoanParams {
   purchasePrice: number;
   buildingImprovements: number;
@@ -117,6 +138,13 @@ export {
   DEFAULT_MODEL_START_DATE
 };
 
+/**
+ * Calculate all loan parameters for a property's acquisition financing.
+ *
+ * Returns the total investment, loan amount (purchase × LTV), equity required,
+ * monthly payment (via PMT formula), depreciable building value (excluding land
+ * per IRS Publication 946 / ASC 360), and annual straight-line depreciation.
+ */
 export function calculateLoanParams(
   property: LoanParams,
   global?: GlobalLoanParams
@@ -166,6 +194,13 @@ export function calculateLoanParams(
   };
 }
 
+/**
+ * Calculate the remaining principal balance on the acquisition loan at the end
+ * of a given year. Uses the present-value-of-annuity formula to determine the
+ * outstanding balance based on how many monthly payments have been made.
+ *
+ * Formula: Balance = PMT × [1 − (1+r)^(−remaining)] / r
+ */
 export function getAcquisitionOutstandingBalance(
   loan: LoanCalculation,
   yearEnd: number
@@ -189,6 +224,14 @@ export function getAcquisitionOutstandingBalance(
   return loan.monthlyPayment * (1 - Math.pow(1 + loan.monthlyRate, -remainingPayments)) / loan.monthlyRate;
 }
 
+/**
+ * Calculate refinancing parameters when a property opts to refinance.
+ *
+ * Refinancing replaces the original acquisition loan with a new one based on
+ * the property's current market value (stabilized NOI / cap rate × refi LTV).
+ * The net refi proceeds = new loan amount − closing costs − existing debt payoff.
+ * These proceeds are returned to investors as a partial equity return.
+ */
 export function calculateRefinanceParams(
   property: LoanParams,
   global: GlobalLoanParams | undefined,
@@ -254,6 +297,11 @@ export function calculateRefinanceParams(
   };
 }
 
+/**
+ * Calculate the remaining principal on the refinanced loan at year-end.
+ * Same present-value-of-annuity approach as getAcquisitionOutstandingBalance,
+ * but measured from the refinance date rather than the acquisition date.
+ */
 export function getRefiOutstandingBalance(
   refi: RefinanceCalculation,
   yearEnd: number
@@ -274,6 +322,11 @@ export function getRefiOutstandingBalance(
   return refi.refiMonthlyPayment * (1 - Math.pow(1 + refi.refiMonthlyRate, -remainingPayments)) / refi.refiMonthlyRate;
 }
 
+/**
+ * Get total outstanding debt for a property at the end of a given year.
+ * After the refinance year, the refi loan replaces the acquisition loan;
+ * before that, only the acquisition loan balance is counted.
+ */
 export function getOutstandingDebtAtYear(
   loan: LoanCalculation,
   refi: RefinanceCalculation,
@@ -285,6 +338,16 @@ export function getOutstandingDebtAtYear(
   return getAcquisitionOutstandingBalance(loan, year);
 }
 
+/**
+ * Calculate a full year's debt service broken down into interest and principal.
+ *
+ * Walks through each month of the year, applying the amortization formula:
+ *   Interest = outstanding balance × monthly rate
+ *   Principal = monthly payment − interest
+ *
+ * Handles the transition from acquisition loan to refi loan mid-projection,
+ * and correctly counts partial years (e.g., property acquired mid-year).
+ */
 export function calculateYearlyDebtService(
   loan: LoanCalculation,
   refi: RefinanceCalculation,
@@ -347,6 +410,15 @@ export function calculateYearlyDebtService(
   };
 }
 
+/**
+ * Calculate the net exit value (proceeds to equity holders) when a property is sold.
+ *
+ * Exit Value = (Terminal NOI / Cap Rate) − Sales Commission − Outstanding Debt
+ *
+ * The cap rate converts the property's stabilized NOI into a market value
+ * (lower cap rate = higher value). The commission covers broker fees, and
+ * outstanding debt must be repaid from sale proceeds before equity gets paid.
+ */
 export function calculateExitValue(
   noi: number,
   loan: LoanCalculation,
@@ -361,6 +433,7 @@ export function calculateExitValue(
   return grossValue - commission - outstandingDebt;
 }
 
+/** Determine which model year (0-indexed) the property was acquired in. */
 export function getAcquisitionYear(loan: LoanCalculation): number {
   return Math.floor(loan.acqMonthsFromModelStart / 12);
 }

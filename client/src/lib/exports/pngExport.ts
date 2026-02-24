@@ -1,3 +1,22 @@
+/**
+ * pngExport.ts — Export DOM elements (tables and charts) as PNG images
+ *
+ * Uses the dom-to-image-more library to capture HTML elements as high-resolution
+ * PNG screenshots that can be downloaded or embedded in other documents. Three
+ * functions are provided:
+ *
+ *   - exportTablePNG: Captures a financial table, optionally collapsing
+ *     expanded/accordion rows for a clean screenshot. Temporarily removes
+ *     cell borders for a cleaner look.
+ *
+ *   - exportChartPNG: Captures any chart element (e.g., Recharts SVG graphs)
+ *     at a configurable resolution.
+ *
+ *   - captureChartAsImage: Returns a data URL (base64 PNG) instead of
+ *     triggering a download — used when the image needs to be embedded in a
+ *     PDF or PowerPoint export. Includes an SVG-based fallback if dom-to-image
+ *     fails (which can happen with certain CSS features).
+ */
 import domtoimage from 'dom-to-image-more';
 
 interface TablePNGOptions {
@@ -7,6 +26,11 @@ interface TablePNGOptions {
   collapseAccordions?: boolean;
 }
 
+/**
+ * Capture a financial table DOM element as a PNG and trigger a browser download.
+ * Temporarily collapses expandable rows and removes cell borders for a cleaner
+ * screenshot, then restores everything afterward.
+ */
 export async function exportTablePNG(options: TablePNGOptions): Promise<void> {
   const { element, filename, scale = 2, collapseAccordions = true } = options;
 
@@ -66,6 +90,10 @@ interface ChartPNGOptions {
   scale?: number;
 }
 
+/**
+ * Capture a chart DOM element as a PNG and trigger a browser download.
+ * Uses a 2x scale by default for retina-quality output.
+ */
 export async function exportChartPNG(options: ChartPNGOptions): Promise<void> {
   const { element, filename, width, height, scale = 2 } = options;
 
@@ -98,6 +126,12 @@ export async function exportChartPNG(options: ChartPNGOptions): Promise<void> {
   }
 }
 
+/**
+ * Capture a chart container as a base64 PNG data URL (for embedding in PDFs
+ * or slides, not for direct download). If dom-to-image fails (e.g., due to
+ * CORS or unsupported CSS), falls back to manually serializing the SVG element,
+ * rendering it on a canvas, and extracting a PNG from the canvas.
+ */
 export async function captureChartAsImage(containerRef: HTMLDivElement): Promise<string | null> {
   try {
     const dataUrl = await domtoimage.toPng(containerRef, {

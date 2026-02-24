@@ -1,3 +1,28 @@
+/**
+ * RevenueAssumptionsSection.tsx — Room revenue, ancillary income, and growth.
+ *
+ * Configures every revenue driver for the property's income statement:
+ *
+ *   Room Revenue:
+ *     • ADR (Average Daily Rate) — nightly rate in Year 1
+ *     • Occupancy rate — stabilized annual occupancy target
+ *     • Occupancy ramp schedule — Year 1 through Year 4 ramp-up percentages
+ *       (new hotels rarely open at full occupancy)
+ *     • ADR growth rate — annual escalation of nightly rate
+ *     • RevPAR is derived: ADR × Occupancy (Revenue Per Available Room)
+ *
+ *   Ancillary Revenue (as % of room revenue):
+ *     • F&B (Food & Beverage) percentage
+ *     • Catering boost — additional F&B uplift from weddings/events
+ *     • Event / function revenue percentage
+ *     • Other revenue (spa, parking, retail) percentage
+ *
+ *   Growth:
+ *     • Revenue growth rate applied after stabilization year
+ *
+ * All rates use sliders with EditableValue for precise entry. Research badges
+ * show AI benchmarks when available.
+ */
 import { Label } from "@/components/ui/label";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { Slider } from "@/components/ui/slider";

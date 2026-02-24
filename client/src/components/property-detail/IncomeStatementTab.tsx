@@ -1,3 +1,29 @@
+/**
+ * IncomeStatementTab.tsx — Multi-year USALI income statement for a property.
+ *
+ * Renders the hotel's projected income statement following the USALI
+ * (Uniform System of Accounts for the Lodging Industry) format:
+ *
+ *   Revenue:
+ *     Rooms revenue (ADR × Occupancy × Room Count × 365)
+ *     + F&B revenue + Event revenue + Other revenue
+ *     = Total Revenue
+ *
+ *   Departmental Expenses:
+ *     Rooms expense + F&B expense + Other dept expense
+ *     = Total Departmental Profit
+ *
+ *   Undistributed Expenses:
+ *     A&G + Sales & Marketing + POM + Utilities + Management Fees
+ *     = GOP (Gross Operating Profit)
+ *
+ *   Fixed Charges:
+ *     Property Tax + Insurance + FF&E Reserve
+ *     = NOI (Net Operating Income)
+ *
+ * Each year is a column; the component also shows the "stabilized year"
+ * (when occupancy reaches its long-term target) with a visual highlight.
+ */
 import { formatMoney } from "@/lib/financialEngine";
 import { YearlyIncomeStatement } from "@/components/YearlyIncomeStatement";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";

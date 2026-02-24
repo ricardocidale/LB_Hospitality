@@ -1,3 +1,29 @@
+/**
+ * auth.tsx — Authentication context and provider for the entire client application.
+ *
+ * How it works:
+ *   1. On mount, <AuthProvider> calls GET /api/auth/me to check if the browser
+ *      has a valid session cookie. If it does, the server returns the User object;
+ *      if not, it returns 401 and the user is treated as unauthenticated.
+ *   2. The provider exposes `login(email, password)` and `logout()` mutations
+ *      that POST to /api/auth/login and /api/auth/logout respectively. On success
+ *      they invalidate the "auth/me" query so the user state refreshes instantly.
+ *
+ * Roles and access levels:
+ *   • "admin"    — full platform access, can manage users, companies, and all settings
+ *   • "checker"  — can view the Checker Manual and verification tools
+ *   • "partner"  — a managing partner with company-level access
+ *   • "investor" — read-only portfolio viewer; cannot access company settings,
+ *                   scenario management, or property finder
+ *   • Any other role defaults to standard management access.
+ *
+ * The `hasManagementAccess` flag is true for every role EXCEPT "investor". This
+ * flag is used by route guards and sidebar visibility to hide management features
+ * from investor users.
+ *
+ * The auth state is cached for 5 minutes (staleTime) to avoid redundant network
+ * calls on every page navigation.
+ */
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 

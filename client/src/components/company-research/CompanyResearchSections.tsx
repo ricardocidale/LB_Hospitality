@@ -1,3 +1,23 @@
+/**
+ * CompanyResearchSections.tsx — Renders AI-generated company-level research.
+ *
+ * Analogous to property-research/ResearchSections but focused on the
+ * management company rather than individual properties. Categories include:
+ *
+ *   • Fee Structure Benchmarks – typical base and incentive management fee
+ *     rates in the hospitality industry
+ *   • GAAP & Accounting Standards – relevant accounting treatment for
+ *     management contracts, revenue recognition, and SAFE notes
+ *   • Operating Expense Ratios – industry benchmarks for management company
+ *     overhead as a percentage of fee revenue
+ *   • Compensation Benchmarks – salary data for hospitality management roles
+ *   • Contract Terms – standard management agreement structures, term length,
+ *     termination clauses, and key-money provisions
+ *   • Sources – citations for all AI-generated data
+ *
+ * Reuses SectionCard and MetricCard from property-research for visual
+ * consistency, but with its own companySectionColors palette.
+ */
 import { DollarSign, Scale, Briefcase, Users, FileText, BookOpen } from "lucide-react";
 import { SectionCard } from "../property-research/SectionCard";
 import { MetricCard } from "../property-research/MetricCard";

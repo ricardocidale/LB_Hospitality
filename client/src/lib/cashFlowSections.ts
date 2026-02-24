@@ -25,6 +25,16 @@ export interface CashFlowSections {
   fcfe: number[];
 }
 
+/**
+ * Compute all cash flow sections for a property over the projection period.
+ *
+ * @param yearlyIS  Yearly income statement data (revenue, expenses, FF&E, etc.)
+ * @param yearlyCF  Yearly cash flow data (interest, tax, principal, refi, exit)
+ * @param loan      Equity and loan amounts at acquisition
+ * @param acquisitionYear  Which year (0-indexed) the property was acquired
+ * @param totalPropertyCost  Purchase price + improvements + pre-opening costs
+ * @param years     Number of projection years
+ */
 export function computeCashFlowSections(
   yearlyIS: YearlyPropertyFinancials[],
   yearlyCF: YearlyCashFlowResult[],

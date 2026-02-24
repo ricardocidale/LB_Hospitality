@@ -1,3 +1,51 @@
+/**
+ * calculationChecker.ts — The Independent Server-Side Verification Engine
+ *
+ * WHY THIS FILE EXISTS:
+ * The client-side financial engine (financialEngine.ts) runs in the browser and
+ * produces all the numbers users see. But how do we know those numbers are correct?
+ * This file is the answer: it recalculates everything from scratch, on the server,
+ * using completely independent code. If the server's numbers match the client's
+ * numbers, we have high confidence both are correct.
+ *
+ * This is the same principle used in aerospace (redundant flight computers) and
+ * accounting (independent auditors). The two implementations MUST NOT share code,
+ * because a shared bug would pass undetected.
+ *
+ * WHAT IT CHECKS:
+ *   Per-Property Checks:
+ *     - Room revenue = rooms × ADR × occupancy × days (ASC 606)
+ *     - Revenue stream calculations (events, F&B with catering boost, other)
+ *     - GOP = Revenue - Operating Expenses (USALI)
+ *     - NOI = GOP - Management Fees - FF&E Reserve (USALI)
+ *     - Net Income = NOI - Interest - Depreciation - Tax (ASC 470/360)
+ *     - Cash Flow = NOI - Debt Service - Tax (ASC 230)
+ *     - Depreciation = depreciable basis ÷ 27.5 years (IRS Pub 946)
+ *     - PMT loan payment formula verification (ASC 470)
+ *     - Operating CF = Net Income + Depreciation (indirect method, ASC 230)
+ *     - Financing CF = -Principal (ASC 230)
+ *     - Ending cash = cumulative sum of all cash flows
+ *     - Revenue growth direction (sanity check)
+ *     - NOI margin within industry benchmarks (5-60%)
+ *
+ *   Company-Level Checks:
+ *     - Base management fees match stated rates × property revenues
+ *     - Incentive fees match stated rates × property GOP
+ *     - Portfolio-wide revenue cross-validation (server vs client)
+ *
+ *   Consolidated Checks (multi-property):
+ *     - Individual property revenues sum correctly to portfolio total (ASC 810)
+ *     - Intercompany fee elimination: fees paid by properties = fees received by company
+ *
+ * INDEPENDENCE RULES:
+ *   - Loan defaults (LTV, interest rate, term) are redeclared locally, NOT imported
+ *     from the client's constants file. This ensures a bug in shared constants
+ *     would be caught rather than silently passed.
+ *   - Date math uses a pure integer year/month representation instead of Date objects,
+ *     avoiding timezone issues that could mask discrepancies.
+ *   - The checker never imports from client/src/ — it only receives client results
+ *     as data through the API route.
+ */
 import {
   DEFAULT_REV_SHARE_EVENTS,
   DEFAULT_REV_SHARE_FB,
@@ -87,6 +135,15 @@ function withinTolerance(expected: number, actual: number): boolean {
   return Math.abs((expected - actual) / expected) < TOLERANCE;
 }
 
+/**
+ * Build a single check result by comparing expected vs actual values.
+ * The check passes if the values are within the 0.1% tolerance threshold.
+ * Severity determines how the failure is classified in the audit report:
+ *   - "critical": Fundamental formula error — the model cannot be trusted
+ *   - "material": Significant variance that could affect financial decisions
+ *   - "minor": Small discrepancy, likely from rounding
+ *   - "info": Informational — not a pass/fail check (e.g., negative cash notification)
+ */
 function check(
   metric: string,
   category: string,
@@ -112,6 +169,11 @@ function check(
   };
 }
 
+/**
+ * Independent PMT implementation — intentionally does NOT import from calc/shared/pmt.ts.
+ * This ensures the server-side checker uses its own code path, so a bug in the shared
+ * PMT function would be caught by the cross-validation rather than silently passed.
+ */
 function calculatePMT(principal: number, monthlyRate: number, totalPayments: number): number {
   if (principal === 0) return 0;
   if (monthlyRate === 0) return principal / totalPayments;
@@ -143,6 +205,27 @@ function ymNotBefore(a: YearMonth, b: YearMonth): boolean {
   return diffMonthsYM(a, b) >= 0;
 }
 
+/**
+ * Independently recalculate a property's entire monthly financial projection.
+ *
+ * This function is the core of the server-side verification. It takes the same
+ * property and global inputs as the client engine, but uses completely separate
+ * code to compute revenue, expenses, debt service, depreciation, and cash flow
+ * for every month. The results are then compared against the client's output.
+ *
+ * The calculation follows the same business logic as the client engine:
+ *   1. Determine when operations start (no revenue before then — ASC 606)
+ *   2. Ramp occupancy up gradually over the first N months
+ *   3. Calculate room revenue = rooms × ADR × occupancy × days per month
+ *   4. Add ancillary revenue streams (F&B, events, other)
+ *   5. Calculate operating expenses (variable % of revenue + fixed costs with inflation)
+ *   6. Compute GOP, management fees, NOI
+ *   7. Compute debt service using the PMT formula
+ *   8. Track depreciation, net income, tax, cash flow, and running cash balance
+ *
+ * Uses YearMonth integer arithmetic instead of JavaScript Date objects to avoid
+ * timezone-related bugs that could mask discrepancies between server and client.
+ */
 function independentPropertyCalc(property: any, global: any) {
   const modelStartYM = parseYearMonth(global.modelStartDate);
   const opsStartYM = parseYearMonth(property.operationsStartDate);
@@ -362,6 +445,35 @@ export interface ClientPropertyMonthly {
   feeIncentive: number;
 }
 
+/**
+ * Run the full independent verification suite across all properties and the company.
+ *
+ * This is the main entry point called by the API route (POST /api/verify).
+ * It orchestrates three levels of verification:
+ *
+ *   1. Per-Property Checks: For each property, independently recalculate all
+ *      financials and compare against the client engine's results. Checks include
+ *      revenue formulas, expense calculations, debt service, depreciation, cash flow,
+ *      and balance sheet items.
+ *
+ *   2. Company-Level Checks: Verify that management fees aggregated across all
+ *      properties match the stated fee rates. Cross-validate portfolio totals
+ *      between server and client calculations.
+ *
+ *   3. Consolidated Checks (multi-property only): Verify that individual property
+ *      revenues sum correctly to the portfolio total (ASC 810 consolidation).
+ *      Check intercompany fee elimination — the fees paid by properties must
+ *      exactly equal the fees received by the management company.
+ *
+ * The final audit opinion follows the same logic as real audits:
+ *   UNQUALIFIED — No critical or material issues (clean opinion)
+ *   QUALIFIED — Material issues but no critical failures
+ *   ADVERSE — Critical issues found; financials cannot be relied upon
+ *
+ * @param properties Array of property input objects (same format as the client engine)
+ * @param globalAssumptions Global model assumptions (inflation, dates, fee rates, etc.)
+ * @param clientResults Optional client-side results for cross-validation
+ */
 export function runIndependentVerification(
   properties: any[],
   globalAssumptions: any,

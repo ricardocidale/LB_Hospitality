@@ -1,3 +1,24 @@
+/**
+ * queryClient.ts — Central React Query configuration for the application.
+ *
+ * Caching strategy:
+ *   • staleTime: Infinity — once data is fetched, it is never automatically
+ *     refetched in the background. This is intentional because the financial
+ *     model is expensive to recompute and changes only when the user explicitly
+ *     saves. Mutations use `invalidateQueries` to force a fresh fetch after writes.
+ *   • refetchOnWindowFocus: false — prevents surprise data reloads when the user
+ *     alt-tabs back to the app.
+ *   • retry: false — API errors surface immediately rather than being retried,
+ *     since most failures (401, 404) are not transient.
+ *
+ * Helper utilities:
+ *   • `apiRequest(method, url, data?)` — a thin fetch wrapper that attaches JSON
+ *     headers, sends credentials (cookies), and throws on non-OK responses.
+ *   • `getQueryFn({ on401 })` — factory for query functions used by React Query.
+ *     When on401 is "returnNull", a 401 response returns null instead of throwing
+ *     (useful for optional auth checks). Otherwise it throws so error boundaries
+ *     can catch it.
+ */
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
 async function throwIfResNotOk(res: Response) {

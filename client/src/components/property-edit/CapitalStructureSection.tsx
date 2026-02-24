@@ -1,3 +1,28 @@
+/**
+ * CapitalStructureSection.tsx — Purchase price, financing, and depreciation.
+ *
+ * This is the most financially dense section on the property editor.
+ * It captures everything needed to model the capital stack:
+ *
+ *   Purchase & Renovation:
+ *     • Purchase price, renovation budget, total project cost
+ *     • Land value (not depreciable under GAAP)
+ *     • FF&E (Furniture, Fixtures & Equipment) budget
+ *
+ *   Debt Structure:
+ *     • LTV (Loan-to-Value ratio) — % of purchase financed by debt
+ *     • Interest rate, loan term, amortization period
+ *     • Derived values: loan amount, equity required, annual debt service
+ *     • DSCR (Debt Service Coverage Ratio) = NOI / Annual Debt Service
+ *
+ *   Depreciation:
+ *     • Building useful life (typically 27.5 or 39 years for GAAP)
+ *     • FF&E useful life (typically 5-7 years)
+ *     • Cost basis = purchase price − land value (straight-line depreciation)
+ *
+ * Research badges (ResearchBadge) appear next to key inputs when AI-generated
+ * market benchmarks are available; clicking them auto-fills the input.
+ */
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { HelpTooltip } from "@/components/ui/help-tooltip";

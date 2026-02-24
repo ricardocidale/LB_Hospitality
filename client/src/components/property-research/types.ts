@@ -1,3 +1,17 @@
+/**
+ * property-research/types.ts
+ *
+ * Shared types and color palettes for the property-level AI research view.
+ *
+ * SectionColorScheme defines the Tailwind classes and hex accents used to
+ * visually distinguish each research category (market overview, ADR comps,
+ * occupancy, events, cap rates, competitive landscape, risks, etc.).
+ *
+ * sectionColors is the concrete mapping: each key (e.g. "market", "adr",
+ * "capRate") maps to a color scheme object. These same keys are used by the
+ * company-research module so both property and company research share the
+ * same SectionColorScheme interface.
+ */
 export interface SectionColorScheme {
   accent: string;
   bg: string;

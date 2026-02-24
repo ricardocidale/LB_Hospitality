@@ -1,3 +1,18 @@
+/**
+ * pdfChartDrawer.ts — Draw simple line charts directly into a jsPDF document
+ *
+ * Used by the research PDF export to embed visual charts (e.g., revenue trends,
+ * NOI projections) inside generated PDF files. Since jsPDF doesn't have a
+ * built-in charting engine, this module manually draws axes, grid lines, data
+ * points, connecting lines, and a legend using jsPDF's low-level drawing API.
+ *
+ * Features:
+ *   - Multiple data series with different colors
+ *   - Auto-scaled Y axis with 5 grid lines
+ *   - X axis labels from data points
+ *   - Centered legend at the bottom
+ *   - Customizable value formatter (defaults to "$X.XM")
+ */
 import jsPDF from 'jspdf';
 
 interface ChartData {
@@ -22,6 +37,11 @@ interface DrawChartOptions {
   formatValue?: (value: number) => string;
 }
 
+/**
+ * Draw a multi-series line chart at the specified position in a jsPDF document.
+ * The chart includes a white background, title, Y-axis labels, X-axis labels,
+ * dashed grid lines, colored data lines with dots, and a centered legend.
+ */
 export function drawLineChart(options: DrawChartOptions): void {
   const { doc, x, y, width, height, title, series, formatValue = (v) => `$${(v / 1000000).toFixed(1)}M` } = options;
 
@@ -133,6 +153,7 @@ export function drawLineChart(options: DrawChartOptions): void {
   });
 }
 
+/** Convert a hex color string (e.g. "#9FBCA4") to an [R, G, B] tuple for jsPDF. */
 function hexToRgb(hex: string): [number, number, number] {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   return result

@@ -1,3 +1,23 @@
+/**
+ * useResearchStream.ts — React hook for streaming property market research.
+ *
+ * Manages the full lifecycle of an AI research request:
+ *   1. Opens an SSE (Server-Sent Events) connection to POST /api/research/:id
+ *   2. Receives partial JSON tokens as they stream from the LLM
+ *   3. Accumulates tokens into a raw string and attempts JSON.parse on
+ *      each update (partial JSON is tolerated via try/catch)
+ *   4. When parsing succeeds, the typed research object is set in state,
+ *      triggering re-renders that progressively fill ResearchSections
+ *   5. On stream completion, invalidates the TanStack Query cache so
+ *      the research data persists for subsequent page loads
+ *
+ * Returns:
+ *   • research     – the current parsed research object (or null)
+ *   • rawText      – the raw accumulated JSON string
+ *   • isStreaming   – whether the SSE connection is still open
+ *   • startStream  – callback to initiate a new research request
+ *   • cancelStream – callback to abort the current SSE connection
+ */
 import { useState, useRef, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -41,6 +61,8 @@ export function useResearchStream({ property, propertyId, global }: UseResearchS
         signal: abortRef.current.signal,
       });
       
+      // Read the SSE stream using the ReadableStream API; each chunk
+      // may contain multiple "data: " lines from the server
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
       let accumulated = "";
@@ -53,14 +75,18 @@ export function useResearchStream({ property, propertyId, global }: UseResearchS
         const lines = chunk.split("\n");
         
         for (const line of lines) {
+          // Each SSE event is "data: {json}\n"; parse the JSON payload
           if (line.startsWith("data: ")) {
             try {
               const data = JSON.parse(line.slice(6));
               if (data.content) {
                 accumulated += data.content;
+                // Update state on every token so the UI renders progressively
                 setStreamedContent(accumulated);
               }
               if (data.done) {
+                // Stream complete — invalidate cache so the persisted research
+                // is used on subsequent page loads instead of re-streaming
                 queryClient.invalidateQueries({ queryKey: ["research", "property", propertyId] });
               }
             } catch {}

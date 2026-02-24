@@ -1,3 +1,18 @@
+/**
+ * EditableValue.tsx — Inline-editable numeric display for company assumptions.
+ *
+ * Renders a formatted value (percentage or dollar amount) that switches to
+ * a text input when clicked. On blur or Enter, the raw value is parsed,
+ * validated, and committed via onChange.
+ *
+ * Display modes controlled by the `format` prop:
+ *   • "percent" — shows "3.50%" and expects decimal input (0.035 stored)
+ *   • "money"   — shows "$50,000" with thousands separators
+ *   • "number"  — plain numeric display
+ *
+ * Used extensively across all company-assumptions sections so users can
+ * tweak financial inputs without navigating to a separate form.
+ */
 import { useState } from "react";
 import { formatPercent, formatMoney } from "@/lib/financialEngine";
 

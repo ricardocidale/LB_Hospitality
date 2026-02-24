@@ -1,3 +1,21 @@
+/**
+ * FixedOverheadSection.tsx — Fixed monthly/annual overhead costs.
+ *
+ * These are the management company's operating expenses that don't scale
+ * directly with portfolio size (unlike variable costs). They escalate
+ * annually at the configured inflation / escalation rate.
+ *
+ * Categories:
+ *   • Office lease — monthly rent for the management company's office
+ *   • Insurance — annual general liability, E&O, D&O coverage
+ *   • Technology — software subscriptions, PMS licenses, IT infrastructure
+ *   • Professional services — legal, accounting, audit fees
+ *   • Escalation rate — annual % increase applied to all fixed costs
+ *     (tracks CPI / general inflation)
+ *
+ * The model start year is shown in the section header so the user knows
+ * which year's dollars are being entered as the "base year" cost.
+ */
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { HelpTooltip } from "@/components/ui/help-tooltip";

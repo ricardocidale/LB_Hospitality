@@ -1,3 +1,21 @@
+/**
+ * FundingSection.tsx — SAFE note funding tranches for the management company.
+ *
+ * Startup management companies often raise pre-revenue capital through SAFE
+ * notes (Simple Agreement for Future Equity). This section lets users
+ * configure up to three SAFE tranches, each with:
+ *   • Amount — the dollar amount of the SAFE note
+ *   • Year — which projection year the funding is received
+ *   • Valuation cap — maximum pre-money valuation at which the SAFE converts
+ *     to equity in a future priced round (lower cap = better deal for investor)
+ *   • Discount rate — percentage discount on the conversion price vs. the
+ *     priced round price (e.g. 20% discount)
+ *
+ * SAFE proceeds flow into the company's cash flow statement as financing
+ * inflows and appear on the balance sheet as a liability until conversion.
+ * They provide the runway needed to operate before management fee revenue
+ * from the property portfolio covers overhead.
+ */
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";

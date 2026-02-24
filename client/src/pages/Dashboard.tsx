@@ -1,3 +1,41 @@
+/**
+ * Dashboard.tsx — Main portfolio dashboard and the default landing page after login.
+ *
+ * This is the most data-dense page in the application. It consolidates financial
+ * data from ALL properties in the portfolio and presents:
+ *
+ * Overview tab:
+ *   • KPI cards — total revenue, GOP, active properties, management fees,
+ *     portfolio IRR, equity multiple, cash-on-cash return, projected exit value
+ *   • Revenue breakdown donut chart (rooms, events, F&B, other)
+ *   • Market distribution donut chart (geographic spread of properties)
+ *   • Revenue vs NOI trend line chart
+ *   • Investment overview panel (total investment, avg price, rooms, ADR, horizon)
+ *
+ * Income Statement tab:
+ *   • Consolidated multi-year income statement across all properties
+ *   • Expandable rows drilling into per-property revenue and GOp
+ *   • Exports to PDF (with chart page), CSV, Excel, PowerPoint, PNG
+ *
+ * Cash Flow tab:
+ *   • Three-section cash flow (operating, investing, financing)
+ *   • Per-property drill-down and equity/debt contribution timeline
+ *
+ * Balance Sheet tab:
+ *   • Consolidated balance sheet using the ConsolidatedBalanceSheet component
+ *
+ * Investment Analysis tab:
+ *   • IRR, equity multiple, cash-on-cash, and sensitivity analysis
+ *
+ * Computation pipeline (all memoized for performance):
+ *   1. Run `generatePropertyProForma()` for each property → monthly financials
+ *   2. Aggregate per-property yearly income-statement data (yearlyAggregator)
+ *   3. Aggregate per-property yearly cash-flow data (cashFlowAggregator) for
+ *      ATCF, exit values, refi proceeds, and debt service
+ *   4. Consolidate across properties for portfolio-level totals
+ *   5. Compute weighted-average ADR, occupancy, and RevPAR across the portfolio
+ *   6. Compute portfolio IRR using consolidated investor cash flows
+ */
 import React from "react";
 import Layout from "@/components/Layout";
 import { useProperties, useGlobalAssumptions } from "@/lib/api";

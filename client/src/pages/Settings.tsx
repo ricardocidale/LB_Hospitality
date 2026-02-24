@@ -1,3 +1,38 @@
+/**
+ * Settings.tsx — Systemwide assumptions configuration page.
+ *
+ * This page lets management-level users configure the "global" variables that
+ * drive the entire financial model. Unlike CompanyAssumptions (which focuses on
+ * the management company's P&L), this page covers:
+ *
+ * Portfolio tab:
+ *   • General Property Description — target property profile used for market
+ *     research: room count range, ADR range, amenities (F&B, events, wellness),
+ *     property level (budget/average/luxury), event capacity, acreage, privacy
+ *   • Standard Acquisition Package — default purchase price, pre-opening costs,
+ *     operating reserve, and building improvements for new properties
+ *   • Debt Assumptions — LTV ratios (acquisition and refinance), interest rates,
+ *     amortization periods, closing cost rates
+ *   • Per-property overrides for key financial inputs
+ *
+ * Macro tab:
+ *   • Model timeline — start date, projection years, fiscal year start month
+ *   • Inflation and escalation rates
+ *   • Display settings (show/hide calculation detail rows)
+ *
+ * Other tab:
+ *   • AI model preference (which LLM to use for research generation)
+ *   • Miscellaneous configuration
+ *
+ * Industry Research tab:
+ *   • Configure and trigger AI-powered market research generation
+ *   • Select focus areas, regions, and time horizon
+ *   • Manage custom research questions
+ *   • View streamed research output in real time via SSE
+ *
+ * Changes are saved to the global_assumptions table and trigger a full
+ * financial recalculation across all properties and dashboards.
+ */
 import Layout from "@/components/Layout";
 import { useGlobalAssumptions, useUpdateGlobalAssumptions, useProperties, useUpdateProperty, useMarketResearch, useResearchQuestions, useCreateResearchQuestion, useUpdateResearchQuestion, useDeleteResearchQuestion } from "@/lib/api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";

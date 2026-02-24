@@ -1,3 +1,26 @@
+/**
+ * CompanyCashFlowTab.tsx — Cash flow statement for the management company.
+ *
+ * Tracks the cash position of the management entity across projection years:
+ *
+ *   Operating Cash Flow:
+ *     Net Income (from the income statement)
+ *     + Non-cash adjustments (depreciation, amortization)
+ *     = Operating Cash Flow
+ *
+ *   Financing Activities:
+ *     + SAFE note funding inflows (pre-revenue capital)
+ *     − Partner draws / distributions
+ *
+ *   Ending Cash = Opening Cash + Operating CF + Financing CF
+ *
+ * Also computes "months of runway" (ending cash / monthly burn rate) which
+ * is critical for a startup management company that may operate at a loss
+ * in early years before the portfolio reaches sufficient scale.
+ *
+ * Summary cards at the top show opening cash, operating cash, funding
+ * received, partner draws, and closing cash for the selected year.
+ */
 import React from "react";
 import { formatMoney } from "@/lib/financialEngine";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -18,8 +41,12 @@ export default function CompanyCashFlowTab({
   activeTab,
   propertyFinancials,
 }: CompanyTabProps) {
+  // Sums a single property's base management fee across 12 months for
+  // a given projection year. Used in the drill-down rows to show how much
+  // each property contributes to the company's service fee revenue.
   const getPropertyYearlyBaseFee = (propIdx: number, year: number) => {
     const pf = propertyFinancials[propIdx].financials;
+    // financials is a flat array of monthly data; slice 12 months for year Y
     const yearData = pf.slice(year * 12, (year + 1) * 12);
     return yearData.reduce((a: number, m: any) => a + m.feeBase, 0);
   };
@@ -418,6 +445,8 @@ export default function CompanyCashFlowTab({
                 );
               })}
             </TableRow>
+            {/* Opening cash = sum of all prior years' net cash changes.
+                Year 1 opens at $0; Year 2 opens with Year 1's closing balance, etc. */}
             <TableRow>
               <TableCell className="sticky left-0 bg-white text-gray-600">Opening Cash Balance</TableCell>
               {Array.from({ length: projectionYears }, (_, y) => {
@@ -429,6 +458,8 @@ export default function CompanyCashFlowTab({
                 return <TableCell key={y} className="text-right text-gray-600 font-mono">{formatMoney(cumulative)}</TableCell>;
               })}
             </TableRow>
+            {/* Closing cash = opening cash + this year's net cash change.
+                Equivalent to summing all cash flows from Year 1 through Year Y. */}
             <TableRow className="bg-gray-50 font-semibold">
               <TableCell className="sticky left-0 bg-gray-50">Closing Cash Balance</TableCell>
               {Array.from({ length: projectionYears }, (_, y) => {

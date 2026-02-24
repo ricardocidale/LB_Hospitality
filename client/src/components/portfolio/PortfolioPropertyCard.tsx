@@ -1,3 +1,16 @@
+/**
+ * PortfolioPropertyCard.tsx — Summary card for one property on the portfolio dashboard.
+ *
+ * Displays a compact overview of a hotel property:
+ *   • Hero image (with fallback gradient if none exists)
+ *   • Property name and location
+ *   • Room count and key financial snapshot (ADR, purchase price)
+ *   • Navigation arrow linking to the full property detail page
+ *   • Delete button (with confirmation) to remove from the portfolio
+ *
+ * The card is rendered inside a responsive CSS grid on the Portfolio page.
+ * Property order can be controlled by the parent (e.g. sort by name or IRR).
+ */
 import { formatMoney } from "@/lib/financialEngine";
 import { Trash2, MapPin, Bed, ArrowRight } from "lucide-react";
 import { Link } from "wouter";

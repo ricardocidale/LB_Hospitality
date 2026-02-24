@@ -1,3 +1,15 @@
+/**
+ * CurrencyInput.tsx — Formatted dollar-amount input field.
+ *
+ * Wraps a standard text input with automatic currency formatting:
+ *   • While focused: shows the raw numeric value for easy editing
+ *   • While blurred: formats with dollar sign and thousands separators
+ *     (e.g. "$1,250,000")
+ *
+ * Accepts an initial numeric value and calls onChange with the parsed
+ * number when the user finishes editing. Used primarily in the
+ * AddPropertyDialog for purchase price, renovation budget, etc.
+ */
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 

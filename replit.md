@@ -102,6 +102,32 @@ Property pages — **refactored from 5 monolithic files (4,891 lines) into organ
 - Components: `client/src/components/property-research/`
   - `SectionCard.tsx` (17), `MetricCard.tsx` (11), `ResearchSections.tsx` (381), `useResearchStream.ts` (80), `types.ts` (22)
 
+## Management Company Page Structure
+Management Company pages — **refactored from 3 monolithic files (3,541 lines) into organized components + shells (1,186 lines in shells)**.
+
+### Company (`/company`) — 804-line shell + 4 components
+- Shell: `client/src/pages/Company.tsx` — queries, memos, export logic (PDF/CSV/Excel/PPTX/PNG), tab state
+- Components: `client/src/components/company/`
+  - `CompanyIncomeTab.tsx` (375) — income statement with formula accordion rows
+  - `CompanyCashFlowTab.tsx` (454) — cash flow statement (operating/financing/net)
+  - `CompanyBalanceSheet.tsx` (210) — assets/liabilities/equity sections
+  - `CompanyHeader.tsx` (86) — page header, KPIs, chart, insight panel
+- Shared helper: `client/src/lib/financial/analyzeCompanyCashPosition.ts` (70)
+
+### CompanyAssumptions (`/company/assumptions`) — 218-line shell + 13 sections
+- Shell: `client/src/pages/CompanyAssumptions.tsx` — query, mutation, formData state, handleSave
+- Sections: `client/src/components/company-assumptions/` — each receives `formData` + handlers via props
+  - `EditableValue.tsx` (77) — reusable inline editable numeric display
+  - `CompanySetupSection.tsx` (87), `FundingSection.tsx` (160), `ManagementFeesSection.tsx` (86)
+  - `CompensationSection.tsx` (127), `FixedOverheadSection.tsx` (140), `VariableCostsSection.tsx` (118)
+  - `TaxSection.tsx` (45), `ExitAssumptionsSection.tsx` (70), `PropertyExpenseRatesSection.tsx` (103)
+  - `CateringSection.tsx` (21), `PartnerCompSection.tsx` (86), `SummaryFooter.tsx` (17)
+
+### CompanyResearch (`/company/research`) — 164-line shell + 3 components
+- Components: `client/src/components/company-research/`
+  - `CompanyResearchSections.tsx` (198), `useCompanyResearchStream.ts` (60), `types.ts` (12)
+- Reuses `SectionCard` and `MetricCard` from `property-research/`
+
 ## Production Seed Script
 - `script/seed-production.sql` — comprehensive SQL to seed production DB
 - Covers 11 persistent tables (companies, logos, user_groups, design_themes, users, global_assumptions, properties, property_fee_categories, market_research, research_questions, saved_searches)

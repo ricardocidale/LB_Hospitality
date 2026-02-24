@@ -1,3 +1,10 @@
+/**
+ * sonner.tsx — Toast notification provider using Sonner (shadcn/ui).
+ *
+ * Configures the Sonner toast library with theme-aware styling.
+ * Displays brief success, error, and info messages that auto-dismiss.
+ * Mounted once at the app root alongside the Radix-based Toaster.
+ */
 "use client"
 
 import { useTheme } from "next-themes"

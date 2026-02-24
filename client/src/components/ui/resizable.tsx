@@ -1,3 +1,10 @@
+/**
+ * resizable.tsx — Drag-to-resize panel layout (shadcn/ui).
+ *
+ * Wraps react-resizable-panels to create split-pane layouts with a
+ * draggable handle. Exports: ResizablePanelGroup, ResizablePanel,
+ * ResizableHandle.
+ */
 "use client"
 
 import { GripVertical } from "lucide-react"

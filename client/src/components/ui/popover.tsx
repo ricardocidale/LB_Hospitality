@@ -1,3 +1,11 @@
+/**
+ * popover.tsx — Floating content panel anchored to a trigger (shadcn/ui).
+ *
+ * Wraps Radix Popover for tooltips, date pickers, and mini-forms that
+ * appear next to an anchor element. Content auto-positions and closes
+ * on outside click. Exports: Popover, PopoverTrigger, PopoverContent,
+ * PopoverAnchor.
+ */
 import * as React from "react"
 import * as PopoverPrimitive from "@radix-ui/react-popover"
 

@@ -1,3 +1,10 @@
+/**
+ * hover-card.tsx — Popover card that appears on hover (shadcn/ui).
+ *
+ * Wraps Radix HoverCard to show rich preview content when the user
+ * hovers over a trigger element. Used for quick-peek previews of
+ * properties, metrics, or user profiles without navigating away.
+ */
 import * as React from "react"
 import * as HoverCardPrimitive from "@radix-ui/react-hover-card"
 

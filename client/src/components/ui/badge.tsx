@@ -1,3 +1,10 @@
+/**
+ * badge.tsx — Small label pill with variant-based coloring (shadcn/ui).
+ *
+ * Used throughout the platform to tag items with status labels, property
+ * types, or category indicators. Supports default, secondary, destructive,
+ * and outline variants via class-variance-authority (cva).
+ */
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 

@@ -1,3 +1,10 @@
+/**
+ * input.tsx — Styled text input element (shadcn/ui).
+ *
+ * A thin wrapper around <input> with consistent border, focus ring,
+ * and disabled styling. Used across all form fields — property names,
+ * ADR values, search criteria, etc.
+ */
 import * as React from "react"
 
 import { cn } from "@/lib/utils"

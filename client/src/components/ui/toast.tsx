@@ -1,3 +1,11 @@
+/**
+ * toast.tsx — Toast notification primitives built on Radix Toast (shadcn/ui).
+ *
+ * Defines the visual building blocks for toast messages: ToastProvider,
+ * ToastViewport, Toast, ToastAction, ToastClose, ToastTitle, ToastDescription.
+ * Supports default and destructive variants. Used by toaster.tsx to render
+ * the notification queue.
+ */
 import * as React from "react"
 import * as ToastPrimitives from "@radix-ui/react-toast"
 import { cva, type VariantProps } from "class-variance-authority"

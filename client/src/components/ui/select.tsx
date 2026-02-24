@@ -1,3 +1,12 @@
+/**
+ * select.tsx — Styled dropdown select menu (shadcn/ui).
+ *
+ * Wraps Radix Select for accessible, keyboard-navigable dropdown lists.
+ * Used for property type, status, financing type, and other enum selectors.
+ * Exports: Select, SelectGroup, SelectValue, SelectTrigger, SelectContent,
+ * SelectLabel, SelectItem, SelectSeparator, SelectScrollUpButton,
+ * SelectScrollDownButton.
+ */
 "use client"
 
 import * as React from "react"

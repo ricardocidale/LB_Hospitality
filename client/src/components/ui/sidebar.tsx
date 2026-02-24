@@ -1,3 +1,12 @@
+/**
+ * sidebar.tsx — Collapsible application sidebar system (shadcn/ui).
+ *
+ * Provides the main navigation sidebar used by Layout.tsx. Includes a
+ * SidebarProvider context for open/close state, a responsive mobile
+ * drawer variant, and composable sub-components for menu groups, items,
+ * headers, and footers. The sidebar collapses to icon-only mode on
+ * smaller viewports.
+ */
 "use client"
 
 import * as React from "react"

@@ -1,3 +1,10 @@
+/**
+ * toggle-group.tsx — Grouped toggle buttons with single/multi select (shadcn/ui).
+ *
+ * Wraps Radix ToggleGroup to provide a row of mutually exclusive or
+ * multi-select toggle buttons. Used for view mode selectors (table vs.
+ * chart) and time period toggles (monthly vs. annual).
+ */
 "use client"
 
 import * as React from "react"

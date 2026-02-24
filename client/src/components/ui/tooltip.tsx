@@ -1,3 +1,11 @@
+/**
+ * tooltip.tsx — Hover tooltip built on Radix Tooltip (shadcn/ui).
+ *
+ * Shows a small floating label when the user hovers over or focuses a
+ * trigger element. Used throughout the platform for icon-button labels,
+ * field explanations, and financial term definitions.
+ * Exports: TooltipProvider, Tooltip, TooltipTrigger, TooltipContent.
+ */
 "use client"
 
 import * as React from "react"

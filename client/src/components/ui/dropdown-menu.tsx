@@ -1,3 +1,10 @@
+/**
+ * dropdown-menu.tsx — Context/dropdown menu built on Radix (shadcn/ui).
+ *
+ * Provides a keyboard-accessible, animated dropdown with items, checkboxes,
+ * radio groups, sub-menus, labels, and separators. Used in the Layout
+ * sidebar, admin panels, and property action menus.
+ */
 "use client"
 
 import * as React from "react"

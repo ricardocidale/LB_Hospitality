@@ -1,3 +1,10 @@
+/**
+ * menubar.tsx — Horizontal menu bar with dropdown sub-menus (shadcn/ui).
+ *
+ * Wraps Radix Menubar to provide a desktop-style menu bar with nested
+ * menus, checkboxes, radio items, and keyboard navigation. Exports all
+ * sub-components: MenubarMenu, MenubarTrigger, MenubarContent, etc.
+ */
 import * as React from "react"
 import * as MenubarPrimitive from "@radix-ui/react-menubar"
 import { Check, ChevronRight, Circle } from "lucide-react"

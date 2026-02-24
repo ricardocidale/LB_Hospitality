@@ -1,3 +1,12 @@
+/**
+ * sheet.tsx — Slide-in side panel overlay (shadcn/ui).
+ *
+ * Built on Radix Dialog, renders a panel that slides in from the top,
+ * bottom, left, or right edge of the viewport. Used for mobile navigation,
+ * the WhatIfPanel sidebar, and filter drawers.
+ * Exports: Sheet, SheetTrigger, SheetContent, SheetHeader, SheetFooter,
+ * SheetTitle, SheetDescription, SheetClose.
+ */
 "use client"
 
 import * as React from "react"

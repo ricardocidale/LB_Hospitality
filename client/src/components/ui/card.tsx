@@ -1,3 +1,11 @@
+/**
+ * card.tsx — Container card with header, content, and footer slots (shadcn/ui).
+ *
+ * Wraps content in a rounded, bordered panel. Used as the base layout for
+ * property cards, form sections, KPI panels, and dialog content throughout
+ * the platform. Exports: Card, CardHeader, CardFooter, CardTitle,
+ * CardDescription, CardContent.
+ */
 import * as React from "react"
 
 import { cn } from "@/lib/utils"

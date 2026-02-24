@@ -1,3 +1,12 @@
+/**
+ * alert-dialog.tsx — Radix-based confirmation dialog (shadcn/ui).
+ *
+ * Renders a modal that blocks interaction until the user confirms or cancels
+ * a destructive action (e.g., deleting a property from the portfolio).
+ * Exports: AlertDialog, AlertDialogTrigger, AlertDialogContent,
+ * AlertDialogHeader, AlertDialogFooter, AlertDialogTitle,
+ * AlertDialogDescription, AlertDialogAction, AlertDialogCancel.
+ */
 import * as React from "react"
 import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog"
 

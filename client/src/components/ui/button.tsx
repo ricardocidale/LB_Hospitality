@@ -1,3 +1,11 @@
+/**
+ * button.tsx — Primary button component with size/variant system (shadcn/ui).
+ *
+ * Provides the platform's core button element with consistent styling via
+ * class-variance-authority. Variants: default, destructive, outline, secondary,
+ * ghost, link. Sizes: default, sm, lg, icon. Supports polymorphism through
+ * Radix `asChild` so it can render as <a>, <Link>, or any other element.
+ */
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"

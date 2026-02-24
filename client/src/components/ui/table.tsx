@@ -1,3 +1,10 @@
+/**
+ * table.tsx — Base HTML table with styled sub-components (shadcn/ui).
+ *
+ * Provides consistent table styling for financial statements, admin lists,
+ * and data grids. Exports: Table, TableHeader, TableBody, TableFooter,
+ * TableHead, TableRow, TableCell, TableCaption.
+ */
 import * as React from "react"
 
 import { cn } from "@/lib/utils"

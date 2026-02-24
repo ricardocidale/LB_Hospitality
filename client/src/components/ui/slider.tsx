@@ -1,3 +1,10 @@
+/**
+ * slider.tsx — Range slider input (shadcn/ui).
+ *
+ * Wraps Radix Slider for numeric range selection with a draggable thumb.
+ * Used for adjusting percentage rates (occupancy, expense ratios) and
+ * filtering property search criteria.
+ */
 import * as React from "react"
 import * as SliderPrimitive from "@radix-ui/react-slider"
 

@@ -1,3 +1,9 @@
+/**
+ * separator.tsx — Horizontal or vertical divider line (shadcn/ui).
+ *
+ * Wraps Radix Separator for accessible visual dividers between content
+ * sections. Used in sidebars, form section breaks, and card footers.
+ */
 import * as React from "react"
 import * as SeparatorPrimitive from "@radix-ui/react-separator"
 

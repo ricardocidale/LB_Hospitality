@@ -1,3 +1,9 @@
+/**
+ * checkbox.tsx — Accessible checkbox input built on Radix (shadcn/ui).
+ *
+ * Renders a styled checkbox with a check-mark icon from Lucide.
+ * Used in admin settings, filter panels, and form fields across the platform.
+ */
 import * as React from "react"
 import * as CheckboxPrimitive from "@radix-ui/react-checkbox"
 import { Check } from "lucide-react"

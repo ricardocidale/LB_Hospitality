@@ -1,3 +1,11 @@
+/**
+ * form.tsx — React Hook Form integration layer with Radix labels (shadcn/ui).
+ *
+ * Connects react-hook-form's Controller and FormProvider to accessible form
+ * fields with automatic error message display. Exports: Form, FormField,
+ * FormItem, FormLabel, FormControl, FormDescription, FormMessage,
+ * useFormField. Used in property-edit sections and the AddPropertyDialog.
+ */
 import * as React from "react"
 import * as LabelPrimitive from "@radix-ui/react-label"
 import { Slot } from "@radix-ui/react-slot"

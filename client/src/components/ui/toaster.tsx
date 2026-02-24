@@ -1,3 +1,10 @@
+/**
+ * toaster.tsx — Radix-based toast notification renderer (shadcn/ui).
+ *
+ * Reads from the useToast hook's queue and renders each active toast
+ * with title, description, action button, and close control. Mounted
+ * once at the app root to display notifications from any component.
+ */
 import { useToast } from "@/hooks/use-toast"
 import {
   Toast,

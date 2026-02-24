@@ -1,3 +1,10 @@
+/**
+ * scroll-area.tsx — Custom-styled scrollable container (shadcn/ui).
+ *
+ * Wraps Radix ScrollArea to provide a thin, auto-hiding scrollbar that
+ * matches the platform's design system. Used in sidebar navigation,
+ * chat panels, and long financial tables.
+ */
 import * as React from "react"
 import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area"
 

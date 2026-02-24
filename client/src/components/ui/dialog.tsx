@@ -1,3 +1,11 @@
+/**
+ * dialog.tsx — Modal dialog built on Radix Dialog (shadcn/ui).
+ *
+ * Used for AddPropertyDialog, ExportDialog, and other modal interactions.
+ * Renders an overlay + centered panel with close button, header, description,
+ * and footer slots. Exports: Dialog, DialogTrigger, DialogContent,
+ * DialogHeader, DialogFooter, DialogTitle, DialogDescription, DialogClose.
+ */
 import * as React from "react"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { X } from "lucide-react"

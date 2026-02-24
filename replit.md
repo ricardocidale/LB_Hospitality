@@ -65,6 +65,43 @@ Admin Settings page (`/admin`) — **refactored from 3,235-line monolith into 10
 - Logo Management is a tab within Admin (not a separate sidebar link)
 - Branding tab shows read-only logo summary with "Manage Logos" button linking to Logos tab
 
+## Property Page Structure
+Property pages — **refactored from 5 monolithic files (4,891 lines) into organized components + shells (1,701 lines in shells)**.
+
+### PropertyEdit (`/properties/:id/edit`) — 322-line shell + 7 sections
+- Shell: `client/src/pages/PropertyEdit.tsx` — queries, mutations, draft state, research values
+- Sections: `client/src/components/property-edit/` — each receives `draft` + handlers via props
+  - `BasicInfoSection.tsx` (91) — name, location, market, photo, rooms
+  - `TimelineSection.tsx` (38) — acquisition/operations dates
+  - `CapitalStructureSection.tsx` (331) — purchase, financing, refinancing
+  - `RevenueAssumptionsSection.tsx` (317) — ADR, occupancy, revenue mix
+  - `OperatingCostRatesSection.tsx` (362) — cost rates by category
+  - `ManagementFeesSection.tsx` (123) — fee categories, incentive fees
+  - `OtherAssumptionsSection.tsx` (117) — exit cap, tax, commission
+- Shared types: `client/src/components/property-edit/types.ts`
+- Barrel export: `client/src/components/property-edit/index.ts`
+
+### PropertyDetail (`/properties/:id`) — 595-line shell + 5 components
+- Shell: `client/src/pages/PropertyDetail.tsx` — queries, memos, export logic, tab layout
+- Components: `client/src/components/property-detail/`
+  - `PPECostBasisSchedule.tsx` (215) — depreciation schedule table
+  - `IncomeStatementTab.tsx` (106) — chart + yearly statement
+  - `CashFlowTab.tsx` (121) — NOI/FCF/FCFE chart + statement
+  - `PropertyHeader.tsx` (89) — image, info bar, actions
+  - `PropertyKPIs.tsx` (46) — Year 1 KPI grid
+
+### PropertyFinder (`/property-finder`) — 354-line shell + 4 components
+- Components: `client/src/components/property-finder/`
+  - `SearchResultCard.tsx` (134), `FavoriteCard.tsx` (157), `SearchForm.tsx` (188), `SavedSearchBar.tsx` (53)
+
+### Portfolio (`/portfolio`) — 244-line shell + 3 components
+- Components: `client/src/components/portfolio/`
+  - `AddPropertyDialog.tsx` (352), `PortfolioPropertyCard.tsx` (126), `CurrencyInput.tsx` (61)
+
+### PropertyMarketResearch (`/properties/:id/research`) — 186-line shell + 5 components
+- Components: `client/src/components/property-research/`
+  - `SectionCard.tsx` (17), `MetricCard.tsx` (11), `ResearchSections.tsx` (381), `useResearchStream.ts` (80), `types.ts` (22)
+
 ## Production Seed Script
 - `script/seed-production.sql` — comprehensive SQL to seed production DB
 - Covers 11 persistent tables (companies, logos, user_groups, design_themes, users, global_assumptions, properties, property_fee_categories, market_research, research_questions, saved_searches)

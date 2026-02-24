@@ -131,11 +131,11 @@ INSERT INTO properties (
   street_address, city, state_province, zip_postal_code, country,
   research_values, user_id, refinance_years_after_acquisition
 ) OVERRIDING SYSTEM VALUE VALUES (
-  32, 'Belleayre Mountain', 'Western Catskills, New York', 'North America', '/images/property-hudson.png', 'Improvements',
+  32, 'Belleayre Mountain', 'Western Catskills, New York', 'North America', '/images/property-hudson.png', 'Planned',
   '2027-02-01', '2027-08-01',
   3500000, 800000, 250000, 500000,
   20, 320, 0.035, 0.4, 0.68,
-  12, 0.05, 36, 'Financed',
+  12, 0.05, 36, 'Full Equity',
   0.65, 0.075, 25, 0.025,
   'Yes', '2029-12-01', 0.75, 0.09, 25, 0.03,
   0.2, 0.09, 0.08, 0.02, 0.06,
@@ -164,11 +164,11 @@ INSERT INTO properties (
   street_address, city, state_province, zip_postal_code, country,
   research_values, user_id, refinance_years_after_acquisition
 ) OVERRIDING SYSTEM VALUE VALUES (
-  33, 'Lakeview Haven Lodge', 'Ogden Valley, Utah', 'North America', '/images/property-huntsville.png', 'In Negotiation',
+  33, 'Lakeview Haven Lodge', 'Ogden Valley, Utah', 'North America', '/images/property-huntsville.png', 'Planned',
   '2027-10-01', '2028-01-01',
   3800000, 1200000, 250000, 500000,
   20, 320, 0.03, 0.5, 0.68,
-  3, 0.05, 18, 'Financed',
+  3, 0.05, 18, 'Full Equity',
   0.65, 0.07, 25, 0.025,
   'Yes', '2030-07-01', 0.75, 0.09, 25, 0.03,
   0.2, 0.09, 0.07, 0.02, 0.055,
@@ -197,11 +197,11 @@ INSERT INTO properties (
   street_address, city, state_province, zip_postal_code, country,
   research_values, user_id, refinance_years_after_acquisition
 ) OVERRIDING SYSTEM VALUE VALUES (
-  35, 'Jano Grande Ranch', 'Antioquia, Medellín', 'Latin America', '/images/property-medellin.png', 'In Negotiation',
+  35, 'Jano Grande Ranch', 'Antioquia, Medellín', 'Latin America', '/images/property-medellin.png', 'Planned',
   '2026-06-01', '2026-10-01',
   1200000, 400000, 150000, 300000,
   20, 250, 0.035, 0.4, 0.72,
-  9, 0.05, 36, 'Financed',
+  9, 0.05, 36, 'Full Equity',
   0.6, 0.095, 25, 0.03,
   NULL, NULL, 0.75, 0.09, 25, 0.03,
   0.17, 0.1, 0.06, 0.015, 0.05,
@@ -230,7 +230,7 @@ INSERT INTO properties (
   street_address, city, state_province, zip_postal_code, country,
   research_values, user_id, refinance_years_after_acquisition
 ) OVERRIDING SYSTEM VALUE VALUES (
-  39, 'Scott''s House', 'Ogden Valley, Utah', 'North America', '/images/property-eden.png', 'Acquired',
+  39, 'Scott''s House', 'Ogden Valley, Utah', 'North America', '/images/property-eden.png', 'Planned',
   '2027-06-01', '2027-09-01',
   3200000, 800000, 200000, 400000,
   20, 350, 0.03, 0.45, 0.65,
@@ -263,7 +263,7 @@ INSERT INTO properties (
   street_address, city, state_province, zip_postal_code, country,
   research_values, user_id, refinance_years_after_acquisition
 ) OVERRIDING SYSTEM VALUE VALUES (
-  41, 'San Diego', 'Cartagena, Colombia', 'Latin America', '/images/property-cartagena.png', 'In Negotiation',
+  41, 'San Diego', 'Cartagena, Colombia', 'Latin America', '/images/property-cartagena.png', 'Planned',
   '2028-02-01', '2028-10-01',
   2000000, 1000000, 250000, 500000,
   20, 240, 0.035, 0.42, 0.72,
@@ -296,7 +296,7 @@ INSERT INTO properties (
   street_address, city, state_province, zip_postal_code, country,
   research_values, user_id, refinance_years_after_acquisition
 ) OVERRIDING SYSTEM VALUE VALUES (
-  43, 'Loch Sheldrake', 'Sullivan County, New York', 'North America', '/images/property-loch-sheldrake.png', 'Improvements',
+  43, 'Loch Sheldrake', 'Sullivan County, New York', 'North America', '/images/property-loch-sheldrake.png', 'Planned',
   '2026-10-01', '2027-02-01',
   3000000, 1000000, 150000, 400000,
   20, 280, 0.035, 0.5, 0.68,

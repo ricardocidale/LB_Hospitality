@@ -21,10 +21,11 @@ import type { Property } from "@shared/schema";
 
 interface PortfolioPropertyCardProps {
   property: Property;
+  propertyNumber: number;
   onDelete: (id: number, name: string) => void;
 }
 
-export function PortfolioPropertyCard({ property, onDelete }: PortfolioPropertyCardProps) {
+export function PortfolioPropertyCard({ property, propertyNumber, onDelete }: PortfolioPropertyCardProps) {
   return (
     <AnimatedGridItem>
     <StaggerItem>
@@ -42,6 +43,11 @@ export function PortfolioPropertyCard({ property, onDelete }: PortfolioPropertyC
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
           <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#2d4a5e] to-transparent" />
+          <div className="absolute bottom-3 left-3">
+            <span className="w-7 h-7 flex items-center justify-center rounded-full bg-black/40 backdrop-blur-xl text-white/80 text-xs font-mono font-semibold border border-white/15">
+              {propertyNumber}
+            </span>
+          </div>
           <div className="absolute top-3 left-3">
             <span 
               data-testid={`badge-type-${property.id}`}

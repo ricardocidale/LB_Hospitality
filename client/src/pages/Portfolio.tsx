@@ -251,10 +251,11 @@ export default function Portfolio() {
         />
 
         <AnimatedGrid className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {properties?.slice().sort((a, b) => new Date(a.acquisitionDate).getTime() - new Date(b.acquisitionDate).getTime()).map((property) => (
+          {properties?.slice().sort((a, b) => new Date(a.acquisitionDate).getTime() - new Date(b.acquisitionDate).getTime()).map((property, index) => (
             <PortfolioPropertyCard
               key={property.id}
               property={property}
+              propertyNumber={index + 1}
               onDelete={handleDelete}
             />
           ))}

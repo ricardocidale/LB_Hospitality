@@ -132,19 +132,19 @@ INSERT INTO properties (
   research_values, user_id, refinance_years_after_acquisition
 ) OVERRIDING SYSTEM VALUE VALUES (
   32, 'Belleayre Mountain', 'Western Catskills, New York', 'North America', '/images/property-hudson.png', 'Planned',
-  '2027-02-01', '2027-08-01',
+  '2027-03-01', '2027-09-01',
   3500000, 800000, 250000, 500000,
   20, 320, 0.035, 0.4, 0.68,
   12, 0.05, 36, 'Full Equity',
   0.65, 0.075, 25, 0.025,
-  'Yes', '2029-12-01', 0.75, 0.09, 25, 0.03,
+  'Yes', '2030-09-01', 0.75, 0.09, 25, 0.03,
   0.2, 0.09, 0.08, 0.02, 0.06,
   0.055, 0.03, 0.035, 0.005, 0.04, 0.04,
   0.3, 0.28, 0.07,
   0.2, 0.085, 0.25, 0.4, 0.05,
   0.085, 0.12,
   'Upper Delaware River Valley', 'Highmount', 'New York', '12441', 'United States',
-  '{"adr": {"mid": 350, "source": "seed", "display": "$280–$450"}, "costFB": {"mid": 9, "source": "seed", "display": "7%–12%"}, "costIT": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "capRate": {"mid": 7.5, "source": "seed", "display": "6.5%–8.5%"}, "costFFE": {"mid": 4, "source": "seed", "display": "3%–5%"}, "catering": {"mid": 30, "source": "seed", "display": "25%–35%"}, "svcFeeIT": {"mid": 0.5, "source": "seed", "display": "0.3%–0.8%"}, "costAdmin": {"mid": 5, "source": "seed", "display": "4%–7%"}, "costOther": {"mid": 5, "source": "seed", "display": "3%–6%"}, "incomeTax": {"mid": 31, "source": "seed", "display": "29%–34%"}, "landValue": {"mid": 40, "source": "seed", "display": "30%–50%"}, "occupancy": {"mid": 76, "source": "seed", "display": "70%–82%"}, "rampMonths": {"mid": 18, "source": "seed", "display": "12–24 mo"}, "incentiveFee": {"mid": 10, "source": "seed", "display": "8%–12%"}, "costInsurance": {"mid": 0.6, "source": "seed", "display": "0.4%–0.8%"}, "costMarketing": {"mid": 2, "source": "seed", "display": "1%–3%"}, "costUtilities": {"mid": 4.2, "source": "seed", "display": "3.5%–5%"}, "startOccupancy": {"mid": 40, "source": "seed", "display": "30%–45%"}, "costPropertyOps": {"mid": 4, "source": "seed", "display": "3%–5%"}, "svcFeeMarketing": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costHousekeeping": {"mid": 20, "source": "seed", "display": "15%–22%"}, "svcFeeAccounting": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costPropertyTaxes": {"mid": 2.5, "source": "seed", "display": "1.8%–3.5%"}, "svcFeeGeneralMgmt": {"mid": 1, "source": "seed", "display": "0.7%–1.2%"}, "svcFeeReservations": {"mid": 1.5, "source": "seed", "display": "1%–2%"}}', NULL, NULL
+  '{"adr": {"mid": 350, "source": "seed", "display": "$280-$450"}, "costFB": {"mid": 9, "source": "seed", "display": "7%–12%"}, "costIT": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "capRate": {"mid": 7.5, "source": "seed", "display": "6.5%–8.5%"}, "costFFE": {"mid": 4, "source": "seed", "display": "3%–5%"}, "catering": {"mid": 30, "source": "seed", "display": "25%–35%"}, "svcFeeIT": {"mid": 0.5, "source": "seed", "display": "0.3%–0.8%"}, "costAdmin": {"mid": 5, "source": "seed", "display": "4%–7%"}, "costOther": {"mid": 5, "source": "seed", "display": "3%–6%"}, "incomeTax": {"mid": 31, "source": "seed", "display": "29%–34%"}, "landValue": {"mid": 40, "source": "seed", "display": "30%–50%"}, "occupancy": {"mid": 76, "source": "seed", "display": "70%–82%"}, "rampMonths": {"mid": 18, "source": "seed", "display": "12–24 mo"}, "incentiveFee": {"mid": 10, "source": "seed", "display": "8%–12%"}, "costInsurance": {"mid": 0.6, "source": "seed", "display": "0.4%–0.8%"}, "costMarketing": {"mid": 2, "source": "seed", "display": "1%–3%"}, "costUtilities": {"mid": 4.2, "source": "seed", "display": "3.5%–5%"}, "startOccupancy": {"mid": 40, "source": "seed", "display": "30%–45%"}, "costPropertyOps": {"mid": 4, "source": "seed", "display": "3%–5%"}, "svcFeeMarketing": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costHousekeeping": {"mid": 20, "source": "seed", "display": "15%–22%"}, "svcFeeAccounting": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costPropertyTaxes": {"mid": 2.5, "source": "seed", "display": "1.8%–3.5%"}, "svcFeeGeneralMgmt": {"mid": 1, "source": "seed", "display": "0.7%–1.2%"}, "svcFeeReservations": {"mid": 1.5, "source": "seed", "display": "1%–2%"}}', NULL, 3
 )
 ON CONFLICT (id) DO NOTHING;
 
@@ -165,12 +165,12 @@ INSERT INTO properties (
   research_values, user_id, refinance_years_after_acquisition
 ) OVERRIDING SYSTEM VALUE VALUES (
   33, 'Lakeview Haven Lodge', 'Ogden Valley, Utah', 'North America', '/images/property-huntsville.png', 'Planned',
-  '2027-10-01', '2028-01-01',
+  '2027-12-01', '2028-06-01',
   3800000, 1200000, 250000, 500000,
   20, 320, 0.03, 0.5, 0.68,
-  3, 0.05, 18, 'Full Equity',
+  3, 0.05, 18, 'Financed',
   0.65, 0.07, 25, 0.025,
-  'Yes', '2030-07-01', 0.75, 0.09, 25, 0.03,
+  NULL, NULL, 0.75, 0.09, 25, 0.03,
   0.2, 0.09, 0.07, 0.02, 0.055,
   0.05, 0.025, 0.02, 0.005, 0.04, 0.04,
   0.28, 0.22, 0.1,
@@ -198,19 +198,19 @@ INSERT INTO properties (
   research_values, user_id, refinance_years_after_acquisition
 ) OVERRIDING SYSTEM VALUE VALUES (
   35, 'Jano Grande Ranch', 'Antioquia, Medellín', 'Latin America', '/images/property-medellin.png', 'Planned',
-  '2026-06-01', '2026-10-01',
+  '2026-06-01', '2026-12-01',
   1200000, 400000, 150000, 300000,
   20, 250, 0.035, 0.4, 0.72,
   9, 0.05, 36, 'Full Equity',
   0.6, 0.095, 25, 0.03,
-  NULL, NULL, 0.75, 0.09, 25, 0.03,
+  'Yes', '2029-12-01', 0.75, 0.09, 25, 0.03,
   0.17, 0.1, 0.06, 0.015, 0.05,
   0.04, 0.018, 0.016, 0.005, 0.04, 0.05,
   0.3, 0.25, 0.08,
   0.25, 0.1, 0.09, 0.35, 0.05,
   0.085, 0.12,
   'Vereda El Salado', 'Medellín', 'Antioquia', '050001', 'Colombia',
-  '{"adr": {"mid": 180, "source": "seed", "display": "$120–$260"}, "costFB": {"mid": 9, "source": "seed", "display": "7%–12%"}, "costIT": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "capRate": {"mid": 10.5, "source": "seed", "display": "9%–12%"}, "costFFE": {"mid": 4, "source": "seed", "display": "3%–5%"}, "catering": {"mid": 30, "source": "seed", "display": "25%–35%"}, "svcFeeIT": {"mid": 0.5, "source": "seed", "display": "0.3%–0.8%"}, "costAdmin": {"mid": 4, "source": "seed", "display": "3%–6%"}, "costOther": {"mid": 5, "source": "seed", "display": "3%–6%"}, "incomeTax": {"mid": 35, "source": "seed", "display": "30%–38%"}, "landValue": {"mid": 15, "source": "seed", "display": "10%–20%"}, "occupancy": {"mid": 62, "source": "seed", "display": "55%–70%"}, "rampMonths": {"mid": 18, "source": "seed", "display": "12–24 mo"}, "incentiveFee": {"mid": 10, "source": "seed", "display": "8%–12%"}, "costInsurance": {"mid": 0.3, "source": "seed", "display": "0.2%–0.5%"}, "costMarketing": {"mid": 2, "source": "seed", "display": "1%–3%"}, "costUtilities": {"mid": 2.5, "source": "seed", "display": "2%–3.5%"}, "startOccupancy": {"mid": 40, "source": "seed", "display": "30%–45%"}, "costPropertyOps": {"mid": 3, "source": "seed", "display": "2%–4%"}, "svcFeeMarketing": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costHousekeeping": {"mid": 14, "source": "seed", "display": "10%–18%"}, "svcFeeAccounting": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costPropertyTaxes": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "svcFeeGeneralMgmt": {"mid": 1, "source": "seed", "display": "0.7%–1.2%"}, "svcFeeReservations": {"mid": 1.5, "source": "seed", "display": "1%–2%"}}', NULL, NULL
+  '{"adr": {"mid": 180, "source": "seed", "display": "$120–$260"}, "costFB": {"mid": 9, "source": "seed", "display": "7%–12%"}, "costIT": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "capRate": {"mid": 10.5, "source": "seed", "display": "9%–12%"}, "costFFE": {"mid": 4, "source": "seed", "display": "3%–5%"}, "catering": {"mid": 30, "source": "seed", "display": "25%–35%"}, "svcFeeIT": {"mid": 0.5, "source": "seed", "display": "0.3%–0.8%"}, "costAdmin": {"mid": 4, "source": "seed", "display": "3%–6%"}, "costOther": {"mid": 5, "source": "seed", "display": "3%–6%"}, "incomeTax": {"mid": 35, "source": "seed", "display": "30%–38%"}, "landValue": {"mid": 15, "source": "seed", "display": "10%–20%"}, "occupancy": {"mid": 62, "source": "seed", "display": "55%–70%"}, "rampMonths": {"mid": 18, "source": "seed", "display": "12–24 mo"}, "incentiveFee": {"mid": 10, "source": "seed", "display": "8%–12%"}, "costInsurance": {"mid": 0.3, "source": "seed", "display": "0.2%–0.5%"}, "costMarketing": {"mid": 2, "source": "seed", "display": "1%–3%"}, "costUtilities": {"mid": 2.5, "source": "seed", "display": "2%–3.5%"}, "startOccupancy": {"mid": 40, "source": "seed", "display": "30%–45%"}, "costPropertyOps": {"mid": 3, "source": "seed", "display": "2%–4%"}, "svcFeeMarketing": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costHousekeeping": {"mid": 14, "source": "seed", "display": "10%–18%"}, "svcFeeAccounting": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costPropertyTaxes": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "svcFeeGeneralMgmt": {"mid": 1, "source": "seed", "display": "0.7%–1.2%"}, "svcFeeReservations": {"mid": 1.5, "source": "seed", "display": "1%–2%"}}', NULL, 3
 )
 ON CONFLICT (id) DO NOTHING;
 
@@ -231,7 +231,7 @@ INSERT INTO properties (
   research_values, user_id, refinance_years_after_acquisition
 ) OVERRIDING SYSTEM VALUE VALUES (
   39, 'Scott''s House', 'Ogden Valley, Utah', 'North America', '/images/property-eden.png', 'Planned',
-  '2027-06-01', '2027-09-01',
+  '2027-08-01', '2028-02-01',
   3200000, 800000, 200000, 400000,
   20, 350, 0.03, 0.45, 0.65,
   6, 0.05, 24, 'Financed',
@@ -264,7 +264,7 @@ INSERT INTO properties (
   research_values, user_id, refinance_years_after_acquisition
 ) OVERRIDING SYSTEM VALUE VALUES (
   41, 'San Diego', 'Cartagena, Colombia', 'Latin America', '/images/property-cartagena.png', 'Planned',
-  '2028-02-01', '2028-10-01',
+  '2028-04-01', '2028-10-01',
   2000000, 1000000, 250000, 500000,
   20, 240, 0.035, 0.42, 0.72,
   10, 0.05, 36, 'Financed',
@@ -297,19 +297,19 @@ INSERT INTO properties (
   research_values, user_id, refinance_years_after_acquisition
 ) OVERRIDING SYSTEM VALUE VALUES (
   43, 'Loch Sheldrake', 'Sullivan County, New York', 'North America', '/images/property-loch-sheldrake.png', 'Planned',
-  '2026-10-01', '2027-02-01',
+  '2026-11-01', '2027-05-01',
   3000000, 1000000, 150000, 400000,
   20, 280, 0.035, 0.5, 0.68,
-  4, 0.05, 18, 'Financed',
+  4, 0.05, 18, 'Full Equity',
   0.65, 0.075, 25, 0.025,
-  NULL, NULL, NULL, NULL, NULL, NULL,
+  'Yes', '2030-05-01', 0.75, 0.09, 25, 0.03,
   0.19, 0.09, 0.07, 0.02, 0.055,
   0.055, 0.028, 0.035, 0.005, 0.04, 0.04,
   0.35, 0.25, 0.08,
   0.22, 0.09, 0.25, 0.3, 0.05,
   0.085, 0.12,
   'Loch Sheldrake', 'Loch Sheldrake', 'New York', '12759', 'United States',
-  NULL, 1, NULL
+  NULL, 1, 3
 )
 ON CONFLICT (id) DO NOTHING;
 

@@ -536,7 +536,8 @@ export async function registerRoutes(
         "lemazniku@icloud.com": process.env.PASSWORD_LEA,
       };
       const allUsers = await storage.getAllUsers();
-      const defaultHash = await hashPassword(adminPw);
+      const defaultPw = process.env.PASSWORD_DEFAULT || adminPw;
+      const defaultHash = await hashPassword(defaultPw);
       let count = 0;
       for (const user of allUsers) {
         const userPw = emailToSecret[user.email];
@@ -762,9 +763,9 @@ export async function registerRoutes(
         { email: "kit@kitcapital.com", passwordHash: await hashPassword(kitPw || adminPw), role: "partner" as const, name: "Dov Tuzman", company: "KIT Capital", title: "Principal" },
         { email: "lemazniku@icloud.com", passwordHash: await hashPassword(leaPw || adminPw), role: "partner" as const, name: "Lea Mazniku", company: "KIT Capital", title: "Partner" },
         ...(checkerPw ? [{ email: "checker@norfolkgroup.io", passwordHash: await hashPassword(checkerPw), role: "checker" as const, name: "Checker", company: "Norfolk AI", title: "Checker" }] : []),
-        { email: "bhuvan@norfolkgroup.io", passwordHash: await hashPassword(adminPw), role: "partner" as const, name: "Bhuvan Agarwal", company: "Norfolk AI", title: "Financial Analyst" },
+        { email: "bhuvan@norfolkgroup.io", passwordHash: await hashPassword(process.env.PASSWORD_DEFAULT || adminPw), role: "partner" as const, name: "Bhuvan Agarwal", company: "Norfolk AI", title: "Financial Analyst" },
         ...(reynaldoPw ? [{ email: "reynaldo.fagundes@norfolk.ai", passwordHash: await hashPassword(reynaldoPw), role: "partner" as const, name: "Reynaldo Fagundes", company: "Norfolk AI", title: "CTO" }] : []),
-        { email: "leslie@cidale.com", passwordHash: await hashPassword(adminPw), role: "partner" as const, name: "Leslie Cidale", company: "Numeratti Endeavors", title: "Senior Partner" },
+        { email: "leslie@cidale.com", passwordHash: await hashPassword(process.env.PASSWORD_DEFAULT || adminPw), role: "partner" as const, name: "Leslie Cidale", company: "Numeratti Endeavors", title: "Senior Partner" },
       ];
       
       for (const userData of usersToSeed) {

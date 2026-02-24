@@ -144,11 +144,14 @@ export default function Breadcrumbs() {
   return (
     <Breadcrumb data-testid="breadcrumbs" className="text-sm px-0">
       <BreadcrumbList>
-        {items.map((item, i) => {
+        {items.flatMap((item, i) => {
           const isLast = i === items.length - 1;
-          return (
-            <BreadcrumbItem key={i}>
-              {i > 0 && <BreadcrumbSeparator />}
+          const elements = [];
+          if (i > 0) {
+            elements.push(<BreadcrumbSeparator key={`sep-${i}`} />);
+          }
+          elements.push(
+            <BreadcrumbItem key={`item-${i}`}>
               {isLast ? (
                 <BreadcrumbPage className="text-foreground">
                   {item.label}
@@ -163,6 +166,7 @@ export default function Breadcrumbs() {
               )}
             </BreadcrumbItem>
           );
+          return elements;
         })}
       </BreadcrumbList>
     </Breadcrumb>

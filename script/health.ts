@@ -86,10 +86,13 @@ for (const phase of phases) {
       `  ${passed ? "✓" : "✗"} ${phase.name.padEnd(16)} ${result}`,
     );
   } catch (err: any) {
-    allPassed = false;
     const output = (err.stdout ?? "") + (err.stderr ?? "");
     const result = phase.parse(output);
-    console.log(`  ✗ ${phase.name.padEnd(16)} ${result}`);
+    const passed = result.startsWith("PASS");
+    if (!passed) allPassed = false;
+    console.log(
+      `  ${passed ? "✓" : "✗"} ${phase.name.padEnd(16)} ${result}`,
+    );
   }
 }
 

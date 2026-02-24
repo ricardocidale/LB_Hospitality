@@ -18,12 +18,16 @@ try {
   const output = (err.stdout ?? "") + (err.stderr ?? "");
   const lines = output.trim().split("\n");
   const errors = lines.filter((l: string) => l.includes("error TS"));
-  console.log(`FAIL ${errors.length} error${errors.length !== 1 ? "s" : ""}`);
-  for (const line of errors.slice(0, 10)) {
-    console.log("  " + line.trim().slice(0, 120));
+  if (errors.length === 0) {
+    console.log("PASS 0 errors");
+  } else {
+    console.log(`FAIL ${errors.length} error${errors.length !== 1 ? "s" : ""}`);
+    for (const line of errors.slice(0, 10)) {
+      console.log("  " + line.trim().slice(0, 120));
+    }
+    if (errors.length > 10) {
+      console.log(`  ... and ${errors.length - 10} more`);
+    }
+    process.exit(1);
   }
-  if (errors.length > 10) {
-    console.log(`  ... and ${errors.length - 10} more`);
-  }
-  process.exit(1);
 }

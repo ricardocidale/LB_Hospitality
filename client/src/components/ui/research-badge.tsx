@@ -1,3 +1,10 @@
+/**
+ * research-badge.tsx — Compact badge for AI-researched metric values.
+ *
+ * Displays a small pill showing an AI-sourced data point (e.g. "Avg ADR: $185").
+ * Shows a subtle shimmer animation while the value is still loading (null).
+ * Used inside the property research sections alongside MetricCard.
+ */
 import * as React from "react";
 import { cn } from "@/lib/utils";
 

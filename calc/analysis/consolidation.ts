@@ -1,3 +1,40 @@
+/**
+ * calc/analysis/consolidation.ts — Multi-property financial statement consolidation.
+ *
+ * PURPOSE:
+ * Combines the financial statements of multiple hotel properties (and optionally
+ * the management company) into a single consolidated view. This is essential for
+ * portfolio-level reporting and investor presentations.
+ *
+ * CONSOLIDATION MODES:
+ *   - "properties_only": Sums up all property-level statements. Used when viewing
+ *     the portfolio's operating performance without management company overhead.
+ *   - "full_entity": Includes the management company's financials AND eliminates
+ *     intercompany transactions (management fees). This produces a true consolidated
+ *     view as if the entire enterprise were a single entity.
+ *
+ * INTERCOMPANY ELIMINATIONS:
+ * When properties pay management fees to the management company, those fees are:
+ *   - An EXPENSE on the property's income statement
+ *   - REVENUE on the management company's income statement
+ * In consolidation, these cancel out (they're internal transfers, not real economic
+ * activity). The module eliminates the lesser of (total fees paid, fee revenue received)
+ * and checks that they match within tolerance. A mismatch indicates a model bug.
+ *
+ * GAAP REFERENCE (ASC 810 — Consolidation):
+ * Under GAAP, intercompany transactions must be eliminated in consolidation to
+ * prevent double-counting. The `fee_linkage_balanced` flag confirms this elimination
+ * is complete.
+ *
+ * BALANCE SHEET CHECK:
+ * After consolidation, the module verifies that Total Assets = Total Liabilities +
+ * Total Equity (the fundamental accounting equation). If this fails, the `balance_sheet_balanced`
+ * flag is false, indicating an error in the underlying property or company statements.
+ *
+ * HOW IT FITS THE SYSTEM:
+ * Called via the dispatch layer as the "consolidation" skill. The financial engine
+ * runs this for each projection year to produce the consolidated dashboard view.
+ */
 import type { RoundingPolicy } from "../../domain/types/rounding.js";
 import { rounder, sumField, withinTolerance, variance, DEFAULT_TOLERANCE } from "../shared/utils.js";
 

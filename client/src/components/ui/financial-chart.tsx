@@ -1,3 +1,10 @@
+/**
+ * financial-chart.tsx — Configurable line chart for multi-year financial projections.
+ *
+ * Renders a Recharts LineChart with up to three series (e.g. Revenue, Expenses,
+ * Net Income) plotted across projection years. Used on property detail and
+ * company pages to visualize trends. Supports a ref for screenshot export.
+ */
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import {

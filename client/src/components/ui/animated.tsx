@@ -1,3 +1,14 @@
+/**
+ * animated.tsx — Shared Framer Motion animation primitives.
+ *
+ * Provides reusable animated wrappers used across the UI:
+ *   • FadeIn / StaggerItem  — entrance animations for lists and grids
+ *   • HoverScale            — subtle scale-up on hover for interactive cards
+ *   • AnimatedCounter       — smooth number interpolation for KPI values
+ *   • PageTransition        — route-level fade/slide transitions
+ *
+ * These components ensure consistent motion design throughout the app.
+ */
 import { motion, type Variants, useMotionValue, useTransform, animate, AnimatePresence } from "framer-motion";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 

@@ -1,3 +1,16 @@
+/**
+ * ObjectUploader.tsx — File upload component backed by Uppy and S3-compatible storage.
+ *
+ * Renders a button that opens an Uppy Dashboard modal for drag-and-drop file
+ * selection, preview, and upload progress tracking. Files are uploaded directly
+ * to object storage via pre-signed PUT URLs (AWS S3 / GCS), bypassing the
+ * application server for large files.
+ *
+ * Used for property hero images, logo uploads, and any user-supplied media.
+ * The parent component provides `onGetUploadParameters` to request per-file
+ * pre-signed URLs from the backend and `onComplete` to update server state
+ * (e.g., setting ACL policies or persisting the URL in the database).
+ */
 import { useState } from "react";
 import type { ReactNode } from "react";
 import Uppy from "@uppy/core";

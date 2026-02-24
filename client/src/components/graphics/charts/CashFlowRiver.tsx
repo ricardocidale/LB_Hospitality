@@ -1,3 +1,11 @@
+/**
+ * CashFlowRiver.tsx — Stacked area chart for visualizing cash flow over time.
+ *
+ * Renders multiple data series as stacked/layered areas (the "river" metaphor).
+ * Commonly used to show revenue streams, expense categories, or cumulative
+ * cash flows across projection years. Each series can have a custom color
+ * or defaults to the platform palette.
+ */
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { CHART_COLORS, formatCompact } from "../primitives/formatters";
 import { motion } from "framer-motion";

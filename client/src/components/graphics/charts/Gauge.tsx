@@ -1,3 +1,12 @@
+/**
+ * Gauge.tsx — Semi-circular gauge visualization for single KPI values.
+ *
+ * Renders a SVG arc that fills proportionally between min and max values.
+ * Optional color thresholds highlight whether the value is in a "good"
+ * (green), "warning" (amber), or "critical" (red) range. Commonly used
+ * for occupancy rates, DSCR (Debt Service Coverage Ratio), or margin
+ * percentages where the user needs an at-a-glance status indicator.
+ */
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 

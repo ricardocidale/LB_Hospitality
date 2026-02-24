@@ -1,3 +1,12 @@
+/**
+ * DonutChart.tsx — Recharts-based donut/pie chart for revenue or expense breakdowns.
+ *
+ * Renders a ring chart with an optional center label (e.g. total value).
+ * Used to visualize proportional splits like revenue by department
+ * (rooms, F&B, events, other) or expense category distribution.
+ * Colors default to the platform's CHART_COLORS palette but can be
+ * overridden per slice.
+ */
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 import { CHART_COLORS, formatCompact } from "../primitives/formatters";
 import { motion } from "framer-motion";

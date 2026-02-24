@@ -1,3 +1,9 @@
+/**
+ * LogoSvg.tsx — Animated SVG logo for the platform.
+ *
+ * Renders the brand mark as an inline SVG with optional Framer Motion
+ * rotation animation. Used in the sidebar, loading screens, and login page.
+ */
 import { motion } from "framer-motion";
 
 interface LogoSvgProps {

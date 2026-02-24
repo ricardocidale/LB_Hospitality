@@ -1,3 +1,16 @@
+/**
+ * PropertyTimeline.tsx — Visual timeline of property lifecycle milestones.
+ *
+ * Renders a horizontal or vertical timeline showing key events in a
+ * property's investment lifecycle:
+ *   • acquisition     — closing date and purchase price
+ *   • ramp            — occupancy ramp-up period (months to stabilization)
+ *   • stabilization   — when the property reaches target occupancy
+ *   • refinance       — optional refinance event (lower rate or cash-out)
+ *   • exit            — projected disposition date and sale price
+ *
+ * Each milestone has a type-specific icon and optional value annotation.
+ */
 import { motion, type Variants } from "framer-motion";
 import { Building2, Key, TrendingUp, DollarSign, ArrowUpRight } from "lucide-react";
 import { type ReactNode } from "react";

@@ -1,3 +1,23 @@
+/**
+ * InvestmentAnalysis.tsx — IRR and equity return analysis across the portfolio.
+ *
+ * Computes and displays investment-level returns for each property and
+ * the portfolio as a whole:
+ *
+ *   • Equity Invested   — down payment + closing costs + renovation capex
+ *   • Annual Cash Flow  — NOI minus debt service for each projection year
+ *   • Exit Proceeds     — estimated sale price at exit cap rate minus
+ *                         remaining loan balance and disposition costs
+ *   • IRR               — Internal Rate of Return: the discount rate that
+ *                         makes the NPV of all cash flows (equity out,
+ *                         annual CF in, exit proceeds in) equal to zero.
+ *                         A property-level IRR above the threshold
+ *                         (typically 15-20%) is highlighted green.
+ *   • Equity Multiple   — total distributions / total equity invested
+ *
+ * Uses the Newton-Raphson IRR solver from @analytics/returns/irr.js.
+ * Rows are expandable to show per-property detail within a consolidated view.
+ */
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { HelpTooltip } from "@/components/ui/help-tooltip";

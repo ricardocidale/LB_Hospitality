@@ -1,3 +1,50 @@
+/**
+ * calc/validation/financial-identities.ts — GAAP financial identity validator.
+ *
+ * PURPOSE:
+ * Validates that the three core financial statements (Balance Sheet, Income Statement,
+ * Cash Flow Statement) satisfy the fundamental accounting identities required by
+ * Generally Accepted Accounting Principles (GAAP). Any violation indicates a bug
+ * in the financial engine or a data integrity issue.
+ *
+ * IDENTITIES CHECKED:
+ *
+ * 1. BALANCE SHEET EQUATION (ASC 210):
+ *    Total Assets = Total Liabilities + Total Equity
+ *    This is the foundational double-entry bookkeeping identity. If it fails,
+ *    every number downstream is suspect. Severity: CRITICAL.
+ *
+ * 2. INDIRECT METHOD OPERATING CASH FLOW (ASC 230-10-45):
+ *    Operating Cash Flow = Net Income + Depreciation
+ *    Depreciation is a non-cash expense that reduces net income but does not
+ *    consume cash. Adding it back converts accrual-basis net income to cash-basis
+ *    operating cash flow. Severity: MATERIAL.
+ *
+ * 3. NET INCOME DERIVATION (ASC 220):
+ *    Net Income = NOI − Interest Expense − Depreciation − Income Tax
+ *    Traces the path from operating performance (NOI) to bottom-line profit.
+ *    Severity: MATERIAL.
+ *
+ * 4. FINANCING CASH FLOW COMPOSITION (ASC 230-10-45-15):
+ *    Financing Cash Flow = −Principal Payment + Refinancing Proceeds
+ *    Financing activities reflect debt transactions. Interest is operating (not
+ *    financing) under the indirect method. Severity: MATERIAL.
+ *
+ * 5. CASH RECONCILIATION (ASC 230-10-45-24):
+ *    Ending Cash = Beginning Cash + Net Cash Change
+ *    The cash flow statement must reconcile to the balance sheet's cash position.
+ *    Severity: CRITICAL.
+ *
+ * AUDIT OPINION:
+ *   - UNQUALIFIED: All identities hold within tolerance — "clean" opinion.
+ *   - QUALIFIED: Minor (non-critical) variances detected — likely rounding.
+ *   - ADVERSE: Critical identity failures — the statements are materially misstated.
+ *
+ * HOW IT FITS THE SYSTEM:
+ * Called via the dispatch layer as the "financial_identities" skill. The financial
+ * auditor runs this for every property in every projection period. Any ADVERSE
+ * opinion triggers a red flag in the verification dashboard.
+ */
 import type { RoundingPolicy } from "../../domain/types/rounding.js";
 import { rounder, withinTolerance, variance, DEFAULT_TOLERANCE } from "../shared/utils.js";
 

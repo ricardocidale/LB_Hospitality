@@ -1,3 +1,18 @@
+/**
+ * WhatIfPanel.tsx — Scenario analysis sidebar for property-level assumptions.
+ *
+ * Lets the user adjust key financial levers and instantly see how changes
+ * affect the property's projected returns:
+ *   • ADR Growth Rate    — annual rate at which Average Daily Rate increases
+ *   • Start Occupancy    — day-one occupancy (new hotels ramp up over time)
+ *   • Max Occupancy      — stabilized occupancy ceiling (typically 75-90%)
+ *   • Purchase Price     — total acquisition cost (land + building + closing)
+ *
+ * Sliders are bounded around the property's baseline values (±50% for price).
+ * Changes are applied in real-time to the global store so the financial
+ * engine re-computes projections immediately. A "Reset" button reverts to
+ * the original assumptions.
+ */
 import { useState, useMemo, useCallback } from "react";
 import { useStore } from "@/lib/store";
 

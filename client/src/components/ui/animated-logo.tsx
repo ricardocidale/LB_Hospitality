@@ -1,3 +1,10 @@
+/**
+ * animated-logo.tsx — Animated brand logo with configurable motion effects.
+ *
+ * Renders the platform's building icon with selectable animation modes:
+ * none, pulse, glow, spin, or bounce. Used in the sidebar header and
+ * splash/loading screens.
+ */
 import { useState, useId } from "react";
 import { Building2 } from "lucide-react";
 import { cn } from "@/lib/utils";

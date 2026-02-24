@@ -1,3 +1,10 @@
+/**
+ * section-card.tsx — Collapsible card section for organizing form content.
+ *
+ * Renders a card with a clickable header that toggles content visibility.
+ * Used in the property edit and company assumptions editors to group related
+ * input fields (e.g. "Revenue Assumptions", "Debt Structure", "Fixed Charges").
+ */
 import { Card, CardContent } from "@/components/ui/card";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";

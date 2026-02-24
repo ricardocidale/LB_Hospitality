@@ -1,3 +1,12 @@
+/**
+ * editable-value.tsx — Inline-editable display value with format-aware input.
+ *
+ * Shows a formatted value (dollar, percent, months, or number) as static
+ * text. On click, transforms into an input field for editing. On blur or
+ * Enter, parses the input back into the appropriate numeric type and calls
+ * onChange. Used in assumption tables where values are displayed inline
+ * but need to be editable without opening a separate form.
+ */
 import { useState, useRef } from "react";
 import { cn } from "@/lib/utils";
 

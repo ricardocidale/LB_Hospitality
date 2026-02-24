@@ -1,3 +1,12 @@
+/**
+ * ResearchRefreshOverlay.tsx — Full-screen loading overlay during AI research generation.
+ *
+ * When the user triggers a property or company research refresh, this overlay
+ * covers the viewport with an animated 3D scene (glowing spheres, stars,
+ * orbiting particles) while the LLM streams structured JSON via SSE. The
+ * overlay fades out once the stream completes. It uses Framer Motion for
+ * 2D transitions and React Three Fiber for the WebGL animation.
+ */
 import { useState, useEffect, useRef, useCallback, Suspense } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Float, MeshDistortMaterial, MeshWobbleMaterial, Stars } from "@react-three/drei";

@@ -1,3 +1,10 @@
+/**
+ * button-group.tsx — Horizontally grouped buttons with separator dividers.
+ *
+ * Renders multiple buttons in a single visual unit with shared borders
+ * and optional separators between items. Used for toggle groups (e.g.
+ * selecting projection years) and segmented controls.
+ */
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
 

@@ -1,3 +1,47 @@
+/**
+ * calc/analysis/stress-test.ts — Portfolio-level stress testing engine.
+ *
+ * PURPOSE:
+ * Applies adverse economic scenarios to a hotel property and measures the impact
+ * on NOI, exit valuation, and DSCR. Unlike the financing sensitivity module (which
+ * stress-tests DSCR across rate/NOI grids), this module models realistic macro
+ * scenarios with simultaneous shocks to ADR, occupancy, expenses, and cap rates.
+ *
+ * STANDARD SCENARIOS (STANDARD_STRESS_SCENARIOS):
+ *   - Mild Recession: ADR −5%, Occupancy −10%, Expenses +3%
+ *   - Moderate Downturn: ADR −10%, Occ −15%, Exp +5%, Cap Rate +50 bps
+ *   - Severe Recession: ADR −15%, Occ −25%, Exp +8%, Cap Rate +100 bps
+ *   - Pandemic Shock: ADR −30%, Occ −50%, Exp −10%, Cap Rate +150 bps
+ *   - Inflationary Pressure: ADR +5%, Occ −5%, Exp +15%
+ *   - New Supply Shock: ADR −8%, Occ −12%, Exp +2%, Cap Rate +25 bps
+ *
+ * HOW STRESS IS APPLIED:
+ *   stressed_ADR = base_ADR × (1 + adr_shock_pct / 100)
+ *   stressed_Occ = base_Occ × (1 + occupancy_shock_pct / 100), clamped to [0, 1]
+ *   stressed_Revenue = base_Revenue × (stressed_RevPAR / base_RevPAR)
+ *   stressed_NOI = stressed_Revenue − (base_OpEx × expense_multiplier)
+ *   stressed_Exit = stressed_NOI / (exit_cap + cap_rate_shock_bps / 10,000)
+ *
+ * SEVERITY CLASSIFICATION (based on NOI impact):
+ *   - "low": NOI drops < 5%
+ *   - "moderate": NOI drops 5–15%
+ *   - "severe": NOI drops 15–30%
+ *   - "critical": NOI drops > 30%
+ *
+ * PORTFOLIO RISK SCORE:
+ * A composite score (0–10+) weighting critical scenarios (3×), severe (2×),
+ * and below-breakeven scenarios (4×). Higher = riskier.
+ *
+ * KEY TERMS:
+ *   - DSCR Threshold: Minimum 1.25× — if stressed DSCR falls below this,
+ *     the property cannot service its debt under that scenario.
+ *   - Cap Rate Shock (bps): Basis point increase in exit cap rate. A 100 bps
+ *     shock on a 7% cap rate → 8%, reducing exit value by ~12.5%.
+ *
+ * HOW IT FITS THE SYSTEM:
+ * Called via the dispatch layer as the "stress_test" skill. The UI displays
+ * results as a risk dashboard with color-coded scenario severity.
+ */
 import type { RoundingPolicy } from "../../domain/types/rounding.js";
 import { roundTo } from "../../domain/types/rounding.js";
 import { rounder, RATIO_ROUNDING, roundCents } from "../shared/utils.js";

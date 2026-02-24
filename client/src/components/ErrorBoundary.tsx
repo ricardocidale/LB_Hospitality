@@ -1,3 +1,12 @@
+/**
+ * ErrorBoundary.tsx — React error boundary for graceful crash recovery.
+ *
+ * Wraps child components in a class-based error boundary. If any child
+ * throws during rendering, the boundary catches the error and displays
+ * a friendly fallback UI with a "Try Again" button instead of a blank
+ * screen. Used at the top level of the app and around critical sections
+ * like financial calculations that depend on user-supplied data.
+ */
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, RefreshCw } from "lucide-react";

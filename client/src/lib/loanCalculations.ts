@@ -91,6 +91,7 @@ export interface YearlyDebtService {
 
 import { startOfMonth } from "date-fns";
 
+/** Parse a date string into a Date object, treating bare YYYY-MM-DD as local midnight (not UTC). */
 function parseLocalDate(dateStr: string): Date {
   if (dateStr.includes('T')) return new Date(dateStr);
   return new Date(dateStr + 'T00:00:00');

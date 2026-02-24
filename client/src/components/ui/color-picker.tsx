@@ -1,3 +1,10 @@
+/**
+ * color-picker.tsx — Popover-based color selector with preset swatches.
+ *
+ * Opens a popover with a grid of preset colors and a hex input field.
+ * Used in the admin/theme settings to customize the platform's accent
+ * colors and chart palette.
+ */
 import { useState } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";

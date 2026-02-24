@@ -1,3 +1,21 @@
+/**
+ * calc/analysis/index.ts — Public barrel export for the Analysis module.
+ *
+ * Re-exports every function and type from the analysis sub-modules:
+ *   - consolidateStatements: Multi-property financial statement consolidation with
+ *     intercompany elimination (management fees).
+ *   - compareScenarios: Side-by-side what-if scenario comparison.
+ *   - computeBreakEven: Operating and cash flow break-even occupancy analysis.
+ *   - computeRevPARIndex: STR-style competitive positioning indices (MPI, ARI, RGI).
+ *   - computeWaterfall: LP/GP equity distribution waterfall with promote tiers.
+ *   - computeStressTest: Multi-scenario macro stress testing (recession, pandemic, etc.).
+ *   - computeHoldVsSell: NPV-based hold vs. sell decision analysis with tax impact.
+ *   - computeCapexReserve: FF&E reserve adequacy and CapEx replacement projections.
+ *
+ * Together these eight skills provide the strategic analysis layer that sits on top
+ * of the core financial projections, helping investors make informed decisions about
+ * portfolio composition, risk management, and disposition timing.
+ */
 export { consolidateStatements } from "./consolidation.js";
 export type { ConsolidationInput, ConsolidationOutput } from "./consolidation.js";
 

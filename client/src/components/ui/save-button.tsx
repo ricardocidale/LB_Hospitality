@@ -1,3 +1,9 @@
+/**
+ * save-button.tsx — Save action button with loading and success states.
+ *
+ * Wraps GlassButton with a Save icon that transitions to a spinner
+ * during save operations. Used on assumption editor pages.
+ */
 import * as React from "react";
 import { Save, Loader2 } from "lucide-react";
 import { GlassButton } from "./glass-button";

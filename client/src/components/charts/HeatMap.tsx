@@ -1,3 +1,16 @@
+/**
+ * HeatMap.tsx — Color-coded matrix chart for multi-period metric comparison.
+ *
+ * Renders a grid where rows are categories (e.g. properties or line items)
+ * and columns are time periods (months or years). Cell background color
+ * intensity maps to the metric value within the min-max range:
+ *   • Red   — below 40th percentile (underperforming)
+ *   • Amber — 40th-60th percentile (neutral)
+ *   • Green — above 60th percentile (strong performance)
+ *
+ * Useful for spotting occupancy trends, revenue patterns, or expense
+ * outliers at a glance across the portfolio.
+ */
 import { useMemo } from "react";
 
 interface HeatMapProps {

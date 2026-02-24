@@ -1,3 +1,11 @@
+/**
+ * CommandPalette.tsx — Keyboard-driven command palette (Cmd+K / Ctrl+K).
+ *
+ * Opens a searchable dialog listing all navigable pages and properties.
+ * The user can type to filter and press Enter to navigate instantly.
+ * Groups include: Pages (Dashboard, Company, Admin), Properties (all
+ * properties in the portfolio), and Actions (e.g. add property, export).
+ */
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import {

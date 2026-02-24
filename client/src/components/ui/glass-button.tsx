@@ -1,3 +1,10 @@
+/**
+ * glass-button.tsx — Frosted-glass styled button matching the platform's design system.
+ *
+ * Supports multiple variants: default, settings (gear icon style), primary
+ * (accent color), ghost (transparent), icon (compact square), and export
+ * (download-style). Used in page headers and toolbar areas.
+ */
 import * as React from "react";
 import { cn } from "@/lib/utils";
 

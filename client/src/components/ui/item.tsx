@@ -1,3 +1,10 @@
+/**
+ * item.tsx — Generic list item component with icon, text, and action slots.
+ *
+ * A flexible layout primitive for rendering items in lists, menus, or
+ * sidebars. Supports asChild (via Radix Slot), variants for size/spacing,
+ * and optional leading/trailing content.
+ */
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"

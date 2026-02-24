@@ -1,3 +1,34 @@
+/**
+ * calc/returns/dcf-npv.ts — Discounted Cash Flow (DCF) and Net Present Value (NPV) calculator.
+ *
+ * PURPOSE:
+ * Computes the Net Present Value of a series of cash flows discounted at a given rate.
+ * DCF analysis is the cornerstone of investment valuation — it answers the question:
+ * "What is a stream of future cash flows worth in today's dollars?"
+ *
+ * THE DCF FORMULA:
+ *   NPV = Σ [CF_t / (1 + r)^t]  for t = 0, 1, 2, ..., n
+ *
+ * Where:
+ *   CF_t = cash flow in period t
+ *   r    = discount rate (required rate of return / cost of capital)
+ *   t    = period index (0-based; period 0 is "today", not discounted)
+ *
+ * IMPORTANT: The cash_flows array uses t=0 as the first element. Period 0 is NOT
+ * discounted (divisor = (1+r)^0 = 1). This convention means the initial investment
+ * (negative cash flow) at t=0 is at face value, and future returns are discounted.
+ *
+ * IRR CROSS-CHECK:
+ * If an IRR value is provided, the function verifies that NPV ≈ 0 when the cash
+ * flows are discounted at the IRR. This catches IRR calculation errors in the
+ * upstream `irr-vector` module. By definition, IRR is the rate r where NPV = 0.
+ *
+ * HOW IT FITS THE SYSTEM:
+ * Called via the dispatch layer as the "dcf" skill. Used by the financial engine
+ * to value properties, compute the NPV of hold-vs-sell scenarios, and validate
+ * IRR results. The `pv_timeline` output lets the UI show period-by-period
+ * present value waterfall charts.
+ */
 import type { RoundingPolicy } from "../../domain/types/rounding.js";
 import { roundTo } from "../../domain/types/rounding.js";
 import { rounder, sumArray, RATE_ROUNDING, DEFAULT_TOLERANCE } from "../shared/utils.js";

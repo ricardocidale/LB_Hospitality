@@ -1,3 +1,10 @@
+/**
+ * info-tooltip.tsx — Info icon with hover tooltip for contextual help.
+ *
+ * Renders a small "i" icon that shows explanatory text on hover. Optionally
+ * includes an external link for further reading. Used next to financial
+ * input fields to explain concepts like "ADR", "Cap Rate", or "FF&E Reserve".
+ */
 import { Info, ExternalLink } from "lucide-react";
 import {
   Tooltip,

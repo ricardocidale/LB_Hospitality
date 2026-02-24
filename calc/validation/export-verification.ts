@@ -1,3 +1,33 @@
+/**
+ * calc/validation/export-verification.ts — Post-export data integrity checker.
+ *
+ * PURPOSE:
+ * After the UI exports financial data to Excel, PDF, PowerPoint, CSV, or image
+ * formats, this module verifies that the exported output matches the source data.
+ * It catches common export bugs: missing report sections, truncated year columns,
+ * rounding drift between the calculation engine and the export renderer, and
+ * dropped properties.
+ *
+ * VERIFICATION CHECKS:
+ *   1. Export Format Valid — confirms the format/source combination is recognized.
+ *   2. All Expected Sections Present — compares expected section names against
+ *      actual sections found in the exported file (case-insensitive match).
+ *   3. Sample Values Match — spot-checks a set of known values against their
+ *      exported counterparts, allowing for a configurable tolerance (default:
+ *      $0.01, set by DEFAULT_TOLERANCE from shared utils).
+ *   4. Year Count Correct — ensures no projection years were dropped in export.
+ *   5. Property Count Correct — ensures all properties are represented.
+ *
+ * WHY SPOT-CHECKING INSTEAD OF FULL COMPARISON:
+ * Full cell-by-cell comparison is impractical for large multi-property exports.
+ * Spot-checking a representative sample (e.g., Year 1 NOI, final-year cash balance,
+ * total revenue) catches the most common failure modes while keeping the check fast.
+ *
+ * HOW IT FITS THE SYSTEM:
+ * Called via the dispatch layer as the "export_verification" skill. The UI triggers
+ * this after every export operation and surfaces any mismatches to the user as
+ * warnings before they distribute the report to stakeholders.
+ */
 import { roundCents, DEFAULT_TOLERANCE } from "../shared/utils.js";
 
 export interface SampleValue {

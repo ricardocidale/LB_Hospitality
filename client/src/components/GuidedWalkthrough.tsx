@@ -1,3 +1,17 @@
+/**
+ * GuidedWalkthrough.tsx — First-time user onboarding walkthrough.
+ *
+ * Displays a multi-step overlay guiding new users through the platform:
+ *   1. Welcome and overview
+ *   2. Portfolio dashboard orientation
+ *   3. Adding a property
+ *   4. Viewing financial projections
+ *   5. Using AI research
+ *
+ * Completion state is persisted to localStorage via Zustand so the
+ * walkthrough only shows once. Authenticated users can re-trigger it
+ * from the help menu.
+ */
 import { useState, useEffect, useCallback, useRef } from "react";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";

@@ -1,3 +1,12 @@
+/**
+ * graphics/index.ts — Barrel export for the data-visualization layer.
+ *
+ * Re-exports all chart components (DonutChart, CashFlowRiver, Gauge),
+ * layout primitives (KPIGrid, InsightPanel, PropertyTimeline),
+ * motion wrappers (AnimatedPage, ScrollReveal), and formatting helpers
+ * (formatCompact, formatPercent, CHART_COLORS). These are the building
+ * blocks used by every dashboard and detail page in the application.
+ */
 export { KPIGrid, type KPIItem } from "./cards/KPIGrid";
 
 export { DonutChart, type DonutSlice } from "./charts/DonutChart";

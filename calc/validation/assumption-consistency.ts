@@ -1,3 +1,45 @@
+/**
+ * calc/validation/assumption-consistency.ts — Pre-flight validation of model assumptions.
+ *
+ * PURPOSE:
+ * Before the financial engine runs any projections, this module checks that all
+ * user-entered assumptions are internally consistent, within reasonable ranges,
+ * and free of contradictions. Think of it as a "preflight checklist" that catches
+ * data-entry errors before they propagate into multi-year financial projections.
+ *
+ * SEVERITY LEVELS:
+ *   - "critical": Model cannot run (e.g., missing start date, negative occupancy).
+ *     The engine should refuse to proceed.
+ *   - "material": Results will be unreliable (e.g., start occupancy > max occupancy,
+ *     interest rate above 25%). The engine can run but results are suspect.
+ *   - "warning": Unusual but not necessarily wrong (e.g., exit cap rate outside
+ *     3–15% typical range, no SAFE funding configured).
+ *   - "info": Informational notes for the user.
+ *
+ * ISSUE CATEGORIES:
+ *   - missing_value: A required field is not provided.
+ *   - out_of_range: A value is outside the reasonable or mathematically valid range.
+ *   - contradiction: Two values conflict (e.g., start occupancy exceeds max occupancy).
+ *   - timing_conflict: Dates are in the wrong order (e.g., operations before model start,
+ *     refinance before acquisition).
+ *   - business_rule: A business logic rule is violated (e.g., no funding before operations).
+ *
+ * KEY FINANCIAL TERMS CHECKED:
+ *   - Exit Cap Rate: The capitalization rate used to value the property at sale.
+ *     Typical hospitality range: 3–15%. A zero or negative cap rate causes divide-by-zero.
+ *   - LTV (Loan-to-Value): Acquisition LTV above 95% is extremely aggressive.
+ *   - ADR (Average Daily Rate): Must be positive — zero ADR means zero revenue.
+ *   - SAFE (Simple Agreement for Future Equity): Startup funding for the management
+ *     company. If no SAFE tranches are configured, the company has no capital before
+ *     operations begin.
+ *   - Land Value Percent: Portion of purchase price allocated to land (not depreciable).
+ *     Typical range: 5–50%.
+ *
+ * HOW IT FITS THE SYSTEM:
+ * Called via the dispatch layer as the "assumption_consistency" skill. Also invoked
+ * by the financial auditor before running full projections. The `is_valid` flag
+ * (true when no critical or material issues) gates whether the engine proceeds.
+ */
 export interface AssumptionIssue {
   severity: "critical" | "material" | "warning" | "info";
   category: "missing_value" | "out_of_range" | "contradiction" | "timing_conflict" | "business_rule";

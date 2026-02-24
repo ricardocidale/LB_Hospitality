@@ -1,3 +1,41 @@
+/**
+ * calc/validation/funding-gates.ts — Funding feasibility gate checks.
+ *
+ * PURPOSE:
+ * Enforces business rules that ensure a property or management company has
+ * adequate funding before and during operations. These are "gate" checks —
+ * binary pass/fail rules that, if violated, indicate the financial model
+ * contains an impossible scenario (e.g., spending money before receiving it).
+ *
+ * GATES CHECKED:
+ *
+ * 1. FUNDING TIMING GATE:
+ *    For properties: Acquisition/funding must occur before operations start.
+ *    For management company: SAFE funding must arrive before company operations begin.
+ *    Why: You can't operate a hotel you haven't bought, and you can't pay employees
+ *    from an unfunded management company.
+ *
+ * 2. NO NEGATIVE CASH:
+ *    Monthly ending cash balances must never go below zero.
+ *    Why: Negative cash means the entity has spent more than it has. In reality,
+ *    this would require an unmodeled cash infusion (equity call, line of credit).
+ *    A negative cash month indicates the model is missing a funding source.
+ *
+ * 3. DEBT-FREE AT EXIT:
+ *    Outstanding debt must be zero by the end of the projection period.
+ *    Why: The exit valuation assumes the property is sold free and clear (or
+ *    debt is repaid from sale proceeds). Remaining debt means the equity
+ *    proceeds calculation is wrong.
+ *
+ * 4. NO OVER-DISTRIBUTION:
+ *    Distributions to equity holders cannot occur in months where cash is negative.
+ *    Why: Distributing cash that doesn't exist is a solvency violation.
+ *
+ * HOW IT FITS THE SYSTEM:
+ * Called via the dispatch layer as the "funding_gates" skill. The financial auditor
+ * runs these gates for every entity (each property + management company + portfolio).
+ * Failed gates produce "critical" or "material" severity flags in the audit report.
+ */
 import { roundCents, CENTS_TOLERANCE } from "../shared/utils.js";
 
 export interface FundingGateInput {

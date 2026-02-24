@@ -1,3 +1,10 @@
+/**
+ * input-group.tsx — Input with attached prefix/suffix elements.
+ *
+ * Wraps an input field with optional leading (e.g. "$") or trailing
+ * (e.g. "%", button) add-ons in a unified bordered container. Used for
+ * currency inputs, percentage fields, and search bars.
+ */
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 

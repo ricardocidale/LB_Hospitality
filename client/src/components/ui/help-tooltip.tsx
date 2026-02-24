@@ -1,3 +1,10 @@
+/**
+ * help-tooltip.tsx — Question-mark icon with hover tooltip for field help.
+ *
+ * Similar to info-tooltip but uses a "?" icon instead of "i". Used for
+ * longer explanations or less obvious concepts. Supports an optional
+ * external link for documentation references.
+ */
 import { HelpCircle, ExternalLink } from "lucide-react";
 import {
   Tooltip,

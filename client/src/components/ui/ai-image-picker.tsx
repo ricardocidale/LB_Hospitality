@@ -1,3 +1,14 @@
+/**
+ * ai-image-picker.tsx — Multi-source image selector with AI generation support.
+ *
+ * Provides three ways to set a property's hero image:
+ *   1. Upload a local file from the user's device
+ *   2. Paste a URL to an existing image
+ *   3. Generate an AI image from a text prompt (calls the backend
+ *      image generation endpoint)
+ *
+ * Used in the AddPropertyDialog and property edit forms.
+ */
 import { useState, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

@@ -1,3 +1,10 @@
+/**
+ * field.tsx — Compound form field component with label, input, and description.
+ *
+ * Provides Field, FieldLabel, FieldControl, FieldDescription, and FieldMessage
+ * sub-components for building accessible form layouts. Supports horizontal
+ * and vertical orientations with consistent spacing.
+ */
 "use client"
 
 import { useMemo } from "react"

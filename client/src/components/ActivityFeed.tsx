@@ -1,3 +1,18 @@
+/**
+ * ActivityFeed.tsx — Chronological feed of user actions and system events.
+ *
+ * Tracks meaningful actions in the app via a Zustand store persisted to
+ * localStorage. Event types include:
+ *   • assumption_change  — user modified a financial assumption
+ *   • scenario_run       — what-if scenario was evaluated
+ *   • export             — data exported to Excel/PDF/PPTX
+ *   • property_add       — new property added to portfolio
+ *   • research_refresh   — AI research regenerated for a property
+ *   • verification       — GAAP compliance check executed
+ *
+ * The ActivityFeedPanel component renders a scrollable list of recent events
+ * with icons, timestamps, and detail text.
+ */
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { Activity, Sliders, Play, Download, Plus, RefreshCw, CheckCircle } from "lucide-react";

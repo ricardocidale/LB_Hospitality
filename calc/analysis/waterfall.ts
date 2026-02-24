@@ -1,3 +1,51 @@
+/**
+ * calc/analysis/waterfall.ts — Equity waterfall distribution calculator.
+ *
+ * PURPOSE:
+ * Computes how distributable cash flows are split between Limited Partners (LPs)
+ * and the General Partner (GP) using a tiered promote structure. This is the
+ * standard profit-sharing mechanism in real estate private equity.
+ *
+ * HOW A WATERFALL WORKS (in order of priority):
+ *
+ * 1. RETURN OF CAPITAL:
+ *    LPs and GP first get their invested capital back, pro rata.
+ *    Until this step is satisfied, no one earns a profit.
+ *
+ * 2. PREFERRED RETURN ("Pref"):
+ *    LPs receive a priority return on their investment (e.g., 8% annually).
+ *    The pref accrues and must be paid before the GP receives any promote.
+ *    If total distributable cash is insufficient, the shortfall is tracked.
+ *
+ * 3. GP CATCH-UP:
+ *    After the pref is paid, the GP receives a disproportionate share of the
+ *    next dollars distributed until they've "caught up" to a target ownership
+ *    percentage (typically 20%) of all distributions so far. The catch-up rate
+ *    controls how aggressively the GP catches up (e.g., 100% = all to GP,
+ *    80% = 80/20 split during catch-up).
+ *
+ * 4. PROMOTE TIERS:
+ *    Remaining cash is split according to tiered LP/GP splits, usually getting
+ *    more GP-favorable at higher IRR hurdles:
+ *    - Tier 1 (e.g., up to 12% IRR): 80% LP / 20% GP
+ *    - Tier 2 (e.g., 12–18% IRR): 70% LP / 30% GP
+ *    - Tier 3 (e.g., above 18% IRR): 60% LP / 40% GP
+ *
+ * KEY OUTPUTS:
+ *   - total_to_lp / total_to_gp: Final dollar amounts to each party.
+ *   - lp_multiple / gp_multiple: Total received / equity invested for each party.
+ *   - preferred_return_shortfall: Unpaid pref (if cash was insufficient).
+ *   - tier_results: How much flowed through each tier.
+ *
+ * INDUSTRY CONTEXT:
+ * The waterfall aligns GP incentives with LP returns: the GP earns a larger
+ * share only when they deliver higher returns. This structure is standard
+ * in hotel investment funds and joint ventures.
+ *
+ * HOW IT FITS THE SYSTEM:
+ * Called via the dispatch layer as the "waterfall" skill. The UI displays the
+ * waterfall in the investor returns section, showing the LP/GP split at each tier.
+ */
 import type { RoundingPolicy } from "../../domain/types/rounding.js";
 import { roundTo } from "../../domain/types/rounding.js";
 import { rounder, RATIO_ROUNDING, sumArray } from "../shared/utils.js";

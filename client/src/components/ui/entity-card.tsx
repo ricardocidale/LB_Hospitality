@@ -1,3 +1,10 @@
+/**
+ * entity-card.tsx — Generic CRUD entity card with edit/delete actions.
+ *
+ * A reusable card layout for displaying a named entity (e.g. a staff member,
+ * fee category, or funding tranche) with inline edit and delete buttons.
+ * Used in the company assumptions editor for managing lists of configurable items.
+ */
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2, Plus } from "lucide-react";

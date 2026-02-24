@@ -1,3 +1,35 @@
+/**
+ * calc/returns/irr-vector.ts — IRR cash flow vector builder and validator.
+ *
+ * PURPOSE:
+ * Assembles the annual cash flow vector needed to compute the Internal Rate of
+ * Return (IRR). IRR is the discount rate that makes the Net Present Value (NPV)
+ * of all cash flows equal to zero. It is THE primary return metric in real estate
+ * private equity.
+ *
+ * This module does NOT solve for IRR itself — it builds the correctly-structured
+ * input vector and validates that a meaningful IRR can be computed.
+ *
+ * VECTOR CONSTRUCTION:
+ *   Year 0: −equity_invested (initial outflow, always negative)
+ *   Years 1–N: yearly FCFE (Free Cash Flow to Equity) = NOI − debt service
+ *              + any refinancing proceeds in that year
+ *   Final Year: FCFE + exit_proceeds (net sale proceeds after debt repayment)
+ *
+ * VALIDATION CHECKS:
+ *   - has_negative: At least one outflow (investment) must exist.
+ *   - has_positive: At least one inflow (return) must exist.
+ *   - sign_changes: Counted to warn about multiple IRR solutions. Per Descartes'
+ *     rule of signs, an IRR polynomial can have as many real roots as there are
+ *     sign changes in the cash flow sequence.
+ *   - has_exit: Whether terminal (exit) proceeds are included. Without exit
+ *     proceeds, the IRR reflects only operating returns.
+ *
+ * HOW IT FITS THE SYSTEM:
+ * Called via the dispatch layer as the "irr_vector" skill. The output `cash_flow_vector`
+ * is then passed to an IRR solver (Newton-Raphson or similar) in the financial engine.
+ * The `warnings` array surfaces potential issues to the UI before solving.
+ */
 import { roundCents } from "../shared/utils.js";
 
 export interface IRRVectorInput {

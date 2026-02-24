@@ -1,3 +1,15 @@
+/**
+ * AIChatWidget.tsx — Floating AI assistant chat panel.
+ *
+ * Provides a conversational interface where users can ask questions about
+ * their portfolio, financial assumptions, or hotel industry concepts.
+ * Messages are sent to the backend /api/chat endpoint which proxies to an
+ * LLM. The widget supports:
+ *   • Multiple conversation threads (stored server-side)
+ *   • Streaming responses for long answers
+ *   • Context-aware prompts that include portfolio data
+ *   • Markdown rendering in responses
+ */
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";

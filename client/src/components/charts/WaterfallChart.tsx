@@ -1,3 +1,16 @@
+/**
+ * WaterfallChart.tsx — Recharts-based waterfall (bridge) chart.
+ *
+ * Visualizes how an initial value is transformed through a series of
+ * positive and negative increments into a final total. Each bar floats
+ * from the running subtotal, making it easy to see which line items
+ * contribute most to the result.
+ *
+ * Common uses in this platform:
+ *   • Revenue → expenses → GOP → NOI bridge
+ *   • Cash flow waterfall (operating CF + financing CF = ending cash)
+ *   • Equity investment → annual returns → exit proceeds
+ */
 import React from "react";
 import {
   BarChart,

@@ -1,3 +1,17 @@
+/**
+ * KPIGrid.tsx — Responsive grid of Key Performance Indicator cards.
+ *
+ * Displays financial KPIs in a visually prominent grid at the top of
+ * dashboard pages. Each card shows a label, formatted value (via
+ * AnimatedCounter for smooth number transitions), optional trend arrow
+ * (up/down/neutral), and sublabel. Used across the portfolio dashboard,
+ * property detail, and company pages to surface metrics like:
+ *   • Total Revenue, NOI, Cash Flow
+ *   • ADR (Average Daily Rate), RevPAR, Occupancy
+ *   • EBITDA, Equity Multiple, IRR
+ *
+ * Supports "glass" (frosted) and "solid" visual variants.
+ */
 import { motion, type Variants } from "framer-motion";
 import { type ReactNode } from "react";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";

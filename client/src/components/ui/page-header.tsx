@@ -1,3 +1,10 @@
+/**
+ * page-header.tsx — Consistent page title header with optional back navigation.
+ *
+ * Renders a page title, subtitle, optional back link, and action buttons
+ * (e.g. Settings, Export). Provides a unified look across all top-level
+ * pages (Dashboard, Property Detail, Company, Admin).
+ */
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { Link } from "wouter";

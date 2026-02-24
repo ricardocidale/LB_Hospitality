@@ -1,3 +1,26 @@
+/**
+ * YearlyIncomeStatement.tsx — Multi-year USALI income statement for a single property.
+ *
+ * Aggregates the monthly MonthlyFinancials[] array into annual columns and
+ * renders a comprehensive income statement following the USALI (Uniform System
+ * of Accounts for the Lodging Industry) format:
+ *
+ *   Revenue
+ *     Room Revenue         — rooms sold × ADR (Average Daily Rate)
+ *     F&B Revenue          — food & beverage (restaurant, room service, minibar)
+ *     Event / Catering     — meetings & banquets, boosted by catering factor
+ *     Other Revenue        — spa, parking, resort fees, etc.
+ *   Departmental Expenses  — costs directly tied to each revenue center
+ *   Undistributed Expenses — admin, marketing, utilities, maintenance, IT
+ *   Gross Operating Profit (GOP) — revenue minus all operating expenses
+ *   Fixed Charges          — property tax, insurance, FF&E reserve
+ *   Net Operating Income (NOI) — GOP minus fixed charges
+ *   Debt Service           — mortgage principal + interest (if financed)
+ *   Cash Flow              — NOI minus debt service
+ *
+ * Rows are expandable to show calculation details (e.g. "rooms × ADR × days").
+ * Margin percentages are shown inline for key subtotals.
+ */
 import { useState } from "react";
 import { MonthlyFinancials, formatMoney } from "@/lib/financialEngine";
 import {

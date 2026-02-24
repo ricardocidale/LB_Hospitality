@@ -846,41 +846,49 @@ export class DatabaseStorage implements IStorage {
     return ad || undefined;
   }
 
+  /** Get the asset description marked as isDefault=true. Used when no group-specific one exists. */
   async getDefaultAssetDescription(): Promise<AssetDescription | undefined> {
     const [ad] = await db.select().from(assetDescriptions).where(eq(assetDescriptions.isDefault, true));
     return ad || undefined;
   }
 
+  /** Create a new asset description (e.g., "Luxury Boutique Hotel on 10+ acres"). */
   async createAssetDescription(data: InsertAssetDescription): Promise<AssetDescription> {
     const [ad] = await db.insert(assetDescriptions).values(data).returning();
     return ad;
   }
 
+  /** Delete an asset description. The default one is protected by the route handler. */
   async deleteAssetDescription(id: number): Promise<void> {
     await db.delete(assetDescriptions).where(eq(assetDescriptions.id, id));
   }
 
-  // ── User Groups ──────────────────────────────────────────────
+  // ── User Groups (White-Label Audience Segments) ─────────────
 
+  /** List all user groups alphabetically. */
   async getAllUserGroups(): Promise<UserGroup[]> {
     return db.select().from(userGroups).orderBy(userGroups.name);
   }
 
+  /** Fetch a single user group by ID. Used to resolve branding for a user. */
   async getUserGroup(id: number): Promise<UserGroup | undefined> {
     const [group] = await db.select().from(userGroups).where(eq(userGroups.id, id));
     return group || undefined;
   }
 
+  /** Create a new user group with optional logo, theme, and asset description links. */
   async createUserGroup(data: InsertUserGroup): Promise<UserGroup> {
     const [group] = await db.insert(userGroups).values(data).returning();
     return group;
   }
 
+  /** Update a group's settings (name, linked logo/theme/asset description). */
   async updateUserGroup(id: number, data: Partial<InsertUserGroup>): Promise<UserGroup> {
     const [group] = await db.update(userGroups).set(data).where(eq(userGroups.id, id)).returning();
     return group;
   }
 
+  /** Get the group marked as isDefault=true. Users from deleted groups are reassigned here. */
   async getDefaultUserGroup(): Promise<UserGroup | undefined> {
     const [group] = await db.select().from(userGroups).where(eq(userGroups.isDefault, true));
     return group || undefined;
@@ -900,27 +908,32 @@ export class DatabaseStorage implements IStorage {
     await db.delete(userGroups).where(eq(userGroups.id, id));
   }
 
+  /** Assign a user to a group (or remove from a group by passing null). */
   async assignUserToGroup(userId: number, groupId: number | null): Promise<User> {
     const [user] = await db.update(users).set({ userGroupId: groupId, updatedAt: new Date() }).where(eq(users.id, userId)).returning();
     return user;
   }
 
-  // ── Companies ──────────────────────────────────────────────
+  // ── Companies (Management Company + SPVs) ───────────────────
 
+  /** List all companies alphabetically. Includes both management and SPV entities. */
   async getAllCompanies(): Promise<Company[]> {
     return db.select().from(companies).orderBy(companies.name);
   }
 
+  /** Fetch a single company by ID. */
   async getCompany(id: number): Promise<Company | undefined> {
     const [company] = await db.select().from(companies).where(eq(companies.id, id));
     return company || undefined;
   }
 
+  /** Register a new company (management company or SPV). */
   async createCompany(data: InsertCompany): Promise<Company> {
     const [company] = await db.insert(companies).values(data).returning();
     return company;
   }
 
+  /** Update company details (name, type, description, logo). */
   async updateCompany(id: number, data: Partial<InsertCompany>): Promise<Company> {
     const [company] = await db.update(companies).set(data).where(eq(companies.id, id)).returning();
     return company;
@@ -944,21 +957,25 @@ export class DatabaseStorage implements IStorage {
       .orderBy(propertyFeeCategories.sortOrder);
   }
 
+  /** List all fee categories across all properties, sorted by property then display order. */
   async getAllFeeCategories(): Promise<FeeCategory[]> {
     return db.select().from(propertyFeeCategories)
       .orderBy(propertyFeeCategories.propertyId, propertyFeeCategories.sortOrder);
   }
 
+  /** Add a new fee category to a property's management fee breakdown. */
   async createFeeCategory(data: InsertFeeCategory): Promise<FeeCategory> {
     const [cat] = await db.insert(propertyFeeCategories).values(data).returning();
     return cat;
   }
 
+  /** Update a fee category's name, rate, active status, or sort order. */
   async updateFeeCategory(id: number, data: UpdateFeeCategory): Promise<FeeCategory | undefined> {
     const [cat] = await db.update(propertyFeeCategories).set(data).where(eq(propertyFeeCategories.id, id)).returning();
     return cat;
   }
 
+  /** Remove a fee category from a property's management fee breakdown. */
   async deleteFeeCategory(id: number): Promise<void> {
     await db.delete(propertyFeeCategories).where(eq(propertyFeeCategories.id, id));
   }
@@ -993,6 +1010,7 @@ export class DatabaseStorage implements IStorage {
     return db.select().from(researchQuestions).orderBy(researchQuestions.sortOrder, researchQuestions.id);
   }
 
+  /** Create a new research question. Auto-assigns the next sort order if not provided. */
   async createResearchQuestion(data: InsertResearchQuestion): Promise<ResearchQuestion> {
     const maxOrder = await db.select().from(researchQuestions).orderBy(desc(researchQuestions.sortOrder)).limit(1);
     const nextOrder = (maxOrder[0]?.sortOrder ?? -1) + 1;
@@ -1003,14 +1021,17 @@ export class DatabaseStorage implements IStorage {
     return q;
   }
 
+  /** Update the text of an existing research question. */
   async updateResearchQuestion(id: number, question: string): Promise<ResearchQuestion | undefined> {
     const [q] = await db.update(researchQuestions).set({ question }).where(eq(researchQuestions.id, id)).returning();
     return q;
   }
 
+  /** Delete a research question. Subsequent AI prompts will no longer include it. */
   async deleteResearchQuestion(id: number): Promise<void> {
     await db.delete(researchQuestions).where(eq(researchQuestions.id, id));
   }
 }
 
+/** Singleton database storage instance — imported by routes.ts, auth.ts, and seed.ts. */
 export const storage = new DatabaseStorage();

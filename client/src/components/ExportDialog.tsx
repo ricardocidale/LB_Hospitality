@@ -1,3 +1,13 @@
+/**
+ * ExportDialog.tsx — Modal for configuring PDF / PowerPoint export options.
+ *
+ * Before generating an export file, the user can choose:
+ *   • Orientation — landscape (default, best for wide tables) or portrait
+ *   • Include Details — optionally add granular line-item breakdowns
+ *
+ * The dialog delegates actual file generation to the parent via the
+ * `onExport` callback (see lib/exports for the Excel/PPTX/PDF generators).
+ */
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";

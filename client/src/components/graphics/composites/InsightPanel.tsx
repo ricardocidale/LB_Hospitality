@@ -1,3 +1,16 @@
+/**
+ * InsightPanel.tsx — AI-style insight summary card.
+ *
+ * Renders a list of tagged insights with type-based icons and colors:
+ *   • positive (green check)  — e.g. "Cash position: Adequate"
+ *   • negative (red arrow)    — e.g. "Cash shortfall: $120K"
+ *   • warning (amber triangle)— e.g. "Occupancy below 60%"
+ *   • neutral (sparkles)      — e.g. "Total funding: $500K"
+ *
+ * Used on property detail and company pages to surface key takeaways
+ * from the financial projections without requiring the user to scan
+ * the full income statement.
+ */
 import { motion } from "framer-motion";
 import { Sparkles, TrendingUp, TrendingDown, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { type ReactNode } from "react";

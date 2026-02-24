@@ -1,3 +1,48 @@
+/**
+ * calc/analysis/hold-vs-sell.ts — Hold vs. Sell decision analysis for hotel properties.
+ *
+ * PURPOSE:
+ * Compares the NPV of continuing to hold a hotel property (collecting operating
+ * cash flows and eventually selling) against selling immediately at current market
+ * value. This is THE core strategic decision in real estate private equity: "Should
+ * we keep this asset or take our chips off the table?"
+ *
+ * HOLD SCENARIO:
+ *   1. Project NOI forward at the assumed growth rate for the remaining hold period.
+ *   2. Compute annual Free Cash Flow (FCF) = NOI − CapEx − Debt Service.
+ *   3. Compute terminal value: NOI in final year × (1 + growth) / exit cap rate.
+ *   4. Net terminal proceeds = terminal value − commission − remaining debt.
+ *   5. NPV = sum of discounted FCFs + discounted terminal proceeds.
+ *
+ * SELL SCENARIO:
+ *   1. Gross sale price = current market value.
+ *   2. Deductions: broker commission, debt repayment, capital gains tax,
+ *      depreciation recapture tax.
+ *   3. Net after-tax proceeds = what the investor actually takes home today.
+ *
+ * TAX TREATMENT:
+ *   - Capital Gains Tax: Applied to the gain above the adjusted cost basis
+ *     (original cost − accumulated depreciation). Default rate: 20%.
+ *   - Depreciation Recapture (IRC §1250): When selling, previously deducted
+ *     depreciation is "recaptured" at a higher rate (default: 25%). This is
+ *     because depreciation deductions reduced taxable income in prior years.
+ *   - Adjusted Basis = Original Cost − Accumulated Depreciation.
+ *
+ * RECOMMENDATION LOGIC:
+ *   - "hold" if NPV of holding exceeds net sell proceeds by > 2% of market value.
+ *   - "sell" if NPV of holding is < net sell proceeds by > 2% of market value.
+ *   - "indifferent" if the difference is within the 2% dead zone.
+ *
+ * KEY OUTPUTS:
+ *   - npv_advantage_hold: Positive means holding creates more value.
+ *   - implied_exit_yield: Current NOI / Current market value (going-in cap rate).
+ *   - breakeven_noi_growth: The NOI growth rate at which hold NPV = sell proceeds.
+ *   - opportunity_cost_of_hold: What the sell proceeds could earn if reinvested.
+ *
+ * HOW IT FITS THE SYSTEM:
+ * Called via the dispatch layer as the "hold_vs_sell" skill. Presented in the
+ * investment analysis dashboard to guide disposition timing decisions.
+ */
 import type { RoundingPolicy } from "../../domain/types/rounding.js";
 import { roundTo } from "../../domain/types/rounding.js";
 import { rounder, RATIO_ROUNDING, sumArray } from "../shared/utils.js";

@@ -1,3 +1,12 @@
+/**
+ * Dashboard3DBackground.tsx — Decorative 3D animated background for the portfolio dashboard.
+ *
+ * Uses React Three Fiber (r3f) to render a subtle WebGL scene behind the
+ * main content: slowly rotating distorted spheres, torus rings, and
+ * floating particles. The scene is non-interactive (pointer-events: none)
+ * and purely aesthetic — it reinforces the premium feel of the platform
+ * without interfering with the financial data overlay.
+ */
 import { useRef, Suspense } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Float, MeshDistortMaterial, MeshWobbleMaterial } from "@react-three/drei";

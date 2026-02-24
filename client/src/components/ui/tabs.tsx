@@ -1,3 +1,10 @@
+/**
+ * tabs.tsx — Radix-based tab components with custom themed variants.
+ *
+ * Extends the shadcn/Radix Tabs primitives with a CurrentThemeTab variant
+ * that matches the platform's glass-card visual style. Used for switching
+ * between Income Statement, Cash Flow, and Balance Sheet views.
+ */
 import * as React from "react"
 import * as TabsPrimitive from "@radix-ui/react-tabs"
 

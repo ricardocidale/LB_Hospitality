@@ -1,3 +1,10 @@
+/**
+ * manual-table.tsx — Simple string-based table for static data display.
+ *
+ * Renders a table from arrays of strings (headers + rows) without
+ * needing the full Table component hierarchy. Used for quick data
+ * summaries in tooltips, popovers, and research cards.
+ */
 import { cn } from "@/lib/utils";
 
 interface ManualTableProps {

@@ -1,3 +1,12 @@
+/**
+ * Favorites.tsx — User favorites system with persistent local storage.
+ *
+ * Manages a list of starred items (properties, pages, or views) using a
+ * Zustand store persisted to localStorage. The FavoritesDropdown renders
+ * a popover with the user's bookmarked items for quick navigation.
+ * The useFavoritesStore hook can be used anywhere to add/remove favorites
+ * or check whether a specific item is starred.
+ */
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { Star, Building2, FileText, Eye, ChevronDown } from "lucide-react";

@@ -1,3 +1,21 @@
+/**
+ * FinancialStatement.tsx — Monthly pro-forma income statement grid.
+ *
+ * Renders the first 12 months of a property's USALI-style income statement
+ * in a horizontally scrollable table. Key line items shown:
+ *   • Occupancy %        — monthly occupancy rate (ramps up for new hotels)
+ *   • Room Revenue       — rooms sold × ADR (Average Daily Rate)
+ *   • F&B Revenue        — food & beverage (often 25-40% of total revenue)
+ *   • Event Revenue      — meetings, banquets, catering
+ *   • Total Revenue      — sum of all revenue streams
+ *   • GOP                — Gross Operating Profit (revenue minus operating
+ *                          expenses before fixed charges, per USALI)
+ *   • NOI                — Net Operating Income (GOP minus fixed charges
+ *                          like property tax, insurance, FF&E reserve)
+ *   • Cash Flow          — NOI minus debt service (negative = cash burn)
+ *
+ * The rightmost column aggregates the full-year total for each line item.
+ */
 import { MonthlyFinancials, formatMoney } from "@/lib/financialEngine";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { GlassCard } from "./ui/glass-card";

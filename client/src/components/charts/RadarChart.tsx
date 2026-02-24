@@ -1,3 +1,12 @@
+/**
+ * RadarChart.tsx — Multi-axis radar (spider) chart for property comparison.
+ *
+ * Plots multiple properties on a shared set of dimensions (e.g. ADR,
+ * Occupancy, RevPAR, NOI margin, Room Count) so the user can visually
+ * compare strengths and weaknesses across the portfolio. Values are
+ * normalized to the max within each dimension so all axes share the
+ * same 0-100% scale.
+ */
 import {
   RadarChart as RechartsRadarChart,
   PolarGrid,

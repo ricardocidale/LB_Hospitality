@@ -1,3 +1,16 @@
+/**
+ * AnimatedPage.tsx — Framer Motion wrappers for page-level transitions.
+ *
+ * Provides reusable motion containers used across all pages:
+ *   • AnimatedPage       — fade-slide on route change
+ *   • AnimatedSection    — staggered fade-in for content sections
+ *   • AnimatedGrid       — container for staggered grid children
+ *   • AnimatedGridItem   — individual grid item with delay-based entrance
+ *   • ScrollReveal       — triggers entrance animation when scrolled into view
+ *
+ * These ensure a consistent, polished feel across the app without each
+ * page needing to implement its own motion logic.
+ */
 import { motion, type Variants } from "framer-motion";
 import { type ReactNode } from "react";
 

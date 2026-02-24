@@ -1,3 +1,10 @@
+/**
+ * Admin3DBackground.tsx — Decorative 3D animated background for the admin page.
+ *
+ * Similar to Dashboard3DBackground but uses floating glass-like rectangular
+ * panels instead of spheres, giving the admin section a distinct visual
+ * identity. The scene is non-interactive and sits behind the admin UI.
+ */
 import { useRef, Suspense, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Float } from "@react-three/drei";

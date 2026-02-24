@@ -1,3 +1,11 @@
+/**
+ * Breadcrumbs.tsx — Context-aware navigation breadcrumbs.
+ *
+ * Reads the current URL path and renders a breadcrumb trail
+ * (e.g. Dashboard > Property > Hilton Downtown > Edit). Property names
+ * are resolved from the global store so breadcrumbs show human-readable
+ * labels instead of numeric IDs.
+ */
 import { useLocation } from "wouter";
 import { useStore } from "@/lib/store";
 import {

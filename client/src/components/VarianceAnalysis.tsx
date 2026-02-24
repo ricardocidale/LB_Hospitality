@@ -1,3 +1,17 @@
+/**
+ * VarianceAnalysis.tsx — Side-by-side property comparison table.
+ *
+ * Lets the user select two properties from the portfolio and compare key
+ * financial and operational metrics:
+ *   • Room Count, Purchase Price, ADR (Average Daily Rate)
+ *   • Start Occupancy, Max Occupancy
+ *   • Revenue per Available Room (RevPAR = ADR × Occupancy)
+ *
+ * Each metric shows the absolute values for both properties plus a
+ * percentage variance. Favorable/unfavorable direction is color-coded
+ * (green = favorable, red = unfavorable) based on whether "higher" or
+ * "lower" is better for that metric.
+ */
 import { useState } from "react";
 import { useStore } from "@/lib/store";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";

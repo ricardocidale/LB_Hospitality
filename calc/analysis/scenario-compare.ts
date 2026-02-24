@@ -1,3 +1,41 @@
+/**
+ * calc/analysis/scenario-compare.ts — Side-by-side scenario comparison engine.
+ *
+ * PURPOSE:
+ * Compares two model scenarios (baseline vs. alternative) across all key financial
+ * metrics: IRR, equity multiple, NOI, cash flow, and exit value. This enables
+ * "what-if" analysis — e.g., "What happens to returns if we assume 5% ADR growth
+ * instead of 3%?" or "How does a 50 bps rate increase affect our IRR?"
+ *
+ * COMPARISON OUTPUTS:
+ *
+ * 1. SUMMARY METRICS:
+ *    - irr_delta: Change in IRR in basis points (positive = improvement).
+ *    - equity_multiple_delta: Change in equity multiple (e.g., +0.15×).
+ *    - cumulative_noi_delta: Total NOI difference over the projection period.
+ *    - exit_value_delta: Difference in terminal sale price.
+ *
+ * 2. YEARLY DELTAS:
+ *    Year-by-year differences in revenue, NOI, net income, and cash balance.
+ *    This shows WHEN the scenarios diverge and how the gap compounds over time.
+ *
+ * 3. RISK FLAGS:
+ *    Automatically generated warnings when the alternative scenario introduces
+ *    new risks not present in the baseline:
+ *    - Negative cash in a year where the baseline was positive.
+ *    - Negative NOI in a year where the baseline was positive.
+ *    - IRR decrease exceeding 200 bps.
+ *
+ * 4. SENSITIVITY RANKING:
+ *    If multiple assumptions changed simultaneously, this distributes the total
+ *    IRR impact evenly across the changed assumptions (a rough approximation —
+ *    true sensitivity analysis requires one-at-a-time variation).
+ *
+ * HOW IT FITS THE SYSTEM:
+ * Called via the dispatch layer as the "scenario_compare" skill. The UI uses this
+ * to power the scenario comparison view where users toggle between base case,
+ * upside, and downside assumptions.
+ */
 import { roundCents, sumArray, pctChange } from "../shared/utils.js";
 
 export interface ScenarioMetrics {

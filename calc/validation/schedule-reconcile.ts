@@ -1,3 +1,41 @@
+/**
+ * calc/validation/schedule-reconcile.ts — Debt schedule reconciliation checker.
+ *
+ * PURPOSE:
+ * Cross-checks the amortization schedule produced by the financing/refinance
+ * calculators against the actual values used by the financial engine. This catches
+ * integration bugs where the engine might drift from the authoritative schedule
+ * due to rounding differences, off-by-one month errors, or stale cached values.
+ *
+ * RECONCILIATION APPROACH:
+ * For each month present in both the "expected" schedule (from the financing
+ * calculator) and the "actual" engine outputs:
+ *   - Compare interest amounts (tolerance: $0.01 default via CENTS_TOLERANCE)
+ *   - Compare principal amounts
+ *   - Compare total payment (if provided)
+ *   - Compare ending loan balance
+ *
+ * If any field deviates beyond tolerance, a variance record is created.
+ *
+ * KEY OUTPUTS:
+ *   - max_balance_drift: The largest absolute difference in ending balance across
+ *     all months. Even tiny monthly rounding differences can compound over a
+ *     10-year schedule, causing material balance drift. This metric flags that risk.
+ *   - cumulative_interest_variance: Sum of (expected − actual) interest over all
+ *     months. A non-zero value means total interest expense on the income statement
+ *     doesn't match the schedule — an audit red flag.
+ *
+ * WHY THIS MATTERS:
+ * The amortization schedule is the source of truth for debt service. If the engine
+ * uses different values, the cash flow statement, balance sheet (loan liability),
+ * and DSCR calculations will all be wrong. This reconciliation ensures the engine
+ * and the schedule are in lockstep.
+ *
+ * HOW IT FITS THE SYSTEM:
+ * Called via the dispatch layer as the "schedule_reconcile" skill. The financial
+ * auditor runs this for every property with a loan. The `all_reconciled` flag must
+ * be true for the audit to pass.
+ */
 import { roundCents, CENTS_TOLERANCE } from "../shared/utils.js";
 
 export interface ScheduleEntry {

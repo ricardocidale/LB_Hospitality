@@ -1,3 +1,10 @@
+/**
+ * glass-card.tsx — Frosted-glass card container used across the platform.
+ *
+ * Provides a translucent card with backdrop blur and subtle border effects.
+ * Variants control accent colors: default (neutral), success (green),
+ * warning (amber), and chart (optimized padding for embedded charts).
+ */
 import { cn } from "@/lib/utils";
 import { forwardRef } from "react";
 

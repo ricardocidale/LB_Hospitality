@@ -1,3 +1,15 @@
+/**
+ * callout.tsx — Alert-style callout box with severity-based styling.
+ *
+ * Renders a prominent message box with an icon and colored background:
+ *   • info     — blue, informational notes
+ *   • success  — green, positive confirmations
+ *   • warning  — amber, attention-needed items
+ *   • critical — red, errors or compliance failures
+ *
+ * Supports dark and light variants. Used for GAAP compliance warnings,
+ * validation messages, and cash flow alerts.
+ */
 import { AlertTriangle, ShieldAlert, Info, CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 

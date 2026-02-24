@@ -1,3 +1,9 @@
+/**
+ * image-preview-card.tsx — Thumbnail preview card with edit/delete overlay.
+ *
+ * Displays an image with hover-reveal action buttons for editing or removing
+ * the image. Used in property photo management and AI image picker flows.
+ */
 import { Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";

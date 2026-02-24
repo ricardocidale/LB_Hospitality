@@ -1,3 +1,10 @@
+/**
+ * empty.tsx — Empty state placeholder component.
+ *
+ * Displays a centered message with icon when a list or section has no data.
+ * Used for empty portfolio ("No properties yet"), empty research results,
+ * or uninitialized financial projections.
+ */
 import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"

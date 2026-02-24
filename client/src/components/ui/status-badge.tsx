@@ -1,3 +1,10 @@
+/**
+ * status-badge.tsx — Color-coded status indicator pill.
+ *
+ * Renders a small badge with text and background color matching the status:
+ * active (green), inactive (gray), pending (amber), error (red), warning (orange).
+ * Used on property cards to show lifecycle status (Operating, Planned, etc.).
+ */
 import { cn } from "@/lib/utils";
 
 type StatusType = "active" | "inactive" | "pending" | "error" | "warning";

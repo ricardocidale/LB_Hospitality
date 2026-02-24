@@ -1,3 +1,10 @@
+/**
+ * content-panel.tsx — Titled content section with optional header actions.
+ *
+ * A simple container that wraps content with a header bar (title + optional
+ * action buttons). Used to organize form sections in the assumptions editor
+ * and detail pages.
+ */
 import * as React from "react";
 import { cn } from "@/lib/utils";
 

@@ -1,3 +1,43 @@
+/**
+ * calc/analysis/revpar-index.ts — RevPAR competitive positioning index calculator.
+ *
+ * PURPOSE:
+ * Computes STR-style competitive performance indices that measure how a hotel
+ * performs relative to its market and competitive set. These metrics are standard
+ * in the hospitality industry and are reported by Smith Travel Research (STR).
+ *
+ * THREE KEY INDICES:
+ *
+ * 1. MPI — Market Penetration Index (Occupancy Index)
+ *    MPI = Property Occupancy / Market Occupancy
+ *    An MPI of 1.10 means the hotel captures 10% more than its fair share of
+ *    demand. An MPI below 1.00 means the hotel is underperforming on demand.
+ *
+ * 2. ARI — Average Rate Index (ADR Index)
+ *    ARI = Property ADR / Market ADR
+ *    An ARI of 1.15 means the hotel charges 15% more than the market average.
+ *    This reflects pricing power and brand positioning.
+ *
+ * 3. RGI — Revenue Generation Index (RevPAR Index)
+ *    RGI = Property RevPAR / Market RevPAR
+ *    RGI = MPI × ARI. This is the single most important competitive metric.
+ *    An RGI > 1.05 = "outperforming", < 0.95 = "underperforming", else "at_market".
+ *
+ * COMP SET vs. MARKET:
+ * The "market" is the broad geographic area (e.g., all hotels in Miami Beach).
+ * The "comp set" is a curated group of 5–7 directly competitive hotels. Both
+ * sets of indices are computed if comp set data is provided.
+ *
+ * KEY TERMS:
+ *   - RevPAR (Revenue Per Available Room): ADR × Occupancy. The industry's
+ *     standard measure of top-line room revenue performance.
+ *   - Available Room Nights: Room Count × 365. The denominator for occupancy.
+ *   - Sold Room Nights: Available Room Nights × Occupancy.
+ *
+ * HOW IT FITS THE SYSTEM:
+ * Called via the dispatch layer as the "revpar_index" skill. Displayed in the
+ * property performance dashboard alongside historical STR data.
+ */
 import type { RoundingPolicy } from "../../domain/types/rounding.js";
 import { roundTo } from "../../domain/types/rounding.js";
 import { rounder, RATIO_ROUNDING } from "../shared/utils.js";

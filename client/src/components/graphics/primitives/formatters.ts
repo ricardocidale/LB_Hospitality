@@ -1,3 +1,14 @@
+/**
+ * formatters.ts — Number formatting utilities for the graphics layer.
+ *
+ * Provides compact currency formatting (e.g. "$1.2M", "$450K"), percentage
+ * formatting, and trend direction detection. These are used by KPIGrid,
+ * DonutChart, Gauge, and other visualization components to display
+ * financial metrics in a space-efficient way.
+ *
+ * Also re-exports the full-precision `formatMoney` from the financial engine
+ * so graphics components can import from a single module.
+ */
 import { formatMoney } from "@/lib/financialEngine";
 
 export function formatCompact(value: number): string {

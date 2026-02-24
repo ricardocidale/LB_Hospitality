@@ -1,3 +1,10 @@
+/**
+ * stat-card.tsx — Individual statistic display card.
+ *
+ * Shows a single financial metric with label, formatted value, optional
+ * trend indicator, and sublabel. Used in summary headers to display KPIs
+ * like Total Revenue, NOI, Cash Flow, or ADR.
+ */
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { formatMoney } from "@/lib/financialEngine";

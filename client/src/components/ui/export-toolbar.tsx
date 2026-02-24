@@ -1,3 +1,11 @@
+/**
+ * export-toolbar.tsx — Dropdown menu for exporting financial data.
+ *
+ * Renders a button group with export format options: Excel (.xlsx),
+ * PowerPoint (.pptx), PDF, and screenshot (PNG). Each option triggers
+ * the corresponding export handler passed via props. The toolbar is
+ * used on property detail, company, and portfolio pages.
+ */
 import * as React from "react";
 import { useState, useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";

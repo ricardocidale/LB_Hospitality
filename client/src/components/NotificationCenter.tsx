@@ -1,3 +1,13 @@
+/**
+ * NotificationCenter.tsx — In-app notification bell with unread badge.
+ *
+ * Provides a Zustand store (useNotificationStore) for creating, reading,
+ * and dismissing notifications across the app. Notifications can be of type
+ * info, success, warning, or error. The NotificationCenter component renders
+ * a bell icon with an unread count badge and a dropdown panel showing recent
+ * notifications with timestamps. Persisted to localStorage so notifications
+ * survive page reloads.
+ */
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { useState, useRef, useEffect, useCallback } from "react";

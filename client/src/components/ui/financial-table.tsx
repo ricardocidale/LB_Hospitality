@@ -1,3 +1,11 @@
+/**
+ * financial-table.tsx — Pre-styled table component for financial statement display.
+ *
+ * Builds on the base shadcn Table with financial-specific formatting:
+ * sticky row headers, right-aligned monetary columns, subtotal/total row
+ * styling, and color-coded negative values. Used by the property and
+ * company income statement views.
+ */
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { formatMoney } from "@/lib/financialEngine";

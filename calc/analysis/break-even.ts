@@ -1,3 +1,47 @@
+/**
+ * calc/analysis/break-even.ts — Hotel break-even occupancy analysis.
+ *
+ * PURPOSE:
+ * Computes the minimum occupancy rate a hotel must achieve to cover its costs.
+ * Two break-even points are calculated:
+ *   1. OPERATING break-even: The occupancy where NOI = 0 (revenue covers all
+ *      operating expenses, management fees, and FF&E reserve, but NOT debt service).
+ *   2. CASH FLOW break-even: The occupancy where NOI covers debt service AND taxes
+ *      in addition to operating costs. This is the "survival" threshold — below
+ *      this, the property consumes cash.
+ *
+ * THE BREAK-EVEN FORMULA:
+ *   Total Revenue at occupancy o:
+ *     TotalRev = rooms × ADR × days_per_month × o × (1 + ancillary_pct)
+ *
+ *   Contribution Margin:
+ *     CM = 1 − variable_cost_rate − management_fee_rate − ffe_reserve_rate
+ *
+ *   At break-even (NOI = 0):
+ *     TotalRev × CM = Fixed Costs + Additional Fixed (debt service + taxes)
+ *     o = Fixed Total / (rooms × ADR × days × (1 + ancillary_pct) × CM)
+ *
+ * If the contribution margin ≤ 0, the property can never break even (variable
+ * costs exceed revenue at every occupancy level), so the function returns 100%.
+ *
+ * SENSITIVITY OUTPUTS:
+ *   - adr_drop_10pct_break_even: Break-even occupancy if ADR falls 10%.
+ *   - fixed_cost_up_10pct_break_even: Break-even occupancy if fixed costs rise 10%.
+ *   These show how fragile the break-even is to common downside scenarios.
+ *
+ * KEY TERMS:
+ *   - ADR (Average Daily Rate): Mean room rate charged per occupied room per night.
+ *   - RevPAR (Revenue Per Available Room): ADR × Occupancy. The break-even RevPAR
+ *     is the minimum RevPAR needed to cover costs.
+ *   - FF&E Reserve: Furniture, Fixtures & Equipment reserve. A percentage of revenue
+ *     set aside for capital replacement (industry standard: 3–5%).
+ *   - Contribution Margin: The fraction of each revenue dollar available to cover
+ *     fixed costs after variable costs and fee deductions.
+ *
+ * HOW IT FITS THE SYSTEM:
+ * Called via the dispatch layer as the "break_even" skill. Displayed in the property
+ * analysis dashboard to help investors understand operating risk and downside exposure.
+ */
 import { DAYS_PER_MONTH, DEFAULT_COST_RATE_FFE } from "../../shared/constants.js";
 
 export interface BreakEvenInput {

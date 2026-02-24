@@ -1,3 +1,35 @@
+/**
+ * calc/returns/exit-valuation.ts — Property exit (sale) valuation calculator.
+ *
+ * PURPOSE:
+ * Computes the gross and net proceeds from selling a hotel property at the end
+ * of the hold period using the Direct Capitalization method (income approach).
+ *
+ * DIRECT CAPITALIZATION FORMULA:
+ *   Gross Sale Price = Stabilized NOI / Exit Cap Rate
+ *
+ * This is the most common valuation method in hospitality. The exit cap rate
+ * reflects the market's required yield at the time of sale. A lower cap rate
+ * means a higher valuation (investors accept less yield → pay more).
+ *
+ * WATERFALL FROM GROSS TO NET:
+ *   Gross Sale Price
+ *   − Broker Commission (typically 1–5% of gross)
+ *   − Other Closing Costs (transfer taxes, legal, etc.)
+ *   = Net Sale Proceeds
+ *   − Debt Repayment (outstanding loan balance at exit)
+ *   = Net to Equity (cash returned to equity investors)
+ *
+ * KEY OUTPUT — IMPLIED PRICE PER KEY:
+ * Gross Sale Price / Room Count. This is the hospitality industry's standard
+ * comparability metric. A full-service hotel in a gateway city might trade at
+ * $400K–$800K per key, while a limited-service suburban hotel might be $60K–$150K.
+ *
+ * HOW IT FITS THE SYSTEM:
+ * Called via the dispatch layer as the "exit_valuation" skill. The financial engine
+ * uses this at the end of the projection to compute terminal value, which flows
+ * into the IRR vector and the hold-vs-sell analysis.
+ */
 import type { RoundingPolicy } from "../../domain/types/rounding.js";
 import { rounder } from "../shared/utils.js";
 import { DEFAULT_COMMISSION_RATE } from "../../shared/constants.js";

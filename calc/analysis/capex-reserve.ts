@@ -1,3 +1,46 @@
+/**
+ * calc/analysis/capex-reserve.ts — Capital Expenditure (CapEx) reserve adequacy analysis.
+ *
+ * PURPOSE:
+ * Projects whether a hotel's FF&E (Furniture, Fixtures & Equipment) reserve fund
+ * is adequately funded to cover planned capital replacements over the hold period.
+ * Under-reserving for CapEx is one of the most common investor mistakes in hotel
+ * acquisitions — this module quantifies that risk.
+ *
+ * HOW FF&E RESERVES WORK IN HOSPITALITY:
+ * Hotels set aside a percentage of gross revenue (typically 3–5%) each year into
+ * a reserve fund. This fund pays for cyclical replacements:
+ *   - Soft Goods (bedding, carpet, drapes): every 5 years
+ *   - Case Goods (furniture): every 10 years
+ *   - HVAC Systems: every 15 years
+ *   - Roof & Exterior: every 20 years
+ *   - Technology/PMS: every 5 years
+ *   - F&B and Spa Equipment: every 7–8 years
+ *
+ * The module tracks each category's age, remaining useful life, and inflation-
+ * adjusted replacement cost. When an item's remaining life expires during the
+ * hold period, its replacement cost is deducted from the reserve fund.
+ *
+ * KEY OUTPUTS:
+ *   - yearly_projections: Year-by-year reserve balance with contributions and withdrawals.
+ *   - underfunding_risk: "adequate" (≥100% funded), "marginal" (75–99%),
+ *     "underfunded" (50–74%), "critical" (<50%).
+ *   - minimum_recommended_rate: The FF&E reserve rate needed to fully fund all
+ *     categories based on their replacement schedules.
+ *   - industry_benchmark_per_key: $5,000/key/year, a widely-used industry benchmark
+ *     for full-service hotels.
+ *   - reserve_per_key: Current reserve balance per room, for benchmarking.
+ *
+ * GAAP NOTE (ASC 360 — Property, Plant, and Equipment):
+ * FF&E reserves are not recognized on the GAAP balance sheet as a separate asset.
+ * The reserve is an internal management tool. Actual CapEx is capitalized on the
+ * balance sheet and depreciated over the asset's useful life.
+ *
+ * HOW IT FITS THE SYSTEM:
+ * Called via the dispatch layer as the "capex_reserve" skill. The output informs
+ * the property analysis dashboard and feeds into the hold-vs-sell decision
+ * (underfunded CapEx reduces the property's attractiveness for continued holding).
+ */
 import type { RoundingPolicy } from "../../domain/types/rounding.js";
 import { roundTo } from "../../domain/types/rounding.js";
 import { rounder, RATIO_ROUNDING, sumArray } from "../shared/utils.js";

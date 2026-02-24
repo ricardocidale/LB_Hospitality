@@ -1,3 +1,9 @@
+/**
+ * spinner.tsx — Animated loading spinner.
+ *
+ * Wraps the Lucide Loader2 icon with a CSS spin animation.
+ * Used as a loading indicator throughout the app.
+ */
 import { Loader2Icon } from "lucide-react"
 
 import { cn } from "@/lib/utils"

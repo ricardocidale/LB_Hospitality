@@ -521,6 +521,32 @@ export async function registerRoutes(
     }
   });
 
+  app.post("/api/admin/reset-all-passwords", requireAdmin, async (req, res) => {
+    try {
+      const adminPw = process.env.ADMIN_PASSWORD;
+      if (!adminPw) {
+        return res.status(500).json({ error: "ADMIN_PASSWORD not configured" });
+      }
+      const allUsers = await storage.getAllUsers();
+      const passwordHash = await hashPassword(adminPw);
+      let count = 0;
+      for (const user of allUsers) {
+        if (user.email === "checker@norfolkgroup.io" && process.env.CHECKER_PASSWORD) {
+          await storage.updateUserPassword(user.id, await hashPassword(process.env.CHECKER_PASSWORD));
+        } else if (user.email === "reynaldo.fagundes@norfolk.ai" && process.env.REYNALDO_PASSWORD) {
+          await storage.updateUserPassword(user.id, await hashPassword(process.env.REYNALDO_PASSWORD));
+        } else {
+          await storage.updateUserPassword(user.id, passwordHash);
+        }
+        count++;
+      }
+      res.json({ success: true, message: `Reset passwords for ${count} users` });
+    } catch (error) {
+      console.error("Error resetting passwords:", error);
+      res.status(500).json({ error: "Failed to reset passwords" });
+    }
+  });
+
   const adminUpdateUserSchema = z.object({
     firstName: z.string().max(50).optional(),
     lastName: z.string().max(50).optional(),

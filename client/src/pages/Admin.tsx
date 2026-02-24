@@ -659,6 +659,26 @@ export default function Admin() {
     },
   });
 
+  const resetAllPasswordsMutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetch("/api/admin/reset-all-passwords", {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed to reset passwords");
+      }
+      return res.json();
+    },
+    onSuccess: (data) => {
+      toast({ title: "Passwords Reset", description: data.message });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+
   const editMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: { email?: string; firstName?: string; lastName?: string; company?: string; title?: string; role?: string } }) => {
       const res = await fetch(`/api/admin/users/${id}`, {
@@ -1078,10 +1098,16 @@ export default function Admin() {
               {users?.length || 0} registered users
             </CardDescription>
           </div>
-          <GlassButton variant="primary" onClick={() => setDialogOpen(true)} data-testid="button-add-user">
-            <UserPlus className="w-4 h-4" />
-            Add User
-          </GlassButton>
+          <div className="flex items-center gap-2">
+            <GlassButton onClick={() => { if (confirm("Reset ALL user passwords to the default admin password?")) resetAllPasswordsMutation.mutate(); }} disabled={resetAllPasswordsMutation.isPending} data-testid="button-reset-all-passwords">
+              {resetAllPasswordsMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Key className="w-4 h-4" />}
+              Reset All Passwords
+            </GlassButton>
+            <GlassButton variant="primary" onClick={() => setDialogOpen(true)} data-testid="button-add-user">
+              <UserPlus className="w-4 h-4" />
+              Add User
+            </GlassButton>
+          </div>
         </div>
       </CardHeader>
       

@@ -153,5 +153,6 @@ Management Company pages — **refactored from 3 monolithic files (3,541 lines) 
 - **Session memory.** Update `session-memory.md` every session. Read it first.
 - **Docs after edits.** `.claude` docs and `replit.md` harmonized after code changes.
 - **"Save" not "Update"** on all buttons.
+- **Role-based access.** Investors cannot access Management Company pages, Systemwide Assumptions, Property Finder, Analysis, or Scenarios. Enforced via `hasManagementAccess` (sidebar) + `ManagementRoute` (route guard). Ricardo Cidale is sole Admin; all others are Partners (not investors in current seed).
 - Company: "Hospitality Business Group". All UI references a theme. Skills under `.claude/`.
 - See `.claude/claude.md` for everything else.

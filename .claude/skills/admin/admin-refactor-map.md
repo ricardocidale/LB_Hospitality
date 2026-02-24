@@ -1,11 +1,17 @@
 ---
 name: admin-refactor-map
-description: Complete map of Admin.tsx (3,236 lines) for tab extraction refactor. Line ranges, state ownership, shared dependencies.
+description: Admin page architecture after refactor. 87-line shell + 10 tab components. Reference for future maintenance.
+status: COMPLETED (February 24, 2026)
 ---
 
-# Admin.tsx Refactor Map
+# Admin Page Architecture (Post-Refactor)
 
-## File: `client/src/pages/Admin.tsx` — 3,236 lines
+## Shell: `client/src/pages/Admin.tsx` — 87 lines
+Tab navigation only. No business logic, no data fetching, no mutations.
+
+## Previous: 3,236-line monolith (archived for reference below)
+
+## Current Component Structure
 
 ### Line Range Summary
 

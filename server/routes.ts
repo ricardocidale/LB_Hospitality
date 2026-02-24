@@ -535,6 +535,7 @@ export async function registerRoutes(
         "reynaldo.fagundes@norfolk.ai": process.env.PASSWORD_REYNALDO,
         "lemazniku@icloud.com": process.env.PASSWORD_LEA,
         "leslie@cidale.com": process.env.PASSWORD_LESLIE,
+        "wlaruffa@gmail.com": process.env.PASSWORD_WILLIAM,
       };
       const allUsers = await storage.getAllUsers();
       const defaultPw = process.env.PASSWORD_DEFAULT || adminPw;

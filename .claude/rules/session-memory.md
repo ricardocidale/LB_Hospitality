@@ -5,6 +5,37 @@
 
 ---
 
+## Session: February 24, 2026 — Admin Refactor + Production Seed Script
+
+### What Was Done
+- **Admin.tsx refactored**: 3,235-line monolith → 10 standalone tab components + 87-line shell
+  - Shell: `client/src/pages/Admin.tsx` — tab navigation only
+  - Components: `client/src/components/admin/` — UsersTab, CompaniesTab, ActivityTab, VerificationTab, UserGroupsTab, LogosTab, BrandingTab, ThemesTab, NavigationTab, DatabaseTab
+  - Shared types: `client/src/components/admin/types.ts` (17 interfaces)
+  - Barrel export: `client/src/components/admin/index.ts`
+  - Each tab owns its data fetching, mutations, dialogs, and state (no prop drilling)
+  - BrandingTab accepts `onNavigate` prop for cross-tab navigation to Logos tab
+- **Production seed SQL script**: `script/seed-production.sql` (401 lines)
+  - 11 persistent tables, OVERRIDING SYSTEM VALUE for identity columns, sequence resets
+  - Idempotent with ON CONFLICT DO NOTHING, wrapped in transaction
+  - Company name: "Hospitality Business Group" throughout
+- **Company name fix**: Confirmed no "L+B Hospitality" references in syncHelpers.ts
+- Tests: 1,529/1,529 passing, verification UNQUALIFIED, 0 TypeScript errors
+- Updated `replit.md` with new Admin structure and seed script documentation
+
+### Key Decisions
+- Conditional rendering (not React.lazy) for tab components — simpler, no Suspense needed
+- Dialogs moved into owning tab components (not kept in shell)
+- UI polish deferred — extraction-only to minimize regression risk
+- Subagents used for parallel extraction (T002/T003/T004/T006 all independent)
+
+### Files Changed
+- `client/src/pages/Admin.tsx` — rewritten to 87-line shell
+- `client/src/components/admin/` — 10 new tab components + index.ts barrel
+- `script/seed-production.sql` — new production seed script
+
+---
+
 ## Session: February 16, 2026 — Token Optimization
 
 ### What Was Done

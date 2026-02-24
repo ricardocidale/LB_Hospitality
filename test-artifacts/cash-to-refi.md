@@ -1,5 +1,5 @@
 # Reconciliation Report: Cash Purchase → Refinance Year 3
-Generated: 2026-02-24T20:03:16.009Z
+Generated: 2026-02-24T20:04:55.726Z
 ## Sources & Uses at Acquisition
 | Item | Amount |
 |------|--------|

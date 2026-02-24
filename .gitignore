@@ -46,3 +46,6 @@ __pycache__/
 
 # Cache
 .cache/
+
+# Replit local files (contains large binaries)
+.local/

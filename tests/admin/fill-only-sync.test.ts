@@ -201,7 +201,7 @@ describe("Fill-Only Sync — Behavioral Contract", () => {
   it("fills companyName when it is null", () => {
     const empty = { companyName: null } as Record<string, unknown>;
     const updates = fillMissingFields(empty, SEED_GLOBAL_ASSUMPTIONS);
-    expect(updates).toHaveProperty("companyName", "L+B Hospitality Company");
+    expect(updates).toHaveProperty("companyName", "Hospitality Business Group");
   });
 
   it("fills exit cap rate when undefined", () => {

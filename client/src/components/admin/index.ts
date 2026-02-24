@@ -1,0 +1,10 @@
+export { UsersTab } from "./UsersTab";
+export { CompaniesTab } from "./CompaniesTab";
+export { ActivityTab } from "./ActivityTab";
+export { VerificationTab } from "./VerificationTab";
+export { LogosTab } from "./LogosTab";
+export { UserGroupsTab } from "./UserGroupsTab";
+export { BrandingTab } from "./BrandingTab";
+export { ThemesTab } from "./ThemesTab";
+export { NavigationTab } from "./NavigationTab";
+export { DatabaseTab } from "./DatabaseTab";

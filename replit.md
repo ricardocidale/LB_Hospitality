@@ -7,7 +7,7 @@
 **Before ANY work, read `session-memory.md` + `replit.md` + all `.claude/rules/*.md`.** Include all rules in architect calls. See `.claude/rules/session-startup.md` for full protocol.
 
 ## Key Directories
-- `.claude/skills/` — 96 skill files (finance, UI, testing, exports, proof system, architecture, research questions, mobile-responsive)
+- `.claude/skills/` — 99+ skill files (finance, UI, testing, exports, proof system, architecture, research questions, mobile-responsive, admin refactor)
 - `.claude/skills/context-loading/` — Start here: maps task types to minimum required skills
 - `.claude/skills/mobile-responsive/` — 4 mobile/tablet skills (breakpoints, iPad layouts, device checklist, responsive helpers)
 - `.claude/rules/` — 18 rule files (session-startup, documentation, ui-patterns, constants, DB seeding, API routes, graphics, hardcoding, skill organization, etc.)
@@ -19,9 +19,9 @@
 ```bash
 npm run dev            # Start dev server
 npm run health         # One-shot: tsc + tests + verify (~4 lines output)
-npm run test:summary   # Run all 1,502 tests, 1-line output on pass
+npm run test:summary   # Run all 1,529 tests, 1-line output on pass
 npm run verify:summary # 4-phase verification, compact output
-npm test               # Run all 1,502 tests (full output)
+npm test               # Run all 1,529 tests (full output)
 npm run verify         # Full 4-phase financial verification (verbose)
 npm run db:push        # Push schema changes
 npm run lint:summary   # tsc --noEmit, 1-line output

@@ -94,6 +94,14 @@ With 96 skill files (~17,000 lines), loading everything wastes tokens and slows 
 | Research questions CRUD | `research/research-questions/SKILL.md` | Analysis skills, finance |
 | Any research change | **Always also load**: `research/SKILL.md` (master) | — |
 
+#### Admin Page Refactoring
+| Task | Load These Skills | Skip |
+|------|------------------|------|
+| Extract admin tab component | `admin/tab-extraction-guide.md`, `admin/admin-refactor-map.md`, `admin/component-checklist.md` | Finance skills, research |
+| Admin API route work | `admin/admin-api-routes.md`, `rules/api-routes.md` | Finance skills |
+| Admin shell restructure | `admin/admin-shell-template.md`, `admin/admin-refactor-map.md` | Finance skills |
+| Admin types/shared code | `admin/admin-refactor-map.md` | Finance, UI skills |
+
 #### Database & Infrastructure
 | Task | Load These Skills | Skip |
 |------|------------------|------|

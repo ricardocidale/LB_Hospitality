@@ -56,7 +56,7 @@ const SEED_GLOBAL_ASSUMPTIONS = {
   companyTaxRate: 0.3,
   companyOpsStartDate: "2026-06-01",
   fiscalYearStartMonth: 1,
-  companyName: "L+B Hospitality Company",
+  companyName: "Hospitality Business Group",
   exitCapRate: DEFAULT_EXIT_CAP_RATE,
   salesCommissionRate: DEFAULT_COMMISSION_RATE,
 };
@@ -149,7 +149,7 @@ describe("Database Sync — Seed Constants Integrity", () => {
     });
 
     it("partner compensation values are set", () => {
-      expect(SEED_GLOBAL_ASSUMPTIONS.companyName).toBe("L+B Hospitality Company");
+      expect(SEED_GLOBAL_ASSUMPTIONS.companyName).toBe("Hospitality Business Group");
     });
   });
 
@@ -373,7 +373,7 @@ describe("Database Sync — Seed Constants Integrity", () => {
         baseManagementFee: DEFAULT_BASE_MANAGEMENT_FEE_RATE,
         incentiveManagementFee: DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
         inflationRate: 0.03,
-        companyName: "L+B Hospitality Company",
+        companyName: "Hospitality Business Group",
         modelStartDate: "2026-04-01",
         exitCapRate: DEFAULT_EXIT_CAP_RATE,
         commissionRate: DEFAULT_COMMISSION_RATE,

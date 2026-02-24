@@ -66,7 +66,7 @@ export const SEED_GLOBAL_ASSUMPTIONS = {
   companyTaxRate: 0.3,
   companyOpsStartDate: "2026-06-01",
   fiscalYearStartMonth: 1,
-  companyName: "L+B Hospitality Company",
+  companyName: "Hospitality Business Group",
   exitCapRate: DEFAULT_EXIT_CAP_RATE,
   salesCommissionRate: DEFAULT_COMMISSION_RATE,
   eventExpenseRate: DEFAULT_EVENT_EXPENSE_RATE,

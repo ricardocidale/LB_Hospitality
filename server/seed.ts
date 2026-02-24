@@ -63,7 +63,7 @@ async function seed() {
     await db.insert(users).values({
       email: "admin",
       passwordHash: hashedPassword,
-      name: "Administrator",
+      firstName: "Administrator",
       role: "admin",
     });
     console.log("Created admin user (email: admin, password: admin123)");

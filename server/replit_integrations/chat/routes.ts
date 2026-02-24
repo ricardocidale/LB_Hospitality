@@ -113,7 +113,7 @@ async function buildContextPrompt(userId?: number): Promise<string> {
       storage.getAllMarketResearch(userId),
     ]);
 
-    const safeUsers = allUsers.map(({ id, name, email, role, title }) => ({ id, name, email, role, title }));
+    const safeUsers = allUsers.map(({ id, firstName, lastName, email, role, title }) => ({ id, name: [firstName, lastName].filter(Boolean).join(' ') || null, email, role, title }));
 
     const parts: string[] = [];
 

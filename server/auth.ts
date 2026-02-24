@@ -11,7 +11,8 @@ declare global {
       email: string;
       passwordHash: string;
       role: string;
-      name: string | null;
+      firstName: string | null;
+      lastName: string | null;
       company: string | null;
       companyId: number | null;
       title: string | null;
@@ -373,7 +374,7 @@ export async function seedAdminUser() {
       email: adminEmail,
       passwordHash,
       role: "admin",
-      name: "Administrator",
+      firstName: "Administrator",
     });
     console.log(`Admin user created: admin`);
   } else {
@@ -402,7 +403,7 @@ export async function seedAdminUser() {
     const oldChecker = await storage.getUserByEmail("checker");
     if (oldChecker) {
       const passwordHash = await hashPassword(checkerPassword);
-      await storage.updateUserProfile(oldChecker.id, { email: checkerEmail, name: "Checker", company: "Norfolk AI", title: "Checker" });
+      await storage.updateUserProfile(oldChecker.id, { email: checkerEmail, firstName: "Checker", company: "Norfolk AI", title: "Checker" });
       await storage.updateUserPassword(oldChecker.id, passwordHash);
       await storage.updateUserRole(oldChecker.id, "checker");
       checkerUser = await storage.getUserById(oldChecker.id);
@@ -413,7 +414,7 @@ export async function seedAdminUser() {
         email: checkerEmail,
         passwordHash,
         role: "checker",
-        name: "Checker",
+        firstName: "Checker",
         company: "Norfolk AI",
         title: "Checker",
       });
@@ -447,7 +448,8 @@ export async function seedAdminUser() {
         email: reynaldoEmail,
         passwordHash,
         role: "partner",
-        name: "Reynaldo Fagundes",
+        firstName: "Reynaldo",
+        lastName: "Fagundes",
         company: "Norfolk AI",
         title: "CTO",
       });
@@ -456,7 +458,8 @@ export async function seedAdminUser() {
       const passwordHash = await hashPassword(reynaldoPassword);
       await storage.updateUserPassword(reynaldoUser.id, passwordHash);
       await storage.updateUserProfile(reynaldoUser.id, {
-        name: "Reynaldo Fagundes",
+        firstName: "Reynaldo",
+        lastName: "Fagundes",
         company: "Norfolk AI",
         title: "CTO",
       });

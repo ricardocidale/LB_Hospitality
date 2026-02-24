@@ -296,7 +296,7 @@ export async function registerRoutes(
       const u = req.user!;
       let companyName = "Hospitality Business Group";
       let logoUrl: string | null = null;
-      let userName = u.name || u.email;
+      let userName = fullName(u) || u.email;
 
       if (u.companyId) {
         const comp = await storage.getCompany(u.companyId);
@@ -664,7 +664,7 @@ export async function registerRoutes(
         logoutAt: log.logoutAt,
         ipAddress: log.ipAddress,
         userEmail: log.user.email,
-        userName: log.user.name,
+        userName: fullName(log.user),
       }));
       res.json(flattenedLogs);
     } catch (error) {
@@ -2509,7 +2509,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
       }
       const { pdfBase64, filename, subject, researchType } = validation.data;
       const userEmail = req.user!.email;
-      const userName = req.user!.name || userEmail;
+      const userName = fullName(req.user!) || userEmail;
 
       const { getUncachableGmailClient } = await import("./integrations/gmail");
       const gmail = await getUncachableGmailClient();
@@ -2852,7 +2852,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
         id: log.id,
         userId: log.userId,
         userEmail: log.user.email,
-        userName: log.user.name,
+        userName: fullName(log.user),
         action: log.action,
         entityType: log.entityType,
         entityId: log.entityId,
@@ -2878,7 +2878,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
         return res.json({ checkers: [], summary: { totalActions: 0, verificationRuns: 0, manualViews: 0, exports: 0, pageVisits: 0 } });
       }
       
-      const allLogs: Array<{id: number; userId: number; action: string; entityType: string; entityId: number | null; entityName: string | null; metadata: unknown; ipAddress: string | null; createdAt: Date; user: {email: string; name: string | null}}> = [];
+      const allLogs: Array<{id: number; userId: number; action: string; entityType: string; entityId: number | null; entityName: string | null; metadata: unknown; ipAddress: string | null; createdAt: Date; user: {email: string; firstName?: string | null; lastName?: string | null}}> = [];
       for (const checkerId of checkerIds) {
         const logs = await storage.getActivityLogs({ userId: checkerId, limit: 200 });
         allLogs.push(...logs);
@@ -2898,7 +2898,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
         return {
           id: u.id,
           email: u.email,
-          name: u.name,
+          name: fullName(u),
           totalActions: userLogs.length,
           lastActive: userLogs.length > 0 ? userLogs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].createdAt : null,
           verificationRuns: userLogs.filter(l => l.action === "run" && l.entityType === "verification").length,
@@ -2917,7 +2917,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
             id: log.id,
             userId: log.userId,
             userEmail: log.user.email,
-            userName: log.user.name,
+            userName: fullName(log.user),
             action: log.action,
             entityType: log.entityType,
             entityId: log.entityId,
@@ -3032,7 +3032,7 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
         id: s.id,
         userId: s.userId,
         userEmail: s.user.email,
-        userName: s.user.name,
+        userName: fullName(s.user),
         createdAt: s.createdAt,
         expiresAt: s.expiresAt,
       })));

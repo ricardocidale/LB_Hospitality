@@ -609,7 +609,7 @@ export default function Admin() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
       setDialogOpen(false);
-      setNewUser({ email: "", password: "", name: "", company: "", title: "", role: "partner" });
+      setNewUser({ email: "", password: "", firstName: "", lastName: "", company: "", title: "", role: "partner" });
       toast({ title: "User Created", description: "New user has been registered." });
     },
     onError: (error: Error) => {

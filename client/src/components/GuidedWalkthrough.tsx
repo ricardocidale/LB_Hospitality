@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { X, ChevronRight, ChevronLeft, HelpCircle } from "lucide-react";
+import { useAuth } from "@/lib/auth";
 
 interface WalkthroughState {
   completed: boolean;
@@ -18,20 +19,25 @@ export const useWalkthroughStore = create<WalkthroughState>()(
   )
 );
 
-const TOUR_STEPS = [
-  { target: '[href="/"]', title: "Welcome to Your Dashboard", description: "This is your home base. It shows a high-level overview of your entire portfolio — key metrics, charts, and recent activity at a glance." },
-  { target: '[href="/portfolio"]', title: "Step 1: Define Your Properties", description: "Start here. Add each property you want to model, then fill in the assumptions for each one — purchase price, room count, ADR, occupancy, expenses, and financing terms. This is the foundation of your entire simulation." },
-  { target: '[href="/company"]', title: "Step 2: Management Company", description: "Next, define the management company assumptions — staffing tiers, partner compensation, base and incentive fee structures, and funding instruments. The management company earns fees from the properties you just set up." },
-  { target: '[href="/settings"]', title: "Step 3: Systemwide Assumptions", description: "Review and adjust the global settings that apply across all properties — tax rates, inflation, depreciation schedules, and other defaults. These ensure consistency across your entire portfolio." },
-  { target: '[href="/scenarios"]', title: "Save & Compare Scenarios", description: "Save your current assumptions as a named scenario so you can come back to it later. Create multiple scenarios to compare different strategies — like varying occupancy ramps or financing structures." },
-  { target: '[href="/analysis"]', title: "Analysis Tools", description: "Explore what's available in the Analysis section — sensitivity tables, financing comparisons, executive summaries, side-by-side property comparisons, and portfolio timelines. This is where you stress-test your assumptions and see the big picture." },
-  { target: '[href="/help"]', title: "User Manual & Help", description: "Consult the User Manual for a complete guide to every feature — from how revenue is calculated to how the balance sheet works. There's also a Checker Manual for verifying the financial models." },
-  { target: '[data-testid="button-search"]', title: "Quick Navigation", description: "Press Ctrl+K anytime to search and jump to any page, property, or feature instantly. You can also find your favorite properties and recent activity in the sidebar." },
-  { target: '[data-testid="button-notifications"]', title: "Stay Informed", description: "Check here for important alerts — like negative cash balance warnings or verification results. That's the tour! You can always restart it from the Help menu." },
-];
+function getTourSteps(firstName?: string | null) {
+  const greeting = firstName ? `Welcome, ${firstName}!` : "Welcome to Your Dashboard";
+  return [
+    { target: '[href="/"]', title: greeting, description: "This is your home base. It shows a high-level overview of your entire portfolio — key metrics, charts, and recent activity at a glance." },
+    { target: '[href="/portfolio"]', title: "Step 1: Define Your Properties", description: "Start here. Add each property you want to model, then fill in the assumptions for each one — purchase price, room count, ADR, occupancy, expenses, and financing terms. This is the foundation of your entire simulation." },
+    { target: '[href="/company"]', title: "Step 2: Management Company", description: "Next, define the management company assumptions — staffing tiers, partner compensation, base and incentive fee structures, and funding instruments. The management company earns fees from the properties you just set up." },
+    { target: '[href="/settings"]', title: "Step 3: Systemwide Assumptions", description: "Review and adjust the global settings that apply across all properties — tax rates, inflation, depreciation schedules, and other defaults. These ensure consistency across your entire portfolio." },
+    { target: '[href="/scenarios"]', title: "Save & Compare Scenarios", description: "Save your current assumptions as a named scenario so you can come back to it later. Create multiple scenarios to compare different strategies — like varying occupancy ramps or financing structures." },
+    { target: '[href="/analysis"]', title: "Analysis Tools", description: "Explore what's available in the Analysis section — sensitivity tables, financing comparisons, executive summaries, side-by-side property comparisons, and portfolio timelines. This is where you stress-test your assumptions and see the big picture." },
+    { target: '[href="/help"]', title: "User Manual & Help", description: "Consult the User Manual for a complete guide to every feature — from how revenue is calculated to how the balance sheet works. There's also a Checker Manual for verifying the financial models." },
+    { target: '[data-testid="button-search"]', title: "Quick Navigation", description: "Press Ctrl+K anytime to search and jump to any page, property, or feature instantly. You can also find your favorite properties and recent activity in the sidebar." },
+    { target: '[data-testid="button-notifications"]', title: "Stay Informed", description: "Check here for important alerts — like negative cash balance warnings or verification results. That's the tour! You can always restart it from the Help menu." },
+  ];
+}
 
 function GuidedWalkthrough() {
   const { completed, setCompleted } = useWalkthroughStore();
+  const { user } = useAuth();
+  const tourSteps = getTourSteps(user?.firstName);
   const [active, setActive] = useState(false);
   const [step, setStep] = useState(0);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
@@ -50,14 +56,14 @@ function GuidedWalkthrough() {
 
   const updateRect = useCallback(() => {
     if (!active) return;
-    const current = TOUR_STEPS[step];
+    const current = tourSteps[step];
     const el = document.querySelector(current.target);
     if (el) {
       const rect = el.getBoundingClientRect();
       setTargetRect(rect);
       el.scrollIntoView({ behavior: "smooth", block: "nearest" });
     } else {
-      if (step < TOUR_STEPS.length - 1) {
+      if (step < tourSteps.length - 1) {
         setStep(step + 1);
       } else {
         setCompleted(true);
@@ -77,7 +83,7 @@ function GuidedWalkthrough() {
   }, [updateRect]);
 
   const handleNext = useCallback(() => {
-    if (step < TOUR_STEPS.length - 1) {
+    if (step < tourSteps.length - 1) {
       setStep(step + 1);
     } else {
       setCompleted(true);
@@ -125,7 +131,7 @@ function GuidedWalkthrough() {
     maxWidth: 280,
   };
 
-  const currentStep = TOUR_STEPS[step];
+  const currentStep = tourSteps[step];
 
   return (
     <div data-testid="guided-walkthrough">
@@ -157,7 +163,7 @@ function GuidedWalkthrough() {
 
         <div className="flex items-center justify-between">
           <span className="text-xs text-gray-400">
-            {step + 1} of {TOUR_STEPS.length}
+            {step + 1} of {tourSteps.length}
           </span>
 
           <div className="flex items-center gap-2">
@@ -185,7 +191,7 @@ function GuidedWalkthrough() {
               className="inline-flex items-center gap-1 text-xs px-3 py-1.5 rounded-md bg-green-600 hover:bg-green-700 text-white font-medium"
               data-testid="button-tour-next"
             >
-              {step === TOUR_STEPS.length - 1 ? "Finish" : "Next"}
+              {step === tourSteps.length - 1 ? "Finish" : "Next"}
               <ChevronRight className="w-3 h-3" />
             </button>
           </div>

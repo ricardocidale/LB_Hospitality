@@ -25,6 +25,7 @@ Business simulation portal for **Hospitality Business Group**. Models a boutique
 - **Reusable UI Tools:** Whenever building a new feature, extract reusable components and document them in `.claude/skills/ui/reusable-components.md`.
 - **Every financial line item** should have a ? tooltip explanation (HelpTooltip or InfoTooltip as appropriate).
 - **Every page must be graphics-rich** — use charts, animations, and visual elements on every page.
+- **Context reduction is mandatory.** Every refactor or feature must produce skills, helper functions, scripts, and tools that reduce future context requirements. A 50-line skill file is always preferable to re-reading 1,600 lines of source. See `.claude/rules/context-reduction.md`.
 
 ---
 
@@ -80,7 +81,7 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | UI: Other (14) | `.claude/skills/ui/` | Glass components, buttons, sliders, tabs, page-header, callout, etc. |
 | Manuals | `.claude/manuals/` | Checker manual (21 sections), user manual (16 sections) |
 | Tools | `.claude/tools/` | Analysis, financing, returns, validation, UI tool schemas |
-| Rules (18) | `.claude/rules/` | Session-startup, documentation, ui-patterns, audit persona, constants, DB seeding, API routes, graphics-rich design, architecture, financial engine, verification, skill organization, session memory, etc. |
+| Rules (19) | `.claude/rules/` | Session-startup, documentation, ui-patterns, audit persona, constants, DB seeding, API routes, graphics-rich design, architecture, financial engine, verification, skill organization, session memory, etc. |
 
 ---
 

@@ -210,7 +210,8 @@ export default function Admin() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [newPassword, setNewPassword] = useState("");
   const [newUser, setNewUser] = useState({ email: "", password: "", firstName: "", lastName: "", company: "", title: "", role: "partner" as string });
-  const [editUser, setEditUser] = useState({ email: "", firstName: "", lastName: "", company: "", title: "", role: "partner" as string });
+  const [editUser, setEditUser] = useState({ email: "", firstName: "", lastName: "", company: "", title: "", role: "partner" as string, password: "" });
+  const [showEditPassword, setShowEditPassword] = useState(false);
   const [originalEmail, setOriginalEmail] = useState("");
   const [showNewUserPassword, setShowNewUserPassword] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
@@ -1115,7 +1116,7 @@ export default function Admin() {
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-primary/10"
-                        onClick={() => { setSelectedUser(user); setOriginalEmail(user.email); setEditUser({ email: user.email, firstName: user.firstName || "", lastName: user.lastName || "", company: user.company || "", title: user.title || "", role: user.role || "partner" }); setEditDialogOpen(true); }}
+                        onClick={() => { setSelectedUser(user); setOriginalEmail(user.email); setEditUser({ email: user.email, firstName: user.firstName || "", lastName: user.lastName || "", company: user.company || "", title: user.title || "", role: user.role || "partner", password: "" }); setShowEditPassword(false); setEditDialogOpen(true); }}
                         data-testid={`button-edit-user-${user.id}`}>
                         <Pencil className="w-4 h-4" />
                       </Button>
@@ -2994,6 +2995,16 @@ export default function Admin() {
                 </SelectContent>
               </Select>
             </div>
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2"><Key className="w-4 h-4 text-gray-500" />Password</Label>
+              <div className="relative">
+                <Input type={showEditPassword ? "text" : "password"} value={editUser.password} onChange={(e) => setEditUser({ ...editUser, password: e.target.value })} placeholder="Leave blank to keep current" data-testid="input-edit-password" />
+                <button type="button" onClick={() => setShowEditPassword(!showEditPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500" data-testid="button-toggle-edit-password">
+                  {showEditPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+              <p className="text-xs text-muted-foreground">Leave blank to keep the current password unchanged</p>
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditDialogOpen(false)} data-testid="button-cancel-edit">Cancel</Button>
@@ -3010,6 +3021,9 @@ export default function Admin() {
               }
               if (editUser.role !== selectedUser.role) {
                 data.role = editUser.role;
+              }
+              if (editUser.password) {
+                passwordMutation.mutate({ id: selectedUser.id, password: editUser.password });
               }
               editMutation.mutate({ id: selectedUser.id, data });
             }} disabled={editMutation.isPending} data-testid="button-save-user" className="flex items-center gap-2">

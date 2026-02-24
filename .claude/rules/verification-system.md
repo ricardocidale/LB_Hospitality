@@ -170,3 +170,48 @@ curl -b cookies.txt /api/admin/run-verification
 
 ### Expected Results
 When properly configured, all checks should pass with an **UNQUALIFIED** audit opinion. The total check count varies based on the number of properties (approximately 18 per property, plus company and consolidated checks). Any failures indicate a calculation discrepancy between the client-side engine and the independent server-side checker.
+
+## Edge Cases & Boundary Conditions
+
+These edge cases MUST be handled correctly and should be verified during any financial engine changes:
+
+### Temporal Edge Cases
+- **Month 0 / Pre-acquisition** — No revenue, no expenses, no debt, no depreciation, no balance sheet entries. Everything must be zero before the property's acquisitionDate.
+- **Operations start ≠ Acquisition** — A property can be acquired months before operations begin. Debt and depreciation start at acquisition; revenue starts at operationsStartDate.
+- **Mid-month transitions** — Operations starting mid-month still count the full month (30.5 days convention).
+- **Timezone-sensitive dates** — Always use `parseLocalDate()` (appends `T00:00:00`) to prevent `new Date("2027-07-01")` from shifting to June 30 in Western timezones.
+- **Year boundary crossings** — Fiscal year aggregation must correctly handle properties acquired mid-year (partial first year).
+- **projectionYears = 2** — Minimum valid value. Revenue growth direction checks require at least 2 years. Must never be < 2.
+
+### Financial Edge Cases
+- **100% equity (LTV = 0)** — No debt, no PMT, no interest, no principal, no refinance. Financing CF = 0. Cash flow = NOI - Tax.
+- **0% occupancy initial** — Valid during ramp-up. Revenue = 0, but fixed costs still accrue. Property will show negative cash flow.
+- **Occupancy at max cap** — Once maxOccupancy is reached, growth stops. Must not exceed 100%.
+- **Zero ADR** — Revenue = 0 for all streams (room, F&B, events, other all derive from room revenue).
+- **Refinance in month 1** — Edge case: refinance occurs same month as acquisition. Old loan immediately replaced.
+- **Refinance after projection end** — If refinanceDate is beyond projection horizon, no refinance occurs. willRefinance flag is ignored.
+- **Negative taxable income** — incomeTax = max(0, taxableIncome × taxRate). Tax is never negative (no tax refunds modeled).
+- **Exit in Year 1** — Exit waterfall must still compute correctly with minimal data.
+- **Very large purchase prices** — Floating point precision at $100M+. Use tolerance-based comparison (1% variance).
+
+### Balance Sheet Edge Cases
+- **A = L + E every single month** — No exceptions. Even month 0 before operations must balance (all zeros).
+- **Accumulated depreciation > building value** — Cannot happen with 27.5-year straight line, but verify the cap is respected.
+- **Loan balance reaching zero** — After full amortization, principal and interest are both zero. No negative balance.
+- **Cash going negative** — Valid business condition (underfunding), NOT a calculation error. Severity = info only.
+
+### Consolidated / Portfolio Edge Cases
+- **Single property portfolio** — Consolidated = property values. Weighted averages = property averages. No division by zero.
+- **Empty portfolio (0 properties)** — Must not crash. Show empty states, not NaN or Infinity.
+- **Properties with different start dates** — Consolidated statements must align by calendar month, not by relative month from acquisition.
+- **Mixed equity/financed properties** — Consolidated debt metrics should only count financed properties for DSCR, debt yield calculations.
+
+### Management Company Edge Cases
+- **Pre-SAFE funding** — Company operations gated until SAFE funding received. No fee revenue before gate opens.
+- **Zero properties assigned** — Company has no fee income. Fixed costs still accrue.
+- **All properties pre-operational** — Revenue = 0, but company G&A still runs.
+
+### Rounding & Precision
+- **Tolerance = 1%** — withinTolerance() uses 0.01 for floating-point comparisons between client and server engines.
+- **Currency display** — Always format to 2 decimal places for display. Internal calculations use full precision.
+- **Percentage inputs** — User enters 70 for 70%. Internal storage may be 0.70 or 70 depending on field. Verify conversion consistency.

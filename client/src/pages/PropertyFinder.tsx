@@ -2,11 +2,7 @@ import { useState } from "react";
 import Layout from "@/components/Layout";
 import { useGlobalAssumptions } from "@/lib/api";
 import { PageHeader } from "@/components/ui/page-header";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { formatMoney } from "@/lib/financialEngine";
 import {
   usePropertySearch,
   useProspectiveFavorites,
@@ -22,285 +18,22 @@ import {
   type SavedSearchData,
 } from "@/lib/api";
 import {
-  Search, Heart, HeartOff, ExternalLink, Bed, Bath, Ruler, Trees,
-  MapPin, Loader2, AlertCircle, Building2, StickyNote, X, ChevronLeft, ChevronRight,
-  Bookmark, BookmarkX, Play, Save, Trash2, Image,
+  Search, Heart, AlertCircle, Building2, Loader2,
+  ChevronLeft, ChevronRight,
 } from "lucide-react";
-
-function PropertyTypeLabel(type: string | null): string {
-  if (!type) return "";
-  const map: Record<string, string> = {
-    single_family: "Single Family",
-    multi_family: "Multi-Family",
-    farm: "Farm / Ranch",
-    land: "Land",
-  };
-  return map[type] || type;
-}
-
-function PropertyCard({
-  property,
-  isSaved,
-  isSaving,
-  onToggleFavorite,
-  expandedImage,
-  onToggleImage,
-}: {
-  property: PropertyFinderResult;
-  isSaved: boolean;
-  isSaving: boolean;
-  onToggleFavorite: () => void;
-  expandedImage: string | null;
-  onToggleImage: (id: string) => void;
-}) {
-  return (
-    <div
-      className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow group"
-      data-testid={`row-property-${property.externalId}`}
-    >
-      <div className="h-0.5 bg-gradient-to-r from-primary to-primary/30" />
-      <div className="p-5">
-        <div className="flex items-start justify-between gap-3 mb-3">
-          <div className="flex items-start gap-2">
-            <MapPin className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-            <span className="text-gray-900 font-medium text-sm leading-snug" data-testid={`text-address-${property.externalId}`}>
-              {property.address}
-            </span>
-          </div>
-          <div className="flex items-center gap-1 flex-shrink-0">
-            {property.imageUrl && (
-              <button
-                onClick={() => onToggleImage(property.externalId)}
-                className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
-                data-testid={`btn-image-${property.externalId}`}
-              >
-                <Image className="w-4 h-4 text-primary" />
-              </button>
-            )}
-            <button
-              onClick={onToggleFavorite}
-              disabled={isSaving}
-              className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
-              title={isSaved ? "Remove from saved" : "Save property"}
-              data-testid={`btn-favorite-${property.externalId}`}
-            >
-              {isSaving ? (
-                <Loader2 className="w-4 h-4 text-gray-400 animate-spin" />
-              ) : isSaved ? (
-                <Heart className="w-4 h-4 text-[#F4795B] fill-[#F4795B]" />
-              ) : (
-                <Heart className="w-4 h-4 text-gray-300 hover:text-[#F4795B]" />
-              )}
-            </button>
-          </div>
-        </div>
-
-        {expandedImage === property.externalId && property.imageUrl && (
-          <div className="mb-3 rounded-xl overflow-hidden">
-            <img
-              src={property.imageUrl}
-              alt={property.address}
-              className="w-full h-auto rounded-xl"
-              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-            />
-          </div>
-        )}
-
-        <p className="text-xl font-bold text-gray-900 mb-3" data-testid={`text-price-${property.externalId}`}>
-          {property.price ? formatMoney(property.price) : "—"}
-        </p>
-
-        <div className="flex flex-wrap items-center gap-4 py-2.5 px-3 bg-primary/5 rounded-xl border border-primary/10">
-          <div className="flex items-center gap-1.5">
-            <Bed className="w-3.5 h-3.5 text-primary" />
-            <span className="text-sm text-gray-700" data-testid={`text-beds-${property.externalId}`}>{property.beds ?? "—"} beds</span>
-          </div>
-          <div className="w-px h-4 bg-primary/20" />
-          <div className="flex items-center gap-1.5">
-            <Bath className="w-3.5 h-3.5 text-primary" />
-            <span className="text-sm text-gray-700" data-testid={`text-baths-${property.externalId}`}>{property.baths ?? "—"} baths</span>
-          </div>
-          <div className="w-px h-4 bg-primary/20" />
-          <div className="flex items-center gap-1.5">
-            <Ruler className="w-3.5 h-3.5 text-primary" />
-            <span className="text-sm text-gray-700" data-testid={`text-sqft-${property.externalId}`}>{property.sqft ? property.sqft.toLocaleString() : "—"} sqft</span>
-          </div>
-          <div className="w-px h-4 bg-primary/20" />
-          <div className="flex items-center gap-1.5">
-            <Trees className="w-3.5 h-3.5 text-primary" />
-            <span className="text-sm font-semibold text-secondary" data-testid={`text-acres-${property.externalId}`}>{property.lotSizeAcres ?? "—"} acres</span>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between mt-3">
-          {property.propertyType ? (
-            <span className="px-2.5 py-1 rounded-lg text-xs font-medium bg-primary/10 text-secondary border border-primary/20">
-              {PropertyTypeLabel(property.propertyType)}
-            </span>
-          ) : <span />}
-          {property.listingUrl && (
-            <a
-              href={property.listingUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs text-primary hover:text-secondary flex items-center gap-1"
-              data-testid={`link-listing-${property.externalId}`}
-            >
-              View Listing <ExternalLink className="w-3 h-3" />
-            </a>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function FavoriteCard({
-  property,
-  onRemove,
-  onUpdateNotes,
-  isRemoving,
-  editingNotesId,
-  notesText,
-  onStartEditing,
-  onNotesChange,
-  onSaveNotes,
-  onCancelEditing,
-}: {
-  property: SavedProspectiveProperty;
-  onRemove: (id: number) => void;
-  onUpdateNotes: (id: number, notes: string) => void;
-  isRemoving: boolean;
-  editingNotesId: number | null;
-  notesText: string;
-  onStartEditing: (prop: SavedProspectiveProperty) => void;
-  onNotesChange: (value: string) => void;
-  onSaveNotes: (id: number) => void;
-  onCancelEditing: () => void;
-}) {
-  return (
-    <div
-      className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow group"
-      data-testid={`row-saved-${property.id}`}
-    >
-      <div className="h-0.5 bg-gradient-to-r from-primary to-primary/30" />
-      <div className="p-5">
-        <div className="flex items-start justify-between gap-3 mb-3">
-          <div className="flex items-start gap-2">
-            <MapPin className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-            <span className="text-gray-900 font-medium text-sm leading-snug">{property.address}</span>
-          </div>
-          <button
-            onClick={() => onRemove(property.id)}
-            disabled={isRemoving}
-            className="p-1.5 rounded-lg hover:bg-red-50 transition-colors flex-shrink-0"
-            title="Remove property"
-            data-testid={`btn-remove-saved-${property.id}`}
-          >
-            {isRemoving ? (
-              <Loader2 className="w-4 h-4 text-gray-400 animate-spin" />
-            ) : (
-              <Trash2 className="w-4 h-4 text-[#F4795B]/70 hover:text-[#F4795B]" />
-            )}
-          </button>
-        </div>
-
-        <p className="text-xl font-bold text-gray-900 mb-3">
-          {property.price ? formatMoney(property.price) : "—"}
-        </p>
-
-        <div className="flex flex-wrap items-center gap-4 py-2.5 px-3 bg-primary/5 rounded-xl border border-primary/10">
-          <div className="flex items-center gap-1.5">
-            <Bed className="w-3.5 h-3.5 text-primary" />
-            <span className="text-sm text-gray-700">{property.beds ?? "—"} beds</span>
-          </div>
-          <div className="w-px h-4 bg-primary/20" />
-          <div className="flex items-center gap-1.5">
-            <Bath className="w-3.5 h-3.5 text-primary" />
-            <span className="text-sm text-gray-700">{property.baths ?? "—"} baths</span>
-          </div>
-          <div className="w-px h-4 bg-primary/20" />
-          <div className="flex items-center gap-1.5">
-            <Ruler className="w-3.5 h-3.5 text-primary" />
-            <span className="text-sm text-gray-700">{property.sqft ? property.sqft.toLocaleString() : "—"} sqft</span>
-          </div>
-          <div className="w-px h-4 bg-primary/20" />
-          <div className="flex items-center gap-1.5">
-            <Trees className="w-3.5 h-3.5 text-primary" />
-            <span className="text-sm font-semibold text-secondary">{property.lotSizeAcres ?? "—"} acres</span>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between mt-3">
-          {property.propertyType ? (
-            <span className="px-2.5 py-1 rounded-lg text-xs font-medium bg-primary/10 text-secondary border border-primary/20">
-              {PropertyTypeLabel(property.propertyType)}
-            </span>
-          ) : <span />}
-          {property.listingUrl && (
-            <a
-              href={property.listingUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs text-primary hover:text-secondary flex items-center gap-1"
-              data-testid={`link-saved-listing-${property.id}`}
-            >
-              View Listing <ExternalLink className="w-3 h-3" />
-            </a>
-          )}
-        </div>
-
-        <div className="mt-3 pt-3 border-t border-gray-100">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-gray-400">Saved {new Date(property.savedAt).toLocaleDateString()}</span>
-          </div>
-          {editingNotesId === property.id ? (
-            <div className="flex items-center gap-2">
-              <input
-                value={notesText}
-                onChange={(e) => onNotesChange(e.target.value)}
-                className="flex-1 px-3 py-1.5 rounded-lg bg-gray-50 border border-gray-200 text-gray-900 text-xs focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20"
-                placeholder="Add notes..."
-                data-testid={`input-notes-${property.id}`}
-                onKeyDown={(e) => e.key === "Enter" && onSaveNotes(property.id)}
-              />
-              <button
-                onClick={() => onSaveNotes(property.id)}
-                className="p-1.5 rounded-lg hover:bg-primary/10 text-primary"
-                data-testid={`btn-save-notes-${property.id}`}
-              >
-                <Save className="w-3.5 h-3.5" />
-              </button>
-              <button
-                onClick={onCancelEditing}
-                className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          ) : (
-            <button
-              onClick={() => onStartEditing(property)}
-              className="text-xs text-gray-400 hover:text-gray-600 truncate block w-full text-left"
-              title={property.notes || "Click to add notes"}
-              data-testid={`btn-edit-notes-${property.id}`}
-            >
-              <StickyNote className="w-3 h-3 inline mr-1" />
-              {property.notes || <span className="italic">Add notes...</span>}
-            </button>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
+import {
+  SearchResultCard,
+  FavoriteCard,
+  SearchForm,
+  SavedSearchBar,
+  type SearchFormData,
+} from "@/components/property-finder";
 
 export default function PropertyFinder() {
   const { data: global } = useGlobalAssumptions();
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState<"search" | "savedSearches" | "saved">("search");
   const [searchParams, setSearchParams] = useState<PropertyFinderSearchParams | null>(null);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<SearchFormData>({
     location: "",
     priceMin: "",
     priceMax: "",
@@ -412,7 +145,6 @@ export default function PropertyFinder() {
       lotSizeMin: search.lotSizeMin || undefined,
       propertyType: search.propertyType || undefined,
     });
-    setActiveTab("search");
     toast({ title: "Search loaded", description: `Running "${search.name}" search...` });
   };
 
@@ -444,189 +176,25 @@ export default function PropertyFinder() {
           variant="light"
         />
 
-        {savedSearches.length > 0 && (
-          <div className="flex flex-wrap items-center gap-2" data-testid="table-saved-searches">
-            <span className="text-xs text-gray-400 mr-1">
-              <Bookmark className="w-3.5 h-3.5 inline mr-1" />
-              Saved:
-            </span>
-            {savedSearches.map((search) => (
-              <div
-                key={search.id}
-                className="inline-flex items-center gap-1.5 bg-primary/10 text-secondary border border-primary/20 rounded-full px-3 py-1.5 text-xs font-medium"
-                data-testid={`row-saved-search-${search.id}`}
-              >
-                <button
-                  onClick={() => handleLoadSearch(search)}
-                  className="hover:underline"
-                  data-testid={`btn-run-search-${search.id}`}
-                >
-                  {search.name}
-                </button>
-                <button
-                  onClick={() => handleDeleteSearch(search.id)}
-                  disabled={deleteSavedSearch.isPending}
-                  className="p-0.5 rounded-full hover:bg-primary/20 transition-colors"
-                  title="Delete search"
-                  data-testid={`btn-delete-search-${search.id}`}
-                >
-                  {deleteSavedSearch.isPending ? (
-                    <Loader2 className="w-3 h-3 animate-spin" />
-                  ) : (
-                    <X className="w-3 h-3" />
-                  )}
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
+        <SavedSearchBar
+          savedSearches={savedSearches}
+          onLoadSearch={handleLoadSearch}
+          onDeleteSearch={handleDeleteSearch}
+          isDeletePending={deleteSavedSearch.isPending}
+        />
 
-        <form onSubmit={handleSearch} data-testid="form-search">
-          <div className="bg-white rounded-2xl shadow-sm border border-primary/20 overflow-hidden">
-            <div className="h-1 bg-gradient-to-r from-primary via-[#7aaa8a] to-primary" />
-            <div className="p-5 space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="lg:col-span-2">
-                  <Label className="text-gray-700 font-medium text-xs mb-1 block">Location (City, State or Zip)</Label>
-                  <Input
-                    value={formData.location}
-                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                    placeholder="e.g. Hudson, NY or 12534"
-                    className="bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-primary focus:ring-primary/20"
-                    data-testid="input-location"
-                  />
-                </div>
-                <div>
-                  <Label className="text-gray-700 font-medium text-xs mb-1 block">Min Price</Label>
-                  <Input
-                    type="number"
-                    value={formData.priceMin}
-                    onChange={(e) => setFormData({ ...formData, priceMin: e.target.value })}
-                    placeholder="$500,000"
-                    className="bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-primary focus:ring-primary/20"
-                    data-testid="input-price-min"
-                  />
-                </div>
-                <div>
-                  <Label className="text-gray-700 font-medium text-xs mb-1 block">Max Price</Label>
-                  <Input
-                    type="number"
-                    value={formData.priceMax}
-                    onChange={(e) => setFormData({ ...formData, priceMax: e.target.value })}
-                    placeholder="$5,000,000"
-                    className="bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-primary focus:ring-primary/20"
-                    data-testid="input-price-max"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <Label className="text-gray-700 font-medium text-xs mb-1 block">Min Bedrooms</Label>
-                  <Input
-                    type="number"
-                    value={formData.bedsMin}
-                    onChange={(e) => setFormData({ ...formData, bedsMin: e.target.value })}
-                    placeholder="5+"
-                    className="bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-primary focus:ring-primary/20"
-                    data-testid="input-beds-min"
-                  />
-                </div>
-                <div>
-                  <Label className="text-gray-700 font-medium text-xs mb-1 block">Min Lot Size (acres)</Label>
-                  <Input
-                    type="number"
-                    step="0.5"
-                    value={formData.lotSizeMin}
-                    onChange={(e) => setFormData({ ...formData, lotSizeMin: e.target.value })}
-                    placeholder="1"
-                    className="bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-primary focus:ring-primary/20"
-                    data-testid="input-lot-size-min"
-                  />
-                </div>
-                <div>
-                  <Label className="text-gray-700 font-medium text-xs mb-1 block">Property Type</Label>
-                  <Select
-                    value={formData.propertyType}
-                    onValueChange={(v) => setFormData({ ...formData, propertyType: v })}
-                  >
-                    <SelectTrigger
-                      className="bg-gray-50 border-gray-200 text-gray-900 focus:border-primary focus:ring-primary/20"
-                      data-testid="select-property-type"
-                    >
-                      <SelectValue placeholder="Any type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="any">Any Type</SelectItem>
-                      <SelectItem value="single_family">Single Family</SelectItem>
-                      <SelectItem value="multi_family">Multi-Family</SelectItem>
-                      <SelectItem value="farm">Farm / Ranch</SelectItem>
-                      <SelectItem value="land">Land</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                  {formData.location.trim() && (
-                    <>
-                      {showSaveDialog ? (
-                        <div className="flex items-center gap-2">
-                          <Input
-                            value={saveSearchName}
-                            onChange={(e) => setSaveSearchName(e.target.value)}
-                            placeholder="Search name..."
-                            className="bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-primary focus:ring-primary/20 w-48 h-9 text-sm"
-                            data-testid="input-search-name"
-                            onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleSaveSearch())}
-                          />
-                          <button
-                            type="button"
-                            onClick={handleSaveSearch}
-                            disabled={createSavedSearch.isPending}
-                            className="p-2 rounded-lg bg-primary hover:bg-[#8aab93] text-white transition-colors"
-                            data-testid="btn-confirm-save-search"
-                          >
-                            {createSavedSearch.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => { setShowSaveDialog(false); setSaveSearchName(""); }}
-                            className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => setShowSaveDialog(true)}
-                          className="flex items-center gap-1.5 text-xs text-primary hover:text-[#7aaa8a] transition-colors"
-                          data-testid="btn-save-search"
-                        >
-                          <Bookmark className="w-3.5 h-3.5" /> Save This Search
-                        </button>
-                      )}
-                    </>
-                  )}
-                </div>
-                <button
-                  type="submit"
-                  disabled={isSearching}
-                  className="bg-primary hover:bg-[#8aab93] text-white font-semibold px-6 py-2.5 rounded-xl transition-colors flex items-center gap-2 disabled:opacity-50"
-                  data-testid="btn-search"
-                >
-                  {isSearching ? (
-                    <><Loader2 className="w-4 h-4 animate-spin" /> Searching...</>
-                  ) : (
-                    <><Search className="w-4 h-4" /> Search Properties</>
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-        </form>
+        <SearchForm
+          formData={formData}
+          setFormData={setFormData}
+          isSearching={isSearching}
+          onSubmit={handleSearch}
+          showSaveDialog={showSaveDialog}
+          setShowSaveDialog={setShowSaveDialog}
+          saveSearchName={saveSearchName}
+          setSaveSearchName={setSaveSearchName}
+          onSaveSearch={handleSaveSearch}
+          isSaveSearchPending={createSavedSearch.isPending}
+        />
 
         {isNoApiKey && (
           <div className="bg-white rounded-2xl shadow-sm border border-primary/20 overflow-hidden">
@@ -707,7 +275,7 @@ export default function PropertyFinder() {
                   const isSaved = savedExternalIds.has(property.externalId);
                   const savedProp = favorites.find((f) => f.externalId === property.externalId);
                   return (
-                    <PropertyCard
+                    <SearchResultCard
                       key={property.externalId}
                       property={property}
                       isSaved={isSaved}

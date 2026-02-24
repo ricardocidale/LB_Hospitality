@@ -55,3 +55,45 @@ On any UI review or audit:
 4. Do page transitions feel choreographed or jarring? Jarring = violation.
 5. Do lists stagger in or appear all at once? All at once = violation.
 6. Are loading states skeleton-based or spinner-only? Spinner-only = violation.
+
+## Edge Cases & Boundary Conditions
+
+These UI edge cases MUST be handled with premium quality — not ignored or left with broken states:
+
+### Empty States
+- **Zero properties** — Portfolio shows a beautiful empty state with illustration/animation and a prominent CTA to add the first property. Never a blank white page.
+- **Zero research data** — Research pages show an inviting "Generate Research" state with context about what AI research provides. Never raw "No data" text.
+- **Zero activity logs** — Activity tabs show a friendly "No activity yet" with subtle animation. Never an empty table with headers only.
+- **First-time user** — Dashboard with no data shows a guided onboarding experience, not an empty grid of NaN values.
+
+### Loading States
+- **Initial page load** — Full skeleton layout matching the page structure (card shapes, line heights, chart placeholders). Never a centered spinner.
+- **Tab switching** — Content area shows skeleton of incoming tab immediately while data loads. Never a blank content area.
+- **Long-running operations** — AI research generation, verification runs, PDF exports show progress indicators with context ("Analyzing 6 properties...", not just a spinner).
+- **Mutation in progress** — Save buttons show loading state with disabled interaction. Never allow double-submit.
+- **Image loading** — Property images show a shimmer placeholder with the correct aspect ratio. Never a broken image icon or layout shift.
+
+### Error States
+- **API failure** — Show a styled error card with retry button and helpful message. Never a raw error string or console dump.
+- **Partial data failure** — If one query fails but others succeed, show what's available with an inline error for the failed section. Never blank the entire page.
+- **Network timeout** — Show a connection-aware message ("Reconnecting..." with animation). Never an unhandled promise rejection.
+- **Invalid property data** — If calculations produce NaN/Infinity, show "—" with a tooltip explaining the issue. Never display raw NaN.
+
+### Responsive Edge Cases
+- **Very long property names** — Text truncates with ellipsis and shows full name on hover tooltip. Never overflows container or breaks layout.
+- **Very large numbers** — $999,999,999+ formats with abbreviation (e.g., "$1.0B") in compact contexts, full format in detail views. Never wraps or overflows.
+- **Very small screens (320px)** — Cards stack vertically, tables become scrollable, charts reduce to minimum viable size. Never horizontal overflow on the page body.
+- **Many properties (10+)** — Grids paginate or virtualize. Tab bars scroll horizontally on mobile. Never clip or hide content without indication.
+
+### Animation Edge Cases
+- **Reduced motion preference** — Respect `prefers-reduced-motion` media query. Disable animated numbers, staggered reveals, and page transitions. Maintain static visual quality.
+- **Tab rapid-switching** — AnimatePresence must handle rapid tab changes without animation queue buildup or flash of wrong content.
+- **Number animation during scroll** — Financial values that animate on mount should only trigger when visible (intersection observer). Never animate off-screen.
+- **Chart resize** — Charts must gracefully re-render on window resize without animation jank. Use debounced resize handlers.
+
+### Data Edge Cases in UI
+- **$0 values** — Display as "$0" (not blank or hidden). Zero values are meaningful in financial context.
+- **Negative values** — Display in red/warning color with parentheses or minus sign. Never same style as positive.
+- **Percentage > 100%** — Some metrics can exceed 100% (e.g., revenue growth). Display correctly, don't cap at 100% visually.
+- **Very long time horizons** — 20+ year projections should still render readable charts. Compress x-axis labels as needed.
+- **Date formatting** — Consistent format across all views (e.g., "Jan 2027", not mixed "1/2027" and "January 2027").

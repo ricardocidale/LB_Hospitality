@@ -2,13 +2,10 @@ import { useMemo, useState, useRef } from "react";
 import Layout from "@/components/Layout";
 import { useProperty, useGlobalAssumptions } from "@/lib/api";
 import { generatePropertyProForma, formatMoney, getFiscalYearForModelYear } from "@/lib/financialEngine";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { YearlyIncomeStatement } from "@/components/YearlyIncomeStatement";
-import { YearlyCashFlowStatement } from "@/components/YearlyCashFlowStatement";
 import { ConsolidatedBalanceSheet } from "@/components/ConsolidatedBalanceSheet";
 import { CalcDetailsProvider } from "@/components/financial-table-rows";
 import { Tabs, TabsContent, CurrentThemeTab } from "@/components/ui/tabs";
-import { FileText, Banknote, Scale, Building2, ArrowLeft, MapPin, Loader2, Settings2, Sheet, ChevronDown, ChevronRight, Info, Map, AlertTriangle } from "lucide-react";
+import { FileText, Banknote, Scale, Building2, Loader2, AlertTriangle } from "lucide-react";
 import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
 import { downloadCSV } from "@/lib/exports/csvExport";
 import { exportPropertyPPTX } from "@/lib/exports/pptxExport";
@@ -21,230 +18,23 @@ import {
 import domtoimage from 'dom-to-image-more';
 import { Link, useRoute } from "wouter";
 import { Button } from "@/components/ui/button";
-import { GlassButton } from "@/components/ui/glass-button";
-import { Badge } from "@/components/ui/badge";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { drawLineChart } from "@/lib/pdfChartDrawer";
 import { calculateLoanParams, LoanParams, GlobalLoanParams, DEFAULT_LTV, PROJECTION_YEARS } from "@/lib/loanCalculations";
-import { DEPRECIATION_YEARS, DAYS_PER_MONTH, DEFAULT_LAND_VALUE_PERCENT, DEFAULT_REV_SHARE_EVENTS, DEFAULT_REV_SHARE_FB, DEFAULT_REV_SHARE_OTHER, DEFAULT_CATERING_BOOST_PCT } from "@shared/constants";
 import { aggregateCashFlowByYear } from "@/lib/cashFlowAggregator";
 import { aggregatePropertyByYear } from "@/lib/yearlyAggregator";
 import { computeCashFlowSections } from "@/lib/cashFlowSections";
-import { PropertyPhotoUpload } from "@/components/PropertyPhotoUpload";
 import { useQueryClient } from "@tanstack/react-query";
 import { ExportDialog } from "@/components/ExportDialog";
-
-import { HelpTooltip } from "@/components/ui/help-tooltip";
-import { KPIGrid, Gauge, InsightPanel, AnimatedPage, ScrollReveal, formatCompact, formatPercent, type KPIItem } from "@/components/graphics";
-
-function PPECostBasisSchedule({ property, global }: { property: any; global: any }) {
-  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
-    acquisition: true,
-    depreciation: false,
-    fixedCostAnchor: false,
-    loanBasis: false,
-  });
-
-  const toggle = (key: string) =>
-    setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
-
-  const fmt = (n: number) => formatMoney(n);
-  const pct = (n: number) => `${(n * 100).toFixed(1)}%`;
-
-  const purchasePrice = property.purchasePrice ?? 0;
-  const buildingImprovements = property.buildingImprovements ?? 0;
-  const preOpeningCosts = property.preOpeningCosts ?? 0;
-  const operatingReserve = property.operatingReserve ?? 0;
-  const landPct = property.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT;
-  const landValue = purchasePrice * landPct;
-  const buildingValue = purchasePrice * (1 - landPct);
-  const totalDepreciableBasis = buildingValue + buildingImprovements;
-  const annualDepreciation = totalDepreciableBasis / DEPRECIATION_YEARS;
-  const monthlyDepreciation = annualDepreciation / 12;
-  const totalProjectCost = purchasePrice + buildingImprovements + preOpeningCosts + operatingReserve;
-  const totalPropertyValue = purchasePrice + buildingImprovements;
-
-  const revShareEvents = property.revShareEvents ?? DEFAULT_REV_SHARE_EVENTS;
-  const revShareFB = property.revShareFB ?? DEFAULT_REV_SHARE_FB;
-  const revShareOther = property.revShareOther ?? DEFAULT_REV_SHARE_OTHER;
-  const cateringBoostPct = property.cateringBoostPercent ?? DEFAULT_CATERING_BOOST_PCT;
-  const cateringBoostMultiplier = 1 + cateringBoostPct;
-
-  const baseMonthlyRoomRev = property.roomCount * DAYS_PER_MONTH * property.startAdr * property.startOccupancy;
-  const baseMonthlyEventsRev = baseMonthlyRoomRev * revShareEvents;
-  const baseMonthlyFBRev = baseMonthlyRoomRev * revShareFB * cateringBoostMultiplier;
-  const baseMonthlyOtherRev = baseMonthlyRoomRev * revShareOther;
-  const baseMonthlyTotalRev = baseMonthlyRoomRev + baseMonthlyEventsRev + baseMonthlyFBRev + baseMonthlyOtherRev;
-  const baseAnnualTotalRev = baseMonthlyTotalRev * 12;
-
-  const fixedCostEscRate = global.fixedCostEscalationRate ?? 0.03;
-  const costRatePropertyOps = property.costRatePropertyOps ?? 0.04;
-  const costRateAdmin = property.costRateAdmin ?? 0.08;
-  const costRateInsurance = property.costRateInsurance ?? 0.02;
-  const costRateTaxes = property.costRateTaxes ?? 0.03;
-  const costRateIT = property.costRateIT ?? 0.02;
-  const costRateOther = property.costRateOther ?? 0.05;
-
-  const ltv = property.acquisitionLTV ?? DEFAULT_LTV;
-  const loanAmount = property.type === "Financed" ? totalPropertyValue * ltv : 0;
-  const equityRequired = totalProjectCost - loanAmount;
-
-  const SectionRow = ({ sectionKey, label, value, tooltip }: { sectionKey: string; label: string; value: string; tooltip?: string }) => {
-    const isOpen = openSections[sectionKey];
-    return (
-      <tr
-        className="cursor-pointer hover:bg-gray-50 border-b border-gray-100 transition-colors"
-        onClick={() => toggle(sectionKey)}
-        data-testid={`ppe-section-${sectionKey}`}
-      >
-        <td className="py-3 px-4 font-semibold text-gray-900 flex items-center gap-2">
-          {isOpen ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
-          {label}
-          {tooltip && <HelpTooltip text={tooltip} />}
-        </td>
-        <td className="py-3 px-4 text-right font-semibold font-mono text-gray-900">{value}</td>
-      </tr>
-    );
-  };
-
-  const DetailRow = ({ label, value, indent, muted, bold, tooltip }: { label: string; value: string; indent?: boolean; muted?: boolean; bold?: boolean; tooltip?: string }) => (
-    <tr className={`border-b border-gray-50 ${bold ? "bg-gray-50" : ""}`}>
-      <td className={`py-2 px-4 ${indent ? "pl-12" : "pl-8"} ${muted ? "text-gray-400" : "text-gray-600"} ${bold ? "font-semibold text-gray-900" : ""}`}>
-        <span className="flex items-center gap-1">
-          {label}
-          {tooltip && <HelpTooltip text={tooltip} />}
-        </span>
-      </td>
-      <td className={`py-2 px-4 text-right font-mono ${muted ? "text-gray-400" : "text-gray-600"} ${bold ? "font-semibold text-gray-900" : ""}`}>{value}</td>
-    </tr>
-  );
-
-  return (
-    <Card className="overflow-hidden bg-white shadow-lg border border-gray-100">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-gray-900 flex items-center gap-2">
-          PP&E / Cost Basis Schedule
-          <HelpTooltip text="Shows the underlying asset values, depreciation basis, and fixed-cost anchors used by the financial engine. Click each section to expand details." manualSection="property-formulas" />
-        </CardTitle>
-        <p className="text-sm text-gray-500">
-          {property.name} — Checker transparency view
-        </p>
-      </CardHeader>
-      <div className="px-6 pb-6">
-        <table className="w-full" data-testid="ppe-schedule-table">
-          <thead>
-            <tr className="border-b-2 border-gray-200">
-              <th className="text-left py-2 px-4 text-sm font-bold text-gray-700 uppercase tracking-wider">Item</th>
-              <th className="text-right py-2 px-4 text-sm font-bold text-gray-700 uppercase tracking-wider">Value</th>
-            </tr>
-          </thead>
-          <tbody>
-            <SectionRow sectionKey="acquisition" label="Acquisition & Project Cost" value={fmt(totalProjectCost)} tooltip="Total capital required to acquire, improve, and open the property." />
-            {openSections.acquisition && (
-              <>
-                <DetailRow label="Purchase Price" value={fmt(purchasePrice)} />
-                <DetailRow label={`Land Value (${pct(landPct)} of purchase)`} value={fmt(landValue)} indent tooltip="Land does not depreciate per IRS Publication 946." />
-                <DetailRow label={`Building Value (${pct(1 - landPct)} of purchase)`} value={fmt(buildingValue)} indent />
-                <DetailRow label="Building Improvements" value={fmt(buildingImprovements)} />
-                <DetailRow label="Pre-Opening Costs" value={fmt(preOpeningCosts)} />
-                <DetailRow label="Operating Reserve" value={fmt(operatingReserve)} />
-                <DetailRow label="Total Property Value (Price + Improvements)" value={fmt(totalPropertyValue)} bold tooltip="Used as the basis for loan calculations (LTV applied to this amount)." />
-                <DetailRow label="Total Project Cost" value={fmt(totalProjectCost)} bold />
-              </>
-            )}
-
-            <SectionRow sectionKey="depreciation" label="Depreciation Schedule (ASC 360)" value={fmt(annualDepreciation) + " /yr"} tooltip="Straight-line depreciation over 27.5 years. Land is excluded from the depreciable basis." />
-            {openSections.depreciation && (
-              <>
-                <DetailRow label="Building Value (from purchase)" value={fmt(buildingValue)} />
-                <DetailRow label="+ Building Improvements" value={fmt(buildingImprovements)} />
-                <DetailRow label="= Total Depreciable Basis" value={fmt(totalDepreciableBasis)} bold />
-                <DetailRow label="Depreciation Period" value={`${DEPRECIATION_YEARS} years`} />
-                <DetailRow label="Annual Depreciation" value={fmt(annualDepreciation)} bold />
-                <DetailRow label="Monthly Depreciation" value={fmt(monthlyDepreciation)} />
-                <DetailRow label="Full Depreciation Date" value={`~${DEPRECIATION_YEARS} years after acquisition`} muted />
-              </>
-            )}
-
-            <SectionRow
-              sectionKey="fixedCostAnchor"
-              label="Fixed Cost Anchor (Year 1 Base Revenue)"
-              value={fmt(baseAnnualTotalRev) + " /yr"}
-              tooltip="Fixed operating costs (Property Ops, Admin, IT, etc.) are calculated as a rate × this Year 1 base revenue, then escalated annually. They do NOT scale with actual revenue growth. Insurance and Property Taxes are calculated separately based on property value."
-            />
-            {openSections.fixedCostAnchor && (
-              <>
-                <DetailRow label="Room Count" value={`${property.roomCount} rooms`} />
-                <DetailRow label="Days per Month" value={`${DAYS_PER_MONTH}`} />
-                <DetailRow label="Starting ADR" value={fmt(property.startAdr)} />
-                <DetailRow label="Starting Occupancy" value={pct(property.startOccupancy)} />
-                <DetailRow label="Base Monthly Room Revenue" value={fmt(baseMonthlyRoomRev)} bold />
-                <DetailRow label={`Events Revenue (${pct(revShareEvents)} of rooms)`} value={fmt(baseMonthlyEventsRev)} indent />
-                <DetailRow label={`F&B Revenue (${pct(revShareFB)} × ${pct(cateringBoostMultiplier - 1)} boost)`} value={fmt(baseMonthlyFBRev)} indent />
-                <DetailRow label={`Other Revenue (${pct(revShareOther)} of rooms)`} value={fmt(baseMonthlyOtherRev)} indent />
-                <DetailRow label="Base Monthly Total Revenue" value={fmt(baseMonthlyTotalRev)} bold />
-                <DetailRow label="Base Annual Total Revenue" value={fmt(baseAnnualTotalRev)} bold />
-
-                <tr className="border-b border-gray-50">
-                  <td colSpan={2} className="py-3 px-8">
-                    <div className="bg-blue-50 border border-blue-100 rounded-lg p-3">
-                      <p className="text-xs font-semibold text-blue-800 mb-2 flex items-center gap-1">
-                        <Info className="w-3.5 h-3.5" /> Fixed Cost Rates Applied to Base Revenue
-                      </p>
-                      <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-xs text-blue-700">
-                        <span>Property Operations: {pct(costRatePropertyOps)} → {fmt(baseMonthlyTotalRev * costRatePropertyOps)}/mo</span>
-                        <span>Admin & General: {pct(costRateAdmin)} → {fmt(baseMonthlyTotalRev * costRateAdmin)}/mo</span>
-                        <span>Insurance: {pct(costRateInsurance)} of property value → {fmt(totalPropertyValue / 12 * costRateInsurance)}/mo</span>
-                        <span>Property Taxes: {pct(costRateTaxes)} of property value → {fmt(totalPropertyValue / 12 * costRateTaxes)}/mo</span>
-                        <span>IT & Technology: {pct(costRateIT)} → {fmt(baseMonthlyTotalRev * costRateIT)}/mo</span>
-                        <span>Other Costs: {pct(costRateOther)} → {fmt(baseMonthlyTotalRev * costRateOther)}/mo</span>
-                      </div>
-                      <p className="text-xs text-blue-600 mt-2">
-                        These base amounts escalate at {pct(fixedCostEscRate)}/year (compounding). Year 2 = base × {(1 + fixedCostEscRate).toFixed(4)}, Year 3 = base × {((1 + fixedCostEscRate) ** 2).toFixed(4)}, etc.
-                      </p>
-                    </div>
-                  </td>
-                </tr>
-              </>
-            )}
-
-            {property.type === "Financed" && (
-              <>
-                <SectionRow sectionKey="loanBasis" label="Loan & Equity Basis" value={fmt(loanAmount)} tooltip="Loan amount is based on LTV × Total Property Value (purchase price + improvements). Equity = Total Project Cost − Loan." />
-                {openSections.loanBasis && (
-                  <>
-                    <DetailRow label="Financing Type" value={property.type} />
-                    <DetailRow label="Total Property Value (Loan Basis)" value={fmt(totalPropertyValue)} tooltip="LTV is applied to this amount, not the total project cost." />
-                    <DetailRow label={`Loan-to-Value (LTV): ${pct(ltv)}`} value={fmt(loanAmount)} bold />
-                    <DetailRow label="Equity Required" value={fmt(equityRequired)} bold />
-                    <DetailRow label="Interest Rate" value={pct(property.acquisitionInterestRate ?? global.debtAssumptions?.interestRate ?? 0.09)} />
-                    <DetailRow label="Amortization Term" value={`${property.acquisitionTermYears ?? global.debtAssumptions?.amortizationYears ?? 25} years`} />
-                  </>
-                )}
-              </>
-            )}
-            {property.type === "Full Equity" && (
-              <>
-                <SectionRow sectionKey="loanBasis" label="Equity Basis" value={fmt(totalProjectCost)} tooltip="Full equity deal — no debt financing. Total equity equals the full project cost." />
-                {openSections.loanBasis && (
-                  <>
-                    <DetailRow label="Financing Type" value="Full Equity (No Debt)" />
-                    <DetailRow label="Total Equity Required" value={fmt(totalProjectCost)} bold />
-                    {property.willRefinance === "Yes" && property.refinanceDate && (
-                      <DetailRow label="Planned Refinance Date" value={new Date(property.refinanceDate).toLocaleDateString()} muted />
-                    )}
-                  </>
-                )}
-              </>
-            )}
-          </tbody>
-        </table>
-      </div>
-    </Card>
-  );
-}
+import { AnimatedPage, ScrollReveal } from "@/components/graphics";
+import {
+  PPECostBasisSchedule,
+  IncomeStatementTab,
+  CashFlowTab,
+  PropertyHeader,
+  PropertyKPIs,
+} from "@/components/property-detail";
 
 export default function PropertyDetail() {
   const [, params] = useRoute("/property/:id");
@@ -453,7 +243,6 @@ export default function PropertyDetail() {
     doc.setFontSize(10);
     doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 22);
     
-    // Table starts after header
     const chartStartY = 28;
 
     const headers = [["Line Item", ...Array.from({length: years}, (_, i) => `FY ${startYear + i}`)]];
@@ -522,7 +311,6 @@ export default function PropertyDetail() {
       [{ content: "Free Cash Flow to Equity (FCFE)", styles: { fontStyle: "bold" } }, ...pdfCfo.map((cfo, i) => ({ content: fmtNum(cfo - yearlyDetails[i].expenseFFE - cashFlowData[i].principalPayment), styles: { fontStyle: "bold" } }))],
     ];
 
-    // Build column styles with right alignment for all numeric columns
     const colStyles: Record<number, any> = { 0: { cellWidth: 45, halign: 'left' } };
     for (let i = 1; i <= years; i++) {
       colStyles[i] = { halign: 'right' };
@@ -538,14 +326,12 @@ export default function PropertyDetail() {
       columnStyles: colStyles,
     });
 
-    // Add chart on separate page at the end
     if (yearlyChartData && yearlyChartData.length > 0) {
       doc.addPage();
       doc.setFontSize(16);
       doc.text(`${property.name} - Performance Chart`, 14, 15);
       doc.setFontSize(10);
       
-      // Choose chart series based on active tab
       const chartSeries = activeTab === "cashflow" ? [
         {
           name: 'Revenue',
@@ -597,10 +383,6 @@ export default function PropertyDetail() {
     }
 
     doc.save(`${property.name.replace(/\s+/g, '_')}_CashFlow.pdf`);
-  };
-
-  const getStatusLabel = (status: string) => {
-    return status;
   };
 
   const exportChartPNG = async (orientation: 'landscape' | 'portrait' = 'landscape') => {
@@ -710,37 +492,6 @@ export default function PropertyDetail() {
     }
   };
 
-  const kpiItems: KPIItem[] = yearlyChartData.length > 0 ? [
-    {
-      label: "Year 1 Revenue",
-      value: yearlyChartData[0].Revenue,
-      format: formatCompact,
-      trend: yearlyChartData.length > 1 && yearlyChartData[1].Revenue > yearlyChartData[0].Revenue ? "up" : "neutral",
-      sublabel: `${projectionYears}-year projection`,
-    },
-    {
-      label: "Year 1 GOP",
-      value: yearlyChartData[0].GOP,
-      format: formatCompact,
-      trend: yearlyChartData[0].GOP > 0 ? "up" : "down",
-      sublabel: yearlyChartData[0].Revenue > 0 ? `${((yearlyChartData[0].GOP / yearlyChartData[0].Revenue) * 100).toFixed(1)}% margin` : undefined,
-    },
-    {
-      label: "Year 1 NOI",
-      value: yearlyChartData[0].NOI,
-      format: formatCompact,
-      trend: yearlyChartData[0].NOI > 0 ? "up" : "down",
-      sublabel: yearlyChartData[0].Revenue > 0 ? `${((yearlyChartData[0].NOI / yearlyChartData[0].Revenue) * 100).toFixed(1)}% margin` : undefined,
-    },
-    {
-      label: "Year 1 Cash Flow",
-      value: yearlyChartData[0].CashFlow,
-      format: formatCompact,
-      trend: yearlyChartData[0].CashFlow > 0 ? "up" : "down",
-      sublabel: "After debt service",
-    },
-  ] : [];
-
   return (
     <Layout>
       <AnimatedPage>
@@ -752,97 +503,16 @@ export default function PropertyDetail() {
         showDetailOption={activeTab === "income" && (exportType === 'pdf' || exportType === 'tablePng')}
       />
       <div className="space-y-6">
-        {/* Liquid Glass Header */}
-        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl">
-          {/* Property Image */}
-          <div className="relative h-[180px] sm:h-[280px]">
-            <img src={property.imageUrl.startsWith("/objects/") ? property.imageUrl : property.imageUrl} alt={property.name} className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-            <PropertyPhotoUpload 
-              propertyId={propertyId} 
-              currentImageUrl={property.imageUrl}
-              onUploadComplete={handlePhotoUploadComplete}
-            />
-          </div>
-          
-          {/* Liquid Glass Info Bar */}
-          <div className="relative overflow-hidden p-3 sm:p-6">
-            {/* Gradient Background */}
-            <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e] via-[#3d5a6a] to-[#3a5a5e]" />
-            {/* Top Edge Sheen */}
-            <div className="absolute top-0 left-8 right-8 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
-            {/* Floating Color Orbs */}
-            <div className="absolute inset-0 overflow-hidden">
-              <div className="absolute -top-12 -right-12 w-56 h-56 rounded-full bg-primary/25 blur-3xl" />
-              <div className="absolute bottom-0 left-1/4 w-48 h-48 rounded-full bg-primary/15 blur-3xl" />
-            </div>
-            
-            <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-              <div className="flex items-center gap-4">
-                <Link href="/portfolio">
-                  <button className="relative overflow-hidden p-2 text-white rounded-xl transition-all duration-300 group/back">
-                    <div className="absolute inset-0 bg-white/10 backdrop-blur-xl rounded-xl" />
-                    <div className="absolute inset-0 rounded-xl border border-white/20 group-hover/back:border-white/40 transition-all duration-300" />
-                    <ArrowLeft className="relative w-5 h-5" />
-                  </button>
-                </Link>
-                <div>
-                  <h1 className="text-lg sm:text-2xl font-display text-background">{property.name}</h1>
-                  <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-background/70 text-sm mt-1 label-text">
-                    <span className="flex items-center gap-1"><MapPin className="w-4 h-4" /> {property.location}</span>
-                    <span className="font-mono">{property.roomCount} Rooms</span>
-                    <span className="px-2 py-0.5 rounded-full bg-white/15 border border-white/25 text-white text-xs">
-                      {getStatusLabel(property.status)}
-                    </span>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-2 flex-wrap">
-                {(() => {
-                  const addressParts = [property.streetAddress, property.city, property.stateProvince, property.zipPostalCode, property.country].filter(Boolean);
-                  const hasAddress = addressParts.length > 0;
-                  const mapQuery = hasAddress ? addressParts.join(", ") : "";
-                  const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`;
-                  return (
-                    <button
-                      onClick={() => hasAddress && window.open(mapUrl, "_blank")}
-                      disabled={!hasAddress}
-                      title={hasAddress ? `View ${mapQuery} on Google Maps` : "No address provided — add address details in Assumptions"}
-                      className={`relative overflow-hidden px-4 py-2 text-sm font-medium rounded-xl transition-all duration-300 flex items-center gap-2 ${hasAddress ? "text-white group/map cursor-pointer" : "text-white/40 cursor-not-allowed"}`}
-                    >
-                      <div className={`absolute inset-0 backdrop-blur-xl rounded-xl ${hasAddress ? "bg-white/12" : "bg-white/5"}`} />
-                      <div className={`absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent ${hasAddress ? "via-white/40" : "via-white/15"} to-transparent`} />
-                      <div className={`absolute inset-0 rounded-xl border ${hasAddress ? "border-white/25 group-hover/map:border-white/40" : "border-white/10"} transition-all duration-300`} />
-                      {hasAddress && <div className="absolute inset-0 rounded-xl shadow-[0_0_20px_rgba(159,188,164,0.3)] group-hover/map:shadow-[0_0_30px_rgba(159,188,164,0.5)] transition-all duration-300" />}
-                      <Map className="relative w-4 h-4" />
-                      <span className="relative">Map</span>
-                    </button>
-                  );
-                })()}
-                <Link href={`/property/${propertyId}/edit`}>
-                  <button className="relative overflow-hidden px-4 py-2 text-sm font-medium text-white rounded-xl transition-all duration-300 group/edit flex items-center gap-2">
-                    <div className="absolute inset-0 bg-white/12 backdrop-blur-xl rounded-xl" />
-                    <div className="absolute top-0 left-2 right-2 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
-                    <div className="absolute inset-0 rounded-xl border border-white/25 group-hover/edit:border-white/40 transition-all duration-300" />
-                    <div className="absolute inset-0 rounded-xl shadow-[0_0_20px_rgba(159,188,164,0.3)] group-hover/edit:shadow-[0_0_30px_rgba(159,188,164,0.5)] transition-all duration-300" />
-                    <Settings2 className="relative w-4 h-4" />
-                    <span className="relative">Assumptions</span>
-                  </button>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
+        <PropertyHeader
+          property={property}
+          propertyId={propertyId}
+          onPhotoUploadComplete={handlePhotoUploadComplete}
+        />
 
-        {kpiItems.length > 0 && (
-          <KPIGrid
-            data-testid="kpi-property-detail"
-            items={kpiItems}
-            columns={4}
-            variant="glass"
-          />
-        )}
+        <PropertyKPIs
+          yearlyChartData={yearlyChartData}
+          projectionYears={projectionYears}
+        />
 
         <ScrollReveal>
         <CalcDetailsProvider show={global?.showPropertyCalculationDetails ?? true}>
@@ -872,197 +542,34 @@ export default function PropertyDetail() {
             />
           </div>
           
-          <TabsContent value="income" className="mt-6 space-y-6">
-            {/* Income Statement Chart Card - Light Theme */}
-            <div ref={incomeChartRef} className="relative overflow-hidden rounded-2xl sm:rounded-3xl p-3 sm:p-6 bg-white shadow-lg border border-gray-100">
-              <div className="relative">
-                <h3 className="text-lg font-display text-gray-900 mb-4">Income Statement Trends ({projectionYears}-Year Projection)</h3>
-                <div className="h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={yearlyChartData}>
-                      <defs>
-                        <linearGradient id="revenueGradient" x1="0" y1="0" x2="1" y2="0">
-                          <stop offset="0%" stopColor="#257D41" />
-                          <stop offset="100%" stopColor="#34D399" />
-                        </linearGradient>
-                        <linearGradient id="gopGradient" x1="0" y1="0" x2="1" y2="0">
-                          <stop offset="0%" stopColor="#3B82F6" />
-                          <stop offset="100%" stopColor="#60A5FA" />
-                        </linearGradient>
-                        <linearGradient id="noiGradient" x1="0" y1="0" x2="1" y2="0">
-                          <stop offset="0%" stopColor="#F4795B" />
-                          <stop offset="100%" stopColor="#FB923C" />
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
-                      <XAxis 
-                        dataKey="year" 
-                        stroke="#6B7280" 
-                        fontSize={12}
-                        tickLine={false}
-                        axisLine={{ stroke: '#E5E7EB' }}
-                      />
-                      <YAxis 
-                        stroke="#6B7280" 
-                        fontSize={12}
-                        tickLine={false}
-                        axisLine={{ stroke: '#E5E7EB' }}
-                        tickFormatter={(value) => `$${(value / 1000000).toFixed(1)}M`}
-                      />
-                      <Tooltip 
-                        contentStyle={{ 
-                          backgroundColor: 'white', 
-                          borderColor: '#E5E7EB',
-                          borderRadius: '12px',
-                          boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-                          color: '#111827',
-                        }}
-                        labelStyle={{ color: '#374151', fontWeight: 600 }}
-                        formatter={(value: number) => [formatMoney(value), ""]}
-                      />
-                      <Legend 
-                        wrapperStyle={{ color: '#374151' }}
-                        iconType="circle"
-                      />
-                      <Line 
-                        type="monotone" 
-                        dataKey="Revenue" 
-                        stroke="url(#revenueGradient)" 
-                        strokeWidth={3}
-                        dot={{ fill: '#257D41', stroke: '#fff', strokeWidth: 2, r: 4 }}
-                        activeDot={{ r: 6, fill: '#257D41', stroke: '#fff', strokeWidth: 2 }}
-                        name="Total Revenue"
-                      />
-                      <Line 
-                        type="monotone" 
-                        dataKey="GOP" 
-                        stroke="url(#gopGradient)" 
-                        strokeWidth={3}
-                        dot={{ fill: '#3B82F6', stroke: '#fff', strokeWidth: 2, r: 4 }}
-                        activeDot={{ r: 6, fill: '#3B82F6', stroke: '#fff', strokeWidth: 2 }}
-                        name="Gross Operating Profit"
-                      />
-                      <Line 
-                        type="monotone" 
-                        dataKey="NOI" 
-                        stroke="url(#noiGradient)" 
-                        strokeWidth={3}
-                        dot={{ fill: '#F4795B', stroke: '#fff', strokeWidth: 2, r: 4 }}
-                        activeDot={{ r: 6, fill: '#F4795B', stroke: '#fff', strokeWidth: 2 }}
-                        name="Net Operating Income"
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-            </div>
-            <div ref={incomeTableRef}>
-              <YearlyIncomeStatement data={financials} years={projectionYears} startYear={getFiscalYear(0)} property={property} global={global} allExpanded={incomeAllExpanded} />
-            </div>
+          <TabsContent value="income" className="mt-6">
+            <IncomeStatementTab
+              yearlyChartData={yearlyChartData}
+              yearlyDetails={yearlyDetails}
+              financials={financials}
+              property={property}
+              global={global}
+              projectionYears={projectionYears}
+              startYear={startYear}
+              incomeChartRef={incomeChartRef}
+              incomeTableRef={incomeTableRef}
+              incomeAllExpanded={incomeAllExpanded}
+            />
           </TabsContent>
           
-          <TabsContent value="cashflow" className="mt-6 space-y-6">
-            {/* Cash Flow Chart Card - Light Theme */}
-            <div ref={cashFlowChartRef} className="relative overflow-hidden rounded-2xl sm:rounded-3xl p-3 sm:p-6 bg-white shadow-lg border border-gray-100">
-              <div className="relative">
-                <h3 className="text-lg font-display text-gray-900 mb-4">Cash Flow Trends ({projectionYears}-Year Projection)</h3>
-                <div className="h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={yearlyChartData.map((d, i) => {
-                      const cfData = getCashFlowData();
-                      return {
-                        ...d,
-                        FCF: cfData[i]?.freeCashFlow || 0,
-                        FCFE: cfData[i]?.freeCashFlowToEquity || 0,
-                        NetToInvestors: cfData[i]?.netCashFlowToInvestors || 0,
-                      };
-                    })}>
-                      <defs>
-                        <linearGradient id="noiCfGradient" x1="0" y1="0" x2="1" y2="0">
-                          <stop offset="0%" stopColor="#257D41" />
-                          <stop offset="100%" stopColor="#34D399" />
-                        </linearGradient>
-                        <linearGradient id="fcfGradient" x1="0" y1="0" x2="1" y2="0">
-                          <stop offset="0%" stopColor="#3B82F6" />
-                          <stop offset="100%" stopColor="#60A5FA" />
-                        </linearGradient>
-                        <linearGradient id="fcfeGradient" x1="0" y1="0" x2="1" y2="0">
-                          <stop offset="0%" stopColor="#F4795B" />
-                          <stop offset="100%" stopColor="#FB923C" />
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
-                      <XAxis 
-                        dataKey="year" 
-                        stroke="#6B7280" 
-                        fontSize={12}
-                        tickLine={false}
-                        axisLine={{ stroke: '#E5E7EB' }}
-                      />
-                      <YAxis 
-                        stroke="#6B7280" 
-                        fontSize={12}
-                        tickLine={false}
-                        axisLine={{ stroke: '#E5E7EB' }}
-                        tickFormatter={(value) => `$${(value / 1000000).toFixed(1)}M`}
-                      />
-                      <Tooltip 
-                        contentStyle={{ 
-                          backgroundColor: 'white', 
-                          borderColor: '#E5E7EB',
-                          borderRadius: '12px',
-                          boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-                          color: '#111827',
-                        }}
-                        labelStyle={{ color: '#374151', fontWeight: 600 }}
-                        formatter={(value: number) => [formatMoney(value), ""]}
-                      />
-                      <Legend 
-                        wrapperStyle={{ color: '#374151' }}
-                        iconType="circle"
-                      />
-                      <Line 
-                        type="monotone" 
-                        dataKey="NOI" 
-                        stroke="url(#noiCfGradient)" 
-                        strokeWidth={3}
-                        dot={{ fill: '#257D41', stroke: '#fff', strokeWidth: 2, r: 4 }}
-                        activeDot={{ r: 6, fill: '#257D41', stroke: '#fff', strokeWidth: 2 }}
-                        name="Net Operating Income"
-                      />
-                      <Line 
-                        type="monotone" 
-                        dataKey="FCF" 
-                        stroke="url(#fcfGradient)" 
-                        strokeWidth={3}
-                        dot={{ fill: '#3B82F6', stroke: '#fff', strokeWidth: 2, r: 4 }}
-                        activeDot={{ r: 6, fill: '#3B82F6', stroke: '#fff', strokeWidth: 2 }}
-                        name="Free Cash Flow"
-                      />
-                      <Line 
-                        type="monotone" 
-                        dataKey="FCFE" 
-                        stroke="url(#fcfeGradient)" 
-                        strokeWidth={3}
-                        dot={{ fill: '#F4795B', stroke: '#fff', strokeWidth: 2, r: 4 }}
-                        activeDot={{ r: 6, fill: '#F4795B', stroke: '#fff', strokeWidth: 2 }}
-                        name="Free Cash Flow to Equity"
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-            </div>
-            <div ref={cashFlowTableRef}>
-              <YearlyCashFlowStatement 
-                data={financials} 
-                property={property} 
-                global={global}
-                years={projectionYears} 
-                startYear={getFiscalYear(0)} 
-                defaultLTV={property.acquisitionLTV ?? DEFAULT_LTV}
-              />
-            </div>
+          <TabsContent value="cashflow" className="mt-6">
+            <CashFlowTab
+              yearlyChartData={yearlyChartData}
+              cashFlowData={cashFlowDataMemo}
+              yearlyDetails={yearlyDetails}
+              financials={financials}
+              property={property}
+              global={global}
+              projectionYears={projectionYears}
+              startYear={startYear}
+              cashFlowChartRef={cashFlowChartRef}
+              cashFlowTableRef={cashFlowTableRef}
+            />
           </TabsContent>
 
           <TabsContent value="balance" className="mt-6">

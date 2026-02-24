@@ -239,6 +239,38 @@ Comprehensive checklist for major releases. Covers all 7 audit dimensions plus i
 
 ---
 
+## Dimension 8: Edge Case Coverage
+
+### Financial Engine Edge Cases
+- [ ] 100% equity property (LTV = 0) — no debt, no PMT, no refinance. Cash flow = NOI - Tax.
+- [ ] 0% initial occupancy — revenue = 0, fixed costs accrue, negative cash flow is valid.
+- [ ] Occupancy capped at maxOccupancy — growth stops, never exceeds 100%.
+- [ ] Zero ADR — all revenue streams = 0 (room, F&B, events, other).
+- [ ] Refinance beyond projection horizon — ignored, no crash.
+- [ ] Negative taxable income — tax = max(0, ...), never negative.
+- [ ] projectionYears = 2 — minimum valid, revenue growth checks work.
+- [ ] Pre-acquisition month — all values zero, balance sheet balances at zero.
+- [ ] Operations start ≠ Acquisition — debt/depreciation at acquisition, revenue at operations start.
+- [ ] Timezone dates — parseLocalDate() used, no June 30 bug on "2027-07-01".
+
+### Consolidated Edge Cases
+- [ ] Single property portfolio — consolidated = property, no divide-by-zero in weighted averages.
+- [ ] Empty portfolio (0 properties) — shows empty state, no NaN/Infinity.
+- [ ] Mixed equity/financed — debt metrics only count financed properties.
+- [ ] Properties with different start dates — aligned by calendar month, not relative month.
+
+### UI Edge Cases (Premium Design Rule)
+- [ ] Empty states — beautiful placeholders with CTAs, not blank pages or raw "No data."
+- [ ] Loading states — skeleton layouts matching page structure, not centered spinners.
+- [ ] Error states — styled error cards with retry, not raw error strings.
+- [ ] NaN/Infinity in display — shows "—" with tooltip, never raw NaN.
+- [ ] $0 values — displayed as "$0", not hidden or blank.
+- [ ] Negative values — red/warning color with parentheses or minus sign.
+- [ ] Very long names — truncate with ellipsis and hover tooltip.
+- [ ] Reduced motion — respects prefers-reduced-motion media query.
+
+---
+
 ## Final Sign-Off
 
 | Item | Status | Date | Notes |

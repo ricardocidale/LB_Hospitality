@@ -47,10 +47,28 @@ npm run exports:check  # Find unused exports
 - **Server endpoint:** `POST /api/generate-property-image` — generates image, uploads to object storage, returns `objectPath`
 
 ## Admin Page Structure
-Admin Settings page (`/admin`) has these tabs:
-- Users, Companies, Activity, Verification, User Groups, **Logos**, Branding, Themes, Navigation, Database
+Admin Settings page (`/admin`) — **refactored from 3,235-line monolith into 10 standalone tab components + 87-line shell**.
+- Shell: `client/src/pages/Admin.tsx` — tab navigation only, no business logic
+- Tabs: `client/src/components/admin/` — each tab owns its data fetching, mutations, dialogs, and state
+  - `UsersTab.tsx` — user CRUD, add/edit/password dialogs
+  - `CompaniesTab.tsx` — SPV management, mgmt company config
+  - `ActivityTab.tsx` — login logs, activity feed, checker activity (3 sub-tabs)
+  - `VerificationTab.tsx` — auto-verification, AI review, PDF export
+  - `UserGroupsTab.tsx` — group CRUD, user-to-group assignment
+  - `LogosTab.tsx` — logo CRUD with AI image picker
+  - `BrandingTab.tsx` — global branding config (accepts `onNavigate` prop for cross-tab nav)
+  - `ThemesTab.tsx` — wraps ThemeManager
+  - `NavigationTab.tsx` — sidebar toggle config
+  - `DatabaseTab.tsx` — sync status, seed execution
+- Shared types: `client/src/components/admin/types.ts` (17 interfaces)
+- Barrel export: `client/src/components/admin/index.ts`
 - Logo Management is a tab within Admin (not a separate sidebar link)
 - Branding tab shows read-only logo summary with "Manage Logos" button linking to Logos tab
+
+## Production Seed Script
+- `script/seed-production.sql` — comprehensive SQL to seed production DB
+- Covers 11 persistent tables (companies, logos, user_groups, design_themes, users, global_assumptions, properties, property_fee_categories, market_research, research_questions, saved_searches)
+- Uses `OVERRIDING SYSTEM VALUE` for identity columns, resets sequences, idempotent with `ON CONFLICT DO NOTHING`
 
 ## Calculation Transparency
 - Two toggles in **Systemwide Assumptions > Other tab** control formula accordion visibility:
@@ -62,7 +80,7 @@ Admin Settings page (`/admin`) has these tabs:
 - Shared row components in `client/src/components/financial-table-rows.tsx`
 
 ## Top Rules
-- **Calculations first.** 1,502-test proof system must always pass.
+- **Calculations first.** 1,529-test proof system must always pass.
 - **Graphics-rich pages.** Charts, animations, visual elements everywhere.
 - **No hardcoded values.** Financial assumptions and admin config from DB or named constants.
 - **Full recalculation on save.** No partial query invalidation.

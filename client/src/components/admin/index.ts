@@ -1,0 +1,10 @@
+export { default as UsersTab } from "./UsersTab";
+export { default as CompaniesTab } from "./CompaniesTab";
+export { default as ActivityTab } from "./ActivityTab";
+export { default as VerificationTab } from "./VerificationTab";
+export { default as UserGroupsTab } from "./UserGroupsTab";
+export { default as LogosTab } from "./LogosTab";
+export { default as BrandingTab } from "./BrandingTab";
+export { default as ThemesTab } from "./ThemesTab";
+export { default as NavigationTab } from "./NavigationTab";
+export { default as DatabaseTab } from "./DatabaseTab";

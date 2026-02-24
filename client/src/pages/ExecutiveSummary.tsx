@@ -55,11 +55,13 @@ export default function ExecutiveSummary() {
     return acc;
   }, {});
 
-  const statuses = ["Operational", "Development", "Acquisition"] as const;
+  const statuses = ["Operating", "Improvements", "Acquired", "In Negotiation", "Pipeline"] as const;
   const statusColors: Record<string, string> = {
-    Operational: "#257D41",
-    Development: "#F59E0B",
-    Acquisition: "#3B82F6",
+    Operating: "#257D41",
+    Improvements: "#F59E0B",
+    Acquired: "#3B82F6",
+    "In Negotiation": "#8B5CF6",
+    Pipeline: "#6B7280",
   };
 
   const kpis = [

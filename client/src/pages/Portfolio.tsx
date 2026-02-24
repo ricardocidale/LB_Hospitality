@@ -130,7 +130,7 @@ export default function Portfolio() {
     location: "",
     market: "",
     imageUrl: "",
-    status: "Development",
+    status: "Pipeline",
     acquisitionDate: "",
     operationsStartDate: "",
     purchasePrice: 0,
@@ -181,7 +181,7 @@ export default function Portfolio() {
       location: "",
       market: "",
       imageUrl: "",
-      status: "Development",
+      status: "Pipeline",
       acquisitionDate: "",
       operationsStartDate: "",
       purchasePrice: 0,
@@ -366,9 +366,11 @@ export default function Portfolio() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="Development">Planned</SelectItem>
-                          <SelectItem value="Operational">Active</SelectItem>
                           <SelectItem value="Pipeline">Pipeline</SelectItem>
+                          <SelectItem value="In Negotiation">In Negotiation</SelectItem>
+                          <SelectItem value="Acquired">Acquired</SelectItem>
+                          <SelectItem value="Improvements">Improvements</SelectItem>
+                          <SelectItem value="Operating">Operating</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -632,10 +634,13 @@ export default function Portfolio() {
                   </div>
                   <div className="absolute top-3 right-3">
                     <span className={`px-3 py-1 rounded-full text-xs font-medium backdrop-blur-xl border border-white/20 label-text ${
-                      property.status === "Operational" ? "bg-emerald-500/80 text-white" :
-                      property.status === "Development" ? "bg-amber-500/80 text-white" : "bg-white/20 text-white"
+                      property.status === "Operating" ? "bg-emerald-500/80 text-white" :
+                      property.status === "Improvements" ? "bg-amber-500/80 text-white" :
+                      property.status === "Acquired" ? "bg-blue-500/80 text-white" :
+                      property.status === "In Negotiation" ? "bg-purple-500/80 text-white" :
+                      property.status === "Pipeline" ? "bg-gray-500/80 text-white" : "bg-white/20 text-white"
                     }`}>
-                      {property.status === "Operational" ? "Active" : property.status === "Development" ? "Planned" : property.status}
+                      {property.status}
                     </span>
                   </div>
                 </div>

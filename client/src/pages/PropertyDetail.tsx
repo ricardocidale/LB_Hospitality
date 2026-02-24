@@ -600,8 +600,6 @@ export default function PropertyDetail() {
   };
 
   const getStatusLabel = (status: string) => {
-    if (status === "Operational") return "Active";
-    if (status === "Development") return "Planned";
     return status;
   };
 

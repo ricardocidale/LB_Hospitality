@@ -402,13 +402,15 @@ export default function PropertyEdit() {
                 />
               </div>
               <div className="space-y-2">
-                <Label className="label-text text-gray-700 flex items-center gap-1.5">Status<HelpTooltip text="Current stage of the property: Acquisition (under contract), Planned (in development), or Active (generating revenue)." /></Label>
+                <Label className="label-text text-gray-700 flex items-center gap-1.5">Status<HelpTooltip text="Current stage: Pipeline (being scoped), In Negotiation (advanced talks), Acquired (purchased), Improvements (under renovation), or Operating (generating revenue)." /></Label>
                 <Select value={draft.status} onValueChange={(v) => handleChange("status", v)}>
                   <SelectTrigger className="bg-white border-primary/30 text-gray-900"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Acquisition">Acquisition</SelectItem>
-                    <SelectItem value="Development">Planned</SelectItem>
-                    <SelectItem value="Operational">Active</SelectItem>
+                    <SelectItem value="Pipeline">Pipeline</SelectItem>
+                    <SelectItem value="In Negotiation">In Negotiation</SelectItem>
+                    <SelectItem value="Acquired">Acquired</SelectItem>
+                    <SelectItem value="Improvements">Improvements</SelectItem>
+                    <SelectItem value="Operating">Operating</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

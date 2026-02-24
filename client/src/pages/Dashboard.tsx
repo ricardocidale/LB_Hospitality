@@ -199,7 +199,7 @@ export default function Dashboard() {
   const year1Data = getYearlyConsolidated(0);
   const portfolioTotalRevenue = year1Data?.revenueTotal ?? 0;
   const portfolioTotalGOP = year1Data?.gop ?? 0;
-  const activeProperties = properties.filter(p => p.status === "Operational" || p.status === "Development").length;
+  const activeProperties = properties.filter(p => p.status === "Operating" || p.status === "Improvements" || p.status === "Acquired").length;
   const managementFees = (year1Data?.feeBase ?? 0) + (year1Data?.feeIncentive ?? 0);
 
   // Calculate comprehensive investment overview metrics

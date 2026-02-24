@@ -205,7 +205,7 @@ export default function Company() {
     );
   }
 
-  const activePropertyCount = properties.filter(p => p.status === "Operational").length;
+  const activePropertyCount = properties.filter(p => p.status === "Operating").length;
   const tier1Max = global?.staffTier1MaxProperties ?? STAFFING_TIERS[0].maxProperties;
   const tier1Fte = global?.staffTier1Fte ?? STAFFING_TIERS[0].fte;
   const tier2Max = global?.staffTier2MaxProperties ?? STAFFING_TIERS[1].maxProperties;

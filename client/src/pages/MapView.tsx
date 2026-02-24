@@ -11,12 +11,16 @@ const formatMoney = (value: number) =>
 
 const statusColor = (status: string) => {
   switch (status) {
-    case "Operational":
+    case "Operating":
       return "bg-green-100 text-green-700";
-    case "Development":
+    case "Improvements":
       return "bg-amber-100 text-amber-700";
-    case "Acquisition":
+    case "Acquired":
       return "bg-blue-100 text-blue-700";
+    case "In Negotiation":
+      return "bg-purple-100 text-purple-700";
+    case "Pipeline":
+      return "bg-gray-100 text-gray-700";
     default:
       return "bg-gray-100 text-gray-700";
   }

@@ -55,7 +55,7 @@ export interface Property {
   location: string;
   market: "North America" | "Latin America";
   imageUrl: string;
-  status: "Operational" | "Development" | "Acquisition";
+  status: "Pipeline" | "In Negotiation" | "Acquired" | "Improvements" | "Operating";
   
   // Timeline
   acquisitionDate: string;
@@ -145,7 +145,7 @@ const INITIAL_PROPERTIES: Property[] = [
     location: "Upstate New York",
     market: "North America",
     imageUrl: "/images/property-ny.png",
-    status: "Development",
+    status: "Pipeline",
     acquisitionDate: "2026-06-01",
     operationsStartDate: "2026-12-01",
     purchasePrice: 2300000, // Standard
@@ -179,7 +179,7 @@ const INITIAL_PROPERTIES: Property[] = [
     location: "Eden, Utah",
     market: "North America",
     imageUrl: "/images/property-utah.png",
-    status: "Acquisition",
+    status: "In Negotiation",
     acquisitionDate: "2027-01-01",
     operationsStartDate: "2027-07-01",
     purchasePrice: 2300000,
@@ -213,7 +213,7 @@ const INITIAL_PROPERTIES: Property[] = [
     location: "Austin, Texas",
     market: "North America",
     imageUrl: "/images/property-austin.png",
-    status: "Acquisition",
+    status: "In Negotiation",
     acquisitionDate: "2027-07-01",
     operationsStartDate: "2028-01-01",
     purchasePrice: 2300000,
@@ -247,7 +247,7 @@ const INITIAL_PROPERTIES: Property[] = [
     location: "Medellín, Colombia",
     market: "Latin America",
     imageUrl: "/images/property-medellin.png",
-    status: "Acquisition",
+    status: "In Negotiation",
     acquisitionDate: "2028-01-01",
     operationsStartDate: "2028-07-01",
     purchasePrice: 2300000,
@@ -281,7 +281,7 @@ const INITIAL_PROPERTIES: Property[] = [
     location: "Asheville, North Carolina",
     market: "North America",
     imageUrl: "/images/property-asheville.png",
-    status: "Acquisition",
+    status: "In Negotiation",
     acquisitionDate: "2028-01-01",
     operationsStartDate: "2028-07-01",
     purchasePrice: 2300000,

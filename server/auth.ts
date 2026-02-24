@@ -357,126 +357,80 @@ async function createDefaultScenarioForUser(userId: number, userName: string) {
  * @returns A promise that resolves when all seed operations are complete.
  */
 export async function seedAdminUser() {
-  // Seed admin user
-  const adminEmail = "admin";
-  const defaultPassword = process.env.ADMIN_PASSWORD;
-  
-  if (!defaultPassword) {
-    console.warn("ADMIN_PASSWORD environment variable not set. Skipping admin user creation.");
-    return;
-  }
-  
-  let adminUser = await storage.getUserByEmail(adminEmail);
-  
-  if (!adminUser) {
-    const passwordHash = await hashPassword(defaultPassword);
-    adminUser = await storage.createUser({
-      email: adminEmail,
-      passwordHash,
-      role: "admin",
-      firstName: "Ricardo",
-      lastName: "Cidale",
-      company: "Norfolk Group",
-      title: "Partner",
-    });
-    console.log(`Admin user created: admin`);
-  } else {
-    // Always update password and ensure profile is correct
-    const passwordHash = await hashPassword(defaultPassword);
-    await storage.updateUserPassword(adminUser.id, passwordHash);
-    await storage.updateUserProfile(adminUser.id, {
-      firstName: "Ricardo",
-      lastName: "Cidale",
-      company: "Norfolk Group",
-      title: "Partner",
-    });
-    console.log(`Admin user password reset: admin`);
-  }
-  
-  // Create default scenario for admin
-  await createDefaultScenarioForUser(adminUser.id, "admin");
+  const defaultPassword = process.env.PASSWORD_DEFAULT || process.env.PASSWORD_ADMIN;
 
-  // Seed checker user
-  const checkerEmail = "checker@norfolkgroup.io";
-  const checkerPassword = process.env.CHECKER_PASSWORD;
-  
-  if (!checkerPassword) {
-    console.warn("CHECKER_PASSWORD environment variable not set. Skipping checker user creation.");
-    return;
-  }
-  
-  let checkerUser = await storage.getUserByEmail(checkerEmail);
-  
-  if (!checkerUser) {
-    // Check if old "checker" user exists and migrate it
-    const oldChecker = await storage.getUserByEmail("checker");
-    if (oldChecker) {
-      const passwordHash = await hashPassword(checkerPassword);
-      await storage.updateUserProfile(oldChecker.id, { email: checkerEmail, firstName: "Checker", company: "Norfolk AI", title: "Checker" });
-      await storage.updateUserPassword(oldChecker.id, passwordHash);
-      await storage.updateUserRole(oldChecker.id, "checker");
-      checkerUser = await storage.getUserById(oldChecker.id);
-      console.log(`Migrated old 'checker' user to checker@norfolkgroup.io with role=checker`);
-    } else {
-      const passwordHash = await hashPassword(checkerPassword);
-      checkerUser = await storage.createUser({
-        email: checkerEmail,
-        passwordHash,
-        role: "checker",
-        firstName: "Checker",
-        company: "Norfolk AI",
-        title: "Checker",
-      });
-      console.log(`Checker user created: checker@norfolkgroup.io`);
-    }
-  } else {
-    // Always update password and ensure role is correct
-    const passwordHash = await hashPassword(checkerPassword);
-    await storage.updateUserPassword(checkerUser.id, passwordHash);
-    await storage.updateUserRole(checkerUser.id, "checker");
-    console.log(`Checker user password reset: checker@norfolkgroup.io`);
-  }
-  
-  // Create default scenario for checker
-  if (checkerUser) {
-    await createDefaultScenarioForUser(checkerUser.id, "checker");
-  }
+  const userSeeds: Array<{
+    email: string;
+    envVar: string;
+    role: "admin" | "partner" | "checker";
+    firstName: string;
+    lastName?: string;
+    company: string;
+    title: string;
+    userGroupId?: number;
+  }> = [
+    { email: "admin", envVar: "PASSWORD_ADMIN", role: "admin", firstName: "Ricardo", lastName: "Cidale", company: "Norfolk Group", title: "Partner", userGroupId: 2 },
+    { email: "checker@norfolkgroup.io", envVar: "PASSWORD_CHECKER", role: "checker", firstName: "Checker", company: "Norfolk AI", title: "Checker", userGroupId: 2 },
+    { email: "reynaldo.fagundes@norfolk.ai", envVar: "PASSWORD_REYNALDO", role: "partner", firstName: "Reynaldo", lastName: "Fagundes", company: "Norfolk AI", title: "CTO", userGroupId: 2 },
+    { email: "kit@kitcapital.com", envVar: "PASSWORD_KIT", role: "partner", firstName: "Dov", lastName: "Tuzman", company: "KIT Capital", title: "Principal", userGroupId: 1 },
+    { email: "rosario@kitcapital.com", envVar: "PASSWORD_ROSARIO", role: "partner", firstName: "Rosario", lastName: "David", company: "KIT Capital", title: "COO", userGroupId: 1 },
+    { email: "lemazniku@icloud.com", envVar: "PASSWORD_LEA", role: "partner", firstName: "Lea", lastName: "Mazniku", company: "KIT Capital", title: "Partner", userGroupId: 1 },
+    { email: "leslie@cidale.com", envVar: "PASSWORD_LESLIE", role: "partner", firstName: "Leslie", lastName: "Cidale", company: "Numeratti Endeavors", title: "Senior Partner", userGroupId: 3 },
+    { email: "wlaruffa@gmail.com", envVar: "PASSWORD_WILLIAM", role: "partner", firstName: "William", lastName: "Laruffa", company: "Independent", title: "Partner", userGroupId: 3 },
+  ];
 
-  // Seed Reynaldo user
-  const reynaldoEmail = "reynaldo.fagundes@norfolk.ai";
-  const reynaldoPassword = process.env.REYNALDO_PASSWORD;
-
-  if (!reynaldoPassword) {
-    console.warn("REYNALDO_PASSWORD environment variable not set. Skipping Reynaldo user creation.");
-  } else {
-    let reynaldoUser = await storage.getUserByEmail(reynaldoEmail);
-
-    if (!reynaldoUser) {
-      const passwordHash = await hashPassword(reynaldoPassword);
-      reynaldoUser = await storage.createUser({
-        email: reynaldoEmail,
-        passwordHash,
-        role: "partner",
-        firstName: "Reynaldo",
-        lastName: "Fagundes",
-        company: "Norfolk AI",
-        title: "CTO",
-      });
-      console.log(`Reynaldo user created: ${reynaldoEmail}`);
-    } else {
-      const passwordHash = await hashPassword(reynaldoPassword);
-      await storage.updateUserPassword(reynaldoUser.id, passwordHash);
-      await storage.updateUserProfile(reynaldoUser.id, {
-        firstName: "Reynaldo",
-        lastName: "Fagundes",
-        company: "Norfolk AI",
-        title: "CTO",
-      });
-      console.log(`Reynaldo user password reset: ${reynaldoEmail}`);
+  for (const seed of userSeeds) {
+    const password = process.env[seed.envVar] || defaultPassword;
+    if (!password) {
+      console.warn(`${seed.envVar} not set and no PASSWORD_DEFAULT. Skipping ${seed.email}.`);
+      continue;
     }
 
-    if (reynaldoUser) {
-      await createDefaultScenarioForUser(reynaldoUser.id, "reynaldo");
+    let user = await storage.getUserByEmail(seed.email);
+
+    if (!user) {
+      if (seed.email === "checker@norfolkgroup.io") {
+        const oldChecker = await storage.getUserByEmail("checker");
+        if (oldChecker) {
+          const passwordHash = await hashPassword(password);
+          await storage.updateUserProfile(oldChecker.id, { email: seed.email, firstName: seed.firstName, company: seed.company, title: seed.title });
+          await storage.updateUserPassword(oldChecker.id, passwordHash);
+          await storage.updateUserRole(oldChecker.id, "checker");
+          user = await storage.getUserById(oldChecker.id);
+          console.log(`Migrated old 'checker' user to ${seed.email}`);
+        }
+      }
+
+      if (!user) {
+        const passwordHash = await hashPassword(password);
+        user = await storage.createUser({
+          email: seed.email,
+          passwordHash,
+          role: seed.role,
+          firstName: seed.firstName,
+          lastName: seed.lastName,
+          company: seed.company,
+          title: seed.title,
+        });
+        console.log(`User created: ${seed.email}`);
+      }
+    } else {
+      const passwordHash = await hashPassword(password);
+      await storage.updateUserPassword(user.id, passwordHash);
+      await storage.updateUserProfile(user.id, {
+        firstName: seed.firstName,
+        lastName: seed.lastName,
+        company: seed.company,
+        title: seed.title,
+      });
+      if (seed.role === "checker") {
+        await storage.updateUserRole(user.id, "checker");
+      }
+      console.log(`User password reset: ${seed.email}`);
+    }
+
+    if (user) {
+      await createDefaultScenarioForUser(user.id, seed.firstName.toLowerCase());
     }
   }
 }

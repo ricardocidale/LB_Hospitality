@@ -103,6 +103,9 @@ export default function Dashboard() {
   const projectionYears = global?.projectionYears ?? PROJECTION_YEARS;
   const projectionMonths = projectionYears * 12;
 
+  // Step 1 of the computation pipeline: run the financial engine for every property.
+  // This produces an array of monthly line items (revenue, expenses, GOP, NOI, etc.)
+  // for each property. All downstream calculations derive from this data.
   const allPropertyFinancials = useMemo(() => {
     if (!properties || !global) return [];
     return properties.map(p => {
@@ -128,7 +131,9 @@ export default function Dashboard() {
     [allPropertyFinancials, projectionYears]
   );
 
-  // Portfolio-level consolidated yearly totals
+  // Step 4: Sum all properties together into portfolio-level consolidated totals.
+  // This adds every numeric field across all properties for each year — for example,
+  // consolidated revenueTotal = sum of all properties' revenueTotal for that year.
   const yearlyConsolidatedCache = useMemo(() => {
     if (!allPropertyYearlyIS.length) return [] as YearlyPropertyFinancials[];
     const numericKeys = Object.keys(allPropertyYearlyIS[0]?.[0] ?? {}).filter(
@@ -159,6 +164,10 @@ export default function Dashboard() {
     return { totalProjectionRevenue: rev, totalProjectionNOI: noi, totalProjectionCashFlow: cf };
   }, [yearlyConsolidatedCache, projectionYears]);
 
+  // Step 5: Compute portfolio-level weighted-average ADR, occupancy, and RevPAR.
+  // ADR is weighted by rooms sold (not just averaged across properties), because
+  // a large hotel with many rooms sold should contribute more to the average rate.
+  // RevPAR = Total Room Revenue / Total Available Room Nights.
   const weightedMetricsByYear = useMemo(() => {
     if (!properties || !properties.length || !allPropertyFinancials.length) return [];
     return Array.from({ length: projectionYears }, (_, yearIndex) => {
@@ -295,9 +304,13 @@ export default function Dashboard() {
     return yearly.map(r => r.netCashFlowToInvestors);
   };
 
+  // Step 6: Compute portfolio-level investor return metrics.
+  // consolidatedFlows = sum of all property investor cash flows per year
+  // (includes ATCF + exit proceeds − equity invested).
   const consolidatedFlows = Array.from({ length: projectionYears }, (_, y) =>
     allPropertyYearlyCF.reduce((sum, propYearly) => sum + (propYearly[y]?.netCashFlowToInvestors ?? 0), 0)
   );
+  // Portfolio IRR: the discount rate that makes NPV of consolidated flows = 0.
   const portfolioIRR = calculateIRR(consolidatedFlows);
   const totalInitialEquity = properties.reduce((sum, prop) => sum + getPropertyInvestment(prop), 0);
   const totalExitValue = allPropertyYearlyCF.reduce(
@@ -306,8 +319,13 @@ export default function Dashboard() {
   const totalCashReturned = consolidatedFlows.reduce((sum, cf) => sum + cf, 0);
   const midProjectionEquity = Array.from({ length: projectionYears }, (_, y) => getEquityInvestmentForYear(y + 1))
     .reduce((sum, eq) => sum + eq, 0);
+  // Equity Multiple = total cash returned / total equity invested. A value of 2.0x
+  // means the investor doubled their money over the hold period.
   const equityMultiple = totalInitialEquity > 0 ? (totalCashReturned + midProjectionEquity) / totalInitialEquity : 0;
 
+  // Cash-on-Cash Return = average annual after-tax cash flow / total equity invested.
+  // ATCF = After-Tax Cash Flow (NOI − debt service − taxes). This tells an investor
+  // what annual yield they can expect on their cash investment.
   const operatingCashFlows = Array.from({ length: projectionYears }, (_, y) =>
     allPropertyYearlyCF.reduce((sum, propYearly) => sum + (propYearly[y]?.atcf ?? 0), 0)
   );

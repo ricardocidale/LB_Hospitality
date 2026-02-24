@@ -60,6 +60,7 @@ import { AnimatedPage, AnimatedGrid } from "@/components/graphics";
 import { AddPropertyDialog, PortfolioPropertyCard } from "@/components/portfolio";
 import type { AddPropertyFormData } from "@/components/portfolio";
 
+/** Utility: shift a YYYY-MM-DD date string forward by N months. */
 function addMonths(dateStr: string, months: number): string {
   if (!dateStr) return "";
   const d = new Date(dateStr + "T00:00:00");

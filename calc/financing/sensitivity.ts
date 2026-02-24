@@ -1,3 +1,38 @@
+/**
+ * calc/financing/sensitivity.ts — DSCR sensitivity matrix (rate × NOI stress test).
+ *
+ * PURPOSE:
+ * Generates a two-dimensional stress-test matrix showing how the Debt Service
+ * Coverage Ratio (DSCR) changes across a grid of interest rate shocks (in basis
+ * points) and NOI shocks (in percentage changes). This is a standard lender and
+ * investor tool for assessing loan resilience.
+ *
+ * HOW THE MATRIX WORKS:
+ * For each (rate_shock_bps, noi_shock_pct) combination:
+ *   stressed_rate = base_rate + (shock_bps / 10,000)
+ *   stressed_NOI  = base_NOI × (1 + shock_pct / 100)
+ *   stressed_DS   = PMT(loan_amount, stressed_rate, amort_months) × 12
+ *   DSCR          = stressed_NOI / stressed_DS
+ *
+ * Each cell is flagged pass/fail against the minimum DSCR threshold (default 1.25×).
+ * The output includes worst-case and best-case DSCR across all scenarios, plus a
+ * count of failing scenarios.
+ *
+ * WHY AMORTIZING DS IS USED (NOT IO):
+ * Lenders size loans to the worst-case (peak) debt service, which occurs during
+ * the amortizing period. Even if the loan starts with IO payments, the sensitivity
+ * matrix uses amortizing DS to ensure the loan remains viable after IO expires.
+ * IO DSCR is reported separately for informational purposes.
+ *
+ * KEY TERMS:
+ * - Basis Point (bp): 1/100th of 1%. So 100 bps = 1.00%.
+ * - NOI Shock: Percentage change to base NOI. -20% simulates a 20% revenue decline.
+ * - Pass/Fail: Whether the stressed DSCR meets the minimum threshold.
+ *
+ * HOW IT FITS THE SYSTEM:
+ * Called via the dispatch layer as the "sensitivity" skill. Typically presented
+ * as a color-coded heat map in the UI, showing green (pass) and red (fail) cells.
+ */
 import type { RoundingPolicy } from "../../domain/types/rounding.js";
 import { roundTo } from "../../domain/types/rounding.js";
 import { pmt, ioPayment } from "../shared/pmt.js";

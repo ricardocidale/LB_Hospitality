@@ -1,3 +1,40 @@
+/**
+ * calc/financing/prepayment.ts — Prepayment penalty calculator for early loan payoff.
+ *
+ * PURPOSE:
+ * When a borrower pays off a commercial real estate loan before maturity (e.g., at
+ * refinance or property sale), the lender charges a prepayment penalty to compensate
+ * for lost interest income. This module computes the penalty amount under three
+ * common structures used in hospitality lending.
+ *
+ * THREE PENALTY TYPES:
+ *
+ * 1. YIELD MAINTENANCE ("make-whole")
+ *    The borrower compensates the lender for the present value of the interest rate
+ *    differential over the remaining loan term. If the loan rate is 7% and current
+ *    Treasuries are 4%, the borrower pays the PV of that 3% spread on the declining
+ *    balance for every remaining month. This is the most expensive penalty and is
+ *    common in CMBS (Commercial Mortgage-Backed Securities) loans.
+ *    Formula: Σ PV[(scheduled_interest_m − treasury_interest_m)] for each remaining month
+ *
+ * 2. STEP-DOWN (declining percentage)
+ *    A fixed percentage of the outstanding balance that decreases annually.
+ *    Common pattern: 5-4-3-2-1 (5% in year 1, declining 1% per year).
+ *    Simpler to calculate and more borrower-friendly in later years.
+ *
+ * 3. DEFEASANCE
+ *    Instead of paying off the loan, the borrower purchases a portfolio of
+ *    U.S. Treasury securities that replicate the remaining scheduled debt service
+ *    payments. The lender keeps receiving payments from the Treasuries.
+ *    Cost = PV(remaining payments at Treasury rate) − outstanding balance + admin fees.
+ *    Common in securitized (CMBS) loans where the trust cannot accept early payoff.
+ *
+ * HOW IT FITS THE SYSTEM:
+ * Called via the dispatch layer as the "prepayment" skill, and also used internally
+ * by the refinance calculator to determine the total payoff cost of the existing loan.
+ * The penalty amount flows into the refinance's "payoff_breakdown" and affects the
+ * cash-out-to-equity computation.
+ */
 import type { RoundingPolicy } from "../../domain/types/rounding.js";
 import { roundTo } from "../../domain/types/rounding.js";
 import type { ScheduleEntry } from "../shared/types.js";

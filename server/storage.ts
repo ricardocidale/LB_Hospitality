@@ -199,6 +199,7 @@ export class DatabaseStorage implements IStorage {
     return user || undefined;
   }
 
+  /** Create a new user. Email is always lowercased for case-insensitive lookup. */
   async createUser(data: InsertUser): Promise<User> {
     const [user] = await db
       .insert(users)
@@ -216,6 +217,7 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
+  /** List all users, ordered by creation date. Used by the admin user management panel. */
   async getAllUsers(): Promise<User[]> {
     return await db.select().from(users).orderBy(users.createdAt);
   }
@@ -250,6 +252,7 @@ export class DatabaseStorage implements IStorage {
     await db.delete(sessions).where(eq(sessions.userId, id));
   }
 
+  /** Update a user's profile fields (name, email, company, title). Timestamps the update. */
   async updateUserProfile(id: number, data: { firstName?: string; lastName?: string; email?: string; company?: string; companyId?: number | null; title?: string }): Promise<User> {
     const [user] = await db
       .update(users)
@@ -259,6 +262,7 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
+  /** Set the user's preferred color theme. Pass null to revert to the group/default theme. */
   async updateUserSelectedTheme(id: number, themeId: number | null): Promise<User> {
     const [user] = await db
       .update(users)
@@ -268,6 +272,7 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
+  /** Change a user's role (admin, partner, checker, investor). Admin-only operation. */
   async updateUserRole(id: number, role: string): Promise<void> {
     await db.update(users).set({ role, updatedAt: new Date() }).where(eq(users.id, id));
   }
@@ -298,10 +303,12 @@ export class DatabaseStorage implements IStorage {
     return { ...result.sessions, user: result.users };
   }
 
+  /** Delete a single session (user-initiated logout). */
   async deleteSession(sessionId: string): Promise<void> {
     await db.delete(sessions).where(eq(sessions.id, sessionId));
   }
 
+  /** Delete all sessions for a user (used after password change to force re-login). */
   async deleteUserSessions(userId: number): Promise<void> {
     await db.delete(sessions).where(eq(sessions.userId, userId));
   }
@@ -371,11 +378,13 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(properties).orderBy(properties.createdAt);
   }
 
+  /** Fetch a single property by ID. Returns undefined if not found. */
   async getProperty(id: number): Promise<Property | undefined> {
     const [property] = await db.select().from(properties).where(eq(properties.id, id));
     return property || undefined;
   }
 
+  /** Insert a new property into the portfolio. Returns the created record with generated ID. */
   async createProperty(data: InsertProperty): Promise<Property> {
     const [property] = await db
       .insert(properties)
@@ -384,6 +393,7 @@ export class DatabaseStorage implements IStorage {
     return property;
   }
 
+  /** Partially update a property's fields. Returns the updated record, or undefined if not found. */
   async updateProperty(id: number, data: UpdateProperty): Promise<Property | undefined> {
     const [property] = await db
       .update(properties)
@@ -393,6 +403,7 @@ export class DatabaseStorage implements IStorage {
     return property || undefined;
   }
 
+  /** Remove a property from the portfolio. Fee categories cascade-delete via FK. */
   async deleteProperty(id: number): Promise<void> {
     await db.delete(properties).where(eq(properties.id, id));
   }
@@ -404,11 +415,13 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(scenarios).where(eq(scenarios.userId, userId)).orderBy(scenarios.updatedAt);
   }
 
+  /** Fetch a single scenario by ID, including its full JSON snapshot. */
   async getScenario(id: number): Promise<Scenario | undefined> {
     const [scenario] = await db.select().from(scenarios).where(eq(scenarios.id, id));
     return scenario || undefined;
   }
 
+  /** Save a new scenario snapshot (assumptions + properties + images + fee categories). */
   async createScenario(data: InsertScenario): Promise<Scenario> {
     const [scenario] = await db
       .insert(scenarios)
@@ -417,6 +430,7 @@ export class DatabaseStorage implements IStorage {
     return scenario;
   }
 
+  /** Update scenario metadata (name, description). Does not re-snapshot financial data. */
   async updateScenario(id: number, data: UpdateScenario): Promise<Scenario | undefined> {
     const [scenario] = await db
       .update(scenarios)
@@ -426,6 +440,7 @@ export class DatabaseStorage implements IStorage {
     return scenario || undefined;
   }
 
+  /** Delete a scenario. The "Base" scenario is protected by the route handler, not here. */
   async deleteScenario(id: number): Promise<void> {
     await db.delete(scenarios).where(eq(scenarios.id, id));
   }
@@ -478,6 +493,7 @@ export class DatabaseStorage implements IStorage {
     return log;
   }
   
+  /** Stamp the logout time on a login log entry. Called when the user logs out. */
   async updateLogoutTime(sessionId: string): Promise<void> {
     await db
       .update(loginLogs)
@@ -501,20 +517,24 @@ export class DatabaseStorage implements IStorage {
   
   // ── Design Themes ──────────────────────────────────────────────
 
+  /** List all design themes, ordered by creation date. */
   async getAllDesignThemes(): Promise<DesignTheme[]> {
     return await db.select().from(designThemes).orderBy(designThemes.createdAt);
   }
 
+  /** Fetch a single theme by ID. Used when resolving a user's selected theme. */
   async getDesignTheme(id: number): Promise<DesignTheme | undefined> {
     const [theme] = await db.select().from(designThemes).where(eq(designThemes.id, id));
     return theme || undefined;
   }
 
+  /** Get the theme marked as isDefault=true. Fallback when no user/group preference exists. */
   async getDefaultDesignTheme(): Promise<DesignTheme | undefined> {
     const [theme] = await db.select().from(designThemes).where(eq(designThemes.isDefault, true));
     return theme || undefined;
   }
 
+  /** Create a new color theme with a name, description, and array of named colors. */
   async createDesignTheme(data: InsertDesignTheme): Promise<DesignTheme> {
     const [theme] = await db
       .insert(designThemes)
@@ -528,6 +548,7 @@ export class DatabaseStorage implements IStorage {
     return theme;
   }
 
+  /** Update a theme's name, description, or colors. */
   async updateDesignTheme(id: number, data: Partial<InsertDesignTheme>): Promise<DesignTheme | undefined> {
     const [theme] = await db
       .update(designThemes)
@@ -562,6 +583,7 @@ export class DatabaseStorage implements IStorage {
     return result || undefined;
   }
   
+  /** List all research reports visible to a user (their own + shared/seed reports). */
   async getAllMarketResearch(userId?: number): Promise<MarketResearch[]> {
     if (userId) {
       return await db.select().from(marketResearch)
@@ -604,6 +626,7 @@ export class DatabaseStorage implements IStorage {
     }
   }
   
+  /** Delete a single market research report by ID. */
   async deleteMarketResearch(id: number): Promise<void> {
     await db.delete(marketResearch).where(eq(marketResearch.id, id));
   }
@@ -640,6 +663,7 @@ export class DatabaseStorage implements IStorage {
     return prop;
   }
   
+  /** Remove a favorited property. Only the owning user can delete their own favorites. */
   async deleteProspectiveProperty(id: number, userId: number): Promise<void> {
     await db.delete(prospectiveProperties)
       .where(and(eq(prospectiveProperties.id, id), eq(prospectiveProperties.userId, userId)));

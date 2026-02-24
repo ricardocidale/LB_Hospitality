@@ -1,3 +1,37 @@
+/**
+ * calc/financing/interest-rate-swap.ts — Interest rate swap analysis for hedging floating-rate debt.
+ *
+ * PURPOSE:
+ * Models a plain-vanilla interest rate swap where the borrower exchanges floating-rate
+ * payments for fixed-rate payments (or vice versa). This is the most common derivative
+ * used in hotel financing to hedge against rising interest rates.
+ *
+ * HOW AN INTEREST RATE SWAP WORKS:
+ * Two parties agree to exchange periodic interest payments on a notional amount:
+ *   - Fixed Payer: Pays a fixed rate (e.g., 5.5%) and receives floating.
+ *   - Floating Payer: Pays a floating rate (e.g., SOFR + spread) and receives fixed.
+ *
+ * The "net payment" each period is the difference. If the borrower has a floating-rate
+ * loan and enters a pay-fixed swap, their all-in cost becomes the fixed rate — effectively
+ * converting variable-rate debt to fixed-rate debt.
+ *
+ * KEY OUTPUTS:
+ *   - Period-by-period cash flows showing who pays whom
+ *   - Breakeven floating rate: the rate at which the swap has zero net cost
+ *   - Rate scenario analysis: how the swap performs if rates move ±100-300 bps
+ *   - DSCR impact: how the swap affects debt service coverage under each scenario
+ *   - Recommendation: "favorable" if the swap saves money in most scenarios
+ *
+ * GAAP NOTE (ASC 815 — Derivatives and Hedging):
+ * If the swap qualifies as a cash flow hedge, mark-to-market gains/losses go to
+ * Other Comprehensive Income (OCI) rather than hitting the income statement.
+ * This module computes the economic cash flows; hedge accounting treatment is
+ * handled by the journal entry layer.
+ *
+ * HOW IT FITS THE SYSTEM:
+ * Called via the dispatch layer as the "interest_rate_swap" skill. Helps investors
+ * evaluate whether to hedge floating-rate exposure on hotel acquisition debt.
+ */
 import type { RoundingPolicy } from "../../domain/types/rounding.js";
 import { roundTo } from "../../domain/types/rounding.js";
 import { rounder, RATIO_ROUNDING } from "../shared/utils.js";

@@ -89,6 +89,8 @@ export default function PropertyDetail() {
     [property, global, projectionMonths]
   );
 
+  // Aggregate monthly financials into yearly totals for the performance chart.
+  // Each bar/line in the chart needs a single number per year, so we sum 12 months.
   const yearlyChartData = useMemo(() => {
     const data = [];
     for (let y = 0; y < projectionYears; y++) {
@@ -108,11 +110,14 @@ export default function PropertyDetail() {
   const years = projectionYears;
   const startYear = getFiscalYear(0);
 
+  // Compute yearly cash-flow rows (ATCF, exit value, debt service, refi proceeds)
+  // using the shared aggregator. This feeds the Cash Flow Statement tab.
   const cashFlowDataMemo = useMemo(() => {
     if (!property || !global || financials.length === 0) return [];
     return aggregateCashFlowByYear(financials, property as LoanParams, global as GlobalLoanParams, years);
   }, [financials, property, global, years]);
 
+  // Aggregate monthly income-statement data into yearly totals for the IS tab.
   const yearlyDetails = useMemo(
     () => aggregatePropertyByYear(financials, years),
     [financials, years]

@@ -1,3 +1,48 @@
+/**
+ * calc/shared/schemas.ts — Zod validation schemas for the calculation engine's API layer.
+ *
+ * PURPOSE:
+ * Every calculation skill exposed through `calc/dispatch.ts` accepts a JSON payload
+ * from the client (or server). Before the payload reaches any financial function,
+ * it is validated against the matching Zod schema defined here. This ensures that
+ * impossible or nonsensical inputs (negative room counts, missing cash-flow arrays,
+ * cap rates above 100%, etc.) are rejected with clear error messages rather than
+ * producing silently wrong financial projections.
+ *
+ * HOW IT FITS THE SYSTEM:
+ * ┌──────────┐     ┌────────────┐     ┌────────────────┐     ┌──────────────────┐
+ * │  Client  │ ──► │ dispatch() │ ──► │ schemas.ts     │ ──► │ calc function    │
+ * │ request  │     │ (router)   │     │ (Zod validate) │     │ (pure math)      │
+ * └──────────┘     └────────────┘     └────────────────┘     └──────────────────┘
+ *
+ * Each schema mirrors the TypeScript interface of its corresponding calculation
+ * function (e.g., `dcfSchema` validates `DCFInput`, `breakEvenSchema` validates
+ * `BreakEvenInput`). The schemas live in `shared/` because they are used by both
+ * the dispatch layer and the server-side calculation checker.
+ *
+ * KEY FINANCIAL TERMS VALIDATED HERE:
+ * - discount_rate / exit_cap_rate: Capitalization rates used to convert income
+ *   streams into present values. Must be positive (dividing by zero = crash).
+ * - NOI (Net Operating Income): Revenue minus operating expenses, before debt
+ *   service. Core input for DCF, break-even, DSCR, and exit valuation.
+ * - DSCR (Debt Service Coverage Ratio): NOI / Annual Debt Service. Lenders
+ *   typically require ≥ 1.25×.
+ * - LTV (Loan-to-Value): Loan amount / Property value. Capped at a maximum
+ *   (e.g., 0.75 = 75%) to limit lender risk.
+ * - FF&E Reserve Rate: Percentage of revenue set aside for furniture, fixtures,
+ *   and equipment replacement. Industry standard is 3–5%.
+ * - ADR (Average Daily Rate): Mean room rate charged per occupied room per night.
+ * - SAFE (Simple Agreement for Future Equity): Early-stage funding instrument
+ *   used by the management company before hotel operations begin.
+ * - IRR (Internal Rate of Return): The discount rate that makes NPV = 0.
+ *   Requires at least one negative (investment) and one positive (return) cash flow.
+ * - Equity Multiple: Total distributions / Total equity invested. A 2.0× multiple
+ *   means the investor doubled their money.
+ *
+ * IMPORTANT: These schemas strip `rounding_policy` because the dispatch layer
+ * injects it separately from the global configuration. The calculation functions
+ * receive the full typed input after merge.
+ */
 import { z } from "zod";
 
 export const dcfSchema = z.object({

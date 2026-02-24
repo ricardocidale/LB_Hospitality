@@ -137,6 +137,9 @@ export default function Settings() {
 
   const currentGlobal = globalDraft || global;
 
+  // Generic handler for top-level global assumption fields.
+  // Auto-converts string values to numbers unless the field is known to be text
+  // (e.g. "preferredLlm", "companyName"). Boolean values pass through directly.
   const handleGlobalChange = (key: string, value: string | boolean) => {
     if (typeof value === "boolean") {
       setGlobalDraft({ ...currentGlobal, [key]: value });
@@ -150,6 +153,8 @@ export default function Settings() {
     }
   };
 
+  // Handler for nested JSON objects like `assetDefinition` and `debtAssumptions`.
+  // Merges the changed field into the existing nested object on the draft.
   const handleNestedChange = (parent: string, key: string, value: string | boolean) => {
     if (typeof value === "boolean") {
       setGlobalDraft({
@@ -190,6 +195,9 @@ export default function Settings() {
     });
   };
 
+  // Trigger server-side AI research generation and stream results in real time.
+  // The server uses Server-Sent Events (SSE) to push partial content as the LLM
+  // generates it, so the user can watch the report build progressively.
   const generateResearch = useCallback(async () => {
     setIsGenerating(true);
     setStreamedContent("");

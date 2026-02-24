@@ -80,6 +80,9 @@ export default function Company() {
   const projectionYears = global?.projectionYears ?? PROJECTION_YEARS;
   const projectionMonths = projectionYears * 12;
 
+  // Attach custom fee categories to each property before running the company engine.
+  // Properties with no custom categories use the default management fee rate;
+  // properties WITH custom categories get a per-category breakdown in the proforma.
   const enrichedProperties = useMemo(() => {
     if (!properties) return [];
     return properties.map(p => {
@@ -99,11 +102,15 @@ export default function Company() {
     [enrichedProperties, global, projectionMonths]
   );
 
+  // Detect whether the management company will run out of cash before reaching
+  // profitability. This triggers a warning banner at the top of the page.
   const cashAnalysis = useMemo(
     () => analyzeCompanyCashPosition(financials),
     [financials]
   );
 
+  // Per-property proformas are needed for the fee drill-down: the company IS
+  // shows each property's contribution to service fees and incentive fees.
   const propertyFinancials = useMemo(
     () => {
       if (!enrichedProperties.length || !global) return [];

@@ -70,6 +70,13 @@ export default function PropertyEdit() {
     }
   }, [feeCategories]);
 
+  // Build the merged research values used by assumption input fields.
+  // Three layers are combined (lowest priority first):
+  //   1. GENERIC_DEFAULTS — hardcoded industry averages used when no other data exists
+  //   2. dbResearch — values previously saved in the property's `researchValues` JSON column
+  //   3. AI research — real-time values extracted from the latest AI-generated market report
+  // The result is a map like { adr: { display: "$175–$225", mid: 193 }, ... }
+  // that each section component uses to show "suggested" badges next to inputs.
   const researchValues = (() => {
     const GENERIC_DEFAULTS: Record<string, { display: string; mid: number; source?: string }> = {
       adr: { display: "$175–$225", mid: 193 },

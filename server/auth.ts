@@ -1,3 +1,34 @@
+/**
+ * server/auth.ts — Authentication, Session Management & Authorization
+ *
+ * This file contains everything related to securing the application:
+ *
+ *   Password hashing & verification:
+ *     Uses bcrypt with 12 salt rounds. Passwords are never stored in plain text.
+ *     The validatePassword() function enforces complexity rules (8+ chars, mixed case, digits).
+ *
+ *   Session management:
+ *     Sessions are stored in the database (not in-memory) so they survive server restarts.
+ *     Each session maps to a cryptographically random 64-hex-char ID stored in an HTTP-only cookie.
+ *     Sessions expire after 7 days. The authMiddleware() function runs on every request,
+ *     loading the user record from the session cookie if present.
+ *
+ *   Rate limiting:
+ *     Login attempts are rate-limited per IP address (5 attempts, 15-minute lockout).
+ *     API calls to expensive operations (AI, external search) are rate-limited per user
+ *     within a 1-minute sliding window. Both maps are cleaned hourly by server/index.ts.
+ *
+ *   Authorization middleware:
+ *     Four levels of access control, applied as Express middleware on individual routes:
+ *       - requireAuth: any logged-in user (rejects 401 if no session)
+ *       - requireAdmin: admin role only (rejects 403 for non-admins)
+ *       - requireChecker: admin or checker role (for verification tools)
+ *       - requireManagementAccess: everyone except investors (admin + partner + checker)
+ *
+ *   Seed users:
+ *     On startup, seedAdminUser() ensures the predefined team members exist in the database
+ *     with passwords from environment variables. Each gets a default "Development" scenario.
+ */
 import { Request, Response, NextFunction } from "express";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
@@ -274,6 +305,12 @@ export function requireChecker(req: Request, res: Response, next: NextFunction) 
   next();
 }
 
+/**
+ * Express middleware that allows access to anyone except investors. Investors get
+ * a read-only view of the platform; management operations (editing properties,
+ * saving scenarios, updating assumptions) require this middleware.
+ * Returns 401 if not authenticated, 403 if the user has the "investor" role.
+ */
 export function requireManagementAccess(req: Request, res: Response, next: NextFunction) {
   if (!req.user) {
     return res.status(401).json({ error: "Authentication required" });

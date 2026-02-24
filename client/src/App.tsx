@@ -123,11 +123,15 @@ function CheckerRoute({ component: Component }: { component: React.ComponentType
   );
 }
 
+/** Router — declares all client-side routes and handles the research refresh overlay. */
 function Router() {
   const { user, isLoading } = useAuth();
   const [showResearchRefresh, setShowResearchRefresh] = useState(false);
   const prevUserRef = useState<any>(null);
   
+  // On first login each session, trigger a background refresh of AI research data.
+  // prevUserRef tracks whether the user just transitioned from null → logged-in.
+  // sessionStorage prevents re-triggering on every page navigation within the session.
   useEffect(() => {
     if (user && !prevUserRef[0]) {
       const lastRefresh = sessionStorage.getItem("research_refresh_done");
@@ -138,6 +142,8 @@ function Router() {
     prevUserRef[0] = user;
   }, [user]);
 
+  // After the research refresh overlay finishes, mark the session as refreshed
+  // and invalidate research queries so dashboards pick up the fresh data.
   const handleResearchComplete = useCallback(() => {
     setShowResearchRefresh(false);
     sessionStorage.setItem("research_refresh_done", Date.now().toString());

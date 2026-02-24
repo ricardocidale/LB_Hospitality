@@ -67,6 +67,9 @@ export default function CompanyAssumptions() {
   const [isDirty, setIsDirty] = useState(false);
   const { data: research } = useMarketResearch("company");
 
+  // Extract AI-recommended values from the company-level market research report.
+  // These appear as "suggested" badges next to assumption inputs so the user can
+  // compare their settings against industry benchmarks (e.g. management fee ranges).
   const researchValues = (() => {
     if (!research?.content) return {};
     const c = research.content;

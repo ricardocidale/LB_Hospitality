@@ -1,3 +1,32 @@
+/**
+ * calc/financing/debt-yield.ts — Debt Yield calculator and reverse loan sizing.
+ *
+ * PURPOSE:
+ * Computes the Debt Yield ratio and reverse-solves for the maximum loan amount
+ * supportable by a minimum debt yield threshold. Debt Yield is a lender underwriting
+ * metric increasingly used in commercial real estate alongside (or instead of) DSCR.
+ *
+ * WHAT IS DEBT YIELD?
+ *   Debt Yield = Annual NOI / Loan Amount
+ *
+ * Unlike DSCR, debt yield is independent of interest rate, amortization period,
+ * and loan term. This makes it a "structure-neutral" measure of a property's
+ * ability to service debt. Lenders typically require a minimum debt yield of
+ * 8–10% for stabilized hotel assets.
+ *
+ * REVERSE SIZING:
+ *   Max Loan = NOI / min_debt_yield
+ * If both a debt yield constraint and an LTV constraint are provided, the
+ * binding constraint (the one producing the smaller loan) wins. This dual-
+ * constraint approach mirrors real lender underwriting where the loan is sized
+ * to the most restrictive of DSCR, debt yield, and LTV.
+ *
+ * HOW IT FITS THE SYSTEM:
+ * Called from the dispatch layer as the "debt_yield" skill. The output helps
+ * investors and lenders understand how much leverage a property can support
+ * and which constraint is binding. The `binding_constraint` field makes it
+ * easy to explain to stakeholders why a loan was sized the way it was.
+ */
 import type { RoundingPolicy } from "../../domain/types/rounding.js";
 import { roundTo } from "../../domain/types/rounding.js";
 

@@ -1,3 +1,39 @@
+/**
+ * calc/financing/dscr-calculator.ts — DSCR-based loan sizing calculator.
+ *
+ * PURPOSE:
+ * Computes the maximum loan amount a property can support given a minimum
+ * Debt Service Coverage Ratio (DSCR) requirement. This is the primary loan
+ * sizing method used by commercial real estate lenders.
+ *
+ * WHAT IS DSCR?
+ *   DSCR = Annual NOI / Annual Debt Service
+ *
+ * A DSCR of 1.25× means the property generates 25% more NOI than needed to
+ * cover its debt payments. Lenders require this cushion (typically 1.20–1.35×
+ * for hotels) to protect against revenue volatility.
+ *
+ * SIZING LOGIC:
+ *   1. Max Annual DS = NOI / min_dscr
+ *   2. Max Monthly DS = Max Annual DS / 12
+ *   3. Reverse-solve the PMT formula for principal:
+ *      P = PMT × [(1+r)^n - 1] / [r × (1+r)^n]
+ *      where r = monthly rate, n = amortization months
+ *   4. For IO-only loans: Max Loan = Max Monthly DS / monthly_rate
+ *
+ * CRITICAL: Sizing always uses the AMORTIZING payment (peak debt service),
+ * even during the IO period. This is standard lender practice — the loan must
+ * pass DSCR at the worst-case payment level, not just the IO payment.
+ *
+ * If both DSCR and LTV constraints are provided, the binding constraint
+ * (producing the smaller loan) is used. The `binding_constraint` flag
+ * indicates which one controlled the final sizing.
+ *
+ * HOW IT FITS THE SYSTEM:
+ * Called via the dispatch layer as the "dscr" skill. Also used internally by
+ * the refinance calculator to size new loans. The output feeds into the
+ * financing calculator's equity computation and the sensitivity analysis.
+ */
 import type { RoundingPolicy } from "../../domain/types/rounding.js";
 import { roundTo } from "../../domain/types/rounding.js";
 import { pmt } from "../shared/pmt.js";

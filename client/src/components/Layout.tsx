@@ -81,11 +81,15 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
     return () => { root.classList.remove(...allThemeClasses); };
   }, [myBranding?.themeName]);
 
+  // sb ("sidebar boolean") — checks whether a sidebar item is visible.
+  // Admins always see everything; other users only see items whose
+  // globalAssumptions flag hasn't been explicitly set to false.
   const sb = (key: string) => isAdmin || (global as any)?.[key] !== false;
   const toggleGroup = (label: string) => {
     setExpandedGroups(prev => ({ ...prev, [label]: !prev[label] }));
   };
 
+  // The Analysis link only appears if at least one of its child features is enabled.
   const showAnalysis = sb("sidebarSensitivity") || sb("sidebarFinancing") || sb("sidebarExecutiveSummary") || sb("sidebarCompare") || sb("sidebarTimeline");
 
   const navItems: NavItem[] = [
@@ -182,6 +186,9 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
           </div>
 
           <nav className="flex-1 p-4 pt-2 space-y-1 overflow-y-auto">
+            {/* Filter out orphan dividers: strip leading/trailing dividers, consecutive
+                dividers, and dividers that would appear at the very end of the list.
+                This avoids ugly visual separators when role-based filtering hides sections. */}
             {navItems.filter((item, index, arr) => {
               if ('type' in item && item.type === 'divider') {
                 if (index === 0 || index === arr.length - 1) return false;

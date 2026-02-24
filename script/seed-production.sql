@@ -131,7 +131,7 @@ INSERT INTO properties (
   street_address, city, state_province, zip_postal_code, country,
   research_values, user_id, refinance_years_after_acquisition
 ) OVERRIDING SYSTEM VALUE VALUES (
-  32, 'Belleayre Mountain', 'Western Catskills, New York', 'North America', '/images/property-hudson.png', 'Planned',
+  32, 'Belleayre Mountain', 'Western Catskills, New York', 'North America', '/images/property-belleayre.png', 'Planned',
   '2027-03-01', '2027-09-01',
   3500000, 800000, 250000, 500000,
   20, 320, 0.035, 0.4, 0.68,

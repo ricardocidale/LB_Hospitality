@@ -1,3 +1,34 @@
+/**
+ * calc/financing/financing-calculator.ts — Main entry point for the Acquisition Financing Calculator.
+ *
+ * PURPOSE:
+ * Orchestrates the full acquisition financing workflow: validates inputs, sizes the
+ * loan (via LTV or override), computes closing costs, calculates equity required,
+ * builds the monthly debt service schedule, and generates GAAP-compliant journal
+ * entries for loan origination. This is "Skill 1" in the calculation engine's
+ * skill taxonomy.
+ *
+ * PIPELINE (7 steps):
+ *   1. Validate — Reject impossible inputs (negative rates, zero purchase price, etc.)
+ *   2. Size the loan — Apply LTV cap or use the explicit override amount
+ *   3. Closing costs — Percentage-based + fixed fees
+ *   4. Net loan proceeds — Gross loan minus closing costs
+ *   5. Equity required — purchase_price + closing_costs + reserves − net_proceeds
+ *   6. Build schedule — Monthly amortization table (interest, principal, balance)
+ *   7. Journal hooks — Double-entry entries for the balance sheet at origination
+ *
+ * GAAP INVARIANTS ENFORCED:
+ * - Closing costs are deferred (capitalized) per ASC 310-20, not immediately expensed.
+ * - Only interest expense hits the Income Statement; principal payments reduce the
+ *   loan liability on the Balance Sheet and appear in Financing Cash Flow (ASC 470).
+ * - Equity contributions flow through equity accounts, never the Income Statement.
+ * - The amortization schedule is self-consistent: ending_balance = beginning_balance − principal.
+ *
+ * HOW IT FITS THE SYSTEM:
+ * The financial engine calls `computeFinancing()` once per property at the acquisition
+ * date. The returned schedule populates monthly debt service rows, and the journal
+ * hooks ensure the balance sheet is initialized correctly on day one.
+ */
 import { validateFinancingInput } from "./validate.js";
 import { computeAcqSizing } from "./sizing.js";
 import { computeClosingCosts } from "./closing-costs.js";

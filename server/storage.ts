@@ -669,6 +669,7 @@ export class DatabaseStorage implements IStorage {
       .where(and(eq(prospectiveProperties.id, id), eq(prospectiveProperties.userId, userId)));
   }
   
+  /** Update the user's notes on a favorited property (e.g., "Great location, needs renovation"). */
   async updateProspectivePropertyNotes(id: number, userId: number, notes: string): Promise<ProspectiveProperty | undefined> {
     const [prop] = await db.update(prospectiveProperties)
       .set({ notes })
@@ -686,6 +687,7 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(savedSearches.savedAt));
   }
 
+  /** Save a set of search criteria so the user can quickly re-run the search later. */
   async addSavedSearch(data: InsertSavedSearch): Promise<SavedSearch> {
     const [search] = await db.insert(savedSearches)
       .values(data as typeof savedSearches.$inferInsert)
@@ -693,6 +695,7 @@ export class DatabaseStorage implements IStorage {
     return search;
   }
 
+  /** Delete a saved search. Only the owning user can delete their own searches. */
   async deleteSavedSearch(id: number, userId: number): Promise<void> {
     await db.delete(savedSearches)
       .where(and(eq(savedSearches.id, id), eq(savedSearches.userId, userId)));
@@ -733,6 +736,7 @@ export class DatabaseStorage implements IStorage {
     return results.map(r => ({ ...r.activity_logs, user: r.users }));
   }
 
+  /** Get a user's own recent activity (limited count). Used on the user's profile/dashboard. */
   async getUserActivityLogs(userId: number, limit = 20): Promise<ActivityLog[]> {
     return await db
       .select()
@@ -775,6 +779,7 @@ export class DatabaseStorage implements IStorage {
     return rows;
   }
 
+  /** Fetch a single verification run with the full results JSON (can be large). */
   async getVerificationRun(id: number): Promise<VerificationRun | undefined> {
     const [run] = await db.select().from(verificationRuns).where(eq(verificationRuns.id, id));
     return run || undefined;
@@ -793,41 +798,49 @@ export class DatabaseStorage implements IStorage {
     return results.map(r => ({ ...r.sessions, user: r.users }));
   }
 
+  /** Admin force-logout: terminate a specific session, immediately logging the user out. */
   async forceDeleteSession(sessionId: string): Promise<void> {
     await db.delete(sessions).where(eq(sessions.id, sessionId));
   }
 
-  // ── Logos ──────────────────────────────────────────────────
+  // ── Logos (White-Label Branding Images) ────────────────────
 
+  /** List all uploaded logos, ordered by creation date. */
   async getAllLogos(): Promise<Logo[]> {
     return await db.select().from(logos).orderBy(logos.createdAt);
   }
 
+  /** Fetch a logo by ID. Used when resolving a user group's assigned logo. */
   async getLogo(id: number): Promise<Logo | undefined> {
     const [logo] = await db.select().from(logos).where(eq(logos.id, id));
     return logo || undefined;
   }
 
+  /** Get the logo marked as isDefault=true. Fallback when no group-specific logo exists. */
   async getDefaultLogo(): Promise<Logo | undefined> {
     const [logo] = await db.select().from(logos).where(eq(logos.isDefault, true));
     return logo || undefined;
   }
 
+  /** Register a new logo (name, company name, and object storage URL). */
   async createLogo(data: InsertLogo): Promise<Logo> {
     const [logo] = await db.insert(logos).values(data).returning();
     return logo;
   }
 
+  /** Remove a logo. The default logo is protected by the route handler, not here. */
   async deleteLogo(id: number): Promise<void> {
     await db.delete(logos).where(eq(logos.id, id));
   }
 
-  // ── Asset Descriptions ──────────────────────────────────────
+  // ── Asset Descriptions (Target Property Profiles for AI Research) ──
 
+  /** List all asset descriptions, ordered by creation date. */
   async getAllAssetDescriptions(): Promise<AssetDescription[]> {
     return await db.select().from(assetDescriptions).orderBy(assetDescriptions.createdAt);
   }
 
+  /** Fetch a single asset description by ID. */
   async getAssetDescription(id: number): Promise<AssetDescription | undefined> {
     const [ad] = await db.select().from(assetDescriptions).where(eq(assetDescriptions.id, id));
     return ad || undefined;

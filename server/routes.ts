@@ -760,14 +760,14 @@ export async function registerRoutes(
       }
 
       const usersToSeed = !adminPw ? [] : [
-        { email: "admin", passwordHash: await hashPassword(adminPw), role: "admin" as const, name: "Ricardo Cidale", company: "Norfolk Group", title: "Partner" },
-        { email: "rosario@kitcapital.com", passwordHash: await hashPassword(rosarioPw || adminPw), role: "investor" as const, name: "Rosario David", company: "KIT Capital", title: "COO" },
-        { email: "kit@kitcapital.com", passwordHash: await hashPassword(kitPw || adminPw), role: "partner" as const, name: "Dov Tuzman", company: "KIT Capital", title: "Principal" },
-        { email: "lemazniku@icloud.com", passwordHash: await hashPassword(leaPw || adminPw), role: "partner" as const, name: "Lea Mazniku", company: "KIT Capital", title: "Partner" },
-        ...(checkerPw ? [{ email: "checker@norfolkgroup.io", passwordHash: await hashPassword(checkerPw), role: "checker" as const, name: "Checker", company: "Norfolk AI", title: "Checker" }] : []),
-        { email: "bhuvan@norfolkgroup.io", passwordHash: await hashPassword(process.env.PASSWORD_DEFAULT || adminPw), role: "partner" as const, name: "Bhuvan Agarwal", company: "Norfolk AI", title: "Financial Analyst" },
-        ...(reynaldoPw ? [{ email: "reynaldo.fagundes@norfolk.ai", passwordHash: await hashPassword(reynaldoPw), role: "partner" as const, name: "Reynaldo Fagundes", company: "Norfolk AI", title: "CTO" }] : []),
-        { email: "leslie@cidale.com", passwordHash: await hashPassword(process.env.PASSWORD_LESLIE || process.env.PASSWORD_DEFAULT || adminPw), role: "partner" as const, name: "Leslie Cidale", company: "Numeratti Endeavors", title: "Senior Partner" },
+        { email: "admin", passwordHash: await hashPassword(adminPw), role: "admin" as const, firstName: "Ricardo", lastName: "Cidale", company: "Norfolk Group", title: "Partner" },
+        { email: "rosario@kitcapital.com", passwordHash: await hashPassword(rosarioPw || adminPw), role: "partner" as const, firstName: "Rosario", lastName: "David", company: "KIT Capital", title: "COO" },
+        { email: "kit@kitcapital.com", passwordHash: await hashPassword(kitPw || adminPw), role: "partner" as const, firstName: "Dov", lastName: "Tuzman", company: "KIT Capital", title: "Principal" },
+        { email: "lemazniku@icloud.com", passwordHash: await hashPassword(leaPw || adminPw), role: "partner" as const, firstName: "Lea", lastName: "Mazniku", company: "KIT Capital", title: "Partner" },
+        ...(checkerPw ? [{ email: "checker@norfolkgroup.io", passwordHash: await hashPassword(checkerPw), role: "checker" as const, firstName: "Checker", lastName: null, company: "Norfolk AI", title: "Checker" }] : []),
+        { email: "wlaruffa@gmail.com", passwordHash: await hashPassword(process.env.PASSWORD_WILLIAM || process.env.PASSWORD_DEFAULT || adminPw), role: "partner" as const, firstName: "William", lastName: "Laruffa", company: "Independent", title: "Partner" },
+        ...(reynaldoPw ? [{ email: "reynaldo.fagundes@norfolk.ai", passwordHash: await hashPassword(reynaldoPw), role: "partner" as const, firstName: "Reynaldo", lastName: "Fagundes", company: "Norfolk AI", title: "CTO" }] : []),
+        { email: "leslie@cidale.com", passwordHash: await hashPassword(process.env.PASSWORD_LESLIE || process.env.PASSWORD_DEFAULT || adminPw), role: "partner" as const, firstName: "Leslie", lastName: "Cidale", company: "Numeratti Endeavors", title: "Senior Partner" },
       ];
       
       for (const userData of usersToSeed) {
@@ -807,7 +807,7 @@ export async function registerRoutes(
         "lemazniku@icloud.com": "KIT Group",
         "admin": "Norfolk Group",
         "checker@norfolkgroup.io": "Norfolk Group",
-        "bhuvan@norfolkgroup.io": "Norfolk Group",
+        "wlaruffa@gmail.com": "Norfolk Group",
         "reynaldo.fagundes@norfolk.ai": "Norfolk Group",
       };
 

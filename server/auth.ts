@@ -374,13 +374,22 @@ export async function seedAdminUser() {
       email: adminEmail,
       passwordHash,
       role: "admin",
-      firstName: "Administrator",
+      firstName: "Ricardo",
+      lastName: "Cidale",
+      company: "Norfolk Group",
+      title: "Partner",
     });
     console.log(`Admin user created: admin`);
   } else {
-    // Always update password to ensure it matches
+    // Always update password and ensure profile is correct
     const passwordHash = await hashPassword(defaultPassword);
     await storage.updateUserPassword(adminUser.id, passwordHash);
+    await storage.updateUserProfile(adminUser.id, {
+      firstName: "Ricardo",
+      lastName: "Cidale",
+      company: "Norfolk Group",
+      title: "Partner",
+    });
     console.log(`Admin user password reset: admin`);
   }
   

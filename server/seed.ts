@@ -63,7 +63,8 @@ async function seed() {
     await db.insert(users).values({
       email: "admin",
       passwordHash: hashedPassword,
-      firstName: "Administrator",
+      firstName: "Ricardo",
+      lastName: "Cidale",
       role: "admin",
     });
     console.log("Created admin user (email: admin, password: admin123)");
@@ -123,7 +124,7 @@ async function seed() {
     },
     debtAssumptions: SEED_DEBT_ASSUMPTIONS,
     companyTaxRate: 0.3,
-    companyName: "Hospitality Business Company",
+    companyName: "Hospitality Business Group",
     exitCapRate: DEFAULT_EXIT_CAP_RATE,
     salesCommissionRate: DEFAULT_COMMISSION_RATE,
     eventExpenseRate: DEFAULT_EVENT_EXPENSE_RATE,
@@ -1191,7 +1192,7 @@ export async function seedUserGroups() {
       "lemazniku@icloud.com": "KIT Group",
       "admin": "Norfolk Group",
       "checker@norfolkgroup.io": "Norfolk Group",
-      "bhuvan@norfolkgroup.io": "Norfolk Group",
+      "wlaruffa@gmail.com": "Norfolk Group",
       "reynaldo.fagundes@norfolk.ai": "Norfolk Group",
     };
 

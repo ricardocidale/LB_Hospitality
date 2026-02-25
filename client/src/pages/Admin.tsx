@@ -7,10 +7,7 @@
  *   • Activity     — audit log of recent user actions (logins, saves, etc.)
  *   • Verification — run the server-side financial checker to validate model integrity
  *   • User Groups  — assign users to groups with shared branding and permissions
- *   • Logos        — upload and manage company logos used throughout the platform
- *   • Branding     — assign logos and themes to user groups for white-label presentation
- *   • Themes       — manage visual theme definitions (color palettes, CSS classes)
- *   • Navigation   — toggle sidebar items on/off for all non-admin users
+ *   • Customize    — consolidated appearance/config (Branding, Themes, Logos, Navigation)
  *   • Database     — sync tools and data management utilities
  *
  * Each tab is lazy-rendered — the component only mounts when the tab is active,
@@ -23,15 +20,14 @@ import { PageHeader } from "@/components/ui/page-header";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import {
   Users, Building2, Activity, FileCheck, LayoutGrid,
-  Upload, Image, SwatchBook, PanelLeft, Database
+  Palette, Database
 } from "lucide-react";
 import {
   UsersTab, CompaniesTab, ActivityTab, VerificationTab,
-  UserGroupsTab, LogosTab, BrandingTab, ThemesTab,
-  NavigationTab, DatabaseTab
+  UserGroupsTab, CustomizeTab, DatabaseTab
 } from "@/components/admin";
 
-type AdminView = "users" | "companies" | "activity" | "verification" | "themes" | "branding" | "user-groups" | "sidebar" | "database" | "logos";
+type AdminView = "users" | "companies" | "activity" | "verification" | "user-groups" | "customize" | "database";
 
 export default function Admin() {
   const [adminTab, setAdminTab] = useState<AdminView>("users");
@@ -54,10 +50,7 @@ export default function Admin() {
               { value: 'activity', label: 'Activity', icon: Activity },
               { value: 'verification', label: 'Verification', icon: FileCheck },
               { value: 'user-groups', label: 'User Groups', icon: LayoutGrid },
-              { value: 'logos', label: 'Logos', icon: Upload },
-              { value: 'branding', label: 'Branding', icon: Image },
-              { value: 'themes', label: 'Themes', icon: SwatchBook },
-              { value: 'sidebar', label: 'Navigation', icon: PanelLeft },
+              { value: 'customize', label: 'Customize', icon: Palette },
               { value: 'database', label: 'Database', icon: Database },
             ]}
             activeTab={adminTab}
@@ -79,17 +72,8 @@ export default function Admin() {
           <TabsContent value="user-groups" className="space-y-6 mt-6">
             {adminTab === "user-groups" && <UserGroupsTab />}
           </TabsContent>
-          <TabsContent value="logos" className="space-y-6 mt-6">
-            {adminTab === "logos" && <LogosTab />}
-          </TabsContent>
-          <TabsContent value="branding" className="space-y-6 mt-6">
-            {adminTab === "branding" && <BrandingTab onNavigate={(tab) => setAdminTab(tab as AdminView)} />}
-          </TabsContent>
-          <TabsContent value="themes" className="space-y-6 mt-6">
-            {adminTab === "themes" && <ThemesTab />}
-          </TabsContent>
-          <TabsContent value="sidebar" className="space-y-6 mt-6">
-            {adminTab === "sidebar" && <NavigationTab />}
+          <TabsContent value="customize" className="space-y-6 mt-6">
+            {adminTab === "customize" && <CustomizeTab />}
           </TabsContent>
           <TabsContent value="database" className="space-y-6 mt-6">
             {adminTab === "database" && <DatabaseTab />}

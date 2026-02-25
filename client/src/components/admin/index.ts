@@ -11,10 +11,7 @@
  *   • ActivityTab     – login audit log, activity feed, and checker usage analytics
  *   • VerificationTab – independent GAAP financial verification with PDF export
  *   • UserGroupsTab   – group users for branded experiences (logo, theme, asset desc)
- *   • LogosTab        – upload and manage logo images (supports AI generation)
- *   • BrandingTab     – set company name, logo, property type label, and asset descriptions
- *   • ThemesTab       – manage UI color themes via the ThemeManager feature
- *   • NavigationTab   – toggle optional sidebar pages on/off for non-admin users
+ *   • CustomizeTab    – consolidated appearance/config (Branding, Themes, Logos, Navigation)
  *   • DatabaseTab     – view database entity counts and populate production with seed data
  */
 export { default as UsersTab } from "./UsersTab";
@@ -22,8 +19,5 @@ export { default as CompaniesTab } from "./CompaniesTab";
 export { default as ActivityTab } from "./ActivityTab";
 export { default as VerificationTab } from "./VerificationTab";
 export { default as UserGroupsTab } from "./UserGroupsTab";
-export { default as LogosTab } from "./LogosTab";
-export { default as BrandingTab } from "./BrandingTab";
-export { default as ThemesTab } from "./ThemesTab";
-export { default as NavigationTab } from "./NavigationTab";
+export { default as CustomizeTab } from "./CustomizeTab";
 export { default as DatabaseTab } from "./DatabaseTab";

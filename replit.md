@@ -49,21 +49,21 @@ npm run exports:check  # Find unused exports
 ## Admin Page Structure
 Admin Settings page (`/admin`) — **refactored from 3,235-line monolith into 10 standalone tab components + 87-line shell**.
 - Shell: `client/src/pages/Admin.tsx` — tab navigation only, no business logic
+- **7 top-level tabs**: Users, Companies, Activity, Verification, User Groups, Customize, Database
 - Tabs: `client/src/components/admin/` — each tab owns its data fetching, mutations, dialogs, and state
   - `UsersTab.tsx` — user CRUD, add/edit/password dialogs
   - `CompaniesTab.tsx` — SPV management, mgmt company config
   - `ActivityTab.tsx` — login logs, activity feed, checker activity (3 sub-tabs)
   - `VerificationTab.tsx` — auto-verification, AI review, PDF export
   - `UserGroupsTab.tsx` — group CRUD, user-to-group assignment
-  - `LogosTab.tsx` — logo CRUD with AI image picker
-  - `BrandingTab.tsx` — global branding config (accepts `onNavigate` prop for cross-tab nav)
-  - `ThemesTab.tsx` — wraps ThemeManager
-  - `NavigationTab.tsx` — sidebar toggle config
+  - `CustomizeTab.tsx` — consolidated appearance/config with internal sub-navigation:
+    - Branding (`BrandingTab.tsx`) — global branding config
+    - Themes (`ThemesTab.tsx`) — wraps ThemeManager
+    - Logos (`LogosTab.tsx`) — logo CRUD with AI image picker
+    - Navigation (`NavigationTab.tsx`) — sidebar toggle config
   - `DatabaseTab.tsx` — sync status, seed execution
 - Shared types: `client/src/components/admin/types.ts` (17 interfaces)
 - Barrel export: `client/src/components/admin/index.ts`
-- Logo Management is a tab within Admin (not a separate sidebar link)
-- Branding tab shows read-only logo summary with "Manage Logos" button linking to Logos tab
 
 ## Property Page Structure
 Property pages — **refactored from 5 monolithic files (4,891 lines) into organized components + shells (1,701 lines in shells)**.

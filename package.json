@@ -78,6 +78,7 @@
     "dom-to-image-more": "^3.7.2",
     "drizzle-orm": "^0.39.3",
     "drizzle-zod": "^0.7.1",
+    "elevenlabs": "^1.56.1",
     "embla-carousel-react": "^8.6.0",
     "express": "^5.0.1",
     "express-session": "^1.19.0",

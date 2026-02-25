@@ -647,15 +647,33 @@ export default function VerificationTab() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {(verificationResults.clientKnownValueTests.structured || []).map((testCase, tIdx) => (
+                  {(verificationResults.clientKnownValueTests.structured || []).map((testCase, tIdx) => {
+                    const kvKey = `kv-test-${tIdx}`;
+                    const kvExpanded = expandedCategories.has(kvKey) || !testCase.allPassed;
+                    const checksPassed = testCase.checks.filter(c => c.passed).length;
+                    const checksFailed = testCase.checks.filter(c => !c.passed).length;
+                    return (
                     <div key={tIdx} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                      <div className="flex items-center gap-2.5 px-4 py-3 border-b border-gray-100 bg-gray-50/50">
+                      <button
+                        onClick={() => toggleCategory(kvKey)}
+                        data-testid={`accordion-kv-test-${tIdx}`}
+                        className="w-full flex items-center gap-2.5 px-4 py-3 border-b border-gray-100 bg-gray-50/50 cursor-pointer hover:bg-gray-100/50 transition-colors"
+                      >
+                        {kvExpanded
+                          ? <ChevronDown className="w-4 h-4 text-gray-400 shrink-0" />
+                          : <ChevronRight className="w-4 h-4 text-gray-400 shrink-0" />
+                        }
                         {testCase.allPassed ?
                           <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" /> :
                           <XCircle className="w-4 h-4 text-red-500 shrink-0" />
                         }
-                        <span className="text-sm font-semibold text-gray-800">{testCase.name}</span>
-                      </div>
+                        <span className="text-sm font-semibold text-gray-800 flex-1 text-left">{testCase.name}</span>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <span className="text-[10px] font-mono text-green-600 bg-green-50 px-1.5 py-0.5 rounded">{checksPassed}</span>
+                          {checksFailed > 0 && <span className="text-[10px] font-mono text-red-600 bg-red-50 px-1.5 py-0.5 rounded">{checksFailed}</span>}
+                        </div>
+                      </button>
+                      {kvExpanded && (
                       <div className="divide-y divide-gray-100">
                         {testCase.checks.map((check, cIdx) => (
                           <div key={cIdx} className="px-4 py-3">
@@ -685,8 +703,10 @@ export default function VerificationTab() {
                           </div>
                         ))}
                       </div>
+                      )}
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}

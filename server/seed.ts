@@ -1,4 +1,5 @@
 import { db } from "./db";
+import { sql } from "drizzle-orm";
 import { globalAssumptions, marketResearch, properties, users, logos, userGroups, companies, propertyFeeCategories } from "@shared/schema";
 import {
   DEFAULT_REV_SHARE_EVENTS,
@@ -1256,6 +1257,23 @@ export async function seedFeeCategories() {
     }
   }
   console.log(`Seeded fee categories for ${allProps.length} properties`);
+}
+
+export async function seedCanonicalProperties() {
+  try {
+    const fs = await import("fs");
+    const path = await import("path");
+    const sqlPath = path.default.join(process.cwd(), "script", "seed-production.sql");
+    if (!fs.default.existsSync(sqlPath)) {
+      console.log("seed-production.sql not found, skipping canonical property sync");
+      return;
+    }
+    const sqlContent = fs.default.readFileSync(sqlPath, "utf-8");
+    await db.execute(sql.raw(sqlContent));
+    console.log("Canonical properties synced from seed-production.sql");
+  } catch (error) {
+    console.error("Error syncing canonical properties:", error);
+  }
 }
 
 if (process.argv[1]?.endsWith("seed.ts") || process.argv[1]?.endsWith("seed.js")) {

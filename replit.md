@@ -128,6 +128,55 @@ Management Company pages — **refactored from 3 monolithic files (3,541 lines) 
   - `CompanyResearchSections.tsx` (198), `useCompanyResearchStream.ts` (60), `types.ts` (12)
 - Reuses `SectionCard` and `MetricCard` from `property-research/`
 
+## Server Route Architecture
+Server routes — **refactored from 3,842-line monolith into 10 route modules + 37-line shell**.
+- Shell: `server/routes.ts` — imports and registers all route modules
+- Route modules: `server/routes/` — each exports a `register(app, storage)` function
+  - `auth.ts` — login, logout, /api/auth/me, profile
+  - `properties.ts` — CRUD, images, research seeding
+  - `admin.ts` — user management, sessions, health, sync, AI verification, activity logs
+  - `global-assumptions.ts` — GET/POST global assumptions
+  - `branding.ts` — logos, asset-descriptions, user-groups, companies, design-themes, my-branding
+  - `scenarios.ts` — scenario management
+  - `research.ts` — market-research SSE, email, research questions
+  - `property-finder.ts` — search, favorites, saved-searches
+  - `calculations.ts` — IRR, equity-multiple, exit-valuation, checker-manual, generate-property-image
+  - `uploads.ts` — presigned URL flow
+  - `helpers.ts` — shared middleware (requireAuth, requireAdmin, logActivity, calcRateLimit)
+
+## Dashboard Page Structure
+Dashboard (`/portfolio-dashboard`) — **refactored from 3,273-line monolith into 155-line shell + 7 components**.
+- Shell: `client/src/pages/Dashboard.tsx` — data fetching, tab routing, state
+- Components: `client/src/components/dashboard/`
+  - `OverviewTab.tsx` — portfolio KPIs, charts, insights
+  - `IncomeStatementTab.tsx` — consolidated income statement with formula rows + export
+  - `CashFlowTab.tsx` — consolidated cash flow statement
+  - `BalanceSheetTab.tsx` — consolidated balance sheet
+  - `InvestmentAnalysisTab.tsx` — equity invested, BTCF/ATCF, taxable income
+  - `usePortfolioFinancials.ts` — hook for proforma aggregation + memoization
+  - `dashboardExports.ts` — PDF/Excel/PPTX/PNG export logic
+- Types: `client/src/components/dashboard/types.ts`
+- Barrel: `client/src/components/dashboard/index.ts`
+
+## Settings Page Structure
+Settings (`/settings`) — **refactored from 1,413-line monolith into 336-line shell + 4 tab components**.
+- Shell: `client/src/pages/Settings.tsx` — query, mutation, tab routing
+- Components: `client/src/components/settings/`
+  - `PortfolioTab.tsx` — property profiles, acquisition, debt, overrides
+  - `MacroTab.tsx` — timeline, inflation, display
+  - `OtherTab.tsx` — AI model, misc
+  - `IndustryResearchTab.tsx` — research generation, SSE
+- Types: `client/src/components/settings/types.ts`
+
+## Methodology Page Structure
+Methodology (`/methodology`) — **refactored from 1,291-line monolith into 621-line shell + 4 components**.
+- Shell: `client/src/pages/Methodology.tsx` — section state, scroll navigation
+- Components: `client/src/components/methodology/`
+  - `MethodologyTOC.tsx` — table of contents navigation
+  - `MethodologySection.tsx` — reusable collapsible section renderer
+  - `methodologyData.ts` — static section definitions
+  - `AuditSections.tsx` — GAAP rules, audit opinions
+
 ## Production Seed Script
 - `script/seed-production.sql` — comprehensive SQL to seed production DB
 - Covers 11 persistent tables (companies, logos, user_groups, design_themes, users, global_assumptions, properties, property_fee_categories, market_research, research_questions, saved_searches)

@@ -102,7 +102,14 @@ The user is working in a financial simulation portal with these main areas:
 - When discussing financial metrics, explain how they relate to the model's calculations
 - If you don't have enough context, ask clarifying questions
 - Format responses with markdown when helpful
-- When users ask about assumptions, reference the fallback chain: property-specific value → system default`;
+- When users ask about assumptions, reference the fallback chain: property-specific value → system default
+
+## CRITICAL: No LLM Calculations
+- NEVER perform financial calculations yourself (IRR, NPV, depreciation, amortization, cash flows, equity multiples, cap rate valuations, loan payments, tax computations, or any arithmetic involving money)
+- ALL calculations must be performed by the platform's coded financial engine — direct users to the appropriate page or feature instead
+- If a user asks "what would my IRR be if...?" or "calculate the NOI for..." — explain that the platform's deterministic financial engine handles all calculations for accuracy, and guide them to enter their assumptions on the relevant page to see the computed results
+- You may explain formulas, concepts, and methodology, but never produce computed numerical results yourself
+- When referencing financial metrics from the portfolio context below, clearly state these are values computed by the platform's financial engine, not your own calculations`;
 
 async function buildContextPrompt(userId?: number): Promise<string> {
   try {

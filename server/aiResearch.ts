@@ -97,7 +97,7 @@ IMPORTANT CONTEXT: In our financial model, all revenue categories are expressed 
 
 The "catering boost percentage" is the additional uplift to base F&B from catered events. For example, if base F&B is $100K and catering boost is 30%, total F&B = $130K.
 
-If your market research provides total revenue breakdowns (e.g., "F&B is 35% of total revenue"), you must convert: work backwards from total revenue splits to derive what the catering boost would be on top of the base F&B percentage of room revenue.
+If your market research provides total revenue breakdowns (e.g., "F&B is 35% of total revenue"), do NOT attempt to convert or calculate the catering boost yourself. Instead, provide the raw market data percentages and let the platform's financial engine handle any conversions.
 
 Determine the recommended catering boost percentage based on:
 - Local market event catering penetration rates

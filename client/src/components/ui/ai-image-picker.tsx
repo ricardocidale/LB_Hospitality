@@ -17,6 +17,7 @@ import { Loader2, Upload, Sparkles, X, Link as LinkIcon } from "lucide-react";
 import { useUpload } from "@/hooks/use-upload";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { ImageCropDialog } from "@/components/ui/image-crop-dialog";
 
 type PickerMode = "upload" | "generate" | "url";
 
@@ -57,8 +58,12 @@ export function AIImagePicker({
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationError, setGenerationError] = useState<string | null>(null);
+  const [cropDialogOpen, setCropDialogOpen] = useState(false);
+  const [pendingImage, setPendingImage] = useState<{ src: string; name: string; type: string; originalFile: File } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+
+  const cropAspect = aspectRatio === "square" ? 1 : aspectRatio === "portrait" ? 3 / 4 : 16 / 10;
 
   const { uploadFile } = useUpload({
     onSuccess: (response) => {
@@ -72,6 +77,12 @@ export function AIImagePicker({
       setIsUploadingPhoto(false);
     },
   });
+
+  const doUpload = async (file: File) => {
+    setIsUploadingPhoto(true);
+    await uploadFile(file);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -87,9 +98,28 @@ export function AIImagePicker({
       return;
     }
 
-    setIsUploadingPhoto(true);
-    await uploadFile(file);
+    const objectUrl = URL.createObjectURL(file);
+    setPendingImage({ src: objectUrl, name: file.name, type: file.type, originalFile: file });
+    setCropDialogOpen(true);
     if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleCropComplete = async (croppedFile: File) => {
+    if (pendingImage) URL.revokeObjectURL(pendingImage.src);
+    if (croppedFile.size === 0) {
+      await doUpload(pendingImage!.originalFile);
+    } else {
+      await doUpload(croppedFile);
+    }
+    setPendingImage(null);
+  };
+
+  const handleCropDialogClose = (open: boolean) => {
+    if (!open && pendingImage) {
+      URL.revokeObjectURL(pendingImage.src);
+      setPendingImage(null);
+    }
+    setCropDialogOpen(open);
   };
 
   const handleGenerate = useCallback(async () => {
@@ -269,6 +299,18 @@ export function AIImagePicker({
       )}
 
       <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} data-testid={`${testId}-file-input`} />
+
+      {pendingImage && (
+        <ImageCropDialog
+          open={cropDialogOpen}
+          onOpenChange={handleCropDialogClose}
+          imageSrc={pendingImage.src}
+          fileName={pendingImage.name}
+          fileType={pendingImage.type}
+          aspectRatio={cropAspect}
+          onCropComplete={handleCropComplete}
+        />
+      )}
     </div>
   );
 }

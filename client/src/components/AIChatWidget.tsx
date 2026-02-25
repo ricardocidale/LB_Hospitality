@@ -1,15 +1,3 @@
-/**
- * AIChatWidget.tsx — Floating AI assistant chat panel.
- *
- * Provides a conversational interface where users can ask questions about
- * their portfolio, financial assumptions, or hotel industry concepts.
- * Messages are sent to the backend /api/chat endpoint which proxies to an
- * LLM. The widget supports:
- *   • Multiple conversation threads (stored server-side)
- *   • Streaming responses for long answers
- *   • Context-aware prompts that include portfolio data
- *   • Markdown rendering in responses
- */
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -28,7 +16,12 @@ import {
   Loader2,
   Sparkles,
   ChevronLeft,
+  Mic,
+  MicOff,
+  Volume2,
 } from "lucide-react";
+import { useVoiceRecorder } from "../../replit_integrations/audio/useVoiceRecorder";
+import { useAudioPlayback } from "../../replit_integrations/audio/useAudioPlayback";
 
 interface Message {
   id: number;
@@ -112,6 +105,27 @@ function formatInline(text: string): React.ReactNode {
   return parts.length === 1 ? parts[0] : <>{parts}</>;
 }
 
+function VoiceIndicator({ isRecording, isPlaying }: { isRecording: boolean; isPlaying: boolean }) {
+  if (!isRecording && !isPlaying) return null;
+
+  return (
+    <div className="flex items-center gap-2 px-3 py-1.5 text-xs">
+      {isRecording && (
+        <div className="flex items-center gap-1.5 text-red-500">
+          <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+          <span>Listening...</span>
+        </div>
+      )}
+      {isPlaying && (
+        <div className="flex items-center gap-1.5 text-primary">
+          <Volume2 className="w-3 h-3 animate-pulse" />
+          <span>Marcela is speaking...</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function AIChatWidget({ enabled = false }: { enabled?: boolean }) {
   const [isOpen, setIsOpen] = useState(false);
   const [showConversations, setShowConversations] = useState(false);
@@ -119,9 +133,15 @@ export default function AIChatWidget({ enabled = false }: { enabled?: boolean })
   const [input, setInput] = useState("");
   const [streamingContent, setStreamingContent] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
+  const [isProcessingVoice, setIsProcessingVoice] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
+
+  const { state: recorderState, startRecording, stopRecording } = useVoiceRecorder();
+  const playback = useAudioPlayback();
+  const isRecording = recorderState === "recording";
+  const isPlayingAudio = playback.state === "playing";
 
   const { data: conversations = [] } = useQuery<Conversation[]>({
     queryKey: ["conversations"],
@@ -256,6 +276,138 @@ export default function AIChatWidget({ enabled = false }: { enabled?: boolean })
     }
   };
 
+  const handleVoiceToggle = async () => {
+    if (isStreaming || isProcessingVoice) return;
+
+    if (isRecording) {
+      const audioBlob = await stopRecording();
+      if (audioBlob.size === 0) return;
+
+      if (!activeConversationId) {
+        try {
+          const res = await apiRequest("POST", "/api/conversations", { title: "Voice Chat" });
+          const conv = await res.json();
+          setActiveConversationId(conv.id);
+          setShowConversations(false);
+          queryClient.invalidateQueries({ queryKey: ["conversations"] });
+          await sendVoiceMessage(conv.id, audioBlob);
+        } catch (error) {
+          console.error("Failed to create conversation for voice:", error);
+        }
+        return;
+      }
+
+      await sendVoiceMessage(activeConversationId, audioBlob);
+    } else {
+      try {
+        await playback.init();
+        await startRecording();
+      } catch (error) {
+        console.error("Microphone access denied:", error);
+      }
+    }
+  };
+
+  const sendVoiceMessage = async (conversationId: number, audioBlob: Blob) => {
+    setIsProcessingVoice(true);
+    setIsStreaming(true);
+    setStreamingContent("");
+
+    const base64Audio = await new Promise<string>((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result as string;
+        resolve(result.split(",")[1]);
+      };
+      reader.readAsDataURL(audioBlob);
+    });
+
+    try {
+      const response = await fetch(`/api/conversations/${conversationId}/voice`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ audio: base64Audio }),
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({ error: "Voice request failed" }));
+        throw new Error(err.error || "Voice request failed");
+      }
+
+      const streamReader = response.body?.getReader();
+      if (!streamReader) throw new Error("No response body");
+
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let fullTranscript = "";
+
+      playback.clear();
+
+      while (true) {
+        const { done, value } = await streamReader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+
+          try {
+            const event = JSON.parse(line.slice(6));
+
+            switch (event.type) {
+              case "user_transcript":
+                queryClient.setQueryData<Conversation>(
+                  ["conversation", conversationId],
+                  (old) => {
+                    if (!old) return old;
+                    return {
+                      ...old,
+                      messages: [
+                        ...(old.messages || []),
+                        { id: Date.now(), role: "user", content: event.data, createdAt: new Date().toISOString() },
+                      ],
+                    };
+                  }
+                );
+                setIsProcessingVoice(false);
+                break;
+              case "transcript":
+                fullTranscript += event.data;
+                setStreamingContent(fullTranscript);
+                break;
+              case "audio":
+                playback.pushAudio(event.data);
+                break;
+              case "done":
+                playback.signalComplete();
+                setIsStreaming(false);
+                setStreamingContent("");
+                queryClient.invalidateQueries({ queryKey: ["conversation", conversationId] });
+                queryClient.invalidateQueries({ queryKey: ["conversations"] });
+                break;
+              case "error":
+                throw new Error(event.error);
+            }
+          } catch (e) {
+            if (!(e instanceof SyntaxError)) {
+              console.error("Voice stream error:", e);
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Voice error:", error);
+    } finally {
+      setIsStreaming(false);
+      setIsProcessingVoice(false);
+      setStreamingContent("");
+    }
+  };
+
   const messages = activeConversation?.messages || [];
 
   if (!enabled) return null;
@@ -295,6 +447,9 @@ export default function AIChatWidget({ enabled = false }: { enabled?: boolean })
             )}
             <Sparkles className="w-5 h-5 text-primary" />
             <span className="font-semibold text-sm">Marcela</span>
+            {isPlayingAudio && (
+              <Volume2 className="w-4 h-4 text-primary animate-pulse" />
+            )}
           </div>
           <div className="flex items-center gap-1">
             {!showConversations && (
@@ -391,6 +546,9 @@ export default function AIChatWidget({ enabled = false }: { enabled?: boolean })
                   <p className="text-xs text-muted-foreground max-w-[250px]">
                     Ask me about hotel financials, market analysis, revenue management, or anything hospitality-related.
                   </p>
+                  <p className="text-xs text-muted-foreground/60 mt-2 max-w-[250px]">
+                    Tap the microphone to start a voice conversation.
+                  </p>
                   <div className="mt-4 space-y-2 w-full max-w-[280px]">
                     {[
                       "What's a good cap rate for boutique hotels?",
@@ -476,6 +634,8 @@ export default function AIChatWidget({ enabled = false }: { enabled?: boolean })
               )}
             </ScrollArea>
 
+            <VoiceIndicator isRecording={isRecording} isPlaying={isPlayingAudio} />
+
             <div className="p-3 border-t bg-background">
               <form
                 onSubmit={(e) => {
@@ -489,10 +649,28 @@ export default function AIChatWidget({ enabled = false }: { enabled?: boolean })
                   data-testid="input-chat-message"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Ask anything..."
-                  disabled={isStreaming}
+                  placeholder={isRecording ? "Listening..." : "Ask anything..."}
+                  disabled={isStreaming || isRecording}
                   className="text-sm"
                 />
+                <Button
+                  data-testid="button-voice-toggle"
+                  type="button"
+                  size="icon"
+                  variant={isRecording ? "destructive" : "outline"}
+                  disabled={isStreaming && !isRecording}
+                  className={cn("shrink-0 transition-all", isRecording && "animate-pulse")}
+                  onClick={handleVoiceToggle}
+                  title={isRecording ? "Stop recording" : "Start voice chat"}
+                >
+                  {isProcessingVoice ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : isRecording ? (
+                    <MicOff className="w-4 h-4" />
+                  ) : (
+                    <Mic className="w-4 h-4" />
+                  )}
+                </Button>
                 <Button
                   data-testid="button-send-message"
                   type="submit"
@@ -500,7 +678,7 @@ export default function AIChatWidget({ enabled = false }: { enabled?: boolean })
                   disabled={!input.trim() || isStreaming}
                   className="shrink-0"
                 >
-                  {isStreaming ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                  {isStreaming && !isProcessingVoice ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                 </Button>
               </form>
             </div>

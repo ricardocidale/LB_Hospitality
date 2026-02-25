@@ -1,13 +1,21 @@
-import type { Express, Request, Response } from "express";
+import express, { type Express, type Request, type Response } from "express";
 import OpenAI from "openai";
 import { chatStorage } from "./storage";
 import { requireAuth } from "../../auth";
 import { storage } from "../../storage";
+import {
+  transcribeAudio,
+  createElevenLabsStreamingTTS,
+  MARCELA_VOICE_ID,
+} from "../../integrations/elevenlabs";
+import { ensureCompatibleFormat } from "../audio/client";
 
 const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
   baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
 });
+
+const audioBodyParser = express.json({ limit: "50mb" });
 
 const SYSTEM_PROMPT = `You are Marcela, a brilliant hospitality business strategist and financial analyst for Hospitality Business Group. You are warm, confident, and exceptionally sharp — a trusted advisor who combines deep industry expertise with genuine care for helping users succeed. You have encyclopedic knowledge of the platform the user is working in and can guide them through any feature.
 
@@ -111,6 +119,53 @@ The user is working in a financial simulation portal with these main areas:
 - You may explain formulas, concepts, and methodology, but never produce computed numerical results yourself
 - When referencing financial metrics from the portfolio context below, clearly state these are values computed by the platform's financial engine, not your own calculations`;
 
+const ADMIN_SYSTEM_PROMPT_ADDITION = `
+
+## Admin Capabilities (You are speaking with an Admin)
+As an admin, this user has full system access. You can help them with administrative tasks:
+
+**User Management:**
+- View all registered users, their roles, and login activity
+- Guide them to add, edit, or remove users via Admin > Users tab
+- Help assign roles (admin, partner, checker, investor) — remind them default role is Partner
+- Help assign users to User Groups for branding
+
+**Activity & Security:**
+- Report on recent login activity and session information
+- Guide them to Admin > Activity tab for login logs and audit trail
+- Help them understand checker activity and verification history
+
+**Financial Verification:**
+- Help run and interpret the automated verification system
+- Explain audit findings, GAAP compliance issues, and workpaper references
+- Guide them through the AI-powered verification review in Admin > Verification tab
+- Help export verification PDFs for external auditors
+
+**System Configuration:**
+- Guide branding setup: logos, themes, company names per User Group
+- Help configure navigation visibility and sidebar settings
+- Assist with database sync status and seed data management
+- Help manage SPV companies and management company configuration
+
+**Data Oversight:**
+- Provide summaries of portfolio-wide data (properties, users, assumptions)
+- Help interpret verification results and ensure UNQUALIFIED audit opinion
+- Guide scenario management and assumption consistency checks
+
+When the admin asks about system status, users, or administrative functions, provide detailed, actionable guidance. You have full visibility into the platform's admin capabilities.`;
+
+const VOICE_SYSTEM_PROMPT_ADDITION = `
+
+## Voice Conversation Mode
+You are currently in a voice conversation. Adjust your responses accordingly:
+- Keep responses concise and conversational — aim for 2-3 sentences when possible
+- Avoid markdown formatting (no bold, no bullet points, no headers) since this will be spoken aloud
+- Use natural speech patterns with clear transitions
+- Numbers and percentages should be spoken naturally (say "eight and a half percent" not "8.5%")
+- Avoid listing more than 3 items — summarize instead
+- If a question requires a detailed answer, give a brief summary and offer to elaborate
+- Use conversational connectors: "So," "Now," "Here's the thing," "What's interesting is..."`;
+
 async function buildContextPrompt(userId?: number): Promise<string> {
   try {
     const [assumptions, properties, allUsers, allResearch] = await Promise.all([
@@ -200,6 +255,23 @@ async function buildContextPrompt(userId?: number): Promise<string> {
   }
 }
 
+async function getUserRole(userId?: number): Promise<string> {
+  if (!userId) return "partner";
+  try {
+    const user = await storage.getUserById(userId);
+    return user?.role || "partner";
+  } catch {
+    return "partner";
+  }
+}
+
+function buildSystemPrompt(isVoice: boolean, isAdmin: boolean): string {
+  let prompt = SYSTEM_PROMPT;
+  if (isAdmin) prompt += ADMIN_SYSTEM_PROMPT_ADDITION;
+  if (isVoice) prompt += VOICE_SYSTEM_PROMPT_ADDITION;
+  return prompt;
+}
+
 export function registerChatRoutes(app: Express): void {
   app.get("/api/conversations", requireAuth, async (req: Request, res: Response) => {
     try {
@@ -260,10 +332,14 @@ export function registerChatRoutes(app: Express): void {
       await chatStorage.createMessage(conversationId, "user", content.trim());
 
       const userId = (req as any).user?.id;
-      const contextPrompt = await buildContextPrompt(userId);
+      const [contextPrompt, userRole] = await Promise.all([
+        buildContextPrompt(userId),
+        getUserRole(userId),
+      ]);
+      const isAdmin = userRole === "admin";
       const messages = await chatStorage.getMessagesByConversation(conversationId);
       const chatMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
-        { role: "system", content: SYSTEM_PROMPT + contextPrompt },
+        { role: "system", content: buildSystemPrompt(false, isAdmin) + contextPrompt },
         ...messages.map((m) => ({
           role: m.role as "user" | "assistant",
           content: m.content,
@@ -302,6 +378,104 @@ export function registerChatRoutes(app: Express): void {
         res.end();
       } else {
         res.status(500).json({ error: "Failed to send message" });
+      }
+    }
+  });
+
+  app.post("/api/conversations/:id/voice", requireAuth, audioBodyParser, async (req: Request, res: Response) => {
+    try {
+      const conversationId = parseInt(req.params.id as string);
+      const { audio } = req.body;
+
+      if (!audio) {
+        return res.status(400).json({ error: "Audio data (base64) is required" });
+      }
+
+      const rawBuffer = Buffer.from(audio, "base64");
+      const { buffer: audioBuffer, format: inputFormat } = await ensureCompatibleFormat(rawBuffer);
+
+      const userTranscript = await transcribeAudio(audioBuffer, `audio.${inputFormat}`);
+
+      if (!userTranscript || !userTranscript.trim()) {
+        return res.status(400).json({ error: "Could not transcribe audio. Please try again." });
+      }
+
+      await chatStorage.createMessage(conversationId, "user", userTranscript.trim());
+
+      const userId = (req as any).user?.id;
+      const [contextPrompt, userRole] = await Promise.all([
+        buildContextPrompt(userId),
+        getUserRole(userId),
+      ]);
+      const isAdmin = userRole === "admin";
+      const messages = await chatStorage.getMessagesByConversation(conversationId);
+      const chatMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
+        { role: "system", content: buildSystemPrompt(true, isAdmin) + contextPrompt },
+        ...messages.map((m) => ({
+          role: m.role as "user" | "assistant",
+          content: m.content,
+        })),
+      ];
+
+      res.setHeader("Content-Type", "text/event-stream");
+      res.setHeader("Cache-Control", "no-cache");
+      res.setHeader("Connection", "keep-alive");
+
+      res.write(`data: ${JSON.stringify({ type: "user_transcript", data: userTranscript })}\n\n`);
+
+      const llmStream = await openai.chat.completions.create({
+        model: "gpt-4.1",
+        messages: chatMessages,
+        stream: true,
+        max_completion_tokens: 1024,
+      });
+
+      let fullResponse = "";
+      let ttsStream: { send: (text: string) => void; flush: () => void; close: () => void } | null = null;
+
+      try {
+        ttsStream = await createElevenLabsStreamingTTS(
+          MARCELA_VOICE_ID,
+          (audioBase64: string) => {
+            try {
+              res.write(`data: ${JSON.stringify({ type: "audio", data: audioBase64 })}\n\n`);
+            } catch { /* connection closed */ }
+          },
+          { outputFormat: "pcm_16000" }
+        );
+      } catch (ttsError) {
+        console.error("ElevenLabs TTS connection failed, falling back to text-only:", ttsError);
+      }
+
+      for await (const chunk of llmStream) {
+        const delta = chunk.choices[0]?.delta?.content || "";
+        if (delta) {
+          fullResponse += delta;
+          res.write(`data: ${JSON.stringify({ type: "transcript", data: delta })}\n\n`);
+          if (ttsStream) {
+            ttsStream.send(delta);
+          }
+        }
+      }
+
+      if (ttsStream) {
+        ttsStream.flush();
+        await new Promise(resolve => setTimeout(resolve, 500));
+        ttsStream.close();
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+
+      await chatStorage.createMessage(conversationId, "assistant", fullResponse);
+
+      res.write(`data: ${JSON.stringify({ type: "done", transcript: fullResponse })}\n\n`);
+      res.end();
+    } catch (error) {
+      console.error("Error processing voice message:", error);
+      if (res.headersSent) {
+        res.write(`data: ${JSON.stringify({ type: "error", error: "Failed to process voice message" })}\n\n`);
+        res.end();
+      } else {
+        res.status(500).json({ error: "Failed to process voice message" });
       }
     }
   });

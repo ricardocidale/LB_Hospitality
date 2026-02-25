@@ -1,5 +1,5 @@
 {
-  "include": ["client/src/**/*", "shared/**/*", "server/**/*", "calc/**/*", "domain/**/*", "engine/**/*", "statements/**/*", "analytics/**/*"],
+  "include": ["client/src/**/*", "client/replit_integrations/**/*", "shared/**/*", "server/**/*", "calc/**/*", "domain/**/*", "engine/**/*", "statements/**/*", "analytics/**/*"],
   "exclude": ["node_modules", "build", "dist", "**/*.test.ts"],
   "compilerOptions": {
     "incremental": true,

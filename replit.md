@@ -1,197 +1,9 @@
 # Hospitality Business Group - Business Simulation Portal
 
-**All project documentation lives in `.claude/claude.md`** — the single source of truth for architecture, skills, rules, manuals, tools, testing, integrations, and project state. Load it for any detailed work.
+## Overview
+The Hospitality Business Group project is a sophisticated business simulation portal designed for the hospitality industry. Its core purpose is to provide a comprehensive platform for financial modeling, property management, and investment analysis within the hospitality sector. The system enables users to simulate and analyze the financial performance of individual properties and entire portfolios, manage branding, and administer user access. Key capabilities include detailed financial calculations, AI-powered image generation, voice interaction with an AI assistant, and robust data seeding for production environments. The project aims to deliver a premium, graphics-rich user experience with transparent calculation methodologies, catering to investors, partners, and administrators in the hospitality domain.
 
-## MANDATORY: Rules Loading
-
-**Before ANY work, read `session-memory.md` + `replit.md` + all `.claude/rules/*.md`.** Include all rules in architect calls. See `.claude/rules/session-startup.md` for full protocol.
-
-## Key Directories
-- `.claude/skills/` — 99+ skill files (finance, UI, testing, exports, proof system, architecture, research questions, mobile-responsive, admin refactor, property refactor)
-- `.claude/skills/context-loading/` — Start here: maps task types to minimum required skills
-- `.claude/skills/mobile-responsive/` — 4 mobile/tablet skills (breakpoints, iPad layouts, device checklist, responsive helpers)
-- `.claude/rules/` — 20 rule files (session-startup, documentation, ui-patterns, constants, DB seeding, API routes, graphics, hardcoding, skill organization, context-reduction, premium-design, etc.)
-- `.claude/manuals/` — Checker manual and user manual
-- `.claude/tools/` — Tool schemas for analysis, financing, returns, validation, UI
-- `.claude/commands/` — 8 slash commands (verify, seed, scenarios, themes, etc.)
-
-## Quick Commands
-```bash
-npm run dev            # Start dev server
-npm run health         # One-shot: tsc + tests + verify (~4 lines output)
-npm run test:summary   # Run all 1,529 tests, 1-line output on pass
-npm run verify:summary # 4-phase verification, compact output
-npm test               # Run all 1,529 tests (full output)
-npm run verify         # Full 4-phase financial verification (verbose)
-npm run db:push        # Push schema changes
-npm run lint:summary   # tsc --noEmit, 1-line output
-npm run diff:summary   # Compact git diff stat
-npm run test:file -- <path>  # Single test file, summary output
-npm run stats          # Codebase metrics (~12 lines)
-npm run audit:quick    # Quick code quality scan
-npm run exports:check  # Find unused exports
-```
-
-## Branding Architecture
-- **Branding flows: User → User Group → Default.** No per-user branding overrides.
-- Design themes are standalone entities (not user-owned). Each has `isDefault` flag.
-- User Groups define company branding: `companyName`, `logoId`, `themeId`, `assetDescriptionId`.
-- Users inherit branding from their assigned User Group. Admin manages branding at the group level.
-
-## AI Image Generation
-- **Primary model:** Nano Banana (`gemini-2.5-flash-image`) via Gemini AI Integrations
-- **Fallback:** OpenAI `gpt-image-1`
-- **Reusable component:** `client/src/components/ui/ai-image-picker.tsx` — supports upload, AI generate, and URL input modes
-- **Property-specific wrapper:** `client/src/features/property-images/PropertyImagePicker.tsx`
-- **AnimatedLogo:** `client/src/components/ui/animated-logo.tsx` — SVG wrapper for vector-like scaling and animation (pulse, glow, spin, bounce)
-- **Server endpoint:** `POST /api/generate-property-image` — generates image, uploads to object storage, returns `objectPath`
-
-## Admin Page Structure
-Admin Settings page (`/admin`) — **refactored from 3,235-line monolith into 10 standalone tab components + 87-line shell**.
-- Shell: `client/src/pages/Admin.tsx` — tab navigation only, no business logic
-- **7 top-level tabs**: Users, Companies, Activity, Verification, User Groups, Customize, Database
-- Tabs: `client/src/components/admin/` — each tab owns its data fetching, mutations, dialogs, and state
-  - `UsersTab.tsx` — user CRUD, add/edit/password dialogs
-  - `CompaniesTab.tsx` — SPV management, mgmt company config
-  - `ActivityTab.tsx` — login logs, activity feed, checker activity (3 sub-tabs)
-  - `VerificationTab.tsx` — auto-verification, AI review, PDF export
-  - `UserGroupsTab.tsx` — group CRUD, user-to-group assignment
-  - `CustomizeTab.tsx` — consolidated appearance/config with internal sub-navigation:
-    - Branding (`BrandingTab.tsx`) — global branding config
-    - Themes (`ThemesTab.tsx`) — wraps ThemeManager
-    - Logos (`LogosTab.tsx`) — logo CRUD with AI image picker
-    - Navigation (`NavigationTab.tsx`) — sidebar toggle config
-  - `DatabaseTab.tsx` — sync status, seed execution
-- Shared types: `client/src/components/admin/types.ts` (17 interfaces)
-- Barrel export: `client/src/components/admin/index.ts`
-
-## Property Page Structure
-Property pages — **refactored from 5 monolithic files (4,891 lines) into organized components + shells (1,701 lines in shells)**.
-
-### PropertyEdit (`/properties/:id/edit`) — 322-line shell + 7 sections
-- Shell: `client/src/pages/PropertyEdit.tsx` — queries, mutations, draft state, research values
-- Sections: `client/src/components/property-edit/` — each receives `draft` + handlers via props
-  - `BasicInfoSection.tsx` (91) — name, location, market, photo, rooms
-  - `TimelineSection.tsx` (38) — acquisition/operations dates
-  - `CapitalStructureSection.tsx` (331) — purchase, financing, refinancing
-  - `RevenueAssumptionsSection.tsx` (317) — ADR, occupancy, revenue mix
-  - `OperatingCostRatesSection.tsx` (362) — cost rates by category
-  - `ManagementFeesSection.tsx` (123) — fee categories, incentive fees
-  - `OtherAssumptionsSection.tsx` (117) — exit cap, tax, commission
-- Shared types: `client/src/components/property-edit/types.ts`
-- Barrel export: `client/src/components/property-edit/index.ts`
-
-### PropertyDetail (`/properties/:id`) — 595-line shell + 5 components
-- Shell: `client/src/pages/PropertyDetail.tsx` — queries, memos, export logic, tab layout
-- Components: `client/src/components/property-detail/`
-  - `PPECostBasisSchedule.tsx` (215) — depreciation schedule table
-  - `IncomeStatementTab.tsx` (106) — chart + yearly statement
-  - `CashFlowTab.tsx` (121) — NOI/FCF/FCFE chart + statement
-  - `PropertyHeader.tsx` (89) — image, info bar, actions
-  - `PropertyKPIs.tsx` (46) — Year 1 KPI grid
-
-### PropertyFinder (`/property-finder`) — 354-line shell + 4 components
-- Components: `client/src/components/property-finder/`
-  - `SearchResultCard.tsx` (134), `FavoriteCard.tsx` (157), `SearchForm.tsx` (188), `SavedSearchBar.tsx` (53)
-
-### Portfolio (`/portfolio`) — 244-line shell + 3 components
-- Components: `client/src/components/portfolio/`
-  - `AddPropertyDialog.tsx` (352), `PortfolioPropertyCard.tsx` (126), `CurrencyInput.tsx` (61)
-
-### PropertyMarketResearch (`/properties/:id/research`) — 186-line shell + 5 components
-- Components: `client/src/components/property-research/`
-  - `SectionCard.tsx` (17), `MetricCard.tsx` (11), `ResearchSections.tsx` (381), `useResearchStream.ts` (80), `types.ts` (22)
-
-## Management Company Page Structure
-Management Company pages — **refactored from 3 monolithic files (3,541 lines) into organized components + shells (1,186 lines in shells)**.
-
-### Company (`/company`) — 804-line shell + 4 components
-- Shell: `client/src/pages/Company.tsx` — queries, memos, export logic (PDF/CSV/Excel/PPTX/PNG), tab state
-- Components: `client/src/components/company/`
-  - `CompanyIncomeTab.tsx` (375) — income statement with formula accordion rows
-  - `CompanyCashFlowTab.tsx` (454) — cash flow statement (operating/financing/net)
-  - `CompanyBalanceSheet.tsx` (210) — assets/liabilities/equity sections
-  - `CompanyHeader.tsx` (86) — page header, KPIs, chart, insight panel
-- Shared helper: `client/src/lib/financial/analyzeCompanyCashPosition.ts` (70)
-
-### CompanyAssumptions (`/company/assumptions`) — 218-line shell + 13 sections
-- Shell: `client/src/pages/CompanyAssumptions.tsx` — query, mutation, formData state, handleSave
-- Sections: `client/src/components/company-assumptions/` — each receives `formData` + handlers via props
-  - `EditableValue.tsx` (77) — reusable inline editable numeric display
-  - `CompanySetupSection.tsx` (87), `FundingSection.tsx` (160), `ManagementFeesSection.tsx` (86)
-  - `CompensationSection.tsx` (127), `FixedOverheadSection.tsx` (140), `VariableCostsSection.tsx` (118)
-  - `TaxSection.tsx` (45), `ExitAssumptionsSection.tsx` (70), `PropertyExpenseRatesSection.tsx` (103)
-  - `CateringSection.tsx` (21), `PartnerCompSection.tsx` (86), `SummaryFooter.tsx` (17)
-
-### CompanyResearch (`/company/research`) — 164-line shell + 3 components
-- Components: `client/src/components/company-research/`
-  - `CompanyResearchSections.tsx` (198), `useCompanyResearchStream.ts` (60), `types.ts` (12)
-- Reuses `SectionCard` and `MetricCard` from `property-research/`
-
-## Server Route Architecture
-Server routes — **refactored from 3,842-line monolith into 10 route modules + 37-line shell**.
-- Shell: `server/routes.ts` — imports and registers all route modules
-- Route modules: `server/routes/` — each exports a `register(app, storage)` function
-  - `auth.ts` — login, logout, /api/auth/me, profile
-  - `properties.ts` — CRUD, images, research seeding
-  - `admin.ts` — user management, sessions, health, sync, AI verification, activity logs
-  - `global-assumptions.ts` — GET/POST global assumptions
-  - `branding.ts` — logos, asset-descriptions, user-groups, companies, design-themes, my-branding
-  - `scenarios.ts` — scenario management
-  - `research.ts` — market-research SSE, email, research questions
-  - `property-finder.ts` — search, favorites, saved-searches
-  - `calculations.ts` — IRR, equity-multiple, exit-valuation, checker-manual, generate-property-image
-  - `uploads.ts` — presigned URL flow
-  - `helpers.ts` — shared middleware (requireAuth, requireAdmin, logActivity, calcRateLimit)
-
-## Dashboard Page Structure
-Dashboard (`/portfolio-dashboard`) — **refactored from 3,273-line monolith into 155-line shell + 7 components**.
-- Shell: `client/src/pages/Dashboard.tsx` — data fetching, tab routing, state
-- Components: `client/src/components/dashboard/`
-  - `OverviewTab.tsx` — portfolio KPIs, charts, insights
-  - `IncomeStatementTab.tsx` — consolidated income statement with formula rows + export
-  - `CashFlowTab.tsx` — consolidated cash flow statement
-  - `BalanceSheetTab.tsx` — consolidated balance sheet
-  - `InvestmentAnalysisTab.tsx` — equity invested, BTCF/ATCF, taxable income
-  - `usePortfolioFinancials.ts` — hook for proforma aggregation + memoization
-  - `dashboardExports.ts` — PDF/Excel/PPTX/PNG export logic
-- Types: `client/src/components/dashboard/types.ts`
-- Barrel: `client/src/components/dashboard/index.ts`
-
-## Settings Page Structure
-Settings (`/settings`) — **refactored from 1,413-line monolith into 336-line shell + 4 tab components**.
-- Shell: `client/src/pages/Settings.tsx` — query, mutation, tab routing
-- Components: `client/src/components/settings/`
-  - `PortfolioTab.tsx` — property profiles, acquisition, debt, overrides
-  - `MacroTab.tsx` — timeline, inflation, display
-  - `OtherTab.tsx` — AI model, misc
-  - `IndustryResearchTab.tsx` — research generation, SSE
-- Types: `client/src/components/settings/types.ts`
-
-## Methodology Page Structure
-Methodology (`/methodology`) — **refactored from 1,291-line monolith into 621-line shell + 4 components**.
-- Shell: `client/src/pages/Methodology.tsx` — section state, scroll navigation
-- Components: `client/src/components/methodology/`
-  - `MethodologyTOC.tsx` — table of contents navigation
-  - `MethodologySection.tsx` — reusable collapsible section renderer
-  - `methodologyData.ts` — static section definitions
-  - `AuditSections.tsx` — GAAP rules, audit opinions
-
-## Production Seed Script
-- `script/seed-production.sql` — comprehensive SQL to seed production DB
-- Covers 11 persistent tables (companies, logos, user_groups, design_themes, users, global_assumptions, properties, property_fee_categories, market_research, research_questions, saved_searches)
-- Uses `OVERRIDING SYSTEM VALUE` for identity columns, resets sequences, idempotent with `ON CONFLICT DO NOTHING`
-
-## Calculation Transparency
-- Two toggles in **Systemwide Assumptions > Other tab** control formula accordion visibility:
-  - `showCompanyCalculationDetails` — Management Company reports
-  - `showPropertyCalculationDetails` — Property reports
-- Default: ON. When OFF, shows clean numbers only (investor-ready view).
-- **Consolidated statements** use 3-level accordion: consolidated total → weighted formula → per-property breakdown
-- 7 reusable helpers in `client/src/lib/consolidatedFormulaHelpers.tsx` (zero re-aggregation architecture)
-- Shared row components in `client/src/components/financial-table-rows.tsx`
-
-## Top Rules
+## User Preferences
 - **Calculations first.** 1,529-test proof system must always pass.
 - **Graphics-rich pages.** Charts, animations, visual elements everywhere.
 - **No hardcoded values.** Financial assumptions and admin config from DB or named constants.
@@ -204,4 +16,48 @@ Methodology (`/methodology`) — **refactored from 1,291-line monolith into 621-
 - **"Save" not "Update"** on all buttons.
 - **Role-based access.** Investors cannot access Management Company pages, Systemwide Assumptions, Property Finder, Analysis, or Scenarios. Enforced via `hasManagementAccess` (sidebar) + `ManagementRoute` (route guard). Ricardo Cidale is sole Admin; all others are Partners (not investors in current seed).
 - Company: "Hospitality Business Group". All UI references a theme. Skills under `.claude/`.
-- See `.claude/claude.md` for everything else.
+
+## System Architecture
+
+### Branding Architecture
+The system employs a hierarchical branding structure: User → User Group → Default. Design themes are standalone entities, each with an `isDefault` flag. User Groups define company branding attributes like `companyName`, `logoId`, `themeId`, and `assetDescriptionId`. Users inherit branding from their assigned User Group, with administration handled at the group level.
+
+### Voice Conversation (Marcela AI)
+Integrated into `AIChatWidget.tsx`, enabling voice interaction.
+- **LLM:** GPT-4.1, with voice-specific system prompt adjustments for concise and natural speech.
+- **Admin Voice:** Admin conversations include specific system prompt adjustments for capabilities like user management, verification, activity logs, branding, and database access.
+- **Audio Pipeline:** Browser MediaRecorder (WebM/Opus) → server ffmpeg conversion → STT → LLM streaming → TTS WebSocket → SSE audio chunks → client AudioWorklet playback.
+- **Server Endpoint:** `POST /api/conversations/:id/voice` accepts base64 audio and returns an SSE stream.
+- **Client Hooks:** `useVoiceRecorder` for recording and `useAudioPlayback` for PCM16 playback.
+
+### AI Image Generation
+- **Reusable Component:** `client/src/components/ui/ai-image-picker.tsx` supports upload, AI generation, and URL input.
+- **Property-specific Wrapper:** `client/src/features/property-images/PropertyImagePicker.tsx`.
+- **AnimatedLogo:** `client/src/components/ui/animated-logo.tsx` for scalable and animated SVG logos.
+- **Server Endpoint:** `POST /api/generate-property-image` generates and uploads images, returning an `objectPath`.
+
+### Modular UI/UX Design
+The UI emphasizes modularity and refactoring of monolithic pages into smaller, maintainable components.
+- **Admin Pages:** Refactored into 10 standalone tab components within a light shell, each managing its own data fetching and state. Includes sections for Users, Companies, Activity, Verification, User Groups, Customize (Branding, Themes, Logos, Navigation), and Database.
+- **Property Pages:** Refactored into organized components and shells for `PropertyEdit`, `PropertyDetail`, `PropertyFinder`, `Portfolio`, and `PropertyMarketResearch`. Each section or component handles specific data and functionalities.
+- **Management Company Pages:** Restructured into shells and components for `Company`, `CompanyAssumptions`, and `CompanyResearch`, providing detailed financial statements, assumption management, and research capabilities.
+- **Dashboard:** Refactored into a shell and 7 components for a comprehensive overview, income statements, cash flow, balance sheets, and investment analysis, with consolidated financial reporting.
+- **Settings Page:** Refactored into a shell and 4 tab components for managing portfolio, macro assumptions, AI model settings, and industry research.
+- **Methodology Page:** Refactored for better organization with a shell and components for table of contents and collapsible sections, including GAAP rules and audit opinions.
+
+### Server Route Architecture
+Server routes have been refactored from a monolithic structure into 10 distinct route modules, each exporting a `register(app, storage)` function. Modules include `auth`, `properties`, `admin`, `global-assumptions`, `branding`, `scenarios`, `research`, `property-finder`, `calculations`, and `uploads`. Shared middleware are defined in `helpers.ts`.
+
+### Calculation Transparency
+- **Formula Accordions:** Toggles in Systemwide Assumptions > Other tab (`showCompanyCalculationDetails`, `showPropertyCalculationDetails`) control the visibility of detailed formulas for Management Company and Property reports.
+- **Consolidated Statements:** Utilize a 3-level accordion for consolidated totals, weighted formulas, and per-property breakdowns.
+- **Seed Script:** A comprehensive `script/seed-production.sql` ensures idempotent seeding of 11 persistent tables with `ON CONFLICT DO NOTHING`.
+
+## External Dependencies
+- **Speech-to-Text (STT):** ElevenLabs Scribe v1 via `server/integrations/elevenlabs.ts`.
+- **Text-to-Speech (TTS):** ElevenLabs WebSocket streaming (Jessica voice, `eleven_flash_v2_5` model).
+- **Large Language Model (LLM):** GPT-4.1.
+- **AI Image Generation:** Nano Banana (`gemini-2.5-flash-image`) via Gemini AI Integrations (primary); OpenAI `gpt-image-1` (fallback).
+- **Database:** PostgreSQL (implied by `npm run db:push` and `script/seed-production.sql`).
+- **Object Storage:** Used for storing generated property images.
+- **FFmpeg:** Utilized on the server for audio conversion in the voice pipeline.

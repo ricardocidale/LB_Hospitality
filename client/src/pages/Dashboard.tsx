@@ -92,7 +92,7 @@ export default function Dashboard() {
     projectionYears,
     getFiscalYear,
     showCalcDetails,
-    global: global as any // passing global for InvestmentAnalysisTab
+    global
   };
 
   return (

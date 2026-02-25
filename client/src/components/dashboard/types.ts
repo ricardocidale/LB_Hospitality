@@ -2,6 +2,7 @@ import { Property } from "@shared/schema";
 import { YearlyPropertyFinancials } from "@/lib/yearlyAggregator";
 import { YearlyCashFlowResult } from "@/lib/loanCalculations";
 import { MonthlyFinancials } from "@/lib/financialEngine";
+import type { GlobalResponse } from "@/lib/api";
 
 export interface WeightedMetrics {
   weightedADR: number;
@@ -32,4 +33,5 @@ export interface DashboardTabProps {
   projectionYears: number;
   getFiscalYear: (yearIndex: number) => number;
   showCalcDetails: boolean;
+  global: GlobalResponse;
 }

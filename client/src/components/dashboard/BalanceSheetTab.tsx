@@ -1,11 +1,8 @@
 import React from "react";
 import { ConsolidatedBalanceSheet } from "@/components/ConsolidatedBalanceSheet";
 import { DashboardTabProps } from "./types";
-import { useGlobalAssumptions } from "@/lib/api";
 
-export function BalanceSheetTab({ financials, properties, projectionYears, getFiscalYear, showCalcDetails }: DashboardTabProps) {
-  const { data: global } = useGlobalAssumptions();
-  if (!global) return null;
+export function BalanceSheetTab({ financials, properties, global }: DashboardTabProps) {
   return (
     <div className="space-y-6">
       <ConsolidatedBalanceSheet 

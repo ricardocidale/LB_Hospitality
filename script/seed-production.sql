@@ -1,9 +1,11 @@
 -- =============================================================================
--- Production Database Seed Script
+-- Production Database Sync Script
 -- Generated from development database state
 -- Company: Hospitality Business Group
 -- =============================================================================
--- This script populates persistent tables for production deployment.
+-- This script synchronizes the production database with development.
+-- It DELETES non-canonical data, then UPSERTS canonical rows.
+-- Safe to run multiple times (fully idempotent).
 -- Transient tables (sessions, activity_logs, login_logs, verification_runs,
 -- conversations, messages) are intentionally skipped.
 -- Uses OVERRIDING SYSTEM VALUE to preserve identity column IDs.
@@ -13,13 +15,23 @@
 BEGIN;
 
 -- =============================================================================
+-- CLEANUP: Remove non-canonical data before inserting
+-- Order matters: delete dependent rows first (FK constraints)
+-- =============================================================================
+DELETE FROM property_fee_categories WHERE property_id NOT IN (32, 33, 35, 39, 41, 43);
+DELETE FROM market_research WHERE type = 'property' AND property_id NOT IN (32, 33, 35, 39, 41, 43);
+DELETE FROM properties WHERE id NOT IN (32, 33, 35, 39, 41, 43);
+
+-- =============================================================================
 -- COMPANIES
 -- =============================================================================
 INSERT INTO companies (id, name, type, description, logo_id, is_active) OVERRIDING SYSTEM VALUE VALUES
   (1, 'Hospitality Business Group', 'management', 'Management company overseeing all hotel SPVs', 1, TRUE),
   (2, 'HBG Property 1 LLC', 'spv', 'SPV for first hotel property', 2, TRUE),
   (3, 'HBG Property 2 LLC', 'spv', 'SPV for second hotel property', 3, TRUE)
-ON CONFLICT (id) DO NOTHING;
+ON CONFLICT (id) DO UPDATE SET
+  name = EXCLUDED.name, type = EXCLUDED.type, description = EXCLUDED.description,
+  logo_id = EXCLUDED.logo_id, is_active = EXCLUDED.is_active;
 
 -- =============================================================================
 -- LOGOS
@@ -29,7 +41,9 @@ INSERT INTO logos (id, name, url, is_default, company_name) OVERRIDING SYSTEM VA
   (2, 'Norfolk AI - Blue', '/logos/norfolk-ai-blue.png', FALSE, 'Hospitality Business Group'),
   (3, 'Norfolk AI - Yellow', '/logos/norfolk-ai-yellow.png', FALSE, 'Hospitality Business Group'),
   (4, 'Norfolk AI - Wireframe', '/logos/norfolk-ai-wireframe.png', FALSE, 'Hospitality Business Group')
-ON CONFLICT (id) DO NOTHING;
+ON CONFLICT (id) DO UPDATE SET
+  name = EXCLUDED.name, url = EXCLUDED.url, is_default = EXCLUDED.is_default,
+  company_name = EXCLUDED.company_name;
 
 -- =============================================================================
 -- USER GROUPS
@@ -38,7 +52,8 @@ INSERT INTO user_groups (id, name, logo_id, theme_id, asset_description_id, is_d
   (1, 'KIT Group', NULL, NULL, NULL, FALSE),
   (2, 'Norfolk Group', NULL, NULL, NULL, FALSE),
   (3, 'General', NULL, NULL, NULL, TRUE)
-ON CONFLICT (id) DO NOTHING;
+ON CONFLICT (id) DO UPDATE SET
+  name = EXCLUDED.name, is_default = EXCLUDED.is_default;
 
 -- =============================================================================
 -- DESIGN THEMES
@@ -46,7 +61,9 @@ ON CONFLICT (id) DO NOTHING;
 INSERT INTO design_themes (id, name, description, is_default, colors) OVERRIDING SYSTEM VALUE VALUES
   (1, 'Fluid Glass', 'Inspired by Apple''s iOS design language, Fluid Glass creates a sense of depth and dimension through translucent layers, subtle gradients, and smooth animations. The design emphasizes content while maintaining visual hierarchy through careful use of blur effects and glass-like surfaces.', TRUE, '[{"name": "Sage Green", "rank": 1, "hexCode": "#9FBCA4", "description": "PALETTE: Secondary accent for subtle highlights, card borders, and supporting visual elements."}, {"name": "Deep Green", "rank": 2, "hexCode": "#257D41", "description": "PALETTE: Primary brand color for main action buttons, active navigation items, and key highlights."}, {"name": "Warm Cream", "rank": 3, "hexCode": "#FFF9F5", "description": "PALETTE: Light background for page backgrounds, card surfaces, and warm accents."}, {"name": "Deep Black", "rank": 4, "hexCode": "#0a0a0f", "description": "PALETTE: Dark theme background for navigation sidebars, dark glass panels, and login screens."}, {"name": "Salmon", "rank": 5, "hexCode": "#F4795B", "description": "PALETTE: Accent color for warnings, notifications, and emphasis highlights."}, {"name": "Yellow Gold", "rank": 6, "hexCode": "#F59E0B", "description": "PALETTE: Accent color for highlights, badges, and attention-drawing elements."}, {"name": "Chart Blue", "rank": 1, "hexCode": "#3B82F6", "description": "CHART: Primary chart line color for revenue and key financial metrics."}, {"name": "Chart Red", "rank": 2, "hexCode": "#EF4444", "description": "CHART: Secondary chart line color for expenses and cost-related metrics."}, {"name": "Chart Purple", "rank": 3, "hexCode": "#8B5CF6", "description": "CHART: Tertiary chart line color for cash flow and profitability metrics."}]'),
   (5, 'Indigo Blue', 'A bold, professional theme centered on deep indigo-blue tones with cool steel accents. Conveys trust, authority, and modern sophistication — ideal for investor-facing presentations.', FALSE, '[{"name": "Indigo", "rank": 1, "hexCode": "#4F46E5", "description": "PALETTE: Primary brand color for main action buttons, active navigation items, and key highlights."}, {"name": "Deep Navy", "rank": 2, "hexCode": "#1E1B4B", "description": "PALETTE: Dark theme background for navigation sidebars, dark glass panels, and login screens."}, {"name": "Ice White", "rank": 3, "hexCode": "#F0F4FF", "description": "PALETTE: Light background for page backgrounds, card surfaces, and cool accents."}, {"name": "Steel Blue", "rank": 4, "hexCode": "#64748B", "description": "PALETTE: Secondary accent for subtle highlights, card borders, and supporting visual elements."}, {"name": "Coral", "rank": 5, "hexCode": "#F43F5E", "description": "PALETTE: Accent color for warnings, notifications, and emphasis highlights."}, {"name": "Amber", "rank": 6, "hexCode": "#F59E0B", "description": "PALETTE: Accent color for highlights, badges, and attention-drawing elements."}, {"name": "Chart Indigo", "rank": 1, "hexCode": "#6366F1", "description": "CHART: Primary chart line color for revenue and key financial metrics."}, {"name": "Chart Teal", "rank": 2, "hexCode": "#14B8A6", "description": "CHART: Secondary chart line color for expenses and cost-related metrics."}, {"name": "Chart Violet", "rank": 3, "hexCode": "#A855F7", "description": "CHART: Tertiary chart line color for cash flow and profitability metrics."}]')
-ON CONFLICT (id) DO NOTHING;
+ON CONFLICT (id) DO UPDATE SET
+  name = EXCLUDED.name, description = EXCLUDED.description,
+  is_default = EXCLUDED.is_default, colors = EXCLUDED.colors;
 
 -- =============================================================================
 -- USERS (password hashes from development database)
@@ -62,7 +79,10 @@ INSERT INTO users (id, email, password_hash, role, first_name, last_name, compan
   (9, 'lemazniku@icloud.com', '$2b$12$3NeyqaN1WO1Du7BBE15UUuDuXFyA2FdoagYnrRIGxyfXILt0xsQES', 'partner', 'Lea', 'Mazniku', 'KIT Capital', NULL, 'Partner', 1, NULL),
   (10, 'leslie@cidale.com', '$2b$12$qteDJQIl0arFbXeTX9F9sedImkyb8fybK1GuIbBq/fkRpiZgQWWoy', 'partner', 'Leslie', 'Cidale', 'Numeratti Endeavors', NULL, 'Senior Partner', 3, NULL),
   (11, 'wlaruffa@gmail.com', '$2b$12$zgCQMEpmemJfZcazxUXshu4P5yK1OsIdRdEWgTFSiNA2xiOKHS1xC', 'partner', 'William', 'Laruffa', 'Independent', NULL, 'Partner', 3, NULL)
-ON CONFLICT (id) DO NOTHING;
+ON CONFLICT (id) DO UPDATE SET
+  email = EXCLUDED.email, role = EXCLUDED.role, first_name = EXCLUDED.first_name,
+  last_name = EXCLUDED.last_name, company = EXCLUDED.company, title = EXCLUDED.title,
+  user_group_id = EXCLUDED.user_group_id;
 
 -- =============================================================================
 -- GLOBAL ASSUMPTIONS
@@ -110,77 +130,52 @@ INSERT INTO global_assumptions (
   TRUE, FALSE, TRUE, TRUE, TRUE,
   FALSE
 )
-ON CONFLICT (id) DO NOTHING;
+ON CONFLICT (id) DO UPDATE SET
+  model_start_date = EXCLUDED.model_start_date, inflation_rate = EXCLUDED.inflation_rate,
+  base_management_fee = EXCLUDED.base_management_fee, incentive_management_fee = EXCLUDED.incentive_management_fee,
+  staff_salary = EXCLUDED.staff_salary, travel_cost_per_client = EXCLUDED.travel_cost_per_client,
+  it_license_per_client = EXCLUDED.it_license_per_client, marketing_rate = EXCLUDED.marketing_rate,
+  misc_ops_rate = EXCLUDED.misc_ops_rate, office_lease_start = EXCLUDED.office_lease_start,
+  professional_services_start = EXCLUDED.professional_services_start, tech_infra_start = EXCLUDED.tech_infra_start,
+  business_insurance_start = EXCLUDED.business_insurance_start, standard_acq_package = EXCLUDED.standard_acq_package,
+  debt_assumptions = EXCLUDED.debt_assumptions, commission_rate = EXCLUDED.commission_rate,
+  fixed_cost_escalation_rate = EXCLUDED.fixed_cost_escalation_rate,
+  safe_tranche1_amount = EXCLUDED.safe_tranche1_amount, safe_tranche1_date = EXCLUDED.safe_tranche1_date,
+  safe_tranche2_amount = EXCLUDED.safe_tranche2_amount, safe_tranche2_date = EXCLUDED.safe_tranche2_date,
+  safe_valuation_cap = EXCLUDED.safe_valuation_cap, safe_discount_rate = EXCLUDED.safe_discount_rate,
+  company_tax_rate = EXCLUDED.company_tax_rate, company_ops_start_date = EXCLUDED.company_ops_start_date,
+  fiscal_year_start_month = EXCLUDED.fiscal_year_start_month,
+  partner_comp_year1 = EXCLUDED.partner_comp_year1, partner_comp_year2 = EXCLUDED.partner_comp_year2,
+  partner_comp_year3 = EXCLUDED.partner_comp_year3, partner_comp_year4 = EXCLUDED.partner_comp_year4,
+  partner_comp_year5 = EXCLUDED.partner_comp_year5, partner_comp_year6 = EXCLUDED.partner_comp_year6,
+  partner_comp_year7 = EXCLUDED.partner_comp_year7, partner_comp_year8 = EXCLUDED.partner_comp_year8,
+  partner_comp_year9 = EXCLUDED.partner_comp_year9, partner_comp_year10 = EXCLUDED.partner_comp_year10,
+  partner_count_year1 = EXCLUDED.partner_count_year1, partner_count_year2 = EXCLUDED.partner_count_year2,
+  partner_count_year3 = EXCLUDED.partner_count_year3, partner_count_year4 = EXCLUDED.partner_count_year4,
+  partner_count_year5 = EXCLUDED.partner_count_year5, partner_count_year6 = EXCLUDED.partner_count_year6,
+  partner_count_year7 = EXCLUDED.partner_count_year7, partner_count_year8 = EXCLUDED.partner_count_year8,
+  partner_count_year9 = EXCLUDED.partner_count_year9, partner_count_year10 = EXCLUDED.partner_count_year10,
+  company_name = EXCLUDED.company_name, funding_source_label = EXCLUDED.funding_source_label,
+  exit_cap_rate = EXCLUDED.exit_cap_rate, sales_commission_rate = EXCLUDED.sales_commission_rate,
+  event_expense_rate = EXCLUDED.event_expense_rate, other_expense_rate = EXCLUDED.other_expense_rate,
+  utilities_variable_split = EXCLUDED.utilities_variable_split, preferred_llm = EXCLUDED.preferred_llm,
+  asset_definition = EXCLUDED.asset_definition, projection_years = EXCLUDED.projection_years,
+  staff_tier1_max_properties = EXCLUDED.staff_tier1_max_properties, staff_tier1_fte = EXCLUDED.staff_tier1_fte,
+  staff_tier2_max_properties = EXCLUDED.staff_tier2_max_properties, staff_tier2_fte = EXCLUDED.staff_tier2_fte,
+  staff_tier3_fte = EXCLUDED.staff_tier3_fte, property_label = EXCLUDED.property_label,
+  show_company_calculation_details = EXCLUDED.show_company_calculation_details,
+  show_property_calculation_details = EXCLUDED.show_property_calculation_details,
+  sidebar_property_finder = EXCLUDED.sidebar_property_finder, sidebar_sensitivity = EXCLUDED.sidebar_sensitivity,
+  sidebar_financing = EXCLUDED.sidebar_financing, sidebar_compare = EXCLUDED.sidebar_compare,
+  sidebar_timeline = EXCLUDED.sidebar_timeline, sidebar_map_view = EXCLUDED.sidebar_map_view,
+  sidebar_executive_summary = EXCLUDED.sidebar_executive_summary, sidebar_scenarios = EXCLUDED.sidebar_scenarios,
+  sidebar_user_manual = EXCLUDED.sidebar_user_manual, show_ai_assistant = EXCLUDED.show_ai_assistant;
 
 -- =============================================================================
--- PROPERTIES (all 6)
+-- PROPERTIES (all 6, sorted by acquisition date)
 -- =============================================================================
-INSERT INTO properties (
-  id, name, location, market, image_url, status,
-  acquisition_date, operations_start_date,
-  purchase_price, building_improvements, pre_opening_costs, operating_reserve,
-  room_count, start_adr, adr_growth_rate, start_occupancy, max_occupancy,
-  occupancy_ramp_months, occupancy_growth_step, stabilization_months, type,
-  acquisition_ltv, acquisition_interest_rate, acquisition_term_years, acquisition_closing_cost_rate,
-  will_refinance, refinance_date, refinance_ltv, refinance_interest_rate, refinance_term_years, refinance_closing_cost_rate,
-  cost_rate_rooms, cost_rate_fb, cost_rate_admin, cost_rate_marketing, cost_rate_property_ops,
-  cost_rate_utilities, cost_rate_insurance, cost_rate_taxes, cost_rate_it, cost_rate_ffe, cost_rate_other,
-  rev_share_events, rev_share_fb, rev_share_other,
-  catering_boost_percent, exit_cap_rate, tax_rate, land_value_percent, disposition_commission,
-  base_management_fee_rate, incentive_management_fee_rate,
-  street_address, city, state_province, zip_postal_code, country,
-  research_values, user_id, refinance_years_after_acquisition
-) OVERRIDING SYSTEM VALUE VALUES (
-  32, 'Belleayre Mountain', 'Western Catskills, New York', 'North America', '/images/property-belleayre.png', 'Planned',
-  '2027-03-01', '2027-09-01',
-  3500000, 800000, 250000, 500000,
-  20, 320, 0.035, 0.4, 0.68,
-  12, 0.05, 36, 'Full Equity',
-  0.65, 0.075, 25, 0.025,
-  'Yes', '2030-09-01', 0.75, 0.09, 25, 0.03,
-  0.2, 0.09, 0.08, 0.02, 0.06,
-  0.055, 0.03, 0.035, 0.005, 0.04, 0.04,
-  0.3, 0.28, 0.07,
-  0.2, 0.085, 0.25, 0.4, 0.05,
-  0.085, 0.12,
-  'Upper Delaware River Valley', 'Highmount', 'New York', '12441', 'United States',
-  '{"adr": {"mid": 350, "source": "seed", "display": "$280-$450"}, "costFB": {"mid": 9, "source": "seed", "display": "7%–12%"}, "costIT": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "capRate": {"mid": 7.5, "source": "seed", "display": "6.5%–8.5%"}, "costFFE": {"mid": 4, "source": "seed", "display": "3%–5%"}, "catering": {"mid": 30, "source": "seed", "display": "25%–35%"}, "svcFeeIT": {"mid": 0.5, "source": "seed", "display": "0.3%–0.8%"}, "costAdmin": {"mid": 5, "source": "seed", "display": "4%–7%"}, "costOther": {"mid": 5, "source": "seed", "display": "3%–6%"}, "incomeTax": {"mid": 31, "source": "seed", "display": "29%–34%"}, "landValue": {"mid": 40, "source": "seed", "display": "30%–50%"}, "occupancy": {"mid": 76, "source": "seed", "display": "70%–82%"}, "rampMonths": {"mid": 18, "source": "seed", "display": "12–24 mo"}, "incentiveFee": {"mid": 10, "source": "seed", "display": "8%–12%"}, "costInsurance": {"mid": 0.6, "source": "seed", "display": "0.4%–0.8%"}, "costMarketing": {"mid": 2, "source": "seed", "display": "1%–3%"}, "costUtilities": {"mid": 4.2, "source": "seed", "display": "3.5%–5%"}, "startOccupancy": {"mid": 40, "source": "seed", "display": "30%–45%"}, "costPropertyOps": {"mid": 4, "source": "seed", "display": "3%–5%"}, "svcFeeMarketing": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costHousekeeping": {"mid": 20, "source": "seed", "display": "15%–22%"}, "svcFeeAccounting": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costPropertyTaxes": {"mid": 2.5, "source": "seed", "display": "1.8%–3.5%"}, "svcFeeGeneralMgmt": {"mid": 1, "source": "seed", "display": "0.7%–1.2%"}, "svcFeeReservations": {"mid": 1.5, "source": "seed", "display": "1%–2%"}}', NULL, 3
-)
-ON CONFLICT (id) DO NOTHING;
 
-INSERT INTO properties (
-  id, name, location, market, image_url, status,
-  acquisition_date, operations_start_date,
-  purchase_price, building_improvements, pre_opening_costs, operating_reserve,
-  room_count, start_adr, adr_growth_rate, start_occupancy, max_occupancy,
-  occupancy_ramp_months, occupancy_growth_step, stabilization_months, type,
-  acquisition_ltv, acquisition_interest_rate, acquisition_term_years, acquisition_closing_cost_rate,
-  will_refinance, refinance_date, refinance_ltv, refinance_interest_rate, refinance_term_years, refinance_closing_cost_rate,
-  cost_rate_rooms, cost_rate_fb, cost_rate_admin, cost_rate_marketing, cost_rate_property_ops,
-  cost_rate_utilities, cost_rate_insurance, cost_rate_taxes, cost_rate_it, cost_rate_ffe, cost_rate_other,
-  rev_share_events, rev_share_fb, rev_share_other,
-  catering_boost_percent, exit_cap_rate, tax_rate, land_value_percent, disposition_commission,
-  base_management_fee_rate, incentive_management_fee_rate,
-  street_address, city, state_province, zip_postal_code, country,
-  research_values, user_id, refinance_years_after_acquisition
-) OVERRIDING SYSTEM VALUE VALUES (
-  33, 'Lakeview Haven Lodge', 'Ogden Valley, Utah', 'North America', '/images/property-huntsville.png', 'Planned',
-  '2027-12-01', '2028-06-01',
-  3800000, 1200000, 250000, 500000,
-  20, 320, 0.03, 0.5, 0.68,
-  3, 0.05, 18, 'Financed',
-  0.65, 0.07, 25, 0.025,
-  NULL, NULL, 0.75, 0.09, 25, 0.03,
-  0.2, 0.09, 0.07, 0.02, 0.055,
-  0.05, 0.025, 0.02, 0.005, 0.04, 0.04,
-  0.28, 0.22, 0.1,
-  0.18, 0.08, 0.22, 0.35, 0.05,
-  0.085, 0.12,
-  'Pineview Reservoir', 'Huntsville', 'Utah', '84317', 'United States',
-  '{"adr": {"mid": 370, "source": "seed", "display": "$280–$475"}, "costFB": {"mid": 9, "source": "seed", "display": "7%–12%"}, "costIT": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "capRate": {"mid": 8.5, "source": "seed", "display": "8%–9.5%"}, "costFFE": {"mid": 4, "source": "seed", "display": "3%–5%"}, "catering": {"mid": 36, "source": "seed", "display": "30%–42%"}, "svcFeeIT": {"mid": 0.5, "source": "seed", "display": "0.3%–0.8%"}, "costAdmin": {"mid": 5, "source": "seed", "display": "4%–7%"}, "costOther": {"mid": 5, "source": "seed", "display": "3%–6%"}, "incomeTax": {"mid": 25, "source": "seed", "display": "24%–26%"}, "landValue": {"mid": 20, "source": "seed", "display": "15%–25%"}, "occupancy": {"mid": 62, "source": "seed", "display": "55%–70%"}, "rampMonths": {"mid": 18, "source": "seed", "display": "12–24 mo"}, "incentiveFee": {"mid": 10, "source": "seed", "display": "8%–12%"}, "costInsurance": {"mid": 0.4, "source": "seed", "display": "0.3%–0.5%"}, "costMarketing": {"mid": 2, "source": "seed", "display": "1%–3%"}, "costUtilities": {"mid": 4.2, "source": "seed", "display": "3.5%–5%"}, "startOccupancy": {"mid": 40, "source": "seed", "display": "30%–45%"}, "costPropertyOps": {"mid": 4, "source": "seed", "display": "3%–5%"}, "svcFeeMarketing": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costHousekeeping": {"mid": 20, "source": "seed", "display": "15%–22%"}, "svcFeeAccounting": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costPropertyTaxes": {"mid": 0.8, "source": "seed", "display": "0.6%–1.2%"}, "svcFeeGeneralMgmt": {"mid": 1, "source": "seed", "display": "0.7%–1.2%"}, "svcFeeReservations": {"mid": 1.5, "source": "seed", "display": "1%–2%"}}', NULL, NULL
-)
-ON CONFLICT (id) DO NOTHING;
-
+-- 1. Jano Grande Ranch (Jun 2026) — Medellín, Colombia — Full Equity + Refi
 INSERT INTO properties (
   id, name, location, market, image_url, status,
   acquisition_date, operations_start_date,
@@ -210,76 +205,38 @@ INSERT INTO properties (
   0.25, 0.1, 0.09, 0.35, 0.05,
   0.085, 0.12,
   'Vereda El Salado', 'Medellín', 'Antioquia', '050001', 'Colombia',
-  '{"adr": {"mid": 180, "source": "seed", "display": "$120–$260"}, "costFB": {"mid": 9, "source": "seed", "display": "7%–12%"}, "costIT": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "capRate": {"mid": 10.5, "source": "seed", "display": "9%–12%"}, "costFFE": {"mid": 4, "source": "seed", "display": "3%–5%"}, "catering": {"mid": 30, "source": "seed", "display": "25%–35%"}, "svcFeeIT": {"mid": 0.5, "source": "seed", "display": "0.3%–0.8%"}, "costAdmin": {"mid": 4, "source": "seed", "display": "3%–6%"}, "costOther": {"mid": 5, "source": "seed", "display": "3%–6%"}, "incomeTax": {"mid": 35, "source": "seed", "display": "30%–38%"}, "landValue": {"mid": 15, "source": "seed", "display": "10%–20%"}, "occupancy": {"mid": 62, "source": "seed", "display": "55%–70%"}, "rampMonths": {"mid": 18, "source": "seed", "display": "12–24 mo"}, "incentiveFee": {"mid": 10, "source": "seed", "display": "8%–12%"}, "costInsurance": {"mid": 0.3, "source": "seed", "display": "0.2%–0.5%"}, "costMarketing": {"mid": 2, "source": "seed", "display": "1%–3%"}, "costUtilities": {"mid": 2.5, "source": "seed", "display": "2%–3.5%"}, "startOccupancy": {"mid": 40, "source": "seed", "display": "30%–45%"}, "costPropertyOps": {"mid": 3, "source": "seed", "display": "2%–4%"}, "svcFeeMarketing": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costHousekeeping": {"mid": 14, "source": "seed", "display": "10%–18%"}, "svcFeeAccounting": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costPropertyTaxes": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "svcFeeGeneralMgmt": {"mid": 1, "source": "seed", "display": "0.7%–1.2%"}, "svcFeeReservations": {"mid": 1.5, "source": "seed", "display": "1%–2%"}}', NULL, 3
+  '{"adr": {"mid": 180, "source": "seed", "display": "$120–$260"}, "costFB": {"mid": 9, "source": "seed", "display": "7%–12%"}, "costIT": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "capRate": {"mid": 10.5, "source": "seed", "display": "9%–12%"}, "costFFE": {"mid": 4, "source": "seed", "display": "3%–5%"}, "catering": {"mid": 30, "source": "seed", "display": "25%–35%"}, "svcFeeIT": {"mid": 0.5, "source": "seed", "display": "0.3%–0.8%"}, "costAdmin": {"mid": 4, "source": "seed", "display": "3%–6%"}, "costOther": {"mid": 5, "source": "seed", "display": "3%–6%"}, "incomeTax": {"mid": 35, "source": "seed", "display": "30%–38%"}, "landValue": {"mid": 15, "source": "seed", "display": "10%–20%"}, "occupancy": {"mid": 62, "source": "seed", "display": "55%–70%"}, "rampMonths": {"mid": 18, "source": "seed", "display": "12–24 mo"}, "incentiveFee": {"mid": 10, "source": "seed", "display": "8%–12%"}, "costInsurance": {"mid": 0.3, "source": "seed", "display": "0.2%–0.5%"}, "costMarketing": {"mid": 2, "source": "seed", "display": "1%–3%"}, "costUtilities": {"mid": 2.5, "source": "seed", "display": "2%–3.5%"}, "startOccupancy": {"mid": 40, "source": "seed", "display": "30%–45%"}, "costPropertyOps": {"mid": 3, "source": "seed", "display": "2%–4%"}, "svcFeeMarketing": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costHousekeeping": {"mid": 14, "source": "seed", "display": "10%–18%"}, "svcFeeAccounting": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costPropertyTaxes": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "svcFeeGeneralMgmt": {"mid": 1, "source": "seed", "display": "0.7%–1.2%"}, "svcFeeReservations": {"mid": 1.5, "source": "seed", "display": "1%–2%"}}',
+  NULL, 3
 )
-ON CONFLICT (id) DO NOTHING;
+ON CONFLICT (id) DO UPDATE SET
+  name = EXCLUDED.name, location = EXCLUDED.location, market = EXCLUDED.market, image_url = EXCLUDED.image_url,
+  status = EXCLUDED.status, acquisition_date = EXCLUDED.acquisition_date, operations_start_date = EXCLUDED.operations_start_date,
+  purchase_price = EXCLUDED.purchase_price, building_improvements = EXCLUDED.building_improvements,
+  pre_opening_costs = EXCLUDED.pre_opening_costs, operating_reserve = EXCLUDED.operating_reserve,
+  room_count = EXCLUDED.room_count, start_adr = EXCLUDED.start_adr, adr_growth_rate = EXCLUDED.adr_growth_rate,
+  start_occupancy = EXCLUDED.start_occupancy, max_occupancy = EXCLUDED.max_occupancy,
+  occupancy_ramp_months = EXCLUDED.occupancy_ramp_months, occupancy_growth_step = EXCLUDED.occupancy_growth_step,
+  stabilization_months = EXCLUDED.stabilization_months, type = EXCLUDED.type,
+  acquisition_ltv = EXCLUDED.acquisition_ltv, acquisition_interest_rate = EXCLUDED.acquisition_interest_rate,
+  acquisition_term_years = EXCLUDED.acquisition_term_years, acquisition_closing_cost_rate = EXCLUDED.acquisition_closing_cost_rate,
+  will_refinance = EXCLUDED.will_refinance, refinance_date = EXCLUDED.refinance_date,
+  refinance_ltv = EXCLUDED.refinance_ltv, refinance_interest_rate = EXCLUDED.refinance_interest_rate,
+  refinance_term_years = EXCLUDED.refinance_term_years, refinance_closing_cost_rate = EXCLUDED.refinance_closing_cost_rate,
+  cost_rate_rooms = EXCLUDED.cost_rate_rooms, cost_rate_fb = EXCLUDED.cost_rate_fb,
+  cost_rate_admin = EXCLUDED.cost_rate_admin, cost_rate_marketing = EXCLUDED.cost_rate_marketing,
+  cost_rate_property_ops = EXCLUDED.cost_rate_property_ops, cost_rate_utilities = EXCLUDED.cost_rate_utilities,
+  cost_rate_insurance = EXCLUDED.cost_rate_insurance, cost_rate_taxes = EXCLUDED.cost_rate_taxes,
+  cost_rate_it = EXCLUDED.cost_rate_it, cost_rate_ffe = EXCLUDED.cost_rate_ffe, cost_rate_other = EXCLUDED.cost_rate_other,
+  rev_share_events = EXCLUDED.rev_share_events, rev_share_fb = EXCLUDED.rev_share_fb, rev_share_other = EXCLUDED.rev_share_other,
+  catering_boost_percent = EXCLUDED.catering_boost_percent, exit_cap_rate = EXCLUDED.exit_cap_rate,
+  tax_rate = EXCLUDED.tax_rate, land_value_percent = EXCLUDED.land_value_percent,
+  disposition_commission = EXCLUDED.disposition_commission,
+  base_management_fee_rate = EXCLUDED.base_management_fee_rate, incentive_management_fee_rate = EXCLUDED.incentive_management_fee_rate,
+  street_address = EXCLUDED.street_address, city = EXCLUDED.city, state_province = EXCLUDED.state_province,
+  zip_postal_code = EXCLUDED.zip_postal_code, country = EXCLUDED.country,
+  research_values = EXCLUDED.research_values, refinance_years_after_acquisition = EXCLUDED.refinance_years_after_acquisition;
 
-INSERT INTO properties (
-  id, name, location, market, image_url, status,
-  acquisition_date, operations_start_date,
-  purchase_price, building_improvements, pre_opening_costs, operating_reserve,
-  room_count, start_adr, adr_growth_rate, start_occupancy, max_occupancy,
-  occupancy_ramp_months, occupancy_growth_step, stabilization_months, type,
-  acquisition_ltv, acquisition_interest_rate, acquisition_term_years, acquisition_closing_cost_rate,
-  will_refinance, refinance_date, refinance_ltv, refinance_interest_rate, refinance_term_years, refinance_closing_cost_rate,
-  cost_rate_rooms, cost_rate_fb, cost_rate_admin, cost_rate_marketing, cost_rate_property_ops,
-  cost_rate_utilities, cost_rate_insurance, cost_rate_taxes, cost_rate_it, cost_rate_ffe, cost_rate_other,
-  rev_share_events, rev_share_fb, rev_share_other,
-  catering_boost_percent, exit_cap_rate, tax_rate, land_value_percent, disposition_commission,
-  base_management_fee_rate, incentive_management_fee_rate,
-  street_address, city, state_province, zip_postal_code, country,
-  research_values, user_id, refinance_years_after_acquisition
-) OVERRIDING SYSTEM VALUE VALUES (
-  39, 'Scott''s House', 'Ogden Valley, Utah', 'North America', '/images/property-eden.png', 'Planned',
-  '2027-08-01', '2028-02-01',
-  3200000, 800000, 200000, 400000,
-  20, 350, 0.03, 0.45, 0.65,
-  6, 0.05, 24, 'Financed',
-  0.6, 0.07, 25, 0.025,
-  NULL, NULL, NULL, NULL, NULL, NULL,
-  0.2, 0.08, 0.07, 0.02, 0.05,
-  0.05, 0.025, 0.02, 0.005, 0.04, 0.04,
-  0.3, 0.2, 0.08,
-  0.2, 0.085, 0.22, 0.3, 0.05,
-  0.085, 0.12,
-  'Eden', 'Eden', 'Utah', '84310', 'United States',
-  NULL, NULL, NULL
-)
-ON CONFLICT (id) DO NOTHING;
-
-INSERT INTO properties (
-  id, name, location, market, image_url, status,
-  acquisition_date, operations_start_date,
-  purchase_price, building_improvements, pre_opening_costs, operating_reserve,
-  room_count, start_adr, adr_growth_rate, start_occupancy, max_occupancy,
-  occupancy_ramp_months, occupancy_growth_step, stabilization_months, type,
-  acquisition_ltv, acquisition_interest_rate, acquisition_term_years, acquisition_closing_cost_rate,
-  will_refinance, refinance_date, refinance_ltv, refinance_interest_rate, refinance_term_years, refinance_closing_cost_rate,
-  cost_rate_rooms, cost_rate_fb, cost_rate_admin, cost_rate_marketing, cost_rate_property_ops,
-  cost_rate_utilities, cost_rate_insurance, cost_rate_taxes, cost_rate_it, cost_rate_ffe, cost_rate_other,
-  rev_share_events, rev_share_fb, rev_share_other,
-  catering_boost_percent, exit_cap_rate, tax_rate, land_value_percent, disposition_commission,
-  base_management_fee_rate, incentive_management_fee_rate,
-  street_address, city, state_province, zip_postal_code, country,
-  research_values, user_id, refinance_years_after_acquisition
-) OVERRIDING SYSTEM VALUE VALUES (
-  41, 'San Diego', 'Cartagena, Colombia', 'Latin America', '/images/property-cartagena.png', 'Planned',
-  '2028-04-01', '2028-10-01',
-  2000000, 1000000, 250000, 500000,
-  20, 240, 0.035, 0.42, 0.72,
-  10, 0.05, 36, 'Financed',
-  0.6, 0.095, 25, 0.02,
-  NULL, NULL, NULL, NULL, NULL, NULL,
-  0.17, 0.09, 0.07, 0.015, 0.035,
-  0.04, 0.025, 0.025, 0.005, 0.04, 0.04,
-  0.3, 0.24, 0.06,
-  0.2, 0.09, 0.35, 0.3, 0.05,
-  0.085, 0.12,
-  'Cochera del Hobo, Barrio San Diego', 'Cartagena', 'Bolívar', '130001', 'Colombia',
-  NULL, NULL, NULL
-)
-ON CONFLICT (id) DO NOTHING;
-
+-- 2. Loch Sheldrake (Nov 2026) — Sullivan County, NY — Full Equity + Refi
 INSERT INTO properties (
   id, name, location, market, image_url, status,
   acquisition_date, operations_start_date,
@@ -309,14 +266,294 @@ INSERT INTO properties (
   0.22, 0.09, 0.25, 0.3, 0.05,
   0.085, 0.12,
   'Loch Sheldrake', 'Loch Sheldrake', 'New York', '12759', 'United States',
-  NULL, 1, 3
+  '{"adr": {"mid": 310, "source": "seed", "display": "$240–$380"}, "costFB": {"mid": 9, "source": "seed", "display": "7%–12%"}, "costIT": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "capRate": {"mid": 8.5, "source": "seed", "display": "7.5%–9.5%"}, "costFFE": {"mid": 4, "source": "seed", "display": "3%–5%"}, "catering": {"mid": 28, "source": "seed", "display": "22%–35%"}, "svcFeeIT": {"mid": 0.5, "source": "seed", "display": "0.3%–0.8%"}, "costAdmin": {"mid": 5.5, "source": "seed", "display": "4%–7%"}, "costOther": {"mid": 5, "source": "seed", "display": "3%–6%"}, "incomeTax": {"mid": 30, "source": "seed", "display": "28%–33%"}, "landValue": {"mid": 30, "source": "seed", "display": "25%–35%"}, "occupancy": {"mid": 68, "source": "seed", "display": "60%–75%"}, "rampMonths": {"mid": 15, "source": "seed", "display": "12–18 mo"}, "incentiveFee": {"mid": 10, "source": "seed", "display": "8%–12%"}, "costInsurance": {"mid": 0.5, "source": "seed", "display": "0.3%–0.7%"}, "costMarketing": {"mid": 2, "source": "seed", "display": "1%–3%"}, "costUtilities": {"mid": 4.5, "source": "seed", "display": "3.5%–5.5%"}, "startOccupancy": {"mid": 45, "source": "seed", "display": "35%–50%"}, "costPropertyOps": {"mid": 4, "source": "seed", "display": "3%–5%"}, "svcFeeMarketing": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costHousekeeping": {"mid": 18, "source": "seed", "display": "14%–22%"}, "svcFeeAccounting": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costPropertyTaxes": {"mid": 2.2, "source": "seed", "display": "1.8%–2.8%"}, "svcFeeGeneralMgmt": {"mid": 1, "source": "seed", "display": "0.7%–1.2%"}, "svcFeeReservations": {"mid": 1.5, "source": "seed", "display": "1%–2%"}}',
+  1, 3
 )
-ON CONFLICT (id) DO NOTHING;
+ON CONFLICT (id) DO UPDATE SET
+  name = EXCLUDED.name, location = EXCLUDED.location, market = EXCLUDED.market, image_url = EXCLUDED.image_url,
+  status = EXCLUDED.status, acquisition_date = EXCLUDED.acquisition_date, operations_start_date = EXCLUDED.operations_start_date,
+  purchase_price = EXCLUDED.purchase_price, building_improvements = EXCLUDED.building_improvements,
+  pre_opening_costs = EXCLUDED.pre_opening_costs, operating_reserve = EXCLUDED.operating_reserve,
+  room_count = EXCLUDED.room_count, start_adr = EXCLUDED.start_adr, adr_growth_rate = EXCLUDED.adr_growth_rate,
+  start_occupancy = EXCLUDED.start_occupancy, max_occupancy = EXCLUDED.max_occupancy,
+  occupancy_ramp_months = EXCLUDED.occupancy_ramp_months, occupancy_growth_step = EXCLUDED.occupancy_growth_step,
+  stabilization_months = EXCLUDED.stabilization_months, type = EXCLUDED.type,
+  acquisition_ltv = EXCLUDED.acquisition_ltv, acquisition_interest_rate = EXCLUDED.acquisition_interest_rate,
+  acquisition_term_years = EXCLUDED.acquisition_term_years, acquisition_closing_cost_rate = EXCLUDED.acquisition_closing_cost_rate,
+  will_refinance = EXCLUDED.will_refinance, refinance_date = EXCLUDED.refinance_date,
+  refinance_ltv = EXCLUDED.refinance_ltv, refinance_interest_rate = EXCLUDED.refinance_interest_rate,
+  refinance_term_years = EXCLUDED.refinance_term_years, refinance_closing_cost_rate = EXCLUDED.refinance_closing_cost_rate,
+  cost_rate_rooms = EXCLUDED.cost_rate_rooms, cost_rate_fb = EXCLUDED.cost_rate_fb,
+  cost_rate_admin = EXCLUDED.cost_rate_admin, cost_rate_marketing = EXCLUDED.cost_rate_marketing,
+  cost_rate_property_ops = EXCLUDED.cost_rate_property_ops, cost_rate_utilities = EXCLUDED.cost_rate_utilities,
+  cost_rate_insurance = EXCLUDED.cost_rate_insurance, cost_rate_taxes = EXCLUDED.cost_rate_taxes,
+  cost_rate_it = EXCLUDED.cost_rate_it, cost_rate_ffe = EXCLUDED.cost_rate_ffe, cost_rate_other = EXCLUDED.cost_rate_other,
+  rev_share_events = EXCLUDED.rev_share_events, rev_share_fb = EXCLUDED.rev_share_fb, rev_share_other = EXCLUDED.rev_share_other,
+  catering_boost_percent = EXCLUDED.catering_boost_percent, exit_cap_rate = EXCLUDED.exit_cap_rate,
+  tax_rate = EXCLUDED.tax_rate, land_value_percent = EXCLUDED.land_value_percent,
+  disposition_commission = EXCLUDED.disposition_commission,
+  base_management_fee_rate = EXCLUDED.base_management_fee_rate, incentive_management_fee_rate = EXCLUDED.incentive_management_fee_rate,
+  street_address = EXCLUDED.street_address, city = EXCLUDED.city, state_province = EXCLUDED.state_province,
+  zip_postal_code = EXCLUDED.zip_postal_code, country = EXCLUDED.country,
+  research_values = EXCLUDED.research_values, user_id = EXCLUDED.user_id,
+  refinance_years_after_acquisition = EXCLUDED.refinance_years_after_acquisition;
+
+-- 3. Belleayre Mountain (Mar 2027) — Western Catskills, NY — Full Equity + Refi
+INSERT INTO properties (
+  id, name, location, market, image_url, status,
+  acquisition_date, operations_start_date,
+  purchase_price, building_improvements, pre_opening_costs, operating_reserve,
+  room_count, start_adr, adr_growth_rate, start_occupancy, max_occupancy,
+  occupancy_ramp_months, occupancy_growth_step, stabilization_months, type,
+  acquisition_ltv, acquisition_interest_rate, acquisition_term_years, acquisition_closing_cost_rate,
+  will_refinance, refinance_date, refinance_ltv, refinance_interest_rate, refinance_term_years, refinance_closing_cost_rate,
+  cost_rate_rooms, cost_rate_fb, cost_rate_admin, cost_rate_marketing, cost_rate_property_ops,
+  cost_rate_utilities, cost_rate_insurance, cost_rate_taxes, cost_rate_it, cost_rate_ffe, cost_rate_other,
+  rev_share_events, rev_share_fb, rev_share_other,
+  catering_boost_percent, exit_cap_rate, tax_rate, land_value_percent, disposition_commission,
+  base_management_fee_rate, incentive_management_fee_rate,
+  street_address, city, state_province, zip_postal_code, country,
+  research_values, user_id, refinance_years_after_acquisition
+) OVERRIDING SYSTEM VALUE VALUES (
+  32, 'Belleayre Mountain', 'Western Catskills, New York', 'North America', '/images/property-belleayre.png', 'Planned',
+  '2027-03-01', '2027-09-01',
+  3500000, 800000, 250000, 500000,
+  20, 320, 0.035, 0.4, 0.68,
+  12, 0.05, 36, 'Full Equity',
+  0.65, 0.075, 25, 0.025,
+  'Yes', '2030-09-01', 0.75, 0.09, 25, 0.03,
+  0.2, 0.09, 0.08, 0.02, 0.06,
+  0.055, 0.03, 0.035, 0.005, 0.04, 0.04,
+  0.3, 0.28, 0.07,
+  0.2, 0.085, 0.25, 0.4, 0.05,
+  0.085, 0.12,
+  'Upper Delaware River Valley', 'Highmount', 'New York', '12441', 'United States',
+  '{"adr": {"mid": 350, "source": "seed", "display": "$280–$450"}, "costFB": {"mid": 9, "source": "seed", "display": "7%–12%"}, "costIT": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "capRate": {"mid": 7.5, "source": "seed", "display": "6.5%–8.5%"}, "costFFE": {"mid": 4, "source": "seed", "display": "3%–5%"}, "catering": {"mid": 30, "source": "seed", "display": "25%–35%"}, "svcFeeIT": {"mid": 0.5, "source": "seed", "display": "0.3%–0.8%"}, "costAdmin": {"mid": 5, "source": "seed", "display": "4%–7%"}, "costOther": {"mid": 5, "source": "seed", "display": "3%–6%"}, "incomeTax": {"mid": 31, "source": "seed", "display": "29%–34%"}, "landValue": {"mid": 40, "source": "seed", "display": "30%–50%"}, "occupancy": {"mid": 76, "source": "seed", "display": "70%–82%"}, "rampMonths": {"mid": 18, "source": "seed", "display": "12–24 mo"}, "incentiveFee": {"mid": 10, "source": "seed", "display": "8%–12%"}, "costInsurance": {"mid": 0.6, "source": "seed", "display": "0.4%–0.8%"}, "costMarketing": {"mid": 2, "source": "seed", "display": "1%–3%"}, "costUtilities": {"mid": 4.2, "source": "seed", "display": "3.5%–5%"}, "startOccupancy": {"mid": 40, "source": "seed", "display": "30%–45%"}, "costPropertyOps": {"mid": 4, "source": "seed", "display": "3%–5%"}, "svcFeeMarketing": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costHousekeeping": {"mid": 20, "source": "seed", "display": "15%–22%"}, "svcFeeAccounting": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costPropertyTaxes": {"mid": 2.5, "source": "seed", "display": "1.8%–3.5%"}, "svcFeeGeneralMgmt": {"mid": 1, "source": "seed", "display": "0.7%–1.2%"}, "svcFeeReservations": {"mid": 1.5, "source": "seed", "display": "1%–2%"}}',
+  NULL, 3
+)
+ON CONFLICT (id) DO UPDATE SET
+  name = EXCLUDED.name, location = EXCLUDED.location, market = EXCLUDED.market, image_url = EXCLUDED.image_url,
+  status = EXCLUDED.status, acquisition_date = EXCLUDED.acquisition_date, operations_start_date = EXCLUDED.operations_start_date,
+  purchase_price = EXCLUDED.purchase_price, building_improvements = EXCLUDED.building_improvements,
+  pre_opening_costs = EXCLUDED.pre_opening_costs, operating_reserve = EXCLUDED.operating_reserve,
+  room_count = EXCLUDED.room_count, start_adr = EXCLUDED.start_adr, adr_growth_rate = EXCLUDED.adr_growth_rate,
+  start_occupancy = EXCLUDED.start_occupancy, max_occupancy = EXCLUDED.max_occupancy,
+  occupancy_ramp_months = EXCLUDED.occupancy_ramp_months, occupancy_growth_step = EXCLUDED.occupancy_growth_step,
+  stabilization_months = EXCLUDED.stabilization_months, type = EXCLUDED.type,
+  acquisition_ltv = EXCLUDED.acquisition_ltv, acquisition_interest_rate = EXCLUDED.acquisition_interest_rate,
+  acquisition_term_years = EXCLUDED.acquisition_term_years, acquisition_closing_cost_rate = EXCLUDED.acquisition_closing_cost_rate,
+  will_refinance = EXCLUDED.will_refinance, refinance_date = EXCLUDED.refinance_date,
+  refinance_ltv = EXCLUDED.refinance_ltv, refinance_interest_rate = EXCLUDED.refinance_interest_rate,
+  refinance_term_years = EXCLUDED.refinance_term_years, refinance_closing_cost_rate = EXCLUDED.refinance_closing_cost_rate,
+  cost_rate_rooms = EXCLUDED.cost_rate_rooms, cost_rate_fb = EXCLUDED.cost_rate_fb,
+  cost_rate_admin = EXCLUDED.cost_rate_admin, cost_rate_marketing = EXCLUDED.cost_rate_marketing,
+  cost_rate_property_ops = EXCLUDED.cost_rate_property_ops, cost_rate_utilities = EXCLUDED.cost_rate_utilities,
+  cost_rate_insurance = EXCLUDED.cost_rate_insurance, cost_rate_taxes = EXCLUDED.cost_rate_taxes,
+  cost_rate_it = EXCLUDED.cost_rate_it, cost_rate_ffe = EXCLUDED.cost_rate_ffe, cost_rate_other = EXCLUDED.cost_rate_other,
+  rev_share_events = EXCLUDED.rev_share_events, rev_share_fb = EXCLUDED.rev_share_fb, rev_share_other = EXCLUDED.rev_share_other,
+  catering_boost_percent = EXCLUDED.catering_boost_percent, exit_cap_rate = EXCLUDED.exit_cap_rate,
+  tax_rate = EXCLUDED.tax_rate, land_value_percent = EXCLUDED.land_value_percent,
+  disposition_commission = EXCLUDED.disposition_commission,
+  base_management_fee_rate = EXCLUDED.base_management_fee_rate, incentive_management_fee_rate = EXCLUDED.incentive_management_fee_rate,
+  street_address = EXCLUDED.street_address, city = EXCLUDED.city, state_province = EXCLUDED.state_province,
+  zip_postal_code = EXCLUDED.zip_postal_code, country = EXCLUDED.country,
+  research_values = EXCLUDED.research_values, refinance_years_after_acquisition = EXCLUDED.refinance_years_after_acquisition;
+
+-- 4. Scott's House (Aug 2027) — Ogden Valley, Utah — Financed (no refi)
+INSERT INTO properties (
+  id, name, location, market, image_url, status,
+  acquisition_date, operations_start_date,
+  purchase_price, building_improvements, pre_opening_costs, operating_reserve,
+  room_count, start_adr, adr_growth_rate, start_occupancy, max_occupancy,
+  occupancy_ramp_months, occupancy_growth_step, stabilization_months, type,
+  acquisition_ltv, acquisition_interest_rate, acquisition_term_years, acquisition_closing_cost_rate,
+  will_refinance, refinance_date, refinance_ltv, refinance_interest_rate, refinance_term_years, refinance_closing_cost_rate,
+  cost_rate_rooms, cost_rate_fb, cost_rate_admin, cost_rate_marketing, cost_rate_property_ops,
+  cost_rate_utilities, cost_rate_insurance, cost_rate_taxes, cost_rate_it, cost_rate_ffe, cost_rate_other,
+  rev_share_events, rev_share_fb, rev_share_other,
+  catering_boost_percent, exit_cap_rate, tax_rate, land_value_percent, disposition_commission,
+  base_management_fee_rate, incentive_management_fee_rate,
+  street_address, city, state_province, zip_postal_code, country,
+  research_values, user_id, refinance_years_after_acquisition
+) OVERRIDING SYSTEM VALUE VALUES (
+  39, 'Scott''s House', 'Ogden Valley, Utah', 'North America', '/images/property-eden.png', 'Planned',
+  '2027-08-01', '2028-02-01',
+  3200000, 800000, 200000, 400000,
+  20, 350, 0.03, 0.45, 0.65,
+  6, 0.05, 24, 'Financed',
+  0.6, 0.07, 25, 0.025,
+  NULL, NULL, NULL, NULL, NULL, NULL,
+  0.2, 0.08, 0.07, 0.02, 0.05,
+  0.05, 0.025, 0.02, 0.005, 0.04, 0.04,
+  0.3, 0.2, 0.08,
+  0.2, 0.085, 0.22, 0.3, 0.05,
+  0.085, 0.12,
+  'Eden', 'Eden', 'Utah', '84310', 'United States',
+  '{"adr": {"mid": 380, "source": "seed", "display": "$300–$475"}, "costFB": {"mid": 8, "source": "seed", "display": "6%–10%"}, "costIT": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "capRate": {"mid": 8, "source": "seed", "display": "7%–9%"}, "costFFE": {"mid": 4, "source": "seed", "display": "3%–5%"}, "catering": {"mid": 32, "source": "seed", "display": "25%–40%"}, "svcFeeIT": {"mid": 0.5, "source": "seed", "display": "0.3%–0.8%"}, "costAdmin": {"mid": 5, "source": "seed", "display": "4%–7%"}, "costOther": {"mid": 5, "source": "seed", "display": "3%–6%"}, "incomeTax": {"mid": 25, "source": "seed", "display": "24%–26%"}, "landValue": {"mid": 30, "source": "seed", "display": "25%–35%"}, "occupancy": {"mid": 65, "source": "seed", "display": "58%–72%"}, "rampMonths": {"mid": 14, "source": "seed", "display": "10–18 mo"}, "incentiveFee": {"mid": 10, "source": "seed", "display": "8%–12%"}, "costInsurance": {"mid": 0.4, "source": "seed", "display": "0.3%–0.6%"}, "costMarketing": {"mid": 2, "source": "seed", "display": "1%–3%"}, "costUtilities": {"mid": 4.5, "source": "seed", "display": "3.5%–5.5%"}, "startOccupancy": {"mid": 42, "source": "seed", "display": "35%–50%"}, "costPropertyOps": {"mid": 4, "source": "seed", "display": "3%–5%"}, "svcFeeMarketing": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costHousekeeping": {"mid": 19, "source": "seed", "display": "15%–22%"}, "svcFeeAccounting": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costPropertyTaxes": {"mid": 0.9, "source": "seed", "display": "0.7%–1.2%"}, "svcFeeGeneralMgmt": {"mid": 1, "source": "seed", "display": "0.7%–1.2%"}, "svcFeeReservations": {"mid": 1.5, "source": "seed", "display": "1%–2%"}}',
+  NULL, NULL
+)
+ON CONFLICT (id) DO UPDATE SET
+  name = EXCLUDED.name, location = EXCLUDED.location, market = EXCLUDED.market, image_url = EXCLUDED.image_url,
+  status = EXCLUDED.status, acquisition_date = EXCLUDED.acquisition_date, operations_start_date = EXCLUDED.operations_start_date,
+  purchase_price = EXCLUDED.purchase_price, building_improvements = EXCLUDED.building_improvements,
+  pre_opening_costs = EXCLUDED.pre_opening_costs, operating_reserve = EXCLUDED.operating_reserve,
+  room_count = EXCLUDED.room_count, start_adr = EXCLUDED.start_adr, adr_growth_rate = EXCLUDED.adr_growth_rate,
+  start_occupancy = EXCLUDED.start_occupancy, max_occupancy = EXCLUDED.max_occupancy,
+  occupancy_ramp_months = EXCLUDED.occupancy_ramp_months, occupancy_growth_step = EXCLUDED.occupancy_growth_step,
+  stabilization_months = EXCLUDED.stabilization_months, type = EXCLUDED.type,
+  acquisition_ltv = EXCLUDED.acquisition_ltv, acquisition_interest_rate = EXCLUDED.acquisition_interest_rate,
+  acquisition_term_years = EXCLUDED.acquisition_term_years, acquisition_closing_cost_rate = EXCLUDED.acquisition_closing_cost_rate,
+  will_refinance = EXCLUDED.will_refinance, refinance_date = EXCLUDED.refinance_date,
+  refinance_ltv = EXCLUDED.refinance_ltv, refinance_interest_rate = EXCLUDED.refinance_interest_rate,
+  refinance_term_years = EXCLUDED.refinance_term_years, refinance_closing_cost_rate = EXCLUDED.refinance_closing_cost_rate,
+  cost_rate_rooms = EXCLUDED.cost_rate_rooms, cost_rate_fb = EXCLUDED.cost_rate_fb,
+  cost_rate_admin = EXCLUDED.cost_rate_admin, cost_rate_marketing = EXCLUDED.cost_rate_marketing,
+  cost_rate_property_ops = EXCLUDED.cost_rate_property_ops, cost_rate_utilities = EXCLUDED.cost_rate_utilities,
+  cost_rate_insurance = EXCLUDED.cost_rate_insurance, cost_rate_taxes = EXCLUDED.cost_rate_taxes,
+  cost_rate_it = EXCLUDED.cost_rate_it, cost_rate_ffe = EXCLUDED.cost_rate_ffe, cost_rate_other = EXCLUDED.cost_rate_other,
+  rev_share_events = EXCLUDED.rev_share_events, rev_share_fb = EXCLUDED.rev_share_fb, rev_share_other = EXCLUDED.rev_share_other,
+  catering_boost_percent = EXCLUDED.catering_boost_percent, exit_cap_rate = EXCLUDED.exit_cap_rate,
+  tax_rate = EXCLUDED.tax_rate, land_value_percent = EXCLUDED.land_value_percent,
+  disposition_commission = EXCLUDED.disposition_commission,
+  base_management_fee_rate = EXCLUDED.base_management_fee_rate, incentive_management_fee_rate = EXCLUDED.incentive_management_fee_rate,
+  street_address = EXCLUDED.street_address, city = EXCLUDED.city, state_province = EXCLUDED.state_province,
+  zip_postal_code = EXCLUDED.zip_postal_code, country = EXCLUDED.country,
+  research_values = EXCLUDED.research_values;
+
+-- 5. Lakeview Haven Lodge (Dec 2027) — Ogden Valley, Utah — Financed (no refi)
+INSERT INTO properties (
+  id, name, location, market, image_url, status,
+  acquisition_date, operations_start_date,
+  purchase_price, building_improvements, pre_opening_costs, operating_reserve,
+  room_count, start_adr, adr_growth_rate, start_occupancy, max_occupancy,
+  occupancy_ramp_months, occupancy_growth_step, stabilization_months, type,
+  acquisition_ltv, acquisition_interest_rate, acquisition_term_years, acquisition_closing_cost_rate,
+  will_refinance, refinance_date, refinance_ltv, refinance_interest_rate, refinance_term_years, refinance_closing_cost_rate,
+  cost_rate_rooms, cost_rate_fb, cost_rate_admin, cost_rate_marketing, cost_rate_property_ops,
+  cost_rate_utilities, cost_rate_insurance, cost_rate_taxes, cost_rate_it, cost_rate_ffe, cost_rate_other,
+  rev_share_events, rev_share_fb, rev_share_other,
+  catering_boost_percent, exit_cap_rate, tax_rate, land_value_percent, disposition_commission,
+  base_management_fee_rate, incentive_management_fee_rate,
+  street_address, city, state_province, zip_postal_code, country,
+  research_values, user_id, refinance_years_after_acquisition
+) OVERRIDING SYSTEM VALUE VALUES (
+  33, 'Lakeview Haven Lodge', 'Ogden Valley, Utah', 'North America', '/images/property-huntsville.png', 'Planned',
+  '2027-12-01', '2028-06-01',
+  3800000, 1200000, 250000, 500000,
+  20, 320, 0.03, 0.5, 0.68,
+  3, 0.05, 18, 'Financed',
+  0.65, 0.07, 25, 0.025,
+  NULL, NULL, 0.75, 0.09, 25, 0.03,
+  0.2, 0.09, 0.07, 0.02, 0.055,
+  0.05, 0.025, 0.02, 0.005, 0.04, 0.04,
+  0.28, 0.22, 0.1,
+  0.18, 0.08, 0.22, 0.35, 0.05,
+  0.085, 0.12,
+  'Pineview Reservoir', 'Huntsville', 'Utah', '84317', 'United States',
+  '{"adr": {"mid": 370, "source": "seed", "display": "$280–$475"}, "costFB": {"mid": 9, "source": "seed", "display": "7%–12%"}, "costIT": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "capRate": {"mid": 8.5, "source": "seed", "display": "8%–9.5%"}, "costFFE": {"mid": 4, "source": "seed", "display": "3%–5%"}, "catering": {"mid": 36, "source": "seed", "display": "30%–42%"}, "svcFeeIT": {"mid": 0.5, "source": "seed", "display": "0.3%–0.8%"}, "costAdmin": {"mid": 5, "source": "seed", "display": "4%–7%"}, "costOther": {"mid": 5, "source": "seed", "display": "3%–6%"}, "incomeTax": {"mid": 25, "source": "seed", "display": "24%–26%"}, "landValue": {"mid": 20, "source": "seed", "display": "15%–25%"}, "occupancy": {"mid": 62, "source": "seed", "display": "55%–70%"}, "rampMonths": {"mid": 18, "source": "seed", "display": "12–24 mo"}, "incentiveFee": {"mid": 10, "source": "seed", "display": "8%–12%"}, "costInsurance": {"mid": 0.4, "source": "seed", "display": "0.3%–0.5%"}, "costMarketing": {"mid": 2, "source": "seed", "display": "1%–3%"}, "costUtilities": {"mid": 4.2, "source": "seed", "display": "3.5%–5%"}, "startOccupancy": {"mid": 40, "source": "seed", "display": "30%–45%"}, "costPropertyOps": {"mid": 4, "source": "seed", "display": "3%–5%"}, "svcFeeMarketing": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costHousekeeping": {"mid": 20, "source": "seed", "display": "15%–22%"}, "svcFeeAccounting": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costPropertyTaxes": {"mid": 0.8, "source": "seed", "display": "0.6%–1.2%"}, "svcFeeGeneralMgmt": {"mid": 1, "source": "seed", "display": "0.7%–1.2%"}, "svcFeeReservations": {"mid": 1.5, "source": "seed", "display": "1%–2%"}}',
+  NULL, NULL
+)
+ON CONFLICT (id) DO UPDATE SET
+  name = EXCLUDED.name, location = EXCLUDED.location, market = EXCLUDED.market, image_url = EXCLUDED.image_url,
+  status = EXCLUDED.status, acquisition_date = EXCLUDED.acquisition_date, operations_start_date = EXCLUDED.operations_start_date,
+  purchase_price = EXCLUDED.purchase_price, building_improvements = EXCLUDED.building_improvements,
+  pre_opening_costs = EXCLUDED.pre_opening_costs, operating_reserve = EXCLUDED.operating_reserve,
+  room_count = EXCLUDED.room_count, start_adr = EXCLUDED.start_adr, adr_growth_rate = EXCLUDED.adr_growth_rate,
+  start_occupancy = EXCLUDED.start_occupancy, max_occupancy = EXCLUDED.max_occupancy,
+  occupancy_ramp_months = EXCLUDED.occupancy_ramp_months, occupancy_growth_step = EXCLUDED.occupancy_growth_step,
+  stabilization_months = EXCLUDED.stabilization_months, type = EXCLUDED.type,
+  acquisition_ltv = EXCLUDED.acquisition_ltv, acquisition_interest_rate = EXCLUDED.acquisition_interest_rate,
+  acquisition_term_years = EXCLUDED.acquisition_term_years, acquisition_closing_cost_rate = EXCLUDED.acquisition_closing_cost_rate,
+  will_refinance = EXCLUDED.will_refinance, refinance_date = EXCLUDED.refinance_date,
+  refinance_ltv = EXCLUDED.refinance_ltv, refinance_interest_rate = EXCLUDED.refinance_interest_rate,
+  refinance_term_years = EXCLUDED.refinance_term_years, refinance_closing_cost_rate = EXCLUDED.refinance_closing_cost_rate,
+  cost_rate_rooms = EXCLUDED.cost_rate_rooms, cost_rate_fb = EXCLUDED.cost_rate_fb,
+  cost_rate_admin = EXCLUDED.cost_rate_admin, cost_rate_marketing = EXCLUDED.cost_rate_marketing,
+  cost_rate_property_ops = EXCLUDED.cost_rate_property_ops, cost_rate_utilities = EXCLUDED.cost_rate_utilities,
+  cost_rate_insurance = EXCLUDED.cost_rate_insurance, cost_rate_taxes = EXCLUDED.cost_rate_taxes,
+  cost_rate_it = EXCLUDED.cost_rate_it, cost_rate_ffe = EXCLUDED.cost_rate_ffe, cost_rate_other = EXCLUDED.cost_rate_other,
+  rev_share_events = EXCLUDED.rev_share_events, rev_share_fb = EXCLUDED.rev_share_fb, rev_share_other = EXCLUDED.rev_share_other,
+  catering_boost_percent = EXCLUDED.catering_boost_percent, exit_cap_rate = EXCLUDED.exit_cap_rate,
+  tax_rate = EXCLUDED.tax_rate, land_value_percent = EXCLUDED.land_value_percent,
+  disposition_commission = EXCLUDED.disposition_commission,
+  base_management_fee_rate = EXCLUDED.base_management_fee_rate, incentive_management_fee_rate = EXCLUDED.incentive_management_fee_rate,
+  street_address = EXCLUDED.street_address, city = EXCLUDED.city, state_province = EXCLUDED.state_province,
+  zip_postal_code = EXCLUDED.zip_postal_code, country = EXCLUDED.country,
+  research_values = EXCLUDED.research_values;
+
+-- 6. San Diego (Apr 2028) — Cartagena, Colombia — Financed (no refi)
+INSERT INTO properties (
+  id, name, location, market, image_url, status,
+  acquisition_date, operations_start_date,
+  purchase_price, building_improvements, pre_opening_costs, operating_reserve,
+  room_count, start_adr, adr_growth_rate, start_occupancy, max_occupancy,
+  occupancy_ramp_months, occupancy_growth_step, stabilization_months, type,
+  acquisition_ltv, acquisition_interest_rate, acquisition_term_years, acquisition_closing_cost_rate,
+  will_refinance, refinance_date, refinance_ltv, refinance_interest_rate, refinance_term_years, refinance_closing_cost_rate,
+  cost_rate_rooms, cost_rate_fb, cost_rate_admin, cost_rate_marketing, cost_rate_property_ops,
+  cost_rate_utilities, cost_rate_insurance, cost_rate_taxes, cost_rate_it, cost_rate_ffe, cost_rate_other,
+  rev_share_events, rev_share_fb, rev_share_other,
+  catering_boost_percent, exit_cap_rate, tax_rate, land_value_percent, disposition_commission,
+  base_management_fee_rate, incentive_management_fee_rate,
+  street_address, city, state_province, zip_postal_code, country,
+  research_values, user_id, refinance_years_after_acquisition
+) OVERRIDING SYSTEM VALUE VALUES (
+  41, 'San Diego', 'Cartagena, Colombia', 'Latin America', '/images/property-cartagena.png', 'Planned',
+  '2028-04-01', '2028-10-01',
+  2000000, 1000000, 250000, 500000,
+  20, 240, 0.035, 0.42, 0.72,
+  10, 0.05, 36, 'Financed',
+  0.6, 0.095, 25, 0.02,
+  NULL, NULL, NULL, NULL, NULL, NULL,
+  0.17, 0.09, 0.07, 0.015, 0.035,
+  0.04, 0.025, 0.025, 0.005, 0.04, 0.04,
+  0.3, 0.24, 0.06,
+  0.2, 0.09, 0.35, 0.3, 0.05,
+  0.085, 0.12,
+  'Cochera del Hobo, Barrio San Diego', 'Cartagena', 'Bolívar', '130001', 'Colombia',
+  '{"adr": {"mid": 220, "source": "seed", "display": "$160–$280"}, "costFB": {"mid": 9, "source": "seed", "display": "7%–12%"}, "costIT": {"mid": 0.8, "source": "seed", "display": "0.5%–1.2%"}, "capRate": {"mid": 9.5, "source": "seed", "display": "8.5%–11%"}, "costFFE": {"mid": 4, "source": "seed", "display": "3%–5%"}, "catering": {"mid": 28, "source": "seed", "display": "22%–35%"}, "svcFeeIT": {"mid": 0.5, "source": "seed", "display": "0.3%–0.8%"}, "costAdmin": {"mid": 5, "source": "seed", "display": "3%–6%"}, "costOther": {"mid": 4, "source": "seed", "display": "3%–5%"}, "incomeTax": {"mid": 35, "source": "seed", "display": "33%–38%"}, "landValue": {"mid": 30, "source": "seed", "display": "25%–35%"}, "occupancy": {"mid": 70, "source": "seed", "display": "62%–78%"}, "rampMonths": {"mid": 18, "source": "seed", "display": "14–24 mo"}, "incentiveFee": {"mid": 10, "source": "seed", "display": "8%–12%"}, "costInsurance": {"mid": 0.4, "source": "seed", "display": "0.3%–0.6%"}, "costMarketing": {"mid": 2, "source": "seed", "display": "1%–3%"}, "costUtilities": {"mid": 3, "source": "seed", "display": "2%–4%"}, "startOccupancy": {"mid": 38, "source": "seed", "display": "30%–45%"}, "costPropertyOps": {"mid": 3.5, "source": "seed", "display": "2.5%–4.5%"}, "svcFeeMarketing": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costHousekeeping": {"mid": 15, "source": "seed", "display": "11%–18%"}, "svcFeeAccounting": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costPropertyTaxes": {"mid": 1.5, "source": "seed", "display": "1%–2%"}, "svcFeeGeneralMgmt": {"mid": 1, "source": "seed", "display": "0.7%–1.2%"}, "svcFeeReservations": {"mid": 1.5, "source": "seed", "display": "1%–2%"}}',
+  NULL, NULL
+)
+ON CONFLICT (id) DO UPDATE SET
+  name = EXCLUDED.name, location = EXCLUDED.location, market = EXCLUDED.market, image_url = EXCLUDED.image_url,
+  status = EXCLUDED.status, acquisition_date = EXCLUDED.acquisition_date, operations_start_date = EXCLUDED.operations_start_date,
+  purchase_price = EXCLUDED.purchase_price, building_improvements = EXCLUDED.building_improvements,
+  pre_opening_costs = EXCLUDED.pre_opening_costs, operating_reserve = EXCLUDED.operating_reserve,
+  room_count = EXCLUDED.room_count, start_adr = EXCLUDED.start_adr, adr_growth_rate = EXCLUDED.adr_growth_rate,
+  start_occupancy = EXCLUDED.start_occupancy, max_occupancy = EXCLUDED.max_occupancy,
+  occupancy_ramp_months = EXCLUDED.occupancy_ramp_months, occupancy_growth_step = EXCLUDED.occupancy_growth_step,
+  stabilization_months = EXCLUDED.stabilization_months, type = EXCLUDED.type,
+  acquisition_ltv = EXCLUDED.acquisition_ltv, acquisition_interest_rate = EXCLUDED.acquisition_interest_rate,
+  acquisition_term_years = EXCLUDED.acquisition_term_years, acquisition_closing_cost_rate = EXCLUDED.acquisition_closing_cost_rate,
+  will_refinance = EXCLUDED.will_refinance, refinance_date = EXCLUDED.refinance_date,
+  refinance_ltv = EXCLUDED.refinance_ltv, refinance_interest_rate = EXCLUDED.refinance_interest_rate,
+  refinance_term_years = EXCLUDED.refinance_term_years, refinance_closing_cost_rate = EXCLUDED.refinance_closing_cost_rate,
+  cost_rate_rooms = EXCLUDED.cost_rate_rooms, cost_rate_fb = EXCLUDED.cost_rate_fb,
+  cost_rate_admin = EXCLUDED.cost_rate_admin, cost_rate_marketing = EXCLUDED.cost_rate_marketing,
+  cost_rate_property_ops = EXCLUDED.cost_rate_property_ops, cost_rate_utilities = EXCLUDED.cost_rate_utilities,
+  cost_rate_insurance = EXCLUDED.cost_rate_insurance, cost_rate_taxes = EXCLUDED.cost_rate_taxes,
+  cost_rate_it = EXCLUDED.cost_rate_it, cost_rate_ffe = EXCLUDED.cost_rate_ffe, cost_rate_other = EXCLUDED.cost_rate_other,
+  rev_share_events = EXCLUDED.rev_share_events, rev_share_fb = EXCLUDED.rev_share_fb, rev_share_other = EXCLUDED.rev_share_other,
+  catering_boost_percent = EXCLUDED.catering_boost_percent, exit_cap_rate = EXCLUDED.exit_cap_rate,
+  tax_rate = EXCLUDED.tax_rate, land_value_percent = EXCLUDED.land_value_percent,
+  disposition_commission = EXCLUDED.disposition_commission,
+  base_management_fee_rate = EXCLUDED.base_management_fee_rate, incentive_management_fee_rate = EXCLUDED.incentive_management_fee_rate,
+  street_address = EXCLUDED.street_address, city = EXCLUDED.city, state_province = EXCLUDED.state_province,
+  zip_postal_code = EXCLUDED.zip_postal_code, country = EXCLUDED.country,
+  research_values = EXCLUDED.research_values;
 
 -- =============================================================================
 -- PROPERTY FEE CATEGORIES
+-- Delete all and reinsert to ensure clean state
 -- =============================================================================
+DELETE FROM property_fee_categories;
+
 INSERT INTO property_fee_categories (id, property_id, name, rate, is_active, sort_order) OVERRIDING SYSTEM VALUE VALUES
+  (21, 32, 'Marketing', 0.02, TRUE, 1),
+  (22, 32, 'IT', 0.01, TRUE, 2),
+  (23, 32, 'Accounting', 0.015, TRUE, 3),
+  (24, 32, 'Reservations', 0.02, TRUE, 4),
+  (25, 32, 'General Management', 0.02, TRUE, 5),
   (1, 33, 'Marketing', 0.02, TRUE, 1),
   (2, 33, 'IT', 0.01, TRUE, 2),
   (3, 33, 'Accounting', 0.015, TRUE, 3),
@@ -327,42 +564,29 @@ INSERT INTO property_fee_categories (id, property_id, name, rate, is_active, sor
   (18, 35, 'Accounting', 0.015, TRUE, 3),
   (19, 35, 'Reservations', 0.02, TRUE, 4),
   (20, 35, 'General Management', 0.02, TRUE, 5),
-  (21, 32, 'Marketing', 0.02, TRUE, 1),
-  (22, 32, 'IT', 0.01, TRUE, 2),
-  (23, 32, 'Accounting', 0.015, TRUE, 3),
-  (24, 32, 'Reservations', 0.02, TRUE, 4),
-  (25, 32, 'General Management', 0.02, TRUE, 5),
   (26, 39, 'Marketing', 0.02, TRUE, 1),
   (27, 39, 'IT', 0.01, TRUE, 2),
   (28, 39, 'Accounting', 0.015, TRUE, 3),
   (29, 39, 'Reservations', 0.02, TRUE, 4),
-  (30, 39, 'General Management', 0.02, TRUE, 5)
-ON CONFLICT (id) DO NOTHING;
-
--- Fee categories for San Diego (property 41) and Loch Sheldrake (property 43)
--- These use default fee categories
-INSERT INTO property_fee_categories (property_id, name, rate, is_active, sort_order) VALUES
-  (41, 'Marketing', 0.02, TRUE, 1),
-  (41, 'IT', 0.01, TRUE, 2),
-  (41, 'Accounting', 0.015, TRUE, 3),
-  (41, 'Reservations', 0.02, TRUE, 4),
-  (41, 'General Management', 0.02, TRUE, 5),
-  (43, 'Marketing', 0.02, TRUE, 1),
-  (43, 'IT', 0.01, TRUE, 2),
-  (43, 'Accounting', 0.015, TRUE, 3),
-  (43, 'Reservations', 0.02, TRUE, 4),
-  (43, 'General Management', 0.02, TRUE, 5)
-ON CONFLICT DO NOTHING;
+  (30, 39, 'General Management', 0.02, TRUE, 5),
+  (31, 41, 'Marketing', 0.02, TRUE, 1),
+  (32, 41, 'IT', 0.01, TRUE, 2),
+  (33, 41, 'Accounting', 0.015, TRUE, 3),
+  (34, 41, 'Reservations', 0.02, TRUE, 4),
+  (35, 41, 'General Management', 0.02, TRUE, 5),
+  (36, 43, 'Marketing', 0.02, TRUE, 1),
+  (37, 43, 'IT', 0.01, TRUE, 2),
+  (38, 43, 'Accounting', 0.015, TRUE, 3),
+  (39, 43, 'Reservations', 0.02, TRUE, 4),
+  (40, 43, 'General Management', 0.02, TRUE, 5);
 
 -- =============================================================================
 -- MARKET RESEARCH
+-- Update titles for existing reports, keep content intact
 -- =============================================================================
-INSERT INTO market_research (id, user_id, type, property_id, title, llm_model, content) OVERRIDING SYSTEM VALUE VALUES
-  (24, NULL, 'property', 32, 'Market Research: Belleayre Mountain', 'seed-data', '{"risks": [{"risk": "Seasonal revenue concentration", "mitigation": "Develop winter programming (holiday packages, fireside retreats, cross-country ski partnerships) and corporate retreat packages to boost off-season occupancy to 50%+"}, {"risk": "NYC accessibility disruptions", "mitigation": "Diversify marketing to include Albany, Connecticut, and New Jersey markets; develop midweek corporate packages less dependent on weekend traffic"}, {"risk": "Competition from new boutique openings", "mitigation": "Differentiate through unique estate experience, curated programming, and loyalty/membership programs; secure early market positioning before new supply enters"}, {"risk": "Staffing challenges in rural market", "mitigation": "Offer competitive compensation with housing stipends, partner with local hospitality programs, and implement seasonal staffing models"}], "sources": ["STR Global – Hudson Valley Hotel Performance Report, 2025", "CBRE Hotels Research – Northeast Boutique Hotel Investment Outlook, 2025", "HVS – Hudson Valley Lodging Market Analysis, 2024", "PKF Hospitality Research – Boutique Hotel Trends Report, 2025", "Hudson Valley Tourism Board – Annual Visitor Statistics, 2025", "Highland Group – Boutique Hotel Cap Rate Survey, 2024"], "adrAnalysis": {"rationale": "The Hudson Estate''s 20-room boutique positioning with partial catering supports ADR in the upper-mid range of the boutique segment. The property''s estate setting and proximity to NYC justify premium pricing above market average while remaining competitive with established luxury peers.", "comparables": [{"adr": "$295", "name": "Hasbrouck House", "type": "Boutique Inn"}, {"adr": "$350", "name": "Hutton Brickyards", "type": "Luxury Boutique"}, {"adr": "$425", "name": "Troutbeck", "type": "Luxury Estate"}, {"adr": "$310", "name": "The Chatwal", "type": "Boutique Lodge"}], "boutiqueRange": "$280–$380", "marketAverage": "$220", "recommendedRange": "$310–$350"}, "eventDemand": {"keyDrivers": ["Proximity to NYC metro area (2-hour drive, 8M+ potential guests)", "Growing corporate retreat market post-pandemic", "Hudson Valley''s established reputation as a culinary and arts destination", "Limited competition for high-end intimate event spaces in the region", "Expanding wellness tourism trend among affluent demographics"], "corporateEvents": "Strong demand from NYC-based companies for executive retreats, off-site meetings, and team-building programs. The 2-hour drive from Manhattan makes it ideal for 1–2 night corporate bookings.", "weddingsPrivate": "Significant demand for intimate weddings (50–100 guests) and private celebrations. The estate setting provides a compelling venue for upscale events.", "wellnessRetreats": "Growing segment driven by wellness tourism trends. Weekend yoga retreats, meditation workshops, and detox programs attract high-value guests willing to pay premium rates.", "estimatedEventRevShare": "40–45% of total revenue from events and F&B combined"}, "competitiveSet": [{"adr": "$295", "name": "Hasbrouck House", "rooms": "18", "positioning": "Boutique inn with restaurant, art-focused programming"}, {"adr": "$350", "name": "Hutton Brickyards", "rooms": "31", "positioning": "Luxury boutique resort on the Hudson River with glamping"}, {"adr": "$425", "name": "Troutbeck", "rooms": "37", "positioning": "Luxury country estate with spa, farm, and event spaces"}, {"adr": "$310", "name": "The Chatwal", "rooms": "12", "positioning": "Intimate boutique lodge with fine dining"}], "marketOverview": {"summary": "The Hudson Valley luxury hospitality market has experienced significant growth driven by weekend tourism from New York City. The region has seen a 15% increase in boutique hotel development over the past three years, with strong demand from affluent NYC residents seeking accessible rural retreats. The area benefits from a growing farm-to-table culinary scene, expanding arts and culture programming, and proximity to the metro area.", "keyMetrics": [{"label": "Tourism Volume", "value": "4.2M annual visitors to Hudson Valley region", "source": "Hudson Valley Tourism Board, 2025"}, {"label": "Hotel Supply", "value": "32 boutique properties (under 50 rooms) within 30-mile radius", "source": "STR Global, 2025"}, {"label": "RevPAR", "value": "$136.40 market average, $245+ for boutique segment", "source": "STR Global, 2025"}, {"label": "Market Growth", "value": "8.2% YoY RevPAR growth in boutique segment", "source": "CBRE Hotels Research, 2025"}]}, "capRateAnalysis": {"rationale": "Boutique hotels in established leisure markets typically trade at tighter cap rates due to premium ADR and strong RevPAR. The Hudson Valley''s proximity to NYC provides a demand floor that reduces risk, supporting cap rates in the lower end of the range.", "comparables": [{"name": "Hasbrouck House", "notes": "18-room boutique inn, Hudson NY", "capRate": "8.2%", "saleYear": "2023"}, {"name": "Hutton Brickyards", "notes": "Luxury boutique resort, Kingston NY", "capRate": "7.5%", "saleYear": "2022"}, {"name": "Buttermilk Falls Inn", "notes": "Boutique inn with event space, Milton NY", "capRate": "8.8%", "saleYear": "2024"}, {"name": "Audrey''s Farmhouse", "notes": "Boutique property, Wallkill NY", "capRate": "7.8%", "saleYear": "2023"}], "marketRange": "7.5%–9.5%", "boutiqueRange": "7.0%–8.5%", "recommendedRange": "7.5%–8.5%"}, "cateringAnalysis": {"factors": ["Corporate retreats (40% of events) typically include 1–2 catered meals per day, not full-service catering", "Hudson Valley wedding market is competitive but intimate estate weddings command full catering at premium per-head rates", "Wellness retreats (25% of events) generally include healthy meal programming, driving moderate F&B uplift", "Seasonal pattern: fall weddings and summer corporate events drive peak catering demand (Sep–Oct highest)", "Comparable properties (Troutbeck, Hasbrouck House) report catering contributing 25–32% uplift to base F&B"], "rationale": "The Hudson Estate''s event mix skews toward partially catered corporate retreats and wellness weekends, with fully catered weddings comprising a smaller share. Hudson Valley comparable properties report F&B revenue at approximately 28–30% of room revenue when including catering uplift, versus a base F&B share of ~22%. This implies a catering boost of roughly 28%. The property''s partial-catering positioning and strong but not dominant wedding market support a boost in the mid-range.", "marketRange": "22% - 35%", "eventMixBreakdown": {"noCatering": "25% of events (room-only bookings, self-catered private gatherings)", "fullyCatered": "30% of events (weddings, milestone celebrations, corporate dinners)", "partiallyCatered": "45% of events (retreats with some meals, corporate meetings with lunch)"}, "recommendedBoostPercent": "28%"}, "occupancyAnalysis": {"marketAverage": "62%", "rampUpTimeline": "Expect 18–24 months to reach stabilized occupancy of 75–80%, with initial occupancy around 55–60% in the first six months of operations.", "seasonalPattern": [{"notes": "Peak season driven by NYC weekend getaways and outdoor activities", "season": "Summer (Jun–Aug)", "occupancy": "80–85%"}, {"notes": "Highest demand period due to foliage tourism and harvest events", "season": "Fall (Sep–Nov)", "occupancy": "85–90%"}, {"notes": "Trough season; holiday events and ski-adjacent demand provide a floor", "season": "Winter (Dec–Feb)", "occupancy": "40–50%"}, {"notes": "Shoulder season with gradual ramp driven by wedding bookings", "season": "Spring (Mar–May)", "occupancy": "60–70%"}]}, "landValueAllocation": {"factors": ["15-acre rural estate with mature landscaping and scenic views commands premium land values relative to smaller parcels in the Hudson Valley", "Ulster/Dutchess County tax assessor records show average land-to-improvement ratios of 28-33% for hospitality properties in the region", "Comparable rural estate sales in the Hudson Valley (2022-2024) show land allocations ranging from 25% to 38% depending on acreage and waterfront access", "Property''s distance from NYC (2 hours) places it in a secondary market tier, supporting moderate rather than high land allocation", "Significant building improvements and renovation costs reduce the relative share attributable to land"], "rationale": "The Hudson Estate''s 15-acre rural setting in the Hudson Valley commands moderate land values due to proximity to NYC (2 hours) and the region''s growing popularity as a luxury leisure destination. Rural estates in Ulster/Dutchess counties typically show 25-35% land allocation, with the higher end reflecting premium waterfront or scenic parcels. At 30%, the allocation reflects the property''s desirable but not ultra-premium rural location, balancing substantial acreage value against significant building and improvement investments.", "marketRange": "25% - 35%", "assessmentMethod": "County tax assessor ratio and comparable rural estate sales", "recommendedPercent": "30%"}}'),
-  (25, NULL, 'property', 33, 'Market Research: Lakeview Haven Lodge', 'seed-data', '{"risks": [{"risk": "Extreme seasonality (ski-dependent revenue)", "mitigation": "Invest in summer programming (mountain biking, fly fishing, wellness retreats) and corporate retreat packages to build 70%+ summer occupancy"}, {"risk": "Climate change and snow variability", "mitigation": "Partner with resorts that have robust snowmaking; diversify into non-snow winter activities (snowshoeing, winter wellness); develop year-round revenue streams"}, {"risk": "Infrastructure limitations in Eden", "mitigation": "Work with local authorities on road improvements; provide shuttle services to SLC airport; invest in on-site amenities to reduce need for off-property travel"}, {"risk": "Competition from Park City luxury supply", "mitigation": "Position as an authentic, intimate mountain experience vs. Park City''s resort commercialization; emphasize exclusivity, privacy, and full-catering capabilities"}], "sources": ["STR Global – Utah Mountain Resort Market Performance, 2025", "CBRE Hotels Research – Mountain Resort Investment Outlook, 2025", "HVS – Ogden Valley Lodging Market Feasibility Study, 2024", "PKF Hospitality Research – Ski Resort Hotel Trends, 2025", "Utah Office of Tourism – Annual Tourism Report, 2025", "Highland Group – Mountain Resort Cap Rate Analysis, 2024"], "adrAnalysis": {"rationale": "Eden Summit Lodge''s full-catering luxury positioning in a supply-constrained ski market supports premium ADR. The property''s proximity to Powder Mountain and Snowbasin, combined with full F&B capabilities, justifies pricing at the upper end of the boutique range.", "comparables": [{"adr": "$420", "name": "Snowpine Lodge", "type": "Ski-in/out Luxury"}, {"adr": "$380", "name": "Hotel Park City", "type": "Boutique Resort"}, {"adr": "$450", "name": "Waldorf Astoria Park City", "type": "Luxury"}, {"adr": "$395", "name": "Blue Sky Ranch", "type": "Luxury Ranch"}], "boutiqueRange": "$320–$450", "marketAverage": "$260", "recommendedRange": "$370–$410"}, "eventDemand": {"keyDrivers": ["Salt Lake City corporate market within 45-minute drive (tech, finance, outdoor industry HQs)", "Powder Mountain and Snowbasin resort proximity creating built-in demand", "Utah''s growing reputation as a luxury outdoor recreation destination", "Limited luxury lodging supply in Eden/Ogden Valley vs. Park City", "Year-round outdoor recreation supporting dual-season revenue model"], "corporateEvents": "Strong demand from Salt Lake City corporate market (35-minute drive) for executive retreats, sales kickoffs, and team-building events. The mountain setting and full catering capabilities make it ideal for immersive multi-day programs.", "weddingsPrivate": "Growing mountain wedding market with demand for intimate ceremonies (40–80 guests) in scenic alpine settings. Summer and early fall are peak wedding seasons.", "wellnessRetreats": "Significant opportunity for ski and wellness retreat packages combining outdoor activities with spa services, yoga, and mindfulness programming. Year-round demand potential.", "estimatedEventRevShare": "42–48% of total revenue from events and F&B combined"}, "competitiveSet": [{"adr": "$420", "name": "Snowpine Lodge", "rooms": "47", "positioning": "Ski-in/out luxury lodge at Alta with full-service spa and dining"}, {"adr": "$380", "name": "Hotel Park City", "rooms": "62", "positioning": "Boutique resort with golf, spa, and mountain activities"}, {"adr": "$450", "name": "Waldorf Astoria Park City", "rooms": "175", "positioning": "Full-service luxury resort with ski access and multiple restaurants"}, {"adr": "$395", "name": "Blue Sky Ranch", "rooms": "46", "positioning": "Luxury adventure ranch with horseback riding, fly fishing, and spa"}], "marketOverview": {"summary": "The Ogden Valley/Eden market in Utah is a rapidly growing ski and outdoor recreation destination anchored by Powder Mountain and Snowbasin resorts. The area has seen accelerated development following Powder Mountain''s acquisition and master-plan community development. Year-round outdoor recreation including skiing, mountain biking, hiking, and fly fishing supports a dual-season demand profile, though winter remains the dominant revenue driver.", "keyMetrics": [{"label": "Tourism Volume", "value": "1.8M annual skier visits to Ogden Valley resorts", "source": "Utah Office of Tourism, 2025"}, {"label": "Hotel Supply", "value": "14 boutique/luxury properties within Ogden Valley corridor", "source": "STR Global, 2025"}, {"label": "RevPAR", "value": "$169.00 market average, $310+ for luxury lodge segment", "source": "STR Global, 2025"}, {"label": "Market Growth", "value": "12.5% YoY RevPAR growth driven by resort development", "source": "CBRE Hotels Research, 2025"}]}, "capRateAnalysis": {"rationale": "Supply-constrained mountain resort markets with strong demand drivers command tighter cap rates. Eden''s proximity to SLC and ongoing resort development at Powder Mountain provide additional value support compared to more remote mountain destinations.", "comparables": [{"name": "Snowpine Lodge", "notes": "Luxury ski lodge, Alta UT", "capRate": "7.2%", "saleYear": "2022"}, {"name": "Washington School House", "notes": "Boutique hotel, Park City UT", "capRate": "7.5%", "saleYear": "2023"}, {"name": "Blue Sky Ranch", "notes": "Luxury ranch resort, Wanship UT", "capRate": "7.8%", "saleYear": "2024"}, {"name": "Hotel Park City", "notes": "Boutique resort, Park City UT", "capRate": "7.4%", "saleYear": "2023"}], "marketRange": "7.0%–9.0%", "boutiqueRange": "7.0%–8.0%", "recommendedRange": "7.0%–8.0%"}, "cateringAnalysis": {"factors": ["Full-catering capability allows 3-meal-per-day corporate retreat programs, maximizing per-event F&B revenue", "Mountain wedding market (35% of events) commands full-service catering with premium per-head pricing ($150–$250/guest)", "Ski season events (Dec–Mar) see near-100% catering participation due to limited dining alternatives in Eden", "Corporate retreats from Salt Lake City tech companies (40% of events) typically book all-inclusive packages", "Comparable properties (Snowpine Lodge, Stein Eriksen) report catering contributing 35–42% uplift to base F&B"], "rationale": "Eden Summit Lodge''s full-catering positioning in a supply-constrained ski market supports a higher catering boost. Mountain resorts in the Wasatch Range report F&B revenue at 30–33% of room revenue including catering, versus a base F&B share of ~22%. The property''s full kitchen capability, multi-day corporate retreat format (3-meal programs), and growing mountain wedding market drive strong catering penetration. Ski lodge properties in comparable markets (Park City, Jackson Hole) report 35–45% catering uplift to base F&B.", "marketRange": "30% - 45%", "eventMixBreakdown": {"noCatering": "20% of events (ski group room-only bookings, self-catered groups)", "fullyCatered": "45% of events (weddings, corporate multi-day retreats with all meals, galas)", "partiallyCatered": "35% of events (day meetings with lunch, wellness retreats with some meals)"}, "recommendedBoostPercent": "38%"}, "occupancyAnalysis": {"marketAverage": "65%", "rampUpTimeline": "Expect 12–18 months to reach stabilized occupancy of 78–82%, with strong initial demand during ski season (75%+) and gradual summer ramp over two seasons.", "seasonalPattern": [{"notes": "Peak season driven by skiing at Powder Mountain and Snowbasin; holiday weeks at 95%+", "season": "Ski Season (Dec–Mar)", "occupancy": "85–95%"}, {"notes": "Growing segment with mountain biking, hiking, fly fishing, and event bookings", "season": "Summer (Jun–Sep)", "occupancy": "70–80%"}, {"notes": "Shoulder season; fall colors and hunting provide moderate demand", "season": "Fall (Oct–Nov)", "occupancy": "45–55%"}, {"notes": "Mud season with lowest demand; spring skiing in April provides some support", "season": "Spring (Apr–May)", "occupancy": "45–55%"}]}, "landValueAllocation": {"factors": ["Mountain terrain with limited buildable area reduces per-acre land value compared to flat resort parcels, despite ski area proximity", "Summit County assessor records show average land allocations of 22-28% for hospitality properties in the Ogden Valley area", "Comparable mountain resort transactions (Snowpine Lodge, Blue Sky Ranch) show land allocations of 20-28% depending on ski access and elevation", "Higher-than-average construction costs for mountain building (foundation, access roads, snow load engineering) increase the building-to-land ratio", "Growing demand for non-Park City mountain experiences is increasing land values in the Eden/Huntsville corridor"], "rationale": "Eden Summit Lodge''s mountain setting near Powder Mountain places it in a market where land values are significant but tempered by terrain challenges and limited development potential on steep slopes. Mountain resort properties in northern Utah typically allocate 20-30% to land, with ski-adjacent parcels commanding higher ratios. At 25%, the allocation reflects the property''s 12-acre mountain site with valuable ski proximity but acknowledges that building construction costs in mountain environments are substantially higher than flatland, reducing the land''s proportional share.", "marketRange": "20% - 30%", "assessmentMethod": "Comparable mountain resort sales and Summit County assessor data", "recommendedPercent": "25%"}}'),
-  (27, NULL, 'property', 35, 'Market Research: Jano Grande Ranch', 'seed-data', '{"risks": [{"risk": "Political and regulatory risk in Colombia", "mitigation": "Engage local legal counsel for compliance; structure ownership through appropriate corporate vehicles; maintain relationships with local government and tourism authorities"}, {"risk": "Currency fluctuation (COP/USD)", "mitigation": "Price rooms in USD for international guests; implement natural hedging through USD-denominated revenue streams; maintain operating reserves in hard currency"}, {"risk": "Infrastructure and utility reliability", "mitigation": "Invest in backup power systems, water treatment, and internet redundancy; build relationships with reliable local service providers"}, {"risk": "Safety perception among international travelers", "mitigation": "Implement robust security protocols; partner with reputable travel agencies and review platforms; invest in positive PR and influencer marketing to counter outdated perceptions"}], "sources": ["STR Global LATAM – Colombia Hotel Performance Report, 2025", "CBRE Hotels Americas – Latin America Boutique Hotel Investment Outlook, 2025", "HVS – Medellín Lodging Market Assessment, 2024", "ProColombia – International Tourism Statistics, 2025", "JLL Hotels & Hospitality – Colombia Hospitality Market Overview, 2025", "Highland Group – Emerging Market Hotel Cap Rate Survey, 2024"], "adrAnalysis": {"rationale": "Casa Medellín''s 30-room full-catering positioning in the emerging luxury segment justifies mid-to-upper boutique pricing. The larger room count and full F&B capabilities support group bookings and events, while the market''s rapid growth trajectory provides strong ADR growth potential in USD terms.", "comparables": [{"adr": "$210", "name": "The Charlee", "type": "Lifestyle Luxury"}, {"adr": "$185", "name": "Click Clack", "type": "Boutique"}, {"adr": "$165", "name": "Perlería Hotel", "type": "Boutique"}, {"adr": "$145", "name": "Los Patios Hostal Boutique", "type": "Boutique"}], "boutiqueRange": "$140–$250", "marketAverage": "$120", "recommendedRange": "$170–$195"}, "eventDemand": {"keyDrivers": ["Digital nomad influx creating demand for extended-stay and co-working retreat experiences", "Medical tourism market driving health-conscious travel to Medellín", "Growing international recognition of Medellín as an innovation and culture hub", "Favorable USD-to-COP exchange rate making luxury accessible to international guests", "Year-round spring-like climate eliminating seasonal weather risk"], "corporateEvents": "Emerging demand from international companies hosting Latin American team gatherings, remote work retreats, and innovation workshops. Medellín''s tech ecosystem (Ruta N) drives local corporate event demand.", "weddingsPrivate": "Growing destination wedding market for international couples seeking unique, affordable luxury. Colombian cultural events and family celebrations also drive private event bookings.", "wellnessRetreats": "Strong and growing demand for wellness retreats combining yoga, meditation, plant medicine ceremonies, and holistic health programming. The city''s climate and natural surroundings support year-round wellness tourism.", "estimatedEventRevShare": "38–44% of total revenue from events and F&B combined"}, "competitiveSet": [{"adr": "$210", "name": "The Charlee", "rooms": "42", "positioning": "Lifestyle luxury rooftop scene with pool, restaurant, and nightlife"}, {"adr": "$185", "name": "Click Clack", "rooms": "60", "positioning": "Design-forward boutique with co-working spaces and rooftop bar"}, {"adr": "$165", "name": "Perlería Hotel", "rooms": "15", "positioning": "Intimate boutique with curated art collection and personalized service"}, {"adr": "$145", "name": "Los Patios Hostal Boutique", "rooms": "22", "positioning": "Colonial-style boutique with courtyard gardens and local cultural programming"}], "marketOverview": {"summary": "Medellín has emerged as one of Latin America''s most dynamic hospitality markets, driven by digital nomad migration, medical tourism, and the city''s transformation into a global innovation hub. The El Poblado and Laureles neighborhoods anchor the luxury boutique segment, with international visitor arrivals growing 22% year-over-year. The city''s spring-like climate, low cost of living, and improving infrastructure make it increasingly attractive for both short-stay tourism and extended-stay guests.", "keyMetrics": [{"label": "Tourism Volume", "value": "1.4M international visitors to Medellín annually", "source": "ProColombia Tourism Statistics, 2025"}, {"label": "Hotel Supply", "value": "22 boutique/lifestyle properties in El Poblado and Laureles", "source": "STR Global LATAM, 2025"}, {"label": "RevPAR", "value": "$69.60 market average, $128+ for boutique segment (USD)", "source": "STR Global LATAM, 2025"}, {"label": "Market Growth", "value": "18.3% YoY RevPAR growth in boutique segment (USD terms)", "source": "CBRE Hotels Americas, 2025"}]}, "capRateAnalysis": {"rationale": "Colombian hospitality assets trade at wider cap rates reflecting country risk, currency volatility, and emerging market premiums. However, Medellín''s rapid tourism growth and improving infrastructure are compressing spreads vs. historical norms. Full-service boutique properties with international appeal command the tighter end of the range.", "comparables": [{"name": "The Charlee Hotel", "notes": "Lifestyle luxury hotel, El Poblado", "capRate": "9.8%", "saleYear": "2023"}, {"name": "Click Clack Medellín", "notes": "Boutique hotel, El Poblado", "capRate": "10.2%", "saleYear": "2024"}, {"name": "Hotel Dann Carlton", "notes": "Full-service hotel, El Poblado", "capRate": "10.5%", "saleYear": "2023"}, {"name": "Movich Hotels portfolio", "notes": "Boutique portfolio, multiple Colombian cities", "capRate": "9.5%", "saleYear": "2022"}], "marketRange": "9.0%–11.0%", "boutiqueRange": "9.5%–11.0%", "recommendedRange": "9.5%–10.5%"}, "cateringAnalysis": {"factors": ["International guests (60%+) strongly prefer on-site dining, driving higher F&B attachment rates than U.S. properties", "Colombian wedding and social event culture emphasizes full-service catering with elaborate multi-course meals", "Wellness retreats (30% of events) include full meal programs (farm-to-table, juice cleanses, health cuisine)", "Favorable labor costs allow premium catering services at higher margins than North American markets", "Limited luxury dining alternatives near the property increases on-site F&B capture rate"], "rationale": "Casa Medellín''s 30-room full-catering positioning in the emerging Colombian luxury market supports a strong catering boost. International guests and destination events heavily rely on on-site F&B due to unfamiliarity with local dining options and security preferences for staying on-property. Colombian cultural events (weddings, quinceañeras) are traditionally fully catered celebrations. The favorable labor cost environment allows high-quality full-service catering at margins above North American norms. Comparable luxury properties in Medellín report F&B at 30–32% of room revenue including catering, versus a 22% base.", "marketRange": "28% - 42%", "eventMixBreakdown": {"noCatering": "20% of events (extended-stay digital nomads, local business meetings)", "fullyCatered": "40% of events (destination weddings, Colombian celebrations, corporate galas)", "partiallyCatered": "40% of events (wellness retreats with meal programs, digital nomad co-working events)"}, "recommendedBoostPercent": "35%"}, "occupancyAnalysis": {"marketAverage": "58%", "rampUpTimeline": "Expect 18–24 months to reach stabilized occupancy of 65–70%, with initial occupancy around 45–50% as the property builds reputation in the international market.", "seasonalPattern": [{"notes": "Peak tourism period with holiday travel, Feria de las Flores overflow, and North American winter escapes", "season": "High Season (Dec–Mar)", "occupancy": "75–85%"}, {"notes": "Moderate demand with business travel and digital nomad arrivals", "season": "Shoulder Season (Apr–May, Oct–Nov)", "occupancy": "55–65%"}, {"notes": "Steady demand from digital nomads and medical tourism; local holiday weekends provide spikes", "season": "Mid-Year (Jun–Sep)", "occupancy": "50–60%"}, {"notes": "Major festival period commands premium rates", "season": "Feria de las Flores (Aug)", "occupancy": "85–90%"}]}, "landValueAllocation": {"factors": ["Colombian cadastral (catastro) valuations in El Poblado show land-to-total ratios of 18-25% for commercial hospitality properties", "Building renovation and luxury conversion costs in Colombia are disproportionately high relative to land, as materials and specialized finishes are often imported", "El Poblado land values have appreciated significantly (20-30% since 2022) but remain well below comparable US urban markets", "International investment in Medellín hospitality has increased building standards and costs, further reducing the land proportion", "Lower land allocation increases depreciable basis, improving tax efficiency for the foreign investment structure"], "rationale": "Casa Medellín''s location in the El Poblado district of Medellín represents a market where land costs are significantly lower relative to total investment compared to US markets. Colombian land values in upscale urban neighborhoods like El Poblado are moderate by international standards, while building costs for luxury hospitality conversions are disproportionately high due to imported materials, specialized labor, and international design standards. At 20%, the allocation reflects Medellín''s favorable land-to-building economics while acknowledging that El Poblado commands premium pricing within the Colombian market.", "marketRange": "15% - 25%", "assessmentMethod": "Colombian cadastral records (catastro) and comparable El Poblado property sales", "recommendedPercent": "20%"}}'),
-  (29, 1, 'global', NULL, 'Global Industry Research', 'claude-sonnet-4-5', '{"rawResponse": "# Comprehensive Boutique Hotel Industry Research Report\n## North America & Latin America Markets\n\n---\n\n## 1. INDUSTRY OVERVIEW\n\n### Market Size & Growth\n\n**North America Boutique Hotel Market:**\n- **Market Size (2024)**: $18.2 billion USD\n- **Projected Market Size (2030)**: $28.7 billion USD\n- **CAGR (2024-2030)**: 8.2%\n- **Number of Properties**: Approximately 5,200 boutique hotels (under 150 rooms)\n- **Boutique Share of Total Hotel Market**: 12-15% by property count, 8-10% by revenue\n\n**Latin America Boutique Hotel Market:**\n- **Market Size (2024)**: $4.8 billion USD\n- **Projected Market Size (2030)**: $8.1 billion USD\n- **CAGR (2024-2030)**: 9.3%\n- **Key Markets**: Mexico (35%), Brazil (22%), Colombia (12%), Costa Rica (10%), Argentina (8%)\n- **Number of Properties**: Approximately 1,850 boutique properties\n\n### Key Trends\n\n1. **Experiential Travel Dominance**: 78% of travelers prioritize unique experiences over standard accommodations\n2. **Wellness Integration**: 64% of boutique hotels now offer wellness programming\n3. **Remote Work Accommodation**: 45% growth in extended-stay bookings (7+ nights) at boutique properties\n4. **Sustainability Premium**: Properties with certified green practices command 12-18% ADR premium\n5. **Technology-Enhanced Personalization**: 71% of boutique hotels investing in CRM and guest preference tracking\n6. **Local Authenticity**: 83% of boutique guests cite \"authentic local experience\" as primary selection factor\n\n---\n\n## 2. EVENT-FOCUSED HOSPITALITY SEGMENT\n\n### Wellness Retreats\n\n**Market Overview:**\n- **North America Market Size (2024)**: $1.9 billion\n- **Annual Growth Rate**: 11.2%\n- **Number of Dedicated Wellness Retreat Centers**: 3,200+\n- **Average Event Size**: 12-25 participants\n- **Average Duration**: 3-7 nights\n\n**Financial Performance:**\n- **Average Revenue Per Event**: $35,000-$85,000\n- **Per-Guest Revenue**: $2,800-$4,200 (all-inclusive)\n- **Profit Margins**: 28-35% (higher than traditional hotel operations)\n- **Booking Lead Time**: 4-6 months average\n- **Repeat Client Rate**: 42% for established programs\n\n**Seasonality:**\n- **Peak Season**: January-March (New Year wellness focus), September-October (fall reset)\n- **Shoulder Season**: April-May, November\n- **Low Season**: June-August (heat in many markets), December (holidays)\n- **Occupancy Variance**: 35-40% between peak and low seasons\n\n**Popular Program Types:**\n- Yoga & Meditation (38% of bookings)\n- Detox & Nutrition (22%)\n- Stress Management/Mental Health (18%)\n- Fitness & Weight Loss (12%)\n- Holistic/Alternative Medicine (10%)\n\n### Corporate Events & Retreats\n\n**Market Overview:**\n- **North America Corporate Retreat Market**: $3.2 billion (2024)\n- **Annual Growth Rate**: 7.8%\n- **Post-Pandemic Recovery**: 92% of 2019 levels (still recovering)\n- **Average Group Size**: 20-45 participants\n- **Average Duration**: 2-4 days\n\n**Financial Performance:**\n- **Average Revenue Per Event**: $45,000-$125,000\n- **Per-Attendee Daily Rate**: $450-$650 (includes F&B, meeting space, activities)\n- **Meeting Space Revenue**: $2,500-$8,000 per day\n- **F&B Minimums**: Typically 40-50% of total event revenue\n- **Profit Margins**: 22-28%\n\n**Key Trends:**\n- **Hybrid Events**: 31% of corporate retreats now include virtual components\n- **Team Building Focus**: 68% prioritize experiential activities over traditional meetings\n- **Wellness Integration**: 54% include wellness elements (yoga, meditation, outdoor activities)\n- **Sustainability Requirements**: 43% of corporate clients require sustainability certifications\n- **Extended Planning Cycles**: Average booking lead time increased to 5-7 months\n\n**Booking Patterns:**\n- **Peak Months**: March-May, September-November\n- **Day of Week**: Monday-Wednesday check-ins most common\n- **Duration Trend**: Shift toward shorter (2-day) intensive retreats\n\n### Yoga Retreats\n\n**Market Overview:**\n- **North America Market Size**: $850 million (2024)\n- **Latin America Market Size**: $280 million (particularly Mexico, Costa Rica)\n- **Combined Annual Growth**: 14.3%\n- **Number of Dedicated Yoga Retreat Centers**: 1,200+ (North America), 400+ (Latin America)\n\n**Financial Performance:**\n- **Average Revenue Per Retreat**: $28,000-$65,000\n- **Per-Guest Pricing**: $1,800-$3,500 for 5-7 day programs\n- **Teacher/Influencer Cuts**: 15-30% of gross revenue\n- **Occupancy Rates**: 65-75% for established programs\n- **Profit Margins**: 30-38% (among highest in hospitality)\n\n**Demographics:**\n- **Age Range**: 72% between 30-55 years old\n- **Gender**: 78% female (shifting toward more male participation)\n- **Income Level**: $75,000-$150,000 household income (62% of participants)\n- **International Travelers**: 35% of Latin America yoga retreats are US/Canadian guests\n\n**Popular Destinations:**\n- **North America**: California (Ojai, Big Sur), Arizona (Sedona), Hawaii, British Columbia\n- **Latin America**: Tulum/Riviera Maya (Mexico), Costa Rica (Nosara, Santa Teresa), Guatemala (Lake Atitlán)\n\n### Relationship & Couples Retreats\n\n**Market Overview:**\n- **North America Market Size**: $620 million (2024)\n- **Annual Growth Rate**: 9.7%\n- **Types**: Marriage enrichment (45%), couples therapy intensives (35%), romantic getaways with programming (20%)\n- **Average Group Size**: 6-12 couples per retreat\n\n**Financial Performance:**\n- **Average Revenue Per Retreat**: $32,000-$72,000\n- **Per-Couple Pricing**: $4,500-$8,500 for 3-5 day programs\n- **Therapist/Facilitator Costs**: 25-35% of revenue\n- **Profit Margins**: 25-32%\n- **Repeat Rate**: 28% (relatively high for therapeutic programs)\n\n**Market Positioning:**\n- **Premium Pricing Justification**: Therapeutic expertise, privacy, intimate group sizes\n- **Insurance Considerations**: Some therapy-focused programs bill to insurance (12% of market)\n- **Certification Requirements**: Licensed therapists required in 8 states for \"therapy\" designation\n- **Marketing Channels**: 45% direct referrals, 28% therapist networks, 27% digital marketing\n\n**Emerging Sub-Segments:**\n- Pre-marital intensives (fastest growing at 18% annual growth)\n- LGBTQ+-focused couples retreats (15% of market)\n- Divorce recovery retreats (emerging segment)\n\n---\n\n## 3. FINANCIAL BENCHMARKS\n\n### Average Daily Rate (ADR) Trends\n\n**North America Boutique Hotels:**\n\n| Year | National Average | Boutique Hotel | Luxury Boutique | Upper Upscale Boutique |\n|------|------------------|----------------|-----------------|------------------------|\n| 2019 | $131.23 | $195.40 | $312.50 | $245.80 |\n| 2020 | $103.25 | $158.20 | $278.30 | $198.40 |\n| 2021 | $116.84 | $182.60 | $298.70 | $223.50 |\n| 2022 | $148.42 | $228.30 | $367.20 | $289.40 |\n| 2023 | $156.18 | $243.80 | $389.60 | $308.20 |\n| 2024* | $161.30 | $255.20 | $408.50 | $322.80 |\n\n*2024 figures through Q3 annualized\n\n**Latin America Boutique Hotels (USD):**\n\n| Year | Regional Average | Boutique Hotel | Luxury Boutique |\n|------|------------------|----------------|-----------------|\n| 2019 | $98.50 | $142.30 | $245.80 |\n| 2020 | $71.20 | $102.40 | $189.30 |\n| 2021 | $82.30 | $126.50 | $218.60 |\n| 2022 | $105.40 | $165.80 | $278.40 |\n| 2023 | $112.60 | $178.20 | $295.70 |\n| 2024* | $118.90 | $187.40 | $312.50 |\n\n**Event-Focused Properties Premium:**\n- Wellness retreat-focused boutique hotels: +22-28% ADR over comparable non-specialized properties\n- Properties with dedicated event/retreat facilities: +15-20% ADR premium\n\n### Occupancy Rate Trends\n\n**North America Boutique Hotels:**\n\n| Year | National Average | Boutique Hotel | Event-Focused Boutique |\n|------|------------------|----------------|------------------------|\n| 2019 | 66.2% | 71.8% | 68.4% |\n| 2020 | 44.3% | 48.2% | 42.8% |\n| 2021 | 58.4% | 63.7% | 61.2% |\n| 2022 | 64.8% | 72.3% | 74.6% |\n| 2023 | 65.9% | 73.8% | 76.2% |\n| 2024* | 66.4% | 74.5% | 77.8% |\n\n**Latin America Boutique Hotels:**\n\n| Year | Regional Average | Boutique Hotel |\n|------|------------------|----------------|\n| 2019 | 62.4% | 67.8% |\n| 2020 | 35.2% | 38.6% |\n| 2021 | 51.3% | 58.4% |\n| 2022 | 59.7% | 68.2% |\n| 2023 | 62.1% | 70.5% |\n| 2024* | 63.8% | 72.3% |\n\n**Event-Focused Occupancy Patterns:**\n- Event-focused boutique hotels achieve higher occupancy through block bookings\n- Average event block: 8-15 rooms for 3-5 nights\n- Event occupancy typically represents 40-55% of total annual occupancy\n\n### Revenue Per Available Room (RevPAR)\n\n**North America Boutique Hotels:**\n\n| Year | National Average | Boutique Hotel | Event-Focused Boutique |\n|------|------------------|----------------|------------------------|\n| 2019 | $86.85 | $140.30 | $162.45 |\n| 2020 | $45.74 | $76.25 | $84.30 |\n| 2021 | $68.24 | $116.32 | $135.80 |\n| 2022 | $96.18 | $165.08 | $198.25 |\n| 2023 | $102.92 | $179.96 | $215.40 |\n| 2024* | $107.18 | $190.13 | $228.65 |\n\n**Latin America Boutique Hotels:**\n\n| Year | Regional Average | Boutique Hotel |\n|------|------------------|----------------|\n| 2019 | $61.46 | $96.48 |\n| 2020 | $25.06 | $39.53 |\n| 2021 | $42.22 | $73.88 |\n| 2022 | $62.92 | $113.08 |\n| 2023 | $69.94 | $125.63 |\n| 2024* | $75.86 | $135.49 |\n\n### Additional Financial Metrics\n\n**Total Revenue Per Available Room (TRevPAR):**\n- Boutique Hotels: $285-$340 (North America)\n- Event-Focused Boutique: $380-$465 (higher F&B and ancillary revenue)\n- Latin America Boutique: $210-$275\n\n**GOP (Gross Operating Profit) Margins:**\n- Traditional Boutique Hotels: 35-42%\n- Event-Focused Boutique: 38-46%\n- Luxury Boutique: 42-48%\n\n**Labor Cost Percentage of Revenue:**\n- Boutique Hotels: 42-48%\n- Event-Focused (with programming): 45-52%\n- Full-Service Luxury Boutique: 48-55%\n\n---\n\n## 4. CAPITALIZATION RATES & INVESTMENT RETURNS\n\n### Capitalization Rates (2024)\n\n**North America:**\n\n| Property Segment | Cap Rate Range | Average | Trend |\n|------------------|----------------|---------|-------|\n| Full-Service Luxury Boutique | 6.5% - 8.25% | 7.4% | Compressing |\n| Upper Upscale Boutique | 7.25% - 9.0% | 8.2% | Stable |\n| Lifestyle/Boutique (Urban) | 7.0% - 8.75% | 7.9% | Compressing |\n| Lifestyle/Boutique (Resort) | 7.5% - 9.5% | 8.6% | Stable |\n| Event-Focused Boutique | 7.75% - 9.25% | 8.5% | Stable to Rising |\n| Value-Add Boutique | 9.0% - 11.5% | 10.2% | Rising |\n\n**Latin America:**\n\n| Property Segment | Cap Rate Range | Average | Trend |\n|------------------|----------------|---------|-------|\n| Luxury Boutique (Prime Markets) | 8.5% - 10.5% | 9.4% | Stable |\n| Upper Upscale Boutique | 9.5% - 11.5% | 10.6% | Rising slightly |\n| Resort Boutique | 9.0% - 12.0% | 10.8% | Stable |\n| Event-Focused Boutique | 10.0% - 12.5% | 11.2% | Stable |\n\n**Geographic Variations (North America):**\n- **Gateway Cities** (NYC, Miami, LA, SF): 6.5-7.8%\n- **Secondary Markets** (Austin, Nashville, Denver): 7.5-8.9%\n- **Resort Markets** (Hawaii, Napa, Aspen): 7.8-9.2%\n- **Tertiary/Emerging Markets**: 8.5-10.5%\n\n**Geographic Variations (Latin America):**\n- **Mexico (Riviera Maya, Cabo)**: 8.5-10.5%\n- **Costa Rica (Beach Communities)**: 9.5-11.5%\n- **Colombia (Cartagena, Medellin)**: 10.0-12.0%\n- **Brazil (Rio, São Paulo)**: 10.5-12.5%\n\n### Investment Return Metrics\n\n**Levered Returns (IRR):**\n- **Stabilized Boutique Hotels**: 12-16% (10-year hold)\n- **Value-Add Repositioning**: 16-22% (5-7 year hold)\n- **Development/Ground-Up**: 18-25% (7-10 year hold)\n- **Event-Focused Conversions**: 15-20% (repositioning existing assets)\n\n**Cash-on-Cash Returns:**\n- **Year 1** (Stabilized): 6-9%\n- **Year 3** (Stabilized): 8-12%\n- **Year 5** (Stabilized): 10-14%\n- **Value-Add** (by Year 3): 12-18%\n\n**Equity Multiples (10-year hold):**\n- **Core Boutique**: 2.0-2.6x\n- **Core-Plus**: 2.4-3.2x\n- **Value-Add**: 2.8-3.8x\n- **Opportunistic/Development**: 3.2-4.5x\n\n### Transaction Volume & Pricing\n\n**2023-2024 Transaction Activity:**\n- **North America Boutique Hotel Sales Volume**: $4.2 billion (2023), $3.8 billion (2024 projected)\n- **Average Price Per Room**: $285,000-$425,000 (varies widely by market and quality)\n- **Latin America Volume**: $890 million (2023), $1.1 billion (2024 projected)\n\n**Price Per Key Ranges:**\n- **Gateway Markets, Luxury**: $450,000-$850,000+\n- **Secondary Markets, Upper Upscale**: $250,000-$425,000\n- **Resort Markets**: $350,000-$650,000\n- **Latin America, Prime**: $180,000-$350,000\n- **Event-Focused Properties**: +15-25% premium over comparable traditional boutique\n\n**Notable Recent Transactions:**\n- Luxury boutique portfolio (6 properties, 450 keys) - Miami, Charleston, Savannah: $278M ($618k/key)\n- Wellness retreat center (35 keys) - Sedona, AZ: $28.5M ($814k/key)\n- Boutique conversion (62 keys) - Austin, TX: $23.8M ($384k/key)\n- Beach resort boutique (48 keys) - Tulum, Mexico: $16.2M ($338k/key)\n\n---\n\n## 5. DEBT MARKET CONDITIONS\n\n### Current Lending Environment (Q4 2024)\n\n**Interest Rates:**\n- **SOFR-Based Floating Rate Loans**: SOFR + 275-375 bps (effectively 8.0-9.25%)\n- **Fixed Rate Loans** (5-10 year): 7.25-8.75%\n- **SBA 7(a) Loans**: Prime + 2.75% (currently ~11.75%)\n- **Bridge/Transitional Debt**: 9.5-12.5%\n\n**Loan-to-Value (LTV) Ratios:**\n- **Stabilized, Full-Service Boutique**: 60-70% LTV\n- **Stabilized, Limited Service**: 65-75% LTV\n- **Value-Add/Renovation**: 55-65% LTV (of \"as-complete\" value)\n- **Construction/Ground-Up**: 50-60% LTV\n- **Latin America**: 50-60% LTV (more conservative)\n\n**Loan Terms:**\n- **Typical Term**: 5-10 years\n- **Amortization**: 25-30 years (often with balloon payment)\n- **Interest-Only Period**: 12-24 months (value-add), 0-6 months (stabilized)\n- **Prepayment Penalties**: Yield maintenance or step-down (5-4-3-2-1%)\n\n**Debt Service Coverage Ratio (DSCR) Requirements:**\n- **Minimum DSCR**: 1.20-1.35x (most lenders at 1.25x)\n- **Preferred DSCR**: 1.35-1.50x (better pricing/terms)\n- **Value-Add (projected)**: 1.30-1.40x on stabilized proforma\n\n### Lending Sources & Market Conditions\n\n**Primary Lenders:**\n1. **Regional/Community Banks**: Most active in $5M-$25M range, relationship-driven\n2. **CMBS Lenders**: $10M+ loans, more commoditized, stricter underwriting\n3. **Life Insurance Companies**: $15M+ loans, best rates for stabilized assets\n4. **Debt Funds/Non-Bank Lenders**: Fill gaps, more flexible, higher rates (9-13%)\n5. **SBA Lenders**: Owner-occupied scenarios, up to $5M\n6. **Construction Lenders**: Specialized construction loans, 12-18 month terms\n\n**Market Conditions:**\n- **Credit Tightening**: 2022-2023 saw significant tightening; modest easing in late 2024\n- **Loan Quote Volume**: Up 15% in Q3-Q4 2024 vs. Q1-Q2 2024 (improving sentiment)\n- **Completion Volume**: Down 35% from 2021 peak (still recovering)\n- **Refinancing Challenges**: Properties financed in 2020-2021 facing rate shock (3-4% to 8-9%)\n\n**Latin America Lending:**\n- **Predominantly Local Banks**: International lenders rare except for branded/institutional sponsors\n- **Higher Cash Requirements**: 40-50% equity typical\n- **Currency Considerations**: USD loans preferred but create FX risk\n- **Shorter Terms**: 3-7 years more common than 10-year terms\n\n### Mezzanine & Preferred Equity\n\n**Mezzanine Debt:**\n- **Rates**: 11-15% current pay\n- **LTV Range**: Up to 80-85% (combined with senior debt)\n- **Typical Use**: Bridge LTV gap from 65-70% to 80%+\n\n**Preferred Equity:**\n- **Returns**: 12-16% preferred return\n- **Common Use**: Development and heavy value-add projects\n- **Waterfall**: Typically 80/20 or 70/30 split above preferred return\n\n---\n\n## 6. EMERGING TRENDS IN EXPERIENTIAL HOSPITALITY\n\n### Major Trend Categories\n\n#### 1. Hyper-Personalization Through Technology\n\n**AI-Driven Guest Experiences:**\n- **Adoption Rate**: 38% of boutique hotels implementing AI-powered personalization (2024)\n- **Applications**: Pre-arrival preference gathering, dynamic activity recommendations, personalized F&B suggestions\n- **Investment Range**: $25,000-$150,000 for full CRM/AI integration\n- **ROI**: 8-12% ADR increase through targeted upselling\n\n**Biometric & Contactless Tech:**\n- **Mobile Check-In**: 67% of boutique hotels offer (up from 31% in 2020)\n- **Digital Room Keys**: 52% adoption rate\n- **Voice-Activated Rooms**: 18% of new/renovated boutique properties\n- **Guest Investment Appetite**: 73% willing to share data for personalized experiences\n\n#### 2. Regenerative & Sustainable Travel\n\n**Beyond Carbon Neutral:**\n- **Regenerative Tourism**: 24% of boutique hotels adopting \"net positive\" environmental goals\n- **Certifications**: B Corp certification growing (12% of boutique hotels pursuing)\n- **On-Site Food Production**: 31% of boutique hotels with gardens/farming elements\n- **Community Investment Requirements**: 19% of boutique hotels have formal giving programs\n\n**Guest Expectations:**\n- **Sustainability Premium**: 68% of guests willing to pay 10-15% more for certified sustainable properties\n- **Transparency Requirements**: 82% expect detailed sustainability reporting\n- **Plastic-Free Expectations**: Now baseline requirement (single-use plastic bans)\n\n**Financial Impact:**\n- **Initial Investment**: $75,000-$300,000 for comprehensive sustainability retrofits\n- **Operating Cost Reduction**: 15-22% energy savings, 20-30% water savings\n- **Revenue Premium**: 12-18% ADR premium for certified properties\n\n#### 3. Multi-Generational & Extended Stay Programming\n\n**Bleisure & Remote Work:**\n- **Market Size**: $495 billion globally (2024), growing at 13.2% CAGR\n- **Boutique Share**: 22% of bleisure travelers prefer boutique hotels\n- **Extended Stay Growth**: 7+ night bookings up 67% since 2019\n- **Co-Working Spaces**: 44% of boutique hotels adding dedicated work areas\n\n**Programming:**\n- **Weekly Rates**: 15-25% discount to attract extended stays\n- **Community Events**: 56% host weekly community dinners, networking events\n- **Local Expert Programs**: Curator/concierge-led experiences (3-8 per week)\n\n**Family & Multi-Generational:**\n- **Connecting Rooms**: 28% of boutique hotels adding/renovating for family configurations\n- **All-Ages Programming**: Boutique hotels adding family-friendly activities (while maintaining adult sophistication)\n- **Market Growth**: Multi-generational travel up 23% since 2019\n\n#### 4. Mental Health & Psychological Wellness\n\n**Beyond Physical Wellness:**\n- **Mental Health Retreats**: $380 million market (North America, 2024), growing 16.8% annually\n- **Therapy Integration**: 31% of wellness-focused boutique hotels partner with licensed therapists\n- **Digital Detox Programs**: 42% offer structured technology-free experiences\n- **Mindfulness Training**: 68% include meditation/mindfulness programming\n\n**Emerging Programs:**\n- Burnout recovery intensives (3-7 days)\n- Grief/loss processing retreats\n- Creative expression therapy (art, music, writing)\n- Nature immersion/forest bathing\n\n**Financial Performance:**\n- **Premium Pricing**: Mental health retreats command $3,200-$5,800 per person (5-7 days)\n- **Occupancy**: 71% average (limited capacity model)\n- **Margins**: 32-38% (therapist costs offset by premium pricing)\n\n#### 5. Culinary Immersion & Food-First Experiences\n\n**Farm-to-Table Evolution:**\n- **Culinary Retreat Market**: $1.2 billion (North America, 2024)\n- **On-Site Culinary Programs**: 47% of boutique hotels offer cooking classes/experiences\n- **Chef Partnerships**: 38% feature guest chef residencies/collaborations\n- **Foraging Experiences**: 22% offer guided foraging and wilderness cooking\n\n**Revenue Impact:**\n- **F&B Revenue Share**: Event-focused boutique hotels average 38-42% F&B (vs. 25-30% traditional)\n- **Cooking Class Revenue**: $125-$285 per person (2-4 hour experiences)\n- **Wine/Beverage Programs**: Premium wine lists generating 18-24% margins\n\n**Beverage Trends:**\n- **Craft Cocktail Programs**: 72% of boutique hotels invest in mixology expertise\n- **Low/No Alcohol**: 58% expanding non-alcoholic beverage menus\n- **Local Beverage Partnerships**: 64% feature local breweries, wineries, distilleries\n\n#### 6. Nomadic & Flexible Ownership Models\n\n**Boutique Hotel Memberships:**\n- **Subscription Models**: 14% of boutique hotel groups offer membership programs\n- **Pricing**: $2,500-$8,500 annual membership for discounted rates/perks\n- **Member Benefits**: 20-30% room discounts, priority booking, exclusive events\n- **Revenue Predictability**: Memberships provide 8-12% baseline annual revenue\n\n**Fractional Ownership:**\n- **Boutique Fraction Market**: $280 million (2024), early-stage growth\n- **Typical Structure**: 1/8 to 1/13 shares, 4-6 weeks annual usage\n- **Price Range**: $85,000-$450,000 per fraction (depends on property value)\n- **Management Fee**: 15-20% of operating costs\n\n**NFTs & Digital Ownership Experiments:**\n- **Early Adoption**: 6% of boutique hotels exploring blockchain loyalty programs\n- **Use Cases**: Lifetime membership NFTs, tradeable room nights, profit-sharing tokens\n- **Market Maturity**: Experimental phase; watching closely but limited current deployment\n\n#### 7. Wellness Technology Integration\n\n**Biometric Monitoring:**\n- **In-Room Wellness Tech**: 11% of luxury boutique hotels adding biometric monitoring\n- **Applications**: Sleep tracking, air quality optimization, circadian lighting\n- **Guest Acceptance**: 48% interested in wellness data tracking during stays\n- **Investment**: $8,000-$25,000 per room for full integration\n\n**IV Therapy & Advanced Wellness:**\n- **On-Site Services**: 23% of wellness-focused boutique hotels offer IV therapy, vitamin injections\n- **Medical Partnerships**: Collaboration with licensed medical providers\n- **Revenue**: $150-$350 per treatment, high-margin ancillary revenue\n- **Regulatory**: State-specific medical licensing requirements\n\n**Cryotherapy, Red Light, & Recovery:**\n- **Recovery Centers**: 16% of boutique hotels adding dedicated recovery/biohacking facilities\n- **Investment**: $150,000-$500,000 for comprehensive recovery center\n- **Usage**: Typically complimentary for retreat guests, $45-$95 for a la carte guests\n\n#### 8. Hyper-Local & Community Integration\n\n**Resident Programming:**\n- **Community Membership**: 29% of boutique hotels offer local resident memberships (restaurant, bar, co-working access)\n- **Resident Pricing**: Restaurant/bar access typically $500-$1,500 annual membership\n- **Community Events**: 63% host events open to locals (farmers markets, live music, talks)\n- **Local Economic Impact**: Average boutique hotel sources 42% of goods/services from within 50 miles\n\n**Neighborhood Curator Model:**\n- **Concierge Evolution**: From directory to active community connector\n- **Local Partnerships**: Average boutique hotel has 35-50 local business partnerships\n- **Commission Structures**: 10-15% referral fees from local businesses\n- **Guest Satisfaction**: 87% cite local recommendations as highly valuable\n\n#### 9. Adventure & Active Travel Integration\n\n**Outdoor Recreation Focus:**\n- **Adventure Travel Market**: $683 billion globally, 15.2% CAGR\n- **Boutique Adventure Share**: 28% of adventure travelers prefer boutique accommodations\n- **On-Site Gear**: 34% of boutique hotels offer complimentary bikes, kayaks, paddleboards, etc.\n- **Guide Partnerships**: 52% partner with local adventure guides and outfitters\n\n**Programming Examples:**\n- Sunrise hikes with meditation\n- Mountain biking/trail running packages\n- Rock climbing/canyoneering experiences\n- Surf/kite/windsurf instruction\n- Backcountry ski touring\n\n**Financial Performance:**\n- **Activity Packages**: Add $85-$250 per person per day\n- **Equipment Rental Revenue**: $1,200-$4,500 monthly per property\n- **Guide Commission**: 15-25% of guide fees\n\n#### 10. Cultural Immersion & Educational Travel\n\n**Skills-Based Travel:**\n- **Market Growth**: Educational/skills-based travel up 42% since 2019\n- **Program Types**: Language immersion, art/craft workshops, cultural deep-dives\n- **Duration**: Typically 5-14 days\n- **Demographics**: 35-65 age range, higher education, $95k+ household income\n\n**Examples:**\n- Spanish language + cooking in Mexico (7-10 days)\n- Indigenous cultural immersion programs\n- Artisan craft workshops (pottery, weaving, woodworking)\n- Photography intensives with location-specific instruction\n\n**Revenue Model:**\n- **Per-Person Pricing**: $3,200-$6,500 (7-10 days all-inclusive)\n- **Instructor Costs**: 20-30% of program revenue\n- **Group Size**: 8-14 participants optimal\n- **Profit Margins**: 28-35%\n\n---\n\n## REGIONAL DEEP-DIVES\n\n### North America: Key Market Dynamics\n\n**Top Performing Markets (by RevPAR Growth 2023-2024):**\n1. **Miami/South Florida**: +12.3%\n2. **Nashville**: +11.8%\n3. **Austin**: +10.9%\n4. **Charleston**: +10.2%\n5. **Sedona/Northern Arizona**: +9.8%\n\n**Emerging Markets:**\n- **Asheville, NC**: Strong wellness/retreat focus, 18% YoY boutique growth\n- **Hudson Valley, NY**: Accessible from NYC, farm-to-table focus\n- **Santa Fe, NM**: Cultural/art focus, growing wellness integration\n- **Ojai, CA**: Wellness destination, consistent premium pricing\n- **Bend, OR**: Outdoor recreation, strong adventure travel\n\n**Supply Pipeline:**\n- **New Boutique Hotels (2024-2026)**: 287 properties, 18,400 keys\n- **Conversions from Other Uses**: 42% of pipeline (historic buildings, former offices)\n- **Ground-Up Development**: 31% of pipeline\n- **Brand Conversions**: 27% of pipeline (independent to soft-brand or vice versa)\n\n### Latin America: Key Market Dynamics\n\n**Top Performing Markets:**\n1. **Tulum/Riviera Maya, Mexico**: Global wellness destination, $187 ADR (boutique avg)\n2. **San José del Cabo, Mexico**: Luxury boutique growth, $245 ADR\n3. **Nosara/Santa Teresa, Costa Rica**: Yoga/surf retreat hub, $168 ADR\n4. **Cartagena, Colombia**: Historic boutique conversions, $156 ADR\n5. **Valle de Guadalupe, Mexico**: Wine country boutique boom, $198 ADR\n\n**Market Challenges:**\n- **Infrastructure**: Inconsistent internet/utilities in some markets\n- **Permitting/Regulatory**: Lengthy approval processes (12-36 months"}')
-ON CONFLICT (id) DO NOTHING;
+UPDATE market_research SET title = 'Market Research: Belleayre Mountain' WHERE id = 24 AND property_id = 32;
+UPDATE market_research SET title = 'Market Research: Lakeview Haven Lodge' WHERE id = 25 AND property_id = 33;
+UPDATE market_research SET title = 'Market Research: Jano Grande Ranch' WHERE id = 27 AND property_id = 35;
 
 -- =============================================================================
 -- RESEARCH QUESTIONS
@@ -398,5 +622,5 @@ SELECT setval('scenarios_id_seq', COALESCE((SELECT MAX(id) FROM scenarios), 0) +
 COMMIT;
 
 -- =============================================================================
--- END OF PRODUCTION SEED SCRIPT
+-- END OF PRODUCTION SYNC SCRIPT
 -- =============================================================================

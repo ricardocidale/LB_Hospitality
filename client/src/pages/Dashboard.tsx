@@ -332,6 +332,12 @@ export default function Dashboard() {
   const avgAnnualCashFlow = operatingCashFlows.reduce((sum, cf) => sum + cf, 0) / projectionYears;
   const cashOnCash = totalInitialEquity > 0 ? (avgAnnualCashFlow / totalInitialEquity) * 100 : 0;
 
+  /**
+   * generateIncomeStatementData — Builds row data for the consolidated portfolio income statement tab.
+   * Returns an array of row objects, each with a category label and one value per projection year.
+   * Header rows (isHeader=true) are bolded in the UI. Indented rows are subtotals or per-property drilldowns.
+   * The "c(i)" helper returns consolidated yearly data; "p(idx, i)" returns per-property data.
+   */
   const generateIncomeStatementData = () => {
     const years = Array.from({ length: projectionYears }, (_, i) => getFiscalYear(i));
     const rows: { category: string; values: number[]; isHeader?: boolean; indent?: number }[] = [];
@@ -496,6 +502,13 @@ export default function Dashboard() {
     downloadCSV(csvRows.join('\n'), 'income-statement.csv');
   };
 
+  /**
+   * generateCashFlowData — Builds data for the consolidated cash flow statement.
+   * Unlike the income statement, this shows actual cash inflows (revenue) and outflows
+   * (operating expenses negated) to show how cash moves through the portfolio each year.
+   * isNegative=true causes the UI to display the value in parentheses "(X,XXX)" per accounting convention.
+   * Also returns graphData used for the Revenue Performance and Cash Flow After Financing charts.
+   */
   const generateCashFlowData = () => {
     const years = Array.from({ length: projectionYears }, (_, i) => getFiscalYear(i));
     const rows: { category: string; values: number[]; isHeader?: boolean; indent?: number; isNegative?: boolean }[] = [];
@@ -591,6 +604,7 @@ export default function Dashboard() {
     return { years, rows, graphData };
   };
 
+  /** Export the cash flow statement to a landscape-format PDF with summary tables and charts. */
   const exportCashFlowToPDF = () => {
     const { years, rows, graphData } = generateCashFlowData();
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
@@ -732,6 +746,12 @@ export default function Dashboard() {
     downloadCSV(csvRows.join('\n'), 'cash-flow-statement.csv');
   };
 
+  /**
+   * generateBalanceSheetData — Builds the portfolio balance sheet for the financial statements tab.
+   * Aggregates across all properties to produce: Assets (real estate at cost, operating reserves, cash),
+   * Liabilities (outstanding debt from monthly pro-forma), and Equity (initial equity + retained earnings).
+   * Uses the accounting identity: Assets = Liabilities + Equity.
+   */
   const generateBalanceSheetData = () => {
     const years = Array.from({ length: projectionYears }, (_, i) => getFiscalYear(i));
     const rows: { category: string; values: number[]; isHeader?: boolean; indent?: number; isNegative?: boolean }[] = [];
@@ -947,6 +967,13 @@ export default function Dashboard() {
     downloadCSV(csvRows.join('\n'), 'balance-sheet.csv');
   };
 
+  /**
+   * generateInvestmentAnalysisData — Builds the investment analysis tab data.
+   * Shows equity invested per property in the year of acquisition (shown as negative cash outflow),
+   * then per-year BTCF (Before-Tax Cash Flow = NOI - debt service) and ATCF (After-Tax = BTCF - income tax).
+   * Also projects taxable income (NOI - interest - depreciation) and the resulting income tax per year.
+   * The last row shows the net cash position factoring in all exit proceeds.
+   */
   const generateInvestmentAnalysisData = () => {
     const years = ['Initial', ...Array.from({ length: projectionYears }, (_, i) => String(getFiscalYear(i)))];
     const rows: { category: string; values: (number | string)[]; isHeader?: boolean; indent?: number; isNegative?: boolean }[] = [];

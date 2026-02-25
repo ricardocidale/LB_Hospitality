@@ -780,6 +780,9 @@ export async function registerRoutes(
     }
   });
 
+  /** Admin: return a snapshot of all database entity counts + key config values.
+   * Used to verify that production data was seeded correctly and to quickly audit
+   * global assumptions without manually querying the database. */
   app.get("/api/admin/sync-status", requireAdmin, async (_req, res) => {
     try {
       const globalAssumptions = await storage.getGlobalAssumptions();
@@ -951,6 +954,10 @@ export async function registerRoutes(
   // can trigger a verification run. Results are persisted for audit history.
   // ────────────────────────────────────────────────────────────
 
+  /** Admin/Checker: run the client-side GAAP audit engine on the current data and return
+   * a diagnostic summary. This is a debug tool that shows which audit rules pass/fail
+   * and why — it's not persisted. Useful for investigating discrepancies reported by the
+   * verification engine without triggering the heavier independent recalculation. */
   app.get("/api/admin/client-audit-diagnostic", requireChecker, async (req, res) => {
     try {
       const ga = await storage.getGlobalAssumptions();
@@ -1045,6 +1052,10 @@ export async function registerRoutes(
   });
 
   // AI-powered methodology review (admin or checker)
+  // Streams a narrative assessment from Claude Sonnet describing the model's
+  // strengths, weaknesses, and GAAP compliance issues discovered during
+  // the independent verification run. Useful for audit reports where a
+  // plain-English summary is needed alongside the raw numbers.
   app.post("/api/admin/ai-verification", requireChecker, async (req, res) => {
     try {
       if (isApiRateLimited(req.user!.id, "ai-verification", 3)) {
@@ -1137,6 +1148,9 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
+  /** Admin: run a full health check (TypeScript compile, test suite, verification runner)
+   * and return a structured pass/fail report. Each phase is executed synchronously
+   * via child_process.execSync so results are sequential and deterministic. */
   app.get("/api/admin/health-check", requireAdmin, async (req, res) => {
     const { execSync } = await import("child_process");
 
@@ -1725,6 +1739,13 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
   // Max 20 scenarios per user to prevent storage bloat.
   // ────────────────────────────────────────────────────────────
   
+  /**
+   * Collect fee categories for all properties, keyed by property name.
+   * Fee categories (e.g., "Base Management Fee", "Incentive Fee") define the
+   * management company's revenue split on each property. These are stored
+   * separately from the property record and must be captured as part of any
+   * scenario snapshot so the scenario can be fully restored later.
+   */
   async function collectFeeCategories(props: { id: number; name: string }[]): Promise<Record<string, any[]>> {
     const feeCategories: Record<string, any[]> = {};
     for (const prop of props) {
@@ -3487,6 +3508,12 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     ltv_max: z.number().min(0).max(1).optional(),
   });
 
+  /**
+   * Shared rate-limit guard for all financial calculation endpoints.
+   * Returns true (and sends a 429 response) if the user has exceeded 30 requests
+   * per minute on the given endpoint. Callers should `return` immediately when
+   * this returns true, since the response has already been sent.
+   */
   function calcRateLimit(req: Request, res: Response, endpoint: string): boolean {
     if (isApiRateLimited(req.user!.id, endpoint, 30)) {
       res.status(429).json({ error: "Too many calculation requests. Please wait a minute." });
@@ -3732,7 +3759,15 @@ Global assumptions: Inflation ${(globalAssumptions.inflationRate * 100).toFixed(
     }
   });
 
-  // --- Fee Categories ---
+  // ────────────────────────────────────────────────────────────
+  // FEE CATEGORIES ROUTES
+  // Fee categories define the management company's fee structure for each property.
+  // Typical categories: "Base Management Fee" (% of total revenue), "Incentive
+  // Management Fee" (% of GOP above a threshold), and custom line items.
+  // On first GET, if no categories exist the defaults are auto-seeded so the
+  // model has a valid starting point. PUT replaces the entire list (upsert
+  // by ID: existing records are updated, new ones are created).
+  // ────────────────────────────────────────────────────────────
   app.get("/api/properties/:propertyId/fee-categories", requireAuth, async (req: any, res) => {
     try {
       const propertyId = parseInt(req.params.propertyId);

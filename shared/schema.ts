@@ -373,6 +373,20 @@ export const globalAssumptions = pgTable("global_assumptions", {
   // Feature Toggles
   showAiAssistant: boolean("show_ai_assistant").notNull().default(false),
   
+  // Marcela Voice Configuration (ElevenLabs)
+  marcelaVoiceId: text("marcela_voice_id").notNull().default("cgSgspJ2msm6clMCkdW9"),
+  marcelaTtsModel: text("marcela_tts_model").notNull().default("eleven_flash_v2_5"),
+  marcelaSttModel: text("marcela_stt_model").notNull().default("scribe_v1"),
+  marcelaOutputFormat: text("marcela_output_format").notNull().default("pcm_16000"),
+  marcelaStability: real("marcela_stability").notNull().default(0.5),
+  marcelaSimilarityBoost: real("marcela_similarity_boost").notNull().default(0.8),
+  marcelaSpeakerBoost: boolean("marcela_speaker_boost").notNull().default(false),
+  marcelaChunkSchedule: text("marcela_chunk_schedule").notNull().default("120,160,250,290"),
+  marcelaLlmModel: text("marcela_llm_model").notNull().default("gpt-4.1"),
+  marcelaMaxTokens: integer("marcela_max_tokens").notNull().default(2048),
+  marcelaMaxTokensVoice: integer("marcela_max_tokens_voice").notNull().default(1024),
+  marcelaEnabled: boolean("marcela_enabled").notNull().default(true),
+
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => [
   index("global_assumptions_user_id_idx").on(table.userId),
@@ -495,6 +509,18 @@ export const insertGlobalAssumptionsSchema = createInsertSchema(globalAssumption
   sidebarScenarios: true,
   sidebarUserManual: true,
   showAiAssistant: true,
+  marcelaVoiceId: true,
+  marcelaTtsModel: true,
+  marcelaSttModel: true,
+  marcelaOutputFormat: true,
+  marcelaStability: true,
+  marcelaSimilarityBoost: true,
+  marcelaSpeakerBoost: true,
+  marcelaChunkSchedule: true,
+  marcelaLlmModel: true,
+  marcelaMaxTokens: true,
+  marcelaMaxTokensVoice: true,
+  marcelaEnabled: true,
 });
 
 export const selectGlobalAssumptionsSchema = createSelectSchema(globalAssumptions);

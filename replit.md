@@ -73,7 +73,7 @@ npm run audit:quick    # Quick code quality scan
 .claude/
 ├── claude.md              # Master doc (always loaded)
 ├── rules/ (21 files)      # Enforceable constraints
-├── skills/ (114 files)    # Implementation knowledge
+├── skills/ (118 files)    # Implementation knowledge
 ├── tools/ (43 files)      # Tool schemas
 ├── manuals/               # Checker + user manuals
 ├── commands/              # Slash commands

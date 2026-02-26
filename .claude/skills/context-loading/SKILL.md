@@ -6,7 +6,7 @@ description: Token-efficient context loading protocol. Maps common task types to
 # Context Loading Protocol
 
 ## Purpose
-With 96 skill files (~17,000 lines), loading everything wastes tokens and slows responses. This skill maps common task types to the **minimum required** skill set, ensuring fast, focused sessions.
+With 118 skill files, loading everything wastes tokens and slows responses. This skill maps common task types to the **minimum required** skill set, ensuring fast, focused sessions.
 
 ## Golden Rule
 **Load `claude.md` first (always loaded automatically). Then load only the skills needed for the current task. Never load all skills at once.**
@@ -171,6 +171,6 @@ User asks for verification, release prep, or comprehensive review.
 
 ## Cross-References
 - Skill Router: `claude.md` § Skill Router
-- All skills: `.claude/skills/` (20+ directories, 114 files)
+- All skills: `.claude/skills/` (20+ directories, 118 files)
 - Rules: `.claude/rules/` (21 files)
 - Manuals: `.claude/manuals/` (2 manuals)

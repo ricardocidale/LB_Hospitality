@@ -9,8 +9,8 @@ All skill files must follow consistent organization, naming, and placement conve
 ```
 .claude/
 ├── claude.md                  # Master doc (always loaded)
-├── rules/                     # Enforceable constraints (20 files + 1 archive)
-├── skills/                    # How-to documentation (96 files)
+├── rules/                     # Enforceable constraints (21 files)
+├── skills/                    # How-to documentation (118 files)
 │   ├── context-loading/       # Skill router (load first)
 │   ├── architecture/          # System architecture
 │   ├── coding-conventions/    # Code style rules
@@ -28,7 +28,11 @@ All skill files must follow consistent organization, naming, and placement conve
 │   ├── tool-schemas/          # Tool JSON schema conventions
 │   ├── ui/                    # 27 UI skills (charts, graphics, components, image picker)
 │   ├── mobile-responsive/     # 4 mobile/tablet responsive design skills
-│   └── 3d-graphics/           # Three.js / React Three Fiber
+│   ├── 3d-graphics/           # Three.js / React Three Fiber
+│   ├── marcela-ai/            # Multi-channel AI assistant (architecture, audio pipeline)
+│   ├── twilio-telephony/      # Twilio Voice + SMS integration
+│   ├── voice-widget/          # Voice UX patterns (state machine, waveform, barge-in)
+│   └── admin/                 # Admin page architecture (10-tab shell pattern)
 ├── tools/                     # Tool schemas (JSON)
 │   ├── analysis/              # Break-even, consolidation, scenario
 │   ├── financing/             # DSCR, debt yield, prepayment, IRR

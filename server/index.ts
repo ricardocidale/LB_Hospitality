@@ -70,6 +70,9 @@ const PUBLIC_API_PATHS = new Set([
   "/api/auth/dev-login",
   "/api/auth/logout",
   "/api/auth/me",
+  "/api/twilio/voice/incoming",
+  "/api/twilio/voice/status",
+  "/api/twilio/sms/incoming",
 ]);
 
 app.use((req: Request, res: Response, next: NextFunction) => {

@@ -583,6 +583,7 @@ describe("Hardcoded Value Detection", () => {
         "store.ts",
         "pdfChartDrawer.ts",
         "constants.ts",
+        "firstOperatingYear.ts",
       ]);
 
       const allLibFiles = fs.readdirSync(libDir)

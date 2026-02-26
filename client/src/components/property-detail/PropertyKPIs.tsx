@@ -3,51 +3,53 @@
  *
  * Renders a responsive grid of key performance indicators pulled from
  * the property's computed financial projections:
- *   • ADR (Average Daily Rate) – stabilized nightly room rate
- *   • RevPAR – Revenue Per Available Room (ADR × Occupancy)
- *   • NOI – Net Operating Income at stabilization
- *   • DSCR – Debt Service Coverage Ratio (NOI / Annual Debt Service)
- *   • Equity Multiple – total equity returned / equity invested
- *   • Levered IRR – Internal Rate of Return on equity (after debt)
+ *   - Revenue, GOP, NOI, Cash Flow for the first operating year
  *
- * Uses formatCompact to abbreviate large dollar values (e.g. "$1.2M").
+ * Uses findFirstOperatingYear() to skip pre-acquisition $0 years
+ * and display meaningful metrics from the first year of operations.
  */
 import { KPIGrid, formatCompact, type KPIItem } from "@/components/graphics";
 import type { PropertyKPIsProps } from "./types";
+import { findFirstOperatingYear } from "@/lib/firstOperatingYear";
 
 export default function PropertyKPIs({ yearlyChartData, projectionYears }: PropertyKPIsProps) {
-  const kpiItems: KPIItem[] = yearlyChartData.length > 0 ? [
+  const result = findFirstOperatingYear(yearlyChartData);
+  if (!result) return null;
+
+  const { index: opsIdx, data: d, year: yearLabel } = result;
+  const nextIdx = opsIdx + 1;
+  const label = yearLabel != null ? String(yearLabel) : "Year 1";
+
+  const kpiItems: KPIItem[] = [
     {
-      label: "Year 1 Revenue",
-      value: yearlyChartData[0].Revenue,
+      label: `${label} Revenue`,
+      value: d.Revenue,
       format: formatCompact,
-      trend: yearlyChartData.length > 1 && yearlyChartData[1].Revenue > yearlyChartData[0].Revenue ? "up" : "neutral",
+      trend: nextIdx < yearlyChartData.length && yearlyChartData[nextIdx].Revenue > d.Revenue ? "up" : "neutral",
       sublabel: `${projectionYears}-year projection`,
     },
     {
-      label: "Year 1 GOP",
-      value: yearlyChartData[0].GOP,
+      label: `${label} GOP`,
+      value: d.GOP,
       format: formatCompact,
-      trend: yearlyChartData[0].GOP > 0 ? "up" : "down",
-      sublabel: yearlyChartData[0].Revenue > 0 ? `${((yearlyChartData[0].GOP / yearlyChartData[0].Revenue) * 100).toFixed(1)}% margin` : undefined,
+      trend: d.GOP > 0 ? "up" : "down",
+      sublabel: d.Revenue > 0 ? `${((d.GOP / d.Revenue) * 100).toFixed(1)}% margin` : undefined,
     },
     {
-      label: "Year 1 NOI",
-      value: yearlyChartData[0].NOI,
+      label: `${label} NOI`,
+      value: d.NOI,
       format: formatCompact,
-      trend: yearlyChartData[0].NOI > 0 ? "up" : "down",
-      sublabel: yearlyChartData[0].Revenue > 0 ? `${((yearlyChartData[0].NOI / yearlyChartData[0].Revenue) * 100).toFixed(1)}% margin` : undefined,
+      trend: d.NOI > 0 ? "up" : "down",
+      sublabel: d.Revenue > 0 ? `${((d.NOI / d.Revenue) * 100).toFixed(1)}% margin` : undefined,
     },
     {
-      label: "Year 1 Cash Flow",
-      value: yearlyChartData[0].CashFlow,
+      label: `${label} Cash Flow`,
+      value: d.CashFlow,
       format: formatCompact,
-      trend: yearlyChartData[0].CashFlow > 0 ? "up" : "down",
+      trend: d.CashFlow > 0 ? "up" : "down",
       sublabel: "After debt service",
     },
-  ] : [];
-
-  if (kpiItems.length === 0) return null;
+  ];
 
   return (
     <KPIGrid

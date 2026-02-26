@@ -957,15 +957,18 @@ export function generateCompanyProForma(
     if (hasStartedOps) {
       // Use yearly partner compensation values (year is 0-indexed, so year 0 = Year 1)
       const modelYear = year + 1; // year is 0-indexed, convert to 1-10
-      const partnerCompKeys = [
-        'partnerCompYear1', 'partnerCompYear2', 'partnerCompYear3',
-        'partnerCompYear4', 'partnerCompYear5', 'partnerCompYear6',
-        'partnerCompYear7', 'partnerCompYear8', 'partnerCompYear9',
-        'partnerCompYear10',
-      ] as const;
-      const yearlyPartnerComp = partnerCompKeys.map((key, i) =>
-        (global as any)[key] ?? DEFAULT_PARTNER_COMP[i]
-      );
+      const yearlyPartnerComp = [
+        global.partnerCompYear1 ?? DEFAULT_PARTNER_COMP[0],
+        global.partnerCompYear2 ?? DEFAULT_PARTNER_COMP[1],
+        global.partnerCompYear3 ?? DEFAULT_PARTNER_COMP[2],
+        global.partnerCompYear4 ?? DEFAULT_PARTNER_COMP[3],
+        global.partnerCompYear5 ?? DEFAULT_PARTNER_COMP[4],
+        global.partnerCompYear6 ?? DEFAULT_PARTNER_COMP[5],
+        global.partnerCompYear7 ?? DEFAULT_PARTNER_COMP[6],
+        global.partnerCompYear8 ?? DEFAULT_PARTNER_COMP[7],
+        global.partnerCompYear9 ?? DEFAULT_PARTNER_COMP[8],
+        global.partnerCompYear10 ?? DEFAULT_PARTNER_COMP[9],
+      ];
       const yearIndex = Math.min(modelYear - 1, DEFAULT_PARTNER_COMP.length - 1);
       const totalPartnerCompForYear = yearlyPartnerComp[yearIndex];
       

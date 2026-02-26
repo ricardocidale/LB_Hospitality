@@ -45,25 +45,28 @@ import { consolidateStatements } from "./analysis/consolidation.js";
 import { compareScenarios } from "./analysis/scenario-compare.js";
 import { computeBreakEven } from "./analysis/break-even.js";
 
-type ToolHandler = (input: Record<string, any>) => any;
+type ToolInput = Record<string, unknown>;
+type ToolFn = (input: never) => unknown;
+type ToolHandler = (input: ToolInput) => unknown;
 
-/** Wraps a tool handler to inject the default rounding policy (2 decimal places). */
-const withRounding = (fn: (input: any) => any): ToolHandler =>
-  (input) => fn({ ...input, rounding_policy: DEFAULT_ROUNDING });
+const withRounding = (fn: ToolFn): ToolHandler =>
+  (input) => fn({ ...input, rounding_policy: DEFAULT_ROUNDING } as never);
+
+const wrap = (fn: ToolFn): ToolHandler => (input) => fn(input as never);
 
 const TOOL_DISPATCH: Record<string, ToolHandler> = {
   calculate_dcf_npv: withRounding(computeDCF),
-  build_irr_cashflow_vector: (input) => buildIRRVector(input as any),
+  build_irr_cashflow_vector: wrap(buildIRRVector),
   compute_equity_multiple: withRounding(computeEquityMultiple),
   exit_valuation: withRounding(computeExitValuation),
   validate_financial_identities: withRounding(validateFinancialIdentities),
-  funding_gate_checks: (input) => checkFundingGates(input as any),
-  schedule_reconcile: (input) => reconcileSchedule(input as any),
-  assumption_consistency_check: (input) => checkAssumptionConsistency(input as any),
-  export_verification: (input) => verifyExport(input as any),
+  funding_gate_checks: wrap(checkFundingGates),
+  schedule_reconcile: wrap(reconcileSchedule),
+  assumption_consistency_check: wrap(checkAssumptionConsistency),
+  export_verification: wrap(verifyExport),
   consolidate_statements: withRounding(consolidateStatements),
-  scenario_compare: (input) => compareScenarios(input as any),
-  break_even_analysis: (input) => computeBreakEven(input as any),
+  scenario_compare: wrap(compareScenarios),
+  break_even_analysis: wrap(computeBreakEven),
 };
 
 /**
@@ -72,13 +75,14 @@ const TOOL_DISPATCH: Record<string, ToolHandler> = {
  * Errors during execution are caught and returned as JSON error objects
  * rather than thrown, so callers always get a parseable response.
  */
-export function executeComputationTool(name: string, input: Record<string, any>): string | null {
+export function executeComputationTool(name: string, input: Record<string, unknown>): string | null {
   const handler = TOOL_DISPATCH[name];
   if (!handler) return null;
   try {
     return JSON.stringify(handler(input));
-  } catch (error: any) {
-    return JSON.stringify({ error: `Computation failed: ${error.message}` });
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : String(error);
+    return JSON.stringify({ error: `Computation failed: ${msg}` });
   }
 }
 

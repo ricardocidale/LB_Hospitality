@@ -146,7 +146,7 @@ export default function VerificationTab() {
               if (parsed.content) {
                 setAiReview(prev => prev + parsed.content);
               }
-            } catch {}
+            } catch { /* incomplete SSE chunk */ }
           }
         }
       }

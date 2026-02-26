@@ -45,7 +45,7 @@ async function fetchBranding(): Promise<BrandingData> {
   try {
     const res = await fetch("/api/branding", { credentials: "include" });
     if (res.ok) return await res.json();
-  } catch {}
+  } catch { /* branding fetch optional */ }
   return { userName: "", companyName: "Hospitality Business Group", logoUrl: null };
 }
 

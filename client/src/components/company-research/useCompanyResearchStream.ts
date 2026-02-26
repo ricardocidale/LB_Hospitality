@@ -62,7 +62,7 @@ export function useCompanyResearchStream() {
                 // Persist the completed research by invalidating the cache
                 queryClient.invalidateQueries({ queryKey: ["research", "company"] });
               }
-            } catch {}
+            } catch { /* incomplete SSE chunk */ }
           }
         }
       }

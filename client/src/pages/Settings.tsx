@@ -196,7 +196,7 @@ export default function Settings() {
               if (data.done) {
                 queryClient.invalidateQueries({ queryKey: ["research", "global"] });
               }
-            } catch {}
+            } catch { /* incomplete SSE chunk */ }
           }
         }
       }

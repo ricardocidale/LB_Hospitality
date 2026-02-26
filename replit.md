@@ -45,6 +45,24 @@ The UI emphasizes modularity and refactoring of monolithic pages into smaller, m
 - **Settings Page:** Refactored into a shell and 4 tab components for managing portfolio, macro assumptions, AI model settings, and industry research.
 - **Methodology Page:** Refactored for better organization with a shell and components for table of contents and collapsible sections, including GAAP rules and audit opinions.
 
+### Financial Audit Module Architecture
+The audit system in `client/src/lib/audits/` is split into 9 focused modules:
+- `types.ts` — shared `AuditFinding`, `AuditSection`, `AuditReport` interfaces
+- `helpers.ts` — tolerance constants, comparison helpers, finding builders
+- `auditTiming.ts` — acquisition/disposition timing validation
+- `auditDepreciation.ts` — depreciation schedule and method checks
+- `auditAmortization.ts` — loan amortization balance verification
+- `auditIncomeStatement.ts` — revenue, expense, NOI validation
+- `auditManagementFees.ts` — base/incentive fee calculation checks
+- `auditBalanceSheet.ts` — A=L+E identity, accumulated depreciation
+- `auditCashFlow.ts` — cash flow reconciliation and DSCR checks
+- `index.ts` — barrel export
+
+The orchestrator at `client/src/lib/financialAuditor.ts` (~177 lines) imports all modules and runs the full audit pipeline.
+
+### Computation Dispatch (calc/dispatch.ts)
+Dynamic dispatch for 12 financial computation tools using typed wrappers (`withRounding`, `wrap`) that safely bridge generic `ToolInput` to specific typed handler signatures. Zero `any` types in finance code.
+
 ### Server Route Architecture
 Server routes have been refactored from a monolithic structure into 10 distinct route modules, each exporting a `register(app, storage)` function. Modules include `auth`, `properties`, `admin`, `global-assumptions`, `branding`, `scenarios`, `research`, `property-finder`, `calculations`, and `uploads`. Shared middleware are defined in `helpers.ts`.
 

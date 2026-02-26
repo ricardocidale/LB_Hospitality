@@ -39,7 +39,7 @@ export function useGenerateImage(options: UseGenerateImageOptions = {}) {
         });
 
         if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
+          const data = await res.json().catch(() => ({} as Record<string, string>));
           throw new Error(data.error || "Failed to generate image");
         }
 

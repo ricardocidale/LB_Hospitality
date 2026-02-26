@@ -89,7 +89,7 @@ export function useResearchStream({ property, propertyId, global }: UseResearchS
                 // is used on subsequent page loads instead of re-streaming
                 queryClient.invalidateQueries({ queryKey: ["research", "property", propertyId] });
               }
-            } catch {}
+            } catch { /* incomplete SSE chunk */ }
           }
         }
       }

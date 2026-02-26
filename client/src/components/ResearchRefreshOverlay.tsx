@@ -139,7 +139,7 @@ export function ResearchRefreshOverlay({ onComplete }: ResearchRefreshOverlayPro
               }
             }
           }
-        } catch {}
+        } catch { /* property research fetch optional */ }
 
         try {
           const genRes = await fetch("/api/research/generate", {
@@ -165,7 +165,7 @@ export function ResearchRefreshOverlay({ onComplete }: ResearchRefreshOverlayPro
               }
             }
           }
-        } catch {}
+        } catch { /* research generation stream optional */ }
 
         setCompletedCount(i + 1);
       }

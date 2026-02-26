@@ -264,7 +264,7 @@ export default function AIChatWidget({ enabled = false }: { enabled?: boolean })
                   queryClient.invalidateQueries({ queryKey: ["conversation", activeConversationId] });
                   queryClient.invalidateQueries({ queryKey: ["conversations"] });
                 }
-              } catch {}
+              } catch { /* incomplete SSE chunk */ }
             }
           }
         }

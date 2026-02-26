@@ -37,6 +37,7 @@ import { generatePropertyProForma, MonthlyFinancials } from "./financialEngine";
 import { checkPropertyFormulas, checkMetricFormulas, generateFormulaReport, FormulaCheckReport } from "./formulaChecker";
 import { checkGAAPCompliance, checkCashFlowStatement, generateComplianceReport, ComplianceReport } from "./gaapComplianceChecker";
 import { runFullAudit, generateAuditWorkpaper, AuditReport, PropertyAuditInput, GlobalAuditInput } from "./financialAuditor";
+import type { AuditFinding } from "./audits/types";
 import { crossValidateFinancingCalculators, formatCrossValidationReport, CrossValidationReport } from "./crossCalculatorValidation";
 import {
   DEFAULT_LTV,
@@ -182,12 +183,14 @@ export function runFullVerification(
       const auditReport = runFullAudit(propertyAuditInput, globalAuditInput, financials);
       auditReports.push(auditReport);
       
-      console.log(`[AUDIT-DIAG] ${property.name}: ${auditReport.opinion} (${auditReport.totalPassed}/${auditReport.totalPassed + auditReport.totalFailed})`);
-      for (const s of auditReport.sections) {
-        if (s.failed > 0) {
-          console.log(`[AUDIT-DIAG]   FAIL ${s.name}: ${s.passed}/${s.passed + s.failed}`);
-          for (const f of s.findings.filter((f: any) => !f.passed)) {
-            console.log(`[AUDIT-DIAG]     ${f.workpaperRef}: exp=${f.expected} act=${f.actual} var=${f.variance}`);
+      if (typeof process !== "undefined" && process.env?.AUDIT_DIAG) {
+        console.log(`[AUDIT-DIAG] ${property.name}: ${auditReport.opinion} (${auditReport.totalPassed}/${auditReport.totalPassed + auditReport.totalFailed})`);
+        for (const s of auditReport.sections) {
+          if (s.failed > 0) {
+            console.log(`[AUDIT-DIAG]   FAIL ${s.name}: ${s.passed}/${s.passed + s.failed}`);
+            for (const f of s.findings.filter((finding: AuditFinding) => !finding.passed)) {
+              console.log(`[AUDIT-DIAG]     ${f.workpaperRef}: exp=${f.expected} act=${f.actual} var=${f.variance}`);
+            }
           }
         }
       }

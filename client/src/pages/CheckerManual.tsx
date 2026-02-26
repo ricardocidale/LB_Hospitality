@@ -73,7 +73,7 @@ export default function CheckerManual({ embedded }: { embedded?: boolean }) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action, metadata }),
       credentials: "include",
-    }).catch(() => {});
+    }).catch(() => { /* fire-and-forget activity log */ });
   };
 
   useEffect(() => {

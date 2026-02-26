@@ -59,7 +59,7 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | Theme Engine | `.claude/skills/ui/theme-engine.md` | Multi-theme system (Fluid Glass active), user-created themes, token structure |
 | Component Library | `.claude/skills/component-library/SKILL.md` | PageHeader, GlassButton, ExportMenu, CurrentThemeTab, etc. |
 | Reusable UI | `.claude/skills/ui/reusable-components.md` | AIImagePicker, AnimatedLogo, StatusBadge, ImagePreviewCard, EntityCard |
-| Proof System | `.claude/skills/proof-system/SKILL.md` | 1,502 tests, 5 golden scenarios, verification commands |
+| Proof System | `.claude/skills/proof-system/SKILL.md` | 1,529 tests, 5 golden scenarios, verification commands |
 | Testing (7 skills) | `.claude/skills/testing/` | Per-statement/analysis test coverage at property, consolidated, and management company levels |
 | 3D Graphics | `.claude/skills/3d-graphics/SKILL.md` | Three.js scenes, framer-motion wrappers |
 | Database | `.claude/skills/database-environments/SKILL.md` | Dev/prod databases, migrations, sync |
@@ -85,7 +85,7 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | UI: Other (14) | `.claude/skills/ui/` | Glass components, buttons, sliders, tabs, page-header, callout, etc. |
 | Manuals | `.claude/manuals/` | Checker manual (21 sections), user manual (16 sections) |
 | Tools | `.claude/tools/` | Analysis, financing, returns, validation, UI tool schemas |
-| Rules (20) | `.claude/rules/` | Session-startup, documentation, ui-patterns, audit persona, constants, DB seeding, API routes, graphics-rich design, architecture, financial engine, verification, skill organization, session memory, etc. |
+| Rules (21) | `.claude/rules/` | Session-startup, documentation, ui-patterns, audit persona, constants, DB seeding, API routes, graphics-rich design, architecture, financial engine, verification, skill organization, session memory, etc. |
 
 ---
 
@@ -163,6 +163,7 @@ Admin Settings page (`/admin`) — **refactored from 3,235-line monolith into 10
 | Branding | `BrandingTab.tsx` | Global branding config (`onNavigate` prop for cross-tab nav) |
 | Themes | `ThemesTab.tsx` | Wraps ThemeManager |
 | Navigation | `NavigationTab.tsx` | Sidebar toggle config |
+| Marcela | `MarcelaTab.tsx` | Voice/LLM/telephony/SMS config, knowledge base, test SMS |
 | Database | `DatabaseTab.tsx` | Sync status, seed execution |
 
 Each tab owns its data fetching, mutations, dialogs, and state (no prop drilling from shell). Logo Management is a tab within Admin (not a separate sidebar link). The Branding tab shows a read-only logo summary with a "Manage Logos" button linking to the Logos tab.

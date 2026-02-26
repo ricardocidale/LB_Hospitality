@@ -94,6 +94,18 @@ With 96 skill files (~17,000 lines), loading everything wastes tokens and slows 
 | Research questions CRUD | `research/research-questions/SKILL.md` | Analysis skills, finance |
 | Any research change | **Always also load**: `research/SKILL.md` (master) | — |
 
+#### Marcela AI & Voice
+| Task | Load These Skills | Skip |
+|------|------------------|------|
+| Web voice pipeline | `marcela-ai/audio-pipeline.md` | Twilio skills, finance |
+| Marcela architecture / prompts | `marcela-ai/marcela-architecture.md` | UI skills, finance |
+| Twilio voice / phone calls | `twilio-telephony/twilio-integration.md` | Web voice skills, finance |
+| SMS inbound/outbound | `twilio-telephony/twilio-integration.md` | Voice skills, finance |
+| Voice UX (widget states) | `voice-widget/voice-ux-patterns.md` | Twilio, finance |
+| Admin Marcela tab config | `admin/admin-refactor-map.md`, `marcela-ai/marcela-architecture.md` | Finance skills |
+| RAG knowledge base | `marcela-ai/marcela-architecture.md` | Voice, Twilio skills |
+| Any Marcela change | **Always also load**: `marcela-ai/marcela-architecture.md` | — |
+
 #### Admin Page Refactoring
 | Task | Load These Skills | Skip |
 |------|------------------|------|
@@ -159,6 +171,6 @@ User asks for verification, release prep, or comprehensive review.
 
 ## Cross-References
 - Skill Router: `claude.md` § Skill Router
-- All skills: `.claude/skills/` (16 directories, 96 files)
-- Rules: `.claude/rules/` (18 files + 1 archive)
+- All skills: `.claude/skills/` (20+ directories, 114 files)
+- Rules: `.claude/rules/` (21 files)
 - Manuals: `.claude/manuals/` (2 manuals)

@@ -10,6 +10,7 @@ import {
   buildVoiceConfigFromDB,
   type VoiceConfig,
 } from "../../integrations/elevenlabs";
+import { getTwilioFromPhoneNumber } from "../../integrations/twilio";
 import { ensureCompatibleFormat } from "../audio/client";
 
 const openai = new OpenAI({
@@ -500,6 +501,19 @@ export function registerChatRoutes(app: Express): void {
       } else {
         res.status(500).json({ error: "Failed to process voice message" });
       }
+    }
+  });
+
+  app.get("/api/marcela/phone", requireAuth, async (_req: Request, res: Response) => {
+    try {
+      const ga = await storage.getGlobalAssumptions();
+      if (!ga?.marcelaTwilioEnabled) {
+        return res.json({ enabled: false, phoneNumber: null });
+      }
+      const phoneNumber = await getTwilioFromPhoneNumber();
+      res.json({ enabled: true, phoneNumber });
+    } catch {
+      res.json({ enabled: false, phoneNumber: null });
     }
   });
 }

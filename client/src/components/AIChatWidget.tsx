@@ -21,6 +21,7 @@ import {
   Volume2,
   Globe,
   Phone,
+  PhoneCall,
   MessageCircle,
   RotateCcw,
 } from "lucide-react";
@@ -42,7 +43,23 @@ interface Conversation {
   messages?: Message[];
 }
 
+interface PhoneInfo {
+  enabled: boolean;
+  phoneNumber: string | null;
+}
+
 type VoiceState = "idle" | "recording" | "processing" | "thinking" | "speaking";
+
+function formatPhoneDisplay(phone: string): string {
+  const digits = phone.replace(/\D/g, "");
+  if (digits.length === 11 && digits.startsWith("1")) {
+    return `(${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7)}`;
+  }
+  if (digits.length === 10) {
+    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+  }
+  return phone;
+}
 
 function MarkdownContent({ content }: { content: string }) {
   const lines = content.split("\n");
@@ -229,6 +246,17 @@ export default function AIChatWidget({ enabled = false }: { enabled?: boolean })
       return res.json();
     },
     enabled: isOpen,
+  });
+
+  const { data: phoneInfo } = useQuery<PhoneInfo>({
+    queryKey: ["marcela-phone"],
+    queryFn: async () => {
+      const res = await fetch("/api/marcela/phone", { credentials: "include" });
+      if (!res.ok) return { enabled: false, phoneNumber: null };
+      return res.json();
+    },
+    enabled: isOpen,
+    staleTime: 60000,
   });
 
   const { data: activeConversation } = useQuery<Conversation>({
@@ -590,7 +618,7 @@ export default function AIChatWidget({ enabled = false }: { enabled?: boolean })
 
         {showConversations ? (
           <div className="flex-1 flex flex-col overflow-hidden">
-            <div className="p-3 border-b">
+            <div className="p-3 border-b space-y-2">
               <Button
                 data-testid="button-start-new-chat"
                 className="w-full gap-2"
@@ -600,6 +628,21 @@ export default function AIChatWidget({ enabled = false }: { enabled?: boolean })
                 <Plus className="w-4 h-4" />
                 New Chat
               </Button>
+              {phoneInfo?.enabled && phoneInfo.phoneNumber && (
+                <a
+                  href={`tel:${phoneInfo.phoneNumber}`}
+                  data-testid="link-call-marcela"
+                  className="flex items-center gap-2.5 w-full px-3 py-2.5 rounded-lg border border-blue-200 bg-blue-50/50 hover:bg-blue-100/60 transition-colors group"
+                >
+                  <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                    <PhoneCall className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-medium text-blue-900">Call Marcela</p>
+                    <p className="text-xs text-blue-600">{formatPhoneDisplay(phoneInfo.phoneNumber)}</p>
+                  </div>
+                </a>
+              )}
             </div>
             <ScrollArea className="flex-1">
               {conversations.length === 0 ? (
@@ -661,6 +704,18 @@ export default function AIChatWidget({ enabled = false }: { enabled?: boolean })
                   <p className="text-xs text-muted-foreground/60 mt-2 max-w-[250px]">
                     Tap the microphone to start a voice conversation.
                   </p>
+                  {phoneInfo?.enabled && phoneInfo.phoneNumber && (
+                    <a
+                      href={`tel:${phoneInfo.phoneNumber}`}
+                      data-testid="link-call-marcela-empty"
+                      className="mt-3 flex items-center gap-2 px-4 py-2 rounded-full border border-blue-200 bg-blue-50/50 hover:bg-blue-100/60 transition-colors group"
+                    >
+                      <PhoneCall className="w-3.5 h-3.5 text-blue-600 group-hover:scale-110 transition-transform" />
+                      <span className="text-xs text-blue-700 font-medium">
+                        or call {formatPhoneDisplay(phoneInfo.phoneNumber)}
+                      </span>
+                    </a>
+                  )}
                   <div className="mt-4 space-y-2 w-full max-w-[280px]">
                     {[
                       "What's a good cap rate for boutique hotels?",

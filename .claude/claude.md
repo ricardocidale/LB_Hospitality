@@ -4,14 +4,14 @@
 
 Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470) with IRS depreciation rules and an independent audit/verification engine. Built and hosted entirely on Replit.
 
-**Codebase:** 298 source files, ~65,000 lines of code, 1,529 tests across 72 files.
+**Codebase:** 404 source files, ~71,500 lines of code, 1,529 tests across 72 files.
 
 ---
 
 ## User Preferences
 
 - Preferred communication style: Simple, everyday language. Detailed user — ask lots of clarifying questions before implementing features. Do not assume; confirm requirements first.
-- **TOP PRIORITY: Calculations and correct reports are always the highest priority.** Financial accuracy must never be compromised for visual or UI enhancements. The automated proof system (1,502 tests) must always pass.
+- **TOP PRIORITY: Calculations and correct reports are always the highest priority.** Financial accuracy must never be compromised for visual or UI enhancements. The automated proof system (1,529 tests) must always pass.
 - Always format money as money (currency format with commas and appropriate precision).
 - All skills must be stored under `.claude/` directory (e.g., `.claude/skills/`, `.claude/manuals/`, `.claude/tools/`). Never place skills elsewhere.
 - The company name is "Hospitality Business Group" (or "Hospitality Business" for short).
@@ -38,7 +38,7 @@ Business simulation portal for **Hospitality Business Group**. Models a boutique
 
 ## Context Loading Protocol
 
-With 96 skill files (~17,000 lines), **never load all skills at once**. Use the context-loading skill (`.claude/skills/context-loading/SKILL.md`) to find the minimum required skill set for any task. Quick rules:
+With 114 skill files, **never load all skills at once**. Use the context-loading skill (`.claude/skills/context-loading/SKILL.md`) to find the minimum required skill set for any task. Quick rules:
 - **Financial calc fix** → load the specific finance skill + `rules/audit-persona.md` + `proof-system/SKILL.md`
 - **UI/visual work** → load `component-library/SKILL.md` + `ui/theme-engine.md` + the specific UI skill
 - **Testing work** → load `testing/SKILL.md` + the relevant sub-skill only
@@ -68,6 +68,9 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | Coding Conventions | `.claude/skills/coding-conventions/SKILL.md` | Style rules, finance code rules, audit doctrine |
 | Exports | `.claude/skills/exports/SKILL.md` | PDF, Excel, PPTX, PNG, CSV export system |
 | Source Code | `.claude/skills/source-code/SKILL.md` | Full source code map |
+| Marcela AI | `.claude/skills/marcela-ai/` | Multi-channel assistant architecture, audio pipeline |
+| Twilio Telephony | `.claude/skills/twilio-telephony/` | Voice webhooks, SMS webhooks, Media Streams, audio encoding |
+| Voice Widget UX | `.claude/skills/voice-widget/` | Voice state machine, waveform, barge-in, error handling |
 | Property Finder | `.claude/skills/property-finder/SKILL.md` | RapidAPI property search integration |
 | Finance (16 skills) | `.claude/skills/finance/` | Income statement, cash flow, balance sheet, IRR, DCF, etc. |
 | Research (17 skills) | `.claude/skills/research/` | Market, ADR, occupancy, cap rate, catering, auto-refresh, research questions CRUD, etc. |
@@ -168,6 +171,53 @@ Each tab owns its data fetching, mutations, dialogs, and state (no prop drilling
 - `script/seed-production.sql` — comprehensive SQL to seed production DB (401 lines)
 - Covers 11 persistent tables (companies, logos, user_groups, design_themes, users, global_assumptions, properties, property_fee_categories, market_research, research_questions, saved_searches)
 - Uses `OVERRIDING SYSTEM VALUE` for identity columns, resets sequences, idempotent with `ON CONFLICT DO NOTHING`
+
+---
+
+## Marcela AI — Multi-Channel Conversational Assistant
+
+Marcela is the AI assistant operating across three channels: web (text + voice), phone (Twilio Voice), and SMS (Twilio SMS). All settings managed from Admin > Marcela tab.
+
+### Channels
+| Channel | Entry Point | LLM | Voice | DB Channel |
+|---------|-------------|-----|-------|------------|
+| Web Text | `POST /api/conversations/:id/messages` | GPT-4.1 streaming | No | `"web"` |
+| Web Voice | `POST /api/conversations/:id/voice` | GPT-4.1 streaming | STT+TTS via SSE | `"web"` |
+| Phone | `POST /api/twilio/voice/incoming` → WS `/api/twilio/voice/stream` | GPT-4.1 streaming | STT+TTS via Twilio Media Stream | `"phone"` |
+| SMS | `POST /api/twilio/sms/incoming` | GPT-4.1 (non-streaming) | No | `"sms"` |
+
+### Key Files
+- `server/replit_integrations/chat/routes.ts` — Web text+voice endpoints, system prompts, context builder
+- `server/routes/twilio.ts` — Phone+SMS webhooks, WebSocket Media Stream handler, audio conversion
+- `server/integrations/elevenlabs.ts` — ElevenLabs STT, streaming TTS WebSocket, voice config builder
+- `server/integrations/twilio.ts` — Twilio client, phone number, status check, sendSMS helper
+- `server/knowledge-base.ts` — RAG knowledge base: in-memory embeddings, cosine similarity retrieval
+- `client/src/components/AIChatWidget.tsx` — Chat widget with voice, channel badges, state machine
+- `client/src/components/admin/MarcelaTab.tsx` — Admin config: voice, LLM, telephony, knowledge base
+
+### RAG Knowledge Base
+- In-memory embedding-based retrieval (OpenAI `text-embedding-3-small`)
+- Content: User Manual, Checker Manual, Business Model Spec, Market Research, platform guides, attached assets
+- Chunks ~800 chars with 100-char overlap; cosine similarity top-K (6 text, 4 voice/phone/SMS)
+- Lazy indexed on first query; admin reindex via `POST /api/admin/knowledge-base-reindex`
+- Status endpoint: `GET /api/admin/knowledge-base-status`
+
+### Admin Marcela Tab
+- Voice Settings: Voice ID, TTS/STT models, output format, stability, similarity boost, speaker boost, chunk schedule
+- LLM Settings: Model selection, max tokens (text/voice)
+- Telephony & SMS: Enable/disable toggles, phone greeting, webhook URLs, Twilio connection status, test SMS
+- Knowledge Base: Status badge, chunk count, last-indexed time, reindex button
+- Outbound SMS: `POST /api/admin/send-notification`
+
+### Voice UX (Web Widget)
+- State machine: idle → recording → processing → thinking → speaking (barge-in loops to recording)
+- WaveformVisualizer during recording, VoiceStateIndicator with animated labels
+- Error fallback with retry from stored blob
+
+### Critical Rule
+**Marcela must NEVER compute financial values herself.** All financial data comes from the calculation engine.
+
+See `.claude/skills/marcela-ai/` and `.claude/skills/twilio-telephony/` for detailed implementation docs.
 
 ---
 
@@ -313,7 +363,8 @@ All integrations are managed through Replit's platform, handling API keys and se
 | Google Docs | Document connectivity |
 | Google Calendar | Calendar integration |
 | Stripe | Payment processing |
-| Twilio | SMS/communication |
+| Twilio | Voice calls (Media Streams WebSocket) + SMS (inbound/outbound) |
+| ElevenLabs | Speech-to-Text (Scribe v1) + Text-to-Speech (WebSocket streaming) |
 | Replit Auth | "Log in with Replit" authentication |
 | GitHub | Source control |
 

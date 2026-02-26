@@ -22,13 +22,37 @@ The Hospitality Business Group project is a sophisticated business simulation po
 ### Branding Architecture
 The system employs a hierarchical branding structure: User → User Group → Default. Design themes are standalone entities, each with an `isDefault` flag. User Groups define company branding attributes like `companyName`, `logoId`, `themeId`, and `assetDescriptionId`. Users inherit branding from their assigned User Group, with administration handled at the group level.
 
-### Voice Conversation (Marcela AI)
-Integrated into `AIChatWidget.tsx`, enabling voice interaction.
+### Marcela AI — Multi-Channel Conversational Assistant
+Marcela is the AI assistant available across three channels: web, phone, and SMS.
+
+**Web Channel (Chat Widget)**
+Integrated into `AIChatWidget.tsx` with text chat and voice interaction.
 - **LLM:** GPT-4.1, with voice-specific system prompt adjustments for concise and natural speech.
 - **Admin Voice:** Admin conversations include specific system prompt adjustments for capabilities like user management, verification, activity logs, branding, and database access.
 - **Audio Pipeline:** Browser MediaRecorder (WebM/Opus) → server ffmpeg conversion → STT → LLM streaming → TTS WebSocket → SSE audio chunks → client AudioWorklet playback.
 - **Server Endpoint:** `POST /api/conversations/:id/voice` accepts base64 audio and returns an SSE stream.
 - **Client Hooks:** `useVoiceRecorder` for recording and `useAudioPlayback` for PCM16 playback.
+- **Voice UX:** Waveform visualizer during recording, state indicators (Listening/Processing/Thinking/Speaking), barge-in interruption, voice error fallback with retry.
+
+**Phone Channel (Twilio Voice)**
+- **Webhook:** `POST /api/twilio/voice/incoming` returns TwiML with greeting then connects to WebSocket stream.
+- **WebSocket:** `/api/twilio/voice/stream` receives live Twilio Media Stream audio (mulaw 8kHz), bridges into STT → LLM → TTS pipeline.
+- **Audio Flow:** Twilio mulaw 8kHz → WAV conversion → ElevenLabs STT → GPT-4.1 → ElevenLabs TTS → PCM downsample to 8kHz → mulaw encode → Twilio Media Stream back.
+- **Caller ID:** Phone number matched against `users.phoneNumber` for caller identification and role-based context.
+- **Conversations:** Saved with `channel: "phone"` in the conversations table.
+
+**SMS Channel (Twilio SMS)**
+- **Webhook:** `POST /api/twilio/sms/incoming` receives inbound SMS, processes through LLM, replies via TwiML.
+- **Pipeline:** Inbound text → user lookup by phone → GPT-4.1 (SMS-optimized prompt, shorter responses) → reply via TwiML `<Message>`.
+- **SMS limit:** 1600 chars max, auto-split for longer messages via `sendSMS()` helper.
+- **Conversations:** Saved with `channel: "sms"` in the conversations table.
+
+**Admin Configuration (Marcela Tab)**
+- Admin > Marcela tab manages all three channels from one UI.
+- Voice settings: Voice ID, TTS model, STT model, output format, stability, similarity boost, speaker boost, chunk schedule.
+- LLM settings: Model selection, max tokens (text/voice).
+- Telephony settings: Enable/disable phone calls, enable/disable SMS, phone greeting customization, webhook URLs display, Twilio connection status, test SMS sender.
+- Outbound SMS: `POST /api/admin/send-notification` for admin-triggered notifications.
 
 ### AI Image Generation
 - **Reusable Component:** `client/src/components/ui/ai-image-picker.tsx` supports upload, AI generation, and URL input.
@@ -64,7 +88,7 @@ The orchestrator at `client/src/lib/financialAuditor.ts` (~177 lines) imports al
 Dynamic dispatch for 12 financial computation tools using typed wrappers (`withRounding`, `wrap`) that safely bridge generic `ToolInput` to specific typed handler signatures. Zero `any` types in finance code.
 
 ### Server Route Architecture
-Server routes have been refactored from a monolithic structure into 10 distinct route modules, each exporting a `register(app, storage)` function. Modules include `auth`, `properties`, `admin`, `global-assumptions`, `branding`, `scenarios`, `research`, `property-finder`, `calculations`, and `uploads`. Shared middleware are defined in `helpers.ts`.
+Server routes have been refactored from a monolithic structure into 11 distinct route modules, each exporting a `register(app, storage)` function. Modules include `auth`, `properties`, `admin`, `global-assumptions`, `branding`, `scenarios`, `research`, `property-finder`, `calculations`, `uploads`, and `twilio`. The Twilio module also exports `registerTwilioWebSocket()` for Media Stream WebSocket handling. Shared middleware are defined in `helpers.ts`.
 
 ### Calculation Transparency
 - **Formula Accordions:** Toggles in Systemwide Assumptions > Other tab (`showCompanyCalculationDetails`, `showPropertyCalculationDetails`) control the visibility of detailed formulas for Management Company and Property reports.
@@ -76,6 +100,8 @@ Server routes have been refactored from a monolithic structure into 10 distinct 
 - **Text-to-Speech (TTS):** ElevenLabs WebSocket streaming (Jessica voice, `eleven_flash_v2_5` model).
 - **Large Language Model (LLM):** GPT-4.1.
 - **AI Image Generation:** Nano Banana (`gemini-2.5-flash-image`) via Gemini AI Integrations (primary); OpenAI `gpt-image-1` (fallback).
+- **Twilio Voice:** Inbound phone calls via Media Streams WebSocket API (`server/routes/twilio.ts`).
+- **Twilio SMS:** Inbound/outbound SMS via Twilio Messaging API (`server/integrations/twilio.ts`).
 - **Database:** PostgreSQL (implied by `npm run db:push` and `script/seed-production.sql`).
 - **Object Storage:** Used for storing generated property images.
 - **FFmpeg:** Utilized on the server for audio conversion in the voice pipeline.

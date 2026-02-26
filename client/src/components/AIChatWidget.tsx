@@ -19,6 +19,10 @@ import {
   Mic,
   MicOff,
   Volume2,
+  Globe,
+  Phone,
+  MessageCircle,
+  RotateCcw,
 } from "lucide-react";
 import { useVoiceRecorder } from "../../replit_integrations/audio/useVoiceRecorder";
 import { useAudioPlayback } from "../../replit_integrations/audio/useAudioPlayback";
@@ -33,9 +37,12 @@ interface Message {
 interface Conversation {
   id: number;
   title: string;
+  channel?: string;
   createdAt: string;
   messages?: Message[];
 }
+
+type VoiceState = "idle" | "recording" | "processing" | "thinking" | "speaking";
 
 function MarkdownContent({ content }: { content: string }) {
   const lines = content.split("\n");
@@ -105,23 +112,77 @@ function formatInline(text: string): React.ReactNode {
   return parts.length === 1 ? parts[0] : <>{parts}</>;
 }
 
-function VoiceIndicator({ isRecording, isPlaying }: { isRecording: boolean; isPlaying: boolean }) {
-  if (!isRecording && !isPlaying) return null;
+function ChannelIcon({ channel, className }: { channel?: string; className?: string }) {
+  switch (channel) {
+    case "phone":
+      return <Phone className={cn("w-3.5 h-3.5 text-blue-500", className)} />;
+    case "sms":
+      return <MessageCircle className={cn("w-3.5 h-3.5 text-green-500", className)} />;
+    default:
+      return <Globe className={cn("w-3.5 h-3.5 text-muted-foreground", className)} />;
+  }
+}
+
+function VoiceStateIndicator({ voiceState }: { voiceState: VoiceState }) {
+  if (voiceState === "idle") return null;
+
+  const configs: Record<VoiceState, { label: string; color: string; icon: React.ReactNode }> = {
+    idle: { label: "", color: "", icon: null },
+    recording: {
+      label: "Listening...",
+      color: "text-red-500",
+      icon: <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />,
+    },
+    processing: {
+      label: "Processing audio...",
+      color: "text-amber-500",
+      icon: <Loader2 className="w-3 h-3 animate-spin" />,
+    },
+    thinking: {
+      label: "Thinking...",
+      color: "text-primary",
+      icon: (
+        <div className="flex gap-0.5">
+          <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+          <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+          <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+        </div>
+      ),
+    },
+    speaking: {
+      label: "Marcela is speaking...",
+      color: "text-primary",
+      icon: <Volume2 className="w-3 h-3 animate-pulse" />,
+    },
+  };
+
+  const config = configs[voiceState];
+  if (!config.label) return null;
 
   return (
-    <div className="flex items-center gap-2 px-3 py-1.5 text-xs">
-      {isRecording && (
-        <div className="flex items-center gap-1.5 text-red-500">
-          <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-          <span>Listening...</span>
-        </div>
-      )}
-      {isPlaying && (
-        <div className="flex items-center gap-1.5 text-primary">
-          <Volume2 className="w-3 h-3 animate-pulse" />
-          <span>Marcela is speaking...</span>
-        </div>
-      )}
+    <div className={cn("flex items-center gap-2 px-3 py-1.5 text-xs", config.color)}>
+      {config.icon}
+      <span>{config.label}</span>
+    </div>
+  );
+}
+
+function WaveformVisualizer({ isActive }: { isActive: boolean }) {
+  if (!isActive) return null;
+
+  return (
+    <div className="flex items-center gap-0.5 h-4 px-2">
+      {Array.from({ length: 12 }).map((_, i) => (
+        <div
+          key={i}
+          className="w-0.5 bg-red-400 rounded-full animate-pulse"
+          style={{
+            height: `${Math.random() * 12 + 4}px`,
+            animationDelay: `${i * 80}ms`,
+            animationDuration: `${300 + Math.random() * 400}ms`,
+          }}
+        />
+      ))}
     </div>
   );
 }
@@ -134,6 +195,9 @@ export default function AIChatWidget({ enabled = false }: { enabled?: boolean })
   const [streamingContent, setStreamingContent] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [isProcessingVoice, setIsProcessingVoice] = useState(false);
+  const [voiceState, setVoiceState] = useState<VoiceState>("idle");
+  const [voiceError, setVoiceError] = useState<string | null>(null);
+  const [lastFailedVoiceBlob, setLastFailedVoiceBlob] = useState<Blob | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
@@ -142,6 +206,20 @@ export default function AIChatWidget({ enabled = false }: { enabled?: boolean })
   const playback = useAudioPlayback();
   const isRecording = recorderState === "recording";
   const isPlayingAudio = playback.state === "playing";
+
+  useEffect(() => {
+    if (isRecording) {
+      setVoiceState("recording");
+    } else if (isProcessingVoice && !streamingContent) {
+      setVoiceState("processing");
+    } else if (isStreaming && !isPlayingAudio && streamingContent) {
+      setVoiceState("thinking");
+    } else if (isPlayingAudio) {
+      setVoiceState("speaking");
+    } else {
+      setVoiceState("idle");
+    }
+  }, [isRecording, isProcessingVoice, isStreaming, isPlayingAudio, streamingContent]);
 
   const { data: conversations = [] } = useQuery<Conversation[]>({
     queryKey: ["conversations"],
@@ -277,11 +355,29 @@ export default function AIChatWidget({ enabled = false }: { enabled?: boolean })
   };
 
   const handleVoiceToggle = async () => {
-    if (isStreaming || isProcessingVoice) return;
+    if (isStreaming && !isRecording && !isPlayingAudio) return;
+
+    if (isPlayingAudio) {
+      playback.clear();
+      setIsStreaming(false);
+      setStreamingContent("");
+      setIsProcessingVoice(false);
+      setVoiceState("idle");
+      try {
+        await startRecording();
+        await playback.init();
+      } catch (error) {
+        console.error("Microphone access denied:", error);
+      }
+      return;
+    }
 
     if (isRecording) {
       const audioBlob = await stopRecording();
       if (audioBlob.size === 0) return;
+
+      setVoiceError(null);
+      setLastFailedVoiceBlob(null);
 
       if (!activeConversationId) {
         try {
@@ -312,6 +408,7 @@ export default function AIChatWidget({ enabled = false }: { enabled?: boolean })
     setIsProcessingVoice(true);
     setIsStreaming(true);
     setStreamingContent("");
+    setVoiceError(null);
 
     const base64Audio = await new Promise<string>((resolve) => {
       const reader = new FileReader();
@@ -341,6 +438,7 @@ export default function AIChatWidget({ enabled = false }: { enabled?: boolean })
       const decoder = new TextDecoder();
       let buffer = "";
       let fullTranscript = "";
+      let hadTtsError = false;
 
       playback.clear();
 
@@ -382,6 +480,10 @@ export default function AIChatWidget({ enabled = false }: { enabled?: boolean })
               case "audio":
                 playback.pushAudio(event.data);
                 break;
+              case "tts_error":
+                hadTtsError = true;
+                setVoiceError("Voice unavailable, text response below");
+                break;
               case "done":
                 playback.signalComplete();
                 setIsStreaming(false);
@@ -401,11 +503,21 @@ export default function AIChatWidget({ enabled = false }: { enabled?: boolean })
       }
     } catch (error) {
       console.error("Voice error:", error);
+      setVoiceError("Voice message failed. Tap retry to try again.");
+      setLastFailedVoiceBlob(audioBlob);
     } finally {
       setIsStreaming(false);
       setIsProcessingVoice(false);
       setStreamingContent("");
     }
+  };
+
+  const retryVoice = async () => {
+    if (!lastFailedVoiceBlob || !activeConversationId) return;
+    const blob = lastFailedVoiceBlob;
+    setLastFailedVoiceBlob(null);
+    setVoiceError(null);
+    await sendVoiceMessage(activeConversationId, blob);
   };
 
   const messages = activeConversation?.messages || [];
@@ -447,7 +559,7 @@ export default function AIChatWidget({ enabled = false }: { enabled?: boolean })
             )}
             <Sparkles className="w-5 h-5 text-primary" />
             <span className="font-semibold text-sm">Marcela</span>
-            {isPlayingAudio && (
+            {voiceState === "speaking" && (
               <Volume2 className="w-4 h-4 text-primary animate-pulse" />
             )}
           </div>
@@ -513,7 +625,7 @@ export default function AIChatWidget({ enabled = false }: { enabled?: boolean })
                       }}
                     >
                       <div className="flex items-center gap-2 min-w-0">
-                        <MessageSquare className="w-4 h-4 text-muted-foreground shrink-0" />
+                        <ChannelIcon channel={conv.channel} />
                         <span className="text-sm truncate">{conv.title}</span>
                       </div>
                       <Button
@@ -629,12 +741,32 @@ export default function AIChatWidget({ enabled = false }: { enabled?: boolean })
                       </div>
                     </div>
                   )}
+
+                  {voiceError && (
+                    <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800" data-testid="voice-error">
+                      <span>{voiceError}</span>
+                      {lastFailedVoiceBlob && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 px-2 text-xs gap-1"
+                          onClick={retryVoice}
+                          data-testid="button-retry-voice"
+                        >
+                          <RotateCcw className="w-3 h-3" />
+                          Retry
+                        </Button>
+                      )}
+                    </div>
+                  )}
+
                   <div ref={messagesEndRef} />
                 </div>
               )}
             </ScrollArea>
 
-            <VoiceIndicator isRecording={isRecording} isPlaying={isPlayingAudio} />
+            <VoiceStateIndicator voiceState={voiceState} />
+            <WaveformVisualizer isActive={isRecording} />
 
             <div className="p-3 border-t bg-background">
               <form
@@ -657,16 +789,18 @@ export default function AIChatWidget({ enabled = false }: { enabled?: boolean })
                   data-testid="button-voice-toggle"
                   type="button"
                   size="icon"
-                  variant={isRecording ? "destructive" : "outline"}
-                  disabled={isStreaming && !isRecording}
+                  variant={isRecording ? "destructive" : isPlayingAudio ? "secondary" : "outline"}
+                  disabled={isStreaming && !isRecording && !isPlayingAudio}
                   className={cn("shrink-0 transition-all", isRecording && "animate-pulse")}
                   onClick={handleVoiceToggle}
-                  title={isRecording ? "Stop recording" : "Start voice chat"}
+                  title={isRecording ? "Stop recording" : isPlayingAudio ? "Interrupt Marcela" : "Start voice chat"}
                 >
-                  {isProcessingVoice ? (
+                  {isProcessingVoice && !isRecording ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : isRecording ? (
                     <MicOff className="w-4 h-4" />
+                  ) : isPlayingAudio ? (
+                    <Mic className="w-4 h-4" />
                   ) : (
                     <Mic className="w-4 h-4" />
                   )}

@@ -12,6 +12,7 @@ import {
 } from "../../integrations/elevenlabs";
 import { getTwilioFromPhoneNumber } from "../../integrations/twilio";
 import { ensureCompatibleFormat } from "../audio/client";
+import { retrieveRelevantChunks, buildRAGContext, indexKnowledgeBase, getKnowledgeBaseStatus } from "../../knowledge-base";
 
 const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
@@ -335,14 +336,16 @@ export function registerChatRoutes(app: Express): void {
       await chatStorage.createMessage(conversationId, "user", content.trim());
 
       const userId = (req as any).user?.id;
-      const [contextPrompt, userRole] = await Promise.all([
+      const [contextPrompt, userRole, ragChunks] = await Promise.all([
         buildContextPrompt(userId),
         getUserRole(userId),
+        retrieveRelevantChunks(content.trim(), 6).catch(() => []),
       ]);
       const isAdmin = userRole === "admin";
+      const ragContext = buildRAGContext(ragChunks);
       const messages = await chatStorage.getMessagesByConversation(conversationId);
       const chatMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
-        { role: "system", content: buildSystemPrompt(false, isAdmin) + contextPrompt },
+        { role: "system", content: buildSystemPrompt(false, isAdmin) + contextPrompt + ragContext },
         ...messages.map((m) => ({
           role: m.role as "user" | "assistant",
           content: m.content,
@@ -417,14 +420,16 @@ export function registerChatRoutes(app: Express): void {
       await chatStorage.createMessage(conversationId, "user", userTranscript.trim());
 
       const userId = (req as any).user?.id;
-      const [contextPrompt, userRole] = await Promise.all([
+      const [contextPrompt, userRole, ragChunksVoice] = await Promise.all([
         buildContextPrompt(userId),
         getUserRole(userId),
+        retrieveRelevantChunks(userTranscript.trim(), 4).catch(() => []),
       ]);
       const isAdmin = userRole === "admin";
+      const ragContextVoice = buildRAGContext(ragChunksVoice);
       const messages = await chatStorage.getMessagesByConversation(conversationId);
       const chatMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
-        { role: "system", content: buildSystemPrompt(true, isAdmin) + contextPrompt },
+        { role: "system", content: buildSystemPrompt(true, isAdmin) + contextPrompt + ragContextVoice },
         ...messages.map((m) => ({
           role: m.role as "user" | "assistant",
           content: m.content,

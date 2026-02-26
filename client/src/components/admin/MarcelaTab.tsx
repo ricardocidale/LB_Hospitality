@@ -16,7 +16,8 @@ import { apiRequest } from "@/lib/queryClient";
 import {
   Mic, Volume2, Brain, Settings2, Waves, Zap,
   AudioLines, MessageSquare, Shield, Phone, MessageCircle,
-  CheckCircle2, XCircle, Send, Copy, ExternalLink, Loader2
+  CheckCircle2, XCircle, Send, Copy, ExternalLink, Loader2,
+  BookOpen, RefreshCw
 } from "lucide-react";
 
 interface VoiceSettings {
@@ -73,6 +74,101 @@ const LLM_MODELS = [
   { value: "gpt-4o", label: "GPT-4o", description: "Previous flagship model" },
   { value: "gpt-4o-mini", label: "GPT-4o Mini", description: "Compact but capable" },
 ];
+
+function KnowledgeBaseCard() {
+  const { toast } = useToast();
+
+  const { data: kbStatus, refetch: refetchKB } = useQuery<{
+    indexed: boolean;
+    chunkCount: number;
+    indexedAt: string | null;
+  }>({
+    queryKey: ["admin", "knowledge-base-status"],
+    queryFn: async () => {
+      const res = await apiRequest("GET", "/api/admin/knowledge-base-status");
+      return res.json();
+    },
+  });
+
+  const reindexMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/admin/knowledge-base-reindex");
+      return res.json();
+    },
+    onSuccess: (data: { chunksIndexed: number; timeMs: number }) => {
+      refetchKB();
+      toast({
+        title: "Knowledge Base Indexed",
+        description: `${data.chunksIndexed} chunks indexed in ${(data.timeMs / 1000).toFixed(1)}s`,
+      });
+    },
+    onError: (err: Error) => {
+      toast({ title: "Indexing Failed", description: err.message, variant: "destructive" });
+    },
+  });
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-violet-100 flex items-center justify-center">
+            <BookOpen className="w-5 h-5 text-violet-600" />
+          </div>
+          <div>
+            <CardTitle className="text-base">Knowledge Base (RAG)</CardTitle>
+            <CardDescription>
+              Marcela searches this knowledge base to answer questions about the platform
+            </CardDescription>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <Badge
+                variant={kbStatus?.indexed ? "default" : "secondary"}
+                className={kbStatus?.indexed ? "bg-green-100 text-green-700" : ""}
+                data-testid="badge-kb-status"
+              >
+                {kbStatus?.indexed ? "Indexed" : "Not Indexed"}
+              </Badge>
+              {kbStatus?.chunkCount ? (
+                <span className="text-sm text-muted-foreground" data-testid="text-kb-chunks">
+                  {kbStatus.chunkCount} chunks
+                </span>
+              ) : null}
+            </div>
+            {kbStatus?.indexedAt && (
+              <p className="text-xs text-muted-foreground">
+                Last indexed: {new Date(kbStatus.indexedAt).toLocaleString()}
+              </p>
+            )}
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => reindexMutation.mutate()}
+            disabled={reindexMutation.isPending}
+            data-testid="button-reindex-kb"
+          >
+            {reindexMutation.isPending ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <RefreshCw className="w-4 h-4 mr-2" />
+            )}
+            {reindexMutation.isPending ? "Indexing..." : "Reindex"}
+          </Button>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          The knowledge base includes: User Manual, Checker Manual, business model specification,
+          market research documents, financial formulas, GAAP rules, and platform guides.
+          It is automatically indexed on first use.
+        </p>
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function MarcelaTab() {
   const { toast } = useToast();
@@ -661,6 +757,8 @@ export default function MarcelaTab() {
           </div>
         </CardContent>
       </Card>
+
+      <KnowledgeBaseCard />
 
       <SaveButton
         onClick={() => draft && saveMutation.mutate(draft)}

@@ -52,7 +52,17 @@ Integrated into `AIChatWidget.tsx` with text chat and voice interaction.
 - Voice settings: Voice ID, TTS model, STT model, output format, stability, similarity boost, speaker boost, chunk schedule.
 - LLM settings: Model selection, max tokens (text/voice).
 - Telephony settings: Enable/disable phone calls, enable/disable SMS, phone greeting customization, webhook URLs display, Twilio connection status, test SMS sender.
+- Knowledge Base (RAG): Status display, manual reindex button, chunk count and last-indexed timestamp.
 - Outbound SMS: `POST /api/admin/send-notification` for admin-triggered notifications.
+
+**RAG Knowledge Base**
+- **File:** `server/knowledge-base.ts` — in-memory embedding-based retrieval-augmented generation.
+- **Content Sources:** User Manual (16 methodology sections), Checker Manual (21 sections), Business Model Specification, Market Research docs, platform navigation guides, financial formulas, GAAP rules, and all `attached_assets/*.md` and `*.txt` files.
+- **Embeddings:** OpenAI `text-embedding-3-small` via AI Integrations. Chunks are ~800 chars with 100-char overlap.
+- **Retrieval:** Cosine similarity search. Top-K chunks (6 for text, 4 for voice/phone/SMS) injected into the system prompt alongside portfolio context.
+- **Auto-index:** Knowledge base is lazily indexed on first query. Admin can trigger reindex via `POST /api/admin/knowledge-base-reindex`.
+- **Integration Points:** All four message pipelines (web text, web voice, phone, SMS) call `retrieveRelevantChunks()` in parallel with portfolio context building.
+- **Admin Endpoints:** `GET /api/admin/knowledge-base-status`, `POST /api/admin/knowledge-base-reindex`.
 
 ### AI Image Generation
 - **Reusable Component:** `client/src/components/ui/ai-image-picker.tsx` supports upload, AI generation, and URL input.

@@ -252,6 +252,26 @@ export function register(app: Express) {
     }
   });
 
+  app.get("/api/admin/knowledge-base-status", requireAdmin, async (_req, res) => {
+    try {
+      const { getKnowledgeBaseStatus } = await import("../knowledge-base");
+      res.json(getKnowledgeBaseStatus());
+    } catch (error: any) {
+      res.status(500).json({ error: error.message || "Failed to get knowledge base status" });
+    }
+  });
+
+  app.post("/api/admin/knowledge-base-reindex", requireAdmin, async (_req, res) => {
+    try {
+      const { indexKnowledgeBase } = await import("../knowledge-base");
+      const result = await indexKnowledgeBase();
+      res.json({ success: true, ...result });
+    } catch (error: any) {
+      console.error("Knowledge base reindex error:", error);
+      res.status(500).json({ error: error.message || "Failed to reindex knowledge base" });
+    }
+  });
+
   app.post("/api/admin/send-notification", requireAdmin, async (req, res) => {
     try {
       const { to, message } = req.body;

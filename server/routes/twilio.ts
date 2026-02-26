@@ -12,6 +12,7 @@ import {
 } from "../integrations/elevenlabs";
 import { getTwilioFromPhoneNumber, sendSMS } from "../integrations/twilio";
 import OpenAI from "openai";
+import { retrieveRelevantChunks, buildRAGContext } from "../knowledge-base";
 
 const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
@@ -230,7 +231,11 @@ export function register(app: Express) {
 
       await chatStorage.createMessage(conversation.id, "user", body.trim());
 
-      const contextPrompt = await buildContextPrompt(userId);
+      const [contextPrompt, ragChunks] = await Promise.all([
+        buildContextPrompt(userId),
+        retrieveRelevantChunks(body.trim(), 4).catch(() => []),
+      ]);
+      const ragContext = buildRAGContext(ragChunks);
       const systemPrompt = buildSystemPrompt("sms", isAdmin);
 
       const llmModel = ga?.marcelaLlmModel || "gpt-4.1";
@@ -239,7 +244,7 @@ export function register(app: Express) {
       const response = await openai.chat.completions.create({
         model: llmModel,
         messages: [
-          { role: "system", content: systemPrompt + contextPrompt },
+          { role: "system", content: systemPrompt + contextPrompt + ragContext },
           { role: "user", content: body.trim() },
         ],
         max_completion_tokens: maxTokens,
@@ -359,14 +364,16 @@ export function registerTwilioWebSocket(httpServer: import("http").Server) {
                 const userId = user?.id;
                 const isAdmin = user?.role === "admin";
 
-                const [contextPrompt, allMessages] = await Promise.all([
+                const [contextPrompt, allMessages, phoneRagChunks] = await Promise.all([
                   buildContextPrompt(userId),
                   chatStorage.getMessagesByConversation(conversationId),
+                  retrieveRelevantChunks(userTranscript.trim(), 4).catch(() => []),
                 ]);
 
+                const phoneRagContext = buildRAGContext(phoneRagChunks);
                 const systemPrompt = buildSystemPrompt("phone", isAdmin);
                 const chatMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
-                  { role: "system", content: systemPrompt + contextPrompt },
+                  { role: "system", content: systemPrompt + contextPrompt + phoneRagContext },
                   ...allMessages.map(m => ({
                     role: m.role as "user" | "assistant",
                     content: m.content,

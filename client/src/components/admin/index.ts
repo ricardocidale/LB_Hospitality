@@ -21,3 +21,4 @@ export { default as VerificationTab } from "./VerificationTab";
 export { default as UserGroupsTab } from "./UserGroupsTab";
 export { default as CustomizeTab } from "./CustomizeTab";
 export { default as DatabaseTab } from "./DatabaseTab";
+export { default as MarcelaTab } from "./MarcelaTab";

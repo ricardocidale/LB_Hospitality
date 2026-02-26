@@ -173,6 +173,20 @@ export const DEFAULT_SAFE_DISCOUNT_RATE = 0.20;
 // and refinance scenarios.
 // ──────────────────────────────────────────────────────────
 
+// ──────────────────────────────────────────────────────────
+// MARCELA AI VOICE DEFAULTS
+// Default ElevenLabs configuration for the Marcela voice assistant.
+// ──────────────────────────────────────────────────────────
+
+export const DEFAULT_MARCELA_STABILITY = 0.5;
+export const DEFAULT_MARCELA_SIMILARITY_BOOST = 0.8;
+export const DEFAULT_MARCELA_MAX_TOKENS = 2048;
+export const DEFAULT_MARCELA_MAX_TOKENS_VOICE = 1024;
+
+// ──────────────────────────────────────────────────────────
+// SEED DEBT ASSUMPTIONS
+// ──────────────────────────────────────────────────────────
+
 export const SEED_DEBT_ASSUMPTIONS = {
   acqLTV: 0.75,             // Acquisition loan-to-value (75% LTV means 25% equity down)
   refiLTV: 0.75,            // Refinance loan-to-value

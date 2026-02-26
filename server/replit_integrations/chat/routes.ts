@@ -7,6 +7,8 @@ import {
   transcribeAudio,
   createElevenLabsStreamingTTS,
   MARCELA_VOICE_ID,
+  buildVoiceConfigFromDB,
+  type VoiceConfig,
 } from "../../integrations/elevenlabs";
 import { ensureCompatibleFormat } from "../audio/client";
 
@@ -350,11 +352,15 @@ export function registerChatRoutes(app: Express): void {
       res.setHeader("Cache-Control", "no-cache");
       res.setHeader("Connection", "keep-alive");
 
+      const ga = await storage.getGlobalAssumptions();
+      const llmModel = ga?.marcelaLlmModel || "gpt-4.1";
+      const maxTokens = ga?.marcelaMaxTokens || 2048;
+
       const stream = await openai.chat.completions.create({
-        model: "gpt-4.1",
+        model: llmModel,
         messages: chatMessages,
         stream: true,
-        max_completion_tokens: 2048,
+        max_completion_tokens: maxTokens,
       });
 
       let fullResponse = "";
@@ -391,10 +397,17 @@ export function registerChatRoutes(app: Express): void {
         return res.status(400).json({ error: "Audio data (base64) is required" });
       }
 
+      const ga = await storage.getGlobalAssumptions();
+      const voiceConfig: VoiceConfig = ga ? buildVoiceConfigFromDB(ga as unknown as Record<string, unknown>) : {
+        voiceId: MARCELA_VOICE_ID, ttsModel: 'eleven_flash_v2_5', sttModel: 'scribe_v1',
+        outputFormat: 'pcm_16000', stability: 0.5, similarityBoost: 0.8, speakerBoost: false,
+        chunkSchedule: [120, 160, 250, 290],
+      };
+
       const rawBuffer = Buffer.from(audio, "base64");
       const { buffer: audioBuffer, format: inputFormat } = await ensureCompatibleFormat(rawBuffer);
 
-      const userTranscript = await transcribeAudio(audioBuffer, `audio.${inputFormat}`);
+      const userTranscript = await transcribeAudio(audioBuffer, `audio.${inputFormat}`, voiceConfig.sttModel);
 
       if (!userTranscript || !userTranscript.trim()) {
         return res.status(400).json({ error: "Could not transcribe audio. Please try again." });
@@ -423,11 +436,14 @@ export function registerChatRoutes(app: Express): void {
 
       res.write(`data: ${JSON.stringify({ type: "user_transcript", data: userTranscript })}\n\n`);
 
+      const voiceLlmModel = ga?.marcelaLlmModel || "gpt-4.1";
+      const voiceMaxTokens = ga?.marcelaMaxTokensVoice || 1024;
+
       const llmStream = await openai.chat.completions.create({
-        model: "gpt-4.1",
+        model: voiceLlmModel,
         messages: chatMessages,
         stream: true,
-        max_completion_tokens: 1024,
+        max_completion_tokens: voiceMaxTokens,
       });
 
       let fullResponse = "";
@@ -435,13 +451,20 @@ export function registerChatRoutes(app: Express): void {
 
       try {
         ttsStream = await createElevenLabsStreamingTTS(
-          MARCELA_VOICE_ID,
+          voiceConfig.voiceId,
           (audioBase64: string) => {
             try {
               res.write(`data: ${JSON.stringify({ type: "audio", data: audioBase64 })}\n\n`);
             } catch { /* connection closed */ }
           },
-          { outputFormat: "pcm_16000" }
+          {
+            outputFormat: voiceConfig.outputFormat,
+            modelId: voiceConfig.ttsModel,
+            stability: voiceConfig.stability,
+            similarityBoost: voiceConfig.similarityBoost,
+            speakerBoost: voiceConfig.speakerBoost,
+            chunkSchedule: voiceConfig.chunkSchedule,
+          }
         );
       } catch (ttsError) {
         console.error("ElevenLabs TTS connection failed, falling back to text-only:", ttsError);

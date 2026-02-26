@@ -5,6 +5,7 @@ import { userResponse, createUserSchema } from "./helpers";
 import { fromZodError } from "zod-validation-error";
 import { runFillOnlySync } from "../syncHelpers";
 import { z } from "zod";
+import type { InsertGlobalAssumptions } from "@shared/schema";
 
 export function register(app: Express) {
   // ────────────────────────────────────────────────────────────
@@ -184,6 +185,55 @@ export function register(app: Express) {
     } catch (error) {
       console.error("Error fetching activity logs:", error);
       res.status(500).json({ error: "Failed to fetch activity logs" });
+    }
+  });
+
+  app.get("/api/admin/voice-settings", requireAdmin, async (_req, res) => {
+    try {
+      const ga = await storage.getGlobalAssumptions();
+      if (!ga) return res.status(404).json({ error: "No global assumptions found" });
+      res.json({
+        marcelaVoiceId: ga.marcelaVoiceId,
+        marcelaTtsModel: ga.marcelaTtsModel,
+        marcelaSttModel: ga.marcelaSttModel,
+        marcelaOutputFormat: ga.marcelaOutputFormat,
+        marcelaStability: ga.marcelaStability,
+        marcelaSimilarityBoost: ga.marcelaSimilarityBoost,
+        marcelaSpeakerBoost: ga.marcelaSpeakerBoost,
+        marcelaChunkSchedule: ga.marcelaChunkSchedule,
+        marcelaLlmModel: ga.marcelaLlmModel,
+        marcelaMaxTokens: ga.marcelaMaxTokens,
+        marcelaMaxTokensVoice: ga.marcelaMaxTokensVoice,
+        marcelaEnabled: ga.marcelaEnabled,
+        showAiAssistant: ga.showAiAssistant,
+      });
+    } catch (error) {
+      console.error("Error fetching voice settings:", error);
+      res.status(500).json({ error: "Failed to fetch voice settings" });
+    }
+  });
+
+  app.post("/api/admin/voice-settings", requireAdmin, async (req, res) => {
+    try {
+      const ga = await storage.getGlobalAssumptions();
+      if (!ga) return res.status(404).json({ error: "No global assumptions found" });
+      const allowedFields = [
+        "marcelaVoiceId", "marcelaTtsModel", "marcelaSttModel", "marcelaOutputFormat",
+        "marcelaStability", "marcelaSimilarityBoost", "marcelaSpeakerBoost",
+        "marcelaChunkSchedule", "marcelaLlmModel", "marcelaMaxTokens",
+        "marcelaMaxTokensVoice", "marcelaEnabled", "showAiAssistant",
+      ] as const;
+      const patch: Partial<Record<string, unknown>> = {};
+      for (const field of allowedFields) {
+        if (req.body[field] !== undefined) {
+          patch[field] = req.body[field];
+        }
+      }
+      const updated = await storage.upsertGlobalAssumptions({ ...ga, ...patch } as InsertGlobalAssumptions);
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating voice settings:", error);
+      res.status(500).json({ error: "Failed to update voice settings" });
     }
   });
 }

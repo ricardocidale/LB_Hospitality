@@ -42,12 +42,55 @@ export async function getElevenLabsApiKey() {
 
 export const MARCELA_VOICE_ID = 'cgSgspJ2msm6clMCkdW9';
 
+export interface VoiceConfig {
+  voiceId: string;
+  ttsModel: string;
+  sttModel: string;
+  outputFormat: string;
+  stability: number;
+  similarityBoost: number;
+  speakerBoost: boolean;
+  chunkSchedule: number[];
+}
+
+const DEFAULT_VOICE_CONFIG: VoiceConfig = {
+  voiceId: MARCELA_VOICE_ID,
+  ttsModel: 'eleven_flash_v2_5',
+  sttModel: 'scribe_v1',
+  outputFormat: 'pcm_16000',
+  stability: 0.5,
+  similarityBoost: 0.8,
+  speakerBoost: false,
+  chunkSchedule: [120, 160, 250, 290],
+};
+
+export function buildVoiceConfigFromDB(ga: Record<string, unknown>): VoiceConfig {
+  const chunkStr = (ga.marcelaChunkSchedule as string) || '120,160,250,290';
+  return {
+    voiceId: (ga.marcelaVoiceId as string) || DEFAULT_VOICE_CONFIG.voiceId,
+    ttsModel: (ga.marcelaTtsModel as string) || DEFAULT_VOICE_CONFIG.ttsModel,
+    sttModel: (ga.marcelaSttModel as string) || DEFAULT_VOICE_CONFIG.sttModel,
+    outputFormat: (ga.marcelaOutputFormat as string) || DEFAULT_VOICE_CONFIG.outputFormat,
+    stability: (ga.marcelaStability as number) ?? DEFAULT_VOICE_CONFIG.stability,
+    similarityBoost: (ga.marcelaSimilarityBoost as number) ?? DEFAULT_VOICE_CONFIG.similarityBoost,
+    speakerBoost: (ga.marcelaSpeakerBoost as boolean) ?? DEFAULT_VOICE_CONFIG.speakerBoost,
+    chunkSchedule: chunkStr.split(',').map(Number).filter(n => !isNaN(n)),
+  };
+}
+
 export async function createElevenLabsStreamingTTS(
   voiceId: string,
   onAudioChunk: (audioBase64: string) => void,
-  options: { modelId?: string; outputFormat?: string } = {}
+  options: { modelId?: string; outputFormat?: string; stability?: number; similarityBoost?: number; speakerBoost?: boolean; chunkSchedule?: number[] } = {}
 ) {
-  const { modelId = 'eleven_flash_v2_5', outputFormat = 'pcm_16000' } = options;
+  const {
+    modelId = DEFAULT_VOICE_CONFIG.ttsModel,
+    outputFormat = DEFAULT_VOICE_CONFIG.outputFormat,
+    stability = DEFAULT_VOICE_CONFIG.stability,
+    similarityBoost = DEFAULT_VOICE_CONFIG.similarityBoost,
+    speakerBoost = DEFAULT_VOICE_CONFIG.speakerBoost,
+    chunkSchedule = DEFAULT_VOICE_CONFIG.chunkSchedule,
+  } = options;
   const apiKey = await getCredentials();
   const uri = 'wss://api.elevenlabs.io/v1/text-to-speech/' + voiceId + '/stream-input?model_id=' + modelId + '&output_format=' + outputFormat;
 
@@ -65,8 +108,8 @@ export async function createElevenLabsStreamingTTS(
     websocket.on('open', () => {
       websocket.send(JSON.stringify({
         text: ' ',
-        voice_settings: { stability: 0.5, similarity_boost: 0.8, use_speaker_boost: false },
-        generation_config: { chunk_length_schedule: [120, 160, 250, 290] },
+        voice_settings: { stability, similarity_boost: similarityBoost, use_speaker_boost: speakerBoost },
+        generation_config: { chunk_length_schedule: chunkSchedule },
       }));
 
       resolve({
@@ -91,12 +134,12 @@ export async function createElevenLabsStreamingTTS(
   });
 }
 
-export async function transcribeAudio(audioBuffer: Buffer, filename: string): Promise<string> {
+export async function transcribeAudio(audioBuffer: Buffer, filename: string, sttModel?: string): Promise<string> {
   const apiKey = await getCredentials();
 
   const formData = new FormData();
   formData.append('file', new Blob([audioBuffer]), filename);
-  formData.append('model_id', 'scribe_v1');
+  formData.append('model_id', sttModel || DEFAULT_VOICE_CONFIG.sttModel);
 
   const response = await fetch('https://api.elevenlabs.io/v1/speech-to-text', {
     method: 'POST',

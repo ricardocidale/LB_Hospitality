@@ -20,14 +20,14 @@ import { PageHeader } from "@/components/ui/page-header";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import {
   Users, Building2, Activity, FileCheck, LayoutGrid,
-  Palette, Database
+  Palette, Database, Mic
 } from "lucide-react";
 import {
   UsersTab, CompaniesTab, ActivityTab, VerificationTab,
-  UserGroupsTab, CustomizeTab, DatabaseTab
+  UserGroupsTab, CustomizeTab, DatabaseTab, MarcelaTab
 } from "@/components/admin";
 
-type AdminView = "users" | "companies" | "activity" | "verification" | "user-groups" | "customize" | "database";
+type AdminView = "users" | "companies" | "activity" | "verification" | "user-groups" | "customize" | "marcela" | "database";
 
 export default function Admin() {
   const [adminTab, setAdminTab] = useState<AdminView>("users");
@@ -51,6 +51,7 @@ export default function Admin() {
               { value: 'verification', label: 'Verification', icon: FileCheck },
               { value: 'user-groups', label: 'User Groups', icon: LayoutGrid },
               { value: 'customize', label: 'Customize', icon: Palette },
+              { value: 'marcela', label: 'Marcela', icon: Mic },
               { value: 'database', label: 'Database', icon: Database },
             ]}
             activeTab={adminTab}
@@ -74,6 +75,9 @@ export default function Admin() {
           </TabsContent>
           <TabsContent value="customize" className="space-y-6 mt-6">
             {adminTab === "customize" && <CustomizeTab />}
+          </TabsContent>
+          <TabsContent value="marcela" className="space-y-6 mt-6">
+            {adminTab === "marcela" && <MarcelaTab />}
           </TabsContent>
           <TabsContent value="database" className="space-y-6 mt-6">
             {adminTab === "database" && <DatabaseTab />}

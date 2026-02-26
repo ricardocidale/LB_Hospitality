@@ -56,6 +56,10 @@ import {
   DEFAULT_FIXED_COST_ESCALATION_RATE,
   DEFAULT_COMPANY_TAX_RATE,
   DEFAULT_PROJECTION_YEARS,
+  DEFAULT_MARCELA_STABILITY,
+  DEFAULT_MARCELA_SIMILARITY_BOOST,
+  DEFAULT_MARCELA_MAX_TOKENS,
+  DEFAULT_MARCELA_MAX_TOKENS_VOICE,
 } from "./constants";
 
 // --- COMPANIES TABLE ---
@@ -378,13 +382,13 @@ export const globalAssumptions = pgTable("global_assumptions", {
   marcelaTtsModel: text("marcela_tts_model").notNull().default("eleven_flash_v2_5"),
   marcelaSttModel: text("marcela_stt_model").notNull().default("scribe_v1"),
   marcelaOutputFormat: text("marcela_output_format").notNull().default("pcm_16000"),
-  marcelaStability: real("marcela_stability").notNull().default(0.5),
-  marcelaSimilarityBoost: real("marcela_similarity_boost").notNull().default(0.8),
+  marcelaStability: real("marcela_stability").notNull().default(DEFAULT_MARCELA_STABILITY),
+  marcelaSimilarityBoost: real("marcela_similarity_boost").notNull().default(DEFAULT_MARCELA_SIMILARITY_BOOST),
   marcelaSpeakerBoost: boolean("marcela_speaker_boost").notNull().default(false),
   marcelaChunkSchedule: text("marcela_chunk_schedule").notNull().default("120,160,250,290"),
   marcelaLlmModel: text("marcela_llm_model").notNull().default("gpt-4.1"),
-  marcelaMaxTokens: integer("marcela_max_tokens").notNull().default(2048),
-  marcelaMaxTokensVoice: integer("marcela_max_tokens_voice").notNull().default(1024),
+  marcelaMaxTokens: integer("marcela_max_tokens").notNull().default(DEFAULT_MARCELA_MAX_TOKENS),
+  marcelaMaxTokensVoice: integer("marcela_max_tokens_voice").notNull().default(DEFAULT_MARCELA_MAX_TOKENS_VOICE),
   marcelaEnabled: boolean("marcela_enabled").notNull().default(true),
 
   updatedAt: timestamp("updated_at").defaultNow().notNull(),

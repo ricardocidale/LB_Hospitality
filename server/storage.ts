@@ -327,11 +327,13 @@ export class DatabaseStorage implements IStorage {
    */
   async getGlobalAssumptions(userId?: number): Promise<GlobalAssumptions | undefined> {
     if (userId) {
-      const [result] = await db.select().from(globalAssumptions).where(eq(globalAssumptions.userId, userId)).limit(1);
-      return result || undefined;
+      const [userResult] = await db.select().from(globalAssumptions).where(eq(globalAssumptions.userId, userId)).limit(1);
+      if (userResult) return userResult;
     }
-    const [result] = await db.select().from(globalAssumptions).limit(1);
-    return result || undefined;
+    const [shared] = await db.select().from(globalAssumptions).where(isNull(globalAssumptions.userId)).limit(1);
+    if (shared) return shared;
+    const [any] = await db.select().from(globalAssumptions).limit(1);
+    return any || undefined;
   }
 
   /**

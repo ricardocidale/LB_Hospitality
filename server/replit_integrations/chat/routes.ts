@@ -121,7 +121,22 @@ The user is working in a financial simulation portal with these main areas:
 - ALL calculations must be performed by the platform's coded financial engine — direct users to the appropriate page or feature instead
 - If a user asks "what would my IRR be if...?" or "calculate the NOI for..." — explain that the platform's deterministic financial engine handles all calculations for accuracy, and guide them to enter their assumptions on the relevant page to see the computed results
 - You may explain formulas, concepts, and methodology, but never produce computed numerical results yourself
-- When referencing financial metrics from the portfolio context below, clearly state these are values computed by the platform's financial engine, not your own calculations`;
+- When referencing financial metrics from the portfolio context below, clearly state these are values computed by the platform's financial engine, not your own calculations
+
+## Research-Based Recommendations
+You have access to research benchmarks for each property in the portfolio context below. These benchmarks come from location-aware market data and AI-powered research analysis, and include recommended ranges for ADR, occupancy, cap rates, operating costs, service fees, and more.
+
+**When a user asks what values to use, or asks for recommendations:**
+- Reference the research benchmarks for the specific property and recommend the midpoint value or the range
+- Compare the property's current assumptions against research benchmarks and flag any that look significantly above or below market
+- Explain why a particular value makes sense for the property's location and market
+- If the property has AI-sourced research (source: "AI research"), note that these are based on current market analysis; if market data (source: "market data"), note these are from regional industry benchmarks
+- Always tell the user to enter the recommended values on the Property Edit page — you cannot change assumptions yourself
+- You may say things like "Research suggests an ADR of $280–$340 for this market, with a midpoint of $310. Your current ADR of $250 is below market — you might consider adjusting it upward."
+
+**What you should NOT do:**
+- Do not calculate financial outcomes from the recommended values (no "if you change ADR to X, your NOI would be Y")
+- Do not fabricate benchmark data — only reference values from the research benchmarks provided in your context`;
 
 const ADMIN_SYSTEM_PROMPT_ADDITION = `
 
@@ -207,6 +222,34 @@ async function buildContextPrompt(userId?: number): Promise<string> {
         if (p.location) details.push(p.location);
         if (p.purchasePrice) details.push(`$${Number(p.purchasePrice).toLocaleString()} acquisition`);
         parts.push(`- **${p.name}**: ${details.join(", ")}`);
+
+        const rv = p.researchValues as Record<string, { display?: string; mid?: number; source?: string }> | null;
+        if (rv && Object.keys(rv).length > 0) {
+          const researchLines: string[] = [];
+          const labelMap: Record<string, string> = {
+            adr: "ADR", occupancy: "Stabilized Occupancy", startOccupancy: "Year-1 Occupancy",
+            capRate: "Cap Rate", catering: "Catering Boost", landValue: "Land Value %",
+            rampMonths: "Ramp-Up Months",
+            costHousekeeping: "Housekeeping %", costFB: "F&B Cost %", costAdmin: "Admin %",
+            costPropertyOps: "Property Ops %", costUtilities: "Utilities %", costFFE: "FF&E Reserve %",
+            costMarketing: "Marketing %", costIT: "IT %", costOther: "Other OpEx %",
+            costInsurance: "Insurance %", costPropertyTaxes: "Property Taxes %",
+            svcFeeMarketing: "Svc Fee Marketing %", svcFeeIT: "Svc Fee IT %",
+            svcFeeAccounting: "Svc Fee Accounting %", svcFeeReservations: "Svc Fee Reservations %",
+            svcFeeGeneralMgmt: "Svc Fee General Mgmt %", incentiveFee: "Incentive Fee %",
+            incomeTax: "Income Tax Rate %",
+          };
+          for (const [key, entry] of Object.entries(rv)) {
+            if (entry.display && entry.mid != null) {
+              const label = labelMap[key] || key;
+              const src = entry.source === "ai" ? "AI research" : "market data";
+              researchLines.push(`${label}: ${entry.display} (mid ${entry.mid}, ${src})`);
+            }
+          }
+          if (researchLines.length > 0) {
+            parts.push(`  Research benchmarks: ${researchLines.join("; ")}`);
+          }
+        }
       }
     }
 

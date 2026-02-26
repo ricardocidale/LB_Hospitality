@@ -100,15 +100,10 @@ export default function Dashboard() {
       <Dashboard3DBackground />
       <AnimatedPage>
         <div className="relative z-10 max-w-[1600px] mx-auto space-y-8 pb-20">
-          <div className="relative">
-            <PageHeader
-              title="Portfolio Performance"
-              subtitle="Consolidated financial oversight across all active assets"
-            />
-            <div className="absolute left-6 top-1/2 -translate-y-1/2 pointer-events-none hidden sm:block">
-              <LayoutDashboard className="w-10 h-10 text-white/20" />
-            </div>
-          </div>
+          <PageHeader
+            title="Portfolio Performance"
+            subtitle="Consolidated financial oversight across all active assets"
+          />
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="flex items-center justify-between mb-6 bg-white/50 backdrop-blur-md p-1 rounded-xl border border-white/20 shadow-lg sticky top-4 z-50 overflow-x-auto">

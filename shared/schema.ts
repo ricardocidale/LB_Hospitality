@@ -191,6 +191,7 @@ export const users = pgTable("users", {
   title: text("title"),
   userGroupId: integer("user_group_id"),
   selectedThemeId: integer("selected_theme_id"),
+  phoneNumber: text("phone_number"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -207,6 +208,7 @@ export const insertUserSchema = z.object({
   company: z.string().nullable().optional(),
   companyId: z.number().nullable().optional(),
   title: z.string().nullable().optional(),
+  phoneNumber: z.string().nullable().optional(),
 });
 
 export const selectUserSchema = createSelectSchema(users);
@@ -391,6 +393,10 @@ export const globalAssumptions = pgTable("global_assumptions", {
   marcelaMaxTokensVoice: integer("marcela_max_tokens_voice").notNull().default(DEFAULT_MARCELA_MAX_TOKENS_VOICE),
   marcelaEnabled: boolean("marcela_enabled").notNull().default(true),
 
+  marcelaTwilioEnabled: boolean("marcela_twilio_enabled").notNull().default(false),
+  marcelaSmsEnabled: boolean("marcela_sms_enabled").notNull().default(false),
+  marcelaPhoneGreeting: text("marcela_phone_greeting").notNull().default("Hello, this is Marcela from Hospitality Business Group. How can I help you today?"),
+
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => [
   index("global_assumptions_user_id_idx").on(table.userId),
@@ -525,6 +531,9 @@ export const insertGlobalAssumptionsSchema = createInsertSchema(globalAssumption
   marcelaMaxTokens: true,
   marcelaMaxTokensVoice: true,
   marcelaEnabled: true,
+  marcelaTwilioEnabled: true,
+  marcelaSmsEnabled: true,
+  marcelaPhoneGreeting: true,
 });
 
 export const selectGlobalAssumptionsSchema = createSelectSchema(globalAssumptions);
@@ -1062,6 +1071,7 @@ export const verificationRuns = pgTable("verification_runs", {
 export const conversations = pgTable("conversations", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   title: text("title").notNull(),
+  channel: text("channel").notNull().default("web"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

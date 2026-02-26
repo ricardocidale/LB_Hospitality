@@ -46,3 +46,46 @@ export async function getTwilioFromPhoneNumber() {
   const { phoneNumber } = await getCredentials();
   return phoneNumber;
 }
+
+export async function getTwilioStatus(): Promise<{ connected: boolean; phoneNumber: string | null; error?: string }> {
+  try {
+    const { phoneNumber } = await getCredentials();
+    return { connected: true, phoneNumber: phoneNumber || null };
+  } catch (error: any) {
+    return { connected: false, phoneNumber: null, error: error.message };
+  }
+}
+
+export async function sendSMS(to: string, body: string): Promise<{ success: boolean; sid?: string; error?: string }> {
+  try {
+    const client = await getTwilioClient();
+    const fromNumber = await getTwilioFromPhoneNumber();
+    
+    const MAX_SMS_LENGTH = 1600;
+    const segments = [];
+    let remaining = body;
+    while (remaining.length > 0) {
+      if (remaining.length <= MAX_SMS_LENGTH) {
+        segments.push(remaining);
+        break;
+      }
+      let splitAt = remaining.lastIndexOf(' ', MAX_SMS_LENGTH);
+      if (splitAt === -1) splitAt = MAX_SMS_LENGTH;
+      segments.push(remaining.slice(0, splitAt));
+      remaining = remaining.slice(splitAt).trim();
+    }
+
+    let lastSid = '';
+    for (const segment of segments) {
+      const msg = await client.messages.create({
+        to,
+        from: fromNumber,
+        body: segment,
+      });
+      lastSid = msg.sid;
+    }
+    return { success: true, sid: lastSid };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}

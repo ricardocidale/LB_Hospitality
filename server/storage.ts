@@ -41,6 +41,7 @@ export interface IStorage {
   // Users
   getUserById(id: number): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
+  getUserByPhoneNumber(phoneNumber: string): Promise<User | undefined>;
   createUser(data: InsertUser): Promise<User>;
   getAllUsers(): Promise<User[]>;
   deleteUser(id: number): Promise<void>;
@@ -196,6 +197,13 @@ export class DatabaseStorage implements IStorage {
   /** Look up a user by email (case-insensitive). Used during login. */
   async getUserByEmail(email: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.email, email.toLowerCase()));
+    return user || undefined;
+  }
+
+  /** Look up a user by phone number. Used for Twilio caller identification. */
+  async getUserByPhoneNumber(phoneNumber: string): Promise<User | undefined> {
+    const normalized = phoneNumber.replace(/[^\d+]/g, '');
+    const [user] = await db.select().from(users).where(eq(users.phoneNumber, normalized));
     return user || undefined;
   }
 

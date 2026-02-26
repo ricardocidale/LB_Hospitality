@@ -6,6 +6,7 @@ import { fromZodError } from "zod-validation-error";
 import { runFillOnlySync } from "../syncHelpers";
 import { z } from "zod";
 import type { InsertGlobalAssumptions } from "@shared/schema";
+import { getTwilioStatus, sendSMS } from "../integrations/twilio";
 
 export function register(app: Express) {
   // ────────────────────────────────────────────────────────────
@@ -206,6 +207,9 @@ export function register(app: Express) {
         marcelaMaxTokensVoice: ga.marcelaMaxTokensVoice,
         marcelaEnabled: ga.marcelaEnabled,
         showAiAssistant: ga.showAiAssistant,
+        marcelaTwilioEnabled: ga.marcelaTwilioEnabled,
+        marcelaSmsEnabled: ga.marcelaSmsEnabled,
+        marcelaPhoneGreeting: ga.marcelaPhoneGreeting,
       });
     } catch (error) {
       console.error("Error fetching voice settings:", error);
@@ -222,6 +226,7 @@ export function register(app: Express) {
         "marcelaStability", "marcelaSimilarityBoost", "marcelaSpeakerBoost",
         "marcelaChunkSchedule", "marcelaLlmModel", "marcelaMaxTokens",
         "marcelaMaxTokensVoice", "marcelaEnabled", "showAiAssistant",
+        "marcelaTwilioEnabled", "marcelaSmsEnabled", "marcelaPhoneGreeting",
       ] as const;
       const patch: Partial<Record<string, unknown>> = {};
       for (const field of allowedFields) {
@@ -234,6 +239,34 @@ export function register(app: Express) {
     } catch (error) {
       console.error("Error updating voice settings:", error);
       res.status(500).json({ error: "Failed to update voice settings" });
+    }
+  });
+
+  app.get("/api/admin/twilio-status", requireAdmin, async (_req, res) => {
+    try {
+      const status = await getTwilioStatus();
+      res.json(status);
+    } catch (error) {
+      console.error("Error fetching Twilio status:", error);
+      res.json({ connected: false, phoneNumber: null, error: "Failed to check Twilio status" });
+    }
+  });
+
+  app.post("/api/admin/send-notification", requireAdmin, async (req, res) => {
+    try {
+      const { to, message } = req.body;
+      if (!to || !message) {
+        return res.status(400).json({ error: "Phone number and message are required" });
+      }
+      const result = await sendSMS(to, message);
+      if (result.success) {
+        res.json({ success: true, sid: result.sid });
+      } else {
+        res.status(500).json({ error: result.error || "Failed to send SMS" });
+      }
+    } catch (error: any) {
+      console.error("Error sending notification:", error);
+      res.status(500).json({ error: error.message || "Failed to send notification" });
     }
   });
 }

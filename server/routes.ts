@@ -12,16 +12,16 @@ import * as researchRoutes from "./routes/research";
 import * as finderRoutes from "./routes/property-finder";
 import * as calculationRoutes from "./routes/calculations";
 import * as uploadRoutes from "./routes/uploads";
+import * as twilioRoutes from "./routes/twilio";
+import { registerTwilioWebSocket } from "./routes/twilio";
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
-  // Register Replit integration routes first
   registerObjectStorageRoutes(app);
   registerChatRoutes(app);
 
-  // Register domain-specific modular routes
   authRoutes.register(app);
   propertyRoutes.register(app);
   adminRoutes.register(app);
@@ -32,6 +32,9 @@ export async function registerRoutes(
   finderRoutes.register(app);
   calculationRoutes.register(app);
   uploadRoutes.register(app);
+  twilioRoutes.register(app);
+
+  registerTwilioWebSocket(httpServer);
 
   return httpServer;
 }

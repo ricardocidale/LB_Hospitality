@@ -1,0 +1,59 @@
+{
+  "name": "prompt_composition",
+  "description": "Deterministic system prompt builder for Marcela. Given channel and role, returns the exact prompt composition formula. No ambiguity — same inputs always produce same prompt structure.",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "channel": {
+        "type": "string",
+        "enum": ["web_text", "web_voice", "phone", "sms"],
+        "description": "Communication channel"
+      },
+      "role": {
+        "type": "string",
+        "enum": ["admin", "partner", "checker", "investor", "anonymous"],
+        "description": "User role (anonymous for unidentified phone/SMS callers)"
+      }
+    },
+    "required": ["channel", "role"]
+  },
+  "deterministic": true,
+  "composition_matrix": {
+    "web_text": {
+      "admin":     { "parts": ["SYSTEM_PROMPT", "ADMIN_ADDITION", "contextPrompt(userId)"], "file": "server/replit_integrations/chat/routes.ts" },
+      "partner":   { "parts": ["SYSTEM_PROMPT", "contextPrompt(userId)"], "file": "server/replit_integrations/chat/routes.ts" },
+      "checker":   { "parts": ["SYSTEM_PROMPT", "contextPrompt(userId)"], "file": "server/replit_integrations/chat/routes.ts" },
+      "investor":  { "parts": ["SYSTEM_PROMPT", "contextPrompt(userId)"], "file": "server/replit_integrations/chat/routes.ts" }
+    },
+    "web_voice": {
+      "admin":     { "parts": ["SYSTEM_PROMPT", "ADMIN_ADDITION", "VOICE_ADDITION", "contextPrompt(userId)"], "file": "server/replit_integrations/chat/routes.ts" },
+      "partner":   { "parts": ["SYSTEM_PROMPT", "VOICE_ADDITION", "contextPrompt(userId)"], "file": "server/replit_integrations/chat/routes.ts" },
+      "checker":   { "parts": ["SYSTEM_PROMPT", "VOICE_ADDITION", "contextPrompt(userId)"], "file": "server/replit_integrations/chat/routes.ts" },
+      "investor":  { "parts": ["SYSTEM_PROMPT", "VOICE_ADDITION", "contextPrompt(userId)"], "file": "server/replit_integrations/chat/routes.ts" }
+    },
+    "phone": {
+      "admin":     { "parts": ["base_prompt", "PHONE_ADDITION", "admin_note", "contextPrompt(userId)"], "file": "server/routes/twilio.ts" },
+      "partner":   { "parts": ["base_prompt", "PHONE_ADDITION", "contextPrompt(userId)"], "file": "server/routes/twilio.ts" },
+      "anonymous": { "parts": ["base_prompt", "PHONE_ADDITION", "contextPrompt()"], "file": "server/routes/twilio.ts" }
+    },
+    "sms": {
+      "admin":     { "parts": ["base_prompt", "SMS_ADDITION", "admin_note", "contextPrompt(userId)"], "file": "server/routes/twilio.ts" },
+      "partner":   { "parts": ["base_prompt", "SMS_ADDITION", "contextPrompt(userId)"], "file": "server/routes/twilio.ts" },
+      "anonymous": { "parts": ["base_prompt", "SMS_ADDITION", "contextPrompt()"], "file": "server/routes/twilio.ts" }
+    }
+  },
+  "context_data_sources": {
+    "web_context": ["global_assumptions", "properties", "users", "market_research"],
+    "phone_sms_context": ["global_assumptions", "properties"],
+    "note": "Phone/SMS context is lighter than web — no team members or research reports"
+  },
+  "prompt_size_estimates": {
+    "SYSTEM_PROMPT": "~3500 chars (full platform knowledge, 120+ lines)",
+    "base_prompt": "~400 chars (persona + no-LLM-calc rule only)",
+    "ADMIN_ADDITION": "~1200 chars (admin capabilities)",
+    "VOICE_ADDITION": "~500 chars (concise speech rules)",
+    "PHONE_ADDITION": "~400 chars (1-3 sentence rule)",
+    "SMS_ADDITION": "~350 chars (300 char target rule)",
+    "contextPrompt": "~500-3000 chars (varies by portfolio size)"
+  }
+}

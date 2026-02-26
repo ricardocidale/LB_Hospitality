@@ -1,0 +1,89 @@
+{
+  "name": "voice_config_validator",
+  "description": "Validate Marcela voice configuration values against known-valid ranges and supported options. Deterministic: returns pass/fail for each field.",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "voiceId": { "type": "string" },
+      "ttsModel": { "type": "string" },
+      "sttModel": { "type": "string" },
+      "outputFormat": { "type": "string" },
+      "stability": { "type": "number" },
+      "similarityBoost": { "type": "number" },
+      "speakerBoost": { "type": "boolean" },
+      "chunkSchedule": { "type": "string", "description": "Comma-separated integers" },
+      "llmModel": { "type": "string" },
+      "maxTokens": { "type": "number" },
+      "maxTokensVoice": { "type": "number" }
+    }
+  },
+  "deterministic": true,
+  "validation_rules": {
+    "voiceId": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9]{20}$",
+      "known_good": ["cgSgspJ2msm6clMCkdW9"],
+      "description": "ElevenLabs voice ID, 20 alphanumeric chars"
+    },
+    "ttsModel": {
+      "type": "enum",
+      "valid_values": ["eleven_monolingual_v1", "eleven_multilingual_v1", "eleven_multilingual_v2", "eleven_turbo_v2", "eleven_turbo_v2_5", "eleven_flash_v2", "eleven_flash_v2_5"],
+      "recommended": "eleven_flash_v2_5",
+      "description": "ElevenLabs TTS model"
+    },
+    "sttModel": {
+      "type": "enum",
+      "valid_values": ["scribe_v1"],
+      "description": "ElevenLabs STT model (currently only scribe_v1)"
+    },
+    "outputFormat": {
+      "type": "enum",
+      "valid_values": ["pcm_16000", "pcm_22050", "pcm_24000", "pcm_44100", "mp3_44100_128", "ulaw_8000"],
+      "recommended": "pcm_16000",
+      "description": "Audio output format for TTS"
+    },
+    "stability": {
+      "type": "range",
+      "min": 0.0,
+      "max": 1.0,
+      "recommended": 0.5,
+      "description": "Lower = more expressive, higher = more stable"
+    },
+    "similarityBoost": {
+      "type": "range",
+      "min": 0.0,
+      "max": 1.0,
+      "recommended": 0.8,
+      "description": "Higher = closer to original voice, may reduce quality at extremes"
+    },
+    "chunkSchedule": {
+      "type": "csv_integers",
+      "min_values": 1,
+      "max_values": 10,
+      "min_value": 50,
+      "max_value": 500,
+      "recommended": "120,160,250,290",
+      "description": "Character counts for progressive TTS chunking"
+    },
+    "llmModel": {
+      "type": "enum",
+      "valid_values": ["gpt-4.1", "gpt-4.1-mini", "gpt-4.1-nano", "gpt-4o", "gpt-4o-mini"],
+      "recommended": "gpt-4.1",
+      "description": "OpenAI model for Marcela responses"
+    },
+    "maxTokens": {
+      "type": "range",
+      "min": 256,
+      "max": 16384,
+      "recommended": 2048,
+      "description": "Max tokens for text chat responses"
+    },
+    "maxTokensVoice": {
+      "type": "range",
+      "min": 128,
+      "max": 4096,
+      "recommended": 1024,
+      "description": "Max tokens for voice/phone/SMS (shorter for speech)"
+    }
+  }
+}

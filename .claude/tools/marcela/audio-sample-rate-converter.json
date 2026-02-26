@@ -1,0 +1,54 @@
+{
+  "name": "audio_sample_rate_converter",
+  "description": "Calculate buffer sizes and durations for audio format conversions in the Marcela voice pipeline. All conversions are deterministic nearest-neighbor resampling.",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "input_bytes": {
+        "type": "number",
+        "description": "Size of input audio in bytes"
+      },
+      "input_format": {
+        "type": "string",
+        "enum": ["mulaw_8k", "pcm16_8k", "pcm16_16k", "pcm16_22050", "pcm16_24k", "pcm16_44100"],
+        "description": "Input audio format"
+      },
+      "output_format": {
+        "type": "string",
+        "enum": ["mulaw_8k", "pcm16_8k", "pcm16_16k", "pcm16_22050", "pcm16_24k", "pcm16_44100", "wav_8k"],
+        "description": "Output audio format"
+      }
+    },
+    "required": ["input_bytes", "input_format", "output_format"]
+  },
+  "deterministic": true,
+  "format_specs": {
+    "mulaw_8k": { "bytes_per_sample": 1, "sample_rate": 8000, "description": "G.711 mu-law, Twilio native" },
+    "pcm16_8k": { "bytes_per_sample": 2, "sample_rate": 8000 },
+    "pcm16_16k": { "bytes_per_sample": 2, "sample_rate": 16000, "description": "ElevenLabs default output" },
+    "pcm16_24k": { "bytes_per_sample": 2, "sample_rate": 24000, "description": "Web AudioWorklet context rate" },
+    "wav_8k": { "bytes_per_sample": 2, "sample_rate": 8000, "header_bytes": 44, "description": "WAV with RIFF header" }
+  },
+  "formulas": {
+    "duration_seconds": "input_bytes / (bytes_per_sample * sample_rate)",
+    "output_bytes_resample": "floor(input_samples / (input_rate / output_rate)) * output_bps",
+    "mulaw_to_pcm16": "input_bytes * 2 (1 byte mulaw → 2 bytes pcm16)",
+    "pcm16_to_mulaw": "input_bytes / 2 (2 bytes pcm16 → 1 byte mulaw)",
+    "mulaw_to_wav": "input_bytes * 2 + 44 (pcm16 data + WAV header)"
+  },
+  "pipeline_chains": {
+    "twilio_inbound": "mulaw_8k → pcm16_8k (×2 bytes) → wav_8k (+44 header) → STT",
+    "twilio_outbound": "pcm16_16k → pcm16_8k (÷2 samples) → mulaw_8k (÷2 bytes)",
+    "web_voice": "WebM/Opus → ffmpeg WAV → STT → LLM → TTS pcm_16k → SSE → Float32"
+  },
+  "examples": [
+    {
+      "input": { "input_bytes": 16000, "input_format": "mulaw_8k", "output_format": "wav_8k" },
+      "output": { "output_bytes": 32044, "duration_seconds": 2.0, "description": "2s of Twilio audio → WAV for STT" }
+    },
+    {
+      "input": { "input_bytes": 64000, "input_format": "pcm16_16k", "output_format": "mulaw_8k" },
+      "output": { "output_bytes": 16000, "duration_seconds": 2.0, "description": "2s TTS output → Twilio playback" }
+    }
+  ]
+}

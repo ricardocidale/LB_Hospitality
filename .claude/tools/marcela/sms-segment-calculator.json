@@ -1,0 +1,35 @@
+{
+  "name": "sms_segment_calculator",
+  "description": "Calculate SMS segment count and split points for a given message. Twilio charges per segment (160 chars GSM-7, 70 chars UCS-2). Our system uses 1600 char max with word-boundary splitting.",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "message_length": {
+        "type": "number",
+        "description": "Character count of the SMS message"
+      },
+      "encoding": {
+        "type": "string",
+        "enum": ["gsm7", "ucs2"],
+        "description": "Character encoding. GSM-7 for ASCII/Latin (160 chars/segment), UCS-2 for Unicode/emoji (70 chars/segment). Default: gsm7"
+      }
+    },
+    "required": ["message_length"]
+  },
+  "deterministic": true,
+  "formula": {
+    "gsm7_single_segment": 160,
+    "gsm7_multi_segment": 153,
+    "ucs2_single_segment": 70,
+    "ucs2_multi_segment": 67,
+    "app_max_reply_length": 1500,
+    "twilio_max_body": 1600,
+    "calculation": "if length <= single_limit: segments = 1; else: segments = ceil(length / multi_limit)",
+    "split_logic": "server/integrations/twilio.ts sendSMS() splits at word boundaries (lastIndexOf(' ', 1600))"
+  },
+  "examples": [
+    { "input": { "message_length": 100 }, "output": { "segments": 1, "encoding": "gsm7" } },
+    { "input": { "message_length": 320 }, "output": { "segments": 3, "encoding": "gsm7" } },
+    { "input": { "message_length": 100, "encoding": "ucs2" }, "output": { "segments": 2, "encoding": "ucs2" } }
+  ]
+}

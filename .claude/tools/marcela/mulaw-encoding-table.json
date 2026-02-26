@@ -1,0 +1,48 @@
+{
+  "name": "mulaw_encoding_table",
+  "description": "Deterministic mu-law (G.711) encoding/decoding reference. Maps between linear PCM16 sample values and mu-law bytes. Used in Twilio voice pipeline.",
+  "deterministic": true,
+  "standard": "ITU-T G.711",
+  "constants": {
+    "BIAS": 132,
+    "CLIP": 32635,
+    "SIGN_BIT": "0x80",
+    "EXPONENT_MASK": "0x70 (bits 4-6)",
+    "MANTISSA_MASK": "0x0F (bits 0-3)"
+  },
+  "encoding_steps": [
+    "1. Extract sign: sign = (sample >> 8) & 0x80",
+    "2. If negative: sample = -sample",
+    "3. Clip: if sample > 32635 then sample = 32635",
+    "4. Add bias: sample += 132",
+    "5. Find exponent: count leading zeros in 15-bit value (7 down to 0)",
+    "6. Extract mantissa: (sample >> 10) & 0x0F",
+    "7. Combine: mulawByte = ~(sign | (exponent << 4) | mantissa) & 0xFF"
+  ],
+  "decoding_steps": [
+    "1. Complement: mulawByte = ~mulawByte & 0xFF",
+    "2. Extract sign: sign = mulawByte & 0x80",
+    "3. Extract exponent: (mulawByte >> 4) & 0x07",
+    "4. Extract mantissa: mulawByte & 0x0F",
+    "5. Reconstruct: sample = (mantissa << (exp+3)) + (1 << (exp+3)) - 132",
+    "6. Apply sign: if sign != 0 then sample = -sample"
+  ],
+  "segment_table": [
+    { "exponent": 0, "linear_range": "0–131", "step_size": 1 },
+    { "exponent": 1, "linear_range": "132–395", "step_size": 2 },
+    { "exponent": 2, "linear_range": "396–923", "step_size": 4 },
+    { "exponent": 3, "linear_range": "924–1979", "step_size": 8 },
+    { "exponent": 4, "linear_range": "1980–4091", "step_size": 16 },
+    { "exponent": 5, "linear_range": "4092–8315", "step_size": 32 },
+    { "exponent": 6, "linear_range": "8316–16763", "step_size": 64 },
+    { "exponent": 7, "linear_range": "16764–32635", "step_size": 128 }
+  ],
+  "dynamic_range_db": 78,
+  "implementation_files": {
+    "mulaw2linear": "server/routes/twilio.ts:87",
+    "linear2mulaw": "server/routes/twilio.ts:97",
+    "mulawBufferToWav": "server/routes/twilio.ts:118",
+    "pcm16ToMulaw": "server/routes/twilio.ts:147",
+    "downsample": "server/routes/twilio.ts:158"
+  }
+}

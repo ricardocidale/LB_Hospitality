@@ -1,0 +1,45 @@
+{
+  "name": "silence_detection",
+  "description": "Deterministic silence detection parameters for Twilio voice calls. Controls when accumulated audio is sent for processing.",
+  "deterministic": true,
+  "parameters": {
+    "SILENCE_TIMEOUT_MS": {
+      "value": 2000,
+      "unit": "milliseconds",
+      "description": "Time after last audio chunk before processing begins",
+      "file": "server/routes/twilio.ts",
+      "line_reference": "const SILENCE_TIMEOUT_MS = 2000"
+    },
+    "MIN_AUDIO_BYTES": {
+      "value": 1600,
+      "unit": "bytes",
+      "description": "Minimum mulaw buffer size to process (skip if too short)",
+      "equivalent_duration_ms": 200,
+      "calculation": "1600 bytes × 1 sample/byte ÷ 8000 Hz = 0.2 seconds"
+    }
+  },
+  "timing_calculations": {
+    "mulaw_bytes_per_second": 8000,
+    "twilio_chunk_interval_ms": 20,
+    "twilio_bytes_per_chunk": 160,
+    "description": "Twilio sends 160 bytes of mulaw every 20ms = 8000 bytes/sec"
+  },
+  "state_flags": {
+    "isProcessing": {
+      "type": "boolean",
+      "purpose": "Prevents concurrent processing of overlapping audio segments",
+      "set_true": "When silence timeout fires and processing begins",
+      "set_false": "In finally block after processing completes (success or error)"
+    }
+  },
+  "silence_detection_flow": [
+    "1. Media chunk arrives → push to audioBuffer[]",
+    "2. Clear existing silenceTimer",
+    "3. Set new silenceTimer = setTimeout(process, 2000ms)",
+    "4. If no new chunks arrive for 2000ms → timer fires",
+    "5. Check: audioBuffer.length > 0 AND !isProcessing",
+    "6. Check: concatenated buffer >= 1600 bytes (0.2s minimum)",
+    "7. If passes → set isProcessing=true, process audio",
+    "8. After processing → set isProcessing=false, ready for next utterance"
+  ]
+}

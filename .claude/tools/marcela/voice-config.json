@@ -1,0 +1,48 @@
+{
+  "name": "marcela_voice_config",
+  "description": "Marcela voice configuration defaults and DB column mapping. Quick reference for voice settings.",
+  "defaults": {
+    "voiceId": "cgSgspJ2msm6clMCkdW9",
+    "voiceName": "Jessica",
+    "ttsModel": "eleven_flash_v2_5",
+    "sttModel": "scribe_v1",
+    "outputFormat": "pcm_16000",
+    "stability": 0.5,
+    "similarityBoost": 0.8,
+    "speakerBoost": false,
+    "chunkSchedule": [120, 160, 250, 290],
+    "llmModel": "gpt-4.1",
+    "maxTokens": 2048,
+    "maxTokensVoice": 1024
+  },
+  "db_columns": {
+    "marcelaVoiceId": "ElevenLabs voice ID",
+    "marcelaTtsModel": "TTS model identifier",
+    "marcelaSttModel": "STT model identifier",
+    "marcelaOutputFormat": "Audio output format (pcm_16000, pcm_22050, pcm_24000, pcm_44100)",
+    "marcelaStability": "Voice stability 0.0-1.0",
+    "marcelaSimilarityBoost": "Voice similarity 0.0-1.0",
+    "marcelaSpeakerBoost": "Speaker boost toggle",
+    "marcelaChunkSchedule": "Comma-separated chunk lengths",
+    "marcelaLlmModel": "LLM model name",
+    "marcelaMaxTokens": "Max tokens for text chat",
+    "marcelaMaxTokensVoice": "Max tokens for voice/phone/SMS",
+    "marcelaTwilioEnabled": "Phone calls enabled",
+    "marcelaSmsEnabled": "SMS enabled",
+    "marcelaPhoneGreeting": "Phone greeting message"
+  },
+  "supported_output_formats": [
+    "pcm_16000",
+    "pcm_22050",
+    "pcm_24000",
+    "pcm_44100",
+    "mp3_44100_128",
+    "ulaw_8000"
+  ],
+  "files": {
+    "voice_config_builder": "server/integrations/elevenlabs.ts",
+    "admin_ui": "client/src/components/admin/MarcelaTab.tsx",
+    "web_voice_endpoint": "server/replit_integrations/chat/routes.ts",
+    "phone_voice_endpoint": "server/routes/twilio.ts"
+  }
+}

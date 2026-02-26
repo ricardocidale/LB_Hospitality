@@ -1,0 +1,50 @@
+{
+  "name": "marcela_system_prompts",
+  "description": "System prompt composition for Marcela AI. Shows how prompts are built per channel and role.",
+  "prompt_composition": {
+    "web_text": "SYSTEM_PROMPT + [ADMIN_ADDITION if admin] + contextPrompt",
+    "web_voice": "SYSTEM_PROMPT + [ADMIN_ADDITION if admin] + VOICE_ADDITION + contextPrompt",
+    "phone": "base_prompt + PHONE_ADDITION + [admin note if admin] + contextPrompt",
+    "sms": "base_prompt + SMS_ADDITION + [admin note if admin] + contextPrompt"
+  },
+  "prompt_locations": {
+    "SYSTEM_PROMPT": {
+      "file": "server/replit_integrations/chat/routes.ts",
+      "description": "Full 120+ line system prompt with persona, expertise, platform knowledge, response guidelines, no-LLM-calc rule"
+    },
+    "ADMIN_SYSTEM_PROMPT_ADDITION": {
+      "file": "server/replit_integrations/chat/routes.ts",
+      "description": "Admin capabilities: user mgmt, activity, verification, config, data oversight"
+    },
+    "VOICE_SYSTEM_PROMPT_ADDITION": {
+      "file": "server/replit_integrations/chat/routes.ts",
+      "description": "Concise responses, no markdown, natural numbers, conversational connectors"
+    },
+    "PHONE_SYSTEM_PROMPT_ADDITION": {
+      "file": "server/routes/twilio.ts",
+      "description": "Very brief (1-3 sentences), phone-friendly, offer text for details"
+    },
+    "SMS_SYSTEM_PROMPT_ADDITION": {
+      "file": "server/routes/twilio.ts",
+      "description": "Under 300 chars, plain text, direct, offer call/web for long answers"
+    }
+  },
+  "context_injection": {
+    "web": {
+      "function": "buildContextPrompt(userId)",
+      "includes": ["portfolio assumptions", "all properties", "team members", "AI research reports"],
+      "file": "server/replit_integrations/chat/routes.ts"
+    },
+    "phone_sms": {
+      "function": "buildContextPrompt(userId)",
+      "includes": ["portfolio assumptions", "properties list"],
+      "file": "server/routes/twilio.ts",
+      "note": "Lighter context than web (no team members, no research)"
+    }
+  },
+  "critical_rules": [
+    "NEVER perform financial calculations — direct users to platform's financial engine",
+    "ALL calculations must be performed by coded financial engine",
+    "May explain formulas and methodology but never produce computed numerical results"
+  ]
+}

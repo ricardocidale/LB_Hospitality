@@ -1,0 +1,65 @@
+{
+  "name": "marcela_channel_routing",
+  "description": "Marcela channel routing map. Quick reference for which endpoint handles which channel.",
+  "channels": {
+    "web_text": {
+      "endpoint": "POST /api/conversations/:id/messages",
+      "auth": "session cookie (requireAuth)",
+      "response": "SSE stream (text/event-stream)",
+      "llm_mode": "streaming",
+      "voice": false,
+      "db_channel": "web",
+      "file": "server/replit_integrations/chat/routes.ts"
+    },
+    "web_voice": {
+      "endpoint": "POST /api/conversations/:id/voice",
+      "auth": "session cookie (requireAuth)",
+      "response": "SSE stream with audio chunks",
+      "llm_mode": "streaming",
+      "voice": true,
+      "pipeline": "WebM → ffmpeg → WAV → STT → LLM → TTS → SSE audio",
+      "db_channel": "web",
+      "file": "server/replit_integrations/chat/routes.ts"
+    },
+    "phone": {
+      "webhook": "POST /api/twilio/voice/incoming",
+      "stream": "WebSocket /api/twilio/voice/stream",
+      "auth": "public (caller ID lookup)",
+      "response": "TwiML + WebSocket Media Stream",
+      "llm_mode": "streaming",
+      "voice": true,
+      "pipeline": "mulaw 8kHz → WAV → STT → LLM → TTS → downsample → mulaw → Twilio",
+      "db_channel": "phone",
+      "file": "server/routes/twilio.ts"
+    },
+    "sms": {
+      "endpoint": "POST /api/twilio/sms/incoming",
+      "auth": "public (phone lookup)",
+      "response": "TwiML <Message>",
+      "llm_mode": "non-streaming",
+      "voice": false,
+      "max_reply_length": 1500,
+      "db_channel": "sms",
+      "file": "server/routes/twilio.ts"
+    }
+  },
+  "admin_endpoints": {
+    "twilio_status": {
+      "endpoint": "GET /api/admin/twilio-status",
+      "auth": "admin only",
+      "returns": "{ connected, phoneNumber, error }",
+      "file": "server/routes/admin.ts"
+    },
+    "send_notification": {
+      "endpoint": "POST /api/admin/send-notification",
+      "auth": "admin only",
+      "body": "{ to, message }",
+      "file": "server/routes/admin.ts"
+    }
+  },
+  "public_paths": [
+    "/api/twilio/voice/incoming",
+    "/api/twilio/voice/status",
+    "/api/twilio/sms/incoming"
+  ]
+}

@@ -10,6 +10,7 @@ const phases = [
   { name: "Proof Scenarios", cmd: "npx vitest run tests/proof/scenarios.test.ts 2>&1" },
   { name: "Hardcoded Detection", cmd: "npx vitest run tests/proof/hardcoded-detection.test.ts 2>&1" },
   { name: "Reconciliation", cmd: "npx vitest run tests/proof/reconciliation-report.test.ts 2>&1" },
+  { name: "Data Integrity", cmd: "npx vitest run tests/proof/data-integrity.test.ts 2>&1" },
 ];
 
 let allPassed = true;

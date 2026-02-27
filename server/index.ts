@@ -119,6 +119,9 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  const { runProdSync001 } = await import("./migrations/prod-sync-001");
+  await runProdSync001();
+
   await seedAdminUser();
   const { seedMissingMarketResearch, seedDefaultLogos, seedUserGroups, seedCompanies, seedFeeCategories } = await import("./seed");
   await seedMissingMarketResearch();

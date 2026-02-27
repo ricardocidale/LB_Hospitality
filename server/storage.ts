@@ -338,7 +338,7 @@ export class DatabaseStorage implements IStorage {
       const [userResult] = await db.select().from(globalAssumptions).where(eq(globalAssumptions.userId, userId)).limit(1);
       if (userResult) return userResult;
     }
-    const [shared] = await db.select().from(globalAssumptions).where(isNull(globalAssumptions.userId)).limit(1);
+    const [shared] = await db.select().from(globalAssumptions).where(isNull(globalAssumptions.userId)).orderBy(desc(globalAssumptions.id)).limit(1);
     if (shared) return shared;
     const [any] = await db.select().from(globalAssumptions).limit(1);
     return any || undefined;

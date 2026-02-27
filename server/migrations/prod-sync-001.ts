@@ -1,6 +1,6 @@
 import { db } from "../db";
-import { globalAssumptions, designThemes } from "@shared/schema";
-import { isNull, eq, sql } from "drizzle-orm";
+import { globalAssumptions, designThemes, properties } from "@shared/schema";
+import { isNull, eq, isNotNull } from "drizzle-orm";
 
 export async function runProdSync001(): Promise<void> {
   const tag = "[migration] prod-sync-001";
@@ -22,6 +22,20 @@ export async function runProdSync001(): Promise<void> {
     console.log(`${tag}: deleted ${deleteIds.length} duplicate global_assumptions row(s) (kept id=${keepId}, deleted ids=${deleteIds.join(",")})`);
   } else {
     console.log(`${tag}: global_assumptions already clean (${gaRows.length} shared row)`);
+  }
+
+  const ownedProps = await db
+    .select({ id: properties.id, name: properties.name, userId: properties.userId })
+    .from(properties)
+    .where(isNotNull(properties.userId));
+
+  if (ownedProps.length > 0) {
+    for (const prop of ownedProps) {
+      await db.update(properties).set({ userId: null }).where(eq(properties.id, prop.id));
+      console.log(`${tag}: set property "${prop.name}" (id=${prop.id}) userId from ${prop.userId} to NULL (shared)`);
+    }
+  } else {
+    console.log(`${tag}: all properties already shared (userId=NULL)`);
   }
 
   const dtRows = await db

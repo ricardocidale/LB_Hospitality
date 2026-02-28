@@ -48,7 +48,7 @@ export function register(app: Express) {
       
       const property = await storage.createProperty({
         ...validation.data,
-        userId: req.user!.id,
+        userId: null,
       });
 
       // Seed default fee categories for the new property

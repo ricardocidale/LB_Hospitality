@@ -462,13 +462,15 @@ export class DatabaseStorage implements IStorage {
    */
   async loadScenario(userId: number, savedAssumptions: Record<string, unknown>, savedProperties: Array<Record<string, unknown>>, savedFeeCategories?: Record<string, Array<Record<string, unknown>>>): Promise<void> {
     await db.transaction(async (tx) => {
+      const { id: _gaId, createdAt: _gaCreated, updatedAt: _gaUpdated, userId: _gaUser, ...gaData } = savedAssumptions;
+
       const existingShared = await tx.select().from(globalAssumptions)
         .where(isNull(globalAssumptions.userId));
       if (existingShared.length > 0) {
-        await tx.update(globalAssumptions).set(savedAssumptions)
+        await tx.update(globalAssumptions).set({ ...gaData, updatedAt: new Date() })
           .where(eq(globalAssumptions.id, existingShared[existingShared.length - 1].id));
       } else {
-        await tx.insert(globalAssumptions).values({ ...savedAssumptions, userId: null } as typeof globalAssumptions.$inferInsert);
+        await tx.insert(globalAssumptions).values({ ...gaData, userId: null } as typeof globalAssumptions.$inferInsert);
       }
 
       const currentProps = await tx.select().from(properties)

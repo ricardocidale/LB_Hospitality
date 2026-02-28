@@ -462,23 +462,23 @@ export class DatabaseStorage implements IStorage {
    */
   async loadScenario(userId: number, savedAssumptions: Record<string, unknown>, savedProperties: Array<Record<string, unknown>>, savedFeeCategories?: Record<string, Array<Record<string, unknown>>>): Promise<void> {
     await db.transaction(async (tx) => {
-      const existing = await tx.select().from(globalAssumptions)
-        .where(eq(globalAssumptions.userId, userId));
-      if (existing.length > 0) {
+      const existingShared = await tx.select().from(globalAssumptions)
+        .where(isNull(globalAssumptions.userId));
+      if (existingShared.length > 0) {
         await tx.update(globalAssumptions).set(savedAssumptions)
-          .where(eq(globalAssumptions.userId, userId));
+          .where(eq(globalAssumptions.id, existingShared[existingShared.length - 1].id));
       } else {
-        await tx.insert(globalAssumptions).values({ ...savedAssumptions, userId } as typeof globalAssumptions.$inferInsert);
+        await tx.insert(globalAssumptions).values({ ...savedAssumptions, userId: null } as typeof globalAssumptions.$inferInsert);
       }
 
       const currentProps = await tx.select().from(properties)
-        .where(or(eq(properties.userId, userId), isNull(properties.userId)));
+        .where(isNull(properties.userId));
       for (const prop of currentProps) {
         await tx.delete(properties).where(eq(properties.id, prop.id));
       }
       for (const prop of savedProperties) {
-        const { id, createdAt, updatedAt, ...propData } = prop;
-        const [inserted] = await tx.insert(properties).values({ ...propData, userId } as typeof properties.$inferInsert).returning();
+        const { id, createdAt, updatedAt, userId: _uid, ...propData } = prop;
+        const [inserted] = await tx.insert(properties).values({ ...propData, userId: null } as typeof properties.$inferInsert).returning();
 
         const propName = prop.name as string;
         const feeCats = savedFeeCategories?.[propName];

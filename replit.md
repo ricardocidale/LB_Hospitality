@@ -5,10 +5,10 @@
 ## Overview
 Business simulation portal for the hospitality industry. Financial modeling, property management, investment analysis, and AI-powered assistant (Marcela). GAAP-compliant (ASC 230, ASC 360, ASC 470) with IRS depreciation rules and independent audit/verification engine.
 
-**Codebase:** 404 source files, ~71,500 lines, 1,529 tests across 72 files.
+**Codebase:** ~405 source files, ~71,600 lines, 1,546 tests across 75 files.
 
 ## User Preferences
-- **Calculations first.** 1,529-test proof system must always pass.
+- **Calculations first.** 1,546-test proof system must always pass.
 - **Graphics-rich pages.** Charts, animations, visual elements everywhere.
 - **No hardcoded values.** Financial assumptions and admin config from DB or named constants.
 - **Full recalculation on save.** No partial query invalidation.
@@ -62,8 +62,8 @@ React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v
 ```bash
 npm run dev            # Start dev server (port 5000)
 npm run health         # One-shot: tsc + tests + verify
-npm run test:summary   # 1,529 tests, 1-line output
-npm run verify:summary # 4-phase verification, compact
+npm run test:summary   # 1,546 tests, 1-line output
+npm run verify:summary # 6-phase verification, compact
 npm run stats          # Codebase metrics
 npm run audit:quick    # Quick code quality scan
 ```
@@ -72,7 +72,7 @@ npm run audit:quick    # Quick code quality scan
 ```
 .claude/
 ├── claude.md              # Master doc (always loaded)
-├── rules/ (21 files)      # Enforceable constraints
+├── rules/ (23 files)      # Enforceable constraints
 ├── skills/ (118 files)    # Implementation knowledge
 ├── tools/ (43 files)      # Tool schemas
 ├── manuals/               # Checker + user manuals

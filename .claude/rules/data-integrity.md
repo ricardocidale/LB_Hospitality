@@ -40,6 +40,16 @@ await storage.createProperty({ ...data, userId: null });
 await storage.createProperty({ ...data, userId: req.user.id });
 ```
 
+### Scenario Load — Known Risk Area
+
+The `loadScenario()` method in `server/storage.ts` replaces all current properties and global assumptions with a saved snapshot. This is a critical risk area because:
+
+1. Restored properties must have `userId: null` (shared), not the logged-in user's ID
+2. Global assumptions must update the shared row, not create a user-specific one
+3. The delete step must target shared properties (`userId IS NULL`), not user-specific ones
+
+**Root cause (Feb 2025):** `loadScenario()` inserted restored properties with the logged-in user's `userId`, making them invisible to all other users. Same class of bug as the Loch Sheldrake seeding issue.
+
 ### When Adding New Shared Singleton Tables
 
 1. Ensure `ORDER BY id DESC` on all read queries.
@@ -54,5 +64,6 @@ These checks run as part of the financial verification pipeline (`npm run verify
 
 - [ ] Does every shared singleton query include `ORDER BY id DESC`?
 - [ ] Are all new properties created with `userId: null`?
+- [ ] Does scenario load restore properties as shared?
 - [ ] Is there a data-integrity test for the new table?
 - [ ] Does the migration script handle duplicate cleanup?

@@ -168,6 +168,19 @@ curl -c cookies.txt -X POST /api/auth/login \
 curl -b cookies.txt /api/admin/run-verification
 ```
 
+### CLI Verification Phases (`npm run verify:summary`)
+
+The CLI verification runs 6 independent proof phases:
+
+| Phase | Test File | What It Checks |
+|-------|-----------|----------------|
+| Proof Scenarios | `tests/proof/scenarios.test.ts` | GAAP financial identities, loan amortization, fee structures, consolidation |
+| Hardcoded Detection | `tests/proof/hardcoded-detection.test.ts` | No magic numbers in finance code; all values from constants |
+| Reconciliation | `tests/proof/reconciliation-report.test.ts` | Sources & Uses, NOI→FCF bridge, cash bridge, debt recon |
+| Data Integrity | `tests/proof/data-integrity.test.ts` | Shared row uniqueness, all properties userId=NULL, no duplicates |
+| Portfolio Dynamics | `tests/proof/portfolio-dynamics.test.ts` | Dynamic property count, fee zero-sum, staffing tiers, empty portfolio |
+| Recalc Enforcement | `tests/proof/recalculation-enforcement.test.ts` | All mutations call invalidateAllFinancialQueries, no bypasses |
+
 ### Expected Results
 When properly configured, all checks should pass with an **UNQUALIFIED** audit opinion. The total check count varies based on the number of properties (approximately 18 per property, plus company and consolidated checks). Any failures indicate a calculation discrepancy between the client-side engine and the independent server-side checker.
 

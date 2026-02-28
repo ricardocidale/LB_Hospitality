@@ -61,6 +61,16 @@ These mutations do NOT require full recalculation:
 - Profile updates (name, email, password)
 - Session management
 
+## Enforcement
+
+This rule is verified automatically by `tests/proof/recalculation-enforcement.test.ts`, which runs as part of the verification pipeline (`npm run verify:summary`, "Recalc Enforcement" phase). The test performs:
+
+1. **Static analysis**: Every mutation hook in `api.ts` that creates, updates, or deletes financial data must call `invalidateAllFinancialQueries` in its `onSuccess` callback.
+2. **Completeness check**: `ALL_FINANCIAL_QUERY_KEYS` must include all financial query keys used across the codebase.
+3. **Bypass detection**: No direct `queryClient.invalidateQueries()` calls may bypass the centralized helper for financial data.
+
+Failures in this test produce an **ADVERSE** verification opinion.
+
 ## Why
 
 Financial reports are interconnected. A change to any single assumption can cascade through:

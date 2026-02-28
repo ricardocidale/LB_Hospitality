@@ -398,15 +398,15 @@ async function seed() {
       incentiveManagementFeeRate: DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
     },
   ]);
-  console.log("Seeded 5 properties");
-
+  
   const seededProperties = await db.select().from(properties);
+  console.log(`Seeded ${seededProperties.length} properties`);
   const propertyMap: Record<string, number> = {};
   for (const p of seededProperties) {
     propertyMap[p.name] = p.id;
   }
 
-  await db.insert(marketResearch).values([
+  const marketResearchEntries = [
     {
       userId: null,
       type: "property",
@@ -447,8 +447,9 @@ async function seed() {
       llmModel: "seed-data",
       content: getBlueRidgeResearch()
     }
-  ]);
-  console.log("Seeded market research for 5 properties");
+  ];
+  await db.insert(marketResearch).values(marketResearchEntries);
+  console.log(`Seeded market research for ${marketResearchEntries.length} properties`);
 
   console.log("Database seed completed successfully!");
 }

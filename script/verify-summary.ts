@@ -1,5 +1,5 @@
 /**
- * Verify Summary — runs the 4-phase verification, outputs only failures + opinion.
+ * Verify Summary — runs the 6-phase verification, outputs only failures + opinion.
  * Saves hundreds of lines of verbose test output.
  *
  * Usage: npm run verify:summary
@@ -11,6 +11,8 @@ const phases = [
   { name: "Hardcoded Detection", cmd: "npx vitest run tests/proof/hardcoded-detection.test.ts 2>&1" },
   { name: "Reconciliation", cmd: "npx vitest run tests/proof/reconciliation-report.test.ts 2>&1" },
   { name: "Data Integrity", cmd: "npx vitest run tests/proof/data-integrity.test.ts 2>&1" },
+  { name: "Portfolio Dynamics", cmd: "npx vitest run tests/proof/portfolio-dynamics.test.ts 2>&1" },
+  { name: "Recalc Enforcement", cmd: "npx vitest run tests/proof/recalculation-enforcement.test.ts 2>&1" },
 ];
 
 let allPassed = true;

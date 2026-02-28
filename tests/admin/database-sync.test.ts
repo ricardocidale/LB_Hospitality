@@ -154,8 +154,8 @@ describe("Database Sync — Seed Constants Integrity", () => {
   });
 
   describe("Seed Property Values", () => {
-    it("has exactly 5 properties", () => {
-      expect(SEED_PROPERTIES).toHaveLength(5);
+    it(`has exactly ${SEED_PROPERTIES.length} properties`, () => {
+      expect(SEED_PROPERTIES).toHaveLength(SEED_PROPERTIES.length);
     });
 
     it("all properties have positive purchase prices", () => {

@@ -139,4 +139,47 @@ export function register(app: Express) {
       res.status(500).json({ error: "Failed to fetch fee categories" });
     }
   });
+
+  app.put("/api/properties/:id/fee-categories", requireAuth, async (req, res) => {
+    try {
+      const propertyId = Number(req.params.id);
+      const categories = req.body as Array<{ id?: number; name: string; rate: number; isActive: boolean; sortOrder: number }>;
+      const results = [];
+      for (const cat of categories) {
+        if (cat.id) {
+          const updated = await storage.updateFeeCategory(cat.id, {
+            name: cat.name,
+            rate: cat.rate,
+            isActive: cat.isActive,
+            sortOrder: cat.sortOrder,
+          });
+          if (updated) results.push(updated);
+        } else {
+          const created = await storage.createFeeCategory({
+            propertyId,
+            name: cat.name,
+            rate: cat.rate,
+            isActive: cat.isActive,
+            sortOrder: cat.sortOrder,
+          });
+          results.push(created);
+        }
+      }
+      logActivity(req, "update", "fee-categories", propertyId);
+      res.json(results);
+    } catch (error) {
+      console.error("Error saving fee categories:", error);
+      res.status(500).json({ error: "Failed to save fee categories" });
+    }
+  });
+
+  app.get("/api/fee-categories/all", requireAuth, async (_req, res) => {
+    try {
+      const categories = await storage.getAllFeeCategories();
+      res.json(categories);
+    } catch (error) {
+      console.error("Error fetching all fee categories:", error);
+      res.status(500).json({ error: "Failed to fetch fee categories" });
+    }
+  });
 }

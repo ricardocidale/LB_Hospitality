@@ -150,7 +150,7 @@ async function fetchGlobalAssumptions(): Promise<GlobalResponse> {
 
 async function updateGlobalAssumptions(data: Partial<GlobalResponse>): Promise<GlobalResponse> {
   const res = await fetch("/api/global-assumptions", {
-    method: "POST",
+    method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
@@ -546,8 +546,9 @@ export interface MarketResearchResponse {
 
 async function fetchResearch(type: string, propertyId?: number): Promise<MarketResearchResponse | null> {
   const params = new URLSearchParams();
+  params.set("type", type);
   if (propertyId) params.set("propertyId", propertyId.toString());
-  const res = await fetch(`/api/research/${type}?${params.toString()}`);
+  const res = await fetch(`/api/market-research?${params.toString()}`);
   if (!res.ok) throw new Error("Failed to fetch research");
   return res.json();
 }
@@ -601,7 +602,7 @@ export function useUpdateResearchQuestion() {
   return useMutation({
     mutationFn: async ({ id, question }: { id: number; question: string }) => {
       const res = await fetch(`/api/research-questions/${id}`, {
-        method: "PUT",
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question }),
       });
@@ -680,13 +681,13 @@ async function searchProperties(params: PropertyFinderSearchParams): Promise<Pro
 }
 
 async function fetchFavorites(): Promise<SavedProspectiveProperty[]> {
-  const res = await fetch("/api/property-finder/favorites");
+  const res = await fetch("/api/property-finder/prospective");
   if (!res.ok) throw new Error("Failed to fetch saved properties");
   return res.json();
 }
 
 async function saveFavorite(data: PropertyFinderResult): Promise<SavedProspectiveProperty> {
-  const res = await fetch("/api/property-finder/favorites", {
+  const res = await fetch("/api/property-finder/prospective", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -696,12 +697,12 @@ async function saveFavorite(data: PropertyFinderResult): Promise<SavedProspectiv
 }
 
 async function deleteFavorite(id: number): Promise<void> {
-  const res = await fetch(`/api/property-finder/favorites/${id}`, { method: "DELETE" });
+  const res = await fetch(`/api/property-finder/prospective/${id}`, { method: "DELETE" });
   if (!res.ok) throw new Error("Failed to remove property");
 }
 
 async function updateFavoriteNotes({ id, notes }: { id: number; notes: string }): Promise<SavedProspectiveProperty> {
-  const res = await fetch(`/api/property-finder/favorites/${id}/notes`, {
+  const res = await fetch(`/api/property-finder/prospective/${id}/notes`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ notes }),

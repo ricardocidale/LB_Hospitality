@@ -69,6 +69,15 @@ export function register(app: Express) {
     }
   });
 
+  app.get("/api/property-finder/search", requireAuth, async (req, res) => {
+    res.status(501).json({
+      error: "Property search requires RapidAPI integration",
+      message: "External property search is not yet configured. Please add properties manually.",
+      results: [],
+      totalResults: 0,
+    });
+  });
+
   app.get("/api/property-finder/saved-searches", requireAuth, async (req, res) => {
     try {
       const searches = await storage.getSavedSearches(req.user!.id);

@@ -52,6 +52,42 @@ export function register(app: Express) {
     }
   });
 
+  app.get("/api/my-branding", requireAuth, async (req, res) => {
+    try {
+      const u = req.user!;
+      let logoUrl: string | null = null;
+      let themeName: string | null = null;
+      let groupCompanyName: string | null = null;
+
+      if (u.userGroupId) {
+        const group = await storage.getUserGroup(u.userGroupId);
+        if (group) {
+          if (group.logoId) {
+            const logo = await storage.getLogo(group.logoId);
+            if (logo) {
+              logoUrl = logo.url;
+              if (logo.companyName) groupCompanyName = logo.companyName;
+            }
+          }
+          if (group.themeId) {
+            const theme = await storage.getDesignTheme(group.themeId);
+            if (theme) themeName = theme.name;
+          }
+        }
+      }
+
+      if (!logoUrl) {
+        const defaultLogo = await storage.getDefaultLogo();
+        if (defaultLogo) logoUrl = defaultLogo.url;
+      }
+
+      res.json({ logoUrl, themeName, groupCompanyName });
+    } catch (error) {
+      console.error("Error fetching my-branding:", error);
+      res.json({ logoUrl: null, themeName: null, groupCompanyName: null });
+    }
+  });
+
   // Logos CRUD
   app.get("/api/logos", requireAuth, async (req, res) => {
     try {

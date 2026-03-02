@@ -96,6 +96,75 @@ export function register(app: Express) {
     }
   });
 
+  app.get("/api/research/property", requireAuth, async (req, res) => {
+    try {
+      const { propertyId } = req.query;
+      const research = await storage.getMarketResearch(
+        "property",
+        req.user!.id,
+        propertyId ? Number(propertyId) : undefined
+      );
+      res.json(research || null);
+    } catch (error) {
+      console.error("Error fetching property research:", error);
+      res.status(500).json({ error: "Failed to fetch research" });
+    }
+  });
+
+  app.post("/api/research/generate", requireAuth, async (req, res) => {
+    try {
+      const validation = researchGenerateSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: fromZodError(validation.error).message });
+      }
+
+      const { type, propertyId, propertyContext, assetDefinition, researchVariables } = validation.data;
+
+      if (isApiRateLimited(req.user!.id, "market-research", 5)) {
+        return res.status(429).json({ error: "Rate limit exceeded. Please wait a minute." });
+      }
+
+      const ga = await storage.getGlobalAssumptions(req.user!.id);
+      const model = ga?.preferredLlm || "claude-3-5-sonnet-20241022";
+      const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+      res.setHeader("Content-Type", "text/event-stream");
+      res.setHeader("Cache-Control", "no-cache");
+      res.setHeader("Connection", "keep-alive");
+
+      const params = {
+        type,
+        propertyContext: propertyContext as any,
+        assetDefinition: assetDefinition as any,
+        researchVariables,
+        propertyLabel: ga?.propertyLabel,
+      };
+
+      const stream = generateResearchWithToolsStream(params, anthropic, model);
+
+      let fullContent = "";
+      for await (const chunk of stream) {
+        res.write(`data: ${JSON.stringify(chunk)}\n\n`);
+        if (chunk.type === "content") fullContent += chunk.data;
+        if (chunk.type === "done") {
+          await storage.upsertMarketResearch({
+            userId: req.user!.id,
+            propertyId,
+            type,
+            title: `${type === 'property' ? 'Property' : type === 'company' ? 'Company' : 'Global'} Research`,
+            content: { rawResponse: fullContent },
+          });
+          logActivity(req, "generate", "market_research", propertyId, type);
+        }
+      }
+      res.end();
+    } catch (error) {
+      console.error("Research generation error:", error);
+      res.write(`data: ${JSON.stringify({ type: "error", message: "Generation failed" })}\n\n`);
+      res.end();
+    }
+  });
+
   app.post("/api/email-research-pdf", requireAuth, async (req, res) => {
     try {
       const { email, propertyId, content } = req.body;

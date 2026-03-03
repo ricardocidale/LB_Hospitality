@@ -56,16 +56,22 @@ The depreciable basis is calculated as the sum of the purchase price and buildin
 | Starting ADR | Average Daily Rate at operations start | $250 | $/night |
 | ADR Growth Rate | Annual ADR growth rate | 3% | % |
 | Starting Occupancy | Occupancy rate at operations start | 55% | % |
-| Maximum Occupancy | Maximum stabilized occupancy | 85% | % |
-| Occupancy Ramp Months | Months between occupancy growth steps | 6 | months |
-| Occupancy Growth Step | Occupancy increase per ramp step | 5% | absolute % |
-| Stabilization Months | Months from operations start to stabilization | 24 | months |
+| Stabilized Occupancy | Maximum occupancy after ramp-up completes | 85% | % |
+| Occupancy Ramp | Months between each occupancy step-up | 6 | months |
+| Occupancy Growth Step | Percentage-point increase at each step-up | 5% | absolute % |
 
 Monthly Room Revenue is computed as: Room Count × 30.5 days × Current Occupancy × Current ADR.
 
 ADR grows on a monthly basis using the formula: Starting ADR × (1 + ADR Growth Rate) raised to the power of (month index / 12).
 
-Occupancy ramps in discrete steps: every occupancy ramp period (default 6 months), occupancy increases by the growth step (default 5 percentage points) until the maximum occupancy is reached.
+Occupancy uses a **discrete step-up model** — it does not grow smoothly. Two settings work together:
+- **Occupancy Ramp** (months): the interval between each step-up.
+- **Occupancy Growth Step** (percentage points): the size of each jump.
+
+Every time the ramp interval elapses, occupancy increases by the growth step until the stabilized maximum is reached. Example with starting occupancy 40%, growth step 5%, ramp interval 9 months, stabilized occupancy 72%:
+- Months 0–8: 40% → Months 9–17: 45% → Months 18–26: 50% → Months 27–35: 55% → Months 36–44: 60% → Months 45–53: 65% → Months 54–62: 70% → Month 63+: 72% (capped at stabilized max).
+
+The total months to stabilization = ceil((stabilized − starting) / growth step) × ramp interval.
 
 ### Revenue Shares (as Percentage of Room Revenue)
 

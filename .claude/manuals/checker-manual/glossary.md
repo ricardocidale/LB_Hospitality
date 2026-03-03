@@ -52,7 +52,7 @@ This glossary defines every financial and operational term used in the Hospitali
 | Monthly Depreciation | Depreciable basis divided by 27.5 years divided by 12 months. | Depreciation |
 | Net Income | NOI minus interest minus depreciation minus income tax. | Profitability |
 | NOI (Net Operating Income) | GOP minus management fees minus FF&E reserve. | Profitability |
-| Occupancy Rate | Percentage of available rooms sold. Ramps from initial rate to maximum over the stabilization period. | Revenue |
+| Occupancy Rate | Percentage of available rooms sold. Increases in discrete step-ups — every ramp interval (e.g. 9 months), occupancy jumps by the growth step (e.g. 5pp) until hitting the stabilized maximum. | Revenue |
 | Operating Reserve | Cash set aside for initial working capital needs post-acquisition. | Capital |
 | PMT | Standard loan payment formula: Principal × [r(1+r)^n / ((1+r)^n − 1)]. | Financing |
 | Pre-Opening Costs | Expenses incurred before property begins operations, including staffing, marketing, and setup. | Capital |
@@ -66,7 +66,7 @@ This glossary defines every financial and operational term used in the Hospitali
 | SAFE (Simple Agreement for Future Equity) | Convertible instrument used to fund the management company. | Funding |
 | Scenario | Saved snapshot of all assumptions and property configurations for comparison. | System |
 | SPV (Special Purpose Vehicle) | Legal entity isolating each property's financial risk. | Legal |
-| Stabilization | Period when property reaches target occupancy after opening, typically 12–24 months. | Operations |
+| Stabilization | The point at which occupancy reaches its maximum after stepping up from the starting rate. Total months = ceil((max − start) / step) × ramp interval. | Operations |
 | Straight-Line Depreciation | Equal depreciation expense each period over the useful life. | Depreciation |
 | Terminal Year | Final year of the projection period; used for exit valuation. | Valuation |
 | Total Property Cost | Purchase price plus building improvements plus pre-opening costs plus operating reserve plus closing costs. | Capital |

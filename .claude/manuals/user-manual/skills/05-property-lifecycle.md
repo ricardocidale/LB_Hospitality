@@ -12,7 +12,9 @@ The purchase price is set individually for each property. Closing costs are calc
 
 Once the acquisition is funded, the property enters its operating phase. Revenue begins on the designated operations start date and grows over time as the property ramps up to stabilized performance.
 
-Occupancy starts at 55% and ramps upward toward a maximum of 85%, reflecting the typical trajectory of a newly acquired boutique hotel as it builds market awareness and guest loyalty. The average daily rate (ADR) grows at 3% per year, compounding annually. All operating expenses are calculated as percentages of revenue following the USALI departmental structure, which is the industry standard for hotel financial reporting.
+Occupancy grows using a discrete step-up model. Two settings control this: the **Occupancy Ramp** (the number of months between each step-up) and the **Occupancy Growth Step** (how many percentage points occupancy jumps at each step). For example, a property starting at 40% occupancy with a 9-month ramp interval and a 5% growth step will sit at 40% for the first 9 months, then jump to 45%, hold there for another 9 months, jump to 50%, and so on until hitting its stabilized maximum. This staircase pattern reflects the real-world trajectory of a newly acquired boutique hotel as it builds market awareness and guest loyalty in waves — not smoothly, but in observable step changes as seasonal cycles, marketing campaigns, and reputation milestones accumulate.
+
+The average daily rate (ADR) grows at a configurable annual rate, compounding each year. All operating expenses are calculated as percentages of revenue following the USALI departmental structure, which is the industry standard for hotel financial reporting.
 
 ## Phase 3: Refinancing (Optional)
 

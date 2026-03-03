@@ -123,9 +123,18 @@ Other Revenue Mix (as percentage of Room Revenue):
 - Events Revenue: percentage of Room Revenue
 - Other Revenue: percentage of Room Revenue
 
-ADR Growth: Applied annually, compounds over projection period.
-Occupancy Ramp: Starts at initial occupancy, ramps to stabilized occupancy over specified months.
-Catering Boost: Additional F&B revenue percentage that phases in over operating years.`,
+ADR Growth: Applied annually, compounds over the projection period. A 3.5% rate on a $250 ADR yields ~$259 in Year 2, ~$268 in Year 3.
+
+Occupancy Ramp (step-up model): Occupancy does NOT grow smoothly — it increases in discrete jumps. Two settings control this:
+- Occupancy Ramp (months): the interval between each step-up. Example: 9 months means occupancy jumps every 9 months.
+- Occupancy Growth Step: the size of each jump in percentage points. Example: 5% means each step adds 5 percentage points.
+
+So a property starting at 40% occupancy with a 9-month ramp and 5% step grows like this:
+  Months 0–8: 40% → Months 9–17: 45% → Months 18–26: 50% → and so on until hitting the Stabilized Occupancy cap.
+
+The total time to reach stabilized occupancy depends on the gap between starting and stabilized occupancy, divided by the growth step, multiplied by the ramp interval.
+
+Catering Boost: Additional F&B revenue percentage from catering operations, applied as a multiplier to base F&B revenue.`,
     source: "User Manual",
     category: "methodology",
   });
@@ -434,7 +443,7 @@ Administration (Admin only): Users, Companies, Activity, Verification, User Grou
    - Financing: LTV ratio, interest rate, loan term (or select cash purchase)
    - Revenue mix: F&B, events, other revenue percentages
    - Expense rates: override system defaults per USALI category
-   - Occupancy ramp: initial occupancy and ramp-up period
+   - Occupancy ramp: starting occupancy, stabilized occupancy, ramp interval (months between step-ups), and growth step size
    - Exit assumptions: holding period, exit cap rate, commission rate
 
 5. Click Save to add the property. The financial engine immediately recalculates the entire portfolio.

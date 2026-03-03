@@ -488,12 +488,12 @@ export default function CheckerManual({ embedded }: { embedded?: boolean }) {
                   headers={["Variable", "Description", "Default", "Unit"]}
                   rows={[
                     ["roomCount", "Number of guest rooms", "10", "count"],
-                    ["startAdr", "Average Daily Rate at ops start", "$250", "$/night"],
-                    ["adrGrowthRate", "Annual ADR growth rate", "3%", "%"],
-                    ["startOccupancy", "Occupancy rate at ops start", "55%", "%"],
-                    ["maxOccupancy", "Maximum stabilized occupancy", "85%", "%"],
-                    ["occupancyRampMonths", "Months between occupancy growth steps", "6", "months"],
-                    ["occupancyGrowthStep", "Occupancy increase per ramp step", "5%", "%"],
+                    ["startAdr", "Average nightly rate per occupied room at opening", "$250", "$/night"],
+                    ["adrGrowthRate", "Annual compounding ADR increase", "3%", "%"],
+                    ["startOccupancy", "Occupancy rate in the first month of operations", "55%", "%"],
+                    ["maxOccupancy", "Maximum occupancy after ramp-up completes", "85%", "%"],
+                    ["occupancyRampMonths", "Months between each occupancy step-up", "6", "months"],
+                    ["occupancyGrowthStep", "Percentage-point jump at each step-up", "5%", "%"],
                   ]}
                 />
                 <h3 className="text-foreground text-sm font-semibold mt-4 mb-2">Revenue Shares & Cost Rates</h3>

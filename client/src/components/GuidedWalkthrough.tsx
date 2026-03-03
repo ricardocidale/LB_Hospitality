@@ -1,33 +1,31 @@
 /**
  * GuidedWalkthrough.tsx — First-time user onboarding walkthrough.
  *
- * Displays a multi-step overlay guiding new users through the platform:
- *   1. Welcome and overview
- *   2. Portfolio dashboard orientation
- *   3. Adding a property
- *   4. Viewing financial projections
- *   5. Using AI research
- *
- * Completion state is persisted to localStorage via Zustand so the
- * walkthrough only shows once. Authenticated users can re-trigger it
- * from the help menu.
+ * On first visit (or after reset), shows a welcome dialog asking if the user
+ * wants a guided tour. Includes a "Do not offer this again" checkbox.
+ * If the user accepts, a multi-step spotlight overlay walks them through
+ * the platform. Completion/dismissal state is persisted via Zustand + localStorage.
  */
 import { useState, useEffect, useCallback, useRef } from "react";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { X, ChevronRight, ChevronLeft, HelpCircle } from "lucide-react";
+import { X, ChevronRight, ChevronLeft, HelpCircle, MapPin } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 
 interface WalkthroughState {
   completed: boolean;
+  dismissed: boolean;
   setCompleted: (v: boolean) => void;
+  setDismissed: (v: boolean) => void;
 }
 
 export const useWalkthroughStore = create<WalkthroughState>()(
   persist(
     (set) => ({
       completed: false,
+      dismissed: false,
       setCompleted: (v: boolean) => set({ completed: v }),
+      setDismissed: (v: boolean) => set({ dismissed: v }),
     }),
     { name: "walkthrough-store" }
   )
@@ -48,25 +46,97 @@ function getTourSteps(firstName?: string | null) {
   ];
 }
 
+function TourPromptDialog({ onAccept, onDecline }: { onAccept: () => void; onDecline: (neverAgain: boolean) => void }) {
+  const [dontOffer, setDontOffer] = useState(false);
+  const { user } = useAuth();
+  const firstName = user?.firstName;
+
+  return (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center" data-testid="tour-prompt-dialog">
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => onDecline(dontOffer)} />
+      <div className="relative bg-white rounded-2xl shadow-2xl border border-gray-100 p-8 max-w-md w-full mx-4 animate-in fade-in zoom-in-95 duration-300">
+        <div className="flex flex-col items-center text-center space-y-5">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-green-500/20">
+            <MapPin className="w-7 h-7 text-white" />
+          </div>
+
+          <div className="space-y-2">
+            <h2 className="text-xl font-display font-semibold text-gray-900">
+              {firstName ? `Welcome, ${firstName}!` : "Welcome!"}
+            </h2>
+            <p className="text-sm text-muted-foreground leading-relaxed max-w-sm">
+              Would you like a quick guided tour of the platform? It only takes a minute and covers navigation, key features, and where to find everything.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3 w-full">
+            <button
+              onClick={() => onDecline(dontOffer)}
+              className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors"
+              data-testid="button-tour-decline"
+            >
+              No Thanks
+            </button>
+            <button
+              onClick={onAccept}
+              className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-xl transition-colors shadow-md shadow-green-600/20"
+              data-testid="button-tour-accept"
+            >
+              Take the Tour
+            </button>
+          </div>
+
+          <label className="flex items-center gap-2 cursor-pointer group" data-testid="label-dont-offer-again">
+            <input
+              type="checkbox"
+              checked={dontOffer}
+              onChange={(e) => setDontOffer(e.target.checked)}
+              className="w-4 h-4 rounded border-gray-300 text-green-600 focus:ring-green-500 cursor-pointer"
+              data-testid="checkbox-dont-offer-again"
+            />
+            <span className="text-xs text-gray-400 group-hover:text-gray-500 transition-colors select-none">
+              Do not offer this again
+            </span>
+          </label>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function GuidedWalkthrough() {
-  const { completed, setCompleted } = useWalkthroughStore();
+  const { completed, dismissed, setCompleted, setDismissed } = useWalkthroughStore();
   const { user } = useAuth();
   const tourSteps = getTourSteps(user?.firstName);
+  const [showPrompt, setShowPrompt] = useState(false);
   const [active, setActive] = useState(false);
   const [step, setStep] = useState(0);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
   const hasAutoStarted = useRef(false);
 
   useEffect(() => {
-    if (!completed && !hasAutoStarted.current) {
+    if (!completed && !dismissed && !hasAutoStarted.current) {
       hasAutoStarted.current = true;
       const timer = setTimeout(() => {
-        setActive(true);
-        setStep(0);
-      }, 500);
+        setShowPrompt(true);
+      }, 800);
       return () => clearTimeout(timer);
     }
-  }, [completed]);
+  }, [completed, dismissed]);
+
+  const handleAcceptTour = useCallback(() => {
+    setShowPrompt(false);
+    setActive(true);
+    setStep(0);
+  }, []);
+
+  const handleDeclineTour = useCallback((neverAgain: boolean) => {
+    setShowPrompt(false);
+    setCompleted(true);
+    if (neverAgain) {
+      setDismissed(true);
+    }
+  }, [setCompleted, setDismissed]);
 
   const updateRect = useCallback(() => {
     if (!active) return;
@@ -115,6 +185,10 @@ function GuidedWalkthrough() {
     setCompleted(true);
     setActive(false);
   }, [setCompleted]);
+
+  if (showPrompt) {
+    return <TourPromptDialog onAccept={handleAcceptTour} onDecline={handleDeclineTour} />;
+  }
 
   if (!active || !targetRect) return null;
 
@@ -216,11 +290,12 @@ function GuidedWalkthrough() {
 }
 
 export function WalkthroughTrigger() {
-  const { setCompleted } = useWalkthroughStore();
+  const { setCompleted, setDismissed } = useWalkthroughStore();
 
   const handleClick = useCallback(() => {
     setCompleted(false);
-  }, [setCompleted]);
+    setDismissed(false);
+  }, [setCompleted, setDismissed]);
 
   return (
     <button

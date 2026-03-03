@@ -17,7 +17,7 @@ export default function Help() {
   const isChecker = isAdmin || authIsChecker;
   const defaultTab: HelpTab = isChecker ? "checker-manual" : "user-manual";
   const [tab, setTab] = useState<HelpTab>(defaultTab);
-  const { setCompleted: resetWalkthrough } = useWalkthroughStore();
+  const { setCompleted: resetWalkthrough, setDismissed: resetDismissed } = useWalkthroughStore();
 
   const tabs = [
     ...(isChecker ? [{ value: "checker-manual" as const, label: "Checker Manual", icon: ClipboardCheck }] : []),
@@ -63,7 +63,7 @@ export default function Help() {
                 </div>
                 <GlassButton
                   variant="primary"
-                  onClick={() => resetWalkthrough(false)}
+                  onClick={() => { resetWalkthrough(false); resetDismissed(false); }}
                   data-testid="button-start-guided-tour"
                 >
                   <PlayCircle className="w-4 h-4" />

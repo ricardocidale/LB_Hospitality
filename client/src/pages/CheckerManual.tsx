@@ -496,6 +496,50 @@ export default function CheckerManual({ embedded }: { embedded?: boolean }) {
                     ["occupancyGrowthStep", "Percentage-point jump at each step-up", "5%", "%"],
                   ]}
                 />
+                <h3 className="text-foreground text-sm font-semibold mt-4 mb-2">Inline Badges</h3>
+                <p className="text-muted-foreground text-sm mb-2">Assumption fields display two types of inline badges next to their labels:</p>
+                <ManualTable
+                  headers={["Badge", "Color", "Purpose", "Interaction"]}
+                  rows={[
+                    ["GAAP/IRS Badge (ⓘ)", "Blue circle, white icon", "Shows the GAAP or IRS rule governing this field", "Hover to see the accounting standard and its implications"],
+                    ["Research Badge", "Amber pill", "Shows AI-researched market range for this assumption", "Click to auto-fill the recommended value from market data"],
+                  ]}
+                />
+                <h4 className="text-foreground text-xs font-semibold mt-3 mb-2">GAAP/IRS Rules by Field</h4>
+                <ManualTable
+                  headers={["Field", "Standard", "Rule Summary"]}
+                  rows={[
+                    ["Purchase Price", "ASC 805", "Acquisition cost = fair value of consideration transferred; depreciable basis excludes land"],
+                    ["Building Improvements", "ASC 360 / IRS Pub 946", "Capitalized and depreciated over 27.5 years straight-line; not expensed immediately"],
+                    ["Land Value %", "IRS Pub 946", "Land is NOT depreciable; higher land % = lower depreciation deduction"],
+                    ["LTV", "ASC 470", "Debt separated into interest (IS expense) and principal (BS/CFF); only interest reduces taxable income"],
+                    ["Closing Costs", "ASC 310-20", "Loan origination costs capitalized and amortized over loan term; shown as reduction of loan liability"],
+                    ["Exit Cap Rate", "ASC 360 / IRC §1250", "Terminal value for impairment testing; depreciation recapture taxed at up to 25%"],
+                    ["Income Tax Rate", "IRC §168", "Taxable income = NOI − Interest − Depreciation; 27.5-year depreciation shelters cash flow"],
+                    ["Events Revenue", "ASC 606", "Point-in-time recognition when event occurs; deposits = deferred revenue"],
+                    ["F&B Revenue", "ASC 606", "Revenue at point of sale; bundled packages allocated to standalone selling prices"],
+                    ["FF&E Reserve", "USALI", "Deducted below GOP to arrive at NOI; actual replacements capitalized 5–7 years"],
+                    ["Insurance", "GAAP Matching", "Expensed as incurred; prepaid portions amortized monthly; not capitalizable"],
+                    ["Property Taxes", "IRC §164", "Fully deductible operating expense; based on assessed value, not market value"],
+                    ["Sale Commission", "IRC §1001", "Reduces amount realized on disposition; deducted from gross sale proceeds"],
+                  ]}
+                />
+                <h4 className="text-foreground text-xs font-semibold mt-3 mb-2">Research Badge Fields</h4>
+                <ManualTable
+                  headers={["Field", "Generic Range", "Source"]}
+                  rows={[
+                    ["Starting ADR", "Market-dependent", "AI property research (adrAnalysis)"],
+                    ["Starting Occupancy", "Market-dependent", "AI property research (occupancyAnalysis)"],
+                    ["ADR Annual Growth", "3–5%", "AI property research (adrAnalysis)"],
+                    ["Occupancy Growth Step", "4–6%", "AI property research (occupancyAnalysis)"],
+                    ["Events Revenue Share", "20–35%", "AI property research"],
+                    ["F&B Revenue Share", "15–25%", "AI property research"],
+                    ["Other Revenue Share", "3–8%", "AI property research"],
+                    ["Sale Commission", "4–6%", "AI property research"],
+                    ["Exit Cap Rate", "Market-dependent", "AI property research (capRateAnalysis)"],
+                  ]}
+                />
+                <Callout>Research badges only appear when AI market research has been run for the property. GAAP badges are always visible.</Callout>
                 <h3 className="text-foreground text-sm font-semibold mt-4 mb-2">Revenue Shares & Cost Rates</h3>
                 <ManualTable
                   headers={["Variable", "Description", "Default", "Unit"]}
@@ -734,13 +778,19 @@ export default function CheckerManual({ embedded }: { embedded?: boolean }) {
                 onToggle={() => toggleSection("ai-research")}
                 sectionRef={(el) => { sectionRefs.current["ai-research"] = el; }}
               >
-                <p className="text-muted-foreground text-sm">Three research tools available per property and globally. They use Claude to analyze markets and provide assumption calibration guidance.</p>
-                <ul className="text-muted-foreground text-sm space-y-1 list-disc list-inside mt-2">
-                  <li>ADR analysis and competitive benchmarking</li>
-                  <li>Occupancy trends and seasonal patterns</li>
-                  <li>Cap rate benchmarks by market</li>
-                </ul>
-                <p className="text-muted-foreground text-sm mt-2">Purpose: help users set realistic assumption values based on current market data.</p>
+                <p className="text-muted-foreground text-sm">AI-powered market research uses Claude Sonnet to analyze markets and provide assumption calibration guidance. Research is available at the property level and globally.</p>
+                <ManualTable
+                  headers={["Research Area", "What It Produces", "Badge Fields Affected"]}
+                  rows={[
+                    ["ADR Analysis", "Market ADR benchmarks, competitive set comparison, growth trends", "Starting ADR, ADR Annual Growth (3–5%)"],
+                    ["Occupancy Analysis", "Seasonal patterns, market penetration rates, ramp-up timelines", "Starting Occupancy, Occupancy Growth Step (4–6%)"],
+                    ["Cap Rate Analysis", "Market cap rates by location and property type", "Exit Cap Rate"],
+                    ["Revenue Mix", "F&B, events, and other revenue benchmarks for the market", "Events Share (20–35%), F&B Share (15–25%), Other Share (3–8%)"],
+                    ["Disposition", "Sale commission norms by market", "Sale Commission (4–6%)"],
+                  ]}
+                />
+                <p className="text-muted-foreground text-sm mt-2">When research is available, amber research badges appear next to assumption fields showing the AI-recommended market range. Click a badge to auto-fill the recommended value.</p>
+                <Callout>Research values are advisory only. The financial engine never uses AI-generated values directly — the user must explicitly accept a recommendation by clicking the badge. This ensures no LLM output enters financial calculations without human review.</Callout>
               </SectionCard>
 
               {/* Section 14: Property CRUD */}
@@ -962,8 +1012,11 @@ export default function CheckerManual({ embedded }: { embedded?: boolean }) {
                     ["ADR (Average Daily Rate)", "Average revenue earned per occupied room per day", "F-P-03", "Revenue"],
                     ["Amortization", "Gradual repayment of loan principal over time via scheduled payments", "F-F-01", "Financing"],
                     ["ASC 230", "GAAP standard governing Statement of Cash Flows", "—", "Accounting Standard"],
-                    ["ASC 360", "GAAP standard for property depreciation", "—", "Accounting Standard"],
-                    ["ASC 470", "GAAP standard for debt accounting", "—", "Accounting Standard"],
+                    ["ASC 310-20", "GAAP standard for loan origination costs; capitalized and amortized over loan term", "—", "Accounting Standard"],
+                    ["ASC 360", "GAAP standard for property depreciation and impairment", "F-P-11", "Accounting Standard"],
+                    ["ASC 470", "GAAP standard for debt accounting and classification", "—", "Accounting Standard"],
+                    ["ASC 606", "GAAP revenue recognition standard; point-in-time vs. over-time; bundled package allocation", "—", "Accounting Standard"],
+                    ["ASC 805", "GAAP standard for business combinations and acquisition cost measurement", "—", "Accounting Standard"],
                     ["ASC 810", "GAAP consolidation standard; inter-company elimination entries", "—", "Accounting Standard"],
                     ["ATCF (After-Tax Cash Flow)", "Cash remaining after operating expenses, debt service, and taxes", "F-R-02", "Returns"],
                     ["Balance Sheet", "Point-in-time snapshot of assets, liabilities, and equity", "—", "Financial Statement"],
@@ -989,14 +1042,20 @@ export default function CheckerManual({ embedded }: { embedded?: boolean }) {
                     ["FF&E", "Furniture, Fixtures & Equipment reserve (typically 4% of revenue)", "—", "Capital"],
                     ["Fiscal Year", "12-month accounting period; configurable start month", "—", "Accounting"],
                     ["GAAP", "Generally Accepted Accounting Principles (US framework)", "—", "Accounting Standard"],
+                    ["GAAP Badge", "Blue inline icon (ⓘ) showing the GAAP or IRS rule governing an assumption field; hover to view", "—", "UI"],
                     ["GOP (Gross Operating Profit)", "Total Revenue − Total Operating Expenses", "F-P-08", "Profitability"],
                     ["Gross Disposition Value", "Property sale price = Terminal NOI / Exit Cap Rate", "F-R-05", "Valuation"],
                     ["HMA", "Hotel Management Agreement defining fee structure", "—", "Legal"],
                     ["Incentive Management Fee", "Performance-based fee calculated on GOP", "F-C-02", "Fees"],
                     ["Income Statement (P&L)", "Statement showing revenue, expenses, and net income over a period", "—", "Financial Statement"],
                     ["Inflation Rate", "Annual rate of general price increase; affects variable costs", "—", "Assumptions"],
+                    ["IRC §164", "IRS code: property taxes fully deductible as operating expense; based on assessed value", "—", "Tax Code"],
+                    ["IRC §168", "IRS code: MACRS depreciation; 27.5-year straight-line for residential rental property", "F-P-12", "Tax Code"],
+                    ["IRC §1001", "IRS code: amount realized on sale = gross proceeds minus selling expenses (commission)", "F-R-06", "Tax Code"],
+                    ["IRC §1250", "IRS code: depreciation recapture on sale of real property; taxed at up to 25%", "F-R-06", "Tax Code"],
                     ["IRR (Internal Rate of Return)", "Discount rate making NPV of cash flows equal to zero", "F-R-04", "Returns"],
-                    ["Land Value Percent", "Portion of purchase price allocated to land (non-depreciable)", "—", "Depreciation"],
+                    ["IRS Pub 946", "IRS publication on depreciation: land is non-depreciable; buildings use 27.5-year life", "F-P-11", "Tax Code"],
+                    ["Land Value Percent", "Portion of purchase price allocated to land (non-depreciable per IRS Pub 946)", "F-P-11", "Depreciation"],
                     ["LTV (Loan-to-Value)", "Ratio of loan amount to property purchase price", "F-F-01", "Financing"],
                     ["Management Company", "Asset-light service entity earning fees from managed properties", "—", "Entity"],
                     ["MOIC", "Multiple on Invested Capital (see Equity Multiple)", "F-R-04", "Returns"],
@@ -1010,6 +1069,7 @@ export default function CheckerManual({ embedded }: { embedded?: boolean }) {
                     ["Pro Forma", "Projected financial statements based on assumptions", "—", "Financial Statement"],
                     ["Projection Period", "Number of years modeled (configurable, default 10)", "—", "Assumptions"],
                     ["Purchase Price", "Acquisition cost of the property asset", "—", "Capital"],
+                    ["Research Badge", "Amber inline badge showing AI-researched market range; click to auto-fill recommended value", "—", "UI"],
                     ["Refinancing", "Replacing existing debt with new loan, typically post-stabilization", "F-F-06", "Financing"],
                     ["Refi Proceeds", "Net cash from refinancing = New Loan − Old Balance − Costs", "F-F-07", "Financing"],
                     ["RevPAR", "Revenue Per Available Room = ADR × Occupancy", "—", "Revenue"],

@@ -436,6 +436,24 @@ export default function Methodology({ embedded }: { embedded?: boolean }) {
                   <li>&#8226; <strong>Other</strong>: {pct(DEFAULT_REV_SHARE_OTHER)} of Room Rev</li>
                 </ul>
               </div>
+              <div className="bg-muted/50 rounded-lg p-4">
+                <h4 className="font-semibold mb-2">GAAP Revenue Recognition (ASC 606)</h4>
+                <ul className="text-sm text-muted-foreground space-y-2">
+                  <li>&#8226; <strong>Room Revenue</strong>: Recognized nightly as the guest occupies the room</li>
+                  <li>&#8226; <strong>Events Revenue</strong>: Recognized when the event occurs (point-in-time); deposits recorded as deferred revenue</li>
+                  <li>&#8226; <strong>F&B Revenue</strong>: Recognized at point of sale; bundled packages allocated to standalone selling prices</li>
+                </ul>
+              </div>
+              <div className="bg-blue-50/50 rounded-lg p-4 border border-blue-200">
+                <h4 className="font-semibold mb-2">Inline Badges on Assumptions</h4>
+                <p className="text-sm text-muted-foreground mb-2">
+                  When editing property assumptions, you will see two types of badges next to field labels:
+                </p>
+                <ul className="text-sm text-muted-foreground space-y-2">
+                  <li>&#8226; <strong className="text-blue-600">Blue ⓘ badges</strong> — GAAP/IRS compliance rules. Hover to see the accounting standard that governs the field (e.g., ASC 805 for Purchase Price, IRC §168 for Income Tax).</li>
+                  <li>&#8226; <strong className="text-amber-600">Amber research badges</strong> — AI-researched market ranges. Click to auto-fill the recommended value based on market research for the property's location. Only visible after running AI market research.</li>
+                </ul>
+              </div>
             </MethodologySection>
 
             {/* Section: Expenses */}

@@ -179,7 +179,7 @@ NOI − Interest Expense − Depreciation − Income Tax = Net Income
 Free Cash Flow to Equity (FCFE):
 NOI − Debt Service (Principal + Interest) − Income Tax = FCFE
 
-Depreciation: Straight-line over 39 years on depreciable basis (property value minus land value, typically 80% of purchase price).
+Depreciation: Straight-line over 27.5 years on depreciable basis (building portion of purchase price × (1 − land value percent) + building improvements).
 
 Balance Sheet Identity: Assets = Liabilities + Equity
 - Assets: Cash + Net Property (Purchase Price + Closing Costs − Accumulated Depreciation)
@@ -279,7 +279,7 @@ Verification Process:
 3. Any variance beyond tolerance triggers an audit finding
 4. Audit opinion: UNQUALIFIED (all pass), QUALIFIED (minor issues), ADVERSE (critical failures)
 
-The system runs 1,529 automated tests covering:
+The system runs 1,546 automated tests covering:
 - Revenue calculations and projections
 - Operating expense rates and escalation
 - Debt service (interest/principal split)
@@ -298,6 +298,52 @@ GAAP Standards Applied:
 - USALI: Uniform System of Accounts for the Lodging Industry`,
     source: "User Manual",
     category: "methodology",
+  });
+
+  chunks.push({
+    title: "GAAP/IRS Compliance Badges",
+    content: `The property edit page displays blue ⓘ badges next to assumption fields that are governed by specific GAAP or IRS rules. Hover over any badge to see the applicable accounting standard.
+
+GAAP/IRS Rules by Field:
+- Purchase Price → ASC 805: Acquisition cost is fair value of consideration. Depreciable basis excludes the land allocation.
+- Building Improvements → ASC 360 / IRS Pub 946: Capital improvements are capitalized and depreciated over 27.5 years straight-line. They are not expensed immediately.
+- Land Value % → IRS Publication 946: Land is NOT depreciable. Only the building portion (Purchase Price × (1 − Land %) + Improvements) is depreciated. Higher land % = lower depreciation deduction.
+- LTV → ASC 470: Debt must be separated into interest expense (Income Statement) and principal repayment (Balance Sheet/Financing Activity). Only interest reduces taxable income.
+- Closing Costs → ASC 310-20: Loan origination costs are capitalized and amortized over the loan term. Not expensed immediately. Shown as a reduction of the loan liability on the balance sheet.
+- Exit Cap Rate → ASC 360 / IRC §1250: The exit cap rate determines terminal value for impairment testing. Gain on sale = Sale Price − (Adjusted Basis − Accumulated Depreciation). Depreciation recapture is taxed at up to 25% under IRC §1250.
+- Income Tax Rate → IRC §168: Taxable income = NOI − Interest − Depreciation. The 27.5-year straight-line depreciation on the building portion creates a non-cash deduction that shelters cash flow from taxes.
+- Events Revenue → ASC 606: Event revenue is recognized when the event occurs (point-in-time). Deposits are recorded as deferred revenue until the performance obligation is satisfied.
+- F&B Revenue → ASC 606: F&B revenue is recognized at the point of sale. Bundled packages (e.g., room + breakfast) must allocate revenue to each performance obligation based on standalone selling prices.
+- FF&E Reserve → USALI Standard: FF&E reserve is deducted below GOP to arrive at NOI. Actual FF&E replacements are capitalized and depreciated over 5–7 years (IRS Class Life), not expensed. The reserve funds future CapEx.
+- Insurance → GAAP Matching Principle: Insurance premiums are expensed as incurred over the policy period. Prepaid portions are recorded as current assets and amortized monthly. Not capitalizable into property basis.
+- Property Taxes → IRC §164: Property taxes are fully deductible as an operating expense for income tax purposes. Based on assessed value, not market value. Reassessment may occur upon sale or significant improvement.
+- Sale Commission → IRC §1001: Sales commission reduces the amount realized on disposition and is deducted from gross sale proceeds.`,
+    source: "User Manual",
+    category: "methodology",
+  });
+
+  chunks.push({
+    title: "AI Research Badges & Market Calibration",
+    content: `The property edit page displays amber research badges next to assumption fields that have AI-researched market data. Click any badge to auto-fill the recommended value.
+
+Research badges appear on these fields after running AI market research for a property:
+- Starting ADR: Market-dependent range from AI ADR analysis
+- Starting Occupancy: Market-dependent range from AI occupancy analysis
+- ADR Annual Growth: Generic range 3–5% per year
+- Occupancy Growth Step: Generic range 4–6% per step
+- Events Revenue Share: Generic range 20–35% of room revenue
+- F&B Revenue Share: Generic range 15–25% of room revenue
+- Other Revenue Share: Generic range 3–8% of room revenue
+- Sale Commission: Generic range 4–6% of gross sale price
+- Exit Cap Rate: Market-dependent from AI cap rate analysis
+
+AI research uses Claude Sonnet to analyze the property's market, competitive set, and location. The research covers ADR benchmarks, occupancy trends, cap rate analysis, revenue mix benchmarks, and disposition norms.
+
+Important: Research values are advisory only. The financial engine never uses AI-generated values directly. Users must explicitly accept a recommendation by clicking the research badge. This ensures no LLM output enters financial calculations without human review.
+
+Research can be run from the property detail page or the property edit page. Multiple research types are available: ADR analysis, occupancy analysis, cap rate analysis, operating cost benchmarks, and property value analysis.`,
+    source: "Platform Guide",
+    category: "guide",
   });
 
   return chunks;

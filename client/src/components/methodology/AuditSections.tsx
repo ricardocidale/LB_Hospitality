@@ -46,13 +46,21 @@ export function AuditSections({
       </div>
 
       <div className="bg-muted/50 rounded-lg p-4">
-        <h4 className="font-semibold mb-2">Key GAAP Rules Enforced</h4>
+        <h4 className="font-semibold mb-2">Key GAAP/IRS Rules Enforced</h4>
         <ul className="text-sm text-muted-foreground space-y-2">
-          <li>&#8226; <strong>ASC 470</strong>: Principal payments are NOT expenses - they reduce Net Income only for cash flow purposes, not on the income statement</li>
-          <li>&#8226; <strong>ASC 230-10-45</strong>: Operating Cash Flow = Net Income + Depreciation (indirect method)</li>
-          <li>&#8226; <strong>ASC 230-10-45-17</strong>: Interest expense is an operating activity; principal repayment is a financing activity</li>
-          <li>&#8226; <strong>ASC 360-10</strong>: Property assets carried at cost minus accumulated depreciation</li>
+          <li>&#8226; <strong>ASC 805</strong>: Acquisition cost = fair value of consideration; depreciable basis excludes land</li>
+          <li>&#8226; <strong>ASC 360</strong>: Property assets carried at cost minus accumulated depreciation; impairment testing via cap rate</li>
+          <li>&#8226; <strong>ASC 470</strong>: Principal payments are NOT expenses — they reduce the loan balance on the balance sheet, not the income statement</li>
+          <li>&#8226; <strong>ASC 230</strong>: Operating Cash Flow = Net Income + Depreciation (indirect method); interest = operating, principal = financing</li>
+          <li>&#8226; <strong>ASC 310-20</strong>: Loan origination (closing) costs capitalized and amortized over loan term</li>
+          <li>&#8226; <strong>ASC 606</strong>: Revenue recognition — rooms nightly, events point-in-time, F&B at point of sale</li>
+          <li>&#8226; <strong>IRC §168</strong>: 27.5-year straight-line depreciation on building portion; shelters taxable income</li>
+          <li>&#8226; <strong>IRC §1250</strong>: Depreciation recapture on sale taxed at up to 25%</li>
+          <li>&#8226; <strong>IRC §164</strong>: Property taxes fully deductible as operating expense</li>
+          <li>&#8226; <strong>IRS Pub 946</strong>: Land is non-depreciable; only building portion + improvements depreciated</li>
+          <li>&#8226; <strong>USALI</strong>: FF&E reserve deducted below GOP; actual replacements capitalized 5–7 years</li>
         </ul>
+        <p className="text-xs text-muted-foreground mt-3">These rules are displayed as blue ⓘ badges next to the relevant assumption fields on the property edit page. Hover any badge to see the applicable standard.</p>
       </div>
 
       <div className="bg-muted/50 rounded-lg p-4">

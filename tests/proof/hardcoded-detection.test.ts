@@ -437,6 +437,7 @@ describe("Hardcoded Value Detection", () => {
         /lotSize/,
         /squareFootage/,
         /occupancyRamp/,
+        /stabilizationMonths/,
         /startYear/,
         /acquisitionMonth/,
         /maxRooms/,

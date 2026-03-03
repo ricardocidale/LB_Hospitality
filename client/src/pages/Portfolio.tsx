@@ -53,7 +53,6 @@ import {
   DEFAULT_TAX_RATE,
   DEFAULT_ROOM_COUNT,
   DEFAULT_START_ADR,
-  DEFAULT_STABILIZATION_MONTHS,
 } from "@/lib/constants";
 import { PageTransition } from "@/components/ui/animated";
 import { AnimatedPage, AnimatedGrid } from "@/components/graphics";
@@ -87,7 +86,6 @@ const INITIAL_FORM_DATA: AddPropertyFormData = {
   maxOccupancy: DEFAULT_MAX_OCCUPANCY,
   occupancyRampMonths: DEFAULT_OCCUPANCY_RAMP_MONTHS,
   occupancyGrowthStep: DEFAULT_OCCUPANCY_GROWTH_STEP,
-  stabilizationMonths: DEFAULT_STABILIZATION_MONTHS,
   type: "Full Equity",
   cateringBoostPercent: DEFAULT_CATERING_BOOST_PCT,
 };

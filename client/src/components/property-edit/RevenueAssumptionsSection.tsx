@@ -204,27 +204,6 @@ export default function RevenueAssumptionsSection({ draft, onChange, researchVal
               className="[&_[role=slider]]:bg-primary"
             />
           </div>
-          <div className="space-y-2">
-            <div className="flex justify-between items-center">
-              <Label className="label-text text-gray-700 flex items-center gap-1.5">Stabilization Period<HelpTooltip text="Total months until the property reaches mature, stabilized operations. Used for financial projections and investor reporting." /></Label>
-              <EditableValue
-                value={draft.stabilizationMonths}
-                onChange={(val) => onChange("stabilizationMonths", val)}
-                format="months"
-                min={0}
-                max={36}
-                step={1}
-              />
-            </div>
-            <Slider 
-              value={[draft.stabilizationMonths]}
-              onValueChange={(vals: number[]) => onChange("stabilizationMonths", vals[0])}
-              min={0}
-              max={36}
-              step={1}
-              className="[&_[role=slider]]:bg-primary"
-            />
-          </div>
         </div>
 
         <div className="space-y-4 pt-2 border-t border-primary/15">

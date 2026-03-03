@@ -159,7 +159,7 @@ async function seed() {
       maxOccupancy: 0.82,
       occupancyRampMonths: DEFAULT_OCCUPANCY_RAMP_MONTHS,
       occupancyGrowthStep: 0.05,
-      stabilizationMonths: 36,
+     
       type: "Full Equity",
 
       willRefinance: "Yes",
@@ -212,7 +212,7 @@ async function seed() {
       maxOccupancy: 0.80,
       occupancyRampMonths: DEFAULT_OCCUPANCY_RAMP_MONTHS,
       occupancyGrowthStep: 0.05,
-      stabilizationMonths: 36,
+     
       type: "Full Equity",
 
       willRefinance: "Yes",
@@ -265,7 +265,7 @@ async function seed() {
       maxOccupancy: 0.82,
       occupancyRampMonths: DEFAULT_OCCUPANCY_RAMP_MONTHS,
       occupancyGrowthStep: 0.05,
-      stabilizationMonths: 36,
+     
       type: "Full Equity",
 
       willRefinance: "Yes",
@@ -318,7 +318,7 @@ async function seed() {
       maxOccupancy: 0.78,
       occupancyRampMonths: DEFAULT_OCCUPANCY_RAMP_MONTHS,
       occupancyGrowthStep: 0.05,
-      stabilizationMonths: 36,
+     
       type: "Financed",
       acquisitionLTV: 0.60,
       acquisitionInterestRate: 0.095,
@@ -369,7 +369,7 @@ async function seed() {
       maxOccupancy: 0.80,
       occupancyRampMonths: DEFAULT_OCCUPANCY_RAMP_MONTHS,
       occupancyGrowthStep: 0.05,
-      stabilizationMonths: 36,
+     
       type: "Financed",
       acquisitionLTV: 0.60,
       acquisitionInterestRate: 0.09,

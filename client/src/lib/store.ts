@@ -75,8 +75,6 @@ export interface Property {
   maxOccupancy: number; // 0.90
   occupancyRampMonths: number; // 6 months per step
   occupancyGrowthStep: number; // 0.05
-  stabilizationMonths: number; // 36
-  
   // Financial Config
   type: "Full Equity" | "Financed";
   
@@ -159,7 +157,7 @@ const INITIAL_PROPERTIES: Property[] = [
     maxOccupancy: 0.90,
     occupancyRampMonths: 6,
     occupancyGrowthStep: 0.05,
-    stabilizationMonths: 36,
+
     type: "Full Equity",
     costRateRooms: 0.20,
     costRateFB: 0.085,
@@ -193,7 +191,7 @@ const INITIAL_PROPERTIES: Property[] = [
     maxOccupancy: 0.90,
     occupancyRampMonths: 6,
     occupancyGrowthStep: 0.05,
-    stabilizationMonths: 36,
+
     type: "Full Equity",
     costRateRooms: 0.20,
     costRateFB: 0.085,
@@ -227,7 +225,7 @@ const INITIAL_PROPERTIES: Property[] = [
     maxOccupancy: 0.90,
     occupancyRampMonths: 6,
     occupancyGrowthStep: 0.05,
-    stabilizationMonths: 36,
+
     type: "Full Equity",
     costRateRooms: 0.20,
     costRateFB: 0.09,
@@ -261,7 +259,7 @@ const INITIAL_PROPERTIES: Property[] = [
     maxOccupancy: 0.90,
     occupancyRampMonths: 6,
     occupancyGrowthStep: 0.05,
-    stabilizationMonths: 36,
+
     type: "Financed",
     costRateRooms: 0.20,
     costRateFB: 0.075,
@@ -295,7 +293,7 @@ const INITIAL_PROPERTIES: Property[] = [
     maxOccupancy: 0.90,
     occupancyRampMonths: 6,
     occupancyGrowthStep: 0.05,
-    stabilizationMonths: 36,
+
     type: "Financed",
     costRateRooms: 0.20,
     costRateFB: 0.10,

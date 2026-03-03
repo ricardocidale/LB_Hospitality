@@ -44,7 +44,6 @@ export interface AddPropertyFormData {
   maxOccupancy: number;
   occupancyRampMonths: number;
   occupancyGrowthStep: number;
-  stabilizationMonths: number;
   type: string;
   cateringBoostPercent: number;
 }

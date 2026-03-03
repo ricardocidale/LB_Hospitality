@@ -494,7 +494,6 @@ export default function CheckerManual({ embedded }: { embedded?: boolean }) {
                     ["maxOccupancy", "Maximum stabilized occupancy", "85%", "%"],
                     ["occupancyRampMonths", "Months between occupancy growth steps", "6", "months"],
                     ["occupancyGrowthStep", "Occupancy increase per ramp step", "5%", "%"],
-                    ["stabilizationMonths", "Months from ops start to stabilization", "24", "months"],
                   ]}
                 />
                 <h3 className="text-foreground text-sm font-semibold mt-4 mb-2">Revenue Shares & Cost Rates</h3>

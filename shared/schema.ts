@@ -590,7 +590,7 @@ export const properties = pgTable("properties", {
   maxOccupancy: real("max_occupancy").notNull(),
   occupancyRampMonths: integer("occupancy_ramp_months").notNull(),
   occupancyGrowthStep: real("occupancy_growth_step").notNull(),
-  stabilizationMonths: integer("stabilization_months").notNull(),
+  stabilizationMonths: integer("stabilization_months").notNull().default(36),
   
   type: text("type").notNull(),
   
@@ -688,7 +688,6 @@ export const insertPropertySchema = createInsertSchema(properties).pick({
   maxOccupancy: true,
   occupancyRampMonths: true,
   occupancyGrowthStep: true,
-  stabilizationMonths: true,
   type: true,
   acquisitionLTV: true,
   acquisitionInterestRate: true,

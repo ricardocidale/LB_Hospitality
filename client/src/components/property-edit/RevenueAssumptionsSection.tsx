@@ -49,7 +49,7 @@ export default function RevenueAssumptionsSection({ draft, onChange, researchVal
           <h3 className="text-xl font-display text-gray-900">Revenue Assumptions</h3>
           <p className="text-gray-600 text-sm label-text">ADR and occupancy projections</p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:items-end">
           <div className="space-y-2">
             <div className="flex justify-between items-center">
               <div className="flex flex-col gap-0.5">
@@ -155,7 +155,7 @@ export default function RevenueAssumptionsSection({ draft, onChange, researchVal
             />
           </div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:items-end">
           <div className="space-y-2">
             <div className="flex justify-between items-center">
               <div className="flex flex-col gap-0.5">

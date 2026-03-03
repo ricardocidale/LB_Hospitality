@@ -364,10 +364,10 @@ describe("Database Sync — Seed Constants Integrity", () => {
       summary: {
         users: 8,
         userGroups: 2,
-        properties: 5,
+        properties: SEED_PROPERTIES.length,
         themes: 1,
         hasGlobalAssumptions: true,
-        totalFeeCategories: 25,
+        totalFeeCategories: SEED_PROPERTIES.length * DEFAULT_SERVICE_FEE_CATEGORIES.length,
       },
       globalAssumptions: {
         baseManagementFee: DEFAULT_BASE_MANAGEMENT_FEE_RATE,
@@ -408,11 +408,11 @@ describe("Database Sync — Seed Constants Integrity", () => {
     });
 
     it("summary property count matches seed data", () => {
-      expect(mockSyncResponse.summary.properties).toBe(5);
+      expect(mockSyncResponse.summary.properties).toBe(SEED_PROPERTIES.length);
     });
 
-    it("summary fee categories = 5 per property × 5 properties", () => {
-      expect(mockSyncResponse.summary.totalFeeCategories).toBe(25);
+    it(`summary fee categories = ${DEFAULT_SERVICE_FEE_CATEGORIES.length} per property × N properties`, () => {
+      expect(mockSyncResponse.summary.totalFeeCategories).toBe(SEED_PROPERTIES.length * DEFAULT_SERVICE_FEE_CATEGORIES.length);
     });
 
     it("global assumptions include all key financial fields", () => {
@@ -428,7 +428,7 @@ describe("Database Sync — Seed Constants Integrity", () => {
     it("each property has fee categories array", () => {
       for (const prop of mockSyncResponse.properties) {
         expect(Array.isArray(prop.feeCategories)).toBe(true);
-        expect(prop.feeCategories.length).toBe(5);
+        expect(prop.feeCategories.length).toBe(DEFAULT_SERVICE_FEE_CATEGORIES.length);
       }
     });
 
@@ -455,8 +455,8 @@ describe("Database Sync — Seed Constants Integrity", () => {
         users: { created: 0, skipped: 8, updated: 0 },
         userGroups: { created: 0, skipped: 2 },
         globalAssumptions: { created: 0, skipped: 0, updated: 1 },
-        properties: { created: 0, skipped: 0, updated: 5 },
-        propertyFeeCategories: { created: 0, updated: 25 },
+        properties: { created: 0, skipped: 0, updated: SEED_PROPERTIES.length },
+        propertyFeeCategories: { created: 0, updated: SEED_PROPERTIES.length * DEFAULT_SERVICE_FEE_CATEGORIES.length },
         designThemes: { created: 0, skipped: 1 },
       },
     };
@@ -479,8 +479,8 @@ describe("Database Sync — Seed Constants Integrity", () => {
       expect(mockSyncResults.results.globalAssumptions.created).toBe(0);
     });
 
-    it("sync mode updates all 5 properties", () => {
-      expect(mockSyncResults.results.properties.updated).toBe(5);
+    it("sync mode updates all properties", () => {
+      expect(mockSyncResults.results.properties.updated).toBe(SEED_PROPERTIES.length);
     });
 
     it("sync mode updates fee categories", () => {

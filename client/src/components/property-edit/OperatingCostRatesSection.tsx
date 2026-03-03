@@ -30,6 +30,7 @@ import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { Slider } from "@/components/ui/slider";
 import { EditableValue } from "@/components/ui/editable-value";
 import { ResearchBadge } from "@/components/ui/research-badge";
+import { GaapBadge } from "@/components/ui/gaap-badge";
 import { Link } from "wouter";
 import {
   DEFAULT_COST_RATE_ROOMS,
@@ -234,7 +235,7 @@ export default function OperatingCostRatesSection({ draft, onChange, globalAssum
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
                       <div className="flex flex-col gap-0.5">
-                        <Label className="text-sm label-text text-gray-700 flex items-center gap-1">FF&E Reserve<HelpTooltip text="FF&E Reserve = Total Revenue × this rate. A variable set-aside for future replacement of furniture, fixtures, and equipment. Industry standard is 3–5% of revenue. Treated as an operating expense below GOP." /></Label>
+                        <Label className="text-sm label-text text-gray-700 flex items-center gap-1">FF&E Reserve<HelpTooltip text="FF&E Reserve = Total Revenue × this rate. A variable set-aside for future replacement of furniture, fixtures, and equipment. Industry standard is 3–5% of revenue. Treated as an operating expense below GOP." /><GaapBadge rule="USALI Standard: FF&E reserve is deducted below GOP to arrive at NOI. Actual FF&E replacements are capitalized and depreciated over 5–7 years (IRS Class Life), not expensed. The reserve funds future CapEx." /></Label>
                         <ResearchBadge value={researchValues.costFFE?.display} onClick={() => researchValues.costFFE && onChange("costRateFFE", researchValues.costFFE.mid / 100)} />
                       </div>
                       <EditableValue
@@ -333,7 +334,7 @@ export default function OperatingCostRatesSection({ draft, onChange, globalAssum
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
                       <div className="flex flex-col gap-0.5">
-                        <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Insurance<HelpTooltip text="Insurance expense = (Purchase Price + Building Improvements) ÷ 12 × this rate × annual escalation factor. Based on total property value, not revenue. Covers property liability, damage, workers' comp, and business interruption coverage. Escalates annually with the Inflation Escalator Factor." /></Label>
+                        <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Insurance<HelpTooltip text="Insurance expense = (Purchase Price + Building Improvements) ÷ 12 × this rate × annual escalation factor. Based on total property value, not revenue. Covers property liability, damage, workers' comp, and business interruption coverage. Escalates annually with the Inflation Escalator Factor." /><GaapBadge rule="GAAP Matching Principle: Insurance premiums are expensed as incurred over the policy period. Prepaid portions are recorded as current assets and amortized monthly. Not capitalizable into property basis." /></Label>
                         <ResearchBadge value={researchValues.costInsurance?.display} onClick={() => researchValues.costInsurance && onChange("costRateInsurance", researchValues.costInsurance.mid / 100)} />
                       </div>
                       <EditableValue
@@ -356,7 +357,7 @@ export default function OperatingCostRatesSection({ draft, onChange, globalAssum
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
                       <div className="flex flex-col gap-0.5">
-                        <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Property Taxes<HelpTooltip text="Property tax expense = (Purchase Price + Building Improvements) ÷ 12 × this rate × annual escalation factor. Based on total property value, not revenue. Covers real estate taxes and assessments. Escalates annually with the Inflation Escalator Factor." /></Label>
+                        <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Property Taxes<HelpTooltip text="Property tax expense = (Purchase Price + Building Improvements) ÷ 12 × this rate × annual escalation factor. Based on total property value, not revenue. Covers real estate taxes and assessments. Escalates annually with the Inflation Escalator Factor." /><GaapBadge rule="IRC §164: Property taxes are fully deductible as an operating expense for income tax purposes. Based on assessed value, not market value. Reassessment may occur upon sale or significant improvement." /></Label>
                         <ResearchBadge value={researchValues.costPropertyTaxes?.display} onClick={() => researchValues.costPropertyTaxes && onChange("costRateTaxes", researchValues.costPropertyTaxes.mid / 100)} />
                       </div>
                       <EditableValue

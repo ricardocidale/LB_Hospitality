@@ -28,6 +28,7 @@ import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { Slider } from "@/components/ui/slider";
 import { EditableValue } from "@/components/ui/editable-value";
 import { ResearchBadge } from "@/components/ui/research-badge";
+import { GaapBadge } from "@/components/ui/gaap-badge";
 import {
   DEFAULT_REV_SHARE_EVENTS,
   DEFAULT_REV_SHARE_FB,
@@ -79,7 +80,10 @@ export default function RevenueAssumptionsSection({ draft, onChange, researchVal
           </div>
           <div className="space-y-2">
             <div className="flex justify-between items-center">
-              <Label className="label-text text-gray-700 flex items-center gap-1.5">ADR Annual Growth<HelpTooltip text="The yearly percentage increase applied to ADR, compounding each year. A 3.5% growth rate means a $250 ADR becomes ~$259 in Year 2, ~$268 in Year 3, and so on. Reflects pricing power, inflation, and market positioning." /></Label>
+              <div className="flex flex-col gap-0.5">
+                <Label className="label-text text-gray-700 flex items-center gap-1.5">ADR Annual Growth<HelpTooltip text="The yearly percentage increase applied to ADR, compounding each year. A 3.5% growth rate means a $250 ADR becomes ~$259 in Year 2, ~$268 in Year 3, and so on. Reflects pricing power, inflation, and market positioning." /></Label>
+                <ResearchBadge value={researchValues.adrGrowth?.display} onClick={() => researchValues.adrGrowth && onChange("adrGrowthRate", researchValues.adrGrowth.mid / 100)} />
+              </div>
               <EditableValue
                 value={draft.adrGrowthRate * 100}
                 onChange={(val) => onChange("adrGrowthRate", val / 100)}
@@ -185,7 +189,10 @@ export default function RevenueAssumptionsSection({ draft, onChange, researchVal
           </div>
           <div className="space-y-2">
             <div className="flex justify-between items-center">
-              <Label className="label-text text-gray-700 flex items-center gap-1.5">Occupancy Growth Step<HelpTooltip text="The size of each occupancy increase during the ramp-up period. Every time the ramp interval elapses, occupancy jumps by this many percentage points. Example: starting at 40% with a 5% step → 40%, 45%, 50%, 55%… until the stabilized maximum is reached." /></Label>
+              <div className="flex flex-col gap-0.5">
+                <Label className="label-text text-gray-700 flex items-center gap-1.5">Occupancy Growth Step<HelpTooltip text="The size of each occupancy increase during the ramp-up period. Every time the ramp interval elapses, occupancy jumps by this many percentage points. Example: starting at 40% with a 5% step → 40%, 45%, 50%, 55%… until the stabilized maximum is reached." /></Label>
+                <ResearchBadge value={researchValues.occupancyStep?.display} onClick={() => researchValues.occupancyStep && onChange("occupancyGrowthStep", researchValues.occupancyStep.mid / 100)} />
+              </div>
               <EditableValue
                 value={draft.occupancyGrowthStep * 100}
                 onChange={(val) => onChange("occupancyGrowthStep", val / 100)}
@@ -211,13 +218,17 @@ export default function RevenueAssumptionsSection({ draft, onChange, researchVal
             Additional Revenue as % of Room Revenue
             <HelpTooltip text="Configure how much additional revenue each stream generates as a percentage of room revenue. F&B revenue gets boosted by the catering boost percentage." />
           </Label>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:items-end">
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <Label className="label-text text-gray-700 flex items-center gap-1.5">
-                  Events
-                  <HelpTooltip text="Revenue from meetings, weddings, and other events as a percentage of room revenue." />
-                </Label>
+                <div className="flex flex-col gap-0.5">
+                  <Label className="label-text text-gray-700 flex items-center gap-1.5">
+                    Events
+                    <HelpTooltip text="Revenue from meetings, weddings, and other events as a percentage of room revenue." />
+                    <GaapBadge rule="ASC 606: Event revenue recognized when the event occurs (point-in-time). Deposits recorded as deferred revenue until the performance obligation is satisfied." />
+                  </Label>
+                  <ResearchBadge value={researchValues.revShareEvents?.display} onClick={() => researchValues.revShareEvents && onChange("revShareEvents", researchValues.revShareEvents.mid / 100)} />
+                </div>
                 <EditableValue
                   value={(draft.revShareEvents ?? DEFAULT_REV_SHARE_EVENTS) * 100}
                   onChange={(val) => onChange("revShareEvents", val / 100)}
@@ -239,10 +250,14 @@ export default function RevenueAssumptionsSection({ draft, onChange, researchVal
             </div>
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <Label className="label-text text-gray-700 flex items-center gap-1.5">
-                  F&B
-                  <HelpTooltip text="Base food & beverage revenue as a percentage of room revenue. This gets boosted by the catering boost percentage below." />
-                </Label>
+                <div className="flex flex-col gap-0.5">
+                  <Label className="label-text text-gray-700 flex items-center gap-1.5">
+                    F&B
+                    <HelpTooltip text="Base food & beverage revenue as a percentage of room revenue. This gets boosted by the catering boost percentage below." />
+                    <GaapBadge rule="ASC 606: F&B revenue recognized at the point of sale. Bundled packages (e.g., room + breakfast) must allocate revenue to each performance obligation based on standalone selling prices." />
+                  </Label>
+                  <ResearchBadge value={researchValues.revShareFB?.display} onClick={() => researchValues.revShareFB && onChange("revShareFB", researchValues.revShareFB.mid / 100)} />
+                </div>
                 <EditableValue
                   value={(draft.revShareFB ?? DEFAULT_REV_SHARE_FB) * 100}
                   onChange={(val) => onChange("revShareFB", val / 100)}
@@ -264,10 +279,13 @@ export default function RevenueAssumptionsSection({ draft, onChange, researchVal
             </div>
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <Label className="label-text text-gray-700 flex items-center gap-1.5">
-                  Other
-                  <HelpTooltip text="Revenue from spa, parking, activities, and other ancillary services." />
-                </Label>
+                <div className="flex flex-col gap-0.5">
+                  <Label className="label-text text-gray-700 flex items-center gap-1.5">
+                    Other
+                    <HelpTooltip text="Revenue from spa, parking, activities, and other ancillary services." />
+                  </Label>
+                  <ResearchBadge value={researchValues.revShareOther?.display} onClick={() => researchValues.revShareOther && onChange("revShareOther", researchValues.revShareOther.mid / 100)} />
+                </div>
                 <EditableValue
                   value={(draft.revShareOther ?? DEFAULT_REV_SHARE_OTHER) * 100}
                   onChange={(val) => onChange("revShareOther", val / 100)}

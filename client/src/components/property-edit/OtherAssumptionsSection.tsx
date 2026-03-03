@@ -19,6 +19,7 @@ import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { Slider } from "@/components/ui/slider";
 import { EditableValue } from "@/components/ui/editable-value";
 import { ResearchBadge } from "@/components/ui/research-badge";
+import { GaapBadge } from "@/components/ui/gaap-badge";
 import {
   DEFAULT_EXIT_CAP_RATE,
   DEFAULT_TAX_RATE,
@@ -42,13 +43,14 @@ export default function OtherAssumptionsSection({ draft, onChange, researchValue
           </h3>
           <p className="text-gray-600 text-sm label-text">Exit valuation and tax rate assumptions</p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:items-end">
           <div className="space-y-2">
             <div className="flex justify-between items-center">
               <div className="flex flex-col gap-0.5">
                 <Label className="flex items-center label-text text-gray-700 gap-1.5">
                   Exit Cap Rate
                   <HelpTooltip text={`The capitalization rate used to determine terminal (exit) value. Exit Value = Year ${exitYear} NOI ÷ Cap Rate. A lower cap rate implies higher property valuation.`} />
+                  <GaapBadge rule="ASC 360: The exit cap rate determines terminal value for impairment testing. Gain on sale = Sale Price − (Adjusted Basis − Accumulated Depreciation). Depreciation recapture taxed at up to 25% under IRC §1250." />
                 </Label>
                 <ResearchBadge value={researchValues.capRate?.display} onClick={() => researchValues.capRate && onChange("exitCapRate", researchValues.capRate.mid / 100)} />
               </div>
@@ -78,6 +80,7 @@ export default function OtherAssumptionsSection({ draft, onChange, researchValue
                 <Label className="flex items-center label-text text-gray-700 gap-1.5">
                   Income Tax Rate
                   <HelpTooltip text="Income tax rate for this property's SPV entity, applied to taxable income (NOI minus interest and depreciation) to calculate after-tax cash flow. Set per property to reflect the jurisdiction where the property is located." />
+                  <GaapBadge rule="IRC §168: Taxable income = NOI − Interest − Depreciation. The 27.5-year straight-line depreciation on the building portion creates a non-cash deduction that shelters cash flow from taxes." />
                 </Label>
                 <ResearchBadge value={researchValues.incomeTax?.display} onClick={() => researchValues.incomeTax && onChange("taxRate", researchValues.incomeTax.mid / 100)} />
               </div>
@@ -103,10 +106,13 @@ export default function OtherAssumptionsSection({ draft, onChange, researchValue
           </div>
           <div className="space-y-2">
             <div className="flex justify-between items-center">
-              <Label className="flex items-center label-text text-gray-700 gap-1.5">
-                Sale Commission
-                <HelpTooltip text="Broker commission percentage applied when this property is sold." />
-              </Label>
+              <div className="flex flex-col gap-0.5">
+                <Label className="flex items-center label-text text-gray-700 gap-1.5">
+                  Sale Commission
+                  <HelpTooltip text="Broker commission percentage applied when this property is sold." />
+                </Label>
+                <ResearchBadge value={researchValues.saleCommission?.display} onClick={() => researchValues.saleCommission && onChange("dispositionCommission", researchValues.saleCommission.mid / 100)} />
+              </div>
               <EditableValue
                 data-testid="editable-disposition-commission"
                 value={(draft.dispositionCommission ?? DEFAULT_COMMISSION_RATE) * 100}

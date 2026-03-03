@@ -45,9 +45,8 @@ export function register(app: Express) {
       }
 
       const ga = await storage.getGlobalAssumptions(req.user!.id);
-      const model = ga?.preferredLlm || "claude-3-5-sonnet-20241022";
+      const model = ga?.preferredLlm || "claude-sonnet-4-20250514";
 
-      // Initialize AI clients
       const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
       // SSE Header setup
@@ -125,7 +124,7 @@ export function register(app: Express) {
       }
 
       const ga = await storage.getGlobalAssumptions(req.user!.id);
-      const model = ga?.preferredLlm || "claude-3-5-sonnet-20241022";
+      const model = ga?.preferredLlm || "claude-sonnet-4-20250514";
       const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
       res.setHeader("Content-Type", "text/event-stream");

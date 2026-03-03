@@ -104,6 +104,12 @@ export default function PropertyEdit() {
       svcFeeGeneralMgmt: { display: "0.7%–1.2%", mid: 1 },
       incentiveFee: { display: "8%–12%", mid: 10 },
       incomeTax: { display: "24%–28%", mid: 25 },
+      adrGrowth: { display: "3%–5%", mid: 3.5 },
+      occupancyStep: { display: "4%–6%", mid: 5 },
+      revShareEvents: { display: "20%–35%", mid: 30 },
+      revShareFB: { display: "15%–25%", mid: 18 },
+      revShareOther: { display: "3%–8%", mid: 5 },
+      saleCommission: { display: "4%–6%", mid: 5 },
     };
 
     const dbResearch = property?.researchValues as Record<string, { display: string; mid: number; source?: string }> | null | undefined;
@@ -186,6 +192,42 @@ export default function PropertyEdit() {
       svcFeeGeneralMgmt: parseCostRate(msf?.serviceFeeCategories?.generalManagement),
       incentiveFee: parseCostRate(msf?.incentiveFee),
       incomeTax: ita?.recommendedRate ? parseCostRate({ recommendedRate: ita.recommendedRate }) : null,
+      adrGrowth: (() => {
+        const g = c.adrAnalysis?.recommendedGrowthRate ?? c.adrAnalysis?.annualGrowthRate;
+        if (!g) return null;
+        const pct = parsePct(g);
+        return pct != null ? { display: g, mid: pct } : null;
+      })(),
+      occupancyStep: (() => {
+        const s = c.occupancyAnalysis?.recommendedGrowthStep ?? c.occupancyAnalysis?.growthStepPercent;
+        if (!s) return null;
+        const pct = parsePct(s);
+        return pct != null ? { display: s, mid: pct } : null;
+      })(),
+      revShareEvents: (() => {
+        const ev = (c as any).eventDemandAnalysis?.recommendedRevenueShare ?? (c as any).eventDemandAnalysis?.recommendedPercent;
+        if (!ev) return null;
+        const pct = parsePct(ev);
+        return pct != null ? { display: ev, mid: pct } : null;
+      })(),
+      revShareFB: (() => {
+        const fb = (c as any).fbRevenueAnalysis?.recommendedPercent ?? (c as any).cateringAnalysis?.fbRevenueShare;
+        if (!fb) return null;
+        const pct = parsePct(fb);
+        return pct != null ? { display: fb, mid: pct } : null;
+      })(),
+      revShareOther: (() => {
+        const other = (c as any).ancillaryRevenueAnalysis?.recommendedPercent;
+        if (!other) return null;
+        const pct = parsePct(other);
+        return pct != null ? { display: other, mid: pct } : null;
+      })(),
+      saleCommission: (() => {
+        const comm = (c as any).dispositionAnalysis?.recommendedCommission ?? c.capRateAnalysis?.saleCommission;
+        if (!comm) return null;
+        const pct = parsePct(comm);
+        return pct != null ? { display: comm, mid: pct } : null;
+      })(),
     };
 
     const merged: Record<string, { display: string; mid: number; source?: string }> = { ...baseDefaults };

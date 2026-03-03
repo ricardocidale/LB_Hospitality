@@ -30,6 +30,7 @@ import { Slider } from "@/components/ui/slider";
 import { EditableValue } from "@/components/ui/editable-value";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ResearchBadge } from "@/components/ui/research-badge";
+import { GaapBadge } from "@/components/ui/gaap-badge";
 import { formatMoneyInput, parseMoneyInput } from "@/lib/formatters";
 import { 
   DEFAULT_LTV, 
@@ -58,7 +59,7 @@ export default function CapitalStructureSection({ draft, onChange, onNumberChang
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
           <div className="space-y-1.5">
-            <Label className="label-text text-gray-700 flex items-center gap-1.5">Purchase Price ($)<HelpTooltip text="Total acquisition cost of the property. This is the basis for equity investment, loan sizing, and depreciation calculations." /></Label>
+            <Label className="label-text text-gray-700 flex items-center gap-1.5">Purchase Price ($)<HelpTooltip text="Total acquisition cost of the property. This is the basis for equity investment, loan sizing, and depreciation calculations." /><GaapBadge rule="ASC 805: Acquisition cost is the fair value of the total consideration transferred. Includes the purchase price of the asset. The depreciable basis excludes the land allocation." /></Label>
             <Input 
               value={formatMoneyInput(draft.purchasePrice)} 
               onChange={(e) => onNumberChange("purchasePrice", parseMoneyInput(e.target.value).toString())}
@@ -66,7 +67,7 @@ export default function CapitalStructureSection({ draft, onChange, onNumberChang
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="label-text text-gray-700 flex items-center gap-1.5">Building Improvements ($)<HelpTooltip text="Capital improvements and renovation costs added to the building basis. These are depreciated over 27.5 years along with the building portion of the purchase price." /></Label>
+            <Label className="label-text text-gray-700 flex items-center gap-1.5">Building Improvements ($)<HelpTooltip text="Capital improvements and renovation costs added to the building basis. These are depreciated over 27.5 years along with the building portion of the purchase price." /><GaapBadge rule="ASC 360 / IRS Pub 946: Capital improvements are added to the depreciable basis and depreciated over 27.5 years (straight-line). They are not expensed immediately." /></Label>
             <Input 
               value={formatMoneyInput(draft.buildingImprovements)} 
               onChange={(e) => onNumberChange("buildingImprovements", parseMoneyInput(e.target.value).toString())}
@@ -94,6 +95,7 @@ export default function CapitalStructureSection({ draft, onChange, onNumberChang
               <Label className="label-text text-gray-700 flex items-center gap-1.5">
                 Land Value (%)
                 <HelpTooltip text="Percentage of the purchase price allocated to land. Land does not depreciate under IRS rules (Publication 946). Only the building portion is depreciated over 27.5 years. Typical land allocation ranges from 15-40% depending on location and property type." />
+                <GaapBadge rule="IRS Publication 946: Land is NOT depreciable. Only the building portion (Purchase Price × (1 − Land %) + Improvements) is depreciated over 27.5 years using straight-line method. Higher land % = lower depreciation deduction." />
               </Label>
               <ResearchBadge value={researchValues.landValue?.display} onClick={() => researchValues.landValue && onChange("landValuePercent", researchValues.landValue.mid / 100)} />
             </div>
@@ -142,7 +144,7 @@ export default function CapitalStructureSection({ draft, onChange, onNumberChang
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label className="label-text text-gray-700 flex items-center gap-1.5">LTV<HelpTooltip text="Loan-to-Value ratio: the percentage of the purchase price financed by the lender. Higher LTV means less equity required but more debt service." /></Label>
+                  <Label className="label-text text-gray-700 flex items-center gap-1.5">LTV<HelpTooltip text="Loan-to-Value ratio: the percentage of the purchase price financed by the lender. Higher LTV means less equity required but more debt service." /><GaapBadge rule="ASC 470: Debt must be separated into interest expense (Income Statement) and principal repayment (Balance Sheet/Financing Activity). Only interest reduces taxable income." /></Label>
                   <EditableValue
                     value={(draft.acquisitionLTV || DEFAULT_LTV) * 100}
                     onChange={(val) => onChange("acquisitionLTV", val / 100)}
@@ -195,7 +197,7 @@ export default function CapitalStructureSection({ draft, onChange, onNumberChang
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label className="label-text text-gray-700 flex items-center gap-1.5">Closing Costs<HelpTooltip text="Transaction costs as a percentage of the loan amount: lender fees, appraisal, title insurance, legal fees." /></Label>
+                  <Label className="label-text text-gray-700 flex items-center gap-1.5">Closing Costs<HelpTooltip text="Transaction costs as a percentage of the loan amount: lender fees, appraisal, title insurance, legal fees." /><GaapBadge rule="GAAP: Loan origination costs are capitalized and amortized over the loan term (ASC 310-20). Not expensed immediately. Shown as a reduction of the loan liability on the balance sheet." /></Label>
                   <EditableValue
                     value={(draft.acquisitionClosingCostRate || DEFAULT_ACQ_CLOSING_COST_RATE) * 100}
                     onChange={(val) => onChange("acquisitionClosingCostRate", val / 100)}

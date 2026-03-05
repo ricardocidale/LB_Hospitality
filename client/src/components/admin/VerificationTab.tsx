@@ -112,7 +112,8 @@ export default function VerificationTab() {
       if (!sct.includes("application/json")) {
         throw new Error(`Server verification: expected JSON but received ${sct || "unknown content"}`);
       }
-      const serverReport: VerificationResult = await serverRes.json();
+      const serverRun = await serverRes.json();
+      const serverReport: VerificationResult = serverRun.results ?? serverRun;
 
       return {
         ...serverReport,

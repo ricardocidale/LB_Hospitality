@@ -7,11 +7,12 @@ import { ChevronRight, ChevronDown } from "lucide-react";
 import { formatMoney } from "@/lib/financialEngine";
 import { CalcDetailsProvider } from "@/components/financial-table-rows";
 import { DashboardTabProps } from "./types";
-import { dashboardExports } from "./dashboardExports";
+import { dashboardExports, generatePortfolioCashFlowData, generatePortfolioInvestmentData } from "./dashboardExports";
 
 export function IncomeStatementTab({ financials, properties, projectionYears, getFiscalYear, showCalcDetails }: DashboardTabProps) {
   const { 
     allPropertyYearlyIS, 
+    allPropertyYearlyCF,
     yearlyConsolidatedCache, 
     totalInitialEquity,
     totalExitValue,
@@ -152,9 +153,9 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
           totalProjectionNOI,
           totalProjectionCashFlow,
           incomeData: { years: years.map(String), rows: rows.map(r => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader })) },
-          cashFlowData: { years: [], rows: [] }, // TODO
-          balanceSheetData: { years: [], rows: [] }, // TODO
-          investmentData: { years: [], rows: [] }, // TODO
+          cashFlowData: (() => { const cf = generatePortfolioCashFlowData(allPropertyYearlyCF, projectionYears, getFiscalYear); return { years: cf.years.map(String), rows: cf.rows.map(r => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader })) }; })(),
+          balanceSheetData: { years: years.map(String), rows: [] },
+          investmentData: (() => { const inv = generatePortfolioInvestmentData(financials, properties, projectionYears, getFiscalYear); return { years: inv.years.map(String), rows: inv.rows.map(r => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader })) }; })()
         });
         break;
       case 'png': dashboardExports.exportToPNG(tabContentRef as RefObject<HTMLElement>); break;

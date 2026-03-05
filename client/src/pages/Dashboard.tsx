@@ -174,7 +174,7 @@ export default function Dashboard() {
           doc.addImage(dataUrl, "PNG", margin, 25, imgW, imgH);
           doc.save(`${label.toLowerCase().replace(/\s+/g, "-")}-chart.pdf`);
         };
-      }).catch(() => {});
+      }).catch((err) => { console.error("Chart PDF export failed:", err); });
     }
   }, [exportType, activeTab, financials, global, getExportData]);
 

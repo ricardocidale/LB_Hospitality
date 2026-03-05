@@ -55,7 +55,7 @@ export default function VerificationTab() {
   const { data: verificationHistory } = useQuery<VerificationHistoryEntry[]>({
     queryKey: ["admin", "verification-history"],
     queryFn: async () => {
-      const res = await fetch("/api/admin/verification-history?limit=10", { credentials: "include" });
+      const res = await fetch("/api/verification/history", { credentials: "include" });
       if (!res.ok) throw new Error("Failed to fetch verification history");
       const ct = res.headers.get("content-type") || "";
       if (!ct.includes("application/json")) throw new Error("Server returned non-JSON response");
@@ -94,10 +94,25 @@ export default function VerificationTab() {
       const comprehensiveResults = runFullVerification(properties, globalAssumptions);
       const knownValueTests = runKnownValueTestsStructured();
 
-      const serverReport = await safeFetchJSON<VerificationResult>(
-        "/api/admin/run-verification",
-        "Server verification"
-      );
+      const serverRes = await fetch("/api/verification/run", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ clientResults: comprehensiveResults }),
+      });
+      if (!serverRes.ok) {
+        const ct = serverRes.headers.get("content-type") || "";
+        if (!ct.includes("application/json")) {
+          throw new Error(`Server verification: returned ${serverRes.status} (non-JSON)`);
+        }
+        const body = await serverRes.json().catch(() => ({}));
+        throw new Error(`Server verification: ${(body as any).error || serverRes.statusText}`);
+      }
+      const sct = serverRes.headers.get("content-type") || "";
+      if (!sct.includes("application/json")) {
+        throw new Error(`Server verification: expected JSON but received ${sct || "unknown content"}`);
+      }
+      const serverReport: VerificationResult = await serverRes.json();
 
       return {
         ...serverReport,
@@ -130,7 +145,7 @@ export default function VerificationTab() {
     setAiReviewLoading(true);
     setAiReview("");
     try {
-      const res = await fetch("/api/admin/ai-verification", { method: "POST", credentials: "include" });
+      const res = await fetch("/api/verification/ai-review", { method: "POST", credentials: "include" });
       if (!res.ok) {
         const ct = res.headers.get("content-type") || "";
         if (!ct.includes("application/json") && !ct.includes("text/event-stream")) {
@@ -354,7 +369,7 @@ export default function VerificationTab() {
 
   const runDesignCheck = useMutation({
     mutationFn: async () => {
-      const res = await fetch("/api/admin/run-design-check", { credentials: "include" });
+      const res = await fetch("/api/verification/design-check", { credentials: "include" });
       if (!res.ok) throw new Error("Failed to run design check");
       const ct = res.headers.get("content-type") || "";
       if (!ct.includes("application/json")) throw new Error("Server returned non-JSON response");

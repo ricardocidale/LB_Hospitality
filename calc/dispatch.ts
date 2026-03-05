@@ -5,7 +5,7 @@
  * tools by name. It maps tool names (strings) to their handler functions, making it
  * easy to invoke any calculation module from a single entry point.
  *
- * The dispatched tools fall into three categories:
+ * The dispatched tools fall into four categories:
  *
  *   Returns Calculations:
  *     - calculate_dcf_npv: Discounted Cash Flow / Net Present Value
@@ -24,6 +24,18 @@
  *     - consolidate_statements: Combine multiple properties into portfolio view (ASC 810)
  *     - scenario_compare: Side-by-side comparison of different assumption sets
  *     - break_even_analysis: Find occupancy/ADR needed to cover costs
+ *     - compute_waterfall: LP/GP equity waterfall with preferred return and promote tiers
+ *     - hold_vs_sell: NPV comparison of hold vs. sell decision
+ *     - stress_test: Portfolio-level adverse scenario impact analysis
+ *     - capex_reserve: FF&E reserve adequacy projection
+ *     - revpar_index: STR-style competitive positioning indices (MPI/ARI/RGI)
+ *
+ *   Financing Tools:
+ *     - calculate_debt_yield: Debt yield ratio and max loan reverse-solve
+ *     - calculate_dscr: DSCR-based loan sizing
+ *     - calculate_prepayment: Prepayment penalty (yield maintenance/step-down/defeasance)
+ *     - calculate_sensitivity: DSCR sensitivity matrix (rate × NOI)
+ *     - compare_loans: Side-by-side loan scenario comparison
  *
  * The withRounding wrapper ensures all monetary calculations use consistent 2-decimal
  * rounding (no banker's rounding) unless the tool handles rounding itself.
@@ -44,6 +56,16 @@ import { verifyExport } from "./validation/export-verification.js";
 import { consolidateStatements } from "./analysis/consolidation.js";
 import { compareScenarios } from "./analysis/scenario-compare.js";
 import { computeBreakEven } from "./analysis/break-even.js";
+import { computeWaterfall } from "./analysis/waterfall.js";
+import { computeHoldVsSell } from "./analysis/hold-vs-sell.js";
+import { computeStressTest } from "./analysis/stress-test.js";
+import { computeCapexReserve } from "./analysis/capex-reserve.js";
+import { computeRevPARIndex } from "./analysis/revpar-index.js";
+import { computeDebtYield } from "./financing/debt-yield.js";
+import { computeDSCR } from "./financing/dscr-calculator.js";
+import { computePrepayment } from "./financing/prepayment.js";
+import { computeSensitivity } from "./financing/sensitivity.js";
+import { compareLoanScenarios } from "./financing/loan-comparison.js";
 
 type ToolInput = Record<string, unknown>;
 type ToolFn = (input: never) => unknown;
@@ -67,6 +89,16 @@ const TOOL_DISPATCH: Record<string, ToolHandler> = {
   consolidate_statements: withRounding(consolidateStatements),
   scenario_compare: wrap(compareScenarios),
   break_even_analysis: wrap(computeBreakEven),
+  compute_waterfall: withRounding(computeWaterfall),
+  hold_vs_sell: withRounding(computeHoldVsSell),
+  stress_test: withRounding(computeStressTest),
+  capex_reserve: withRounding(computeCapexReserve),
+  revpar_index: withRounding(computeRevPARIndex),
+  calculate_debt_yield: withRounding(computeDebtYield),
+  calculate_dscr: withRounding(computeDSCR),
+  calculate_prepayment: withRounding(computePrepayment),
+  calculate_sensitivity: withRounding(computeSensitivity),
+  compare_loans: (input) => compareLoanScenarios((input as ToolInput).scenarios as never ?? []),
 };
 
 /**

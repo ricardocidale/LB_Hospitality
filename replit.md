@@ -5,7 +5,7 @@
 ## Overview
 Business simulation portal for the hospitality industry. Financial modeling, property management, investment analysis, and AI-powered assistant (Marcela). GAAP-compliant (ASC 230, ASC 360, ASC 470) with IRS depreciation rules and independent audit/verification engine.
 
-**Codebase:** ~405 source files, ~71,800 lines, 1,546 tests across 76 files.
+**Codebase:** ~406 source files, ~72,500 lines, 1,546 tests across 76 files.
 
 ## User Preferences
 - **Calculations first.** 1,546-test proof system must always pass.
@@ -36,7 +36,7 @@ Marcela operates across web (text + voice), phone (Twilio Voice), and SMS (Twili
 User → User Group → Default hierarchy. See `.claude/claude.md` § Branding Architecture.
 
 ### Financial Engine
-GAAP-compliant calculation engine with 12 computation tools, typed dispatch, zero `any` types. See `.claude/skills/finance/SKILL.md`.
+GAAP-compliant calculation engine with 22 computation tools, typed dispatch, zero `any` types. See `.claude/skills/finance/SKILL.md`.
 
 ### Admin Page (10 tabs)
 Refactored into standalone tab components: Users, Companies, Activity, Verification, User Groups, Logos, Branding, Themes, Navigation, Marcela, Database. See `.claude/skills/admin/SKILL.md`.
@@ -74,7 +74,7 @@ npm run audit:quick    # Quick code quality scan
 ├── claude.md              # Master doc (always loaded)
 ├── rules/ (24 files)      # Enforceable constraints
 ├── skills/ (119 files)    # Implementation knowledge
-├── tools/ (42 files)      # Tool schemas
+├── tools/ (47 files)      # Tool schemas
 ├── manuals/               # Checker + user manuals
 ├── commands/              # Slash commands
 └── scripts/               # SQL utilities

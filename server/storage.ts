@@ -766,6 +766,8 @@ export class DatabaseStorage implements IStorage {
       .insert(verificationRuns)
       .values(data as typeof verificationRuns.$inferInsert)
       .returning();
+    const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    await db.delete(verificationRuns).where(lt(verificationRuns.createdAt, cutoff));
     return run;
   }
 
@@ -774,6 +776,7 @@ export class DatabaseStorage implements IStorage {
    * field (which can be megabytes of JSON) to keep list queries fast.
    */
   async getVerificationRuns(limit = 20): Promise<Omit<VerificationRun, 'results'>[]> {
+    const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
     const rows = await db
       .select({
         id: verificationRuns.id,
@@ -786,6 +789,7 @@ export class DatabaseStorage implements IStorage {
         createdAt: verificationRuns.createdAt,
       })
       .from(verificationRuns)
+      .where(gte(verificationRuns.createdAt, cutoff))
       .orderBy(desc(verificationRuns.createdAt))
       .limit(limit);
     return rows;

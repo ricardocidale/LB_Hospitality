@@ -90,6 +90,10 @@ export default function VerificationTab() {
       // all financial figures from scratch and compares against stored values
       const serverRes = await fetch("/api/admin/run-verification", { credentials: "include" });
       if (!serverRes.ok) throw new Error("Server verification failed");
+      const contentType = serverRes.headers.get("content-type") || "";
+      if (!contentType.includes("application/json")) {
+        throw new Error("Server returned non-JSON response — it may be restarting. Please try again.");
+      }
       const serverReport: VerificationResult = await serverRes.json();
       
       // Merge: server report is the authoritative structure, enriched with

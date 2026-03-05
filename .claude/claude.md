@@ -4,14 +4,14 @@
 
 Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470) with IRS depreciation rules and an independent audit/verification engine. Built and hosted entirely on Replit.
 
-**Codebase:** 404 source files, ~71,500 lines of code, 1,529 tests across 72 files.
+**Codebase:** ~406 source files, ~72,900 lines of code, 1,546 tests across 76 files.
 
 ---
 
 ## User Preferences
 
 - Preferred communication style: Simple, everyday language. Detailed user — ask lots of clarifying questions before implementing features. Do not assume; confirm requirements first.
-- **TOP PRIORITY: Calculations and correct reports are always the highest priority.** Financial accuracy must never be compromised for visual or UI enhancements. The automated proof system (1,529 tests) must always pass.
+- **TOP PRIORITY: Calculations and correct reports are always the highest priority.** Financial accuracy must never be compromised for visual or UI enhancements. The automated proof system (1,546 tests) must always pass.
 - Always format money as money (currency format with commas and appropriate precision).
 - All skills must be stored under `.claude/` directory (e.g., `.claude/skills/`, `.claude/manuals/`, `.claude/tools/`). Never place skills elsewhere.
 - The company name is "Hospitality Business Group" (or "Hospitality Business" for short).
@@ -38,7 +38,7 @@ Business simulation portal for **Hospitality Business Group**. Models a boutique
 
 ## Context Loading Protocol
 
-With 118 skill files, **never load all skills at once**. Use the context-loading skill (`.claude/skills/context-loading/SKILL.md`) to find the minimum required skill set for any task. Quick rules:
+With 119 skill files, **never load all skills at once**. Use the context-loading skill (`.claude/skills/context-loading/SKILL.md`) to find the minimum required skill set for any task. Quick rules:
 - **Financial calc fix** → load the specific finance skill + `rules/audit-persona.md` + `proof-system/SKILL.md`
 - **UI/visual work** → load `component-library/SKILL.md` + `ui/theme-engine.md` + the specific UI skill
 - **Testing work** → load `testing/SKILL.md` + the relevant sub-skill only
@@ -59,7 +59,7 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | Theme Engine | `.claude/skills/ui/theme-engine.md` | Multi-theme system (Fluid Glass active), user-created themes, token structure |
 | Component Library | `.claude/skills/component-library/SKILL.md` | PageHeader, GlassButton, ExportMenu, CurrentThemeTab, etc. |
 | Reusable UI | `.claude/skills/ui/reusable-components.md` | AIImagePicker, AnimatedLogo, StatusBadge, ImagePreviewCard, EntityCard |
-| Proof System | `.claude/skills/proof-system/SKILL.md` | 1,529 tests, 5 golden scenarios, verification commands |
+| Proof System | `.claude/skills/proof-system/SKILL.md` | 1,546 tests, 5 golden scenarios, verification commands |
 | Testing (7 skills) | `.claude/skills/testing/` | Per-statement/analysis test coverage at property, consolidated, and management company levels |
 | 3D Graphics | `.claude/skills/3d-graphics/SKILL.md` | Three.js scenes, framer-motion wrappers |
 | Database | `.claude/skills/database-environments/SKILL.md` | Dev/prod databases, migrations, sync |
@@ -85,11 +85,11 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | UI: Other (14) | `.claude/skills/ui/` | Glass components, buttons, sliders, tabs, page-header, callout, etc. |
 | Manuals | `.claude/manuals/` | Checker manual (21 sections), user manual (16 sections) |
 | Tools | `.claude/tools/` | Analysis, financing, returns, validation, UI tool schemas |
-| Rules (21) | `.claude/rules/` | Session-startup, documentation, ui-patterns, audit persona, constants, DB seeding, API routes, graphics-rich design, architecture, financial engine, verification, skill organization, session memory, etc. |
+| Rules (24) | `.claude/rules/` | Session-startup, documentation, ui-patterns, audit persona, constants, DB seeding, API routes, graphics-rich design, architecture, financial engine, verification, skill organization, session memory, exports, etc. |
 
 ---
 
-## Testing & Proof System (1,529 Tests, 72 Files)
+## Testing & Proof System (1,546 Tests, 76 Files)
 
 | Entity Level | Test Domains | Skill |
 |-------------|-------------|-------|
@@ -102,7 +102,7 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | Engine Unit Tests | Cash flow aggregator, yearly aggregator, equity calculations, loan calculations, GAAP compliance, edge cases | `tests/engine/` |
 | Validation | Assumption consistency, funding gates, export verification | `tests/calc/validation/` |
 
-**Commands**: `npm test` (all 1,529), `npm run verify` (4-phase, UNQUALIFIED required)
+**Commands**: `npm test` (all 1,546), `npm run verify` (6-phase, UNQUALIFIED required)
 
 ---
 
@@ -328,10 +328,10 @@ When ON (default), every financial line item shows a ? icon explaining its formu
 ```bash
 npm run dev            # Start dev server (port 5000)
 npm run health         # One-shot: tsc + tests + verify (~4 lines output)
-npm run test:summary   # Run all 1,529 tests, 1-line output on pass
-npm run verify:summary # 4-phase verification, compact output
-npm test               # Run all 1,529 tests (full output)
-npm run verify         # Full 4-phase financial verification (verbose)
+npm run test:summary   # Run all 1,546 tests, 1-line output on pass
+npm run verify:summary # 6-phase verification, compact output
+npm test               # Run all 1,546 tests (full output)
+npm run verify         # Full 6-phase financial verification (verbose)
 npm run db:push        # Push schema changes
 npm run lint:summary   # tsc --noEmit with 1-line output
 npm run diff:summary   # Compact git status + diff stat

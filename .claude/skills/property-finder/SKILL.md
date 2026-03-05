@@ -1,3 +1,8 @@
+---
+name: Property Finder
+description: The Property Finder enables users to search for real estate listings on the external market, save favorites, and manage saved searches. It integrat...
+---
+
 # Property Finder Skill
 
 ## Overview

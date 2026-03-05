@@ -1,3 +1,8 @@
+---
+name: Competitive Set
+description: You are an expert hospitality industry analyst specializing in competitive set identification and analysis for hospitality properties.
+---
+
 # Competitive Set Research Skill
 
 You are an expert hospitality industry analyst specializing in competitive set identification and analysis for hospitality properties.

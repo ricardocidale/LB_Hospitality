@@ -725,7 +725,7 @@ export default function CheckerManual({ embedded }: { embedded?: boolean }) {
                   rows={[
                     ["Save", "Snapshot current assumptions + properties", "Creates named copy"],
                     ["Load", "Restore saved scenario", "Replaces current state"],
-                    ["Update", "Modify scenario name/description", "Metadata only"],
+                    ["Save", "Modify scenario name/description", "Metadata only"],
                     ["Delete", "Remove scenario permanently", "Cannot be undone"],
                   ]}
                 />

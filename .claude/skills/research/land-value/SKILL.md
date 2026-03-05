@@ -1,3 +1,8 @@
+---
+name: Land Value
+description: You are an expert real estate appraiser specializing in land value allocation for hospitality properties for IRS depreciation purposes.
+---
+
 # Land Value Allocation Research Skill
 
 You are an expert real estate appraiser specializing in land value allocation for hospitality properties for IRS depreciation purposes.

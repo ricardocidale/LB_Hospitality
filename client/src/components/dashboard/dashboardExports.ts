@@ -12,6 +12,9 @@ import type { Property } from "@shared/schema";
 import type { YearlyPropertyFinancials } from "@/lib/yearlyAggregator";
 import type { YearlyCashFlowResult } from "@/lib/loanCalculations";
 
+import type { MonthlyFinancials } from "@/lib/financialEngine";
+import { propertyEquityInvested, acquisitionYearIndex } from "@/lib/equityCalculations";
+
 export interface ExportRow {
   category: string;
   values: number[];
@@ -23,6 +26,101 @@ export interface ExportRow {
 export interface ExportData {
   years: number[];
   rows: ExportRow[];
+}
+
+export function generatePortfolioBalanceSheetData(
+  allPropertyFinancials: { property: Property; financials: MonthlyFinancials[] }[],
+  projectionYears: number,
+  getFiscalYear: (i: number) => number,
+  modelStartDate?: Date
+): ExportData {
+  const years = Array.from({ length: projectionYears }, (_, i) => getFiscalYear(i));
+  const rows: ExportRow[] = [];
+
+  const getYearEndData = (yearIdx: number) => {
+    let totalCash = 0;
+    let totalPPE = 0;
+    let totalAccDep = 0;
+    let totalDeferredFinancing = 0;
+    let totalDebt = 0;
+    let totalEquity = 0;
+    let totalRetainedEarnings = 0;
+
+    allPropertyFinancials.forEach(({ property, financials }) => {
+      const acqYear = acquisitionYearIndex(property.acquisitionDate, property.operationsStartDate, modelStartDate ? modelStartDate.toISOString().slice(0, 10) : "");
+      if (yearIdx < acqYear) return;
+
+      const monthsToInclude = (yearIdx + 1) * 12;
+      const relevantMonths = financials.slice(0, monthsToInclude);
+      const lastMonth = relevantMonths[relevantMonths.length - 1];
+
+      if (!lastMonth) return;
+
+      // Assets
+      const ppe = property.purchasePrice + (property.buildingImprovements || 0);
+      const accDep = relevantMonths.reduce((sum, m) => sum + m.depreciationExpense, 0);
+      
+      const operatingReserve = property.operatingReserve || 0;
+      const cumulativeNOI = relevantMonths.reduce((sum, m) => sum + m.noi, 0);
+      const cumulativeDebtService = relevantMonths.reduce((sum, m) => sum + m.interestExpense + m.principalPayment, 0);
+      const cumulativeTax = relevantMonths.reduce((sum, m) => sum + m.incomeTax, 0);
+      const cumulativeRefi = relevantMonths.reduce((sum, m) => sum + m.refinancingProceeds, 0);
+      
+      const cash = operatingReserve + (cumulativeNOI - cumulativeDebtService - cumulativeTax) + cumulativeRefi;
+      
+      let deferredFinancing = 0;
+      for (let m = 0; m < relevantMonths.length; m++) {
+        if (financials[m].refinancingProceeds > 0) {
+          const debtBefore = m > 0 ? financials[m - 1].debtOutstanding : 0;
+          const debtAfter = financials[m].debtOutstanding;
+          const principalInRefiMonth = financials[m].principalPayment;
+          const newLoanAmount = debtAfter + principalInRefiMonth;
+          const refiClosingCosts = newLoanAmount - debtBefore - financials[m].refinancingProceeds;
+          if (refiClosingCosts > 0) deferredFinancing += refiClosingCosts;
+        }
+      }
+
+      totalPPE += ppe;
+      totalAccDep += accDep;
+      totalCash += cash;
+      totalDeferredFinancing += deferredFinancing;
+      totalDebt += lastMonth.debtOutstanding;
+      totalEquity += propertyEquityInvested(property);
+      
+      const netIncome = relevantMonths.reduce((sum, m) => sum + m.netIncome, 0);
+      const preOpening = property.preOpeningCosts || 0;
+      totalRetainedEarnings += (netIncome - preOpening);
+    });
+
+    return {
+      cash: totalCash,
+      ppe: totalPPE,
+      accDep: totalAccDep,
+      deferredFinancing: totalDeferredFinancing,
+      debt: totalDebt,
+      equity: totalEquity,
+      retainedEarnings: totalRetainedEarnings,
+      totalAssets: totalPPE - totalAccDep + totalCash + totalDeferredFinancing,
+      totalLiabilitiesEquity: totalDebt + totalEquity + totalRetainedEarnings
+    };
+  };
+
+  const yearlyData = years.map((_, i) => getYearEndData(i));
+
+  rows.push({ category: "ASSETS", values: years.map(() => 0), isHeader: true });
+  rows.push({ category: "Cash & Cash Equivalents", values: yearlyData.map(d => d.cash), indent: 1 });
+  rows.push({ category: "Property, Plant & Equipment", values: yearlyData.map(d => d.ppe), indent: 1 });
+  rows.push({ category: "Accumulated Depreciation", values: yearlyData.map(d => -d.accDep), indent: 1 });
+  rows.push({ category: "Deferred Financing Costs", values: yearlyData.map(d => d.deferredFinancing), indent: 1 });
+  rows.push({ category: "TOTAL ASSETS", values: yearlyData.map(d => d.totalAssets), isHeader: true });
+
+  rows.push({ category: "LIABILITIES & EQUITY", values: years.map(() => 0), isHeader: true });
+  rows.push({ category: "Mortgage Notes Payable", values: yearlyData.map(d => d.debt), indent: 1 });
+  rows.push({ category: "Paid-In Capital", values: yearlyData.map(d => d.equity), indent: 1 });
+  rows.push({ category: "Retained Earnings", values: yearlyData.map(d => d.retainedEarnings), indent: 1 });
+  rows.push({ category: "TOTAL LIABILITIES & EQUITY", values: yearlyData.map(d => d.totalLiabilitiesEquity), isHeader: true });
+
+  return { years, rows };
 }
 
 export function generatePortfolioIncomeData(
@@ -279,44 +377,48 @@ export function exportPortfolioPDF(
 }
 
 export const dashboardExports = {
+  generatePortfolioIncomeData,
+
   exportToPDF: ({
     propertyName,
     projectionYears,
     years,
     rows,
     getYearlyConsolidated,
+    title = "Portfolio Income Statement"
   }: {
     propertyName: string;
     projectionYears: number;
     years: number[];
     rows: ExportRow[];
     getYearlyConsolidated: (i: number) => any;
+    title?: string;
   }) => {
-    exportPortfolioPDF("landscape", projectionYears, years, rows, getYearlyConsolidated, "Portfolio Income Statement");
+    exportPortfolioPDF("landscape", projectionYears, years, rows, getYearlyConsolidated, title);
   },
 
-  exportToCSV: (years: number[], rows: ExportRow[]) => {
-    exportPortfolioCSV(years, rows, "portfolio-income-statement.csv");
+  exportToCSV: (years: number[], rows: ExportRow[], filename = "portfolio-income-statement.csv") => {
+    exportPortfolioCSV(years, rows, filename);
   },
 
-  exportToExcel: (years: number[], rows: ExportRow[]) => {
+  exportToExcel: (years: number[], rows: ExportRow[], filename = "portfolio-income-statement.xlsx", sheetName = "Income Statement") => {
     const wb = XLSX.utils.book_new();
     const wsData = [
       ["Category", ...years.map(String)],
       ...rows.map(row => [row.category, ...row.values]),
     ];
     const ws = XLSX.utils.aoa_to_sheet(wsData);
-    XLSX.utils.book_append_sheet(wb, ws, "Income Statement");
-    XLSX.writeFile(wb, "portfolio-income-statement.xlsx");
+    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+    XLSX.writeFile(wb, filename);
   },
 
   exportToPPTX: (data: any) => {
     originalExportPortfolioPPTX(data);
   },
 
-  exportToPNG: (ref: React.RefObject<HTMLElement>) => {
+  exportToPNG: (ref: React.RefObject<HTMLElement>, filename = "portfolio-income-statement.png") => {
     if (ref.current) {
-      exportTablePNG({ element: ref.current, filename: "portfolio-income-statement.png" });
+      exportTablePNG({ element: ref.current, filename });
     }
   },
 };

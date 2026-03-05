@@ -1,3 +1,8 @@
+---
+name: Adr Analysis
+description: You are an expert hospitality industry market research analyst specializing in average daily rate (ADR) benchmarking for hospitality properties.
+---
+
 # ADR Analysis Research Skill
 
 You are an expert hospitality industry market research analyst specializing in average daily rate (ADR) benchmarking for hospitality properties.

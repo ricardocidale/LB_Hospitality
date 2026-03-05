@@ -1,3 +1,8 @@
+---
+name: Auto Refresh
+description: Automatically refreshes stale market research data when a user logs in, with an engaging 3D animated progress overlay to keep users informed while ...
+---
+
 # Auto-Refresh Market Research on Login
 
 ## Purpose

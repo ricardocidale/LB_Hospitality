@@ -1,16 +1,39 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useRef, RefObject } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ExportMenu, pdfAction, csvAction, excelAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
 import { ChevronRight, ChevronDown } from "lucide-react";
 import { formatMoney } from "@/lib/financialEngine";
 import { CalcDetailsProvider } from "@/components/financial-table-rows";
 import { DashboardTabProps } from "./types";
 import { aggregateCashFlowByYear } from "@/lib/cashFlowAggregator";
 import { LoanParams, GlobalLoanParams } from "@/lib/loanCalculations";
+import { 
+  dashboardExports, 
+  generatePortfolioCashFlowData, 
+  generatePortfolioInvestmentData,
+  exportPortfolioPDF,
+  exportPortfolioCSV,
+  ExportRow
+} from "./dashboardExports";
+import * as XLSX from "xlsx";
 
 export function CashFlowTab({ financials, properties, projectionYears, getFiscalYear, showCalcDetails }: DashboardTabProps) {
-  const { allPropertyFinancials, allPropertyYearlyCF } = financials;
+  const { 
+    allPropertyFinancials, 
+    allPropertyYearlyCF,
+    totalInitialEquity,
+    totalExitValue,
+    portfolioIRR,
+    equityMultiple,
+    cashOnCash,
+    totalProjectionRevenue,
+    totalProjectionNOI,
+    totalProjectionCashFlow,
+    yearlyConsolidatedCache
+  } = financials;
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+  const tableRef = useRef<HTMLDivElement>(null);
 
   const toggleRow = (rowId: string) => {
     setExpandedRows(prev => {
@@ -46,12 +69,90 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
     [consolidatedCFO, consolidatedCFI, consolidatedCFF, years]
   );
 
+  const handleExport = (action: string) => {
+    const { years, rows } = generatePortfolioCashFlowData(allPropertyYearlyCF, projectionYears, getFiscalYear);
+
+    switch (action) {
+      case 'pdf':
+        exportPortfolioPDF("landscape", projectionYears, years, rows, (i) => yearlyConsolidatedCache[i], "Portfolio Cash Flow Statement");
+        break;
+      case 'csv':
+        exportPortfolioCSV(years, rows, "portfolio-cash-flow.csv");
+        break;
+      case 'excel':
+        const wb = XLSX.utils.book_new();
+        const wsData = [
+          ["Portfolio Cash Flow Statement", ...years.map(String)],
+          ...rows.map(row => [
+            (row.indent ? "  ".repeat(row.indent) : "") + row.category,
+            ...row.values
+          ])
+        ];
+        const ws = XLSX.utils.aoa_to_sheet(wsData);
+        ws["!cols"] = [{ wch: 40 }, ...years.map(() => ({ wch: 15 }))];
+        
+        // Use the internal formatter if available or replicate its logic
+        const currencyFormat = "#,##0";
+        for (let r = 1; r < wsData.length; r++) {
+          for (let c = 1; c < wsData[r].length; c++) {
+            const cellRef = XLSX.utils.encode_cell({ r, c });
+            const cell = ws[cellRef];
+            if (cell && typeof cell.v === "number") {
+              cell.z = currencyFormat;
+            }
+          }
+        }
+        
+        XLSX.utils.book_append_sheet(wb, ws, "Cash Flow");
+        XLSX.writeFile(wb, "portfolio-cash-flow.xlsx");
+        break;
+      case 'pptx':
+        const totalRooms = properties.reduce((sum, p) => sum + p.roomCount, 0);
+        dashboardExports.exportToPPTX({
+          projectionYears,
+          getFiscalYear,
+          totalInitialEquity,
+          totalExitValue,
+          equityMultiple,
+          portfolioIRR,
+          cashOnCash,
+          totalProperties: properties.length,
+          totalRooms,
+          totalProjectionRevenue,
+          totalProjectionNOI,
+          totalProjectionCashFlow,
+          incomeData: { years: years.map(String), rows: [] }, // PPTX usually expects this, but we are in CF tab
+          cashFlowData: { years: years.map(String), rows: rows.map(r => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader })) },
+          balanceSheetData: { years: years.map(String), rows: [] },
+          investmentData: (() => { 
+            const inv = generatePortfolioInvestmentData(financials, properties, projectionYears, getFiscalYear); 
+            return { years: inv.years.map(String), rows: inv.rows.map(r => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader })) }; 
+          })()
+        });
+        break;
+      case 'chart':
+      case 'table':
+        dashboardExports.exportToPNG(tableRef as RefObject<HTMLElement>);
+        break;
+    }
+  };
+
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle>Consolidated Cash Flow Statement</CardTitle>
+        <ExportMenu
+          actions={[
+            pdfAction(() => handleExport('pdf')),
+            csvAction(() => handleExport('csv')),
+            excelAction(() => handleExport('excel')),
+            pptxAction(() => handleExport('pptx')),
+            chartAction(() => handleExport('chart')),
+            pngAction(() => handleExport('table')),
+          ]}
+        />
       </CardHeader>
-      <CardContent>
+      <CardContent ref={tableRef}>
         <CalcDetailsProvider show={showCalcDetails}>
           <div className="rounded-md border overflow-hidden overflow-x-auto">
             <Table>

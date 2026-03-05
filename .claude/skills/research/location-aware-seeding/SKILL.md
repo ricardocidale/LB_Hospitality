@@ -1,3 +1,8 @@
+---
+name: Location Aware Seeding
+description: Generates location-specific industry benchmark defaults for every property at creation time, stored in the `properties.research_values` JSONB colum...
+---
+
 # Location-Aware Research Seeding Skill
 
 ## Purpose

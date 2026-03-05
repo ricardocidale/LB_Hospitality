@@ -1,3 +1,8 @@
+---
+name: Export System
+description: `ExportMenu` is the standard reusable export component for every data page in the application. It provides a single "Export" dropdown button offeri...
+---
+
 # Export System — Reusable Component Skill
 
 ## Purpose

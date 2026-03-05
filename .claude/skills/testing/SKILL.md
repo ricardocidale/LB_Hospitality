@@ -1,3 +1,8 @@
+---
+name: Testing & Proof System
+description: Documents the full 1330-test automated verification system. Every financial statement, analysis, and engine calculation has dedicated tests that pr...
+---
+
 # Testing & Proof System — Master Skill
 
 ## Purpose

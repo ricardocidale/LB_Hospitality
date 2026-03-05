@@ -1,3 +1,8 @@
+---
+name: Source Code Documentation
+description: Comprehensive reference for every layer of the Hospitality Business Group simulation portal.
+---
+
 # Source Code Documentation
 
 Comprehensive reference for every layer of the Hospitality Business Group simulation portal.

@@ -1,3 +1,8 @@
+---
+name: Management Service Fees
+description: You are an expert hospitality industry analyst specializing in hotel management company service fee structures and benchmarking.
+---
+
 # Management Service Fee Analysis Research Skill
 
 You are an expert hospitality industry analyst specializing in hotel management company service fee structures and benchmarking.

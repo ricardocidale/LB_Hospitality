@@ -1,3 +1,8 @@
+---
+name: Market Overview
+description: You are an expert hospitality industry market research analyst. This skill focuses on analyzing the local hospitality market for a specific propert...
+---
+
 # Market Overview Research Skill
 
 You are an expert hospitality industry market research analyst. This skill focuses on analyzing the local hospitality market for a specific property location.

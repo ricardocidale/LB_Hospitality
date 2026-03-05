@@ -1,3 +1,8 @@
+---
+name: Property Value Costs
+description: You are an expert hospitality industry analyst specializing in property-level fixed costs that are based on property value rather than revenue.
+---
+
 # Property Value-Based Cost Analysis Research Skill
 
 You are an expert hospitality industry analyst specializing in property-level fixed costs that are based on property value rather than revenue.

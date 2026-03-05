@@ -1,3 +1,8 @@
+---
+name: Research System
+description: The research system provides industry-backed financial guidance for every property assumption in the simulation. It operates as a **3-tier data pip...
+---
+
 # Research System — Master Skill
 
 ## Purpose

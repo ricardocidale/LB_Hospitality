@@ -57,6 +57,8 @@ export default function VerificationTab() {
     queryFn: async () => {
       const res = await fetch("/api/admin/verification-history?limit=10", { credentials: "include" });
       if (!res.ok) throw new Error("Failed to fetch verification history");
+      const ct = res.headers.get("content-type") || "";
+      if (!ct.includes("application/json")) throw new Error("Server returned non-JSON response");
       return res.json();
     },
   });
@@ -67,33 +69,36 @@ export default function VerificationTab() {
   // independent calculations — any discrepancy would indicate a bug.
   const runVerification = useMutation({
     mutationFn: async () => {
-      // Phase 1: Fetch all data needed for client-side verification
-      const [propertiesRes, assumptionsRes] = await Promise.all([
-        fetch("/api/properties", { credentials: "include" }),
-        fetch("/api/global-assumptions", { credentials: "include" })
+      async function safeFetchJSON<T>(url: string, label: string): Promise<T> {
+        const res = await fetch(url, { credentials: "include" });
+        if (!res.ok) {
+          const ct = res.headers.get("content-type") || "";
+          if (!ct.includes("application/json")) {
+            throw new Error(`${label}: server returned ${res.status} (non-JSON)`);
+          }
+          const body = await res.json().catch(() => ({}));
+          throw new Error(`${label}: ${(body as any).error || res.statusText}`);
+        }
+        const ct = res.headers.get("content-type") || "";
+        if (!ct.includes("application/json")) {
+          throw new Error(`${label}: expected JSON but received ${ct || "unknown content"}`);
+        }
+        return res.json();
+      }
+
+      const [properties, globalAssumptions] = await Promise.all([
+        safeFetchJSON<any[]>("/api/properties", "Properties"),
+        safeFetchJSON<any>("/api/global-assumptions", "Global assumptions"),
       ]);
-      
-      if (!propertiesRes.ok) throw new Error("Failed to fetch properties");
-      if (!assumptionsRes.ok) throw new Error("Failed to fetch global assumptions");
-      
-      const properties = await propertiesRes.json();
-      const globalAssumptions = await assumptionsRes.json();
-      
-      // Client-side: run the GAAP auditor in the browser using the same
-      // financial engine that powers the UI — catches formula errors
+
       const comprehensiveResults = runFullVerification(properties, globalAssumptions);
-      // Known-value tests: compare specific outputs against hand-calculated
-      // reference values to catch regressions
       const knownValueTests = runKnownValueTestsStructured();
-      
-      // Phase 2: Server-side independent recalculation — the server re-derives
-      // all financial figures from scratch and compares against stored values
-      const serverRes = await fetch("/api/admin/run-verification", { credentials: "include" });
-      if (!serverRes.ok) throw new Error("Server verification failed");
-      const serverReport: VerificationResult = await serverRes.json();
-      
-      // Merge: server report is the authoritative structure, enriched with
-      // client-side audit workpapers and known-value test results
+
+      const serverReport = await safeFetchJSON<VerificationResult>(
+        "/api/admin/run-verification",
+        "Server verification"
+      );
+
       return {
         ...serverReport,
         clientAuditWorkpaper: comprehensiveResults.auditWorkpaper,
@@ -126,7 +131,13 @@ export default function VerificationTab() {
     setAiReview("");
     try {
       const res = await fetch("/api/admin/ai-verification", { method: "POST", credentials: "include" });
-      if (!res.ok) throw new Error("AI verification failed");
+      if (!res.ok) {
+        const ct = res.headers.get("content-type") || "";
+        if (!ct.includes("application/json") && !ct.includes("text/event-stream")) {
+          throw new Error(`AI verification: server returned ${res.status} (non-JSON)`);
+        }
+        throw new Error("AI verification failed");
+      }
       const reader = res.body?.getReader();
       if (!reader) throw new Error("No response body");
       const decoder = new TextDecoder();
@@ -345,6 +356,8 @@ export default function VerificationTab() {
     mutationFn: async () => {
       const res = await fetch("/api/admin/run-design-check", { credentials: "include" });
       if (!res.ok) throw new Error("Failed to run design check");
+      const ct = res.headers.get("content-type") || "";
+      if (!ct.includes("application/json")) throw new Error("Server returned non-JSON response");
       return res.json();
     },
     onSuccess: (data) => {

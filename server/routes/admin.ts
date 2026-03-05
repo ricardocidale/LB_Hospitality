@@ -60,6 +60,37 @@ export function register(app: Express) {
     }
   });
 
+  app.patch("/api/admin/users/:id", requireAdmin, async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      const { email, firstName, lastName, company, title, role } = req.body;
+
+      if (role && id === req.user!.id) {
+        return res.status(400).json({ error: "You cannot change your own role" });
+      }
+
+      const profileData: Record<string, any> = {};
+      if (email !== undefined) profileData.email = email;
+      if (firstName !== undefined) profileData.firstName = firstName;
+      if (lastName !== undefined) profileData.lastName = lastName;
+      if (company !== undefined) profileData.company = company;
+      if (title !== undefined) profileData.title = title;
+
+      if (Object.keys(profileData).length > 0) {
+        await storage.updateUserProfile(id, profileData as any);
+      }
+
+      if (role) {
+        await storage.updateUserRole(id, role);
+      }
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error updating user:", error);
+      res.status(500).json({ error: "Failed to update user" });
+    }
+  });
+
   app.patch("/api/admin/users/:id/role", requireAdmin, async (req, res) => {
     try {
       const { role } = req.body;

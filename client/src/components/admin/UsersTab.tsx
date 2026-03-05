@@ -153,6 +153,10 @@ export default function UsersTab() {
         credentials: "include",
       });
       if (!res.ok) {
+        const ct = res.headers.get("content-type") || "";
+        if (!ct.includes("application/json")) {
+          throw new Error(`Server returned ${res.status} (non-JSON)`);
+        }
         const err = await res.json();
         throw new Error(err.error || "Failed to update user");
       }

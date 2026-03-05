@@ -76,6 +76,12 @@ export default function VerificationTab() {
       if (!propertiesRes.ok) throw new Error("Failed to fetch properties");
       if (!assumptionsRes.ok) throw new Error("Failed to fetch global assumptions");
       
+      const propCT = propertiesRes.headers.get("content-type") || "";
+      const gaCT = assumptionsRes.headers.get("content-type") || "";
+      if (!propCT.includes("application/json") || !gaCT.includes("application/json")) {
+        throw new Error("Server returned non-JSON response — it may be restarting. Please try again.");
+      }
+      
       const properties = await propertiesRes.json();
       const globalAssumptions = await assumptionsRes.json();
       
@@ -88,13 +94,22 @@ export default function VerificationTab() {
       
       // Phase 2: Server-side independent recalculation — the server re-derives
       // all financial figures from scratch and compares against stored values
-      const serverRes = await fetch("/api/admin/run-verification", { credentials: "include" });
-      if (!serverRes.ok) throw new Error("Server verification failed");
-      const contentType = serverRes.headers.get("content-type") || "";
-      if (!contentType.includes("application/json")) {
-        throw new Error("Server returned non-JSON response — it may be restarting. Please try again.");
+      let serverReport: VerificationResult | null = null;
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const serverRes = await fetch("/api/admin/run-verification", { credentials: "include" });
+        if (!serverRes.ok) throw new Error("Server verification failed");
+        const contentType = serverRes.headers.get("content-type") || "";
+        if (contentType.includes("application/json")) {
+          serverReport = await serverRes.json();
+          break;
+        }
+        if (attempt < 2) {
+          await new Promise(r => setTimeout(r, 1500));
+        }
       }
-      const serverReport: VerificationResult = await serverRes.json();
+      if (!serverReport) {
+        throw new Error("Server returned non-JSON response after retries — please try again.");
+      }
       
       // Merge: server report is the authoritative structure, enriched with
       // client-side audit workpapers and known-value test results
@@ -120,7 +135,9 @@ export default function VerificationTab() {
     },
     onError: (error: Error) => {
       toast({ title: "Verification Failed", description: error.message, variant: "destructive" });
-    }
+    },
+    retry: 1,
+    retryDelay: 2000,
   });
 
   // Streams an LLM-powered narrative review of the verification results.
@@ -359,13 +376,12 @@ export default function VerificationTab() {
     },
   });
 
-  // Auto-run verification on first mount so results are ready immediately
-  // when an admin opens this tab (avoids an extra click)
   const verificationAutoRan = useRef(false);
   useEffect(() => {
     if (!verificationResults && !runVerification.isPending && !verificationAutoRan.current) {
       verificationAutoRan.current = true;
-      runVerification.mutate();
+      const timer = setTimeout(() => runVerification.mutate(), 500);
+      return () => clearTimeout(timer);
     }
   }, []);
 

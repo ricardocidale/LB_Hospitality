@@ -27,6 +27,14 @@ Generates formatted Excel workbooks (.xlsx) for financial statements. All numeri
 | `exportCompanyCashFlow` | Cash inflows/outflows with cumulative totals | "Company Cash Flow" |
 | `exportCompanyBalanceSheet` | SAFE notes, retained earnings | "Company Balance Sheet" |
 
+### Portfolio-Level
+
+| Function | File | Description |
+|----------|------|-------------|
+| `exportPortfolioExcel` | `dashboardExports.ts` | Multi-sheet workbook with Income Statement and Cash Flow sheets |
+
+Portfolio-level Excel exports live in `client/src/components/dashboard/dashboardExports.ts` rather than this file, because they consume pre-aggregated `{ years, rows }` data from the shared generators rather than raw monthly pro-formas.
+
 ## Number Formatting
 
 Applied automatically via `applyCurrencyFormat()`:

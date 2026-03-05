@@ -155,31 +155,32 @@ Captures table or chart DOM elements at 2x resolution. Auto-collapses accordion 
 
 ### 5. CSV
 
-**Pattern**: Inline per page (no shared utility)
+**Utility**: `client/src/lib/exports/csvExport.ts`
+**Detail**: [csv-export.md](./csv-export.md)
 
-CSV export is lightweight enough to implement directly in the page component:
+Provides `downloadCSV(content, filename)` — a lightweight Blob-based download trigger. Pages build the CSV string from their `{ years, rows }` data and call `downloadCSV`. The Dashboard wraps this pattern in `exportPortfolioCSV` from `dashboardExports.ts`.
 
-```ts
-const exportCSV = (data: { years: string[], rows: any[] }, filename: string) => {
-  const headers = ['Category', ...data.years];
-  const csvRows = [
-    headers.join(','),
-    ...data.rows.map(row => [
-      `"${(row.indent ? '  '.repeat(row.indent) : '') + row.category}"`,
-      ...row.values.map((v: number) => v.toFixed(2))
-    ].join(','))
-  ];
-  const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
-};
-```
+---
+
+## Portfolio Data Generators
+
+**File**: `client/src/components/dashboard/dashboardExports.ts`
+
+The Dashboard page uses shared data generator functions that produce the standard `{ years, rows }` shape for each financial statement. These generators are used by all six export formats.
+
+| Function | Returns | Input |
+|----------|---------|-------|
+| `generatePortfolioIncomeData` | Revenue, expenses, GOP, fees, NOI, below-NOI, GAAP Net Income | `yearlyConsolidatedCache`, `projectionYears`, `getFiscalYear` |
+| `generatePortfolioCashFlowData` | CFO, CFI, CFF, Net Change in Cash | `allPropertyYearlyCF`, `projectionYears`, `getFiscalYear` |
+| `generatePortfolioInvestmentData` | Equity, exit value, IRR, multiple, cash-on-cash | `financials`, `properties`, `projectionYears`, `getFiscalYear` |
+
+Portfolio-level export wrappers:
+
+| Function | Description |
+|----------|-------------|
+| `exportPortfolioExcel` | Multi-sheet workbook (Income Statement + Cash Flow) |
+| `exportPortfolioCSV` | Single CSV for the active tab's data |
+| `exportPortfolioPDF` | PDF with table + chart page, orientation-aware |
 
 ---
 
@@ -187,10 +188,10 @@ const exportCSV = (data: { years: string[], rows: any[] }, filename: string) => 
 
 | Page | PDF | Excel | CSV | PowerPoint | Chart PNG | Table PNG |
 |------|-----|-------|-----|------------|-----------|-----------|
-| Dashboard | Per-tab + overview | Multi-sheet workbook | Per-tab + full | Portfolio slides | Tab capture | Tab capture |
-| PropertyDetail | Income + Cash Flow | Per-statement | Cash Flow | Property slides | Chart capture | Table capture |
-| Company | Per-statement | Per-statement | Per-statement | Company slides | Chart capture | Table capture |
-| SensitivityAnalysis | Tornado + table | Scenario data | Scenario data | Scenario slides | — | — |
+| Dashboard | ✅ Per-tab (orientation dialog) | ✅ Multi-sheet workbook | ✅ Per-tab | ✅ Portfolio slides | ✅ Tab capture | ✅ Tab capture |
+| PropertyDetail | ✅ Income + Cash Flow | ✅ Per-statement | ✅ Cash Flow | ✅ Property slides | ✅ Chart capture | ✅ Table capture |
+| Company | ✅ Per-statement | ✅ Per-statement | ✅ Per-statement | ✅ Company slides | ✅ Chart capture | ✅ Table capture |
+| SensitivityAnalysis | ✅ Tornado + table | ✅ Scenario data | ✅ Scenario data | ✅ Scenario slides | — | — |
 
 ---
 
@@ -324,6 +325,7 @@ Legacy import paths still work via re-export shim files:
 
 | Resource | Path | What it covers |
 |----------|------|----------------|
+| Export Parity Rule | `.claude/rules/exports.md` | Enforces 6-format export on every financial page |
 | Design System | `.claude/skills/design-system/SKILL.md` | Color palette, component library, page themes |
 | Tab Bar System | `.claude/skills/ui/tab-bar-system.md` | CurrentThemeTab `rightContent` slot |
 | Button System | `.claude/skills/ui/button-system.md` | GlassButton variants including `export` |

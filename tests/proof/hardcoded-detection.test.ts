@@ -565,6 +565,7 @@ describe("Hardcoded Value Detection", () => {
         "constants.ts",
         "financialEngine.ts",
         "company-data.ts",
+        "themeUtils.ts",
       ]);
 
       const allLibFiles = fs.readdirSync(libDir)

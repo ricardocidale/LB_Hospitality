@@ -4,7 +4,11 @@ import { useGlobalAssumptions } from "@/lib/api/admin";
 import { useAuth } from "@/lib/auth";
 import { apiRequest } from "@/lib/queryClient";
 import { useWalkthroughStore } from "@/components/GuidedWalkthrough";
-import "@elevenlabs/convai-widget-core";
+import { registerWidget } from "@elevenlabs/convai-widget-core";
+
+if (!customElements.get("elevenlabs-convai")) {
+  registerWidget();
+}
 
 export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolean }) {
   const { data: global } = useGlobalAssumptions();
@@ -30,7 +34,6 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
       })
       .catch(() => {
         setUrlFailed(true);
-        fetchedRef.current = false;
       });
   }, [enabled, agentId]);
 

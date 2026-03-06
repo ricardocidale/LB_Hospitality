@@ -97,10 +97,12 @@ export function InsightPanel({ insights, title, icon, variant = "glass", classNa
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3, duration: 0.5 }}
-      className={`relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)] ${className || ""}`}
+      className={`relative overflow-hidden rounded-2xl p-6 bg-white/30 backdrop-blur-md border border-white/30 shadow-[0_8px_32px_rgba(159,188,164,0.08),inset_0_1px_0_rgba(255,255,255,0.4)] ${className || ""}`}
       data-testid={props["data-testid"]}
     >
-      <div className="absolute top-0 right-0 w-24 h-24 rounded-full bg-primary/5 blur-2xl" />
+      <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-white/20 blur-3xl" />
+      <div className="absolute bottom-0 left-0 w-20 h-20 rounded-full bg-primary/8 blur-2xl" />
+      <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/20 via-transparent to-white/10 pointer-events-none" />
       <div className="relative">
         <div className="flex items-center gap-2 mb-4">
           {icon || <Sparkles className="w-5 h-5 text-primary" />}

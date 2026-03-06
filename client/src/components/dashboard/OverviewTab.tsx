@@ -150,7 +150,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
   };
 
   return (
-    <Card>
+    <Card className="bg-transparent border-none shadow-none">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle>Portfolio Overview</CardTitle>
         <ExportMenu

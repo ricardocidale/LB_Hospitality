@@ -397,7 +397,7 @@ export const globalAssumptions = pgTable("global_assumptions", {
   marcelaSimilarityBoost: real("marcela_similarity_boost").notNull().default(DEFAULT_MARCELA_SIMILARITY_BOOST),
   marcelaSpeakerBoost: boolean("marcela_speaker_boost").notNull().default(false),
   marcelaChunkSchedule: text("marcela_chunk_schedule").notNull().default("120,160,250,290"),
-  marcelaLlmModel: text("marcela_llm_model").notNull().default("gpt-4.1"),
+  marcelaLlmModel: text("marcela_llm_model").notNull().default("gemini-2.0-flash-001"),
   marcelaMaxTokens: integer("marcela_max_tokens").notNull().default(DEFAULT_MARCELA_MAX_TOKENS),
   marcelaMaxTokensVoice: integer("marcela_max_tokens_voice").notNull().default(DEFAULT_MARCELA_MAX_TOKENS_VOICE),
   marcelaEnabled: boolean("marcela_enabled").notNull().default(true),

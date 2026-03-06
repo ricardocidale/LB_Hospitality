@@ -232,6 +232,9 @@ export async function configureMarcelaAgent(): Promise<{ success: boolean; error
         conversation_config: {
           agent: {
             prompt: {
+              llm: {
+                model: (ga as any)?.marcelaLlmModel || "gemini-2.0-flash-001",
+              },
               tools: allTools,
             },
           },

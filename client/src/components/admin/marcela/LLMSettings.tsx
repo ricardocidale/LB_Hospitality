@@ -31,14 +31,23 @@ export function LLMSettings({ draft, updateField }: LLMSettingsProps) {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {LLM_MODELS.map((m) => (
-                <SelectItem key={m.value} value={m.value}>
-                  <div className="flex items-center gap-2">
-                    <span>{m.label}</span>
-                    <span className="text-xs text-muted-foreground">— {m.description}</span>
+              {["Google", "OpenAI", "Anthropic", "ElevenLabs"].map((provider) => {
+                const models = LLM_MODELS.filter((m) => m.provider === provider);
+                if (models.length === 0) return null;
+                return (
+                  <div key={provider}>
+                    <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">{provider}</div>
+                    {models.map((m) => (
+                      <SelectItem key={m.value} value={m.value}>
+                        <div className="flex items-center gap-2">
+                          <span>{m.label}</span>
+                          <span className="text-xs text-muted-foreground">— {m.description}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
                   </div>
-                </SelectItem>
-              ))}
+                );
+              })}
             </SelectContent>
           </Select>
         </div>

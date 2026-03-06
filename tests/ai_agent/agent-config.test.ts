@@ -128,11 +128,11 @@ describe("Marcela Agent Config", () => {
       expect(names).toContain("getNavigation");
     });
 
-    it("getPropertyDetails has path_params for property_id", () => {
+    it("getPropertyDetails has path_params_schema for property_id", () => {
       const tool = tools.find(t => t.name === "getPropertyDetails");
       expect(tool).toBeDefined();
-      expect(tool!.api_schema.path_params).toBeDefined();
-      expect(tool!.api_schema.path_params!.properties.property_id).toBeDefined();
+      expect(tool!.api_schema.path_params_schema).toBeDefined();
+      expect(tool!.api_schema.path_params_schema!.property_id).toBeDefined();
     });
 
     it("uses the baseUrl in all tool URLs", () => {

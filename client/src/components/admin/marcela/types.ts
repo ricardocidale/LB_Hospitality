@@ -48,9 +48,15 @@ export const OUTPUT_FORMATS = [
 ];
 
 export const LLM_MODELS = [
-  { value: "gpt-4.1", label: "GPT-4.1", description: "Latest OpenAI model — best reasoning" },
-  { value: "gpt-4.1-mini", label: "GPT-4.1 Mini", description: "Faster, more economical" },
-  { value: "gpt-4.1-nano", label: "GPT-4.1 Nano", description: "Fastest, most economical" },
-  { value: "gpt-4o", label: "GPT-4o", description: "Previous flagship model" },
-  { value: "gpt-4o-mini", label: "GPT-4o Mini", description: "Compact but capable" },
+  { value: "gemini-2.5-flash", label: "Gemini 2.5 Flash", description: "Google's latest — fast thinking model", provider: "Google" },
+  { value: "gemini-2.0-flash-001", label: "Gemini 2.0 Flash", description: "Google's fast multimodal model", provider: "Google" },
+  { value: "gemini-1.5-flash", label: "Gemini 1.5 Flash", description: "Google's efficient model", provider: "Google" },
+  { value: "gpt-4.1", label: "GPT-4.1", description: "Latest OpenAI model — best reasoning", provider: "OpenAI" },
+  { value: "gpt-4.1-mini", label: "GPT-4.1 Mini", description: "Faster, more economical", provider: "OpenAI" },
+  { value: "gpt-4.1-nano", label: "GPT-4.1 Nano", description: "Fastest, most economical", provider: "OpenAI" },
+  { value: "gpt-4o", label: "GPT-4o", description: "Multimodal flagship model", provider: "OpenAI" },
+  { value: "gpt-4o-mini", label: "GPT-4o Mini", description: "Compact but capable", provider: "OpenAI" },
+  { value: "claude-3-5-sonnet", label: "Claude 3.5 Sonnet", description: "Anthropic's balanced model", provider: "Anthropic" },
+  { value: "claude-3-haiku", label: "Claude 3 Haiku", description: "Anthropic's fastest model", provider: "Anthropic" },
+  { value: "custom-llm/elevenlabs", label: "ElevenLabs LLM", description: "ElevenLabs' own conversational model", provider: "ElevenLabs" },
 ];

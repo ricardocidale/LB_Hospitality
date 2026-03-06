@@ -258,7 +258,7 @@ export default function UserGroupsTab() {
                       <span className="bg-primary/10 px-2 py-0.5 rounded">{groupUsers.length} member{groupUsers.length !== 1 ? "s" : ""}</span>
                     </div>
                     {groupUsers.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-2 mb-3">
                         {groupUsers.map(u => (
                           <span key={u.id} className="inline-flex items-center gap-1 bg-white/80 border border-primary/20 rounded-full px-3 py-1 text-sm">
                             <span className="font-medium">{u.name || u.email}</span>
@@ -269,6 +269,77 @@ export default function UserGroupsTab() {
                         ))}
                       </div>
                     )}
+
+                    {/* Property Visibility */}
+                    {allProperties && allProperties.length > 0 && (() => {
+                      const savedIds = new Set(groupPropertyMap?.[group.id] ?? []);
+                      const pending = pendingVisibility[group.id];
+                      const activeIds = pending ?? savedIds;
+                      const isExpanded = expandedVisibility === group.id;
+                      const isAllVisible = activeIds.size === 0;
+                      const visibleCount = isAllVisible ? allProperties.length : activeIds.size;
+                      return (
+                        <div className="border-t border-primary/10 pt-3 mt-1">
+                          <button
+                            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors w-full text-left"
+                            onClick={() => setExpandedVisibility(isExpanded ? null : group.id)}
+                          >
+                            <Eye className="w-4 h-4 text-primary/60" />
+                            <span className="font-medium">Property Visibility</span>
+                            <span className="text-xs bg-primary/10 px-2 py-0.5 rounded ml-1">
+                              {visibleCount} of {allProperties.length} visible
+                            </span>
+                            <span className="ml-auto">{isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}</span>
+                          </button>
+                          {isExpanded && (
+                            <div className="mt-3 space-y-2">
+                              <p className="text-xs text-muted-foreground mb-2">
+                                Uncheck to hide a property from this group's members. Unchecking all resets to "show all".
+                              </p>
+                              {allProperties.map((prop) => {
+                                const checked = isAllVisible || activeIds.has(prop.id);
+                                return (
+                                  <label key={prop.id} className="flex items-center gap-3 cursor-pointer group/prop">
+                                    <Checkbox
+                                      checked={checked}
+                                      onCheckedChange={(val) => {
+                                        const base = pending ?? new Set(savedIds.size === 0 ? allProperties.map(p => p.id) : savedIds);
+                                        const next = new Set(base);
+                                        if (val) next.add(prop.id); else next.delete(prop.id);
+                                        const allChecked = next.size === allProperties.length;
+                                        setPendingVisibility((prev) => ({ ...prev, [group.id]: allChecked ? new Set() : next }));
+                                      }}
+                                    />
+                                    <span className="text-sm group-hover/prop:text-foreground transition-colors">{prop.name}</span>
+                                    <span className="text-xs text-muted-foreground">{prop.location}</span>
+                                  </label>
+                                );
+                              })}
+                              <div className="flex gap-2 mt-3 pt-2 border-t border-primary/10">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  disabled={!pending || setGroupPropertiesMutation.isPending}
+                                  onClick={() => {
+                                    const ids = Array.from(pending ?? new Set<number>());
+                                    setGroupPropertiesMutation.mutate({ groupId: group.id, propertyIds: ids });
+                                  }}
+                                  className="flex items-center gap-1"
+                                >
+                                  {setGroupPropertiesMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
+                                  Save
+                                </Button>
+                                {pending && (
+                                  <Button size="sm" variant="ghost" onClick={() => setPendingVisibility((prev) => { const next = { ...prev }; delete next[group.id]; return next; })}>
+                                    Cancel
+                                  </Button>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </div>
                 );
               })}

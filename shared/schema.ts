@@ -225,6 +225,7 @@ export const insertUserSchema = z.object({
   companyId: z.number().nullable().optional(),
   title: z.string().nullable().optional(),
   phoneNumber: z.string().nullable().optional(),
+  userGroupId: z.number().nullable().optional(),
 });
 
 export const selectUserSchema = createSelectSchema(users);

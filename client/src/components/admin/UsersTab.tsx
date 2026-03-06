@@ -31,7 +31,8 @@ import { Loader2, Trash2, Users, Key, Eye, EyeOff, Pencil, UserPlus, Shield, Mai
 import { useToast } from "@/hooks/use-toast";
 import { formatDateTime } from "@/lib/formatters";
 import { UserAvatar } from "@/components/ui/user-avatar";
-import { adminFetch } from "./hooks";
+import { adminFetch, useAdminLogos } from "./hooks";
+import defaultLogo from "@/assets/logo.png";
 import type { User, UserGroup } from "./types";
 
 type SortField = "name" | "role" | "group";
@@ -69,11 +70,26 @@ export default function UsersTab() {
     queryFn: adminFetch<UserGroup[]>("/api/user-groups", "Failed to fetch user groups"),
   });
 
+  const { data: adminLogos } = useAdminLogos();
+
   const groupNameMap = useMemo(() => {
     const map: Record<number, string> = {};
     userGroupsList?.forEach(g => { map[g.id] = g.name; });
     return map;
   }, [userGroupsList]);
+
+  const userLogoMap = useMemo(() => {
+    const map: Record<number, string> = {};
+    if (!userGroupsList || !adminLogos) return map;
+    const logoUrlMap: Record<number, string> = {};
+    adminLogos.forEach(l => { logoUrlMap[l.id] = l.url; });
+    userGroupsList.forEach(g => {
+      if (g.logoId && logoUrlMap[g.logoId]) {
+        map[g.id] = logoUrlMap[g.logoId];
+      }
+    });
+    return map;
+  }, [userGroupsList, adminLogos]);
 
   const toggleSort = (field: SortField) => {
     if (sortField === field) {
@@ -274,7 +290,17 @@ export default function UsersTab() {
                 <TableRow key={user.id} className="border-primary/20 hover:bg-primary/5" data-testid={`row-user-${user.id}`}>
                   <TableCell>
                     <div className="flex items-center gap-3">
-                      <UserAvatar firstName={user.firstName} lastName={user.lastName} name={user.name} email={user.email} size="sm" />
+                      <div className="relative">
+                        <UserAvatar firstName={user.firstName} lastName={user.lastName} name={user.name} email={user.email} size="sm" />
+                        {user.userGroupId && userLogoMap[user.userGroupId] && (
+                          <img
+                            src={userLogoMap[user.userGroupId]}
+                            alt=""
+                            className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-2 border-white bg-white object-contain"
+                            onError={(e) => { (e.target as HTMLImageElement).src = defaultLogo; }}
+                          />
+                        )}
+                      </div>
                       <div>
                         <div className="font-display font-medium">{user.name || user.email}</div>
                         {user.name && <div className="text-xs text-muted-foreground">{user.email}</div>}

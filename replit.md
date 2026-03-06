@@ -58,6 +58,8 @@ See `.claude/skills/admin/SKILL.md`.
 - **AI Chat:** `client/src/components/ai-chat/` — types, hooks (useChat, useVoice), ChatMessages, ChatInput, ChatHeader. Re-exported from AIChatWidget.tsx.
 - **Excel Export:** `client/src/lib/exports/excel/` — property-sheets, portfolio-sheet, helpers, types. Re-exported from excelExport.ts.
 - **Checker Manual:** `client/src/pages/checker-manual/` — types, constants, hooks, TableOfContents, ManualContent. Re-exported from CheckerManual.tsx.
+- **User Manual:** `client/src/pages/user-manual/` — constants, UserManualTOC, UserManualContent. Re-exported from index.tsx.
+- **Help Page:** `client/src/pages/Help.tsx` — tabs: User Manual (default), Checker Manual (checker/admin), Guided Tour. Old Methodology page folded into Help; `/methodology` redirects to `/help`.
 
 ## External Dependencies
 - **STT:** ElevenLabs Scribe v1

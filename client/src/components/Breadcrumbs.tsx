@@ -100,7 +100,7 @@ function useBreadcrumbs(): BreadcrumbEntry[] {
     ],
     "/methodology": [
       { label: "Home", href: "/" },
-      { label: "User Manual" },
+      { label: "Help" },
     ],
     "/checker-manual": [
       { label: "Home", href: "/" },

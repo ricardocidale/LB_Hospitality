@@ -5,23 +5,22 @@ import { Tabs, TabsContent, CurrentThemeTab } from "@/components/ui/tabs";
 import { ClipboardCheck, FileText, HelpCircle, PlayCircle } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import CheckerManual from "./CheckerManual";
-import Methodology from "./Methodology";
+import UserManual from "./user-manual";
 import { useWalkthroughStore } from "@/components/GuidedWalkthrough";
 import { Card } from "@/components/ui/card";
 import { GlassButton } from "@/components/ui/glass-button";
 
-type HelpTab = "checker-manual" | "user-manual" | "guided-tour";
+type HelpTab = "user-manual" | "checker-manual" | "guided-tour";
 
 export default function Help() {
   const { user, isAdmin, isChecker: authIsChecker } = useAuth();
   const isChecker = isAdmin || authIsChecker;
-  const defaultTab: HelpTab = isChecker ? "checker-manual" : "user-manual";
-  const [tab, setTab] = useState<HelpTab>(defaultTab);
+  const [tab, setTab] = useState<HelpTab>("user-manual");
   const { setCompleted: resetWalkthrough, setDismissed: resetDismissed } = useWalkthroughStore();
 
   const tabs = [
-    ...(isChecker ? [{ value: "checker-manual" as const, label: "Checker Manual", icon: ClipboardCheck }] : []),
     { value: "user-manual" as const, label: "User Manual", icon: FileText },
+    ...(isChecker ? [{ value: "checker-manual" as const, label: "Checker Manual", icon: ClipboardCheck }] : []),
     { value: "guided-tour" as const, label: "Guided Tour", icon: HelpCircle },
   ];
 
@@ -41,14 +40,14 @@ export default function Help() {
             onTabChange={(v) => setTab(v as HelpTab)}
           />
 
+          <TabsContent value="user-manual" className="space-y-6 mt-6">
+            <UserManual embedded />
+          </TabsContent>
           {isChecker && (
             <TabsContent value="checker-manual" className="space-y-6 mt-6">
               <CheckerManual embedded />
             </TabsContent>
           )}
-          <TabsContent value="user-manual" className="space-y-6 mt-6">
-            <Methodology embedded />
-          </TabsContent>
           <TabsContent value="guided-tour" className="space-y-6 mt-6">
             <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
               <div className="p-8 text-center space-y-6">

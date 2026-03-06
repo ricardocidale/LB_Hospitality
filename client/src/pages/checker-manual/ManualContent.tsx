@@ -57,7 +57,7 @@ export function ManualContent({ expandedSections, toggleSection, sectionRefs }: 
             ["My Profile", "Account management", "/profile"],
             ["My Scenarios", "Save/load assumption snapshots", "/scenarios"],
             ["Admin Settings", "User management, verification, design checks", "/admin"],
-            ["User Manual", "Financial calculation documentation", "/methodology"],
+            ["Help", "User Manual, Checker Manual, and Guided Tour", "/help"],
           ]}
         />
       </SectionCard>

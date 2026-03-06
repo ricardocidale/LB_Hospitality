@@ -49,7 +49,6 @@ const PropertyFinder = lazy(() => import("@/pages/PropertyFinder"));
 const SensitivityAnalysis = lazy(() => import("@/pages/SensitivityAnalysis"));
 const FinancingAnalysis = lazy(() => import("@/pages/FinancingAnalysis"));
 const Analysis = lazy(() => import("@/pages/Analysis"));
-const Methodology = lazy(() => import("@/pages/Methodology"));
 const CheckerManual = lazy(() => import("@/pages/CheckerManual"));
 const Help = lazy(() => import("@/pages/Help"));
 const ExecutiveSummary = lazy(() => import("@/pages/ExecutiveSummary"));

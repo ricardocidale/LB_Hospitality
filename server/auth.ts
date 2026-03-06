@@ -410,7 +410,7 @@ export async function seedAdminUser() {
     title: string;
     userGroupId?: number;
   }> = [
-    { email: "admin", envVar: "PASSWORD_ADMIN", role: "admin", firstName: "Ricardo", lastName: "Cidale", company: "Norfolk Group", title: "Partner", userGroupId: 2 },
+    { email: "admin", envVar: "PASSWORD_ADMIN", role: "admin", firstName: "Ricardo", lastName: "Cidale", company: "The Norfolk AI Group", title: "Partner", userGroupId: 2 },
     { email: "checker@norfolkgroup.io", envVar: "PASSWORD_CHECKER", role: "checker", firstName: "Checker", company: "Norfolk AI", title: "Checker", userGroupId: 2 },
     { email: "reynaldo.fagundes@norfolk.ai", envVar: "PASSWORD_REYNALDO", role: "partner", firstName: "Reynaldo", lastName: "Fagundes", company: "Norfolk AI", title: "CTO", userGroupId: 2 },
     { email: "kit@kitcapital.com", envVar: "PASSWORD_KIT", role: "partner", firstName: "Dov", lastName: "Tuzman", company: "KIT Capital", title: "Principal", userGroupId: 1 },

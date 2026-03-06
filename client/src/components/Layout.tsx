@@ -41,10 +41,7 @@ import GuidedWalkthrough, { useWalkthroughStore } from "@/components/GuidedWalkt
 import ElevenLabsWidget from "@/components/ElevenLabsWidget";
 import { UserAvatar } from "@/components/ui/user-avatar";
 
-const THEME_CSS_CLASSES: Record<string, string> = {
-  "Fluid Glass": "",
-  "Indigo Blue": "theme-indigo-blue",
-};
+import { applyThemeColors, resetThemeColors, type DesignColor } from "@/lib/themeUtils";
 
 type NavLink = { href: string; label: string; icon: any; onClick?: () => void };
 type NavDivider = { type: "divider" };
@@ -65,7 +62,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
   const { user, isAdmin, isInvestor, hasManagementAccess, logout } = useAuth();
   const { data: global } = useGlobalAssumptions();
   
-  const { data: myBranding } = useQuery<{ logoUrl: string | null; themeName: string | null; groupCompanyName: string | null }>({
+  const { data: myBranding } = useQuery<{ logoUrl: string | null; themeName: string | null; themeColors: DesignColor[] | null; groupCompanyName: string | null }>({
     queryKey: ["my-branding"],
     queryFn: async () => {
       const res = await fetch("/api/my-branding", { credentials: "include" });
@@ -79,14 +76,12 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
   const companyLogo = myBranding?.logoUrl || global?.companyLogoUrl || global?.companyLogo || defaultLogo;
 
   useEffect(() => {
-    const root = document.documentElement;
-    const allThemeClasses = Object.values(THEME_CSS_CLASSES).filter(Boolean);
-    root.classList.remove(...allThemeClasses);
-    const themeName = myBranding?.themeName;
-    if (themeName && THEME_CSS_CLASSES[themeName]) {
-      root.classList.add(THEME_CSS_CLASSES[themeName]);
+    if (myBranding?.themeColors?.length) {
+      applyThemeColors(myBranding.themeColors as DesignColor[]);
+    } else {
+      resetThemeColors();
     }
-    return () => { root.classList.remove(...allThemeClasses); };
+    return () => { resetThemeColors(); };
   }, [myBranding?.themeName]);
 
   // sb ("sidebar boolean") — checks whether a sidebar item is visible.

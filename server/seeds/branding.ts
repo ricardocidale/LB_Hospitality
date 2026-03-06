@@ -14,19 +14,19 @@ export async function seedDefaultLogos() {
     },
     {
       name: "Norfolk AI - Blue",
-      companyName: "Norfolk Group",
+      companyName: "The Norfolk AI Group",
       url: "/logos/norfolk-ai-blue.png",
       isDefault: false,
     },
     {
       name: "Norfolk AI - Yellow",
-      companyName: "Norfolk Group",
+      companyName: "The Norfolk AI Group",
       url: "/logos/norfolk-ai-yellow.png",
       isDefault: false,
     },
     {
       name: "Norfolk AI - Wireframe",
-      companyName: "Norfolk Group",
+      companyName: "The Norfolk AI Group",
       url: "/logos/norfolk-ai-wireframe.png",
       isDefault: false,
     },

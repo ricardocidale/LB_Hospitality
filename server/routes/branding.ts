@@ -56,9 +56,19 @@ export function register(app: Express) {
       const u = req.user!;
       let logoUrl: string | null = null;
       let themeName: string | null = null;
+      let themeColors: object[] | null = null;
       let groupCompanyName: string | null = null;
 
-      if (u.userGroupId) {
+      // Resolution chain: user-level override → group-level → system default
+      let resolvedTheme = null;
+
+      // 1. User-level theme override
+      if (u.selectedThemeId) {
+        resolvedTheme = await storage.getDesignTheme(u.selectedThemeId);
+      }
+
+      // 2. Group-level theme
+      if (!resolvedTheme && u.userGroupId) {
         const group = await storage.getUserGroup(u.userGroupId);
         if (group) {
           if (group.logoId) {
@@ -69,10 +79,19 @@ export function register(app: Express) {
             }
           }
           if (group.themeId) {
-            const theme = await storage.getDesignTheme(group.themeId);
-            if (theme) themeName = theme.name;
+            resolvedTheme = await storage.getDesignTheme(group.themeId);
           }
         }
+      }
+
+      // 3. System default theme
+      if (!resolvedTheme) {
+        resolvedTheme = await storage.getDefaultDesignTheme();
+      }
+
+      if (resolvedTheme) {
+        themeName = resolvedTheme.name;
+        themeColors = resolvedTheme.colors as object[];
       }
 
       if (!logoUrl) {
@@ -80,10 +99,10 @@ export function register(app: Express) {
         if (defaultLogo) logoUrl = defaultLogo.url;
       }
 
-      res.json({ logoUrl, themeName, groupCompanyName });
+      res.json({ logoUrl, themeName, themeColors, groupCompanyName });
     } catch (error) {
       console.error("Error fetching my-branding:", error);
-      res.json({ logoUrl: null, themeName: null, groupCompanyName: null });
+      res.json({ logoUrl: null, themeName: null, themeColors: null, groupCompanyName: null });
     }
   });
 

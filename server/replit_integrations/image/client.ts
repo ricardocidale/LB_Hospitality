@@ -8,7 +8,7 @@ export const openai = new OpenAI({
   baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
 });
 
-function getGeminiClient() {
+export function getGeminiClient() {
   return new GoogleGenAI({
     apiKey: process.env.AI_INTEGRATIONS_GEMINI_API_KEY!,
     httpOptions: {

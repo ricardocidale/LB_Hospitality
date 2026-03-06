@@ -1,5 +1,5 @@
 import type { Express, Request, Response } from "express";
-import { openai, generateImageBuffer } from "./client";
+import { openai, generateImageBuffer, getGeminiClient } from "./client";
 import { requireAuth, isApiRateLimited } from "../../auth";
 import { ObjectStorageService } from "../object_storage";
 
@@ -65,6 +65,41 @@ export function registerImageRoutes(app: Express): void {
     } catch (error) {
       console.error("Error generating property image:", error);
       const message = error instanceof Error ? error.message : "Failed to generate image";
+      res.status(500).json({ error: message });
+    }
+  });
+
+  app.post("/api/enhance-logo-prompt", requireAuth, async (req: Request, res: Response) => {
+    try {
+      if (isApiRateLimited(req.user!.id, "enhance-prompt", 10)) {
+        return res.status(429).json({ error: "Rate limit exceeded. Try again in a minute." });
+      }
+
+      const { prompt } = req.body;
+      if (!prompt || typeof prompt !== "string") {
+        return res.status(400).json({ error: "Prompt is required" });
+      }
+
+      const gemini = getGeminiClient();
+      const response = await gemini.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: [{
+          role: "user",
+          parts: [{
+            text: `You are a world-class logo design director. Enhance this logo description into a detailed, vivid prompt optimized for AI image generation. Keep it concise (2-3 sentences max). Focus on style, colors, composition, and mood. Output ONLY the enhanced prompt, nothing else.\n\nOriginal: ${prompt}`
+          }]
+        }],
+      });
+
+      const enhanced = response.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+      if (!enhanced) {
+        throw new Error("No response from AI");
+      }
+
+      res.json({ enhanced });
+    } catch (error) {
+      console.error("Error enhancing prompt:", error);
+      const message = error instanceof Error ? error.message : "Failed to enhance prompt";
       res.status(500).json({ error: message });
     }
   });

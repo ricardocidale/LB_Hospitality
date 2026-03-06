@@ -169,7 +169,7 @@ export default function UserGroupsTab() {
                 const groupLogo = adminLogos?.find(l => l.id === group.logoId);
                 const groupTheme = allThemes?.find(t => t.id === group.themeId);
                 const groupAssetDesc = assetDescriptions?.find(a => a.id === group.assetDescriptionId);
-                const groupUsers = users?.filter(u => u.userGroupId === group.id) || [];
+                const groupUsers = (users?.filter(u => u.userGroupId === group.id) || []).sort((a, b) => ((a.name || a.email).split(" ")[0]).localeCompare((b.name || b.email).split(" ")[0]));
                 return (
                   <div key={group.id} className="bg-primary/5 border border-primary/20 rounded-xl p-4" data-testid={`group-card-${group.id}`}>
                     <div className="flex items-start justify-between mb-3">

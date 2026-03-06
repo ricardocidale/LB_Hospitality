@@ -5,16 +5,16 @@
 import bcrypt from "bcryptjs";
 import { db } from "../server/db";
 import { users, userGroups } from "../shared/schema";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 
 const DEFAULT_PASSWORD = "Boutique2026!";
+const USER_IDS_TO_DELETE = [12, 13, 14, 15, 16, 17, 18, 19, 20, 21];
 
-// Domain TLD choices per company — reflects brand personality
 const NEW_USERS = [
-  // ── The Mountain Company (group name) ──────────────────────
+  // ── The Mountain Company — South Asian & West African ───────
   {
-    firstName: "Sofia",
-    lastName: "Brennan",
+    firstName: "Priya",
+    lastName: "Nair",
     title: "Director of Operations",
     companyName: "The Mountain Company",
     groupName: "The Mountain Company",
@@ -22,8 +22,8 @@ const NEW_USERS = [
     role: "partner" as const,
   },
   {
-    firstName: "Liam",
-    lastName: "Okafor",
+    firstName: "Kwame",
+    lastName: "Asante",
     title: "Guest Experience Manager",
     companyName: "The Mountain Company",
     groupName: "The Mountain Company",
@@ -31,10 +31,10 @@ const NEW_USERS = [
     role: "partner" as const,
   },
 
-  // ── The Coastal House ───────────────────────────────────────
+  // ── The Coastal House — Latina & Japanese ──────────────────
   {
-    firstName: "Maya",
-    lastName: "Hartwell",
+    firstName: "Valentina",
+    lastName: "Reyes",
     title: "Revenue Manager",
     companyName: "The Coastal House",
     groupName: "The Coastal House",
@@ -42,8 +42,8 @@ const NEW_USERS = [
     role: "partner" as const,
   },
   {
-    firstName: "Ethan",
-    lastName: "Voss",
+    firstName: "Hiroshi",
+    lastName: "Tanaka",
     title: "Front Office Director",
     companyName: "The Coastal House",
     groupName: "The Coastal House",
@@ -51,10 +51,10 @@ const NEW_USERS = [
     role: "partner" as const,
   },
 
-  // ── The Forest Lodge ────────────────────────────────────────
+  // ── The Forest Lodge — Middle Eastern & Brazilian ──────────
   {
-    firstName: "Amara",
-    lastName: "Silva",
+    firstName: "Fatima",
+    lastName: "Al-Rashid",
     title: "Reservations Manager",
     companyName: "The Forest Lodge",
     groupName: "The Forest Lodge",
@@ -62,8 +62,8 @@ const NEW_USERS = [
     role: "partner" as const,
   },
   {
-    firstName: "Noah",
-    lastName: "Castellan",
+    firstName: "Mateus",
+    lastName: "Oliveira",
     title: "Food & Beverage Director",
     companyName: "The Forest Lodge",
     groupName: "The Forest Lodge",
@@ -71,10 +71,10 @@ const NEW_USERS = [
     role: "partner" as const,
   },
 
-  // ── The Desert Bloom ────────────────────────────────────────
+  // ── The Desert Bloom — Senegalese & Mexican ────────────────
   {
-    firstName: "Isabelle",
-    lastName: "Fontaine",
+    firstName: "Aisha",
+    lastName: "Diallo",
     title: "Marketing Director",
     companyName: "The Desert Bloom",
     groupName: "The Desert Bloom",
@@ -82,8 +82,8 @@ const NEW_USERS = [
     role: "partner" as const,
   },
   {
-    firstName: "Marcus",
-    lastName: "Tran",
+    firstName: "Tomás",
+    lastName: "Herrera",
     title: "Property Manager",
     companyName: "The Desert Bloom",
     groupName: "The Desert Bloom",
@@ -91,10 +91,10 @@ const NEW_USERS = [
     role: "partner" as const,
   },
 
-  // ── The Urban Loft ──────────────────────────────────────────
+  // ── The Urban Loft — Chinese & Polish ──────────────────────
   {
-    firstName: "Zara",
-    lastName: "Osei",
+    firstName: "Mei-Ling",
+    lastName: "Chen",
     title: "Chief of Staff",
     companyName: "The Urban Loft",
     groupName: "The Urban Loft",
@@ -102,8 +102,8 @@ const NEW_USERS = [
     role: "partner" as const,
   },
   {
-    firstName: "Julian",
-    lastName: "Mercer",
+    firstName: "Aleksander",
+    lastName: "Nowak",
     title: "Finance Director",
     companyName: "The Urban Loft",
     groupName: "The Urban Loft",
@@ -113,6 +113,10 @@ const NEW_USERS = [
 ];
 
 async function main() {
+  console.log("Deleting previous users...");
+  await db.delete(users).where(inArray(users.id, USER_IDS_TO_DELETE));
+  console.log("  Deleted user ids:", USER_IDS_TO_DELETE, "\n");
+
   console.log(`Hashing password...`);
   const passwordHash = await bcrypt.hash(DEFAULT_PASSWORD, 12);
 
@@ -127,7 +131,11 @@ async function main() {
   console.log(`Creating 10 users (default password: ${DEFAULT_PASSWORD})\n`);
 
   for (const u of NEW_USERS) {
-    const email = `${u.firstName.toLowerCase()}.${u.lastName.toLowerCase()}@${u.emailDomain}`;
+    const normalize = (s: string) =>
+      s.toLowerCase()
+       .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // strip accents
+       .replace(/[^a-z0-9]/g, "");                        // remove hyphens, spaces, dots
+    const email = `${normalize(u.firstName)}.${normalize(u.lastName)}@${u.emailDomain}`;
     const groupId = groupMap[u.groupName];
 
     if (!groupId) {

@@ -1,8 +1,6 @@
-import { getElevenLabsApiKey } from "./integrations/elevenlabs";
+import { updateConvaiAgent } from "./integrations/elevenlabs";
 import { storage } from "./storage";
 import { logger } from "./logger";
-
-const CONVAI_BASE = "https://api.elevenlabs.io/v1/convai";
 
 export function getBaseUrl(): string {
   if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
@@ -213,42 +211,26 @@ export async function configureMarcelaAgent(): Promise<{ success: boolean; error
       return { success: true };
     }
 
-    const apiKey = await getElevenLabsApiKey();
     const baseUrl = getBaseUrl();
-
     logger.info(`Configuring agent ${agentId} with tools (base: ${baseUrl})`, "marcela-config");
 
     const clientTools = buildClientTools();
     const serverTools = buildServerTools(baseUrl);
     const allTools = [...clientTools, ...serverTools];
 
-    const response = await fetch(`${CONVAI_BASE}/agents/${agentId}`, {
-      method: "PATCH",
-      headers: {
-        "xi-api-key": apiKey,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        conversation_config: {
-          agent: {
-            prompt: {
-              llm: {
-                model: (ga as any)?.marcelaLlmModel || "gemini-2.0-flash-001",
-              },
-              tools: allTools,
+    await updateConvaiAgent(agentId, {
+      conversation_config: {
+        agent: {
+          prompt: {
+            llm: {
+              model: (ga as any)?.marcelaLlmModel || "gemini-2.0-flash-001",
             },
+            tools: allTools,
           },
         },
-      }),
+      },
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      logger.error(`Failed to configure agent: ${response.status} ${errorText}`, "marcela-config");
-      return { success: false, error: `API error ${response.status}: ${errorText}` };
-    }
-
-    const result = await response.json();
     logger.info(`Agent configured with ${allTools.length} tools (${clientTools.length} client + ${serverTools.length} server)`, "marcela-config");
     return { success: true };
   } catch (error: any) {

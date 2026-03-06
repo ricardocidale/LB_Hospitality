@@ -28,7 +28,7 @@
  *   - Principal: Reduces Cash Flow (actual cash out) but NOT Net Income
  *   This is why: Cash Flow = Net Income + Depreciation - Principal
  */
-import { MonthlyFinancials } from "./financialEngine";
+import { MonthlyFinancials } from "../financialEngine";
 
 export interface ComplianceCheckResult {
   passed: boolean;

@@ -28,7 +28,7 @@
  *   - RevPAR (Revenue Per Available Room): The industry's primary performance metric
  *   - FF&E (Furniture, Fixtures & Equipment): Reserve fund for replacing worn-out items
  */
-import { MonthlyFinancials } from "./financialEngine";
+import { MonthlyFinancials } from "../financialEngine";
 
 export interface FormulaCheckResult {
   passed: boolean;

@@ -34,11 +34,11 @@
  *   FAIL — Critical issues or formula failures detected
  */
 import { generatePropertyProForma, MonthlyFinancials } from "./financialEngine";
-import { checkPropertyFormulas, checkMetricFormulas, generateFormulaReport, FormulaCheckReport } from "./formulaChecker";
-import { checkGAAPCompliance, checkCashFlowStatement, generateComplianceReport, ComplianceReport } from "./gaapComplianceChecker";
+import { checkPropertyFormulas, checkMetricFormulas, generateFormulaReport, FormulaCheckReport } from "./audits/formulaChecker";
+import { checkGAAPCompliance, checkCashFlowStatement, generateComplianceReport, ComplianceReport } from "./audits/gaapComplianceChecker";
 import { runFullAudit, generateAuditWorkpaper, AuditReport, PropertyAuditInput, GlobalAuditInput } from "./financialAuditor";
 import type { AuditFinding } from "./audits/types";
-import { crossValidateFinancingCalculators, formatCrossValidationReport, CrossValidationReport } from "./crossCalculatorValidation";
+import { crossValidateFinancingCalculators, formatCrossValidationReport, CrossValidationReport } from "./audits/crossCalculatorValidation";
 import {
   DEFAULT_LTV,
   DEFAULT_INTEREST_RATE,

@@ -6,7 +6,7 @@ import {
   generateComplianceReport,
   type ComplianceReport,
   type ComplianceCheckResult,
-} from "@/lib/gaapComplianceChecker";
+} from "@/lib/audits/gaapComplianceChecker";
 import { DEPRECIATION_YEARS, DAYS_PER_MONTH } from "@shared/constants";
 
 /**

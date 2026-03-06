@@ -1,4 +1,4 @@
-import type { MonthlyFinancials } from './financialEngine';
+import type { MonthlyFinancials } from '../financialEngine';
 import { pmt } from '@calc/shared/pmt';
 import {
   DEFAULT_LTV,
@@ -6,7 +6,7 @@ import {
   DEFAULT_TERM_YEARS,
   DEFAULT_LAND_VALUE_PERCENT,
   DEPRECIATION_YEARS,
-} from './constants';
+} from '../constants';
 
 export interface CrossValidationResult {
   name: string;

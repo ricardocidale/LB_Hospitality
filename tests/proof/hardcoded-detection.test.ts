@@ -21,7 +21,7 @@ const FINANCE_ENGINE_FILES = [
   "client/src/lib/equityCalculations.ts",
   "client/src/lib/loanCalculations.ts",
   "client/src/lib/cashFlowSections.ts",
-  "client/src/lib/crossCalculatorValidation.ts",
+  "client/src/lib/audits/crossCalculatorValidation.ts",
 ];
 
 // Dynamic: scan all calc/**/*.ts files, excluding barrels/types/dispatch/hooks
@@ -46,8 +46,8 @@ const CALC_MODULE_FILES = (function discoverCalcFiles(): string[] {
 
 const AUDIT_CHECKER_FILES = [
   "client/src/lib/financialAuditor.ts",
-  "client/src/lib/formulaChecker.ts",
-  "client/src/lib/gaapComplianceChecker.ts",
+  "client/src/lib/audits/formulaChecker.ts",
+  "client/src/lib/audits/gaapComplianceChecker.ts",
   "client/src/lib/runVerification.ts",
 ];
 
@@ -69,7 +69,7 @@ const FILES_THAT_MUST_IMPORT_CONSTANTS = [
   "client/src/lib/cashFlowAggregator.ts",
   "client/src/lib/equityCalculations.ts",
   "client/src/lib/loanCalculations.ts",
-  "client/src/lib/crossCalculatorValidation.ts",
+  "client/src/lib/audits/crossCalculatorValidation.ts",
   "client/src/lib/financialAuditor.ts",
   "client/src/lib/exports/checkerManualExport.ts",
   "client/src/lib/exports/excel/property-sheets.ts",

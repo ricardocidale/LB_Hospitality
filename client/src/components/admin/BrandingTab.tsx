@@ -14,18 +14,16 @@
  * user group's branding). This is the platform-level default; user groups
  * can layer on their own logo, theme, and asset description.
  */
-import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { Loader2, Plus, Trash2, Users, Building2, Tag, Image, Upload } from "lucide-react";
+import { Users, Building2, Tag, Image, Upload } from "lucide-react";
 import defaultLogo from "@/assets/logo.png";
 import { invalidateAllFinancialQueries } from "@/lib/api";
-import type { Logo, AssetDesc } from "./types";
+import type { Logo } from "./types";
 
 interface BrandingTabProps {
   onNavigate?: (tab: string) => void;
@@ -34,7 +32,6 @@ interface BrandingTabProps {
 export default function BrandingTab({ onNavigate }: BrandingTabProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [newAssetDescName, setNewAssetDescName] = useState("");
 
   const { data: globalAssumptions } = useQuery({
     queryKey: ["globalAssumptions"],
@@ -50,15 +47,6 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
     queryFn: async () => {
       const res = await fetch("/api/logos", { credentials: "include" });
       if (!res.ok) throw new Error("Failed to fetch logos");
-      return res.json();
-    },
-  });
-
-  const { data: assetDescriptions } = useQuery<AssetDesc[]>({
-    queryKey: ["admin", "asset-descriptions"],
-    queryFn: async () => {
-      const res = await fetch("/api/asset-descriptions", { credentials: "include" });
-      if (!res.ok) throw new Error("Failed to fetch asset descriptions");
       return res.json();
     },
   });
@@ -79,44 +67,6 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
     },
     onError: () => {
       toast({ title: "Error", description: "Failed to save settings.", variant: "destructive" });
-    },
-  });
-
-  const createAssetDescMutation = useMutation({
-    mutationFn: async (data: { name: string }) => {
-      const res = await fetch("/api/asset-descriptions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error("Failed to create asset description");
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin", "asset-descriptions"] });
-      setNewAssetDescName("");
-      toast({ title: "Asset Description Added", description: "New asset description has been created." });
-    },
-    onError: (error: Error) => {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    },
-  });
-
-  const deleteAssetDescMutation = useMutation({
-    mutationFn: async (id: number) => {
-      const res = await fetch(`/api/asset-descriptions/${id}`, { method: "DELETE", credentials: "include" });
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || "Failed to delete asset description");
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin", "asset-descriptions"] });
-      toast({ title: "Asset Description Deleted", description: "Asset description has been removed." });
-    },
-    onError: (error: Error) => {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
     },
   });
 
@@ -184,12 +134,12 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
 
       <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
         <CardHeader>
-          <CardTitle className="font-display flex items-center gap-2"><Tag className="w-5 h-5 text-primary" /> Property Type</CardTitle>
-          <CardDescription className="label-text">Set the property type label used across the application</CardDescription>
+          <CardTitle className="font-display flex items-center gap-2"><Tag className="w-5 h-5 text-primary" /> Asset Type</CardTitle>
+          <CardDescription className="label-text">Define the type of property being profiled — used across page titles, research prompts, and financial reports</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-6">
           <div className="space-y-2">
-            <Label className="label-text text-gray-700">Property Type Label</Label>
+            <Label className="label-text text-gray-700">Asset Label</Label>
             <Input
               value={globalAssumptions?.propertyLabel || "Boutique Hotel"}
               onChange={(e) => updateGlobalMutation.mutate({ propertyLabel: e.target.value })}
@@ -197,43 +147,19 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
               className="bg-white max-w-md"
               data-testid="input-property-label"
             />
-            <p className="text-xs text-muted-foreground">This label appears in page titles, research prompts, and financial reports</p>
+            <p className="text-xs text-muted-foreground">A one-line label for the kind of property being profiled — appears in the UI and feeds into AI research prompts</p>
           </div>
-        </CardContent>
-      </Card>
 
-      <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
-        <CardHeader>
-          <CardTitle className="font-display flex items-center gap-2"><Tag className="w-5 h-5 text-primary" /> Asset Descriptions</CardTitle>
-          <CardDescription className="label-text">Define asset description labels that can be assigned to users</CardDescription>
-        </CardHeader>
-        <CardContent className="relative space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {assetDescriptions?.map(ad => (
-              <div key={ad.id} className="bg-primary/5 border border-primary/20 rounded-xl p-3 flex items-center justify-between" data-testid={`asset-desc-card-${ad.id}`}>
-                <div className="min-w-0">
-                  <p className="text-foreground font-medium truncate">{ad.name}</p>
-                  {ad.isDefault && <span className="text-xs text-primary font-mono">DEFAULT</span>}
-                </div>
-                {!ad.isDefault && (
-                  <Button variant="ghost" size="sm" onClick={() => deleteAssetDescMutation.mutate(ad.id)} className="text-red-400 hover:text-red-300 hover:bg-red-500/10" data-testid={`button-delete-asset-desc-${ad.id}`}>
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                )}
-              </div>
-            ))}
-          </div>
-          <div className="border-t border-primary/20 pt-4">
-            <div className="flex gap-3 items-end">
-              <div className="flex-1 space-y-1">
-                <Label className="text-muted-foreground text-xs">Name</Label>
-                <Input value={newAssetDescName} onChange={(e) => setNewAssetDescName(e.target.value)} placeholder="e.g., Luxury Resort, Urban Boutique" className="bg-primary/5 border-primary/20" data-testid="input-new-asset-desc-name" />
-              </div>
-              <Button variant="outline" onClick={() => createAssetDescMutation.mutate({ name: newAssetDescName })} disabled={!newAssetDescName || createAssetDescMutation.isPending} className="flex items-center gap-2" data-testid="button-add-asset-desc">
-                {createAssetDescMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-                Add
-              </Button>
-            </div>
+          <div className="space-y-2">
+            <Label className="label-text text-gray-700">Asset Description</Label>
+            <textarea
+              value={globalAssumptions?.assetDescription || ""}
+              onChange={(e) => updateGlobalMutation.mutate({ assetDescription: e.target.value })}
+              placeholder="Describe the type of property in detail to educate the research engines. For example: Independently operated, design-forward boutique hotels with 20-60 rooms, situated on 5+ acres of private grounds. Properties feature curated F&B programs, wellness amenities, and distinctive event spaces for retreats and experiential hospitality."
+              className="flex min-h-[120px] w-full rounded-xl border border-primary/20 bg-white px-3 py-2.5 text-sm ring-offset-background placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-y"
+              data-testid="input-asset-description"
+            />
+            <p className="text-xs text-muted-foreground">A detailed description that educates the AI research engines on the exact type of property being analyzed — the more specific, the better the research quality</p>
           </div>
         </CardContent>
       </Card>

@@ -115,10 +115,15 @@ export function register(app: Express) {
       res.setHeader("Cache-Control", "no-cache");
       res.setHeader("Connection", "keep-alive");
 
+      const adWithGlobal = {
+        ...(assetDefinition as any),
+        description: (assetDefinition as any)?.description || ga?.assetDescription || undefined,
+      };
+
       const params = {
         type,
         propertyContext: propertyContext as any,
-        assetDefinition: assetDefinition as any,
+        assetDefinition: adWithGlobal,
         researchVariables,
         propertyLabel: ga?.propertyLabel,
       };

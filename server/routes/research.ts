@@ -4,6 +4,7 @@ import { requireAuth, requireAdmin, isApiRateLimited } from "../auth";
 import { researchGenerateSchema, logActivity, logAndSendError } from "./helpers";
 import { fromZodError } from "zod-validation-error";
 import { generateResearchWithToolsStream, buildUserPrompt, parseResearchJSON, extractResearchValues } from "../aiResearch";
+import { validateResearchValues } from "../../calc/research/validate-research";
 import { sendResearchEmail } from "../integrations/gmail";
 import Anthropic from "@anthropic-ai/sdk";
 
@@ -130,6 +131,37 @@ export function register(app: Express) {
         if (chunk.type === "content") fullContent += chunk.data;
         if (chunk.type === "done") {
           const parsed = parseResearchJSON(fullContent);
+
+          // Validate and extract research values for property research
+          if (type === "property" && propertyId && !parsed.rawResponse) {
+            const researchValues = extractResearchValues(parsed);
+            if (researchValues) {
+              const property = await storage.getProperty(propertyId);
+              if (property) {
+                const validated = validateResearchValues(researchValues, {
+                  roomCount: property.roomCount ?? 20,
+                  startAdr: property.startAdr ?? 300,
+                  maxOccupancy: property.maxOccupancy ?? 0.85,
+                  purchasePrice: property.purchasePrice ?? undefined,
+                  costRateRooms: property.costRateRooms ?? undefined,
+                  costRateFB: property.costRateFB ?? undefined,
+                });
+                const cleanValues: Record<string, { display: string; mid: number; source: "ai" }> = {};
+                for (const [k, v] of Object.entries(validated.values)) {
+                  cleanValues[k] = { display: v.display, mid: v.mid, source: v.source };
+                }
+                await storage.updateProperty(propertyId, { researchValues: cleanValues });
+                // Attach validation audit trail to research content
+                parsed._validation = validated.summary;
+                if (validated.summary.warned > 0 || validated.summary.failed > 0) {
+                  console.warn(`Research validation for property ${propertyId}: ${validated.summary.warned} warnings, ${validated.summary.failed} failures`);
+                }
+              } else {
+                await storage.updateProperty(propertyId, { researchValues });
+              }
+            }
+          }
+
           await storage.upsertMarketResearch({
             userId: req.user!.id,
             propertyId,
@@ -137,14 +169,6 @@ export function register(app: Express) {
             title: `${type === 'property' ? 'Property' : type === 'company' ? 'Company' : 'Global'} Research`,
             content: parsed,
           });
-
-          // Auto-extract research values to the property record
-          if (type === "property" && propertyId && !parsed.rawResponse) {
-            const researchValues = extractResearchValues(parsed);
-            if (researchValues) {
-              await storage.updateProperty(propertyId, { researchValues });
-            }
-          }
 
           logActivity(req, "generate", "market_research", propertyId, type);
         }

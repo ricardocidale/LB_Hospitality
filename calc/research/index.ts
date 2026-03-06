@@ -12,3 +12,5 @@ export { computeOccupancyRamp } from "./occupancy-ramp.js";
 export { computeADRProjection } from "./adr-projection.js";
 export { computeCapRateValuation } from "./cap-rate-valuation.js";
 export { computeCostBenchmarks } from "./cost-benchmarks.js";
+export { validateResearchValues } from "./validate-research.js";
+export type { ValidatedResearchValues } from "./validate-research.js";

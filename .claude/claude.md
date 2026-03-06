@@ -4,14 +4,14 @@
 
 Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470) with IRS depreciation rules and an independent audit/verification engine. Built and hosted entirely on Replit.
 
-**Codebase:** ~546 source files, ~79,600 lines of code, 2,379 tests across 107 files.
+**Codebase:** ~546 source files, ~79,600 lines of code, 2,406 tests across 108 files.
 
 ---
 
 ## User Preferences
 
 - Preferred communication style: Simple, everyday language. Detailed user — ask lots of clarifying questions before implementing features. Do not assume; confirm requirements first.
-- **TOP PRIORITY: Calculations and correct reports are always the highest priority.** Financial accuracy must never be compromised for visual or UI enhancements. The automated proof system (2,379 tests) must always pass.
+- **TOP PRIORITY: Calculations and correct reports are always the highest priority.** Financial accuracy must never be compromised for visual or UI enhancements. The automated proof system (2,406 tests) must always pass.
 - Always format money as money (currency format with commas and appropriate precision).
 - All skills must be stored under `.claude/` directory (e.g., `.claude/skills/`, `.claude/manuals/`, `.claude/tools/`). Never place skills elsewhere.
 - The company name is "Hospitality Business Group" (or "Hospitality Business" for short).
@@ -59,7 +59,7 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | Theme Engine | `.claude/skills/ui/theme-engine.md` | Multi-theme system (Fluid Glass active), user-created themes, token structure |
 | Component Library | `.claude/skills/component-library/SKILL.md` | PageHeader, GlassButton, ExportMenu, CurrentThemeTab, etc. |
 | Reusable UI | `.claude/skills/ui/reusable-components.md` | AIImagePicker, AnimatedLogo, StatusBadge, ImagePreviewCard, EntityCard |
-| Proof System | `.claude/skills/proof-system/SKILL.md` | 2,379 tests, 65 golden tests (7 files), verification commands |
+| Proof System | `.claude/skills/proof-system/SKILL.md` | 2,406 tests, 65 golden tests (7 files), verification commands |
 | Testing (7 skills) | `.claude/skills/testing/` | Per-statement/analysis test coverage at property, consolidated, and management company levels |
 | 3D Graphics | `.claude/skills/3d-graphics/SKILL.md` | Three.js scenes, framer-motion wrappers |
 | Database | `.claude/skills/database-environments/SKILL.md` | Dev/prod databases, migrations, sync |
@@ -325,9 +325,9 @@ When ON (default), every financial line item shows a ? icon explaining its formu
 ```bash
 npm run dev            # Start dev server (port 5000)
 npm run health         # One-shot: tsc + tests + verify (~4 lines output)
-npm run test:summary   # Run all 2,379 tests, 1-line output on pass
+npm run test:summary   # Run all 2,406 tests, 1-line output on pass
 npm run verify:summary # 7-phase verification, compact output
-npm test               # Run all 2,379 tests (full output)
+npm test               # Run all 2,406 tests (full output)
 npm run verify         # Full 7-phase financial verification (verbose)
 npm run db:push        # Push schema changes
 npm run lint:summary   # tsc --noEmit with 1-line output

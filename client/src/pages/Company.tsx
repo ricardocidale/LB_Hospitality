@@ -216,14 +216,40 @@ export default function Company() {
       const yearData = financials.slice(y * 12, (y + 1) * 12);
       return yearData.reduce((a, m) => a + m.incentiveFeeRevenue, 0);
     }), indent: 1 });
-    
+
     properties.forEach((prop) => {
       rows.push({ category: prop.name, values: years.map((_, y) => {
         const yearData = financials.slice(y * 12, (y + 1) * 12);
         return yearData.reduce((a, m) => (m.incentiveFeeByPropertyId?.[String(prop.id)] ?? 0) + a, 0);
       }), indent: 2 });
     });
-    
+
+    const hasVendorCosts = financials.some(m => m.totalVendorCost > 0);
+    if (hasVendorCosts) {
+      rows.push({ category: "Cost of Centralized Services", values: years.map((_, y) => {
+        const yearData = financials.slice(y * 12, (y + 1) * 12);
+        return yearData.reduce((a, m) => a + m.totalVendorCost, 0);
+      }), isHeader: true });
+
+      const sampleCosts = financials.find(m => m.costOfCentralizedServices)?.costOfCentralizedServices;
+      if (sampleCosts) {
+        Object.keys(sampleCosts.byCategory).forEach(catName => {
+          const cat = sampleCosts.byCategory[catName];
+          if (cat.serviceModel === 'centralized') {
+            rows.push({ category: `${catName} (Vendor Cost)`, values: years.map((_, y) => {
+              const yearData = financials.slice(y * 12, (y + 1) * 12);
+              return yearData.reduce((a, m) => a + (m.costOfCentralizedServices?.byCategory[catName]?.vendorCost ?? 0), 0);
+            }), indent: 1 });
+          }
+        });
+      }
+
+      rows.push({ category: "Gross Profit", values: years.map((_, y) => {
+        const yearData = financials.slice(y * 12, (y + 1) * 12);
+        return yearData.reduce((a, m) => a + m.grossProfit, 0);
+      }), isHeader: true });
+    }
+
     rows.push({ category: "Operating Expenses", values: years.map((_, y) => {
       const yearData = financials.slice(y * 12, (y + 1) * 12);
       return yearData.reduce((a, m) => a + m.totalExpenses, 0);

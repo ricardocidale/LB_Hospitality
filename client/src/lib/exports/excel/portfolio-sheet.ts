@@ -191,6 +191,9 @@ export function exportCompanyIncomeStatement(
     baseFee: number;
     incentiveFee: number;
     totalRevenue: number;
+    totalVendorCost: number;
+    grossProfit: number;
+    vendorCostByCategory: Record<string, number>;
     partnerComp: number;
     staffComp: number;
     officeLease: number;
@@ -212,11 +215,25 @@ export function exportCompanyIncomeStatement(
     if (yearSlice.length === 0) continue;
     const fyLabel = String(getFiscalYearForModelYear(modelStartDate, fiscalYearStartMonth, y));
     yearLabels.push(fyLabel);
+    const vendorCostByCategory: Record<string, number> = {};
+    yearSlice.forEach(m => {
+      if (m.costOfCentralizedServices) {
+        for (const [catName, cat] of Object.entries(m.costOfCentralizedServices.byCategory)) {
+          if (cat.serviceModel === 'centralized') {
+            vendorCostByCategory[catName] = (vendorCostByCategory[catName] ?? 0) + cat.vendorCost;
+          }
+        }
+      }
+    });
+
     yearlyData.push({
       label: fyLabel,
       baseFee: yearSlice.reduce((a, m) => a + m.baseFeeRevenue, 0),
       incentiveFee: yearSlice.reduce((a, m) => a + m.incentiveFeeRevenue, 0),
       totalRevenue: yearSlice.reduce((a, m) => a + m.totalRevenue, 0),
+      totalVendorCost: yearSlice.reduce((a, m) => a + m.totalVendorCost, 0),
+      grossProfit: yearSlice.reduce((a, m) => a + m.grossProfit, 0),
+      vendorCostByCategory,
       partnerComp: yearSlice.reduce((a, m) => a + m.partnerCompensation, 0),
       staffComp: yearSlice.reduce((a, m) => a + m.staffCompensation, 0),
       officeLease: yearSlice.reduce((a, m) => a + m.officeLease, 0),
@@ -234,6 +251,15 @@ export function exportCompanyIncomeStatement(
     });
   }
 
+  const hasVendorCosts = yearlyData.some(y => y.totalVendorCost > 0);
+
+  // Collect centralized category names from first year with data
+  const centralizedCategories: string[] = [];
+  if (hasVendorCosts) {
+    const sample = yearlyData.find(y => Object.keys(y.vendorCostByCategory).length > 0);
+    if (sample) centralizedCategories.push(...Object.keys(sample.vendorCostByCategory));
+  }
+
   const headers = ["Management Company - Income Statement", ...yearLabels];
   const rows: (string | number)[][] = [
     headers,
@@ -243,6 +269,20 @@ export function exportCompanyIncomeStatement(
     ["  Incentive Management Fees", ...yearlyData.map((y) => y.incentiveFee)],
     ["Total Revenue", ...yearlyData.map((y) => y.totalRevenue)],
     [],
+  ];
+
+  if (hasVendorCosts) {
+    rows.push(["COST OF CENTRALIZED SERVICES"]);
+    centralizedCategories.forEach(catName => {
+      rows.push([`  ${catName} (Vendor Cost)`, ...yearlyData.map(y => y.vendorCostByCategory[catName] ?? 0)]);
+    });
+    rows.push(["Total Vendor Cost", ...yearlyData.map(y => y.totalVendorCost)]);
+    rows.push([]);
+    rows.push(["Gross Profit", ...yearlyData.map(y => y.grossProfit)]);
+    rows.push([]);
+  }
+
+  rows.push(
     ["OPERATING EXPENSES"],
     ["  Partner Compensation", ...yearlyData.map((y) => y.partnerComp)],
     ["  Staff Compensation", ...yearlyData.map((y) => y.staffComp)],
@@ -261,7 +301,7 @@ export function exportCompanyIncomeStatement(
     ["FUNDING"],
     ["  Funding Received", ...yearlyData.map((y) => y.safeFunding)],
     ["Cash Flow", ...yearlyData.map((y) => y.cashFlow)],
-  ];
+  );
 
   const ws = XLSX.utils.aoa_to_sheet(rows);
   setColumnWidths(ws, [35, ...yearLabels.map(() => 16)]);
@@ -289,6 +329,7 @@ export function exportCompanyCashFlow(
     totalRevenue: number;
     baseFee: number;
     incentiveFee: number;
+    totalVendorCost: number;
     safeFunding: number;
     totalExpenses: number;
     partnerComp: number;
@@ -314,6 +355,7 @@ export function exportCompanyCashFlow(
       totalRevenue: yearSlice.reduce((a, m) => a + m.totalRevenue, 0),
       baseFee: yearSlice.reduce((a, m) => a + m.baseFeeRevenue, 0),
       incentiveFee: yearSlice.reduce((a, m) => a + m.incentiveFeeRevenue, 0),
+      totalVendorCost: yearSlice.reduce((a, m) => a + m.totalVendorCost, 0),
       safeFunding: yearSlice.reduce((a, m) => a + m.safeFunding, 0),
       totalExpenses: yearSlice.reduce((a, m) => a + m.totalExpenses, 0),
       partnerComp: yearSlice.reduce((a, m) => a + m.partnerCompensation, 0),
@@ -342,6 +384,8 @@ export function exportCompanyCashFlow(
     return cumulative;
   });
 
+  const hasCFVendorCosts = yearlyData.some(y => y.totalVendorCost > 0);
+
   const headers = ["Statement of Cash Flows - Management Company", ...yearLabels];
   const rows: (string | number)[][] = [
     headers,
@@ -350,6 +394,13 @@ export function exportCompanyCashFlow(
     ["  Cash Received from Management Fees", ...yearlyData.map((y) => y.totalRevenue)],
     ["    Base Management Fees", ...yearlyData.map((y) => y.baseFee)],
     ["    Incentive Management Fees", ...yearlyData.map((y) => y.incentiveFee)],
+  ];
+
+  if (hasCFVendorCosts) {
+    rows.push(["  Cash Paid to Service Vendors", ...yearlyData.map(y => -y.totalVendorCost)]);
+  }
+
+  rows.push(
     ["  Cash Paid for Operating Expenses", ...yearlyData.map((y) => -y.totalExpenses)],
     ["    Compensation", ...yearlyData.map((y) => -(y.partnerComp + y.staffComp))],
     ["      Partner Compensation", ...yearlyData.map((y) => -y.partnerComp)],
@@ -364,7 +415,7 @@ export function exportCompanyCashFlow(
     ["      IT Licensing", ...yearlyData.map((y) => -y.itLicensing)],
     ["      Marketing", ...yearlyData.map((y) => -y.marketing)],
     ["      Miscellaneous Operations", ...yearlyData.map((y) => -y.miscOps)],
-    ["Net Cash from Operating Activities", ...yearlyData.map((y) => y.totalRevenue - y.totalExpenses)],
+    ["Net Cash from Operating Activities", ...yearlyData.map((y) => y.totalRevenue - y.totalVendorCost - y.totalExpenses)],
     [],
     ["CASH FLOW FROM FINANCING ACTIVITIES"],
     ["  Funding Received", ...yearlyData.map((y) => y.safeFunding)],
@@ -373,7 +424,7 @@ export function exportCompanyCashFlow(
     ["Net Increase (Decrease) in Cash", ...yearlyData.map((y) => y.cashFlow)],
     ["Opening Cash Balance", ...openingCash],
     ["Closing Cash Balance", ...closingCash],
-  ];
+  );
 
   const ws = XLSX.utils.aoa_to_sheet(rows);
   setColumnWidths(ws, [45, ...yearLabels.map(() => 16)]);

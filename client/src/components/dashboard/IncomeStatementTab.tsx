@@ -6,6 +6,7 @@ import { ExportMenu, pdfAction, csvAction, excelAction, pptxAction, pngAction } 
 import { ChevronRight, ChevronDown } from "lucide-react";
 import { formatMoney } from "@/lib/financialEngine";
 import { CalcDetailsProvider } from "@/components/financial-table-rows";
+import { FinancialChart } from "@/components/ui/financial-chart";
 import { DashboardTabProps } from "./types";
 import { dashboardExports, generatePortfolioCashFlowData, generatePortfolioInvestmentData } from "./dashboardExports";
 
@@ -38,6 +39,18 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
       return newSet;
     });
   };
+
+  const chartData = useMemo(() => {
+    return Array.from({ length: projectionYears }, (_, i) => {
+      const c = yearlyConsolidatedCache[i];
+      return {
+        year: getFiscalYear(i),
+        Revenue: c?.revenueTotal ?? 0,
+        GOP: c?.gop ?? 0,
+        NOI: c?.noi ?? 0,
+      };
+    });
+  }, [yearlyConsolidatedCache, projectionYears, getFiscalYear]);
 
   const generateIncomeStatementData = () => {
     const years = Array.from({ length: projectionYears }, (_, i) => getFiscalYear(i));
@@ -163,62 +176,71 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
   };
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle>Consolidated Income Statement</CardTitle>
-        <ExportMenu
-          actions={[
-            pdfAction(() => handleExport('pdf')),
-            csvAction(() => handleExport('csv')),
-            excelAction(() => handleExport('excel')),
-            pptxAction(() => handleExport('pptx')),
-            pngAction(() => handleExport('png')),
-          ]}
-        />
-      </CardHeader>
-      <CardContent ref={tabContentRef}>
-        <CalcDetailsProvider show={showCalcDetails}>
-          <div className="rounded-md border overflow-hidden overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-muted/50">
-                  <TableHead className="w-[200px] sticky left-0 bg-muted/50 z-10">Category</TableHead>
-                  {years.map(year => (
-                    <TableHead key={year} className="text-right">{year}</TableHead>
-                  ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {rows.map((row, idx) => (
-                  <TableRow 
-                    key={idx} 
-                    className={row.isHeader ? "bg-muted/30 font-bold" : ""}
-                    onClick={() => row.rowId && toggleRow(row.rowId)}
-                    style={{ cursor: row.rowId ? 'pointer' : 'default' }}
-                  >
-                    <TableCell 
-                      className="sticky left-0 bg-white z-10"
-                      style={{ paddingLeft: row.indent ? `${row.indent * 1.5 + 1}rem` : '1rem' }}
-                    >
-                      <div className="flex items-center gap-2">
-                        {row.rowId && (
-                          expandedRows.has(row.rowId) ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />
-                        )}
-                        {row.category}
-                      </div>
-                    </TableCell>
-                    {row.values.map((val, vIdx) => (
-                      <TableCell key={vIdx} className="text-right font-mono">
-                        {formatMoney(val)}
-                      </TableCell>
+    <div className="space-y-6">
+      <FinancialChart
+        data={chartData}
+        series={["revenue", "gop", "noi"]}
+        title={`Income Statement Trends (${projectionYears}-Year Projection)`}
+        id="dashboard-income-chart"
+      />
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle>Consolidated Income Statement</CardTitle>
+          <ExportMenu
+            actions={[
+              pdfAction(() => handleExport('pdf')),
+              csvAction(() => handleExport('csv')),
+              excelAction(() => handleExport('excel')),
+              pptxAction(() => handleExport('pptx')),
+              pngAction(() => handleExport('png')),
+            ]}
+          />
+        </CardHeader>
+        <CardContent ref={tabContentRef}>
+          <CalcDetailsProvider show={showCalcDetails}>
+            <div className="rounded-md border overflow-hidden overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-muted/50">
+                    <TableHead className="w-[200px] sticky left-0 bg-muted/50 z-10">Category</TableHead>
+                    {years.map(year => (
+                      <TableHead key={year} className="text-right">{year}</TableHead>
                     ))}
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </CalcDetailsProvider>
-      </CardContent>
-    </Card>
+                </TableHeader>
+                <TableBody>
+                  {rows.map((row, idx) => (
+                    <TableRow 
+                      key={idx} 
+                      className={row.isHeader ? "bg-muted/30 font-bold" : ""}
+                      onClick={() => row.rowId && toggleRow(row.rowId)}
+                      style={{ cursor: row.rowId ? 'pointer' : 'default' }}
+                    >
+                      <TableCell 
+                        className="sticky left-0 bg-white z-10"
+                        style={{ paddingLeft: row.indent ? `${row.indent * 1.5 + 1}rem` : '1rem' }}
+                      >
+                        <div className="flex items-center gap-2">
+                          {row.rowId && (
+                            expandedRows.has(row.rowId) ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />
+                          )}
+                          {row.category}
+                        </div>
+                      </TableCell>
+                      {row.values.map((val, vIdx) => (
+                        <TableCell key={vIdx} className="text-right font-mono">
+                          {formatMoney(val)}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </CalcDetailsProvider>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

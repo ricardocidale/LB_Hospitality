@@ -5,6 +5,7 @@ import { ExportMenu, pdfAction, csvAction, excelAction, pptxAction, chartAction,
 import { ChevronRight, ChevronDown } from "lucide-react";
 import { formatMoney } from "@/lib/financialEngine";
 import { CalcDetailsProvider } from "@/components/financial-table-rows";
+import { FinancialChart } from "@/components/ui/financial-chart";
 import { DashboardTabProps } from "./types";
 import { aggregateCashFlowByYear } from "@/lib/financial/cashFlowAggregator";
 import { LoanParams, GlobalLoanParams } from "@/lib/financial/loanCalculations";
@@ -69,6 +70,15 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
     [consolidatedCFO, consolidatedCFI, consolidatedCFF, years]
   );
 
+  const chartData = useMemo(() => {
+    return years.map((year, y) => {
+      const noi = allPropertyYearlyCF.reduce((sum, prop) => sum + (prop[y]?.noi ?? 0), 0);
+      const fcf = allPropertyYearlyCF.reduce((sum, prop) => sum + (prop[y]?.freeCashFlow ?? 0), 0);
+      const fcfe = allPropertyYearlyCF.reduce((sum, prop) => sum + (prop[y]?.freeCashFlowToEquity ?? 0), 0);
+      return { year, NOI: noi, CashFlow: fcf, FCFE: fcfe };
+    });
+  }, [allPropertyYearlyCF, years]);
+
   const handleExport = (action: string) => {
     const { years, rows } = generatePortfolioCashFlowData(allPropertyYearlyCF, projectionYears, getFiscalYear);
 
@@ -91,7 +101,6 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
         const ws = XLSX.utils.aoa_to_sheet(wsData);
         ws["!cols"] = [{ wch: 40 }, ...years.map(() => ({ wch: 15 }))];
         
-        // Use the internal formatter if available or replicate its logic
         const currencyFormat = "#,##0";
         for (let r = 1; r < wsData.length; r++) {
           for (let c = 1; c < wsData[r].length; c++) {
@@ -121,7 +130,7 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
           totalProjectionRevenue,
           totalProjectionNOI,
           totalProjectionCashFlow,
-          incomeData: { years: years.map(String), rows: [] }, // PPTX usually expects this, but we are in CF tab
+          incomeData: { years: years.map(String), rows: [] },
           cashFlowData: { years: years.map(String), rows: rows.map(r => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader })) },
           balanceSheetData: { years: years.map(String), rows: [] },
           investmentData: (() => { 
@@ -138,110 +147,119 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
   };
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle>Consolidated Cash Flow Statement</CardTitle>
-        <ExportMenu
-          actions={[
-            pdfAction(() => handleExport('pdf')),
-            csvAction(() => handleExport('csv')),
-            excelAction(() => handleExport('excel')),
-            pptxAction(() => handleExport('pptx')),
-            chartAction(() => handleExport('chart')),
-            pngAction(() => handleExport('table')),
-          ]}
-        />
-      </CardHeader>
-      <CardContent ref={tableRef}>
-        <CalcDetailsProvider show={showCalcDetails}>
-          <div className="rounded-md border overflow-hidden overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-muted/50">
-                  <TableHead className="w-[250px] sticky left-0 bg-muted/50 z-10">Section</TableHead>
-                  {years.map(year => (
-                    <TableHead key={year} className="text-right">{year}</TableHead>
-                  ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <TableRow className="bg-muted/20 font-bold" onClick={() => toggleRow("cfo")} style={{ cursor: 'pointer' }}>
-                  <TableCell className="sticky left-0 bg-white z-10">
-                    <div className="flex items-center gap-2">
-                      {expandedRows.has("cfo") ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                      Cash Flow from Operations (CFO)
-                    </div>
-                  </TableCell>
-                  {consolidatedCFO.map((val, i) => (
-                    <TableCell key={i} className="text-right font-mono">{formatMoney(val)}</TableCell>
-                  ))}
-                </TableRow>
-                {expandedRows.has("cfo") && properties.map((prop, idx) => (
-                  <TableRow key={idx}>
-                    <TableCell className="pl-10 sticky left-0 bg-white z-10">{prop.name}</TableCell>
-                    {years.map((_, y) => (
-                      <TableCell key={y} className="text-right font-mono text-muted-foreground">
-                        {formatMoney(allPropertyYearlyCF[idx]?.[y]?.cashFromOperations ?? 0)}
-                      </TableCell>
+    <div className="space-y-6">
+      <FinancialChart
+        data={chartData}
+        series={["noi", "cashFlow", "fcfe"]}
+        title={`Cash Flow Trends (${projectionYears}-Year Projection)`}
+        id="dashboard-cashflow-chart"
+      />
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle>Consolidated Cash Flow Statement</CardTitle>
+          <ExportMenu
+            actions={[
+              pdfAction(() => handleExport('pdf')),
+              csvAction(() => handleExport('csv')),
+              excelAction(() => handleExport('excel')),
+              pptxAction(() => handleExport('pptx')),
+              chartAction(() => handleExport('chart')),
+              pngAction(() => handleExport('table')),
+            ]}
+          />
+        </CardHeader>
+        <CardContent ref={tableRef}>
+          <CalcDetailsProvider show={showCalcDetails}>
+            <div className="rounded-md border overflow-hidden overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-muted/50">
+                    <TableHead className="w-[250px] sticky left-0 bg-muted/50 z-10">Section</TableHead>
+                    {years.map(year => (
+                      <TableHead key={year} className="text-right">{year}</TableHead>
                     ))}
                   </TableRow>
-                ))}
-
-                <TableRow className="bg-muted/20 font-bold" onClick={() => toggleRow("cfi")} style={{ cursor: 'pointer' }}>
-                  <TableCell className="sticky left-0 bg-white z-10">
-                    <div className="flex items-center gap-2">
-                      {expandedRows.has("cfi") ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                      Cash Flow from Investing (CFI)
-                    </div>
-                  </TableCell>
-                  {consolidatedCFI.map((val, i) => (
-                    <TableCell key={i} className="text-right font-mono">{formatMoney(val)}</TableCell>
-                  ))}
-                </TableRow>
-                {expandedRows.has("cfi") && properties.map((prop, idx) => (
-                  <TableRow key={idx}>
-                    <TableCell className="pl-10 sticky left-0 bg-white z-10">{prop.name}</TableCell>
-                    {years.map((_, y) => (
-                      <TableCell key={y} className="text-right font-mono text-muted-foreground">
-                        {formatMoney((allPropertyYearlyCF[idx]?.[y]?.capitalExpenditures ?? 0) + (allPropertyYearlyCF[idx]?.[y]?.exitValue ?? 0))}
-                      </TableCell>
+                </TableHeader>
+                <TableBody>
+                  <TableRow className="bg-muted/20 font-bold" onClick={() => toggleRow("cfo")} style={{ cursor: 'pointer' }}>
+                    <TableCell className="sticky left-0 bg-white z-10">
+                      <div className="flex items-center gap-2">
+                        {expandedRows.has("cfo") ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                        Cash Flow from Operations (CFO)
+                      </div>
+                    </TableCell>
+                    {consolidatedCFO.map((val, i) => (
+                      <TableCell key={i} className="text-right font-mono">{formatMoney(val)}</TableCell>
                     ))}
                   </TableRow>
-                ))}
-
-                <TableRow className="bg-muted/20 font-bold" onClick={() => toggleRow("cff")} style={{ cursor: 'pointer' }}>
-                  <TableCell className="sticky left-0 bg-white z-10">
-                    <div className="flex items-center gap-2">
-                      {expandedRows.has("cff") ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                      Cash Flow from Financing (CFF)
-                    </div>
-                  </TableCell>
-                  {consolidatedCFF.map((val, i) => (
-                    <TableCell key={i} className="text-right font-mono">{formatMoney(val)}</TableCell>
+                  {expandedRows.has("cfo") && properties.map((prop, idx) => (
+                    <TableRow key={idx}>
+                      <TableCell className="pl-10 sticky left-0 bg-white z-10">{prop.name}</TableCell>
+                      {years.map((_, y) => (
+                        <TableCell key={y} className="text-right font-mono text-muted-foreground">
+                          {formatMoney(allPropertyYearlyCF[idx]?.[y]?.cashFromOperations ?? 0)}
+                        </TableCell>
+                      ))}
+                    </TableRow>
                   ))}
-                </TableRow>
-                {expandedRows.has("cff") && properties.map((prop, idx) => (
-                  <TableRow key={idx}>
-                    <TableCell className="pl-10 sticky left-0 bg-white z-10">{prop.name}</TableCell>
-                    {years.map((_, y) => (
-                      <TableCell key={y} className="text-right font-mono text-muted-foreground">
-                        {formatMoney((allPropertyYearlyCF[idx]?.[y]?.refinancingProceeds ?? 0) - (allPropertyYearlyCF[idx]?.[y]?.principalPayment ?? 0))}
-                      </TableCell>
+
+                  <TableRow className="bg-muted/20 font-bold" onClick={() => toggleRow("cfi")} style={{ cursor: 'pointer' }}>
+                    <TableCell className="sticky left-0 bg-white z-10">
+                      <div className="flex items-center gap-2">
+                        {expandedRows.has("cfi") ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                        Cash Flow from Investing (CFI)
+                      </div>
+                    </TableCell>
+                    {consolidatedCFI.map((val, i) => (
+                      <TableCell key={i} className="text-right font-mono">{formatMoney(val)}</TableCell>
                     ))}
                   </TableRow>
-                ))}
-
-                <TableRow className="bg-primary/10 font-bold border-t-2 border-primary">
-                  <TableCell className="sticky left-0 bg-primary/5 z-10 font-bold">Net Change in Cash</TableCell>
-                  {netChangeInCash.map((val, i) => (
-                    <TableCell key={i} className="text-right font-mono">{formatMoney(val)}</TableCell>
+                  {expandedRows.has("cfi") && properties.map((prop, idx) => (
+                    <TableRow key={idx}>
+                      <TableCell className="pl-10 sticky left-0 bg-white z-10">{prop.name}</TableCell>
+                      {years.map((_, y) => (
+                        <TableCell key={y} className="text-right font-mono text-muted-foreground">
+                          {formatMoney((allPropertyYearlyCF[idx]?.[y]?.capitalExpenditures ?? 0) + (allPropertyYearlyCF[idx]?.[y]?.exitValue ?? 0))}
+                        </TableCell>
+                      ))}
+                    </TableRow>
                   ))}
-                </TableRow>
-              </TableBody>
-            </Table>
-          </div>
-        </CalcDetailsProvider>
-      </CardContent>
-    </Card>
+
+                  <TableRow className="bg-muted/20 font-bold" onClick={() => toggleRow("cff")} style={{ cursor: 'pointer' }}>
+                    <TableCell className="sticky left-0 bg-white z-10">
+                      <div className="flex items-center gap-2">
+                        {expandedRows.has("cff") ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                        Cash Flow from Financing (CFF)
+                      </div>
+                    </TableCell>
+                    {consolidatedCFF.map((val, i) => (
+                      <TableCell key={i} className="text-right font-mono">{formatMoney(val)}</TableCell>
+                    ))}
+                  </TableRow>
+                  {expandedRows.has("cff") && properties.map((prop, idx) => (
+                    <TableRow key={idx}>
+                      <TableCell className="pl-10 sticky left-0 bg-white z-10">{prop.name}</TableCell>
+                      {years.map((_, y) => (
+                        <TableCell key={y} className="text-right font-mono text-muted-foreground">
+                          {formatMoney((allPropertyYearlyCF[idx]?.[y]?.refinancingProceeds ?? 0) - (allPropertyYearlyCF[idx]?.[y]?.principalPayment ?? 0))}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+
+                  <TableRow className="bg-primary/10 font-bold border-t-2 border-primary">
+                    <TableCell className="sticky left-0 bg-primary/5 z-10 font-bold">Net Change in Cash</TableCell>
+                    {netChangeInCash.map((val, i) => (
+                      <TableCell key={i} className="text-right font-mono">{formatMoney(val)}</TableCell>
+                    ))}
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </div>
+          </CalcDetailsProvider>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

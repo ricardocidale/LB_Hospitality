@@ -1,19 +1,35 @@
-import React, { useRef, RefObject } from "react";
+import React, { useRef, useMemo, RefObject } from "react";
 import { ConsolidatedBalanceSheet } from "@/components/ConsolidatedBalanceSheet";
 import { DashboardTabProps } from "./types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ExportMenu, pdfAction, csvAction, excelAction, pptxAction, pngAction, chartAction } from "@/components/ui/export-toolbar";
+import { FinancialChart } from "@/components/ui/financial-chart";
 import { dashboardExports, generatePortfolioBalanceSheetData, generatePortfolioCashFlowData, generatePortfolioInvestmentData } from "./dashboardExports";
 
 export function BalanceSheetTab({ financials, properties, global, projectionYears, getFiscalYear }: DashboardTabProps) {
   const tabContentRef = useRef<HTMLDivElement>(null);
+  const modelStartDate = global.modelStartDate ? new Date(global.modelStartDate) : undefined;
   
   const { years, rows } = generatePortfolioBalanceSheetData(
     financials.allPropertyFinancials,
     projectionYears,
     getFiscalYear,
-    global.modelStartDate ? new Date(global.modelStartDate) : undefined
+    modelStartDate
   );
+
+  const chartData = useMemo(() => {
+    const totalAssetsRow = rows.find(r => r.category === "TOTAL ASSETS");
+    const debtRow = rows.find(r => r.category === "Mortgage Notes Payable");
+    const equityRow = rows.find(r => r.category === "Paid-In Capital");
+    const retainedRow = rows.find(r => r.category === "Retained Earnings");
+
+    return years.map((year, i) => ({
+      year,
+      Assets: totalAssetsRow?.values[i] ?? 0,
+      Liabilities: debtRow?.values[i] ?? 0,
+      Equity: (equityRow?.values[i] ?? 0) + (retainedRow?.values[i] ?? 0),
+    }));
+  }, [years, rows]);
 
   const handleExport = (action: string) => {
     switch(action) {
@@ -71,6 +87,17 @@ export function BalanceSheetTab({ financials, properties, global, projectionYear
 
   return (
     <div className="space-y-6">
+      <FinancialChart
+        data={chartData}
+        series={[
+          { dataKey: "Assets", name: "Total Assets", color: "#257D41", gradientTo: "#34D399" },
+          { dataKey: "Liabilities", name: "Total Liabilities", color: "#F4795B", gradientTo: "#FB923C" },
+          { dataKey: "Equity", name: "Total Equity", color: "#3B82F6", gradientTo: "#60A5FA" },
+        ]}
+        title={`Balance Sheet Trends (${projectionYears}-Year Projection)`}
+        id="dashboard-balance-chart"
+      />
+
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle>Consolidated Balance Sheet</CardTitle>

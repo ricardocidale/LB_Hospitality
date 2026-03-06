@@ -6,7 +6,7 @@ description: Token-efficient context loading protocol. Maps common task types to
 # Context Loading Protocol
 
 ## Purpose
-With 118 skill files, loading everything wastes tokens and slows responses. This skill maps common task types to the **minimum required** skill set, ensuring fast, focused sessions.
+With 119 skill files, loading everything wastes tokens and slows responses. This skill maps common task types to the **minimum required** skill set, ensuring fast, focused sessions.
 
 ## Golden Rule
 **Load `claude.md` first (always loaded automatically). Then load only the skills needed for the current task. Never load all skills at once.**
@@ -28,6 +28,7 @@ With 118 skill files, loading everything wastes tokens and slows responses. This
 | Debt/financing/refinancing | `finance/calculation-chain.md`, `rules/financial-engine.md` | UI skills, research |
 | Fee linkage / consolidation | `finance/fee-linkage.md`, `finance/consolidation.md` | UI skills, exports |
 | Management company pro forma | `finance/fee-linkage.md`, `testing/management-company.md` | Property-level skills |
+| Centralized services / vendor costs | `finance/centralized-services.md`, `finance/fee-linkage.md` | Property-level skills |
 | Full financial statements build | `finance/financial-statements-construction.md` | Individual statement skills (it's comprehensive) |
 | Any finance change | **Always also load**: `rules/audit-persona.md`, `proof-system/SKILL.md` | — |
 

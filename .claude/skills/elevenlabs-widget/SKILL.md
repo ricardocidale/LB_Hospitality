@@ -270,6 +270,15 @@ Widget shows when ALL conditions are true:
 | `showAiAssistant` | `show_ai_assistant` | boolean | Master toggle for widget visibility |
 | `marcelaEnabled` | `marcela_enabled` | boolean | Marcela system enabled |
 
+## Admin Panel
+All ElevenLabs agent configuration is done via the Admin > AI Agent tab, not the ElevenLabs dashboard. The admin panel provides:
+- **Prompt Editor** — Edit system prompt, first message, language directly via API
+- **Tools Status** — View all 18 tools (12 client + 6 server) with registration status
+- **Knowledge Base** — Upload files, push RAG content to ElevenLabs KB
+- **Voice Settings** — Voice ID, TTS/STT models, stability, similarity
+
+See `.claude/skills/admin/ai-agent-admin.md` for full admin tab architecture.
+
 ## Package
 - `@elevenlabs/convai-widget-core` — web component (currently used)
 - `@elevenlabs/react` — React hooks (available for upgrade)

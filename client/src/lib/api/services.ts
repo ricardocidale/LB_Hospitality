@@ -26,7 +26,6 @@ export function useCreateServiceTemplate() {
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["serviceTemplates"] });
       invalidateAllFinancialQueries(queryClient);
     },
   });
@@ -45,7 +44,6 @@ export function useUpdateServiceTemplate() {
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["serviceTemplates"] });
       invalidateAllFinancialQueries(queryClient);
     },
   });
@@ -62,7 +60,6 @@ export function useDeleteServiceTemplate() {
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["serviceTemplates"] });
       invalidateAllFinancialQueries(queryClient);
     },
   });

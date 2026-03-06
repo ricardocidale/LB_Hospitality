@@ -5,6 +5,46 @@
 
 ---
 
+## Session: March 6, 2026 — Centralized Services Model (Full Feature)
+
+### What Was Done
+- **Centralized Services Model**: 6-phase feature adding cost-plus markup vendor cost analysis to the management company P&L
+- **Phase 1 — Calc modules**: `calc/services/margin-calculator.ts` (4 pure math functions), `calc/services/cost-of-services.ts` (aggregator), `calc/services/types.ts` (ServiceTemplate, AggregatedServiceCosts), deterministic tool `cost-of-services-aggregator`
+- **Phase 2 — Schema & backend**: `serviceTemplates` table in `shared/schema.ts`, CRUD routes (`server/routes/admin/services.ts`), IStorage methods, DB migration via `drizzle-kit push`, seed data (3 templates: Marketing, IT, General Management)
+- **Phase 3 — Client API + engine**: React Query hooks (`client/src/lib/api/services.ts`), `serviceTemplates` added to `ALL_FINANCIAL_QUERY_KEYS`, `generateCompanyProForma()` extended with optional `serviceTemplates` parameter
+- **Phase 4 — Admin UI + Company P&L**: `ServicesTab.tsx` (entity card pattern, gradient summary, CRUD), `CompanyIncomeTab.tsx` updated with Cost of Services section + Gross Profit row, `Company.tsx` passes templates to engine
+- **Phase 5 — Tests**: 63 new tests (margin-calculator: 31, cost-of-services: 17, engine integration: 15), recalculation enforcement proof test updated
+- **Phase 6 — Documentation**: `finance/centralized-services.md` skill, updated finance SKILL.md (16→17 sub-skills), admin SKILL.md (11→12 tabs), context-loading task map
+- Tests: 1,609/1,609 passing, verification UNQUALIFIED
+
+### Key Technical Decisions
+- **Approach A (rate-derived)**: Vendor costs derived from existing fee revenue, not a new expense line — property SPV unchanged
+- **Backward compatible**: No templates = totalVendorCost=0, grossProfit=totalRevenue, costOfCentralizedServices=null
+- **Cost-plus math**: vendorCost = fee / (1 + markup), grossProfit = fee - vendorCost
+- **serviceModel type cast**: Drizzle infers `string`, Company.tsx casts to `'centralized' | 'direct'`
+- **Sophisticated design**: Entity card pattern with gradient summary, backdrop-blur, hover-reveal actions (user rejected "teen design")
+
+### Files Created
+- `calc/services/margin-calculator.ts`, `calc/services/cost-of-services.ts`, `calc/services/types.ts`
+- `client/src/lib/api/services.ts`, `client/src/components/admin/ServicesTab.tsx`
+- `.claude/tools/analysis/cost-of-services-aggregator.json`
+- `tests/calc/services/margin-calculator.test.ts`, `tests/calc/services/cost-of-services.test.ts`, `tests/engine/centralized-services.test.ts`
+- `.claude/skills/finance/centralized-services.md`
+
+### Files Modified
+- `client/src/lib/financialEngine.ts` — extended CompanyMonthlyFinancials, new serviceTemplates param
+- `client/src/lib/api/properties.ts` — added `serviceTemplates` to ALL_FINANCIAL_QUERY_KEYS
+- `client/src/lib/api/index.ts` — barrel export services
+- `client/src/components/company/CompanyIncomeTab.tsx` — Cost of Services + Gross Profit display
+- `client/src/pages/Company.tsx` — passes templates to engine
+- `client/src/pages/Admin.tsx` — Services tab added
+- `client/src/components/admin/index.ts` — barrel export ServicesTab
+- `calc/dispatch.ts` — registered cost_of_services_aggregator tool
+- `tests/proof/recalculation-enforcement.test.ts` — added service mutations
+- `.claude/skills/finance/SKILL.md`, `.claude/skills/admin/SKILL.md`, `.claude/skills/context-loading/SKILL.md`
+
+---
+
 ## Session: March 6, 2026 — AI Agent Admin Tab (Mini ElevenLabs Dashboard)
 
 ### What Was Done

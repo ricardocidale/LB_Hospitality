@@ -1,12 +1,19 @@
 ---
 name: marcela-ai
-description: Marcela AI multi-channel conversational assistant. Covers architecture, system prompts, audio pipeline, RAG knowledge base, and admin configuration.
+description: AI Agent (configurable name, default "Marcela") multi-channel conversational assistant. Covers architecture, system prompts, audio pipeline, RAG knowledge base, ElevenLabs Conversational AI integration, and admin configuration.
+status: UPDATED (March 6, 2026)
 ---
 
-# Marcela AI — Entry Point
+# AI Agent (Marcela) — Entry Point
 
 ## Purpose
-Documents the complete Marcela AI assistant system operating across web (ElevenLabs Conversational AI widget), phone (Twilio Voice), and SMS (Twilio SMS).
+Documents the complete AI assistant system operating across web (ElevenLabs Conversational AI widget), phone (Twilio Voice), and SMS (Twilio SMS). The assistant name is configurable via `aiAgentName` in `global_assumptions` (default: "Marcela"). All UI references use the dynamic name; internal DB columns retain `marcela_*` naming.
+
+## Naming Convention
+- **UI/user-facing**: Uses `agentName` from `global_assumptions.aiAgentName` (e.g., "Marcela", "Concierge")
+- **DB columns**: `marcela_*` (kept for migration safety)
+- **Server files**: `marcela-*` (kept for import stability)
+- **Constants**: `DEFAULT_AI_AGENT_NAME` in `shared/constants.ts` (aliased from `DEFAULT_MARCELA_AGENT_ID` etc.)
 
 ## Channel Matrix
 | Channel | Technology | Key Files |
@@ -21,30 +28,57 @@ Documents the complete Marcela AI assistant system operating across web (ElevenL
 | `marcela-architecture.md` | Channel matrix, file map, system prompts, context injection, DB schema, admin config, integration credentials |
 | `audio-pipeline.md` | Phone voice pipeline (Twilio Media Streams), audio conversion, ElevenLabs STT/TTS |
 | `.claude/skills/elevenlabs-widget/SKILL.md` | Web widget: signed URL flow, admin config, gating logic, voice IDs |
+| `.claude/skills/admin/ai-agent-admin.md` | Admin > AI Agent tab: 7-tab dashboard, components, hooks, API endpoints |
 
 ## Key Files
-- `client/src/components/ElevenLabsWidget.tsx` — Web chat widget (ElevenLabs Conversational AI)
-- `client/src/components/Layout.tsx` — `MarcelaWidgetGated` gating component
-- `server/routes/admin/marcela.ts` — Admin settings API + signed URL endpoint
-- `server/routes/twilio.ts` — Phone+SMS webhooks, WebSocket Media Stream
-- `server/integrations/elevenlabs.ts` — ElevenLabs API key, STT, streaming TTS
-- `server/integrations/twilio.ts` — Twilio client, sendSMS helper
-- `server/knowledge-base.ts` — RAG knowledge base (in-memory embeddings)
-- `client/src/components/admin/marcela/MarcelaTab.tsx` — Admin configuration (all channels)
 
-## Admin Tab Components
-| Component | Purpose |
-|-----------|---------|
-| `MarcelaTab.tsx` | Status toggles + Agent ID config |
-| `VoiceSettings.tsx` | ElevenLabs TTS/STT model settings |
-| `LLMSettings.tsx` | LLM model + token limits |
-| `TelephonySettings.tsx` | Twilio phone/SMS config |
-| `KnowledgeBase.tsx` | RAG knowledge base status + reindex |
+### Server
+| File | Purpose |
+|------|---------|
+| `server/routes/admin/marcela.ts` | Admin settings API, signed URL endpoint, ConvAI proxy endpoints |
+| `server/routes/twilio.ts` | Phone+SMS webhooks, WebSocket Media Stream |
+| `server/routes/marcela-tools.ts` | Server tools for ElevenLabs agent (6 endpoints) |
+| `server/integrations/elevenlabs.ts` | ElevenLabs API key, STT, streaming TTS, ConvAI helpers |
+| `server/marcela-agent-config.ts` | Agent configuration builder (tools, KB, settings) |
+| `server/marcela-knowledge-base.ts` | RAG knowledge base (in-memory embeddings, ElevenLabs KB push) |
+| `server/knowledge-base.ts` | Core RAG engine (embeddings, cosine similarity) |
+
+### Client
+| File | Purpose |
+|------|---------|
+| `client/src/components/ElevenLabsWidget.tsx` | Web chat widget (ElevenLabs Conversational AI) |
+| `client/src/components/Layout.tsx` | `MarcelaWidgetGated` gating component |
+| `client/src/components/admin/marcela/MarcelaTab.tsx` | Admin 7-tab dashboard (General, Prompt, Voice, LLM, Tools, KB, Telephony) |
+| `client/src/components/admin/marcela/PromptEditor.tsx` | System prompt, first message, language editor |
+| `client/src/components/admin/marcela/ToolsStatus.tsx` | 18-tool status display (12 client + 6 server) |
+| `client/src/components/admin/marcela/KnowledgeBase.tsx` | RAG index, ElevenLabs KB push, file upload |
+| `client/src/components/admin/marcela/VoiceSettings.tsx` | ElevenLabs TTS/STT model settings |
+| `client/src/components/admin/marcela/LLMSettings.tsx` | LLM model + token limits |
+| `client/src/components/admin/marcela/TelephonySettings.tsx` | Twilio phone/SMS config |
+| `client/src/components/admin/marcela/hooks.ts` | React Query hooks for all AI Agent admin operations |
+| `client/src/components/admin/marcela/types.ts` | Shared TypeScript interfaces |
+
+### Shared
+| File | Purpose |
+|------|---------|
+| `shared/constants.ts` | `DEFAULT_AI_AGENT_NAME`, `DEFAULT_MARCELA_*` constants |
+| `shared/schema.ts` | `global_assumptions` table with `aiAgentName` + all `marcela_*` columns |
+
+## Admin Tab — 7-Tab Dashboard
+| Tab | Component | Purpose |
+|-----|-----------|---------|
+| General | `MarcelaTab.tsx` (inline) | Agent name, Agent ID, enable/disable toggles, status indicators |
+| Prompt | `PromptEditor.tsx` | Edit system prompt, first message, language; saves directly to ElevenLabs |
+| Voice | `VoiceSettings.tsx` | Voice ID, TTS/STT models, stability, similarity, speaker boost, chunk schedule |
+| LLM | `LLMSettings.tsx` | Model selection, max tokens (text/voice) |
+| Tools | `ToolsStatus.tsx` | All 18 tools with registration status, sync button |
+| Knowledge Base | `KnowledgeBase.tsx` | RAG reindex, ElevenLabs KB push, file upload |
+| Telephony | `TelephonySettings.tsx` | Twilio enable/disable, phone greeting, webhook URLs, connection status |
 
 ## Related Tools
 - `.claude/tools/marcela/elevenlabs-widget-config.json` — Widget attributes, auth flow, gating, modality modes
 - `.claude/tools/marcela/elevenlabs-sdk-reference.json` — React useConversation hook, callbacks, methods, state
-- `.claude/tools/marcela/elevenlabs-convai-api.json` — Conversational AI REST API endpoints
+- `.claude/tools/marcela/elevenlabs-convai-api.json` — Conversational AI REST API endpoints (including admin proxy routes)
 - `.claude/tools/marcela/elevenlabs-agent-tools.json` — Client/Server/MCP/System tool schemas
 - `.claude/tools/marcela/voice-config.json` — Voice settings defaults and DB mapping
 - `.claude/tools/marcela/voice-config-validator.json` — Voice config validation
@@ -52,3 +86,5 @@ Documents the complete Marcela AI assistant system operating across web (ElevenL
 ## Related Rules
 - `rules/documentation.md` — Source-of-truth hierarchy
 - `rules/api-routes.md` — API route conventions
+- `rules/context-reduction.md` — Skills, helpers, and tools required for every feature
+- `rules/no-hardcoded-admin-config.md` — No hardcoded admin configuration values

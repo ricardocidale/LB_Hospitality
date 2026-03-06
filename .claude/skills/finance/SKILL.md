@@ -1,6 +1,6 @@
 ---
 name: finance
-description: Financial calculation engine. 16 sub-skills covering income statement, cash flow, balance sheet, IRR, DCF, fees, consolidation, and validation.
+description: Financial calculation engine. 17 sub-skills covering income statement, cash flow, balance sheet, IRR, DCF, fees, centralized services, consolidation, and validation.
 ---
 
 # Finance — Entry Point
@@ -8,7 +8,7 @@ description: Financial calculation engine. 16 sub-skills covering income stateme
 ## Purpose
 Documents the financial calculation engine — GAAP-compliant (ASC 230, ASC 360, ASC 470) with IRS depreciation rules.
 
-## Sub-Skills (16 files)
+## Sub-Skills (17 files)
 | File | What It Covers |
 |------|---------------|
 | `income-statement.md` | Revenue, expenses, NOI, net income |
@@ -28,10 +28,11 @@ Documents the financial calculation engine — GAAP-compliant (ASC 230, ASC 360,
 | `timing-activation-rules.md` | Acquisition/disposition timing |
 | `validation-identities.md` | GAAP identity checks |
 | `fb-revenue-costs.md` | F&B revenue and cost modeling |
+| `centralized-services.md` | Cost-plus markup, vendor costs, gross profit, service templates |
 
 ## Key Files
 - `client/src/lib/financialEngine.ts` — Core calculation engine (~1,047 lines)
-- `calc/` — 57 files, 12 computation tools, typed dispatch
+- `calc/` — 60+ files, 13 computation tools, typed dispatch (includes `calc/services/`)
 - `client/src/lib/audits/` — 9-module audit system
 - `client/src/lib/financialAuditor.ts` — Audit orchestrator
 

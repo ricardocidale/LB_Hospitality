@@ -1,6 +1,6 @@
 {
   "name": "elevenlabs_convai_api",
-  "description": "Deterministic reference for ElevenLabs Conversational AI REST API endpoints. All require xi-api-key header.",
+  "description": "Deterministic reference for ElevenLabs Conversational AI REST API endpoints. All require xi-api-key header. Includes admin proxy routes.",
   "base_url": "https://api.elevenlabs.io",
   "auth_header": "xi-api-key",
   "endpoints": {
@@ -68,6 +68,13 @@
       "body": { "url": "string", "name": "string" },
       "response": { "id": "string", "name": "string" }
     },
+    "create_kb_from_file": {
+      "method": "POST",
+      "path": "/v1/convai/knowledge-base/documents/create-from-file",
+      "body": "multipart/form-data: file",
+      "response": { "id": "string", "name": "string" },
+      "notes": "Upload a file (PDF, TXT, etc.) to the knowledge base. Max 20MB."
+    },
     "get_kb_document": {
       "method": "GET",
       "path": "/v1/convai/knowledge-base/documents/{document_id}",
@@ -76,6 +83,61 @@
     "delete_kb_document": {
       "method": "DELETE",
       "path": "/v1/convai/knowledge-base/documents/{document_id}"
+    }
+  },
+  "admin_proxy_routes": {
+    "description": "Server-side proxy endpoints that forward requests to ElevenLabs API with authentication. Used by the Admin > AI Agent tab.",
+    "endpoints": {
+      "get_agent_config": {
+        "method": "GET",
+        "path": "/api/admin/convai/agent",
+        "description": "Fetch full agent configuration from ElevenLabs",
+        "file": "server/routes/admin/marcela.ts"
+      },
+      "save_agent_prompt": {
+        "method": "PATCH",
+        "path": "/api/admin/convai/agent/prompt",
+        "body": { "prompt": "string", "first_message": "string", "language": "string" },
+        "description": "Save system prompt, first message, and language to ElevenLabs agent",
+        "file": "server/routes/admin/marcela.ts"
+      },
+      "get_tools_status": {
+        "method": "GET",
+        "path": "/api/admin/convai/tools-status",
+        "description": "Get all configured tools from ElevenLabs agent with type/description",
+        "file": "server/routes/admin/marcela.ts"
+      },
+      "upload_kb_file": {
+        "method": "POST",
+        "path": "/api/admin/convai/knowledge-base/upload-file",
+        "body": "multipart/form-data: file",
+        "description": "Upload a file to ElevenLabs knowledge base (multer middleware)",
+        "file": "server/routes/admin/marcela.ts"
+      },
+      "reindex_rag": {
+        "method": "POST",
+        "path": "/api/admin/marcela/reindex",
+        "description": "Rebuild in-memory RAG embeddings from app data",
+        "file": "server/routes/admin/marcela.ts"
+      },
+      "push_to_elevenlabs": {
+        "method": "POST",
+        "path": "/api/admin/marcela/push-to-elevenlabs",
+        "description": "Push RAG knowledge base text to ElevenLabs KB",
+        "file": "server/routes/admin/marcela.ts"
+      },
+      "configure_tools": {
+        "method": "POST",
+        "path": "/api/admin/marcela/configure-tools",
+        "description": "Sync all 18 tools to ElevenLabs agent configuration",
+        "file": "server/routes/admin/marcela.ts"
+      },
+      "signed_url": {
+        "method": "GET",
+        "path": "/api/marcela/signed-url",
+        "description": "Generate signed URL for widget authentication",
+        "file": "server/routes/admin/marcela.ts"
+      }
     }
   },
   "knowledge_base_attachment": {
@@ -100,6 +162,8 @@
   "server_files": {
     "api_key_provider": "server/integrations/elevenlabs.ts",
     "signed_url_route": "server/routes/admin/marcela.ts",
-    "convai_helpers": "server/integrations/elevenlabs.ts"
+    "convai_helpers": "server/integrations/elevenlabs.ts",
+    "agent_config_builder": "server/marcela-agent-config.ts",
+    "knowledge_base": "server/marcela-knowledge-base.ts"
   }
 }

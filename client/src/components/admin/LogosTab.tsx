@@ -158,7 +158,7 @@ export default function LogosTab() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {adminLogos.map(logo => (
+              {[...adminLogos].sort((a, b) => a.name.localeCompare(b.name)).map(logo => (
                 <Card key={logo.id} className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)] group hover:shadow-lg transition-shadow" data-testid={`logo-card-${logo.id}`}>
                   <CardContent className="p-0">
                     <div className="aspect-square overflow-hidden rounded-t-xl">

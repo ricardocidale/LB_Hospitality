@@ -10,10 +10,8 @@ export const AUDIT_TOLERANCE_DOLLARS = AUDIT_DOLLAR_TOLERANCE;
 export const AUDIT_SAMPLE_MONTHS = AUDIT_VERIFICATION_WINDOW_MONTHS;
 export const ADVERSE_CRITICAL_THRESHOLD = AUDIT_CRITICAL_ISSUE_THRESHOLD;
 
-export function parseLocalDate(dateStr: string): Date {
-  if (dateStr.includes('T')) return new Date(dateStr);
-  return new Date(dateStr + 'T00:00:00');
-}
+// Re-export canonical parseLocalDate from shared — single source of truth
+export { parseLocalDate } from "@shared/dates";
 
 export function withinTolerance(expected: number, actual: number, tolerance: number = AUDIT_TOLERANCE_PCT): boolean {
   if (expected === 0 && actual === 0) return true;

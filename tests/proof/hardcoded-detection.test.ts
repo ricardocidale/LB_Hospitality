@@ -24,55 +24,25 @@ const FINANCE_ENGINE_FILES = [
   "client/src/lib/crossCalculatorValidation.ts",
 ];
 
-const CALC_MODULE_FILES = [
-  "calc/refinance/refinance-calculator.ts",
-  "calc/refinance/payoff.ts",
-  "calc/refinance/pmt.ts",
-  "calc/refinance/schedule.ts",
-  "calc/validation/financial-identities.ts",
-  "calc/validation/schedule-reconcile.ts",
-  "calc/validation/assumption-consistency.ts",
-  "calc/validation/export-verification.ts",
-  "calc/analysis/consolidation.ts",
-  "calc/analysis/scenario-compare.ts",
-  "calc/analysis/break-even.ts",
-  "calc/financing/closing-costs.ts",
-  "calc/financing/debt-yield.ts",
-  "calc/financing/dscr-calculator.ts",
-  "calc/financing/financing-calculator.ts",
-  "calc/financing/loan-comparison.ts",
-  "calc/financing/prepayment.ts",
-  "calc/financing/sensitivity.ts",
-  "calc/financing/sizing.ts",
-  "calc/financing/validate.ts",
-  "calc/funding/equity-rollforward.ts",
-  "calc/funding/funding-engine.ts",
-  "calc/funding/gates.ts",
-  "calc/funding/timeline.ts",
-  "calc/funding/validate.ts",
-  "calc/refinance/sizing.ts",
-  "calc/refinance/validate.ts",
-  "calc/returns/dcf-npv.ts",
-  "calc/returns/equity-multiple.ts",
-  "calc/returns/exit-valuation.ts",
-  "calc/returns/irr-vector.ts",
-  "calc/analysis/revpar-index.ts",
-  "calc/analysis/waterfall.ts",
-  "calc/analysis/stress-test.ts",
-  "calc/analysis/hold-vs-sell.ts",
-  "calc/analysis/capex-reserve.ts",
-  "calc/financing/interest-rate-swap.ts",
-  "calc/shared/pmt.ts",
-  "calc/shared/schedule.ts",
-  "calc/shared/utils.ts",
-  "calc/validation/funding-gates.ts",
-  "calc/services/margin-calculator.ts",
-  "calc/services/cost-of-services.ts",
-  "calc/services/dispatch-handler.ts",
-  "calc/research/property-metrics.ts",
-  "calc/research/depreciation-basis.ts",
-  "calc/research/debt-capacity.ts",
-];
+// Dynamic: scan all calc/**/*.ts files, excluding barrels/types/dispatch/hooks
+const CALC_SKIP_FILES = new Set(["index.ts", "types.ts", "dispatch.ts", "schemas.ts"]);
+const CALC_SKIP_PATTERNS = [/journal-hooks/];
+const CALC_MODULE_FILES = (function discoverCalcFiles(): string[] {
+  const calcDir = path.resolve("calc");
+  if (!fs.existsSync(calcDir)) return [];
+  const files: string[] = [];
+  function walk(dir: string) {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (entry.isDirectory()) { walk(path.join(dir, entry.name)); continue; }
+      if (!entry.name.endsWith(".ts")) continue;
+      if (CALC_SKIP_FILES.has(entry.name)) continue;
+      if (CALC_SKIP_PATTERNS.some(p => p.test(entry.name))) continue;
+      files.push(path.relative(process.cwd(), path.join(dir, entry.name)).replace(/\\/g, "/"));
+    }
+  }
+  walk(calcDir);
+  return files.sort();
+})();
 
 const AUDIT_CHECKER_FILES = [
   "client/src/lib/financialAuditor.ts",
@@ -615,37 +585,13 @@ describe("Hardcoded Value Detection", () => {
       }
     });
 
-    it("no unscanned .ts files in calc/ directories", () => {
-      const calcDir = path.resolve("calc");
-      if (!fs.existsSync(calcDir)) return;
-
-      const skipDirs = new Set<string>([]);
-      const skipFiles = new Set(["index.ts", "types.ts", "dispatch.ts", "schemas.ts"]);
-
-      const allCalcFiles: string[] = [];
-      function walkDir(dir: string) {
-        const entries = fs.readdirSync(dir, { withFileTypes: true });
-        for (const entry of entries) {
-          if (entry.isDirectory()) {
-            if (!skipDirs.has(entry.name)) walkDir(path.join(dir, entry.name));
-          } else if (entry.name.endsWith(".ts") && !skipFiles.has(entry.name) && !entry.name.includes("journal-hooks")) {
-            const relPath = path.relative(process.cwd(), path.join(dir, entry.name)).replace(/\\/g, "/");
-            allCalcFiles.push(relPath);
-          }
-        }
-      }
-      walkDir(calcDir);
-
-      const scannedSet = new Set(CALC_MODULE_FILES);
-      const unscanned = allCalcFiles.filter((f) => !scannedSet.has(f));
-
-      if (unscanned.length > 0) {
-        expect.fail(
-          `Found ${unscanned.length} calc file(s) not included in hardcoded detection scan:\n` +
-          `  ${unscanned.join("\n  ")}\n\n` +
-          `Add these to CALC_MODULE_FILES or to the skip list if they don't contain calculations.`,
-        );
-      }
+    it("calc/ files are dynamically discovered (non-empty scan list)", () => {
+      // CALC_MODULE_FILES is built dynamically via discoverCalcFiles() above.
+      // This test confirms the auto-discovery found files.
+      expect(
+        CALC_MODULE_FILES.length,
+        "Dynamic calc file discovery should find at least 30 files",
+      ).toBeGreaterThanOrEqual(30);
     });
   });
 });

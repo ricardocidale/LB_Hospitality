@@ -13,6 +13,7 @@ const phases = [
   { name: "Data Integrity", cmd: "npx vitest run tests/proof/data-integrity.test.ts 2>&1" },
   { name: "Portfolio Dynamics", cmd: "npx vitest run tests/proof/portfolio-dynamics.test.ts 2>&1" },
   { name: "Recalc Enforcement", cmd: "npx vitest run tests/proof/recalculation-enforcement.test.ts 2>&1" },
+  { name: "Rule Compliance", cmd: "npx vitest run tests/proof/rule-compliance.test.ts 2>&1" },
 ];
 
 let allPassed = true;

@@ -40,6 +40,9 @@ export function withinTolerance(expected: number, actual: number): boolean {
   return Math.abs((expected - actual) / expected) < TOLERANCE;
 }
 
+// INTENTIONAL: Independent reimplementation per audit-persona.md rule.
+// The server-side checker must NOT import from calc/shared/pmt.ts to maintain
+// verification independence. Both implementations must produce identical results.
 export function calculatePMT(principal: number, monthlyRate: number, totalPayments: number): number {
   if (principal === 0) return 0;
   if (monthlyRate === 0) return principal / totalPayments;

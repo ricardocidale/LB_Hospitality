@@ -8,11 +8,7 @@
  */
 
 import { startOfMonth } from "date-fns";
-
-function parseLocalDate(dateStr: string): Date {
-  if (dateStr.includes('T')) return new Date(dateStr);
-  return new Date(dateStr + 'T00:00:00');
-}
+import { parseLocalDate } from "@shared/dates";
 import { DEFAULT_LTV } from "./constants";
 
 /** Minimal property shape accepted by equity helpers. */

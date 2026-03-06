@@ -1,15 +1,9 @@
 import { startOfMonth, addMonths } from "date-fns";
 import { pmt } from "@calc/shared/pmt";
 
-/**
- * Parse a date string into a Date object, handling both ISO format ("2026-04-01T00:00:00")
- * and plain date format ("2026-04-01"). The plain format gets "T00:00:00" appended to
- * prevent timezone-related off-by-one-day errors that happen with new Date("2026-04-01").
- */
-export function parseLocalDate(dateStr: string): Date {
-  if (dateStr.includes('T')) return new Date(dateStr);
-  return new Date(dateStr + 'T00:00:00');
-}
+// Re-export canonical parseLocalDate from shared — single source of truth
+import { parseLocalDate } from "@shared/dates";
+export { parseLocalDate };
 
 /**
  * Determine which fiscal year a given month belongs to.

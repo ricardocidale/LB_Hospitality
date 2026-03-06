@@ -1,12 +1,14 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { BookOpen, RefreshCw, Loader2 } from "lucide-react";
-import { useKnowledgeBaseStatus, useReindexKnowledgeBase } from "./hooks";
+import { BookOpen, RefreshCw, Loader2, Upload, Wrench } from "lucide-react";
+import { useKnowledgeBaseStatus, useReindexKnowledgeBase, useUploadKnowledgeBase, useConfigureAgentTools } from "./hooks";
 
 export function KnowledgeBaseCard() {
   const { data: kbStatus } = useKnowledgeBaseStatus();
   const reindexMutation = useReindexKnowledgeBase();
+  const uploadMutation = useUploadKnowledgeBase();
+  const configureToolsMutation = useConfigureAgentTools();
 
   return (
     <Card>
@@ -16,9 +18,9 @@ export function KnowledgeBaseCard() {
             <BookOpen className="w-5 h-5 text-violet-600" />
           </div>
           <div>
-            <CardTitle className="text-base">Knowledge Base (RAG)</CardTitle>
+            <CardTitle className="text-base">Knowledge Base</CardTitle>
             <CardDescription>
-              Marcela searches this knowledge base to answer questions about the platform
+              Marcela's knowledge for answering questions about the platform and business model
             </CardDescription>
           </div>
         </div>
@@ -58,13 +60,51 @@ export function KnowledgeBaseCard() {
             ) : (
               <RefreshCw className="w-4 h-4 mr-2" />
             )}
-            {reindexMutation.isPending ? "Indexing..." : "Reindex"}
+            {reindexMutation.isPending ? "Indexing..." : "Reindex RAG"}
           </Button>
         </div>
-        <p className="text-xs text-muted-foreground">
-          The knowledge base includes: User Manual, Checker Manual, business model specification,
-          market research documents, financial formulas, GAAP rules, and platform guides.
-          It is automatically indexed on first use.
+
+        <div className="border-t pt-4 space-y-3">
+          <p className="text-sm font-medium">ElevenLabs Agent Configuration</p>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => uploadMutation.mutate()}
+              disabled={uploadMutation.isPending}
+              data-testid="button-upload-kb"
+            >
+              {uploadMutation.isPending ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Upload className="w-4 h-4 mr-2" />
+              )}
+              {uploadMutation.isPending ? "Uploading..." : "Upload Knowledge Base"}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => configureToolsMutation.mutate()}
+              disabled={configureToolsMutation.isPending}
+              data-testid="button-configure-tools"
+            >
+              {configureToolsMutation.isPending ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Wrench className="w-4 h-4 mr-2" />
+              )}
+              {configureToolsMutation.isPending ? "Configuring..." : "Configure Tools"}
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Upload sends the complete knowledge base document to ElevenLabs so Marcela can reference it during conversations.
+            Configure Tools registers all 18 client and server tools with the ElevenLabs agent.
+          </p>
+        </div>
+
+        <p className="text-xs text-muted-foreground border-t pt-3">
+          The knowledge base includes: company overview, business model, financial formulas, GAAP compliance rules,
+          property lifecycle, management company structure, verification system, platform navigation guides, and how-to instructions.
         </p>
       </CardContent>
     </Card>

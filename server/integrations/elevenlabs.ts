@@ -223,6 +223,26 @@ export async function getSignedUrl(agentId: string): Promise<string> {
   return data.signed_url;
 }
 
+export interface KBDocument {
+  id: string;
+  name: string;
+}
+
+export async function createKBDocumentFromText(name: string, text: string): Promise<KBDocument> {
+  return convaiRequest<KBDocument>('/knowledge-base/documents/create-from-text', {
+    method: 'POST',
+    body: { name, text },
+  });
+}
+
+export async function getKBDocument(docId: string): Promise<KBDocument & { status?: string }> {
+  return convaiRequest<KBDocument & { status?: string }>(`/knowledge-base/documents/${docId}`);
+}
+
+export async function deleteKBDocument(docId: string): Promise<void> {
+  await convaiRequest<void>(`/knowledge-base/documents/${docId}`, { method: 'DELETE' });
+}
+
 export async function transcribeAudio(audioBuffer: Buffer, filename: string, sttModel?: string): Promise<string> {
   const apiKey = await getCredentials();
 

@@ -98,3 +98,43 @@ export function useReindexKnowledgeBase() {
     },
   });
 }
+
+export function useUploadKnowledgeBase() {
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/admin/convai/knowledge-base/upload");
+      return res.json();
+    },
+    onSuccess: (data: { documentId?: string }) => {
+      toast({
+        title: "Knowledge Base Uploaded",
+        description: `Document uploaded to ElevenLabs${data.documentId ? ` (ID: ${data.documentId.slice(0, 8)}...)` : ""}`,
+      });
+    },
+    onError: (err: Error) => {
+      toast({ title: "Upload Failed", description: err.message, variant: "destructive" });
+    },
+  });
+}
+
+export function useConfigureAgentTools() {
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/admin/convai/configure-tools");
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Agent Tools Configured",
+        description: "All client and server tools registered with ElevenLabs",
+      });
+    },
+    onError: (err: Error) => {
+      toast({ title: "Configuration Failed", description: err.message, variant: "destructive" });
+    },
+  });
+}

@@ -5,6 +5,7 @@ import { type InsertGlobalAssumptions } from "@shared/schema";
 import { getTwilioStatus, sendSMS } from "../../integrations/twilio";
 import { getSignedUrl as getElevenLabsSignedUrl, getConvaiAgent, listConvaiConversations, getConvaiConversation, deleteConvaiConversation } from "../../integrations/elevenlabs";
 import { configureMarcelaAgent } from "../../marcela-agent-config";
+import { uploadKnowledgeBase, getKnowledgeDocumentPreview } from "../../marcela-knowledge-base";
 
 export function registerMarcelaRoutes(app: Express) {
   app.get("/api/admin/voice-settings", requireAdmin, async (_req, res) => {
@@ -155,6 +156,29 @@ export function registerMarcelaRoutes(app: Express) {
     } catch (error: any) {
       console.error("Error configuring agent tools:", error);
       res.status(500).json({ error: error.message || "Failed to configure agent tools" });
+    }
+  });
+
+  app.get("/api/admin/convai/knowledge-base/preview", requireAdmin, async (_req, res) => {
+    try {
+      const preview = getKnowledgeDocumentPreview();
+      res.json(preview);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message || "Failed to generate preview" });
+    }
+  });
+
+  app.post("/api/admin/convai/knowledge-base/upload", requireAdmin, async (_req, res) => {
+    try {
+      const result = await uploadKnowledgeBase();
+      if (result.success) {
+        res.json({ success: true, documentId: result.documentId, message: "Knowledge base uploaded and attached to agent" });
+      } else {
+        res.status(500).json({ error: result.error || "Failed to upload knowledge base" });
+      }
+    } catch (error: any) {
+      console.error("Error uploading knowledge base:", error);
+      res.status(500).json({ error: error.message || "Failed to upload knowledge base" });
     }
   });
 

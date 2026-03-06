@@ -67,7 +67,20 @@
       "path": "/v1/convai/knowledge-base/documents/create-from-url",
       "body": { "url": "string", "name": "string" },
       "response": { "id": "string", "name": "string" }
+    },
+    "get_kb_document": {
+      "method": "GET",
+      "path": "/v1/convai/knowledge-base/documents/{document_id}",
+      "response": { "id": "string", "name": "string", "status": "string" }
+    },
+    "delete_kb_document": {
+      "method": "DELETE",
+      "path": "/v1/convai/knowledge-base/documents/{document_id}"
     }
+  },
+  "knowledge_base_attachment": {
+    "notes": "To attach a KB document to an agent, PATCH the agent with conversation_config.agent.prompt.knowledge_base array containing objects with { type: 'file', id: '<document_id>', name: '<name>' }",
+    "implementation_file": "server/marcela-knowledge-base.ts"
   },
   "stt_endpoint": {
     "method": "POST",

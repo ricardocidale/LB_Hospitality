@@ -37,7 +37,7 @@ import CommandPalette from "@/components/CommandPalette";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import NotificationCenter from "@/components/NotificationCenter";
 import FavoritesSidebar from "@/components/Favorites";
-import GuidedWalkthrough from "@/components/GuidedWalkthrough";
+import GuidedWalkthrough, { useWalkthroughStore } from "@/components/GuidedWalkthrough";
 import AIChatWidget from "@/components/AIChatWidget";
 
 const THEME_CSS_CLASSES: Record<string, string> = {
@@ -49,6 +49,13 @@ type NavLink = { href: string; label: string; icon: any; onClick?: () => void };
 type NavDivider = { type: "divider" };
 type NavGroup = { type: "group"; label: string; icon: any; children: NavLink[] };
 type NavItem = NavLink | NavDivider | NavGroup;
+
+function AIChatWidgetGated() {
+  const { data: global } = useGlobalAssumptions();
+  const { tourActive, promptVisible } = useWalkthroughStore();
+  const enabled = !!(global as any)?.showAiAssistant && !tourActive && !promptVisible;
+  return <AIChatWidget enabled={enabled} />;
+}
 
 export default function Layout({ children, darkMode }: { children: React.ReactNode; darkMode?: boolean }) {
   const [location] = useLocation();
@@ -436,7 +443,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
 
       <CommandPalette />
       <GuidedWalkthrough />
-      <AIChatWidget enabled={!!(global as any)?.showAiAssistant} />
+      <AIChatWidgetGated />
     </div>
   );
 }

@@ -7,15 +7,19 @@ import { create } from "zustand";
 interface WalkthroughState {
   shownThisSession: boolean;
   tourActive: boolean;
+  promptVisible: boolean;
   setShownThisSession: (v: boolean) => void;
   setTourActive: (v: boolean) => void;
+  setPromptVisible: (v: boolean) => void;
 }
 
 export const useWalkthroughStore = create<WalkthroughState>()((set) => ({
   shownThisSession: false,
   tourActive: false,
+  promptVisible: false,
   setShownThisSession: (v: boolean) => set({ shownThisSession: v }),
   setTourActive: (v: boolean) => set({ tourActive: v }),
+  setPromptVisible: (v: boolean) => set({ promptVisible: v }),
 }));
 
 async function updateTourPromptPreference(hide: boolean): Promise<void> {
@@ -101,14 +105,19 @@ function TourPromptDialog({ onAccept, onDecline }: { onAccept: () => void; onDec
 }
 
 function GuidedWalkthrough() {
-  const { shownThisSession, tourActive, setShownThisSession, setTourActive } = useWalkthroughStore();
+  const { shownThisSession, tourActive, setShownThisSession, setTourActive, setPromptVisible } = useWalkthroughStore();
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const tourSteps = getTourSteps(user?.firstName);
-  const [showPrompt, setShowPrompt] = useState(false);
+  const [showPrompt, setShowPromptLocal] = useState(false);
   const [step, setStep] = useState(0);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
   const hasAutoStarted = useRef(false);
+
+  const setShowPrompt = useCallback((v: boolean) => {
+    setShowPromptLocal(v);
+    setPromptVisible(v);
+  }, [setPromptVisible]);
 
   useEffect(() => {
     if (user && !user.hideTourPrompt && !shownThisSession && !hasAutoStarted.current) {
@@ -119,13 +128,13 @@ function GuidedWalkthrough() {
       }, 800);
       return () => clearTimeout(timer);
     }
-  }, [user, shownThisSession, setShownThisSession]);
+  }, [user, shownThisSession, setShownThisSession, setShowPrompt]);
 
   const handleAcceptTour = useCallback(() => {
     setShowPrompt(false);
     setTourActive(true);
     setStep(0);
-  }, [setTourActive]);
+  }, [setTourActive, setShowPrompt]);
 
   const handleDeclineTour = useCallback(async (neverAgain: boolean) => {
     setShowPrompt(false);
@@ -133,7 +142,7 @@ function GuidedWalkthrough() {
       await updateTourPromptPreference(true);
       queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
     }
-  }, [queryClient]);
+  }, [queryClient, setShowPrompt]);
 
   const updateRect = useCallback(() => {
     if (!tourActive) return;

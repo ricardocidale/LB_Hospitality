@@ -352,11 +352,49 @@ function formatDisplay(field: string, low: number, high: number): string {
   return `${low}%–${high}%`;
 }
 
+const FIELD_SOURCES: Record<string, string> = {
+  adr: "STR/CBRE market data",
+  occupancy: "STR/CBRE market data",
+  startOccupancy: "STR ramp-up benchmarks",
+  rampMonths: "STR ramp-up benchmarks",
+  capRate: "CBRE Cap Rate Survey",
+  catering: "USALI F&B benchmarks",
+  landValue: "Assessor/market comps",
+  costHousekeeping: "USALI departmental",
+  costFB: "USALI departmental",
+  costAdmin: "USALI undistributed",
+  costPropertyOps: "USALI undistributed",
+  costUtilities: "USALI undistributed",
+  costFFE: "USALI reserves",
+  costMarketing: "USALI undistributed",
+  costIT: "HFTP Technology Survey",
+  costOther: "USALI undistributed",
+  costInsurance: "AICPA/industry data",
+  costPropertyTaxes: "Local assessor data",
+  svcFeeMarketing: "HVS Mgmt Agreement Study",
+  svcFeeIT: "HVS Mgmt Agreement Study",
+  svcFeeAccounting: "HVS Mgmt Agreement Study",
+  svcFeeReservations: "HVS Mgmt Agreement Study",
+  svcFeeGeneralMgmt: "HVS Mgmt Agreement Study",
+  incentiveFee: "HVS Mgmt Agreement Study",
+  incomeTax: "IRS/jurisdiction rates",
+  saleCommission: "NAR transaction data",
+  acqLtv: "CBRE lending benchmarks",
+  acqRate: "CBRE lending benchmarks",
+  refiLtv: "CBRE lending benchmarks",
+  adrGrowth: "STR historical trends",
+  occupancyStep: "STR ramp-up benchmarks",
+  revShareEvents: "USALI F&B benchmarks",
+  revShareFB: "USALI F&B benchmarks",
+  revShareOther: "USALI departmental",
+};
+
 function buildEntry(field: string, triple: [number, number, number]): ResearchValueEntry {
   return {
     display: formatDisplay(field, triple[0], triple[2]),
     mid: triple[1],
     source: "seed",
+    sourceName: FIELD_SOURCES[field],
   };
 }
 

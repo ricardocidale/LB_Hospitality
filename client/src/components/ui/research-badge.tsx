@@ -21,8 +21,17 @@ import {
 
 export type BadgeSourceType = "market" | "industry" | "ai" | "seed";
 
+interface ResearchEntry {
+  display: string;
+  mid: number;
+  source?: string;
+  sourceName?: string;
+  sourceDate?: string;
+}
+
 export interface ResearchBadgeProps {
-  value: string | null | undefined;
+  value?: string | null | undefined;
+  entry?: ResearchEntry | null | undefined;
   onClick?: () => void;
   sourceType?: BadgeSourceType;
   sourceName?: string;
@@ -77,8 +86,19 @@ function formatTooltip(sourceType: BadgeSourceType, sourceName?: string, sourceD
   return "Click to apply research-recommended value";
 }
 
+function resolveSourceType(source?: string): BadgeSourceType {
+  if (source === "market") return "market";
+  if (source === "ai") return "ai";
+  if (source === "seed") return "industry";
+  return "seed";
+}
+
 const ResearchBadge = React.forwardRef<HTMLButtonElement, ResearchBadgeProps>(
-  ({ value, onClick, sourceType = "seed", sourceName, sourceDate, variant = "light", className, ...props }, ref) => {
+  ({ value: valueProp, entry, onClick, sourceType: sourceTypeProp, sourceName: sourceNameProp, sourceDate: sourceDateProp, variant = "light", className, ...props }, ref) => {
+    const value = valueProp ?? entry?.display ?? null;
+    const sourceType = sourceTypeProp ?? (entry ? resolveSourceType(entry.source) : "seed");
+    const sourceName = sourceNameProp ?? entry?.sourceName;
+    const sourceDate = sourceDateProp ?? entry?.sourceDate;
     if (!value) return null;
 
     const isDark = variant === "dark";

@@ -21,12 +21,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { Loader2, Plus, Trash2, Users, Building2, Tag, Image, Upload, Star } from "lucide-react";
+import { Loader2, Plus, Trash2, Users, Building2, Tag, Image, Upload } from "lucide-react";
 import defaultLogo from "@/assets/logo.png";
 import { invalidateAllFinancialQueries } from "@/lib/api";
-import type { Logo, User, UserGroup, AssetDesc } from "./types";
+import type { Logo, AssetDesc } from "./types";
 
 interface BrandingTabProps {
   onNavigate?: (tab: string) => void;
@@ -55,38 +54,11 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
     },
   });
 
-  const { data: allThemes } = useQuery<Array<{ id: number; name: string; isDefault: boolean }>>({
-    queryKey: ["admin", "all-themes"],
-    queryFn: async () => {
-      const res = await fetch("/api/design-themes", { credentials: "include" });
-      if (!res.ok) throw new Error("Failed to fetch themes");
-      return res.json();
-    },
-  });
-
   const { data: assetDescriptions } = useQuery<AssetDesc[]>({
     queryKey: ["admin", "asset-descriptions"],
     queryFn: async () => {
       const res = await fetch("/api/asset-descriptions", { credentials: "include" });
       if (!res.ok) throw new Error("Failed to fetch asset descriptions");
-      return res.json();
-    },
-  });
-
-  const { data: userGroupsList } = useQuery<UserGroup[]>({
-    queryKey: ["admin", "user-groups"],
-    queryFn: async () => {
-      const res = await fetch("/api/user-groups", { credentials: "include" });
-      if (!res.ok) throw new Error("Failed to fetch user groups");
-      return res.json();
-    },
-  });
-
-  const { data: users } = useQuery<User[]>({
-    queryKey: ["admin", "users"],
-    queryFn: async () => {
-      const res = await fetch("/api/admin/users", { credentials: "include" });
-      if (!res.ok) throw new Error("Failed to fetch users");
       return res.json();
     },
   });
@@ -266,93 +238,34 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
         </CardContent>
       </Card>
 
-      <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="font-display flex items-center gap-2"><Image className="w-5 h-5 text-primary" /> Logo Portfolio</CardTitle>
-              <CardDescription className="label-text">Manage logos available for user assignment</CardDescription>
-            </div>
-            <Button variant="outline" onClick={() => onNavigate?.("logos")} className="flex items-center gap-2" data-testid="button-go-to-logos">
-              <Upload className="w-4 h-4" /> Manage Logos
-            </Button>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <button
+          onClick={() => onNavigate?.("logos")}
+          className="group bg-white/60 backdrop-blur-sm border border-primary/15 rounded-xl p-4 flex items-center gap-4 hover:border-primary/30 hover:bg-primary/[0.03] transition-all duration-200 text-left cursor-pointer"
+          data-testid="button-go-to-logos"
+        >
+          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/15 transition-colors">
+            <Upload className="w-5 h-5 text-primary" />
           </div>
-        </CardHeader>
-        <CardContent className="relative">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {adminLogos?.map(logo => (
-              <div key={logo.id} className="relative bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-center gap-4" data-testid={`logo-card-${logo.id}`}>
-                <div className="w-16 h-16 rounded-lg bg-primary/10 flex items-center justify-center overflow-hidden border border-primary/20">
-                  <img src={logo.url} alt={logo.name} className="max-w-full max-h-full object-contain" onError={(e) => { (e.target as HTMLImageElement).src = defaultLogo; }} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-foreground font-medium truncate">{logo.name}</p>
-                  {logo.isDefault && <span className="text-xs text-amber-600 font-mono flex items-center gap-1"><Star className="w-3 h-3 fill-amber-500" /> DEFAULT</span>}
-                </div>
-              </div>
-            ))}
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-gray-800">Logo Portfolio</p>
+            <p className="text-xs text-gray-500 mt-0.5">{adminLogos?.length || 0} logos available — manage in Logos section</p>
           </div>
-        </CardContent>
-      </Card>
-
-      <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
-        <CardHeader>
-          <CardTitle className="font-display flex items-center gap-2"><Users className="w-5 h-5 text-primary" /> User Branding</CardTitle>
-          <CardDescription className="label-text">Branding is managed at the User Group level. Assign users to groups in the User Groups tab to control their branding experience.</CardDescription>
-        </CardHeader>
-        <CardContent className="relative">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-primary/20 hover:bg-transparent">
-                <TableHead className="text-muted-foreground">User</TableHead>
-                <TableHead className="text-muted-foreground">Role</TableHead>
-                <TableHead className="text-muted-foreground">Group</TableHead>
-                <TableHead className="text-muted-foreground">Effective Logo</TableHead>
-                <TableHead className="text-muted-foreground">Effective Theme</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {users?.map(user => {
-                const group = userGroupsList?.find((g: UserGroup) => g.id === user.userGroupId);
-                const groupLogo = group?.logoId ? adminLogos?.find(l => l.id === group.logoId) : null;
-                const groupTheme = group?.themeId ? allThemes?.find(t => t.id === group.themeId) : null;
-                return (
-                  <TableRow key={user.id} className="border-primary/20 hover:bg-primary/5" data-testid={`branding-row-${user.id}`}>
-                    <TableCell className="text-foreground">
-                      <div>
-                        <span className="font-medium">{user.name || user.email}</span>
-                        {user.name && <span className="text-muted-foreground text-xs ml-2">{user.email}</span>}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <span className={`text-xs px-2 py-0.5 rounded font-mono ${
-                        user.role === "admin" ? "bg-primary/20 text-primary" :
-                        user.role === "checker" ? "bg-blue-500/20 text-blue-400" :
-                        user.role === "investor" ? "bg-amber-500/20 text-amber-400" :
-                        "bg-primary/10 text-muted-foreground"
-                      }`}>{user.role}</span>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {group ? <span className="text-sm font-medium">{group.name}</span> : <span className="text-muted-foreground text-sm italic">No group</span>}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {groupLogo ? (
-                        <div className="flex items-center gap-2">
-                          <img src={groupLogo.url} alt={groupLogo.name} className="w-6 h-6 rounded object-contain bg-primary/10" />
-                          <span className="text-sm">{groupLogo.name}</span>
-                        </div>
-                      ) : <span className="text-muted-foreground text-sm">Default</span>}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {groupTheme ? <span className="text-sm">{groupTheme.name}</span> : <span className="text-muted-foreground text-sm">Default</span>}
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+        </button>
+        <button
+          onClick={() => onNavigate?.("groups")}
+          className="group bg-white/60 backdrop-blur-sm border border-primary/15 rounded-xl p-4 flex items-center gap-4 hover:border-primary/30 hover:bg-primary/[0.03] transition-all duration-200 text-left cursor-pointer"
+          data-testid="button-go-to-groups"
+        >
+          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/15 transition-colors">
+            <Users className="w-5 h-5 text-primary" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-gray-800">User Branding</p>
+            <p className="text-xs text-gray-500 mt-0.5">Assign logos and themes per group in Groups section</p>
+          </div>
+        </button>
+      </div>
     </div>
   );
 }

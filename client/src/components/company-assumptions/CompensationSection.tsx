@@ -45,7 +45,7 @@ export default function CompensationSection({ formData, onChange, global, resear
             <Label className="flex items-center text-gray-700 label-text">
               Staff Salary (Avg)
               <HelpTooltip text="Average annual salary per staff FTE. Staffing scales based on the tiers configured below." />
-              <ResearchBadge value={researchValues.staffSalary?.display} onClick={() => researchValues.staffSalary && onChange("staffSalary", researchValues.staffSalary.mid)} data-testid="badge-staff-salary" />
+              <ResearchBadge value={researchValues.staffSalary?.display} onClick={() => researchValues.staffSalary && onChange("staffSalary", researchValues.staffSalary.mid)} sourceType="industry" sourceName="AHLA Lodging Industry Survey" data-testid="badge-staff-salary" />
             </Label>
             <EditableValue
               value={formData.staffSalary ?? global.staffSalary}

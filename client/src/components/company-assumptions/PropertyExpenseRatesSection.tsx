@@ -45,7 +45,7 @@ export default function PropertyExpenseRatesSection({ formData, onChange, global
             <Label className="flex items-center text-gray-700 label-text">
               Event Expense Rate (% of Event Revenue)
               <HelpTooltip text="Operating costs for events as a percentage of event revenue (labor, setup, coordination)" />
-              <ResearchBadge value={researchValues.eventExpense?.display} onClick={() => researchValues.eventExpense && onChange("eventExpenseRate", researchValues.eventExpense.mid / 100)} data-testid="badge-event-expense" />
+              <ResearchBadge value={researchValues.eventExpense?.display} onClick={() => researchValues.eventExpense && onChange("eventExpenseRate", researchValues.eventExpense.mid / 100)} sourceType="industry" sourceName="USALI benchmarks" data-testid="badge-event-expense" />
             </Label>
             <EditableValue
               value={formData.eventExpenseRate ?? global.eventExpenseRate ?? DEFAULT_EVENT_EXPENSE_RATE}
@@ -70,7 +70,7 @@ export default function PropertyExpenseRatesSection({ formData, onChange, global
             <Label className="flex items-center text-gray-700 label-text">
               Other Revenue Expense Rate (% of Other Revenue)
               <HelpTooltip text="Operating costs for other revenue (spa, parking, retail) as a percentage of that department's revenue" />
-              <ResearchBadge value={researchValues.otherExpenseRate?.display} onClick={() => researchValues.otherExpenseRate && onChange("otherExpenseRate", researchValues.otherExpenseRate.mid / 100)} data-testid="badge-other-expense" />
+              <ResearchBadge value={researchValues.otherExpenseRate?.display} onClick={() => researchValues.otherExpenseRate && onChange("otherExpenseRate", researchValues.otherExpenseRate.mid / 100)} sourceType="industry" sourceName="USALI benchmarks" data-testid="badge-other-expense" />
             </Label>
             <EditableValue
               value={formData.otherExpenseRate ?? global.otherExpenseRate ?? DEFAULT_OTHER_EXPENSE_RATE}
@@ -95,7 +95,7 @@ export default function PropertyExpenseRatesSection({ formData, onChange, global
             <Label className="flex items-center text-gray-700 label-text">
               Utilities Variable Split (% Variable vs Fixed)
               <HelpTooltip text="How much of the utilities expense rate scales with current property revenue (variable) vs stays anchored to Year 1 base revenue (fixed). Example: 60% means 60% of utilities cost varies with occupancy, 40% is fixed overhead." />
-              <ResearchBadge value={researchValues.utilitiesVariableSplit?.display} onClick={() => researchValues.utilitiesVariableSplit && onChange("utilitiesVariableSplit", researchValues.utilitiesVariableSplit.mid / 100)} data-testid="badge-utilities-split" />
+              <ResearchBadge value={researchValues.utilitiesVariableSplit?.display} onClick={() => researchValues.utilitiesVariableSplit && onChange("utilitiesVariableSplit", researchValues.utilitiesVariableSplit.mid / 100)} sourceType="industry" sourceName="USALI benchmarks" data-testid="badge-utilities-split" />
             </Label>
             <EditableValue
               value={formData.utilitiesVariableSplit ?? global.utilitiesVariableSplit ?? DEFAULT_UTILITIES_VARIABLE_SPLIT}

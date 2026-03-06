@@ -24,6 +24,10 @@ interface NavGroup {
   label: string;
   icon: React.ComponentType<{ className?: string }>;
   description: string;
+  accent: string;
+  accentBg: string;
+  accentBorder: string;
+  accentText: string;
   sections: SectionItem[];
 }
 
@@ -33,6 +37,10 @@ const navGroups: NavGroup[] = [
     label: "People",
     icon: Users,
     description: "Users, groups & activity",
+    accent: "from-emerald-500/20 to-teal-500/10",
+    accentBg: "bg-emerald-500/10",
+    accentBorder: "border-emerald-500/25",
+    accentText: "text-emerald-700",
     sections: [
       { value: "users", label: "Users", icon: UserRoundCog },
       { value: "groups", label: "Groups", icon: Users },
@@ -44,6 +52,10 @@ const navGroups: NavGroup[] = [
     label: "Platform",
     icon: SwatchBook,
     description: "Look, feel & navigation",
+    accent: "from-violet-500/20 to-purple-500/10",
+    accentBg: "bg-violet-500/10",
+    accentBorder: "border-violet-500/25",
+    accentText: "text-violet-700",
     sections: [
       { value: "branding", label: "Branding", icon: Image },
       { value: "themes", label: "Themes", icon: SwatchBook },
@@ -56,6 +68,10 @@ const navGroups: NavGroup[] = [
     label: "Business",
     icon: Building2,
     description: "Entities, services & rates",
+    accent: "from-amber-500/20 to-orange-500/10",
+    accentBg: "bg-amber-500/10",
+    accentBorder: "border-amber-500/25",
+    accentText: "text-amber-700",
     sections: [
       { value: "companies", label: "Companies", icon: Building2 },
       { value: "services", label: "Services", icon: Package },
@@ -67,6 +83,10 @@ const navGroups: NavGroup[] = [
     label: "AI Agent",
     icon: Bot,
     description: "Marcela configuration",
+    accent: "from-blue-500/20 to-cyan-500/10",
+    accentBg: "bg-blue-500/10",
+    accentBorder: "border-blue-500/25",
+    accentText: "text-blue-700",
     sections: [
       { value: "marcela", label: "Configuration", icon: Bot },
     ],
@@ -76,6 +96,10 @@ const navGroups: NavGroup[] = [
     label: "System",
     icon: Shield,
     description: "Verification & database",
+    accent: "from-slate-500/20 to-gray-500/10",
+    accentBg: "bg-slate-500/10",
+    accentBorder: "border-slate-500/25",
+    accentText: "text-slate-700",
     sections: [
       { value: "verification", label: "Verification", icon: FileCheck },
       { value: "database", label: "Database", icon: Database },
@@ -100,7 +124,7 @@ export default function AdminSidebar({ activeSection, onSectionChange }: AdminSi
   const activeGroup = getGroupForSection(activeSection);
 
   const sidebarContent = (
-    <nav className="flex flex-col gap-2.5 py-3 px-3">
+    <nav className="flex flex-col gap-3 py-4 px-3">
       {navGroups.map((group) => {
         const isGroupActive = group.id === activeGroup;
         const GroupIcon = group.icon;
@@ -109,41 +133,41 @@ export default function AdminSidebar({ activeSection, onSectionChange }: AdminSi
           <div
             key={group.id}
             className={cn(
-              "rounded-xl border transition-all duration-300 overflow-hidden",
+              "rounded-2xl border transition-all duration-300 overflow-hidden",
               isGroupActive
-                ? "border-primary/20 bg-gradient-to-b from-primary/[0.04] to-primary/[0.02] shadow-[0_2px_12px_rgba(159,188,164,0.1)]"
-                : "border-gray-100 bg-white/60 hover:border-gray-200 hover:bg-white/80"
+                ? cn("shadow-[0_4px_20px_rgba(0,0,0,0.08)]", group.accentBorder, "bg-white")
+                : "border-[#e8e4df] bg-[#faf8f5]/60 hover:bg-[#faf8f5]"
             )}
           >
             <div
               className={cn(
-                "flex items-center gap-2.5 px-3 py-2.5 border-b transition-colors",
+                "flex items-center gap-2.5 px-3.5 py-2.5 transition-all duration-300",
                 isGroupActive
-                  ? "border-primary/10 bg-primary/[0.06]"
-                  : "border-transparent"
+                  ? cn("bg-gradient-to-r", group.accent)
+                  : "bg-transparent"
               )}
             >
               <div
                 className={cn(
-                  "w-6 h-6 rounded-md flex items-center justify-center shrink-0 transition-all duration-200",
+                  "w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-all duration-300",
                   isGroupActive
-                    ? "bg-primary/15 text-primary"
-                    : "bg-gray-100 text-gray-400"
+                    ? cn(group.accentBg, group.accentText)
+                    : "bg-[#e8e4df] text-[#9a9590]"
                 )}
               >
-                <GroupIcon className="w-3 h-3" />
+                <GroupIcon className="w-3.5 h-3.5" />
               </div>
               <span
                 className={cn(
-                  "text-[10.5px] font-bold uppercase tracking-[0.1em] transition-colors",
-                  isGroupActive ? "text-primary" : "text-gray-400"
+                  "text-[10.5px] font-extrabold uppercase tracking-[0.12em] transition-colors",
+                  isGroupActive ? group.accentText : "text-[#9a9590]"
                 )}
               >
                 {group.label}
               </span>
             </div>
 
-            <div className="px-1.5 py-1.5 space-y-0.5">
+            <div className="px-2 py-1.5 space-y-0.5">
               {group.sections.map((section) => {
                 const isActive = activeSection === section.value;
                 const Icon = section.icon;
@@ -156,27 +180,24 @@ export default function AdminSidebar({ activeSection, onSectionChange }: AdminSi
                     }}
                     data-testid={`admin-nav-${section.value}`}
                     className={cn(
-                      "relative w-full flex items-center gap-2.5 px-2.5 py-[7px] rounded-lg text-left transition-all duration-200 group/item cursor-pointer",
+                      "relative w-full flex items-center gap-2.5 px-3 py-[8px] rounded-xl text-left transition-all duration-200 group/item cursor-pointer",
                       isActive
-                        ? "bg-primary/12 text-primary"
-                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                        ? "bg-[#2d4a5e] text-white shadow-[0_2px_10px_rgba(45,74,94,0.25)]"
+                        : "text-[#5a5550] hover:bg-[#f0ece8] hover:text-[#3a3530]"
                     )}
                   >
-                    {isActive && (
-                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 bg-primary rounded-r-full" />
-                    )}
                     <Icon
                       className={cn(
                         "w-[15px] h-[15px] shrink-0 transition-colors",
                         isActive
-                          ? "text-primary"
-                          : "text-gray-400 group-hover/item:text-gray-600"
+                          ? "text-white/80"
+                          : "text-[#a09a95] group-hover/item:text-[#6a6560]"
                       )}
                     />
                     <span
                       className={cn(
                         "text-[13px] transition-colors truncate",
-                        isActive ? "text-primary font-semibold" : "font-medium"
+                        isActive ? "font-semibold" : "font-medium"
                       )}
                     >
                       {section.label}
@@ -195,7 +216,7 @@ export default function AdminSidebar({ activeSection, onSectionChange }: AdminSi
     <>
       <button
         onClick={() => setMobileOpen(!mobileOpen)}
-        className="lg:hidden fixed bottom-4 right-4 z-50 w-12 h-12 rounded-2xl bg-primary text-white shadow-lg shadow-primary/25 flex items-center justify-center"
+        className="lg:hidden fixed bottom-4 right-4 z-50 w-12 h-12 rounded-2xl bg-[#2d4a5e] text-white shadow-lg shadow-[#2d4a5e]/30 flex items-center justify-center"
         data-testid="admin-mobile-menu-toggle"
       >
         {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -203,7 +224,7 @@ export default function AdminSidebar({ activeSection, onSectionChange }: AdminSi
 
       {mobileOpen && (
         <div
-          className="lg:hidden fixed inset-0 z-40 bg-black/20 backdrop-blur-sm"
+          className="lg:hidden fixed inset-0 z-40 bg-black/30 backdrop-blur-sm"
           onClick={() => setMobileOpen(false)}
         />
       )}
@@ -217,15 +238,15 @@ export default function AdminSidebar({ activeSection, onSectionChange }: AdminSi
           mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
       >
-        <div className="h-full lg:h-auto bg-white/80 backdrop-blur-2xl border border-primary/10 rounded-none lg:rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.06)] lg:shadow-[0_8px_32px_rgba(159,188,164,0.1)] overflow-hidden">
-          <div className="px-5 pt-5 pb-3 border-b border-gray-100">
+        <div className="h-full lg:h-auto bg-gradient-to-b from-[#f5f1ec] to-[#ece7e1] backdrop-blur-2xl border border-[#ddd7d0] rounded-none lg:rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.08)] overflow-hidden">
+          <div className="px-4 pt-4 pb-3 border-b border-[#ddd7d0]/80">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#2d4a5e] to-[#3a5a5e] flex items-center justify-center shadow-md">
-                <Settings className="w-4 h-4 text-white" />
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#2d4a5e] to-[#3a5a5e] flex items-center justify-center shadow-md shadow-[#2d4a5e]/20">
+                <Settings className="w-[18px] h-[18px] text-white/90" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-gray-900 font-display">Admin</h3>
-                <p className="text-[11px] text-gray-400">Settings & Configuration</p>
+                <h3 className="text-[14px] font-bold text-[#2a2520] font-display">Admin</h3>
+                <p className="text-[11px] text-[#8a8480] font-medium">Settings & Configuration</p>
               </div>
             </div>
           </div>

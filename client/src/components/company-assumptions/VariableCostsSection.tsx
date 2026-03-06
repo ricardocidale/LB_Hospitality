@@ -39,7 +39,7 @@ export default function VariableCostsSection({ formData, onChange, global, resea
             <Label className="flex items-center text-gray-700 label-text">
               Travel Cost per Client
               <HelpTooltip text="Annual travel expense budget per managed property" />
-              <ResearchBadge value={researchValues.travelPerClient?.display} onClick={() => researchValues.travelPerClient && onChange("travelCostPerClient", researchValues.travelPerClient.mid)} data-testid="badge-travel-per-client" />
+              <ResearchBadge value={researchValues.travelPerClient?.display} onClick={() => researchValues.travelPerClient && onChange("travelCostPerClient", researchValues.travelPerClient.mid)} sourceType="industry" sourceName="AHLA Lodging Survey" data-testid="badge-travel-per-client" />
             </Label>
             <EditableValue
               value={formData.travelCostPerClient ?? global.travelCostPerClient}
@@ -64,7 +64,7 @@ export default function VariableCostsSection({ formData, onChange, global, resea
             <Label className="flex items-center text-gray-700 label-text">
               IT/Licensing per Client
               <HelpTooltip text="PMS, revenue management, and software licenses per B&B property" />
-              <ResearchBadge value={researchValues.itLicensePerClient?.display} onClick={() => researchValues.itLicensePerClient && onChange("itLicensePerClient", researchValues.itLicensePerClient.mid)} data-testid="badge-it-license" />
+              <ResearchBadge value={researchValues.itLicensePerClient?.display} onClick={() => researchValues.itLicensePerClient && onChange("itLicensePerClient", researchValues.itLicensePerClient.mid)} sourceType="industry" sourceName="HFTP Technology Survey" data-testid="badge-it-license" />
             </Label>
             <EditableValue
               value={formData.itLicensePerClient ?? global.itLicensePerClient}
@@ -89,7 +89,7 @@ export default function VariableCostsSection({ formData, onChange, global, resea
             <Label className="flex items-center text-gray-700 label-text">
               Marketing (% of Mgmt Fee Revenue)
               <HelpTooltip text="Corporate marketing spend as a percentage of total management fee revenue (base + incentive fees collected from properties)" />
-              <ResearchBadge value={researchValues.marketingRate?.display} onClick={() => researchValues.marketingRate && onChange("marketingRate", researchValues.marketingRate.mid / 100)} data-testid="badge-marketing-rate" />
+              <ResearchBadge value={researchValues.marketingRate?.display} onClick={() => researchValues.marketingRate && onChange("marketingRate", researchValues.marketingRate.mid / 100)} sourceType="industry" sourceName="AHLA industry benchmarks" data-testid="badge-marketing-rate" />
             </Label>
             <EditableValue
               value={formData.marketingRate ?? global.marketingRate}
@@ -114,7 +114,7 @@ export default function VariableCostsSection({ formData, onChange, global, resea
             <Label className="flex items-center text-gray-700 label-text">
               Misc Operations (% of Mgmt Fee Revenue)
               <HelpTooltip text="General operating expenses as a percentage of total management fee revenue (base + incentive fees collected from properties)" />
-              <ResearchBadge value={researchValues.miscOpsRate?.display} onClick={() => researchValues.miscOpsRate && onChange("miscOpsRate", researchValues.miscOpsRate.mid / 100)} data-testid="badge-misc-ops" />
+              <ResearchBadge value={researchValues.miscOpsRate?.display} onClick={() => researchValues.miscOpsRate && onChange("miscOpsRate", researchValues.miscOpsRate.mid / 100)} sourceType="industry" sourceName="AHLA industry benchmarks" data-testid="badge-misc-ops" />
             </Label>
             <EditableValue
               value={formData.miscOpsRate ?? global.miscOpsRate}

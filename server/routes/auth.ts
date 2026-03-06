@@ -257,6 +257,21 @@ export function register(app: Express) {
     }
   });
 
+  app.patch("/api/profile/tour-prompt", requireAuth, async (req, res) => {
+    try {
+      const schema = z.object({ hide: z.boolean() });
+      const validation = schema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: fromZodError(validation.error).message });
+      }
+      await storage.updateUserHideTourPrompt(req.user!.id, validation.data.hide);
+      res.json({ hideTourPrompt: validation.data.hide });
+    } catch (error) {
+      console.error("Error updating tour prompt preference:", error);
+      res.status(500).json({ error: "Failed to update preference" });
+    }
+  });
+
   app.patch("/api/profile/theme", requireAuth, async (req, res) => {
     try {
       const schema = z.object({ themeId: z.number().nullable() });

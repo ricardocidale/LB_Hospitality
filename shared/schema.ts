@@ -192,6 +192,7 @@ export const users = pgTable("users", {
   userGroupId: integer("user_group_id"),
   selectedThemeId: integer("selected_theme_id"),
   phoneNumber: text("phone_number"),
+  hideTourPrompt: boolean("hide_tour_prompt").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

@@ -74,6 +74,10 @@ export class UserStorage {
     return user;
   }
 
+  async updateUserHideTourPrompt(id: number, hide: boolean): Promise<void> {
+    await db.update(users).set({ hideTourPrompt: hide, updatedAt: new Date() }).where(eq(users.id, id));
+  }
+
   /** Change a user's role (admin, partner, checker, investor). Admin-only operation. */
   async updateUserRole(id: number, role: string): Promise<void> {
     await db.update(users).set({ role, updatedAt: new Date() }).where(eq(users.id, id));

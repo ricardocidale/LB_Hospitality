@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import Layout from "@/components/Layout";
 import { PageHeader } from "@/components/ui/page-header";
 import { Tabs, TabsContent, CurrentThemeTab } from "@/components/ui/tabs";
 import { ClipboardCheck, FileText, HelpCircle, PlayCircle } from "lucide-react";
 import { useAuth } from "@/lib/auth";
+import { useQueryClient } from "@tanstack/react-query";
 import CheckerManual from "./CheckerManual";
 import UserManual from "./user-manual";
 import { useWalkthroughStore } from "@/components/GuidedWalkthrough";
@@ -16,7 +17,20 @@ export default function Help() {
   const { user, isAdmin, isChecker: authIsChecker } = useAuth();
   const isChecker = isAdmin || authIsChecker;
   const [tab, setTab] = useState<HelpTab>("user-manual");
-  const { setCompleted: resetWalkthrough, setDismissed: resetDismissed } = useWalkthroughStore();
+  const { setTourActive, setShownThisSession } = useWalkthroughStore();
+  const queryClient = useQueryClient();
+
+  const handleStartTour = useCallback(async () => {
+    await fetch("/api/profile/tour-prompt", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ hide: false }),
+      credentials: "include",
+    });
+    queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
+    setShownThisSession(false);
+    setTourActive(true);
+  }, [queryClient, setShownThisSession, setTourActive]);
 
   const tabs = [
     { value: "user-manual" as const, label: "User Manual", icon: FileText },
@@ -62,7 +76,7 @@ export default function Help() {
                 </div>
                 <GlassButton
                   variant="primary"
-                  onClick={() => { resetWalkthrough(false); resetDismissed(false); }}
+                  onClick={handleStartTour}
                   data-testid="button-start-guided-tour"
                 >
                   <PlayCircle className="w-4 h-4" />

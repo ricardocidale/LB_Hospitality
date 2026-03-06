@@ -35,6 +35,7 @@ export class DatabaseStorage implements IStorage {
   updateUserPassword = this.users.updateUserPassword.bind(this.users);
   updateUserProfile = this.users.updateUserProfile.bind(this.users);
   updateUserSelectedTheme = this.users.updateUserSelectedTheme.bind(this.users);
+  updateUserHideTourPrompt = this.users.updateUserHideTourPrompt.bind(this.users);
   updateUserRole = this.users.updateUserRole.bind(this.users);
 
   // Sessions

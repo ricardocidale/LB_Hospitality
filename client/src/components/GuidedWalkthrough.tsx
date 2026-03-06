@@ -1,35 +1,31 @@
-/**
- * GuidedWalkthrough.tsx — First-time user onboarding walkthrough.
- *
- * On first visit (or after reset), shows a welcome dialog asking if the user
- * wants a guided tour. Includes a "Do not offer this again" checkbox.
- * If the user accepts, a multi-step spotlight overlay walks them through
- * the platform. Completion/dismissal state is persisted via Zustand + localStorage.
- */
 import { useState, useEffect, useCallback, useRef } from "react";
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
 import { X, ChevronRight, ChevronLeft, HelpCircle, MapPin } from "lucide-react";
 import { useAuth } from "@/lib/auth";
+import { useQueryClient } from "@tanstack/react-query";
+import { create } from "zustand";
 
 interface WalkthroughState {
-  completed: boolean;
-  dismissed: boolean;
-  setCompleted: (v: boolean) => void;
-  setDismissed: (v: boolean) => void;
+  shownThisSession: boolean;
+  tourActive: boolean;
+  setShownThisSession: (v: boolean) => void;
+  setTourActive: (v: boolean) => void;
 }
 
-export const useWalkthroughStore = create<WalkthroughState>()(
-  persist(
-    (set) => ({
-      completed: false,
-      dismissed: false,
-      setCompleted: (v: boolean) => set({ completed: v }),
-      setDismissed: (v: boolean) => set({ dismissed: v }),
-    }),
-    { name: "walkthrough-store" }
-  )
-);
+export const useWalkthroughStore = create<WalkthroughState>()((set) => ({
+  shownThisSession: false,
+  tourActive: false,
+  setShownThisSession: (v: boolean) => set({ shownThisSession: v }),
+  setTourActive: (v: boolean) => set({ tourActive: v }),
+}));
+
+async function updateTourPromptPreference(hide: boolean): Promise<void> {
+  await fetch("/api/profile/tour-prompt", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ hide }),
+    credentials: "include",
+  });
+}
 
 function getTourSteps(firstName?: string | null) {
   const greeting = firstName ? `Welcome, ${firstName}!` : "Welcome to Your Dashboard";
@@ -65,7 +61,7 @@ function TourPromptDialog({ onAccept, onDecline }: { onAccept: () => void; onDec
               {firstName ? `Welcome, ${firstName}!` : "Welcome!"}
             </h2>
             <p className="text-sm text-muted-foreground leading-relaxed max-w-sm">
-              Would you like a quick guided tour of the platform? It only takes a minute and covers navigation, key features, and where to find everything.
+              Would you like a quick guided tour of the Hospitality Business App? It only takes a minute and covers navigation, key features, and where to find everything.
             </p>
           </div>
 
@@ -75,14 +71,14 @@ function TourPromptDialog({ onAccept, onDecline }: { onAccept: () => void; onDec
               className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors"
               data-testid="button-tour-decline"
             >
-              No Thanks
+              No
             </button>
             <button
               onClick={onAccept}
               className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-xl transition-colors shadow-md shadow-green-600/20"
               data-testid="button-tour-accept"
             >
-              Take the Tour
+              Yes
             </button>
           </div>
 
@@ -95,7 +91,7 @@ function TourPromptDialog({ onAccept, onDecline }: { onAccept: () => void; onDec
               data-testid="checkbox-dont-offer-again"
             />
             <span className="text-xs text-gray-400 group-hover:text-gray-500 transition-colors select-none">
-              Do not offer this again
+              Do not show this message in the future
             </span>
           </label>
         </div>
@@ -105,41 +101,42 @@ function TourPromptDialog({ onAccept, onDecline }: { onAccept: () => void; onDec
 }
 
 function GuidedWalkthrough() {
-  const { completed, dismissed, setCompleted, setDismissed } = useWalkthroughStore();
+  const { shownThisSession, tourActive, setShownThisSession, setTourActive } = useWalkthroughStore();
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const tourSteps = getTourSteps(user?.firstName);
   const [showPrompt, setShowPrompt] = useState(false);
-  const [active, setActive] = useState(false);
   const [step, setStep] = useState(0);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
   const hasAutoStarted = useRef(false);
 
   useEffect(() => {
-    if (!completed && !dismissed && !hasAutoStarted.current) {
+    if (user && !user.hideTourPrompt && !shownThisSession && !hasAutoStarted.current) {
       hasAutoStarted.current = true;
       const timer = setTimeout(() => {
         setShowPrompt(true);
+        setShownThisSession(true);
       }, 800);
       return () => clearTimeout(timer);
     }
-  }, [completed, dismissed]);
+  }, [user, shownThisSession, setShownThisSession]);
 
   const handleAcceptTour = useCallback(() => {
     setShowPrompt(false);
-    setActive(true);
+    setTourActive(true);
     setStep(0);
-  }, []);
+  }, [setTourActive]);
 
-  const handleDeclineTour = useCallback((neverAgain: boolean) => {
+  const handleDeclineTour = useCallback(async (neverAgain: boolean) => {
     setShowPrompt(false);
-    setCompleted(true);
     if (neverAgain) {
-      setDismissed(true);
+      await updateTourPromptPreference(true);
+      queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
     }
-  }, [setCompleted, setDismissed]);
+  }, [queryClient]);
 
   const updateRect = useCallback(() => {
-    if (!active) return;
+    if (!tourActive) return;
     const current = tourSteps[step];
     const el = document.querySelector(current.target);
     if (el) {
@@ -150,11 +147,10 @@ function GuidedWalkthrough() {
       if (step < tourSteps.length - 1) {
         setStep(step + 1);
       } else {
-        setCompleted(true);
-        setActive(false);
+        setTourActive(false);
       }
     }
-  }, [active, step, setCompleted]);
+  }, [tourActive, step, setTourActive]);
 
   useEffect(() => {
     updateRect();
@@ -170,10 +166,9 @@ function GuidedWalkthrough() {
     if (step < tourSteps.length - 1) {
       setStep(step + 1);
     } else {
-      setCompleted(true);
-      setActive(false);
+      setTourActive(false);
     }
-  }, [step, setCompleted]);
+  }, [step, setTourActive]);
 
   const handleBack = useCallback(() => {
     if (step > 0) {
@@ -182,15 +177,14 @@ function GuidedWalkthrough() {
   }, [step]);
 
   const handleSkip = useCallback(() => {
-    setCompleted(true);
-    setActive(false);
-  }, [setCompleted]);
+    setTourActive(false);
+  }, [setTourActive]);
 
   if (showPrompt) {
     return <TourPromptDialog onAccept={handleAcceptTour} onDecline={handleDeclineTour} />;
   }
 
-  if (!active || !targetRect) return null;
+  if (!tourActive || !targetRect) return null;
 
   const padding = 6;
   const spotlightStyle: React.CSSProperties = {
@@ -290,12 +284,13 @@ function GuidedWalkthrough() {
 }
 
 export function WalkthroughTrigger() {
-  const { setCompleted, setDismissed } = useWalkthroughStore();
+  const { setTourActive, setShownThisSession } = useWalkthroughStore();
 
-  const handleClick = useCallback(() => {
-    setCompleted(false);
-    setDismissed(false);
-  }, [setCompleted, setDismissed]);
+  const handleClick = useCallback(async () => {
+    await updateTourPromptPreference(false);
+    setShownThisSession(false);
+    setTourActive(true);
+  }, [setTourActive, setShownThisSession]);
 
   return (
     <button

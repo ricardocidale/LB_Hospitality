@@ -1,9 +1,21 @@
 import { db } from "../db";
 import { globalAssumptions, designThemes, properties } from "@shared/schema";
-import { isNull, eq, isNotNull } from "drizzle-orm";
+import { isNull, eq, isNotNull, sql } from "drizzle-orm";
+
+async function ensureColumn(table: string, column: string, definition: string): Promise<void> {
+  const check = await db.execute(sql.raw(
+    `SELECT 1 FROM information_schema.columns WHERE table_name='${table}' AND column_name='${column}'`
+  ));
+  if ((check as any).rows?.length === 0 || (Array.isArray(check) && check.length === 0)) {
+    await db.execute(sql.raw(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`));
+    console.log(`[migration] added ${table}.${column}`);
+  }
+}
 
 export async function runProdSync001(): Promise<void> {
   const tag = "[migration] prod-sync-001";
+
+  await ensureColumn("users", "hide_tour_prompt", "boolean NOT NULL DEFAULT false");
 
   const gaRows = await db
     .select({ id: globalAssumptions.id })

@@ -20,7 +20,8 @@ export function userResponse(u: any, extra?: Record<string, any>) {
     company: u.company, 
     companyId: u.companyId, 
     title: u.title, 
-    role: u.role, 
+    role: u.role,
+    hideTourPrompt: u.hideTourPrompt ?? false,
     ...extra 
   };
 }

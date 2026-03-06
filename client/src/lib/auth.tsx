@@ -38,6 +38,7 @@ interface User {
   companyName: string | null;
   title: string | null;
   role: string;
+  hideTourPrompt: boolean;
 }
 
 interface AuthContextType {

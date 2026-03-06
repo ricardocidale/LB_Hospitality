@@ -6,8 +6,8 @@ import { ChevronRight, ChevronDown } from "lucide-react";
 import { formatMoney } from "@/lib/financialEngine";
 import { CalcDetailsProvider } from "@/components/financial-table-rows";
 import { DashboardTabProps } from "./types";
-import { aggregateCashFlowByYear } from "@/lib/cashFlowAggregator";
-import { LoanParams, GlobalLoanParams } from "@/lib/loanCalculations";
+import { aggregateCashFlowByYear } from "@/lib/financial/cashFlowAggregator";
+import { LoanParams, GlobalLoanParams } from "@/lib/financial/loanCalculations";
 import { 
   dashboardExports, 
   generatePortfolioCashFlowData, 

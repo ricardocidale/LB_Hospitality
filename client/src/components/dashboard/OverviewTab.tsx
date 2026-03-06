@@ -5,7 +5,7 @@ import { DashboardTabProps } from "./types";
 import { formatMoney } from "@/lib/financialEngine";
 import { DEFAULT_EXIT_CAP_RATE } from "@/lib/constants";
 import { computeIRR } from "@analytics/returns/irr.js";
-import { propertyEquityInvested } from "@/lib/equityCalculations";
+import { propertyEquityInvested } from "@/lib/financial/equityCalculations";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ExportMenu, pdfAction, csvAction, excelAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
 import { dashboardExports, generatePortfolioCashFlowData, generatePortfolioInvestmentData, exportPortfolioPDF, exportPortfolioCSV } from "./dashboardExports";

@@ -1,6 +1,6 @@
 import * as XLSX from "xlsx";
 import { getFiscalYearForModelYear } from "../../financialEngine";
-import { aggregatePropertyByYear } from "../../yearlyAggregator";
+import { aggregatePropertyByYear } from "../../financial/yearlyAggregator";
 import { YearlyAggregation } from "./types";
 
 /** Trigger a browser download of the given Excel workbook. */

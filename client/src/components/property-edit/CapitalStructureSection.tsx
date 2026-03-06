@@ -40,7 +40,7 @@ import {
   DEFAULT_ACQ_CLOSING_COST_RATE,
   DEFAULT_REFI_CLOSING_COST_RATE,
   DEFAULT_LAND_VALUE_PERCENT
-} from "@/lib/loanCalculations";
+} from "@/lib/financial/loanCalculations";
 import { DEFAULT_REFI_PERIOD_YEARS } from "@/lib/constants";
 import type { PropertyEditSectionProps } from "./types";
 

@@ -27,11 +27,11 @@ import {
   calculateLoanParams,
   getAcquisitionYear,
   YearlyCashFlowResult,
-} from "@/lib/loanCalculations";
+} from "@/lib/financial/loanCalculations";
 import { OPERATING_RESERVE_BUFFER, RESERVE_ROUNDING_INCREMENT } from "@/lib/constants";
-import { aggregateCashFlowByYear } from "@/lib/cashFlowAggregator";
-import { aggregatePropertyByYear } from "@/lib/yearlyAggregator";
-import { computeCashFlowSections } from "@/lib/cashFlowSections";
+import { aggregateCashFlowByYear } from "@/lib/financial/cashFlowAggregator";
+import { aggregatePropertyByYear } from "@/lib/financial/yearlyAggregator";
+import { computeCashFlowSections } from "@/lib/financial/cashFlowSections";
 
 function FormulaDetailRow({ label, values, colCount }: { label: string; values: string[]; colCount: number }) {
   return (

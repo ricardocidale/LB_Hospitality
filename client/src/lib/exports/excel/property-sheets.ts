@@ -9,12 +9,12 @@ import {
   GlobalLoanParams,
   calculateLoanParams,
   getAcquisitionYear,
-} from "../../loanCalculations";
+} from "../../financial/loanCalculations";
 import {
   PROJECTION_YEARS,
 } from "../../constants";
-import { aggregateCashFlowByYear } from "../../cashFlowAggregator";
-import { computeCashFlowSections } from "../../cashFlowSections";
+import { aggregateCashFlowByYear } from "../../financial/cashFlowAggregator";
+import { computeCashFlowSections } from "../../financial/cashFlowSections";
 import {
   applyCurrencyFormat,
   applyHeaderStyle,

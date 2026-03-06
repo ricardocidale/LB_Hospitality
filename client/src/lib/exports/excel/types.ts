@@ -1,3 +1,3 @@
-import { YearlyPropertyFinancials } from "../../yearlyAggregator";
+import { YearlyPropertyFinancials } from "../../financial/yearlyAggregator";
 
 export type YearlyAggregation = YearlyPropertyFinancials & { label: string };

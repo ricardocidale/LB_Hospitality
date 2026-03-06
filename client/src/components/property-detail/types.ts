@@ -21,7 +21,7 @@
  * needed by CashFlowTab.
  */
 import type { RefObject } from "react";
-import type { LoanParams, GlobalLoanParams } from "@/lib/loanCalculations";
+import type { LoanParams, GlobalLoanParams } from "@/lib/financial/loanCalculations";
 
 export interface YearlyChartDataPoint {
   year: string;

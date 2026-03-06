@@ -12,14 +12,14 @@ import {
 import { 
   LoanParams, 
   GlobalLoanParams 
-} from "@/lib/loanCalculations";
-import { aggregateCashFlowByYear } from "@/lib/cashFlowAggregator";
-import { 
-  aggregatePropertyByYear, 
-  YearlyPropertyFinancials 
-} from "@/lib/yearlyAggregator";
+} from "@/lib/financial/loanCalculations";
+import { aggregateCashFlowByYear } from "@/lib/financial/cashFlowAggregator";
+import {
+  aggregatePropertyByYear,
+  YearlyPropertyFinancials
+} from "@/lib/financial/yearlyAggregator";
 import { computeIRR } from "@analytics/returns/irr.js";
-import { propertyEquityInvested, acquisitionYearIndex } from "@/lib/equityCalculations";
+import { propertyEquityInvested, acquisitionYearIndex } from "@/lib/financial/equityCalculations";
 import { DashboardFinancials } from "./types";
 
 /** Adapter: wraps standalone IRR solver to return a plain number (annual rate). */

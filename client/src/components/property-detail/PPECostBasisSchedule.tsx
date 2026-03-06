@@ -26,7 +26,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChevronDown, ChevronRight, Info } from "lucide-react";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { DEPRECIATION_YEARS, DAYS_PER_MONTH, DEFAULT_LAND_VALUE_PERCENT, DEFAULT_REV_SHARE_EVENTS, DEFAULT_REV_SHARE_FB, DEFAULT_REV_SHARE_OTHER, DEFAULT_CATERING_BOOST_PCT } from "@shared/constants";
-import { DEFAULT_LTV } from "@/lib/loanCalculations";
+import { DEFAULT_LTV } from "@/lib/financial/loanCalculations";
 import type { PPECostBasisScheduleProps } from "./types";
 
 export default function PPECostBasisSchedule({ property, global }: PPECostBasisScheduleProps) {

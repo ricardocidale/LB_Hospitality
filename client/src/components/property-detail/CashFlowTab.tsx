@@ -23,7 +23,7 @@
  */
 import { formatMoney } from "@/lib/financialEngine";
 import { YearlyCashFlowStatement } from "@/components/YearlyCashFlowStatement";
-import { DEFAULT_LTV } from "@/lib/loanCalculations";
+import { DEFAULT_LTV } from "@/lib/financial/loanCalculations";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import type { CashFlowTabProps } from "./types";
 

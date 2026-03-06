@@ -3,7 +3,7 @@ import { generatePropertyProForma } from "../../client/src/lib/financialEngine.j
 import {
   aggregatePropertyByYear,
   type YearlyPropertyFinancials,
-} from "../../client/src/lib/yearlyAggregator.js";
+} from "../../client/src/lib/financial/yearlyAggregator.js";
 
 /**
  * Comprehensive tests for aggregatePropertyByYear() — the single source of

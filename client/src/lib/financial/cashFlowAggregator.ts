@@ -9,7 +9,7 @@ import {
   calculateLoanParams,
   getAcquisitionYear,
   YearlyCashFlowResult,
-} from "@/lib/loanCalculations";
+} from "./loanCalculations";
 import { DEFAULT_EXIT_CAP_RATE, DEFAULT_COMMISSION_RATE } from "@/lib/constants";
 
 /**

@@ -6,7 +6,7 @@ import {
   acqMonthsFromModelStart,
   acquisitionYearIndex,
   EquityPropertyInput,
-} from "@/lib/equityCalculations.js";
+} from "@/lib/financial/equityCalculations.js";
 import { DEFAULT_LTV } from "@/lib/constants.js";
 
 // ---------------------------------------------------------------------------

@@ -9,7 +9,7 @@
 
 import { startOfMonth } from "date-fns";
 import { parseLocalDate } from "@shared/dates";
-import { DEFAULT_LTV } from "./constants";
+import { DEFAULT_LTV } from "../constants";
 
 /** Minimal property shape accepted by equity helpers. */
 export interface EquityPropertyInput {

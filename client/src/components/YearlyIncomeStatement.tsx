@@ -35,7 +35,7 @@ import {
   ExpandableLineItem,
   useCalcDetails,
 } from "@/components/financial-table-rows";
-import { aggregatePropertyByYear } from "@/lib/yearlyAggregator";
+import { aggregatePropertyByYear } from "@/lib/financial/yearlyAggregator";
 import { TableRow, TableCell } from "@/components/ui/table";
 import {
   DAYS_PER_MONTH,

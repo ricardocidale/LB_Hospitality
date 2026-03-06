@@ -16,7 +16,7 @@ import { GlobalResponse } from "@/lib/api";
 import {
   PROJECTION_YEARS,
 } from "@/lib/constants";
-import { propertyEquityInvested, acquisitionYearIndex } from "@/lib/equityCalculations";
+import { propertyEquityInvested, acquisitionYearIndex } from "@/lib/financial/equityCalculations";
 import {
   TableShell,
   BalanceSheetSection,

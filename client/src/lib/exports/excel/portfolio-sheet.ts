@@ -4,8 +4,8 @@ import {
   CompanyMonthlyFinancials,
   getFiscalYearForModelYear
 } from "../../financialEngine";
-import { LoanParams } from "../../loanCalculations";
-import { propertyEquityInvested } from "../../equityCalculations";
+import { LoanParams } from "../../financial/loanCalculations";
+import { propertyEquityInvested } from "../../financial/equityCalculations";
 import {
   applyCurrencyFormat,
   applyHeaderStyle,

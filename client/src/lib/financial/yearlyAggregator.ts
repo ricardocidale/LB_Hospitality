@@ -3,7 +3,7 @@
 // Dashboard, PropertyDetail, YearlyIncomeStatement, YearlyCashFlowStatement,
 // and excelExport that each reimplemented the same slice-and-reduce pattern.
 
-import type { MonthlyFinancials } from "./financialEngine";
+import type { MonthlyFinancials } from "../financialEngine";
 
 /** Superset of all yearly fields needed by IS, CF, BS, and export consumers. */
 export interface YearlyPropertyFinancials {

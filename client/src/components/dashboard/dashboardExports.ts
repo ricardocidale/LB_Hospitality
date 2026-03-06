@@ -9,11 +9,11 @@ import { exportTablePNG } from "@/lib/exports/pngExport";
 import { downloadCSV } from "@/lib/exports/csvExport";
 import type { DashboardFinancials } from "./types";
 import type { Property } from "@shared/schema";
-import type { YearlyPropertyFinancials } from "@/lib/yearlyAggregator";
-import type { YearlyCashFlowResult } from "@/lib/loanCalculations";
+import type { YearlyPropertyFinancials } from "@/lib/financial/yearlyAggregator";
+import type { YearlyCashFlowResult } from "@/lib/financial/loanCalculations";
 
 import type { MonthlyFinancials } from "@/lib/financialEngine";
-import { propertyEquityInvested, acquisitionYearIndex } from "@/lib/equityCalculations";
+import { propertyEquityInvested, acquisitionYearIndex } from "@/lib/financial/equityCalculations";
 
 export interface ExportRow {
   category: string;

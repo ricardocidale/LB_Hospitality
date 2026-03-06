@@ -299,7 +299,7 @@ export async function exportFullData(user: ExportUser): Promise<FullDataExportRe
     import("jspdf"),
     import("jspdf-autotable"),
     import("@/lib/financialEngine"),
-    import("@/lib/yearlyAggregator"),
+    import("@/lib/financial/yearlyAggregator"),
   ]);
 
   const [propertiesRes, globalRes] = await Promise.all([

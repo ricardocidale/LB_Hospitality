@@ -12,7 +12,7 @@ import {
   GlobalLoanParams,
   LoanCalculation,
   RefinanceCalculation,
-} from "../../client/src/lib/loanCalculations.js";
+} from "../../client/src/lib/financial/loanCalculations.js";
 import { DEFAULT_LTV, DEFAULT_INTEREST_RATE, DEFAULT_TERM_YEARS, DEFAULT_TAX_RATE } from "../../client/src/lib/constants.js";
 import { pmt } from "../../calc/shared/pmt.js";
 

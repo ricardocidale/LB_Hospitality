@@ -29,9 +29,9 @@ import {
   DEFAULT_TAX_RATE,
   IRR_HIGHLIGHT_THRESHOLD,
 } from "@/lib/constants";
-import { propertyEquityInvested, acquisitionYearIndex } from "@/lib/equityCalculations";
+import { propertyEquityInvested, acquisitionYearIndex } from "@/lib/financial/equityCalculations";
 import { computeIRR } from "@analytics/returns/irr.js";
-import type { aggregateCashFlowByYear } from "@/lib/cashFlowAggregator";
+import type { aggregateCashFlowByYear } from "@/lib/financial/cashFlowAggregator";
 
 /** Adapter: wraps standalone IRR solver to return a plain number (annual rate). */
 function calculateIRR(cashFlows: number[]): number {

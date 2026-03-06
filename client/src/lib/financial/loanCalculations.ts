@@ -114,7 +114,7 @@ import {
   PROJECTION_YEARS,
   PROJECTION_MONTHS,
   DEFAULT_MODEL_START_DATE
-} from './constants';
+} from '../constants';
 
 // Re-export constants for backwards compatibility
 export { 

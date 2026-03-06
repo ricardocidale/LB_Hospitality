@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { generatePropertyProForma, MonthlyFinancials } from "@/lib/financialEngine";
-import { aggregateCashFlowByYear } from "@/lib/cashFlowAggregator";
-import { LoanParams, GlobalLoanParams, YearlyCashFlowResult } from "@/lib/loanCalculations";
+import { aggregateCashFlowByYear } from "@/lib/financial/cashFlowAggregator";
+import { LoanParams, GlobalLoanParams, YearlyCashFlowResult } from "@/lib/financial/loanCalculations";
 import {
   DEFAULT_EXIT_CAP_RATE,
   DEFAULT_COMMISSION_RATE,

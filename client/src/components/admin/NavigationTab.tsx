@@ -66,6 +66,7 @@ export default function NavigationTab() {
     { key: "sidebarExecutiveSummary", label: "Executive Summary", description: "High-level portfolio summary report" },
     { key: "sidebarScenarios", label: "My Scenarios", description: "Saved scenario snapshots per user" },
     { key: "sidebarUserManual", label: "User Manual", description: "Methodology documentation and help" },
+    { key: "sidebarResearch", label: "Research Center", description: "AI-powered market research hub for properties and industry data" },
     { key: "showAiAssistant", label: "AI Assistant", description: "Floating AI chat widget available on every page" },
   ];
 

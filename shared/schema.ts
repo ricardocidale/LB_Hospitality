@@ -377,6 +377,7 @@ export const globalAssumptions = pgTable("global_assumptions", {
   sidebarExecutiveSummary: boolean("sidebar_executive_summary").notNull().default(true),
   sidebarScenarios: boolean("sidebar_scenarios").notNull().default(true),
   sidebarUserManual: boolean("sidebar_user_manual").notNull().default(true),
+  sidebarResearch: boolean("sidebar_research").notNull().default(true),
 
   // Feature Toggles
   showAiAssistant: boolean("show_ai_assistant").notNull().default(false),

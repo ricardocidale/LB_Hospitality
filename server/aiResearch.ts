@@ -241,7 +241,7 @@ function loadToolDefinitions(): Anthropic.Tool[] {
   }
 
   const globalToolsDir = join(process.cwd(), ".claude", "tools");
-  scanDir(globalToolsDir);
+  scanDir(globalToolsDir); // recursive — covers .claude/tools/research/ too
 
   toolCache = tools;
   return tools;
@@ -265,7 +265,17 @@ function validateSkillFolders(): void {
 
 validateSkillFolders();
 
-function handleToolCall(name: string, input: Record<string, any>): string {
+async function handleToolCall(name: string, input: Record<string, any>): Promise<string> {
+  // Web search — calls external API, requires async
+  if (name === "web_search") {
+    const { webSearch } = await import("./webSearch.js");
+    const results = await webSearch(input.query, input.num_results);
+    if (results.length === 0) {
+      return "Web search is not available or returned no results. Proceed with your existing knowledge.";
+    }
+    return JSON.stringify(results, null, 2);
+  }
+
   const promptBuilder = TOOL_PROMPTS[name];
   if (promptBuilder) {
     return promptBuilder(input);
@@ -414,11 +424,13 @@ export async function* generateResearchWithToolsStream(
     // Process tool calls
     messages.push({ role: "assistant", content: response.content });
     
-    const toolResults: Anthropic.ToolResultBlockParam[] = toolUseBlocks.map((toolBlock) => ({
-      type: "tool_result" as const,
-      tool_use_id: toolBlock.id,
-      content: handleToolCall(toolBlock.name, toolBlock.input as Record<string, any>),
-    }));
+    const toolResults: Anthropic.ToolResultBlockParam[] = await Promise.all(
+      toolUseBlocks.map(async (toolBlock) => ({
+        type: "tool_result" as const,
+        tool_use_id: toolBlock.id,
+        content: await handleToolCall(toolBlock.name, toolBlock.input as Record<string, any>),
+      }))
+    );
     
     messages.push({ role: "user", content: toolResults });
   }

@@ -37,7 +37,7 @@ Documents the complete AI assistant system operating across web (ElevenLabs Conv
 |------|---------|
 | `server/routes/admin/marcela.ts` | Admin settings API, signed URL endpoint, ConvAI proxy endpoints |
 | `server/routes/twilio.ts` | Phone+SMS webhooks, WebSocket Media Stream |
-| `server/routes/marcela-tools.ts` | Server tools for ElevenLabs agent (6 endpoints) |
+| `server/routes/marcela-tools.ts` | Server tools for ElevenLabs agent (6 endpoints, deterministic financials via `computePropertyMetrics()`) |
 | `server/integrations/elevenlabs.ts` | ElevenLabs API key, STT, streaming TTS, ConvAI helpers |
 | `server/marcela-agent-config.ts` | Agent configuration builder (tools, KB, settings) |
 | `server/marcela-knowledge-base.ts` | RAG knowledge base (in-memory embeddings, ElevenLabs KB push) |
@@ -74,6 +74,21 @@ Documents the complete AI assistant system operating across web (ElevenLabs Conv
 | Tools | `ToolsStatus.tsx` | All 18 tools with registration status, sync button |
 | Knowledge Base | `KnowledgeBase.tsx` | RAG reindex, ElevenLabs KB push, file upload |
 | Telephony | `TelephonySettings.tsx` | Twilio enable/disable, phone greeting, webhook URLs, connection status |
+
+## Server Tool Endpoints (`server/routes/marcela-tools.ts`)
+
+Rewritten to use `computePropertyMetrics()` from `calc/research/property-metrics.ts` for deterministic financial snapshots. The `computeSnapshot()` helper calls `computePropertyMetrics()` per property, ensuring the agent gets exact numbers (not LLM estimates).
+
+| Endpoint | Purpose |
+|----------|---------|
+| `GET /api/marcela-tools/properties` | List all properties with deterministic financial snapshots (RevPAR, revenue, GOP, NOI, margins, valuation, debt metrics) |
+| `GET /api/marcela-tools/property/:id` | Single property detail with full financials |
+| `GET /api/marcela-tools/portfolio-summary` | Aggregated portfolio metrics |
+| `GET /api/marcela-tools/scenarios` | Saved scenarios |
+| `GET /api/marcela-tools/global-assumptions` | Current model assumptions |
+| `GET /api/marcela-tools/navigation` | Sidebar navigation configuration |
+
+All endpoints use correct schema field names and return structured JSON consumable by the ElevenLabs agent's server tools.
 
 ## Related Tools
 - `.claude/tools/marcela/elevenlabs-widget-config.json` — Widget attributes, auth flow, gating, modality modes

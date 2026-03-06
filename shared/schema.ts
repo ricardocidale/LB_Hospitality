@@ -61,6 +61,7 @@ import {
   DEFAULT_MARCELA_SIMILARITY_BOOST,
   DEFAULT_MARCELA_MAX_TOKENS,
   DEFAULT_MARCELA_MAX_TOKENS_VOICE,
+  DEFAULT_MAX_STALENESS_HOURS,
 } from "./constants";
 
 // --- COMPANIES TABLE ---
@@ -1190,7 +1191,7 @@ export const marketRates = pgTable("market_rates", {
   fetchedAt: timestamp("fetched_at"),
   isManual: boolean("is_manual").notNull().default(false),
   manualNote: text("manual_note"),
-  maxStalenessHours: integer("max_staleness_hours").notNull().default(24),
+  maxStalenessHours: integer("max_staleness_hours").notNull().default(DEFAULT_MAX_STALENESS_HOURS),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

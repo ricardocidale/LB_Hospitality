@@ -97,3 +97,64 @@ Some assumptions are regulated by authoritative standards and are not subjective
 | Session persistence | Refreshing the page does not re-trigger the auto-refresh; closing the browser tab and re-logging in does trigger a new freshness check |
 
 The purpose of these research tools for the checker is to verify that research recommendations align with the assumption ranges used in the model and that applying research values produces expected downstream financial results.
+
+---
+
+## Deterministic Validation Layer
+
+After the LLM generates research recommendations, the system runs a deterministic validation pass before values are saved or displayed. This ensures that AI-recommended values fall within financially reasonable bounds and are consistent with each other.
+
+### Validation Pipeline
+
+The full research pipeline is:
+
+1. **LLM generates** structured research output (ADR range, occupancy range, cap rate, etc.)
+2. **`extractResearchValues()`** parses the LLM output into typed numeric fields
+3. **`validateResearchValues()`** cross-checks extracted values against bound constraints and deterministic financial models
+4. **Valid values saved** to property; out-of-bounds values flagged with warnings
+
+### Bound Constraints
+
+| Field | Valid Range | Severity if Violated |
+|-------|-----------|---------------------|
+| ADR | $50 – $2,000 | Warning (clipped to nearest bound) |
+| Occupancy | 20% – 100% | Warning |
+| Cap Rate | 3% – 15% | Warning |
+| Catering Boost | 0% – 100% | Warning |
+| Revenue Shares | 0% – 100% each | Warning |
+| Cost Rates | 0% – 100% each | Warning |
+
+### Cross-Validation with Deterministic Tools
+
+Beyond simple bounds checking, the validation layer invokes deterministic financial tools to verify that the recommended values produce reasonable financial outcomes:
+
+| Tool | What It Checks |
+|------|---------------|
+| `compute_property_metrics` | Given recommended ADR, occupancy, and cost rates, verifies that the implied NOI margin falls within 15–45% (industry standard). Flags if the combination produces an unreasonable margin. |
+| `compute_cap_rate_valuation` | Given recommended cap rate and the property's projected NOI, verifies that the implied property value is within a reasonable multiple of the purchase price. Flags extreme valuation disconnects. |
+
+### Validation Audit Trail
+
+Every research generation attaches a `_validation` summary to the saved research content:
+
+```json
+{
+  "_validation": {
+    "passed": 8,
+    "warned": 1,
+    "failed": 0,
+    "warnings": ["ADR $1,850 exceeds typical range; clipped to $2,000 bound"]
+  }
+}
+```
+
+Checkers should review the `_validation` block when auditing research-to-assumption alignment. A high `warned` or `failed` count indicates the LLM produced values outside expected financial norms for the property's market.
+
+### Verification Notes for Checkers
+
+| Check | What to Verify |
+|-------|---------------|
+| Validation summary present | Every research record should have a `_validation` block with passed/warned/failed counts |
+| Bound enforcement | Values outside the documented ranges should appear as warnings, not silently accepted |
+| Cross-validation consistency | If NOI margin implied by research values is outside 15–45%, a warning should be present |
+| No silent failures | A `failed` count > 0 should prevent auto-application of values to assumption fields |

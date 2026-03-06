@@ -30,9 +30,24 @@ Documents the financial calculation engine — GAAP-compliant (ASC 230, ASC 360,
 | `fb-revenue-costs.md` | F&B revenue and cost modeling |
 | `centralized-services.md` | Cost-plus markup, vendor costs, gross profit, service templates |
 
+## Deterministic Research Tools (`calc/research/`)
+
+8 pure-function modules registered in `calc/dispatch.ts` as LLM-callable tools. The LLM calls these for exact arithmetic; it provides market knowledge and judgment.
+
+| Module | Purpose |
+|--------|---------|
+| `property-metrics.ts` | RevPAR, revenue, GOP, NOI, margins, valuation, debt metrics |
+| `depreciation-basis.ts` | IRS depreciable basis and monthly/annual depreciation |
+| `debt-capacity.ts` | Max loan from NOI, DSCR target, interest rate, term |
+| `occupancy-ramp.ts` | Occupancy ramp schedule from start to stabilization |
+| `adr-projection.ts` | ADR growth projection over N years |
+| `cap-rate-valuation.ts` | Property valuation from NOI and cap rate |
+| `cost-benchmarks.ts` | Dollar-amount cost benchmarks from rates and revenue |
+| `validate-research.ts` | Post-LLM validation of research output against deterministic math |
+
 ## Key Files
 - `client/src/lib/financialEngine.ts` — Core calculation engine (~1,047 lines)
-- `calc/` — 60+ files, 13 computation tools, typed dispatch (includes `calc/services/`)
+- `calc/` — 60+ files, 13 computation tools, typed dispatch (includes `calc/services/`, `calc/research/`)
 - `client/src/lib/audits/` — 9-module audit system
 - `client/src/lib/financialAuditor.ts` — Audit orchestrator
 

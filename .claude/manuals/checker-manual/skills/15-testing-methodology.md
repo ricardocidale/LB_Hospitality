@@ -601,3 +601,16 @@ Material Findings (if ADVERSE):
 
 Signature:        ____________________________
 ```
+
+---
+
+## Appendix: Research Validation Test Coverage
+
+The deterministic validation layer described in Chapter 13 is covered by dedicated automated tests:
+
+| Test File | Tests | Coverage |
+|-----------|-------|---------|
+| `tests/calc/validate-research.test.ts` | 24 | Bounds checking (ADR, occupancy, cap rate ranges), cross-validation (NOI margin reasonableness, valuation consistency), warning/failure counts in validation summary |
+| `tests/calc/research-tools-phase2.test.ts` | 24 | Occupancy ramp projections, ADR growth projections, cap rate valuation calculations, cost benchmark derivations |
+
+These tests ensure that the research-to-assumption pipeline rejects or flags values outside the documented bound constraints and that deterministic tools (`compute_property_metrics`, `compute_cap_rate_valuation`) produce correct outputs for the cross-validation checks.

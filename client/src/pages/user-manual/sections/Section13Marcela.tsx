@@ -50,6 +50,14 @@ export default function Section13Marcela({ expanded, onToggle, sectionRef }: Sec
         </ul>
       </div>
 
+      <div className="bg-muted/50 rounded-lg p-4">
+        <h4 className="font-semibold mb-2">Accuracy & Validation</h4>
+        <ul className="text-sm text-muted-foreground space-y-2">
+          <li>&#8226; When answering questions about property financials, Marcela uses <strong>deterministic financial calculations</strong> from the engine — not estimates or approximations.</li>
+          <li>&#8226; AI-generated market research recommendations are <strong>validated against the financial engine</strong> before being applied to property assumptions, ensuring values fall within realistic bounds.</li>
+        </ul>
+      </div>
+
       <Callout variant="light">
         Marcela never performs financial calculations directly. All financial data comes from the deterministic calculation engine
         to ensure accuracy and consistency.

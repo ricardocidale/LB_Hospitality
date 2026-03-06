@@ -93,6 +93,7 @@ With 119 skill files, loading everything wastes tokens and slows responses. This
 | Location-aware seeding | `research/location-aware-seeding/SKILL.md` | Analysis skills |
 | Research badge data flow | `ui/research-badges.md`, `research/SKILL.md` | Analysis skills |
 | Research questions CRUD | `research/research-questions/SKILL.md` | Analysis skills, finance |
+| Research validation, deterministic tools, research tool schemas | `research/SKILL.md`, `rules/research-precision.md`, `tool-schemas/SKILL.md` | Finance engine, UI |
 | Any research change | **Always also load**: `research/SKILL.md` (master) | — |
 
 #### Marcela AI & Voice

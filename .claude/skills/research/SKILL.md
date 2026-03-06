@@ -185,6 +185,15 @@ Each AI research module has its own skill file with tool schema:
 | Location-Aware Seeding | `research/location-aware-seeding/` | Database seed profiles |
 | Research Questions | `research/research-questions/` | Custom AI research question CRUD management |
 
+## Deterministic Calc Modules
+
+8 deterministic calc modules in `calc/research/`: `property-metrics`, `depreciation-basis`, `debt-capacity`, `occupancy-ramp`, `adr-projection`, `cap-rate-valuation`, `cost-benchmarks`, `validate-research`.
+
+Key architectural details:
+- **CONFIDENCE_PREAMBLE** is injected via `loadSkill()` in `server/aiResearch.ts` — confidence scoring is defined once, not duplicated in each skill file
+- **TOOL_PROMPTS** are now thin context summaries, not full analysis prompts — reduces token cost per research call
+- **Post-LLM validation layer** runs between extraction and storage in `server/routes/research.ts` via `validateResearchValues()` in `calc/research/validate-research.ts` (bounds checks, cross-validation, consistency)
+
 ## Confidence Scoring
 
 Every recommended metric in AI research output must include a `confidence` field with one of three values:

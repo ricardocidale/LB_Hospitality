@@ -9,8 +9,8 @@ All skill files must follow consistent organization, naming, and placement conve
 ```
 .claude/
 ├── claude.md                  # Master doc (always loaded)
-├── rules/                     # Enforceable constraints (21 files)
-├── skills/                    # How-to documentation (118 files)
+├── rules/                     # Enforceable constraints (25 files)
+├── skills/                    # How-to documentation (126 files)
 │   ├── context-loading/       # Skill router (load first)
 │   ├── architecture/          # System architecture
 │   ├── coding-conventions/    # Code style rules

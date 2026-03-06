@@ -5,6 +5,28 @@
 
 ---
 
+## Session: March 6, 2026 — Codebase Hardening & Test Coverage
+
+### What Was Done
+- **6-phase hardening plan executed**: Bug fixes, shared fixtures, server tests, export tests, route error helper, RAG tests
+- **5 additional improvement items**: Route helper tests, E2E smoke tests, client formatter tests, AI agent tests, golden fixture migration
+- **Mutation invalidation audit**: Strengthened from 3 to 31 checks in `tests/proof/recalculation-enforcement.test.ts`
+- **Storage layer tests**: 27 static analysis tests for shared ownership, ORDER BY DESC, transaction integrity
+- **Scenario operations E2E**: 10 tests for full lifecycle (save → load → update → delete)
+- **Doc harmonization**: `replit.md` reduced to slim pointer (~40 lines), `claude.md` updated with accurate stats
+- Tests: 1,946 passing + 20 E2E skipped, verification UNQUALIFIED
+
+### Key Files Changed
+- `tests/server/storage-layer.test.ts` — 27 storage layer tests
+- `tests/e2e/scenario-operations.test.ts` — 10 scenario E2E tests
+- `tests/proof/recalculation-enforcement.test.ts` — 31 mutation invalidation checks
+- `server/routes/helpers.ts` — `sendError()` and `logAndSendError()` centralized helpers
+- `client/src/lib/exports/csvExport.ts` — try/catch, boolean return, filename sanitization
+- 13 route files migrated to `logAndSendError()`
+- `replit.md` — rewritten as slim pointer to `.claude/claude.md`
+
+---
+
 ## Session: March 6, 2026 — Centralized Services Model (Full Feature)
 
 ### What Was Done

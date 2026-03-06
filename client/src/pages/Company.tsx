@@ -6,7 +6,7 @@ import { generateCompanyProForma, generatePropertyProForma, formatMoney, getFisc
 import { useServiceTemplates } from "@/lib/api/services";
 import { PROJECTION_YEARS } from "@/lib/constants";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
-import { Loader2, AlertTriangle, CheckCircle } from "lucide-react";
+import { Loader2, AlertTriangle, CheckCircle, BookOpen } from "lucide-react";
 import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
 import { CalcDetailsProvider } from "@/components/financial-table-rows";
 import { Link } from "wouter";
@@ -223,6 +223,14 @@ export default function Company() {
             exportMenuNode={exportMenuNode}
           />
           
+          <div className="mt-4 mb-2">
+            <Link href="/company/research" className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/5 border border-primary/15 text-xs text-primary hover:bg-primary/10 transition-colors">
+              <BookOpen className="w-3.5 h-3.5" />
+              <span className="font-medium">View Company Research</span>
+              <span className="text-primary/60">Fee benchmarks, vendor costs, overhead, competitive landscape</span>
+            </Link>
+          </div>
+
           <TabsContent value="income" className="mt-6">
             <CompanyIncomeTab
               financials={financials}

@@ -15,11 +15,12 @@
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { ResearchBadge } from "@/components/ui/research-badge";
 import { DEFAULT_COMPANY_TAX_RATE } from "@/lib/constants";
 import EditableValue from "./EditableValue";
-import type { CompanyAssumptionsSectionProps } from "./types";
+import type { TaxSectionProps } from "./types";
 
-export default function TaxSection({ formData, onChange, global }: CompanyAssumptionsSectionProps) {
+export default function TaxSection({ formData, onChange, global, researchValues }: TaxSectionProps) {
   return (
     <div className="relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
       <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-primary/10 blur-2xl" />
@@ -32,7 +33,9 @@ export default function TaxSection({ formData, onChange, global }: CompanyAssump
         </h3>
         <div className="space-y-2">
           <div className="flex justify-between items-center">
-            <Label className="text-gray-700 label-text flex items-center gap-1">Company Income Tax Rate<HelpTooltip text="Income tax rate applied to the management company's positive net income. This is separate from property-level income taxes, which are set per property on each property's assumptions page." /></Label>
+            <Label className="text-gray-700 label-text flex items-center gap-1">Company Income Tax Rate<HelpTooltip text="Income tax rate applied to the management company's positive net income. This is separate from property-level income taxes, which are set per property on each property's assumptions page." />
+              <ResearchBadge value={researchValues.companyTaxRate?.display} onClick={() => researchValues.companyTaxRate && onChange("companyTaxRate", researchValues.companyTaxRate.mid / 100)} sourceType="industry" sourceName="AICPA/IRS benchmarks" data-testid="badge-company-tax" />
+            </Label>
             <EditableValue
               value={formData.companyTaxRate ?? global.companyTaxRate ?? DEFAULT_COMPANY_TAX_RATE}
               onChange={(v) => onChange("companyTaxRate", v)}

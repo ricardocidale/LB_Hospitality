@@ -86,6 +86,8 @@ export default function CompanyAssumptions() {
       travelPerClient: { display: "$8K–$18K", mid: 12000 },
       itLicensePerClient: { display: "$2K–$5K", mid: 3000 },
       companyTaxRate: { display: "25%–35%", mid: 30 },
+      exitCapRate: { display: "7%–10%", mid: 8.5 },
+      salesCommission: { display: "4%–6%", mid: 5 },
       otherExpenseRate: { display: "50%–70%", mid: 60 },
       utilitiesVariableSplit: { display: "50%–70%", mid: 60 },
     };
@@ -241,8 +243,8 @@ export default function CompanyAssumptions() {
 
         <ScrollReveal>
         <div className="grid gap-6 lg:grid-cols-2">
-          <TaxSection formData={formData} onChange={handleUpdate} global={global} />
-          <ExitAssumptionsSection formData={formData} onChange={handleUpdate} global={global} />
+          <TaxSection formData={formData} onChange={handleUpdate} global={global} researchValues={researchValues} />
+          <ExitAssumptionsSection formData={formData} onChange={handleUpdate} global={global} researchValues={researchValues} />
         </div>
         </ScrollReveal>
 

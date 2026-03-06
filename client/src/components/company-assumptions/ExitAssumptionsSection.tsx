@@ -17,11 +17,12 @@
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { ResearchBadge } from "@/components/ui/research-badge";
 import { DEFAULT_EXIT_CAP_RATE, DEFAULT_COMMISSION_RATE } from "@/lib/constants";
 import EditableValue from "./EditableValue";
-import type { CompanyAssumptionsSectionProps } from "./types";
+import type { ExitAssumptionsSectionProps } from "./types";
 
-export default function ExitAssumptionsSection({ formData, onChange, global }: CompanyAssumptionsSectionProps) {
+export default function ExitAssumptionsSection({ formData, onChange, global, researchValues }: ExitAssumptionsSectionProps) {
   return (
     <div className="relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
       <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-primary/10 blur-2xl" />
@@ -38,6 +39,7 @@ export default function ExitAssumptionsSection({ formData, onChange, global }: C
             <Label className="flex items-center text-gray-700 label-text">
               Default Exit Cap Rate
               <HelpTooltip text="Capitalization rate used for property valuation at exit. Higher cap rate = lower valuation." />
+              <ResearchBadge value={researchValues.exitCapRate?.display} onClick={() => researchValues.exitCapRate && onChange("exitCapRate", researchValues.exitCapRate.mid / 100)} sourceType="industry" sourceName="CBRE Cap Rate Survey" data-testid="badge-exit-cap" />
             </Label>
             <EditableValue
               value={formData.exitCapRate ?? global.exitCapRate ?? DEFAULT_EXIT_CAP_RATE}
@@ -62,6 +64,7 @@ export default function ExitAssumptionsSection({ formData, onChange, global }: C
             <Label className="flex items-center text-gray-700 label-text">
               Default Sales Commission Rate (% of Gross Sale Price)
               <HelpTooltip text="Default broker commission for new properties. Each property can override this with its own disposition commission on its assumptions page." />
+              <ResearchBadge value={researchValues.salesCommission?.display} onClick={() => researchValues.salesCommission && onChange("salesCommissionRate", researchValues.salesCommission.mid / 100)} sourceType="industry" sourceName="NAR transaction data" data-testid="badge-sales-commission" />
             </Label>
             <EditableValue
               value={formData.salesCommissionRate ?? global.salesCommissionRate ?? DEFAULT_COMMISSION_RATE}

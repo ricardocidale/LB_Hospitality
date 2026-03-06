@@ -100,44 +100,50 @@ export default function AdminSidebar({ activeSection, onSectionChange }: AdminSi
   const activeGroup = getGroupForSection(activeSection);
 
   const sidebarContent = (
-    <nav className="flex flex-col gap-1 py-3 px-3">
+    <nav className="flex flex-col gap-2.5 py-3 px-3">
       {navGroups.map((group) => {
         const isGroupActive = group.id === activeGroup;
         const GroupIcon = group.icon;
 
         return (
-          <div key={group.id} className="mb-1">
+          <div
+            key={group.id}
+            className={cn(
+              "rounded-xl border transition-all duration-300 overflow-hidden",
+              isGroupActive
+                ? "border-primary/20 bg-gradient-to-b from-primary/[0.04] to-primary/[0.02] shadow-[0_2px_12px_rgba(159,188,164,0.1)]"
+                : "border-gray-100 bg-white/60 hover:border-gray-200 hover:bg-white/80"
+            )}
+          >
             <div
               className={cn(
-                "flex items-center gap-2.5 px-3 py-2 rounded-xl transition-all duration-200",
+                "flex items-center gap-2.5 px-3 py-2.5 border-b transition-colors",
                 isGroupActive
-                  ? "bg-primary/8"
-                  : "opacity-70"
+                  ? "border-primary/10 bg-primary/[0.06]"
+                  : "border-transparent"
               )}
             >
               <div
                 className={cn(
-                  "w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-all duration-200",
+                  "w-6 h-6 rounded-md flex items-center justify-center shrink-0 transition-all duration-200",
                   isGroupActive
                     ? "bg-primary/15 text-primary"
                     : "bg-gray-100 text-gray-400"
                 )}
               >
-                <GroupIcon className="w-3.5 h-3.5" />
+                <GroupIcon className="w-3 h-3" />
               </div>
-              <div className="min-w-0">
-                <span
-                  className={cn(
-                    "text-[11px] font-bold uppercase tracking-[0.08em] transition-colors",
-                    isGroupActive ? "text-primary" : "text-gray-400"
-                  )}
-                >
-                  {group.label}
-                </span>
-              </div>
+              <span
+                className={cn(
+                  "text-[10.5px] font-bold uppercase tracking-[0.1em] transition-colors",
+                  isGroupActive ? "text-primary" : "text-gray-400"
+                )}
+              >
+                {group.label}
+              </span>
             </div>
 
-            <div className="ml-3 mt-0.5 space-y-0.5 border-l-2 border-gray-100 pl-0">
+            <div className="px-1.5 py-1.5 space-y-0.5">
               {group.sections.map((section) => {
                 const isActive = activeSection === section.value;
                 const Icon = section.icon;
@@ -150,18 +156,18 @@ export default function AdminSidebar({ activeSection, onSectionChange }: AdminSi
                     }}
                     data-testid={`admin-nav-${section.value}`}
                     className={cn(
-                      "w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left transition-all duration-200 group/item cursor-pointer",
+                      "relative w-full flex items-center gap-2.5 px-2.5 py-[7px] rounded-lg text-left transition-all duration-200 group/item cursor-pointer",
                       isActive
-                        ? "bg-primary/10 text-primary shadow-[0_2px_8px_rgba(159,188,164,0.12)]"
+                        ? "bg-primary/12 text-primary"
                         : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                     )}
                   >
                     {isActive && (
-                      <div className="absolute left-0 w-0.5 h-5 bg-primary rounded-r-full" />
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 bg-primary rounded-r-full" />
                     )}
                     <Icon
                       className={cn(
-                        "w-4 h-4 shrink-0 transition-colors",
+                        "w-[15px] h-[15px] shrink-0 transition-colors",
                         isActive
                           ? "text-primary"
                           : "text-gray-400 group-hover/item:text-gray-600"
@@ -169,8 +175,8 @@ export default function AdminSidebar({ activeSection, onSectionChange }: AdminSi
                     />
                     <span
                       className={cn(
-                        "text-[13px] font-medium transition-colors truncate",
-                        isActive ? "text-primary font-semibold" : ""
+                        "text-[13px] transition-colors truncate",
+                        isActive ? "text-primary font-semibold" : "font-medium"
                       )}
                     >
                       {section.label}

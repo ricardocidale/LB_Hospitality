@@ -63,7 +63,7 @@ export default function FixedOverheadSection({ formData, onChange, global, model
             <Label className="flex items-center text-gray-700 label-text">
               Office Lease
               <HelpTooltip text="Annual rent for corporate office space" />
-              <ResearchBadge value={researchValues.officeLease?.display} onClick={() => researchValues.officeLease && onChange("officeLeaseStart", researchValues.officeLease.mid)} data-testid="badge-office-lease" />
+              <ResearchBadge value={researchValues.officeLease?.display} onClick={() => researchValues.officeLease && onChange("officeLeaseStart", researchValues.officeLease.mid)} sourceType="industry" sourceName="HFTP/AICPA benchmarks" data-testid="badge-office-lease" />
             </Label>
             <EditableValue
               value={formData.officeLeaseStart ?? global.officeLeaseStart}
@@ -88,7 +88,7 @@ export default function FixedOverheadSection({ formData, onChange, global, model
             <Label className="flex items-center text-gray-700 label-text">
               Professional Services
               <HelpTooltip text="Legal, accounting, and consulting fees" />
-              <ResearchBadge value={researchValues.professionalServices?.display} onClick={() => researchValues.professionalServices && onChange("professionalServicesStart", researchValues.professionalServices.mid)} data-testid="badge-professional-services" />
+              <ResearchBadge value={researchValues.professionalServices?.display} onClick={() => researchValues.professionalServices && onChange("professionalServicesStart", researchValues.professionalServices.mid)} sourceType="industry" sourceName="AICPA practice benchmarks" data-testid="badge-professional-services" />
             </Label>
             <EditableValue
               value={formData.professionalServicesStart ?? global.professionalServicesStart}
@@ -113,7 +113,7 @@ export default function FixedOverheadSection({ formData, onChange, global, model
             <Label className="flex items-center text-gray-700 label-text">
               Tech Infrastructure
               <HelpTooltip text="Annual cloud hosting, software, and IT services" />
-              <ResearchBadge value={researchValues.techInfra?.display} onClick={() => researchValues.techInfra && onChange("techInfraStart", researchValues.techInfra.mid)} data-testid="badge-tech-infra" />
+              <ResearchBadge value={researchValues.techInfra?.display} onClick={() => researchValues.techInfra && onChange("techInfraStart", researchValues.techInfra.mid)} sourceType="industry" sourceName="HFTP Technology Survey" data-testid="badge-tech-infra" />
             </Label>
             <EditableValue
               value={formData.techInfraStart ?? global.techInfraStart}
@@ -138,7 +138,7 @@ export default function FixedOverheadSection({ formData, onChange, global, model
             <Label className="flex items-center text-gray-700 label-text">
               Business Insurance
               <HelpTooltip text="E&O, liability, and other corporate insurance policies" />
-              <ResearchBadge value={researchValues.businessInsurance?.display} onClick={() => researchValues.businessInsurance && onChange("businessInsuranceStart", researchValues.businessInsurance.mid)} data-testid="badge-business-insurance" />
+              <ResearchBadge value={researchValues.businessInsurance?.display} onClick={() => researchValues.businessInsurance && onChange("businessInsuranceStart", researchValues.businessInsurance.mid)} sourceType="industry" sourceName="AICPA/industry benchmarks" data-testid="badge-business-insurance" />
             </Label>
             <EditableValue
               value={formData.businessInsuranceStart ?? global.businessInsuranceStart}

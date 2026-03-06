@@ -49,3 +49,6 @@ __pycache__/
 
 # Replit local files (contains large binaries)
 .local/
+
+# Test artifacts (auto-regenerated on every verification run)
+test-artifacts/

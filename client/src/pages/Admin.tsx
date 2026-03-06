@@ -1,99 +1,92 @@
-/**
- * Admin.tsx — Admin settings panel (admin-only access).
- *
- * A tabbed interface that gives platform administrators control over:
- *   • Users        — manage user accounts, roles, and passwords
- *   • Companies    — create/edit companies that users can belong to
- *   • Activity     — audit log of recent user actions (logins, saves, etc.)
- *   • Verification — run the server-side financial checker to validate model integrity
- *   • User Groups  — assign users to groups with shared branding and permissions
- *   • Customize    — consolidated appearance/config (Branding, Themes, Logos, Navigation)
- *   • Database     — sync tools and data management utilities
- *
- * Each tab is lazy-rendered — the component only mounts when the tab is active,
- * keeping the Admin page lightweight even with many management features.
- */
 import { useState } from "react";
 import Layout from "@/components/Layout";
-import { Tabs, TabsContent, CurrentThemeTab } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/ui/page-header";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import {
-  Users, Building2, Activity, FileCheck, LayoutGrid,
-  Palette, Database, Mic, Package, TrendingUp
-} from "lucide-react";
+import AdminSidebar, { type AdminSection, navGroups, getGroupForSection } from "@/components/admin/AdminSidebar";
 import {
   UsersTab, CompaniesTab, ActivityTab, VerificationTab,
-  UserGroupsTab, CustomizeTab, DatabaseTab, MarcelaTab, ServicesTab,
+  UserGroupsTab, DatabaseTab, MarcelaTab, ServicesTab,
   MarketRatesTab
 } from "@/components/admin";
+import BrandingTab from "@/components/admin/BrandingTab";
+import ThemesTab from "@/components/admin/ThemesTab";
+import LogosTab from "@/components/admin/LogosTab";
+import NavigationTab from "@/components/admin/NavigationTab";
 
-type AdminView = "users" | "companies" | "activity" | "verification" | "user-groups" | "customize" | "services" | "market-rates" | "marcela" | "database";
+const sectionMeta: Record<AdminSection, { title: string; subtitle: string }> = {
+  users:        { title: "Users",          subtitle: "Manage user accounts, roles, and passwords" },
+  groups:       { title: "User Groups",    subtitle: "Branded groups with shared themes, logos, and labels" },
+  activity:     { title: "Activity",       subtitle: "Login logs, audit trail, and session monitoring" },
+  branding:     { title: "Branding",       subtitle: "Company name, logo, property labels, and asset descriptions" },
+  themes:       { title: "Themes",         subtitle: "Color palettes and visual styles for the platform" },
+  logos:        { title: "Logos",           subtitle: "Upload, generate, and manage logo images" },
+  navigation:   { title: "Navigation",     subtitle: "Control which sidebar pages are visible to users" },
+  companies:    { title: "Companies",      subtitle: "Management company and special purpose vehicles" },
+  services:     { title: "Services",       subtitle: "Service templates, markup rates, and property sync" },
+  "market-rates": { title: "Market Rates", subtitle: "Live economic data, FRED/BLS rates, and manual overrides" },
+  marcela:      { title: "AI Agent",       subtitle: "Configure Marcela — voice, prompt, tools, and telephony" },
+  verification: { title: "Verification",   subtitle: "Independent GAAP financial audit and compliance" },
+  database:     { title: "Database",       subtitle: "Entity monitoring, seed data, and canonical sync" },
+};
+
+function SectionContent({ section, onNavigate }: { section: AdminSection; onNavigate: (s: AdminSection) => void }) {
+  switch (section) {
+    case "users":        return <UsersTab />;
+    case "groups":       return <UserGroupsTab />;
+    case "activity":     return <ActivityTab />;
+    case "branding":     return <BrandingTab onNavigate={(tab: string) => { if (tab === "logos") onNavigate("logos"); else if (tab === "themes") onNavigate("themes"); }} />;
+    case "themes":       return <ThemesTab />;
+    case "logos":        return <LogosTab />;
+    case "navigation":   return <NavigationTab />;
+    case "companies":    return <CompaniesTab />;
+    case "services":     return <ServicesTab />;
+    case "market-rates": return <MarketRatesTab />;
+    case "marcela":      return <MarcelaTab />;
+    case "verification": return <VerificationTab />;
+    case "database":     return <DatabaseTab />;
+    default:             return null;
+  }
+}
 
 export default function Admin() {
-  const [adminTab, setAdminTab] = useState<AdminView>("users");
+  const [activeSection, setActiveSection] = useState<AdminSection>("users");
+
+  const meta = sectionMeta[activeSection];
+  const activeGroupId = getGroupForSection(activeSection);
+  const activeGroup = navGroups.find((g) => g.id === activeGroupId);
 
   return (
     <TooltipProvider>
-    <Layout>
-      <div className="space-y-6">
-        <PageHeader 
-          title="Admin Settings"
-          subtitle="Manage users, monitor activity, and run system verification"
-          variant="dark"
-        />
-
-        <Tabs value={adminTab} onValueChange={(v) => setAdminTab(v as AdminView)} className="w-full">
-          <CurrentThemeTab
-            tabs={[
-              { value: 'users', label: 'Users', icon: Users },
-              { value: 'companies', label: 'Companies', icon: Building2 },
-              { value: 'activity', label: 'Activity', icon: Activity },
-              { value: 'verification', label: 'Verification', icon: FileCheck },
-              { value: 'user-groups', label: 'User Groups', icon: LayoutGrid },
-              { value: 'customize', label: 'Customize', icon: Palette },
-              { value: 'services', label: 'Services', icon: Package },
-              { value: 'market-rates', label: 'Market Rates', icon: TrendingUp },
-              { value: 'marcela', label: 'AI Agent', icon: Mic },
-              { value: 'database', label: 'Database', icon: Database },
-            ]}
-            activeTab={adminTab}
-            onTabChange={(v) => setAdminTab(v as AdminView)}
+      <Layout>
+        <div className="space-y-5">
+          <PageHeader
+            title={meta.title}
+            subtitle={meta.subtitle}
+            variant="dark"
+            actions={
+              activeGroup ? (
+                <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10 backdrop-blur-sm border border-white/15">
+                  {activeGroup.icon && <activeGroup.icon className="w-3.5 h-3.5 text-white/60" />}
+                  <span className="text-xs font-medium text-white/70">{activeGroup.label}</span>
+                </div>
+              ) : undefined
+            }
           />
 
-          <TabsContent value="users" className="space-y-6 mt-6">
-            {adminTab === "users" && <UsersTab />}
-          </TabsContent>
-          <TabsContent value="companies" className="space-y-6 mt-6">
-            {adminTab === "companies" && <CompaniesTab />}
-          </TabsContent>
-          <TabsContent value="activity" className="space-y-6 mt-6">
-            {adminTab === "activity" && <ActivityTab />}
-          </TabsContent>
-          <TabsContent value="verification" className="space-y-6 mt-6">
-            {adminTab === "verification" && <VerificationTab />}
-          </TabsContent>
-          <TabsContent value="user-groups" className="space-y-6 mt-6">
-            {adminTab === "user-groups" && <UserGroupsTab />}
-          </TabsContent>
-          <TabsContent value="customize" className="space-y-6 mt-6">
-            {adminTab === "customize" && <CustomizeTab />}
-          </TabsContent>
-          <TabsContent value="services" className="space-y-6 mt-6">
-            {adminTab === "services" && <ServicesTab />}
-          </TabsContent>
-          <TabsContent value="market-rates" className="space-y-6 mt-6">
-            {adminTab === "market-rates" && <MarketRatesTab />}
-          </TabsContent>
-          <TabsContent value="marcela" className="space-y-6 mt-6">
-            {adminTab === "marcela" && <MarcelaTab />}
-          </TabsContent>
-          <TabsContent value="database" className="space-y-6 mt-6">
-            {adminTab === "database" && <DatabaseTab />}
-          </TabsContent>
-        </Tabs>
-      </div>
-    </Layout>
+          <div className="flex gap-6 items-start">
+            <AdminSidebar
+              activeSection={activeSection}
+              onSectionChange={setActiveSection}
+            />
+
+            <div className="flex-1 min-w-0">
+              <div className="space-y-6" data-testid={`admin-content-${activeSection}`}>
+                <SectionContent section={activeSection} onNavigate={setActiveSection} />
+              </div>
+            </div>
+          </div>
+        </div>
+      </Layout>
     </TooltipProvider>
   );
 }

@@ -5,13 +5,13 @@
 ## Overview
 Business simulation portal for boutique hotel investment. Financial modeling, property management, investment analysis, and AI-powered assistant (Marcela). GAAP-compliant with independent audit/verification engine.
 
-**Codebase:** ~558 source files, ~81,500 lines, 2,409 tests across 108 files.
+**Codebase:** ~568 source files, ~82,900 lines, 2,431 tests across 113 files.
 
 ## Quick Commands
 ```bash
 npm run dev            # Start dev server (port 5000)
 npm run health         # One-shot: tsc + tests + verify
-npm run test:summary   # 2,409 tests, 1-line output
+npm run test:summary   # 2,431 tests, 1-line output
 npm run verify:summary # 7-phase verification, compact
 npm run stats          # Codebase metrics
 npm run audit:quick    # Quick code quality scan
@@ -39,7 +39,7 @@ React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v
 | Architecture & tech stack | `.claude/claude.md` § Tech Stack, `.claude/skills/architecture/SKILL.md` |
 | User preferences | `.claude/claude.md` § User Preferences |
 | Financial engine | `.claude/rules/financial-engine.md`, `.claude/skills/finance/SKILL.md` |
-| Admin page (11 tabs) | `.claude/skills/admin/SKILL.md`, `.claude/skills/admin/ai-agent-admin.md` |
+| Admin page (5 groups) | `.claude/skills/admin/SKILL.md`, `.claude/skills/admin/ai-agent-admin.md` |
 | Prod migration (sync) | `server/migrations/prod-sync-002.ts` — canonical data enforcement on every boot |
 | AI assistant (Marcela) | `.claude/claude.md` § Marcela AI, `.claude/skills/marcela-ai/SKILL.md` |
 | Design system & themes | `.claude/skills/design-system/SKILL.md`, `.claude/skills/ui/theme-engine.md` |

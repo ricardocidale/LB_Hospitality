@@ -17,10 +17,38 @@ export function register(app: Express) {
 
   app.get("/api/properties", requireAuth, async (req, res) => {
     try {
-      const properties = await storage.getAllProperties(req.user!.id);
-      res.json(properties);
+      let props = await storage.getAllProperties(req.user!.id);
+      // Apply group visibility filter for non-admin users in a group
+      const user = req.user!;
+      if (user.role !== "admin" && user.userGroupId) {
+        const allowedIds = await storage.getGroupPropertyIds(user.userGroupId);
+        if (allowedIds.length > 0) {
+          props = props.filter((p) => allowedIds.includes(p.id));
+        }
+      }
+      res.json(props);
     } catch (error) {
       logAndSendError(res, "Failed to fetch properties", error);
+    }
+  });
+
+  // Group property visibility
+  app.get("/api/user-groups/:id/properties", requireAuth, async (req, res) => {
+    try {
+      const ids = await storage.getGroupPropertyIds(Number(req.params.id));
+      res.json(ids);
+    } catch (error) {
+      logAndSendError(res, "Failed to fetch group properties", error);
+    }
+  });
+
+  app.put("/api/user-groups/:id/properties", requireAuth, async (req, res) => {
+    try {
+      const propertyIds: number[] = req.body.propertyIds ?? [];
+      await storage.setGroupProperties(Number(req.params.id), propertyIds);
+      res.json({ success: true });
+    } catch (error) {
+      logAndSendError(res, "Failed to update group properties", error);
     }
   });
 

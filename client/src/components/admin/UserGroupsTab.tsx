@@ -26,9 +26,11 @@ import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { Loader2, Plus, Trash2, Users, Pencil, Building2, UserPlus, Palette, Tag, Image, Save } from "lucide-react";
+import { Loader2, Plus, Trash2, Users, Pencil, Building2, UserPlus, Palette, Tag, Image, Save, Eye, ChevronDown, ChevronUp } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import type { User, Logo, UserGroup, AssetDesc } from "./types";
+import type { Property } from "@shared/schema";
 
 export default function UserGroupsTab() {
   const { toast } = useToast();
@@ -37,6 +39,8 @@ export default function UserGroupsTab() {
   const [groupDialogOpen, setGroupDialogOpen] = useState(false);
   const [editingGroup, setEditingGroup] = useState<UserGroup | null>(null);
   const [groupForm, setGroupForm] = useState({ name: "", logoId: null as number | null, themeId: null as number | null, assetDescriptionId: null as number | null });
+  const [expandedVisibility, setExpandedVisibility] = useState<number | null>(null);
+  const [pendingVisibility, setPendingVisibility] = useState<Record<number, Set<number>>>({});
 
   const { data: users } = useQuery<User[]>({
     queryKey: ["admin", "users"],
@@ -80,6 +84,47 @@ export default function UserGroupsTab() {
       const res = await fetch("/api/asset-descriptions", { credentials: "include" });
       if (!res.ok) throw new Error("Failed to fetch asset descriptions");
       return res.json();
+    },
+  });
+
+  const { data: allProperties } = useQuery<Property[]>({
+    queryKey: ["properties"],
+    queryFn: async () => {
+      const res = await fetch("/api/properties", { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch properties");
+      return res.json();
+    },
+  });
+
+  const { data: groupPropertyMap } = useQuery<Record<number, number[]>>({
+    queryKey: ["admin", "group-properties"],
+    enabled: !!userGroupsList,
+    queryFn: async () => {
+      const map: Record<number, number[]> = {};
+      await Promise.all(
+        (userGroupsList ?? []).map(async (g) => {
+          const res = await fetch(`/api/user-groups/${g.id}/properties`, { credentials: "include" });
+          map[g.id] = res.ok ? await res.json() : [];
+        })
+      );
+      return map;
+    },
+  });
+
+  const setGroupPropertiesMutation = useMutation({
+    mutationFn: async ({ groupId, propertyIds }: { groupId: number; propertyIds: number[] }) => {
+      const res = await fetch(`/api/user-groups/${groupId}/properties`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ propertyIds }),
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Failed to save property visibility");
+    },
+    onSuccess: (_data, { groupId }) => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "group-properties"] });
+      setPendingVisibility((prev) => { const next = { ...prev }; delete next[groupId]; return next; });
+      toast({ title: "Visibility Saved", description: "Property visibility updated for this group." });
     },
   });
 

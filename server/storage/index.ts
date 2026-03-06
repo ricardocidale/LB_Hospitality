@@ -99,6 +99,8 @@ export class DatabaseStorage implements IStorage {
   deleteUserGroup = this.admin.deleteUserGroup.bind(this.admin);
   assignUserToGroup = this.admin.assignUserToGroup.bind(this.admin);
   getDefaultUserGroup = this.admin.getDefaultUserGroup.bind(this.admin);
+  getGroupPropertyIds = this.admin.getGroupPropertyIds.bind(this.admin);
+  setGroupProperties = this.admin.setGroupProperties.bind(this.admin);
 
   getAllCompanies = this.admin.getAllCompanies.bind(this.admin);
   getCompany = this.admin.getCompany.bind(this.admin);

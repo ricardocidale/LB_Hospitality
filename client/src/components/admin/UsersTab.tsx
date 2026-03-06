@@ -27,9 +27,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { GlassButton } from "@/components/ui/glass-button";
-import { Loader2, Trash2, Users, Key, Eye, EyeOff, Pencil, UserPlus, Shield, Mail, LayoutGrid, Settings, Save, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
+import { Loader2, Trash2, Users, Key, Eye, EyeOff, Pencil, UserPlus, Shield, Mail, LayoutGrid, Calendar, Settings, Save, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
+import { formatDateTime } from "@/lib/formatters";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { adminFetch } from "./hooks";
 import type { User, UserGroup } from "./types";
@@ -399,6 +399,12 @@ export default function UsersTab() {
           <DialogDescription className="label-text">Update user information</DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
+          {selectedUser?.createdAt && (
+            <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 rounded-lg px-3 py-2">
+              <Calendar className="w-3.5 h-3.5" />
+              Created {formatDateTime(selectedUser.createdAt)}
+            </div>
+          )}
           <div className="space-y-2"><Label className="flex items-center gap-2"><Mail className="w-4 h-4 text-gray-500" />Email</Label><Input value={editUser.email} onChange={(e) => setEditUser({ ...editUser, email: e.target.value })} data-testid="input-edit-email" /></div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2"><Label className="flex items-center gap-2"><Users className="w-4 h-4 text-gray-500" />First Name</Label><Input value={editUser.firstName} onChange={(e) => setEditUser({ ...editUser, firstName: e.target.value })} data-testid="input-edit-firstName" /></div>

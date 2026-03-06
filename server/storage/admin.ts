@@ -1,6 +1,6 @@
-import { designThemes, logos, assetDescriptions, userGroups, companies, researchQuestions, users, type DesignTheme, type InsertDesignTheme, type Logo, type InsertLogo, type AssetDescription, type InsertAssetDescription, type UserGroup, type InsertUserGroup, type Company, type InsertCompany, type ResearchQuestion, type InsertResearchQuestion, type User } from "@shared/schema";
+import { designThemes, logos, assetDescriptions, userGroups, userGroupProperties, companies, researchQuestions, users, type DesignTheme, type InsertDesignTheme, type Logo, type InsertLogo, type AssetDescription, type InsertAssetDescription, type UserGroup, type InsertUserGroup, type Company, type InsertCompany, type ResearchQuestion, type InsertResearchQuestion, type User } from "@shared/schema";
 import { db } from "../db";
-import { eq, desc, isNull } from "drizzle-orm";
+import { eq, desc, isNull, inArray } from "drizzle-orm";
 import { stripAutoFields } from "./utils";
 
 export class AdminStorage {
@@ -226,5 +226,32 @@ export class AdminStorage {
   /** Delete a research question. Subsequent AI prompts will no longer include it. */
   async deleteResearchQuestion(id: number): Promise<void> {
     await db.delete(researchQuestions).where(eq(researchQuestions.id, id));
+  }
+
+  // ── Group Property Visibility ───────────────────────────────
+
+  /**
+   * Get the property IDs a group is allowed to see.
+   * Returns an empty array if no restrictions are set (meaning: show all).
+   */
+  async getGroupPropertyIds(groupId: number): Promise<number[]> {
+    const rows = await db
+      .select({ propertyId: userGroupProperties.propertyId })
+      .from(userGroupProperties)
+      .where(eq(userGroupProperties.userGroupId, groupId));
+    return rows.map((r) => r.propertyId);
+  }
+
+  /**
+   * Replace the full set of visible properties for a group.
+   * Pass an empty array to remove all restrictions (show everything).
+   */
+  async setGroupProperties(groupId: number, propertyIds: number[]): Promise<void> {
+    await db.delete(userGroupProperties).where(eq(userGroupProperties.userGroupId, groupId));
+    if (propertyIds.length > 0) {
+      await db.insert(userGroupProperties).values(
+        propertyIds.map((propertyId) => ({ userGroupId: groupId, propertyId }))
+      );
+    }
   }
 }

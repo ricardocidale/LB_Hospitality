@@ -151,12 +151,8 @@ export function buildServerTools(baseUrl: string) {
         url: `${baseUrl}/api/marcela-tools/property/{property_id}`,
         method: "GET" as const,
         headers,
-        path_params: {
-          type: "object",
-          properties: {
-            property_id: { type: "number", description: "The ID of the property to look up" }
-          },
-          required: ["property_id"]
+        path_params_schema: {
+          property_id: { type: "number", description: "The ID of the property to look up" }
         },
       },
       expects_response: true,

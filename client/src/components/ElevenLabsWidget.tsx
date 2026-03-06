@@ -12,7 +12,7 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
   const [, setLocation] = useLocation();
   const { setTourActive, setShownThisSession } = useWalkthroughStore();
   const [signedUrl, setSignedUrl] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [urlFailed, setUrlFailed] = useState(false);
   const fetchedRef = useRef(false);
   const widgetRef = useRef<HTMLElement>(null);
   const toolsRegisteredRef = useRef(false);
@@ -28,9 +28,8 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
       .then((data: { signedUrl: string }) => {
         setSignedUrl(data.signedUrl);
       })
-      .catch((err) => {
-        console.error("Failed to get Marcela signed URL:", err);
-        setError(err.message);
+      .catch(() => {
+        setUrlFailed(true);
         fetchedRef.current = false;
       });
   }, [enabled, agentId]);
@@ -104,11 +103,10 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
       el.removeEventListener("elevenlabs-convai:call", handleCall);
       toolsRegisteredRef.current = false;
     };
-  }, [signedUrl, handleNavigate, handleStartTour, user]);
+  }, [signedUrl, urlFailed, handleNavigate, handleStartTour, user]);
 
   if (!enabled || !agentId) return null;
-  if (error) return null;
-  if (!signedUrl) return null;
+  if (!signedUrl && !urlFailed) return null;
 
   const dynamicVars = JSON.stringify({
     user_name: user?.firstName || "User",
@@ -119,7 +117,7 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
   return (
     <elevenlabs-convai
       ref={widgetRef}
-      url={signedUrl}
+      {...(signedUrl ? { url: signedUrl } : { "agent-id": agentId })}
       dynamic-variables={dynamicVars}
     />
   );

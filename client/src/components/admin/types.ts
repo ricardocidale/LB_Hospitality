@@ -5,28 +5,10 @@
  * These types model the data returned by /api/admin/* endpoints and are
  * consumed by the various admin tab components.
  *
- * Key types:
- *   • User           – a registered platform user with role-based access
- *   • AdminCompany   – a company entity (management company or SPV)
- *   • UserGroup      – a branded group that assigns a logo/theme to users
- *   • Logo           – an uploaded logo image linked to a company name
- *   • LoginLog       – an audit trail entry for login/logout events
- *   • ActivityLogEntry – any tracked user action (CRUD on properties, etc.)
- *   • VerificationResult – the output of the GAAP financial verification run,
- *     including per-property checks, company checks, consolidated checks,
- *     audit opinion (UNQUALIFIED / QUALIFIED / ADVERSE), and optional
- *     client-side audit workpapers and known-value test results
- *   • CheckResult    – a single verification check with expected vs. actual
- *     values, variance, GAAP reference, and severity classification
- *   • DesignCheckResult – output of the UI/UX design check (data-testid coverage, etc.)
- *   • CheckerActivityData – analytics for users with the "checker" role
- *   • ActiveSession  – a currently valid session (for force-logout capability)
- *   • AssetDesc      – a property type label (e.g. "Luxury Resort") assignable to groups
- *
- * AdminView / ActivitySubView are union types controlling which tab is active.
+ * Verification types (CheckResult, PropertyCheckResults) live in
+ * shared/verification-types.ts and are re-exported from
+ * admin/verification/types.ts.
  */
-import type { AuditReport } from "@/lib/financialAuditor";
-import type { KnownValueTestResult } from "@/lib/runVerification";
 
 export interface DesignCheckResult {
   timestamp: string;
@@ -75,48 +57,6 @@ export interface LoginLog {
   ipAddress: string | null;
   userEmail: string;
   userName: string | null;
-}
-
-export interface CheckResult {
-  metric: string;
-  category: string;
-  gaapRef: string;
-  formula: string;
-  expected: number;
-  actual: number;
-  variance: number;
-  variancePct: number;
-  passed: boolean;
-  severity: "critical" | "material" | "minor" | "info";
-}
-
-export interface PropertyCheckResults {
-  propertyName: string;
-  propertyType: string;
-  checks: CheckResult[];
-  passed: number;
-  failed: number;
-  criticalIssues: number;
-}
-
-export interface VerificationResult {
-  timestamp: string;
-  propertiesChecked: number;
-  propertyResults: PropertyCheckResults[];
-  companyChecks: CheckResult[];
-  consolidatedChecks: CheckResult[];
-  summary: {
-    totalChecks: number;
-    totalPassed: number;
-    totalFailed: number;
-    criticalIssues: number;
-    materialIssues: number;
-    auditOpinion: "UNQUALIFIED" | "QUALIFIED" | "ADVERSE";
-    overallStatus: "PASS" | "FAIL" | "WARNING";
-  };
-  clientAuditWorkpaper?: string;
-  clientAuditReports?: AuditReport[];
-  clientKnownValueTests?: { passed: boolean; results: string; structured: KnownValueTestResult[] };
 }
 
 export interface UserGroup {

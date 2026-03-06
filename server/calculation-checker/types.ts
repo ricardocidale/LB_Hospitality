@@ -1,26 +1,8 @@
 import type { Property, GlobalAssumptions } from "@shared/schema";
 
-export interface CheckResult {
-  metric: string;
-  category: string;
-  gaapRef: string;
-  formula: string;
-  expected: number;
-  actual: number;
-  variance: number;
-  variancePct: number;
-  passed: boolean;
-  severity: "critical" | "material" | "minor" | "info";
-}
-
-export interface PropertyCheckResults {
-  propertyName: string;
-  propertyType: string;
-  checks: CheckResult[];
-  passed: number;
-  failed: number;
-  criticalIssues: number;
-}
+// Import + re-export shared verification types — single source of truth
+import type { CheckResult, PropertyCheckResults } from "@shared/verification-types";
+export type { CheckResult, PropertyCheckResults };
 
 export interface VerificationReport {
   timestamp: string;

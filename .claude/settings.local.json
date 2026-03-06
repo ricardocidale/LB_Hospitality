@@ -104,7 +104,8 @@
       "Bash(psql \"$DATABASE_URL\" -c \"SELECT column_name, data_type, column_default FROM information_schema.columns WHERE table_name = 'company_service_templates' ORDER BY ordinal_position;\" 2>&1)",
       "Bash(env | grep -i password | head -5)",
       "Bash(env | grep -i admin)",
-      "Bash(ss -tlnp | grep -E \"5000|3000|3001|5001\" 2>/dev/null || netstat -tlnp 2>/dev/null | grep -E \"5000|3000|3001|5001\")"
+      "Bash(ss -tlnp | grep -E \"5000|3000|3001|5001\" 2>/dev/null || netstat -tlnp 2>/dev/null | grep -E \"5000|3000|3001|5001\")",
+      "Bash(DATABASE_URL=$DATABASE_URL psql -c \"ALTER TABLE global_assumptions ADD COLUMN IF NOT EXISTS sidebar_research BOOLEAN NOT NULL DEFAULT true;\" 2>&1)"
     ]
   }
 }

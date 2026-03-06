@@ -39,7 +39,7 @@ export default function NavigationTab() {
   const updateSidebarMutation = useMutation({
     mutationFn: async (updates: Record<string, boolean>) => {
       const res = await fetch("/api/global-assumptions", {
-        method: "POST",
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({ ...globalAssumptions, ...updates }),

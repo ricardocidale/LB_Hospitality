@@ -51,6 +51,18 @@ describe("splitIntoChunks", () => {
     }
   });
 
+  it("returns empty array for text with only tiny paragraphs", () => {
+    const text = "Hi.\n\nBye.\n\nOk.";
+    const chunks = splitIntoChunks(text, "Title", "src", "cat");
+    expect(chunks).toHaveLength(0);
+  });
+
+  it("handles text with no paragraph breaks", () => {
+    const text = "A single long paragraph without any double-newline breaks but with enough content to exceed the minimum character threshold for inclusion.";
+    const chunks = splitIntoChunks(text, "Title", "src", "cat");
+    expect(chunks).toHaveLength(1);
+  });
+
   it("preserves source and category across all chunks", () => {
     const para = "The financial engine processes monthly calculations with inflation adjustments.";
     const paragraphs = Array(20).fill(para).join("\n\n");
@@ -90,6 +102,21 @@ describe("cosineSimilarity", () => {
     const a = [1, 3, -5];
     const b = [4, -2, 1];
     expect(cosineSimilarity(a, b)).toBeCloseTo(cosineSimilarity(b, a), 10);
+  });
+
+  it("is scale-invariant", () => {
+    const a = [1, 2, 3];
+    const b = [4, 5, 6];
+    const aScaled = [10, 20, 30];
+    expect(cosineSimilarity(a, b)).toBeCloseTo(cosineSimilarity(aScaled, b), 6);
+  });
+
+  it("returns value between -1 and 1 for arbitrary vectors", () => {
+    const a = [0.5, -0.3, 0.8, 0.1];
+    const b = [0.2, 0.7, -0.4, 0.9];
+    const sim = cosineSimilarity(a, b);
+    expect(sim).toBeGreaterThanOrEqual(-1.0);
+    expect(sim).toBeLessThanOrEqual(1.0);
   });
 });
 

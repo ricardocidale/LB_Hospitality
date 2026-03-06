@@ -107,7 +107,11 @@
       "Bash(ss -tlnp | grep -E \"5000|3000|3001|5001\" 2>/dev/null || netstat -tlnp 2>/dev/null | grep -E \"5000|3000|3001|5001\")",
       "Bash(DATABASE_URL=$DATABASE_URL psql -c \"ALTER TABLE global_assumptions ADD COLUMN IF NOT EXISTS sidebar_research BOOLEAN NOT NULL DEFAULT true;\" 2>&1)",
       "Bash(for f in market-overview adr-analysis occupancy-analysis event-demand catering-analysis cap-rate-analysis competitive-set land-value operating-costs property-value-costs management-service-fees income-tax)",
-      "Bash(do wc -l .claude/skills/research/$f/SKILL.md)"
+      "Bash(do wc -l .claude/skills/research/$f/SKILL.md)",
+      "Bash(find /home/runner/workspace -type f \\\\\\( -name \"*.ts\" -o -name \"*.tsx\" \\\\\\) 2>/dev/null | wc -l)",
+      "Bash(find . -type f \\\\\\( -name \"*.ts\" -o -name \"*.tsx\" \\\\\\) -not -path \"*/node_modules/*\" 2>/dev/null | head -150)",
+      "Bash(find /home/runner/workspace -type f \\\\\\( -name \"*.ts\" -o -name \"*.tsx\" \\\\\\) -not -path \"*/.cache/*\" -not -path \"*/node_modules/*\" -not -path \"*/.git/*\" 2>/dev/null | wc -l)",
+      "Bash(find /home/runner/workspace/client/src -type f \\\\\\( -name \"*.ts\" -o -name \"*.tsx\" \\\\\\) 2>/dev/null | wc -l && find /home/runner/workspace/client/src/lib -type f -name \"*.ts\" 2>/dev/null | sort)"
     ]
   }
 }

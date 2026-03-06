@@ -177,14 +177,6 @@ app.use((req, res, next) => {
     () => {
       log(`serving on port ${port}`);
 
-      // Configure Marcela agent tools on ElevenLabs (non-blocking)
-      import("./marcela-agent-config").then(({ configureMarcelaAgent }) => {
-        configureMarcelaAgent().then(r => {
-          if (r.success) log("Marcela agent tools configured", "marcela");
-          else log(`Marcela agent config skipped: ${r.error}`, "marcela");
-        });
-      }).catch(() => { /* ElevenLabs not connected — skip */ });
-
       // Refresh stale market rates every 5 minutes
       setInterval(async () => {
         try {

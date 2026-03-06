@@ -58,7 +58,7 @@ export function registerMarcelaRoutes(app: Express) {
           patch[field] = req.body[field];
         }
       }
-      const updated = await storage.upsertGlobalAssumptions({ ...ga, ...patch } as InsertGlobalAssumptions);
+      const updated = await storage.upsertGlobalAssumptions(patch as InsertGlobalAssumptions);
       res.json(updated);
     } catch (error) {
       logAndSendError(res, "Failed to update voice settings", error);

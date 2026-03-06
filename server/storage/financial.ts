@@ -28,9 +28,10 @@ export class FinancialStorage {
     const existing = await this.getGlobalAssumptions(userId);
     
     if (existing) {
+      const { id: _id, createdAt: _ca, updatedAt: _ua, ...safeData } = data as Record<string, unknown>;
       const [updated] = await db
         .update(globalAssumptions)
-        .set({ ...data, updatedAt: new Date() })
+        .set({ ...safeData, updatedAt: new Date() })
         .where(eq(globalAssumptions.id, existing.id))
         .returning();
       return updated;

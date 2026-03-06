@@ -30,8 +30,72 @@ export function ThemeManager() {
   });
   const deleteThemeMutation = useDeleteTheme();
 
+  const activeTheme = designThemes?.find(t => t.isDefault);
+
   return (
     <>
+    {activeTheme && (
+      <Card className="relative overflow-hidden bg-white/80 backdrop-blur-xl border-2 border-primary/30 shadow-lg mb-6" data-testid="current-theme-card">
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-primary/15 flex items-center justify-center">
+              <Palette className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <CardTitle className="text-lg font-display text-gray-900">Current Theme</CardTitle>
+              <CardDescription className="label-text text-gray-600">{activeTheme.name}{activeTheme.description ? ` — ${activeTheme.description}` : ''}</CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="pt-0">
+          {activeTheme.colors.filter(c => c.description?.startsWith('PALETTE:')).length > 0 && (
+            <div className="mb-4">
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Palette</p>
+              <div className="flex gap-2 flex-wrap">
+                {activeTheme.colors.filter(c => c.description?.startsWith('PALETTE:')).sort((a, b) => a.rank - b.rank).map((color, idx) => (
+                  <div key={`active-palette-${idx}`} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 border border-gray-200">
+                    <div className="w-7 h-7 rounded-md border border-gray-300 shadow-inner" style={{ backgroundColor: color.hexCode }} />
+                    <div>
+                      <p className="text-xs font-medium text-gray-800">{color.name}</p>
+                      <p className="font-mono text-[10px] text-gray-400">{color.hexCode}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {activeTheme.colors.filter(c => c.description?.startsWith('CHART:')).length > 0 && (
+            <div>
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Charts</p>
+              <div className="flex gap-1.5 flex-wrap">
+                {activeTheme.colors.filter(c => c.description?.startsWith('CHART:')).sort((a, b) => a.rank - b.rank).map((color, idx) => (
+                  <div key={`active-chart-${idx}`} className="group relative">
+                    <div className="w-8 h-8 rounded-md border border-gray-200 shadow-inner cursor-default" style={{ backgroundColor: color.hexCode }} title={`${color.name}: ${color.hexCode}`} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {activeTheme.colors.filter(c => !c.description?.startsWith('PALETTE:') && !c.description?.startsWith('CHART:')).length > 0 && activeTheme.colors.filter(c => c.description?.startsWith('PALETTE:')).length === 0 && (
+            <div>
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Colors</p>
+              <div className="flex gap-2 flex-wrap">
+                {activeTheme.colors.filter(c => !c.description?.startsWith('PALETTE:') && !c.description?.startsWith('CHART:')).sort((a, b) => a.rank - b.rank).map((color, idx) => (
+                  <div key={`active-other-${idx}`} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 border border-gray-200">
+                    <div className="w-7 h-7 rounded-md border border-gray-300 shadow-inner" style={{ backgroundColor: color.hexCode }} />
+                    <div>
+                      <p className="text-xs font-medium text-gray-800">{color.name}</p>
+                      <p className="font-mono text-[10px] text-gray-400">{color.hexCode}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    )}
+
     <Card className="relative overflow-hidden bg-white/80 backdrop-blur-xl border border-gray-200 shadow-2xl">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-primary/10 blur-[100px] animate-pulse" style={{ animationDuration: '4s' }} />
@@ -41,7 +105,7 @@ export function ThemeManager() {
       <CardHeader className="relative">
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-xl font-display text-gray-900">Design Themes</CardTitle>
+            <CardTitle className="text-xl font-display text-gray-900">All Themes</CardTitle>
             <CardDescription className="label-text text-gray-600">
               Define color palettes and design systems for your application
             </CardDescription>

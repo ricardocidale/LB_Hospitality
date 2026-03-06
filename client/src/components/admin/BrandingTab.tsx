@@ -144,8 +144,9 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
               <div className="relative w-14 h-14 rounded-lg border-2 border-dashed border-primary/40 flex items-center justify-center overflow-hidden bg-white">
                 <img
                   src={(() => {
-                    if (globalAssumptions?.assetLogoId) {
-                      const logo = adminLogos?.find(l => l.id === globalAssumptions.assetLogoId);
+                    const effectiveId = globalAssumptions?.assetLogoId ?? adminLogos?.find(l => l.isDefault)?.id;
+                    if (effectiveId) {
+                      const logo = adminLogos?.find(l => l.id === effectiveId);
                       if (logo) return logo.url;
                     }
                     return defaultLogo;
@@ -156,17 +157,16 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
               </div>
               <div className="flex-1 space-y-1 max-w-sm">
                 <Select
-                  value={globalAssumptions?.assetLogoId ? String(globalAssumptions.assetLogoId) : "none"}
+                  value={String(globalAssumptions?.assetLogoId ?? adminLogos?.find(l => l.isDefault)?.id ?? "")}
                   onValueChange={(v) => {
-                    const logoId = v === "none" ? null : Number(v);
+                    const logoId = Number(v);
                     updateGlobalMutation.mutate({ assetLogoId: logoId }, {
-                      onSuccess: () => toast({ title: logoId ? "Asset logo updated" : "Asset logo cleared", description: logoId ? "The asset type logo has been updated." : "Asset logo has been removed." })
+                      onSuccess: () => toast({ title: "Asset logo updated", description: "The asset type logo has been updated." })
                     });
                   }}
                 >
                   <SelectTrigger data-testid="select-asset-logo"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">No Logo</SelectItem>
                     {adminLogos?.map(logo => (
                       <SelectItem key={logo.id} value={String(logo.id)}>{logo.name}{logo.isDefault ? " (Default)" : ""}</SelectItem>
                     ))}

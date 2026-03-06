@@ -22,6 +22,15 @@
 7. Update `mandatory-financial-tests.md` if a financial bug was fixed
 8. Verify documentation harmony — counts must match actual project state
 
+## Automated Enforcement
+
+The **Doc Harmony** check runs as part of `npm run health`. It compares actual codebase metrics against documented values in `.claude/claude.md` and `replit.md`:
+
+- **Test count**: Every mention of `N tests` in both files must match `vitest run` output
+- **Rules count**: Every mention of `Rules (N)` must match `ls .claude/rules/*.md | wc -l`
+
+If any documented value is stale, Health Check reports `FAIL — Doc Harmony` with the specific mismatch. Implementation: `script/health.ts` → `checkDocHarmony()`.
+
 ## What "Harmonize" Means
 
 `replit.md` summarizes and points to `.claude/claude.md`. When `.claude` changes, update `replit.md` key sections to match. Keep it concise — never duplicate full detail.

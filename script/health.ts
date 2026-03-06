@@ -1,10 +1,11 @@
 /**
  * Health Check — compact single-command output for AI token savings.
- * Runs: tsc → tests → verify, outputs ~4-6 lines instead of hundreds.
+ * Runs: tsc → tests → verify → doc harmony, outputs ~5-7 lines instead of hundreds.
  *
  * Usage: npm run health
  */
 import { execSync } from "child_process";
+import { readFileSync } from "fs";
 
 interface Phase {
   name: string;
@@ -54,7 +55,6 @@ const phases: Phase[] = [
         const timeMatch = out.match(/Time:\s*([\d.]+s)/);
         return `PASS — UNQUALIFIED${timeMatch ? ` (${timeMatch[1]})` : ""}`;
       }
-      // Find which phase failed
       const failedPhases: string[] = [];
       if (out.includes("Proof scenario tests FAILED"))
         failedPhases.push("scenarios");
@@ -67,10 +67,47 @@ const phases: Phase[] = [
   },
 ];
 
+function checkDocHarmony(rawTestOutput: string): string {
+  const claudeMd = readFileSync(".claude/claude.md", "utf-8");
+  const replitMd = readFileSync("replit.md", "utf-8");
+
+  const clean = rawTestOutput.replace(/\x1b\[[0-9;]*m/g, "");
+  const totalMatch = clean.match(/Tests\s+\d+\s+passed\s*(?:\|\s*\d+\s+skipped\s*)?\((\d+)\)/);
+  const actualTests = totalMatch ? parseInt(totalMatch[1], 10) : 0;
+
+  const rulesOut = execSync("ls .claude/rules/*.md 2>/dev/null | wc -l", { encoding: "utf-8", timeout: 5_000 });
+  const actualRules = parseInt(rulesOut.trim(), 10) || 0;
+
+  if (actualTests === 0) return "PASS (skipped — no test count)";
+
+  const stale: string[] = [];
+
+  function checkAll(content: string, file: string, pattern: RegExp, actual: number, label: string) {
+    let m: RegExpExecArray | null;
+    const re = new RegExp(pattern.source, "g");
+    while ((m = re.exec(content)) !== null) {
+      const documented = parseInt(m[1].replace(/,/g, ""), 10);
+      if (documented !== actual) {
+        stale.push(`${label}: ${file} says ${documented}, actual ${actual}`);
+      }
+    }
+  }
+
+  checkAll(claudeMd, "claude.md", /(\d[,\d]*)\s*tests/, actualTests, "tests");
+  checkAll(replitMd, "replit.md", /(\d[,\d]*)\s*tests/, actualTests, "tests");
+  checkAll(claudeMd, "claude.md", /Rules\s*\((\d+)/, actualRules, "rules");
+  checkAll(replitMd, "replit.md", /rules\/?\s*\((\d+)/i, actualRules, "rules");
+
+  if (stale.length === 0) return "PASS";
+  const unique = [...new Set(stale)];
+  return `FAIL — ${unique[0]}${unique.length > 1 ? ` (+${unique.length - 1} more)` : ""}`;
+}
+
 console.log("\n  Health Check");
 console.log("  " + "─".repeat(44));
 
 let allPassed = true;
+let testOutput = "";
 
 for (const phase of phases) {
   try {
@@ -79,6 +116,7 @@ for (const phase of phases) {
       encoding: "utf-8",
       maxBuffer: 10 * 1024 * 1024,
     });
+    if (phase.name === "Tests") testOutput = output;
     const result = phase.parse(output);
     const passed = result.startsWith("PASS");
     if (!passed) allPassed = false;
@@ -87,6 +125,7 @@ for (const phase of phases) {
     );
   } catch (err: any) {
     const output = (err.stdout ?? "") + (err.stderr ?? "");
+    if (phase.name === "Tests") testOutput = output;
     const result = phase.parse(output);
     const passed = result.startsWith("PASS");
     if (!passed) allPassed = false;
@@ -94,6 +133,13 @@ for (const phase of phases) {
       `  ${passed ? "✓" : "✗"} ${phase.name.padEnd(16)} ${result}`,
     );
   }
+}
+
+{
+  const result = checkDocHarmony(testOutput);
+  const passed = result.startsWith("PASS");
+  if (!passed) allPassed = false;
+  console.log(`  ${passed ? "✓" : "✗"} ${"Doc Harmony".padEnd(16)} ${result}`);
 }
 
 console.log("  " + "─".repeat(44));

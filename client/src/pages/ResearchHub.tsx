@@ -1,0 +1,382 @@
+/**
+ * ResearchHub.tsx — Research Center page for AI-powered market research.
+ *
+ * Displays the status of all research across the portfolio: per-property,
+ * management company, and global industry research. Each card shows whether
+ * research is fresh, stale, or missing, with links to view or generate.
+ */
+import Layout from "@/components/Layout";
+import { PageHeader } from "@/components/ui/page-header";
+import { useResearchStatus } from "@/lib/api/research";
+import { useProperties } from "@/lib/api";
+import {
+  FlaskConical,
+  Building2,
+  Briefcase,
+  Globe,
+  RefreshCw,
+  Check,
+  Clock,
+  AlertCircle,
+  ExternalLink,
+  Loader2,
+  BookOpen,
+  Settings2,
+  ArrowRight,
+} from "lucide-react";
+import { Link } from "wouter";
+import { format } from "date-fns";
+import { motion } from "framer-motion";
+
+function StatusBadge({ status }: { status: "fresh" | "stale" | "missing" }) {
+  const config = {
+    fresh: {
+      label: "Fresh",
+      className: "bg-emerald-50 text-emerald-700 border-emerald-200",
+      icon: Check,
+    },
+    stale: {
+      label: "Stale",
+      className: "bg-amber-50 text-amber-700 border-amber-200",
+      icon: Clock,
+    },
+    missing: {
+      label: "Missing",
+      className: "bg-gray-100 text-gray-500 border-gray-200",
+      icon: AlertCircle,
+    },
+  };
+  const c = config[status];
+  return (
+    <span
+      className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full border ${c.className}`}
+    >
+      <c.icon className="w-3 h-3" />
+      {c.label}
+    </span>
+  );
+}
+
+function formatDate(dateStr: string | null): string {
+  if (!dateStr) return "Not generated";
+  try {
+    return format(new Date(dateStr), "MMM d, yyyy 'at' h:mm a");
+  } catch {
+    return "Not generated";
+  }
+}
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.08, duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] as const },
+  }),
+};
+
+export default function ResearchHub() {
+  const {
+    data: researchStatus,
+    isLoading: isResearchLoading,
+    isError: isResearchError,
+  } = useResearchStatus();
+  const { data: properties, isLoading: isPropertiesLoading } = useProperties();
+
+  const isLoading = isResearchLoading || isPropertiesLoading;
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center h-[60vh]">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      </Layout>
+    );
+  }
+
+  if (isResearchError) {
+    return (
+      <Layout>
+        <div className="flex flex-col items-center justify-center h-[60vh] gap-3">
+          <AlertCircle className="w-8 h-8 text-destructive" />
+          <p className="text-muted-foreground">
+            Failed to load research status. Please try refreshing the page.
+          </p>
+        </div>
+      </Layout>
+    );
+  }
+
+  const propertyStatuses = researchStatus?.properties ?? [];
+  const companyStatus = researchStatus?.company ?? { status: "missing" as const, updatedAt: null };
+  const globalStatus = researchStatus?.global ?? { status: "missing" as const, updatedAt: null };
+
+  const freshCount = propertyStatuses.filter((p) => p.status === "fresh").length;
+  const staleCount = propertyStatuses.filter((p) => p.status === "stale").length;
+  const missingCount = propertyStatuses.filter((p) => p.status === "missing").length;
+
+  return (
+    <Layout>
+      <div className="space-y-8">
+        <PageHeader
+          title="Research Center"
+          subtitle="AI-powered market research for your portfolio, management company, and industry"
+          variant="dark"
+        />
+
+        {/* Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Portfolio Research Card */}
+          <motion.div
+            custom={0}
+            variants={cardVariants}
+            initial="hidden"
+            animate="visible"
+            className="bg-white/80 backdrop-blur-xl border border-primary/20 rounded-2xl p-5 shadow-[0_8px_32px_rgba(159,188,164,0.1)] group hover:shadow-[0_12px_48px_rgba(159,188,164,0.18)] transition-all duration-300"
+          >
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center">
+                  <Building2 className="w-5 h-5 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="font-display font-semibold text-gray-900">
+                    Portfolio Research
+                  </h3>
+                  <p className="text-xs text-gray-500 label-text mt-0.5">
+                    Per-property market analysis
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-2 mb-4">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-600">Fresh</span>
+                <span className="font-medium text-emerald-700">{freshCount}</span>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-600">Stale</span>
+                <span className="font-medium text-amber-700">{staleCount}</span>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-600">Missing</span>
+                <span className="font-medium text-gray-500">{missingCount}</span>
+              </div>
+            </div>
+
+            <a
+              href="#property-research"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+            >
+              View Properties
+              <ArrowRight className="w-3.5 h-3.5" />
+            </a>
+          </motion.div>
+
+          {/* Company Research Card */}
+          <motion.div
+            custom={1}
+            variants={cardVariants}
+            initial="hidden"
+            animate="visible"
+            className="bg-white/80 backdrop-blur-xl border border-primary/20 rounded-2xl p-5 shadow-[0_8px_32px_rgba(159,188,164,0.1)] group hover:shadow-[0_12px_48px_rgba(159,188,164,0.18)] transition-all duration-300"
+          >
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-center">
+                  <Briefcase className="w-5 h-5 text-purple-600" />
+                </div>
+                <div>
+                  <h3 className="font-display font-semibold text-gray-900">
+                    Company Research
+                  </h3>
+                  <p className="text-xs text-gray-500 label-text mt-0.5">
+                    Management company analysis
+                  </p>
+                </div>
+              </div>
+              <StatusBadge status={companyStatus.status} />
+            </div>
+
+            <p className="text-sm text-gray-500 mb-4">
+              {companyStatus.updatedAt
+                ? `Updated ${formatDate(companyStatus.updatedAt)}`
+                : "Not generated"}
+            </p>
+
+            <Link
+              href="/company/research"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+            >
+              View Research
+              <ExternalLink className="w-3.5 h-3.5" />
+            </Link>
+          </motion.div>
+
+          {/* Global Research Card */}
+          <motion.div
+            custom={2}
+            variants={cardVariants}
+            initial="hidden"
+            animate="visible"
+            className="bg-white/80 backdrop-blur-xl border border-primary/20 rounded-2xl p-5 shadow-[0_8px_32px_rgba(159,188,164,0.1)] group hover:shadow-[0_12px_48px_rgba(159,188,164,0.18)] transition-all duration-300"
+          >
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center">
+                  <Globe className="w-5 h-5 text-emerald-600" />
+                </div>
+                <div>
+                  <h3 className="font-display font-semibold text-gray-900">
+                    Global Research
+                  </h3>
+                  <p className="text-xs text-gray-500 label-text mt-0.5">
+                    Industry trends & benchmarks
+                  </p>
+                </div>
+              </div>
+              <StatusBadge status={globalStatus.status} />
+            </div>
+
+            <p className="text-sm text-gray-500 mb-4">
+              {globalStatus.updatedAt
+                ? `Updated ${formatDate(globalStatus.updatedAt)}`
+                : "Not generated"}
+            </p>
+
+            <Link
+              href="/global/research"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+            >
+              View Research
+              <ExternalLink className="w-3.5 h-3.5" />
+            </Link>
+          </motion.div>
+        </div>
+
+        {/* Property Research Grid */}
+        <div id="property-research" className="space-y-4">
+          <div>
+            <h3 className="text-lg font-display font-semibold text-gray-900 flex items-center gap-2">
+              <FlaskConical className="w-5 h-5 text-primary" />
+              Property Research
+            </h3>
+            <p className="text-sm text-gray-500 label-text mt-1">
+              Market analysis for each property in your portfolio
+            </p>
+          </div>
+
+          {propertyStatuses.length === 0 ? (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="bg-white/80 backdrop-blur-xl border border-primary/20 rounded-2xl p-12 shadow-[0_8px_32px_rgba(159,188,164,0.1)] flex flex-col items-center text-center"
+            >
+              <div className="w-14 h-14 rounded-2xl bg-gray-100 border border-gray-200 flex items-center justify-center mb-4">
+                <Building2 className="w-7 h-7 text-gray-400" />
+              </div>
+              <h4 className="font-display font-semibold text-gray-700 mb-1">
+                No properties in your portfolio yet
+              </h4>
+              <p className="text-sm text-gray-500 max-w-sm">
+                Add properties to your portfolio to generate AI-powered market research and competitive analysis.
+              </p>
+              <Link
+                href="/portfolio"
+                className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+              >
+                Go to Portfolio
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </motion.div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {propertyStatuses.map((prop, index) => (
+                <motion.div
+                  key={prop.propertyId}
+                  custom={index + 3}
+                  variants={cardVariants}
+                  initial="hidden"
+                  animate="visible"
+                  className="bg-white/80 backdrop-blur-xl border border-primary/20 rounded-2xl overflow-hidden shadow-[0_8px_32px_rgba(159,188,164,0.1)] group hover:shadow-[0_12px_48px_rgba(159,188,164,0.18)] transition-all duration-300"
+                >
+                  {/* Property image or fallback */}
+                  {prop.imageUrl ? (
+                    <div className="h-32 w-full overflow-hidden">
+                      <img
+                        src={prop.imageUrl}
+                        alt={prop.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </div>
+                  ) : (
+                    <div className="h-32 w-full bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+                      <Building2 className="w-10 h-10 text-primary/30" />
+                    </div>
+                  )}
+
+                  <div className="p-4">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="min-w-0 flex-1">
+                        <h4 className="font-display font-semibold text-gray-900 truncate" title={prop.name}>
+                          {prop.name}
+                        </h4>
+                        <p className="text-xs text-gray-500 label-text truncate" title={prop.location}>
+                          {prop.location}
+                        </p>
+                      </div>
+                      <div className="flex-shrink-0 ml-2">
+                        <StatusBadge status={prop.status} />
+                      </div>
+                    </div>
+
+                    <p className="text-xs text-gray-400 mb-3">
+                      {prop.updatedAt
+                        ? `Updated ${formatDate(prop.updatedAt)}`
+                        : "Not generated"}
+                    </p>
+
+                    <Link
+                      href={`/property/${prop.propertyId}/research`}
+                      className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+                    >
+                      View Research
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </Link>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Configuration Link */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4, duration: 0.5 }}
+        >
+          <Link href="/settings">
+            <div className="bg-white/60 backdrop-blur-xl border border-primary/15 rounded-2xl p-4 shadow-[0_4px_16px_rgba(159,188,164,0.08)] flex items-center gap-4 hover:bg-white/80 hover:shadow-[0_8px_32px_rgba(159,188,164,0.12)] transition-all duration-300 cursor-pointer group">
+              <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
+                <Settings2 className="w-4.5 h-4.5 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4 className="text-sm font-semibold text-gray-800">
+                  Research Configuration
+                </h4>
+                <p className="text-xs text-gray-500 label-text">
+                  Configure focus areas, target regions, and custom research questions
+                </p>
+              </div>
+              <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-primary group-hover:translate-x-0.5 transition-all duration-300 flex-shrink-0" />
+            </div>
+          </Link>
+        </motion.div>
+      </div>
+    </Layout>
+  );
+}

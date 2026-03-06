@@ -6,11 +6,14 @@ import {
   DEFAULT_REV_SHARE_EVENTS,
   DEFAULT_TAX_RATE,
 } from "@shared/constants";
-import {
+import type {
   VerificationReport,
   PropertyCheckResults,
   CheckResult,
   ClientPropertyMonthly,
+  CheckerProperty,
+  CheckerGlobalAssumptions,
+  IndependentMonthlyResult,
 } from "./types";
 import { check } from "./gaap-checks";
 import {
@@ -31,8 +34,8 @@ const DEFAULT_TERM_YEARS = 25;
  * Run the full independent verification suite across all properties and the company.
  */
 export function runIndependentVerification(
-  properties: any[],
-  globalAssumptions: any,
+  properties: CheckerProperty[],
+  globalAssumptions: CheckerGlobalAssumptions,
   clientResults?: ClientPropertyMonthly[][]
 ): VerificationReport {
   const propertyResults: PropertyCheckResults[] = [];
@@ -45,7 +48,7 @@ export function runIndependentVerification(
   const projectionYears = globalAssumptions.projectionYears ?? PROJECTION_YEARS;
   const projectionMonths = projectionYears * 12;
 
-  const allIndependentCalcs: any[][] = [];
+  const allIndependentCalcs: IndependentMonthlyResult[][] = [];
   for (const property of properties) {
     allIndependentCalcs.push(independentPropertyCalc(property, globalAssumptions));
   }
@@ -62,7 +65,7 @@ export function runIndependentVerification(
     const loanRate = property.acquisitionInterestRate ?? DEFAULT_INTEREST_RATE;
     const loanTerm = property.acquisitionTermYears ?? DEFAULT_TERM_YEARS;
 
-    const firstOperationalMonth = independentCalc.findIndex((m: any) => m.revenueRooms > 0);
+    const firstOperationalMonth = independentCalc.findIndex((m) => m.revenueRooms > 0);
 
     if (firstOperationalMonth >= 0) {
       const m = independentCalc[firstOperationalMonth];
@@ -168,7 +171,7 @@ export function runIndependentVerification(
       "ASC 360 / IRS Pub 946",
       `$${depBasis.toLocaleString()} depreciable basis ÷ ${DEPRECIATION_YEARS} years`,
       depBasis / DEPRECIATION_YEARS,
-      independentCalc.find((m: any) => m.depreciationExpense > 0)?.depreciationExpense * 12 || 0,
+      (independentCalc.find((m) => m.depreciationExpense > 0)?.depreciationExpense ?? 0) * 12,
       "critical"
     ));
 
@@ -181,7 +184,7 @@ export function runIndependentVerification(
         "ASC 470",
         `PMT($${loanAmount.toLocaleString()}, ${(loanRate * 100).toFixed(1)}%/12, ${loanTerm * 12} months)`,
         monthlyPayment,
-        independentCalc.find((m: any) => m.debtPayment > 0)?.debtPayment || 0,
+        independentCalc.find((m) => m.debtPayment > 0)?.debtPayment || 0,
         "critical"
       ));
 
@@ -190,20 +193,20 @@ export function runIndependentVerification(
         "Debt",
         "ASC 470",
         "Interest Expense + Principal Payment = Total Debt Service",
-        independentCalc.find((m: any) => m.debtPayment > 0)?.debtPayment || 0,
-        (independentCalc.find((m: any) => m.debtPayment > 0)?.interestExpense || 0) +
-        (independentCalc.find((m: any) => m.debtPayment > 0)?.principalPayment || 0),
+        independentCalc.find((m) => m.debtPayment > 0)?.debtPayment || 0,
+        (independentCalc.find((m) => m.debtPayment > 0)?.interestExpense || 0) +
+        (independentCalc.find((m) => m.debtPayment > 0)?.principalPayment || 0),
         "critical"
       ));
     }
 
     const serverYear1 = independentCalc.slice(0, 12);
-    const serverYear1Revenue = serverYear1.reduce((s: number, m: any) => s + m.revenueTotal, 0);
-    const serverYear1NOI = serverYear1.reduce((s: number, m: any) => s + m.noi, 0);
+    const serverYear1Revenue = serverYear1.reduce((s, m) => s + m.revenueTotal, 0);
+    const serverYear1NOI = serverYear1.reduce((s, m) => s + m.noi, 0);
 
     const serverLastYear = independentCalc.slice((projectionYears - 1) * 12, projectionMonths);
-    const serverLastYearRevenue = serverLastYear.reduce((s: number, m: any) => s + m.revenueTotal, 0);
-    const serverLastYearNOI = serverLastYear.reduce((s: number, m: any) => s + m.noi, 0);
+    const serverLastYearRevenue = serverLastYear.reduce((s, m) => s + m.revenueTotal, 0);
+    const serverLastYearNOI = serverLastYear.reduce((s, m) => s + m.noi, 0);
 
     if (clientMonthly && clientMonthly.length >= 12) {
       const clientYear1Revenue = clientMonthly.slice(0, 12).reduce((s, m) => s + m.revenueTotal, 0);
@@ -283,7 +286,7 @@ export function runIndependentVerification(
     }
 
     const endingCash = independentCalc[independentCalc.length - 1]?.endingCash || 0;
-    const cumulativeCashFlow = independentCalc.reduce((sum: number, m: any) => sum + m.cashFlow, 0);
+    const cumulativeCashFlow = independentCalc.reduce((sum, m) => sum + m.cashFlow, 0);
     const reserveSeed = property.operatingReserve ?? 0;
     checks.push(check(
       "Cumulative Cash Flow = Ending Cash",
@@ -295,8 +298,8 @@ export function runIndependentVerification(
       "critical"
     ));
 
-    const shortfallMonths = independentCalc.filter((m: any) => m.cashShortfall);
-    const minCash = Math.min(...independentCalc.map((m: any) => m.endingCash));
+    const shortfallMonths = independentCalc.filter((m) => m.cashShortfall);
+    const minCash = Math.min(...independentCalc.map((m) => m.endingCash));
     const propLabel = property.name || `Property ${pi + 1}`;
     checks.push(check(
       "No Negative Cash Balance",
@@ -308,9 +311,9 @@ export function runIndependentVerification(
       "info"
     ));
 
-    let preOpMonths = independentCalc.filter((m: any) => m.monthIndex < firstOperationalMonth);
+    const preOpMonths = independentCalc.filter((m) => m.monthIndex < firstOperationalMonth);
     if (preOpMonths.length > 0) {
-      const preOpRevenue = preOpMonths.reduce((sum: number, m: any) => sum + m.revenueTotal, 0);
+      const preOpRevenue = preOpMonths.reduce((sum, m) => sum + m.revenueTotal, 0);
       checks.push(check(
         "Pre-Operations Revenue = $0",
         "Timing",

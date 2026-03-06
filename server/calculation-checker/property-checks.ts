@@ -25,7 +25,7 @@ import {
   DEFAULT_BASE_MANAGEMENT_FEE_RATE,
   DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
 } from "@shared/constants";
-import { YearMonth } from "./types";
+import type { CheckerProperty, CheckerGlobalAssumptions, IndependentMonthlyResult, YearMonth } from "./types";
 
 const PROJECTION_YEARS = 10;
 const DEFAULT_LTV = 0.75;
@@ -65,7 +65,7 @@ export function ymNotBefore(a: YearMonth, b: YearMonth): boolean {
   return diffMonthsYM(a, b) >= 0;
 }
 
-export function independentPropertyCalc(property: any, global: any) {
+export function independentPropertyCalc(property: CheckerProperty, global: CheckerGlobalAssumptions): IndependentMonthlyResult[] {
   const modelStartYM = parseYearMonth(global.modelStartDate);
   const opsStartYM = parseYearMonth(property.operationsStartDate);
   const acquisitionYM = property.acquisitionDate ? parseYearMonth(property.acquisitionDate) : opsStartYM;
@@ -86,7 +86,7 @@ export function independentPropertyCalc(property: any, global: any) {
 
   const projectionYears = global.projectionYears ?? PROJECTION_YEARS;
   const months = projectionYears * 12;
-  const results: any[] = [];
+  const results: IndependentMonthlyResult[] = [];
   let currentAdr = property.startAdr;
   let cumulativeCash = 0;
 

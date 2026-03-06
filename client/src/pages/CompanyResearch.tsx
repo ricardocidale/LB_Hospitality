@@ -150,10 +150,35 @@ export default function CompanyResearch() {
         )}
 
         {!hasResearch && !isGenerating && (
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
-            <BookOpen className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-            <h3 className="text-lg font-semibold text-gray-600 mb-2">No Research Data Yet</h3>
-            <p className="text-sm text-gray-500 mb-6">Click "Update Research" to generate AI-powered management company analysis.</p>
+          <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_8px_32px_rgba(159,188,164,0.1)] border border-primary/20 p-12 text-center">
+            <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-primary/10 flex items-center justify-center">
+              <BookOpen className="w-10 h-10 text-primary" />
+            </div>
+            <h3 className="text-xl font-display text-gray-900 mb-3">No Company Research Yet</h3>
+            <p className="text-sm text-gray-600 mb-6 max-w-lg mx-auto leading-relaxed">
+              Generate AI-powered analysis of hotel management company fee structures, GAAP standards, USALI expense benchmarks, compensation norms, and contract terms.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-xl mx-auto mb-8 text-left">
+              <div className="bg-emerald-50 rounded-xl p-3 border border-emerald-200">
+                <p className="text-xs font-semibold text-emerald-800 mb-1">Fee Structures</p>
+                <p className="text-xs text-emerald-700">Base and incentive management fee benchmarks</p>
+              </div>
+              <div className="bg-blue-50 rounded-xl p-3 border border-blue-200">
+                <p className="text-xs font-semibold text-blue-800 mb-1">GAAP Standards</p>
+                <p className="text-xs text-blue-700">ASC 606 revenue recognition and USALI format</p>
+              </div>
+              <div className="bg-amber-50 rounded-xl p-3 border border-amber-200">
+                <p className="text-xs font-semibold text-amber-800 mb-1">Compensation</p>
+                <p className="text-xs text-amber-700">Industry salary, staffing, and overhead benchmarks</p>
+              </div>
+            </div>
+            <button
+              onClick={generateResearch}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-white font-semibold shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Generate Research
+            </button>
           </div>
         )}
 

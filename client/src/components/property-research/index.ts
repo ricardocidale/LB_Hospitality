@@ -16,6 +16,7 @@
  */
 export { SectionCard } from "./SectionCard";
 export { MetricCard } from "./MetricCard";
+export { ConfidenceBadge } from "./ConfidenceBadge";
 export { ResearchSections } from "./ResearchSections";
 export { useResearchStream } from "./useResearchStream";
 export { sectionColors } from "./types";

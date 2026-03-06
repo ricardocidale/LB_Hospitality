@@ -42,6 +42,7 @@ const PropertyEdit = lazy(() => import("@/pages/PropertyEdit"));
 const PropertyMarketResearch = lazy(() => import("@/pages/PropertyMarketResearch"));
 const CompanyResearch = lazy(() => import("@/pages/CompanyResearch"));
 const GlobalResearch = lazy(() => import("@/pages/GlobalResearch"));
+const ResearchHub = lazy(() => import("@/pages/ResearchHub"));
 const Admin = lazy(() => import("@/pages/Admin"));
 const Logos = lazy(() => import("@/pages/Logos"));
 const Scenarios = lazy(() => import("@/pages/Scenarios"));
@@ -205,6 +206,9 @@ function Router() {
       </Route>
       <Route path="/methodology">
         <Redirect to="/help" />
+      </Route>
+      <Route path="/research">
+        <ManagementRoute component={ResearchHub} />
       </Route>
       <Route path="/company/research">
         <ManagementRoute component={CompanyResearch} />

@@ -79,7 +79,7 @@ export function ResearchSections({ content }: { content: any }) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
             <MetricCard label="Market Average ADR" value={content.adrAnalysis.marketAverage || "N/A"} color={sectionColors.adr} />
             <MetricCard label="Boutique Range" value={content.adrAnalysis.boutiqueRange || "N/A"} color={sectionColors.adr} />
-            <MetricCard label="Recommended Range" value={content.adrAnalysis.recommendedRange || "N/A"} color={sectionColors.adr} />
+            <MetricCard label="Recommended Range" value={content.adrAnalysis.recommendedRange || "N/A"} color={sectionColors.adr} confidence={content.adrAnalysis.confidence} />
           </div>
           {content.adrAnalysis.rationale && (
             <div className="bg-blue-50 rounded-xl p-4 border-l-4 border-blue-400 mb-5">
@@ -211,7 +211,7 @@ export function ResearchSections({ content }: { content: any }) {
       {content.cateringAnalysis && (
         <SectionCard icon={UtensilsCrossed} title="Catering & F&B Boost Analysis" color={sectionColors.catering}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
-            <MetricCard label="Recommended Boost" value={content.cateringAnalysis.recommendedBoostPercent || "N/A"} color={sectionColors.catering} />
+            <MetricCard label="Recommended Boost" value={content.cateringAnalysis.recommendedBoostPercent || "N/A"} color={sectionColors.catering} confidence={content.cateringAnalysis.confidence} />
             <MetricCard label="Market Range" value={content.cateringAnalysis.marketRange || "N/A"} color={sectionColors.catering} />
             <div className="rounded-xl p-4 border border-fuchsia-200 bg-fuchsia-50">
               <p className="text-xs font-medium uppercase tracking-wider mb-1.5 text-gray-500">Formula</p>
@@ -275,7 +275,7 @@ export function ResearchSections({ content }: { content: any }) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
             <MetricCard label="Market Range" value={content.capRateAnalysis.marketRange || "N/A"} color={sectionColors.capRate} />
             <MetricCard label="Boutique Range" value={content.capRateAnalysis.boutiqueRange || "N/A"} color={sectionColors.capRate} />
-            <MetricCard label="Recommended Range" value={content.capRateAnalysis.recommendedRange || "N/A"} color={sectionColors.capRate} />
+            <MetricCard label="Recommended Range" value={content.capRateAnalysis.recommendedRange || "N/A"} color={sectionColors.capRate} confidence={content.capRateAnalysis.confidence} />
           </div>
           {content.capRateAnalysis.rationale && (
             <div className="bg-cyan-50 rounded-xl p-4 border-l-4 border-cyan-400 mb-5">
@@ -312,7 +312,7 @@ export function ResearchSections({ content }: { content: any }) {
       {content.landValueAllocation && (
         <SectionCard icon={Mountain} title="Land Value Allocation" color={sectionColors.landValue}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
-            <MetricCard label="Recommended Land %" value={content.landValueAllocation.recommendedPercent || "N/A"} color={sectionColors.landValue} />
+            <MetricCard label="Recommended Land %" value={content.landValueAllocation.recommendedPercent || "N/A"} color={sectionColors.landValue} confidence={content.landValueAllocation.confidence} />
             <MetricCard label="Market Range" value={content.landValueAllocation.marketRange || "N/A"} color={sectionColors.landValue} />
             <MetricCard label="Assessment Method" value={content.landValueAllocation.assessmentMethod || "N/A"} color={sectionColors.landValue} />
           </div>

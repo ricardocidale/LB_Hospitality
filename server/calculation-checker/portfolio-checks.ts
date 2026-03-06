@@ -2,7 +2,7 @@ import {
   DEFAULT_BASE_MANAGEMENT_FEE_RATE,
   DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
 } from "@shared/constants";
-import { CheckResult, YearMonth } from "./types";
+import type { CheckResult, CheckerProperty, CheckerGlobalAssumptions, IndependentMonthlyResult, ClientPropertyMonthly } from "./types";
 import { check } from "./gaap-checks";
 import {
   parseYearMonth,
@@ -12,11 +12,11 @@ import {
 } from "./property-checks";
 
 export function runCompanyChecks(
-  properties: any[],
-  allIndependentCalcs: any[][],
-  globalAssumptions: any,
+  properties: CheckerProperty[],
+  allIndependentCalcs: IndependentMonthlyResult[][],
+  globalAssumptions: CheckerGlobalAssumptions,
   projectionMonths: number,
-  clientResults?: any[][]
+  clientResults?: ClientPropertyMonthly[][]
 ): CheckResult[] {
   const companyChecks: CheckResult[] = [];
   if (properties.length === 0) return companyChecks;
@@ -152,15 +152,21 @@ export function runCompanyChecks(
       const fixedEscRate = globalAssumptions.fixedCostEscalationRate ?? globalAssumptions.inflationRate ?? 0.03;
       const fixedFactor = Math.pow(1 + fixedEscRate, companyOpsYear);
 
-      const partnerCompKeys = [
-        'partnerCompYear1', 'partnerCompYear2', 'partnerCompYear3',
-        'partnerCompYear4', 'partnerCompYear5', 'partnerCompYear6',
-        'partnerCompYear7', 'partnerCompYear8', 'partnerCompYear9',
-        'partnerCompYear10',
-      ] as const;
+      const partnerCompByYear = [
+        globalAssumptions.partnerCompYear1,
+        globalAssumptions.partnerCompYear2,
+        globalAssumptions.partnerCompYear3,
+        globalAssumptions.partnerCompYear4,
+        globalAssumptions.partnerCompYear5,
+        globalAssumptions.partnerCompYear6,
+        globalAssumptions.partnerCompYear7,
+        globalAssumptions.partnerCompYear8,
+        globalAssumptions.partnerCompYear9,
+        globalAssumptions.partnerCompYear10,
+      ];
       const modelYear = Math.floor(cm / 12);
       const yrIdx = Math.min(modelYear, 9);
-      const partnerComp = ((globalAssumptions as any)[partnerCompKeys[yrIdx]] ?? 0) / 12;
+      const partnerComp = ((partnerCompByYear[yrIdx] ?? 0) / 12);
 
       const staffSalary = globalAssumptions.staffSalary ?? 0;
       const staffFTE = globalAssumptions.staffTier1Fte ?? 1;
@@ -196,23 +202,23 @@ export function runCompanyChecks(
 }
 
 export function runConsolidatedChecks(
-  properties: any[],
-  allIndependentCalcs: any[][],
-  globalAssumptions: any,
-  clientResults?: any[][]
+  properties: CheckerProperty[],
+  allIndependentCalcs: IndependentMonthlyResult[][],
+  globalAssumptions: CheckerGlobalAssumptions,
+  clientResults?: ClientPropertyMonthly[][]
 ): CheckResult[] {
   const consolidatedChecks: CheckResult[] = [];
   if (properties.length <= 1) return consolidatedChecks;
 
   const actualYear1RoomRevenue = allIndependentCalcs.reduce(
-    (s: number, calc: any[]) => s + calc.slice(0, 12).reduce((s2: number, m: any) => s2 + m.revenueRooms, 0), 0
+    (s, calc) => s + calc.slice(0, 12).reduce((s2, m) => s2 + m.revenueRooms, 0), 0
   );
 
   let directYear1RoomRevenue = 0;
   for (let pi = 0; pi < properties.length; pi++) {
     const calc = allIndependentCalcs[pi];
-    const opMonths = calc.slice(0, 12).filter((m: any) => m.revenueRooms > 0);
-    directYear1RoomRevenue += opMonths.reduce((s: number, m: any) => s + m.revenueRooms, 0);
+    const opMonths = calc.slice(0, 12).filter((m) => m.revenueRooms > 0);
+    directYear1RoomRevenue += opMonths.reduce((s, m) => s + m.revenueRooms, 0);
   }
 
   consolidatedChecks.push(check(

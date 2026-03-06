@@ -27,7 +27,7 @@ import Layout from "@/components/Layout";
 import { useProperty, useUpdateProperty, useGlobalAssumptions, useMarketResearch, useFeeCategories, useUpdateFeeCategories, type FeeCategoryResponse } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, BookOpen, AlertTriangle } from "lucide-react";
+import { Loader2, BookOpen, AlertTriangle, Wand2 } from "lucide-react";
 import { SaveButton } from "@/components/ui/save-button";
 import { GlassButton } from "@/components/ui/glass-button";
 import { PageHeader } from "@/components/ui/page-header";
@@ -45,6 +45,7 @@ import {
   OperatingCostRatesSection,
   ManagementFeesSection,
   OtherAssumptionsSection,
+  ApplyResearchDialog,
 } from "@/components/property-edit";
 
 export default function PropertyEdit() {
@@ -63,6 +64,14 @@ export default function PropertyEdit() {
   const [draft, setDraft] = useState<any>(null);
   const [isDirty, setIsDirty] = useState(false);
   const [feeDraft, setFeeDraft] = useState<FeeCategoryResponse[] | null>(null);
+  const [showApplyDialog, setShowApplyDialog] = useState(false);
+
+  // Compute research freshness: green (<7 days), amber (>7 days), gray (missing)
+  const researchFreshness = (() => {
+    if (!research?.updatedAt) return "missing";
+    const days = (Date.now() - new Date(research.updatedAt).getTime()) / (1000 * 60 * 60 * 24);
+    return days <= 7 ? "fresh" : "stale";
+  })();
   
   useEffect(() => {
     if (feeCategories && !feeDraft) {
@@ -357,13 +366,35 @@ export default function PropertyEdit() {
             <div className="flex items-center gap-3">
               <Link href={`/property/${propertyId}/research`} className="text-inherit no-underline">
                 <GlassButton variant="primary" data-testid="button-market-research">
-                  <BookOpen className="w-4 h-4" />
+                  <span className="relative">
+                    <BookOpen className="w-4 h-4" />
+                    <span
+                      className={`absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border-2 border-white ${
+                        researchFreshness === "fresh" ? "bg-emerald-400" :
+                        researchFreshness === "stale" ? "bg-amber-400" : "bg-gray-400"
+                      }`}
+                      title={
+                        researchFreshness === "fresh" ? "Research is up to date" :
+                        researchFreshness === "stale" ? "Research is older than 7 days" : "No research generated yet"
+                      }
+                    />
+                  </span>
                   Market Research
                 </GlassButton>
               </Link>
-              <SaveButton 
-                onClick={handleSave} 
-                isPending={updateProperty.isPending} 
+              {research?.content && !((research.content as any)?.rawResponse) && (
+                <GlassButton
+                  variant="primary"
+                  onClick={() => setShowApplyDialog(true)}
+                  data-testid="button-apply-research"
+                >
+                  <Wand2 className="w-4 h-4" />
+                  Apply Research
+                </GlassButton>
+              )}
+              <SaveButton
+                onClick={handleSave}
+                isPending={updateProperty.isPending}
               />
             </div>
           }
@@ -391,6 +422,16 @@ export default function PropertyEdit() {
           </SaveButton>
         </div>
       </div>
+
+      <ApplyResearchDialog
+        open={showApplyDialog}
+        onOpenChange={setShowApplyDialog}
+        draft={draft}
+        researchValues={researchValues}
+        onChange={(key, value) => {
+          handleChange(key, value);
+        }}
+      />
     </Layout>
   );
 }

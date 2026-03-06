@@ -15,6 +15,57 @@ export function register(app: Express) {
   // POST /api/email-research-pdf — emails a PDF report via Gmail integration.
   // ────────────────────────────────────────────────────────────
 
+  // Research status summary — used by the Research Hub page
+  app.get("/api/research/status", requireAuth, async (req, res) => {
+    try {
+      const allResearch = await storage.getAllMarketResearch(req.user!.id);
+      const allProperties = await storage.getAllProperties(req.user!.id);
+
+      const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
+      const getStatus = (updatedAt: Date | null | undefined): "fresh" | "stale" | "missing" => {
+        if (!updatedAt) return "missing";
+        return Date.now() - new Date(updatedAt).getTime() < SEVEN_DAYS ? "fresh" : "stale";
+      };
+
+      // Property research status
+      const propertyResearchMap = new Map<number, { updatedAt: Date | null; llmModel: string | null }>();
+      for (const r of allResearch) {
+        if (r.type === "property" && r.propertyId) {
+          const existing = propertyResearchMap.get(r.propertyId);
+          if (!existing || (r.updatedAt && (!existing.updatedAt || r.updatedAt > existing.updatedAt))) {
+            propertyResearchMap.set(r.propertyId, { updatedAt: r.updatedAt, llmModel: r.llmModel });
+          }
+        }
+      }
+
+      const propertyStatuses = allProperties.map((p) => {
+        const r = propertyResearchMap.get(p.id);
+        return {
+          propertyId: p.id,
+          name: p.name,
+          location: p.location,
+          imageUrl: p.imageUrl,
+          status: getStatus(r?.updatedAt),
+          updatedAt: r?.updatedAt?.toISOString() || null,
+          llmModel: r?.llmModel || null,
+        };
+      });
+
+      // Company & global research
+      const companyResearch = allResearch.find((r) => r.type === "company");
+      const globalResearch = allResearch.find((r) => r.type === "global");
+
+      res.json({
+        properties: propertyStatuses,
+        company: { status: getStatus(companyResearch?.updatedAt), updatedAt: companyResearch?.updatedAt?.toISOString() || null },
+        global: { status: getStatus(globalResearch?.updatedAt), updatedAt: globalResearch?.updatedAt?.toISOString() || null },
+      });
+    } catch (error) {
+      console.error("Error fetching research status:", error);
+      res.status(500).json({ error: "Failed to fetch research status" });
+    }
+  });
+
   app.get("/api/market-research", requireAuth, async (req, res) => {
     try {
       const { type, propertyId } = req.query;

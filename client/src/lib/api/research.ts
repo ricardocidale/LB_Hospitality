@@ -9,6 +9,31 @@ import {
 } from "./types";
 import { invalidateAllFinancialQueries } from "./properties";
 
+export interface ResearchStatusResponse {
+  properties: Array<{
+    propertyId: number;
+    name: string;
+    location: string;
+    imageUrl: string | null;
+    status: "fresh" | "stale" | "missing";
+    updatedAt: string | null;
+    llmModel: string | null;
+  }>;
+  company: { status: "fresh" | "stale" | "missing"; updatedAt: string | null };
+  global: { status: "fresh" | "stale" | "missing"; updatedAt: string | null };
+}
+
+export function useResearchStatus() {
+  return useQuery<ResearchStatusResponse>({
+    queryKey: ["research", "status"],
+    queryFn: async () => {
+      const res = await fetch("/api/research/status");
+      if (!res.ok) throw new Error("Failed to fetch research status");
+      return res.json();
+    },
+  });
+}
+
 async function fetchResearch(type: string, propertyId?: number): Promise<MarketResearchResponse | null> {
   const params = new URLSearchParams();
   params.set("type", type);

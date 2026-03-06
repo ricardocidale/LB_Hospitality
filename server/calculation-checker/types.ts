@@ -1,3 +1,5 @@
+import type { Property, GlobalAssumptions } from "@shared/schema";
+
 export interface CheckResult {
   metric: string;
   category: string;
@@ -51,3 +53,42 @@ export interface YearMonth {
   year: number; 
   month: number; 
 }
+
+export interface IndependentMonthlyResult {
+  monthIndex: number;
+  occupancy: number;
+  adr: number;
+  availableRooms: number;
+  soldRooms: number;
+  revenueRooms: number;
+  revenueEvents: number;
+  revenueFB: number;
+  revenueOther: number;
+  revenueTotal: number;
+  expenseRooms: number;
+  expenseFB: number;
+  expenseEvents: number;
+  expenseOther: number;
+  totalOperatingExpenses: number;
+  gop: number;
+  feeBase: number;
+  feeIncentive: number;
+  noi: number;
+  interestExpense: number;
+  principalPayment: number;
+  debtPayment: number;
+  netIncome: number;
+  cashFlow: number;
+  depreciationExpense: number;
+  propertyValue: number;
+  debtOutstanding: number;
+  operatingCashFlow: number;
+  financingCashFlow: number;
+  endingCash: number;
+  cashShortfall: boolean;
+  expenseFFE: number;
+  totalExpenses: number;
+}
+
+export type CheckerProperty = Property;
+export type CheckerGlobalAssumptions = GlobalAssumptions;

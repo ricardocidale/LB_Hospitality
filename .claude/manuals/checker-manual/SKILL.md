@@ -6,56 +6,66 @@ This manual serves as the authoritative reference guide for verification officer
 
 The portal is a full-stack financial modeling platform built for a boutique hotel management company. It performs real-time financial simulation, multi-year projection, and scenario analysis across a portfolio of luxury boutique hotels in North America and Latin America. Every financial calculation in the system is deterministic — identical inputs always produce identical outputs — making systematic verification both feasible and essential.
 
-## How to Use This Manual
+## File Structure
 
-Begin with Chapter 1 for a high-level understanding of the platform's purpose and architecture. Chapters 2 through 5 describe the entities, assumptions, and parameters that drive the financial model. Chapters 6 and 7 explain the cash flow mechanics and financial statement structures. Chapters 8 through 14 cover supporting features such as exports, design, scenarios, and property management. Chapter 15 — the Testing Methodology — is the core of this manual, defining the structured 7-phase verification workflow that every checker must follow.
+The in-app Checker Manual is split into lazy-loaded per-section files for performance and maintainability.
 
-The Glossary at the end of this manual provides definitions for all financial and operational terms used throughout the platform, organized by category for quick reference.
+| File | Purpose |
+|------|---------|
+| `client/src/pages/checker-manual/index.tsx` | Page wrapper, layout, TOC, export buttons |
+| `client/src/pages/checker-manual/ManualContent.tsx` | Thin orchestrator — lazy-loads all 21 sections |
+| `client/src/pages/checker-manual/constants.ts` | Section metadata (IDs, titles, icons) |
+| `client/src/pages/checker-manual/types.ts` | TypeScript interfaces |
+| `client/src/pages/checker-manual/TableOfContents.tsx` | Navigation sidebar |
+| `client/src/pages/checker-manual/useManualExports.ts` | PDF and Full Data Export logic |
 
-## Table of Contents
+### Section Files (`client/src/pages/checker-manual/sections/`)
 
-| Chapter | Title | Description |
-|---------|-------|-------------|
-| 1 | Application Overview | Platform purpose, two-entity architecture, navigation, and calculation principles |
-| 2 | Management Company Entity | Fee revenue model, SAFE funding, expense structure, and financial statements |
-| 3 | Property Portfolio | SPV structure, seed properties, acquisition types, refinancing, exit valuation, and investor returns |
-| 4 | Global Assumptions | Systemwide parameters — inflation, fees, debt terms, staffing, SAFE funding, boutique definition |
-| 5 | Property-Level Assumptions | Per-property overrides — revenue drivers, cost rates, financing, exit terms, and the fallback chain |
-| 6 | Cash Flow Streams | The six cash flow streams per SPV — equity, debt, refinancing, exit, management fees, and operations |
-| 7 | Financial Statements | Income Statement, Cash Flow Statement, Balance Sheet, and Investment Analysis for each entity |
-| 8 | Export System | Six export formats, verification workflows, and the Full Data Export |
-| 9 | Design Configuration | Color palette, typography, theme modes, chart and table styling |
-| 10 | Scenario Management | Save, load, compare, and stress-test model snapshots |
-| 11 | User Profile | Account management, password changes, and role-based access |
-| 12 | Dashboard & Portfolio KPIs | Consolidated financial views, KPI cards, charts, and data flow |
-| 13 | AI Research & Assumption Calibration | Market research tools, output schemas, and research-to-assumption integration |
-| 14 | Property Management | Adding, editing, and deleting properties — recalculation behavior and cascading effects |
-| 15 | Testing Methodology | The 7-phase verification workflow — the core of this manual |
+| # | File | Section ID | Title |
+|---|------|-----------|-------|
+| 1 | `Section01AppOverview.tsx` | `app-overview` | Application Overview |
+| 2 | `Section02MgmtCompany.tsx` | `mgmt-company` | Management Company |
+| 3 | `Section03PropertyPortfolio.tsx` | `property-portfolio` | Property Portfolio (SPVs) |
+| 4 | `Section04GlobalAssumptions.tsx` | `global-assumptions` | Global Assumptions |
+| 5 | `Section05PropertyAssumptions.tsx` | `property-assumptions` | Property-Level Assumptions |
+| 6 | `Section06CashflowStreams.tsx` | `cashflow-streams` | Cash Flow Streams |
+| 7 | `Section07FinancialStatements.tsx` | `financial-statements` | Financial Statements |
+| 8 | `Section08ExportSystem.tsx` | `export-system` | Export System |
+| 9 | `Section09DesignConfig.tsx` | `design-config` | Design Configuration |
+| 10 | `Section10ScenarioMgmt.tsx` | `scenario-mgmt` | Scenario Management |
+| 11 | `Section11MyProfile.tsx` | `my-profile` | My Profile |
+| 12 | `Section12DashboardKPIs.tsx` | `dashboard-kpis` | Dashboard & KPIs |
+| 13 | `Section13AIResearch.tsx` | `ai-research` | AI Research & Calibration |
+| 14 | `Section14PropertyCRUD.tsx` | `property-crud` | Property CRUD & Images |
+| 15 | `Section15TestingMethodology.tsx` | `testing-methodology` | Testing Methodology |
+| 16 | `Section16PropertyFormulas.tsx` | `property-formulas` | Property Financial Formulas |
+| 17 | `Section17CompanyFormulas.tsx` | `company-formulas` | Management Company Formulas |
+| 18 | `Section18ConsolidatedFormulas.tsx` | `consolidated-formulas` | Consolidated Portfolio Formulas |
+| 19 | `Section19InvestmentReturns.tsx` | `investment-returns` | Investment Returns (DCF/FCF/IRR) |
+| 20 | `Section20FundingFinancing.tsx` | `funding-financing` | Funding, Financing & Refinancing |
+| 21 | `Section21Glossary.tsx` | `glossary` | Glossary |
+
+## How to Edit
+
+To edit a specific section, open the corresponding file in `sections/`. Each file is a self-contained React component that exports a default function with `SectionProps` interface (`expanded`, `onToggle`, `sectionRef`). The component wraps its content in a `SectionCard` and uses `ManualTable` and `Callout` for structured content.
+
+To add a new section:
+1. Create `SectionNN<Name>.tsx` in `sections/`
+2. Add entry to `constants.ts`
+3. Add lazy import to `ManualContent.tsx`
 
 ## The 7-Phase Verification Workflow
 
-The verification process is organized into seven sequential phases, each building on the results of the previous:
-
-1. **Phase 1 — Input Verification.** Confirm that all default assumption values are correct, and that key performance metrics fall within USALI benchmark ranges for boutique hospitality properties.
-
-2. **Phase 2 — Calculation Verification.** Cross-validate revenue, cost, and fee formulas by independently hand-calculating results and comparing them against the platform's outputs.
-
-3. **Phase 3 — Financial Statement Reconciliation.** Verify that the balance sheet equation holds (Assets = Liabilities + Equity), that cash flow statements reconcile per ASC 230, and that income statement figures flow correctly to downstream statements.
-
-4. **Phase 4 — IRR / DCF / FCF Verification.** Validate investment return analytics — confirm that NPV equals approximately zero at the calculated IRR, verify free cash flow derivations, and check terminal value calculations.
-
-5. **Phase 5 — Scenario & Stress Testing.** Test edge cases, boundary conditions, and extreme configurations. Create saved scenarios to systematically compare results across different assumption sets.
-
-6. **Phase 6 — Reports & Exports Completeness.** Verify that all export formats generate correctly, that exported values match on-screen displays, and that charts render properly.
-
-7. **Phase 7 — Documentation & Sign-Off.** Issue a formal audit opinion (Unqualified, Qualified, or Adverse), complete the final verification checklist, and sign off on the engagement.
+1. **Phase 1 — Input Verification.** Confirm defaults and USALI benchmark ranges.
+2. **Phase 2 — Calculation Verification.** Hand-calculate and cross-validate formulas.
+3. **Phase 3 — Financial Statement Reconciliation.** BS identity, CF reconciliation per ASC 230, IS flow.
+4. **Phase 4 — IRR / DCF / FCF Verification.** NPV ≈ 0 at IRR, FCF derivations, terminal value.
+5. **Phase 5 — Scenario & Stress Testing.** Edge cases, boundary conditions, scenario comparison.
+6. **Phase 6 — Reports & Exports Completeness.** All formats generate, values match screen.
+7. **Phase 7 — Documentation & Sign-Off.** Audit opinion, checklist, sign-off.
 
 ## Additional Resources
 
-- **Glossary:** A comprehensive reference of all financial and operational terms used in the platform, organized by category.
-- **Formulas:** All financial formulas are presented naturally within their respective chapters, with particular depth in Chapters 5, 6, and 7.
-- **Verification Checklists:** Each chapter concludes with specific verification points for the checker to validate.
-
-## In-App Access
-
-This manual is rendered within the application at the Checker Manual page, accessible to users with the checker or admin role. The in-app version includes a collapsible table of contents, PDF export of the manual, and a Full Data Export function that produces a comprehensive PDF of all assumptions, statements, and configuration data for offline review.
+- **Formulas reference:** Sections 16–20 in `sections/`
+- **Glossary:** Section 21 in `sections/Section21Glossary.tsx`
+- **LLM context files:** `.claude/manuals/checker-manual/skills/` and `formulas/`

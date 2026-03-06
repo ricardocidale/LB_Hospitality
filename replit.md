@@ -11,7 +11,7 @@ Business simulation portal for boutique hotel investment. Financial modeling, pr
 ```bash
 npm run dev            # Start dev server (port 5000)
 npm run health         # One-shot: tsc + tests + verify
-npm run test:summary   # 2,351 tests, 1-line output
+npm run test:summary   # 2,371 tests, 1-line output
 npm run verify:summary # 7-phase verification, compact
 npm run stats          # Codebase metrics
 npm run audit:quick    # Quick code quality scan

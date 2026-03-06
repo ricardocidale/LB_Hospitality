@@ -4,14 +4,14 @@
 
 Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470) with IRS depreciation rules and an independent audit/verification engine. Built and hosted entirely on Replit.
 
-**Codebase:** ~545 source files, ~79,500 lines of code, 2,268 tests across 100 files.
+**Codebase:** ~546 source files, ~79,600 lines of code, 2,371 tests across 112 files.
 
 ---
 
 ## User Preferences
 
 - Preferred communication style: Simple, everyday language. Detailed user — ask lots of clarifying questions before implementing features. Do not assume; confirm requirements first.
-- **TOP PRIORITY: Calculations and correct reports are always the highest priority.** Financial accuracy must never be compromised for visual or UI enhancements. The automated proof system (2,248 tests) must always pass.
+- **TOP PRIORITY: Calculations and correct reports are always the highest priority.** Financial accuracy must never be compromised for visual or UI enhancements. The automated proof system (2,371 tests) must always pass.
 - Always format money as money (currency format with commas and appropriate precision).
 - All skills must be stored under `.claude/` directory (e.g., `.claude/skills/`, `.claude/manuals/`, `.claude/tools/`). Never place skills elsewhere.
 - The company name is "Hospitality Business Group" (or "Hospitality Business" for short).
@@ -59,7 +59,7 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | Theme Engine | `.claude/skills/ui/theme-engine.md` | Multi-theme system (Fluid Glass active), user-created themes, token structure |
 | Component Library | `.claude/skills/component-library/SKILL.md` | PageHeader, GlassButton, ExportMenu, CurrentThemeTab, etc. |
 | Reusable UI | `.claude/skills/ui/reusable-components.md` | AIImagePicker, AnimatedLogo, StatusBadge, ImagePreviewCard, EntityCard |
-| Proof System | `.claude/skills/proof-system/SKILL.md` | 2,248 tests, 5 golden scenarios, verification commands |
+| Proof System | `.claude/skills/proof-system/SKILL.md` | 2,371 tests, 65 golden tests (7 files), verification commands |
 | Testing (7 skills) | `.claude/skills/testing/` | Per-statement/analysis test coverage at property, consolidated, and management company levels |
 | 3D Graphics | `.claude/skills/3d-graphics/SKILL.md` | Three.js scenes, framer-motion wrappers |
 | Database | `.claude/skills/database-environments/SKILL.md` | Dev/prod databases, migrations, sync |
@@ -85,11 +85,11 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | UI: Other (14) | `.claude/skills/ui/` | Glass components, buttons, sliders, tabs, page-header, callout, etc. |
 | Manuals | `.claude/manuals/` | Checker manual (21 sections), user manual (16 sections) |
 | Tools | `.claude/tools/` | Analysis, financing, returns, validation, UI tool schemas |
-| Rules (24) | `.claude/rules/` | Session-startup, documentation, ui-patterns, audit persona, constants, DB seeding, API routes, graphics-rich design, architecture, financial engine, verification, skill organization, session memory, exports, etc. |
+| Rules (25) | `.claude/rules/` | Session-startup, documentation, ui-patterns, audit persona, constants, DB seeding, API routes, graphics-rich design, architecture, financial engine, verification, skill organization, session memory, exports, etc. |
 
 ---
 
-## Testing & Proof System (2,268 Tests, 100 Files)
+## Testing & Proof System (2,371 Tests, 112 Files)
 
 | Entity Level | Test Domains | Skill |
 |-------------|-------------|-------|
@@ -102,8 +102,9 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | Engine Unit Tests | Cash flow aggregator, yearly aggregator, equity calculations, loan calculations, GAAP compliance, edge cases | `tests/engine/` |
 | Validation | Assumption consistency, funding gates, export verification | `tests/calc/validation/` |
 | Research Calcs | Debt capacity, depreciation basis, property metrics | `tests/calc/research/` |
+| Golden Scenarios | IRR edge cases, DCF/NPV, equity/exit, DSCR loan sizing, depreciation/break-even, stress/waterfall, pro-forma edge cases (65 hand-calculated tests) | `testing/golden-scenarios.md`, `tests/golden/` |
 
-**Commands**: `npm test` (all 2,268), `npm run verify` (7-phase, UNQUALIFIED required)
+**Commands**: `npm test` (all 2,371), `npm run verify` (7-phase, UNQUALIFIED required)
 
 ---
 
@@ -324,9 +325,9 @@ When ON (default), every financial line item shows a ? icon explaining its formu
 ```bash
 npm run dev            # Start dev server (port 5000)
 npm run health         # One-shot: tsc + tests + verify (~4 lines output)
-npm run test:summary   # Run all 2,268 tests, 1-line output on pass
+npm run test:summary   # Run all 2,371 tests, 1-line output on pass
 npm run verify:summary # 7-phase verification, compact output
-npm test               # Run all 2,268 tests (full output)
+npm test               # Run all 2,371 tests (full output)
 npm run verify         # Full 7-phase financial verification (verbose)
 npm run db:push        # Push schema changes
 npm run lint:summary   # tsc --noEmit with 1-line output

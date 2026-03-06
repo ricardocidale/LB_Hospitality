@@ -5,13 +5,13 @@
 ## Overview
 Business simulation portal for the hospitality industry. Financial modeling, property management, investment analysis, and AI-powered assistant. GAAP-compliant with independent audit/verification engine.
 
-**Codebase:** ~530 source files, ~79,000 lines, 1,950 tests across 99 files.
+**Codebase:** ~530 source files, ~79,000 lines, 2,248 tests across 99 files.
 
 ## Quick Commands
 ```bash
 npm run dev            # Start dev server (port 5000)
 npm run health         # One-shot: tsc + tests + verify
-npm run test:summary   # 1,950 tests, 1-line output
+npm run test:summary   # 2,248 tests, 1-line output
 npm run verify:summary # 6-phase verification, compact
 npm run stats          # Codebase metrics
 ```

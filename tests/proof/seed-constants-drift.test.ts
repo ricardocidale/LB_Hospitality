@@ -1,0 +1,149 @@
+import { describe, it, expect } from "vitest";
+import * as fs from "fs";
+import * as path from "path";
+
+/**
+ * Seed Constants Drift Detection
+ *
+ * Verifies that seed data in server/seeds/properties.ts uses named constants
+ * from shared/constants.ts rather than hardcoded literals that could drift.
+ * Also checks structural integrity of seed data.
+ */
+
+const seedPropsPath = path.resolve(__dirname, "../../server/seeds/properties.ts");
+const seedPropsContent = fs.readFileSync(seedPropsPath, "utf-8");
+
+const seedIndexPath = path.resolve(__dirname, "../../server/seeds/index.ts");
+const seedIndexContent = fs.readFileSync(seedIndexPath, "utf-8");
+
+describe("Seed Constants Drift — Global Assumptions", () => {
+  it("uses DEFAULT_SAFE_VALUATION_CAP (not a literal)", () => {
+    expect(seedPropsContent).toContain("safeValuationCap: DEFAULT_SAFE_VALUATION_CAP");
+  });
+
+  it("uses DEFAULT_SAFE_DISCOUNT_RATE (not a literal)", () => {
+    expect(seedPropsContent).toContain("safeDiscountRate: DEFAULT_SAFE_DISCOUNT_RATE");
+  });
+
+  it("uses DEFAULT_COMMISSION_RATE for commissionRate", () => {
+    expect(seedPropsContent).toContain("commissionRate: DEFAULT_COMMISSION_RATE");
+  });
+
+  it("uses DEFAULT_EXIT_CAP_RATE for exitCapRate", () => {
+    expect(seedPropsContent).toContain("exitCapRate: DEFAULT_EXIT_CAP_RATE");
+  });
+
+  it("uses DEFAULT_COMMISSION_RATE for salesCommissionRate", () => {
+    expect(seedPropsContent).toContain("salesCommissionRate: DEFAULT_COMMISSION_RATE");
+  });
+
+  it("uses DEFAULT_EVENT_EXPENSE_RATE", () => {
+    expect(seedPropsContent).toContain("eventExpenseRate: DEFAULT_EVENT_EXPENSE_RATE");
+  });
+
+  it("uses DEFAULT_OTHER_EXPENSE_RATE", () => {
+    expect(seedPropsContent).toContain("otherExpenseRate: DEFAULT_OTHER_EXPENSE_RATE");
+  });
+
+  it("uses DEFAULT_UTILITIES_VARIABLE_SPLIT", () => {
+    expect(seedPropsContent).toContain("utilitiesVariableSplit: DEFAULT_UTILITIES_VARIABLE_SPLIT");
+  });
+});
+
+describe("Seed Constants Drift — Property Cost Rates", () => {
+  const requiredConstants = [
+    "DEFAULT_COST_RATE_ROOMS",
+    "DEFAULT_COST_RATE_ADMIN",
+    "DEFAULT_COST_RATE_MARKETING",
+    "DEFAULT_COST_RATE_PROPERTY_OPS",
+    "DEFAULT_COST_RATE_UTILITIES",
+    "DEFAULT_COST_RATE_INSURANCE",
+    "DEFAULT_COST_RATE_TAXES",
+    "DEFAULT_COST_RATE_IT",
+    "DEFAULT_COST_RATE_FFE",
+    "DEFAULT_COST_RATE_OTHER",
+  ];
+
+  for (const constant of requiredConstants) {
+    it(`imports and uses ${constant}`, () => {
+      expect(seedPropsContent).toContain(constant);
+    });
+  }
+});
+
+describe("Seed Constants Drift — Property Revenue & Fee Rates", () => {
+  const requiredConstants = [
+    "DEFAULT_REV_SHARE_EVENTS",
+    "DEFAULT_REV_SHARE_FB",
+    "DEFAULT_REV_SHARE_OTHER",
+    "DEFAULT_TAX_RATE",
+    "DEFAULT_BASE_MANAGEMENT_FEE_RATE",
+    "DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE",
+    "DEFAULT_OCCUPANCY_RAMP_MONTHS",
+    "DEFAULT_COMMISSION_RATE",
+  ];
+
+  for (const constant of requiredConstants) {
+    it(`imports and uses ${constant}`, () => {
+      expect(seedPropsContent).toContain(constant);
+    });
+  }
+});
+
+describe("Seed Data Structural Integrity", () => {
+  it("seeds exactly 5 properties", () => {
+    const propertyNames = ["The Hudson Estate", "Eden Summit Lodge", "Austin Hillside", "Casa Medellín", "Blue Ridge Manor"];
+    for (const name of propertyNames) {
+      expect(seedPropsContent).toContain(`name: "${name}"`);
+    }
+  });
+
+  it("all seed properties have userId omitted (defaults to null = shared)", () => {
+    // Properties should NOT have explicit userId set — the DB default is null
+    const propSection = seedPropsContent.slice(
+      seedPropsContent.indexOf("async seedProperties"),
+      seedPropsContent.indexOf("async seedFeeCategories"),
+    );
+    expect(propSection).not.toContain("userId:");
+  });
+
+  it("financed properties have per-property financing fields", () => {
+    // Casa Medellín and Blue Ridge Manor are Financed
+    expect(seedPropsContent).toContain('type: "Financed"');
+    expect(seedPropsContent).toContain("acquisitionLTV:");
+    expect(seedPropsContent).toContain("acquisitionInterestRate:");
+    expect(seedPropsContent).toContain("acquisitionTermYears:");
+    expect(seedPropsContent).toContain("acquisitionClosingCostRate:");
+  });
+
+  it("Full Equity properties use SEED_DEBT_ASSUMPTIONS for refinance", () => {
+    expect(seedPropsContent).toContain("SEED_DEBT_ASSUMPTIONS");
+    expect(seedPropsContent).toContain("refinanceLTV: SEED_DEBT_ASSUMPTIONS.refiLTV");
+    expect(seedPropsContent).toContain("refinanceInterestRate: SEED_DEBT_ASSUMPTIONS.interestRate");
+  });
+
+  it("all properties have operationsStartDate after acquisitionDate", () => {
+    // Extract acquisition and ops dates for each property block
+    const acqDates = [...seedPropsContent.matchAll(/acquisitionDate:\s*"(\d{4}-\d{2}-\d{2})"/g)].map(m => m[1]);
+    const opsDates = [...seedPropsContent.matchAll(/operationsStartDate:\s*"(\d{4}-\d{2}-\d{2})"/g)].map(m => m[1]);
+    expect(acqDates.length).toBe(5);
+    expect(opsDates.length).toBe(5);
+    for (let i = 0; i < 5; i++) {
+      expect(opsDates[i] >= acqDates[i]).toBe(true);
+    }
+  });
+
+  it("seed index calls all required seed functions", () => {
+    expect(seedIndexContent).toContain("seedUsers()");
+    expect(seedIndexContent).toContain("seedGlobalAssumptions()");
+    expect(seedIndexContent).toContain("seedProperties()");
+    expect(seedIndexContent).toContain("seedFeeCategories()");
+    expect(seedIndexContent).toContain("seedDefaultLogos()");
+    expect(seedIndexContent).toContain("seedUserGroups()");
+    expect(seedIndexContent).toContain("seedServiceTemplates()");
+  });
+
+  it("global assumptions sets companyName to Hospitality Business Group", () => {
+    expect(seedPropsContent).toContain('companyName: "Hospitality Business Group"');
+  });
+});

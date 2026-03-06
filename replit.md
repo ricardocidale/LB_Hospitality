@@ -23,14 +23,14 @@ Business simulation portal for the hospitality industry. Financial modeling, pro
 
 ## System Architecture
 
-### Marcela AI — Multi-Channel Conversational Assistant
-Marcela operates across web (ElevenLabs Conversational AI widget), phone (Twilio Voice), and SMS (Twilio SMS). All settings managed from Admin > Marcela tab. See `.claude/claude.md` § Marcela AI for full details.
+### AI Agent — Multi-Channel Conversational Assistant
+The AI agent (configurable name, default "Marcela") operates across web (ElevenLabs Conversational AI widget), phone (Twilio Voice), and SMS (Twilio SMS). The name is configurable via `aiAgentName` in `global_assumptions`. All ElevenLabs configuration done via API from Admin > AI Agent tab (no manual ElevenLabs dashboard usage). See `.claude/claude.md` § Marcela AI for full details.
 
-- **Web:** ElevenLabs Conversational AI widget (`@elevenlabs/convai-widget-core`), supports voice + text, auto language detection. Agent ID configured in Admin > Marcela tab. Signed URL generated server-side via `/api/marcela/signed-url`. Voices: Jessica (English), Sarah (Portuguese), configurable Spanish voice. Client tools (12 actions: page navigation, tour launch, context) registered via `elevenlabs-convai:call` event. Server tools (6 endpoints under `/api/marcela-tools/`) provide property/portfolio/scenario data to ElevenLabs agent. Dynamic variables pass user name, role, and current page.
+- **Web:** ElevenLabs Conversational AI widget (`@elevenlabs/convai-widget-core`), supports voice + text, auto language detection. Agent ID configured in Admin > AI Agent tab. Signed URL generated server-side via `/api/marcela/signed-url`. Voices: Jessica (English), Sarah (Portuguese), configurable Spanish voice. Client tools (12 actions: page navigation, tour launch, context) registered via `elevenlabs-convai:call` event. Server tools (6 endpoints under `/api/marcela-tools/`) provide property/portfolio/scenario data to ElevenLabs agent. Dynamic variables pass user name, role, and current page.
 - **Phone:** Twilio Voice webhook + WebSocket Media Stream, mulaw 8kHz ↔ PCM conversion
 - **SMS:** Twilio SMS webhook, 1600-char auto-split, TwiML reply
 - **RAG:** In-memory embeddings (OpenAI `text-embedding-3-small`), lazy indexing, cosine similarity retrieval
-- **Admin:** Voice/LLM/telephony/knowledge base settings in MarcelaTab
+- **Admin (7-tab dashboard):** General, Prompt (saves to ElevenLabs API), Voice & Audio, LLM, Tools (18-tool status), Knowledge Base (RAG + file upload), Telephony
 
 ### Branding Architecture
 User → User Group → Default hierarchy. See `.claude/claude.md` § Branding Architecture.
@@ -41,10 +41,10 @@ GAAP-compliant calculation engine with 22 computation tools, typed dispatch, zer
 ### Admin Page (11 tabs)
 Modular tab components, each split into sub-component directories:
 - `activity/` — ActivityLogList, ActivityFeed, CheckerActivity
-- `marcela/` — VoiceSettings, LLMSettings, TelephonySettings, KnowledgeBase
+- `marcela/` — MarcelaTab (7-tab dashboard), PromptEditor, ToolsStatus, KnowledgeBase, VoiceSettings, LLMSettings, TelephonySettings, hooks, types
 - `verification/` — VerificationResults, VerificationHistory, AIReviewPanel, DesignCheckPanel
 - Standalone tabs: Users, Companies, User Groups, Logos, Branding, Themes, Navigation, Database
-See `.claude/skills/admin/SKILL.md`.
+See `.claude/skills/admin/SKILL.md` and `.claude/skills/admin/ai-agent-admin.md`.
 
 ### Server Architecture (Modular)
 - **Storage:** `server/storage/` — domain modules: users, properties, financial, admin, activity, research. Composed via `DatabaseStorage` class in index.ts. Thin re-export at `server/storage.ts`.

@@ -4,7 +4,7 @@
   "tool_types": {
     "client": {
       "description": "Executed in the browser. Agent invokes, client handles. Can return values if set to blocking.",
-      "configured_in": "ElevenLabs dashboard > Tools > Add Tool > Type: Client",
+      "configured_in": "Admin > AI Agent > Tools tab (synced via POST /api/admin/marcela/configure-tools)",
       "registered_in_code": true,
       "registration_patterns": {
         "web_component": {
@@ -40,7 +40,7 @@
     },
     "server": {
       "description": "HTTP webhooks called by ElevenLabs servers. Agent generates params from conversation context.",
-      "configured_in": "ElevenLabs dashboard > Tools > Add Tool > Type: Server",
+      "configured_in": "Admin > AI Agent > Tools tab (synced via POST /api/admin/marcela/configure-tools)",
       "registered_in_code": false,
       "config_fields": {
         "name": "Tool identifier (camelCase)",
@@ -64,7 +64,7 @@
     },
     "mcp": {
       "description": "Model Context Protocol servers providing tools/resources. Connected via SSE transport.",
-      "configured_in": "ElevenLabs dashboard > Tools > Add MCP Server",
+      "configured_in": "ElevenLabs API (MCP servers not yet exposed in admin dashboard)",
       "config_fields": {
         "url": "MCP server SSE endpoint URL",
         "headers": "Optional authentication headers",
@@ -78,7 +78,7 @@
       "tools": {
         "language_detection": {
           "description": "Auto-detect and switch to user's language",
-          "configured_in": "Dashboard > Tools > System Tools",
+          "configured_in": "ElevenLabs API (system tools configured via agent update)",
           "notes": "Requires additional languages configured in agent"
         },
         "end_call": {
@@ -94,10 +94,10 @@
   },
   "tool_call_sounds": {
     "description": "Ambient audio during tool execution to fill silence",
-    "configured_in": "Dashboard > Tools > Tool Configuration > Tool Call Sounds"
+    "configured_in": "ElevenLabs API (tool call sounds configured via agent update)"
   },
   "blocking_vs_non_blocking": {
-    "blocking": "Agent waits for tool result before continuing. Set in dashboard per tool.",
+    "blocking": "Agent waits for tool result before continuing. Configured via API per tool.",
     "non_blocking": "Agent assumes success and continues. Default behavior."
   }
 }

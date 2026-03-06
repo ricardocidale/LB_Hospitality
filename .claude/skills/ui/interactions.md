@@ -31,13 +31,14 @@ Side-by-side comparison of two scenarios with variance highlighting.
 ## Guided Walkthrough
 Step-by-step interactive tour explaining the recommended workflow for new users.
 
+**Full reference:** `.claude/skills/tour/SKILL.md` and `.claude/tools/ui/tour-steps.json`
+
 - **File**: `client/src/components/GuidedWalkthrough.tsx`
-- **Flow**: Dashboard → (1) Define Properties & Assumptions → (2) Management Company Assumptions → (3) Systemwide Assumptions → Save Scenarios → Analysis Tools → User Manual & Help → Quick Search → Notifications
-- **Workflow narrative**: Tour explains the proper order — start by defining properties of interest and completing their assumptions, then set up the management company, then review systemwide defaults. Mentions scenarios and other features after the core workflow.
-- **Storage**: Zustand store with localStorage persistence (`walkthrough-store`); auto-starts on first visit, restartable from Help menu
-- **Tooltip Style**: White rounded card with shadow, step counter, Back/Next/Skip controls
-- **Highlight**: Full-screen overlay with spotlight cut-out around target element
-- **Missing target**: Auto-skips to next step gracefully (handles conditional nav items like Scenarios and Analysis that may be hidden for some users)
+- **9 steps**: Welcome → Properties → Company → Assumptions → Scenarios → Analysis → Help → Search → Notifications
+- **Store**: `useWalkthroughStore` (Zustand, localStorage `walkthrough-store`) — fields: `shownThisSession`, `tourActive`, `promptVisible`
+- **API**: `PATCH /api/profile/tour-prompt` with `{ hide: boolean }` persists "Do not show again"
+- **Marcela gating**: Widget hidden when `tourActive || promptVisible` (enforced in `MarcelaWidgetGated` in Layout.tsx)
+- **Restartable**: Help page → Guided Tour tab
 
 ---
 

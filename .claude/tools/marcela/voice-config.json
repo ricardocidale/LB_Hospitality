@@ -16,7 +16,8 @@
     "maxTokensVoice": 1024
   },
   "db_columns": {
-    "marcelaVoiceId": "ElevenLabs voice ID",
+    "marcelaAgentId": "ElevenLabs Conversational AI Agent ID (for web widget)",
+    "marcelaVoiceId": "ElevenLabs voice ID (for phone/SMS TTS)",
     "marcelaTtsModel": "TTS model identifier",
     "marcelaSttModel": "STT model identifier",
     "marcelaOutputFormat": "Audio output format (pcm_16000, pcm_22050, pcm_24000, pcm_44100)",
@@ -41,8 +42,9 @@
   ],
   "files": {
     "voice_config_builder": "server/integrations/elevenlabs.ts",
-    "admin_ui": "client/src/components/admin/MarcelaTab.tsx",
-    "web_voice_endpoint": "server/replit_integrations/chat/routes.ts",
+    "admin_ui": "client/src/components/admin/marcela/MarcelaTab.tsx",
+    "web_widget": "client/src/components/ElevenLabsWidget.tsx",
+    "signed_url_endpoint": "server/routes/admin/marcela.ts",
     "phone_voice_endpoint": "server/routes/twilio.ts"
   }
 }

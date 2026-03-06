@@ -1173,3 +1173,41 @@ export const insertResearchQuestionSchema = z.object({
 
 export type ResearchQuestion = typeof researchQuestions.$inferSelect;
 export type InsertResearchQuestion = z.infer<typeof insertResearchQuestionSchema>;
+
+// --- MARKET RATES TABLE ---
+// Stores live economic/financial rates fetched from external APIs (FRED, BLS,
+// Frankfurter) or manually entered by an admin. Each rate has a staleness
+// threshold; the background refresh loop only re-fetches when the rate exceeds it.
+export const marketRates = pgTable("market_rates", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  rateKey: text("rate_key").notNull().unique(),
+  value: real("value"),
+  displayValue: text("display_value"),
+  source: text("source").notNull(),          // 'fred', 'bls', 'frankfurter', 'admin_manual'
+  sourceUrl: text("source_url"),
+  seriesId: text("series_id"),               // e.g. FRED series 'FEDFUNDS'
+  publishedAt: timestamp("published_at"),
+  fetchedAt: timestamp("fetched_at"),
+  isManual: boolean("is_manual").notNull().default(false),
+  manualNote: text("manual_note"),
+  maxStalenessHours: integer("max_staleness_hours").notNull().default(24),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertMarketRateSchema = z.object({
+  rateKey: z.string().min(1),
+  value: z.number().nullable().optional(),
+  displayValue: z.string().nullable().optional(),
+  source: z.string().min(1),
+  sourceUrl: z.string().nullable().optional(),
+  seriesId: z.string().nullable().optional(),
+  publishedAt: z.date().nullable().optional(),
+  fetchedAt: z.date().nullable().optional(),
+  isManual: z.boolean().optional(),
+  manualNote: z.string().nullable().optional(),
+  maxStalenessHours: z.number().optional(),
+});
+
+export type MarketRate = typeof marketRates.$inferSelect;
+export type InsertMarketRate = z.infer<typeof insertMarketRateSchema>;

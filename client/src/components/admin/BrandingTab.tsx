@@ -195,7 +195,7 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
               value={globalAssumptions?.assetDescription || ""}
               onChange={(e) => updateGlobalMutation.mutate({ assetDescription: e.target.value })}
               placeholder="Describe the type of property in detail to educate the research engines. For example: Independently operated, design-forward boutique hotels with 20-60 rooms, situated on 5+ acres of private grounds. Properties feature curated F&B programs, wellness amenities, and distinctive event spaces for retreats and experiential hospitality."
-              className="flex min-h-[120px] w-full rounded-xl border border-primary/20 bg-white px-3 py-2.5 text-sm font-semibold text-gray-700 ring-offset-background placeholder:text-gray-700 placeholder:font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-y"
+              className="flex min-h-[120px] w-full rounded-xl border border-primary/20 bg-white px-3 py-2.5 text-sm text-gray-700 ring-offset-background placeholder:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-y"
               data-testid="input-asset-description"
             />
             <p className="text-xs text-muted-foreground">A detailed description that educates the AI research engines on the exact type of property being analyzed — the more specific, the better the research quality</p>

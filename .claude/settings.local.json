@@ -111,7 +111,15 @@
       "Bash(find /home/runner/workspace -type f \\\\\\( -name \"*.ts\" -o -name \"*.tsx\" \\\\\\) 2>/dev/null | wc -l)",
       "Bash(find . -type f \\\\\\( -name \"*.ts\" -o -name \"*.tsx\" \\\\\\) -not -path \"*/node_modules/*\" 2>/dev/null | head -150)",
       "Bash(find /home/runner/workspace -type f \\\\\\( -name \"*.ts\" -o -name \"*.tsx\" \\\\\\) -not -path \"*/.cache/*\" -not -path \"*/node_modules/*\" -not -path \"*/.git/*\" 2>/dev/null | wc -l)",
-      "Bash(find /home/runner/workspace/client/src -type f \\\\\\( -name \"*.ts\" -o -name \"*.tsx\" \\\\\\) 2>/dev/null | wc -l && find /home/runner/workspace/client/src/lib -type f -name \"*.ts\" 2>/dev/null | sort)"
+      "Bash(find /home/runner/workspace/client/src -type f \\\\\\( -name \"*.ts\" -o -name \"*.tsx\" \\\\\\) 2>/dev/null | wc -l && find /home/runner/workspace/client/src/lib -type f -name \"*.ts\" 2>/dev/null | sort)",
+      "Bash(for file in api.ts auth-utils.ts cashFlowAggregator.ts cashFlowSections.ts company-data.ts constants.ts crossCalculatorValidation.ts equityCalculations.ts financialAuditor.ts financialEngine.ts formatters.ts formulaChecker.ts gaapComplianceChecker.ts loanCalculations.ts pdfChartDrawer.ts queryClient.ts runVerification.ts store.ts utils.ts yearlyAggregator.ts; do\n  echo \"=== $file ===\"\n  grep \"from ['\\\\\"]@/lib/\" \"/home/runner/workspace/client/src/lib/$file\" 2>/dev/null | sed \"s|.*from ||\" | sort -u\ndone)",
+      "Bash(for file in loanCalculations formulaChecker gaapComplianceChecker financialAuditor runVerification equityCalculations cashFlowAggregator yearlyAggregator crossCalculatorValidation; do\n  echo \"=== $file.ts ===\"\n  grep \"from ['\\\\\"]\\\\./\" /home/runner/workspace/client/src/lib/$file.ts 2>/dev/null | head -20\ndone)",
+      "Bash(env | grep -i password | sed 's/=.*/=***/' 2>/dev/null; env | grep -i admin | sed 's/=.*/=***/' 2>/dev/null)",
+      "Bash(head -15 /home/runner/workspace/client/src/lib/audits/*.ts | grep -A 2 \"^==>\")",
+      "Bash(for file in /home/runner/workspace/calc/financing/*.ts /home/runner/workspace/calc/funding/*.ts /home/runner/workspace/calc/research/*.ts /home/runner/workspace/calc/returns/*.ts; do test -f \"$file\" && basename \"$file\" && grep -l \"$\\(basename ${file%.ts}\\)\" /home/runner/workspace/tests/**/*.test.ts 2>/dev/null || echo \"NO_TEST\"; done | paste - - | column -t)",
+      "Bash(npm ls happy-dom jsdom 2>&1)",
+      "Bash(npm ls supertest 2>&1)",
+      "Bash(E2E=1 npx vitest run tests/e2e/smoke.test.ts 2>&1 | tail -20)"
     ]
   }
 }

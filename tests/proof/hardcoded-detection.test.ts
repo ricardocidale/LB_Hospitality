@@ -69,6 +69,9 @@ const CALC_MODULE_FILES = [
   "calc/services/margin-calculator.ts",
   "calc/services/cost-of-services.ts",
   "calc/services/dispatch-handler.ts",
+  "calc/research/property-metrics.ts",
+  "calc/research/depreciation-basis.ts",
+  "calc/research/debt-capacity.ts",
 ];
 
 const AUDIT_CHECKER_FILES = [
@@ -616,7 +619,7 @@ describe("Hardcoded Value Detection", () => {
       const calcDir = path.resolve("calc");
       if (!fs.existsSync(calcDir)) return;
 
-      const skipDirs = new Set(["research"]);
+      const skipDirs = new Set<string>([]);
       const skipFiles = new Set(["index.ts", "types.ts", "dispatch.ts", "schemas.ts"]);
 
       const allCalcFiles: string[] = [];

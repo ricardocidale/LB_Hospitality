@@ -8,8 +8,28 @@
  * research generation.
  */
 import { roundCents } from "../shared/utils.js";
+import {
+  DAYS_PER_MONTH,
+  DEFAULT_COST_RATE_ADMIN,
+  DEFAULT_COST_RATE_PROPERTY_OPS,
+  DEFAULT_COST_RATE_UTILITIES,
+  DEFAULT_COST_RATE_FFE,
+  DEFAULT_COST_RATE_OTHER,
+  DEFAULT_EVENT_EXPENSE_RATE,
+} from "../../shared/constants.js";
 
-const DAYS_PER_MONTH = 30.5;
+// Research-specific defaults that intentionally differ from shared constants.
+// These represent typical industry benchmarks for AI research context, not the
+// app's configurable defaults.
+const RESEARCH_COST_RATE_ROOMS = 0.36;
+const RESEARCH_COST_RATE_FB = 0.32;
+const RESEARCH_COST_RATE_MARKETING = 0.05;
+const RESEARCH_REV_SHARE_EVENTS = 0.43;
+const RESEARCH_REV_SHARE_FB = 0.22;
+const RESEARCH_REV_SHARE_OTHER = 0.07;
+const RESEARCH_CATERING_BOOST_PCT = 0.30;
+const RESEARCH_BASE_MGMT_FEE_RATE = 0.05;
+const RESEARCH_INCENTIVE_MGMT_FEE_RATE = 0.15;
 
 interface PropertyMetricsInput {
   room_count: number;
@@ -56,20 +76,20 @@ export function computePropertyMetrics(input: PropertyMetricsInput): PropertyMet
     room_count,
     adr,
     occupancy,
-    cost_rate_rooms = 0.36,
-    cost_rate_fb = 0.32,
-    cost_rate_admin = 0.08,
-    cost_rate_marketing = 0.05,
-    cost_rate_property_ops = 0.04,
-    cost_rate_utilities = 0.05,
-    cost_rate_ffe = 0.04,
-    cost_rate_other = 0.05,
-    rev_share_events = 0.43,
-    rev_share_fb = 0.22,
-    rev_share_other = 0.07,
-    catering_boost_pct = 0.30,
-    base_management_fee_rate = 0.05,
-    incentive_management_fee_rate = 0.15,
+    cost_rate_rooms = RESEARCH_COST_RATE_ROOMS,
+    cost_rate_fb = RESEARCH_COST_RATE_FB,
+    cost_rate_admin = DEFAULT_COST_RATE_ADMIN,
+    cost_rate_marketing = RESEARCH_COST_RATE_MARKETING,
+    cost_rate_property_ops = DEFAULT_COST_RATE_PROPERTY_OPS,
+    cost_rate_utilities = DEFAULT_COST_RATE_UTILITIES,
+    cost_rate_ffe = DEFAULT_COST_RATE_FFE,
+    cost_rate_other = DEFAULT_COST_RATE_OTHER,
+    rev_share_events = RESEARCH_REV_SHARE_EVENTS,
+    rev_share_fb = RESEARCH_REV_SHARE_FB,
+    rev_share_other = RESEARCH_REV_SHARE_OTHER,
+    catering_boost_pct = RESEARCH_CATERING_BOOST_PCT,
+    base_management_fee_rate = RESEARCH_BASE_MGMT_FEE_RATE,
+    incentive_management_fee_rate = RESEARCH_INCENTIVE_MGMT_FEE_RATE,
   } = input;
 
   // RevPAR
@@ -89,7 +109,7 @@ export function computePropertyMetrics(input: PropertyMetricsInput): PropertyMet
   // Department expenses
   const roomCosts = monthlyRoomRevenue * cost_rate_rooms;
   const fbCosts = monthlyFB * cost_rate_fb;
-  const eventCosts = monthlyEvents * 0.65; // DEFAULT_EVENT_EXPENSE_RATE
+  const eventCosts = monthlyEvents * DEFAULT_EVENT_EXPENSE_RATE;
 
   // GOP = Revenue - Department Costs
   const departmentCosts = roomCosts + fbCosts + eventCosts;

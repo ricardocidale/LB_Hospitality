@@ -8,8 +8,9 @@
  * IRS Publication 946: Residential rental property = 27.5 years straight-line.
  */
 import { roundCents } from "../shared/utils.js";
+import { DEPRECIATION_YEARS, DEFAULT_TAX_RATE } from "../../shared/constants.js";
 
-const DEPRECIATION_YEARS = 27.5;
+const TAX_RATE_30_PCT = 0.30;
 
 interface DepreciationBasisInput {
   purchase_price: number;
@@ -46,8 +47,8 @@ export function computeDepreciationBasis(input: DepreciationBasisInput): Depreci
   const monthlyDepreciation = roundCents(depreciableBasis / DEPRECIATION_YEARS / 12);
 
   // Tax shields show the annual tax savings from depreciation
-  const taxShield25 = roundCents(annualDepreciation * 0.25);
-  const taxShield30 = roundCents(annualDepreciation * 0.30);
+  const taxShield25 = roundCents(annualDepreciation * DEFAULT_TAX_RATE);
+  const taxShield30 = roundCents(annualDepreciation * TAX_RATE_30_PCT);
 
   // Effective cost reduction: how much depreciation reduces effective annual cost as % of purchase price
   const effectiveCostReduction = purchase_price > 0

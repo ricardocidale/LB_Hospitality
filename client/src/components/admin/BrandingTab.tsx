@@ -139,6 +139,45 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-2">
+            <Label className="label-text text-gray-700">Asset Logo</Label>
+            <div className="flex items-center gap-4">
+              <div className="relative w-14 h-14 rounded-lg border-2 border-dashed border-primary/40 flex items-center justify-center overflow-hidden bg-white">
+                <img
+                  src={(() => {
+                    if (globalAssumptions?.assetLogoId) {
+                      const logo = adminLogos?.find(l => l.id === globalAssumptions.assetLogoId);
+                      if (logo) return logo.url;
+                    }
+                    return defaultLogo;
+                  })()}
+                  alt="Asset logo"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <div className="flex-1 space-y-1 max-w-sm">
+                <Select
+                  value={globalAssumptions?.assetLogoId ? String(globalAssumptions.assetLogoId) : "none"}
+                  onValueChange={(v) => {
+                    const logoId = v === "none" ? null : Number(v);
+                    updateGlobalMutation.mutate({ assetLogoId: logoId }, {
+                      onSuccess: () => toast({ title: logoId ? "Asset logo updated" : "Asset logo cleared", description: logoId ? "The asset type logo has been updated." : "Asset logo has been removed." })
+                    });
+                  }}
+                >
+                  <SelectTrigger data-testid="select-asset-logo"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">No Logo</SelectItem>
+                    {adminLogos?.map(logo => (
+                      <SelectItem key={logo.id} value={String(logo.id)}>{logo.name}{logo.isDefault ? " (Default)" : ""}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">Select from Logo Portfolio</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-2">
             <Label className="label-text text-gray-700">Asset Label</Label>
             <Input
               value={globalAssumptions?.propertyLabel || "Boutique Hotel"}

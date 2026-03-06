@@ -185,7 +185,7 @@ export default function UserGroupsTab() {
                         )}
                         <div>
                           <h3 className="font-display text-foreground font-medium">{group.name}{group.isDefault && <span className="ml-2 text-xs bg-primary/20 text-primary px-2 py-0.5 rounded">Default</span>}</h3>
-                          <p className="text-sm text-muted-foreground">Logo: <span className="text-foreground">{group.logoId ? `ID ${group.logoId}` : "Default"}</span></p>
+                          <p className="text-sm text-muted-foreground">Logo: <span className="text-foreground">{groupLogo ? groupLogo.name : "Default"}</span></p>
                         </div>
                       </div>
                       <div className="flex items-center gap-1">

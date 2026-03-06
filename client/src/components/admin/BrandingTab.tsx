@@ -54,7 +54,7 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
   const updateGlobalMutation = useMutation({
     mutationFn: async (updates: Record<string, any>) => {
       const res = await fetch("/api/global-assumptions", {
-        method: "POST",
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({ ...globalAssumptions, ...updates }),

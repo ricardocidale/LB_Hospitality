@@ -52,7 +52,7 @@ export default function OtherAssumptionsSection({ draft, onChange, researchValue
                   <HelpTooltip text={`The capitalization rate used to determine terminal (exit) value. Exit Value = Year ${exitYear} NOI ÷ Cap Rate. A lower cap rate implies higher property valuation.`} />
                   <GaapBadge rule="ASC 360: The exit cap rate determines terminal value for impairment testing. Gain on sale = Sale Price − (Adjusted Basis − Accumulated Depreciation). Depreciation recapture taxed at up to 25% under IRC §1250." />
                 </Label>
-                <ResearchBadge entry={researchValues.\1} onClick={() => researchValues.capRate && onChange("exitCapRate", researchValues.capRate.mid / 100)} />
+                <ResearchBadge entry={researchValues.capRate} onClick={() => researchValues.capRate && onChange("exitCapRate", researchValues.capRate.mid / 100)} />
               </div>
               <EditableValue
                 value={(draft.exitCapRate ?? DEFAULT_EXIT_CAP_RATE) * 100}
@@ -82,7 +82,7 @@ export default function OtherAssumptionsSection({ draft, onChange, researchValue
                   <HelpTooltip text="Income tax rate for this property's SPV entity, applied to taxable income (NOI minus interest and depreciation) to calculate after-tax cash flow. Set per property to reflect the jurisdiction where the property is located." />
                   <GaapBadge rule="IRC §168: Taxable income = NOI − Interest − Depreciation. The 27.5-year straight-line depreciation on the building portion creates a non-cash deduction that shelters cash flow from taxes." />
                 </Label>
-                <ResearchBadge entry={researchValues.\1} onClick={() => researchValues.incomeTax && onChange("taxRate", researchValues.incomeTax.mid / 100)} />
+                <ResearchBadge entry={researchValues.incomeTax} onClick={() => researchValues.incomeTax && onChange("taxRate", researchValues.incomeTax.mid / 100)} />
               </div>
               <EditableValue
                 value={(draft.taxRate ?? DEFAULT_TAX_RATE) * 100}
@@ -111,7 +111,7 @@ export default function OtherAssumptionsSection({ draft, onChange, researchValue
                   Sale Commission
                   <HelpTooltip text="Broker commission percentage applied when this property is sold." />
                 </Label>
-                <ResearchBadge entry={researchValues.\1} onClick={() => researchValues.saleCommission && onChange("dispositionCommission", researchValues.saleCommission.mid / 100)} />
+                <ResearchBadge entry={researchValues.saleCommission} onClick={() => researchValues.saleCommission && onChange("dispositionCommission", researchValues.saleCommission.mid / 100)} />
               </div>
               <EditableValue
                 data-testid="editable-disposition-commission"

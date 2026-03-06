@@ -120,7 +120,8 @@
       "Bash(npm ls happy-dom jsdom 2>&1)",
       "Bash(npm ls supertest 2>&1)",
       "Bash(E2E=1 npx vitest run tests/e2e/smoke.test.ts 2>&1 | tail -20)",
-      "Bash(E2E=1 npx vitest run tests/e2e/smoke.test.ts tests/e2e/scenario-operations.test.ts 2>&1)"
+      "Bash(E2E=1 npx vitest run tests/e2e/smoke.test.ts tests/e2e/scenario-operations.test.ts 2>&1)",
+      "Bash(git checkout -- client/src/components/property-edit/OperatingCostRatesSection.tsx client/src/components/property-edit/OtherAssumptionsSection.tsx client/src/components/property-edit/ManagementFeesSection.tsx client/src/components/property-edit/CapitalStructureSection.tsx)"
     ]
   }
 }

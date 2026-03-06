@@ -115,7 +115,7 @@ export default function ManagementFeesSection({ draft, onChange, researchValues,
                     Incentive Fee (% of GOP)
                     <HelpTooltip text="Incentive Management Fee = max(0, GOP) × this rate. Only charged when Gross Operating Profit is positive, rewarding the management company for strong performance. Industry standard: 10–20% of GOP." />
                   </Label>
-                  <ResearchBadge entry={researchValues.\1} onClick={() => researchValues.incentiveFee && onChange("incentiveManagementFeeRate", researchValues.incentiveFee.mid / 100)} />
+                  <ResearchBadge entry={researchValues.incentiveFee} onClick={() => researchValues.incentiveFee && onChange("incentiveManagementFeeRate", researchValues.incentiveFee.mid / 100)} />
                 </div>
                 <EditableValue
                   value={(draft.incentiveManagementFeeRate ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE) * 100}

@@ -3,7 +3,7 @@ import { storage } from "../storage";
 import { requireAuth, requireAdmin, isApiRateLimited } from "../auth";
 import { researchGenerateSchema, logActivity } from "./helpers";
 import { fromZodError } from "zod-validation-error";
-import { generateResearchWithToolsStream, buildUserPrompt } from "../aiResearch";
+import { generateResearchWithToolsStream, buildUserPrompt, parseResearchJSON, extractResearchValues } from "../aiResearch";
 import { sendResearchEmail } from "../integrations/gmail";
 import Anthropic from "@anthropic-ai/sdk";
 
@@ -126,14 +126,24 @@ export function register(app: Express) {
           fullContent += chunk.data;
         }
         if (chunk.type === "done") {
-          // Persist the final result
+          // Parse raw LLM text into structured JSON before persisting
+          const parsed = parseResearchJSON(fullContent);
           await storage.upsertMarketResearch({
             userId: req.user!.id,
             propertyId,
             type,
             title: `${type === 'property' ? 'Property' : type === 'company' ? 'Company' : 'Global'} Research`,
-            content: { rawResponse: fullContent },
+            content: parsed,
           });
+
+          // Auto-extract research values to the property record
+          if (type === "property" && propertyId && !parsed.rawResponse) {
+            const researchValues = extractResearchValues(parsed);
+            if (researchValues) {
+              await storage.updateProperty(propertyId, { researchValues });
+            }
+          }
+
           logActivity(req, "generate", "market_research", propertyId, type);
         }
       }
@@ -197,13 +207,23 @@ export function register(app: Express) {
         res.write(`data: ${JSON.stringify(chunk)}\n\n`);
         if (chunk.type === "content") fullContent += chunk.data;
         if (chunk.type === "done") {
+          const parsed = parseResearchJSON(fullContent);
           await storage.upsertMarketResearch({
             userId: req.user!.id,
             propertyId,
             type,
             title: `${type === 'property' ? 'Property' : type === 'company' ? 'Company' : 'Global'} Research`,
-            content: { rawResponse: fullContent },
+            content: parsed,
           });
+
+          // Auto-extract research values to the property record
+          if (type === "property" && propertyId && !parsed.rawResponse) {
+            const researchValues = extractResearchValues(parsed);
+            if (researchValues) {
+              await storage.updateProperty(propertyId, { researchValues });
+            }
+          }
+
           logActivity(req, "generate", "market_research", propertyId, type);
         }
       }

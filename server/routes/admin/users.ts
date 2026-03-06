@@ -5,6 +5,7 @@ import { userResponse, createUserSchema, logAndSendError } from "../helpers";
 import { fromZodError } from "zod-validation-error";
 import { hashPassword } from "../../auth";
 
+
 export function registerUserRoutes(app: Express) {
   // ────────────────────────────────────────────────────────────
   // ADMIN: USER MANAGEMENT
@@ -34,6 +35,8 @@ export function registerUserRoutes(app: Express) {
 
       const { email, password, role, firstName, lastName, company, companyId, title } = validation.data;
       const passwordHash = await hashPassword(password);
+
+      const defaultGroup = await storage.getDefaultUserGroup();
       
       const user = await storage.createUser({
         email,
@@ -44,6 +47,7 @@ export function registerUserRoutes(app: Express) {
         company,
         companyId,
         title,
+        userGroupId: defaultGroup?.id ?? null,
       });
 
       res.status(201).json(userResponse(user));

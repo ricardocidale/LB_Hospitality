@@ -36,6 +36,7 @@ export class UserStorage {
         company: data.company,
         companyId: data.companyId,
         title: data.title,
+        userGroupId: data.userGroupId,
       })
       .returning();
     return user;

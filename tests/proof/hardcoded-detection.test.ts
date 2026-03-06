@@ -75,7 +75,7 @@ const AUDIT_CHECKER_FILES = [
 
 const EXPORT_FILES = [
   "client/src/lib/exports/checkerManualExport.ts",
-  "client/src/lib/exports/excelExport.ts",
+  "client/src/lib/exports/excel/property-sheets.ts",
 ];
 
 const ALL_SCANNED_FILES = [
@@ -93,7 +93,7 @@ const FILES_THAT_MUST_IMPORT_CONSTANTS = [
   "client/src/lib/crossCalculatorValidation.ts",
   "client/src/lib/financialAuditor.ts",
   "client/src/lib/exports/checkerManualExport.ts",
-  "client/src/lib/exports/excelExport.ts",
+  "client/src/lib/exports/excel/property-sheets.ts",
 ];
 
 const CONSTANT_IMPORT_PATTERN = /from\s+['"].*constants['"]/;

@@ -3,8 +3,11 @@ import * as fs from "fs";
 import * as path from "path";
 
 describe("Recalculation Enforcement", () => {
-  const apiPath = path.resolve(__dirname, "../../client/src/lib/api.ts");
-  const apiContent = fs.readFileSync(apiPath, "utf-8");
+  const apiDir = path.resolve(__dirname, "../../client/src/lib/api");
+  const apiContent = fs.readdirSync(apiDir)
+    .filter(f => f.endsWith(".ts"))
+    .map(f => fs.readFileSync(path.join(apiDir, f), "utf-8"))
+    .join("\n");
 
   it("ALL_FINANCIAL_QUERY_KEYS should be complete", () => {
     // 1. Find all query keys used in useQuery

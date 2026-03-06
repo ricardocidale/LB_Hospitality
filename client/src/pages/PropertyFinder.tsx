@@ -112,12 +112,14 @@ export default function PropertyFinder() {
     }
     createSavedSearch.mutate({
       name: saveSearchName.trim(),
-      location: formData.location.trim(),
-      priceMin: formData.priceMin || undefined,
-      priceMax: formData.priceMax || undefined,
-      bedsMin: formData.bedsMin || undefined,
-      lotSizeMin: formData.lotSizeMin || undefined,
-      propertyType: formData.propertyType !== "any" ? formData.propertyType : undefined,
+      filters: {
+        location: formData.location.trim(),
+        priceMin: formData.priceMin || undefined,
+        priceMax: formData.priceMax || undefined,
+        bedsMin: formData.bedsMin || undefined,
+        lotSizeMin: formData.lotSizeMin || undefined,
+        propertyType: formData.propertyType !== "any" ? formData.propertyType : undefined,
+      }
     }, {
       onSuccess: () => {
         toast({ title: "Search saved", description: `"${saveSearchName}" has been saved.` });
@@ -129,21 +131,22 @@ export default function PropertyFinder() {
   };
 
   const handleLoadSearch = (search: SavedSearchData) => {
+    const { filters } = search;
     setFormData({
-      location: search.location,
-      priceMin: search.priceMin || "",
-      priceMax: search.priceMax || "",
-      bedsMin: search.bedsMin || "",
-      lotSizeMin: search.lotSizeMin || "1",
-      propertyType: search.propertyType || "any",
+      location: filters.location,
+      priceMin: filters.priceMin || "",
+      priceMax: filters.priceMax || "",
+      bedsMin: filters.bedsMin || "",
+      lotSizeMin: filters.lotSizeMin || "1",
+      propertyType: filters.propertyType || "any",
     });
     setSearchParams({
-      location: search.location,
-      priceMin: search.priceMin || undefined,
-      priceMax: search.priceMax || undefined,
-      bedsMin: search.bedsMin || undefined,
-      lotSizeMin: search.lotSizeMin || undefined,
-      propertyType: search.propertyType || undefined,
+      location: filters.location,
+      priceMin: filters.priceMin || undefined,
+      priceMax: filters.priceMax || undefined,
+      bedsMin: filters.bedsMin || undefined,
+      lotSizeMin: filters.lotSizeMin || undefined,
+      propertyType: filters.propertyType || undefined,
     });
     toast({ title: "Search loaded", description: `Running "${search.name}" search...` });
   };

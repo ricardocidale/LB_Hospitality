@@ -16,8 +16,8 @@
  */
 export { default as UsersTab } from "./UsersTab";
 export { default as CompaniesTab } from "./CompaniesTab";
-export { default as ActivityTab } from "./ActivityTab";
-export { default as VerificationTab } from "./VerificationTab";
+export { default as ActivityTab } from "./activity";
+export { default as VerificationTab } from "./verification";
 export { default as UserGroupsTab } from "./UserGroupsTab";
 export { default as CustomizeTab } from "./CustomizeTab";
 export { default as DatabaseTab } from "./DatabaseTab";

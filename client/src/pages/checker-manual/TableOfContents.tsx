@@ -1,0 +1,34 @@
+import React from "react";
+import { Card } from "@/components/ui/card";
+import { ManualSection } from "./types";
+
+interface TableOfContentsProps {
+  sections: ManualSection[];
+  scrollToSection: (id: string) => void;
+}
+
+export function TableOfContents({ sections, scrollToSection }: TableOfContentsProps) {
+  return (
+    <aside className="hidden lg:block w-72 flex-shrink-0">
+      <div className="sticky top-24">
+        <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+          <div className="p-4">
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Table of Contents</h3>
+            <nav className="space-y-1">
+              {sections.map((s) => (
+                <button
+                  key={s.id}
+                  data-testid={`toc-${s.id}`}
+                  onClick={() => scrollToSection(s.id)}
+                  className="w-full text-left px-3 py-1.5 rounded-lg text-xs text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-colors truncate"
+                >
+                  {s.title}
+                </button>
+              ))}
+            </nav>
+          </div>
+        </Card>
+      </div>
+    </aside>
+  );
+}

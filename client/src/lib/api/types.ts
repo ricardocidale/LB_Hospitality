@@ -1,0 +1,291 @@
+import { Property, InsertProperty, UpdateProperty } from "@shared/schema";
+
+export type PropertyResponse = Property & { id: number };
+
+export interface GlobalResponse {
+  id: number;
+  companyName: string;
+  companyLogo: string | null;
+  companyLogoId: number | null;
+  companyLogoUrl: string | null;
+  propertyLabel: string;
+  modelStartDate: string;
+  projectionYears: number;
+  companyOpsStartDate: string;
+  fiscalYearStartMonth: number;
+  inflationRate: number;
+  fixedCostEscalationRate: number;
+  // Funding Instrument
+  fundingSourceLabel: string;
+  safeTranche1Amount: number;
+  safeTranche1Date: string;
+  safeTranche2Amount: number;
+  safeTranche2Date: string;
+  safeValuationCap: number;
+  safeDiscountRate: number;
+  // Compensation - partner comp by year
+  partnerCompYear1: number;
+  partnerCompYear2: number;
+  partnerCompYear3: number;
+  partnerCompYear4: number;
+  partnerCompYear5: number;
+  partnerCompYear6: number;
+  partnerCompYear7: number;
+  partnerCompYear8: number;
+  partnerCompYear9: number;
+  partnerCompYear10: number;
+  partnerCountYear1: number;
+  partnerCountYear2: number;
+  partnerCountYear3: number;
+  partnerCountYear4: number;
+  partnerCountYear5: number;
+  partnerCountYear6: number;
+  partnerCountYear7: number;
+  partnerCountYear8: number;
+  partnerCountYear9: number;
+  partnerCountYear10: number;
+  staffSalary: number;
+  // Staffing tiers
+  staffTier1MaxProperties: number;
+  staffTier1Fte: number;
+  staffTier2MaxProperties: number;
+  staffTier2Fte: number;
+  staffTier3Fte: number;
+  // Fixed overhead
+  officeLeaseStart: number;
+  professionalServicesStart: number;
+  techInfraStart: number;
+  businessInsuranceStart: number;
+  // Variable costs
+  travelCostPerClient: number;
+  itLicensePerClient: number;
+  marketingRate: number;
+  miscOpsRate: number;
+  // Portfolio
+  commissionRate: number;
+  // Tax
+  companyTaxRate: number;
+  // Exit & Sale Assumptions
+  exitCapRate: number;
+  salesCommissionRate: number;
+  // Property Expense Rates
+  eventExpenseRate: number;
+  otherExpenseRate: number;
+  utilitiesVariableSplit: number;
+  // AI Research
+  preferredLlm: string;
+  // Display Settings
+  showCompanyCalculationDetails: boolean;
+  showPropertyCalculationDetails: boolean;
+  standardAcqPackage: {
+    monthsToOps: number;
+    purchasePrice: number;
+    preOpeningCosts: number;
+    operatingReserve: number;
+    buildingImprovements: number;
+  };
+  debtAssumptions: {
+    acqLTV: number;
+    refiLTV: number;
+    interestRate: number;
+    amortizationYears: number;
+    acqClosingCostRate: number;
+    refiClosingCostRate: number;
+    refiInterestRate?: number;
+    refiAmortizationYears?: number;
+    refiPeriodYears?: number;
+  };
+  assetDefinition: {
+    minRooms: number;
+    maxRooms: number;
+    hasFB: boolean;
+    hasEvents: boolean;
+    hasWellness: boolean;
+    minAdr: number;
+    maxAdr: number;
+    level?: string;
+    eventLocations?: number;
+    maxEventCapacity?: number;
+    acreage?: number;
+    privacyLevel?: string;
+    parkingSpaces?: number;
+    description: string;
+  };
+  updatedAt: string;
+}
+
+export interface FeeCategoryResponse {
+  id: number;
+  propertyId: number;
+  name: string;
+  rate: number;
+  isActive: boolean;
+  sortOrder: number;
+  createdAt: string;
+}
+
+export interface ScenarioResponse {
+  id: number;
+  userId: number;
+  name: string;
+  description: string | null;
+  globalAssumptions: GlobalResponse;
+  properties: PropertyResponse[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ResearchAnalysisSection {
+  recommendedRange?: string;
+  recommendedBoostPercent?: string;
+  recommendedPercent?: string;
+  rampUpTimeline?: string;
+  [key: string]: string | undefined;
+}
+
+export interface OperatingCostCategoryResearch {
+  recommendedRate?: string;
+  industryRange?: string;
+  rationale?: string;
+  [key: string]: string | undefined;
+}
+
+export interface OperatingCostAnalysis {
+  roomRevenueBased?: {
+    housekeeping?: OperatingCostCategoryResearch;
+    fbCostOfSales?: OperatingCostCategoryResearch;
+  };
+  totalRevenueBased?: {
+    adminGeneral?: OperatingCostCategoryResearch;
+    propertyOps?: OperatingCostCategoryResearch;
+    utilities?: OperatingCostCategoryResearch;
+    ffeReserve?: OperatingCostCategoryResearch;
+    marketing?: OperatingCostCategoryResearch;
+    it?: OperatingCostCategoryResearch;
+    other?: OperatingCostCategoryResearch;
+  };
+  totalOperatingCostRatio?: string;
+  sources?: string[];
+  [key: string]: any;
+}
+
+export interface PropertyValueCostAnalysis {
+  insurance?: OperatingCostCategoryResearch & { coverageNotes?: string };
+  propertyTaxes?: OperatingCostCategoryResearch & { jurisdictionNotes?: string };
+  sources?: string[];
+  [key: string]: any;
+}
+
+export interface ManagementServiceFeeAnalysis {
+  serviceFeeCategories?: {
+    marketing?: OperatingCostCategoryResearch;
+    it?: OperatingCostCategoryResearch;
+    accounting?: OperatingCostCategoryResearch;
+    reservations?: OperatingCostCategoryResearch;
+    generalManagement?: OperatingCostCategoryResearch;
+  };
+  incentiveFee?: OperatingCostCategoryResearch & { basis?: string };
+  totalServiceFeeRate?: string;
+  sources?: string[];
+  [key: string]: any;
+}
+
+export interface IncomeTaxAnalysis {
+  recommendedRate?: string;
+  rateBreakdown?: {
+    federal?: string;
+    state?: string;
+    local?: string;
+  };
+  effectiveRange?: string;
+  entityNotes?: string;
+  jurisdictionNotes?: string;
+  rationale?: string;
+  sources?: string[];
+  [key: string]: any;
+}
+
+export interface MarketResearchContent {
+  adrAnalysis?: ResearchAnalysisSection;
+  capRateAnalysis?: ResearchAnalysisSection;
+  cateringAnalysis?: ResearchAnalysisSection;
+  landValueAllocation?: ResearchAnalysisSection;
+  occupancyAnalysis?: ResearchAnalysisSection;
+  compensationAnalysis?: ResearchAnalysisSection;
+  staffingAnalysis?: ResearchAnalysisSection;
+  overheadAnalysis?: ResearchAnalysisSection;
+  operatingCostAnalysis?: OperatingCostAnalysis;
+  propertyValueCostAnalysis?: PropertyValueCostAnalysis;
+  managementServiceFeeAnalysis?: ManagementServiceFeeAnalysis;
+  incomeTaxAnalysis?: IncomeTaxAnalysis;
+  [key: string]: any;
+}
+
+export interface MarketResearchResponse {
+  id: number;
+  userId: number | null;
+  type: string;
+  propertyId: number | null;
+  title: string;
+  content: MarketResearchContent;
+  llmModel: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ResearchQuestion {
+  id: number;
+  question: string;
+  sortOrder: number;
+  createdAt: string;
+}
+
+export interface PropertyFinderResult {
+  externalId: string;
+  address: string;
+  city: string | null;
+  state: string | null;
+  zipCode: string | null;
+  price: number | null;
+  beds: number | null;
+  baths: number | null;
+  sqft: number | null;
+  lotSizeAcres: number | null;
+  propertyType: string | null;
+  imageUrl: string | null;
+  listingUrl: string | null;
+}
+
+export interface PropertyFinderSearchResponse {
+  results: PropertyFinderResult[];
+  total: number;
+  offset: number;
+}
+
+export interface SavedProspectiveProperty extends PropertyFinderResult {
+  id: number;
+  userId: number;
+  source: string;
+  notes: string | null;
+  savedAt: string;
+}
+
+export interface PropertyFinderSearchParams {
+  location: string;
+  priceMin?: string;
+  priceMax?: string;
+  bedsMin?: string;
+  lotSizeMin?: string;
+  propertyType?: string;
+  offset?: string;
+}
+
+export interface SavedSearch {
+  id: number;
+  userId: number;
+  name: string;
+  filters: PropertyFinderSearchParams;
+  createdAt: string;
+}
+
+export type SavedSearchData = SavedSearch;

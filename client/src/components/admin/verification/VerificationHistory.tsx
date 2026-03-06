@@ -1,0 +1,61 @@
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { formatDateTime } from "@/lib/formatters";
+import type { VerificationHistoryEntry } from "./types";
+
+interface VerificationHistoryProps {
+  history: VerificationHistoryEntry[];
+}
+
+export function VerificationHistory({ history }: VerificationHistoryProps) {
+  return (
+    <div className="rounded-xl border border-gray-100 overflow-hidden bg-white shadow-sm">
+      <Table>
+        <TableHeader className="bg-gray-50/50">
+          <TableRow>
+            <TableHead className="text-[10px] uppercase tracking-wider font-bold text-gray-500">Timestamp</TableHead>
+            <TableHead className="text-[10px] uppercase tracking-wider font-bold text-gray-500 text-center">Opinion</TableHead>
+            <TableHead className="text-[10px] uppercase tracking-wider font-bold text-gray-500 text-center">Checks</TableHead>
+            <TableHead className="text-[10px] uppercase tracking-wider font-bold text-gray-500 text-center">Passed</TableHead>
+            <TableHead className="text-[10px] uppercase tracking-wider font-bold text-gray-500 text-center">Failed</TableHead>
+            <TableHead className="text-[10px] uppercase tracking-wider font-bold text-gray-500 text-right">Status</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {history.map((entry) => (
+            <TableRow key={entry.id} className="hover:bg-gray-50/50 transition-colors">
+              <TableCell className="text-xs font-medium text-gray-700">{formatDateTime(entry.createdAt)}</TableCell>
+              <TableCell className="text-center">
+                <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                  entry.auditOpinion === 'UNQUALIFIED' ? 'bg-green-100 text-green-700' :
+                  entry.auditOpinion === 'QUALIFIED' ? 'bg-yellow-100 text-yellow-700' :
+                  'bg-red-100 text-red-700'
+                }`}>
+                  {entry.auditOpinion}
+                </span>
+              </TableCell>
+              <TableCell className="text-xs text-center font-mono text-gray-500">{entry.totalChecks}</TableCell>
+              <TableCell className="text-xs text-center font-mono text-green-600 font-bold">{entry.passed}</TableCell>
+              <TableCell className="text-xs text-center font-mono text-red-600 font-bold">{entry.failed}</TableCell>
+              <TableCell className="text-right">
+                <span className={`text-[10px] px-2 py-0.5 rounded font-bold ${
+                  entry.overallStatus === 'PASS' ? 'text-secondary' :
+                  entry.overallStatus === 'WARNING' ? 'text-yellow-600' :
+                  'text-red-600'
+                }`}>
+                  {entry.overallStatus}
+                </span>
+              </TableCell>
+            </TableRow>
+          ))}
+          {history.length === 0 && (
+            <TableRow>
+              <TableCell colSpan={6} className="text-center py-8 text-gray-400 text-sm">
+                No verification history found
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}

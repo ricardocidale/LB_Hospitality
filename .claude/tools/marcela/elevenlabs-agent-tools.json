@@ -1,0 +1,93 @@
+{
+  "name": "elevenlabs_agent_tools",
+  "description": "Deterministic reference for ElevenLabs Agent tool types — client, server, MCP, and system tools. Covers configuration, registration, and Marcela-specific tool design.",
+  "tool_types": {
+    "client": {
+      "description": "Executed in the browser. Agent invokes, client handles. Can return values if set to blocking.",
+      "configured_in": "ElevenLabs dashboard > Tools > Add Tool > Type: Client",
+      "registered_in_code": true,
+      "registration_patterns": {
+        "web_component": {
+          "event": "elevenlabs-convai:call",
+          "handler": "event.detail.config.clientTools = { toolName: (params) => { ... } }"
+        },
+        "react_hook": {
+          "option": "clientTools",
+          "handler": "useConversation({ clientTools: { toolName: (params) => { ... return result; } } })"
+        }
+      },
+      "use_cases": [
+        "Navigate to a page in the app",
+        "Open a modal or panel",
+        "Show property details",
+        "Trigger a UI animation",
+        "Copy text to clipboard"
+      ],
+      "marcela_candidates": [
+        { "name": "navigateToPage", "params": { "page": "string — route path" }, "description": "Navigate user to a specific page in the portal" },
+        { "name": "showPropertyDetails", "params": { "propertyId": "number" }, "description": "Open property detail view" },
+        { "name": "openFinancialReport", "params": { "propertyId": "number", "reportType": "string" }, "description": "Open a financial report" },
+        { "name": "startGuidedTour", "params": {}, "description": "Launch the guided walkthrough" },
+        { "name": "showInvestorDashboard", "params": {}, "description": "Navigate to investor dashboard" }
+      ]
+    },
+    "server": {
+      "description": "HTTP webhooks called by ElevenLabs servers. Agent generates params from conversation context.",
+      "configured_in": "ElevenLabs dashboard > Tools > Add Tool > Type: Server",
+      "registered_in_code": false,
+      "config_fields": {
+        "name": "Tool identifier (camelCase)",
+        "description": "What the tool does (guides LLM)",
+        "url": "Webhook URL with optional {path_params}",
+        "method": "GET | POST | PUT | PATCH | DELETE",
+        "headers": "Static headers (e.g., auth tokens)",
+        "path_parameters": "Variables in URL wrapped in {}",
+        "query_parameters": "Query string params",
+        "body_parameters": "JSON body params"
+      },
+      "auth_options": ["None", "API Key (header)", "Bearer token", "Custom headers"],
+      "marcela_candidates": [
+        { "name": "getPropertyMetrics", "url": "/api/properties/{id}/metrics", "description": "Fetch financial metrics for a property" },
+        { "name": "getPortfolioSummary", "url": "/api/portfolio/summary", "description": "Get portfolio-level summary" },
+        { "name": "getUserProperties", "url": "/api/properties", "description": "List user's properties" }
+      ]
+    },
+    "mcp": {
+      "description": "Model Context Protocol servers providing tools/resources. Connected via SSE transport.",
+      "configured_in": "ElevenLabs dashboard > Tools > Add MCP Server",
+      "config_fields": {
+        "url": "MCP server SSE endpoint URL",
+        "headers": "Optional authentication headers",
+        "tool_allowlist": "Optional list of allowed tools",
+        "tool_approval": "auto | manual"
+      },
+      "notes": "Not available for Zero Retention Mode or HIPAA compliance."
+    },
+    "system": {
+      "description": "Built-in platform tools provided by ElevenLabs.",
+      "tools": {
+        "language_detection": {
+          "description": "Auto-detect and switch to user's language",
+          "configured_in": "Dashboard > Tools > System Tools",
+          "notes": "Requires additional languages configured in agent"
+        },
+        "end_call": {
+          "description": "Programmatically end the call",
+          "use_case": "Agent ends conversation after completing task"
+        },
+        "transfer_call": {
+          "description": "Transfer to human agent (telephony only)",
+          "params": { "phone_number": "string" }
+        }
+      }
+    }
+  },
+  "tool_call_sounds": {
+    "description": "Ambient audio during tool execution to fill silence",
+    "configured_in": "Dashboard > Tools > Tool Configuration > Tool Call Sounds"
+  },
+  "blocking_vs_non_blocking": {
+    "blocking": "Agent waits for tool result before continuing. Set in dashboard per tool.",
+    "non_blocking": "Agent assumes success and continues. Default behavior."
+  }
+}

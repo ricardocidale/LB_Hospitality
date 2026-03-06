@@ -1,6 +1,6 @@
 {
   "name": "elevenlabs-widget-config",
-  "description": "Deterministic reference for the ElevenLabs Conversational AI widget integration. Covers file map, auth flow, admin config, and voice IDs.",
+  "description": "Deterministic reference for the ElevenLabs Conversational AI widget integration. Full attribute map, auth flow, admin config, voice IDs, runtime overrides, and client tool event.",
   "package": "@elevenlabs/convai-widget-core",
   "web_component": "<elevenlabs-convai>",
   "files": {
@@ -40,7 +40,50 @@
     "promptVisible === false"
   ],
   "widget_attributes": {
-    "url": "Signed WebSocket URL (required for private agents)",
-    "agent-id": "Public agent ID (alternative to url, not used in this integration)"
+    "core": {
+      "url": "Signed WebSocket URL (for private/authenticated agents)",
+      "agent-id": "Public agent ID (alternative to url)",
+      "server-location": "us | eu-residency | in-residency | global",
+      "variant": "expanded — widget display mode",
+      "dismissible": "true | false — allow user to minimize"
+    },
+    "visual": {
+      "avatar-image-url": "Custom avatar image URL",
+      "avatar-orb-color-1": "Hex color — orb gradient start",
+      "avatar-orb-color-2": "Hex color — orb gradient end"
+    },
+    "text_labels": {
+      "action-text": "CTA button text (default: 'Need assistance?')",
+      "start-call-text": "Start call button text",
+      "end-call-text": "End call button text",
+      "expand-text": "Expand widget text",
+      "listening-text": "Listening state label",
+      "speaking-text": "Speaking state label"
+    },
+    "markdown": {
+      "markdown-link-allowed-hosts": "Domains where links clickable (* for all)",
+      "markdown-link-include-www": "Allow www variants (default: true)",
+      "markdown-link-allow-http": "Allow http:// links (default: true)",
+      "syntax-highlight-theme": "dark | light | auto"
+    },
+    "runtime_overrides": {
+      "override-language": "Override agent language (ISO code)",
+      "override-prompt": "Override system prompt",
+      "override-first-message": "Override first message",
+      "override-voice-id": "Override voice ID"
+    },
+    "dynamic": {
+      "dynamic-variables": "JSON string of key-value pairs for {{ var }} templates",
+      "language": "Set initial language"
+    }
+  },
+  "client_tools_event": {
+    "event_name": "elevenlabs-convai:call",
+    "registration": "widget.addEventListener('elevenlabs-convai:call', (event) => { event.detail.config.clientTools = { ... }; })"
+  },
+  "modality_modes": {
+    "voice_only": "Default — speech input only",
+    "voice_text": "Voice + text — toggle in dashboard Widget > Interface",
+    "chat_mode": "Text-only, no audio, no microphone, 25x concurrency"
   }
 }

@@ -3,7 +3,7 @@ import { storage } from "../../storage";
 import { requireAdmin, requireAuth } from "../../auth";
 import { type InsertGlobalAssumptions } from "@shared/schema";
 import { getTwilioStatus, sendSMS } from "../../integrations/twilio";
-import { getElevenLabsApiKey } from "../../integrations/elevenlabs";
+import { getSignedUrl as getElevenLabsSignedUrl, getConvaiAgent, listConvaiConversations, getConvaiConversation, deleteConvaiConversation } from "../../integrations/elevenlabs";
 
 export function registerMarcelaRoutes(app: Express) {
   app.get("/api/admin/voice-settings", requireAdmin, async (_req, res) => {
@@ -96,21 +96,61 @@ export function registerMarcelaRoutes(app: Express) {
       if (!ga?.marcelaAgentId) {
         return res.status(404).json({ error: "Marcela agent not configured" });
       }
-      const apiKey = await getElevenLabsApiKey();
-      const response = await fetch(
-        `https://api.elevenlabs.io/v1/convai/conversation/get-signed-url?agent_id=${ga.marcelaAgentId}`,
-        { headers: { "xi-api-key": apiKey } }
-      );
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("ElevenLabs signed URL error:", errorText);
-        return res.status(response.status).json({ error: "Failed to get signed URL" });
-      }
-      const data = await response.json() as { signed_url: string };
-      res.json({ signedUrl: data.signed_url });
+      const signedUrl = await getElevenLabsSignedUrl(ga.marcelaAgentId);
+      res.json({ signedUrl });
     } catch (error: any) {
       console.error("Error getting Marcela signed URL:", error);
       res.status(500).json({ error: error.message || "Failed to get signed URL" });
+    }
+  });
+
+  app.get("/api/admin/convai/agent", requireAdmin, async (_req, res) => {
+    try {
+      const ga = await storage.getGlobalAssumptions();
+      if (!ga?.marcelaAgentId) {
+        return res.status(404).json({ error: "Marcela agent not configured" });
+      }
+      const agent = await getConvaiAgent(ga.marcelaAgentId);
+      res.json(agent);
+    } catch (error: any) {
+      console.error("Error fetching Convai agent:", error);
+      res.status(500).json({ error: error.message || "Failed to fetch agent config" });
+    }
+  });
+
+  app.get("/api/admin/convai/conversations", requireAdmin, async (_req, res) => {
+    try {
+      const ga = await storage.getGlobalAssumptions();
+      if (!ga?.marcelaAgentId) {
+        return res.status(404).json({ error: "Marcela agent not configured" });
+      }
+      const conversations = await listConvaiConversations(ga.marcelaAgentId);
+      res.json({ conversations });
+    } catch (error: any) {
+      console.error("Error listing conversations:", error);
+      res.status(500).json({ error: error.message || "Failed to list conversations" });
+    }
+  });
+
+  app.get("/api/admin/convai/conversations/:id", requireAdmin, async (req, res) => {
+    try {
+      const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      const conversation = await getConvaiConversation(id);
+      res.json(conversation);
+    } catch (error: any) {
+      console.error("Error fetching conversation:", error);
+      res.status(500).json({ error: error.message || "Failed to fetch conversation" });
+    }
+  });
+
+  app.delete("/api/admin/convai/conversations/:id", requireAdmin, async (req, res) => {
+    try {
+      const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      await deleteConvaiConversation(id);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Error deleting conversation:", error);
+      res.status(500).json({ error: error.message || "Failed to delete conversation" });
     }
   });
 

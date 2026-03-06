@@ -42,7 +42,10 @@ Documents the complete Marcela AI assistant system operating across web (ElevenL
 | `KnowledgeBase.tsx` | RAG knowledge base status + reindex |
 
 ## Related Tools
-- `.claude/tools/marcela/elevenlabs-widget-config.json` — Widget config reference
+- `.claude/tools/marcela/elevenlabs-widget-config.json` — Widget attributes, auth flow, gating, modality modes
+- `.claude/tools/marcela/elevenlabs-sdk-reference.json` — React useConversation hook, callbacks, methods, state
+- `.claude/tools/marcela/elevenlabs-convai-api.json` — Conversational AI REST API endpoints
+- `.claude/tools/marcela/elevenlabs-agent-tools.json` — Client/Server/MCP/System tool schemas
 - `.claude/tools/marcela/voice-config.json` — Voice settings defaults and DB mapping
 - `.claude/tools/marcela/voice-config-validator.json` — Voice config validation
 

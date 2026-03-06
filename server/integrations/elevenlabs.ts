@@ -134,6 +134,95 @@ export async function createElevenLabsStreamingTTS(
   });
 }
 
+export interface ConvaiAgent {
+  agent_id: string;
+  name: string;
+  conversation_config?: {
+    agent?: { prompt?: { prompt?: string }; first_message?: string; language?: string };
+    tts?: { voice_id?: string; model_id?: string };
+    conversation?: { text_only?: boolean };
+  };
+}
+
+export interface ConvaiConversation {
+  conversation_id: string;
+  agent_id: string;
+  status: string;
+  transcript?: Array<{ role: 'user' | 'agent'; message: string; time_in_call_secs?: number }>;
+  metadata?: Record<string, unknown>;
+}
+
+export interface ConvaiConversationListItem {
+  conversation_id: string;
+  agent_id: string;
+  status: string;
+  start_time_unix_secs?: number;
+  call_duration_secs?: number;
+}
+
+const CONVAI_BASE = 'https://api.elevenlabs.io/v1/convai';
+
+async function convaiRequest<T>(path: string, options: { method?: string; body?: unknown } = {}): Promise<T> {
+  const apiKey = await getCredentials();
+  const { method = 'GET', body } = options;
+  const headers: Record<string, string> = { 'xi-api-key': apiKey };
+  if (body) headers['Content-Type'] = 'application/json';
+
+  const response = await fetch(`${CONVAI_BASE}${path}`, {
+    method,
+    headers,
+    body: body ? JSON.stringify(body) : undefined,
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`ElevenLabs Convai API error (${response.status}): ${text}`);
+  }
+
+  if (response.status === 204) return {} as T;
+  return response.json() as Promise<T>;
+}
+
+export async function getConvaiAgent(agentId: string): Promise<ConvaiAgent> {
+  return convaiRequest<ConvaiAgent>(`/agents/${agentId}`);
+}
+
+export async function updateConvaiAgent(agentId: string, config: Record<string, unknown>): Promise<ConvaiAgent> {
+  return convaiRequest<ConvaiAgent>(`/agents/${agentId}`, {
+    method: 'PATCH',
+    body: config,
+  });
+}
+
+export async function listConvaiConversations(agentId: string): Promise<ConvaiConversationListItem[]> {
+  const result = await convaiRequest<{ conversations: ConvaiConversationListItem[] }>(
+    `/conversations?agent_id=${agentId}`
+  );
+  return result.conversations || [];
+}
+
+export async function getConvaiConversation(conversationId: string): Promise<ConvaiConversation> {
+  return convaiRequest<ConvaiConversation>(`/conversations/${conversationId}`);
+}
+
+export async function deleteConvaiConversation(conversationId: string): Promise<void> {
+  await convaiRequest<void>(`/conversations/${conversationId}`, { method: 'DELETE' });
+}
+
+export async function getSignedUrl(agentId: string): Promise<string> {
+  const apiKey = await getCredentials();
+  const response = await fetch(
+    `${CONVAI_BASE}/conversation/get-signed-url?agent_id=${agentId}`,
+    { headers: { 'xi-api-key': apiKey } }
+  );
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`ElevenLabs signed URL error (${response.status}): ${text}`);
+  }
+  const data = await response.json() as { signed_url: string };
+  return data.signed_url;
+}
+
 export async function transcribeAudio(audioBuffer: Buffer, filename: string, sttModel?: string): Promise<string> {
   const apiKey = await getCredentials();
 

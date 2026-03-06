@@ -5,6 +5,44 @@
 
 ---
 
+## Session: March 6, 2026 — AI Agent Admin Tab (Mini ElevenLabs Dashboard)
+
+### What Was Done
+- **Mini ElevenLabs admin dashboard**: Built 7-tab admin section (General, Prompt, Voice, LLM, Tools, KB, Telephony) under Admin > AI Agent
+- **AI Agent name variable**: Added `aiAgentName` column to `global_assumptions` (default "Marcela"), `DEFAULT_AI_AGENT_NAME` constant in `shared/constants.ts`. All UI references use dynamic name from DB — no hardcoded "Marcela" in admin UI labels.
+- **Admin tab renamed**: "Marcela" tab → "AI Agent" in Admin navigation. Internal code references remain `marcela*` in DB columns to avoid migration risk, but UI labels are all dynamic.
+- **PromptEditor component**: Fetches/saves system prompt, first message, and language to ElevenLabs via PATCH endpoint. Supports word/char count, language selector with 10 languages.
+- **ToolsStatus component**: Shows all registered client (12) and server (6) tools with registration status. "Sync All Tools" button pushes tool config to ElevenLabs.
+- **Enhanced KnowledgeBase**: RAG index status + reindex, ElevenLabs KB push, file upload via multer (accepts TXT, PDF, DOC, DOCX, MD, CSV).
+- **Backend endpoints added**: `PATCH /api/admin/convai/agent/prompt`, `GET /api/admin/convai/tools-status`, `POST /api/admin/convai/knowledge-base/upload-file`
+- **multer installed**: For multipart file uploads in KB file upload endpoint
+- **Fixed TS errors**: `server/routes/admin/services.ts` param type errors, services.ts `string | string[]` issue
+- Tests: 1,546/1,546 passing, 0 TypeScript errors
+
+### Key Decisions
+- DB columns keep `marcela_*` names to avoid risky migration — only UI labels use the dynamic `aiAgentName`
+- `DEFAULT_MARCELA_*` constants aliased to `DEFAULT_AI_AGENT_*` for backward compatibility
+- Premium/sophisticated design in all new components — gradient icons, subtle depth, uppercase tracking labels
+- Claude Code working concurrently on hospitality DB/calculations — stayed in Marcela/AI Agent lane only
+
+### Files Changed
+- `shared/constants.ts` — `DEFAULT_AI_AGENT_NAME`, aliased `DEFAULT_AI_AGENT_*` constants
+- `shared/schema.ts` — `aiAgentName` column on `global_assumptions`
+- `client/src/pages/Admin.tsx` — tab label "Marcela" → "AI Agent"
+- `client/src/components/admin/marcela/MarcelaTab.tsx` — 7-tab layout with dynamic `agentName`
+- `client/src/components/admin/marcela/PromptEditor.tsx` — new component
+- `client/src/components/admin/marcela/ToolsStatus.tsx` — new component
+- `client/src/components/admin/marcela/KnowledgeBase.tsx` — enhanced with file upload
+- `client/src/components/admin/marcela/hooks.ts` — 4 new hooks: `useAgentConfig`, `useSaveAgentPrompt`, `useToolsStatus`, `useUploadKBFile`
+- `client/src/components/admin/marcela/types.ts` — `aiAgentName` added to `VoiceSettings`
+- `client/src/components/admin/marcela/LLMSettings.tsx` — removed hardcoded "Marcela"
+- `client/src/components/admin/marcela/VoiceSettings.tsx` — removed hardcoded "Marcela"
+- `client/src/components/admin/marcela/TelephonySettings.tsx` — uses dynamic `agentName`
+- `server/routes/admin/marcela.ts` — `aiAgentName` in GET/POST allowed fields, new endpoints
+- `server/routes/admin/services.ts` — fixed `string | string[]` TS error
+
+---
+
 ## Session: February 26, 2026 — Source-of-Truth Harmonization
 
 ### What Was Done

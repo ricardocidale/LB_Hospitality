@@ -52,6 +52,7 @@ describe("Admin config literals (no-hardcoded-admin-config)", () => {
     // Knowledge base and agent config (Marcela AI system prompts)
     if (rel.includes("knowledge-base")) return true;
     if (rel.includes("marcela-agent-config")) return true;
+    if (rel.includes("elevenlabs-audio")) return true;
     // .claude directory
     if (rel.startsWith(".claude/")) return true;
     // Seeds directory

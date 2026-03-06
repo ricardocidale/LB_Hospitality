@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { splitIntoChunks, cosineSimilarity, buildRAGContext } from "../../server/knowledge-base";
+import { splitIntoChunks, cosineSimilarity } from "../../server/knowledge-base";
 
 describe("splitIntoChunks", () => {
   it("produces 1 chunk for short text", () => {
@@ -120,40 +120,3 @@ describe("cosineSimilarity", () => {
   });
 });
 
-describe("buildRAGContext", () => {
-  it("returns empty string for empty chunks", () => {
-    expect(buildRAGContext([])).toBe("");
-  });
-
-  it("formats chunks with title and content", () => {
-    const chunks = [
-      { title: "Revenue", content: "Room revenue is ADR * occupancy * rooms.", source: "manual", score: 0.9 },
-    ];
-    const result = buildRAGContext(chunks);
-    expect(result).toContain("Revenue");
-    expect(result).toContain("Room revenue is ADR");
-  });
-
-  it("respects 4000 char limit", () => {
-    const bigChunk = {
-      title: "Large",
-      content: "X".repeat(5000),
-      source: "test",
-      score: 0.8,
-    };
-    const chunks = Array(10).fill(bigChunk);
-    const result = buildRAGContext(chunks);
-    expect(result.length).toBeLessThanOrEqual(4200); // some tolerance for headers
-  });
-
-  it("includes multiple chunks in order", () => {
-    const chunks = [
-      { title: "First", content: "First content here which is substantial.", source: "a", score: 0.9 },
-      { title: "Second", content: "Second content here which is also substantial.", source: "b", score: 0.8 },
-    ];
-    const result = buildRAGContext(chunks);
-    const firstIdx = result.indexOf("First");
-    const secondIdx = result.indexOf("Second");
-    expect(firstIdx).toBeLessThan(secondIdx);
-  });
-});

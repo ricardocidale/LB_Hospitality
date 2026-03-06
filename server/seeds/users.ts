@@ -36,7 +36,7 @@ export async function seedUserGroups() {
 
   if (existing.length === 0) {
     const groupsToSeed = [
-      { name: "KIT Group" },
+      { name: "The KIT Group" },
       { name: "The Norfolk AI Group" },
     ];
 
@@ -48,9 +48,9 @@ export async function seedUserGroups() {
 
     const allUsers = await db.select().from(users);
     const assignments: Record<string, string> = {
-      "rosario@kitcapital.com": "KIT Group",
-      "kit@kitcapital.com": "KIT Group",
-      "lemazniku@icloud.com": "KIT Group",
+      "rosario@kitcapital.com": "The KIT Group",
+      "kit@kitcapital.com": "The KIT Group",
+      "lemazniku@icloud.com": "The KIT Group",
       "admin": "The Norfolk AI Group",
       "checker@norfolkgroup.io": "The Norfolk AI Group",
       "wlaruffa@gmail.com": "The Norfolk AI Group",
@@ -63,7 +63,7 @@ export async function seedUserGroups() {
         await db.update(users).set({ userGroupId: groupMap[groupName] }).where(eq(users.id, u.id));
       }
     }
-    console.log("Seeded user groups: KIT Group + The Norfolk AI Group");
+    console.log("Seeded user groups: The KIT Group + The Norfolk AI Group");
   }
 
   const [defaultGroup] = await db.select().from(userGroups).where(eq(userGroups.isDefault, true));

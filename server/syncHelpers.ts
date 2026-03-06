@@ -269,12 +269,27 @@ export async function runFillOnlySync(storage: IStorage, generateResearchValues?
   ];
 
   const existingNames = new Set(existingThemes.map(t => t.name));
+  let lbBrandThemeId: number | null = null;
   for (const theme of SEED_THEMES) {
     if (!existingNames.has(theme.name)) {
-      await storage.createDesignTheme(theme);
+      const created = await storage.createDesignTheme(theme);
+      if (theme.name === "L+B Brand") lbBrandThemeId = created.id;
       results.designThemes.created++;
     } else {
+      if (theme.name === "L+B Brand") {
+        const existing = existingThemes.find(t => t.name === "L+B Brand");
+        if (existing) lbBrandThemeId = existing.id;
+      }
       results.designThemes.skipped++;
+    }
+  }
+
+  // Assign L+B Brand theme to the default user group (idempotent)
+  if (lbBrandThemeId) {
+    const groups = await storage.getAllUserGroups();
+    const defaultGroup = groups.find(g => (g as any).isDefault) || groups.find(g => g.name === "General");
+    if (defaultGroup && (defaultGroup as any).themeId !== lbBrandThemeId) {
+      await storage.updateUserGroup(defaultGroup.id, { themeId: lbBrandThemeId });
     }
   }
 

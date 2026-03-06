@@ -5,7 +5,7 @@
 ## Overview
 Business simulation portal for boutique hotel investment. Financial modeling, property management, investment analysis, and AI-powered assistant (Marcela). GAAP-compliant with independent audit/verification engine.
 
-**Codebase:** ~546 source files, ~79,600 lines, 2,409 tests across 108 files.
+**Codebase:** ~558 source files, ~81,500 lines, 2,409 tests across 108 files.
 
 ## Quick Commands
 ```bash
@@ -40,6 +40,7 @@ React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v
 | User preferences | `.claude/claude.md` § User Preferences |
 | Financial engine | `.claude/rules/financial-engine.md`, `.claude/skills/finance/SKILL.md` |
 | Admin page (11 tabs) | `.claude/skills/admin/SKILL.md`, `.claude/skills/admin/ai-agent-admin.md` |
+| Prod migration (sync) | `server/migrations/prod-sync-002.ts` — canonical data enforcement on every boot |
 | AI assistant (Marcela) | `.claude/claude.md` § Marcela AI, `.claude/skills/marcela-ai/SKILL.md` |
 | Design system & themes | `.claude/skills/design-system/SKILL.md`, `.claude/skills/ui/theme-engine.md` |
 | Testing & proof system | `.claude/claude.md` § Testing & Proof System, `.claude/skills/proof-system/SKILL.md` |

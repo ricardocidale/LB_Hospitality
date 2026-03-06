@@ -1,19 +1,20 @@
 ---
 name: proof-system
-description: Automated financial proof system with 1330 tests and 5 golden scenarios. Use when running verification, adding tests, debugging financial calculations, or reviewing proof coverage.
+description: Automated financial proof system with 2371 tests, 5 structural golden scenarios, and 65 hand-calculated golden reference tests. Use when running verification, adding tests, debugging financial calculations, or reviewing proof coverage.
 ---
 
 # Automated Financial Proof System
 
 ## Purpose
-Eliminates human Excel verification. Code proves itself correct through 1330 automated tests across 5 golden scenarios, input-to-output pipeline verification, and magic number detection.
+Eliminates human Excel verification. Code proves itself correct through 2371 automated tests across 5 structural golden scenarios, 65 hand-calculated golden reference tests, input-to-output pipeline verification, and magic number detection.
 
 ## Commands
 ```bash
-npm test                          # Run all 1330 tests
-npm run verify                    # Full 4-phase verification (UNQUALIFIED = pass)
+npm test                          # Run all 2371 tests
+npm run verify                    # Full 7-phase verification (UNQUALIFIED = pass)
 npx vitest run tests/proof/       # Run only proof tests
-npx tsx tests/proof/verify-runner.ts  # 4-phase orchestrator directly
+npx vitest run tests/golden/      # Run 65 hand-calculated golden tests (~3s)
+npx tsx tests/proof/verify-runner.ts  # 7-phase orchestrator directly
 ```
 
 ## 4-Phase Verification
@@ -29,7 +30,7 @@ npx tsx tests/proof/verify-runner.ts  # 4-phase orchestrator directly
 
 Only UNQUALIFIED is acceptable for production.
 
-## 5 Golden Scenarios
+## 5 Structural Golden Scenarios (tests/proof/scenarios.test.ts)
 
 | # | Scenario | What It Proves |
 |---|----------|---------------|
@@ -38,6 +39,20 @@ Only UNQUALIFIED is acceptable for production.
 | 3 | Cash → refinance year 3 | Refi mechanics, cash-out, loan swap, payoff |
 | 4 | Portfolio aggregate | Multi-property aggregation, fee linkage |
 | 5 | Consolidated + eliminations | Full intercompany elimination, consolidated statements |
+
+## 65 Hand-Calculated Golden Tests (tests/golden/)
+
+| File | Tests | Calculators Covered |
+|------|-------|--------------------|
+| `irr-edge-cases.test.ts` | 8 | IRR: single exit, monthly, near-zero, high, negative, alternating signs, 30yr, break-even |
+| `dcf-npv.test.ts` | 8 | DCF/NPV: standard, zero rate, high rate, IRR cross-check, monthly, PV timeline |
+| `equity-exit.test.ts` | 9 | Equity Multiple (2×, loss, break-even, multi-invest) + Exit Valuation (standard, debt-free, underwater, per-key) |
+| `dscr-loan-sizing.test.ts` | 7 | DSCR: binding, LTV binding, IO, zero NOI, over-qualified, actual DSCR/implied LTV |
+| `depreciation-breakeven.test.ts` | 10 | Depreciation (standard, improvements, 100% land, tax shield) + Break-Even (operating, cash flow, ancillary, sensitivity) |
+| `stress-waterfall.test.ts` | 8 | Stress Test (recession, pandemic, risk score) + Waterfall (2-tier, shortfall, catch-up, zero) |
+| `proforma-edge-cases.test.ts` | 15 | Full engine: all-cash, 90% LTV, zero revenue, negative tax, growth, ramp, refinance |
+
+See `.claude/skills/testing/golden-scenarios.md` for full documentation of every scenario with hand-calculated derivations.
 
 ## 31 Enforced Guarantees
 See `tests/proof/NO_EXCEL_GUARANTEE.md` for the full checklist mapping each guarantee to its enforcing test file.
@@ -96,10 +111,13 @@ For per-statement and per-analysis test coverage, see:
 | Analysis: Returns | `.claude/skills/testing/analysis-returns.md` | IRR, NPV, MOIC, sensitivity |
 | Analysis: DCF/FCF | `.claude/skills/testing/analysis-dcf-fcf.md` | FCF, FCFE reconciliation |
 | Financing & Refinancing | `.claude/skills/testing/financing-refinance-funding.md` | Debt, refi, funding instruments |
+| **Golden Scenarios** | **`.claude/skills/testing/golden-scenarios.md`** | **65 hand-calculated tests: IRR, DCF, DSCR, depreciation, break-even, stress, waterfall, exit, equity multiple, pro-forma edge cases** |
 
 ## Maintenance
-1. Run `npm test` — all 1330 tests must pass
-2. Run `npm run verify` — all 4 phases must pass
-3. Check `test-artifacts/*.md` for UNQUALIFIED opinions
-4. New constants go in `shared/constants.ts` (never inline magic numbers)
-5. Update testing skills when adding new test suites
+1. Run `npm test` — all 2371 tests must pass
+2. Run `npm run verify` — all 7 phases must pass
+3. Run `npx vitest run tests/golden/` — 65 hand-calculated tests must pass (~3s)
+4. Check `test-artifacts/*.md` for UNQUALIFIED opinions
+5. New constants go in `shared/constants.ts` (never inline magic numbers)
+6. New calculators require golden tests with hand-calculated reference values
+7. Update testing skills when adding new test suites

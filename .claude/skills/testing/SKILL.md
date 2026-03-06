@@ -1,17 +1,17 @@
 ---
 name: Testing & Proof System
-description: Documents the full 1330-test automated verification system. Every financial statement, analysis, and engine calculation has dedicated tests that pr...
+description: Documents the full 2371-test automated verification system. Every financial statement, analysis, and engine calculation has dedicated tests that prove correctness without manual Excel verification.
 ---
 
 # Testing & Proof System — Master Skill
 
 ## Purpose
-Documents the full 1330-test automated verification system. Every financial statement, analysis, and engine calculation has dedicated tests that prove correctness without manual Excel verification.
+Documents the full 2371-test automated verification system (112 files). Every financial statement, analysis, and engine calculation has dedicated tests that prove correctness without manual Excel verification.
 
 ## Commands
 ```bash
-npm test                              # Run all 1330 tests
-npm run verify                        # Full 4-phase verification (UNQUALIFIED = pass)
+npm test                              # Run all 2371 tests
+npm run verify                        # Full 7-phase verification (UNQUALIFIED = pass)
 npx vitest run tests/statements/      # Statement tests only
 npx vitest run tests/analytics/       # Analytics/returns tests only
 npx vitest run tests/engine/          # Engine (property + company pro forma) tests only
@@ -19,11 +19,12 @@ npx vitest run tests/financing/       # Acquisition financing tests only
 npx vitest run tests/refinance/       # Refinancing tests only
 npx vitest run tests/funding/         # Funding instrument tests only
 npx vitest run tests/proof/           # Proof system (scenarios + hardcoded detection)
-npx vitest run tests/calc/validation/  # Validation tests only
+npx vitest run tests/golden/          # Golden hand-calculated scenarios (65 tests, ~3s)
+npx vitest run tests/calc/validation/ # Validation tests only
 npx vitest run tests/auth/            # Auth utility tests only
 ```
 
-## Test Suite Map (59 files, 1330 tests)
+## Test Suite Map (112 files, 2371 tests)
 
 ### By Domain
 
@@ -36,6 +37,7 @@ npx vitest run tests/auth/            # Auth utility tests only
 | Refinancing | `tests/refinance/` | 6 | ~35 | Refi sizing, schedule, flags, payoff, calculator, golden |
 | Funding | `tests/funding/` | 5 | ~25 | Funding engine, gates, timeline, equity rollforward, golden |
 | Proof | `tests/proof/` | 4 | ~140 | 5 golden scenarios, input verification, hardcoded detection, reconciliation |
+| **Golden** | **`tests/golden/`** | **7** | **65** | **Hand-calculated reference values: IRR edge cases, DCF/NPV, equity multiple, exit valuation, DSCR, depreciation, break-even, stress test, waterfall, pro-forma edge cases** |
 | Validation | `tests/calc/validation/` | 3 | ~212 | Assumption consistency, funding gates, export verification |
 | Auth | `tests/auth/` | 1 | ~1 | Auth utility functions |
 
@@ -57,6 +59,7 @@ npx vitest run tests/auth/            # Auth utility tests only
 | Analysis: Returns | `testing/analysis-returns.md` | IRR, NPV, MOIC, sensitivity, portfolio IRR, refi/exit vectors |
 | Analysis: DCF/FCF | `testing/analysis-dcf-fcf.md` | FCF, FCFE computation and two-method reconciliation |
 | Financing & Refinancing | `testing/financing-refinance-funding.md` | Debt sizing, closing costs, refi schedules, funding instruments |
+| **Golden Scenarios** | **`testing/golden-scenarios.md`** | **65 hand-calculated reference tests across 7 files: IRR, DCF, DSCR, depreciation, break-even, stress, waterfall, exit, equity, pro-forma edge cases** |
 
 ## Key Invariants (All Tested)
 
@@ -84,9 +87,10 @@ npx vitest run tests/auth/            # Auth utility tests only
 
 ## Maintenance Rules
 
-1. **All 1330 tests must pass before any merge** — run `npm test`
+1. **All 2371 tests must pass before any merge** — run `npm test`
 2. **New financial calculations require new tests** — add to the appropriate domain directory
-3. **New constants go in `shared/constants.ts`** — never inline magic numbers
-4. **Hardcoded detection scans 8 finance files** — `proof/hardcoded-detection.test.ts`
-5. **Update this skill and sub-skills when adding test suites**
-6. **Only UNQUALIFIED audit opinion is acceptable** — run `npm run verify`
+3. **New calculators require golden tests** — add hand-calculated reference values in `tests/golden/`
+4. **New constants go in `shared/constants.ts`** — never inline magic numbers
+5. **Hardcoded detection scans 8 finance files** — `proof/hardcoded-detection.test.ts`
+6. **Update this skill and sub-skills when adding test suites**
+7. **Only UNQUALIFIED audit opinion is acceptable** — run `npm run verify`

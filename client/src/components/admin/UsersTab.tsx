@@ -290,17 +290,15 @@ export default function UsersTab() {
                 <TableRow key={user.id} className="border-primary/20 hover:bg-primary/5" data-testid={`row-user-${user.id}`}>
                   <TableCell>
                     <div className="flex items-center gap-3">
-                      <div className="relative">
-                        <UserAvatar firstName={user.firstName} lastName={user.lastName} name={user.name} email={user.email} size="sm" />
-                        {user.userGroupId && userLogoMap[user.userGroupId] && (
-                          <img
-                            src={userLogoMap[user.userGroupId]}
-                            alt=""
-                            className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-2 border-white bg-white object-contain"
-                            onError={(e) => { (e.target as HTMLImageElement).src = defaultLogo; }}
-                          />
-                        )}
-                      </div>
+                      <UserAvatar firstName={user.firstName} lastName={user.lastName} name={user.name} email={user.email} size="sm" />
+                      {user.userGroupId && userLogoMap[user.userGroupId] && (
+                        <img
+                          src={userLogoMap[user.userGroupId]}
+                          alt=""
+                          className="w-7 h-7 rounded-md border border-primary/15 bg-white object-contain p-0.5"
+                          onError={(e) => { (e.target as HTMLImageElement).src = defaultLogo; }}
+                        />
+                      )}
                       <div>
                         <div className="font-display font-medium">{user.name || user.email}</div>
                         {user.name && <div className="text-xs text-muted-foreground">{user.email}</div>}

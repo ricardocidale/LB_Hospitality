@@ -6,3 +6,4 @@ export * from "./IncomeStatementTab";
 export * from "./CashFlowTab";
 export * from "./BalanceSheetTab";
 export * from "./InvestmentAnalysisTab";
+export { default as PortfolioResearchCard } from "./PortfolioResearchCard";

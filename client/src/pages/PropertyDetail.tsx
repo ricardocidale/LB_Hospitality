@@ -58,6 +58,7 @@ import {
   CashFlowTab,
   PropertyHeader,
   PropertyKPIs,
+  BenchmarkPanel,
 } from "@/components/property-detail";
 
 export default function PropertyDetail() {
@@ -541,6 +542,11 @@ export default function PropertyDetail() {
         <PropertyKPIs
           yearlyChartData={yearlyChartData}
           projectionYears={projectionYears}
+        />
+
+        <BenchmarkPanel
+          property={property}
+          yearlyChartData={yearlyChartData}
         />
 
         <ScrollReveal>

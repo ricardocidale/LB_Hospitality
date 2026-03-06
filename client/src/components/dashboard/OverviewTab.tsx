@@ -2,6 +2,7 @@ import React, { useRef } from "react";
 import { AnimatedSection, InsightPanel, ScrollReveal, formatCompact, type Insight } from "@/components/graphics";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 import { DashboardTabProps } from "./types";
+import PortfolioResearchCard from "./PortfolioResearchCard";
 import { formatMoney } from "@/lib/financialEngine";
 import { DEFAULT_EXIT_CAP_RATE } from "@/lib/constants";
 import { computeIRR } from "@analytics/returns/irr.js";
@@ -20,6 +21,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
   const {
     yearlyConsolidatedCache,
     allPropertyYearlyCF,
+    allPropertyYearlyIS,
     portfolioIRR,
     equityMultiple,
     cashOnCash,
@@ -405,6 +407,14 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
               </div>
             </div>
           </AnimatedSection>
+
+          <ScrollReveal>
+            <PortfolioResearchCard
+              properties={properties}
+              yearlyConsolidatedCache={yearlyConsolidatedCache}
+              allPropertyYearlyIS={allPropertyYearlyIS}
+            />
+          </ScrollReveal>
 
           <ScrollReveal>
             <InsightPanel

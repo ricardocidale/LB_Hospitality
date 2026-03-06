@@ -1,0 +1,107 @@
+/**
+ * VendorCostsTab.tsx — Vendor cost and markup analysis for centralized services.
+ *
+ * Shows industry markup ranges, effective margins, and vendor cost waterfalls
+ * using deterministic tools from calc/research.
+ */
+import { useMemo } from "react";
+import { Package } from "lucide-react";
+import { SectionCard } from "../property-research/SectionCard";
+import { companySectionColors } from "./types";
+import { computeMarkupWaterfall } from "@calc/research/markup-waterfall";
+
+const SERVICE_TYPES = ["marketing", "it", "accounting", "revenue_management", "procurement", "hr", "design", "general_management"];
+const LABELS: Record<string, string> = {
+  marketing: "Marketing & Digital",
+  it: "IT & Systems",
+  accounting: "Accounting & Finance",
+  revenue_management: "Revenue Management",
+  procurement: "Procurement & Purchasing",
+  hr: "HR & Training",
+  design: "Design & Renovation",
+  general_management: "General Management",
+};
+
+interface VendorCostsTabProps {
+  content: any;
+}
+
+export function VendorCostsTab({ content }: VendorCostsTabProps) {
+  const sampleVendorCost = 10_000;
+
+  const waterfalls = useMemo(() =>
+    SERVICE_TYPES.map(type => {
+      const w = computeMarkupWaterfall({ vendorCost: sampleVendorCost, markupPct: 0.20, serviceType: type });
+      return { type, label: LABELS[type] || type, ...w };
+    }),
+  []);
+
+  return (
+    <div className="space-y-6">
+      <SectionCard icon={Package} title="Industry Markup Ranges by Service Type" color={companySectionColors.benchmarks}>
+        <p className="text-xs text-muted-foreground mb-4">
+          Standard vendor markup percentages and effective margins for hospitality management company services.
+        </p>
+        <div className="bg-white rounded-lg border border-gray-100 overflow-hidden">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-200">
+                <th className="text-left p-3 text-gray-500 font-medium">Service</th>
+                <th className="text-right p-3 text-gray-500 font-medium">Low Markup</th>
+                <th className="text-right p-3 text-gray-500 font-medium">Mid Markup</th>
+                <th className="text-right p-3 text-gray-500 font-medium">High Markup</th>
+                <th className="text-right p-3 text-gray-500 font-medium">Eff. Margin (Mid)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {waterfalls.map(w => {
+                const midMargin = w.industryMarkupRange
+                  ? (w.industryMarkupRange.mid / (1 + w.industryMarkupRange.mid) * 100).toFixed(1)
+                  : "—";
+                return (
+                  <tr key={w.type} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                    <td className="p-3 text-gray-800 font-medium">{w.label}</td>
+                    <td className="p-3 text-right text-gray-600 font-mono">
+                      {w.industryMarkupRange ? `${(w.industryMarkupRange.low * 100).toFixed(0)}%` : "—"}
+                    </td>
+                    <td className="p-3 text-right text-emerald-600 font-mono font-medium">
+                      {w.industryMarkupRange ? `${(w.industryMarkupRange.mid * 100).toFixed(0)}%` : "—"}
+                    </td>
+                    <td className="p-3 text-right text-gray-600 font-mono">
+                      {w.industryMarkupRange ? `${(w.industryMarkupRange.high * 100).toFixed(0)}%` : "—"}
+                    </td>
+                    <td className="p-3 text-right text-blue-600 font-mono">{midMargin}%</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </SectionCard>
+
+      <SectionCard icon={Package} title="Waterfall Example: $10K Vendor Cost at 20% Markup" color={companySectionColors.fees}>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="bg-gray-50 rounded-lg p-3 border border-gray-200 text-center">
+            <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Vendor Cost</div>
+            <div className="text-lg font-semibold font-mono text-gray-900">${sampleVendorCost.toLocaleString()}</div>
+          </div>
+          <div className="bg-blue-50 rounded-lg p-3 border border-blue-200 text-center">
+            <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Markup (20%)</div>
+            <div className="text-lg font-semibold font-mono text-blue-700">${(sampleVendorCost * 0.2).toLocaleString()}</div>
+          </div>
+          <div className="bg-primary/5 rounded-lg p-3 border border-primary/20 text-center">
+            <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Fee Charged</div>
+            <div className="text-lg font-semibold font-mono text-gray-900">${(sampleVendorCost * 1.2).toLocaleString()}</div>
+          </div>
+          <div className="bg-emerald-50 rounded-lg p-3 border border-emerald-200 text-center">
+            <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Eff. Margin</div>
+            <div className="text-lg font-semibold font-mono text-emerald-700">16.7%</div>
+          </div>
+        </div>
+        <p className="text-xs text-muted-foreground mt-3">
+          With a 20% cost-plus markup, for every $1.00 the company pays a vendor it charges $1.20, yielding a 16.7% effective margin on fee revenue.
+        </p>
+      </SectionCard>
+    </div>
+  );
+}

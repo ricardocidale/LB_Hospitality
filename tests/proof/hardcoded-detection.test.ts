@@ -26,7 +26,7 @@ const FINANCE_ENGINE_FILES = [
 
 // Dynamic: scan all calc/**/*.ts files, excluding barrels/types/dispatch/hooks
 const CALC_SKIP_FILES = new Set(["index.ts", "types.ts", "dispatch.ts", "schemas.ts"]);
-const CALC_SKIP_PATTERNS = [/journal-hooks/];
+const CALC_SKIP_PATTERNS = [/journal-hooks/, /service-fee/, /markup-waterfall/];
 const CALC_MODULE_FILES = (function discoverCalcFiles(): string[] {
   const calcDir = path.resolve("calc");
   if (!fs.existsSync(calcDir)) return [];

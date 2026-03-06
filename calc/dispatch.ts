@@ -75,6 +75,8 @@ import { computeOccupancyRamp } from "./research/occupancy-ramp.js";
 import { computeADRProjection } from "./research/adr-projection.js";
 import { computeCapRateValuation } from "./research/cap-rate-valuation.js";
 import { computeCostBenchmarks } from "./research/cost-benchmarks.js";
+import { computeServiceFee } from "./research/service-fee.js";
+import { computeMarkupWaterfall } from "./research/markup-waterfall.js";
 
 type ToolInput = Record<string, unknown>;
 type ToolFn = (input: never) => unknown;
@@ -120,6 +122,8 @@ const TOOL_DISPATCH: Record<string, ToolHandler> = {
   compute_adr_projection: wrap(computeADRProjection as ToolFn),
   compute_cap_rate_valuation: withRounding(computeCapRateValuation as ToolFn),
   compute_cost_benchmarks: withRounding(computeCostBenchmarks as ToolFn),
+  compute_service_fee: wrap(computeServiceFee as ToolFn),
+  compute_markup_waterfall: wrap(computeMarkupWaterfall as ToolFn),
 };
 
 /**

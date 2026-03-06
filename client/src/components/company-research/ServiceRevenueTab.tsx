@@ -1,0 +1,86 @@
+/**
+ * ServiceRevenueTab.tsx — Service revenue benchmarks for the management company.
+ *
+ * Shows what to charge for each service type based on industry data.
+ * Uses deterministic tools from calc/research for fee range computations.
+ */
+import { useMemo } from "react";
+import { DollarSign } from "lucide-react";
+import { SectionCard } from "../property-research/SectionCard";
+import { MetricCard } from "../property-research/MetricCard";
+import { companySectionColors } from "./types";
+import { computeServiceFee } from "@calc/research/service-fee";
+
+const SERVICE_TYPES = ["marketing", "it", "accounting", "revenue_management", "procurement", "hr", "design", "general_management"];
+const LABELS: Record<string, string> = {
+  marketing: "Marketing & Digital",
+  it: "IT & Systems",
+  accounting: "Accounting & Finance",
+  revenue_management: "Revenue Management",
+  procurement: "Procurement & Purchasing",
+  hr: "HR & Training",
+  design: "Design & Renovation",
+  general_management: "General Management",
+};
+
+interface ServiceRevenueTabProps {
+  content: any;
+}
+
+export function ServiceRevenueTab({ content }: ServiceRevenueTabProps) {
+  const sampleRevenue = 1_500_000;
+
+  const benchmarks = useMemo(() =>
+    SERVICE_TYPES.map(type => ({
+      type,
+      label: LABELS[type] || type,
+      ...computeServiceFee({ propertyRevenue: sampleRevenue, serviceType: type }),
+    })),
+  []);
+
+  return (
+    <div className="space-y-6">
+      <SectionCard icon={DollarSign} title="Service Fee Benchmarks" color={companySectionColors.fees}>
+        <p className="text-xs text-muted-foreground mb-4">
+          Industry fee ranges per service type, computed at $1.5M sample property revenue.
+        </p>
+        <div className="bg-white rounded-lg border border-gray-100 overflow-hidden">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-200">
+                <th className="text-left p-3 text-gray-500 font-medium">Service</th>
+                <th className="text-right p-3 text-gray-500 font-medium">Low Rate</th>
+                <th className="text-right p-3 text-gray-500 font-medium">Mid Rate</th>
+                <th className="text-right p-3 text-gray-500 font-medium">High Rate</th>
+                <th className="text-right p-3 text-gray-500 font-medium">Annual Fee (Mid)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {benchmarks.map(b => (
+                <tr key={b.type} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                  <td className="p-3 text-gray-800 font-medium">{b.label}</td>
+                  <td className="p-3 text-right text-gray-600 font-mono">{(b.lowRate * 100).toFixed(1)}%</td>
+                  <td className="p-3 text-right text-emerald-600 font-mono font-medium">{(b.midRate * 100).toFixed(1)}%</td>
+                  <td className="p-3 text-right text-gray-600 font-mono">{(b.highRate * 100).toFixed(1)}%</td>
+                  <td className="p-3 text-right text-gray-900 font-mono">${b.midFee.toLocaleString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </SectionCard>
+
+      {benchmarks.map(b => (
+        <div key={b.type} className="bg-white/80 backdrop-blur-xl rounded-xl border border-primary/10 p-4">
+          <h4 className="text-sm font-medium text-gray-800 mb-2">{b.label}</h4>
+          <div className="grid grid-cols-3 gap-3 mb-2">
+            <MetricCard label="Low" value={`${(b.lowRate * 100).toFixed(1)}% ($${b.lowFee.toLocaleString()})`} color={companySectionColors.fees} />
+            <MetricCard label="Mid" value={`${(b.midRate * 100).toFixed(1)}% ($${b.midFee.toLocaleString()})`} color={companySectionColors.fees} />
+            <MetricCard label="High" value={`${(b.highRate * 100).toFixed(1)}% ($${b.highFee.toLocaleString()})`} color={companySectionColors.fees} />
+          </div>
+          <p className="text-xs text-muted-foreground">{b.notes}</p>
+        </div>
+      ))}
+    </div>
+  );
+}

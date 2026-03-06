@@ -111,7 +111,7 @@ export default function PortfolioResearchCard({ properties, yearlyConsolidatedCa
     // Portfolio NOI Margin (Year 1 from consolidated)
     if (yearlyConsolidatedCache.length > 0) {
       const yr1 = yearlyConsolidatedCache[0];
-      const rev = yr1.totalRevenue ?? 0;
+      const rev = yr1.revenueTotal ?? 0;
       const noi = yr1.noi ?? 0;
       const noiMargin = rev > 0 ? (noi / rev) * 100 : 0;
       result.push({

@@ -23,7 +23,7 @@
  * consistency between the DB schema, the financial engine, and seed data.
  */
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, real, integer, timestamp, jsonb, boolean, index, serial, unique, check } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, real, integer, timestamp, jsonb, boolean, index, serial, unique, check, primaryKey } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 import {
@@ -176,6 +176,16 @@ export const insertUserGroupSchema = z.object({
 
 export type UserGroup = typeof userGroups.$inferSelect;
 export type InsertUserGroup = z.infer<typeof insertUserGroupSchema>;
+
+// --- USER GROUP PROPERTIES TABLE ---
+// Controls which properties each user group can see. If a group has NO rows
+// here, all properties are visible (safe default — backward compatible).
+// If rows exist, only those property IDs are visible to the group's members.
+// Admin users always bypass this filter.
+export const userGroupProperties = pgTable("user_group_properties", {
+  userGroupId: integer("user_group_id").notNull().references(() => userGroups.id, { onDelete: "cascade" }),
+  propertyId: integer("property_id").notNull().references(() => properties.id, { onDelete: "cascade" }),
+}, (t) => [primaryKey({ columns: [t.userGroupId, t.propertyId] })]);
 
 // --- USERS TABLE ---
 // Every person who can log in. Roles control what they can see and do:

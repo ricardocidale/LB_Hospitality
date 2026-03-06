@@ -27,9 +27,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { GlassButton } from "@/components/ui/glass-button";
-import { Loader2, Trash2, Users, Key, Eye, EyeOff, Pencil, Calendar, UserPlus, Shield, Mail, LayoutGrid, Settings, Save, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
+import { Loader2, Trash2, Users, Key, Eye, EyeOff, Pencil, UserPlus, Shield, Mail, LayoutGrid, Settings, Save, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { formatDateTime } from "@/lib/formatters";
+
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { adminFetch } from "./hooks";
 import type { User, UserGroup } from "./types";
@@ -266,7 +266,6 @@ export default function UsersTab() {
                 <TableHead className="text-muted-foreground font-display cursor-pointer select-none" onClick={() => toggleSort("name")} data-testid="sort-user-name"><div className="flex items-center gap-2"><Users className="w-4 h-4" />User <SortIcon field="name" /></div></TableHead>
                 <TableHead className="text-muted-foreground font-display cursor-pointer select-none" onClick={() => toggleSort("role")} data-testid="sort-user-role"><div className="flex items-center gap-2"><Shield className="w-4 h-4" />Role <SortIcon field="role" /></div></TableHead>
                 <TableHead className="text-muted-foreground font-display cursor-pointer select-none" onClick={() => toggleSort("group")} data-testid="sort-user-group"><div className="flex items-center gap-2"><LayoutGrid className="w-4 h-4" />Group <SortIcon field="group" /></div></TableHead>
-                <TableHead className="text-muted-foreground font-display"><div className="flex items-center gap-2"><Calendar className="w-4 h-4" />Created</div></TableHead>
                 <TableHead className="text-muted-foreground font-display text-right"><div className="flex items-center justify-end gap-2"><Settings className="w-4 h-4" />Actions</div></TableHead>
               </TableRow>
             </TableHeader>
@@ -288,7 +287,6 @@ export default function UsersTab() {
                     </span>
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">{user.userGroupId ? groupNameMap[user.userGroupId] || "—" : "—"}</TableCell>
-                  <TableCell className="text-muted-foreground font-mono text-sm">{formatDateTime(user.createdAt)}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-primary/10"

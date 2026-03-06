@@ -30,6 +30,7 @@ import { GlassButton } from "@/components/ui/glass-button";
 import { Loader2, Trash2, Users, Key, Eye, EyeOff, Pencil, Calendar, UserPlus, Shield, Mail, LayoutGrid, Settings, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { formatDateTime } from "@/lib/formatters";
+import { UserAvatar } from "@/components/ui/user-avatar";
 import type { User } from "./types";
 
 export default function UsersTab() {
@@ -218,8 +219,13 @@ export default function UsersTab() {
               {users?.map((user) => (
                 <TableRow key={user.id} className="border-primary/20 hover:bg-primary/5" data-testid={`row-user-${user.id}`}>
                   <TableCell>
-                    <div className="font-display font-medium">{user.name || user.email}</div>
-                    {user.name && <div className="text-xs text-muted-foreground">{user.email}</div>}
+                    <div className="flex items-center gap-3">
+                      <UserAvatar firstName={user.firstName} lastName={user.lastName} name={user.name} email={user.email} size="sm" />
+                      <div>
+                        <div className="font-display font-medium">{user.name || user.email}</div>
+                        {user.name && <div className="text-xs text-muted-foreground">{user.email}</div>}
+                      </div>
+                    </div>
                   </TableCell>
                   <TableCell>
                     <span className={`px-2 py-1 rounded text-xs font-medium ${user.role === 'admin' ? 'bg-secondary/15 text-secondary' : 'bg-primary/10 text-muted-foreground'}`}>

@@ -20,7 +20,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { Users, Building2, Tag, Image, Upload } from "lucide-react";
+import { Building2, Tag, Image, Upload } from "lucide-react";
 import defaultLogo from "@/assets/logo.png";
 import { invalidateAllFinancialQueries } from "@/lib/api";
 import type { Logo } from "./types";
@@ -203,34 +203,19 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <button
-          onClick={() => onNavigate?.("logos")}
-          className="group bg-white/60 backdrop-blur-sm border border-primary/15 rounded-xl p-4 flex items-center gap-4 hover:border-primary/30 hover:bg-primary/[0.03] transition-all duration-200 text-left cursor-pointer"
-          data-testid="button-go-to-logos"
-        >
-          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/15 transition-colors">
-            <Upload className="w-5 h-5 text-primary" />
-          </div>
-          <div className="min-w-0">
-            <p className="text-sm font-semibold text-gray-800">Logo Portfolio</p>
-            <p className="text-xs text-gray-500 mt-0.5">{adminLogos?.length || 0} logos available — manage in Logos section</p>
-          </div>
-        </button>
-        <button
-          onClick={() => onNavigate?.("groups")}
-          className="group bg-white/60 backdrop-blur-sm border border-primary/15 rounded-xl p-4 flex items-center gap-4 hover:border-primary/30 hover:bg-primary/[0.03] transition-all duration-200 text-left cursor-pointer"
-          data-testid="button-go-to-groups"
-        >
-          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/15 transition-colors">
-            <Users className="w-5 h-5 text-primary" />
-          </div>
-          <div className="min-w-0">
-            <p className="text-sm font-semibold text-gray-800">User Branding</p>
-            <p className="text-xs text-gray-500 mt-0.5">Assign logos and themes per group in Groups section</p>
-          </div>
-        </button>
-      </div>
+      <button
+        onClick={() => onNavigate?.("logos")}
+        className="group bg-white/60 backdrop-blur-sm border border-primary/15 rounded-xl p-4 flex items-center gap-4 hover:border-primary/30 hover:bg-primary/[0.03] transition-all duration-200 text-left cursor-pointer w-full max-w-md"
+        data-testid="button-go-to-logos"
+      >
+        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/15 transition-colors">
+          <Upload className="w-5 h-5 text-primary" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-sm font-semibold text-gray-800">Logo Portfolio</p>
+          <p className="text-xs text-gray-500 mt-0.5">{adminLogos?.length || 0} logos available — manage in Logos section</p>
+        </div>
+      </button>
     </div>
   );
 }

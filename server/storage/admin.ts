@@ -1,6 +1,7 @@
 import { designThemes, logos, assetDescriptions, userGroups, companies, researchQuestions, users, type DesignTheme, type InsertDesignTheme, type Logo, type InsertLogo, type AssetDescription, type InsertAssetDescription, type UserGroup, type InsertUserGroup, type Company, type InsertCompany, type ResearchQuestion, type InsertResearchQuestion, type User } from "@shared/schema";
 import { db } from "../db";
 import { eq, desc, isNull } from "drizzle-orm";
+import { stripAutoFields } from "./utils";
 
 export class AdminStorage {
   // ── Design Themes ──────────────────────────────────────────────
@@ -40,7 +41,7 @@ export class AdminStorage {
   async updateDesignTheme(id: number, data: Partial<InsertDesignTheme>): Promise<DesignTheme | undefined> {
     const [theme] = await db
       .update(designThemes)
-      .set({ ...data, updatedAt: new Date() })
+      .set({ ...stripAutoFields(data as Record<string, unknown>), updatedAt: new Date() })
       .where(eq(designThemes.id, id))
       .returning();
     return theme || undefined;
@@ -134,7 +135,7 @@ export class AdminStorage {
 
   /** Update a group's settings (name, linked logo/theme/asset description). */
   async updateUserGroup(id: number, data: Partial<InsertUserGroup>): Promise<UserGroup> {
-    const [group] = await db.update(userGroups).set(data).where(eq(userGroups.id, id)).returning();
+    const [group] = await db.update(userGroups).set(stripAutoFields(data as Record<string, unknown>)).where(eq(userGroups.id, id)).returning();
     return group;
   }
 
@@ -185,7 +186,7 @@ export class AdminStorage {
 
   /** Update company details (name, type, description, logo). */
   async updateCompany(id: number, data: Partial<InsertCompany>): Promise<Company> {
-    const [company] = await db.update(companies).set(data).where(eq(companies.id, id)).returning();
+    const [company] = await db.update(companies).set(stripAutoFields(data as Record<string, unknown>)).where(eq(companies.id, id)).returning();
     return company;
   }
 

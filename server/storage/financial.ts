@@ -1,6 +1,7 @@
 import { globalAssumptions, scenarios, propertyFeeCategories, type GlobalAssumptions, type InsertGlobalAssumptions, type Scenario, type InsertScenario, type UpdateScenario, type FeeCategory, type InsertFeeCategory, type UpdateFeeCategory, properties } from "@shared/schema";
 import { db } from "../db";
 import { eq, desc, isNull } from "drizzle-orm";
+import { stripAutoFields } from "./utils";
 
 export class FinancialStorage {
   /**
@@ -28,10 +29,9 @@ export class FinancialStorage {
     const existing = await this.getGlobalAssumptions(userId);
     
     if (existing) {
-      const { id: _id, createdAt: _ca, updatedAt: _ua, ...safeData } = data as Record<string, unknown>;
       const [updated] = await db
         .update(globalAssumptions)
-        .set({ ...safeData, updatedAt: new Date() })
+        .set({ ...stripAutoFields(data as Record<string, unknown>), updatedAt: new Date() })
         .where(eq(globalAssumptions.id, existing.id))
         .returning();
       return updated;
@@ -71,7 +71,7 @@ export class FinancialStorage {
   async updateScenario(id: number, data: UpdateScenario): Promise<Scenario | undefined> {
     const [scenario] = await db
       .update(scenarios)
-      .set({ ...data, updatedAt: new Date() })
+      .set({ ...stripAutoFields(data as Record<string, unknown>), updatedAt: new Date() })
       .where(eq(scenarios.id, id))
       .returning();
     return scenario || undefined;
@@ -139,7 +139,7 @@ export class FinancialStorage {
 
   /** Update a fee category's name, rate, or sort order. */
   async updateFeeCategory(id: number, data: UpdateFeeCategory): Promise<FeeCategory | undefined> {
-    const [cat] = await db.update(propertyFeeCategories).set(data).where(eq(propertyFeeCategories.id, id)).returning();
+    const [cat] = await db.update(propertyFeeCategories).set(stripAutoFields(data as Record<string, unknown>)).where(eq(propertyFeeCategories.id, id)).returning();
     return cat || undefined;
   }
 

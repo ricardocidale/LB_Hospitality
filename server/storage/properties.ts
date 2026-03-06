@@ -1,6 +1,7 @@
 import { properties, type Property, type InsertProperty, type UpdateProperty } from "@shared/schema";
 import { db } from "../db";
 import { eq, or, isNull } from "drizzle-orm";
+import { stripAutoFields } from "./utils";
 
 export class PropertyStorage {
   /**
@@ -36,7 +37,7 @@ export class PropertyStorage {
   async updateProperty(id: number, data: UpdateProperty): Promise<Property | undefined> {
     const [property] = await db
       .update(properties)
-      .set({ ...data, updatedAt: new Date() })
+      .set({ ...stripAutoFields(data as Record<string, unknown>), updatedAt: new Date() })
       .where(eq(properties.id, id))
       .returning();
     return property || undefined;

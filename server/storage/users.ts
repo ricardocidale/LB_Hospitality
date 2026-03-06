@@ -1,6 +1,7 @@
 import { users, sessions, type User, type InsertUser, type Session } from "@shared/schema";
 import { db } from "../db";
 import { eq, and, gt, lt } from "drizzle-orm";
+import { stripAutoFields } from "./utils";
 
 export class UserStorage {
   /** Look up a user by their numeric ID. Returns undefined if not found. */
@@ -58,7 +59,7 @@ export class UserStorage {
   async updateUserProfile(id: number, data: { firstName?: string; lastName?: string; email?: string; company?: string; companyId?: number | null; title?: string }): Promise<User> {
     const [user] = await db
       .update(users)
-      .set({ ...data, updatedAt: new Date() })
+      .set({ ...stripAutoFields(data as Record<string, unknown>), updatedAt: new Date() })
       .where(eq(users.id, id))
       .returning();
     return user;

@@ -1,6 +1,7 @@
 import { companyServiceTemplates, propertyFeeCategories, properties, type ServiceTemplate, type InsertServiceTemplate, type UpdateServiceTemplate } from "@shared/schema";
 import { db } from "../db";
 import { eq, isNull } from "drizzle-orm";
+import { stripAutoFields } from "./utils";
 
 export class ServiceStorage {
   async getAllServiceTemplates(): Promise<ServiceTemplate[]> {
@@ -20,7 +21,7 @@ export class ServiceStorage {
   async updateServiceTemplate(id: number, data: UpdateServiceTemplate): Promise<ServiceTemplate | undefined> {
     const [template] = await db
       .update(companyServiceTemplates)
-      .set(data)
+      .set(stripAutoFields(data as Record<string, unknown>))
       .where(eq(companyServiceTemplates.id, id))
       .returning();
     return template || undefined;

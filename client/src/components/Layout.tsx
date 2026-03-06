@@ -19,7 +19,7 @@
  * The component also mounts globally-available overlays:
  *   – CommandPalette (⌘K search)
  *   – GuidedWalkthrough (first-time tour)
- *   – AIChatWidget (floating AI assistant, if enabled)
+ *   – ElevenLabs Conversational AI widget (Marcela, if enabled)
  *
  * Theming: the Layout reads the user-group "themeName" from /api/my-branding
  * and applies the matching CSS class to <html> so the entire app switches theme.
@@ -38,7 +38,7 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import NotificationCenter from "@/components/NotificationCenter";
 import FavoritesSidebar from "@/components/Favorites";
 import GuidedWalkthrough, { useWalkthroughStore } from "@/components/GuidedWalkthrough";
-import AIChatWidget from "@/components/AIChatWidget";
+import ElevenLabsWidget from "@/components/ElevenLabsWidget";
 
 const THEME_CSS_CLASSES: Record<string, string> = {
   "Fluid Glass": "",
@@ -50,11 +50,11 @@ type NavDivider = { type: "divider" };
 type NavGroup = { type: "group"; label: string; icon: any; children: NavLink[] };
 type NavItem = NavLink | NavDivider | NavGroup;
 
-function AIChatWidgetGated() {
+function MarcelaWidgetGated() {
   const { data: global } = useGlobalAssumptions();
   const { tourActive, promptVisible } = useWalkthroughStore();
   const enabled = !!(global as any)?.showAiAssistant && !tourActive && !promptVisible;
-  return <AIChatWidget enabled={enabled} />;
+  return <ElevenLabsWidget enabled={enabled} />;
 }
 
 export default function Layout({ children, darkMode }: { children: React.ReactNode; darkMode?: boolean }) {
@@ -443,7 +443,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
 
       <CommandPalette />
       <GuidedWalkthrough />
-      <AIChatWidgetGated />
+      <MarcelaWidgetGated />
     </div>
   );
 }

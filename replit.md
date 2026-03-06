@@ -5,7 +5,7 @@
 ## Overview
 Business simulation portal for the hospitality industry. Financial modeling, property management, investment analysis, and AI-powered assistant (Marcela). GAAP-compliant (ASC 230, ASC 360, ASC 470) with IRS depreciation rules and independent audit/verification engine.
 
-**Codebase:** ~467 source files, ~73,700 lines, 1,546 tests across 76 files.
+**Codebase:** ~511 source files, ~75,230 lines, 1,546 tests across 76 files.
 
 ## User Preferences
 - **Calculations first.** 1,546-test proof system must always pass.
@@ -24,9 +24,9 @@ Business simulation portal for the hospitality industry. Financial modeling, pro
 ## System Architecture
 
 ### Marcela AI — Multi-Channel Conversational Assistant
-Marcela operates across web (text + voice), phone (Twilio Voice), and SMS (Twilio SMS). All settings managed from Admin > Marcela tab. See `.claude/claude.md` § Marcela AI for full details.
+Marcela operates across web (ElevenLabs Conversational AI widget), phone (Twilio Voice), and SMS (Twilio SMS). All settings managed from Admin > Marcela tab. See `.claude/claude.md` § Marcela AI for full details.
 
-- **Web:** GPT-4.1 streaming, ElevenLabs STT/TTS, AudioWorklet playback, voice state machine with barge-in
+- **Web:** ElevenLabs Conversational AI widget (`@elevenlabs/convai-widget-core`), supports voice + text, auto language detection. Agent ID configured in Admin > Marcela tab. Signed URL generated server-side via `/api/marcela/signed-url`. Voices: Jessica (English), Sarah (Portuguese), configurable Spanish voice.
 - **Phone:** Twilio Voice webhook + WebSocket Media Stream, mulaw 8kHz ↔ PCM conversion
 - **SMS:** Twilio SMS webhook, 1600-char auto-split, TwiML reply
 - **RAG:** In-memory embeddings (OpenAI `text-embedding-3-small`), lazy indexing, cosine similarity retrieval

@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { SaveButton } from "@/components/ui/save-button";
 import { Badge } from "@/components/ui/badge";
-import { Shield } from "lucide-react";
+import { Shield, Bot } from "lucide-react";
 import { VoiceSettings } from "./types";
 import { useMarcelaSettings, useTwilioStatus, useSaveMarcelaSettings } from "./hooks";
 import { KnowledgeBaseCard } from "./KnowledgeBase";
@@ -107,6 +108,50 @@ export default function MarcelaTab() {
               data-testid="switch-marcela-enabled"
             />
           </div>
+        </CardContent>
+      </Card>
+
+      <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 font-display">
+            <Bot className="w-5 h-5 text-primary" />
+            ElevenLabs Conversational AI
+          </CardTitle>
+          <CardDescription className="label-text mt-1">
+            Connect Marcela to your ElevenLabs Conversational AI agent for voice and text chat with automatic language detection.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label className="label-text font-medium">Agent ID</Label>
+            <Input
+              value={draft.marcelaAgentId}
+              onChange={(e) => updateField("marcelaAgentId", e.target.value)}
+              placeholder="Enter your ElevenLabs Agent ID"
+              data-testid="input-marcela-agent-id"
+            />
+            <p className="text-xs text-muted-foreground">
+              Create an agent at{" "}
+              <a href="https://elevenlabs.io/app/conversational-ai" target="_blank" rel="noopener noreferrer" className="text-primary underline">
+                elevenlabs.io/app/conversational-ai
+              </a>
+              {" "}and paste the Agent ID here. Configure voices (Jessica for English, Sarah for Portuguese) and enable language detection on the ElevenLabs dashboard.
+            </p>
+          </div>
+          {!draft.marcelaAgentId && (
+            <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+              <p className="text-xs text-amber-800">
+                No Agent ID configured. The Marcela widget will not appear until an agent is set up.
+              </p>
+            </div>
+          )}
+          {draft.marcelaAgentId && (
+            <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+              <p className="text-xs text-green-800">
+                Agent connected. The ElevenLabs widget will appear as a floating button for all users.
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
 

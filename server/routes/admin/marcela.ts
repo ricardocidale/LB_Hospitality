@@ -1,8 +1,9 @@
 import { type Express } from "express";
 import { storage } from "../../storage";
-import { requireAdmin } from "../../auth";
+import { requireAdmin, requireAuth } from "../../auth";
 import { type InsertGlobalAssumptions } from "@shared/schema";
 import { getTwilioStatus, sendSMS } from "../../integrations/twilio";
+import { getElevenLabsApiKey } from "../../integrations/elevenlabs";
 
 export function registerMarcelaRoutes(app: Express) {
   app.get("/api/admin/voice-settings", requireAdmin, async (_req, res) => {
@@ -10,6 +11,7 @@ export function registerMarcelaRoutes(app: Express) {
       const ga = await storage.getGlobalAssumptions();
       if (!ga) return res.status(404).json({ error: "No global assumptions found" });
       res.json({
+        marcelaAgentId: ga.marcelaAgentId,
         marcelaVoiceId: ga.marcelaVoiceId,
         marcelaTtsModel: ga.marcelaTtsModel,
         marcelaSttModel: ga.marcelaSttModel,
@@ -38,7 +40,7 @@ export function registerMarcelaRoutes(app: Express) {
       const ga = await storage.getGlobalAssumptions();
       if (!ga) return res.status(404).json({ error: "No global assumptions found" });
       const allowedFields = [
-        "marcelaVoiceId", "marcelaTtsModel", "marcelaSttModel", "marcelaOutputFormat",
+        "marcelaAgentId", "marcelaVoiceId", "marcelaTtsModel", "marcelaSttModel", "marcelaOutputFormat",
         "marcelaStability", "marcelaSimilarityBoost", "marcelaSpeakerBoost",
         "marcelaChunkSchedule", "marcelaLlmModel", "marcelaMaxTokens",
         "marcelaMaxTokensVoice", "marcelaEnabled", "showAiAssistant",
@@ -85,6 +87,30 @@ export function registerMarcelaRoutes(app: Express) {
     } catch (error: any) {
       console.error("Knowledge base reindex error:", error);
       res.status(500).json({ error: error.message || "Failed to reindex knowledge base" });
+    }
+  });
+
+  app.get("/api/marcela/signed-url", requireAuth, async (_req, res) => {
+    try {
+      const ga = await storage.getGlobalAssumptions();
+      if (!ga?.marcelaAgentId) {
+        return res.status(404).json({ error: "Marcela agent not configured" });
+      }
+      const apiKey = await getElevenLabsApiKey();
+      const response = await fetch(
+        `https://api.elevenlabs.io/v1/convai/conversation/get-signed-url?agent_id=${ga.marcelaAgentId}`,
+        { headers: { "xi-api-key": apiKey } }
+      );
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("ElevenLabs signed URL error:", errorText);
+        return res.status(response.status).json({ error: "Failed to get signed URL" });
+      }
+      const data = await response.json() as { signed_url: string };
+      res.json({ signedUrl: data.signed_url });
+    } catch (error: any) {
+      console.error("Error getting Marcela signed URL:", error);
+      res.status(500).json({ error: error.message || "Failed to get signed URL" });
     }
   });
 

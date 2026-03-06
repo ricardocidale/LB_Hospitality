@@ -380,6 +380,9 @@ export const globalAssumptions = pgTable("global_assumptions", {
   // Feature Toggles
   showAiAssistant: boolean("show_ai_assistant").notNull().default(false),
   
+  // ElevenLabs Conversational AI Agent
+  marcelaAgentId: text("marcela_agent_id").notNull().default(""),
+  
   // Marcela Voice Configuration (ElevenLabs)
   marcelaVoiceId: text("marcela_voice_id").notNull().default("cgSgspJ2msm6clMCkdW9"),
   marcelaTtsModel: text("marcela_tts_model").notNull().default("eleven_flash_v2_5"),
@@ -520,6 +523,7 @@ export const insertGlobalAssumptionsSchema = createInsertSchema(globalAssumption
   sidebarScenarios: true,
   sidebarUserManual: true,
   showAiAssistant: true,
+  marcelaAgentId: true,
   marcelaVoiceId: true,
   marcelaTtsModel: true,
   marcelaSttModel: true,

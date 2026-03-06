@@ -1,4 +1,5 @@
 export interface VoiceSettings {
+  marcelaAgentId: string;
   marcelaVoiceId: string;
   marcelaTtsModel: string;
   marcelaSttModel: string;

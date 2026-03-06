@@ -3,6 +3,11 @@ import { useLocation } from "wouter";
 import { useGlobalAssumptions } from "@/lib/api/admin";
 import { useAuth } from "@/lib/auth";
 import { useWalkthroughStore } from "@/components/GuidedWalkthrough";
+import { registerWidget } from "@elevenlabs/convai-widget-core";
+
+if (!customElements.get("elevenlabs-convai")) {
+  registerWidget();
+}
 
 export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolean }) {
   const { data: global } = useGlobalAssumptions();

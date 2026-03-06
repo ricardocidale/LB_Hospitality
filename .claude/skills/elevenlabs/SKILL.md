@@ -1,59 +1,140 @@
-# ElevenLabs Integration — Master Skill
+# ElevenLabs Integration Library
 
-This skill covers all ElevenLabs products used in the HBG portal: Conversational AI (Marcela), Text-to-Speech, Speech-to-Text, and the REST API.
+Comprehensive library of documentation, helper functions, scripts, and examples for all ElevenLabs products.
 
-## Quick Reference
-
-| Resource | File |
-|----------|------|
-| Conversational AI (agents, widget, React SDK) | `conversational-ai.md` |
-| Knowledge Base & RAG | `knowledge-base.md` |
-| Client & Server Tools | `tools.md` |
-| Authentication (signed URLs, allowlists) | `authentication.md` |
-| REST API & TTS/STT | `api-reference.md` |
-| Widget embed & customization | `widget.md` |
-| Project-specific config (Marcela) | `marcela-config.md` |
-
-## Architecture in This Project
+## Directory Structure
 
 ```
-Client (React)
-  └── ElevenLabsWidget.tsx
-        ├── Uses @elevenlabs/convai-widget-core (npm)
-        ├── registerWidget() → defines <elevenlabs-convai> custom element
-        ├── Renders <elevenlabs-convai agent-id="..."> with dynamic-variables
-        └── Registers client tools via "elevenlabs-convai:call" event
-
-Server (Express)
-  └── server/marcela.ts
-        ├── ElevenLabs connector (Replit integration) for API key
-        ├── Agent configuration via REST API
-        ├── Signed URL generation endpoint: GET /api/marcela/signed-url
-        └── Knowledge base management
+.claude/skills/elevenlabs/
+├── SKILL.md                              ← You are here
+├── marcela-config.md                     Project-specific Marcela config
+│
+├── docs/                                 Reference documentation
+│   ├── overview.md                       Platform overview, packages, repos
+│   ├── models.md                         TTS, STT, and LLM models reference
+│   ├── text-to-speech.md                 TTS: convert, stream, timestamps, formats
+│   ├── speech-to-text.md                 STT: Scribe models, diarization, events
+│   ├── voices.md                         Voice management: list, clone, settings
+│   ├── conversational-ai.md             Agent lifecycle: create, update, deploy
+│   ├── react-sdk.md                      @elevenlabs/react — useConversation hook
+│   ├── client-sdk.md                     @elevenlabs/client — vanilla JS/TS SDK
+│   ├── widget.md                         Web component embed & customization
+│   ├── authentication.md                 API keys, signed URLs, conversation tokens
+│   ├── knowledge-base.md                 RAG, documents, indexing
+│   ├── tools.md                          Client, server, MCP, system tools
+│   ├── phone-numbers.md                  Phone number management, batch calls
+│   ├── twilio.md                         Twilio voice integration
+│   ├── whatsapp.md                       WhatsApp messaging & calls
+│   └── webhooks.md                       Webhook types, security, handlers
+│
+├── helpers/                              Reusable TypeScript utility functions
+│   ├── index.ts                          Barrel export
+│   ├── types.ts                          Shared TypeScript types & interfaces
+│   ├── client.ts                         Client initialization & connection test
+│   ├── signed-url.ts                     Signed URL & conversation token generation
+│   ├── tts.ts                            Text-to-speech: convert, stream, Twilio format
+│   ├── stt.ts                            Speech-to-text: transcribe, diarize, format
+│   ├── agent.ts                          Agent CRUD: create, update, delete, list
+│   ├── knowledge-base.ts                 KB documents: create, sync, attach to agent
+│   ├── conversations.ts                  Conversation listing, stats, transcript format
+│   ├── voices.ts                         Voice search, list, find by name
+│   ├── phone-numbers.ts                  Phone numbers: register, assign, batch calls
+│   └── webhooks.ts                       Webhook signature verification & handlers
+│
+├── scripts/                              Standalone admin/utility scripts
+│   ├── list-agents.ts                    List all agents
+│   ├── list-voices.ts                    List/search available voices
+│   ├── list-conversations.ts            List recent conversations for an agent
+│   ├── get-agent-config.ts              Dump full agent configuration as JSON
+│   ├── update-agent.ts                  Update agent settings (prompt, voice, etc.)
+│   ├── generate-signed-url.ts           Generate a signed URL for testing
+│   ├── sync-knowledge-base.ts           Sync a text file to agent's knowledge base
+│   ├── test-tts.ts                      Generate TTS audio and save to file
+│   └── usage-report.ts                  Account usage metrics report
+│
+└── examples/                             Complete code examples
+    ├── react-conversation.tsx            Full React conversation UI component
+    ├── widget-embed.tsx                  Widget web component for React apps
+    ├── server-routes.ts                  Express API routes (signed URL, TTS, STT, webhooks)
+    ├── client-tools-patterns.ts         Common client tool patterns (nav, UI, data, e-commerce)
+    └── knowledge-base-sync.ts           KB sync workflow with periodic updates
 ```
 
-## Key IDs & Config (from DB `global_assumptions`)
+## Quick Start
 
-| Setting | DB Column | Value |
-|---------|-----------|-------|
-| Agent ID | `marcela_agent_id` | `agent_6401kk0capntfansmn84f58yfrd9` |
-| English Voice | `marcela_voice_id` | `cgSgspJ2msm6clMCkdW9` (Jessica) |
-| Portuguese Voice | — | `EXAVITQu4vr4xnSDxMaL` (Sarah) |
-| TTS Model | `marcela_tts_model` | `eleven_flash_v2_5` |
-| STT Model | `marcela_stt_model` | `scribe_v1` |
-| LLM Model | `marcela_llm_model` | `gpt-4.1` |
+### 1. Install Packages
 
-## Replit Integration
+**Server-side (Node.js API):**
+```bash
+npm install elevenlabs
+```
 
-The ElevenLabs connector is installed at account level (`connection:conn_elevenlabs_01KG8V5TQDT93Q4HHB3B59RSAD`). When the connector is properly authorized:
-- `getUncachableElevenLabsClient()` returns an authenticated ElevenLabs client
-- The client handles API key management automatically
-- Never cache the client — tokens expire
+**Client-side (React):**
+```bash
+npm install @elevenlabs/react
+```
 
-When the connector returns UNAUTHORIZED, the widget falls back to public `agent-id` mode (no signed URL).
+**Client-side (Widget in React):**
+```bash
+npm install @elevenlabs/convai-widget-core
+```
 
-## Invariants
+### 2. Initialize Client
+```typescript
+import { ElevenLabsClient } from "elevenlabs";
+const client = new ElevenLabsClient({ apiKey: process.env.ELEVENLABS_API_KEY });
+```
 
-- **All ElevenLabs config via API only** — never use the ElevenLabs dashboard manually
-- **DB column names stay `marcela_*`** — only UI labels are dynamic (use `aiAgentName` from DB)
-- **Agent name is configurable** via `aiAgentName` in `global_assumptions` (default: "Marcela")
+### 3. Use Helpers
+```typescript
+import { createClient, textToSpeech, listAgents, generateSignedUrl } from "./helpers";
+```
+
+### 4. Run Scripts
+```bash
+ELEVENLABS_API_KEY=xxx npx ts-node .claude/skills/elevenlabs/scripts/list-agents.ts
+ELEVENLABS_API_KEY=xxx npx ts-node .claude/skills/elevenlabs/scripts/list-voices.ts jessica
+ELEVENLABS_API_KEY=xxx npx ts-node .claude/skills/elevenlabs/scripts/usage-report.ts 30
+```
+
+## Package Selection Guide
+
+| Scenario | Package | Doc |
+|----------|---------|-----|
+| Node.js server (TTS, STT, agent management) | `elevenlabs` | `docs/overview.md` |
+| React app with full agent control | `@elevenlabs/react` | `docs/react-sdk.md` |
+| React app with drop-in widget | `@elevenlabs/convai-widget-core` | `docs/widget.md` |
+| Vanilla JS/TS browser app | `@elevenlabs/client` | `docs/client-sdk.md` |
+| Simple HTML page | `@elevenlabs/convai-widget-embed` (CDN) | `docs/widget.md` |
+| React Native mobile app | `@elevenlabs/react-native` | `docs/overview.md` |
+
+## GitHub Repositories
+
+| Repo | Purpose |
+|------|---------|
+| [elevenlabs-js](https://github.com/elevenlabs/elevenlabs-js) | Node.js server SDK |
+| [packages](https://github.com/elevenlabs/packages) | React/client SDKs + widget |
+| [elevenlabs-python](https://github.com/elevenlabs/elevenlabs-python) | Python SDK + `reference.md` |
+| [ui](https://github.com/elevenlabs/ui) | UI component library |
+| [elevenlabs-examples](https://github.com/elevenlabs/elevenlabs-examples) | Demo applications |
+
+## Key Concepts
+
+### Authentication Flow
+1. Server stores API key securely (env var)
+2. Client requests signed URL or conversation token from server
+3. Client connects to agent using signed URL (expires 15 min)
+4. See `docs/authentication.md` for full patterns
+
+### Agent Deployment
+1. Create agent via API or dashboard
+2. Choose deployment method: React SDK, Widget, Phone, WhatsApp
+3. Configure authentication (public vs private)
+4. Register client tools for app integration
+5. Attach knowledge base documents for domain expertise
+
+### Tool Architecture
+- **Client tools** — run in browser (navigation, UI, context)
+- **Server tools** — run on your server via webhook (DB, APIs)
+- **MCP tools** — connect MCP servers for extended capabilities
+- **System tools** — built-in (end conversation, transfer call)

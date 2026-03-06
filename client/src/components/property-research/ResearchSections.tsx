@@ -14,13 +14,17 @@
  *   • Stabilization         – expected timeline to reach stabilized occupancy
  *   • Land Value            – underlying land valuation for the basis split
  *   • Catering              – F&B / wedding / event revenue potential
+ *   • Operating Costs       – USALI-based operating cost benchmarks
+ *   • Property Value Costs  – insurance and property tax rate analysis
+ *   • Management Fees       – management and service fee benchmarks
+ *   • Income Tax            – income tax rate analysis
  *   • Sources               – citations for the AI-generated data
  *
  * Each section is conditionally rendered only if the research JSON includes
  * data for that category; sections stream in progressively as the LLM
  * generates more content.
  */
-import { TrendingUp, Building2, Calendar, Users, AlertTriangle, BookOpen, Target, Clock, Shield, Mountain, UtensilsCrossed } from "lucide-react";
+import { TrendingUp, Building2, Calendar, Users, AlertTriangle, BookOpen, Target, Clock, Shield, Mountain, UtensilsCrossed, Wallet, Home, Briefcase, Receipt } from "lucide-react";
 import { SectionCard } from "./SectionCard";
 import { MetricCard } from "./MetricCard";
 import { sectionColors } from "./types";
@@ -117,7 +121,7 @@ export function ResearchSections({ content }: { content: any }) {
       {content.occupancyAnalysis && (
         <SectionCard icon={Calendar} title="Occupancy Analysis" color={sectionColors.occupancy}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
-            <MetricCard label="Market Average" value={content.occupancyAnalysis.marketAverage || "N/A"} color={sectionColors.occupancy} />
+            <MetricCard label="Market Average" value={content.occupancyAnalysis.marketAverage || "N/A"} color={sectionColors.occupancy} confidence={content.occupancyAnalysis.confidence} />
             <MetricCard label="Ramp-Up Timeline" value={content.occupancyAnalysis.rampUpTimeline || "N/A"} color={sectionColors.occupancy} />
           </div>
           {content.occupancyAnalysis.seasonalPattern && content.occupancyAnalysis.seasonalPattern.length > 0 && (
@@ -329,6 +333,188 @@ export function ResearchSections({ content }: { content: any }) {
                   <li key={i} className="text-sm text-gray-600 flex items-start gap-2.5">
                     <span className="flex-shrink-0 w-5 h-5 rounded-full bg-stone-100 flex items-center justify-center mt-0.5">
                       <span className="text-xs font-bold text-stone-700">{i + 1}</span>
+                    </span>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </SectionCard>
+      )}
+
+      {content.operatingCostAnalysis && (
+        <SectionCard icon={Wallet} title="Operating Cost Analysis" color={sectionColors.operatingCosts}>
+          {content.operatingCostAnalysis.totalOperatingCostRatio && (
+            <div className="rounded-xl bg-indigo-100 border border-indigo-300 p-3 text-center mb-5">
+              <p className="text-xs text-indigo-700 uppercase tracking-wider font-medium mb-0.5">Total Operating Cost Ratio</p>
+              <p className="text-2xl font-bold text-indigo-900">{content.operatingCostAnalysis.totalOperatingCostRatio}</p>
+            </div>
+          )}
+          {content.operatingCostAnalysis.roomRevenueBased && (
+            <div className="mb-5">
+              <h4 className="text-sm font-semibold text-gray-700 mb-3">Room Revenue-Based Costs</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {content.operatingCostAnalysis.roomRevenueBased.housekeeping && (
+                  <div className={`rounded-xl p-4 border ${sectionColors.operatingCosts.border} ${sectionColors.operatingCosts.bg}`}>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <p className="text-xs font-medium uppercase tracking-wider text-gray-500">Housekeeping</p>
+                      {content.operatingCostAnalysis.roomRevenueBased.housekeeping.industryRange && (
+                        <span className="text-[11px] px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 font-medium">{content.operatingCostAnalysis.roomRevenueBased.housekeeping.industryRange}</span>
+                      )}
+                    </div>
+                    <MetricCard label="Recommended Rate" value={content.operatingCostAnalysis.roomRevenueBased.housekeeping.recommendedRate || "N/A"} color={sectionColors.operatingCosts} confidence={content.operatingCostAnalysis.roomRevenueBased.housekeeping.confidence} />
+                    {content.operatingCostAnalysis.roomRevenueBased.housekeeping.rationale && (
+                      <p className="text-xs text-gray-500 mt-2 leading-relaxed">{content.operatingCostAnalysis.roomRevenueBased.housekeeping.rationale}</p>
+                    )}
+                  </div>
+                )}
+                {content.operatingCostAnalysis.roomRevenueBased.fbCostOfSales && (
+                  <div className={`rounded-xl p-4 border ${sectionColors.operatingCosts.border} ${sectionColors.operatingCosts.bg}`}>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <p className="text-xs font-medium uppercase tracking-wider text-gray-500">F&B Cost of Sales</p>
+                      {content.operatingCostAnalysis.roomRevenueBased.fbCostOfSales.industryRange && (
+                        <span className="text-[11px] px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 font-medium">{content.operatingCostAnalysis.roomRevenueBased.fbCostOfSales.industryRange}</span>
+                      )}
+                    </div>
+                    <MetricCard label="Recommended Rate" value={content.operatingCostAnalysis.roomRevenueBased.fbCostOfSales.recommendedRate || "N/A"} color={sectionColors.operatingCosts} confidence={content.operatingCostAnalysis.roomRevenueBased.fbCostOfSales.confidence} />
+                    {content.operatingCostAnalysis.roomRevenueBased.fbCostOfSales.rationale && (
+                      <p className="text-xs text-gray-500 mt-2 leading-relaxed">{content.operatingCostAnalysis.roomRevenueBased.fbCostOfSales.rationale}</p>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+          {content.operatingCostAnalysis.totalRevenueBased && (
+            <div className="mb-5">
+              <h4 className="text-sm font-semibold text-gray-700 mb-3">Total Revenue-Based Costs</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {Object.entries(content.operatingCostAnalysis.totalRevenueBased).map(([key, item]: [string, any]) => (
+                  <div key={key} className={`rounded-xl p-4 border ${sectionColors.operatingCosts.border} ${sectionColors.operatingCosts.bg}`}>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <p className="text-xs font-medium uppercase tracking-wider text-gray-500">{key.replace(/([A-Z])/g, " $1").replace(/^./, s => s.toUpperCase())}</p>
+                      {item.industryRange && (
+                        <span className="text-[11px] px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 font-medium">{item.industryRange}</span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <p className="text-base font-semibold text-gray-900">{item.recommendedRate || "N/A"}</p>
+                      {item.confidence && (
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${sectionColors.operatingCosts.badge}`}>{item.confidence}</span>
+                      )}
+                    </div>
+                    {item.rationale && (
+                      <p className="text-xs text-gray-500 mt-2 leading-relaxed">{item.rationale}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {content.operatingCostAnalysis.sources && content.operatingCostAnalysis.sources.length > 0 && (
+            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+              <h4 className="text-sm font-semibold text-gray-700 mb-3">Sources</h4>
+              <ul className="space-y-1">
+                {content.operatingCostAnalysis.sources.map((s: string, i: number) => (
+                  <li key={i} className="text-xs text-gray-500">{i + 1}. {s}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </SectionCard>
+      )}
+
+      {content.propertyValueCostAnalysis && (
+        <SectionCard icon={Home} title="Property Value Cost Analysis" color={sectionColors.propertyValueCosts}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
+            {content.propertyValueCostAnalysis.insurance && (
+              <div>
+                <MetricCard label="Insurance Rate" value={content.propertyValueCostAnalysis.insurance.recommendedRate || "N/A"} color={sectionColors.propertyValueCosts} confidence={content.propertyValueCostAnalysis.insurance.confidence} />
+                {content.propertyValueCostAnalysis.insurance.industryRange && (
+                  <p className="text-xs text-slate-500 mt-2 ml-1">Industry Range: {content.propertyValueCostAnalysis.insurance.industryRange}</p>
+                )}
+                {content.propertyValueCostAnalysis.insurance.rationale && (
+                  <div className="bg-slate-50 rounded-xl p-4 border-l-4 border-slate-400 mt-3">
+                    <p className="text-sm text-gray-700 leading-relaxed">{content.propertyValueCostAnalysis.insurance.rationale}</p>
+                  </div>
+                )}
+              </div>
+            )}
+            {content.propertyValueCostAnalysis.propertyTaxes && (
+              <div>
+                <MetricCard label="Property Tax Rate" value={content.propertyValueCostAnalysis.propertyTaxes.recommendedRate || "N/A"} color={sectionColors.propertyValueCosts} confidence={content.propertyValueCostAnalysis.propertyTaxes.confidence} />
+                {content.propertyValueCostAnalysis.propertyTaxes.industryRange && (
+                  <p className="text-xs text-slate-500 mt-2 ml-1">Industry Range: {content.propertyValueCostAnalysis.propertyTaxes.industryRange}</p>
+                )}
+                {content.propertyValueCostAnalysis.propertyTaxes.rationale && (
+                  <div className="bg-slate-50 rounded-xl p-4 border-l-4 border-slate-400 mt-3">
+                    <p className="text-sm text-gray-700 leading-relaxed">{content.propertyValueCostAnalysis.propertyTaxes.rationale}</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </SectionCard>
+      )}
+
+      {content.managementServiceFeeAnalysis && (
+        <SectionCard icon={Briefcase} title="Management & Service Fee Analysis" color={sectionColors.managementFees}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
+            {content.managementServiceFeeAnalysis.baseFee && (
+              <MetricCard label="Base Management Fee" value={content.managementServiceFeeAnalysis.baseFee.recommendedRate || "N/A"} color={sectionColors.managementFees} confidence={content.managementServiceFeeAnalysis.baseFee.confidence} />
+            )}
+            {content.managementServiceFeeAnalysis.incentiveFee && (
+              <MetricCard label="Incentive Fee" value={content.managementServiceFeeAnalysis.incentiveFee.recommendedRate || "N/A"} color={sectionColors.managementFees} confidence={content.managementServiceFeeAnalysis.incentiveFee.confidence} />
+            )}
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
+            {content.managementServiceFeeAnalysis.accounting && (
+              <MetricCard label="Accounting" value={content.managementServiceFeeAnalysis.accounting.recommendedRate || "N/A"} color={sectionColors.managementFees} confidence={content.managementServiceFeeAnalysis.accounting.confidence} />
+            )}
+            {content.managementServiceFeeAnalysis.techPlatform && (
+              <MetricCard label="Tech Platform" value={content.managementServiceFeeAnalysis.techPlatform.recommendedRate || "N/A"} color={sectionColors.managementFees} confidence={content.managementServiceFeeAnalysis.techPlatform.confidence} />
+            )}
+            {content.managementServiceFeeAnalysis.assetManagement && (
+              <MetricCard label="Asset Management" value={content.managementServiceFeeAnalysis.assetManagement.recommendedRate || "N/A"} color={sectionColors.managementFees} confidence={content.managementServiceFeeAnalysis.assetManagement.confidence} />
+            )}
+          </div>
+          {Object.entries(content.managementServiceFeeAnalysis).map(([key, item]: [string, any]) => {
+            if (!item || typeof item !== "object" || !item.rationale) return null;
+            return (
+              <div key={key} className="bg-teal-50 rounded-xl p-4 border-l-4 border-teal-400 mb-3">
+                <p className="text-xs font-semibold text-teal-700 uppercase tracking-wider mb-1">{key.replace(/([A-Z])/g, " $1").replace(/^./, s => s.toUpperCase())}</p>
+                <p className="text-sm text-gray-700 leading-relaxed">{item.rationale}</p>
+                {item.industryRange && (
+                  <p className="text-xs text-teal-600 mt-1.5 font-medium">Industry Range: {item.industryRange}</p>
+                )}
+              </div>
+            );
+          })}
+        </SectionCard>
+      )}
+
+      {content.incomeTaxAnalysis && (
+        <SectionCard icon={Receipt} title="Income Tax Analysis" color={sectionColors.incomeTax}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
+            <MetricCard label="Recommended Tax Rate" value={content.incomeTaxAnalysis.recommendedRate || "N/A"} color={sectionColors.incomeTax} confidence={content.incomeTaxAnalysis.confidence} />
+            {content.incomeTaxAnalysis.effectiveRange && (
+              <MetricCard label="Effective Range" value={content.incomeTaxAnalysis.effectiveRange} color={sectionColors.incomeTax} />
+            )}
+          </div>
+          {content.incomeTaxAnalysis.rationale && (
+            <div className="bg-rose-50 rounded-xl p-4 border-l-4 border-rose-400 mb-5">
+              <p className="text-sm text-gray-700 leading-relaxed">{content.incomeTaxAnalysis.rationale}</p>
+            </div>
+          )}
+          {content.incomeTaxAnalysis.factors && content.incomeTaxAnalysis.factors.length > 0 && (
+            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+              <h4 className="text-sm font-semibold text-gray-700 mb-3">Key Factors</h4>
+              <ul className="space-y-2">
+                {content.incomeTaxAnalysis.factors.map((f: string, i: number) => (
+                  <li key={i} className="text-sm text-gray-600 flex items-start gap-2.5">
+                    <span className="flex-shrink-0 w-5 h-5 rounded-full bg-rose-100 flex items-center justify-center mt-0.5">
+                      <span className="text-xs font-bold text-rose-700">{i + 1}</span>
                     </span>
                     {f}
                   </li>

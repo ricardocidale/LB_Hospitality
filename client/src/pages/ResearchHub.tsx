@@ -8,7 +8,10 @@
 import Layout from "@/components/Layout";
 import { PageHeader } from "@/components/ui/page-header";
 import { useResearchStatus } from "@/lib/api/research";
-import { useProperties } from "@/lib/api";
+import { useProperties, useGlobalAssumptions } from "@/lib/api";
+import { useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
+import { useState, useCallback, useRef } from "react";
 import {
   FlaskConical,
   Building2,
@@ -82,6 +85,89 @@ export default function ResearchHub() {
     isError: isResearchError,
   } = useResearchStatus();
   const { data: properties, isLoading: isPropertiesLoading } = useProperties();
+  const { data: globalAssumptions } = useGlobalAssumptions();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  const [isGeneratingAll, setIsGeneratingAll] = useState(false);
+  const [currentGenIndex, setCurrentGenIndex] = useState(0);
+  const [totalToGenerate, setTotalToGenerate] = useState(0);
+  const abortRef = useRef<AbortController | null>(null);
+
+  const generateAllMissing = useCallback(async () => {
+    if (!properties || !researchStatus) return;
+
+    const missingProps = researchStatus.properties.filter(
+      (p) => p.status === "missing"
+    );
+    if (missingProps.length === 0) return;
+
+    setIsGeneratingAll(true);
+    setTotalToGenerate(missingProps.length);
+
+    let completedCount = 0;
+
+    for (let i = 0; i < missingProps.length; i++) {
+      setCurrentGenIndex(i + 1);
+      const propStatus = missingProps[i];
+      const property = properties.find((p: any) => p.id === propStatus.propertyId);
+      if (!property) continue;
+
+      abortRef.current = new AbortController();
+
+      try {
+        const response = await fetch("/api/research/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            type: "property",
+            propertyId: property.id,
+            propertyContext: {
+              name: property.name,
+              location: property.location,
+              market: property.market,
+              roomCount: property.roomCount,
+              startAdr: property.startAdr,
+              maxOccupancy: property.maxOccupancy,
+              type: property.type,
+            },
+            assetDefinition: globalAssumptions?.assetDefinition,
+          }),
+          signal: abortRef.current.signal,
+        });
+
+        // Consume the SSE stream until it ends
+        const reader = response.body?.getReader();
+        if (reader) {
+          while (true) {
+            const { done } = await reader.read();
+            if (done) break;
+          }
+        }
+
+        completedCount++;
+        // Invalidate research status so the UI updates after each property
+        await queryClient.invalidateQueries({ queryKey: ["research", "status"] });
+        await queryClient.invalidateQueries({ queryKey: ["research", "property", property.id] });
+      } catch (error: any) {
+        if (error.name === "AbortError") break;
+        console.error(`Research generation failed for ${property.name}:`, error);
+        // Skip to next property on failure
+      }
+    }
+
+    setIsGeneratingAll(false);
+    setCurrentGenIndex(0);
+    setTotalToGenerate(0);
+
+    toast({
+      title: "Research generation complete",
+      description:
+        completedCount === missingProps.length
+          ? `All ${completedCount} missing research reports generated.`
+          : `Generated ${completedCount} of ${missingProps.length} reports.`,
+    });
+  }, [properties, researchStatus, globalAssumptions, queryClient, toast]);
 
   const isLoading = isResearchLoading || isPropertiesLoading;
 
@@ -123,6 +209,36 @@ export default function ResearchHub() {
           title="Research Center"
           subtitle="AI-powered market research for your portfolio, management company, and industry"
           variant="dark"
+          actions={
+            <div className="flex flex-col items-end gap-1">
+              <button
+                onClick={generateAllMissing}
+                disabled={isGeneratingAll || missingCount === 0}
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl bg-white/20 backdrop-blur-sm border border-white/30 text-white hover:bg-white/30 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isGeneratingAll ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="w-4 h-4" />
+                )}
+                {isGeneratingAll
+                  ? `Generating ${currentGenIndex} of ${totalToGenerate}...`
+                  : "Generate Missing Research"}
+              </button>
+              {isGeneratingAll && (
+                <div className="w-full max-w-[220px]">
+                  <div className="h-1.5 rounded-full bg-white/20 overflow-hidden">
+                    <motion.div
+                      className="h-full rounded-full bg-white/80"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${(currentGenIndex / totalToGenerate) * 100}%` }}
+                      transition={{ duration: 0.4 }}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          }
         />
 
         {/* Summary Cards */}

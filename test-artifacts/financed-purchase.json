@@ -1,6 +1,6 @@
 {
   "scenario": "Financed Purchase (75% LTV)",
-  "timestamp": "2026-03-06T03:49:08.143Z",
+  "timestamp": "2026-03-06T03:56:27.682Z",
   "sources_and_uses": {
     "sources": {
       "equity": 500000,

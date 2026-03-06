@@ -33,4 +33,8 @@ export const sectionColors: Record<string, SectionColorScheme> = {
   stabilization: { accent: "#D97706", bg: "bg-amber-50", border: "border-amber-200", iconBg: "bg-amber-100", iconText: "text-amber-700", badge: "bg-amber-100 text-amber-800" },
   landValue: { accent: "#78716C", bg: "bg-stone-50", border: "border-stone-200", iconBg: "bg-stone-100", iconText: "text-stone-700", badge: "bg-stone-100 text-stone-800" },
   catering: { accent: "#D946EF", bg: "bg-fuchsia-50", border: "border-fuchsia-200", iconBg: "bg-fuchsia-100", iconText: "text-fuchsia-700", badge: "bg-fuchsia-100 text-fuchsia-800" },
+  operatingCosts: { accent: "#6366F1", bg: "bg-indigo-50", border: "border-indigo-200", iconBg: "bg-indigo-100", iconText: "text-indigo-700", badge: "bg-indigo-100 text-indigo-800" },
+  propertyValueCosts: { accent: "#64748B", bg: "bg-slate-50", border: "border-slate-200", iconBg: "bg-slate-100", iconText: "text-slate-700", badge: "bg-slate-100 text-slate-800" },
+  managementFees: { accent: "#14B8A6", bg: "bg-teal-50", border: "border-teal-200", iconBg: "bg-teal-100", iconText: "text-teal-700", badge: "bg-teal-100 text-teal-800" },
+  incomeTax: { accent: "#F43F5E", bg: "bg-rose-50", border: "border-rose-200", iconBg: "bg-rose-100", iconText: "text-rose-700", badge: "bg-rose-100 text-rose-800" },
 };

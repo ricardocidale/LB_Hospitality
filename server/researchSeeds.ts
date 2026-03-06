@@ -36,6 +36,15 @@ type RegionProfile = {
   svcFeeGeneralMgmt: [number, number, number];
   incentiveFee: [number, number, number];
   incomeTax: [number, number, number];
+  saleCommission: [number, number, number];
+  acqLtv: [number, number, number];
+  acqRate: [number, number, number];
+  refiLtv: [number, number, number];
+  adrGrowth: [number, number, number];
+  occupancyStep: [number, number, number];
+  revShareEvents: [number, number, number];
+  revShareFB: [number, number, number];
+  revShareOther: [number, number, number];
 };
 
 const US_BASE: RegionProfile = {
@@ -64,6 +73,15 @@ const US_BASE: RegionProfile = {
   svcFeeGeneralMgmt: [0.7, 1.0, 1.2],
   incentiveFee: [8, 10, 12],
   incomeTax: [24, 25, 28],
+  saleCommission: [4, 5, 6],
+  acqLtv: [60, 70, 75],
+  acqRate: [7.5, 8.5, 9.5],
+  refiLtv: [55, 65, 70],
+  adrGrowth: [2, 3, 5],
+  occupancyStep: [3, 5, 7],
+  revShareEvents: [35, 43, 55],
+  revShareFB: [18, 22, 28],
+  revShareOther: [5, 7, 10],
 };
 
 function regionFromLocation(ctx: LocationContext): string {
@@ -330,6 +348,7 @@ function applyRegionOverrides(base: RegionProfile, region: string): RegionProfil
 function formatDisplay(field: string, low: number, high: number): string {
   if (field === "adr") return `$${low}–$${high}`;
   if (field === "rampMonths") return `${low}–${high} mo`;
+  if (field === "occupancyStep") return `${low}–${high} pp/yr`;
   return `${low}%–${high}%`;
 }
 

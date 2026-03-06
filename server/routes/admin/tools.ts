@@ -51,6 +51,16 @@ export function registerToolRoutes(app: Express) {
     }
   });
 
+  app.post("/api/admin/sync-canonical", requireAdmin, async (_req, res) => {
+    try {
+      const { runProdSync002 } = await import("../../migrations/prod-sync-002");
+      const result = await runProdSync002();
+      res.json({ success: true, ...result });
+    } catch (error: any) {
+      logAndSendError(res, error.message || "Canonical sync failed", error);
+    }
+  });
+
   app.post("/api/admin/seed-production", requireAdmin, async (_req, res) => {
     try {
       const { runFillOnlySync: fill } = await import("../../syncHelpers");

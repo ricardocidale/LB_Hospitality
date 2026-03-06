@@ -144,7 +144,7 @@ export default function CapitalStructureSection({ draft, onChange, onNumberChang
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label className="label-text text-gray-700 flex items-center gap-1.5">LTV<HelpTooltip text="Loan-to-Value ratio: the percentage of the purchase price financed by the lender. Higher LTV means less equity required but more debt service." /><GaapBadge rule="ASC 470: Debt must be separated into interest expense (Income Statement) and principal repayment (Balance Sheet/Financing Activity). Only interest reduces taxable income." /></Label>
+                  <Label className="label-text text-gray-700 flex items-center gap-1.5">LTV<HelpTooltip text="Loan-to-Value ratio: the percentage of the purchase price financed by the lender. Higher LTV means less equity required but more debt service." /><GaapBadge rule="ASC 470: Debt must be separated into interest expense (Income Statement) and principal repayment (Balance Sheet/Financing Activity). Only interest reduces taxable income." /><ResearchBadge value={researchValues.acqLtv?.display} sourceType={researchValues.acqLtv?.source === "market" ? "market" : "seed"} sourceName={(researchValues.acqLtv as any)?.sourceName} onClick={() => researchValues.acqLtv && onChange("acquisitionLTV", researchValues.acqLtv.mid / 100)} /></Label>
                   <EditableValue
                     value={(draft.acquisitionLTV || DEFAULT_LTV) * 100}
                     onChange={(val) => onChange("acquisitionLTV", val / 100)}
@@ -164,7 +164,7 @@ export default function CapitalStructureSection({ draft, onChange, onNumberChang
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label className="label-text text-gray-700 flex items-center gap-1.5">Interest Rate<HelpTooltip text="Annual interest rate on the acquisition loan. Determines monthly debt service payments." /></Label>
+                  <Label className="label-text text-gray-700 flex items-center gap-1.5">Interest Rate<HelpTooltip text="Annual interest rate on the acquisition loan. Determines monthly debt service payments." /><ResearchBadge value={researchValues.acqRate?.display} sourceType={researchValues.acqRate?.source === "market" ? "market" : "seed"} sourceName={(researchValues.acqRate as any)?.sourceName} onClick={() => researchValues.acqRate && onChange("acquisitionInterestRate", researchValues.acqRate.mid / 100)} /></Label>
                   <EditableValue
                     value={(draft.acquisitionInterestRate || DEFAULT_INTEREST_RATE) * 100}
                     onChange={(val) => onChange("acquisitionInterestRate", val / 100)}
@@ -275,7 +275,7 @@ export default function CapitalStructureSection({ draft, onChange, onNumberChang
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <Label className="label-text text-gray-700 flex items-center gap-1.5">LTV<HelpTooltip text="Loan-to-Value ratio for the refinance loan, based on the property's appraised value at the time of refinancing." /></Label>
+                        <Label className="label-text text-gray-700 flex items-center gap-1.5">LTV<HelpTooltip text="Loan-to-Value ratio for the refinance loan, based on the property's appraised value at the time of refinancing." /><ResearchBadge value={researchValues.refiLtv?.display} sourceType="seed" onClick={() => researchValues.refiLtv && onChange("refinanceLTV", researchValues.refiLtv.mid / 100)} /></Label>
                         <EditableValue
                           value={(draft.refinanceLTV || DEFAULT_REFI_LTV) * 100}
                           onChange={(val) => onChange("refinanceLTV", val / 100)}

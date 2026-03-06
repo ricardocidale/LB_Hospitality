@@ -23,3 +23,4 @@ export { default as CustomizeTab } from "./CustomizeTab";
 export { default as DatabaseTab } from "./DatabaseTab";
 export { default as MarcelaTab } from "./MarcelaTab";
 export { default as ServicesTab } from "./ServicesTab";
+export { default as MarketRatesTab } from "./MarketRatesTab";

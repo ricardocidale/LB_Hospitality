@@ -34,6 +34,9 @@ import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { storage } from "./storage";
 import type { User } from "@shared/schema";
+import { users } from "@shared/schema";
+import { eq } from "drizzle-orm";
+import { db } from "./db";
 import { logger } from "./logger";
 
 declare global {
@@ -461,8 +464,13 @@ export async function seedAdminUser() {
         company: seed.company,
         title: seed.title,
       });
-      if (seed.role === "checker") {
-        await storage.updateUserRole(user.id, "checker");
+      if (user.role !== seed.role) {
+        await storage.updateUserRole(user.id, seed.role);
+        logger.info(`User role corrected: ${seed.email} → ${seed.role}`, "auth");
+      }
+      if (seed.userGroupId && user.userGroupId !== seed.userGroupId) {
+        await db.update(users).set({ userGroupId: seed.userGroupId }).where(eq(users.id, user.id));
+        logger.info(`User group corrected: ${seed.email} → group ${seed.userGroupId}`, "auth");
       }
       logger.info(`User password reset: ${seed.email}`, "auth");
     }

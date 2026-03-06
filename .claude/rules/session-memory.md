@@ -5,6 +5,37 @@
 
 ---
 
+## Session: March 6, 2026 — Deterministic Research Tools & Post-LLM Validation (Phases 2-4)
+
+### What Was Done
+- **Phase 2**: Created 5 new deterministic research tools in `calc/research/` (occupancy-ramp, adr-projection, cap-rate-valuation, cost-benchmarks, property-metrics). Registered all in `calc/dispatch.ts`. Added 27 tests.
+- **Phase 3**: Slimmed TOOL_PROMPTS in `server/aiResearch.ts` from verbose self-prompting to thin context summaries (-77 lines). Extracted `CONFIDENCE_PREAMBLE` constant injected once via `loadSkill()` instead of duplicating in 6+ skill files. Removed boilerplate from 7 research skill files.
+- **Phase 4**: Built post-LLM validation layer (`calc/research/validate-research.ts`) with bounds checks + cross-validation using `computePropertyMetrics` and `computeCapRateValuation`. Integrated into `server/routes/research.ts` — validation runs before save, attaches `_validation` summary to research content. 24 new tests.
+- **Documentation update**: Updated `research-precision.md`, `research/SKILL.md`, `marcela-ai/SKILL.md`, `finance/SKILL.md`, `context-loading/SKILL.md`, checker manual (research calibration + testing methodology), user manual (Section13Marcela accuracy section).
+- **Schema fix**: Added missing `DEFAULT_MAX_STALENESS_HOURS` import in `shared/schema.ts`.
+- **Doc harmony**: Updated test counts 2,406→2,409 in `claude.md` and `replit.md`.
+- Tests: 2,409 (2,389 passing + 20 E2E skipped), verification UNQUALIFIED, health ALL CLEAR.
+
+### Key Technical Decisions
+- Validation is non-blocking (warn/pass, not reject) to preserve potentially useful research values
+- Cross-validation reuses existing deterministic tools rather than reimplementing financial logic
+- TOOL_PROMPTS kept as thin context summaries; skill files carry detailed instructions
+- `CONFIDENCE_PREAMBLE` single injection point eliminates repeated boilerplate
+
+### Files Created
+- `calc/research/validate-research.ts`, `calc/research/occupancy-ramp.ts`, `calc/research/adr-projection.ts`, `calc/research/cap-rate-valuation.ts`, `calc/research/cost-benchmarks.ts`
+- `tests/calc/validate-research.test.ts`, `tests/calc/research-tools.test.ts`
+
+### Files Modified
+- `server/aiResearch.ts` — CONFIDENCE_PREAMBLE, slimmed TOOL_PROMPTS
+- `server/routes/research.ts` — validation integration before save
+- `calc/research/index.ts` — barrel exports for new tools
+- `calc/dispatch.ts` — registered new tools
+- 7 research skill files — removed confidence boilerplate
+- `shared/schema.ts` — added DEFAULT_MAX_STALENESS_HOURS import
+
+---
+
 ## Session: March 6, 2026 — Codebase Hardening & Test Coverage
 
 ### What Was Done

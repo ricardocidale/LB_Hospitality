@@ -71,7 +71,26 @@ export default function CompanyAssumptions() {
   // These appear as "suggested" badges next to assumption inputs so the user can
   // compare their settings against industry benchmarks (e.g. management fee ranges).
   const researchValues = (() => {
-    if (!research?.content) return {};
+    // Seed-based defaults for company assumptions
+    const COMPANY_DEFAULTS: Record<string, { display: string; mid: number }> = {
+      staffSalary: { display: "$65K–$90K", mid: 75000 },
+      baseFee: { display: "3%–5%", mid: 4 },
+      incentiveFee: { display: "8%–15%", mid: 12 },
+      eventExpense: { display: "55%–70%", mid: 65 },
+      marketingRate: { display: "3%–7%", mid: 5 },
+      miscOpsRate: { display: "2%–4%", mid: 3 },
+      officeLease: { display: "$24K–$48K", mid: 36000 },
+      professionalServices: { display: "$18K–$36K", mid: 24000 },
+      techInfra: { display: "$12K–$24K", mid: 18000 },
+      businessInsurance: { display: "$8K–$18K", mid: 12000 },
+      travelPerClient: { display: "$8K–$18K", mid: 12000 },
+      itLicensePerClient: { display: "$2K–$5K", mid: 3000 },
+      companyTaxRate: { display: "25%–35%", mid: 30 },
+      otherExpenseRate: { display: "50%–70%", mid: 60 },
+      utilitiesVariableSplit: { display: "50%–70%", mid: 60 },
+    };
+
+    if (!research?.content) return COMPANY_DEFAULTS;
     const c = research.content;
     const parsePctRange = (str: string | undefined): { display: string; mid: number } | null => {
       if (!str) return null;
@@ -104,7 +123,15 @@ export default function CompanyAssumptions() {
     const compBenchmarks = c.compensationBenchmarks;
     const staffSalary = compBenchmarks?.manager ? parseDollarRange(compBenchmarks.manager) : null;
 
-    return { baseFee, incentiveFee, eventExpense, marketingRate, staffSalary };
+    // Merge AI values over seed defaults
+    const merged = { ...COMPANY_DEFAULTS };
+    const aiOverrides: Record<string, { display: string; mid: number } | null> = {
+      baseFee, incentiveFee, eventExpense, marketingRate, staffSalary,
+    };
+    for (const [key, val] of Object.entries(aiOverrides)) {
+      if (val) merged[key] = val;
+    }
+    return merged;
   })();
 
   useEffect(() => {
@@ -207,7 +234,7 @@ export default function CompanyAssumptions() {
 
         <ScrollReveal>
         <div className="grid gap-6 lg:grid-cols-2">
-          <FixedOverheadSection formData={formData} onChange={handleUpdate} global={global} modelStartYear={modelStartYear} />
+          <FixedOverheadSection formData={formData} onChange={handleUpdate} global={global} modelStartYear={modelStartYear} researchValues={researchValues} />
           <VariableCostsSection formData={formData} onChange={handleUpdate} global={global} researchValues={researchValues} />
         </div>
         </ScrollReveal>

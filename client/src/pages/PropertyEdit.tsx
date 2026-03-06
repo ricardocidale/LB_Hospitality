@@ -25,6 +25,7 @@
  */
 import Layout from "@/components/Layout";
 import { useProperty, useUpdateProperty, useGlobalAssumptions, useMarketResearch, useFeeCategories, useUpdateFeeCategories, type FeeCategoryResponse } from "@/lib/api";
+import { useMarketRates } from "@/lib/api/market-rates";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, BookOpen, AlertTriangle, Wand2 } from "lucide-react";
@@ -65,6 +66,7 @@ export default function PropertyEdit() {
   const [isDirty, setIsDirty] = useState(false);
   const [feeDraft, setFeeDraft] = useState<FeeCategoryResponse[] | null>(null);
   const [showApplyDialog, setShowApplyDialog] = useState(false);
+  const { data: marketRates } = useMarketRates();
 
   // Compute research freshness: green (<7 days), amber (>7 days), gray (missing)
   const researchFreshness = (() => {
@@ -239,12 +241,30 @@ export default function PropertyEdit() {
       })(),
     };
 
-    const merged: Record<string, { display: string; mid: number; source?: string }> = { ...baseDefaults };
+    const merged: Record<string, { display: string; mid: number; source?: string; sourceName?: string; sourceDate?: string }> = { ...baseDefaults };
     for (const [key, val] of Object.entries(aiValues)) {
       if (val) {
         merged[key] = { ...val, source: 'ai' };
       }
     }
+
+    // Overlay live market rates for interest rate badge (SOFR + hotel lending spread)
+    if (marketRates && marketRates.length > 0) {
+      const sofr = marketRates.find(r => r.rateKey === "sofr");
+      const spread = marketRates.find(r => r.rateKey === "hotel_lending_spread");
+      if (sofr?.value != null) {
+        const spreadBps = spread?.value ?? 275;
+        const hotelRate = sofr.value + spreadBps / 100;
+        merged.acqRate = {
+          display: `~${hotelRate.toFixed(1)}%`,
+          mid: hotelRate,
+          source: "market",
+          sourceName: `SOFR ${sofr.value.toFixed(2)}% + ${spreadBps}bps spread`,
+          sourceDate: sofr.fetchedAt ?? undefined,
+        };
+      }
+    }
+
     return merged;
   })();
 

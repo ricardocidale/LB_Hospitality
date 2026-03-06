@@ -29,12 +29,14 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { GlassButton } from "@/components/ui/glass-button";
-import { Loader2, Database, RefreshCw, Upload, AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
+import { Loader2, Database, RefreshCw, Upload, AlertTriangle, CheckCircle2, XCircle, Shield } from "lucide-react";
 
 export default function DatabaseTab() {
   const { toast } = useToast();
   const [syncResults, setSyncResults] = useState<Record<string, any> | null>(null);
   const [syncConfirmOpen, setSyncConfirmOpen] = useState(false);
+  const [canonicalConfirmOpen, setCanonicalConfirmOpen] = useState(false);
+  const [canonicalResult, setCanonicalResult] = useState<Record<string, any> | null>(null);
 
   const checkSyncStatus = useMutation({
     mutationFn: async () => {
@@ -72,6 +74,36 @@ export default function DatabaseTab() {
     onError: (error: Error) => {
       toast({ title: "Fill Failed", description: error.message, variant: "destructive" });
       setSyncConfirmOpen(false);
+    },
+  });
+
+  const canonicalSyncMutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetch("/api/admin/sync-canonical", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({ error: "Sync failed" }));
+        throw new Error(errData.error || "Sync failed");
+      }
+      return res.json();
+    },
+    onSuccess: (data) => {
+      setCanonicalResult(data);
+      setCanonicalConfirmOpen(false);
+      const total = (data.usersFixed || 0) + (data.orphanedFeeCategoriesDeleted || 0) +
+        (data.orphanedResearchDeleted || 0) + (data.scenariosCleaned || 0) + (data.feeCategoriesFixed || 0);
+      toast({
+        title: "Canonical Sync Complete",
+        description: total > 0 ? `${total} item(s) corrected` : "Everything already in sync",
+      });
+      checkSyncStatus.mutate();
+    },
+    onError: (error: Error) => {
+      toast({ title: "Canonical Sync Failed", description: error.message, variant: "destructive" });
+      setCanonicalConfirmOpen(false);
     },
   });
 
@@ -229,6 +261,87 @@ export default function DatabaseTab() {
           </GlassButton>
         </CardContent>
       </Card>
+
+      <Card className="bg-blue-50/80 backdrop-blur-xl border-blue-300/40 shadow-[0_8px_32px_rgba(59,130,246,0.08)]" data-testid="card-canonical-sync">
+        <CardHeader>
+          <CardTitle className="font-display flex items-center gap-2 text-blue-800">
+            <Shield className="w-5 h-5" /> Sync Canonical Data
+          </CardTitle>
+          <CardDescription className="label-text text-blue-700/80">
+            Enforce canonical database state: correct user roles and groups, clean orphaned records, fix fee category rates, and remove test/duplicate scenarios. Safe to run at any time — protects all legitimate user data.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <GlassButton
+            onClick={() => setCanonicalConfirmOpen(true)}
+            disabled={canonicalSyncMutation.isPending}
+            className="bg-blue-500/10 border-blue-500/30 hover:bg-blue-500/20 text-blue-700"
+            data-testid="button-canonical-sync"
+          >
+            {canonicalSyncMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Shield className="w-4 h-4 mr-2" />}
+            Sync Now
+          </GlassButton>
+
+          {canonicalResult && (
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-4">
+              <div className="bg-blue-100/60 rounded-xl p-3 text-center" data-testid="stat-users-fixed">
+                <p className="text-xl font-bold text-blue-700">{canonicalResult.usersFixed ?? 0}</p>
+                <p className="text-xs text-blue-600/70 mt-1">Users Fixed</p>
+              </div>
+              <div className="bg-blue-100/60 rounded-xl p-3 text-center" data-testid="stat-orphans-deleted">
+                <p className="text-xl font-bold text-blue-700">{(canonicalResult.orphanedFeeCategoriesDeleted ?? 0) + (canonicalResult.orphanedResearchDeleted ?? 0)}</p>
+                <p className="text-xs text-blue-600/70 mt-1">Orphans Cleaned</p>
+              </div>
+              <div className="bg-blue-100/60 rounded-xl p-3 text-center" data-testid="stat-scenarios-cleaned">
+                <p className="text-xl font-bold text-blue-700">{canonicalResult.scenariosCleaned ?? 0}</p>
+                <p className="text-xs text-blue-600/70 mt-1">Scenarios Cleaned</p>
+              </div>
+              <div className="bg-blue-100/60 rounded-xl p-3 text-center" data-testid="stat-fees-fixed">
+                <p className="text-xl font-bold text-blue-700">{canonicalResult.feeCategoriesFixed ?? 0}</p>
+                <p className="text-xs text-blue-600/70 mt-1">Fee Cats Fixed</p>
+              </div>
+              <div className="bg-blue-100/60 rounded-xl p-3 text-center" data-testid="stat-sync-status">
+                <p className="text-xl font-bold text-green-600">
+                  {(canonicalResult.usersFixed ?? 0) + (canonicalResult.orphanedFeeCategoriesDeleted ?? 0) +
+                    (canonicalResult.orphanedResearchDeleted ?? 0) + (canonicalResult.scenariosCleaned ?? 0) +
+                    (canonicalResult.feeCategoriesFixed ?? 0) === 0 ? "Clean" : "Fixed"}
+                </p>
+                <p className="text-xs text-blue-600/70 mt-1">Status</p>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Dialog open={canonicalConfirmOpen} onOpenChange={setCanonicalConfirmOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Shield className="w-5 h-5 text-blue-500" /> Confirm Canonical Sync
+            </DialogTitle>
+            <DialogDescription className="space-y-2">
+              <span className="block">This will enforce the canonical database state:</span>
+              <span className="block text-xs pl-2">- Correct user roles and group assignments</span>
+              <span className="block text-xs pl-2">- Remove orphaned fee categories and market research</span>
+              <span className="block text-xs pl-2">- Clean up test and duplicate scenarios</span>
+              <span className="block text-xs pl-2">- Enforce canonical fee category rates</span>
+              <span className="block mt-2 font-medium">User data, properties, financials, and legitimate scenarios are never modified.</span>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setCanonicalConfirmOpen(false)} data-testid="button-cancel-canonical">Cancel</Button>
+            <Button
+              onClick={() => canonicalSyncMutation.mutate()}
+              disabled={canonicalSyncMutation.isPending}
+              className="bg-blue-500 hover:bg-blue-600 text-white"
+              data-testid="button-confirm-canonical"
+            >
+              {canonicalSyncMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+              Yes, Sync Now
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={syncConfirmOpen} onOpenChange={setSyncConfirmOpen}>
         <DialogContent>

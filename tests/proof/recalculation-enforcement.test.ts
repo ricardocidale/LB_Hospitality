@@ -95,6 +95,9 @@ const NON_FINANCIAL_MUTATIONS = [
   "useCreateResearchQuestion",
   "useUpdateResearchQuestion",
   "useDeleteResearchQuestion",
+  "useRefreshRate",
+  "useRefreshAllRates",
+  "useOverrideRate",
 ];
 
 describe("Recalculation Enforcement", () => {

@@ -27,7 +27,7 @@ export interface PropertyEditSectionProps {
   onChange: (key: string, value: string | number | null) => void;
   onNumberChange: (key: string, value: string) => void;
   globalAssumptions: any;
-  researchValues: Record<string, { display: string; mid: number; source?: string }>;
+  researchValues: Record<string, { display: string; mid: number; source?: string; sourceName?: string; sourceDate?: string }>;
 }
 
 export interface ManagementFeesSectionProps extends PropertyEditSectionProps {

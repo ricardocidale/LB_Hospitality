@@ -223,6 +223,8 @@ export const DEFAULT_MARCELA_SIMILARITY_BOOST = DEFAULT_AI_AGENT_SIMILARITY_BOOS
 export const DEFAULT_MARCELA_MAX_TOKENS = DEFAULT_AI_AGENT_MAX_TOKENS;
 export const DEFAULT_MARCELA_MAX_TOKENS_VOICE = DEFAULT_AI_AGENT_MAX_TOKENS_VOICE;
 
+export const DEFAULT_MAX_STALENESS_HOURS = 24;
+
 // ──────────────────────────────────────────────────────────
 // SEED DEBT ASSUMPTIONS
 // ──────────────────────────────────────────────────────────

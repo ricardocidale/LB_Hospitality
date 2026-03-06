@@ -44,6 +44,7 @@ export interface CompensationSectionProps extends CompanyAssumptionsSectionProps
 
 export interface FixedOverheadSectionProps extends CompanyAssumptionsSectionProps {
   modelStartYear: number;
+  researchValues: Record<string, { display: string; mid: number } | null | undefined>;
 }
 
 export interface VariableCostsSectionProps extends CompanyAssumptionsSectionProps {

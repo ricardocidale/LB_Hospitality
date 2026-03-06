@@ -122,9 +122,14 @@ app.use((req, res, next) => {
   const { runProdSync001 } = await import("./migrations/prod-sync-001");
   await runProdSync001();
 
+  const { runProdSync002 } = await import("./migrations/prod-sync-002");
+  await runProdSync002();
+
   await seedAdminUser();
   const { seedMissingMarketResearch, seedDefaultLogos, seedUserGroups, seedCompanies, seedFeeCategories, seedServiceTemplates } = await import("./seed");
+  const { seedMarketRates } = await import("./seeds/market-rates");
   await seedMissingMarketResearch();
+  await seedMarketRates();
   await seedDefaultLogos();
   await seedUserGroups();
   await seedCompanies();
@@ -179,6 +184,17 @@ app.use((req, res, next) => {
           else log(`Marcela agent config skipped: ${r.error}`, "marcela");
         });
       }).catch(() => { /* ElevenLabs not connected — skip */ });
+
+      // Refresh stale market rates every 5 minutes
+      setInterval(async () => {
+        try {
+          const { refreshAllStaleRates } = await import("./marketRates");
+          const refreshed = await refreshAllStaleRates();
+          if (refreshed > 0) log(`Refreshed ${refreshed} stale market rates`);
+        } catch (err) {
+          console.error("Market rate refresh error:", err);
+        }
+      }, 5 * 60 * 1000);
 
       // Clean expired sessions and stale rate-limit entries every hour
       setInterval(async () => {

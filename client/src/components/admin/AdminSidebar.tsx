@@ -121,16 +121,16 @@ export default function AdminSidebar({ activeSection, onSectionChange }: AdminSi
                   className={cn(
                     "w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-all duration-300",
                     isGroupActive
-                      ? "bg-primary/20 text-primary"
-                      : "bg-primary/8 text-primary/50"
+                      ? "bg-gradient-to-br from-[#2d4a5e] to-[#3a5a5e] shadow-sm shadow-[#2d4a5e]/20"
+                      : "bg-gray-200/70"
                   )}
                 >
-                  <GroupIcon className="w-3.5 h-3.5" />
+                  <GroupIcon className={cn("w-3.5 h-3.5", isGroupActive ? "text-white/90" : "text-gray-500")} />
                 </div>
                 <span
                   className={cn(
                     "text-[10.5px] font-extrabold uppercase tracking-[0.12em] transition-colors",
-                    isGroupActive ? "text-primary" : "text-primary/40"
+                    isGroupActive ? "text-[#2d4a3e]" : "text-gray-400"
                   )}
                 >
                   {group.label}

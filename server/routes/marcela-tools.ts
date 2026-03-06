@@ -1,5 +1,19 @@
-import { type Express, type Request, type Response } from "express";
+import { type Express, type Request, type Response, type NextFunction } from "express";
 import { storage } from "../storage";
+
+const MARCELA_TOOLS_SECRET = process.env.MARCELA_TOOLS_SECRET || "marcela-server-tools-key";
+
+function verifyToolsAuth(req: Request, res: Response, next: NextFunction) {
+  const authHeader = req.headers["x-marcela-tools-secret"] || req.headers["authorization"];
+  const token = typeof authHeader === "string"
+    ? authHeader.replace(/^Bearer\s+/i, "")
+    : "";
+
+  if (token === MARCELA_TOOLS_SECRET) {
+    return next();
+  }
+  res.status(401).json({ error: "Unauthorized" });
+}
 
 function sendToolResponse(res: Response, data: unknown) {
   res.json(data);
@@ -10,7 +24,7 @@ function sendToolError(res: Response, message: string, status = 500) {
 }
 
 export function register(app: Express) {
-  app.get("/api/marcela-tools/properties", async (_req: Request, res: Response) => {
+  app.get("/api/marcela-tools/properties", verifyToolsAuth, async (_req: Request, res: Response) => {
     try {
       const properties = await storage.getAllProperties();
       const summary = properties.map((p: any) => ({
@@ -30,7 +44,7 @@ export function register(app: Express) {
     }
   });
 
-  app.get("/api/marcela-tools/property/:id", async (req: Request, res: Response) => {
+  app.get("/api/marcela-tools/property/:id", verifyToolsAuth, async (req: Request, res: Response) => {
     try {
       const id = parseInt(Array.isArray(req.params.id) ? req.params.id[0] : req.params.id, 10);
       if (isNaN(id)) return sendToolError(res, "Invalid property ID", 400);
@@ -64,7 +78,7 @@ export function register(app: Express) {
     }
   });
 
-  app.get("/api/marcela-tools/portfolio-summary", async (_req: Request, res: Response) => {
+  app.get("/api/marcela-tools/portfolio-summary", verifyToolsAuth, async (_req: Request, res: Response) => {
     try {
       const properties = await storage.getAllProperties();
       const ga = await storage.getGlobalAssumptions();
@@ -105,7 +119,7 @@ export function register(app: Express) {
     }
   });
 
-  app.get("/api/marcela-tools/scenarios", async (_req: Request, res: Response) => {
+  app.get("/api/marcela-tools/scenarios", verifyToolsAuth, async (_req: Request, res: Response) => {
     try {
       const scenarios = await storage.getScenariosByUser(1);
       const summary = (scenarios as any[]).map((s) => ({
@@ -121,7 +135,7 @@ export function register(app: Express) {
     }
   });
 
-  app.get("/api/marcela-tools/global-assumptions", async (_req: Request, res: Response) => {
+  app.get("/api/marcela-tools/global-assumptions", verifyToolsAuth, async (_req: Request, res: Response) => {
     try {
       const ga = await storage.getGlobalAssumptions();
       if (!ga) return sendToolError(res, "No global assumptions found", 404);
@@ -143,7 +157,7 @@ export function register(app: Express) {
     }
   });
 
-  app.get("/api/marcela-tools/navigation", (_req: Request, res: Response) => {
+  app.get("/api/marcela-tools/navigation", verifyToolsAuth, (_req: Request, res: Response) => {
     sendToolResponse(res, {
       pages: [
         { path: "/", name: "Dashboard", description: "Overview of portfolio performance and key metrics" },

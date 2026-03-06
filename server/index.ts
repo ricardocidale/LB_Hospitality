@@ -76,9 +76,14 @@ const PUBLIC_API_PATHS = new Set([
   "/api/twilio/sms/incoming",
 ]);
 
+const PUBLIC_API_PREFIXES = [
+  "/api/marcela-tools/",
+];
+
 app.use((req: Request, res: Response, next: NextFunction) => {
   if (!req.path.startsWith("/api")) return next();
   if (PUBLIC_API_PATHS.has(req.path)) return next();
+  if (PUBLIC_API_PREFIXES.some(p => req.path.startsWith(p))) return next();
   return requireAuth(req, res, next);
 });
 
@@ -171,6 +176,14 @@ app.use((req, res, next) => {
     },
     () => {
       log(`serving on port ${port}`);
+
+      // Configure Marcela agent tools on ElevenLabs (non-blocking)
+      import("./marcela-agent-config").then(({ configureMarcelaAgent }) => {
+        configureMarcelaAgent().then(r => {
+          if (r.success) log("Marcela agent tools configured", "marcela");
+          else log(`Marcela agent config skipped: ${r.error}`, "marcela");
+        });
+      }).catch(() => { /* ElevenLabs not connected — skip */ });
 
       // Clean expired sessions and stale rate-limit entries every hour
       setInterval(async () => {

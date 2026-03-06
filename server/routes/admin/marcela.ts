@@ -4,6 +4,7 @@ import { requireAdmin, requireAuth } from "../../auth";
 import { type InsertGlobalAssumptions } from "@shared/schema";
 import { getTwilioStatus, sendSMS } from "../../integrations/twilio";
 import { getSignedUrl as getElevenLabsSignedUrl, getConvaiAgent, listConvaiConversations, getConvaiConversation, deleteConvaiConversation } from "../../integrations/elevenlabs";
+import { configureMarcelaAgent } from "../../marcela-agent-config";
 
 export function registerMarcelaRoutes(app: Express) {
   app.get("/api/admin/voice-settings", requireAdmin, async (_req, res) => {
@@ -140,6 +141,20 @@ export function registerMarcelaRoutes(app: Express) {
     } catch (error: any) {
       console.error("Error fetching conversation:", error);
       res.status(500).json({ error: error.message || "Failed to fetch conversation" });
+    }
+  });
+
+  app.post("/api/admin/convai/configure-tools", requireAdmin, async (_req, res) => {
+    try {
+      const result = await configureMarcelaAgent();
+      if (result.success) {
+        res.json({ success: true, message: "Agent tools configured successfully" });
+      } else {
+        res.status(500).json({ error: result.error || "Failed to configure agent tools" });
+      }
+    } catch (error: any) {
+      console.error("Error configuring agent tools:", error);
+      res.status(500).json({ error: error.message || "Failed to configure agent tools" });
     }
   });
 

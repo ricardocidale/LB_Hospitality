@@ -161,8 +161,8 @@ export default function LogosTab() {
               {adminLogos.map(logo => (
                 <Card key={logo.id} className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)] group hover:shadow-lg transition-shadow" data-testid={`logo-card-${logo.id}`}>
                   <CardContent className="p-6">
-                    <div className="aspect-square bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl border border-primary/20 flex items-center justify-center p-6 mb-4 overflow-hidden">
-                      <img src={logo.url} alt={logo.name} className="max-w-full max-h-full object-contain" onError={(e) => { (e.target as HTMLImageElement).src = defaultLogo; }} data-testid={`logo-image-${logo.id}`} />
+                    <div className="aspect-square rounded-xl border border-primary/20 flex items-center justify-center mb-4 overflow-hidden">
+                      <img src={logo.url} alt={logo.name} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = defaultLogo; }} data-testid={`logo-image-${logo.id}`} />
                     </div>
                     <div className="space-y-2">
                       <div className="flex items-start justify-between">

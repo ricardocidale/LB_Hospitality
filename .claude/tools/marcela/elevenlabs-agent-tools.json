@@ -23,12 +23,19 @@
         "Trigger a UI animation",
         "Copy text to clipboard"
       ],
-      "marcela_candidates": [
-        { "name": "navigateToPage", "params": { "page": "string — route path" }, "description": "Navigate user to a specific page in the portal" },
-        { "name": "showPropertyDetails", "params": { "propertyId": "number" }, "description": "Open property detail view" },
-        { "name": "openFinancialReport", "params": { "propertyId": "number", "reportType": "string" }, "description": "Open a financial report" },
-        { "name": "startGuidedTour", "params": {}, "description": "Launch the guided walkthrough" },
-        { "name": "showInvestorDashboard", "params": {}, "description": "Navigate to investor dashboard" }
+      "implemented": [
+        { "name": "navigateToPage", "params": { "page": "string — route path" }, "description": "Navigate user to a specific page in the portal", "file": "client/src/components/ElevenLabsWidget.tsx" },
+        { "name": "showPropertyDetails", "params": { "propertyId": "number" }, "description": "Open property detail view", "file": "client/src/components/ElevenLabsWidget.tsx" },
+        { "name": "openPropertyEditor", "params": { "propertyId": "number" }, "description": "Open property edit page", "file": "client/src/components/ElevenLabsWidget.tsx" },
+        { "name": "showPortfolio", "params": {}, "description": "Navigate to portfolio page", "file": "client/src/components/ElevenLabsWidget.tsx" },
+        { "name": "showAnalysis", "params": {}, "description": "Navigate to analysis page", "file": "client/src/components/ElevenLabsWidget.tsx" },
+        { "name": "showDashboard", "params": {}, "description": "Navigate to dashboard", "file": "client/src/components/ElevenLabsWidget.tsx" },
+        { "name": "startGuidedTour", "params": {}, "description": "Launch the guided walkthrough", "file": "client/src/components/ElevenLabsWidget.tsx" },
+        { "name": "openHelp", "params": {}, "description": "Navigate to help page", "file": "client/src/components/ElevenLabsWidget.tsx" },
+        { "name": "showScenarios", "params": {}, "description": "Navigate to scenarios page", "file": "client/src/components/ElevenLabsWidget.tsx" },
+        { "name": "openPropertyFinder", "params": {}, "description": "Navigate to property finder", "file": "client/src/components/ElevenLabsWidget.tsx" },
+        { "name": "showCompanyPage", "params": {}, "description": "Navigate to company page", "file": "client/src/components/ElevenLabsWidget.tsx" },
+        { "name": "getCurrentContext", "params": {}, "description": "Get current page, user name, and role", "file": "client/src/components/ElevenLabsWidget.tsx" }
       ]
     },
     "server": {
@@ -46,10 +53,13 @@
         "body_parameters": "JSON body params"
       },
       "auth_options": ["None", "API Key (header)", "Bearer token", "Custom headers"],
-      "marcela_candidates": [
-        { "name": "getPropertyMetrics", "url": "/api/properties/{id}/metrics", "description": "Fetch financial metrics for a property" },
-        { "name": "getPortfolioSummary", "url": "/api/portfolio/summary", "description": "Get portfolio-level summary" },
-        { "name": "getUserProperties", "url": "/api/properties", "description": "List user's properties" }
+      "implemented": [
+        { "name": "getProperties", "url": "/api/marcela-tools/properties", "method": "GET", "description": "List all properties with key metrics", "file": "server/routes/marcela-tools.ts" },
+        { "name": "getPropertyDetails", "url": "/api/marcela-tools/property/{id}", "method": "GET", "description": "Get detailed property financials", "file": "server/routes/marcela-tools.ts" },
+        { "name": "getPortfolioSummary", "url": "/api/marcela-tools/portfolio-summary", "method": "GET", "description": "Get portfolio-level aggregated metrics", "file": "server/routes/marcela-tools.ts" },
+        { "name": "getScenarios", "url": "/api/marcela-tools/scenarios", "method": "GET", "description": "List saved portfolio scenarios", "file": "server/routes/marcela-tools.ts" },
+        { "name": "getGlobalAssumptions", "url": "/api/marcela-tools/global-assumptions", "method": "GET", "description": "Get company-wide financial parameters", "file": "server/routes/marcela-tools.ts" },
+        { "name": "getNavigation", "url": "/api/marcela-tools/navigation", "method": "GET", "description": "Get available portal pages and descriptions", "file": "server/routes/marcela-tools.ts" }
       ]
     },
     "mcp": {

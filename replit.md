@@ -26,7 +26,7 @@ Business simulation portal for the hospitality industry. Financial modeling, pro
 ### Marcela AI — Multi-Channel Conversational Assistant
 Marcela operates across web (ElevenLabs Conversational AI widget), phone (Twilio Voice), and SMS (Twilio SMS). All settings managed from Admin > Marcela tab. See `.claude/claude.md` § Marcela AI for full details.
 
-- **Web:** ElevenLabs Conversational AI widget (`@elevenlabs/convai-widget-core`), supports voice + text, auto language detection. Agent ID configured in Admin > Marcela tab. Signed URL generated server-side via `/api/marcela/signed-url`. Voices: Jessica (English), Sarah (Portuguese), configurable Spanish voice.
+- **Web:** ElevenLabs Conversational AI widget (`@elevenlabs/convai-widget-core`), supports voice + text, auto language detection. Agent ID configured in Admin > Marcela tab. Signed URL generated server-side via `/api/marcela/signed-url`. Voices: Jessica (English), Sarah (Portuguese), configurable Spanish voice. Client tools (12 actions: page navigation, tour launch, context) registered via `elevenlabs-convai:call` event. Server tools (6 endpoints under `/api/marcela-tools/`) provide property/portfolio/scenario data to ElevenLabs agent. Dynamic variables pass user name, role, and current page.
 - **Phone:** Twilio Voice webhook + WebSocket Media Stream, mulaw 8kHz ↔ PCM conversion
 - **SMS:** Twilio SMS webhook, 1600-char auto-split, TwiML reply
 - **RAG:** In-memory embeddings (OpenAI `text-embedding-3-small`), lazy indexing, cosine similarity retrieval
@@ -51,7 +51,7 @@ See `.claude/skills/admin/SKILL.md`.
 - **Seeds:** `server/seeds/` — domain modules: users, properties, branding, research. Orchestrated by index.ts. Thin re-export at `server/seed.ts`.
 - **Routes:** `server/routes/admin/` — sub-modules: users, tools, marcela. Registered via index.ts. Thin re-export at `server/routes/admin.ts`.
 - **Calculation Checker:** `server/calculation-checker/` — sub-modules: property-checks, gaap-checks, portfolio-checks, types. Thin re-export at `server/calculationChecker.ts`.
-- 11 route modules: `auth`, `properties`, `admin`, `global-assumptions`, `branding`, `scenarios`, `research`, `property-finder`, `calculations`, `uploads`, `twilio`.
+- 12 route modules: `auth`, `properties`, `admin`, `global-assumptions`, `branding`, `scenarios`, `research`, `property-finder`, `calculations`, `uploads`, `twilio`, `marcela-tools`.
 
 ### Client Architecture (Modular)
 - **API:** `client/src/lib/api/` — domain modules: properties, admin, research, scenarios, types. Re-exported from `client/src/lib/api.ts`.

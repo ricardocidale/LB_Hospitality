@@ -1,112 +1,220 @@
+import { useRef, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { BookOpen, RefreshCw, Loader2, Upload, Wrench } from "lucide-react";
-import { useKnowledgeBaseStatus, useReindexKnowledgeBase, useUploadKnowledgeBase, useConfigureAgentTools } from "./hooks";
+import { Separator } from "@/components/ui/separator";
+import { BookOpen, RefreshCw, Loader2, Upload, FileUp, Database, CheckCircle2, AlertCircle, FileText, Clock } from "lucide-react";
+import { useKnowledgeBaseStatus, useReindexKnowledgeBase, useUploadKnowledgeBase, useUploadKBFile } from "./hooks";
 
-export function KnowledgeBaseCard() {
+interface KnowledgeBaseCardProps {
+  agentName: string;
+}
+
+export function KnowledgeBaseCard({ agentName }: KnowledgeBaseCardProps) {
   const { data: kbStatus } = useKnowledgeBaseStatus();
   const reindexMutation = useReindexKnowledgeBase();
   const uploadMutation = useUploadKnowledgeBase();
-  const configureToolsMutation = useConfigureAgentTools();
+  const uploadFileMutation = useUploadKBFile();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) setSelectedFile(file);
+  };
+
+  const handleFileUpload = () => {
+    if (!selectedFile) return;
+    uploadFileMutation.mutate(selectedFile, {
+      onSuccess: () => {
+        setSelectedFile(null);
+        if (fileInputRef.current) fileInputRef.current.value = "";
+      },
+    });
+  };
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-violet-100 flex items-center justify-center">
-            <BookOpen className="w-5 h-5 text-violet-600" />
-          </div>
-          <div>
-            <CardTitle className="text-base">Knowledge Base</CardTitle>
-            <CardDescription>
-              Marcela's knowledge for answering questions about the platform and business model
-            </CardDescription>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <Badge
-                variant={kbStatus?.indexed ? "default" : "secondary"}
-                className={kbStatus?.indexed ? "bg-green-100 text-green-700" : ""}
-                data-testid="badge-kb-status"
-              >
-                {kbStatus?.indexed ? "Indexed" : "Not Indexed"}
-              </Badge>
-              {kbStatus?.chunkCount ? (
-                <span className="text-sm text-muted-foreground" data-testid="text-kb-chunks">
-                  {kbStatus.chunkCount} chunks
-                </span>
-              ) : null}
+    <div className="space-y-6">
+      <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+        <CardHeader className="pb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500/15 to-violet-500/5 flex items-center justify-center">
+              <Database className="w-5 h-5 text-violet-600" />
             </div>
-            {kbStatus?.indexedAt && (
-              <p className="text-xs text-muted-foreground">
-                Last indexed: {new Date(kbStatus.indexedAt).toLocaleString()}
-              </p>
-            )}
+            <div>
+              <CardTitle className="font-display text-base">RAG Knowledge Base</CardTitle>
+              <CardDescription className="label-text mt-0.5">
+                In-memory vector embeddings for real-time retrieval during conversations
+              </CardDescription>
+            </div>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => reindexMutation.mutate()}
-            disabled={reindexMutation.isPending}
-            data-testid="button-reindex-kb"
-          >
-            {reindexMutation.isPending ? (
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            ) : (
-              <RefreshCw className="w-4 h-4 mr-2" />
-            )}
-            {reindexMutation.isPending ? "Indexing..." : "Reindex RAG"}
-          </Button>
-        </div>
-
-        <div className="border-t pt-4 space-y-3">
-          <p className="text-sm font-medium">ElevenLabs Agent Configuration</p>
-          <div className="flex gap-2">
+        </CardHeader>
+        <CardContent className="space-y-5">
+          <div className="flex items-center justify-between p-4 bg-gradient-to-r from-muted/40 to-muted/20 rounded-xl border border-muted/60">
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2.5">
+                <div className={`w-2.5 h-2.5 rounded-full ${kbStatus?.indexed ? "bg-green-500 animate-pulse" : "bg-muted-foreground/30"}`} />
+                <span className="text-sm font-semibold">
+                  {kbStatus?.indexed ? "Indexed" : "Not Indexed"}
+                </span>
+                {kbStatus?.chunkCount ? (
+                  <Badge variant="outline" className="text-[10px] font-mono" data-testid="badge-kb-chunks">
+                    {kbStatus.chunkCount} chunks
+                  </Badge>
+                ) : null}
+              </div>
+              {kbStatus?.indexedAt && (
+                <p className="text-[11px] text-muted-foreground/60 flex items-center gap-1.5 pl-5">
+                  <Clock className="w-3 h-3" />
+                  Last indexed {new Date(kbStatus.indexedAt).toLocaleString()}
+                </p>
+              )}
+            </div>
             <Button
               variant="outline"
               size="sm"
-              onClick={() => uploadMutation.mutate()}
-              disabled={uploadMutation.isPending}
-              data-testid="button-upload-kb"
+              onClick={() => reindexMutation.mutate()}
+              disabled={reindexMutation.isPending}
+              className="gap-1.5 shadow-sm"
+              data-testid="button-reindex-kb"
             >
-              {uploadMutation.isPending ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              {reindexMutation.isPending ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
               ) : (
-                <Upload className="w-4 h-4 mr-2" />
+                <RefreshCw className="w-3.5 h-3.5" />
               )}
-              {uploadMutation.isPending ? "Uploading..." : "Upload Knowledge Base"}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => configureToolsMutation.mutate()}
-              disabled={configureToolsMutation.isPending}
-              data-testid="button-configure-tools"
-            >
-              {configureToolsMutation.isPending ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              ) : (
-                <Wrench className="w-4 h-4 mr-2" />
-              )}
-              {configureToolsMutation.isPending ? "Configuring..." : "Configure Tools"}
+              {reindexMutation.isPending ? "Indexing..." : "Reindex"}
             </Button>
           </div>
-          <p className="text-xs text-muted-foreground">
-            Upload sends the complete knowledge base document to ElevenLabs so Marcela can reference it during conversations.
-            Configure Tools registers all 18 client and server tools with the ElevenLabs agent.
-          </p>
-        </div>
 
-        <p className="text-xs text-muted-foreground border-t pt-3">
-          The knowledge base includes: company overview, business model, financial formulas, GAAP compliance rules,
-          property lifecycle, management company structure, verification system, platform navigation guides, and how-to instructions.
-        </p>
-      </CardContent>
-    </Card>
+          <div className="text-xs text-muted-foreground/60 px-1 leading-relaxed">
+            Covers company overview, business model, financial formulas, GAAP compliance, property lifecycle,
+            management company structure, verification system, and platform navigation guides.
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+        <CardHeader className="pb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/15 to-emerald-500/5 flex items-center justify-center">
+              <BookOpen className="w-5 h-5 text-emerald-600" />
+            </div>
+            <div>
+              <CardTitle className="font-display text-base">ElevenLabs Knowledge Base</CardTitle>
+              <CardDescription className="label-text mt-0.5">
+                Documents attached to {agentName}'s Conversational AI agent for reference during voice and text conversations
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <FileText className="w-4 h-4 text-muted-foreground/60" />
+              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/70">Built-in Document</span>
+            </div>
+            <div className="flex items-center justify-between p-4 bg-gradient-to-r from-muted/40 to-muted/20 rounded-xl border border-muted/60">
+              <div className="flex items-center gap-3">
+                <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
+                <div>
+                  <p className="text-sm font-medium">Hospitality Business Group Knowledge Base</p>
+                  <p className="text-[11px] text-muted-foreground/60">Auto-generated from platform data — 15 sections, ~17K characters</p>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => uploadMutation.mutate()}
+                disabled={uploadMutation.isPending}
+                className="gap-1.5 shadow-sm"
+                data-testid="button-upload-kb"
+              >
+                {uploadMutation.isPending ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Upload className="w-3.5 h-3.5" />
+                )}
+                {uploadMutation.isPending ? "Uploading..." : "Push to Agent"}
+              </Button>
+            </div>
+          </div>
+
+          <Separator className="bg-primary/8" />
+
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <FileUp className="w-4 h-4 text-muted-foreground/60" />
+              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/70">Upload Additional Document</span>
+            </div>
+            <div className="p-4 bg-gradient-to-r from-muted/30 to-muted/10 rounded-xl border border-dashed border-muted-foreground/20">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".txt,.pdf,.doc,.docx,.md,.csv"
+                onChange={handleFileSelect}
+                className="hidden"
+                data-testid="input-kb-file"
+              />
+              {!selectedFile ? (
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full py-6 flex flex-col items-center gap-2 text-muted-foreground/50 hover:text-muted-foreground/70 transition-colors cursor-pointer"
+                  data-testid="button-select-kb-file"
+                >
+                  <FileUp className="w-8 h-8" />
+                  <span className="text-sm font-medium">Select a file to upload</span>
+                  <span className="text-[11px]">Supported: TXT, PDF, DOC, DOCX, MD, CSV</span>
+                </button>
+              ) : (
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                      <FileText className="w-4 h-4 text-primary" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium truncate">{selectedFile.name}</p>
+                      <p className="text-[11px] text-muted-foreground/60">
+                        {(selectedFile.size / 1024).toFixed(1)} KB
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0 ml-3">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedFile(null);
+                        if (fileInputRef.current) fileInputRef.current.value = "";
+                      }}
+                      className="text-muted-foreground/60 hover:text-foreground"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={handleFileUpload}
+                      disabled={uploadFileMutation.isPending}
+                      className="gap-1.5 shadow-sm"
+                      data-testid="button-upload-kb-file"
+                    >
+                      {uploadFileMutation.isPending ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <Upload className="w-3.5 h-3.5" />
+                      )}
+                      {uploadFileMutation.isPending ? "Uploading..." : "Upload & Attach"}
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+            <p className="text-[11px] text-muted-foreground/50 px-1">
+              Uploaded documents are sent to ElevenLabs and attached to {agentName}'s agent for reference during conversations.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

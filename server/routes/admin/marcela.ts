@@ -3,9 +3,12 @@ import { storage } from "../../storage";
 import { requireAdmin, requireAuth } from "../../auth";
 import { type InsertGlobalAssumptions } from "@shared/schema";
 import { getTwilioStatus, sendSMS } from "../../integrations/twilio";
-import { getSignedUrl as getElevenLabsSignedUrl, getConvaiAgent, listConvaiConversations, getConvaiConversation, deleteConvaiConversation } from "../../integrations/elevenlabs";
-import { configureMarcelaAgent } from "../../marcela-agent-config";
+import { getSignedUrl as getElevenLabsSignedUrl, getConvaiAgent, listConvaiConversations, getConvaiConversation, deleteConvaiConversation, updateConvaiAgent, createKBDocumentFromFile } from "../../integrations/elevenlabs";
+import { configureMarcelaAgent, buildClientTools, buildServerTools, getBaseUrl } from "../../marcela-agent-config";
 import { uploadKnowledgeBase, getKnowledgeDocumentPreview } from "../../marcela-knowledge-base";
+import multer from "multer";
+
+const upload = multer({ storage: multer.memoryStorage() });
 
 export function registerMarcelaRoutes(app: Express) {
   app.get("/api/admin/voice-settings", requireAdmin, async (_req, res) => {
@@ -13,6 +16,7 @@ export function registerMarcelaRoutes(app: Express) {
       const ga = await storage.getGlobalAssumptions();
       if (!ga) return res.status(404).json({ error: "No global assumptions found" });
       res.json({
+        aiAgentName: ga.aiAgentName,
         marcelaAgentId: ga.marcelaAgentId,
         marcelaVoiceId: ga.marcelaVoiceId,
         marcelaTtsModel: ga.marcelaTtsModel,
@@ -42,7 +46,7 @@ export function registerMarcelaRoutes(app: Express) {
       const ga = await storage.getGlobalAssumptions();
       if (!ga) return res.status(404).json({ error: "No global assumptions found" });
       const allowedFields = [
-        "marcelaAgentId", "marcelaVoiceId", "marcelaTtsModel", "marcelaSttModel", "marcelaOutputFormat",
+        "aiAgentName", "marcelaAgentId", "marcelaVoiceId", "marcelaTtsModel", "marcelaSttModel", "marcelaOutputFormat",
         "marcelaStability", "marcelaSimilarityBoost", "marcelaSpeakerBoost",
         "marcelaChunkSchedule", "marcelaLlmModel", "marcelaMaxTokens",
         "marcelaMaxTokensVoice", "marcelaEnabled", "showAiAssistant",
@@ -179,6 +183,96 @@ export function registerMarcelaRoutes(app: Express) {
     } catch (error: any) {
       console.error("Error uploading knowledge base:", error);
       res.status(500).json({ error: error.message || "Failed to upload knowledge base" });
+    }
+  });
+
+  app.patch("/api/admin/convai/agent/prompt", requireAdmin, async (req, res) => {
+    try {
+      const ga = await storage.getGlobalAssumptions();
+      if (!ga?.marcelaAgentId) {
+        return res.status(404).json({ error: "Marcela agent not configured" });
+      }
+      const { prompt, first_message, language } = req.body;
+      const updated = await updateConvaiAgent(ga.marcelaAgentId, {
+        conversation_config: {
+          agent: {
+            prompt: { prompt },
+            first_message,
+            language,
+          },
+        },
+      });
+      res.json(updated);
+    } catch (error: any) {
+      console.error("Error updating Convai agent prompt:", error);
+      res.status(500).json({ error: error.message || "Failed to update agent prompt" });
+    }
+  });
+
+  app.get("/api/admin/convai/tools-status", requireAdmin, async (_req, res) => {
+    try {
+      const ga = await storage.getGlobalAssumptions();
+      if (!ga?.marcelaAgentId) {
+        return res.status(404).json({ error: "Marcela agent not configured" });
+      }
+      const agent = await getConvaiAgent(ga.marcelaAgentId);
+      const registeredTools = (agent.conversation_config?.agent?.prompt as any)?.tools || [];
+      
+      const baseUrl = getBaseUrl();
+      const clientTools = buildClientTools();
+      const serverTools = buildServerTools(baseUrl);
+      const allExpectedTools = [...clientTools, ...serverTools];
+
+      const status = allExpectedTools.map(expected => {
+        const registered = registeredTools.find((t: any) => t.name === expected.name);
+        return {
+          name: expected.name,
+          type: expected.type,
+          description: expected.description,
+          registered: !!registered,
+        };
+      });
+
+      res.json(status);
+    } catch (error: any) {
+      console.error("Error fetching tools status:", error);
+      res.status(500).json({ error: error.message || "Failed to fetch tools status" });
+    }
+  });
+
+  app.post("/api/admin/convai/knowledge-base/upload-file", requireAdmin, upload.single("file"), async (req: any, res) => {
+    try {
+      const ga = await storage.getGlobalAssumptions();
+      if (!ga?.marcelaAgentId) {
+        return res.status(404).json({ error: "Marcela agent not configured" });
+      }
+      if (!req.file) {
+        return res.status(400).json({ error: "No file uploaded" });
+      }
+
+      const doc = await createKBDocumentFromFile(req.file.originalname, req.file.buffer, req.file.originalname);
+      
+      // Attach to agent
+      const agent = await getConvaiAgent(ga.marcelaAgentId);
+      const existingKB = (agent.conversation_config?.agent?.prompt as any)?.knowledge_base || [];
+      
+      await updateConvaiAgent(ga.marcelaAgentId, {
+        conversation_config: {
+          agent: {
+            prompt: {
+              knowledge_base: [
+                ...existingKB,
+                { type: "file", id: doc.id, name: doc.name },
+              ],
+            },
+          },
+        },
+      });
+
+      res.json({ success: true, documentId: doc.id, name: doc.name });
+    } catch (error: any) {
+      console.error("Error uploading KB file:", error);
+      res.status(500).json({ error: error.message || "Failed to upload KB file" });
     }
   });
 

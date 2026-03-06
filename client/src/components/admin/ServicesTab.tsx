@@ -1,0 +1,436 @@
+/**
+ * ServicesTab.tsx — Centralized Services management for the admin panel.
+ *
+ * Manages the company_service_templates table which controls:
+ *   - Which services the management company provides to properties
+ *   - Whether each service is "centralized" (pass-through with markup) or "direct" (oversight only)
+ *   - The cost-plus markup percentage for centralized services
+ *   - Default fee rate for new properties
+ *
+ * Admin can add, edit, toggle active/inactive, reorder, and delete service categories.
+ * A "Sync to Properties" button propagates new categories to all existing properties.
+ */
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Loader2, Plus, Pencil, Trash2, RefreshCw, Save, Package, ArrowRightLeft, HelpCircle, Building2 } from "lucide-react";
+import {
+  useServiceTemplates,
+  useCreateServiceTemplate,
+  useUpdateServiceTemplate,
+  useDeleteServiceTemplate,
+  useSyncServiceTemplates,
+} from "@/lib/api/services";
+import type { ServiceTemplate } from "@shared/schema";
+
+interface FormState {
+  name: string;
+  defaultRate: string;
+  serviceModel: "centralized" | "direct";
+  serviceMarkup: string;
+  isActive: boolean;
+  sortOrder: string;
+}
+
+const emptyForm: FormState = {
+  name: "",
+  defaultRate: "2",
+  serviceModel: "centralized",
+  serviceMarkup: "20",
+  isActive: true,
+  sortOrder: "0",
+};
+
+function formFromTemplate(t: ServiceTemplate): FormState {
+  return {
+    name: t.name,
+    defaultRate: ((t.defaultRate ?? 0) * 100).toFixed(1),
+    serviceModel: t.serviceModel as "centralized" | "direct",
+    serviceMarkup: ((t.serviceMarkup ?? 0) * 100).toFixed(0),
+    isActive: t.isActive,
+    sortOrder: String(t.sortOrder),
+  };
+}
+
+export default function ServicesTab() {
+  const { toast } = useToast();
+  const { data: templates, isLoading } = useServiceTemplates();
+  const createMutation = useCreateServiceTemplate();
+  const updateMutation = useUpdateServiceTemplate();
+  const deleteMutation = useDeleteServiceTemplate();
+  const syncMutation = useSyncServiceTemplates();
+
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [form, setForm] = useState<FormState>(emptyForm);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
+
+  const openCreate = () => {
+    setEditingId(null);
+    setForm({ ...emptyForm, sortOrder: String((templates?.length ?? 0) + 1) });
+    setDialogOpen(true);
+  };
+
+  const openEdit = (t: ServiceTemplate) => {
+    setEditingId(t.id);
+    setForm(formFromTemplate(t));
+    setDialogOpen(true);
+  };
+
+  const handleSave = () => {
+    const rate = parseFloat(form.defaultRate) / 100;
+    const markup = parseFloat(form.serviceMarkup) / 100;
+    if (!form.name.trim()) {
+      toast({ title: "Name required", variant: "destructive" });
+      return;
+    }
+    if (isNaN(rate) || rate < 0 || rate > 1) {
+      toast({ title: "Rate must be between 0% and 100%", variant: "destructive" });
+      return;
+    }
+    if (isNaN(markup) || markup < 0 || markup > 1) {
+      toast({ title: "Markup must be between 0% and 100%", variant: "destructive" });
+      return;
+    }
+
+    const payload = {
+      name: form.name.trim(),
+      defaultRate: rate,
+      serviceModel: form.serviceModel,
+      serviceMarkup: markup,
+      isActive: form.isActive,
+      sortOrder: parseInt(form.sortOrder) || 0,
+    };
+
+    if (editingId) {
+      updateMutation.mutate(
+        { id: editingId, data: payload },
+        {
+          onSuccess: () => {
+            toast({ title: "Service template saved" });
+            setDialogOpen(false);
+          },
+          onError: (e: Error) => toast({ title: "Save failed", description: e.message, variant: "destructive" }),
+        }
+      );
+    } else {
+      createMutation.mutate(payload, {
+        onSuccess: () => {
+          toast({ title: "Service template created" });
+          setDialogOpen(false);
+        },
+        onError: (e: Error) => toast({ title: "Create failed", description: e.message, variant: "destructive" }),
+      });
+    }
+  };
+
+  const handleDelete = (id: number) => {
+    deleteMutation.mutate(id, {
+      onSuccess: () => {
+        toast({ title: "Service template deleted" });
+        setDeleteConfirmId(null);
+      },
+      onError: (e: Error) => toast({ title: "Delete failed", description: e.message, variant: "destructive" }),
+    });
+  };
+
+  const handleSync = () => {
+    syncMutation.mutate(undefined, {
+      onSuccess: (data: any) => {
+        toast({ title: "Sync complete", description: data.message });
+      },
+      onError: (e: Error) => toast({ title: "Sync failed", description: e.message, variant: "destructive" }),
+    });
+  };
+
+  const handleToggleActive = (t: ServiceTemplate) => {
+    updateMutation.mutate(
+      { id: t.id, data: { isActive: !t.isActive } },
+      {
+        onSuccess: () => toast({ title: `${t.name} ${t.isActive ? "deactivated" : "activated"}` }),
+        onError: (e: Error) => toast({ title: "Toggle failed", description: e.message, variant: "destructive" }),
+      }
+    );
+  };
+
+  const sorted = [...(templates ?? [])].sort((a, b) => a.sortOrder - b.sortOrder);
+  const activeCount = sorted.filter(t => t.isActive).length;
+  const centralizedCount = sorted.filter(t => t.isActive && t.serviceModel === "centralized").length;
+  const directCount = sorted.filter(t => t.isActive && t.serviceModel === "direct").length;
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="w-6 h-6 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Summary Card */}
+      <Card className="bg-gradient-to-br from-primary/5 to-primary/10 backdrop-blur-xl border-primary/30 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
+        <CardHeader className="pb-3">
+          <CardTitle className="font-display flex items-center gap-2">
+            <Package className="w-5 h-5 text-primary" />
+            Centralized Services Model
+          </CardTitle>
+          <CardDescription className="label-text">
+            The management company provides centralized services to properties at cost plus a markup.
+            Direct services earn an oversight fee with no vendor cost.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-3 gap-4">
+            <div className="bg-white/60 backdrop-blur rounded-xl p-4 border border-primary/10">
+              <div className="text-2xl font-display font-bold text-gray-900">{activeCount}</div>
+              <div className="text-xs text-muted-foreground mt-1">Active Services</div>
+            </div>
+            <div className="bg-white/60 backdrop-blur rounded-xl p-4 border border-primary/10">
+              <div className="text-2xl font-display font-bold text-primary">{centralizedCount}</div>
+              <div className="text-xs text-muted-foreground mt-1">Centralized (pass-through)</div>
+            </div>
+            <div className="bg-white/60 backdrop-blur rounded-xl p-4 border border-primary/10">
+              <div className="text-2xl font-display font-bold text-gray-600">{directCount}</div>
+              <div className="text-xs text-muted-foreground mt-1">Direct (oversight only)</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Service Templates List */}
+      <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="font-display flex items-center gap-2">
+                <Building2 className="w-5 h-5 text-primary" />
+                Service Categories
+              </CardTitle>
+              <CardDescription className="label-text">
+                Define which services the company provides and their pricing model.
+              </CardDescription>
+            </div>
+            <div className="flex items-center gap-2">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="outline" size="sm" onClick={handleSync} disabled={syncMutation.isPending}>
+                    {syncMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <ArrowRightLeft className="w-4 h-4 mr-1" />}
+                    Sync to Properties
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">
+                  <p className="max-w-xs text-xs">Propagate new service categories to all existing properties as fee categories. Does not overwrite existing categories.</p>
+                </TooltipContent>
+              </Tooltip>
+              <Button size="sm" onClick={openCreate}>
+                <Plus className="w-4 h-4 mr-1" />
+                Add Service
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {sorted.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">
+              <Package className="w-10 h-10 mx-auto mb-3 text-gray-300" />
+              <p className="font-medium text-gray-500">No service templates configured</p>
+              <p className="text-sm mt-1">Add service categories to define what the management company provides to properties.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {sorted.map((t) => (
+                <div
+                  key={t.id}
+                  className={`group bg-primary/5 border border-primary/20 rounded-xl p-4 transition-all duration-200 hover:shadow-md hover:border-primary/30 ${
+                    !t.isActive ? "opacity-50" : ""
+                  }`}
+                  data-testid={`service-card-${t.id}`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                        t.serviceModel === "centralized"
+                          ? "bg-primary/15 text-primary"
+                          : "bg-gray-100 text-gray-500"
+                      }`}>
+                        <Package className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-gray-900">{t.name}</span>
+                          <Badge
+                            variant={t.serviceModel === "centralized" ? "default" : "secondary"}
+                            className="text-[10px] px-1.5 py-0"
+                          >
+                            {t.serviceModel === "centralized" ? "Centralized" : "Direct"}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-3 mt-0.5 text-xs text-muted-foreground">
+                          <span>Rate: <span className="font-mono">{((t.defaultRate ?? 0) * 100).toFixed(1)}%</span></span>
+                          {t.serviceModel === "centralized" && (
+                            <span>Markup: <span className="font-mono">{((t.serviceMarkup ?? 0) * 100).toFixed(0)}%</span></span>
+                          )}
+                          {t.serviceModel === "centralized" && (
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <HelpCircle className="w-3 h-3 text-gray-400" />
+                              </TooltipTrigger>
+                              <TooltipContent side="right">
+                                <p className="max-w-xs text-xs">
+                                  Effective margin: {(((t.serviceMarkup ?? 0) / (1 + (t.serviceMarkup ?? 0))) * 100).toFixed(1)}% of revenue.
+                                  Vendor cost = fee / (1 + {((t.serviceMarkup ?? 0) * 100).toFixed(0)}%).
+                                </p>
+                              </TooltipContent>
+                            </Tooltip>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Switch
+                        checked={t.isActive}
+                        onCheckedChange={() => handleToggleActive(t)}
+                        disabled={updateMutation.isPending}
+                      />
+                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(t)} data-testid={`button-edit-service-${t.id}`}>
+                          <Pencil className="w-3.5 h-3.5" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setDeleteConfirmId(t.id)} data-testid={`button-delete-service-${t.id}`}>
+                          <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Create / Edit Dialog */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="font-display">{editingId ? "Edit Service Template" : "Add Service Template"}</DialogTitle>
+            <DialogDescription className="label-text">
+              {editingId
+                ? "Update the service category settings."
+                : "Create a new service category for the management company."}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Service Name</Label>
+              <Input
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                placeholder="e.g. Marketing"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Service Model</Label>
+                <Select value={form.serviceModel} onValueChange={(v) => setForm({ ...form, serviceModel: v as "centralized" | "direct" })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="centralized">Centralized (pass-through)</SelectItem>
+                    <SelectItem value="direct">Direct (oversight only)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Default Fee Rate (%)</Label>
+                <Input
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  max="100"
+                  value={form.defaultRate}
+                  onChange={(e) => setForm({ ...form, defaultRate: e.target.value })}
+                />
+              </div>
+            </div>
+            {form.serviceModel === "centralized" && (
+              <div className="space-y-2 bg-primary/5 rounded-lg p-3 border border-primary/10">
+                <Label className="text-sm font-medium">Cost-Plus Markup (%)</Label>
+                <p className="text-xs text-muted-foreground">
+                  If markup is 20% and the company procures a service for $1.00, the property is charged $1.20.
+                </p>
+                <Input
+                  type="number"
+                  step="1"
+                  min="0"
+                  max="100"
+                  value={form.serviceMarkup}
+                  onChange={(e) => setForm({ ...form, serviceMarkup: e.target.value })}
+                />
+              </div>
+            )}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Sort Order</Label>
+                <Input
+                  type="number"
+                  value={form.sortOrder}
+                  onChange={(e) => setForm({ ...form, sortOrder: e.target.value })}
+                />
+              </div>
+              <div className="flex items-center gap-2 pt-6">
+                <Switch
+                  checked={form.isActive}
+                  onCheckedChange={(v) => setForm({ ...form, isActive: v })}
+                />
+                <Label className="text-sm font-medium">Active</Label>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleSave} disabled={createMutation.isPending || updateMutation.isPending}>
+              {(createMutation.isPending || updateMutation.isPending) && <Loader2 className="w-4 h-4 animate-spin mr-1" />}
+              <Save className="w-4 h-4 mr-1" />
+              Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation */}
+      <Dialog open={deleteConfirmId !== null} onOpenChange={() => setDeleteConfirmId(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="font-display">Delete Service Template</DialogTitle>
+            <DialogDescription className="label-text">
+              This will remove the service category from the company template. Existing property fee categories will not be affected.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteConfirmId(null)}>Cancel</Button>
+            <Button
+              variant="destructive"
+              onClick={() => deleteConfirmId && handleDelete(deleteConfirmId)}
+              disabled={deleteMutation.isPending}
+            >
+              {deleteMutation.isPending && <Loader2 className="w-4 h-4 animate-spin mr-1" />}
+              <Trash2 className="w-4 h-4 mr-1" />
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}

@@ -64,6 +64,9 @@ const CALC_MODULE_FILES = [
   "calc/shared/schedule.ts",
   "calc/shared/utils.ts",
   "calc/validation/funding-gates.ts",
+  "calc/services/margin-calculator.ts",
+  "calc/services/cost-of-services.ts",
+  "calc/services/dispatch-handler.ts",
 ];
 
 const AUDIT_CHECKER_FILES = [
@@ -516,6 +519,7 @@ describe("Hardcoded Value Detection", () => {
         "DEFAULT_SAFE_VALUATION_CAP",
         "DEFAULT_SAFE_DISCOUNT_RATE",
         "DEFAULT_SERVICE_FEE_CATEGORIES",
+        "DEFAULT_SERVICE_MARKUP",
         "DEFAULT_OCCUPANCY_RAMP_MONTHS",
         "DEFAULT_FIXED_COST_ESCALATION_RATE",
         "DEFAULT_COMPANY_TAX_RATE",

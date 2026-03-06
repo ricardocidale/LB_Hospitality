@@ -35,7 +35,7 @@ export function useSaveMarcelaSettings() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "voice-settings"] });
       queryClient.invalidateQueries({ queryKey: ["global-assumptions"] });
-      toast({ title: "Marcela settings saved", description: "Voice configuration updated successfully." });
+      toast({ title: "AI Agent settings saved", description: "Voice configuration updated successfully." });
     },
     onError: (err: Error) => {
       toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -135,6 +135,78 @@ export function useConfigureAgentTools() {
     },
     onError: (err: Error) => {
       toast({ title: "Configuration Failed", description: err.message, variant: "destructive" });
+    },
+  });
+}
+
+export function useAgentConfig() {
+  return useQuery<any>({
+    queryKey: ["admin", "convai-agent"],
+    queryFn: async () => {
+      const res = await apiRequest("GET", "/api/admin/convai/agent");
+      return res.json();
+    },
+    retry: false,
+  });
+}
+
+export function useSaveAgentPrompt() {
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async (data: { prompt: string; first_message: string; language: string }) => {
+      const res = await apiRequest("PATCH", "/api/admin/convai/agent/prompt", data);
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Prompt saved",
+        description: "System prompt, first message, and language pushed to ElevenLabs",
+      });
+    },
+    onError: (err: Error) => {
+      toast({ title: "Save failed", description: err.message, variant: "destructive" });
+    },
+  });
+}
+
+export function useToolsStatus() {
+  return useQuery<any[]>({
+    queryKey: ["admin", "convai-tools-status"],
+    queryFn: async () => {
+      const res = await apiRequest("GET", "/api/admin/convai/tools-status");
+      return res.json();
+    },
+    retry: false,
+  });
+}
+
+export function useUploadKBFile() {
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/admin/convai/knowledge-base/upload-file", {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: "Upload failed" }));
+        throw new Error(err.error || "Upload failed");
+      }
+      return res.json();
+    },
+    onSuccess: (data: { name?: string }) => {
+      toast({
+        title: "Document uploaded",
+        description: `"${data.name || "File"}" attached to the AI agent on ElevenLabs`,
+      });
+    },
+    onError: (err: Error) => {
+      toast({ title: "Upload failed", description: err.message, variant: "destructive" });
     },
   });
 }

@@ -95,6 +95,39 @@ export const DEFAULT_SERVICE_FEE_CATEGORIES = [
 ] as const;
 
 // ──────────────────────────────────────────────────────────
+// CENTRALIZED SERVICES DEFAULTS
+// The management company can provide services to properties either as
+// "centralized" (company procures externally, passes through with markup)
+// or "direct" (property handles, company still earns fee for oversight).
+// Terminology follows USALI Schedule 16 and standard HMA conventions.
+// ──────────────────────────────────────────────────────────
+
+// Default cost-plus markup on centralized services. If the company buys
+// a service for $1.00, it charges the property $1.00 × (1 + 0.20) = $1.20.
+export const DEFAULT_SERVICE_MARKUP = 0.20;
+
+// Default service model for new service templates.
+// 'centralized' = company procures, passes through with markup
+// 'direct'      = property handles directly, company earns fee for oversight (no cost-of-service)
+export type ServiceModel = 'centralized' | 'direct';
+export const DEFAULT_SERVICE_MODEL: ServiceModel = 'centralized';
+
+// Default service template categories. These seed the company_service_templates
+// table on first run. Rates intentionally sum to DEFAULT_BASE_MANAGEMENT_FEE_RATE (8.5%).
+// The first 5 match DEFAULT_SERVICE_FEE_CATEGORIES (property fee categories).
+// The last 3 are new eligible categories with rates that extend the total.
+export const DEFAULT_SERVICE_TEMPLATES = [
+  { name: "Marketing",            defaultRate: 0.02,  serviceModel: 'centralized' as ServiceModel, serviceMarkup: 0.20, sortOrder: 1 },
+  { name: "IT",                   defaultRate: 0.01,  serviceModel: 'centralized' as ServiceModel, serviceMarkup: 0.20, sortOrder: 2 },
+  { name: "Accounting",           defaultRate: 0.015, serviceModel: 'centralized' as ServiceModel, serviceMarkup: 0.20, sortOrder: 3 },
+  { name: "Reservations",         defaultRate: 0.02,  serviceModel: 'centralized' as ServiceModel, serviceMarkup: 0.20, sortOrder: 4 },
+  { name: "General Management",   defaultRate: 0.02,  serviceModel: 'direct'      as ServiceModel, serviceMarkup: 0.20, sortOrder: 5 },
+  { name: "Insurance",            defaultRate: 0.01,  serviceModel: 'centralized' as ServiceModel, serviceMarkup: 0.20, sortOrder: 6 },
+  { name: "Property Operations",  defaultRate: 0.01,  serviceModel: 'centralized' as ServiceModel, serviceMarkup: 0.20, sortOrder: 7 },
+  { name: "Other Services",       defaultRate: 0.01,  serviceModel: 'centralized' as ServiceModel, serviceMarkup: 0.20, sortOrder: 8 },
+] as const;
+
+// ──────────────────────────────────────────────────────────
 // EXIT & SALE DEFAULTS
 // Used when modeling the sale/disposition of a property at the end of the
 // projection horizon or at a refinance event.
@@ -174,14 +207,21 @@ export const DEFAULT_SAFE_DISCOUNT_RATE = 0.20;
 // ──────────────────────────────────────────────────────────
 
 // ──────────────────────────────────────────────────────────
-// MARCELA AI VOICE DEFAULTS
-// Default ElevenLabs configuration for the Marcela voice assistant.
+// AI AGENT DEFAULTS
+// Default configuration for the AI voice assistant (ElevenLabs).
+// The agent display name is configurable via globalAssumptions.aiAgentName.
 // ──────────────────────────────────────────────────────────
 
-export const DEFAULT_MARCELA_STABILITY = 0.5;
-export const DEFAULT_MARCELA_SIMILARITY_BOOST = 0.8;
-export const DEFAULT_MARCELA_MAX_TOKENS = 2048;
-export const DEFAULT_MARCELA_MAX_TOKENS_VOICE = 1024;
+export const DEFAULT_AI_AGENT_NAME = "Marcela";
+export const DEFAULT_AI_AGENT_STABILITY = 0.5;
+export const DEFAULT_AI_AGENT_SIMILARITY_BOOST = 0.8;
+export const DEFAULT_AI_AGENT_MAX_TOKENS = 2048;
+export const DEFAULT_AI_AGENT_MAX_TOKENS_VOICE = 1024;
+
+export const DEFAULT_MARCELA_STABILITY = DEFAULT_AI_AGENT_STABILITY;
+export const DEFAULT_MARCELA_SIMILARITY_BOOST = DEFAULT_AI_AGENT_SIMILARITY_BOOST;
+export const DEFAULT_MARCELA_MAX_TOKENS = DEFAULT_AI_AGENT_MAX_TOKENS;
+export const DEFAULT_MARCELA_MAX_TOKENS_VOICE = DEFAULT_AI_AGENT_MAX_TOKENS_VOICE;
 
 // ──────────────────────────────────────────────────────────
 // SEED DEBT ASSUMPTIONS

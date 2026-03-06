@@ -99,7 +99,9 @@
       "Bash(npm run stats:*)",
       "Bash(npm run exports:check:*)",
       "Bash(head -20 grep -oP 'npm run \\\\S+|npm test' .claude/claude.md)",
-      "Bash(npm run verify:*)"
+      "Bash(npm run verify:*)",
+      "Bash(psql \"$DATABASE_URL\" -c \"\nCREATE TABLE IF NOT EXISTS company_service_templates \\(\n  id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,\n  name TEXT NOT NULL,\n  default_rate REAL NOT NULL DEFAULT 0,\n  service_model TEXT NOT NULL DEFAULT 'centralized',\n  service_markup REAL NOT NULL DEFAULT 0.20,\n  is_active BOOLEAN NOT NULL DEFAULT true,\n  sort_order INTEGER NOT NULL DEFAULT 0,\n  created_at TIMESTAMP DEFAULT NOW\\(\\) NOT NULL,\n  CONSTRAINT service_template_rate_range CHECK \\(default_rate >= 0 AND default_rate <= 1\\),\n  CONSTRAINT service_template_markup_range CHECK \\(service_markup >= 0 AND service_markup <= 1\\),\n  CONSTRAINT service_template_model_check CHECK \\(service_model IN \\('centralized', 'direct'\\)\\)\n\\);\n\" 2>&1)",
+      "Bash(psql \"$DATABASE_URL\" -c \"SELECT column_name, data_type, column_default FROM information_schema.columns WHERE table_name = 'company_service_templates' ORDER BY ordinal_position;\" 2>&1)"
     ]
   }
 }

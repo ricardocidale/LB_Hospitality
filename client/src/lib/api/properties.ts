@@ -8,6 +8,7 @@ const ALL_FINANCIAL_QUERY_KEYS = [
   ["feeCategories"],
   ["scenarios"],
   ["research"],
+  ["serviceTemplates"],
 ] as const;
 
 export function invalidateAllFinancialQueries(queryClient: ReturnType<typeof useQueryClient>) {

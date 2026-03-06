@@ -243,6 +243,26 @@ export async function deleteKBDocument(docId: string): Promise<void> {
   await convaiRequest<void>(`/knowledge-base/documents/${docId}`, { method: 'DELETE' });
 }
 
+export async function createKBDocumentFromFile(name: string, fileBuffer: Buffer, fileName: string): Promise<KBDocument> {
+  const apiKey = await getCredentials();
+  const formData = new FormData();
+  formData.append('file', new Blob([fileBuffer]), fileName);
+  formData.append('name', name);
+
+  const response = await fetch(`${CONVAI_BASE}/knowledge-base/documents/create-from-file`, {
+    method: 'POST',
+    headers: { 'xi-api-key': apiKey },
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`ElevenLabs KB Upload error (${response.status}): ${text}`);
+  }
+
+  return response.json() as Promise<KBDocument>;
+}
+
 export async function transcribeAudio(audioBuffer: Buffer, filename: string, sttModel?: string): Promise<string> {
   const apiKey = await getCredentials();
 

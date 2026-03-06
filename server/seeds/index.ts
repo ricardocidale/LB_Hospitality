@@ -4,6 +4,7 @@ import { seedUsers, seedUserGroups } from "./users";
 import { seedGlobalAssumptions, seedProperties, seedFeeCategories, seedCanonicalProperties } from "./properties";
 import { seedDefaultLogos, seedCompanies } from "./branding";
 import { seedMissingMarketResearch, getHudsonEstateResearch, getEdenSummitResearch, getAustinHillsideResearch, getCasaMedellinResearch, getBlueRidgeResearch } from "./research";
+import { seedServiceTemplates } from "./services";
 
 export async function seed() {
   const forceReseed = process.argv.includes("--force");
@@ -97,17 +98,21 @@ export async function seed() {
   await seedUserGroups();
   await seedCompanies();
 
+  // Seed service templates
+  await seedServiceTemplates();
+
   // Seed canonical properties
   await seedCanonicalProperties();
 
   console.log("Database seed completed successfully!");
 }
 
-export { 
-  seedMissingMarketResearch, 
-  seedDefaultLogos, 
-  seedUserGroups, 
-  seedCompanies 
+export {
+  seedMissingMarketResearch,
+  seedDefaultLogos,
+  seedUserGroups,
+  seedCompanies,
+  seedServiceTemplates,
 };
 
 // Re-export for getMarketResearchSeedData if needed (though it seems specific to seed.ts internal usage)

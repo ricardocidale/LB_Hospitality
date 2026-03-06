@@ -66,6 +66,8 @@ import { computeDSCR } from "./financing/dscr-calculator.js";
 import { computePrepayment } from "./financing/prepayment.js";
 import { computeSensitivity } from "./financing/sensitivity.js";
 import { compareLoanScenarios } from "./financing/loan-comparison.js";
+import { computeCentralizedServiceMargin } from "./services/dispatch-handler.js";
+import { computeCostOfServices } from "./services/cost-of-services.js";
 
 type ToolInput = Record<string, unknown>;
 type ToolFn = (input: never) => unknown;
@@ -99,6 +101,11 @@ const TOOL_DISPATCH: Record<string, ToolHandler> = {
   calculate_prepayment: withRounding(computePrepayment),
   calculate_sensitivity: withRounding(computeSensitivity),
   compare_loans: (input) => compareLoanScenarios((input as ToolInput).scenarios as never ?? []),
+  centralized_service_margin: withRounding(computeCentralizedServiceMargin),
+  cost_of_services_aggregator: (input) => computeCostOfServices(
+    (input as ToolInput).feesByCategory as Record<string, number>,
+    (input as ToolInput).templates as never,
+  ),
 };
 
 /**

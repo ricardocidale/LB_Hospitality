@@ -35,6 +35,7 @@ import { ExportDialog } from "@/components/ExportDialog";
 import Layout from "@/components/Layout";
 import { useProperties, useGlobalAssumptions, useAllFeeCategories } from "@/lib/api";
 import { generateCompanyProForma, generatePropertyProForma, formatMoney, getFiscalYearForModelYear, CompanyMonthlyFinancials } from "@/lib/financialEngine";
+import { useServiceTemplates } from "@/lib/api/services";
 import { PROJECTION_YEARS, STAFFING_TIERS } from "@/lib/constants";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Loader2, AlertTriangle, CheckCircle } from "lucide-react";
@@ -55,6 +56,7 @@ export default function Company() {
   const { data: properties, isLoading: propertiesLoading, isError: propertiesError } = useProperties();
   const { data: global, isLoading: globalLoading, isError: globalError } = useGlobalAssumptions();
   const { data: allFeeCategories } = useAllFeeCategories();
+  const { data: serviceTemplates } = useServiceTemplates();
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState("income");
   const [bsExpanded, setBsExpanded] = useState<Record<string, boolean>>({});
@@ -97,9 +99,13 @@ export default function Company() {
   const financials = useMemo(
     () => {
       if (!enrichedProperties.length || !global) return [];
-      return generateCompanyProForma(enrichedProperties, global, projectionMonths);
+      const templates = serviceTemplates?.map(t => ({
+        ...t,
+        serviceModel: t.serviceModel as 'centralized' | 'direct',
+      }));
+      return generateCompanyProForma(enrichedProperties, global, projectionMonths, templates);
     },
-    [enrichedProperties, global, projectionMonths]
+    [enrichedProperties, global, projectionMonths, serviceTemplates]
   );
 
   // Detect whether the management company will run out of cash before reaching

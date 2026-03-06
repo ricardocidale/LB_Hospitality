@@ -3,6 +3,7 @@ export * from "./properties";
 export * from "./admin";
 export * from "./research";
 export * from "./scenarios";
+export * from "./services";
 
 /**
  * Shared fetch helper for future use or to consolidate boilerplate.

@@ -86,6 +86,8 @@ import {
   DEFAULT_SERVICE_FEE_CATEGORIES,
 } from './constants';
 import { computeRefinance } from '@calc/refinance';
+import { computeCostOfServices } from '@calc/services/cost-of-services';
+import type { ServiceTemplate, AggregatedServiceCosts } from '@calc/services/types';
 
 import { DEFAULT_ACCOUNTING_POLICY } from '@domain/types/accounting-policy';
 
@@ -794,6 +796,9 @@ export interface CompanyMonthlyFinancials {
   incentiveFeeByPropertyId: Record<string, number>;
   serviceFeeBreakdown: ServiceFeeBreakdown;
   totalRevenue: number;
+  costOfCentralizedServices: AggregatedServiceCosts | null;
+  totalVendorCost: number;
+  grossProfit: number;
   partnerCompensation: number;
   staffCompensation: number;
   officeLease: number;
@@ -842,7 +847,8 @@ export interface CompanyMonthlyFinancials {
 export function generateCompanyProForma(
   properties: PropertyInput[],
   global: GlobalInput,
-  months: number = PROJECTION_MONTHS
+  months: number = PROJECTION_MONTHS,
+  serviceTemplates?: ServiceTemplate[],
 ): CompanyMonthlyFinancials[] {
   const results: CompanyMonthlyFinancials[] = [];
   let cumulativeCompanyCash = 0;
@@ -941,7 +947,20 @@ export function generateCompanyProForma(
       }
     }
     const totalRevenue = baseFeeRevenue + incentiveFeeRevenue;
-    
+
+    // Compute cost of centralized services (vendor costs for pass-through services)
+    let costOfCentralizedServices: AggregatedServiceCosts | null = null;
+    let totalVendorCost = 0;
+    let grossProfit = totalRevenue;
+    if (serviceTemplates && serviceTemplates.length > 0) {
+      costOfCentralizedServices = computeCostOfServices(
+        serviceFeeBreakdown.byCategory,
+        serviceTemplates,
+      );
+      totalVendorCost = costOfCentralizedServices.totalVendorCost;
+      grossProfit = totalRevenue - totalVendorCost;
+    }
+
     // Only incur expenses after company operations start
     let partnerCompensation = 0;
     let staffCompensation = 0;
@@ -998,7 +1017,7 @@ export function generateCompanyProForma(
     const totalExpenses = partnerCompensation + staffCompensation + officeLease + professionalServices +
       techInfrastructure + businessInsurance + travelCosts + itLicensing + marketing + miscOps;
     
-    const netIncome = totalRevenue - totalExpenses;
+    const netIncome = totalRevenue - totalVendorCost - totalExpenses;
     
     let safeFunding1 = 0;
     let safeFunding2 = 0;
@@ -1022,6 +1041,9 @@ export function generateCompanyProForma(
       incentiveFeeByPropertyId,
       serviceFeeBreakdown,
       totalRevenue,
+      costOfCentralizedServices,
+      totalVendorCost,
+      grossProfit,
       partnerCompensation,
       staffCompensation,
       officeLease,

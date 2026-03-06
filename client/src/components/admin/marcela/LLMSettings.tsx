@@ -20,7 +20,7 @@ export function LLMSettings({ draft, updateField }: LLMSettingsProps) {
           Language Model (LLM)
         </CardTitle>
         <CardDescription className="label-text">
-          Configure the AI model that powers Marcela's conversation intelligence.
+          Configure the AI model that powers the agent's conversation intelligence.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">

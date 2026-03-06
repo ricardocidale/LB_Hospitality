@@ -3,7 +3,7 @@ import { storage } from "./storage";
 
 const CONVAI_BASE = "https://api.elevenlabs.io/v1/convai";
 
-function getBaseUrl(): string {
+export function getBaseUrl(): string {
   if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
     return `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`;
   }
@@ -15,7 +15,7 @@ function getBaseUrl(): string {
 
 const TOOLS_SECRET = process.env.MARCELA_TOOLS_SECRET || "marcela-server-tools-key";
 
-function buildClientTools() {
+export function buildClientTools() {
   return [
     {
       type: "client" as const,
@@ -125,7 +125,7 @@ function buildClientTools() {
   ];
 }
 
-function buildServerTools(baseUrl: string) {
+export function buildServerTools(baseUrl: string) {
   const headers = {
     "x-marcela-tools-secret": TOOLS_SECRET,
   };

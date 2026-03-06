@@ -52,6 +52,7 @@ import {
   DEFAULT_COMMISSION_RATE,
   DEFAULT_EVENT_EXPENSE_RATE,
   DEFAULT_OTHER_EXPENSE_RATE,
+  DEFAULT_SERVICE_MARKUP,
   DEFAULT_UTILITIES_VARIABLE_SPLIT,
   DEFAULT_FIXED_COST_ESCALATION_RATE,
   DEFAULT_COMPANY_TAX_RATE,
@@ -380,6 +381,9 @@ export const globalAssumptions = pgTable("global_assumptions", {
   // Feature Toggles
   showAiAssistant: boolean("show_ai_assistant").notNull().default(false),
   
+  // AI Agent Configuration
+  aiAgentName: text("ai_agent_name").notNull().default("Marcela"),
+  
   // ElevenLabs Conversational AI Agent
   marcelaAgentId: text("marcela_agent_id").notNull().default(""),
   
@@ -523,6 +527,7 @@ export const insertGlobalAssumptionsSchema = createInsertSchema(globalAssumption
   sidebarScenarios: true,
   sidebarUserManual: true,
   showAiAssistant: true,
+  aiAgentName: true,
   marcelaAgentId: true,
   marcelaVoiceId: true,
   marcelaTtsModel: true,
@@ -735,6 +740,50 @@ export const selectPropertySchema = createSelectSchema(properties);
 export type Property = typeof properties.$inferSelect;
 export type InsertProperty = z.infer<typeof insertPropertySchema>;
 export type UpdateProperty = z.infer<typeof updatePropertySchema>;
+
+// --- COMPANY SERVICE TEMPLATES TABLE ---
+// Company-level templates defining which services the management company provides
+// to properties. Each template has a service model (centralized or direct) and a
+// cost-plus markup percentage. These templates are the source of truth for:
+//   1. Seeding new property_fee_categories when a property is created
+//   2. Determining the company's cost-of-service in generateCompanyProForma()
+// Admin can add/remove categories from the Admin > Centralized Services tab.
+export const companyServiceTemplates = pgTable("company_service_templates", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  name: text("name").notNull(),
+  defaultRate: real("default_rate").notNull().default(0),
+  serviceModel: text("service_model").notNull().default('centralized'),
+  serviceMarkup: real("service_markup").notNull().default(DEFAULT_SERVICE_MARKUP),
+  isActive: boolean("is_active").notNull().default(true),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [
+  check("service_template_rate_range", sql`${table.defaultRate} >= 0 AND ${table.defaultRate} <= 1`),
+  check("service_template_markup_range", sql`${table.serviceMarkup} >= 0 AND ${table.serviceMarkup} <= 1`),
+  check("service_template_model_check", sql`${table.serviceModel} IN ('centralized', 'direct')`),
+]);
+
+export const insertServiceTemplateSchema = createInsertSchema(companyServiceTemplates).pick({
+  name: true,
+  defaultRate: true,
+  serviceModel: true,
+  serviceMarkup: true,
+  isActive: true,
+  sortOrder: true,
+});
+
+export const updateServiceTemplateSchema = z.object({
+  name: z.string().optional(),
+  defaultRate: z.number().min(0).max(1).optional(),
+  serviceModel: z.enum(['centralized', 'direct']).optional(),
+  serviceMarkup: z.number().min(0).max(1).optional(),
+  isActive: z.boolean().optional(),
+  sortOrder: z.number().optional(),
+});
+
+export type ServiceTemplate = typeof companyServiceTemplates.$inferSelect;
+export type InsertServiceTemplate = z.infer<typeof insertServiceTemplateSchema>;
+export type UpdateServiceTemplate = z.infer<typeof updateServiceTemplateSchema>;
 
 // --- PROPERTY FEE CATEGORIES TABLE ---
 // Granular breakdown of the management company's base fee for each property.

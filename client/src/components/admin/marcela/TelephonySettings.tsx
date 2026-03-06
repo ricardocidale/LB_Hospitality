@@ -22,7 +22,8 @@ export function TelephonySettings({ draft, updateField, twilioStatus }: Telephon
   const { toast } = useToast();
   const sendTestSms = useSendTestSms();
   const [testSmsTo, setTestSmsTo] = useState("");
-  const [testSmsBody, setTestSmsBody] = useState("Hello from Marcela! This is a test message from Hospitality Business Group.");
+  const agentName = draft.aiAgentName || "AI Agent";
+  const [testSmsBody, setTestSmsBody] = useState(`Hello from ${agentName}! This is a test message from Hospitality Business Group.`);
 
   const baseUrl = typeof window !== "undefined"
     ? `${window.location.protocol}//${window.location.host}`
@@ -45,7 +46,7 @@ export function TelephonySettings({ draft, updateField, twilioStatus }: Telephon
               Telephony & SMS (Twilio)
             </CardTitle>
             <CardDescription className="label-text mt-1">
-              Configure phone calls and SMS messaging for Marcela via Twilio.
+              Configure phone calls and SMS messaging for {agentName} via Twilio.
             </CardDescription>
           </div>
           <div className="flex items-center gap-2">
@@ -88,7 +89,7 @@ export function TelephonySettings({ draft, updateField, twilioStatus }: Telephon
               Phone Calls
             </Label>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Allow inbound phone calls to Marcela via Twilio Voice
+              Allow inbound phone calls to {agentName} via Twilio Voice
             </p>
           </div>
           <Switch
@@ -106,7 +107,7 @@ export function TelephonySettings({ draft, updateField, twilioStatus }: Telephon
               SMS Messages
             </Label>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Allow inbound SMS messages to Marcela via Twilio SMS
+              Allow inbound SMS messages to {agentName} via Twilio SMS
             </p>
           </div>
           <Switch
@@ -124,7 +125,7 @@ export function TelephonySettings({ draft, updateField, twilioStatus }: Telephon
           <Textarea
             value={draft.marcelaPhoneGreeting}
             onChange={(e) => updateField("marcelaPhoneGreeting", e.target.value)}
-            placeholder="Hello, this is Marcela..."
+            placeholder={`Hello, this is ${agentName}...`}
             className="bg-white min-h-[80px] text-sm"
             data-testid="textarea-phone-greeting"
           />

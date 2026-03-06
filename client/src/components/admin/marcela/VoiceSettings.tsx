@@ -24,7 +24,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
             Text-to-Speech (ElevenLabs)
           </CardTitle>
           <CardDescription className="label-text">
-            Configure the voice synthesis settings for Marcela's spoken responses.
+            Configure the voice synthesis settings for the agent's spoken responses.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">

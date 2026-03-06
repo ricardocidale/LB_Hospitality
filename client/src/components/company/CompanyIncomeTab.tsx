@@ -183,7 +183,61 @@ export default function CompanyIncomeTab({
               </TableRow>
             ))}
             
-            <TableRow 
+            {/* Cost of Centralized Services — vendor costs for pass-through services */}
+            {financials.some(m => m.totalVendorCost > 0) && (
+              <>
+                <TableRow
+                  className="cursor-pointer hover:bg-gray-50"
+                  onClick={() => toggleRow('vendorCosts')}
+                  data-testid="row-vendor-costs"
+                >
+                  <TableCell className="sticky left-0 bg-white pl-6 flex items-center gap-2 text-amber-700">
+                    {expandedRows.has('vendorCosts') ? (
+                      <ChevronDown className="w-4 h-4 text-amber-500" />
+                    ) : (
+                      <ChevronRight className="w-4 h-4 text-amber-500" />
+                    )}
+                    Cost of Centralized Services
+                  </TableCell>
+                  {Array.from({ length: projectionYears }, (_, y) => {
+                    const yearData = financials.slice(y * 12, (y + 1) * 12);
+                    const total = yearData.reduce((a, m) => a + m.totalVendorCost, 0);
+                    return <TableCell key={y} className="text-right text-amber-700 font-mono">({formatMoney(total)})</TableCell>;
+                  })}
+                </TableRow>
+                {expandedRows.has('vendorCosts') && (() => {
+                  const costData = financials.find(m => m.costOfCentralizedServices)?.costOfCentralizedServices;
+                  if (!costData) return null;
+                  return Object.entries(costData.byCategory)
+                    .filter(([, v]) => v.serviceModel === 'centralized')
+                    .map(([catName]) => (
+                      <TableRow key={`vendor-${catName}`} className="bg-amber-50/30">
+                        <TableCell className="sticky left-0 bg-amber-50/30 pl-12 text-sm text-amber-600">
+                          {catName}
+                        </TableCell>
+                        {Array.from({ length: projectionYears }, (_, y) => {
+                          const yearData = financials.slice(y * 12, (y + 1) * 12);
+                          const total = yearData.reduce((a, m) => {
+                            const cat = m.costOfCentralizedServices?.byCategory?.[catName];
+                            return a + (cat?.vendorCost ?? 0);
+                          }, 0);
+                          return <TableCell key={y} className="text-right text-sm text-amber-600 font-mono">({formatMoney(total)})</TableCell>;
+                        })}
+                      </TableRow>
+                    ));
+                })()}
+                <TableRow className="bg-emerald-50/60 font-semibold border-gray-200">
+                  <TableCell className="sticky left-0 bg-emerald-50/60 text-emerald-800">Gross Profit</TableCell>
+                  {Array.from({ length: projectionYears }, (_, y) => {
+                    const yearData = financials.slice(y * 12, (y + 1) * 12);
+                    const total = yearData.reduce((a, m) => a + m.grossProfit, 0);
+                    return <TableCell key={y} className="text-right text-emerald-800 font-mono">{formatMoney(total)}</TableCell>;
+                  })}
+                </TableRow>
+              </>
+            )}
+
+            <TableRow
               className="bg-gray-50 font-semibold cursor-pointer hover:bg-gray-100"
               onClick={() => toggleRow('opex')}
             >

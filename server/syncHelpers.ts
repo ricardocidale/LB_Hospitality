@@ -1,4 +1,5 @@
 import type { IStorage } from "./storage";
+import { seedServiceTemplates } from "./seeds/services";
 import {
   DEFAULT_BASE_MANAGEMENT_FEE_RATE,
   DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
@@ -32,6 +33,7 @@ export interface SyncResults {
   properties: { created: number; skipped: number; filled: number };
   propertyFeeCategories: { created: number; skipped: number };
   designThemes: { created: number; skipped: number };
+  serviceTemplates: { created: number; skipped: number };
 }
 
 export const SEED_GLOBAL_ASSUMPTIONS = {
@@ -128,6 +130,7 @@ export async function runFillOnlySync(storage: IStorage, generateResearchValues?
     properties: { created: 0, skipped: 0, filled: 0 },
     propertyFeeCategories: { created: 0, skipped: 0 },
     designThemes: { created: 0, skipped: 0 },
+    serviceTemplates: { created: 0, skipped: 0 },
   };
 
   const existingAssumptions = await storage.getGlobalAssumptions();
@@ -255,6 +258,14 @@ export async function runFillOnlySync(storage: IStorage, generateResearchValues?
     } else {
       results.designThemes.skipped++;
     }
+  }
+
+  // Seed service templates (idempotent — seedServiceTemplates skips if any exist)
+  try {
+    await seedServiceTemplates();
+    results.serviceTemplates.created = 1; // seedServiceTemplates logs its own count
+  } catch {
+    results.serviceTemplates.skipped = 1;
   }
 
   return results;

@@ -31,7 +31,8 @@ Comprehensive library of documentation, helper functions, scripts, and examples 
 │   ├── prompt-templates.md              ★ Ready-to-use prompt templates (7 use cases)
 │   ├── multi-agent.md                   ★ Multi-agent transfers & orchestration patterns
 │   ├── guardrails.md                    ★ Safety, manipulation detection, custom rules
-│   └── agent-workflows.md              ★ Visual workflow builder & node types
+│   ├── agent-workflows.md              ★ Visual workflow builder & node types
+│   └── ui-components.md               ★ ElevenLabs UI component library (shadcn-based)
 │
 ├── helpers/                              Reusable TypeScript utility functions
 │   ├── index.ts                          Barrel export
@@ -118,6 +119,7 @@ ELEVENLABS_API_KEY=xxx npx ts-node .claude/skills/elevenlabs/scripts/usage-repor
 | Vanilla JS/TS browser app | `@elevenlabs/client` | `docs/client-sdk.md` |
 | Simple HTML page | `@elevenlabs/convai-widget-embed` (CDN) | `docs/widget.md` |
 | React Native mobile app | `@elevenlabs/react-native` | `docs/overview.md` |
+| Pre-built UI components (shadcn) | `@elevenlabs/cli` (source install) | `docs/ui-components.md` |
 
 ## Agent Design Quick Reference
 

@@ -17,6 +17,7 @@ export interface VoiceSettings {
   marcelaTwilioEnabled: boolean;
   marcelaSmsEnabled: boolean;
   marcelaPhoneGreeting: string;
+  marcelaLanguage: string;
 }
 
 export interface TwilioStatus {

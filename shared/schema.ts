@@ -422,6 +422,7 @@ export const globalAssumptions = pgTable("global_assumptions", {
   marcelaTwilioEnabled: boolean("marcela_twilio_enabled").notNull().default(false),
   marcelaSmsEnabled: boolean("marcela_sms_enabled").notNull().default(false),
   marcelaPhoneGreeting: text("marcela_phone_greeting").notNull().default("Hello, this is Marcela from Hospitality Business Group. How can I help you today?"),
+  marcelaLanguage: text("marcela_language").notNull().default("en"),
 
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => [
@@ -564,6 +565,7 @@ export const insertGlobalAssumptionsSchema = createInsertSchema(globalAssumption
   marcelaTwilioEnabled: true,
   marcelaSmsEnabled: true,
   marcelaPhoneGreeting: true,
+  marcelaLanguage: true,
 });
 
 export const selectGlobalAssumptionsSchema = createSelectSchema(globalAssumptions);

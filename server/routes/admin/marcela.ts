@@ -35,6 +35,7 @@ export function registerMarcelaRoutes(app: Express) {
         marcelaTwilioEnabled: ga.marcelaTwilioEnabled,
         marcelaSmsEnabled: ga.marcelaSmsEnabled,
         marcelaPhoneGreeting: ga.marcelaPhoneGreeting,
+        marcelaLanguage: ga.marcelaLanguage,
       });
     } catch (error) {
       logAndSendError(res, "Failed to fetch voice settings", error);
@@ -50,7 +51,7 @@ export function registerMarcelaRoutes(app: Express) {
         "marcelaStability", "marcelaSimilarityBoost", "marcelaSpeakerBoost",
         "marcelaChunkSchedule", "marcelaLlmModel", "marcelaMaxTokens",
         "marcelaMaxTokensVoice", "marcelaEnabled", "showAiAssistant",
-        "marcelaTwilioEnabled", "marcelaSmsEnabled", "marcelaPhoneGreeting",
+        "marcelaTwilioEnabled", "marcelaSmsEnabled", "marcelaPhoneGreeting", "marcelaLanguage",
       ] as const;
       const patch: Partial<Record<string, unknown>> = {};
       for (const field of allowedFields) {
@@ -194,6 +195,10 @@ export function registerMarcelaRoutes(app: Express) {
           },
         },
       });
+      // Persist language locally so the widget can read it without an admin API call
+      if (language) {
+        await storage.upsertGlobalAssumptions({ ...ga, marcelaLanguage: language } as any);
+      }
       res.json(updated);
     } catch (error: any) {
       logAndSendError(res, error.message || "Failed to update agent prompt", error);

@@ -51,7 +51,9 @@ type NavItem = NavLink | NavDivider | NavGroup;
 function MarcelaWidgetGated() {
   const { data: global } = useGlobalAssumptions();
   const { tourActive, promptVisible } = useWalkthroughStore();
-  const enabled = !!(global as any)?.showAiAssistant && !tourActive && !promptVisible;
+  const [location] = useLocation();
+  const onAdminPage = location.startsWith("/admin");
+  const enabled = !!(global as any)?.showAiAssistant && !!(global as any)?.marcelaEnabled && !tourActive && !promptVisible && !onAdminPage;
   return <ElevenLabsWidget enabled={enabled} />;
 }
 

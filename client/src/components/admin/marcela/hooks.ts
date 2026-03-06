@@ -119,26 +119,6 @@ export function useUploadKnowledgeBase() {
   });
 }
 
-export function useConfigureAgentTools() {
-  const { toast } = useToast();
-
-  return useMutation({
-    mutationFn: async () => {
-      const res = await apiRequest("POST", "/api/admin/convai/configure-tools");
-      return res.json();
-    },
-    onSuccess: () => {
-      toast({
-        title: "Agent Tools Configured",
-        description: "All client and server tools registered with ElevenLabs",
-      });
-    },
-    onError: (err: Error) => {
-      toast({ title: "Configuration Failed", description: err.message, variant: "destructive" });
-    },
-  });
-}
-
 export function useAgentConfig() {
   return useQuery<any>({
     queryKey: ["admin", "convai-agent"],
@@ -167,17 +147,6 @@ export function useSaveAgentPrompt() {
     onError: (err: Error) => {
       toast({ title: "Save failed", description: err.message, variant: "destructive" });
     },
-  });
-}
-
-export function useToolsStatus() {
-  return useQuery<any[]>({
-    queryKey: ["admin", "convai-tools-status"],
-    queryFn: async () => {
-      const res = await apiRequest("GET", "/api/admin/convai/tools-status");
-      return res.json();
-    },
-    retry: false,
   });
 }
 

@@ -17,7 +17,7 @@
  * User data is fetched via TanStack Query from GET /api/admin/users
  * and mutations go to POST/PATCH/DELETE /api/admin/users.
  */
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -27,11 +27,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { GlassButton } from "@/components/ui/glass-button";
-import { Loader2, Trash2, Users, Key, Eye, EyeOff, Pencil, Calendar, UserPlus, Shield, Mail, LayoutGrid, Settings, Save } from "lucide-react";
+import { Loader2, Trash2, Users, Key, Eye, EyeOff, Pencil, Calendar, UserPlus, Shield, Mail, LayoutGrid, Settings, Save, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { formatDateTime } from "@/lib/formatters";
 import { UserAvatar } from "@/components/ui/user-avatar";
-import type { User } from "./types";
+import { adminFetch } from "./hooks";
+import type { User, UserGroup } from "./types";
+
+type SortField = "name" | "role" | "group";
+type SortDir = "asc" | "desc";
 
 export default function UsersTab() {
   const { toast } = useToast();
@@ -48,6 +52,8 @@ export default function UsersTab() {
   const [originalEmail, setOriginalEmail] = useState("");
   const [showNewUserPassword, setShowNewUserPassword] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
+  const [sortField, setSortField] = useState<SortField>("name");
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
 
   const { data: users, isLoading: usersLoading } = useQuery<User[]>({
     queryKey: ["admin", "users"],
@@ -57,6 +63,54 @@ export default function UsersTab() {
       return res.json();
     },
   });
+
+  const { data: userGroupsList } = useQuery<UserGroup[]>({
+    queryKey: ["admin", "user-groups"],
+    queryFn: adminFetch<UserGroup[]>("/api/user-groups", "Failed to fetch user groups"),
+  });
+
+  const groupNameMap = useMemo(() => {
+    const map: Record<number, string> = {};
+    userGroupsList?.forEach(g => { map[g.id] = g.name; });
+    return map;
+  }, [userGroupsList]);
+
+  const toggleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDir(d => d === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortDir("asc");
+    }
+  };
+
+  const SortIcon = ({ field }: { field: SortField }) => {
+    if (sortField !== field) return <ArrowUpDown className="w-3.5 h-3.5 opacity-40" />;
+    return sortDir === "asc" ? <ArrowUp className="w-3.5 h-3.5" /> : <ArrowDown className="w-3.5 h-3.5" />;
+  };
+
+  const sortedUsers = useMemo(() => {
+    if (!users) return [];
+    const sorted = [...users].sort((a, b) => {
+      let cmp = 0;
+      switch (sortField) {
+        case "name":
+          cmp = (a.name || a.email).localeCompare(b.name || b.email);
+          break;
+        case "role":
+          cmp = a.role.localeCompare(b.role);
+          break;
+        case "group": {
+          const ga = (a.userGroupId ? groupNameMap[a.userGroupId] : "") || "";
+          const gb = (b.userGroupId ? groupNameMap[b.userGroupId] : "") || "";
+          cmp = ga.localeCompare(gb);
+          break;
+        }
+      }
+      return sortDir === "asc" ? cmp : -cmp;
+    });
+    return sorted;
+  }, [users, sortField, sortDir, groupNameMap]);
 
   const createMutation = useMutation({
     mutationFn: async (data: { email: string; password: string; firstName?: string; lastName?: string; company?: string; title?: string; role?: string }) => {
@@ -209,14 +263,15 @@ export default function UsersTab() {
           <Table>
             <TableHeader>
               <TableRow className="border-primary/20 hover:bg-transparent">
-                <TableHead className="text-muted-foreground font-display"><div className="flex items-center gap-2"><Users className="w-4 h-4" />User</div></TableHead>
-                <TableHead className="text-muted-foreground font-display"><div className="flex items-center gap-2"><Shield className="w-4 h-4" />Role</div></TableHead>
+                <TableHead className="text-muted-foreground font-display cursor-pointer select-none" onClick={() => toggleSort("name")} data-testid="sort-user-name"><div className="flex items-center gap-2"><Users className="w-4 h-4" />User <SortIcon field="name" /></div></TableHead>
+                <TableHead className="text-muted-foreground font-display cursor-pointer select-none" onClick={() => toggleSort("role")} data-testid="sort-user-role"><div className="flex items-center gap-2"><Shield className="w-4 h-4" />Role <SortIcon field="role" /></div></TableHead>
+                <TableHead className="text-muted-foreground font-display cursor-pointer select-none" onClick={() => toggleSort("group")} data-testid="sort-user-group"><div className="flex items-center gap-2"><LayoutGrid className="w-4 h-4" />Group <SortIcon field="group" /></div></TableHead>
                 <TableHead className="text-muted-foreground font-display"><div className="flex items-center gap-2"><Calendar className="w-4 h-4" />Created</div></TableHead>
                 <TableHead className="text-muted-foreground font-display text-right"><div className="flex items-center justify-end gap-2"><Settings className="w-4 h-4" />Actions</div></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {users?.map((user) => (
+              {sortedUsers.map((user) => (
                 <TableRow key={user.id} className="border-primary/20 hover:bg-primary/5" data-testid={`row-user-${user.id}`}>
                   <TableCell>
                     <div className="flex items-center gap-3">
@@ -232,6 +287,7 @@ export default function UsersTab() {
                       {user.role}
                     </span>
                   </TableCell>
+                  <TableCell className="text-sm text-muted-foreground">{user.userGroupId ? groupNameMap[user.userGroupId] || "—" : "—"}</TableCell>
                   <TableCell className="text-muted-foreground font-mono text-sm">{formatDateTime(user.createdAt)}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">

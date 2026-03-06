@@ -1,7 +1,18 @@
-import type { Request } from "express";
+import type { Request, Response } from "express";
 import { storage } from "../storage";
 import { VALID_USER_ROLES } from "@shared/schema";
 import { z } from "zod";
+
+/** Send a JSON error response. */
+export function sendError(res: Response, status: number, message: string) {
+  return res.status(status).json({ error: message });
+}
+
+/** Log an error to console and send a 500 JSON response. */
+export function logAndSendError(res: Response, message: string, error: unknown) {
+  console.error(message, error);
+  return sendError(res, 500, message);
+}
 
 /** Combine first + last name into a display-friendly string. Returns null if both are empty. */
 export function fullName(user: { firstName?: string | null; lastName?: string | null }): string | null {

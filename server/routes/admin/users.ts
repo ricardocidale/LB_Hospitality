@@ -1,7 +1,7 @@
 import { type Express } from "express";
 import { storage } from "../../storage";
-import { requireAdmin } from "../../auth";
-import { userResponse, createUserSchema } from "../helpers";
+import { requireAdmin, validatePassword } from "../../auth";
+import { userResponse, createUserSchema, logAndSendError } from "../helpers";
 import { fromZodError } from "zod-validation-error";
 import { hashPassword } from "../../auth";
 
@@ -16,8 +16,7 @@ export function registerUserRoutes(app: Express) {
       const users = await storage.getAllUsers();
       res.json(users.map((u: any) => ({ ...userResponse(u), createdAt: u.createdAt, userGroupId: u.userGroupId })));
     } catch (error) {
-      console.error("Error fetching users:", error);
-      res.status(500).json({ error: "Failed to fetch users" });
+      logAndSendError(res, "Failed to fetch users", error);
     }
   });
 
@@ -49,8 +48,7 @@ export function registerUserRoutes(app: Express) {
 
       res.status(201).json(userResponse(user));
     } catch (error) {
-      console.error("Error creating user:", error);
-      res.status(500).json({ error: "Failed to create user" });
+      logAndSendError(res, "Failed to create user", error);
     }
   });
 
@@ -80,8 +78,7 @@ export function registerUserRoutes(app: Express) {
 
       res.json({ success: true });
     } catch (error) {
-      console.error("Error updating user:", error);
-      res.status(500).json({ error: "Failed to update user" });
+      logAndSendError(res, "Failed to update user", error);
     }
   });
 
@@ -97,8 +94,7 @@ export function registerUserRoutes(app: Express) {
       await storage.updateUserRole(id, role);
       res.json({ success: true });
     } catch (error) {
-      console.error("Error updating user role:", error);
-      res.status(500).json({ error: "Failed to update user role" });
+      logAndSendError(res, "Failed to update user role", error);
     }
   });
 
@@ -112,8 +108,7 @@ export function registerUserRoutes(app: Express) {
       await storage.deleteUser(id);
       res.json({ success: true });
     } catch (error) {
-      console.error("Error deleting user:", error);
-      res.status(500).json({ error: "Failed to delete user" });
+      logAndSendError(res, "Failed to delete user", error);
     }
   });
 
@@ -121,15 +116,15 @@ export function registerUserRoutes(app: Express) {
     try {
       const id = Number(req.params.id);
       const { password } = req.body;
-      if (!password || password.length < 4) {
-        return res.status(400).json({ error: "Password must be at least 4 characters" });
+      const validation = validatePassword(password ?? "");
+      if (!validation.valid) {
+        return res.status(400).json({ error: validation.message });
       }
       const passwordHash = await hashPassword(password);
       await storage.updateUserPassword(id, passwordHash);
       res.json({ success: true });
     } catch (error) {
-      console.error("Error updating user password:", error);
-      res.status(500).json({ error: "Failed to update password" });
+      logAndSendError(res, "Failed to update password", error);
     }
   });
 
@@ -140,24 +135,27 @@ export function registerUserRoutes(app: Express) {
       const user = await storage.assignUserToGroup(id, groupId ?? null);
       res.json(user);
     } catch (error) {
-      console.error("Error assigning user to group:", error);
-      res.status(500).json({ error: "Failed to assign user to group" });
+      logAndSendError(res, "Failed to assign user to group", error);
     }
   });
 
   app.post("/api/admin/reset-all-passwords", requireAdmin, async (req, res) => {
     try {
+      const { password } = req.body;
+      const pwValidation = validatePassword(password ?? "");
+      if (!pwValidation.valid) {
+        return res.status(400).json({ error: pwValidation.message });
+      }
       const allUsers = await storage.getAllUsers();
-      const defaultHash = await hashPassword("admin");
+      const newHash = await hashPassword(password);
       let count = 0;
       for (const user of allUsers) {
-        await storage.updateUserPassword(user.id, defaultHash);
+        await storage.updateUserPassword(user.id, newHash);
         count++;
       }
       res.json({ success: true, message: `Reset passwords for ${count} users` });
     } catch (error) {
-      console.error("Error resetting all passwords:", error);
-      res.status(500).json({ error: "Failed to reset passwords" });
+      logAndSendError(res, "Failed to reset passwords", error);
     }
   });
 }

@@ -14,7 +14,7 @@ const CHUNK_OVERLAP = 100;
 const TOP_K = 8;
 const MAX_RAG_CONTEXT_CHARS = 4000;
 
-function splitIntoChunks(text: string, title: string, source: string, category: string): { title: string; content: string; source: string; category: string }[] {
+export function splitIntoChunks(text: string, title: string, source: string, category: string): { title: string; content: string; source: string; category: string }[] {
   const paragraphs = text.split(/\n\n+/).filter(p => p.trim().length > 20);
   const chunks: { title: string; content: string; source: string; category: string }[] = [];
   let current = "";
@@ -617,7 +617,7 @@ async function generateEmbeddings(texts: string[]): Promise<number[][]> {
   return results;
 }
 
-function cosineSimilarity(a: number[], b: number[]): number {
+export function cosineSimilarity(a: number[], b: number[]): number {
   let dot = 0, normA = 0, normB = 0;
   for (let i = 0; i < a.length; i++) {
     dot += a[i] * b[i];

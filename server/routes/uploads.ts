@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { requireAuth } from "../auth";
 import { ObjectStorageService } from "../replit_integrations/object_storage";
-import { logActivity } from "./helpers";
+import { logActivity, logAndSendError } from "./helpers";
 
 export function register(app: Express) {
   // ────────────────────────────────────────────────────────────
@@ -30,8 +30,7 @@ export function register(app: Express) {
         metadata: { name, size, contentType }
       });
     } catch (error) {
-      console.error("Error generating presigned URL:", error);
-      res.status(500).json({ error: "Failed to generate upload URL" });
+      logAndSendError(res, "Failed to generate upload URL", error);
     }
   });
 }

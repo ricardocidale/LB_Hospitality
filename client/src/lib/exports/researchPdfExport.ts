@@ -46,7 +46,7 @@ async function fetchBranding(): Promise<BrandingData> {
     const res = await fetch("/api/branding", { credentials: "include" });
     if (res.ok) return await res.json();
   } catch { /* branding fetch optional */ }
-  return { userName: "", companyName: "Hospitality Business Group", logoUrl: null };
+  return { userName: "", companyName: "", logoUrl: null };
 }
 
 /** Convert a logo URL into a base64 data URI that jsPDF can embed in the PDF. */

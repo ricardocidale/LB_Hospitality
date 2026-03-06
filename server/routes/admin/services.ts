@@ -3,6 +3,7 @@ import { requireAdmin } from "../../auth";
 import { updateServiceTemplateSchema, insertServiceTemplateSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { ServiceStorage } from "../../storage/services";
+import { logAndSendError } from "../helpers";
 
 const serviceStorage = new ServiceStorage();
 
@@ -18,8 +19,7 @@ export function registerServiceRoutes(app: Express) {
       const templates = await serviceStorage.getAllServiceTemplates();
       res.json(templates);
     } catch (error) {
-      console.error("Error fetching service templates:", error);
-      res.status(500).json({ error: "Failed to fetch service templates" });
+      logAndSendError(res, "Failed to fetch service templates", error);
     }
   });
 
@@ -32,8 +32,7 @@ export function registerServiceRoutes(app: Express) {
       const template = await serviceStorage.createServiceTemplate(validation.data);
       res.status(201).json(template);
     } catch (error) {
-      console.error("Error creating service template:", error);
-      res.status(500).json({ error: "Failed to create service template" });
+      logAndSendError(res, "Failed to create service template", error);
     }
   });
 
@@ -51,8 +50,7 @@ export function registerServiceRoutes(app: Express) {
       if (!template) return res.status(404).json({ error: "Service template not found" });
       res.json(template);
     } catch (error) {
-      console.error("Error updating service template:", error);
-      res.status(500).json({ error: "Failed to update service template" });
+      logAndSendError(res, "Failed to update service template", error);
     }
   });
 
@@ -67,8 +65,7 @@ export function registerServiceRoutes(app: Express) {
       await serviceStorage.deleteServiceTemplate(id);
       res.json({ success: true });
     } catch (error) {
-      console.error("Error deleting service template:", error);
-      res.status(500).json({ error: "Failed to delete service template" });
+      logAndSendError(res, "Failed to delete service template", error);
     }
   });
 
@@ -80,8 +77,7 @@ export function registerServiceRoutes(app: Express) {
         ...result,
       });
     } catch (error) {
-      console.error("Error syncing service templates:", error);
-      res.status(500).json({ error: "Failed to sync service templates to properties" });
+      logAndSendError(res, "Failed to sync service templates to properties", error);
     }
   });
 }

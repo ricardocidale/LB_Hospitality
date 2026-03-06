@@ -12,6 +12,7 @@ import {
   DAYS_PER_MONTH,
   DEPRECIATION_YEARS,
 } from "@/lib/constants";
+import { baseProperty, makeGlobal } from "../fixtures";
 
 /**
  * Tests for aggregateCashFlowByYear() — the single source of truth
@@ -25,49 +26,7 @@ import {
 // Base fixtures (mirrors proforma-edge-cases.test.ts patterns)
 // ---------------------------------------------------------------------------
 
-const baseProperty = {
-  operationsStartDate: "2026-04-01",
-  acquisitionDate: "2026-04-01",
-  roomCount: 10,
-  startAdr: 200,
-  adrGrowthRate: 0.03,
-  startOccupancy: 0.60,
-  maxOccupancy: 0.80,
-  occupancyRampMonths: 6,
-  occupancyGrowthStep: 0.05,
-  purchasePrice: 1_000_000,
-  buildingImprovements: 0,
-  landValuePercent: 0.25,
-  type: "Full Equity",
-  costRateRooms: 0.20,
-  costRateFB: 0.09,
-  costRateAdmin: 0.08,
-  costRateMarketing: 0.01,
-  costRatePropertyOps: 0.04,
-  costRateUtilities: 0.05,
-  costRateInsurance: 0.02,
-  costRateTaxes: 0.03,
-  costRateIT: 0.005,
-  costRateFFE: 0.04,
-  costRateOther: 0.05,
-  revShareEvents: 0.43,
-  revShareFB: 0.22,
-  revShareOther: 0.07,
-  cateringBoostPercent: 0.30,
-};
-
-const baseGlobal = {
-  modelStartDate: "2026-04-01",
-  projectionYears: 10,
-  inflationRate: 0.03,
-  fixedCostEscalationRate: 0.03,
-  marketingRate: 0.05,
-  debtAssumptions: {
-    interestRate: 0.09,
-    amortizationYears: 25,
-    acqLTV: 0.75,
-  },
-};
+const baseGlobal = makeGlobal({ projectionYears: 10 });
 
 /** Adapt a property object to the LoanParams interface required by the aggregator. */
 function toLoanParams(prop: typeof baseProperty): LoanParams {

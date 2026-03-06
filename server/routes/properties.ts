@@ -3,7 +3,7 @@ import { storage } from "../storage";
 import { requireAuth, requireManagementAccess } from "../auth";
 import { insertPropertySchema, updatePropertySchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
-import { logActivity } from "./helpers";
+import { logActivity, logAndSendError } from "./helpers";
 import { generateLocationAwareResearchValues } from "../researchSeeds";
 
 export function register(app: Express) {
@@ -20,8 +20,7 @@ export function register(app: Express) {
       const properties = await storage.getAllProperties(req.user!.id);
       res.json(properties);
     } catch (error) {
-      console.error("Error fetching properties:", error);
-      res.status(500).json({ error: "Failed to fetch properties" });
+      logAndSendError(res, "Failed to fetch properties", error);
     }
   });
 
@@ -33,8 +32,7 @@ export function register(app: Express) {
       }
       res.json(property);
     } catch (error) {
-      console.error("Error fetching property:", error);
-      res.status(500).json({ error: "Failed to fetch property" });
+      logAndSendError(res, "Failed to fetch property", error);
     }
   });
 
@@ -57,8 +55,7 @@ export function register(app: Express) {
       logActivity(req, "create", "property", property.id, property.name);
       res.status(201).json(property);
     } catch (error) {
-      console.error("Error creating property:", error);
-      res.status(500).json({ error: "Failed to create property" });
+      logAndSendError(res, "Failed to create property", error);
     }
   });
 
@@ -78,8 +75,7 @@ export function register(app: Express) {
       logActivity(req, "update", "property", property.id, property.name, { updates: req.body });
       res.json(property);
     } catch (error) {
-      console.error("Error updating property:", error);
-      res.status(500).json({ error: "Failed to update property" });
+      logAndSendError(res, "Failed to update property", error);
     }
   });
 
@@ -95,8 +91,7 @@ export function register(app: Express) {
       logActivity(req, "delete", "property", id, property.name);
       res.json({ success: true });
     } catch (error) {
-      console.error("Error deleting property:", error);
-      res.status(500).json({ error: "Failed to delete property" });
+      logAndSendError(res, "Failed to delete property", error);
     }
   });
 
@@ -124,8 +119,7 @@ export function register(app: Express) {
       logActivity(req, "seed-research", "property", id, property.name);
       res.json(updated);
     } catch (error) {
-      console.error("Error seeding research:", error);
-      res.status(500).json({ error: "Failed to seed research" });
+      logAndSendError(res, "Failed to seed research", error);
     }
   });
 
@@ -135,8 +129,7 @@ export function register(app: Express) {
       const categories = await storage.getFeeCategoriesByProperty(Number(req.params.id));
       res.json(categories);
     } catch (error) {
-      console.error("Error fetching fee categories:", error);
-      res.status(500).json({ error: "Failed to fetch fee categories" });
+      logAndSendError(res, "Failed to fetch fee categories", error);
     }
   });
 
@@ -168,8 +161,7 @@ export function register(app: Express) {
       logActivity(req, "update", "fee-categories", propertyId);
       res.json(results);
     } catch (error) {
-      console.error("Error saving fee categories:", error);
-      res.status(500).json({ error: "Failed to save fee categories" });
+      logAndSendError(res, "Failed to save fee categories", error);
     }
   });
 
@@ -178,8 +170,7 @@ export function register(app: Express) {
       const categories = await storage.getAllFeeCategories();
       res.json(categories);
     } catch (error) {
-      console.error("Error fetching all fee categories:", error);
-      res.status(500).json({ error: "Failed to fetch fee categories" });
+      logAndSendError(res, "Failed to fetch fee categories", error);
     }
   });
 }

@@ -3,7 +3,7 @@ import { storage } from "../storage";
 import { requireAuth } from "../auth";
 import { insertProspectivePropertySchema, insertSavedSearchSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
-import { logActivity } from "./helpers";
+import { logActivity, logAndSendError } from "./helpers";
 import { z } from "zod";
 
 export function register(app: Express) {
@@ -18,8 +18,7 @@ export function register(app: Express) {
       const properties = await storage.getProspectiveProperties(req.user!.id);
       res.json(properties);
     } catch (error) {
-      console.error("Error fetching prospective properties:", error);
-      res.status(500).json({ error: "Failed to fetch prospective properties" });
+      logAndSendError(res, "Failed to fetch prospective properties", error);
     }
   });
 
@@ -38,8 +37,7 @@ export function register(app: Express) {
       logActivity(req, "favorite", "prospective_property", property.id, property.address);
       res.status(201).json(property);
     } catch (error) {
-      console.error("Error adding prospective property:", error);
-      res.status(500).json({ error: "Failed to add prospective property" });
+      logAndSendError(res, "Failed to add prospective property", error);
     }
   });
 
@@ -48,8 +46,7 @@ export function register(app: Express) {
       await storage.deleteProspectiveProperty(Number(req.params.id), req.user!.id);
       res.json({ success: true });
     } catch (error) {
-      console.error("Error deleting prospective property:", error);
-      res.status(500).json({ error: "Failed to delete prospective property" });
+      logAndSendError(res, "Failed to delete prospective property", error);
     }
   });
 
@@ -64,8 +61,7 @@ export function register(app: Express) {
       if (!property) return res.status(404).json({ error: "Property not found" });
       res.json(property);
     } catch (error) {
-      console.error("Error updating prospective property notes:", error);
-      res.status(500).json({ error: "Failed to update notes" });
+      logAndSendError(res, "Failed to update notes", error);
     }
   });
 
@@ -83,8 +79,7 @@ export function register(app: Express) {
       const searches = await storage.getSavedSearches(req.user!.id);
       res.json(searches);
     } catch (error) {
-      console.error("Error fetching saved searches:", error);
-      res.status(500).json({ error: "Failed to fetch saved searches" });
+      logAndSendError(res, "Failed to fetch saved searches", error);
     }
   });
 
@@ -103,8 +98,7 @@ export function register(app: Express) {
       logActivity(req, "save-search", "saved_search", search.id, search.name);
       res.status(201).json(search);
     } catch (error) {
-      console.error("Error adding saved search:", error);
-      res.status(500).json({ error: "Failed to add saved search" });
+      logAndSendError(res, "Failed to add saved search", error);
     }
   });
 
@@ -113,8 +107,7 @@ export function register(app: Express) {
       await storage.deleteSavedSearch(Number(req.params.id), req.user!.id);
       res.json({ success: true });
     } catch (error) {
-      console.error("Error deleting saved search:", error);
-      res.status(500).json({ error: "Failed to delete saved search" });
+      logAndSendError(res, "Failed to delete saved search", error);
     }
   });
 }

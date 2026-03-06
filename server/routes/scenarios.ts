@@ -3,7 +3,7 @@ import { storage } from "../storage";
 import { requireManagementAccess, requireAuth } from "../auth";
 import { updateScenarioSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
-import { logActivity, createScenarioSchema, MAX_SCENARIOS_PER_USER } from "./helpers";
+import { logActivity, logAndSendError, createScenarioSchema, MAX_SCENARIOS_PER_USER } from "./helpers";
 
 export function register(app: Express) {
   // ────────────────────────────────────────────────────────────
@@ -16,8 +16,7 @@ export function register(app: Express) {
       const scenarios = await storage.getScenariosByUser(req.user!.id);
       res.json(scenarios);
     } catch (error) {
-      console.error("Error fetching scenarios:", error);
-      res.status(500).json({ error: "Failed to fetch scenarios" });
+      logAndSendError(res, "Failed to fetch scenarios", error);
     }
   });
 
@@ -54,8 +53,7 @@ export function register(app: Express) {
       logActivity(req, "create", "scenario", scenario.id, scenario.name);
       res.status(201).json(scenario);
     } catch (error) {
-      console.error("Error creating scenario:", error);
-      res.status(500).json({ error: "Failed to create scenario" });
+      logAndSendError(res, "Failed to create scenario", error);
     }
   });
 
@@ -73,8 +71,7 @@ export function register(app: Express) {
       logActivity(req, "update", "scenario", id, scenario.name);
       res.json(scenario);
     } catch (error) {
-      console.error("Error updating scenario:", error);
-      res.status(500).json({ error: "Failed to update scenario" });
+      logAndSendError(res, "Failed to update scenario", error);
     }
   });
 
@@ -94,8 +91,7 @@ export function register(app: Express) {
       logActivity(req, "load", "scenario", id, scenario.name);
       res.json({ success: true });
     } catch (error) {
-      console.error("Error loading scenario:", error);
-      res.status(500).json({ error: "Failed to load scenario" });
+      logAndSendError(res, "Failed to load scenario", error);
     }
   });
 
@@ -113,8 +109,7 @@ export function register(app: Express) {
       logActivity(req, "delete", "scenario", id, scenario.name);
       res.json({ success: true });
     } catch (error) {
-      console.error("Error deleting scenario:", error);
-      res.status(500).json({ error: "Failed to delete scenario" });
+      logAndSendError(res, "Failed to delete scenario", error);
     }
   });
 }

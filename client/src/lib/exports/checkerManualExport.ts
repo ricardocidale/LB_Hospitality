@@ -27,6 +27,7 @@ import {
 export interface ExportUser {
   email?: string;
   role?: string;
+  companyName?: string;
 }
 
 export interface ManualExportResult {
@@ -163,7 +164,7 @@ export async function exportManualPDF(user: ExportUser): Promise<ManualExportRes
   doc.setFont("helvetica", "bold");
   doc.setFontSize(22);
   doc.setTextColor(255, 255, 255);
-  doc.text("Hospitality Business Group", 14, 25);
+  doc.text(user.companyName || "Hospitality Business Group", 14, 25);
   doc.setFontSize(14);
   doc.setTextColor(159, 188, 164);
   doc.text("Checker Manual — Verification & Testing Guide", 14, 38);
@@ -328,7 +329,7 @@ export async function exportFullData(user: ExportUser): Promise<FullDataExportRe
   doc.setFont("helvetica", "bold");
   doc.setFontSize(18);
   doc.setTextColor(255, 255, 255);
-  doc.text("Hospitality Business Group — Full Data Export", 14, 18);
+  doc.text(`${user.companyName || "Hospitality Business Group"} — Full Data Export`, 14, 18);
   doc.setFontSize(9);
   doc.setTextColor(159, 188, 164);
   doc.text(`Generated: ${new Date().toLocaleString()} | User: ${user.email || "unknown"} (${user.role || "unknown"}) | Properties: ${properties.length}`, 14, 30);

@@ -12,7 +12,7 @@
  * tables automatically split across multiple slides (max 5 year-columns per
  * slide) to stay readable.
  *
- * Color palette follows the L&B Hospitality brand guidelines (sage green,
+ * Color palette follows the brand guidelines (sage green,
  * dark green, warm neutrals).
  */
 import pptxgen from "pptxgenjs";
@@ -33,11 +33,11 @@ interface SlideTableRow {
 }
 
 /** Create a dark-background title slide with brand name, report title, and date. */
-function addTitleSlide(pres: pptxgen, title: string, subtitle: string) {
+function addTitleSlide(pres: pptxgen, title: string, subtitle: string, companyName: string) {
   const slide = pres.addSlide();
   slide.background = { color: "1a2a3a" };
   slide.addShape(pres.ShapeType.rect, { x: 0, y: 0, w: "100%", h: 0.05, fill: { color: SAGE } });
-  slide.addText("Hospitality Business Group", {
+  slide.addText(companyName, {
     x: 0.5, y: 1.5, w: 9, h: 0.6,
     fontSize: 28, fontFace: "Arial", color: SAGE, bold: true,
   });
@@ -220,13 +220,13 @@ export interface PortfolioExportData {
  * Includes title slide, investment summary KPIs, and four financial tables
  * (Income Statement, Cash Flow, Balance Sheet, Investment Analysis).
  */
-export function exportPortfolioPPTX(data: PortfolioExportData) {
+export function exportPortfolioPPTX(data: PortfolioExportData, companyName = "Hospitality Business Group") {
   const pres = new pptxgen();
   pres.layout = "LAYOUT_WIDE";
-  pres.author = "Hospitality Business Group";
+  pres.author = companyName;
   pres.title = "Portfolio Investment Report";
 
-  addTitleSlide(pres, "Portfolio Investment Report", `${data.projectionYears}-Year Projection (${data.getFiscalYear(0)} – ${data.getFiscalYear(data.projectionYears - 1)})`);
+  addTitleSlide(pres, "Portfolio Investment Report", `${data.projectionYears}-Year Projection (${data.getFiscalYear(0)} – ${data.getFiscalYear(data.projectionYears - 1)})`, companyName);
 
   addMetricsSlide(pres, "Investment Summary", [
     { label: "Total Equity Invested", value: `$${(data.totalInitialEquity / 1000000).toFixed(1)}M` },
@@ -245,7 +245,7 @@ export function exportPortfolioPPTX(data: PortfolioExportData) {
   addFinancialTableSlide(pres, "Consolidated Balance Sheet", data.balanceSheetData.years, data.balanceSheetData.rows);
   addFinancialTableSlide(pres, "Investment Analysis", data.investmentData.years, data.investmentData.rows);
 
-  pres.writeFile({ fileName: "LB-Hospitality-Portfolio-Report.pptx" });
+  pres.writeFile({ fileName: "Portfolio-Investment-Report.pptx" });
 }
 
 export interface PropertyExportData {
@@ -261,13 +261,13 @@ export interface PropertyExportData {
  * Generate and download a single-property financial report as a PowerPoint deck.
  * Includes title slide plus Income Statement, Cash Flow, and Balance Sheet tables.
  */
-export function exportPropertyPPTX(data: PropertyExportData) {
+export function exportPropertyPPTX(data: PropertyExportData, companyName = "Hospitality Business Group") {
   const pres = new pptxgen();
   pres.layout = "LAYOUT_WIDE";
-  pres.author = "Hospitality Business Group";
+  pres.author = companyName;
   pres.title = `${data.propertyName} Financial Report`;
 
-  addTitleSlide(pres, data.propertyName, `${data.projectionYears}-Year Financial Projection`);
+  addTitleSlide(pres, data.propertyName, `${data.projectionYears}-Year Financial Projection`, companyName);
   addFinancialTableSlide(pres, `${data.propertyName} – Income Statement`, data.incomeData.years, data.incomeData.rows);
   addFinancialTableSlide(pres, `${data.propertyName} – Cash Flow Statement`, data.cashFlowData.years, data.cashFlowData.rows);
   addFinancialTableSlide(pres, `${data.propertyName} – Balance Sheet`, data.balanceSheetData.years, data.balanceSheetData.rows);
@@ -288,16 +288,16 @@ export interface CompanyExportData {
  * Generate and download a management company financial report as a PowerPoint deck.
  * Includes title slide plus Income Statement, Cash Flow, and Balance Sheet tables.
  */
-export function exportCompanyPPTX(data: CompanyExportData) {
+export function exportCompanyPPTX(data: CompanyExportData, companyName = "Hospitality Business Group") {
   const pres = new pptxgen();
   pres.layout = "LAYOUT_WIDE";
-  pres.author = "Hospitality Business Group";
+  pres.author = companyName;
   pres.title = "Management Company Financial Report";
 
-  addTitleSlide(pres, "Management Company", `${data.projectionYears}-Year Financial Projection`);
+  addTitleSlide(pres, "Management Company", `${data.projectionYears}-Year Financial Projection`, companyName);
   addFinancialTableSlide(pres, "Management Company – Income Statement", data.incomeData.years, data.incomeData.rows);
   addFinancialTableSlide(pres, "Management Company – Cash Flow Statement", data.cashFlowData.years, data.cashFlowData.rows);
   addFinancialTableSlide(pres, "Management Company – Balance Sheet", data.balanceSheetData.years, data.balanceSheetData.rows);
 
-  pres.writeFile({ fileName: "LB-Management-Company-Report.pptx" });
+  pres.writeFile({ fileName: "Management-Company-Report.pptx" });
 }

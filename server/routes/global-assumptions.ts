@@ -3,7 +3,7 @@ import { storage } from "../storage";
 import { requireAuth, requireManagementAccess } from "../auth";
 import { insertGlobalAssumptionsSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
-import { logActivity } from "./helpers";
+import { logActivity, logAndSendError } from "./helpers";
 
 export function register(app: Express) {
   // ────────────────────────────────────────────────────────────
@@ -17,8 +17,7 @@ export function register(app: Express) {
       const assumptions = await storage.getGlobalAssumptions(req.user!.id);
       res.json(assumptions);
     } catch (error) {
-      console.error("Error fetching global assumptions:", error);
-      res.status(500).json({ error: "Failed to fetch global assumptions" });
+      logAndSendError(res, "Failed to fetch global assumptions", error);
     }
   });
 
@@ -34,8 +33,7 @@ export function register(app: Express) {
       logActivity(req, "update", "global_assumptions", assumptions.id, "System Settings");
       res.json(assumptions);
     } catch (error) {
-      console.error("Error updating global assumptions:", error);
-      res.status(500).json({ error: "Failed to update global assumptions" });
+      logAndSendError(res, "Failed to update global assumptions", error);
     }
   });
 }

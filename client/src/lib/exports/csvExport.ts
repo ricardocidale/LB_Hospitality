@@ -7,15 +7,22 @@
  * mechanics.
  */
 
-/** Download a CSV string as a file in the user's browser. */
-export function downloadCSV(content: string, filename: string): void {
-  const blob = new Blob([content], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+/** Download a CSV string as a file in the user's browser. Returns true on success. */
+export function downloadCSV(content: string, filename: string): boolean {
+  try {
+    const safeFilename = filename.replace(/[/\\:*?"<>|]/g, "_");
+    const blob = new Blob([content], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = safeFilename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    return true;
+  } catch (e) {
+    console.error("CSV download failed:", e);
+    return false;
+  }
 }

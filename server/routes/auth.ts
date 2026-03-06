@@ -12,7 +12,7 @@ import {
   clearSessionCookie,
   hashPassword
 } from "../auth";
-import { loginSchema, userResponse, fullName } from "./helpers";
+import { loginSchema, userResponse, fullName, logAndSendError } from "./helpers";
 import { z } from "zod";
 import { fromZodError } from "zod-validation-error";
 
@@ -65,8 +65,7 @@ export function register(app: Express) {
         user: userResponse(user)
       });
     } catch (error) {
-      console.error("Login error:", error);
-      res.status(500).json({ error: "Login failed" });
+      logAndSendError(res, "Login failed", error);
     }
   });
 
@@ -110,8 +109,7 @@ export function register(app: Express) {
         user: userResponse(user)
       });
     } catch (error) {
-      console.error("Admin login error:", error);
-      res.status(500).json({ error: "Admin login failed" });
+      logAndSendError(res, "Admin login failed", error);
     }
   });
 
@@ -143,8 +141,7 @@ export function register(app: Express) {
         user: userResponse(user)
       });
     } catch (error) {
-      console.error("Dev login error:", error);
-      res.status(500).json({ error: "Dev login failed" });
+      logAndSendError(res, "Dev login failed", error);
     }
   });
 
@@ -157,8 +154,7 @@ export function register(app: Express) {
       clearSessionCookie(res);
       res.json({ success: true });
     } catch (error) {
-      console.error("Logout error:", error);
-      res.status(500).json({ error: "Logout failed" });
+      logAndSendError(res, "Logout failed", error);
     }
   });
 
@@ -219,8 +215,7 @@ export function register(app: Express) {
       const user = await storage.updateUserProfile(req.user!.id, updates);
       res.json(userResponse(user));
     } catch (error) {
-      console.error("Error updating profile:", error);
-      res.status(500).json({ error: "Failed to update profile" });
+      logAndSendError(res, "Failed to update profile", error);
     }
   });
 
@@ -252,8 +247,7 @@ export function register(app: Express) {
       
       res.json({ success: true });
     } catch (error) {
-      console.error("Error changing password:", error);
-      res.status(500).json({ error: "Failed to change password" });
+      logAndSendError(res, "Failed to change password", error);
     }
   });
 
@@ -267,8 +261,7 @@ export function register(app: Express) {
       await storage.updateUserHideTourPrompt(req.user!.id, validation.data.hide);
       res.json({ hideTourPrompt: validation.data.hide });
     } catch (error) {
-      console.error("Error updating tour prompt preference:", error);
-      res.status(500).json({ error: "Failed to update preference" });
+      logAndSendError(res, "Failed to update preference", error);
     }
   });
 
@@ -288,8 +281,7 @@ export function register(app: Express) {
       const user = await storage.updateUserSelectedTheme(req.user!.id, validation.data.themeId);
       res.json({ selectedThemeId: user.selectedThemeId });
     } catch (error) {
-      console.error("Error updating theme preference:", error);
-      res.status(500).json({ error: "Failed to update theme preference" });
+      logAndSendError(res, "Failed to update theme preference", error);
     }
   });
 }

@@ -3,7 +3,7 @@ import { storage } from "../storage";
 import { requireAuth, requireAdmin } from "../auth";
 import { insertLogoSchema, insertCompanySchema, insertUserGroupSchema, insertDesignThemeSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
-import { fullName } from "./helpers";
+import { fullName, logAndSendError } from "./helpers";
 import { z } from "zod";
 
 export function register(app: Express) {
@@ -47,8 +47,7 @@ export function register(app: Express) {
 
       res.json({ userName, companyName, logoUrl });
     } catch (error) {
-      console.error("Error fetching branding:", error);
-      res.status(500).json({ error: "Failed to fetch branding" });
+      logAndSendError(res, "Failed to fetch branding", error);
     }
   });
 
@@ -94,8 +93,7 @@ export function register(app: Express) {
       const logos = await storage.getAllLogos();
       res.json(logos);
     } catch (error) {
-      console.error("Error fetching logos:", error);
-      res.status(500).json({ error: "Failed to fetch logos" });
+      logAndSendError(res, "Failed to fetch logos", error);
     }
   });
 
@@ -108,8 +106,7 @@ export function register(app: Express) {
       const logo = await storage.createLogo(validation.data);
       res.status(201).json(logo);
     } catch (error) {
-      console.error("Error creating logo:", error);
-      res.status(500).json({ error: "Failed to create logo" });
+      logAndSendError(res, "Failed to create logo", error);
     }
   });
 
@@ -118,8 +115,7 @@ export function register(app: Express) {
       await storage.deleteLogo(Number(req.params.id));
       res.json({ success: true });
     } catch (error) {
-      console.error("Error deleting logo:", error);
-      res.status(500).json({ error: "Failed to delete logo" });
+      logAndSendError(res, "Failed to delete logo", error);
     }
   });
 
@@ -129,8 +125,7 @@ export function register(app: Express) {
       const descriptions = await storage.getAllAssetDescriptions();
       res.json(descriptions);
     } catch (error) {
-      console.error("Error fetching asset descriptions:", error);
-      res.status(500).json({ error: "Failed to fetch asset descriptions" });
+      logAndSendError(res, "Failed to fetch asset descriptions", error);
     }
   });
 
@@ -140,8 +135,7 @@ export function register(app: Express) {
       const groups = await storage.getAllUserGroups();
       res.json(groups);
     } catch (error) {
-      console.error("Error fetching user groups:", error);
-      res.status(500).json({ error: "Failed to fetch user groups" });
+      logAndSendError(res, "Failed to fetch user groups", error);
     }
   });
 
@@ -154,8 +148,7 @@ export function register(app: Express) {
       const group = await storage.createUserGroup(validation.data);
       res.status(201).json(group);
     } catch (error) {
-      console.error("Error creating user group:", error);
-      res.status(500).json({ error: "Failed to create user group" });
+      logAndSendError(res, "Failed to create user group", error);
     }
   });
 
@@ -164,8 +157,7 @@ export function register(app: Express) {
       const group = await storage.updateUserGroup(Number(req.params.id), req.body);
       res.json(group);
     } catch (error) {
-      console.error("Error updating user group:", error);
-      res.status(500).json({ error: "Failed to update user group" });
+      logAndSendError(res, "Failed to update user group", error);
     }
   });
 
@@ -174,8 +166,7 @@ export function register(app: Express) {
       await storage.deleteUserGroup(Number(req.params.id));
       res.json({ success: true });
     } catch (error) {
-      console.error("Error deleting user group:", error);
-      res.status(500).json({ error: "Failed to delete user group" });
+      logAndSendError(res, "Failed to delete user group", error);
     }
   });
 
@@ -185,8 +176,7 @@ export function register(app: Express) {
       const companies = await storage.getAllCompanies();
       res.json(companies);
     } catch (error) {
-      console.error("Error fetching companies:", error);
-      res.status(500).json({ error: "Failed to fetch companies" });
+      logAndSendError(res, "Failed to fetch companies", error);
     }
   });
 
@@ -199,8 +189,7 @@ export function register(app: Express) {
       const company = await storage.createCompany(validation.data);
       res.status(201).json(company);
     } catch (error) {
-      console.error("Error creating company:", error);
-      res.status(500).json({ error: "Failed to create company" });
+      logAndSendError(res, "Failed to create company", error);
     }
   });
 
@@ -209,8 +198,7 @@ export function register(app: Express) {
       const company = await storage.updateCompany(Number(req.params.id), req.body);
       res.json(company);
     } catch (error) {
-      console.error("Error updating company:", error);
-      res.status(500).json({ error: "Failed to update company" });
+      logAndSendError(res, "Failed to update company", error);
     }
   });
 
@@ -219,8 +207,7 @@ export function register(app: Express) {
       await storage.deleteCompany(Number(req.params.id));
       res.json({ success: true });
     } catch (error) {
-      console.error("Error deleting company:", error);
-      res.status(500).json({ error: "Failed to delete company" });
+      logAndSendError(res, "Failed to delete company", error);
     }
   });
 
@@ -230,8 +217,7 @@ export function register(app: Express) {
       const themes = await storage.getAllDesignThemes();
       res.json(themes.map(t => ({ id: t.id, name: t.name, description: t.description, isDefault: t.isDefault, colors: t.colors })));
     } catch (error) {
-      console.error("Error fetching available themes:", error);
-      res.status(500).json({ error: "Failed to fetch themes" });
+      logAndSendError(res, "Failed to fetch themes", error);
     }
   });
 
@@ -240,8 +226,7 @@ export function register(app: Express) {
       const themes = await storage.getAllDesignThemes();
       res.json(themes);
     } catch (error) {
-      console.error("Error fetching themes:", error);
-      res.status(500).json({ error: "Failed to fetch themes" });
+      logAndSendError(res, "Failed to fetch themes", error);
     }
   });
 
@@ -254,8 +239,7 @@ export function register(app: Express) {
       const theme = await storage.createDesignTheme(validation.data);
       res.status(201).json(theme);
     } catch (error) {
-      console.error("Error creating theme:", error);
-      res.status(500).json({ error: "Failed to create theme" });
+      logAndSendError(res, "Failed to create theme", error);
     }
   });
 
@@ -264,8 +248,7 @@ export function register(app: Express) {
       const theme = await storage.updateDesignTheme(Number(req.params.id), req.body);
       res.json(theme);
     } catch (error) {
-      console.error("Error updating theme:", error);
-      res.status(500).json({ error: "Failed to update theme" });
+      logAndSendError(res, "Failed to update theme", error);
     }
   });
 
@@ -279,8 +262,7 @@ export function register(app: Express) {
       await storage.deleteDesignTheme(id);
       res.json({ success: true });
     } catch (error) {
-      console.error("Error deleting theme:", error);
-      res.status(500).json({ error: "Failed to delete theme" });
+      logAndSendError(res, "Failed to delete theme", error);
     }
   });
 }

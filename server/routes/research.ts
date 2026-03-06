@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { storage } from "../storage";
 import { requireAuth, requireAdmin, isApiRateLimited } from "../auth";
-import { researchGenerateSchema, logActivity } from "./helpers";
+import { researchGenerateSchema, logActivity, logAndSendError } from "./helpers";
 import { fromZodError } from "zod-validation-error";
 import { generateResearchWithToolsStream, buildUserPrompt, parseResearchJSON, extractResearchValues } from "../aiResearch";
 import { sendResearchEmail } from "../integrations/gmail";
@@ -61,8 +61,7 @@ export function register(app: Express) {
         global: { status: getStatus(globalResearch?.updatedAt), updatedAt: globalResearch?.updatedAt?.toISOString() || null },
       });
     } catch (error) {
-      console.error("Error fetching research status:", error);
-      res.status(500).json({ error: "Failed to fetch research status" });
+      logAndSendError(res, "Failed to fetch research status", error);
     }
   });
 
@@ -76,8 +75,7 @@ export function register(app: Express) {
       );
       res.json(research || null);
     } catch (error) {
-      console.error("Error fetching research:", error);
-      res.status(500).json({ error: "Failed to fetch research" });
+      logAndSendError(res, "Failed to fetch research", error);
     }
   });
 
@@ -166,8 +164,7 @@ export function register(app: Express) {
       );
       res.json(research || null);
     } catch (error) {
-      console.error("Error fetching property research:", error);
-      res.status(500).json({ error: "Failed to fetch research" });
+      logAndSendError(res, "Failed to fetch research", error);
     }
   });
 
@@ -246,8 +243,7 @@ export function register(app: Express) {
       logActivity(req, "email-pdf", "market_research", propertyId, "PDF Report");
       res.json({ success: true });
     } catch (error) {
-      console.error("Error emailing PDF:", error);
-      res.status(500).json({ error: "Failed to email PDF" });
+      logAndSendError(res, "Failed to email PDF", error);
     }
   });
 
@@ -257,8 +253,7 @@ export function register(app: Express) {
       const questions = await storage.getAllResearchQuestions();
       res.json(questions);
     } catch (error) {
-      console.error("Error fetching research questions:", error);
-      res.status(500).json({ error: "Failed to fetch research questions" });
+      logAndSendError(res, "Failed to fetch research questions", error);
     }
   });
 
@@ -269,8 +264,7 @@ export function register(app: Express) {
       const q = await storage.createResearchQuestion({ question });
       res.status(201).json(q);
     } catch (error) {
-      console.error("Error creating research question:", error);
-      res.status(500).json({ error: "Failed to create research question" });
+      logAndSendError(res, "Failed to create research question", error);
     }
   });
 
@@ -280,8 +274,7 @@ export function register(app: Express) {
       const q = await storage.updateResearchQuestion(Number(req.params.id), question);
       res.json(q);
     } catch (error) {
-      console.error("Error updating research question:", error);
-      res.status(500).json({ error: "Failed to update research question" });
+      logAndSendError(res, "Failed to update research question", error);
     }
   });
 
@@ -290,8 +283,7 @@ export function register(app: Express) {
       await storage.deleteResearchQuestion(Number(req.params.id));
       res.json({ success: true });
     } catch (error) {
-      console.error("Error deleting research question:", error);
-      res.status(500).json({ error: "Failed to delete research question" });
+      logAndSendError(res, "Failed to delete research question", error);
     }
   });
 }

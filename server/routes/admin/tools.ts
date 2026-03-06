@@ -2,6 +2,7 @@ import { type Express } from "express";
 import { storage } from "../../storage";
 import { requireAdmin, requireAuth } from "../../auth";
 import { runFillOnlySync } from "../../syncHelpers";
+import { logAndSendError } from "../helpers";
 
 export function registerToolRoutes(app: Express) {
   app.get("/api/admin/checker-activity", requireAdmin, async (_req, res) => {
@@ -46,8 +47,7 @@ export function registerToolRoutes(app: Express) {
         recentActivity: recentActivity.slice(0, 50),
       });
     } catch (error) {
-      console.error("Error fetching checker activity:", error);
-      res.status(500).json({ error: "Failed to fetch checker activity" });
+      logAndSendError(res, "Failed to fetch checker activity", error);
     }
   });
 
@@ -57,8 +57,7 @@ export function registerToolRoutes(app: Express) {
       const result = await fill(storage);
       res.json({ success: true, message: "Missing values populated", ...result });
     } catch (error: any) {
-      console.error("Error seeding production:", error);
-      res.status(500).json({ error: error.message || "Fill failed" });
+      logAndSendError(res, error.message || "Fill failed", error);
     }
   });
 
@@ -67,8 +66,7 @@ export function registerToolRoutes(app: Express) {
       const result = await runFillOnlySync(storage);
       res.json(result);
     } catch (error) {
-      console.error("Error backfilling research:", error);
-      res.status(500).json({ error: "Failed to backfill research" });
+      logAndSendError(res, "Failed to backfill research", error);
     }
   });
 
@@ -83,8 +81,7 @@ export function registerToolRoutes(app: Express) {
         logoutAt: log.logoutAt,
       })));
     } catch (error) {
-      console.error("Error fetching login logs:", error);
-      res.status(500).json({ error: "Failed to fetch login logs" });
+      logAndSendError(res, "Failed to fetch login logs", error);
     }
   });
 
@@ -103,8 +100,7 @@ export function registerToolRoutes(app: Express) {
       }));
       res.json(status);
     } catch (error) {
-      console.error("Error fetching sync status:", error);
-      res.status(500).json({ error: "Failed to fetch sync status" });
+      logAndSendError(res, "Failed to fetch sync status", error);
     }
   });
 
@@ -119,8 +115,7 @@ export function registerToolRoutes(app: Express) {
         createdAt: s.createdAt,
       })));
     } catch (error) {
-      console.error("Error fetching sessions:", error);
-      res.status(500).json({ error: "Failed to fetch active sessions" });
+      logAndSendError(res, "Failed to fetch active sessions", error);
     }
   });
 
@@ -129,8 +124,7 @@ export function registerToolRoutes(app: Express) {
       await storage.forceDeleteSession(String(req.params.id));
       res.json({ success: true });
     } catch (error) {
-      console.error("Error deleting session:", error);
-      res.status(500).json({ error: "Failed to delete session" });
+      logAndSendError(res, "Failed to delete session", error);
     }
   });
 
@@ -150,8 +144,7 @@ export function registerToolRoutes(app: Express) {
         userName: `${l.user.firstName} ${l.user.lastName}`.trim() || l.user.email,
       })));
     } catch (error) {
-      console.error("Error fetching activity logs:", error);
-      res.status(500).json({ error: "Failed to fetch activity logs" });
+      logAndSendError(res, "Failed to fetch activity logs", error);
     }
   });
 }

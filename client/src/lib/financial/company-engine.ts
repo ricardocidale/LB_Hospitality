@@ -19,6 +19,13 @@ import { computeCostOfServices } from '@calc/services/cost-of-services';
 import type { ServiceTemplate, AggregatedServiceCosts } from '@calc/services/types';
 import { PropertyInput, GlobalInput, CompanyMonthlyFinancials, ServiceFeeBreakdown } from './types';
 import { generatePropertyProForma } from './property-engine';
+import { parseLocalDate } from '@shared/dates';
+
+/** Extract { year, month (0-based) } from a date string using parseLocalDate. */
+function parseDateComponents(dateStr: string) {
+  const d = parseLocalDate(dateStr);
+  return { year: d.getFullYear(), month: d.getMonth() };
+}
 
 /**
  * Generate month-by-month financials for the management company itself.
@@ -32,15 +39,10 @@ export function generateCompanyProForma(
   const results: any[] = []; // Using any[] to match the existing return type in the original file which has more fields than the interface
   let cumulativeCompanyCash = 0;
 
-  const parseDateString = (dateStr: string) => {
-    const [year, month, day] = dateStr.split('-').map(Number);
-    return { year, month: month - 1, day };
-  };
-  
-  const startParsed = parseDateString(global.modelStartDate);
-  const tranche1Parsed = global.safeTranche1Date ? parseDateString(global.safeTranche1Date) : startParsed;
-  const tranche2Parsed = global.safeTranche2Date ? parseDateString(global.safeTranche2Date) : null;
-  const opsStartParsed = global.companyOpsStartDate ? parseDateString(global.companyOpsStartDate) : startParsed;
+  const startParsed = parseDateComponents(global.modelStartDate);
+  const tranche1Parsed = global.safeTranche1Date ? parseDateComponents(global.safeTranche1Date) : startParsed;
+  const tranche2Parsed = global.safeTranche2Date ? parseDateComponents(global.safeTranche2Date) : null;
+  const opsStartParsed = global.companyOpsStartDate ? parseDateComponents(global.companyOpsStartDate) : startParsed;
   
   const propertyFinancials = properties.map(p => generatePropertyProForma(p, global, months));
   

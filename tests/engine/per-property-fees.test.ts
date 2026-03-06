@@ -7,51 +7,23 @@ import {
   DEFAULT_BASE_MANAGEMENT_FEE_RATE,
   DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
 } from "../../shared/constants.js";
+import { makeProperty, makeGlobal } from "../fixtures";
 
 const baseProperty = {
-  operationsStartDate: "2026-04-01",
-  acquisitionDate: "2026-04-01",
-  roomCount: 10,
-  startAdr: 250,
-  adrGrowthRate: 0.03,
-  startOccupancy: 0.60,
-  maxOccupancy: 0.85,
-  occupancyRampMonths: 6,
-  occupancyGrowthStep: 0.05,
-  purchasePrice: 2_000_000,
-  buildingImprovements: 0,
-  landValuePercent: 0.25,
-  preOpeningCosts: 0,
-  operatingReserve: 0,
-  type: "Full Equity",
-  costRateRooms: 0.20,
-  costRateFB: 0.09,
-  costRateAdmin: 0.08,
-  costRateMarketing: 0.01,
-  costRatePropertyOps: 0.04,
-  costRateUtilities: 0.05,
-  costRateInsurance: 0.02,
-  costRateTaxes: 0.03,
-  costRateIT: 0.005,
-  costRateFFE: 0.04,
-  costRateOther: 0.05,
-  revShareEvents: 0.43,
-  revShareFB: 0.22,
-  revShareOther: 0.07,
-  cateringBoostPercent: 0.30,
+  ...makeProperty({
+    startAdr: 250,
+    maxOccupancy: 0.85,
+    purchasePrice: 2_000_000,
+  } as any),
   baseManagementFeeRate: DEFAULT_BASE_MANAGEMENT_FEE_RATE,
   incentiveManagementFeeRate: DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
 };
 
 const baseGlobal = {
-  modelStartDate: "2026-04-01",
+  ...makeGlobal({ projectionYears: 1 }),
   companyOpsStartDate: "2026-04-01",
-  projectionYears: 1,
-  inflationRate: 0.03,
-  fixedCostEscalationRate: 0.03,
   baseManagementFee: 0.05,
   incentiveManagementFee: 0.15,
-  marketingRate: 0.05,
   miscOpsRate: 0.03,
   safeTranche1Date: "2026-04-01",
   safeTranche1Amount: 1_000_000,
@@ -70,11 +42,6 @@ const baseGlobal = {
   travelCostPerClient: 12_000,
   itLicensePerClient: 3_000,
   partnerCompYear1: 540_000,
-  debtAssumptions: {
-    interestRate: 0.09,
-    amortizationYears: 25,
-    acqLTV: 0.75,
-  },
 };
 
 describe("Per-Property Management Fee Rates — SPV Pro Forma", () => {

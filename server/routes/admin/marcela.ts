@@ -2,6 +2,7 @@ import { type Express } from "express";
 import { storage } from "../../storage";
 import { requireAdmin, requireAuth } from "../../auth";
 import { type InsertGlobalAssumptions } from "@shared/schema";
+import { logAndSendError } from "../helpers";
 import { getTwilioStatus, sendSMS } from "../../integrations/twilio";
 import { getSignedUrl as getElevenLabsSignedUrl, getConvaiAgent, listConvaiConversations, getConvaiConversation, deleteConvaiConversation, updateConvaiAgent, createKBDocumentFromFile } from "../../integrations/elevenlabs";
 import { configureMarcelaAgent, buildClientTools, buildServerTools, getBaseUrl } from "../../marcela-agent-config";
@@ -36,8 +37,7 @@ export function registerMarcelaRoutes(app: Express) {
         marcelaPhoneGreeting: ga.marcelaPhoneGreeting,
       });
     } catch (error) {
-      console.error("Error fetching voice settings:", error);
-      res.status(500).json({ error: "Failed to fetch voice settings" });
+      logAndSendError(res, "Failed to fetch voice settings", error);
     }
   });
 
@@ -61,8 +61,7 @@ export function registerMarcelaRoutes(app: Express) {
       const updated = await storage.upsertGlobalAssumptions({ ...ga, ...patch } as InsertGlobalAssumptions);
       res.json(updated);
     } catch (error) {
-      console.error("Error updating voice settings:", error);
-      res.status(500).json({ error: "Failed to update voice settings" });
+      logAndSendError(res, "Failed to update voice settings", error);
     }
   });
 
@@ -81,7 +80,7 @@ export function registerMarcelaRoutes(app: Express) {
       const { getKnowledgeBaseStatus } = await import("../../knowledge-base");
       res.json(getKnowledgeBaseStatus());
     } catch (error: any) {
-      res.status(500).json({ error: error.message || "Failed to get knowledge base status" });
+      logAndSendError(res, error.message || "Failed to get knowledge base status", error);
     }
   });
 
@@ -91,8 +90,7 @@ export function registerMarcelaRoutes(app: Express) {
       const result = await indexKnowledgeBase();
       res.json({ success: true, ...result });
     } catch (error: any) {
-      console.error("Knowledge base reindex error:", error);
-      res.status(500).json({ error: error.message || "Failed to reindex knowledge base" });
+      logAndSendError(res, error.message || "Failed to reindex knowledge base", error);
     }
   });
 
@@ -105,8 +103,7 @@ export function registerMarcelaRoutes(app: Express) {
       const signedUrl = await getElevenLabsSignedUrl(ga.marcelaAgentId);
       res.json({ signedUrl });
     } catch (error: any) {
-      console.error("Error getting Marcela signed URL:", error);
-      res.status(500).json({ error: error.message || "Failed to get signed URL" });
+      logAndSendError(res, error.message || "Failed to get signed URL", error);
     }
   });
 
@@ -119,8 +116,7 @@ export function registerMarcelaRoutes(app: Express) {
       const agent = await getConvaiAgent(ga.marcelaAgentId);
       res.json(agent);
     } catch (error: any) {
-      console.error("Error fetching Convai agent:", error);
-      res.status(500).json({ error: error.message || "Failed to fetch agent config" });
+      logAndSendError(res, error.message || "Failed to fetch agent config", error);
     }
   });
 
@@ -133,8 +129,7 @@ export function registerMarcelaRoutes(app: Express) {
       const conversations = await listConvaiConversations(ga.marcelaAgentId);
       res.json({ conversations });
     } catch (error: any) {
-      console.error("Error listing conversations:", error);
-      res.status(500).json({ error: error.message || "Failed to list conversations" });
+      logAndSendError(res, error.message || "Failed to list conversations", error);
     }
   });
 
@@ -144,8 +139,7 @@ export function registerMarcelaRoutes(app: Express) {
       const conversation = await getConvaiConversation(id);
       res.json(conversation);
     } catch (error: any) {
-      console.error("Error fetching conversation:", error);
-      res.status(500).json({ error: error.message || "Failed to fetch conversation" });
+      logAndSendError(res, error.message || "Failed to fetch conversation", error);
     }
   });
 
@@ -158,8 +152,7 @@ export function registerMarcelaRoutes(app: Express) {
         res.status(500).json({ error: result.error || "Failed to configure agent tools" });
       }
     } catch (error: any) {
-      console.error("Error configuring agent tools:", error);
-      res.status(500).json({ error: error.message || "Failed to configure agent tools" });
+      logAndSendError(res, error.message || "Failed to configure agent tools", error);
     }
   });
 
@@ -168,7 +161,7 @@ export function registerMarcelaRoutes(app: Express) {
       const preview = getKnowledgeDocumentPreview();
       res.json(preview);
     } catch (error: any) {
-      res.status(500).json({ error: error.message || "Failed to generate preview" });
+      logAndSendError(res, error.message || "Failed to generate preview", error);
     }
   });
 
@@ -181,8 +174,7 @@ export function registerMarcelaRoutes(app: Express) {
         res.status(500).json({ error: result.error || "Failed to upload knowledge base" });
       }
     } catch (error: any) {
-      console.error("Error uploading knowledge base:", error);
-      res.status(500).json({ error: error.message || "Failed to upload knowledge base" });
+      logAndSendError(res, error.message || "Failed to upload knowledge base", error);
     }
   });
 
@@ -204,8 +196,7 @@ export function registerMarcelaRoutes(app: Express) {
       });
       res.json(updated);
     } catch (error: any) {
-      console.error("Error updating Convai agent prompt:", error);
-      res.status(500).json({ error: error.message || "Failed to update agent prompt" });
+      logAndSendError(res, error.message || "Failed to update agent prompt", error);
     }
   });
 
@@ -235,8 +226,7 @@ export function registerMarcelaRoutes(app: Express) {
 
       res.json(status);
     } catch (error: any) {
-      console.error("Error fetching tools status:", error);
-      res.status(500).json({ error: error.message || "Failed to fetch tools status" });
+      logAndSendError(res, error.message || "Failed to fetch tools status", error);
     }
   });
 
@@ -271,8 +261,7 @@ export function registerMarcelaRoutes(app: Express) {
 
       res.json({ success: true, documentId: doc.id, name: doc.name });
     } catch (error: any) {
-      console.error("Error uploading KB file:", error);
-      res.status(500).json({ error: error.message || "Failed to upload KB file" });
+      logAndSendError(res, error.message || "Failed to upload KB file", error);
     }
   });
 
@@ -282,8 +271,7 @@ export function registerMarcelaRoutes(app: Express) {
       await deleteConvaiConversation(id);
       res.json({ success: true });
     } catch (error: any) {
-      console.error("Error deleting conversation:", error);
-      res.status(500).json({ error: error.message || "Failed to delete conversation" });
+      logAndSendError(res, error.message || "Failed to delete conversation", error);
     }
   });
 
@@ -300,8 +288,7 @@ export function registerMarcelaRoutes(app: Express) {
         res.status(500).json({ error: result.error || "Failed to send SMS" });
       }
     } catch (error: any) {
-      console.error("Error sending notification:", error);
-      res.status(500).json({ error: error.message || "Failed to send notification" });
+      logAndSendError(res, error.message || "Failed to send notification", error);
     }
   });
 }

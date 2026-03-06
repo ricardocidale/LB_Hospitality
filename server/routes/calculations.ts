@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { storage } from "../storage";
 import { requireChecker, requireAuth } from "../auth";
 import { runIndependentVerification } from "../calculationChecker";
-import { logActivity } from "./helpers";
+import { logActivity, logAndSendError } from "./helpers";
 import * as calcSchemas from "../../calc/shared/schemas";
 import { computeDCF } from "../../calc/returns/dcf-npv";
 import { buildIRRVector } from "../../calc/returns/irr-vector";
@@ -55,8 +55,7 @@ export function register(app: Express) {
       logActivity(req, "run-verification", "verification", run.id, `Audit ${run.id}: ${run.auditOpinion}`);
       res.json(run);
     } catch (error) {
-      console.error("Verification run error:", error);
-      res.status(500).json({ error: "Verification failed" });
+      logAndSendError(res, "Verification failed", error);
     }
   });
 
@@ -65,8 +64,7 @@ export function register(app: Express) {
       const history = await storage.getVerificationRuns(50);
       res.json(history);
     } catch (error) {
-      console.error("Error fetching verification history:", error);
-      res.status(500).json({ error: "Failed to fetch verification history" });
+      logAndSendError(res, "Failed to fetch verification history", error);
     }
   });
 
@@ -76,8 +74,7 @@ export function register(app: Express) {
       if (!run) return res.status(404).json({ error: "Run not found" });
       res.json(run);
     } catch (error) {
-      console.error("Error fetching verification run:", error);
-      res.status(500).json({ error: "Failed to fetch verification run" });
+      logAndSendError(res, "Failed to fetch verification run", error);
     }
   });
 
@@ -154,10 +151,10 @@ export function register(app: Express) {
       res.write("data: [DONE]\n\n");
       res.end();
     } catch (error: any) {
-      console.error("AI verification review error:", error);
       if (!res.headersSent) {
-        res.status(500).json({ error: "AI review failed" });
+        logAndSendError(res, "AI review failed", error);
       } else {
+        console.error("AI verification review error:", error);
         res.end();
       }
     }
@@ -254,8 +251,7 @@ export function register(app: Express) {
         checks,
       });
     } catch (error: any) {
-      console.error("Design check error:", error);
-      res.status(500).json({ error: "Design check failed" });
+      logAndSendError(res, "Design check failed", error);
     }
   });
 

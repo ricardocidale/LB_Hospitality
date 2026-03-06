@@ -44,6 +44,7 @@ ADR recommendations should account for:
     "marketAverage": "$XXX",
     "boutiqueRange": "$XXX - $XXX",
     "recommendedRange": "$XXX - $XXX",
+    "confidence": "conservative | moderate | aggressive",
     "rationale": "Why this range is appropriate",
     "comparables": [
       { "name": "string", "adr": "$XXX", "type": "string" }
@@ -51,6 +52,13 @@ ADR recommendations should account for:
   }
 }
 ```
+
+### Confidence Scoring
+
+The `confidence` field classifies the recommendation's risk posture:
+- **conservative**: Below-market or cautious estimate (e.g., pricing below comp set median)
+- **moderate**: Market-aligned estimate supported by strong comparable data
+- **aggressive**: Above-market or optimistic estimate (e.g., premium pricing with limited comps)
 
 ## Quality Standards
 

@@ -5,20 +5,22 @@
  * the property's computed financial projections:
  *   - Revenue, GOP, NOI, Cash Flow for the first operating year
  *
- * Uses findFirstOperatingYear() to skip pre-acquisition $0 years
+ * Scans yearly data to skip pre-acquisition $0 years
  * and display meaningful metrics from the first year of operations.
  */
 import { KPIGrid, formatCompact, type KPIItem } from "@/components/graphics";
 import type { PropertyKPIsProps } from "./types";
-import { findFirstOperatingYear } from "@/lib/firstOperatingYear";
 
 export default function PropertyKPIs({ yearlyChartData, projectionYears }: PropertyKPIsProps) {
-  const result = findFirstOperatingYear(yearlyChartData);
-  if (!result) return null;
+  const opsIdx = yearlyChartData.length > 0
+    ? Math.max(0, yearlyChartData.findIndex(r => Number(r.Revenue) > 0))
+    : -1;
 
-  const { index: opsIdx, data: d, year: yearLabel } = result;
+  if (opsIdx === -1) return null;
+
+  const d = yearlyChartData[opsIdx];
   const nextIdx = opsIdx + 1;
-  const label = yearLabel != null ? String(yearLabel) : "Year 1";
+  const label = d.year != null ? String(d.year) : `Year ${opsIdx + 1}`;
 
   const kpiItems: KPIItem[] = [
     {

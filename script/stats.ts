@@ -32,10 +32,14 @@ function countFiles(dir: string, exts: string[]): { files: number; lines: number
           try {
             const content = run(`wc -l < "${full}"`);
             lines += parseInt(content) || 0;
-          } catch {}
+          } catch {
+            /* ignore: shell command may not exist */
+          }
         }
       }
-    } catch {}
+    } catch {
+      /* ignore: shell command may not exist */
+    }
   }
   walk(dir);
   return { files, lines };

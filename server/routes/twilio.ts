@@ -13,6 +13,7 @@ import {
 import { getTwilioFromPhoneNumber, sendSMS } from "../integrations/twilio";
 import OpenAI from "openai";
 import { retrieveRelevantChunks, buildRAGContext } from "../knowledge-base";
+import { logger } from "../logger";
 
 const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
@@ -259,7 +260,7 @@ export function register(app: Express) {
       res.type("text/xml");
       res.send(`<?xml version="1.0" encoding="UTF-8"?><Response><Message>${escapeXml(smsReply)}</Message></Response>`);
     } catch (error) {
-      console.error("Twilio SMS incoming error:", error);
+      logger.error(`Twilio SMS incoming error: ${error}`, "twilio");
       res.type("text/xml");
       res.send(`<?xml version="1.0" encoding="UTF-8"?><Response><Message>Sorry, I encountered an error. Please try again.</Message></Response>`);
     }
@@ -310,7 +311,7 @@ export function registerTwilioWebSocket(httpServer: import("http").Server) {
             streamSid = msg.start?.streamSid || null;
             callerNumber = msg.start?.customParameters?.callerNumber || "";
             audioBuffer = [];
-            console.log(`[Twilio Voice] Stream started from ${callerNumber}, streamSid=${streamSid}`);
+            logger.info(`Stream started from ${callerNumber}, streamSid=${streamSid}`, "Twilio Voice");
             break;
 
           case "media":
@@ -348,7 +349,7 @@ export function registerTwilioWebSocket(httpServer: import("http").Server) {
                   return;
                 }
 
-                console.log(`[Twilio Voice] Caller said: "${userTranscript.trim()}"`);
+                logger.info(`Caller said: "${userTranscript.trim()}"`, "Twilio Voice");
 
                 if (!conversationId) {
                   const conv = await chatStorage.createConversation(
@@ -413,7 +414,7 @@ export function registerTwilioWebSocket(httpServer: import("http").Server) {
                         }));
                       }
                     } catch (e) {
-                      console.error("[Twilio Voice] Error sending audio back:", e);
+                      logger.error(`Error sending audio back: ${e}`, "Twilio Voice");
                     }
                   },
                   {
@@ -440,9 +441,9 @@ export function registerTwilioWebSocket(httpServer: import("http").Server) {
                 await new Promise(resolve => setTimeout(resolve, 500));
 
                 await chatStorage.createMessage(conversationId, "assistant", fullResponse);
-                console.log(`[Twilio Voice] Marcela responded: "${fullResponse.slice(0, 100)}..."`);
+                logger.info(`Marcela responded: "${fullResponse.slice(0, 100)}..."`, "Twilio Voice");
               } catch (error) {
-                console.error("[Twilio Voice] Processing error:", error);
+                logger.error(`Processing error: ${error}`, "Twilio Voice");
               } finally {
                 isProcessing = false;
               }
@@ -450,22 +451,22 @@ export function registerTwilioWebSocket(httpServer: import("http").Server) {
             break;
 
           case "stop":
-            console.log(`[Twilio Voice] Stream stopped for ${callerNumber}`);
+            logger.info(`Stream stopped for ${callerNumber}`, "Twilio Voice");
             if (silenceTimer) clearTimeout(silenceTimer);
             break;
         }
       } catch (error) {
-        console.error("[Twilio Voice] WebSocket message error:", error);
+        logger.error(`WebSocket message error: ${error}`, "Twilio Voice");
       }
     });
 
     ws.on("close", () => {
       if (silenceTimer) clearTimeout(silenceTimer);
-      console.log(`[Twilio Voice] WebSocket closed for ${callerNumber}`);
+      logger.info(`WebSocket closed for ${callerNumber}`, "Twilio Voice");
     });
 
     ws.on("error", (error) => {
-      console.error("[Twilio Voice] WebSocket error:", error);
+      logger.error(`WebSocket error: ${error}`, "Twilio Voice");
     });
   });
 }

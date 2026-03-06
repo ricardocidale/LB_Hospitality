@@ -37,6 +37,7 @@ Use `analyze_income_tax` (defined in `tools/analyze-income-tax.json`) to gather 
 {
   "incomeTaxAnalysis": {
     "recommendedRate": "XX%",
+    "confidence": "conservative | moderate | aggressive",
     "rateBreakdown": {
       "federal": "XX%",
       "state": "XX%",

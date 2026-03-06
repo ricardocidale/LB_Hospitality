@@ -45,6 +45,7 @@ Use `analyze_land_value` (defined in `tools/analyze-land-value.json`) to gather 
 {
   "landValueAllocation": {
     "recommendedPercent": "XX%",
+    "confidence": "conservative | moderate | aggressive",
     "marketRange": "XX% - XX%",
     "assessmentMethod": "string (e.g., 'County tax assessor ratio', 'Comparable sales analysis')",
     "rationale": "Why this land value percentage is appropriate for this property and market",
@@ -52,6 +53,13 @@ Use `analyze_land_value` (defined in `tools/analyze-land-value.json`) to gather 
   }
 }
 ```
+
+### Confidence Scoring
+
+The `confidence` field classifies the recommendation's risk posture:
+- **conservative**: Higher land % (less depreciation) — cautious for IRS defensibility
+- **moderate**: Market-aligned allocation supported by tax assessor data or comparable sales
+- **aggressive**: Lower land % (more depreciation) — maximizes tax benefits with limited supporting data
 
 ## Quality Standards
 

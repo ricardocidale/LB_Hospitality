@@ -1,5 +1,6 @@
 import { getElevenLabsApiKey } from "./integrations/elevenlabs";
 import { storage } from "./storage";
+import { logger } from "./logger";
 
 const CONVAI_BASE = "https://api.elevenlabs.io/v1/convai";
 
@@ -212,14 +213,14 @@ export async function configureMarcelaAgent(): Promise<{ success: boolean; error
     const ga = await storage.getGlobalAssumptions();
     const agentId = (ga as any)?.marcelaAgentId;
     if (!agentId) {
-      console.log("[marcela-config] No agent ID configured, skipping tool registration");
+      logger.info("No agent ID configured, skipping tool registration", "marcela-config");
       return { success: true };
     }
 
     const apiKey = await getElevenLabsApiKey();
     const baseUrl = getBaseUrl();
 
-    console.log(`[marcela-config] Configuring agent ${agentId} with tools (base: ${baseUrl})`);
+    logger.info(`Configuring agent ${agentId} with tools (base: ${baseUrl})`, "marcela-config");
 
     const clientTools = buildClientTools();
     const serverTools = buildServerTools(baseUrl);
@@ -244,15 +245,15 @@ export async function configureMarcelaAgent(): Promise<{ success: boolean; error
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`[marcela-config] Failed to configure agent: ${response.status} ${errorText}`);
+      logger.error(`Failed to configure agent: ${response.status} ${errorText}`, "marcela-config");
       return { success: false, error: `API error ${response.status}: ${errorText}` };
     }
 
     const result = await response.json();
-    console.log(`[marcela-config] Agent configured with ${allTools.length} tools (${clientTools.length} client + ${serverTools.length} server)`);
+    logger.info(`Agent configured with ${allTools.length} tools (${clientTools.length} client + ${serverTools.length} server)`, "marcela-config");
     return { success: true };
   } catch (error: any) {
-    console.error("[marcela-config] Error configuring agent:", error.message);
+    logger.error(`Error configuring agent: ${error.message}`, "marcela-config");
     return { success: false, error: error.message };
   }
 }

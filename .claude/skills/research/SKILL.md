@@ -185,6 +185,20 @@ Each AI research module has its own skill file with tool schema:
 | Location-Aware Seeding | `research/location-aware-seeding/` | Database seed profiles |
 | Research Questions | `research/research-questions/` | Custom AI research question CRUD management |
 
+## Confidence Scoring
+
+Every recommended metric in AI research output must include a `confidence` field with one of three values:
+
+| Value | Meaning | UI Badge Color |
+|-------|---------|----------------|
+| `"conservative"` | Below-market or cautious estimate — safer for underwriting | Blue |
+| `"moderate"` | Market-aligned estimate supported by strong comparable data | Green |
+| `"aggressive"` | Above-market or optimistic estimate — higher risk | Amber |
+
+**Where it appears**: `adrAnalysis.confidence`, `capRateAnalysis.confidence`, `cateringAnalysis.confidence`, `landValueAllocation.confidence`, `occupancyAnalysis.confidence`, `incomeTaxAnalysis.confidence`, and every cost category object in `operatingCostAnalysis`, `propertyValueCostAnalysis`, and `managementServiceFeeAnalysis`.
+
+**Frontend rendering**: `ConfidenceBadge` component in `client/src/components/property-research/ConfidenceBadge.tsx`. Rendered inline with `MetricCard` values in `ResearchSections.tsx`.
+
 ## Rules
 
 1. **Never hardcode "boutique hotel"** — always reference `globalAssumptions.propertyLabel`

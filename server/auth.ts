@@ -34,6 +34,7 @@ import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { storage } from "./storage";
 import type { User } from "@shared/schema";
+import { logger } from "./logger";
 
 declare global {
   namespace Express {
@@ -246,7 +247,7 @@ export async function authMiddleware(req: Request, res: Response, next: NextFunc
       req.sessionId = sessionId;
     }
   } catch (error) {
-    console.error("Auth middleware error:", error);
+    logger.error(`Auth middleware error: ${error instanceof Error ? error.message : error}`, "auth");
   }
   
   next();
@@ -380,7 +381,7 @@ async function createDefaultScenarioForUser(userId: number, userName: string) {
         globalAssumptions: globalAssumptions as any,
         properties: properties as any,
       });
-      console.log(`Default "Development" scenario created for ${userName}`);
+      logger.info(`Default "Development" scenario created for ${userName}`, "auth");
     }
   }
 }
@@ -434,7 +435,7 @@ export async function seedAdminUser() {
           await storage.updateUserPassword(oldChecker.id, passwordHash);
           await storage.updateUserRole(oldChecker.id, "checker");
           user = await storage.getUserById(oldChecker.id);
-          console.log(`Migrated old 'checker' user to ${seed.email}`);
+          logger.info(`Migrated old 'checker' user to ${seed.email}`, "auth");
         }
       }
 
@@ -449,7 +450,7 @@ export async function seedAdminUser() {
           company: seed.company,
           title: seed.title,
         });
-        console.log(`User created: ${seed.email}`);
+        logger.info(`User created: ${seed.email}`, "auth");
       }
     } else {
       const passwordHash = await hashPassword(password);
@@ -463,7 +464,7 @@ export async function seedAdminUser() {
       if (seed.role === "checker") {
         await storage.updateUserRole(user.id, "checker");
       }
-      console.log(`User password reset: ${seed.email}`);
+      logger.info(`User password reset: ${seed.email}`, "auth");
     }
 
     if (user) {

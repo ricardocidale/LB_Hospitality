@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import * as fs from "fs";
 import * as path from "path";
+import { logger } from "./logger";
 
 const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
@@ -716,4 +717,8 @@ export function getKnowledgeBaseStatus(): { indexed: boolean; chunkCount: number
     chunkCount: knowledgeCache.length,
     indexedAt: indexedAt?.toISOString() || null,
   };
+}
+
+export function log(message: string, source = "kb") {
+  logger.info(message, source);
 }

@@ -110,7 +110,9 @@ try {
       largeFiles.push(`${match[2]} (${match[1]} lines)`);
     }
   }
-} catch {}
+} catch {
+  /* ignore: parse failure non-critical */
+}
 findings.push({
   label: "Files over 500 lines",
   count: largeFiles.length,

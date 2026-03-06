@@ -311,7 +311,9 @@ ${label} definition: ${bd.description || "Independently operated, design-forward
 - Privacy: ${bd.privacyLevel || "high"}
 - Parking: ${bd.parkingSpaces ?? 50} spaces
 
-Use the available tools to gather data on each analysis dimension, then synthesize your findings into the required JSON format. Call each tool to build your analysis, then provide the final synthesized research as a JSON object.`;
+Use the available tools to gather data on each analysis dimension, then synthesize your findings into the required JSON format. Call each tool to build your analysis, then provide the final synthesized research as a JSON object.
+
+IMPORTANT: For every recommended metric, include a "confidence" field with one of: "conservative" (below-market/cautious), "moderate" (market-aligned with strong comps), or "aggressive" (above-market/optimistic). This applies to adrAnalysis, occupancyAnalysis, capRateAnalysis, cateringAnalysis, landValueAllocation, incomeTaxAnalysis, and every cost category in operatingCostAnalysis, propertyValueCostAnalysis, and managementServiceFeeAnalysis.`;
   }
   
   if (type === "company") {

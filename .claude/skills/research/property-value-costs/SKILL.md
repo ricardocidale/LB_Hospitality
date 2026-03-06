@@ -34,12 +34,14 @@ CRITICAL: Both insurance and property taxes are based on PROPERTY VALUE (Purchas
   "propertyValueCostAnalysis": {
     "insurance": {
       "recommendedRate": "X.X%",
+      "confidence": "conservative | moderate | aggressive",
       "industryRange": "X.X-X.X%",
       "rationale": "string",
       "coverageNotes": "Property liability, damage, workers comp, business interruption"
     },
     "propertyTaxes": {
       "recommendedRate": "X.X%",
+      "confidence": "conservative | moderate | aggressive",
       "industryRange": "X.X-X.X%",
       "rationale": "string",
       "jurisdictionNotes": "Local assessment and millage rate context"
@@ -48,6 +50,13 @@ CRITICAL: Both insurance and property taxes are based on PROPERTY VALUE (Purchas
   }
 }
 ```
+
+### Confidence Scoring
+
+Each cost category must include a `confidence` field:
+- **conservative**: Higher rate — budgets more for insurance/taxes
+- **moderate**: Market-aligned rate supported by jurisdiction data
+- **aggressive**: Lower rate — assumes favorable assessment or coverage terms
 
 ## Quality Standards
 

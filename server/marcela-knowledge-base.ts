@@ -1,5 +1,6 @@
 import { createKBDocumentFromText, deleteKBDocument, getConvaiAgent, updateConvaiAgent } from "./integrations/elevenlabs";
 import { storage } from "./storage";
+import { logger } from "./logger";
 
 function buildKnowledgeDocument(): string {
   const sections: string[] = [];
@@ -258,7 +259,7 @@ export async function uploadKnowledgeBase(): Promise<{ success: boolean; documen
     }
 
     const documentText = buildKnowledgeDocument();
-    console.log(`[marcela-kb] Compiled knowledge base: ${documentText.length} characters`);
+    logger.info(`Compiled knowledge base: ${documentText.length} characters`, "marcela-kb");
 
     const existingAgent = await getConvaiAgent(agentId);
     const existingKB = (existingAgent as any)?.conversation_config?.agent?.prompt?.knowledge_base;
@@ -267,16 +268,16 @@ export async function uploadKnowledgeBase(): Promise<{ success: boolean; documen
         if (doc.id && doc.name?.startsWith("HBG-Marcela-KB")) {
           try {
             await deleteKBDocument(doc.id);
-            console.log(`[marcela-kb] Deleted old KB document: ${doc.id}`);
+            logger.info(`Deleted old KB document: ${doc.id}`, "marcela-kb");
           } catch {
-            console.log(`[marcela-kb] Could not delete old doc ${doc.id}, continuing...`);
+            logger.info(`Could not delete old doc ${doc.id}, continuing...`, "marcela-kb");
           }
         }
       }
     }
 
     const doc = await createKBDocumentFromText("HBG-Marcela-KB", documentText);
-    console.log(`[marcela-kb] Created KB document: ${doc.id}`);
+    logger.info(`Created KB document: ${doc.id}`, "marcela-kb");
 
     await updateConvaiAgent(agentId, {
       conversation_config: {
@@ -290,10 +291,10 @@ export async function uploadKnowledgeBase(): Promise<{ success: boolean; documen
       },
     });
 
-    console.log(`[marcela-kb] Attached KB document to agent ${agentId}`);
+    logger.info(`Attached KB document to agent ${agentId}`, "marcela-kb");
     return { success: true, documentId: doc.id };
   } catch (error: any) {
-    console.error("[marcela-kb] Error uploading knowledge base:", error.message);
+    logger.error(`Error uploading knowledge base: ${error.message}`, "marcela-kb");
     return { success: false, error: error.message };
   }
 }

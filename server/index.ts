@@ -28,6 +28,7 @@ import { serveStatic } from "./static";
 import { createServer } from "http";
 import { authMiddleware, requireAuth, seedAdminUser, cleanupRateLimitMaps } from "./auth";
 import { storage } from "./storage";
+import { log as serverLog } from "./logger";
 
 const app = express();
 const httpServer = createServer(app);
@@ -88,14 +89,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 export function log(message: string, source = "express") {
-  const formattedTime = new Date().toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: true,
-  });
-
-  console.log(`${formattedTime} [${source}] ${message}`);
+  serverLog(message, source);
 }
 
 app.use((req, res, next) => {

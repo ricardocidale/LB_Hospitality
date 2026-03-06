@@ -42,6 +42,7 @@ Occupancy recommendations should account for:
 {
   "occupancyAnalysis": {
     "marketAverage": "XX%",
+    "confidence": "conservative | moderate | aggressive",
     "seasonalPattern": [
       { "season": "string", "occupancy": "XX%", "notes": "string" }
     ],

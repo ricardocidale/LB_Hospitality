@@ -38,14 +38,15 @@ Use `analyze_management_service_fees` (defined in `tools/analyze-management-serv
 {
   "managementServiceFeeAnalysis": {
     "serviceFeeCategories": {
-      "marketing": { "recommendedRate": "X.X%", "industryRange": "X.X-X.X%", "rationale": "string" },
-      "it": { "recommendedRate": "X.X%", "industryRange": "X.X-X.X%", "rationale": "string" },
-      "accounting": { "recommendedRate": "X.X%", "industryRange": "X.X-X.X%", "rationale": "string" },
-      "reservations": { "recommendedRate": "X.X%", "industryRange": "X.X-X.X%", "rationale": "string" },
-      "generalManagement": { "recommendedRate": "X.X%", "industryRange": "X.X-X.X%", "rationale": "string" }
+      "marketing": { "recommendedRate": "X.X%", "confidence": "conservative | moderate | aggressive", "industryRange": "X.X-X.X%", "rationale": "string" },
+      "it": { "recommendedRate": "X.X%", "confidence": "conservative | moderate | aggressive", "industryRange": "X.X-X.X%", "rationale": "string" },
+      "accounting": { "recommendedRate": "X.X%", "confidence": "conservative | moderate | aggressive", "industryRange": "X.X-X.X%", "rationale": "string" },
+      "reservations": { "recommendedRate": "X.X%", "confidence": "conservative | moderate | aggressive", "industryRange": "X.X-X.X%", "rationale": "string" },
+      "generalManagement": { "recommendedRate": "X.X%", "confidence": "conservative | moderate | aggressive", "industryRange": "X.X-X.X%", "rationale": "string" }
     },
     "incentiveFee": {
       "recommendedRate": "XX%",
+      "confidence": "conservative | moderate | aggressive",
       "industryRange": "XX-XX%",
       "basis": "Gross Operating Profit (GOP)",
       "rationale": "string"

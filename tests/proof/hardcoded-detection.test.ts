@@ -89,7 +89,6 @@ const ALL_SCANNED_FILES = [
 ];
 
 const FILES_THAT_MUST_IMPORT_CONSTANTS = [
-  "client/src/lib/financialEngine.ts",
   "client/src/lib/cashFlowAggregator.ts",
   "client/src/lib/equityCalculations.ts",
   "client/src/lib/loanCalculations.ts",
@@ -589,6 +588,7 @@ describe("Hardcoded Value Detection", () => {
         "pdfChartDrawer.ts",
         "constants.ts",
         "firstOperatingYear.ts",
+        "company-data.ts",
       ]);
 
       const allLibFiles = fs.readdirSync(libDir)

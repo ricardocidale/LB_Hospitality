@@ -41,23 +41,30 @@ Recommendations must specify the correct base for each rate.
 {
   "operatingCostAnalysis": {
     "roomRevenueBased": {
-      "housekeeping": { "recommendedRate": "XX%", "industryRange": "XX-XX%", "rationale": "string" },
-      "fbCostOfSales": { "recommendedRate": "XX%", "industryRange": "XX-XX%", "rationale": "string" }
+      "housekeeping": { "recommendedRate": "XX%", "confidence": "conservative | moderate | aggressive", "industryRange": "XX-XX%", "rationale": "string" },
+      "fbCostOfSales": { "recommendedRate": "XX%", "confidence": "conservative | moderate | aggressive", "industryRange": "XX-XX%", "rationale": "string" }
     },
     "totalRevenueBased": {
-      "adminGeneral": { "recommendedRate": "XX%", "industryRange": "XX-XX%", "rationale": "string" },
-      "propertyOps": { "recommendedRate": "XX%", "industryRange": "XX-XX%", "rationale": "string" },
-      "utilities": { "recommendedRate": "XX%", "industryRange": "XX-XX%", "rationale": "string" },
-      "ffeReserve": { "recommendedRate": "XX%", "industryRange": "XX-XX%", "rationale": "string" },
-      "marketing": { "recommendedRate": "XX%", "industryRange": "XX-XX%", "rationale": "string" },
-      "it": { "recommendedRate": "XX%", "industryRange": "XX-XX%", "rationale": "string" },
-      "other": { "recommendedRate": "XX%", "industryRange": "XX-XX%", "rationale": "string" }
+      "adminGeneral": { "recommendedRate": "XX%", "confidence": "conservative | moderate | aggressive", "industryRange": "XX-XX%", "rationale": "string" },
+      "propertyOps": { "recommendedRate": "XX%", "confidence": "conservative | moderate | aggressive", "industryRange": "XX-XX%", "rationale": "string" },
+      "utilities": { "recommendedRate": "XX%", "confidence": "conservative | moderate | aggressive", "industryRange": "XX-XX%", "rationale": "string" },
+      "ffeReserve": { "recommendedRate": "XX%", "confidence": "conservative | moderate | aggressive", "industryRange": "XX-XX%", "rationale": "string" },
+      "marketing": { "recommendedRate": "XX%", "confidence": "conservative | moderate | aggressive", "industryRange": "XX-XX%", "rationale": "string" },
+      "it": { "recommendedRate": "XX%", "confidence": "conservative | moderate | aggressive", "industryRange": "XX-XX%", "rationale": "string" },
+      "other": { "recommendedRate": "XX%", "confidence": "conservative | moderate | aggressive", "industryRange": "XX-XX%", "rationale": "string" }
     },
     "totalOperatingCostRatio": "XX%",
     "sources": ["USALI", "PKF Trends", "STR", "CBRE"]
   }
 }
 ```
+
+### Confidence Scoring
+
+Every cost category must include a `confidence` field:
+- **conservative**: Higher cost rate — budgets more expense, safer for underwriting
+- **moderate**: Market-aligned rate with strong comparable data
+- **aggressive**: Lower cost rate — assumes operational efficiency, less margin for error
 
 ## Quality Standards
 

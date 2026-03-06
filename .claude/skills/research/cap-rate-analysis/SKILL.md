@@ -44,6 +44,7 @@ Use `analyze_cap_rates` (defined in `tools/analyze-cap-rates.json`) to gather ca
     "marketRange": "X.X% - X.X%",
     "boutiqueRange": "X.X% - X.X%",
     "recommendedRange": "X.X% - X.X%",
+    "confidence": "conservative | moderate | aggressive",
     "rationale": "Why this range",
     "comparables": [
       { "name": "string", "capRate": "X.X%", "saleYear": "YYYY", "notes": "string" }
@@ -51,6 +52,13 @@ Use `analyze_cap_rates` (defined in `tools/analyze-cap-rates.json`) to gather ca
   }
 }
 ```
+
+### Confidence Scoring
+
+The `confidence` field classifies the recommendation's risk posture:
+- **conservative**: Higher cap rate (lower valuation) — cautious exit assumption
+- **moderate**: Market-aligned cap rate supported by recent comparable transactions
+- **aggressive**: Lower cap rate (higher valuation) — optimistic exit assumption with limited recent comps
 
 ## Quality Standards
 

@@ -5,10 +5,10 @@
 ## Overview
 Business simulation portal for the hospitality industry. Financial modeling, property management, investment analysis, and AI-powered assistant (Marcela). GAAP-compliant (ASC 230, ASC 360, ASC 470) with IRS depreciation rules and independent audit/verification engine.
 
-**Codebase:** ~511 source files, ~75,230 lines, 1,546 tests across 76 files.
+**Codebase:** ~530 source files, ~79,000 lines, 1,608 tests across 78 files.
 
 ## User Preferences
-- **Calculations first.** 1,546-test proof system must always pass.
+- **Calculations first.** 1,608-test proof system must always pass.
 - **Graphics-rich pages.** Charts, animations, visual elements everywhere.
 - **No hardcoded values.** Financial assumptions and admin config from DB or named constants.
 - **Full recalculation on save.** No partial query invalidation.
@@ -35,8 +35,11 @@ The AI agent (configurable name, default "Marcela") operates across web (ElevenL
 ### Branding Architecture
 User → User Group → Default hierarchy. See `.claude/claude.md` § Branding Architecture.
 
-### Financial Engine
-GAAP-compliant calculation engine with 22 computation tools, typed dispatch, zero `any` types. See `.claude/skills/finance/SKILL.md`.
+### Financial Engine (Modular)
+GAAP-compliant calculation engine with 22 computation tools, typed dispatch, zero `any` types. Split into modular structure:
+- **`client/src/lib/financial/`** — types.ts, property-engine.ts, company-engine.ts, utils.ts, index.ts
+- **`client/src/lib/financialEngine.ts`** — thin re-export for backward compatibility
+See `.claude/skills/finance/SKILL.md`.
 
 ### Admin Page (11 tabs)
 Modular tab components, each split into sub-component directories:
@@ -47,15 +50,19 @@ Modular tab components, each split into sub-component directories:
 See `.claude/skills/admin/SKILL.md` and `.claude/skills/admin/ai-agent-admin.md`.
 
 ### Server Architecture (Modular)
+- **Logger:** `server/logger.ts` — structured logger with timestamps, levels (info/warn/error/debug), and source prefixes. Used across all server modules.
 - **Storage:** `server/storage/` — domain modules: users, properties, financial, admin, activity, research. Composed via `DatabaseStorage` class in index.ts. Thin re-export at `server/storage.ts`.
 - **Seeds:** `server/seeds/` — domain modules: users, properties, branding, research. Orchestrated by index.ts. Thin re-export at `server/seed.ts`.
 - **Routes:** `server/routes/admin/` — sub-modules: users, tools, marcela. Registered via index.ts. Thin re-export at `server/routes/admin.ts`.
-- **Calculation Checker:** `server/calculation-checker/` — sub-modules: property-checks, gaap-checks, portfolio-checks, types. Thin re-export at `server/calculationChecker.ts`.
+- **Calculation Checker:** `server/calculation-checker/` — sub-modules: property-checks, gaap-checks, portfolio-checks, types. Thin re-export at `server/calculationChecker.ts`. Zero `any` types — all fully typed with `CheckerProperty`, `CheckerGlobalAssumptions`, `IndependentMonthlyResult`.
 - 12 route modules: `auth`, `properties`, `admin`, `global-assumptions`, `branding`, `scenarios`, `research`, `property-finder`, `calculations`, `uploads`, `twilio`, `marcela-tools`.
 
 ### Client Architecture (Modular)
 - **API:** `client/src/lib/api/` — domain modules: properties, admin, research, scenarios, types. Re-exported from `client/src/lib/api.ts`.
 - **AI Chat:** `client/src/components/ai-chat/` — types, hooks (useChat, useVoice), ChatMessages, ChatInput, ChatHeader. Re-exported from AIChatWidget.tsx.
+- **Financial Table Components:** `client/src/components/financial-table/` — context.tsx, common-rows.tsx, expandable-rows.tsx, balance-sheet-rows.tsx, specialized-rows.tsx, table-shell.tsx, index.ts. Re-exported from `financial-table-rows.tsx` for backward compatibility.
+- **Company Data:** `client/src/lib/company-data.ts` — data transformation for Company page (income, cash flow, balance sheet aggregation).
+- **Company Exports:** `client/src/lib/exports/companyExports.ts` — PDF, CSV, PNG, Excel, PPTX export logic for Company page.
 - **Excel Export:** `client/src/lib/exports/excel/` — property-sheets, portfolio-sheet, helpers, types. Re-exported from excelExport.ts.
 - **Checker Manual:** `client/src/pages/checker-manual/` — types, constants, hooks, TableOfContents, thin ManualContent orchestrator. 21 lazy-loaded section files in `sections/`. Re-exported from CheckerManual.tsx.
 - **User Manual:** `client/src/pages/user-manual/` — constants, UserManualTOC, thin UserManualContent orchestrator. 17 lazy-loaded section files in `sections/`. Re-exported from index.tsx.
@@ -79,7 +86,7 @@ React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v
 ```bash
 npm run dev            # Start dev server (port 5000)
 npm run health         # One-shot: tsc + tests + verify
-npm run test:summary   # 1,546 tests, 1-line output
+npm run test:summary   # 1,608 tests, 1-line output
 npm run verify:summary # 6-phase verification, compact
 npm run stats          # Codebase metrics
 npm run audit:quick    # Quick code quality scan
@@ -96,3 +103,7 @@ npm run audit:quick    # Quick code quality scan
 ├── commands/              # Slash commands
 └── scripts/               # SQL utilities
 ```
+
+## Future Improvements (Noted, Not Blocking)
+- **Schema split:** `shared/schema.ts` (1,172 lines) could be split by domain (auth, portfolio, research, branding, operations) once Claude Code finishes research feature work.
+- **sidebar.tsx:** shadcn/ui primitive (736 lines) — do not modify.

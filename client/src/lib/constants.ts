@@ -90,11 +90,6 @@ export const STAFFING_TIERS = [
   { maxProperties: 6, fte: 4.5 },
   { maxProperties: Infinity, fte: 7.0 },
 ];
-/** Look up the FTE headcount for the management company based on how many properties it manages. */
-export function getStaffFTE(propertyCount: number): number {
-  const tier = STAFFING_TIERS.find(t => propertyCount <= t.maxProperties);
-  return tier ? tier.fte : STAFFING_TIERS[STAFFING_TIERS.length - 1].fte;
-}
 
 // Operating reserve / funding buffer — minimum cash cushions to avoid going negative
 export const OPERATING_RESERVE_BUFFER = 50000;

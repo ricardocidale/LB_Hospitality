@@ -5,7 +5,7 @@
 ## Overview
 Business simulation portal for boutique hotel investment. Financial modeling, property management, investment analysis, and AI-powered assistant (Marcela). GAAP-compliant with independent audit/verification engine.
 
-**Codebase:** ~545 source files, ~79,500 lines, 2,268 tests across 100 files.
+**Codebase:** ~545 source files, ~79,500 lines, 2,306 tests across 101 files.
 
 ## Quick Commands
 ```bash

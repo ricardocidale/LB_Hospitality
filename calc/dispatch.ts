@@ -71,6 +71,10 @@ import { computeCostOfServices } from "./services/cost-of-services.js";
 import { computePropertyMetrics } from "./research/property-metrics.js";
 import { computeDepreciationBasis } from "./research/depreciation-basis.js";
 import { computeDebtCapacity } from "./research/debt-capacity.js";
+import { computeOccupancyRamp } from "./research/occupancy-ramp.js";
+import { computeADRProjection } from "./research/adr-projection.js";
+import { computeCapRateValuation } from "./research/cap-rate-valuation.js";
+import { computeCostBenchmarks } from "./research/cost-benchmarks.js";
 
 type ToolInput = Record<string, unknown>;
 type ToolFn = (input: never) => unknown;
@@ -112,6 +116,10 @@ const TOOL_DISPATCH: Record<string, ToolHandler> = {
   compute_property_metrics: wrap(computePropertyMetrics as ToolFn),
   compute_depreciation_basis: wrap(computeDepreciationBasis as ToolFn),
   compute_debt_capacity: wrap(computeDebtCapacity as ToolFn),
+  compute_occupancy_ramp: wrap(computeOccupancyRamp as ToolFn),
+  compute_adr_projection: wrap(computeADRProjection as ToolFn),
+  compute_cap_rate_valuation: withRounding(computeCapRateValuation as ToolFn),
+  compute_cost_benchmarks: withRounding(computeCostBenchmarks as ToolFn),
 };
 
 /**

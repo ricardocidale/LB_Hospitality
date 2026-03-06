@@ -8,3 +8,7 @@
 export { computePropertyMetrics } from "./property-metrics.js";
 export { computeDepreciationBasis } from "./depreciation-basis.js";
 export { computeDebtCapacity } from "./debt-capacity.js";
+export { computeOccupancyRamp } from "./occupancy-ramp.js";
+export { computeADRProjection } from "./adr-projection.js";
+export { computeCapRateValuation } from "./cap-rate-valuation.js";
+export { computeCostBenchmarks } from "./cost-benchmarks.js";

@@ -96,7 +96,7 @@ export default function OperatingCostRatesSection({ draft, onChange, globalAssum
                     <div className="flex justify-between items-center">
                       <div className="flex flex-col gap-0.5">
                         <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Housekeeping<HelpTooltip text="Housekeeping expense = Room Revenue × this rate. Covers cleaning labor, linens, guest supplies, and room maintenance. Calculated monthly as a variable cost that scales with room revenue. USALI Rooms Department." /></Label>
-                        <ResearchBadge value={researchValues.costHousekeeping?.display} onClick={() => researchValues.costHousekeeping && onChange("costRateRooms", researchValues.costHousekeeping.mid / 100)} />
+                        <ResearchBadge entry={researchValues.\1} onClick={() => researchValues.costHousekeeping && onChange("costRateRooms", researchValues.costHousekeeping.mid / 100)} />
                       </div>
                       <EditableValue
                         value={(draft.costRateRooms ?? DEFAULT_COST_RATE_ROOMS) * 100}
@@ -119,7 +119,7 @@ export default function OperatingCostRatesSection({ draft, onChange, globalAssum
                     <div className="flex justify-between items-center">
                       <div className="flex flex-col gap-0.5">
                         <Label className="text-sm label-text text-gray-700 flex items-center gap-1">F&B<HelpTooltip text="Food & Beverage expense = Room Revenue × this rate. Covers kitchen labor, food costs, beverages, and dining operations. Calculated as a percentage of Room Revenue (not F&B Revenue) for consistent cost modeling. USALI F&B Department." /></Label>
-                        <ResearchBadge value={researchValues.costFB?.display} onClick={() => researchValues.costFB && onChange("costRateFB", researchValues.costFB.mid / 100)} />
+                        <ResearchBadge entry={researchValues.\1} onClick={() => researchValues.costFB && onChange("costRateFB", researchValues.costFB.mid / 100)} />
                       </div>
                       <EditableValue
                         value={(draft.costRateFB ?? DEFAULT_COST_RATE_FB) * 100}
@@ -148,7 +148,7 @@ export default function OperatingCostRatesSection({ draft, onChange, globalAssum
                     <div className="flex justify-between items-center">
                       <div className="flex flex-col gap-0.5">
                         <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Admin & General<HelpTooltip text="Admin & General expense = (Year 1 Total Revenue ÷ 12) × this rate × annual escalation factor. A fixed cost covering management salaries, accounting, legal, HR, and office operations. The dollar amount is set in Year 1 and escalates annually with the Inflation Escalator Factor. USALI A&G Department." /></Label>
-                        <ResearchBadge value={researchValues.costAdmin?.display} onClick={() => researchValues.costAdmin && onChange("costRateAdmin", researchValues.costAdmin.mid / 100)} />
+                        <ResearchBadge entry={researchValues.\1} onClick={() => researchValues.costAdmin && onChange("costRateAdmin", researchValues.costAdmin.mid / 100)} />
                       </div>
                       <EditableValue
                         value={(draft.costRateAdmin ?? DEFAULT_COST_RATE_ADMIN) * 100}
@@ -171,7 +171,7 @@ export default function OperatingCostRatesSection({ draft, onChange, globalAssum
                     <div className="flex justify-between items-center">
                       <div className="flex flex-col gap-0.5">
                         <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Property Ops<HelpTooltip text="Property Ops expense = (Year 1 Total Revenue ÷ 12) × this rate × annual escalation factor. A fixed cost covering engineering, repairs, grounds maintenance, and facilities. The dollar amount is set in Year 1 and escalates annually with the Inflation Escalator Factor. USALI POM Department." /></Label>
-                        <ResearchBadge value={researchValues.costPropertyOps?.display} onClick={() => researchValues.costPropertyOps && onChange("costRatePropertyOps", researchValues.costPropertyOps.mid / 100)} />
+                        <ResearchBadge entry={researchValues.\1} onClick={() => researchValues.costPropertyOps && onChange("costRatePropertyOps", researchValues.costPropertyOps.mid / 100)} />
                       </div>
                       <EditableValue
                         value={(draft.costRatePropertyOps ?? DEFAULT_COST_RATE_PROPERTY_OPS) * 100}
@@ -194,7 +194,7 @@ export default function OperatingCostRatesSection({ draft, onChange, globalAssum
                     <div className="flex justify-between items-center">
                       <div className="flex flex-col gap-0.5">
                         <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Utilities<HelpTooltip text="Utilities expense is split between variable and fixed components. Variable portion scales with current Total Revenue; fixed portion uses Year 1 base and escalates annually. Covers electricity, gas, water, sewer, and waste. USALI Utilities." /></Label>
-                        <ResearchBadge value={researchValues.costUtilities?.display} onClick={() => researchValues.costUtilities && onChange("costRateUtilities", researchValues.costUtilities.mid / 100)} />
+                        <ResearchBadge entry={researchValues.\1} onClick={() => researchValues.costUtilities && onChange("costRateUtilities", researchValues.costUtilities.mid / 100)} />
                       </div>
                       <EditableValue
                         value={(draft.costRateUtilities ?? DEFAULT_COST_RATE_UTILITIES) * 100}
@@ -236,7 +236,7 @@ export default function OperatingCostRatesSection({ draft, onChange, globalAssum
                     <div className="flex justify-between items-center">
                       <div className="flex flex-col gap-0.5">
                         <Label className="text-sm label-text text-gray-700 flex items-center gap-1">FF&E Reserve<HelpTooltip text="FF&E Reserve = Total Revenue × this rate. A variable set-aside for future replacement of furniture, fixtures, and equipment. Industry standard is 3–5% of revenue. Treated as an operating expense below GOP." /><GaapBadge rule="USALI Standard: FF&E reserve is deducted below GOP to arrive at NOI. Actual FF&E replacements are capitalized and depreciated over 5–7 years (IRS Class Life), not expensed. The reserve funds future CapEx." /></Label>
-                        <ResearchBadge value={researchValues.costFFE?.display} onClick={() => researchValues.costFFE && onChange("costRateFFE", researchValues.costFFE.mid / 100)} />
+                        <ResearchBadge entry={researchValues.\1} onClick={() => researchValues.costFFE && onChange("costRateFFE", researchValues.costFFE.mid / 100)} />
                       </div>
                       <EditableValue
                         value={(draft.costRateFFE ?? DEFAULT_COST_RATE_FFE) * 100}
@@ -259,7 +259,7 @@ export default function OperatingCostRatesSection({ draft, onChange, globalAssum
                     <div className="flex justify-between items-center">
                       <div className="flex flex-col gap-0.5">
                         <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Other<HelpTooltip text="Other expenses = (Year 1 Total Revenue ÷ 12) × this rate × annual escalation factor. A fixed cost for miscellaneous operating expenses not categorized elsewhere. Escalates annually with the Inflation Escalator Factor." /></Label>
-                        <ResearchBadge value={researchValues.costOther?.display} onClick={() => researchValues.costOther && onChange("costRateOther", researchValues.costOther.mid / 100)} />
+                        <ResearchBadge entry={researchValues.\1} onClick={() => researchValues.costOther && onChange("costRateOther", researchValues.costOther.mid / 100)} />
                       </div>
                       <EditableValue
                         value={(draft.costRateOther ?? DEFAULT_COST_RATE_OTHER) * 100}
@@ -282,7 +282,7 @@ export default function OperatingCostRatesSection({ draft, onChange, globalAssum
                     <div className="flex justify-between items-center">
                       <div className="flex flex-col gap-0.5">
                         <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Marketing<HelpTooltip text="Marketing expense = Total Revenue × this rate. Covers property-level advertising, OTA commissions, and local promotions. USALI Sales & Marketing Department." /></Label>
-                        <ResearchBadge value={researchValues.costMarketing?.display} onClick={() => researchValues.costMarketing && onChange("costRateMarketing", researchValues.costMarketing.mid / 100)} />
+                        <ResearchBadge entry={researchValues.\1} onClick={() => researchValues.costMarketing && onChange("costRateMarketing", researchValues.costMarketing.mid / 100)} />
                       </div>
                       <EditableValue
                         value={(draft.costRateMarketing ?? DEFAULT_COST_RATE_MARKETING) * 100}
@@ -305,7 +305,7 @@ export default function OperatingCostRatesSection({ draft, onChange, globalAssum
                     <div className="flex justify-between items-center">
                       <div className="flex flex-col gap-0.5">
                         <Label className="text-sm label-text text-gray-700 flex items-center gap-1">IT<HelpTooltip text="IT expense = (Year 1 Total Revenue ÷ 12) × this rate × annual escalation factor. Covers property-level IT needs — WiFi, in-room tech, PMS, and basic support. Escalates annually with the Inflation Escalator Factor." /></Label>
-                        <ResearchBadge value={researchValues.costIT?.display} onClick={() => researchValues.costIT && onChange("costRateIT", researchValues.costIT.mid / 100)} />
+                        <ResearchBadge entry={researchValues.\1} onClick={() => researchValues.costIT && onChange("costRateIT", researchValues.costIT.mid / 100)} />
                       </div>
                       <EditableValue
                         value={(draft.costRateIT ?? DEFAULT_COST_RATE_IT) * 100}
@@ -335,7 +335,7 @@ export default function OperatingCostRatesSection({ draft, onChange, globalAssum
                     <div className="flex justify-between items-center">
                       <div className="flex flex-col gap-0.5">
                         <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Insurance<HelpTooltip text="Insurance expense = (Purchase Price + Building Improvements) ÷ 12 × this rate × annual escalation factor. Based on total property value, not revenue. Covers property liability, damage, workers' comp, and business interruption coverage. Escalates annually with the Inflation Escalator Factor." /><GaapBadge rule="GAAP Matching Principle: Insurance premiums are expensed as incurred over the policy period. Prepaid portions are recorded as current assets and amortized monthly. Not capitalizable into property basis." /></Label>
-                        <ResearchBadge value={researchValues.costInsurance?.display} onClick={() => researchValues.costInsurance && onChange("costRateInsurance", researchValues.costInsurance.mid / 100)} />
+                        <ResearchBadge entry={researchValues.\1} onClick={() => researchValues.costInsurance && onChange("costRateInsurance", researchValues.costInsurance.mid / 100)} />
                       </div>
                       <EditableValue
                         value={(draft.costRateInsurance ?? DEFAULT_COST_RATE_INSURANCE) * 100}
@@ -358,7 +358,7 @@ export default function OperatingCostRatesSection({ draft, onChange, globalAssum
                     <div className="flex justify-between items-center">
                       <div className="flex flex-col gap-0.5">
                         <Label className="text-sm label-text text-gray-700 flex items-center gap-1">Property Taxes<HelpTooltip text="Property tax expense = (Purchase Price + Building Improvements) ÷ 12 × this rate × annual escalation factor. Based on total property value, not revenue. Covers real estate taxes and assessments. Escalates annually with the Inflation Escalator Factor." /><GaapBadge rule="IRC §164: Property taxes are fully deductible as an operating expense for income tax purposes. Based on assessed value, not market value. Reassessment may occur upon sale or significant improvement." /></Label>
-                        <ResearchBadge value={researchValues.costPropertyTaxes?.display} onClick={() => researchValues.costPropertyTaxes && onChange("costRateTaxes", researchValues.costPropertyTaxes.mid / 100)} />
+                        <ResearchBadge entry={researchValues.\1} onClick={() => researchValues.costPropertyTaxes && onChange("costRateTaxes", researchValues.costPropertyTaxes.mid / 100)} />
                       </div>
                       <EditableValue
                         value={(draft.costRateTaxes ?? DEFAULT_COST_RATE_TAXES) * 100}

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { X, ChevronRight, ChevronLeft, HelpCircle, MapPin } from "lucide-react";
+import { X, ChevronRight, ChevronLeft, HelpCircle, Compass } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useQueryClient } from "@tanstack/react-query";
 import { create } from "zustand";
@@ -53,36 +53,44 @@ function TourPromptDialog({ onAccept, onDecline }: { onAccept: () => void; onDec
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center" data-testid="tour-prompt-dialog">
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => onDecline(dontOffer)} />
-      <div className="relative bg-white rounded-2xl shadow-2xl border border-gray-100 p-8 max-w-md w-full mx-4 animate-in fade-in zoom-in-95 duration-300">
-        <div className="flex flex-col items-center text-center space-y-5">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-green-500/20">
-            <MapPin className="w-7 h-7 text-white" />
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => onDecline(dontOffer)} />
+      <div className="relative bg-card rounded-2xl shadow-2xl border border-border/60 p-8 max-w-md w-full mx-4 animate-in fade-in zoom-in-95 duration-300">
+        <button
+          onClick={() => onDecline(dontOffer)}
+          className="absolute top-4 right-4 text-muted-foreground/40 hover:text-foreground/70 transition-colors"
+          data-testid="button-tour-prompt-close"
+        >
+          <X className="w-4 h-4" />
+        </button>
+
+        <div className="flex flex-col items-center text-center space-y-6">
+          <div className="w-14 h-14 rounded-2xl bg-primary/15 flex items-center justify-center">
+            <Compass className="w-7 h-7 text-primary" />
           </div>
 
-          <div className="space-y-2">
-            <h2 className="text-xl font-display font-semibold text-gray-900">
-              {firstName ? `Welcome, ${firstName}!` : "Welcome!"}
+          <div className="space-y-2.5">
+            <h2 className="text-xl font-display font-semibold text-foreground tracking-tight">
+              {firstName ? `Welcome, ${firstName}` : "Welcome"}
             </h2>
             <p className="text-sm text-muted-foreground leading-relaxed max-w-sm">
-              Would you like a quick guided tour of the Hospitality Business App? It only takes a minute and covers navigation, key features, and where to find everything.
+              Take a quick guided tour to see how the portal works — navigation, key features, and where to find everything. It only takes a minute.
             </p>
           </div>
 
-          <div className="flex items-center gap-3 w-full">
+          <div className="flex items-center gap-3 w-full pt-1">
             <button
               onClick={() => onDecline(dontOffer)}
-              className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors"
+              className="flex-1 px-4 py-2.5 text-sm font-medium text-muted-foreground bg-muted hover:bg-muted/80 rounded-xl transition-colors"
               data-testid="button-tour-decline"
             >
-              No
+              Skip
             </button>
             <button
               onClick={onAccept}
-              className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-xl transition-colors shadow-md shadow-green-600/20"
+              className="flex-1 px-4 py-2.5 text-sm font-medium text-primary-foreground bg-primary hover:bg-primary/90 rounded-xl transition-colors shadow-sm"
               data-testid="button-tour-accept"
             >
-              Yes
+              Start Tour
             </button>
           </div>
 
@@ -91,11 +99,11 @@ function TourPromptDialog({ onAccept, onDecline }: { onAccept: () => void; onDec
               type="checkbox"
               checked={dontOffer}
               onChange={(e) => setDontOffer(e.target.checked)}
-              className="w-4 h-4 rounded border-gray-300 text-green-600 focus:ring-green-500 cursor-pointer"
+              className="w-3.5 h-3.5 rounded border-border text-primary focus:ring-primary/30 cursor-pointer"
               data-testid="checkbox-dont-offer-again"
             />
-            <span className="text-xs text-gray-400 group-hover:text-gray-500 transition-colors select-none">
-              Do not show this message in the future
+            <span className="text-xs text-muted-foreground/60 group-hover:text-muted-foreground transition-colors select-none">
+              Don't show this again
             </span>
           </label>
         </div>
@@ -203,14 +211,14 @@ function GuidedWalkthrough() {
     width: targetRect.width + padding * 2,
     height: targetRect.height + padding * 2,
     borderRadius: 12,
-    boxShadow: "0 0 0 9999px rgba(0,0,0,0.5)",
+    boxShadow: "0 0 0 9999px rgba(0,0,0,0.55)",
     pointerEvents: "none",
     zIndex: 9998,
     transition: "all 0.3s ease",
   };
 
   const tooltipTop = targetRect.bottom + padding + 12;
-  const tooltipLeft = Math.max(12, Math.min(targetRect.left, window.innerWidth - 292));
+  const tooltipLeft = Math.max(12, Math.min(targetRect.left, window.innerWidth - 320));
   const fitsBelow = tooltipTop + 200 < window.innerHeight;
 
   const tooltipStyle: React.CSSProperties = {
@@ -219,10 +227,11 @@ function GuidedWalkthrough() {
     left: tooltipLeft,
     transform: fitsBelow ? "none" : "translateY(-100%)",
     zIndex: 9999,
-    maxWidth: 280,
+    maxWidth: 310,
   };
 
   const currentStep = tourSteps[step];
+  const isLast = step === tourSteps.length - 1;
 
   return (
     <div data-testid="guided-walkthrough">
@@ -236,40 +245,39 @@ function GuidedWalkthrough() {
 
       <div
         style={tooltipStyle}
-        className="bg-white rounded-xl border shadow-lg p-4"
+        className="bg-card rounded-xl border border-border/60 shadow-xl p-5"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-start justify-between mb-2">
-          <h3 className="text-sm font-semibold text-gray-900">{currentStep.title}</h3>
+        <div className="flex items-start justify-between mb-2.5">
+          <h3 className="text-sm font-semibold text-foreground tracking-tight pr-4">{currentStep.title}</h3>
           <button
             onClick={handleSkip}
-            className="text-gray-400 hover:text-gray-600 -mt-1 -mr-1"
+            className="text-muted-foreground/40 hover:text-foreground/70 transition-colors -mt-0.5 -mr-0.5 shrink-0"
             data-testid="button-close-tour"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        <p className="text-xs text-muted-foreground mb-4">{currentStep.description}</p>
+        <p className="text-xs text-muted-foreground leading-relaxed mb-5">{currentStep.description}</p>
 
         <div className="flex items-center justify-between">
-          <span className="text-xs text-gray-400">
-            {step + 1} of {tourSteps.length}
-          </span>
+          <div className="flex items-center gap-1">
+            {tourSteps.map((_, i) => (
+              <div
+                key={i}
+                className={`h-1 rounded-full transition-all duration-300 ${
+                  i === step ? "w-4 bg-primary" : i < step ? "w-1.5 bg-primary/40" : "w-1.5 bg-border"
+                }`}
+              />
+            ))}
+          </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleSkip}
-              className="text-xs text-gray-400 hover:text-gray-600 px-2 py-1"
-              data-testid="button-skip-tour"
-            >
-              Skip Tour
-            </button>
-
+          <div className="flex items-center gap-1.5">
             {step > 0 && (
               <button
                 onClick={handleBack}
-                className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-md hover:bg-gray-100 text-gray-600"
+                className="inline-flex items-center gap-0.5 text-xs px-2.5 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                 data-testid="button-tour-back"
               >
                 <ChevronLeft className="w-3 h-3" />
@@ -279,11 +287,11 @@ function GuidedWalkthrough() {
 
             <button
               onClick={handleNext}
-              className="inline-flex items-center gap-1 text-xs px-3 py-1.5 rounded-md bg-green-600 hover:bg-green-700 text-white font-medium"
+              className="inline-flex items-center gap-0.5 text-xs px-3 py-1.5 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 font-medium transition-colors shadow-sm"
               data-testid="button-tour-next"
             >
-              {step === tourSteps.length - 1 ? "Finish" : "Next"}
-              <ChevronRight className="w-3 h-3" />
+              {isLast ? "Done" : "Next"}
+              {!isLast && <ChevronRight className="w-3 h-3" />}
             </button>
           </div>
         </div>

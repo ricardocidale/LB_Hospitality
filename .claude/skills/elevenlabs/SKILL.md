@@ -25,7 +25,13 @@ Comprehensive library of documentation, helper functions, scripts, and examples 
 │   ├── phone-numbers.md                  Phone number management, batch calls
 │   ├── twilio.md                         Twilio voice integration
 │   ├── whatsapp.md                       WhatsApp messaging & calls
-│   └── webhooks.md                       Webhook types, security, handlers
+│   ├── webhooks.md                       Webhook types, security, handlers
+│   ├── agent-design.md                   ★ Agent design best practices & architecture
+│   ├── prompting-guide.md               ★ Prompt engineering for agents
+│   ├── prompt-templates.md              ★ Ready-to-use prompt templates (7 use cases)
+│   ├── multi-agent.md                   ★ Multi-agent transfers & orchestration patterns
+│   ├── guardrails.md                    ★ Safety, manipulation detection, custom rules
+│   └── agent-workflows.md              ★ Visual workflow builder & node types
 │
 ├── helpers/                              Reusable TypeScript utility functions
 │   ├── index.ts                          Barrel export
@@ -39,7 +45,8 @@ Comprehensive library of documentation, helper functions, scripts, and examples 
 │   ├── conversations.ts                  Conversation listing, stats, transcript format
 │   ├── voices.ts                         Voice search, list, find by name
 │   ├── phone-numbers.ts                  Phone numbers: register, assign, batch calls
-│   └── webhooks.ts                       Webhook signature verification & handlers
+│   ├── webhooks.ts                       Webhook signature verification & handlers
+│   └── multi-agent.ts                   ★ Multi-agent system builder & orchestrator helpers
 │
 ├── scripts/                              Standalone admin/utility scripts
 │   ├── list-agents.ts                    List all agents
@@ -57,8 +64,11 @@ Comprehensive library of documentation, helper functions, scripts, and examples 
     ├── widget-embed.tsx                  Widget web component for React apps
     ├── server-routes.ts                  Express API routes (signed URL, TTS, STT, webhooks)
     ├── client-tools-patterns.ts         Common client tool patterns (nav, UI, data, e-commerce)
-    └── knowledge-base-sync.ts           KB sync workflow with periodic updates
+    ├── knowledge-base-sync.ts           KB sync workflow with periodic updates
+    └── multi-agent-system.ts            ★ Complete multi-agent setup (hotel & support examples)
 ```
+
+★ = New in this update (agent design, prompting, multi-agent)
 
 ## Quick Start
 
@@ -88,6 +98,7 @@ const client = new ElevenLabsClient({ apiKey: process.env.ELEVENLABS_API_KEY });
 ### 3. Use Helpers
 ```typescript
 import { createClient, textToSpeech, listAgents, generateSignedUrl } from "./helpers";
+import { createMultiAgentSystem, generateOrchestratorPrompt } from "./helpers";
 ```
 
 ### 4. Run Scripts
@@ -107,6 +118,50 @@ ELEVENLABS_API_KEY=xxx npx ts-node .claude/skills/elevenlabs/scripts/usage-repor
 | Vanilla JS/TS browser app | `@elevenlabs/client` | `docs/client-sdk.md` |
 | Simple HTML page | `@elevenlabs/convai-widget-embed` (CDN) | `docs/widget.md` |
 | React Native mobile app | `@elevenlabs/react-native` | `docs/overview.md` |
+
+## Agent Design Quick Reference
+
+### Architecture Patterns
+
+| Pattern | When to Use | Doc |
+|---------|-------------|-----|
+| Single agent | Simple Q&A, FAQ, single domain | `docs/agent-design.md` |
+| Orchestrator + specialists | Multi-domain (billing, support, sales) | `docs/multi-agent.md` |
+| Chain topology | Sequential workflows (qualify → book → confirm) | `docs/multi-agent.md` |
+| Hub + sub-specialists | Deep domain expertise with tiers | `docs/multi-agent.md` |
+| Visual workflows | Complex branching within one agent | `docs/agent-workflows.md` |
+
+### Prompt Engineering
+
+| Topic | Doc |
+|-------|-----|
+| Core principles (sections, conciseness, emphasis) | `docs/prompting-guide.md` |
+| Dynamic variables and overrides | `docs/prompting-guide.md` |
+| Tool descriptions in prompts | `docs/prompting-guide.md` |
+| Voice-specific tips | `docs/prompting-guide.md` |
+| Ready-to-use templates (7 use cases) | `docs/prompt-templates.md` |
+
+### Available Templates
+
+| Template | Use Case | Doc |
+|----------|----------|-----|
+| Customer Support Agent | Order lookup, refunds, account help | `docs/prompt-templates.md` |
+| Sales / Booking Agent | Product discovery, reservation | `docs/prompt-templates.md` |
+| Orchestrator / Router | Intent classification, routing | `docs/prompt-templates.md` |
+| Knowledge Base Q&A | Documentation-backed answers | `docs/prompt-templates.md` |
+| Appointment Scheduling | Calendar booking and management | `docs/prompt-templates.md` |
+| Multilingual Concierge | Multi-language hospitality service | `docs/prompt-templates.md` |
+| Technical Troubleshooting | Step-by-step issue resolution | `docs/prompt-templates.md` |
+
+### Safety & Guardrails
+
+| Feature | Purpose | Doc |
+|---------|---------|-----|
+| System prompt `# Guardrails` section | Primary behavioral rules | `docs/guardrails.md` |
+| Focus Guardrail | Prevent drift in long conversations | `docs/guardrails.md` |
+| Manipulation Detection | Block prompt injection | `docs/guardrails.md` |
+| Content Filtering | Prevent inappropriate content | `docs/guardrails.md` |
+| Custom Guardrails | Business-specific policy enforcement | `docs/guardrails.md` |
 
 ## GitHub Repositories
 
@@ -133,8 +188,16 @@ ELEVENLABS_API_KEY=xxx npx ts-node .claude/skills/elevenlabs/scripts/usage-repor
 4. Register client tools for app integration
 5. Attach knowledge base documents for domain expertise
 
+### Multi-Agent Deployment
+1. Create specialist agents first (each with focused prompt + tools)
+2. Create orchestrator agent with `transfer_to_agent` system tool
+3. Define transfer conditions (natural language) for each specialist
+4. Add `transfer_to_number` for human escalation fallback
+5. Use `gpt-4o` or `gpt-4o-mini` for reliable tool calling
+6. See `docs/multi-agent.md` for architecture patterns
+
 ### Tool Architecture
 - **Client tools** — run in browser (navigation, UI, context)
 - **Server tools** — run on your server via webhook (DB, APIs)
 - **MCP tools** — connect MCP servers for extended capabilities
-- **System tools** — built-in (end conversation, transfer call)
+- **System tools** — built-in (end call, transfer agent, detect language, skip turn, transfer to number, DTMF, voicemail)

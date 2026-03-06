@@ -9,3 +9,4 @@ export * from "./conversations";
 export * from "./voices";
 export * from "./phone-numbers";
 export * from "./webhooks";
+export * from "./multi-agent";

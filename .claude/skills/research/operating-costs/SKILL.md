@@ -14,7 +14,8 @@ Benchmark operating cost rates for a specific hospitality property by analyzing 
 ## Tools
 
 - `analyze_operating_costs` — gather USALI-based cost benchmarks and market comparisons
-- `compute_property_metrics` — **deterministic**: compute GOP and NOI margin for given cost rates. Call this to validate how your recommended rates impact profitability.
+- `compute_cost_benchmarks` — **deterministic**: convert percentage cost rates into annual dollar amounts for a full USALI-aligned breakdown. Call this to show the dollar impact of your recommended rates.
+- `compute_property_metrics` — **deterministic**: compute GOP and NOI margin for given cost rates.
 
 ## Key Analysis Dimensions
 
@@ -55,13 +56,6 @@ Recommendations must specify the correct base for each rate.
   }
 }
 ```
-
-### Confidence Scoring
-
-Every cost category must include a `confidence` field:
-- **conservative**: Higher cost rate — budgets more expense, safer for underwriting
-- **moderate**: Market-aligned rate with strong comparable data
-- **aggressive**: Lower cost rate — assumes operational efficiency, less margin for error
 
 ## Quality Standards
 

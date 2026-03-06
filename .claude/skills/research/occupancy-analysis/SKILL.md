@@ -14,7 +14,8 @@ Analyze occupancy rate patterns, seasonal variations, and ramp-up timelines for 
 ## Tools
 
 - `analyze_occupancy` — gather market occupancy benchmarks and seasonal patterns
-- `compute_property_metrics` — **deterministic**: compute RevPAR and revenue impact for a given occupancy rate. Call this to show the financial impact of your recommendation.
+- `compute_occupancy_ramp` — **deterministic**: compute month-by-month occupancy schedule from start to stabilization, with RevPAR and room revenue at each stage. Call this to show the ramp-up financial impact.
+- `compute_property_metrics` — **deterministic**: compute RevPAR and revenue impact for a given occupancy rate.
 
 ## Key Analysis Dimensions
 

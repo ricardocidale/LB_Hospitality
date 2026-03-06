@@ -55,13 +55,6 @@ Determine the appropriate percentage of purchase price attributable to land vs. 
 }
 ```
 
-### Confidence Scoring
-
-The `confidence` field classifies the recommendation's risk posture:
-- **conservative**: Higher land % (less depreciation) — cautious for IRS defensibility
-- **moderate**: Market-aligned allocation supported by tax assessor data or comparable sales
-- **aggressive**: Lower land % (more depreciation) — maximizes tax benefits with limited supporting data
-
 ## Quality Standards
 
 - Recommendation must be defensible for IRS depreciation purposes

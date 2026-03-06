@@ -1,7 +1,7 @@
 import { db } from "../db";
-import { globalAssumptions, marketResearch, properties, logos, userGroups, companies, propertyFeeCategories } from "@shared/schema";
+import { globalAssumptions, marketResearch, properties } from "@shared/schema";
 import { seedUsers, seedUserGroups } from "./users";
-import { seedGlobalAssumptions, seedProperties, seedFeeCategories, seedCanonicalProperties } from "./properties";
+import { seedGlobalAssumptions, seedProperties, seedFeeCategories } from "./properties";
 import { seedDefaultLogos, seedCompanies } from "./branding";
 import { seedMissingMarketResearch, getHudsonEstateResearch, getEdenSummitResearch, getAustinHillsideResearch, getCasaMedellinResearch, getBlueRidgeResearch } from "./research";
 import { seedServiceTemplates } from "./services";
@@ -101,9 +101,6 @@ export async function seed() {
   // Seed service templates
   await seedServiceTemplates();
 
-  // Seed canonical properties
-  await seedCanonicalProperties();
-
   console.log("Database seed completed successfully!");
 }
 
@@ -115,44 +112,4 @@ export {
   seedServiceTemplates,
 };
 
-// Re-export for getMarketResearchSeedData if needed (though it seems specific to seed.ts internal usage)
-export function getMarketResearchSeedData(propertyMap: Record<string, number>) {
-  return [
-    {
-      userId: null as number | null,
-      type: "property",
-      propertyId: propertyMap["The Hudson Estate"],
-      title: "Market Research: The Hudson Estate",
-      llmModel: "seed-data",
-    },
-    {
-      userId: null as number | null,
-      type: "property",
-      propertyId: propertyMap["Eden Summit Lodge"],
-      title: "Market Research: Eden Summit Lodge",
-      llmModel: "seed-data",
-    },
-    {
-      userId: null as number | null,
-      type: "property",
-      propertyId: propertyMap["Austin Hillside"],
-      title: "Market Research: Austin Hillside",
-      llmModel: "seed-data",
-    },
-    {
-      userId: null as number | null,
-      type: "property",
-      propertyId: propertyMap["Casa Medellín"],
-      title: "Market Research: Casa Medellín",
-      llmModel: "seed-data",
-    },
-    {
-      userId: null as number | null,
-      type: "property",
-      propertyId: propertyMap["Blue Ridge Manor"],
-      title: "Market Research: Blue Ridge Manor",
-      llmModel: "seed-data",
-    },
-  ];
-}
 

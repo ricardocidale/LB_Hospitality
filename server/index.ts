@@ -123,12 +123,13 @@ app.use((req, res, next) => {
   await runProdSync001();
 
   await seedAdminUser();
-  const { seedMissingMarketResearch, seedDefaultLogos, seedUserGroups, seedCompanies, seedFeeCategories } = await import("./seed");
+  const { seedMissingMarketResearch, seedDefaultLogos, seedUserGroups, seedCompanies, seedFeeCategories, seedServiceTemplates } = await import("./seed");
   await seedMissingMarketResearch();
   await seedDefaultLogos();
   await seedUserGroups();
   await seedCompanies();
   await seedFeeCategories();
+  await seedServiceTemplates();
   registerImageRoutes(app);
   await registerRoutes(httpServer, app);
 

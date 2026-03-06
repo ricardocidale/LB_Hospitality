@@ -14,7 +14,8 @@ Benchmark ADR for a specific hospitality property by analyzing market averages, 
 ## Tools
 
 - `analyze_adr` — gather market ADR benchmarks and comparable property rates
-- `compute_property_metrics` — **deterministic**: compute RevPAR, room revenue, total revenue, and NOI margin for a given ADR and occupancy. Call this to validate how your recommended ADR impacts the property's financials.
+- `compute_adr_projection` — **deterministic**: project ADR forward N years with growth rate and optional inflation. Call this to show multi-year ADR trajectory and revenue impact.
+- `compute_property_metrics` — **deterministic**: compute RevPAR, room revenue, total revenue, and NOI margin for a given ADR and occupancy.
 
 ## Key Analysis Dimensions
 
@@ -49,13 +50,6 @@ ADR recommendations should account for:
   }
 }
 ```
-
-### Confidence Scoring
-
-The `confidence` field classifies the recommendation's risk posture:
-- **conservative**: Below-market or cautious estimate (e.g., pricing below comp set median)
-- **moderate**: Market-aligned estimate supported by strong comparable data
-- **aggressive**: Above-market or optimistic estimate (e.g., premium pricing with limited comps)
 
 ## Quality Standards
 

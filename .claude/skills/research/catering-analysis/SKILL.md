@@ -64,13 +64,6 @@ If market research provides total revenue breakdowns, convert backwards:
 }
 ```
 
-### Confidence Scoring
-
-The `confidence` field classifies the recommendation's risk posture:
-- **conservative**: Lower catering boost — assumes limited event demand or emerging market
-- **moderate**: Market-aligned boost supported by comparable event venue data
-- **aggressive**: Higher catering boost — assumes strong event demand, premium venue capabilities
-
 ## Quality Standards
 
 - Catering boost should be realistic for the property's market and capabilities

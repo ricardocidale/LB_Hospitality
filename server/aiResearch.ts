@@ -72,110 +72,54 @@ const TOOL_PROMPTS: Record<string, ToolPromptBuilder> = {
     `Provide market overview analysis for ${input.location} (${input.market_region}). Property type: ${input.property_type}, ${input.room_count} rooms. Include tourism volume, hotel supply metrics, demand trends, RevPAR data, and market positioning for comparable properties in this specific location. Use your knowledge of this market to provide specific, data-backed metrics with industry sources.`,
 
   analyze_adr: (input) =>
-    `Provide ADR analysis for ${input.location}. Current/target ADR: $${input.current_adr}, ${input.room_count} rooms, ${input.property_level} positioning. Has F&B: ${input.has_fb ?? "unknown"}, Events: ${input.has_events ?? "unknown"}, Wellness: ${input.has_wellness ?? "unknown"}. Include market average ADR, comparable property ADR range, at least 4 comparable property ADRs, and a recommended ADR range with rationale.`,
+    `ADR context: ${input.location}, $${input.current_adr} target, ${input.room_count} rooms, ${input.property_level}. F&B: ${input.has_fb ?? "unknown"}, Events: ${input.has_events ?? "unknown"}, Wellness: ${input.has_wellness ?? "unknown"}. Use compute_adr_projection for multi-year projections. Provide market average, comparable ADRs (4+), and recommended range.`,
 
   analyze_occupancy: (input) => {
     const targetOcc = typeof input.target_occupancy === "number" ? (input.target_occupancy * 100).toFixed(0) : "70";
-    return `Provide occupancy analysis for ${input.location}. ${input.room_count || 20} rooms, target ${targetOcc}% stabilized occupancy, ${input.property_level || "luxury"} positioning. Include market average occupancy, seasonal patterns (4 seasons with rates and notes), and expected ramp-up timeline.`;
+    return `Occupancy context: ${input.location}, ${input.room_count || 20} rooms, target ${targetOcc}%, ${input.property_level || "luxury"}. Use compute_occupancy_ramp for month-by-month schedule. Provide market average, seasonal patterns (4 seasons), and ramp-up timeline.`;
   },
 
   analyze_event_demand: (input) =>
     `Provide event demand analysis for ${input.location}. ${input.event_locations || 2} event spaces, max capacity ${input.max_event_capacity || 150} guests. Wellness: ${input.has_wellness ?? true}, F&B: ${input.has_fb ?? true}, Privacy: ${input.privacy_level || "high"}, Acreage: ${input.acreage || 5}. Include corporate event demand, wellness retreat potential, wedding/private event demand, estimated event revenue share, and key demand drivers.`,
 
   analyze_cap_rates: (input) =>
-    `Provide cap rate analysis for ${input.location} (${input.market_region}). ${input.property_level} hospitality property, ${input.room_count} rooms${input.purchase_price ? `, purchase price $${input.purchase_price.toLocaleString()}` : ""}. Include market cap rate range, comparable property range, at least 3 comparable transactions with cap rates and sale years, and a recommended acquisition/exit cap rate range.`,
+    `Cap rate context: ${input.location} (${input.market_region}), ${input.property_level}, ${input.room_count} rooms${input.purchase_price ? `, $${input.purchase_price.toLocaleString()}` : ""}. Use compute_cap_rate_valuation for implied value and sensitivity table. Provide market range, comparable transactions (3+), and recommended acquisition/exit range.`,
 
   analyze_competitive_set: (input) =>
     `Provide competitive set analysis for ${input.location}. Subject: ${input.room_count} rooms at $${input.current_adr} ADR, ${input.property_level} positioning. Has events: ${input.has_events ?? true}, wellness: ${input.has_wellness ?? true}, F&B: ${input.has_fb ?? true}. Identify 4-6 comparable properties with room counts, ADRs, and positioning descriptions.`,
 
   analyze_catering: (input) =>
-    `Analyze the catering and F&B revenue uplift for a ${input.property_level || "luxury"} hospitality property in ${input.location}. ${input.room_count || 20} rooms, F&B: ${input.has_fb ?? true}, events: ${input.has_events ?? true}, ${input.event_locations || 2} event spaces, max capacity ${input.max_event_capacity || 150} guests, market: ${input.market_region || "North America"}.
-
-IMPORTANT CONTEXT: In our financial model, all revenue categories are expressed as percentages of ROOM REVENUE, not total revenue. The formula is:
-- Base F&B Revenue = Room Revenue × F&B Revenue Share (e.g., 22%)
-- Total F&B Revenue = Base F&B × (1 + Catering Boost %)
-
-The "catering boost percentage" is the additional uplift to base F&B from catered events. For example, if base F&B is $100K and catering boost is 30%, total F&B = $130K.
-
-If your market research provides total revenue breakdowns (e.g., "F&B is 35% of total revenue"), do NOT attempt to convert or calculate the catering boost yourself. Instead, provide the raw market data percentages and let the platform's financial engine handle any conversions.
-
-Determine the recommended catering boost percentage based on:
-- Local market event catering penetration rates
-- What proportion of events at comparable properties are fully catered (weddings, galas, corporate dinners) vs. partially catered (retreats with some meals) vs. no catering
-- F&B revenue multiplier effect from catered events at comparable properties
-- Seasonal variation in catered vs. non-catered events
-- Property-specific capabilities (kitchen capacity, event spaces, staff)
-
-Provide a recommended catering boost percentage (typically 15%–50%), market range, rationale, event mix breakdown, and key factors specific to this property's market.`,
+    `Catering context: ${input.property_level || "luxury"} property, ${input.location}, ${input.room_count || 20} rooms, ${input.event_locations || 2} event spaces, max ${input.max_event_capacity || 150} guests, F&B: ${input.has_fb ?? true}, events: ${input.has_events ?? true}. Catering boost = uplift to base F&B from catered events (15-50%). Provide raw market data — do NOT convert revenue breakdowns. Include recommended boost %, market range, event mix breakdown.`,
 
   analyze_land_value: (input) =>
-    `Provide land value allocation analysis for ${input.location} (${input.market_region}). Property type: ${input.property_type}, ${input.acreage || 10}+ acres, ${input.room_count || 20} rooms, purchase price: $${(input.purchase_price || 0).toLocaleString()}, building improvements: $${(input.building_improvements || 0).toLocaleString()}, setting: ${input.setting || "rural estate"}. Determine the appropriate percentage of the purchase price attributable to land vs. building/improvements for IRS depreciation purposes. Consider: local land values per acre, ratio of land to total property value in this market, whether the property is in a high-land-value area (urban/resort) vs. lower-value rural setting, comparable hotel land allocations, and county tax assessor land-to-improvement ratios. Provide a recommended land value percentage, market range, assessment methodology, rationale, and key factors.`,
+    `Land value context: ${input.location} (${input.market_region}), ${input.property_type}, ${input.acreage || 10}+ acres, ${input.room_count || 20} rooms, $${(input.purchase_price || 0).toLocaleString()} purchase, $${(input.building_improvements || 0).toLocaleString()} improvements, ${input.setting || "rural estate"}. Use compute_depreciation_basis for tax impact. Provide recommended land %, market range, assessment method, and rationale.`,
 
   analyze_operating_costs: (input) =>
-    `Analyze operating cost benchmarks for a ${input.property_level || "luxury"} hotel in ${input.location}. ${input.room_count || 20} rooms, ADR: $${input.current_adr || 300}, F&B: ${input.has_fb ?? true}, Events: ${input.has_events ?? true}, Market: ${input.market_region || "North America"}.
-
-CRITICAL: Different costs have different calculation bases. You MUST provide rates with the correct base:
-
-ROOM REVENUE-BASED (% of Room Revenue):
-- Housekeeping: cleaning labor, linens, guest supplies, room maintenance (USALI Rooms Dept)
-- F&B Cost of Sales: kitchen labor, food costs, beverages, dining operations (USALI F&B Dept)
-
-TOTAL REVENUE-BASED (% of Total Revenue):
-- Admin & General: management salaries, accounting, legal, HR (USALI A&G) — fixed base, escalates with inflation
-- Property Ops: engineering, repairs, grounds, facilities (USALI POM) — fixed base, escalates with inflation
-- Utilities: electricity, gas, water, sewer (split variable/fixed)
-- FF&E Reserve: furniture, fixtures, equipment replacement set-aside (industry standard 3-5%)
-- Marketing: property-level advertising, OTA commissions, local promotions (property-level only, brand marketing is management company service)
-- IT: WiFi, in-room tech, basic support (property-level only, core IT is management company service)
-- Other: miscellaneous operating expenses — fixed base, escalates with inflation
-
-Provide recommended rates for each category, industry ranges, and rationale. Use USALI standards, PKF Trends, STR HOST, and CBRE benchmarks.`,
+    `Cost context: ${input.property_level || "luxury"} hotel, ${input.location}, ${input.room_count || 20} rooms, ADR $${input.current_adr || 300}, F&B: ${input.has_fb ?? true}, Events: ${input.has_events ?? true}, Market: ${input.market_region || "North America"}. Use compute_cost_benchmarks for dollar amounts from rates. Provide USALI-aligned rates: Room Revenue-based (housekeeping, F&B COGS), Total Revenue-based (admin, ops, utilities, FF&E, marketing, IT, other). Cite PKF Trends, STR HOST, CBRE.`,
 
   analyze_property_value_costs: (input) =>
-    `Analyze property value-based costs for a ${input.property_level || "luxury"} hotel in ${input.location}. ${input.room_count || 20} rooms, purchase price: $${(input.purchase_price || 0).toLocaleString()}, building improvements: $${(input.building_improvements || 0).toLocaleString()}, market: ${input.market_region || "North America"}.
-
-These costs are calculated as a percentage of TOTAL PROPERTY VALUE (Purchase Price + Building Improvements), NOT revenue:
-- Monthly Cost = (Property Value / 12) × Rate × Annual Escalation Factor
-
-Provide recommended rates for:
-1. Insurance: property liability, damage, workers comp, business interruption coverage
-2. Property Taxes: real estate taxes and assessments based on local jurisdiction
-
-Include jurisdiction-specific context (local tax rates, assessment ratios, insurance market conditions) and industry benchmarks.`,
+    `Property value cost context: ${input.property_level || "luxury"} hotel, ${input.location}, ${input.room_count || 20} rooms, $${(input.purchase_price || 0).toLocaleString()} purchase, $${(input.building_improvements || 0).toLocaleString()} improvements, ${input.market_region || "North America"}. Costs are % of property value, not revenue. Provide insurance and property tax rates with jurisdiction-specific context.`,
 
   analyze_management_service_fees: (input) =>
-    `Analyze management company service fee benchmarks for a ${input.property_level || "luxury"} boutique hotel in ${input.location}. ${input.room_count || 20} rooms, F&B: ${input.has_fb ?? true}, Events: ${input.has_events ?? true}, Market: ${input.market_region || "North America"}.
-
-The management company charges 5 service fee categories, each as a % of Total Revenue:
-1. Marketing: brand strategy, digital marketing, loyalty programs, business development
-2. IT: PMS systems, accounting systems, network infrastructure, cybersecurity
-3. Accounting: financial reporting, budgeting, audit coordination, treasury management
-4. Reservations: central reservation system, revenue management, distribution channels
-5. General Management: executive oversight, strategic planning, compliance, HR support
-
-Plus an Incentive Management Fee as % of Gross Operating Profit (GOP), paid only when GOP > 0.
-
-Provide recommended rates for each category, total service fee rate, incentive fee rate, industry ranges from management contract databases, and rationale. Consider that smaller boutique properties often pay higher management fee percentages.`,
+    `Service fee context: ${input.property_level || "luxury"} hotel, ${input.location}, ${input.room_count || 20} rooms, F&B: ${input.has_fb ?? true}, Events: ${input.has_events ?? true}, ${input.market_region || "North America"}. 5 categories (% of Total Revenue): Marketing, IT, Accounting, Reservations, General Mgmt. Plus incentive fee (% of GOP). Provide rates, total fee rate, and industry ranges.`,
 
   analyze_income_tax: (input) =>
-    `Analyze income tax rates for a hotel property SPV entity in ${input.location}. Market: ${input.market_region || "North America"}, Entity type: ${input.entity_type || "LLC"}, Property value: $${(input.purchase_price || 0).toLocaleString()}.
-
-Tax is applied to TAXABLE INCOME = NOI - Interest Expense - Depreciation.
-
-Provide:
-1. Recommended effective combined tax rate for this jurisdiction
-2. Breakdown: federal rate, state/provincial rate, local rate (if applicable)
-3. Effective range accounting for deductions and credits
-4. SPV entity structure considerations (pass-through vs C-Corp)
-5. Any hospitality-specific tax incentives
-
-For US properties: Federal (21% C-Corp or pass-through) + State (0-13.3%) + Local
-For Latin America: Country-specific corporate rates (Mexico ~30%, Costa Rica ~30%, etc.)`,
+    `Tax context: SPV entity in ${input.location}, ${input.market_region || "North America"}, ${input.entity_type || "LLC"}, $${(input.purchase_price || 0).toLocaleString()} property value. Tax = NOI - Interest - Depreciation. Provide combined effective rate, federal/state/local breakdown, entity structure notes, and hospitality-specific incentives.`,
 };
 
 const isDev = process.env.NODE_ENV === "development";
 const skillCache = new Map<string, string>();
 let toolCache: Anthropic.Tool[] | null = null;
+
+const CONFIDENCE_PREAMBLE = `## Confidence Scoring (applies to all recommendations)
+Every recommended value must include a "confidence" field:
+- **conservative**: Below-market/cautious estimate (higher costs, lower revenues, higher cap rates)
+- **moderate**: Market-aligned estimate supported by strong comparable data
+- **aggressive**: Above-market/optimistic estimate (lower costs, higher revenues, lower cap rates)
+
+## Deterministic Tools
+For any arithmetic (RevPAR, room revenue, NOI, depreciation, debt capacity, cost dollar amounts, occupancy schedules, ADR projections, cap rate valuations), call the appropriate compute_* tool. Never compute financial math in prose.
+`;
 
 function loadSkill(type: string): string {
   if (!isDev) {
@@ -190,7 +134,7 @@ function loadSkill(type: string): string {
 
   let content: string;
   if (Array.isArray(mapping)) {
-    content = mapping
+    content = CONFIDENCE_PREAMBLE + mapping
       .map((folder) => {
         const skillPath = join(RESEARCH_SKILLS_DIR, folder, "SKILL.md");
         return readFileSync(skillPath, "utf-8");
@@ -198,7 +142,7 @@ function loadSkill(type: string): string {
       .join("\n\n---\n\n");
   } else {
     const skillPath = join(RESEARCH_SKILLS_DIR, mapping, "SKILL.md");
-    content = readFileSync(skillPath, "utf-8");
+    content = CONFIDENCE_PREAMBLE + readFileSync(skillPath, "utf-8");
   }
 
   skillCache.set(type, content);

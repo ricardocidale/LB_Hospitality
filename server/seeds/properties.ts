@@ -1,6 +1,5 @@
 import { db } from "../db";
 import { properties, globalAssumptions, propertyFeeCategories } from "@shared/schema";
-import { sql } from "drizzle-orm";
 import {
   DEFAULT_REV_SHARE_EVENTS,
   DEFAULT_REV_SHARE_FB,
@@ -374,11 +373,11 @@ export async function seedFeeCategories() {
 
   const allProps = await db.select({ id: properties.id }).from(properties);
   const defaultCategories = [
-    { name: "Marketing", rate: 0.01, sortOrder: 1 },
-    { name: "IT", rate: 0.005, sortOrder: 2 },
-    { name: "Accounting", rate: 0.01, sortOrder: 3 },
-    { name: "Reservations", rate: 0.015, sortOrder: 4 },
-    { name: "General Management", rate: 0.01, sortOrder: 5 },
+    { name: "Marketing", rate: 0.02, sortOrder: 1 },
+    { name: "IT", rate: 0.01, sortOrder: 2 },
+    { name: "Accounting", rate: 0.015, sortOrder: 3 },
+    { name: "Reservations", rate: 0.02, sortOrder: 4 },
+    { name: "General Management", rate: 0.02, sortOrder: 5 },
   ];
 
   for (const prop of allProps) {
@@ -395,19 +394,3 @@ export async function seedFeeCategories() {
   console.log(`Seeded fee categories for ${allProps.length} properties`);
 }
 
-export async function seedCanonicalProperties() {
-  try {
-    const fs = await import("fs");
-    const path = await import("path");
-    const sqlPath = path.default.join(process.cwd(), "script", "seed-production.sql");
-    if (!fs.default.existsSync(sqlPath)) {
-      console.log("seed-production.sql not found, skipping canonical property sync");
-      return;
-    }
-    const sqlContent = fs.default.readFileSync(sqlPath, "utf-8");
-    await db.execute(sql.raw(sqlContent));
-    console.log("Canonical properties synced from seed-production.sql");
-  } catch (error) {
-    console.error("Error syncing canonical properties:", error);
-  }
-}

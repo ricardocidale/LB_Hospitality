@@ -60,7 +60,7 @@ export default function CompaniesTab() {
   const { data: adminCompanies } = useQuery<AdminCompany[]>({
     queryKey: ["admin", "companies"],
     queryFn: async () => {
-      const res = await fetch("/api/admin/companies", { credentials: "include" });
+      const res = await fetch("/api/companies", { credentials: "include" });
       if (!res.ok) throw new Error("Failed to fetch companies");
       return res.json();
     },
@@ -82,7 +82,7 @@ export default function CompaniesTab() {
 
   const createCompanyMutation = useMutation({
     mutationFn: async (data: { name: string; type: string; description?: string | null; logoId?: number | null }) => {
-      const res = await fetch("/api/admin/companies", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data), credentials: "include" });
+      const res = await fetch("/api/companies", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data), credentials: "include" });
       if (!res.ok) throw new Error("Failed to create company");
       return res.json();
     },
@@ -98,7 +98,7 @@ export default function CompaniesTab() {
 
   const updateCompanyMutation = useMutation({
     mutationFn: async ({ id, ...data }: { id: number; name?: string; type?: string; description?: string | null; logoId?: number | null }) => {
-      const res = await fetch(`/api/admin/companies/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data), credentials: "include" });
+      const res = await fetch(`/api/companies/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data), credentials: "include" });
       if (!res.ok) throw new Error("Failed to update company");
       return res.json();
     },
@@ -113,7 +113,7 @@ export default function CompaniesTab() {
 
   const deleteCompanyMutation = useMutation({
     mutationFn: async (id: number) => {
-      const res = await fetch(`/api/admin/companies/${id}`, { method: "DELETE", credentials: "include" });
+      const res = await fetch(`/api/companies/${id}`, { method: "DELETE", credentials: "include" });
       if (!res.ok) throw new Error("Failed to delete company");
       return res.json();
     },
@@ -128,11 +128,11 @@ export default function CompaniesTab() {
   const saveMgmtCompanyMutation = useMutation({
     mutationFn: async (data: { name: string; logoId: number | null }) => {
       if (managementCompany) {
-        const res = await fetch(`/api/admin/companies/${managementCompany.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: data.name, logoId: data.logoId, type: "management" }), credentials: "include" });
+        const res = await fetch(`/api/companies/${managementCompany.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: data.name, logoId: data.logoId, type: "management" }), credentials: "include" });
         if (!res.ok) throw new Error("Failed to update management company");
         return res.json();
       } else {
-        const res = await fetch("/api/admin/companies", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: data.name, logoId: data.logoId, type: "management" }), credentials: "include" });
+        const res = await fetch("/api/companies", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: data.name, logoId: data.logoId, type: "management" }), credentials: "include" });
         if (!res.ok) throw new Error("Failed to create management company");
         return res.json();
       }

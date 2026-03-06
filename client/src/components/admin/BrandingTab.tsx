@@ -49,7 +49,7 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
   const { data: adminLogos } = useQuery<Logo[]>({
     queryKey: ["admin", "logos"],
     queryFn: async () => {
-      const res = await fetch("/api/admin/logos", { credentials: "include" });
+      const res = await fetch("/api/logos", { credentials: "include" });
       if (!res.ok) throw new Error("Failed to fetch logos");
       return res.json();
     },
@@ -67,7 +67,7 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
   const { data: assetDescriptions } = useQuery<AssetDesc[]>({
     queryKey: ["admin", "asset-descriptions"],
     queryFn: async () => {
-      const res = await fetch("/api/admin/asset-descriptions", { credentials: "include" });
+      const res = await fetch("/api/asset-descriptions", { credentials: "include" });
       if (!res.ok) throw new Error("Failed to fetch asset descriptions");
       return res.json();
     },
@@ -76,7 +76,7 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
   const { data: userGroupsList } = useQuery<UserGroup[]>({
     queryKey: ["admin", "user-groups"],
     queryFn: async () => {
-      const res = await fetch("/api/admin/user-groups", { credentials: "include" });
+      const res = await fetch("/api/user-groups", { credentials: "include" });
       if (!res.ok) throw new Error("Failed to fetch user groups");
       return res.json();
     },
@@ -112,7 +112,7 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
 
   const createAssetDescMutation = useMutation({
     mutationFn: async (data: { name: string }) => {
-      const res = await fetch("/api/admin/asset-descriptions", {
+      const res = await fetch("/api/asset-descriptions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -133,7 +133,7 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
 
   const deleteAssetDescMutation = useMutation({
     mutationFn: async (id: number) => {
-      const res = await fetch(`/api/admin/asset-descriptions/${id}`, { method: "DELETE", credentials: "include" });
+      const res = await fetch(`/api/asset-descriptions/${id}`, { method: "DELETE", credentials: "include" });
       if (!res.ok) {
         const err = await res.json();
         throw new Error(err.error || "Failed to delete asset description");

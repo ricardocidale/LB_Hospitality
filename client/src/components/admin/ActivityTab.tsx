@@ -68,7 +68,7 @@ export default function ActivityTab() {
       const params = new URLSearchParams({ limit: "50" });
       if (activityEntityFilter) params.set("entityType", activityEntityFilter);
       if (activityUserFilter) params.set("userId", activityUserFilter);
-      const res = await fetch(`/api/admin/activity-logs?${params}`, { credentials: "include" });
+      const res = await fetch(`/api/activity-logs?${params}`, { credentials: "include" });
       if (!res.ok) throw new Error("Failed to fetch activity logs");
       return res.json();
     },

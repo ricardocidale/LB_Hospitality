@@ -50,7 +50,7 @@ export default function UserGroupsTab() {
   const { data: adminLogos } = useQuery<Logo[]>({
     queryKey: ["admin", "logos"],
     queryFn: async () => {
-      const res = await fetch("/api/admin/logos", { credentials: "include" });
+      const res = await fetch("/api/logos", { credentials: "include" });
       if (!res.ok) throw new Error("Failed to fetch logos");
       return res.json();
     },
@@ -59,7 +59,7 @@ export default function UserGroupsTab() {
   const { data: userGroupsList } = useQuery<UserGroup[]>({
     queryKey: ["admin", "user-groups"],
     queryFn: async () => {
-      const res = await fetch("/api/admin/user-groups", { credentials: "include" });
+      const res = await fetch("/api/user-groups", { credentials: "include" });
       if (!res.ok) throw new Error("Failed to fetch user groups");
       return res.json();
     },
@@ -77,7 +77,7 @@ export default function UserGroupsTab() {
   const { data: assetDescriptions } = useQuery<AssetDesc[]>({
     queryKey: ["admin", "asset-descriptions"],
     queryFn: async () => {
-      const res = await fetch("/api/admin/asset-descriptions", { credentials: "include" });
+      const res = await fetch("/api/asset-descriptions", { credentials: "include" });
       if (!res.ok) throw new Error("Failed to fetch asset descriptions");
       return res.json();
     },
@@ -85,7 +85,7 @@ export default function UserGroupsTab() {
 
   const createGroupMutation = useMutation({
     mutationFn: async (data: { name: string; logoId?: number | null; themeId?: number | null; assetDescriptionId?: number | null }) => {
-      const res = await fetch("/api/admin/user-groups", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data), credentials: "include" });
+      const res = await fetch("/api/user-groups", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data), credentials: "include" });
       if (!res.ok) throw new Error("Failed to create group");
       return res.json();
     },
@@ -100,7 +100,7 @@ export default function UserGroupsTab() {
 
   const updateGroupMutation = useMutation({
     mutationFn: async ({ id, ...data }: { id: number; name?: string; logoId?: number | null; themeId?: number | null; assetDescriptionId?: number | null }) => {
-      const res = await fetch(`/api/admin/user-groups/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data), credentials: "include" });
+      const res = await fetch(`/api/user-groups/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data), credentials: "include" });
       if (!res.ok) throw new Error("Failed to update group");
       return res.json();
     },
@@ -114,7 +114,7 @@ export default function UserGroupsTab() {
 
   const deleteGroupMutation = useMutation({
     mutationFn: async (id: number) => {
-      const res = await fetch(`/api/admin/user-groups/${id}`, { method: "DELETE", credentials: "include" });
+      const res = await fetch(`/api/user-groups/${id}`, { method: "DELETE", credentials: "include" });
       if (!res.ok) throw new Error("Failed to delete group");
       return res.json();
     },

@@ -7,6 +7,7 @@ import { runFillOnlySync } from "../syncHelpers";
 import { z } from "zod";
 import type { InsertGlobalAssumptions } from "@shared/schema";
 import { getTwilioStatus, sendSMS } from "../integrations/twilio";
+import { hashPassword } from "../auth";
 
 export function register(app: Express) {
   // ────────────────────────────────────────────────────────────
@@ -120,6 +121,108 @@ export function register(app: Express) {
     } catch (error) {
       console.error("Error deleting user:", error);
       res.status(500).json({ error: "Failed to delete user" });
+    }
+  });
+
+  app.patch("/api/admin/users/:id/password", requireAdmin, async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      const { password } = req.body;
+      if (!password || password.length < 4) {
+        return res.status(400).json({ error: "Password must be at least 4 characters" });
+      }
+      const passwordHash = await hashPassword(password);
+      await storage.updateUserPassword(id, passwordHash);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error updating user password:", error);
+      res.status(500).json({ error: "Failed to update password" });
+    }
+  });
+
+  app.patch("/api/admin/users/:id/group", requireAdmin, async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      const { groupId } = req.body;
+      const user = await storage.assignUserToGroup(id, groupId ?? null);
+      res.json(user);
+    } catch (error) {
+      console.error("Error assigning user to group:", error);
+      res.status(500).json({ error: "Failed to assign user to group" });
+    }
+  });
+
+  app.post("/api/admin/reset-all-passwords", requireAdmin, async (req, res) => {
+    try {
+      const allUsers = await storage.getAllUsers();
+      const defaultHash = await hashPassword("admin");
+      let count = 0;
+      for (const user of allUsers) {
+        await storage.updateUserPassword(user.id, defaultHash);
+        count++;
+      }
+      res.json({ success: true, message: `Reset passwords for ${count} users` });
+    } catch (error) {
+      console.error("Error resetting all passwords:", error);
+      res.status(500).json({ error: "Failed to reset passwords" });
+    }
+  });
+
+  app.get("/api/admin/checker-activity", requireAdmin, async (_req, res) => {
+    try {
+      const allUsers = await storage.getAllUsers();
+      const checkerUsers = allUsers.filter(u => u.role === "checker" || u.role === "admin");
+      const checkers = [];
+      let totalActions = 0, verificationRuns = 0, manualViews = 0, exports = 0, pageVisits = 0, roleChanges = 0;
+      const recentActivity: any[] = [];
+
+      for (const user of checkerUsers) {
+        const logs = await storage.getActivityLogs({ userId: user.id, limit: 100 });
+        const userActions = logs.length;
+        const userVerifications = logs.filter(l => l.action === "run-verification").length;
+        const userManualViews = logs.filter(l => l.action === "view-manual" || l.entityType === "manual").length;
+        const userExports = logs.filter(l => l.action?.includes("export")).length;
+
+        totalActions += userActions;
+        verificationRuns += userVerifications;
+        manualViews += userManualViews;
+        exports += userExports;
+
+        checkers.push({
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          totalActions: userActions,
+          lastActive: logs[0]?.createdAt ?? null,
+          verificationRuns: userVerifications,
+          manualViews: userManualViews,
+          exports: userExports,
+        });
+
+        recentActivity.push(...logs.slice(0, 10));
+      }
+
+      recentActivity.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+      res.json({
+        checkers,
+        summary: { totalActions, verificationRuns, manualViews, exports, pageVisits, roleChanges },
+        recentActivity: recentActivity.slice(0, 50),
+      });
+    } catch (error) {
+      console.error("Error fetching checker activity:", error);
+      res.status(500).json({ error: "Failed to fetch checker activity" });
+    }
+  });
+
+  app.post("/api/admin/seed-production", requireAdmin, async (_req, res) => {
+    try {
+      const { runFillOnlySync: fill } = await import("../syncHelpers");
+      const result = await fill();
+      res.json({ success: true, message: "Missing values populated", ...result });
+    } catch (error: any) {
+      console.error("Error seeding production:", error);
+      res.status(500).json({ error: error.message || "Fill failed" });
     }
   });
 

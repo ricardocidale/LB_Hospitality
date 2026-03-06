@@ -4,7 +4,7 @@
 
 Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470) with IRS depreciation rules and an independent audit/verification engine. Built and hosted entirely on Replit.
 
-**Codebase:** ~530 source files, ~79,000 lines of code, 2,248 tests across 99 files.
+**Codebase:** ~545 source files, ~79,500 lines of code, 2,268 tests across 100 files.
 
 ---
 
@@ -89,7 +89,7 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 
 ---
 
-## Testing & Proof System (1,546 Tests, 76 Files)
+## Testing & Proof System (2,268 Tests, 100 Files)
 
 | Entity Level | Test Domains | Skill |
 |-------------|-------------|-------|
@@ -101,8 +101,9 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | Financing & Debt | Acquisition sizing, closing costs, refi schedule, funding engine | `testing/financing-refinance-funding.md` |
 | Engine Unit Tests | Cash flow aggregator, yearly aggregator, equity calculations, loan calculations, GAAP compliance, edge cases | `tests/engine/` |
 | Validation | Assumption consistency, funding gates, export verification | `tests/calc/validation/` |
+| Research Calcs | Debt capacity, depreciation basis, property metrics | `tests/calc/research/` |
 
-**Commands**: `npm test` (all 1,546), `npm run verify` (6-phase, UNQUALIFIED required)
+**Commands**: `npm test` (all 2,268), `npm run verify` (7-phase, UNQUALIFIED required)
 
 ---
 
@@ -127,14 +128,9 @@ Dashboard consolidated financial statements use a **3-level accordion** pattern 
 - **Level 3:** `PropertyBreakdownRow` — per-property contributions
 
 ### Shared Components
-- `FormulaDetailRow` and `PropertyBreakdownRow` exported from `client/src/components/financial-table-rows.tsx`
-- 7 reusable helper functions in `client/src/lib/consolidatedFormulaHelpers.tsx`:
-  - `consolidatedLineItemBreakdown()`, `consolidatedWeightedADR()`, `consolidatedWeightedOccupancy()`, `consolidatedRevPAR()` (income statement)
-  - `consolidatedCashFlowBreakdown()`, `consolidatedDSCR()`, `consolidatedCashOnCash()` (cash flow)
-- All helpers accept precomputed consolidated arrays — **zero re-aggregation** in render paths
+- `FormulaDetailRow` and `PropertyBreakdownRow` exported from `client/src/components/financial-table/` (re-exported via `financial-table-rows.tsx` for backward compatibility)
+- Financial table components split into modular directory: `context.tsx`, `common-rows.tsx`, `expandable-rows.tsx`, `balance-sheet-rows.tsx`, `specialized-rows.tsx`, `table-shell.tsx`
 - Visibility controlled by `CalcDetailsProvider` context (Calculation Transparency toggles)
-
-See `.claude/skills/finance/consolidated-formula-helpers.md` for full API reference.
 
 ---
 
@@ -328,10 +324,10 @@ When ON (default), every financial line item shows a ? icon explaining its formu
 ```bash
 npm run dev            # Start dev server (port 5000)
 npm run health         # One-shot: tsc + tests + verify (~4 lines output)
-npm run test:summary   # Run all 2,248 tests, 1-line output on pass
-npm run verify:summary # 6-phase verification, compact output
-npm test               # Run all 2,248 tests (full output)
-npm run verify         # Full 6-phase financial verification (verbose)
+npm run test:summary   # Run all 2,268 tests, 1-line output on pass
+npm run verify:summary # 7-phase verification, compact output
+npm test               # Run all 2,268 tests (full output)
+npm run verify         # Full 7-phase financial verification (verbose)
 npm run db:push        # Push schema changes
 npm run lint:summary   # tsc --noEmit with 1-line output
 npm run diff:summary   # Compact git status + diff stat

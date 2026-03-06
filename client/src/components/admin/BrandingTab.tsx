@@ -1,29 +1,11 @@
-/**
- * BrandingTab.tsx — Platform-wide branding configuration.
- *
- * Controls the visual identity of the entire platform instance:
- *   • Company name — displayed in the sidebar, headers, and PDF exports
- *   • Primary logo — selected from the LogosTab library; shown in the
- *     sidebar, login page, and exported documents
- *   • Property type label — the default noun used for properties throughout
- *     the UI (e.g. "Hotel", "Property", "Resort", "Asset")
- *   • Asset descriptions — configurable labels that appear in user groups
- *     and can be overridden per-group for white-labeling
- *
- * Changes here immediately affect all users (unless overridden by their
- * user group's branding). This is the platform-level default; user groups
- * can layer on their own logo, theme, and asset description.
- */
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { Building2, Tag, Image } from "lucide-react";
-import defaultLogo from "@/assets/logo.png";
-import { invalidateAllFinancialQueries } from "@/lib/api";
-import type { Logo } from "./types";
+import { Building2, Tag } from "lucide-react";
+import { useGlobalAssumptions, useUpdateGlobalAssumptions } from "./hooks";
+import LogoSelector from "./LogoSelector";
+import { ADMIN_TEXTAREA } from "./styles";
 
 interface BrandingTabProps {
   onNavigate?: (tab: string) => void;
@@ -31,44 +13,8 @@ interface BrandingTabProps {
 
 export default function BrandingTab({ onNavigate }: BrandingTabProps) {
   const { toast } = useToast();
-  const queryClient = useQueryClient();
-
-  const { data: globalAssumptions } = useQuery({
-    queryKey: ["globalAssumptions"],
-    queryFn: async () => {
-      const res = await fetch("/api/global-assumptions", { credentials: "include" });
-      if (!res.ok) throw new Error("Failed to fetch global assumptions");
-      return res.json();
-    },
-  });
-
-  const { data: adminLogos } = useQuery<Logo[]>({
-    queryKey: ["admin", "logos"],
-    queryFn: async () => {
-      const res = await fetch("/api/logos", { credentials: "include" });
-      if (!res.ok) throw new Error("Failed to fetch logos");
-      return res.json();
-    },
-  });
-
-  const updateGlobalMutation = useMutation({
-    mutationFn: async (updates: Record<string, any>) => {
-      const res = await fetch("/api/global-assumptions", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ ...globalAssumptions, ...updates }),
-      });
-      if (!res.ok) throw new Error("Failed to update settings");
-      return res.json();
-    },
-    onSuccess: () => {
-      invalidateAllFinancialQueries(queryClient);
-    },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to save settings.", variant: "destructive" });
-    },
-  });
+  const { data: globalAssumptions } = useGlobalAssumptions();
+  const updateGlobalMutation = useUpdateGlobalAssumptions();
 
   return (
     <div className="space-y-6">
@@ -90,44 +36,19 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
               />
               <p className="text-xs text-muted-foreground">The entity name used in financial modeling and reports</p>
             </div>
-            <div className="space-y-2">
-              <Label className="label-text text-gray-700">Company Logo</Label>
-              <div className="flex items-center gap-4">
-                <div className="relative w-14 h-14 rounded-lg border-2 border-dashed border-primary/40 flex items-center justify-center overflow-hidden bg-white">
-                  <img
-                    src={(() => {
-                      if (globalAssumptions?.companyLogoId) {
-                        const logo = adminLogos?.find(l => l.id === globalAssumptions.companyLogoId);
-                        if (logo) return logo.url;
-                      }
-                      return globalAssumptions?.companyLogoUrl || globalAssumptions?.companyLogo || defaultLogo;
-                    })()}
-                    alt="Company logo"
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-                <div className="flex-1 space-y-1">
-                  <Select
-                    value={globalAssumptions?.companyLogoId ? String(globalAssumptions.companyLogoId) : "default"}
-                    onValueChange={(v) => {
-                      const logoId = v === "default" ? null : Number(v);
-                      updateGlobalMutation.mutate({ companyLogoId: logoId }, {
-                        onSuccess: () => toast({ title: logoId ? "Logo updated" : "Logo reset", description: logoId ? "Management company logo has been updated." : "Logo has been reset to default." })
-                      });
-                    }}
-                  >
-                    <SelectTrigger data-testid="select-company-logo"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="default">Default Logo</SelectItem>
-                      {adminLogos?.map(logo => (
-                        <SelectItem key={logo.id} value={String(logo.id)}>{logo.name}{logo.isDefault ? " (Default)" : ""}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-muted-foreground">Select from Logo Portfolio below</p>
-                </div>
-              </div>
-            </div>
+            <LogoSelector
+              label="Company Logo"
+              value={globalAssumptions?.companyLogoId ?? null}
+              onChange={(logoId) => {
+                updateGlobalMutation.mutate({ companyLogoId: logoId }, {
+                  onSuccess: () => toast({ title: logoId ? "Logo updated" : "Logo reset", description: logoId ? "Management company logo has been updated." : "Logo has been reset to default." })
+                });
+              }}
+              showNone={true}
+              emptyLabel="Default Logo"
+              helpText="Select from Logo Portfolio"
+              testId="select-company-logo"
+            />
           </div>
         </CardContent>
       </Card>
@@ -138,44 +59,19 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
           <CardDescription className="label-text">Define the type of property being profiled — used across page titles, research prompts, and financial reports</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="space-y-2">
-            <Label className="label-text text-gray-700">Asset Logo</Label>
-            <div className="flex items-center gap-4">
-              <div className="relative w-14 h-14 rounded-lg border-2 border-dashed border-primary/40 flex items-center justify-center overflow-hidden bg-white">
-                <img
-                  src={(() => {
-                    const effectiveId = globalAssumptions?.assetLogoId ?? adminLogos?.find(l => l.isDefault)?.id;
-                    if (effectiveId) {
-                      const logo = adminLogos?.find(l => l.id === effectiveId);
-                      if (logo) return logo.url;
-                    }
-                    return defaultLogo;
-                  })()}
-                  alt="Asset logo"
-                  className="w-full h-full object-contain"
-                />
-              </div>
-              <div className="flex-1 space-y-1 max-w-sm">
-                <Select
-                  value={String(globalAssumptions?.assetLogoId ?? adminLogos?.find(l => l.isDefault)?.id ?? "")}
-                  onValueChange={(v) => {
-                    const logoId = Number(v);
-                    updateGlobalMutation.mutate({ assetLogoId: logoId }, {
-                      onSuccess: () => toast({ title: "Asset logo updated", description: "The asset type logo has been updated." })
-                    });
-                  }}
-                >
-                  <SelectTrigger data-testid="select-asset-logo"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {adminLogos?.map(logo => (
-                      <SelectItem key={logo.id} value={String(logo.id)}>{logo.name}{logo.isDefault ? " (Default)" : ""}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-muted-foreground">Select from Logo Portfolio</p>
-              </div>
-            </div>
-          </div>
+          <LogoSelector
+            label="Asset Logo"
+            value={globalAssumptions?.assetLogoId ?? null}
+            onChange={(logoId) => {
+              updateGlobalMutation.mutate({ assetLogoId: logoId }, {
+                onSuccess: () => toast({ title: "Asset logo updated", description: "The asset type logo has been updated." })
+              });
+            }}
+            showNone={false}
+            useDefaultFallback={true}
+            helpText="Select from Logo Portfolio"
+            testId="select-asset-logo"
+          />
 
           <div className="space-y-2">
             <Label className="label-text text-gray-700">Asset Label</Label>
@@ -195,7 +91,7 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
               value={globalAssumptions?.assetDescription || ""}
               onChange={(e) => updateGlobalMutation.mutate({ assetDescription: e.target.value })}
               placeholder="Describe the type of property in detail to educate the research engines. For example: Independently operated, design-forward boutique hotels with 20-60 rooms, situated on 5+ acres of private grounds. Properties feature curated F&B programs, wellness amenities, and distinctive event spaces for retreats and experiential hospitality."
-              className="flex min-h-[120px] w-full rounded-xl border border-primary/20 bg-white px-3 py-2.5 text-sm text-gray-700 ring-offset-background placeholder:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-y"
+              className={ADMIN_TEXTAREA}
               data-testid="input-asset-description"
             />
             <p className="text-xs text-muted-foreground">A detailed description that educates the AI research engines on the exact type of property being analyzed — the more specific, the better the research quality</p>

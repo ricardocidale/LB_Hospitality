@@ -1,3 +1,4 @@
+import { useState, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { invalidateAllFinancialQueries } from "@/lib/api";
@@ -11,7 +12,7 @@ export function adminFetch<T>(url: string, errorMsg: string): () => Promise<T> {
   };
 }
 
-export function adminMutate(url: string, method: "POST" | "PATCH" | "DELETE" = "POST") {
+export function adminMutate(url: string, method: "POST" | "PUT" | "PATCH" | "DELETE" = "POST") {
   return async (body?: Record<string, any>) => {
     const res = await fetch(url, {
       method,
@@ -49,9 +50,9 @@ export function useAdminCompanies() {
 }
 
 export function useGlobalAssumptions() {
-  return useQuery({
+  return useQuery<Record<string, any>>({
     queryKey: ["globalAssumptions"],
-    queryFn: adminFetch("/api/global-assumptions", "Failed to fetch global assumptions"),
+    queryFn: adminFetch<Record<string, any>>("/api/global-assumptions", "Failed to fetch global assumptions"),
   });
 }
 
@@ -78,4 +79,95 @@ export function useUpdateGlobalAssumptions() {
       toast({ title: "Error", description: "Failed to save settings.", variant: "destructive" });
     },
   });
+}
+
+export function useCreateLogo() {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: adminMutate("/api/logos", "POST"),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "logos"] });
+      queryClient.invalidateQueries({ queryKey: ["my-branding"] });
+      toast({ title: "Logo Created", description: "Logo has been added successfully." });
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to create logo.", variant: "destructive" });
+    },
+  });
+}
+
+export function useDeleteLogo() {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: number) => {
+      const res = await fetch(`/api/logos/${id}`, { method: "DELETE", credentials: "include" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to delete logo");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "logos"] });
+      queryClient.invalidateQueries({ queryKey: ["my-branding"] });
+      toast({ title: "Logo Deleted", description: "Logo has been removed." });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+}
+
+export function useEnhanceLogoPrompt() {
+  const [isEnhancing, setIsEnhancing] = useState(false);
+
+  const enhance = useCallback(async (prompt: string): Promise<string | null> => {
+    setIsEnhancing(true);
+    try {
+      const res = await fetch("/api/enhance-logo-prompt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ prompt }),
+      });
+      if (!res.ok) throw new Error("Failed to enhance prompt");
+      const data = await res.json();
+      return data.enhanced;
+    } catch {
+      return null;
+    } finally {
+      setIsEnhancing(false);
+    }
+  }, []);
+
+  return { enhance, isEnhancing };
+}
+
+export function useGenerateLogoImage() {
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const generate = useCallback(async (prompt: string): Promise<string | null> => {
+    setIsGenerating(true);
+    try {
+      const res = await fetch("/api/generate-property-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ prompt }),
+      });
+      if (!res.ok) throw new Error("Failed to generate logo");
+      const data = await res.json();
+      return data.objectPath;
+    } catch {
+      return null;
+    } finally {
+      setIsGenerating(false);
+    }
+  }, []);
+
+  return { generate, isGenerating };
 }

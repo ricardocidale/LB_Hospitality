@@ -4,6 +4,12 @@ import { objectStorageClient, ObjectStorageService } from "../replit_integration
 import { logActivity, logAndSendError } from "./helpers";
 import { randomUUID } from "crypto";
 
+const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+const ALLOWED_CONTENT_TYPES = [
+  "image/png", "image/jpeg", "image/jpg", "image/gif",
+  "image/webp", "image/svg+xml", "image/bmp", "image/tiff",
+];
+
 export function register(app: Express) {
   app.post("/api/uploads/request-url", requireAuth, async (req, res) => {
     try {
@@ -17,9 +23,9 @@ export function register(app: Express) {
       const objectPath = objectStorageService.normalizeObjectEntityPath(uploadURL);
 
       logActivity(req, "upload-request", entityType || "asset", entityId, name, { objectPath });
-      
-      res.json({ 
-        uploadURL, 
+
+      res.json({
+        uploadURL,
         objectPath,
         metadata: { name, size, contentType }
       });
@@ -30,9 +36,25 @@ export function register(app: Express) {
 
   app.post("/api/uploads/direct", requireAuth, async (req, res) => {
     try {
+      const contentType = (req.headers["content-type"] || "").split(";")[0].trim();
+      if (!ALLOWED_CONTENT_TYPES.includes(contentType)) {
+        return res.status(400).json({ error: `Unsupported content type: ${contentType}. Allowed: ${ALLOWED_CONTENT_TYPES.join(", ")}` });
+      }
+
+      const contentLength = parseInt(req.headers["content-length"] || "0", 10);
+      if (contentLength > MAX_UPLOAD_BYTES) {
+        return res.status(413).json({ error: `File too large. Maximum size is ${MAX_UPLOAD_BYTES / 1024 / 1024}MB.` });
+      }
+
       const chunks: Buffer[] = [];
+      let totalSize = 0;
       for await (const chunk of req) {
-        chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+        const buf = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+        totalSize += buf.length;
+        if (totalSize > MAX_UPLOAD_BYTES) {
+          return res.status(413).json({ error: `File too large. Maximum size is ${MAX_UPLOAD_BYTES / 1024 / 1024}MB.` });
+        }
+        chunks.push(buf);
       }
       const body = Buffer.concat(chunks);
 
@@ -51,12 +73,10 @@ export function register(app: Express) {
 
       const bucket = objectStorageClient.bucket(bucketName);
       const file = bucket.file(objectName);
-
-      const contentType = req.headers["content-type"] || "application/octet-stream";
       await file.save(body, { contentType });
 
       const objectPath = `/objects/uploads/${objectId}`;
-      logActivity(req, "upload-direct", "asset", undefined, objectId, { objectPath });
+      logActivity(req, "upload-direct", "asset", undefined, objectId, { objectPath, contentType, size: body.length });
 
       res.json({ objectPath });
     } catch (error) {

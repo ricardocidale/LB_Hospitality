@@ -8,6 +8,8 @@ interface LogoSelectorProps {
   label: string;
   value: number | null | undefined;
   onChange: (logoId: number | null) => void;
+  showNone?: boolean;
+  useDefaultFallback?: boolean;
   emptyLabel?: string;
   helpText?: string;
   testId?: string;
@@ -18,6 +20,8 @@ export default function LogoSelector({
   label,
   value,
   onChange,
+  showNone = true,
+  useDefaultFallback = false,
   emptyLabel = "No Logo",
   helpText = "Select from Logo Portfolio",
   testId = "select-logo",
@@ -25,13 +29,18 @@ export default function LogoSelector({
 }: LogoSelectorProps) {
   const { data: logos } = useAdminLogos();
 
+  const defaultLogoEntry = logos?.find(l => l.isDefault);
+  const effectiveValue = useDefaultFallback && value == null ? defaultLogoEntry?.id ?? null : value;
+
   const resolvedUrl = (() => {
-    if (value) {
-      const logo = logos?.find(l => l.id === value);
+    if (effectiveValue) {
+      const logo = logos?.find(l => l.id === effectiveValue);
       if (logo) return logo.url;
     }
     return fallbackUrl || defaultLogo;
   })();
+
+  const selectValue = effectiveValue ? String(effectiveValue) : (showNone ? "none" : "");
 
   return (
     <div className="space-y-2">
@@ -42,12 +51,12 @@ export default function LogoSelector({
         </div>
         <div className="flex-1 space-y-1 max-w-sm">
           <Select
-            value={value ? String(value) : "none"}
+            value={selectValue}
             onValueChange={(v) => onChange(v === "none" ? null : Number(v))}
           >
             <SelectTrigger data-testid={testId}><SelectValue /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="none">{emptyLabel}</SelectItem>
+              {showNone && <SelectItem value="none">{emptyLabel}</SelectItem>}
               {logos?.map(logo => (
                 <SelectItem key={logo.id} value={String(logo.id)}>
                   {logo.name}{logo.isDefault ? " (Default)" : ""}

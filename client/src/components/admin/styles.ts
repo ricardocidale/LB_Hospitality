@@ -4,6 +4,8 @@ export const ADMIN_LINK_CARD = "group bg-white/60 backdrop-blur-sm border border
 
 export const ADMIN_LINK_ICON = "w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/15 transition-colors";
 
-export const ADMIN_TEXTAREA = "flex min-h-[120px] w-full rounded-xl border border-primary/20 bg-white px-3 py-2.5 text-sm ring-offset-background placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-y";
+export const ADMIN_TEXTAREA = "flex min-h-[120px] w-full rounded-xl border border-primary/20 bg-white px-3 py-2.5 text-sm text-gray-700 ring-offset-background placeholder:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-y";
 
 export const LOGO_PREVIEW = "relative w-14 h-14 rounded-lg border-2 border-dashed border-primary/40 flex items-center justify-center overflow-hidden bg-white";
+
+export const ADMIN_DIALOG = "sm:max-w-lg";

@@ -217,9 +217,27 @@ export async function runFillOnlySync(storage: IStorage, generateResearchValues?
   const existingThemes = await storage.getAllDesignThemes();
   const SEED_THEMES = [
     {
+      name: "L+B Brand",
+      description: "The native application color system. Derived directly from the app's CSS custom properties — sage green primary, forest green secondary, warm cream backgrounds, and a charcoal sidebar. Earthy, natural, and trustworthy.",
+      isDefault: true,
+      colors: [
+        { name: "Sage Green",   rank: 1, hexCode: "#9FBCA4", description: "PALETTE: Primary brand color. Drives action buttons, active nav items, focus rings, and key highlights. CSS: --primary (hsl 131 18% 68%)" },
+        { name: "Forest Green", rank: 2, hexCode: "#257D41", description: "PALETTE: Deep secondary color for contrast elements, secondary buttons, and badges. CSS: --secondary (hsl 145 55% 31%)" },
+        { name: "Warm Cream",   rank: 3, hexCode: "#FFF9F5", description: "PALETTE: Page background and warm card surfaces. Creates a soft, welcoming canvas. CSS: --background (hsl 30 100% 98%)" },
+        { name: "Charcoal",     rank: 4, hexCode: "#3D3D3D", description: "PALETTE: Dark sidebar background, primary text foreground. Provides depth and contrast. CSS: --foreground / --sidebar (hsl 0 0% 24%)" },
+        { name: "Warm Linen",   rank: 5, hexCode: "#F5F2F0", description: "PALETTE: Muted surface color for secondary cards, table row alternates, and input backgrounds. CSS: --muted (hsl 30 20% 95%)" },
+        { name: "Warm Border",  rank: 6, hexCode: "#E5E0DC", description: "PALETTE: Subtle border and input outline color. Warm-toned to complement the cream background. CSS: --border (hsl 30 15% 88%)" },
+        { name: "Sage",      rank: 1, hexCode: "#9FBCA4", description: "CHART: Primary series — revenue, total income, and primary metrics. CSS: --chart-1" },
+        { name: "Forest",    rank: 2, hexCode: "#257D41", description: "CHART: Secondary series — NOI, net income, and profitability metrics. CSS: --chart-2" },
+        { name: "Amethyst",  rank: 3, hexCode: "#AF57DB", description: "CHART: Tertiary series — cash flow, EBITDA, and financial health metrics. CSS: --chart-3" },
+        { name: "Amber",     rank: 4, hexCode: "#D97706", description: "CHART: Quaternary series — expenses, cost metrics, and budget tracking. CSS: --chart-4" },
+        { name: "Crimson",   rank: 5, hexCode: "#EF4444", description: "CHART: Quinary series — alerts, shortfalls, and negative variance. CSS: --chart-5 / --destructive" },
+      ],
+    },
+    {
       name: "Fluid Glass",
       description: "Inspired by Apple's iOS design language, Fluid Glass creates a sense of depth and dimension through translucent layers, subtle gradients, and smooth animations.",
-      isDefault: true,
+      isDefault: false,
       colors: [
         { name: "Sage Green", rank: 1, hexCode: "#9FBCA4", description: "PALETTE: Secondary accent for subtle highlights, card borders, and supporting visual elements." },
         { name: "Deep Green", rank: 2, hexCode: "#257D41", description: "PALETTE: Primary brand color for main action buttons, active navigation items, and key highlights." },

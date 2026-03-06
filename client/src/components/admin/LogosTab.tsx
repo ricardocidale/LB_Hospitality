@@ -1,5 +1,4 @@
-import { useState, useRef, useCallback } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,15 +9,14 @@ import { Loader2, Plus, Trash2, Building2, Image, Tag, Save, Star, Sparkles, Har
 import { useUpload } from "@/hooks/use-upload";
 import { useToast } from "@/hooks/use-toast";
 import { ImageCropDialog } from "@/components/ui/image-crop-dialog";
+import { useAdminLogos, useCreateLogo, useDeleteLogo, useEnhanceLogoPrompt, useGenerateLogoImage } from "./hooks";
 import defaultLogo from "@/assets/logo.png";
-import type { Logo } from "./types";
 
 type LogoMode = "generate" | "import" | "url";
 type AIStep = "describe" | "enhancing" | "review" | "generating";
 
 export default function LogosTab() {
   const { toast } = useToast();
-  const queryClient = useQueryClient();
 
   const [logoDialogOpen, setLogoDialogOpen] = useState(false);
   const [logoName, setLogoName] = useState("");
@@ -30,8 +28,6 @@ export default function LogosTab() {
   const [aiPrompt, setAiPrompt] = useState("");
   const [aiStep, setAiStep] = useState<AIStep>("describe");
   const [enhancedPrompt, setEnhancedPrompt] = useState("");
-  const [isEnhancing, setIsEnhancing] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false);
   const [isUploadingFile, setIsUploadingFile] = useState(false);
 
   const [cropDialogOpen, setCropDialogOpen] = useState(false);
@@ -40,6 +36,12 @@ export default function LogosTab() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [urlInput, setUrlInput] = useState("");
 
+  const { data: adminLogos } = useAdminLogos();
+  const createLogoMutation = useCreateLogo();
+  const deleteLogoMutation = useDeleteLogo();
+  const { enhance, isEnhancing } = useEnhanceLogoPrompt();
+  const { generate, isGenerating } = useGenerateLogoImage();
+
   const resetLogoForm = () => {
     setLogoName("");
     setLogoCompanyName("");
@@ -47,56 +49,10 @@ export default function LogosTab() {
     setAiPrompt("");
     setAiStep("describe");
     setEnhancedPrompt("");
-    setIsEnhancing(false);
-    setIsGenerating(false);
     setIsUploadingFile(false);
     setUrlInput("");
     setLogoMode("generate");
   };
-
-  const { data: adminLogos } = useQuery<Logo[]>({
-    queryKey: ["admin", "logos"],
-    queryFn: async () => {
-      const res = await fetch("/api/logos", { credentials: "include" });
-      if (!res.ok) throw new Error("Failed to fetch logos");
-      return res.json();
-    },
-  });
-
-  const createLogoMutation = useMutation({
-    mutationFn: async (data: { name: string; companyName: string; url: string }) => {
-      const res = await fetch("/api/logos", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data), credentials: "include" });
-      if (!res.ok) throw new Error("Failed to create logo");
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin", "logos"] });
-      queryClient.invalidateQueries({ queryKey: ["my-branding"] });
-      setLogoDialogOpen(false);
-      resetLogoForm();
-      toast({ title: "Logo Created", description: "Logo has been added successfully." });
-    },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to create logo.", variant: "destructive" });
-    },
-  });
-
-  const deleteLogoMutation = useMutation({
-    mutationFn: async (id: number) => {
-      const res = await fetch(`/api/logos/${id}`, { method: "DELETE", credentials: "include" });
-      if (!res.ok) { const data = await res.json(); throw new Error(data.error || "Failed to delete logo"); }
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin", "logos"] });
-      queryClient.invalidateQueries({ queryKey: ["my-branding"] });
-      setDeleteLogoConfirmId(null);
-      toast({ title: "Logo Deleted", description: "Logo has been removed." });
-    },
-    onError: (error: Error) => {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    },
-  });
 
   const { uploadFile } = useUpload({
     onSuccess: (response) => {
@@ -143,51 +99,31 @@ export default function LogosTab() {
     setCropDialogOpen(open);
   };
 
-  const handleEnhancePrompt = useCallback(async () => {
+  const handleEnhancePrompt = async () => {
     if (!aiPrompt.trim()) return;
-    setIsEnhancing(true);
     setAiStep("enhancing");
-    try {
-      const res = await fetch("/api/enhance-logo-prompt", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ prompt: aiPrompt.trim() }),
-      });
-      if (!res.ok) throw new Error("Failed to enhance prompt");
-      const data = await res.json();
-      setEnhancedPrompt(data.enhanced);
+    const result = await enhance(aiPrompt.trim());
+    if (result) {
+      setEnhancedPrompt(result);
       setAiStep("review");
-    } catch {
+    } else {
       toast({ title: "Enhancement Failed", description: "Could not enhance prompt. You can still generate with your original description.", variant: "destructive" });
       setAiStep("describe");
-    } finally {
-      setIsEnhancing(false);
     }
-  }, [aiPrompt, toast]);
+  };
 
-  const handleGenerateLogo = useCallback(async (prompt: string) => {
-    setIsGenerating(true);
+  const handleGenerateLogo = async (prompt: string) => {
     setAiStep("generating");
-    try {
-      const res = await fetch("/api/generate-property-image", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ prompt }),
-      });
-      if (!res.ok) throw new Error("Failed to generate logo");
-      const data = await res.json();
-      setLogoUrl(data.objectPath);
+    const objectPath = await generate(prompt);
+    if (objectPath) {
+      setLogoUrl(objectPath);
       setAiStep("describe");
       toast({ title: "Logo Generated", description: "AI-generated logo is ready." });
-    } catch {
+    } else {
       toast({ title: "Generation Failed", description: "Failed to generate logo. Please try again.", variant: "destructive" });
       setAiStep("describe");
-    } finally {
-      setIsGenerating(false);
     }
-  }, [toast]);
+  };
 
   const modeBtn = (mode: LogoMode, active: boolean) =>
     `flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 border ${
@@ -295,12 +231,7 @@ export default function LogosTab() {
               <div className="aspect-square max-w-[200px] mx-auto rounded-xl overflow-hidden border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10 p-4">
                 <img src={logoUrl} alt="Preview" className="w-full h-full object-contain" />
               </div>
-              <button
-                type="button"
-                onClick={() => { setLogoUrl(""); setAiStep("describe"); }}
-                className="absolute top-2 right-2 w-7 h-7 rounded-full bg-red-500/90 text-white flex items-center justify-center hover:bg-red-600 transition-colors shadow-md"
-                data-testid="btn-remove-preview"
-              >
+              <button type="button" onClick={() => { setLogoUrl(""); setAiStep("describe"); }} className="absolute top-2 right-2 w-7 h-7 rounded-full bg-red-500/90 text-white flex items-center justify-center hover:bg-red-600 transition-colors shadow-md" data-testid="btn-remove-preview">
                 <X className="w-4 h-4" />
               </button>
             </div>
@@ -323,25 +254,11 @@ export default function LogosTab() {
                     />
                   </div>
                   <div className="flex gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      disabled={!aiPrompt.trim() || isBusy}
-                      onClick={handleEnhancePrompt}
-                      className="flex-1 bg-gradient-to-b from-amber-50 to-amber-100/80 border-amber-200/60 text-amber-800 hover:from-amber-100 hover:to-amber-200/80 hover:border-amber-300 transition-all"
-                      data-testid="btn-enhance-prompt"
-                    >
+                    <Button type="button" variant="outline" disabled={!aiPrompt.trim() || isBusy} onClick={handleEnhancePrompt} className="flex-1 bg-gradient-to-b from-amber-50 to-amber-100/80 border-amber-200/60 text-amber-800 hover:from-amber-100 hover:to-amber-200/80 hover:border-amber-300 transition-all" data-testid="btn-enhance-prompt">
                       <Wand2 className="w-4 h-4 mr-2" />
                       Enhance with AI
                     </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      disabled={!aiPrompt.trim() || isBusy}
-                      onClick={() => handleGenerateLogo(aiPrompt.trim())}
-                      className="flex-1 bg-gradient-to-b from-primary/10 to-primary/20 border-primary/30 text-gray-800 hover:from-primary/20 hover:to-primary/30 transition-all"
-                      data-testid="btn-generate-direct"
-                    >
+                    <Button type="button" variant="outline" disabled={!aiPrompt.trim() || isBusy} onClick={() => handleGenerateLogo(aiPrompt.trim())} className="flex-1 bg-gradient-to-b from-primary/10 to-primary/20 border-primary/30 text-gray-800 hover:from-primary/20 hover:to-primary/30 transition-all" data-testid="btn-generate-direct">
                       <Sparkles className="w-4 h-4 mr-2" />
                       Generate Logo
                     </Button>
@@ -370,46 +287,18 @@ export default function LogosTab() {
                       <Wand2 className="w-4 h-4 text-amber-600" />
                       <span className="text-xs font-medium text-amber-700 uppercase tracking-wide">AI-Enhanced Prompt</span>
                     </div>
-                    <Textarea
-                      value={enhancedPrompt}
-                      onChange={(e) => setEnhancedPrompt(e.target.value)}
-                      rows={4}
-                      className="resize-none bg-white/80 border-amber-200/40 text-sm"
-                      data-testid="input-enhanced-prompt"
-                    />
-                    <div className="flex items-center gap-1.5 pt-1">
-                      <p className="text-xs text-gray-400 flex-1">You can edit the enhanced prompt above</p>
-                    </div>
+                    <Textarea value={enhancedPrompt} onChange={(e) => setEnhancedPrompt(e.target.value)} rows={4} className="resize-none bg-white/80 border-amber-200/40 text-sm" data-testid="input-enhanced-prompt" />
+                    <p className="text-xs text-gray-400">You can edit the enhanced prompt above</p>
                   </div>
                   <div className="flex gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => { setAiStep("describe"); setEnhancedPrompt(""); }}
-                      className="border-gray-200 text-gray-600 hover:bg-gray-50"
-                      data-testid="btn-cancel-enhance"
-                    >
-                      <X className="w-4 h-4 mr-1.5" />
-                      Cancel
+                    <Button type="button" variant="outline" onClick={() => { setAiStep("describe"); setEnhancedPrompt(""); }} className="border-gray-200 text-gray-600 hover:bg-gray-50" data-testid="btn-cancel-enhance">
+                      <X className="w-4 h-4 mr-1.5" /> Cancel
                     </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => { setAiPrompt(enhancedPrompt); setAiStep("describe"); setEnhancedPrompt(""); }}
-                      className="border-primary/30 text-gray-700 hover:bg-primary/5"
-                      data-testid="btn-edit-enhanced"
-                    >
-                      <Pencil className="w-4 h-4 mr-1.5" />
-                      Edit Further
+                    <Button type="button" variant="outline" onClick={() => { setAiPrompt(enhancedPrompt); setAiStep("describe"); setEnhancedPrompt(""); }} className="border-primary/30 text-gray-700 hover:bg-primary/5" data-testid="btn-edit-enhanced">
+                      <Pencil className="w-4 h-4 mr-1.5" /> Edit Further
                     </Button>
-                    <Button
-                      type="button"
-                      onClick={() => handleGenerateLogo(enhancedPrompt)}
-                      className="flex-1 bg-gradient-to-b from-primary/70 to-primary/90 text-white hover:from-primary/80 hover:to-primary border-0 shadow-sm"
-                      data-testid="btn-generate-enhanced"
-                    >
-                      <ArrowRight className="w-4 h-4 mr-1.5" />
-                      Generate Logo
+                    <Button type="button" onClick={() => handleGenerateLogo(enhancedPrompt)} className="flex-1 bg-gradient-to-b from-primary/70 to-primary/90 text-white hover:from-primary/80 hover:to-primary border-0 shadow-sm" data-testid="btn-generate-enhanced">
+                      <ArrowRight className="w-4 h-4 mr-1.5" /> Generate Logo
                     </Button>
                   </div>
                 </div>
@@ -431,10 +320,7 @@ export default function LogosTab() {
           )}
 
           {!logoUrl && logoMode === "import" && (
-            <div
-              className="w-full aspect-square max-h-[220px] rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center transition-colors cursor-pointer hover:border-primary/40 hover:bg-primary/[0.02]"
-              onClick={() => !isUploadingFile && fileInputRef.current?.click()}
-            >
+            <div className="w-full aspect-square max-h-[220px] rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center transition-colors cursor-pointer hover:border-primary/40 hover:bg-primary/[0.02]" onClick={() => !isUploadingFile && fileInputRef.current?.click()}>
               {isUploadingFile ? (
                 <>
                   <Loader2 className="w-10 h-10 text-primary animate-spin mb-2" />
@@ -453,23 +339,9 @@ export default function LogosTab() {
           {!logoUrl && logoMode === "url" && (
             <div className="space-y-3">
               <div className="flex gap-2">
-                <Input
-                  value={urlInput}
-                  onChange={(e) => setUrlInput(e.target.value)}
-                  placeholder="https://example.com/logo.png"
-                  className="bg-white border-primary/20"
-                  data-testid="input-logo-url"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => { setLogoUrl(urlInput.trim()); setUrlInput(""); }}
-                  disabled={!urlInput.trim()}
-                  className="border-primary/30 text-gray-700"
-                  data-testid="btn-apply-url"
-                >
-                  <Check className="w-4 h-4 mr-1.5" />
-                  Apply
+                <Input value={urlInput} onChange={(e) => setUrlInput(e.target.value)} placeholder="https://example.com/logo.png" className="bg-white border-primary/20" data-testid="input-logo-url" />
+                <Button type="button" variant="outline" onClick={() => { setLogoUrl(urlInput.trim()); setUrlInput(""); }} disabled={!urlInput.trim()} className="border-primary/30 text-gray-700" data-testid="btn-apply-url">
+                  <Check className="w-4 h-4 mr-1.5" /> Apply
                 </Button>
               </div>
               <p className="text-xs text-gray-400">Paste a direct link to a logo image</p>
@@ -481,7 +353,11 @@ export default function LogosTab() {
           <Button variant="outline" onClick={() => { setLogoDialogOpen(false); resetLogoForm(); }} disabled={isBusy} className="border-gray-200" data-testid="button-cancel-logo">Cancel</Button>
           <Button
             variant="outline"
-            onClick={() => createLogoMutation.mutate({ name: logoName, companyName: logoCompanyName, url: logoUrl })}
+            onClick={() => {
+              createLogoMutation.mutate({ name: logoName, companyName: logoCompanyName, url: logoUrl }, {
+                onSuccess: () => { setLogoDialogOpen(false); resetLogoForm(); }
+              });
+            }}
             disabled={!logoName || !logoUrl || isBusy}
             className="bg-gradient-to-b from-primary/10 to-primary/20 border-primary/30 text-gray-800 hover:from-primary/20 hover:to-primary/30 flex items-center gap-2"
             data-testid="button-save-logo"
@@ -501,7 +377,13 @@ export default function LogosTab() {
         </DialogHeader>
         <DialogFooter>
           <Button variant="outline" onClick={() => setDeleteLogoConfirmId(null)} data-testid="button-cancel-delete-logo">Cancel</Button>
-          <Button variant="destructive" onClick={() => { if (deleteLogoConfirmId) deleteLogoMutation.mutate(deleteLogoConfirmId); }} disabled={deleteLogoMutation.isPending} data-testid="button-confirm-delete-logo" className="flex items-center gap-2">
+          <Button
+            variant="destructive"
+            onClick={() => { if (deleteLogoConfirmId) deleteLogoMutation.mutate(deleteLogoConfirmId, { onSuccess: () => setDeleteLogoConfirmId(null) }); }}
+            disabled={deleteLogoMutation.isPending}
+            data-testid="button-confirm-delete-logo"
+            className="flex items-center gap-2"
+          >
             {deleteLogoMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
             Delete
           </Button>

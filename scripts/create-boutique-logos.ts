@@ -9,59 +9,66 @@ import { db } from "../server/db";
 import { logos, userGroups } from "../shared/schema";
 import { inArray } from "drizzle-orm";
 
-const LOGO_IDS_TO_DELETE = [6, 7, 8, 9, 10];
-const GROUP_IDS_TO_DELETE = [4, 5, 6, 7, 8];
+const LOGO_IDS_TO_DELETE = [11, 12, 13, 14, 15];
+const GROUP_IDS_TO_DELETE = [9, 10, 11, 12, 13];
+
+/** Shared ice chip style applied identically to all 5 logos. */
+function iceChipPrompt(color: string, icon: string): string {
+  return (
+    `A single app icon, perfect 1:1 square canvas, white background outside the chip. ` +
+    `The chip itself is a rounded-rectangle with very generous rounded corners (corner radius ~28% of width), ` +
+    `like a thick physical casino chip or hotel key fob. ` +
+    `The chip color is ${color}. ` +
+    `Render it with full 3D realism: thick frosted acrylic/ice material, ` +
+    `soft beveled edges that catch a cool white specular highlight along the top-left rim, ` +
+    `subtle inner ambient glow in the chip center, slight semi-transparent frost texture on the face, ` +
+    `and a soft drop shadow beneath the chip giving it clear physical depth and lift off the canvas. ` +
+    `Centered on the chip face: ${icon}. ` +
+    `The icon is the same size relative to the chip for all logos — occupying ~50% of the chip width, centered. ` +
+    `No text. No border. Photorealistic 3D render quality. Consistent composition.`
+  );
+}
 
 const COMPANIES = [
   {
     name: "The Mountain Company",
     companyName: "The Mountain Company",
-    chipColor: "#1E3A5F",
-    prompt:
-      "Square logo icon for a luxury boutique hotel brand called 'The Mountain Company'. " +
-      "A frosted ice chip square background in deep navy blue (#1E3A5F). Centered on it: a minimal white geometric mountain peak silhouette " +
-      "with sharp clean lines. Elegant, refined, alpine luxury. No text. Perfect square composition, " +
-      "slight glassmorphism on the chip surface, subtle inner glow.",
+    prompt: iceChipPrompt(
+      "deep navy blue (#1E3A5F)",
+      "a crisp white geometric mountain peak — two sharp triangular peaks, minimalist alpine silhouette"
+    ),
   },
   {
     name: "The Coastal House",
     companyName: "The Coastal House",
-    chipColor: "#1A7A6E",
-    prompt:
-      "Square logo icon for a luxury boutique hotel brand called 'The Coastal House'. " +
-      "A frosted ice chip square background in deep seafoam teal (#1A7A6E). Centered on it: a minimal white stylized wave or lighthouse mark, " +
-      "nautical elegance, clean geometric lines. No text. Perfect square composition, " +
-      "slight glassmorphism on the chip surface, subtle inner glow.",
+    prompt: iceChipPrompt(
+      "deep seafoam teal (#1A7A6E)",
+      "a crisp white stylized lighthouse with a single horizontal wave beneath it, clean nautical geometry"
+    ),
   },
   {
     name: "The Forest Lodge",
     companyName: "The Forest Lodge",
-    chipColor: "#2D5016",
-    prompt:
-      "Square logo icon for a luxury boutique hotel brand called 'The Forest Lodge'. " +
-      "A frosted ice chip square background in deep forest green (#2D5016). Centered on it: a minimal white stylized pine tree or forest canopy silhouette, " +
-      "organic yet refined, wilderness luxury. No text. Perfect square composition, " +
-      "slight glassmorphism on the chip surface, subtle inner glow.",
+    prompt: iceChipPrompt(
+      "deep forest green (#2D5016)",
+      "a crisp white symmetrical pine tree silhouette — single tall triangle with layered branches, minimal"
+    ),
   },
   {
     name: "The Desert Bloom",
     companyName: "The Desert Bloom",
-    chipColor: "#8B3A1A",
-    prompt:
-      "Square logo icon for a luxury boutique hotel brand called 'The Desert Bloom'. " +
-      "A frosted ice chip square background in warm terracotta (#8B3A1A). Centered on it: a minimal white stylized saguaro cactus or blooming desert flower, " +
-      "sun-baked luxury, clean geometric form. No text. Perfect square composition, " +
-      "slight glassmorphism on the chip surface, subtle inner glow.",
+    prompt: iceChipPrompt(
+      "warm terracotta (#8B3A1A)",
+      "a crisp white saguaro cactus with two upward arms — simple iconic desert silhouette"
+    ),
   },
   {
     name: "The Urban Loft",
     companyName: "The Urban Loft",
-    chipColor: "#2C2C2C",
-    prompt:
-      "Square logo icon for a luxury boutique hotel brand called 'The Urban Loft'. " +
-      "A frosted ice chip square background in deep charcoal (#2C2C2C). Centered on it: a minimal white or gold stylized city skyline or architectural window grid, " +
-      "metropolitan sophistication, bold geometry. No text. Perfect square composition, " +
-      "slight glassmorphism on the chip surface, subtle inner glow.",
+    prompt: iceChipPrompt(
+      "deep charcoal (#2C2C2C)",
+      "a crisp white minimal city skyline — three geometric building rectangles of varying heights, bold and clean"
+    ),
   },
 ];
 

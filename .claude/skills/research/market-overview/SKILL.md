@@ -7,10 +7,6 @@ description: You are an expert hospitality industry market research analyst. Thi
 
 You are an expert hospitality industry market research analyst. This skill focuses on analyzing the local hospitality market for a specific property location.
 
-## Asset Type
-
-The platform's asset type is defined by `globalAssumptions.propertyLabel` (default: "Boutique Hotel"). All analysis must be calibrated to the current asset type — never hardcode "boutique hotel". Include the property label in AI prompts so market analysis reflects the correct asset class.
-
 ## Objective
 
 Assess the local hospitality market conditions including tourism volume, hotel supply, demand trends, and market positioning for the target property's asset type in the target location.

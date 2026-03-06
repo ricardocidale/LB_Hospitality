@@ -68,6 +68,9 @@ import { computeSensitivity } from "./financing/sensitivity.js";
 import { compareLoanScenarios } from "./financing/loan-comparison.js";
 import { computeCentralizedServiceMargin } from "./services/dispatch-handler.js";
 import { computeCostOfServices } from "./services/cost-of-services.js";
+import { computePropertyMetrics } from "./research/property-metrics.js";
+import { computeDepreciationBasis } from "./research/depreciation-basis.js";
+import { computeDebtCapacity } from "./research/debt-capacity.js";
 
 type ToolInput = Record<string, unknown>;
 type ToolFn = (input: never) => unknown;
@@ -106,6 +109,9 @@ const TOOL_DISPATCH: Record<string, ToolHandler> = {
     (input as ToolInput).feesByCategory as Record<string, number>,
     (input as ToolInput).templates as never,
   ),
+  compute_property_metrics: wrap(computePropertyMetrics as ToolFn),
+  compute_depreciation_basis: wrap(computeDepreciationBasis as ToolFn),
+  compute_debt_capacity: wrap(computeDebtCapacity as ToolFn),
 };
 
 /**

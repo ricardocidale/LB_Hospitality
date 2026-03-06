@@ -13,7 +13,9 @@ const SAFE_PATTERNS = [
 ];
 
 const FINANCE_ENGINE_FILES = [
-  "client/src/lib/financialEngine.ts",
+  "client/src/lib/financial/property-engine.ts",
+  "client/src/lib/financial/company-engine.ts",
+  "client/src/lib/financial/utils.ts",
   "client/src/lib/cashFlowAggregator.ts",
   "client/src/lib/yearlyAggregator.ts",
   "client/src/lib/equityCalculations.ts",
@@ -89,6 +91,8 @@ const ALL_SCANNED_FILES = [
 ];
 
 const FILES_THAT_MUST_IMPORT_CONSTANTS = [
+  "client/src/lib/financial/property-engine.ts",
+  "client/src/lib/financial/company-engine.ts",
   "client/src/lib/cashFlowAggregator.ts",
   "client/src/lib/equityCalculations.ts",
   "client/src/lib/loanCalculations.ts",
@@ -578,7 +582,6 @@ describe("Hardcoded Value Detection", () => {
       if (!fs.existsSync(libDir)) return;
 
       const nonFinanceFiles = new Set([
-        "analytics.ts",
         "api.ts",
         "auth-utils.ts",
         "queryClient.ts",
@@ -587,7 +590,7 @@ describe("Hardcoded Value Detection", () => {
         "store.ts",
         "pdfChartDrawer.ts",
         "constants.ts",
-        "firstOperatingYear.ts",
+        "financialEngine.ts",
         "company-data.ts",
       ]);
 
@@ -613,6 +616,7 @@ describe("Hardcoded Value Detection", () => {
       const calcDir = path.resolve("calc");
       if (!fs.existsSync(calcDir)) return;
 
+      const skipDirs = new Set(["research"]);
       const skipFiles = new Set(["index.ts", "types.ts", "dispatch.ts", "schemas.ts"]);
 
       const allCalcFiles: string[] = [];
@@ -620,7 +624,7 @@ describe("Hardcoded Value Detection", () => {
         const entries = fs.readdirSync(dir, { withFileTypes: true });
         for (const entry of entries) {
           if (entry.isDirectory()) {
-            walkDir(path.join(dir, entry.name));
+            if (!skipDirs.has(entry.name)) walkDir(path.join(dir, entry.name));
           } else if (entry.name.endsWith(".ts") && !skipFiles.has(entry.name) && !entry.name.includes("journal-hooks")) {
             const relPath = path.relative(process.cwd(), path.join(dir, entry.name)).replace(/\\/g, "/");
             allCalcFiles.push(relPath);

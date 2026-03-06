@@ -337,3 +337,26 @@ npx @elevenlabs/cli@latest components add voice-chat-01
 ### Current Marcela Widget
 
 The project currently uses `@elevenlabs/convai-widget-core` with `registerWidget()` for the Marcela AI assistant. The ElevenLabs UI components offer a more customizable alternative if deeper integration is needed (custom chat UI, orb visualization, transcript display, etc.).
+
+## Detailed Component Skills
+
+For per-component implementation details (full props, usage patterns, Vite adaptation), see the skill files in `.claude/skills/elevenlabs/ui/`:
+
+| Skill File | Components Covered |
+|------------|-------------------|
+| `ui/SKILL.md` | Overview, installation, categories, integration map |
+| `ui/orb.md` | Orb (including `getInputVolume`/`getOutputVolume`) |
+| `ui/conversation.md` | Conversation, ConversationContent, ConversationEmptyState, ConversationScrollButton |
+| `ui/message.md` | Message, MessageContent, MessageAvatar, MessageActions |
+| `ui/conversation-bar.md` | ConversationBar |
+| `ui/voice-button.md` | VoiceButton |
+| `ui/voice-picker.md` | VoicePicker |
+| `ui/mic-selector.md` | MicSelector |
+| `ui/waveform.md` | Waveform, ScrollingWaveform, AudioScrubber, MicrophoneWaveform, LiveWaveform, BarVisualizer |
+| `ui/speech-input.md` | SpeechInput, TranscriptViewer |
+| `ui/audio-player.md` | AudioPlayer, ScrubBar |
+| `ui/response.md` | Response (streaming markdown) |
+| `ui/effects.md` | ShimmeringText, Matrix |
+| `ui/blocks.md` | 9 pre-built page templates |
+
+Tool schemas are in `.claude/tools/marcela/elevenlabs-ui-*.json` (15 files).

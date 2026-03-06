@@ -59,6 +59,27 @@ const client = new ElevenLabsClient({ apiKey: process.env.ELEVENLABS_API_KEY });
 | Simple HTML page | `@elevenlabs/convai-widget-embed` (CDN) |
 | React Native mobile app | `@elevenlabs/react-native` |
 | Node.js server | `elevenlabs` |
+| UI components (shadcn-based) | `npx @elevenlabs/cli@latest components add <name>` |
+
+### Agents Platform Libraries (Multi-Language)
+
+| Language | Package | Manager |
+|----------|---------|---------|
+| JavaScript | `@elevenlabs/client` | npm |
+| React | `@elevenlabs/react` | npm |
+| React Native | `@elevenlabs/react-native` | npm |
+| Python | `elevenlabs` | PyPI |
+| Swift | [ElevenLabsSwift](https://github.com/elevenlabs/ElevenLabsSwift) | GitHub |
+| Kotlin | `io.elevenlabs:elevenlabs-android` | Maven |
+| Flutter | `elevenlabs_agents` | Pub |
+
+### Third-Party Libraries
+
+| Library | Package | Manager |
+|---------|---------|---------|
+| Vercel AI SDK | `ai` | npm |
+| .NET | `ElevenLabs-DotNet` | NuGet |
+| Unity | `com.rest.elevenlabs` | OpenUPM |
 
 ## API Base URL
 

@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Shield, Bot, MessageSquare, Mic, Brain, Wrench, BookOpen, Phone, User } from "lucide-react";
 import { VoiceSettings } from "./types";
-import { useMarcelaSettings, useTwilioStatus, useSaveMarcelaSettings } from "./hooks";
+import { useMarcelaSettings, useTwilioStatus, useSaveMarcelaSettings, useAgentConfig } from "./hooks";
 import { KnowledgeBaseCard } from "./KnowledgeBase";
 import { LLMSettings } from "./LLMSettings";
 import { TelephonySettings } from "./TelephonySettings";
@@ -20,6 +20,7 @@ export default function MarcelaTab() {
   const { data: globalData, isLoading } = useMarcelaSettings();
   const { data: twilioStatus } = useTwilioStatus();
   const saveMutation = useSaveMarcelaSettings();
+  const { data: agentConfig } = useAgentConfig();
 
   const [draft, setDraft] = useState<VoiceSettings | null>(null);
   const [isDirty, setIsDirty] = useState(false);
@@ -222,10 +223,15 @@ export default function MarcelaTab() {
                   </div>
                 )}
                 {draft.marcelaAgentId && (
-                  <div className="p-3.5 bg-gradient-to-br from-green-50 to-emerald-50/50 rounded-xl border border-green-200/60">
+                  <div className="p-3.5 bg-gradient-to-br from-green-50 to-emerald-50/50 rounded-xl border border-green-200/60 space-y-1">
                     <p className="text-xs text-green-800">
                       Agent connected. The ElevenLabs widget will appear as a floating button for all users.
                     </p>
+                    {agentConfig?.name && (
+                      <p className="text-xs text-green-700 font-medium">
+                        ElevenLabs agent name: <span className="font-semibold">{agentConfig.name}</span>
+                      </p>
+                    )}
                   </div>
                 )}
               </CardContent>

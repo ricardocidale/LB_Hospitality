@@ -3,11 +3,13 @@ import { storage } from "./storage";
 import { logger } from "./logger";
 
 export function getBaseUrl(): string {
-  if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
-    return `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`;
-  }
+  // Replit deployment domain (most reliable — set in all Replit environments)
   if (process.env.REPLIT_DEV_DOMAIN) {
     return `https://${process.env.REPLIT_DEV_DOMAIN}`;
+  }
+  // Legacy Replit URL format
+  if (process.env.REPL_SLUG && process.env.REPL_OWNER) {
+    return `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`;
   }
   return `http://localhost:${process.env.PORT || 5000}`;
 }

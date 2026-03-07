@@ -24,6 +24,13 @@
 - **TS errors fixed in RealtimeTranscriber**: `<style jsx>` → `<style>`, `<Badge asChild>` → plain `<a>` with Tailwind badge classes
 - TypeScript: 0 errors throughout
 
+### Additional Fixes (same session, later)
+- **`ConversationHistory.tsx`**: `conversation`, `message`, `audio-player` imports → `@/features/ai-agent/components/`
+- **`admin/marcela/index.ts`**: expanded to export all 8 sub-tab components (was only `MarcelaTab`)
+- **`VoiceChatOrb` + `VoiceChatFull`**: added `dynamicVariables` (`user_name`, `user_role`, `current_page`) to each `startSession` call via `useAuth()`
+- **`/api/marcela/scribe-token`**: already had full error handling — no change needed
+- All shadcn components installed (`npx shadcn@latest add` by name — `--all` fails on missing `combobox`). `tabs.tsx` overwrite restored from git to preserve `CurrentThemeTab`.
+
 ### Next.js → Vite Adaptation Pattern
 - Remove `"use client"` directive
 - Replace `next/link` `<Link>` with `<a target="_blank" rel="noopener noreferrer">`
@@ -56,7 +63,6 @@ client/src/features/ai-agent/
 ```
 
 ### Remaining Known Issues
-- `admin/marcela/index.ts` only exports `MarcelaTab` — sub-tab components not exported
 - None of the 5 new UI blocks are wired into the app UI yet (no route or tab linking to them)
 
 ---

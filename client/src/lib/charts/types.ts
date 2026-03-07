@@ -96,3 +96,22 @@ export interface RadarChartDotsProps extends BaseChartProps {
   series?: RadarSeries[];
   showLegend?: boolean;
 }
+
+export interface RadialChartItem {
+  name: string;
+  value: number;
+  fill: string;
+}
+
+export interface RadialChartProps extends BaseChartProps {
+  data: RadialChartItem[];
+  config: ChartConfig;
+  dataKey?: string;
+  nameKey?: string;
+  startAngle?: number;
+  endAngle?: number;
+  innerRadius?: number;
+  outerRadius?: number;
+  showLabels?: boolean;
+  showBackground?: boolean;
+}

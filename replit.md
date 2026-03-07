@@ -40,7 +40,8 @@ React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v
 | Admin page (10 tabs) | `.claude/skills/admin/SKILL.md` |
 | AI assistant (Marcela) | `.claude/skills/marcela-ai/SKILL.md` |
 | Design system & themes | `client/src/lib/theme/`, `.claude/skills/design-system/SKILL.md` |
-| Chart components (reusable) | `client/src/lib/charts/` (6 components, portable module) |
+| Chart library (9 components) | `client/src/lib/charts/`, `.claude/skills/charts/SKILL.md` |
+| UI block patterns | `.claude/skills/ui-blocks/SKILL.md` |
 | Export system | `client/src/components/ExportDialog.tsx`, `.claude/skills/exports/SKILL.md` |
 | Testing & proof system | `.claude/claude.md` § Testing & Proof System |
 | Codebase architecture | `.agents/skills/codebase-architecture/SKILL.md` |
@@ -49,7 +50,7 @@ React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v
 | Module | Path | Import | Components |
 |--------|------|--------|------------|
 | Theme | `lib/theme/` | `@/lib/theme` | applyThemeColors, presets, color-utils |
-| Charts | `lib/charts/` | `@/lib/charts` | BarChartCard, LineChartDotsColors, LineChartMulti, DonutChart, DonutChartInteractive, RadarChartDots |
+| Charts | `lib/charts/` | `@/lib/charts` | BarChartCard, LineChartDotsColors, LineChartMulti, DonutChart, DonutChartInteractive, RadarChartDots, RadialChart, RadialGauge, RadialStacked |
 
 ## Invariants
 - UNQUALIFIED audit opinion required at all times

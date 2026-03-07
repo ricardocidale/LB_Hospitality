@@ -77,7 +77,9 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | Property Finder | `.claude/skills/property-finder/SKILL.md` | RapidAPI property search integration |
 | Finance (16 skills) | `.claude/skills/finance/` | Income statement, cash flow, balance sheet, IRR, DCF, etc. |
 | Research (17 skills) | `.claude/skills/research/` | Market, ADR, occupancy, cap rate, catering, auto-refresh, research questions CRUD, etc. |
-| UI: Charts | `.claude/skills/ui/charts.md` | Line/bar chart styling + Waterfall, Heat Map, Radar chart specs |
+| Chart Library (9) | `.claude/skills/charts/SKILL.md` | Reusable chart components: Bar, Line, Donut, Radar, Radial — props, variants, tooltip patterns |
+| UI Blocks | `.claude/skills/ui-blocks/SKILL.md` | shadcn block reference: dashboard-01, sidebar-07, login-03/04 — layout patterns |
+| UI: Charts (legacy) | `.claude/skills/ui/charts.md` | Line/bar chart styling + Waterfall, Heat Map, Radar chart specs |
 | UI: Portfolio Pages | `.claude/skills/ui/portfolio-pages.md` | Comparison, Timeline, Map, Executive Summary pages |
 | UI: Composite Pages | `.claude/skills/ui/composite-tabbed-pages.md` | Merging pages into unified tabbed views (Analysis, Properties+Map) |
 | UI: Interactions | `.claude/skills/ui/interactions.md` | What-If sliders, Variance Analysis, Guided Walkthrough, Inline Editing |
@@ -253,6 +255,40 @@ All voice components use `useAdminSignedUrl()` (auto-fetched on mount, refetched
 **Hooks**: `use-signed-url.ts`, `use-agent-settings.ts`, `use-scribe-token.ts`
 **Root barrel**: `features/ai-agent/index.ts`
 **Skill**: `.claude/skills/marcela-ai/SKILL.md`, `.claude/skills/elevenlabs-widget/` (SDK reference)
+
+---
+
+## Reusable Chart Library (9 Components)
+
+**Path:** `client/src/lib/charts/` | **Import:** `@/lib/charts` | **Skill:** `.claude/skills/charts/SKILL.md`
+
+| Component | Description | Key Props |
+|-----------|-------------|-----------|
+| `BarChartCard` | Horizontal/vertical bar with labels | `layout`, `showLabel`, `barRadius` |
+| `LineChartDotsColors` | Single-series line, per-point colored dots | `strokeColor` |
+| `LineChartMulti` | Multi-series line chart | `series`, `xAxisFormatter` |
+| `DonutChart` | Donut with center value label | `centerValue`, `centerLabel` |
+| `DonutChartInteractive` | Donut with dropdown selector | `centerLabel`, `id` |
+| `RadarChartDots` | Single/multi-series radar, polygon/circle grid | `gridType`, `series`, `showLegend` |
+| `RadialChart` | Concentric arcs with labels | `showLabels`, `showBackground` |
+| `RadialGauge` | Gauge with center value, shaped ring | `centerValue`, `centerLabel`, `endAngle` |
+| `RadialStacked` | Stacked half-circle with center total | `series`, `cornerRadius` |
+
+All use `ChartConfig` with `satisfies ChartConfig`, CSS vars `var(--chart-1)` through `var(--chart-5)`. Tooltip patterns: `indicator="line"`, `hideLabel`, `icon` in config, custom `formatter` with totals.
+
+---
+
+## UI Block Reference Patterns
+
+**Skill:** `.claude/skills/ui-blocks/SKILL.md`
+
+Fetched shadcn blocks for reference (not wired into routing):
+- **dashboard-01:** Sidebar + header + stats cards + interactive chart + data table (`app/dashboard/`, `chart-area-interactive.tsx`, `data-table.tsx`, `nav-*.tsx`)
+- **sidebar-07:** Inset sidebar, collapsible nav groups, user menu, team switcher (`app-sidebar.tsx`, `nav-main.tsx`, `nav-user.tsx`, `team-switcher.tsx`)
+- **login-03:** Centered card login with social buttons (`login-form.tsx`)
+- **login-04:** Wide split-panel login with image side (`login-form.tsx` — overwrote login-03)
+
+Layout patterns documented in skill: centered login, split-panel login, sidebar+content, dashboard content grid.
 
 ---
 

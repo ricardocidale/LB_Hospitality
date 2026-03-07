@@ -123,6 +123,16 @@ All utility scripts live in `script/` (single canonical directory). Includes hea
 - Config uses `satisfies ChartConfig` pattern.
 - Files: `OverviewTab.tsx` (IRR + Equity), `TornadoChartPanel.tsx`, `WaterfallChart.tsx`.
 
+## Line Charts (shadcn Pattern — Target Style)
+- Use `ChartContainer`/`ChartTooltip`/`ChartTooltipContent` from `@/components/ui/chart`.
+- `LineChart` with `CartesianGrid vertical={false}`, margins `{ top: 24, left: 24, right: 24 }`.
+- `ChartTooltip cursor={false}` with `ChartTooltipContent indicator="line"`.
+- `Line` with `type="natural"`, `strokeWidth={2}`, colored dots via custom `dot` render prop.
+- Each data point has a `fill` field using CSS variables (`var(--color-seriesName)`).
+- Custom `Dot` component: `r={5}`, `fill={payload.fill}`, `stroke={payload.fill}`.
+- Config uses `satisfies ChartConfig` with `color: "var(--chart-N)"` per series.
+- Reference: shadcn "Line Chart - Dots Colors" pattern.
+
 ## Norfolk AI Logos
 - `norfolk-ai-wireframe.png` — thin outline strokes, dim on dark backgrounds (avoid for login)
 - `norfolk-ai-blue.png` — solid fill, good visibility (used on login page)

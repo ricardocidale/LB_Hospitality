@@ -178,13 +178,13 @@ export default function Login() {
                 <p className="text-[10px] uppercase tracking-[0.2em] text-white/35 font-medium">
                   Powered by
                 </p>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2.5">
                   <img
                     src="/logos/norfolk-ai-blue.png"
                     alt="Norfolk AI"
-                    className="w-5 h-5"
+                    className="w-7 h-7 drop-shadow-[0_0_6px_rgba(56,189,248,0.5)]"
                   />
-                  <span className="text-[11px] font-medium tracking-wide text-white/60">
+                  <span className="text-xs font-semibold tracking-wide text-white/70">
                     Norfolk AI
                   </span>
                 </div>

@@ -15,8 +15,8 @@ import {
   Cell,
   Tooltip,
 } from "recharts";
-import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
-import { exportTablePNG, captureChartAsImage } from "@/lib/exports/pngExport";
+import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, pngAction } from "@/components/ui/export-toolbar";
+import { exportTablePNG } from "@/lib/exports/pngExport";
 import { downloadCSV } from "@/lib/exports/csvExport";
 import * as XLSX from "xlsx";
 import pptxgen from "pptxgenjs";
@@ -45,6 +45,8 @@ const PIE_COLORS = [
   "hsl(var(--chart-4))",
   "hsl(var(--chart-5))",
 ];
+
+const PIE_EXPORT_COLORS = ["9FBCA4", "257D41", "3B82F6", "F59E0B", "8B5CF6"];
 
 const statusVariants: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
   Operating: "default",
@@ -105,6 +107,8 @@ export default function ExecutiveSummary() {
     { label: "Total Investment", value: formatMoney(totalInvestment) },
   ];
 
+  const dateStr = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+
   const handleExportExcel = useCallback(() => {
     const wb = XLSX.utils.book_new();
     const kpiSheet = [["Metric", "Value"], ...kpisForExport.map((k) => [k.label, k.value])];
@@ -129,46 +133,75 @@ export default function ExecutiveSummary() {
   const handleExportPPTX = useCallback(() => {
     const pres = new pptxgen();
     pres.layout = "LAYOUT_WIDE";
-    const title = pres.addSlide();
-    title.background = { color: "1a2a3a" };
-    title.addShape(pres.ShapeType.rect, { x: 0, y: 0, w: "100%", h: 0.05, fill: { color: "9FBCA4" } });
-    title.addText("Executive Summary", { x: 0.5, y: 1.8, w: 12, h: 0.7, fontSize: 32, fontFace: "Arial", color: "FFFFFF", bold: true });
-    title.addText(`${properties.length} properties | ${new Date().toLocaleDateString("en-US", { year: "numeric", month: "long" })}`, { x: 0.5, y: 2.6, w: 12, h: 0.4, fontSize: 14, fontFace: "Arial", color: "9FBCA4" });
-    const kpiSlide = pres.addSlide();
-    kpiSlide.addText("Portfolio KPIs", { x: 0.5, y: 0.3, w: 12, h: 0.5, fontSize: 18, fontFace: "Arial", color: "257D41", bold: true });
-    kpisForExport.forEach((kpi, i) => {
-      const x = 0.5 + (i % 3) * 4.2;
-      const y = 1.0 + Math.floor(i / 3) * 1.8;
-      kpiSlide.addShape(pres.ShapeType.rect, { x, y, w: 3.8, h: 1.4, fill: { color: "F5FCF7" }, line: { color: "9FBCA4", width: 1 } });
-      kpiSlide.addText(kpi.value, { x, y: y + 0.15, w: 3.8, h: 0.7, fontSize: 22, fontFace: "Arial", color: "257D41", bold: true, align: "center" });
-      kpiSlide.addText(kpi.label, { x, y: y + 0.85, w: 3.8, h: 0.4, fontSize: 11, fontFace: "Arial", color: "666666", align: "center" });
-    });
-    if (properties.length) {
-      const tableSlide = pres.addSlide();
-      tableSlide.addText("Property Summary", { x: 0.5, y: 0.3, w: 12, h: 0.5, fontSize: 18, fontFace: "Arial", color: "257D41", bold: true });
-      tableSlide.addTable(
-        [
-          [{ text: "Name", options: { bold: true, fill: { color: "257D41" }, color: "FFFFFF" } }, { text: "Location", options: { bold: true, fill: { color: "257D41" }, color: "FFFFFF" } }, { text: "Rooms", options: { bold: true, fill: { color: "257D41" }, color: "FFFFFF" } }, { text: "ADR", options: { bold: true, fill: { color: "257D41" }, color: "FFFFFF" } }, { text: "Occupancy", options: { bold: true, fill: { color: "257D41" }, color: "FFFFFF" } }, { text: "Status", options: { bold: true, fill: { color: "257D41" }, color: "FFFFFF" } }],
-          ...properties.map((p, i) => {
-            const bg = i % 2 === 0 ? "F5FCF7" : "FFFFFF";
-            return [{ text: p.name, options: { fill: { color: bg } } }, { text: p.location, options: { fill: { color: bg } } }, { text: String(p.roomCount), options: { fill: { color: bg } } }, { text: formatMoney(p.startAdr), options: { fill: { color: bg } } }, { text: formatPercent(p.startOccupancy), options: { fill: { color: bg } } }, { text: p.status, options: { fill: { color: bg } } }];
-          }),
-        ],
-        { x: 0.5, y: 1.0, w: 12, h: 5.5, fontSize: 10, border: { type: "solid", color: "E5E7EB" } }
-      );
-    }
-    pres.writeFile({ fileName: "executive-summary.pptx" });
-  }, [kpisForExport, properties]);
 
-  const handleExportChart = useCallback(async () => {
-    if (!chartRef.current) return;
-    const dataUrl = await captureChartAsImage(chartRef.current);
-    if (!dataUrl) return;
-    const link = document.createElement("a");
-    link.href = dataUrl;
-    link.download = "executive-summary-chart.png";
-    link.click();
-  }, []);
+    const slide = pres.addSlide();
+    slide.background = { color: "FFFFFF" };
+
+    slide.addShape(pres.ShapeType.rect, { x: 0, y: 0, w: "100%", h: 0.04, fill: { color: "9FBCA4" } });
+
+    slide.addText("Executive Summary", { x: 0.5, y: 0.2, w: 8, h: 0.4, fontSize: 20, fontFace: "Arial", color: "2D4A5E", bold: true });
+    slide.addText(dateStr, { x: 0.5, y: 0.55, w: 8, h: 0.25, fontSize: 10, fontFace: "Arial", color: "6B7280" });
+    slide.addText("Hospitality Business Group", { x: 8.5, y: 0.2, w: 4.5, h: 0.4, fontSize: 12, fontFace: "Arial", color: "9FBCA4", align: "right" });
+
+    const kpiY = 1.0;
+    const kpiW = 2.3;
+    const kpiGap = 0.2;
+    kpisForExport.forEach((kpi, i) => {
+      const x = 0.5 + i * (kpiW + kpiGap);
+      slide.addShape(pres.ShapeType.rect, { x, y: kpiY, w: kpiW, h: 0.9, fill: { color: "F8FAF9" }, line: { color: "E5E7EB", width: 0.5 }, rectRadius: 0.05 });
+      slide.addText(kpi.value, { x, y: kpiY + 0.08, w: kpiW, h: 0.45, fontSize: 18, fontFace: "Arial", color: "257D41", bold: true, align: "center" });
+      slide.addText(kpi.label, { x, y: kpiY + 0.52, w: kpiW, h: 0.3, fontSize: 8, fontFace: "Arial", color: "6B7280", align: "center" });
+    });
+
+    const midY = 2.15;
+    slide.addText("Portfolio by Market", { x: 0.5, y: midY, w: 5.5, h: 0.3, fontSize: 11, fontFace: "Arial", color: "374151", bold: true });
+    marketData.forEach((item, i) => {
+      const rowY = midY + 0.35 + i * 0.3;
+      const color = PIE_EXPORT_COLORS[i % PIE_EXPORT_COLORS.length];
+      slide.addShape(pres.ShapeType.rect, { x: 0.7, y: rowY + 0.05, w: 0.15, h: 0.15, fill: { color }, rectRadius: 0.02 });
+      slide.addText(`${item.name}  (${item.value})`, { x: 1.0, y: rowY, w: 4, h: 0.25, fontSize: 10, fontFace: "Arial", color: "374151" });
+    });
+
+    slide.addText("Properties by Status", { x: 7, y: midY, w: 5.5, h: 0.3, fontSize: 11, fontFace: "Arial", color: "374151", bold: true });
+    const statusExportColors: Record<string, string> = { Operating: "257D41", Improvements: "F59E0B", Acquired: "3B82F6", "In Negotiation": "8B5CF6", Pipeline: "6B7280" };
+    statuses.forEach((status, i) => {
+      const count = statusCounts[status] || 0;
+      const rowY = midY + 0.35 + i * 0.3;
+      const color = statusExportColors[status];
+      slide.addShape(pres.ShapeType.rect, { x: 7.2, y: rowY + 0.05, w: 0.15, h: 0.15, fill: { color }, rectRadius: 0.02 });
+      slide.addText(`${status}`, { x: 7.5, y: rowY, w: 3, h: 0.25, fontSize: 10, fontFace: "Arial", color: "374151" });
+      slide.addText(`${count}`, { x: 11, y: rowY, w: 1, h: 0.25, fontSize: 10, fontFace: "Arial", color: "374151", bold: true, align: "right" });
+    });
+
+    const tableY = midY + 2.0;
+    slide.addText("Property Summary", { x: 0.5, y: tableY, w: 12, h: 0.3, fontSize: 11, fontFace: "Arial", color: "374151", bold: true });
+
+    const headers = ["Name", "Location", "Market", "Rooms", "ADR", "Occupancy", "Status", "Investment"];
+    const headerRow = headers.map((h) => ({ text: h, options: { bold: true, fill: { color: "2D4A5E" }, color: "FFFFFF", fontSize: 8, fontFace: "Arial" } }));
+    const dataRows = properties.map((p, i) => {
+      const bg = i % 2 === 0 ? "F8FAF9" : "FFFFFF";
+      const opts = { fill: { color: bg }, fontSize: 8, fontFace: "Arial" };
+      return [
+        { text: p.name, options: opts },
+        { text: p.location, options: opts },
+        { text: p.market, options: opts },
+        { text: String(p.roomCount), options: { ...opts, align: "right" as const } },
+        { text: formatMoney(p.startAdr), options: { ...opts, align: "right" as const } },
+        { text: formatPercent(p.startOccupancy), options: { ...opts, align: "right" as const } },
+        { text: p.status, options: opts },
+        { text: formatMoney(p.purchasePrice + p.buildingImprovements), options: { ...opts, align: "right" as const } },
+      ];
+    });
+
+    slide.addTable(
+      [headerRow, ...dataRows],
+      { x: 0.5, y: tableY + 0.35, w: 12.5, autoPage: false, fontSize: 8, border: { type: "solid", color: "E5E7EB", pt: 0.5 } }
+    );
+
+    slide.addText(`Generated ${dateStr}`, { x: 0.5, y: 7.15, w: 12, h: 0.2, fontSize: 7, fontFace: "Arial", color: "9CA3AF", align: "center" });
+
+    pres.writeFile({ fileName: "executive-summary.pptx" });
+  }, [kpisForExport, properties, marketData, statusCounts, dateStr]);
 
   const handleExportPNG = useCallback(() => {
     if (!pageRef.current) return;
@@ -181,33 +214,46 @@ export default function ExecutiveSummary() {
       <div ref={pageRef} data-testid="executive-summary" className="space-y-6">
         <style>{printStyles}</style>
 
-        <PageHeader
-          title="Executive Summary"
-          subtitle="Portfolio Overview"
-          actions={
-            <ExportMenu
-              actions={[
-                pdfAction(() => window.print()),
-                excelAction(handleExportExcel),
-                csvAction(handleExportCSV),
-                pptxAction(handleExportPPTX),
-                chartAction(handleExportChart),
-                pngAction(handleExportPNG),
-              ]}
-            />
-          }
-        />
+        <div className="no-print">
+          <PageHeader
+            title="Executive Summary"
+            subtitle="Portfolio Overview"
+            actions={
+              <ExportMenu
+                actions={[
+                  pdfAction(() => window.print()),
+                  excelAction(handleExportExcel),
+                  csvAction(handleExportCSV),
+                  pptxAction(handleExportPPTX),
+                  pngAction(handleExportPNG),
+                ]}
+              />
+            }
+          />
+        </div>
 
-        <KPIGrid
-          data-testid="kpi-executive-summary"
-          items={kpiValues}
-          columns={5}
-          variant="glass"
-        />
+        <div className="print-header hidden">
+          <div className="flex items-end justify-between border-b-2 border-primary/40 pb-2 mb-4">
+            <div>
+              <h1 className="text-xl font-bold text-foreground">Executive Summary</h1>
+              <p className="text-xs text-muted-foreground">{dateStr}</p>
+            </div>
+            <p className="text-sm font-medium text-primary">Hospitality Business Group</p>
+          </div>
+        </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="print-kpi-row">
+          <KPIGrid
+            data-testid="kpi-executive-summary"
+            items={kpiValues}
+            columns={5}
+            variant="glass"
+          />
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-2 print-charts-row">
           <Card ref={chartRef}>
-            <CardHeader>
+            <CardHeader className="print-card-header">
               <CardTitle className="text-sm font-semibold">Portfolio by Market</CardTitle>
             </CardHeader>
             <CardContent>
@@ -238,7 +284,7 @@ export default function ExecutiveSummary() {
           </Card>
 
           <Card>
-            <CardHeader>
+            <CardHeader className="print-card-header">
               <CardTitle className="text-sm font-semibold">Properties by Status</CardTitle>
             </CardHeader>
             <CardContent>
@@ -264,8 +310,8 @@ export default function ExecutiveSummary() {
           </Card>
         </div>
 
-        <Card>
-          <CardHeader>
+        <Card className="print-table-card">
+          <CardHeader className="print-card-header">
             <CardTitle className="text-sm font-semibold">Property Summary</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
@@ -308,6 +354,10 @@ export default function ExecutiveSummary() {
             </ScrollArea>
           </CardContent>
         </Card>
+
+        <p className="print-footer hidden text-center text-[9px] text-muted-foreground">
+          Generated {dateStr}
+        </p>
       </div>
     </AnimatedPage>
     </Layout>
@@ -316,13 +366,64 @@ export default function ExecutiveSummary() {
 
 const printStyles = `
   @media print {
-    body { background: white !important; }
+    @page {
+      size: landscape;
+      margin: 0.4in 0.5in;
+    }
+
+    body {
+      background: white !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    nav, header, aside, footer,
+    .no-print,
+    [data-radix-scroll-area-viewport] + div {
+      display: none !important;
+    }
+
     [data-testid="executive-summary"] {
       background: white !important;
       padding: 0 !important;
       max-width: 100% !important;
+      gap: 8px !important;
     }
-    nav, header, aside, footer, .no-print { display: none !important; }
-    @page { margin: 0.5in; size: landscape; }
+
+    .print-header {
+      display: block !important;
+    }
+
+    .print-footer {
+      display: block !important;
+    }
+
+    .print-kpi-row > div {
+      gap: 8px !important;
+    }
+
+    .print-kpi-row [class*="rounded"] {
+      padding: 8px 12px !important;
+      font-size: 11px !important;
+    }
+
+    .print-charts-row {
+      grid-template-columns: 1fr 1fr !important;
+      gap: 12px !important;
+    }
+
+    .print-card-header {
+      padding: 8px 12px !important;
+    }
+
+    .print-table-card td,
+    .print-table-card th {
+      padding: 4px 8px !important;
+      font-size: 9px !important;
+    }
+
+    .recharts-responsive-container {
+      height: 160px !important;
+    }
   }
 `;

@@ -32,6 +32,7 @@ React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v
 - **Colors**: All hardcoded `bg-gray-*`, `text-gray-*`, `border-gray-*` have been replaced with CSS variable tokens (`text-foreground`, `text-muted-foreground`, `bg-muted`, `border-border`, etc.) — zero hardcoded gray references remain
 - **Buttons**: shadcn `Button` from `@/components/ui/button` — GlassButton is deleted
 - **Cards**: shadcn `Card` or `bg-card border shadow-sm` tokens; `SectionCard`/`ContentPanel` are thin wrappers
+- **Icons**: Custom duotone brand icons in `client/src/components/icons/brand-icons.tsx` (~35 icons). All sidebar, tab, and command palette icons use these instead of Lucide. Lucide still used for utility icons (chevrons, loaders, close buttons).
 - **Export menus**: `ExportToolbar` uses shadcn `DropdownMenu` internally
 - **Voice/AI components**: Canonical versions in `client/src/features/ai-agent/components/` (17 components: conversation, orb, waveform, message, audio-player, etc.)
 - **Theme**: Liquid ice palette defined via CSS variables in `client/src/index.css` — components consume via Tailwind tokens. Theme engine (`themeUtils.ts`) manages all CSS vars including sidebar variables. 100% theme-compliant — zero `bg-gray-*`, `text-gray-*`, `border-gray-*`, `bg-white`, `bg-black`, or hardcoded hex color classes remain. All structural colors use tokens (`bg-card`, `bg-muted`, `text-foreground`, `text-muted-foreground`, `border-border`, `text-primary-foreground`).

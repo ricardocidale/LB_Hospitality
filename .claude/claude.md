@@ -27,6 +27,7 @@ Business simulation portal for **Hospitality Business Group**. Models a boutique
 - **Every page must be graphics-rich** — use charts, animations, and visual elements on every page.
 - **Context reduction is mandatory.** Every refactor or feature must produce skills, helper functions, scripts, and tools that reduce future context requirements. A 50-line skill file is always preferable to re-reading 1,600 lines of source. See `.claude/rules/context-reduction.md`.
 - **Premium design, always.** Every page must look like a $50K+ bespoke financial platform — never generic AI-template design. Animated numbers, micro-interactions, glassmorphism depth, staggered reveals, skeleton loading, choreographed transitions. No flat cards, no static numbers, no default Recharts styling. See `.claude/rules/premium-design.md`.
+- **Always update claude.md after every task.** After completing any task (feature, fix, refactor, config change), update `.claude/claude.md` and `replit.md` to reflect the change. This is mandatory — no exceptions.
 
 ---
 
@@ -79,6 +80,7 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | UI: Composite Pages | `.claude/skills/ui/composite-tabbed-pages.md` | Merging pages into unified tabbed views (Analysis, Properties+Map) |
 | UI: Interactions | `.claude/skills/ui/interactions.md` | What-If sliders, Variance Analysis, Guided Walkthrough, Inline Editing |
 | UI: Navigation | `.claude/skills/ui/navigation.md` | Command Palette, Breadcrumbs, Favorites, Activity Feed, Dark Mode |
+| UI: Brand Icons | `client/src/components/icons/brand-icons.tsx` | Custom duotone SVG icons for all nav/tabs (35 icons) |
 | UI: Image & Media | `.claude/skills/ui/property-image-picker.md`, `ui/reusable-components.md` | AIImagePicker, PropertyImagePicker, AnimatedLogo |
 | UI: Graphics | `.claude/skills/ui/graphics-component-catalog.md`, `ui/page-enhancement-checklist.md`, `ui/animation-patterns.md` | Reusable graphics components, page visual minimums, animation patterns |
 | Mobile Responsive | `.claude/skills/mobile-responsive/SKILL.md` | Breakpoints, tablet layouts, device testing, responsive helpers |
@@ -117,6 +119,18 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 - **AnimatedLogo:** `client/src/components/ui/animated-logo.tsx` — SVG wrapper for raster images with animation support (pulse, glow, spin, bounce).
 - **Server endpoint:** `POST /api/generate-property-image` — generates image, uploads to Replit Object Storage, returns `objectPath`.
 - **Server client:** `server/replit_integrations/image/client.ts` — uses `generateContent` with `gemini-2.5-flash-image` model, falls back to OpenAI.
+
+---
+
+## Custom Brand Icon System
+
+All navigation and tab icons use a custom **duotone SVG icon set** (`client/src/components/icons/brand-icons.tsx`) instead of standard Lucide icons. This gives the app a distinctive visual identity.
+
+- **Style:** Each icon has stroked outlines (1.75px, round caps/joins) + semi-transparent filled shapes (12% opacity) for a duotone effect
+- **Interface:** All icons accept standard SVG props + optional `size` prop, matching the Lucide component API for drop-in use
+- **Coverage:** ~35 custom icons covering sidebar nav, mobile bottom nav, dashboard tabs, property detail tabs, company tabs, analysis tabs, financing tabs, command palette, and admin sidebar
+- **File:** `client/src/components/icons/brand-icons.tsx` — single file, all exports named `Icon*` (e.g., `IconDashboard`, `IconProperties`, `IconBot`)
+- **Rule:** New navigation/tab icons should be added to this file following the same duotone pattern. Lucide icons are still fine for inline UI elements (chevrons, close buttons, loaders, alerts) but **all navigation and tab icons must use the brand set**.
 
 ---
 

@@ -9,7 +9,6 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Volume2, Waves, AudioLines, Zap, Settings2, Timer, ImageIcon, Loader2, Save, LayoutTemplate } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { VoiceSettings, TTS_MODELS, OUTPUT_FORMATS, STT_MODELS } from "./types";
 import { useSaveWidgetSettings, useSaveAgentVoice } from "./hooks";
 

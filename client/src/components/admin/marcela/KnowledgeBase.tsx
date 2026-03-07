@@ -3,8 +3,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { BookOpen, RefreshCw, Loader2, Upload, FileUp, Database, CheckCircle2, AlertCircle, FileText, Clock } from "lucide-react";
-import { useKnowledgeBaseStatus, useReindexKnowledgeBase, useUploadKnowledgeBase, useUploadKBFile, useAgentConfig } from "./hooks";
+import { BookOpen, RefreshCw, Loader2, Upload, FileUp, Database, CheckCircle2, AlertCircle, FileText, Clock, Trash2 } from "lucide-react";
+import { useKnowledgeBaseStatus, useReindexKnowledgeBase, useUploadKnowledgeBase, useUploadKBFile, useAgentConfig, useRemoveKBDocument } from "./hooks";
 
 interface KnowledgeBaseCardProps {
   agentName: string;
@@ -16,8 +16,10 @@ export function KnowledgeBaseCard({ agentName }: KnowledgeBaseCardProps) {
   const reindexMutation = useReindexKnowledgeBase();
   const uploadMutation = useUploadKnowledgeBase();
   const uploadFileMutation = useUploadKBFile();
+  const removeDocMutation = useRemoveKBDocument();
 
-  const elevenlabsKbDocs: any[] = agentConfig?.conversation_config?.agent?.knowledge_base ?? [];
+  const elevenlabsKbDocs: any[] = (agentConfig?.conversation_config?.agent as any)?.knowledge_base
+    ?? (agentConfig?.conversation_config?.agent?.prompt as any)?.knowledge_base ?? [];
   const hasElevenlabsDocs = elevenlabsKbDocs.length > 0;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -122,6 +124,39 @@ export function KnowledgeBaseCard({ agentName }: KnowledgeBaseCardProps) {
               </div>
             </div>
           )}
+          {hasElevenlabsDocs && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-green-500" />
+                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/70">
+                  Attached Documents ({elevenlabsKbDocs.length})
+                </span>
+              </div>
+              <div className="space-y-1.5">
+                {elevenlabsKbDocs.map((doc: any) => (
+                  <div key={doc.id} className="flex items-center justify-between p-3 bg-gradient-to-r from-green-50/50 to-emerald-50/30 rounded-xl border border-green-200/40">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <FileText className="w-3.5 h-3.5 text-green-600 shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-xs font-medium truncate">{doc.name || doc.id}</p>
+                        <p className="text-[10px] text-muted-foreground/50 font-mono">{doc.type || "document"}</p>
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="w-7 h-7 text-muted-foreground/40 hover:text-red-500 shrink-0"
+                      onClick={() => removeDocMutation.mutate(doc.id)}
+                      disabled={removeDocMutation.isPending}
+                    >
+                      {removeDocMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <FileText className="w-4 h-4 text-muted-foreground/60" />

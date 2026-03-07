@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import {
   MessageSquare, RefreshCw, ChevronDown, ChevronRight, Clock, User, Bot,
   Loader2, Inbox, Mic, Keyboard, Copy, Check, AlertCircle,
-  BarChart2, CheckCircle2, XCircle,
+  BarChart2, CheckCircle2, XCircle, Play, Square,
 } from "lucide-react";
 import { useConversations, useConversation } from "./hooks";
 
@@ -65,7 +65,8 @@ function ConversationDetail({ id }: { id: string }) {
           <span>{terminationReason}</span>
         </div>
       )}
-      <div className="flex justify-end">
+      <div className="flex items-center justify-between">
+        <AudioPlayer conversationId={id} />
         <button
           type="button"
           onClick={handleCopyTranscript}
@@ -100,6 +101,48 @@ function ConversationDetail({ id }: { id: string }) {
         ))}
       </div>
     </div>
+  );
+}
+
+function AudioPlayer({ conversationId }: { conversationId: string }) {
+  const [playing, setPlaying] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const audioRef = useState<HTMLAudioElement | null>(null);
+
+  const handlePlay = async () => {
+    if (playing && audioRef[0]) {
+      audioRef[0].pause();
+      setPlaying(false);
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/admin/convai/conversations/${conversationId}/audio`, { credentials: "include" });
+      if (!res.ok) throw new Error("Audio unavailable");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      audioRef[1](audio);
+      audio.onended = () => { setPlaying(false); URL.revokeObjectURL(url); };
+      audio.play();
+      setPlaying(true);
+    } catch {
+      // audio not available for this conversation
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handlePlay}
+      className="inline-flex items-center gap-1 text-[10px] text-muted-foreground/60 hover:text-primary transition-colors"
+      title={playing ? "Stop" : "Play recording"}
+    >
+      {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : playing ? <Square className="w-3 h-3" /> : <Play className="w-3 h-3" />}
+      {loading ? "Loading…" : playing ? "Stop" : "Play"}
+    </button>
   );
 }
 

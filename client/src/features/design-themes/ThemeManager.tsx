@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Loader2, Plus, Trash2, Pencil, Palette, Activity, Sparkles, Type, ChevronUp, ChevronDown, Save } from "lucide-react";
 import { ColorPicker } from "@/components/ui/color-picker";
 import { useDesignThemes, useCreateTheme, useUpdateTheme, useDeleteTheme } from "./useDesignThemes";
+import { ThemePreview } from "./ThemePreview";
 import type { DesignTheme, DesignColor } from "./types";
 
 export function ThemeManager() {
@@ -98,6 +99,10 @@ export function ThemeManager() {
         </CardContent>
       </Card>
     )}
+
+    <div className="mb-6">
+      <ThemePreview />
+    </div>
 
     <Card className="relative overflow-hidden bg-card/80 backdrop-blur-xl border border-border shadow-2xl">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">

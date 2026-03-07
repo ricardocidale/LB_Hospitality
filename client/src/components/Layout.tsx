@@ -268,11 +268,11 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
                       <button className="flex flex-col items-center gap-0.5 px-3 py-1.5 min-w-[3.5rem]" data-testid={`bottom-nav-${item.label.toLowerCase()}`}>
                         <div className={cn(
                           "w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-200",
-                          isActive ? "bg-sidebar-accent" : ""
+                          isActive ? "bg-muted" : ""
                         )}>
-                          <item.icon className={cn("w-[18px] h-[18px]", isActive ? "text-sidebar-foreground" : "text-sidebar-foreground/40")} />
+                          <item.icon className={cn("w-[18px] h-[18px]", isActive ? "text-foreground" : "text-muted-foreground")} />
                         </div>
-                        <span className={cn("text-[10px] leading-tight", isActive ? "text-sidebar-foreground font-medium" : "text-sidebar-foreground/40")}>{item.label}</span>
+                        <span className={cn("text-[10px] leading-tight", isActive ? "text-foreground font-medium" : "text-muted-foreground")}>{item.label}</span>
                       </button>
                     </Link>
                   );

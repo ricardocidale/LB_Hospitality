@@ -136,7 +136,7 @@ export default function AdminSidebar({ activeSection, onSectionChange }: AdminSi
                     className={cn(
                       "relative w-full flex items-center gap-2.5 px-3 py-[7px] rounded-lg text-left transition-all duration-150 group/item cursor-pointer",
                       isActive
-                        ? "bg-primary text-primary-foreground"
+                        ? "bg-muted text-foreground font-medium"
                         : "text-muted-foreground hover:bg-accent hover:text-foreground"
                     )}
                   >
@@ -144,7 +144,7 @@ export default function AdminSidebar({ activeSection, onSectionChange }: AdminSi
                       className={cn(
                         "w-[15px] h-[15px] shrink-0 transition-colors",
                         isActive
-                          ? "text-white/80"
+                          ? "text-foreground"
                           : "text-muted-foreground group-hover/item:text-muted-foreground"
                       )}
                     />

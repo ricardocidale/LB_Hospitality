@@ -47,12 +47,19 @@ export default function NavigationTab() {
       if (!res.ok) throw new Error("Failed to update sidebar settings");
       return res.json();
     },
-    onSuccess: () => {
+    onMutate: async (updates) => {
+      await queryClient.cancelQueries({ queryKey: ["globalAssumptions"] });
+      const prev = queryClient.getQueryData(["globalAssumptions"]);
+      queryClient.setQueryData(["globalAssumptions"], (old: any) => ({ ...old, ...updates }));
+      return { prev };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.prev) queryClient.setQueryData(["globalAssumptions"], context.prev);
+      toast({ title: "Error", description: "Failed to save sidebar settings.", variant: "destructive" });
+    },
+    onSettled: () => {
       invalidateAllFinancialQueries(queryClient);
       toast({ title: "Sidebar updated", description: "Navigation visibility saved for all users." });
-    },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to save sidebar settings.", variant: "destructive" });
     },
   });
 

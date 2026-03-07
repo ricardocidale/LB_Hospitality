@@ -1,5 +1,5 @@
 import { describe, it, expect, afterAll } from "vitest";
-import { buildClientTools, buildServerTools, getBaseUrl } from "../../server/marcela-agent-config";
+import { buildClientTools, buildServerTools, getBaseUrl } from "../../server/ai/marcela-agent-config";
 import { buildVoiceConfigFromDB, MARCELA_VOICE_ID } from "../../server/integrations/elevenlabs";
 import { LLM_MODELS, TTS_MODELS, STT_MODELS, OUTPUT_FORMATS } from "../../client/src/components/admin/marcela/types";
 

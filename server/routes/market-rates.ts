@@ -10,7 +10,7 @@ import {
   upsertMarketRate,
   forceRefreshRate,
   refreshAllStaleRates,
-} from "../marketRates";
+} from "../data/marketRates";
 
 function requireAdmin(req: Request, res: Response, next: Function) {
   if (req.user?.role !== "admin") {

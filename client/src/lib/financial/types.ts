@@ -1,3 +1,29 @@
+/**
+ * types — Shared TypeScript interfaces for the financial engine
+ *
+ * Three primary shapes consumed by property-engine and company-engine:
+ *
+ *   PropertyInput   — per-hotel assumptions (room count, ADR, cost rates, etc.)
+ *   GlobalInput     — model-wide assumptions (inflation, staffing, SAFE dates)
+ *   MonthlyFinancials — one month of engine output for a single property
+ *
+ * Nullability rules:
+ *   - Required fields have no `?` / `| null`; optional fields use `?` or `| null`
+ *   - The engine applies fallback constants (from constants.ts) when optional
+ *     fields are absent. Never pass `0` to mean "use default" — use `undefined`.
+ *
+ * acquisitionDate vs operationsStartDate:
+ *   - acquisitionDate: when the property is purchased. Debt and depreciation
+ *     begin here. Defaults to operationsStartDate if omitted.
+ *   - operationsStartDate: when the hotel opens for business. Revenue and
+ *     variable expenses start here. May be later than acquisitionDate (pre-ops
+ *     gap means debt service during construction/renovation).
+ *
+ * feeCategories: custom service-fee breakdown that overrides the flat
+ *   baseManagementFeeRate. Each category has a name, rate (fraction of
+ *   revenueTotal), and isActive flag. If any active categories exist, the
+ *   engine sums them as feeBase instead of using the flat rate.
+ */
 import { ServiceTemplate, AggregatedServiceCosts } from '@calc/services/types';
 
 export interface PropertyInput {

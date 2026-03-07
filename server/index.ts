@@ -180,7 +180,7 @@ app.use((req, res, next) => {
       // Refresh stale market rates every 5 minutes
       setInterval(async () => {
         try {
-          const { refreshAllStaleRates } = await import("./marketRates");
+          const { refreshAllStaleRates } = await import("./data/marketRates");
           const refreshed = await refreshAllStaleRates();
           if (refreshed > 0) log(`Refreshed ${refreshed} stale market rates`);
         } catch (err) {

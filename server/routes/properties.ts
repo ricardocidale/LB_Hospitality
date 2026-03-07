@@ -4,7 +4,7 @@ import { requireAuth, requireManagementAccess } from "../auth";
 import { insertPropertySchema, updatePropertySchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { logActivity, logAndSendError } from "./helpers";
-import { generateLocationAwareResearchValues } from "../researchSeeds";
+import { generateLocationAwareResearchValues } from "../data/researchSeeds";
 
 export function register(app: Express) {
   // ────────────────────────────────────────────────────────────
@@ -18,7 +18,9 @@ export function register(app: Express) {
   app.get("/api/properties", requireAuth, async (req, res) => {
     try {
       let props = await storage.getAllProperties(req.user!.id);
-      // Apply group visibility filter for non-admin users in a group
+      // Apply group visibility filter for non-admin users in a group.
+      // Non-admins see only group-assigned properties; fall through to the full
+      // list if the group has no explicit property assignments (allowedIds empty).
       const user = req.user!;
       if (user.role !== "admin" && user.userGroupId) {
         const allowedIds = await storage.getGroupPropertyIds(user.userGroupId);

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { splitIntoChunks, cosineSimilarity } from "../../server/knowledge-base";
+import { splitIntoChunks, cosineSimilarity } from "../../server/ai/knowledge-base";
 
 describe("splitIntoChunks", () => {
   it("produces 1 chunk for short text", () => {

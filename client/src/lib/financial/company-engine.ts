@@ -1,4 +1,24 @@
-import { 
+/**
+ * company-engine — Management-company monthly pro-forma generator
+ *
+ * Rolls up all property pro-formas into the management company P&L.
+ * Revenue = sum of base + incentive fees from every active property.
+ * Expenses = staffing (dynamic tiers), partner comp, fixed G&A, variable ops.
+ *
+ * Fee zero-sum: fees earned here equal fees expensed in each property SPV.
+ * In consolidation these intercompany amounts eliminate to zero.
+ *
+ * SAFE gate: operations cannot begin before BOTH companyOpsStartDate AND
+ * the first SAFE tranche date have been reached. The gate is strict — even
+ * one day early returns zero revenue/expenses.
+ *
+ * Staffing tiers: headcount is derived each month from activePropertyCount
+ * against tier thresholds in global (staffTier1MaxProperties, etc.).
+ *
+ * Service templates (optional): if provided, vendor cost-of-services is
+ * deducted from fee revenue to produce grossProfit before G&A.
+ */
+import {
   PROJECTION_MONTHS,
   DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
   DEFAULT_BASE_MANAGEMENT_FEE_RATE,
@@ -29,6 +49,16 @@ function parseDateComponents(dateStr: string) {
 
 /**
  * Generate month-by-month financials for the management company itself.
+ *
+ * @param properties      All portfolio properties (used to compute fee revenue each month).
+ * @param global          Model-wide assumptions (SAFE dates, staffing tiers, partner comp).
+ * @param months          Projection horizon in months (default: PROJECTION_MONTHS = 120).
+ * @param serviceTemplates Optional centralized-services templates. When present, vendor
+ *                         cost-of-services is deducted from fee revenue → grossProfit.
+ * @returns               Array of CompanyMonthlyFinancials, one entry per month from model start.
+ *
+ * SAFE gate: hasStartedOps = currentDate >= companyOpsStartDate AND >= safeTranche1Date.
+ * Both conditions must hold simultaneously — no revenue or expenses accrue before the gate.
  */
 export function generateCompanyProForma(
   properties: PropertyInput[],
@@ -78,6 +108,12 @@ export function generateCompanyProForma(
       }
     }
     
+    // ── Fee aggregation ───────────────────────────────────────────────────────
+    // base fee:      revenue × rate  (flat % of total revenue per property)
+    // incentive fee: GOP × rate, floored at 0 — no negative incentive fees.
+    // Both are summed across all active properties for the company's total revenue.
+    // These amounts mirror the feeBase + feeIncentive expenses in each property SPV;
+    // the intercompany eliminations zero out in consolidation.
     let baseFeeRevenue = 0;
     let incentiveFeeRevenue = 0;
     const incentiveFeeByPropertyId: Record<string, number> = {};

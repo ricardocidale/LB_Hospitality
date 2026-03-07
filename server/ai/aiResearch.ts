@@ -1,7 +1,7 @@
 import { readFileSync, readdirSync, existsSync } from "fs";
 import { join } from "path";
 import Anthropic from "@anthropic-ai/sdk";
-import { executeComputationTool, isComputationTool } from "../calc/dispatch.js";
+import { executeComputationTool, isComputationTool } from "../../calc/dispatch.js";
 
 interface ResearchParams {
   type: "property" | "company" | "global";
@@ -212,7 +212,7 @@ validateSkillFolders();
 async function handleToolCall(name: string, input: Record<string, any>): Promise<string> {
   // Web search — calls external API, requires async
   if (name === "web_search") {
-    const { webSearch } = await import("./webSearch.js");
+    const { webSearch } = await import("../data/webSearch.js");
     const results = await webSearch(input.query, input.num_results);
     if (results.length === 0) {
       return "Web search is not available or returned no results. Proceed with your existing knowledge.";

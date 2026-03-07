@@ -1,3 +1,25 @@
+/**
+ * storage/index — IStorage interface + DatabaseStorage implementation
+ *
+ * IStorage is the single abstraction boundary between route handlers and the
+ * database. All routes import `storage` (a DatabaseStorage instance) and call
+ * methods on IStorage — they never import Drizzle ORM directly.
+ *
+ * Domain split: DatabaseStorage delegates to 6 focused sub-storage classes:
+ *   UserStorage    — users, sessions, login logs
+ *   PropertyStorage — property CRUD, group property IDs
+ *   FinancialStorage — global assumptions, scenarios, fee categories
+ *   AdminStorage   — design themes, logos, asset descriptions, user groups
+ *   ActivityStorage — activity logs, verification runs
+ *   ResearchStorage — market research, research questions
+ *
+ * Each sub-class lives in its own file (./users, ./properties, etc.) and is
+ * composed here via method binding. The binding pattern keeps every public
+ * method on `storage` at the top level so callers need only one import.
+ *
+ * The singleton `storage` instance is exported from this file and imported
+ * by every route file in server/routes/.
+ */
 import { db } from "../db";
 import { users, sessions, marketResearch, prospectiveProperties, savedSearches, properties, globalAssumptions, loginLogs, activityLogs, verificationRuns, scenarios, type User, type Session, type GlobalAssumptions, type Property, type Scenario, type Logo, type AssetDescription, type UserGroup, type Company, type FeeCategory, type ResearchQuestion, type DesignTheme } from "@shared/schema";
 import { eq } from "drizzle-orm";

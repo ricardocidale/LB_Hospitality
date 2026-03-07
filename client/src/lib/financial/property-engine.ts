@@ -1,3 +1,27 @@
+/**
+ * property-engine — Single-property monthly pro-forma generator
+ *
+ * Generates a complete MonthlyFinancials[] array for one hotel property over
+ * the projection horizon. The 8-step pipeline per month:
+ *   1. Temporal gates  — is this month pre-acquisition / pre-operations?
+ *   2. Occupancy ramp  — step-function ramp from startOccupancy → maxOccupancy
+ *   3. Revenue         — rooms, events, F&B (catering boost), other
+ *   4. Dept expenses   — variable costs keyed to each revenue stream
+ *   5. Undistributed   — fixed/variable overhead, management fees, FF&E
+ *   6. Debt service    — PMT amortization (acquisitionInterestRate / Term)
+ *   7. Income stmt     — NOI - interest - depreciation - tax = net income
+ *   8. Cash & BS       — GAAP indirect OCF, financing CF, ending cash, balance sheet
+ *
+ * Operating reserve is seeded into cumulativeCash at the acquisition month
+ * (acqMonthIdx) so it counts as available cash from day one.
+ *
+ * Refinancing is applied in Pass 2 via computeRefinance() from calc/refinance.
+ * Pass 2 rebuilds the debt schedule from the refi month onward and re-seeds
+ * the operating reserve at acqMonthIdx so the reserve is never lost.
+ *
+ * Key constants (immutable): DEPRECIATION_YEARS=27.5 (IRS Pub 946),
+ * DAYS_PER_MONTH=30.5 (industry standard 365/12).
+ */
 import { addMonths, differenceInMonths, isBefore, startOfMonth } from "date-fns";
 import { pmt } from "@calc/shared/pmt";
 import { computeRefinance } from '@calc/refinance';
@@ -41,6 +65,16 @@ import { parseLocalDate } from './utils';
 
 /**
  * Generate a complete month-by-month financial projection for a single property.
+ *
+ * @param property  Per-property assumptions (rooms, ADR, cost rates, financing, dates).
+ *                  acquisitionDate defaults to operationsStartDate when omitted.
+ * @param global    Model-wide assumptions (inflation, management fees, SAFE dates).
+ * @param months    Projection horizon in months (default: PROJECTION_MONTHS = 120).
+ * @returns         Array of MonthlyFinancials, one entry per month from model start.
+ *
+ * Operating reserve: seeded into cumulativeCash at the month index where
+ * acquisitionDate falls (acqMonthIdx). This ensures the reserve covers pre-ops
+ * debt service and never appears as a cash inflow in later months.
  */
 export function generatePropertyProForma(
   property: PropertyInput, 
@@ -90,35 +124,50 @@ export function generatePropertyProForma(
   const baseMonthlyTotalRev = baseMonthlyRoomRev + baseMonthlyEventsRev + baseMonthlyFBRev + baseMonthlyOtherRev;
   
   for (let i = 0; i < months; i++) {
+    // ── Temporal gates ──────────────────────────────────────────────────────
+    // !isBefore(x, threshold) is used instead of x >= threshold because
+    // date-fns isBefore/isAfter do not consider same-day equal. Using
+    // !isBefore correctly treats the threshold month as "already active".
     const currentDate = addMonths(modelStart, i);
     const isOperational = !isBefore(currentDate, opsStart);
     const monthsSinceOps = isOperational ? differenceInMonths(currentDate, opsStart) : 0;
-    
+
     const opsYear = Math.floor(monthsSinceOps / 12);
     const currentAdr = baseAdr * Math.pow(1 + property.adrGrowthRate, opsYear);
     const fixedEscalationRate = global.fixedCostEscalationRate ?? global.inflationRate;
     const fixedCostFactor = Math.pow(1 + fixedEscalationRate, opsYear);
 
+    // ── Occupancy ramp ───────────────────────────────────────────────────────
+    // Step-function: occupancy increases by occupancyGrowthStep every
+    // occupancyRampMonths until it reaches maxOccupancy.
     let occupancy = 0;
     if (isOperational) {
       const rampMonths = property.occupancyRampMonths ?? DEFAULT_OCCUPANCY_RAMP_MONTHS;
       const rampSteps = Math.floor(monthsSinceOps / rampMonths);
       occupancy = Math.min(
-        property.maxOccupancy, 
+        property.maxOccupancy,
         property.startOccupancy + (rampSteps * property.occupancyGrowthStep)
       );
     }
-    
+
+    // ── Revenue ──────────────────────────────────────────────────────────────
+    // Room revenue = rooms × ADR × occupancy × 30.5 days (DAYS_PER_MONTH).
+    // Events and F&B are derived from room revenue via revenue-share rates.
+    // F&B gets an additional cateringBoostMultiplier (default 1.30).
     const availableRooms = property.roomCount * DAYS_PER_MONTH;
     const soldRooms = isOperational ? availableRooms * occupancy : 0;
     const revenueRooms = soldRooms * currentAdr;
-    
+
     const revenueEvents = revenueRooms * revShareEvents;
     const baseFB = revenueRooms * revShareFB;
     const revenueFB = baseFB * cateringBoostMultiplier;
     const revenueOther = revenueRooms * revShareOther;
     const revenueTotal = revenueRooms + revenueEvents + revenueFB + revenueOther;
 
+    // ── Department expenses ──────────────────────────────────────────────────
+    // Variable costs keyed to each revenue stream.
+    // Fixed costs use a gate (fixedGate=0 pre-ops, 1 once operational) and
+    // escalate annually at fixedCostEscalationRate.
     const costRateRooms = property.costRateRooms ?? DEFAULT_COST_RATE_ROOMS;
     const costRateFB = property.costRateFB ?? DEFAULT_COST_RATE_FB;
     const costRateAdmin = property.costRateAdmin ?? DEFAULT_COST_RATE_ADMIN;
@@ -151,6 +200,11 @@ export function generatePropertyProForma(
     const expenseUtilitiesFixed = baseMonthlyTotalRev * (costRateUtilities * (1 - utilitiesVariableSplit)) * fixedCostFactor * fixedGate;
     const expenseOtherCosts = baseMonthlyTotalRev * costRateOther * fixedCostFactor * fixedGate;
     
+    // ── Undistributed expenses + management fees ─────────────────────────────
+    // GOP = revenue - dept expenses.
+    // feeBase: revenue × flat rate, OR sum of active service fee categories.
+    // feeIncentive: GOP × incentive rate, floored at 0 (no negative incentive).
+    // NOI = GOP - feeBase - feeIncentive - FF&E reserve.
     const serviceFeesByCategory: Record<string, number> = {};
     let feeBase: number;
     const activeFeeCategories = property.feeCategories?.filter(c => c.isActive);
@@ -174,11 +228,16 @@ export function generatePropertyProForma(
     const feeIncentive = Math.max(0, gop * (property.incentiveManagementFeeRate ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE));
     const noi = gop - feeBase - feeIncentive - expenseFFE;
     
+    // ── Debt service ──────────────────────────────────────────────────────────
+    // PMT = principal × rate / (1 - (1+rate)^-n).
+    // Interest = outstandingBalance × monthlyRate (income statement).
+    // Principal = PMT - interest (financing activity, NOT on income statement).
+    // Debt only accrues after acquisitionDate. Zero for Full Equity properties.
     let debtPayment = 0;
     let interestExpense = 0;
     let principalPayment = 0;
     let debtOutstanding = 0;
-    
+
     const isAcquired = !isBefore(currentDate, acquisitionDate);
     const monthsSinceAcquisition = isAcquired ? differenceInMonths(currentDate, acquisitionDate) : 0;
     
@@ -207,6 +266,10 @@ export function generatePropertyProForma(
       prevDebtOutstanding = debtOutstanding;
     }
 
+    // ── Income statement ──────────────────────────────────────────────────────
+    // Net Income = NOI - interestExpense - depreciation - incomeTax.
+    // Principal is a financing activity and NEVER appears on the income stmt.
+    // incomeTax = max(0, taxableIncome × taxRate) — no negative tax modeled.
     const landValue = property.purchasePrice * landPct;
     const depreciationExpense = isAcquired ? monthlyDepreciation : 0;
     const accumulatedDepreciation = isAcquired ? Math.min(monthlyDepreciation * (monthsSinceAcquisition + 1), buildingValue) : 0;
@@ -216,8 +279,14 @@ export function generatePropertyProForma(
     const incomeTax = taxableIncome > 0 ? taxableIncome * taxRate : 0;
     const netIncome = noi - interestExpense - depreciationExpense - incomeTax;
     
+    // ── Cash flow (GAAP indirect method, ASC 230) ────────────────────────────
+    // operatingCF = netIncome + depreciation (non-cash add-back).
+    // financingCF = -principal (debt repayment is a financing outflow).
+    // cashFlow    = NOI - totalDebtService - incomeTax (before-tax FCF bridge).
+    // Operating reserve is seeded at the acquisition month (monthsSinceAcquisition===0)
+    // so it is available to cover pre-ops debt service.
     const cashFlow = noi - debtPayment - incomeTax;
-    
+
     const operatingCashFlow = netIncome + depreciationExpense;
     const financingCashFlow = -principalPayment;
     if (isAcquired && monthsSinceAcquisition === 0) {
@@ -226,6 +295,9 @@ export function generatePropertyProForma(
     cumulativeCash += cashFlow;
     const endingCash = cumulativeCash;
 
+    // ── Balance sheet ─────────────────────────────────────────────────────────
+    // propertyValue = land + (building - accumulatedDepreciation) after acquisition.
+    // endingCash = cumulative cashFlow + operatingReserve seed (PICK_LAST for yearly).
     financials.push({
       date: currentDate,
       monthIndex: i,

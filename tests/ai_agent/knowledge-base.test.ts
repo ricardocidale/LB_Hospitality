@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { buildRAGContext } from "../../server/knowledge-base";
-import { getKnowledgeDocumentPreview } from "../../server/marcela-knowledge-base";
+import { buildRAGContext } from "../../server/ai/knowledge-base";
+import { getKnowledgeDocumentPreview } from "../../server/ai/marcela-knowledge-base";
 
 describe("Knowledge Base — RAG Context Builder", () => {
   it("returns empty string for empty chunks", () => {

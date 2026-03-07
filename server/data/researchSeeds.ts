@@ -1,4 +1,4 @@
-import type { ResearchValueMap, ResearchValueEntry } from "../shared/schema";
+import type { ResearchValueMap, ResearchValueEntry } from "../../shared/schema";
 
 interface LocationContext {
   location: string;

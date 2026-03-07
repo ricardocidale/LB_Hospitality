@@ -1,6 +1,23 @@
-// Shared yearly cash flow aggregation from engine monthly data.
-// Single source of truth — used by YearlyCashFlowStatement, excelExport, and PropertyDetail.
-// Replaces the dual-path issue where exports independently re-derived debt/depreciation/tax.
+/**
+ * cashFlowAggregator — GAAP indirect-method yearly cash flow builder
+ *
+ * Single source of truth for YearlyCashFlowResult[] — consumed by
+ * YearlyCashFlowStatement, excelExport, and PropertyDetail.
+ *
+ * All debt service, depreciation, tax, and refinance values are read directly
+ * from the engine's MonthlyFinancials — nothing is recomputed here.
+ * This eliminates the dual-path problem where statement and export rows
+ * diverged because exports independently re-derived these values.
+ *
+ * GAAP indirect method (ASC 230):
+ *   Operating CF  = Net Income + Depreciation add-back
+ *   Financing CF  = -Principal + Refinancing Proceeds
+ *   Cash from ops = Operating CF (working capital change modeled as 0)
+ *
+ * Exit year annualization: in the final year the exit sale proceeds are
+ * added to the last-year cash flow. The function caller is responsible
+ * for computing and passing those proceeds separately.
+ */
 
 import { MonthlyFinancials } from "@/lib/financialEngine";
 import {

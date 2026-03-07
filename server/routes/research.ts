@@ -3,7 +3,7 @@ import { storage } from "../storage";
 import { requireAuth, requireAdmin, isApiRateLimited } from "../auth";
 import { researchGenerateSchema, logActivity, logAndSendError } from "./helpers";
 import { fromZodError } from "zod-validation-error";
-import { generateResearchWithToolsStream, buildUserPrompt, parseResearchJSON, extractResearchValues } from "../aiResearch";
+import { generateResearchWithToolsStream, buildUserPrompt, parseResearchJSON, extractResearchValues } from "../ai/aiResearch";
 import { validateResearchValues } from "../../calc/research/validate-research";
 import { sendResearchEmail } from "../integrations/gmail";
 import Anthropic from "@anthropic-ai/sdk";

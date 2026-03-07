@@ -1,7 +1,23 @@
-// Shared monthly-to-yearly aggregation for property financials.
-// Single source of truth — replaces 6 independent implementations across
-// Dashboard, PropertyDetail, YearlyIncomeStatement, YearlyCashFlowStatement,
-// and excelExport that each reimplemented the same slice-and-reduce pattern.
+/**
+ * yearlyAggregator — Monthly-to-yearly rollup for property financials
+ *
+ * Single source of truth replacing 6 independent implementations across
+ * Dashboard, PropertyDetail, YearlyIncomeStatement, YearlyCashFlowStatement,
+ * and excelExport that each reimplemented the same slice-and-reduce pattern.
+ *
+ * Two aggregation strategies are used:
+ *   SUM fields   — revenue, expenses, NOI, debt service, cash flows: monthly
+ *                  values are summed to produce the annual total.
+ *   PICK_LAST    — endingCash: the December (last month) value of the year is
+ *                  used because cash is a stock, not a flow. Summing it would
+ *                  produce a nonsensical running total × 12.
+ *   DERIVED      — expenseUtilities = expenseUtilitiesVar + expenseUtilitiesFixed
+ *                  (computed after accumulation, not a raw engine field).
+ *   PICK_LAST ADR — cleanAdr is the last non-zero ADR in the year (end-of-year
+ *                  rate, not a blended average).
+ *
+ * Empty years (yearData.length === 0) are skipped entirely via `continue`.
+ */
 
 import type { MonthlyFinancials } from "../financialEngine";
 

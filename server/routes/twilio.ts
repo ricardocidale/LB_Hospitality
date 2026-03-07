@@ -21,7 +21,7 @@ import {
 } from "../integrations/elevenlabs-audio";
 import { getTwilioFromPhoneNumber, sendSMS } from "../integrations/twilio";
 import OpenAI from "openai";
-import { retrieveRelevantChunks, buildRAGContext } from "../knowledge-base";
+import { retrieveRelevantChunks, buildRAGContext } from "../ai/knowledge-base";
 import { logger } from "../logger";
 
 const openai = new OpenAI({

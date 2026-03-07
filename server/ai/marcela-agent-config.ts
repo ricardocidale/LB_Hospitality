@@ -1,6 +1,6 @@
-import { updateConvaiAgent } from "./integrations/elevenlabs";
-import { storage } from "./storage";
-import { logger } from "./logger";
+import { updateConvaiAgent } from "../integrations/elevenlabs";
+import { storage } from "../storage";
+import { logger } from "../logger";
 
 export function getBaseUrl(): string {
   // Replit deployment domain (most reliable — set in all Replit environments)

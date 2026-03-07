@@ -1,3 +1,25 @@
+/**
+ * Company — Management company financial statements page
+ *
+ * Displays four tabs of the management company P&L and supporting analysis:
+ *   Income        — Revenue (base + incentive fees), Cost of Services, G&A,
+ *                   partner comp, staff costs, net income over the projection.
+ *   Cash Flow     — GAAP indirect-method statement: OCF, investing, financing.
+ *   Balance Sheet — Assets, liabilities, equity for the management entity.
+ *   Investment    — IRR, equity multiple, DCF, and SAFE funding waterfall.
+ *
+ * SAFE funding gate: generateCompanyProForma() returns zero revenue and zero
+ * expenses for months before both companyOpsStartDate and safeTranche1Date.
+ * analyzeCompanyCashPosition() surfaces any funding shortfall as a warning.
+ *
+ * Service templates: if centralized-services templates are configured in the
+ * Admin > Services tab, they are passed to the engine to compute vendor cost-
+ * of-services and gross profit before G&A.
+ *
+ * IRR / equity calculations use shared helpers from equityCalculations.ts.
+ * All statement data is pre-generated in lib/company-data.ts to keep this
+ * page free of inline financial logic.
+ */
 import React, { useState, useRef, useMemo } from "react";
 import { ExportDialog } from "@/components/ExportDialog";
 import Layout from "@/components/Layout";

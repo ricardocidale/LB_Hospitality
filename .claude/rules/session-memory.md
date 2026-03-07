@@ -5,6 +5,34 @@
 
 ---
 
+## Session: March 7, 2026 — Docs + Architecture: statements/ and server/ai/ server/data/ reorganization
+
+### What Was Done
+- **Part 1 — Documentation**: Added file-level headers, JSDoc, and inline section comments to 9 critical files:
+  - Module headers: `property-engine.ts`, `company-engine.ts`, `types.ts`, `server/storage/index.ts`, `cashFlowAggregator.ts`, `yearlyAggregator.ts`
+  - Extended JSDoc: `generatePropertyProForma()`, `generateCompanyProForma()`, `acqMonthsFromModelStart()`
+  - Inline section labels in property-engine main loop (8 sections: temporal gates, occupancy ramp, revenue, dept expenses, undistributed, debt service, income stmt, GAAP CF, balance sheet)
+  - Fee calc comment in company-engine (base vs incentive, zero-sum rationale)
+  - Group filter comment in `server/routes/properties.ts`
+  - Page header in `client/src/pages/Company.tsx`
+- **Part 2 — Client `statements/`**: Moved 4 statement components into `client/src/components/statements/`:
+  - `YearlyCashFlowStatement.tsx`, `YearlyIncomeStatement.tsx`, `ConsolidatedBalanceSheet.tsx`, `FinancialStatement.tsx`
+  - Created `statements/index.ts` barrel
+  - Original files replaced with 1-line backward-compat re-export barrels (zero import changes needed)
+  - Fixed one relative import `./ui/scroll-area` → `@/components/ui/scroll-area` in FinancialStatement
+- **Part 3 — Server `ai/` + `data/`**: Moved 7 server root files into subdirectories:
+  - `server/ai/`: `aiResearch.ts`, `marcela-agent-config.ts`, `marcela-knowledge-base.ts`, `knowledge-base.ts`
+  - `server/data/`: `marketRates.ts`, `researchSeeds.ts`, `webSearch.ts`
+  - Updated all import paths in consumers: `routes/research.ts`, `routes/market-rates.ts`, `routes/twilio.ts`, `routes/admin/marcela.ts`, `index.ts`, `replit_integrations/chat/routes.ts`, `routes/properties.ts`
+  - Updated test import paths: `tests/ai_agent/agent-config.test.ts`, `rag-chunking.test.ts`, `knowledge-base.test.ts`
+  - Deleted the 7 original root files
+
+### Result
+- TypeScript: 0 errors, health: ALL CLEAR, 2411/2431 tests (20 E2E skipped as expected)
+- Verification: UNQUALIFIED
+
+---
+
 ## Session: March 7, 2026 — ElevenLabs Voice UI Code Quality Fixes (6 issues)
 
 ### What Was Done

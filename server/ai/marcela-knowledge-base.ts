@@ -1,6 +1,6 @@
-import { createKBDocumentFromText, deleteKBDocument, getConvaiAgent, updateConvaiAgent } from "./integrations/elevenlabs";
-import { storage } from "./storage";
-import { logger } from "./logger";
+import { createKBDocumentFromText, deleteKBDocument, getConvaiAgent, updateConvaiAgent } from "../integrations/elevenlabs";
+import { storage } from "../storage";
+import { logger } from "../logger";
 
 function buildKnowledgeDocument(): string {
   const sections: string[] = [];

@@ -5,8 +5,8 @@ import { type InsertGlobalAssumptions } from "@shared/schema";
 import { logAndSendError } from "../helpers";
 import { getTwilioStatus, sendSMS } from "../../integrations/twilio";
 import { getSignedUrl as getElevenLabsSignedUrl, getConvaiAgent, listConvaiConversations, getConvaiConversation, deleteConvaiConversation, updateConvaiAgent, createKBDocumentFromFile, getConversationAudio } from "../../integrations/elevenlabs";
-import { configureMarcelaAgent, buildClientTools, buildServerTools, getBaseUrl } from "../../marcela-agent-config";
-import { uploadKnowledgeBase, getKnowledgeDocumentPreview } from "../../marcela-knowledge-base";
+import { configureMarcelaAgent, buildClientTools, buildServerTools, getBaseUrl } from "../../ai/marcela-agent-config";
+import { uploadKnowledgeBase, getKnowledgeDocumentPreview } from "../../ai/marcela-knowledge-base";
 import multer from "multer";
 
 const upload = multer({ storage: multer.memoryStorage() });
@@ -82,7 +82,7 @@ export function registerMarcelaRoutes(app: Express) {
 
   app.get("/api/admin/knowledge-base-status", requireAdmin, async (_req, res) => {
     try {
-      const { getKnowledgeBaseStatus } = await import("../../knowledge-base");
+      const { getKnowledgeBaseStatus } = await import("../../ai/knowledge-base");
       res.json(getKnowledgeBaseStatus());
     } catch (error: any) {
       logAndSendError(res, error.message || "Failed to get knowledge base status", error);
@@ -91,7 +91,7 @@ export function registerMarcelaRoutes(app: Express) {
 
   app.post("/api/admin/knowledge-base-reindex", requireAdmin, async (_req, res) => {
     try {
-      const { indexKnowledgeBase } = await import("../../knowledge-base");
+      const { indexKnowledgeBase } = await import("../../ai/knowledge-base");
       const result = await indexKnowledgeBase();
       res.json({ success: true, ...result });
     } catch (error: any) {

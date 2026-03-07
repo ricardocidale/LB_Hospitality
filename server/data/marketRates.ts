@@ -9,7 +9,7 @@
  * The background refresh loop (called from server/index.ts) only re-fetches stale rates.
  */
 
-import { db } from "./db";
+import { db } from "../db";
 import { marketRates, type MarketRate } from "@shared/schema";
 import { eq } from "drizzle-orm";
 

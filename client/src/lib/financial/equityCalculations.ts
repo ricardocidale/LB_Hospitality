@@ -42,7 +42,15 @@ export function propertyEquityInvested(prop: EquityPropertyInput): number {
   return totalPropertyCost(prop) - acquisitionLoanAmount(prop);
 }
 
-/** Months from model start to acquisition date. */
+/**
+ * Months from model start to acquisition date.
+ *
+ * Fallback chain: acquisitionDate → fallbackDate (operationsStartDate) → modelStartDate.
+ * Using modelStartDate as the final fallback means a property with no dates at all
+ * is treated as acquired at month 0 (no pre-model gap).
+ *
+ * Returns 0 when acquisitionDate is before modelStartDate (can't be negative).
+ */
 export function acqMonthsFromModelStart(
   acquisitionDate: string | null | undefined,
   fallbackDate: string | null | undefined,

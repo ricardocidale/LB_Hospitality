@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 import * as fs from "fs";
 import * as path from "path";
-import { logger } from "./logger";
+import { logger } from "../logger";
 
 const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,

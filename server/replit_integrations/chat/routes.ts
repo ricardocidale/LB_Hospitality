@@ -12,7 +12,7 @@ import {
 } from "../../integrations/elevenlabs";
 import { getTwilioFromPhoneNumber } from "../../integrations/twilio";
 import { ensureCompatibleFormat } from "../audio/client";
-import { retrieveRelevantChunks, buildRAGContext, indexKnowledgeBase, getKnowledgeBaseStatus } from "../../knowledge-base";
+import { retrieveRelevantChunks, buildRAGContext, indexKnowledgeBase, getKnowledgeBaseStatus } from "../../ai/knowledge-base";
 
 const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,

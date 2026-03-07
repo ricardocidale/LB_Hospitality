@@ -441,3 +441,44 @@ Branding resolution flows: **User → User Group → Default**.
 - **Two separate "company name" concepts**: `logo.companyName` is branding identity; `globalAssumptions.companyName` is the Management Company entity name in financial modeling.
 
 See `.claude/skills/multi-tenancy/SKILL.md` for full details.
+
+---
+
+## Reusable Chart Module (`client/src/lib/charts/`)
+
+Portable chart component library. 6 components, single import via `@/lib/charts`. Depends only on `@/components/ui/chart` (shadcn primitive) and `recharts`.
+
+### Components
+| Component | File | Pattern |
+|-----------|------|---------|
+| `BarChartCard` | `BarChartCard.tsx` | Horizontal/vertical bar, `radius={8}`, `LabelList`, `CartesianGrid` |
+| `LineChartDotsColors` | `LineChartDotsColors.tsx` | Single-series, custom colored `Dot` render prop (`r={5}`), `type="natural"` |
+| `LineChartMulti` | `LineChartMulti.tsx` | Multi-series, one `<Line>` per series, `dot={{ fill }}`, `activeDot={{ r:6 }}`, `XAxis` with formatter |
+| `DonutChart` | `DonutChart.tsx` | `PieChart` + `Pie` with center `<Label>` (bold value + subtitle), `innerRadius={60}` |
+| `DonutChartInteractive` | `DonutChartInteractive.tsx` | Donut + `Select` dropdown, `activeShape` double-`Sector` highlight, dynamic center label |
+| `RadarChartDots` | `RadarChartDots.tsx` | `RadarChart` + `PolarGrid` + `PolarAngleAxis`, `fillOpacity={0.6}`, `dot={{ r:4 }}` |
+
+### Shared conventions
+- All use `ChartContainer`/`ChartTooltip`/`ChartTooltipContent` from `@/components/ui/chart`
+- Config uses `satisfies ChartConfig` with `color: "var(--chart-N)"` per series/slice
+- `ChartTooltip cursor={false}`, `CartesianGrid vertical={false}`
+- CSS variable colors: `var(--color-seriesName)` mapped from config
+- Types exported from `types.ts`, barrel from `index.ts`
+
+---
+
+## Export System (ExportDialog + ExportVersion)
+
+- **ExportDialog** (`client/src/components/ExportDialog.tsx`): Modal gate for PDF/PPTX/PNG exports. Exports `ExportVersion = "short" | "extended"` type.
+- **ExportVersion**: `"short"` = summary/headers only (accordions collapsed, formula rows excluded). `"extended"` = all sections expanded (formula rows excluded — data rows only).
+- **Props**: `open`, `onClose`, `onExport(orientation, version)`, `title`, `showVersionOption`.
+- **Integration**: PDF/PPTX/PNG set `pendingExportAction` → open dialog → `handleVersionExport(orientation, version)` → version-aware data → export. CSV/Excel bypass dialog.
+- **IncomeStatementTab**: `generateIncomeStatementData(overrideExpanded?, excludeFormulas?)` with `getVersionRows(version)`.
+- **CashFlowTab/BalanceSheetTab**: Same dialog-gate pattern.
+
+---
+
+## Norfolk AI Logos
+- `norfolk-ai-wireframe.png` — thin outline strokes, dim on dark backgrounds (avoid for login)
+- `norfolk-ai-blue.png` — solid fill, good visibility (used on login page)
+- `norfolk-ai-yellow.png` — alternate color variant

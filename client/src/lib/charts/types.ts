@@ -1,0 +1,87 @@
+import { type ChartConfig } from "@/components/ui/chart";
+
+export type { ChartConfig };
+
+export interface BaseChartProps {
+  className?: string;
+}
+
+export interface BarChartItem {
+  name: string;
+  value: number;
+  fill?: string;
+}
+
+export interface BarChartProps extends BaseChartProps {
+  data: BarChartItem[];
+  config: ChartConfig;
+  dataKey?: string;
+  nameKey?: string;
+  layout?: "vertical" | "horizontal";
+  showLabel?: boolean;
+  barRadius?: number;
+}
+
+export interface LineChartDotsColorItem {
+  name: string;
+  value: number;
+  fill: string;
+}
+
+export interface LineChartDotsColorsProps extends BaseChartProps {
+  data: LineChartDotsColorItem[];
+  config: ChartConfig;
+  valueKey?: string;
+  nameKey?: string;
+  strokeColor?: string;
+}
+
+export interface LineChartMultiSeries {
+  dataKey: string;
+  color: string;
+  label?: string;
+}
+
+export interface LineChartMultiProps extends BaseChartProps {
+  data: Record<string, unknown>[];
+  config: ChartConfig;
+  series: LineChartMultiSeries[];
+  xAxisKey?: string;
+  xAxisFormatter?: (value: string) => string;
+}
+
+export interface DonutChartItem {
+  name: string;
+  value: number;
+  fill: string;
+}
+
+export interface DonutChartProps extends BaseChartProps {
+  data: DonutChartItem[];
+  config: ChartConfig;
+  centerValue?: string | number;
+  centerLabel?: string;
+  innerRadius?: number;
+}
+
+export interface DonutInteractiveProps extends BaseChartProps {
+  data: DonutChartItem[];
+  config: ChartConfig;
+  centerLabel?: string;
+  innerRadius?: number;
+  id?: string;
+}
+
+export interface RadarChartItem {
+  axis: string;
+  value: number;
+}
+
+export interface RadarChartDotsProps extends BaseChartProps {
+  data: RadarChartItem[];
+  config: ChartConfig;
+  dataKey?: string;
+  axisKey?: string;
+  color?: string;
+  fillOpacity?: number;
+}

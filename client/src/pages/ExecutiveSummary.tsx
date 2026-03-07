@@ -8,13 +8,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { PieChart, Pie } from "recharts";
 import {
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
-} from "recharts";
+  ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
+  type ChartConfig,
+} from "@/components/ui/chart";
 import { ExportMenu, pdfAction, csvAction, pptxAction, pngAction } from "@/components/ui/export-toolbar";
 import { exportTablePNG } from "@/lib/exports/pngExport";
 import { downloadCSV } from "@/lib/exports/csvExport";
@@ -37,14 +37,7 @@ const formatCompact = (value: number) =>
 
 const formatPercent = (value: number) => (value * 100).toFixed(1) + "%";
 
-const PIE_COLORS = [
-  "hsl(var(--chart-1))",
-  "hsl(var(--chart-2))",
-  "hsl(var(--chart-3))",
-  "hsl(var(--chart-4))",
-  "hsl(var(--chart-5))",
-];
-
+const CHART_COLOR_KEYS = ["chart-1", "chart-2", "chart-3", "chart-4", "chart-5"];
 const PIE_EXPORT_COLORS = ["9FBCA4", "257D41", "3B82F6", "F59E0B", "8B5CF6"];
 
 const statusVariants: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
@@ -76,12 +69,29 @@ export default function ExecutiveSummary() {
     0
   );
 
-  const marketData = Object.entries(
+  const marketEntries = Object.entries(
     properties.reduce<Record<string, number>>((acc, p) => {
       acc[p.market] = (acc[p.market] || 0) + 1;
       return acc;
     }, {})
-  ).map(([name, value]) => ({ name, value }));
+  );
+
+  const marketData = marketEntries.map(([name, value], i) => ({
+    market: name.toLowerCase().replace(/\s+/g, "-"),
+    name,
+    value,
+    fill: `var(--color-${name.toLowerCase().replace(/\s+/g, "-")})`,
+  }));
+
+  const marketChartConfig: ChartConfig = {
+    value: { label: "Properties" },
+    ...Object.fromEntries(
+      marketEntries.map(([name], i) => [
+        name.toLowerCase().replace(/\s+/g, "-"),
+        { label: name, color: `var(--${CHART_COLOR_KEYS[i % CHART_COLOR_KEYS.length]})` },
+      ])
+    ),
+  };
 
   const statusCounts = properties.reduce<Record<string, number>>((acc, p) => {
     acc[p.status] = (acc[p.status] || 0) + 1;
@@ -238,29 +248,24 @@ export default function ExecutiveSummary() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 print-charts-row">
-          <Card ref={chartRef}>
-            <CardHeader className="print-card-header">
+          <Card ref={chartRef} className="flex flex-col">
+            <CardHeader className="items-center pb-0 print-card-header">
               <CardTitle className="text-sm font-semibold">Portfolio by Market</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex-1 pb-0">
               {marketData.length > 0 ? (
-                <ResponsiveContainer width="100%" height={220}>
+                <ChartContainer
+                  config={marketChartConfig}
+                  className="mx-auto aspect-square max-h-[280px]"
+                >
                   <PieChart>
-                    <Pie
-                      data={marketData}
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={80}
-                      dataKey="value"
-                      label={({ name, value }) => `${name} (${value})`}
-                    >
-                      {marketData.map((_, index) => (
-                        <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
+                    <Pie data={marketData} dataKey="value" nameKey="market" />
+                    <ChartLegend
+                      content={<ChartLegendContent nameKey="market" />}
+                      className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-1/4 [&>*]:justify-center"
+                    />
                   </PieChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               ) : (
                 <div className="flex items-center justify-center h-[220px] text-sm text-muted-foreground">
                   No properties to display

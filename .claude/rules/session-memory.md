@@ -5,6 +5,21 @@
 
 ---
 
+## Session: March 7, 2026 — Export parity for ExecutiveSummary and ComparisonView
+
+### What Was Done
+- **ExecutiveSummary.tsx**: Added full ExportMenu (all 6 formats). PDF uses `window.print()` (page already has `@media print` landscape CSS). Added `pageRef` + `chartRef` refs; `chartRef` on the "Portfolio by Market" pie chart div.
+- **ComparisonView.tsx**: Added full ExportMenu (all 6 formats). ExportMenu renders in header only when `selectedProperties.length >= 2`. Added `chartRef` on radar chart div, `tableRef` on comparison table div. Handlers derive data from `selectedProperties` + `METRICS` array.
+- **Clarified ElevenLabs UI scope**: ElevenLabs UI library is specialized voice/agent components (Orb, Waveform, ConversationBar, etc.) — NOT replacements for shadcn Button/Input/Card. General UI stays shadcn. `features/ai-agent/` already uses ElevenLabs components correctly.
+- Commits: `2b16d58`, TypeScript: 0 errors
+
+### Key Technical Notes
+- `captureChartAsImage` is exported from `@/lib/exports/pngExport` (not a separate chartExport module)
+- `downloadCSV(content: string, filename: string)` — takes two args, not an object
+- `ExportMenu` variant accepts `"glass" | "light" | undefined` only (no `"default"`)
+
+---
+
 ## Session: March 7, 2026 — Skill files for extracted page components
 
 ### What Was Done

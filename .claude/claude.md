@@ -27,6 +27,7 @@ Business simulation portal for **Hospitality Business Group**. Models a boutique
 - **Every page must be graphics-rich** — use charts, animations, and visual elements on every page.
 - **Context reduction is mandatory.** Every refactor or feature must produce skills, helper functions, scripts, and tools that reduce future context requirements. A 50-line skill file is always preferable to re-reading 1,600 lines of source. See `.claude/rules/context-reduction.md`.
 - **Always build reusable tools.** When implementing any feature or fix, extract reusable components, hooks, utilities, and scripts whenever possible. Avoid one-off inline solutions — if it could be used twice, make it a tool.
+- **Always improve architectural elegance.** Every task is an opportunity to improve the codebase's file/folder structure, naming conventions, module boundaries, and overall organization. Proactively consolidate, rename, and restructure when it makes the code cleaner — never leave entropy behind.
 - **Premium design, always.** Every page must look like a $50K+ bespoke financial platform — never generic AI-template design. Animated numbers, micro-interactions, glassmorphism depth, staggered reveals, skeleton loading, choreographed transitions. No flat cards, no static numbers, no default Recharts styling. See `.claude/rules/premium-design.md`.
 - **Always update claude.md after every task.** After completing any task (feature, fix, refactor, config change), update `.claude/claude.md` and `replit.md` to reflect the change. This is mandatory — no exceptions.
 

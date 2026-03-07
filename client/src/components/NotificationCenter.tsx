@@ -110,9 +110,9 @@ export default function NotificationCenter() {
       <button
         data-testid="button-notifications"
         onClick={() => setOpen((o) => !o)}
-        className="relative w-10 h-10 rounded-xl flex items-center justify-center bg-white/5 hover:bg-white/10 transition-all duration-300"
+        className="relative w-10 h-10 rounded-lg flex items-center justify-center bg-sidebar-accent hover:bg-sidebar-border transition-all duration-200"
       >
-        <Bell className="w-5 h-5 text-background/70" />
+        <Bell className="w-4 h-4 text-sidebar-foreground/50" />
         {count > 0 && (
           <span
             data-testid="badge-unread-count"
@@ -126,15 +126,10 @@ export default function NotificationCenter() {
       {open && (
         <div
           data-testid="panel-notifications"
-          className="absolute right-0 top-12 w-80 max-h-[420px] rounded-2xl overflow-hidden z-50 flex flex-col"
-          style={{
-            background: "#0a0a0f",
-            border: "1px solid rgba(255,255,255,0.12)",
-            boxShadow: "0 16px 48px rgba(0,0,0,0.6)",
-          }}
+          className="absolute right-0 top-12 w-80 max-h-[420px] rounded-xl overflow-hidden z-50 flex flex-col bg-white border border-gray-200 shadow-lg"
         >
-          <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
-            <span className="text-sm font-semibold text-background">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+            <span className="text-sm font-semibold text-gray-900">
               Notifications
             </span>
             {notifications.length > 0 && (
@@ -152,7 +147,7 @@ export default function NotificationCenter() {
             {notifications.length === 0 ? (
               <div
                 data-testid="text-no-notifications"
-                className="flex items-center justify-center py-12 text-sm text-background/40"
+                className="flex items-center justify-center py-12 text-sm text-gray-400"
               >
                 No notifications
               </div>
@@ -165,7 +160,7 @@ export default function NotificationCenter() {
                     key={n.id}
                     data-testid={`notification-item-${n.id}`}
                     onClick={() => markRead(n.id)}
-                    className="w-full text-left px-4 py-3 flex gap-3 hover:bg-white/5 transition-colors"
+                    className="w-full text-left px-4 py-3 flex gap-3 hover:bg-gray-50 transition-colors"
                     style={{
                       borderLeft: !n.read
                         ? "3px solid #9FBCA4"
@@ -177,13 +172,13 @@ export default function NotificationCenter() {
                       style={{ color: cfg.color }}
                     />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-background truncate">
+                      <p className="text-sm font-medium text-gray-900 truncate">
                         {n.title}
                       </p>
-                      <p className="text-xs text-background/50 line-clamp-2">
+                      <p className="text-xs text-gray-500 line-clamp-2">
                         {n.message}
                       </p>
-                      <p className="text-[10px] text-background/30 mt-1">
+                      <p className="text-[10px] text-gray-400 mt-1">
                         {relativeTime(n.timestamp)}
                       </p>
                     </div>
@@ -194,11 +189,11 @@ export default function NotificationCenter() {
           </div>
 
           {notifications.length > 0 && (
-            <div className="border-t border-white/10 px-4 py-2">
+            <div className="border-t border-gray-100 px-4 py-2">
               <button
                 data-testid="button-clear-all"
                 onClick={clearAll}
-                className="w-full text-xs text-background/40 hover:text-background/60 transition-colors py-1"
+                className="w-full text-xs text-gray-400 hover:text-gray-600 transition-colors py-1"
               >
                 Clear all
               </button>

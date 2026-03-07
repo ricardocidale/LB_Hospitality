@@ -73,48 +73,47 @@ export default function CommandPalette() {
 
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
-      <div className="bg-[#0a0a0f] border border-white/10 rounded-lg overflow-hidden shadow-2xl">
-        <div className="absolute inset-0 bg-white/[0.08] pointer-events-none rounded-lg" />
+      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-xl">
         <CommandInput
           placeholder="Type a command or search..."
-          className="text-background placeholder:text-background/40"
+          className="text-gray-900 placeholder:text-gray-400"
           data-testid="command-palette-input"
         />
-        <CommandList className="text-background">
-          <CommandEmpty className="text-background/50">
+        <CommandList className="text-gray-900">
+          <CommandEmpty className="text-gray-400">
             No results found.
           </CommandEmpty>
 
           <CommandGroup
             heading="Navigation"
-            className="[&_[cmdk-group-heading]]:text-primary [&_[cmdk-group-heading]]:font-semibold"
+            className="[&_[cmdk-group-heading]]:text-gray-500 [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:uppercase"
           >
             {navigationItems.map((item) => (
               <CommandItem
                 key={item.href}
                 value={item.label}
                 onSelect={() => handleSelect(item.href)}
-                className="text-background/80 hover:text-background data-[selected=true]:bg-primary/20 data-[selected=true]:text-background cursor-pointer"
+                className="text-gray-700 hover:text-gray-900 data-[selected=true]:bg-gray-100 data-[selected=true]:text-gray-900 cursor-pointer"
                 data-testid={`command-item-${item.label.toLowerCase().replace(/[\s.]+/g, "-")}`}
               >
-                <item.icon className="mr-2 h-4 w-4 text-primary" />
+                <item.icon className="mr-2 h-4 w-4 text-gray-400" />
                 <span>{item.label}</span>
               </CommandItem>
             ))}
           </CommandGroup>
 
-          <CommandSeparator className="bg-white/10" />
+          <CommandSeparator className="bg-gray-100" />
 
           <CommandGroup
             heading="Properties"
-            className="[&_[cmdk-group-heading]]:text-primary [&_[cmdk-group-heading]]:font-semibold"
+            className="[&_[cmdk-group-heading]]:text-gray-500 [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:uppercase"
           >
             {properties.map((property) => (
               <CommandItem
                 key={property.id}
                 value={property.name}
                 onSelect={() => handleSelect(`/property/${property.id}`)}
-                className="text-background/80 hover:text-background data-[selected=true]:bg-primary/20 data-[selected=true]:text-background cursor-pointer"
+                className="text-gray-700 hover:text-gray-900 data-[selected=true]:bg-gray-100 data-[selected=true]:text-gray-900 cursor-pointer"
                 data-testid={`command-item-property-${property.id}`}
               >
                 <Building2 className="mr-2 h-4 w-4 text-primary" />
@@ -123,32 +122,32 @@ export default function CommandPalette() {
             ))}
           </CommandGroup>
 
-          <CommandSeparator className="bg-white/10" />
+          <CommandSeparator className="bg-gray-100" />
 
           <CommandGroup
             heading="Quick Actions"
-            className="[&_[cmdk-group-heading]]:text-primary [&_[cmdk-group-heading]]:font-semibold"
+            className="[&_[cmdk-group-heading]]:text-gray-500 [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:uppercase"
           >
             {quickActions.map((action) => (
               <CommandItem
                 key={action.id}
                 value={action.label}
                 onSelect={() => setOpen(false)}
-                className="text-background/80 hover:text-background data-[selected=true]:bg-primary/20 data-[selected=true]:text-background cursor-pointer"
+                className="text-gray-700 hover:text-gray-900 data-[selected=true]:bg-gray-100 data-[selected=true]:text-gray-900 cursor-pointer"
                 data-testid={`command-item-${action.id}`}
               >
-                <action.icon className="mr-2 h-4 w-4 text-primary" />
+                <action.icon className="mr-2 h-4 w-4 text-gray-400" />
                 <span>{action.label}</span>
               </CommandItem>
             ))}
           </CommandGroup>
         </CommandList>
 
-        <div className="border-t border-white/10 px-3 py-2 flex items-center gap-2 text-background/30 text-xs">
+        <div className="border-t border-gray-100 px-3 py-2 flex items-center gap-2 text-gray-400 text-xs">
           <Search className="h-3 w-3" />
           <span>
             Press{" "}
-            <kbd className="px-1.5 py-0.5 bg-white/10 rounded text-background/50 font-mono text-[10px]">
+            <kbd className="px-1.5 py-0.5 bg-gray-100 rounded text-gray-500 font-mono text-[10px]">
               ⌘K
             </kbd>{" "}
             to toggle

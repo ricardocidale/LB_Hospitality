@@ -4,7 +4,7 @@
  * Exposes three chat interface variants (Orb, Full, Bar) in tabs, plus
  * a real-time speech transcriber and a standalone audio player/speaker demo.
  */
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mic2, MessageSquare, AudioLines, Captions, Music2, Mic } from "lucide-react";
 import Layout from "@/components/Layout";
@@ -29,6 +29,19 @@ export default function VoiceLab() {
   const [activeTab, setActiveTab] = useState<TabId>("full");
   const { data: settings } = useMarcelaSettings();
   const agentName = settings?.aiAgentName ?? "Marcela";
+  const hasActiveSessionRef = useRef(false);
+
+  const handleTabChange = useCallback((id: TabId) => {
+    if (hasActiveSessionRef.current && id !== activeTab) {
+      if (!window.confirm("A session is active. Switch tabs and end the current session?")) return;
+      hasActiveSessionRef.current = false;
+    }
+    setActiveTab(id);
+  }, [activeTab]);
+
+  const handleSessionChange = useCallback((active: boolean) => {
+    hasActiveSessionRef.current = active;
+  }, []);
 
   return (
     <Layout>
@@ -51,7 +64,7 @@ export default function VoiceLab() {
               <button
                 key={tab.id}
                 type="button"
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => handleTabChange(tab.id)}
                 className={[
                   "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium transition-all",
                   active
@@ -70,9 +83,18 @@ export default function VoiceLab() {
         </div>
 
         {/* Description strip */}
-        <p className="text-xs text-muted-foreground/70">
-          {TABS.find((t) => t.id === activeTab)?.description}
-        </p>
+        <AnimatePresence mode="wait">
+          <motion.p
+            key={activeTab}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="text-xs text-muted-foreground/70"
+          >
+            {TABS.find((t) => t.id === activeTab)?.description}
+          </motion.p>
+        </AnimatePresence>
 
         {/* Tab panels */}
         <AnimatePresence mode="wait">
@@ -84,14 +106,14 @@ export default function VoiceLab() {
             transition={{ duration: 0.18 }}
           >
             {activeTab === "orb" && (
-              <VoiceChatOrb className="max-w-sm mx-auto" />
+              <VoiceChatOrb className="max-w-sm mx-auto" onSessionChange={handleSessionChange} />
             )}
             {activeTab === "full" && (
-              <VoiceChatFull className="max-w-2xl mx-auto" />
+              <VoiceChatFull className="max-w-2xl mx-auto" onSessionChange={handleSessionChange} />
             )}
             {activeTab === "bar" && (
               <div className="max-w-2xl mx-auto">
-                <VoiceChatBar />
+                <VoiceChatBar onSessionChange={handleSessionChange} />
               </div>
             )}
             {activeTab === "transcriber" && (

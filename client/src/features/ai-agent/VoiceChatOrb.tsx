@@ -15,9 +15,10 @@ type AgentState = "disconnected" | "connecting" | "connected" | "disconnecting" 
 
 interface VoiceChatOrbProps {
   className?: string;
+  onSessionChange?: (active: boolean) => void;
 }
 
-export default function VoiceChatOrb({ className }: VoiceChatOrbProps) {
+export default function VoiceChatOrb({ className, onSessionChange }: VoiceChatOrbProps) {
   const [agentState, setAgentState] = useState<AgentState>("disconnected");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -30,9 +31,11 @@ export default function VoiceChatOrb({ className }: VoiceChatOrbProps) {
   const conversation = useConversation({
     onConnect: () => {
       setErrorMessage(null);
+      onSessionChange?.(true);
     },
     onDisconnect: () => {
       setAgentState("disconnected");
+      onSessionChange?.(false);
     },
     onError: (error) => {
       console.error("Error:", error);

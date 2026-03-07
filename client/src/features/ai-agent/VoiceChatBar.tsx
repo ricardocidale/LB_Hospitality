@@ -30,9 +30,10 @@ interface ChatMessage {
 
 interface VoiceChatBarProps {
   className?: string;
+  onSessionChange?: (active: boolean) => void;
 }
 
-export default function VoiceChatBar({ className }: VoiceChatBarProps) {
+export default function VoiceChatBar({ className, onSessionChange }: VoiceChatBarProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -130,8 +131,8 @@ export default function VoiceChatBar({ className }: VoiceChatBarProps) {
               agentId={settings?.marcelaAgentId}
               dynamicVariables={dynamicVariables}
               agentLabel={agentName}
-              onConnect={() => { setMessages([]); setErrorMessage(null); }}
-              onDisconnect={handleDisconnect}
+              onConnect={() => { setMessages([]); setErrorMessage(null); onSessionChange?.(true); }}
+              onDisconnect={() => { handleDisconnect(); onSessionChange?.(false); }}
               onSendMessage={(message) =>
                 setMessages((prev) => [...prev, { role: "user", content: message }])
               }

@@ -5,6 +5,36 @@
 
 ---
 
+## Session: March 7, 2026 — ElevenLabs Voice UI Correctness Fixes (7 issues)
+
+### What Was Done
+All 7 correctness/quality fixes applied to the ElevenLabs voice UI blocks and VoiceLab page:
+
+| # | Fix | File |
+|---|-----|------|
+| 1 | `ConversationBar` guard: early-return + `onError` when neither `signedUrl` nor `agentId` set; phone button disabled | `components/conversation-bar.tsx` |
+| 2 | `VoiceChatOrb` dead code: removed unused `data: signedUrl` from `useAdminSignedUrl()` (session always refetches via `refetchSignedUrl`) | `VoiceChatOrb.tsx` |
+| 3 | `VoiceChatFull` race condition: `sendUserMessage` was called immediately after `startConversation` before the session was ready. Fix: `pendingFirstMessageRef` set before `startConversation`, consumed in `onConnect` callback | `VoiceChatFull.tsx` |
+| 4 | `VoiceLab` tab-switch guard: added `onSessionChange(active: boolean)` prop to Orb/Full/Bar; `VoiceLab` tracks via `hasActiveSessionRef`; `window.confirm` shown before switching away from active session | `VoiceLab.tsx` + Orb/Full/Bar |
+| 5 | `Speaker` stale comment: removed `// NOTE: globalAudioState intentionally removed…` | `Speaker.tsx` |
+| 6 | `VoiceChatOrb` console.logs: removed `console.log("Connected")` and `console.log("Disconnected")`; replaced `onConnect` no-op with `setErrorMessage(null)` | `VoiceChatOrb.tsx` |
+| 7 | `VoiceLab` description strip flicker: description `<p>` wrapped in its own `<AnimatePresence>` with `key={activeTab}` — fades instead of snapping | `VoiceLab.tsx` |
+
+### Key Technical Decisions
+- Race fix (Fix 3): pending message stored in ref BEFORE `startConversation` is awaited, so `onConnect` always fires with the right message regardless of async timing
+- Session guard (Fix 4): `hasActiveSessionRef` (not state) avoids unnecessary re-renders; confirm only fires when actually switching away from an active session
+- `onSessionChange` prop is optional on all three components — zero breaking changes
+
+### Files Modified
+- `client/src/features/ai-agent/components/conversation-bar.tsx` — Fix 1
+- `client/src/features/ai-agent/VoiceChatOrb.tsx` — Fixes 2, 4, 6
+- `client/src/features/ai-agent/VoiceChatFull.tsx` — Fixes 3, 4
+- `client/src/features/ai-agent/VoiceChatBar.tsx` — Fix 4
+- `client/src/features/ai-agent/Speaker.tsx` — Fix 5
+- `client/src/pages/VoiceLab.tsx` — Fixes 4, 7
+
+---
+
 ## Session: March 7, 2026 — ElevenLabs UI Blocks + Housekeeping
 
 ### What Was Done

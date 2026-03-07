@@ -94,9 +94,10 @@ const ChatAction = ({
 
 interface VoiceChatFullProps {
   className?: string;
+  onSessionChange?: (active: boolean) => void;
 }
 
-export default function VoiceChatFull({ className }: VoiceChatFullProps) {
+export default function VoiceChatFull({ className, onSessionChange }: VoiceChatFullProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [agentState, setAgentState] = useState<AgentState>("disconnected");
   const [textInput, setTextInput] = useState("");
@@ -120,10 +121,12 @@ export default function VoiceChatFull({ className }: VoiceChatFullProps) {
         pendingFirstMessageRef.current = null;
         conversation.sendUserMessage(pending);
       }
+      onSessionChange?.(true);
     },
     onDisconnect: () => {
       if (!isTextOnlyModeRef.current) setMessages([]);
       setAgentState("disconnected");
+      onSessionChange?.(false);
     },
     onMessage: (message) => {
       if (message.message) {

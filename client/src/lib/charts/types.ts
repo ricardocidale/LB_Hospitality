@@ -126,3 +126,20 @@ export interface RadialGaugeProps extends BaseChartProps {
   innerRadius?: number;
   outerRadius?: number;
 }
+
+export interface RadialStackedSeries {
+  dataKey: string;
+  color: string;
+}
+
+export interface RadialStackedProps extends BaseChartProps {
+  data: Record<string, unknown>[];
+  config: ChartConfig;
+  series: RadialStackedSeries[];
+  centerValue?: string | number;
+  centerLabel?: string;
+  endAngle?: number;
+  innerRadius?: number;
+  outerRadius?: number;
+  cornerRadius?: number;
+}

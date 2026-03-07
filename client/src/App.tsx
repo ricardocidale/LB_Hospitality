@@ -1,5 +1,3 @@
-import ThreeScene from "./ThreeScene";
-
 /**
  * App.tsx — Root component and routing hub for the hospitality business simulation platform.
  *
@@ -28,7 +26,10 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/lib/auth";
 import { lazy, Suspense, useState, useEffect, useCallback } from "react";
-import { ErrorBoundary, FinancialErrorBoundary } from "@/components/ErrorBoundary";
+import {
+  ErrorBoundary,
+  FinancialErrorBoundary,
+} from "@/components/ErrorBoundary";
 import { Loader2 } from "lucide-react";
 import NotFound from "@/pages/not-found";
 import Login from "@/pages/Login";
@@ -41,7 +42,9 @@ const Settings = lazy(() => import("@/pages/Settings"));
 const Profile = lazy(() => import("@/pages/Profile"));
 const PropertyDetail = lazy(() => import("@/pages/PropertyDetail"));
 const PropertyEdit = lazy(() => import("@/pages/PropertyEdit"));
-const PropertyMarketResearch = lazy(() => import("@/pages/PropertyMarketResearch"));
+const PropertyMarketResearch = lazy(
+  () => import("@/pages/PropertyMarketResearch"),
+);
 const CompanyResearch = lazy(() => import("@/pages/CompanyResearch"));
 const GlobalResearch = lazy(() => import("@/pages/GlobalResearch"));
 const ResearchHub = lazy(() => import("@/pages/ResearchHub"));
@@ -64,17 +67,21 @@ const PageLoader = () => (
   </div>
 );
 
-function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
+function ProtectedRoute({
+  component: Component,
+}: {
+  component: React.ComponentType;
+}) {
   const { user, isLoading } = useAuth();
-  
+
   if (isLoading) {
     return <PageLoader />;
   }
-  
+
   if (!user) {
     return <Redirect to="/login" />;
   }
-  
+
   return (
     <Suspense fallback={<PageLoader />}>
       <Component />
@@ -82,13 +89,17 @@ function ProtectedRoute({ component: Component }: { component: React.ComponentTy
   );
 }
 
-function AdminRoute({ component: Component }: { component: React.ComponentType }) {
+function AdminRoute({
+  component: Component,
+}: {
+  component: React.ComponentType;
+}) {
   const { user, isLoading, isAdmin } = useAuth();
-  
+
   if (isLoading) return <PageLoader />;
   if (!user) return <Redirect to="/login" />;
   if (!isAdmin) return <Redirect to="/" />;
-  
+
   return (
     <Suspense fallback={<PageLoader />}>
       <Component />
@@ -96,13 +107,17 @@ function AdminRoute({ component: Component }: { component: React.ComponentType }
   );
 }
 
-function ManagementRoute({ component: Component }: { component: React.ComponentType }) {
+function ManagementRoute({
+  component: Component,
+}: {
+  component: React.ComponentType;
+}) {
   const { user, isLoading, hasManagementAccess } = useAuth();
-  
+
   if (isLoading) return <PageLoader />;
   if (!user) return <Redirect to="/login" />;
   if (!hasManagementAccess) return <Redirect to="/" />;
-  
+
   return (
     <Suspense fallback={<PageLoader />}>
       <Component />
@@ -110,15 +125,19 @@ function ManagementRoute({ component: Component }: { component: React.ComponentT
   );
 }
 
-function CheckerRoute({ component: Component }: { component: React.ComponentType }) {
+function CheckerRoute({
+  component: Component,
+}: {
+  component: React.ComponentType;
+}) {
   const { user, isLoading, isAdmin } = useAuth();
-  
+
   if (isLoading) return <PageLoader />;
   if (!user) return <Redirect to="/login" />;
-  
+
   const isChecker = isAdmin || user.role === "checker";
   if (!isChecker) return <Redirect to="/" />;
-  
+
   return (
     <Suspense fallback={<PageLoader />}>
       <Component />
@@ -131,7 +150,7 @@ function Router() {
   const { user, isLoading } = useAuth();
   const [showResearchRefresh, setShowResearchRefresh] = useState(false);
   const prevUserRef = useState<any>(null);
-  
+
   // On first login each session, trigger a background refresh of AI research data.
   // prevUserRef tracks whether the user just transitioned from null → logged-in.
   // sessionStorage prevents re-triggering on every page navigation within the session.
@@ -152,7 +171,7 @@ function Router() {
     sessionStorage.setItem("research_refresh_done", Date.now().toString());
     queryClient.invalidateQueries({ queryKey: ["research"] });
   }, []);
-  
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -160,115 +179,115 @@ function Router() {
       </div>
     );
   }
-  
+
   return (
     <>
-    {showResearchRefresh && <ResearchRefreshOverlay onComplete={handleResearchComplete} />}
-    <Switch>
-      <Route path="/login">
-        {user ? <Redirect to="/" /> : <Login />}
-      </Route>
-      <Route path="/">
-        <FinancialErrorBoundary>
-          <ProtectedRoute component={Dashboard} />
-        </FinancialErrorBoundary>
-      </Route>
-      <Route path="/company">
-        <FinancialErrorBoundary>
-          <ManagementRoute component={Company} />
-        </FinancialErrorBoundary>
-      </Route>
-      <Route path="/company/assumptions">
-        <FinancialErrorBoundary>
-          <ManagementRoute component={CompanyAssumptions} />
-        </FinancialErrorBoundary>
-      </Route>
-      <Route path="/portfolio">
-        <FinancialErrorBoundary>
-          <ProtectedRoute component={Portfolio} />
-        </FinancialErrorBoundary>
-      </Route>
-      <Route path="/property/:id/edit">
-        <FinancialErrorBoundary>
-          <ProtectedRoute component={PropertyEdit} />
-        </FinancialErrorBoundary>
-      </Route>
-      <Route path="/property/:id/research">
-        <ProtectedRoute component={PropertyMarketResearch} />
-      </Route>
-      <Route path="/property/:id">
-        <FinancialErrorBoundary>
-          <ProtectedRoute component={PropertyDetail} />
-        </FinancialErrorBoundary>
-      </Route>
-      <Route path="/settings">
-        <ProtectedRoute component={Settings} />
-      </Route>
-      <Route path="/help">
-        <ProtectedRoute component={Help} />
-      </Route>
-      <Route path="/methodology">
-        <Redirect to="/help" />
-      </Route>
-      <Route path="/research">
-        <ManagementRoute component={ResearchHub} />
-      </Route>
-      <Route path="/company/research">
-        <ManagementRoute component={CompanyResearch} />
-      </Route>
-      <Route path="/global/research">
-        <ManagementRoute component={GlobalResearch} />
-      </Route>
-      <Route path="/admin">
-        <AdminRoute component={Admin} />
-      </Route>
-      <Route path="/admin/logos">
-        <AdminRoute component={Logos} />
-      </Route>
-      <Route path="/profile">
-        <ProtectedRoute component={Profile} />
-      </Route>
-      <Route path="/scenarios">
-        <FinancialErrorBoundary>
-          <ManagementRoute component={Scenarios} />
-        </FinancialErrorBoundary>
-      </Route>
-      <Route path="/property-finder">
-        <ManagementRoute component={PropertyFinder} />
-      </Route>
-      <Route path="/analysis">
-        <FinancialErrorBoundary>
-          <ProtectedRoute component={Analysis} />
-        </FinancialErrorBoundary>
-      </Route>
-      <Route path="/sensitivity">
-        <Redirect to="/analysis" />
-      </Route>
-      <Route path="/financing">
-        <Redirect to="/analysis" />
-      </Route>
-      <Route path="/executive-summary">
-        <Redirect to="/analysis" />
-      </Route>
-      <Route path="/map">
-        <FinancialErrorBoundary>
-          <ManagementRoute component={MapView} />
-        </FinancialErrorBoundary>
-      </Route>
-      <Route path="/voice">
-        <ProtectedRoute component={VoiceLab} />
-      </Route>
-      <Route path="/checker-manual">
-        <Redirect to="/help" />
-      </Route>
-      <Route path="/compare">
-        <Redirect to="/analysis" />
-      </Route>
-      <Route path="/timeline">
-        <Redirect to="/analysis" />
-      </Route>
-      <Route component={NotFound} />
-    </Switch>
+      {showResearchRefresh && (
+        <ResearchRefreshOverlay onComplete={handleResearchComplete} />
+      )}
+      <Switch>
+        <Route path="/login">{user ? <Redirect to="/" /> : <Login />}</Route>
+        <Route path="/">
+          <FinancialErrorBoundary>
+            <ProtectedRoute component={Dashboard} />
+          </FinancialErrorBoundary>
+        </Route>
+        <Route path="/company">
+          <FinancialErrorBoundary>
+            <ManagementRoute component={Company} />
+          </FinancialErrorBoundary>
+        </Route>
+        <Route path="/company/assumptions">
+          <FinancialErrorBoundary>
+            <ManagementRoute component={CompanyAssumptions} />
+          </FinancialErrorBoundary>
+        </Route>
+        <Route path="/portfolio">
+          <FinancialErrorBoundary>
+            <ProtectedRoute component={Portfolio} />
+          </FinancialErrorBoundary>
+        </Route>
+        <Route path="/property/:id/edit">
+          <FinancialErrorBoundary>
+            <ProtectedRoute component={PropertyEdit} />
+          </FinancialErrorBoundary>
+        </Route>
+        <Route path="/property/:id/research">
+          <ProtectedRoute component={PropertyMarketResearch} />
+        </Route>
+        <Route path="/property/:id">
+          <FinancialErrorBoundary>
+            <ProtectedRoute component={PropertyDetail} />
+          </FinancialErrorBoundary>
+        </Route>
+        <Route path="/settings">
+          <ProtectedRoute component={Settings} />
+        </Route>
+        <Route path="/help">
+          <ProtectedRoute component={Help} />
+        </Route>
+        <Route path="/methodology">
+          <Redirect to="/help" />
+        </Route>
+        <Route path="/research">
+          <ManagementRoute component={ResearchHub} />
+        </Route>
+        <Route path="/company/research">
+          <ManagementRoute component={CompanyResearch} />
+        </Route>
+        <Route path="/global/research">
+          <ManagementRoute component={GlobalResearch} />
+        </Route>
+        <Route path="/admin">
+          <AdminRoute component={Admin} />
+        </Route>
+        <Route path="/admin/logos">
+          <AdminRoute component={Logos} />
+        </Route>
+        <Route path="/profile">
+          <ProtectedRoute component={Profile} />
+        </Route>
+        <Route path="/scenarios">
+          <FinancialErrorBoundary>
+            <ManagementRoute component={Scenarios} />
+          </FinancialErrorBoundary>
+        </Route>
+        <Route path="/property-finder">
+          <ManagementRoute component={PropertyFinder} />
+        </Route>
+        <Route path="/analysis">
+          <FinancialErrorBoundary>
+            <ProtectedRoute component={Analysis} />
+          </FinancialErrorBoundary>
+        </Route>
+        <Route path="/sensitivity">
+          <Redirect to="/analysis" />
+        </Route>
+        <Route path="/financing">
+          <Redirect to="/analysis" />
+        </Route>
+        <Route path="/executive-summary">
+          <Redirect to="/analysis" />
+        </Route>
+        <Route path="/map">
+          <FinancialErrorBoundary>
+            <ManagementRoute component={MapView} />
+          </FinancialErrorBoundary>
+        </Route>
+        <Route path="/voice">
+          <ProtectedRoute component={VoiceLab} />
+        </Route>
+        <Route path="/checker-manual">
+          <Redirect to="/help" />
+        </Route>
+        <Route path="/compare">
+          <Redirect to="/analysis" />
+        </Route>
+        <Route path="/timeline">
+          <Redirect to="/analysis" />
+        </Route>
+        <Route component={NotFound} />
+      </Switch>
     </>
   );
 }

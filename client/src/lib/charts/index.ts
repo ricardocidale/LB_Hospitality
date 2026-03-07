@@ -16,6 +16,8 @@ export type {
   RadialChartItem,
   RadialChartProps,
   RadialGaugeProps,
+  RadialStackedSeries,
+  RadialStackedProps,
 } from "./types";
 
 export { BarChartCard } from "./BarChartCard";
@@ -26,3 +28,4 @@ export { DonutChartInteractive } from "./DonutChartInteractive";
 export { RadarChartDots } from "./RadarChartDots";
 export { RadialChart } from "./RadialChart";
 export { RadialGauge } from "./RadialGauge";
+export { RadialStacked } from "./RadialStacked";

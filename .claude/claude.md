@@ -117,6 +117,7 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 - **Generic component:** `AIImagePicker` (`client/src/components/ui/ai-image-picker.tsx`) — three modes: upload, AI generate, URL input. Configurable aspect ratio, dark/light variants.
 - **Property-specific wrapper:** `PropertyImagePicker` (`client/src/features/property-images/PropertyImagePicker.tsx`) — wraps AIImagePicker with auto-prompt from property name + location.
 - **AnimatedLogo:** `client/src/components/ui/animated-logo.tsx` — SVG wrapper for raster images with animation support (pulse, glow, spin, bounce).
+- **Login page logo:** Uses the original `logo.png` with a slow CSS rotation (`spin 12s linear infinite`). No 3D/WebGL — just the real company logo spinning gently.
 - **Server endpoint:** `POST /api/generate-property-image` — generates image, uploads to Replit Object Storage, returns `objectPath`.
 - **Server client:** `server/replit_integrations/image/client.ts` — uses `generateContent` with `gemini-2.5-flash-image` model, falls back to OpenAI.
 

@@ -1,14 +1,12 @@
-import { useState, lazy, Suspense } from "react";
+import { useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { useLocation } from "wouter";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { LogoSvg } from "@/components/LogoSvg";
 import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
-
-const Login3DLogo = lazy(() => import("@/components/Login3DLogo").then(m => ({ default: m.Login3DLogo })));
+import logoImg from "@/assets/logo.png";
 
 export default function Login() {
   const { login } = useAuth();
@@ -68,9 +66,12 @@ export default function Login() {
       <div className="w-full max-w-sm mx-4">
         <div className="flex flex-col items-center mb-6">
           <div className="cursor-pointer" onClick={handleAdminLogin}>
-            <Suspense fallback={<LogoSvg size={48} color="hsl(var(--primary))" />}>
-              <Login3DLogo size={160} fallback={<LogoSvg size={48} color="hsl(var(--primary))" />} />
-            </Suspense>
+            <img
+              src={logoImg}
+              alt="Hospitality Business Group"
+              className="w-20 h-20 object-contain animate-[spin_12s_linear_infinite]"
+              data-testid="logo-login"
+            />
           </div>
           <p className="text-[13px] text-muted-foreground/70 tracking-wide text-center max-w-[280px] leading-relaxed mt-1">
             Business Simulation for Hospitality Businesses

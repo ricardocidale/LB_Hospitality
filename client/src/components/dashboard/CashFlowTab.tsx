@@ -1,8 +1,9 @@
 import React, { useState, useMemo, useRef, RefObject } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { ExportMenu, pdfAction, csvAction, excelAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
-import { ChevronRight, ChevronDown } from "lucide-react";
+import { ChevronRight, ChevronDown, ChevronsUpDown } from "lucide-react";
 import { formatMoney } from "@/lib/financialEngine";
 import { CalcDetailsProvider } from "@/components/financial-table-rows";
 import { FinancialChart } from "@/components/ui/financial-chart";
@@ -47,6 +48,18 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
       return newSet;
     });
   };
+
+  const toggleAll = () => {
+    const allKeys = ["cfo", "cfi", "cff"];
+    const allExpanded = allKeys.every(k => expandedRows.has(k));
+    if (allExpanded) {
+      setExpandedRows(new Set());
+    } else {
+      setExpandedRows(new Set(allKeys));
+    }
+  };
+
+  const allRowsExpanded = ["cfo", "cfi", "cff"].every(k => expandedRows.has(k));
 
   const years = Array.from({ length: projectionYears }, (_, i) => getFiscalYear(i));
 
@@ -157,7 +170,19 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle>Consolidated Cash Flow Statement</CardTitle>
+          <div className="flex items-center gap-3">
+            <CardTitle>Consolidated Cash Flow Statement</CardTitle>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleAll}
+              className="text-xs text-muted-foreground h-7 px-2"
+              data-testid="button-toggle-all-cf"
+            >
+              <ChevronsUpDown className="h-3.5 w-3.5 mr-1" />
+              {allRowsExpanded ? "Collapse All" : "Expand All"}
+            </Button>
+          </div>
           <ExportMenu
             actions={[
               pdfAction(() => handleExport('pdf')),
@@ -193,16 +218,30 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
                       <TableCell key={i} className="text-right font-mono">{formatMoney(val)}</TableCell>
                     ))}
                   </TableRow>
-                  {expandedRows.has("cfo") && properties.map((prop, idx) => (
-                    <TableRow key={idx}>
-                      <TableCell className="pl-10 sticky left-0 bg-card z-10">{prop.name}</TableCell>
-                      {years.map((_, y) => (
-                        <TableCell key={y} className="text-right font-mono text-muted-foreground">
-                          {formatMoney(allPropertyYearlyCF[idx]?.[y]?.cashFromOperations ?? 0)}
+                  {expandedRows.has("cfo") && (
+                    <>
+                      <TableRow className="bg-blue-50/40" data-expandable-row="true">
+                        <TableCell className="pl-10 sticky left-0 bg-blue-50/40 z-10 py-0.5 text-xs text-muted-foreground italic">
+                          = NOI − Debt Service (Principal + Interest)
                         </TableCell>
+                        {consolidatedCFO.map((val, i) => (
+                          <TableCell key={i} className="text-right font-mono text-xs text-muted-foreground py-0.5">
+                            {formatMoney(val)}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                      {properties.map((prop, idx) => (
+                        <TableRow key={idx}>
+                          <TableCell className="pl-10 sticky left-0 bg-card z-10">{prop.name}</TableCell>
+                          {years.map((_, y) => (
+                            <TableCell key={y} className="text-right font-mono text-muted-foreground">
+                              {formatMoney(allPropertyYearlyCF[idx]?.[y]?.cashFromOperations ?? 0)}
+                            </TableCell>
+                          ))}
+                        </TableRow>
                       ))}
-                    </TableRow>
-                  ))}
+                    </>
+                  )}
 
                   <TableRow className="bg-muted/20 font-bold" onClick={() => toggleRow("cfi")} style={{ cursor: 'pointer' }}>
                     <TableCell className="sticky left-0 bg-card z-10">
@@ -215,16 +254,30 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
                       <TableCell key={i} className="text-right font-mono">{formatMoney(val)}</TableCell>
                     ))}
                   </TableRow>
-                  {expandedRows.has("cfi") && properties.map((prop, idx) => (
-                    <TableRow key={idx}>
-                      <TableCell className="pl-10 sticky left-0 bg-card z-10">{prop.name}</TableCell>
-                      {years.map((_, y) => (
-                        <TableCell key={y} className="text-right font-mono text-muted-foreground">
-                          {formatMoney((allPropertyYearlyCF[idx]?.[y]?.capitalExpenditures ?? 0) + (allPropertyYearlyCF[idx]?.[y]?.exitValue ?? 0))}
+                  {expandedRows.has("cfi") && (
+                    <>
+                      <TableRow className="bg-blue-50/40" data-expandable-row="true">
+                        <TableCell className="pl-10 sticky left-0 bg-blue-50/40 z-10 py-0.5 text-xs text-muted-foreground italic">
+                          = Capital Expenditures + Exit Proceeds (if final year)
                         </TableCell>
+                        {consolidatedCFI.map((val, i) => (
+                          <TableCell key={i} className="text-right font-mono text-xs text-muted-foreground py-0.5">
+                            {formatMoney(val)}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                      {properties.map((prop, idx) => (
+                        <TableRow key={idx}>
+                          <TableCell className="pl-10 sticky left-0 bg-card z-10">{prop.name}</TableCell>
+                          {years.map((_, y) => (
+                            <TableCell key={y} className="text-right font-mono text-muted-foreground">
+                              {formatMoney((allPropertyYearlyCF[idx]?.[y]?.capitalExpenditures ?? 0) + (allPropertyYearlyCF[idx]?.[y]?.exitValue ?? 0))}
+                            </TableCell>
+                          ))}
+                        </TableRow>
                       ))}
-                    </TableRow>
-                  ))}
+                    </>
+                  )}
 
                   <TableRow className="bg-muted/20 font-bold" onClick={() => toggleRow("cff")} style={{ cursor: 'pointer' }}>
                     <TableCell className="sticky left-0 bg-card z-10">
@@ -237,16 +290,30 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
                       <TableCell key={i} className="text-right font-mono">{formatMoney(val)}</TableCell>
                     ))}
                   </TableRow>
-                  {expandedRows.has("cff") && properties.map((prop, idx) => (
-                    <TableRow key={idx}>
-                      <TableCell className="pl-10 sticky left-0 bg-card z-10">{prop.name}</TableCell>
-                      {years.map((_, y) => (
-                        <TableCell key={y} className="text-right font-mono text-muted-foreground">
-                          {formatMoney((allPropertyYearlyCF[idx]?.[y]?.refinancingProceeds ?? 0) - (allPropertyYearlyCF[idx]?.[y]?.principalPayment ?? 0))}
+                  {expandedRows.has("cff") && (
+                    <>
+                      <TableRow className="bg-blue-50/40" data-expandable-row="true">
+                        <TableCell className="pl-10 sticky left-0 bg-blue-50/40 z-10 py-0.5 text-xs text-muted-foreground italic">
+                          = Refinancing Proceeds − Principal Payments
                         </TableCell>
+                        {consolidatedCFF.map((val, i) => (
+                          <TableCell key={i} className="text-right font-mono text-xs text-muted-foreground py-0.5">
+                            {formatMoney(val)}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                      {properties.map((prop, idx) => (
+                        <TableRow key={idx}>
+                          <TableCell className="pl-10 sticky left-0 bg-card z-10">{prop.name}</TableCell>
+                          {years.map((_, y) => (
+                            <TableCell key={y} className="text-right font-mono text-muted-foreground">
+                              {formatMoney((allPropertyYearlyCF[idx]?.[y]?.refinancingProceeds ?? 0) - (allPropertyYearlyCF[idx]?.[y]?.principalPayment ?? 0))}
+                            </TableCell>
+                          ))}
+                        </TableRow>
                       ))}
-                    </TableRow>
-                  ))}
+                    </>
+                  )}
 
                   <TableRow className="bg-primary/10 font-bold border-t-2 border-primary">
                     <TableCell className="sticky left-0 bg-primary/5 z-10 font-bold">Net Change in Cash</TableCell>

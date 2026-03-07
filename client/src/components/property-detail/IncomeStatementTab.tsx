@@ -24,9 +24,12 @@
  * Each year is a column; the component also shows the "stabilized year"
  * (when occupancy reaches its long-term target) with a visual highlight.
  */
+import { useState } from "react";
 import { formatMoney } from "@/lib/financialEngine";
 import { YearlyIncomeStatement } from "@/components/YearlyIncomeStatement";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { Button } from "@/components/ui/button";
+import { ChevronsUpDown } from "lucide-react";
 import type { IncomeStatementTabProps } from "./types";
 
 export default function IncomeStatementTab({
@@ -40,6 +43,9 @@ export default function IncomeStatementTab({
   incomeTableRef,
   incomeAllExpanded,
 }: IncomeStatementTabProps) {
+  const [localAllExpanded, setLocalAllExpanded] = useState(false);
+  const effectiveAllExpanded = incomeAllExpanded || localAllExpanded;
+
   return (
     <div className="space-y-6">
       <div ref={incomeChartRef} className="relative overflow-hidden rounded-2xl sm:rounded-3xl p-3 sm:p-6 bg-card shadow-lg border border-border">
@@ -125,7 +131,19 @@ export default function IncomeStatementTab({
         </div>
       </div>
       <div ref={incomeTableRef}>
-        <YearlyIncomeStatement data={financials} years={projectionYears} startYear={startYear} property={property} global={global} allExpanded={incomeAllExpanded} />
+        <div className="flex justify-end mb-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setLocalAllExpanded(!localAllExpanded)}
+            className="text-xs text-muted-foreground h-7 px-2"
+            data-testid="button-toggle-all-property-is"
+          >
+            <ChevronsUpDown className="h-3.5 w-3.5 mr-1" />
+            {effectiveAllExpanded ? "Collapse All Formulas" : "Expand All Formulas"}
+          </Button>
+        </div>
+        <YearlyIncomeStatement data={financials} years={projectionYears} startYear={startYear} property={property} global={global} allExpanded={effectiveAllExpanded} />
       </div>
     </div>
   );

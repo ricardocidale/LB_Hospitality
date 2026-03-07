@@ -34,26 +34,6 @@ export function ExpandableLineItem({
 }: ExpandableLineItemProps) {
   const showDetails = useCalcDetails();
 
-  if (!showDetails) {
-    return (
-      <TableRow>
-        <TableCell className="pl-6 sticky left-0 bg-card py-1">
-          <span className="flex items-center gap-1">
-            <span className="ml-5">{label}</span>
-          </span>
-        </TableCell>
-        {values.map((v, i) => {
-          const displayVal = negate ? -v : v;
-          return (
-            <TableCell key={i} className="text-right font-medium py-1 font-mono px-2">
-              <Money amount={displayVal} />
-            </TableCell>
-          );
-        })}
-      </TableRow>
-    );
-  }
-
   return (
     <>
       <TableRow className="cursor-pointer hover:bg-muted" onClick={onToggle}>
@@ -65,7 +45,7 @@ export function ExpandableLineItem({
               <ChevronRight className="w-4 h-4 flex-shrink-0" />
             )}
             <span className="ml-1">{label}</span>
-            {tooltip && <HelpTooltip text={tooltip} />}
+            {showDetails && tooltip && <HelpTooltip text={tooltip} />}
           </span>
         </TableCell>
         {values.map((v, i) => {
@@ -109,26 +89,6 @@ export function ExpandableMetricRow({
 }: ExpandableMetricRowProps) {
   const showDetails = useCalcDetails();
 
-  if (!showDetails) {
-    return (
-      <TableRow>
-        <TableCell className="pl-6 sticky left-0 bg-card py-1">
-          <span className="flex items-center gap-1">
-            {label}
-          </span>
-        </TableCell>
-        {values.map((v, i) => (
-          <TableCell
-            key={i}
-            className={cn("text-right font-medium py-1 font-mono px-2", highlights?.[i])}
-          >
-            {v}
-          </TableCell>
-        ))}
-      </TableRow>
-    );
-  }
-
   return (
     <>
       <TableRow className="cursor-pointer hover:bg-muted" onClick={onToggle}>
@@ -140,7 +100,7 @@ export function ExpandableMetricRow({
               <ChevronRight className="w-4 h-4 flex-shrink-0 text-muted-foreground" />
             )}
             {label}
-            {tooltip && <HelpTooltip text={tooltip} />}
+            {showDetails && tooltip && <HelpTooltip text={tooltip} />}
           </span>
         </TableCell>
         {values.map((v, i) => (
@@ -192,27 +152,6 @@ export function ExpandableBalanceSheetLineItem({
   const showDetails = useCalcDetails();
   const paddingLeft = indent > 0 ? `${indent * 1.5}rem` : undefined;
 
-  if (!showDetails) {
-    return (
-      <TableRow
-        className={cn(
-          isSubtotal && "bg-primary/5",
-          isTotal && "bg-primary/10 font-bold"
-        )}
-      >
-        <TableCell
-          className={cn(bold && "font-medium")}
-          style={paddingLeft ? { paddingLeft } : undefined}
-        >
-          {label}
-        </TableCell>
-        <TableCell className="text-right font-mono">
-          <Money amount={amount} className={bold ? "font-medium" : undefined} />
-        </TableCell>
-      </TableRow>
-    );
-  }
-
   return (
     <>
       <TableRow
@@ -234,7 +173,7 @@ export function ExpandableBalanceSheetLineItem({
               <ChevronRight className="w-4 h-4 flex-shrink-0 text-muted-foreground" />
             )}
             {label}
-            {tooltip && <HelpTooltip text={tooltip} />}
+            {showDetails && tooltip && <HelpTooltip text={tooltip} />}
           </span>
         </TableCell>
         <TableCell className="text-right font-mono">

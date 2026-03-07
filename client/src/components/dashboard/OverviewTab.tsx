@@ -255,8 +255,8 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                   </p>
                   <div className="flex-1 flex items-center justify-center">
                     <RadialGauge
-                      data={[{ name: "irr", value: Math.min(Math.max(portfolioIRR * 100, 0), 100), fill: "var(--chart-1)" }]}
-                      config={{ irr: { label: "Portfolio IRR", color: "hsl(var(--chart-1))" } }}
+                      data={[{ name: "irr", value: Math.min(Math.max(portfolioIRR * 100, 0), 100), fill: "hsl(var(--accent-pop))" }]}
+                      config={{ irr: { label: "Portfolio IRR", color: "hsl(var(--accent-pop))" } }}
                       dataKey="value"
                       centerValue={`${(portfolioIRR * 100).toFixed(1)}%`}
                       centerLabel="Portfolio IRR"
@@ -312,74 +312,74 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                 </div>
               </div>
 
-              <div className="grid gap-6 grid-cols-2 lg:grid-cols-4 max-w-5xl mx-auto">
-                <div className="bg-card rounded-lg p-4 border border-border shadow-sm flex flex-col items-center text-center">
-                  <RadialGauge
-                    data={[{ name: "em", value: Math.min(equityMultiple, 5), fill: "var(--chart-1)" }]}
-                    config={{ em: { label: "Equity Multiple", color: "hsl(var(--chart-1))" } }}
-                    dataKey="value"
-                    centerValue={`${equityMultiple.toFixed(2)}x`}
-                    centerLabel="Equity Multiple"
-                    endAngle={Math.min(equityMultiple / 5, 1) * 360}
-                    innerRadius={50}
-                    outerRadius={80}
-                    className="mx-auto aspect-square max-h-[160px] w-full"
-                  />
-                  <p className="text-sm text-foreground/60 label-text flex items-center gap-1 -mt-2" data-testid="text-equity-multiple">
-                    <InfoTooltip text="Total distributions plus residual value divided by total equity invested. A 2.0x multiple means investors received double their investment." formula="EM = (Total Distributions + Exit Value) / Total Equity" light side="right" />
-                  </p>
+              <div className="grid gap-4 grid-cols-2 lg:grid-cols-4 max-w-5xl mx-auto">
+                <div className="bg-card rounded-lg p-5 border border-border shadow-sm transition-all duration-300">
+                  <div className="flex items-center gap-4 mb-3">
+                    <div className="relative w-14 h-14 flex-shrink-0">
+                      <svg className="w-14 h-14" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="40" fill="none" stroke="hsl(var(--muted))" strokeWidth="6" />
+                        <circle
+                          cx="50" cy="50" r="40" fill="none" stroke="hsl(var(--accent-pop))" strokeWidth="6"
+                          strokeDasharray={`${Math.min(equityMultiple * 63, 251)} 251`}
+                          strokeLinecap="round"
+                          transform="rotate(-90 50 50)"
+                        />
+                      </svg>
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-sm font-bold text-foreground font-mono">{equityMultiple.toFixed(1)}x</span>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-emerald-700 font-mono" data-testid="text-equity-multiple">{equityMultiple.toFixed(2)}x</p>
+                      <p className="text-sm text-foreground/60 label-text flex items-center">Equity Multiple<InfoTooltip text="Total distributions plus residual value divided by total equity invested. A 2.0x multiple means investors received double their investment." formula="EM = (Total Distributions + Exit Value) / Total Equity" light side="right" /></p>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="bg-card rounded-lg p-4 border border-border shadow-sm flex flex-col items-center text-center">
-                  <RadialGauge
-                    data={[{ name: "coc", value: Math.min(Math.max(cashOnCash, 0), 20), fill: "var(--chart-2)" }]}
-                    config={{ coc: { label: "Cash-on-Cash", color: "hsl(var(--chart-2))" } }}
-                    dataKey="value"
-                    centerValue={`${cashOnCash.toFixed(1)}%`}
-                    centerLabel="Cash-on-Cash"
-                    endAngle={Math.min(Math.max(cashOnCash, 0) / 20, 1) * 360}
-                    innerRadius={50}
-                    outerRadius={80}
-                    className="mx-auto aspect-square max-h-[160px] w-full"
-                  />
-                  <p className="text-sm text-foreground/60 label-text flex items-center gap-1 -mt-2" data-testid="text-cash-on-cash">
-                    <InfoTooltip text="Annual pre-tax cash flow as a percentage of total equity invested. Measures the yield on your cash investment." formula="CoC = Annual Cash Flow / Total Equity Invested" light side="right" />
-                  </p>
+                <div className="bg-card rounded-lg p-5 border border-border shadow-sm transition-all duration-300">
+                  <div className="flex items-center gap-4 mb-3">
+                    <div className="relative w-14 h-14 flex-shrink-0">
+                      <svg className="w-14 h-14" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="40" fill="none" stroke="hsl(var(--muted))" strokeWidth="6" />
+                        <circle
+                          cx="50" cy="50" r="40" fill="none" stroke="hsl(var(--accent-pop))" strokeWidth="6"
+                          strokeDasharray={`${Math.min(Math.max(cashOnCash, 0) * 12.5, 251)} 251`}
+                          strokeLinecap="round"
+                          transform="rotate(-90 50 50)"
+                        />
+                      </svg>
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-sm font-bold text-foreground font-mono">{cashOnCash.toFixed(0)}%</span>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-primary font-mono" data-testid="text-cash-on-cash">{cashOnCash.toFixed(1)}%</p>
+                      <p className="text-sm text-foreground/60 label-text flex items-center">Cash-on-Cash<InfoTooltip text="Annual pre-tax cash flow as a percentage of total equity invested. Measures the yield on your cash investment." formula="CoC = Annual Cash Flow / Total Equity Invested" light side="right" /></p>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="bg-card rounded-lg p-4 border border-border shadow-sm flex flex-col items-center text-center">
-                  <RadialGauge
-                    data={[{ name: "eq", value: Math.min(totalInitialEquity / 1_000_000, 50), fill: "var(--chart-3)" }]}
-                    config={{ eq: { label: "Equity Invested", color: "hsl(var(--chart-3))" } }}
-                    dataKey="value"
-                    centerValue={totalInitialEquity >= 1_000_000 ? `$${(totalInitialEquity / 1_000_000).toFixed(1)}M` : formatMoney(totalInitialEquity)}
-                    centerLabel="Equity Invested"
-                    endAngle={Math.min(totalInitialEquity / 50_000_000, 1) * 360}
-                    innerRadius={50}
-                    outerRadius={80}
-                    className="mx-auto aspect-square max-h-[160px] w-full"
-                  />
-                  <p className="text-sm text-foreground/60 label-text flex items-center gap-1 -mt-2" data-testid="text-equity-invested">
-                    <InfoTooltip text="Total cash equity contributed by investors across all properties, excluding any debt financing." light side="right" />
-                  </p>
+                <div className="bg-card rounded-lg p-5 border border-border shadow-sm transition-all duration-300">
+                  <div className="mb-2">
+                    <p className="text-2xl font-bold text-foreground font-mono" data-testid="text-equity-invested">{formatMoney(totalInitialEquity)}</p>
+                    <p className="text-sm text-foreground/60 label-text flex items-center">Equity Invested<InfoTooltip text="Total cash equity contributed by investors across all properties, excluding any debt financing." light side="right" /></p>
+                  </div>
+                  <div className="h-1.5 bg-foreground/10 rounded-full overflow-hidden">
+                    <div className="h-full rounded-full" style={{ width: '100%', background: 'linear-gradient(to right, hsl(var(--accent-pop)), hsl(var(--accent-pop-2)))' }} />
+                  </div>
                 </div>
 
-                <div className="bg-card rounded-lg p-4 border border-border shadow-sm flex flex-col items-center text-center">
-                  <RadialGauge
-                    data={[{ name: "exit", value: Math.min(totalExitValue / 1_000_000, 100), fill: "var(--chart-4)" }]}
-                    config={{ exit: { label: "Projected Exit", color: "hsl(var(--chart-4))" } }}
-                    dataKey="value"
-                    centerValue={totalExitValue >= 1_000_000 ? `$${(totalExitValue / 1_000_000).toFixed(1)}M` : formatMoney(totalExitValue)}
-                    centerLabel="Projected Exit"
-                    endAngle={Math.min(totalExitValue / 100_000_000, 1) * 360}
-                    innerRadius={50}
-                    outerRadius={80}
-                    className="mx-auto aspect-square max-h-[160px] w-full"
-                  />
-                  <p className="text-sm text-foreground/60 label-text flex items-center gap-1 -mt-2" data-testid="text-exit-value">
-                    <span className="text-emerald-600 font-medium font-mono text-xs">+{exitGainPercent}% gain</span>
-                    <InfoTooltip text="Estimated total sale proceeds at the end of the hold period, based on projected NOI and exit cap rate." formula="Exit Value = NOI / Exit Cap Rate" light side="right" />
-                  </p>
+                <div className="bg-card rounded-lg p-5 border border-border shadow-sm transition-all duration-300">
+                  <div className="mb-2">
+                    <p className="text-2xl font-bold text-emerald-700 font-mono" data-testid="text-exit-value">{formatMoney(totalExitValue)}</p>
+                    <p className="text-sm text-foreground/60 label-text flex items-center">Projected Exit<InfoTooltip text="Estimated total sale proceeds at the end of the hold period, based on projected NOI and exit cap rate." formula="Exit Value = NOI / Exit Cap Rate" light side="right" /></p>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <svg className="w-4 h-4 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                    </svg>
+                    <span className="text-sm font-medium text-emerald-700 font-mono">+{exitGainPercent}% gain</span>
+                  </div>
                 </div>
               </div>
             </div>

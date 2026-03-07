@@ -180,7 +180,7 @@ export default function Login() {
                 </p>
                 <div className="flex items-center gap-2.5">
                   <img
-                    src="/logos/norfolk-ai-blue.png"
+                    src="/logos/norfolk-ai-white.png"
                     alt="Norfolk AI"
                     className="w-7 h-7 drop-shadow-[0_0_6px_rgba(56,189,248,0.5)]"
                   />

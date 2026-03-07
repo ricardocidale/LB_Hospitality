@@ -34,8 +34,8 @@ React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v
 - **Cards**: shadcn `Card` or `bg-card border shadow-sm` tokens; `SectionCard`/`ContentPanel` are thin wrappers
 - **Export menus**: `ExportToolbar` uses shadcn `DropdownMenu` internally
 - **Voice/AI components**: Canonical versions in `client/src/features/ai-agent/components/` (17 components: conversation, orb, waveform, message, audio-player, etc.)
-- **Theme**: Liquid ice palette defined via CSS variables in `client/src/index.css` — components consume via Tailwind tokens. Theme engine (`themeUtils.ts`) manages all CSS vars including sidebar variables. 100% theme-compliant — all 1,701 hardcoded gray references replaced with tokens.
-- **Exceptions**: Chart data colors (Recharts fill/stroke) may use hardcoded hex; financial-table grand total row uses `bg-[#2d4a5e]`
+- **Theme**: Liquid ice palette defined via CSS variables in `client/src/index.css` — components consume via Tailwind tokens. Theme engine (`themeUtils.ts`) manages all CSS vars including sidebar variables. 100% theme-compliant — zero `bg-gray-*`, `text-gray-*`, `border-gray-*`, `bg-white`, `bg-black`, or hardcoded hex color classes remain. All structural colors use tokens (`bg-card`, `bg-muted`, `text-foreground`, `text-muted-foreground`, `border-border`, `text-primary-foreground`).
+- **Exceptions**: Chart data colors (Recharts fill/stroke) may use hardcoded hex; semantic colors (red=error, green=success, amber=warning, blue=info) remain as Tailwind utilities; ~40 `text-white` instances on dark overlays/semantic badges are contextually correct
 
 ## Documentation (all in .claude/)
 ```

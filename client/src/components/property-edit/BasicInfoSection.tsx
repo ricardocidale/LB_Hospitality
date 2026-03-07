@@ -19,7 +19,7 @@ import type { PropertyEditSectionProps } from "./types";
 
 export default function BasicInfoSection({ draft, onChange, onNumberChange }: PropertyEditSectionProps) {
   return (
-    <div className="relative overflow-hidden rounded-lg border border-border bg-white shadow-sm">
+    <div className="relative overflow-hidden rounded-lg border border-border bg-card shadow-sm">
       <div className="relative p-6">
         <div className="mb-6">
           <h3 className="text-xl font-display text-foreground">Basic Information</h3>
@@ -28,15 +28,15 @@ export default function BasicInfoSection({ draft, onChange, onNumberChange }: Pr
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div className="space-y-2">
             <Label className="label-text text-foreground flex items-center gap-1.5">Property Name<HelpTooltip text="Internal name used to identify this property across the portfolio. Appears in dashboards, reports, and financial statements." /></Label>
-            <Input value={draft.name} onChange={(e) => onChange("name", e.target.value)} className="bg-white border-primary/30 text-foreground placeholder:text-muted-foreground" />
+            <Input value={draft.name} onChange={(e) => onChange("name", e.target.value)} className="bg-card border-primary/30 text-foreground placeholder:text-muted-foreground" />
           </div>
           <div className="space-y-2">
             <Label className="label-text text-foreground flex items-center gap-1.5">Location<HelpTooltip text="City and state/region of the property. Used for market research to find comparable properties and local hospitality benchmarks." /></Label>
-            <Input value={draft.location} onChange={(e) => onChange("location", e.target.value)} className="bg-white border-primary/30 text-foreground placeholder:text-muted-foreground" />
+            <Input value={draft.location} onChange={(e) => onChange("location", e.target.value)} className="bg-card border-primary/30 text-foreground placeholder:text-muted-foreground" />
           </div>
           <div className="space-y-2">
             <Label className="label-text text-foreground flex items-center gap-1.5">Market<HelpTooltip text="The broader market or MSA (Metropolitan Statistical Area) this property operates in. Drives market research, comp set analysis, and regional benchmarks." /></Label>
-            <Input value={draft.market} onChange={(e) => onChange("market", e.target.value)} className="bg-white border-primary/30 text-foreground placeholder:text-muted-foreground" />
+            <Input value={draft.market} onChange={(e) => onChange("market", e.target.value)} className="bg-card border-primary/30 text-foreground placeholder:text-muted-foreground" />
           </div>
 
           <div className="sm:col-span-2 border border-primary/20 rounded-xl p-4 space-y-4">
@@ -44,23 +44,23 @@ export default function BasicInfoSection({ draft, onChange, onNumberChange }: Pr
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2 sm:col-span-2">
                 <Label className="label-text text-muted-foreground text-sm">Street Address</Label>
-                <Input value={draft.streetAddress || ""} onChange={(e) => onChange("streetAddress", e.target.value || null)} placeholder="123 Main Street" className="bg-white border-primary/30 text-foreground placeholder:text-muted-foreground" />
+                <Input value={draft.streetAddress || ""} onChange={(e) => onChange("streetAddress", e.target.value || null)} placeholder="123 Main Street" className="bg-card border-primary/30 text-foreground placeholder:text-muted-foreground" />
               </div>
               <div className="space-y-2">
                 <Label className="label-text text-muted-foreground text-sm">City</Label>
-                <Input value={draft.city || ""} onChange={(e) => onChange("city", e.target.value || null)} placeholder="Austin" className="bg-white border-primary/30 text-foreground placeholder:text-muted-foreground" />
+                <Input value={draft.city || ""} onChange={(e) => onChange("city", e.target.value || null)} placeholder="Austin" className="bg-card border-primary/30 text-foreground placeholder:text-muted-foreground" />
               </div>
               <div className="space-y-2">
                 <Label className="label-text text-muted-foreground text-sm">State / Province / Region</Label>
-                <Input value={draft.stateProvince || ""} onChange={(e) => onChange("stateProvince", e.target.value || null)} placeholder="Texas" className="bg-white border-primary/30 text-foreground placeholder:text-muted-foreground" />
+                <Input value={draft.stateProvince || ""} onChange={(e) => onChange("stateProvince", e.target.value || null)} placeholder="Texas" className="bg-card border-primary/30 text-foreground placeholder:text-muted-foreground" />
               </div>
               <div className="space-y-2">
                 <Label className="label-text text-muted-foreground text-sm">Postal / ZIP Code</Label>
-                <Input value={draft.zipPostalCode || ""} onChange={(e) => onChange("zipPostalCode", e.target.value || null)} placeholder="78701" className="bg-white border-primary/30 text-foreground placeholder:text-muted-foreground" />
+                <Input value={draft.zipPostalCode || ""} onChange={(e) => onChange("zipPostalCode", e.target.value || null)} placeholder="78701" className="bg-card border-primary/30 text-foreground placeholder:text-muted-foreground" />
               </div>
               <div className="space-y-2">
                 <Label className="label-text text-muted-foreground text-sm">Country</Label>
-                <Input value={draft.country || ""} onChange={(e) => onChange("country", e.target.value || null)} placeholder="United States" className="bg-white border-primary/30 text-foreground placeholder:text-muted-foreground" />
+                <Input value={draft.country || ""} onChange={(e) => onChange("country", e.target.value || null)} placeholder="United States" className="bg-card border-primary/30 text-foreground placeholder:text-muted-foreground" />
               </div>
             </div>
           </div>
@@ -77,7 +77,7 @@ export default function BasicInfoSection({ draft, onChange, onNumberChange }: Pr
           <div className="space-y-2">
             <Label className="label-text text-foreground flex items-center gap-1.5">Status<HelpTooltip text="Current stage: Pipeline (being scoped), In Negotiation (advanced talks), Acquired (purchased), Improvements (under renovation), or Operating (generating revenue)." /></Label>
             <Select value={draft.status} onValueChange={(v) => onChange("status", v)}>
-              <SelectTrigger className="bg-white border-primary/30 text-foreground"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="bg-card border-primary/30 text-foreground"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="Pipeline">Pipeline</SelectItem>
                 <SelectItem value="In Negotiation">In Negotiation</SelectItem>
@@ -89,7 +89,7 @@ export default function BasicInfoSection({ draft, onChange, onNumberChange }: Pr
           </div>
           <div className="space-y-2">
             <Label className="label-text text-foreground flex items-center gap-1.5">Room Count<HelpTooltip text="Total number of rentable guest rooms. This is the primary revenue driver — all room revenue is calculated as Rooms × ADR × Occupancy × 30.5 days/month." /></Label>
-            <Input type="number" value={draft.roomCount} onChange={(e) => onNumberChange("roomCount", e.target.value)} className="bg-white border-primary/30 text-foreground placeholder:text-muted-foreground" />
+            <Input type="number" value={draft.roomCount} onChange={(e) => onNumberChange("roomCount", e.target.value)} className="bg-card border-primary/30 text-foreground placeholder:text-muted-foreground" />
           </div>
         </div>
       </div>

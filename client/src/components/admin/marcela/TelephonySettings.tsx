@@ -37,7 +37,7 @@ export function TelephonySettings({ draft, updateField, twilioStatus }: Telephon
   };
 
   return (
-    <Card className="bg-white border border-border/80 shadow-sm">
+    <Card className="bg-card border border-border/80 shadow-sm">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
@@ -126,7 +126,7 @@ export function TelephonySettings({ draft, updateField, twilioStatus }: Telephon
             value={draft.marcelaPhoneGreeting}
             onChange={(e) => updateField("marcelaPhoneGreeting", e.target.value)}
             placeholder={`Hello, this is ${agentName}...`}
-            className="bg-white min-h-[80px] text-sm"
+            className="bg-card min-h-[80px] text-sm"
             data-testid="textarea-phone-greeting"
           />
           <p className="text-xs text-muted-foreground">
@@ -191,14 +191,14 @@ export function TelephonySettings({ draft, updateField, twilioStatus }: Telephon
                   value={testSmsTo}
                   onChange={(e) => setTestSmsTo(e.target.value)}
                   placeholder="+1234567890"
-                  className="bg-white font-mono text-sm"
+                  className="bg-card font-mono text-sm"
                   data-testid="input-test-sms-to"
                 />
                 <Textarea
                   value={testSmsBody}
                   onChange={(e) => setTestSmsBody(e.target.value)}
                   placeholder="Test message..."
-                  className="bg-white min-h-[60px] text-sm"
+                  className="bg-card min-h-[60px] text-sm"
                   data-testid="textarea-test-sms-body"
                 />
                 <Button

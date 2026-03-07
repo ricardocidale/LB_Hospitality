@@ -30,7 +30,7 @@ export function InfoTooltip({ text, formula, light = false, side = "top", manual
           className={`inline-flex items-center justify-center ml-1 cursor-help rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 ${
             light
               ? "text-muted-foreground hover:text-muted-foreground"
-              : "text-primary hover:text-[#7A9E82]"
+              : "text-primary hover:text-primary/80"
           }`}
           aria-label="Info"
           data-testid="info-tooltip-trigger"

@@ -200,15 +200,15 @@ export default function PropertyFinder() {
         />
 
         {isNoApiKey && (
-          <div className="bg-white rounded-lg shadow-sm border border-border overflow-hidden">
+          <div className="bg-card rounded-lg shadow-sm border border-border overflow-hidden">
             <div className="h-1 bg-primary" />
             <div className="p-6 flex items-start gap-4">
-              <AlertCircle className="w-6 h-6 text-[#F4795B] flex-shrink-0 mt-0.5" />
+              <AlertCircle className="w-6 h-6 text-destructive flex-shrink-0 mt-0.5" />
               <div>
                 <h3 className="text-foreground font-semibold mb-1">API Key Required</h3>
                 <p className="text-muted-foreground text-sm mb-3">
                   To search real estate listings, you need a free RapidAPI key. Sign up at{" "}
-                  <a href="https://rapidapi.com/apidojo/api/realty-in-us" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-[#7aaa8a] underline">
+                  <a href="https://rapidapi.com/apidojo/api/realty-in-us" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80 underline">
                     rapidapi.com
                   </a>
                   , subscribe to the "Realty in US" API (free tier: 100 requests/month), then add your key as <code className="bg-muted px-1.5 py-0.5 rounded text-xs text-foreground">RAPIDAPI_KEY</code> in the Secrets tab.
@@ -219,10 +219,10 @@ export default function PropertyFinder() {
         )}
 
         {searchError && !isNoApiKey && (
-          <div className="bg-white rounded-lg shadow-sm border border-border overflow-hidden">
-            <div className="h-0.5 bg-[#F4795B]/40" />
+          <div className="bg-card rounded-lg shadow-sm border border-border overflow-hidden">
+            <div className="h-0.5 bg-destructive/40" />
             <div className="p-4 flex items-center gap-3">
-              <AlertCircle className="w-5 h-5 text-[#F4795B]" />
+              <AlertCircle className="w-5 h-5 text-destructive" />
               <p className="text-foreground text-sm">{searchError.message}</p>
             </div>
           </div>
@@ -266,7 +266,7 @@ export default function PropertyFinder() {
             </div>
 
             {searchData.results.length === 0 ? (
-              <div className="bg-white rounded-lg shadow-sm border border-border p-12 text-center">
+              <div className="bg-card rounded-lg shadow-sm border border-border p-12 text-center">
                 <Building2 className="w-12 h-12 text-primary/30 mx-auto mb-3" />
                 <p className="text-muted-foreground font-medium">No properties found matching your criteria.</p>
                 <p className="text-muted-foreground text-sm mt-1">Try adjusting your filters or searching a different location.</p>
@@ -294,7 +294,7 @@ export default function PropertyFinder() {
         )}
 
         {!searchData && !searchError && !isSearching && (
-          <div className="bg-white rounded-lg shadow-sm border border-border p-16 text-center">
+          <div className="bg-card rounded-lg shadow-sm border border-border p-16 text-center">
             <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
               <Search className="w-8 h-8 text-primary/40" />
             </div>
@@ -309,7 +309,7 @@ export default function PropertyFinder() {
           <div className="flex items-center gap-4 mb-6">
             <div className="h-px flex-1 bg-muted" />
             <div className="flex items-center gap-2">
-              <Heart className="w-5 h-5 text-[#F4795B]" />
+              <Heart className="w-5 h-5 text-destructive" />
               <h2 className="text-lg font-display font-bold text-foreground">Your Favorites</h2>
               <span className="text-sm text-muted-foreground">({favorites.length})</span>
             </div>
@@ -321,7 +321,7 @@ export default function PropertyFinder() {
               <Loader2 className="w-8 h-8 animate-spin text-primary" />
             </div>
           ) : favorites.length === 0 ? (
-            <div className="bg-white rounded-lg shadow-sm border border-border p-12 text-center">
+            <div className="bg-card rounded-lg shadow-sm border border-border p-12 text-center">
               <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
                 <Heart className="w-7 h-7 text-primary/30" />
               </div>

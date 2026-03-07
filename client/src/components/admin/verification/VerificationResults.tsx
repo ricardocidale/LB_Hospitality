@@ -30,7 +30,7 @@ export function VerificationResults({ results }: VerificationResultsProps) {
 
   const renderCheckRow = (chk: CheckResult, idx: number) => (
     <div key={idx} className="space-y-1">
-      <div className="flex items-center gap-3 p-3 rounded-lg bg-white border border-border">
+      <div className="flex items-center gap-3 p-3 rounded-lg bg-card border border-border">
         {chk.passed ? <CheckCircle2 className="w-5 h-5 text-secondary shrink-0" /> : <XCircle className="w-5 h-5 text-red-500 shrink-0" />}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">

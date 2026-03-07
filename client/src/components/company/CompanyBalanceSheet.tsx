@@ -42,7 +42,7 @@ export default function CompanyBalanceSheet({
 }: CompanyBalanceSheetProps) {
   return (
     <ScrollReveal>
-    <div ref={activeTab === 'balance' ? tableRef : undefined} className="bg-white rounded-2xl p-6 shadow-sm border">
+    <div ref={activeTab === 'balance' ? tableRef : undefined} className="bg-card rounded-2xl p-6 shadow-sm border">
       <div>
         <h3 className="text-lg font-display text-foreground mb-4">Balance Sheet - {global?.companyName || "Hospitality Business Co."} (As of {getFiscalYear(projectionYears - 1)})</h3>
         {(() => {

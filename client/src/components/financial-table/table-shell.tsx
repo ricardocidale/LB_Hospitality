@@ -39,7 +39,7 @@ export function TableShell({ title, subtitle, columns, headers, stickyLabel, chi
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[200px] sticky left-0 bg-white z-10">
+              <TableHead className="w-[200px] sticky left-0 bg-card z-10">
                 {stickyLabel || "Category"}
               </TableHead>
               {headerList.map((h, i) => (

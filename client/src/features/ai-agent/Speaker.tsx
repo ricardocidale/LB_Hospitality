@@ -920,7 +920,7 @@ function SpeakerControls({
       <div className="bg-muted-foreground/20 absolute top-0 left-1/2 h-2 w-44 -translate-x-1/2 rounded-b-full" />
 
       <div className="relative space-y-6 p-4">
-        <div className="border-border rounded-lg border bg-black/5 p-4 backdrop-blur-sm dark:bg-black/50">
+        <div className="border-border rounded-lg border bg-foreground/5 p-4 backdrop-blur-sm dark:bg-foreground/50">
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <div className="min-w-0 flex-1">
@@ -962,7 +962,7 @@ function SpeakerControls({
             </div>
 
             <div
-              className="waveform-container bg-foreground/10 relative h-12 cursor-grab overflow-hidden rounded-lg p-2 active:cursor-grabbing dark:bg-black/80"
+              className="waveform-container bg-foreground/10 relative h-12 cursor-grab overflow-hidden rounded-lg p-2 active:cursor-grabbing dark:bg-foreground/80"
               onTouchStart={(e) => {
                 e.preventDefault()
                 setIsScrubbing(true)

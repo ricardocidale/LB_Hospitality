@@ -133,7 +133,7 @@ export default function MarketRatesTab() {
   return (
     <div className="space-y-6">
       {/* Summary Header */}
-      <Card className="bg-white border border-border/80">
+      <Card className="bg-card border border-border/80">
         <CardHeader className="flex flex-row items-center justify-between pb-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
@@ -191,7 +191,7 @@ export default function MarketRatesTab() {
 
       {/* Rate Groups */}
       {Object.entries(grouped).map(([source, sourceRates]) => (
-        <Card key={source} className="bg-white border border-border/60">
+        <Card key={source} className="bg-card border border-border/60">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
               {sourceLabel(source)}

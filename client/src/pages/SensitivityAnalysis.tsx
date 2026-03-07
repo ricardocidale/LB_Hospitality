@@ -441,7 +441,7 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
               actions={
                 <div className="flex items-center gap-3">
                   <Select value={selectedPropertyId} onValueChange={setSelectedPropertyId}>
-                    <SelectTrigger className="w-[200px] bg-white border-border text-foreground rounded-lg text-sm" data-testid="select-property">
+                    <SelectTrigger className="w-[200px] bg-card border-border text-foreground rounded-lg text-sm" data-testid="select-property">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -466,7 +466,7 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
             />
           )}
 
-          <div className="bg-white rounded-xl border border-border p-4 shadow-sm">
+          <div className="bg-card rounded-xl border border-border p-4 shadow-sm">
             <div className="flex items-start gap-3">
               <Sliders className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
               <div>

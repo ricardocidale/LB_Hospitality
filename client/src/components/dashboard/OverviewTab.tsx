@@ -167,7 +167,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
   };
 
   return (
-    <Card className="bg-white border-border shadow-sm relative overflow-hidden">
+    <Card className="bg-card border-border shadow-sm relative overflow-hidden">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
         <CardTitle>Portfolio Overview</CardTitle>
         <ExportMenu
@@ -194,7 +194,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
               </div>
 
               <div className="flex flex-col lg:flex-row items-center justify-center gap-8 mb-10">
-                <div className="relative bg-white rounded-lg p-8 border border-border shadow-sm" data-testid="gauge-portfolio-irr">
+                <div className="relative bg-card rounded-lg p-8 border border-border shadow-sm" data-testid="gauge-portfolio-irr">
                   <div className="relative">
                     <svg className="w-48 h-48" viewBox="0 0 200 200">
                       <defs>
@@ -219,7 +219,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                   </div>
                 </div>
 
-                <div ref={chartsRef} className="bg-white rounded-lg p-6 border border-border shadow-sm w-full lg:min-w-[340px]" data-testid="chart-property-irr-comparison">
+                <div ref={chartsRef} className="bg-card rounded-lg p-6 border border-border shadow-sm w-full lg:min-w-[340px]" data-testid="chart-property-irr-comparison">
                   <p className="text-xs font-medium tracking-widest text-foreground/60 uppercase mb-3 text-center label-text">Property IRR Comparison</p>
                   <ResponsiveContainer width="100%" height={200}>
                     <BarChart data={propertyIRRData} margin={{ top: 5, right: 10, left: 0, bottom: 40 }}>
@@ -236,7 +236,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                   </ResponsiveContainer>
                 </div>
 
-                <div className="bg-white rounded-lg p-6 border border-border shadow-sm w-full lg:min-w-[340px]" data-testid="chart-property-investment">
+                <div className="bg-card rounded-lg p-6 border border-border shadow-sm w-full lg:min-w-[340px]" data-testid="chart-property-investment">
                   <p className="text-xs font-medium tracking-widest text-foreground/60 uppercase mb-3 text-center label-text">Equity by Property</p>
                   <ResponsiveContainer width="100%" height={200}>
                     <BarChart data={propertyInvestmentData} margin={{ top: 5, right: 10, left: 0, bottom: 40 }}>
@@ -255,7 +255,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
               </div>
 
               <div className="grid gap-4 grid-cols-2 lg:grid-cols-4 max-w-5xl mx-auto">
-                <div className="bg-white rounded-lg p-5 border border-border shadow-sm transition-all duration-300">
+                <div className="bg-card rounded-lg p-5 border border-border shadow-sm transition-all duration-300">
                   <div className="flex items-center gap-4 mb-3">
                     <div className="relative w-14 h-14 flex-shrink-0">
                       <svg className="w-14 h-14" viewBox="0 0 100 100">
@@ -279,13 +279,13 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                       </div>
                     </div>
                     <div>
-                      <p className="text-2xl font-bold text-[#257D41] font-mono" data-testid="text-equity-multiple">{equityMultiple.toFixed(2)}x</p>
+                      <p className="text-2xl font-bold text-emerald-700 font-mono" data-testid="text-equity-multiple">{equityMultiple.toFixed(2)}x</p>
                       <p className="text-sm text-foreground/60 label-text">Equity Multiple</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-white rounded-lg p-5 border border-border shadow-sm transition-all duration-300">
+                <div className="bg-card rounded-lg p-5 border border-border shadow-sm transition-all duration-300">
                   <div className="flex items-center gap-4 mb-3">
                     <div className="relative w-14 h-14 flex-shrink-0">
                       <svg className="w-14 h-14" viewBox="0 0 100 100">
@@ -315,7 +315,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                   </div>
                 </div>
 
-                <div className="bg-white rounded-lg p-5 border border-border shadow-sm transition-all duration-300">
+                <div className="bg-card rounded-lg p-5 border border-border shadow-sm transition-all duration-300">
                   <div className="mb-2">
                     <p className="text-2xl font-bold text-foreground font-mono" data-testid="text-equity-invested">{formatMoney(totalInitialEquity)}</p>
                     <p className="text-sm text-foreground/60 label-text">Equity Invested</p>
@@ -325,16 +325,16 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                   </div>
                 </div>
 
-                <div className="bg-white rounded-lg p-5 border border-border shadow-sm transition-all duration-300">
+                <div className="bg-card rounded-lg p-5 border border-border shadow-sm transition-all duration-300">
                   <div className="mb-2">
-                    <p className="text-2xl font-bold text-[#257D41] font-mono" data-testid="text-exit-value">{formatMoney(totalExitValue)}</p>
+                    <p className="text-2xl font-bold text-emerald-700 font-mono" data-testid="text-exit-value">{formatMoney(totalExitValue)}</p>
                     <p className="text-sm text-foreground/60 label-text">Projected Exit</p>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <svg className="w-4 h-4 text-[#257D41]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="w-4 h-4 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
                     </svg>
-                    <span className="text-sm font-medium text-[#257D41] font-mono">+{exitGainPercent}% gain</span>
+                    <span className="text-sm font-medium text-emerald-700 font-mono">+{exitGainPercent}% gain</span>
                   </div>
                 </div>
               </div>
@@ -342,7 +342,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
           </AnimatedSection>
 
           <AnimatedSection>
-            <div className="bg-white rounded-lg border border-border shadow-sm p-6">
+            <div className="bg-card rounded-lg border border-border shadow-sm p-6">
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h3 className="text-lg font-semibold text-foreground font-display">Revenue & NOI</h3>
@@ -395,7 +395,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
 
           <AnimatedSection>
             <div className="grid gap-4 md:grid-cols-2">
-              <div className="bg-white/80 rounded-lg p-6 border border-primary/10 shadow-[0_2px_8px_rgba(var(--primary-rgb,159,188,164),0.08)]">
+              <div className="bg-card/80 rounded-lg p-6 border border-primary/10 shadow-[0_2px_8px_rgba(var(--primary-rgb,159,188,164),0.08)]">
                 <h3 className="text-sm font-semibold text-foreground mb-5 font-display">Portfolio Composition</h3>
                 <div className="space-y-4">
                   {[
@@ -407,13 +407,13 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                   ].map(row => (
                     <div key={row.label} className="flex justify-between items-center py-1 border-b border-foreground/5 last:border-0">
                       <span className="text-sm text-foreground/60 label-text">{row.label}</span>
-                      <span className={`font-semibold font-mono text-sm ${row.highlight ? 'text-[#257D41]' : 'text-foreground'}`}>{row.value}</span>
+                      <span className={`font-semibold font-mono text-sm ${row.highlight ? 'text-emerald-700' : 'text-foreground'}`}>{row.value}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="bg-white/80 rounded-lg p-6 border border-primary/10 shadow-[0_2px_8px_rgba(var(--primary-rgb,159,188,164),0.08)]">
+              <div className="bg-card/80 rounded-lg p-6 border border-primary/10 shadow-[0_2px_8px_rgba(var(--primary-rgb,159,188,164),0.08)]">
                 <h3 className="text-sm font-semibold text-foreground mb-5 font-display">Capital Structure</h3>
                 <div className="space-y-4">
                   {[
@@ -425,7 +425,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                   ].map(row => (
                     <div key={row.label} className="flex justify-between items-center py-1 border-b border-foreground/5 last:border-0">
                       <span className="text-sm text-foreground/60 label-text">{row.label}</span>
-                      <span className={`font-semibold font-mono text-sm ${row.highlight ? 'text-[#257D41]' : 'text-foreground'}`}>{row.value}</span>
+                      <span className={`font-semibold font-mono text-sm ${row.highlight ? 'text-emerald-700' : 'text-foreground'}`}>{row.value}</span>
                     </div>
                   ))}
                 </div>

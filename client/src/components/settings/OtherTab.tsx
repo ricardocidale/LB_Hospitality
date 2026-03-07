@@ -19,7 +19,7 @@ export function OtherTab({
 }) {
   return (
     <div className="space-y-6 mt-6">
-      <Card className="bg-white border-border shadow-sm">
+      <Card className="bg-card border-border shadow-sm">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 font-display">
             <Sliders className="w-5 h-5 text-primary" />
@@ -54,7 +54,7 @@ export function OtherTab({
         </CardContent>
       </Card>
 
-      <Card className="bg-white border-border shadow-sm">
+      <Card className="bg-card border-border shadow-sm">
         <CardHeader>
           <CardTitle className="flex items-center font-display">
             AI Research Model
@@ -69,7 +69,7 @@ export function OtherTab({
               value={currentGlobal.preferredLlm || "gpt-4o"}
               onValueChange={(value) => handleGlobalChange("preferredLlm", value)}
             >
-              <SelectTrigger className="bg-white" data-testid="select-preferred-llm">
+              <SelectTrigger className="bg-card" data-testid="select-preferred-llm">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

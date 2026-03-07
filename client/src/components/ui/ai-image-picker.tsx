@@ -249,7 +249,7 @@ export function AIImagePicker({
             data-testid={`${testId}-prompt`}
             className={cn(
               "resize-none",
-              isLight ? "bg-white border-border text-foreground placeholder:text-muted-foreground" : "bg-white border-border text-foreground placeholder:text-muted-foreground"
+              isLight ? "bg-card border-border text-foreground placeholder:text-muted-foreground" : "bg-card border-border text-foreground placeholder:text-muted-foreground"
             )}
           />
           <Button
@@ -289,7 +289,7 @@ export function AIImagePicker({
               onChange={(e) => setUrlInput(e.target.value)}
               placeholder="https://example.com/image.png"
               data-testid={`${testId}-url-input`}
-              className={isLight ? "bg-white border-border" : "bg-white border-border"}
+              className={isLight ? "bg-card border-border" : "bg-card border-border"}
             />
             <Button type="button" variant="outline" onClick={handleUrlSubmit} disabled={!urlInput.trim()} data-testid={`${testId}-url-submit`}>
               Apply

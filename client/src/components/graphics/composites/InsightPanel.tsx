@@ -37,7 +37,7 @@ export function InsightPanel({ insights, title, icon, variant = "glass", classNa
         {insights.map((insight, i) => {
           const config = typeConfig[insight.type || "neutral"];
           return (
-            <span key={i} className={`inline-flex items-center gap-1.5 text-xs ${config.color} bg-white/80 rounded-full px-3 py-1.5 border border-primary/10`}>
+            <span key={i} className={`inline-flex items-center gap-1.5 text-xs ${config.color} bg-card/80 rounded-full px-3 py-1.5 border border-primary/10`}>
               {config.icon}
               {insight.text}
               {insight.metric && <span className="font-mono font-semibold">{insight.metric}</span>}
@@ -84,7 +84,7 @@ export function InsightPanel({ insights, title, icon, variant = "glass", classNa
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2, duration: 0.4 }}
-      className={`rounded-lg p-5 bg-white/80 border border-primary/10 shadow-[0_2px_8px_rgba(var(--primary-rgb,159,188,164),0.08)] ${className || ""}`}
+      className={`rounded-lg p-5 bg-card/80 border border-primary/10 shadow-[0_2px_8px_rgba(var(--primary-rgb,159,188,164),0.08)] ${className || ""}`}
       data-testid={props["data-testid"]}
     >
       <div className="flex items-center gap-2 mb-3">

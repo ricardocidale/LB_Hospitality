@@ -54,7 +54,7 @@ export function PropertyTimeline({ milestones, title, className, ...props }: Pro
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className={`relative overflow-hidden rounded-lg p-6 bg-white border border-border shadow-sm ${className || ""}`}
+      className={`relative overflow-hidden rounded-lg p-6 bg-card border border-border shadow-sm ${className || ""}`}
       data-testid={props["data-testid"]}
     >
       {title && <h3 className="text-lg font-display text-foreground mb-6">{title}</h3>}

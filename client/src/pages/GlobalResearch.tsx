@@ -31,7 +31,7 @@ function MetricCard({ label, value, color }: { label: string; value: string; col
 
 function SectionCard({ icon: Icon, title, color, children }: { icon: any; title: string; color: typeof sectionColors.industry; children: React.ReactNode }) {
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-border overflow-hidden">
+    <div className="bg-card rounded-lg shadow-sm border border-border overflow-hidden">
       <div className="flex items-center gap-3 px-6 py-4 border-b border-border" style={{ borderLeftWidth: 4, borderLeftColor: color.accent }}>
         <div className={`w-9 h-9 rounded-lg ${color.iconBg} flex items-center justify-center`}>
           <Icon className={`w-[18px] h-[18px] ${color.iconText}`} />
@@ -218,7 +218,7 @@ export default function GlobalResearch() {
         )}
 
         {isGenerating && (
-          <div className="bg-white rounded-lg shadow-sm border border-border p-6">
+          <div className="bg-card rounded-lg shadow-sm border border-border p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
                 <Loader2 className="w-4 h-4 animate-spin text-emerald-700" />
@@ -234,7 +234,7 @@ export default function GlobalResearch() {
         )}
 
         {!hasResearch && !isGenerating && (
-          <div className="bg-white rounded-lg shadow-sm border border-border p-12 text-center">
+          <div className="bg-card rounded-lg shadow-sm border border-border p-12 text-center">
             <div className="w-20 h-20 mx-auto mb-6 rounded-lg bg-primary/10 flex items-center justify-center">
               <BookOpen className="w-10 h-10 text-primary" />
             </div>
@@ -258,7 +258,7 @@ export default function GlobalResearch() {
             </div>
             <button
               onClick={generateResearch}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-white font-semibold shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-semibold shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all"
             >
               <RefreshCw className="w-4 h-4" />
               Generate Research
@@ -409,7 +409,7 @@ export default function GlobalResearch() {
                 {content.financialBenchmarks.adrTrends && content.financialBenchmarks.adrTrends.length > 0 && (
                   <div className="mb-6">
                     <h4 className="text-sm font-medium text-foreground mb-3">ADR Trends</h4>
-                    <div className="bg-white rounded-lg border border-border overflow-hidden">
+                    <div className="bg-card rounded-lg border border-border overflow-hidden">
                       <table className="w-full text-sm">
                         <thead>
                           <tr className="bg-muted border-b border-border">
@@ -437,7 +437,7 @@ export default function GlobalResearch() {
                 {content.financialBenchmarks.occupancyTrends && content.financialBenchmarks.occupancyTrends.length > 0 && (
                   <div className="mb-6">
                     <h4 className="text-sm font-medium text-foreground mb-3">Occupancy Trends</h4>
-                    <div className="bg-white rounded-lg border border-border overflow-hidden">
+                    <div className="bg-card rounded-lg border border-border overflow-hidden">
                       <table className="w-full text-sm">
                         <thead>
                           <tr className="bg-muted border-b border-border">

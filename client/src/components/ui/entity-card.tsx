@@ -37,8 +37,8 @@ export function EntityCardContainer({
     <Card
       className={cn(
         variant === "featured"
-          ? "bg-white border-border shadow-sm"
-          : "bg-white border-border shadow-sm",
+          ? "bg-card border-border shadow-sm"
+          : "bg-card border-border shadow-sm",
         className
       )}
       data-testid={testId}
@@ -109,7 +109,7 @@ export function EntityCardItem({
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-3">
           {logoUrl ? (
-            <div className={cn("w-10 h-10 rounded-lg bg-white border", borderClass, "flex items-center justify-center overflow-hidden")}>
+            <div className={cn("w-10 h-10 rounded-lg bg-card border", borderClass, "flex items-center justify-center overflow-hidden")}>
               <img src={logoUrl} alt={logoAlt || name} className="max-w-full max-h-full object-contain" />
             </div>
           ) : (
@@ -148,7 +148,7 @@ export function EntityCardItem({
       {members && members.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {members.map(m => (
-            <span key={m.id} className={cn("inline-flex items-center gap-1 bg-white border", memberBorderClass, "rounded-full px-3 py-1 text-sm")}>
+            <span key={m.id} className={cn("inline-flex items-center gap-1 bg-card border", memberBorderClass, "rounded-full px-3 py-1 text-sm")}>
               <span className="font-medium">{m.label}</span>
             </span>
           ))}

@@ -238,7 +238,7 @@ export default function Scenarios() {
           variant="light"
         />
 
-        <Card className="relative overflow-hidden bg-white border-border shadow-sm">
+        <Card className="relative overflow-hidden bg-card border-border shadow-sm">
           
           <CardHeader className="relative">
             <div className="flex items-center justify-between">

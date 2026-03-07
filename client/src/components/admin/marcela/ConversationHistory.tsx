@@ -216,7 +216,7 @@ export function ConversationHistory() {
         </div>
       )}
 
-      <Card className="bg-white border border-border/80 shadow-sm">
+      <Card className="bg-card border border-border/80 shadow-sm">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">

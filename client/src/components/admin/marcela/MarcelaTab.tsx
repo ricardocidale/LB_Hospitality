@@ -68,7 +68,7 @@ export default function MarcelaTab() {
     return (
       <div className="space-y-6 mt-6">
         {[1, 2, 3].map((i) => (
-          <Card key={i} className="bg-white border border-border/80">
+          <Card key={i} className="bg-card border border-border/80">
             <CardHeader>
               <div className="h-6 w-48 bg-muted animate-pulse rounded" />
               <div className="h-4 w-72 bg-muted animate-pulse rounded mt-2" />
@@ -147,7 +147,7 @@ export default function MarcelaTab() {
 
         <div className="mt-6 space-y-6">
           <TabsContent value="general" className="space-y-6 m-0 focus-visible:outline-none">
-            <Card className="bg-white border border-border/80 shadow-sm">
+            <Card className="bg-card border border-border/80 shadow-sm">
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -176,7 +176,7 @@ export default function MarcelaTab() {
                     value={draft.aiAgentName}
                     onChange={(e) => updateField("aiAgentName", e.target.value)}
                     placeholder="Enter the AI agent's display name"
-                    className="bg-white border-border focus:border-border transition-colors max-w-sm"
+                    className="bg-card border-border focus:border-border transition-colors max-w-sm"
                     data-testid="input-ai-agent-name"
                   />
                   <p className="text-xs text-muted-foreground/70 pl-6">
@@ -213,7 +213,7 @@ export default function MarcelaTab() {
               </CardContent>
             </Card>
 
-            <Card className="bg-white border border-border/80 shadow-sm">
+            <Card className="bg-card border border-border/80 shadow-sm">
               <CardHeader className="pb-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0">
@@ -238,7 +238,7 @@ export default function MarcelaTab() {
                     value={draft.marcelaAgentId}
                     onChange={(e) => updateField("marcelaAgentId", e.target.value)}
                     placeholder="Enter your ElevenLabs Agent ID"
-                    className="bg-white font-mono text-sm border-border focus:border-border transition-colors"
+                    className="bg-card font-mono text-sm border-border focus:border-border transition-colors"
                     data-testid="input-ai-agent-id"
                   />
                   <p className="text-xs text-muted-foreground/70">
@@ -283,7 +283,7 @@ export default function MarcelaTab() {
               ];
               const allHealthy = healthItems.every(h => h.ok);
               return (
-                <Card className="bg-white border border-border/80 shadow-sm">
+                <Card className="bg-card border border-border/80 shadow-sm">
                   <CardHeader className="pb-3">
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">

@@ -41,7 +41,7 @@ export function DesignCheckPanel({ results }: DesignCheckPanelProps) {
 
       <div className="space-y-2">
         {results.checks.map((check, idx) => (
-          <div key={idx} className="flex items-center gap-4 p-3 rounded-lg bg-white border border-border hover:border-secondary/20 transition-all shadow-sm">
+          <div key={idx} className="flex items-center gap-4 p-3 rounded-lg bg-card border border-border hover:border-secondary/20 transition-all shadow-sm">
             {check.status === 'pass' ? <CheckCircle2 className="w-5 h-5 text-secondary shrink-0" /> :
              check.status === 'warning' ? <AlertTriangle className="w-5 h-5 text-yellow-500 shrink-0" /> :
              <XCircle className="w-5 h-5 text-red-500 shrink-0" />}

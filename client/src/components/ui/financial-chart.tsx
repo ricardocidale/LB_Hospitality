@@ -74,7 +74,7 @@ function FinancialChart({
     <div
       ref={chartRef}
       className={cn(
-        "rounded-lg p-5 bg-white border border-border shadow-sm",
+        "rounded-lg p-5 bg-card border border-border shadow-sm",
         className
       )}
     >

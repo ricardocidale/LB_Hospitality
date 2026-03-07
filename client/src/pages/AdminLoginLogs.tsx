@@ -47,7 +47,7 @@ export default function AdminLoginLogs() {
           variant="dark"
         />
 
-        <Card className="relative overflow-hidden bg-white border border-border shadow-sm rounded-lg">
+        <Card className="relative overflow-hidden bg-card border border-border shadow-sm rounded-lg">
           
           <CardHeader className="relative">
             <div className="flex items-center gap-3">

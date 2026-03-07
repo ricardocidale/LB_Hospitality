@@ -73,7 +73,7 @@ export default function CommandPalette() {
 
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
-      <div className="bg-white border border-border rounded-xl overflow-hidden shadow-xl">
+      <div className="bg-card border border-border rounded-xl overflow-hidden shadow-xl">
         <CommandInput
           placeholder="Type a command or search..."
           className="text-foreground placeholder:text-muted-foreground"

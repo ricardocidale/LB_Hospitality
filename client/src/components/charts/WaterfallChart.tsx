@@ -79,7 +79,7 @@ function CustomTooltipContent({ active, payload, formatValue }: CustomTooltipPro
   if (!active || !payload?.length) return null;
   const item = payload[0].payload;
   return (
-    <div className="bg-white border border-border rounded-lg px-3 py-2 shadow-md text-sm">
+    <div className="bg-card border border-border rounded-lg px-3 py-2 shadow-md text-sm">
       <p className="font-medium">{item.label}</p>
       <p className="text-muted-foreground">{formatValue(item.value)}</p>
     </div>
@@ -91,7 +91,7 @@ export default function WaterfallChart({ steps, title, formatValue }: WaterfallC
   const data = buildChartData(steps);
 
   return (
-    <div data-testid="waterfall-chart" className="bg-white rounded-xl border border-border shadow-sm p-6">
+    <div data-testid="waterfall-chart" className="bg-card rounded-xl border border-border shadow-sm p-6">
       {title && <h3 className="text-lg font-semibold mb-4">{title}</h3>}
       <ResponsiveContainer width="100%" height={350}>
         <BarChart data={data}>

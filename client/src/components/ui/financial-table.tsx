@@ -76,7 +76,7 @@ function FinancialTable({
       ref={tableRef}
       className={cn(
         "rounded-lg p-6 shadow-sm border",
-        isDark ? "bg-white border-border" : "bg-white border-border",
+        isDark ? "bg-card border-border" : "bg-card border-border",
         className
       )}
       data-testid={props["data-testid"]}

@@ -28,7 +28,7 @@ import type { ManagementFeesSectionProps } from "./types";
 
 export default function ManagementFeesSection({ draft, onChange, researchValues, feeDraft, onFeeCategoryChange, totalServiceFeeRate }: ManagementFeesSectionProps) {
   return (
-    <div className="relative overflow-hidden rounded-lg border border-border bg-white shadow-sm">
+    <div className="relative overflow-hidden rounded-lg border border-border bg-card shadow-sm">
       <div className="relative p-6">
         <div className="mb-6">
           <h3 className="text-xl font-display text-foreground flex items-center">
@@ -83,7 +83,7 @@ export default function ManagementFeesSection({ draft, onChange, researchValues,
                       title={cat.isActive ? "Disable this fee" : "Enable this fee"}
                       data-testid={`toggle-fee-${cat.name.toLowerCase().replace(/\s+/g, '-')}`}
                     >
-                      <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${cat.isActive ? 'right-0.5' : 'left-0.5'}`} />
+                      <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-card shadow transition-transform ${cat.isActive ? 'right-0.5' : 'left-0.5'}`} />
                     </button>
                   </div>
                 </div>

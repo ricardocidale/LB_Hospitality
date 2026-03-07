@@ -185,7 +185,7 @@ export default function UserGroupsTab() {
   return (
     <>
     <div className="space-y-6">
-      <Card className="bg-white border border-border/80 shadow-sm">
+      <Card className="bg-card border border-border/80 shadow-sm">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
@@ -220,7 +220,7 @@ export default function UserGroupsTab() {
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-3">
                         {groupLogo ? (
-                          <div className="w-10 h-10 rounded-lg bg-white border border-border flex items-center justify-center overflow-hidden">
+                          <div className="w-10 h-10 rounded-lg bg-card border border-border flex items-center justify-center overflow-hidden">
                             <img src={groupLogo.url} alt={groupLogo.name} className="max-w-full max-h-full object-contain" />
                           </div>
                         ) : (
@@ -348,7 +348,7 @@ export default function UserGroupsTab() {
         </CardContent>
       </Card>
 
-      <Card className="bg-white border border-border/80 shadow-sm">
+      <Card className="bg-card border border-border/80 shadow-sm">
         <CardHeader>
           <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2"><UserPlus className="w-4 h-4 text-muted-foreground" /> Assign Users to Groups</CardTitle>
           <CardDescription className="label-text">Set which group each user belongs to. Group branding overrides defaults.</CardDescription>

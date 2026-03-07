@@ -129,7 +129,7 @@ export default function LogosTab() {
     `flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 border ${
       active
         ? "bg-gradient-to-b from-primary/15 to-primary/25 border-primary/40 text-foreground shadow-sm"
-        : "bg-white border border-border text-muted-foreground hover:text-foreground hover:border-border hover:bg-muted"
+        : "bg-card border border-border text-muted-foreground hover:text-foreground hover:border-border hover:bg-muted"
     }`;
 
   const isBusy = isGenerating || isEnhancing || isUploadingFile || createLogoMutation.isPending;
@@ -137,7 +137,7 @@ export default function LogosTab() {
   return (
     <>
     <div className="space-y-6">
-      <Card className="bg-white border border-border/80 shadow-sm">
+      <Card className="bg-card border border-border/80 shadow-sm">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
@@ -210,11 +210,11 @@ export default function LogosTab() {
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
               <Label className="flex items-center gap-2 text-foreground"><Tag className="w-3.5 h-3.5 text-muted-foreground/60" />Logo Name</Label>
-              <Input value={logoName} onChange={(e) => setLogoName(e.target.value)} placeholder="e.g., Company Logo" disabled={isBusy} data-testid="input-logo-name" className="bg-white border-border" />
+              <Input value={logoName} onChange={(e) => setLogoName(e.target.value)} placeholder="e.g., Company Logo" disabled={isBusy} data-testid="input-logo-name" className="bg-card border-border" />
             </div>
             <div className="space-y-2">
               <Label className="flex items-center gap-2 text-foreground"><Building2 className="w-3.5 h-3.5 text-muted-foreground/60" />Company Name</Label>
-              <Input value={logoCompanyName} onChange={(e) => setLogoCompanyName(e.target.value)} placeholder="e.g., Hotel Group" disabled={isBusy} data-testid="input-logo-company-name" className="bg-white border-border" />
+              <Input value={logoCompanyName} onChange={(e) => setLogoCompanyName(e.target.value)} placeholder="e.g., Hotel Group" disabled={isBusy} data-testid="input-logo-company-name" className="bg-card border-border" />
             </div>
           </div>
 
@@ -253,7 +253,7 @@ export default function LogosTab() {
                       placeholder="e.g., Modern minimalist logo for a boutique hotel management company with elegant green tones..."
                       rows={3}
                       disabled={isBusy}
-                      className="resize-none bg-white border-border text-sm"
+                      className="resize-none bg-card border-border text-sm"
                       data-testid="input-ai-prompt"
                     />
                   </div>
@@ -291,7 +291,7 @@ export default function LogosTab() {
                       <Wand2 className="w-4 h-4 text-amber-600" />
                       <span className="text-xs font-medium text-amber-700 uppercase tracking-wide">AI-Enhanced Prompt</span>
                     </div>
-                    <Textarea value={enhancedPrompt} onChange={(e) => setEnhancedPrompt(e.target.value)} rows={4} className="resize-none bg-white border-border text-sm" data-testid="input-enhanced-prompt" />
+                    <Textarea value={enhancedPrompt} onChange={(e) => setEnhancedPrompt(e.target.value)} rows={4} className="resize-none bg-card border-border text-sm" data-testid="input-enhanced-prompt" />
                     <p className="text-xs text-muted-foreground">You can edit the enhanced prompt above</p>
                   </div>
                   <div className="flex gap-2">
@@ -301,7 +301,7 @@ export default function LogosTab() {
                     <Button type="button" variant="outline" onClick={() => { setAiPrompt(enhancedPrompt); setAiStep("describe"); setEnhancedPrompt(""); }} className="border-primary/30 text-foreground hover:bg-muted" data-testid="btn-edit-enhanced">
                       <Pencil className="w-4 h-4 mr-1.5" /> Edit Further
                     </Button>
-                    <Button type="button" onClick={() => handleGenerateLogo(enhancedPrompt)} className="flex-1 bg-gradient-to-b from-primary/70 to-primary/90 text-white hover:from-primary/80 hover:to-primary border-0 shadow-sm" data-testid="btn-generate-enhanced">
+                    <Button type="button" onClick={() => handleGenerateLogo(enhancedPrompt)} className="flex-1 bg-gradient-to-b from-primary/70 to-primary/90 text-primary-foreground hover:from-primary/80 hover:to-primary border-0 shadow-sm" data-testid="btn-generate-enhanced">
                       <ArrowRight className="w-4 h-4 mr-1.5" /> Generate Logo
                     </Button>
                   </div>
@@ -343,7 +343,7 @@ export default function LogosTab() {
           {!logoUrl && logoMode === "url" && (
             <div className="space-y-3">
               <div className="flex gap-2">
-                <Input value={urlInput} onChange={(e) => setUrlInput(e.target.value)} placeholder="https://example.com/logo.png" className="bg-white border-border" data-testid="input-logo-url" />
+                <Input value={urlInput} onChange={(e) => setUrlInput(e.target.value)} placeholder="https://example.com/logo.png" className="bg-card border-border" data-testid="input-logo-url" />
                 <Button type="button" variant="outline" onClick={() => { setLogoUrl(urlInput.trim()); setUrlInput(""); }} disabled={!urlInput.trim()} className="border-primary/30 text-foreground" data-testid="btn-apply-url">
                   <Check className="w-4 h-4 mr-1.5" /> Apply
                 </Button>

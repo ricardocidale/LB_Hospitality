@@ -178,7 +178,7 @@ export default function AdminSidebar({ activeSection, onSectionChange }: AdminSi
 
       {mobileOpen && (
         <div
-          className="lg:hidden fixed inset-0 z-40 bg-black/20 backdrop-blur-sm"
+          className="lg:hidden fixed inset-0 z-40 bg-foreground/20 backdrop-blur-sm"
           onClick={() => setMobileOpen(false)}
         />
       )}
@@ -192,7 +192,7 @@ export default function AdminSidebar({ activeSection, onSectionChange }: AdminSi
           mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
       >
-        <div className="h-full lg:h-auto bg-white border border-border/80 rounded-none lg:rounded-xl shadow-sm overflow-hidden">
+        <div className="h-full lg:h-auto bg-card border border-border/80 rounded-none lg:rounded-xl shadow-sm overflow-hidden">
           <div className="px-4 pt-4 pb-3 border-b border-border/80">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">

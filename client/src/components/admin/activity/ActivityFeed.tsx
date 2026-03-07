@@ -26,7 +26,7 @@ export function ActivityFeed({
 }: ActivityFeedProps) {
   return (
     <div className="space-y-6">
-      <Card className="bg-white border border-border/80 shadow-sm">
+      <Card className="bg-card border border-border/80 shadow-sm">
         <CardContent className="relative p-6">
           <div className="flex flex-wrap items-center gap-4">
             <div className="flex items-center gap-2">
@@ -63,7 +63,7 @@ export function ActivityFeed({
         </CardContent>
       </Card>
 
-      <Card className="bg-white border border-border/80 shadow-sm">
+      <Card className="bg-card border border-border/80 shadow-sm">
         <CardContent className="p-6">
           {activityLogsLoading ? (
             <div className="flex items-center justify-center py-12">

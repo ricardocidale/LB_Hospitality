@@ -71,7 +71,7 @@ export default function Login() {
           </h1>
         </div>
 
-        <div className="bg-white rounded-lg border border-border shadow-sm p-6 sm:p-8">
+        <div className="bg-card rounded-lg border border-border shadow-sm p-6 sm:p-8">
           <div className="mb-6 text-center">
             <h2 className="text-xl font-semibold text-foreground mb-1">Welcome back</h2>
             <p className="text-sm text-muted-foreground">Sign in to access the simulation portal</p>
@@ -87,7 +87,7 @@ export default function Login() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="m@example.com"
                 required
-                className="h-10 bg-white"
+                className="h-10 bg-card"
                 data-testid="input-email"
               />
             </div>
@@ -104,7 +104,7 @@ export default function Login() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
                   required
-                  className="h-10 bg-white pr-10"
+                  className="h-10 bg-card pr-10"
                   data-testid="input-password"
                 />
                 <button

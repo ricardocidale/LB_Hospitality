@@ -25,7 +25,7 @@ export function MetricRow({ label, values, tooltip, highlights }: MetricRowProps
   const showDetails = useCalcDetails();
   return (
     <TableRow>
-      <TableCell className="pl-6 sticky left-0 bg-white py-1">
+      <TableCell className="pl-6 sticky left-0 bg-card py-1">
         <span className="flex items-center gap-1">
           {label}
           {showDetails && tooltip && <HelpTooltip text={tooltip} />}
@@ -59,7 +59,7 @@ interface MarginRowProps {
 export function MarginRow({ label, values, baseValues }: MarginRowProps) {
   return (
     <TableRow>
-      <TableCell className="sticky left-0 bg-white py-0.5 text-xs text-muted-foreground italic pl-6">
+      <TableCell className="sticky left-0 bg-card py-0.5 text-xs text-muted-foreground italic pl-6">
         {label}
       </TableCell>
       {values.map((v, i) => {

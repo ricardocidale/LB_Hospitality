@@ -55,7 +55,7 @@ export function SearchForm({
 }) {
   return (
     <form onSubmit={onSubmit} data-testid="form-search">
-      <div className="bg-white rounded-2xl shadow-sm border border-primary/20 overflow-hidden">
+      <div className="bg-card rounded-2xl shadow-sm border border-primary/20 overflow-hidden">
         <div className="h-1 bg-gradient-to-r from-primary via-[#7aaa8a] to-primary" />
         <div className="p-5 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -158,7 +158,7 @@ export function SearchForm({
                         type="button"
                         onClick={onSaveSearch}
                         disabled={isSaveSearchPending}
-                        className="p-2 rounded-lg bg-primary hover:bg-[#8aab93] text-white transition-colors"
+                        className="p-2 rounded-lg bg-primary hover:bg-primary/80 text-primary-foreground transition-colors"
                         data-testid="btn-confirm-save-search"
                       >
                         {isSaveSearchPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
@@ -175,7 +175,7 @@ export function SearchForm({
                     <button
                       type="button"
                       onClick={() => setShowSaveDialog(true)}
-                      className="flex items-center gap-1.5 text-xs text-primary hover:text-[#7aaa8a] transition-colors"
+                      className="flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 transition-colors"
                       data-testid="btn-save-search"
                     >
                       <Bookmark className="w-3.5 h-3.5" /> Save This Search
@@ -187,7 +187,7 @@ export function SearchForm({
             <button
               type="submit"
               disabled={isSearching}
-              className="bg-primary hover:bg-[#8aab93] text-white font-semibold px-6 py-2.5 rounded-xl transition-colors flex items-center gap-2 disabled:opacity-50"
+              className="bg-primary hover:bg-primary/80 text-primary-foreground font-semibold px-6 py-2.5 rounded-xl transition-colors flex items-center gap-2 disabled:opacity-50"
               data-testid="btn-search"
             >
               {isSearching ? (

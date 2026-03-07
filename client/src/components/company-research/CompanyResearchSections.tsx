@@ -43,7 +43,7 @@ export function CompanyResearchSections({ content }: { content: any }) {
                   </p>
                 )}
                 {content.managementFees.baseFee.sources && (
-                  <div className="bg-white rounded-lg border border-border overflow-hidden">
+                  <div className="bg-card rounded-lg border border-border overflow-hidden">
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="bg-muted border-b border-border">
@@ -79,7 +79,7 @@ export function CompanyResearchSections({ content }: { content: any }) {
                   </p>
                 )}
                 {content.managementFees.incentiveFee.sources && (
-                  <div className="bg-white rounded-lg border border-border overflow-hidden">
+                  <div className="bg-card rounded-lg border border-border overflow-hidden">
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="bg-muted border-b border-border">
@@ -129,7 +129,7 @@ export function CompanyResearchSections({ content }: { content: any }) {
           {content.industryBenchmarks.operatingExpenseRatios && content.industryBenchmarks.operatingExpenseRatios.length > 0 && (
             <div className="mb-6">
               <h4 className="text-sm font-medium text-foreground mb-3">Operating Expense Ratios (USALI)</h4>
-              <div className="bg-white rounded-lg border border-border overflow-hidden">
+              <div className="bg-card rounded-lg border border-border overflow-hidden">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="bg-muted border-b border-border">
@@ -181,7 +181,7 @@ export function CompanyResearchSections({ content }: { content: any }) {
 
       {content.contractTerms && content.contractTerms.length > 0 && (
         <SectionCard icon={FileText} title="Typical Contract Terms" color={companySectionColors.contracts}>
-          <div className="bg-white rounded-lg border border-border overflow-hidden">
+          <div className="bg-card rounded-lg border border-border overflow-hidden">
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-muted border-b border-border">

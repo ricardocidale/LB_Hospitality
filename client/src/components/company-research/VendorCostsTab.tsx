@@ -42,7 +42,7 @@ export function VendorCostsTab({ content }: VendorCostsTabProps) {
         <p className="text-xs text-muted-foreground mb-4">
           Standard vendor markup percentages and effective margins for hospitality management company services.
         </p>
-        <div className="bg-white rounded-lg border border-border overflow-hidden">
+        <div className="bg-card rounded-lg border border-border overflow-hidden">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-muted border-b border-border">

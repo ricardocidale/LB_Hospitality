@@ -178,7 +178,7 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
         </div>
         )}
 
-        <div className="bg-white rounded-xl border border-border p-4 shadow-sm">
+        <div className="bg-card rounded-xl border border-border p-4 shadow-sm">
           <div className="flex items-start gap-3">
             <svg className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M12 22v-8.3a4 4 0 0 0-1.172-2.872L3 3"/><path d="m15 9 6-6"/></svg>
             <div>
@@ -192,7 +192,7 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-border p-5 shadow-sm">
+        <div className="bg-card rounded-xl border border-border p-5 shadow-sm">
           <h2 className="text-sm font-semibold text-foreground mb-3" data-testid="text-selector-heading">
             Select Properties ({selectedIds.length}/4)
           </h2>
@@ -240,7 +240,7 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
             variant="light"
           />
           <ScrollReveal>
-            <div ref={chartRef} className="bg-white rounded-xl border border-border shadow-sm p-6">
+            <div ref={chartRef} className="bg-card rounded-xl border border-border shadow-sm p-6">
               <h3 className="text-lg font-display text-foreground mb-4">Performance Comparison</h3>
               <ResponsiveContainer width="100%" height={320}>
                 <RadarChart data={[
@@ -299,7 +299,7 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
               return insights;
             })()}
           />
-          <div ref={tableRef} className="bg-white rounded-xl border border-border shadow-sm overflow-x-auto">
+          <div ref={tableRef} className="bg-card rounded-xl border border-border shadow-sm overflow-x-auto">
             <table className="w-full text-sm" data-testid="table-comparison">
               <thead>
                 <tr>
@@ -323,7 +323,7 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
                   return (
                     <tr
                       key={metric.key}
-                      className={idx % 2 === 0 ? "bg-white" : "bg-muted/60"}
+                      className={idx % 2 === 0 ? "bg-card" : "bg-muted/60"}
                       data-testid={`row-${metric.key}`}
                     >
                       <td className="px-4 py-3 font-medium text-foreground border-r border-border">
@@ -355,7 +355,7 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
           </div>
         </>
         ) : (
-          <div className="bg-white rounded-xl border border-border p-12 text-center shadow-sm">
+          <div className="bg-card rounded-xl border border-border p-12 text-center shadow-sm">
             <p className="text-muted-foreground text-lg" data-testid="text-empty-state">
               {selectedIds.length === 0
                 ? "Select at least 2 properties above to begin comparing."

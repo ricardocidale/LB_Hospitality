@@ -40,7 +40,7 @@ export function PortfolioPropertyCard({ property, propertyNumber, onDelete }: Po
           />
           <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-card to-transparent" />
           <div className="absolute bottom-3 left-3">
-            <span className="w-7 h-7 flex items-center justify-center rounded-full bg-black/40 text-white/80 text-xs font-mono font-semibold border border-white/15">
+            <span className="w-7 h-7 flex items-center justify-center rounded-full bg-foreground/40 text-white/80 text-xs font-mono font-semibold border border-white/15">
               {propertyNumber}
             </span>
           </div>
@@ -49,8 +49,8 @@ export function PortfolioPropertyCard({ property, propertyNumber, onDelete }: Po
               data-testid={`badge-type-${property.id}`}
               className={`px-3 py-1 rounded-full text-xs font-medium label-text ${
                 property.type === "Financed" 
-                  ? "bg-secondary text-white border border-white/20" 
-                  : "bg-primary text-white border border-white/20"
+                  ? "bg-secondary text-secondary-foreground border border-white/20" 
+                  : "bg-primary text-primary-foreground border border-white/20"
               }`}
             >
               {property.type}
@@ -63,7 +63,7 @@ export function PortfolioPropertyCard({ property, propertyNumber, onDelete }: Po
               property.status === "Acquired" ? "bg-blue-500 text-white" :
               property.status === "Planned" ? "bg-sky-500 text-white" :
               property.status === "In Negotiation" ? "bg-purple-500 text-white" :
-              property.status === "Pipeline" ? "bg-muted0 text-white" : "bg-white/20 text-white"
+              property.status === "Pipeline" ? "bg-muted0 text-white" : "bg-card/20 text-white"
             }`}>
               {property.status}
             </span>
@@ -103,7 +103,7 @@ export function PortfolioPropertyCard({ property, propertyNumber, onDelete }: Po
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <button className="relative overflow-hidden p-2 rounded-lg text-background/50 hover:text-red-400 transition-all duration-300 group/del">
-                <div className="absolute inset-0 bg-white/0 group-hover/del:bg-white/5 rounded-lg transition-all duration-300" />
+                <div className="absolute inset-0 bg-card/0 group-hover/del:bg-card/5 rounded-lg transition-all duration-300" />
                 <Trash2 className="w-4 h-4 relative" />
               </button>
             </AlertDialogTrigger>
@@ -128,7 +128,7 @@ export function PortfolioPropertyCard({ property, propertyNumber, onDelete }: Po
 
           <Link href={`/property/${property.id}`}>
             <button 
-              className="relative overflow-hidden px-4 py-2 text-sm font-medium text-white rounded-lg transition-all duration-300 group/btn bg-white/10 border border-white/20 hover:border-white/40"
+              className="relative overflow-hidden px-4 py-2 text-sm font-medium text-white rounded-lg transition-all duration-300 group/btn bg-card/10 border border-white/20 hover:border-white/40"
             >
               <span className="relative flex items-center">View Details <ArrowRight className="w-4 h-4 ml-2" /></span>
             </button>

@@ -8,7 +8,7 @@ interface VerificationHistoryProps {
 
 export function VerificationHistory({ history }: VerificationHistoryProps) {
   return (
-    <div className="rounded-xl border border-border overflow-hidden bg-white shadow-sm">
+    <div className="rounded-xl border border-border overflow-hidden bg-card shadow-sm">
       <Table>
         <TableHeader className="bg-muted/50">
           <TableRow>

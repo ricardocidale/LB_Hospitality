@@ -37,7 +37,7 @@ export function OverheadBenchmarksTab({ content }: OverheadBenchmarksTabProps) {
         <p className="text-xs text-muted-foreground mb-4">
           Typical G&A cost ranges for boutique hotel management companies.
         </p>
-        <div className="bg-white rounded-lg border border-border overflow-hidden">
+        <div className="bg-card rounded-lg border border-border overflow-hidden">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-muted border-b border-border">
@@ -65,7 +65,7 @@ export function OverheadBenchmarksTab({ content }: OverheadBenchmarksTabProps) {
         </p>
         <div className="space-y-4">
           {SCALE_BENCHMARKS.map((s, i) => (
-            <div key={i} className="bg-white rounded-lg border border-border p-4">
+            <div key={i} className="bg-card rounded-lg border border-border p-4">
               <h4 className="text-sm font-medium text-foreground mb-2">{s.stage}</h4>
               <div className="grid grid-cols-3 gap-3">
                 <MetricCard label="G&A % of Revenue" value={s.gaPct} color={companySectionColors.compensation} />

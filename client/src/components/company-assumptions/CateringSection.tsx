@@ -9,7 +9,7 @@
  */
 export default function CateringSection() {
   return (
-    <div className="relative overflow-hidden rounded-lg p-6 bg-white border border-border shadow-sm">
+    <div className="relative overflow-hidden rounded-lg p-6 bg-card border border-border shadow-sm">
       <div className="relative">
       <div className="space-y-4">
         <h3 className="text-lg font-display text-foreground flex items-center gap-2">

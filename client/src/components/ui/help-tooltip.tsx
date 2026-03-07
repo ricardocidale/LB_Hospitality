@@ -29,7 +29,7 @@ export function HelpTooltip({ text, light = false, side = "top", manualSection, 
           className={`inline-flex items-center justify-center ml-1.5 cursor-help rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 ${
             light
               ? "text-white/50 hover:text-white"
-              : "text-primary hover:text-[#7A9E82]"
+              : "text-primary hover:text-primary/80"
           }`}
           aria-label="Help"
           data-testid="help-tooltip-trigger"

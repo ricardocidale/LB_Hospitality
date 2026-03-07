@@ -218,7 +218,7 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
                       style={{ cursor: row.rowId ? 'pointer' : 'default' }}
                     >
                       <TableCell 
-                        className="sticky left-0 bg-white z-10"
+                        className="sticky left-0 bg-card z-10"
                         style={{ paddingLeft: row.indent ? `${row.indent * 1.5 + 1}rem` : '1rem' }}
                       >
                         <div className="flex items-center gap-2">

@@ -65,7 +65,7 @@ interface CurrentThemeTabProps {
 
 function CurrentThemeTab({ tabs, activeTab, onTabChange, rightContent }: CurrentThemeTabProps) {
   return (
-    <div className="rounded-xl border border-border/80 bg-white shadow-sm">
+    <div className="rounded-xl border border-border/80 bg-card shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-1 p-1">
         <div className="flex flex-wrap gap-0.5">
           {tabs.map((tab) => {

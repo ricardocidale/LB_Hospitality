@@ -55,7 +55,7 @@ export function InputField({
           min={min}
           max={max}
           data-testid={testId}
-          className={`w-full bg-white border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder-gray-300 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 ${prefix ? "pl-7" : ""} ${suffix ? "pr-10" : ""}`}
+          className={`w-full bg-card border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder-gray-300 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 ${prefix ? "pl-7" : ""} ${suffix ? "pr-10" : ""}`}
         />
         {suffix && (
           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">

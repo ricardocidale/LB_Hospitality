@@ -60,7 +60,7 @@ export function IndustryResearchTab({
 }: IndustryResearchTabProps) {
   return (
     <div className="space-y-6 mt-6">
-      <Card className="bg-white border-border shadow-sm">
+      <Card className="bg-card border-border shadow-sm">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 font-display">
             <Globe className="w-5 h-5 text-primary" />
@@ -98,16 +98,16 @@ export function IndustryResearchTab({
             <div className="rounded-xl p-3 bg-muted border border-border col-span-2">
               <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1">Features</p>
               <div className="flex flex-wrap gap-1.5" data-testid="text-research-features">
-                {currentGlobal.assetDefinition?.hasFB && <span className="text-xs bg-white px-2 py-0.5 rounded-full border border-border">F&B</span>}
-                {currentGlobal.assetDefinition?.hasEvents && <span className="text-xs bg-white px-2 py-0.5 rounded-full border border-border">Events</span>}
-                {currentGlobal.assetDefinition?.hasWellness && <span className="text-xs bg-white px-2 py-0.5 rounded-full border border-border">Wellness</span>}
+                {currentGlobal.assetDefinition?.hasFB && <span className="text-xs bg-card px-2 py-0.5 rounded-full border border-border">F&B</span>}
+                {currentGlobal.assetDefinition?.hasEvents && <span className="text-xs bg-card px-2 py-0.5 rounded-full border border-border">Events</span>}
+                {currentGlobal.assetDefinition?.hasWellness && <span className="text-xs bg-card px-2 py-0.5 rounded-full border border-border">Wellness</span>}
               </div>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      <Card className="bg-white border-border shadow-sm">
+      <Card className="bg-card border-border shadow-sm">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 font-display">
             <Search className="w-5 h-5 text-primary" />
@@ -198,7 +198,7 @@ export function IndustryResearchTab({
                         <Input
                           value={editingQuestionText}
                           onChange={(e) => setEditingQuestionText(e.target.value)}
-                          className="flex-1 text-sm bg-white"
+                          className="flex-1 text-sm bg-card"
                           autoFocus
                           onKeyDown={(e) => {
                             if (e.key === "Enter" && editingQuestionText.trim()) {
@@ -240,7 +240,7 @@ export function IndustryResearchTab({
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="h-8 w-8 p-0 text-muted-foreground hover:text-primary hover:bg-white"
+                            className="h-8 w-8 p-0 text-muted-foreground hover:text-primary hover:bg-card"
                             onClick={() => {
                               setEditingQuestionId(q.id);
                               setEditingQuestionText(q.question);
@@ -252,7 +252,7 @@ export function IndustryResearchTab({
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive hover:bg-white"
+                            className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive hover:bg-card"
                             onClick={() => deleteQuestion.mutate(q.id)}
                             data-testid={`button-delete-question-${q.id}`}
                           >
@@ -277,7 +277,7 @@ export function IndustryResearchTab({
                     setNewQuestion("");
                   }
                 }}
-                className="bg-white text-sm"
+                className="bg-card text-sm"
                 data-testid="input-new-research-question"
               />
               <Button

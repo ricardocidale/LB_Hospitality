@@ -61,7 +61,7 @@ export function CompetitiveLandscapeTab({ content }: CompetitiveLandscapeTabProp
         </p>
         <div className="space-y-4">
           {COMPETITOR_TYPES.map((c, i) => (
-            <div key={i} className="bg-white rounded-lg border border-border p-4">
+            <div key={i} className="bg-card rounded-lg border border-border p-4">
               <div className="flex items-start justify-between gap-4 mb-2">
                 <h4 className="text-sm font-medium text-foreground">{c.type}</h4>
                 <span className="text-[10px] text-muted-foreground bg-muted rounded-full px-2 py-0.5 whitespace-nowrap">{c.examples}</span>

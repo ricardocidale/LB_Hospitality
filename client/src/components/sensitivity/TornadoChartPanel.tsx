@@ -10,7 +10,7 @@ interface TornadoChartPanelProps {
 
 export function TornadoChartPanel({ tornadoData, tornadoMetric, onMetricChange }: TornadoChartPanelProps) {
   return (
-    <div className="bg-white/80 rounded-lg p-6 border border-primary/10 shadow-[0_2px_8px_rgba(var(--primary-rgb,159,188,164),0.08)]">
+    <div className="bg-card/80 rounded-lg p-6 border border-primary/10 shadow-[0_2px_8px_rgba(var(--primary-rgb,159,188,164),0.08)]">
       <div className="flex items-center gap-3 mb-6">
         <div className="w-10 h-10 rounded-lg bg-primary/15 flex items-center justify-center">
           <BarChart3 className="w-5 h-5 text-secondary" />
@@ -99,11 +99,11 @@ export function TornadoChartPanel({ tornadoData, tornadoMetric, onMetricChange }
       )}
       <div className="flex items-center justify-center gap-6 mt-4 text-xs text-muted-foreground">
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-sm bg-[#257D41]" />
+          <div className="w-3 h-3 rounded-sm bg-emerald-700" />
           <span>Upside scenario</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-sm bg-[#F4795B]" />
+          <div className="w-3 h-3 rounded-sm bg-destructive" />
           <span>Downside scenario</span>
         </div>
       </div>

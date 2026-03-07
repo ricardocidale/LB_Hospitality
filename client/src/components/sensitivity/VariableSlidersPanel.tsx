@@ -9,7 +9,7 @@ interface VariableSlidersPanelProps {
 
 export function VariableSlidersPanel({ variables, adjustments, onAdjustmentChange }: VariableSlidersPanelProps) {
   return (
-    <div className="bg-white/80 rounded-lg p-6 border border-primary/10 shadow-[0_2px_8px_rgba(var(--primary-rgb,159,188,164),0.08)]">
+    <div className="bg-card/80 rounded-lg p-6 border border-primary/10 shadow-[0_2px_8px_rgba(var(--primary-rgb,159,188,164),0.08)]">
       <div className="flex items-center gap-3 mb-6">
         <div className="w-10 h-10 rounded-lg bg-primary/15 flex items-center justify-center">
           <Sliders className="w-5 h-5 text-secondary" />

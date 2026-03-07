@@ -386,7 +386,7 @@ export default function MapView() {
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         <div className="lg:col-span-3">
-          <div className="rounded-xl border border-primary/20 overflow-hidden shadow-xl bg-[#f8f4f0] relative" style={{ height: "600px" }}>
+          <div className="rounded-xl border border-primary/20 overflow-hidden shadow-xl bg-muted relative" style={{ height: "600px" }}>
             {geoProperties.length === 0 && (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10">
                 <Building2 className="w-12 h-12 text-muted-foreground/30" />
@@ -411,7 +411,7 @@ export default function MapView() {
                 className={`rounded-xl border p-3.5 cursor-pointer transition-all duration-300 ${
                   isSelected
                     ? "border-primary bg-primary/5 shadow-lg ring-1 ring-primary/20"
-                    : "border-border bg-white hover:border-primary/30 hover:shadow-md"
+                    : "border-border bg-card hover:border-primary/30 hover:shadow-md"
                 }`}
                 onClick={() => setSelectedId(property.id)}
                 onDoubleClick={() => window.location.href = `/property/${property.id}`}

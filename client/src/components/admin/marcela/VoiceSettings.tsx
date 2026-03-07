@@ -53,7 +53,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
 
   return (
     <div className="space-y-6">
-      <Card className="bg-white border border-border/80 shadow-sm">
+      <Card className="bg-card border border-border/80 shadow-sm">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
@@ -86,7 +86,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
                 value={draft.marcelaVoiceId}
                 onChange={(e) => handleVoiceField("marcelaVoiceId", e.target.value)}
                 placeholder="ElevenLabs voice ID"
-                className="bg-white font-mono text-sm"
+                className="bg-card font-mono text-sm"
                 data-testid="input-marcela-voice-id"
               />
               <p className="text-xs text-muted-foreground">Default: Jessica (cgSgspJ2msm6clMCkdW9)</p>
@@ -94,7 +94,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
             <div className="space-y-2">
               <Label className="label-text font-medium">TTS Model</Label>
               <Select value={draft.marcelaTtsModel} onValueChange={(v) => handleVoiceField("marcelaTtsModel", v)}>
-                <SelectTrigger className="bg-white" data-testid="select-marcela-tts-model">
+                <SelectTrigger className="bg-card" data-testid="select-marcela-tts-model">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -184,7 +184,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
         </CardContent>
       </Card>
 
-      <Card className="bg-white border border-border/80 shadow-sm">
+      <Card className="bg-card border border-border/80 shadow-sm">
         <CardHeader>
           <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
             <Settings2 className="w-4 h-4 text-muted-foreground" />
@@ -199,7 +199,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
             <div className="space-y-2">
               <Label className="label-text font-medium">Output Format</Label>
               <Select value={draft.marcelaOutputFormat} onValueChange={(v) => updateField("marcelaOutputFormat", v)}>
-                <SelectTrigger className="bg-white" data-testid="select-marcela-output-format">
+                <SelectTrigger className="bg-card" data-testid="select-marcela-output-format">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -217,7 +217,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
             <div className="space-y-2">
               <Label className="label-text font-medium">STT Model</Label>
               <Select value={draft.marcelaSttModel} onValueChange={(v) => updateField("marcelaSttModel", v)}>
-                <SelectTrigger className="bg-white" data-testid="select-marcela-stt-model">
+                <SelectTrigger className="bg-card" data-testid="select-marcela-stt-model">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -242,7 +242,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
               value={draft.marcelaChunkSchedule}
               onChange={(e) => updateField("marcelaChunkSchedule", e.target.value)}
               placeholder="120,160,250,290"
-              className="bg-white font-mono text-sm"
+              className="bg-card font-mono text-sm"
               data-testid="input-marcela-chunk-schedule"
             />
             <p className="text-xs text-muted-foreground">
@@ -253,7 +253,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
         </CardContent>
       </Card>
 
-      <Card className="bg-white border border-border/80 shadow-sm">
+      <Card className="bg-card border border-border/80 shadow-sm">
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -394,7 +394,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
               value={avatarDraft}
               onChange={(e) => { setAvatarDraft(e.target.value); setWidgetDirty(true); }}
               placeholder="https://example.com/avatar.png"
-              className="bg-white border-border focus:border-border transition-colors"
+              className="bg-card border-border focus:border-border transition-colors"
             />
             {avatarDraft && (
               <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-xl border border-border/60">

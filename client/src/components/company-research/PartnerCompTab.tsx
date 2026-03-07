@@ -50,7 +50,7 @@ export function PartnerCompTab({ content }: PartnerCompTabProps) {
         <p className="text-xs text-muted-foreground mb-4">
           Total compensation ranges (base + bonus) for management company leadership by portfolio maturity.
         </p>
-        <div className="bg-white rounded-lg border border-border overflow-hidden">
+        <div className="bg-card rounded-lg border border-border overflow-hidden">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-muted border-b border-border">

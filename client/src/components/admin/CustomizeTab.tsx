@@ -49,7 +49,7 @@ export default function CustomizeTab() {
               className={`group relative p-4 rounded-2xl border-2 transition-all duration-300 text-left cursor-pointer ${
                 isActive
                   ? "border-primary bg-muted shadow-sm"
-                  : "border-border bg-white hover:border-border hover:shadow-md"
+                  : "border-border bg-card hover:border-border hover:shadow-md"
               }`}
             >
               <div className="flex items-center gap-3 mb-1.5">

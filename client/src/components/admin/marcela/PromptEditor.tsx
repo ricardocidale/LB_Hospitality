@@ -105,7 +105,7 @@ export function PromptEditor({ agentName }: PromptEditorProps) {
 
   if (isLoading) {
     return (
-      <Card className="bg-white border border-border/80 shadow-sm">
+      <Card className="bg-card border border-border/80 shadow-sm">
         <CardContent className="py-16 text-center">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-muted mb-4">
             <Loader2 className="w-7 h-7 animate-spin text-muted-foreground" />
@@ -119,7 +119,7 @@ export function PromptEditor({ agentName }: PromptEditorProps) {
 
   if (error) {
     return (
-      <Card className="bg-white border border-border/80 shadow-sm">
+      <Card className="bg-card border border-border/80 shadow-sm">
         <CardContent className="py-10">
           <div className="flex items-start gap-4 p-5 bg-gradient-to-br from-amber-50 to-orange-50/50 rounded-xl border border-amber-200/60">
             <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
@@ -153,7 +153,7 @@ export function PromptEditor({ agentName }: PromptEditorProps) {
           </div>
         </div>
       )}
-      <Card className="bg-white border border-border/80 shadow-sm">
+      <Card className="bg-card border border-border/80 shadow-sm">
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -207,7 +207,7 @@ export function PromptEditor({ agentName }: PromptEditorProps) {
               value={currentPrompt}
               onChange={(e) => handlePromptChange(e.target.value)}
               placeholder={`You are ${agentName}, an AI assistant for Hospitality Business Group. You help investors understand hotel business simulations...`}
-              className="bg-white min-h-[340px] font-mono text-[13px] leading-relaxed resize-y border-border focus:border-border transition-colors"
+              className="bg-card min-h-[340px] font-mono text-[13px] leading-relaxed resize-y border-border focus:border-border transition-colors"
               data-testid="textarea-system-prompt"
             />
             <div className="flex items-center justify-between px-1">
@@ -234,7 +234,7 @@ export function PromptEditor({ agentName }: PromptEditorProps) {
                   type="button"
                   onClick={() => handleCopyVar(v.name)}
                   title={v.description}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-border text-xs font-mono text-muted-foreground hover:bg-muted transition-colors"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-card border border-border text-xs font-mono text-muted-foreground hover:bg-muted transition-colors"
                 >
                   {copiedVar === v.name ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3 opacity-50" />}
                   {v.name}
@@ -247,7 +247,7 @@ export function PromptEditor({ agentName }: PromptEditorProps) {
         </CardContent>
       </Card>
 
-      <Card className="bg-white border border-border/80 shadow-sm">
+      <Card className="bg-card border border-border/80 shadow-sm">
         <CardHeader className="pb-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/15 to-blue-500/5 flex items-center justify-center">
@@ -268,7 +268,7 @@ export function PromptEditor({ agentName }: PromptEditorProps) {
               value={currentFirstMessage}
               onChange={(e) => handleFirstMessageChange(e.target.value)}
               placeholder={`Hello! I'm ${agentName}, your assistant for Hospitality Business Group...`}
-              className="bg-white border-border focus:border-border transition-colors"
+              className="bg-card border-border focus:border-border transition-colors"
               data-testid="input-first-message"
             />
           </div>
@@ -281,7 +281,7 @@ export function PromptEditor({ agentName }: PromptEditorProps) {
               <Label className="label-text font-medium text-xs uppercase tracking-wider text-muted-foreground/70">Default Language</Label>
             </div>
             <Select value={currentLanguage} onValueChange={handleLanguageChange}>
-              <SelectTrigger className="bg-white w-64 border-border focus:border-border" data-testid="select-agent-language">
+              <SelectTrigger className="bg-card w-64 border-border focus:border-border" data-testid="select-agent-language">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

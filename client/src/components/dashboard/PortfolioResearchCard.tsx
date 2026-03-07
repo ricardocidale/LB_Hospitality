@@ -151,7 +151,7 @@ export default function PortfolioResearchCard({ properties, yearlyConsolidatedCa
   if (metrics.length === 0) return null;
 
   return (
-    <div className="relative overflow-hidden rounded-lg bg-white border border-border shadow-sm">
+    <div className="relative overflow-hidden rounded-lg bg-card border border-border shadow-sm">
       <div className="p-4">
         <div className="flex items-center gap-2 mb-3">
           <BookOpen className="w-4 h-4 text-primary" />

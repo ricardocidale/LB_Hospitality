@@ -39,7 +39,7 @@ import type { PropertyEditSectionProps } from "./types";
 
 export default function RevenueAssumptionsSection({ draft, onChange, researchValues }: PropertyEditSectionProps) {
   return (
-    <div className="relative overflow-hidden rounded-lg border border-border bg-white shadow-sm">
+    <div className="relative overflow-hidden rounded-lg border border-border bg-card shadow-sm">
       <div className="relative p-6 space-y-6">
         <div>
           <h3 className="text-xl font-display text-foreground">Revenue Assumptions</h3>

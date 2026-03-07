@@ -183,7 +183,7 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
                 </TableHeader>
                 <TableBody>
                   <TableRow className="bg-muted/20 font-bold" onClick={() => toggleRow("cfo")} style={{ cursor: 'pointer' }}>
-                    <TableCell className="sticky left-0 bg-white z-10">
+                    <TableCell className="sticky left-0 bg-card z-10">
                       <div className="flex items-center gap-2">
                         {expandedRows.has("cfo") ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                         Cash Flow from Operations (CFO)
@@ -195,7 +195,7 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
                   </TableRow>
                   {expandedRows.has("cfo") && properties.map((prop, idx) => (
                     <TableRow key={idx}>
-                      <TableCell className="pl-10 sticky left-0 bg-white z-10">{prop.name}</TableCell>
+                      <TableCell className="pl-10 sticky left-0 bg-card z-10">{prop.name}</TableCell>
                       {years.map((_, y) => (
                         <TableCell key={y} className="text-right font-mono text-muted-foreground">
                           {formatMoney(allPropertyYearlyCF[idx]?.[y]?.cashFromOperations ?? 0)}
@@ -205,7 +205,7 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
                   ))}
 
                   <TableRow className="bg-muted/20 font-bold" onClick={() => toggleRow("cfi")} style={{ cursor: 'pointer' }}>
-                    <TableCell className="sticky left-0 bg-white z-10">
+                    <TableCell className="sticky left-0 bg-card z-10">
                       <div className="flex items-center gap-2">
                         {expandedRows.has("cfi") ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                         Cash Flow from Investing (CFI)
@@ -217,7 +217,7 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
                   </TableRow>
                   {expandedRows.has("cfi") && properties.map((prop, idx) => (
                     <TableRow key={idx}>
-                      <TableCell className="pl-10 sticky left-0 bg-white z-10">{prop.name}</TableCell>
+                      <TableCell className="pl-10 sticky left-0 bg-card z-10">{prop.name}</TableCell>
                       {years.map((_, y) => (
                         <TableCell key={y} className="text-right font-mono text-muted-foreground">
                           {formatMoney((allPropertyYearlyCF[idx]?.[y]?.capitalExpenditures ?? 0) + (allPropertyYearlyCF[idx]?.[y]?.exitValue ?? 0))}
@@ -227,7 +227,7 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
                   ))}
 
                   <TableRow className="bg-muted/20 font-bold" onClick={() => toggleRow("cff")} style={{ cursor: 'pointer' }}>
-                    <TableCell className="sticky left-0 bg-white z-10">
+                    <TableCell className="sticky left-0 bg-card z-10">
                       <div className="flex items-center gap-2">
                         {expandedRows.has("cff") ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                         Cash Flow from Financing (CFF)
@@ -239,7 +239,7 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
                   </TableRow>
                   {expandedRows.has("cff") && properties.map((prop, idx) => (
                     <TableRow key={idx}>
-                      <TableCell className="pl-10 sticky left-0 bg-white z-10">{prop.name}</TableCell>
+                      <TableCell className="pl-10 sticky left-0 bg-card z-10">{prop.name}</TableCell>
                       {years.map((_, y) => (
                         <TableCell key={y} className="text-right font-mono text-muted-foreground">
                           {formatMoney((allPropertyYearlyCF[idx]?.[y]?.refinancingProceeds ?? 0) - (allPropertyYearlyCF[idx]?.[y]?.principalPayment ?? 0))}

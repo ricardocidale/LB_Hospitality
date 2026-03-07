@@ -62,7 +62,7 @@ export function KPIGrid({ items, columns = 4, className, ...props }: KPIGridProp
         <motion.div
           key={item.label}
           variants={itemVariants}
-          className="bg-white/80 border border-primary/10 rounded-lg p-4 sm:p-5 shadow-[0_2px_8px_rgba(var(--primary-rgb,159,188,164),0.08)] hover:shadow-[0_4px_16px_rgba(var(--primary-rgb,159,188,164),0.12)] transition-shadow duration-300"
+          className="bg-card/80 border border-primary/10 rounded-lg p-4 sm:p-5 shadow-[0_2px_8px_rgba(var(--primary-rgb,159,188,164),0.08)] hover:shadow-[0_4px_16px_rgba(var(--primary-rgb,159,188,164),0.12)] transition-shadow duration-300"
         >
           <div className="flex items-start justify-between mb-1">
             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider truncate">

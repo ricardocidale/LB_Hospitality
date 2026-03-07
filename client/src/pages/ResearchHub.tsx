@@ -249,7 +249,7 @@ export default function ResearchHub() {
             variants={cardVariants}
             initial="hidden"
             animate="visible"
-            className="bg-white border border-border rounded-lg p-5 shadow-sm group hover:shadow-md transition-all duration-300"
+            className="bg-card border border-border rounded-lg p-5 shadow-sm group hover:shadow-md transition-all duration-300"
           >
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
@@ -297,7 +297,7 @@ export default function ResearchHub() {
             variants={cardVariants}
             initial="hidden"
             animate="visible"
-            className="bg-white border border-border rounded-lg p-5 shadow-sm group hover:shadow-md transition-all duration-300"
+            className="bg-card border border-border rounded-lg p-5 shadow-sm group hover:shadow-md transition-all duration-300"
           >
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
@@ -337,7 +337,7 @@ export default function ResearchHub() {
             variants={cardVariants}
             initial="hidden"
             animate="visible"
-            className="bg-white border border-border rounded-lg p-5 shadow-sm group hover:shadow-md transition-all duration-300"
+            className="bg-card border border-border rounded-lg p-5 shadow-sm group hover:shadow-md transition-all duration-300"
           >
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
@@ -389,7 +389,7 @@ export default function ResearchHub() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="bg-white border border-border rounded-lg p-12 shadow-sm flex flex-col items-center text-center"
+              className="bg-card border border-border rounded-lg p-12 shadow-sm flex flex-col items-center text-center"
             >
               <div className="w-14 h-14 rounded-2xl bg-muted border border-border flex items-center justify-center mb-4">
                 <Building2 className="w-7 h-7 text-muted-foreground" />
@@ -417,7 +417,7 @@ export default function ResearchHub() {
                   variants={cardVariants}
                   initial="hidden"
                   animate="visible"
-                  className="bg-white border border-border rounded-lg overflow-hidden shadow-sm group hover:shadow-md transition-all duration-300"
+                  className="bg-card border border-border rounded-lg overflow-hidden shadow-sm group hover:shadow-md transition-all duration-300"
                 >
                   {/* Property image or fallback */}
                   {prop.imageUrl ? (
@@ -476,7 +476,7 @@ export default function ResearchHub() {
           transition={{ delay: 0.4, duration: 0.5 }}
         >
           <Link href="/settings">
-            <div className="bg-white border border-border rounded-lg p-4 shadow-sm flex items-center gap-4 hover:bg-muted hover:shadow-md transition-all duration-300 cursor-pointer group">
+            <div className="bg-card border border-border rounded-lg p-4 shadow-sm flex items-center gap-4 hover:bg-muted hover:shadow-md transition-all duration-300 cursor-pointer group">
               <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
                 <Settings2 className="w-4.5 h-4.5 text-primary" />
               </div>

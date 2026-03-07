@@ -156,7 +156,7 @@ export default function PropertyMarketResearch() {
         )}
 
         {isGenerating && (
-          <div className="bg-white rounded-lg shadow-sm border border-emerald-200 p-6">
+          <div className="bg-card rounded-lg shadow-sm border border-emerald-200 p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
                 <Loader2 className="w-4 h-4 animate-spin text-emerald-700" />
@@ -172,7 +172,7 @@ export default function PropertyMarketResearch() {
         )}
 
         {!hasResearch && !isGenerating && (
-          <div className="bg-white rounded-lg shadow-sm border border-border p-12 text-center">
+          <div className="bg-card rounded-lg shadow-sm border border-border p-12 text-center">
             <div className="w-20 h-20 mx-auto mb-6 rounded-lg bg-primary/10 flex items-center justify-center">
               <BookOpen className="w-10 h-10 text-primary" />
             </div>
@@ -196,7 +196,7 @@ export default function PropertyMarketResearch() {
             </div>
             <button
               onClick={generateResearch}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-white font-semibold shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-semibold shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all"
             >
               <RefreshCw className="w-4 h-4" />
               Generate Research

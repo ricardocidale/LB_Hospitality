@@ -78,7 +78,7 @@ export default function NavigationTab() {
   ];
 
   return (
-    <Card className="bg-white border border-border/80 shadow-sm" data-testid="card-sidebar-settings">
+    <Card className="bg-card border border-border/80 shadow-sm" data-testid="card-sidebar-settings">
       <CardHeader>
         <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2"><Settings className="w-5 h-5" /> Navigation Visibility</CardTitle>
         <CardDescription className="label-text">Toggle which optional pages appear in the sidebar for non-admin users. Core pages (Dashboard, Properties, Management Co., Settings, Profile, Admin Settings) are always visible.</CardDescription>

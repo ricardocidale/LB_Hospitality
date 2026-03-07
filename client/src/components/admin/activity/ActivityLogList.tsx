@@ -44,7 +44,7 @@ export function ActivityLogList({
 
   return (
     <>
-      <Card className="bg-white border border-border/80 shadow-sm">
+      <Card className="bg-card border border-border/80 shadow-sm">
         <CardHeader className="relative">
           <CardTitle className="text-base font-semibold text-foreground">Login Activity</CardTitle>
           <CardDescription className="label-text">
@@ -145,7 +145,7 @@ function ActiveSessions({ activeSessionsList }: { activeSessionsList: ActiveSess
   const queryClient = useQueryClient();
 
   return (
-    <Card className="bg-white border border-border/80 shadow-sm mt-6">
+    <Card className="bg-card border border-border/80 shadow-sm mt-6">
       <CardHeader>
         <CardTitle className="text-sm font-semibold text-foreground">Active Sessions</CardTitle>
         <CardDescription className="label-text">

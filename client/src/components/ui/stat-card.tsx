@@ -48,7 +48,7 @@ function StatCard({
     return (
       <div
         className={cn(
-          "bg-white/80 rounded-lg p-5 border border-primary/10 shadow-[0_2px_8px_rgba(var(--primary-rgb,159,188,164),0.08)] hover:shadow-[0_4px_16px_rgba(var(--primary-rgb,159,188,164),0.12)] transition-all duration-300 group",
+          "bg-card/80 rounded-lg p-5 border border-primary/10 shadow-[0_2px_8px_rgba(var(--primary-rgb,159,188,164),0.08)] hover:shadow-[0_4px_16px_rgba(var(--primary-rgb,159,188,164),0.12)] transition-all duration-300 group",
           className
         )}
         data-testid={props["data-testid"]}
@@ -89,7 +89,7 @@ function StatCard({
     return (
       <div
         className={cn(
-          "bg-white/80 rounded-lg p-5 border border-primary/10 shadow-[0_2px_8px_rgba(var(--primary-rgb,159,188,164),0.08)] hover:shadow-[0_4px_16px_rgba(var(--primary-rgb,159,188,164),0.15)] transition-all duration-300",
+          "bg-card/80 rounded-lg p-5 border border-primary/10 shadow-[0_2px_8px_rgba(var(--primary-rgb,159,188,164),0.08)] hover:shadow-[0_4px_16px_rgba(var(--primary-rgb,159,188,164),0.15)] transition-all duration-300",
           className
         )}
         data-testid={props["data-testid"]}
@@ -118,7 +118,7 @@ function StatCard({
     return (
       <div
         className={cn(
-          "bg-white/80 rounded-lg p-5 border border-primary/10 shadow-[0_2px_8px_rgba(var(--primary-rgb,159,188,164),0.08)] hover:shadow-[0_4px_12px_rgba(var(--primary-rgb,159,188,164),0.12)] transition-all duration-300",
+          "bg-card/80 rounded-lg p-5 border border-primary/10 shadow-[0_2px_8px_rgba(var(--primary-rgb,159,188,164),0.08)] hover:shadow-[0_4px_12px_rgba(var(--primary-rgb,159,188,164),0.12)] transition-all duration-300",
           className
         )}
         data-testid={props["data-testid"]}
@@ -154,7 +154,7 @@ function StatCard({
   return (
     <div
       className={cn(
-        "bg-white/80 rounded-lg p-5 border border-primary/10 shadow-[0_2px_8px_rgba(var(--primary-rgb,159,188,164),0.08)]",
+        "bg-card/80 rounded-lg p-5 border border-primary/10 shadow-[0_2px_8px_rgba(var(--primary-rgb,159,188,164),0.08)]",
         className
       )}
       data-testid={props["data-testid"]}

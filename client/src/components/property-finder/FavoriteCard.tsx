@@ -55,7 +55,7 @@ export function FavoriteCard({
 }) {
   return (
     <div
-      className="bg-white rounded-2xl shadow-sm border border-border overflow-hidden hover:shadow-md transition-shadow group"
+      className="bg-card rounded-2xl shadow-sm border border-border overflow-hidden hover:shadow-md transition-shadow group"
       data-testid={`row-saved-${property.id}`}
     >
       <div className="h-0.5 bg-gradient-to-r from-primary to-primary/30" />
@@ -75,7 +75,7 @@ export function FavoriteCard({
             {isRemoving ? (
               <Loader2 className="w-4 h-4 text-muted-foreground animate-spin" />
             ) : (
-              <Trash2 className="w-4 h-4 text-[#F4795B]/70 hover:text-[#F4795B]" />
+              <Trash2 className="w-4 h-4 text-destructive/70 hover:text-destructive" />
             )}
           </button>
         </div>

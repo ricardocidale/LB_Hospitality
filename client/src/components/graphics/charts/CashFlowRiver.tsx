@@ -32,7 +32,7 @@ interface CashFlowRiverProps {
 function CustomTooltip({ active, payload, label, formatValue }: { active?: boolean; payload?: any[]; label?: string; formatValue: (v: number) => string }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-white border border-border rounded-xl px-4 py-3 shadow-xl text-sm max-w-xs">
+    <div className="bg-card border border-border rounded-xl px-4 py-3 shadow-xl text-sm max-w-xs">
       <p className="font-semibold text-foreground mb-2 border-b pb-1">{label}</p>
       {payload.map((entry: any, i: number) => (
         <div key={i} className="flex items-center justify-between gap-4 py-0.5">
@@ -55,7 +55,7 @@ export function CashFlowRiver({ data, series, title, subtitle, xAxisKey = "year"
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className={`relative overflow-hidden rounded-lg p-6 bg-white border border-border shadow-sm ${className || ""}`}
+      className={`relative overflow-hidden rounded-lg p-6 bg-card border border-border shadow-sm ${className || ""}`}
       data-testid={props["data-testid"]}
     >
       {title && <h3 className="text-lg font-display text-foreground mb-1">{title}</h3>}

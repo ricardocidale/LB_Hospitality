@@ -37,7 +37,7 @@ export function KnowledgeBaseCard({ agentName }: KnowledgeBaseCardProps) {
   };
 
   return (
-    <Card className="bg-white border border-border/80 shadow-sm">
+    <Card className="bg-card border border-border/80 shadow-sm">
       <CardHeader className="pb-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/15 to-emerald-500/5 flex items-center justify-center">

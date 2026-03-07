@@ -63,7 +63,7 @@ export default function HeatMap({ data, periodLabels, metric, formatValue, title
   return (
     <div
       data-testid="heat-map"
-      className="bg-white rounded-xl border border-border shadow-sm p-6"
+      className="bg-card rounded-xl border border-border shadow-sm p-6"
     >
       {title && (
         <h3 className="text-lg font-semibold text-foreground mb-4">{title}</h3>
@@ -91,7 +91,7 @@ export default function HeatMap({ data, periodLabels, metric, formatValue, title
           <>
             <div
               key={`label-${row.label}`}
-              className="text-sm font-medium text-foreground flex items-center sticky left-0 bg-white pr-2 z-10"
+              className="text-sm font-medium text-foreground flex items-center sticky left-0 bg-card pr-2 z-10"
             >
               {row.label}
             </div>

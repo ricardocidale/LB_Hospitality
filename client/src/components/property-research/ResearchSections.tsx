@@ -563,7 +563,7 @@ export function ResearchSections({ content }: { content: any }) {
                     <p className="text-sm text-foreground font-semibold">{r.risk}</p>
                   </div>
                 </div>
-                <div className="bg-white px-4 py-3">
+                <div className="bg-card px-4 py-3">
                   <p className="text-sm text-muted-foreground leading-relaxed">{r.mitigation}</p>
                 </div>
               </div>

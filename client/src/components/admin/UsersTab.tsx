@@ -269,7 +269,7 @@ export default function UsersTab() {
 
   return (
     <>
-    <Card className="bg-white border border-border/80 shadow-sm">
+    <Card className="bg-card border border-border/80 shadow-sm">
 
       
       <CardHeader className="relative">
@@ -318,7 +318,7 @@ export default function UsersTab() {
                         <img
                           src={userLogoMap[user.userGroupId]}
                           alt=""
-                          className="w-7 h-7 rounded-md border border-border bg-white object-contain p-0.5"
+                          className="w-7 h-7 rounded-md border border-border bg-card object-contain p-0.5"
                           onError={(e) => { (e.target as HTMLImageElement).src = defaultLogo; }}
                         />
                       )}

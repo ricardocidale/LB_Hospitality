@@ -51,7 +51,7 @@ export default function CompanyIncomeTab({
 
   return (
     <ScrollReveal>
-    <div ref={activeTab === 'income' ? tableRef : undefined} className="bg-white rounded-2xl p-6 shadow-sm border">
+    <div ref={activeTab === 'income' ? tableRef : undefined} className="bg-card rounded-2xl p-6 shadow-sm border">
       <div>
         <h3 className="text-lg font-display text-foreground mb-4">Income Statement - {global?.companyName || "Hospitality Business Co."}</h3>
         <div className="overflow-x-auto">
@@ -79,7 +79,7 @@ export default function CompanyIncomeTab({
               onClick={() => toggleRow('baseFees')}
               data-testid="row-service-fees"
             >
-              <TableCell className="sticky left-0 bg-white pl-6 flex items-center gap-2">
+              <TableCell className="sticky left-0 bg-card pl-6 flex items-center gap-2">
                 {expandedRows.has('baseFees') ? (
                   <ChevronDown className="w-4 h-4 text-muted-foreground" />
                 ) : (
@@ -117,7 +117,7 @@ export default function CompanyIncomeTab({
                     onClick={() => toggleRow(`cat-${catName}`)}
                     data-testid={`row-category-${catName.toLowerCase().replace(/\s+/g, '-')}`}
                   >
-                    <TableCell className="sticky left-0 bg-white pl-12 flex items-center gap-2 text-sm">
+                    <TableCell className="sticky left-0 bg-card pl-12 flex items-center gap-2 text-sm">
                       {expandedRows.has(`cat-${catName}`) ? (
                         <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
                       ) : (
@@ -155,7 +155,7 @@ export default function CompanyIncomeTab({
               onClick={() => toggleRow('incentiveFees')}
               data-testid="row-incentive-fees"
             >
-              <TableCell className="sticky left-0 bg-white pl-6 flex items-center gap-2">
+              <TableCell className="sticky left-0 bg-card pl-6 flex items-center gap-2">
                 {expandedRows.has('incentiveFees') ? (
                   <ChevronDown className="w-4 h-4 text-muted-foreground" />
                 ) : (
@@ -191,7 +191,7 @@ export default function CompanyIncomeTab({
                   onClick={() => toggleRow('vendorCosts')}
                   data-testid="row-vendor-costs"
                 >
-                  <TableCell className="sticky left-0 bg-white pl-6 flex items-center gap-2 text-amber-700">
+                  <TableCell className="sticky left-0 bg-card pl-6 flex items-center gap-2 text-amber-700">
                     {expandedRows.has('vendorCosts') ? (
                       <ChevronDown className="w-4 h-4 text-amber-500" />
                     ) : (
@@ -261,7 +261,7 @@ export default function CompanyIncomeTab({
                   className="cursor-pointer hover:bg-muted"
                   onClick={() => toggleRow('opexComp')}
                 >
-                  <TableCell className="sticky left-0 bg-white pl-6 flex items-center gap-2">
+                  <TableCell className="sticky left-0 bg-card pl-6 flex items-center gap-2">
                     {expandedRows.has('opexComp') ? (
                       <ChevronDown className="w-4 h-4 text-muted-foreground" />
                     ) : (
@@ -299,7 +299,7 @@ export default function CompanyIncomeTab({
                   className="cursor-pointer hover:bg-muted"
                   onClick={() => toggleRow('opexFixed')}
                 >
-                  <TableCell className="sticky left-0 bg-white pl-6 flex items-center gap-2">
+                  <TableCell className="sticky left-0 bg-card pl-6 flex items-center gap-2">
                     {expandedRows.has('opexFixed') ? (
                       <ChevronDown className="w-4 h-4 text-muted-foreground" />
                     ) : (
@@ -353,7 +353,7 @@ export default function CompanyIncomeTab({
                   className="cursor-pointer hover:bg-muted"
                   onClick={() => toggleRow('opexVar')}
                 >
-                  <TableCell className="sticky left-0 bg-white pl-6 flex items-center gap-2">
+                  <TableCell className="sticky left-0 bg-card pl-6 flex items-center gap-2">
                     {expandedRows.has('opexVar') ? (
                       <ChevronDown className="w-4 h-4 text-muted-foreground" />
                     ) : (
@@ -406,7 +406,7 @@ export default function CompanyIncomeTab({
               </>
             )}
             <TableRow>
-              <TableCell className="sticky left-0 bg-white text-xs text-muted-foreground italic pl-6">OpEx % of Revenue</TableCell>
+              <TableCell className="sticky left-0 bg-card text-xs text-muted-foreground italic pl-6">OpEx % of Revenue</TableCell>
               {Array.from({ length: projectionYears }, (_, y) => {
                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                 const totalExpenses = yearData.reduce((a, m) => a + m.totalExpenses, 0);
@@ -432,7 +432,7 @@ export default function CompanyIncomeTab({
               })}
             </TableRow>
             <TableRow>
-              <TableCell className="sticky left-0 bg-white text-muted-foreground">Net Margin</TableCell>
+              <TableCell className="sticky left-0 bg-card text-muted-foreground">Net Margin</TableCell>
               {Array.from({ length: projectionYears }, (_, y) => {
                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                 const netIncome = yearData.reduce((a, m) => a + m.netIncome, 0);

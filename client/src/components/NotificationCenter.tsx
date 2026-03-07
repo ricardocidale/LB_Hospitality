@@ -116,7 +116,7 @@ export default function NotificationCenter() {
         {count > 0 && (
           <span
             data-testid="badge-unread-count"
-            className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[#EF4444] text-white text-[10px] font-bold flex items-center justify-center"
+            className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-destructive text-white text-[10px] font-bold flex items-center justify-center"
           >
             {count > 99 ? "99+" : count}
           </span>
@@ -126,7 +126,7 @@ export default function NotificationCenter() {
       {open && (
         <div
           data-testid="panel-notifications"
-          className="absolute right-0 top-12 w-80 max-h-[420px] rounded-xl overflow-hidden z-50 flex flex-col bg-white border border-border shadow-lg"
+          className="absolute right-0 top-12 w-80 max-h-[420px] rounded-xl overflow-hidden z-50 flex flex-col bg-card border border-border shadow-lg"
         >
           <div className="flex items-center justify-between px-4 py-3 border-b border-border">
             <span className="text-sm font-semibold text-foreground">

@@ -128,7 +128,7 @@ export default function VarianceAnalysis() {
   return (
     <div
       data-testid="variance-analysis"
-      className="bg-white rounded-xl border shadow-sm p-6"
+      className="bg-card rounded-xl border shadow-sm p-6"
     >
       <h2 className="text-xl font-semibold mb-4">Variance Analysis</h2>
 

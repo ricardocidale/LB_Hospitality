@@ -125,7 +125,7 @@ export default function PPECostBasisSchedule({ property, global }: PPECostBasisS
   );
 
   return (
-    <Card className="overflow-hidden bg-white shadow-lg border border-border">
+    <Card className="overflow-hidden bg-card shadow-lg border border-border">
       <CardHeader className="pb-2">
         <CardTitle className="text-foreground flex items-center gap-2">
           PP&E / Cost Basis Schedule

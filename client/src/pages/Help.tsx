@@ -63,7 +63,7 @@ export default function Help() {
             </TabsContent>
           )}
           <TabsContent value="guided-tour" className="space-y-6 mt-6">
-            <Card className="bg-white border-border shadow-sm rounded-lg">
+            <Card className="bg-card border-border shadow-sm rounded-lg">
               <div className="p-8 text-center space-y-6">
                 <div className="w-16 h-16 rounded-lg bg-primary/15 flex items-center justify-center mx-auto">
                   <PlayCircle className="w-8 h-8 text-primary" />

@@ -28,7 +28,7 @@ import type { CompensationSectionProps } from "./types";
 
 export default function CompensationSection({ formData, onChange, global, researchValues }: CompensationSectionProps) {
   return (
-    <div className="relative overflow-hidden rounded-lg p-6 bg-white border border-border shadow-sm">
+    <div className="relative overflow-hidden rounded-lg p-6 bg-card border border-border shadow-sm">
     <div className="relative">
       <div className="space-y-6">
         <div>
@@ -81,7 +81,7 @@ export default function CompensationSection({ formData, onChange, global, resear
                 onChange={(e) => onChange("staffTier1MaxProperties", Math.max(1, parseInt(e.target.value) || 3))}
                 min={1}
                 max={20}
-                className="w-16 bg-white border-primary/30 text-foreground text-center"
+                className="w-16 bg-card border-primary/30 text-foreground text-center"
                 data-testid="input-tier1-max-properties"
               />
               <span className="text-xs text-muted-foreground">properties →</span>
@@ -92,7 +92,7 @@ export default function CompensationSection({ formData, onChange, global, resear
                 min={0.5}
                 max={20}
                 step={0.5}
-                className="w-20 bg-white border-primary/30 text-foreground text-center"
+                className="w-20 bg-card border-primary/30 text-foreground text-center"
                 data-testid="input-tier1-fte"
               />
               <span className="text-xs text-muted-foreground">FTE</span>
@@ -106,7 +106,7 @@ export default function CompensationSection({ formData, onChange, global, resear
                 onChange={(e) => onChange("staffTier2MaxProperties", Math.max(1, parseInt(e.target.value) || 6))}
                 min={1}
                 max={30}
-                className="w-16 bg-white border-primary/30 text-foreground text-center"
+                className="w-16 bg-card border-primary/30 text-foreground text-center"
                 data-testid="input-tier2-max-properties"
               />
               <span className="text-xs text-muted-foreground">properties →</span>
@@ -117,7 +117,7 @@ export default function CompensationSection({ formData, onChange, global, resear
                 min={0.5}
                 max={30}
                 step={0.5}
-                className="w-20 bg-white border-primary/30 text-foreground text-center"
+                className="w-20 bg-card border-primary/30 text-foreground text-center"
                 data-testid="input-tier2-fte"
               />
               <span className="text-xs text-muted-foreground">FTE</span>
@@ -132,7 +132,7 @@ export default function CompensationSection({ formData, onChange, global, resear
                 min={0.5}
                 max={50}
                 step={0.5}
-                className="w-20 bg-white border-primary/30 text-foreground text-center"
+                className="w-20 bg-card border-primary/30 text-foreground text-center"
                 data-testid="input-tier3-fte"
               />
               <span className="text-xs text-muted-foreground">FTE</span>

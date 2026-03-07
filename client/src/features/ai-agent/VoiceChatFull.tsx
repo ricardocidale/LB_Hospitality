@@ -291,7 +291,7 @@ export default function VoiceChatFull({ className, onSessionChange }: VoiceChatF
           className={cn(
             "flex h-2 w-2 rounded-full transition-all duration-300",
             agentState === "connected" && "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]",
-            isTransitioning && "animate-pulse bg-white/40"
+            isTransitioning && "animate-pulse bg-card/40"
           )}
         />
       </CardHeader>

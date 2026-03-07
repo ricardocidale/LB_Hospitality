@@ -37,7 +37,7 @@ export function ExpandableLineItem({
   if (!showDetails) {
     return (
       <TableRow>
-        <TableCell className="pl-6 sticky left-0 bg-white py-1">
+        <TableCell className="pl-6 sticky left-0 bg-card py-1">
           <span className="flex items-center gap-1">
             <span className="ml-5">{label}</span>
           </span>
@@ -57,7 +57,7 @@ export function ExpandableLineItem({
   return (
     <>
       <TableRow className="cursor-pointer hover:bg-muted" onClick={onToggle}>
-        <TableCell className="pl-6 sticky left-0 bg-white py-1">
+        <TableCell className="pl-6 sticky left-0 bg-card py-1">
           <span className="flex items-center gap-1">
             {expanded ? (
               <ChevronDown className="w-4 h-4 flex-shrink-0" />
@@ -112,7 +112,7 @@ export function ExpandableMetricRow({
   if (!showDetails) {
     return (
       <TableRow>
-        <TableCell className="pl-6 sticky left-0 bg-white py-1">
+        <TableCell className="pl-6 sticky left-0 bg-card py-1">
           <span className="flex items-center gap-1">
             {label}
           </span>
@@ -132,7 +132,7 @@ export function ExpandableMetricRow({
   return (
     <>
       <TableRow className="cursor-pointer hover:bg-muted" onClick={onToggle}>
-        <TableCell className="pl-6 sticky left-0 bg-white py-1">
+        <TableCell className="pl-6 sticky left-0 bg-card py-1">
           <span className="flex items-center gap-1">
             {expanded ? (
               <ChevronDown className="w-4 h-4 flex-shrink-0 text-muted-foreground" />

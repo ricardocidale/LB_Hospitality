@@ -46,7 +46,7 @@ export function ManualTable({ headers, rows, variant = "dark" }: ManualTableProp
               className={cn(
                 "border-t transition-colors",
                 isDark
-                  ? "bg-white border-border hover:bg-muted"
+                  ? "bg-card border-border hover:bg-muted"
                   : "border-border hover:bg-muted",
               )}
             >

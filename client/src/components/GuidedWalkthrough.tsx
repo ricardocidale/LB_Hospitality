@@ -53,7 +53,7 @@ function TourPromptDialog({ onAccept, onDecline }: { onAccept: () => void; onDec
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center" data-testid="tour-prompt-dialog">
-      <div className="fixed inset-0 bg-black/60" onClick={() => onDecline(dontOffer)} />
+      <div className="fixed inset-0 bg-foreground/60" onClick={() => onDecline(dontOffer)} />
       <div className="relative bg-card rounded-lg shadow-sm border border-border p-8 max-w-md w-full mx-4 animate-in fade-in zoom-in-95 duration-300">
         <button
           onClick={() => onDecline(dontOffer)}
@@ -315,8 +315,8 @@ export function WalkthroughTrigger() {
       className="group relative flex items-center gap-3 px-4 py-3 text-sm font-medium text-background/60 hover:text-white rounded-lg transition-all duration-300 overflow-hidden w-full"
       data-testid="button-start-tour"
     >
-      <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-all duration-300 rounded-lg" />
-      <div className="relative w-8 h-8 rounded-lg bg-white/5 group-hover:bg-white/10 flex items-center justify-center transition-all duration-300">
+      <div className="absolute inset-0 bg-card/0 group-hover:bg-card/5 transition-all duration-300 rounded-lg" />
+      <div className="relative w-8 h-8 rounded-lg bg-card/5 group-hover:bg-card/10 flex items-center justify-center transition-all duration-300">
         <HelpCircle className="w-4 h-4 transition-all duration-300" />
       </div>
       <span className="relative">Guided Tour</span>

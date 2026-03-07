@@ -49,7 +49,7 @@ export default function RadarChart({ properties, dimensions, title }: RadarChart
   return (
     <div
       data-testid="radar-chart"
-      className="bg-white rounded-xl border border-border shadow-sm p-6"
+      className="bg-card rounded-xl border border-border shadow-sm p-6"
     >
       {title && <h3 className="text-lg font-semibold mb-4">{title}</h3>}
       <ResponsiveContainer width="100%" height={400}>

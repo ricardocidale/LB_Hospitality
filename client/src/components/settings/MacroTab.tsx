@@ -20,7 +20,7 @@ export function MacroTab({
 }) {
   return (
     <div className="space-y-6 mt-6">
-      <Card className="bg-white border-border shadow-sm">
+      <Card className="bg-card border-border shadow-sm">
         <CardHeader>
           <CardTitle className="font-display">Economic Assumptions</CardTitle>
           <CardDescription className="label-text">Market-wide economic factors affecting the model</CardDescription>

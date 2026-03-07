@@ -65,7 +65,7 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
 
   return (
     <div className="space-y-6">
-      <Card className="bg-white border border-border/80 shadow-sm">
+      <Card className="bg-card border border-border/80 shadow-sm">
         <CardHeader>
           <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2"><Building2 className="w-4 h-4 text-muted-foreground" /> Management Company</CardTitle>
           <CardDescription className="label-text">Define the management company name and logo used in financial reports and navigation</CardDescription>
@@ -78,7 +78,7 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
                 value={companyName}
                 onChange={(e) => { setCompanyName(e.target.value); setCompanyDirty(true); }}
                 placeholder="Enter management company name"
-                className="bg-white"
+                className="bg-card"
                 data-testid="input-company-name"
               />
               <p className="text-xs text-muted-foreground">The entity name used in financial modeling and reports</p>
@@ -106,7 +106,7 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
         </CardContent>
       </Card>
 
-      <Card className="bg-white border border-border/80 shadow-sm">
+      <Card className="bg-card border border-border/80 shadow-sm">
         <CardHeader>
           <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2"><Tag className="w-4 h-4 text-muted-foreground" /> Asset Type</CardTitle>
           <CardDescription className="label-text">Define the type of property being profiled — used across page titles, research prompts, and financial reports</CardDescription>
@@ -128,7 +128,7 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
               value={propertyLabel}
               onChange={(e) => { setPropertyLabel(e.target.value); setAssetDirty(true); }}
               placeholder="e.g., Boutique Hotel, Estate Hotel, Private Estate"
-              className="bg-white max-w-md"
+              className="bg-card max-w-md"
               data-testid="input-property-label"
             />
             <p className="text-xs text-muted-foreground">A one-line label for the kind of property being profiled — appears in the UI and feeds into AI research prompts</p>

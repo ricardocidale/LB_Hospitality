@@ -259,7 +259,7 @@ export default function VerificationTab() {
   };
 
   return (
-    <Card className="relative overflow-hidden bg-white border border-border/80 shadow-sm">
+    <Card className="relative overflow-hidden bg-card border border-border/80 shadow-sm">
       <CardHeader className="relative">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-1">
@@ -275,7 +275,7 @@ export default function VerificationTab() {
               <button 
                 onClick={exportVerificationPDF}
                 data-testid="button-export-pdf"
-                className="flex items-center gap-2 px-4 py-2 bg-white border border-border text-foreground rounded-full text-xs font-bold shadow-sm hover:shadow-md hover:border-secondary/20 transition-all group"
+                className="flex items-center gap-2 px-4 py-2 bg-card border border-border text-foreground rounded-full text-xs font-bold shadow-sm hover:shadow-md hover:border-secondary/20 transition-all group"
               >
                 <FileDown className="w-3.5 h-3.5 text-secondary group-hover:scale-110 transition-transform" />
                 EXPORT PDF REPORT
@@ -309,7 +309,7 @@ export default function VerificationTab() {
               data-testid={`tab-verification-${tab.id}`}
               className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-[11px] font-bold transition-all ${
                 activeTab === tab.id 
-                  ? "bg-white text-secondary shadow-sm" 
+                  ? "bg-card text-secondary shadow-sm" 
                   : "text-muted-foreground hover:text-foreground hover:bg-muted"
               }`}
             >

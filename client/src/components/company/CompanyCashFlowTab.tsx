@@ -53,7 +53,7 @@ export default function CompanyCashFlowTab({
 
   return (
     <ScrollReveal>
-    <div ref={activeTab === 'cashflow' ? tableRef : undefined} className="bg-white rounded-2xl p-6 shadow-sm border">
+    <div ref={activeTab === 'cashflow' ? tableRef : undefined} className="bg-card rounded-2xl p-6 shadow-sm border">
       <div>
         <h3 className="text-lg font-display text-foreground mb-4">Statement of Cash Flows — {global?.companyName || "Hospitality Business Co."}</h3>
         <div className="overflow-x-auto">
@@ -74,7 +74,7 @@ export default function CompanyCashFlowTab({
               ))}
             </TableRow>
             <TableRow>
-              <TableCell className="sticky left-0 bg-white pl-6">Cash Received from Management Fees</TableCell>
+              <TableCell className="sticky left-0 bg-card pl-6">Cash Received from Management Fees</TableCell>
               {Array.from({ length: projectionYears }, (_, y) => {
                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                 const total = yearData.reduce((a, m) => a + m.totalRevenue, 0);
@@ -85,7 +85,7 @@ export default function CompanyCashFlowTab({
               className="cursor-pointer hover:bg-muted"
               onClick={() => toggleRow('cfBaseFees')}
             >
-              <TableCell className="sticky left-0 bg-white flex items-center gap-2 pl-10">
+              <TableCell className="sticky left-0 bg-card flex items-center gap-2 pl-10">
                 {expandedRows.has('cfBaseFees') ? (
                   <ChevronDown className="w-4 h-4 text-muted-foreground" />
                 ) : (
@@ -121,7 +121,7 @@ export default function CompanyCashFlowTab({
                     className="cursor-pointer hover:bg-muted/70"
                     onClick={() => toggleRow(`cf-cat-${catName}`)}
                   >
-                    <TableCell className="sticky left-0 bg-white pl-14 flex items-center gap-2 text-sm">
+                    <TableCell className="sticky left-0 bg-card pl-14 flex items-center gap-2 text-sm">
                       {expandedRows.has(`cf-cat-${catName}`) ? (
                         <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
                       ) : (
@@ -154,7 +154,7 @@ export default function CompanyCashFlowTab({
               className="cursor-pointer hover:bg-muted"
               onClick={() => toggleRow('cfIncentiveFees')}
             >
-              <TableCell className="sticky left-0 bg-white flex items-center gap-2 pl-10">
+              <TableCell className="sticky left-0 bg-card flex items-center gap-2 pl-10">
                 {expandedRows.has('cfIncentiveFees') ? (
                   <ChevronDown className="w-4 h-4 text-muted-foreground" />
                 ) : (
@@ -184,7 +184,7 @@ export default function CompanyCashFlowTab({
               className="cursor-pointer hover:bg-muted"
               onClick={() => toggleRow('cfOutflows')}
             >
-              <TableCell className="sticky left-0 bg-white flex items-center gap-2 pl-6">
+              <TableCell className="sticky left-0 bg-card flex items-center gap-2 pl-6">
                 {expandedRows.has('cfOutflows') ? (
                   <ChevronDown className="w-4 h-4 text-muted-foreground" />
                 ) : (
@@ -204,7 +204,7 @@ export default function CompanyCashFlowTab({
                   className="cursor-pointer hover:bg-muted"
                   onClick={() => toggleRow('cfComp')}
                 >
-                  <TableCell className="sticky left-0 bg-white pl-6 flex items-center gap-2">
+                  <TableCell className="sticky left-0 bg-card pl-6 flex items-center gap-2">
                     {expandedRows.has('cfComp') ? (
                       <ChevronDown className="w-4 h-4 text-muted-foreground" />
                     ) : (
@@ -242,7 +242,7 @@ export default function CompanyCashFlowTab({
                   className="cursor-pointer hover:bg-muted"
                   onClick={() => toggleRow('cfFixed')}
                 >
-                  <TableCell className="sticky left-0 bg-white pl-6 flex items-center gap-2">
+                  <TableCell className="sticky left-0 bg-card pl-6 flex items-center gap-2">
                     {expandedRows.has('cfFixed') ? (
                       <ChevronDown className="w-4 h-4 text-muted-foreground" />
                     ) : (
@@ -296,7 +296,7 @@ export default function CompanyCashFlowTab({
                   className="cursor-pointer hover:bg-muted"
                   onClick={() => toggleRow('cfVar')}
                 >
-                  <TableCell className="sticky left-0 bg-white pl-6 flex items-center gap-2">
+                  <TableCell className="sticky left-0 bg-card pl-6 flex items-center gap-2">
                     {expandedRows.has('cfVar') ? (
                       <ChevronDown className="w-4 h-4 text-muted-foreground" />
                     ) : (
@@ -350,7 +350,7 @@ export default function CompanyCashFlowTab({
             )}
 
             <TableRow className="border-t-2 border-border font-semibold">
-              <TableCell className="sticky left-0 bg-white">Net Cash from Operating Activities</TableCell>
+              <TableCell className="sticky left-0 bg-card">Net Cash from Operating Activities</TableCell>
               {Array.from({ length: projectionYears }, (_, y) => {
                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                 const total = yearData.reduce((a, m) => a + m.netIncome, 0);
@@ -362,7 +362,7 @@ export default function CompanyCashFlowTab({
               })}
             </TableRow>
             <TableRow>
-              <TableCell className="sticky left-0 bg-white text-xs text-muted-foreground italic pl-6">% of Revenue</TableCell>
+              <TableCell className="sticky left-0 bg-card text-xs text-muted-foreground italic pl-6">% of Revenue</TableCell>
               {Array.from({ length: projectionYears }, (_, y) => {
                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                 const cashFromOps = yearData.reduce((a, m) => a + m.netIncome, 0);
@@ -386,7 +386,7 @@ export default function CompanyCashFlowTab({
               className="cursor-pointer hover:bg-muted"
               onClick={() => toggleRow('cfSafe')}
             >
-              <TableCell className="sticky left-0 bg-white flex items-center gap-2 pl-6">
+              <TableCell className="sticky left-0 bg-card flex items-center gap-2 pl-6">
                 {expandedRows.has('cfSafe') ? (
                   <ChevronDown className="w-4 h-4 text-muted-foreground" />
                 ) : (
@@ -425,7 +425,7 @@ export default function CompanyCashFlowTab({
               </>
             )}
             <TableRow className="border-t-2 border-border font-semibold">
-              <TableCell className="sticky left-0 bg-white">Net Cash from Financing Activities</TableCell>
+              <TableCell className="sticky left-0 bg-card">Net Cash from Financing Activities</TableCell>
               {Array.from({ length: projectionYears }, (_, y) => {
                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                 const total = yearData.reduce((a, m) => a + m.safeFunding, 0);
@@ -448,7 +448,7 @@ export default function CompanyCashFlowTab({
             {/* Opening cash = sum of all prior years' net cash changes.
                 Year 1 opens at $0; Year 2 opens with Year 1's closing balance, etc. */}
             <TableRow>
-              <TableCell className="sticky left-0 bg-white text-muted-foreground">Opening Cash Balance</TableCell>
+              <TableCell className="sticky left-0 bg-card text-muted-foreground">Opening Cash Balance</TableCell>
               {Array.from({ length: projectionYears }, (_, y) => {
                 let cumulative = 0;
                 for (let i = 0; i < y; i++) {

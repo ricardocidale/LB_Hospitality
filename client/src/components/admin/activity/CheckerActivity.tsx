@@ -16,25 +16,25 @@ export function CheckerActivity({ checkerActivity }: CheckerActivityProps) {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="bg-white border border-border/80 shadow-sm">
+        <Card className="bg-card border border-border/80 shadow-sm">
           <CardContent className="p-6 text-center">
             <div className="text-3xl font-bold text-muted-foreground">{checkerActivity?.summary.totalActions ?? 0}</div>
             <div className="text-xs text-muted-foreground mt-1">Total Actions</div>
           </CardContent>
         </Card>
-        <Card className="bg-white border border-border/80 shadow-sm">
+        <Card className="bg-card border border-border/80 shadow-sm">
           <CardContent className="p-6 text-center">
-            <div className="text-3xl font-bold text-[#4ECDC4]">{checkerActivity?.summary.verificationRuns ?? 0}</div>
+            <div className="text-3xl font-bold text-chart-1">{checkerActivity?.summary.verificationRuns ?? 0}</div>
             <div className="text-xs text-muted-foreground mt-1">Verification Runs</div>
           </CardContent>
         </Card>
-        <Card className="bg-white border border-border/80 shadow-sm">
+        <Card className="bg-card border border-border/80 shadow-sm">
           <CardContent className="p-6 text-center">
-            <div className="text-3xl font-bold text-[#E8927C]">{checkerActivity?.summary.manualViews ?? 0}</div>
+            <div className="text-3xl font-bold text-chart-2">{checkerActivity?.summary.manualViews ?? 0}</div>
             <div className="text-xs text-muted-foreground mt-1">Manual Reviews</div>
           </CardContent>
         </Card>
-        <Card className="bg-white border border-border/80 shadow-sm">
+        <Card className="bg-card border border-border/80 shadow-sm">
           <CardContent className="p-6 text-center">
             <div className="text-3xl font-bold text-foreground">{checkerActivity?.summary.exports ?? 0}</div>
             <div className="text-xs text-muted-foreground mt-1">Exports</div>
@@ -43,7 +43,7 @@ export function CheckerActivity({ checkerActivity }: CheckerActivityProps) {
       </div>
 
       {checkerActivity?.checkers && checkerActivity.checkers.length > 0 && (
-        <Card className="bg-white border border-border/80 shadow-sm">
+        <Card className="bg-card border border-border/80 shadow-sm">
           <CardHeader>
             <CardTitle className="text-base font-semibold text-foreground">Checker Users</CardTitle>
           </CardHeader>
@@ -66,8 +66,8 @@ export function CheckerActivity({ checkerActivity }: CheckerActivityProps) {
                     <TableCell className="text-foreground font-mono text-sm">{checker.email}</TableCell>
                     <TableCell className="text-foreground/80">{checker.name || "-"}</TableCell>
                     <TableCell className="text-foreground/80 text-center">{checker.totalActions}</TableCell>
-                    <TableCell className="text-[#4ECDC4] text-center font-semibold">{checker.verificationRuns}</TableCell>
-                    <TableCell className="text-[#E8927C] text-center font-semibold">{checker.manualViews}</TableCell>
+                    <TableCell className="text-chart-1 text-center font-semibold">{checker.verificationRuns}</TableCell>
+                    <TableCell className="text-chart-2 text-center font-semibold">{checker.manualViews}</TableCell>
                     <TableCell className="text-foreground/80 text-center">{checker.exports}</TableCell>
                     <TableCell className="text-muted-foreground text-sm">{formatDate(checker.lastActive)}</TableCell>
                   </TableRow>
@@ -85,7 +85,7 @@ export function CheckerActivity({ checkerActivity }: CheckerActivityProps) {
 
 function RecentCheckerActivity({ checkerActivity, formatDate }: { checkerActivity?: CheckerActivityData, formatDate: (d: string | null) => string }) {
   return (
-    <Card className="bg-white border border-border/80 shadow-sm">
+    <Card className="bg-card border border-border/80 shadow-sm">
       <CardHeader>
         <CardTitle className="text-base font-semibold text-foreground">Recent Checker Activity</CardTitle>
       </CardHeader>

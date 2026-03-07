@@ -40,8 +40,8 @@ export default function Analysis() {
                     data-testid={`tab-${t.id}`}
                     className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
                       tab === t.id
-                        ? "bg-primary text-white border border-primary"
-                        : "bg-white text-muted-foreground border border-border hover:bg-muted hover:text-foreground"
+                        ? "bg-primary text-primary-foreground border border-primary"
+                        : "bg-card text-muted-foreground border border-border hover:bg-muted hover:text-foreground"
                     }`}
                   >
                     <Icon className="w-4 h-4" />

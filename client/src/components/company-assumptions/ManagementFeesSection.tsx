@@ -24,7 +24,7 @@ import type { ManagementFeesSectionProps } from "./types";
 
 export default function ManagementFeesSection({ formData, onChange, global, properties, allFeeCategories }: ManagementFeesSectionProps) {
   return (
-    <div className="relative overflow-hidden rounded-lg p-6 bg-white border border-border shadow-sm">
+    <div className="relative overflow-hidden rounded-lg p-6 bg-card border border-border shadow-sm">
     <div className="relative">
       <div className="space-y-6">
         <h3 className="text-lg font-display text-foreground flex items-center">

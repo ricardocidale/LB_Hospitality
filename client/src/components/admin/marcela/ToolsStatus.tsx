@@ -19,7 +19,7 @@ export function ToolsStatus({ agentName }: ToolsStatusProps) {
 
   if (isLoading) {
     return (
-      <Card className="bg-white border border-border/80 shadow-sm">
+      <Card className="bg-card border border-border/80 shadow-sm">
         <CardContent className="py-16 text-center">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-muted mb-4">
             <Loader2 className="w-7 h-7 animate-spin text-muted-foreground" />
@@ -32,7 +32,7 @@ export function ToolsStatus({ agentName }: ToolsStatusProps) {
 
   if (error) {
     return (
-      <Card className="bg-white border border-border/80 shadow-sm">
+      <Card className="bg-card border border-border/80 shadow-sm">
         <CardContent className="py-10">
           <div className="flex items-start gap-4 p-5 bg-gradient-to-br from-amber-50 to-orange-50/50 rounded-xl border border-amber-200/60">
             <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
@@ -58,7 +58,7 @@ export function ToolsStatus({ agentName }: ToolsStatusProps) {
 
   return (
     <div className="space-y-6">
-      <Card className="bg-white border border-border/80 shadow-sm">
+      <Card className="bg-card border border-border/80 shadow-sm">
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">

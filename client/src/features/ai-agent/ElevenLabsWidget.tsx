@@ -82,7 +82,7 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
               barCount={12}
               demo={true}
               centerAlign={true}
-              className="h-10 bg-white/80 backdrop-blur-sm border border-primary/20 rounded-full px-3 shadow-lg"
+              className="h-10 bg-card/80 backdrop-blur-sm border border-primary/20 rounded-full px-3 shadow-lg"
             />
           </div>
           {signedUrl ? (

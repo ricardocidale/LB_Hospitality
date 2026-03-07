@@ -44,7 +44,7 @@ export function ServiceRevenueTab({ content }: ServiceRevenueTabProps) {
         <p className="text-xs text-muted-foreground mb-4">
           Industry fee ranges per service type, computed at $1.5M sample property revenue.
         </p>
-        <div className="bg-white rounded-lg border border-border overflow-hidden">
+        <div className="bg-card rounded-lg border border-border overflow-hidden">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-muted border-b border-border">
@@ -71,7 +71,7 @@ export function ServiceRevenueTab({ content }: ServiceRevenueTabProps) {
       </SectionCard>
 
       {benchmarks.map(b => (
-        <div key={b.type} className="bg-white rounded-lg border border-border p-4">
+        <div key={b.type} className="bg-card rounded-lg border border-border p-4">
           <h4 className="text-sm font-medium text-foreground mb-2">{b.label}</h4>
           <div className="grid grid-cols-3 gap-3 mb-2">
             <MetricCard label="Low" value={`${(b.lowRate * 100).toFixed(1)}% ($${b.lowFee.toLocaleString()})`} color={companySectionColors.fees} />

@@ -51,7 +51,7 @@ export function AIReviewPanel({ review, loading, onRun }: AIReviewPanelProps) {
           <p className="text-sm text-muted-foreground">Run the AI review to generate a narrative analysis of the verification findings.</p>
           <button 
             onClick={runAiVerification}
-            className="mt-4 px-6 py-2 bg-secondary text-white rounded-full text-sm font-bold shadow-lg shadow-secondary/20 hover:scale-105 transition-transform"
+            className="mt-4 px-6 py-2 bg-secondary text-secondary-foreground rounded-full text-sm font-bold shadow-lg shadow-secondary/20 hover:scale-105 transition-transform"
           >
             Start Analysis
           </button>

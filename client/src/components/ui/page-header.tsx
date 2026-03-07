@@ -14,7 +14,7 @@ export interface PageHeaderProps {
 
 function PageHeader({ title, subtitle, backLink, actions, className }: PageHeaderProps) {
   return (
-    <div className={cn("relative rounded-xl border border-border/80 bg-white shadow-sm p-4 sm:p-5", className)}>
+    <div className={cn("relative rounded-xl border border-border/80 bg-card shadow-sm p-4 sm:p-5", className)}>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="flex items-center gap-3">
           {backLink && (

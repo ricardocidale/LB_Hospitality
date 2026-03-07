@@ -116,7 +116,7 @@ export default function DatabaseTab() {
 
   return (
     <div className="space-y-6">
-      <Card className="bg-white border border-border/80 shadow-sm" data-testid="card-database-sync">
+      <Card className="bg-card border border-border/80 shadow-sm" data-testid="card-database-sync">
         <CardHeader>
           <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2">
             <Database className="w-5 h-5" /> Database Status
@@ -178,7 +178,7 @@ export default function DatabaseTab() {
               </div>
 
               {syncResults.globalAssumptions && (
-                <Card className="bg-white border-border/60">
+                <Card className="bg-card border-border/60">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-medium">Global Assumptions</CardTitle>
                   </CardHeader>
@@ -197,7 +197,7 @@ export default function DatabaseTab() {
               )}
 
               {syncResults.properties?.length > 0 && (
-                <Card className="bg-white border-border/60">
+                <Card className="bg-card border-border/60">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-medium">Properties ({syncResults.properties.length})</CardTitle>
                   </CardHeader>

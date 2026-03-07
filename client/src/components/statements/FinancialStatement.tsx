@@ -33,7 +33,7 @@ export function FinancialStatement({ data, title, startYear = 2026 }: FinancialS
   const first12Months = data.slice(0, 12);
   
   return (
-    <Card className="w-full overflow-hidden rounded-lg bg-white border border-border shadow-sm">
+    <Card className="w-full overflow-hidden rounded-lg bg-card border border-border shadow-sm">
       <div className="p-6 border-b border-border">
         <h3 className="text-xl font-display font-semibold text-primary">{title} - {startYear} Pro Forma</h3>
       </div>
@@ -42,7 +42,7 @@ export function FinancialStatement({ data, title, startYear = 2026 }: FinancialS
           <Table>
             <TableHeader className="bg-muted">
               <TableRow className="border-border hover:bg-transparent">
-                <TableHead className="w-[200px] font-bold text-primary sticky left-0 bg-white z-10 border-r border-border">Line Item</TableHead>
+                <TableHead className="w-[200px] font-bold text-primary sticky left-0 bg-card z-10 border-r border-border">Line Item</TableHead>
                 {first12Months.map((m) => (
                   <TableHead key={m.monthIndex} className="text-right min-w-[120px]">
                     {format(m.date, "MMM yyyy")}
@@ -63,21 +63,21 @@ export function FinancialStatement({ data, title, startYear = 2026 }: FinancialS
               
               {/* REVENUE SECTION */}
               <TableRow className="hover:bg-primary/5 border-border">
-                <TableCell className="font-medium sticky left-0 bg-white dark:bg-black/50 z-10 border-r border-border">Room Revenue</TableCell>
+                <TableCell className="font-medium sticky left-0 bg-card dark:bg-foreground/50 z-10 border-r border-border">Room Revenue</TableCell>
                 {first12Months.map((m, i) => (
                   <TableCell key={i} className="text-right font-mono">{formatMoney(m.revenueRooms)}</TableCell>
                 ))}
                 <TableCell className="text-right font-bold bg-muted font-mono">{formatMoney(first12Months.reduce((a, b) => a + b.revenueRooms, 0))}</TableCell>
               </TableRow>
               <TableRow className="hover:bg-primary/5 border-border">
-                <TableCell className="font-medium sticky left-0 bg-white dark:bg-black/50 z-10 border-r border-border">F&B Revenue</TableCell>
+                <TableCell className="font-medium sticky left-0 bg-card dark:bg-foreground/50 z-10 border-r border-border">F&B Revenue</TableCell>
                 {first12Months.map((m, i) => (
                   <TableCell key={i} className="text-right font-mono">{formatMoney(m.revenueFB)}</TableCell>
                 ))}
                 <TableCell className="text-right font-bold bg-muted font-mono">{formatMoney(first12Months.reduce((a, b) => a + b.revenueFB, 0))}</TableCell>
               </TableRow>
               <TableRow className="hover:bg-primary/5 border-border">
-                <TableCell className="font-medium sticky left-0 bg-white dark:bg-black/50 z-10 border-r border-border">Event Revenue</TableCell>
+                <TableCell className="font-medium sticky left-0 bg-card dark:bg-foreground/50 z-10 border-r border-border">Event Revenue</TableCell>
                 {first12Months.map((m, i) => (
                   <TableCell key={i} className="text-right font-mono">{formatMoney(m.revenueEvents)}</TableCell>
                 ))}

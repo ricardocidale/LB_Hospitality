@@ -86,13 +86,13 @@ export default function WhatIfPanel({ propertyId, onClose }: WhatIfPanelProps) {
   return (
     <>
       <div
-        className="fixed inset-0 bg-black/30 z-40"
+        className="fixed inset-0 bg-foreground/30 z-40"
         onClick={onClose}
         data-testid="what-if-overlay"
       />
 
       <div
-        className="fixed top-0 right-0 h-full w-80 z-50 bg-white shadow-xl flex flex-col"
+        className="fixed top-0 right-0 h-full w-80 z-50 bg-card shadow-xl flex flex-col"
         style={{ backgroundColor: "#FFFDF7" }}
         data-testid="what-if-panel"
       >

@@ -50,7 +50,7 @@ import type { PropertyEditSectionProps } from "./types";
 
 export default function OperatingCostRatesSection({ draft, onChange, globalAssumptions, researchValues }: PropertyEditSectionProps) {
   return (
-    <div className="relative overflow-hidden rounded-lg border border-border bg-white shadow-sm">
+    <div className="relative overflow-hidden rounded-lg border border-border bg-card shadow-sm">
       <div className="relative p-6">
         <div className="mb-6">
           <h3 className="text-xl font-display text-foreground flex items-center">

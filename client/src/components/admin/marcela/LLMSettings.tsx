@@ -36,7 +36,7 @@ export function LLMSettings({ draft, updateField }: LLMSettingsProps) {
   };
 
   return (
-    <Card className="bg-white border border-border/80 shadow-sm">
+    <Card className="bg-card border border-border/80 shadow-sm">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
@@ -77,7 +77,7 @@ export function LLMSettings({ draft, updateField }: LLMSettingsProps) {
         <div className="space-y-2">
           <Label className="label-text font-medium">Chat Model</Label>
           <Select value={draft.marcelaLlmModel} onValueChange={handleModelChange}>
-            <SelectTrigger className="bg-white" data-testid="select-marcela-llm">
+            <SelectTrigger className="bg-card" data-testid="select-marcela-llm">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -116,7 +116,7 @@ export function LLMSettings({ draft, updateField }: LLMSettingsProps) {
               max={8192}
               value={draft.marcelaMaxTokens}
               onChange={(e) => handleMaxTokensChange(parseInt(e.target.value) || 2048)}
-              className="bg-white"
+              className="bg-card"
               data-testid="input-marcela-max-tokens"
             />
             <p className="text-xs text-muted-foreground">Maximum response length for text conversations</p>
@@ -132,7 +132,7 @@ export function LLMSettings({ draft, updateField }: LLMSettingsProps) {
               max={4096}
               value={draft.marcelaMaxTokensVoice}
               onChange={(e) => updateField("marcelaMaxTokensVoice", parseInt(e.target.value) || 1024)}
-              className="bg-white"
+              className="bg-card"
               data-testid="input-marcela-max-tokens-voice"
             />
             <p className="text-xs text-muted-foreground">Shorter for voice to keep responses conversational</p>

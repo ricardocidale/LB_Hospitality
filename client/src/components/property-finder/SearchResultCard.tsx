@@ -47,7 +47,7 @@ export function SearchResultCard({
 }) {
   return (
     <div
-      className="bg-white rounded-2xl shadow-sm border border-border overflow-hidden hover:shadow-md transition-shadow group"
+      className="bg-card rounded-2xl shadow-sm border border-border overflow-hidden hover:shadow-md transition-shadow group"
       data-testid={`row-property-${property.externalId}`}
     >
       <div className="h-0.5 bg-gradient-to-r from-primary to-primary/30" />
@@ -79,9 +79,9 @@ export function SearchResultCard({
               {isSaving ? (
                 <Loader2 className="w-4 h-4 text-muted-foreground animate-spin" />
               ) : isSaved ? (
-                <Heart className="w-4 h-4 text-[#F4795B] fill-[#F4795B]" />
+                <Heart className="w-4 h-4 text-destructive fill-destructive" />
               ) : (
-                <Heart className="w-4 h-4 text-muted-foreground hover:text-[#F4795B]" />
+                <Heart className="w-4 h-4 text-muted-foreground hover:text-destructive" />
               )}
             </button>
           </div>

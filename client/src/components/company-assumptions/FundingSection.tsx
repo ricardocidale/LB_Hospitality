@@ -26,7 +26,7 @@ import type { FundingSectionProps } from "./types";
 
 export default function FundingSection({ formData, onChange, global }: FundingSectionProps) {
   return (
-    <div className="relative overflow-hidden rounded-lg p-6 bg-white border border-border shadow-sm">
+    <div className="relative overflow-hidden rounded-lg p-6 bg-card border border-border shadow-sm">
       <div className="relative">
       <div className="space-y-6">
         <div>
@@ -43,7 +43,7 @@ export default function FundingSection({ formData, onChange, global }: FundingSe
               value={formData.fundingSourceLabel ?? global.fundingSourceLabel ?? "Funding Vehicle"}
               onChange={(e) => onChange("fundingSourceLabel", e.target.value)}
               placeholder="e.g., Funding Vehicle, SAFE, Seed, Series A"
-              className="max-w-48 bg-white border-border text-foreground"
+              className="max-w-48 bg-card border-border text-foreground"
             />
             <HelpTooltip text="Customize the name of your funding source (e.g., Funding Vehicle, SAFE, Seed, Series A)" />
           </div>
@@ -78,7 +78,7 @@ export default function FundingSection({ formData, onChange, global }: FundingSe
                 type="date"
                 value={formData.safeTranche1Date ?? global.safeTranche1Date}
                 onChange={(e) => onChange("safeTranche1Date", e.target.value)}
-                className="max-w-40 bg-white border-border text-foreground"
+                className="max-w-40 bg-card border-border text-foreground"
               />
             </div>
           </div>
@@ -110,7 +110,7 @@ export default function FundingSection({ formData, onChange, global }: FundingSe
                 type="date"
                 value={formData.safeTranche2Date ?? global.safeTranche2Date}
                 onChange={(e) => onChange("safeTranche2Date", e.target.value)}
-                className="max-w-40 bg-white border-border text-foreground"
+                className="max-w-40 bg-card border-border text-foreground"
               />
             </div>
           </div>

@@ -75,7 +75,7 @@ export default function Section17BusinessRules({ expanded, onToggle, sectionRef 
         <p>
           All financial reports must present capital sources on separate lines for clarity:
         </p>
-        <div className="bg-white/50 rounded p-2 font-mono text-xs mt-2 space-y-1">
+        <div className="bg-card/50 rounded p-2 font-mono text-xs mt-2 space-y-1">
           <div><strong>Equity (Cash) Infusion</strong> — one line item</div>
           <div><strong>Loan Proceeds</strong> — separate line item (acquisition financing)</div>
           <div><strong>Refinancing Proceeds</strong> — separate line item (cash-out from refi)</div>

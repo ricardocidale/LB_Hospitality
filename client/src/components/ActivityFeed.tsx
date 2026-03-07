@@ -86,7 +86,7 @@ export default function ActivityFeed() {
   const recentEvents = events.slice(0, 10);
 
   return (
-    <div data-testid="activity-feed" className="bg-white rounded-xl border shadow-sm p-5">
+    <div data-testid="activity-feed" className="bg-card rounded-xl border shadow-sm p-5">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Activity className="w-5 h-5 text-foreground" />

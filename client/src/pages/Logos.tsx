@@ -155,7 +155,7 @@ export default function Logos() {
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
         ) : !logos || logos.length === 0 ? (
-          <Card className="bg-white border-border shadow-sm rounded-lg">
+          <Card className="bg-card border-border shadow-sm rounded-lg">
             <CardContent className="text-center py-16">
               <Image className="w-16 h-16 mx-auto mb-4 text-primary/30" />
               <p className="text-lg text-muted-foreground mb-2">No logos yet</p>
@@ -165,7 +165,7 @@ export default function Logos() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {logos.map(logo => (
-              <Card key={logo.id} className="bg-white border border-border shadow-sm rounded-lg group hover:shadow-md transition-shadow" data-testid={`logo-card-${logo.id}`}>
+              <Card key={logo.id} className="bg-card border border-border shadow-sm rounded-lg group hover:shadow-md transition-shadow" data-testid={`logo-card-${logo.id}`}>
                 <CardContent className="p-6">
                   <div className="aspect-square bg-muted rounded-lg border border-border flex items-center justify-center p-6 mb-4 overflow-hidden">
                     <img
@@ -231,7 +231,7 @@ export default function Logos() {
               <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
                 {uploadedPreview ? (
                   <div className="space-y-3">
-                    <div className="w-24 h-24 mx-auto rounded-lg bg-white border border-primary/20 flex items-center justify-center overflow-hidden">
+                    <div className="w-24 h-24 mx-auto rounded-lg bg-card border border-primary/20 flex items-center justify-center overflow-hidden">
                       <img src={uploadedPreview} alt="Preview" className="max-w-full max-h-full object-contain" />
                     </div>
                     <p className="text-sm text-primary font-medium">Image uploaded</p>

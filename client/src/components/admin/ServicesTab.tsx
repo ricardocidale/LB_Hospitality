@@ -136,7 +136,7 @@ function ServiceResearchPanel({ template }: { template: ServiceTemplate }) {
       </div>
 
       {waterfall?.industryMarkupRange && (
-        <div className="text-xs text-muted-foreground bg-white rounded-lg p-2 border border-border">
+        <div className="text-xs text-muted-foreground bg-card rounded-lg p-2 border border-border">
           Industry markup for {template.name.toLowerCase()}: {(waterfall.industryMarkupRange.low * 100).toFixed(0)}%–{(waterfall.industryMarkupRange.high * 100).toFixed(0)}%
           (mid: {(waterfall.industryMarkupRange.mid * 100).toFixed(0)}%).
           {markup < waterfall.industryMarkupRange.low
@@ -291,15 +291,15 @@ export default function ServicesTab() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-3 gap-4">
-            <div className="bg-white rounded-xl p-4 border border-border/60">
+            <div className="bg-card rounded-xl p-4 border border-border/60">
               <div className="text-2xl font-display font-bold text-foreground">{activeCount}</div>
               <div className="text-xs text-muted-foreground mt-1">Active Services</div>
             </div>
-            <div className="bg-white rounded-xl p-4 border border-border/60">
+            <div className="bg-card rounded-xl p-4 border border-border/60">
               <div className="text-2xl font-display font-bold text-muted-foreground">{centralizedCount}</div>
               <div className="text-xs text-muted-foreground mt-1">Centralized (pass-through)</div>
             </div>
-            <div className="bg-white rounded-xl p-4 border border-border/60">
+            <div className="bg-card rounded-xl p-4 border border-border/60">
               <div className="text-2xl font-display font-bold text-muted-foreground">{directCount}</div>
               <div className="text-xs text-muted-foreground mt-1">Direct (oversight only)</div>
             </div>
@@ -308,7 +308,7 @@ export default function ServicesTab() {
       </Card>
 
       {/* Service Templates List */}
-      <Card className="bg-white border border-border/80 shadow-sm">
+      <Card className="bg-card border border-border/80 shadow-sm">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>

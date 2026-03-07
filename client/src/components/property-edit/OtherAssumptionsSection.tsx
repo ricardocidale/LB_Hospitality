@@ -29,7 +29,7 @@ import type { OtherAssumptionsSectionProps } from "./types";
 
 export default function OtherAssumptionsSection({ draft, onChange, researchValues, exitYear }: OtherAssumptionsSectionProps) {
   return (
-    <div className="relative overflow-hidden rounded-lg border border-border bg-white shadow-sm">
+    <div className="relative overflow-hidden rounded-lg border border-border bg-card shadow-sm">
       <div className="relative p-6">
         <div className="mb-6">
           <h3 className="text-xl font-display text-foreground flex items-center">

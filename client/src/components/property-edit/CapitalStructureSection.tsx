@@ -46,7 +46,7 @@ import type { PropertyEditSectionProps } from "./types";
 
 export default function CapitalStructureSection({ draft, onChange, onNumberChange, globalAssumptions, researchValues }: PropertyEditSectionProps) {
   return (
-    <div className="relative overflow-hidden rounded-lg border border-border bg-white shadow-sm">
+    <div className="relative overflow-hidden rounded-lg border border-border bg-card shadow-sm">
       <div className="relative p-6 space-y-5">
         <div>
           <h3 className="text-xl font-display text-foreground">Capital Structure</h3>
@@ -58,7 +58,7 @@ export default function CapitalStructureSection({ draft, onChange, onNumberChang
             <Input 
               value={formatMoneyInput(draft.purchasePrice)} 
               onChange={(e) => onNumberChange("purchasePrice", parseMoneyInput(e.target.value).toString())}
-              className="bg-white border-primary/30 text-foreground"
+              className="bg-card border-primary/30 text-foreground"
             />
           </div>
           <div className="space-y-1.5">
@@ -66,7 +66,7 @@ export default function CapitalStructureSection({ draft, onChange, onNumberChang
             <Input 
               value={formatMoneyInput(draft.buildingImprovements)} 
               onChange={(e) => onNumberChange("buildingImprovements", parseMoneyInput(e.target.value).toString())}
-              className="bg-white border-primary/30 text-foreground"
+              className="bg-card border-primary/30 text-foreground"
             />
           </div>
           <div className="space-y-1.5">
@@ -74,7 +74,7 @@ export default function CapitalStructureSection({ draft, onChange, onNumberChang
             <Input 
               value={formatMoneyInput(draft.preOpeningCosts)} 
               onChange={(e) => onNumberChange("preOpeningCosts", parseMoneyInput(e.target.value).toString())}
-              className="bg-white border-primary/30 text-foreground"
+              className="bg-card border-primary/30 text-foreground"
             />
           </div>
           <div className="space-y-1.5">
@@ -82,7 +82,7 @@ export default function CapitalStructureSection({ draft, onChange, onNumberChang
             <Input 
               value={formatMoneyInput(draft.operatingReserve)} 
               onChange={(e) => onNumberChange("operatingReserve", parseMoneyInput(e.target.value).toString())}
-              className="bg-white border-primary/30 text-foreground"
+              className="bg-card border-primary/30 text-foreground"
             />
           </div>
           <div className="space-y-1.5">
@@ -250,7 +250,7 @@ export default function CapitalStructureSection({ draft, onChange, onNumberChang
                           return opsDate.toISOString().split('T')[0];
                         })()} 
                         onChange={(e) => onChange("refinanceDate", e.target.value)}
-                        className="bg-white border-primary/30 text-foreground"
+                        className="bg-card border-primary/30 text-foreground"
                       />
                       <p className="text-xs text-muted-foreground">Suggested: {globalAssumptions?.debtAssumptions?.refiPeriodYears ?? DEFAULT_REFI_PERIOD_YEARS} years after operations start</p>
                     </div>

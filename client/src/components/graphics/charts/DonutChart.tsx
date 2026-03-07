@@ -33,7 +33,7 @@ function CustomTooltip({ active, payload, formatValue }: { active?: boolean; pay
   if (!active || !payload?.length) return null;
   const { name, value } = payload[0];
   return (
-    <div className="bg-white border border-border rounded-lg px-3 py-2 shadow-lg text-sm">
+    <div className="bg-card border border-border rounded-lg px-3 py-2 shadow-lg text-sm">
       <p className="font-medium text-foreground">{name}</p>
       <p className="text-muted-foreground font-mono">{formatValue(value)}</p>
     </div>
@@ -49,7 +49,7 @@ export function DonutChart({ data, title, subtitle, centerLabel, centerValue, he
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5 }}
-      className={`relative overflow-hidden rounded-lg p-6 bg-white border border-border shadow-sm ${className || ""}`}
+      className={`relative overflow-hidden rounded-lg p-6 bg-card border border-border shadow-sm ${className || ""}`}
       data-testid={props["data-testid"]}
     >
       {title && <h3 className="text-lg font-display text-foreground mb-1">{title}</h3>}

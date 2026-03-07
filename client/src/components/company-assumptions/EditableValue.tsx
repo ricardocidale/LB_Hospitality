@@ -75,7 +75,7 @@ export default function EditableValue({
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
         autoFocus
-        className="w-24 px-1 py-0.5 text-right font-mono font-semibold border rounded bg-white border-primary/40 text-foreground"
+        className="w-24 px-1 py-0.5 text-right font-mono font-semibold border rounded bg-card border-primary/40 text-foreground"
       />
     );
   }

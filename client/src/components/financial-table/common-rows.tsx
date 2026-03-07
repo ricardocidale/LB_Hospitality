@@ -138,7 +138,7 @@ export function LineItem({
   return (
     <TableRow className={className}>
       <TableCell
-        className={cn("sticky left-0 bg-white py-1", indentLevel > 0 && "text-muted-foreground")}
+        className={cn("sticky left-0 bg-card py-1", indentLevel > 0 && "text-muted-foreground")}
         style={paddingLeft ? { paddingLeft } : undefined}
       >
         <span className="flex items-center gap-1">

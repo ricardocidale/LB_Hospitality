@@ -5,6 +5,62 @@
 
 ---
 
+## Session: March 7, 2026 — ElevenLabs UI Blocks + Housekeeping
+
+### What Was Done
+- **MCP setup**: `npx shadcn@latest mcp init --client claude` — created `.mcp.json` with shadcn MCP server
+- **All shadcn components installed**: `npx shadcn@latest add --all` (combobox missing from registry, installed by name instead). Overwrote `tabs.tsx` — restored from git to preserve `CurrentThemeTab`. 37 files updated.
+- **ElevenLabs UI blocks installed** (all adapted from Next.js → Vite/Express):
+  - `voice-chat-02` → `features/ai-agent/VoiceChatOrb.tsx` — orb-centered, WebRTC, signed URL
+  - `voice-chat-01` → `features/ai-agent/VoiceChatFull.tsx` — full chat + voice toggle, text+WebRTC
+  - `voice-chat-03` → `features/ai-agent/VoiceChatBar.tsx` — floating ConversationBar, uses `agentId` directly (ConversationBar doesn't support signed URLs)
+  - `speaker-01` → `features/ai-agent/Speaker.tsx` — 1350-line audio player with orb, waveform, playlist, ambience mode
+  - `realtime-transcriber-01` → `features/ai-agent/RealtimeTranscriber.tsx` + `RealtimeTranscriberLanguageSelector.tsx`
+- **New hooks**: `client/src/hooks/use-debounce.ts`, `client/src/hooks/use-previous.ts`
+- **New endpoint**: `POST /api/marcela/scribe-token` in `server/routes/admin/marcela.ts` — replaces Next.js server action `getScribeToken()`
+- **Root barrel**: `features/ai-agent/index.ts` — exports all 7 top-level components + types + components barrel
+- **Stale import fixes**: `VoiceSettings.tsx` and `MarcelaTab.tsx` updated from `@/components/ui/orb|bar-visualizer|matrix` → `@/features/ai-agent/components/`
+- **Skills saved**: `.claude/skills/ui/react-hook-form.md` (RHF + Field component patterns), `.claude/skills/marcela-ai/elevenlabs-components-docs/README.md` (index of 17 EL docs)
+- **TS errors fixed in RealtimeTranscriber**: `<style jsx>` → `<style>`, `<Badge asChild>` → plain `<a>` with Tailwind badge classes
+- TypeScript: 0 errors throughout
+
+### Next.js → Vite Adaptation Pattern
+- Remove `"use client"` directive
+- Replace `next/link` `<Link>` with `<a target="_blank" rel="noopener noreferrer">`
+- Replace server actions (`"use server"`) with Express endpoints + `fetch("/api/...", { credentials: "include" })`
+- Replace registry hook imports (`@/registry/elevenlabs-ui/hooks/`) with `@/hooks/`
+- Replace `<style jsx>` with `<style>`
+- Replace `<Badge asChild>` with inline `<a>` + Tailwind badge classes
+
+### Key Decisions
+- `VoiceChatBar` uses `agentId` (not signed URL) — `ConversationBar` component limitation, requires public agent
+- `exampleTracks` defined locally in `Speaker.tsx` (not exported from audio-player)
+- Linter auto-appends `.js` to audio-player import in Speaker.tsx — leave as-is
+- `ConversationBar` `agentId` prop reads `marcelaAgentId` from `useMarcelaSettings()`
+
+### Feature Module Structure (updated)
+```
+client/src/features/ai-agent/
+├── index.ts                          # ROOT BARREL (new) — all exports
+├── components/                       # 17 ElevenLabs UI components
+├── hooks/
+├── ElevenLabsWidget.tsx
+├── VoiceChatOrb.tsx                  # voice-chat-02
+├── VoiceChatFull.tsx                 # voice-chat-01
+├── VoiceChatBar.tsx                  # voice-chat-03
+├── Speaker.tsx                       # speaker-01
+├── RealtimeTranscriber.tsx           # realtime-transcriber-01
+├── RealtimeTranscriberLanguageSelector.tsx
+├── query-keys.ts
+└── types.ts
+```
+
+### Remaining Known Issues
+- `admin/marcela/index.ts` only exports `MarcelaTab` — sub-tab components not exported
+- None of the 5 new UI blocks are wired into the app UI yet (no route or tab linking to them)
+
+---
+
 ## Session: March 7, 2026 — AI Agent Feature Module Reorganization (Phases 1–6)
 
 ### What Was Done
@@ -36,10 +92,10 @@ client/src/features/ai-agent/
 - `client/src/components/admin/marcela/hooks.ts` → `export * from "@/features/ai-agent/hooks"`
 - `client/src/components/admin/marcela/types.ts` → `export * from "../../../features/ai-agent/types"` (relative — vitest compat)
 
-### Known Issues (not yet fixed)
-- 3 marcela admin components (`ConversationHistory.tsx`, `VoiceSettings.tsx`, `MarcelaTab.tsx`) still import from old `components/ui/` EL paths instead of `@/features/ai-agent/components/`
-- `features/ai-agent/` has no root `index.ts` barrel (other features have one)
-- `admin/marcela/index.ts` only exports `MarcelaTab` — sub-tab components not exported
+### Known Issues (resolved in next session)
+- `VoiceSettings.tsx` and `MarcelaTab.tsx` stale imports fixed (orb/bar-visualizer/matrix → features/ai-agent/components)
+- Root `index.ts` barrel added to `features/ai-agent/`
+- `admin/marcela/index.ts` sub-tab exports still pending
 
 ---
 

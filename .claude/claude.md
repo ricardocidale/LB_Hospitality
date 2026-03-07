@@ -70,7 +70,7 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | Source Code | `.claude/skills/source-code/SKILL.md` | Full source code map |
 | Marcela AI | `.claude/skills/marcela-ai/` | Multi-channel assistant architecture, audio pipeline |
 | Twilio Telephony | `.claude/skills/twilio-telephony/` | Voice webhooks, SMS webhooks, Media Streams, audio encoding |
-| Voice Widget UX | `.claude/skills/voice-widget/` | Voice state machine, waveform, barge-in, error handling |
+| Voice Widget UX | `.claude/skills/marcela-ai/voice-ux-patterns.md` | Voice state machine, waveform, barge-in, error handling |
 | Property Finder | `.claude/skills/property-finder/SKILL.md` | RapidAPI property search integration |
 | Finance (16 skills) | `.claude/skills/finance/` | Income statement, cash flow, balance sheet, IRR, DCF, etc. |
 | Research (17 skills) | `.claude/skills/research/` | Market, ADR, occupancy, cap rate, catering, auto-refresh, research questions CRUD, etc. |

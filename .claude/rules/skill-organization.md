@@ -29,9 +29,8 @@ All skill files must follow consistent organization, naming, and placement conve
 │   ├── ui/                    # 27 UI skills (charts, graphics, components, image picker)
 │   ├── mobile-responsive/     # 4 mobile/tablet responsive design skills
 │   ├── 3d-graphics/           # Three.js / React Three Fiber
-│   ├── marcela-ai/            # Multi-channel AI assistant (architecture, audio pipeline)
+│   ├── marcela-ai/            # Multi-channel AI assistant (architecture, audio pipeline, voice UX, ElevenLabs components, admin)
 │   ├── twilio-telephony/      # Twilio Voice + SMS integration
-│   ├── voice-widget/          # Voice UX patterns (state machine, waveform, barge-in)
 │   └── admin/                 # Admin page architecture (10-tab shell pattern)
 ├── tools/                     # Tool schemas (JSON)
 │   ├── analysis/              # Break-even, consolidation, scenario

@@ -27,8 +27,10 @@ Documents the complete AI assistant system operating across web (ElevenLabs Conv
 |------|---------------|
 | `marcela-architecture.md` | Channel matrix, file map, system prompts, context injection, DB schema, admin config, integration credentials |
 | `audio-pipeline.md` | Phone voice pipeline (Twilio Media Streams), audio conversion, ElevenLabs STT/TTS |
+| `ai-agent-admin.md` | Feature module structure (hooks/, types.ts, components/, ElevenLabsWidget), re-export barrels, widget variants, AgentState collision |
+| `elevenlabs-ui-components.md` | All 17 ElevenLabs UI components — props, imports, usage examples |
+| `voice-ux-patterns.md` | Voice state machine, WaveformVisualizer, VoiceStateIndicator, barge-in, error retry, channel badges |
 | `.claude/skills/elevenlabs-widget/SKILL.md` | Web widget: signed URL flow, admin config, gating logic, voice IDs |
-| `.claude/skills/admin/ai-agent-admin.md` | Admin > AI Agent tab: 7-tab dashboard, components, hooks, API endpoints |
 
 ## Key Files
 
@@ -46,7 +48,10 @@ Documents the complete AI assistant system operating across web (ElevenLabs Conv
 ### Client
 | File | Purpose |
 |------|---------|
-| `client/src/components/ElevenLabsWidget.tsx` | Web chat widget (ElevenLabs Conversational AI) |
+| `client/src/features/ai-agent/ElevenLabsWidget.tsx` | Web chat widget — source of truth (barrel at `components/ElevenLabsWidget.tsx`) |
+| `client/src/features/ai-agent/types.ts` | VoiceSettings, TwilioStatus, TTS_MODELS, LLM_MODELS — source of truth |
+| `client/src/features/ai-agent/hooks/` | All React Query hooks — source of truth (barrel at `admin/marcela/hooks.ts`) |
+| `client/src/features/ai-agent/components/` | All 17 ElevenLabs UI components — source of truth (barrels at `components/ui/`) |
 | `client/src/components/Layout.tsx` | `MarcelaWidgetGated` gating component |
 | `client/src/components/admin/marcela/MarcelaTab.tsx` | Admin 7-tab dashboard (General, Prompt, Voice, LLM, Tools, KB, Telephony) |
 | `client/src/components/admin/marcela/PromptEditor.tsx` | System prompt, first message, language editor |
@@ -55,8 +60,6 @@ Documents the complete AI assistant system operating across web (ElevenLabs Conv
 | `client/src/components/admin/marcela/VoiceSettings.tsx` | ElevenLabs TTS/STT model settings |
 | `client/src/components/admin/marcela/LLMSettings.tsx` | LLM model + token limits |
 | `client/src/components/admin/marcela/TelephonySettings.tsx` | Twilio phone/SMS config |
-| `client/src/components/admin/marcela/hooks.ts` | React Query hooks for all AI Agent admin operations |
-| `client/src/components/admin/marcela/types.ts` | Shared TypeScript interfaces |
 
 ### Shared
 | File | Purpose |

@@ -103,7 +103,7 @@ With 119 skill files, loading everything wastes tokens and slows responses. This
 | Marcela architecture / prompts | `marcela-ai/marcela-architecture.md` | UI skills, finance |
 | Twilio voice / phone calls | `twilio-telephony/twilio-integration.md` | Web voice skills, finance |
 | SMS inbound/outbound | `twilio-telephony/twilio-integration.md` | Voice skills, finance |
-| Voice UX (widget states) | `voice-widget/voice-ux-patterns.md` | Twilio, finance |
+| Voice UX (widget states) | `marcela-ai/voice-ux-patterns.md` | Twilio, finance |
 | Admin Marcela tab config | `admin/admin-refactor-map.md`, `marcela-ai/marcela-architecture.md` | Finance skills |
 | RAG knowledge base | `marcela-ai/marcela-architecture.md` | Voice, Twilio skills |
 | Any Marcela change | **Always also load**: `marcela-ai/marcela-architecture.md` | — |

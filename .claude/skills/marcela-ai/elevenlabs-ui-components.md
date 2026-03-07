@@ -6,17 +6,17 @@ description: Complete reference for all ElevenLabs UI components installed in th
 # ElevenLabs UI Components
 
 All components sourced from https://ui.elevenlabs.io/ via `curl -s https://ui.elevenlabs.io/r/<name>.json`.
-Installed to: `client/src/components/ui/`
+Installed to: `client/src/features/ai-agent/components/` (re-export barrels remain at `client/src/components/ui/` for backward compat)
 Hooks installed to: `client/src/hooks/`
 
 ## Installed Components
 
 ### 1. `orb.tsx` — Animated 3D Voice Orb
-**Path**: `client/src/components/ui/orb.tsx`
+**Path**: `client/src/features/ai-agent/components/orb.tsx`
 **Dependencies**: `@react-three/fiber`, `@react-three/drei`, `three` (all installed)
 
 ```tsx
-import { Orb, AgentState } from "@/components/ui/orb"
+import { Orb, AgentState } from "@/features/ai-agent/components/orb"
 
 <div className="w-32 h-32">
   <Orb
@@ -32,10 +32,10 @@ import { Orb, AgentState } from "@/components/ui/orb"
 ---
 
 ### 2. `bar-visualizer.tsx` — Multi-Bar Audio Visualizer
-**Path**: `client/src/components/ui/bar-visualizer.tsx`
+**Path**: `client/src/features/ai-agent/components/bar-visualizer.tsx`
 
 ```tsx
-import { BarVisualizer } from "@/components/ui/bar-visualizer"
+import { BarVisualizer } from "@/features/ai-agent/components/bar-visualizer"
 
 <BarVisualizer
   state="speaking"   // "connecting"|"initializing"|"listening"|"speaking"|"thinking"
@@ -51,14 +51,14 @@ import { BarVisualizer } from "@/components/ui/bar-visualizer"
 ---
 
 ### 3. `audio-player.tsx` — Feature-Rich Audio Player
-**Path**: `client/src/components/ui/audio-player.tsx`
+**Path**: `client/src/features/ai-agent/components/audio-player.tsx`
 **Dependencies**: `@radix-ui/react-slider`, `@radix-ui/react-dropdown-menu`
 
 ```tsx
 import {
   AudioPlayerProvider, AudioPlayerButton, AudioPlayerProgress,
   AudioPlayerTime, AudioPlayerDuration, AudioPlayerSpeed,
-} from "@/components/ui/audio-player"
+} from "@/features/ai-agent/components/audio-player"
 
 const item = { id: "conv-123", src: "https://..." }
 
@@ -79,11 +79,11 @@ const item = { id: "conv-123", src: "https://..." }
 ---
 
 ### 4. `conversation.tsx` — Auto-Scrolling Chat Container
-**Path**: `client/src/components/ui/conversation.tsx`
+**Path**: `client/src/features/ai-agent/components/conversation.tsx`
 **Dependencies**: `use-stick-to-bottom`
 
 ```tsx
-import { Conversation, ConversationContent, ConversationEmptyState, ConversationScrollButton } from "@/components/ui/conversation"
+import { Conversation, ConversationContent, ConversationEmptyState, ConversationScrollButton } from "@/features/ai-agent/components/conversation"
 
 <Conversation className="h-96">
   <ConversationContent>
@@ -100,11 +100,11 @@ import { Conversation, ConversationContent, ConversationEmptyState, Conversation
 ---
 
 ### 5. `conversation-bar.tsx` — Full Voice + Text Conversation Interface
-**Path**: `client/src/components/ui/conversation-bar.tsx`
+**Path**: `client/src/features/ai-agent/components/conversation-bar.tsx`
 **Dependencies**: `@elevenlabs/react` (v0.14.1), `live-waveform.tsx`
 
 ```tsx
-import { ConversationBar } from "@/components/ui/conversation-bar"
+import { ConversationBar } from "@/features/ai-agent/components/conversation-bar"
 
 <ConversationBar
   agentId="your-elevenlabs-agent-id"
@@ -122,10 +122,10 @@ import { ConversationBar } from "@/components/ui/conversation-bar"
 ---
 
 ### 6. `live-waveform.tsx` — Real-Time Microphone Waveform
-**Path**: `client/src/components/ui/live-waveform.tsx`
+**Path**: `client/src/features/ai-agent/components/live-waveform.tsx`
 
 ```tsx
-import { LiveWaveform } from "@/components/ui/live-waveform"
+import { LiveWaveform } from "@/features/ai-agent/components/live-waveform"
 
 <LiveWaveform
   active={isRecording}
@@ -142,7 +142,7 @@ import { LiveWaveform } from "@/components/ui/live-waveform"
 ---
 
 ### 7. `waveform.tsx` — Multi-Mode Waveform Suite
-**Path**: `client/src/components/ui/waveform.tsx`
+**Path**: `client/src/features/ai-agent/components/waveform.tsx`
 
 Exports 7 components:
 
@@ -150,7 +150,7 @@ Exports 7 components:
 import {
   Waveform, ScrollingWaveform, AudioScrubber,
   MicrophoneWaveform, StaticWaveform, LiveMicrophoneWaveform, RecordingWaveform,
-} from "@/components/ui/waveform"
+} from "@/features/ai-agent/components/waveform"
 
 // Static data display
 <Waveform data={amplitudeArray} barWidth={4} barGap={2} height={64}
@@ -181,10 +181,10 @@ import {
 ---
 
 ### 8. `matrix.tsx` — LED Pixel Grid Visualizer
-**Path**: `client/src/components/ui/matrix.tsx`
+**Path**: `client/src/features/ai-agent/components/matrix.tsx`
 
 ```tsx
-import { Matrix } from "@/components/ui/matrix"
+import { Matrix } from "@/features/ai-agent/components/matrix"
 
 <Matrix
   rows={5} cols={10}
@@ -199,10 +199,10 @@ import { Matrix } from "@/components/ui/matrix"
 ---
 
 ### 9. `message.tsx` — Chat Bubble Components
-**Path**: `client/src/components/ui/message.tsx`
+**Path**: `client/src/features/ai-agent/components/message.tsx`
 
 ```tsx
-import { Message, MessageContent, MessageAvatar } from "@/components/ui/message"
+import { Message, MessageContent, MessageAvatar } from "@/features/ai-agent/components/message"
 
 // from="user" → right-aligned, from="assistant" → left-aligned
 <Message from="assistant" className="py-1.5">
@@ -224,10 +224,10 @@ import { Message, MessageContent, MessageAvatar } from "@/components/ui/message"
 ---
 
 ### 10. `mic-selector.tsx` — Microphone Device Selector
-**Path**: `client/src/components/ui/mic-selector.tsx`
+**Path**: `client/src/features/ai-agent/components/mic-selector.tsx`
 
 ```tsx
-import { MicSelector, useAudioDevices } from "@/components/ui/mic-selector"
+import { MicSelector, useAudioDevices } from "@/features/ai-agent/components/mic-selector"
 
 <MicSelector
   value={selectedDeviceId}
@@ -243,11 +243,11 @@ import { MicSelector, useAudioDevices } from "@/components/ui/mic-selector"
 ---
 
 ### 11. `response.tsx` — Streaming Markdown Renderer
-**Path**: `client/src/components/ui/response.tsx`
+**Path**: `client/src/features/ai-agent/components/response.tsx`
 **Dependencies**: `streamdown` (installed v2.4.0)
 
 ```tsx
-import { Response } from "@/components/ui/response"
+import { Response } from "@/features/ai-agent/components/response"
 
 // Streams markdown text as it arrives (e.g. from SSE/WebSocket)
 <Response className="prose prose-sm max-w-none">
@@ -260,13 +260,13 @@ Memo-optimized: only re-renders when `children` changes. Wraps `Streamdown` from
 ---
 
 ### 12. `scrub-bar.tsx` — Composable Audio Scrub Bar
-**Path**: `client/src/components/ui/scrub-bar.tsx`
+**Path**: `client/src/features/ai-agent/components/scrub-bar.tsx`
 
 ```tsx
 import {
   ScrubBarContainer, ScrubBarTrack, ScrubBarProgress,
   ScrubBarThumb, ScrubBarTimeLabel,
-} from "@/components/ui/scrub-bar"
+} from "@/features/ai-agent/components/scrub-bar"
 
 <ScrubBarContainer
   duration={totalDuration}
@@ -288,11 +288,11 @@ import {
 ---
 
 ### 13. `shimmering-text.tsx` — Shimmer Text Animation
-**Path**: `client/src/components/ui/shimmering-text.tsx`
+**Path**: `client/src/features/ai-agent/components/shimmering-text.tsx`
 **Dependencies**: `motion/react` (Framer Motion)
 
 ```tsx
-import { ShimmeringText } from "@/components/ui/shimmering-text"
+import { ShimmeringText } from "@/features/ai-agent/components/shimmering-text"
 
 <ShimmeringText
   text="Listening..."
@@ -311,12 +311,12 @@ import { ShimmeringText } from "@/components/ui/shimmering-text"
 ---
 
 ### 14. `speech-input.tsx` — Voice Input with ElevenLabs Scribe STT
-**Path**: `client/src/components/ui/speech-input.tsx`
+**Path**: `client/src/features/ai-agent/components/speech-input.tsx`
 **Hook**: `client/src/hooks/use-scribe.ts`
 **Dependencies**: `@elevenlabs/react`, ElevenLabs Scribe streaming STT
 
 ```tsx
-import { SpeechInput } from "@/components/ui/speech-input"
+import { SpeechInput } from "@/features/ai-agent/components/speech-input"
 
 <SpeechInput
   modelId="scribe_v1"
@@ -332,12 +332,12 @@ Full composable API also exports: `SpeechInputRoot`, `SpeechInputArea`, `SpeechI
 ---
 
 ### 15. `transcript-viewer.tsx` — Karaoke-Style Transcript Viewer
-**Path**: `client/src/components/ui/transcript-viewer.tsx`
+**Path**: `client/src/features/ai-agent/components/transcript-viewer.tsx`
 **Hook**: `client/src/hooks/use-transcript-viewer.ts`
 **Dependencies**: `@elevenlabs/elevenlabs-js`, `scrub-bar.tsx`
 
 ```tsx
-import { TranscriptViewer } from "@/components/ui/transcript-viewer"
+import { TranscriptViewer } from "@/features/ai-agent/components/transcript-viewer"
 
 // Takes ElevenLabs character alignment data + playback control
 <TranscriptViewer
@@ -353,10 +353,10 @@ import { TranscriptViewer } from "@/components/ui/transcript-viewer"
 ---
 
 ### 16. `voice-button.tsx` — Voice Recording Button
-**Path**: `client/src/components/ui/voice-button.tsx`
+**Path**: `client/src/features/ai-agent/components/voice-button.tsx`
 
 ```tsx
-import { VoiceButton, VoiceButtonState } from "@/components/ui/voice-button"
+import { VoiceButton, VoiceButtonState } from "@/features/ai-agent/components/voice-button"
 
 <VoiceButton
   state={buttonState}   // "idle"|"recording"|"processing"|"success"|"error"
@@ -372,11 +372,11 @@ import { VoiceButton, VoiceButtonState } from "@/components/ui/voice-button"
 ---
 
 ### 17. `voice-picker.tsx` — Voice Selection Combobox
-**Path**: `client/src/components/ui/voice-picker.tsx`
+**Path**: `client/src/features/ai-agent/components/voice-picker.tsx`
 **Dependencies**: `@elevenlabs/elevenlabs-js`, `audio-player.tsx`, `orb.tsx`
 
 ```tsx
-import { VoicePicker } from "@/components/ui/voice-picker"
+import { VoicePicker } from "@/features/ai-agent/components/voice-picker"
 import type { ElevenLabs } from "@elevenlabs/elevenlabs-js"
 
 // voices: ElevenLabs.Voice[] from the SDK
@@ -439,7 +439,7 @@ curl -s https://ui.elevenlabs.io/r/<name>.json | python3 -c "
 import json, sys
 data = json.load(sys.stdin)
 for f in data.get('files', []):
-    path = 'client/src/components/ui/' + f['path'].split('/')[-1]
+    path = 'client/src/features/ai-agent/components/' + f['path'].split('/')[-1]
     with open(path, 'w') as fp:
         fp.write(f['content'])
     print('wrote', path)

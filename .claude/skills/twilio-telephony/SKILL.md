@@ -25,4 +25,4 @@ Documents the Twilio Voice (phone calls) and SMS integration for the Marcela AI 
 
 ## Related Skills
 - `marcela-ai/` — Overall Marcela architecture and audio pipeline
-- `voice-widget/` — Web voice UX patterns
+- `marcela-ai/voice-ux-patterns.md` — Web voice UX patterns

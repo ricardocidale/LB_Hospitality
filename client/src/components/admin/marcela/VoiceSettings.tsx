@@ -10,6 +10,8 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Volume2, Waves, AudioLines, Zap, Settings2, Timer, ImageIcon, Loader2, Save, LayoutTemplate } from "lucide-react";
 import { VoiceSettings, TTS_MODELS, OUTPUT_FORMATS, STT_MODELS } from "./types";
+import { Orb } from "@/components/ui/orb";
+import { BarVisualizer } from "@/components/ui/bar-visualizer";
 import { useSaveWidgetSettings, useSaveAgentVoice } from "./hooks";
 
 interface VoiceSettingsProps {
@@ -307,11 +309,13 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
               <LayoutTemplate className="w-3.5 h-3.5" />
               Widget Variant
             </Label>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
               {[
-                { value: "tiny", label: "Tiny", desc: "Icon only" },
-                { value: "compact", label: "Compact", desc: "Icon + label" },
-                { value: "full", label: "Full", desc: "Expanded panel" },
+                { value: "tiny", label: "Tiny", desc: "Icon only", preview: null },
+                { value: "compact", label: "Compact", desc: "Icon + label", preview: null },
+                { value: "full", label: "Full", desc: "Expanded panel", preview: null },
+                { value: "orb", label: "Orb", desc: "Animated 3D sphere", preview: "orb" },
+                { value: "bars", label: "Bars", desc: "Live frequency bars", preview: "bars" },
               ].map((v) => (
                 <button
                   key={v.value}
@@ -319,11 +323,34 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
                   onClick={() => { setVariantDraft(v.value); setWidgetDirty(true); }}
                   className={`p-3 rounded-xl border text-left transition-all ${variantDraft === v.value ? "border-primary bg-primary/5 shadow-sm" : "border-muted-foreground/20 hover:border-primary/30"}`}
                 >
+                  {v.preview === "orb" && (
+                    <div className="w-10 h-10 mb-2">
+                      <Orb colors={["#9fbca4", "#4a7c5c"]} agentState="thinking" seed={7} />
+                    </div>
+                  )}
+                  {v.preview === "bars" && (
+                    <div className="mb-2">
+                      <BarVisualizer
+                        state="speaking"
+                        barCount={8}
+                        demo={true}
+                        minHeight={20}
+                        maxHeight={100}
+                        centerAlign={true}
+                        className="h-10 bg-transparent rounded-lg p-0 gap-0.5"
+                      />
+                    </div>
+                  )}
                   <p className={`text-xs font-semibold ${variantDraft === v.value ? "text-primary" : "text-foreground"}`}>{v.label}</p>
                   <p className="text-[10px] text-muted-foreground/60 mt-0.5">{v.desc}</p>
                 </button>
               ))}
             </div>
+            {(variantDraft === "orb" || variantDraft === "bars") && (
+              <p className="text-[11px] text-blue-600/70 bg-blue-50/60 border border-blue-200/40 rounded-lg px-3 py-2">
+                Custom components replace the native ElevenLabs widget button. Users see the animated visual instead.
+              </p>
+            )}
           </div>
 
           <Separator />

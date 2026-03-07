@@ -8,7 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, Bot, MessageSquare, Mic, Brain, Wrench, BookOpen, Phone, User, History, CheckCircle2, XCircle, Activity, Play } from "lucide-react";
+import { Shield, MessageSquare, Mic, Brain, Wrench, BookOpen, Phone, User, History, CheckCircle2, XCircle, Activity, Play } from "lucide-react";
+import { Orb, AgentState } from "@/components/ui/orb";
 import { VoiceSettings } from "./types";
 import { useMarcelaSettings, useTwilioStatus, useSaveMarcelaSettings, useAgentConfig, useConversations, useAdminSignedUrl } from "./hooks";
 import { KnowledgeBaseCard } from "./KnowledgeBase";
@@ -27,6 +28,7 @@ export default function MarcelaTab() {
   const { data: conversations } = useConversations();
   const { data: signedUrl } = useAdminSignedUrl();
   const [testOpen, setTestOpen] = useState(false);
+  const [orbAgentState, setOrbAgentState] = useState<AgentState>(null);
 
   const [draft, setDraft] = useState<VoiceSettings | null>(null);
   const [isDirty, setIsDirty] = useState(false);
@@ -37,6 +39,16 @@ export default function MarcelaTab() {
       setDraft({ ...globalData });
     }
   }, [globalData, draft]);
+
+  // Cycle orb animation states while the test dialog is open
+  useEffect(() => {
+    if (!testOpen) { setOrbAgentState(null); return; }
+    const states: AgentState[] = ["thinking", "listening", "talking", "listening"];
+    let i = 0;
+    setOrbAgentState(states[0]);
+    const id = setInterval(() => { i = (i + 1) % states.length; setOrbAgentState(states[i]); }, 2500);
+    return () => clearInterval(id);
+  }, [testOpen]);
 
   const updateField = <K extends keyof VoiceSettings>(key: K, value: VoiceSettings[K]) => {
     if (!draft) return;
@@ -204,8 +216,12 @@ export default function MarcelaTab() {
             <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
               <CardHeader className="pb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/15 to-blue-500/5 flex items-center justify-center">
-                    <Bot className="w-5 h-5 text-blue-600" />
+                  <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0">
+                    <Orb
+                      colors={["#9fbca4", "#4a7c5c"]}
+                      agentState={agentConfig ? "thinking" : null}
+                      seed={42}
+                    />
                   </div>
                   <div>
                     <CardTitle className="font-display text-base">ElevenLabs Conversational AI</CardTitle>
@@ -388,17 +404,31 @@ export default function MarcelaTab() {
           <DialogHeader>
             <DialogTitle className="font-display">Test Conversation</DialogTitle>
           </DialogHeader>
-          <div className="flex flex-col items-center gap-4 py-4">
+          <div className="flex flex-col items-center gap-3 py-2">
+            {/* Animated orb — cycling states show the visual agent */}
+            <div className="w-28 h-28">
+              <Orb
+                colors={["#9fbca4", "#4a7c5c"]}
+                agentState={orbAgentState}
+                seed={42}
+              />
+            </div>
+            <div className="text-center">
+              <p className="text-sm font-semibold font-display">{agentName}</p>
+              <p className="text-[11px] text-muted-foreground/60 capitalize">
+                {orbAgentState ?? "idle"}
+              </p>
+            </div>
             {signedUrl ? (
               <>
-                <p className="text-xs text-muted-foreground/70 text-center">
-                  Chat with {agentName} directly. This uses a live signed URL and counts as a real conversation.
+                <p className="text-xs text-muted-foreground/60 text-center px-2">
+                  Live conversation — counts against your ElevenLabs quota.
                 </p>
                 {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                {(React as any).createElement("elevenlabs-convai", { "signed-url": signedUrl, variant: "full" })}
+                {(React as any).createElement("elevenlabs-convai", { "signed-url": signedUrl, variant: "compact" })}
               </>
             ) : (
-              <p className="text-sm text-muted-foreground/60">Generating signed URL…</p>
+              <p className="text-xs text-muted-foreground/60 animate-pulse">Generating signed URL…</p>
             )}
           </div>
         </DialogContent>

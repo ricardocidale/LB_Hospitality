@@ -5,9 +5,16 @@ import { Button } from "@/components/ui/button";
 import {
   MessageSquare, RefreshCw, ChevronDown, ChevronRight, Clock, User, Bot,
   Loader2, Inbox, Mic, Keyboard, Copy, Check, AlertCircle,
-  BarChart2, CheckCircle2, XCircle, Play, Square,
+  BarChart2, CheckCircle2, XCircle, Play,
 } from "lucide-react";
 import { useConversations, useConversation } from "./hooks";
+import {
+  AudioPlayerProvider,
+  AudioPlayerButton,
+  AudioPlayerProgress,
+  AudioPlayerTime,
+  AudioPlayerDuration,
+} from "@/components/ui/audio-player";
 
 function formatDuration(secs?: number) {
   if (!secs) return "—";
@@ -105,44 +112,56 @@ function ConversationDetail({ id }: { id: string }) {
 }
 
 function AudioPlayer({ conversationId }: { conversationId: string }) {
-  const [playing, setPlaying] = useState(false);
+  const [src, setSrc] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const audioRef = useState<HTMLAudioElement | null>(null);
+  const [unavailable, setUnavailable] = useState(false);
 
-  const handlePlay = async () => {
-    if (playing && audioRef[0]) {
-      audioRef[0].pause();
-      setPlaying(false);
-      return;
-    }
+  const handleLoad = async () => {
     setLoading(true);
     try {
       const res = await fetch(`/api/admin/convai/conversations/${conversationId}/audio`, { credentials: "include" });
       if (!res.ok) throw new Error("Audio unavailable");
       const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const audio = new Audio(url);
-      audioRef[1](audio);
-      audio.onended = () => { setPlaying(false); URL.revokeObjectURL(url); };
-      audio.play();
-      setPlaying(true);
+      setSrc(URL.createObjectURL(blob));
     } catch {
-      // audio not available for this conversation
+      setUnavailable(true);
     } finally {
       setLoading(false);
     }
   };
 
+  if (unavailable) return null;
+
+  if (!src) {
+    return (
+      <button
+        type="button"
+        onClick={handleLoad}
+        disabled={loading}
+        className="inline-flex items-center gap-1 text-[10px] text-muted-foreground/60 hover:text-primary transition-colors disabled:opacity-50"
+      >
+        {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Play className="w-3 h-3" />}
+        {loading ? "Loading…" : "Play"}
+      </button>
+    );
+  }
+
+  const item = { id: conversationId, src };
   return (
-    <button
-      type="button"
-      onClick={handlePlay}
-      className="inline-flex items-center gap-1 text-[10px] text-muted-foreground/60 hover:text-primary transition-colors"
-      title={playing ? "Stop" : "Play recording"}
-    >
-      {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : playing ? <Square className="w-3 h-3" /> : <Play className="w-3 h-3" />}
-      {loading ? "Loading…" : playing ? "Stop" : "Play"}
-    </button>
+    <AudioPlayerProvider>
+      <div className="flex items-center gap-2">
+        <AudioPlayerButton
+          item={item}
+          size="sm"
+          variant="ghost"
+          className="h-5 w-5 p-0 text-muted-foreground/60 hover:text-primary"
+        />
+        <AudioPlayerProgress className="w-28" />
+        <AudioPlayerTime className="text-[10px]" />
+        <span className="text-[10px] text-muted-foreground/30">/</span>
+        <AudioPlayerDuration className="text-[10px]" />
+      </div>
+    </AudioPlayerProvider>
   );
 }
 

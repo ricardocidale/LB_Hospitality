@@ -1,5 +1,3 @@
-"use client"
-
 import * as React from "react"
 import { useConversation } from "@elevenlabs/react"
 import {
@@ -21,9 +19,24 @@ import { Textarea } from "@/components/ui/textarea"
 
 export interface ConversationBarProps {
   /**
-   * ElevenLabs Agent ID to connect to
+   * ElevenLabs Agent ID to connect to (used if signedUrl is not provided)
    */
-  agentId: string
+  agentId?: string
+
+  /**
+   * Signed URL for authenticated agent sessions (preferred over agentId)
+   */
+  signedUrl?: string
+
+  /**
+   * Dynamic variables to inject into the agent session
+   */
+  dynamicVariables?: Record<string, string | number | boolean>
+
+  /**
+   * Label shown in the waveform area when disconnected
+   */
+  agentLabel?: string
 
   /**
    * Custom className for the container
@@ -68,6 +81,9 @@ export const ConversationBar = React.forwardRef<
   (
     {
       agentId,
+      signedUrl,
+      dynamicVariables,
+      agentLabel,
       className,
       waveformClassName,
       onConnect,
@@ -127,17 +143,25 @@ export const ConversationBar = React.forwardRef<
 
         await getMicStream()
 
-        await conversation.startSession({
-          agentId,
-          connectionType: "webrtc",
-          onStatusChange: (status) => setAgentState(status.status),
-        })
+        if (signedUrl) {
+          await conversation.startSession({
+            signedUrl,
+            dynamicVariables,
+            onStatusChange: (status) => setAgentState(status.status),
+          })
+        } else {
+          await conversation.startSession({
+            agentId: agentId!,
+            connectionType: "webrtc",
+            onStatusChange: (status) => setAgentState(status.status),
+          })
+        }
       } catch (error) {
         console.error("Error starting conversation:", error)
         setAgentState("disconnected")
         onError?.(error as Error)
       }
-    }, [conversation, getMicStream, agentId, onError])
+    }, [conversation, getMicStream, agentId, signedUrl, dynamicVariables, onError])
 
     const handleEndSession = React.useCallback(() => {
       conversation.endSession()
@@ -249,7 +273,7 @@ export const ConversationBar = React.forwardRef<
                         {agentState === "disconnected" && (
                           <div className="absolute inset-0 flex items-center justify-center">
                             <span className="text-foreground/50 text-[10px] font-medium">
-                              Customer Support
+                              {agentLabel ?? "AI Agent"}
                             </span>
                           </div>
                         )}

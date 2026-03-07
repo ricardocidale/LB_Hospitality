@@ -46,7 +46,7 @@ const BackgroundAura = React.memo(
     return (
       <div
         className={cn(
-          "pointer-events-none fixed inset-0 transition-opacity duration-300 ease-out",
+          "pointer-events-none absolute inset-0 transition-opacity duration-300 ease-out",
           isActive ? "opacity-100" : "opacity-0"
         )}
       >
@@ -175,7 +175,7 @@ const BottomControls = React.memo(
               y: 10,
               transition: { duration: 0.1 },
             }}
-            className="fixed bottom-8 left-1/2 z-50 flex -translate-x-1/2 items-center gap-2"
+            className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2"
           >
             <button
               onClick={onStop}
@@ -538,7 +538,7 @@ export default function RealtimeTranscriber01() {
   const isPartial = Boolean(lastTranscriptRef.current)
 
   return (
-    <div className="relative mx-auto flex h-full w-full max-w-4xl flex-col items-center justify-center">
+    <div className="relative mx-auto flex min-h-[480px] w-full max-w-4xl flex-col items-center justify-center overflow-hidden rounded-xl border bg-background">
       <BackgroundAura
         status={connectionState === "connecting" ? "connecting" : scribe.status}
         isConnected={connectionState === "connected"}

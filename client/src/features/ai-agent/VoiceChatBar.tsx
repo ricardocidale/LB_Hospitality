@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { CheckIcon, CopyIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useMarcelaSettings } from "@/features/ai-agent/hooks/use-agent-settings";
+import { useAdminSignedUrl } from "@/features/ai-agent/hooks/use-signed-url";
+import { useAuth } from "@/lib/auth";
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -33,9 +35,26 @@ interface VoiceChatBarProps {
 export default function VoiceChatBar({ className }: VoiceChatBarProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [sessionSignedUrl, setSessionSignedUrl] = useState<string | undefined>();
 
   const { data: settings } = useMarcelaSettings();
-  const agentId = settings?.marcelaAgentId ?? "";
+  const { refetch: refetchSignedUrl } = useAdminSignedUrl();
+  const { user } = useAuth();
+
+  const agentName = settings?.aiAgentName ?? "Marcela";
+
+  const handleConnect = useCallback(async () => {
+    // Fetch a fresh signed URL for this session
+    const { data: freshUrl } = await refetchSignedUrl();
+    if (freshUrl) setSessionSignedUrl(freshUrl);
+    setMessages([]);
+  }, [refetchSignedUrl]);
+
+  const dynamicVariables = {
+    user_name: user?.name ?? "Guest",
+    user_role: user?.role ?? "user",
+    current_page: window.location.pathname,
+  };
 
   return (
     <div className={cn("relative mx-auto h-[600px] w-full", className)}>
@@ -104,12 +123,14 @@ export default function VoiceChatBar({ className }: VoiceChatBarProps) {
             <ConversationScrollButton className="bottom-[100px]" />
           </Conversation>
 
-          {/* ConversationBar uses agentId directly via @elevenlabs/react useConversation */}
           <div className="absolute right-0 bottom-0 left-0 flex justify-center">
             <ConversationBar
               className="w-full max-w-2xl"
-              agentId={agentId}
-              onConnect={() => setMessages([])}
+              signedUrl={sessionSignedUrl}
+              agentId={settings?.marcelaAgentId}
+              dynamicVariables={dynamicVariables}
+              agentLabel={agentName}
+              onConnect={handleConnect}
               onDisconnect={() => setMessages([])}
               onSendMessage={(message) =>
                 setMessages((prev) => [...prev, { role: "user", content: message }])

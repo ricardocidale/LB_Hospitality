@@ -52,7 +52,6 @@ import { Card } from "@/components/ui/card"
 import { Orb } from "@/features/ai-agent/components/orb"
 import { Waveform } from "@/features/ai-agent/components/waveform"
 
-// NOTE: globalAudioState intentionally removed — see audioStateRef in SpeakerControls
 
 const PlayButton = memo(
   ({ currentTrackIndex }: { currentTrackIndex: number }) => {

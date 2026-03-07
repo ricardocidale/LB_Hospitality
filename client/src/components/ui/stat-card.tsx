@@ -48,7 +48,7 @@ function StatCard({
     return (
       <div
         className={cn(
-          "bg-white/95 backdrop-blur-xl rounded-2xl p-5 border border-white/50 shadow-sm hover:shadow-lg transition-all duration-300 group",
+          "bg-white rounded-lg p-5 border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 group",
           className
         )}
         data-testid={props["data-testid"]}
@@ -89,7 +89,7 @@ function StatCard({
     return (
       <div
         className={cn(
-          "bg-white/90 backdrop-blur-xl rounded-2xl p-5 border border-white/40 shadow-lg shadow-black/10 hover:shadow-xl transition-all duration-300",
+          "bg-white rounded-lg p-5 border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300",
           className
         )}
         data-testid={props["data-testid"]}
@@ -118,7 +118,7 @@ function StatCard({
     return (
       <div
         className={cn(
-          "bg-white rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300",
+          "bg-white rounded-lg p-5 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300",
           className
         )}
         data-testid={props["data-testid"]}
@@ -154,22 +154,21 @@ function StatCard({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-2xl p-5",
+        "relative overflow-hidden rounded-lg p-5",
         className
       )}
       data-testid={props["data-testid"]}
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-[#2d4a5e]/80 via-[#3d5a6a]/70 to-[#3a5a5e]/80" />
-      <div className="absolute top-0 left-4 right-4 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-      <div className="absolute inset-0 rounded-2xl border border-white/10" />
+      <div className="absolute inset-0 bg-white" />
+      <div className="absolute inset-0 rounded-lg border border-gray-200" />
       <div className="relative">
         {icon && <div className="mb-2 text-primary">{icon}</div>}
-        <p className="text-xs font-medium text-background/50 uppercase tracking-wider mb-1 label-text">
+        <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1 label-text">
           {label}
         </p>
         <p
           className={cn(
-            "text-2xl font-bold font-mono text-background",
+            "text-2xl font-bold font-mono text-gray-900",
             trend === "up" && "text-primary",
             trend === "down" && "text-red-400"
           )}
@@ -177,7 +176,7 @@ function StatCard({
           {formatStatValue(value, format)}
         </p>
         {sublabel && (
-          <p className="text-xs text-background/40 mt-1 label-text">{sublabel}</p>
+          <p className="text-xs text-gray-400 mt-1 label-text">{sublabel}</p>
         )}
       </div>
     </div>

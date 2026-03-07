@@ -104,6 +104,7 @@ export default function VoiceChatFull({ className }: VoiceChatFullProps) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const isTextOnlyModeRef = useRef<boolean>(true);
+  const pendingFirstMessageRef = useRef<string | null>(null);
 
   const { data: settings } = useMarcelaSettings();
   const { refetch: refetchSignedUrl } = useAdminSignedUrl();
@@ -114,6 +115,11 @@ export default function VoiceChatFull({ className }: VoiceChatFullProps) {
   const conversation = useConversation({
     onConnect: () => {
       if (!isTextOnlyModeRef.current) setMessages([]);
+      const pending = pendingFirstMessageRef.current;
+      if (pending) {
+        pendingFirstMessageRef.current = null;
+        conversation.sendUserMessage(pending);
+      }
     },
     onDisconnect: () => {
       if (!isTextOnlyModeRef.current) setMessages([]);
@@ -206,12 +212,13 @@ export default function VoiceChatFull({ className }: VoiceChatFullProps) {
     if (agentState === "disconnected" || agentState === null) {
       setTextInput("");
       setAgentState("connecting");
+      pendingFirstMessageRef.current = messageToSend;
+      setMessages([{ role: "user", content: messageToSend }]);
       try {
         await startConversation(true, true);
-        setMessages([{ role: "user", content: messageToSend }]);
-        conversation.sendUserMessage(messageToSend);
       } catch (error) {
         console.error("Failed to start conversation:", error);
+        pendingFirstMessageRef.current = null;
       }
     } else if (agentState === "connected") {
       setMessages((prev) => [...prev, { role: "user", content: messageToSend }]);

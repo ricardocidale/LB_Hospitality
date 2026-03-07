@@ -75,8 +75,8 @@ function FinancialTable({
     <div
       ref={tableRef}
       className={cn(
-        "rounded-2xl p-6 shadow-sm border",
-        isDark ? "bg-[#0a0a0f]/95 border-white/10" : "bg-white border-gray-100",
+        "rounded-lg p-6 shadow-sm border",
+        isDark ? "bg-white border-gray-200" : "bg-white border-gray-100",
         className
       )}
       data-testid={props["data-testid"]}
@@ -85,7 +85,7 @@ function FinancialTable({
         <h3
           className={cn(
             "text-lg font-display mb-4",
-            isDark ? "text-background" : "text-gray-900"
+            isDark ? "text-gray-900" : "text-gray-900"
           )}
         >
           {title}

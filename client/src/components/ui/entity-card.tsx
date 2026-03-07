@@ -37,8 +37,8 @@ export function EntityCardContainer({
     <Card
       className={cn(
         variant === "featured"
-          ? "bg-gradient-to-br from-primary/5 to-primary/10 backdrop-blur-xl border-primary/30 shadow-[0_8px_32px_rgba(159,188,164,0.15)]"
-          : "bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]",
+          ? "bg-white border-gray-200 shadow-sm"
+          : "bg-white border-gray-200 shadow-sm",
         className
       )}
       data-testid={testId}
@@ -98,14 +98,14 @@ export function EntityCardItem({
 }: EntityCardItemProps) {
   const accent = accentColor === "blue" ? "blue-500" : "primary";
   const bgClass = accentColor === "blue" ? "bg-blue-500/5" : "bg-primary/5";
-  const borderClass = accentColor === "blue" ? "border-blue-500/20" : "border-primary/20";
+  const borderClass = accentColor === "blue" ? "border-blue-500/20" : "border-gray-200";
   const iconBgClass = accentColor === "blue" ? "bg-blue-500/10" : "bg-primary/10";
   const editHoverClass = accentColor === "blue" ? "text-blue-500 hover:text-foreground hover:bg-blue-500/10" : "text-primary hover:text-foreground hover:bg-primary/10";
   const metaBgClass = accentColor === "blue" ? "bg-blue-500/10" : "bg-primary/10";
-  const memberBorderClass = accentColor === "blue" ? "border-blue-500/20" : "border-primary/20";
+  const memberBorderClass = accentColor === "blue" ? "border-blue-500/20" : "border-gray-200";
 
   return (
-    <div className={cn(bgClass, "border", borderClass, "rounded-xl p-4")} data-testid={testId || `entity-card-${id}`}>
+    <div className={cn(bgClass, "border", borderClass, "rounded-lg p-4")} data-testid={testId || `entity-card-${id}`}>
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-3">
           {logoUrl ? (

@@ -41,7 +41,7 @@ export function SectionCard({
       <Card
         className={cn(
           isDark
-            ? "bg-white/5 backdrop-blur-xl border-white/10 shadow-xl"
+            ? "bg-white border-gray-200 shadow-sm"
             : "border rounded-lg",
           className,
         )}
@@ -50,8 +50,8 @@ export function SectionCard({
           data-testid={`section-toggle-${id}`}
           onClick={onToggle}
           className={cn(
-            "w-full flex items-center justify-between p-5 text-left transition-colors rounded-xl",
-            isDark ? "hover:bg-white/5" : "hover:bg-muted/50",
+            "w-full flex items-center justify-between p-5 text-left transition-colors rounded-lg",
+            isDark ? "hover:bg-muted/50" : "hover:bg-muted/50",
           )}
         >
           <div className="flex items-center gap-3">
@@ -66,7 +66,7 @@ export function SectionCard({
               <h2
                 className={cn(
                   "font-semibold",
-                  isDark ? "text-lg text-white" : "text-base",
+                  isDark ? "text-lg text-gray-900" : "text-base",
                 )}
               >
                 {title}
@@ -80,14 +80,14 @@ export function SectionCard({
             <ChevronDown
               className={cn(
                 "w-5 h-5",
-                isDark ? "text-white/60" : "text-muted-foreground",
+                isDark ? "text-muted-foreground" : "text-muted-foreground",
               )}
             />
           ) : (
             <ChevronRight
               className={cn(
                 "w-5 h-5",
-                isDark ? "text-white/60" : "text-muted-foreground",
+                isDark ? "text-muted-foreground" : "text-muted-foreground",
               )}
             />
           )}

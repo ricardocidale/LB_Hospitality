@@ -21,16 +21,17 @@ export default function VoiceChatOrb({ className }: VoiceChatOrbProps) {
   const [agentState, setAgentState] = useState<AgentState>("disconnected");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const { data: signedUrl, refetch: refetchSignedUrl } = useAdminSignedUrl();
+  const { refetch: refetchSignedUrl } = useAdminSignedUrl();
   const { data: settings } = useMarcelaSettings();
   const { user } = useAuth();
 
   const agentName = settings?.aiAgentName ?? "Marcela";
 
   const conversation = useConversation({
-    onConnect: () => console.log("Connected"),
+    onConnect: () => {
+      setErrorMessage(null);
+    },
     onDisconnect: () => {
-      console.log("Disconnected");
       setAgentState("disconnected");
     },
     onError: (error) => {

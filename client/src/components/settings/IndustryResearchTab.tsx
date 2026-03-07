@@ -60,7 +60,7 @@ export function IndustryResearchTab({
 }: IndustryResearchTabProps) {
   return (
     <div className="space-y-6 mt-6">
-      <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+      <Card className="bg-white border-gray-200 shadow-sm">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 font-display">
             <Globe className="w-5 h-5 text-primary" />
@@ -107,7 +107,7 @@ export function IndustryResearchTab({
         </CardContent>
       </Card>
 
-      <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+      <Card className="bg-white border-gray-200 shadow-sm">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 font-display">
             <Search className="w-5 h-5 text-primary" />

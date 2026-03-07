@@ -19,12 +19,7 @@ import type { PropertyEditSectionProps } from "./types";
 
 export default function BasicInfoSection({ draft, onChange, onNumberChange }: PropertyEditSectionProps) {
   return (
-    <div className="relative overflow-hidden rounded-2xl">
-      <div className="absolute inset-0 bg-white/80 backdrop-blur-xl" />
-      <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-primary/10 blur-2xl" />
-      <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-primary/5 blur-xl" />
-      <div className="absolute inset-0 border border-primary/20 rounded-2xl shadow-[0_8px_32px_rgba(159,188,164,0.15)]" />
-      
+    <div className="relative overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
       <div className="relative p-6">
         <div className="mb-6">
           <h3 className="text-xl font-display text-gray-900">Basic Information</h3>

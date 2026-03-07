@@ -23,14 +23,14 @@ const ContentPanel = React.forwardRef<HTMLDivElement, ContentPanelProps>(
       <div
         ref={ref}
         className={cn(
-          "rounded-2xl shadow-sm border",
+          "rounded-lg shadow-sm border",
           isDark
-            ? "bg-[#0a0a0f]/95 border-white/10 backdrop-blur-3xl"
+            ? "bg-white border-gray-200"
             : "bg-white border-gray-100",
           padded && "p-6",
           className
         )}
-        {...props}
+        {...props
       >
         {isDark && (
           <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] via-transparent to-black/20 rounded-2xl pointer-events-none" />
@@ -40,7 +40,7 @@ const ContentPanel = React.forwardRef<HTMLDivElement, ContentPanelProps>(
             <h3
               className={cn(
                 "text-lg font-display mb-1",
-                isDark ? "text-background" : "text-gray-900"
+                isDark ? "text-gray-900" : "text-gray-900"
               )}
             >
               {title}
@@ -50,7 +50,7 @@ const ContentPanel = React.forwardRef<HTMLDivElement, ContentPanelProps>(
             <p
               className={cn(
                 "text-sm mb-4",
-                isDark ? "text-background/50" : "text-gray-500"
+                isDark ? "text-gray-500" : "text-gray-500"
               )}
             >
               {subtitle}

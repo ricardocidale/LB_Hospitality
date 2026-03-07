@@ -78,8 +78,8 @@ function CurrentThemeTab({ tabs, activeTab, onTabChange, rightContent }: Current
                 className={cn(
                   "flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200",
                   isActive
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                    ? "bg-accent text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
                 )}
                 data-testid={`tab-${tab.value}`}
               >

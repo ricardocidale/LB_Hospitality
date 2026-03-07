@@ -60,7 +60,7 @@ export default function CompanyHeader({
         variant="glass"
       />
 
-      <div className="mb-6">
+      <div className="mt-4 mb-6">
         <CurrentThemeTab
           tabs={[
             { value: 'income', label: 'Income Statement', icon: IconIncomeStatement },

@@ -25,9 +25,7 @@ import type { PartnerCompSectionProps } from "./types";
 
 export default function PartnerCompSection({ formData, onChange, global, modelStartYear }: PartnerCompSectionProps) {
   return (
-    <div className="relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
-      <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-primary/10 blur-2xl" />
-      <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-primary/5 blur-xl" />
+    <div className="relative overflow-hidden rounded-lg p-6 bg-white border border-gray-200 shadow-sm">
       <div className="relative">
       <div className="space-y-4">
         <div>
@@ -40,7 +38,7 @@ export default function PartnerCompSection({ formData, onChange, global, modelSt
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-primary/20">
+              <tr className="border-b border-gray-200">
                 <th className="text-left py-2 px-2 font-display text-gray-900">Year</th>
                 <th className="text-right py-2 px-2 font-display text-gray-900">Total Partner Comp</th>
                 <th className="text-center py-2 px-2 font-display text-gray-900">Partner Count</th>
@@ -58,7 +56,7 @@ export default function PartnerCompSection({ formData, onChange, global, modelSt
                 const perPartner = countValue > 0 ? compValue / countValue : 0;
                 
                 return (
-                  <tr key={year} className="border-b border-primary/20 last:border-0">
+                  <tr key={year} className="border-b border-gray-200 last:border-0">
                     <td className="py-2 px-2 font-medium text-gray-900">Year {year} (<span className="font-mono">{modelStartYear + year - 1}</span>)</td>
                     <td className="py-2 px-2 text-right">
                       <EditableValue

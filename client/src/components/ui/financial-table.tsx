@@ -94,11 +94,11 @@ function FinancialTable({
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
-            <TableRow className={isDark ? "border-white/10" : "border-gray-200"}>
+            <TableRow className={isDark ? "border-gray-200" : "border-gray-200"}>
               <TableHead
                 className={cn(
                   "sticky left-0",
-                  isDark ? "bg-white/5 text-white/60" : "bg-gray-50 text-gray-700"
+                  isDark ? "bg-gray-50 text-gray-700" : "bg-gray-50 text-gray-700"
                 )}
               >
                 {stickyLabel}
@@ -108,7 +108,7 @@ function FinancialTable({
                   key={i}
                   className={cn(
                     "text-right min-w-[100px]",
-                    isDark ? "text-white/60" : "text-gray-700"
+                    isDark ? "text-gray-700" : "text-gray-700"
                   )}
                 >
                   {col}
@@ -128,11 +128,11 @@ function FinancialTable({
 
               const bgClass = row.isSection
                 ? isDark
-                  ? "bg-white/5 font-semibold"
+                  ? "bg-gray-50 font-semibold"
                   : "bg-gray-50 font-semibold"
                 : row.isSubtotal
                 ? isDark
-                  ? "bg-white/5 font-semibold"
+                  ? "bg-gray-50 font-semibold"
                   : "bg-gray-50/50 font-semibold"
                 : row.isTotal
                 ? isDark
@@ -151,7 +151,7 @@ function FinancialTable({
                     className={cn(
                       "sticky left-0",
                       row.bold && "font-semibold",
-                      isDark ? "bg-inherit text-white/80" : "bg-inherit"
+                      isDark ? "bg-inherit text-gray-900" : "bg-inherit"
                     )}
                     style={paddingLeft ? { paddingLeft } : undefined}
                   >
@@ -162,7 +162,7 @@ function FinancialTable({
                       key={colIdx}
                       className={cn(
                         "text-right font-mono",
-                        isDark ? "text-white/70" : "text-gray-600",
+                        isDark ? "text-gray-600" : "text-gray-600",
                         typeof val === "number" && val < 0 && "text-destructive"
                       )}
                     >

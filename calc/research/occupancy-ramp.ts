@@ -84,7 +84,8 @@ export function computeOccupancyRamp(input: OccupancyRampInput): OccupancyRampOu
   for (const s of stages) {
     const year = Math.ceil(s.month / 12);
     if (!yearlyMap.has(year)) yearlyMap.set(year, []);
-    yearlyMap.get(year)!.push(s.occupancy);
+    const yearArr = yearlyMap.get(year);
+    if (yearArr) yearArr.push(s.occupancy);
   }
 
   const yearly_avg_occupancy = Array.from(yearlyMap.entries()).map(([year, occs]) => {

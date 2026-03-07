@@ -168,8 +168,53 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
   };
 
   return (
-    <Card className="bg-white/60 backdrop-blur-sm border-white/40 shadow-lg">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+    <Card className="bg-white/60 backdrop-blur-sm border-white/40 shadow-lg relative overflow-hidden">
+      <svg className="absolute top-0 left-0 w-40 h-40 pointer-events-none opacity-[0.07]" viewBox="0 0 160 160" fill="none">
+        <circle cx="20" cy="20" r="80" stroke="#257D41" strokeWidth="1" />
+        <circle cx="20" cy="20" r="60" stroke="#9FBCA4" strokeWidth="0.8" />
+        <circle cx="20" cy="20" r="40" stroke="#257D41" strokeWidth="0.6" />
+        <path d="M0 80 Q40 40 80 0" stroke="#9FBCA4" strokeWidth="1.2" fill="none" />
+        <path d="M0 120 Q60 60 120 0" stroke="#257D41" strokeWidth="0.8" fill="none" />
+        <path d="M10 10 Q30 50 10 90" stroke="#9FBCA4" strokeWidth="1" fill="none" />
+        <path d="M10 10 Q50 30 90 10" stroke="#9FBCA4" strokeWidth="1" fill="none" />
+        <ellipse cx="10" cy="10" rx="3" ry="3" fill="#257D41" />
+      </svg>
+
+      <svg className="absolute top-0 right-0 w-48 h-48 pointer-events-none opacity-[0.06]" viewBox="0 0 200 200" fill="none">
+        <path d="M200 0 C180 40 160 80 200 120" stroke="#9FBCA4" strokeWidth="1.5" />
+        <path d="M170 0 C150 50 140 90 170 130" stroke="#257D41" strokeWidth="1" />
+        <path d="M200 0 L160 40" stroke="#9FBCA4" strokeWidth="0.8" />
+        <path d="M200 20 L170 50" stroke="#257D41" strokeWidth="0.6" />
+        <path d="M200 40 L180 60" stroke="#9FBCA4" strokeWidth="0.6" />
+        <path d="M160 0 Q180 20 200 60 Q180 40 160 0Z" fill="#9FBCA4" opacity="0.3" />
+        <path d="M180 0 Q190 15 200 40 Q190 20 180 0Z" fill="#257D41" opacity="0.3" />
+        <circle cx="190" cy="10" r="2" fill="#257D41" opacity="0.5" />
+        <circle cx="175" cy="25" r="1.5" fill="#9FBCA4" opacity="0.4" />
+      </svg>
+
+      <svg className="absolute bottom-0 left-0 w-44 h-44 pointer-events-none opacity-[0.05]" viewBox="0 0 180 180" fill="none">
+        <path d="M0 180 Q40 120 0 60" stroke="#9FBCA4" strokeWidth="1.2" />
+        <path d="M0 180 Q60 140 120 180" stroke="#257D41" strokeWidth="1" />
+        <path d="M0 180 Q30 150 60 180" stroke="#9FBCA4" strokeWidth="0.8" />
+        <path d="M0 140 Q20 160 0 180" stroke="#257D41" strokeWidth="1.5" fill="none" />
+        <path d="M0 140 Q20 160 0 180 Q10 155 0 140Z" fill="#9FBCA4" opacity="0.25" />
+        <path d="M30 180 Q35 160 30 140 Q40 155 50 170 Q40 180 30 180Z" fill="#257D41" opacity="0.15" />
+        <circle cx="15" cy="170" r="2" fill="#257D41" opacity="0.4" />
+      </svg>
+
+      <svg className="absolute bottom-0 right-0 w-56 h-56 pointer-events-none opacity-[0.05]" viewBox="0 0 220 220" fill="none">
+        <path d="M220 220 Q160 180 140 220" stroke="#9FBCA4" strokeWidth="1" />
+        <path d="M220 220 Q180 160 220 140" stroke="#257D41" strokeWidth="1" />
+        <path d="M220 180 Q190 190 180 220" stroke="#9FBCA4" strokeWidth="0.8" />
+        <circle cx="220" cy="220" r="50" stroke="#9FBCA4" strokeWidth="0.6" fill="none" />
+        <circle cx="220" cy="220" r="35" stroke="#257D41" strokeWidth="0.5" fill="none" />
+        <path d="M220 170 Q200 190 220 210 Q210 185 220 170Z" fill="#257D41" opacity="0.15" />
+        <path d="M170 220 Q190 200 210 220 Q185 210 170 220Z" fill="#9FBCA4" opacity="0.15" />
+        <circle cx="200" cy="205" r="1.5" fill="#257D41" opacity="0.3" />
+        <circle cx="210" cy="195" r="1" fill="#9FBCA4" opacity="0.3" />
+      </svg>
+
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
         <CardTitle>Portfolio Overview</CardTitle>
         <ExportMenu
           actions={[
@@ -182,7 +227,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
           ]}
         />
       </CardHeader>
-      <CardContent ref={tabContentRef}>
+      <CardContent ref={tabContentRef} className="relative z-10">
         <div className="space-y-8">
 
           <AnimatedSection>

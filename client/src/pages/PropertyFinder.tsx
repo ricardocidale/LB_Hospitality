@@ -200,8 +200,8 @@ export default function PropertyFinder() {
         />
 
         {isNoApiKey && (
-          <div className="bg-white rounded-2xl shadow-sm border border-primary/20 overflow-hidden">
-            <div className="h-1 bg-gradient-to-r from-[#F4795B] via-[#F4795B]/60 to-[#F4795B]" />
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div className="h-1 bg-primary" />
             <div className="p-6 flex items-start gap-4">
               <AlertCircle className="w-6 h-6 text-[#F4795B] flex-shrink-0 mt-0.5" />
               <div>
@@ -219,7 +219,7 @@ export default function PropertyFinder() {
         )}
 
         {searchError && !isNoApiKey && (
-          <div className="bg-white rounded-2xl shadow-sm border border-[#F4795B]/30 overflow-hidden">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             <div className="h-0.5 bg-[#F4795B]/40" />
             <div className="p-4 flex items-center gap-3">
               <AlertCircle className="w-5 h-5 text-[#F4795B]" />
@@ -266,8 +266,7 @@ export default function PropertyFinder() {
             </div>
 
             {searchData.results.length === 0 ? (
-              <div className="bg-white rounded-2xl shadow-sm border border-primary/20 p-12 text-center">
-                <div className="h-0.5 bg-gradient-to-r from-primary/20 to-transparent mb-8 -mt-8 -mx-12 rounded-t-2xl" />
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
                 <Building2 className="w-12 h-12 text-primary/30 mx-auto mb-3" />
                 <p className="text-gray-600 font-medium">No properties found matching your criteria.</p>
                 <p className="text-gray-400 text-sm mt-1">Try adjusting your filters or searching a different location.</p>
@@ -295,7 +294,7 @@ export default function PropertyFinder() {
         )}
 
         {!searchData && !searchError && !isSearching && (
-          <div className="bg-white rounded-2xl shadow-sm border border-primary/10 p-16 text-center">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-16 text-center">
             <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
               <Search className="w-8 h-8 text-primary/40" />
             </div>
@@ -308,13 +307,13 @@ export default function PropertyFinder() {
 
         <div className="mt-10" data-testid="table-saved-properties">
           <div className="flex items-center gap-4 mb-6">
-            <div className="h-px flex-1 bg-gradient-to-r from-primary/40 to-transparent" />
+            <div className="h-px flex-1 bg-gray-200" />
             <div className="flex items-center gap-2">
               <Heart className="w-5 h-5 text-[#F4795B]" />
               <h2 className="text-lg font-display font-bold text-gray-900">Your Favorites</h2>
               <span className="text-sm text-gray-400">({favorites.length})</span>
             </div>
-            <div className="h-px flex-1 bg-gradient-to-l from-primary/40 to-transparent" />
+            <div className="h-px flex-1 bg-gray-200" />
           </div>
 
           {isFavoritesLoading ? (
@@ -322,7 +321,7 @@ export default function PropertyFinder() {
               <Loader2 className="w-8 h-8 animate-spin text-primary" />
             </div>
           ) : favorites.length === 0 ? (
-            <div className="bg-white rounded-2xl shadow-sm border border-primary/10 p-12 text-center">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
               <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
                 <Heart className="w-7 h-7 text-primary/30" />
               </div>

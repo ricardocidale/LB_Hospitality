@@ -27,7 +27,7 @@ export const sectionColors: Record<string, SectionColorScheme> = {
   occupancy: { accent: "#8B5CF6", bg: "bg-violet-50", border: "border-violet-200", iconBg: "bg-violet-100", iconText: "text-violet-700", badge: "bg-violet-100 text-violet-800" },
   events: { accent: "#F4795B", bg: "bg-orange-50", border: "border-orange-200", iconBg: "bg-orange-100", iconText: "text-orange-700", badge: "bg-orange-100 text-orange-800" },
   capRate: { accent: "#0891B2", bg: "bg-cyan-50", border: "border-cyan-200", iconBg: "bg-cyan-100", iconText: "text-cyan-700", badge: "bg-cyan-100 text-cyan-800" },
-  competitive: { accent: "#9FBCA4", bg: "bg-emerald-50/50", border: "border-primary/30", iconBg: "bg-primary/20", iconText: "text-secondary", badge: "bg-primary/20 text-secondary" },
+  competitive: { accent: "var(--primary)", bg: "bg-emerald-50/50", border: "border-primary/30", iconBg: "bg-primary/20", iconText: "text-secondary", badge: "bg-primary/20 text-secondary" },
   risks: { accent: "#DC2626", bg: "bg-red-50", border: "border-red-200", iconBg: "bg-red-100", iconText: "text-red-700", badge: "bg-red-100 text-red-800" },
   sources: { accent: "#6B7280", bg: "bg-gray-50", border: "border-gray-200", iconBg: "bg-gray-100", iconText: "text-gray-600", badge: "bg-gray-100 text-gray-700" },
   stabilization: { accent: "#D97706", bg: "bg-amber-50", border: "border-amber-200", iconBg: "bg-amber-100", iconText: "text-amber-700", badge: "bg-amber-100 text-amber-800" },

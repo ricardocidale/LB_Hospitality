@@ -94,7 +94,7 @@ export default function Methodology({ embedded }: { embedded?: boolean }) {
           </div>
         )}
 
-        <Card className="bg-primary/5 border-primary/20">
+        <Card className="bg-gray-50 border-gray-200">
           <div className="p-6">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
@@ -243,7 +243,7 @@ export default function Methodology({ embedded }: { embedded?: boolean }) {
                   At exit, all properties must be debt-free. Outstanding loan balances
                   are repaid from gross sale proceeds before calculating net proceeds to equity.
                 </p>
-                <div className="bg-white/50 rounded p-2 font-mono text-xs mt-2">
+                <div className="bg-gray-50 rounded p-2 font-mono text-xs mt-2">
                   <div>Gross Sale Value = Final Year NOI / Exit Cap Rate</div>
                   <div>Less: Sales Commission</div>
                   <div>Less: Outstanding Debt Balance (must be fully repaid)</div>
@@ -261,7 +261,7 @@ export default function Methodology({ embedded }: { embedded?: boolean }) {
                 <p>
                   The income statement must show <strong>only interest expense</strong>, never principal repayment.
                 </p>
-                <div className="bg-white/50 rounded p-2 font-mono text-xs mt-2">
+                <div className="bg-gray-50 rounded p-2 font-mono text-xs mt-2">
                   <div>NOI</div>
                   <div>Less: Interest Expense (only the interest portion of debt service)</div>
                   <div>Less: Depreciation</div>
@@ -617,7 +617,7 @@ export default function Methodology({ embedded }: { embedded?: boolean }) {
           </main>
         </div>
 
-        <Card className="bg-primary/5 border-primary/20">
+        <Card className="bg-gray-50 border-gray-200">
           <div className="p-6">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">

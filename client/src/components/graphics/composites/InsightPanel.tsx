@@ -21,7 +21,7 @@ const typeConfig = {
   positive: { icon: <TrendingUp className="w-3.5 h-3.5" />, color: "text-emerald-600", dot: "bg-emerald-500" },
   negative: { icon: <TrendingDown className="w-3.5 h-3.5" />, color: "text-red-600", dot: "bg-red-500" },
   warning: { icon: <AlertTriangle className="w-3.5 h-3.5" />, color: "text-amber-600", dot: "bg-amber-500" },
-  neutral: { icon: <CheckCircle2 className="w-3.5 h-3.5" />, color: "text-gray-600", dot: "bg-gray-400" },
+  neutral: { icon: <CheckCircle2 className="w-3.5 h-3.5" />, color: "text-muted-foreground/60", dot: "bg-muted-foreground/40" },
 };
 
 export function InsightPanel({ insights, title, icon, variant = "glass", className, ...props }: InsightPanelProps) {
@@ -37,7 +37,7 @@ export function InsightPanel({ insights, title, icon, variant = "glass", classNa
         {insights.map((insight, i) => {
           const config = typeConfig[insight.type || "neutral"];
           return (
-            <span key={i} className={`inline-flex items-center gap-1.5 text-xs ${config.color} bg-white rounded-full px-3 py-1.5 border border-gray-200`}>
+            <span key={i} className={`inline-flex items-center gap-1.5 text-xs ${config.color} bg-white/80 rounded-full px-3 py-1.5 border border-primary/10`}>
               {config.icon}
               {insight.text}
               {insight.metric && <span className="font-mono font-semibold">{insight.metric}</span>}
@@ -54,12 +54,12 @@ export function InsightPanel({ insights, title, icon, variant = "glass", classNa
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className={`rounded-lg p-4 bg-gray-50 border border-gray-200 ${className || ""}`}
+        className={`rounded-lg p-4 bg-primary/5 border border-primary/10 ${className || ""}`}
         data-testid={props["data-testid"]}
       >
         <div className="flex items-center gap-2 mb-2">
-          {icon || <Sparkles className="w-4 h-4 text-gray-500" />}
-          <span className="text-sm font-medium text-gray-700">{title || "Key Insights"}</span>
+          {icon || <Sparkles className="w-4 h-4 text-primary" />}
+          <span className="text-sm font-medium text-foreground">{title || "Key Insights"}</span>
         </div>
         <div className="space-y-1.5">
           {insights.map((insight, i) => {
@@ -67,7 +67,7 @@ export function InsightPanel({ insights, title, icon, variant = "glass", classNa
             return (
               <div key={i} className="flex items-start gap-2">
                 <div className={`w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0 ${config.dot}`} />
-                <p className="text-xs text-gray-600">
+                <p className="text-xs text-muted-foreground/70">
                   {insight.text}
                   {insight.metric && <span className="font-mono font-semibold ml-1">{insight.metric}</span>}
                 </p>
@@ -84,12 +84,12 @@ export function InsightPanel({ insights, title, icon, variant = "glass", classNa
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2, duration: 0.4 }}
-      className={`rounded-lg p-5 bg-white border border-gray-200 shadow-sm ${className || ""}`}
+      className={`rounded-lg p-5 bg-white/80 border border-primary/10 shadow-[0_2px_8px_rgba(var(--primary-rgb,159,188,164),0.08)] ${className || ""}`}
       data-testid={props["data-testid"]}
     >
       <div className="flex items-center gap-2 mb-3">
-        {icon || <Sparkles className="w-4 h-4 text-gray-500" />}
-        <h3 className="text-sm font-semibold text-gray-900">{title || "Key Insights"}</h3>
+        {icon || <Sparkles className="w-4 h-4 text-primary" />}
+        <h3 className="text-sm font-semibold text-foreground">{title || "Key Insights"}</h3>
       </div>
       <div className="space-y-2.5">
         {insights.map((insight, i) => {
@@ -103,7 +103,7 @@ export function InsightPanel({ insights, title, icon, variant = "glass", classNa
               className="flex items-start gap-2.5"
             >
               <div className={`mt-0.5 ${config.color}`}>{config.icon}</div>
-              <p className="text-sm text-gray-700">
+              <p className="text-sm text-muted-foreground/70">
                 {insight.text}
                 {insight.metric && <span className="font-mono font-semibold ml-1">{insight.metric}</span>}
               </p>

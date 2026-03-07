@@ -24,7 +24,7 @@ interface RadarChartProps {
   title?: string;
 }
 
-const COLORS = ["#9FBCA4", "#257D41", "#3B82F6", "#F59E0B", "#8B5CF6"];
+const COLORS = ["var(--primary)", "#257D41", "#3B82F6", "#F59E0B", "#8B5CF6"];
 
 export default function RadarChart({ properties, dimensions, title }: RadarChartProps) {
   const maxPerDimension: Record<string, number> = {};

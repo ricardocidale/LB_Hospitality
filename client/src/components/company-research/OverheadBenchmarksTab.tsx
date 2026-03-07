@@ -65,7 +65,7 @@ export function OverheadBenchmarksTab({ content }: OverheadBenchmarksTabProps) {
         </p>
         <div className="space-y-4">
           {SCALE_BENCHMARKS.map((s, i) => (
-            <div key={i} className="bg-white/80 rounded-xl border border-primary/10 p-4">
+            <div key={i} className="bg-white rounded-lg border border-gray-200 p-4">
               <h4 className="text-sm font-medium text-gray-800 mb-2">{s.stage}</h4>
               <div className="grid grid-cols-3 gap-3">
                 <MetricCard label="G&A % of Revenue" value={s.gaPct} color={companySectionColors.compensation} />

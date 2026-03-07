@@ -187,19 +187,19 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
           <AnimatedSection>
             <div className="relative">
               <div className="text-center mb-8">
-                <p className="text-sm font-medium tracking-widest text-[#2d4a5e]/60 uppercase mb-2 label-text">Investment Performance</p>
-                <p className="text-[#2d4a5e]/50 text-sm label-text">
+                <p className="text-sm font-medium tracking-widest text-foreground/60 uppercase mb-2 label-text">Investment Performance</p>
+                <p className="text-foreground/50 text-sm label-text">
                   <span className="font-mono">{investmentHorizon}</span>-Year Hold | <span className="font-mono">{totalProperties}</span> Properties | <span className="font-mono">{totalRooms}</span> Rooms
                 </p>
               </div>
 
               <div className="flex flex-col lg:flex-row items-center justify-center gap-8 mb-10">
-                <div className="relative bg-white/95 backdrop-blur-xl rounded-[2rem] p-8 border border-[#9FBCA4]/40 shadow-xl shadow-black/10" data-testid="gauge-portfolio-irr">
+                <div className="relative bg-white rounded-lg p-8 border border-gray-200 shadow-sm" data-testid="gauge-portfolio-irr">
                   <div className="relative">
                     <svg className="w-48 h-48" viewBox="0 0 200 200">
                       <defs>
                         <linearGradient id="irrTube3D" x1="0%" y1="0%" x2="0%" y2="100%">
-                          <stop offset="0%" stopColor="#9FBCA4" />
+                          <stop offset="0%" stopColor="var(--primary)" />
                           <stop offset="40%" stopColor="#257D41" />
                           <stop offset="100%" stopColor="#1a5c2e" />
                         </linearGradient>
@@ -210,18 +210,17 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                         strokeDasharray={`${Math.min(Math.max(portfolioIRR * 100, 0) * 5.03, 503)} 503`}
                         strokeLinecap="round"
                         transform="rotate(-90 100 100)"
-                        style={{ filter: 'drop-shadow(0 0 10px rgba(37,125,65,0.4))' }}
                       />
                     </svg>
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="text-5xl font-bold text-[#2d4a5e] tracking-tight font-mono" data-testid="text-portfolio-irr">{(portfolioIRR * 100).toFixed(1)}%</span>
-                      <span className="text-sm text-[#2d4a5e]/60 font-medium mt-2 label-text">Portfolio IRR</span>
+                      <span className="text-5xl font-bold text-foreground tracking-tight font-mono" data-testid="text-portfolio-irr">{(portfolioIRR * 100).toFixed(1)}%</span>
+                      <span className="text-sm text-foreground/60 font-medium mt-2 label-text">Portfolio IRR</span>
                     </div>
                   </div>
                 </div>
 
-                <div ref={chartsRef} className="bg-white/95 backdrop-blur-xl rounded-[2rem] p-6 border border-[#9FBCA4]/40 shadow-xl shadow-black/10 w-full lg:min-w-[340px]" data-testid="chart-property-irr-comparison">
-                  <p className="text-xs font-medium tracking-widest text-[#2d4a5e]/60 uppercase mb-3 text-center label-text">Property IRR Comparison</p>
+                <div ref={chartsRef} className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm w-full lg:min-w-[340px]" data-testid="chart-property-irr-comparison">
+                  <p className="text-xs font-medium tracking-widest text-foreground/60 uppercase mb-3 text-center label-text">Property IRR Comparison</p>
                   <ResponsiveContainer width="100%" height={200}>
                     <BarChart data={propertyIRRData} margin={{ top: 5, right: 10, left: 0, bottom: 40 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="rgba(45,74,94,0.08)" vertical={false} />
@@ -230,15 +229,15 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                       <Tooltip
                         formatter={(value: number) => [`${value.toFixed(1)}%`, 'IRR']}
                         labelFormatter={(_label: string, payload: Array<{ payload?: { fullName?: string } }>) => payload?.[0]?.payload?.fullName || _label}
-                        contentStyle={{ borderRadius: 12, border: '1px solid rgba(0,0,0,0.06)', fontSize: 12, boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}
+                        contentStyle={{ borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 12, boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)' }}
                       />
-                      <Bar dataKey="irr" radius={[4, 4, 0, 0]} maxBarSize={40} fill="#9FBCA4" />
+                      <Bar dataKey="irr" radius={[4, 4, 0, 0]} maxBarSize={40} fill="var(--primary)" />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
 
-                <div className="bg-white/95 backdrop-blur-xl rounded-[2rem] p-6 border border-[#9FBCA4]/40 shadow-xl shadow-black/10 w-full lg:min-w-[340px]" data-testid="chart-property-investment">
-                  <p className="text-xs font-medium tracking-widest text-[#2d4a5e]/60 uppercase mb-3 text-center label-text">Equity by Property</p>
+                <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm w-full lg:min-w-[340px]" data-testid="chart-property-investment">
+                  <p className="text-xs font-medium tracking-widest text-foreground/60 uppercase mb-3 text-center label-text">Equity by Property</p>
                   <ResponsiveContainer width="100%" height={200}>
                     <BarChart data={propertyInvestmentData} margin={{ top: 5, right: 10, left: 0, bottom: 40 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="rgba(45,74,94,0.08)" vertical={false} />
@@ -247,7 +246,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                       <Tooltip
                         formatter={(value: number) => [`$${value.toLocaleString()}`, 'Equity Invested']}
                         labelFormatter={(_label: string, payload: Array<{ payload?: { fullName?: string } }>) => payload?.[0]?.payload?.fullName || _label}
-                        contentStyle={{ borderRadius: 12, border: '1px solid rgba(0,0,0,0.06)', fontSize: 12, boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}
+                        contentStyle={{ borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 12, boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)' }}
                       />
                       <Bar dataKey="investment" radius={[4, 4, 0, 0]} maxBarSize={40} fill="#257D41" />
                     </BarChart>
@@ -256,13 +255,13 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
               </div>
 
               <div className="grid gap-4 grid-cols-2 lg:grid-cols-4 max-w-5xl mx-auto">
-                <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-5 border border-white/40 shadow-lg shadow-black/10 hover:shadow-xl transition-all duration-300">
+                <div className="bg-white rounded-lg p-5 border border-gray-200 shadow-sm transition-all duration-300">
                   <div className="flex items-center gap-4 mb-3">
                     <div className="relative w-14 h-14 flex-shrink-0">
                       <svg className="w-14 h-14" viewBox="0 0 100 100">
                         <defs>
                           <linearGradient id="smallTube3D_eq" x1="0%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" stopColor="#9FBCA4" />
+                            <stop offset="0%" stopColor="var(--primary)" />
                             <stop offset="40%" stopColor="#257D41" />
                             <stop offset="100%" stopColor="#1a5c2e" />
                           </linearGradient>
@@ -273,28 +272,27 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                           strokeDasharray={`${Math.min(equityMultiple * 63, 251)} 251`}
                           strokeLinecap="round"
                           transform="rotate(-90 50 50)"
-                          style={{ filter: 'drop-shadow(0 0 6px rgba(37,125,65,0.4))' }}
                         />
                       </svg>
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-sm font-bold text-[#2d4a5e] font-mono">{equityMultiple.toFixed(1)}x</span>
+                        <span className="text-sm font-bold text-foreground font-mono">{equityMultiple.toFixed(1)}x</span>
                       </div>
                     </div>
                     <div>
                       <p className="text-2xl font-bold text-[#257D41] font-mono" data-testid="text-equity-multiple">{equityMultiple.toFixed(2)}x</p>
-                      <p className="text-sm text-[#2d4a5e]/60 label-text">Equity Multiple</p>
+                      <p className="text-sm text-foreground/60 label-text">Equity Multiple</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-5 border border-white/40 shadow-lg shadow-black/10 hover:shadow-xl transition-all duration-300">
+                <div className="bg-white rounded-lg p-5 border border-gray-200 shadow-sm transition-all duration-300">
                   <div className="flex items-center gap-4 mb-3">
                     <div className="relative w-14 h-14 flex-shrink-0">
                       <svg className="w-14 h-14" viewBox="0 0 100 100">
                         <defs>
                           <linearGradient id="smallTube3D_coc" x1="0%" y1="0%" x2="0%" y2="100%">
                             <stop offset="0%" stopColor="#c4d8c7" />
-                            <stop offset="40%" stopColor="#9FBCA4" />
+                            <stop offset="40%" stopColor="var(--primary)" />
                             <stop offset="100%" stopColor="#7da383" />
                           </linearGradient>
                         </defs>
@@ -304,34 +302,33 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                           strokeDasharray={`${Math.min(Math.max(cashOnCash, 0) * 12.5, 251)} 251`}
                           strokeLinecap="round"
                           transform="rotate(-90 50 50)"
-                          style={{ filter: 'drop-shadow(0 0 6px rgba(159,188,164,0.5))' }}
                         />
                       </svg>
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-sm font-bold text-[#2d4a5e] font-mono">{cashOnCash.toFixed(0)}%</span>
+                        <span className="text-sm font-bold text-foreground font-mono">{cashOnCash.toFixed(0)}%</span>
                       </div>
                     </div>
                     <div>
-                      <p className="text-2xl font-bold text-[#9FBCA4] font-mono" data-testid="text-cash-on-cash">{cashOnCash.toFixed(1)}%</p>
-                      <p className="text-sm text-[#2d4a5e]/60 label-text">Cash-on-Cash</p>
+                      <p className="text-2xl font-bold text-primary font-mono" data-testid="text-cash-on-cash">{cashOnCash.toFixed(1)}%</p>
+                      <p className="text-sm text-foreground/60 label-text">Cash-on-Cash</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-5 border border-white/40 shadow-lg shadow-black/10 hover:shadow-xl transition-all duration-300">
+                <div className="bg-white rounded-lg p-5 border border-gray-200 shadow-sm transition-all duration-300">
                   <div className="mb-2">
-                    <p className="text-2xl font-bold text-[#2d4a5e] font-mono" data-testid="text-equity-invested">{formatMoney(totalInitialEquity)}</p>
-                    <p className="text-sm text-[#2d4a5e]/60 label-text">Equity Invested</p>
+                    <p className="text-2xl font-bold text-foreground font-mono" data-testid="text-equity-invested">{formatMoney(totalInitialEquity)}</p>
+                    <p className="text-sm text-foreground/60 label-text">Equity Invested</p>
                   </div>
-                  <div className="h-1.5 bg-[#2d4a5e]/10 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-[#9FBCA4] to-[#257D41] rounded-full" style={{ width: '100%' }} />
+                  <div className="h-1.5 bg-foreground/10 rounded-full overflow-hidden">
+                    <div className="h-full bg-gradient-to-r from-primary to-[#257D41] rounded-full" style={{ width: '100%' }} />
                   </div>
                 </div>
 
-                <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-5 border border-white/40 shadow-lg shadow-black/10 hover:shadow-xl transition-all duration-300">
+                <div className="bg-white rounded-lg p-5 border border-gray-200 shadow-sm transition-all duration-300">
                   <div className="mb-2">
                     <p className="text-2xl font-bold text-[#257D41] font-mono" data-testid="text-exit-value">{formatMoney(totalExitValue)}</p>
-                    <p className="text-sm text-[#2d4a5e]/60 label-text">Projected Exit</p>
+                    <p className="text-sm text-foreground/60 label-text">Projected Exit</p>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <svg className="w-4 h-4 text-[#257D41]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -345,15 +342,15 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
           </AnimatedSection>
 
           <AnimatedSection>
-            <div className="bg-white/95 backdrop-blur-xl rounded-2xl border border-white/50 shadow-sm p-6">
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h3 className="text-lg font-semibold text-[#2d4a5e] font-display">Revenue & NOI</h3>
-                  <p className="text-sm text-[#2d4a5e]/50 label-text">{investmentHorizon}-year consolidated projection</p>
+                  <h3 className="text-lg font-semibold text-foreground font-display">Revenue & NOI</h3>
+                  <p className="text-sm text-foreground/50 label-text">{investmentHorizon}-year consolidated projection</p>
                 </div>
                 <div className="flex items-center gap-4 text-xs label-text">
                   <span className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#9FBCA4' }} />
+                    <span className="w-3 h-3 rounded-full" style={{ backgroundColor: 'var(--primary)' }} />
                     Revenue
                   </span>
                   <span className="flex items-center gap-1.5">
@@ -366,9 +363,9 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                 <AreaChart data={revenueNOIData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
                   <defs>
                     <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#9FBCA4" stopOpacity={0.6} />
-                      <stop offset="60%" stopColor="#9FBCA4" stopOpacity={0.3} />
-                      <stop offset="100%" stopColor="#9FBCA4" stopOpacity={0.08} />
+                      <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.6} />
+                      <stop offset="60%" stopColor="var(--primary)" stopOpacity={0.3} />
+                      <stop offset="100%" stopColor="var(--primary)" stopOpacity={0.08} />
                     </linearGradient>
                     <linearGradient id="noiGrad" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor="#257D41" stopOpacity={0.65} />
@@ -389,7 +386,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                     formatter={(value: number, name: string) => [formatMoney(value), name === 'revenue' ? 'Revenue' : 'NOI']}
                     contentStyle={{ borderRadius: 12, border: '1px solid rgba(0,0,0,0.06)', fontSize: 12, boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}
                   />
-                  <Area type="monotone" dataKey="revenue" stroke="#9FBCA4" strokeWidth={2} fill="url(#revenueGrad)" dot={false} />
+                  <Area type="monotone" dataKey="revenue" stroke="var(--primary)" strokeWidth={2} fill="url(#revenueGrad)" dot={false} />
                   <Area type="monotone" dataKey="noi" stroke="#257D41" strokeWidth={2.5} fill="url(#noiGrad)" dot={false} />
                 </AreaChart>
               </ResponsiveContainer>
@@ -398,8 +395,8 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
 
           <AnimatedSection>
             <div className="grid gap-4 md:grid-cols-2">
-              <div className="bg-white/95 backdrop-blur-xl rounded-2xl p-6 border border-white/50 shadow-sm">
-                <h3 className="text-sm font-semibold text-[#2d4a5e] mb-5 font-display">Portfolio Composition</h3>
+              <div className="bg-white/80 rounded-lg p-6 border border-primary/10 shadow-[0_2px_8px_rgba(var(--primary-rgb,159,188,164),0.08)]">
+                <h3 className="text-sm font-semibold text-foreground mb-5 font-display">Portfolio Composition</h3>
                 <div className="space-y-4">
                   {[
                     { label: "Properties", value: String(totalProperties) },
@@ -408,16 +405,16 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                     { label: "Markets", value: String(Object.keys(marketCounts).length) },
                     { label: "Avg Daily Rate", value: formatMoney(avgADR), highlight: true },
                   ].map(row => (
-                    <div key={row.label} className="flex justify-between items-center py-1 border-b border-[#2d4a5e]/5 last:border-0">
-                      <span className="text-sm text-[#2d4a5e]/60 label-text">{row.label}</span>
-                      <span className={`font-semibold font-mono text-sm ${row.highlight ? 'text-[#257D41]' : 'text-[#2d4a5e]'}`}>{row.value}</span>
+                    <div key={row.label} className="flex justify-between items-center py-1 border-b border-foreground/5 last:border-0">
+                      <span className="text-sm text-foreground/60 label-text">{row.label}</span>
+                      <span className={`font-semibold font-mono text-sm ${row.highlight ? 'text-[#257D41]' : 'text-foreground'}`}>{row.value}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="bg-white/95 backdrop-blur-xl rounded-2xl p-6 border border-white/50 shadow-sm">
-                <h3 className="text-sm font-semibold text-[#2d4a5e] mb-5 font-display">Capital Structure</h3>
+              <div className="bg-white/80 rounded-lg p-6 border border-primary/10 shadow-[0_2px_8px_rgba(var(--primary-rgb,159,188,164),0.08)]">
+                <h3 className="text-sm font-semibold text-foreground mb-5 font-display">Capital Structure</h3>
                 <div className="space-y-4">
                   {[
                     { label: "Total Purchase Price", value: formatMoney(totalPurchasePrice) },
@@ -426,9 +423,9 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                     { label: "Hold Period", value: `${investmentHorizon} Years` },
                     { label: "NOI Margin", value: `${totalProjectionRevenue > 0 ? ((totalProjectionNOI / totalProjectionRevenue) * 100).toFixed(1) : '0.0'}%`, highlight: true },
                   ].map(row => (
-                    <div key={row.label} className="flex justify-between items-center py-1 border-b border-[#2d4a5e]/5 last:border-0">
-                      <span className="text-sm text-[#2d4a5e]/60 label-text">{row.label}</span>
-                      <span className={`font-semibold font-mono text-sm ${row.highlight ? 'text-[#257D41]' : 'text-[#2d4a5e]'}`}>{row.value}</span>
+                    <div key={row.label} className="flex justify-between items-center py-1 border-b border-foreground/5 last:border-0">
+                      <span className="text-sm text-foreground/60 label-text">{row.label}</span>
+                      <span className={`font-semibold font-mono text-sm ${row.highlight ? 'text-[#257D41]' : 'text-foreground'}`}>{row.value}</span>
                     </div>
                   ))}
                 </div>

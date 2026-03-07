@@ -20,7 +20,7 @@ const formatMoney = (value: number) =>
 
 const formatPercent = (value: number) => (value * 100).toFixed(1) + "%";
 
-const PIE_COLORS = ["#9FBCA4", "#257D41", "#3B82F6"];
+const PIE_COLORS = ["var(--primary)", "#257D41", "#3B82F6"];
 
 const STAT_COLORS = ["#257D41", "#3B82F6", "#F59E0B", "#8B5CF6", "#EF4444"];
 
@@ -264,7 +264,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   divider: {
     height: 2,
-    background: "linear-gradient(90deg, #257D41, #9FBCA4, transparent)",
+    background: "linear-gradient(90deg, #257D41, var(--primary), transparent)",
     margin: "12px 0 24px",
   },
   kpiRow: {

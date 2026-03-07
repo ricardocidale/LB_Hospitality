@@ -68,14 +68,14 @@ function Scene() {
   return (
     <>
       <ambientLight intensity={0.3} />
-      <pointLight position={[5, 5, 5]} intensity={1} color="#9FBCA4" />
+      <pointLight position={[5, 5, 5]} intensity={1} color="var(--primary)" />
       <pointLight position={[-5, -3, 3]} intensity={0.5} color="#38BDF8" />
       <pointLight position={[0, 3, -5]} intensity={0.3} color="#F97066" />
       <Stars radius={50} depth={50} count={1500} factor={3} saturation={0.5} fade speed={1} />
-      <GlowingSphere position={[0, 0, 0]} color="#9FBCA4" speed={1.5} distort={0.4} />
+      <GlowingSphere position={[0, 0, 0]} color="var(--primary)" speed={1.5} distort={0.4} />
       <GlowingSphere position={[-2.5, 1, -1]} color="#38BDF8" speed={1} distort={0.3} />
       <GlowingSphere position={[2.5, -0.5, -1]} color="#F97066" speed={1.2} distort={0.35} />
-      <WobbleRing radius={2} color="#9FBCA4" speed={1} />
+      <WobbleRing radius={2} color="var(--primary)" speed={1} />
       <WobbleRing radius={3} color="#38BDF8" speed={0.7} />
       <WobbleRing radius={3.8} color="#F97066" speed={0.5} />
       {Array.from({ length: 12 }).map((_, i) => {
@@ -85,7 +85,7 @@ function Scene() {
           <DataOrb
             key={i}
             position={[Math.cos(angle) * r, Math.sin(angle) * r * 0.4, Math.sin(angle) * r * 0.3]}
-            color={["#9FBCA4", "#38BDF8", "#F97066", "#FFD700"][i % 4]}
+            color={["var(--primary)", "#38BDF8", "#F97066", "#FFD700"][i % 4]}
           />
         );
       })}
@@ -192,7 +192,7 @@ export function ResearchRefreshOverlay({ onComplete }: ResearchRefreshOverlayPro
         exit={{ opacity: 0 }}
         transition={{ duration: 0.5 }}
         className="fixed inset-0 z-[9999] flex flex-col items-center justify-center"
-        style={{ background: "linear-gradient(135deg, #0a0a1a 0%, #0d1b2a 40%, #0a0f1e 100%)" }}
+        style={{ background: "#0a0f1e" }}
       >
         <div className="absolute inset-0">
           <Suspense fallback={null}>
@@ -228,10 +228,10 @@ export function ResearchRefreshOverlay({ onComplete }: ResearchRefreshOverlayPro
             transition={{ delay: 0.5, duration: 0.4 }}
             className="w-full"
           >
-            <div className="w-full h-2 rounded-full bg-white/10 overflow-hidden backdrop-blur-sm">
+            <div className="w-full h-2 rounded-full bg-gray-200 overflow-hidden">
               <motion.div
                 className="h-full rounded-full"
-                style={{ background: "linear-gradient(90deg, #9FBCA4, #38BDF8, #9FBCA4)" }}
+                style={{ background: "linear-gradient(90deg, var(--primary), #38BDF8, var(--primary))" }}
                 animate={{ width: `${progress}%` }}
                 transition={{ duration: 0.5, ease: "easeOut" }}
               />

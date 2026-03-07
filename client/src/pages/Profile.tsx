@@ -8,7 +8,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { Loader2, User, Eye, EyeOff, Key, ClipboardCheck, Palette } from "lucide-react";
 import { SaveButton } from "@/components/ui/save-button";
 import { PageHeader } from "@/components/ui/page-header";
-import { GlassButton } from "@/components/ui/glass-button";
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth";
 import { Link } from "wouter";
@@ -211,10 +211,10 @@ export default function Profile() {
                   </div>
                 </div>
                 <Link href="/checker-manual">
-                  <GlassButton variant="primary" data-testid="button-checker-manual">
+                  <Button variant="default" data-testid="button-checker-manual">
                     <ClipboardCheck className="w-4 h-4" />
                     Open Manual
-                  </GlassButton>
+                  </Button>
                 </Link>
               </div>
             </CardContent>
@@ -445,14 +445,15 @@ export default function Profile() {
               </div>
 
               <div className="pt-2">
-                <GlassButton
+                <Button
                   type="submit"
+                  variant="outline"
                   disabled={passwordMutation.isPending || !passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword}
                   data-testid="button-change-password"
                 >
                   {passwordMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Key className="w-4 h-4" />}
                   Update Password
-                </GlassButton>
+                </Button>
               </div>
             </form>
           </CardContent>

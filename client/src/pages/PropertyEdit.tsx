@@ -30,7 +30,6 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, BookOpen, AlertTriangle, Wand2 } from "lucide-react";
 import { SaveButton } from "@/components/ui/save-button";
-import { GlassButton } from "@/components/ui/glass-button";
 import { PageHeader } from "@/components/ui/page-header";
 import { Link, useRoute, useLocation } from "wouter";
 import { useState, useEffect } from "react";
@@ -385,7 +384,7 @@ export default function PropertyEdit() {
           actions={
             <div className="flex items-center gap-3">
               <Link href={`/property/${propertyId}/research`} className="text-inherit no-underline">
-                <GlassButton variant="primary" data-testid="button-market-research">
+                <Button variant="default" data-testid="button-market-research">
                   <span className="relative">
                     <BookOpen className="w-4 h-4" />
                     <span
@@ -400,17 +399,17 @@ export default function PropertyEdit() {
                     />
                   </span>
                   Market Research
-                </GlassButton>
+                </Button>
               </Link>
               {research?.content && !((research.content as any)?.rawResponse) && (
-                <GlassButton
-                  variant="primary"
+                <Button
+                  variant="default"
                   onClick={() => setShowApplyDialog(true)}
                   data-testid="button-apply-research"
                 >
                   <Wand2 className="w-4 h-4" />
                   Apply Research
-                </GlassButton>
+                </Button>
               )}
               <SaveButton
                 onClick={handleSave}

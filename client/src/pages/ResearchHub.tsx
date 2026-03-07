@@ -214,7 +214,7 @@ export default function ResearchHub() {
               <button
                 onClick={generateAllMissing}
                 disabled={isGeneratingAll || missingCount === 0}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl bg-white/20 backdrop-blur-sm border border-white/30 text-white hover:bg-white/30 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-gray-900 border border-gray-900 text-white hover:bg-gray-800 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isGeneratingAll ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -227,9 +227,9 @@ export default function ResearchHub() {
               </button>
               {isGeneratingAll && (
                 <div className="w-full max-w-[220px]">
-                  <div className="h-1.5 rounded-full bg-white/20 overflow-hidden">
+                  <div className="h-1.5 rounded-full bg-gray-200 overflow-hidden">
                     <motion.div
-                      className="h-full rounded-full bg-white/80"
+                      className="h-full rounded-full bg-gray-900"
                       initial={{ width: 0 }}
                       animate={{ width: `${(currentGenIndex / totalToGenerate) * 100}%` }}
                       transition={{ duration: 0.4 }}

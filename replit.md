@@ -27,6 +27,16 @@ npm run exports:check  # Find unused exports
 ## Tech Stack
 React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v4, Recharts, Three.js, framer-motion, Express 5, Drizzle ORM, PostgreSQL, Zod, jsPDF, xlsx, pptxgenjs
 
+## Design System (ElevenLabs Standard)
+- **UI standard**: ElevenLabs component patterns — shadcn primitives (`Button`, `Card`, `DropdownMenu`, `Separator`) + `cva` for variants
+- **Colors**: Always use CSS variables (`text-foreground`, `text-muted-foreground`, `bg-card`, `bg-muted`, `border`) — no hardcoded hex colors in components
+- **Buttons**: shadcn `Button` from `@/components/ui/button` — GlassButton is deleted
+- **Cards**: shadcn `Card` or `bg-card border shadow-sm` tokens; `SectionCard`/`ContentPanel` are thin wrappers
+- **Export menus**: `ExportToolbar` uses shadcn `DropdownMenu` internally
+- **Voice/AI components**: Canonical versions in `client/src/features/ai-agent/components/` (17 components: conversation, orb, waveform, message, audio-player, etc.)
+- **Theme**: Liquid ice palette defined via CSS variables in `client/src/index.css` — components consume via Tailwind tokens
+- **Exceptions**: Chart data colors (Recharts fill/stroke) may use hardcoded hex; financial-table grand total row uses `bg-[#2d4a5e]`
+
 ## Documentation (all in .claude/)
 ```
 .claude/
@@ -67,6 +77,10 @@ React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v
 - AI agent name configurable via DB (`aiAgentName`), default "Marcela"
 - All ElevenLabs config via API — no manual dashboard usage
 
+## Scripts Directory
+All utility scripts live in `script/` (single canonical directory). Includes health checks, test runners, verification, seed data, branding tools, and admin utilities.
+
 ## Future Improvements (Noted, Not Blocking)
 - `shared/schema.ts` (1,172 lines) — candidate for domain split (auth, portfolio, research, branding, operations)
 - `client/src/components/ui/sidebar.tsx` (736 lines) — shadcn/ui primitive, do not modify
+- Feature-first client folder reorg (`features/admin`, `features/property`, etc.) — not yet implemented

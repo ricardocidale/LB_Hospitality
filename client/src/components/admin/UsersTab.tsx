@@ -26,7 +26,6 @@ import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { GlassButton } from "@/components/ui/glass-button";
 import { Loader2, Trash2, Users, Key, Eye, EyeOff, Pencil, UserPlus, Shield, Mail, LayoutGrid, Calendar, Settings, Save, ArrowUp, ArrowDown, ArrowUpDown, Building2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { formatDateTime } from "@/lib/formatters";
@@ -282,14 +281,14 @@ export default function UsersTab() {
             </CardDescription>
           </div>
           <div className="flex items-center gap-2">
-            <GlassButton onClick={() => { if (confirm("Reset ALL user passwords to the default admin password?")) resetAllPasswordsMutation.mutate(); }} disabled={resetAllPasswordsMutation.isPending} data-testid="button-reset-all-passwords">
+            <Button variant="outline" onClick={() => { if (confirm("Reset ALL user passwords to the default admin password?")) resetAllPasswordsMutation.mutate(); }} disabled={resetAllPasswordsMutation.isPending} data-testid="button-reset-all-passwords">
               {resetAllPasswordsMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Key className="w-4 h-4" />}
               Reset All Passwords
-            </GlassButton>
-            <GlassButton variant="primary" onClick={() => setDialogOpen(true)} data-testid="button-add-user">
+            </Button>
+            <Button variant="default" onClick={() => setDialogOpen(true)} data-testid="button-add-user">
               <UserPlus className="w-4 h-4" />
               Add User
-            </GlassButton>
+            </Button>
           </div>
         </div>
       </CardHeader>

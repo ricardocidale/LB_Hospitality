@@ -17,7 +17,7 @@ interface LogoSvgProps {
 
 export function LogoSvg({
   size = 64,
-  color = "#9FBCA4",
+  color = "var(--primary)",
   className = "",
   rotating = false,
   rotationDuration = 20,

@@ -11,7 +11,7 @@ export function TableOfContents({ sections, scrollToSection }: TableOfContentsPr
   return (
     <aside className="hidden lg:block w-72 flex-shrink-0">
       <div className="sticky top-24">
-        <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+        <Card className="bg-white border-gray-200 shadow-sm">
           <div className="p-4">
             <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Table of Contents</h3>
             <nav className="space-y-1">

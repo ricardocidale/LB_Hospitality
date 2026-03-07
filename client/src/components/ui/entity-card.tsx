@@ -148,7 +148,7 @@ export function EntityCardItem({
       {members && members.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {members.map(m => (
-            <span key={m.id} className={cn("inline-flex items-center gap-1 bg-white/80 border", memberBorderClass, "rounded-full px-3 py-1 text-sm")}>
+            <span key={m.id} className={cn("inline-flex items-center gap-1 bg-white border", memberBorderClass, "rounded-full px-3 py-1 text-sm")}>
               <span className="font-medium">{m.label}</span>
             </span>
           ))}

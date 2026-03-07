@@ -25,7 +25,7 @@ import Layout from "@/components/Layout";
 import { useProperties, useDeleteProperty, useCreateProperty, useGlobalAssumptions } from "@/lib/api";
 import { Loader2, Plus, AlertTriangle } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
-import { GlassButton } from "@/components/ui/glass-button";
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { InsertProperty } from "@shared/schema";
 import {
@@ -240,10 +240,10 @@ export default function Portfolio() {
               onCancel={() => { setIsAddDialogOpen(false); resetForm(); }}
               onAcquisitionDateChange={handleAcquisitionDateChange}
               trigger={
-                <GlassButton data-testid="button-add-property">
+                <Button variant="outline" data-testid="button-add-property">
                   <Plus className="w-4 h-4" />
                   Add Property
-                </GlassButton>
+                </Button>
               }
             />
           }

@@ -13,7 +13,7 @@ import { ChevronDown } from "lucide-react";
 
 const PRESET_COLORS = [
   // Row 1: Theme colors
-  ["#257D41", "#3B82F6", "#F4795B", "#9FBCA4", "#FFF9F5"],
+  ["#257D41", "#3B82F6", "#F4795B", "var(--primary)", "#FFF9F5"],
   // Row 2: Standard colors
   ["#C00000", "#FF0000", "#FFC000", "#FFFF00", "#92D050"],
   ["#00B050", "#00B0F0", "#0070C0", "#002060", "#7030A0"],

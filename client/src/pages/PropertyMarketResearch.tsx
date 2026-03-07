@@ -2,7 +2,7 @@ import { useState } from "react";
 import Layout from "@/components/Layout";
 import { useProperty, useMarketResearch, useGlobalAssumptions } from "@/lib/api";
 import { PageHeader } from "@/components/ui/page-header";
-import { GlassButton } from "@/components/ui/glass-button";
+import { Button } from "@/components/ui/button";
 import { ExportToolbar } from "@/components/ui/export-toolbar";
 import { Loader2, RefreshCw, MapPin, ExternalLink, BookOpen, ArrowLeft, Mail, FileDown } from "lucide-react";
 import { useRoute, useLocation } from "wouter";
@@ -62,28 +62,28 @@ export default function PropertyMarketResearch() {
           backLink={`/property/${property.id}/edit`}
           actions={
             <div className="flex items-center gap-3">
-              <GlassButton
+              <Button
                 variant="ghost"
                 onClick={() => setLocation(`/property/${property.id}/edit`)}
                 data-testid="button-back"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Back
-              </GlassButton>
+              </Button>
               <a
                 href={googleMapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 data-testid="link-google-maps"
               >
-                <GlassButton variant="primary">
+                <Button variant="default">
                   <MapPin className="w-4 h-4" />
                   Google Maps
                   <ExternalLink className="w-3 h-3" />
-                </GlassButton>
+                </Button>
               </a>
-              <GlassButton
-                variant="primary"
+              <Button
+                variant="default"
                 onClick={generateResearch}
                 disabled={isGenerating}
                 data-testid="button-update-research"
@@ -91,7 +91,7 @@ export default function PropertyMarketResearch() {
               >
                 {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
                 {isGenerating ? "Analyzing..." : "Update Research"}
-              </GlassButton>
+              </Button>
             </div>
           }
         />

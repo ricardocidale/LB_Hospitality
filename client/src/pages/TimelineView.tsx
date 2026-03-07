@@ -32,7 +32,7 @@ export default function TimelineView({ embedded }: { embedded?: boolean }) {
         propertyName: p.name,
         location: p.location,
         detail: `Purchase: ${formatCurrency(p.purchasePrice)}`,
-        color: "#9FBCA4",
+        color: "var(--primary)",
       });
       items.push({
         date: p.operationsStartDate,
@@ -130,8 +130,8 @@ export default function TimelineView({ embedded }: { embedded?: boolean }) {
                       <span
                         className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full"
                         style={{
-                          backgroundColor: "rgba(159,188,164,0.1)",
-                          color: "#9FBCA4",
+                          backgroundColor: "rgba(var(--primary-rgb, 159, 188, 164), 0.1)",
+                          color: "var(--primary)",
                         }}
                         data-testid={`timeline-date-${i}`}
                       >

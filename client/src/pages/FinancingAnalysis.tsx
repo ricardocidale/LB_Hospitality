@@ -3,7 +3,7 @@ import Layout from "@/components/Layout";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
 import { ContentPanel } from "@/components/ui/content-panel";
-import { GlassButton } from "@/components/ui/glass-button";
+import { Button } from "@/components/ui/button";
 import { formatMoney } from "@/lib/financialEngine";
 import {
   Calculator,
@@ -153,15 +153,15 @@ function DSCRTab() {
         <InputField label="Purchase Price" value={purchasePrice} onChange={setPurchasePrice} prefix="$" helpText="Total acquisition price of the property" data-testid="input-dscr-price" />
         <InputField label="Max LTV" value={ltvMax} onChange={setLtvMax} suffix="%" helpText="Maximum Loan-to-Value ratio the lender will allow (typically 65–75%)" data-testid="input-dscr-ltv" />
       </div>
-      <button 
+      <Button 
         onClick={calculate} 
         disabled={loading} 
+        variant="default"
         data-testid="button-dscr-calculate"
-        className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
       >
         {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2 inline" /> : <Calculator className="w-4 h-4 mr-2 inline" />}
         Calculate Max Loan
-      </button>
+      </Button>
       {error && <p className="text-red-600 text-sm">{error}</p>}
       {result && (
         <div className="space-y-4">
@@ -278,15 +278,15 @@ function DebtYieldTab() {
         <InputField label="Purchase Price" value={purchasePrice} onChange={setPurchasePrice} prefix="$" helpText="Property purchase price for LTV calculation" data-testid="input-dy-price" />
         <InputField label="Max LTV" value={ltvMax} onChange={setLtvMax} suffix="%" helpText="Maximum Loan-to-Value ratio allowed" data-testid="input-dy-ltv" />
       </div>
-      <button 
+      <Button 
         onClick={calculate} 
         disabled={loading} 
+        variant="default"
         data-testid="button-dy-calculate"
-        className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
       >
         {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2 inline" /> : <TrendingUp className="w-4 h-4 mr-2 inline" />}
         Analyze Debt Yield
-      </button>
+      </Button>
       {error && <p className="text-red-600 text-sm">{error}</p>}
       {result && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -397,15 +397,15 @@ function SensitivityTab() {
         <InputField label="IO Period (months)" value={ioMonths} onChange={setIoMonths} helpText="Interest-only months at the start" data-testid="input-sens-io" />
         <InputField label="Min DSCR Threshold" value={minDscr} onChange={setMinDscr} step="0.05" helpText="Red cells in the matrix indicate DSCR below this threshold" data-testid="input-sens-min-dscr" />
       </div>
-      <button 
+      <Button 
         onClick={calculate} 
         disabled={loading} 
+        variant="default"
         data-testid="button-sens-calculate"
-        className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
       >
         {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2 inline" /> : <BarChart3 className="w-4 h-4 mr-2 inline" />}
         Run Stress Test
-      </button>
+      </Button>
       {error && <p className="text-red-600 text-sm">{error}</p>}
       {result && (
         <div className="space-y-4">
@@ -563,10 +563,10 @@ function PrepaymentTab() {
       {penaltyType === "step_down" && (
         <p className="text-xs text-gray-400">Using standard 5-4-3-2-1 step-down schedule</p>
       )}
-      <GlassButton variant="primary" onClick={calculate} disabled={loading} data-testid="button-prepay-calculate">
+      <Button variant="default" onClick={calculate} disabled={loading} data-testid="button-prepay-calculate">
         {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2 inline" /> : <Shield className="w-4 h-4 mr-2 inline" />}
         Calculate Prepayment Cost
-      </GlassButton>
+      </Button>
       {error && <p className="text-red-600 text-sm">{error}</p>}
       {result && (
         <div className="space-y-4">

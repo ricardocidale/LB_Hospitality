@@ -28,9 +28,8 @@ import { AnimatedPage, ScrollReveal, KPIGrid, AnimatedGrid, AnimatedGridItem } f
 import { HoverScale } from "@/components/ui/animated";
 import { useScenarios, useCreateScenario, useLoadScenario, useUpdateScenario, useDeleteScenario } from "@/lib/api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { GlassButton } from "@/components/ui/glass-button";
+import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Save, FolderOpen, Pencil, Trash2, Plus, Clock, FileStack, Download, Upload, Copy, GitCompareArrows, ArrowRight, Minus, PlusCircle, RefreshCw, AlertTriangle } from "lucide-react";
@@ -261,20 +260,16 @@ export default function Scenarios() {
             { label: "Latest Saved", value: scenarios?.length ?? 0, format: () => scenarios?.length ? new Date(scenarios[0].updatedAt || scenarios[0].createdAt).toLocaleDateString() : "—", sublabel: "most recent" },
           ]}
           columns={2}
-          variant="glass"
+          variant="light"
         />
 
-        <Card className="relative overflow-hidden bg-gradient-to-br from-[#2d4a5e]/90 via-[#3d5a6a]/90 to-[#3a5a5e]/90 backdrop-blur-xl border-white/10">
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute -top-12 -left-12 w-48 h-48 rounded-full bg-primary/15 blur-3xl" />
-            <div className="absolute bottom-0 right-0 w-64 h-64 rounded-full bg-secondary/10 blur-3xl" />
-          </div>
+        <Card className="relative overflow-hidden bg-white border-gray-200 shadow-sm">
           
           <CardHeader className="relative">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-xl font-display text-background">Saved Scenarios</CardTitle>
-                <CardDescription className="label-text text-white/60">
+                <CardTitle className="text-xl font-display text-gray-900">Saved Scenarios</CardTitle>
+                <CardDescription className="label-text text-gray-500">
                   {scenarios?.length === 0 
                     ? "No scenarios saved yet. Save your current configuration to get started."
                     : `${scenarios?.length} scenario${scenarios?.length === 1 ? '' : 's'} saved`
@@ -282,14 +277,15 @@ export default function Scenarios() {
                 </CardDescription>
               </div>
               <div className="flex items-center gap-2">
-                <GlassButton
+                <Button
                   variant="ghost"
                   onClick={() => importFileRef.current?.click()}
                   data-testid="button-import-scenario"
+                  className="text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                 >
                   <Upload className="w-4 h-4" />
                   Import
-                </GlassButton>
+                </Button>
                 <input
                   ref={importFileRef}
                   type="file"
@@ -298,23 +294,24 @@ export default function Scenarios() {
                   className="hidden"
                 />
                 {(scenarios?.length ?? 0) >= 2 && (
-                  <GlassButton
-                    variant={compareMode ? "primary" : "ghost"}
+                  <Button
+                    variant={compareMode ? "default" : "ghost"}
                     onClick={() => { setCompareMode(!compareMode); setCompareSelection([]); }}
                     data-testid="button-toggle-compare"
+                    className={compareMode ? "" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"}
                   >
                     <GitCompareArrows className="w-4 h-4" />
                     {compareMode ? "Cancel Compare" : "Compare"}
-                  </GlassButton>
+                  </Button>
                 )}
-                <GlassButton
-                  variant="primary"
+                <Button
+                  variant="default"
                   onClick={() => setIsCreating(true)}
                   data-testid="button-new-scenario"
                 >
                   <Save className="w-4 h-4" />
                   Save As
-                </GlassButton>
+                </Button>
               </div>
             </div>
           </CardHeader>
@@ -322,14 +319,14 @@ export default function Scenarios() {
           <CardContent className="relative space-y-4">
             {/* Compare selection bar */}
             {compareMode && (
-              <div className="flex items-center justify-between p-3 rounded-xl bg-primary/10 border border-primary/30">
-                <span className="text-white/70 text-sm">
+              <div className="flex items-center justify-between p-3 rounded-lg bg-primary/10 border border-primary/20">
+                <span className="text-gray-700 text-sm">
                   {compareSelection.length === 0 && "Select two scenarios to compare"}
                   {compareSelection.length === 1 && "Select one more scenario"}
                   {compareSelection.length === 2 && "Ready to compare"}
                 </span>
-                <GlassButton
-                  variant="primary"
+                <Button
+                  variant="default"
                   size="sm"
                   disabled={compareSelection.length !== 2 || compareLoading}
                   onClick={handleCompare}
@@ -337,15 +334,15 @@ export default function Scenarios() {
                 >
                   {compareLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <GitCompareArrows className="w-4 h-4" />}
                   Compare
-                </GlassButton>
+                </Button>
               </div>
             )}
 
             {scenarios?.length === 0 ? (
               <div className="text-center py-12">
-                <FileStack className="w-16 h-16 mx-auto text-white/30 mb-4" />
-                <p className="label-text text-white/60">No scenarios saved yet</p>
-                <p className="label-text text-white/40 mt-1">
+                <FileStack className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                <p className="label-text text-gray-500 font-medium">No scenarios saved yet</p>
+                <p className="label-text text-gray-400 mt-1">
                   Click "Save Current" to save your current assumptions and properties as a scenario
                 </p>
               </div>
@@ -356,10 +353,10 @@ export default function Scenarios() {
                   <AnimatedGridItem key={scenario.id}>
                   <HoverScale scale={1.01}>
                   <div
-                    className={`p-4 rounded-xl border transition-colors ${
+                    className={`p-4 rounded-lg border transition-colors ${
                       compareMode && compareSelection.includes(scenario.id)
-                        ? "bg-primary/15 border-primary/40"
-                        : "bg-white/5 border-white/10 hover:bg-white/10"
+                        ? "bg-primary/10 border-primary"
+                        : "bg-gray-50 border-gray-200 hover:bg-gray-100"
                     } ${compareMode ? "cursor-pointer" : ""}`}
                     onClick={compareMode ? () => toggleCompareSelect(scenario.id) : undefined}
                     data-testid={`scenario-card-${scenario.id}`}
@@ -367,21 +364,21 @@ export default function Scenarios() {
                     <div className="flex items-start justify-between gap-4">
                       {compareMode && (
                         <div className={`mt-1 w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                          compareSelection.includes(scenario.id) ? "border-primary bg-primary" : "border-white/30"
+                          compareSelection.includes(scenario.id) ? "border-primary bg-primary" : "border-gray-300"
                         }`}>
                           {compareSelection.includes(scenario.id) && (
-                            <span className="text-[10px] font-bold text-black">
+                            <span className="text-[10px] font-bold text-white">
                               {compareSelection.indexOf(scenario.id) + 1}
                             </span>
                           )}
                         </div>
                       )}
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-display text-background truncate">{scenario.name}</h3>
+                        <h3 className="font-display text-gray-900 truncate">{scenario.name}</h3>
                         {scenario.description && (
-                          <p className="label-text text-white/60 mt-1 line-clamp-2">{scenario.description}</p>
+                          <p className="label-text text-gray-500 mt-1 line-clamp-2">{scenario.description}</p>
                         )}
-                        <div className="flex items-center gap-4 mt-2 text-xs text-white/40">
+                        <div className="flex items-center gap-4 mt-2 text-xs text-gray-400">
                           <span className="flex items-center gap-1 font-mono">
                             <Clock className="w-3 h-3" />
                             Saved: {formatDateTime(scenario.updatedAt)}
@@ -391,25 +388,25 @@ export default function Scenarios() {
                       </div>
                       
                       <div className="flex items-center gap-2 flex-shrink-0">
-                        <GlassButton
-                          variant="primary"
-                          onClick={() => handleLoad(scenario.id, scenario.name)}
-                          disabled={loadScenario.isPending}
-                          data-testid={`button-load-scenario-${scenario.id}`}
-                        >
-                          {loadScenario.isPending ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <FolderOpen className="w-4 h-4" />
-                          )}
-                          Load
-                        </GlassButton>
+                          <Button
+                            variant="default"
+                            onClick={() => handleLoad(scenario.id, scenario.name)}
+                            disabled={loadScenario.isPending}
+                            data-testid={`button-load-scenario-${scenario.id}`}
+                          >
+                            {loadScenario.isPending ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <FolderOpen className="w-4 h-4" />
+                            )}
+                            Load
+                          </Button>
                         
                         <Button
                           size="sm"
                           variant="ghost"
                           onClick={() => handleExport(scenario.id, scenario.name)}
-                          className="text-white/60 hover:text-white hover:bg-white/10"
+                          className="text-gray-400 hover:text-gray-900 hover:bg-gray-100"
                           title="Export as JSON"
                           data-testid={`button-export-scenario-${scenario.id}`}
                         >
@@ -420,7 +417,7 @@ export default function Scenarios() {
                           size="sm"
                           variant="ghost"
                           onClick={() => handleClone(scenario.id, scenario.name)}
-                          className="text-white/60 hover:text-white hover:bg-white/10"
+                          className="text-gray-400 hover:text-gray-900 hover:bg-gray-100"
                           title="Duplicate"
                           data-testid={`button-clone-scenario-${scenario.id}`}
                         >
@@ -435,7 +432,7 @@ export default function Scenarios() {
                             name: scenario.name,
                             description: scenario.description || ""
                           })}
-                          className="text-white/60 hover:text-white hover:bg-white/10"
+                          className="text-gray-400 hover:text-gray-900 hover:bg-gray-100"
                           data-testid={`button-edit-scenario-${scenario.id}`}
                         >
                           <Pencil className="w-4 h-4" />

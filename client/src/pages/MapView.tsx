@@ -124,7 +124,7 @@ const MAP_STYLES = {
 };
 
 function createMarkerElement(property: any, isSelected: boolean) {
-  const color = property.market === "North America" ? "#9FBCA4" : "#3B82F6";
+  const color = property.market === "North America" ? "var(--primary)" : "#3B82F6";
   const size = isSelected ? 42 : 32;
   const el = document.createElement("div");
   el.className = "map-marker-container";
@@ -345,7 +345,7 @@ export default function MapView() {
       <style>{`
         @keyframes marker-pulse {
           0%, 100% { box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
-          50% { box-shadow: 0 4px 20px rgba(0,0,0,0.5), 0 0 0 4px rgba(159,188,164,0.2); }
+          50% { box-shadow: 0 4px 20px rgba(0,0,0,0.5), 0 0 0 4px rgba(var(--primary-rgb,159,188,164),0.2); }
         }
         @keyframes marker-ring {
           0%, 100% { opacity: 0.4; transform: rotate(-45deg) scale(1); }
@@ -403,7 +403,7 @@ export default function MapView() {
           </div>
           {geoProperties.map(({ property }) => {
             const isSelected = selectedId === property.id;
-            const pinColor = property.market === "North America" ? "#9FBCA4" : "#3B82F6";
+            const pinColor = property.market === "North America" ? "var(--primary)" : "#3B82F6";
             const sc = statusColor(property.status);
             return (
               <div

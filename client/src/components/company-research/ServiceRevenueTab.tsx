@@ -71,7 +71,7 @@ export function ServiceRevenueTab({ content }: ServiceRevenueTabProps) {
       </SectionCard>
 
       {benchmarks.map(b => (
-        <div key={b.type} className="bg-white/80 backdrop-blur-xl rounded-xl border border-primary/10 p-4">
+        <div key={b.type} className="bg-white rounded-lg border border-gray-200 p-4">
           <h4 className="text-sm font-medium text-gray-800 mb-2">{b.label}</h4>
           <div className="grid grid-cols-3 gap-3 mb-2">
             <MetricCard label="Low" value={`${(b.lowRate * 100).toFixed(1)}% ($${b.lowFee.toLocaleString()})`} color={companySectionColors.fees} />

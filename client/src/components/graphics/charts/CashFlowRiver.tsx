@@ -55,7 +55,7 @@ export function CashFlowRiver({ data, series, title, subtitle, xAxisKey = "year"
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className={`relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)] ${className || ""}`}
+      className={`relative overflow-hidden rounded-lg p-6 bg-white border border-gray-200 shadow-sm ${className || ""}`}
       data-testid={props["data-testid"]}
     >
       {title && <h3 className="text-lg font-display text-gray-900 mb-1">{title}</h3>}

@@ -53,8 +53,8 @@ function TourPromptDialog({ onAccept, onDecline }: { onAccept: () => void; onDec
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center" data-testid="tour-prompt-dialog">
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => onDecline(dontOffer)} />
-      <div className="relative bg-card rounded-2xl shadow-2xl border border-border/60 p-8 max-w-md w-full mx-4 animate-in fade-in zoom-in-95 duration-300">
+      <div className="fixed inset-0 bg-black/60" onClick={() => onDecline(dontOffer)} />
+      <div className="relative bg-card rounded-lg shadow-sm border border-gray-200 p-8 max-w-md w-full mx-4 animate-in fade-in zoom-in-95 duration-300">
         <button
           onClick={() => onDecline(dontOffer)}
           className="absolute top-4 right-4 text-muted-foreground/40 hover:text-foreground/70 transition-colors"
@@ -64,7 +64,7 @@ function TourPromptDialog({ onAccept, onDecline }: { onAccept: () => void; onDec
         </button>
 
         <div className="flex flex-col items-center text-center space-y-6">
-          <div className="w-14 h-14 rounded-2xl bg-primary/15 flex items-center justify-center">
+          <div className="w-14 h-14 rounded-lg bg-primary/15 flex items-center justify-center">
             <Compass className="w-7 h-7 text-primary" />
           </div>
 
@@ -80,14 +80,14 @@ function TourPromptDialog({ onAccept, onDecline }: { onAccept: () => void; onDec
           <div className="flex items-center gap-3 w-full pt-1">
             <button
               onClick={() => onDecline(dontOffer)}
-              className="flex-1 px-4 py-2.5 text-sm font-medium text-muted-foreground bg-muted hover:bg-muted/80 rounded-xl transition-colors"
+              className="flex-1 px-4 py-2.5 text-sm font-medium text-muted-foreground bg-muted hover:bg-muted/80 rounded-lg transition-colors"
               data-testid="button-tour-decline"
             >
               Skip
             </button>
             <button
               onClick={onAccept}
-              className="flex-1 px-4 py-2.5 text-sm font-medium text-primary-foreground bg-primary hover:bg-primary/90 rounded-xl transition-colors shadow-sm"
+              className="flex-1 px-4 py-2.5 text-sm font-medium text-primary-foreground bg-primary hover:bg-primary/90 rounded-lg transition-colors shadow-sm"
               data-testid="button-tour-accept"
             >
               Start Tour
@@ -210,7 +210,7 @@ function GuidedWalkthrough() {
     left: targetRect.left - padding,
     width: targetRect.width + padding * 2,
     height: targetRect.height + padding * 2,
-    borderRadius: 12,
+    borderRadius: 8,
     boxShadow: "0 0 0 9999px rgba(0,0,0,0.55)",
     pointerEvents: "none",
     zIndex: 9998,
@@ -245,7 +245,7 @@ function GuidedWalkthrough() {
 
       <div
         style={tooltipStyle}
-        className="bg-card rounded-xl border border-border/60 shadow-xl p-5"
+        className="bg-card rounded-lg border border-gray-200 shadow-sm p-5"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between mb-2.5">
@@ -312,11 +312,11 @@ export function WalkthroughTrigger() {
   return (
     <button
       onClick={handleClick}
-      className="group relative flex items-center gap-3 px-4 py-3 text-sm font-medium text-background/60 hover:text-white rounded-2xl transition-all duration-300 overflow-hidden w-full"
+      className="group relative flex items-center gap-3 px-4 py-3 text-sm font-medium text-background/60 hover:text-white rounded-lg transition-all duration-300 overflow-hidden w-full"
       data-testid="button-start-tour"
     >
-      <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-all duration-300 rounded-2xl" />
-      <div className="relative w-8 h-8 rounded-xl bg-white/5 group-hover:bg-white/10 flex items-center justify-center transition-all duration-300">
+      <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-all duration-300 rounded-lg" />
+      <div className="relative w-8 h-8 rounded-lg bg-white/5 group-hover:bg-white/10 flex items-center justify-center transition-all duration-300">
         <HelpCircle className="w-4 h-4 transition-all duration-300" />
       </div>
       <span className="relative">Guided Tour</span>

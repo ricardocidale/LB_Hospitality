@@ -15,7 +15,7 @@ import { Link } from "wouter";
 import { Settings2 } from "lucide-react";
 import { Tabs, TabsContent, CurrentThemeTab } from "@/components/ui/tabs";
 import { FileText, Banknote, Scale } from "lucide-react";
-import { GlassButton } from "@/components/ui/glass-button";
+import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 import { FinancialChart } from "@/components/ui/financial-chart";
 import { KPIGrid, InsightPanel, ScrollReveal, formatCompact } from "@/components/graphics";
@@ -40,10 +40,10 @@ export default function CompanyHeader({
         subtitle="Corporate Management Entity & Operations"
         actions={
           <Link href="/company/assumptions" className="text-inherit no-underline">
-            <GlassButton variant="settings">
+            <Button variant="outline">
               <Settings2 className="w-4 h-4" />
               Assumptions
-            </GlassButton>
+            </Button>
           </Link>
         }
       />

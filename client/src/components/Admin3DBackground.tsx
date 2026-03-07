@@ -98,19 +98,19 @@ function AdminScene() {
   return (
     <>
       <ambientLight intensity={0.15} />
-      <pointLight position={[4, 4, 4]} intensity={0.3} color="#9FBCA4" />
+      <pointLight position={[4, 4, 4]} intensity={0.3} color="var(--primary)" />
       <pointLight position={[-4, -2, 3]} intensity={0.15} color="#257D41" />
       <directionalLight position={[0, 5, 5]} intensity={0.1} color="#ffffff" />
 
-      <GlassPanel position={[-2.5, 1.2, -3]} rotation={[0.15, 0.3, 0.05]} scale={[2.5, 1.8, 1]} color="#9FBCA4" speed={0.4} />
+      <GlassPanel position={[-2.5, 1.2, -3]} rotation={[0.15, 0.3, 0.05]} scale={[2.5, 1.8, 1]} color="var(--primary)" speed={0.4} />
       <GlassPanel position={[2.8, -0.5, -4]} rotation={[-0.1, -0.2, 0.08]} scale={[3, 2, 1]} color="#257D41" speed={0.3} />
-      <GlassPanel position={[0.5, 2, -5]} rotation={[0.08, 0.1, -0.05]} scale={[4, 2.5, 1]} color="#9FBCA4" speed={0.25} />
+      <GlassPanel position={[0.5, 2, -5]} rotation={[0.08, 0.1, -0.05]} scale={[4, 2.5, 1]} color="var(--primary)" speed={0.25} />
       <GlassPanel position={[-1.5, -1.5, -3.5]} rotation={[-0.12, 0.15, 0.1]} scale={[2, 1.5, 1]} color="#38BDF8" speed={0.35} />
 
-      <OrbitalRing radius={3} color="#9FBCA4" speed={0.4} tilt={Math.PI / 3} />
+      <OrbitalRing radius={3} color="var(--primary)" speed={0.4} tilt={Math.PI / 3} />
       <OrbitalRing radius={4.5} color="#257D41" speed={0.25} tilt={Math.PI / 2.5} />
 
-      <GlowOrb position={[3.5, 2, -2]} color="#9FBCA4" size={0.25} speed={0.6} />
+      <GlowOrb position={[3.5, 2, -2]} color="var(--primary)" size={0.25} speed={0.6} />
       <GlowOrb position={[-3, -1.5, -2]} color="#257D41" size={0.18} speed={0.5} />
       <GlowOrb position={[1, -2.5, -1.5]} color="#38BDF8" size={0.12} speed={0.7} />
     </>

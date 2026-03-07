@@ -56,10 +56,10 @@ import {
 import { ADMIN_CARD, ADMIN_LINK_CARD, ADMIN_LINK_ICON, ADMIN_TEXTAREA, LOGO_PREVIEW, ADMIN_DIALOG } from "./styles";
 ```
 
-- `ADMIN_CARD` — glassmorphism card class for all admin cards
+- `ADMIN_CARD` — clean card class using CSS variables (`bg-card border-border shadow-sm`)
 - `ADMIN_LINK_CARD` — navigation link card style
 - `ADMIN_LINK_ICON` — icon container in link cards
-- `ADMIN_TEXTAREA` — styled textarea for admin forms (non-bold, gray-700 text)
+- `ADMIN_TEXTAREA` — styled textarea for admin forms (non-bold, muted text)
 - `LOGO_PREVIEW` — logo thumbnail container (14x14 rounded with dashed border)
 - `ADMIN_DIALOG` — dialog width class (`sm:max-w-lg`)
 
@@ -140,6 +140,16 @@ Server endpoints:
 
 Image client: `server/replit_integrations/image/client.ts`
 
+## Design System (ElevenLabs Standard)
+
+All UI follows the ElevenLabs component pattern:
+- **Buttons**: Use shadcn `Button` from `@/components/ui/button` — never custom button components
+- **Cards**: Use shadcn `Card` or CSS variable tokens (`bg-card`, `border-border`, `shadow-sm`)
+- **Colors**: Always CSS variables (`text-foreground`, `text-muted-foreground`, `bg-muted`) — never hardcoded hex colors
+- **Variants**: Use `cva` from class-variance-authority for component variants
+- **Exports**: Use shadcn `DropdownMenu` for export menus (via `ExportToolbar`)
+- **Voice/AI components**: Canonical versions live in `client/src/features/ai-agent/components/`
+
 ## Conventions
 
 1. Every admin tab uses shared hooks from `hooks.ts` — no inline fetches
@@ -148,6 +158,8 @@ Image client: `server/replit_integrations/image/client.ts`
 4. All interactive elements need `data-testid` attributes
 5. Icons from `lucide-react`, titles use `font-display` class
 6. Button labels: always "Save", never "Update"
+7. No hardcoded hex colors — use CSS variable tokens
+8. Use shadcn `Button` (not GlassButton, which is deleted)
 
 ## Adding a New Admin Section
 

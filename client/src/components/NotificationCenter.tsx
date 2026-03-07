@@ -68,7 +68,7 @@ const TYPE_CONFIG: Record<
   Notification["type"],
   { icon: typeof Info; color: string }
 > = {
-  info: { icon: Info, color: "#9FBCA4" },
+  info: { icon: Info, color: "var(--primary)" },
   success: { icon: CheckCircle, color: "#257D41" },
   warning: { icon: AlertTriangle, color: "#F59E0B" },
   error: { icon: XCircle, color: "#EF4444" },
@@ -163,7 +163,7 @@ export default function NotificationCenter() {
                     className="w-full text-left px-4 py-3 flex gap-3 hover:bg-gray-50 transition-colors"
                     style={{
                       borderLeft: !n.read
-                        ? "3px solid #9FBCA4"
+                        ? "3px solid var(--primary)"
                         : "3px solid transparent",
                     }}
                   >

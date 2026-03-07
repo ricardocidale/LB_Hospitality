@@ -55,7 +55,7 @@ export function AnimatedLogo({
 
   const svgStyle = `
     @keyframes al-pulse{0%,100%{opacity:1}50%{opacity:.55}}
-    @keyframes al-glow{0%,100%{filter:drop-shadow(0 0 2px rgba(159,188,164,.3))}50%{filter:drop-shadow(0 0 8px rgba(159,188,164,.7))}}
+    @keyframes al-glow{0%,100%{filter:drop-shadow(0 0 2px rgba(var(--primary-rgb,159,188,164),.3))}50%{filter:drop-shadow(0 0 8px rgba(var(--primary-rgb,159,188,164),.7))}}
     @keyframes al-spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
     @keyframes al-bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-${bounce}px)}}
     .al-pulse-${uid}{animation:al-pulse 2s ease-in-out infinite}
@@ -94,7 +94,7 @@ export function AnimatedLogo({
         width={size - 1} height={size - 1}
         rx={r} ry={r}
         fill="white"
-        stroke="rgba(159,188,164,0.25)"
+        stroke="rgba(var(--primary-rgb,159,188,164),0.25)"
         strokeWidth={1}
       />
       <g clipPath={`url(#${clipId})`} className={animClass[animation]}>

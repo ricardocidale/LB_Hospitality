@@ -75,7 +75,7 @@ export default function OperatingCostRatesSection({ draft, onChange, globalAssum
           
           return (
             <>
-              <div className="p-4 rounded-lg bg-white/10 border border-white/20">
+              <div className="p-4 rounded-lg bg-gray-50 border border-gray-200">
                 <div className="flex justify-between items-center">
                   <span className="font-medium text-gray-900">Total Allocation:</span>
                   <span className="text-lg font-bold text-primary">

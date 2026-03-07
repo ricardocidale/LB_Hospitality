@@ -21,4 +21,4 @@ export const SECTION_BG = "#E8F4FD";
 export const SUBTOTAL_BG = "#D0EAFB";
 /** Grand total row — uses the design-system's primary gradient */
 export const GRAND_TOTAL_CLASS =
-  "bg-gradient-to-r from-primary/80 via-primary/60 to-primary/40 backdrop-blur-sm font-bold text-primary-foreground shadow-sm";
+  "bg-primary font-bold text-white shadow-sm";

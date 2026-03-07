@@ -28,7 +28,7 @@ export function UserAvatar({
   return (
     <div
       className={cn(
-        "rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold shadow-[0_0_16px_rgba(159,188,164,0.4)]",
+        "rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold shadow-[0_0_16px_rgba(var(--primary-rgb,159,188,164),0.4)]",
         sizeClasses[size],
         className
       )}

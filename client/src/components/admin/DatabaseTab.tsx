@@ -28,7 +28,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { GlassButton } from "@/components/ui/glass-button";
 import { Loader2, Database, RefreshCw, Upload, AlertTriangle, CheckCircle2, XCircle, Shield } from "lucide-react";
 
 export default function DatabaseTab() {
@@ -127,14 +126,15 @@ export default function DatabaseTab() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <GlassButton
+          <Button
+            variant="outline"
             onClick={() => { setSyncResults(null); checkSyncStatus.mutate(); }}
             disabled={checkSyncStatus.isPending}
             data-testid="button-check-status"
           >
             {checkSyncStatus.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}
             Check Status
-          </GlassButton>
+          </Button>
 
           {syncResults && (
             <div className="space-y-4 mt-4">
@@ -250,7 +250,8 @@ export default function DatabaseTab() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <GlassButton
+          <Button
+            variant="outline"
             onClick={() => setSyncConfirmOpen(true)}
             disabled={executeSyncMutation.isPending}
             className="bg-amber-500/10 border-amber-500/30 hover:bg-amber-500/20 text-amber-700"
@@ -258,7 +259,7 @@ export default function DatabaseTab() {
           >
             {executeSyncMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Upload className="w-4 h-4 mr-2" />}
             Fill Missing Values
-          </GlassButton>
+          </Button>
         </CardContent>
       </Card>
 
@@ -272,7 +273,8 @@ export default function DatabaseTab() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <GlassButton
+          <Button
+            variant="outline"
             onClick={() => setCanonicalConfirmOpen(true)}
             disabled={canonicalSyncMutation.isPending}
             className="bg-gray-100 border-blue-500/30 hover:bg-gray-200 text-blue-700"
@@ -280,7 +282,7 @@ export default function DatabaseTab() {
           >
             {canonicalSyncMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Shield className="w-4 h-4 mr-2" />}
             Sync Now
-          </GlassButton>
+          </Button>
 
           {canonicalResult && (
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-4">

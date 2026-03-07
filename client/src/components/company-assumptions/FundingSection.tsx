@@ -26,9 +26,7 @@ import type { FundingSectionProps } from "./types";
 
 export default function FundingSection({ formData, onChange, global }: FundingSectionProps) {
   return (
-    <div className="relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
-      <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-primary/10 blur-2xl" />
-      <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-primary/5 blur-xl" />
+    <div className="relative overflow-hidden rounded-lg p-6 bg-white border border-gray-200 shadow-sm">
       <div className="relative">
       <div className="space-y-6">
         <div>
@@ -45,7 +43,7 @@ export default function FundingSection({ formData, onChange, global }: FundingSe
               value={formData.fundingSourceLabel ?? global.fundingSourceLabel ?? "Funding Vehicle"}
               onChange={(e) => onChange("fundingSourceLabel", e.target.value)}
               placeholder="e.g., Funding Vehicle, SAFE, Seed, Series A"
-              className="max-w-48 bg-white border-primary/30 text-gray-900"
+              className="max-w-48 bg-white border-gray-200 text-gray-900"
             />
             <HelpTooltip text="Customize the name of your funding source (e.g., Funding Vehicle, SAFE, Seed, Series A)" />
           </div>
@@ -80,7 +78,7 @@ export default function FundingSection({ formData, onChange, global }: FundingSe
                 type="date"
                 value={formData.safeTranche1Date ?? global.safeTranche1Date}
                 onChange={(e) => onChange("safeTranche1Date", e.target.value)}
-                className="max-w-40 bg-white border-primary/30 text-gray-900"
+                className="max-w-40 bg-white border-gray-200 text-gray-900"
               />
             </div>
           </div>
@@ -112,12 +110,12 @@ export default function FundingSection({ formData, onChange, global }: FundingSe
                 type="date"
                 value={formData.safeTranche2Date ?? global.safeTranche2Date}
                 onChange={(e) => onChange("safeTranche2Date", e.target.value)}
-                className="max-w-40 bg-white border-primary/30 text-gray-900"
+                className="max-w-40 bg-white border-gray-200 text-gray-900"
               />
             </div>
           </div>
         </div>
-        <div className="mt-4 pt-4 border-t border-primary/20 grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="mt-4 pt-4 border-t border-gray-200 grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div>
             <Label className="text-gray-600 text-sm label-text">Total {formData.fundingSourceLabel ?? global.fundingSourceLabel ?? "Funding Vehicle"} Raise</Label>
             <p className="font-mono font-semibold text-lg text-gray-900">

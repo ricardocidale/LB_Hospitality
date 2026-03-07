@@ -1,10 +1,3 @@
-/**
- * section-card.tsx — Collapsible card section for organizing form content.
- *
- * Renders a card with a clickable header that toggles content visibility.
- * Used in the property edit and company assumptions editors to group related
- * input fields (e.g. "Revenue Assumptions", "Debt Structure", "Fixed Charges").
- */
 import { Card, CardContent } from "@/components/ui/card";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -34,41 +27,29 @@ export function SectionCard({
   variant = "dark",
   className,
 }: SectionCardProps) {
-  const isDark = variant === "dark";
-
   return (
     <div ref={sectionRef} id={id} className="scroll-mt-24">
       <Card
         className={cn(
-          isDark
-            ? "bg-white border-gray-200 shadow-sm"
-            : "border rounded-lg",
+          "bg-card border-border shadow-sm",
           className,
         )}
       >
         <button
           data-testid={`section-toggle-${id}`}
           onClick={onToggle}
-          className={cn(
-            "w-full flex items-center justify-between p-5 text-left transition-colors rounded-lg",
-            isDark ? "hover:bg-muted/50" : "hover:bg-muted/50",
-          )}
+          className="w-full flex items-center justify-between p-5 text-left transition-colors rounded-lg hover:bg-muted/50"
         >
           <div className="flex items-center gap-3">
-            {isDark ? (
+            {variant === "dark" ? (
               <Icon className="w-5 h-5 text-primary" />
             ) : (
-              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                 <Icon className="w-5 h-5 text-primary" />
               </div>
             )}
             <div className="text-left">
-              <h2
-                className={cn(
-                  "font-semibold",
-                  isDark ? "text-lg text-gray-900" : "text-base",
-                )}
-              >
+              <h2 className={cn("font-semibold text-card-foreground", variant === "dark" ? "text-lg" : "text-base")}>
                 {title}
               </h2>
               {subtitle && (
@@ -77,19 +58,9 @@ export function SectionCard({
             </div>
           </div>
           {expanded ? (
-            <ChevronDown
-              className={cn(
-                "w-5 h-5",
-                isDark ? "text-muted-foreground" : "text-muted-foreground",
-              )}
-            />
+            <ChevronDown className="w-5 h-5 text-muted-foreground/40" />
           ) : (
-            <ChevronRight
-              className={cn(
-                "w-5 h-5",
-                isDark ? "text-muted-foreground" : "text-muted-foreground",
-              )}
-            />
+            <ChevronRight className="w-5 h-5 text-muted-foreground/40" />
           )}
         </button>
         {expanded && (

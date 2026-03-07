@@ -26,7 +26,7 @@ const defaultFormat = (n: number) => n.toLocaleString();
 const trendIcon = (trend?: "up" | "down" | "neutral") => {
   if (trend === "up") return <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />;
   if (trend === "down") return <TrendingDown className="w-3.5 h-3.5 text-red-500" />;
-  return <Minus className="w-3.5 h-3.5 text-gray-400" />;
+  return <Minus className="w-3.5 h-3.5 text-primary/40" />;
 };
 
 const containerVariants: Variants = {
@@ -62,17 +62,17 @@ export function KPIGrid({ items, columns = 4, className, ...props }: KPIGridProp
         <motion.div
           key={item.label}
           variants={itemVariants}
-          className="bg-white border border-gray-200 rounded-lg p-4 sm:p-5"
+          className="bg-white/80 border border-primary/10 rounded-lg p-4 sm:p-5 shadow-[0_2px_8px_rgba(var(--primary-rgb,159,188,164),0.08)] hover:shadow-[0_4px_16px_rgba(var(--primary-rgb,159,188,164),0.12)] transition-shadow duration-300"
         >
           <div className="flex items-start justify-between mb-1">
-            <p className="text-xs font-medium text-gray-500 uppercase tracking-wider truncate">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider truncate">
               {item.label}
             </p>
             {item.trend && (
               <span className="flex items-center gap-0.5 flex-shrink-0">
                 {trendIcon(item.trend)}
                 {item.trendLabel && (
-                  <span className={`text-xs font-medium ${item.trend === "up" ? "text-emerald-500" : item.trend === "down" ? "text-red-500" : "text-gray-400"}`}>
+                  <span className={`text-xs font-medium ${item.trend === "up" ? "text-emerald-500" : item.trend === "down" ? "text-red-500" : "text-muted-foreground/40"}`}>
                     {item.trendLabel}
                   </span>
                 )}
@@ -80,12 +80,12 @@ export function KPIGrid({ items, columns = 4, className, ...props }: KPIGridProp
             )}
           </div>
           <div className="flex items-baseline gap-2 min-w-0">
-            <span className="text-xl sm:text-2xl font-bold text-gray-900 truncate">
+            <span className="text-xl sm:text-2xl font-bold text-foreground truncate">
               <AnimatedCounter value={item.value} format={item.format || defaultFormat} />
             </span>
           </div>
           {item.sublabel && (
-            <p className="text-xs mt-1 text-gray-500 truncate">{item.sublabel}</p>
+            <p className="text-xs mt-1 text-muted-foreground/40 truncate">{item.sublabel}</p>
           )}
         </motion.div>
       ))}

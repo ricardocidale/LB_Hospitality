@@ -298,7 +298,7 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
                   value={selectedPropertyId}
                   onValueChange={setSelectedPropertyId}
                 >
-                  <SelectTrigger className="w-[200px] bg-white/10 border-white/20 text-white rounded-xl text-sm backdrop-blur-xl" data-testid="select-property">
+                  <SelectTrigger className="w-[200px] bg-white border-gray-200 text-gray-900 rounded-lg text-sm" data-testid="select-property">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -450,7 +450,7 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Sliders Panel */}
-          <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+          <div className="bg-white/80 rounded-lg p-6 border border-primary/10 shadow-[0_2px_8px_rgba(var(--primary-rgb,159,188,164),0.08)]">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 rounded-lg bg-primary/15 flex items-center justify-center">
                 <Sliders className="w-5 h-5 text-secondary" />
@@ -522,9 +522,9 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
           </div>
 
           {/* Tornado Chart Panel */}
-          <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+          <div className="bg-white/80 rounded-lg p-6 border border-primary/10 shadow-[0_2px_8px_rgba(var(--primary-rgb,159,188,164),0.08)]">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-lg bg-primary/15 flex items-center justify-center">
                 <BarChart3 className="w-5 h-5 text-secondary" />
               </div>
               <div className="flex-1">
@@ -535,14 +535,14 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
                   <div className="flex rounded-lg border border-gray-200 overflow-hidden text-xs">
                     <button
                       onClick={() => setTornadoMetric("irr")}
-                      className={`px-2.5 py-1 font-medium transition-colors ${tornadoMetric === "irr" ? "bg-primary/20 text-secondary" : "text-gray-500 hover:text-gray-700"}`}
+                      className={`px-2.5 py-1 font-medium transition-colors ${tornadoMetric === "irr" ? "bg-primary/20 text-primary" : "text-gray-500 hover:text-gray-700"}`}
                       data-testid="button-tornado-irr"
                     >
                       IRR
                     </button>
                     <button
                       onClick={() => setTornadoMetric("noi")}
-                      className={`px-2.5 py-1 font-medium transition-colors ${tornadoMetric === "noi" ? "bg-primary/20 text-secondary" : "text-gray-500 hover:text-gray-700"}`}
+                      className={`px-2.5 py-1 font-medium transition-colors ${tornadoMetric === "noi" ? "bg-primary/20 text-primary" : "text-gray-500 hover:text-gray-700"}`}
                       data-testid="button-tornado-noi"
                     >
                       NOI
@@ -596,7 +596,7 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
                     </Bar>
                     <Bar dataKey="negative" stackId="tornado" radius={[4, 0, 0, 4]} maxBarSize={28}>
                       {tornadoData.map((_, i) => (
-                        <Cell key={`neg-${i}`} fill="#E85D4A" fillOpacity={0.8} />
+                        <Cell key={`neg-${i}`} fill="#F4795B" fillOpacity={0.8} />
                       ))}
                     </Bar>
                   </BarChart>
@@ -609,11 +609,11 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
             )}
             <div className="flex items-center justify-center gap-6 mt-4 text-xs text-gray-500">
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-sm bg-secondary/80" />
+                <div className="w-3 h-3 rounded-sm bg-[#257D41]" />
                 <span>Upside scenario</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-sm bg-[#E85D4A]/80" />
+                <div className="w-3 h-3 rounded-sm bg-[#F4795B]" />
                 <span>Downside scenario</span>
               </div>
             </div>
@@ -633,7 +633,7 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
 
         {/* Comparison Table */}
         {hasAdjustments && baseResult && adjustedResult && (
-          <div className="bg-white/95 backdrop-blur-xl rounded-[2rem] p-6 border border-primary/30 shadow-xl shadow-black/5">
+          <div className="bg-white/80 rounded-lg p-6 border border-primary/10 shadow-[0_2px_8px_rgba(var(--primary-rgb,159,188,164),0.08)]">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center">
                 <ArrowUpDown className="w-5 h-5 text-secondary" />

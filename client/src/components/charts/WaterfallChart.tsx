@@ -66,7 +66,7 @@ function buildChartData(steps: WaterfallStep[]): ChartDataItem[] {
 
 function getColor(item: ChartDataItem): string {
   if (item.isTotal) return "#257D41";
-  return item.value >= 0 ? "#9FBCA4" : "#EF4444";
+  return item.value >= 0 ? "var(--primary)" : "#EF4444";
 }
 
 interface CustomTooltipProps {

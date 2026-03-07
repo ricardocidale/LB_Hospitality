@@ -9,7 +9,7 @@ import CheckerManual from "./CheckerManual";
 import UserManual from "./user-manual";
 import { useWalkthroughStore } from "@/components/GuidedWalkthrough";
 import { Card } from "@/components/ui/card";
-import { GlassButton } from "@/components/ui/glass-button";
+import { Button } from "@/components/ui/button";
 
 type HelpTab = "user-manual" | "checker-manual" | "guided-tour";
 
@@ -74,14 +74,14 @@ export default function Help() {
                     Walk through the key features of the application step by step. The tour highlights navigation, tools, and important areas of the interface.
                   </p>
                 </div>
-                <GlassButton
-                  variant="primary"
+                <Button
+                  variant="default"
                   onClick={handleStartTour}
                   data-testid="button-start-guided-tour"
                 >
                   <PlayCircle className="w-4 h-4" />
                   Start Guided Tour
-                </GlassButton>
+                </Button>
               </div>
             </Card>
           </TabsContent>

@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useRef, RefObject } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { GlassButton } from "@/components/ui/glass-button";
+import { Button } from "@/components/ui/button";
 import { ExportMenu, pdfAction, csvAction, excelAction, pptxAction, pngAction } from "@/components/ui/export-toolbar";
 import { ChevronRight, ChevronDown } from "lucide-react";
 import { formatMoney } from "@/lib/financialEngine";

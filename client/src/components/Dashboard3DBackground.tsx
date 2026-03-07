@@ -66,12 +66,12 @@ function DashboardScene() {
   return (
     <>
       <ambientLight intensity={0.2} />
-      <pointLight position={[5, 5, 5]} intensity={0.4} color="#9FBCA4" />
+      <pointLight position={[5, 5, 5]} intensity={0.4} color="var(--primary)" />
       <pointLight position={[-5, -3, 3]} intensity={0.2} color="#38BDF8" />
-      <SubtleSphere position={[3, 1.5, -2]} color="#9FBCA4" speed={0.8} distort={0.25} scale={1.2} />
+      <SubtleSphere position={[3, 1.5, -2]} color="var(--primary)" speed={0.8} distort={0.25} scale={1.2} />
       <SubtleSphere position={[-3, -1, -2]} color="#38BDF8" speed={0.6} distort={0.2} scale={0.9} />
       <SubtleSphere position={[0, -2, -3]} color="#F97066" speed={0.7} distort={0.2} scale={0.7} />
-      <SubtleRing radius={2.5} color="#9FBCA4" speed={0.5} />
+      <SubtleRing radius={2.5} color="var(--primary)" speed={0.5} />
       <SubtleRing radius={3.5} color="#38BDF8" speed={0.3} />
       {Array.from({ length: 8 }).map((_, i) => {
         const angle = (i / 8) * Math.PI * 2;
@@ -80,7 +80,7 @@ function DashboardScene() {
           <FloatingParticle
             key={i}
             position={[Math.cos(angle) * r, Math.sin(angle) * r * 0.3, -1 + Math.sin(angle) * 0.5]}
-            color={["#9FBCA4", "#38BDF8", "#F97066", "#F59E0B"][i % 4]}
+            color={["var(--primary)", "#38BDF8", "#F97066", "#F59E0B"][i % 4]}
           />
         );
       })}

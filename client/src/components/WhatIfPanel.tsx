@@ -81,7 +81,7 @@ export default function WhatIfPanel({ propertyId, onClose }: WhatIfPanelProps) {
 
   if (!property || !defaults) return null;
 
-  const sliderStyle: React.CSSProperties = { accentColor: "#9FBCA4" };
+  const sliderStyle: React.CSSProperties = { accentColor: "var(--primary)" };
 
   return (
     <>
@@ -274,7 +274,7 @@ export default function WhatIfPanel({ propertyId, onClose }: WhatIfPanelProps) {
             onClick={handleApply}
             disabled={!hasChanges}
             className="flex-1 px-3 py-2 text-sm font-medium rounded-md text-white disabled:opacity-40 disabled:cursor-not-allowed"
-            style={{ backgroundColor: hasChanges ? "#9FBCA4" : "#9FBCA4" }}
+            style={{ backgroundColor: "var(--primary)" }}
             data-testid="what-if-apply"
           >
             Apply Changes

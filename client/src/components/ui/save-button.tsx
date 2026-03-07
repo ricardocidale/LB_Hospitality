@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Save, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 export interface SaveButtonProps {
   onClick?: () => void;
@@ -18,13 +19,11 @@ export function SaveButton({
   className
 }: SaveButtonProps) {
   return (
-    <button
+    <Button
       onClick={onClick}
       disabled={disabled || isPending}
-      className={cn(
-        "inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:pointer-events-none bg-gray-900 text-white hover:bg-gray-800",
-        className
-      )}
+      variant="default"
+      className={cn(className)}
       data-testid="button-save-changes"
     >
       {isPending ? (
@@ -33,6 +32,6 @@ export function SaveButton({
         <Save className="w-4 h-4" />
       )}
       {children}
-    </button>
+    </Button>
   );
 }

@@ -1,11 +1,5 @@
-/**
- * content-panel.tsx — Titled content section with optional header actions.
- *
- * A simple container that wraps content with a header bar (title + optional
- * action buttons). Used to organize form sections in the assumptions editor
- * and detail pages.
- */
 import * as React from "react";
+import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 export interface ContentPanelProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -17,49 +11,29 @@ export interface ContentPanelProps extends React.HTMLAttributes<HTMLDivElement> 
 
 const ContentPanel = React.forwardRef<HTMLDivElement, ContentPanelProps>(
   ({ title, subtitle, variant = "light", padded = true, className, children, ...props }, ref) => {
-    const isDark = variant === "dark";
-
     return (
-      <div
+      <Card
         ref={ref}
         className={cn(
-          "rounded-lg shadow-sm border",
-          isDark
-            ? "bg-white border-gray-200"
-            : "bg-white border-gray-100",
+          "shadow-sm bg-card border-border",
           padded && "p-6",
           className
         )}
-        {...props
+        {...props}
       >
-        {isDark && (
-          <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] via-transparent to-black/20 rounded-2xl pointer-events-none" />
+        {title && (
+          <h3 className="text-lg font-display mb-1 text-card-foreground">
+            {title}
+          </h3>
         )}
-        <div className={isDark ? "relative" : undefined}>
-          {title && (
-            <h3
-              className={cn(
-                "text-lg font-display mb-1",
-                isDark ? "text-gray-900" : "text-gray-900"
-              )}
-            >
-              {title}
-            </h3>
-          )}
-          {subtitle && (
-            <p
-              className={cn(
-                "text-sm mb-4",
-                isDark ? "text-gray-500" : "text-gray-500"
-              )}
-            >
-              {subtitle}
-            </p>
-          )}
-          {!subtitle && title && <div className="mb-4" />}
-          {children}
-        </div>
-      </div>
+        {subtitle && (
+          <p className="text-sm mb-4 text-muted-foreground">
+            {subtitle}
+          </p>
+        )}
+        {!subtitle && title && <div className="mb-4" />}
+        {children}
+      </Card>
     );
   }
 );

@@ -34,7 +34,7 @@ import { Link, useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import type { GlobalResponse } from "@/lib/api";
 import { SaveButton } from "@/components/ui/save-button";
-import { GlassButton } from "@/components/ui/glass-button";
+import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 import { DEFAULT_MODEL_START_DATE } from "@/lib/constants";
 import {
@@ -212,10 +212,10 @@ export default function CompanyAssumptions() {
           actions={
             <div className="flex items-center gap-3">
               <Link href="/company/research" className="text-inherit no-underline">
-                <GlassButton variant="primary" data-testid="button-company-research">
+                <Button variant="default" data-testid="button-company-research">
                   <BookOpen className="w-4 h-4" />
                   Standards Research
-                </GlassButton>
+                </Button>
               </Link>
               <SaveButton 
                 onClick={handleSave} 

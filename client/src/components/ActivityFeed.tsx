@@ -63,7 +63,7 @@ const EVENT_ICONS: Record<ActivityEvent['type'], React.ComponentType<{ className
 
 const EVENT_COLORS: Record<ActivityEvent['type'], string> = {
   assumption_change: '#F59E0B',
-  scenario_run: '#9FBCA4',
+  scenario_run: 'var(--primary)',
   export: '#3B82F6',
   property_add: '#257D41',
   research_refresh: '#8B5CF6',

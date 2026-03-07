@@ -73,7 +73,7 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
       <div className={embedded ? "space-y-6" : "max-w-7xl mx-auto space-y-8"}>
         {!embedded && (
         <div>
-          <h1 className="text-3xl font-bold text-[#2d4a5e]" data-testid="text-page-title">
+          <h1 className="text-3xl font-bold text-foreground" data-testid="text-page-title">
             Property Comparison
           </h1>
           <p className="text-gray-500 mt-1" data-testid="text-page-subtitle">
@@ -109,10 +109,10 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
                   key={p.id}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg border cursor-pointer transition-colors ${
                     checked
-                      ? "bg-[#2d4a5e]/10 border-[#2d4a5e]"
+                      ? "bg-primary/10 border-primary"
                       : disabled
                       ? "opacity-50 cursor-not-allowed border-gray-200"
-                      : "border-gray-200 hover:border-[#2d4a5e]/40"
+                      : "border-gray-200 hover:border-primary/40"
                   }`}
                   data-testid={`checkbox-property-${p.id}`}
                 >
@@ -121,7 +121,7 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
                     checked={checked}
                     disabled={disabled}
                     onChange={() => toggleProperty(p.id)}
-                    className="accent-[#2d4a5e] w-4 h-4"
+                    className="accent-primary w-4 h-4"
                   />
                   <span className="text-sm font-medium text-gray-800">{p.name}</span>
                 </label>
@@ -141,7 +141,7 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
               { label: "Total Rooms", value: selectedProperties.reduce((s, p) => s + p.roomCount, 0) },
             ]}
             columns={4}
-            variant="glass"
+            variant="light"
           />
           <ScrollReveal>
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
@@ -158,7 +158,7 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
                   <PolarAngleAxis dataKey="metric" tick={{ fill: "#6b7280", fontSize: 12 }} />
                   <PolarRadiusAxis tick={false} axisLine={false} />
                   {selectedProperties.map((p, i) => (
-                    <Radar key={p.id} name={p.name} dataKey={p.name} stroke={["#9FBCA4", "#257D41", "#3B82F6", "#F4795B"][i]} fill={["#9FBCA4", "#257D41", "#3B82F6", "#F4795B"][i]} fillOpacity={0.15} strokeWidth={2} />
+                    <Radar key={p.id} name={p.name} dataKey={p.name} stroke={["var(--primary)", "#257D41", "#3B82F6", "#F4795B"][i]} fill={["var(--primary)", "#257D41", "#3B82F6", "#F4795B"][i]} fillOpacity={0.15} strokeWidth={2} />
                   ))}
                   <Legend wrapperStyle={{ fontSize: 12 }} />
                   <Tooltip />
@@ -213,7 +213,7 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
                   {selectedProperties.map((p) => (
                     <th
                       key={p.id}
-                      className="text-center px-4 py-3 border-b bg-gradient-to-r from-[#2d4a5e] to-[#3a5a5e] text-white font-semibold min-w-[150px]"
+                      className="text-center px-4 py-3 border-b bg-gray-100 text-gray-900 font-semibold min-w-[150px]"
                       data-testid={`header-property-${p.id}`}
                     >
                       {p.name}

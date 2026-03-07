@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useProperties } from "@/lib/api";
 import { Link } from "wouter";
-import { Building2, DollarSign, Layers, Navigation, Mountain } from "lucide-react";
+import { Building2, DollarSign, Navigation, Mountain } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
@@ -96,10 +96,31 @@ type GeoProperty = {
   coords: [number, number];
 };
 
+function makeRasterStyle(tileUrl: string): maplibregl.StyleSpecification {
+  return {
+    version: 8,
+    sources: {
+      "raster-tiles": {
+        type: "raster",
+        tiles: [tileUrl],
+        tileSize: 256,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      },
+    },
+    layers: [
+      {
+        id: "raster-layer",
+        type: "raster",
+        source: "raster-tiles",
+        minzoom: 0,
+        maxzoom: 19,
+      },
+    ],
+  };
+}
+
 const MAP_STYLES = {
-  streets: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
-  dark: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
-  voyager: "https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json",
+  standard: () => makeRasterStyle("/api/tiles/osm/{z}/{x}/{y}"),
 };
 
 function createMarkerElement(property: any, isSelected: boolean) {
@@ -166,7 +187,6 @@ export default function MapView() {
   const mapRef = useRef<maplibregl.Map | null>(null);
   const markersRef = useRef<Map<number, maplibregl.Marker>>(new Map());
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [mapStyle, setMapStyle] = useState<keyof typeof MAP_STYLES>("voyager");
   const [terrain3d, setTerrain3d] = useState(true);
 
   const geoProperties: GeoProperty[] = properties
@@ -223,7 +243,7 @@ export default function MapView() {
 
     const map = new maplibregl.Map({
       container: mapContainerRef.current,
-      style: MAP_STYLES[mapStyle],
+      style: MAP_STYLES.standard(),
       center: [center.lng, center.lat],
       zoom: 3,
       pitch: terrain3d ? 50 : 0,
@@ -238,27 +258,30 @@ export default function MapView() {
 
     map.on("load", () => {
       if (terrain3d) {
-        map.addSource("terrainSource", {
-          type: "raster-dem",
-          tiles: ["https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"],
-          encoding: "terrarium",
-          tileSize: 256,
-          maxzoom: 15,
-        });
+        try {
+          map.addSource("terrainSource", {
+            type: "raster-dem",
+            tiles: ["/api/tiles/terrain/{z}/{x}/{y}"],
+            encoding: "terrarium",
+            tileSize: 256,
+            maxzoom: 15,
+          });
 
-        map.setTerrain({ source: "terrainSource", exaggeration: 1.5 });
+          map.setTerrain({ source: "terrainSource", exaggeration: 1.5 });
 
-        map.addLayer({
-          id: "hillshading",
-          source: "terrainSource",
-          type: "hillshade",
-          paint: {
-            "hillshade-illumination-direction": 315,
-            "hillshade-exaggeration": 0.6,
-            "hillshade-shadow-color": "rgba(0,0,0,0.3)",
-            "hillshade-highlight-color": "rgba(255,255,255,0.5)",
-          },
-        });
+          map.addLayer({
+            id: "hillshading",
+            source: "terrainSource",
+            type: "hillshade",
+            paint: {
+              "hillshade-illumination-direction": 315,
+              "hillshade-exaggeration": 0.6,
+              "hillshade-shadow-color": "rgba(0,0,0,0.3)",
+              "hillshade-highlight-color": "rgba(255,255,255,0.5)",
+            },
+          });
+        } catch (e) {
+        }
       }
 
       updateMarkers(selectedId);
@@ -278,7 +301,7 @@ export default function MapView() {
       mapRef.current = null;
       markersRef.current.clear();
     };
-  }, [geoProperties.length, mapStyle, terrain3d]);
+  }, [geoProperties.length, terrain3d]);
 
   useEffect(() => {
     updateMarkers(selectedId);
@@ -302,12 +325,6 @@ export default function MapView() {
       }
     }
   }, [selectedId, updateMarkers]);
-
-  const cycleStyle = () => {
-    const styles = Object.keys(MAP_STYLES) as (keyof typeof MAP_STYLES)[];
-    const idx = styles.indexOf(mapStyle);
-    setMapStyle(styles[(idx + 1) % styles.length]);
-  };
 
   const fitAll = () => {
     if (!mapRef.current || geoProperties.length === 0) return;
@@ -359,10 +376,6 @@ export default function MapView() {
           <Button variant={terrain3d ? "default" : "outline"} size="sm" onClick={() => setTerrain3d(!terrain3d)} className="flex items-center gap-1.5 text-xs" data-testid="button-3d-terrain">
             <Mountain className="w-3.5 h-3.5" />
             3D Terrain
-          </Button>
-          <Button variant="outline" size="sm" onClick={cycleStyle} className="flex items-center gap-1.5 text-xs" data-testid="button-map-style">
-            <Layers className="w-3.5 h-3.5" />
-            {mapStyle === "streets" ? "Light" : mapStyle === "dark" ? "Dark" : "Voyager"}
           </Button>
           <Button variant="outline" size="sm" onClick={fitAll} className="flex items-center gap-1.5 text-xs" data-testid="button-fit-all">
             <Navigation className="w-3.5 h-3.5" />

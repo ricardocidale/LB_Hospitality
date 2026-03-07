@@ -267,7 +267,7 @@ function Router() {
           <Redirect to="/analysis" />
         </Route>
         <Route path="/executive-summary">
-          <Redirect to="/analysis" />
+          <ExecutiveSummary />
         </Route>
         <Route path="/map">
           <FinancialErrorBoundary>

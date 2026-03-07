@@ -143,6 +143,7 @@ All utility scripts live in `script/` (single canonical directory). Includes hea
 - `ChartTooltip cursor={false}` with `ChartTooltipContent hideLabel`.
 - Config uses `satisfies ChartConfig` with `color: "var(--chart-N)"` per slice.
 - Reference: shadcn "Pie Chart - Donut with Text" pattern.
+- **Interactive variant** ("Pie Chart - Interactive"): Adds a `Select` dropdown to switch the active slice. Uses `activeIndex` on `<Pie>`, `activeShape` render prop with double `<Sector>` (outer ring `outerRadius + 10`, halo `outerRadius + 25` / `innerRadius = outerRadius + 12`). `ChartStyle` component for scoped CSS. Center `<Label>` updates to show the active slice's value. Container: `className="mx-auto aspect-square w-full max-w-[300px]"`. Import `Sector` from recharts, `PieSectorDataItem` from `recharts/types/polar/Pie`.
 
 ## Norfolk AI Logos
 - `norfolk-ai-wireframe.png` — thin outline strokes, dim on dark backgrounds (avoid for login)

@@ -15,6 +15,7 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
 
   const agentId = (global as any)?.marcelaAgentId;
   const language = (global as any)?.marcelaLanguage || "en";
+  const variant = (global as any)?.marcelaWidgetVariant || "compact";
 
   const { data: signedUrl } = useQuery<string>({
     queryKey: ["marcela-signed-url"],
@@ -27,7 +28,7 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
     enabled: !!(enabled && agentId),
     staleTime: 10 * 60 * 1000,
     refetchInterval: 10 * 60 * 1000,
-    retry: false,
+    retry: 1,
   });
 
   if (!enabled || !agentId) return null;
@@ -45,6 +46,7 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
       <elevenlabs-convai
         signed-url={signedUrl}
         language={language}
+        variant={variant}
         dynamic-variables={dynamicVars}
       />
     );
@@ -54,6 +56,7 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
     <elevenlabs-convai
       agent-id={agentId}
       language={language}
+      variant={variant}
       dynamic-variables={dynamicVars}
     />
   );

@@ -38,6 +38,7 @@ export function registerMarcelaRoutes(app: Express) {
         marcelaLanguage: ga.marcelaLanguage,
         marcelaTurnTimeout: ga.marcelaTurnTimeout,
         marcelaAvatarUrl: ga.marcelaAvatarUrl,
+        marcelaWidgetVariant: ga.marcelaWidgetVariant,
       });
     } catch (error) {
       logAndSendError(res, "Failed to fetch voice settings", error);
@@ -54,7 +55,7 @@ export function registerMarcelaRoutes(app: Express) {
         "marcelaChunkSchedule", "marcelaLlmModel", "marcelaMaxTokens",
         "marcelaMaxTokensVoice", "marcelaEnabled", "showAiAssistant",
         "marcelaTwilioEnabled", "marcelaSmsEnabled", "marcelaPhoneGreeting", "marcelaLanguage",
-        "marcelaTurnTimeout", "marcelaAvatarUrl",
+        "marcelaTurnTimeout", "marcelaAvatarUrl", "marcelaWidgetVariant",
       ] as const;
       const patch: Partial<Record<string, unknown>> = {};
       for (const field of allowedFields) {
@@ -213,10 +214,13 @@ export function registerMarcelaRoutes(app: Express) {
       const ga = await storage.getGlobalAssumptions();
       if (!ga?.marcelaAgentId) return res.status(404).json({ error: "Marcela agent not configured" });
 
-      const { turn_timeout, avatar_url } = req.body;
+      const { turn_timeout, avatar_url, widget_variant } = req.body;
       const patch: Record<string, unknown> = {};
       if (turn_timeout !== undefined) patch.conversation_config = { turn: { turn_timeout: Number(turn_timeout) } };
-      if (avatar_url !== undefined) (patch as any).widget = { avatar: avatar_url ? { type: "url", url: avatar_url } : null };
+      const widgetPatch: Record<string, unknown> = {};
+      if (avatar_url !== undefined) widgetPatch.avatar = avatar_url ? { type: "url", url: avatar_url } : null;
+      if (widget_variant !== undefined) widgetPatch.variant = widget_variant;
+      if (Object.keys(widgetPatch).length) patch.widget = widgetPatch;
 
       const updated = await updateConvaiAgent(ga.marcelaAgentId, patch);
 
@@ -224,6 +228,7 @@ export function registerMarcelaRoutes(app: Express) {
       const dbPatch: Partial<Record<string, unknown>> = {};
       if (turn_timeout !== undefined) dbPatch.marcelaTurnTimeout = Number(turn_timeout);
       if (avatar_url !== undefined) dbPatch.marcelaAvatarUrl = avatar_url;
+      if (widget_variant !== undefined) dbPatch.marcelaWidgetVariant = widget_variant;
       if (Object.keys(dbPatch).length) await storage.upsertGlobalAssumptions(dbPatch as any);
 
       res.json(updated);

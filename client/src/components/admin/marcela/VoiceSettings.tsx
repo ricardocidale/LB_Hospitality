@@ -8,7 +8,7 @@ import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Volume2, Waves, AudioLines, Zap, Settings2, Timer, ImageIcon, Loader2, Save } from "lucide-react";
+import { Volume2, Waves, AudioLines, Zap, Settings2, Timer, ImageIcon, Loader2, Save, LayoutTemplate } from "lucide-react";
 import { VoiceSettings, TTS_MODELS, OUTPUT_FORMATS, STT_MODELS } from "./types";
 import { useSaveWidgetSettings } from "./hooks";
 
@@ -21,11 +21,12 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
   const saveWidgetSettings = useSaveWidgetSettings();
   const [avatarDraft, setAvatarDraft] = useState(draft.marcelaAvatarUrl ?? "");
   const [turnDraft, setTurnDraft] = useState(draft.marcelaTurnTimeout ?? 7);
+  const [variantDraft, setVariantDraft] = useState(draft.marcelaWidgetVariant ?? "compact");
   const [widgetDirty, setWidgetDirty] = useState(false);
 
   const handleSaveWidget = () => {
     saveWidgetSettings.mutate(
-      { turn_timeout: turnDraft, avatar_url: avatarDraft },
+      { turn_timeout: turnDraft, avatar_url: avatarDraft, widget_variant: variantDraft },
       { onSuccess: () => setWidgetDirty(false) }
     );
   };
@@ -265,6 +266,32 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
             <p className="text-xs text-muted-foreground/60">
               Seconds of silence before the agent takes its turn. 7–12s works well for financial discussions.
             </p>
+          </div>
+
+          <Separator />
+
+          <div className="space-y-2">
+            <Label className="label-text font-medium flex items-center gap-1.5">
+              <LayoutTemplate className="w-3.5 h-3.5" />
+              Widget Variant
+            </Label>
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { value: "tiny", label: "Tiny", desc: "Icon only" },
+                { value: "compact", label: "Compact", desc: "Icon + label" },
+                { value: "full", label: "Full", desc: "Expanded panel" },
+              ].map((v) => (
+                <button
+                  key={v.value}
+                  type="button"
+                  onClick={() => { setVariantDraft(v.value); setWidgetDirty(true); }}
+                  className={`p-3 rounded-xl border text-left transition-all ${variantDraft === v.value ? "border-primary bg-primary/5 shadow-sm" : "border-muted-foreground/20 hover:border-primary/30"}`}
+                >
+                  <p className={`text-xs font-semibold ${variantDraft === v.value ? "text-primary" : "text-foreground"}`}>{v.label}</p>
+                  <p className="text-[10px] text-muted-foreground/60 mt-0.5">{v.desc}</p>
+                </button>
+              ))}
+            </div>
           </div>
 
           <Separator />

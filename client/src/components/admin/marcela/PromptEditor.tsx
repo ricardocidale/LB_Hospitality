@@ -140,9 +140,19 @@ export function PromptEditor({ agentName }: PromptEditorProps) {
 
   const promptCharCount = currentPrompt.length;
   const promptWordCount = currentPrompt.trim() ? currentPrompt.trim().split(/\s+/).length : 0;
+  const promptIsEmpty = !currentPrompt.trim();
 
   return (
     <div className="space-y-6">
+      {promptIsEmpty && (
+        <div className="flex items-start gap-3 p-4 bg-gradient-to-br from-amber-50 to-orange-50/50 rounded-xl border border-amber-200/60">
+          <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-semibold text-amber-900">No system prompt configured</p>
+            <p className="text-xs text-amber-700/80 mt-0.5">The agent has no instructions or persona. Use "Load template" to get started, then customize and save.</p>
+          </div>
+        </div>
+      )}
       <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">

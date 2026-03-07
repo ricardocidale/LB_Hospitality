@@ -124,7 +124,7 @@ export function useSaveWidgetSettings() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: { turn_timeout?: number; avatar_url?: string }) => {
+    mutationFn: async (data: { turn_timeout?: number; avatar_url?: string; widget_variant?: string }) => {
       const res = await apiRequest("PATCH", "/api/admin/convai/agent/widget-settings", data);
       return res.json();
     },
@@ -167,6 +167,30 @@ export function useSaveAgentPrompt() {
     onError: (err: Error) => {
       toast({ title: "Save failed", description: err.message, variant: "destructive" });
     },
+  });
+}
+
+export function useConversations() {
+  return useQuery<any[]>({
+    queryKey: ["admin", "convai-conversations"],
+    queryFn: async () => {
+      const res = await apiRequest("GET", "/api/admin/convai/conversations");
+      return res.json();
+    },
+    refetchInterval: 60_000,
+    retry: false,
+  });
+}
+
+export function useConversation(id: string | null) {
+  return useQuery<any>({
+    queryKey: ["admin", "convai-conversation", id],
+    queryFn: async () => {
+      const res = await apiRequest("GET", `/api/admin/convai/conversations/${id}`);
+      return res.json();
+    },
+    enabled: !!id,
+    retry: false,
   });
 }
 

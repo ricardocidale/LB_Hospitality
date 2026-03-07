@@ -6,7 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { SaveButton } from "@/components/ui/save-button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, Bot, MessageSquare, Mic, Brain, Wrench, BookOpen, Phone, User } from "lucide-react";
+import { Shield, Bot, MessageSquare, Mic, Brain, Wrench, BookOpen, Phone, User, History } from "lucide-react";
 import { VoiceSettings } from "./types";
 import { useMarcelaSettings, useTwilioStatus, useSaveMarcelaSettings, useAgentConfig } from "./hooks";
 import { KnowledgeBaseCard } from "./KnowledgeBase";
@@ -15,6 +15,7 @@ import { TelephonySettings } from "./TelephonySettings";
 import { VoiceSettingsComponent } from "./VoiceSettings";
 import { PromptEditor } from "./PromptEditor";
 import { ToolsStatus } from "./ToolsStatus";
+import { ConversationHistory } from "./ConversationHistory";
 
 export default function MarcelaTab() {
   const { data: globalData, isLoading } = useMarcelaSettings();
@@ -84,14 +85,17 @@ export default function MarcelaTab() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-4 md:grid-cols-7 h-auto p-1 bg-white/50 backdrop-blur-sm border border-primary/10">
+        <TabsList className="grid grid-cols-4 md:grid-cols-8 h-auto p-1 bg-white/50 backdrop-blur-sm border border-primary/10">
           <TabsTrigger value="general" className="py-2 gap-2" data-testid="tab-ai-agent-general">
             <Shield className="w-4 h-4" />
             <span className="hidden md:inline">General</span>
           </TabsTrigger>
-          <TabsTrigger value="prompt" className="py-2 gap-2" data-testid="tab-ai-agent-prompt">
+          <TabsTrigger value="prompt" className="py-2 gap-2 relative" data-testid="tab-ai-agent-prompt">
             <MessageSquare className="w-4 h-4" />
             <span className="hidden md:inline">Prompt</span>
+            {!agentConfig?.conversation_config?.agent?.prompt?.prompt && agentConfig !== undefined && (
+              <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-amber-400" />
+            )}
           </TabsTrigger>
           <TabsTrigger value="voice" className="py-2 gap-2" data-testid="tab-ai-agent-voice">
             <Mic className="w-4 h-4" />
@@ -112,6 +116,10 @@ export default function MarcelaTab() {
           <TabsTrigger value="telephony" className="py-2 gap-2" data-testid="tab-ai-agent-telephony">
             <Phone className="w-4 h-4" />
             <span className="hidden md:inline">Telephony</span>
+          </TabsTrigger>
+          <TabsTrigger value="conversations" className="py-2 gap-2" data-testid="tab-ai-agent-conversations">
+            <History className="w-4 h-4" />
+            <span className="hidden md:inline">History</span>
           </TabsTrigger>
         </TabsList>
 
@@ -270,6 +278,10 @@ export default function MarcelaTab() {
               updateField={updateField}
               twilioStatus={twilioStatus}
             />
+          </TabsContent>
+
+          <TabsContent value="conversations" className="space-y-6 m-0 focus-visible:outline-none">
+            <ConversationHistory />
           </TabsContent>
         </div>
       </Tabs>

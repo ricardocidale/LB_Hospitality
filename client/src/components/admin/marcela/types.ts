@@ -20,6 +20,7 @@ export interface VoiceSettings {
   marcelaLanguage: string;
   marcelaTurnTimeout: number;
   marcelaAvatarUrl: string;
+  marcelaWidgetVariant: string;
 }
 
 export interface TwilioStatus {

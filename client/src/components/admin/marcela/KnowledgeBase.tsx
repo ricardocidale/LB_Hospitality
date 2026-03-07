@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { BookOpen, RefreshCw, Loader2, Upload, FileUp, Database, CheckCircle2, AlertCircle, FileText, Clock } from "lucide-react";
-import { useKnowledgeBaseStatus, useReindexKnowledgeBase, useUploadKnowledgeBase, useUploadKBFile } from "./hooks";
+import { useKnowledgeBaseStatus, useReindexKnowledgeBase, useUploadKnowledgeBase, useUploadKBFile, useAgentConfig } from "./hooks";
 
 interface KnowledgeBaseCardProps {
   agentName: string;
@@ -12,9 +12,13 @@ interface KnowledgeBaseCardProps {
 
 export function KnowledgeBaseCard({ agentName }: KnowledgeBaseCardProps) {
   const { data: kbStatus } = useKnowledgeBaseStatus();
+  const { data: agentConfig } = useAgentConfig();
   const reindexMutation = useReindexKnowledgeBase();
   const uploadMutation = useUploadKnowledgeBase();
   const uploadFileMutation = useUploadKBFile();
+
+  const elevenlabsKbDocs: any[] = agentConfig?.conversation_config?.agent?.knowledge_base ?? [];
+  const hasElevenlabsDocs = elevenlabsKbDocs.length > 0;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
@@ -109,6 +113,15 @@ export function KnowledgeBaseCard({ agentName }: KnowledgeBaseCardProps) {
           </div>
         </CardHeader>
         <CardContent className="space-y-5">
+          {!hasElevenlabsDocs && agentConfig !== undefined && (
+            <div className="flex items-start gap-3 p-3.5 bg-gradient-to-br from-amber-50 to-orange-50/50 rounded-xl border border-amber-200/60">
+              <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+              <div>
+                <p className="text-xs font-semibold text-amber-900">No documents attached to ElevenLabs agent</p>
+                <p className="text-xs text-amber-700/80 mt-0.5">Push the built-in knowledge base below so {agentName} can reference platform information during conversations.</p>
+              </div>
+            </div>
+          )}
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <FileText className="w-4 h-4 text-muted-foreground/60" />

@@ -36,7 +36,7 @@ function useBreadcrumbs(): BreadcrumbEntry[] {
   if (propertyMatch) {
     const propId = propertyMatch[1];
     const sub = propertyMatch[3];
-    const prop = properties.find((p) => p.id === propId);
+    const prop = properties.find((p) => String(p.id) === propId);
     const propName = prop?.name ?? propId;
 
     const items: BreadcrumbEntry[] = [
@@ -129,6 +129,27 @@ function useBreadcrumbs(): BreadcrumbEntry[] {
     "/executive-summary": [
       { label: "Home", href: "/" },
       { label: "Executive Summary" },
+    ],
+    "/help": [
+      { label: "Home", href: "/" },
+      { label: "Help" },
+    ],
+    "/research": [
+      { label: "Home", href: "/" },
+      { label: "Research Hub" },
+    ],
+    "/analysis": [
+      { label: "Home", href: "/" },
+      { label: "Analysis" },
+    ],
+    "/voice": [
+      { label: "Home", href: "/" },
+      { label: "Voice Lab" },
+    ],
+    "/admin/logos": [
+      { label: "Home", href: "/" },
+      { label: "Admin Settings", href: "/admin" },
+      { label: "Logos" },
     ],
   };
 

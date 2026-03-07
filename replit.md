@@ -106,6 +106,35 @@ Portable: no DB, no framework dependencies. Import via `@/lib/theme` in any app.
 ## Scripts Directory
 All utility scripts live in `script/` (single canonical directory). Includes health checks, test runners, verification, seed data, branding tools, and admin utilities.
 
+## Export System (ExportDialog + ExportVersion)
+- **ExportDialog** (`client/src/components/ExportDialog.tsx`): Modal gate for PDF/PPTX/PNG exports. Exports `ExportVersion = "short" | "extended"` type and the `ExportDialog` component.
+- **ExportVersion**: `"short"` = summary/headers only (accordions collapsed, formula rows excluded). `"extended"` = all sections expanded (formula rows still excluded — only data rows).
+- **Props**: `open`, `onClose`, `onExport(orientation, version)`, `title`, `showVersionOption` (shows/hides the radio group).
+- **Integration pattern**: PDF/PPTX/PNG actions set `pendingExportAction` state and open dialog → dialog calls `handleVersionExport(orientation, version)` → version-aware data generation → actual export.
+- **CSV/Excel bypass**: These formats always export directly without the dialog (raw data, no visual formatting concerns).
+- **PropertyDetail.tsx**: Uses `ExportVersion` in `handleExport`. For income tab: `extended` expands all accordion rows, `short` collapses them. Both exclude `isFormula` rows from visual exports.
+- **IncomeStatementTab.tsx**: `generateIncomeStatementData(overrideExpanded?, excludeFormulas?)` — accepts override expanded set and formula exclusion flag. `getVersionRows(version)` builds the appropriate row set.
+- **CashFlowTab.tsx** & **BalanceSheetTab.tsx**: Same dialog-gate pattern. CashFlowTab has `showVersionOption={true}`, BalanceSheetTab has `showVersionOption={false}` (no expandable rows).
+- **ExportMenu** (`client/src/components/ui/export-toolbar.tsx`): Dropdown with action helpers (`pdfAction`, `csvAction`, `excelAction`, `pptxAction`, `chartAction`, `pngAction`).
+
+## Bar Charts (shadcn Pattern)
+- All bar charts use `ChartContainer`/`ChartTooltip`/`ChartTooltipContent` from `@/components/ui/chart`.
+- `radius={8}` on all `<Bar>` elements, `LabelList` on top for value labels.
+- Config uses `satisfies ChartConfig` pattern.
+- Files: `OverviewTab.tsx` (IRR + Equity), `TornadoChartPanel.tsx`, `WaterfallChart.tsx`.
+
+## Norfolk AI Logos
+- `norfolk-ai-wireframe.png` — thin outline strokes, dim on dark backgrounds (avoid for login)
+- `norfolk-ai-blue.png` — solid fill, good visibility (used on login page)
+- `norfolk-ai-yellow.png` — alternate color variant
+- Login page uses `norfolk-ai-blue.png` with `text-foreground` (no opacity reduction)
+
+## Session Patterns & Conventions
+- **generatePropertyProForma always returns 10 years (120 months)** regardless of `projectionYears`. Slice to `projectionYears * 12` when passing to server.
+- **GAAP compliance test expectations**: Rule names in `gaap-compliance.test.ts` must match the actual rule names emitted by `gaapComplianceChecker` (e.g., `revenue-recognition-accrual`, `matching-principle`, etc.). If checker refactors rename rules, update test expectations accordingly.
+- **stripAutoFields**: Always use on all `.set()` calls to prevent Drizzle auto-field conflicts.
+- **Button label rule**: Always "Save", never "Update".
+
 ## Future Improvements (Noted, Not Blocking)
 - `shared/schema.ts` (1,172 lines) — candidate for domain split (auth, portfolio, research, branding, operations)
 - `client/src/components/ui/sidebar.tsx` (736 lines) — shadcn/ui primitive, do not modify

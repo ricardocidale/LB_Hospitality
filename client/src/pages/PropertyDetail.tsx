@@ -51,7 +51,7 @@ import { aggregateCashFlowByYear } from "@/lib/financial/cashFlowAggregator";
 import { aggregatePropertyByYear } from "@/lib/financial/yearlyAggregator";
 import { computeCashFlowSections } from "@/lib/financial/cashFlowSections";
 import { useQueryClient } from "@tanstack/react-query";
-import { ExportDialog } from "@/components/ExportDialog";
+import { ExportDialog, type ExportVersion } from "@/components/ExportDialog";
 import { AnimatedPage, ScrollReveal } from "@/components/graphics";
 import {
   PPECostBasisSchedule,
@@ -505,9 +505,13 @@ export default function PropertyDetail() {
     });
   };
 
-  const handleExport = async (orientation: 'landscape' | 'portrait', includeDetails?: boolean) => {
-    if (includeDetails && activeTab === "income") {
+  const handleExport = async (orientation: 'landscape' | 'portrait', version: ExportVersion) => {
+    const expand = version === "extended" && activeTab === "income";
+    if (expand) {
       setIncomeAllExpanded(true);
+      await new Promise((r) => setTimeout(r, 300));
+    } else if (version === "short" && activeTab === "income") {
+      setIncomeAllExpanded(false);
       await new Promise((r) => setTimeout(r, 300));
     }
     try {
@@ -519,7 +523,7 @@ export default function PropertyDetail() {
         await exportChartPNG(orientation);
       }
     } finally {
-      if (includeDetails) {
+      if (expand) {
         setIncomeAllExpanded(false);
       }
     }
@@ -533,7 +537,7 @@ export default function PropertyDetail() {
         onClose={() => setExportDialogOpen(false)}
         onExport={handleExport}
         title={exportType === 'pdf' ? 'Export PDF' : exportType === 'tablePng' ? 'Export Table as PNG' : 'Export Chart'}
-        showDetailOption={activeTab === "income" && (exportType === 'pdf' || exportType === 'tablePng')}
+        showVersionOption={activeTab === "income" || activeTab === "cashflow"}
       />
       <div className="space-y-6">
         <PropertyHeader
@@ -574,7 +578,7 @@ export default function PropertyDetail() {
                     csvAction(() => exportCashFlowCSV()),
                     pptxAction(() => handlePPTXExport()),
                     chartAction(() => { setExportType('chart'); setExportDialogOpen(true); }),
-                    pngAction(() => exportTablePNG()),
+                    pngAction(() => { setExportType('tablePng'); setExportDialogOpen(true); }),
                   ]}
                 />
               }

@@ -9,6 +9,7 @@ import { CalcDetailsProvider } from "@/components/financial-table-rows";
 import { FinancialChart } from "@/components/ui/financial-chart";
 import { DashboardTabProps } from "./types";
 import { dashboardExports, generatePortfolioCashFlowData, generatePortfolioInvestmentData } from "./dashboardExports";
+import { ExportDialog, type ExportVersion } from "@/components/ExportDialog";
 
 export function IncomeStatementTab({ financials, properties, projectionYears, getFiscalYear, showCalcDetails }: DashboardTabProps) {
   const { 
@@ -27,6 +28,8 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
 
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const tabContentRef = useRef<HTMLDivElement>(null);
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
+  const [pendingExportAction, setPendingExportAction] = useState<string>("");
 
   const toggleRow = (rowId: string) => {
     setExpandedRows(prev => {
@@ -66,20 +69,26 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
 
   const allRowsExpanded = ["revenue", "expenses", "gop", "fees", "agop", "fixed", "noi", "ffe", "anoi"].every(k => expandedRows.has(k));
 
-  const generateIncomeStatementData = () => {
+  const generateIncomeStatementData = (overrideExpanded?: Set<string>, excludeFormulas?: boolean) => {
+    const activeExpanded = overrideExpanded ?? expandedRows;
     const years = Array.from({ length: projectionYears }, (_, i) => getFiscalYear(i));
     const rows: { category: string; values: number[]; isHeader?: boolean; indent?: number; rowId?: string; isFormula?: boolean }[] = [];
     
     const c = (i: number) => yearlyConsolidatedCache[i];
     const p = (idx: number, i: number) => allPropertyYearlyIS[idx]?.[i];
 
+    const pushRow = (row: typeof rows[0]) => {
+      if (excludeFormulas && row.isFormula) return;
+      rows.push(row);
+    };
+
     rows.push({ category: "Total Revenue", values: years.map((_, i) => c(i)?.revenueTotal ?? 0), isHeader: true, rowId: "revenue" });
-    if (expandedRows.has("revenue")) {
+    if (activeExpanded.has("revenue")) {
       rows.push({ category: "Room Revenue", values: years.map((_, i) => c(i)?.revenueRooms ?? 0), indent: 1 });
       rows.push({ category: "Event Revenue", values: years.map((_, i) => c(i)?.revenueEvents ?? 0), indent: 1 });
       rows.push({ category: "F&B Revenue", values: years.map((_, i) => c(i)?.revenueFB ?? 0), indent: 1 });
       rows.push({ category: "Other Revenue", values: years.map((_, i) => c(i)?.revenueOther ?? 0), indent: 1 });
-      rows.push({ category: "= Rooms + Events + F&B + Other", values: years.map((_, i) => c(i)?.revenueTotal ?? 0), indent: 1, isFormula: true });
+      pushRow({ category: "= Rooms + Events + F&B + Other", values: years.map((_, i) => c(i)?.revenueTotal ?? 0), indent: 1, isFormula: true });
 
       properties.forEach((prop, idx) => {
         rows.push({
@@ -106,7 +115,7 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
       rowId: "expenses"
     });
     
-    if (expandedRows.has("expenses")) {
+    if (activeExpanded.has("expenses")) {
       rows.push({ category: "Room Expense", values: years.map((_, i) => c(i)?.expenseRooms ?? 0), indent: 1 });
       rows.push({ category: "F&B Expense", values: years.map((_, i) => c(i)?.expenseFB ?? 0), indent: 1 });
       rows.push({ category: "Event Expense", values: years.map((_, i) => c(i)?.expenseEvents ?? 0), indent: 1 });
@@ -116,12 +125,12 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
       rows.push({ category: "IT", values: years.map((_, i) => c(i)?.expenseIT ?? 0), indent: 1 });
       rows.push({ category: "Utilities", values: years.map((_, i) => (c(i)?.expenseUtilitiesVar ?? 0) + (c(i)?.expenseUtilitiesFixed ?? 0)), indent: 1 });
       rows.push({ category: "Other Expenses", values: years.map((_, i) => (c(i)?.expenseOther ?? 0) + (c(i)?.expenseOtherCosts ?? 0)), indent: 1 });
-      rows.push({ category: "= Sum of departmental + undistributed expenses", values: years.map((_, i) => totalOpEx(i)), indent: 1, isFormula: true });
+      pushRow({ category: "= Sum of departmental + undistributed expenses", values: years.map((_, i) => totalOpEx(i)), indent: 1, isFormula: true });
     }
 
     rows.push({ category: "Gross Operating Profit", values: years.map((_, i) => c(i)?.gop ?? 0), isHeader: true, rowId: "gop" });
-    if (expandedRows.has("gop")) {
-      rows.push({ category: "= Total Revenue − Operating Expenses", values: years.map((_, i) => c(i)?.gop ?? 0), indent: 1, isFormula: true });
+    if (activeExpanded.has("gop")) {
+      pushRow({ category: "= Total Revenue − Operating Expenses", values: years.map((_, i) => c(i)?.gop ?? 0), indent: 1, isFormula: true });
       properties.forEach((prop, idx) => {
         rows.push({
           category: prop.name,
@@ -132,15 +141,15 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
     }
 
     rows.push({ category: "Management Fees", values: years.map((_, i) => (c(i)?.feeBase ?? 0) + (c(i)?.feeIncentive ?? 0)), isHeader: true, rowId: "fees" });
-    if (expandedRows.has("fees")) {
+    if (activeExpanded.has("fees")) {
       rows.push({ category: "Base Fee", values: years.map((_, i) => c(i)?.feeBase ?? 0), indent: 1 });
       rows.push({ category: "Incentive Fee", values: years.map((_, i) => c(i)?.feeIncentive ?? 0), indent: 1 });
-      rows.push({ category: "= Base Fee (% of Revenue) + Incentive Fee (% of GOP)", values: years.map((_, i) => (c(i)?.feeBase ?? 0) + (c(i)?.feeIncentive ?? 0)), indent: 1, isFormula: true });
+      pushRow({ category: "= Base Fee (% of Revenue) + Incentive Fee (% of GOP)", values: years.map((_, i) => (c(i)?.feeBase ?? 0) + (c(i)?.feeIncentive ?? 0)), indent: 1, isFormula: true });
     }
 
     rows.push({ category: "Adjusted GOP (AGOP)", values: years.map((_, i) => c(i)?.agop ?? 0), isHeader: true, rowId: "agop" });
-    if (expandedRows.has("agop")) {
-      rows.push({ category: "= GOP − Management Fees", values: years.map((_, i) => c(i)?.agop ?? 0), indent: 1, isFormula: true });
+    if (activeExpanded.has("agop")) {
+      pushRow({ category: "= GOP − Management Fees", values: years.map((_, i) => c(i)?.agop ?? 0), indent: 1, isFormula: true });
       properties.forEach((prop, idx) => {
         rows.push({
           category: prop.name,
@@ -151,15 +160,15 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
     }
 
     rows.push({ category: "Fixed Charges", values: years.map((_, i) => (c(i)?.expenseInsurance ?? 0) + (c(i)?.expenseTaxes ?? 0)), isHeader: true, rowId: "fixed" });
-    if (expandedRows.has("fixed")) {
+    if (activeExpanded.has("fixed")) {
       rows.push({ category: "Insurance", values: years.map((_, i) => c(i)?.expenseInsurance ?? 0), indent: 1 });
       rows.push({ category: "Property Taxes", values: years.map((_, i) => c(i)?.expenseTaxes ?? 0), indent: 1 });
-      rows.push({ category: "= Insurance + Property Taxes", values: years.map((_, i) => (c(i)?.expenseInsurance ?? 0) + (c(i)?.expenseTaxes ?? 0)), indent: 1, isFormula: true });
+      pushRow({ category: "= Insurance + Property Taxes", values: years.map((_, i) => (c(i)?.expenseInsurance ?? 0) + (c(i)?.expenseTaxes ?? 0)), indent: 1, isFormula: true });
     }
 
     rows.push({ category: "Net Operating Income (NOI)", values: years.map((_, i) => c(i)?.noi ?? 0), isHeader: true, rowId: "noi" });
-    if (expandedRows.has("noi")) {
-      rows.push({ category: "= AGOP − Fixed Charges", values: years.map((_, i) => c(i)?.noi ?? 0), indent: 1, isFormula: true });
+    if (activeExpanded.has("noi")) {
+      pushRow({ category: "= AGOP − Fixed Charges", values: years.map((_, i) => c(i)?.noi ?? 0), indent: 1, isFormula: true });
       properties.forEach((prop, idx) => {
         rows.push({
           category: prop.name,
@@ -170,13 +179,13 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
     }
 
     rows.push({ category: "FF&E Reserve", values: years.map((_, i) => c(i)?.expenseFFE ?? 0), isHeader: true, rowId: "ffe" });
-    if (expandedRows.has("ffe")) {
-      rows.push({ category: "= Reserve for Furniture, Fixtures & Equipment", values: years.map((_, i) => c(i)?.expenseFFE ?? 0), indent: 1, isFormula: true });
+    if (activeExpanded.has("ffe")) {
+      pushRow({ category: "= Reserve for Furniture, Fixtures & Equipment", values: years.map((_, i) => c(i)?.expenseFFE ?? 0), indent: 1, isFormula: true });
     }
 
     rows.push({ category: "Adjusted NOI (ANOI)", values: years.map((_, i) => c(i)?.anoi ?? 0), isHeader: true, rowId: "anoi" });
-    if (expandedRows.has("anoi")) {
-      rows.push({ category: "= NOI − FF&E Reserve", values: years.map((_, i) => c(i)?.anoi ?? 0), indent: 1, isFormula: true });
+    if (activeExpanded.has("anoi")) {
+      pushRow({ category: "= NOI − FF&E Reserve", values: years.map((_, i) => c(i)?.anoi ?? 0), indent: 1, isFormula: true });
       properties.forEach((prop, idx) => {
         rows.push({
           category: prop.name,
@@ -191,20 +200,41 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
 
   const { years, rows } = generateIncomeStatementData();
 
+  const allRowKeys = ["revenue", "expenses", "gop", "fees", "agop", "fixed", "noi", "ffe", "anoi"];
+  const allExpandedSet = new Set(allRowKeys);
+  const emptySet = new Set<string>();
+
+  const getVersionRows = (version: ExportVersion) => {
+    const override = version === "extended" ? allExpandedSet : emptySet;
+    const exclude = version === "short";
+    return generateIncomeStatementData(override, exclude).rows;
+  };
+
   const handleExport = (action: string) => {
+    if (action === 'pdf' || action === 'pptx' || action === 'png') {
+      setPendingExportAction(action);
+      setExportDialogOpen(true);
+      return;
+    }
     switch(action) {
-      case 'pdf': 
+      case 'csv': dashboardExports.exportToCSV(years, rows); break;
+      case 'excel': dashboardExports.exportToExcel(years, rows); break;
+    }
+  };
+
+  const handleVersionExport = (_orientation: 'landscape' | 'portrait', version: ExportVersion) => {
+    const versionRows = getVersionRows(version);
+    switch(pendingExportAction) {
+      case 'pdf':
         dashboardExports.exportToPDF({ 
           propertyName: "Hospitality Business Group", 
           projectionYears, 
           years, 
-          rows, 
+          rows: versionRows, 
           getYearlyConsolidated: (i) => yearlyConsolidatedCache[i] 
         }); 
         break;
-      case 'csv': dashboardExports.exportToCSV(years, rows); break;
-      case 'excel': dashboardExports.exportToExcel(years, rows); break;
-      case 'pptx': 
+      case 'pptx': {
         const totalRooms = properties.reduce((sum, p) => sum + p.roomCount, 0);
         dashboardExports.exportToPPTX({
           projectionYears,
@@ -219,18 +249,26 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
           totalProjectionRevenue,
           totalProjectionNOI,
           totalProjectionCashFlow,
-          incomeData: { years: years.map(String), rows: rows.map(r => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader })) },
+          incomeData: { years: years.map(String), rows: versionRows.map(r => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader })) },
           cashFlowData: (() => { const cf = generatePortfolioCashFlowData(allPropertyYearlyCF, projectionYears, getFiscalYear); return { years: cf.years.map(String), rows: cf.rows.map(r => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader })) }; })(),
           balanceSheetData: { years: years.map(String), rows: [] },
           investmentData: (() => { const inv = generatePortfolioInvestmentData(financials, properties, projectionYears, getFiscalYear); return { years: inv.years.map(String), rows: inv.rows.map(r => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader })) }; })()
         });
         break;
+      }
       case 'png': dashboardExports.exportToPNG(tabContentRef as RefObject<HTMLElement>); break;
     }
   };
 
   return (
     <div className="space-y-6">
+      <ExportDialog
+        open={exportDialogOpen}
+        onClose={() => setExportDialogOpen(false)}
+        onExport={handleVersionExport}
+        title={pendingExportAction === 'pdf' ? 'Export PDF' : pendingExportAction === 'pptx' ? 'Export PPTX' : 'Export PNG'}
+        showVersionOption={true}
+      />
       <FinancialChart
         data={chartData}
         series={["revenue", "gop", "agop", "noi", "anoi"]}

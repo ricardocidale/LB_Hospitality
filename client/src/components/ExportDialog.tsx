@@ -1,9 +1,9 @@
 /**
- * ExportDialog.tsx — Modal for configuring PDF / PowerPoint export options.
+ * ExportDialog.tsx — Modal for configuring PDF / PowerPoint / PNG export options.
  *
  * Before generating an export file, the user can choose:
- *   • Orientation — landscape (default, best for wide tables) or portrait
- *   • Include Details — optionally add granular line-item breakdowns
+ *   - Orientation — landscape (default, best for wide tables) or portrait
+ *   - Report Version — short (summary only) or extended (expanded sections, no formulas)
  *
  * The dialog delegates actual file generation to the parent via the
  * `onExport` callback (see lib/exports for the Excel/PPTX/PDF generators).
@@ -13,22 +13,23 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Checkbox } from "@/components/ui/checkbox";
+
+export type ExportVersion = "short" | "extended";
 
 interface ExportDialogProps {
   open: boolean;
   onClose: () => void;
-  onExport: (orientation: 'landscape' | 'portrait', includeDetails?: boolean) => void;
+  onExport: (orientation: "landscape" | "portrait", version: ExportVersion) => void;
   title: string;
-  showDetailOption?: boolean;
+  showVersionOption?: boolean;
 }
 
-export function ExportDialog({ open, onClose, onExport, title, showDetailOption = false }: ExportDialogProps) {
-  const [orientation, setOrientation] = useState<'landscape' | 'portrait'>('landscape');
-  const [includeDetails, setIncludeDetails] = useState(false);
+export function ExportDialog({ open, onClose, onExport, title, showVersionOption = true }: ExportDialogProps) {
+  const [orientation, setOrientation] = useState<"landscape" | "portrait">("landscape");
+  const [version, setVersion] = useState<ExportVersion>("extended");
 
   const handleExport = () => {
-    onExport(orientation, includeDetails);
+    onExport(orientation, version);
     onClose();
   };
 
@@ -40,8 +41,8 @@ export function ExportDialog({ open, onClose, onExport, title, showDetailOption 
         </DialogHeader>
         <div className="py-4 space-y-5">
           <div>
-            <Label className="text-sm font-medium mb-3 block">Select orientation:</Label>
-            <RadioGroup value={orientation} onValueChange={(v) => setOrientation(v as 'landscape' | 'portrait')}>
+            <Label className="text-sm font-medium mb-3 block">Orientation</Label>
+            <RadioGroup value={orientation} onValueChange={(v) => setOrientation(v as "landscape" | "portrait")}>
               <div className="flex items-center space-x-2 mb-2">
                 <RadioGroupItem value="landscape" id="landscape" />
                 <Label htmlFor="landscape" className="cursor-pointer">Landscape (wider)</Label>
@@ -53,24 +54,25 @@ export function ExportDialog({ open, onClose, onExport, title, showDetailOption 
             </RadioGroup>
           </div>
 
-          {showDetailOption && (
+          {showVersionOption && (
             <div className="border-t pt-4">
-              <div className="flex items-start space-x-3">
-                <Checkbox
-                  id="includeDetails"
-                  checked={includeDetails}
-                  onCheckedChange={(checked) => setIncludeDetails(checked === true)}
-                  data-testid="checkbox-include-details"
-                />
-                <div className="grid gap-1.5 leading-none">
-                  <Label htmlFor="includeDetails" className="cursor-pointer text-sm font-medium">
-                    Include formula details
-                  </Label>
-                  <p className="text-xs text-muted-foreground">
-                    Expand all line items to show the underlying calculations and formulas used for each figure.
-                  </p>
+              <Label className="text-sm font-medium mb-3 block">Report Version</Label>
+              <RadioGroup value={version} onValueChange={(v) => setVersion(v as ExportVersion)}>
+                <div className="flex items-start space-x-2 mb-3">
+                  <RadioGroupItem value="short" id="version-short" className="mt-0.5" />
+                  <div className="grid gap-1 leading-none">
+                    <Label htmlFor="version-short" className="cursor-pointer text-sm font-medium">Short</Label>
+                    <p className="text-xs text-muted-foreground">Summary view with top-level figures only</p>
+                  </div>
                 </div>
-              </div>
+                <div className="flex items-start space-x-2">
+                  <RadioGroupItem value="extended" id="version-extended" className="mt-0.5" />
+                  <div className="grid gap-1 leading-none">
+                    <Label htmlFor="version-extended" className="cursor-pointer text-sm font-medium">Extended</Label>
+                    <p className="text-xs text-muted-foreground">Expanded sections with line-item breakdowns</p>
+                  </div>
+                </div>
+              </RadioGroup>
             </div>
           )}
         </div>

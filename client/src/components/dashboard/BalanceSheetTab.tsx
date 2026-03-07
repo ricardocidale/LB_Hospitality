@@ -1,13 +1,16 @@
-import React, { useRef, useMemo, RefObject } from "react";
+import React, { useState, useRef, useMemo, RefObject } from "react";
 import { ConsolidatedBalanceSheet } from "@/components/ConsolidatedBalanceSheet";
 import { DashboardTabProps } from "./types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ExportMenu, pdfAction, csvAction, excelAction, pptxAction, pngAction, chartAction } from "@/components/ui/export-toolbar";
 import { FinancialChart } from "@/components/ui/financial-chart";
 import { dashboardExports, generatePortfolioBalanceSheetData, generatePortfolioCashFlowData, generatePortfolioInvestmentData } from "./dashboardExports";
+import { ExportDialog, type ExportVersion } from "@/components/ExportDialog";
 
 export function BalanceSheetTab({ financials, properties, global, projectionYears, getFiscalYear }: DashboardTabProps) {
   const tabContentRef = useRef<HTMLDivElement>(null);
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
+  const [pendingExportAction, setPendingExportAction] = useState<string>("");
   const modelStartDate = global.modelStartDate ? new Date(global.modelStartDate) : undefined;
   
   const { years, rows } = generatePortfolioBalanceSheetData(
@@ -32,7 +35,23 @@ export function BalanceSheetTab({ financials, properties, global, projectionYear
   }, [years, rows]);
 
   const handleExport = (action: string) => {
+    if (action === 'pdf' || action === 'pptx' || action === 'png') {
+      setPendingExportAction(action);
+      setExportDialogOpen(true);
+      return;
+    }
     switch(action) {
+      case 'csv': 
+        dashboardExports.exportToCSV(years, rows, "portfolio-balance-sheet.csv"); 
+        break;
+      case 'excel': 
+        dashboardExports.exportToExcel(years, rows, "Portfolio - Balance Sheet.xlsx", "Balance Sheet"); 
+        break;
+    }
+  };
+
+  const handleVersionExport = (_orientation: 'landscape' | 'portrait', _version: ExportVersion) => {
+    switch(pendingExportAction) {
       case 'pdf': 
         dashboardExports.exportToPDF({ 
           propertyName: "Hospitality Business Group", 
@@ -43,13 +62,7 @@ export function BalanceSheetTab({ financials, properties, global, projectionYear
           title: "Portfolio Balance Sheet"
         }); 
         break;
-      case 'csv': 
-        dashboardExports.exportToCSV(years, rows, "portfolio-balance-sheet.csv"); 
-        break;
-      case 'excel': 
-        dashboardExports.exportToExcel(years, rows, "Portfolio - Balance Sheet.xlsx", "Balance Sheet"); 
-        break;
-      case 'pptx': 
+      case 'pptx': {
         const totalRooms = properties.reduce((sum, p) => sum + p.roomCount, 0);
         dashboardExports.exportToPPTX({
           projectionYears,
@@ -79,6 +92,7 @@ export function BalanceSheetTab({ financials, properties, global, projectionYear
           })()
         });
         break;
+      }
       case 'png': 
         dashboardExports.exportToPNG(tabContentRef as RefObject<HTMLElement>, "portfolio-balance-sheet.png"); 
         break;
@@ -87,6 +101,13 @@ export function BalanceSheetTab({ financials, properties, global, projectionYear
 
   return (
     <div className="space-y-6">
+      <ExportDialog
+        open={exportDialogOpen}
+        onClose={() => setExportDialogOpen(false)}
+        onExport={handleVersionExport}
+        title={pendingExportAction === 'pdf' ? 'Export PDF' : pendingExportAction === 'pptx' ? 'Export PPTX' : 'Export PNG'}
+        showVersionOption={false}
+      />
       <FinancialChart
         data={chartData}
         series={[

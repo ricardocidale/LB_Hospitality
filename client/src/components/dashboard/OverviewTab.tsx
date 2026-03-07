@@ -78,7 +78,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
   });
 
   const revenueNOIData = Array.from({ length: projectionYears }, (_, y) => {
-    const rev = yearlyConsolidatedCache[y]?.totalRevenue ?? 0;
+    const rev = yearlyConsolidatedCache[y]?.revenueTotal ?? 0;
     const noi = yearlyConsolidatedCache[y]?.noi ?? 0;
     const cf = allPropertyYearlyCF.reduce((sum, propCF) => sum + (propCF[y]?.netCashFlowToInvestors ?? 0), 0);
     return {

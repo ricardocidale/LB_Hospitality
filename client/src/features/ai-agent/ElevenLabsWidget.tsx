@@ -9,7 +9,6 @@ if (!customElements.get("elevenlabs-convai")) {
   registerWidget();
 }
 
-// Lazy-load 3D/heavy components to keep initial bundle small
 const Orb = lazy(() => import("./components/orb").then((m) => ({ default: m.Orb })));
 const BarVisualizer = lazy(() =>
   import("./components/bar-visualizer").then((m) => ({ default: m.BarVisualizer }))
@@ -55,7 +54,6 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
     current_page: location,
   });
 
-  // Custom visual components (replace the native widget button)
   if (variant === "orb") {
     return (
       <Suspense fallback={null}>
@@ -63,11 +61,8 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
           <div className="w-16 h-16 cursor-pointer drop-shadow-lg">
             <Orb colors={["#9fbca4", "#4a7c5c"]} agentState="thinking" seed={42} />
           </div>
-          {/* Native widget hidden behind orb for actual conversation */}
-          {signedUrl ? (
+          {signedUrl && (
             <elevenlabs-convai signed-url={signedUrl} language={language} variant="tiny" dynamic-variables={dynamicVars} />
-          ) : (
-            <elevenlabs-convai agent-id={agentId} language={language} variant="tiny" dynamic-variables={dynamicVars} />
           )}
         </div>
       </Suspense>
@@ -87,10 +82,8 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
               className="h-10 bg-card/80 backdrop-blur-sm border border-primary/20 rounded-full px-3 shadow-lg"
             />
           </div>
-          {signedUrl ? (
+          {signedUrl && (
             <elevenlabs-convai signed-url={signedUrl} language={language} variant="tiny" dynamic-variables={dynamicVars} />
-          ) : (
-            <elevenlabs-convai agent-id={agentId} language={language} variant="tiny" dynamic-variables={dynamicVars} />
           )}
         </div>
       </Suspense>
@@ -113,10 +106,8 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
               className="rounded-xl overflow-hidden shadow-lg border border-primary/20"
             />
           </div>
-          {signedUrl ? (
+          {signedUrl && (
             <elevenlabs-convai signed-url={signedUrl} language={language} variant="tiny" dynamic-variables={dynamicVars} />
-          ) : (
-            <elevenlabs-convai agent-id={agentId} language={language} variant="tiny" dynamic-variables={dynamicVars} />
           )}
         </div>
       </Suspense>
@@ -133,21 +124,11 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
     );
   }
 
-  // Native widget (tiny | compact | full)
-  if (signedUrl) {
-    return (
-      <elevenlabs-convai
-        signed-url={signedUrl}
-        language={language}
-        variant={variant}
-        dynamic-variables={dynamicVars}
-      />
-    );
-  }
+  if (!signedUrl) return null;
 
   return (
     <elevenlabs-convai
-      agent-id={agentId}
+      signed-url={signedUrl}
       language={language}
       variant={variant}
       dynamic-variables={dynamicVars}

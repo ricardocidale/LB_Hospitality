@@ -10,11 +10,11 @@ Business simulation portal for boutique hotel investment. Financial modeling, pr
 ## Quick Commands
 ```bash
 npm run dev            # Start dev server (port 5000)
-npm run health         # One-shot: tsc + tests + verify
-npm run test:summary   # 2,460 tests, 1-line output
-npm run verify:summary # 7-phase verification, compact
+npm run health         # One-shot: tsc + tests + verify + doc harmony (no redundant re-runs)
+npm run test:summary   # 2,460 tests, reports skipped separately
+npm run verify:summary # 8-phase verification, single vitest invocation (~5s)
 npm test               # Full test output
-npm run verify         # Full verification (verbose)
+npm run verify         # Full verification (verbose, 9 phases including artifacts)
 npm run db:push        # Push schema changes
 npm run lint:summary   # tsc --noEmit, 1-line output
 npm run diff:summary   # Compact git status + diff stat

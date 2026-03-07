@@ -1,50 +1,76 @@
 /**
- * Verify Summary — runs the 6-phase verification, outputs only failures + opinion.
- * Saves hundreds of lines of verbose test output.
+ * Verify Summary — runs 8-phase financial verification in a single vitest invocation.
+ * Outputs only failures + audit opinion. ~3× faster than running each phase separately.
  *
  * Usage: npm run verify:summary
  */
 import { execSync } from "child_process";
 
 const phases = [
-  { name: "Proof Scenarios", cmd: "npx vitest run tests/proof/scenarios.test.ts 2>&1" },
-  { name: "Hardcoded Detection", cmd: "npx vitest run tests/proof/hardcoded-detection.test.ts 2>&1" },
-  { name: "Reconciliation", cmd: "npx vitest run tests/proof/reconciliation-report.test.ts 2>&1" },
-  { name: "Data Integrity", cmd: "npx vitest run tests/proof/data-integrity.test.ts 2>&1" },
-  { name: "Portfolio Dynamics", cmd: "npx vitest run tests/proof/portfolio-dynamics.test.ts 2>&1" },
-  { name: "Recalc Enforcement", cmd: "npx vitest run tests/proof/recalculation-enforcement.test.ts 2>&1" },
-  { name: "Rule Compliance", cmd: "npx vitest run tests/proof/rule-compliance.test.ts 2>&1" },
+  { name: "Proof Scenarios", file: "scenarios.test.ts" },
+  { name: "Hardcoded Detection", file: "hardcoded-detection.test.ts" },
+  { name: "Golden Values", file: "golden-values.test.ts" },
+  { name: "Reconciliation", file: "reconciliation-report.test.ts" },
+  { name: "Data Integrity", file: "data-integrity.test.ts" },
+  { name: "Portfolio Dynamics", file: "portfolio-dynamics.test.ts" },
+  { name: "Recalc Enforcement", file: "recalculation-enforcement.test.ts" },
+  { name: "Rule Compliance", file: "rule-compliance.test.ts" },
 ];
 
+const allFiles = phases.map((p) => `tests/proof/${p.file}`).join(" ");
 let allPassed = true;
 const results: string[] = [];
 
-for (const phase of phases) {
-  try {
-    const output = execSync(phase.cmd, {
-      encoding: "utf-8",
-      timeout: 180_000,
-      maxBuffer: 10 * 1024 * 1024,
-    });
-    const testsMatch = output.match(/(\d+) passed.*?\((\d+)\)/);
-    results.push(`  ✓ ${phase.name.padEnd(22)} ${testsMatch ? testsMatch[1] + "/" + testsMatch[2] : "PASS"}`);
-  } catch (err: any) {
-    allPassed = false;
-    const output = (err.stdout ?? "") + (err.stderr ?? "");
-    const failMatch = output.match(/(\d+) failed/);
-    const passMatch = output.match(/(\d+) passed/);
+function parseOutput(raw: string) {
+  const clean = raw.replace(/\x1b\[[0-9;]*m/g, "");
+  const lines = clean.split("\n");
 
-    results.push(`  ✗ ${phase.name.padEnd(22)} ${failMatch ? failMatch[1] + " failed" : "FAIL"}${passMatch ? ", " + passMatch[1] + " passed" : ""}`);
+  for (const phase of phases) {
+    const fileLine = lines.find((l) => l.includes(phase.file));
 
-    // Show first few failure details
-    const failLines = output
-      .split("\n")
-      .filter((l: string) => l.includes("AssertionError") || l.includes("Error:") || l.includes("expected"))
-      .slice(0, 5);
-    for (const line of failLines) {
-      results.push(`    → ${line.trim().slice(0, 100)}`);
+    if (!fileLine) {
+      allPassed = false;
+      results.push(`  ✗ ${phase.name.padEnd(22)} FAIL (not found in output)`);
+      continue;
+    }
+
+    const isFail = fileLine.includes("×") || fileLine.includes("✗") || fileLine.trimStart().startsWith("×");
+    const isPass = fileLine.includes("✓") || fileLine.trimStart().startsWith("✓");
+
+    if (isFail) {
+      allPassed = false;
+      const testCount = fileLine.match(/\((\d+) tests?.*?\)/);
+      results.push(`  ✗ ${phase.name.padEnd(22)} FAIL${testCount ? ` (${testCount[1]} tests)` : ""}`);
+
+      const failDetails = lines
+        .filter((l: string) =>
+          (l.includes("AssertionError") || l.includes("expected") || l.includes("Error:")) &&
+          !l.includes("node_modules"),
+        )
+        .slice(0, 3);
+      for (const line of failDetails) {
+        results.push(`    → ${line.trim().slice(0, 100)}`);
+      }
+    } else if (isPass) {
+      const testCount = fileLine.match(/\((\d+) tests?.*?\)/);
+      results.push(`  ✓ ${phase.name.padEnd(22)} PASS${testCount ? ` (${testCount[1]})` : ""}`);
+    } else {
+      allPassed = false;
+      results.push(`  ✗ ${phase.name.padEnd(22)} UNKNOWN`);
     }
   }
+}
+
+try {
+  const raw = execSync(`npx vitest run ${allFiles} 2>&1`, {
+    encoding: "utf-8",
+    timeout: 180_000,
+    maxBuffer: 10 * 1024 * 1024,
+  });
+  parseOutput(raw);
+} catch (err: any) {
+  const raw = (err.stdout ?? "") + (err.stderr ?? "");
+  parseOutput(raw);
 }
 
 console.log("\n  Verification Summary");

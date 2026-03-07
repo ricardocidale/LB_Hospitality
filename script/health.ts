@@ -1,71 +1,84 @@
 /**
  * Health Check — compact single-command output for AI token savings.
- * Runs: tsc → tests → verify → doc harmony, outputs ~5-7 lines instead of hundreds.
+ * Runs: tsc → tests (including proof tests) → doc harmony, outputs ~5-7 lines.
+ *
+ * Optimization: proof test results are parsed from the single vitest run,
+ * avoiding a redundant verify-runner invocation.
  *
  * Usage: npm run health
  */
 import { execSync } from "child_process";
 import { readFileSync } from "fs";
 
-interface Phase {
-  name: string;
-  cmd: string;
-  parse: (output: string) => string;
+const PROOF_FILES = [
+  "scenarios.test.ts",
+  "hardcoded-detection.test.ts",
+  "golden-values.test.ts",
+  "reconciliation-report.test.ts",
+  "data-integrity.test.ts",
+  "portfolio-dynamics.test.ts",
+  "recalculation-enforcement.test.ts",
+  "rule-compliance.test.ts",
+];
+
+function parseTestOutput(raw: string): { passed: boolean; summary: string; clean: string } {
+  const clean = raw.replace(/\x1b\[[0-9;]*m/g, "");
+  const failMatch = clean.match(/(\d+) failed/);
+  if (failMatch) {
+    const failCount = failMatch[1];
+    const failLine = clean
+      .split("\n")
+      .find((l) => l.includes("FAIL") || l.includes("✗") || l.includes("×"));
+    return {
+      passed: false,
+      summary: `FAIL (${failCount} failed)${failLine ? " — " + failLine.trim().slice(0, 80) : ""}`,
+      clean,
+    };
+  }
+  const testsMatch = clean.match(/Tests\s+(\d+)\s+passed\s*(?:\|\s*\d+\s+skipped\s*)?\((\d+)\)/);
+  const filesMatch = clean.match(/Test Files\s+(\d+)\s+passed\s*(?:\|\s*\d+\s+skipped\s*)?\((\d+)\)/);
+  if (testsMatch && filesMatch) {
+    return {
+      passed: true,
+      summary: `PASS (${testsMatch[1]}/${testsMatch[2]} tests, ${filesMatch[1]} files)`,
+      clean,
+    };
+  }
+  return {
+    passed: clean.includes("passed") && !clean.includes("failed"),
+    summary: clean.includes("passed") ? "PASS" : "FAIL (see npm test)",
+    clean,
+  };
 }
 
-const phases: Phase[] = [
-  {
-    name: "TypeScript",
-    cmd: "npx tsc --noEmit 2>&1",
-    parse: (out) => {
-      if (!out.trim()) return "PASS (0 errors)";
-      const lines = out.trim().split("\n");
-      const errorLine = lines.find((l) => l.includes("error TS"));
-      const count = lines.filter((l) => l.includes("error TS")).length;
-      return `FAIL (${count} error${count !== 1 ? "s" : ""})${errorLine ? " — " + errorLine.trim().slice(0, 80) : ""}`;
-    },
-  },
-  {
-    name: "Tests",
-    cmd: "npx vitest run 2>&1",
-    parse: (out) => {
-      // Strip ANSI escape codes for reliable parsing
-      const clean = out.replace(/\x1b\[[0-9;]*m/g, "");
-      const failMatch = clean.match(/(\d+) failed/);
-      if (failMatch) {
-        const failCount = failMatch[1];
-        const failLine = clean
-          .split("\n")
-          .find((l) => l.includes("FAIL") || l.includes("✗") || l.includes("×"));
-        return `FAIL (${failCount} failed)${failLine ? " — " + failLine.trim().slice(0, 80) : ""}`;
-      }
-      const testsMatch = clean.match(/Tests\s+(\d+) passed\s*\((\d+)\)/);
-      const filesMatch = clean.match(/Test Files\s+(\d+) passed\s*\((\d+)\)/);
-      if (testsMatch && filesMatch) {
-        return `PASS (${testsMatch[1]}/${testsMatch[2]} tests, ${filesMatch[1]} files)`;
-      }
-      return clean.includes("passed") ? "PASS" : "FAIL (see npm test)";
-    },
-  },
-  {
-    name: "Verification",
-    cmd: "npx tsx tests/proof/verify-runner.ts 2>&1",
-    parse: (out) => {
-      if (out.includes("ALL PHASES PASSED")) {
-        const timeMatch = out.match(/Time:\s*([\d.]+s)/);
-        return `PASS — UNQUALIFIED${timeMatch ? ` (${timeMatch[1]})` : ""}`;
-      }
-      const failedPhases: string[] = [];
-      if (out.includes("Proof scenario tests FAILED"))
-        failedPhases.push("scenarios");
-      if (out.includes("Magic number detection FAILED"))
-        failedPhases.push("hardcoded values");
-      if (out.includes("Reconciliation report generation FAILED"))
-        failedPhases.push("reconciliation");
-      return `FAIL — ${failedPhases.join(", ") || "see npm run verify"}`;
-    },
-  },
-];
+function parseVerificationFromTestOutput(clean: string): { passed: boolean; summary: string } {
+  const startTime = Date.now();
+  let allProofPassed = true;
+
+  for (const file of PROOF_FILES) {
+    const fileRegex = new RegExp(file.replace(".test.ts", ""));
+    const lines = clean.split("\n").filter((l) => fileRegex.test(l));
+    const hasFail = lines.some(
+      (l) => l.includes("FAIL") || l.includes("✗") || l.includes("×"),
+    );
+    if (hasFail) {
+      allProofPassed = false;
+      break;
+    }
+  }
+
+  const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+  if (allProofPassed) {
+    return { passed: true, summary: `PASS — UNQUALIFIED (${elapsed}s)` };
+  }
+  const failedNames = PROOF_FILES.filter((file) => {
+    const fileRegex = new RegExp(file.replace(".test.ts", ""));
+    return clean.split("\n").filter((l) => fileRegex.test(l)).some(
+      (l) => l.includes("FAIL") || l.includes("✗") || l.includes("×"),
+    );
+  }).map((f) => f.replace(".test.ts", ""));
+  return { passed: false, summary: `FAIL — ${failedNames.join(", ")}` };
+}
 
 function checkDocHarmony(rawTestOutput: string): string {
   const claudeMd = readFileSync(".claude/claude.md", "utf-8");
@@ -107,36 +120,61 @@ console.log("\n  Health Check");
 console.log("  " + "─".repeat(44));
 
 let allPassed = true;
-let testOutput = "";
+let testRawOutput = "";
+let testCleanOutput = "";
 
-for (const phase of phases) {
-  try {
-    const output = execSync(phase.cmd, {
-      timeout: 180_000,
-      encoding: "utf-8",
-      maxBuffer: 10 * 1024 * 1024,
-    });
-    if (phase.name === "Tests") testOutput = output;
-    const result = phase.parse(output);
-    const passed = result.startsWith("PASS");
-    if (!passed) allPassed = false;
-    console.log(
-      `  ${passed ? "✓" : "✗"} ${phase.name.padEnd(16)} ${result}`,
-    );
-  } catch (err: any) {
-    const output = (err.stdout ?? "") + (err.stderr ?? "");
-    if (phase.name === "Tests") testOutput = output;
-    const result = phase.parse(output);
-    const passed = result.startsWith("PASS");
-    if (!passed) allPassed = false;
-    console.log(
-      `  ${passed ? "✓" : "✗"} ${phase.name.padEnd(16)} ${result}`,
-    );
+// Phase 1: TypeScript
+try {
+  const output = execSync("npx tsc --noEmit 2>&1", {
+    timeout: 180_000,
+    encoding: "utf-8",
+    maxBuffer: 10 * 1024 * 1024,
+  });
+  if (!output.trim()) {
+    console.log(`  ✓ ${"TypeScript".padEnd(16)} PASS (0 errors)`);
+  } else {
+    const lines = output.trim().split("\n");
+    const count = lines.filter((l) => l.includes("error TS")).length;
+    if (count > 0) {
+      allPassed = false;
+      const errorLine = lines.find((l) => l.includes("error TS"));
+      console.log(`  ✗ ${"TypeScript".padEnd(16)} FAIL (${count} error${count !== 1 ? "s" : ""})${errorLine ? " — " + errorLine.trim().slice(0, 80) : ""}`);
+    } else {
+      console.log(`  ✓ ${"TypeScript".padEnd(16)} PASS (0 errors)`);
+    }
   }
+} catch (err: any) {
+  const output = (err.stdout ?? "") + (err.stderr ?? "");
+  const lines = output.trim().split("\n");
+  const count = lines.filter((l: string) => l.includes("error TS")).length;
+  allPassed = false;
+  console.log(`  ✗ ${"TypeScript".padEnd(16)} FAIL (${count} error${count !== 1 ? "s" : ""})`);
 }
 
+// Phase 2: Tests (single vitest run — includes all proof tests)
+try {
+  testRawOutput = execSync("npx vitest run 2>&1", {
+    timeout: 180_000,
+    encoding: "utf-8",
+    maxBuffer: 10 * 1024 * 1024,
+  });
+} catch (err: any) {
+  testRawOutput = (err.stdout ?? "") + (err.stderr ?? "");
+}
+
+const testResult = parseTestOutput(testRawOutput);
+testCleanOutput = testResult.clean;
+if (!testResult.passed) allPassed = false;
+console.log(`  ${testResult.passed ? "✓" : "✗"} ${"Tests".padEnd(16)} ${testResult.summary}`);
+
+// Phase 3: Verification (parsed from the same test output — no re-run)
+const verifyResult = parseVerificationFromTestOutput(testCleanOutput);
+if (!verifyResult.passed) allPassed = false;
+console.log(`  ${verifyResult.passed ? "✓" : "✗"} ${"Verification".padEnd(16)} ${verifyResult.summary}`);
+
+// Phase 4: Doc Harmony
 {
-  const result = checkDocHarmony(testOutput);
+  const result = checkDocHarmony(testRawOutput);
   const passed = result.startsWith("PASS");
   if (!passed) allPassed = false;
   console.log(`  ${passed ? "✓" : "✗"} ${"Doc Harmony".padEnd(16)} ${result}`);

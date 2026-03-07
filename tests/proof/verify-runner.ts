@@ -11,59 +11,44 @@ function header(title: string) {
   console.log(DIVIDER);
 }
 
+interface Phase {
+  title: string;
+  file: string;
+  passMsg: string;
+  failMsg: string;
+}
+
+const phases: Phase[] = [
+  { title: "PHASE 1: Proof Scenario Tests", file: "tests/proof/scenarios.test.ts", passMsg: "All proof scenarios passed", failMsg: "Proof scenario tests FAILED" },
+  { title: "PHASE 2: Hardcoded Value Detection", file: "tests/proof/hardcoded-detection.test.ts", passMsg: "No magic numbers detected", failMsg: "Magic number detection FAILED — finance files contain hardcoded values" },
+  { title: "PHASE 3: Golden Value & Cross-Check Tests", file: "tests/proof/golden-values.test.ts", passMsg: "All golden value & cross-check tests passed", failMsg: "Golden value tests FAILED — penny-exact verification broken" },
+  { title: "PHASE 4: Reconciliation Report Generation", file: "tests/proof/reconciliation-report.test.ts", passMsg: "Reconciliation reports generated", failMsg: "Reconciliation report generation FAILED" },
+  { title: "PHASE 5: Data Integrity", file: "tests/proof/data-integrity.test.ts", passMsg: "Database integrity verified", failMsg: "Data integrity checks FAILED" },
+  { title: "PHASE 6: Portfolio Dynamics", file: "tests/proof/portfolio-dynamics.test.ts", passMsg: "Portfolio scaling verified", failMsg: "Portfolio dynamics FAILED" },
+  { title: "PHASE 7: Recalculation Enforcement", file: "tests/proof/recalculation-enforcement.test.ts", passMsg: "All mutations trigger recalculation", failMsg: "Recalculation enforcement FAILED — stale data possible" },
+  { title: "PHASE 8: Rule Compliance", file: "tests/proof/rule-compliance.test.ts", passMsg: "All architectural rules observed", failMsg: "Rule compliance FAILED" },
+];
+
 function run() {
   const startTime = Date.now();
   let allPassed = true;
 
-  header("PHASE 1: Proof Scenario Tests");
-  try {
-    execSync("npx vitest run tests/proof/scenarios.test.ts --reporter=verbose", {
-      stdio: "inherit",
-      timeout: 120_000,
-    });
-    console.log("\n  ✓ All proof scenarios passed");
-  } catch {
-    console.error("\n  ✗ Proof scenario tests FAILED");
-    allPassed = false;
+  for (const phase of phases) {
+    header(phase.title);
+    try {
+      execSync(`npx vitest run ${phase.file} --reporter=verbose`, {
+        stdio: "inherit",
+        timeout: 120_000,
+      });
+      console.log(`\n  ✓ ${phase.passMsg}`);
+    } catch {
+      console.error(`\n  ✗ ${phase.failMsg}`);
+      allPassed = false;
+    }
   }
 
-  header("PHASE 2: Hardcoded Value Detection");
-  try {
-    execSync("npx vitest run tests/proof/hardcoded-detection.test.ts --reporter=verbose", {
-      stdio: "inherit",
-      timeout: 60_000,
-    });
-    console.log("\n  ✓ No magic numbers detected");
-  } catch {
-    console.error("\n  ✗ Magic number detection FAILED — finance files contain hardcoded values");
-    allPassed = false;
-  }
-
-  header("PHASE 3: Golden Value & Cross-Check Tests");
-  try {
-    execSync("npx vitest run tests/proof/golden-values.test.ts --reporter=verbose", {
-      stdio: "inherit",
-      timeout: 120_000,
-    });
-    console.log("\n  ✓ All golden value & cross-check tests passed");
-  } catch {
-    console.error("\n  ✗ Golden value tests FAILED — penny-exact verification broken");
-    allPassed = false;
-  }
-
-  header("PHASE 4: Reconciliation Report Generation");
-  try {
-    execSync("npx vitest run tests/proof/reconciliation-report.test.ts --reporter=verbose", {
-      stdio: "inherit",
-      timeout: 120_000,
-    });
-    console.log("\n  ✓ Reconciliation reports generated");
-  } catch {
-    console.error("\n  ✗ Reconciliation report generation FAILED");
-    allPassed = false;
-  }
-
-  header("PHASE 5: Artifact Summary");
+  const artifactPhase = phases.length + 1;
+  header(`PHASE ${artifactPhase}: Artifact Summary`);
   if (fs.existsSync(ARTIFACTS_DIR)) {
     const files = fs.readdirSync(ARTIFACTS_DIR);
     const jsonFiles = files.filter(f => f.endsWith(".json"));
@@ -74,7 +59,6 @@ function run() {
     for (const jf of jsonFiles) {
       try {
         const data = JSON.parse(fs.readFileSync(path.join(ARTIFACTS_DIR, jf), "utf-8"));
-        const scenario = data.scenario ?? jf;
         const opinion = data.financial_identities?.opinion ?? "N/A";
         const balanced = data.sources_and_uses?.balanced ?? data.fee_linkage_balanced ?? "N/A";
         console.log(`  ${jf}: opinion=${opinion}, balanced=${balanced}`);

@@ -93,7 +93,7 @@ function KPICard({ item }: { item: KPIItem }) {
       style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
       whileHover={{ scale: 1.02, y: -2, boxShadow: "0 8px 24px hsl(var(--primary) / 0.12)", transition: { duration: 0.2 } }}
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
-      className="bg-card border border-border/60 rounded-xl p-5 sm:p-6 shadow-[0_1px_3px_rgba(0,0,0,0.06)] cursor-default"
+      className="bg-card rounded-xl p-5 sm:p-6 shadow-[0_1px_4px_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.04)] cursor-default"
     >
       <div className="flex items-start justify-between mb-1">
         <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider truncate">

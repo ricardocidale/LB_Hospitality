@@ -13,6 +13,8 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/
 import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { ExportMenu, pdfAction, csvAction, excelAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
 import { dashboardExports, generatePortfolioCashFlowData, generatePortfolioInvestmentData, exportPortfolioPDF, exportPortfolioCSV } from "./dashboardExports";
+import { Link } from "wouter";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import * as XLSX from "xlsx";
 
 function calculateIRR(cashFlows: number[]): number {
@@ -602,7 +604,57 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                 />
               </div>
             </AccordionTrigger>
-            <AccordionContent className="pt-2 pb-4">
+            <AccordionContent className="pt-2 pb-4 space-y-4">
+            <div className="rounded-lg border border-border overflow-hidden" data-testid="portfolio-property-table">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-muted/50 hover:bg-muted/50">
+                    <TableHead className="text-xs font-semibold text-muted-foreground w-[30px]">#</TableHead>
+                    <TableHead className="text-xs font-semibold text-muted-foreground">Property</TableHead>
+                    <TableHead className="text-xs font-semibold text-muted-foreground">Market</TableHead>
+                    <TableHead className="text-xs font-semibold text-muted-foreground text-center">Rooms</TableHead>
+                    <TableHead className="text-xs font-semibold text-muted-foreground text-center">Status</TableHead>
+                    <TableHead className="text-xs font-semibold text-muted-foreground text-right">Acquisition</TableHead>
+                    <TableHead className="text-xs font-semibold text-muted-foreground text-right">ADR</TableHead>
+                    <TableHead className="text-xs font-semibold text-muted-foreground text-right">IRR</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {properties.map((prop, idx) => {
+                    const irr = propertyIRRData[idx]?.irr ?? 0;
+                    return (
+                      <TableRow key={prop.id} className="hover:bg-muted/30" data-testid={`row-property-${prop.id}`}>
+                        <TableCell className="text-xs text-muted-foreground font-mono py-2.5">{idx + 1}</TableCell>
+                        <TableCell className="py-2.5">
+                          <Link href={`/property/${prop.id}`} className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+                            {prop.name}
+                          </Link>
+                        </TableCell>
+                        <TableCell className="text-xs text-muted-foreground py-2.5">{prop.market}</TableCell>
+                        <TableCell className="text-xs text-foreground font-mono text-center py-2.5">{prop.roomCount}</TableCell>
+                        <TableCell className="text-center py-2.5">
+                          <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-medium ${
+                            prop.status === "Operating" ? "bg-emerald-500/10 text-emerald-600" :
+                            prop.status === "Improvements" ? "bg-amber-500/10 text-amber-600" :
+                            prop.status === "Acquired" ? "bg-blue-500/10 text-blue-600" :
+                            prop.status === "Planned" ? "bg-sky-500/10 text-sky-600" :
+                            prop.status === "In Negotiation" ? "bg-purple-500/10 text-purple-600" :
+                            "bg-muted text-muted-foreground"
+                          }`}>
+                            {prop.status}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-xs text-foreground font-mono text-right py-2.5">{formatMoney(prop.purchasePrice)}</TableCell>
+                        <TableCell className="text-xs text-foreground font-mono text-right py-2.5">${prop.startAdr.toFixed(0)}</TableCell>
+                        <TableCell className="text-xs font-mono text-right py-2.5">
+                          <span className={irr >= 0 ? "text-emerald-600" : "text-destructive"}>{irr.toFixed(1)}%</span>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
             <InsightPanel
               data-testid="insight-dashboard"
               title="Portfolio Insights"

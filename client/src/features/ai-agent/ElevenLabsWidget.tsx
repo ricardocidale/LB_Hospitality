@@ -30,6 +30,8 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
   const language = (global as any)?.marcelaLanguage || "en";
   const variant = (global as any)?.marcelaWidgetVariant || "compact";
 
+  const shouldActivate = !!(enabled && agentId);
+
   const { data: signedUrl } = useQuery<string>({
     queryKey: ["marcela-signed-url"],
     queryFn: async () => {
@@ -38,13 +40,13 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
       const data = await res.json();
       return data.signedUrl as string;
     },
-    enabled: !!(enabled && agentId),
+    enabled: shouldActivate,
     staleTime: 10 * 60 * 1000,
     refetchInterval: 10 * 60 * 1000,
     retry: 1,
   });
 
-  if (!enabled || !agentId) return null;
+  if (!shouldActivate) return null;
 
   const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(" ") || "User";
   const dynamicVars = JSON.stringify({

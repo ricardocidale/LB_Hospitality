@@ -228,17 +228,17 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
         <Accordion type="multiple" defaultValue={["performance", "projection", "composition", "research", "insights"]} className="space-y-4">
 
           <AccordionItem value="performance" className="border-none">
-            <AccordionTrigger className="hover:no-underline py-3 px-1">
-              <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 py-3 px-1">
+              <AccordionTrigger className="hover:no-underline p-0">
                 <span className="text-sm font-semibold text-foreground tracking-wide uppercase">Investment Performance</span>
-                <InfoTooltip
-                  text="Key return metrics for the entire portfolio across all properties and the full hold period."
-                  formula="IRR = discount rate where NPV of all cash flows = 0"
-                  light
-                  side="right"
-                />
-              </div>
-            </AccordionTrigger>
+              </AccordionTrigger>
+              <InfoTooltip
+                text="Key return metrics for the entire portfolio across all properties and the full hold period."
+                formula="IRR = discount rate where NPV of all cash flows = 0"
+                light
+                side="right"
+              />
+            </div>
             <AccordionContent className="pt-2 pb-4">
             <div className="relative">
               <div className="text-center mb-8">
@@ -387,17 +387,17 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
           </AccordionItem>
 
           <AccordionItem value="projection" className="border-none">
-            <AccordionTrigger className="hover:no-underline py-3 px-1">
-              <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 py-3 px-1">
+              <AccordionTrigger className="hover:no-underline p-0">
                 <span className="text-sm font-semibold text-foreground tracking-wide uppercase">Revenue & ANOI Projection</span>
-                <InfoTooltip
-                  text="Revenue is total income from all hotel operations. ANOI (Adjusted Net Operating Income) is the bottom operating line after all expenses, management fees, insurance, taxes, and FF&E reserve."
-                  formula="ANOI = Revenue − OpEx − Mgmt Fees − Insurance − Taxes − FF&E"
-                  light
-                  side="right"
-                />
-              </div>
-            </AccordionTrigger>
+              </AccordionTrigger>
+              <InfoTooltip
+                text="Revenue is total income from all hotel operations. ANOI (Adjusted Net Operating Income) is the bottom operating line after all expenses, management fees, insurance, taxes, and FF&E reserve."
+                formula="ANOI = Revenue − OpEx − Mgmt Fees − Insurance − Taxes − FF&E"
+                light
+                side="right"
+              />
+            </div>
             <AccordionContent className="pt-2 pb-4">
             <div className="bg-card rounded-lg border border-border shadow-sm p-6">
               <div className="flex items-center justify-between mb-6">
@@ -507,16 +507,16 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
           </AccordionItem>
 
           <AccordionItem value="composition" className="border-none">
-            <AccordionTrigger className="hover:no-underline py-3 px-1">
-              <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 py-3 px-1">
+              <AccordionTrigger className="hover:no-underline p-0">
                 <span className="text-sm font-semibold text-foreground tracking-wide uppercase">Portfolio & Capital Structure</span>
-                <InfoTooltip
-                  text="Composition shows the physical portfolio makeup. Capital Structure breaks down how the investments are funded and what returns are projected."
-                  light
-                  side="right"
-                />
-              </div>
-            </AccordionTrigger>
+              </AccordionTrigger>
+              <InfoTooltip
+                text="Composition shows the physical portfolio makeup. Capital Structure breaks down how the investments are funded and what returns are projected."
+                light
+                side="right"
+              />
+            </div>
             <AccordionContent className="pt-2 pb-4">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="bg-card/80 rounded-lg p-6 border border-primary/10 shadow-[0_2px_8px_rgba(var(--primary-rgb,159,188,164),0.08)]">
@@ -559,16 +559,16 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
           </AccordionItem>
 
           <AccordionItem value="research" className="border-none">
-            <AccordionTrigger className="hover:no-underline py-3 px-1">
-              <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 py-3 px-1">
+              <AccordionTrigger className="hover:no-underline p-0">
                 <span className="text-sm font-semibold text-foreground tracking-wide uppercase">Market Research</span>
-                <InfoTooltip
-                  text="AI-powered market intelligence and comparable analysis for your portfolio markets."
-                  light
-                  side="right"
-                />
-              </div>
-            </AccordionTrigger>
+              </AccordionTrigger>
+              <InfoTooltip
+                text="AI-powered market intelligence and comparable analysis for your portfolio markets."
+                light
+                side="right"
+              />
+            </div>
             <AccordionContent className="pt-2 pb-4">
             <PortfolioResearchCard
               properties={properties}
@@ -579,16 +579,16 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
           </AccordionItem>
 
           <AccordionItem value="insights" className="border-none">
-            <AccordionTrigger className="hover:no-underline py-3 px-1">
-              <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 py-3 px-1">
+              <AccordionTrigger className="hover:no-underline p-0">
                 <span className="text-sm font-semibold text-foreground tracking-wide uppercase">Portfolio Insights</span>
-                <InfoTooltip
-                  text="Automated intelligence observations about portfolio performance, diversification, and risk factors."
-                  light
-                  side="right"
-                />
-              </div>
-            </AccordionTrigger>
+              </AccordionTrigger>
+              <InfoTooltip
+                text="Automated intelligence observations about portfolio performance, diversification, and risk factors."
+                light
+                side="right"
+              />
+            </div>
             <AccordionContent className="pt-2 pb-4 space-y-4">
             <div className="rounded-lg border border-border overflow-hidden" data-testid="portfolio-property-table">
               <Table>

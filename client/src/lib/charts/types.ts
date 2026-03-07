@@ -115,3 +115,14 @@ export interface RadialChartProps extends BaseChartProps {
   showLabels?: boolean;
   showBackground?: boolean;
 }
+
+export interface RadialGaugeProps extends BaseChartProps {
+  data: RadialChartItem[];
+  config: ChartConfig;
+  dataKey?: string;
+  centerValue?: string | number;
+  centerLabel?: string;
+  endAngle?: number;
+  innerRadius?: number;
+  outerRadius?: number;
+}

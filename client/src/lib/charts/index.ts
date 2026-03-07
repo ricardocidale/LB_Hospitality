@@ -15,6 +15,7 @@ export type {
   RadarChartDotsProps,
   RadialChartItem,
   RadialChartProps,
+  RadialGaugeProps,
 } from "./types";
 
 export { BarChartCard } from "./BarChartCard";
@@ -24,3 +25,4 @@ export { DonutChart } from "./DonutChart";
 export { DonutChartInteractive } from "./DonutChartInteractive";
 export { RadarChartDots } from "./RadarChartDots";
 export { RadialChart } from "./RadialChart";
+export { RadialGauge } from "./RadialGauge";

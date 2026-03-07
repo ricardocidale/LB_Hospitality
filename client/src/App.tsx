@@ -248,7 +248,7 @@ function Router() {
         <Redirect to="/analysis" />
       </Route>
       <Route path="/map">
-        <Redirect to="/portfolio" />
+        <ManagementRoute><FinancialErrorBoundary><Suspense fallback={<PageLoader />}><MapView /></Suspense></FinancialErrorBoundary></ManagementRoute>
       </Route>
       <Route path="/checker-manual">
         <Redirect to="/help" />

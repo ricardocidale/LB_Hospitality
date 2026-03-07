@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import type { VoiceSettings, TwilioStatus } from "@/components/admin/marcela/types";
+import type { VoiceSettings, TwilioStatus } from "@/features/ai-agent/types";
 
 export function useMarcelaSettings() {
   return useQuery<VoiceSettings>({

@@ -18,6 +18,7 @@ Every page must use the shared component library. Inline or ad-hoc styling is no
 | FinancialChart | `client/src/components/ui/financial-chart.tsx` | Standardized Recharts wrapper |
 | FinancialTable | `client/src/components/ui/financial-table.tsx` | Sticky-column financial tables |
 | StatCard | `client/src/components/ui/stat-card.tsx` | KPI cards |
+| ChartModeToggle | `client/src/components/dashboard/OverviewTab.tsx` | Area/Line chart mode switcher |
 | ContentPanel | `client/src/components/ui/content-panel.tsx` | Section wrappers |
 | SaveButton | `client/src/components/ui/save-button.tsx` | Save actions with loading state |
 

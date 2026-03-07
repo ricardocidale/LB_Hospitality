@@ -10,7 +10,7 @@ The Dashboard is organized into five tabs:
 
 | Tab | Content |
 |-----|---------|
-| **Portfolio Overview** | KPI summary cards with trend charts |
+| **Portfolio Overview** | KPI summary cards with trend charts and interactive accordions |
 | **Consolidated Income Statement** | USALI-aligned profit and loss aggregated across all properties by fiscal year |
 | **Consolidated Cash Flow** | ASC 230-compliant statement of cash flows by fiscal year |
 | **Consolidated Balance Sheet** | Assets, liabilities, and equity across all SPVs |
@@ -18,19 +18,32 @@ The Dashboard is organized into five tabs:
 
 ---
 
-## Portfolio Overview — KPI Cards
+## Portfolio Overview — Sections & Interactions
 
-The overview tab displays four headline KPI cards summarizing portfolio-level performance across the full projection horizon:
+The Portfolio Overview uses a collapsible **Accordion** pattern to organize deep data sets into scannable sections. All sections are open by default.
 
-**Total Revenue** represents the sum of all revenue line items (Rooms, Events, F&B, and Other) across all properties and all projection years.
+### 1. Investment Performance
+Displays headline KPIs with explainer tooltips (ℹ) containing exact formulas:
+- **Portfolio IRR**: Internal Rate of Return gauge (uses `irrTube3D` gradient).
+- **Equity Multiple (EM)**: Total Distributions / Total Equity.
+- **Cash-on-Cash (CoC)**: Annual Cash Flow / Total Equity.
+- **Equity Invested**: Total capital deployed.
+- **Projected Exit**: Terminal value based on exit cap rate.
 
-**Gross Operating Profit (GOP)** equals Total Revenue minus Total Operating Expenses (departmental plus undistributed), aggregated across the portfolio.
+### 2. Revenue & ANOI Projection
+Interactive chart showing consolidated portfolio growth.
+- **Chart Mode Toggle**: Switch between **Area** (filled) and **Line** (outline) views.
+- **ANOI (Adjusted Net Operating Income)**: Revenue − OpEx − Mgmt Fees − Insurance − Taxes − FF&E.
+- **Styling**: Uses `hsl(var(--chart-n))` tokens with zero hardcoded hex.
 
-**Net Operating Income (NOI)** equals GOP minus Management Fees minus the FF&E Reserve, aggregated across all properties.
+### 3. Portfolio Composition
+Breakdown of the portfolio by property count, room count, and market diversification. Each row includes an `InfoTooltip` explaining the metric derivation.
 
-**Portfolio Cash** represents the cumulative net cash position across all SPVs at the end of each projection year.
+### 4. Portfolio Research
+Consolidated market benchmarks and AI-driven research takeaways for the selected portfolio.
 
-Each KPI card shows the absolute dollar value and a trend indicator (line or bar chart).
+### 5. Consolidated Insights
+High-level automated commentary on portfolio performance and risk factors.
 
 ---
 

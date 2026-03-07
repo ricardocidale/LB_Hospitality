@@ -71,6 +71,34 @@ import { PropertyBreakdownRow } from "@/components/financial-table-rows";
 <PropertyBreakdownRow propertyName="Hotel Alpha" values={["$150.00", "$142.00"]} />
 ```
 
+### Dashboard Accordions
+Location: `client/src/components/dashboard/OverviewTab.tsx`
+
+Dashboards wrap major sections in the shadcn `Accordion` component to provide a clean, collapsible interface that is open by default.
+
+```tsx
+<Accordion type="multiple" defaultValue={["performance", "projection", "composition", "research", "insights"]}>
+  <AccordionItem value="performance">
+    <AccordionTrigger>
+      <div className="flex items-center gap-2">
+        <span>Investment Performance</span>
+        <InfoTooltip text="..." formula="..." />
+      </div>
+    </AccordionTrigger>
+    <AccordionContent>
+      {/* KPI Cards & Charts */}
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>
+```
+
+Sections:
+- **performance**: IRR, EM, CoC, Equity Invested, Projected Exit
+- **projection**: Revenue & ANOI chart + trend indicators
+- **composition**: Property count, room count, market diversification
+- **research**: Market-level insights and benchmarks
+- **insights**: Consolidated portfolio takeaways
+
 ## State Management Pattern
 
 Every component that uses accordion rows follows this pattern:

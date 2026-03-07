@@ -39,6 +39,10 @@
 - Info icon variant with optional formula display and manual links
 - Props: text, formula, light, side, manualSection, manualLabel
 
+### ChartModeToggle (`client/src/components/dashboard/OverviewTab.tsx`)
+- Segmented control for switching between Area and Line chart modes
+- Props: mode ("area" | "line"), onChange
+
 ## Card & Layout Components
 
 ### EntityCardContainer / EntityCardItem / EntityEmptyState (`client/src/components/ui/entity-card.tsx`)

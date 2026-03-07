@@ -23,45 +23,60 @@
 
 ## Color Gradients
 
-Define gradients inside `<defs>` within the chart SVG:
+Define gradients inside `<defs>` within the chart SVG using CSS variable tokens:
 
 ```tsx
 <defs>
-  {/* Revenue / NOI — Green */}
-  <linearGradient id="revenueGradient" x1="0" y1="0" x2="1" y2="0">
-    <stop offset="0%" stopColor="#257D41" />
-    <stop offset="100%" stopColor="#34D399" />
+  {/* Revenue / Chart 1 */}
+  <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stopColor="hsl(var(--chart-1))" stopOpacity={0.8} />
+    <stop offset="100%" stopColor="hsl(var(--chart-1))" stopOpacity={0} />
   </linearGradient>
 
-  {/* GOP / FCF — Blue */}
-  <linearGradient id="gopGradient" x1="0" y1="0" x2="1" y2="0">
-    <stop offset="0%" stopColor="#3B82F6" />
-    <stop offset="100%" stopColor="#60A5FA" />
-  </linearGradient>
-
-  {/* FCFE / Secondary — Coral */}
-  <linearGradient id="fcfeGradient" x1="0" y1="0" x2="1" y2="0">
-    <stop offset="0%" stopColor="#F4795B" />
-    <stop offset="100%" stopColor="#FB923C" />
+  {/* GOP / Chart 2 */}
+  <linearGradient id="gopGradient" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stopColor="hsl(var(--chart-2))" stopOpacity={0.8} />
+    <stop offset="100%" stopColor="hsl(var(--chart-2))" stopOpacity={0} />
   </linearGradient>
 </defs>
 ```
 
 ### Gradient ID Naming
 - Revenue/NOI lines: ID pattern `*RevenueGradient` (e.g., `revenueGradient`, `noiRevenueGradient`)
-- GOP/FCF lines: blue gradient
-- FCFE/secondary lines: coral gradient
+- Gauges: `irrTube3D`, `smallTube3D_eq`, `smallTube3D_coc` (all using chart tokens)
 
-## Line Styling
+## Area & Line Chart Toggle
 
+Dashboards support switching between Area and Line views via the `ChartModeToggle` component.
+
+```tsx
+<ChartModeToggle mode={chartMode} onChange={setChartMode} />
+```
+
+- **Area Mode**: Uses `<Area>` with `stroke="none"` and `fill="url(#gradient)"` for a clean, fill-only look.
+- **Line Mode**: Uses `<Line>` with `stroke="hsl(var(--chart-n))"` and `strokeWidth={2}`.
+
+## Line & Area Styling
+
+### Area Chart (Dashboard Pattern)
+```tsx
+<Area
+  type="monotone"
+  dataKey="revenue"
+  stroke="none"
+  fill="url(#revenueGradient)"
+  fillOpacity={1}
+/>
+```
+
+### Line Chart
 ```tsx
 <Line
   type="monotone"
   dataKey="revenue"
-  stroke="url(#revenueGradient)"
-  strokeWidth={3}
-  dot={{ fill: '#257D41', stroke: '#fff', strokeWidth: 2, r: 4 }}
-  activeDot={{ r: 6, stroke: '#fff', strokeWidth: 2 }}
+  stroke="hsl(var(--chart-1))"
+  strokeWidth={2}
+  dot={false}
 />
 ```
 
@@ -71,20 +86,20 @@ Define gradients inside `<defs>` within the chart SVG:
 ```tsx
 <XAxis
   dataKey="year"
-  stroke="#6B7280"
+  stroke="hsl(var(--muted-foreground))"
   fontSize={12}
   tickLine={false}
-  axisLine={{ stroke: '#E5E7EB' }}
+  axisLine={false}
 />
 ```
 
 ### YAxis
 ```tsx
 <YAxis
-  stroke="#6B7280"
+  stroke="hsl(var(--muted-foreground))"
   fontSize={12}
   tickLine={false}
-  axisLine={{ stroke: '#E5E7EB' }}
+  axisLine={false}
   tickFormatter={(value) => `$${(value / 1000000).toFixed(1)}M`}
 />
 ```
@@ -94,7 +109,7 @@ Define gradients inside `<defs>` within the chart SVG:
 ```tsx
 <CartesianGrid
   strokeDasharray="3 3"
-  stroke="#E5E7EB"
+  stroke="rgba(45,74,94,0.08)"
   vertical={false}
 />
 ```
@@ -104,12 +119,13 @@ Define gradients inside `<defs>` within the chart SVG:
 ```tsx
 <Tooltip
   contentStyle={{
-    backgroundColor: 'white',
-    border: '1px solid #E5E7EB',
-    borderRadius: '12px',
-    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+    backgroundColor: 'hsl(var(--card))',
+    border: '1px solid hsl(var(--border))',
+    borderRadius: '8px',
+    color: 'hsl(var(--foreground))',
+    boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
   }}
-  formatter={(value: number) => [`$${(value / 1000000).toFixed(2)}M`, undefined]}
+  formatter={(value: number) => [`$${value.toLocaleString()}`, undefined]}
 />
 ```
 

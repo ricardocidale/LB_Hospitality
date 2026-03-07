@@ -42,19 +42,21 @@ description: >
 | Teal-green  | `#3a5a5e`   | Page header gradient end                       |
 | Sky glow    | `#38BDF8`   | Login card borders and ambient glow (login only)|
 
+### Rule: Zero hardcoded hex colors in core components
+
+All components (notably `OverviewTab.tsx`) must use CSS variable tokens or hsl() wrappers around tokens. No raw hex (`#FFFFFF`) or Tailwind named colors (`text-emerald-700`) should remain in production-ready feature components.
+
 ### Chart Colors
 
-| Token       | Purpose                    |
-| ----------- | -------------------------- |
-| `--chart-1` | Sage green — revenue       |
-| `--chart-2` | Forest green — GOP         |
-| `--chart-3` | Purple accent              |
-| `--chart-4` | Orange accent — NOI        |
-| `--chart-5` | Red accent                 |
+| Token       | Purpose                    | CSS Variable |
+| ----------- | -------------------------- | ------------ |
+| `--chart-1` | Sage green — revenue       | `hsl(var(--chart-1))` |
+| `--chart-2` | Forest green — GOP / Inv   | `hsl(var(--chart-2))` |
+| `--chart-3` | Purple accent              | `hsl(var(--chart-3))` |
+| `--chart-4` | Orange accent — NOI        | `hsl(var(--chart-4))` |
+| `--chart-5` | Red accent                 | `hsl(var(--chart-5))` |
 
-### Rule: Never use raw hex in component files
-
-Use CSS variable tokens (`bg-primary`, `text-destructive`, etc.) for anything in the palette. The hardcoded hex values above appear only in layout-level wrappers (sidebar, page header) and should not be scattered through feature components.
+Gradients must also use these tokens (e.g., `url(#irrTube3D)` defined with chart-n stops).
 
 ---
 

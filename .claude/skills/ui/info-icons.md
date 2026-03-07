@@ -10,7 +10,8 @@ Whenever a variable, label, heading, metric, or any text element has clarificati
 | **Form field label** | `?` (HelpCircle) | `<HelpTooltip>` | Explains what to enter and why |
 | **Financial metric / KPI** | `ℹ` (Info) | `<InfoTooltip>` | Explains how a value is calculated |
 | **Table column header** | `?` or `ℹ` | `<HelpTooltip>` or `<InfoTooltip>` | Defines the column's meaning or formula |
-| **Section heading** | `?` (HelpCircle) | `<HelpTooltip>` | Overview of the section's purpose |
+| **Accordion / Section heading** | `ℹ` (Info) | `<InfoTooltip>` | Explains the section metrics and calculation methodology |
+| **Financial metric / KPI card** | `ℹ` (Info) | `<InfoTooltip>` | Shows the exact formula (e.g., EM, CoC, IRR) |
 | **Abbreviation or acronym** | `ℹ` (Info) | `<InfoTooltip>` | Expands and explains the term |
 | **Calculated value in a report** | `ℹ` (Info) | `<InfoTooltip>` | Shows the formula or data source |
 

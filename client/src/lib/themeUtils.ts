@@ -74,10 +74,6 @@ const MANAGED_VARS = [
   "--muted", "--muted-foreground",
   "--accent", "--accent-foreground",
   "--border", "--input", "--ring",
-  "--sidebar", "--sidebar-foreground",
-  "--sidebar-primary", "--sidebar-primary-foreground",
-  "--sidebar-accent", "--sidebar-accent-foreground",
-  "--sidebar-border", "--sidebar-ring",
   "--chart-1", "--chart-2", "--chart-3", "--chart-4", "--chart-5",
 ];
 
@@ -111,11 +107,6 @@ export function applyThemeColors(colors: DesignColor[]): void {
     set("--accent", hsl);
     set("--accent-foreground", fg);
     set("--ring", hsl);
-    set("--sidebar-primary", hsl);
-    set("--sidebar-primary-foreground", fg);
-    set("--sidebar-accent", hsl);
-    set("--sidebar-accent-foreground", fg);
-    set("--sidebar-ring", hsl);
   }
 
   // Palette rank 2 → secondary (deep/dark brand color)
@@ -134,17 +125,13 @@ export function applyThemeColors(colors: DesignColor[]): void {
     set("--popover", "0 0% 100%");
   }
 
-  // Palette rank 4 → foreground / sidebar background
+  // Palette rank 4 → foreground (sidebar stays white — never themed)
   const p4 = palette.find(c => c.rank === 4);
   if (p4) {
     const hsl = hexToHslString(p4.hexCode);
-    const fg = contrastHsl(p4.hexCode);
     set("--foreground", hsl);
     set("--card-foreground", hsl);
     set("--popover-foreground", hsl);
-    set("--sidebar", hsl);
-    set("--sidebar-foreground", fg);
-    set("--sidebar-border", hsl); // slightly darker, close enough
   }
 
   // Palette rank 5 → muted

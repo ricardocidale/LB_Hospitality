@@ -411,12 +411,14 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                 <AreaChart data={revenueNOIData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
                   <defs>
                     <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#9FBCA4" stopOpacity={0.3} />
-                      <stop offset="100%" stopColor="#9FBCA4" stopOpacity={0.03} />
+                      <stop offset="0%" stopColor="#9FBCA4" stopOpacity={0.6} />
+                      <stop offset="60%" stopColor="#9FBCA4" stopOpacity={0.3} />
+                      <stop offset="100%" stopColor="#9FBCA4" stopOpacity={0.08} />
                     </linearGradient>
                     <linearGradient id="noiGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#257D41" stopOpacity={0.35} />
-                      <stop offset="100%" stopColor="#257D41" stopOpacity={0.03} />
+                      <stop offset="0%" stopColor="#257D41" stopOpacity={0.65} />
+                      <stop offset="60%" stopColor="#257D41" stopOpacity={0.35} />
+                      <stop offset="100%" stopColor="#257D41" stopOpacity={0.08} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(45,74,94,0.08)" vertical={false} />

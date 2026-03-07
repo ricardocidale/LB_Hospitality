@@ -16,7 +16,7 @@
  *
  * Data flows: GET/POST/PATCH/DELETE /api/admin/companies
  */
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -35,9 +35,6 @@ export default function CompaniesTab() {
   const [companyDialogOpen, setCompanyDialogOpen] = useState(false);
   const [editingCompany, setEditingCompany] = useState<AdminCompany | null>(null);
   const [companyForm, setCompanyForm] = useState({ name: "", type: "spv" as string, description: "", logoId: null as number | null });
-  const [mgmtName, setMgmtName] = useState("");
-  const [mgmtLogoId, setMgmtLogoId] = useState<number | null>(null);
-  const [mgmtInitialized, setMgmtInitialized] = useState(false);
 
   const { data: users } = useQuery<User[]>({
     queryKey: ["admin", "users"],
@@ -66,19 +63,7 @@ export default function CompaniesTab() {
     },
   });
 
-  const managementCompany = adminCompanies?.find(c => c.type === "management");
   const spvCompanies = adminCompanies?.filter(c => c.type !== "management") || [];
-
-  useEffect(() => {
-    if (managementCompany && !mgmtInitialized) {
-      setMgmtName(managementCompany.name);
-      setMgmtLogoId(managementCompany.logoId);
-      setMgmtInitialized(true);
-    }
-    if (!managementCompany) {
-      setMgmtInitialized(false);
-    }
-  }, [managementCompany, mgmtInitialized]);
 
   const createCompanyMutation = useMutation({
     mutationFn: async (data: { name: string; type: string; description?: string | null; logoId?: number | null }) => {
@@ -125,100 +110,9 @@ export default function CompaniesTab() {
     },
   });
 
-  const saveMgmtCompanyMutation = useMutation({
-    mutationFn: async (data: { name: string; logoId: number | null }) => {
-      if (managementCompany) {
-        const res = await fetch(`/api/companies/${managementCompany.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: data.name, logoId: data.logoId, type: "management" }), credentials: "include" });
-        if (!res.ok) throw new Error("Failed to update management company");
-        return res.json();
-      } else {
-        const res = await fetch("/api/companies", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: data.name, logoId: data.logoId, type: "management" }), credentials: "include" });
-        if (!res.ok) throw new Error("Failed to create management company");
-        return res.json();
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin", "companies"] });
-      queryClient.invalidateQueries({ queryKey: ["companies"] });
-      setMgmtInitialized(false);
-      toast({ title: "Management Company Saved", description: "Management company name and logo have been updated." });
-    },
-  });
-
-  const mgmtLogo = mgmtLogoId != null ? adminLogos?.find(l => l.id === mgmtLogoId) : null;
-  const mgmtDirty = managementCompany
-    ? (mgmtName !== managementCompany.name || mgmtLogoId !== managementCompany.logoId)
-    : (mgmtName.length > 0);
-
   return (
     <>
     <div className="space-y-6">
-      <Card className="bg-gradient-to-br from-primary/5 to-primary/10 backdrop-blur-xl border-primary/30 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
-        <CardHeader>
-          <CardTitle className="font-display flex items-center gap-2"><Building2 className="w-5 h-5 text-primary" /> Management Company</CardTitle>
-          <CardDescription className="label-text">Set the name and logo for the management company. Only admins can configure this.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-start gap-6">
-            <div className="flex-shrink-0">
-              {mgmtLogo ? (
-                <div className="w-20 h-20 rounded-xl bg-white border-2 border-primary/30 flex items-center justify-center overflow-hidden shadow-md">
-                  <img src={mgmtLogo.url} alt={mgmtLogo.name} className="max-w-full max-h-full object-contain" />
-                </div>
-              ) : (
-                <div className="w-20 h-20 rounded-xl bg-primary/10 border-2 border-dashed border-primary/30 flex items-center justify-center">
-                  <Building2 className="w-8 h-8 text-primary/40" />
-                </div>
-              )}
-            </div>
-            <div className="flex-1 space-y-4">
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2 text-sm font-medium"><Pencil className="w-3.5 h-3.5 text-primary" />Company Name</Label>
-                <Input
-                  value={mgmtName}
-                  onChange={(e) => setMgmtName(e.target.value)}
-                  placeholder="e.g., Hospitality Business Group"
-                  className="max-w-md"
-                  data-testid="input-mgmt-company-name"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2 text-sm font-medium"><Image className="w-3.5 h-3.5 text-primary" />Logo</Label>
-                <Select
-                  value={mgmtLogoId != null ? String(mgmtLogoId) : "none"}
-                  onValueChange={(v) => setMgmtLogoId(v === "none" ? null : parseInt(v))}
-                >
-                  <SelectTrigger className="max-w-md" data-testid="trigger-mgmt-company-logo"><SelectValue placeholder="Select a logo" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">No Logo</SelectItem>
-                    {adminLogos?.map(logo => (
-                      <SelectItem key={logo.id} value={String(logo.id)}>
-                        <span className="flex items-center gap-2">
-                          <img src={logo.url} alt={logo.name} className="w-5 h-5 object-contain rounded" />
-                          {logo.name}{logo.isDefault ? " (Default)" : ""}
-                        </span>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {(!adminLogos || adminLogos.length === 0) && (
-                  <p className="text-xs text-muted-foreground">No logos uploaded yet. Go to Logo Management to upload logos first.</p>
-                )}
-              </div>
-              <Button
-                variant="outline"
-                onClick={() => saveMgmtCompanyMutation.mutate({ name: mgmtName, logoId: mgmtLogoId })}
-                disabled={!mgmtName.trim() || !mgmtDirty || saveMgmtCompanyMutation.isPending}
-                className="flex items-center gap-2 mt-2"
-                data-testid="button-save-mgmt-company"
-              >
-                {saveMgmtCompanyMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                Save
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
       <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
         <CardHeader>

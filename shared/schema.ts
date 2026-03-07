@@ -61,6 +61,7 @@ import {
   DEFAULT_MARCELA_SIMILARITY_BOOST,
   DEFAULT_MARCELA_MAX_TOKENS,
   DEFAULT_MARCELA_MAX_TOKENS_VOICE,
+  DEFAULT_MARCELA_TURN_TIMEOUT,
   DEFAULT_MAX_STALENESS_HOURS,
 } from "./constants";
 
@@ -423,7 +424,7 @@ export const globalAssumptions = pgTable("global_assumptions", {
   marcelaSmsEnabled: boolean("marcela_sms_enabled").notNull().default(false),
   marcelaPhoneGreeting: text("marcela_phone_greeting").notNull().default("Hello, this is Marcela from Hospitality Business Group. How can I help you today?"),
   marcelaLanguage: text("marcela_language").notNull().default("en"),
-  marcelaTurnTimeout: integer("marcela_turn_timeout").notNull().default(7),
+  marcelaTurnTimeout: integer("marcela_turn_timeout").notNull().default(DEFAULT_MARCELA_TURN_TIMEOUT),
   marcelaAvatarUrl: text("marcela_avatar_url").notNull().default(""),
   marcelaWidgetVariant: text("marcela_widget_variant").notNull().default("compact"),
 

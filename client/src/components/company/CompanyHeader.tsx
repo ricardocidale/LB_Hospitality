@@ -12,9 +12,8 @@
  */
 import React from "react";
 import { Link } from "wouter";
-import { Settings2 } from "lucide-react";
 import { Tabs, TabsContent, CurrentThemeTab } from "@/components/ui/tabs";
-import { FileText, Banknote, Scale } from "lucide-react";
+import { IconSettings, IconIncomeStatement, IconCashFlow, IconBalanceSheet } from "@/components/icons/brand-icons";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 import { FinancialChart } from "@/components/ui/financial-chart";
@@ -41,7 +40,7 @@ export default function CompanyHeader({
         actions={
           <Link href="/company/assumptions" className="text-inherit no-underline">
             <Button variant="outline">
-              <Settings2 className="w-4 h-4" />
+              <IconSettings className="w-4 h-4" />
               Assumptions
             </Button>
           </Link>
@@ -63,9 +62,9 @@ export default function CompanyHeader({
       <div className="mb-6">
         <CurrentThemeTab
           tabs={[
-            { value: 'income', label: 'Income Statement', icon: FileText },
-            { value: 'cashflow', label: 'Cash Flows', icon: Banknote },
-            { value: 'balance', label: 'Balance Sheet', icon: Scale }
+            { value: 'income', label: 'Income Statement', icon: IconIncomeStatement },
+            { value: 'cashflow', label: 'Cash Flows', icon: IconCashFlow },
+            { value: 'balance', label: 'Balance Sheet', icon: IconBalanceSheet }
           ]}
           activeTab={activeTab}
           onTabChange={setActiveTab}

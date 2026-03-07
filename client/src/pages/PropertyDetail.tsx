@@ -29,7 +29,8 @@ import { generatePropertyProForma, formatMoney, getFiscalYearForModelYear } from
 import { ConsolidatedBalanceSheet } from "@/components/ConsolidatedBalanceSheet";
 import { CalcDetailsProvider } from "@/components/financial-table-rows";
 import { Tabs, TabsContent, CurrentThemeTab } from "@/components/ui/tabs";
-import { FileText, Banknote, Scale, Building2, Loader2, AlertTriangle } from "lucide-react";
+import { Loader2, AlertTriangle } from "lucide-react";
+import { IconIncomeStatement, IconCashFlow, IconBalanceSheet, IconPPE } from "@/components/icons/brand-icons";
 import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
 import { downloadCSV } from "@/lib/exports/csvExport";
 import { exportPropertyPPTX } from "@/lib/exports/pptxExport";
@@ -555,10 +556,10 @@ export default function PropertyDetail() {
           <div className="mb-4">
             <CurrentThemeTab
               tabs={[
-                { value: 'income', label: 'Income Statement', icon: FileText },
-                { value: 'cashflow', label: 'Cash Flows', icon: Banknote },
-                { value: 'balance', label: 'Balance Sheet', icon: Scale },
-                { value: 'ppe', label: 'PP&E / Cost Basis', icon: Building2 }
+                { value: 'income', label: 'Income Statement', icon: IconIncomeStatement },
+                { value: 'cashflow', label: 'Cash Flows', icon: IconCashFlow },
+                { value: 'balance', label: 'Balance Sheet', icon: IconBalanceSheet },
+                { value: 'ppe', label: 'PP&E / Cost Basis', icon: IconPPE }
               ]}
               activeTab={activeTab}
               onTabChange={setActiveTab}

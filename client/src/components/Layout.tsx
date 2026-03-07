@@ -12,7 +12,12 @@
  */
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Building2, Briefcase, Settings2, Menu, X, Shield, LogOut, UserCircle, FolderOpen, SearchCheck, BarChart3, Search, MapPin, FileBarChart, BookOpen, FlaskConical, Bot } from "lucide-react";
+import { Menu, X, LogOut, Search } from "lucide-react";
+import {
+  IconDashboard, IconProperties, IconBriefcase, IconSettings,
+  IconShield, IconProfile, IconScenarios, IconPropertyFinder,
+  IconAnalysis, IconMapPin, IconExecutive, IconHelp, IconResearch, IconBot,
+} from "@/components/icons/brand-icons";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -92,35 +97,35 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
     {
       label: "Home",
       items: [
-        { href: "/", label: "Dashboard", icon: LayoutDashboard },
-        { href: "/portfolio", label: "Properties", icon: Building2 },
-        ...(hasManagementAccess ? [{ href: "/company", label: "Management Co.", icon: Briefcase }] : []),
+        { href: "/", label: "Dashboard", icon: IconDashboard },
+        { href: "/portfolio", label: "Properties", icon: IconProperties },
+        ...(hasManagementAccess ? [{ href: "/company", label: "Management Co.", icon: IconBriefcase }] : []),
       ],
     },
     {
       label: "Tools",
       items: [
-        ...(sb("sidebarPropertyFinder") && hasManagementAccess ? [{ href: "/property-finder", label: "Property Finder", icon: SearchCheck }] : []),
-        ...(sb("sidebarResearch") && hasManagementAccess ? [{ href: "/research", label: "Research Center", icon: FlaskConical }] : []),
-        ...(showAnalysis && hasManagementAccess ? [{ href: "/analysis", label: "Analysis", icon: BarChart3 }] : []),
-        ...(sb("sidebarMapView") && hasManagementAccess ? [{ href: "/map", label: "Map View", icon: MapPin }] : []),
-        ...((global as any)?.marcelaEnabled || (global as any)?.showAiAssistant ? [{ href: "/voice", label: "AI Voice Lab", icon: Bot }] : []),
-        ...(sb("sidebarExecutiveSummary") && hasManagementAccess ? [{ href: "/executive-summary", label: "Executive Summary", icon: FileBarChart }] : []),
+        ...(sb("sidebarPropertyFinder") && hasManagementAccess ? [{ href: "/property-finder", label: "Property Finder", icon: IconPropertyFinder }] : []),
+        ...(sb("sidebarResearch") && hasManagementAccess ? [{ href: "/research", label: "Research Center", icon: IconResearch }] : []),
+        ...(showAnalysis && hasManagementAccess ? [{ href: "/analysis", label: "Analysis", icon: IconAnalysis }] : []),
+        ...(sb("sidebarMapView") && hasManagementAccess ? [{ href: "/map", label: "Map View", icon: IconMapPin }] : []),
+        ...((global as any)?.marcelaEnabled || (global as any)?.showAiAssistant ? [{ href: "/voice", label: "AI Voice Lab", icon: IconBot }] : []),
+        ...(sb("sidebarExecutiveSummary") && hasManagementAccess ? [{ href: "/executive-summary", label: "Executive Summary", icon: IconExecutive }] : []),
       ].filter(Boolean),
     },
     {
       label: "Settings",
       items: [
-        ...(hasManagementAccess ? [{ href: "/settings", label: "Systemwide Assumptions", icon: Settings2 }] : []),
-        { href: "/profile", label: "My Profile", icon: UserCircle },
-        ...(sb("sidebarScenarios") && hasManagementAccess ? [{ href: "/scenarios", label: "My Scenarios", icon: FolderOpen }] : []),
+        ...(hasManagementAccess ? [{ href: "/settings", label: "Systemwide Assumptions", icon: IconSettings }] : []),
+        { href: "/profile", label: "My Profile", icon: IconProfile },
+        ...(sb("sidebarScenarios") && hasManagementAccess ? [{ href: "/scenarios", label: "My Scenarios", icon: IconScenarios }] : []),
       ],
     },
     {
       label: "",
       items: [
-        ...(sb("sidebarUserManual") ? [{ href: "/help", label: "Help", icon: BookOpen }] : []),
-        ...(isAdmin ? [{ href: "/admin", label: "Admin Settings", icon: Shield }] : []),
+        ...(sb("sidebarUserManual") ? [{ href: "/help", label: "Help", icon: IconHelp }] : []),
+        ...(isAdmin ? [{ href: "/admin", label: "Admin Settings", icon: IconShield }] : []),
       ],
     },
   ].filter(g => g.items.length > 0);
@@ -249,10 +254,10 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
 
         {(() => {
           const bottomNavItems: { href: string; label: string; icon: any }[] = [
-            { href: "/", label: "Dashboard", icon: LayoutDashboard },
-            { href: "/portfolio", label: "Properties", icon: Building2 },
-            ...(hasManagementAccess ? [{ href: "/company", label: "Company", icon: Briefcase }] : []),
-            { href: "/profile", label: "Profile", icon: UserCircle },
+            { href: "/", label: "Dashboard", icon: IconDashboard },
+            { href: "/portfolio", label: "Properties", icon: IconProperties },
+            ...(hasManagementAccess ? [{ href: "/company", label: "Company", icon: IconBriefcase }] : []),
+            { href: "/profile", label: "Profile", icon: IconProfile },
           ];
           return (
             <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40" data-testid="mobile-bottom-nav">

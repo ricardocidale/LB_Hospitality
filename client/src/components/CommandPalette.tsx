@@ -18,36 +18,28 @@ import {
   CommandSeparator,
 } from "@/components/ui/command";
 import { useStore } from "@/lib/store";
+import { Search } from "lucide-react";
 import {
-  LayoutDashboard,
-  Building2,
-  Briefcase,
-  Settings2,
-  BarChart3,
-  Calculator,
-  UserCircle,
-  FolderOpen,
-  FileDown,
-  CheckCircle,
-  RefreshCw,
-  Search,
-} from "lucide-react";
+  IconDashboard, IconProperties, IconBriefcase, IconSettings,
+  IconAnalysis, IconCalculator, IconProfile, IconScenarios,
+  IconExport, IconVerify, IconRefresh,
+} from "@/components/icons/brand-icons";
 
 const navigationItems = [
-  { label: "Dashboard", href: "/", icon: LayoutDashboard },
-  { label: "Properties", href: "/portfolio", icon: Building2 },
-  { label: "Management Co.", href: "/company", icon: Briefcase },
-  { label: "Settings", href: "/settings", icon: Settings2 },
-  { label: "Sensitivity", href: "/sensitivity", icon: BarChart3 },
-  { label: "Financing", href: "/financing", icon: Calculator },
-  { label: "Profile", href: "/profile", icon: UserCircle },
-  { label: "Scenarios", href: "/scenarios", icon: FolderOpen },
+  { label: "Dashboard", href: "/", icon: IconDashboard },
+  { label: "Properties", href: "/portfolio", icon: IconProperties },
+  { label: "Management Co.", href: "/company", icon: IconBriefcase },
+  { label: "Settings", href: "/settings", icon: IconSettings },
+  { label: "Sensitivity", href: "/sensitivity", icon: IconAnalysis },
+  { label: "Financing", href: "/financing", icon: IconCalculator },
+  { label: "Profile", href: "/profile", icon: IconProfile },
+  { label: "Scenarios", href: "/scenarios", icon: IconScenarios },
 ];
 
 const quickActions = [
-  { label: "Export Portfolio", icon: FileDown, id: "export-portfolio" },
-  { label: "Run Verification", icon: CheckCircle, id: "run-verification" },
-  { label: "Research Refresh", icon: RefreshCw, id: "research-refresh" },
+  { label: "Export Portfolio", icon: IconExport, id: "export-portfolio" },
+  { label: "Run Verification", icon: IconVerify, id: "run-verification" },
+  { label: "Research Refresh", icon: IconRefresh, id: "research-refresh" },
 ];
 
 export default function CommandPalette() {
@@ -116,7 +108,7 @@ export default function CommandPalette() {
                 className="text-foreground hover:text-foreground data-[selected=true]:bg-muted data-[selected=true]:text-foreground cursor-pointer"
                 data-testid={`command-item-property-${property.id}`}
               >
-                <Building2 className="mr-2 h-4 w-4 text-primary" />
+                <IconProperties className="mr-2 h-4 w-4 text-primary" />
                 <span>{property.name}</span>
               </CommandItem>
             ))}

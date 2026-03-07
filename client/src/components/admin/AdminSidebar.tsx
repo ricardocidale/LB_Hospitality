@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { Menu, X } from "lucide-react";
 import {
-  Users, UserRoundCog, Activity, Image, SwatchBook, Upload, PanelLeft,
-  Building2, Package, TrendingUp, Bot, FileCheck, Database,
-  Shield, Settings, Menu, X
-} from "lucide-react";
+  IconPeople, IconUserCog, IconActivity, IconImage, IconSwatchBook,
+  IconUpload, IconPanelLeft, IconProperties, IconPackage, IconTrending,
+  IconBot, IconFileCheck, IconDatabase, IconShield, IconSettingsGear,
+} from "@/components/icons/brand-icons";
 
 export type AdminSection =
   | "users" | "groups" | "activity"
@@ -31,54 +32,54 @@ const navGroups: NavGroup[] = [
   {
     id: "people",
     label: "People",
-    icon: Users,
+    icon: IconPeople,
     description: "Users, groups & activity",
     sections: [
-      { value: "users", label: "Users", icon: UserRoundCog },
-      { value: "groups", label: "Groups", icon: Users },
-      { value: "activity", label: "Activity", icon: Activity },
+      { value: "users", label: "Users", icon: IconUserCog },
+      { value: "groups", label: "Groups", icon: IconPeople },
+      { value: "activity", label: "Activity", icon: IconActivity },
     ],
   },
   {
     id: "platform",
     label: "Platform",
-    icon: SwatchBook,
+    icon: IconSwatchBook,
     description: "Look, feel & navigation",
     sections: [
-      { value: "branding", label: "Branding", icon: Image },
-      { value: "themes", label: "Themes", icon: SwatchBook },
-      { value: "logos", label: "Logos", icon: Upload },
-      { value: "navigation", label: "Navigation", icon: PanelLeft },
+      { value: "branding", label: "Branding", icon: IconImage },
+      { value: "themes", label: "Themes", icon: IconSwatchBook },
+      { value: "logos", label: "Logos", icon: IconUpload },
+      { value: "navigation", label: "Navigation", icon: IconPanelLeft },
     ],
   },
   {
     id: "business",
     label: "Business",
-    icon: Building2,
+    icon: IconProperties,
     description: "Entities, services & rates",
     sections: [
-      { value: "companies", label: "Companies", icon: Building2 },
-      { value: "services", label: "Services", icon: Package },
-      { value: "market-rates", label: "Market Rates", icon: TrendingUp },
+      { value: "companies", label: "Companies", icon: IconProperties },
+      { value: "services", label: "Services", icon: IconPackage },
+      { value: "market-rates", label: "Market Rates", icon: IconTrending },
     ],
   },
   {
     id: "ai-agent",
     label: "AI Agent",
-    icon: Bot,
+    icon: IconBot,
     description: "Marcela configuration",
     sections: [
-      { value: "marcela", label: "Configuration", icon: Bot },
+      { value: "marcela", label: "Configuration", icon: IconBot },
     ],
   },
   {
     id: "system",
     label: "System",
-    icon: Shield,
+    icon: IconShield,
     description: "Verification & database",
     sections: [
-      { value: "verification", label: "Verification", icon: FileCheck },
-      { value: "database", label: "Database", icon: Database },
+      { value: "verification", label: "Verification", icon: IconFileCheck },
+      { value: "database", label: "Database", icon: IconDatabase },
     ],
   },
 ];
@@ -196,7 +197,7 @@ export default function AdminSidebar({ activeSection, onSectionChange }: AdminSi
           <div className="px-4 pt-4 pb-3 border-b border-border/80">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-                <Settings className="w-4 h-4 text-white" />
+                <IconSettingsGear className="w-4 h-4 text-white" />
               </div>
               <div>
                 <h3 className="text-sm font-semibold text-foreground">Admin</h3>

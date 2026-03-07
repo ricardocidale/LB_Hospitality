@@ -2,7 +2,7 @@ import { useState } from "react";
 import Layout from "@/components/Layout";
 import { AnimatedPage } from "@/components/graphics";
 import { PageHeader } from "@/components/ui/page-header";
-import { BarChart3, Calculator, FileBarChart, GitCompare, Clock } from "lucide-react";
+import { IconAnalysis, IconCalculator, IconExecutive, IconCompare, IconTimeline } from "@/components/icons/brand-icons";
 import SensitivityAnalysis from "./SensitivityAnalysis";
 import FinancingAnalysis from "./FinancingAnalysis";
 import ExecutiveSummary from "./ExecutiveSummary";
@@ -15,11 +15,11 @@ export default function Analysis() {
   const [tab, setTab] = useState<AnalysisTab>("sensitivity");
 
   const tabs: { id: AnalysisTab; label: string; icon: any }[] = [
-    { id: "sensitivity", label: "Sensitivity", icon: BarChart3 },
-    { id: "financing", label: "Financing", icon: Calculator },
-    { id: "executive", label: "Executive Summary", icon: FileBarChart },
-    { id: "compare", label: "Compare", icon: GitCompare },
-    { id: "timeline", label: "Timeline", icon: Clock },
+    { id: "sensitivity", label: "Sensitivity", icon: IconAnalysis },
+    { id: "financing", label: "Financing", icon: IconCalculator },
+    { id: "executive", label: "Executive Summary", icon: IconExecutive },
+    { id: "compare", label: "Compare", icon: IconCompare },
+    { id: "timeline", label: "Timeline", icon: IconTimeline },
   ];
 
   return (

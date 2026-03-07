@@ -35,7 +35,8 @@ import Layout from "@/components/Layout";
 import { useProperties, useGlobalAssumptions } from "@/lib/api";
 import { getFiscalYearForModelYear } from "@/lib/financialEngine";
 import { Tabs, TabsContent, CurrentThemeTab } from "@/components/ui/tabs";
-import { LayoutDashboard, FileText, Banknote, Scale, TrendingUp as TrendingUpIcon, Loader2, AlertTriangle } from "lucide-react";
+import { Loader2, AlertTriangle } from "lucide-react";
+import { IconDashboard, IconIncomeStatement, IconCashFlow, IconBalanceSheet, IconInvestment } from "@/components/icons/brand-icons";
 import { PageHeader } from "@/components/ui/page-header";
 import { PROJECTION_YEARS } from "@/lib/constants";
 import { AnimatedPage, ScrollReveal } from "@/components/graphics";
@@ -280,11 +281,11 @@ export default function Dashboard() {
                 activeTab={activeTab}
                 onTabChange={setActiveTab}
                 tabs={[
-                  { value: "overview", label: "Overview", icon: LayoutDashboard },
-                  { value: "income", label: "Income Statement", icon: FileText },
-                  { value: "cashflow", label: "Cash Flow", icon: Banknote },
-                  { value: "balance", label: "Balance Sheet", icon: Scale },
-                  { value: "investment", label: "Investment Analysis", icon: TrendingUpIcon },
+                  { value: "overview", label: "Overview", icon: IconDashboard },
+                  { value: "income", label: "Income Statement", icon: IconIncomeStatement },
+                  { value: "cashflow", label: "Cash Flow", icon: IconCashFlow },
+                  { value: "balance", label: "Balance Sheet", icon: IconBalanceSheet },
+                  { value: "investment", label: "Investment Analysis", icon: IconInvestment },
                 ]}
                 rightContent={
                   <ExportMenu

@@ -35,7 +35,7 @@ export function ThemeManager() {
   return (
     <>
     {activeTheme && (
-      <Card className="relative overflow-hidden bg-white/80 backdrop-blur-xl border-2 border-primary/30 shadow-lg mb-6" data-testid="current-theme-card">
+      <Card className="border-2 border-primary/30 mb-6" data-testid="current-theme-card">
         <CardHeader className="pb-3">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-primary/15 flex items-center justify-center">
@@ -96,13 +96,8 @@ export function ThemeManager() {
       </Card>
     )}
 
-    <Card className="relative overflow-hidden bg-white/80 backdrop-blur-xl border border-border shadow-2xl">
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-primary/10 blur-[100px] animate-pulse" style={{ animationDuration: '4s' }} />
-        <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-secondary/10 blur-[100px] animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
-      </div>
-
-      <CardHeader className="relative">
+    <Card>
+      <CardHeader>
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="text-xl font-display text-foreground">All Themes</CardTitle>
@@ -110,31 +105,31 @@ export function ThemeManager() {
               Define color palettes and design systems for your application
             </CardDescription>
           </div>
-          <button
+          <Button
+            variant="outline"
             onClick={() => setThemeDialogOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-secondary bg-secondary/10 text-secondary font-semibold hover:bg-secondary/20 transition-colors"
           >
             <Plus className="w-4 h-4" />
             New Theme
-          </button>
+          </Button>
         </div>
       </CardHeader>
 
-        <CardContent className="relative space-y-6">
+        <CardContent className="space-y-6">
           {themesLoading ? (
             <div className="text-center py-8">
-              <Loader2 className="w-8 h-8 mx-auto text-secondary animate-spin" />
+              <Loader2 className="w-8 h-8 mx-auto text-muted-foreground animate-spin" />
             </div>
           ) : designThemes && designThemes.length > 0 ? (
             <div className="space-y-4">
               {designThemes.map((theme) => (
-                <div key={theme.id} className={`p-5 rounded-2xl border-2 ${theme.isDefault ? 'border-secondary bg-primary/10' : 'border-border bg-white'}`}>
+                <div key={theme.id} className={`p-5 rounded-2xl border-2 ${theme.isDefault ? 'border-primary/30 bg-primary/5' : 'border-border bg-card'}`}>
                   <div className="flex items-start justify-between mb-4">
                     <div>
                       <div className="flex items-center gap-3">
                         <h3 className="font-display text-lg text-foreground font-semibold">{theme.name}</h3>
                         {theme.isDefault && (
-                          <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-secondary text-white">Default</span>
+                          <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-primary text-primary-foreground">Default</span>
                         )}
                       </div>
                       <p className="text-sm text-muted-foreground mt-1 max-w-2xl">{theme.description}</p>
@@ -146,7 +141,7 @@ export function ThemeManager() {
                       <Button
                         size="sm"
                         variant="outline"
-                        className="text-red-600 border-red-300 hover:bg-red-50"
+                        className="text-destructive border-destructive/30 hover:bg-destructive/10"
                         onClick={() => deleteThemeMutation.mutate(theme.id)}
                         disabled={theme.isDefault}
                       >
@@ -155,11 +150,10 @@ export function ThemeManager() {
                     </div>
                   </div>
 
-                  {/* Palette Colors */}
                   {theme.colors.filter(c => c.description?.startsWith('PALETTE:')).length > 0 && (
                     <div className="mb-4">
                       <div className="flex items-center gap-2 mb-3">
-                        <Palette className="w-4 h-4 text-secondary" />
+                        <Palette className="w-4 h-4 text-primary" />
                         <h4 className="font-display text-sm font-semibold text-foreground">Palette Colors</h4>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
@@ -182,16 +176,15 @@ export function ThemeManager() {
                     </div>
                   )}
 
-                  {/* Chart Colors */}
                   {theme.colors.filter(c => c.description?.startsWith('CHART:')).length > 0 && (
                     <div>
                       <div className="flex items-center gap-2 mb-3">
-                        <Activity className="w-4 h-4 text-[#3B82F6]" />
+                        <Activity className="w-4 h-4 text-primary" />
                         <h4 className="font-display text-sm font-semibold text-foreground">Chart Colors</h4>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                         {theme.colors.filter(c => c.description?.startsWith('CHART:')).sort((a, b) => a.rank - b.rank).map((color, idx) => (
-                          <div key={`chart-${idx}`} className="p-3 rounded-xl bg-blue-50 border border-blue-200">
+                          <div key={`chart-${idx}`} className="p-3 rounded-xl bg-muted border border-border">
                             <div className="flex items-center gap-3 mb-2">
                               <div
                                 className="w-10 h-10 rounded-lg border border-border shadow-inner"
@@ -209,7 +202,6 @@ export function ThemeManager() {
                     </div>
                   )}
 
-                  {/* Legacy/Other Colors (no prefix) */}
                   {theme.colors.filter(c => !c.description?.startsWith('PALETTE:') && !c.description?.startsWith('CHART:')).length > 0 && (
                     <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
                       {theme.colors.filter(c => !c.description?.startsWith('PALETTE:') && !c.description?.startsWith('CHART:')).sort((a, b) => a.rank - b.rank).map((color, idx) => (
@@ -241,7 +233,6 @@ export function ThemeManager() {
         </CardContent>
     </Card>
 
-    {/* Theme Create/Edit Dialog */}
     <Dialog open={themeDialogOpen || !!editingTheme} onOpenChange={(open) => { if (!open) { setThemeDialogOpen(false); setEditingTheme(null); } }}>
       <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-y-auto">
         <DialogHeader>
@@ -265,7 +256,7 @@ export function ThemeManager() {
           <div>
             <Label className="flex items-center gap-2 mb-1"><Type className="w-4 h-4 text-muted-foreground" />Description</Label>
             <textarea
-              className="w-full min-h-[80px] p-3 border rounded-lg text-sm resize-none"
+              className="w-full min-h-[80px] p-3 border border-border rounded-lg text-sm resize-none bg-background text-foreground"
               value={editingTheme ? editingTheme.description : newTheme.description}
               onChange={(e) => editingTheme
                 ? setEditingTheme({ ...editingTheme, description: e.target.value })
@@ -275,15 +266,13 @@ export function ThemeManager() {
             />
           </div>
 
-          {/* Palette Colors Section */}
-          <div className="p-4 rounded-lg border-2 border-primary/50 bg-primary/5">
+          <div className="p-4 rounded-lg border-2 border-primary/30 bg-primary/5">
             <div className="flex items-center justify-between mb-3">
-              <Label className="flex items-center gap-2"><Palette className="w-4 h-4 text-secondary" />Palette Colors</Label>
+              <Label className="flex items-center gap-2"><Palette className="w-4 h-4 text-primary" />Palette Colors</Label>
               <Button
                 type="button"
                 size="sm"
                 variant="outline"
-                className="border-secondary text-secondary hover:bg-secondary/10"
                 onClick={() => {
                   const paletteColors = (editingTheme?.colors || newTheme.colors).filter(c => c.description?.startsWith('PALETTE:'));
                   const newColor = { rank: paletteColors.length + 1, name: "", hexCode: "#9FBCA4", description: "PALETTE: " };
@@ -320,7 +309,7 @@ export function ThemeManager() {
                     else setNewTheme({ ...newTheme, colors: allColors });
                   };
                   return (
-                  <div key={originalIdx} className="p-3 rounded-lg border bg-white space-y-2">
+                  <div key={originalIdx} className="p-3 rounded-lg border border-border bg-card space-y-2">
                     <div className="flex items-center gap-2">
                       <div className="flex flex-col gap-0.5">
                         <button type="button" onClick={moveUp} disabled={displayIdx === 0} className={`p-0.5 rounded hover:bg-muted ${displayIdx === 0 ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'}`}>
@@ -334,7 +323,7 @@ export function ThemeManager() {
                       <div className="w-36">
                         <ColorPicker value={color.hexCode} onChange={(nc) => { const c = editingTheme ? [...editingTheme.colors] : [...newTheme.colors]; c[originalIdx] = { ...c[originalIdx], hexCode: nc }; if (editingTheme) setEditingTheme({ ...editingTheme, colors: c }); else setNewTheme({ ...newTheme, colors: c }); }} />
                       </div>
-                      <Button type="button" size="sm" variant="ghost" className="text-red-500 hover:text-red-700" onClick={() => { const f = (editingTheme ? editingTheme.colors : newTheme.colors).filter((_, i) => i !== originalIdx); if (editingTheme) setEditingTheme({ ...editingTheme, colors: f }); else setNewTheme({ ...newTheme, colors: f }); }}>
+                      <Button type="button" size="sm" variant="ghost" className="text-destructive hover:text-destructive" onClick={() => { const f = (editingTheme ? editingTheme.colors : newTheme.colors).filter((_, i) => i !== originalIdx); if (editingTheme) setEditingTheme({ ...editingTheme, colors: f }); else setNewTheme({ ...newTheme, colors: f }); }}>
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
@@ -345,15 +334,13 @@ export function ThemeManager() {
             </div>
           </div>
 
-          {/* Chart Colors Section */}
-          <div className="p-4 rounded-lg border-2 border-[#3B82F6]/50 bg-[#3B82F6]/5">
+          <div className="p-4 rounded-lg border-2 border-accent/30 bg-accent/5">
             <div className="flex items-center justify-between mb-3">
-              <Label className="flex items-center gap-2"><Activity className="w-4 h-4 text-[#3B82F6]" />Chart Colors</Label>
+              <Label className="flex items-center gap-2"><Activity className="w-4 h-4 text-accent" />Chart Colors</Label>
               <Button
                 type="button"
                 size="sm"
                 variant="outline"
-                className="border-[#3B82F6] text-[#3B82F6] hover:bg-[#3B82F6]/10"
                 onClick={() => {
                   const chartColors = (editingTheme?.colors || newTheme.colors).filter(c => c.description?.startsWith('CHART:'));
                   const newColor = { rank: chartColors.length + 1, name: "", hexCode: "#3B82F6", description: "CHART: " };
@@ -390,7 +377,7 @@ export function ThemeManager() {
                     else setNewTheme({ ...newTheme, colors: allColors });
                   };
                   return (
-                  <div key={originalIdx} className="p-3 rounded-lg border bg-white space-y-2">
+                  <div key={originalIdx} className="p-3 rounded-lg border border-border bg-card space-y-2">
                     <div className="flex items-center gap-2">
                       <div className="flex flex-col gap-0.5">
                         <button type="button" onClick={moveUp} disabled={displayIdx === 0} className={`p-0.5 rounded hover:bg-muted ${displayIdx === 0 ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'}`}>
@@ -404,7 +391,7 @@ export function ThemeManager() {
                       <div className="w-36">
                         <ColorPicker value={color.hexCode} onChange={(nc) => { const c = editingTheme ? [...editingTheme.colors] : [...newTheme.colors]; c[originalIdx] = { ...c[originalIdx], hexCode: nc }; if (editingTheme) setEditingTheme({ ...editingTheme, colors: c }); else setNewTheme({ ...newTheme, colors: c }); }} />
                       </div>
-                      <Button type="button" size="sm" variant="ghost" className="text-red-500 hover:text-red-700" onClick={() => { const f = (editingTheme ? editingTheme.colors : newTheme.colors).filter((_, i) => i !== originalIdx); if (editingTheme) setEditingTheme({ ...editingTheme, colors: f }); else setNewTheme({ ...newTheme, colors: f }); }}>
+                      <Button type="button" size="sm" variant="ghost" className="text-destructive hover:text-destructive" onClick={() => { const f = (editingTheme ? editingTheme.colors : newTheme.colors).filter((_, i) => i !== originalIdx); if (editingTheme) setEditingTheme({ ...editingTheme, colors: f }); else setNewTheme({ ...newTheme, colors: f }); }}>
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
@@ -418,8 +405,6 @@ export function ThemeManager() {
         <DialogFooter>
           <Button variant="outline" onClick={() => { setThemeDialogOpen(false); setEditingTheme(null); }}>Cancel</Button>
           <Button
-            variant="outline"
-            className="flex items-center gap-2"
             onClick={() => {
               if (editingTheme) {
                 updateThemeMutation.mutate({ id: editingTheme.id, data: { name: editingTheme.name, description: editingTheme.description, colors: editingTheme.colors } });
@@ -430,7 +415,7 @@ export function ThemeManager() {
             disabled={createThemeMutation.isPending || updateThemeMutation.isPending}
           >
             {(createThemeMutation.isPending || updateThemeMutation.isPending) ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            {editingTheme ? "Save Changes" : "Create Theme"}
+            {editingTheme ? "Save" : "Create Theme"}
           </Button>
         </DialogFooter>
       </DialogContent>

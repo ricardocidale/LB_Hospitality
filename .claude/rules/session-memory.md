@@ -71,6 +71,13 @@ client/src/features/ai-agent/
 - **Barrel fix**: `features/ai-agent/index.ts` — `RealtimeTranscriber` → `RealtimeTranscriber01` (matches actual default export name).
 - TypeScript: 0 errors throughout. Commits: `d0020e8`, `f106448`.
 
+### 5 Additional Fixes (same session, later — commit `3d3c82f`)
+- **VoiceChatBar signed URL timing (bug)**: `onConnect` fires after session starts so URL was fetched too late. Fix: use `data: signedUrl` from `useAdminSignedUrl()` directly (auto-fetched on mount); call `refetchSignedUrl()` on disconnect to pre-cache for next session.
+- **VoiceChatBar error visibility (bug)**: errors were only `console.error`'d. Fix: `errorMessage` state shown in chat empty-state title/description.
+- **Speaker globalAudioState (anti-pattern)**: module-level mutable object leaked state across remounts. Fix: `audioStateRef = useRef<AudioState>()` in `SpeakerControls`, threaded through `SpeakerOrbsSection` → `SpeakerOrb` as `stateRef` prop. Added `AudioState` type. Dep arrays updated.
+- **VoiceLab UX**: mic-required indicator (small `<Mic>` icon) on voice tabs (Orb, Bar, Transcriber); Transcriber wrapper gets `min-h-[480px]`.
+- **VoiceChatOrb stale guard (bug)**: `disabled={isTransitioning || !signedUrl}` blocked reconnects after first session (stale cache). Fix: `disabled={isTransitioning}` — `startConversation` always refetches fresh URL anyway.
+
 ---
 
 ## Session: March 7, 2026 — AI Agent Feature Module Reorganization (Phases 1–6)

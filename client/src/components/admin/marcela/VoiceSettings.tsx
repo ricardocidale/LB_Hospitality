@@ -8,7 +8,7 @@ import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Volume2, Waves, AudioLines, Zap, Settings2, Timer, ImageIcon, Loader2, Save, LayoutTemplate } from "lucide-react";
+import { Volume2, Waves, AudioLines, Zap, Settings2, Timer, ImageIcon, Loader2, Save, LayoutTemplate, Phone, Mic } from "lucide-react";
 import { VoiceSettings, TTS_MODELS, OUTPUT_FORMATS, STT_MODELS } from "./types";
 import { Orb } from "@/components/ui/orb";
 import { BarVisualizer } from "@/components/ui/bar-visualizer";
@@ -318,6 +318,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
                 { value: "orb", label: "Orb", desc: "Animated 3D sphere", preview: "orb" },
                 { value: "bars", label: "Bars", desc: "Live frequency bars", preview: "bars" },
                 { value: "matrix", label: "Matrix", desc: "LED pixel grid", preview: "matrix" },
+                { value: "conversation-bar", label: "Voice Bar", desc: "Full voice + text input", preview: "conversation-bar" },
               ].map((v) => (
                 <button
                   key={v.value}
@@ -357,14 +358,27 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
                       />
                     </div>
                   )}
+                  {v.preview === "conversation-bar" && (
+                    <div className="mb-2 flex items-center gap-1.5 bg-muted/60 border border-primary/10 rounded-full px-2.5 py-1.5 w-fit">
+                      <Phone className="w-3 h-3 text-primary/60" />
+                      <div className="flex items-end gap-0.5 h-3.5">
+                        {[0.4, 0.75, 1, 0.75, 0.4].map((h, idx) => (
+                          <div key={idx} className="w-0.5 bg-primary/40 rounded-full" style={{ height: `${h * 14}px` }} />
+                        ))}
+                      </div>
+                      <Mic className="w-3 h-3 text-muted-foreground/40" />
+                    </div>
+                  )}
                   <p className={`text-xs font-semibold ${variantDraft === v.value ? "text-primary" : "text-foreground"}`}>{v.label}</p>
                   <p className="text-[10px] text-muted-foreground/60 mt-0.5">{v.desc}</p>
                 </button>
               ))}
             </div>
-            {(variantDraft === "orb" || variantDraft === "bars") && (
+            {(variantDraft === "orb" || variantDraft === "bars" || variantDraft === "matrix" || variantDraft === "conversation-bar") && (
               <p className="text-[11px] text-blue-600/70 bg-blue-50/60 border border-blue-200/40 rounded-lg px-3 py-2">
-                Custom components replace the native ElevenLabs widget button. Users see the animated visual instead.
+                {variantDraft === "conversation-bar"
+                  ? "Voice Bar replaces the native widget with a full voice + text interface using the @elevenlabs/react SDK (WebRTC)."
+                  : "Custom component replaces the native ElevenLabs widget button. Users see the animated visual instead."}
               </p>
             )}
           </div>

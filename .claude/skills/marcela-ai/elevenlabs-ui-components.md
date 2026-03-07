@@ -5,15 +5,15 @@ description: Complete reference for all ElevenLabs UI components installed in th
 
 # ElevenLabs UI Components
 
-All components sourced from https://ui.elevenlabs.io/ via `npx @elevenlabs/cli@latest components add <name>`.
+All components sourced from https://ui.elevenlabs.io/ via `curl -s https://ui.elevenlabs.io/r/<name>.json`.
 Installed to: `client/src/components/ui/`
+Hooks installed to: `client/src/hooks/`
 
 ## Installed Components
 
 ### 1. `orb.tsx` — Animated 3D Voice Orb
 **Path**: `client/src/components/ui/orb.tsx`
 **Dependencies**: `@react-three/fiber`, `@react-three/drei`, `three` (all installed)
-**Usage**: Animated 3D sphere that visualizes agent state. Best for hero visuals.
 
 ```tsx
 import { Orb, AgentState } from "@/components/ui/orb"
@@ -27,65 +27,37 @@ import { Orb, AgentState } from "@/components/ui/orb"
 </div>
 ```
 
-**AgentState visual behavior**:
-- `null` — gentle ambient pulse
-- `"thinking"` — slow warm glow animation
-- `"listening"` — active microphone pulse (fast)
-- `"talking"` — speech output wave (energetic)
-
-**Current uses in project**:
-- `MarcelaTab.tsx` — ElevenLabs card header icon (40×40, `agentState="thinking"`)
-- `MarcelaTab.tsx` — Test Conversation dialog (112×112, cycling states)
+**AgentState visual behavior**: `null` = ambient pulse, `"thinking"` = slow glow, `"listening"` = fast pulse, `"talking"` = speech wave.
 
 ---
 
 ### 2. `bar-visualizer.tsx` — Multi-Bar Audio Visualizer
 **Path**: `client/src/components/ui/bar-visualizer.tsx`
-**Dependencies**: None (uses Web Audio API)
-**Usage**: Real-time multi-bar frequency visualizer. Best for active conversation UIs.
 
 ```tsx
-import { BarVisualizer, AgentState } from "@/components/ui/bar-visualizer"
+import { BarVisualizer } from "@/components/ui/bar-visualizer"
 
-// Demo mode (no real microphone required)
 <BarVisualizer
-  state="speaking"                  // "connecting"|"initializing"|"listening"|"speaking"|"thinking"
+  state="speaking"   // "connecting"|"initializing"|"listening"|"speaking"|"thinking"
   barCount={15}
-  demo={true}
-  minHeight={20}
-  maxHeight={100}
-  centerAlign={false}               // false = bottom-aligned (default), true = center-aligned
+  demo={true}         // fake animated data (no mic required)
+  centerAlign={false} // false = bottom-aligned, true = center-aligned
   className="h-20 rounded-xl"
-/>
-
-// Live microphone mode
-<BarVisualizer
-  state={agentState}
-  mediaStream={microphoneStream}
-  barCount={20}
 />
 ```
 
-**Also exports hooks**:
-- `useAudioVolume(stream, options)` → `number` (0–1 single volume)
-- `useMultibandVolume(stream, options)` → `number[]` (per-frequency-band)
-- `useBarAnimator(state, columns, interval)` → `number[]` (highlighted bar indices)
+**Also exports hooks**: `useAudioVolume`, `useMultibandVolume`, `useBarAnimator`
 
 ---
 
 ### 3. `audio-player.tsx` — Feature-Rich Audio Player
 **Path**: `client/src/components/ui/audio-player.tsx`
-**Dependencies**: `@radix-ui/react-slider`, `@radix-ui/react-dropdown-menu` (both installed)
-**Usage**: Full-featured audio player with scrubbing, speed control, and playlist support.
+**Dependencies**: `@radix-ui/react-slider`, `@radix-ui/react-dropdown-menu`
 
 ```tsx
 import {
-  AudioPlayerProvider,
-  AudioPlayerButton,
-  AudioPlayerProgress,
-  AudioPlayerTime,
-  AudioPlayerDuration,
-  AudioPlayerSpeed,
+  AudioPlayerProvider, AudioPlayerButton, AudioPlayerProgress,
+  AudioPlayerTime, AudioPlayerDuration, AudioPlayerSpeed,
 } from "@/components/ui/audio-player"
 
 const item = { id: "conv-123", src: "https://..." }
@@ -94,50 +66,42 @@ const item = { id: "conv-123", src: "https://..." }
   <div className="flex items-center gap-3 p-3 bg-muted rounded-xl">
     <AudioPlayerButton item={item} size="sm" variant="ghost" className="h-8 w-8" />
     <AudioPlayerProgress className="flex-1" />
-    <AudioPlayerTime className="text-xs text-muted-foreground" />
-    <span className="text-xs text-muted-foreground/40">/</span>
-    <AudioPlayerDuration className="text-xs text-muted-foreground" />
+    <AudioPlayerTime className="text-xs" />
+    <AudioPlayerDuration className="text-xs" />
     <AudioPlayerSpeed />
   </div>
 </AudioPlayerProvider>
 ```
 
-**Also exports**: `useAudioPlayer()`, `useAudioPlayerTime()` hooks for custom controls.
-
+**Also exports**: `useAudioPlayer()`, `useAudioPlayerTime()` hooks.
 **Current use**: `ConversationHistory.tsx` — plays ElevenLabs conversation recordings.
 
 ---
 
 ### 4. `conversation.tsx` — Auto-Scrolling Chat Container
 **Path**: `client/src/components/ui/conversation.tsx`
-**Dependencies**: `use-stick-to-bottom` (installed)
-**Usage**: Container that auto-scrolls to bottom as messages arrive.
+**Dependencies**: `use-stick-to-bottom`
 
 ```tsx
 import { Conversation, ConversationContent, ConversationEmptyState, ConversationScrollButton } from "@/components/ui/conversation"
 
 <Conversation className="h-96">
   <ConversationContent>
-    {messages.length === 0 ? (
-      <ConversationEmptyState
-        title="No messages yet"
-        description="Start a conversation"
-        icon={<Bot className="w-8 h-8" />}
-      />
-    ) : (
-      messages.map(m => <MessageBubble key={m.id} {...m} />)
-    )}
+    {messages.length === 0
+      ? <ConversationEmptyState title="No messages" icon={<Bot />} />
+      : messages.map(m => <MessageBubble key={m.id} {...m} />)}
     <ConversationScrollButton />
   </ConversationContent>
 </Conversation>
 ```
 
+**Current use**: `ConversationHistory.tsx` transcript view wraps message bubbles.
+
 ---
 
 ### 5. `conversation-bar.tsx` — Full Voice + Text Conversation Interface
 **Path**: `client/src/components/ui/conversation-bar.tsx`
-**Dependencies**: `@elevenlabs/react` (installed v0.14.1), `live-waveform.tsx`
-**Usage**: Complete voice conversation widget — phone button, mute, keyboard input, waveform.
+**Dependencies**: `@elevenlabs/react` (v0.14.1), `live-waveform.tsx`
 
 ```tsx
 import { ConversationBar } from "@/components/ui/conversation-bar"
@@ -152,106 +116,338 @@ import { ConversationBar } from "@/components/ui/conversation-bar"
 />
 ```
 
-**Features built-in**:
-- WebRTC voice connection via `@elevenlabs/react`'s `useConversation()`
-- Phone/hang-up button (start/end session)
-- Mute/unmute toggle
-- Keyboard expand (Textarea with Enter-to-send)
-- Live waveform visualization
-- Contextual text updates while typing
-
-**Connection states**: `"disconnected"` → `"connecting"` → `"connected"` → `"disconnecting"`
+**Features**: WebRTC via `useConversation()`, phone/hang-up, mute toggle, keyboard textarea (Enter-to-send), live waveform.
+**Note**: Takes `agentId` only — does NOT support signed URLs (use `elevenlabs-convai` web component for signed URL support).
 
 ---
 
 ### 6. `live-waveform.tsx` — Real-Time Microphone Waveform
 **Path**: `client/src/components/ui/live-waveform.tsx`
-**Dependencies**: None
-**Usage**: Canvas-based waveform that renders microphone input in real time.
 
 ```tsx
 import { LiveWaveform } from "@/components/ui/live-waveform"
 
 <LiveWaveform
   active={isRecording}
-  processing={isConnecting}    // shows loading animation
-  barWidth={3}
-  barGap={1}
-  barRadius={4}
-  fadeEdges={true}
-  fadeWidth={24}
+  processing={isConnecting}
+  barWidth={3} barGap={1} barRadius={4}
+  fadeEdges={true} fadeWidth={24}
   sensitivity={1.8}
-  smoothingTimeConstant={0.85}
   height={32}
-  mode="static"                // "static" | "scrolling"
+  mode="static"   // "static" | "scrolling"
   className="w-full"
 />
 ```
 
 ---
 
-### 7. `waveform.tsx` — Static Waveform from Data Array
+### 7. `waveform.tsx` — Multi-Mode Waveform Suite
 **Path**: `client/src/components/ui/waveform.tsx`
-**Dependencies**: None
-**Usage**: Renders a static waveform from a pre-computed data array (e.g., for playback seek UI).
+
+Exports 7 components:
 
 ```tsx
-import { Waveform } from "@/components/ui/waveform"
+import {
+  Waveform, ScrollingWaveform, AudioScrubber,
+  MicrophoneWaveform, StaticWaveform, LiveMicrophoneWaveform, RecordingWaveform,
+} from "@/components/ui/waveform"
 
-<Waveform
-  data={amplitudeArray}     // number[] of values 0–1
-  barWidth={4}
-  barGap={2}
-  barRadius={2}
-  fadeEdges={true}
-  height={64}
-  active={isPlaying}         // highlights bars before current time
-  onBarClick={(index, value) => seekTo(index)}
+// Static data display
+<Waveform data={amplitudeArray} barWidth={4} barGap={2} height={64}
+  active={isPlaying} onBarClick={(index) => seekTo(index)} />
+
+// Continuously scrolling auto-generated bars
+<ScrollingWaveform speed={50} barCount={60} height={80} fadeEdges={true} />
+
+// Playback seek UI
+<AudioScrubber data={waveformData} currentTime={time} duration={total}
+  onSeek={handleSeek} showHandle={true} />
+
+// Real-time mic input
+<MicrophoneWaveform active={isListening} sensitivity={1.5}
+  onError={(e) => console.error(e)} />
+
+// Deterministic random data (for previews)
+<StaticWaveform bars={40} seed={42} />
+
+// Recording + playback scrubbing
+<LiveMicrophoneWaveform active={isRecording} enableAudioPlayback={true} />
+
+// Recording with completion callback
+<RecordingWaveform recording={isRecording}
+  onRecordingComplete={(data) => console.log(data)} />
+```
+
+---
+
+### 8. `matrix.tsx` — LED Pixel Grid Visualizer
+**Path**: `client/src/components/ui/matrix.tsx`
+
+```tsx
+import { Matrix } from "@/components/ui/matrix"
+
+<Matrix
+  rows={5} cols={10}
+  mode="vu"   // "default" | "vu"
+  levels={[0.3, 0.6, 0.9, 0.7, 0.4, 0.8, 0.5, 0.3, 0.7, 0.5]}
+  size={8} gap={1}
+  palette={{ on: "#4a7c5c", off: "#e8f0ea" }}
+  className="rounded-xl overflow-hidden shadow-lg"
 />
 ```
+
+---
+
+### 9. `message.tsx` — Chat Bubble Components
+**Path**: `client/src/components/ui/message.tsx`
+
+```tsx
+import { Message, MessageContent, MessageAvatar } from "@/components/ui/message"
+
+// from="user" → right-aligned, from="assistant" → left-aligned
+<Message from="assistant" className="py-1.5">
+  <MessageContent variant="contained" className="text-xs">
+    {text}
+  </MessageContent>
+</Message>
+
+// With avatar (src required for MessageAvatar)
+<Message from="user">
+  <MessageContent variant="flat">{text}</MessageContent>
+  <MessageAvatar src="/avatar.png" name="John" />
+</Message>
+```
+
+**Variants**: `"contained"` (colored bubble), `"flat"` (plain text for assistant).
+**Current use**: `ConversationHistory.tsx` transcript bubbles.
+
+---
+
+### 10. `mic-selector.tsx` — Microphone Device Selector
+**Path**: `client/src/components/ui/mic-selector.tsx`
+
+```tsx
+import { MicSelector, useAudioDevices } from "@/components/ui/mic-selector"
+
+<MicSelector
+  value={selectedDeviceId}
+  onValueChange={(id) => setSelectedDeviceId(id)}
+  muted={isMuted}
+  onMutedChange={setIsMuted}
+/>
+```
+
+**Features**: Dropdown of available audio input devices, live waveform preview, mute toggle, permission handling.
+**Hook**: `useAudioDevices()` → `{ devices, loading, error, hasPermission, loadDevices }` — enumerate audio inputs, request permission.
+
+---
+
+### 11. `response.tsx` — Streaming Markdown Renderer
+**Path**: `client/src/components/ui/response.tsx`
+**Dependencies**: `streamdown` (installed v2.4.0)
+
+```tsx
+import { Response } from "@/components/ui/response"
+
+// Streams markdown text as it arrives (e.g. from SSE/WebSocket)
+<Response className="prose prose-sm max-w-none">
+  {streamingText}
+</Response>
+```
+
+Memo-optimized: only re-renders when `children` changes. Wraps `Streamdown` from the `streamdown` package.
+
+---
+
+### 12. `scrub-bar.tsx` — Composable Audio Scrub Bar
+**Path**: `client/src/components/ui/scrub-bar.tsx`
+
+```tsx
+import {
+  ScrubBarContainer, ScrubBarTrack, ScrubBarProgress,
+  ScrubBarThumb, ScrubBarTimeLabel,
+} from "@/components/ui/scrub-bar"
+
+<ScrubBarContainer
+  duration={totalDuration}
+  value={currentTime}
+  onScrub={handleSeek}
+  onScrubStart={() => setPaused(true)}
+  onScrubEnd={() => setPaused(false)}
+  className="gap-2"
+>
+  <ScrubBarTimeLabel time={currentTime} className="text-xs" />
+  <ScrubBarTrack>
+    <ScrubBarProgress />
+    <ScrubBarThumb />
+  </ScrubBarTrack>
+  <ScrubBarTimeLabel time={totalDuration} className="text-xs" />
+</ScrubBarContainer>
+```
+
+---
+
+### 13. `shimmering-text.tsx` — Shimmer Text Animation
+**Path**: `client/src/components/ui/shimmering-text.tsx`
+**Dependencies**: `motion/react` (Framer Motion)
+
+```tsx
+import { ShimmeringText } from "@/components/ui/shimmering-text"
+
+<ShimmeringText
+  text="Listening..."
+  duration={2}          // animation duration in seconds
+  repeat={true}         // loop indefinitely
+  repeatDelay={0.5}
+  startOnView={true}    // animate when enters viewport
+  spread={2}            // shimmer spread multiplier
+  shimmerColor="#4a7c5c"
+  className="text-sm font-medium"
+/>
+```
+
+**Use case**: Agent "thinking" / "listening" state labels. Perfectly paired with Orb.
+
+---
+
+### 14. `speech-input.tsx` — Voice Input with ElevenLabs Scribe STT
+**Path**: `client/src/components/ui/speech-input.tsx`
+**Hook**: `client/src/hooks/use-scribe.ts`
+**Dependencies**: `@elevenlabs/react`, ElevenLabs Scribe streaming STT
+
+```tsx
+import { SpeechInput } from "@/components/ui/speech-input"
+
+<SpeechInput
+  modelId="scribe_v1"
+  onValueChange={(value) => setTranscript(value)}
+  placeholder="Speak or type..."
+  commitStrategy="silence"   // "silence" | "manual"
+  vadSilenceThresholdSecs={1.5}
+/>
+```
+
+Full composable API also exports: `SpeechInputRoot`, `SpeechInputArea`, `SpeechInputButton`, `SpeechInputContext`.
+
+---
+
+### 15. `transcript-viewer.tsx` — Karaoke-Style Transcript Viewer
+**Path**: `client/src/components/ui/transcript-viewer.tsx`
+**Hook**: `client/src/hooks/use-transcript-viewer.ts`
+**Dependencies**: `@elevenlabs/elevenlabs-js`, `scrub-bar.tsx`
+
+```tsx
+import { TranscriptViewer } from "@/components/ui/transcript-viewer"
+
+// Takes ElevenLabs character alignment data + playback control
+<TranscriptViewer
+  alignment={characterAlignmentData}
+  currentTime={playbackTime}
+  duration={totalDuration}
+  onSeek={handleSeek}
+/>
+```
+
+**Use case**: Karaoke-style word highlighting synced to audio playback. The hook `useTranscriptViewer` manages segment state and scrubbing.
+
+---
+
+### 16. `voice-button.tsx` — Voice Recording Button
+**Path**: `client/src/components/ui/voice-button.tsx`
+
+```tsx
+import { VoiceButton, VoiceButtonState } from "@/components/ui/voice-button"
+
+<VoiceButton
+  state={buttonState}   // "idle"|"recording"|"processing"|"success"|"error"
+  onPress={handlePress}
+  label="Hold to speak"
+  trailing="⌥Space"
+  variant="outline"
+/>
+```
+
+**States**: idle = mic icon, recording = live waveform + stop, processing = spinner, success = checkmark, error = X.
+
+---
+
+### 17. `voice-picker.tsx` — Voice Selection Combobox
+**Path**: `client/src/components/ui/voice-picker.tsx`
+**Dependencies**: `@elevenlabs/elevenlabs-js`, `audio-player.tsx`, `orb.tsx`
+
+```tsx
+import { VoicePicker } from "@/components/ui/voice-picker"
+import type { ElevenLabs } from "@elevenlabs/elevenlabs-js"
+
+// voices: ElevenLabs.Voice[] from the SDK
+<VoicePicker
+  voices={voiceList}
+  value={selectedVoiceId}
+  onValueChange={(id) => setVoiceId(id)}
+  placeholder="Select a voice..."
+/>
+```
+
+**Features**: Searchable combobox with voice name, Orb preview, play/pause audio preview button.
+
+---
+
+## Hooks
+
+### `use-scribe.ts` — ElevenLabs Scribe STT
+**Path**: `client/src/hooks/use-scribe.ts`
+
+Used internally by `speech-input.tsx`. Provides real-time speech-to-text via ElevenLabs Scribe streaming API (WebSocket-based).
+
+### `use-transcript-viewer.ts` — Transcript Viewer State
+**Path**: `client/src/hooks/use-transcript-viewer.ts`
+
+Used internally by `transcript-viewer.tsx`. Manages character alignment segments and playback position synchronization.
 
 ---
 
 ## Widget Display Options for Marcela
 
 The ElevenLabs `elevenlabs-convai` web component offers multiple visual styles.
-Admin can select the widget variant in **Voice Settings → Widget Settings**.
+Admin selects the widget variant in **Voice Settings → Widget Settings**.
 
 ### Native Widget Variants (`variant` attribute)
-| Variant | Description | Best For |
-|---------|-------------|----------|
-| `tiny` | Icon-only floating button | Minimal footprint |
-| `compact` | Icon + label button | Default - balanced |
-| `full` | Expanded chat panel | Admin/testing |
+| Variant | Description |
+|---------|-------------|
+| `tiny` | Icon-only floating button |
+| `compact` | Icon + label button (default) |
+| `full` | Expanded chat panel |
 
-### Our Custom Components (alternatives to the native widget)
-| Component | File | Use Case |
-|-----------|------|----------|
-| `Orb` | `orb.tsx` | 3D animated sphere hero — show agent "alive" |
-| `BarVisualizer` | `bar-visualizer.tsx` | Real-time frequency bars during call |
-| `ConversationBar` | `conversation-bar.tsx` | Full replacement for native widget (voice + text) |
-| `LiveWaveform` | `live-waveform.tsx` | Compact waveform strip |
+### Custom Component Variants (replace native widget)
+| Variant | Component | File | Notes |
+|---------|-----------|------|-------|
+| `orb` | `Orb` | `orb.tsx` | 3D animated sphere — agent state visual |
+| `bars` | `BarVisualizer` | `bar-visualizer.tsx` | Frequency bars during call |
+| `matrix` | `Matrix` | `matrix.tsx` | LED pixel grid |
+| `conversation-bar` | `ConversationBar` | `conversation-bar.tsx` | Full voice+text bar — WebRTC via `@elevenlabs/react` |
 
-### Adding Widget Style Selector to Admin
-The `marcelaWidgetVariant` field in `global_assumptions` currently controls `tiny|compact|full`.
-To add our custom components, extend `VoiceSettings.tsx` with a "Widget Style" picker:
-- `"orb"` → show `<Orb>` component instead of native widget
-- `"bars"` → show `<BarVisualizer>` component
-- `"bar-widget"` → show `<ConversationBar>` component
-- `"tiny"|"compact"|"full"` → native `elevenlabs-convai` web component
+**For `orb`/`bars`/`matrix`**: Custom visual is shown + a hidden `elevenlabs-convai` web component with `variant="tiny"` handles the actual WebRTC session.
+**For `conversation-bar`**: Fully replaces the native widget using `@elevenlabs/react`'s `useConversation()` hook. Requires `agentId` (not signed URLs).
 
 ---
 
-## Installing More ElevenLabs UI Components
+## Installing More Components
 
 ```bash
-# List available components
-curl -s https://ui.elevenlabs.io/registry.json | python3 -c "import json,sys; [print(c['name']) for c in json.load(sys.stdin)['items']]"
+# Fetch any component (avoids interactive CLI prompts)
+curl -s https://ui.elevenlabs.io/r/<name>.json | python3 -c "
+import json, sys
+data = json.load(sys.stdin)
+for f in data.get('files', []):
+    path = 'client/src/components/ui/' + f['path'].split('/')[-1]
+    with open(path, 'w') as fp:
+        fp.write(f['content'])
+    print('wrote', path)
+"
 
-# Install a component (from workspace root)
-npx @elevenlabs/cli@latest components add <name>
-# OR fetch manually (avoids interactive prompts):
-curl -s https://ui.elevenlabs.io/r/<name>.json | python3 -c "import json,sys; [open(f'client/src/components/ui/{f[\"path\"].split(\"/\")[-1]}','w').write(f['content']) for f in json.load(sys.stdin)['files']]"
+# For hooks (path contains 'use-' or 'hook'):
+# Change path to client/src/hooks/ and fix any @/registry/elevenlabs-ui/hooks/ imports
+# to @/hooks/ in the component that uses the hook.
 ```
 
-**Known available components**: `orb`, `bar-visualizer`, `audio-player`, `conversation`, `conversation-bar`, `live-waveform`, `waveform`, `call-status`, `transcript-panel`, `agent-card`
+**Known registry names**: `orb`, `bar-visualizer`, `audio-player`, `conversation`, `conversation-bar`, `live-waveform`, `waveform`, `matrix`, `message`, `mic-selector`, `response`, `scrub-bar`, `shimmering-text`, `speech-input`, `transcript-viewer`, `voice-button`, `voice-picker`, `call-status`, `agent-card`

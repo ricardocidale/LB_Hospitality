@@ -17,6 +17,9 @@ const BarVisualizer = lazy(() =>
 const Matrix = lazy(() =>
   import("@/components/ui/matrix").then((m) => ({ default: m.Matrix }))
 );
+const ConversationBarWidget = lazy(() =>
+  import("@/components/ui/conversation-bar").then((m) => ({ default: m.ConversationBar }))
+);
 
 export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolean }) {
   const { data: global } = useGlobalAssumptions();
@@ -113,6 +116,16 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
           ) : (
             <elevenlabs-convai agent-id={agentId} language={language} variant="tiny" dynamic-variables={dynamicVars} />
           )}
+        </div>
+      </Suspense>
+    );
+  }
+
+  if (variant === "conversation-bar") {
+    return (
+      <Suspense fallback={null}>
+        <div className="fixed bottom-6 right-6 z-50 w-80">
+          <ConversationBarWidget agentId={agentId} />
         </div>
       </Suspense>
     );

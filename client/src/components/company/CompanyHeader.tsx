@@ -48,6 +48,7 @@ export default function CompanyHeader({
       />
 
       <KPIGrid
+        className="mt-4"
         data-testid="kpi-company-hero"
         items={[
           { label: "Total Revenue", value: yearlyChartData[0]?.Revenue ?? 0, format: formatCompact, sublabel: "Year 1" },

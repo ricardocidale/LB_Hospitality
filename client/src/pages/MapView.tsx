@@ -1,12 +1,69 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useProperties } from "@/lib/api";
 import { Link } from "wouter";
-import { MapPin, Building2, DollarSign, Loader2, AlertTriangle, Layers, Navigation, Mountain } from "lucide-react";
+import { Building2, DollarSign, Layers, Navigation, Mountain } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 
-const GEOCODE_CACHE: Record<string, [number, number] | null> = {};
+const KNOWN_COORDS: Record<string, [number, number]> = {
+  "medellín, antioquia, colombia": [-75.5636, 6.2518],
+  "medellin, antioquia, colombia": [-75.5636, 6.2518],
+  "loch sheldrake, new york, united states": [-74.6571, 41.7701],
+  "highmount, new york, united states": [-74.5071, 42.1301],
+  "eden, utah, united states": [-111.7746, 41.3260],
+  "huntsville, utah, united states": [-111.7699, 41.2597],
+  "cartagena, bolívar, colombia": [-75.5144, 10.3910],
+  "cartagena, bolivar, colombia": [-75.5144, 10.3910],
+};
+
+const REGION_COORDS: Record<string, [number, number]> = {
+  "colombia": [-74.0, 4.6],
+  "united states": [-98.5, 39.8],
+  "mexico": [-102.5, 23.6],
+  "costa rica": [-84.0, 9.9],
+  "brazil": [-51.9, -14.2],
+  "argentina": [-63.6, -38.4],
+  "peru": [-75.0, -9.2],
+  "chile": [-71.5, -35.7],
+  "panama": [-80.0, 8.5],
+  "dominican republic": [-70.2, 18.7],
+  "jamaica": [-77.3, 18.1],
+  "puerto rico": [-66.1, 18.2],
+  "canada": [-106.3, 56.1],
+  "united kingdom": [-3.4, 55.4],
+  "spain": [-3.7, 40.5],
+  "france": [-2.2, 46.6],
+  "italy": [12.6, 41.9],
+  "germany": [10.5, 51.2],
+  "portugal": [-8.2, 39.4],
+  "greece": [21.8, 39.1],
+  "australia": [133.8, -25.3],
+};
+
+function resolveCoords(property: any): [number, number] | null {
+  const city = (property.city || "").toLowerCase().trim();
+  const state = (property.stateProvince || "").toLowerCase().trim();
+  const country = (property.country || "").toLowerCase().trim();
+
+  if (!country) return null;
+
+  const fullKey = [city, state, country].filter(Boolean).join(", ");
+  if (KNOWN_COORDS[fullKey]) return KNOWN_COORDS[fullKey];
+
+  const cityCountryKey = [city, country].filter(Boolean).join(", ");
+  if (KNOWN_COORDS[cityCountryKey]) return KNOWN_COORDS[cityCountryKey];
+
+  if (REGION_COORDS[country]) {
+    const base = REGION_COORDS[country];
+    const hash = fullKey.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
+    const offsetLng = ((hash % 100) - 50) * 0.02;
+    const offsetLat = ((hash % 73) - 36) * 0.02;
+    return [base[0] + offsetLng, base[1] + offsetLat];
+  }
+
+  return null;
+}
 
 const formatMoney = (value: number) =>
   new Intl.NumberFormat("en-US", {
@@ -27,35 +84,11 @@ const statusColor = (status: string) => {
   }
 };
 
-function hasCompleteAddress(property: any): boolean {
-  return !!(property.city && property.country);
-}
-
-function formatAddress(property: any): string {
+function formatLocation(property: any): string {
   const parts = [property.city];
   if (property.stateProvince) parts.push(property.stateProvince);
   parts.push(property.country);
   return parts.filter(Boolean).join(", ");
-}
-
-async function geocode(address: string): Promise<[number, number] | null> {
-  if (address in GEOCODE_CACHE) return GEOCODE_CACHE[address];
-  try {
-    const res = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`,
-      { headers: { "User-Agent": "HBG-Portfolio-Map/1.0" } }
-    );
-    const data = await res.json();
-    if (data.length > 0) {
-      const coords: [number, number] = [parseFloat(data[0].lon), parseFloat(data[0].lat)];
-      GEOCODE_CACHE[address] = coords;
-      return coords;
-    }
-    GEOCODE_CACHE[address] = null;
-    return null;
-  } catch {
-    return null;
-  }
 }
 
 type GeoProperty = {
@@ -108,7 +141,7 @@ function createPopupHTML(property: any) {
   return `
     <div style="font-family:system-ui,-apple-system,sans-serif;min-width:240px;padding:4px;">
       <h3 style="font-weight:700;font-size:15px;margin:0 0 4px;color:#1a1a2e;">${property.name}</h3>
-      <p style="color:#64748b;font-size:12px;margin:0 0 10px;">${formatAddress(property)}</p>
+      <p style="color:#64748b;font-size:12px;margin:0 0 10px;">${formatLocation(property)}</p>
       <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;">
         <span style="background:${property.market === 'North America' ? '#E8F0E9' : '#DBEAFE'};color:${property.market === 'North America' ? '#5A7D60' : '#1D4ED8'};font-size:11px;padding:3px 10px;border-radius:9999px;font-weight:600;">${property.market}</span>
         <span style="background:${sc.bg};color:${sc.text};font-size:11px;padding:3px 10px;border-radius:9999px;font-weight:600;">${property.status}</span>
@@ -132,45 +165,18 @@ export default function MapView() {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const markersRef = useRef<Map<number, maplibregl.Marker>>(new Map());
-  const [geoProperties, setGeoProperties] = useState<GeoProperty[]>([]);
-  const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [mapStyle, setMapStyle] = useState<keyof typeof MAP_STYLES>("voyager");
   const [terrain3d, setTerrain3d] = useState(true);
 
-  const mappableProperties = properties.filter(hasCompleteAddress);
-  const unmappableCount = properties.length - mappableProperties.length;
+  const geoProperties: GeoProperty[] = properties
+    .map(p => {
+      const coords = resolveCoords(p);
+      return coords ? { property: p, coords } : null;
+    })
+    .filter((g): g is GeoProperty => g !== null);
 
-  useEffect(() => {
-    if (mappableProperties.length === 0) {
-      setLoading(false);
-      return;
-    }
-
-    let cancelled = false;
-
-    async function geocodeAll() {
-      setLoading(true);
-      const results: GeoProperty[] = [];
-
-      for (const p of mappableProperties) {
-        if (cancelled) return;
-        const addr = `${p.city}, ${p.stateProvince || ''}, ${p.country}`;
-        const coords = await geocode(addr);
-        if (coords) {
-          results.push({ property: p, coords });
-        }
-      }
-
-      if (!cancelled) {
-        setGeoProperties(results);
-        setLoading(false);
-      }
-    }
-
-    geocodeAll();
-    return () => { cancelled = true; };
-  }, [properties.length]);
+  const unmappedCount = properties.length - geoProperties.length;
 
   const updateMarkers = useCallback((selected: number | null) => {
     const map = mapRef.current;
@@ -204,27 +210,29 @@ export default function MapView() {
   }, [geoProperties]);
 
   useEffect(() => {
-    if (!mapContainerRef.current || loading || geoProperties.length === 0) return;
+    if (!mapContainerRef.current || geoProperties.length === 0) return;
 
     if (mapRef.current) {
       mapRef.current.remove();
       mapRef.current = null;
     }
 
+    const bounds = new maplibregl.LngLatBounds();
+    geoProperties.forEach(({ coords }) => bounds.extend(coords));
+    const center = bounds.getCenter();
+
     const map = new maplibregl.Map({
       container: mapContainerRef.current,
       style: MAP_STYLES[mapStyle],
-      center: [-75, 10],
+      center: [center.lng, center.lat],
       zoom: 3,
-      pitch: terrain3d ? 55 : 30,
-      bearing: terrain3d ? -15 : 0,
-      antialias: true,
+      pitch: terrain3d ? 50 : 0,
+      bearing: terrain3d ? -10 : 0,
       maxPitch: 85,
     });
 
     map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), "top-right");
     map.addControl(new maplibregl.FullscreenControl(), "top-right");
-    map.addControl(new maplibregl.TerrainControl({ source: "terrainSource", exaggeration: 1.5 }), "top-right");
 
     mapRef.current = map;
 
@@ -251,33 +259,17 @@ export default function MapView() {
             "hillshade-highlight-color": "rgba(255,255,255,0.5)",
           },
         });
-
       }
 
-      map.addLayer({
-        id: "sky",
-        type: "sky" as any,
-        paint: {
-          "sky-type": "atmosphere" as any,
-          "sky-atmosphere-sun": [0, 0] as any,
-          "sky-atmosphere-sun-intensity": 15 as any,
-        } as any,
-      });
-
       updateMarkers(selectedId);
-
-      const bounds = new maplibregl.LngLatBounds();
-      geoProperties.forEach(({ coords }) => bounds.extend(coords));
 
       if (!bounds.isEmpty()) {
         map.fitBounds(bounds, {
           padding: { top: 80, bottom: 80, left: 80, right: 80 },
-          maxZoom: 8,
+          maxZoom: 6,
           duration: 2500,
           essential: true,
-          pitch: terrain3d ? 55 : 30,
-          bearing: terrain3d ? -15 : 0,
-        } as any);
+        });
       }
     });
 
@@ -286,7 +278,7 @@ export default function MapView() {
       mapRef.current = null;
       markersRef.current.clear();
     };
-  }, [loading, geoProperties, mapStyle, terrain3d]);
+  }, [geoProperties.length, mapStyle, terrain3d]);
 
   useEffect(() => {
     updateMarkers(selectedId);
@@ -296,8 +288,8 @@ export default function MapView() {
       if (geo) {
         mapRef.current.flyTo({
           center: geo.coords,
-          zoom: Math.max(mapRef.current.getZoom(), terrain3d ? 10 : 7),
-          pitch: terrain3d ? 60 : 30,
+          zoom: Math.max(mapRef.current.getZoom(), terrain3d ? 8 : 6),
+          pitch: terrain3d ? 55 : 0,
           bearing: terrain3d ? mapRef.current.getBearing() + 15 : 0,
           duration: 1800,
           essential: true,
@@ -323,11 +315,13 @@ export default function MapView() {
     geoProperties.forEach(({ coords }) => bounds.extend(coords));
     mapRef.current.fitBounds(bounds, {
       padding: { top: 80, bottom: 80, left: 80, right: 80 },
-      maxZoom: 8,
+      maxZoom: 6,
       duration: 1500,
     });
     setSelectedId(null);
   };
+
+  const countryCount = new Set(geoProperties.map(g => g.property.country)).size;
 
   return (
     <div data-testid="map-view" className="space-y-4">
@@ -358,7 +352,7 @@ export default function MapView() {
             Portfolio Map
           </h1>
           <p className="text-sm text-muted-foreground mt-0.5">
-            {geoProperties.length} {geoProperties.length === 1 ? "property" : "properties"} mapped across {new Set(geoProperties.map(g => g.property.country)).size} {new Set(geoProperties.map(g => g.property.country)).size === 1 ? "country" : "countries"}
+            {geoProperties.length} {geoProperties.length === 1 ? "property" : "properties"} across {countryCount} {countryCount === 1 ? "country" : "countries"}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -377,29 +371,13 @@ export default function MapView() {
         </div>
       </div>
 
-      {unmappableCount > 0 && (
-        <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 text-xs text-amber-800" data-testid="text-unmappable-notice">
-          <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-          <span><strong>{unmappableCount}</strong> {unmappableCount === 1 ? "property" : "properties"} not shown — missing address details.</span>
-        </div>
-      )}
-
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         <div className="lg:col-span-3">
           <div className="rounded-xl border border-primary/20 overflow-hidden shadow-xl bg-[#f8f4f0] relative" style={{ height: "600px" }}>
-            {loading && (
-              <div className="absolute inset-0 z-[1000] bg-white/90 backdrop-blur-sm flex flex-col items-center justify-center gap-3">
-                <div className="relative">
-                  <Loader2 className="w-10 h-10 animate-spin text-primary" />
-                  <MapPin className="w-4 h-4 text-primary absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
-                </div>
-                <p className="text-sm text-muted-foreground font-medium">Locating properties...</p>
-              </div>
-            )}
-            {!loading && geoProperties.length === 0 && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-                <MapPin className="w-12 h-12 text-muted-foreground/30" />
-                <p className="text-sm text-muted-foreground">No properties with valid addresses to map</p>
+            {geoProperties.length === 0 && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10">
+                <Building2 className="w-12 h-12 text-muted-foreground/30" />
+                <p className="text-sm text-muted-foreground">No properties to display on map</p>
               </div>
             )}
             <div ref={mapContainerRef} className="w-full h-full" />
@@ -438,7 +416,7 @@ export default function MapView() {
                       {property.name}
                     </h3>
                     <p className="text-[11px] text-muted-foreground truncate">
-                      {formatAddress(property)}
+                      {formatLocation(property)}
                     </p>
                   </div>
                 </div>
@@ -467,10 +445,9 @@ export default function MapView() {
               </div>
             );
           })}
-          {loading && (
-            <div className="text-center py-8 text-sm text-muted-foreground">
-              <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2" />
-              Loading...
+          {unmappedCount > 0 && (
+            <div className="text-[11px] text-muted-foreground/70 px-1 pt-2">
+              {unmappedCount} {unmappedCount === 1 ? "property" : "properties"} not shown (missing location data)
             </div>
           )}
         </div>

@@ -153,24 +153,29 @@ function DSCRTab() {
         <InputField label="Purchase Price" value={purchasePrice} onChange={setPurchasePrice} prefix="$" helpText="Total acquisition price of the property" data-testid="input-dscr-price" />
         <InputField label="Max LTV" value={ltvMax} onChange={setLtvMax} suffix="%" helpText="Maximum Loan-to-Value ratio the lender will allow (typically 65–75%)" data-testid="input-dscr-ltv" />
       </div>
-      <GlassButton variant="primary" onClick={calculate} disabled={loading} data-testid="button-dscr-calculate">
+      <button 
+        onClick={calculate} 
+        disabled={loading} 
+        data-testid="button-dscr-calculate"
+        className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+      >
         {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2 inline" /> : <Calculator className="w-4 h-4 mr-2 inline" />}
         Calculate Max Loan
-      </GlassButton>
+      </button>
       {error && <p className="text-red-600 text-sm">{error}</p>}
       {result && (
         <div className="space-y-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <StatCard label="Max Loan (DSCR)" value={result.max_loan_dscr} format="money" variant="glass" data-testid="stat-dscr-max-loan" />
-            <StatCard label="Max Loan (LTV)" value={result.max_loan_ltv ?? "N/A"} format={result.max_loan_ltv ? "money" : "text"} variant="glass" data-testid="stat-dscr-ltv-loan" />
+            <StatCard label="Max Loan (DSCR)" value={result.max_loan_dscr} format="money" data-testid="stat-dscr-max-loan" />
+            <StatCard label="Max Loan (LTV)" value={result.max_loan_ltv ?? "N/A"} format={result.max_loan_ltv ? "money" : "text"} data-testid="stat-dscr-ltv-loan" />
             <StatCard label="Binding Constraint" value={result.binding_constraint === "dscr" ? "DSCR" : result.binding_constraint === "ltv" ? "LTV" : "None"} format="text" variant="sage" data-testid="stat-dscr-binding" />
             <StatCard label="Final Max Loan" value={result.max_loan_binding} format="money" variant="sage" data-testid="stat-dscr-final-loan" />
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <StatCard label="Amortizing DSCR" value={formatRatio(result.actual_dscr)} format="text" variant="glass" data-testid="stat-dscr-actual" />
-            <StatCard label="IO DSCR" value={result.io_dscr ? formatRatio(result.io_dscr) : "N/A"} format="text" variant="glass" />
-            <StatCard label="Monthly Payment (Amort)" value={result.monthly_payment_amortizing} format="money" variant="glass" />
-            <StatCard label="Implied LTV" value={result.implied_ltv ? formatPct(result.implied_ltv) : "N/A"} format="text" variant="glass" />
+            <StatCard label="Amortizing DSCR" value={formatRatio(result.actual_dscr)} format="text" data-testid="stat-dscr-actual" />
+            <StatCard label="IO DSCR" value={result.io_dscr ? formatRatio(result.io_dscr) : "N/A"} format="text" />
+            <StatCard label="Monthly Payment (Amort)" value={result.monthly_payment_amortizing} format="money" />
+            <StatCard label="Implied LTV" value={result.implied_ltv ? formatPct(result.implied_ltv) : "N/A"} format="text" />
           </div>
           <div className="grid gap-6 lg:grid-cols-3">
             <Gauge
@@ -273,10 +278,15 @@ function DebtYieldTab() {
         <InputField label="Purchase Price" value={purchasePrice} onChange={setPurchasePrice} prefix="$" helpText="Property purchase price for LTV calculation" data-testid="input-dy-price" />
         <InputField label="Max LTV" value={ltvMax} onChange={setLtvMax} suffix="%" helpText="Maximum Loan-to-Value ratio allowed" data-testid="input-dy-ltv" />
       </div>
-      <GlassButton variant="primary" onClick={calculate} disabled={loading} data-testid="button-dy-calculate">
+      <button 
+        onClick={calculate} 
+        disabled={loading} 
+        data-testid="button-dy-calculate"
+        className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+      >
         {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2 inline" /> : <TrendingUp className="w-4 h-4 mr-2 inline" />}
         Analyze Debt Yield
-      </GlassButton>
+      </button>
       {error && <p className="text-red-600 text-sm">{error}</p>}
       {result && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -284,7 +294,6 @@ function DebtYieldTab() {
             label="Debt Yield"
             value={result.debt_yield ? formatPct(result.debt_yield) : "N/A"}
             format="text"
-            variant="glass"
             icon={<Percent className="w-4 h-4" />}
             data-testid="stat-dy-yield"
           />
@@ -292,7 +301,7 @@ function DebtYieldTab() {
             label="Passes Threshold"
             value={result.passes_min_threshold === null ? "N/A" : result.passes_min_threshold ? "Yes" : "No"}
             format="text"
-            variant={result.passes_min_threshold ? "sage" : "glass"}
+            variant={result.passes_min_threshold ? "sage" : undefined}
             icon={result.passes_min_threshold ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
             data-testid="stat-dy-pass"
           />
@@ -300,7 +309,6 @@ function DebtYieldTab() {
             label="Max Loan (Debt Yield)"
             value={result.max_loan_debt_yield ? formatMoney(result.max_loan_debt_yield) : "N/A"}
             format="text"
-            variant="glass"
             data-testid="stat-dy-max-loan"
           />
           <StatCard
@@ -310,9 +318,9 @@ function DebtYieldTab() {
             variant="sage"
             data-testid="stat-dy-binding"
           />
-          <StatCard label="Max Loan (LTV)" value={result.max_loan_ltv ? formatMoney(result.max_loan_ltv) : "N/A"} format="text" variant="glass" />
+          <StatCard label="Max Loan (LTV)" value={result.max_loan_ltv ? formatMoney(result.max_loan_ltv) : "N/A"} format="text" />
           <StatCard label="Final Max Loan" value={result.max_loan_binding ? formatMoney(result.max_loan_binding) : "N/A"} format="text" variant="sage" />
-          <StatCard label="Implied LTV" value={result.implied_ltv ? formatPct(result.implied_ltv) : "N/A"} format="text" variant="glass" />
+          <StatCard label="Implied LTV" value={result.implied_ltv ? formatPct(result.implied_ltv) : "N/A"} format="text" />
         </div>
       )}
       {result && (
@@ -389,22 +397,27 @@ function SensitivityTab() {
         <InputField label="IO Period (months)" value={ioMonths} onChange={setIoMonths} helpText="Interest-only months at the start" data-testid="input-sens-io" />
         <InputField label="Min DSCR Threshold" value={minDscr} onChange={setMinDscr} step="0.05" helpText="Red cells in the matrix indicate DSCR below this threshold" data-testid="input-sens-min-dscr" />
       </div>
-      <GlassButton variant="primary" onClick={calculate} disabled={loading} data-testid="button-sens-calculate">
+      <button 
+        onClick={calculate} 
+        disabled={loading} 
+        data-testid="button-sens-calculate"
+        className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+      >
         {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2 inline" /> : <BarChart3 className="w-4 h-4 mr-2 inline" />}
         Run Stress Test
-      </GlassButton>
+      </button>
       {error && <p className="text-red-600 text-sm">{error}</p>}
       {result && (
         <div className="space-y-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <StatCard label="Base DSCR" value={formatRatio(result.base_dscr)} format="text" variant="sage" data-testid="stat-sens-base-dscr" />
-            <StatCard label="Worst DSCR" value={formatRatio(result.worst_dscr)} format="text" variant="glass" trend="down" />
-            <StatCard label="Best DSCR" value={formatRatio(result.best_dscr)} format="text" variant="glass" trend="up" />
+            <StatCard label="Worst DSCR" value={formatRatio(result.worst_dscr)} format="text" trend="down" />
+            <StatCard label="Best DSCR" value={formatRatio(result.best_dscr)} format="text" trend="up" />
             <StatCard
               label="Scenarios Failing"
               value={`${result.failing_scenarios} / ${result.total_scenarios}`}
               format="text"
-              variant={result.failing_scenarios > 0 ? "glass" : "sage"}
+              variant={result.failing_scenarios > 0 ? undefined : "sage"}
               icon={result.failing_scenarios > 0 ? <AlertTriangle className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
               data-testid="stat-sens-failing"
             />
@@ -440,9 +453,9 @@ function SensitivityTab() {
                           key={ns}
                           className={`text-center p-2 border-b border-gray-100 font-mono ${
                             !cell.passes
-                              ? "bg-red-500/20 text-red-300"
+                              ? "bg-red-50 text-red-600"
                               : isBase
-                              ? "bg-primary/20 text-primary"
+                              ? "bg-primary/10 text-primary"
                               : "text-gray-800"
                           }`}
                           data-testid={`cell-sens-${rs}-${ns}`}

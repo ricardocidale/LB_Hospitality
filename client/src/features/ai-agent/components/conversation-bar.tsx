@@ -138,6 +138,10 @@ export const ConversationBar = React.forwardRef<
     }, [])
 
     const startConversation = React.useCallback(async () => {
+      if (!signedUrl && !agentId) {
+        onError?.(new Error("Agent not configured — no signed URL or agent ID available"))
+        return
+      }
       try {
         setAgentState("connecting")
 
@@ -322,7 +326,7 @@ export const ConversationBar = React.forwardRef<
                     variant="ghost"
                     size="icon"
                     onClick={handleStartOrEnd}
-                    disabled={agentState === "disconnecting"}
+                    disabled={agentState === "disconnecting" || (!signedUrl && !agentId && agentState === "disconnected")}
                   >
                     {isConnected || agentState === "connecting" ? (
                       <XIcon className="h-5 w-5" />

@@ -155,7 +155,7 @@ export default function Logos() {
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
         ) : !logos || logos.length === 0 ? (
-          <Card className="bg-white/80 backdrop-blur-xl border-primary/20">
+          <Card className="bg-white border-gray-200 shadow-sm rounded-lg">
             <CardContent className="text-center py-16">
               <Image className="w-16 h-16 mx-auto mb-4 text-primary/30" />
               <p className="text-lg text-muted-foreground mb-2">No logos yet</p>
@@ -165,9 +165,9 @@ export default function Logos() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {logos.map(logo => (
-              <Card key={logo.id} className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)] group hover:shadow-lg transition-shadow" data-testid={`logo-card-${logo.id}`}>
+              <Card key={logo.id} className="bg-white border border-gray-200 shadow-sm rounded-lg group hover:shadow-md transition-shadow" data-testid={`logo-card-${logo.id}`}>
                 <CardContent className="p-6">
-                  <div className="aspect-square bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl border border-primary/20 flex items-center justify-center p-6 mb-4 overflow-hidden">
+                  <div className="aspect-square bg-gray-50 rounded-lg border border-gray-200 flex items-center justify-center p-6 mb-4 overflow-hidden">
                     <img
                       src={logo.url.startsWith("/objects/") ? logo.url : logo.url}
                       alt={logo.name}
@@ -228,7 +228,7 @@ export default function Logos() {
             </div>
             <div className="space-y-3">
               <Label>Logo Image</Label>
-              <div className="border-2 border-dashed border-primary/30 rounded-xl p-6 text-center hover:border-primary/50 transition-colors">
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
                 {uploadedPreview ? (
                   <div className="space-y-3">
                     <div className="w-24 h-24 mx-auto rounded-lg bg-white border border-primary/20 flex items-center justify-center overflow-hidden">

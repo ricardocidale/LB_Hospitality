@@ -352,7 +352,7 @@ export default function PropertyDetail() {
       startY: chartStartY,
       theme: "grid",
       styles: { fontSize: 7, cellPadding: 1.5 },
-      headStyles: { fillColor: [159, 188, 164], textColor: [61, 61, 61], fontStyle: "bold", halign: 'center' },
+      headStyles: { fillColor: [240, 240, 240], textColor: [61, 61, 61], fontStyle: "bold", halign: 'center' },
       columnStyles: colStyles,
     });
 

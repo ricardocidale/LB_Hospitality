@@ -225,7 +225,7 @@ export default function Company() {
           />
           
           <div className="mt-4 mb-2">
-            <Link href="/company/research" className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/5 border border-primary/15 text-xs text-primary hover:bg-primary/10 transition-colors">
+            <Link href="/company/research" className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-gray-200 text-xs text-primary hover:bg-gray-50 transition-colors">
               <BookOpen className="w-3.5 h-3.5" />
               <span className="font-medium">View Company Research</span>
               <span className="text-primary/60">Fee benchmarks, vendor costs, overhead, competitive landscape</span>

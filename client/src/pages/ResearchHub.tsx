@@ -249,7 +249,7 @@ export default function ResearchHub() {
             variants={cardVariants}
             initial="hidden"
             animate="visible"
-            className="bg-white/80 backdrop-blur-xl border border-primary/20 rounded-2xl p-5 shadow-[0_8px_32px_rgba(159,188,164,0.1)] group hover:shadow-[0_12px_48px_rgba(159,188,164,0.18)] transition-all duration-300"
+            className="bg-white border border-gray-200 rounded-lg p-5 shadow-sm group hover:shadow-md transition-all duration-300"
           >
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
@@ -297,7 +297,7 @@ export default function ResearchHub() {
             variants={cardVariants}
             initial="hidden"
             animate="visible"
-            className="bg-white/80 backdrop-blur-xl border border-primary/20 rounded-2xl p-5 shadow-[0_8px_32px_rgba(159,188,164,0.1)] group hover:shadow-[0_12px_48px_rgba(159,188,164,0.18)] transition-all duration-300"
+            className="bg-white border border-gray-200 rounded-lg p-5 shadow-sm group hover:shadow-md transition-all duration-300"
           >
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
@@ -337,7 +337,7 @@ export default function ResearchHub() {
             variants={cardVariants}
             initial="hidden"
             animate="visible"
-            className="bg-white/80 backdrop-blur-xl border border-primary/20 rounded-2xl p-5 shadow-[0_8px_32px_rgba(159,188,164,0.1)] group hover:shadow-[0_12px_48px_rgba(159,188,164,0.18)] transition-all duration-300"
+            className="bg-white border border-gray-200 rounded-lg p-5 shadow-sm group hover:shadow-md transition-all duration-300"
           >
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
@@ -389,7 +389,7 @@ export default function ResearchHub() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="bg-white/80 backdrop-blur-xl border border-primary/20 rounded-2xl p-12 shadow-[0_8px_32px_rgba(159,188,164,0.1)] flex flex-col items-center text-center"
+              className="bg-white border border-gray-200 rounded-lg p-12 shadow-sm flex flex-col items-center text-center"
             >
               <div className="w-14 h-14 rounded-2xl bg-gray-100 border border-gray-200 flex items-center justify-center mb-4">
                 <Building2 className="w-7 h-7 text-gray-400" />
@@ -417,7 +417,7 @@ export default function ResearchHub() {
                   variants={cardVariants}
                   initial="hidden"
                   animate="visible"
-                  className="bg-white/80 backdrop-blur-xl border border-primary/20 rounded-2xl overflow-hidden shadow-[0_8px_32px_rgba(159,188,164,0.1)] group hover:shadow-[0_12px_48px_rgba(159,188,164,0.18)] transition-all duration-300"
+                  className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm group hover:shadow-md transition-all duration-300"
                 >
                   {/* Property image or fallback */}
                   {prop.imageUrl ? (
@@ -429,8 +429,8 @@ export default function ResearchHub() {
                       />
                     </div>
                   ) : (
-                    <div className="h-32 w-full bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
-                      <Building2 className="w-10 h-10 text-primary/30" />
+                    <div className="h-32 w-full bg-gray-50 flex items-center justify-center">
+                      <Building2 className="w-10 h-10 text-gray-300" />
                     </div>
                   )}
 
@@ -476,7 +476,7 @@ export default function ResearchHub() {
           transition={{ delay: 0.4, duration: 0.5 }}
         >
           <Link href="/settings">
-            <div className="bg-white/60 backdrop-blur-xl border border-primary/15 rounded-2xl p-4 shadow-[0_4px_16px_rgba(159,188,164,0.08)] flex items-center gap-4 hover:bg-white/80 hover:shadow-[0_8px_32px_rgba(159,188,164,0.12)] transition-all duration-300 cursor-pointer group">
+            <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm flex items-center gap-4 hover:bg-gray-50 hover:shadow-md transition-all duration-300 cursor-pointer group">
               <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
                 <Settings2 className="w-4.5 h-4.5 text-primary" />
               </div>

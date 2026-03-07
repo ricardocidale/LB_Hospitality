@@ -152,7 +152,7 @@ export default function CompanyResearch() {
         )}
 
         {isGenerating && (
-          <div className="bg-white rounded-2xl shadow-sm border border-emerald-200 p-6">
+          <div className="bg-white rounded-lg shadow-sm border border-emerald-200 p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
                 <Loader2 className="w-4 h-4 animate-spin text-emerald-700" />
@@ -169,7 +169,7 @@ export default function CompanyResearch() {
 
         {!isGenerating && (
           <Tabs defaultValue="fees" className="w-full">
-            <TabsList className="flex flex-wrap h-auto gap-1 bg-white/60 backdrop-blur-sm border border-primary/10 rounded-xl p-1.5">
+            <TabsList className="flex flex-wrap h-auto gap-1 bg-white border border-gray-200 rounded-lg p-1.5">
               {TABS.map(tab => (
                 <TabsTrigger key={tab.value} value={tab.value} className="flex items-center gap-1.5 text-xs data-[state=active]:bg-primary/10 data-[state=active]:text-primary rounded-lg px-3 py-1.5">
                   <tab.icon className="w-3.5 h-3.5" />
@@ -230,8 +230,8 @@ export default function CompanyResearch() {
 
 function EmptyTabState({ title, description, onGenerate }: { title: string; description: string; onGenerate: () => void }) {
   return (
-    <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_8px_32px_rgba(159,188,164,0.1)] border border-primary/20 p-12 text-center">
-      <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-primary/10 flex items-center justify-center">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+      <div className="w-16 h-16 mx-auto mb-4 rounded-lg bg-primary/10 flex items-center justify-center">
         <BookOpen className="w-8 h-8 text-primary" />
       </div>
       <h3 className="text-lg font-display text-gray-900 mb-2">{title}</h3>

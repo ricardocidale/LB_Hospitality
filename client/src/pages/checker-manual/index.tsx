@@ -55,14 +55,24 @@ export default function CheckerManual({ embedded }: CheckerManualProps) {
               subtitle="Hospitality Business Group — Verification & Testing Guide"
               actions={
                 <div className="flex gap-2">
-                  <GlassButton data-testid="btn-export-pdf" onClick={handleExportPDF} disabled={exportingManual}>
+                  <button 
+                    data-testid="btn-export-pdf" 
+                    onClick={handleExportPDF} 
+                    disabled={exportingManual}
+                    className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+                  >
                     {exportingManual ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <FileDown className="w-4 h-4 mr-2" />}
                     Export Manual PDF
-                  </GlassButton>
-                  <GlassButton data-testid="btn-full-export" onClick={handleFullExport} disabled={exportingData}>
+                  </button>
+                  <button 
+                    data-testid="btn-full-export" 
+                    onClick={handleFullExport} 
+                    disabled={exportingData}
+                    className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+                  >
                     {exportingData ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Database className="w-4 h-4 mr-2" />}
                     Full Data Export
-                  </GlassButton>
+                  </button>
                 </div>
               }
             />

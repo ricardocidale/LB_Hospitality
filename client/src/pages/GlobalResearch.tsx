@@ -22,7 +22,7 @@ const sectionColors = {
 
 function MetricCard({ label, value, color }: { label: string; value: string; color: typeof sectionColors.industry }) {
   return (
-    <div className={`rounded-xl p-4 border ${color.border} ${color.bg}`}>
+    <div className={`rounded-lg p-4 border ${color.border} ${color.bg}`}>
       <p className="text-xs font-medium uppercase tracking-wider mb-1.5 text-gray-500">{label}</p>
       <p className="text-base font-semibold text-gray-900">{value}</p>
     </div>
@@ -31,7 +31,7 @@ function MetricCard({ label, value, color }: { label: string; value: string; col
 
 function SectionCard({ icon: Icon, title, color, children }: { icon: any; title: string; color: typeof sectionColors.industry; children: React.ReactNode }) {
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
       <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100" style={{ borderLeftWidth: 4, borderLeftColor: color.accent }}>
         <div className={`w-9 h-9 rounded-lg ${color.iconBg} flex items-center justify-center`}>
           <Icon className={`w-[18px] h-[18px] ${color.iconText}`} />
@@ -218,7 +218,7 @@ export default function GlobalResearch() {
         )}
 
         {isGenerating && (
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
                 <Loader2 className="w-4 h-4 animate-spin text-emerald-700" />
@@ -234,8 +234,8 @@ export default function GlobalResearch() {
         )}
 
         {!hasResearch && !isGenerating && (
-          <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_8px_32px_rgba(159,188,164,0.1)] border border-primary/20 p-12 text-center">
-            <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-primary/10 flex items-center justify-center">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+            <div className="w-20 h-20 mx-auto mb-6 rounded-lg bg-primary/10 flex items-center justify-center">
               <BookOpen className="w-10 h-10 text-primary" />
             </div>
             <h3 className="text-xl font-display text-gray-900 mb-3">No Global Research Yet</h3>
@@ -295,7 +295,7 @@ export default function GlobalResearch() {
               <SectionCard icon={Sparkles} title="Event & Experience Hospitality" color={sectionColors.events}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {content.eventHospitality.wellnessRetreats && (
-                    <div className="bg-gray-50 rounded-xl p-5 border border-gray-100">
+                    <div className="bg-gray-50 rounded-lg p-5 border border-gray-100">
                       <h4 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
                         <span className="text-lg">🧘</span> Wellness Retreats
                       </h4>
@@ -322,7 +322,7 @@ export default function GlobalResearch() {
                   )}
                   
                   {content.eventHospitality.corporateEvents && (
-                    <div className="bg-gray-50 rounded-xl p-5 border border-gray-100">
+                    <div className="bg-gray-50 rounded-lg p-5 border border-gray-100">
                       <h4 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
                         <span className="text-lg">🏢</span> Corporate Events
                       </h4>
@@ -356,7 +356,7 @@ export default function GlobalResearch() {
                   )}
 
                   {content.eventHospitality.yogaRetreats && (
-                    <div className="bg-gray-50 rounded-xl p-5 border border-gray-100">
+                    <div className="bg-gray-50 rounded-lg p-5 border border-gray-100">
                       <h4 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
                         <span className="text-lg">🧘‍♀️</span> Yoga Retreats
                       </h4>
@@ -379,7 +379,7 @@ export default function GlobalResearch() {
                   )}
 
                   {content.eventHospitality.relationshipRetreats && (
-                    <div className="bg-gray-50 rounded-xl p-5 border border-gray-100">
+                    <div className="bg-gray-50 rounded-lg p-5 border border-gray-100">
                       <h4 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
                         <span className="text-lg">💑</span> Relationship Retreats
                       </h4>

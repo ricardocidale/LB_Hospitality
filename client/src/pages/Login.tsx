@@ -62,11 +62,11 @@ export default function Login() {
 
   return (
     <AnimatedPage>
-    <div className="min-h-screen flex items-center justify-center bg-muted">
+    <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="w-full max-w-sm mx-4">
         <div className="flex flex-col items-center mb-8">
           <div className="mb-3 cursor-pointer" onClick={handleAdminLogin}>
-            <LogoSvg size={48} color="#18181b" />
+            <LogoSvg size={48} color="hsl(var(--primary))" />
           </div>
           <h1 className="text-lg font-semibold text-foreground">
             Hospitality Business Group

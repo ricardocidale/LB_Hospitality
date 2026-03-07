@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -63,6 +64,7 @@ export default function CompanyResearch() {
 
   return (
     <Layout>
+      <AnimatedPage>
       <div className="space-y-6">
         <PageHeader
           title="Management Company Research"
@@ -224,6 +226,7 @@ export default function CompanyResearch() {
           </Tabs>
         )}
       </div>
+      </AnimatedPage>
     </Layout>
   );
 }

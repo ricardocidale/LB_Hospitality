@@ -10,6 +10,7 @@ import UserManual from "./user-manual";
 import { useWalkthroughStore } from "@/components/GuidedWalkthrough";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
 
 type HelpTab = "user-manual" | "checker-manual" | "guided-tour";
 
@@ -39,6 +40,7 @@ export default function Help() {
   ];
 
   return (
+    <AnimatedPage>
     <Layout>
       <div className="space-y-6">
         <PageHeader
@@ -88,5 +90,6 @@ export default function Help() {
         </Tabs>
       </div>
     </Layout>
+    </AnimatedPage>
   );
 }

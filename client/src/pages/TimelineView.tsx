@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useStore } from "@/lib/store";
 import { Building2, Play, Calendar, MapPin } from "lucide-react";
+import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
 
 interface TimelineEvent {
   date: string;
@@ -48,6 +49,7 @@ export default function TimelineView({ embedded }: { embedded?: boolean }) {
   }, [properties]);
 
   return (
+    <AnimatedPage>
     <div data-testid="timeline-view" className={embedded ? "" : "min-h-screen bg-background p-6 md:p-10"}>
       {!embedded && (
       <h1 className="text-3xl font-bold text-center mb-10" data-testid="timeline-title">
@@ -160,5 +162,6 @@ export default function TimelineView({ embedded }: { embedded?: boolean }) {
         </div>
       </div>
     </div>
+    </AnimatedPage>
   );
 }

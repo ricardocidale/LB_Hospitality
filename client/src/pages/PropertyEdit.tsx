@@ -24,6 +24,7 @@
  *   changes.
  */
 import Layout from "@/components/Layout";
+import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
 import { useProperty, useUpdateProperty, useGlobalAssumptions, useMarketResearch, useFeeCategories, useUpdateFeeCategories, type FeeCategoryResponse } from "@/lib/api";
 import { useMarketRates } from "@/lib/api/market-rates";
 import { Button } from "@/components/ui/button";
@@ -375,6 +376,7 @@ export default function PropertyEdit() {
 
   return (
     <Layout>
+      <AnimatedPage>
       <div className="space-y-6 max-w-4xl">
         <PageHeader
           title="Property Assumptions"
@@ -451,6 +453,7 @@ export default function PropertyEdit() {
           handleChange(key, value);
         }}
       />
+      </AnimatedPage>
     </Layout>
   );
 }

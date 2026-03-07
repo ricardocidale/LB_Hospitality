@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Loader2, User, Eye, EyeOff, Key, ClipboardCheck, Palette } from "lucide-react";
+import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
 import { SaveButton } from "@/components/ui/save-button";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
@@ -183,6 +184,7 @@ export default function Profile() {
 
   return (
     <Layout>
+      <AnimatedPage>
       <div className="max-w-2xl mx-auto p-0 sm:p-6 space-y-6 sm:space-y-8">
         <PageHeader
           title="My Profile"
@@ -459,6 +461,7 @@ export default function Profile() {
           </CardContent>
         </Card>
       </div>
+      </AnimatedPage>
     </Layout>
   );
 }

@@ -5,6 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Loader2, Clock, LogIn } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { formatDateTime, formatDuration } from "@/lib/formatters";
+import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
 
 interface LoginLog {
   id: number;
@@ -40,6 +41,7 @@ export default function AdminLoginLogs() {
 
   return (
     <Layout>
+      <AnimatedPage>
       <div className="space-y-8">
         <PageHeader 
           title="Login Activity" 
@@ -115,6 +117,7 @@ export default function AdminLoginLogs() {
           </CardContent>
         </Card>
       </div>
+      </AnimatedPage>
     </Layout>
   );
 }

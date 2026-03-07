@@ -12,6 +12,7 @@ import BrandingTab from "@/components/admin/BrandingTab";
 import ThemesTab from "@/components/admin/ThemesTab";
 import LogosTab from "@/components/admin/LogosTab";
 import NavigationTab from "@/components/admin/NavigationTab";
+import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
 
 const sectionMeta: Record<AdminSection, { title: string; subtitle: string }> = {
   users:        { title: "Users",          subtitle: "Manage user accounts, roles, and passwords" },
@@ -56,6 +57,7 @@ export default function Admin() {
   const activeGroup = navGroups.find((g) => g.id === activeGroupId);
 
   return (
+    <AnimatedPage>
     <TooltipProvider>
       <Layout>
         <div className="space-y-5">
@@ -88,5 +90,6 @@ export default function Admin() {
         </div>
       </Layout>
     </TooltipProvider>
+    </AnimatedPage>
   );
 }

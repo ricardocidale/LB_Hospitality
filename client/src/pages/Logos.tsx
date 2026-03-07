@@ -10,6 +10,7 @@ import { Loader2, Plus, Trash2, Image, Upload, Building2, Save, Star } from "luc
 import { useToast } from "@/hooks/use-toast";
 import { PageHeader } from "@/components/ui/page-header";
 import defaultLogo from "@/assets/logo.png";
+import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
 
 interface Logo {
   id: number;
@@ -136,6 +137,7 @@ export default function Logos() {
   };
 
   return (
+    <AnimatedPage>
     <Layout>
       <div className="container mx-auto max-w-5xl py-8 px-4">
         <PageHeader
@@ -308,5 +310,6 @@ export default function Logos() {
         </DialogContent>
       </Dialog>
     </Layout>
+    </AnimatedPage>
   );
 }

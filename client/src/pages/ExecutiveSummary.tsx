@@ -1,4 +1,5 @@
 import { useRef, useCallback } from "react";
+import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
 import { useStore } from "@/lib/store";
 import {
   ResponsiveContainer,
@@ -151,6 +152,7 @@ export default function ExecutiveSummary() {
   }, []);
 
   return (
+    <AnimatedPage>
     <div ref={pageRef} data-testid="executive-summary" style={styles.page}>
       <style>{printStyles}</style>
 
@@ -302,6 +304,7 @@ export default function ExecutiveSummary() {
         </table>
       </div>
     </div>
+    </AnimatedPage>
   );
 }
 

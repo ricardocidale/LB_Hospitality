@@ -10,6 +10,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { downloadResearchPDF, emailResearchPDF } from "@/lib/exports/researchPdfExport";
 import { useToast } from "@/hooks/use-toast";
+import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
 
 const sectionColors = {
   industry: { accent: "#257D41", bg: "bg-emerald-50", border: "border-emerald-200", iconBg: "bg-emerald-100", iconText: "text-emerald-700" },
@@ -22,10 +23,12 @@ const sectionColors = {
 
 function MetricCard({ label, value, color }: { label: string; value: string; color: typeof sectionColors.industry }) {
   return (
+    <AnimatedPage>
     <div className={`rounded-lg p-4 border ${color.border} ${color.bg}`}>
       <p className="text-xs font-medium uppercase tracking-wider mb-1.5 text-muted-foreground">{label}</p>
       <p className="text-base font-semibold text-foreground">{value}</p>
     </div>
+    </AnimatedPage>
   );
 }
 

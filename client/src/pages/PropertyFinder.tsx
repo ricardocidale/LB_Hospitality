@@ -28,6 +28,7 @@ import {
   SavedSearchBar,
   type SearchFormData,
 } from "@/components/property-finder";
+import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
 
 export default function PropertyFinder() {
   const { data: global } = useGlobalAssumptions();
@@ -171,6 +172,7 @@ export default function PropertyFinder() {
   const isNoApiKey = searchError?.message?.includes("RapidAPI key not configured");
 
   return (
+    <AnimatedPage>
     <Layout>
       <div className="p-4 lg:p-8 space-y-6 max-w-[1400px] mx-auto">
         <PageHeader
@@ -352,5 +354,6 @@ export default function PropertyFinder() {
         </div>
       </div>
     </Layout>
+    </AnimatedPage>
   );
 }

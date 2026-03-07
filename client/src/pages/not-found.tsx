@@ -4,9 +4,11 @@ import { AlertCircle, Home } from "lucide-react";
 import { Link } from "wouter";
 import { useAuth } from "@/lib/auth";
 import Layout from "@/components/Layout";
+import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
 
 function NotFoundContent() {
   return (
+    <AnimatedPage>
     <Card className="w-full max-w-md mx-auto">
       <CardContent className="pt-6">
         <div className="flex mb-4 gap-2">
@@ -26,6 +28,7 @@ function NotFoundContent() {
         </Link>
       </CardContent>
     </Card>
+    </AnimatedPage>
   );
 }
 

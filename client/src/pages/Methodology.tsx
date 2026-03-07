@@ -53,6 +53,7 @@ import { sections } from "@/components/methodology/methodologyData";
 import { MethodologyTOC } from "@/components/methodology/MethodologyTOC";
 import { MethodologySection } from "@/components/methodology/MethodologySection";
 import { AuditSections } from "@/components/methodology/AuditSections";
+import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
 
 /** Format a decimal as a percentage string, e.g. 0.36 → "36%" */
 const pct = (v: number) => `${Math.round(v * 100)}%`;
@@ -83,6 +84,7 @@ export default function Methodology({ embedded }: { embedded?: boolean }) {
   const Wrapper = embedded ? ({ children }: { children: React.ReactNode }) => <>{children}</> : Layout;
 
   return (
+    <AnimatedPage>
     <Wrapper>
       <div className="space-y-8">
         {!embedded && (
@@ -635,5 +637,6 @@ export default function Methodology({ embedded }: { embedded?: boolean }) {
         </Card>
       </div>
     </Wrapper>
+    </AnimatedPage>
   );
 }

@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { LogoSvg } from "@/components/LogoSvg";
+import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
 
 export default function Login() {
   const { login } = useAuth();
@@ -60,6 +61,7 @@ export default function Login() {
   };
 
   return (
+    <AnimatedPage>
     <div className="min-h-screen flex items-center justify-center bg-muted">
       <div className="w-full max-w-sm mx-4">
         <div className="flex flex-col items-center mb-8">
@@ -139,5 +141,6 @@ export default function Login() {
         </p>
       </div>
     </div>
+    </AnimatedPage>
   );
 }

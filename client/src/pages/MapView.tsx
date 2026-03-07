@@ -5,6 +5,7 @@ import { Building2, DollarSign, Navigation, Mountain } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
+import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
 
 const KNOWN_COORDS: Record<string, [number, number]> = {
   "medellín, antioquia, colombia": [-75.6266, 6.2553],
@@ -341,6 +342,7 @@ export default function MapView() {
   const countryCount = new Set(geoProperties.map(g => g.property.country)).size;
 
   return (
+    <AnimatedPage>
     <div data-testid="map-view" className="space-y-4">
       <style>{`
         @keyframes marker-pulse {
@@ -466,5 +468,6 @@ export default function MapView() {
         </div>
       </div>
     </div>
+    </AnimatedPage>
   );
 }

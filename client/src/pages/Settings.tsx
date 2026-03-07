@@ -2,10 +2,11 @@
  * Settings.tsx — Systemwide assumptions configuration page.
  *
  * This page lets management-level users configure the "global" variables that
- * drive the entire financial model. Changes are saved to the global_assumptions table 
+ * drive the entire financial model. Changes are saved to the global_assumptions table
  * and trigger a full financial recalculation across all properties and dashboards.
  */
 import Layout from "@/components/Layout";
+import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
 import { 
   useGlobalAssumptions, 
   useUpdateGlobalAssumptions, 
@@ -253,6 +254,7 @@ export default function Settings() {
 
   return (
     <Layout>
+      <AnimatedPage>
       <div className="space-y-6 max-w-4xl">
         <PageHeader
           title="Systemwide Assumptions"
@@ -331,6 +333,7 @@ export default function Settings() {
           </TabsContent>
         </Tabs>
       </div>
+      </AnimatedPage>
     </Layout>
   );
 }

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
 import Layout from "@/components/Layout";
 import { useProperty, useMarketResearch, useGlobalAssumptions } from "@/lib/api";
 import { PageHeader } from "@/components/ui/page-header";
@@ -54,6 +55,7 @@ export default function PropertyMarketResearch() {
 
   return (
     <Layout>
+      <AnimatedPage>
       <div className="space-y-6">
         <PageHeader
           title={`Market Research: ${property.name}`}
@@ -206,6 +208,7 @@ export default function PropertyMarketResearch() {
 
         {hasResearch && !isGenerating && <ResearchSections content={content} />}
       </div>
+      </AnimatedPage>
     </Layout>
   );
 }

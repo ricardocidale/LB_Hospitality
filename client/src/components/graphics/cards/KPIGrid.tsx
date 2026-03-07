@@ -52,7 +52,7 @@ const colClass: Record<number, string> = {
 export function KPIGrid({ items, columns = 4, className, ...props }: KPIGridProps) {
   return (
     <motion.div
-      className={`grid gap-3 sm:gap-4 ${colClass[columns]} ${className || ""}`}
+      className={`grid gap-4 sm:gap-5 ${colClass[columns]} ${className || ""}`}
       variants={containerVariants}
       initial="hidden"
       animate="visible"
@@ -93,7 +93,7 @@ function KPICard({ item }: { item: KPIItem }) {
       style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
       whileHover={{ scale: 1.02, y: -2, boxShadow: "0 8px 24px hsl(var(--primary) / 0.12)", transition: { duration: 0.2 } }}
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
-      className="bg-card/80 border border-primary/10 rounded-lg p-4 sm:p-5 shadow-[0_2px_8px_rgba(var(--primary-rgb,159,188,164),0.08)] cursor-default"
+      className="bg-card/80 border border-border rounded-xl p-4 sm:p-5 shadow-sm cursor-default"
     >
       <div className="flex items-start justify-between mb-1">
         <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider truncate">

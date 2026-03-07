@@ -216,8 +216,8 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
           </aside>
         </div>
 
-        <main className="flex-1 flex flex-col min-w-0 overflow-x-hidden">
-          <header className="h-12 border-b border-gray-200 bg-white flex items-center justify-between px-4 sticky top-0 z-30">
+        <main className="relative flex-1 flex flex-col min-w-0 overflow-x-hidden">
+          <header className="h-12 border-b border-gray-200 bg-white flex items-center justify-between px-4 sticky top-0 z-20">
             <div className="flex items-center gap-2 min-w-0">
               <Button variant="ghost" size="icon" className="flex-shrink-0 md:hidden h-8 w-8" onClick={() => setSidebarOpen(!sidebarOpen)}>
                 {sidebarOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}

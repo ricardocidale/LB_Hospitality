@@ -275,7 +275,7 @@ export default function Dashboard() {
           />
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <div className="mb-6 sticky top-4 z-50">
+            <div className="mb-6 sticky top-4 z-10">
               <CurrentThemeTab
                 activeTab={activeTab}
                 onTabChange={setActiveTab}

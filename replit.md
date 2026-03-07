@@ -77,6 +77,18 @@ React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v
 - AI agent name configurable via DB (`aiAgentName`), default "Marcela"
 - All ElevenLabs config via API — no manual dashboard usage
 
+## Barrel Files & Wrappers
+Documented in `.agents/skills/codebase-architecture/SKILL.md`. Key rules:
+- Barrel files (`index.ts`) aggregate directory exports — maintain these
+- Thin re-export wrappers (e.g., `lib/api.ts` → `lib/api/index`) exist for convenience — never duplicate logic
+- New code should import from canonical source, not wrappers
+- Orphan wrappers (zero importers) should be deleted during cleanup
+
+## Preset Themes
+6 admin-selectable themes seeded via `script/seed-preset-themes.ts`:
+L+B Brand (sage), Muted Sage (olive earth), Midnight Navy, Warm Charcoal, Deep Teal, Steel Blue.
+Theme engine: `client/src/lib/themeUtils.ts` — maps PALETTE rank 1-6 + CHART rank 1-5 to CSS variables.
+
 ## Scripts Directory
 All utility scripts live in `script/` (single canonical directory). Includes health checks, test runners, verification, seed data, branding tools, and admin utilities.
 

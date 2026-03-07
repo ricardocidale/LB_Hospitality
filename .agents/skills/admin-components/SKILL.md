@@ -72,7 +72,6 @@ Drop-in logo picker with thumbnail preview. Uses `useAdminLogos()` internally.
 ```tsx
 import LogoSelector from "./LogoSelector";
 
-// With "No Logo" option (default)
 <LogoSelector
   label="Company Logo"
   value={globalAssumptions?.companyLogoId ?? null}
@@ -80,16 +79,6 @@ import LogoSelector from "./LogoSelector";
   showNone={true}
   emptyLabel="Default Logo"
   testId="select-company-logo"
-/>
-
-// Without "No Logo", falls back to default logo entry
-<LogoSelector
-  label="Asset Logo"
-  value={globalAssumptions?.assetLogoId ?? null}
-  onChange={(logoId) => mutation.mutate({ assetLogoId: logoId })}
-  showNone={false}
-  useDefaultFallback={true}
-  testId="select-asset-logo"
 />
 ```
 
@@ -107,6 +96,57 @@ Props:
 | `fallbackUrl` | string | default logo asset | Fallback image URL |
 
 **Rule:** Always use `LogoSelector` for logo selection UI. Do not build inline logo selectors.
+
+### ThemePreview (`client/src/features/design-themes/ThemePreview.tsx`)
+
+Live preview component showing sample UI elements (buttons, dialogs, menus, cards, badges, notifications, chart bars) that all render using current CSS variable theme tokens. Shows users exactly what their theme changes affect.
+
+Rendered inside `ThemeManager` between the "Current Theme" card and the "All Themes" list. Collapsible via eye icon.
+
+## Barrel Files & Re-exports (Canonical Wrappers)
+
+The codebase uses barrel files (`index.ts`) and thin re-export wrappers to provide clean import paths. These are intentional and must be maintained.
+
+### Barrel Files (index.ts aggregators)
+| Barrel File | Aggregates |
+|-------------|------------|
+| `components/admin/index.ts` | All admin tabs (UsersTab, MarcelaTab, etc.) |
+| `components/admin/marcela/index.ts` | Marcela admin sub-components |
+| `components/dashboard/index.ts` | Dashboard tabs and hooks |
+| `components/financial-table/index.ts` | Row components and table shell |
+| `components/property-detail/index.ts` | Property detail sub-components |
+| `components/property-edit/index.ts` | Property edit sub-components |
+| `components/property-research/index.ts` | Research sub-components |
+| `components/property-finder/index.ts` | Property finder sub-components |
+| `components/settings/index.ts` | Settings tab components |
+| `features/ai-agent/index.ts` | ElevenLabsWidget, VoiceChatOrb/Full/Bar, Speaker, Transcriber |
+| `features/ai-agent/components/index.ts` | 16+ AI agent UI components |
+| `features/ai-agent/hooks/index.ts` | All AI agent hooks + AI_AGENT_KEYS |
+| `lib/api/index.ts` | API modules (types, properties, admin, research, etc.) |
+| `lib/financial/index.ts` | Financial engine (types, utils, calculators) |
+| `lib/exports/index.ts` | Export utilities (Excel, PDF, PNG, CSV, PPTX) |
+| `lib/exports/excel/index.ts` | Excel-specific exports |
+
+### Thin Re-export Wrappers (convenience imports)
+These exist so other code can import from a shorter/legacy path without breaking.
+
+| Wrapper File | Source of Truth | Used By |
+|-------------|----------------|---------|
+| `components/admin/MarcelaTab.tsx` | `./marcela/MarcelaTab` | `admin/index.ts` barrel |
+| `components/admin/marcela/hooks.ts` | `@/features/ai-agent/hooks` | Marcela admin tab |
+| `components/admin/marcela/types.ts` | `features/ai-agent/types` | Marcela admin tab |
+| `components/financial-table-rows.tsx` | `./financial-table/index` | Legacy import path |
+| `components/ConsolidatedBalanceSheet.tsx` | `./statements/ConsolidatedBalanceSheet` | Legacy import path |
+| `lib/api.ts` | `./api/index` | Convenience shorthand |
+| `lib/financialEngine.ts` | `./financial` | Convenience shorthand |
+| `lib/exports/excelExport.ts` | `./excel/index` | Legacy import path |
+| `pages/CheckerManual.tsx` | `./checker-manual/index` | Router entry point |
+
+**Rules:**
+1. Never duplicate logic in a wrapper — it must be a pure `export { ... } from "..."` or `export * from "..."`
+2. When adding new features, import from the canonical source (barrel or feature module), not from wrappers
+3. Do not create new thin wrappers — use barrel files instead
+4. Periodically audit for orphan wrappers (wrappers with zero external imports) and remove them
 
 ## Upload Flow
 
@@ -150,6 +190,35 @@ All UI follows the ElevenLabs component pattern:
 - **Exports**: Use shadcn `DropdownMenu` for export menus (via `ExportToolbar`)
 - **Voice/AI components**: Canonical versions live in `client/src/features/ai-agent/components/`
 
+## Theme System
+
+### Preset Themes (seeded via `script/seed-preset-themes.ts`)
+| Theme | Primary | Vibe |
+|-------|---------|------|
+| L+B Brand | Sage Green `#9FBCA4` | Original earthy hospitality brand |
+| Muted Sage | Olive Sage `#8A9A7B` | Earth tone, warm naturals |
+| Midnight Navy | Navy `#2C3E6B` | Professional, institutional trust |
+| Warm Charcoal | Warm Slate `#6B7280` | Modern editorial, minimal |
+| Deep Teal | Teal `#0D7377` | Coastal luxury, blue-green |
+| Steel Blue | Steel Blue `#6889A8` | Soft, approachable professional |
+
+### Theme Color Ranks (PALETTE: prefix)
+| Rank | Maps to | CSS Variables |
+|------|---------|---------------|
+| 1 | Primary | `--primary`, `--accent`, `--ring`, `--sidebar-primary` |
+| 2 | Secondary | `--secondary` |
+| 3 | Background | `--background`, `--card`, `--popover` |
+| 4 | Foreground | `--foreground`, `--card-foreground`, `--popover-foreground` |
+| 5 | Muted | `--muted`, `--sidebar-accent` |
+| 6 | Border | `--border`, `--input`, `--sidebar-border` |
+
+### Chart Color Ranks (CHART: prefix)
+Ranks 1–5 map to `--chart-1` through `--chart-5`.
+
+Engine: `client/src/lib/themeUtils.ts` (`applyThemeColors()` / `resetThemeColors()`)
+
+Applied in: `client/src/components/Layout.tsx` via `useEffect` on branding query.
+
 ## Conventions
 
 1. Every admin tab uses shared hooks from `hooks.ts` — no inline fetches
@@ -173,3 +242,12 @@ All UI follows the ElevenLabs component pattern:
 ## Types (`client/src/components/admin/types.ts`)
 
 Shared interfaces: `User`, `Logo`, `UserGroup`, `AdminCompany`, `LoginLog`, `ActiveSession`, `ActivityLogEntry`, `CheckerSummary`, `VerificationHistoryEntry`, `DesignCheckResult`, `AssetDesc`
+
+## Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `script/seed-preset-themes.ts` | Seed 5 preset design themes (idempotent) |
+| `script/seed-lb-brand-theme.ts` | Seed original L+B Brand theme |
+| `script/admin-structure.ts` | Analyze admin page structure |
+| `script/verify-admin-refactor.ts` | Verify admin refactor consistency |

@@ -12,8 +12,14 @@
  *   rank 5 → muted (secondary backgrounds, table rows)
  *   rank 6 → border / input outline
  *
+ * Accent color (ACCENT: prefix):
+ *   rank 1 → --accent-pop (standout highlight for IRR circles, key KPIs, badges)
+ *
  * Chart color rank convention (CHART: prefix):
  *   rank 1-5 → --chart-1 through --chart-5
+ *
+ * Line graph color convention (LINE: prefix):
+ *   rank 1-5 → --line-1 through --line-5
  */
 
 export interface DesignColor {
@@ -73,8 +79,10 @@ const MANAGED_VARS = [
   "--foreground",
   "--muted", "--muted-foreground",
   "--accent", "--accent-foreground",
+  "--accent-pop", "--accent-pop-foreground",
   "--border", "--input", "--ring",
   "--chart-1", "--chart-2", "--chart-3", "--chart-4", "--chart-5",
+  "--line-1", "--line-2", "--line-3", "--line-4", "--line-5",
   "--sidebar-primary", "--sidebar-primary-foreground",
   "--sidebar-accent", "--sidebar-border", "--sidebar-ring",
 ];
@@ -94,6 +102,12 @@ export function applyThemeColors(colors: DesignColor[]): void {
     .sort((a, b) => a.rank - b.rank);
   const charts = colors
     .filter(c => c.description?.startsWith("CHART:"))
+    .sort((a, b) => a.rank - b.rank);
+  const accents = colors
+    .filter(c => c.description?.startsWith("ACCENT:"))
+    .sort((a, b) => a.rank - b.rank);
+  const lines = colors
+    .filter(c => c.description?.startsWith("LINE:"))
     .sort((a, b) => a.rank - b.rank);
 
   const set = (name: string, hsl: string) =>
@@ -151,9 +165,21 @@ export function applyThemeColors(colors: DesignColor[]): void {
     set("--input", hsl);
   }
 
+  // Accent pop color (ACCENT: rank 1) — standout highlight for IRR circles, KPIs
+  const ac1 = accents.find(c => c.rank === 1);
+  if (ac1) {
+    set("--accent-pop", hexToHslString(ac1.hexCode));
+    set("--accent-pop-foreground", contrastHsl(ac1.hexCode));
+  }
+
   // Chart colors rank 1–5
   charts.forEach((c, i) => {
     if (i < 5) set(`--chart-${i + 1}`, hexToHslString(c.hexCode));
+  });
+
+  // Line graph colors rank 1–5
+  lines.forEach((c, i) => {
+    if (i < 5) set(`--line-${i + 1}`, hexToHslString(c.hexCode));
   });
 
   // Sidebar variables — derive from palette for cohesive branding

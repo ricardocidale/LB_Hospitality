@@ -34,11 +34,18 @@
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
+  --color-accent-pop: hsl(var(--accent-pop));
+  --color-accent-pop-foreground: hsl(var(--accent-pop-foreground));
   --color-chart-1: hsl(var(--chart-1));
   --color-chart-2: hsl(var(--chart-2));
   --color-chart-3: hsl(var(--chart-3));
   --color-chart-4: hsl(var(--chart-4));
   --color-chart-5: hsl(var(--chart-5));
+  --color-line-1: hsl(var(--line-1));
+  --color-line-2: hsl(var(--line-2));
+  --color-line-3: hsl(var(--line-3));
+  --color-line-4: hsl(var(--line-4));
+  --color-line-5: hsl(var(--line-5));
   --color-sidebar: hsl(var(--sidebar));
   --color-sidebar-foreground: hsl(var(--sidebar-foreground));
   --color-sidebar-primary: hsl(var(--sidebar-primary));
@@ -101,11 +108,20 @@
 
   --radius: 0.5rem;
 
+  --accent-pop: 43 90% 55%;
+  --accent-pop-foreground: 0 0% 100%;
+
   --chart-1: 91 13% 54%;
   --chart-2: 100 20% 30%;
   --chart-3: 18 50% 54%;
   --chart-4: 43 49% 55%;
   --chart-5: 0 30% 56%;
+
+  --line-1: 91 40% 42%;
+  --line-2: 18 60% 50%;
+  --line-3: 250 50% 55%;
+  --line-4: 43 80% 48%;
+  --line-5: 340 65% 50%;
 
   --sidebar: 0 0% 100%;
   --sidebar-foreground: 30 5% 15%;

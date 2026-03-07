@@ -33,7 +33,7 @@ Business simulation portal for **Hospitality Business Group**. Models a boutique
 
 ## Current Theme
 
-**Tuscan Olive Grove** is the default theme (olive-sage). 7 preset themes available: Heritage Gold, Tuscan Olive Grove, Starlit Harbor, Smoke & Stone, Coastal Breeze, Nordic Fjord, Electric Twilight. See `.claude/skills/ui/theme-engine.md` for token structure.
+**Tuscan Olive Grove** is the default theme (olive-sage). 5 preset themes available: Studio Noir, Tuscan Olive Grove, Starlit Harbor, Coastal Breeze, Electric Twilight. Theme engine maps PALETTE rank 1-6, ACCENT rank 1 (→ `--accent-pop`), CHART rank 1-5, LINE rank 1-5 to CSS variables. See `.claude/skills/ui/theme-engine.md` for token structure.
 
 ---
 

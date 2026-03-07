@@ -86,9 +86,9 @@ Documented in `.agents/skills/codebase-architecture/SKILL.md`. Key rules:
 - Orphan wrappers (zero importers) should be deleted during cleanup
 
 ## Preset Themes
-7 admin-selectable themes seeded via `script/seed-preset-themes.ts`:
-Heritage Gold, Tuscan Olive Grove, Starlit Harbor, Smoke & Stone, Coastal Breeze, Nordic Fjord, Electric Twilight.
-Theme engine: `client/src/lib/themeUtils.ts` — maps PALETTE rank 1-6 + CHART rank 1-5 to CSS variables.
+5 admin-selectable themes seeded via `script/seed-preset-themes.ts`:
+Studio Noir, Tuscan Olive Grove, Starlit Harbor, Coastal Breeze, Electric Twilight.
+Theme engine: `client/src/lib/themeUtils.ts` — maps PALETTE rank 1-6, ACCENT rank 1 (→ `--accent-pop`), CHART rank 1-5, LINE rank 1-5 to CSS variables.
 
 ## Scripts Directory
 All utility scripts live in `script/` (single canonical directory). Includes health checks, test runners, verification, seed data, branding tools, and admin utilities.

@@ -132,6 +132,7 @@ All utility scripts live in `script/` (single canonical directory). Includes hea
 - Custom `Dot` component: `r={5}`, `fill={payload.fill}`, `stroke={payload.fill}`.
 - Config uses `satisfies ChartConfig` with `color: "var(--chart-N)"` per series.
 - Reference: shadcn "Line Chart - Dots Colors" pattern.
+- **Multi-series variant** ("Line Chart - Dots"): One `<Line>` per series, each with own `stroke="var(--color-seriesName)"`, simple `dot={{ fill: "var(--color-seriesName)" }}`, `activeDot={{ r: 6 }}`. `XAxis` with `tickLine={false}`, `axisLine={false}`, `tickMargin={8}`, `tickFormatter` for abbreviation. `ChartTooltipContent hideLabel`. Margins `{ left: 12, right: 12 }`.
 
 ## Norfolk AI Logos
 - `norfolk-ai-wireframe.png` — thin outline strokes, dim on dark backgrounds (avoid for login)

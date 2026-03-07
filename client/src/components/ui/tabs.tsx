@@ -86,7 +86,7 @@ function CurrentThemeTab({ tabs, activeTab, onTabChange, rightContent }: Current
                 {Icon && (
                   <Icon className={cn(
                     "w-4 h-4",
-                    isActive ? "text-primary-foreground" : "text-muted-foreground"
+                    isActive ? "text-foreground" : "text-muted-foreground"
                   )} />
                 )}
                 <span className="text-xs sm:text-sm">{tab.label}</span>

@@ -71,13 +71,13 @@ export default function IncomeStatementTab({
                 />
                 <Tooltip 
                   contentStyle={{ 
-                    backgroundColor: 'white', 
-                    borderColor: '#E5E7EB',
+                    backgroundColor: 'hsl(var(--card))', 
+                    borderColor: 'hsl(var(--border))',
                     borderRadius: '12px',
                     boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-                    color: '#111827',
+                    color: 'hsl(var(--foreground))',
                   }}
-                  labelStyle={{ color: '#374151', fontWeight: 600 }}
+                  labelStyle={{ color: 'hsl(var(--foreground))', fontWeight: 600 }}
                   formatter={(value: number, name: string) => {
                     const labels: Record<string, string> = { Revenue: "Revenue — Total Revenue", GOP: "GOP — Gross Operating Profit", ANOI: "ANOI — Adjusted Net Operating Income" };
                     return [formatMoney(value), labels[name] ?? name];

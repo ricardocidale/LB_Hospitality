@@ -20,17 +20,17 @@ export interface ChartSeries {
 }
 
 const PRESET_SERIES: Record<string, ChartSeries> = {
-  revenue: { dataKey: "Revenue", name: "Total Revenue", color: "#18181b" },
-  gop: { dataKey: "GOP", name: "Gross Operating Profit", color: "#3B82F6" },
-  agop: { dataKey: "AGOP", name: "Adjusted GOP (AGOP)", color: "#10B981" },
-  noi: { dataKey: "NOI", name: "Net Operating Income (NOI)", color: "#F59E0B" },
-  anoi: { dataKey: "ANOI", name: "Adjusted NOI (ANOI)", color: "#6B7280" },
-  expenses: { dataKey: "Expenses", name: "Total Expenses", color: "#3B82F6" },
+  revenue: { dataKey: "Revenue", name: "Revenue — Total Revenue", color: "#18181b" },
+  gop: { dataKey: "GOP", name: "GOP — Gross Operating Profit", color: "#3B82F6" },
+  agop: { dataKey: "AGOP", name: "AGOP — Adjusted Gross Operating Profit", color: "#10B981" },
+  noi: { dataKey: "NOI", name: "NOI — Net Operating Income", color: "#F59E0B" },
+  anoi: { dataKey: "ANOI", name: "ANOI — Adjusted Net Operating Income", color: "#6B7280" },
+  expenses: { dataKey: "Expenses", name: "Expenses — Total Expenses", color: "#3B82F6" },
   netIncome: { dataKey: "NetIncome", name: "Net Income", color: "#6B7280" },
-  cashFlow: { dataKey: "CashFlow", name: "Cash Flow", color: "#8B5CF6" },
-  fcfe: { dataKey: "FCFE", name: "Free Cash Flow to Equity", color: "#6B7280" },
-  btcf: { dataKey: "BTCF", name: "Before-Tax Cash Flow", color: "#3B82F6" },
-  atcf: { dataKey: "ATCF", name: "After-Tax Cash Flow", color: "#6B7280" },
+  cashFlow: { dataKey: "CashFlow", name: "Cash Flow — After Debt Service", color: "#8B5CF6" },
+  fcfe: { dataKey: "FCFE", name: "FCFE — Free Cash Flow to Equity", color: "#6B7280" },
+  btcf: { dataKey: "BTCF", name: "BTCF — Before-Tax Cash Flow", color: "#3B82F6" },
+  atcf: { dataKey: "ATCF", name: "ATCF — After-Tax Cash Flow", color: "#6B7280" },
 };
 
 export interface FinancialChartProps {
@@ -89,17 +89,17 @@ function FinancialChart({
       <div style={{ height }}>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
             <XAxis
               dataKey={xAxisKey}
-              stroke="#9CA3AF"
+              stroke="hsl(var(--muted-foreground))"
               fontSize={12}
               tickLine={false}
               axisLine={false}
               tickMargin={8}
             />
             <YAxis
-              stroke="#9CA3AF"
+              stroke="hsl(var(--muted-foreground))"
               fontSize={12}
               tickLine={false}
               axisLine={false}
@@ -107,19 +107,20 @@ function FinancialChart({
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: "white",
-                borderColor: "#E5E7EB",
+                backgroundColor: "hsl(var(--card))",
+                borderColor: "hsl(var(--border))",
                 borderRadius: "8px",
                 boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
                 fontSize: "13px",
+                color: "hsl(var(--foreground))",
               }}
-              labelStyle={{ color: "#111827", fontWeight: 600, fontSize: "13px" }}
-              formatter={(value: number) => [
+              labelStyle={{ color: "hsl(var(--foreground))", fontWeight: 600, fontSize: "13px" }}
+              formatter={(value: number, name: string) => [
                 tooltipFormatter ? tooltipFormatter(value) : formatMoney(value),
-                "",
+                name,
               ]}
             />
-            <Legend wrapperStyle={{ color: "#374151", fontSize: "12px" }} iconType="circle" />
+            <Legend wrapperStyle={{ color: "hsl(var(--muted-foreground))", fontSize: "12px" }} iconType="circle" />
             {resolvedSeries.map((s) => (
               <Line
                 key={s.dataKey}

@@ -9,7 +9,6 @@ import { cn } from "@/lib/utils"
 import { useDebounce } from "@/hooks/use-debounce"
 import { usePrevious } from "@/hooks/use-previous"
 import { useScribe } from "@/hooks/use-scribe"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ShimmeringText } from "@/features/ai-agent/components/shimmering-text"
 
@@ -545,7 +544,7 @@ export default function RealtimeTranscriber01() {
         isConnected={connectionState === "connected"}
       />
 
-      <style jsx>{`
+      <style>{`
         @keyframes shimmer {
           0% {
             transform: translateX(-20%) scale(1);
@@ -675,16 +674,14 @@ export default function RealtimeTranscriber01() {
                   </kbd>
                 </Button>
 
-                <Badge variant="outline" asChild>
-                  <a
-                    href="https://elevenlabs.io/speech-to-text"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-foreground/60 hover:text-foreground/80 transition-colors"
-                  >
-                    Powered by ElevenLabs Speech to Text
-                  </a>
-                </Badge>
+                <a
+                  href="https://elevenlabs.io/speech-to-text"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center rounded-full border border-border px-2.5 py-0.5 text-xs font-semibold text-foreground/60 hover:text-foreground/80 transition-colors"
+                >
+                  Powered by ElevenLabs Speech to Text
+                </a>
               </div>
             </div>
           </div>

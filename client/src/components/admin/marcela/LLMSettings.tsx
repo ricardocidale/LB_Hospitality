@@ -3,8 +3,9 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { MessageSquare, Mic, Brain } from "lucide-react";
+import { MessageSquare, Mic, Brain, AlertCircle } from "lucide-react";
 import { VoiceSettings, LLM_MODELS } from "./types";
+import { useConversations } from "./hooks";
 
 interface LLMSettingsProps {
   draft: VoiceSettings;
@@ -12,6 +13,12 @@ interface LLMSettingsProps {
 }
 
 export function LLMSettings({ draft, updateField }: LLMSettingsProps) {
+  const { data: conversations } = useConversations();
+  const failedCount = (conversations ?? []).filter((c: any) => c.call_successful === "failure").length;
+  const total = (conversations ?? []).length;
+  const failureRate = total > 0 ? failedCount / total : 0;
+  const showTimeoutWarning = total > 0 && failureRate > 0.3;
+
   return (
     <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
       <CardHeader>
@@ -24,6 +31,18 @@ export function LLMSettings({ draft, updateField }: LLMSettingsProps) {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">
+        {showTimeoutWarning && (
+          <div className="flex items-start gap-3 p-3.5 bg-gradient-to-br from-amber-50 to-orange-50/50 rounded-xl border border-amber-200/60">
+            <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-xs font-semibold text-amber-900">High failure rate detected ({Math.round(failureRate * 100)}% of conversations)</p>
+              <p className="text-xs text-amber-700/80 mt-0.5">
+                LLM response timeouts are the most common cause. Consider switching to a faster model
+                (e.g. <span className="font-mono">gemini-2.5-flash-lite</span> or <span className="font-mono">gpt-4o-mini</span>) or reducing Max Tokens.
+              </p>
+            </div>
+          </div>
+        )}
         <div className="space-y-2">
           <Label className="label-text font-medium">Chat Model</Label>
           <Select value={draft.marcelaLlmModel} onValueChange={(v) => updateField("marcelaLlmModel", v)}>

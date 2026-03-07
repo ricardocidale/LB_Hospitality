@@ -6,9 +6,9 @@ import { Switch } from "@/components/ui/switch";
 import { SaveButton } from "@/components/ui/save-button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, Bot, MessageSquare, Mic, Brain, Wrench, BookOpen, Phone, User, History } from "lucide-react";
+import { Shield, Bot, MessageSquare, Mic, Brain, Wrench, BookOpen, Phone, User, History, CheckCircle2, XCircle } from "lucide-react";
 import { VoiceSettings } from "./types";
-import { useMarcelaSettings, useTwilioStatus, useSaveMarcelaSettings, useAgentConfig } from "./hooks";
+import { useMarcelaSettings, useTwilioStatus, useSaveMarcelaSettings, useAgentConfig, useConversations } from "./hooks";
 import { KnowledgeBaseCard } from "./KnowledgeBase";
 import { LLMSettings } from "./LLMSettings";
 import { TelephonySettings } from "./TelephonySettings";
@@ -22,6 +22,7 @@ export default function MarcelaTab() {
   const { data: twilioStatus } = useTwilioStatus();
   const saveMutation = useSaveMarcelaSettings();
   const { data: agentConfig } = useAgentConfig();
+  const { data: conversations } = useConversations();
 
   const [draft, setDraft] = useState<VoiceSettings | null>(null);
   const [isDirty, setIsDirty] = useState(false);
@@ -117,9 +118,14 @@ export default function MarcelaTab() {
             <Phone className="w-4 h-4" />
             <span className="hidden md:inline">Telephony</span>
           </TabsTrigger>
-          <TabsTrigger value="conversations" className="py-2 gap-2" data-testid="tab-ai-agent-conversations">
+          <TabsTrigger value="conversations" className="py-2 gap-2 relative" data-testid="tab-ai-agent-conversations">
             <History className="w-4 h-4" />
             <span className="hidden md:inline">History</span>
+            {conversations && conversations.length > 0 && (
+              <span className="absolute top-1 right-1 min-w-[16px] h-4 px-1 rounded-full bg-primary text-primary-foreground text-[9px] font-bold flex items-center justify-center leading-none">
+                {conversations.length > 99 ? "99+" : conversations.length}
+              </span>
+            )}
           </TabsTrigger>
         </TabsList>
 
@@ -244,6 +250,48 @@ export default function MarcelaTab() {
                 )}
               </CardContent>
             </Card>
+            {draft.marcelaAgentId && (() => {
+              const hasPrompt = !!(agentConfig?.conversation_config?.agent?.prompt?.prompt);
+              const hasKb = (agentConfig?.conversation_config?.agent?.knowledge_base ?? []).length > 0;
+              const allDone = hasPrompt && hasKb;
+              const checks = [
+                { label: "Agent ID configured", done: true },
+                { label: "System prompt set", done: hasPrompt, tab: "prompt" },
+                { label: "Knowledge base attached", done: hasKb, tab: "kb" },
+              ];
+              return !allDone ? (
+                <Card className="bg-white/80 backdrop-blur-xl border-amber-200/60 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="font-display text-base flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-amber-400 shrink-0" />
+                      Setup Checklist
+                    </CardTitle>
+                    <CardDescription className="label-text mt-0.5">Complete these steps for best results</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      {checks.map((c) => (
+                        <div key={c.label} className="flex items-center gap-3">
+                          {c.done
+                            ? <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
+                            : <XCircle className="w-4 h-4 text-amber-400 shrink-0" />}
+                          <span className={`text-xs ${c.done ? "text-muted-foreground/60 line-through" : "text-foreground/80"}`}>{c.label}</span>
+                          {!c.done && c.tab && (
+                            <button
+                              type="button"
+                              onClick={() => setActiveTab(c.tab!)}
+                              className="ml-auto text-[10px] text-primary underline hover:no-underline"
+                            >
+                              Go fix →
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : null;
+            })()}
           </TabsContent>
 
           <TabsContent value="prompt" className="space-y-6 m-0 focus-visible:outline-none">

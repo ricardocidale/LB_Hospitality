@@ -33,7 +33,7 @@ Business simulation portal for **Hospitality Business Group**. Models a boutique
 
 ## Current Theme
 
-**Fluid Glass** is the active theme. All new UI work must follow Fluid Glass styling conventions. See `.claude/skills/ui/theme-engine.md` for token structure.
+**Tuscan Olive Grove** is the default theme (olive-sage). 7 preset themes available: Heritage Gold, Tuscan Olive Grove, Starlit Harbor, Smoke & Stone, Coastal Breeze, Nordic Fjord, Electric Twilight. See `.claude/skills/ui/theme-engine.md` for token structure.
 
 ---
 

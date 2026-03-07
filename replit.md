@@ -86,8 +86,8 @@ Documented in `.agents/skills/codebase-architecture/SKILL.md`. Key rules:
 - Orphan wrappers (zero importers) should be deleted during cleanup
 
 ## Preset Themes
-6 admin-selectable themes seeded via `script/seed-preset-themes.ts`:
-L+B Brand (sage), Muted Sage (olive earth), Midnight Navy, Warm Charcoal, Deep Teal, Steel Blue.
+7 admin-selectable themes seeded via `script/seed-preset-themes.ts`:
+Heritage Gold, Tuscan Olive Grove, Starlit Harbor, Smoke & Stone, Coastal Breeze, Nordic Fjord, Electric Twilight.
 Theme engine: `client/src/lib/themeUtils.ts` — maps PALETTE rank 1-6 + CHART rank 1-5 to CSS variables.
 
 ## Scripts Directory

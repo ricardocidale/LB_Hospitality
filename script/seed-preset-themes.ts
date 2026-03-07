@@ -23,9 +23,9 @@ interface PresetTheme {
 
 const PRESET_THEMES: PresetTheme[] = [
   {
-    name: "Muted Sage",
+    name: "Tuscan Olive Grove",
     description:
-      "Earthy, grounded palette with muted olive-sage tones. Warm neutrals and natural greens create a sophisticated, calming hospitality aesthetic.",
+      "Sun-dappled olive and warm earth tones. Inspired by Mediterranean hillsides, blending natural elegance with grounded sophistication.",
     isDefault: false,
     colors: [
       { rank: 1, name: "Olive Sage",     hexCode: "#8A9A7B", description: "PALETTE: Primary brand color. Muted olive-green for buttons, active nav, focus rings." },
@@ -42,9 +42,9 @@ const PRESET_THEMES: PresetTheme[] = [
     ],
   },
   {
-    name: "Midnight Navy",
+    name: "Starlit Harbor",
     description:
-      "Confident, professional palette built on deep navy blue. Cool neutrals and crisp white backgrounds convey trust, authority, and institutional quality.",
+      "Deep navy twilight over calm waters. A commanding palette that conveys trust, authority, and the quiet confidence of a harbor at dusk.",
     isDefault: false,
     colors: [
       { rank: 1, name: "Navy",           hexCode: "#2C3E6B", description: "PALETTE: Primary brand color. Deep navy for buttons, active elements, and focus rings." },
@@ -61,9 +61,9 @@ const PRESET_THEMES: PresetTheme[] = [
     ],
   },
   {
-    name: "Warm Charcoal",
+    name: "Smoke & Stone",
     description:
-      "Warm, minimal palette with dark slate foundations. Sophisticated charcoal paired with warm off-white creates a modern editorial feel.",
+      "Warm charcoal layered with cream and pewter. A modern editorial palette — understated, tactile, and effortlessly refined.",
     isDefault: false,
     colors: [
       { rank: 1, name: "Warm Slate",     hexCode: "#6B7280", description: "PALETTE: Primary brand color. Warm gray-slate for buttons, active nav, focus rings." },
@@ -80,9 +80,9 @@ const PRESET_THEMES: PresetTheme[] = [
     ],
   },
   {
-    name: "Deep Teal",
+    name: "Coastal Breeze",
     description:
-      "Vibrant, aquatic palette centered on rich teal. Blue-green primary with clean white backgrounds evokes coastal luxury and contemporary design.",
+      "Rich teal and sea glass tones. Inspired by ocean horizons and coastal luxury — fresh, vibrant, and unmistakably modern.",
     isDefault: false,
     colors: [
       { rank: 1, name: "Teal",           hexCode: "#0D7377", description: "PALETTE: Primary brand color. Rich teal for buttons, active states, focus rings." },
@@ -99,9 +99,9 @@ const PRESET_THEMES: PresetTheme[] = [
     ],
   },
   {
-    name: "Steel Blue",
+    name: "Nordic Fjord",
     description:
-      "Soft, approachable palette with cool steel-blue tones. Professional yet gentle — ideal for financial dashboards that need to feel accessible.",
+      "Soft steel-blue and silver fog. A serene Scandinavian palette that feels open, approachable, and quietly powerful.",
     isDefault: false,
     colors: [
       { rank: 1, name: "Steel Blue",     hexCode: "#6889A8", description: "PALETTE: Primary brand color. Soft steel blue for buttons, active nav, focus rings." },
@@ -118,9 +118,9 @@ const PRESET_THEMES: PresetTheme[] = [
     ],
   },
   {
-    name: "Replit Violet",
+    name: "Electric Twilight",
     description:
-      "Inspired by the Replit thinking icon — warm violet-purple primary with clean, modern neutrals. Creative energy meets professional clarity.",
+      "Warm violet and deep indigo under a lavender sky. Creative energy meets professional clarity — bold, imaginative, and forward-thinking.",
     isDefault: false,
     colors: [
       { rank: 1, name: "Violet",         hexCode: "#7C5CFC", description: "PALETTE: Primary brand color. Warm violet-purple for buttons, active nav, focus rings." },

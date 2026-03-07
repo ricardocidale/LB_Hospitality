@@ -54,20 +54,6 @@ export default function IncomeStatementTab({
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={yearlyChartData}>
-                <defs>
-                  <linearGradient id="revenueGradient" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stopColor="#257D41" />
-                    <stop offset="100%" stopColor="#34D399" />
-                  </linearGradient>
-                  <linearGradient id="gopGradient" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stopColor="#3B82F6" />
-                    <stop offset="100%" stopColor="#60A5FA" />
-                  </linearGradient>
-                  <linearGradient id="noiGradient" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stopColor="#F4795B" />
-                    <stop offset="100%" stopColor="#FB923C" />
-                  </linearGradient>
-                </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
                 <XAxis 
                   dataKey="year" 
@@ -101,28 +87,28 @@ export default function IncomeStatementTab({
                 <Line 
                   type="monotone" 
                   dataKey="Revenue" 
-                  stroke="url(#revenueGradient)" 
+                  stroke="hsl(var(--line-1))" 
                   strokeWidth={3}
-                  dot={{ fill: '#257D41', stroke: '#fff', strokeWidth: 2, r: 4 }}
-                  activeDot={{ r: 6, fill: '#257D41', stroke: '#fff', strokeWidth: 2 }}
+                  dot={{ fill: 'hsl(var(--line-1))', stroke: '#fff', strokeWidth: 2, r: 4 }}
+                  activeDot={{ r: 6, fill: 'hsl(var(--line-1))', stroke: '#fff', strokeWidth: 2 }}
                   name="Total Revenue"
                 />
                 <Line 
                   type="monotone" 
                   dataKey="GOP" 
-                  stroke="url(#gopGradient)" 
+                  stroke="hsl(var(--line-2))" 
                   strokeWidth={3}
-                  dot={{ fill: '#3B82F6', stroke: '#fff', strokeWidth: 2, r: 4 }}
-                  activeDot={{ r: 6, fill: '#3B82F6', stroke: '#fff', strokeWidth: 2 }}
+                  dot={{ fill: 'hsl(var(--line-2))', stroke: '#fff', strokeWidth: 2, r: 4 }}
+                  activeDot={{ r: 6, fill: 'hsl(var(--line-2))', stroke: '#fff', strokeWidth: 2 }}
                   name="Gross Operating Profit"
                 />
                 <Line 
                   type="monotone" 
                   dataKey="ANOI" 
-                  stroke="url(#noiGradient)" 
+                  stroke="hsl(var(--line-3))" 
                   strokeWidth={3}
-                  dot={{ fill: '#F4795B', stroke: '#fff', strokeWidth: 2, r: 4 }}
-                  activeDot={{ r: 6, fill: '#F4795B', stroke: '#fff', strokeWidth: 2 }}
+                  dot={{ fill: 'hsl(var(--line-3))', stroke: '#fff', strokeWidth: 2, r: 4 }}
+                  activeDot={{ r: 6, fill: 'hsl(var(--line-3))', stroke: '#fff', strokeWidth: 2 }}
                   name="Adjusted NOI"
                 />
               </LineChart>

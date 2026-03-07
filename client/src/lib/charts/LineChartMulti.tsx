@@ -42,8 +42,8 @@ export function LineChartMulti({
             type="natural"
             stroke={s.color}
             strokeWidth={2}
-            dot={{ fill: s.color }}
-            activeDot={{ r: 6 }}
+            dot={{ fill: s.color, r: 4, strokeWidth: 2, stroke: s.color }}
+            activeDot={{ r: 6, strokeWidth: 2 }}
           />
         ))}
       </LineChart>

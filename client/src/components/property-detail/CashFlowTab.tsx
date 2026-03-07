@@ -55,20 +55,6 @@ export default function CashFlowTab({
                   NetToInvestors: cashFlowData[i]?.netCashFlowToInvestors || 0,
                 };
               })}>
-                <defs>
-                  <linearGradient id="noiCfGradient" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stopColor="#257D41" />
-                    <stop offset="100%" stopColor="#34D399" />
-                  </linearGradient>
-                  <linearGradient id="fcfGradient" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stopColor="#3B82F6" />
-                    <stop offset="100%" stopColor="#60A5FA" />
-                  </linearGradient>
-                  <linearGradient id="fcfeGradient" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stopColor="#F4795B" />
-                    <stop offset="100%" stopColor="#FB923C" />
-                  </linearGradient>
-                </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
                 <XAxis 
                   dataKey="year" 
@@ -102,28 +88,28 @@ export default function CashFlowTab({
                 <Line 
                   type="monotone" 
                   dataKey="ANOI" 
-                  stroke="url(#noiCfGradient)" 
+                  stroke="hsl(var(--line-1))" 
                   strokeWidth={3}
-                  dot={{ fill: '#257D41', stroke: '#fff', strokeWidth: 2, r: 4 }}
-                  activeDot={{ r: 6, fill: '#257D41', stroke: '#fff', strokeWidth: 2 }}
+                  dot={{ fill: 'hsl(var(--line-1))', stroke: '#fff', strokeWidth: 2, r: 4 }}
+                  activeDot={{ r: 6, fill: 'hsl(var(--line-1))', stroke: '#fff', strokeWidth: 2 }}
                   name="Adjusted NOI"
                 />
                 <Line 
                   type="monotone" 
                   dataKey="FCF" 
-                  stroke="url(#fcfGradient)" 
+                  stroke="hsl(var(--line-2))" 
                   strokeWidth={3}
-                  dot={{ fill: '#3B82F6', stroke: '#fff', strokeWidth: 2, r: 4 }}
-                  activeDot={{ r: 6, fill: '#3B82F6', stroke: '#fff', strokeWidth: 2 }}
+                  dot={{ fill: 'hsl(var(--line-2))', stroke: '#fff', strokeWidth: 2, r: 4 }}
+                  activeDot={{ r: 6, fill: 'hsl(var(--line-2))', stroke: '#fff', strokeWidth: 2 }}
                   name="Free Cash Flow"
                 />
                 <Line 
                   type="monotone" 
                   dataKey="FCFE" 
-                  stroke="url(#fcfeGradient)" 
+                  stroke="hsl(var(--line-3))" 
                   strokeWidth={3}
-                  dot={{ fill: '#F4795B', stroke: '#fff', strokeWidth: 2, r: 4 }}
-                  activeDot={{ r: 6, fill: '#F4795B', stroke: '#fff', strokeWidth: 2 }}
+                  dot={{ fill: 'hsl(var(--line-3))', stroke: '#fff', strokeWidth: 2, r: 4 }}
+                  activeDot={{ r: 6, fill: 'hsl(var(--line-3))', stroke: '#fff', strokeWidth: 2 }}
                   name="Free Cash Flow to Equity"
                 />
               </LineChart>

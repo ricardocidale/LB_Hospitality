@@ -504,8 +504,8 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                         color: 'hsl(var(--foreground))',
                       }}
                     />
-                    <Line type="monotone" dataKey="revenue" stroke="hsl(var(--chart-1))" strokeWidth={2} dot={false} />
-                    <Line type="monotone" dataKey="anoi" stroke="hsl(var(--chart-2))" strokeWidth={2} dot={false} />
+                    <Line type="monotone" dataKey="revenue" stroke="hsl(var(--line-1))" strokeWidth={2.5} dot={{ fill: "hsl(var(--line-1))", stroke: "#fff", strokeWidth: 2, r: 3.5 }} activeDot={{ r: 5.5, fill: "hsl(var(--line-1))", stroke: "#fff", strokeWidth: 2 }} />
+                    <Line type="monotone" dataKey="anoi" stroke="hsl(var(--line-2))" strokeWidth={2.5} dot={{ fill: "hsl(var(--line-2))", stroke: "#fff", strokeWidth: 2, r: 3.5 }} activeDot={{ r: 5.5, fill: "hsl(var(--line-2))", stroke: "#fff", strokeWidth: 2 }} />
                   </LineChart>
                 )}
               </ResponsiveContainer>

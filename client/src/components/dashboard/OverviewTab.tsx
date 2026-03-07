@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { AnimatedSection, InsightPanel, ScrollReveal, formatCompact, type Insight } from "@/components/graphics";
+import { AnimatedSection, InsightPanel, ScrollReveal, type Insight } from "@/components/graphics";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, AreaChart, Area } from "recharts";
 import { DashboardTabProps } from "./types";
 import PortfolioResearchCard from "./PortfolioResearchCard";
@@ -92,11 +92,12 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
 
   const exitGainPercent = totalInitialEquity > 0 ? ((totalExitValue / totalInitialEquity - 1) * 100).toFixed(0) : "0";
 
+  const marketList = Object.entries(marketCounts).map(([m, c]) => `${m} (${c})`).join(', ');
   const insights: Insight[] = [
-    { text: "Portfolio IRR", metric: `${(portfolioIRR * 100).toFixed(1)}%`, type: portfolioIRR > 0.12 ? "positive" as const : portfolioIRR > 0.08 ? "neutral" as const : "warning" as const },
-    { text: `${totalProperties} properties across ${Object.keys(marketCounts).length} markets`, type: "neutral" as const },
-    { text: "Equity Multiple", metric: `${equityMultiple.toFixed(2)}x`, type: equityMultiple > 2 ? "positive" as const : "neutral" as const },
-    { text: "Avg Cash-on-Cash Return", metric: `${cashOnCash.toFixed(1)}%`, type: cashOnCash > 8 ? "positive" as const : "warning" as const },
+    { text: `Markets: ${marketList}`, type: "neutral" as const },
+    { text: `${investmentHorizon}-year total revenue`, metric: formatMoney(totalProjectionRevenue), type: "neutral" as const },
+    { text: `${investmentHorizon}-year total NOI`, metric: formatMoney(totalProjectionNOI), type: "neutral" as const },
+    { text: `${investmentHorizon}-year total cash flow`, metric: formatMoney(totalProjectionCashFlow), type: "neutral" as const },
   ];
 
   const generateOverviewData = () => {
@@ -191,18 +192,14 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                 label="Portfolio IRR"
                 value={portfolioIRR * 100}
                 format="percent"
-                trend={portfolioIRR > 0.12 ? "up" : portfolioIRR > 0.08 ? "neutral" : "down"}
-                trendValue={portfolioIRR > 0.12 ? "Strong" : portfolioIRR > 0.08 ? "Moderate" : "Below target"}
-                description={`${investmentHorizon}-year hold across ${totalProperties} properties`}
+                description={`${investmentHorizon}-year hold, ${totalProperties} properties`}
                 data-testid="text-portfolio-irr"
               />
               <StatCard
                 variant="dashboard"
                 label="Equity Multiple"
                 value={`${equityMultiple.toFixed(2)}x`}
-                trend={equityMultiple > 2 ? "up" : "neutral"}
-                trendValue={equityMultiple > 2 ? `+${((equityMultiple - 1) * 100).toFixed(0)}%` : `${((equityMultiple - 1) * 100).toFixed(0)}%`}
-                description={`${formatMoney(totalInitialEquity)} invested`}
+                description={`${formatMoney(totalInitialEquity)} total equity`}
                 data-testid="text-equity-multiple"
               />
               <StatCard
@@ -210,9 +207,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                 label="Cash-on-Cash"
                 value={cashOnCash}
                 format="percent"
-                trend={cashOnCash > 8 ? "up" : cashOnCash > 5 ? "neutral" : "down"}
-                trendValue={cashOnCash > 8 ? "Above target" : cashOnCash > 5 ? "On track" : "Below target"}
-                description="Average annual return on equity"
+                description="Avg annual return on equity"
                 data-testid="text-cash-on-cash"
               />
               <StatCard
@@ -220,8 +215,6 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                 label="Projected Exit"
                 value={totalExitValue}
                 format="money"
-                trend="up"
-                trendValue={`+${exitGainPercent}%`}
                 description={`${formatMoney(totalExitValue - totalInitialEquity)} projected gain`}
                 data-testid="text-exit-value"
               />
@@ -232,7 +225,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
             <div ref={chartsRef} className="bg-white/95 backdrop-blur-xl rounded-2xl border border-white/50 shadow-sm p-6">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h3 className="text-lg font-semibold text-[#2d4a5e] font-display">Revenue & NOI</h3>
+                  <h3 className="text-lg font-semibold text-[#2d4a5e] font-display">Revenue, NOI & Cash Flow</h3>
                   <p className="text-sm text-[#2d4a5e]/50 label-text">{investmentHorizon}-year consolidated projection</p>
                 </div>
                 <div className="flex items-center gap-4 text-xs label-text">
@@ -243,6 +236,10 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                   <span className="flex items-center gap-1.5">
                     <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#257D41' }} />
                     NOI
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#2d4a5e' }} />
+                    Cash Flow
                   </span>
                 </div>
               </div>
@@ -257,6 +254,10 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                       <stop offset="0%" stopColor="#257D41" stopOpacity={0.25} />
                       <stop offset="100%" stopColor="#257D41" stopOpacity={0.02} />
                     </linearGradient>
+                    <linearGradient id="cfGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#2d4a5e" stopOpacity={0.2} />
+                      <stop offset="100%" stopColor="#2d4a5e" stopOpacity={0.02} />
+                    </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(45,74,94,0.08)" vertical={false} />
                   <XAxis dataKey="year" tick={{ fontSize: 11, fill: '#6b7280' }} axisLine={false} tickLine={false} />
@@ -268,11 +269,12 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                     width={60}
                   />
                   <Tooltip
-                    formatter={(value: number, name: string) => [formatMoney(value), name === 'revenue' ? 'Revenue' : 'NOI']}
+                    formatter={(value: number, name: string) => [formatMoney(value), name === 'revenue' ? 'Revenue' : name === 'noi' ? 'NOI' : 'Cash Flow']}
                     contentStyle={{ borderRadius: 12, border: '1px solid rgba(0,0,0,0.06)', fontSize: 12, boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}
                   />
                   <Area type="monotone" dataKey="revenue" stroke="#9FBCA4" strokeWidth={2.5} fill="url(#revGrad)" dot={false} />
                   <Area type="monotone" dataKey="noi" stroke="#257D41" strokeWidth={2.5} fill="url(#noiGrad)" dot={false} />
+                  <Area type="monotone" dataKey="cashFlow" stroke="#2d4a5e" strokeWidth={2.5} fill="url(#cfGrad)" dot={false} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -342,11 +344,11 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                 <h3 className="text-sm font-semibold text-[#2d4a5e] mb-5 font-display">Capital Structure</h3>
                 <div className="space-y-4">
                   {[
-                    { label: "Total Investment", value: formatMoney(totalInvestment) },
+                    { label: "Total Purchase Price", value: formatMoney(totalPurchasePrice) },
                     { label: "Avg Purchase Price", value: formatMoney(avgPurchasePrice) },
                     { label: "Avg Exit Cap Rate", value: `${(avgExitCapRate * 100).toFixed(1)}%`, highlight: true },
                     { label: "Hold Period", value: `${investmentHorizon} Years` },
-                    { label: "Projected Exit Value", value: formatMoney(totalExitValue), highlight: true },
+                    { label: "NOI Margin", value: `${totalProjectionRevenue > 0 ? ((totalProjectionNOI / totalProjectionRevenue) * 100).toFixed(1) : '0.0'}%`, highlight: true },
                   ].map(row => (
                     <div key={row.label} className="flex justify-between items-center py-1 border-b border-[#2d4a5e]/5 last:border-0">
                       <span className="text-sm text-[#2d4a5e]/60 label-text">{row.label}</span>
@@ -354,23 +356,6 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                     </div>
                   ))}
                 </div>
-              </div>
-            </div>
-          </AnimatedSection>
-
-          <AnimatedSection>
-            <div className="grid grid-cols-3 gap-4">
-              <div className="bg-white/95 backdrop-blur-xl rounded-2xl p-5 border border-white/50 shadow-sm text-center">
-                <p className="text-xs text-[#2d4a5e]/50 label-text mb-2">{investmentHorizon}-Year Revenue</p>
-                <p className="text-2xl font-bold text-[#2d4a5e] font-mono">{formatCompact(totalProjectionRevenue)}</p>
-              </div>
-              <div className="bg-white/95 backdrop-blur-xl rounded-2xl p-5 border border-white/50 shadow-sm text-center">
-                <p className="text-xs text-[#2d4a5e]/50 label-text mb-2">{investmentHorizon}-Year NOI</p>
-                <p className="text-2xl font-bold text-[#257D41] font-mono">{formatCompact(totalProjectionNOI)}</p>
-              </div>
-              <div className="bg-white/95 backdrop-blur-xl rounded-2xl p-5 border border-white/50 shadow-sm text-center">
-                <p className="text-xs text-[#2d4a5e]/50 label-text mb-2">{investmentHorizon}-Year Cash Flow</p>
-                <p className="text-2xl font-bold text-[#2d4a5e] font-mono">{formatCompact(totalProjectionCashFlow)}</p>
               </div>
             </div>
           </AnimatedSection>

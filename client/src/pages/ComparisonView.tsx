@@ -1,7 +1,14 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
 import { useStore } from "@/lib/store";
 import { AnimatedPage, ScrollReveal, KPIGrid, InsightPanel, DonutChart, formatCompact, formatPercent } from "@/components/graphics";
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend, ResponsiveContainer, Tooltip } from "recharts";
+import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
+import { exportTablePNG, captureChartAsImage } from "@/lib/exports/pngExport";
+import { downloadCSV } from "@/lib/exports/csvExport";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import * as XLSX from "xlsx";
+import pptxgen from "pptxgenjs";
 
 function fmtMoney(value: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -38,6 +45,8 @@ const METRICS: MetricRow[] = [
 export default function ComparisonView({ embedded }: { embedded?: boolean }) {
   const properties = useStore((s) => s.properties);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const chartRef = useRef<HTMLDivElement>(null);
+  const tableRef = useRef<HTMLDivElement>(null);
 
   const selectedProperties = useMemo(
     () => properties.filter((p) => selectedIds.includes(p.id)),
@@ -68,17 +77,104 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
     return String(value);
   };
 
+  const handleExportPDF = useCallback(() => {
+    if (selectedProperties.length < 2) return;
+    const doc = new jsPDF({ orientation: "landscape" });
+    doc.setFontSize(16);
+    doc.text("Property Comparison", 14, 20);
+    const headers = ["Metric", ...selectedProperties.map((p) => p.name)];
+    const rows = METRICS.map((m) => [
+      m.label,
+      ...selectedProperties.map((p) => formatValue((p as any)[m.key], m.format)),
+    ]);
+    autoTable(doc, { head: [headers], body: rows, startY: 28 });
+    doc.save("property-comparison.pdf");
+  }, [selectedProperties]);
+
+  const handleExportExcel = useCallback(() => {
+    if (selectedProperties.length < 2) return;
+    const headers = ["Metric", ...selectedProperties.map((p) => p.name)];
+    const rows = METRICS.map((m) => [
+      m.label,
+      ...selectedProperties.map((p) => formatValue((p as any)[m.key], m.format)),
+    ]);
+    const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Comparison");
+    XLSX.writeFile(wb, "property-comparison.xlsx");
+  }, [selectedProperties]);
+
+  const handleExportCSV = useCallback(() => {
+    if (selectedProperties.length < 2) return;
+    const headers = ["Metric", ...selectedProperties.map((p) => p.name)];
+    const rows = METRICS.map((m) => [
+      m.label,
+      ...selectedProperties.map((p) => formatValue((p as any)[m.key], m.format)),
+    ]);
+    const csvContent = [headers, ...rows].map((r) => r.map((c) => `"${c}"`).join(",")).join("\n");
+    downloadCSV(csvContent, "property-comparison.csv");
+  }, [selectedProperties]);
+
+  const handleExportPPTX = useCallback(async () => {
+    if (selectedProperties.length < 2) return;
+    const pptx = new pptxgen();
+    const slide1 = pptx.addSlide();
+    slide1.background = { color: "0F172A" };
+    slide1.addText("Property Comparison", { x: 0.5, y: 1.8, w: 9, h: 1.2, fontSize: 36, bold: true, color: "FFFFFF", align: "center" });
+    slide1.addText(selectedProperties.map((p) => p.name).join(" vs "), { x: 0.5, y: 3.2, w: 9, h: 0.6, fontSize: 18, color: "94A3B8", align: "center" });
+    const slide2 = pptx.addSlide();
+    slide2.addText("Comparison Table", { x: 0.5, y: 0.3, w: 9, h: 0.5, fontSize: 20, bold: true, color: "0F172A" });
+    const tableRows = [
+      [{ text: "Metric", options: { bold: true } }, ...selectedProperties.map((p) => ({ text: p.name, options: { bold: true } }))],
+      ...METRICS.map((m) => [
+        { text: m.label, options: {} },
+        ...selectedProperties.map((p) => ({ text: formatValue((p as any)[m.key], m.format), options: {} })),
+      ]),
+    ];
+    slide2.addTable(tableRows, { x: 0.5, y: 1.0, w: 9, colW: [2.5, ...selectedProperties.map(() => 6.5 / selectedProperties.length)] });
+    await pptx.writeFile({ fileName: "property-comparison.pptx" });
+  }, [selectedProperties]);
+
+  const handleExportChart = useCallback(async () => {
+    if (!chartRef.current) return;
+    const dataUrl = await captureChartAsImage(chartRef.current);
+    if (!dataUrl) return;
+    const link = document.createElement("a");
+    link.href = dataUrl;
+    link.download = "property-comparison-chart.png";
+    link.click();
+  }, []);
+
+  const handleExportPNG = useCallback(() => {
+    if (!tableRef.current) return;
+    exportTablePNG({ element: tableRef.current, filename: "property-comparison-table.png" });
+  }, []);
+
   const content = (
     <div className={embedded ? "space-y-6" : "min-h-screen bg-background p-6 md:p-8"} data-testid="comparison-view">
       <div className={embedded ? "space-y-6" : "max-w-7xl mx-auto space-y-8"}>
         {!embedded && (
-        <div>
-          <h1 className="text-3xl font-bold text-foreground" data-testid="text-page-title">
-            Property Comparison
-          </h1>
-          <p className="text-gray-500 mt-1" data-testid="text-page-subtitle">
-            Select 2–4 properties to compare assumptions side by side
-          </p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground" data-testid="text-page-title">
+              Property Comparison
+            </h1>
+            <p className="text-gray-500 mt-1" data-testid="text-page-subtitle">
+              Select 2–4 properties to compare assumptions side by side
+            </p>
+          </div>
+          {selectedProperties.length >= 2 && (
+            <ExportMenu
+              actions={[
+                pdfAction(handleExportPDF),
+                excelAction(handleExportExcel),
+                csvAction(handleExportCSV),
+                pptxAction(handleExportPPTX),
+                chartAction(handleExportChart),
+                pngAction(handleExportPNG),
+              ]}
+            />
+          )}
         </div>
         )}
 
@@ -144,7 +240,7 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
             variant="light"
           />
           <ScrollReveal>
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+            <div ref={chartRef} className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
               <h3 className="text-lg font-display text-gray-900 mb-4">Performance Comparison</h3>
               <ResponsiveContainer width="100%" height={320}>
                 <RadarChart data={[
@@ -203,7 +299,7 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
               return insights;
             })()}
           />
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-x-auto">
+          <div ref={tableRef} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-x-auto">
             <table className="w-full text-sm" data-testid="table-comparison">
               <thead>
                 <tr>

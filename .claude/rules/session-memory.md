@@ -5,6 +5,100 @@
 
 ---
 
+## Session: March 7, 2026 — Skill files for extracted page components
+
+### What Was Done
+Created 3 skill files (context-reduction rule requirement after refactor):
+
+| Skill | Documents |
+|-------|-----------|
+| `.claude/skills/ui/financing-tab-components.md` | `components/financing/` — 5 files (InputField + 4 tabs), import pattern, props, self-contained tab architecture |
+| `.claude/skills/ui/scenarios-dialogs.md` | `components/scenarios/` — 4 files (3 dialogs + types), full prop interfaces, `ScenarioCompareResult` type, state-ownership notes |
+| `.claude/skills/ui/sensitivity-panels.md` | `components/sensitivity/` — 5 files (3 panels + types + index), all type interfaces, `embedded` prop, refs for ExportMenu |
+
+Added 3 rows to context-loading task map (`ui/financing-tab-components.md`, `ui/scenarios-dialogs.md`, `ui/sensitivity-panels.md`).
+
+- Commit: `dcf09ed`, health: ALL CLEAR
+
+---
+
+## Session: March 7, 2026 — claude-is-sole-truth rule + proof tests
+
+### What Was Done
+- **New rule**: `.claude/rules/claude-is-sole-truth.md` (rule #26)
+  - `.claude/` is the sole source of truth — wins all conflicts
+  - `replit.md` contract: slim pointer ≤ 150 lines, must reference `.claude/claude.md`
+  - `.replit` contract: platform config only, must contain pointer comment to `.claude/`
+  - Prohibited: root-level `CLAUDE.md`, rules outside `.claude/rules/`, fat `replit.md`
+- **7 new proof tests** in `tests/proof/rule-compliance.test.ts` (15 total, was 8):
+  - `.claude/claude.md` exists + has required sections (Architecture, Rules, Session)
+  - `replit.md` ≤ 150 lines
+  - `replit.md` references `.claude/claude.md`
+  - No root-level `CLAUDE.md` / `instructions.md`
+  - No rule `.md` files outside `.claude/rules/`
+  - `.replit` contains pointer to `.claude/`
+- **`.replit`**: Added `# Project knowledge: .claude/claude.md` comment on line 1
+- **Doc counts updated**: 26 rules, 2,438 tests in both `claude.md` and `replit.md`
+- Commit: `35c1444`, health: ALL CLEAR
+
+---
+
+## Session: March 7, 2026 — SensitivityAnalysis ExportMenu (export parity)
+
+### What Was Done
+Added ExportMenu to `client/src/pages/SensitivityAnalysis.tsx` to satisfy the export parity rule (all financial pages must have all 6 export formats).
+
+**6 formats implemented inline:**
+| Format | Output |
+|--------|--------|
+| PDF | Base vs adjusted comparison table + tornado chart table (jsPDF + autoTable) |
+| Excel | 2 sheets: Comparison + Tornado Chart (xlsx) |
+| CSV | Comparison rows + tornado data (downloadCSV) |
+| PPTX | Title slide + comparison table slide + tornado slide (pptxgenjs) |
+| Chart | PDF of tornado chart panel captured via `captureChartAsImage` (orientation dialog) |
+| PNG | `exportTablePNG` on comparison table ref (falls back to chart ref) |
+
+**Placement**: `PageHeader` `actions` slot (non-tabbed page rule), alongside property selector and Reset All button.
+
+**Refs added**: `chartRef` on tornado chart wrapper div, `tableRef` on comparison table wrapper div.
+
+**State added**: `exportDialogOpen`, `exportType` ("pdf" | "chart") for orientation dialog.
+
+- Commit: `c41ab5a`
+- TypeScript: 0 errors
+
+---
+
+## Session: March 7, 2026 — Large Page Extraction (FinancingAnalysis, Scenarios, SensitivityAnalysis)
+
+### What Was Done
+4-task plan extracting sub-components from 700+ line pages:
+
+- **Task 0 — KnowledgeBase cleanup**: Removed "Reindex RAG" and "Push to ElevenLabs KB" buttons from `client/src/components/admin/marcela/KnowledgeBase.tsx`. ElevenLabs handles KB indexing natively — push logic was redundant.
+
+- **Task 1 — FinancingAnalysis** (~720→90 lines): Extracted 4 inner tab components + shared helpers to `client/src/components/financing/`:
+  - `InputField.tsx` — shared form field + `formatPct`, `formatRatio` helpers
+  - `DSCRTab.tsx`, `DebtYieldTab.tsx`, `StressTestTab.tsx` (renamed from `SensitivityTab` to avoid collision), `PrepaymentTab.tsx`
+  - `index.ts` barrel
+
+- **Task 2 — Scenarios** (~719→350 lines): Extracted 3 inline modal dialogs to `client/src/components/scenarios/`:
+  - `SaveScenarioDialog.tsx`, `EditScenarioDialog.tsx`, `CompareResultDialog.tsx`
+  - `types.ts` — `ScenarioCompareResult` interface
+  - `formatDiffValue` helper co-located in `CompareResultDialog` (only used there)
+  - All state stays in `Scenarios.tsx` (React Query hooks, handlers); dialogs receive props
+
+- **Task 3 — SensitivityAnalysis** (~712→200 lines): Extracted 3 panels to `client/src/components/sensitivity/`:
+  - `VariableSlidersPanel.tsx`, `TornadoChartPanel.tsx`, `SensitivityComparisonTable.tsx`
+  - `types.ts` — `SensitivityVariable`, `ScenarioResult`, `TornadoItem`
+  - All 5 `useMemo` + 2 `useCallback` stay in the page (tightly coupled shared state)
+  - `index.ts` barrel
+
+### Result
+- TypeScript: 0 errors, health: ALL CLEAR, verification: UNQUALIFIED
+- Commit: `d0eeb37`
+
+---
+
 ## Session: March 7, 2026 — Docs + Architecture: statements/ and server/ai/ server/data/ reorganization
 
 ### What Was Done

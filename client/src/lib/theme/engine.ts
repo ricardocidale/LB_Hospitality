@@ -10,6 +10,7 @@ export const MANAGED_CSS_VARS = [
   "--muted", "--muted-foreground",
   "--accent", "--accent-foreground",
   "--accent-pop", "--accent-pop-foreground",
+  "--accent-pop-2", "--accent-pop-2-foreground",
   "--border", "--input", "--ring",
   "--chart-1", "--chart-2", "--chart-3", "--chart-4", "--chart-5",
   "--line-1", "--line-2", "--line-3", "--line-4", "--line-5",
@@ -87,6 +88,12 @@ export function applyThemeColors(
   if (ac1) {
     set("--accent-pop", hexToHslString(ac1.hexCode));
     set("--accent-pop-foreground", contrastHsl(ac1.hexCode));
+  }
+
+  const ac2 = accents.find(c => c.rank === 2);
+  if (ac2) {
+    set("--accent-pop-2", hexToHslString(ac2.hexCode));
+    set("--accent-pop-2-foreground", contrastHsl(ac2.hexCode));
   }
 
   charts.forEach((c, i) => {

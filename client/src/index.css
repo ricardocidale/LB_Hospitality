@@ -36,6 +36,8 @@
   --color-ring: hsl(var(--ring));
   --color-accent-pop: hsl(var(--accent-pop));
   --color-accent-pop-foreground: hsl(var(--accent-pop-foreground));
+  --color-accent-pop-2: hsl(var(--accent-pop-2));
+  --color-accent-pop-2-foreground: hsl(var(--accent-pop-2-foreground));
   --color-chart-1: hsl(var(--chart-1));
   --color-chart-2: hsl(var(--chart-2));
   --color-chart-3: hsl(var(--chart-3));
@@ -110,6 +112,8 @@
 
   --accent-pop: 43 90% 55%;
   --accent-pop-foreground: 0 0% 100%;
+  --accent-pop-2: 155 41% 30%;
+  --accent-pop-2-foreground: 0 0% 100%;
 
   --chart-1: 155 41% 30%;
   --chart-2: 18 50% 54%;

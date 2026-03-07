@@ -2,7 +2,7 @@ import { formatMoney } from "@/lib/financialEngine";
 import { format } from "date-fns";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { drawLineChart } from "@/lib/pdfChartDrawer";
+import { drawLineChart } from "@/lib/exports/pdfChartDrawer";
 import * as XLSX from "xlsx";
 import { exportPortfolioPPTX as originalExportPortfolioPPTX } from "@/lib/exports/pptxExport";
 import { exportTablePNG } from "@/lib/exports/pngExport";

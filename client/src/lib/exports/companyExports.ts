@@ -3,7 +3,7 @@ import autoTable from "jspdf-autotable";
 import { format } from "date-fns";
 import domtoimage from 'dom-to-image-more';
 import { formatMoney } from "@/lib/financialEngine";
-import { drawLineChart } from "@/lib/pdfChartDrawer";
+import { drawLineChart } from "@/lib/exports/pdfChartDrawer";
 import { exportCompanyPPTX } from "@/lib/exports/pptxExport";
 import { 
   exportCompanyIncomeStatement, 

@@ -24,7 +24,7 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import NotificationCenter from "@/components/NotificationCenter";
 
 import GuidedWalkthrough, { useWalkthroughStore } from "@/components/GuidedWalkthrough";
-import ElevenLabsWidget from "@/components/ElevenLabsWidget";
+import ElevenLabsWidget from "@/features/ai-agent/ElevenLabsWidget";
 import {
   Sidebar,
   SidebarContent,

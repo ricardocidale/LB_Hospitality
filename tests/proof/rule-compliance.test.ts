@@ -271,7 +271,104 @@ describe("parseLocalDate single source of truth (context-reduction)", () => {
 });
 
 // ─────────────────────────────────────────────────────────────
-// Section 4: No raw Date constructor with date strings in
+// Section 4: .claude is the sole source of truth
+// Rule: claude-is-sole-truth.md
+// ─────────────────────────────────────────────────────────────
+describe(".claude is the sole source of truth (claude-is-sole-truth)", () => {
+  const ROOT = path.resolve(".");
+  const claudeMd = path.join(ROOT, ".claude", "claude.md");
+  const replitMd = path.join(ROOT, "replit.md");
+
+  it(".claude/claude.md exists as the master document", () => {
+    expect(
+      fs.existsSync(claudeMd),
+      ".claude/claude.md must exist as the sole source of truth"
+    ).toBe(true);
+  });
+
+  it(".claude/claude.md contains required sections", () => {
+    if (!fs.existsSync(claudeMd)) return;
+    const content = fs.readFileSync(claudeMd, "utf-8");
+    const required = ["Architecture", "Rules", "Session"];
+    const missing = required.filter((s) => !content.includes(s));
+    expect(
+      missing.length,
+      `.claude/claude.md is missing required sections: ${missing.join(", ")}`
+    ).toBe(0);
+  });
+
+  it("replit.md exists and is a slim pointer (≤ 150 lines)", () => {
+    expect(fs.existsSync(replitMd), "replit.md must exist").toBe(true);
+    if (!fs.existsSync(replitMd)) return;
+    const lines = fs.readFileSync(replitMd, "utf-8").split("\n").length;
+    expect(
+      lines,
+      `replit.md must be ≤ 150 lines (slim pointer only). Currently ${lines} lines. Move details to .claude/claude.md.`
+    ).toBeLessThanOrEqual(150);
+  });
+
+  it("replit.md references .claude/claude.md as the master document", () => {
+    if (!fs.existsSync(replitMd)) return;
+    const content = fs.readFileSync(replitMd, "utf-8");
+    const hasRef =
+      content.includes(".claude/claude.md") ||
+      content.includes(".claude\\claude.md");
+    expect(
+      hasRef,
+      "replit.md must reference .claude/claude.md as the authoritative document"
+    ).toBe(true);
+  });
+
+  it("no root-level CLAUDE.md or instructions.md that could shadow .claude/", () => {
+    const forbidden = ["CLAUDE.md", "instructions.md", "INSTRUCTIONS.md"];
+    const found = forbidden.filter((f) => fs.existsSync(path.join(ROOT, f)));
+    expect(
+      found,
+      `Found root-level file(s) that could shadow .claude/: ${found.join(", ")}. ` +
+      `All project knowledge must live inside .claude/.`
+    ).toHaveLength(0);
+  });
+
+  it(".replit exists and contains a pointer to .claude/claude.md", () => {
+    const replitFile = path.join(ROOT, ".replit");
+    expect(fs.existsSync(replitFile), ".replit must exist").toBe(true);
+    if (!fs.existsSync(replitFile)) return;
+    const content = fs.readFileSync(replitFile, "utf-8");
+    const hasPointer =
+      content.includes(".claude/claude.md") ||
+      content.includes(".claude/");
+    expect(
+      hasPointer,
+      ".replit must contain a comment pointing to .claude/ as the project knowledge source"
+    ).toBe(true);
+  });
+
+  it("no .md rule files exist outside .claude/rules/", () => {
+    // Only check known alternative locations — not the whole repo
+    const suspectDirs = [
+      path.join(ROOT, "docs"),
+      path.join(ROOT, ".github"),
+    ];
+    const violations: string[] = [];
+    for (const dir of suspectDirs) {
+      if (!fs.existsSync(dir)) continue;
+      const entries = fs.readdirSync(dir);
+      for (const entry of entries) {
+        if (/^(rules?|constraints?|instructions?)\.md$/i.test(entry)) {
+          violations.push(path.join(dir, entry));
+        }
+      }
+    }
+    expect(
+      violations,
+      `Found rule/instruction files outside .claude/rules/: ${violations.join(", ")}. ` +
+      `All binding rules must live in .claude/rules/.`
+    ).toHaveLength(0);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────
+// Section 5: No raw Date constructor with date strings in
 // financial engine files (prevents timezone bugs)
 // ─────────────────────────────────────────────────────────────
 describe("No raw Date constructor with date strings in financial files", () => {

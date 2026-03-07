@@ -5,13 +5,13 @@
 ## Overview
 Business simulation portal for boutique hotel investment. Financial modeling, property management, investment analysis, and AI-powered assistant (Marcela). GAAP-compliant with independent audit/verification engine.
 
-**Codebase:** ~568 source files, ~82,900 lines, 2,431 tests across 113 files.
+**Codebase:** ~568 source files, ~82,900 lines, 2,438 tests across 113 files.
 
 ## Quick Commands
 ```bash
 npm run dev            # Start dev server (port 5000)
 npm run health         # One-shot: tsc + tests + verify
-npm run test:summary   # 2,431 tests, 1-line output
+npm run test:summary   # 2,438 tests, 1-line output
 npm run verify:summary # 7-phase verification, compact
 npm test               # Full test output
 npm run verify         # Full verification (verbose)
@@ -41,7 +41,7 @@ React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v
 ```
 .claude/
 ├── claude.md              # Master doc (source of truth)
-├── rules/ (25 files)      # Enforceable constraints
+├── rules/ (26 files)      # Enforceable constraints
 ├── skills/ (126 files)    # Implementation knowledge
 ├── tools/ (61 files)      # Tool schemas
 ├── manuals/               # Checker + user manuals
@@ -60,7 +60,7 @@ React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v
 | AI assistant (Marcela) | `.claude/claude.md` § Marcela AI, `.claude/skills/marcela-ai/SKILL.md` |
 | Design system & themes | `.claude/skills/design-system/SKILL.md`, `.claude/skills/ui/theme-engine.md` |
 | Testing & proof system | `.claude/claude.md` § Testing & Proof System, `.claude/skills/proof-system/SKILL.md` |
-| Rules (25 files) | `.claude/rules/` — session-startup, constants, no-hardcoded, recalculate-on-save, etc. |
+| Rules (26 files) | `.claude/rules/` — session-startup, constants, no-hardcoded, recalculate-on-save, etc. |
 | Session memory | `.claude/rules/session-memory.md` (read first every session) |
 | Context loading | `.claude/skills/context-loading/SKILL.md` (task-to-skill router) |
 | Research system | `.claude/skills/research/SKILL.md` |

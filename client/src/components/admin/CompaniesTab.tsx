@@ -327,7 +327,12 @@ export default function CompaniesTab() {
               <SelectContent>
                 <SelectItem value="none">No Logo</SelectItem>
                 {adminLogos?.map(logo => (
-                  <SelectItem key={logo.id} value={String(logo.id)}>{logo.name}{logo.isDefault ? " (Default)" : ""}</SelectItem>
+                  <SelectItem key={logo.id} value={String(logo.id)}>
+                    <span className="flex items-center gap-2">
+                      <img src={logo.url} alt="" className="w-5 h-5 rounded object-contain shrink-0" />
+                      {logo.name}{logo.isDefault ? " (Default)" : ""}
+                    </span>
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>

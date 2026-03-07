@@ -59,7 +59,10 @@ export default function LogoSelector({
               {showNone && <SelectItem value="none">{emptyLabel}</SelectItem>}
               {logos?.map(logo => (
                 <SelectItem key={logo.id} value={String(logo.id)}>
-                  {logo.name}{logo.isDefault ? " (Default)" : ""}
+                  <span className="flex items-center gap-2">
+                    <img src={logo.url} alt="" className="w-5 h-5 rounded object-contain shrink-0" onError={(e) => { (e.target as HTMLImageElement).src = defaultLogo; }} />
+                    {logo.name}{logo.isDefault ? " (Default)" : ""}
+                  </span>
                 </SelectItem>
               ))}
             </SelectContent>

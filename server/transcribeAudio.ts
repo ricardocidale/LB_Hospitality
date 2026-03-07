@@ -1,4 +1,3 @@
-"use server"
 
 import { ElevenLabsClient } from "@elevenlabs/elevenlabs-js"
 import { SpeechToTextChunkResponseModel } from "@elevenlabs/elevenlabs-js/api/types/SpeechToTextChunkResponseModel"

@@ -135,7 +135,11 @@
       "Bash(pnpm dlx @elevenlabs/cli@latest components list 2>&1)",
       "Bash(pnpm dlx @elevenlabs/cli@latest components add 2>&1)",
       "Bash(cd /home/runner/workspace/client && npx @elevenlabs/cli@latest components add orb 2>&1)",
-      "Bash(printf '\\\\x03' | cat && cd /home/runner/workspace && npx @elevenlabs/cli@latest components add orb 2>&1)"
+      "Bash(printf '\\\\x03' | cat && cd /home/runner/workspace && npx @elevenlabs/cli@latest components add orb 2>&1)",
+      "Bash(npx @elevenlabs/cli@latest components add audio-player 2>&1)",
+      "Bash(echo \"N\" | npx @elevenlabs/cli@latest components add audio-player 2>&1 || true)",
+      "Bash(for comp in conversation waveform transcript; do\n  echo \"=== $comp ===\"\n  curl -s \"https://ui.elevenlabs.io/r/$comp.json\" | python3 -c \"\nimport json, sys\ndata = json.load\\(sys.stdin\\)\nprint\\('Deps:', data.get\\('dependencies', []\\)\\)\nprint\\('Files:', [f['path'] for f in data.get\\('files', []\\)]\\)\nfor f in data.get\\('files', []\\):\n    open\\('/tmp/elevenlabs-$comp.tsx', 'w'\\).write\\(f['content']\\)\n\" 2>/dev/null || echo \"Not found\"\ndone)",
+      "Bash(cp /tmp/elevenlabs-live-waveform.tsx /home/runner/workspace/client/src/components/ui/live-waveform.tsx && echo \"saved live-waveform\"\ncp /tmp/elevenlabs-conversation-bar.tsx /home/runner/workspace/client/src/components/ui/conversation-bar.tsx && echo \"saved conversation-bar\"\ncp /tmp/elevenlabs-waveform.tsx /home/runner/workspace/client/src/components/ui/waveform.tsx && echo \"saved waveform\")"
     ]
   }
 }

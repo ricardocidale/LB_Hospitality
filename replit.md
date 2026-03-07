@@ -134,6 +134,16 @@ All utility scripts live in `script/` (single canonical directory). Includes hea
 - Reference: shadcn "Line Chart - Dots Colors" pattern.
 - **Multi-series variant** ("Line Chart - Dots"): One `<Line>` per series, each with own `stroke="var(--color-seriesName)"`, simple `dot={{ fill: "var(--color-seriesName)" }}`, `activeDot={{ r: 6 }}`. `XAxis` with `tickLine={false}`, `axisLine={false}`, `tickMargin={8}`, `tickFormatter` for abbreviation. `ChartTooltipContent hideLabel`. Margins `{ left: 12, right: 12 }`.
 
+## Donut Charts (shadcn Pattern — IRR)
+- Use `ChartContainer`/`ChartTooltip`/`ChartTooltipContent` from `@/components/ui/chart`.
+- `PieChart` with `Pie` — `dataKey` for values, `nameKey` for labels, `innerRadius={60}`, `strokeWidth={5}`.
+- Each data point has a `fill` field using CSS variables (`var(--color-seriesName)`).
+- Center label via `<Label content={...}>` render prop inside `<Pie>`: `<text>` with `textAnchor="middle"` `dominantBaseline="middle"`, top `<tspan>` for bold value (`fill-foreground text-3xl font-bold`), bottom `<tspan>` for subtitle (`fill-muted-foreground`, offset `y + 24`).
+- Container: `className="mx-auto aspect-square max-h-[250px]"`.
+- `ChartTooltip cursor={false}` with `ChartTooltipContent hideLabel`.
+- Config uses `satisfies ChartConfig` with `color: "var(--chart-N)"` per slice.
+- Reference: shadcn "Pie Chart - Donut with Text" pattern.
+
 ## Norfolk AI Logos
 - `norfolk-ai-wireframe.png` — thin outline strokes, dim on dark backgrounds (avoid for login)
 - `norfolk-ai-blue.png` — solid fill, good visibility (used on login page)

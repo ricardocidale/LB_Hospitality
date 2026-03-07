@@ -393,38 +393,22 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
             <div className="bg-white/95 backdrop-blur-xl rounded-2xl border border-white/50 shadow-sm p-6">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h3 className="text-lg font-semibold text-[#2d4a5e] font-display">Revenue, NOI & Cash Flow</h3>
+                  <h3 className="text-lg font-semibold text-[#2d4a5e] font-display">Net Operating Income</h3>
                   <p className="text-sm text-[#2d4a5e]/50 label-text">{investmentHorizon}-year consolidated projection</p>
                 </div>
                 <div className="flex items-center gap-4 text-xs label-text">
                   <span className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#9FBCA4' }} />
-                    Revenue
-                  </span>
-                  <span className="flex items-center gap-1.5">
                     <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#257D41' }} />
                     NOI
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#2d4a5e' }} />
-                    Cash Flow
                   </span>
                 </div>
               </div>
               <ResponsiveContainer width="100%" height={280}>
                 <AreaChart data={revenueNOIData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
                   <defs>
-                    <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#9FBCA4" stopOpacity={0.3} />
-                      <stop offset="100%" stopColor="#9FBCA4" stopOpacity={0.02} />
-                    </linearGradient>
                     <linearGradient id="noiGrad" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor="#257D41" stopOpacity={0.25} />
                       <stop offset="100%" stopColor="#257D41" stopOpacity={0.02} />
-                    </linearGradient>
-                    <linearGradient id="cfGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#2d4a5e" stopOpacity={0.2} />
-                      <stop offset="100%" stopColor="#2d4a5e" stopOpacity={0.02} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(45,74,94,0.08)" vertical={false} />
@@ -437,12 +421,10 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                     width={60}
                   />
                   <Tooltip
-                    formatter={(value: number, name: string) => [formatMoney(value), name === 'revenue' ? 'Revenue' : name === 'noi' ? 'NOI' : 'Cash Flow']}
+                    formatter={(value: number) => [formatMoney(value), 'NOI']}
                     contentStyle={{ borderRadius: 12, border: '1px solid rgba(0,0,0,0.06)', fontSize: 12, boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}
                   />
-                  <Area type="monotone" dataKey="revenue" stroke="#9FBCA4" strokeWidth={2.5} fill="url(#revGrad)" dot={false} />
                   <Area type="monotone" dataKey="noi" stroke="#257D41" strokeWidth={2.5} fill="url(#noiGrad)" dot={false} />
-                  <Area type="monotone" dataKey="cashFlow" stroke="#2d4a5e" strokeWidth={2.5} fill="url(#cfGrad)" dot={false} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
